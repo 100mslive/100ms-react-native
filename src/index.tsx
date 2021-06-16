@@ -5,8 +5,7 @@ type HmssdkProps = {
   style: ViewStyle;
 };
 
-export const HmssdkViewManager = requireNativeComponent<HmssdkProps>(
-'HmssdkView'
-);
+export const HmssdkViewManager =
+  requireNativeComponent<HmssdkProps>('HmssdkView');
 
 export default HmssdkViewManager;
