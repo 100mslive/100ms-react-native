@@ -30,7 +30,7 @@ class HmssdkView : UIView {
     }
 
     let reuseIdentifier = "cell"
-    var collectionView = UICollectionView(frame: CGRect(x: 0, y: 0, width: 300.0, height: 600.0), collectionViewLayout: UICollectionViewFlowLayout() )
+    var collectionView = UICollectionView(frame: CGRect(x: 0, y: 0, width: 350.0, height: 700.0), collectionViewLayout: UICollectionViewFlowLayout() )
 
     @objc var roomId: String? {
       didSet {
@@ -63,6 +63,8 @@ class HmssdkView : UIView {
     @objc var isMute: Bool = false {
       didSet {
         // set current user Mute
+        hms?.localPeer?.localAudioTrack()?.setMute(isMute)
+//        hms?.localPeer?.localVideoTrack()?.switchCamera()
       }
     }
     
@@ -85,8 +87,7 @@ class HmssdkView : UIView {
         }
         super.init(frame: frame)
         hms = HMSSDK.build()
-        collectionView.backgroundColor=#colorLiteral(red: 0.9254902005, green: 0.2352941185, blue: 0.1019607857, alpha: 1)
-//        collectionView.reactSetFrame(frame)
+        collectionView.backgroundColor=#colorLiteral(red: 0.1019607857, green: 0.2784313858, blue: 0.400000006, alpha: 1)
         self.addSubview(collectionView)
         self.frame = frame
         collectionView.delegate = self
@@ -111,7 +112,7 @@ class HmssdkView : UIView {
         let g = CGFloat(Int(color >> 8) & 0x000000FF)
         let b = CGFloat(Int(color) & 0x000000FF)
 
-        return UIColor(red: r / 255.0, green: g / 255.0, blue: 1.0, alpha: 0.2)
+        return UIColor(red: r / 255.0, green: g / 255.0, blue: b / 255.0, alpha: 0.2)
     }
     
     func initializeSDK() {
