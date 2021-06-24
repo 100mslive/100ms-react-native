@@ -7,6 +7,8 @@ type HmssdkProps = {
   authToken: string;
   userId: string;
   layout: { width: number; height: number };
+  isMute: boolean;
+  switchCamera: boolean;
 };
 
 export const HmssdkViewManager =

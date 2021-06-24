@@ -16,6 +16,12 @@ class HmssdkView : UIView {
     var videoTracks = [HMSVideoTrack]()
     var initialized = false
     
+    @objc var switchCamera:Bool = false {
+      didSet {
+        hms?.localPeer?.localVideoTrack()?.switchCamera()
+      }
+    }
+    
     @objc var color: String = "" {
       didSet {
         self.backgroundColor = hexStringToUIColor(hexColor: color)
@@ -42,21 +48,6 @@ class HmssdkView : UIView {
     @objc var userId: String? {
       didSet {
         initializeSDK()
-        // nothing to do here but this room Id is required
-//        print("we are here in setting the label");
-//        let labelView = UILabel()
-//  //      labelView.text = userId
-//        labelView.font = UIFont(name:"GillSans-Italic", size: 20)
-//        labelView.backgroundColor = #colorLiteral(red: 0.8, green: 0.5, blue: 0.1, alpha: 1.0)
-//        labelView.text="asudbansd"
-//        print("updated everything")
-//        print("userId \(String(describing: userId))")
-//        let width = self.superview?.frame.size.width
-//        let height = self.frame.size.height
-//        print("\(width ?? 1000) \(height) width and height")
-//        labelView.frame = CGRect(x: 0, y: 0, width: width ?? 0.0, height: height)
-//        self.addSubview(labelView)
-  //        labelView.frame = currentFrame!
       }
     }
 

@@ -1,8 +1,16 @@
 import * as React from 'react';
 
-import { StyleSheet, View, TextInput, Button, Dimensions } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  TextInput,
+  Button,
+  Dimensions,
+  Text,
+} from 'react-native';
 import * as services from './service.js';
 import HmssdkViewManager from 'react-native-hmssdk';
+import { TouchableOpacity } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -27,6 +35,8 @@ export default function App() {
   const [roomId, setRoomId] = React.useState('60c894b331e717b8a9fcfccb');
   const [role, setRole] = React.useState('host');
   const [token, setToken] = React.useState('');
+  const [isMute, setIsMute] = React.useState(false);
+  const [switchCamera, setSwitchCamera] = React.useState(false);
 
   console.log(token, role, roomId, userId, 'token role roomId userId');
 
@@ -65,8 +75,18 @@ export default function App() {
             authToken={token}
             style={styles.box}
             layout={{ width, height }}
+            isMute={isMute}
+            switchCamera={switchCamera}
           />
         )}
+        <View style={styles.iconContainers}>
+          <TouchableOpacity onPress={() => setIsMute(!isMute)}>
+            <Text style={styles.buttonText}>{isMute ? 'Un-Mute' : 'Mute'}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setSwitchCamera(!switchCamera)}>
+            <Text style={styles.buttonText}>Switch-Camera</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
 }
@@ -93,5 +113,23 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'black',
     paddingLeft: 10,
+  },
+  iconContainers: {
+    display: 'flex',
+    flexDirection: 'row',
+    position: 'absolute',
+    justifyContent: 'space-around',
+    bottom: 0,
+    paddingBottom: 26,
+    width: '100%',
+    left: 0,
+    right: 0,
+    zIndex: 500,
+  },
+
+  buttonText: {
+    backgroundColor: '#4578e0',
+    padding: 10,
+    borderRadius: 10,
   },
 });
