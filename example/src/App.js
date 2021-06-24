@@ -1,8 +1,10 @@
 import * as React from 'react';
 
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Dimensions } from 'react-native';
 import * as services from './service.js';
 import HmssdkViewManager from 'react-native-hmssdk';
+
+const { width, height } = Dimensions.get('window');
 
 const callService = async (userId, roomId, role, setToken) => {
   const response = await services.fetchToken({
@@ -39,6 +41,7 @@ export default function App() {
           roomId={roomId}
           authToken={token}
           style={styles.box}
+          layout={{ width, height }}
         />
       )}
     </View>

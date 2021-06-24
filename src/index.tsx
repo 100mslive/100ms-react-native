@@ -6,6 +6,7 @@ type HmssdkProps = {
   roomId: string;
   authToken: string;
   userId: string;
+  layout: { width: number; height: number };
 };
 
 export const HmssdkViewManager =

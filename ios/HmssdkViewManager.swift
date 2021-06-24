@@ -66,6 +66,15 @@ class HmssdkView : UIView {
       }
     }
     
+    @objc var layout: NSDictionary? {
+      didSet {
+        // nothing to do here but this room Id is required
+        let width: CGFloat = layout?.value(forKey: "width") as! CGFloat
+        let height: CGFloat = layout?.value(forKey: "height") as! CGFloat
+        collectionView.frame = CGRect(x: 0,y: 0, width: width, height: height)
+      }
+    }
+    
     override init(frame: CGRect) {
         AVCaptureDevice.requestAccess(for: .video) { granted in
             print(#function, "permission granted: ", granted)
@@ -77,6 +86,7 @@ class HmssdkView : UIView {
         super.init(frame: frame)
         hms = HMSSDK.build()
         collectionView.backgroundColor=#colorLiteral(red: 0.9254902005, green: 0.2352941185, blue: 0.1019607857, alpha: 1)
+//        collectionView.reactSetFrame(frame)
         self.addSubview(collectionView)
         self.frame = frame
         collectionView.delegate = self
