@@ -37,19 +37,7 @@ class HmssdkView : UIView {
         }
     }
 
-    @objc var authToken: String? {
-        didSet {
-            initializeSDK()
-        }
-    }
-
-    @objc var roomId: String? {
-        didSet {
-            initializeSDK()
-        }
-    }
-
-    @objc var userId: String? {
+    @objc var credentials: NSDictionary? {
         didSet {
             initializeSDK()
         }
@@ -115,7 +103,7 @@ class HmssdkView : UIView {
     
     func initializeSDK() {
         // join the room if all required values are available
-        if let jwtToken = authToken, let user = userId, let room = roomId {
+        if let jwtToken = credentials?.value(forKey: "authToken") as! String?, let user = credentials?.value(forKey: "userId") as! String?, let room = credentials?.value(forKey: "roomId") as! String? {
             // join only if not already initialized
             if !initialized {
                 initialized = true

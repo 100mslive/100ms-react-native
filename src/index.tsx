@@ -3,9 +3,7 @@ import { requireNativeComponent, ViewStyle } from 'react-native';
 type HmssdkProps = {
   color: string;
   style: ViewStyle;
-  roomId: string;
-  authToken: string;
-  userId: string;
+  credentials: { authToken: string; userId: string; roomId: string };
   layout: { width: number; height: number };
   isMute: boolean;
   switchCamera: boolean;
