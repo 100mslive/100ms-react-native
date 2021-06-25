@@ -37,6 +37,7 @@ export default function App() {
   const [token, setToken] = React.useState('');
   const [isMute, setIsMute] = React.useState(false);
   const [switchCamera, setSwitchCamera] = React.useState(false);
+  const [muteVideo, setMuteVideo] = React.useState(false);
 
   console.log(token, role, roomId, userId, 'token role roomId userId');
 
@@ -77,6 +78,7 @@ export default function App() {
             layout={{ width, height }}
             isMute={isMute}
             switchCamera={switchCamera}
+            muteVideo={muteVideo}
           />
         )}
         <View style={styles.iconContainers}>
@@ -85,6 +87,11 @@ export default function App() {
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setSwitchCamera(!switchCamera)}>
             <Text style={styles.buttonText}>Switch-Camera</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setMuteVideo(!muteVideo)}>
+            <Text style={styles.buttonText}>
+              {muteVideo ? 'Camera-On' : 'Camera-Off'}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -131,5 +138,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#4578e0',
     padding: 10,
     borderRadius: 10,
+    color: '#efefef',
   },
 });

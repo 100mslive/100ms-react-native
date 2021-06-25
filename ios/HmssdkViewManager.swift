@@ -22,6 +22,12 @@ class HmssdkView : UIView {
       }
     }
     
+    @objc var muteVideo: Bool = false {
+        didSet {
+            hms?.localPeer?.localVideoTrack()?.setMute(muteVideo)
+        }
+    }
+    
     @objc var color: String = "" {
       didSet {
         self.backgroundColor = hexStringToUIColor(hexColor: color)

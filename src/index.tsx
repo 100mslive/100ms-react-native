@@ -9,6 +9,7 @@ type HmssdkProps = {
   layout: { width: number; height: number };
   isMute: boolean;
   switchCamera: boolean;
+  muteVideo: boolean;
 };
 
 export const HmssdkViewManager =
