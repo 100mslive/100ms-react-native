@@ -22,7 +22,7 @@ const callService = async (userId, roomId, role, setToken) => {
   });
 
   if (response.error) {
-    console.log(response.error);
+    // TODO: handle errors from API
   } else {
     setToken(response.token);
   }
@@ -38,8 +38,6 @@ export default function App() {
   const [isMute, setIsMute] = React.useState(false);
   const [switchCamera, setSwitchCamera] = React.useState(false);
   const [muteVideo, setMuteVideo] = React.useState(false);
-
-  console.log(token, role, roomId, userId, 'token role roomId userId');
 
   if (userId === '') {
     return (

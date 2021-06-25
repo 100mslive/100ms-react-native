@@ -17,7 +17,5 @@ export const fetchToken = async ({ roomId, userId, role }) => {
   });
 
   const result = await response.json();
-
-  console.log(result, 'token');
   return result;
 };

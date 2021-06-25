@@ -4,9 +4,9 @@ import AVKit
 @objc(HmssdkViewManager)
 class HmssdkViewManager: RCTViewManager {
 
-  override func view() -> (HmssdkView) {
-    return HmssdkView()
-  }
+    override func view() -> (HmssdkView) {
+        return HmssdkView()
+    }
 }
 
 class HmssdkView : UIView {
@@ -17,9 +17,9 @@ class HmssdkView : UIView {
     var initialized = false
     
     @objc var switchCamera:Bool = false {
-      didSet {
-        hms?.localPeer?.localVideoTrack()?.switchCamera()
-      }
+        didSet {
+            hms?.localPeer?.localVideoTrack()?.switchCamera()
+        }
     }
     
     @objc var muteVideo: Bool = false {
@@ -29,61 +29,63 @@ class HmssdkView : UIView {
     }
     
     @objc var color: String = "" {
-      didSet {
-        self.backgroundColor = hexStringToUIColor(hexColor: color)
-      }
+        didSet {
+            self.backgroundColor = hexStringToUIColor(hexColor: color)
+        }
     }
 
     @objc var authToken: String? {
-      didSet {
-        initializeSDK()
-        // call the UICollectionView here
-      }
+        didSet {
+            initializeSDK()
+        }
     }
 
     let reuseIdentifier = "cell"
     var collectionView = UICollectionView(frame: CGRect(x: 0, y: 0, width: 350.0, height: 700.0), collectionViewLayout: UICollectionViewFlowLayout() )
 
     @objc var roomId: String? {
-      didSet {
-        initializeSDK()
-        // nothing to do here but this room Id is required
-      }
+        didSet {
+            initializeSDK()
+        }
     }
 
     @objc var userId: String? {
-      didSet {
-        initializeSDK()
-      }
+        didSet {
+            initializeSDK()
+        }
     }
 
     @objc var isMute: Bool = false {
-      didSet {
-        // set current user Mute
-        hms?.localPeer?.localAudioTrack()?.setMute(isMute)
-//        hms?.localPeer?.localVideoTrack()?.switchCamera()
-      }
+        didSet {
+            // set current user Mute
+            hms?.localPeer?.localAudioTrack()?.setMute(isMute)
+        }
     }
     
     @objc var layout: NSDictionary? {
-      didSet {
-        // nothing to do here but this room Id is required
-        let width: CGFloat = layout?.value(forKey: "width") as! CGFloat
-        let height: CGFloat = layout?.value(forKey: "height") as! CGFloat
-        collectionView.frame = CGRect(x: 0,y: 0, width: width, height: height)
-      }
+        didSet {
+            // nothing to do here but this room Id is required
+            let width: CGFloat = layout?.value(forKey: "width") as! CGFloat
+            let height: CGFloat = layout?.value(forKey: "height") as! CGFloat
+            collectionView.frame = CGRect(x: 0,y: 0, width: width, height: height)
+        }
     }
     
     override init(frame: CGRect) {
         AVCaptureDevice.requestAccess(for: .video) { granted in
+            // Permission Acquired if value of 'granted' is true
             print(#function, "permission granted: ", granted)
         }
                 
         AVCaptureDevice.requestAccess(for: .audio) { granted in
+            // Permission Acquired if value of 'granted' is true
             print(#function, "permission granted: ", granted)
         }
+        
         super.init(frame: frame)
         hms = HMSSDK.build()
+        
+        // Adding collection view to Component.
         collectionView.backgroundColor=#colorLiteral(red: 0.1019607857, green: 0.2784313858, blue: 0.400000006, alpha: 1)
         self.addSubview(collectionView)
         self.frame = frame
@@ -94,7 +96,7 @@ class HmssdkView : UIView {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-      }
+    }
 
     func hexStringToUIColor(hexColor: String) -> UIColor {
         let stringScanner = Scanner(string: hexColor)
@@ -113,13 +115,10 @@ class HmssdkView : UIView {
     }
     
     func initializeSDK() {
-        print("initialize SDK")
-        print("\(authToken) \(userId) \(roomId)")
+        // join the room if all required values are available
         if let jwtToken = authToken, let user = userId, let room = roomId {
-            if initialized {
-                print("already init")
-            }
-            else {
+            // join only if not already initialized
+            if !initialized {
                 initialized = true
                 config = HMSConfig(userID: user, roomID: room, authToken: jwtToken)
                 hms?.join(config: config!, delegate: self)
@@ -130,26 +129,25 @@ class HmssdkView : UIView {
 
 extension HmssdkView: HMSUpdateListener {
     func on(join room: HMSRoom) {
-        print("HMS Room")
-        print(room)
-        print(room.peers)
-        updateViews()
+        // Callback from join action
     }
     
     func on(room: HMSRoom, update: HMSRoomUpdate) {
-        print("HMS Room Update \(update)")
+        // Listener for any updation in room
         updateViews()
     }
     
     func on(peer: HMSPeer, update: HMSPeerUpdate) {
-        print("HMS Peer update \(update)")
+        // Listener for updates in Peers
         updateViews()
     }
     
     func on(track: HMSTrack, update: HMSTrackUpdate, for peer: HMSPeer) {
+        // Listener for updates in Tracks
         updateViews()
     }
     
+    // Update function that sync up current room configurations
     func updateViews() {
         var newVideoTracks = [HMSVideoTrack]()
         if let localVideo = hms?.localPeer?.videoTrack {
@@ -169,46 +167,46 @@ extension HmssdkView: HMSUpdateListener {
     }
     
     func on(error: HMSError) {
-        print("HMS Error")
+        // TODO: errors to be handled here
     }
     
     func on(message: HMSMessage) {
-        print("HMS Message")
+        // TODO: HMS message handling
     }
     
     func on(updated speakers: [HMSSpeaker]) {
-        print("HMS Speaker")
+        // TODO: HMS speaker updates
     }
     
     func onReconnecting() {
-        print("8")
+        // TODO: Reconnection feedback to be dispatched from here
     }
     
     func onReconnected() {
-        print("9")
+        // TODO: Reconnected feedack to be dispatched from here
     }
 }
 
 extension HmssdkView: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
+    // Returns count of video tracks to be displayed on collectionVIew
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        print("collectionView length calculator \(videoTracks.count)")
         return videoTracks.count
     }
     
+    // returns a collectionViewCell for a single track, called for each cell once
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "videoCell", for: indexPath) as? VideoCollectionViewCell, indexPath.item < videoTracks.count else {
             return UICollectionViewCell()
         }
-        print("collectionView Track finder")
         let track = videoTracks[indexPath.item]
         cell.videoView.setVideoTrack(track)
         
         return cell
     }
     
+    // returns collectionViewCell size for each cell
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         var result = CGSize.zero
-        print("collectionView size finder")
         
         result.width = floor(collectionView.frame.size.width / 2.0 - 15.0)
         result.height = floor(collectionView.frame.size.height / 2.0)
