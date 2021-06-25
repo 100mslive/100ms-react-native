@@ -43,8 +43,11 @@ https://github.com/lavi-moolchandani/hmssdk.git
 
 ## Permissions
 for iOS add these permissions in your info.plist file
+
 Privacy - Local Network Usage Description
+
 Privacy - Microphone Usage Description
+
 Privacy - Camera Usage Description
 
 
