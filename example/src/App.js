@@ -68,7 +68,7 @@ export default function App() {
       <View style={styles.container}>
         {token !== '' && (
           <HmssdkViewManager
-            color="#32a852"
+            color="#32a8d2"
             userId={userId}
             roomId={roomId}
             authToken={token}

@@ -15,12 +15,19 @@ import Hmssdk from "react-native-hmssdk";
 
 // ...
 
-const result = await Hmssdk.multiply(3, 7);
+<HmssdkViewManager
+  color="#32a852"
+  userId={userId}
+  roomId={roomId}
+  authToken={token}
+  style={styles.box}
+  layout={{ width, height }}
+  isMute={isMute}
+  switchCamera={switchCamera}
+  muteVideo={muteVideo}
+/>
+
 ```
-
-## Contributing
-
-See the [contributing guide](CONTRIBUTING.md) to learn how to contribute to the repository and the development workflow.
 
 ## License
 

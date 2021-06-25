@@ -15,6 +15,9 @@ class HmssdkView : UIView {
     var config: HMSConfig?
     var videoTracks = [HMSVideoTrack]()
     var initialized = false
+
+    let reuseIdentifier = "cell"
+    var collectionView = UICollectionView(frame: CGRect(x: 0, y: 0, width: 350.0, height: 700.0), collectionViewLayout: UICollectionViewFlowLayout() )
     
     @objc var switchCamera:Bool = false {
         didSet {
@@ -30,7 +33,7 @@ class HmssdkView : UIView {
     
     @objc var color: String = "" {
         didSet {
-            self.backgroundColor = hexStringToUIColor(hexColor: color)
+            collectionView.backgroundColor = hexStringToUIColor(hexColor: color)
         }
     }
 
@@ -39,9 +42,6 @@ class HmssdkView : UIView {
             initializeSDK()
         }
     }
-
-    let reuseIdentifier = "cell"
-    var collectionView = UICollectionView(frame: CGRect(x: 0, y: 0, width: 350.0, height: 700.0), collectionViewLayout: UICollectionViewFlowLayout() )
 
     @objc var roomId: String? {
         didSet {
@@ -86,7 +86,6 @@ class HmssdkView : UIView {
         hms = HMSSDK.build()
         
         // Adding collection view to Component.
-        collectionView.backgroundColor=#colorLiteral(red: 0.1019607857, green: 0.2784313858, blue: 0.400000006, alpha: 1)
         self.addSubview(collectionView)
         self.frame = frame
         collectionView.delegate = self
