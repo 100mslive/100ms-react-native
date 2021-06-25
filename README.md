@@ -17,9 +17,7 @@ import Hmssdk from "react-native-hmssdk";
 
 <HmssdkViewManager
   color="#32a852"
-  userId={userId}
-  roomId={roomId}
-  authToken={token}
+  credentials={{ userId, roomId, authToken }}
   style={styles.box}
   layout={{ width, height }}
   isMute={isMute}
@@ -29,14 +27,27 @@ import Hmssdk from "react-native-hmssdk";
 
 ```
 
+## Setup and installation
+
+clone the project by using commands
+
+ssh
+```
+git@github.com:lavi-moolchandani/hmssdk.git
+```
+
+or http
+```
+https://github.com/lavi-moolchandani/hmssdk.git
+```
+
+
 ## Props
 
 | Prop                | Description                                                              |
 | ------------------- | ------------------------------------------------------------------------ |
 | **`color`**         | Sets the background color of component                                   |
-| **`userId`**        | Sets the user ID of current user                                         |
-| **`roomId`**        | Sets the room ID that users desires to enter                             |
-| **`authToken`**     | Required JWT token in order to join the room                             |
+| **`credentials`**   | Set required credentials of user: { userId, roomId, authToken }          | 
 | **`style`**         | Style properties of outer component                                      |
 | **`layout`**        | Object that takes width and height to set the component size.            |
 | **`isMute`**        | Boolean value to switch current user's microphone (on/off)               |
