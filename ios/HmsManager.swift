@@ -25,7 +25,16 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener {
     func on(join room: HMSRoom) {
         // Callback from join action
         print("ON_JOIN \(room.peers[0].videoTrack?.trackId)")
-        self.sendEvent(withName: ON_JOIN, body: ["event": "ON_JOIN", "trackId": room.peers[0].videoTrack?.trackId])
+        let remotePeers = hms?.remotePeers
+        var remoteTracks: [String] = []
+        for peer in remotePeers ?? [] {
+            let remoteTrackId = peer.videoTrack?.trackId
+            if let trackId = remoteTrackId {
+                remoteTracks.append(trackId)
+            }
+        }
+        
+        self.sendEvent(withName: ON_JOIN, body: ["event": "ON_JOIN", "trackId": room.peers[0].videoTrack?.trackId, "remoteTracks": remoteTracks])
     }
 
     func on(room: HMSRoom, update: HMSRoomUpdate) {
@@ -41,6 +50,13 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener {
     func on(track: HMSTrack, update: HMSTrackUpdate, for peer: HMSPeer) {
         // Listener for updates in Tracks
         print("TRACK")
+        let remotePeers = hms?.remotePeers
+        var remoteTracks: [String] = []
+        for peer in remotePeers ?? [] {
+            let trackId = peer.videoTrack?.trackId
+            remoteTracks.append(trackId!)
+        }
+        self.sendEvent(withName: ON_JOIN, body: ["event": "ON_JOIN", "trackId": hms?.localPeer?.videoTrack?.trackId, "remoteTracks": remoteTracks])
     }
 
     // Update function that sync up current room configurations
@@ -86,12 +102,14 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener {
         let remotePeers = hms?.remotePeers
         var remoteTracks: [String] = []
         for peer in remotePeers ?? [] {
-            let trackId = peer.remoteVideoTrack()?.trackId
+            let trackId = peer.videoTrack?.trackId
             
             remoteTracks.append(trackId!)
         }
         
-        let returnObject: NSDictionary = ["remoteTracks" : remoteTracks, "localTrackId": localTrackId]
+        print(localTrackId)
+        print(remoteTracks)
+        let returnObject: NSDictionary = ["remoteTracks" : remoteTracks, "localTrackId": localTrackId ?? ""]
         callback([returnObject])
 
     }

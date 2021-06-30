@@ -35,6 +35,7 @@ class HmssdkDisplayView: UIView {
             print("trackId set")
             if let videoTrack = hms?.localPeer?.videoTrack {
                 if videoTrack.trackId == trackId {
+                    print("found one")
                     videoView.setVideoTrack(videoTrack)
                     return
                 }

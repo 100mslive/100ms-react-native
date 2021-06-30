@@ -48,6 +48,9 @@ export default function App() {
     if (data.trackId) {
       setTrackId(data.trackId);
     }
+    if (data.remoteTracks && data.remoteTracks.length) {
+      setRemoteTrackIds(data.remoteTracks);
+    }
   };
 
   const callBackFailed = (data) => {
@@ -101,9 +104,16 @@ export default function App() {
         {token !== '' && <View />}
         {trackId !== '' && (
           <View style={styles.videoView}>
-            <HmsView style={styles.hmsView} trackId={trackId} />
+            <View style={styles.singleVideo}>
+              <HmsView style={styles.hmsView} trackId={trackId} />
+            </View>
             {remoteTrackIds.map((item) => {
-              return <HmsView trackId={item} style={styles.videoView} />;
+              console.log('here we are', item);
+              return (
+                <View key={item} style={styles.singleVideo}>
+                  <HmsView trackId={item} style={styles.hmsView} />
+                </View>
+              );
             })}
           </View>
         )}
@@ -180,8 +190,14 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     display: 'flex',
-    flexDirection: 'row',
+    flexDirection: 'column',
     flexWrap: 'wrap',
+  },
+  singleVideo: {
+    flex: 1,
+    backgroundColor: 'red',
+    width: '100%',
+    height: '50%',
   },
   hmsView: {
     height: '100%',
