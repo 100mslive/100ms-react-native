@@ -1,15 +1,16 @@
 import * as React from 'react';
 
-import {
+import ReactNative, {
   StyleSheet,
   View,
   TextInput,
   Button,
   Dimensions,
   Text,
+  UIManager,
 } from 'react-native';
 import * as services from './service.js';
-import HmssdkViewManager from 'react-native-hmssdk';
+import HmsManager, { addEventListener, HmsView } from 'react-native-hmssdk';
 import { TouchableOpacity } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
@@ -24,6 +25,7 @@ const callService = async (userId, roomId, role, setToken) => {
   if (response.error) {
     // TODO: handle errors from API
   } else {
+    console.log('here 4');
     setToken(response.token);
   }
   return response;
@@ -38,6 +40,35 @@ export default function App() {
   const [isMute, setIsMute] = React.useState(false);
   const [switchCamera, setSwitchCamera] = React.useState(false);
   const [muteVideo, setMuteVideo] = React.useState(false);
+  const [trackId, setTrackId] = React.useState('');
+  const [remoteTrackIds, setRemoteTrackIds] = React.useState([]);
+
+  const callBackSuccess = (data) => {
+    console.log(data, 'data is here');
+    if (data.trackId) {
+      setTrackId(data.trackId);
+    }
+  };
+
+  const callBackFailed = (data) => {
+    console.log(data, 'data in failed');
+  };
+
+  let ref = React.useRef();
+
+  React.useEffect(() => {
+    console.log('here 3');
+    console.log(ref.current, typeof HmssdkViewManager, 'current');
+  }, []);
+
+  React.useEffect(() => {
+    console.log('here 2');
+    if (userId !== '' && token !== '') {
+      console.log('here 555');
+      HmsManager.join({ authToken: token, userId, roomId });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
   if (userId === '') {
     return (
@@ -56,7 +87,8 @@ export default function App() {
             onPress={() => {
               if (text !== '') {
                 setUserId(text);
-                callService(userId, roomId, role, setToken);
+                callService(text, roomId, role, setToken);
+                addEventListener(callBackSuccess);
               }
             }}
           />
@@ -66,23 +98,27 @@ export default function App() {
   } else
     return (
       <View style={styles.container}>
-        {token !== '' && (
-          <HmssdkViewManager
-            color="#32a8d2"
-            credentials={{
-              userId,
-              roomId,
-              authToken: token,
-            }}
-            style={styles.box}
-            layout={{ width, height }}
-            isMute={isMute}
-            switchCamera={switchCamera}
-            muteVideo={muteVideo}
-          />
+        {token !== '' && <View />}
+        {trackId !== '' && (
+          <View style={styles.videoView}>
+            <HmsView style={styles.hmsView} trackId={trackId} />
+            {remoteTrackIds.map((item) => {
+              return <HmsView trackId={item} style={styles.videoView} />;
+            })}
+          </View>
         )}
         <View style={styles.iconContainers}>
-          <TouchableOpacity onPress={() => setIsMute(!isMute)}>
+          <TouchableOpacity
+            onPress={async () => {
+              setIsMute(!isMute);
+              const trackIds = await HmsManager.getTrackIds(
+                ({ remoteTracks, localTrackId }) => {
+                  console.log(remoteTracks, localTrackId);
+                  setRemoteTrackIds(remoteTracks);
+                }
+              );
+            }}
+          >
             <Text style={styles.buttonText}>{isMute ? 'Un-Mute' : 'Mute'}</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setSwitchCamera(!switchCamera)}>
@@ -139,5 +175,16 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     color: '#efefef',
+  },
+  videoView: {
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  hmsView: {
+    height: '100%',
+    width: '100%',
   },
 });

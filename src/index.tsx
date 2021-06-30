@@ -1,16 +1,22 @@
-import { requireNativeComponent, ViewStyle } from 'react-native';
+import {
+  NativeModules,
+  NativeEventEmitter,
+  requireNativeComponent,
+  ViewStyle,
+} from 'react-native';
 
-type HmssdkProps = {
-  color: string;
+const HmsManager = NativeModules.HmsManager;
+
+const HmsManagerInstance = new NativeEventEmitter(HmsManager);
+
+export const addEventListener = (callback: any) =>
+  HmsManagerInstance.addListener('ON_JOIN', callback);
+
+interface HmsViewProps {
+  trackId: string;
   style: ViewStyle;
-  credentials: { authToken: string; userId: string; roomId: string };
-  layout: { width: number; height: number };
-  isMute: boolean;
-  switchCamera: boolean;
-  muteVideo: boolean;
-};
+}
 
-export const HmssdkViewManager =
-  requireNativeComponent<HmssdkProps>('HmssdkView');
+export const HmsView = requireNativeComponent<HmsViewProps>('HmsView');
 
-export default HmssdkViewManager;
+export default HmsManager;
