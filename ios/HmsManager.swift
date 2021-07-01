@@ -54,7 +54,9 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener {
         var remoteTracks: [String] = []
         for peer in remotePeers ?? [] {
             let trackId = peer.videoTrack?.trackId
-            remoteTracks.append(trackId!)
+            if let track = trackId {
+                remoteTracks.append(track)
+            }
         }
         self.sendEvent(withName: ON_JOIN, body: ["event": "ON_JOIN", "trackId": hms?.localPeer?.videoTrack?.trackId, "remoteTracks": remoteTracks])
     }
