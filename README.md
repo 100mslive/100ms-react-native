@@ -27,7 +27,7 @@ import Hmssdk from "react-native-hmssdk";
 
 ```
 
-## Setup and installation
+## Setup and installation for example app
 
 clone the project by using commands
 
@@ -40,6 +40,15 @@ or http
 ```
 https://github.com/lavi-moolchandani/hmssdk.git
 ```
+
+## Permissions
+for iOS add these permissions in your info.plist file
+
+Privacy - Local Network Usage Description
+
+Privacy - Microphone Usage Description
+
+Privacy - Camera Usage Description
 
 
 ## Props
