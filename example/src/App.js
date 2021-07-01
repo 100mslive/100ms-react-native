@@ -205,12 +205,18 @@ const styles = StyleSheet.create({
   },
   singleVideo: {
     flex: 1,
-    backgroundColor: 'red',
     width: '100%',
     height: '50%',
   },
   hmsView: {
     height: '100%',
     width: '100%',
+  },
+  localVideo: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    width: 200,
+    height: 500,
   },
 });

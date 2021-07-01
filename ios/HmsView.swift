@@ -39,7 +39,8 @@ class HmssdkDisplayView: UIView {
                     videoView.setVideoTrack(videoTrack)
                     return
                 }
-            } else if let remotePeers = hms?.remotePeers {
+            }
+            if let remotePeers = hms?.remotePeers {
                 for peer in remotePeers {
                     if let remoteTrackId = peer.videoTrack?.trackId {
                         if remoteTrackId == trackId {
