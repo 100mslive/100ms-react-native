@@ -11,19 +11,27 @@ npm install react-native-hmssdk
 ## Usage
 
 ```js
-import Hmssdk from "react-native-hmssdk";
+import HmsManager, {HmsView} from "react-native-hmssdk";
 
-// ...
+// Joining the room
+HmsManager.join()
 
-<HmssdkViewManager
-  color="#32a852"
-  credentials={{ userId, roomId, authToken }}
-  style={styles.box}
-  layout={{ width, height }}
-  isMute={isMute}
-  switchCamera={switchCamera}
-  muteVideo={muteVideo}
-/>
+// attach event listener for join action
+HmsManager.addEventListener('ON_JOIN', callBackSuccess);
+
+// define callback success
+const callBackSuccess = (data) => {
+  // get track Ids after join successful
+  HmsManager.getTrackIds(
+    ({ remoteTracks, localTrackId }) => {
+      setLocalTrackId(localTrackId)
+      setRemoteTrackIds(remoteTracks);
+    });
+};
+
+// display video feed of a track in HmsView Component
+<HmsView trackId={localTrackId} style={styles.view} />
+
 
 ```
 
@@ -51,17 +59,24 @@ Privacy - Microphone Usage Description
 Privacy - Camera Usage Description
 
 
-## Props
+## Hms Manager functions
 
-| Prop                | Description                                                              |
-| ------------------- | ------------------------------------------------------------------------ |
-| **`color`**         | Sets the background color of component                                   |
-| **`credentials`**   | Set required credentials of user: { userId, roomId, authToken }          | 
-| **`style`**         | Style properties of outer component                                      |
-| **`layout`**        | Object that takes width and height to set the component size.            |
-| **`isMute`**        | Boolean value to switch current user's microphone (on/off)               |
-| **`switchCamera`**  | Boolean value to switch current user's camera (front/back)               |
-| **`muteVideo`**     | Boolean value to switch current user's Video streaming                   |
+| Prop                        | Description                                                              | Required Parameters
+| -------------------         | ------------------------------------------------------------------------ |-----------------------------------------
+| **`join`**                  | Takes user creadentials and joins user to the room                       | creadentials: Object({ userId, roomId, authToken })
+| **`getTrackIds`**           | Returns current track Ids in a callback -> { remoteTracks, localTrackId }| callback: Function 
+| **`setLocalPeerMute`**      | Sets mute value of local peer                                            | isMute: Boolean
+| **`setLocalPeerVideoMute`** | Sets current user's video (on/off)                                       | isMute: Boolean
+| **`switchCamera`**          | Switch current user's camera (front/back)                                | None
+| **`addEventListener`**      | Attaches event listner callback to a specific action                     | (action: "string" callback: function)
+
+## HmsView Props
+
+| Prop                        | Description                                                              |
+| -------------------         | ------------------------------------------------------------------------ |
+| **`trackId`**               | TrackId of a local/remote Peer's track that is to be rendered in View    |
+| **`style`**                 | styles to be passed for the container view of view Track                 |
+
 
 ## License
 
