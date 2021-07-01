@@ -95,6 +95,22 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener {
             hms?.join(config: config!, delegate: self)
         }
     }
+    
+    @objc
+    func setLocalMute(_ isMute: Bool) {
+        hms?.localPeer?.localAudioTrack()?.setMute(isMute)
+    }
+    
+    @objc
+    func setLocalVideoMute(_ isMute: Bool) {
+        hms?.localPeer?.localVideoTrack()?.setMute(isMute)
+    }
+    
+    @objc
+    func switchCamera() {
+        hms?.localPeer?.localVideoTrack()?.switchCamera()
+    }
+    
     @objc
     func getTrackIds(_ callback: RCTResponseSenderBlock) {
         let localTrackId = hms?.localPeer?.videoTrack?.trackId;

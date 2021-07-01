@@ -1,16 +1,5 @@
-import {
-  NativeModules,
-  NativeEventEmitter,
-  requireNativeComponent,
-  ViewStyle,
-} from 'react-native';
-
-const HmsManager = NativeModules.HmsManager;
-
-const HmsManagerInstance = new NativeEventEmitter(HmsManager);
-
-export const addEventListener = (callback: any) =>
-  HmsManagerInstance.addListener('ON_JOIN', callback);
+import { requireNativeComponent, ViewStyle } from 'react-native';
+import HmsManager from './classes/HMSSDK';
 
 interface HmsViewProps {
   trackId: string;

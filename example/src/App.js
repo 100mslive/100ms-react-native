@@ -10,7 +10,7 @@ import ReactNative, {
   UIManager,
 } from 'react-native';
 import * as services from './service.js';
-import HmsManager, { addEventListener, HmsView } from 'react-native-hmssdk';
+import HmsManager, { HmsView } from 'react-native-hmssdk';
 import { TouchableOpacity } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
@@ -44,7 +44,6 @@ export default function App() {
   const [remoteTrackIds, setRemoteTrackIds] = React.useState([]);
 
   const callBackSuccess = (data) => {
-    console.log(data, 'data is here');
     if (data.trackId) {
       setTrackId(data.trackId);
     }
@@ -57,11 +56,11 @@ export default function App() {
     console.log(data, 'data in failed');
   };
 
-  let ref = React.useRef();
+  // let ref = React.useRef();
 
   React.useEffect(() => {
     console.log('here 3');
-    console.log(ref.current, typeof HmssdkViewManager, 'current');
+    // console.log(ref.current, typeof HmssdkViewManager, 'current');
   }, []);
 
   React.useEffect(() => {
@@ -91,7 +90,7 @@ export default function App() {
               if (text !== '') {
                 setUserId(text);
                 callService(text, roomId, role, setToken);
-                addEventListener(callBackSuccess);
+                HmsManager.addEventListener('ON_JOIN', callBackSuccess);
               }
             }}
           />
@@ -121,6 +120,7 @@ export default function App() {
           <TouchableOpacity
             onPress={async () => {
               setIsMute(!isMute);
+              HmsManager.setLocalPeerMute(!isMute);
               const trackIds = await HmsManager.getTrackIds(
                 ({ remoteTracks, localTrackId }) => {
                   console.log(remoteTracks, localTrackId);
@@ -131,10 +131,20 @@ export default function App() {
           >
             <Text style={styles.buttonText}>{isMute ? 'Un-Mute' : 'Mute'}</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => setSwitchCamera(!switchCamera)}>
+          <TouchableOpacity
+            onPress={() => {
+              setSwitchCamera(!switchCamera);
+              HmsManager.switchCamera();
+            }}
+          >
             <Text style={styles.buttonText}>Switch-Camera</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => setMuteVideo(!muteVideo)}>
+          <TouchableOpacity
+            onPress={() => {
+              setMuteVideo(!muteVideo);
+              HmsManager.setLocalPeerVideoMute(!muteVideo);
+            }}
+          >
             <Text style={styles.buttonText}>
               {muteVideo ? 'Camera-On' : 'Camera-Off'}
             </Text>
