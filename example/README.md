@@ -13,6 +13,7 @@ https://github.com/lavi-moolchandani/hmssdk.git
 ```
 
 Installation of dependencies
+
 run following commands
 
 ```
@@ -34,3 +35,5 @@ Add following permissions in info.plist file
 <string>{YourAppName} wants to use your camera</string>
 
 ```
+
+This is a POC repository and only works with iOS
