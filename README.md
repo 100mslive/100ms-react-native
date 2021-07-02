@@ -6,6 +6,8 @@ React native wrapper for 100ms SDK
 
 ```sh
 npm install react-native-hmssdk
+
+cd ios/ && pod install
 ```
 
 ## Usage
@@ -13,50 +15,47 @@ npm install react-native-hmssdk
 ```js
 import HmsManager, {HmsView} from "react-native-hmssdk";
 
-// Joining the room
-HmsManager.join()
-
 // attach event listener for join action
 HmsManager.addEventListener('ON_JOIN', callBackSuccess);
 
+// Joining the room
+HmsManager.join()
+
 // define callback success
 const callBackSuccess = (data) => {
-  // get track Ids after join successful
-  HmsManager.getTrackIds(
-    ({ remoteTracks, localTrackId }) => {
-      setLocalTrackId(localTrackId)
-      setRemoteTrackIds(remoteTracks);
-    });
+  // This callback is triggered after join successful
 };
+
+// This function calls the callback function passed after successful completion
+HmsManager.getTrackIds(({remoteTrackIds, localTrackId}) => {})
 
 // display video feed of a track in HmsView Component
 <HmsView trackId={localTrackId} style={styles.view} />
 
+// Mute/Unmute current User
+HmsManager.setLocalPeerMute(isMute: Bool)
 
-```
+// Turn camera on/off
+HmsManager.setLocalPeerVideoMute(isMute: Bool)
 
-## Setup and installation for example app
+// switch camera (front/back)
+HmsManager.switchCamera()
 
-clone the project by using commands
-
-ssh
-```
-git@github.com:lavi-moolchandani/hmssdk.git
-```
-
-or http
-```
-https://github.com/lavi-moolchandani/hmssdk.git
 ```
 
 ## Permissions
-for iOS add these permissions in your info.plist file
+Add following permissions in info.plist file
+```
+<key>NSLocalNetworkUsageDescription</key>
+<string>{YourAppName} App wants to use your local network</string>
 
-Privacy - Local Network Usage Description
+<key>NSMicrophoneUsageDescription</key>
+<string>{YourAppName} wants to use your microphone</string>
 
-Privacy - Microphone Usage Description
+<key>NSCameraUsageDescription</key>
+<string>{YourAppName} wants to use your camera</string>
 
-Privacy - Camera Usage Description
+```
 
 
 ## Hms Manager functions
