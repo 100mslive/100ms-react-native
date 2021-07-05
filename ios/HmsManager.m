@@ -15,5 +15,6 @@ RCT_EXTERN_METHOD(getTrackIds: (RCTResponseSenderBlock)callback)
 RCT_EXTERN_METHOD(setLocalMute: (BOOL) isMute)
 RCT_EXTERN_METHOD(setLocalVideoMute: (BOOL) credentials)
 RCT_EXTERN_METHOD(switchCamera)
+RCT_EXTERN_METHOD(build)
 
 @end

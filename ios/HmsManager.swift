@@ -9,8 +9,6 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener {
     
     override init() {
         super.init()
-        hms = HMSSDK.build()
-        print("1234")
         AVCaptureDevice.requestAccess(for: .video) { granted in
             // Permission Acquired if value of 'granted' is true
             print(#function, "permission granted: ", granted)
@@ -88,6 +86,11 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener {
 
     override func supportedEvents() -> [String]! {
         return [ON_JOIN]
+    }
+    
+    @objc
+    func build() {
+        hms = HMSSDK.build()
     }
     
     @objc

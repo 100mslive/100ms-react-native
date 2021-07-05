@@ -13,17 +13,12 @@ let HmsSdk: HMSManager | undefined;
 
 export default class HMSManager {
   static async build() {
-    console.log('here 222');
     if (HmsSdk) {
       return HmsSdk;
     }
-    console.log('here 333');
+    HmsManager.build();
     HmsSdk = new HMSManager();
     return HmsSdk;
-  }
-
-  static async addEventListener(action: string, callback: any) {
-    await HmsManagerInstance.addListener(action, callback);
   }
 
   static async join(credentials: any) {
@@ -44,5 +39,9 @@ export default class HMSManager {
 
   static async switchCamera() {
     await HmsManager.switchCamera();
+  }
+
+  static async addEventListener(action: string, callback: any) {
+    await HmsManagerInstance.addListener(action, callback);
   }
 }

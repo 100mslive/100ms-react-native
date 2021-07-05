@@ -5,15 +5,11 @@ import ReactNative, {
   View,
   TextInput,
   Button,
-  Dimensions,
   Text,
-  UIManager,
 } from 'react-native';
 import * as services from './service.js';
 import HmsManager, { HmsView } from 'react-native-hmssdk';
 import { TouchableOpacity } from 'react-native';
-
-const { width, height } = Dimensions.get('window');
 
 const callService = async (userId, roomId, role, setToken) => {
   const response = await services.fetchToken({
@@ -40,6 +36,7 @@ export default function App() {
   const [isMute, setIsMute] = React.useState(false);
   const [switchCamera, setSwitchCamera] = React.useState(false);
   const [muteVideo, setMuteVideo] = React.useState(false);
+  const [initialized, setInitialized] = React.useState(false);
   const [trackId, setTrackId] = React.useState('');
   const [remoteTrackIds, setRemoteTrackIds] = React.useState([]);
 
@@ -64,9 +61,15 @@ export default function App() {
   }, []);
 
   React.useEffect(() => {
-    console.log('here 2');
+    if (!initialized) {
+      HmsManager.build();
+      setInitialized(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  React.useEffect(() => {
     if (userId !== '' && token !== '') {
-      console.log('here 555');
       HmsManager.join({ authToken: token, userId, roomId });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
