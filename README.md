@@ -15,6 +15,9 @@ cd ios/ && pod install
 ```js
 import HmsManager, {HmsView} from "react-native-hmssdk";
 
+// builds the SDK for HMS, required to call before any interaction with SDK
+HmsManager.build()
+
 // attach event listener for join action
 HmsManager.addEventListener('ON_JOIN', callBackSuccess);
 
