@@ -79,7 +79,7 @@ export default function App() {
   React.useEffect(() => {
     if (userId !== '' && token !== '') {
       instance.addEventListener('ON_JOIN', callBackSuccess);
-      HmsManager.join({ authToken: token, userId, roomId });
+      instance.join({ authToken: token, userId, roomId });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
