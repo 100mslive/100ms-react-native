@@ -40,6 +40,8 @@ export default function App() {
   const [trackId, setTrackId] = React.useState('');
   const [remoteTrackIds, setRemoteTrackIds] = React.useState([]);
 
+  const [instance, setInstance] = React.useState(null);
+
   const callBackSuccess = (data) => {
     if (data.trackId) {
       setTrackId(data.trackId);
@@ -51,6 +53,7 @@ export default function App() {
 
   const callBackFailed = (data) => {
     console.log(data, 'data in failed');
+    // TODO: failure handling here
   };
 
   // let ref = React.useRef();
@@ -60,9 +63,14 @@ export default function App() {
     // console.log(ref.current, typeof HmssdkViewManager, 'current');
   }, []);
 
+  const setupBuild = async () => {
+    const build = await HmsManager.build();
+    setInstance(build);
+  };
+
   React.useEffect(() => {
     if (!initialized) {
-      HmsManager.build();
+      setupBuild();
       setInitialized(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -70,6 +78,7 @@ export default function App() {
 
   React.useEffect(() => {
     if (userId !== '' && token !== '') {
+      instance.addEventListener('ON_JOIN', callBackSuccess);
       HmsManager.join({ authToken: token, userId, roomId });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -93,7 +102,6 @@ export default function App() {
               if (text !== '') {
                 setUserId(text);
                 callService(text, roomId, role, setToken);
-                HmsManager.addEventListener('ON_JOIN', callBackSuccess);
               }
             }}
           />
@@ -123,8 +131,8 @@ export default function App() {
           <TouchableOpacity
             onPress={async () => {
               setIsMute(!isMute);
-              HmsManager.setLocalPeerMute(!isMute);
-              const trackIds = await HmsManager.getTrackIds(
+              instance.setLocalPeerMute(!isMute);
+              const trackIds = await instance.getTrackIds(
                 ({ remoteTracks, localTrackId }) => {
                   console.log(remoteTracks, localTrackId);
                   setRemoteTrackIds(remoteTracks);
@@ -137,7 +145,7 @@ export default function App() {
           <TouchableOpacity
             onPress={() => {
               setSwitchCamera(!switchCamera);
-              HmsManager.switchCamera();
+              instance.switchCamera();
             }}
           >
             <Text style={styles.buttonText}>Switch-Camera</Text>
@@ -145,7 +153,7 @@ export default function App() {
           <TouchableOpacity
             onPress={() => {
               setMuteVideo(!muteVideo);
-              HmsManager.setLocalPeerVideoMute(!muteVideo);
+              instance.setLocalPeerVideoMute(!muteVideo);
             }}
           >
             <Text style={styles.buttonText}>

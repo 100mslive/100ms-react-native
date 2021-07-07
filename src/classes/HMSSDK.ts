@@ -9,39 +9,85 @@ const {
 
 const HmsManagerInstance = new NativeEventEmitter(HmsManager);
 
-let HmsSdk: HMSManager | undefined;
+let HmsSdk: HMSSDK | undefined;
 
-export default class HMSManager {
+export default class HMSSDK {
+  /**
+   * - Returns an instance of [HMSSDK]{@link HMSSDK}
+   * - This function must be called to get an instance of HMSSDK class and only then user can interact with its methods
+   *
+   * @static
+   * @returns
+   * @memberof HMSSDK
+   */
   static async build() {
     if (HmsSdk) {
       return HmsSdk;
     }
     HmsManager.build();
-    HmsSdk = new HMSManager();
+    HmsSdk = new HMSSDK();
     return HmsSdk;
   }
 
-  static async join(credentials: any) {
+  /**
+   * takes an instance of [HMSConfig]{@link HMSConfig} and joins the room
+   * after joining the room user will start receiving the events and updates of the room
+   *
+   * @param {HMSConfig} config
+   * @memberof HMSSDK
+   */
+  async join(credentials: any) {
     await HmsManager.join(credentials);
   }
 
-  static async getTrackIds(callback: any) {
+  /**
+   * This is a prototype method for interaction with native sdk will be @deprecated in future
+   *
+   * @param {*} callback
+   * @memberof HMSSDK
+   */
+  async getTrackIds(callback: any) {
     await HmsManager.getTrackIds(callback);
   }
 
-  static async setLocalPeerMute(isMute: Boolean) {
+  /**
+   * Switches Audio of current user on/off depending upon the value of isMute
+   *
+   * @param {Boolean} isMute
+   * @memberof HMSSDK
+   */
+  async setLocalPeerMute(isMute: Boolean) {
     await HmsManager.setLocalMute(isMute);
   }
 
-  static async setLocalPeerVideoMute(isMute: Boolean) {
+  /**
+   * Switches local video feed on/off depending upon the value of isMute
+   *
+   * @param {Boolean} isMute
+   * @memberof HMSSDK
+   */
+  async setLocalPeerVideoMute(isMute: Boolean) {
     await HmsManager.setLocalVideoMute(isMute);
   }
 
-  static async switchCamera() {
+  /**
+   * switches camera between front/back
+   *
+   * @memberof HMSSDK
+   */
+  async switchCamera() {
     await HmsManager.switchCamera();
   }
 
-  static async addEventListener(action: string, callback: any) {
-    await HmsManagerInstance.addListener(action, callback);
+  /**
+   * - This is a prototype event listener that takes action and listens for updates related to that particular action
+   * - This method will be @deprecated in future and event listener will be passed in join method
+   *
+   * @param {string} action
+   * @param {*} callback
+   * @memberof HMSSDK
+   */
+  async addEventListener(action: string, callback: any) {
+    HmsManagerInstance.addListener(action, callback);
   }
 }
