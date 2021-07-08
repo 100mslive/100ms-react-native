@@ -90,4 +90,13 @@ export default class HMSSDK {
   async addEventListener(action: string, callback: any) {
     HmsManagerInstance.addListener(action, callback);
   }
+
+  /**
+   * Calls leave function of native sdk and session of current user is invalidated
+   *
+   * @memberof HMSSDK
+   */
+  async leave() {
+    await HmsManager.leave();
+  }
 }
