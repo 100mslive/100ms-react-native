@@ -8,13 +8,13 @@ import ReactNative, {
   Text,
 } from 'react-native';
 import * as services from './service.js';
-import HmsManager, { HmsView } from 'react-native-hmssdk';
+import HmsManager, { HmsView, HMSConfig } from 'react-native-hmssdk';
 import { TouchableOpacity } from 'react-native';
 
-const callService = async (userId, roomId, role, setToken) => {
+const callService = async (userID, roomID, role, setToken) => {
   const response = await services.fetchToken({
-    userId,
-    roomId,
+    userID,
+    roomID,
     role,
   });
 
@@ -28,9 +28,9 @@ const callService = async (userId, roomId, role, setToken) => {
 };
 
 export default function App() {
-  const [userId, setUserId] = React.useState('');
+  const [userID, setUserID] = React.useState('');
   const [text, setText] = React.useState('');
-  const [roomId, setRoomId] = React.useState('60c894b331e717b8a9fcfccb');
+  const [roomID, setRoomID] = React.useState('60c894b331e717b8a9fcfccb');
   const [role, setRole] = React.useState('host');
   const [token, setToken] = React.useState('');
   const [isMute, setIsMute] = React.useState(false);
@@ -77,14 +77,21 @@ export default function App() {
   }, []);
 
   React.useEffect(() => {
-    if (userId !== '' && token !== '') {
+    if (userID !== '' && token !== '') {
       instance.addEventListener('ON_JOIN', callBackSuccess);
-      instance.join({ authToken: token, userId, roomId });
+      const config = new HMSConfig({
+        userID,
+        roomID,
+        authToken: token,
+        username: userID,
+      });
+      console.log(config);
+      instance.join({ userID, roomID, authToken: token });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
-  if (userId === '') {
+  if (userID === '') {
     return (
       <View style={styles.container}>
         <View style={styles.inputContainer}>
@@ -100,8 +107,8 @@ export default function App() {
             title="Submit"
             onPress={() => {
               if (text !== '') {
-                setUserId(text);
-                callService(text, roomId, role, setToken);
+                setUserID(text);
+                callService(text, roomID, role, setToken);
               }
             }}
           />
