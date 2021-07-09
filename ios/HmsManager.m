@@ -9,5 +9,6 @@ RCT_EXTERN_METHOD(setLocalMute: (BOOL) isMute)
 RCT_EXTERN_METHOD(setLocalVideoMute: (BOOL) isMute)
 RCT_EXTERN_METHOD(switchCamera)
 RCT_EXTERN_METHOD(build)
+RCT_EXTERN_METHOD(leave)
 
 @end
