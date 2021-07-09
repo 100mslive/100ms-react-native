@@ -7,7 +7,7 @@ const {
   HmsManager,
 } = NativeModules;
 
-const HmsManagerInstance = new NativeEventEmitter(HmsManager);
+const HmsEventEmitter = new NativeEventEmitter(HmsManager);
 
 let HmsSdk: HMSSDK | undefined;
 
@@ -88,7 +88,7 @@ export default class HMSSDK {
    * @memberof HMSSDK
    */
   async addEventListener(action: string, callback: any) {
-    HmsManagerInstance.addListener(action, callback);
+    HmsEventEmitter.addListener(action, callback);
   }
 
   /**
