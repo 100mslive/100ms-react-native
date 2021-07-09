@@ -65,22 +65,27 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener {
     }
 
     func on(error: HMSError) {
+        print("ERROR")
         // TODO: errors to be handled here
     }
 
     func on(message: HMSMessage) {
+        print("Message")
         // TODO: HMS message handling
     }
 
     func on(updated speakers: [HMSSpeaker]) {
+        print("Speaker")
         // TODO: HMS speaker updates
     }
 
     func onReconnecting() {
+        print("Reconnecting")
         // TODO: Reconnection feedback to be dispatched from here
     }
 
     func onReconnected() {
+        print("Reconnected")
         // TODO: Reconnected feedack to be dispatched from here
     }
 
@@ -132,5 +137,11 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener {
         print(remoteTracks)
         let returnObject: NSDictionary = ["remoteTracks" : remoteTracks, "localTrackId": localTrackId ?? ""]
         callback([returnObject])
+    }
+
+    @objc
+    func leave() {
+        print("inside leave function")
+        hms?.leave();
     }
 }

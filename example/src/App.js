@@ -159,6 +159,13 @@ export default function App() {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
+              instance.leave();
+            }}
+          >
+            <Text style={styles.buttonText}>Leave Call</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
               setMuteVideo(!muteVideo);
               instance.setLocalPeerVideoMute(!muteVideo);
             }}
