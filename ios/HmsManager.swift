@@ -23,7 +23,6 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener {
 
     func on(join room: HMSRoom) {
         // Callback from join action
-        print("ON_JOIN \(room.peers[0].videoTrack?.trackId)")
         let remotePeers = hms?.remotePeers
         var remoteTracks: [String] = []
         for peer in remotePeers ?? [] {
@@ -101,7 +100,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener {
     
     @objc
     func join(_ credentials: NSDictionary) {
-        if let jwtToken = credentials.value(forKey: "authToken") as! String?, let user = credentials.value(forKey: "userId") as! String?, let room = credentials.value(forKey: "roomId") as! String? {
+        if let jwtToken = credentials.value(forKey: "authToken") as! String?, let user = credentials.value(forKey: "userID") as! String?, let room = credentials.value(forKey: "roomID") as! String? {
             config = HMSConfig(userID: user, roomID: room, authToken: jwtToken)
             hms?.join(config: config!, delegate: self)
         }

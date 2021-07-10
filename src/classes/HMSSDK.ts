@@ -1,4 +1,5 @@
 import { NativeEventEmitter, NativeModules } from 'react-native';
+import type HMSConfig from './HMSConfig';
 
 const {
   /**
@@ -36,8 +37,9 @@ export default class HMSSDK {
    * @param {HMSConfig} config
    * @memberof HMSSDK
    */
-  async join(credentials: any) {
-    await HmsManager.join(credentials);
+  async join(config: HMSConfig) {
+    console.log(config, 'config in here');
+    await HmsManager.join(config);
   }
 
   /**
