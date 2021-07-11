@@ -8,3 +8,5 @@ const Home = () => {
     </View>
   );
 };
+
+export default Home;

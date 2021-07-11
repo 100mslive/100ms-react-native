@@ -11,7 +11,11 @@
   "dependencies": {
     "react": "16.13.1",
     "react-native": "0.64",
-    "react-native-gesture-handler": "^1.10.3"
+    "react-native-gesture-handler": "^1.10.3",
+    "react-native-safe-area-context": "^3.2.0",
+    "react-navigation": "^4.4.4",
+    "react-navigation-hooks": "^1.1.0",
+    "react-navigation-stack": "^2.10.4"
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",

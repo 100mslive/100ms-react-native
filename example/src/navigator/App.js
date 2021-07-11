@@ -1,13 +1,9 @@
-import {
-  createStackNavigator,
-  TransitionPresets,
-} from 'react-navigation-stack';
-import AppWelcomeScreen from '../screens/home';
+import { createStackNavigator } from 'react-navigation-stack';
+import AppWelcomeScreen from '../screens/Home';
 import POCWelcomeScreen from '../screens/POCWelcomeScreen';
 
-const followUpSurveyStack = createStackNavigator(
-  AppWelcomeScreen,
-  POCWelcomeScreen,
+const AppStack = createStackNavigator(
+  { AppWelcomeScreen, POCWelcomeScreen },
   {
     navigationOptions: {
       gestureEnabled: false,
@@ -20,4 +16,4 @@ const followUpSurveyStack = createStackNavigator(
   }
 );
 
-export default followUpSurveyStack;
+export default AppStack;
