@@ -1,8 +1,8 @@
-export const fetchToken = async ({ roomId, userId, role }) => {
+export const fetchToken = async ({ roomID, userID, role }) => {
   const endPoint = 'https://ms-services-o0e1jijzwvka.runkit.sh/';
   const body = {
-    room_id: roomId,
-    user_id: userId,
+    room_id: roomID,
+    user_id: userID,
     role: role,
   };
   const headers = {

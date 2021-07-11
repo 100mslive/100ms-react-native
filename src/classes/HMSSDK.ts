@@ -1,4 +1,5 @@
 import { NativeEventEmitter, NativeModules } from 'react-native';
+import type HMSConfig from './HMSConfig';
 
 const {
   /**
@@ -7,7 +8,7 @@ const {
   HmsManager,
 } = NativeModules;
 
-const HmsManagerInstance = new NativeEventEmitter(HmsManager);
+const HmsEventEmitter = new NativeEventEmitter(HmsManager);
 
 let HmsSdk: HMSSDK | undefined;
 
@@ -36,8 +37,9 @@ export default class HMSSDK {
    * @param {HMSConfig} config
    * @memberof HMSSDK
    */
-  async join(credentials: any) {
-    await HmsManager.join(credentials);
+  async join(config: HMSConfig) {
+    console.log(config, 'config in here');
+    await HmsManager.join(config);
   }
 
   /**
@@ -88,6 +90,15 @@ export default class HMSSDK {
    * @memberof HMSSDK
    */
   async addEventListener(action: string, callback: any) {
-    HmsManagerInstance.addListener(action, callback);
+    HmsEventEmitter.addListener(action, callback);
+  }
+
+  /**
+   * Calls leave function of native sdk and session of current user is invalidated
+   *
+   * @memberof HMSSDK
+   */
+  async leave() {
+    await HmsManager.leave();
   }
 }
