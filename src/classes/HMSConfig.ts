@@ -4,6 +4,7 @@ export default class HMSConfig {
   authToken?: string;
   roomID?: string;
   userID?: string;
+
   constructor(params?: {
     username?: string;
     roomID?: string;
