@@ -1,5 +1,8 @@
 import { NativeEventEmitter, NativeModules } from 'react-native';
 import type HMSConfig from './HMSConfig';
+import type HMSLocalPeer from './HMSLocalPeer';
+import type HMSRemotePeer from './HMSRemotePeer';
+import type HMSRoom from './HMSRoom';
 
 const {
   /**
@@ -13,6 +16,9 @@ const HmsEventEmitter = new NativeEventEmitter(HmsManager);
 let HmsSdk: HMSSDK | undefined;
 
 export default class HMSSDK {
+  room?: HMSRoom;
+  localPeer?: HMSLocalPeer;
+  remotePeers?: [HMSRemotePeer];
   /**
    * - Returns an instance of [HMSSDK]{@link HMSSDK}
    * - This function must be called to get an instance of HMSSDK class and only then user can interact with its methods
