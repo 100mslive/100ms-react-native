@@ -32,7 +32,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener {
             }
         }
         
-        self.sendEvent(withName: ON_JOIN, body: ["event": "ON_JOIN", "trackId": room.peers[0].videoTrack?.trackId, "remoteTracks": remoteTracks])
+        self.sendEvent(withName: ON_JOIN, body: ["event": "ON_JOIN", "trackId": hms?.localPeer?.videoTrack?.trackId, "remoteTracks": remoteTracks])
     }
 
     func on(room: HMSRoom, update: HMSRoomUpdate) {
@@ -43,6 +43,15 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener {
     func on(peer: HMSPeer, update: HMSPeerUpdate) {
         // Listener for updates in Peers
         print("PEER")
+        let remotePeers = hms?.remotePeers
+        var remoteTracks: [String] = []
+        for peer in remotePeers ?? [] {
+            let trackId = peer.videoTrack?.trackId
+            if let track = trackId {
+                remoteTracks.append(track)
+            }
+        }
+        self.sendEvent(withName: ON_JOIN, body: ["event": "ON_JOIN", "trackId": hms?.localPeer?.videoTrack?.trackId, "remoteTracks": remoteTracks])
     }
 
     func on(track: HMSTrack, update: HMSTrackUpdate, for peer: HMSPeer) {
@@ -132,9 +141,6 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener {
             
             remoteTracks.append(trackId!)
         }
-        
-        print(localTrackId)
-        print(remoteTracks)
         let returnObject: NSDictionary = ["remoteTracks" : remoteTracks, "localTrackId": localTrackId ?? ""]
         callback([returnObject])
     }
