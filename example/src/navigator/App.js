@@ -1,9 +1,10 @@
 import { createStackNavigator } from 'react-navigation-stack';
 import AppWelcomeScreen from '../screens/Home';
-import POCWelcomeScreen from '../screens/POCWelcomeScreen';
+import WelcomeScreen from '../screens/WelcomeScreen';
+import Meeting from '../screens/Meeting';
 
 const AppStack = createStackNavigator(
-  { AppWelcomeScreen, POCWelcomeScreen },
+  { AppWelcomeScreen, WelcomeScreen, Meeting },
   {
     navigationOptions: {
       gestureEnabled: false,
@@ -11,7 +12,7 @@ const AppStack = createStackNavigator(
     defaultNavigationOptions: {
       gestureEnabled: false,
     },
-    initialRouteName: 'POCWelcomeScreen',
+    initialRouteName: 'WelcomeScreen',
     headerMode: 'none',
   }
 );

@@ -139,7 +139,9 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener {
         for peer in remotePeers ?? [] {
             let trackId = peer.videoTrack?.trackId
             
-            remoteTracks.append(trackId!)
+            if let track = trackId {
+                remoteTracks.append(track)
+            }
         }
         let returnObject: NSDictionary = ["remoteTracks" : remoteTracks, "localTrackId": localTrackId ?? ""]
         callback([returnObject])
