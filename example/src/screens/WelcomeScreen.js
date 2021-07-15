@@ -6,12 +6,14 @@ import {
   TextInput,
   Text,
   TouchableOpacity,
+  Image,
 } from 'react-native';
 import * as services from '../services/index';
 import HmsManager, { HMSConfig } from 'react-native-hmssdk';
 import Feather from 'react-native-vector-icons/Feather';
 import UserIdModal from '../components/UserIdModal';
 import { navigate } from '../services/navigation';
+import { Platform } from 'react-native';
 
 const callService = async (userID, roomID, role, joinRoom) => {
   const response = await services.fetchToken({
@@ -75,6 +77,10 @@ const App = () => {
 
   return (
     <View style={styles.container}>
+      <View style={styles.headerContainer}>
+        <Image style={styles.image} source={require('../assets/icon.png')} />
+        <Text style={styles.logo}>100ms</Text>
+      </View>
       <View style={styles.inputContainer}>
         <Text style={styles.heading}>Join a Meeting</Text>
         <View style={styles.textInputContainer}>
@@ -120,7 +126,23 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: 'white',
+  },
+  headerContainer: {
+    marginTop: Platform.OS === 'ios' ? 50 : 20,
+    marginBottom: '65%',
+    width: '85%',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  logo: {
+    fontWeight: '700',
+    color: '#4578e0',
+    fontSize: 44,
+  },
+  image: {
+    width: 60,
+    height: 60,
   },
   heading: {
     textAlign: 'center',

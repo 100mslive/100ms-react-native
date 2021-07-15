@@ -75,6 +75,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener {
 
     func on(error: HMSError) {
         print("ERROR")
+        print(error)
         // TODO: errors to be handled here
     }
 
