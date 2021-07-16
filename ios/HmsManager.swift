@@ -75,6 +75,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener {
 
     func on(error: HMSError) {
         print("ERROR")
+        print(error)
         // TODO: errors to be handled here
     }
 
@@ -139,7 +140,9 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener {
         for peer in remotePeers ?? [] {
             let trackId = peer.videoTrack?.trackId
             
-            remoteTracks.append(trackId!)
+            if let track = trackId {
+                remoteTracks.append(track)
+            }
         }
         let returnObject: NSDictionary = ["remoteTracks" : remoteTracks, "localTrackId": localTrackId ?? ""]
         callback([returnObject])
