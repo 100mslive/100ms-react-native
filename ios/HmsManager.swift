@@ -6,7 +6,14 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener {
     var hms: HMSSDK?
     var config: HMSConfig?
     var ON_JOIN: String = "ON_JOIN"
-    var ON_UPDATE: String = "ON_UPDATE"
+    var ON_ROOM_UPDATE: String = "ON_ROOM_UPDATE"
+    var ON_PEER_UPDATE: String = "ON_PEER_UPDATE"
+    var ON_TRACK_UPDATE: String = "ON_TRACK_UPDATE"
+    var ON_ERROR: String = "ON_ERROR"
+    var ON_MESSAGE: String = "ON_MESSAGE"
+    var ON_SPEAKER: String = "ON_SPEAKER"
+    var RECONNECTING: String = "RECONNECTING"
+    var RECONNECTED: String = "RECONNECTED"
     
     override init() {
         super.init()
@@ -100,7 +107,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener {
     }
 
     override func supportedEvents() -> [String]! {
-        return [ON_JOIN, ON_UPDATE]
+        return [ON_JOIN, ON_ROOM_UPDATE, ON_PEER_UPDATE, ON_TRACK_UPDATE, ON_ERROR, ON_MESSAGE, ON_SPEAKER, RECONNECTING, RECONNECTED]
     }
     
     @objc
