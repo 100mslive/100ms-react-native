@@ -9,7 +9,10 @@ import {
   Image,
 } from 'react-native';
 import * as services from '../services/index';
-import HmsManager, { HMSConfig } from 'react-native-hmssdk';
+import HmsManager, {
+  HMSConfig,
+  HMSUpdateListenerActions,
+} from 'react-native-hmssdk';
 import Feather from 'react-native-vector-icons/Feather';
 import UserIdModal from '../components/UserIdModal';
 import { navigate } from '../services/navigation';
@@ -46,6 +49,7 @@ const App = () => {
   const [instance, setInstance] = React.useState(null);
 
   const callBackSuccess = (data) => {
+    console.log('here in callback success');
     navigate('Meeting');
   };
 
@@ -71,7 +75,10 @@ const App = () => {
 
   const joinRoom = (token, userID) => {
     const config = new HMSConfig({ authToken: token, userID, roomID });
-    instance.addEventListener('ON_JOIN', callBackSuccess);
+    instance.addEventListener(
+      HMSUpdateListenerActions.ON_JOIN,
+      callBackSuccess
+    );
     instance.join(config);
   };
 
