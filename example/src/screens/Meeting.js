@@ -28,6 +28,14 @@ const Meeting = () => {
   };
 
   const onTrackListener = (data) => {
+    if (data.trackId) {
+      setTrackId(trackId);
+    }
+    if (data.remoteTracks && data.remoteTracks.length) {
+      setRemoteTrackIds(data.remoteTracks);
+    } else {
+      setRemoteTrackIds([]);
+    }
     console.log(data, 'data in onTrack');
   };
 
