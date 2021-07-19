@@ -1,4 +1,6 @@
+import type HMSAudioTrack from './HMSAudioTrack';
 import type HMSTrack from './HMSTrack';
+import type HMSVideoTrack from './HMSVideoTrack';
 
 export default class HMSPeer {
   peerID: string;
@@ -7,8 +9,8 @@ export default class HMSPeer {
   customerUserID?: string;
   customerDescription?: string;
 
-  audioTrack?: HMSTrack;
-  videoTrack?: HMSTrack;
+  audioTrack?: HMSAudioTrack;
+  videoTrack?: HMSVideoTrack;
 
   auxiliaryTracks?: [HMSTrack];
 
@@ -18,8 +20,8 @@ export default class HMSPeer {
     isLocal?: boolean;
     customerUserID?: string;
     customerDescription?: string;
-    audioTrack?: HMSTrack;
-    videoTrack?: HMSTrack;
+    audioTrack?: HMSAudioTrack;
+    videoTrack?: HMSVideoTrack;
     auxiliaryTracks?: [HMSTrack];
   }) {
     this.peerID = params.peerID;
