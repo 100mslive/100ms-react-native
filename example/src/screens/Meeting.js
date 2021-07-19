@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import HmsManager, { HmsView } from 'react-native-hmssdk';
+import HmsManager, {
+  HmsView,
+  HMSUpdateListenerActions,
+} from 'react-native-hmssdk';
 import { navigate } from '../services/navigation';
 import Feather from 'react-native-vector-icons/Feather';
 
@@ -12,9 +15,94 @@ const Meeting = () => {
   const [switchCamera, setSwitchCamera] = useState(false);
   const [muteVideo, setMuteVideo] = useState(false);
 
+  const onJoinListener = (data) => {
+    console.log(data, 'data in onJoin');
+  };
+
+  const onRoomListener = (data) => {
+    console.log(data, 'data in onRoom');
+  };
+
+  const onPeerListener = (data) => {
+    console.log(data, 'data in onPeer');
+  };
+
+  const onTrackListener = (data) => {
+    if (data.trackId) {
+      setTrackId(trackId);
+    }
+    if (data.remoteTracks && data.remoteTracks.length) {
+      setRemoteTrackIds(data.remoteTracks);
+    } else {
+      setRemoteTrackIds([]);
+    }
+    console.log(data, 'data in onTrack');
+  };
+
+  const onMessage = (data) => {
+    console.log(data, 'data in onMessage');
+  };
+
+  const onError = (data) => {
+    console.log(data, 'data in onError');
+  };
+
+  const onSpeaker = (data) => {
+    console.log(data, 'data in onSpeaker');
+  };
+
+  const reconnecting = (data) => {
+    console.log(data);
+  };
+
+  const reconnected = (data) => {
+    console.log(data);
+  };
+
   const updateHmsInstance = async () => {
     const HmsInstance = await HmsManager.build();
     setInstance(HmsInstance);
+    HmsInstance.addEventListener(
+      HMSUpdateListenerActions.ON_JOIN,
+      onJoinListener
+    );
+
+    HmsInstance.addEventListener(
+      HMSUpdateListenerActions.ON_ROOM_UPDATE,
+      onRoomListener
+    );
+
+    HmsInstance.addEventListener(
+      HMSUpdateListenerActions.ON_PEER_UPDATE,
+      onPeerListener
+    );
+
+    HmsInstance.addEventListener(
+      HMSUpdateListenerActions.ON_TRACK_UPDATE,
+      onTrackListener
+    );
+
+    HmsInstance.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
+
+    HmsInstance.addEventListener(
+      HMSUpdateListenerActions.ON_MESSAGE,
+      onMessage
+    );
+
+    HmsInstance.addEventListener(
+      HMSUpdateListenerActions.ON_SPEAKER,
+      onSpeaker
+    );
+
+    HmsInstance.addEventListener(
+      HMSUpdateListenerActions.RECONNECTING,
+      reconnecting
+    );
+
+    HmsInstance.addEventListener(
+      HMSUpdateListenerActions.RECONNECTED,
+      reconnected
+    );
   };
 
   useEffect(() => {

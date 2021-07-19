@@ -54,6 +54,46 @@ export default class HMSSDK {
       HMSUpdateListenerActions.ON_JOIN,
       this.onJoinListener
     );
+
+    HmsEventEmitter.addListener(
+      HMSUpdateListenerActions.ON_ROOM_UPDATE,
+      this.onRoomListener
+    );
+
+    HmsEventEmitter.addListener(
+      HMSUpdateListenerActions.ON_PEER_UPDATE,
+      this.onPeerListener
+    );
+
+    HmsEventEmitter.addListener(
+      HMSUpdateListenerActions.ON_TRACK_UPDATE,
+      this.onTrackListener
+    );
+
+    HmsEventEmitter.addListener(
+      HMSUpdateListenerActions.ON_ERROR,
+      this.onErrorListener
+    );
+
+    HmsEventEmitter.addListener(
+      HMSUpdateListenerActions.ON_MESSAGE,
+      this.onMessageListener
+    );
+
+    HmsEventEmitter.addListener(
+      HMSUpdateListenerActions.ON_SPEAKER,
+      this.onSpeakerListener
+    );
+
+    HmsEventEmitter.addListener(
+      HMSUpdateListenerActions.RECONNECTING,
+      this.reconnectingListener
+    );
+
+    HmsEventEmitter.addListener(
+      HMSUpdateListenerActions.RECONNECTED,
+      this.reconnectedListener
+    );
   }
 
   /**
