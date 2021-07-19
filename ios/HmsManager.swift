@@ -6,7 +6,14 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener {
     var hms: HMSSDK?
     var config: HMSConfig?
     var ON_JOIN: String = "ON_JOIN"
-    var ON_UPDATE: String = "ON_UPDATE"
+    var ON_ROOM_UPDATE: String = "ON_ROOM_UPDATE"
+    var ON_PEER_UPDATE: String = "ON_PEER_UPDATE"
+    var ON_TRACK_UPDATE: String = "ON_TRACK_UPDATE"
+    var ON_ERROR: String = "ON_ERROR"
+    var ON_MESSAGE: String = "ON_MESSAGE"
+    var ON_SPEAKER: String = "ON_SPEAKER"
+    var RECONNECTING: String = "RECONNECTING"
+    var RECONNECTED: String = "RECONNECTED"
     
     override init() {
         super.init()
@@ -32,12 +39,22 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener {
             }
         }
         
-        self.sendEvent(withName: ON_JOIN, body: ["event": "ON_JOIN", "trackId": hms?.localPeer?.videoTrack?.trackId, "remoteTracks": remoteTracks])
+        self.sendEvent(withName: ON_JOIN, body: ["event": ON_JOIN, "trackId": hms?.localPeer?.videoTrack?.trackId ?? false, "remoteTracks": remoteTracks])
     }
 
     func on(room: HMSRoom, update: HMSRoomUpdate) {
         // Listener for any updation in room
         print("ROOM")
+        let remotePeers = hms?.remotePeers
+        var remoteTracks: [String] = []
+        for peer in remotePeers ?? [] {
+            let remoteTrackId = peer.videoTrack?.trackId
+            if let trackId = remoteTrackId {
+                remoteTracks.append(trackId)
+            }
+        }
+        
+        self.sendEvent(withName: ON_ROOM_UPDATE, body: ["event": ON_ROOM_UPDATE, "trackId": hms?.localPeer?.videoTrack?.trackId ?? false, "remoteTracks": remoteTracks])
     }
 
     func on(peer: HMSPeer, update: HMSPeerUpdate) {
@@ -51,7 +68,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener {
                 remoteTracks.append(track)
             }
         }
-        self.sendEvent(withName: ON_JOIN, body: ["event": "ON_JOIN", "trackId": hms?.localPeer?.videoTrack?.trackId, "remoteTracks": remoteTracks])
+        self.sendEvent(withName: ON_PEER_UPDATE, body: ["event": ON_PEER_UPDATE, "trackId": hms?.localPeer?.videoTrack?.trackId ?? false, "remoteTracks": remoteTracks])
     }
 
     func on(track: HMSTrack, update: HMSTrackUpdate, for peer: HMSPeer) {
@@ -65,42 +82,45 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener {
                 remoteTracks.append(track)
             }
         }
-        self.sendEvent(withName: ON_JOIN, body: ["event": "ON_JOIN", "trackId": hms?.localPeer?.videoTrack?.trackId, "remoteTracks": remoteTracks])
-    }
-
-    // Update function that sync up current room configurations
-    func updateViews() {
-        print("In here")
+        self.sendEvent(withName: ON_TRACK_UPDATE, body: ["event": ON_TRACK_UPDATE, "trackId": hms?.localPeer?.videoTrack?.trackId ?? false, "remoteTracks": remoteTracks])
     }
 
     func on(error: HMSError) {
         print("ERROR")
-        print(error)
+        self.sendEvent(withName: ON_ERROR, body: ["event": ON_ERROR, "error": error.description])
         // TODO: errors to be handled here
     }
 
     func on(message: HMSMessage) {
         print("Message")
+        self.sendEvent(withName: ON_MESSAGE, body: ["event": ON_MESSAGE, "sender": message.sender, "time": message.time])
         // TODO: HMS message handling
     }
 
     func on(updated speakers: [HMSSpeaker]) {
         print("Speaker")
+        var speakerPeerIds: [String] = []
+        for speaker in speakers {
+            speakerPeerIds.append(speaker.peerID)
+        }
+        self.sendEvent(withName: ON_SPEAKER, body: ["event": ON_SPEAKER, "count": speakers.count, "peers" :speakerPeerIds])
         // TODO: HMS speaker updates
     }
 
     func onReconnecting() {
+        self.sendEvent(withName: RECONNECTING, body: ["event": RECONNECTING])
         print("Reconnecting")
         // TODO: Reconnection feedback to be dispatched from here
     }
 
     func onReconnected() {
+        self.sendEvent(withName: RECONNECTED, body: ["event": RECONNECTED])
         print("Reconnected")
         // TODO: Reconnected feedack to be dispatched from here
     }
 
     override func supportedEvents() -> [String]! {
-        return [ON_JOIN, ON_UPDATE]
+        return [ON_JOIN, ON_ROOM_UPDATE, ON_PEER_UPDATE, ON_TRACK_UPDATE, ON_ERROR, ON_MESSAGE, ON_SPEAKER, RECONNECTING, RECONNECTED]
     }
     
     @objc
