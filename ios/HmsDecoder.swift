@@ -74,5 +74,64 @@ class HmsDecoder: NSObject {
         }
     }
     
-    static func getHmsLocal
+    static func getHmsLocalPeer(_ hmsLocalPeer: HMSLocalPeer?) -> [String: Any] {
+        if let peer = hmsLocalPeer {
+            let peerID: String = peer.peerID
+            let name: String = peer.name
+            let isLocal: Bool = peer.isLocal
+            let customerUserID: String = peer.customerUserID ?? ""
+            let customerDescription: String = peer.customerDescription ?? ""
+            let audioTrack: [String: Any] = getHmsAudioTrack(peer.audioTrack)
+            let videoTrack : [String: Any] = getHmsVideoTrack(peer.videoTrack)
+            var auxiliaryTracks: [[String: Any]] = []
+            
+            for track in peer.auxiliaryTracks ?? [] {
+                auxiliaryTracks.append(getHmsTrack(track))
+            }
+            
+            let localAudioTrack = peer.localAudioTrack()
+            let localVideoTrack = peer.localVideoTrack()
+            
+            var localAudioTrackData: [String: Any] = [:]
+            if let localAudio = localAudioTrack {
+                localAudioTrackData = ["trackId": localAudio.trackId, "source": localAudio.source, "trackDescription": localAudio.trackDescription, "settings": getHmsAudioTrackSettings(localAudio.settings)]
+            }
+            
+            var localVideoTrackData: [String: Any] = [:]
+            if let localVideo = localVideoTrack {
+                localVideoTrackData = ["trackId": localVideo.trackId, "source": localVideo.source, "trackDescription": localVideo.trackDescription, "settings": getHmsVideoTrackSettings(localVideo.settings)]
+            }
+            
+            return ["peerID": peerID, "name": name, "isLocal": isLocal, "customerUserID": customerUserID, "customerDescription": customerDescription, "audioTrack": audioTrack, "videoTrack": videoTrack, "auxiliaryTracks": auxiliaryTracks, "localAudioTrackData": localAudioTrackData, "localVideoTrackData": localVideoTrackData]
+        } else {
+            return [:]
+        }
+    }
+    
+    static func getHmsAudioTrackSettings(_ hmsAudioTrackSettings: HMSAudioTrackSettings?) -> [String: Any] {
+        if let settings = hmsAudioTrackSettings {
+            let maxBitrate = settings.maxBitrate
+            let trackDescription = settings.trackDescription ?? ""
+            
+            return ["maxBitrate": maxBitrate, "trackDescription": trackDescription]
+        } else {
+            return [:]
+        }
+    }
+    
+    static func getHmsVideoTrackSettings(_ hmsVideoTrackSettings: HMSVideoTrackSettings?) -> [String: Any] {
+        if let settings = hmsVideoTrackSettings {
+            let codec = settings.codec
+            let resolution = settings.resolution
+            let maxBitrate = settings.maxBitrate
+            let maxFrameRate = settings.maxFrameRate
+            let cameraFacing = settings.cameraFacing
+            let trackDescription = settings.trackDescription ?? ""
+            //TODO: add hms simulcast layer settings here
+            
+            return ["codec": codec, "resolution": resolution, "maxBitrate": maxBitrate, "maxFrameRate": maxFrameRate, "cameraFacing": cameraFacing, "trackDescription": trackDescription]
+        } else {
+            return [:]
+        }
+    }
 }

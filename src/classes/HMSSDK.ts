@@ -202,6 +202,7 @@ export default class HMSSDK {
 
   onJoinListener = (data: any) => {
     // Preprocessing
+    console.log(data, 'data after onJoin');
     if (this.onJoinDelegate) {
       const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
       this.room = room;
