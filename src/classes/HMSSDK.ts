@@ -4,6 +4,7 @@ import type HMSConfig from './HMSConfig';
 import type HMSLocalPeer from './HMSLocalPeer';
 import type HMSRemotePeer from './HMSRemotePeer';
 import type HMSRoom from './HMSRoom';
+import HMSEncoder from './HMSEncoder';
 
 const {
   /**
@@ -19,7 +20,7 @@ let HmsSdk: HMSSDK | undefined;
 export default class HMSSDK {
   room?: HMSRoom;
   localPeer?: HMSLocalPeer;
-  remotePeers?: [HMSRemotePeer];
+  remotePeers?: HMSRemotePeer[];
 
   onJoinDelegate?: Function;
   onRoomDelegate?: Function;
@@ -202,7 +203,9 @@ export default class HMSSDK {
   onJoinListener = (data: any) => {
     // Preprocessing
     if (this.onJoinDelegate) {
-      this.onJoinDelegate(data);
+      const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
+      this.room = room;
+      this.onJoinDelegate({ ...data, room });
     }
   };
 

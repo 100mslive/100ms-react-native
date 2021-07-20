@@ -12,7 +12,7 @@ export default class HMSPeer {
   audioTrack?: HMSAudioTrack;
   videoTrack?: HMSVideoTrack;
 
-  auxiliaryTracks?: [HMSTrack];
+  auxiliaryTracks?: HMSTrack[];
 
   constructor(params: {
     peerID: string;
@@ -22,7 +22,7 @@ export default class HMSPeer {
     customerDescription?: string;
     audioTrack?: HMSAudioTrack;
     videoTrack?: HMSVideoTrack;
-    auxiliaryTracks?: [HMSTrack];
+    auxiliaryTracks?: HMSTrack[];
   }) {
     this.peerID = params.peerID;
     this.name = params.name;

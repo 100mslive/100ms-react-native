@@ -4,13 +4,13 @@ export default class HMSRoom {
   id: string;
   name: string;
   metaData?: string;
-  peers: [HMSPeer];
+  peers: HMSPeer[];
 
   constructor(params: {
     id: string;
     name: string;
     metaData?: string;
-    peers: [HMSPeer];
+    peers: HMSPeer[];
   }) {
     this.id = params.id;
     this.name = params.name;

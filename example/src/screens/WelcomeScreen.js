@@ -49,7 +49,7 @@ const App = () => {
   const [instance, setInstance] = React.useState(null);
 
   const callBackSuccess = (data) => {
-    console.log('here in callback success');
+    console.log('here in callback success', data);
     navigate('Meeting');
   };
 
