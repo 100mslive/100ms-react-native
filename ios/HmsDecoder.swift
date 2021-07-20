@@ -39,7 +39,7 @@ class HmsDecoder: NSObject {
     static func getHmsTrack (_ track: HMSTrack?) -> [String: Any] {
         if let hmsTrack = track {
             let trackId: String = hmsTrack.trackId
-            let source: HMSTrackSource = hmsTrack.source
+            let source: UInt = hmsTrack.source.rawValue
             let trackDescription: String = hmsTrack.trackDescription
             
             let result:[String: Any]  = ["trackId": trackId, "source": source, "trackDescription": trackDescription]
@@ -52,7 +52,7 @@ class HmsDecoder: NSObject {
     static func getHmsAudioTrack (_ hmsAudioTrack: HMSAudioTrack?) -> [String: Any] {
         if let hmsTrack = hmsAudioTrack {
             let trackId: String = hmsTrack.trackId
-            let source: HMSTrackSource = hmsTrack.source
+            let source: UInt = hmsTrack.source.rawValue
             let trackDescription: String = hmsTrack.trackDescription
             
             let result:[String: Any]  = ["trackId": trackId, "source": source, "trackDescription": trackDescription]
@@ -65,7 +65,7 @@ class HmsDecoder: NSObject {
     static func getHmsVideoTrack (_ hmsVideoTrack: HMSVideoTrack?) -> [String: Any] {
         if let hmsTrack = hmsVideoTrack {
             let trackId: String = hmsTrack.trackId
-            let source: HMSTrackSource = hmsTrack.source
+            let source: UInt = hmsTrack.source.rawValue
             let trackDescription: String = hmsTrack.trackDescription
             let result : [String: Any] = ["trackId": trackId, "source": source, "trackDescription": trackDescription]
             return result;
@@ -110,8 +110,8 @@ class HmsDecoder: NSObject {
     
     static func getHmsAudioTrackSettings(_ hmsAudioTrackSettings: HMSAudioTrackSettings?) -> [String: Any] {
         if let settings = hmsAudioTrackSettings {
-            let maxBitrate = settings.maxBitrate
-            let trackDescription = settings.trackDescription ?? ""
+            let maxBitrate: Int = settings.maxBitrate
+            let trackDescription: String = settings.trackDescription ?? ""
             
             return ["maxBitrate": maxBitrate, "trackDescription": trackDescription]
         } else {
@@ -121,12 +121,12 @@ class HmsDecoder: NSObject {
     
     static func getHmsVideoTrackSettings(_ hmsVideoTrackSettings: HMSVideoTrackSettings?) -> [String: Any] {
         if let settings = hmsVideoTrackSettings {
-            let codec = settings.codec
-            let resolution = settings.resolution
-            let maxBitrate = settings.maxBitrate
-            let maxFrameRate = settings.maxFrameRate
-            let cameraFacing = settings.cameraFacing
-            let trackDescription = settings.trackDescription ?? ""
+            let codec: UInt = settings.codec.rawValue
+            let resolution: HMSVideoResolution = settings.resolution
+            let maxBitrate: Int = settings.maxBitrate
+            let maxFrameRate: Int = settings.maxFrameRate
+            let cameraFacing: UInt = settings.cameraFacing.rawValue
+            let trackDescription: String = settings.trackDescription ?? ""
             //TODO: add hms simulcast layer settings here
             
             return ["codec": codec, "resolution": resolution, "maxBitrate": maxBitrate, "maxFrameRate": maxFrameRate, "cameraFacing": cameraFacing, "trackDescription": trackDescription]

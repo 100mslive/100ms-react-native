@@ -4,6 +4,11 @@ import HMSVideoTrack from './HMSVideoTrack';
 import HMSRoom from './HMSRoom';
 import HMSPeer from './HMSPeer';
 
+import HMSLocalPeer from './HMSLocalPeer';
+
+import HMSAudioTrackSettings from './HMSAudioTrackSettings';
+import HMSVideoTrackSettings from './HMSVideoTrackSettings';
+
 export default class HMSEncoder {
   static encodeHmsRoom(room: any) {
     const encodedObj = {
@@ -78,5 +83,60 @@ export default class HMSEncoder {
     };
 
     return new HMSTrack(encodedObj);
+  }
+
+  static encodeHmsLocalPeer(peer: any) {
+    const encodedObj = {
+      peerID: peer.peerID,
+      name: peer.name,
+      isLocal: peer.isLocal,
+      customerUserID: peer.customerUserID,
+      customerDescription: peer.customerDescription,
+      audioTrack: HMSEncoder.encodeHmsAudioTrack(peer.audioTrack),
+      videoTrack: HMSEncoder.encodeHmsVideoTrack(peer.videoTrack),
+      auxiliaryTracks: HMSEncoder.encodeHmsAuxiliaryTracks(
+        peer.auxiliaryTracks
+      ),
+      localAudioTrackData: {
+        trackId: peer?.localAudioTrackData?.trackId,
+        source: peer?.localAudioTrackData?.source,
+        trackDescription: peer?.localAudioTrackData?.trackDescription,
+        settings: HMSEncoder.encodeHmsAudioTrackSettings(
+          peer?.localAudioTrackData?.settings
+        ),
+      },
+      localVideoTrackData: {
+        trackId: peer?.localVideoTrackData?.trackId,
+        source: peer?.localVideoTrackData?.source,
+        trackDescription: peer?.localVideoTrackData?.trackDescription,
+        settings: HMSEncoder.encodeHmsVideoTrackSettings(
+          peer?.localVideoTrackData?.settings
+        ),
+      },
+    };
+
+    return new HMSLocalPeer(encodedObj);
+  }
+
+  static encodeHmsAudioTrackSettings(settings: any) {
+    const encodedObj = {
+      maxBitrate: settings?.maxBitrate,
+      trackDescription: settings?.trackDescription,
+    };
+
+    return new HMSAudioTrackSettings(encodedObj);
+  }
+
+  static encodeHmsVideoTrackSettings(settings: any) {
+    const encodedObj = {
+      codec: settings?.codec,
+      resolution: settings?.resolution,
+      maxBitrate: settings?.maxBitrate,
+      maxFrameRate: settings?.maxFrameRate,
+      cameraFacing: settings?.cameraFacing,
+      trackDescription: settings?.trackDescription,
+    };
+
+    return new HMSVideoTrackSettings(encodedObj);
   }
 }
