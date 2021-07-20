@@ -25,13 +25,13 @@ class HmsDecoder: NSObject {
         let customerDescription: String = peer.customerDescription ?? ""
         let audioTrack: [String: Any] = getHmsAudioTrack(peer.audioTrack)
         let videoTrack : [String: Any] = getHmsVideoTrack(peer.videoTrack)
-        var auxilaryTracks: [[String: Any]] = []
+        var auxiliaryTracks: [[String: Any]] = []
         
         for track in peer.auxiliaryTracks ?? [] {
-            auxilaryTracks.append(getHmsTrack(track))
+            auxiliaryTracks.append(getHmsTrack(track))
         }
         
-        let result:[String: Any] = ["peerID": peerID, "name": name, "isLocal": isLocal, "customerUserID": customerUserID, "customerDescription": customerDescription, "audioTrack": audioTrack, "videoTrack": videoTrack, "auxilaryTracks": auxilaryTracks]
+        let result:[String: Any] = ["peerID": peerID, "name": name, "isLocal": isLocal, "customerUserID": customerUserID, "customerDescription": customerDescription, "audioTrack": audioTrack, "videoTrack": videoTrack, "auxiliaryTracks": auxiliaryTracks]
 
         return result
     }
@@ -73,4 +73,6 @@ class HmsDecoder: NSObject {
             return [:]
         }
     }
+    
+    static func getHmsLocal
 }
