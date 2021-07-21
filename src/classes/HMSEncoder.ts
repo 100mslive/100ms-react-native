@@ -5,6 +5,7 @@ import HMSRoom from './HMSRoom';
 import HMSPeer from './HMSPeer';
 
 import HMSLocalPeer from './HMSLocalPeer';
+import HMSRemotePeer from './HMSRemotePeer';
 
 import HMSAudioTrackSettings from './HMSAudioTrackSettings';
 import HMSVideoTrackSettings from './HMSVideoTrackSettings';
@@ -138,5 +139,45 @@ export default class HMSEncoder {
     };
 
     return new HMSVideoTrackSettings(encodedObj);
+  }
+
+  static encodeHmsRemotePeers(peers: any) {
+    const hmsPeers: any[] = [];
+
+    peers.map((peer: any) => {
+      const encodedPeer = HMSEncoder.encodeHmsRemotePeer(peer);
+
+      hmsPeers.push(encodedPeer);
+    });
+
+    return hmsPeers;
+  }
+
+  static encodeHmsRemotePeer(peer: any) {
+    const encodedObj = {
+      peerID: peer.peerID,
+      name: peer.name,
+      isLocal: peer.isLocal,
+      customerUserID: peer.customerUserID,
+      customerDescription: peer.customerDescription,
+      audioTrack: HMSEncoder.encodeHmsAudioTrack(peer.audioTrack),
+      videoTrack: HMSEncoder.encodeHmsVideoTrack(peer.videoTrack),
+      auxiliaryTracks: HMSEncoder.encodeHmsAuxiliaryTracks(
+        peer.auxiliaryTracks
+      ),
+      remoteAudioTrackData: {
+        trackId: peer?.remoteAudioTrackData?.trackId,
+        source: peer?.remoteAudioTrackData?.source,
+        trackDescription: peer?.remoteAudioTrackData?.trackDescription,
+      },
+      remoteVideoTrackData: {
+        trackId: peer?.remoteVideoTrackData?.trackId,
+        source: peer?.remoteVideoTrackData?.source,
+        trackDescription: peer?.remoteVideoTrackData?.trackDescription,
+        layer: peer?.remoteVideoTrackData?.layer,
+      },
+    };
+
+    return new HMSRemotePeer(encodedObj);
   }
 }
