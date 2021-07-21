@@ -26,7 +26,7 @@ export default class HMSLocalPeer extends HMSPeer {
     customerDescription?: string;
     audioTrack?: HMSAudioTrack;
     videoTrack?: HMSVideoTrack;
-    auxiliaryTracks?: [HMSTrack];
+    auxiliaryTracks?: HMSTrack[];
     localAudioTrackData?: {
       trackId: string;
       source?: number;

@@ -56,8 +56,11 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener {
                 remoteTracks.append(trackId)
             }
         }
+
+        let roomData = HmsDecoder.getHmsRoom(room)
+        let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
         
-        self.sendEvent(withName: ON_ROOM_UPDATE, body: ["event": ON_ROOM_UPDATE, "trackId": hms?.localPeer?.videoTrack?.trackId ?? false, "remoteTracks": remoteTracks])
+        self.sendEvent(withName: ON_ROOM_UPDATE, body: ["event": ON_ROOM_UPDATE, "trackId": hms?.localPeer?.videoTrack?.trackId ?? false, "remoteTracks": remoteTracks, "room": roomData, "localPeer": localPeerData])
     }
 
     func on(peer: HMSPeer, update: HMSPeerUpdate) {

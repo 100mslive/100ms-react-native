@@ -166,7 +166,6 @@ export default class HMSSDK {
    * @memberof HMSSDK
    */
   async addEventListener(action: HMSUpdateListenerActions, callback: Function) {
-    console.log('event listener', action);
     switch (action) {
       case HMSUpdateListenerActions.ON_JOIN:
         this.onJoinDelegate = callback;
@@ -203,16 +202,26 @@ export default class HMSSDK {
   onJoinListener = (data: any) => {
     // Preprocessing
     console.log(data, 'data after onJoin');
+    const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
+    const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
+      data.localPeer
+    );
     if (this.onJoinDelegate) {
-      const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
       this.room = room;
-      this.onJoinDelegate({ ...data, room });
+      this.localPeer = localPeer;
+      this.onJoinDelegate({ ...data, room, localPeer });
     }
   };
 
   onRoomListener = (data: any) => {
+    const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
+    const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
+      data.localPeer
+    );
     if (this.onRoomDelegate) {
-      this.onRoomDelegate(data);
+      this.room = room;
+      this.localPeer = localPeer;
+      this.onRoomDelegate({ ...data, room, localPeer });
     }
   };
 
