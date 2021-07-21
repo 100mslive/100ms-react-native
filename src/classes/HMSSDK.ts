@@ -120,35 +120,6 @@ export default class HMSSDK {
   }
 
   /**
-   * Switches Audio of current user on/off depending upon the value of isMute
-   *
-   * @param {Boolean} isMute
-   * @memberof HMSSDK
-   */
-  async setLocalPeerMute(isMute: Boolean) {
-    await HmsManager.setLocalMute(isMute);
-  }
-
-  /**
-   * Switches local video feed on/off depending upon the value of isMute
-   *
-   * @param {Boolean} isMute
-   * @memberof HMSSDK
-   */
-  async setLocalPeerVideoMute(isMute: Boolean) {
-    await HmsManager.setLocalVideoMute(isMute);
-  }
-
-  /**
-   * switches camera between front/back
-   *
-   * @memberof HMSSDK
-   */
-  async switchCamera() {
-    await HmsManager.switchCamera();
-  }
-
-  /**
    * Calls leave function of native sdk and session of current user is invalidated
    *
    * @memberof HMSSDK

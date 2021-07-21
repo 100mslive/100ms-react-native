@@ -145,7 +145,7 @@ const Meeting = () => {
           style={styles.singleIconContainer}
           onPress={async () => {
             setIsMute(!isMute);
-            instance.setLocalPeerMute(!isMute);
+            instance.localPeer.localAudioTrack().setMute(!isMute);
           }}
         >
           <Feather
@@ -175,7 +175,7 @@ const Meeting = () => {
           style={styles.singleIconContainer}
           onPress={() => {
             setMuteVideo(!muteVideo);
-            instance.setLocalPeerVideoMute(!muteVideo);
+            instance.localPeer.localVideoTrack().setMute(!muteVideo);
           }}
         >
           <Feather
