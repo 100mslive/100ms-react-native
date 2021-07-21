@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import HmsManager, {
   HmsView,
   HMSUpdateListenerActions,
 } from 'react-native-hmssdk';
-import { navigate } from '../services/navigation';
 import Feather from 'react-native-vector-icons/Feather';
+
+import { navigate } from '../services/navigation';
+import dimension from '../utils/dimension';
 
 const Meeting = () => {
   const [instance, setInstance] = useState(null);
   const [trackId, setTrackId] = useState('');
   const [remoteTrackIds, setRemoteTrackIds] = useState([]);
   const [isMute, setIsMute] = useState(false);
-  const [switchCamera, setSwitchCamera] = useState(false);
   const [muteVideo, setMuteVideo] = useState(false);
 
   const onJoinListener = (data) => {
@@ -122,22 +123,47 @@ const Meeting = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [instance]);
 
+  const getLocalVideoStyles = () => {
+    if (remoteTrackIds && remoteTrackIds.length === 1) {
+      return styles.floatingTile;
+    }
+    if (remoteTrackIds.length && remoteTrackIds.length > 1) {
+      return styles.generalTile;
+    }
+    return styles.fullScreenTile;
+  };
+
+  const getRemoteVideoStyles = (index) => {
+    if (remoteTrackIds && remoteTrackIds.length === 1) {
+      return styles.fullScreenTile;
+    }
+    if (remoteTrackIds.length && remoteTrackIds.length > 1) {
+      if (index === remoteTrackIds.length - 1 && index % 2 === 1) {
+        return styles.fullWidthTile;
+      }
+      return styles.generalTile;
+    }
+    return styles.fullScreenTile;
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.videoContainer}>
         {trackId !== '' && (
-          <View style={styles.videoView}>
-            <View style={styles.singleVideo}>
-              <HmsView style={styles.hmsView} trackId={trackId} />
+          <ScrollView style={styles.scroll}>
+            <View style={styles.videoView}>
+              <View style={getLocalVideoStyles()}>
+                <HmsView style={styles.hmsView} trackId={trackId} />
+              </View>
+              {remoteTrackIds.map((item, index) => {
+                return (
+                  <View key={item} style={getRemoteVideoStyles(index)}>
+                    <HmsView trackId={item} style={styles.hmsView} />
+                  </View>
+                );
+              })}
             </View>
-            {remoteTrackIds.map((item) => {
-              return (
-                <View key={item} style={styles.singleVideo}>
-                  <HmsView trackId={item} style={styles.hmsView} />
-                </View>
-              );
-            })}
-          </View>
+          </ScrollView>
         )}
       </View>
       <View style={styles.iconContainers}>
@@ -202,14 +228,29 @@ const styles = StyleSheet.create({
   videoView: {
     width: '100%',
     height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'row',
     flexWrap: 'wrap',
+    justifyContent: 'space-between',
   },
-  singleVideo: {
-    flex: 1,
-    width: '100%',
-    height: '50%',
+  fullScreenTile: {
+    height: dimension.viewHeight(896),
+    width: dimension.viewWidth(414),
+  },
+  floatingTile: {
+    width: dimension.viewWidth(170),
+    height: dimension.viewHeight(300),
+    position: 'absolute',
+    bottom: dimension.viewHeight(100),
+    right: dimension.viewWidth(10),
+    zIndex: 100,
+  },
+  generalTile: {
+    width: dimension.viewWidth(206),
+    height: dimension.viewHeight(445),
+  },
+  fullWidthTile: {
+    height: dimension.viewHeight(445),
+    width: dimension.viewWidth(414),
   },
   hmsView: {
     height: '100%',
