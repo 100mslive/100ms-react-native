@@ -206,10 +206,14 @@ export default class HMSSDK {
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
       data.localPeer
     );
+    const remotePeers: HMSRemotePeer[] = HMSEncoder.encodeHmsRemotePeers(
+      data.remotePeers
+    );
+    this.room = room;
+    this.localPeer = localPeer;
+    this.remotePeers = remotePeers;
     if (this.onJoinDelegate) {
-      this.room = room;
-      this.localPeer = localPeer;
-      this.onJoinDelegate({ ...data, room, localPeer });
+      this.onJoinDelegate({ ...data, room, localPeer, remotePeers });
     }
   };
 
@@ -218,22 +222,46 @@ export default class HMSSDK {
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
       data.localPeer
     );
+    const remotePeers: HMSRemotePeer[] = HMSEncoder.encodeHmsRemotePeers(
+      data.remotePeers
+    );
+    this.room = room;
+    this.localPeer = localPeer;
+    this.remotePeers = remotePeers;
     if (this.onRoomDelegate) {
-      this.room = room;
-      this.localPeer = localPeer;
-      this.onRoomDelegate({ ...data, room, localPeer });
+      this.onRoomDelegate({ ...data, room, localPeer, remotePeers });
     }
   };
 
   onPeerListener = (data: any) => {
+    const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
+    const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
+      data.localPeer
+    );
+    const remotePeers: HMSRemotePeer[] = HMSEncoder.encodeHmsRemotePeers(
+      data.remotePeers
+    );
+    this.room = room;
+    this.localPeer = localPeer;
+    this.remotePeers = remotePeers;
     if (this.onPeerDelegate) {
-      this.onPeerDelegate(data);
+      this.onPeerDelegate({ ...data, room, localPeer, remotePeers });
     }
   };
 
   onTrackListener = (data: any) => {
+    const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
+    const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
+      data.localPeer
+    );
+    const remotePeers: HMSRemotePeer[] = HMSEncoder.encodeHmsRemotePeers(
+      data.remotePeers
+    );
+    this.room = room;
+    this.localPeer = localPeer;
+    this.remotePeers = remotePeers;
     if (this.onTrackDelegate) {
-      this.onTrackDelegate(data);
+      this.onTrackDelegate({ ...data, room, localPeer, remotePeers });
     }
   };
 

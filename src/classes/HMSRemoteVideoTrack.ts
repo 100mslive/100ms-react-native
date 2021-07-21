@@ -9,7 +9,9 @@ export default class HMSRemoteVideoTrack extends HMSVideoTrack {
     trackId: string;
     source?: number;
     trackDescription?: string;
+    layer?: any;
   }) {
     super(params);
+    this.layer = params.layer;
   }
 }

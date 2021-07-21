@@ -2,19 +2,22 @@ import HMSSDK
 import Foundation
 
 class HmsDecoder: NSObject {
-    static func getHmsRoom (_ room: HMSRoom) -> [String: Any] {
-        let id: String = room.id
-        let name: String = room.name
-        let metaData: String = room.metaData ?? ""
-        var peers: [[String: Any]] = []
-        
-        for peer in room.peers {
-            peers.append(getHmsPeer(peer))
+    static func getHmsRoom (_ hmsRoom: HMSRoom?) -> [String: Any] {
+        if let room = hmsRoom {
+            let id: String = room.id
+            let name: String = room.name
+            let metaData: String = room.metaData ?? ""
+            var peers: [[String: Any]] = []
+            
+            for peer in room.peers {
+                peers.append(getHmsPeer(peer))
+            }
+            
+            let result:[String: Any] = ["id": id, "name": name, "metaData": metaData, "peers": peers]
+            return result
+        } else {
+            return [:]
         }
-        
-        let result:[String: Any] = ["id": id, "name": name, "metaData": metaData, "peers": peers]
-        return result
-        
     }
     
     static func getHmsPeer (_ peer: HMSPeer) -> [String: Any] {
@@ -133,5 +136,45 @@ class HmsDecoder: NSObject {
         } else {
             return [:]
         }
+    }
+    
+    static func getHmsRemotePeers (_ remotePeers: [HMSRemotePeer]?) -> [[String: Any]] {
+        var peers:[[String: Any]] = []
+        
+        for peer in remotePeers ?? [] {
+            peers.append(getHmsRemotePeer(peer))
+        }
+        
+        return peers
+    }
+    
+    static func getHmsRemotePeer(_ hmsRemotePeer: HMSRemotePeer) -> [String: Any] {
+        let peerID: String = hmsRemotePeer.peerID
+        let name: String = hmsRemotePeer.name
+        let isLocal: Bool = hmsRemotePeer.isLocal
+        let customerUserID: String = hmsRemotePeer.customerUserID ?? ""
+        let customerDescription: String = hmsRemotePeer.customerDescription ?? ""
+        let audioTrack: [String: Any] = getHmsAudioTrack(hmsRemotePeer.audioTrack)
+        let videoTrack : [String: Any] = getHmsVideoTrack(hmsRemotePeer.videoTrack)
+        var auxiliaryTracks: [[String: Any]] = []
+        
+        for track in hmsRemotePeer.auxiliaryTracks ?? [] {
+            auxiliaryTracks.append(getHmsTrack(track))
+        }
+        
+        let remoteAudioTrack = hmsRemotePeer.remoteAudioTrack()
+        let remoteVideoTrack = hmsRemotePeer.remoteVideoTrack()
+        
+        var remoteAudioTrackData: [String: Any] = [:]
+        if let remoteAudio = remoteAudioTrack {
+            remoteAudioTrackData = ["trackId": remoteAudio.trackId, "source": remoteAudio.source, "trackDescription": remoteAudio.trackDescription]
+        }
+        
+        var remoteVideoTrackData: [String: Any] = [:]
+        if let remoteVideo = remoteVideoTrack {
+            remoteVideoTrackData = ["trackId": remoteVideo.trackId, "source": remoteVideo.source, "trackDescription": remoteVideo.trackDescription, "layer": remoteVideo.layer.rawValue]
+        }
+        
+        return ["peerID": peerID, "name": name, "isLocal": isLocal, "customerUserID": customerUserID, "customerDescription": customerDescription, "audioTrack": audioTrack, "videoTrack": videoTrack, "auxiliaryTracks": auxiliaryTracks, "remoteAudioTrackData": remoteAudioTrackData, "remoteVideoTrackData": remoteVideoTrackData]
     }
 }

@@ -25,7 +25,7 @@ export default class HMSRemotePeer extends HMSPeer {
     customerDescription?: string;
     audioTrack?: HMSAudioTrack;
     videoTrack?: HMSVideoTrack;
-    auxiliaryTracks?: [HMSTrack];
+    auxiliaryTracks?: HMSTrack[];
     remoteAudioTrackData?: {
       trackId: string;
       source?: number;
@@ -35,6 +35,7 @@ export default class HMSRemotePeer extends HMSPeer {
       trackId: string;
       source?: number;
       trackDescription?: string;
+      layer?: any;
     };
   }) {
     super(params);
