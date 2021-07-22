@@ -5,11 +5,11 @@ platform :ios, '10.0'
 
 target 'HmssdkExample' do
   config = use_native_modules!
-
+  
   use_react_native!(:path => config["reactNativePath"])
-
+  
   pod 'react-native-hmssdk', :path => '../..'
-
+  
   # Enables Flipper.
   #
   # Note that if you have use_frameworks! enabled, Flipper will not work and
@@ -17,5 +17,8 @@ target 'HmssdkExample' do
   use_flipper!({ 'Flipper' => '0.80.0' })
   post_install do |installer|
     flipper_post_install(installer)
+    installer.pods_project.build_configurations.each do |config|
+      config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64"
+    end
   end
 end
