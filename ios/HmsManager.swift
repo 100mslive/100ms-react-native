@@ -195,7 +195,6 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener {
     @objc
     func send(_ data: NSDictionary) {
         print("data in send function")
-        print(data)
         if let message = data.value(forKey: "message") as! String?, let sender = data.value(forKey: "sender") as! String?, let time = data.value(forKey: "time") as! String?, let type = data.value(forKey: "type") as! String? {
             let hmsMessage = HMSMessage(sender: sender, time: time, type: type, message: message)
             hms?.send(message: hmsMessage)
