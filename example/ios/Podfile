@@ -9,6 +9,7 @@ target 'HmssdkExample' do
   use_react_native!(:path => config["reactNativePath"])
   
   pod 'react-native-hmssdk', :path => '../..'
+  pod 'Firebase/Analytics'
   
   # Enables Flipper.
   #
