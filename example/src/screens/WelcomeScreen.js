@@ -38,12 +38,7 @@ const App = () => {
   const [roomID, setRoomID] = React.useState('60c894b331e717b8a9fcfccb');
   const [text, setText] = React.useState('60c894b331e717b8a9fcfccb');
   const [role, setRole] = React.useState('host');
-  // const [isMute, setIsMute] = React.useState(false);
-  // const [switchCamera, setSwitchCamera] = React.useState(false);
-  // const [muteVideo, setMuteVideo] = React.useState(false);
   const [initialized, setInitialized] = React.useState(false);
-  // const [trackId, setTrackId] = React.useState('');
-  // const [remoteTrackIds, setRemoteTrackIds] = React.useState([]);
   const [modalVisible, setModalVisible] = React.useState(false);
 
   const [instance, setInstance] = React.useState(null);

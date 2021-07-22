@@ -32,17 +32,17 @@ const Meeting = () => {
   };
 
   const onPeerListener = (data) => {
+    if (data.trackId) {
+      setTrackId(trackId);
+      setRemoteTrackIds(data.remoteTracks);
+    }
     console.log(data, 'data in onPeer');
   };
 
   const onTrackListener = (data) => {
     if (data.trackId) {
       setTrackId(trackId);
-    }
-    if (data.remoteTracks && data.remoteTracks.length) {
       setRemoteTrackIds(data.remoteTracks);
-    } else {
-      setRemoteTrackIds([]);
     }
     console.log(data, 'data in onTrack');
   };
@@ -56,7 +56,7 @@ const Meeting = () => {
   };
 
   const onSpeaker = (data) => {
-    console.log(data, 'data in onSpeaker');
+    // console.log(data, 'data in onSpeaker');
   };
 
   const reconnecting = (data) => {
@@ -119,10 +119,9 @@ const Meeting = () => {
   }, []);
 
   useEffect(() => {
-    console.log(instance, 'instance');
     if (instance) {
       instance.getTrackIds(({ remoteTracks, localTrackId }) => {
-        console.log(remoteTrackIds, localTrackId);
+        console.log(remoteTracks, localTrackId);
         setTrackId(localTrackId);
         setRemoteTrackIds(remoteTracks);
       });
@@ -131,48 +130,44 @@ const Meeting = () => {
   }, [instance]);
 
   const getLocalVideoStyles = () => {
-    if (remoteTrackIds && remoteTrackIds.length === 1) {
-      return styles.floatingTile;
-    }
-    if (remoteTrackIds.length && remoteTrackIds.length > 1) {
-      return styles.generalTile;
-    }
-    return styles.fullScreenTile;
+    // if (remoteTrackIds && remoteTrackIds.length === 1) {
+    //   return styles.floatingTile;
+    // }
+    // if (remoteTrackIds.length && remoteTrackIds.length > 1) {
+    //   return styles.generalTile;
+    // }
+    return styles.generalTile;
   };
 
   const getRemoteVideoStyles = (index) => {
-    if (remoteTrackIds && remoteTrackIds.length === 1) {
-      return styles.fullScreenTile;
-    }
-    if (remoteTrackIds.length && remoteTrackIds.length > 1) {
-      if (index === remoteTrackIds.length - 1 && index % 2 === 1) {
-        return styles.fullWidthTile;
-      }
-      return styles.generalTile;
-    }
-    return styles.fullScreenTile;
+    // if (remoteTrackIds && remoteTrackIds.length === 1) {
+    //   return styles.fullScreenTile;
+    // }
+    // if (remoteTrackIds.length && remoteTrackIds.length > 1) {
+    //   if (index === remoteTrackIds.length - 1 && index % 2 === 1) {
+    //     return styles.fullWidthTile;
+    //   }
+    //   return styles.generalTile;
+    // }
+    return styles.generalTile;
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.videoContainer}>
-        {trackId !== '' && (
-          <ScrollView style={styles.scroll}>
-            <View style={styles.videoView}>
-              <View style={getLocalVideoStyles()}>
-                <HmsView style={styles.hmsView} trackId={trackId} />
+      <ScrollView>
+        <View style={styles.videoView}>
+          <View style={getLocalVideoStyles()}>
+            <HmsView style={styles.hmsView} trackId={trackId} />
+          </View>
+          {remoteTrackIds.map((item, index) => {
+            return (
+              <View key={item} style={getRemoteVideoStyles(index)}>
+                <HmsView trackId={item} style={styles.hmsView} />
               </View>
-              {remoteTrackIds.map((item, index) => {
-                return (
-                  <View key={item} style={getRemoteVideoStyles(index)}>
-                    <HmsView trackId={item} style={styles.hmsView} />
-                  </View>
-                );
-              })}
-            </View>
-          </ScrollView>
-        )}
-      </View>
+            );
+          })}
+        </View>
+      </ScrollView>
       <View style={styles.iconContainers}>
         <TouchableOpacity
           style={styles.singleIconContainer}
@@ -199,7 +194,7 @@ const Meeting = () => {
         <TouchableOpacity
           style={styles.singleIconContainer}
           onPress={() => {
-            instance.localPeer.localVideoTrack().switchCamera();
+            // instance.localPeer.localVideoTrack().switchCamera();
             const hmsMessage = new HMSMessage({
               sender: 'sender',
               type: 'host',
@@ -239,13 +234,9 @@ const Meeting = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  videoContainer: {
     width: '100%',
-    height: '100%',
+    height: dimension.viewHeight(860),
+    marginTop: dimension.viewHeight(36),
   },
   videoView: {
     width: '100%',
@@ -268,7 +259,7 @@ const styles = StyleSheet.create({
   },
   generalTile: {
     width: dimension.viewWidth(206),
-    height: dimension.viewHeight(445),
+    height: dimension.viewHeight(385),
   },
   fullWidthTile: {
     height: dimension.viewHeight(445),
@@ -291,6 +282,7 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 500,
     backgroundColor: 'white',
+    minHeight: dimension.viewHeight(90),
   },
 
   buttonText: {
@@ -316,6 +308,10 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
   },
+  // scroll: {
+  //   width: '100%',
+  //   height: '100%',
+  // },
 });
 
 export default Meeting;
