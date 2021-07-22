@@ -1,8 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  // Image,
+} from 'react-native';
 import HmsManager, {
   HmsView,
   HMSUpdateListenerActions,
+  HMSMessage,
 } from 'react-native-hmssdk';
 import Feather from 'react-native-vector-icons/Feather';
 
@@ -189,19 +196,34 @@ const Meeting = () => {
         >
           <Feather name="phone-off" style={styles.leaveIcon} size={30} />
         </TouchableOpacity>
-        {/* <TouchableOpacity
+        <TouchableOpacity
+          style={styles.singleIconContainer}
           onPress={() => {
-            setSwitchCamera(!switchCamera);
-            instance.switchCamera();
+            instance.localPeer.localVideoTrack().switchCamera();
+            const hmsMessage = new HMSMessage({
+              sender: 'sender',
+              type: 'host',
+              time: '15:20',
+              message: 'message',
+            });
+
+            console.log(hmsMessage, 'hmsMessage');
+
+            instance.send(hmsMessage);
           }}
         >
-          <Text style={styles.buttonText}>Switch-Camera</Text>
-        </TouchableOpacity> */}
+          <Feather name="camera" style={styles.videoIcon} size={30} />
+          {/* <Image
+            source={require('../assets/flipCamera.svg')}
+            style={styles.cameraImage}
+          /> */}
+        </TouchableOpacity>
         <TouchableOpacity
           style={styles.singleIconContainer}
           onPress={() => {
             setMuteVideo(!muteVideo);
             instance.localPeer.localVideoTrack().setMute(!muteVideo);
+            instance.send('Video pressed');
           }}
         >
           <Feather
@@ -288,6 +310,11 @@ const styles = StyleSheet.create({
   },
   leaveIcon: {
     color: 'white',
+  },
+
+  cameraImage: {
+    width: 30,
+    height: 30,
   },
 });
 

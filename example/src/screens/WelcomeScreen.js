@@ -53,6 +53,10 @@ const App = () => {
     navigate('Meeting');
   };
 
+  const onError = (data) => {
+    console.log('here on error', data);
+  };
+
   // const callBackFailed = (data) => {
   //   console.log(data, 'data in failed');
   //   // TODO: failure handling here
@@ -79,6 +83,8 @@ const App = () => {
       HMSUpdateListenerActions.ON_JOIN,
       callBackSuccess
     );
+
+    instance.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
     instance.join(config);
   };
 
