@@ -5,6 +5,7 @@ import type HMSLocalPeer from './HMSLocalPeer';
 import type HMSRemotePeer from './HMSRemotePeer';
 import type HMSRoom from './HMSRoom';
 import HMSEncoder from './HMSEncoder';
+import type HMSMessage from './HMSMessage';
 
 const {
   /**
@@ -127,6 +128,10 @@ export default class HMSSDK {
   async leave() {
     await HmsManager.leave();
   }
+
+  send = (data: HMSMessage) => {
+    HmsManager.send(data);
+  };
 
   /**
    * - This is a prototype event listener that takes action and listens for updates related to that particular action

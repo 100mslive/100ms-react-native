@@ -105,7 +105,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener {
 
     func on(error: HMSError) {
         print("ERROR")
-        self.sendEvent(withName: ON_ERROR, body: ["event": ON_ERROR, "error": error.description])
+        self.sendEvent(withName: ON_ERROR, body: ["event": ON_ERROR, "error": error.description, "code": error.code.rawValue, "id": error.id, "message": error.message])
         // TODO: errors to be handled here
     }
 
@@ -190,5 +190,16 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener {
     func leave() {
         print("inside leave function")
         hms?.leave();
+    }
+    
+    @objc
+    func send(_ data: NSDictionary) {
+        print("data in send function")
+        print(data)
+        if let message = data.value(forKey: "message") as! String?, let sender = data.value(forKey: "sender") as! String?, let time = data.value(forKey: "time") as! String?, let type = data.value(forKey: "type") as! String? {
+            let hmsMessage = HMSMessage(sender: sender, time: time, type: type, message: message)
+            hms?.send(message: hmsMessage)
+        }
+        
     }
 }
