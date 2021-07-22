@@ -111,7 +111,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener {
 
     func on(message: HMSMessage) {
         print("Message")
-        self.sendEvent(withName: ON_MESSAGE, body: ["event": ON_MESSAGE, "sender": message.sender, "time": message.time])
+        self.sendEvent(withName: ON_MESSAGE, body: ["event": ON_MESSAGE, "sender": message.sender, "time": message.time, "message": message.message])
         // TODO: HMS message handling
     }
 
@@ -119,7 +119,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener {
         print("Speaker")
         var speakerPeerIds: [String] = []
         for speaker in speakers {
-            speakerPeerIds.append(speaker.peerID)
+            speakerPeerIds.append(speaker.peer.peerID)
         }
         self.sendEvent(withName: ON_SPEAKER, body: ["event": ON_SPEAKER, "count": speakers.count, "peers" :speakerPeerIds])
         // TODO: HMS speaker updates
