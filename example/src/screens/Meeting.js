@@ -194,17 +194,17 @@ const Meeting = () => {
         <TouchableOpacity
           style={styles.singleIconContainer}
           onPress={() => {
-            // instance.localPeer.localVideoTrack().switchCamera();
-            const hmsMessage = new HMSMessage({
-              sender: 'sender',
-              type: 'host',
-              time: '15:20',
-              message: 'message',
-            });
+            instance.localPeer.localVideoTrack().switchCamera();
+            // const hmsMessage = new HMSMessage({
+            //   sender: 'sender',
+            //   type: 'host',
+            //   time: '15:20',
+            //   message: 'message',
+            // });
 
-            console.log(hmsMessage, 'hmsMessage');
+            // console.log(hmsMessage, 'hmsMessage');
 
-            instance.send(hmsMessage);
+            // instance.send(hmsMessage);
           }}
         >
           <Feather name="camera" style={styles.videoIcon} size={30} />
@@ -218,7 +218,6 @@ const Meeting = () => {
           onPress={() => {
             setMuteVideo(!muteVideo);
             instance.localPeer.localVideoTrack().setMute(!muteVideo);
-            instance.send('Video pressed');
           }}
         >
           <Feather
