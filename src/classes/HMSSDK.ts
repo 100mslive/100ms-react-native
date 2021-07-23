@@ -23,6 +23,7 @@ export default class HMSSDK {
   localPeer?: HMSLocalPeer;
   remotePeers?: HMSRemotePeer[];
 
+  onPreviewDelegate?: Function;
   onJoinDelegate?: Function;
   onRoomDelegate?: Function;
   onPeerDelegate?: Function;
@@ -48,6 +49,13 @@ export default class HMSSDK {
     HmsManager.build();
     HmsSdk = new HMSSDK();
     return HmsSdk;
+  }
+
+  attachPreviewListener() {
+    HmsEventEmitter.addListener(
+      HMSUpdateListenerActions.ON_PREVIEW,
+      this.onPreviewListener
+    );
   }
 
   attachListeners() {
@@ -110,6 +118,11 @@ export default class HMSSDK {
     await HmsManager.join(config);
   }
 
+  async preview(config: HMSConfig) {
+    this.attachPreviewListener();
+    HmsManager.preview(config);
+  }
+
   /**
    * This is a prototype method for interaction with native sdk will be @deprecated in future
    *
@@ -143,6 +156,9 @@ export default class HMSSDK {
    */
   async addEventListener(action: HMSUpdateListenerActions, callback: Function) {
     switch (action) {
+      case HMSUpdateListenerActions.ON_PREVIEW:
+        this.onPreviewDelegate = callback;
+        break;
       case HMSUpdateListenerActions.ON_JOIN:
         this.onJoinDelegate = callback;
         break;
@@ -174,6 +190,22 @@ export default class HMSSDK {
         console.log('default case');
     }
   }
+
+  onPreviewListener = (data: any) => {
+    console.log(data, 'data in preview');
+    const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
+    const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
+      data.localPeer
+    );
+
+    const previewTracks = HMSEncoder.encodeHmsPreviewTracks(data.previewTracks);
+
+    this.localPeer = localPeer;
+    this.room = room;
+    if (this.onPreviewDelegate) {
+      this.onPreviewDelegate({ ...data, room, localPeer, previewTracks });
+    }
+  };
 
   onJoinListener = (data: any) => {
     // Preprocessing

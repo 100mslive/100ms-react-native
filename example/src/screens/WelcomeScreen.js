@@ -15,6 +15,7 @@ import HmsManager, {
 } from 'react-native-hmssdk';
 import Feather from 'react-native-vector-icons/Feather';
 import UserIdModal from '../components/UserIdModal';
+import PreviewModal from '../components/PreviewModal';
 import { navigate } from '../services/navigation';
 import { Platform } from 'react-native';
 
@@ -40,12 +41,20 @@ const App = () => {
   const [role, setRole] = React.useState('host');
   const [initialized, setInitialized] = React.useState(false);
   const [modalVisible, setModalVisible] = React.useState(false);
+  const [previewModal, setPreviewModal] = React.useState(false);
+  const [localVideoTrackId, setLocalVideoTrackId] = React.useState('');
+  const [config, setConfig] = React.useState(null);
 
   const [instance, setInstance] = React.useState(null);
 
-  const callBackSuccess = (data) => {
+  const previewSuccess = (data) => {
     console.log('here in callback success', data);
-    navigate('Meeting');
+    const videoTrackId = data?.previewTracks?.videoTrack?.trackId;
+
+    if (videoTrackId) {
+      setLocalVideoTrackId(videoTrackId);
+      setPreviewModal(true);
+    }
   };
 
   const onError = (data) => {
@@ -72,15 +81,22 @@ const App = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const joinRoom = (token, userID) => {
-    const config = new HMSConfig({ authToken: token, userID, roomID });
+  const previewRoom = (token, userID) => {
+    const HmsConfig = new HMSConfig({ authToken: token, userID, roomID });
     instance.addEventListener(
-      HMSUpdateListenerActions.ON_JOIN,
-      callBackSuccess
+      HMSUpdateListenerActions.ON_PREVIEW,
+      previewSuccess
     );
 
     instance.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
+    instance.preview(HmsConfig);
+    setConfig(HmsConfig);
+  };
+
+  const joinRoom = () => {
+    setPreviewModal(false);
     instance.join(config);
+    navigate('Meeting');
   };
 
   return (
@@ -120,10 +136,24 @@ const App = () => {
       {modalVisible && (
         <UserIdModal
           join={(userID) => {
-            callService(userID, roomID, role, joinRoom);
+            callService(userID, roomID, role, previewRoom);
             setModalVisible(false);
           }}
           cancel={() => setModalVisible(false)}
+        />
+      )}
+      {previewModal && (
+        <PreviewModal
+          setAudio={(value) => {
+            console.log(instance, 'instance');
+            instance?.localPeer?.localAudioTrack().setMute(value);
+          }}
+          setVideo={(value) => {
+            console.log(instance, 'instance');
+            instance?.localPeer?.localVideoTrack().setMute(value);
+          }}
+          trackId={localVideoTrackId}
+          join={joinRoom}
         />
       )}
     </View>

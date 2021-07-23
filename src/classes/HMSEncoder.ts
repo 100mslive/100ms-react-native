@@ -9,6 +9,8 @@ import HMSRemotePeer from './HMSRemotePeer';
 
 import HMSAudioTrackSettings from './HMSAudioTrackSettings';
 import HMSVideoTrackSettings from './HMSVideoTrackSettings';
+import HMSLocalVideoTrack from './HMSLocalVideoTrack';
+import HMSLocalAudioTrack from './HMSLocalAudioTrack';
 
 export default class HMSEncoder {
   static encodeHmsRoom(room: any) {
@@ -179,5 +181,18 @@ export default class HMSEncoder {
     };
 
     return new HMSRemotePeer(encodedObj);
+  }
+
+  static encodeHmsPreviewTracks(previewTracks: any) {
+    const encodedObj = {
+      audioTrack: previewTracks.audioTrack
+        ? new HMSLocalAudioTrack(previewTracks.audioTrack)
+        : null,
+      videoTrack: previewTracks.videoTrack
+        ? new HMSLocalVideoTrack(previewTracks.videoTrack)
+        : null,
+    };
+
+    return encodedObj;
   }
 }
