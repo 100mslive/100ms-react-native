@@ -1,4 +1,5 @@
 enum HMSUpdateListenerActions {
+  ON_PREVIEW = 'ON_PREVIEW',
   ON_JOIN = 'ON_JOIN',
   ON_ROOM_UPDATE = 'ON_ROOM_UPDATE',
   ON_PEER_UPDATE = 'ON_PEER_UPDATE',

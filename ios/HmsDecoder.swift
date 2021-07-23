@@ -177,4 +177,20 @@ class HmsDecoder: NSObject {
         
         return ["peerID": peerID, "name": name, "isLocal": isLocal, "customerUserID": customerUserID, "customerDescription": customerDescription, "audioTrack": audioTrack, "videoTrack": videoTrack, "auxiliaryTracks": auxiliaryTracks, "remoteAudioTrackData": remoteAudioTrackData, "remoteVideoTrackData": remoteVideoTrackData]
     }
+    
+    static func getPreviewTracks(_ tracks: [HMSTrack]) -> [String: Any] {
+        var hmsTracks: [String: Any] = [:]
+        for track in tracks {
+            if let localVideo = track as? HMSLocalVideoTrack {
+                let localVideoTrackData: [String : Any] = ["trackId": localVideo.trackId, "source": localVideo.source, "trackDescription": localVideo.trackDescription, "settings": getHmsVideoTrackSettings(localVideo.settings)]
+                hmsTracks["videoTrack"] = localVideoTrackData
+            }
+            
+            if let localAudio = track as? HMSLocalAudioTrack {
+                let localAudioTrackData: [String : Any]  = ["trackId": localAudio.trackId, "source": localAudio.source, "trackDescription": localAudio.trackDescription, "settings": getHmsAudioTrackSettings(localAudio.settings)]
+                hmsTracks["audioTrack"] = localAudioTrackData
+            }
+        }
+        return hmsTracks
+    }
 }
