@@ -24,8 +24,6 @@ const Meeting = ({ messages }) => {
   const [isMute, setIsMute] = useState(false);
   const [muteVideo, setMuteVideo] = useState(false);
 
-  console.log('messages', messages);
-
   const onJoinListener = (data) => {
     console.log(data, 'data in onJoin');
   };
