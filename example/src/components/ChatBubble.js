@@ -4,10 +4,12 @@ import { View, Text, StyleSheet } from 'react-native';
 import dimension from '../utils/dimension';
 
 const ChatBubble = ({ data, isLocal }) => {
-  console.log(data, 'data');
   return (
     <View style={isLocal ? styles.senderMessageBubble : styles.messageBubble}>
       <View style={styles.textContainer}>
+        <Text style={isLocal ? styles.senderText : styles.receiverText}>
+          {isLocal ? 'You' : data.sender}
+        </Text>
         <Text style={styles.message}>{data.message}</Text>
       </View>
     </View>
@@ -39,5 +41,15 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: dimension.viewHeight(18),
     textAlign: 'left',
+  },
+  senderText: {
+    textAlign: 'right',
+    color: '#ccffee',
+    fontWeight: 'bold',
+  },
+
+  receiverText: {
+    color: '#ccffee',
+    fontWeight: 'bold',
   },
 });

@@ -15,11 +15,11 @@ import HmsManager, {
 import Feather from 'react-native-vector-icons/Feather';
 
 import ChatWindow from '../components/ChatWindow';
-import { addMessage } from '../redux/actions/index';
+import { addMessage, clearMessageData } from '../redux/actions/index';
 import { navigate } from '../services/navigation';
 import dimension from '../utils/dimension';
 
-const Meeting = ({ messages, addMessageRequest }) => {
+const Meeting = ({ messages, addMessageRequest, clearMessageRequest }) => {
   const [instance, setInstance] = useState(null);
   const [trackId, setTrackId] = useState('');
   const [remoteTrackIds, setRemoteTrackIds] = useState([]);
@@ -193,6 +193,7 @@ const Meeting = ({ messages, addMessageRequest }) => {
           style={styles.leaveIconContainer}
           onPress={async () => {
             instance.leave();
+            clearMessageRequest();
             navigate('WelcomeScreen');
           }}
         >
@@ -231,8 +232,8 @@ const Meeting = ({ messages, addMessageRequest }) => {
           send={(value) => {
             const hmsMessage = new HMSMessage({
               sender: 'sender',
-              type: 'host',
-              time: '15:20',
+              type: 'chat',
+              time: new Date().toISOString(),
               message: value,
             });
 
@@ -331,6 +332,7 @@ const styles = StyleSheet.create({
 
 const mapDispatchToProps = (dispatch) => ({
   addMessageRequest: (data) => dispatch(addMessage(data)),
+  clearMessageRequest: (data) => dispatch(clearMessageData(data)),
 });
 
 const mapStateToProps = (state) => ({

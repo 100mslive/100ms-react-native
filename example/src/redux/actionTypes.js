@@ -9,6 +9,9 @@ const createRequests = (base) => {
 
 const ADD_MESSAGE = createRequests('ADD_MESSAGE');
 
+const CLEAR_MESSAGE_DATA = createRequests('CLEAR_MESSAGE_DATA');
+
 export default {
   ADD_MESSAGE,
+  CLEAR_MESSAGE_DATA,
 };
