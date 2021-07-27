@@ -14,15 +14,20 @@ import HmsManager, {
 } from 'react-native-hmssdk';
 import Feather from 'react-native-vector-icons/Feather';
 
+import ChatWindow from '../components/ChatWindow';
+import { addMessage, clearMessageData } from '../redux/actions/index';
 import { navigate } from '../services/navigation';
 import dimension from '../utils/dimension';
 
-const Meeting = ({ messages }) => {
+const Meeting = ({ messages, addMessageRequest, clearMessageRequest }) => {
   const [instance, setInstance] = useState(null);
   const [trackId, setTrackId] = useState('');
   const [remoteTrackIds, setRemoteTrackIds] = useState([]);
   const [isMute, setIsMute] = useState(false);
   const [muteVideo, setMuteVideo] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  console.log(messages, 'messages');
 
   const onJoinListener = (data) => {
     console.log(data, 'data in onJoin');
@@ -49,6 +54,7 @@ const Meeting = ({ messages }) => {
   };
 
   const onMessage = (data) => {
+    addMessageRequest({ data, isLocal: false });
     console.log(data, 'data in onMessage');
   };
 
@@ -187,6 +193,7 @@ const Meeting = ({ messages }) => {
           style={styles.leaveIconContainer}
           onPress={async () => {
             instance.leave();
+            clearMessageRequest();
             navigate('WelcomeScreen');
           }}
         >
@@ -195,20 +202,10 @@ const Meeting = ({ messages }) => {
         <TouchableOpacity
           style={styles.singleIconContainer}
           onPress={() => {
-            instance.localPeer.localVideoTrack().switchCamera();
-            // const hmsMessage = new HMSMessage({
-            //   sender: 'sender',
-            //   type: 'host',
-            //   time: '15:20',
-            //   message: 'message',
-            // });
-
-            // console.log(hmsMessage, 'hmsMessage');
-
-            // instance.send(hmsMessage);
+            setModalVisible(true);
           }}
         >
-          <Feather name="camera" style={styles.videoIcon} size={30} />
+          <Feather name="message-circle" style={styles.videoIcon} size={30} />
           {/* <Image
             source={require('../assets/flipCamera.svg')}
             style={styles.cameraImage}
@@ -228,6 +225,25 @@ const Meeting = ({ messages }) => {
           />
         </TouchableOpacity>
       </View>
+      {modalVisible && (
+        <ChatWindow
+          messages={messages}
+          cancel={() => setModalVisible(false)}
+          send={(value) => {
+            const hmsMessage = new HMSMessage({
+              sender: 'sender',
+              type: 'chat',
+              time: new Date().toISOString(),
+              message: value,
+            });
+
+            console.log(hmsMessage, 'hmsMessage');
+
+            instance.send(hmsMessage);
+            addMessageRequest({ data: hmsMessage, isLocal: true });
+          }}
+        />
+      )}
     </View>
   );
 };
@@ -235,8 +251,8 @@ const Meeting = ({ messages }) => {
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    height: dimension.viewHeight(860),
-    marginTop: dimension.viewHeight(36),
+    height: dimension.viewHeight(896),
+    paddingTop: dimension.viewHeight(36),
   },
   videoView: {
     width: '100%',
@@ -314,10 +330,13 @@ const styles = StyleSheet.create({
   // },
 });
 
-const mapDispatchToProps = (dispatch) => ({});
+const mapDispatchToProps = (dispatch) => ({
+  addMessageRequest: (data) => dispatch(addMessage(data)),
+  clearMessageRequest: (data) => dispatch(clearMessageData(data)),
+});
 
 const mapStateToProps = (state) => ({
-  messages: state,
+  messages: state?.messages?.messages,
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Meeting);

@@ -1,9 +1,9 @@
 export default class HMSMessage {
   // endpoint: string;
-  sender: string;
-  message: string;
-  type: string;
-  time: string;
+  public sender: string;
+  public message: string;
+  public type: string;
+  public time: string;
 
   constructor(params: {
     sender: string;

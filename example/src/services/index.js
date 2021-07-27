@@ -1,5 +1,6 @@
 export const fetchToken = async ({ roomID, userID, role }) => {
-  const endPoint = 'https://ms-services-o0e1jijzwvka.runkit.sh/';
+  const endPoint =
+    'https://prod-in.100ms.live/hmsapi/yogi.app.100ms.live/api/token';
   const body = {
     room_id: roomID,
     user_id: userID,
