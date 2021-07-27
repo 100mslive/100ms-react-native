@@ -5,7 +5,7 @@ import type HMSLocalPeer from './HMSLocalPeer';
 import type HMSRemotePeer from './HMSRemotePeer';
 import type HMSRoom from './HMSRoom';
 import HMSEncoder from './HMSEncoder';
-import type HMSMessage from './HMSMessage';
+import HMSMessage from './HMSMessage';
 
 const {
   /**
@@ -274,8 +274,9 @@ export default class HMSSDK {
   };
 
   onMessageListener = (data: any) => {
+    const message = new HMSMessage(data);
     if (this.onMessageDelegate) {
-      this.onMessageDelegate(data);
+      this.onMessageDelegate(message);
     }
   };
 

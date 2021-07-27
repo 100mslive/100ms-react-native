@@ -119,7 +119,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
 
     func on(message: HMSMessage) {
         print("Message")
-        self.sendEvent(withName: ON_MESSAGE, body: ["event": ON_MESSAGE, "sender": message.sender, "time": message.time, "message": message.message])
+        self.sendEvent(withName: ON_MESSAGE, body: ["event": ON_MESSAGE, "sender": message.sender, "time": message.time, "message": message.message, "type": message.type])
     }
 
     func on(updated speakers: [HMSSpeaker]) {
