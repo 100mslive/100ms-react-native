@@ -6,6 +6,7 @@ import {
   ScrollView,
   // Image,
 } from 'react-native';
+import { connect } from 'react-redux';
 import HmsManager, {
   HmsView,
   HMSUpdateListenerActions,
@@ -16,7 +17,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import { navigate } from '../services/navigation';
 import dimension from '../utils/dimension';
 
-const Meeting = () => {
+const Meeting = ({ messages }) => {
   const [instance, setInstance] = useState(null);
   const [trackId, setTrackId] = useState('');
   const [remoteTrackIds, setRemoteTrackIds] = useState([]);
@@ -313,4 +314,10 @@ const styles = StyleSheet.create({
   // },
 });
 
-export default Meeting;
+const mapDispatchToProps = (dispatch) => ({});
+
+const mapStateToProps = (state) => ({
+  messages: state,
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Meeting);

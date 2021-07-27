@@ -115,13 +115,11 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     func on(error: HMSError) {
         print("ERROR")
         self.sendEvent(withName: ON_ERROR, body: ["event": ON_ERROR, "error": error.description, "code": error.code.rawValue, "id": error.id, "message": error.message])
-        // TODO: errors to be handled here
     }
 
     func on(message: HMSMessage) {
         print("Message")
         self.sendEvent(withName: ON_MESSAGE, body: ["event": ON_MESSAGE, "sender": message.sender, "time": message.time, "message": message.message])
-        // TODO: HMS message handling
     }
 
     func on(updated speakers: [HMSSpeaker]) {
@@ -131,19 +129,16 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
             speakerPeerIds.append(speaker.peer.peerID)
         }
         self.sendEvent(withName: ON_SPEAKER, body: ["event": ON_SPEAKER, "count": speakers.count, "peers" :speakerPeerIds])
-        // TODO: HMS speaker updates
     }
 
     func onReconnecting() {
         self.sendEvent(withName: RECONNECTING, body: ["event": RECONNECTING])
         print("Reconnecting")
-        // TODO: Reconnection feedback to be dispatched from here
     }
 
     func onReconnected() {
         self.sendEvent(withName: RECONNECTED, body: ["event": RECONNECTED])
         print("Reconnected")
-        // TODO: Reconnected feedack to be dispatched from here
     }
 
     override func supportedEvents() -> [String]! {
@@ -158,7 +153,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     @objc
     func preview(_ credentials: NSDictionary) {
         if let jwtToken = credentials.value(forKey: "authToken") as! String?, let user = credentials.value(forKey: "userID") as! String?, let room = credentials.value(forKey: "roomID") as! String? {
-            config = HMSConfig(userID: user, roomID: room, authToken: jwtToken)
+            config = HMSConfig(userName: user, userID: UUID().uuidString, roomID: room, authToken: jwtToken)
             hms?.preview(config: config!, delegate: self)
         }
     }
@@ -166,7 +161,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     @objc
     func join(_ credentials: NSDictionary) {
         if let jwtToken = credentials.value(forKey: "authToken") as! String?, let user = credentials.value(forKey: "userID") as! String?, let room = credentials.value(forKey: "roomID") as! String? {
-            config = HMSConfig(userID: user, roomID: room, authToken: jwtToken)
+            config = HMSConfig(userName: user, userID: UUID().uuidString, roomID: room, authToken: jwtToken)
             hms?.join(config: config!, delegate: self)
         }
     }
