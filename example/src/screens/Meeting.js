@@ -27,30 +27,46 @@ const Meeting = ({ messages, addMessageRequest, clearMessageRequest }) => {
   const [muteVideo, setMuteVideo] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
-  console.log(messages, 'messages');
+  const updateVideoIds = (remotePeers, localPeer) => {
+    // get local track Id
+    const localTrackId = localPeer?.videoTrack?.trackId;
 
-  const onJoinListener = (data) => {
-    console.log(data, 'data in onJoin');
-  };
-
-  const onRoomListener = (data) => {
-    console.log(data, 'data in onRoom');
-  };
-
-  const onPeerListener = (data) => {
-    if (data.trackId) {
-      setTrackId(trackId);
-      setRemoteTrackIds(data.remoteTracks);
+    if (localTrackId) {
+      setTrackId(localTrackId);
     }
-    console.log(data, 'data in onPeer');
+
+    const remoteVideoIds = [];
+
+    if (remotePeers) {
+      remotePeers.map((remotePeer) => {
+        const remoteTrackId = remotePeer?.videoTrack?.trackId;
+
+        if (remoteTrackId) {
+          remoteVideoIds.push(remoteTrackId);
+        }
+      });
+
+      setRemoteTrackIds(remoteVideoIds);
+    }
   };
 
-  const onTrackListener = (data) => {
-    if (data.trackId) {
-      setTrackId(trackId);
-      setRemoteTrackIds(data.remoteTracks);
-    }
-    console.log(data, 'data in onTrack');
+  const onJoinListener = ({ room, localPeer, remotePeers }) => {
+    console.log(localPeer, remotePeers, 'data in onJoin');
+  };
+
+  const onRoomListener = ({ room, localPeer, remotePeers }) => {
+    updateVideoIds(remotePeers, localPeer);
+    console.log(remotePeers, localPeer, 'data in onRoom');
+  };
+
+  const onPeerListener = ({ room, remotePeers, localPeer }) => {
+    updateVideoIds(remotePeers, localPeer);
+    console.log(remotePeers, localPeer, 'data in onPeer');
+  };
+
+  const onTrackListener = ({ room, remotePeers, localPeer }) => {
+    updateVideoIds(remotePeers, localPeer);
+    console.log(remotePeers, localPeer, 'data in onTrack');
   };
 
   const onMessage = (data) => {
@@ -127,11 +143,27 @@ const Meeting = ({ messages, addMessageRequest, clearMessageRequest }) => {
 
   useEffect(() => {
     if (instance) {
-      instance.getTrackIds(({ remoteTracks, localTrackId }) => {
-        console.log(remoteTracks, localTrackId);
+      const localTrackId = instance.localPeer?.videoTrack?.trackId;
+
+      if (localTrackId) {
         setTrackId(localTrackId);
-        setRemoteTrackIds(remoteTracks);
-      });
+      }
+
+      const remoteVideoIds = [];
+
+      const remotePeers = instance?.remotePeers ? instance.remotePeers : [];
+
+      if (remotePeers) {
+        remotePeers.map((remotePeer) => {
+          const remoteTrackId = remotePeer?.videoTrack?.trackId;
+
+          if (remoteTrackId) {
+            remoteVideoIds.push(remoteTrackId);
+          }
+        });
+
+        setRemoteTrackIds(remoteVideoIds);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [instance]);
@@ -236,8 +268,6 @@ const Meeting = ({ messages, addMessageRequest, clearMessageRequest }) => {
               time: new Date().toISOString(),
               message: value,
             });
-
-            console.log(hmsMessage, 'hmsMessage');
 
             instance.send(hmsMessage);
             addMessageRequest({ data: hmsMessage, isLocal: true });

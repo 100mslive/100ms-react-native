@@ -23,16 +23,16 @@ export default class HMSSDK {
   localPeer?: HMSLocalPeer;
   remotePeers?: HMSRemotePeer[];
 
-  onPreviewDelegate?: Function;
-  onJoinDelegate?: Function;
-  onRoomDelegate?: Function;
-  onPeerDelegate?: Function;
-  onTrackDelegate?: Function;
-  onErrorDelegate?: Function;
-  onMessageDelegate?: Function;
-  onSpeakerDelegate?: Function;
-  onReconnectingDelegate?: Function;
-  onReconnectedDelegate?: Function;
+  onPreviewDelegate?: any;
+  onJoinDelegate?: any;
+  onRoomDelegate?: any;
+  onPeerDelegate?: any;
+  onTrackDelegate?: any;
+  onErrorDelegate?: any;
+  onMessageDelegate?: any;
+  onSpeakerDelegate?: any;
+  onReconnectingDelegate?: any;
+  onReconnectedDelegate?: any;
 
   /**
    * - Returns an instance of [HMSSDK]{@link HMSSDK}
@@ -51,14 +51,14 @@ export default class HMSSDK {
     return HmsSdk;
   }
 
-  attachPreviewListener() {
+  attachPreviewListener = () => {
     HmsEventEmitter.addListener(
       HMSUpdateListenerActions.ON_PREVIEW,
       this.onPreviewListener
     );
-  }
+  };
 
-  attachListeners() {
+  attachListeners = () => {
     console.log('attatch listeners');
     HmsEventEmitter.addListener(
       HMSUpdateListenerActions.ON_JOIN,
@@ -104,7 +104,7 @@ export default class HMSSDK {
       HMSUpdateListenerActions.RECONNECTED,
       this.reconnectedListener
     );
-  }
+  };
 
   /**
    * takes an instance of [HMSConfig]{@link HMSConfig} and joins the room
@@ -113,34 +113,24 @@ export default class HMSSDK {
    * @param {HMSConfig} config
    * @memberof HMSSDK
    */
-  async join(config: HMSConfig) {
+  join = async (config: HMSConfig) => {
     this.attachListeners();
     await HmsManager.join(config);
-  }
+  };
 
-  async preview(config: HMSConfig) {
+  preview = (config: HMSConfig) => {
     this.attachPreviewListener();
     HmsManager.preview(config);
-  }
-
-  /**
-   * This is a prototype method for interaction with native sdk will be @deprecated in future
-   *
-   * @param {*} callback
-   * @memberof HMSSDK
-   */
-  async getTrackIds(callback: any) {
-    await HmsManager.getTrackIds(callback);
-  }
+  };
 
   /**
    * Calls leave function of native sdk and session of current user is invalidated
    *
    * @memberof HMSSDK
    */
-  async leave() {
-    await HmsManager.leave();
-  }
+  leave = () => {
+    HmsManager.leave();
+  };
 
   send = (data: HMSMessage) => {
     HmsManager.send(data);
@@ -154,7 +144,7 @@ export default class HMSSDK {
    * @param {*} callback
    * @memberof HMSSDK
    */
-  async addEventListener(action: HMSUpdateListenerActions, callback: Function) {
+  addEventListener = (action: HMSUpdateListenerActions, callback: any) => {
     switch (action) {
       case HMSUpdateListenerActions.ON_PREVIEW:
         this.onPreviewDelegate = callback;
@@ -189,7 +179,7 @@ export default class HMSSDK {
       default:
         console.log('default case');
     }
-  }
+  };
 
   onPreviewListener = (data: any) => {
     console.log(data, 'data in preview');
