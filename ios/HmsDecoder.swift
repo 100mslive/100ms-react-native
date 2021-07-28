@@ -28,6 +28,7 @@ class HmsDecoder: NSObject {
         let customerDescription: String = peer.customerDescription ?? ""
         let audioTrack: [String: Any] = getHmsAudioTrack(peer.audioTrack)
         let videoTrack : [String: Any] = getHmsVideoTrack(peer.videoTrack)
+        let role: [String: Any] = getHmsRole(peer.role)
         var auxiliaryTracks: [[String: Any]] = []
         
         for track in peer.auxiliaryTracks ?? [] {
@@ -193,4 +194,54 @@ class HmsDecoder: NSObject {
         }
         return hmsTracks
     }
+    
+    static func getHmsRole(_ hmsRole: HMSRole?) -> [String: Any] {
+        if let role = hmsRole {
+            let name = role.name;
+            let permissions = getHmsPermissions(role.permissions)
+            let publishSettings = getHmsPublishSettings(role.publishSettings)
+            
+            return ["name": name, "permissions": permissions, "publishSettings": publishSettings]
+        } else {
+            return [:]
+        }
+    }
+    
+    static func getHmsPermissions (_ permissions: HMSPermissions) -> [String: Any] {
+        let endRoom = permissions.endRoom
+        let removeOthers = permissions.removeOthers
+        let stopPresentation = permissions.stopPresentation
+        let muteAll = permissions.muteAll
+        let askToUnmute = permissions.askToUnmute
+        let muteSelective = permissions.muteSelective
+        let changeRole = permissions.changeRole
+        
+        return ["endRoom": endRoom, "removeOthers": removeOthers, "stopPresentation": stopPresentation, "muteAll": muteAll, "askToUnmute": askToUnmute, "muteSelective": muteSelective, "changeRole": changeRole]
+    }
+    
+    static func getHmsPublishSettings (_ publishSettings: HMSPublishSettings) -> [String: Any] {
+        let audio = getHmsAudioSettings(publishSettings.audio)
+        let video = getHmsVideoSettings(publishSettings.video)
+        let screen = getHmsVideoSettings(publishSettings.screen)
+        
+        return ["audio": audio, "video": video, "screen": screen]
+    }
+    
+    static func getHmsAudioSettings(_ audioSettings: HMSAudioSettings) -> [String: Any] {
+        let bitRate = audioSettings.bitRate
+        let codec = audioSettings.codec
+        
+        return ["birRate": bitRate, "codec": codec]
+    }
+    
+    static func getHmsVideoSettings(_ videoSettings: HMSVideoSettings) -> [String: Any] {
+        let bitRate = videoSettings.bitRate
+        let codec = videoSettings.codec
+        let frameRate = videoSettings.frameRate
+        let width = videoSettings.width
+        let height = videoSettings.height
+        
+        return ["bitRate": bitRate ?? 0, "codec": codec, "frameRate": frameRate, "width": width, "height": height]
+    }
+    
 }
