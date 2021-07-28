@@ -31,20 +31,11 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
 
     func on(join room: HMSRoom) {
         // Callback from join action
-        let remotePeers = hms?.remotePeers
-        var remoteTracks: [String] = []
-        for peer in remotePeers ?? [] {
-            let remoteTrackId = peer.videoTrack?.trackId
-            if let trackId = remoteTrackId {
-                remoteTracks.append(trackId)
-            }
-        }
-        
         let roomData = HmsDecoder.getHmsRoom(room)
         let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
         let remotePeerData = HmsDecoder.getHmsRemotePeers(hms?.remotePeers)
         
-        self.sendEvent(withName: ON_JOIN, body: ["event": ON_JOIN, "trackId": hms?.localPeer?.videoTrack?.trackId ?? false, "remoteTracks": remoteTracks, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
+        self.sendEvent(withName: ON_JOIN, body: ["event": ON_JOIN, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
     }
     
     func onPreview(room: HMSRoom, localTracks: [HMSTrack]) {
@@ -57,59 +48,29 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
 
     func on(room: HMSRoom, update: HMSRoomUpdate) {
         // Listener for any updation in room
-        print("ROOM")
-        let remotePeers = hms?.remotePeers
-        var remoteTracks: [String] = []
-        for peer in remotePeers ?? [] {
-            let remoteTrackId = peer.videoTrack?.trackId
-            if let trackId = remoteTrackId {
-                remoteTracks.append(trackId)
-            }
-        }
-
         let roomData = HmsDecoder.getHmsRoom(room)
         let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
         let remotePeerData = HmsDecoder.getHmsRemotePeers(hms?.remotePeers)
         
-        self.sendEvent(withName: ON_ROOM_UPDATE, body: ["event": ON_ROOM_UPDATE, "trackId": hms?.localPeer?.videoTrack?.trackId ?? false, "remoteTracks": remoteTracks, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
+        self.sendEvent(withName: ON_ROOM_UPDATE, body: ["event": ON_ROOM_UPDATE, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
     }
 
     func on(peer: HMSPeer, update: HMSPeerUpdate) {
         // Listener for updates in Peers
-        print("PEER")
-        let remotePeers = hms?.remotePeers
-        var remoteTracks: [String] = []
-        for peer in remotePeers ?? [] {
-            let trackId = peer.videoTrack?.trackId
-            if let track = trackId {
-                remoteTracks.append(track)
-            }
-        }
-        
         let roomData = HmsDecoder.getHmsRoom(hms?.room)
         let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
         let remotePeerData = HmsDecoder.getHmsRemotePeers(hms?.remotePeers)
         
-        self.sendEvent(withName: ON_PEER_UPDATE, body: ["event": ON_PEER_UPDATE, "trackId": hms?.localPeer?.videoTrack?.trackId ?? false, "remoteTracks": remoteTracks, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
+        self.sendEvent(withName: ON_PEER_UPDATE, body: ["event": ON_PEER_UPDATE, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
     }
 
     func on(track: HMSTrack, update: HMSTrackUpdate, for peer: HMSPeer) {
         // Listener for updates in Tracks
-        print("TRACK")
-        let remotePeers = hms?.remotePeers
-        var remoteTracks: [String] = []
-        for peer in remotePeers ?? [] {
-            let trackId = peer.videoTrack?.trackId
-            if let track = trackId {
-                remoteTracks.append(track)
-            }
-        }
-        
         let roomData = HmsDecoder.getHmsRoom(hms?.room)
         let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
         let remotePeerData = HmsDecoder.getHmsRemotePeers(hms?.remotePeers)
         
-        self.sendEvent(withName: ON_TRACK_UPDATE, body: ["event": ON_TRACK_UPDATE, "trackId": hms?.localPeer?.videoTrack?.trackId ?? false, "remoteTracks": remoteTracks, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
+        self.sendEvent(withName: ON_TRACK_UPDATE, body: ["event": ON_TRACK_UPDATE, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
     }
 
     func on(error: HMSError) {
@@ -180,27 +141,9 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     func switchCamera() {
         hms?.localPeer?.localVideoTrack()?.switchCamera()
     }
-    
-    @objc
-    func getTrackIds(_ callback: RCTResponseSenderBlock) {
-        let localTrackId = hms?.localPeer?.videoTrack?.trackId;
-        
-        let remotePeers = hms?.remotePeers
-        var remoteTracks: [String] = []
-        for peer in remotePeers ?? [] {
-            let trackId = peer.videoTrack?.trackId
-            
-            if let track = trackId {
-                remoteTracks.append(track)
-            }
-        }
-        let returnObject: NSDictionary = ["remoteTracks" : remoteTracks, "localTrackId": localTrackId ?? ""]
-        callback([returnObject])
-    }
 
     @objc
     func leave() {
-        print("inside leave function")
         hms?.leave();
     }
     
