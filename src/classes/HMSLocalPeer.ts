@@ -6,6 +6,7 @@ import type HMSVideoTrackSettings from './HMSVideoTrackSettings';
 import type HMSAudioTrackSettings from './HMSAudioTrackSettings';
 import HMSLocalAudioTrack from './HMSLocalAudioTrack';
 import HMSLocalVideoTrack from './HMSLocalVideoTrack';
+import type HMSRole from './HMSRole';
 
 export default class HMSLocalPeer extends HMSPeer {
   private localAudio?: HMSLocalAudioTrack;
@@ -26,6 +27,7 @@ export default class HMSLocalPeer extends HMSPeer {
     customerDescription?: string;
     audioTrack?: HMSAudioTrack;
     videoTrack?: HMSVideoTrack;
+    role?: HMSRole;
     auxiliaryTracks?: HMSTrack[];
     localAudioTrackData?: {
       trackId: string;

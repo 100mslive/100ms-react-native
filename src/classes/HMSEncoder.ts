@@ -11,6 +11,7 @@ import HMSAudioTrackSettings from './HMSAudioTrackSettings';
 import HMSVideoTrackSettings from './HMSVideoTrackSettings';
 import HMSLocalVideoTrack from './HMSLocalVideoTrack';
 import HMSLocalAudioTrack from './HMSLocalAudioTrack';
+import HMSRole from './HMSRole';
 
 export default class HMSEncoder {
   static encodeHmsRoom(room: any) {
@@ -38,6 +39,7 @@ export default class HMSEncoder {
       peerID: peer?.peerID,
       name: peer?.name,
       isLocal: peer?.isLocal,
+      role: HMSEncoder.encodeHmsRole(peer?.role),
       customerUserID: peer?.customerUserID,
       customerDescription: peer?.customerDescription,
       audioTrack: HMSEncoder.encodeHmsAudioTrack(peer?.audioTrack),
@@ -95,6 +97,7 @@ export default class HMSEncoder {
       isLocal: peer.isLocal,
       customerUserID: peer.customerUserID,
       customerDescription: peer.customerDescription,
+      role: HMSEncoder.encodeHmsRole(peer?.role),
       audioTrack: HMSEncoder.encodeHmsAudioTrack(peer.audioTrack),
       videoTrack: HMSEncoder.encodeHmsVideoTrack(peer.videoTrack),
       auxiliaryTracks: HMSEncoder.encodeHmsAuxiliaryTracks(
@@ -162,6 +165,7 @@ export default class HMSEncoder {
       isLocal: peer.isLocal,
       customerUserID: peer.customerUserID,
       customerDescription: peer.customerDescription,
+      role: HMSEncoder.encodeHmsRole(peer?.role),
       audioTrack: HMSEncoder.encodeHmsAudioTrack(peer.audioTrack),
       videoTrack: HMSEncoder.encodeHmsVideoTrack(peer.videoTrack),
       auxiliaryTracks: HMSEncoder.encodeHmsAuxiliaryTracks(
@@ -194,5 +198,11 @@ export default class HMSEncoder {
     };
 
     return encodedObj;
+  }
+
+  static encodeHmsRole(role: any) {
+    const hmsRole = new HMSRole(role);
+
+    return hmsRole;
   }
 }

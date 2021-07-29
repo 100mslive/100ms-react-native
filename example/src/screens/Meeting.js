@@ -193,7 +193,7 @@ const Meeting = ({ messages, addMessageRequest, clearMessageRequest }) => {
 
   return (
     <View style={styles.container}>
-      <ScrollView>
+      <ScrollView style={styles.scroll}>
         <View style={styles.videoView}>
           <View style={getLocalVideoStyles()}>
             <HmsView style={styles.hmsView} trackId={trackId} />
@@ -318,17 +318,13 @@ const styles = StyleSheet.create({
   iconContainers: {
     display: 'flex',
     flexDirection: 'row',
-    position: 'absolute',
     justifyContent: 'space-around',
     bottom: 0,
     paddingBottom: 22,
     paddingTop: 15,
     width: '100%',
-    left: 0,
-    right: 0,
-    zIndex: 500,
     backgroundColor: 'white',
-    minHeight: dimension.viewHeight(90),
+    height: dimension.viewHeight(90),
   },
 
   buttonText: {
@@ -354,10 +350,10 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
   },
-  // scroll: {
-  //   width: '100%',
-  //   height: '100%',
-  // },
+  scroll: {
+    width: '100%',
+    height: dimension.viewHeight(770),
+  },
 });
 
 const mapDispatchToProps = (dispatch) => ({

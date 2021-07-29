@@ -35,7 +35,7 @@ class HmsDecoder: NSObject {
             auxiliaryTracks.append(getHmsTrack(track))
         }
         
-        let result:[String: Any] = ["peerID": peerID, "name": name, "isLocal": isLocal, "customerUserID": customerUserID, "customerDescription": customerDescription, "audioTrack": audioTrack, "videoTrack": videoTrack, "auxiliaryTracks": auxiliaryTracks]
+        let result:[String: Any] = ["peerID": peerID, "name": name, "isLocal": isLocal, "customerUserID": customerUserID, "customerDescription": customerDescription, "audioTrack": audioTrack, "videoTrack": videoTrack, "auxiliaryTracks": auxiliaryTracks, "role": role]
 
         return result
     }
@@ -87,6 +87,7 @@ class HmsDecoder: NSObject {
             let customerDescription: String = peer.customerDescription ?? ""
             let audioTrack: [String: Any] = getHmsAudioTrack(peer.audioTrack)
             let videoTrack : [String: Any] = getHmsVideoTrack(peer.videoTrack)
+            let role: [String: Any] = getHmsRole(peer.role)
             var auxiliaryTracks: [[String: Any]] = []
             
             for track in peer.auxiliaryTracks ?? [] {
@@ -106,7 +107,7 @@ class HmsDecoder: NSObject {
                 localVideoTrackData = ["trackId": localVideo.trackId, "source": localVideo.source, "trackDescription": localVideo.trackDescription, "settings": getHmsVideoTrackSettings(localVideo.settings)]
             }
             
-            return ["peerID": peerID, "name": name, "isLocal": isLocal, "customerUserID": customerUserID, "customerDescription": customerDescription, "audioTrack": audioTrack, "videoTrack": videoTrack, "auxiliaryTracks": auxiliaryTracks, "localAudioTrackData": localAudioTrackData, "localVideoTrackData": localVideoTrackData]
+            return ["peerID": peerID, "name": name, "isLocal": isLocal, "customerUserID": customerUserID, "customerDescription": customerDescription, "audioTrack": audioTrack, "videoTrack": videoTrack, "auxiliaryTracks": auxiliaryTracks, "localAudioTrackData": localAudioTrackData, "localVideoTrackData": localVideoTrackData, "role": role]
         } else {
             return [:]
         }
@@ -157,6 +158,7 @@ class HmsDecoder: NSObject {
         let customerDescription: String = hmsRemotePeer.customerDescription ?? ""
         let audioTrack: [String: Any] = getHmsAudioTrack(hmsRemotePeer.audioTrack)
         let videoTrack : [String: Any] = getHmsVideoTrack(hmsRemotePeer.videoTrack)
+        let role: [String: Any] = getHmsRole(hmsRemotePeer.role)
         var auxiliaryTracks: [[String: Any]] = []
         
         for track in hmsRemotePeer.auxiliaryTracks ?? [] {
@@ -176,7 +178,7 @@ class HmsDecoder: NSObject {
             remoteVideoTrackData = ["trackId": remoteVideo.trackId, "source": remoteVideo.source, "trackDescription": remoteVideo.trackDescription, "layer": remoteVideo.layer.rawValue]
         }
         
-        return ["peerID": peerID, "name": name, "isLocal": isLocal, "customerUserID": customerUserID, "customerDescription": customerDescription, "audioTrack": audioTrack, "videoTrack": videoTrack, "auxiliaryTracks": auxiliaryTracks, "remoteAudioTrackData": remoteAudioTrackData, "remoteVideoTrackData": remoteVideoTrackData]
+        return ["peerID": peerID, "name": name, "isLocal": isLocal, "customerUserID": customerUserID, "customerDescription": customerDescription, "audioTrack": audioTrack, "videoTrack": videoTrack, "auxiliaryTracks": auxiliaryTracks, "remoteAudioTrackData": remoteAudioTrackData, "remoteVideoTrackData": remoteVideoTrackData, "role": role]
     }
     
     static func getPreviewTracks(_ tracks: [HMSTrack]) -> [String: Any] {
@@ -200,21 +202,25 @@ class HmsDecoder: NSObject {
             let name = role.name;
             let permissions = getHmsPermissions(role.permissions)
             let publishSettings = getHmsPublishSettings(role.publishSettings)
+            let priority = role.priority
+            let generalPermissions = role.generalPermissions ?? [:]
+            let internalPlugins = role.internalPlugins ?? [:]
+            let externalPlugins = role.externalPlugins ?? [:]
             
-            return ["name": name, "permissions": permissions, "publishSettings": publishSettings]
+            return ["name": name, "permissions": permissions, "publishSettings": publishSettings, "priority": priority, "generalPermissions": generalPermissions, "internalPlugins": internalPlugins, "externalPlugins": externalPlugins]
         } else {
             return [:]
         }
     }
     
     static func getHmsPermissions (_ permissions: HMSPermissions) -> [String: Any] {
-        let endRoom = permissions.endRoom
-        let removeOthers = permissions.removeOthers
-        let stopPresentation = permissions.stopPresentation
-        let muteAll = permissions.muteAll
-        let askToUnmute = permissions.askToUnmute
-        let muteSelective = permissions.muteSelective
-        let changeRole = permissions.changeRole
+        let endRoom = permissions.endRoom ?? false
+        let removeOthers = permissions.removeOthers ?? false
+        let stopPresentation = permissions.stopPresentation ?? false
+        let muteAll = permissions.muteAll ?? false
+        let askToUnmute = permissions.askToUnmute ?? false
+        let muteSelective = permissions.muteSelective ?? false
+        let changeRole = permissions.changeRole ?? false
         
         return ["endRoom": endRoom, "removeOthers": removeOthers, "stopPresentation": stopPresentation, "muteAll": muteAll, "askToUnmute": askToUnmute, "muteSelective": muteSelective, "changeRole": changeRole]
     }
@@ -223,8 +229,11 @@ class HmsDecoder: NSObject {
         let audio = getHmsAudioSettings(publishSettings.audio)
         let video = getHmsVideoSettings(publishSettings.video)
         let screen = getHmsVideoSettings(publishSettings.screen)
+        let videoSimulcastLayers = getHmsSimulcastLayers(publishSettings.videoSimulcastLayers)
+        let screenSimulcastLayers = getHmsSimulcastLayers(publishSettings.screenSimulcastLayers)
+        let allowed = publishSettings.allowed ?? []
         
-        return ["audio": audio, "video": video, "screen": screen]
+        return ["audio": audio, "video": video, "screen": screen, "videoSimulcastLayers": videoSimulcastLayers, "screenSimulcastLayers": screenSimulcastLayers, "allowed": allowed]
     }
     
     static func getHmsAudioSettings(_ audioSettings: HMSAudioSettings) -> [String: Any] {
@@ -244,4 +253,31 @@ class HmsDecoder: NSObject {
         return ["bitRate": bitRate ?? 0, "codec": codec, "frameRate": frameRate, "width": width, "height": height]
     }
     
+    static func getHmsSimulcastLayers(_ videoSimulcastLayers: HMSSimulcastSettingsPolicy?) -> [String: Any] {
+        if let videoLayers = videoSimulcastLayers {
+            let width = videoLayers.width ?? 0
+            let height = videoLayers.height ?? 0
+            let layers = getHmsSimulcastLayerSettingsPolicy(videoLayers.layers)
+            return ["width": width, "height": height, "layers": layers]
+        } else {
+            return [:]
+        }
+    }
+    
+    static func getHmsSimulcastLayerSettingsPolicy(_ layers: [HMSSimulcastLayerSettingsPolicy]?) -> [[String: Any]] {
+        var layersSettingsPolicy: [[String: Any]] = []
+        if let settingsPolicies = layers {
+            for settingsPolicy in settingsPolicies {
+                let rid = settingsPolicy.rid
+                let scaleResolutionDownBy = settingsPolicy.scaleResolutionDownBy ?? 0
+                let maxBitrate = settingsPolicy.maxBitrate ?? -1
+                let maxFramerate = settingsPolicy.maxFramerate ?? -1
+                
+                let settingsPolicyObject = ["rid": rid, "scaleResolutionDownBy": scaleResolutionDownBy, "maxBitrate": maxBitrate, "maxFramerate": maxFramerate] as [String : Any]
+                layersSettingsPolicy.append(settingsPolicyObject)
+            }
+        }
+        
+        return layersSettingsPolicy
+    }
 }

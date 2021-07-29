@@ -133,7 +133,7 @@ PODS:
   - GoogleUtilities/UserDefaults (7.5.0):
     - GoogleUtilities/Logger
   - GoogleWebRTC (1.1.31999)
-  - HMSSDK (0.0.7):
+  - HMSSDK (0.0.8):
     - GoogleWebRTC (= 1.1.31999)
   - libevent (2.1.12)
   - nanopb (2.30908.0):
@@ -585,7 +585,7 @@ SPEC CHECKSUMS:
   GoogleDataTransport: 85fd18ff3019bb85d3f2c551d04c481dedf71fc9
   GoogleUtilities: eea970f4a389963963bffe8d8fabe43540678b9c
   GoogleWebRTC: b39a78c4f5cc6b0323415b9233db03a2faa7b0f0
-  HMSSDK: b9c111ab801fae1766d88c8f86dd24887adb5ba4
+  HMSSDK: 17c0cf5f3c1749b995d8cc95434558f64aa46de7
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   OpenSSL-Universal: 1aa4f6a6ee7256b83db99ec1ccdaa80d10f9af9b
