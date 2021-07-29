@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
-import { HmsView } from 'react-native-hmssdk';
+import { HmsView } from 'react-native-hms';
 import dimension from '../utils/dimension';
 
 const PreviewModal = ({ trackId, setAudio, setVideo, join }) => {
