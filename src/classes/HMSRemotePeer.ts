@@ -2,6 +2,7 @@ import type HMSAudioTrack from './HMSAudioTrack';
 import HMSPeer from './HMSPeer';
 import HMSRemoteAudioTrack from './HMSRemoteAudioTrack';
 import HMSRemoteVideoTrack from './HMSRemoteVideoTrack';
+import type HMSRole from './HMSRole';
 import type HMSTrack from './HMSTrack';
 import type HMSVideoTrack from './HMSVideoTrack';
 
@@ -25,6 +26,7 @@ export default class HMSRemotePeer extends HMSPeer {
     customerDescription?: string;
     audioTrack?: HMSAudioTrack;
     videoTrack?: HMSVideoTrack;
+    role?: HMSRole;
     auxiliaryTracks?: HMSTrack[];
     remoteAudioTrackData?: {
       trackId: string;

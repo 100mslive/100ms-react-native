@@ -199,7 +199,6 @@ export default class HMSSDK {
 
   onJoinListener = (data: any) => {
     // Preprocessing
-    console.log(data, 'data after onJoin');
     const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
       data.localPeer
