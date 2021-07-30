@@ -1,11 +1,11 @@
-# react-native-hmssdk
+# react-native-hms
 
 React native wrapper for 100ms SDK
 
 ## Installation
 
 ```sh
-npm install react-native-hmssdk
+npm install react-native-hms
 
 cd ios/ && pod install
 ```
@@ -13,7 +13,7 @@ cd ios/ && pod install
 ## Usage
 
 ```js
-import HmsManager, {HmsView} from "react-native-hmssdk";
+import HmsManager, {HmsView} from "react-native-hms";
 
 // builds the SDK for HMS, required to call before any interaction with SDK
 HmsManager.build()

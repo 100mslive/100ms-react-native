@@ -11,7 +11,7 @@ import HmsManager, {
   HmsView,
   HMSUpdateListenerActions,
   HMSMessage,
-} from 'react-native-hmssdk';
+} from 'react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
 
 import ChatWindow from '../components/ChatWindow';

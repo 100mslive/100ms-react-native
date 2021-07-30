@@ -1,5 +1,5 @@
 {
-  "name": "react-native-hmssdk",
+  "name": "react-native-hms",
   "version": "0.1.0",
   "description": "React native wrapper for 100ms SDK",
   "main": "lib/commonjs/index",
@@ -13,7 +13,7 @@
     "android",
     "ios",
     "cpp",
-    "react-native-hmssdk.podspec",
+    "react-native-hms.podspec",
     "!lib/typescript/example",
     "!android/build",
     "!ios/build",
@@ -36,13 +36,13 @@
     "ios",
     "android"
   ],
-  "repository": "https://github.com/Akarsh08/react-native-hmssdk",
+  "repository": "https://github.com/100mslive/100ms-react-native",
   "author": "Akarsh <akarshs@geekyants.com> (https://github.com/Akarsh08)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Akarsh08/react-native-hmssdk/issues"
+    "url": "https://github.com/100mslive/100ms-react-native/issues"
   },
-  "homepage": "https://github.com/Akarsh08/react-native-hmssdk#readme",
+  "homepage": "https://github.com/100mslive/100ms-react-native#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },

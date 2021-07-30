@@ -12,7 +12,7 @@ import * as services from '../services/index';
 import HmsManager, {
   HMSConfig,
   HMSUpdateListenerActions,
-} from 'react-native-hmssdk';
+} from 'react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
 import UserIdModal from '../components/UserIdModal';
 import PreviewModal from '../components/PreviewModal';
