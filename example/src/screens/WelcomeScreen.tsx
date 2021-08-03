@@ -16,10 +16,15 @@ import HmsManager, {
 import Feather from 'react-native-vector-icons/Feather';
 import UserIdModal from '../components/UserIdModal';
 import PreviewModal from '../components/PreviewModal';
-import { navigate } from '../services/navigation';
-import { Platform } from 'react-native';
+import {navigate} from '../services/navigation';
+import {Platform} from 'react-native';
 
-const callService = async (userID, roomID, role, joinRoom) => {
+const callService = async (
+  userID: string,
+  roomID: string,
+  role: string,
+  joinRoom: Function,
+) => {
   const response = await services.fetchToken({
     userID,
     roomID,
@@ -38,16 +43,16 @@ const callService = async (userID, roomID, role, joinRoom) => {
 const App = () => {
   const [roomID, setRoomID] = React.useState('60f05a0a574fe6920b2560ba');
   const [text, setText] = React.useState('60f05a0a574fe6920b2560ba');
-  const [role, setRole] = React.useState('host');
+  const [role] = React.useState('host');
   const [initialized, setInitialized] = React.useState(false);
   const [modalVisible, setModalVisible] = React.useState(false);
   const [previewModal, setPreviewModal] = React.useState(false);
   const [localVideoTrackId, setLocalVideoTrackId] = React.useState('');
-  const [config, setConfig] = React.useState(null);
+  const [config, setConfig] = React.useState<HMSConfig | null>(null);
 
-  const [instance, setInstance] = React.useState(null);
+  const [instance, setInstance] = React.useState<any>(null);
 
-  const previewSuccess = (data) => {
+  const previewSuccess = (data: any) => {
     console.log('here in callback success', data);
     const videoTrackId = data?.previewTracks?.videoTrack?.trackId;
 
@@ -57,7 +62,7 @@ const App = () => {
     }
   };
 
-  const onError = (data) => {
+  const onError = (data: any) => {
     console.log('here on error', data);
   };
 
@@ -81,11 +86,11 @@ const App = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const previewRoom = (token, userID) => {
-    const HmsConfig = new HMSConfig({ authToken: token, userID, roomID });
+  const previewRoom = (token: string, userID: string) => {
+    const HmsConfig = new HMSConfig({authToken: token, userID, roomID});
     instance.addEventListener(
       HMSUpdateListenerActions.ON_PREVIEW,
-      previewSuccess
+      previewSuccess,
     );
 
     instance.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
@@ -109,7 +114,7 @@ const App = () => {
         <Text style={styles.heading}>Join a Meeting</Text>
         <View style={styles.textInputContainer}>
           <TextInput
-            onChangeText={(value) => {
+            onChangeText={value => {
               setText(value);
             }}
             placeholderTextColor="#454545"
@@ -127,15 +132,14 @@ const App = () => {
               setModalVisible(true);
               // callService(text, roomID, role, setToken);
             }
-          }}
-        >
+          }}>
           <Feather name="video" style={styles.videoIcon} size={20} />
           <Text style={styles.joinButtonText}>Join</Text>
         </TouchableOpacity>
       </View>
       {modalVisible && (
         <UserIdModal
-          join={(userID) => {
+          join={(userID: string) => {
             callService(userID, roomID, role, previewRoom);
             setModalVisible(false);
           }}
@@ -144,11 +148,11 @@ const App = () => {
       )}
       {previewModal && (
         <PreviewModal
-          setAudio={(value) => {
+          setAudio={(value: boolean) => {
             console.log(instance, 'instance');
             instance?.localPeer?.localAudioTrack().setMute(value);
           }}
-          setVideo={(value) => {
+          setVideo={(value: boolean) => {
             console.log(instance, 'instance');
             instance?.localPeer?.localVideoTrack().setMute(value);
           }}
@@ -272,6 +276,7 @@ const styles = StyleSheet.create({
     width: 200,
     height: 500,
   },
+  textInputContainer: {},
 });
 
 export default App;
