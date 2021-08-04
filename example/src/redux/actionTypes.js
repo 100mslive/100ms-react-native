@@ -1,4 +1,4 @@
-const createRequests = (base) => {
+const createRequests = base => {
   const statusObject = {
     REQUEST: `${base}_REQUEST`,
     SUCCESS: `${base}_SUCCESS`,

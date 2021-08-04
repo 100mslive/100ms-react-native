@@ -55,11 +55,20 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
+            BuildableName = "RNHMSExample.app"
+            BlueprintName = "RNHMSExample"
+            ReferencedContainer = "container:RNHMSExample.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
             BuildableName = "example.app"
             BlueprintName = "example"
             ReferencedContainer = "container:example.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
