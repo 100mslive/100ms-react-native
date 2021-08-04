@@ -28,9 +28,9 @@ const Meeting = ({
   addMessageRequest: Function;
   clearMessageRequest: Function;
 }) => {
-  const [instance, setInstance] = useState(null);
+  const [instance, setInstance] = useState<any>(null);
   const [trackId, setTrackId] = useState('');
-  const [remoteTrackIds, setRemoteTrackIds] = useState([]);
+  const [remoteTrackIds, setRemoteTrackIds] = useState<string[]>([]);
   const [isMute, setIsMute] = useState(false);
   const [muteVideo, setMuteVideo] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -54,7 +54,7 @@ const Meeting = ({
         }
       });
 
-      setRemoteTrackIds(remoteVideoIds);
+      setRemoteTrackIds(remoteVideoIds as []);
     }
   };
 
@@ -193,7 +193,7 @@ const Meeting = ({
       const remotePeers = instance?.remotePeers ? instance.remotePeers : [];
 
       if (remotePeers) {
-        remotePeers.map(remotePeer => {
+        remotePeers.map((remotePeer: any) => {
           const remoteTrackId = remotePeer?.videoTrack?.trackId;
 
           if (remoteTrackId) {
@@ -394,7 +394,7 @@ const styles = StyleSheet.create({
 
 const mapDispatchToProps = (dispatch: Function) => ({
   addMessageRequest: (data: any) => dispatch(addMessage(data)),
-  clearMessageRequest: (data: any) => dispatch(clearMessageData(data)),
+  clearMessageRequest: () => dispatch(clearMessageData()),
 });
 
 const mapStateToProps = (state: any) => ({
