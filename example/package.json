@@ -9,6 +9,7 @@
     "start": "react-native start"
   },
   "dependencies": {
+    "ios-deploy": "^1.11.4",
     "react": "16.13.1",
     "react-native": "0.64",
     "react-native-gesture-handler": "^1.10.3",

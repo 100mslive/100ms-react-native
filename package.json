@@ -1,7 +1,7 @@
 {
   "name": "react-native-hms",
   "version": "0.1.0",
-  "description": "React native wrapper for 100ms SDK",
+  "description": "The React Native package for 100ms SDK",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
   "types": "lib/typescript/index.d.ts",
@@ -37,12 +37,12 @@
     "android"
   ],
   "repository": "https://github.com/100mslive/100ms-react-native",
-  "author": "Akarsh <akarshs@geekyants.com> (https://github.com/Akarsh08)",
+  "author": "Yogesh <yogesh@100ms.live> (https://www.100ms.live/)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/100mslive/100ms-react-native/issues"
   },
-  "homepage": "https://github.com/100mslive/100ms-react-native#readme",
+  "homepage": "https://www.100ms.live/",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
