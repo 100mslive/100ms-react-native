@@ -1,4 +1,4 @@
-import { createAppContainer, createSwitchNavigator } from 'react-navigation';
+import {createAppContainer, createSwitchNavigator} from 'react-navigation';
 import AppStack from './App';
 
 const AppContainer = createAppContainer(
@@ -13,7 +13,7 @@ const AppContainer = createAppContainer(
       gestureEnabled: false,
     },
     initialRouteName: 'App',
-  }
+  },
 );
 
 export default AppContainer;
