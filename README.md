@@ -102,6 +102,8 @@ remotePeers.map((remotePeer: any) => {
 
 # Display a video in HmsView
 ```js
+import { HmsView } from 'react-native-hms';
+
 ...
 const styles = StyleSheet.create({
   hmsView: {
