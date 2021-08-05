@@ -601,7 +601,7 @@ SPEC CHECKSUMS:
   React-jsi: 5de8204706bd872b78ea646aee5d2561ca1214b6
   React-jsiexecutor: 124e8f99992490d0d13e0649d950d3e1aae06fe9
   React-jsinspector: 500a59626037be5b3b3d89c5151bc3baa9abf1a9
-  react-native-hms: 8343e268fcd8940b7a231d9e8082fa73728426e3
+  react-native-hms: c15211fa4646ff9e62294b016ca12db5ae478973
   react-native-safe-area-context: e471852c5ed67eea4b10c5d9d43c1cebae3b231d
   React-perflogger: aad6d4b4a267936b3667260d1f649b6f6069a675
   React-RCTActionSheet: fc376be462c9c8d6ad82c0905442fd77f82a9d2a

@@ -487,7 +487,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 5N85PP82A9;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = RNHMSExample/Info.plist;
@@ -500,6 +500,7 @@
 					"$(inherited)",
 					"$(SDKROOT)/usr/lib/swift",
 				);
+				MARKETING_VERSION = 1.0.3;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -519,7 +520,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 5N85PP82A9;
 				INFOPLIST_FILE = RNHMSExample/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
@@ -531,6 +532,7 @@
 					"$(inherited)",
 					"$(SDKROOT)/usr/lib/swift",
 				);
+				MARKETING_VERSION = 1.0.3;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
