@@ -40,7 +40,8 @@ const hmsInstance = await HmsManager.build();
 ...
 ```
 
-# Add event listeners for all the events such as onPreview, onJoin, onPeerUpdate etc. the actions can be found in HMSUpdateListenerActions class
+# Add event listeners
+add event listeners for all the events such as onPreview, onJoin, onPeerUpdate etc. the actions can be found in HMSUpdateListenerActions class
 ```js
 import HmsManager, {
   HMSUpdateListenerActions,
