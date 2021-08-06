@@ -254,7 +254,7 @@ const Meeting = ({
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scroll}>
+      <ScrollView style={styles.scroll} bounces={false}>
         <View style={styles.videoView}>
           <View style={getLocalVideoStyles()}>
             <HmsView style={styles.hmsView} trackId={trackId.trackId} />
