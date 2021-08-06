@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  // Image,
+  Image,
 } from 'react-native';
-import { connect } from 'react-redux';
+import {connect} from 'react-redux';
 import HmsManager, {
   HmsView,
   HMSUpdateListenerActions,
@@ -15,8 +15,8 @@ import HmsManager, {
 import Feather from 'react-native-vector-icons/Feather';
 
 import ChatWindow from '../components/ChatWindow';
-import { addMessage, clearMessageData } from '../redux/actions/index';
-import { navigate } from '../services/navigation';
+import {addMessage, clearMessageData} from '../redux/actions/index';
+import {navigate} from '../services/navigation';
 import dimension from '../utils/dimension';
 
 const Meeting = ({
@@ -114,7 +114,7 @@ const Meeting = ({
   };
 
   const onMessage = (data: any) => {
-    addMessageRequest({ data, isLocal: false });
+    addMessageRequest({data, isLocal: false});
     console.log(data, 'data in onMessage');
   };
 
@@ -296,6 +296,16 @@ const Meeting = ({
         <TouchableOpacity
           style={styles.singleIconContainer}
           onPress={() => {
+            instance.localPeer.localVideoTrack().switchCamera();
+          }}>
+          <Image
+            source={require('../assets/flip.png')}
+            style={styles.flipCameraIcon}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.singleIconContainer}
+          onPress={() => {
             setMuteVideo(!muteVideo);
             instance.localPeer.localVideoTrack().setMute(!muteVideo);
           }}>
@@ -318,7 +328,7 @@ const Meeting = ({
             });
 
             instance.send(hmsMessage);
-            addMessageRequest({ data: hmsMessage, isLocal: true });
+            addMessageRequest({data: hmsMessage, isLocal: true});
           }}
         />
       )}
@@ -340,6 +350,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   videoIcon: {},
+  flipCameraIcon: {
+    width: dimension.viewHeight(40),
+    height: dimension.viewHeight(40),
+  },
   fullScreenTile: {
     height: dimension.viewHeight(896),
     width: dimension.viewWidth(414),
