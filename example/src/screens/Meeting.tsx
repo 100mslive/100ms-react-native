@@ -4,6 +4,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Text,
   // Image,
 } from 'react-native';
 import {connect} from 'react-redux';
@@ -19,6 +20,11 @@ import {addMessage, clearMessageData} from '../redux/actions/index';
 import {navigate} from '../services/navigation';
 import dimension from '../utils/dimension';
 
+type Peer = {
+  trackId: string;
+  peerName: string;
+};
+
 const Meeting = ({
   messages,
   addMessageRequest,
@@ -29,8 +35,8 @@ const Meeting = ({
   clearMessageRequest: Function;
 }) => {
   const [instance, setInstance] = useState<any>(null);
-  const [trackId, setTrackId] = useState('');
-  const [remoteTrackIds, setRemoteTrackIds] = useState<string[]>([]);
+  const [trackId, setTrackId] = useState<Peer[]>([]);
+  const [remoteTrackIds, setRemoteTrackIds] = useState<Peer[]>([]);
   const [isMute, setIsMute] = useState(false);
   const [muteVideo, setMuteVideo] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -38,19 +44,22 @@ const Meeting = ({
   const updateVideoIds = (remotePeers: any, localPeer: any) => {
     // get local track Id
     const localTrackId = localPeer?.videoTrack?.trackId;
-
+    const localPeerName = localPeer?.name;
     if (localTrackId) {
-      setTrackId(localTrackId);
+      setTrackId({trackId: localTrackId, peerName: localPeerName});
     }
 
-    const remoteVideoIds: string[] = [];
+    const remoteVideoIds: Peer[] = [];
 
     if (remotePeers) {
       remotePeers.map((remotePeer: any) => {
         const remoteTrackId = remotePeer?.videoTrack?.trackId;
-
+        const remotePeerName = remotePeer?.name;
         if (remoteTrackId) {
-          remoteVideoIds.push(remoteTrackId);
+          remoteVideoIds.push({
+            trackId: remoteTrackId,
+            peerName: remotePeerName,
+          });
         }
       });
 
@@ -183,25 +192,28 @@ const Meeting = ({
   useEffect(() => {
     if (instance) {
       const localTrackId = instance?.localPeer?.videoTrack?.trackId;
-
+      const localPeerName = instance?.localPeer?.name;
       if (localTrackId) {
-        setTrackId(localTrackId);
+        setTrackId({trackId: localTrackId, peerName: localPeerName});
       }
 
-      const remoteVideoIds: string[] = [];
+      const remoteVideoIds: Peer[] = [];
 
       const remotePeers = instance?.remotePeers ? instance.remotePeers : [];
 
       if (remotePeers) {
         remotePeers.map((remotePeer: any) => {
           const remoteTrackId = remotePeer?.videoTrack?.trackId;
-
+          const remotePeerName = remotePeer?.name;
           if (remoteTrackId) {
-            remoteVideoIds.push(remoteTrackId);
+            remoteVideoIds.push({
+              trackId: remoteTrackId,
+              peerName: remotePeerName,
+            });
           }
         });
 
-        setRemoteTrackIds(remoteVideoIds);
+        setRemoteTrackIds(remoteVideoIds as []);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -235,12 +247,18 @@ const Meeting = ({
       <ScrollView style={styles.scroll}>
         <View style={styles.videoView}>
           <View style={getLocalVideoStyles()}>
-            <HmsView style={styles.hmsView} trackId={trackId} />
+            <HmsView style={styles.hmsView} trackId={trackId.trackId} />
+            <View style={styles.peerNameContainer}>
+              <Text style={styles.peerName}>{trackId.peerName}</Text>
+            </View>
           </View>
-          {remoteTrackIds.map((item: string) => {
+          {remoteTrackIds.map((item: Peer) => {
             return (
-              <View key={item} style={getRemoteVideoStyles()}>
-                <HmsView trackId={item} style={styles.hmsView} />
+              <View key={item.trackId} style={getRemoteVideoStyles()}>
+                <HmsView trackId={item.trackId} style={styles.hmsView} />
+                <View style={styles.peerNameContainer}>
+                  <Text style={styles.peerName}>{item.peerName}</Text>
+                </View>
               </View>
             );
           })}
@@ -389,6 +407,18 @@ const styles = StyleSheet.create({
   scroll: {
     width: '100%',
     height: dimension.viewHeight(770),
+  },
+  peerNameContainer: {
+    position: 'absolute',
+    bottom: 0,
+    alignSelf: 'center',
+    backgroundColor: 'rgba(137,139,155,0.5)',
+    paddingHorizontal: 8,
+    paddingVertical: 16,
+    borderRadius: 8,
+  },
+  peerName: {
+    color: 'blue',
   },
 });
 
