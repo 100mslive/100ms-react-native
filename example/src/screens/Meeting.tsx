@@ -23,10 +23,15 @@ const Meeting = ({
   messages,
   addMessageRequest,
   clearMessageRequest,
+  audioState,
+  videoState,
 }: {
   messages: any;
   addMessageRequest: Function;
   clearMessageRequest: Function;
+  audioState: boolean;
+  videoState: boolean;
+  state: any;
 }) => {
   const [instance, setInstance] = useState<any>(null);
   const [trackId, setTrackId] = useState('');
@@ -181,6 +186,11 @@ const Meeting = ({
   }, []);
 
   useEffect(() => {
+    setIsMute(!audioState);
+    setMuteVideo(!videoState);
+  }, [audioState, videoState]);
+
+  useEffect(() => {
     if (instance) {
       const localTrackId = instance?.localPeer?.videoTrack?.trackId;
 
@@ -274,10 +284,6 @@ const Meeting = ({
             setModalVisible(true);
           }}>
           <Feather name="message-circle" style={styles.videoIcon} size={30} />
-          {/* <Image
-            source={require('../assets/flipCamera.svg')}
-            style={styles.cameraImage}
-          /> */}
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.singleIconContainer}
@@ -298,7 +304,6 @@ const Meeting = ({
           cancel={() => setModalVisible(false)}
           send={(value: string) => {
             const hmsMessage = new HMSMessage({
-              sender: 'sender',
               type: 'chat',
               time: new Date().toISOString(),
               message: value,
@@ -399,6 +404,8 @@ const mapDispatchToProps = (dispatch: Function) => ({
 
 const mapStateToProps = (state: any) => ({
   messages: state?.messages?.messages,
+  audioState: state?.app?.audioState,
+  videoState: state?.app?.videoState,
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Meeting);

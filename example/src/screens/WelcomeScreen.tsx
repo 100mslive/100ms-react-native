@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
+import {connect} from 'react-redux';
 import * as services from '../services/index';
 import HmsManager, {
   HMSConfig,
@@ -18,6 +19,7 @@ import UserIdModal from '../components/UserIdModal';
 import PreviewModal from '../components/PreviewModal';
 import {navigate} from '../services/navigation';
 import {Platform} from 'react-native';
+import {setAudioVideoState} from '../redux/actions/index';
 
 const callService = async (
   userID: string,
@@ -40,7 +42,12 @@ const callService = async (
   return response;
 };
 
-const App = () => {
+const App = ({
+  setAudioVideoStateRequest,
+}: {
+  setAudioVideoStateRequest: Function;
+  state: any;
+}) => {
   const [roomID, setRoomID] = React.useState('60f05a0a574fe6920b2560ba');
   const [text, setText] = React.useState('60f05a0a574fe6920b2560ba');
   const [role] = React.useState('host');
@@ -49,6 +56,8 @@ const App = () => {
   const [previewModal, setPreviewModal] = React.useState(false);
   const [localVideoTrackId, setLocalVideoTrackId] = React.useState('');
   const [config, setConfig] = React.useState<HMSConfig | null>(null);
+  const [audio, setAudio] = React.useState(true);
+  const [video, setVideo] = React.useState(true);
 
   const [instance, setInstance] = React.useState<any>(null);
 
@@ -59,6 +68,7 @@ const App = () => {
     if (videoTrackId) {
       setLocalVideoTrackId(videoTrackId);
       setPreviewModal(true);
+      setAudioVideoStateRequest({audioState: true, videoState: true});
     }
   };
 
@@ -102,6 +112,7 @@ const App = () => {
     setPreviewModal(false);
     instance.join(config);
     navigate('Meeting');
+    setAudioVideoStateRequest({audioState: audio, videoState: video});
   };
 
   return (
@@ -149,11 +160,11 @@ const App = () => {
       {previewModal && (
         <PreviewModal
           setAudio={(value: boolean) => {
-            console.log(instance, 'instance');
+            setAudio(!value);
             instance?.localPeer?.localAudioTrack().setMute(value);
           }}
           setVideo={(value: boolean) => {
-            console.log(instance, 'instance');
+            setVideo(!value);
             instance?.localPeer?.localVideoTrack().setMute(value);
           }}
           trackId={localVideoTrackId}
@@ -279,4 +290,11 @@ const styles = StyleSheet.create({
   textInputContainer: {},
 });
 
-export default App;
+const mapDispatchToProps = (dispatch: Function) => ({
+  setAudioVideoStateRequest: (data: {
+    audioState: boolean;
+    videoState: boolean;
+  }) => dispatch(setAudioVideoState(data)),
+});
+
+export default connect(null, mapDispatchToProps)(App);
