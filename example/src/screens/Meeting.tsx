@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Text,
+  SafeAreaView,
 } from 'react-native';
 import {connect} from 'react-redux';
 import HmsManager, {
@@ -45,6 +46,7 @@ const Meeting = ({
   const [isMute, setIsMute] = useState(false);
   const [muteVideo, setMuteVideo] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [safeHeight, setSafeHeight] = useState(0);
 
   const updateVideoIds = (remotePeers: any, localPeer: any) => {
     // get local track Id
@@ -253,27 +255,53 @@ const Meeting = ({
   };
 
   return (
-    <View style={styles.container}>
-      <ScrollView style={styles.scroll} bounces={false}>
-        <View style={styles.videoView}>
-          <View style={getLocalVideoStyles()}>
-            <HmsView style={styles.hmsView} trackId={trackId.trackId} />
-            <View style={styles.peerNameContainer}>
-              <Text style={styles.peerName}>{trackId.peerName}</Text>
-            </View>
-          </View>
-          {remoteTrackIds.map((item: Peer) => {
-            return (
-              <View key={item.trackId} style={getRemoteVideoStyles()}>
-                <HmsView trackId={item.trackId} style={styles.hmsView} />
-                <View style={styles.peerNameContainer}>
-                  <Text style={styles.peerName}>{item.peerName}</Text>
-                </View>
+    <SafeAreaView style={styles.container}>
+      <View
+        style={styles.wrapper}
+        onLayout={data => {
+          const height = data?.nativeEvent?.layout?.height;
+          if (height && safeHeight === 0) {
+            setSafeHeight(height);
+          }
+        }}>
+        <ScrollView style={styles.scroll}>
+          <View style={styles.videoView}>
+            <View
+              style={[
+                getLocalVideoStyles(),
+                {
+                  height: dimension.viewHeight(
+                    (safeHeight - dimension.viewHeight(90)) / 2,
+                  ),
+                },
+              ]}>
+              <HmsView style={styles.hmsView} trackId={trackId.trackId} />
+              <View style={styles.peerNameContainer}>
+                <Text style={styles.peerName}>{trackId.peerName}</Text>
               </View>
-            );
-          })}
-        </View>
-      </ScrollView>
+            </View>
+            {remoteTrackIds.map((item: Peer) => {
+              return (
+                <View
+                  key={item.trackId}
+                  style={[
+                    getRemoteVideoStyles(),
+                    {
+                      height: dimension.viewHeight(
+                        (safeHeight - dimension.viewHeight(90)) / 2,
+                      ),
+                    },
+                  ]}>
+                  <HmsView trackId={item.trackId} style={styles.hmsView} />
+                  <View style={styles.peerNameContainer}>
+                    <Text style={styles.peerName}>{item.peerName}</Text>
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        </ScrollView>
+      </View>
       <View style={styles.iconContainers}>
         <TouchableOpacity
           style={styles.singleIconContainer}
@@ -351,7 +379,7 @@ const Meeting = ({
           }}
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -359,7 +387,6 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     height: dimension.viewHeight(896),
-    paddingTop: dimension.viewHeight(36),
   },
   videoView: {
     width: '100%',
@@ -367,6 +394,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+    flex: 1,
   },
   videoIcon: {},
   fullScreenTile: {
@@ -383,7 +411,7 @@ const styles = StyleSheet.create({
   },
   generalTile: {
     width: dimension.viewWidth(206),
-    height: dimension.viewHeight(385),
+    marginVertical: 1,
   },
   fullWidthTile: {
     height: dimension.viewHeight(445),
@@ -397,7 +425,6 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-around',
-    bottom: 0,
     paddingBottom: dimension.viewHeight(22),
     paddingTop: dimension.viewHeight(15),
     width: '100%',
@@ -430,7 +457,9 @@ const styles = StyleSheet.create({
   },
   scroll: {
     width: '100%',
-    height: dimension.viewHeight(770),
+  },
+  wrapper: {
+    flex: 1,
   },
   peerNameContainer: {
     position: 'absolute',
