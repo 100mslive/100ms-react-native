@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -6,7 +6,7 @@ import {
   ScrollView,
   // Image,
 } from 'react-native';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 import HmsManager, {
   HmsView,
   HMSUpdateListenerActions,
@@ -15,8 +15,8 @@ import HmsManager, {
 import Feather from 'react-native-vector-icons/Feather';
 
 import ChatWindow from '../components/ChatWindow';
-import {addMessage, clearMessageData} from '../redux/actions/index';
-import {navigate} from '../services/navigation';
+import { addMessage, clearMessageData } from '../redux/actions/index';
+import { navigate } from '../services/navigation';
 import dimension from '../utils/dimension';
 
 const Meeting = ({
@@ -114,7 +114,7 @@ const Meeting = ({
   };
 
   const onMessage = (data: any) => {
-    addMessageRequest({data, isLocal: false});
+    addMessageRequest({ data, isLocal: false });
     console.log(data, 'data in onMessage');
   };
 
@@ -266,7 +266,7 @@ const Meeting = ({
           <Feather
             name={isMute ? 'mic-off' : 'mic'}
             style={styles.videoIcon}
-            size={30}
+            size={dimension.viewHeight(30)}
           />
         </TouchableOpacity>
         <TouchableOpacity
@@ -276,14 +276,22 @@ const Meeting = ({
             clearMessageRequest();
             navigate('WelcomeScreen');
           }}>
-          <Feather name="phone-off" style={styles.leaveIcon} size={30} />
+          <Feather
+            name="phone-off"
+            style={styles.leaveIcon}
+            size={dimension.viewHeight(30)}
+          />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.singleIconContainer}
           onPress={() => {
             setModalVisible(true);
           }}>
-          <Feather name="message-circle" style={styles.videoIcon} size={30} />
+          <Feather
+            name="message-circle"
+            style={styles.videoIcon}
+            size={dimension.viewHeight(30)}
+          />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.singleIconContainer}
@@ -294,7 +302,7 @@ const Meeting = ({
           <Feather
             name={muteVideo ? 'video-off' : 'video'}
             style={styles.videoIcon}
-            size={30}
+            size={dimension.viewHeight(30)}
           />
         </TouchableOpacity>
       </View>
@@ -310,7 +318,7 @@ const Meeting = ({
             });
 
             instance.send(hmsMessage);
-            addMessageRequest({data: hmsMessage, isLocal: true});
+            addMessageRequest({ data: hmsMessage, isLocal: true });
           }}
         />
       )}
@@ -361,8 +369,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     bottom: 0,
-    paddingBottom: 22,
-    paddingTop: 15,
+    paddingBottom: dimension.viewHeight(22),
+    paddingTop: dimension.viewHeight(15),
     width: '100%',
     backgroundColor: 'white',
     height: dimension.viewHeight(90),
@@ -377,19 +385,19 @@ const styles = StyleSheet.create({
 
   leaveIconContainer: {
     backgroundColor: '#ee4578',
-    padding: 10,
+    padding: dimension.viewHeight(10),
     borderRadius: 50,
   },
   singleIconContainer: {
-    padding: 10,
+    padding: dimension.viewHeight(10),
   },
   leaveIcon: {
     color: 'white',
   },
 
   cameraImage: {
-    width: 30,
-    height: 30,
+    width: dimension.viewHeight(30),
+    height: dimension.viewHeight(30),
   },
   scroll: {
     width: '100%',
