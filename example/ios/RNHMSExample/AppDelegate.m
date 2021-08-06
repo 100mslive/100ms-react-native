@@ -47,6 +47,7 @@ static void InitializeFlipper(UIApplication *application) {
   rootViewController.view = rootView;
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
+  [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
   return YES;
 }
 

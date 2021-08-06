@@ -10,42 +10,6 @@ npm install react-native-hms
 cd ios/ && pod install
 ```
 
-## Usage
-
-```js
-import HmsManager, {HmsView} from "react-native-hms";
-
-// builds the SDK for HMS, required to call before any interaction with SDK
-HmsManager.build()
-
-// attach event listener for join action
-HmsManager.addEventListener('ON_JOIN', callBackSuccess);
-
-// Joining the room
-HmsManager.join()
-
-// define callback success
-const callBackSuccess = (data) => {
-  // This callback is triggered after join successful
-};
-
-// This function calls the callback function passed after successful completion
-HmsManager.getTrackIds(({remoteTrackIds, localTrackId}) => {})
-
-// display video feed of a track in HmsView Component
-<HmsView trackId={localTrackId} style={styles.view} />
-
-// Mute/Unmute current User
-HmsManager.setLocalPeerMute(isMute: Bool)
-
-// Turn camera on/off
-HmsManager.setLocalPeerVideoMute(isMute: Bool)
-
-// switch camera (front/back)
-HmsManager.switchCamera()
-
-```
-
 ## Permissions
 Add following permissions in info.plist file
 ```
@@ -61,23 +25,116 @@ Add following permissions in info.plist file
 ```
 
 
-## Hms Manager functions
+## QuickStart
+The package exports four Classes and an HMSManager class that manages everything.
 
-| Prop                        | Description                                                              | Required Parameters
-| -------------------         | ------------------------------------------------------------------------ |-----------------------------------------
-| **`join`**                  | Takes user creadentials and joins user to the room                       | creadentials: Object({ userId, roomId, authToken })
-| **`getTrackIds`**           | Returns current track Ids in a callback -> { remoteTracks, localTrackId }| callback: Function 
-| **`setLocalPeerMute`**      | Sets mute value of local peer                                            | isMute: Boolean
-| **`setLocalPeerVideoMute`** | Sets current user's video (on/off)                                       | isMute: Boolean
-| **`switchCamera`**          | Switch current user's camera (front/back)                                | None
-| **`addEventListener`**      | Attaches event listner callback to a specific action                     | (action: "string" callback: function)
+# Setting up the HMS Instance:
+first we'll have to call build method, that method returns an instance of HMSManager class and the same is used to perform all the operations
+```js
+import HmsManager from 'react-native-hms';
+...
 
-## HmsView Props
+const hmsInstance = await HmsManager.build();
+//save this instance, will be used for all the operations that we'll perform
 
-| Prop                        | Description                                                              |
-| -------------------         | ------------------------------------------------------------------------ |
-| **`trackId`**               | TrackId of a local/remote Peer's track that is to be rendered in View    |
-| **`style`**                 | styles to be passed for the container view of view Track                 |
+...
+```
+
+# Add event listeners
+add event listeners for all the events such as onPreview, onJoin, onPeerUpdate etc. the actions can be found in HMSUpdateListenerActions class
+```js
+import HmsManager, {
+  HMSUpdateListenerActions,
+} from 'react-native-hms';
+...
+
+// instance acquired from build() method
+hmsInstance.addEventListener(
+  HMSUpdateListenerActions.ON_PREVIEW,
+  previewSuccess, // function that will be called on Preview success
+);
+
+...
+```
+The event handlers are the way of handling any update happening in hms all events can be found in HMSUpdateListenerActions class
+
+
+# Join the room
+Joining the room connects you to the remote peer and broadcasts your stream to other peers, we need instance of HMSConfig in order to pass the details of room and user to join function
+```js
+import HmsManager, {
+  HMSUpdateListenerActions,
+  HMSConfig,
+} from 'react-native-hms';
+...
+
+// instance acquired from build() method
+const HmsConfig = new HMSConfig({authToken, userID, roomID});
+instance.preview(HmsConfig); // to start preview
+// or 
+instance.join(HmsConfig); // to join a room
+
+...
+```
+don't forget to add ON_JOIN listener before calling join to receive an event callback
+
+# Viewing the video of a peer
+To display a video on screen the package provide a UI component named HmsView that takes the video track ID and displays the video in that component, this component requires on *width* and *height* in *style* prop to set bounds of the tile that will show the video stream
+```js
+...
+
+//getting local track ID
+const localTrackId = instance?.localPeer?.videoTrack?.trackId;
+
+// getting remote track IDs
+const remotePeers = instance?.remotePeers
+const remoteVideoIds: string[] = [];
+
+remotePeers.map((remotePeer: any) => {
+  const remoteTrackId = remotePeer?.videoTrack?.trackId;
+
+  if (remoteTrackId) {
+    remoteVideoIds.push(remoteTrackId);
+  }
+});
+
+...
+```
+
+# Display a video in HmsView
+```js
+import { HmsView } from 'react-native-hms';
+
+...
+const styles = StyleSheet.create({
+  hmsView: {
+    height: '100%',
+    width: '100%',
+  },
+});
+
+// trackId can be acquired from the method explained above
+<HmsView style={styles.hmsView} trackId={trackId} />
+
+...
+```
+
+# Calling various functions of HMS
+```js
+
+// Mute Audio
+instance.localPeer.localAudioTrack().setMute(isMute);
+
+// Stop Video
+instance.localPeer.localVideoTrack().setMute(muteVideo);
+
+// Switch Camera
+instance.localPeer.localVideoTrack().switchCamera();
+
+// Leave the call
+instance.leave()
+
+```
 
 
 ## License
