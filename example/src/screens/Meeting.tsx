@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
   // Image,
+  SafeAreaView,
+  Dimensions,
 } from 'react-native';
-import { connect } from 'react-redux';
+import {connect} from 'react-redux';
 import HmsManager, {
   HmsView,
   HMSUpdateListenerActions,
@@ -15,8 +17,8 @@ import HmsManager, {
 import Feather from 'react-native-vector-icons/Feather';
 
 import ChatWindow from '../components/ChatWindow';
-import { addMessage, clearMessageData } from '../redux/actions/index';
-import { navigate } from '../services/navigation';
+import {addMessage, clearMessageData} from '../redux/actions/index';
+import {navigate} from '../services/navigation';
 import dimension from '../utils/dimension';
 
 const Meeting = ({
@@ -39,6 +41,7 @@ const Meeting = ({
   const [isMute, setIsMute] = useState(false);
   const [muteVideo, setMuteVideo] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [safeHeight, setSafeHeight] = useState(0);
 
   const updateVideoIds = (remotePeers: any, localPeer: any) => {
     // get local track Id
@@ -114,7 +117,7 @@ const Meeting = ({
   };
 
   const onMessage = (data: any) => {
-    addMessageRequest({ data, isLocal: false });
+    addMessageRequest({data, isLocal: false});
     console.log(data, 'data in onMessage');
   };
 
@@ -241,21 +244,47 @@ const Meeting = ({
   };
 
   return (
-    <View style={styles.container}>
-      <ScrollView style={styles.scroll}>
-        <View style={styles.videoView}>
-          <View style={getLocalVideoStyles()}>
-            <HmsView style={styles.hmsView} trackId={trackId} />
+    <SafeAreaView style={styles.container}>
+      <View
+        style={styles.wrapper}
+        onLayout={data => {
+          const height = data?.nativeEvent?.layout?.height;
+          if (height && safeHeight === 0) {
+            setSafeHeight(height);
+          }
+        }}>
+        <ScrollView style={styles.scroll}>
+          <View style={styles.videoView}>
+            <View
+              style={[
+                getLocalVideoStyles(),
+                {
+                  height: dimension.viewHeight(
+                    (safeHeight - dimension.viewHeight(90)) / 2,
+                  ),
+                },
+              ]}>
+              <HmsView style={styles.hmsView} trackId={trackId} />
+            </View>
+            {remoteTrackIds.map((item: string) => {
+              return (
+                <View
+                  key={item}
+                  style={[
+                    getRemoteVideoStyles(),
+                    {
+                      height: dimension.viewHeight(
+                        (safeHeight - dimension.viewHeight(90)) / 2,
+                      ),
+                    },
+                  ]}>
+                  <HmsView trackId={item} style={styles.hmsView} />
+                </View>
+              );
+            })}
           </View>
-          {remoteTrackIds.map((item: string) => {
-            return (
-              <View key={item} style={getRemoteVideoStyles()}>
-                <HmsView trackId={item} style={styles.hmsView} />
-              </View>
-            );
-          })}
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </View>
       <View style={styles.iconContainers}>
         <TouchableOpacity
           style={styles.singleIconContainer}
@@ -318,11 +347,11 @@ const Meeting = ({
             });
 
             instance.send(hmsMessage);
-            addMessageRequest({ data: hmsMessage, isLocal: true });
+            addMessageRequest({data: hmsMessage, isLocal: true});
           }}
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -330,7 +359,6 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     height: dimension.viewHeight(896),
-    paddingTop: dimension.viewHeight(36),
   },
   videoView: {
     width: '100%',
@@ -338,6 +366,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+    flex: 1,
   },
   videoIcon: {},
   fullScreenTile: {
@@ -354,7 +383,7 @@ const styles = StyleSheet.create({
   },
   generalTile: {
     width: dimension.viewWidth(206),
-    height: dimension.viewHeight(385),
+    marginVertical: 1,
   },
   fullWidthTile: {
     height: dimension.viewHeight(445),
@@ -368,7 +397,6 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-around',
-    bottom: 0,
     paddingBottom: dimension.viewHeight(22),
     paddingTop: dimension.viewHeight(15),
     width: '100%',
@@ -401,7 +429,9 @@ const styles = StyleSheet.create({
   },
   scroll: {
     width: '100%',
-    height: dimension.viewHeight(770),
+  },
+  wrapper: {
+    flex: 1,
   },
 });
 
