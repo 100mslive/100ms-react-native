@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Text,
-  // Image,
+  SafeAreaView,
 } from 'react-native';
 import {connect} from 'react-redux';
 import HmsManager, {
@@ -21,8 +21,8 @@ import {navigate} from '../services/navigation';
 import dimension from '../utils/dimension';
 
 type Peer = {
-  trackId: string;
-  peerName: string;
+  trackId?: string;
+  peerName?: string;
 };
 
 const Meeting = ({
@@ -40,11 +40,12 @@ const Meeting = ({
   state: any;
 }) => {
   const [instance, setInstance] = useState<any>(null);
-  const [trackId, setTrackId] = useState<Peer[]>([]);
+  const [trackId, setTrackId] = useState<Peer>({});
   const [remoteTrackIds, setRemoteTrackIds] = useState<Peer[]>([]);
   const [isMute, setIsMute] = useState(false);
   const [muteVideo, setMuteVideo] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [safeHeight, setSafeHeight] = useState(0);
 
   const updateVideoIds = (remotePeers: any, localPeer: any) => {
     // get local track Id
@@ -253,27 +254,53 @@ const Meeting = ({
   };
 
   return (
-    <View style={styles.container}>
-      <ScrollView style={styles.scroll} bounces={false}>
-        <View style={styles.videoView}>
-          <View style={getLocalVideoStyles()}>
-            <HmsView style={styles.hmsView} trackId={trackId.trackId} />
-            <View style={styles.peerNameContainer}>
-              <Text style={styles.peerName}>{trackId.peerName}</Text>
-            </View>
-          </View>
-          {remoteTrackIds.map((item: Peer) => {
-            return (
-              <View key={item.trackId} style={getRemoteVideoStyles()}>
-                <HmsView trackId={item.trackId} style={styles.hmsView} />
-                <View style={styles.peerNameContainer}>
-                  <Text style={styles.peerName}>{item.peerName}</Text>
-                </View>
+    <SafeAreaView style={styles.container}>
+      <View
+        style={styles.wrapper}
+        onLayout={data => {
+          const height = data?.nativeEvent?.layout?.height;
+          if (height && safeHeight === 0) {
+            setSafeHeight(height);
+          }
+        }}>
+        <ScrollView style={styles.scroll}>
+          <View style={styles.videoView}>
+            <View
+              style={[
+                getLocalVideoStyles(),
+                {
+                  height: dimension.viewHeight(
+                    (safeHeight - dimension.viewHeight(90)) / 2,
+                  ),
+                },
+              ]}>
+              <HmsView style={styles.hmsView} trackId={trackId.trackId} />
+              <View style={styles.peerNameContainer}>
+                <Text style={styles.peerName}>{trackId.peerName}</Text>
               </View>
-            );
-          })}
-        </View>
-      </ScrollView>
+            </View>
+            {remoteTrackIds.map((item: Peer) => {
+              return (
+                <View
+                  key={item.trackId}
+                  style={[
+                    getRemoteVideoStyles(),
+                    {
+                      height: dimension.viewHeight(
+                        (safeHeight - dimension.viewHeight(90)) / 2,
+                      ),
+                    },
+                  ]}>
+                  <HmsView trackId={item.trackId} style={styles.hmsView} />
+                  <View style={styles.peerNameContainer}>
+                    <Text style={styles.peerName}>{item.peerName}</Text>
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        </ScrollView>
+      </View>
       <View style={styles.iconContainers}>
         <TouchableOpacity
           style={styles.singleIconContainer}
@@ -284,7 +311,7 @@ const Meeting = ({
           <Feather
             name={isMute ? 'mic-off' : 'mic'}
             style={styles.videoIcon}
-            size={30}
+            size={dimension.viewHeight(30)}
           />
         </TouchableOpacity>
         <TouchableOpacity
@@ -294,14 +321,22 @@ const Meeting = ({
             clearMessageRequest();
             navigate('WelcomeScreen');
           }}>
-          <Feather name="phone-off" style={styles.leaveIcon} size={30} />
+          <Feather
+            name="phone-off"
+            style={styles.leaveIcon}
+            size={dimension.viewHeight(30)}
+          />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.singleIconContainer}
           onPress={() => {
             setModalVisible(true);
           }}>
-          <Feather name="message-circle" style={styles.videoIcon} size={30} />
+          <Feather
+            name="message-circle"
+            style={styles.videoIcon}
+            size={dimension.viewHeight(30)}
+          />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.singleIconContainer}
@@ -312,7 +347,7 @@ const Meeting = ({
           <Feather
             name={muteVideo ? 'video-off' : 'video'}
             style={styles.videoIcon}
-            size={30}
+            size={dimension.viewHeight(30)}
           />
         </TouchableOpacity>
       </View>
@@ -332,7 +367,7 @@ const Meeting = ({
           }}
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -340,7 +375,6 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     height: dimension.viewHeight(896),
-    paddingTop: dimension.viewHeight(36),
   },
   videoView: {
     width: '100%',
@@ -348,6 +382,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+    flex: 1,
   },
   videoIcon: {},
   fullScreenTile: {
@@ -364,7 +399,7 @@ const styles = StyleSheet.create({
   },
   generalTile: {
     width: dimension.viewWidth(206),
-    height: dimension.viewHeight(385),
+    marginVertical: 1,
   },
   fullWidthTile: {
     height: dimension.viewHeight(445),
@@ -378,9 +413,8 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-around',
-    bottom: 0,
-    paddingBottom: 22,
-    paddingTop: 15,
+    paddingBottom: dimension.viewHeight(22),
+    paddingTop: dimension.viewHeight(15),
     width: '100%',
     backgroundColor: 'white',
     height: dimension.viewHeight(90),
@@ -395,23 +429,25 @@ const styles = StyleSheet.create({
 
   leaveIconContainer: {
     backgroundColor: '#ee4578',
-    padding: 10,
+    padding: dimension.viewHeight(10),
     borderRadius: 50,
   },
   singleIconContainer: {
-    padding: 10,
+    padding: dimension.viewHeight(10),
   },
   leaveIcon: {
     color: 'white',
   },
 
   cameraImage: {
-    width: 30,
-    height: 30,
+    width: dimension.viewHeight(30),
+    height: dimension.viewHeight(30),
   },
   scroll: {
     width: '100%',
-    height: dimension.viewHeight(770),
+  },
+  wrapper: {
+    flex: 1,
   },
   peerNameContainer: {
     position: 'absolute',
