@@ -34,7 +34,6 @@ const Meeting = ({
   const [isMute, setIsMute] = useState(false);
   const [muteVideo, setMuteVideo] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const totalPeers = remoteTrackIds.length + 1;
 
   const updateVideoIds = (remotePeers: any, localPeer: any) => {
     // get local track Id
@@ -233,7 +232,7 @@ const Meeting = ({
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scroll} bounces={totalPeers > 4 ? true : false}>
+      <ScrollView style={styles.scroll} bounces={false}>
         <View style={styles.videoView}>
           <View style={getLocalVideoStyles()}>
             <HmsView style={styles.hmsView} trackId={trackId} />
