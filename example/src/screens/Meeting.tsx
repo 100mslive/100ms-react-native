@@ -13,6 +13,7 @@ import HmsManager, {
   HMSMessage,
 } from 'react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import ChatWindow from '../components/ChatWindow';
 import {addMessage, clearMessageData} from '../redux/actions/index';
@@ -298,9 +299,10 @@ const Meeting = ({
           onPress={() => {
             instance.localPeer.localVideoTrack().switchCamera();
           }}>
-          <Image
-            source={require('../assets/flip.png')}
-            style={styles.flipCameraIcon}
+          <Ionicons
+            name="camera-reverse-outline"
+            style={styles.videoIcon}
+            size={dimension.viewHeight(30)}
           />
         </TouchableOpacity>
         <TouchableOpacity
@@ -350,10 +352,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   videoIcon: {},
-  flipCameraIcon: {
-    width: dimension.viewHeight(40),
-    height: dimension.viewHeight(40),
-  },
   fullScreenTile: {
     height: dimension.viewHeight(896),
     width: dimension.viewWidth(414),
