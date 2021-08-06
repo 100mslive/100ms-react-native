@@ -6,9 +6,9 @@ const INITIAL_STATE = {
 const messageReducer = (state = INITIAL_STATE, action) => {
   switch (action.type) {
     case ActionTypes.ADD_MESSAGE.REQUEST:
-      return { ...state, messages: [...state.messages, action.payload] };
+      return {...state, messages: [...state.messages, action.payload]};
     case ActionTypes.CLEAR_MESSAGE_DATA.REQUEST:
-      return { ...state, messages: [] };
+      return {...state, messages: []};
     default:
       return state;
   }
