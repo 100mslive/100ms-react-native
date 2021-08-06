@@ -133,7 +133,7 @@ PODS:
   - GoogleUtilities/UserDefaults (7.5.0):
     - GoogleUtilities/Logger
   - GoogleWebRTC (1.1.31999)
-  - HMSSDK (0.0.8):
+  - HMSSDK (0.0.9):
     - GoogleWebRTC (= 1.1.31999)
   - libevent (2.1.12)
   - nanopb (2.30908.0):
@@ -567,7 +567,7 @@ SPEC CHECKSUMS:
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: cf9b38bf0b2d048436d9a82ad2abe1404f11e7de
   FBLazyVector: 7b423f9e248eae65987838148c36eec1dbfe0b53
-  FBReactNativeSpec: b5b247aee781ec3f5193fa571b07ac7688cdea70
+  FBReactNativeSpec: 77018d6e699dd90d6babbe5626de92fb9e8ebbc9
   Firebase: ff8c73105b90e33e1dc6c8e5445d7adc2ccdc7c1
   FirebaseAnalytics: 96325c1e0acbd2bb805c6a613028b1fe599d6a37
   FirebaseCore: 1c1ca72483b59b17050f5b4cec4fb748425a3901
@@ -585,7 +585,7 @@ SPEC CHECKSUMS:
   GoogleDataTransport: 85fd18ff3019bb85d3f2c551d04c481dedf71fc9
   GoogleUtilities: eea970f4a389963963bffe8d8fabe43540678b9c
   GoogleWebRTC: b39a78c4f5cc6b0323415b9233db03a2faa7b0f0
-  HMSSDK: 17c0cf5f3c1749b995d8cc95434558f64aa46de7
+  HMSSDK: 624d127d4157d67e15ef4eb8cf0106d667728e6f
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   OpenSSL-Universal: 1aa4f6a6ee7256b83db99ec1ccdaa80d10f9af9b
@@ -602,7 +602,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 124e8f99992490d0d13e0649d950d3e1aae06fe9
   React-jsinspector: 500a59626037be5b3b3d89c5151bc3baa9abf1a9
   react-native-hms: c15211fa4646ff9e62294b016ca12db5ae478973
-  react-native-safe-area-context: f0906bf8bc9835ac9a9d3f97e8bde2a997d8da79
+  react-native-safe-area-context: e471852c5ed67eea4b10c5d9d43c1cebae3b231d
   React-perflogger: aad6d4b4a267936b3667260d1f649b6f6069a675
   React-RCTActionSheet: fc376be462c9c8d6ad82c0905442fd77f82a9d2a
   React-RCTAnimation: ba0a1c3a2738be224a08092fa7f1b444ab77d309
@@ -622,4 +622,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 5706749ab0bbbe77d09f902c4c72fcdf9e9d7e70
 
-COCOAPODS: 1.10.2
+COCOAPODS: 1.10.1
