@@ -5,6 +5,9 @@
 # XDE
 .expo/
 
+# NPMRC
+.npmrc
+
 # VSCode
 .vscode/
 jsconfig.json
