@@ -1,4 +1,9 @@
 # react-native-hms
+![npm](https://img.shields.io/npm/v/@100mslive/react-native-hms)
+![license](https://img.shields.io/npm/l/@100mslive/react-native-hms)
+![quality](https://img.shields.io/npms-io/quality-score/@100mslive/react-native-hms)
+![vulnerabilities](https://img.shields.io/snyk/vulnerabilities/npm/@100mslive/react-native-hms)
+![collaborators](https://img.shields.io/npm/collaborators/@100mslive/react-native-hms)
 
 React native wrapper for 100ms SDK
 
