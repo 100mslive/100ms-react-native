@@ -4,6 +4,9 @@
 ![quality](https://img.shields.io/npms-io/quality-score/@100mslive/react-native-hms)
 ![vulnerabilities](https://img.shields.io/snyk/vulnerabilities/npm/@100mslive/react-native-hms)
 ![collaborators](https://img.shields.io/npm/collaborators/@100mslive/react-native-hms)
+[![Documentation](https://img.shields.io/badge/Read-Documentation-blue)](https://docs.100ms.live/)
+[![Slack](https://img.shields.io/badge/Community-Join%20on%20Slack-blue)](https://join.slack.com/t/100mslive/shared_invite/zt-llwdnz11-vkb2RzptwacwXHO7UeY0CQ)
+[![Email](https://img.shields.io/badge/Contact-Know%20More-blue)](mailto:founders@100ms.live)
 
 React native wrapper for 100ms SDK
 
