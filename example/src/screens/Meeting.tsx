@@ -14,6 +14,7 @@ import HmsManager, {
   HMSMessage,
 } from 'react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import ChatWindow from '../components/ChatWindow';
 import {addMessage, clearMessageData} from '../redux/actions/index';
@@ -334,6 +335,17 @@ const Meeting = ({
           }}>
           <Feather
             name="message-circle"
+            style={styles.videoIcon}
+            size={dimension.viewHeight(30)}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.singleIconContainer}
+          onPress={() => {
+            instance.localPeer.localVideoTrack().switchCamera();
+          }}>
+          <Ionicons
+            name="camera-reverse-outline"
             style={styles.videoIcon}
             size={dimension.viewHeight(30)}
           />
