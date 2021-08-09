@@ -10,6 +10,8 @@ npm install react-native-hms
 cd ios/ && pod install
 ```
 
+Download the Sample iOS App here: https://testflight.apple.com/join/v4bSIPad
+
 ## Permissions
 Add following permissions in info.plist file
 ```
