@@ -1,3 +1,7 @@
+<p align="center" >
+  <a href="https://100ms.live/">
+  <img src="https://github.com/100mslive/100ms-react-native/blob/main/100ms-logo.png" title="100ms logo" float=left>
+</p>
 # react-native-hms
 ![npm](https://img.shields.io/npm/v/@100mslive/react-native-hms)
 ![license](https://img.shields.io/npm/l/@100mslive/react-native-hms)
