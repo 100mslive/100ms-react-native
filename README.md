@@ -17,7 +17,7 @@ npm install react-native-hms
 
 cd ios/ && pod install
 ```
-
+Note: Only iOS platform is supported at the moment, we are actively working to support Android as well.
 Download the Sample iOS App here: https://testflight.apple.com/join/v4bSIPad
 
 ## Permissions
