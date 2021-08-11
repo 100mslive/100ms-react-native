@@ -1,4 +1,5 @@
 buildscript {
+  ext.kotlin_version = '1.5.30-RC'
     if (project == rootProject) {
         repositories {
             google()
@@ -9,9 +10,16 @@ buildscript {
             classpath 'com.android.tools.build:gradle:3.5.3'
         }
     }
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+  }
 }
 
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
 
 def safeExtGet(prop, fallback) {
     rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
@@ -50,9 +58,13 @@ repositories {
     }
     google()
     jcenter()
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
     //noinspection GradleDynamicVersion
-    implementation "com.facebook.react:react-native:+"  // From node_modules
+    implementation "com.facebook.react:react-native:+"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"  // From node_modules
+    implementation 'com.github.100mslive:android-sdk:2.0.7'
+    implementation 'org.webrtc:google-webrtc:1.0.32006'
 }
