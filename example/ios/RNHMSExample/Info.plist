@@ -22,6 +22,8 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -41,8 +43,6 @@
 	<string>Example App wants to use your local network</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Example App wants to use your microphone</string>
-  <key>ITSAppUsesNonExemptEncryption</key>
-  <false/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>
