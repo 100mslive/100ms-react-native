@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
-import {HmsView} from 'react-native-hms';
+import {HmsView} from '@100mslive/react-native-hms';
 import dimension from '../utils/dimension';
 
 const PreviewModal = ({

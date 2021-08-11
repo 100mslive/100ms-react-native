@@ -13,7 +13,7 @@ import * as services from '../services/index';
 import HmsManager, {
   HMSConfig,
   HMSUpdateListenerActions,
-} from 'react-native-hms';
+} from '@100mslive/react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
 import UserIdModal from '../components/UserIdModal';
 import PreviewModal from '../components/PreviewModal';
@@ -139,7 +139,6 @@ const App = ({
           onPress={() => {
             if (text !== '') {
               setRoomID(text);
-              console.log('here');
               setModalVisible(true);
               // callService(text, roomID, role, setToken);
             }

@@ -12,7 +12,7 @@ import HmsManager, {
   HmsView,
   HMSUpdateListenerActions,
   HMSMessage,
-} from 'react-native-hms';
+} from '@100mslive/react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
