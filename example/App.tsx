@@ -9,7 +9,7 @@
  * @format
  */
 
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -18,6 +18,7 @@ import {
   Text,
   useColorScheme,
   View,
+  TouchableOpacity,
 } from 'react-native';
 
 import {
@@ -27,6 +28,30 @@ import {
   LearnMoreLinks,
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
+
+import * as services from './src/services/index';
+import Hms, { HMSConfig } from '@100mslive/react-native-hms';
+
+const callService = async (
+  userID: string,
+  roomID: string,
+  role: string,
+  joinRoom: Function,
+) => {
+  const response = await services.fetchToken({
+    userID,
+    roomID,
+    role,
+  });
+
+  if (response.error) {
+    // TODO: handle errors from API
+  } else {
+    console.log('here 4');
+    joinRoom(response.token, userID, roomID);
+  }
+  return response;
+};
 
 const Section: React.FC<{
   title: string;
@@ -57,11 +82,29 @@ const Section: React.FC<{
 };
 
 const App = () => {
+  const [instance, setInstance] = useState<any>(null);
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
+
+  const joinRoom = (token: string, userID: string, roomID: string) => {
+    const HmsConfig = new HMSConfig({ authToken: token, userID, roomID, username: userID });
+    console.log(instance, 'instance');
+    console.log(HmsConfig, 'HmsConfig');
+    instance.join(HmsConfig);
+  };
+
+  const setupBuild = async () => {
+    const build = await Hms.build();
+    setInstance(build);
+  };
+
+  useEffect(() => {
+    setupBuild();
+
+  }, []);
 
   return (
     <SafeAreaView style={backgroundStyle}>
@@ -70,7 +113,8 @@ const App = () => {
         contentInsetAdjustmentBehavior="automatic"
         style={backgroundStyle}>
         <Header />
-        <View
+        <TouchableOpacity
+          onPress={() => callService('user123', '60f05a0a574fe6920b2560ba', 'host', joinRoom)}
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
           }}>
@@ -88,7 +132,7 @@ const App = () => {
             Read the docs to discover what to do next:
           </Section>
           <LearnMoreLinks />
-        </View>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
