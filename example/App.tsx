@@ -20,8 +20,6 @@ import {
   View,
 } from 'react-native';
 
-import Hms from '@100mslive/react-native-hms';
-
 import {
   Colors,
   DebugInstructions,
@@ -32,7 +30,7 @@ import {
 
 const Section: React.FC<{
   title: string;
-}> = ({children, title}) => {
+}> = ({ children, title }) => {
   const isDarkMode = useColorScheme() === 'dark';
   return (
     <View style={styles.sectionContainer}>
@@ -59,10 +57,6 @@ const Section: React.FC<{
 };
 
 const App = () => {
-  React.useEffect(() => {
-    Hms.build();
-  }, []);
-
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
