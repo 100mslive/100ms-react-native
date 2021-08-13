@@ -1,10 +1,5 @@
 package com.reactnativehmssdk
 
-import android.Manifest
-import android.app.Activity
-import android.content.pm.PackageManager
-import androidx.core.app.ActivityCompat.requestPermissions
-import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
