@@ -45,40 +45,48 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
       override fun onError(error: HMSException) {
         println("error")
         println(error)
+        reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_ERROR", "ERROR")
       }
 
       override fun onJoin(room: HMSRoom) {
         println("room")
         println(room)
+        reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_JOIN", "ON_JOIN")
       }
 
       override fun onPeerUpdate(type: HMSPeerUpdate, hmsPeer: HMSPeer) {
         println("Peer")
         println(hmsPeer)
+        reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_PEER_UPDATE", "ON_PEER_UPDATE")
       }
 
       override fun onRoomUpdate(type: HMSRoomUpdate, hmsRoom: HMSRoom) {
         println("HMSRoom")
         println(hmsRoom)
+        reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_ROOM_UPDATE", "ON_ROOM_UPDATE")
       }
 
       override fun onTrackUpdate(type: HMSTrackUpdate, track: HMSTrack, peer: HMSPeer) {
         println("HMSTrack")
         println(peer)
         println(track)
+        reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_TRACK_UPDATE", "ON_TRACK_UPDATE")
       }
 
       override fun onMessageReceived(message: HMSMessage) {
         println("message")
         println(message)
+        reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_MESSAGE", "ON_MESSAGE")
       }
 
       override fun onReconnected() {
         println("Reconnected")
+        reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("RECONNECTED", "RECONNECTED")
       }
 
       override fun onReconnecting(error: HMSException) {
         println("Reconnecting")
+        reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("RECONNECTING", "RECONNECTING")
       }
 
       override fun onRoleChangeRequest(request: HMSRoleChangeRequest) {
