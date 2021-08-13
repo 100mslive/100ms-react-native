@@ -1,5 +1,10 @@
 package com.reactnativehmssdk
 
+import android.Manifest
+import android.app.Activity
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat.requestPermissions
+import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
@@ -36,6 +41,17 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
 
   @ReactMethod
   fun join(credentials: ReadableMap) {
+    if (ContextCompat.checkSelfPermission(reactApplicationContext, Manifest.permission.CAMERA)
+      == PackageManager.PERMISSION_DENIED){
+      println("request");
+      requestPermissions(currentActivity as Activity,
+        arrayOf(Manifest.permission.CAMERA),
+        200)
+    }
+    else{
+      println("granted")
+    }
+
     println("Credentials")
     println(credentials)
     val config =
