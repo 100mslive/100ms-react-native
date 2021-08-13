@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import {connect} from 'react-redux';
 import HmsManager, {
-  HmsView,
+  // HmsView,
   HMSUpdateListenerActions,
   HMSMessage,
 } from '@100mslive/react-native-hms';
@@ -275,7 +275,7 @@ const Meeting = ({
                   ),
                 },
               ]}>
-              <HmsView style={styles.hmsView} trackId={trackId.trackId} />
+              {/* <HmsView style={styles.hmsView} trackId={trackId.trackId} /> */}
               <View style={styles.peerNameContainer}>
                 <Text style={styles.peerName}>{trackId.peerName}</Text>
               </View>
@@ -292,7 +292,7 @@ const Meeting = ({
                       ),
                     },
                   ]}>
-                  <HmsView trackId={item.trackId} style={styles.hmsView} />
+                  {/* <HmsView trackId={item.trackId} style={styles.hmsView} /> */}
                   <View style={styles.peerNameContainer}>
                     <Text style={styles.peerName}>{item.peerName}</Text>
                   </View>

@@ -41,17 +41,6 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
 
   @ReactMethod
   fun join(credentials: ReadableMap) {
-    if (ContextCompat.checkSelfPermission(reactApplicationContext, Manifest.permission.CAMERA)
-      == PackageManager.PERMISSION_DENIED){
-      println("request");
-      requestPermissions(currentActivity as Activity,
-        arrayOf(Manifest.permission.CAMERA),
-        200)
-    }
-    else{
-      println("granted")
-    }
-
     println("Credentials")
     println(credentials)
     val config =
