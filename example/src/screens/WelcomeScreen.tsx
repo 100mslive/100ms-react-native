@@ -20,6 +20,7 @@ import PreviewModal from '../components/PreviewModal';
 import {navigate} from '../services/navigation';
 import {Platform} from 'react-native';
 import {setAudioVideoState} from '../redux/actions/index';
+import {request, check, PERMISSIONS, RESULTS} from 'react-native-permissions';
 
 const callService = async (
   userID: string,
@@ -96,6 +97,40 @@ const App = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const checkPermissions = (token: string, userID: string) => {
+    check(PERMISSIONS.ANDROID.CAMERA)
+      .then(result => {
+        switch (result) {
+          case RESULTS.UNAVAILABLE:
+            console.log(
+              'This feature is not available (on this device / in this context)',
+            );
+            break;
+          case RESULTS.DENIED:
+            request(PERMISSIONS.ANDROID.CAMERA).then(output => {
+              console.log('permission: ', output);
+              if (output === RESULTS.GRANTED) {
+                previewRoom(token, userID);
+              }
+            });
+            break;
+          case RESULTS.LIMITED:
+            console.log('The permission is limited: some actions are possible');
+            break;
+          case RESULTS.GRANTED:
+            console.log('The permission is granted');
+            previewRoom(token, userID);
+            break;
+          case RESULTS.BLOCKED:
+            console.log('The permission is denied and not requestable anymore');
+            break;
+        }
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
+
   const previewRoom = (token: string, userID: string) => {
     const HmsConfig = new HMSConfig({authToken: token, userID, roomID});
     instance.addEventListener(
@@ -150,7 +185,7 @@ const App = ({
       {modalVisible && (
         <UserIdModal
           join={(userID: string) => {
-            callService(userID, roomID, role, previewRoom);
+            callService(userID, roomID, role, checkPermissions);
             setModalVisible(false);
           }}
           cancel={() => setModalVisible(false)}
