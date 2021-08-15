@@ -22,6 +22,10 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     return "HmsManager"
   }
 
+  fun getHmsInstance(): HMSSDK? {
+    return hmsSDK
+  }
+
   // Example method
   // See https://reactnative.dev/docs/native-modules-android
   @ReactMethod
@@ -33,6 +37,7 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
 
   @ReactMethod
   fun preview(credentials: ReadableMap) {
+    print("inside preview")
     val config =
       HMSConfig(credentials.getString("username") as String, credentials.getString("authToken") as String)
 

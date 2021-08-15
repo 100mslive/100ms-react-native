@@ -119,6 +119,7 @@ export default class HMSSDK {
   };
 
   preview = (config: HMSConfig) => {
+    console.log('preview here');
     this.attachPreviewListener();
     HmsManager.preview(config);
   };
