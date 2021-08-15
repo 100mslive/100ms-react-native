@@ -200,70 +200,70 @@ export default class HMSSDK {
   onJoinListener = (data: any) => {
     // Preprocessing
     console.log(data, 'join data');
-    // const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
-    // const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
-    //   data.localPeer
-    // );
-    // const remotePeers: HMSRemotePeer[] = HMSEncoder.encodeHmsRemotePeers(
-    //   data.remotePeers
-    // );
-    // this.room = room;
-    // this.localPeer = localPeer;
-    // this.remotePeers = remotePeers;
-    // if (this.onJoinDelegate) {
-    //   this.onJoinDelegate({ ...data, room, localPeer, remotePeers });
-    // }
+    const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
+    const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
+      data.localPeer
+    );
+    const remotePeers: HMSRemotePeer[] = HMSEncoder.encodeHmsRemotePeers(
+      data.remotePeers
+    );
+    this.room = room;
+    this.localPeer = localPeer;
+    this.remotePeers = remotePeers;
+    if (this.onJoinDelegate) {
+      this.onJoinDelegate({ ...data, room, localPeer, remotePeers });
+    }
   };
 
   onRoomListener = (data: any) => {
     console.log(data, 'room data');
-    // const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
-    // const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
-    //   data.localPeer
-    // );
-    // const remotePeers: HMSRemotePeer[] = HMSEncoder.encodeHmsRemotePeers(
-    //   data.remotePeers
-    // );
-    // this.room = room;
-    // this.localPeer = localPeer;
-    // this.remotePeers = remotePeers;
-    // if (this.onRoomDelegate) {
-    //   this.onRoomDelegate({ ...data, room, localPeer, remotePeers });
-    // }
+    const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
+    const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
+      data.localPeer
+    );
+    const remotePeers: HMSRemotePeer[] = HMSEncoder.encodeHmsRemotePeers(
+      data.remotePeers
+    );
+    this.room = room;
+    this.localPeer = localPeer;
+    this.remotePeers = remotePeers;
+    if (this.onRoomDelegate) {
+      this.onRoomDelegate({ ...data, room, localPeer, remotePeers });
+    }
   };
 
   onPeerListener = (data: any) => {
     console.log(data, 'peer data');
-    // const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
-    // const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
-    //   data.localPeer
-    // );
-    // const remotePeers: HMSRemotePeer[] = HMSEncoder.encodeHmsRemotePeers(
-    //   data.remotePeers
-    // );
-    // this.room = room;
-    // this.localPeer = localPeer;
-    // this.remotePeers = remotePeers;
-    // if (this.onPeerDelegate) {
-    //   this.onPeerDelegate({ ...data, room, localPeer, remotePeers });
-    // }
+    const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
+    const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
+      data.localPeer
+    );
+    const remotePeers: HMSRemotePeer[] = HMSEncoder.encodeHmsRemotePeers(
+      data.remotePeers
+    );
+    this.room = room;
+    this.localPeer = localPeer;
+    this.remotePeers = remotePeers;
+    if (this.onPeerDelegate) {
+      this.onPeerDelegate({ ...data, room, localPeer, remotePeers });
+    }
   };
 
   onTrackListener = (data: any) => {
     console.log(data, 'track data');
-    // const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
-    // const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
-    //   data.localPeer
-    // );
-    // const remotePeers: HMSRemotePeer[] = HMSEncoder.encodeHmsRemotePeers(
-    //   data.remotePeers
-    // );
-    // this.room = room;
-    // this.localPeer = localPeer;
-    // this.remotePeers = remotePeers;
-    // if (this.onTrackDelegate) {
-    //   this.onTrackDelegate({ ...data, room, localPeer, remotePeers });
-    // }
+    const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
+    const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
+      data.localPeer
+    );
+    const remotePeers: HMSRemotePeer[] = HMSEncoder.encodeHmsRemotePeers(
+      data.remotePeers
+    );
+    this.room = room;
+    this.localPeer = localPeer;
+    this.remotePeers = remotePeers;
+    if (this.onTrackDelegate) {
+      this.onTrackDelegate({ ...data, room, localPeer, remotePeers });
+    }
   };
 
   onMessageListener = (data: any) => {
