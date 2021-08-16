@@ -152,7 +152,33 @@ instance.leave()
 
 ```
 
+# Sending messages
+```js
 
+import { HMSMessage } from '@100mslive/react-native-hms';
+
+// message object
+const message = new HMSMessage({
+  type: 'chat',
+  time: new Date().toISOString(),
+  message: value,
+});
+
+// send a message
+instance.send(message);
+  
+```
+  
+# Error handling
+```js
+// import actions
+import { HMSUpdateListenerActions } from '@100mslive/react-native-hms';
+  
+// add a event listener
+instance.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
+  
+```
+  
 ## License
 
 MIT
