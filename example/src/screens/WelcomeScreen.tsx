@@ -20,7 +20,7 @@ import PreviewModal from '../components/PreviewModal';
 import {navigate} from '../services/navigation';
 import {Platform} from 'react-native';
 import {setAudioVideoState} from '../redux/actions/index';
-import {PERMISSIONS, RESULTS, checkMultiple} from 'react-native-permissions';
+import {PERMISSIONS, RESULTS, requestMultiple} from 'react-native-permissions';
 
 const callService = async (
   userID: string,
@@ -99,16 +99,21 @@ const App = ({
 
   const checkPermissions = (token: string, userID: string) => {
     console.log('here 3');
-    checkMultiple([
+    requestMultiple([
       PERMISSIONS.ANDROID.CAMERA,
       PERMISSIONS.ANDROID.RECORD_AUDIO,
     ])
       .then(results => {
-        console.log('here 5');
+        console.log(
+          'here 5',
+          results['android.permission.CAMERA'],
+          results['android.permission.RECORD_AUDIO'],
+        );
         if (
           results['android.permission.CAMERA'] === RESULTS.GRANTED &&
           results['android.permission.RECORD_AUDIO'] === RESULTS.GRANTED
         ) {
+          console.log('here 6');
           previewRoom(token, userID);
         }
       })
