@@ -7,25 +7,33 @@ import android.view.ViewGroup
 import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.annotations.ReactProp
+import live.hms.video.media.tracks.HMSVideoTrack
 import live.hms.video.sdk.HMSSDK
 import org.webrtc.SurfaceViewRenderer
 import live.hms.video.utils.SharedEglContext
 import org.webrtc.EglBase
+import org.webrtc.RendererCommon
 
-class HmssdkViewManager : SimpleViewManager<SurfaceViewRenderer>() {
+class HmssdkViewManager : SimpleViewManager<View>() {
 
   private var reactContext: ThemedReactContext? = null
+
 
   override fun getName(): String {
     return REACT_CLASS
   }
 
   public override fun createViewInstance(reactContext: ThemedReactContext): SurfaceViewRenderer {
+    this.reactContext = reactContext
     val view = SurfaceViewRenderer(reactContext)
-    //val layoutParams = view.layoutParams
-    //layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
-    //layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
-    //view.layoutParams = layoutParams
+    view.setEnableHardwareScaler(true)
+    view.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
+    view.init(SharedEglContext.context, null)
+//    view.layout(0,0,100,100)
+    view.setBackgroundColor(0xFF00FF00.toInt())
+    val hms = getHms()
+    val videoTrack = hms?.getLocalPeer()?.videoTrack as HMSVideoTrack
+    videoTrack.addSink(view)
     return view
   }
 
@@ -33,20 +41,18 @@ class HmssdkViewManager : SimpleViewManager<SurfaceViewRenderer>() {
 
   @ReactProp(name = "trackId")
   fun setColor(view: SurfaceViewRenderer, trackId: String?) {
+//    view.setBackgroundColor(0xFFFF000F.toInt())
     val hms = getHms()
-    view.apply {
-      View.VISIBLE
-      val context:EglBase.Context = SharedEglContext.context
-
-      init(context, null)
-      ++initializedContextCount
-
-      hms?.getLocalPeer()?.videoTrack?.addSink(this)
-    }
+    print("HMS instance ${hms}")
+    val videoTrack = hms?.getLocalPeer()?.videoTrack as HMSVideoTrack
+    println("trackID ${videoTrack}")
+    println("Track id")
+//    videoTrack.addSink(view)
   }
 
   private fun getHms(): HMSSDK? {
-    return reactContext?.getNativeModule(HmsModule::class.java)?.getHmsInstance()
+    val hms = reactContext?.getNativeModule(HmsModule::class.java)?.getHmsInstance()
+    return hms
   }
 
   companion object {
