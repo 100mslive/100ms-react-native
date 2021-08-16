@@ -169,4 +169,26 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
       }
     })
   }
+  
+  @ReactMethod
+  fun setLocalMute(isMute:Boolean) {
+    hmsSDK?.getLocalPeer()?.audioTrack?.setMute(isMute)
+  }
+
+  @ReactMethod
+  fun setLocalVideoMute(isMute:Boolean) {
+    hmsSDK?.getLocalPeer()?.videoTrack?.setMute(isMute)
+  }
+
+  @ReactMethod
+  fun switchCamera() {
+//    hmsSDK?.getLocalPeer()?.videoTrack?.switchCamera()
+    print("inside switchCamera")
+  }
+
+  @ReactMethod
+  fun leave() {
+    hmsSDK?.leave()
+  }
+
 }
