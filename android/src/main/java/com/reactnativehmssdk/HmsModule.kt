@@ -52,7 +52,11 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
         val previewTracks = HmsDecoder.getPreviewTracks(localTracks)
         val hmsRoom = HmsDecoder.getHmsRoom(room)
         val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
-        reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_PREVIEW", "ERROR")
+        val data: WritableMap = Arguments.createMap();
+        data.putMap("previewTracks", previewTracks)
+        data.putMap("room", hmsRoom)
+        data.putMap("localPeer", localPeerData)
+        reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_PREVIEW", data)
       }
 
     })
@@ -131,7 +135,7 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
 //        data.putMap("room", roomData)
         data.putMap("localPeer", localPeerData)
         data.putArray("remotePeers", remotePeerData)
-        reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_TRACK_UPDATE", "ON_TRACK_UPDATE")
+        reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_TRACK_UPDATE", data)
       }
 
       override fun onMessageReceived(message: HMSMessage) {

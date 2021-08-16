@@ -29,7 +29,7 @@ android {
     compileSdkVersion safeExtGet('Hmssdk_compileSdkVersion', 29)
     buildToolsVersion safeExtGet('Hmssdk_buildToolsVersion', '29.0.2')
     defaultConfig {
-        minSdkVersion safeExtGet('Hmssdk_minSdkVersion', 24)
+        minSdkVersion safeExtGet('Hmssdk_minSdkVersion', 21)
         targetSdkVersion safeExtGet('Hmssdk_targetSdkVersion', 29)
         versionCode 1
         versionName "1.0"

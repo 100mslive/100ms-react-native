@@ -235,35 +235,35 @@ export default class HMSSDK {
 
   onPeerListener = (data: any) => {
     console.log(data, 'peer data');
-    const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
+    // const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
       data.localPeer
     );
     const remotePeers: HMSRemotePeer[] = HMSEncoder.encodeHmsRemotePeers(
       data.remotePeers
     );
-    this.room = room;
+    // this.room = room;
     this.localPeer = localPeer;
     this.remotePeers = remotePeers;
     if (this.onPeerDelegate) {
-      this.onPeerDelegate({ ...data, room, localPeer, remotePeers });
+      this.onPeerDelegate({ ...data, localPeer, remotePeers });
     }
   };
 
   onTrackListener = (data: any) => {
     console.log(data, 'track data');
-    const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
+    // const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
       data.localPeer
     );
     const remotePeers: HMSRemotePeer[] = HMSEncoder.encodeHmsRemotePeers(
       data.remotePeers
     );
-    this.room = room;
+    // this.room = room;
     this.localPeer = localPeer;
     this.remotePeers = remotePeers;
     if (this.onTrackDelegate) {
-      this.onTrackDelegate({ ...data, room, localPeer, remotePeers });
+      this.onTrackDelegate({ ...data, localPeer, remotePeers });
     }
   };
 

@@ -22,10 +22,10 @@ class HmssdkViewManager : SimpleViewManager<SurfaceViewRenderer>() {
 
   public override fun createViewInstance(reactContext: ThemedReactContext): SurfaceViewRenderer {
     val view = SurfaceViewRenderer(reactContext)
-    val layoutParams = view.layoutParams
-    layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
-    layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
-    view.layoutParams = layoutParams
+    //val layoutParams = view.layoutParams
+    //layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
+    //layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
+    //view.layoutParams = layoutParams
     return view
   }
 
