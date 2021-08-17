@@ -152,7 +152,7 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
         val data: WritableMap = Arguments.createMap()
 
         data.putString("sender", message.sender.name)
-        data.putString("messsage", message.message)
+        data.putString("message", message.message)
         data.putString("type", message.type)
         data.putString("time", message.time.toString())
         data.putString("event", "ON_MESSAGE")
@@ -197,6 +197,11 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   @ReactMethod
   fun leave() {
     hmsSDK?.leave()
+  }
+
+  @ReactMethod
+  fun send(data:ReadableMap) {
+    hmsSDK?.sendMessage(data.getString("type") as String,data.getString("message") as String)
   }
 
 }
