@@ -183,8 +183,12 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
 
   @ReactMethod
    fun switchCamera() {
-    HMSCoroutineScope.launch {
-      hmsSDK?.getLocalPeer()?.videoTrack?.switchCamera()
+    if(hmsSDK?.getLocalPeer()?.videoTrack?.isMute?:true){
+      println("Camera off")
+    }else{
+      HMSCoroutineScope.launch {
+        hmsSDK?.getLocalPeer()?.videoTrack?.switchCamera()
+      }
     }
   }
 
