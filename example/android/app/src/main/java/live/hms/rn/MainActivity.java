@@ -1,4 +1,4 @@
-package com.rnhmsRNHMSExample;
+package live.hms.rn;
 
 import com.facebook.react.ReactActivity;
 

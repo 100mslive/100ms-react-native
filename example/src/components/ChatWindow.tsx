@@ -5,8 +5,8 @@ import {
   StyleSheet,
   TextInput,
   KeyboardAvoidingView,
-  Platform,
   ScrollView,
+  TouchableOpacity,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import dimension from '../utils/dimension';
@@ -25,16 +25,15 @@ const ChatWindow = ({
   return (
     <View style={styles.container}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior="padding"
         style={styles.keyboardAvoidingView}>
-        <View style={styles.closeIconContainer}>
+        <TouchableOpacity style={styles.closeIconContainer} onPress={cancel}>
           <Feather
             size={dimension.viewHeight(32)}
             style={styles.closeIcon}
             name="x"
-            onPress={cancel}
           />
-        </View>
+        </TouchableOpacity>
         <ScrollView style={styles.chatContainer}>
           {messages.map((item: any, index: number) => {
             return (
@@ -56,17 +55,18 @@ const ChatWindow = ({
             }}
             value={text}
           />
-          <View style={styles.sendContainer}>
+          <TouchableOpacity
+            style={styles.sendContainer}
+            onPress={() => {
+              send(text);
+              setText('');
+            }}>
             <Feather
               size={dimension.viewHeight(24)}
               style={styles.sendIcon}
               name="send"
-              onPress={() => {
-                send(text);
-                setText('');
-              }}
             />
-          </View>
+          </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
     </View>
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
   textInput: {
     borderColor: 'black',
     borderWidth: 1,
-    height: dimension.viewHeight(42),
+    height: dimension.viewHeight(52),
     marginHorizontal: dimension.viewWidth(16),
     paddingHorizontal: dimension.viewWidth(16),
     flex: 1,
@@ -133,6 +133,7 @@ const styles = StyleSheet.create({
   },
   sendContainer: {
     marginRight: dimension.viewWidth(24),
+    padding: 8,
   },
   closeIcon: {
     color: 'black',

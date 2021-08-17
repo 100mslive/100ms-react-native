@@ -18,6 +18,8 @@ const PreviewModal = ({
   const [isMute, setIsMute] = useState(false);
   const [muteVideo, setMuteVideo] = useState(false);
 
+  console.log(trackId, 'trackID JS');
+
   return (
     <View style={styles.container}>
       <View style={styles.modalContainer}>
