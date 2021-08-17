@@ -387,7 +387,6 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     height: dimension.viewHeight(896),
-    backgroundColor: 'red',
   },
   videoView: {
     width: '100%',
@@ -396,7 +395,6 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     flex: 1,
-    backgroundColor: 'yellow',
   },
   videoIcon: {},
   fullScreenTile: {
