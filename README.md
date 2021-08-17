@@ -1,8 +1,7 @@
-<p align="center" >
-  <a href="https://100ms.live/">
-  <img src="https://github.com/100mslive/100ms-react-native/blob/main/100ms-logo.png" title="100ms logo" float=left>
-  </a>
-</p>
+<a href="https://100ms.live/">
+<img src="https://github.com/100mslive/100ms-react-native/blob/main/100ms.gif" height=256/> 
+<img src="https://github.com/100mslive/100ms-react-native/blob/main/100ms.svg" title="100ms logo" float=center height=256>
+</a>
 
 # react-native-hms
 [![npm](https://img.shields.io/npm/v/@100mslive/react-native-hms)](https://www.npmjs.com/package/@100mslive/react-native-hms)
