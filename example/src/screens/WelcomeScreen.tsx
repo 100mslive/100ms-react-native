@@ -7,6 +7,7 @@ import {
   Text,
   TouchableOpacity,
   Image,
+  Platform,
 } from 'react-native';
 import {connect} from 'react-redux';
 import * as services from '../services/index';
@@ -18,7 +19,6 @@ import Feather from 'react-native-vector-icons/Feather';
 import UserIdModal from '../components/UserIdModal';
 import PreviewModal from '../components/PreviewModal';
 import {navigate} from '../services/navigation';
-import {Platform} from 'react-native';
 import {setAudioVideoState} from '../redux/actions/index';
 import {PERMISSIONS, RESULTS, requestMultiple} from 'react-native-permissions';
 
@@ -98,45 +98,39 @@ const App = ({
   }, []);
 
   const checkPermissions = (token: string, userID: string) => {
-    console.log('here 3');
-    requestMultiple([
-      PERMISSIONS.ANDROID.CAMERA,
-      PERMISSIONS.ANDROID.RECORD_AUDIO,
-    ])
-      .then(results => {
-        console.log(
-          'here 5',
-          results['android.permission.CAMERA'],
-          results['android.permission.RECORD_AUDIO'],
-        );
-        if (
-          results['android.permission.CAMERA'] === RESULTS.GRANTED &&
-          results['android.permission.RECORD_AUDIO'] === RESULTS.GRANTED
-        ) {
-          console.log('here 6');
-          previewRoom(token, userID);
-        }
-      })
-      .catch(error => {
-        console.log(error);
-      });
+    if (Platform.OS === 'android') {
+      requestMultiple([
+        PERMISSIONS.ANDROID.CAMERA,
+        PERMISSIONS.ANDROID.RECORD_AUDIO,
+      ])
+        .then(results => {
+          if (
+            results['android.permission.CAMERA'] === RESULTS.GRANTED &&
+            results['android.permission.RECORD_AUDIO'] === RESULTS.GRANTED
+          ) {
+            previewRoom(token, userID);
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    } else {
+      previewRoom(token, userID);
+    }
   };
 
   const previewRoom = (token: string, userID: string) => {
-    console.log('here 7');
     const HmsConfig = new HMSConfig({
       authToken: token,
       userID,
       roomID,
       username: userID,
     });
-    console.log(HMSConfig, 'config');
     instance.addEventListener(
       HMSUpdateListenerActions.ON_PREVIEW,
       previewSuccess,
     );
 
-    console.log(instance);
     instance.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
     instance.preview(HmsConfig);
     setConfig(HmsConfig);
