@@ -26,6 +26,7 @@ cd ios/ && pod install
 ```
 
 📲 Download the Sample iOS App here: https://testflight.apple.com/join/v4bSIPad
+
 🤖 Download the Sample Android App here: https://appdistribution.firebase.dev/i/7b7ab3b30e627c35
 
 
