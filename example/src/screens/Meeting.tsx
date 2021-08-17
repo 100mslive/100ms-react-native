@@ -368,14 +368,16 @@ const Meeting = ({
           messages={messages}
           cancel={() => setModalVisible(false)}
           send={(value: string) => {
-            const hmsMessage = new HMSMessage({
-              type: 'chat',
-              time: new Date().toISOString(),
-              message: value,
-            });
+            if (value.length > 0) {
+              const hmsMessage = new HMSMessage({
+                type: 'chat',
+                time: new Date().toISOString(),
+                message: value,
+              });
 
-            instance.send(hmsMessage);
-            addMessageRequest({data: hmsMessage, isLocal: true});
+              instance.send(hmsMessage);
+              addMessageRequest({data: hmsMessage, isLocal: true});
+            }
           }}
         />
       )}
