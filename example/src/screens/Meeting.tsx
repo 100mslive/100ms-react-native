@@ -6,6 +6,7 @@ import {
   ScrollView,
   Text,
   SafeAreaView,
+  Platform,
 } from 'react-native';
 import {connect} from 'react-redux';
 import HmsManager, {
@@ -65,6 +66,11 @@ const Meeting = ({
         if (remoteTrackId) {
           remoteVideoIds.push({
             trackId: remoteTrackId,
+            peerName: remotePeerName,
+          });
+        } else {
+          remoteVideoIds.push({
+            trackId: '',
             peerName: remotePeerName,
           });
         }
@@ -270,9 +276,10 @@ const Meeting = ({
               style={[
                 getLocalVideoStyles(),
                 {
-                  height: dimension.viewHeight(
-                    (safeHeight - dimension.viewHeight(90)) / 2,
-                  ),
+                  height:
+                    Platform.OS === 'android'
+                      ? safeHeight / 2
+                      : (safeHeight - dimension.viewHeight(90)) / 2,
                 },
               ]}>
               <HmsView style={styles.hmsView} trackId={trackId.trackId} />
@@ -287,9 +294,10 @@ const Meeting = ({
                   style={[
                     getRemoteVideoStyles(),
                     {
-                      height: dimension.viewHeight(
-                        (safeHeight - dimension.viewHeight(90)) / 2,
-                      ),
+                      height:
+                        Platform.OS === 'android'
+                          ? safeHeight / 2
+                          : (safeHeight - dimension.viewHeight(90)) / 2,
                     },
                   ]}>
                   <HmsView trackId={item.trackId} style={styles.hmsView} />
@@ -368,14 +376,16 @@ const Meeting = ({
           messages={messages}
           cancel={() => setModalVisible(false)}
           send={(value: string) => {
-            const hmsMessage = new HMSMessage({
-              type: 'chat',
-              time: new Date().toISOString(),
-              message: value,
-            });
+            if (value.length > 0) {
+              const hmsMessage = new HMSMessage({
+                type: 'chat',
+                time: new Date().toISOString(),
+                message: value,
+              });
 
-            instance.send(hmsMessage);
-            addMessageRequest({data: hmsMessage, isLocal: true});
+              instance.send(hmsMessage);
+              addMessageRequest({data: hmsMessage, isLocal: true});
+            }
           }}
         />
       )}
@@ -412,6 +422,9 @@ const styles = StyleSheet.create({
   generalTile: {
     width: dimension.viewWidth(206),
     marginVertical: 1,
+    padding: 0.5,
+    overflow: 'hidden',
+    borderRadius: 10,
   },
   fullWidthTile: {
     height: dimension.viewHeight(445),
