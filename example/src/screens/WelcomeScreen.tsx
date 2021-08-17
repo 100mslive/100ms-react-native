@@ -7,6 +7,7 @@ import {
   Text,
   TouchableOpacity,
   Image,
+  Platform,
 } from 'react-native';
 import {connect} from 'react-redux';
 import * as services from '../services/index';
@@ -18,8 +19,8 @@ import Feather from 'react-native-vector-icons/Feather';
 import UserIdModal from '../components/UserIdModal';
 import PreviewModal from '../components/PreviewModal';
 import {navigate} from '../services/navigation';
-import {Platform} from 'react-native';
 import {setAudioVideoState} from '../redux/actions/index';
+import {PERMISSIONS, RESULTS, requestMultiple} from 'react-native-permissions';
 
 const callService = async (
   userID: string,
@@ -96,8 +97,35 @@ const App = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const checkPermissions = (token: string, userID: string) => {
+    if (Platform.OS === 'android') {
+      requestMultiple([
+        PERMISSIONS.ANDROID.CAMERA,
+        PERMISSIONS.ANDROID.RECORD_AUDIO,
+      ])
+        .then(results => {
+          if (
+            results['android.permission.CAMERA'] === RESULTS.GRANTED &&
+            results['android.permission.RECORD_AUDIO'] === RESULTS.GRANTED
+          ) {
+            previewRoom(token, userID);
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    } else {
+      previewRoom(token, userID);
+    }
+  };
+
   const previewRoom = (token: string, userID: string) => {
-    const HmsConfig = new HMSConfig({authToken: token, userID, roomID});
+    const HmsConfig = new HMSConfig({
+      authToken: token,
+      userID,
+      roomID,
+      username: userID,
+    });
     instance.addEventListener(
       HMSUpdateListenerActions.ON_PREVIEW,
       previewSuccess,
@@ -150,7 +178,7 @@ const App = ({
       {modalVisible && (
         <UserIdModal
           join={(userID: string) => {
-            callService(userID, roomID, role, previewRoom);
+            callService(userID, roomID, role, checkPermissions);
             setModalVisible(false);
           }}
           cancel={() => setModalVisible(false)}
