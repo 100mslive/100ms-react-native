@@ -274,9 +274,7 @@ const Meeting = ({
                   height:
                     Platform.OS === 'android'
                       ? safeHeight / 2
-                      : dimension.viewHeight(
-                          (safeHeight - dimension.viewHeight(90)) / 2,
-                        ),
+                      : (safeHeight - dimension.viewHeight(90)) / 2,
                 },
               ]}>
               <HmsView style={styles.hmsView} trackId={trackId.trackId} />
@@ -294,9 +292,7 @@ const Meeting = ({
                       height:
                         Platform.OS === 'android'
                           ? safeHeight / 2
-                          : dimension.viewHeight(
-                              (safeHeight - dimension.viewHeight(90)) / 2,
-                            ),
+                          : (safeHeight - dimension.viewHeight(90)) / 2,
                     },
                   ]}>
                   <HmsView trackId={item.trackId} style={styles.hmsView} />
@@ -422,6 +418,7 @@ const styles = StyleSheet.create({
     width: dimension.viewWidth(206),
     marginVertical: 1,
     padding: 0.5,
+    overflow: 'hidden',
   },
   fullWidthTile: {
     height: dimension.viewHeight(445),
