@@ -14,7 +14,7 @@ import live.hms.video.utils.SharedEglContext
 import org.webrtc.EglBase
 import org.webrtc.RendererCommon
 
-class HmssdkViewManager : SimpleViewManager<View>() {
+class HmssdkViewManager : SimpleViewManager<SurfaceViewRenderer>() {
 
   private var reactContext: ThemedReactContext? = null
 
@@ -30,24 +30,33 @@ class HmssdkViewManager : SimpleViewManager<View>() {
     view.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
     view.init(SharedEglContext.context, null)
 //    view.layout(0,0,100,100)
-    view.setBackgroundColor(0xFF00FF00.toInt())
-    val hms = getHms()
-    val videoTrack = hms?.getLocalPeer()?.videoTrack as HMSVideoTrack
-    videoTrack.addSink(view)
     return view
   }
 
-  private var initializedContextCount = 0
-
   @ReactProp(name = "trackId")
   fun setColor(view: SurfaceViewRenderer, trackId: String?) {
-//    view.setBackgroundColor(0xFFFF000F.toInt())
     val hms = getHms()
-    print("HMS instance ${hms}")
-    val videoTrack = hms?.getLocalPeer()?.videoTrack as HMSVideoTrack
-    println("trackID ${videoTrack}")
-    println("Track id")
-//    videoTrack.addSink(view)
+    val localTrackId = hms?.getLocalPeer()?.videoTrack?.trackId
+    if (localTrackId == trackId) {
+      val videoTrack = hms?.getLocalPeer()?.videoTrack
+      videoTrack?.addSink(view)
+    }
+
+    val remotePeers = hms?.getRemotePeers()
+
+    if (remotePeers !== null) {
+      for (peer in remotePeers) {
+        val videoTrackId = peer.videoTrack?.trackId
+
+        if (videoTrackId == trackId) {
+          val videoTrack = peer.videoTrack
+
+          videoTrack?.addSink(view)
+          return
+        }
+      }
+    }
+
   }
 
   private fun getHms(): HMSSDK? {
