@@ -6,6 +6,7 @@ import {
   ScrollView,
   Text,
   SafeAreaView,
+  Platform,
 } from 'react-native';
 import {connect} from 'react-redux';
 import HmsManager, {
@@ -270,9 +271,12 @@ const Meeting = ({
               style={[
                 getLocalVideoStyles(),
                 {
-                  height: dimension.viewHeight(
-                    (safeHeight - dimension.viewHeight(90)) / 2,
-                  ),
+                  height:
+                    Platform.OS === 'android'
+                      ? safeHeight / 2
+                      : dimension.viewHeight(
+                          (safeHeight - dimension.viewHeight(90)) / 2,
+                        ),
                 },
               ]}>
               <HmsView style={styles.hmsView} trackId={trackId.trackId} />
@@ -287,9 +291,12 @@ const Meeting = ({
                   style={[
                     getRemoteVideoStyles(),
                     {
-                      height: dimension.viewHeight(
-                        (safeHeight - dimension.viewHeight(90)) / 2,
-                      ),
+                      height:
+                        Platform.OS === 'android'
+                          ? safeHeight / 2
+                          : dimension.viewHeight(
+                              (safeHeight - dimension.viewHeight(90)) / 2,
+                            ),
                     },
                   ]}>
                   <HmsView trackId={item.trackId} style={styles.hmsView} />
@@ -414,6 +421,7 @@ const styles = StyleSheet.create({
   generalTile: {
     width: dimension.viewWidth(206),
     marginVertical: 1,
+    padding: 0.5,
   },
   fullWidthTile: {
     height: dimension.viewHeight(445),
