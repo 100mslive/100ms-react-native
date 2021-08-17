@@ -1,18 +1,19 @@
 <p align="center" >
   <a href="https://100ms.live/">
   <img src="https://github.com/100mslive/100ms-react-native/blob/main/100ms-logo.png" title="100ms logo" float=left>
+  </a>
 </p>
 
 # react-native-hms
-![npm](https://img.shields.io/npm/v/@100mslive/react-native-hms)
-![license](https://img.shields.io/npm/l/@100mslive/react-native-hms)
-![quality](https://img.shields.io/npms-io/quality-score/@100mslive/react-native-hms)
-![vulnerabilities](https://img.shields.io/snyk/vulnerabilities/npm/@100mslive/react-native-hms)
-![collaborators](https://img.shields.io/npm/collaborators/@100mslive/react-native-hms)
+[![npm](https://img.shields.io/npm/v/@100mslive/react-native-hms)](https://www.npmjs.com/package/@100mslive/react-native-hms)
+[![license](https://img.shields.io/npm/l/@100mslive/react-native-hms)](https://www.100ms.live/)
+[![quality](https://img.shields.io/npms-io/quality-score/@100mslive/react-native-hms)](https://www.npmjs.com/package/@100mslive/react-native-hms)
+[![vulnerabilities](https://img.shields.io/snyk/vulnerabilities/npm/@100mslive/react-native-hms)](https://www.npmjs.com/package/@100mslive/react-native-hms)
+[![collaborators](https://img.shields.io/npm/collaborators/@100mslive/react-native-hms)](https://www.npmjs.com/package/@100mslive/react-native-hms)
 [![Documentation](https://img.shields.io/badge/Read-Documentation-blue)](https://docs.100ms.live/)
 [![Discord](https://img.shields.io/badge/Community-Join%20on%20Discord-blue)](https://discord.com/invite/kGdmszyzq2)
 [![Slack](https://img.shields.io/badge/Community-Join%20on%20Slack-blue)](https://join.slack.com/t/100mslive/shared_invite/zt-llwdnz11-vkb2RzptwacwXHO7UeY0CQ)
-[![Email](https://img.shields.io/badge/Contact-Know%20More-blue)](mailto:founders@100ms.live)
+[![Email](https://img.shields.io/badge/Contact-Know%20More-blue)](https://dashboard.100ms.live/register)
 
 React native wrapper for 100ms SDK
 
@@ -23,13 +24,14 @@ npm install react-native-hms
 
 cd ios/ && pod install
 ```
-Note: Only iOS platform is supported at the moment, we are actively working to support Android as well.
 
-Download the Sample iOS App here: https://testflight.apple.com/join/v4bSIPad
+📲 Download the Sample iOS App here: https://testflight.apple.com/join/v4bSIPad
+🤖 Download the Sample Android App here: https://appdistribution.firebase.dev/i/7b7ab3b30e627c35
+
 
 ## Permissions
 Add following permissions in info.plist file
-```
+```xml
 <key>NSLocalNetworkUsageDescription</key>
 <string>{YourAppName} App wants to use your local network</string>
 
@@ -178,7 +180,3 @@ import { HMSUpdateListenerActions } from '@100mslive/react-native-hms';
 instance.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
   
 ```
-  
-## License
-
-MIT
