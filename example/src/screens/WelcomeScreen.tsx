@@ -20,7 +20,7 @@ import PreviewModal from '../components/PreviewModal';
 import {navigate} from '../services/navigation';
 import {Platform} from 'react-native';
 import {setAudioVideoState} from '../redux/actions/index';
-import {request, check, PERMISSIONS, RESULTS} from 'react-native-permissions';
+import {PERMISSIONS, RESULTS, requestMultiple} from 'react-native-permissions';
 
 const callService = async (
   userID: string,
@@ -98,32 +98,23 @@ const App = ({
   }, []);
 
   const checkPermissions = (token: string, userID: string) => {
-    check(PERMISSIONS.ANDROID.CAMERA)
-      .then(result => {
-        switch (result) {
-          case RESULTS.UNAVAILABLE:
-            console.log(
-              'This feature is not available (on this device / in this context)',
-            );
-            break;
-          case RESULTS.DENIED:
-            request(PERMISSIONS.ANDROID.CAMERA).then(output => {
-              console.log('permission: ', output);
-              if (output === RESULTS.GRANTED) {
-                previewRoom(token, userID);
-              }
-            });
-            break;
-          case RESULTS.LIMITED:
-            console.log('The permission is limited: some actions are possible');
-            break;
-          case RESULTS.GRANTED:
-            console.log('The permission is granted');
-            previewRoom(token, userID);
-            break;
-          case RESULTS.BLOCKED:
-            console.log('The permission is denied and not requestable anymore');
-            break;
+    console.log('here 3');
+    requestMultiple([
+      PERMISSIONS.ANDROID.CAMERA,
+      PERMISSIONS.ANDROID.RECORD_AUDIO,
+    ])
+      .then(results => {
+        console.log(
+          'here 5',
+          results['android.permission.CAMERA'],
+          results['android.permission.RECORD_AUDIO'],
+        );
+        if (
+          results['android.permission.CAMERA'] === RESULTS.GRANTED &&
+          results['android.permission.RECORD_AUDIO'] === RESULTS.GRANTED
+        ) {
+          console.log('here 6');
+          previewRoom(token, userID);
         }
       })
       .catch(error => {
@@ -132,12 +123,20 @@ const App = ({
   };
 
   const previewRoom = (token: string, userID: string) => {
-    const HmsConfig = new HMSConfig({authToken: token, userID, roomID});
+    console.log('here 7');
+    const HmsConfig = new HMSConfig({
+      authToken: token,
+      userID,
+      roomID,
+      username: userID,
+    });
+    console.log(HMSConfig, 'config');
     instance.addEventListener(
       HMSUpdateListenerActions.ON_PREVIEW,
       previewSuccess,
     );
 
+    console.log(instance);
     instance.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
     instance.preview(HmsConfig);
     setConfig(HmsConfig);

@@ -119,7 +119,7 @@ object HmsDecoder {
 //        publishSettings.putMap("screenSimulcastLayers", getHmsSimulcastLayers(hmsPublishSettings.screenSimulcastLayers));
         publishSettings.putMap("videoSimulcastLayers", null);
         publishSettings.putMap("screenSimulcastLayers", null);
-        publishSettings.putArray("allowed", if (hmsPublishSettings.allowed != null) hmsPublishSettings.allowed as WritableArray else emptyArray);
+//        publishSettings.putArray("allowed", if (hmsPublishSettings.allowed != null) hmsPublishSettings.allowed as WritableArray else emptyArray);
       }
       return publishSettings;
     }
