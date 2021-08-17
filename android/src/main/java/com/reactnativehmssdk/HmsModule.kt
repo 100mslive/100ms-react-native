@@ -15,6 +15,7 @@ import live.hms.video.utils.HMSCoroutineScope
 import live.hms.video.error.HMSException
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.reactnativehmssdk.HmsModule.Companion.REACT_CLASS
+import kotlinx.coroutines.launch
 import live.hms.video.sdk.HMSPreviewListener
 
 @ReactModule(name = REACT_CLASS)
@@ -187,9 +188,10 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   }
 
   @ReactMethod
-  fun switchCamera() {
-//    hmsSDK?.getLocalPeer()?.videoTrack?.switchCamera()
-    print("inside switchCamera")
+   fun switchCamera() {
+    HMSCoroutineScope.launch {
+      hmsSDK?.getLocalPeer()?.videoTrack?.switchCamera()
+    }
   }
 
   @ReactMethod
