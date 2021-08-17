@@ -68,6 +68,11 @@ const Meeting = ({
             trackId: remoteTrackId,
             peerName: remotePeerName,
           });
+        } else {
+          remoteVideoIds.push({
+            trackId: '',
+            peerName: remotePeerName,
+          });
         }
       });
 
@@ -419,6 +424,7 @@ const styles = StyleSheet.create({
     marginVertical: 1,
     padding: 0.5,
     overflow: 'hidden',
+    borderRadius: 10,
   },
   fullWidthTile: {
     height: dimension.viewHeight(445),
