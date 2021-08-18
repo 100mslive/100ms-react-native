@@ -27,6 +27,69 @@ type Peer = {
   peerName?: string;
 };
 
+const DisplayName = ({
+  peerName,
+  setIsLocalMute,
+  setMuteLocalVideo,
+  isLocalMute,
+  muteLocalVideo,
+  videoStyles,
+  safeHeight,
+  trackId,
+}: {
+  peerName?: String;
+  setIsLocalMute: any;
+  setMuteLocalVideo: any;
+  isLocalMute: boolean;
+  muteLocalVideo: boolean;
+  videoStyles: Function;
+  safeHeight: any;
+  trackId: any;
+}) => {
+  return (
+    <View
+      key={trackId}
+      style={[
+        videoStyles(),
+        {
+          height:
+            Platform.OS === 'android'
+              ? safeHeight / 2 - 2
+              : (safeHeight - dimension.viewHeight(90)) / 2 - 2,
+        },
+      ]}>
+      <HmsView trackId={trackId} style={styles.hmsView} />
+      <View style={styles.peerNameContainer}>
+        <View style={{maxWidth: 80}}>
+          <Text numberOfLines={2} style={styles.peerName}>
+            {peerName}
+          </Text>
+        </View>
+        <View
+          style={{paddingHorizontal: 3}}
+          // onPress={setIsLocalMute}
+        >
+          <Feather
+            name={isLocalMute ? 'mic-off' : 'mic'}
+            style={{color: 'blue'}}
+            size={20}
+          />
+        </View>
+        <View
+          style={{paddingHorizontal: 3}}
+          // onPress={setMuteLocalVideo}
+        >
+          <Feather
+            name={muteLocalVideo ? 'video-off' : 'video'}
+            style={{color: 'blue'}}
+            size={20}
+          />
+        </View>
+      </View>
+    </View>
+  );
+};
+
 const Meeting = ({
   messages,
   addMessageRequest,
@@ -48,6 +111,8 @@ const Meeting = ({
   const [muteVideo, setMuteVideo] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [safeHeight, setSafeHeight] = useState(0);
+  const [isLocalMute, setIsLocalMute] = useState(false);
+  const [muteLocalVideo, setMuteLocalVideo] = useState(false);
 
   const updateVideoIds = (remotePeers: any, localPeer: any) => {
     // get local track Id
@@ -270,41 +335,38 @@ const Meeting = ({
             setSafeHeight(height);
           }
         }}>
-        <ScrollView style={styles.scroll}>
+        <ScrollView style={styles.scroll} bounces={false}>
           <View style={styles.videoView}>
-            <View
-              style={[
-                getLocalVideoStyles(),
-                {
-                  height:
-                    Platform.OS === 'android'
-                      ? safeHeight / 2
-                      : (safeHeight - dimension.viewHeight(90)) / 2,
-                },
-              ]}>
-              <HmsView style={styles.hmsView} trackId={trackId.trackId} />
-              <View style={styles.peerNameContainer}>
-                <Text style={styles.peerName}>{trackId.peerName}</Text>
-              </View>
-            </View>
+            <DisplayName
+              peerName={trackId.peerName}
+              setIsLocalMute={async () => {
+                setIsLocalMute(!isLocalMute);
+              }}
+              setMuteLocalVideo={async () => {
+                setMuteLocalVideo(!muteLocalVideo);
+              }}
+              isLocalMute={isLocalMute}
+              muteLocalVideo={muteLocalVideo}
+              videoStyles={getLocalVideoStyles}
+              safeHeight={safeHeight}
+              trackId={trackId.trackId}
+            />
             {remoteTrackIds.map((item: Peer) => {
               return (
-                <View
-                  key={item.trackId}
-                  style={[
-                    getRemoteVideoStyles(),
-                    {
-                      height:
-                        Platform.OS === 'android'
-                          ? safeHeight / 2
-                          : (safeHeight - dimension.viewHeight(90)) / 2,
-                    },
-                  ]}>
-                  <HmsView trackId={item.trackId} style={styles.hmsView} />
-                  <View style={styles.peerNameContainer}>
-                    <Text style={styles.peerName}>{item.peerName}</Text>
-                  </View>
-                </View>
+                <DisplayName
+                  peerName={item.peerName}
+                  setIsLocalMute={async () => {
+                    setIsLocalMute(!isLocalMute);
+                  }}
+                  setMuteLocalVideo={async () => {
+                    setMuteLocalVideo(!muteLocalVideo);
+                  }}
+                  isLocalMute={isLocalMute}
+                  muteLocalVideo={muteLocalVideo}
+                  videoStyles={getRemoteVideoStyles}
+                  safeHeight={safeHeight}
+                  trackId={item.trackId}
+                />
               );
             })}
           </View>
@@ -482,6 +544,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 16,
     borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   peerName: {
     color: 'blue',
