@@ -335,7 +335,7 @@ const Meeting = ({
             setSafeHeight(height);
           }
         }}>
-        <ScrollView style={styles.scroll} bounces={false}>
+        <ScrollView style={styles.scroll}>
           <View style={styles.videoView}>
             <DisplayName
               peerName={trackId.peerName}
