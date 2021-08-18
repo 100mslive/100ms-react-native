@@ -65,20 +65,14 @@ const DisplayName = ({
             {peerName}
           </Text>
         </View>
-        <View
-          style={{paddingHorizontal: 3}}
-          // onPress={setIsLocalMute}
-        >
+        <View style={{paddingHorizontal: 3}}>
           <Feather
             name={isLocalMute ? 'mic-off' : 'mic'}
             style={{color: 'blue'}}
             size={20}
           />
         </View>
-        <View
-          style={{paddingHorizontal: 3}}
-          // onPress={setMuteLocalVideo}
-        >
+        <View style={{paddingHorizontal: 3}}>
           <Feather
             name={muteLocalVideo ? 'video-off' : 'video'}
             style={{color: 'blue'}}
