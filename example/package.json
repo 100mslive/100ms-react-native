@@ -1,6 +1,6 @@
 {
   "name": "RNHMSExample",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
@@ -10,7 +10,6 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
-    "@react-native-firebase/app": "^12.6.1",
     "ios-deploy": "^1.11.4",
     "react": "17.0.1",
     "react-native": "0.64.1",
