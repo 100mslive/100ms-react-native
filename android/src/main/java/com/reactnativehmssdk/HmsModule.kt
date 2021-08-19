@@ -1,6 +1,7 @@
 package com.reactnativehmssdk
 
 import com.facebook.react.bridge.*
+import com.facebook.react.module.annotations.ReactModule
 import java.util.*
 import live.hms.video.sdk.HMSSDK
 import live.hms.video.sdk.models.HMSConfig
@@ -13,10 +14,15 @@ import live.hms.video.media.tracks.*
 import live.hms.video.utils.HMSCoroutineScope
 import live.hms.video.error.HMSException
 import com.facebook.react.modules.core.DeviceEventManagerModule
+import com.reactnativehmssdk.HmsModule.Companion.REACT_CLASS
 import kotlinx.coroutines.launch
 import live.hms.video.sdk.HMSPreviewListener
 
+@ReactModule(name = REACT_CLASS)
 class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
+  companion object {
+    const val REACT_CLASS = "HmsManager"
+  }
   private var hmsSDK: HMSSDK? = null;
 
   override fun getName(): String {
@@ -146,7 +152,7 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
         val data: WritableMap = Arguments.createMap()
 
         data.putString("sender", message.sender.name)
-        data.putString("messsage", message.message)
+        data.putString("message", message.message)
         data.putString("type", message.type)
         data.putString("time", message.time.toString())
         data.putString("event", "ON_MESSAGE")
@@ -170,7 +176,7 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
       }
     })
   }
-  
+
   @ReactMethod
   fun setLocalMute(isMute:Boolean) {
     hmsSDK?.getLocalPeer()?.audioTrack?.setMute(isMute)
@@ -195,6 +201,11 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   @ReactMethod
   fun leave() {
     hmsSDK?.leave()
+  }
+
+  @ReactMethod
+  fun send(data:ReadableMap) {
+    hmsSDK?.sendMessage(data.getString("type") as String,data.getString("message") as String)
   }
 
 }
