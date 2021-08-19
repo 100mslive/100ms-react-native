@@ -329,7 +329,7 @@ const Meeting = ({
             setSafeHeight(height);
           }
         }}>
-        <ScrollView style={styles.scroll}>
+        <ScrollView style={styles.scroll} bounces={false}>
           <View style={styles.videoView}>
             <DisplayName
               peerName={trackId.peerName}
@@ -380,19 +380,6 @@ const Meeting = ({
           />
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.leaveIconContainer}
-          onPress={async () => {
-            instance.leave();
-            clearMessageRequest();
-            navigate('WelcomeScreen');
-          }}>
-          <Feather
-            name="phone-off"
-            style={styles.leaveIcon}
-            size={dimension.viewHeight(30)}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
           style={styles.singleIconContainer}
           onPress={() => {
             setModalVisible(true);
@@ -423,6 +410,19 @@ const Meeting = ({
           <Feather
             name={muteVideo ? 'video-off' : 'video'}
             style={styles.videoIcon}
+            size={dimension.viewHeight(30)}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.leaveIconContainer}
+          onPress={async () => {
+            instance.leave();
+            clearMessageRequest();
+            navigate('WelcomeScreen');
+          }}>
+          <Feather
+            name="phone-off"
+            style={styles.leaveIcon}
             size={dimension.viewHeight(30)}
           />
         </TouchableOpacity>
