@@ -5,6 +5,193 @@ nav: 1.1
 
 <Content alias="basics" />
 
-### Quickstart
+# React Native QuickStart Guide
 
-If you just want to see 100ms' SDKs in action in under 5 minutes, run one our quickstart [app](/javascript/v2/guides/javascript-quickstart)
+## Getting started
+Hello there! In this guide, we'll build a video conferencing application using our React Native SDK. We'll be using functional components with the powerful hooks provided by our SDK and build an app where you can have video call with your friends.
+
+## Prerequisites
+To get started you should be familiar with basics of [React Native](https://reactnative.dev/).
+
+## Installing the dependencies
+```sh
+npm install --save @100mslive/react-native-hms
+```
+
+## Permissions
+### For iOS
+Add following lines in `Info.plist` file
+
+```xml
+<key>NSCameraUsageDescription</key>
+<string>Please allow access to Camera to enable video conferencing</string>
+<key>NSLocalNetworkUsageDescription</key>
+<string>Please allow access to network usage to enable video conferencing</string>
+<key>NSMicrophoneUsageDescription</key>
+<string>Please allow access to Microphone to enable video conferencing</string>
+```
+
+### For Android
+Add following permissions in `androidManifest.xml`
+
+```xml
+<uses-permission android:name="android.permission.CAMERA" />
+<uses-permission android:name="android.permission.RECORD_AUDIO" />
+<uses-permission android:name="android.permission.INTERNET" />
+```
+You will also need to acquire these permissions on runtime.
+
+## Concepts
+- Room: When we join a conference call, the participants are said to be in a video call room.
+- Peer: A participant in the video call. You are the local peer while others are remote peers.
+- Track: Media. There are two types of track a peer can have - audio and video.
+
+## Initialising the SDK
+Call the function given below to initialise the SDK
+
+```js
+import HmsManager from '@100mslive/react-native-hms'
+
+const hmsInstance = await HmsManager.build();
+```
+
+This function will return the instance of HMSSDK that will be used for calling various functions and accessing data.
+
+## Add event listeners
+Add event listeners for all the events you want updates from such as onPreview, onJoin, onError etc. The actions can be found in HMSUpdateListenerActions class. The event handlers are the way of handling any update happening in hms. It is advised to attach all the event listeners so you don't miss any update.
+
+```js
+import HmsManager, {
+  HMSUpdateListenerActions,
+} from 'react-native-hms';
+...
+
+// instance acquired from build() method
+hmsInstance.addEventListener(
+  HMSUpdateListenerActions.ON_PREVIEW,
+  onPreview, // function that will be called on Preview success
+);
+
+hmsInstance.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
+
+hmsInstance.addEventListener(HMSUpdateListenerActions.ON_JOIN, onJoin);
+
+...
+```
+
+## Joining a room
+
+To join a room 3 fields are required:
+
+- `username`: The name of the user. This is the value that will be set on the peer object and be visible to everyone connected to the room.
+- `authToken`: A client-side token that is used to authenticate the user. You can read about how to generate this token [here](https://docs.100ms.live/javascript/v2/guides/token).
+- `userID`: A unique ID that will be used to identify user.
+- `roomID` (optional): The ID of the room that you wanna join
+
+```js
+import HmsManager, {
+  HMSUpdateListenerActions,
+  HMSConfig,
+} from 'react-native-hms';
+...
+
+// instance acquired from build() method
+const HmsConfig = new HMSConfig({authToken, userID, roomID, userName});
+
+hmsInstance.preview(HmsConfig); // to start preview
+// or 
+hmsInstance.join(HmsConfig); // to join a room
+
+...
+```
+
+## Leaving the room
+Before we go ahead with adding video, let us add a way to leave the room as well. We can call the leave method on hmsActions to leave the room.
+
+Once you're done with a call and want to exit, call leave on the HMSSDK instance you created to join it. Also you can always acquire instance of HMS using build() method.
+
+```js
+hmsInstance.leave()
+```
+
+## Render video
+Let us next add a way to show a tile for every participant in the room. We use HmsView component to render video on screen. this component takes TrackId of HMSVideoTrack and renders the corresponding track.
+
+```js
+import { HmsView } from 'react-native-hms';
+...
+
+const styles = StyleSheet.create({
+  hmsView: {
+    height: '100%',
+    width: '100%',
+  },
+});
+
+<HmsView style={styles.hmsView} trackId={trackId} />
+
+...
+```
+There are 2 types of Peers - a localPeer & remotePeers. To extract trackId from peers we can use following code snippet.
+
+```js
+const localTrackId = hmsInstance.localPeer.videoTrack.trackId
+
+const remoteTrackId = hmsInstance.remotePeers[index].videoTrack.trackId
+```
+these track IDs can directly be passed to HmsView component
+
+** A Pro tip: for fastest updates we can use ON_PEER_UPDATE and ON_TRACK_UPDATE listeners, these listeners get updated localPeer and remotePeers whenever there is any event related to these values.
+
+```js
+
+HmsInstance.addEventListener(
+    HMSUpdateListenerActions.ON_PEER_UPDATE,
+    onPeerListener,
+);
+
+HmsInstance.addEventListener(
+    HMSUpdateListenerActions.ON_TRACK_UPDATE,
+    onTrackListener,
+);
+
+const onPeerListener = ({
+    remotePeers,
+    localPeer,
+}: {
+    room?: any;
+    localPeer: any;
+    remotePeers: any;
+}) => {
+    updateVideoIds(remotePeers, localPeer); // this function can be used to update local and remotePeers on React-Native side
+};
+
+const onTrackListener = ({
+    remotePeers,
+    localPeer,
+}: {
+    room?: any;
+    localPeer: any;
+    remotePeers: any;
+}) => {
+    updateVideoIds(remotePeers, localPeer);
+};
+```
+
+## Mute/Unmute local Audio/Video tracks
+
+Mute is something that applies to both audio and video. When you mute audio, you can't be heard by other people. When you mute video, you will not be broadcasting your video to other people.
+
+It can be invoked only on local (you) peers' audio or video tracks.
+
+You get a reference to your own local peer from localPeer on HMSSDK instance.
+
+```js
+// instance acquired from build() method
+
+hmsInstance.localPeer.localAudioTrack().setMute(true); // audio track
+
+hmsInstance.localPeer.localVideoTrack().setMute(true); // video track
+
+```
+
