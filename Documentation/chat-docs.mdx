@@ -1,0 +1,41 @@
+# Chat
+What's a video without being able to send messages to each other too? 100ms supports chat for every video/audio room you create.
+
+## Sending Chat Messages
+With the HMSSDK instance call sendMessage to send a message.
+
+```js
+// import HMSMessage class
+import { HMSMessage } from '@100mslive/react-native-hms';
+
+const messageObject = {
+  type: 'chat',                     
+  time: new Date().toISOString(),   // The time the message was sent is contained in time as a Java Date.
+  message: value,                  // The body of the message is in message as a String.
+}
+
+const message = new HMSMessage(messageObject);
+
+// instance acquired from build() method
+hmsInstance.send(message);
+```
+
+## Receiving Chat Messages
+When you called hmsInstance.join(config) to join a room, add a ON_MESSAGE event listener with callback function onMessageReceived.
+```js
+// import HMSUpdateListenerActions,HMSMessage classes
+import { HMSUpdateListenerActions, HMSMessage } from '@100mslive/react-native-hms';
+
+// instance acquired from build() method
+hmsInstance.addEventListener(
+    HMSUpdateListenerActions.ON_MESSAGE,
+    onMessageReceived,
+);
+
+const onMessageReceived = (message: HMSMessage) => {
+    // perform action
+};
+```
+
+## Putting together a list of chat messages.
+The UI is completely up to you to decide! You'll also need to hold onto all the received messages if you want to display history.
