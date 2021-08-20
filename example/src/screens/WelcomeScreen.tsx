@@ -37,7 +37,6 @@ const callService = async (
   if (response.error) {
     // TODO: handle errors from API
   } else {
-    console.log('here 4');
     joinRoom(response.token, userID);
   }
   return response;

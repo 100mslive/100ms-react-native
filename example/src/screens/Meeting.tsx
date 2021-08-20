@@ -29,8 +29,6 @@ type Peer = {
 
 const DisplayName = ({
   peerName,
-  setIsLocalMute,
-  setMuteLocalVideo,
   isLocalMute,
   muteLocalVideo,
   videoStyles,
@@ -38,8 +36,8 @@ const DisplayName = ({
   trackId,
 }: {
   peerName?: String;
-  setIsLocalMute: any;
-  setMuteLocalVideo: any;
+  setIsLocalMute?: any;
+  setMuteLocalVideo?: any;
   isLocalMute: boolean;
   muteLocalVideo: boolean;
   videoStyles: Function;
@@ -59,23 +57,23 @@ const DisplayName = ({
         },
       ]}>
       <HmsView trackId={trackId} style={styles.hmsView} />
-      <View style={styles.peerNameContainer}>
-        <View style={{maxWidth: 80}}>
+      <View style={styles.displayContainer}>
+        <View style={styles.peerNameContainer}>
           <Text numberOfLines={2} style={styles.peerName}>
             {peerName}
           </Text>
         </View>
-        <View style={{paddingHorizontal: 3}}>
+        <View style={styles.micContainer}>
           <Feather
             name={isLocalMute ? 'mic-off' : 'mic'}
-            style={{color: 'blue'}}
+            style={styles.mic}
             size={20}
           />
         </View>
-        <View style={{paddingHorizontal: 3}}>
+        <View style={styles.micContainer}>
           <Feather
             name={muteLocalVideo ? 'video-off' : 'video'}
-            style={{color: 'blue'}}
+            style={styles.mic}
             size={20}
           />
         </View>
@@ -530,7 +528,7 @@ const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
   },
-  peerNameContainer: {
+  displayContainer: {
     position: 'absolute',
     bottom: 0,
     alignSelf: 'center',
@@ -542,6 +540,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   peerName: {
+    color: 'blue',
+  },
+  peerNameContainer: {
+    maxWidth: 80,
+  },
+  micContainer: {
+    paddingHorizontal: 3,
+  },
+  mic: {
     color: 'blue',
   },
 });

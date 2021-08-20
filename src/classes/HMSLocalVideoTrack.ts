@@ -30,7 +30,6 @@ export default class HMSLocalVideoTrack extends HMSVideoTrack {
    * @memberof HMSLocalVideoTrack
    */
   setMute(isMute: Boolean) {
-    console.log('here 1234');
     HmsManager.setLocalVideoMute(isMute);
   }
 
