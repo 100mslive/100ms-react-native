@@ -19,7 +19,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import ChatWindow from '../components/ChatWindow';
 import {addMessage, clearMessageData} from '../redux/actions/index';
-import {navigate} from '../services/navigation';
+import {useNavigation} from '@react-navigation/native';
 import dimension from '../utils/dimension';
 
 type Peer = {
@@ -105,6 +105,8 @@ const Meeting = ({
   const [safeHeight, setSafeHeight] = useState(0);
   const [isLocalMute, setIsLocalMute] = useState(false);
   const [muteLocalVideo, setMuteLocalVideo] = useState(false);
+
+  const navigate = useNavigation<any>().navigate;
 
   const updateVideoIds = (remotePeers: any, localPeer: any) => {
     // get local track Id
@@ -358,6 +360,7 @@ const Meeting = ({
                   videoStyles={getRemoteVideoStyles}
                   safeHeight={safeHeight}
                   trackId={item.trackId}
+                  key={item.trackId}
                 />
               );
             })}

@@ -18,7 +18,7 @@ import HmsManager, {
 import Feather from 'react-native-vector-icons/Feather';
 import UserIdModal from '../components/UserIdModal';
 import PreviewModal from '../components/PreviewModal';
-import {navigate} from '../services/navigation';
+import {useNavigation} from '@react-navigation/native';
 import {setAudioVideoState} from '../redux/actions/index';
 import {PERMISSIONS, RESULTS, requestMultiple} from 'react-native-permissions';
 
@@ -58,6 +58,8 @@ const App = ({
   const [config, setConfig] = React.useState<HMSConfig | null>(null);
   const [audio, setAudio] = React.useState(true);
   const [video, setVideo] = React.useState(true);
+
+  const navigate = useNavigation<any>().navigate;
 
   const [instance, setInstance] = React.useState<any>(null);
 
