@@ -23,7 +23,7 @@ import {navigate} from '../services/navigation';
 import {setAudioVideoState} from '../redux/actions/index';
 import {PERMISSIONS, RESULTS, requestMultiple} from 'react-native-permissions';
 
-type ButtonState = 'Active' | 'Disabled' | 'Loading';
+type ButtonState = 'Active' | 'Loading';
 
 const callService = async (
   userID: string,
@@ -177,7 +177,6 @@ const App = ({
             if (text !== '') {
               setRoomID(text);
               setModalVisible(true);
-              setButtonState('Disabled');
               // callService(text, roomID, role, setToken);
             }
           }}>
@@ -199,7 +198,6 @@ const App = ({
             setModalVisible(false);
           }}
           cancel={() => {
-            setButtonState('Active');
             setModalVisible(false);
           }}
         />
