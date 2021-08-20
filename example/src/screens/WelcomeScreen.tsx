@@ -22,6 +22,13 @@ import {useNavigation} from '@react-navigation/native';
 import {setAudioVideoState} from '../redux/actions/index';
 import {PERMISSIONS, RESULTS, requestMultiple} from 'react-native-permissions';
 
+type HMSConfigType = {
+  username?: string;
+  authToken?: string;
+  roomID?: string;
+  userID?: string;
+};
+
 const callService = async (
   userID: string,
   roomID: string,
@@ -55,7 +62,7 @@ const App = ({
   const [modalVisible, setModalVisible] = React.useState(false);
   const [previewModal, setPreviewModal] = React.useState(false);
   const [localVideoTrackId, setLocalVideoTrackId] = React.useState('');
-  const [config, setConfig] = React.useState<HMSConfig | null>(null);
+  const [config, setConfig] = React.useState<HMSConfigType | null>(null);
   const [audio, setAudio] = React.useState(true);
   const [video, setVideo] = React.useState(true);
 
