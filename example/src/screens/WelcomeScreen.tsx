@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Image,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import {connect} from 'react-redux';
 import * as services from '../services/index';
@@ -21,6 +22,8 @@ import PreviewModal from '../components/PreviewModal';
 import {navigate} from '../services/navigation';
 import {setAudioVideoState} from '../redux/actions/index';
 import {PERMISSIONS, RESULTS, requestMultiple} from 'react-native-permissions';
+
+type ButtonState = 'Active' | 'Disabled' | 'Loading';
 
 const callService = async (
   userID: string,
@@ -59,6 +62,7 @@ const App = ({
   const [config, setConfig] = React.useState<HMSConfig | null>(null);
   const [audio, setAudio] = React.useState(true);
   const [video, setVideo] = React.useState(true);
+  const [buttonState, setButtonState] = React.useState<ButtonState>('Active');
 
   const [instance, setInstance] = React.useState<any>(null);
 
@@ -69,6 +73,7 @@ const App = ({
     if (videoTrackId) {
       setLocalVideoTrackId(videoTrackId);
       setPreviewModal(true);
+      setButtonState('Active');
       setAudioVideoStateRequest({audioState: true, videoState: true});
     }
   };
@@ -163,25 +168,40 @@ const App = ({
           />
         </View>
         <TouchableOpacity
-          style={styles.joinButtonContainer}
+          disabled={buttonState !== 'Active'}
+          style={[
+            styles.joinButtonContainer,
+            {opacity: buttonState !== 'Active' ? 0.5 : 1},
+          ]}
           onPress={() => {
             if (text !== '') {
               setRoomID(text);
               setModalVisible(true);
+              setButtonState('Disabled');
               // callService(text, roomID, role, setToken);
             }
           }}>
-          <Feather name="video" style={styles.videoIcon} size={20} />
-          <Text style={styles.joinButtonText}>Join</Text>
+          {buttonState === 'Loading' ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <>
+              <Feather name="video" style={styles.videoIcon} size={20} />
+              <Text style={styles.joinButtonText}>Join</Text>
+            </>
+          )}
         </TouchableOpacity>
       </View>
       {modalVisible && (
         <UserIdModal
           join={(userID: string) => {
+            setButtonState('Loading');
             callService(userID, roomID, role, checkPermissions);
             setModalVisible(false);
           }}
-          cancel={() => setModalVisible(false)}
+          cancel={() => {
+            setButtonState('Active');
+            setModalVisible(false);
+          }}
         />
       )}
       {previewModal && (
