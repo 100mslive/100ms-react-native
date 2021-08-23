@@ -19,9 +19,28 @@ import HmsManager, {
 import Feather from 'react-native-vector-icons/Feather';
 import UserIdModal from '../components/UserIdModal';
 import PreviewModal from '../components/PreviewModal';
-import {navigate} from '../services/navigation';
+import {useNavigation} from '@react-navigation/native';
 import {setAudioVideoState} from '../redux/actions/index';
 import {PERMISSIONS, RESULTS, requestMultiple} from 'react-native-permissions';
+import type {StackNavigationProp} from '@react-navigation/stack';
+import type {AppStackParamList} from '../navigator';
+
+type HMSConfigType = {
+  username?: string;
+  authToken?: string;
+  roomID?: string;
+  userID?: string;
+};
+
+type WelcomeProps = {
+  setAudioVideoStateRequest: Function;
+  state: any;
+};
+
+type WelcomeScreenProp = StackNavigationProp<
+  AppStackParamList,
+  'WelcomeScreen'
+>;
 
 type ButtonState = 'Active' | 'Loading';
 
@@ -40,18 +59,12 @@ const callService = async (
   if (response.error) {
     // TODO: handle errors from API
   } else {
-    console.log('here 4');
     joinRoom(response.token, userID);
   }
   return response;
 };
 
-const App = ({
-  setAudioVideoStateRequest,
-}: {
-  setAudioVideoStateRequest: Function;
-  state: any;
-}) => {
+const App = ({setAudioVideoStateRequest}: WelcomeProps) => {
   const [roomID, setRoomID] = React.useState('60f05a0a574fe6920b2560ba');
   const [text, setText] = React.useState('60f05a0a574fe6920b2560ba');
   const [role] = React.useState('host');
@@ -59,10 +72,12 @@ const App = ({
   const [modalVisible, setModalVisible] = React.useState(false);
   const [previewModal, setPreviewModal] = React.useState(false);
   const [localVideoTrackId, setLocalVideoTrackId] = React.useState('');
-  const [config, setConfig] = React.useState<HMSConfig | null>(null);
+  const [config, setConfig] = React.useState<HMSConfigType | null>(null);
   const [audio, setAudio] = React.useState(true);
   const [video, setVideo] = React.useState(true);
   const [buttonState, setButtonState] = React.useState<ButtonState>('Active');
+
+  const navigate = useNavigation<WelcomeScreenProp>().navigate;
 
   const [instance, setInstance] = React.useState<any>(null);
 

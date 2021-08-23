@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {GestureResponderEvent} from 'react-native';
+import type {GestureResponderEvent} from 'react-native';
 import {
   View,
   StyleSheet,
