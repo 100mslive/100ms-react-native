@@ -1,0 +1,32 @@
+
+# Integrating the SDK
+
+## Installing the dependencies
+```sh
+npm install --save @100mslive/react-native-hms
+```
+
+## Permissions
+### For iOS
+Add following lines in `Info.plist` file
+
+```xml
+<key>NSCameraUsageDescription</key>
+<string>Please allow access to Camera to enable video conferencing</string>
+<key>NSLocalNetworkUsageDescription</key>
+<string>Please allow access to network usage to enable video conferencing</string>
+<key>NSMicrophoneUsageDescription</key>
+<string>Please allow access to Microphone to enable video conferencing</string>
+```
+
+### For Android
+Add following permissions in `androidManifest.xml`
+
+```xml
+<uses-permission android:name="android.permission.CAMERA" />
+<uses-permission android:name="android.permission.RECORD_AUDIO" />
+<uses-permission android:name="android.permission.INTERNET" />
+```
+You will also need to acquire these permissions on runtime.
+
+we suggest using [react-native-permission](https://www.npmjs.com/package/react-native-permissions) to acquire permissions from both platforms.
