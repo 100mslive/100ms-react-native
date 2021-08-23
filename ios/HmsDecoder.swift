@@ -45,8 +45,8 @@ class HmsDecoder: NSObject {
             let trackId: String = hmsTrack.trackId
             let source: UInt = hmsTrack.source.rawValue
             let trackDescription: String = hmsTrack.trackDescription
-            
-            let result:[String: Any]  = ["trackId": trackId, "source": source, "trackDescription": trackDescription]
+            let isMute: Bool = hmsTrack.isMute()
+            let result:[String: Any]  = ["trackId": trackId, "source": source, "trackDescription": trackDescription, "isMute": isMute]
             return result;
         } else {
             return [:];
@@ -58,8 +58,9 @@ class HmsDecoder: NSObject {
             let trackId: String = hmsTrack.trackId
             let source: UInt = hmsTrack.source.rawValue
             let trackDescription: String = hmsTrack.trackDescription
-            
-            let result:[String: Any]  = ["trackId": trackId, "source": source, "trackDescription": trackDescription]
+            let isMute: Bool = hmsTrack.isMute()
+                
+            let result:[String: Any]  = ["trackId": trackId, "source": source, "trackDescription": trackDescription, "isMute": isMute]
             return result;
         } else {
             return [:]
@@ -71,7 +72,9 @@ class HmsDecoder: NSObject {
             let trackId: String = hmsTrack.trackId
             let source: UInt = hmsTrack.source.rawValue
             let trackDescription: String = hmsTrack.trackDescription
-            let result : [String: Any] = ["trackId": trackId, "source": source, "trackDescription": trackDescription]
+            let isMute: Bool = hmsTrack.isMute()
+            
+            let result : [String: Any] = ["trackId": trackId, "source": source, "trackDescription": trackDescription, "isMute": isMute]
             return result;
         } else {
             return [:]

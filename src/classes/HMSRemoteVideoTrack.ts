@@ -10,6 +10,7 @@ export default class HMSRemoteVideoTrack extends HMSVideoTrack {
     trackId: string;
     source?: number;
     trackDescription?: string;
+    isMute?: Boolean;
     layer?: any;
     playbackAllowed?: boolean;
   }) {

@@ -55,6 +55,7 @@ object HmsDecoder {
         hmsTrack.putString("trackId", hmsAudioTrack.trackId);
         hmsTrack.putString("source", hmsAudioTrack.source);
         hmsTrack.putString("trackDescription",hmsAudioTrack.description);
+        hmsTrack.putBoolean("isMute", hmsAudioTrack.isMute)
       }
       return hmsTrack;
     }
@@ -65,6 +66,7 @@ object HmsDecoder {
         hmsTrack.putString("trackId", hmsVideoTrack.trackId);
         hmsTrack.putString("source", hmsVideoTrack.source);
         hmsTrack.putString("trackDescription",hmsVideoTrack.description);
+        hmsTrack.putBoolean("isMute", hmsVideoTrack.isMute)
       }
       return hmsTrack;
     }
@@ -75,6 +77,7 @@ object HmsDecoder {
         hmsTrack.putString("trackId", track.trackId);
         hmsTrack.putString("source", track.source);
         hmsTrack.putString("trackDescription",track.description);
+        hmsTrack.putBoolean("isMute", track.isMute)
       }
       return hmsTrack;
     }
