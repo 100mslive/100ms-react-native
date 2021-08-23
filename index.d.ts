@@ -1,1 +1,1 @@
-declare module 'react-native-hms';
+declare module '@100mslive/react-native-hms';

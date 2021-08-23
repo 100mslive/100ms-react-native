@@ -19,33 +19,46 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import ChatWindow from '../components/ChatWindow';
 import {addMessage, clearMessageData} from '../redux/actions/index';
-import {navigate} from '../services/navigation';
+import {useNavigation} from '@react-navigation/native';
 import dimension from '../utils/dimension';
+import type {StackNavigationProp} from '@react-navigation/stack';
+import type {AppStackParamList} from '../navigator';
 
 type Peer = {
   trackId?: string;
   peerName?: string;
 };
 
-const DisplayName = ({
-  peerName,
-  setIsLocalMute,
-  setMuteLocalVideo,
-  isLocalMute,
-  muteLocalVideo,
-  videoStyles,
-  safeHeight,
-  trackId,
-}: {
+type DisplayNameProps = {
   peerName?: String;
-  setIsLocalMute: any;
-  setMuteLocalVideo: any;
+  setIsLocalMute?: any;
+  setMuteLocalVideo?: any;
   isLocalMute: boolean;
   muteLocalVideo: boolean;
   videoStyles: Function;
   safeHeight: any;
   trackId: any;
-}) => {
+};
+
+type MeetingProps = {
+  messages: any;
+  addMessageRequest: Function;
+  clearMessageRequest: Function;
+  audioState: boolean;
+  videoState: boolean;
+  state: any;
+};
+
+type MeetingScreenProp = StackNavigationProp<AppStackParamList, 'Meeting'>;
+
+const DisplayName = ({
+  peerName,
+  isLocalMute,
+  muteLocalVideo,
+  videoStyles,
+  safeHeight,
+  trackId,
+}: DisplayNameProps) => {
   return (
     <View
       key={trackId}
@@ -59,23 +72,23 @@ const DisplayName = ({
         },
       ]}>
       <HmsView trackId={trackId} style={styles.hmsView} />
-      <View style={styles.peerNameContainer}>
-        <View style={{maxWidth: 80}}>
+      <View style={styles.displayContainer}>
+        <View style={styles.peerNameContainer}>
           <Text numberOfLines={2} style={styles.peerName}>
             {peerName}
           </Text>
         </View>
-        <View style={{paddingHorizontal: 3}}>
+        <View style={styles.micContainer}>
           <Feather
             name={isLocalMute ? 'mic-off' : 'mic'}
-            style={{color: 'blue'}}
+            style={styles.mic}
             size={20}
           />
         </View>
-        <View style={{paddingHorizontal: 3}}>
+        <View style={styles.micContainer}>
           <Feather
             name={muteLocalVideo ? 'video-off' : 'video'}
-            style={{color: 'blue'}}
+            style={styles.mic}
             size={20}
           />
         </View>
@@ -90,14 +103,7 @@ const Meeting = ({
   clearMessageRequest,
   audioState,
   videoState,
-}: {
-  messages: any;
-  addMessageRequest: Function;
-  clearMessageRequest: Function;
-  audioState: boolean;
-  videoState: boolean;
-  state: any;
-}) => {
+}: MeetingProps) => {
   const [instance, setInstance] = useState<any>(null);
   const [trackId, setTrackId] = useState<Peer>({});
   const [remoteTrackIds, setRemoteTrackIds] = useState<Peer[]>([]);
@@ -107,6 +113,8 @@ const Meeting = ({
   const [safeHeight, setSafeHeight] = useState(0);
   const [isLocalMute, setIsLocalMute] = useState(false);
   const [muteLocalVideo, setMuteLocalVideo] = useState(false);
+
+  const navigate = useNavigation<MeetingScreenProp>().navigate;
 
   const updateVideoIds = (remotePeers: any, localPeer: any) => {
     // get local track Id
@@ -360,6 +368,7 @@ const Meeting = ({
                   videoStyles={getRemoteVideoStyles}
                   safeHeight={safeHeight}
                   trackId={item.trackId}
+                  key={item.trackId}
                 />
               );
             })}
@@ -530,7 +539,7 @@ const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
   },
-  peerNameContainer: {
+  displayContainer: {
     position: 'absolute',
     bottom: 0,
     alignSelf: 'center',
@@ -542,6 +551,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   peerName: {
+    color: 'blue',
+  },
+  peerNameContainer: {
+    maxWidth: 80,
+  },
+  micContainer: {
+    paddingHorizontal: 3,
+  },
+  mic: {
     color: 'blue',
   },
 });
