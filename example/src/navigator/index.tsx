@@ -5,7 +5,7 @@ import AppWelcomeScreen from '../screens/Home';
 import WelcomeScreen from '../screens/WelcomeScreen';
 import Meeting from '../screens/Meeting';
 
-type AppStackParamList = {
+export type AppStackParamList = {
   AppWelcomeScreen: undefined;
   WelcomeScreen: undefined;
   Meeting: undefined;

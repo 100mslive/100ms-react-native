@@ -21,20 +21,15 @@ import ChatWindow from '../components/ChatWindow';
 import {addMessage, clearMessageData} from '../redux/actions/index';
 import {useNavigation} from '@react-navigation/native';
 import dimension from '../utils/dimension';
+import type {StackNavigationProp} from '@react-navigation/stack';
+import type {AppStackParamList} from '../navigator';
 
 type Peer = {
   trackId?: string;
   peerName?: string;
 };
 
-const DisplayName = ({
-  peerName,
-  isLocalMute,
-  muteLocalVideo,
-  videoStyles,
-  safeHeight,
-  trackId,
-}: {
+type DisplayNameProps = {
   peerName?: String;
   setIsLocalMute?: any;
   setMuteLocalVideo?: any;
@@ -43,7 +38,27 @@ const DisplayName = ({
   videoStyles: Function;
   safeHeight: any;
   trackId: any;
-}) => {
+};
+
+type MeetingProps = {
+  messages: any;
+  addMessageRequest: Function;
+  clearMessageRequest: Function;
+  audioState: boolean;
+  videoState: boolean;
+  state: any;
+};
+
+type MeetingScreenProp = StackNavigationProp<AppStackParamList, 'Meeting'>;
+
+const DisplayName = ({
+  peerName,
+  isLocalMute,
+  muteLocalVideo,
+  videoStyles,
+  safeHeight,
+  trackId,
+}: DisplayNameProps) => {
   return (
     <View
       key={trackId}
@@ -88,14 +103,7 @@ const Meeting = ({
   clearMessageRequest,
   audioState,
   videoState,
-}: {
-  messages: any;
-  addMessageRequest: Function;
-  clearMessageRequest: Function;
-  audioState: boolean;
-  videoState: boolean;
-  state: any;
-}) => {
+}: MeetingProps) => {
   const [instance, setInstance] = useState<any>(null);
   const [trackId, setTrackId] = useState<Peer>({});
   const [remoteTrackIds, setRemoteTrackIds] = useState<Peer[]>([]);
@@ -106,7 +114,7 @@ const Meeting = ({
   const [isLocalMute, setIsLocalMute] = useState(false);
   const [muteLocalVideo, setMuteLocalVideo] = useState(false);
 
-  const navigate = useNavigation<any>().navigate;
+  const navigate = useNavigation<MeetingScreenProp>().navigate;
 
   const updateVideoIds = (remotePeers: any, localPeer: any) => {
     // get local track Id

@@ -21,6 +21,8 @@ import PreviewModal from '../components/PreviewModal';
 import {useNavigation} from '@react-navigation/native';
 import {setAudioVideoState} from '../redux/actions/index';
 import {PERMISSIONS, RESULTS, requestMultiple} from 'react-native-permissions';
+import type {StackNavigationProp} from '@react-navigation/stack';
+import type {AppStackParamList} from '../navigator';
 
 type HMSConfigType = {
   username?: string;
@@ -28,6 +30,16 @@ type HMSConfigType = {
   roomID?: string;
   userID?: string;
 };
+
+type WelcomeProps = {
+  setAudioVideoStateRequest: Function;
+  state: any;
+};
+
+type WelcomeScreenProp = StackNavigationProp<
+  AppStackParamList,
+  'WelcomeScreen'
+>;
 
 const callService = async (
   userID: string,
@@ -49,12 +61,7 @@ const callService = async (
   return response;
 };
 
-const App = ({
-  setAudioVideoStateRequest,
-}: {
-  setAudioVideoStateRequest: Function;
-  state: any;
-}) => {
+const App = ({setAudioVideoStateRequest}: WelcomeProps) => {
   const [roomID, setRoomID] = React.useState('60f05a0a574fe6920b2560ba');
   const [text, setText] = React.useState('60f05a0a574fe6920b2560ba');
   const [role] = React.useState('host');
@@ -66,7 +73,7 @@ const App = ({
   const [audio, setAudio] = React.useState(true);
   const [video, setVideo] = React.useState(true);
 
-  const navigate = useNavigation<any>().navigate;
+  const navigate = useNavigation<WelcomeScreenProp>().navigate;
 
   const [instance, setInstance] = React.useState<any>(null);
 
