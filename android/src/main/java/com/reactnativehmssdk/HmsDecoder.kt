@@ -191,6 +191,9 @@ object HmsDecoder {
         localAudioTrackData.putString("source", localAudioTrack?.source);
         localAudioTrackData.putString("trackDescription", localAudioTrack?.description);
         localAudioTrackData.putMap("settings", getHmsAudioTrackSettings(localAudioTrack?.settings));
+        if (localAudioTrack != null) {
+          localAudioTrackData.putBoolean("playbackAllowed", localAudioTrack.isMute)
+        };
         peer.putMap("localAudioTrackData", localAudioTrackData);
 
         val localVideoTrack = hmsLocalPeer.videoTrack;
@@ -199,6 +202,9 @@ object HmsDecoder {
         localVideoTrackData.putString("source", localVideoTrack?.source);
         localVideoTrackData.putString("trackDescription", localVideoTrack?.description);
         localVideoTrackData.putMap("settings", getHmsVideoTrackSettings(localVideoTrack?.settings));
+        if (localVideoTrack != null) {
+          localVideoTrackData.putBoolean("playbackAllowed", localVideoTrack.isMute)
+        }
         peer.putMap("localVideoTrackData", localVideoTrackData);
       }
       return peer;
@@ -266,6 +272,9 @@ object HmsDecoder {
         localAudioTrackData.putString("trackId", localAudioTrack?.trackId);
         localAudioTrackData.putString("source", localAudioTrack?.source);
         localAudioTrackData.putString("trackDescription", localAudioTrack?.description);
+        if (localAudioTrack != null) {
+          localAudioTrackData.putBoolean("playbackAllowed", localAudioTrack.isPlaybackAllowed)
+        }
 //        localAudioTrackData.putMap("settings", getHmsAudioTrackSettings(localAudioTrack.settings));
         localAudioTrackData.putMap("settings", null);
         peer.putMap("localAudioTrackData", localAudioTrackData);
@@ -275,6 +284,9 @@ object HmsDecoder {
         localVideoTrackData.putString("trackId", localVideoTrack?.trackId);
         localVideoTrackData.putString("source", localVideoTrack?.source);
         localVideoTrackData.putString("trackDescription", localVideoTrack?.description);
+        if (localVideoTrack != null) {
+          localVideoTrackData.putBoolean("playbackAllowed", localVideoTrack.isPlaybackAllowed)
+        }
 //        localVideoTrackData.putMap("settings", getHmsVideoTrackSettings(localVideoTrack.settings));
         localVideoTrackData.putMap("settings", null);
         peer.putMap("localVideoTrackData", localVideoTrackData);
