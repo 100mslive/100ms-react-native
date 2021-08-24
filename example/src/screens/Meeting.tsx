@@ -25,12 +25,12 @@ import dimension from '../utils/dimension';
 type Peer = {
   trackId?: string;
   peerName?: string;
+  isAudioMute?: boolean;
+  isVideoMute?: boolean;
 };
 
 const DisplayName = ({
   peerName,
-  setIsLocalMute,
-  setMuteLocalVideo,
   isLocalMute,
   muteLocalVideo,
   videoStyles,
@@ -38,8 +38,6 @@ const DisplayName = ({
   trackId,
 }: {
   peerName?: String;
-  setIsLocalMute: any;
-  setMuteLocalVideo: any;
   isLocalMute: boolean;
   muteLocalVideo: boolean;
   videoStyles: Function;
@@ -88,32 +86,31 @@ const Meeting = ({
   messages,
   addMessageRequest,
   clearMessageRequest,
-  audioState,
-  videoState,
 }: {
   messages: any;
   addMessageRequest: Function;
   clearMessageRequest: Function;
-  audioState: boolean;
-  videoState: boolean;
   state: any;
 }) => {
   const [instance, setInstance] = useState<any>(null);
   const [trackId, setTrackId] = useState<Peer>({});
   const [remoteTrackIds, setRemoteTrackIds] = useState<Peer[]>([]);
-  const [isMute, setIsMute] = useState(false);
-  const [muteVideo, setMuteVideo] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [safeHeight, setSafeHeight] = useState(0);
-  const [isLocalMute, setIsLocalMute] = useState(false);
-  const [muteLocalVideo, setMuteLocalVideo] = useState(false);
 
   const updateVideoIds = (remotePeers: any, localPeer: any) => {
     // get local track Id
     const localTrackId = localPeer?.videoTrack?.trackId;
     const localPeerName = localPeer?.name;
+    const localPeerIsAudioMute = localPeer?.audioTrack?.mute;
+    const localPeerIsVideoMute = localPeer?.videoTrack?.mute;
     if (localTrackId) {
-      setTrackId({trackId: localTrackId, peerName: localPeerName});
+      setTrackId({
+        trackId: localTrackId,
+        peerName: localPeerName,
+        isAudioMute: localPeerIsAudioMute,
+        isVideoMute: localPeerIsVideoMute,
+      });
     }
 
     const remoteVideoIds: Peer[] = [];
@@ -122,15 +119,21 @@ const Meeting = ({
       remotePeers.map((remotePeer: any) => {
         const remoteTrackId = remotePeer?.videoTrack?.trackId;
         const remotePeerName = remotePeer?.name;
+        const remotePeerAudioIsMute = remotePeer?.audioTrack?.mute;
+        const remotePeerVideoIsMute = remotePeer?.videoTrack?.mute;
         if (remoteTrackId) {
           remoteVideoIds.push({
             trackId: remoteTrackId,
             peerName: remotePeerName,
+            isAudioMute: remotePeerAudioIsMute,
+            isVideoMute: remotePeerVideoIsMute,
           });
         } else {
           remoteVideoIds.push({
             trackId: '',
             peerName: remotePeerName,
+            isAudioMute: remotePeerAudioIsMute,
+            isVideoMute: remotePeerVideoIsMute,
           });
         }
       });
@@ -156,8 +159,8 @@ const Meeting = ({
     remotePeers,
   }: {
     room?: any;
-    localPeer: any;
-    remotePeers: any;
+    localPeer: Peer;
+    remotePeers: Peer;
   }) => {
     updateVideoIds(remotePeers, localPeer);
     console.log(remotePeers, localPeer, 'data in onRoom');
@@ -169,8 +172,8 @@ const Meeting = ({
     localPeer,
   }: {
     room?: any;
-    localPeer: any;
-    remotePeers: any;
+    localPeer: Peer;
+    remotePeers: Peer;
   }) => {
     updateVideoIds(remotePeers, localPeer);
     console.log(remotePeers, localPeer, 'data in onPeer');
@@ -182,8 +185,8 @@ const Meeting = ({
     localPeer,
   }: {
     room?: any;
-    localPeer: any;
-    remotePeers: any;
+    localPeer: Peer;
+    remotePeers: Peer;
   }) => {
     updateVideoIds(remotePeers, localPeer);
     console.log(remotePeers, localPeer, 'data in onTrack');
@@ -262,16 +265,18 @@ const Meeting = ({
   }, []);
 
   useEffect(() => {
-    setIsMute(!audioState);
-    setMuteVideo(!videoState);
-  }, [audioState, videoState]);
-
-  useEffect(() => {
     if (instance) {
       const localTrackId = instance?.localPeer?.videoTrack?.trackId;
       const localPeerName = instance?.localPeer?.name;
+      const localPeerAudioIsMute = instance?.localPeer?.audioTrack?.mute;
+      const localPeerVideoIsMute = instance?.localPeer?.videoTrack?.mute;
       if (localTrackId) {
-        setTrackId({trackId: localTrackId, peerName: localPeerName});
+        setTrackId({
+          trackId: localTrackId,
+          peerName: localPeerName,
+          isAudioMute: localPeerAudioIsMute,
+          isVideoMute: localPeerVideoIsMute,
+        });
       }
 
       const remoteVideoIds: Peer[] = [];
@@ -282,10 +287,14 @@ const Meeting = ({
         remotePeers.map((remotePeer: any) => {
           const remoteTrackId = remotePeer?.videoTrack?.trackId;
           const remotePeerName = remotePeer?.name;
+          const remotePeerAudioIsMute = remotePeer?.audioTrack?.mute;
+          const remotePeerVideoIsMute = remotePeer?.videoTrack?.mute;
           if (remoteTrackId) {
             remoteVideoIds.push({
               trackId: remoteTrackId,
               peerName: remotePeerName,
+              isAudioMute: remotePeerAudioIsMute,
+              isVideoMute: remotePeerVideoIsMute,
             });
           }
         });
@@ -333,14 +342,8 @@ const Meeting = ({
           <View style={styles.videoView}>
             <DisplayName
               peerName={trackId.peerName}
-              setIsLocalMute={async () => {
-                setIsLocalMute(!isLocalMute);
-              }}
-              setMuteLocalVideo={async () => {
-                setMuteLocalVideo(!muteLocalVideo);
-              }}
-              isLocalMute={isLocalMute}
-              muteLocalVideo={muteLocalVideo}
+              isLocalMute={trackId.isAudioMute!}
+              muteLocalVideo={trackId.isVideoMute!}
               videoStyles={getLocalVideoStyles}
               safeHeight={safeHeight}
               trackId={trackId.trackId}
@@ -349,14 +352,8 @@ const Meeting = ({
               return (
                 <DisplayName
                   peerName={item.peerName}
-                  setIsLocalMute={async () => {
-                    setIsLocalMute(!isLocalMute);
-                  }}
-                  setMuteLocalVideo={async () => {
-                    setMuteLocalVideo(!muteLocalVideo);
-                  }}
-                  isLocalMute={isLocalMute}
-                  muteLocalVideo={muteLocalVideo}
+                  isLocalMute={item.isAudioMute!}
+                  muteLocalVideo={item.isVideoMute!}
                   videoStyles={getRemoteVideoStyles}
                   safeHeight={safeHeight}
                   trackId={item.trackId}
@@ -370,11 +367,14 @@ const Meeting = ({
         <TouchableOpacity
           style={styles.singleIconContainer}
           onPress={async () => {
-            setIsMute(!isMute);
-            instance.localPeer.localAudioTrack().setMute(!isMute);
+            setTrackId({
+              ...trackId,
+              isAudioMute: !trackId.isAudioMute,
+            });
+            instance.localPeer.localAudioTrack().setMute(!trackId.isAudioMute);
           }}>
           <Feather
-            name={isMute ? 'mic-off' : 'mic'}
+            name={trackId.isAudioMute ? 'mic-off' : 'mic'}
             style={styles.videoIcon}
             size={dimension.viewHeight(30)}
           />
@@ -404,11 +404,14 @@ const Meeting = ({
         <TouchableOpacity
           style={styles.singleIconContainer}
           onPress={() => {
-            setMuteVideo(!muteVideo);
-            instance.localPeer.localVideoTrack().setMute(!muteVideo);
+            setTrackId({
+              ...trackId,
+              isVideoMute: !trackId.isVideoMute,
+            });
+            instance.localPeer.localVideoTrack().setMute(!trackId.isVideoMute);
           }}>
           <Feather
-            name={muteVideo ? 'video-off' : 'video'}
+            name={trackId.isVideoMute ? 'video-off' : 'video'}
             style={styles.videoIcon}
             size={dimension.viewHeight(30)}
           />
