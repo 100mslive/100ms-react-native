@@ -195,7 +195,7 @@ object HmsDecoder {
         localAudioTrackData.putString("trackDescription", localAudioTrack?.description);
         localAudioTrackData.putMap("settings", getHmsAudioTrackSettings(localAudioTrack?.settings));
         if (localAudioTrack != null) {
-          localAudioTrackData.putBoolean("playbackAllowed", localAudioTrack.isMute)
+          localAudioTrackData.putBoolean("isMute", localAudioTrack.isMute)
         };
         peer.putMap("localAudioTrackData", localAudioTrackData);
 
@@ -206,7 +206,7 @@ object HmsDecoder {
         localVideoTrackData.putString("trackDescription", localVideoTrack?.description);
         localVideoTrackData.putMap("settings", getHmsVideoTrackSettings(localVideoTrack?.settings));
         if (localVideoTrack != null) {
-          localVideoTrackData.putBoolean("playbackAllowed", localVideoTrack.isMute)
+          localVideoTrackData.putBoolean("isMute", localVideoTrack.isMute)
         }
         peer.putMap("localVideoTrackData", localVideoTrackData);
       }
@@ -277,6 +277,7 @@ object HmsDecoder {
         localAudioTrackData.putString("trackDescription", localAudioTrack?.description);
         if (localAudioTrack != null) {
           localAudioTrackData.putBoolean("playbackAllowed", localAudioTrack.isPlaybackAllowed)
+          localAudioTrackData.putBoolean("isMute", localAudioTrack.isMute)
         }
 //        localAudioTrackData.putMap("settings", getHmsAudioTrackSettings(localAudioTrack.settings));
         localAudioTrackData.putMap("settings", null);
@@ -289,6 +290,7 @@ object HmsDecoder {
         localVideoTrackData.putString("trackDescription", localVideoTrack?.description);
         if (localVideoTrack != null) {
           localVideoTrackData.putBoolean("playbackAllowed", localVideoTrack.isPlaybackAllowed)
+          localVideoTrackData.putBoolean("isMute", localVideoTrack.isMute)
         }
 //        localVideoTrackData.putMap("settings", getHmsVideoTrackSettings(localVideoTrack.settings));
         localVideoTrackData.putMap("settings", null);
