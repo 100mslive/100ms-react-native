@@ -16,3 +16,8 @@ export const setAudioVideoState = (data: {
   type: actionTypes.SET_AUDIO_VIDEO_STATE,
   payload: data,
 });
+
+export const saveUserData = (data: {userName: String; roomID: String}) => ({
+  type: actionTypes.SAVE_USER_DATA.REQUEST,
+  payload: data,
+});
