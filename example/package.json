@@ -10,17 +10,17 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
+    "@react-navigation/native": "^6.0.2",
+    "@react-navigation/stack": "^6.0.7",
     "ios-deploy": "^1.11.4",
     "react": "17.0.1",
     "react-native": "0.64.1",
     "react-native-gesture-handler": "^1.10.3",
     "react-native-keyboard-aware-scroll-view": "^0.9.4",
     "react-native-permissions": "^3.0.5",
-    "react-native-safe-area-context": "^3.2.0",
+    "react-native-safe-area-context": "^3.3.0",
+    "react-native-screens": "^3.5.0",
     "react-native-vector-icons": "^8.1.0",
-    "react-navigation": "^4.4.4",
-    "react-navigation-hooks": "^1.1.0",
-    "react-navigation-stack": "^2.10.4",
     "react-redux": "^7.2.4",
     "redux": "^4.1.0",
     "redux-devtools-extension": "^2.13.9"
