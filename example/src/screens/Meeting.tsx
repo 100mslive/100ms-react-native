@@ -53,6 +53,32 @@ type MeetingProps = {
 
 type MeetingScreenProp = StackNavigationProp<AppStackParamList, 'Meeting'>;
 
+const getRandomColor = () => {
+  var letters = '0123456789ABCDEF';
+  var color = '#';
+  for (var i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+};
+
+const getInitials = (name: String): String => {
+  let initials = '';
+  if (name.includes(' ')) {
+    const nameArray = name.split(' ');
+    if (nameArray[1].length > 0) {
+      initials = nameArray[0].substring(0, 1) + nameArray[1].substring(0, 1);
+    } else {
+      if (nameArray[0].length > 1) initials = nameArray[0].substring(0, 2);
+      else initials = nameArray[0].substring(0, 1);
+    }
+  } else {
+    if (name.length > 1) initials = name.substring(0, 2);
+    else initials = name.substring(0, 1);
+  }
+  return initials.toUpperCase();
+};
+
 const DisplayName = ({
   peerName,
   isLocalMute,
@@ -73,7 +99,15 @@ const DisplayName = ({
               : (safeHeight - dimension.viewHeight(90)) / 2 - 2,
         },
       ]}>
-      <HmsView trackId={trackId} style={styles.hmsView} />
+      {muteLocalVideo ? (
+        <View style={styles.avatarContainer}>
+          <View style={[styles.avatar, {backgroundColor: getRandomColor()}]}>
+            <Text style={styles.avatarText}>{getInitials(peerName!)}</Text>
+          </View>
+        </View>
+      ) : (
+        <HmsView trackId={trackId} style={styles.hmsView} />
+      )}
       <View style={styles.displayContainer}>
         <View style={styles.peerNameContainer}>
           <Text numberOfLines={2} style={styles.peerName}>
@@ -570,6 +604,23 @@ const styles = StyleSheet.create({
   },
   mic: {
     color: 'blue',
+  },
+  avatarContainer: {
+    flex: 1,
+    backgroundColor: 'black',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatar: {
+    aspectRatio: 1,
+    width: '50%',
+    borderRadius: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarText: {
+    fontSize: 30,
+    color: 'white',
   },
 });
 
