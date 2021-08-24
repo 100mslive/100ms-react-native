@@ -19,7 +19,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import UserIdModal from '../components/UserIdModal';
 import PreviewModal from '../components/PreviewModal';
 import {useNavigation} from '@react-navigation/native';
-import {setAudioVideoState} from '../redux/actions/index';
+import {setAudioVideoState, saveUserData} from '../redux/actions/index';
 import {PERMISSIONS, RESULTS, requestMultiple} from 'react-native-permissions';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {AppStackParamList} from '../navigator';
@@ -33,6 +33,7 @@ type HMSConfigType = {
 
 type WelcomeProps = {
   setAudioVideoStateRequest: Function;
+  saveUserDataRequest: Function;
   state: any;
 };
 
@@ -61,7 +62,11 @@ const callService = async (
   return response;
 };
 
-const App = ({setAudioVideoStateRequest}: WelcomeProps) => {
+const App = ({
+  setAudioVideoStateRequest,
+  saveUserDataRequest,
+  state,
+}: WelcomeProps) => {
   const [roomID, setRoomID] = React.useState('60f05a0a574fe6920b2560ba');
   const [text, setText] = React.useState('60f05a0a574fe6920b2560ba');
   const [role] = React.useState('host');
@@ -145,7 +150,7 @@ const App = ({setAudioVideoStateRequest}: WelcomeProps) => {
       HMSUpdateListenerActions.ON_PREVIEW,
       previewSuccess,
     );
-
+    saveUserDataRequest({userName: userID, roomID: roomID});
     instance.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
     instance.preview(HmsConfig);
     setConfig(HmsConfig);
@@ -197,6 +202,7 @@ const App = ({setAudioVideoStateRequest}: WelcomeProps) => {
             setModalVisible(false);
           }}
           cancel={() => setModalVisible(false)}
+          user={state.user}
         />
       )}
       {previewModal && (
@@ -337,6 +343,12 @@ const mapDispatchToProps = (dispatch: Function) => ({
     audioState: boolean;
     videoState: boolean;
   }) => dispatch(setAudioVideoState(data)),
+  saveUserDataRequest: (data: {userName: String; roomID: String}) =>
+    dispatch(saveUserData(data)),
 });
-
-export default connect(null, mapDispatchToProps)(App);
+const mapStateToProps = (state: any) => {
+  return {
+    state: state,
+  };
+};
+export default connect(mapStateToProps, mapDispatchToProps)(App);
