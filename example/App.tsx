@@ -30,7 +30,7 @@ import {
 } from 'react-native/Libraries/NewAppScreen';
 
 import * as services from './src/services/index';
-import Hms, { HMSConfig } from '@100mslive/react-native-hms';
+import Hms, {HMSConfig} from '@100mslive/react-native-hms';
 
 const callService = async (
   userID: string,
@@ -47,7 +47,6 @@ const callService = async (
   if (response.error) {
     // TODO: handle errors from API
   } else {
-    console.log('here 4');
     joinRoom(response.token, userID, roomID);
   }
   return response;
@@ -55,7 +54,7 @@ const callService = async (
 
 const Section: React.FC<{
   title: string;
-}> = ({ children, title }) => {
+}> = ({children, title}) => {
   const isDarkMode = useColorScheme() === 'dark';
   return (
     <View style={styles.sectionContainer}>
@@ -90,7 +89,12 @@ const App = () => {
   };
 
   const joinRoom = (token: string, userID: string, roomID: string) => {
-    const HmsConfig = new HMSConfig({ authToken: token, userID, roomID, username: userID });
+    const HmsConfig = new HMSConfig({
+      authToken: token,
+      userID,
+      roomID,
+      username: userID,
+    });
     console.log(instance, 'instance');
     console.log(HmsConfig, 'HmsConfig');
     instance.join(HmsConfig);
@@ -103,7 +107,6 @@ const App = () => {
 
   useEffect(() => {
     setupBuild();
-
   }, []);
 
   return (
@@ -114,7 +117,9 @@ const App = () => {
         style={backgroundStyle}>
         <Header />
         <TouchableOpacity
-          onPress={() => callService('user123', '60f05a0a574fe6920b2560ba', 'host', joinRoom)}
+          onPress={() =>
+            callService('user123', '60f05a0a574fe6920b2560ba', 'host', joinRoom)
+          }
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
           }}>

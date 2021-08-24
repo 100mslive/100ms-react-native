@@ -413,6 +413,9 @@ PODS:
     - React-Core
   - RNPermissions (3.0.5):
     - React-Core
+  - RNScreens (3.5.0):
+    - React-Core
+    - React-RCTImage
   - RNVectorIcons (8.1.0):
     - React-Core
   - Yoga (1.14.0)
@@ -475,6 +478,7 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNPermissions (from `../node_modules/react-native-permissions`)
+  - RNScreens (from `../node_modules/react-native-screens`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -572,6 +576,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-gesture-handler"
   RNPermissions:
     :path: "../node_modules/react-native-permissions"
+  RNScreens:
+    :path: "../node_modules/react-native-screens"
   RNVectorIcons:
     :path: "../node_modules/react-native-vector-icons"
   Yoga:
@@ -582,7 +588,7 @@ SPEC CHECKSUMS:
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: cf9b38bf0b2d048436d9a82ad2abe1404f11e7de
   FBLazyVector: 7b423f9e248eae65987838148c36eec1dbfe0b53
-  FBReactNativeSpec: 77018d6e699dd90d6babbe5626de92fb9e8ebbc9
+  FBReactNativeSpec: 77b9f26c7da4c2cb22f820840032881adf60353c
   Firebase: ff8c73105b90e33e1dc6c8e5445d7adc2ccdc7c1
   FirebaseAnalytics: 96325c1e0acbd2bb805c6a613028b1fe599d6a37
   FirebaseCore: 1c1ca72483b59b17050f5b4cec4fb748425a3901
@@ -633,7 +639,8 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: ff951a0c241bfaefc4940a3f1f1a229e7cb32fa6
   ReactCommon: bedc99ed4dae329c4fcf128d0c31b9115e5365ca
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
-  RNPermissions: 3e5bb8afd93c787681bbacbf54d586a6272ecc92
+  RNPermissions: 7043bacbf928eae25808275cfe73799b8f618911
+  RNScreens: 01ab149b5dd5c27f5ff26741b1d2bdf2cee1af35
   RNVectorIcons: 31cebfcf94e8cf8686eb5303ae0357da64d7a5a4
   Yoga: a7de31c64fe738607e7a3803e3f591a4b1df7393
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
