@@ -7,8 +7,16 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
-const UserIdModal = ({cancel, join}: {cancel: Function; join: Function}) => {
-  const [text, setText] = useState('');
+const UserIdModal = ({
+  cancel,
+  join,
+  user,
+}: {
+  cancel: Function;
+  join: Function;
+  user: any;
+}) => {
+  const [text, setText] = useState(user?.userName ? user.userName : '');
   return (
     <View style={styles.container}>
       <View style={styles.modalContainer}>
