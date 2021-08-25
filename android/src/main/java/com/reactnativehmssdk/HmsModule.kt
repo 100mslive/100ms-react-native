@@ -207,5 +207,4 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   fun send(data:ReadableMap) {
     hmsSDK?.sendMessage(data.getString("type") as String,data.getString("message") as String)
   }
-
 }

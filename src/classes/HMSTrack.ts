@@ -3,14 +3,17 @@ export default class HMSTrack {
   source?: number;
   trackDescription?: string;
   isMute?: Function;
+  mute?: Boolean;
 
   constructor(params: {
     trackId: string;
     source?: number;
     trackDescription?: string;
+    isMute?: Boolean;
   }) {
     this.trackId = params.trackId;
     this.source = params.source;
     this.trackDescription = params.trackDescription;
+    this.mute = params.isMute;
   }
 }

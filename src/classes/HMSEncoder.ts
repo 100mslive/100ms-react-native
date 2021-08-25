@@ -57,6 +57,7 @@ export default class HMSEncoder {
       trackId: track?.trackId,
       source: track?.source,
       trackDescription: track?.trackDescription,
+      isMute: track?.isMute,
     };
 
     return new HMSAudioTrack(encodedObj);
@@ -67,6 +68,7 @@ export default class HMSEncoder {
       trackId: track?.trackId,
       source: track?.source,
       trackDescription: track?.trackDescription,
+      isMute: track?.isMute,
     };
 
     return new HMSVideoTrack(encodedObj);
@@ -85,6 +87,7 @@ export default class HMSEncoder {
       trackId: track?.trackId,
       source: track?.source,
       trackDescription: track?.trackDescription,
+      isMute: track?.isMute,
     };
 
     return new HMSTrack(encodedObj);
@@ -107,6 +110,7 @@ export default class HMSEncoder {
         trackId: peer?.localAudioTrackData?.trackId,
         source: peer?.localAudioTrackData?.source,
         trackDescription: peer?.localAudioTrackData?.trackDescription,
+        isMute: peer?.localAudioTrackData?.isMute,
         settings: HMSEncoder.encodeHmsAudioTrackSettings(
           peer?.localAudioTrackData?.settings
         ),
@@ -115,6 +119,7 @@ export default class HMSEncoder {
         trackId: peer?.localVideoTrackData?.trackId,
         source: peer?.localVideoTrackData?.source,
         trackDescription: peer?.localVideoTrackData?.trackDescription,
+        isMute: peer?.localVideoTrackData?.isMute,
         settings: HMSEncoder.encodeHmsVideoTrackSettings(
           peer?.localVideoTrackData?.settings
         ),
@@ -175,12 +180,14 @@ export default class HMSEncoder {
         trackId: peer?.remoteAudioTrackData?.trackId,
         source: peer?.remoteAudioTrackData?.source,
         trackDescription: peer?.remoteAudioTrackData?.trackDescription,
+        isMute: peer?.remoteAudioTrackData?.isMute,
       },
       remoteVideoTrackData: {
         trackId: peer?.remoteVideoTrackData?.trackId,
         source: peer?.remoteVideoTrackData?.source,
         trackDescription: peer?.remoteVideoTrackData?.trackDescription,
         layer: peer?.remoteVideoTrackData?.layer,
+        isMute: peer?.remoteVideoTrackData?.isMute,
       },
     };
 

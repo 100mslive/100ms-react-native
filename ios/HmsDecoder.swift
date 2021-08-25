@@ -45,8 +45,8 @@ class HmsDecoder: NSObject {
             let trackId: String = hmsTrack.trackId
             let source: UInt = hmsTrack.source.rawValue
             let trackDescription: String = hmsTrack.trackDescription
-            
-            let result:[String: Any]  = ["trackId": trackId, "source": source, "trackDescription": trackDescription]
+            let isMute: Bool = hmsTrack.isMute()
+            let result:[String: Any]  = ["trackId": trackId, "source": source, "trackDescription": trackDescription, "isMute": isMute]
             return result;
         } else {
             return [:];
@@ -58,8 +58,9 @@ class HmsDecoder: NSObject {
             let trackId: String = hmsTrack.trackId
             let source: UInt = hmsTrack.source.rawValue
             let trackDescription: String = hmsTrack.trackDescription
-            
-            let result:[String: Any]  = ["trackId": trackId, "source": source, "trackDescription": trackDescription]
+            let isMute: Bool = hmsTrack.isMute()
+                
+            let result:[String: Any]  = ["trackId": trackId, "source": source, "trackDescription": trackDescription, "isMute": isMute]
             return result;
         } else {
             return [:]
@@ -71,7 +72,9 @@ class HmsDecoder: NSObject {
             let trackId: String = hmsTrack.trackId
             let source: UInt = hmsTrack.source.rawValue
             let trackDescription: String = hmsTrack.trackDescription
-            let result : [String: Any] = ["trackId": trackId, "source": source, "trackDescription": trackDescription]
+            let isMute: Bool = hmsTrack.isMute()
+            
+            let result : [String: Any] = ["trackId": trackId, "source": source, "trackDescription": trackDescription, "isMute": isMute]
             return result;
         } else {
             return [:]
@@ -99,12 +102,12 @@ class HmsDecoder: NSObject {
             
             var localAudioTrackData: [String: Any] = [:]
             if let localAudio = localAudioTrack {
-                localAudioTrackData = ["trackId": localAudio.trackId, "source": localAudio.source, "trackDescription": localAudio.trackDescription, "settings": getHmsAudioTrackSettings(localAudio.settings)]
+                localAudioTrackData = ["trackId": localAudio.trackId, "source": localAudio.source, "trackDescription": localAudio.trackDescription, "settings": getHmsAudioTrackSettings(localAudio.settings), "isMute": localAudioTrack?.isMute() ?? false]
             }
             
             var localVideoTrackData: [String: Any] = [:]
             if let localVideo = localVideoTrack {
-                localVideoTrackData = ["trackId": localVideo.trackId, "source": localVideo.source, "trackDescription": localVideo.trackDescription, "settings": getHmsVideoTrackSettings(localVideo.settings)]
+                localVideoTrackData = ["trackId": localVideo.trackId, "source": localVideo.source, "trackDescription": localVideo.trackDescription, "settings": getHmsVideoTrackSettings(localVideo.settings), "isMute":localAudioTrack?.isMute() ?? false]
             }
             
             return ["peerID": peerID, "name": name, "isLocal": isLocal, "customerUserID": customerUserID, "customerDescription": customerDescription, "audioTrack": audioTrack, "videoTrack": videoTrack, "auxiliaryTracks": auxiliaryTracks, "localAudioTrackData": localAudioTrackData, "localVideoTrackData": localVideoTrackData, "role": role]
@@ -170,12 +173,12 @@ class HmsDecoder: NSObject {
         
         var remoteAudioTrackData: [String: Any] = [:]
         if let remoteAudio = remoteAudioTrack {
-            remoteAudioTrackData = ["trackId": remoteAudio.trackId, "source": remoteAudio.source, "trackDescription": remoteAudio.trackDescription]
+            remoteAudioTrackData = ["trackId": remoteAudio.trackId, "source": remoteAudio.source, "trackDescription": remoteAudio.trackDescription, "playbackAllowed": remoteAudio.isPlaybackAllowed(), "isMute": remoteAudio.isMute()]
         }
         
         var remoteVideoTrackData: [String: Any] = [:]
         if let remoteVideo = remoteVideoTrack {
-            remoteVideoTrackData = ["trackId": remoteVideo.trackId, "source": remoteVideo.source, "trackDescription": remoteVideo.trackDescription, "layer": remoteVideo.layer.rawValue]
+            remoteVideoTrackData = ["trackId": remoteVideo.trackId, "source": remoteVideo.source, "trackDescription": remoteVideo.trackDescription, "layer": remoteVideo.layer.rawValue, "playbackAllowed": remoteVideo.isPlaybackAllowed(), "isMute": remoteVideo.isMute()]
         }
         
         return ["peerID": peerID, "name": name, "isLocal": isLocal, "customerUserID": customerUserID, "customerDescription": customerDescription, "audioTrack": audioTrack, "videoTrack": videoTrack, "auxiliaryTracks": auxiliaryTracks, "remoteAudioTrackData": remoteAudioTrackData, "remoteVideoTrackData": remoteVideoTrackData, "role": role]
@@ -185,12 +188,12 @@ class HmsDecoder: NSObject {
         var hmsTracks: [String: Any] = [:]
         for track in tracks {
             if let localVideo = track as? HMSLocalVideoTrack {
-                let localVideoTrackData: [String : Any] = ["trackId": localVideo.trackId, "source": localVideo.source, "trackDescription": localVideo.trackDescription, "settings": getHmsVideoTrackSettings(localVideo.settings)]
+                let localVideoTrackData: [String : Any] = ["trackId": localVideo.trackId, "source": localVideo.source, "trackDescription": localVideo.trackDescription, "settings": getHmsVideoTrackSettings(localVideo.settings), "isMute": localVideo.isMute()]
                 hmsTracks["videoTrack"] = localVideoTrackData
             }
             
             if let localAudio = track as? HMSLocalAudioTrack {
-                let localAudioTrackData: [String : Any]  = ["trackId": localAudio.trackId, "source": localAudio.source, "trackDescription": localAudio.trackDescription, "settings": getHmsAudioTrackSettings(localAudio.settings)]
+                let localAudioTrackData: [String : Any]  = ["trackId": localAudio.trackId, "source": localAudio.source, "trackDescription": localAudio.trackDescription, "settings": getHmsAudioTrackSettings(localAudio.settings), "isMute": localAudio.isMute()]
                 hmsTracks["audioTrack"] = localAudioTrackData
             }
         }

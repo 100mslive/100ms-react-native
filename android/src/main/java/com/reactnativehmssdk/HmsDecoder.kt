@@ -55,6 +55,7 @@ object HmsDecoder {
         hmsTrack.putString("trackId", hmsAudioTrack.trackId);
         hmsTrack.putString("source", hmsAudioTrack.source);
         hmsTrack.putString("trackDescription",hmsAudioTrack.description);
+        hmsTrack.putBoolean("isMute", hmsAudioTrack.isMute)
       }
       return hmsTrack;
     }
@@ -65,6 +66,7 @@ object HmsDecoder {
         hmsTrack.putString("trackId", hmsVideoTrack.trackId);
         hmsTrack.putString("source", hmsVideoTrack.source);
         hmsTrack.putString("trackDescription",hmsVideoTrack.description);
+        hmsTrack.putBoolean("isMute", hmsVideoTrack.isMute)
       }
       return hmsTrack;
     }
@@ -75,6 +77,7 @@ object HmsDecoder {
         hmsTrack.putString("trackId", track.trackId);
         hmsTrack.putString("source", track.source);
         hmsTrack.putString("trackDescription",track.description);
+        hmsTrack.putBoolean("isMute", track.isMute)
       }
       return hmsTrack;
     }
@@ -191,6 +194,9 @@ object HmsDecoder {
         localAudioTrackData.putString("source", localAudioTrack?.source);
         localAudioTrackData.putString("trackDescription", localAudioTrack?.description);
         localAudioTrackData.putMap("settings", getHmsAudioTrackSettings(localAudioTrack?.settings));
+        if (localAudioTrack != null) {
+          localAudioTrackData.putBoolean("isMute", localAudioTrack.isMute)
+        };
         peer.putMap("localAudioTrackData", localAudioTrackData);
 
         val localVideoTrack = hmsLocalPeer.videoTrack;
@@ -199,6 +205,9 @@ object HmsDecoder {
         localVideoTrackData.putString("source", localVideoTrack?.source);
         localVideoTrackData.putString("trackDescription", localVideoTrack?.description);
         localVideoTrackData.putMap("settings", getHmsVideoTrackSettings(localVideoTrack?.settings));
+        if (localVideoTrack != null) {
+          localVideoTrackData.putBoolean("isMute", localVideoTrack.isMute)
+        }
         peer.putMap("localVideoTrackData", localVideoTrackData);
       }
       return peer;
@@ -261,23 +270,31 @@ object HmsDecoder {
         }
         peer.putArray("auxiliaryTracks", auxiliaryTracks);
 
-        val localAudioTrack = hmsRemotePeer.audioTrack;
-        var localAudioTrackData: WritableMap = Arguments.createMap();
-        localAudioTrackData.putString("trackId", localAudioTrack?.trackId);
-        localAudioTrackData.putString("source", localAudioTrack?.source);
-        localAudioTrackData.putString("trackDescription", localAudioTrack?.description);
-//        localAudioTrackData.putMap("settings", getHmsAudioTrackSettings(localAudioTrack.settings));
-        localAudioTrackData.putMap("settings", null);
-        peer.putMap("localAudioTrackData", localAudioTrackData);
+        val remoteAudioTrack = hmsRemotePeer.audioTrack;
+        var remoteAudioTrackData: WritableMap = Arguments.createMap();
+        remoteAudioTrackData.putString("trackId", remoteAudioTrack?.trackId);
+        remoteAudioTrackData.putString("source", remoteAudioTrack?.source);
+        remoteAudioTrackData.putString("trackDescription", remoteAudioTrack?.description);
+        if (remoteAudioTrack != null) {
+          remoteAudioTrackData.putBoolean("playbackAllowed", remoteAudioTrack.isPlaybackAllowed)
+          remoteAudioTrackData.putBoolean("isMute", remoteAudioTrack.isMute)
+        }
+//        remoteAudioTrackData.putMap("settings", getHmsAudioTrackSettings(remoteAudioTrack.settings));
+        remoteAudioTrackData.putMap("settings", null);
+        peer.putMap("remoteAudioTrackData", remoteAudioTrackData);
 
-        val localVideoTrack = hmsRemotePeer.videoTrack;
-        var localVideoTrackData: WritableMap = Arguments.createMap();
-        localVideoTrackData.putString("trackId", localVideoTrack?.trackId);
-        localVideoTrackData.putString("source", localVideoTrack?.source);
-        localVideoTrackData.putString("trackDescription", localVideoTrack?.description);
-//        localVideoTrackData.putMap("settings", getHmsVideoTrackSettings(localVideoTrack.settings));
-        localVideoTrackData.putMap("settings", null);
-        peer.putMap("localVideoTrackData", localVideoTrackData);
+        val remoteVideoTrack = hmsRemotePeer.videoTrack;
+        var remoteVideoTrackData: WritableMap = Arguments.createMap();
+        remoteVideoTrackData.putString("trackId", remoteVideoTrack?.trackId);
+        remoteVideoTrackData.putString("source", remoteVideoTrack?.source);
+        remoteVideoTrackData.putString("trackDescription", remoteVideoTrack?.description);
+        if (remoteVideoTrack != null) {
+          remoteVideoTrackData.putBoolean("playbackAllowed", remoteVideoTrack.isPlaybackAllowed)
+          remoteVideoTrackData.putBoolean("isMute", remoteVideoTrack.isMute)
+        }
+//        remoteVideoTrackData.putMap("settings", getHmsVideoTrackSettings(remoteVideoTrack.settings));
+        remoteVideoTrackData.putMap("settings", null);
+        peer.putMap("remoteVideoTrackData", remoteVideoTrackData);
       }
       return peer;
     }
