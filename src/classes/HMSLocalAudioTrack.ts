@@ -26,6 +26,7 @@ export default class HMSLocalAudioTrack extends HMSAudioTrack {
     trackId: string;
     source?: number;
     trackDescription?: string;
+    isMute?: Boolean;
     settings?: HMSAudioTrackSettings;
   }) {
     super(params);

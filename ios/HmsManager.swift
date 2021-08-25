@@ -35,7 +35,6 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
         let remotePeerData = HmsDecoder.getHmsRemotePeers(hms?.remotePeers)
 
-        print("data is here")
         print(remotePeerData)
         print(localPeerData)
         
@@ -64,6 +63,11 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         let roomData = HmsDecoder.getHmsRoom(hms?.room)
         let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
         let remotePeerData = HmsDecoder.getHmsRemotePeers(hms?.remotePeers)
+        
+        print(localPeerData)
+        print(remotePeerData)
+        
+        print("data before")
         
         self.sendEvent(withName: ON_PEER_UPDATE, body: ["event": ON_PEER_UPDATE, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
     }

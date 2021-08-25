@@ -37,6 +37,7 @@ export default class HMSLocalVideoTrack extends HMSVideoTrack {
     trackId: string;
     source?: number;
     trackDescription?: string;
+    isMute?: Boolean;
     settings?: HMSVideoTrackSettings;
   }) {
     super(params);
