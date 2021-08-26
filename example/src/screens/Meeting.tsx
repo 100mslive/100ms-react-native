@@ -30,6 +30,7 @@ type Peer = {
   peerName?: string;
   isAudioMute?: boolean;
   isVideoMute?: boolean;
+  peerId?: String;
 };
 
 type DisplayNameProps = {
@@ -41,6 +42,8 @@ type DisplayNameProps = {
   videoStyles: Function;
   safeHeight: any;
   trackId: any;
+  speakers: Array<String>;
+  peerId: String;
 };
 
 type MeetingProps = {
@@ -61,7 +64,11 @@ const DisplayName = ({
   videoStyles,
   safeHeight,
   trackId,
+  speakers,
+  peerId,
 }: DisplayNameProps) => {
+  // console.warn(peerId, speakers);
+  const speaking = speakers.includes(peerId);
   return (
     <View
       key={trackId}
@@ -73,6 +80,7 @@ const DisplayName = ({
               ? safeHeight / 2 - 2
               : (safeHeight - dimension.viewHeight(90)) / 2 - 2,
         },
+        speaking && styles.highlight,
       ]}>
       {muteLocalVideo ? (
         <View style={styles.avatarContainer}>
@@ -118,11 +126,13 @@ const Meeting = ({
   const [remoteTrackIds, setRemoteTrackIds] = useState<Peer[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [safeHeight, setSafeHeight] = useState(0);
+  const [speakers, setSpeakers] = useState([]);
 
   const navigate = useNavigation<MeetingScreenProp>().navigate;
 
   const updateVideoIds = (remotePeers: any, localPeer: any) => {
     // get local track Id
+    const localPeerId = instance?.localPeer?.peerID;
     const localTrackId = localPeer?.videoTrack?.trackId;
     const localPeerName = localPeer?.name;
     const localPeerIsAudioMute = localPeer?.audioTrack?.mute;
@@ -133,6 +143,7 @@ const Meeting = ({
         peerName: localPeerName,
         isAudioMute: localPeerIsAudioMute,
         isVideoMute: localPeerIsVideoMute,
+        peerId: localPeerId,
       });
     }
 
@@ -140,6 +151,7 @@ const Meeting = ({
 
     if (remotePeers) {
       remotePeers.map((remotePeer: any) => {
+        const remotePeerId = remotePeer?.peerID;
         const remoteTrackId = remotePeer?.videoTrack?.trackId;
         const remotePeerName = remotePeer?.name;
         const remotePeerAudioIsMute = remotePeer?.audioTrack?.mute;
@@ -150,6 +162,7 @@ const Meeting = ({
             peerName: remotePeerName,
             isAudioMute: remotePeerAudioIsMute,
             isVideoMute: remotePeerVideoIsMute,
+            peerId: remotePeerId,
           });
         } else {
           remoteVideoIds.push({
@@ -157,6 +170,7 @@ const Meeting = ({
             peerName: remotePeerName,
             isAudioMute: remotePeerAudioIsMute,
             isVideoMute: remotePeerVideoIsMute,
+            peerId: '',
           });
         }
       });
@@ -225,6 +239,7 @@ const Meeting = ({
   };
 
   const onSpeaker = (data: any) => {
+    setSpeakers(data?.peers);
     console.log(data, 'data in onSpeaker');
   };
 
@@ -289,6 +304,7 @@ const Meeting = ({
 
   useEffect(() => {
     if (instance) {
+      const localPeerId = instance?.localPeer?.peerID;
       const localTrackId = instance?.localPeer?.videoTrack?.trackId;
       const localPeerName = instance?.localPeer?.name;
       const localPeerAudioIsMute = instance?.localPeer?.audioTrack?.mute;
@@ -299,6 +315,7 @@ const Meeting = ({
           peerName: localPeerName,
           isAudioMute: localPeerAudioIsMute,
           isVideoMute: localPeerVideoIsMute,
+          peerId: localPeerId,
         });
       }
 
@@ -308,6 +325,7 @@ const Meeting = ({
 
       if (remotePeers) {
         remotePeers.map((remotePeer: any) => {
+          const remotePeerId = remotePeer?.peerID;
           const remoteTrackId = remotePeer?.videoTrack?.trackId;
           const remotePeerName = remotePeer?.name;
           const remotePeerAudioIsMute = remotePeer?.audioTrack?.mute;
@@ -318,6 +336,7 @@ const Meeting = ({
               peerName: remotePeerName,
               isAudioMute: remotePeerAudioIsMute,
               isVideoMute: remotePeerVideoIsMute,
+              peerId: remotePeerId,
             });
           }
         });
@@ -370,6 +389,8 @@ const Meeting = ({
               videoStyles={getLocalVideoStyles}
               safeHeight={safeHeight}
               trackId={trackId.trackId}
+              speakers={speakers}
+              peerId={trackId.peerId!}
             />
             {remoteTrackIds.map((item: Peer) => {
               return (
@@ -380,7 +401,9 @@ const Meeting = ({
                   videoStyles={getRemoteVideoStyles}
                   safeHeight={safeHeight}
                   trackId={item.trackId}
+                  speakers={speakers}
                   key={item.trackId}
+                  peerId={item.peerId!}
                 />
               );
             })}
@@ -596,6 +619,11 @@ const styles = StyleSheet.create({
   avatarText: {
     fontSize: 30,
     color: 'white',
+  },
+  highlight: {
+    backgroundColor: 'blue',
+    padding: 5,
+    borderRadius: 10,
   },
 });
 
