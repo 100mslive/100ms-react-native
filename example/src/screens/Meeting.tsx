@@ -23,6 +23,7 @@ import {useNavigation} from '@react-navigation/native';
 import dimension from '../utils/dimension';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {AppStackParamList} from '../navigator';
+import {getRandomColor, getInitials} from '../utils/functions';
 
 type Peer = {
   trackId?: string;
@@ -73,7 +74,15 @@ const DisplayName = ({
               : (safeHeight - dimension.viewHeight(90)) / 2 - 2,
         },
       ]}>
-      <HmsView trackId={trackId} style={styles.hmsView} />
+      {muteLocalVideo ? (
+        <View style={styles.avatarContainer}>
+          <View style={[styles.avatar, {backgroundColor: getRandomColor()}]}>
+            <Text style={styles.avatarText}>{getInitials(peerName!)}</Text>
+          </View>
+        </View>
+      ) : (
+        <HmsView trackId={trackId} style={styles.hmsView} />
+      )}
       <View style={styles.displayContainer}>
         <View style={styles.peerNameContainer}>
           <Text numberOfLines={2} style={styles.peerName}>
@@ -570,6 +579,23 @@ const styles = StyleSheet.create({
   },
   mic: {
     color: 'blue',
+  },
+  avatarContainer: {
+    flex: 1,
+    backgroundColor: 'black',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatar: {
+    aspectRatio: 1,
+    width: '50%',
+    borderRadius: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarText: {
+    fontSize: 30,
+    color: 'white',
   },
 });
 
