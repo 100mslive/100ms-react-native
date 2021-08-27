@@ -130,6 +130,7 @@ const Meeting = ({
   const [modalVisible, setModalVisible] = useState(false);
   const [safeHeight, setSafeHeight] = useState(0);
   const [speakers, setSpeakers] = useState([]);
+  const [notification, setNotification] = useState(false);
 
   const navigate = useNavigation<MeetingScreenProp>().navigate;
 
@@ -239,6 +240,7 @@ const Meeting = ({
 
   const onMessage = (data: any) => {
     addMessageRequest({data, isLocal: false});
+    setNotification(true);
     console.log(data, 'data in onMessage');
   };
 
@@ -399,6 +401,7 @@ const Meeting = ({
             style={styles.videoIcon}
             size={dimension.viewHeight(30)}
           />
+          {notification && <View style={styles.messageDot} />}
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.singleIconContainer}
@@ -443,7 +446,10 @@ const Meeting = ({
       {modalVisible && (
         <ChatWindow
           messages={messages}
-          cancel={() => setModalVisible(false)}
+          cancel={() => {
+            setModalVisible(false);
+            setNotification(false);
+          }}
           send={(value: string) => {
             if (value.length > 0) {
               const hmsMessage = new HMSMessage({
@@ -587,6 +593,16 @@ const styles = StyleSheet.create({
     backgroundColor: 'blue',
     padding: 5,
     borderRadius: 10,
+  },
+  messageDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 20,
+    position: 'absolute',
+    zIndex: 100,
+    backgroundColor: 'red',
+    right: dimension.viewWidth(10),
+    top: dimension.viewHeight(10),
   },
 });
 
