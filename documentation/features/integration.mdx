@@ -7,6 +7,7 @@ npm install --save @100mslive/react-native-hms
 ```
 
 ## Permissions
+
 ### For iOS
 Add following lines in `Info.plist` file
 
@@ -27,6 +28,7 @@ Add following permissions in `androidManifest.xml`
 <uses-permission android:name="android.permission.RECORD_AUDIO" />
 <uses-permission android:name="android.permission.INTERNET" />
 ```
-You will also need to acquire these permissions on runtime.
 
-we suggest using [react-native-permission](https://www.npmjs.com/package/react-native-permissions) to acquire permissions from both platforms.
+You will also need to request Camera and Record Audio permissions at runtime before you join a call or display a preview. Please follow [Android Documentation](https://developer.android.com/training/permissions/requesting#request-permission) for runtime permissions.
+
+We suggest using [react-native-permission](https://www.npmjs.com/package/react-native-permissions) to acquire permissions from both platforms.
