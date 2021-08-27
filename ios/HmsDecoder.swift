@@ -221,11 +221,11 @@ class HmsDecoder: NSObject {
         let removeOthers = permissions.removeOthers ?? false
         let stopPresentation = permissions.stopPresentation ?? false
         let muteAll = permissions.muteAll ?? false
-        let askToUnmute = permissions.askToUnmute ?? false
-        let muteSelective = permissions.muteSelective ?? false
+//        let askToUnmute = permissions.askToUnmute ?? false
+//        let muteSelective = permissions.muteSelective ?? false
         let changeRole = permissions.changeRole ?? false
         
-        return ["endRoom": endRoom, "removeOthers": removeOthers, "stopPresentation": stopPresentation, "muteAll": muteAll, "askToUnmute": askToUnmute, "muteSelective": muteSelective, "changeRole": changeRole]
+        return ["endRoom": endRoom, "removeOthers": removeOthers, "stopPresentation": stopPresentation, "muteAll": muteAll, "changeRole": changeRole]
     }
     
     static func getHmsPublishSettings (_ publishSettings: HMSPublishSettings) -> [String: Any] {
