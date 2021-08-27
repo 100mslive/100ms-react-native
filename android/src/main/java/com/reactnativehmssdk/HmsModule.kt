@@ -16,7 +16,9 @@ import live.hms.video.error.HMSException
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.reactnativehmssdk.HmsModule.Companion.REACT_CLASS
 import kotlinx.coroutines.launch
+import live.hms.video.sdk.HMSMessageResultListener
 import live.hms.video.sdk.HMSPreviewListener
+import live.hms.video.sdk.models.trackchangerequest.HMSChangeTrackStateRequest
 
 @ReactModule(name = REACT_CLASS)
 class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
@@ -78,6 +80,10 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
 
     HMSCoroutineScope.launch {
       hmsSDK?.join(config, object : HMSUpdateListener {
+        override fun onChangeTrackStateRequest(details: HMSChangeTrackStateRequest) {
+          println("Not yet implemented")
+        }
+
         override fun onError(error: HMSException) {
           println("error")
           println(error)
@@ -155,7 +161,7 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
           data.putString("sender", message.sender.name)
           data.putString("message", message.message)
           data.putString("type", message.type)
-          data.putString("time", message.time.toString())
+          data.putString("time", message.serverReceiveTime.toString())
           data.putString("event", "ON_MESSAGE")
 
           reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_MESSAGE", data)
@@ -207,6 +213,13 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
 
   @ReactMethod
   fun send(data:ReadableMap) {
-    hmsSDK?.sendMessage(data.getString("type") as String,data.getString("message") as String)
+    hmsSDK?.sendBroadcastMessage(data.getString("message") as String,data.getString("type") as String,object : HMSMessageResultListener {
+      override fun onError(error: HMSException) {
+        println("error:$error")
+      }
+      override fun onSuccess(hmsMessage: HMSMessage) {
+        println("message:$hmsMessage")
+      }
+    })
   }
 }
