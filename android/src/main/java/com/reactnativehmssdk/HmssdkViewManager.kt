@@ -34,7 +34,7 @@ class HmssdkViewManager : SimpleViewManager<SurfaceViewRenderer>() {
   }
 
   @ReactProp(name = "trackId")
-  fun setColor(view: SurfaceViewRenderer, trackId: String?) {
+  fun setTrack(view: SurfaceViewRenderer, trackId: String?) {
     val hms = getHms()
     val localTrackId = hms?.getLocalPeer()?.videoTrack?.trackId
     if (localTrackId == trackId) {
@@ -47,6 +47,16 @@ class HmssdkViewManager : SimpleViewManager<SurfaceViewRenderer>() {
     if (remotePeers !== null) {
       for (peer in remotePeers) {
         val videoTrackId = peer.videoTrack?.trackId
+        val auxiliaryTracks = peer.auxiliaryTracks
+        if(auxiliaryTracks !== null){
+          for (track in auxiliaryTracks) {
+            val auxTrackId = track.trackId
+            if(trackId == auxTrackId && track.source == "screen" && track.isMute == false){
+              val hmsTrack = track as HMSVideoTrack
+              hmsTrack.addSink(view)
+            }
+          }
+        }
 
         if (videoTrackId == trackId) {
           val videoTrack = peer.videoTrack
