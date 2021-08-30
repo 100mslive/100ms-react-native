@@ -37,8 +37,8 @@ type Peer = {
 type DisplayNameProps = {
   peer?: Peer;
   videoStyles: Function;
-  safeHeight: any;
   speakers: Array<String>;
+  height: number;
 };
 
 type MeetingProps = {
@@ -55,24 +55,15 @@ type MeetingScreenProp = StackNavigationProp<AppStackParamList, 'Meeting'>;
 const DisplayName = ({
   peer,
   videoStyles,
-  safeHeight,
   speakers,
+  height,
 }: DisplayNameProps) => {
   const {peerName, isAudioMute, isVideoMute, trackId, colour, peerId} = peer!;
   const speaking = speakers.includes(peerId!);
   return (
     <View
       key={trackId}
-      style={[
-        videoStyles(),
-        {
-          height:
-            Platform.OS === 'android'
-              ? safeHeight / 2 - 2
-              : (safeHeight - dimension.viewHeight(90)) / 2 - 2,
-        },
-        speaking && styles.highlight,
-      ]}>
+      style={[videoStyles(), {height}, speaking && styles.highlight]}>
       {isVideoMute ? (
         <View style={styles.avatarContainer}>
           <View style={[styles.avatar, {backgroundColor: colour}]}>
@@ -364,6 +355,10 @@ const Meeting = ({
     return styles.generalTile;
   };
 
+  const getAuxVideoStyles = () => {
+    return styles.fullScreenTile;
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View
@@ -376,10 +371,25 @@ const Meeting = ({
         }}>
         <ScrollView style={styles.scroll} bounces={false}>
           <View style={styles.videoView}>
+            {auxTracks.map((item: Peer) => {
+              return (
+                <DisplayName
+                  peer={item}
+                  videoStyles={getAuxVideoStyles}
+                  height={safeHeight}
+                  speakers={speakers}
+                  key={item.trackId}
+                />
+              );
+            })}
             <DisplayName
               peer={trackId}
               videoStyles={getLocalVideoStyles}
-              safeHeight={safeHeight}
+              height={
+                Platform.OS === 'android'
+                  ? safeHeight / 2 - 2
+                  : (safeHeight - dimension.viewHeight(90)) / 2 - 2
+              }
               speakers={speakers}
             />
             {remoteTrackIds.map((item: Peer) => {
@@ -387,18 +397,11 @@ const Meeting = ({
                 <DisplayName
                   peer={item}
                   videoStyles={getRemoteVideoStyles}
-                  safeHeight={safeHeight}
-                  speakers={speakers}
-                  key={item.trackId}
-                />
-              );
-            })}
-            {auxTracks.map((item: Peer) => {
-              return (
-                <DisplayName
-                  peer={item}
-                  videoStyles={getRemoteVideoStyles}
-                  safeHeight={safeHeight}
+                  height={
+                    Platform.OS === 'android'
+                      ? safeHeight / 2 - 2
+                      : (safeHeight - dimension.viewHeight(90)) / 2 - 2
+                  }
                   speakers={speakers}
                   key={item.trackId}
                 />
