@@ -31,17 +31,23 @@ class HmssdkDisplayView: UIView {
     
     @objc var trackId: String = "" {
         didSet {
-            print("trackId")
-            print("trackId set")
             if let videoTrack = hms?.localPeer?.videoTrack {
                 if videoTrack.trackId == trackId {
-                    print("found one")
                     videoView.setVideoTrack(videoTrack)
                     return
                 }
             }
             if let remotePeers = hms?.remotePeers {
                 for peer in remotePeers {
+                    let auxTracks = peer.auxiliaryTracks
+                    if let auxTracksVals = auxTracks {
+                        for track in auxTracksVals {
+                            if (track.source == .screen) {
+                                videoView.setVideoTrack(track as? HMSVideoTrack)
+                                return
+                            }
+                        }
+                    }
                     if let remoteTrackId = peer.videoTrack?.trackId {
                         if remoteTrackId == trackId {
                             videoView.setVideoTrack(peer.videoTrack)

@@ -131,6 +131,7 @@ const Meeting = ({
   const [safeHeight, setSafeHeight] = useState(0);
   const [speakers, setSpeakers] = useState([]);
   const [notification, setNotification] = useState(false);
+  const [auxTracks, setAuxTracks] = useState([]);
 
   const navigate = useNavigation<MeetingScreenProp>().navigate;
 
@@ -154,6 +155,7 @@ const Meeting = ({
     }
 
     const remoteVideoIds: Peer[] = [];
+    let newAuxTracks: Peer[] = [];
 
     if (remotePeers) {
       remotePeers.map((remotePeer: any, index: number) => {
@@ -182,6 +184,25 @@ const Meeting = ({
             colour: 'red',
           });
         }
+
+        let auxiliaryTracks = remotePeer?.auxiliaryTracks;
+
+        auxiliaryTracks.map((track: any) => {
+          let auxTrackId = track?.trackId;
+
+          if (trackId) {
+            newAuxTracks.push({
+              trackId: auxTrackId,
+              peerName: `${remotePeerName}'s Screen`,
+              isAudioMute: true,
+              isVideoMute: false,
+              peerId: `${remotePeerId}_${auxTrackId}`,
+              colour: 'red',
+            });
+          }
+        });
+
+        setAuxTracks(auxiliaryTracks);
       });
 
       setRemoteTrackIds(remoteVideoIds as []);
@@ -362,6 +383,17 @@ const Meeting = ({
               speakers={speakers}
             />
             {remoteTrackIds.map((item: Peer) => {
+              return (
+                <DisplayName
+                  peer={item}
+                  videoStyles={getRemoteVideoStyles}
+                  safeHeight={safeHeight}
+                  speakers={speakers}
+                  key={item.trackId}
+                />
+              );
+            })}
+            {auxTracks.map((item: Peer) => {
               return (
                 <DisplayName
                   peer={item}

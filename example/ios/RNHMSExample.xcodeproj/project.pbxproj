@@ -12,10 +12,9 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		5B373DA026B9114500DFE478 /* libswiftWebKit.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B373D9F26B9112700DFE478 /* libswiftWebKit.tbd */; };
-		5B7E215726D8DEB400CDF644 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5B7E215626D8DEB400CDF644 /* GoogleService-Info.plist */; };
+		5B3832A326DCAAE2003B11DC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5B3832A226DCAAE2003B11DC /* GoogleService-Info.plist */; };
 		60501FBE68997AD593F5F40F /* libPods-RNHMSExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F8A7BB01F2990F6065CF65E5 /* libPods-RNHMSExample.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		A993408726D6B2B500D4E791 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A993408626D6B2B500D4E791 /* GoogleService-Info.plist */; };
 		D1A53095BCBDAEB5A58363D7 /* libPods-RNHMSExample-RNHMSExampleTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 011CE7C7CEFE0BA6530EEE05 /* libPods-RNHMSExample-RNHMSExampleTests.a */; };
 /* End PBXBuildFile section */
 
@@ -43,11 +42,11 @@
 		249074DB2395F002F7348019 /* Pods-RNHMSExample-RNHMSExampleTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNHMSExample-RNHMSExampleTests.debug.xcconfig"; path = "Target Support Files/Pods-RNHMSExample-RNHMSExampleTests/Pods-RNHMSExample-RNHMSExampleTests.debug.xcconfig"; sourceTree = "<group>"; };
 		2C89024864789A6D93C93E64 /* Pods-RNHMSExample-RNHMSExampleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNHMSExample-RNHMSExampleTests.release.xcconfig"; path = "Target Support Files/Pods-RNHMSExample-RNHMSExampleTests/Pods-RNHMSExample-RNHMSExampleTests.release.xcconfig"; sourceTree = "<group>"; };
 		5B373D9F26B9112700DFE478 /* libswiftWebKit.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libswiftWebKit.tbd; path = usr/lib/swift/libswiftWebKit.tbd; sourceTree = SDKROOT; };
+		5B3832A226DCAAE2003B11DC /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		5B7E215626D8DEB400CDF644 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		5BB88596AC778B499EECBB9C /* Pods-RNHMSExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNHMSExample.release.xcconfig"; path = "Target Support Files/Pods-RNHMSExample/Pods-RNHMSExample.release.xcconfig"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = RNHMSExample/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		971E4BD9AFA4897DEA02F210 /* Pods-RNHMSExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNHMSExample.debug.xcconfig"; path = "Target Support Files/Pods-RNHMSExample/Pods-RNHMSExample.debug.xcconfig"; sourceTree = "<group>"; };
-		A993408626D6B2B500D4E791 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		ECA3437726C3E17E007CB7C3 /* RNHMSExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = RNHMSExample.entitlements; path = RNHMSExample/RNHMSExample.entitlements; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F8A7BB01F2990F6065CF65E5 /* libPods-RNHMSExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RNHMSExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -97,10 +96,10 @@
 				ECA3437726C3E17E007CB7C3 /* RNHMSExample.entitlements */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				5B7E215626D8DEB400CDF644 /* GoogleService-Info.plist */,
+				5B3832A226DCAAE2003B11DC /* GoogleService-Info.plist */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
-				A993408626D6B2B500D4E791 /* GoogleService-Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
 			);
@@ -256,7 +255,7 @@
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
-				A993408726D6B2B500D4E791 /* GoogleService-Info.plist in Resources */,
+				5B3832A326DCAAE2003B11DC /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
