@@ -1,5 +1,8 @@
 package live.hms.rn;
 
+import android.os.Bundle;
+import android.view.WindowManager;
+
 import com.facebook.react.ReactActivity;
 
 public class MainActivity extends ReactActivity {
@@ -11,5 +14,10 @@ public class MainActivity extends ReactActivity {
   @Override
   protected String getMainComponentName() {
     return "RNHMSExample";
+  }
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
   }
 }

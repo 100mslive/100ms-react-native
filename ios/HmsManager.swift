@@ -35,7 +35,6 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
         let remotePeerData = HmsDecoder.getHmsRemotePeers(hms?.remotePeers)
 
-        print("data is here")
         print(remotePeerData)
         print(localPeerData)
         
@@ -65,6 +64,11 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
         let remotePeerData = HmsDecoder.getHmsRemotePeers(hms?.remotePeers)
         
+        print(localPeerData)
+        print(remotePeerData)
+        
+        print("data before")
+        
         self.sendEvent(withName: ON_PEER_UPDATE, body: ["event": ON_PEER_UPDATE, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
     }
 
@@ -84,7 +88,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
 
     func on(message: HMSMessage) {
         print("Message")
-        self.sendEvent(withName: ON_MESSAGE, body: ["event": ON_MESSAGE, "sender": message.sender, "time": message.time, "message": message.message, "type": message.type])
+        self.sendEvent(withName: ON_MESSAGE, body: ["event": ON_MESSAGE, "sender": message.sender?.name ?? "", "time": message.time, "message": message.message, "type": message.type])
     }
 
     func on(updated speakers: [HMSSpeaker]) {
@@ -161,10 +165,8 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     
     @objc
     func send(_ data: NSDictionary) {
-        if let message = data.value(forKey: "message") as! String?, let time = data.value(forKey: "time") as! String?, let type = data.value(forKey: "type") as! String? {
-            let localPeerID = hms?.localPeer?.peerID ?? ""
-            let hmsMessage = HMSMessage(sender: localPeerID, time: time, type: type, message: message)
-            hms?.send(message: hmsMessage)
+        if let message = data.value(forKey: "message") as! String? {
+            hms?.sendBroadcastMessage(message: message)
         }
     }
 }

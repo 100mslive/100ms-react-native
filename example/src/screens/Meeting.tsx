@@ -19,33 +19,47 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import ChatWindow from '../components/ChatWindow';
 import {addMessage, clearMessageData} from '../redux/actions/index';
-import {navigate} from '../services/navigation';
+import {useNavigation} from '@react-navigation/native';
 import dimension from '../utils/dimension';
+import type {StackNavigationProp} from '@react-navigation/stack';
+import type {AppStackParamList} from '../navigator';
+import {getRandomColor, getInitials} from '../utils/functions';
 
 type Peer = {
   trackId?: string;
   peerName?: string;
+  isAudioMute?: boolean;
+  isVideoMute?: boolean;
+  peerId?: String;
+  colour?: string;
 };
 
-const DisplayName = ({
-  peerName,
-  setIsLocalMute,
-  setMuteLocalVideo,
-  isLocalMute,
-  muteLocalVideo,
-  videoStyles,
-  safeHeight,
-  trackId,
-}: {
-  peerName?: String;
-  setIsLocalMute: any;
-  setMuteLocalVideo: any;
-  isLocalMute: boolean;
-  muteLocalVideo: boolean;
+type DisplayNameProps = {
+  peer?: Peer;
   videoStyles: Function;
   safeHeight: any;
-  trackId: any;
-}) => {
+  speakers: Array<String>;
+};
+
+type MeetingProps = {
+  messages: any;
+  addMessageRequest: Function;
+  clearMessageRequest: Function;
+  audioState: boolean;
+  videoState: boolean;
+  state: any;
+};
+
+type MeetingScreenProp = StackNavigationProp<AppStackParamList, 'Meeting'>;
+
+const DisplayName = ({
+  peer,
+  videoStyles,
+  safeHeight,
+  speakers,
+}: DisplayNameProps) => {
+  const {peerName, isAudioMute, isVideoMute, trackId, colour, peerId} = peer!;
+  const speaking = speakers.includes(peerId!);
   return (
     <View
       key={trackId}
@@ -57,25 +71,34 @@ const DisplayName = ({
               ? safeHeight / 2 - 2
               : (safeHeight - dimension.viewHeight(90)) / 2 - 2,
         },
+        speaking && styles.highlight,
       ]}>
-      <HmsView trackId={trackId} style={styles.hmsView} />
-      <View style={styles.peerNameContainer}>
-        <View style={{maxWidth: 80}}>
+      {isVideoMute ? (
+        <View style={styles.avatarContainer}>
+          <View style={[styles.avatar, {backgroundColor: colour}]}>
+            <Text style={styles.avatarText}>{getInitials(peerName!)}</Text>
+          </View>
+        </View>
+      ) : (
+        <HmsView trackId={trackId} style={styles.hmsView} />
+      )}
+      <View style={styles.displayContainer}>
+        <View style={styles.peerNameContainer}>
           <Text numberOfLines={2} style={styles.peerName}>
             {peerName}
           </Text>
         </View>
-        <View style={{paddingHorizontal: 3}}>
+        <View style={styles.micContainer}>
           <Feather
-            name={isLocalMute ? 'mic-off' : 'mic'}
-            style={{color: 'blue'}}
+            name={isAudioMute ? 'mic-off' : 'mic'}
+            style={styles.mic}
             size={20}
           />
         </View>
-        <View style={{paddingHorizontal: 3}}>
+        <View style={styles.micContainer}>
           <Feather
-            name={muteLocalVideo ? 'video-off' : 'video'}
-            style={{color: 'blue'}}
+            name={isVideoMute ? 'video-off' : 'video'}
+            style={styles.mic}
             size={20}
           />
         </View>
@@ -84,53 +107,79 @@ const DisplayName = ({
   );
 };
 
+const peerColour: any = {};
+const getPeerColour = (trackId: string): string => {
+  let colour = 'red';
+  if (peerColour[trackId]) {
+    colour = peerColour[trackId];
+  } else {
+    colour = getRandomColor();
+    peerColour[trackId] = colour;
+  }
+  return colour;
+};
+
 const Meeting = ({
   messages,
   addMessageRequest,
   clearMessageRequest,
-  audioState,
-  videoState,
-}: {
-  messages: any;
-  addMessageRequest: Function;
-  clearMessageRequest: Function;
-  audioState: boolean;
-  videoState: boolean;
-  state: any;
-}) => {
+}: MeetingProps) => {
   const [instance, setInstance] = useState<any>(null);
   const [trackId, setTrackId] = useState<Peer>({});
   const [remoteTrackIds, setRemoteTrackIds] = useState<Peer[]>([]);
-  const [isMute, setIsMute] = useState(false);
-  const [muteVideo, setMuteVideo] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [safeHeight, setSafeHeight] = useState(0);
-  const [isLocalMute, setIsLocalMute] = useState(false);
-  const [muteLocalVideo, setMuteLocalVideo] = useState(false);
+  const [speakers, setSpeakers] = useState([]);
+  const [notification, setNotification] = useState(false);
+
+  const navigate = useNavigation<MeetingScreenProp>().navigate;
 
   const updateVideoIds = (remotePeers: any, localPeer: any) => {
     // get local track Id
+    const localPeerId = instance?.localPeer?.peerID;
     const localTrackId = localPeer?.videoTrack?.trackId;
     const localPeerName = localPeer?.name;
+    const localPeerIsAudioMute = localPeer?.audioTrack?.mute;
+    const localPeerIsVideoMute = localPeer?.videoTrack?.mute;
+    const localPeerColour = getPeerColour(localTrackId);
     if (localTrackId) {
-      setTrackId({trackId: localTrackId, peerName: localPeerName});
+      setTrackId({
+        trackId: localTrackId,
+        peerName: localPeerName,
+        isAudioMute: localPeerIsAudioMute,
+        isVideoMute: localPeerIsVideoMute,
+        peerId: localPeerId,
+        colour: localPeerColour,
+      });
     }
 
     const remoteVideoIds: Peer[] = [];
 
     if (remotePeers) {
-      remotePeers.map((remotePeer: any) => {
+      remotePeers.map((remotePeer: any, index: number) => {
+        const remotePeerId = remotePeer?.peerID;
         const remoteTrackId = remotePeer?.videoTrack?.trackId;
         const remotePeerName = remotePeer?.name;
+        const remotePeerAudioIsMute = remotePeer?.audioTrack?.mute;
+        const remotePeerVideoIsMute = remotePeer?.videoTrack?.mute;
+        const remotePeerColour = getPeerColour(remoteTrackId);
         if (remoteTrackId) {
           remoteVideoIds.push({
             trackId: remoteTrackId,
             peerName: remotePeerName,
+            isAudioMute: remotePeerAudioIsMute,
+            isVideoMute: remotePeerVideoIsMute,
+            peerId: remotePeerId,
+            colour: remotePeerColour,
           });
         } else {
           remoteVideoIds.push({
-            trackId: '',
+            trackId: index.toString(),
             peerName: remotePeerName,
+            isAudioMute: remotePeerAudioIsMute,
+            isVideoMute: remotePeerVideoIsMute,
+            peerId: '',
+            colour: 'red',
           });
         }
       });
@@ -156,8 +205,8 @@ const Meeting = ({
     remotePeers,
   }: {
     room?: any;
-    localPeer: any;
-    remotePeers: any;
+    localPeer: Peer;
+    remotePeers: Peer;
   }) => {
     updateVideoIds(remotePeers, localPeer);
     console.log(remotePeers, localPeer, 'data in onRoom');
@@ -169,8 +218,8 @@ const Meeting = ({
     localPeer,
   }: {
     room?: any;
-    localPeer: any;
-    remotePeers: any;
+    localPeer: Peer;
+    remotePeers: Peer;
   }) => {
     updateVideoIds(remotePeers, localPeer);
     console.log(remotePeers, localPeer, 'data in onPeer');
@@ -182,8 +231,8 @@ const Meeting = ({
     localPeer,
   }: {
     room?: any;
-    localPeer: any;
-    remotePeers: any;
+    localPeer: Peer;
+    remotePeers: Peer;
   }) => {
     updateVideoIds(remotePeers, localPeer);
     console.log(remotePeers, localPeer, 'data in onTrack');
@@ -191,6 +240,7 @@ const Meeting = ({
 
   const onMessage = (data: any) => {
     addMessageRequest({data, isLocal: false});
+    setNotification(true);
     console.log(data, 'data in onMessage');
   };
 
@@ -199,6 +249,7 @@ const Meeting = ({
   };
 
   const onSpeaker = (data: any) => {
+    setSpeakers(data?.peers);
     console.log(data, 'data in onSpeaker');
   };
 
@@ -262,36 +313,9 @@ const Meeting = ({
   }, []);
 
   useEffect(() => {
-    setIsMute(!audioState);
-    setMuteVideo(!videoState);
-  }, [audioState, videoState]);
-
-  useEffect(() => {
     if (instance) {
-      const localTrackId = instance?.localPeer?.videoTrack?.trackId;
-      const localPeerName = instance?.localPeer?.name;
-      if (localTrackId) {
-        setTrackId({trackId: localTrackId, peerName: localPeerName});
-      }
-
-      const remoteVideoIds: Peer[] = [];
-
       const remotePeers = instance?.remotePeers ? instance.remotePeers : [];
-
-      if (remotePeers) {
-        remotePeers.map((remotePeer: any) => {
-          const remoteTrackId = remotePeer?.videoTrack?.trackId;
-          const remotePeerName = remotePeer?.name;
-          if (remoteTrackId) {
-            remoteVideoIds.push({
-              trackId: remoteTrackId,
-              peerName: remotePeerName,
-            });
-          }
-        });
-
-        setRemoteTrackIds(remoteVideoIds as []);
-      }
+      updateVideoIds(remotePeers, instance?.localPeer);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [instance]);
@@ -332,34 +356,19 @@ const Meeting = ({
         <ScrollView style={styles.scroll} bounces={false}>
           <View style={styles.videoView}>
             <DisplayName
-              peerName={trackId.peerName}
-              setIsLocalMute={async () => {
-                setIsLocalMute(!isLocalMute);
-              }}
-              setMuteLocalVideo={async () => {
-                setMuteLocalVideo(!muteLocalVideo);
-              }}
-              isLocalMute={isLocalMute}
-              muteLocalVideo={muteLocalVideo}
+              peer={trackId}
               videoStyles={getLocalVideoStyles}
               safeHeight={safeHeight}
-              trackId={trackId.trackId}
+              speakers={speakers}
             />
             {remoteTrackIds.map((item: Peer) => {
               return (
                 <DisplayName
-                  peerName={item.peerName}
-                  setIsLocalMute={async () => {
-                    setIsLocalMute(!isLocalMute);
-                  }}
-                  setMuteLocalVideo={async () => {
-                    setMuteLocalVideo(!muteLocalVideo);
-                  }}
-                  isLocalMute={isLocalMute}
-                  muteLocalVideo={muteLocalVideo}
+                  peer={item}
                   videoStyles={getRemoteVideoStyles}
                   safeHeight={safeHeight}
-                  trackId={item.trackId}
+                  speakers={speakers}
+                  key={item.trackId}
                 />
               );
             })}
@@ -370,11 +379,14 @@ const Meeting = ({
         <TouchableOpacity
           style={styles.singleIconContainer}
           onPress={async () => {
-            setIsMute(!isMute);
-            instance.localPeer.localAudioTrack().setMute(!isMute);
+            setTrackId({
+              ...trackId,
+              isAudioMute: !trackId.isAudioMute,
+            });
+            instance.localPeer.localAudioTrack().setMute(!trackId.isAudioMute);
           }}>
           <Feather
-            name={isMute ? 'mic-off' : 'mic'}
+            name={trackId.isAudioMute ? 'mic-off' : 'mic'}
             style={styles.videoIcon}
             size={dimension.viewHeight(30)}
           />
@@ -389,6 +401,7 @@ const Meeting = ({
             style={styles.videoIcon}
             size={dimension.viewHeight(30)}
           />
+          {notification && <View style={styles.messageDot} />}
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.singleIconContainer}
@@ -404,11 +417,14 @@ const Meeting = ({
         <TouchableOpacity
           style={styles.singleIconContainer}
           onPress={() => {
-            setMuteVideo(!muteVideo);
-            instance.localPeer.localVideoTrack().setMute(!muteVideo);
+            setTrackId({
+              ...trackId,
+              isVideoMute: !trackId.isVideoMute,
+            });
+            instance.localPeer.localVideoTrack().setMute(!trackId.isVideoMute);
           }}>
           <Feather
-            name={muteVideo ? 'video-off' : 'video'}
+            name={trackId.isVideoMute ? 'video-off' : 'video'}
             style={styles.videoIcon}
             size={dimension.viewHeight(30)}
           />
@@ -430,7 +446,10 @@ const Meeting = ({
       {modalVisible && (
         <ChatWindow
           messages={messages}
-          cancel={() => setModalVisible(false)}
+          cancel={() => {
+            setModalVisible(false);
+            setNotification(false);
+          }}
           send={(value: string) => {
             if (value.length > 0) {
               const hmsMessage = new HMSMessage({
@@ -530,7 +549,7 @@ const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
   },
-  peerNameContainer: {
+  displayContainer: {
     position: 'absolute',
     bottom: 0,
     alignSelf: 'center',
@@ -543,6 +562,47 @@ const styles = StyleSheet.create({
   },
   peerName: {
     color: 'blue',
+  },
+  peerNameContainer: {
+    maxWidth: 80,
+  },
+  micContainer: {
+    paddingHorizontal: 3,
+  },
+  mic: {
+    color: 'blue',
+  },
+  avatarContainer: {
+    flex: 1,
+    backgroundColor: 'black',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatar: {
+    aspectRatio: 1,
+    width: '50%',
+    borderRadius: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarText: {
+    fontSize: 30,
+    color: 'white',
+  },
+  highlight: {
+    backgroundColor: 'blue',
+    padding: 5,
+    borderRadius: 10,
+  },
+  messageDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 20,
+    position: 'absolute',
+    zIndex: 100,
+    backgroundColor: 'red',
+    right: dimension.viewWidth(10),
+    top: dimension.viewHeight(10),
   },
 });
 

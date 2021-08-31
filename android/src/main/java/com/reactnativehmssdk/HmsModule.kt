@@ -16,7 +16,9 @@ import live.hms.video.error.HMSException
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.reactnativehmssdk.HmsModule.Companion.REACT_CLASS
 import kotlinx.coroutines.launch
+import live.hms.video.sdk.HMSMessageResultListener
 import live.hms.video.sdk.HMSPreviewListener
+import live.hms.video.sdk.models.trackchangerequest.HMSChangeTrackStateRequest
 
 @ReactModule(name = REACT_CLASS)
 class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
@@ -76,105 +78,111 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     val config =
       HMSConfig(credentials.getString("username") as String, credentials.getString("authToken") as String)
 
-    hmsSDK?.join(config, object : HMSUpdateListener {
-      override fun onError(error: HMSException) {
-        println("error")
-        println(error)
-        reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_ERROR", "ERROR")
-      }
+    HMSCoroutineScope.launch {
+      hmsSDK?.join(config, object : HMSUpdateListener {
+        override fun onChangeTrackStateRequest(details: HMSChangeTrackStateRequest) {
+          println("Not yet implemented")
+        }
 
-      override fun onJoin(room: HMSRoom) {
-        println("room")
-        println(room)
+        override fun onError(error: HMSException) {
+          println("error")
+          println(error)
+          reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_ERROR", "ERROR")
+        }
 
-        val roomData = HmsDecoder.getHmsRoom(room)
-        val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
-        val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
+        override fun onJoin(room: HMSRoom) {
+          println("room")
+          println(room)
 
-        val data: WritableMap = Arguments.createMap();
+          val roomData = HmsDecoder.getHmsRoom(room)
+          val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
+          val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
 
-        data.putMap("room", roomData)
-        data.putMap("localPeer", localPeerData)
-        data.putArray("remotePeers", remotePeerData)
-        reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_JOIN", data)
-      }
+          val data: WritableMap = Arguments.createMap();
 
-      override fun onPeerUpdate(type: HMSPeerUpdate, hmsPeer: HMSPeer) {
+          data.putMap("room", roomData)
+          data.putMap("localPeer", localPeerData)
+          data.putArray("remotePeers", remotePeerData)
+          reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_JOIN", data)
+        }
 
-//        val roomData = HmsDecoder.getHmsRoom(hmsSDK.room)
-        val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
-        val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
-
-        val data: WritableMap = Arguments.createMap();
-
-//        data.putMap("room", roomData)
-        data.putMap("localPeer", localPeerData)
-        data.putArray("remotePeers", remotePeerData)
-        reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_PEER_UPDATE", data)
-      }
-
-      override fun onRoomUpdate(type: HMSRoomUpdate, hmsRoom: HMSRoom) {
-        println("HMSRoom")
-        println(hmsRoom)
-        val roomData = HmsDecoder.getHmsRoom(hmsRoom)
-        val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
-        val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
-
-        val data: WritableMap = Arguments.createMap();
-
-        data.putMap("room", roomData)
-        data.putMap("localPeer", localPeerData)
-        data.putArray("remotePeers", remotePeerData)
-        reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_ROOM_UPDATE", data)
-      }
-
-      override fun onTrackUpdate(type: HMSTrackUpdate, track: HMSTrack, peer: HMSPeer) {
-        println("HMSTrack")
-        println(peer)
-        println(track)
+        override fun onPeerUpdate(type: HMSPeerUpdate, hmsPeer: HMSPeer) {
 
 //        val roomData = HmsDecoder.getHmsRoom(hmsSDK.room)
-        val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
-        val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
+          val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
+          val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
 
-        val data: WritableMap = Arguments.createMap();
+          val data: WritableMap = Arguments.createMap();
 
 //        data.putMap("room", roomData)
-        data.putMap("localPeer", localPeerData)
-        data.putArray("remotePeers", remotePeerData)
-        reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_TRACK_UPDATE", data)
-      }
+          data.putMap("localPeer", localPeerData)
+          data.putArray("remotePeers", remotePeerData)
+          reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_PEER_UPDATE", data)
+        }
 
-      override fun onMessageReceived(message: HMSMessage) {
-        println("message")
-        println(message)
+        override fun onRoomUpdate(type: HMSRoomUpdate, hmsRoom: HMSRoom) {
+          println("HMSRoom")
+          println(hmsRoom)
+          val roomData = HmsDecoder.getHmsRoom(hmsRoom)
+          val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
+          val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
 
-        val data: WritableMap = Arguments.createMap()
+          val data: WritableMap = Arguments.createMap();
 
-        data.putString("sender", message.sender.name)
-        data.putString("message", message.message)
-        data.putString("type", message.type)
-        data.putString("time", message.time.toString())
-        data.putString("event", "ON_MESSAGE")
+          data.putMap("room", roomData)
+          data.putMap("localPeer", localPeerData)
+          data.putArray("remotePeers", remotePeerData)
+          reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_ROOM_UPDATE", data)
+        }
 
-        reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_MESSAGE", data)
-      }
+        override fun onTrackUpdate(type: HMSTrackUpdate, track: HMSTrack, peer: HMSPeer) {
+          println("HMSTrack")
+          println(peer)
+          println(track)
 
-      override fun onReconnected() {
-        println("Reconnected")
-        reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("RECONNECTED", "RECONNECTED")
-      }
+//        val roomData = HmsDecoder.getHmsRoom(hmsSDK.room)
+          val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
+          val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
 
-      override fun onReconnecting(error: HMSException) {
-        println("Reconnecting")
-        reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("RECONNECTING", "RECONNECTING")
-      }
+          val data: WritableMap = Arguments.createMap();
 
-      override fun onRoleChangeRequest(request: HMSRoleChangeRequest) {
-        println("Role Change")
-        print(request)
-      }
-    })
+//        data.putMap("room", roomData)
+          data.putMap("localPeer", localPeerData)
+          data.putArray("remotePeers", remotePeerData)
+          reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_TRACK_UPDATE", data)
+        }
+
+        override fun onMessageReceived(message: HMSMessage) {
+          println("message")
+          println(message)
+
+          val data: WritableMap = Arguments.createMap()
+
+          data.putString("sender", message.sender.name)
+          data.putString("message", message.message)
+          data.putString("type", message.type)
+          data.putString("time", message.serverReceiveTime.toString())
+          data.putString("event", "ON_MESSAGE")
+
+          reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_MESSAGE", data)
+        }
+
+        override fun onReconnected() {
+          println("Reconnected")
+          reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("RECONNECTED", "RECONNECTED")
+        }
+
+        override fun onReconnecting(error: HMSException) {
+          println("Reconnecting")
+          reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("RECONNECTING", "RECONNECTING")
+        }
+
+        override fun onRoleChangeRequest(request: HMSRoleChangeRequest) {
+          println("Role Change")
+          print(request)
+        }
+      })
+    }
   }
 
   @ReactMethod
@@ -205,7 +213,13 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
 
   @ReactMethod
   fun send(data:ReadableMap) {
-    hmsSDK?.sendMessage(data.getString("type") as String,data.getString("message") as String)
+    hmsSDK?.sendBroadcastMessage(data.getString("message") as String,data.getString("type") as String,object : HMSMessageResultListener {
+      override fun onError(error: HMSException) {
+        println("error:$error")
+      }
+      override fun onSuccess(hmsMessage: HMSMessage) {
+        println("message:$hmsMessage")
+      }
+    })
   }
-
 }

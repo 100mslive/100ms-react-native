@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Image,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import {connect} from 'react-redux';
 import * as services from '../services/index';
@@ -18,9 +19,31 @@ import HmsManager, {
 import Feather from 'react-native-vector-icons/Feather';
 import UserIdModal from '../components/UserIdModal';
 import PreviewModal from '../components/PreviewModal';
-import {navigate} from '../services/navigation';
-import {setAudioVideoState} from '../redux/actions/index';
+import {useNavigation} from '@react-navigation/native';
+import {setAudioVideoState, saveUserData} from '../redux/actions/index';
 import {PERMISSIONS, RESULTS, requestMultiple} from 'react-native-permissions';
+import type {StackNavigationProp} from '@react-navigation/stack';
+import type {AppStackParamList} from '../navigator';
+
+type HMSConfigType = {
+  username?: string;
+  authToken?: string;
+  roomID?: string;
+  userID?: string;
+};
+
+type WelcomeProps = {
+  setAudioVideoStateRequest: Function;
+  saveUserDataRequest: Function;
+  state: any;
+};
+
+type WelcomeScreenProp = StackNavigationProp<
+  AppStackParamList,
+  'WelcomeScreen'
+>;
+
+type ButtonState = 'Active' | 'Loading';
 
 const callService = async (
   userID: string,
@@ -37,7 +60,6 @@ const callService = async (
   if (response.error) {
     // TODO: handle errors from API
   } else {
-    console.log('here 4');
     joinRoom(response.token, userID);
   }
   return response;
@@ -45,10 +67,9 @@ const callService = async (
 
 const App = ({
   setAudioVideoStateRequest,
-}: {
-  setAudioVideoStateRequest: Function;
-  state: any;
-}) => {
+  saveUserDataRequest,
+  state,
+}: WelcomeProps) => {
   const [roomID, setRoomID] = React.useState('60f05a0a574fe6920b2560ba');
   const [text, setText] = React.useState('60f05a0a574fe6920b2560ba');
   const [role] = React.useState('host');
@@ -56,9 +77,12 @@ const App = ({
   const [modalVisible, setModalVisible] = React.useState(false);
   const [previewModal, setPreviewModal] = React.useState(false);
   const [localVideoTrackId, setLocalVideoTrackId] = React.useState('');
-  const [config, setConfig] = React.useState<HMSConfig | null>(null);
+  const [config, setConfig] = React.useState<HMSConfigType | null>(null);
   const [audio, setAudio] = React.useState(true);
   const [video, setVideo] = React.useState(true);
+  const [buttonState, setButtonState] = React.useState<ButtonState>('Active');
+
+  const navigate = useNavigation<WelcomeScreenProp>().navigate;
 
   const [instance, setInstance] = React.useState<any>(null);
 
@@ -69,6 +93,7 @@ const App = ({
     if (videoTrackId) {
       setLocalVideoTrackId(videoTrackId);
       setPreviewModal(true);
+      setButtonState('Active');
       setAudioVideoStateRequest({audioState: true, videoState: true});
     }
   };
@@ -130,7 +155,7 @@ const App = ({
       HMSUpdateListenerActions.ON_PREVIEW,
       previewSuccess,
     );
-
+    saveUserDataRequest({userName: userID, roomID: roomID});
     instance.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
     instance.preview(HmsConfig);
     setConfig(HmsConfig);
@@ -163,7 +188,11 @@ const App = ({
           />
         </View>
         <TouchableOpacity
-          style={styles.joinButtonContainer}
+          disabled={buttonState !== 'Active'}
+          style={[
+            styles.joinButtonContainer,
+            {opacity: buttonState !== 'Active' ? 0.5 : 1},
+          ]}
           onPress={() => {
             if (text !== '') {
               setRoomID(text);
@@ -171,17 +200,25 @@ const App = ({
               // callService(text, roomID, role, setToken);
             }
           }}>
-          <Feather name="video" style={styles.videoIcon} size={20} />
-          <Text style={styles.joinButtonText}>Join</Text>
+          {buttonState === 'Loading' ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <>
+              <Feather name="video" style={styles.videoIcon} size={20} />
+              <Text style={styles.joinButtonText}>Join</Text>
+            </>
+          )}
         </TouchableOpacity>
       </View>
       {modalVisible && (
         <UserIdModal
           join={(userID: string) => {
+            setButtonState('Loading');
             callService(userID, roomID, role, checkPermissions);
             setModalVisible(false);
           }}
           cancel={() => setModalVisible(false)}
+          user={state.user}
         />
       )}
       {previewModal && (
@@ -322,6 +359,12 @@ const mapDispatchToProps = (dispatch: Function) => ({
     audioState: boolean;
     videoState: boolean;
   }) => dispatch(setAudioVideoState(data)),
+  saveUserDataRequest: (data: {userName: String; roomID: String}) =>
+    dispatch(saveUserData(data)),
 });
-
-export default connect(null, mapDispatchToProps)(App);
+const mapStateToProps = (state: any) => {
+  return {
+    state: state,
+  };
+};
+export default connect(mapStateToProps, mapDispatchToProps)(App);

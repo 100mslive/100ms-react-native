@@ -33,7 +33,6 @@ android {
         targetSdkVersion safeExtGet('Hmssdk_targetSdkVersion', 29)
         versionCode 1
         versionName "1.0"
-
     }
 
     buildTypes {
@@ -65,7 +64,7 @@ dependencies {
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"  // From node_modules
-    implementation 'com.github.100mslive:android-sdk:2.0.7'
+    implementation 'com.github.100mslive:android-sdk:v2.0.8'
     implementation 'org.webrtc:google-webrtc:1.0.32006'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.0'
 }

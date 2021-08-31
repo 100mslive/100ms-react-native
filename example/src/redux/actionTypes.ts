@@ -1,4 +1,4 @@
-const createRequests = base => {
+const createRequests = (base: String) => {
   const statusObject = {
     REQUEST: `${base}_REQUEST`,
     SUCCESS: `${base}_SUCCESS`,
@@ -13,8 +13,11 @@ const CLEAR_MESSAGE_DATA = createRequests('CLEAR_MESSAGE_DATA');
 
 const SET_AUDIO_VIDEO_STATE = 'SET_AUDIO_VIDEO_STATE';
 
+const SAVE_USER_DATA = createRequests('SAVE_USER_DATA');
+
 export default {
   ADD_MESSAGE,
   CLEAR_MESSAGE_DATA,
   SET_AUDIO_VIDEO_STATE,
+  SAVE_USER_DATA,
 };
