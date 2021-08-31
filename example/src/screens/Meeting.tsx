@@ -39,6 +39,7 @@ type DisplayNameProps = {
   videoStyles: Function;
   speakers: Array<String>;
   height: number;
+  type: 'screen' | 'peer';
 };
 
 type MeetingProps = {
@@ -57,6 +58,7 @@ const DisplayName = ({
   videoStyles,
   speakers,
   height,
+  type,
 }: DisplayNameProps) => {
   const {peerName, isAudioMute, isVideoMute, trackId, colour, peerId} = peer!;
   const speaking = speakers.includes(peerId!);
@@ -71,7 +73,10 @@ const DisplayName = ({
           </View>
         </View>
       ) : (
-        <HmsView trackId={trackId} style={styles.hmsView} />
+        <HmsView
+          trackId={trackId}
+          style={type == 'peer' ? styles.hmsView : styles.hmsViewScreen}
+        />
       )}
       <View style={styles.displayContainer}>
         <View style={styles.peerNameContainer}>
@@ -378,6 +383,7 @@ const Meeting = ({
                   height={safeHeight}
                   speakers={speakers}
                   key={item.trackId}
+                  type="screen"
                 />
               );
             })}
@@ -390,6 +396,7 @@ const Meeting = ({
                   : (safeHeight - dimension.viewHeight(90)) / 2 - 2
               }
               speakers={speakers}
+              type="peer"
             />
             {remoteTrackIds.map((item: Peer) => {
               return (
@@ -403,6 +410,7 @@ const Meeting = ({
                   }
                   speakers={speakers}
                   key={item.trackId}
+                  type="peer"
                 />
               );
             })}
@@ -519,6 +527,11 @@ const styles = StyleSheet.create({
   fullScreenTile: {
     height: dimension.viewHeight(896),
     width: dimension.viewWidth(414),
+    marginVertical: 1,
+    padding: 0.5,
+    overflow: 'hidden',
+    borderRadius: 10,
+    justifyContent: 'center',
   },
   floatingTile: {
     width: dimension.viewWidth(170),
@@ -542,6 +555,10 @@ const styles = StyleSheet.create({
   hmsView: {
     height: '100%',
     width: '100%',
+  },
+  hmsViewScreen: {
+    width: '100%',
+    aspectRatio: 16 / 9,
   },
   iconContainers: {
     display: 'flex',
