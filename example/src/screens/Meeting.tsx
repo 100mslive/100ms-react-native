@@ -122,13 +122,13 @@ const Meeting = ({
   const [safeHeight, setSafeHeight] = useState(0);
   const [speakers, setSpeakers] = useState([]);
   const [notification, setNotification] = useState(false);
-  const [auxTracks, setAuxTracks] = useState([]);
+  const [auxTracks, setAuxTracks] = useState<Peer[]>([]);
 
   const navigate = useNavigation<MeetingScreenProp>().navigate;
 
   const updateVideoIds = (remotePeers: any, localPeer: any) => {
     // get local track Id
-    const localPeerId = instance?.localPeer?.peerID;
+    const localPeerId = localPeer?.peerID;
     const localTrackId = localPeer?.videoTrack?.trackId;
     const localPeerName = localPeer?.name;
     const localPeerIsAudioMute = localPeer?.audioTrack?.mute;
@@ -181,7 +181,7 @@ const Meeting = ({
         auxiliaryTracks.map((track: any) => {
           let auxTrackId = track?.trackId;
 
-          if (trackId) {
+          if (auxTrackId) {
             newAuxTracks.push({
               trackId: auxTrackId,
               peerName: `${remotePeerName}'s Screen`,
@@ -192,10 +192,8 @@ const Meeting = ({
             });
           }
         });
-
-        setAuxTracks(auxiliaryTracks);
       });
-
+      setAuxTracks(newAuxTracks);
       setRemoteTrackIds(remoteVideoIds as []);
     }
   };
@@ -209,6 +207,7 @@ const Meeting = ({
     remotePeers: any;
   }) => {
     console.log(localPeer, remotePeers, 'data in onJoin');
+    updateVideoIds(remotePeers, localPeer);
   };
 
   const onRoomListener = ({
