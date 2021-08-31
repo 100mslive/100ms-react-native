@@ -3,10 +3,10 @@ import {
   View,
   StyleSheet,
   TouchableOpacity,
-  ScrollView,
   Text,
   SafeAreaView,
   Platform,
+  FlatList,
 } from 'react-native';
 import {connect} from 'react-redux';
 import HmsManager, {
@@ -32,6 +32,7 @@ type Peer = {
   isVideoMute?: boolean;
   peerId?: String;
   colour?: string;
+  sink?: Boolean;
 };
 
 type DisplayNameProps = {
@@ -58,7 +59,8 @@ const DisplayName = ({
   safeHeight,
   speakers,
 }: DisplayNameProps) => {
-  const {peerName, isAudioMute, isVideoMute, trackId, colour, peerId} = peer!;
+  const {peerName, isAudioMute, isVideoMute, trackId, colour, peerId, sink} =
+    peer!;
   const speaking = speakers.includes(peerId!);
   return (
     <View
@@ -80,7 +82,7 @@ const DisplayName = ({
           </View>
         </View>
       ) : (
-        <HmsView trackId={trackId} style={styles.hmsView} />
+        <HmsView sink={sink} trackId={trackId} style={styles.hmsView} />
       )}
       <View style={styles.displayContainer}>
         <View style={styles.peerNameContainer}>
@@ -134,52 +136,47 @@ const Meeting = ({
 
   const navigate = useNavigation<MeetingScreenProp>().navigate;
 
+  const decode = (peer: any): Peer => {
+    const peerId = peer?.peerID;
+    const peerTrackId = peer?.videoTrack?.trackId;
+    const peerName = peer?.name;
+    const peerIsAudioMute = peer?.audioTrack?.mute;
+    const peerIsVideoMute = peer?.videoTrack?.mute;
+    const peerColour = getPeerColour(peerTrackId);
+    return {
+      trackId: peerTrackId,
+      peerName: peerName,
+      isAudioMute: peerIsAudioMute,
+      isVideoMute: peerIsVideoMute,
+      peerId: peerId,
+      colour: peerColour,
+      sink: true,
+    };
+  };
+
   const updateVideoIds = (remotePeers: any, localPeer: any) => {
     // get local track Id
-    const localPeerId = instance?.localPeer?.peerID;
     const localTrackId = localPeer?.videoTrack?.trackId;
-    const localPeerName = localPeer?.name;
-    const localPeerIsAudioMute = localPeer?.audioTrack?.mute;
-    const localPeerIsVideoMute = localPeer?.videoTrack?.mute;
-    const localPeerColour = getPeerColour(localTrackId);
     if (localTrackId) {
-      setTrackId({
-        trackId: localTrackId,
-        peerName: localPeerName,
-        isAudioMute: localPeerIsAudioMute,
-        isVideoMute: localPeerIsVideoMute,
-        peerId: localPeerId,
-        colour: localPeerColour,
-      });
+      setTrackId(decode(localPeer));
     }
 
     const remoteVideoIds: Peer[] = [];
 
     if (remotePeers) {
       remotePeers.map((remotePeer: any, index: number) => {
-        const remotePeerId = remotePeer?.peerID;
         const remoteTrackId = remotePeer?.videoTrack?.trackId;
-        const remotePeerName = remotePeer?.name;
-        const remotePeerAudioIsMute = remotePeer?.audioTrack?.mute;
-        const remotePeerVideoIsMute = remotePeer?.videoTrack?.mute;
-        const remotePeerColour = getPeerColour(remoteTrackId);
         if (remoteTrackId) {
-          remoteVideoIds.push({
-            trackId: remoteTrackId,
-            peerName: remotePeerName,
-            isAudioMute: remotePeerAudioIsMute,
-            isVideoMute: remotePeerVideoIsMute,
-            peerId: remotePeerId,
-            colour: remotePeerColour,
-          });
+          remoteVideoIds.push(decode(remotePeer));
         } else {
           remoteVideoIds.push({
             trackId: index.toString(),
-            peerName: remotePeerName,
-            isAudioMute: remotePeerAudioIsMute,
-            isVideoMute: remotePeerVideoIsMute,
+            peerName: remotePeer?.name,
+            isAudioMute: remotePeer?.audioTrack?.mute,
+            isVideoMute: remotePeer?.videoTrack?.mute,
             peerId: '',
             colour: 'red',
+            sink: true,
           });
         }
       });
@@ -320,15 +317,15 @@ const Meeting = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [instance]);
 
-  const getLocalVideoStyles = () => {
-    // if (remoteTrackIds && remoteTrackIds.length === 1) {
-    //   return styles.floatingTile;
-    // }
-    // if (remoteTrackIds.length && remoteTrackIds.length > 1) {
-    //   return styles.generalTile;
-    // }
-    return styles.generalTile;
-  };
+  // const getLocalVideoStyles = () => {
+  // if (remoteTrackIds && remoteTrackIds.length === 1) {
+  //   return styles.floatingTile;
+  // }
+  // if (remoteTrackIds.length && remoteTrackIds.length > 1) {
+  //   return styles.generalTile;
+  // }
+  //   return styles.generalTile;
+  // };
 
   const getRemoteVideoStyles = () => {
     // if (remoteTrackIds && remoteTrackIds.length === 1) {
@@ -343,6 +340,35 @@ const Meeting = ({
     return styles.generalTile;
   };
 
+  const onViewRef = React.useRef(({viewableItems}: any) => {
+    const viewableItemsIds = viewableItems.map(
+      (viewableItem: {
+        index: Number;
+        item: Peer;
+        key: String;
+        isViewable: Boolean;
+      }) => {
+        return viewableItem?.item?.trackId;
+      },
+    );
+
+    const inst = HmsManager.build();
+    const remotePeers = inst?.remotePeers;
+
+    const sinkRemoteTrackIds = remotePeers?.map((peer: any) => {
+      const remotePeer = decode(peer);
+      const videoTrackId = remotePeer.trackId;
+      if (!viewableItemsIds.includes(videoTrackId)) {
+        return {
+          ...remotePeer,
+          sink: false,
+        };
+      }
+      return remotePeer;
+    });
+    setRemoteTrackIds(sinkRemoteTrackIds);
+  });
+  console.warn('hi', Math.random());
   return (
     <SafeAreaView style={styles.container}>
       <View
@@ -353,27 +379,22 @@ const Meeting = ({
             setSafeHeight(height);
           }
         }}>
-        <ScrollView style={styles.scroll} bounces={false}>
-          <View style={styles.videoView}>
-            <DisplayName
-              peer={trackId}
-              videoStyles={getLocalVideoStyles}
-              safeHeight={safeHeight}
-              speakers={speakers}
-            />
-            {remoteTrackIds.map((item: Peer) => {
-              return (
-                <DisplayName
-                  peer={item}
-                  videoStyles={getRemoteVideoStyles}
-                  safeHeight={safeHeight}
-                  speakers={speakers}
-                  key={item.trackId}
-                />
-              );
-            })}
-          </View>
-        </ScrollView>
+        <FlatList
+          data={[trackId, ...remoteTrackIds]}
+          renderItem={({item}) => {
+            return (
+              <DisplayName
+                peer={item}
+                videoStyles={getRemoteVideoStyles}
+                safeHeight={safeHeight}
+                speakers={speakers}
+              />
+            );
+          }}
+          numColumns={2}
+          onViewableItemsChanged={onViewRef.current}
+          keyExtractor={item => item.trackId!}
+        />
       </View>
       <View style={styles.iconContainers}>
         <TouchableOpacity

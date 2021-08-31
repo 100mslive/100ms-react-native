@@ -17,7 +17,8 @@ import org.webrtc.RendererCommon
 class HmssdkViewManager : SimpleViewManager<SurfaceViewRenderer>() {
 
   private var reactContext: ThemedReactContext? = null
-
+  private var trackID: String? = null
+  private var visible: Boolean = true
 
   override fun getName(): String {
     return REACT_CLASS
@@ -35,11 +36,18 @@ class HmssdkViewManager : SimpleViewManager<SurfaceViewRenderer>() {
 
   @ReactProp(name = "trackId")
   fun setColor(view: SurfaceViewRenderer, trackId: String?) {
+    print("**setTrack")
+    trackID=trackId;
     val hms = getHms()
     val localTrackId = hms?.getLocalPeer()?.videoTrack?.trackId
     if (localTrackId == trackId) {
       val videoTrack = hms?.getLocalPeer()?.videoTrack
+      if(visible){
       videoTrack?.addSink(view)
+      }
+      else{
+        videoTrack?.removeSink(view)
+      }
     }
 
     val remotePeers = hms?.getRemotePeers()
@@ -47,16 +55,53 @@ class HmssdkViewManager : SimpleViewManager<SurfaceViewRenderer>() {
     if (remotePeers !== null) {
       for (peer in remotePeers) {
         val videoTrackId = peer.videoTrack?.trackId
-
         if (videoTrackId == trackId) {
           val videoTrack = peer.videoTrack
-
-          videoTrack?.addSink(view)
+          if(visible) {
+            videoTrack?.addSink(view)
+          }else{
+            videoTrack?.removeSink(view)
+          }
           return
         }
       }
     }
+  }
 
+  @ReactProp(name = "sink")
+  fun setSink(view: SurfaceViewRenderer, sink: Boolean?) {
+    print("**setSink")
+    val hms = getHms()
+    visible = if (sink !== null) {
+      sink
+    } else {
+      true
+    }
+    val localTrackId = hms?.getLocalPeer()?.videoTrack?.trackId
+    if (localTrackId == trackID) {
+      val videoTrack = hms?.getLocalPeer()?.videoTrack
+      if(visible) {
+        videoTrack?.addSink(view)
+      }else{
+        videoTrack?.removeSink(view)
+      }
+    }
+
+    val remotePeers = hms?.getRemotePeers()
+    if (remotePeers !== null) {
+      for (peer in remotePeers) {
+        val videoTrackId = peer.videoTrack?.trackId
+        if (videoTrackId == trackID) {
+          val videoTrack = peer.videoTrack
+          if(visible) {
+            videoTrack?.addSink(view)
+          }else{
+            videoTrack?.removeSink(view)
+          }
+          return
+        }
+      }
+    }
   }
 
   private fun getHms(): HMSSDK? {

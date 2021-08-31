@@ -107,17 +107,18 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
         }
 
         override fun onPeerUpdate(type: HMSPeerUpdate, hmsPeer: HMSPeer) {
-
+          if(type==HMSPeerUpdate.AUDIO_TOGGLED||type==HMSPeerUpdate.VIDEO_TOGGLED||type==HMSPeerUpdate.PEER_JOINED||type==HMSPeerUpdate.PEER_LEFT) {
 //        val roomData = HmsDecoder.getHmsRoom(hmsSDK.room)
-          val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
-          val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
+            val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
+            val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
 
-          val data: WritableMap = Arguments.createMap();
+            val data: WritableMap = Arguments.createMap();
 
 //        data.putMap("room", roomData)
-          data.putMap("localPeer", localPeerData)
-          data.putArray("remotePeers", remotePeerData)
-          reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_PEER_UPDATE", data)
+            data.putMap("localPeer", localPeerData)
+            data.putArray("remotePeers", remotePeerData)
+            reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_PEER_UPDATE", data)
+          }
         }
 
         override fun onRoomUpdate(type: HMSRoomUpdate, hmsRoom: HMSRoom) {
