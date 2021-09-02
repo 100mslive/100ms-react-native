@@ -27,16 +27,16 @@ import {getRandomColor, getInitials} from '../utils/functions';
 
 type Peer = {
   trackId?: string;
-  peerName?: string;
-  isAudioMute?: boolean;
-  isVideoMute?: boolean;
-  peerId?: String;
-  colour?: string;
-  sink?: Boolean;
+  peerName: string;
+  isAudioMute: boolean;
+  isVideoMute: boolean;
+  peerId: String;
+  colour: string;
+  sink: Boolean;
 };
 
 type DisplayNameProps = {
-  peer?: Peer;
+  peer: Peer;
   videoStyles: Function;
   safeHeight: any;
   speakers: Array<String>;
@@ -53,6 +53,16 @@ type MeetingProps = {
 
 type MeetingScreenProp = StackNavigationProp<AppStackParamList, 'Meeting'>;
 
+const DEFAULT_PEER: Peer = {
+  trackId: Math.random().toString(),
+  peerName: Math.random().toString(),
+  isAudioMute: true,
+  isVideoMute: true,
+  peerId: Math.random().toString(),
+  colour: 'red',
+  sink: true,
+};
+
 const DisplayName = ({
   peer,
   videoStyles,
@@ -60,8 +70,8 @@ const DisplayName = ({
   speakers,
 }: DisplayNameProps) => {
   const {peerName, isAudioMute, isVideoMute, trackId, colour, peerId, sink} =
-    peer!;
-  const speaking = speakers.includes(peerId!);
+    peer;
+  const speaking = speakers.includes(peerId);
   return (
     <View
       key={trackId}
@@ -127,7 +137,7 @@ const Meeting = ({
   clearMessageRequest,
 }: MeetingProps) => {
   const [instance, setInstance] = useState<any>(null);
-  const [trackId, setTrackId] = useState<Peer>({});
+  const [trackId, setTrackId] = useState<Peer>(DEFAULT_PEER);
   const [remoteTrackIds, setRemoteTrackIds] = useState<Peer[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [safeHeight, setSafeHeight] = useState(0);
@@ -311,8 +321,7 @@ const Meeting = ({
 
   useEffect(() => {
     if (instance) {
-      const remotePeers = instance?.remotePeers ? instance.remotePeers : [];
-      updateVideoIds(remotePeers, instance?.localPeer);
+      updateVideoIds(instance?.remotePeers, instance?.localPeer);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [instance]);
@@ -341,34 +350,37 @@ const Meeting = ({
   };
 
   const onViewRef = React.useRef(({viewableItems}: any) => {
-    const viewableItemsIds = viewableItems.map(
-      (viewableItem: {
-        index: Number;
-        item: Peer;
-        key: String;
-        isViewable: Boolean;
-      }) => {
-        return viewableItem?.item?.trackId;
-      },
-    );
+    if (viewableItems) {
+      const viewableItemsIds = viewableItems.map(
+        (viewableItem: {
+          index: Number;
+          item: Peer;
+          key: String;
+          isViewable: Boolean;
+        }) => {
+          return viewableItem?.item?.trackId;
+        },
+      );
 
-    const inst = HmsManager.build();
-    const remotePeers = inst?.remotePeers;
-
-    const sinkRemoteTrackIds = remotePeers?.map((peer: any) => {
-      const remotePeer = decode(peer);
-      const videoTrackId = remotePeer.trackId;
-      if (!viewableItemsIds.includes(videoTrackId)) {
-        return {
-          ...remotePeer,
-          sink: false,
-        };
+      const inst = HmsManager.build();
+      const remotePeers = inst?.remotePeers;
+      if (remotePeers) {
+        const sinkRemoteTrackIds = remotePeers.map((peer: Peer) => {
+          const remotePeer = decode(peer);
+          const videoTrackId = remotePeer.trackId;
+          if (!viewableItemsIds?.includes(videoTrackId)) {
+            return {
+              ...remotePeer,
+              sink: false,
+            };
+          }
+          return remotePeer;
+        });
+        setRemoteTrackIds(sinkRemoteTrackIds ? sinkRemoteTrackIds : []);
       }
-      return remotePeer;
-    });
-    setRemoteTrackIds(sinkRemoteTrackIds);
+    }
   });
-  console.warn([trackId, ...remoteTrackIds], 'hi', Math.random());
+
   return (
     <SafeAreaView style={styles.container}>
       <View
@@ -382,18 +394,20 @@ const Meeting = ({
         <FlatList
           data={[trackId, ...remoteTrackIds]}
           renderItem={({item}) => {
-            return (
-              <DisplayName
-                peer={item}
-                videoStyles={getRemoteVideoStyles}
-                safeHeight={safeHeight}
-                speakers={speakers}
-              />
-            );
+            if (item) {
+              return (
+                <DisplayName
+                  peer={item}
+                  videoStyles={getRemoteVideoStyles}
+                  safeHeight={safeHeight}
+                  speakers={speakers}
+                />
+              );
+            } else return <></>;
           }}
           numColumns={2}
           onViewableItemsChanged={onViewRef.current}
-          keyExtractor={item => item.trackId!}
+          keyExtractor={item => item?.trackId!}
         />
       </View>
       <View style={styles.iconContainers}>

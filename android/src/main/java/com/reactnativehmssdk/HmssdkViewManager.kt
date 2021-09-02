@@ -36,7 +36,6 @@ class HmssdkViewManager : SimpleViewManager<SurfaceViewRenderer>() {
 
   @ReactProp(name = "trackId")
   fun setColor(view: SurfaceViewRenderer, trackId: String?) {
-    print("**setTrack")
     trackID=trackId;
     val hms = getHms()
     val localTrackId = hms?.getLocalPeer()?.videoTrack?.trackId
@@ -70,7 +69,6 @@ class HmssdkViewManager : SimpleViewManager<SurfaceViewRenderer>() {
 
   @ReactProp(name = "sink")
   fun setSink(view: SurfaceViewRenderer, sink: Boolean?) {
-    print("**setSink")
     val hms = getHms()
     visible = if (sink !== null) {
       sink
