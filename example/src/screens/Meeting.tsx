@@ -394,16 +394,14 @@ const Meeting = ({
         <FlatList
           data={[trackId, ...remoteTrackIds]}
           renderItem={({item}) => {
-            if (item) {
-              return (
-                <DisplayName
-                  peer={item}
-                  videoStyles={getRemoteVideoStyles}
-                  safeHeight={safeHeight}
-                  speakers={speakers}
-                />
-              );
-            } else return <></>;
+            return (
+              <DisplayName
+                peer={item}
+                videoStyles={getRemoteVideoStyles}
+                safeHeight={safeHeight}
+                speakers={speakers}
+              />
+            );
           }}
           numColumns={2}
           onViewableItemsChanged={onViewRef.current}
