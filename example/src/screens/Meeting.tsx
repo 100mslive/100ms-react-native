@@ -368,7 +368,7 @@ const Meeting = ({
     });
     setRemoteTrackIds(sinkRemoteTrackIds);
   });
-  console.warn('hi', Math.random());
+  console.warn([trackId, ...remoteTrackIds], 'hi', Math.random());
   return (
     <SafeAreaView style={styles.container}>
       <View

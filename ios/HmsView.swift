@@ -24,6 +24,8 @@ class HmssdkDisplayView: UIView {
     }()
 
     var hms: HMSSDK?
+    var trackID: String? = nil
+    var visible: Bool = true
     
     func setHms(_ hmsInstance: HMSSDK?) {
         self.hms = hmsInstance
@@ -33,10 +35,16 @@ class HmssdkDisplayView: UIView {
         didSet {
             print("trackId")
             print("trackId set")
+            trackID = trackId
             if let videoTrack = hms?.localPeer?.videoTrack {
                 if videoTrack.trackId == trackId {
                     print("found one")
-                    videoView.setVideoTrack(videoTrack)
+                    if(visible){
+                        videoView.setVideoTrack(videoTrack)
+                    }
+                    else {
+                        videoView.setVideoTrack(nil)
+                    }
                     return
                 }
             }
@@ -44,7 +52,46 @@ class HmssdkDisplayView: UIView {
                 for peer in remotePeers {
                     if let remoteTrackId = peer.videoTrack?.trackId {
                         if remoteTrackId == trackId {
-                            videoView.setVideoTrack(peer.videoTrack)
+                            if(visible){
+                                videoView.setVideoTrack(peer.videoTrack)
+                            }
+                            else {
+                                videoView.setVideoTrack(nil)
+                            }
+                            return
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @objc var sink: Bool = true {
+        didSet {
+            print("**",sink,visible);
+            visible = sink
+            if let videoTrack = hms?.localPeer?.videoTrack {
+                if videoTrack.trackId == trackId {
+                    print("found one")
+                    if(visible){
+                        videoView.setVideoTrack(videoTrack)
+                    }
+                    else {
+                        videoView.setVideoTrack(nil)
+                    }
+                    return
+                }
+            }
+            if let remotePeers = hms?.remotePeers {
+                for peer in remotePeers {
+                    if let remoteTrackId = peer.videoTrack?.trackId {
+                        if remoteTrackId == trackId {
+                            if(visible){
+                                videoView.setVideoTrack(peer.videoTrack)
+                            }
+                            else {
+                                videoView.setVideoTrack(nil)
+                            }
                             return
                         }
                     }
