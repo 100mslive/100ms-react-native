@@ -200,6 +200,16 @@ class HmsDecoder: NSObject {
         return hmsTracks
     }
     
+    static func getAllRoles(_ roles: [HMSRole]?) -> [[String: Any]] {
+        var decodedRoles: [[String: Any]] = []
+        if let extractedRoles = roles {
+            for role in extractedRoles {
+                decodedRoles.append(HmsDecoder.getHmsRole(role))
+            }
+        }
+        return decodedRoles
+    }
+    
     static func getHmsRole(_ hmsRole: HMSRole?) -> [String: Any] {
         if let role = hmsRole {
             let name = role.name;

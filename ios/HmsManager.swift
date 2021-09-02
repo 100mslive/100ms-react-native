@@ -34,11 +34,12 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         let roomData = HmsDecoder.getHmsRoom(room)
         let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
         let remotePeerData = HmsDecoder.getHmsRemotePeers(hms?.remotePeers)
-
-        print(remotePeerData)
-        print(localPeerData)
         
-        self.sendEvent(withName: ON_JOIN, body: ["event": ON_JOIN, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
+        print("roles")
+        let decodedRoles = HmsDecoder.getAllRoles(hms?.roles)
+        print(decodedRoles)
+        
+        self.sendEvent(withName: ON_JOIN, body: ["event": ON_JOIN, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData, "roles": decodedRoles])
     }
     
     func onPreview(room: HMSRoom, localTracks: [HMSTrack]) {
@@ -164,9 +165,30 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     }
     
     @objc
-    func send(_ data: NSDictionary) {
-        if let message = data.value(forKey: "message") as! String? {
-            hms?.sendBroadcastMessage(message: message)
+    func sendBroadcastMessage(_ data: NSDictionary) {
+        let message = data.value(forKey: "message") as! String
+        let type = data.value(forKey: "type") as! String? ?? "chat"
+        hms?.sendBroadcastMessage(type: type, message: message)
+    }
+    
+    @objc
+    func sendGroupMessage(_ data: NSDictionary) {
+        let message = data.value(forKey: "message") as! String
+        let targetedRoles = data.value(forKey: "roles") as? [String]
+        let encodedTargetedRoles = HmsHelper.getRolesFromRoleNames(targetedRoles, roles: hms?.roles)
+        
+        hms?.sendGroupMessage(message: message, roles: encodedTargetedRoles)
+    }
+    
+    @objc
+    func sendDirectMessage(_ data: NSDictionary) {
+        let message = data.value(forKey: "message") as! String
+        let peerId = data.value(forKey: "peerId") as! String
+        
+        let peer = HmsHelper.getPeerFromPeerId(peerId, remotePeers: hms?.remotePeers)
+        
+        if let targetPeer = peer {
+            hms?.sendDirectMessage(message: message, peer: targetPeer)
         }
     }
 }

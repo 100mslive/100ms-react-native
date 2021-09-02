@@ -458,7 +458,7 @@ const Meeting = ({
                 message: value,
               });
 
-              instance.send(hmsMessage);
+              instance.sendBroadcastMessage(value);
               addMessageRequest({data: hmsMessage, isLocal: true});
             }
           }}

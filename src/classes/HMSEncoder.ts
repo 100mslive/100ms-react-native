@@ -207,6 +207,16 @@ export default class HMSEncoder {
     return encodedObj;
   }
 
+  static encodeHmsRoles(roles: any[]) {
+    const encodedRoles: HMSRole[] = [];
+
+    roles?.map((item: any) => {
+      encodedRoles.push(HMSEncoder.encodeHmsRole(item));
+    });
+
+    return encodedRoles;
+  }
+
   static encodeHmsRole(role: any) {
     const hmsRole = new HMSRole(role);
 
