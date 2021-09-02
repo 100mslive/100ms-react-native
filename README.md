@@ -9,7 +9,7 @@
 [![quality](https://img.shields.io/npms-io/quality-score/@100mslive/react-native-hms)](https://www.npmjs.com/package/@100mslive/react-native-hms)
 [![vulnerabilities](https://img.shields.io/snyk/vulnerabilities/npm/@100mslive/react-native-hms)](https://www.npmjs.com/package/@100mslive/react-native-hms)
 [![collaborators](https://img.shields.io/npm/collaborators/@100mslive/react-native-hms)](https://www.npmjs.com/package/@100mslive/react-native-hms)
-[![Documentation](https://img.shields.io/badge/Read-Documentation-blue)](https://docs.100ms.live/)
+[![Documentation](https://img.shields.io/badge/Read-Documentation-blue)](https://docs.100ms.live/react-native/v2/foundation/basics)
 [![Discord](https://img.shields.io/badge/Community-Join%20on%20Discord-blue)](https://100ms.live/discord)
 [![Firebase](https://img.shields.io/badge/Download%20Android-Firebase-green)](https://appdistribution.firebase.dev/i/7b7ab3b30e627c35)
 [![TestFlight](https://img.shields.io/badge/Download%20iOS-TestFlight-blue)](https://testflight.apple.com/join/v4bSIPad)
@@ -19,7 +19,7 @@ React native wrapper for 100ms SDK
 
 ## Installation
 
-```sh
+```bash
 npm install react-native-hms
 
 cd ios/ && pod install
@@ -30,19 +30,33 @@ cd ios/ && pod install
 🤖 Download the Sample Android App here: https://appdistribution.firebase.dev/i/7b7ab3b30e627c35
 
 
+
 ## Permissions
-Add following permissions in info.plist file
+
+### For iOS Permissions
+Add following lines in `Info.plist` file
+
 ```xml
-<key>NSLocalNetworkUsageDescription</key>
-<string>{YourAppName} App wants to use your local network</string>
-
-<key>NSMicrophoneUsageDescription</key>
-<string>{YourAppName} wants to use your microphone</string>
-
 <key>NSCameraUsageDescription</key>
-<string>{YourAppName} wants to use your camera</string>
-
+<string>Please allow access to Camera to enable video conferencing</string>
+<key>NSLocalNetworkUsageDescription</key>
+<string>Please allow access to network usage to enable video conferencing</string>
+<key>NSMicrophoneUsageDescription</key>
+<string>Please allow access to Microphone to enable video conferencing</string>
 ```
+
+### For Android Permissions
+Add following permissions in `AndroidManifest.xml`
+
+```xml
+<uses-permission android:name="android.permission.CAMERA" />
+<uses-permission android:name="android.permission.RECORD_AUDIO" />
+<uses-permission android:name="android.permission.INTERNET" />
+```
+
+You will also need to request Camera and Record Audio permissions at runtime before you join a call or display a preview. Please follow [Android Documentation](https://developer.android.com/training/permissions/requesting#request-permission) for runtime permissions.
+
+We suggest using [react-native-permission](https://www.npmjs.com/package/react-native-permissions) to acquire permissions from both platforms.
 
 
 ## QuickStart
