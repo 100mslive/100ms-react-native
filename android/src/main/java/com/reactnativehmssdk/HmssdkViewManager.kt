@@ -18,7 +18,8 @@ class HmssdkViewManager : SimpleViewManager<SurfaceViewRenderer>() {
 
   private var reactContext: ThemedReactContext? = null
   private var trackID: String? = null
-  private var visible: Boolean = true
+  private var visible: Boolean = false
+  private var sinked: Boolean = true
 
   override fun getName(): String {
     return REACT_CLASS
@@ -36,32 +37,37 @@ class HmssdkViewManager : SimpleViewManager<SurfaceViewRenderer>() {
 
   @ReactProp(name = "trackId")
   fun setColor(view: SurfaceViewRenderer, trackId: String?) {
-    trackID=trackId;
-    val hms = getHms()
-    val localTrackId = hms?.getLocalPeer()?.videoTrack?.trackId
-    if (localTrackId == trackId) {
-      val videoTrack = hms?.getLocalPeer()?.videoTrack
-      if(visible){
-      videoTrack?.addSink(view)
+    print("***setTrack$trackId$sinked$visible")
+    if(trackId !== null) {
+      trackID = trackId;
+      val hms = getHms()
+      val localTrackId = hms?.getLocalPeer()?.videoTrack?.trackId
+      if (localTrackId == trackId) {
+        val videoTrack = hms?.getLocalPeer()?.videoTrack
+        if (!visible && sinked) {
+          videoTrack?.addSink(view)
+          visible=true
+        } else if (visible && !sinked) {
+          videoTrack?.removeSink(view)
+          visible=false
+        }
       }
-      else{
-        videoTrack?.removeSink(view)
-      }
-    }
 
-    val remotePeers = hms?.getRemotePeers()
-
-    if (remotePeers !== null) {
-      for (peer in remotePeers) {
-        val videoTrackId = peer.videoTrack?.trackId
-        if (videoTrackId == trackId) {
-          val videoTrack = peer.videoTrack
-          if(visible) {
-            videoTrack?.addSink(view)
-          }else{
-            videoTrack?.removeSink(view)
+      val remotePeers = hms?.getRemotePeers()
+      if (remotePeers !== null) {
+        for (peer in remotePeers) {
+          val videoTrackId = peer.videoTrack?.trackId
+          if (videoTrackId == trackId) {
+            val videoTrack = peer.videoTrack
+            if (!visible && sinked) {
+              videoTrack?.addSink(view)
+              visible=true
+            } else if (visible && !sinked) {
+              videoTrack?.removeSink(view)
+              visible=false
+            }
+            return
           }
-          return
         }
       }
     }
@@ -69,34 +75,37 @@ class HmssdkViewManager : SimpleViewManager<SurfaceViewRenderer>() {
 
   @ReactProp(name = "sink")
   fun setSink(view: SurfaceViewRenderer, sink: Boolean?) {
-    val hms = getHms()
-    visible = if (sink !== null) {
-      sink
-    } else {
-      true
-    }
-    val localTrackId = hms?.getLocalPeer()?.videoTrack?.trackId
-    if (localTrackId == trackID) {
-      val videoTrack = hms?.getLocalPeer()?.videoTrack
-      if(visible) {
-        videoTrack?.addSink(view)
-      }else{
-        videoTrack?.removeSink(view)
+    print("***setSink$sink$visible$sinked")
+    if(sink !== null) {
+      sinked = sink
+      val hms = getHms()
+      val localTrackId = hms?.getLocalPeer()?.videoTrack?.trackId
+      if (localTrackId == trackID) {
+        val videoTrack = hms?.getLocalPeer()?.videoTrack
+        if (!visible && sink) {
+          videoTrack?.addSink(view)
+          visible = true
+        } else if (visible && !sink) {
+          videoTrack?.removeSink(view)
+          visible = false
+        }
       }
-    }
 
-    val remotePeers = hms?.getRemotePeers()
-    if (remotePeers !== null) {
-      for (peer in remotePeers) {
-        val videoTrackId = peer.videoTrack?.trackId
-        if (videoTrackId == trackID) {
-          val videoTrack = peer.videoTrack
-          if(visible) {
-            videoTrack?.addSink(view)
-          }else{
-            videoTrack?.removeSink(view)
+      val remotePeers = hms?.getRemotePeers()
+      if (remotePeers !== null) {
+        for (peer in remotePeers) {
+          val videoTrackId = peer.videoTrack?.trackId
+          if (videoTrackId == trackID) {
+            val videoTrack = peer.videoTrack
+            if (!visible && sink) {
+              videoTrack?.addSink(view)
+              visible = true
+            } else if (visible && !sink) {
+              videoTrack?.removeSink(view)
+              visible = false
+            }
+            return
           }
-          return
         }
       }
     }
