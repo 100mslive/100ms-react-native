@@ -82,6 +82,20 @@ object HmsDecoder {
       return hmsTrack;
     }
 
+    fun getAllRoles(roles: List<HMSRole>?) : WritableArray {
+      val decodedRoles: WritableArray = Arguments.createArray()
+
+      if (roles != null) {
+        for (role in roles) {
+          val decodedRole = getHmsRole(role)
+
+          decodedRoles.pushMap(decodedRole)
+        }
+      }
+
+      return decodedRoles
+    }
+
     fun getHmsRole(hmsRole: HMSRole?): WritableMap {
       val role: WritableMap = Arguments.createMap();
 //      val emptyMap: WritableArray = Arguments.createMap();

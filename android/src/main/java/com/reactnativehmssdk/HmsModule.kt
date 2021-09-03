@@ -97,12 +97,14 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
           val roomData = HmsDecoder.getHmsRoom(room)
           val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
           val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
+          val roles = HmsDecoder.getAllRoles(hmsSDK?.getRoles())
 
           val data: WritableMap = Arguments.createMap();
 
           data.putMap("room", roomData)
           data.putMap("localPeer", localPeerData)
           data.putArray("remotePeers", remotePeerData)
+          data.putArray("roles", roles)
           reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_JOIN", data)
         }
 
@@ -212,7 +214,7 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   }
 
   @ReactMethod
-  fun send(data:ReadableMap) {
+  fun sendBroadcastMessage(data:ReadableMap) {
     hmsSDK?.sendBroadcastMessage(data.getString("message") as String,data.getString("type") as String,object : HMSMessageResultListener {
       override fun onError(error: HMSException) {
         println("error:$error")
@@ -221,5 +223,48 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
         println("message:$hmsMessage")
       }
     })
+  }
+
+  @ReactMethod
+  fun sendGroupMessage(data:ReadableMap) {
+    val message = data.getString("message")
+    val targetedRoles = data.getArray("roles") as? Array<String>
+    val roles = hmsSDK?.getRoles()
+    val encodedTargetedRoles = HmsHelper.getRolesFromRoleNames(targetedRoles, roles);
+
+    if (message != null) {
+      hmsSDK?.sendGroupMessage(message, "chat", encodedTargetedRoles, object : HMSMessageResultListener {
+        override fun onError(error: HMSException) {
+          println("error:$error")
+        }
+        override fun onSuccess(hmsMessage: HMSMessage) {
+          println("message:$hmsMessage")
+        }
+      })
+    }
+  }
+
+  @ReactMethod
+  fun sendDirectMessage(data:ReadableMap) {
+    val message = data.getString("message")
+    val peerId = data.getString("peerId")
+
+    val peers = hmsSDK?.getPeers()
+
+    val peer = HmsHelper.getPeerFromPeerId(peerId, peers)
+
+
+    if (message != null && peer != null) {
+      hmsSDK?.sendDirectMessage(message, "chat", peer,
+        object : HMSMessageResultListener {
+          override fun onError(error: HMSException) {
+            println("error:$error")
+          }
+
+          override fun onSuccess(hmsMessage: HMSMessage) {
+            println("message:$hmsMessage")
+          }
+        })
+    }
   }
 }

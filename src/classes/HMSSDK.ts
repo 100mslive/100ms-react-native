@@ -4,8 +4,11 @@ import type HMSConfig from './HMSConfig';
 import type HMSLocalPeer from './HMSLocalPeer';
 import type HMSRemotePeer from './HMSRemotePeer';
 import type HMSRoom from './HMSRoom';
+import type HMSRole from './HMSRole';
 import HMSEncoder from './HMSEncoder';
 import HMSMessage from './HMSMessage';
+import HMSHelper from './HMSHelper';
+import type HMSPeer from './HMSPeer';
 
 const {
   /**
@@ -22,6 +25,7 @@ export default class HMSSDK {
   room?: HMSRoom;
   localPeer?: HMSLocalPeer;
   remotePeers?: HMSRemotePeer[];
+  knownRoles?: HMSRole[];
 
   onPreviewDelegate?: any;
   onJoinDelegate?: any;
@@ -133,8 +137,22 @@ export default class HMSSDK {
     HmsManager.leave();
   };
 
-  send = (data: HMSMessage) => {
-    HmsManager.send(data);
+  sendBroadcastMessage = (message: String) => {
+    HmsManager.sendBroadcastMessage({ message });
+  };
+
+  sendGroupMessage = (message: String, roles: HMSRole[]) => {
+    HmsManager.sendGroupMessage({
+      message,
+      roles: HMSHelper.getRoleNames(roles),
+    });
+  };
+
+  sendDirectMessage = (message: String, peer: HMSPeer) => {
+    HmsManager.sendDirectMessage({
+      message,
+      peerId: peer.peerID,
+    });
   };
 
   /**
@@ -208,9 +226,11 @@ export default class HMSSDK {
     const remotePeers: HMSRemotePeer[] = HMSEncoder.encodeHmsRemotePeers(
       data.remotePeers
     );
+    const roles: HMSRole[] = HMSEncoder.encodeHmsRoles(data.roles);
     this.room = room;
     this.localPeer = localPeer;
     this.remotePeers = remotePeers;
+    this.knownRoles = roles;
     if (this.onJoinDelegate) {
       this.onJoinDelegate({ ...data, room, localPeer, remotePeers });
     }
