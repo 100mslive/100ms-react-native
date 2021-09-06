@@ -4,6 +4,7 @@ import android.app.ActionBar
 import android.graphics.Color
 import android.view.View
 import android.view.ViewGroup
+import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.annotations.ReactProp
@@ -71,6 +72,14 @@ class HmssdkViewManager : SimpleViewManager<SurfaceViewRenderer>() {
         }
       }
     }
+  }
+
+  @ReactProp(name="data")
+  fun setData(view: SurfaceViewRenderer, data: ReadableMap) {
+    val trackId = data.getString("trackId")
+    val sink = data.getBoolean("sink")
+
+    // do the processing here
   }
 
   @ReactProp(name = "sink")
