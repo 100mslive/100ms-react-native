@@ -110,6 +110,10 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         self.sendEvent(withName: RECONNECTED, body: ["event": RECONNECTED])
         print("Reconnected")
     }
+    
+    func on(roleChangeRequest: HMSRoleChangeRequest) {
+        hms?.accept(changeRole: roleChangeRequest)
+    }
 
     override func supportedEvents() -> [String]! {
         return [ON_JOIN, ON_PREVIEW, ON_ROOM_UPDATE, ON_PEER_UPDATE, ON_TRACK_UPDATE, ON_ERROR, ON_MESSAGE, ON_SPEAKER, RECONNECTING, RECONNECTED]
@@ -183,12 +187,26 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     @objc
     func sendDirectMessage(_ data: NSDictionary) {
         let message = data.value(forKey: "message") as! String
-        let peerId = data.value(forKey: "peerId") as! String
+        let peerId = data.value(forKey: "peerId") as? String
         
         let peer = HmsHelper.getPeerFromPeerId(peerId, remotePeers: hms?.remotePeers)
         
         if let targetPeer = peer {
             hms?.sendDirectMessage(message: message, peer: targetPeer)
+        }
+    }
+    
+    @objc
+    func changeRole(_ data: NSDictionary) {
+        let peerId = data.value(forKey: "peerId") as? String
+        let role = data.value(forKey: "role") as? String
+        let force = data.value(forKey: "force") as! Bool
+        
+        let hmsPeer = HmsHelper.getPeerFromPeerId(peerId, remotePeers: hms?.remotePeers)
+        let hmsRole = HmsHelper.getRoleFromRoleName(role, roles: hms?.roles)
+        
+        if let extractedHmsPeer = hmsPeer, let extractedHmsRole = hmsRole {
+            hms?.changeRole(for: extractedHmsPeer, to: extractedHmsRole, force: force)
         }
     }
 }

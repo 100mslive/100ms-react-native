@@ -28,8 +28,17 @@ object HmsHelper {
           }
         }
       }
-
-
       return encodedRoles.toList()
+    }
+
+    fun getRoleFromRoleName(role: String?, roles: List<HMSRole>?): HMSRole? {
+      if (role != null && roles!= null) {
+        for (hmsRole in roles) {
+          if (role == hmsRole.name) {
+            return hmsRole
+          }
+        }
+      }
+      return null
     }
 }
