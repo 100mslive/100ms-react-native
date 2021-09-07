@@ -155,6 +155,15 @@ export default class HMSSDK {
     });
   };
 
+  changeRole = (peer: HMSPeer, role: HMSRole, force: boolean = false) => {
+    const data = {
+      peerId: peer.peerID,
+      role: role.name,
+      force: force,
+    };
+    HmsManager.changeRole(data);
+  };
+
   /**
    * - This is a prototype event listener that takes action and listens for updates related to that particular action
    * - This method will be @deprecated in future and event listener will be passed in join method
