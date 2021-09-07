@@ -114,6 +114,10 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     func on(roleChangeRequest: HMSRoleChangeRequest) {
         hms?.accept(changeRole: roleChangeRequest)
     }
+    
+    func on(changeTrackStateRequest: HMSChangeTrackStateRequest) {
+        print("On track state change required")
+    }
 
     override func supportedEvents() -> [String]! {
         return [ON_JOIN, ON_PREVIEW, ON_ROOM_UPDATE, ON_PEER_UPDATE, ON_TRACK_UPDATE, ON_ERROR, ON_MESSAGE, ON_SPEAKER, RECONNECTING, RECONNECTED]
@@ -207,6 +211,19 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         
         if let extractedHmsPeer = hmsPeer, let extractedHmsRole = hmsRole {
             hms?.changeRole(for: extractedHmsPeer, to: extractedHmsRole, force: force)
+        }
+    }
+    
+    @objc
+    func changeTrackState(_ data: NSDictionary) {
+        let trackId = data.value(forKey: "trackId") as? String
+        let mute = data.value(forKey: "mute") as! Bool
+        
+        let remotePeers = hms?.remotePeers
+        
+        let hmsTrack = HmsHelper.getTrackFromTrackId(trackId, mute: mute, hmsRemotePeers: remotePeers)
+        if let extractedHmsTrack = hmsTrack {
+            hms?.changeTrackState(for: extractedHmsTrack, mute: mute)
         }
     }
 }
