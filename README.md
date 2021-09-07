@@ -20,7 +20,7 @@ React native wrapper for 100ms SDK
 ## Installation
 
 ```bash
-npm install react-native-hms
+npm install @100mslive/react-native-hms --save
 
 cd ios/ && pod install
 ```
