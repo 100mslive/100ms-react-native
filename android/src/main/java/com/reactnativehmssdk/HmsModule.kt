@@ -3,9 +3,7 @@ package com.reactnativehmssdk
 import com.facebook.react.bridge.*
 import com.facebook.react.module.annotations.ReactModule
 import java.util.*
-import live.hms.video.sdk.HMSSDK
 import live.hms.video.sdk.models.HMSConfig
-import live.hms.video.sdk.HMSUpdateListener
 import live.hms.video.sdk.models.enums.HMSPeerUpdate
 import live.hms.video.sdk.models.enums.HMSRoomUpdate
 import live.hms.video.sdk.models.enums.HMSTrackUpdate
@@ -16,8 +14,7 @@ import live.hms.video.error.HMSException
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.reactnativehmssdk.HmsModule.Companion.REACT_CLASS
 import kotlinx.coroutines.launch
-import live.hms.video.sdk.HMSMessageResultListener
-import live.hms.video.sdk.HMSPreviewListener
+import live.hms.video.sdk.*
 import live.hms.video.sdk.models.trackchangerequest.HMSChangeTrackStateRequest
 
 @ReactModule(name = REACT_CLASS)
@@ -180,8 +177,15 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
         }
 
         override fun onRoleChangeRequest(request: HMSRoleChangeRequest) {
-          println("Role Change")
-          print(request)
+          hmsSDK?.acceptChangeRole(request, object : HMSActionResultListener{
+            override fun onSuccess() {
+              print("Success role change accept")
+            }
+
+            override fun onError(error: HMSException) {
+              print("Failed role change accept")
+            }
+          })
         }
       })
     }
@@ -265,6 +269,30 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
             println("message:$hmsMessage")
           }
         })
+    }
+  }
+
+  @ReactMethod
+  fun changeRole(data: ReadableMap) {
+    val peerId = data.getString("PeerId")
+    val role = data.getString("role")
+    val force = data.getBoolean("force")
+
+    if (peerId != null &&  role !=null) {
+      val hmsPeer = HmsHelper.getPeerFromPeerId(peerId, hmsSDK?.getPeers())
+      val hmsRole = HmsHelper.getRoleFromRoleName(role, hmsSDK?.getRoles())
+
+      if (hmsRole != null && hmsPeer != null) {
+        hmsSDK?.changeRole(hmsPeer, hmsRole, force, object : HMSActionResultListener {
+          override fun onSuccess() {
+            println("success")
+          }
+
+          override fun onError(error: HMSException) {
+            println("error")
+          }
+        })
+      }
     }
   }
 }
