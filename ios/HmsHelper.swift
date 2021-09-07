@@ -11,8 +11,8 @@ class HmsHelper: NSObject {
                     }
                 }
             }
-            return nil
         }
+        return nil
     }
     
     static func getRolesFromRoleNames(_ targetedRoles: [String]?, roles: [HMSRole]?) -> [HMSRole] {
@@ -34,6 +34,21 @@ class HmsHelper: NSObject {
             for roleData in extractedRoles {
                 if roleData.name == roleName {
                     return roleData
+                }
+            }
+        }
+        return nil
+    }
+    
+    static func getTrackFromTrackId(_ trackId: String?, mute: Bool, hmsRemotePeers: [HMSRemotePeer]?) -> HMSTrack? {
+        if let track = trackId, let hmsPeers = hmsRemotePeers {
+            for peer in hmsPeers {
+                if (peer.videoTrack?.trackId == track) {
+                    return peer.videoTrack! as HMSTrack
+                }
+                
+                if (peer.audioTrack?.trackId == track) {
+                    return peer.audioTrack! as HMSTrack
                 }
             }
         }

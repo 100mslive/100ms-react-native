@@ -9,6 +9,7 @@ import HMSEncoder from './HMSEncoder';
 import HMSMessage from './HMSMessage';
 import HMSHelper from './HMSHelper';
 import type HMSPeer from './HMSPeer';
+import type HMSTrack from 'lib/typescript/classes/HMSTrack';
 
 const {
   /**
@@ -153,6 +154,24 @@ export default class HMSSDK {
       message,
       peerId: peer.peerID,
     });
+  };
+
+  changeRole = (peer: HMSPeer, role: HMSRole, force: boolean = false) => {
+    const data = {
+      peerId: peer.peerID,
+      role: role.name,
+      force: force,
+    };
+    HmsManager.changeRole(data);
+  };
+
+  changeTrackState = (track: HMSTrack, mute: boolean) => {
+    const data = {
+      trackId: track.trackId,
+      mute,
+    };
+
+    HmsManager.changeTrackState(data);
   };
 
   /**

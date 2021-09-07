@@ -23,7 +23,6 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     const val REACT_CLASS = "HmsManager"
   }
   private var hmsSDK: HMSSDK? = null;
-
   override fun getName(): String {
     return "HmsManager"
   }
@@ -293,6 +292,28 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
           }
         })
       }
+    }
+  }
+
+  @ReactMethod
+  fun changeTrackState(data: ReadableMap) {
+    val trackId = data.getString("trackId")
+    val mute = data.getBoolean("mute")
+
+    val remotePeers = hmsSDK?.getRemotePeers()
+
+    val track = HmsHelper.getTrackFromTrackId(trackId, remotePeers)
+
+    if (track != null) {
+      hmsSDK?.changeTrackState(track, mute, object: HMSActionResultListener {
+        override fun onSuccess() {
+          println("success")
+        }
+
+        override fun onError(error: HMSException) {
+          println("error")
+        }
+      })
     }
   }
 }

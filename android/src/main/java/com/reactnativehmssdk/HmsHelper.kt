@@ -1,7 +1,8 @@
 package com.reactnativehmssdk
 
-import live.hms.video.sdk.models.HMSPeer
 import live.hms.video.sdk.models.role.*
+import live.hms.video.sdk.models.*
+import live.hms.video.media.tracks.*
 
 object HmsHelper {
 
@@ -41,4 +42,19 @@ object HmsHelper {
       }
       return null
     }
+
+  fun getTrackFromTrackId(trackId: String?, remotePeers: Array<HMSRemotePeer>?): HMSTrack? {
+    if (trackId != null && remotePeers != null) {
+      for (remotePeer in remotePeers) {
+        if (remotePeer.audioTrack?.trackId == trackId) {
+          return remotePeer.audioTrack as HMSTrack
+        }
+
+        if (remotePeer.videoTrack?.trackId == trackId) {
+          return remotePeer.videoTrack as HMSTrack
+        }
+      }
+    }
+    return null
+  }
 }
