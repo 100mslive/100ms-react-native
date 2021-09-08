@@ -220,7 +220,8 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
 
   @ReactMethod
   fun sendBroadcastMessage(data:ReadableMap) {
-    hmsSDK?.sendBroadcastMessage(data.getString("message") as String,data.getString("type") as String,object : HMSMessageResultListener {
+    val type = if(data.getString("type") !== null) data.getString("type") else "chat"
+    hmsSDK?.sendBroadcastMessage(data.getString("message") as String,type as String,object : HMSMessageResultListener {
       override fun onError(error: HMSException) {
         println("error:$error")
       }
