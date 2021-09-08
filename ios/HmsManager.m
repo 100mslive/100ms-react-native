@@ -12,8 +12,11 @@ RCT_EXTERN_METHOD(sendGroupMessage: (NSDictionary) data)
 RCT_EXTERN_METHOD(sendDirectMessage: (NSDictionary) data)
 RCT_EXTERN_METHOD(removePeer: (NSDictionary) data)
 RCT_EXTERN_METHOD(endRoom: (NSDictionary) data)
+RCT_EXTERN_METHOD(changeRole: (NSDictionary) data)
+RCT_EXTERN_METHOD(changeTrackState: (NSDictionary) data)
 RCT_EXTERN_METHOD(switchCamera)
 RCT_EXTERN_METHOD(build)
 RCT_EXTERN_METHOD(leave)
+RCT_EXTERN_METHOD(changeRole: (NSDictionary) data)
 
 @end

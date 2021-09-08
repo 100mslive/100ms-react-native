@@ -15,9 +15,13 @@ import HmsManager, {
   HMSMessage,
 } from '@100mslive/react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
+import Entypo from 'react-native-vector-icons/Entypo';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import ChatWindow from '../components/ChatWindow';
+import AlertModal from '../components/AlertModal';
+import Modal from '../components/Modal';
+import Picker from '../components/Picker';
 import {addMessage, clearMessageData} from '../redux/actions/index';
 import {useNavigation} from '@react-navigation/native';
 import dimension from '../utils/dimension';
@@ -32,6 +36,7 @@ type Peer = {
   isVideoMute?: boolean;
   peerId?: String;
   colour?: string;
+  role?: any;
 };
 
 type DisplayNameProps = {
@@ -39,6 +44,8 @@ type DisplayNameProps = {
   videoStyles: Function;
   safeHeight: any;
   speakers: Array<String>;
+  type: 'local' | 'remote';
+  instance: any;
 };
 
 type MeetingProps = {
@@ -52,27 +59,92 @@ type MeetingProps = {
 
 type MeetingScreenProp = StackNavigationProp<AppStackParamList, 'Meeting'>;
 
+const android = Platform.OS === 'android' ? true : false;
+
 const DisplayName = ({
   peer,
   videoStyles,
   safeHeight,
   speakers,
+  type,
+  instance,
 }: DisplayNameProps) => {
-  const {peerName, isAudioMute, isVideoMute, trackId, colour, peerId} = peer!;
+  const {peerName, isAudioMute, isVideoMute, trackId, colour, peerId, role} =
+    peer!;
+  const [alertModalVisible, setAlertModalVisible] = useState(false);
+  const [roleModalVisible, setRoleModalVisible] = useState(false);
+  const [newRole, setNewRole] = useState(role?.name);
+  const [force, setForce] = useState(false);
+
+  const knownRoles = instance?.knownRoles || [];
   const speaking = speakers.includes(peerId!);
+  const selectActionTitle = 'Select action';
+  const selectActionMessage = '';
+  const selectActionButtons = [
+    {text: 'Cancel', type: 'cancel'},
+    {
+      text: 'Prompt to change role',
+      onPress: () => {
+        setForce(false);
+        setRoleModalVisible(true);
+      },
+    },
+    {
+      text: 'Force change',
+      onPress: () => {
+        setForce(true);
+        setRoleModalVisible(true);
+      },
+    },
+  ];
+  const roleRequestTitle = 'Select action';
+  const roleRequestButtons: [
+    {text: String; onPress?: Function},
+    {text: String; onPress?: Function}?,
+  ] = [
+    {text: 'Cancel'},
+    {
+      text: 'Send',
+      onPress: () => {
+        instance?.changeRole(peerId, newRole, force);
+      },
+    },
+  ];
+
+  const promptUser = () => {
+    setAlertModalVisible(true);
+  };
+
   return (
     <View
       key={trackId}
       style={[
         videoStyles(),
         {
-          height:
-            Platform.OS === 'android'
-              ? safeHeight / 2 - 2
-              : (safeHeight - dimension.viewHeight(90)) / 2 - 2,
+          height: android
+            ? safeHeight / 2 - 2
+            : (safeHeight - dimension.viewHeight(90)) / 2 - 2,
         },
         speaking && styles.highlight,
       ]}>
+      <AlertModal
+        modalVisible={alertModalVisible}
+        setModalVisible={setAlertModalVisible}
+        title={selectActionTitle}
+        message={selectActionMessage}
+        buttons={selectActionButtons}
+      />
+      <Modal
+        modalVisible={roleModalVisible}
+        setModalVisible={setRoleModalVisible}
+        title={roleRequestTitle}
+        buttons={roleRequestButtons}>
+        <Picker
+          data={knownRoles}
+          selectedItem={newRole}
+          onItemSelected={setNewRole}
+        />
+      </Modal>
       {isVideoMute ? (
         <View style={styles.avatarContainer}>
           <View style={[styles.avatar, {backgroundColor: colour}]}>
@@ -81,6 +153,15 @@ const DisplayName = ({
         </View>
       ) : (
         <HmsView trackId={trackId} style={styles.hmsView} />
+      )}
+      {type === 'remote' && (
+        <TouchableOpacity onPress={promptUser} style={styles.optionsContainer}>
+          <Entypo
+            name="dots-three-horizontal"
+            style={styles.options}
+            size={20}
+          />
+        </TouchableOpacity>
       )}
       <View style={styles.displayContainer}>
         <View style={styles.peerNameContainer}>
@@ -139,6 +220,7 @@ const Meeting = ({
     const localPeerId = instance?.localPeer?.peerID;
     const localTrackId = localPeer?.videoTrack?.trackId;
     const localPeerName = localPeer?.name;
+    const localPeerRole = localPeer?.role;
     const localPeerIsAudioMute = localPeer?.audioTrack?.mute;
     const localPeerIsVideoMute = localPeer?.videoTrack?.mute;
     const localPeerColour = getPeerColour(localTrackId);
@@ -150,6 +232,7 @@ const Meeting = ({
         isVideoMute: localPeerIsVideoMute,
         peerId: localPeerId,
         colour: localPeerColour,
+        role: localPeerRole,
       });
     }
 
@@ -160,6 +243,7 @@ const Meeting = ({
         const remotePeerId = remotePeer?.peerID;
         const remoteTrackId = remotePeer?.videoTrack?.trackId;
         const remotePeerName = remotePeer?.name;
+        const remotePeerRole = remotePeer?.role;
         const remotePeerAudioIsMute = remotePeer?.audioTrack?.mute;
         const remotePeerVideoIsMute = remotePeer?.videoTrack?.mute;
         const remotePeerColour = getPeerColour(remoteTrackId);
@@ -171,6 +255,7 @@ const Meeting = ({
             isVideoMute: remotePeerVideoIsMute,
             peerId: remotePeerId,
             colour: remotePeerColour,
+            role: remotePeerRole,
           });
         } else {
           remoteVideoIds.push({
@@ -180,6 +265,7 @@ const Meeting = ({
             isVideoMute: remotePeerVideoIsMute,
             peerId: '',
             colour: 'red',
+            role: '',
           });
         }
       });
@@ -360,6 +446,8 @@ const Meeting = ({
               videoStyles={getLocalVideoStyles}
               safeHeight={safeHeight}
               speakers={speakers}
+              type="local"
+              instance={instance}
             />
             {remoteTrackIds.map((item: Peer) => {
               return (
@@ -369,6 +457,8 @@ const Meeting = ({
                   safeHeight={safeHeight}
                   speakers={speakers}
                   key={item.trackId}
+                  type="remote"
+                  instance={instance}
                 />
               );
             })}
@@ -603,6 +693,15 @@ const styles = StyleSheet.create({
     backgroundColor: 'red',
     right: dimension.viewWidth(10),
     top: dimension.viewHeight(10),
+  },
+  options: {
+    color: 'white',
+  },
+  optionsContainer: {
+    padding: 10,
+    position: 'absolute',
+    right: 0,
+    top: 0,
   },
 });
 
