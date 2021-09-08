@@ -9,6 +9,7 @@ enum HMSUpdateListenerActions {
   ON_SPEAKER = 'ON_SPEAKER',
   RECONNECTING = 'RECONNECTING',
   RECONNECTED = 'RECONNECTED',
+  ON_ROLE_CHANGE_REQUEST = 'ON_ROLE_CHANGE_REQUEST',
 }
 
 export default HMSUpdateListenerActions;

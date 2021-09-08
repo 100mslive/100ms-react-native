@@ -10,6 +10,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     var ON_ROOM_UPDATE: String = "ON_ROOM_UPDATE"
     var ON_PEER_UPDATE: String = "ON_PEER_UPDATE"
     var ON_TRACK_UPDATE: String = "ON_TRACK_UPDATE"
+    var ON_ROLE_CHANGE_REQUEST: String = "ON_ROLE_CHANGE_REQUEST"
     var ON_ERROR: String = "ON_ERROR"
     var ON_MESSAGE: String = "ON_MESSAGE"
     var ON_SPEAKER: String = "ON_SPEAKER"
@@ -68,8 +69,6 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         print(localPeerData)
         print(remotePeerData)
         
-        print("data before")
-        
         self.sendEvent(withName: ON_PEER_UPDATE, body: ["event": ON_PEER_UPDATE, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
     }
 
@@ -112,7 +111,10 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     }
     
     func on(roleChangeRequest: HMSRoleChangeRequest) {
-        hms?.accept(changeRole: roleChangeRequest)
+        let decodedRoleChangeRequest = HmsDecoder.getHmsRoleChangeRequest(roleChangeRequest)
+        
+        self.sendEvent(withName: ON_ROLE_CHANGE_REQUEST, body: decodedRoleChangeRequest)
+        // hms?.accept(changeRole: roleChangeRequest)
     }
     
     func on(changeTrackStateRequest: HMSChangeTrackStateRequest) {
@@ -120,7 +122,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     }
 
     override func supportedEvents() -> [String]! {
-        return [ON_JOIN, ON_PREVIEW, ON_ROOM_UPDATE, ON_PEER_UPDATE, ON_TRACK_UPDATE, ON_ERROR, ON_MESSAGE, ON_SPEAKER, RECONNECTING, RECONNECTED]
+        return [ON_JOIN, ON_PREVIEW, ON_ROOM_UPDATE, ON_PEER_UPDATE, ON_TRACK_UPDATE, ON_ERROR, ON_MESSAGE, ON_SPEAKER, RECONNECTING, RECONNECTED, ON_ROLE_CHANGE_REQUEST]
     }
     
     @objc

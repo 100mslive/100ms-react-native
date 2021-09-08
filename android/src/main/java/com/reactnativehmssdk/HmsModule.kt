@@ -176,6 +176,8 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
         }
 
         override fun onRoleChangeRequest(request: HMSRoleChangeRequest) {
+          val decodedChangeRoleRequest = HmsDecoder.getHmsRoleChangeRequest(request)
+          reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_ROLE_CHANGE_REQUEST", decodedChangeRoleRequest)
           hmsSDK?.acceptChangeRole(request, object : HMSActionResultListener{
             override fun onSuccess() {
               print("Success role change accept")
