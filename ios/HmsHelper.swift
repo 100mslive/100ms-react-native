@@ -11,8 +11,8 @@ class HmsHelper: NSObject {
                     }
                 }
             }
-            return nil
         }
+        return nil
     }
     
     static func getRolesFromRoleNames(_ targetedRoles: [String]?, roles: [HMSRole]?) -> [HMSRole] {

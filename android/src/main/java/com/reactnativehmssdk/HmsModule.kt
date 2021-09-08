@@ -274,16 +274,16 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
 
   @ReactMethod
   fun changeRole(data: ReadableMap) {
-    val peerId = data.getString("PeerId")
+    val peerId = data.getString("peerId")
     val role = data.getString("role")
     val force = data.getBoolean("force")
 
-    if (peerId != null &&  role !=null) {
+    if (peerId !== null &&  role !== null) {
       val hmsPeer = HmsHelper.getPeerFromPeerId(peerId, hmsSDK?.getPeers())
       val hmsRole = HmsHelper.getRoleFromRoleName(role, hmsSDK?.getRoles())
 
       if (hmsRole != null && hmsPeer != null) {
-        hmsSDK?.changeRole(hmsPeer, hmsRole, force, object : HMSActionResultListener {
+        hmsSDK?.changeRole(hmsPeer as HMSRemotePeer, hmsRole, force, object : HMSActionResultListener {
           override fun onSuccess() {
             println("success")
           }
