@@ -162,10 +162,10 @@ export default class HMSSDK {
     });
   };
 
-  changeRole = (peer: HMSPeer, role: HMSRole, force: boolean = false) => {
+  changeRole = (peerId: String, role: String, force: boolean = false) => {
     const data = {
-      peerId: peer.peerID,
-      role: role.name,
+      peerId: peerId,
+      role: role,
       force: force,
     };
     HmsManager.changeRole(data);
