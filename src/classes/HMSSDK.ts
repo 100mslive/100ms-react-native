@@ -38,6 +38,7 @@ export default class HMSSDK {
   onSpeakerDelegate?: any;
   onReconnectingDelegate?: any;
   onReconnectedDelegate?: any;
+  onRoleChangeRequestDelegate?: any;
 
   /**
    * - Returns an instance of [HMSSDK]{@link HMSSDK}
@@ -108,6 +109,11 @@ export default class HMSSDK {
     HmsEventEmitter.addListener(
       HMSUpdateListenerActions.RECONNECTED,
       this.reconnectedListener
+    );
+
+    HmsEventEmitter.addListener(
+      HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST,
+      this.onRoleChangeRequestListener
     );
   };
 
@@ -325,6 +331,16 @@ export default class HMSSDK {
     console.log(data, 'error data');
     if (this.onErrorDelegate) {
       this.onErrorDelegate(data);
+    }
+  };
+
+  onRoleChangeRequestListener = (data: any) => {
+    console.log(data, 'data on role change');
+
+    if (this.onRoleChangeRequestDelegate) {
+      const encodedRoleChangeRequest =
+        HMSEncoder.encodeHmsRoleChangeRequest(data);
+      this.onRoleChangeRequestDelegate(encodedRoleChangeRequest);
     }
   };
 

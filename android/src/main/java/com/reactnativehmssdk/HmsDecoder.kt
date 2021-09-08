@@ -4,10 +4,7 @@ import com.facebook.react.bridge.*
 import live.hms.video.media.settings.HMSAudioTrackSettings
 import live.hms.video.media.settings.HMSVideoTrackSettings
 import live.hms.video.media.tracks.*
-import live.hms.video.sdk.models.HMSLocalPeer
-import live.hms.video.sdk.models.HMSRoom
-import live.hms.video.sdk.models.HMSPeer
-import live.hms.video.sdk.models.HMSRemotePeer
+import live.hms.video.sdk.models.*
 import live.hms.video.sdk.models.role.*
 
 import java.util.*
@@ -314,27 +311,35 @@ object HmsDecoder {
     }
 
     fun getPreviewTracks(tracks: Array<HMSTrack>?): WritableMap {
-      val hmsTracks: WritableMap = Arguments.createMap();
+      val hmsTracks: WritableMap = Arguments.createMap()
       if(tracks != null) {
         for (track:HMSTrack in tracks) {
           if(track is HMSLocalVideoTrack) {
-            val localVideoTrackData: WritableMap = Arguments.createMap();
-            localVideoTrackData.putString("trackId",track.trackId);
-            localVideoTrackData.putString("source",track.source);
-            localVideoTrackData.putString("trackDescription",track.description);
-            localVideoTrackData.putMap("settings",getHmsVideoTrackSettings(track.settings));
+            val localVideoTrackData: WritableMap = Arguments.createMap()
+            localVideoTrackData.putString("trackId",track.trackId)
+            localVideoTrackData.putString("source",track.source)
+            localVideoTrackData.putString("trackDescription",track.description)
+            localVideoTrackData.putMap("settings",getHmsVideoTrackSettings(track.settings))
             hmsTracks.putMap("videoTrack",localVideoTrackData)
           }
           if(track is HMSLocalAudioTrack) {
-            val localAudioTrackData: WritableMap = Arguments.createMap();
-            localAudioTrackData.putString("trackId",track.trackId);
-            localAudioTrackData.putString("source",track.source);
-            localAudioTrackData.putString("trackDescription",track.description);
-            localAudioTrackData.putMap("settings",getHmsAudioTrackSettings(track.settings));
+            val localAudioTrackData: WritableMap = Arguments.createMap()
+            localAudioTrackData.putString("trackId",track.trackId)
+            localAudioTrackData.putString("source",track.source)
+            localAudioTrackData.putMap("settings",getHmsAudioTrackSettings(track.settings))
             hmsTracks.putMap("audioTrack",localAudioTrackData)
           }
         }
       }
-      return hmsTracks;
+      return hmsTracks
     }
+
+  fun getHmsRoleChangeRequest(request: HMSRoleChangeRequest): WritableMap {
+    val roleChangeRequest: WritableMap = Arguments.createMap()
+
+    roleChangeRequest.putMap("requestedBy", getHmsPeer(request.requestedBy))
+    roleChangeRequest.putMap("suggestedRole", getHmsRole(request.suggestedRole))
+
+    return roleChangeRequest
+  }
 }
