@@ -80,6 +80,22 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
           println("Not yet implemented")
         }
 
+        override fun onRemovedFromRoom(notification: HMSRemovedFromRoom) {
+          super.onRemovedFromRoom(notification)
+
+          val data: WritableMap = Arguments.createMap();
+
+          val requestedBy = HmsDecoder.getHmsRemotePeer(notification.peerWhoRemoved)
+          val roomEnded = notification.roomWasEnded
+          val reason = notification.reason
+
+          data.putMap("requestedBy", requestedBy)
+          data.putBoolean("roomEnded", roomEnded)
+          data.putString("reason", reason)
+
+          reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_REMOVED_FROM_ROOM", data)
+        }
+
         override fun onError(error: HMSException) {
           println("error")
           println(error)
@@ -317,5 +333,50 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
         }
       })
     }
+  }
+
+  @ReactMethod
+  fun removePeer(data: ReadableMap) {
+    val peerId = data.getString("peerId")
+    var reason = data.getString("reason")
+
+    if (reason == null) {
+      reason = ""
+    }
+
+    val peers = hmsSDK?.getRemotePeers()
+
+    val peer = HmsHelper.getRemotePeerFromPeerId(peerId, peers)
+
+    if (peer != null) {
+      hmsSDK?.removePeerRequest(peer, reason, object: HMSActionResultListener {
+        override fun onSuccess() {
+          println("success")
+        }
+
+        override fun onError(error: HMSException) {
+          println("error")
+        }
+      })
+    }
+  }
+
+  @ReactMethod
+  fun endRoom(data: ReadableMap) {
+    val lock = data.getBoolean("lock")
+    var reason =  data.getString("reason")
+    if (reason == null) {
+      reason = ""
+    }
+
+    hmsSDK?.endRoom(reason, lock, object: HMSActionResultListener {
+      override fun onSuccess() {
+        println("success")
+      }
+
+      override fun onError(error: HMSException) {
+        println("error")
+      }
+    })
   }
 }
