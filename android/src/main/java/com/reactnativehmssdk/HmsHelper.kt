@@ -17,6 +17,17 @@ object HmsHelper {
       return null
     }
 
+    fun getRemotePeerFromPeerId(peerId: String?, peers: Array<HMSRemotePeer>?): HMSRemotePeer? {
+      if (peerId != null && peers != null) {
+        for (peer in peers) {
+          if (peerId == peer.peerID) {
+            return peer
+          }
+        }
+      }
+      return null
+    }
+
     fun getRolesFromRoleNames(targetedRoles: Array<String>?, roles: List<HMSRole>?): List<HMSRole> {
       val encodedRoles: MutableList<HMSRole> = mutableListOf()
 

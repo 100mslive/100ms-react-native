@@ -39,6 +39,7 @@ export default class HMSSDK {
   onReconnectingDelegate?: any;
   onReconnectedDelegate?: any;
   onRoleChangeRequestDelegate?: any;
+  onRemovedFromRoomDelegate?: any;
 
   /**
    * - Returns an instance of [HMSSDK]{@link HMSSDK}
@@ -115,6 +116,11 @@ export default class HMSSDK {
       HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST,
       this.onRoleChangeRequestListener
     );
+
+    HmsEventEmitter.addListener(
+      HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM,
+      this.onRemovedFromRoomListener
+    );
   };
 
   /**
@@ -178,6 +184,24 @@ export default class HMSSDK {
     };
 
     HmsManager.changeTrackState(data);
+  };
+
+  removePeer = (peer: HMSPeer, reason: String) => {
+    const data = {
+      peerId: peer.peerID,
+      reason,
+    };
+
+    HmsManager.removePeer(data);
+  };
+
+  endRoom = (lock: boolean, reason: String) => {
+    const data = {
+      lock,
+      reason,
+    };
+
+    HmsManager.endRoom(data);
   };
 
   /**
@@ -341,6 +365,16 @@ export default class HMSSDK {
       const encodedRoleChangeRequest =
         HMSEncoder.encodeHmsRoleChangeRequest(data);
       this.onRoleChangeRequestDelegate(encodedRoleChangeRequest);
+    }
+  };
+
+  onRemovedFromRoomListener = (data: any) => {
+    if (this.onRemovedFromRoomDelegate) {
+      const requestedBy = HMSEncoder.encodeHmsPeer(data.requestedBy);
+      const reason = data.reason;
+      const roomEnded = data.roomEnded;
+
+      this.onRemovedFromRoomDelegate({ requestedBy, reason, roomEnded });
     }
   };
 

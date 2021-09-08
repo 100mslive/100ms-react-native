@@ -11,6 +11,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     var ON_PEER_UPDATE: String = "ON_PEER_UPDATE"
     var ON_TRACK_UPDATE: String = "ON_TRACK_UPDATE"
     var ON_ROLE_CHANGE_REQUEST: String = "ON_ROLE_CHANGE_REQUEST"
+    var ON_REMOVED_FROM_ROOM: String = "ON_REMOVED_FROM_ROOM"
     var ON_ERROR: String = "ON_ERROR"
     var ON_MESSAGE: String = "ON_MESSAGE"
     var ON_SPEAKER: String = "ON_SPEAKER"
@@ -120,9 +121,17 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     func on(changeTrackStateRequest: HMSChangeTrackStateRequest) {
         print("On track state change required")
     }
+    
+    func on(removedFromRoom notification: HMSRemovedFromRoomNotification) {
+        let requestedBy = notification.requestedBy
+        let decodedRequestedBy = HmsDecoder.getHmsPeer(requestedBy)
+        let reason = notification.reason
+        let roomEnded = notification.roomEnded
+        self.sendEvent(withName: ON_REMOVED_FROM_ROOM, body: ["event": ON_REMOVED_FROM_ROOM, "requestedBy": decodedRequestedBy, "reason": reason, "roomEnded": roomEnded ])
+    }
 
     override func supportedEvents() -> [String]! {
-        return [ON_JOIN, ON_PREVIEW, ON_ROOM_UPDATE, ON_PEER_UPDATE, ON_TRACK_UPDATE, ON_ERROR, ON_MESSAGE, ON_SPEAKER, RECONNECTING, RECONNECTED, ON_ROLE_CHANGE_REQUEST]
+        return [ON_JOIN, ON_PREVIEW, ON_ROOM_UPDATE, ON_PEER_UPDATE, ON_TRACK_UPDATE, ON_ERROR, ON_MESSAGE, ON_SPEAKER, RECONNECTING, RECONNECTED, ON_ROLE_CHANGE_REQUEST, ON_REMOVED_FROM_ROOM]
     }
     
     @objc
@@ -227,5 +236,28 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         if let extractedHmsTrack = hmsTrack {
             hms?.changeTrackState(for: extractedHmsTrack, mute: mute)
         }
+    }
+    
+    @objc
+    func removePeer(_ data: NSDictionary) {
+        let peerId = data.value(forKey: "peerId") as? String
+        let reason = data.value(forKey: "reason") as? String
+        
+        let remotePeers = hms?.remotePeers
+        
+        let peer = HmsHelper.getPeerFromPeerId(peerId, remotePeers: remotePeers)
+        
+        if let targetedPeer = peer {
+            hms?.removePeer(targetedPeer, reason: reason ?? "")
+        }
+    }
+    
+    
+    @objc
+    func endRoom(_ data: NSDictionary) {
+        let lock = data.value(forKey: "lock") as? Bool
+        let reason = data.value(forKey: "reason") as? String
+        
+        hms?.endRoom(lock: lock ?? false, reason: reason ?? "")
     }
 }
