@@ -14,10 +14,9 @@ RCT_EXTERN_METHOD(removePeer: (NSDictionary) data)
 RCT_EXTERN_METHOD(endRoom: (NSDictionary) data)
 RCT_EXTERN_METHOD(changeRole: (NSDictionary) data)
 RCT_EXTERN_METHOD(changeTrackState: (NSDictionary) data)
-RCT_EXTERB_METHOD(acceptRoleChange)
+RCT_EXTERN_METHOD(acceptRoleChange)
 RCT_EXTERN_METHOD(switchCamera)
 RCT_EXTERN_METHOD(build)
 RCT_EXTERN_METHOD(leave)
-RCT_EXTERN_METHOD(changeRole: (NSDictionary) data)
 
 @end
