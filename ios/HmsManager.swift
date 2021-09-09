@@ -5,6 +5,7 @@ import AVKit
 class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     var hms: HMSSDK?
     var config: HMSConfig?
+    var recentRoleChangeRequest: HMSRoleChangeRequest?
     var ON_PREVIEW: String = "ON_PREVIEW"
     var ON_JOIN: String = "ON_JOIN"
     var ON_ROOM_UPDATE: String = "ON_ROOM_UPDATE"
@@ -113,7 +114,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     
     func on(roleChangeRequest: HMSRoleChangeRequest) {
         let decodedRoleChangeRequest = HmsDecoder.getHmsRoleChangeRequest(roleChangeRequest)
-        
+        recentRoleChangeRequest = roleChangeRequest
         self.sendEvent(withName: ON_ROLE_CHANGE_REQUEST, body: decodedRoleChangeRequest)
         // hms?.accept(changeRole: roleChangeRequest)
     }
@@ -259,5 +260,22 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         let reason = data.value(forKey: "reason") as? String
         
         hms?.endRoom(lock: lock ?? false, reason: reason ?? "")
+    }
+    
+    @objc
+    func acceptRoleChange() {
+//        let peerId = data.value(forKey: "peerId") as? String
+//        let roleName = data.value(forKey: "role") as? String
+//
+//        let hmsPeer = HmsHelper.getPeerFromPeerId(peerId, remotePeers: hms?.remotePeers)
+//        let hmsRole = HmsHelper.getRoleFromRoleName(roleName, roles: hms?.roles)
+//
+//        if let extractedHmsPeer = hmsPeer, let extractedHmsRole = hmsRole {
+//            var hmsRoleChangeRequest = HMSRoleChangeRequest.init
+//        }
+        if let roleChangeRequest = recentRoleChangeRequest {
+            hms?.accept(changeRole: roleChangeRequest)
+            roleChangeRequest = nil
+        }
     }
 }
