@@ -96,6 +96,12 @@ const DisplayName = ({
         setRoleModalVisible(true);
       },
     },
+    {
+      text: 'Remove Participant',
+      onPress: () => {
+        instance?.removePeer(peerId, 'removed from room');
+      },
+    },
   ];
   const roleRequestTitle = 'Select action';
   const roleRequestButtons: [
