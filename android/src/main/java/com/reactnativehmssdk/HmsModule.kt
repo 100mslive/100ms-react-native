@@ -23,6 +23,7 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     const val REACT_CLASS = "HmsManager"
   }
   private var hmsSDK: HMSSDK? = null;
+  private var recentRoleChangeRequest: HMSRoleChangeRequest? = null;
   override fun getName(): String {
     return "HmsManager"
   }
@@ -194,15 +195,16 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
         override fun onRoleChangeRequest(request: HMSRoleChangeRequest) {
           val decodedChangeRoleRequest = HmsDecoder.getHmsRoleChangeRequest(request)
           reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_ROLE_CHANGE_REQUEST", decodedChangeRoleRequest)
-          hmsSDK?.acceptChangeRole(request, object : HMSActionResultListener{
-            override fun onSuccess() {
-              print("Success role change accept")
-            }
-
-            override fun onError(error: HMSException) {
-              print("Failed role change accept")
-            }
-          })
+          recentRoleChangeRequest = request
+//          hmsSDK?.acceptChangeRole(request, object : HMSActionResultListener{
+//            override fun onSuccess() {
+//              print("Success role change accept")
+//            }
+//
+//            override fun onError(error: HMSException) {
+//              print("Failed role change accept")
+//            }
+//          })
         }
       })
     }
@@ -379,5 +381,27 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
         println("error")
       }
     })
+  }
+
+  @ReactMethod
+  fun acceptRoleChange() {
+//    val peerId = data.getString("peerId")
+//    val roleName = data.getString("role")
+//
+//    if (peerId !== null &&  roleName !== null) {
+//      val hmsPeer = HmsHelper.getPeerFromPeerId(peerId, hmsSDK?.getPeers())
+//      val hmsRole = HmsHelper.getRoleFromRoleName(roleName, hmsSDK?.getRoles())
+//    }
+    if (recentRoleChangeRequest !== null) {
+      hmsSDK?.acceptChangeRole(recentRoleChangeRequest!!, object: HMSActionResultListener {
+        override fun onSuccess() {
+          recentRoleChangeRequest = null
+        }
+
+        override fun onError(error: HMSException) {
+          recentRoleChangeRequest = null
+        }
+      })
+    }
   }
 }
