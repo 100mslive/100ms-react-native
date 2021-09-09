@@ -186,9 +186,9 @@ export default class HMSSDK {
     HmsManager.changeTrackState(data);
   };
 
-  removePeer = (peer: HMSPeer, reason: String) => {
+  removePeer = (peerId: String, reason: String) => {
     const data = {
-      peerId: peer.peerID,
+      peerId,
       reason,
     };
 
