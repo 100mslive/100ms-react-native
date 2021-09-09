@@ -275,7 +275,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
 //        }
         if let roleChangeRequest = recentRoleChangeRequest {
             hms?.accept(changeRole: roleChangeRequest)
-            roleChangeRequest = nil
+            recentRoleChangeRequest = nil
         }
     }
 }
