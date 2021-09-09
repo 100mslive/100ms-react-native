@@ -244,6 +244,12 @@ export default class HMSSDK {
       case HMSUpdateListenerActions.RECONNECTED:
         this.onReconnectedDelegate = callback;
         break;
+      case HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST:
+        this.onRoleChangeRequestDelegate = callback;
+        break;
+      case HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM:
+        this.onRemovedFromRoomDelegate = callback;
+        break;
       default:
         console.log('default case');
     }
