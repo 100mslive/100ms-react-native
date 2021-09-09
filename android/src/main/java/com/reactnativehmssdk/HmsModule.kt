@@ -196,15 +196,15 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
           val decodedChangeRoleRequest = HmsDecoder.getHmsRoleChangeRequest(request)
           reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_ROLE_CHANGE_REQUEST", decodedChangeRoleRequest)
           recentRoleChangeRequest = request
-//          hmsSDK?.acceptChangeRole(request, object : HMSActionResultListener{
-//            override fun onSuccess() {
-//              print("Success role change accept")
-//            }
-//
-//            override fun onError(error: HMSException) {
-//              print("Failed role change accept")
-//            }
-//          })
+          hmsSDK?.acceptChangeRole(request, object : HMSActionResultListener{
+            override fun onSuccess() {
+              print("Success role change accept")
+            }
+
+            override fun onError(error: HMSException) {
+              print("Failed role change accept")
+            }
+          })
         }
       })
     }
@@ -385,13 +385,6 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
 
   @ReactMethod
   fun acceptRoleChange() {
-//    val peerId = data.getString("peerId")
-//    val roleName = data.getString("role")
-//
-//    if (peerId !== null &&  roleName !== null) {
-//      val hmsPeer = HmsHelper.getPeerFromPeerId(peerId, hmsSDK?.getPeers())
-//      val hmsRole = HmsHelper.getRoleFromRoleName(roleName, hmsSDK?.getRoles())
-//    }
     if (recentRoleChangeRequest !== null) {
       hmsSDK?.acceptChangeRole(recentRoleChangeRequest!!, object: HMSActionResultListener {
         override fun onSuccess() {
