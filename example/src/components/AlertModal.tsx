@@ -35,7 +35,13 @@ const App = ({
                 button.onPress && button.onPress();
               }}
               style={styles.buttonItem}>
-              <Text style={styles.buttonItemText}>{button.text}</Text>
+              <Text
+                style={[
+                  styles.buttonItemText,
+                  button.type === 'cancel' && {color: 'red'},
+                ]}>
+                {button.text}
+              </Text>
             </TouchableOpacity>
           ))}
         </View>

@@ -32,33 +32,22 @@ const App = ({
             <Text style={styles.title}>{title}</Text>
           </View>
           <View>{children}</View>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              borderTopColor: 'lightgrey',
-              borderTopWidth: 1,
-            }}>
+          <View style={styles.buttonContainer}>
             <TouchableOpacity
-              style={{flex: 1, padding: 12}}
+              style={styles.closeButton}
               onPress={onRequestClose}>
-              <Text numberOfLines={1} style={styles.buttonItemText}>
+              <Text numberOfLines={1} style={styles.closeButtonItemText}>
                 {buttons[0].text}
               </Text>
             </TouchableOpacity>
             {buttons[1] && (
               <TouchableOpacity
-                style={{
-                  flex: 1,
-                  padding: 12,
-                  borderLeftWidth: 1,
-                  borderLeftColor: 'lightgrey',
-                }}
+                style={[styles.okButton]}
                 onPress={() => {
                   onRequestClose();
                   buttons[1]?.onPress && buttons[1].onPress();
                 }}>
-                <Text numberOfLines={1} style={styles.buttonItemText}>
+                <Text numberOfLines={1} style={styles.okButtonItemText}>
                   {buttons[1].text}
                 </Text>
               </TouchableOpacity>
@@ -124,9 +113,29 @@ const styles = StyleSheet.create({
     borderTopColor: 'lightgrey',
     padding: 12,
   },
-  buttonItemText: {
+  closeButtonItemText: {
+    alignSelf: 'center',
+    color: 'red',
+  },
+  okButtonItemText: {
     alignSelf: 'center',
     color: 'blue',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    borderTopColor: 'lightgrey',
+    borderTopWidth: 1,
+  },
+  okButton: {
+    flex: 1,
+    padding: 12,
+    borderLeftWidth: 1,
+    borderLeftColor: 'lightgrey',
+  },
+  closeButton: {
+    flex: 1,
+    padding: 12,
   },
 });
 

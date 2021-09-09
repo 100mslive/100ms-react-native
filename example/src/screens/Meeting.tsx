@@ -212,6 +212,23 @@ const Meeting = ({
   const [safeHeight, setSafeHeight] = useState(0);
   const [speakers, setSpeakers] = useState([]);
   const [notification, setNotification] = useState(false);
+  const [roleChangeRequest, setRoleChangeRequest] = useState<{
+    requestedBy?: String;
+    suggestedRole?: String;
+  }>({});
+  const [roleChangeModalVisible, setRoleChangeModalVisible] = useState(false);
+
+  const roleChangeRequestTitle = 'Role Change Request';
+  const roleChangeRequestButtons: [
+    {text: String; onPress?: Function},
+    {text: String; onPress?: Function},
+  ] = [
+    {text: 'Reject'},
+    {
+      text: 'Accept',
+      onPress: () => {},
+    },
+  ];
 
   const navigate = useNavigation<MeetingScreenProp>().navigate;
 
@@ -347,6 +364,15 @@ const Meeting = ({
     console.log(data);
   };
 
+  const onRoleChangeRequest = (data: any) => {
+    console.log(data);
+    setRoleChangeModalVisible(true);
+    setRoleChangeRequest({
+      requestedBy: data?.requestedBy?.name,
+      suggestedRole: data?.suggestedRole?.name,
+    });
+  };
+
   const updateHmsInstance = async () => {
     const HmsInstance = await HmsManager.build();
     setInstance(HmsInstance);
@@ -391,6 +417,11 @@ const Meeting = ({
       HMSUpdateListenerActions.RECONNECTED,
       reconnected,
     );
+
+    HmsInstance.addEventListener(
+      HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST,
+      onRoleChangeRequest,
+    );
   };
 
   useEffect(() => {
@@ -431,6 +462,16 @@ const Meeting = ({
 
   return (
     <SafeAreaView style={styles.container}>
+      <Modal
+        modalVisible={roleChangeModalVisible}
+        setModalVisible={setRoleChangeModalVisible}
+        title={roleChangeRequestTitle}
+        buttons={roleChangeRequestButtons}>
+        <Text style={styles.roleChangeText}>
+          Role change requested by {roleChangeRequest?.requestedBy}. Changing
+          role to {roleChangeRequest?.suggestedRole}
+        </Text>
+      </Modal>
       <View
         style={styles.wrapper}
         onLayout={data => {
@@ -702,6 +743,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 0,
     top: 0,
+  },
+  roleChangeText: {
+    padding: 12,
   },
 });
 
