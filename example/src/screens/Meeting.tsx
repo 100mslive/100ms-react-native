@@ -217,6 +217,7 @@ const Meeting = ({
     suggestedRole?: String;
   }>({});
   const [roleChangeModalVisible, setRoleChangeModalVisible] = useState(false);
+  const [leaveModalVisible, setLeaveModalVisible] = useState(false);
 
   const roleChangeRequestTitle = 'Role Change Request';
   const roleChangeRequestButtons: [
@@ -373,6 +374,12 @@ const Meeting = ({
     });
   };
 
+  const onRemovedFromRoom = (data: any) => {
+    console.log(data);
+    clearMessageRequest();
+    navigate('WelcomeScreen');
+  };
+
   const updateHmsInstance = async () => {
     const HmsInstance = await HmsManager.build();
     setInstance(HmsInstance);
@@ -421,6 +428,11 @@ const Meeting = ({
     HmsInstance.addEventListener(
       HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST,
       onRoleChangeRequest,
+    );
+
+    HmsInstance.addEventListener(
+      HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM,
+      onRemovedFromRoom,
     );
   };
 
@@ -472,6 +484,34 @@ const Meeting = ({
           role to {roleChangeRequest?.suggestedRole}
         </Text>
       </Modal>
+      <AlertModal
+        modalVisible={leaveModalVisible}
+        setModalVisible={setLeaveModalVisible}
+        title="End Room"
+        message=""
+        buttons={[
+          {
+            text: 'Cancel',
+            type: 'cancel',
+          },
+          {
+            text: 'Leave without ending room',
+            onPress: () => {
+              instance.leave();
+              clearMessageRequest();
+              navigate('WelcomeScreen');
+            },
+          },
+          {
+            text: 'End Room for all',
+            onPress: () => {
+              instance.endRoom(false, 'Host ended the room');
+              clearMessageRequest();
+              navigate('WelcomeScreen');
+            },
+          },
+        ]}
+      />
       <View
         style={styles.wrapper}
         onLayout={data => {
@@ -563,9 +603,7 @@ const Meeting = ({
         <TouchableOpacity
           style={styles.leaveIconContainer}
           onPress={async () => {
-            instance.leave();
-            clearMessageRequest();
-            navigate('WelcomeScreen');
+            setLeaveModalVisible(true);
           }}>
           <Feather
             name="phone-off"
