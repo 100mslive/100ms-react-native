@@ -116,7 +116,6 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         let decodedRoleChangeRequest = HmsDecoder.getHmsRoleChangeRequest(roleChangeRequest)
         recentRoleChangeRequest = roleChangeRequest
         self.sendEvent(withName: ON_ROLE_CHANGE_REQUEST, body: decodedRoleChangeRequest)
-        // hms?.accept(changeRole: roleChangeRequest)
     }
     
     func on(changeTrackStateRequest: HMSChangeTrackStateRequest) {
@@ -222,7 +221,9 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         let hmsRole = HmsHelper.getRoleFromRoleName(role, roles: hms?.roles)
         
         if let extractedHmsPeer = hmsPeer, let extractedHmsRole = hmsRole {
-            hms?.changeRole(for: extractedHmsPeer, to: extractedHmsRole, force: force)
+            DispatchQueue.main.async { [weak self] in
+                self?.hms?.changeRole(for: extractedHmsPeer, to: extractedHmsRole, force: force)
+            }
         }
     }
     
@@ -249,7 +250,9 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         let peer = HmsHelper.getPeerFromPeerId(peerId, remotePeers: remotePeers)
         
         if let targetedPeer = peer {
-            hms?.removePeer(targetedPeer, reason: reason ?? "")
+            DispatchQueue.main.async { [weak self] in
+                self?.hms?.removePeer(targetedPeer, reason: reason ?? "")
+            }
         }
     }
     
@@ -259,23 +262,18 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         let lock = data.value(forKey: "lock") as? Bool
         let reason = data.value(forKey: "reason") as? String
         
-        hms?.endRoom(lock: lock ?? false, reason: reason ?? "")
+        DispatchQueue.main.async { [weak self] in
+            self?.hms?.endRoom(lock: lock ?? false, reason: reason ?? "")
+        }
     }
     
     @objc
     func acceptRoleChange() {
-//        let peerId = data.value(forKey: "peerId") as? String
-//        let roleName = data.value(forKey: "role") as? String
-//
-//        let hmsPeer = HmsHelper.getPeerFromPeerId(peerId, remotePeers: hms?.remotePeers)
-//        let hmsRole = HmsHelper.getRoleFromRoleName(roleName, roles: hms?.roles)
-//
-//        if let extractedHmsPeer = hmsPeer, let extractedHmsRole = hmsRole {
-//            var hmsRoleChangeRequest = HMSRoleChangeRequest.init
-//        }
         if let roleChangeRequest = recentRoleChangeRequest {
-            hms?.accept(changeRole: roleChangeRequest)
-            recentRoleChangeRequest = nil
+            DispatchQueue.main.async { [weak self] in
+                self?.hms?.accept(changeRole: roleChangeRequest)
+                self?.recentRoleChangeRequest = nil
+            }
         }
     }
 }
