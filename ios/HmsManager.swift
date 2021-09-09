@@ -5,6 +5,7 @@ import AVKit
 class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     var hms: HMSSDK?
     var config: HMSConfig?
+    var recentRoleChangeRequest: HMSRoleChangeRequest?
     var ON_PREVIEW: String = "ON_PREVIEW"
     var ON_JOIN: String = "ON_JOIN"
     var ON_ROOM_UPDATE: String = "ON_ROOM_UPDATE"
@@ -113,9 +114,8 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     
     func on(roleChangeRequest: HMSRoleChangeRequest) {
         let decodedRoleChangeRequest = HmsDecoder.getHmsRoleChangeRequest(roleChangeRequest)
-        
+        recentRoleChangeRequest = roleChangeRequest
         self.sendEvent(withName: ON_ROLE_CHANGE_REQUEST, body: decodedRoleChangeRequest)
-        // hms?.accept(changeRole: roleChangeRequest)
     }
     
     func on(changeTrackStateRequest: HMSChangeTrackStateRequest) {
@@ -221,7 +221,9 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         let hmsRole = HmsHelper.getRoleFromRoleName(role, roles: hms?.roles)
         
         if let extractedHmsPeer = hmsPeer, let extractedHmsRole = hmsRole {
-            hms?.changeRole(for: extractedHmsPeer, to: extractedHmsRole, force: force)
+            DispatchQueue.main.async { [weak self] in
+                self?.hms?.changeRole(for: extractedHmsPeer, to: extractedHmsRole, force: force)
+            }
         }
     }
     
@@ -248,7 +250,9 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         let peer = HmsHelper.getPeerFromPeerId(peerId, remotePeers: remotePeers)
         
         if let targetedPeer = peer {
-            hms?.removePeer(targetedPeer, reason: reason ?? "")
+            DispatchQueue.main.async { [weak self] in
+                self?.hms?.removePeer(targetedPeer, reason: reason ?? "")
+            }
         }
     }
     
@@ -258,6 +262,18 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         let lock = data.value(forKey: "lock") as? Bool
         let reason = data.value(forKey: "reason") as? String
         
-        hms?.endRoom(lock: lock ?? false, reason: reason ?? "")
+        DispatchQueue.main.async { [weak self] in
+            self?.hms?.endRoom(lock: lock ?? false, reason: reason ?? "")
+        }
+    }
+    
+    @objc
+    func acceptRoleChange() {
+        if let roleChangeRequest = recentRoleChangeRequest {
+            DispatchQueue.main.async { [weak self] in
+                self?.hms?.accept(changeRole: roleChangeRequest)
+                self?.recentRoleChangeRequest = nil
+            }
+        }
     }
 }

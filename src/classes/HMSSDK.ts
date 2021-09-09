@@ -204,6 +204,10 @@ export default class HMSSDK {
     HmsManager.endRoom(data);
   };
 
+  acceptRoleChange = () => {
+    HmsManager.acceptRoleChange();
+  };
+
   /**
    * - This is a prototype event listener that takes action and listens for updates related to that particular action
    * - This method will be @deprecated in future and event listener will be passed in join method

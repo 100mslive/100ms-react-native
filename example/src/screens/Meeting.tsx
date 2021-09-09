@@ -227,7 +227,9 @@ const Meeting = ({
     {text: 'Reject'},
     {
       text: 'Accept',
-      onPress: () => {},
+      onPress: () => {
+        instance?.acceptRoleChange();
+      },
     },
   ];
 
