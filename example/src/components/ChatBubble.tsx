@@ -21,7 +21,9 @@ const ChatBubble = ({
           </Text>
           {name && <Text style={{color: 'white'}}>{' to ' + name}</Text>}
         </View>
-        <Text style={styles.message}>{data.message}</Text>
+        <Text style={[styles.message, isLocal && {textAlign: 'right'}]}>
+          {data.message}
+        </Text>
       </View>
     </View>
   );

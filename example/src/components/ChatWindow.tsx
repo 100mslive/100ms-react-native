@@ -12,7 +12,7 @@ import {
 import Feather from 'react-native-vector-icons/Feather';
 import dimension from '../utils/dimension';
 import ChatBubble from './ChatBubble';
-import {CustomPicker} from '../components/Picker';
+import {CustomModalDropdown} from '../components/Picker';
 
 const ChatWindow = ({
   messages,
@@ -26,9 +26,7 @@ const ChatWindow = ({
   messageToList: Array<any>;
 }) => {
   const [text, setText] = useState('');
-  const [messageTo, setMessageTo] = useState(
-    messageToList ? messageToList[0] : null,
-  );
+  const [messageTo, setMessageTo] = useState(0);
   return (
     <View style={styles.container}>
       <KeyboardAvoidingView
@@ -51,13 +49,12 @@ const ChatWindow = ({
             />
           </TouchableOpacity>
         </View>
-        <View style={styles.subHeading}>
-          <Text>Send Message to</Text>
-          <CustomPicker
+        <View style={styles.subHeadingContainer}>
+          <Text style={styles.subHeading}>Send Message to</Text>
+          <CustomModalDropdown
             selectedItem={messageTo}
             onItemSelected={setMessageTo}
             data={messageToList}
-            style={styles.picker}
           />
         </View>
         <ScrollView style={styles.chatContainer}>
@@ -85,7 +82,7 @@ const ChatWindow = ({
           <TouchableOpacity
             style={styles.sendContainer}
             onPress={() => {
-              send(text, messageTo);
+              send(text, messageToList[messageTo]);
               setText('');
             }}>
             <Feather
@@ -180,11 +177,14 @@ const styles = StyleSheet.create({
     fontSize: 20,
     paddingLeft: 10,
   },
-  subHeading: {
+  subHeadingContainer: {
     padding: 10,
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  subHeading: {
+    fontSize: 16,
   },
   picker: {width: '50%'},
 });
