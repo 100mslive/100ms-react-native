@@ -3,7 +3,7 @@ import {
   View,
   StyleSheet,
   TouchableOpacity,
-  ScrollView,
+  FlatList,
   Text,
   SafeAreaView,
   Platform,
@@ -37,6 +37,7 @@ type Peer = {
   peerId?: String;
   colour?: string;
   role?: any;
+  sink: Boolean;
 };
 
 type DisplayNameProps = {
@@ -57,6 +58,17 @@ type MeetingProps = {
   state: any;
 };
 
+const DEFAULT_PEER: Peer = {
+  trackId: Math.random().toString(),
+  peerName: Math.random().toString(),
+  isAudioMute: true,
+  isVideoMute: true,
+  peerId: Math.random().toString(),
+  colour: 'red',
+  sink: true,
+  role: 'host',
+};
+
 type MeetingScreenProp = StackNavigationProp<AppStackParamList, 'Meeting'>;
 
 const android = Platform.OS === 'android' ? true : false;
@@ -69,8 +81,16 @@ const DisplayName = ({
   type,
   instance,
 }: DisplayNameProps) => {
-  const {peerName, isAudioMute, isVideoMute, trackId, colour, peerId, role} =
-    peer!;
+  const {
+    peerName,
+    isAudioMute,
+    isVideoMute,
+    trackId,
+    colour,
+    peerId,
+    role,
+    sink,
+  } = peer!;
   const [alertModalVisible, setAlertModalVisible] = useState(false);
   const [roleModalVisible, setRoleModalVisible] = useState(false);
   const [newRole, setNewRole] = useState(role?.name);
@@ -158,7 +178,7 @@ const DisplayName = ({
           </View>
         </View>
       ) : (
-        <HmsView trackId={trackId} style={styles.hmsView} />
+        <HmsView sink={sink} trackId={trackId} style={styles.hmsView} />
       )}
       {type === 'remote' && (
         <TouchableOpacity onPress={promptUser} style={styles.optionsContainer}>
@@ -212,7 +232,7 @@ const Meeting = ({
   clearMessageRequest,
 }: MeetingProps) => {
   const [instance, setInstance] = useState<any>(null);
-  const [trackId, setTrackId] = useState<Peer>({});
+  const [trackId, setTrackId] = useState<Peer>(DEFAULT_PEER);
   const [remoteTrackIds, setRemoteTrackIds] = useState<Peer[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [safeHeight, setSafeHeight] = useState(0);
@@ -241,57 +261,44 @@ const Meeting = ({
 
   const navigate = useNavigation<MeetingScreenProp>().navigate;
 
+  const decode = (peer: any): Peer => {
+    const peerId = peer?.peerID;
+    const peerTrackId = peer?.videoTrack?.trackId;
+    const peerName = peer?.name;
+    const peerIsAudioMute = peer?.audioTrack?.mute;
+    const peerIsVideoMute = peer?.videoTrack?.mute;
+    const peerRole = peer?.role;
+    const peerColour = getPeerColour(peerTrackId);
+    return {
+      trackId: peerTrackId,
+      peerName: peerName,
+      isAudioMute: peerIsAudioMute,
+      isVideoMute: peerIsVideoMute,
+      peerId: peerId,
+      colour: peerColour,
+      sink: true,
+      role: peerRole,
+    };
+  };
+
   const updateVideoIds = (remotePeers: any, localPeer: any) => {
     // get local track Id
-    const localPeerId = instance?.localPeer?.peerID;
     const localTrackId = localPeer?.videoTrack?.trackId;
-    const localPeerName = localPeer?.name;
-    const localPeerRole = localPeer?.role;
-    const localPeerIsAudioMute = localPeer?.audioTrack?.mute;
-    const localPeerIsVideoMute = localPeer?.videoTrack?.mute;
-    const localPeerColour = getPeerColour(localTrackId);
     if (localTrackId) {
-      setTrackId({
-        trackId: localTrackId,
-        peerName: localPeerName,
-        isAudioMute: localPeerIsAudioMute,
-        isVideoMute: localPeerIsVideoMute,
-        peerId: localPeerId,
-        colour: localPeerColour,
-        role: localPeerRole,
-      });
+      setTrackId(decode(localPeer));
     }
 
     const remoteVideoIds: Peer[] = [];
 
     if (remotePeers) {
       remotePeers.map((remotePeer: any, index: number) => {
-        const remotePeerId = remotePeer?.peerID;
         const remoteTrackId = remotePeer?.videoTrack?.trackId;
-        const remotePeerName = remotePeer?.name;
-        const remotePeerRole = remotePeer?.role;
-        const remotePeerAudioIsMute = remotePeer?.audioTrack?.mute;
-        const remotePeerVideoIsMute = remotePeer?.videoTrack?.mute;
-        const remotePeerColour = getPeerColour(remoteTrackId);
         if (remoteTrackId) {
-          remoteVideoIds.push({
-            trackId: remoteTrackId,
-            peerName: remotePeerName,
-            isAudioMute: remotePeerAudioIsMute,
-            isVideoMute: remotePeerVideoIsMute,
-            peerId: remotePeerId,
-            colour: remotePeerColour,
-            role: remotePeerRole,
-          });
+          remoteVideoIds.push(decode(remotePeer));
         } else {
           remoteVideoIds.push({
+            ...decode(remotePeer),
             trackId: index.toString(),
-            peerName: remotePeerName,
-            isAudioMute: remotePeerAudioIsMute,
-            isVideoMute: remotePeerVideoIsMute,
-            peerId: '',
-            colour: 'red',
-            role: '',
           });
         }
       });
@@ -457,15 +464,15 @@ const Meeting = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [instance]);
 
-  const getLocalVideoStyles = () => {
-    // if (remoteTrackIds && remoteTrackIds.length === 1) {
-    //   return styles.floatingTile;
-    // }
-    // if (remoteTrackIds.length && remoteTrackIds.length > 1) {
-    //   return styles.generalTile;
-    // }
-    return styles.generalTile;
-  };
+  // const getLocalVideoStyles = () => {
+  // if (remoteTrackIds && remoteTrackIds.length === 1) {
+  //   return styles.floatingTile;
+  // }
+  // if (remoteTrackIds.length && remoteTrackIds.length > 1) {
+  //   return styles.generalTile;
+  // }
+  //   return styles.generalTile;
+  // };
 
   const getRemoteVideoStyles = () => {
     // if (remoteTrackIds && remoteTrackIds.length === 1) {
@@ -479,6 +486,38 @@ const Meeting = ({
     // }
     return styles.generalTile;
   };
+
+  const onViewRef = React.useRef(({viewableItems}: any) => {
+    if (viewableItems) {
+      const viewableItemsIds = viewableItems.map(
+        (viewableItem: {
+          index: Number;
+          item: Peer;
+          key: String;
+          isViewable: Boolean;
+        }) => {
+          return viewableItem?.item?.trackId;
+        },
+      );
+
+      const inst = HmsManager.build();
+      const remotePeers = inst?.remotePeers;
+      if (remotePeers) {
+        const sinkRemoteTrackIds = remotePeers.map((peer: Peer) => {
+          const remotePeer = decode(peer);
+          const videoTrackId = remotePeer.trackId;
+          if (!viewableItemsIds?.includes(videoTrackId)) {
+            return {
+              ...remotePeer,
+              sink: false,
+            };
+          }
+          return remotePeer;
+        });
+        setRemoteTrackIds(sinkRemoteTrackIds ? sinkRemoteTrackIds : []);
+      }
+    }
+  });
 
   return (
     <SafeAreaView style={styles.container}>
@@ -528,31 +567,24 @@ const Meeting = ({
             setSafeHeight(height);
           }
         }}>
-        <ScrollView style={styles.scroll} bounces={false}>
-          <View style={styles.videoView}>
-            <DisplayName
-              peer={trackId}
-              videoStyles={getLocalVideoStyles}
-              safeHeight={safeHeight}
-              speakers={speakers}
-              type="local"
-              instance={instance}
-            />
-            {remoteTrackIds.map((item: Peer) => {
-              return (
-                <DisplayName
-                  peer={item}
-                  videoStyles={getRemoteVideoStyles}
-                  safeHeight={safeHeight}
-                  speakers={speakers}
-                  key={item.trackId}
-                  type="remote"
-                  instance={instance}
-                />
-              );
-            })}
-          </View>
-        </ScrollView>
+        <FlatList
+          data={[trackId, ...remoteTrackIds]}
+          renderItem={({item, index}) => {
+            return (
+              <DisplayName
+                peer={item}
+                videoStyles={getRemoteVideoStyles}
+                safeHeight={safeHeight}
+                speakers={speakers}
+                instance={instance}
+                type={index === 0 ? 'local' : 'remote'}
+              />
+            );
+          }}
+          numColumns={2}
+          onViewableItemsChanged={onViewRef.current}
+          keyExtractor={item => item?.trackId!}
+        />
       </View>
       <View style={styles.iconContainers}>
         <TouchableOpacity

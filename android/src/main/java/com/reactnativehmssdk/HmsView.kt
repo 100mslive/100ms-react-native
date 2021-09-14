@@ -30,7 +30,13 @@ class HmsView(
       val localTrackId = hms?.getLocalPeer()?.videoTrack?.trackId
       if (localTrackId == trackId) {
         val videoTrack = hms.getLocalPeer()?.videoTrack
-        videoTrack?.addSink(surfaceView)
+        if(!sinked && sinkVideo) {
+          videoTrack?.addSink(surfaceView)
+          sinked = true
+        }else if(!sinkVideo){
+          videoTrack?.removeSink(surfaceView)
+          sinked = false
+        }
       }
 
       val remotePeers = hms?.getRemotePeers()
@@ -41,9 +47,13 @@ class HmsView(
 
           if (videoTrackId == trackId) {
             val videoTrack = peer.videoTrack
-
-            videoTrack?.addSink(surfaceView)
-            sinked = true
+            if(!sinked && sinkVideo) {
+              videoTrack?.addSink(surfaceView)
+              sinked = true
+            }else if(!sinkVideo){
+              videoTrack?.removeSink(surfaceView)
+              sinked = false
+            }
             return
           }
         }
@@ -57,7 +67,13 @@ class HmsView(
       val localTrackId = hms?.getLocalPeer()?.videoTrack?.trackId
       if (localTrackId == localTrack) {
         val videoTrack = hms?.getLocalPeer()?.videoTrack
-        videoTrack?.addSink(surfaceView)
+        if(!sinked && sinkVideo) {
+          videoTrack?.addSink(surfaceView)
+          sinked = true
+        }else if(!sinkVideo){
+          videoTrack?.removeSink(surfaceView)
+          sinked = false
+        }
       }
 
       val remotePeers = hms?.getRemotePeers()
@@ -68,8 +84,13 @@ class HmsView(
 
           if (videoTrackId == localTrack) {
             val videoTrack = peer.videoTrack
-
-            videoTrack?.addSink(surfaceView)
+            if(!sinked && sinkVideo) {
+              videoTrack?.addSink(surfaceView)
+              sinked = true
+            }else if(!sinkVideo){
+              videoTrack?.removeSink(surfaceView)
+              sinked = false
+            }
             return
           }
         }
