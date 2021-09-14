@@ -28,7 +28,7 @@ object HmsHelper {
       return null
     }
 
-    fun getRolesFromRoleNames(targetedRoles: Array<String>?, roles: List<HMSRole>?): List<HMSRole> {
+    fun getRolesFromRoleNames(targetedRoles: ArrayList<String>?, roles: List<HMSRole>?): List<HMSRole> {
       val encodedRoles: MutableList<HMSRole> = mutableListOf()
 
       if (targetedRoles != null && roles != null) {

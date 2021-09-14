@@ -161,10 +161,10 @@ export default class HMSSDK {
     });
   };
 
-  sendDirectMessage = (message: String, peer: HMSPeer) => {
+  sendDirectMessage = (message: String, peerId: String) => {
     HmsManager.sendDirectMessage({
       message,
-      peerId: peer.peerID,
+      peerId,
     });
   };
 

@@ -3,13 +3,24 @@ import {View, Text, StyleSheet} from 'react-native';
 
 import dimension from '../utils/dimension';
 
-const ChatBubble = ({data, isLocal}: {data: any; isLocal: boolean}) => {
+const ChatBubble = ({
+  data,
+  isLocal,
+  name,
+}: {
+  data: any;
+  isLocal: boolean;
+  name: string;
+}) => {
   return (
     <View style={isLocal ? styles.senderMessageBubble : styles.messageBubble}>
       <View style={styles.textContainer}>
-        <Text style={isLocal ? styles.senderText : styles.receiverText}>
-          {isLocal ? 'You' : data.sender}
-        </Text>
+        <View style={{flexDirection: 'row'}}>
+          <Text style={isLocal ? styles.senderText : styles.receiverText}>
+            {isLocal ? 'You' : data.sender}
+          </Text>
+          {name && <Text style={{color: 'white'}}>{' to ' + name}</Text>}
+        </View>
         <Text style={styles.message}>{data.message}</Text>
       </View>
     </View>

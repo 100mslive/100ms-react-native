@@ -252,7 +252,7 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   @ReactMethod
   fun sendGroupMessage(data:ReadableMap) {
     val message = data.getString("message")
-    val targetedRoles = data.getArray("roles") as? Array<String>
+    val targetedRoles = data.getArray("roles")?.toArrayList() as? ArrayList<String>
     val roles = hmsSDK?.getRoles()
     val encodedTargetedRoles = HmsHelper.getRolesFromRoleNames(targetedRoles, roles);
 

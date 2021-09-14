@@ -25,4 +25,32 @@ const App = ({
   );
 };
 
+export const CustomPicker = ({
+  selectedItem,
+  data,
+  onItemSelected,
+  style,
+}: {
+  selectedItem: any;
+  data: Array<any>;
+  onItemSelected: any;
+  style?: Object;
+}) => {
+  const onPress = (value: any) => {
+    data.map(item => {
+      if (item?.name === value) onItemSelected(item);
+    });
+  };
+  return (
+    <Picker
+      selectedValue={selectedItem?.name}
+      onValueChange={onPress}
+      style={style}>
+      {data.map((item, index) => (
+        <Picker.Item key={index} label={item?.name} value={item?.name} />
+      ))}
+    </Picker>
+  );
+};
+
 export default App;

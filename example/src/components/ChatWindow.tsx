@@ -7,33 +7,59 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   TouchableOpacity,
+  Text,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import dimension from '../utils/dimension';
 import ChatBubble from './ChatBubble';
+import {CustomPicker} from '../components/Picker';
 
 const ChatWindow = ({
   messages,
   cancel,
   send,
+  messageToList,
 }: {
   messages: any;
   cancel: ((event: GestureResponderEvent) => void) | undefined;
   send: Function;
+  messageToList: Array<any>;
 }) => {
   const [text, setText] = useState('');
+  const [messageTo, setMessageTo] = useState(
+    messageToList ? messageToList[0] : null,
+  );
   return (
     <View style={styles.container}>
       <KeyboardAvoidingView
         behavior="padding"
         style={styles.keyboardAvoidingView}>
-        <TouchableOpacity style={styles.closeIconContainer} onPress={cancel}>
+        <View style={styles.headingContainer}>
           <Feather
-            size={dimension.viewHeight(32)}
+            name="message-circle"
             style={styles.closeIcon}
-            name="x"
+            size={dimension.viewHeight(30)}
           />
-        </TouchableOpacity>
+          <Text style={styles.heading}>Chat</Text>
+          <TouchableOpacity
+            style={[styles.closeIconContainer]}
+            onPress={cancel}>
+            <Feather
+              size={dimension.viewHeight(32)}
+              style={styles.closeIcon}
+              name="x"
+            />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.subHeading}>
+          <Text>Send Message to</Text>
+          <CustomPicker
+            selectedItem={messageTo}
+            onItemSelected={setMessageTo}
+            data={messageToList}
+            style={styles.picker}
+          />
+        </View>
         <ScrollView style={styles.chatContainer}>
           {messages.map((item: any, index: number) => {
             return (
@@ -41,6 +67,7 @@ const ChatWindow = ({
                 key={index.toString()}
                 data={item.data}
                 isLocal={item.isLocal}
+                name={item?.name}
               />
             );
           })}
@@ -58,7 +85,7 @@ const ChatWindow = ({
           <TouchableOpacity
             style={styles.sendContainer}
             onPress={() => {
-              send(text);
+              send(text, messageTo);
               setText('');
             }}>
             <Feather
@@ -136,10 +163,28 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   closeIcon: {
-    color: 'black',
+    color: '#4578e0',
   },
   closeIconContainer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
+    position: 'absolute',
+    right: 0,
+    padding: 10,
   },
+  headingContainer: {
+    padding: 10,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  heading: {
+    fontSize: 20,
+    paddingLeft: 10,
+  },
+  subHeading: {
+    padding: 10,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  picker: {width: '50%'},
 });
