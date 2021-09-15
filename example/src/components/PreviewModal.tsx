@@ -23,7 +23,7 @@ const PreviewModal = ({
   return (
     <View style={styles.container}>
       <View style={styles.modalContainer}>
-        <HmsView style={styles.hmsView} trackId={trackId} />
+        <HmsView sink={true} style={styles.hmsView} trackId={trackId} />
       </View>
       <View style={styles.buttonRow}>
         <View style={styles.iconContainer}>
