@@ -22,6 +22,9 @@ hmsInstance.removePeer(peer.id, reason);
 Once the peer with adequate permissions calls removePeer for the local peer, the local peer will receive a notification with type REMOVED_FROM_ROOM with a HMSLeaveRoomRequest object as the data.
 
 ```js
+// import classes
+import { HMSUpdateListenerActions, HMSLeaveRoomRequest } from '@100mslive/react-native-hms';
+
 const onRemovedFromRoom = (data: HMSLeaveRoomRequest) => {
   // redirect to home screen
 };
