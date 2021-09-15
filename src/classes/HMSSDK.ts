@@ -8,7 +8,6 @@ import type HMSRole from './HMSRole';
 import HMSEncoder from './HMSEncoder';
 import HMSMessage from './HMSMessage';
 import HMSHelper from './HMSHelper';
-import type HMSPeer from './HMSPeer';
 import type HMSTrack from 'lib/typescript/classes/HMSTrack';
 
 const {
@@ -161,10 +160,10 @@ export default class HMSSDK {
     });
   };
 
-  sendDirectMessage = (message: String, peer: HMSPeer) => {
+  sendDirectMessage = (message: String, peerId: String) => {
     HmsManager.sendDirectMessage({
       message,
-      peerId: peer.peerID,
+      peerId,
     });
   };
 

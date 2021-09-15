@@ -187,7 +187,9 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     func sendBroadcastMessage(_ data: NSDictionary) {
         let message = data.value(forKey: "message") as! String
         let type = data.value(forKey: "type") as! String? ?? "chat"
-        hms?.sendBroadcastMessage(type: type, message: message)
+        DispatchQueue.main.async { [weak self] in
+            self?.hms?.sendBroadcastMessage(type: type, message: message)
+        }
     }
     
     @objc
@@ -195,8 +197,9 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         let message = data.value(forKey: "message") as! String
         let targetedRoles = data.value(forKey: "roles") as? [String]
         let encodedTargetedRoles = HmsHelper.getRolesFromRoleNames(targetedRoles, roles: hms?.roles)
-        
-        hms?.sendGroupMessage(message: message, roles: encodedTargetedRoles)
+        DispatchQueue.main.async { [weak self] in
+            self?.hms?.sendGroupMessage(message: message, roles: encodedTargetedRoles)
+        }
     }
     
     @objc
@@ -207,7 +210,9 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         let peer = HmsHelper.getPeerFromPeerId(peerId, remotePeers: hms?.remotePeers)
         
         if let targetPeer = peer {
-            hms?.sendDirectMessage(message: message, peer: targetPeer)
+            DispatchQueue.main.async { [weak self] in
+                self?.hms?.sendDirectMessage(message: message, peer: targetPeer)
+            }
         }
     }
     
@@ -236,7 +241,9 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         
         let hmsTrack = HmsHelper.getTrackFromTrackId(trackId, mute: mute, hmsRemotePeers: remotePeers)
         if let extractedHmsTrack = hmsTrack {
-            hms?.changeTrackState(for: extractedHmsTrack, mute: mute)
+            DispatchQueue.main.async { [weak self] in
+                self?.hms?.changeTrackState(for: extractedHmsTrack, mute: mute)
+            }
         }
     }
     

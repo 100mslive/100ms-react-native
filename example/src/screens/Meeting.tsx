@@ -514,6 +514,29 @@ const Meeting = ({
     return styles.generalTile;
   };
 
+  const getMessageToList = (): Array<{
+    name: string;
+    type: string;
+    obj: any;
+  }> => {
+    const everyone = {
+      name: 'everyone',
+      type: 'everyone',
+      obj: {},
+    };
+    const knownRoles = instance?.knownRoles.map((role: any) => ({
+      name: role?.name,
+      type: 'group',
+      obj: role,
+    }));
+    const peers = remoteTrackIds.map(trackId => ({
+      name: trackId?.peerName,
+      type: 'direct',
+      obj: trackId,
+    }));
+    return [everyone, ...knownRoles, ...peers];
+  };
+
   const getButtons = ({endRoom}: Permissions) => {
     const buttons = [
       {
@@ -694,16 +717,29 @@ const Meeting = ({
             setModalVisible(false);
             setNotification(false);
           }}
-          send={(value: string) => {
+          messageToList={getMessageToList()}
+          send={(
+            value: string,
+            messageTo: {name: string; type: string; obj: any},
+          ) => {
             if (value.length > 0) {
               const hmsMessage = new HMSMessage({
                 type: 'chat',
                 time: new Date().toISOString(),
                 message: value,
               });
-
-              instance.sendBroadcastMessage(value);
-              addMessageRequest({data: hmsMessage, isLocal: true});
+              if (messageTo?.type === 'everyone') {
+                instance.sendBroadcastMessage(value);
+              } else if (messageTo?.type === 'group') {
+                instance.sendGroupMessage(value, [messageTo?.obj]);
+              } else if (messageTo.type === 'direct') {
+                instance.sendDirectMessage(value, messageTo?.obj?.peerId);
+              }
+              addMessageRequest({
+                data: hmsMessage,
+                isLocal: true,
+                name: messageTo?.name,
+              });
             }
           }}
         />
