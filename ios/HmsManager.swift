@@ -151,7 +151,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     
     @objc
     func join(_ credentials: NSDictionary) {
-        if let jwtToken = credentials.value(forKey: "authToken") as! String?, let user = credentials.value(forKey: "userID") as! String?, let room = credentials.value(forKey: "roomID") as! String? {
+        if let jwtToken = credentials.value(forKey: "authToken") as! String?, let user = credentials.value(forKey: "username") as! String?, let room = credentials.value(forKey: "roomID") as! String? {
             config = HMSConfig(userName: user, userID: UUID().uuidString, roomID: room, authToken: jwtToken)
             hms?.join(config: config!, delegate: self)
         }
