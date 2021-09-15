@@ -7,6 +7,7 @@ import HMSMessage from './classes/HMSMessage';
 interface HmsViewProps {
   trackId: string;
   style: ViewStyle;
+  sink: boolean;
 }
 
 const HmsView = requireNativeComponent<HmsViewProps>('HmsView');

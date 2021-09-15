@@ -1,20 +1,14 @@
 package com.reactnativehmssdk
 
-import android.app.ActionBar
-import android.graphics.Color
-import android.view.View
-import android.view.ViewGroup
 import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.annotations.ReactProp
-import live.hms.video.media.tracks.HMSVideoTrack
 import live.hms.video.sdk.HMSSDK
 import org.webrtc.SurfaceViewRenderer
 import live.hms.video.utils.SharedEglContext
-import org.webrtc.EglBase
 import org.webrtc.RendererCommon
 
-class HmssdkViewManager : SimpleViewManager<SurfaceViewRenderer>() {
+class HmssdkViewManager : SimpleViewManager<HmsView>() {
 
   private var reactContext: ThemedReactContext? = null
 
@@ -23,40 +17,23 @@ class HmssdkViewManager : SimpleViewManager<SurfaceViewRenderer>() {
     return REACT_CLASS
   }
 
-  public override fun createViewInstance(reactContext: ThemedReactContext): SurfaceViewRenderer {
+  public override fun createViewInstance(reactContext: ThemedReactContext): HmsView {
     this.reactContext = reactContext
-    val view = SurfaceViewRenderer(reactContext)
-    view.setEnableHardwareScaler(true)
-    view.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
-    view.init(SharedEglContext.context, null)
-//    view.layout(0,0,100,100)
+    val view = HmsView(reactContext)
     return view
   }
 
   @ReactProp(name = "trackId")
-  fun setColor(view: SurfaceViewRenderer, trackId: String?) {
+  fun setTrackId(view: HmsView, trackId: String?) {
     val hms = getHms()
-    val localTrackId = hms?.getLocalPeer()?.videoTrack?.trackId
-    if (localTrackId == trackId) {
-      val videoTrack = hms?.getLocalPeer()?.videoTrack
-      videoTrack?.addSink(view)
-    }
 
-    val remotePeers = hms?.getRemotePeers()
+    view.setTrackId(trackId, hms)
+  }
 
-    if (remotePeers !== null) {
-      for (peer in remotePeers) {
-        val videoTrackId = peer.videoTrack?.trackId
-
-        if (videoTrackId == trackId) {
-          val videoTrack = peer.videoTrack
-
-          videoTrack?.addSink(view)
-          return
-        }
-      }
-    }
-
+  @ReactProp(name = "sink")
+  fun setSink(view: HmsView, sink: Boolean?) {
+    val hms = getHms()
+    view.setSink(sink, hms)
   }
 
   private fun getHms(): HMSSDK? {
