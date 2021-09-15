@@ -48,7 +48,7 @@ export default class HMSSDK {
    * @returns
    * @memberof HMSSDK
    */
-  static async build() {
+  static build() {
     if (HmsSdk) {
       return HmsSdk;
     }
