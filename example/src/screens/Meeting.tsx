@@ -40,6 +40,12 @@ type Peer = {
   sink: Boolean;
 };
 
+type Permissions = {
+  changeRole: boolean;
+  endRoom: boolean;
+  removeOthers: boolean;
+};
+
 type DisplayNameProps = {
   peer?: Peer;
   videoStyles: Function;
@@ -47,6 +53,7 @@ type DisplayNameProps = {
   speakers: Array<String>;
   type: 'local' | 'remote';
   instance: any;
+  permissions: Permissions;
 };
 
 type MeetingProps = {
@@ -80,6 +87,7 @@ const DisplayName = ({
   speakers,
   type,
   instance,
+  permissions,
 }: DisplayNameProps) => {
   const {
     peerName,
@@ -100,29 +108,39 @@ const DisplayName = ({
   const speaking = speakers.includes(peerId!);
   const selectActionTitle = 'Select action';
   const selectActionMessage = '';
-  const selectActionButtons = [
-    {text: 'Cancel', type: 'cancel'},
-    {
-      text: 'Prompt to change role',
-      onPress: () => {
-        setForce(false);
-        setRoleModalVisible(true);
-      },
-    },
-    {
-      text: 'Force change',
-      onPress: () => {
-        setForce(true);
-        setRoleModalVisible(true);
-      },
-    },
-    {
+  const selectActionButtons: Array<{
+    text: String;
+    type?: String;
+    onPress?: Function;
+  }> = [{text: 'Cancel', type: 'cancel'}];
+  if (permissions?.changeRole) {
+    selectActionButtons.push(
+      ...[
+        {
+          text: 'Prompt to change role',
+          onPress: () => {
+            setForce(false);
+            setRoleModalVisible(true);
+          },
+        },
+        {
+          text: 'Force change',
+          onPress: () => {
+            setForce(true);
+            setRoleModalVisible(true);
+          },
+        },
+      ],
+    );
+  }
+  if (permissions?.removeOthers) {
+    selectActionButtons.push({
       text: 'Remove Participant',
       onPress: () => {
         instance?.removePeer(peerId, 'removed from room');
       },
-    },
-  ];
+    });
+  }
   const roleRequestTitle = 'Select action';
   const roleRequestButtons: [
     {text: String; onPress?: Function},
@@ -180,7 +198,7 @@ const DisplayName = ({
       ) : (
         <HmsView sink={sink} trackId={trackId} style={styles.hmsView} />
       )}
-      {type === 'remote' && (
+      {type === 'remote' && selectActionButtons.length > 1 && (
         <TouchableOpacity onPress={promptUser} style={styles.optionsContainer}>
           <Entypo
             name="dots-three-horizontal"
@@ -244,6 +262,13 @@ const Meeting = ({
   }>({});
   const [roleChangeModalVisible, setRoleChangeModalVisible] = useState(false);
   const [leaveModalVisible, setLeaveModalVisible] = useState(false);
+  const [localPeerPermissions, setLocalPeerPermissions] = useState<Permissions>(
+    {
+      changeRole: false,
+      endRoom: false,
+      removeOthers: false,
+    },
+  );
 
   const roleChangeRequestTitle = 'Role Change Request';
   const roleChangeRequestButtons: [
@@ -287,6 +312,8 @@ const Meeting = ({
     if (localTrackId) {
       setTrackId(decode(localPeer));
     }
+    const localPeerPermissions = localPeer?.role?.permissions;
+    setLocalPeerPermissions(localPeerPermissions);
 
     const remoteVideoIds: Peer[] = [];
 
@@ -487,6 +514,34 @@ const Meeting = ({
     return styles.generalTile;
   };
 
+  const getButtons = ({endRoom}: Permissions) => {
+    const buttons = [
+      {
+        text: 'Cancel',
+        type: 'cancel',
+      },
+      {
+        text: 'Leave without ending room',
+        onPress: () => {
+          instance.leave();
+          clearMessageRequest();
+          navigate('WelcomeScreen');
+        },
+      },
+    ];
+    if (endRoom) {
+      buttons.push({
+        text: 'End Room for all',
+        onPress: () => {
+          instance.endRoom(false, 'Host ended the room');
+          clearMessageRequest();
+          navigate('WelcomeScreen');
+        },
+      });
+    }
+    return buttons;
+  };
+
   const onViewRef = React.useRef(({viewableItems}: any) => {
     if (viewableItems) {
       const viewableItemsIds = viewableItems.map(
@@ -536,28 +591,7 @@ const Meeting = ({
         setModalVisible={setLeaveModalVisible}
         title="End Room"
         message=""
-        buttons={[
-          {
-            text: 'Cancel',
-            type: 'cancel',
-          },
-          {
-            text: 'Leave without ending room',
-            onPress: () => {
-              instance.leave();
-              clearMessageRequest();
-              navigate('WelcomeScreen');
-            },
-          },
-          {
-            text: 'End Room for all',
-            onPress: () => {
-              instance.endRoom(false, 'Host ended the room');
-              clearMessageRequest();
-              navigate('WelcomeScreen');
-            },
-          },
-        ]}
+        buttons={getButtons(localPeerPermissions)}
       />
       <View
         style={styles.wrapper}
@@ -578,6 +612,7 @@ const Meeting = ({
                 speakers={speakers}
                 instance={instance}
                 type={index === 0 ? 'local' : 'remote'}
+                permissions={localPeerPermissions}
               />
             );
           }}
