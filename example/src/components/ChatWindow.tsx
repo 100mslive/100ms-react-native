@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import type {GestureResponderEvent} from 'react-native';
 import {
   View,
@@ -27,6 +27,15 @@ const ChatWindow = ({
 }) => {
   const [text, setText] = useState('');
   const [messageTo, setMessageTo] = useState(0);
+  const scollviewRef = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    scollviewRef?.current?.scrollToEnd({animated: false});
+  }, []);
+
+  useEffect(() => {
+    scollviewRef?.current?.scrollToEnd({animated: true});
+  }, [messages]);
   return (
     <View style={styles.container}>
       <KeyboardAvoidingView
@@ -57,7 +66,7 @@ const ChatWindow = ({
             data={messageToList}
           />
         </View>
-        <ScrollView style={styles.chatContainer}>
+        <ScrollView ref={scollviewRef} style={styles.chatContainer}>
           {messages.map((item: any, index: number) => {
             return (
               <ChatBubble
