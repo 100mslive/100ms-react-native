@@ -19,9 +19,18 @@ class HmsView(
     surfaceView = SurfaceViewRenderer(context)
     surfaceView.setEnableHardwareScaler(true)
     surfaceView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
-    surfaceView.init(SharedEglContext.context, null)
-
+    println("****Atached")
     addView(surfaceView)
+  }
+
+  override fun onDetachedFromWindow() {
+    super.onDetachedFromWindow()
+    println("****Detached")
+  }
+
+  override fun onAttachedToWindow() {
+    super.onAttachedToWindow()
+    println("****Atachedddddd")
   }
 
   fun setData(trackId: String?, sink: Boolean?, hms: HMSSDK?) {
@@ -32,10 +41,14 @@ class HmsView(
       if (localTrackId == localTrack) {
         val videoTrack = hms?.getLocalPeer()?.videoTrack
         if(!sinked && sinkVideo) {
+          surfaceView.init(SharedEglContext.context, null)
           videoTrack?.addSink(surfaceView)
+          println("****addSinklocal")
           sinked = true
         }else if(!sinkVideo){
+          surfaceView.release()
           videoTrack?.removeSink(surfaceView)
+          println("****addSinklocal")
           sinked = false
         }
       }
@@ -45,14 +58,17 @@ class HmsView(
       if (remotePeers !== null) {
         for (peer in remotePeers) {
           val videoTrackId = peer.videoTrack?.trackId
-
           if (videoTrackId == localTrack) {
             val videoTrack = peer.videoTrack
             if(!sinked && sinkVideo) {
+              surfaceView.init(SharedEglContext.context, null)
               videoTrack?.addSink(surfaceView)
+              println("****addSinkremote")
               sinked = true
             }else if(!sinkVideo){
+              surfaceView.release()
               videoTrack?.removeSink(surfaceView)
+              println("****removeSinkremote")
               sinked = false
             }
             return
