@@ -25,13 +25,13 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
             // Permission Acquired if value of 'granted' is true
             print(#function, "permission granted: ", granted)
         }
-
+        
         AVCaptureDevice.requestAccess(for: .audio) { granted in
             // Permission Acquired if value of 'granted' is true
             print(#function, "permission granted: ", granted)
         }
     }
-
+    
     func on(join room: HMSRoom) {
         // Callback from join action
         let roomData = HmsDecoder.getHmsRoom(room)
@@ -52,7 +52,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         
         self.sendEvent(withName: ON_PREVIEW, body: ["event": ON_PREVIEW, "room": hmsRoom, "previewTracks": previewTracks, "localPeer": localPeerData])
     }
-
+    
     func on(room: HMSRoom, update: HMSRoomUpdate) {
         // Listener for any updation in room
         let roomData = HmsDecoder.getHmsRoom(room)
@@ -61,7 +61,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         
         self.sendEvent(withName: ON_ROOM_UPDATE, body: ["event": ON_ROOM_UPDATE, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
     }
-
+    
     func on(peer: HMSPeer, update: HMSPeerUpdate) {
         // Listener for updates in Peers
         let roomData = HmsDecoder.getHmsRoom(hms?.room)
@@ -73,7 +73,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         
         self.sendEvent(withName: ON_PEER_UPDATE, body: ["event": ON_PEER_UPDATE, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
     }
-
+    
     func on(track: HMSTrack, update: HMSTrackUpdate, for peer: HMSPeer) {
         // Listener for updates in Tracks
         let roomData = HmsDecoder.getHmsRoom(hms?.room)
@@ -82,17 +82,17 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         
         self.sendEvent(withName: ON_TRACK_UPDATE, body: ["event": ON_TRACK_UPDATE, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
     }
-
+    
     func on(error: HMSError) {
         print("ERROR")
         self.sendEvent(withName: ON_ERROR, body: ["event": ON_ERROR, "error": error.description, "code": error.code.rawValue, "id": error.id, "message": error.message])
     }
-
+    
     func on(message: HMSMessage) {
         print("Message")
         self.sendEvent(withName: ON_MESSAGE, body: ["event": ON_MESSAGE, "sender": message.sender?.name ?? "", "time": message.time, "message": message.message, "type": message.type])
     }
-
+    
     func on(updated speakers: [HMSSpeaker]) {
         print("Speaker")
         var speakerPeerIds: [String] = []
@@ -101,12 +101,12 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         }
         self.sendEvent(withName: ON_SPEAKER, body: ["event": ON_SPEAKER, "count": speakers.count, "peers" :speakerPeerIds])
     }
-
+    
     func onReconnecting() {
         self.sendEvent(withName: RECONNECTING, body: ["event": RECONNECTING])
         print("Reconnecting")
     }
-
+    
     func onReconnected() {
         self.sendEvent(withName: RECONNECTED, body: ["event": RECONNECTED])
         print("Reconnected")
@@ -129,31 +129,47 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         let roomEnded = notification.roomEnded
         self.sendEvent(withName: ON_REMOVED_FROM_ROOM, body: ["event": ON_REMOVED_FROM_ROOM, "requestedBy": decodedRequestedBy, "reason": reason, "roomEnded": roomEnded ])
     }
-
+    
     override func supportedEvents() -> [String]! {
         return [ON_JOIN, ON_PREVIEW, ON_ROOM_UPDATE, ON_PEER_UPDATE, ON_TRACK_UPDATE, ON_ERROR, ON_MESSAGE, ON_SPEAKER, RECONNECTING, RECONNECTED, ON_ROLE_CHANGE_REQUEST, ON_REMOVED_FROM_ROOM]
     }
     
     @objc
     func build() {
-        hms = HMSSDK.build()
+        DispatchQueue.main.async { [weak self] in
+            self?.hms = HMSSDK.build()
+        }
     }
     
     @objc
     func preview(_ credentials: NSDictionary) {
-        if let jwtToken = credentials.value(forKey: "authToken") as? String,
+        if let authToken = credentials.value(forKey: "authToken") as? String,
            let user = credentials.value(forKey: "userID") as? String,
            let room = credentials.value(forKey: "roomID") as? String {
-            config = HMSConfig(userName: user, userID: UUID().uuidString, roomID: room, authToken: jwtToken)
-            hms?.preview(config: config!, delegate: self)
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.config = HMSConfig(userName: user, userID: UUID().uuidString, roomID: room, authToken: authToken) //, endpoint: "https://qa-init.100ms.live/init"
+                strongSelf.hms?.preview(config: strongSelf.config!, delegate: strongSelf)
+            }
         }
     }
     
     @objc
     func join(_ credentials: NSDictionary) {
-        if let jwtToken = credentials.value(forKey: "authToken") as! String?, let user = credentials.value(forKey: "username") as! String?, let room = credentials.value(forKey: "roomID") as! String? {
-            config = HMSConfig(userName: user, userID: UUID().uuidString, roomID: room, authToken: jwtToken)
-            hms?.join(config: config!, delegate: self)
+        
+        if let authToken = credentials.value(forKey: "authToken") as? String,
+           let user = credentials.value(forKey: "username") as? String,
+           let room = credentials.value(forKey: "roomID") as? String {
+            
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return }
+                if let config = strongSelf.config {
+                    strongSelf.hms?.join(config: config, delegate: strongSelf)
+                } else {
+                    strongSelf.config = HMSConfig(userName: user, userID: UUID().uuidString, roomID: room, authToken: authToken)
+                    strongSelf.hms?.join(config: strongSelf.config!, delegate: strongSelf)
+                }
+            }
         }
     }
     
@@ -177,41 +193,53 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
             self?.hms?.localPeer?.localVideoTrack()?.switchCamera()
         }
     }
-
+    
     @objc
     func leave() {
-        hms?.leave();
+        DispatchQueue.main.async { [weak self] in
+            self?.hms?.leave();
+        }
     }
     
     @objc
     func sendBroadcastMessage(_ data: NSDictionary) {
-        let message = data.value(forKey: "message") as! String
-        let type = data.value(forKey: "type") as! String? ?? "chat"
-        DispatchQueue.main.async { [weak self] in
-            self?.hms?.sendBroadcastMessage(type: type, message: message)
+        if let message = data.value(forKey: "message") as? String {
+            let type = data.value(forKey: "type") as? String ?? "chat"
+            DispatchQueue.main.async { [weak self] in
+                self?.hms?.sendBroadcastMessage(type: type, message: message)
+            }
         }
     }
     
     @objc
     func sendGroupMessage(_ data: NSDictionary) {
-        let message = data.value(forKey: "message") as! String
-        let targetedRoles = data.value(forKey: "roles") as? [String]
-        let encodedTargetedRoles = HmsHelper.getRolesFromRoleNames(targetedRoles, roles: hms?.roles)
-        DispatchQueue.main.async { [weak self] in
-            self?.hms?.sendGroupMessage(message: message, roles: encodedTargetedRoles)
+        if let message = data.value(forKey: "message") as? String,
+           let targetedRoles = data.value(forKey: "roles") as? [String] {
+            DispatchQueue.main.async { [weak self] in
+                let encodedTargetedRoles = HmsHelper.getRolesFromRoleNames(targetedRoles, roles: self?.hms?.roles)
+                self?.hms?.sendGroupMessage(message: message, roles: encodedTargetedRoles)
+            }
         }
     }
     
     @objc
     func sendDirectMessage(_ data: NSDictionary) {
-        let message = data.value(forKey: "message") as! String
-        let peerId = data.value(forKey: "peerId") as? String
-        
-        let peer = HmsHelper.getPeerFromPeerId(peerId, remotePeers: hms?.remotePeers)
-        
-        if let targetPeer = peer {
+        if let message = data.value(forKey: "message") as? String,
+           let peerId = data.value(forKey: "peerId") as? String {
             DispatchQueue.main.async { [weak self] in
-                self?.hms?.sendDirectMessage(message: message, peer: targetPeer)
+                if let peer = HmsHelper.getPeerFromPeerId(peerId, remotePeers: self?.hms?.remotePeers) {
+                    self?.hms?.sendDirectMessage(message: message, peer: peer)
+                }
+            }
+        }
+    }
+    
+    @objc
+    func acceptRoleChange() {
+        if let roleChangeRequest = recentRoleChangeRequest {
+            DispatchQueue.main.async { [weak self] in
+                self?.hms?.accept(changeRole: roleChangeRequest)
+                self?.recentRoleChangeRequest = nil
             }
         }
     }
@@ -271,16 +299,6 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         
         DispatchQueue.main.async { [weak self] in
             self?.hms?.endRoom(lock: lock ?? false, reason: reason ?? "")
-        }
-    }
-    
-    @objc
-    func acceptRoleChange() {
-        if let roleChangeRequest = recentRoleChangeRequest {
-            DispatchQueue.main.async { [weak self] in
-                self?.hms?.accept(changeRole: roleChangeRequest)
-                self?.recentRoleChangeRequest = nil
-            }
         }
     }
 }

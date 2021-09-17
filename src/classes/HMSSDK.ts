@@ -8,7 +8,7 @@ import type HMSRole from './HMSRole';
 import HMSEncoder from './HMSEncoder';
 import HMSMessage from './HMSMessage';
 import HMSHelper from './HMSHelper';
-import type HMSTrack from 'lib/typescript/classes/HMSTrack';
+import type HMSTrack from './HMSTrack';
 
 const {
   /**
