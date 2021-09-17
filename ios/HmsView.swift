@@ -32,34 +32,37 @@ class HmssdkDisplayView: UIView {
         self.hms = hmsInstance
     }
     
-    @objc var trackId: String = "" {
+    @objc var data: NSDictionary = [:] {
         didSet {
-            localTrack = trackId
-            print("trackId")
-            if let videoTrack = hms?.localPeer?.videoTrack {
-                if videoTrack.trackId == trackId {
-                    if(!sinked && sinkVideo) {
-                        videoView.setVideoTrack(videoTrack)
-                        sinked = true
-                    } else if(!sinkVideo){
-                        videoView.setVideoTrack(nil)
-                        sinked = false
+            if let trackId = data.value(forKey: "trackId") as? String, let sink = data.value(forKey: "sink") as? Bool {
+                sinkVideo = sink
+                localTrack = trackId
+                
+                if let videoTrack = hms?.localPeer?.videoTrack {
+                    if videoTrack.trackId == trackId {
+                        if(!sinked && sinkVideo) {
+                            videoView.setVideoTrack(videoTrack)
+                            sinked = true
+                        } else if(!sinkVideo){
+                            videoView.setVideoTrack(nil)
+                            sinked = false
+                        }
+                        return
                     }
-                    return
                 }
-            }
-            if let remotePeers = hms?.remotePeers {
-                for peer in remotePeers {
-                    if let remoteTrackId = peer.videoTrack?.trackId {
-                        if remoteTrackId == trackId {
-                            if(!sinked && sinkVideo) {
-                                videoView.setVideoTrack(peer.videoTrack)
-                                sinked = true
-                            } else if(!sinkVideo){
-                                videoView.setVideoTrack(nil)
-                                sinked = false
+                if let remotePeers = hms?.remotePeers {
+                    for peer in remotePeers {
+                        if let remoteTrackId = peer.videoTrack?.trackId {
+                            if remoteTrackId == trackId {
+                                if(!sinked && sinkVideo) {
+                                    videoView.setVideoTrack(peer.videoTrack)
+                                    sinked = true
+                                } else if(!sinkVideo){
+                                    videoView.setVideoTrack(nil)
+                                    sinked = false
+                                }
+                                return
                             }
-                            return
                         }
                     }
                 }
@@ -67,40 +70,6 @@ class HmssdkDisplayView: UIView {
         }
     }
     
-    @objc var sink: Bool = true {
-        didSet {
-            sinkVideo = sink
-            if let videoTrack = hms?.localPeer?.videoTrack {
-                if videoTrack.trackId == trackId {
-                    if(!sinked && sinkVideo) {
-                        videoView.setVideoTrack(videoTrack)
-                        sinked = true
-                    } else if(!sinkVideo){
-                        videoView.setVideoTrack(nil)
-                        sinked = false
-                    }
-                    return
-                }
-            }
-            if let remotePeers = hms?.remotePeers {
-                for peer in remotePeers {
-                    if let remoteTrackId = peer.videoTrack?.trackId {
-                        if remoteTrackId == trackId {
-                            if(!sinked && sinkVideo) {
-                                videoView.setVideoTrack(peer.videoTrack)
-                                sinked = true
-                            } else if(!sinkVideo){
-                                videoView.setVideoTrack(nil)
-                                sinked = false
-                            }
-                            return
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.addSubview(videoView)

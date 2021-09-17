@@ -1,5 +1,6 @@
 package com.reactnativehmssdk
 
+import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.annotations.ReactProp
@@ -17,23 +18,26 @@ class HmssdkViewManager : SimpleViewManager<HmsView>() {
     return REACT_CLASS
   }
 
+  override fun onDropViewInstance(view: HmsView) {
+    super.onDropViewInstance(view)
+    print("droppedView")
+  }
+
   public override fun createViewInstance(reactContext: ThemedReactContext): HmsView {
     this.reactContext = reactContext
     val view = HmsView(reactContext)
+    println("view created")
     return view
   }
 
-  @ReactProp(name = "trackId")
-  fun setTrackId(view: HmsView, trackId: String?) {
-    val hms = getHms()
+  @ReactProp(name="data")
+  fun setData(view: HmsView, data: ReadableMap) {
+    val trackId = data.getString("trackId")
+    val sink = data.getBoolean("sink")
 
-    view.setTrackId(trackId, hms)
-  }
-
-  @ReactProp(name = "sink")
-  fun setSink(view: HmsView, sink: Boolean?) {
     val hms = getHms()
-    view.setSink(sink, hms)
+    view.setData(trackId, sink, hms)
+    // do the processing here
   }
 
   private fun getHms(): HMSSDK? {
