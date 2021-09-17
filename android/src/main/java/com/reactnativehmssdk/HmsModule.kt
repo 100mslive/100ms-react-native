@@ -64,6 +64,7 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
         data.putMap("localPeer", localPeerData)
         reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_PREVIEW", data)
       }
+
     })
   }
 
@@ -224,7 +225,6 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   @ReactMethod
   fun leave() {
     hmsSDK?.leave()
-    releaseAllAssets()
   }
 
   @ReactMethod
@@ -387,9 +387,5 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
         }
       })
     }
-  }
-
-  private fun releaseAllAssets() {
-    println("here we are")
   }
 }
