@@ -2,99 +2,59 @@ package com.reactnativehmssdk
 
 import android.content.Context
 import android.widget.FrameLayout
+import com.facebook.react.bridge.LifecycleEventListener
+import com.facebook.react.bridge.ReactContext
+import live.hms.video.media.tracks.HMSLocalVideoTrack
+import live.hms.video.media.tracks.HMSVideoTrack
 import live.hms.video.sdk.HMSSDK
 import org.webrtc.SurfaceViewRenderer
 import live.hms.video.utils.SharedEglContext
 import org.webrtc.RendererCommon
 
 class HmsView(
-  context: Context
+  context: ReactContext
 ) : FrameLayout(context) {
   private var surfaceView: SurfaceViewRenderer
-  private var sinked = false
+  private var videoTrack: HMSVideoTrack? = null
   private var localTrack: String? = null
-  private var sinkVideo: Boolean = true
 
   init {
     surfaceView = SurfaceViewRenderer(context)
     surfaceView.setEnableHardwareScaler(true)
     surfaceView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
-    surfaceView.init(SharedEglContext.context, null)
-
     addView(surfaceView)
   }
 
-  fun setTrackId(trackId: String?, hms: HMSSDK?) {
+  override fun onDetachedFromWindow() {
+    super.onDetachedFromWindow()
+    videoTrack?.removeSink(surfaceView)
+    surfaceView.release()
+  }
+
+  override fun onAttachedToWindow() {
+    super.onAttachedToWindow()
+    surfaceView.init(SharedEglContext.context, null)
+    videoTrack?.addSink(surfaceView)
+  }
+
+  fun setData(trackId: String?, sink: Boolean?, hms: HMSSDK?) {
     if (trackId != null) {
       localTrack = trackId
-      val localTrackId = hms?.getLocalPeer()?.videoTrack?.trackId
-      if (localTrackId == trackId) {
-        val videoTrack = hms.getLocalPeer()?.videoTrack
-        if(!sinked && sinkVideo) {
-          videoTrack?.addSink(surfaceView)
-          sinked = true
-        }else if(!sinkVideo){
-          videoTrack?.removeSink(surfaceView)
-          sinked = false
+        val localTrackId = hms?.getLocalPeer()?.videoTrack?.trackId
+        if (localTrackId == localTrack) {
+          videoTrack = hms?.getLocalPeer()?.videoTrack
         }
-      }
 
-      val remotePeers = hms?.getRemotePeers()
-
-      if (remotePeers !== null) {
-        for (peer in remotePeers) {
-          val videoTrackId = peer.videoTrack?.trackId
-
-          if (videoTrackId == trackId) {
-            val videoTrack = peer.videoTrack
-            if(!sinked && sinkVideo) {
-              videoTrack?.addSink(surfaceView)
-              sinked = true
-            }else if(!sinkVideo){
-              videoTrack?.removeSink(surfaceView)
-              sinked = false
+        val remotePeers = hms?.getRemotePeers()
+        if (remotePeers !== null) {
+          for (peer in remotePeers) {
+            val videoTrackId = peer.videoTrack?.trackId
+            if (videoTrackId == localTrack) {
+              videoTrack = peer.videoTrack
+              return
             }
-            return
           }
         }
       }
     }
   }
-
-  fun setSink(sink: Boolean?, hms: HMSSDK?) {
-    if (sink != null && localTrack != null) {
-      sinkVideo = sink
-      val localTrackId = hms?.getLocalPeer()?.videoTrack?.trackId
-      if (localTrackId == localTrack) {
-        val videoTrack = hms?.getLocalPeer()?.videoTrack
-        if(!sinked && sinkVideo) {
-          videoTrack?.addSink(surfaceView)
-          sinked = true
-        }else if(!sinkVideo){
-          videoTrack?.removeSink(surfaceView)
-          sinked = false
-        }
-      }
-
-      val remotePeers = hms?.getRemotePeers()
-
-      if (remotePeers !== null) {
-        for (peer in remotePeers) {
-          val videoTrackId = peer.videoTrack?.trackId
-
-          if (videoTrackId == localTrack) {
-            val videoTrack = peer.videoTrack
-            if(!sinked && sinkVideo) {
-              videoTrack?.addSink(surfaceView)
-              sinked = true
-            }else if(!sinkVideo){
-              videoTrack?.removeSink(surfaceView)
-              sinked = false
-            }
-            return
-          }
-        }
-      }
-    }
-  }
-}
