@@ -3,7 +3,7 @@ import AVKit
 
 @objc(HmsView)
 class HmsView: RCTViewManager {
-
+    
     override func view() -> (HmssdkDisplayView) {
         let view = HmssdkDisplayView()
         let hms = getHmsFromBridge()
@@ -19,52 +19,54 @@ class HmsView: RCTViewManager {
 }
 
 class HmssdkDisplayView: UIView {
+    
     lazy var videoView: HMSVideoView = {
         return HMSVideoView()
     }()
-
+    
     var hms: HMSSDK?
-    var localTrack: String? = nil
-    var sinked: Bool = false
-    var sinkVideo: Bool = true
+    var localTrack: String?
+    var sinked = false
+    var sinkVideo = true
     
     func setHms(_ hmsInstance: HMSSDK?) {
-        self.hms = hmsInstance
+        hms = hmsInstance
     }
     
     @objc var data: NSDictionary = [:] {
         didSet {
-            if let trackId = data.value(forKey: "trackId") as? String, let sink = data.value(forKey: "sink") as? Bool {
-                sinkVideo = sink
-                localTrack = trackId
-                
-                if let videoTrack = hms?.localPeer?.videoTrack {
-                    if videoTrack.trackId == trackId {
-                        if(!sinked && sinkVideo) {
-                            videoView.setVideoTrack(videoTrack)
-                            sinked = true
-                        } else if(!sinkVideo){
-                            videoView.setVideoTrack(nil)
-                            sinked = false
-                        }
-                        return
+            guard let trackID = data.value(forKey: "trackId") as? String,
+                  let sink = data.value(forKey: "sink") as? Bool
+            else { return }
+            
+            sinkVideo = sink
+            localTrack = trackID
+            
+            if let videoTrack = hms?.localPeer?.videoTrack {
+                if videoTrack.trackId == trackID {
+                    
+                    if !sinked && sinkVideo {
+                        videoView.setVideoTrack(videoTrack)
+                        sinked = true
+                    } else if !sinkVideo {
+                        videoView.setVideoTrack(nil)
+                        sinked = false
                     }
+                    return
                 }
-                if let remotePeers = hms?.remotePeers {
-                    for peer in remotePeers {
-                        if let remoteTrackId = peer.videoTrack?.trackId {
-                            if remoteTrackId == trackId {
-                                if(!sinked && sinkVideo) {
-                                    videoView.setVideoTrack(peer.videoTrack)
-                                    sinked = true
-                                } else if(!sinkVideo){
-                                    videoView.setVideoTrack(nil)
-                                    sinked = false
-                                }
-                                return
-                            }
-                        }
+            }
+            
+            if let remotePeers = hms?.remotePeers {
+                for peer in remotePeers where peer.videoTrack?.trackId == trackID {
+                    
+                    if !sinked && sinkVideo {
+                        videoView.setVideoTrack(peer.videoTrack)
+                        sinked = true
+                    } else if !sinkVideo {
+                        videoView.setVideoTrack(nil)
+                        sinked = false
                     }
+                    return
                 }
             }
         }
@@ -74,7 +76,7 @@ class HmssdkDisplayView: UIView {
         super.init(frame: frame)
         self.addSubview(videoView)
         self.frame = frame
-
+        
         print("frame initialized \(frame.height) \(frame.width)")
         
         videoView.translatesAutoresizingMaskIntoConstraints = false

@@ -143,32 +143,40 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     
     @objc
     func preview(_ credentials: NSDictionary) {
-        if let authToken = credentials.value(forKey: "authToken") as? String,
-           let user = credentials.value(forKey: "userID") as? String,
-           let room = credentials.value(forKey: "roomID") as? String {
-            DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else { return }
-                strongSelf.config = HMSConfig(userName: user, userID: UUID().uuidString, roomID: room, authToken: authToken) //, endpoint: "https://qa-init.100ms.live/init"
-                strongSelf.hms?.preview(config: strongSelf.config!, delegate: strongSelf)
-            }
+        
+        guard let authToken = credentials.value(forKey: "authToken") as? String,
+              let user = credentials.value(forKey: "userID") as? String,
+              let room = credentials.value(forKey: "roomID") as? String
+        else {
+            print(#function, "Invalid credentials")
+            return
+        }
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.config = HMSConfig(userName: user, userID: UUID().uuidString, roomID: room, authToken: authToken) //, endpoint: "https://qa-init.100ms.live/init"
+            strongSelf.hms?.preview(config: strongSelf.config!, delegate: strongSelf)
         }
     }
     
     @objc
     func join(_ credentials: NSDictionary) {
         
-        if let authToken = credentials.value(forKey: "authToken") as? String,
-           let user = credentials.value(forKey: "username") as? String,
-           let room = credentials.value(forKey: "roomID") as? String {
-            
-            DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else { return }
-                if let config = strongSelf.config {
-                    strongSelf.hms?.join(config: config, delegate: strongSelf)
-                } else {
-                    strongSelf.config = HMSConfig(userName: user, userID: UUID().uuidString, roomID: room, authToken: authToken)
-                    strongSelf.hms?.join(config: strongSelf.config!, delegate: strongSelf)
-                }
+        guard let authToken = credentials.value(forKey: "authToken") as? String,
+              let user = credentials.value(forKey: "username") as? String,
+              let room = credentials.value(forKey: "roomID") as? String
+        else {
+            print(#function, "Invalid credentials")
+            return
+        }
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
+            if let config = strongSelf.config {
+                strongSelf.hms?.join(config: config, delegate: strongSelf)
+            } else {
+                strongSelf.config = HMSConfig(userName: user, userID: UUID().uuidString, roomID: room, authToken: authToken)
+                strongSelf.hms?.join(config: strongSelf.config!, delegate: strongSelf)
             }
         }
     }
@@ -203,102 +211,133 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     
     @objc
     func sendBroadcastMessage(_ data: NSDictionary) {
-        if let message = data.value(forKey: "message") as? String {
-            let type = data.value(forKey: "type") as? String ?? "chat"
-            DispatchQueue.main.async { [weak self] in
-                self?.hms?.sendBroadcastMessage(type: type, message: message)
-            }
+        guard let message = data.value(forKey: "message") as? String
+        else {
+            print(#function, "No message data available")
+            return
+        }
+        
+        let type = data.value(forKey: "type") as? String ?? "chat"
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.hms?.sendBroadcastMessage(type: type, message: message)
         }
     }
     
     @objc
     func sendGroupMessage(_ data: NSDictionary) {
-        if let message = data.value(forKey: "message") as? String,
-           let targetedRoles = data.value(forKey: "roles") as? [String] {
-            DispatchQueue.main.async { [weak self] in
-                let encodedTargetedRoles = HmsHelper.getRolesFromRoleNames(targetedRoles, roles: self?.hms?.roles)
-                self?.hms?.sendGroupMessage(message: message, roles: encodedTargetedRoles)
-            }
+        guard let message = data.value(forKey: "message") as? String,
+              let targetedRoles = data.value(forKey: "roles") as? [String]
+        else {
+            print(#function, "Invalid message data")
+            return
+        }
+        
+        DispatchQueue.main.async { [weak self] in
+            let encodedTargetedRoles = HmsHelper.getRolesFromRoleNames(targetedRoles, roles: self?.hms?.roles)
+            self?.hms?.sendGroupMessage(message: message, roles: encodedTargetedRoles)
         }
     }
     
     @objc
     func sendDirectMessage(_ data: NSDictionary) {
-        if let message = data.value(forKey: "message") as? String,
-           let peerId = data.value(forKey: "peerId") as? String {
-            DispatchQueue.main.async { [weak self] in
-                if let peer = HmsHelper.getPeerFromPeerId(peerId, remotePeers: self?.hms?.remotePeers) {
-                    self?.hms?.sendDirectMessage(message: message, peer: peer)
-                }
-            }
+        guard let message = data.value(forKey: "message") as? String,
+              let peerId = data.value(forKey: "peerId") as? String
+        else {
+            print(#function, "Invalid message data")
+            return
+        }
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let peer = HmsHelper.getPeerFromPeerId(peerId, remotePeers: self?.hms?.remotePeers) else { return }
+            self?.hms?.sendDirectMessage(message: message, peer: peer)
         }
     }
     
     @objc
     func acceptRoleChange() {
-        if let roleChangeRequest = recentRoleChangeRequest {
-            DispatchQueue.main.async { [weak self] in
-                self?.hms?.accept(changeRole: roleChangeRequest)
-                self?.recentRoleChangeRequest = nil
-            }
+        
+        DispatchQueue.main.async { [weak self] in
+            
+            guard let request = self?.recentRoleChangeRequest else { return }
+            
+            self?.hms?.accept(changeRole: request)
+            
+            self?.recentRoleChangeRequest = nil
         }
     }
     
     @objc
     func changeRole(_ data: NSDictionary) {
-        let peerId = data.value(forKey: "peerId") as? String
-        let role = data.value(forKey: "role") as? String
-        let force = data.value(forKey: "force") as! Bool
         
-        let hmsPeer = HmsHelper.getPeerFromPeerId(peerId, remotePeers: hms?.remotePeers)
-        let hmsRole = HmsHelper.getRoleFromRoleName(role, roles: hms?.roles)
+        guard let peerId = data.value(forKey: "peerId") as? String,
+              let role = data.value(forKey: "role") as? String
+        else {
+            print(#function, "Invalid data")
+            return
+        }
         
-        if let extractedHmsPeer = hmsPeer, let extractedHmsRole = hmsRole {
-            DispatchQueue.main.async { [weak self] in
-                self?.hms?.changeRole(for: extractedHmsPeer, to: extractedHmsRole, force: force)
-            }
+        let force = data.value(forKey: "force") as? Bool ?? false
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let peer = HmsHelper.getPeerFromPeerId(peerId, remotePeers: self?.hms?.remotePeers),
+            let role = HmsHelper.getRoleFromRoleName(role, roles: self?.hms?.roles)
+            else { return }
+        
+            self?.hms?.changeRole(for: peer, to: role, force: force)
         }
     }
     
     @objc
     func changeTrackState(_ data: NSDictionary) {
-        let trackId = data.value(forKey: "trackId") as? String
-        let mute = data.value(forKey: "mute") as! Bool
         
-        let remotePeers = hms?.remotePeers
+        guard let trackId = data.value(forKey: "trackId") as? String
+        else {
+            print(#function, "Invalid data")
+            return
+        }
         
-        let hmsTrack = HmsHelper.getTrackFromTrackId(trackId, mute: mute, hmsRemotePeers: remotePeers)
-        if let extractedHmsTrack = hmsTrack {
-            DispatchQueue.main.async { [weak self] in
-                self?.hms?.changeTrackState(for: extractedHmsTrack, mute: mute)
-            }
+        let mute = data.value(forKey: "mute") as? Bool ?? true
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let remotePeers = self?.hms?.remotePeers,
+                  let track = HmsHelper.getTrackFromTrackId(trackId, remotePeers)
+            else { return }
+
+            self?.hms?.changeTrackState(for: track, mute: mute)
         }
     }
     
     @objc
     func removePeer(_ data: NSDictionary) {
-        let peerId = data.value(forKey: "peerId") as? String
+        
+        guard let peerId = data.value(forKey: "peerId") as? String
+        else {
+            print(#function, "Invalid data")
+            return
+        }
+        
         let reason = data.value(forKey: "reason") as? String
         
-        let remotePeers = hms?.remotePeers
-        
-        let peer = HmsHelper.getPeerFromPeerId(peerId, remotePeers: remotePeers)
-        
-        if let targetedPeer = peer {
-            DispatchQueue.main.async { [weak self] in
-                self?.hms?.removePeer(targetedPeer, reason: reason ?? "")
-            }
+        DispatchQueue.main.async { [weak self] in
+
+            guard let remotePeers = self?.hms?.remotePeers,
+                  let peer = HmsHelper.getPeerFromPeerId(peerId, remotePeers: remotePeers)
+            else { return }
+            
+            self?.hms?.removePeer(peer, reason: reason ?? "Removed from room")
         }
     }
     
     
     @objc
     func endRoom(_ data: NSDictionary) {
+        
         let lock = data.value(forKey: "lock") as? Bool
         let reason = data.value(forKey: "reason") as? String
         
         DispatchQueue.main.async { [weak self] in
-            self?.hms?.endRoom(lock: lock ?? false, reason: reason ?? "")
+            self?.hms?.endRoom(lock: lock ?? false, reason: reason ?? "Room was ended")
         }
     }
 }
