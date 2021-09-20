@@ -19,7 +19,11 @@ const App = ({
   };
   return (
     <View>
-      <Picker selectedValue={selectedItem} onValueChange={onPress}>
+      <Picker
+        selectedValue={selectedItem}
+        onValueChange={onPress}
+        dropdownIconColor="black"
+        dropdownIconRippleColor="grey">
         {data.map((item, index) => (
           <Picker.Item key={index} label={item.name} value={item.name} />
         ))}
