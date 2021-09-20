@@ -18,9 +18,15 @@ class HmssdkViewManager : SimpleViewManager<HmsView>() {
     return REACT_CLASS
   }
 
+  override fun onDropViewInstance(view: HmsView) {
+    super.onDropViewInstance(view)
+    print("droppedView")
+  }
+
   public override fun createViewInstance(reactContext: ThemedReactContext): HmsView {
     this.reactContext = reactContext
     val view = HmsView(reactContext)
+    println("view created")
     return view
   }
 

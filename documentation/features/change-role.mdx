@@ -1,0 +1,55 @@
+# Change Role
+
+Role is a powerful concept that takes a lot of complexity away in handling permissions and supporting features like breakout rooms. Check what actions this role can perform. i.e can it change someone else's current role, end meeting, remove someone from the room.
+
+## Check if user has permissions
+
+```js
+const changeRole: boolean = peer.role.permissions.changeRole
+```
+
+## Example 
+
+Imagine an audio room with 2 roles "speaker" and "listener". Only someone with a "speaker" role can publish audio to the room while "listener" can only subscribe. Now at some point "speaker" may decide to nominate some "listener" to become a "speaker". This is where the changeRole comes in.
+
+## Request Role Change
+
+You can either request a user to accept a role change request or forcefully change user's current role. If the request is accepted, the role and permissions will get updated. If the request is denied and you still want to change user's role then use force flag.
+
+Imagine that the newly nominated speaker is not behaving nicely and we want to move him back to listener without a prompt. This is where the force parameter comes in. When it is set to true the other party will not receive a confirmation roleChangeRequest but instead will straight away receive a new set of updated permissions and stop publishing.
+
+```js
+const newRole = "listener";
+
+// instance acquired from build() method
+hmsInstance.changeRole(peer.id, newRole, false); // request role change
+hmsInstance.changeRole(peer.id, newRole, true); // force role change
+```
+
+## Request Role Change
+
+Once the peer with adequate permissions calls change role, following peer in the room will receive a notification with type ON_ROLE_CHANGE_REQUEST containing requestedBy and suggestedRole in the data object.
+
+```js
+// import classes
+import { HMSUpdateListenerActions, HMSLeaveRoomRequest } from '@100mslive/react-native-hms';
+
+const onRoleChangeRequest = ({ requestedBy, suggestedRole }) => {
+  // open a promt to accept or reject the request
+};
+
+hmsInstance.addEventListener(
+  HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST,
+  onRoleChangeRequest,
+);
+```
+
+## Accept Request Role Change
+
+Once the peer with adequate permissions calls change role, you can either accept or reject the request.
+
+```js
+// call this if you accept role change else close the prompt
+hmsInstance.acceptRoleChange(); 
+```
+

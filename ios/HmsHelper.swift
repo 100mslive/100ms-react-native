@@ -2,56 +2,49 @@ import HMSSDK
 import Foundation
 
 class HmsHelper: NSObject {
-    static func getPeerFromPeerId(_ peerId: String?, remotePeers: [HMSRemotePeer]?) -> HMSPeer? {
-        if let peerName = peerId {
-            if let peers = remotePeers {
-                for peer in peers {
-                    if (peer.peerID == peerName) {
-                        return peer
-                    }
-                }
-            }
-        }
-        return nil
+    
+    static func getPeerFromPeerId(_ peerID: String?, remotePeers: [HMSRemotePeer]?) -> HMSPeer? {
+        
+        guard let peerID = peerID, let peers = remotePeers else { return nil }
+
+        return peers.first { $0.peerID == peerID }
     }
+    
     
     static func getRolesFromRoleNames(_ targetedRoles: [String]?, roles: [HMSRole]?) -> [HMSRole] {
-        var hmsRoles: [HMSRole] = []
-        if let extractedRoles = roles, let extractedTargetedRoles = targetedRoles {
-            for role in extractedRoles {
-                for targetedRole in extractedTargetedRoles {
-                    if targetedRole == role.name {
-                        hmsRoles.append(role)
-                    }
-                }
-            }
-        }
-        return hmsRoles
+
+        guard let roles = roles,
+              let targetedRoles = targetedRoles
+        else { return [HMSRole]() }
+        
+        return roles.filter { targetedRoles.contains($0.name) }
     }
+    
     
     static func getRoleFromRoleName(_ role: String?, roles: [HMSRole]?) -> HMSRole? {
-        if let extractedRoles = roles, let roleName = role {
-            for roleData in extractedRoles {
-                if roleData.name == roleName {
-                    return roleData
-                }
-            }
-        }
-        return nil
+        
+        guard let roles = roles, let roleName = role else { return nil }
+        
+        return roles.first { $0.name == roleName }
     }
     
-    static func getTrackFromTrackId(_ trackId: String?, mute: Bool, hmsRemotePeers: [HMSRemotePeer]?) -> HMSTrack? {
-        if let track = trackId, let hmsPeers = hmsRemotePeers {
-            for peer in hmsPeers {
-                if (peer.videoTrack?.trackId == track) {
-                    return peer.videoTrack! as HMSTrack
-                }
-                
-                if (peer.audioTrack?.trackId == track) {
-                    return peer.audioTrack! as HMSTrack
-                }
+    
+    static func getTrackFromTrackId(_ trackID: String?, _ remotePeers: [HMSRemotePeer]?) -> HMSTrack? {
+        
+        for peer in remotePeers ?? [] {
+            if peer.videoTrack?.trackId == trackID {
+                return peer.videoTrack
+            }
+            
+            if peer.audioTrack?.trackId == trackID {
+                return peer.audioTrack
+            }
+            
+            for track in peer.auxiliaryTracks ?? [] where track.trackId == trackID {
+                return track
             }
         }
+        
         return nil
     }
 }
