@@ -24,7 +24,6 @@ import {setAudioVideoState, saveUserData} from '../redux/actions/index';
 import {PERMISSIONS, RESULTS, requestMultiple} from 'react-native-permissions';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {AppStackParamList} from '../navigator';
-import crashlytics from '@react-native-firebase/crashlytics';
 
 type HMSConfigType = {
   username?: string;
@@ -82,17 +81,6 @@ const App = ({
   const [audio, setAudio] = React.useState(true);
   const [video, setVideo] = React.useState(true);
   const [buttonState, setButtonState] = React.useState<ButtonState>('Active');
-
-  React.useEffect(() => {
-    console.warn('hi');
-    crashlytics().log('User signed in.');
-    crashlytics()
-      .setCrashlyticsCollectionEnabled(true)
-      .then(() => {
-        console.warn(crashlytics().isCrashlyticsCollectionEnabled);
-        crashlytics().crash();
-      });
-  }, []);
 
   const navigate = useNavigation<WelcomeScreenProp>().navigate;
 
