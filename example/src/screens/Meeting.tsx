@@ -6,7 +6,7 @@ import {
   FlatList,
   Text,
   SafeAreaView,
-  Platform,
+  Dimensions,
 } from 'react-native';
 import {connect} from 'react-redux';
 import HmsManager, {
@@ -14,6 +14,7 @@ import HmsManager, {
   HMSUpdateListenerActions,
   HMSMessage,
 } from '@100mslive/react-native-hms';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -49,7 +50,6 @@ type Permissions = {
 type DisplayNameProps = {
   peer?: Peer;
   videoStyles: Function;
-  safeHeight: any;
   speakers: Array<String>;
   type: 'local' | 'remote';
   instance: any;
@@ -78,12 +78,9 @@ const DEFAULT_PEER: Peer = {
 
 type MeetingScreenProp = StackNavigationProp<AppStackParamList, 'Meeting'>;
 
-const android = Platform.OS === 'android' ? true : false;
-
 const DisplayName = ({
   peer,
   videoStyles,
-  safeHeight,
   speakers,
   type,
   instance,
@@ -159,15 +156,24 @@ const DisplayName = ({
     setAlertModalVisible(true);
   };
 
+  const {top, bottom} = useSafeAreaInsets();
+  // window height - (header + bottom container + top + bottom + padding) / views in one screen
+  const viewHeight =
+    (Dimensions.get('window').height -
+      (dimension.viewHeight(50) +
+        dimension.viewHeight(90) +
+        top +
+        bottom +
+        2)) /
+    2;
+
   return (
     <View
       key={trackId}
       style={[
         videoStyles(),
         {
-          height: android
-            ? safeHeight / 2 - 2
-            : (safeHeight - dimension.viewHeight(90)) / 2 - 2,
+          height: viewHeight,
         },
         speaking && styles.highlight,
       ]}>
@@ -253,7 +259,6 @@ const Meeting = ({
   const [trackId, setTrackId] = useState<Peer>(DEFAULT_PEER);
   const [remoteTrackIds, setRemoteTrackIds] = useState<Peer[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [safeHeight, setSafeHeight] = useState(dimension.viewHeight(780));
   const [speakers, setSpeakers] = useState([]);
   const [notification, setNotification] = useState(false);
   const [roleChangeRequest, setRoleChangeRequest] = useState<{
@@ -629,14 +634,7 @@ const Meeting = ({
           />
         </TouchableOpacity>
       </View>
-      <View
-        style={styles.wrapper}
-        onLayout={data => {
-          const height = data?.nativeEvent?.layout?.height;
-          if (height && safeHeight === dimension.viewHeight(780)) {
-            setSafeHeight(height);
-          }
-        }}>
+      <View style={styles.wrapper}>
         <FlatList
           data={[trackId, ...remoteTrackIds]}
           renderItem={({item, index}) => {
@@ -644,7 +642,6 @@ const Meeting = ({
               <DisplayName
                 peer={item}
                 videoStyles={getRemoteVideoStyles}
-                safeHeight={safeHeight}
                 speakers={speakers}
                 instance={instance}
                 type={index === 0 ? 'local' : 'remote'}
@@ -854,7 +851,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   peerName: {
-    color: '#307BF6',
+    color: '#4578e0',
   },
   peerNameContainer: {
     maxWidth: 80,
@@ -863,7 +860,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 3,
   },
   mic: {
-    color: '#307BF6',
+    color: '#4578e0',
   },
   avatarContainer: {
     flex: 1,
@@ -883,7 +880,7 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   highlight: {
-    backgroundColor: '#307BF6',
+    backgroundColor: '#4578e0',
     padding: 5,
     borderRadius: 10,
   },
