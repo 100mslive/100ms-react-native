@@ -70,8 +70,8 @@ const App = ({
   saveUserDataRequest,
   state,
 }: WelcomeProps) => {
-  const [roomID, setRoomID] = React.useState('60f05a0a574fe6920b2560ba');
-  const [text, setText] = React.useState('60f05a0a574fe6920b2560ba');
+  const [roomID, setRoomID] = React.useState('61486df5d97ee819af1b9084');
+  const [text, setText] = React.useState('61486df5d97ee819af1b9084');
   const [role] = React.useState('host');
   const [initialized, setInitialized] = React.useState(false);
   const [modalVisible, setModalVisible] = React.useState(false);

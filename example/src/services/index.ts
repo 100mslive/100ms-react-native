@@ -8,7 +8,7 @@ export const fetchToken = async ({
   role: string;
 }) => {
   const endPoint =
-    'https://prod-in.100ms.live/hmsapi/yogi.app.100ms.live/api/token';
+    'https://prod-in.100ms.live/hmsapi/random.app.100ms.live/api/token';
   const body = {
     room_id: roomID,
     user_id: userID,
