@@ -282,6 +282,7 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     paddingLeft: 10,
     minHeight: 32,
+    color: 'black',
   },
   joinButtonContainer: {
     padding: 12,
