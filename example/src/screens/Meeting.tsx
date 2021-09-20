@@ -616,6 +616,19 @@ const Meeting = ({
         message=""
         buttons={getButtons(localPeerPermissions)}
       />
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerName}>{trackId?.peerName}</Text>
+        <TouchableOpacity
+          onPress={() => {
+            console.warn('mute all peers');
+          }}>
+          <Ionicons
+            name={false ? 'volume-mute' : 'volume-high'}
+            style={styles.headerName}
+            size={dimension.viewHeight(30)}
+          />
+        </TouchableOpacity>
+      </View>
       <View
         style={styles.wrapper}
         onLayout={data => {
@@ -801,7 +814,7 @@ const styles = StyleSheet.create({
   },
 
   buttonText: {
-    backgroundColor: '#4578e0',
+    backgroundColor: '#307BF6',
     padding: 10,
     borderRadius: 10,
     color: '#efefef',
@@ -841,7 +854,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   peerName: {
-    color: 'blue',
+    color: '#307BF6',
   },
   peerNameContainer: {
     maxWidth: 80,
@@ -850,7 +863,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 3,
   },
   mic: {
-    color: 'blue',
+    color: '#307BF6',
   },
   avatarContainer: {
     flex: 1,
@@ -870,7 +883,7 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   highlight: {
-    backgroundColor: 'blue',
+    backgroundColor: '#307BF6',
     padding: 5,
     borderRadius: 10,
   },
@@ -895,6 +908,16 @@ const styles = StyleSheet.create({
   },
   roleChangeText: {
     padding: 12,
+  },
+  headerName: {
+    color: '#307BF6',
+  },
+  headerContainer: {
+    height: dimension.viewHeight(50),
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
   },
 });
 
