@@ -809,14 +809,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     height: dimension.viewHeight(90),
   },
-
   buttonText: {
-    backgroundColor: '#307BF6',
+    backgroundColor: '#4578e0',
     padding: 10,
     borderRadius: 10,
     color: '#efefef',
   },
-
   leaveIconContainer: {
     backgroundColor: '#ee4578',
     padding: dimension.viewHeight(10),
@@ -828,7 +826,6 @@ const styles = StyleSheet.create({
   leaveIcon: {
     color: 'white',
   },
-
   cameraImage: {
     width: dimension.viewHeight(30),
     height: dimension.viewHeight(30),
@@ -907,7 +904,7 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   headerName: {
-    color: '#307BF6',
+    color: '#4578e0',
   },
   headerContainer: {
     height: dimension.viewHeight(50),
