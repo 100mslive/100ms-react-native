@@ -834,7 +834,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   peerName: {
-    color: 'blue',
+    color: '#4578e0',
   },
   peerNameContainer: {
     maxWidth: 80,
@@ -843,7 +843,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 3,
   },
   mic: {
-    color: 'blue',
+    color: '#4578e0',
   },
   avatarContainer: {
     flex: 1,
@@ -863,7 +863,7 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   highlight: {
-    backgroundColor: 'blue',
+    backgroundColor: '#4578e0',
     padding: 5,
     borderRadius: 10,
   },
