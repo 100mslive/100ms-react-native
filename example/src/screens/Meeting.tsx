@@ -253,7 +253,7 @@ const Meeting = ({
   const [trackId, setTrackId] = useState<Peer>(DEFAULT_PEER);
   const [remoteTrackIds, setRemoteTrackIds] = useState<Peer[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [safeHeight, setSafeHeight] = useState(0);
+  const [safeHeight, setSafeHeight] = useState(dimension.viewHeight(780));
   const [speakers, setSpeakers] = useState([]);
   const [notification, setNotification] = useState(false);
   const [roleChangeRequest, setRoleChangeRequest] = useState<{
@@ -633,7 +633,7 @@ const Meeting = ({
         style={styles.wrapper}
         onLayout={data => {
           const height = data?.nativeEvent?.layout?.height;
-          if (height && safeHeight === 0) {
+          if (height && safeHeight === dimension.viewHeight(780)) {
             setSafeHeight(height);
           }
         }}>
