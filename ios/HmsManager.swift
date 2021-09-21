@@ -311,6 +311,8 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     @objc
     func removePeer(_ data: NSDictionary) {
         
+        
+        
         guard let peerId = data.value(forKey: "peerId") as? String
         else {
             print(#function, "Invalid data")
