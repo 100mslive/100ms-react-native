@@ -223,8 +223,6 @@ const App = ({
       roomID: '',
     });
 
-    console.log(HmsConfig, 'config after link');
-
     instance.addEventListener(
       HMSUpdateListenerActions.ON_PREVIEW,
       previewSuccess,
@@ -305,7 +303,6 @@ const App = ({
                 setRoomID(text);
                 setModalVisible(true);
               }
-              console.log(isUrl, 'isUrl');
             }
           }}>
           {buttonState === 'Loading' ? (
