@@ -22,8 +22,8 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   companion object {
     const val REACT_CLASS = "HmsManager"
   }
-  private var hmsSDK: HMSSDK? = null;
-  private var recentRoleChangeRequest: HMSRoleChangeRequest? = null;
+  private var hmsSDK: HMSSDK? = null
+  private var recentRoleChangeRequest: HMSRoleChangeRequest? = null
   override fun getName(): String {
     return "HmsManager"
   }
@@ -196,6 +196,24 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
           val decodedChangeRoleRequest = HmsDecoder.getHmsRoleChangeRequest(request)
           reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_ROLE_CHANGE_REQUEST", decodedChangeRoleRequest)
           recentRoleChangeRequest = request
+        }
+      })
+
+      hmsSDK?.addAudioObserver(object: HMSAudioListener {
+        override fun onAudioLevelUpdate(speakers: Array<HMSSpeaker>) {
+          val data: WritableMap = Arguments.createMap()
+          val count = speakers.size
+
+          data.putInt("count", count)
+          data.putString("event", "ON_SPEAKER")
+
+          var peers: WritableArray = Arguments.createArray()
+          for (speaker in speakers) {
+            val peerId = speaker.peer?.peerID
+            peers.pushString(peerId)
+          }
+          data.putArray("peers", peers)
+          reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_SPEAKER", data)
         }
       })
     }
