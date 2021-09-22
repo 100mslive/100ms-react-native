@@ -65,13 +65,34 @@ const callService = async (
   return response;
 };
 
+const tokenFromLinkService = async (
+  code: string,
+  subdomain: string,
+  fetchTokenFromLinkSuccess: Function,
+) => {
+  const response = await services.fetchTokenFromLink({
+    code,
+    subdomain,
+  });
+
+  if (response.error) {
+    // TODO: handle errors from API
+  } else {
+    fetchTokenFromLinkSuccess(response.token);
+  }
+};
+
 const App = ({
   setAudioVideoStateRequest,
   saveUserDataRequest,
   state,
 }: WelcomeProps) => {
-  const [roomID, setRoomID] = React.useState('60f05a0a574fe6920b2560ba');
-  const [text, setText] = React.useState('60f05a0a574fe6920b2560ba');
+  const [roomID, setRoomID] = React.useState(
+    'https://yogi.app.100ms.live/meeting/muggy-ultramarine-fish',
+  );
+  const [text, setText] = React.useState(
+    'https://yogi.app.100ms.live/meeting/muggy-ultramarine-fish',
+  );
   const [role] = React.useState('host');
   const [initialized, setInitialized] = React.useState(false);
   const [modalVisible, setModalVisible] = React.useState(false);
@@ -81,6 +102,8 @@ const App = ({
   const [audio, setAudio] = React.useState(true);
   const [video, setVideo] = React.useState(true);
   const [buttonState, setButtonState] = React.useState<ButtonState>('Active');
+  const [roomIdRequired, setRoomIdRequired] = React.useState(true);
+  const [token, setToken] = React.useState('');
 
   const navigate = useNavigation<WelcomeScreenProp>().navigate;
 
@@ -96,6 +119,13 @@ const App = ({
       setButtonState('Active');
       setAudioVideoStateRequest({audioState: true, videoState: true});
     }
+  };
+
+  const fetchTokenFromLinkSuccess = (fetchedToken: string) => {
+    setRoomIdRequired(false);
+    setToken(fetchedToken);
+    setModalVisible(true);
+    setButtonState('Active');
   };
 
   const onError = (data: any) => {
@@ -122,6 +152,29 @@ const App = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const checkPermissionsForLink = (userID: string) => {
+    if (Platform.OS === 'android') {
+      requestMultiple([
+        PERMISSIONS.ANDROID.CAMERA,
+        PERMISSIONS.ANDROID.RECORD_AUDIO,
+      ])
+        .then(results => {
+          if (
+            results['android.permission.CAMERA'] === RESULTS.GRANTED &&
+            results['android.permission.RECORD_AUDIO'] === RESULTS.GRANTED
+          ) {
+            previewWithLink(userID);
+          }
+        })
+        .catch(error => {
+          console.log(error);
+          setButtonState('Active');
+        });
+    } else {
+      previewWithLink(userID);
+    }
+  };
+
   const checkPermissions = (token: string, userID: string) => {
     if (Platform.OS === 'android') {
       requestMultiple([
@@ -138,6 +191,7 @@ const App = ({
         })
         .catch(error => {
           console.log(error);
+          setButtonState('Active');
         });
     } else {
       previewRoom(token, userID);
@@ -155,6 +209,25 @@ const App = ({
       HMSUpdateListenerActions.ON_PREVIEW,
       previewSuccess,
     );
+    saveUserDataRequest({userName: userID, roomID: roomID});
+    instance.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
+    instance.preview(HmsConfig);
+    setConfig(HmsConfig);
+  };
+
+  const previewWithLink = (userID: string) => {
+    const HmsConfig = new HMSConfig({
+      authToken: token,
+      userID,
+      username: userID,
+      roomID: '',
+    });
+
+    instance.addEventListener(
+      HMSUpdateListenerActions.ON_PREVIEW,
+      previewSuccess,
+    );
+
     saveUserDataRequest({userName: userID, roomID: roomID});
     instance.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
     instance.preview(HmsConfig);
@@ -195,9 +268,41 @@ const App = ({
           ]}
           onPress={() => {
             if (text !== '') {
-              setRoomID(text);
-              setModalVisible(true);
-              // callService(text, roomID, role, setToken);
+              var pattern = new RegExp(
+                '^(https?:\\/\\/)?' +
+                  '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
+                  '((\\d{1,3}\\.){3}\\d{1,3}))' +
+                  '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
+                  '(\\?[;&a-z\\d%_.~+=-]*)?' +
+                  '(\\#[-a-z\\d_]*)?$',
+                'i',
+              );
+
+              const isUrl = pattern.test(text);
+              if (isUrl) {
+                setButtonState('Loading');
+                const codeObject = RegExp(/(?!\/)[a-zA-Z\-0-9]*$/g).exec(text);
+
+                const domainObject = RegExp(
+                  /(https:\/\/)?(?:[a-zA-Z0-9.])+(?!\\)/,
+                ).exec(text);
+
+                if (codeObject && domainObject) {
+                  const code = codeObject[0];
+                  const domain = domainObject[0];
+
+                  const strippedDomain = domain.replace('https://', '');
+
+                  tokenFromLinkService(
+                    code,
+                    strippedDomain,
+                    fetchTokenFromLinkSuccess,
+                  );
+                }
+              } else {
+                setRoomID(text);
+                setModalVisible(true);
+              }
             }
           }}>
           {buttonState === 'Loading' ? (
@@ -213,9 +318,15 @@ const App = ({
       {modalVisible && (
         <UserIdModal
           join={(userID: string) => {
-            setButtonState('Loading');
-            callService(userID, roomID, role, checkPermissions);
-            setModalVisible(false);
+            if (roomIdRequired) {
+              setButtonState('Loading');
+              callService(userID, roomID, role, checkPermissions);
+              setModalVisible(false);
+            } else {
+              setButtonState('Loading');
+              setModalVisible(false);
+              checkPermissionsForLink(userID);
+            }
           }}
           cancel={() => setModalVisible(false)}
           user={state.user}
