@@ -79,7 +79,6 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
       HMSConfig(credentials.getString("username") as String, credentials.getString("authToken") as String)
 
     if (credentials.getString("endpoint") != null) {
-      println("Here in print")
       config = HMSConfig(credentials.getString("username") as String, credentials.getString("authToken") as String, initEndpoint = credentials.getString("endpoint") as String)
     }
 
