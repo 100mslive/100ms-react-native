@@ -32,14 +32,27 @@ export const fetchToken = async ({
 export const fetchTokenFromLink = async ({
   code,
   subdomain,
+  userID,
 }: {
   code: string;
   subdomain: string;
+  userID: string;
 }) => {
-  const endPoint = 'https://prod-in.100ms.live/hmsapi/get-token';
-  const body = {
-    code,
-  };
+  let endPoint = 'https://prod-in.100ms.live/hmsapi/get-token';
+  let body: any = null;
+  if (subdomain.search('.qa-') >= 0) {
+    endPoint = 'https://qa-in.100ms.live/hmsapi/get-token';
+    body = {
+      user_id: userID,
+      code,
+    };
+  } else {
+    body = {
+      code,
+    };
+  }
+
+  console.log(code, subdomain, endPoint, body);
   const headers = {
     'Content-Type': 'application/json',
     Accept: 'application/json',

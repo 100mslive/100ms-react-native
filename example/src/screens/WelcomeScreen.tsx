@@ -50,6 +50,7 @@ const callService = async (
   roomID: string,
   role: string,
   joinRoom: Function,
+  apiFailed: Function,
 ) => {
   const response = await services.fetchToken({
     userID,
@@ -57,8 +58,9 @@ const callService = async (
     role,
   });
 
-  if (response.error) {
+  if (response.error || !response?.token) {
     // TODO: handle errors from API
+    apiFailed();
   } else {
     joinRoom(response.token, userID);
   }
@@ -68,17 +70,31 @@ const callService = async (
 const tokenFromLinkService = async (
   code: string,
   subdomain: string,
+  userID: string,
   fetchTokenFromLinkSuccess: Function,
+  apiFailed: Function,
 ) => {
   const response = await services.fetchTokenFromLink({
     code,
     subdomain,
+    userID,
   });
 
-  if (response.error) {
+  console.log(response, 'response');
+
+  if (response.error || !response?.token) {
     // TODO: handle errors from API
+    apiFailed();
   } else {
-    fetchTokenFromLinkSuccess(response.token);
+    if (subdomain.search('.qa-') >= 0) {
+      fetchTokenFromLinkSuccess(
+        response.token,
+        userID,
+        'https://qa-init.100ms.live/init',
+      );
+    } else {
+      fetchTokenFromLinkSuccess(response.token, userID);
+    }
   }
 };
 
@@ -102,8 +118,6 @@ const App = ({
   const [audio, setAudio] = React.useState(true);
   const [video, setVideo] = React.useState(true);
   const [buttonState, setButtonState] = React.useState<ButtonState>('Active');
-  const [roomIdRequired, setRoomIdRequired] = React.useState(true);
-  const [token, setToken] = React.useState('');
 
   const navigate = useNavigation<WelcomeScreenProp>().navigate;
 
@@ -119,13 +133,6 @@ const App = ({
       setButtonState('Active');
       setAudioVideoStateRequest({audioState: true, videoState: true});
     }
-  };
-
-  const fetchTokenFromLinkSuccess = (fetchedToken: string) => {
-    setRoomIdRequired(false);
-    setToken(fetchedToken);
-    setModalVisible(true);
-    setButtonState('Active');
   };
 
   const onError = (data: any) => {
@@ -152,7 +159,11 @@ const App = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const checkPermissionsForLink = (userID: string) => {
+  const checkPermissionsForLink = (
+    token: string,
+    userID: string,
+    endpoint: string | undefined = undefined,
+  ) => {
     if (Platform.OS === 'android') {
       requestMultiple([
         PERMISSIONS.ANDROID.CAMERA,
@@ -163,7 +174,7 @@ const App = ({
             results['android.permission.CAMERA'] === RESULTS.GRANTED &&
             results['android.permission.RECORD_AUDIO'] === RESULTS.GRANTED
           ) {
-            previewWithLink(userID);
+            previewWithLink(token, userID, endpoint);
           }
         })
         .catch(error => {
@@ -171,7 +182,7 @@ const App = ({
           setButtonState('Active');
         });
     } else {
-      previewWithLink(userID);
+      previewWithLink(token, userID, endpoint);
     }
   };
 
@@ -198,6 +209,10 @@ const App = ({
     }
   };
 
+  const apiFailed = () => {
+    setButtonState('Active');
+  };
+
   const previewRoom = (token: string, userID: string) => {
     const HmsConfig = new HMSConfig({
       authToken: token,
@@ -215,13 +230,28 @@ const App = ({
     setConfig(HmsConfig);
   };
 
-  const previewWithLink = (userID: string) => {
-    const HmsConfig = new HMSConfig({
-      authToken: token,
-      userID,
-      username: userID,
-      roomID: '',
-    });
+  const previewWithLink = (
+    token: string,
+    userID: string,
+    endpoint: string | undefined,
+  ) => {
+    let HmsConfig: HMSConfig = null;
+    if (endpoint) {
+      HmsConfig = new HMSConfig({
+        authToken: token,
+        userID,
+        username: userID,
+        roomID: '',
+        endpoint,
+      });
+    } else {
+      HmsConfig = new HMSConfig({
+        authToken: token,
+        userID,
+        username: userID,
+        roomID: '',
+      });
+    }
 
     instance.addEventListener(
       HMSUpdateListenerActions.ON_PREVIEW,
@@ -268,41 +298,8 @@ const App = ({
           ]}
           onPress={() => {
             if (text !== '') {
-              var pattern = new RegExp(
-                '^(https?:\\/\\/)?' +
-                  '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
-                  '((\\d{1,3}\\.){3}\\d{1,3}))' +
-                  '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
-                  '(\\?[;&a-z\\d%_.~+=-]*)?' +
-                  '(\\#[-a-z\\d_]*)?$',
-                'i',
-              );
-
-              const isUrl = pattern.test(text);
-              if (isUrl) {
-                setButtonState('Loading');
-                const codeObject = RegExp(/(?!\/)[a-zA-Z\-0-9]*$/g).exec(text);
-
-                const domainObject = RegExp(
-                  /(https:\/\/)?(?:[a-zA-Z0-9.])+(?!\\)/,
-                ).exec(text);
-
-                if (codeObject && domainObject) {
-                  const code = codeObject[0];
-                  const domain = domainObject[0];
-
-                  const strippedDomain = domain.replace('https://', '');
-
-                  tokenFromLinkService(
-                    code,
-                    strippedDomain,
-                    fetchTokenFromLinkSuccess,
-                  );
-                }
-              } else {
-                setRoomID(text);
-                setModalVisible(true);
-              }
+              setRoomID(text);
+              setModalVisible(true);
             }
           }}>
           {buttonState === 'Loading' ? (
@@ -318,14 +315,44 @@ const App = ({
       {modalVisible && (
         <UserIdModal
           join={(userID: string) => {
-            if (roomIdRequired) {
+            var pattern = new RegExp(
+              '^(https?:\\/\\/)?' +
+                '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
+                '((\\d{1,3}\\.){3}\\d{1,3}))' +
+                '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
+                '(\\?[;&a-z\\d%_.~+=-]*)?' +
+                '(\\#[-a-z\\d_]*)?$',
+              'i',
+            );
+
+            const isUrl = pattern.test(roomID);
+            if (isUrl) {
               setButtonState('Loading');
-              callService(userID, roomID, role, checkPermissions);
+              const codeObject = RegExp(/(?!\/)[a-zA-Z\-0-9]*$/g).exec(text);
+
+              const domainObject = RegExp(
+                /(https:\/\/)?(?:[a-zA-Z0-9.-])+(?!\\)/,
+              ).exec(text);
+
+              if (codeObject && domainObject) {
+                const code = codeObject[0];
+                const domain = domainObject[0];
+
+                const strippedDomain = domain.replace('https://', '');
+
+                tokenFromLinkService(
+                  code,
+                  strippedDomain,
+                  userID,
+                  checkPermissionsForLink,
+                  apiFailed,
+                );
+              }
               setModalVisible(false);
             } else {
               setButtonState('Loading');
+              callService(userID, roomID, role, checkPermissions, apiFailed);
               setModalVisible(false);
-              checkPermissionsForLink(userID);
             }
           }}
           cancel={() => setModalVisible(false)}
