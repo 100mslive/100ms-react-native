@@ -85,6 +85,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     
     func on(error: HMSError) {
         print("ERROR")
+        print(error.description)
         self.sendEvent(withName: ON_ERROR, body: ["event": ON_ERROR, "error": error.description, "code": error.code.rawValue, "id": error.id, "message": error.message])
     }
     
@@ -154,8 +155,13 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
-            strongSelf.config = HMSConfig(userName: user, userID: UUID().uuidString, roomID: room, authToken: authToken) //, endpoint: "https://qa-init.100ms.live/init"
-            strongSelf.hms?.preview(config: strongSelf.config!, delegate: strongSelf)
+            if let endpoint = credentials.value(forKey: "endpoint") as? String {
+                strongSelf.config = HMSConfig(userName: user, userID: UUID().uuidString, roomID: room, authToken: authToken, endpoint: endpoint)
+                strongSelf.hms?.preview(config: strongSelf.config!, delegate: strongSelf)
+            } else {
+                strongSelf.config = HMSConfig(userName: user, userID: UUID().uuidString, roomID: room, authToken: authToken)
+                strongSelf.hms?.preview(config: strongSelf.config!, delegate: strongSelf)
+            }
         }
     }
     
@@ -175,8 +181,13 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
             if let config = strongSelf.config {
                 strongSelf.hms?.join(config: config, delegate: strongSelf)
             } else {
-                strongSelf.config = HMSConfig(userName: user, userID: UUID().uuidString, roomID: room, authToken: authToken)
-                strongSelf.hms?.join(config: strongSelf.config!, delegate: strongSelf)
+                if let endpoint = credentials.value(forKey: "endpoint") as? String {
+                    strongSelf.config = HMSConfig(userName: user, userID: UUID().uuidString, roomID: room, authToken: authToken, endpoint: endpoint)
+                    strongSelf.hms?.join(config: strongSelf.config!, delegate: strongSelf)
+                } else {
+                    strongSelf.config = HMSConfig(userName: user, userID: UUID().uuidString, roomID: room, authToken: authToken)
+                    strongSelf.hms?.join(config: strongSelf.config!, delegate: strongSelf)
+                }
             }
         }
     }

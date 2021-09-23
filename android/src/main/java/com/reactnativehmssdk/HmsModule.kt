@@ -43,9 +43,12 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
 
   @ReactMethod
   fun preview(credentials: ReadableMap) {
-    print("inside preview")
-    val config =
+    var config =
       HMSConfig(credentials.getString("username") as String, credentials.getString("authToken") as String)
+
+    if (credentials.getString("endpoint") != null) {
+      config = HMSConfig(credentials.getString("username") as String, credentials.getString("authToken") as String, initEndpoint = credentials.getString("endpoint") as String)
+    }
 
     hmsSDK?.preview(config, object: HMSPreviewListener {
       override fun onError(error: HMSException) {
@@ -72,8 +75,13 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   fun join(credentials: ReadableMap) {
     println("Credentials")
     println(credentials)
-    val config =
+    var config =
       HMSConfig(credentials.getString("username") as String, credentials.getString("authToken") as String)
+
+    if (credentials.getString("endpoint") != null) {
+      println("Here in print")
+      config = HMSConfig(credentials.getString("username") as String, credentials.getString("authToken") as String, initEndpoint = credentials.getString("endpoint") as String)
+    }
 
     HMSCoroutineScope.launch {
       hmsSDK?.join(config, object : HMSUpdateListener {
