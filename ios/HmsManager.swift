@@ -23,12 +23,10 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         super.init()
         AVCaptureDevice.requestAccess(for: .video) { granted in
             // Permission Acquired if value of 'granted' is true
-            print(#function, "permission granted: ", granted)
         }
         
         AVCaptureDevice.requestAccess(for: .audio) { granted in
             // Permission Acquired if value of 'granted' is true
-            print(#function, "permission granted: ", granted)
         }
     }
     
@@ -38,9 +36,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
         let remotePeerData = HmsDecoder.getHmsRemotePeers(hms?.remotePeers)
         
-        print("roles")
         let decodedRoles = HmsDecoder.getAllRoles(hms?.roles)
-        print(decodedRoles)
         
         self.sendEvent(withName: ON_JOIN, body: ["event": ON_JOIN, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData, "roles": decodedRoles])
     }
@@ -67,10 +63,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         let roomData = HmsDecoder.getHmsRoom(hms?.room)
         let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
         let remotePeerData = HmsDecoder.getHmsRemotePeers(hms?.remotePeers)
-        
-        print(localPeerData)
-        print(remotePeerData)
-        
+                
         self.sendEvent(withName: ON_PEER_UPDATE, body: ["event": ON_PEER_UPDATE, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
     }
     
@@ -84,18 +77,14 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     }
     
     func on(error: HMSError) {
-        print("ERROR")
-        print(error.description)
         self.sendEvent(withName: ON_ERROR, body: ["event": ON_ERROR, "error": error.description, "code": error.code.rawValue, "id": error.id, "message": error.message])
     }
     
     func on(message: HMSMessage) {
-        print("Message")
         self.sendEvent(withName: ON_MESSAGE, body: ["event": ON_MESSAGE, "sender": message.sender?.name ?? "", "time": message.time, "message": message.message, "type": message.type])
     }
     
     func on(updated speakers: [HMSSpeaker]) {
-        print("Speaker")
         var speakerPeerIds: [String] = []
         for speaker in speakers {
             speakerPeerIds.append(speaker.peer.peerID)
@@ -105,12 +94,10 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     
     func onReconnecting() {
         self.sendEvent(withName: RECONNECTING, body: ["event": RECONNECTING])
-        print("Reconnecting")
     }
     
     func onReconnected() {
         self.sendEvent(withName: RECONNECTED, body: ["event": RECONNECTED])
-        print("Reconnected")
     }
     
     func on(roleChangeRequest: HMSRoleChangeRequest) {
@@ -120,7 +107,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     }
     
     func on(changeTrackStateRequest: HMSChangeTrackStateRequest) {
-        print("On track state change required")
+        // On track state change required
     }
     
     func on(removedFromRoom notification: HMSRemovedFromRoomNotification) {
@@ -149,7 +136,6 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
               let user = credentials.value(forKey: "userID") as? String,
               let room = credentials.value(forKey: "roomID") as? String
         else {
-            print(#function, "Invalid credentials")
             return
         }
         
@@ -172,7 +158,6 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
               let user = credentials.value(forKey: "username") as? String,
               let room = credentials.value(forKey: "roomID") as? String
         else {
-            print(#function, "Invalid credentials")
             return
         }
         
@@ -224,7 +209,6 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     func sendBroadcastMessage(_ data: NSDictionary) {
         guard let message = data.value(forKey: "message") as? String
         else {
-            print(#function, "No message data available")
             return
         }
         
@@ -240,7 +224,6 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         guard let message = data.value(forKey: "message") as? String,
               let targetedRoles = data.value(forKey: "roles") as? [String]
         else {
-            print(#function, "Invalid message data")
             return
         }
         
@@ -255,7 +238,6 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         guard let message = data.value(forKey: "message") as? String,
               let peerId = data.value(forKey: "peerId") as? String
         else {
-            print(#function, "Invalid message data")
             return
         }
         
@@ -284,7 +266,6 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         guard let peerId = data.value(forKey: "peerId") as? String,
               let role = data.value(forKey: "role") as? String
         else {
-            print(#function, "Invalid data")
             return
         }
         
@@ -304,7 +285,6 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         
         guard let trackId = data.value(forKey: "trackId") as? String
         else {
-            print(#function, "Invalid data")
             return
         }
         
@@ -326,7 +306,6 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         
         guard let peerId = data.value(forKey: "peerId") as? String
         else {
-            print(#function, "Invalid data")
             return
         }
         
