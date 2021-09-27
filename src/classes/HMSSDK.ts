@@ -65,7 +65,6 @@ export default class HMSSDK {
   };
 
   attachListeners = () => {
-    console.log('attatch listeners');
     HmsEventEmitter.addListener(
       HMSUpdateListenerActions.ON_JOIN,
       this.onJoinListener
@@ -259,7 +258,6 @@ export default class HMSSDK {
   };
 
   onPreviewListener = (data: any) => {
-    console.log(data, 'data in preview');
     const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
       data.localPeer
@@ -329,7 +327,6 @@ export default class HMSSDK {
   };
 
   onTrackListener = (data: any) => {
-    console.log(data, 'track data');
     // const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
       data.localPeer

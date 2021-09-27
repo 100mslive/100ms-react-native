@@ -8,7 +8,7 @@ export default class HMSRemoteVideoTrack extends HMSVideoTrack {
 
   constructor(params: {
     trackId: string;
-    source?: number;
+    source?: number | string;
     trackDescription?: string;
     isMute?: Boolean;
     layer?: any;
