@@ -94,8 +94,6 @@ class HmssdkDisplayView: UIView {
         self.addSubview(videoView)
         self.frame = frame
         
-        print("frame initialized \(frame.height) \(frame.width)")
-        
         videoView.translatesAutoresizingMaskIntoConstraints = false
         
         videoView.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
