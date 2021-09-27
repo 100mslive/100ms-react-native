@@ -22,8 +22,8 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   companion object {
     const val REACT_CLASS = "HmsManager"
   }
-  private var hmsSDK: HMSSDK? = null;
-  private var recentRoleChangeRequest: HMSRoleChangeRequest? = null;
+  private var hmsSDK: HMSSDK? = null
+  private var recentRoleChangeRequest: HMSRoleChangeRequest? = null
   override fun getName(): String {
     return "HmsManager"
   }
@@ -43,9 +43,12 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
 
   @ReactMethod
   fun preview(credentials: ReadableMap) {
-    print("inside preview")
-    val config =
+    var config =
       HMSConfig(credentials.getString("username") as String, credentials.getString("authToken") as String)
+
+    if (credentials.getString("endpoint") != null) {
+      config = HMSConfig(credentials.getString("username") as String, credentials.getString("authToken") as String, initEndpoint = credentials.getString("endpoint") as String)
+    }
 
     hmsSDK?.preview(config, object: HMSPreviewListener {
       override fun onError(error: HMSException) {
@@ -72,8 +75,12 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   fun join(credentials: ReadableMap) {
     println("Credentials")
     println(credentials)
-    val config =
+    var config =
       HMSConfig(credentials.getString("username") as String, credentials.getString("authToken") as String)
+
+    if (credentials.getString("endpoint") != null) {
+      config = HMSConfig(credentials.getString("username") as String, credentials.getString("authToken") as String, initEndpoint = credentials.getString("endpoint") as String)
+    }
 
     HMSCoroutineScope.launch {
       hmsSDK?.join(config, object : HMSUpdateListener {
@@ -196,6 +203,24 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
           val decodedChangeRoleRequest = HmsDecoder.getHmsRoleChangeRequest(request)
           reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_ROLE_CHANGE_REQUEST", decodedChangeRoleRequest)
           recentRoleChangeRequest = request
+        }
+      })
+
+      hmsSDK?.addAudioObserver(object: HMSAudioListener {
+        override fun onAudioLevelUpdate(speakers: Array<HMSSpeaker>) {
+          val data: WritableMap = Arguments.createMap()
+          val count = speakers.size
+
+          data.putInt("count", count)
+          data.putString("event", "ON_SPEAKER")
+
+          var peers: WritableArray = Arguments.createArray()
+          for (speaker in speakers) {
+            val peerId = speaker.peer?.peerID
+            peers.pushString(peerId)
+          }
+          data.putArray("peers", peers)
+          reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_SPEAKER", data)
         }
       })
     }

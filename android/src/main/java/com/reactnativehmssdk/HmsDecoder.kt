@@ -17,7 +17,7 @@ object HmsDecoder {
         room.putString("id", hmsRoom.roomId);
         room.putString("name", hmsRoom.name);
         room.putString("metaData", null);
-        var peers: WritableArray = Arguments.createArray();
+        var peers: WritableArray = Arguments.createArray()
         for (peer in hmsRoom.peerList) {
           peers.pushMap(getHmsPeer(peer))
         }

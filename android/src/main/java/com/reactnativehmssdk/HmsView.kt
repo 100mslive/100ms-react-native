@@ -49,6 +49,15 @@ class HmsView(
         if (remotePeers !== null) {
           for (peer in remotePeers) {
             val videoTrackId = peer.videoTrack?.trackId
+
+            val auxiliaryTracks = peer.auxiliaryTracks
+            for (track in auxiliaryTracks) {
+              val auxTrackId = track.trackId
+              if(trackId == auxTrackId && track.source == "screen" && !track.isMute){
+                videoTrack = track as HMSVideoTrack
+                return
+              }
+            }
             if (videoTrackId == localTrack) {
               videoTrack = peer.videoTrack
               return

@@ -28,7 +28,11 @@ import {useNavigation} from '@react-navigation/native';
 import dimension from '../utils/dimension';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {AppStackParamList} from '../navigator';
-import {getRandomColor, getInitials} from '../utils/functions';
+import {
+  getRandomColor,
+  getInitials,
+  pairDataForFlatlist,
+} from '../utils/functions';
 
 type Peer = {
   trackId?: string;
@@ -39,6 +43,7 @@ type Peer = {
   colour?: string;
   role?: any;
   sink: Boolean;
+  type: 'local' | 'remote' | 'screen';
 };
 
 type Permissions = {
@@ -51,7 +56,7 @@ type DisplayNameProps = {
   peer?: Peer;
   videoStyles: Function;
   speakers: Array<String>;
-  type: 'local' | 'remote';
+  type: 'local' | 'remote' | 'screen';
   instance: any;
   permissions: Permissions;
 };
@@ -74,6 +79,7 @@ const DEFAULT_PEER: Peer = {
   colour: 'red',
   sink: true,
   role: 'host',
+  type: 'local',
 };
 
 type MeetingScreenProp = StackNavigationProp<AppStackParamList, 'Meeting'>;
@@ -159,13 +165,12 @@ const DisplayName = ({
   const {top, bottom} = useSafeAreaInsets();
   // window height - (header + bottom container + top + bottom + padding) / views in one screen
   const viewHeight =
-    (Dimensions.get('window').height -
-      (dimension.viewHeight(50) +
-        dimension.viewHeight(90) +
-        top +
-        bottom +
-        2)) /
-    2;
+    type === 'screen'
+      ? Dimensions.get('window').height -
+        (dimension.viewHeight(90) + top + bottom + 2)
+      : (Dimensions.get('window').height -
+          (dimension.viewHeight(90) + top + bottom + 2)) /
+        2;
 
   return (
     <View
@@ -202,7 +207,11 @@ const DisplayName = ({
           </View>
         </View>
       ) : (
-        <HmsView sink={sink} trackId={trackId} style={styles.hmsView} />
+        <HmsView
+          sink={sink}
+          trackId={trackId}
+          style={type === 'screen' ? styles.hmsViewScreen : styles.hmsView}
+        />
       )}
       {type === 'remote' && selectActionButtons.length > 1 && (
         <TouchableOpacity onPress={promptUser} style={styles.optionsContainer}>
@@ -261,6 +270,7 @@ const Meeting = ({
   const [modalVisible, setModalVisible] = useState(false);
   const [speakers, setSpeakers] = useState([]);
   const [notification, setNotification] = useState(false);
+  const [auxTracks, setAuxTracks] = useState<Peer[]>([]);
   const [roleChangeRequest, setRoleChangeRequest] = useState<{
     requestedBy?: String;
     suggestedRole?: String;
@@ -291,23 +301,24 @@ const Meeting = ({
 
   const navigate = useNavigation<MeetingScreenProp>().navigate;
 
-  const decode = (peer: any): Peer => {
+  const decode = (peer: any, type: 'local' | 'remote' | 'screen'): Peer => {
     const peerId = peer?.peerID;
     const peerTrackId = peer?.videoTrack?.trackId;
     const peerName = peer?.name;
     const peerIsAudioMute = peer?.audioTrack?.mute;
     const peerIsVideoMute = peer?.videoTrack?.mute;
     const peerRole = peer?.role;
-    const peerColour = getPeerColour(peerTrackId);
+    const newPeerColour = getPeerColour(peerTrackId);
     return {
       trackId: peerTrackId,
       peerName: peerName,
       isAudioMute: peerIsAudioMute,
       isVideoMute: peerIsVideoMute,
       peerId: peerId,
-      colour: peerColour,
+      colour: newPeerColour,
       sink: true,
       role: peerRole,
+      type,
     };
   };
 
@@ -315,24 +326,45 @@ const Meeting = ({
     // get local track Id
     const localTrackId = localPeer?.videoTrack?.trackId;
     if (localTrackId) {
-      setTrackId(decode(localPeer));
+      setTrackId(decode(localPeer, 'local'));
     }
-    const localPeerPermissions = localPeer?.role?.permissions;
-    setLocalPeerPermissions(localPeerPermissions);
+    const updatedLocalPeerPermissions = localPeer?.role?.permissions;
+    setLocalPeerPermissions(updatedLocalPeerPermissions);
 
     const remoteVideoIds: Peer[] = [];
+    let newAuxTracks: Peer[] = [];
 
     if (remotePeers) {
       remotePeers.map((remotePeer: any, index: number) => {
         const remoteTrackId = remotePeer?.videoTrack?.trackId;
         if (remoteTrackId) {
-          remoteVideoIds.push(decode(remotePeer));
+          remoteVideoIds.push(decode(remotePeer, 'remote'));
         } else {
           remoteVideoIds.push({
-            ...decode(remotePeer),
+            ...decode(remotePeer, 'remote'),
             trackId: index.toString(),
           });
         }
+
+        let auxiliaryTracks = remotePeer?.auxiliaryTracks;
+
+        auxiliaryTracks.map((track: any) => {
+          let auxTrackId = track?.trackId;
+
+          if (auxTrackId) {
+            newAuxTracks.push({
+              trackId: auxTrackId,
+              peerName: `${remotePeer?.name}'s Screen`,
+              isAudioMute: true,
+              isVideoMute: false,
+              peerId: `${remotePeer?.peerID}_${auxTrackId}`,
+              colour: 'red',
+              sink: true,
+              type: 'screen',
+            });
+          }
+        });
+        setAuxTracks(newAuxTracks);
       });
 
       setRemoteTrackIds(remoteVideoIds as []);
@@ -496,27 +528,12 @@ const Meeting = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [instance]);
 
-  // const getLocalVideoStyles = () => {
-  // if (remoteTrackIds && remoteTrackIds.length === 1) {
-  //   return styles.floatingTile;
-  // }
-  // if (remoteTrackIds.length && remoteTrackIds.length > 1) {
-  //   return styles.generalTile;
-  // }
-  //   return styles.generalTile;
-  // };
-
   const getRemoteVideoStyles = () => {
-    // if (remoteTrackIds && remoteTrackIds.length === 1) {
-    //   return styles.fullScreenTile;
-    // }
-    // if (remoteTrackIds.length && remoteTrackIds.length > 1) {
-    //   if (index === remoteTrackIds.length - 1 && index % 2 === 1) {
-    //     return styles.fullWidthTile;
-    //   }
-    //   return styles.generalTile;
-    // }
     return styles.generalTile;
+  };
+
+  const getAuxVideoStyles = () => {
+    return styles.fullScreenTile;
   };
 
   const getMessageToList = (): Array<{
@@ -534,10 +551,10 @@ const Meeting = ({
       type: 'group',
       obj: role,
     }));
-    const peers = remoteTrackIds.map(trackId => ({
-      name: trackId?.peerName,
+    const peers = remoteTrackIds.map(track => ({
+      name: track?.peerName,
       type: 'direct',
-      obj: trackId,
+      obj: track,
     }));
     return [everyone, ...knownRoles, ...peers];
   };
@@ -587,7 +604,7 @@ const Meeting = ({
       const remotePeers = inst?.remotePeers;
       if (remotePeers) {
         const sinkRemoteTrackIds = remotePeers.map((peer: Peer) => {
-          const remotePeer = decode(peer);
+          const remotePeer = decode(peer, 'remote');
           const videoTrackId = remotePeer.trackId;
           if (!viewableItemsIds?.includes(videoTrackId)) {
             return {
@@ -636,22 +653,60 @@ const Meeting = ({
       </View>
       <View style={styles.wrapper}>
         <FlatList
-          data={[trackId, ...remoteTrackIds]}
-          renderItem={({item, index}) => {
-            return (
-              <DisplayName
-                peer={item}
-                videoStyles={getRemoteVideoStyles}
-                speakers={speakers}
-                instance={instance}
-                type={index === 0 ? 'local' : 'remote'}
-                permissions={localPeerPermissions}
-              />
-            );
+          data={pairDataForFlatlist([...auxTracks, trackId, ...remoteTrackIds])}
+          renderItem={({item}) => {
+            if (item?.second) {
+              const {first, second} = item;
+
+              return (
+                <View style={styles.rowWrapper}>
+                  <DisplayName
+                    peer={first}
+                    videoStyles={
+                      first.type === 'screen'
+                        ? getAuxVideoStyles
+                        : getRemoteVideoStyles
+                    }
+                    speakers={speakers}
+                    instance={instance}
+                    type={first.type}
+                    permissions={localPeerPermissions}
+                  />
+                  <DisplayName
+                    peer={second}
+                    videoStyles={
+                      second.type === 'screen'
+                        ? getAuxVideoStyles
+                        : getRemoteVideoStyles
+                    }
+                    speakers={speakers}
+                    instance={instance}
+                    type={second.type}
+                    permissions={localPeerPermissions}
+                  />
+                </View>
+              );
+            } else {
+              const {first} = item;
+              return (
+                <DisplayName
+                  peer={first}
+                  videoStyles={
+                    first.type === 'screen'
+                      ? getAuxVideoStyles
+                      : getRemoteVideoStyles
+                  }
+                  speakers={speakers}
+                  instance={instance}
+                  type={first.type}
+                  permissions={localPeerPermissions}
+                />
+              );
+            }
           }}
-          numColumns={2}
+          numColumns={1}
           onViewableItemsChanged={onViewRef.current}
-          keyExtractor={item => item?.trackId!}
+          keyExtractor={item => item?.first?.trackId!}
         />
       </View>
       <View style={styles.iconContainers}>
@@ -775,14 +830,11 @@ const styles = StyleSheet.create({
   fullScreenTile: {
     height: dimension.viewHeight(896),
     width: dimension.viewWidth(414),
-  },
-  floatingTile: {
-    width: dimension.viewWidth(170),
-    height: dimension.viewHeight(300),
-    position: 'absolute',
-    bottom: dimension.viewHeight(100),
-    right: dimension.viewWidth(10),
-    zIndex: 100,
+    marginVertical: 1,
+    padding: 0.5,
+    overflow: 'hidden',
+    borderRadius: 10,
+    justifyContent: 'center',
   },
   generalTile: {
     width: dimension.viewWidth(206),
@@ -791,13 +843,13 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderRadius: 10,
   },
-  fullWidthTile: {
-    height: dimension.viewHeight(445),
-    width: dimension.viewWidth(414),
-  },
   hmsView: {
     height: '100%',
     width: '100%',
+  },
+  hmsViewScreen: {
+    width: '100%',
+    aspectRatio: 16 / 9,
   },
   iconContainers: {
     display: 'flex',
@@ -912,6 +964,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
+  },
+  rowWrapper: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
 });
 
