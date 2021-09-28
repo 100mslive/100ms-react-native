@@ -18,5 +18,5 @@ RCT_EXTERN_METHOD(acceptRoleChange)
 RCT_EXTERN_METHOD(switchCamera)
 RCT_EXTERN_METHOD(build)
 RCT_EXTERN_METHOD(leave)
-
+RCT_EXTERN_METHOD(muteAllPeersAudio: (BOOL) mute)
 @end

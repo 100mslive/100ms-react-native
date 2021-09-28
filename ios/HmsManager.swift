@@ -353,4 +353,23 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
             self?.hms?.endRoom(lock: lock ?? false, reason: reason ?? "Room was ended")
         }
     }
+    
+    @objc
+    func muteAllPeersAudio(_ mute: Bool) {
+        DispatchQueue.main.async { [weak self] in
+            let remotePeers = self?.hms?.remotePeers
+            for peer in remotePeers ?? [] {
+                peer.remoteAudioTrack()?.setPlaybackAllowed(mute)
+            }
+        }
+        let roomData = HmsDecoder.getHmsRoom(hms?.room)
+        let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
+        let remotePeerData = HmsDecoder.getHmsRemotePeers(hms?.remotePeers)
+        
+        print(localPeerData)
+        print(remotePeerData)
+        
+        self.sendEvent(withName: ON_PEER_UPDATE, body: ["event": ON_PEER_UPDATE, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
+    }
+    
 }

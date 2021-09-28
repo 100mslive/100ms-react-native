@@ -44,12 +44,14 @@ type Peer = {
   role?: any;
   sink: Boolean;
   type: 'local' | 'remote' | 'screen';
+  audioPlaybackAllowed: boolean;
 };
 
 type Permissions = {
   changeRole: boolean;
   endRoom: boolean;
   removeOthers: boolean;
+  mute: boolean;
 };
 
 type DisplayNameProps = {
@@ -80,6 +82,7 @@ const DEFAULT_PEER: Peer = {
   sink: true,
   role: 'host',
   type: 'local',
+  audioPlaybackAllowed: true,
 };
 
 type MeetingScreenProp = StackNavigationProp<AppStackParamList, 'Meeting'>;
@@ -101,6 +104,7 @@ const DisplayName = ({
     peerId,
     role,
     sink,
+    audioPlaybackAllowed,
   } = peer!;
   const [alertModalVisible, setAlertModalVisible] = useState(false);
   const [roleModalVisible, setRoleModalVisible] = useState(false);
@@ -144,6 +148,24 @@ const DisplayName = ({
       },
     });
   }
+  if (permissions?.mute) {
+    selectActionButtons.push(
+      ...[
+        {
+          text: 'mute audio',
+          onPress: () => {
+            console.warn('mute audio');
+          },
+        },
+        {
+          text: 'mute video',
+          onPress: () => {
+            console.warn('mute video');
+          },
+        },
+      ],
+    );
+  }
   const roleRequestTitle = 'Select action';
   const roleRequestButtons: [
     {text: String; onPress?: Function},
@@ -167,9 +189,13 @@ const DisplayName = ({
   const viewHeight =
     type === 'screen'
       ? Dimensions.get('window').height -
-        (dimension.viewHeight(90) + top + bottom + 2)
+        (dimension.viewHeight(50) + dimension.viewHeight(90) + top + bottom + 2)
       : (Dimensions.get('window').height -
-          (dimension.viewHeight(90) + top + bottom + 2)) /
+          (dimension.viewHeight(50) +
+            dimension.viewHeight(90) +
+            top +
+            bottom +
+            2)) /
         2;
 
   return (
@@ -230,7 +256,7 @@ const DisplayName = ({
         </View>
         <View style={styles.micContainer}>
           <Feather
-            name={isAudioMute ? 'mic-off' : 'mic'}
+            name={isAudioMute && !audioPlaybackAllowed ? 'mic-off' : 'mic'}
             style={styles.mic}
             size={20}
           />
@@ -270,6 +296,7 @@ const Meeting = ({
   const [modalVisible, setModalVisible] = useState(false);
   const [speakers, setSpeakers] = useState([]);
   const [notification, setNotification] = useState(false);
+  const [muteAllAudio, setMuteAllAudio] = useState(false);
   const [auxTracks, setAuxTracks] = useState<Peer[]>([]);
   const [roleChangeRequest, setRoleChangeRequest] = useState<{
     requestedBy?: String;
@@ -282,6 +309,7 @@ const Meeting = ({
       changeRole: false,
       endRoom: false,
       removeOthers: false,
+      mute: false,
     },
   );
 
@@ -309,6 +337,8 @@ const Meeting = ({
     const peerIsVideoMute = peer?.videoTrack?.mute;
     const peerRole = peer?.role;
     const newPeerColour = getPeerColour(peerTrackId);
+    const peerAudioPlaybackAllowed =
+      type === 'remote' ? peer.remoteAudio.playbackAllowed : true;
     return {
       trackId: peerTrackId,
       peerName: peerName,
@@ -318,6 +348,7 @@ const Meeting = ({
       colour: newPeerColour,
       sink: true,
       role: peerRole,
+      audioPlaybackAllowed: peerAudioPlaybackAllowed,
       type,
     };
   };
@@ -361,6 +392,7 @@ const Meeting = ({
               colour: 'red',
               sink: true,
               type: 'screen',
+              audioPlaybackAllowed: true,
             });
           }
         });
@@ -642,10 +674,11 @@ const Meeting = ({
         <Text style={styles.headerName}>{trackId?.peerName}</Text>
         <TouchableOpacity
           onPress={() => {
-            console.warn('mute all peers');
+            instance?.muteAllPeersAudio(muteAllAudio);
+            setMuteAllAudio(!muteAllAudio);
           }}>
           <Ionicons
-            name={false ? 'volume-mute' : 'volume-high'}
+            name={muteAllAudio ? 'volume-mute' : 'volume-high'}
             style={styles.headerName}
             size={dimension.viewHeight(30)}
           />
