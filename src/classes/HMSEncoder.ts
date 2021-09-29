@@ -12,6 +12,7 @@ import HMSVideoTrackSettings from './HMSVideoTrackSettings';
 import HMSLocalVideoTrack from './HMSLocalVideoTrack';
 import HMSLocalAudioTrack from './HMSLocalAudioTrack';
 import HMSRole from './HMSRole';
+import HMSRoleChangeRequest from './HMSRoleChangeRequest';
 
 export default class HMSEncoder {
   static encodeHmsRoom(room: any) {
@@ -207,9 +208,28 @@ export default class HMSEncoder {
     return encodedObj;
   }
 
+  static encodeHmsRoles(roles: any[]) {
+    const encodedRoles: HMSRole[] = [];
+
+    roles?.map((item: any) => {
+      encodedRoles.push(HMSEncoder.encodeHmsRole(item));
+    });
+
+    return encodedRoles;
+  }
+
   static encodeHmsRole(role: any) {
     const hmsRole = new HMSRole(role);
 
     return hmsRole;
+  }
+
+  static encodeHmsRoleChangeRequest(data: any) {
+    const encodedRoleChangeRequest = {
+      requestedBy: HMSEncoder.encodeHmsPeer(data.requestedBy),
+      suggestedRole: HMSEncoder.encodeHmsRole(data.suggestedRole),
+    };
+
+    return new HMSRoleChangeRequest(encodedRoleChangeRequest);
   }
 }

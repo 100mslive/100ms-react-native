@@ -2,22 +2,30 @@
 What's a video without being able to send messages to each other too? 100ms supports chat for every video/audio room you create.
 
 ## Sending Chat Messages
-With the HMSSDK instance call sendMessage to send a message.
+With the HMSSDK instance call different send message functions.
+
+### Broadcast Messages
+This will be received by everyone in the room.
 
 ```js
-// import HMSMessage class
-import { HMSMessage } from '@100mslive/react-native-hms';
-
-const messageObject = {
-  type: 'chat',                     
-  time: new Date().toISOString(),   // The time the message was sent is contained in time as a Java Date.
-  message: value,                  // The body of the message is in message as a String.
-}
-
-const message = new HMSMessage(messageObject);
-
 // instance acquired from build() method
-hmsInstance.send(message);
+hmsInstance.sendBroadcastMessage("hello everyone!"); // yes it's that simple 😉
+```
+
+### Group Messages
+This will be received by every peer who is part of the passed in roles.
+
+```js
+// instance acquired from build() method
+hmsInstance.sendGroupMessage("hi folks!", ['moderator', 'host']);
+```
+
+### Direct Messages
+This will only be received by the peer whom the message was sent to.
+
+```js
+// instance acquired from build() method
+hmsInstance.sendDirectMessage("keep this message a secret!", peer.id);
 ```
 
 ## Receiving Chat Messages

@@ -92,6 +92,7 @@ const styles = StyleSheet.create({
     minHeight: 42,
     width: '80%',
     marginBottom: 16,
+    color: '#4578e0',
   },
   inputContainer: {
     alignItems: 'center',

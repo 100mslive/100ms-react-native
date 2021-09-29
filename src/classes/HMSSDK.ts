@@ -4,8 +4,11 @@ import type HMSConfig from './HMSConfig';
 import type HMSLocalPeer from './HMSLocalPeer';
 import type HMSRemotePeer from './HMSRemotePeer';
 import type HMSRoom from './HMSRoom';
+import type HMSRole from './HMSRole';
 import HMSEncoder from './HMSEncoder';
 import HMSMessage from './HMSMessage';
+import HMSHelper from './HMSHelper';
+import type HMSTrack from './HMSTrack';
 
 const {
   /**
@@ -22,6 +25,7 @@ export default class HMSSDK {
   room?: HMSRoom;
   localPeer?: HMSLocalPeer;
   remotePeers?: HMSRemotePeer[];
+  knownRoles?: HMSRole[];
 
   onPreviewDelegate?: any;
   onJoinDelegate?: any;
@@ -33,6 +37,8 @@ export default class HMSSDK {
   onSpeakerDelegate?: any;
   onReconnectingDelegate?: any;
   onReconnectedDelegate?: any;
+  onRoleChangeRequestDelegate?: any;
+  onRemovedFromRoomDelegate?: any;
 
   /**
    * - Returns an instance of [HMSSDK]{@link HMSSDK}
@@ -42,7 +48,7 @@ export default class HMSSDK {
    * @returns
    * @memberof HMSSDK
    */
-  static async build() {
+  static build() {
     if (HmsSdk) {
       return HmsSdk;
     }
@@ -59,7 +65,6 @@ export default class HMSSDK {
   };
 
   attachListeners = () => {
-    console.log('attatch listeners');
     HmsEventEmitter.addListener(
       HMSUpdateListenerActions.ON_JOIN,
       this.onJoinListener
@@ -104,6 +109,16 @@ export default class HMSSDK {
       HMSUpdateListenerActions.RECONNECTED,
       this.reconnectedListener
     );
+
+    HmsEventEmitter.addListener(
+      HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST,
+      this.onRoleChangeRequestListener
+    );
+
+    HmsEventEmitter.addListener(
+      HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM,
+      this.onRemovedFromRoomListener
+    );
   };
 
   /**
@@ -119,7 +134,6 @@ export default class HMSSDK {
   };
 
   preview = (config: HMSConfig) => {
-    console.log('preview here');
     this.attachPreviewListener();
     HmsManager.preview(config);
   };
@@ -133,8 +147,62 @@ export default class HMSSDK {
     HmsManager.leave();
   };
 
-  send = (data: HMSMessage) => {
-    HmsManager.send(data);
+  sendBroadcastMessage = (message: String) => {
+    HmsManager.sendBroadcastMessage({ message });
+  };
+
+  sendGroupMessage = (message: String, roles: HMSRole[]) => {
+    HmsManager.sendGroupMessage({
+      message,
+      roles: HMSHelper.getRoleNames(roles),
+    });
+  };
+
+  sendDirectMessage = (message: String, peerId: String) => {
+    HmsManager.sendDirectMessage({
+      message,
+      peerId,
+    });
+  };
+
+  changeRole = (peerId: String, role: String, force: boolean = false) => {
+    const data = {
+      peerId: peerId,
+      role: role,
+      force: force,
+    };
+    HmsManager.changeRole(data);
+  };
+
+  changeTrackState = (track: HMSTrack, mute: boolean) => {
+    const data = {
+      trackId: track.trackId,
+      mute,
+    };
+
+    HmsManager.changeTrackState(data);
+  };
+
+  removePeer = (peerId: String, reason: String) => {
+    const data = {
+      peerId,
+      reason,
+    };
+
+    HmsManager.removePeer(data);
+  };
+
+  endRoom = (lock: boolean, reason: String) => {
+    const data = {
+      lock,
+      reason,
+    };
+
+    HmsManager.endRoom(data);
+  };
+
+  acceptRoleChange = () => {
+    HmsManager.acceptRoleChange();
   };
 
   /**
@@ -177,13 +245,17 @@ export default class HMSSDK {
       case HMSUpdateListenerActions.RECONNECTED:
         this.onReconnectedDelegate = callback;
         break;
+      case HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST:
+        this.onRoleChangeRequestDelegate = callback;
+        break;
+      case HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM:
+        this.onRemovedFromRoomDelegate = callback;
+        break;
       default:
-        console.log('default case');
     }
   };
 
   onPreviewListener = (data: any) => {
-    console.log(data, 'data in preview');
     const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
       data.localPeer
@@ -200,7 +272,6 @@ export default class HMSSDK {
 
   onJoinListener = (data: any) => {
     // Preprocessing
-    console.log(data, 'join data');
     const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
       data.localPeer
@@ -208,16 +279,17 @@ export default class HMSSDK {
     const remotePeers: HMSRemotePeer[] = HMSEncoder.encodeHmsRemotePeers(
       data.remotePeers
     );
+    const roles: HMSRole[] = HMSEncoder.encodeHmsRoles(data.roles);
     this.room = room;
     this.localPeer = localPeer;
     this.remotePeers = remotePeers;
+    this.knownRoles = roles;
     if (this.onJoinDelegate) {
       this.onJoinDelegate({ ...data, room, localPeer, remotePeers });
     }
   };
 
   onRoomListener = (data: any) => {
-    console.log(data, 'room data');
     const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
       data.localPeer
@@ -234,7 +306,6 @@ export default class HMSSDK {
   };
 
   onPeerListener = (data: any) => {
-    console.log(data, 'peer data');
     // const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
       data.localPeer
@@ -251,7 +322,6 @@ export default class HMSSDK {
   };
 
   onTrackListener = (data: any) => {
-    console.log(data, 'track data');
     // const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
       data.localPeer
@@ -268,7 +338,6 @@ export default class HMSSDK {
   };
 
   onMessageListener = (data: any) => {
-    console.log(data, 'message data');
     const message = new HMSMessage(data);
     if (this.onMessageDelegate) {
       this.onMessageDelegate(message);
@@ -276,28 +345,42 @@ export default class HMSSDK {
   };
 
   onSpeakerListener = (data: any) => {
-    console.log(data, 'speaker data');
     if (this.onSpeakerDelegate) {
       this.onSpeakerDelegate(data);
     }
   };
 
   onErrorListener = (data: any) => {
-    console.log(data, 'error data');
     if (this.onErrorDelegate) {
       this.onErrorDelegate(data);
     }
   };
 
+  onRoleChangeRequestListener = (data: any) => {
+    if (this.onRoleChangeRequestDelegate) {
+      const encodedRoleChangeRequest =
+        HMSEncoder.encodeHmsRoleChangeRequest(data);
+      this.onRoleChangeRequestDelegate(encodedRoleChangeRequest);
+    }
+  };
+
+  onRemovedFromRoomListener = (data: any) => {
+    if (this.onRemovedFromRoomDelegate) {
+      const requestedBy = HMSEncoder.encodeHmsPeer(data.requestedBy);
+      const reason = data.reason;
+      const roomEnded = data.roomEnded;
+
+      this.onRemovedFromRoomDelegate({ requestedBy, reason, roomEnded });
+    }
+  };
+
   reconnectingListener = (data: any) => {
-    console.log(data, 'reconnecting data');
     if (this.onReconnectingDelegate) {
       this.onReconnectingDelegate(data);
     }
   };
 
   reconnectedListener = (data: any) => {
-    console.log(data, 'reconnected data');
     if (this.onReconnectedDelegate) {
       this.onReconnectedDelegate(data);
     }

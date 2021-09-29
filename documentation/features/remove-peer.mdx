@@ -1,0 +1,37 @@
+# Remove Peer
+
+If the local peer has removeOthers permission they can remove a peer.
+
+## Check if user has permissions
+
+```js
+const removeOthers: boolean = peer.role.permissions.removeOthers
+```
+
+## Remove Peer
+
+```js
+const reason = 'removed from room';
+
+// instance acquired from build() method
+hmsInstance.removePeer(peer.id, reason); 
+```
+
+## Remove Peer Notification
+
+Once the peer with adequate permissions calls removePeer for the local peer, the local peer will receive a notification with type REMOVED_FROM_ROOM with a HMSLeaveRoomRequest object as the data.
+
+```js
+// import classes
+import { HMSUpdateListenerActions, HMSLeaveRoomRequest } from '@100mslive/react-native-hms';
+
+const onRemovedFromRoom = (data: HMSLeaveRoomRequest) => {
+  // redirect to home screen
+};
+
+hmsInstance.addEventListener(
+  HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM,
+  onRemovedFromRoom,
+);
+```
+
