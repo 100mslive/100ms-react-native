@@ -518,7 +518,6 @@ const Meeting = ({
 
   useEffect(() => {
     updateHmsInstance();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
 
     const backAction = () => {
       setLeaveModalVisible(true);
@@ -531,6 +530,7 @@ const Meeting = ({
     );
 
     return () => backHandler.remove();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -602,14 +602,21 @@ const Meeting = ({
 
   const onViewRef = React.useRef(({viewableItems}: any) => {
     if (viewableItems) {
-      const viewableItemsIds = viewableItems.map(
+      const viewableItemsIds: (string | undefined)[] = [];
+      const names: (string | undefined)[] = [];
+      viewableItems.map(
         (viewableItem: {
           index: Number;
-          item: Peer;
+          item: {first: Peer; second: Peer | undefined};
           key: String;
           isViewable: Boolean;
         }) => {
-          return viewableItem?.item?.trackId;
+          viewableItemsIds.push(viewableItem?.item?.first?.trackId);
+          names.push(viewableItem?.item?.first?.peerName);
+          if (viewableItem?.item?.second) {
+            viewableItemsIds.push(viewableItem?.item?.second?.trackId);
+            names.push(viewableItem?.item?.second?.peerName);
+          }
         },
       );
 
