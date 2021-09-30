@@ -44,7 +44,6 @@ type Peer = {
   role?: any;
   sink: Boolean;
   type: 'local' | 'remote' | 'screen';
-  audioPlaybackAllowed: boolean;
 };
 
 type Permissions = {
@@ -61,6 +60,7 @@ type DisplayNameProps = {
   type: 'local' | 'remote' | 'screen';
   instance: any;
   permissions: Permissions;
+  allAudioMute: boolean;
 };
 
 type MeetingProps = {
@@ -82,7 +82,6 @@ const DEFAULT_PEER: Peer = {
   sink: true,
   role: 'host',
   type: 'local',
-  audioPlaybackAllowed: true,
 };
 
 type MeetingScreenProp = StackNavigationProp<AppStackParamList, 'Meeting'>;
@@ -94,6 +93,7 @@ const DisplayName = ({
   type,
   instance,
   permissions,
+  allAudioMute,
 }: DisplayNameProps) => {
   const {
     peerName,
@@ -104,7 +104,6 @@ const DisplayName = ({
     peerId,
     role,
     sink,
-    audioPlaybackAllowed,
   } = peer!;
   const [alertModalVisible, setAlertModalVisible] = useState(false);
   const [roleModalVisible, setRoleModalVisible] = useState(false);
@@ -148,24 +147,6 @@ const DisplayName = ({
       },
     });
   }
-  if (permissions?.mute) {
-    selectActionButtons.push(
-      ...[
-        {
-          text: 'mute audio',
-          onPress: () => {
-            console.warn('mute audio');
-          },
-        },
-        {
-          text: 'mute video',
-          onPress: () => {
-            console.warn('mute video');
-          },
-        },
-      ],
-    );
-  }
   const roleRequestTitle = 'Select action';
   const roleRequestButtons: [
     {text: String; onPress?: Function},
@@ -183,6 +164,8 @@ const DisplayName = ({
   const promptUser = () => {
     setAlertModalVisible(true);
   };
+
+  const mute = type === 'remote' && allAudioMute ? true : isAudioMute;
 
   const {top, bottom} = useSafeAreaInsets();
   // window height - (header + bottom container + top + bottom + padding) / views in one screen
@@ -256,7 +239,7 @@ const DisplayName = ({
         </View>
         <View style={styles.micContainer}>
           <Feather
-            name={isAudioMute && !audioPlaybackAllowed ? 'mic-off' : 'mic'}
+            name={mute ? 'mic-off' : 'mic'}
             style={styles.mic}
             size={20}
           />
@@ -337,8 +320,6 @@ const Meeting = ({
     const peerIsVideoMute = peer?.videoTrack?.mute;
     const peerRole = peer?.role;
     const newPeerColour = getPeerColour(peerTrackId);
-    const peerAudioPlaybackAllowed =
-      type === 'remote' ? peer.remoteAudio.playbackAllowed : true;
     return {
       trackId: peerTrackId,
       peerName: peerName,
@@ -348,7 +329,6 @@ const Meeting = ({
       colour: newPeerColour,
       sink: true,
       role: peerRole,
-      audioPlaybackAllowed: peerAudioPlaybackAllowed,
       type,
     };
   };
@@ -392,7 +372,6 @@ const Meeting = ({
               colour: 'red',
               sink: true,
               type: 'screen',
-              audioPlaybackAllowed: true,
             });
           }
         });
@@ -674,7 +653,8 @@ const Meeting = ({
         <Text style={styles.headerName}>{trackId?.peerName}</Text>
         <TouchableOpacity
           onPress={() => {
-            instance?.muteAllPeersAudio(muteAllAudio);
+            console.warn(!muteAllAudio);
+            instance?.muteAllPeersAudio(!muteAllAudio);
             setMuteAllAudio(!muteAllAudio);
           }}>
           <Ionicons
@@ -704,6 +684,7 @@ const Meeting = ({
                     instance={instance}
                     type={first.type}
                     permissions={localPeerPermissions}
+                    allAudioMute={muteAllAudio}
                   />
                   <DisplayName
                     peer={second}
@@ -716,6 +697,7 @@ const Meeting = ({
                     instance={instance}
                     type={second.type}
                     permissions={localPeerPermissions}
+                    allAudioMute={muteAllAudio}
                   />
                 </View>
               );
@@ -733,6 +715,7 @@ const Meeting = ({
                   instance={instance}
                   type={first.type}
                   permissions={localPeerPermissions}
+                  allAudioMute={muteAllAudio}
                 />
               );
             }
