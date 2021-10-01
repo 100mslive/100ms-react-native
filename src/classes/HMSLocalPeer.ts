@@ -31,14 +31,14 @@ export default class HMSLocalPeer extends HMSPeer {
     auxiliaryTracks?: HMSTrack[];
     localAudioTrackData?: {
       trackId: string;
-      source?: number;
+      source?: number | string;
       trackDescription?: string;
       isMute?: Boolean;
       settings?: HMSAudioTrackSettings;
     };
     localVideoTrackData?: {
       trackId: string;
-      source?: number;
+      source?: number | string;
       trackDescription?: string;
       isMute?: Boolean;
       settings?: HMSVideoTrackSettings;

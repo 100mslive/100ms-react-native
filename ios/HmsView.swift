@@ -72,7 +72,7 @@ class HmssdkDisplayView: UIView {
                     let auxTracks = peer.auxiliaryTracks
                     if let auxTracksVals = auxTracks {
                         for track in auxTracksVals where track.trackId == trackID {
-                            if (track.source == .screen) {
+                            if (track.source == "screen") {
                                 if !sinked && sinkVideo {
                                     videoView.setVideoTrack(track as? HMSVideoTrack)
                                     sinked = true
@@ -93,8 +93,6 @@ class HmssdkDisplayView: UIView {
         super.init(frame: frame)
         self.addSubview(videoView)
         self.frame = frame
-        
-        print("frame initialized \(frame.height) \(frame.width)")
         
         videoView.translatesAutoresizingMaskIntoConstraints = false
         

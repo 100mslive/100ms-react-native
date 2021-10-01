@@ -30,14 +30,14 @@ export default class HMSRemotePeer extends HMSPeer {
     auxiliaryTracks?: HMSTrack[];
     remoteAudioTrackData?: {
       trackId: string;
-      source?: number;
+      source?: number | string;
       isMute?: Boolean;
       trackDescription?: string;
       playbackAllowed?: boolean;
     };
     remoteVideoTrackData?: {
       trackId: string;
-      source?: number;
+      source?: number | string;
       trackDescription?: string;
       isMute?: Boolean;
       layer?: any;

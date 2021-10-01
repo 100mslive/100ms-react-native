@@ -52,8 +52,6 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
 
     hmsSDK?.preview(config, object: HMSPreviewListener {
       override fun onError(error: HMSException) {
-        println("error")
-        println(error)
         reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_ERROR", "ERROR")
       }
 
@@ -73,8 +71,6 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
 
   @ReactMethod
   fun join(credentials: ReadableMap) {
-    println("Credentials")
-    println(credentials)
     var config =
       HMSConfig(credentials.getString("username") as String, credentials.getString("authToken") as String)
 
@@ -85,7 +81,7 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     HMSCoroutineScope.launch {
       hmsSDK?.join(config, object : HMSUpdateListener {
         override fun onChangeTrackStateRequest(details: HMSChangeTrackStateRequest) {
-          println("Not yet implemented")
+//          Not yet implemented
         }
 
         override fun onRemovedFromRoom(notification: HMSRemovedFromRoom) {
@@ -105,15 +101,10 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
         }
 
         override fun onError(error: HMSException) {
-          println("error")
-          println(error)
           reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_ERROR", "ERROR")
         }
 
         override fun onJoin(room: HMSRoom) {
-          println("room")
-          println(room)
-
           val roomData = HmsDecoder.getHmsRoom(room)
           val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
           val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
@@ -143,8 +134,6 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
         }
 
         override fun onRoomUpdate(type: HMSRoomUpdate, hmsRoom: HMSRoom) {
-          println("HMSRoom")
-          println(hmsRoom)
           val roomData = HmsDecoder.getHmsRoom(hmsRoom)
           val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
           val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
@@ -158,10 +147,6 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
         }
 
         override fun onTrackUpdate(type: HMSTrackUpdate, track: HMSTrack, peer: HMSPeer) {
-          println("HMSTrack")
-          println(peer)
-          println(track)
-
 //        val roomData = HmsDecoder.getHmsRoom(hmsSDK.room)
           val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
           val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
@@ -175,9 +160,6 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
         }
 
         override fun onMessageReceived(message: HMSMessage) {
-          println("message")
-          println(message)
-
           val data: WritableMap = Arguments.createMap()
 
           data.putString("sender", message.sender.name)
@@ -190,12 +172,10 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
         }
 
         override fun onReconnected() {
-          println("Reconnected")
           reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("RECONNECTED", "RECONNECTED")
         }
 
         override fun onReconnecting(error: HMSException) {
-          println("Reconnecting")
           reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("RECONNECTING", "RECONNECTING")
         }
 
@@ -239,7 +219,6 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   @ReactMethod
    fun switchCamera() {
     if(hmsSDK?.getLocalPeer()?.videoTrack?.isMute?:true){
-      println("Camera off")
     }else{
       HMSCoroutineScope.launch {
         hmsSDK?.getLocalPeer()?.videoTrack?.switchCamera()
@@ -257,10 +236,8 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     val type = if(data.getString("type") !== null) data.getString("type") else "chat"
     hmsSDK?.sendBroadcastMessage(data.getString("message") as String,type as String,object : HMSMessageResultListener {
       override fun onError(error: HMSException) {
-        println("error:$error")
       }
       override fun onSuccess(hmsMessage: HMSMessage) {
-        println("message:$hmsMessage")
       }
     })
   }
@@ -275,10 +252,8 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     if (message != null) {
       hmsSDK?.sendGroupMessage(message, "chat", encodedTargetedRoles, object : HMSMessageResultListener {
         override fun onError(error: HMSException) {
-          println("error:$error")
         }
         override fun onSuccess(hmsMessage: HMSMessage) {
-          println("message:$hmsMessage")
         }
       })
     }
@@ -298,11 +273,9 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
       hmsSDK?.sendDirectMessage(message, "chat", peer,
         object : HMSMessageResultListener {
           override fun onError(error: HMSException) {
-            println("error:$error")
           }
 
           override fun onSuccess(hmsMessage: HMSMessage) {
-            println("message:$hmsMessage")
           }
         })
     }
@@ -321,11 +294,9 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
       if (hmsRole != null && hmsPeer != null) {
         hmsSDK?.changeRole(hmsPeer as HMSRemotePeer, hmsRole, force, object : HMSActionResultListener {
           override fun onSuccess() {
-            println("success")
           }
 
           override fun onError(error: HMSException) {
-            println("error")
           }
         })
       }
@@ -344,11 +315,9 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     if (track != null) {
       hmsSDK?.changeTrackState(track, mute, object: HMSActionResultListener {
         override fun onSuccess() {
-          println("success")
         }
 
         override fun onError(error: HMSException) {
-          println("error")
         }
       })
     }
@@ -370,11 +339,9 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     if (peer != null) {
       hmsSDK?.removePeerRequest(peer, reason, object: HMSActionResultListener {
         override fun onSuccess() {
-          println("success")
         }
 
         override fun onError(error: HMSException) {
-          println("error")
         }
       })
     }
@@ -390,11 +357,9 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
 
     hmsSDK?.endRoom(reason, lock, object: HMSActionResultListener {
       override fun onSuccess() {
-        println("success")
       }
 
       override fun onError(error: HMSException) {
-        println("error")
       }
     })
   }

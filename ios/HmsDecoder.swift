@@ -51,7 +51,7 @@ class HmsDecoder: NSObject {
         guard let hmsTrack = track else { return [:] }
         
         let trackId = hmsTrack.trackId
-        let source = hmsTrack.source.rawValue
+        let source = hmsTrack.source
         let trackDescription = hmsTrack.trackDescription
         let isMute = hmsTrack.isMute()
         
@@ -63,7 +63,7 @@ class HmsDecoder: NSObject {
         guard let hmsTrack = hmsAudioTrack else { return [:] }
         
         let trackId: String = hmsTrack.trackId
-        let source: UInt = hmsTrack.source.rawValue
+        let source: String = hmsTrack.source
         let trackDescription: String = hmsTrack.trackDescription
         let isMute: Bool = hmsTrack.isMute()
         
@@ -75,7 +75,7 @@ class HmsDecoder: NSObject {
         guard let hmsTrack = hmsVideoTrack else { return [:] }
         
         let trackId = hmsTrack.trackId
-        let source = hmsTrack.source.rawValue
+        let source = hmsTrack.source
         let trackDescription = hmsTrack.trackDescription
         let isMute = hmsTrack.isMute()
         

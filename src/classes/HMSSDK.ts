@@ -65,7 +65,6 @@ export default class HMSSDK {
   };
 
   attachListeners = () => {
-    console.log('attatch listeners');
     HmsEventEmitter.addListener(
       HMSUpdateListenerActions.ON_JOIN,
       this.onJoinListener
@@ -135,7 +134,6 @@ export default class HMSSDK {
   };
 
   preview = (config: HMSConfig) => {
-    console.log('preview here');
     this.attachPreviewListener();
     HmsManager.preview(config);
   };
@@ -258,12 +256,10 @@ export default class HMSSDK {
         this.onRemovedFromRoomDelegate = callback;
         break;
       default:
-        console.log('default case');
     }
   };
 
   onPreviewListener = (data: any) => {
-    console.log(data, 'data in preview');
     const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
       data.localPeer
@@ -280,7 +276,6 @@ export default class HMSSDK {
 
   onJoinListener = (data: any) => {
     // Preprocessing
-    console.log(data, 'join data');
     const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
       data.localPeer
@@ -299,7 +294,6 @@ export default class HMSSDK {
   };
 
   onRoomListener = (data: any) => {
-    console.log(data, 'room data');
     const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
       data.localPeer
@@ -316,7 +310,6 @@ export default class HMSSDK {
   };
 
   onPeerListener = (data: any) => {
-    console.log(data, 'peer data');
     // const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
       data.localPeer
@@ -333,7 +326,6 @@ export default class HMSSDK {
   };
 
   onTrackListener = (data: any) => {
-    console.log(data, 'track data');
     // const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
       data.localPeer
@@ -350,7 +342,6 @@ export default class HMSSDK {
   };
 
   onMessageListener = (data: any) => {
-    console.log(data, 'message data');
     const message = new HMSMessage(data);
     if (this.onMessageDelegate) {
       this.onMessageDelegate(message);
@@ -358,22 +349,18 @@ export default class HMSSDK {
   };
 
   onSpeakerListener = (data: any) => {
-    console.log(data, 'speaker data');
     if (this.onSpeakerDelegate) {
       this.onSpeakerDelegate(data);
     }
   };
 
   onErrorListener = (data: any) => {
-    console.log(data, 'error data');
     if (this.onErrorDelegate) {
       this.onErrorDelegate(data);
     }
   };
 
   onRoleChangeRequestListener = (data: any) => {
-    console.log(data, 'data on role change');
-
     if (this.onRoleChangeRequestDelegate) {
       const encodedRoleChangeRequest =
         HMSEncoder.encodeHmsRoleChangeRequest(data);
@@ -392,14 +379,12 @@ export default class HMSSDK {
   };
 
   reconnectingListener = (data: any) => {
-    console.log(data, 'reconnecting data');
     if (this.onReconnectingDelegate) {
       this.onReconnectingDelegate(data);
     }
   };
 
   reconnectedListener = (data: any) => {
-    console.log(data, 'reconnected data');
     if (this.onReconnectedDelegate) {
       this.onReconnectedDelegate(data);
     }
