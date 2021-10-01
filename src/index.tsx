@@ -31,6 +31,9 @@ import HMSAudioTrackSettings from './classes/HMSAudioTrackSettings';
 import HMSAudioTrack from './classes/HMSAudioTrack';
 import HMSAudioSettings from './classes/HMSAudioSettings';
 import HMSAudioCodec from './classes/HMSAudioCodec';
+import HMSPeerUpdate from './classes/HMSPeerUpdate';
+import HMSRoomUpdate from './classes/HMSRoomUpdate';
+import HMSTrackUpdate from './classes/HMSTrackUpdate';
 
 export {
   HMSConfig,
@@ -65,6 +68,9 @@ export {
   HMSAudioTrack,
   HMSAudioSettings,
   HMSAudioCodec,
+  HMSPeerUpdate,
+  HMSRoomUpdate,
+  HMSTrackUpdate,
 };
 
 export default HmsManager;

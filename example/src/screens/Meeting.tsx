@@ -14,6 +14,9 @@ import HmsManager, {
   HmsView,
   HMSUpdateListenerActions,
   HMSMessage,
+  HMSPeerUpdate,
+  HMSRoomUpdate,
+  HMSTrackUpdate,
 } from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
@@ -385,41 +388,47 @@ const Meeting = ({
 
   const onRoomListener = ({
     // room,
+    type,
     localPeer,
     remotePeers,
   }: {
     room?: any;
+    type?: HMSPeerUpdate;
     localPeer: Peer;
     remotePeers: Peer;
   }) => {
     updateVideoIds(remotePeers, localPeer);
-    console.log('data in onRoomListener: ', localPeer, remotePeers);
+    console.log('data in onRoomListener: ', type, localPeer, remotePeers);
   };
 
   const onPeerListener = ({
     // room,
+    type,
     remotePeers,
     localPeer,
   }: {
     room?: any;
+    type?: HMSRoomUpdate;
     localPeer: Peer;
     remotePeers: Peer;
   }) => {
     updateVideoIds(remotePeers, localPeer);
-    console.log('data in onPeerListener: ', localPeer, remotePeers);
+    console.log('data in onPeerListener: ', type, localPeer, remotePeers);
   };
 
   const onTrackListener = ({
     // room,
+    type,
     remotePeers,
     localPeer,
   }: {
     room?: any;
+    type?: HMSTrackUpdate;
     localPeer: Peer;
     remotePeers: Peer;
   }) => {
     updateVideoIds(remotePeers, localPeer);
-    console.log('data in onTrackListener: ', localPeer, remotePeers);
+    console.log('data in onTrackListener: ', type, localPeer, remotePeers);
   };
 
   const onMessage = (data: any) => {
