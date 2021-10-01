@@ -453,7 +453,6 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 500,
   },
-
   buttonText: {
     backgroundColor: '#4578e0',
     padding: 10,

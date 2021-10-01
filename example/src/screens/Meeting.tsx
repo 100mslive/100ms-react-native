@@ -380,7 +380,7 @@ const Meeting = ({
     localPeer: any;
     remotePeers: any;
   }) => {
-    console.log(localPeer, remotePeers, 'data in onJoin');
+    console.log('data in onJoinListener: ', localPeer, remotePeers);
   };
 
   const onRoomListener = ({
@@ -393,7 +393,7 @@ const Meeting = ({
     remotePeers: Peer;
   }) => {
     updateVideoIds(remotePeers, localPeer);
-    console.log(remotePeers, localPeer, 'data in onRoom');
+    console.log('data in onRoomListener: ', localPeer, remotePeers);
   };
 
   const onPeerListener = ({
@@ -406,7 +406,7 @@ const Meeting = ({
     remotePeers: Peer;
   }) => {
     updateVideoIds(remotePeers, localPeer);
-    console.log(remotePeers, localPeer, 'data in onPeer');
+    console.log('data in onPeerListener: ', localPeer, remotePeers);
   };
 
   const onTrackListener = ({
@@ -419,22 +419,22 @@ const Meeting = ({
     remotePeers: Peer;
   }) => {
     updateVideoIds(remotePeers, localPeer);
-    console.log(remotePeers, localPeer, 'data in onTrack');
+    console.log('data in onTrackListener: ', localPeer, remotePeers);
   };
 
   const onMessage = (data: any) => {
     addMessageRequest({data, isLocal: false});
     setNotification(true);
-    console.log(data, 'data in onMessage');
+    console.log('data in onMessage: ', data);
   };
 
   const onError = (data: any) => {
-    console.log(data, 'data in onError');
+    console.log('data in onError: ', data);
   };
 
   const onSpeaker = (data: any) => {
     setSpeakers(data?.peers);
-    console.log(data, 'data in onSpeaker');
+    console.log('data in onSpeaker: ', data);
   };
 
   const reconnecting = (data: any) => {
