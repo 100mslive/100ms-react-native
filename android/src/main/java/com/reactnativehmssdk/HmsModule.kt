@@ -387,7 +387,6 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
         val peerId = remotePeer?.peerID
         val peer = HmsHelper.getRemotePeerFromPeerId(peerId, peers)
         if (peerId != null) {
-//          peer?.audioTrack?.isPlaybackAllowed = mute
          if(mute){
            peer?.audioTrack?.setVolume(0.0)
          }else{

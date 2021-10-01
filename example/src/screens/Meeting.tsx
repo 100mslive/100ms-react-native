@@ -673,10 +673,10 @@ const Meeting = ({
         <Text style={styles.headerName}>{trackId?.peerName}</Text>
         <TouchableOpacity
           onPress={() => {
-            console.warn(!muteAllAudio);
             instance?.muteAllPeersAudio(!muteAllAudio);
             setMuteAllAudio(!muteAllAudio);
-          }}>
+          }}
+          style={styles.headerIcon}>
           <Ionicons
             name={muteAllAudio ? 'volume-mute' : 'volume-high'}
             style={styles.headerName}
@@ -993,6 +993,9 @@ const styles = StyleSheet.create({
   },
   headerName: {
     color: '#4578e0',
+  },
+  headerIcon: {
+    padding: dimension.viewHeight(10),
   },
   headerContainer: {
     height: dimension.viewHeight(50),
