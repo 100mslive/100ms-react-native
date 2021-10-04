@@ -30,6 +30,10 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         }
     }
     
+    override class func requiresMainQueueSetup() -> Bool {
+        true
+    }
+    
     func on(join room: HMSRoom) {
         // Callback from join action
         let roomData = HmsDecoder.getHmsRoom(room)

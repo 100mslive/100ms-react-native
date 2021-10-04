@@ -16,6 +16,10 @@ class HmsView: RCTViewManager {
     func getHmsFromBridge() -> HMSSDK? {
         return (bridge.module(for: HmsManager.classForCoder()) as? HmsManager)?.hms
     }
+    
+    override class func requiresMainQueueSetup() -> Bool {
+        true
+    }
 }
 
 class HmssdkDisplayView: UIView {
