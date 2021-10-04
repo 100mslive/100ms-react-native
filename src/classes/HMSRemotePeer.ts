@@ -33,6 +33,7 @@ export default class HMSRemotePeer extends HMSPeer {
       source?: number | string;
       isMute?: Boolean;
       trackDescription?: string;
+      playbackAllowed?: boolean;
     };
     remoteVideoTrackData?: {
       trackId: string;
@@ -40,6 +41,7 @@ export default class HMSRemotePeer extends HMSPeer {
       trackDescription?: string;
       isMute?: Boolean;
       layer?: any;
+      playbackAllowed?: boolean;
     };
   }) {
     super(params);

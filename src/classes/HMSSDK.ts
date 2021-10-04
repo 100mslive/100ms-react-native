@@ -205,6 +205,10 @@ export default class HMSSDK {
     HmsManager.acceptRoleChange();
   };
 
+  muteAllPeersAudio = (mute: boolean) => {
+    HmsManager.muteAllPeersAudio(mute);
+  };
+
   /**
    * - This is a prototype event listener that takes action and listens for updates related to that particular action
    * - This method will be @deprecated in future and event listener will be passed in join method

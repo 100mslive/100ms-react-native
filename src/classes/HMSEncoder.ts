@@ -182,6 +182,7 @@ export default class HMSEncoder {
         source: peer?.remoteAudioTrackData?.source,
         trackDescription: peer?.remoteAudioTrackData?.trackDescription,
         isMute: peer?.remoteAudioTrackData?.isMute,
+        playbackAllowed: peer?.remoteAudioTrackData?.playbackAllowed,
       },
       remoteVideoTrackData: {
         trackId: peer?.remoteVideoTrackData?.trackId,
@@ -189,6 +190,7 @@ export default class HMSEncoder {
         trackDescription: peer?.remoteVideoTrackData?.trackDescription,
         layer: peer?.remoteVideoTrackData?.layer,
         isMute: peer?.remoteVideoTrackData?.isMute,
+        playbackAllowed: peer?.remoteVideoTrackData?.playbackAllowed,
       },
     };
 

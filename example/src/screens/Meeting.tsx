@@ -54,6 +54,7 @@ type Permissions = {
   changeRole: boolean;
   endRoom: boolean;
   removeOthers: boolean;
+  mute: boolean;
 };
 
 type DisplayNameProps = {
@@ -63,6 +64,7 @@ type DisplayNameProps = {
   type: 'local' | 'remote' | 'screen';
   instance: any;
   permissions: Permissions;
+  allAudioMute: boolean;
 };
 
 type MeetingProps = {
@@ -95,6 +97,7 @@ const DisplayName = ({
   type,
   instance,
   permissions,
+  allAudioMute,
 }: DisplayNameProps) => {
   const {
     peerName,
@@ -166,14 +169,20 @@ const DisplayName = ({
     setAlertModalVisible(true);
   };
 
+  const mute = type === 'remote' && allAudioMute ? true : isAudioMute;
+
   const {top, bottom} = useSafeAreaInsets();
-  // window height - (bottom container + top + bottom + padding) / views in one screen
+  // window height - (header + bottom container + top + bottom + padding) / views in one screen
   const viewHeight =
     type === 'screen'
       ? Dimensions.get('window').height -
-        (dimension.viewHeight(90) + top + bottom + 2)
+        (dimension.viewHeight(50) + dimension.viewHeight(90) + top + bottom + 2)
       : (Dimensions.get('window').height -
-          (dimension.viewHeight(90) + top + bottom + 2)) /
+          (dimension.viewHeight(50) +
+            dimension.viewHeight(90) +
+            top +
+            bottom +
+            2)) /
         2;
 
   return (
@@ -234,7 +243,7 @@ const DisplayName = ({
         </View>
         <View style={styles.micContainer}>
           <Feather
-            name={isAudioMute ? 'mic-off' : 'mic'}
+            name={mute ? 'mic-off' : 'mic'}
             style={styles.mic}
             size={20}
           />
@@ -274,6 +283,7 @@ const Meeting = ({
   const [modalVisible, setModalVisible] = useState(false);
   const [speakers, setSpeakers] = useState([]);
   const [notification, setNotification] = useState(false);
+  const [muteAllAudio, setMuteAllAudio] = useState(false);
   const [auxTracks, setAuxTracks] = useState<Peer[]>([]);
   const [roleChangeRequest, setRoleChangeRequest] = useState<{
     requestedBy?: String;
@@ -286,6 +296,7 @@ const Meeting = ({
       changeRole: false,
       endRoom: false,
       removeOthers: false,
+      mute: false,
     },
   );
 
@@ -667,6 +678,21 @@ const Meeting = ({
         message=""
         buttons={getButtons(localPeerPermissions)}
       />
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerName}>{trackId?.peerName}</Text>
+        <TouchableOpacity
+          onPress={() => {
+            instance?.muteAllPeersAudio(!muteAllAudio);
+            setMuteAllAudio(!muteAllAudio);
+          }}
+          style={styles.headerIcon}>
+          <Ionicons
+            name={muteAllAudio ? 'volume-mute' : 'volume-high'}
+            style={styles.headerName}
+            size={dimension.viewHeight(30)}
+          />
+        </TouchableOpacity>
+      </View>
       <View style={styles.wrapper}>
         <FlatList
           data={pairDataForFlatlist([...auxTracks, trackId, ...remoteTrackIds])}
@@ -687,6 +713,7 @@ const Meeting = ({
                     instance={instance}
                     type={first.type}
                     permissions={localPeerPermissions}
+                    allAudioMute={muteAllAudio}
                   />
                   <DisplayName
                     peer={second}
@@ -699,6 +726,7 @@ const Meeting = ({
                     instance={instance}
                     type={second.type}
                     permissions={localPeerPermissions}
+                    allAudioMute={muteAllAudio}
                   />
                 </View>
               );
@@ -716,6 +744,7 @@ const Meeting = ({
                   instance={instance}
                   type={first.type}
                   permissions={localPeerPermissions}
+                  allAudioMute={muteAllAudio}
                 />
               );
             }
@@ -877,14 +906,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     height: dimension.viewHeight(90),
   },
-
   buttonText: {
     backgroundColor: '#4578e0',
     padding: 10,
     borderRadius: 10,
     color: '#efefef',
   },
-
   leaveIconContainer: {
     backgroundColor: '#ee4578',
     padding: dimension.viewHeight(10),
@@ -896,7 +923,6 @@ const styles = StyleSheet.create({
   leaveIcon: {
     color: 'white',
   },
-
   cameraImage: {
     width: dimension.viewHeight(30),
     height: dimension.viewHeight(30),
@@ -973,6 +999,19 @@ const styles = StyleSheet.create({
   },
   roleChangeText: {
     padding: 12,
+  },
+  headerName: {
+    color: '#4578e0',
+  },
+  headerIcon: {
+    padding: dimension.viewHeight(10),
+  },
+  headerContainer: {
+    height: dimension.viewHeight(50),
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
   },
   rowWrapper: {
     flexDirection: 'row',

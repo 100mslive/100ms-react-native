@@ -384,4 +384,30 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
       })
     }
   }
+
+  @ReactMethod
+  fun muteAllPeersAudio(mute: Boolean) {
+    val peers = hmsSDK?.getRemotePeers()
+    if (peers != null) {
+      for (remotePeer in peers) {
+        val peerId = remotePeer?.peerID
+        val peer = HmsHelper.getRemotePeerFromPeerId(peerId, peers)
+        if (peerId != null) {
+         if(mute){
+           peer?.audioTrack?.setVolume(0.0)
+         }else{
+           peer?.audioTrack?.setVolume(1.0)
+         }
+        }
+      }
+      val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
+      val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
+
+      val data: WritableMap = Arguments.createMap();
+
+      data.putMap("localPeer", localPeerData)
+      data.putArray("remotePeers", remotePeerData)
+      reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_PEER_UPDATE", data)
+    }
+  }
 }
