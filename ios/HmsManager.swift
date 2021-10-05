@@ -278,10 +278,12 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     func on(room: HMSRoom, update: HMSRoomUpdate) {
         // Listener for any updation in room
         let roomData = HmsDecoder.getHmsRoom(room)
+        let type = getString(from: update)
+        
         let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
         let remotePeerData = HmsDecoder.getHmsRemotePeers(hms?.remotePeers)
         
-        self.sendEvent(withName: ON_ROOM_UPDATE, body: ["event": ON_ROOM_UPDATE, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
+        self.sendEvent(withName: ON_ROOM_UPDATE, body: ["event": ON_ROOM_UPDATE, "type": type, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
     }
     
     func on(peer: HMSPeer, update: HMSPeerUpdate) {
@@ -395,6 +397,23 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
             return "TRACK_DEGRADED"
         case .trackRestored:
             return "TRACK_RESTORED"
+        default:
+            return ""
+        }
+    }
+    
+    func getString(from update: HMSRoomUpdate) -> String {
+        switch update {
+        case .roomTypeChanged:
+            return "ROOM_TYPE_CHANGED"
+        case .metaDataUpdated:
+            return "META_DATA_CHANGED"
+        case .browserRecordingStateUpdated:
+            return "BROWSER_RECORDING_STATE_UPDATED"
+        case .rtmpStreamingStateUpdated:
+            return "RTMP_STREAMING_STATE_UPDATED"
+        case.serverRecordingStateUpdated:
+            return "SERVER_RECORDING_STATE_UPDATED"
         default:
             return ""
         }

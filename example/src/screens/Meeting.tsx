@@ -415,7 +415,7 @@ const Meeting = ({
     remotePeers,
   }: {
     room?: any;
-    type?: HMSPeerUpdate;
+    type?: HMSRoomUpdate;
     localPeer: Peer;
     remotePeers: Peer;
   }) => {
@@ -430,7 +430,7 @@ const Meeting = ({
     localPeer,
   }: {
     room?: any;
-    type?: HMSRoomUpdate;
+    type?: HMSPeerUpdate;
     localPeer: Peer;
     remotePeers: Peer;
   }) => {
