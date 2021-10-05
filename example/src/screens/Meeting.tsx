@@ -577,7 +577,7 @@ const Meeting = ({
   };
 
   const getAuxVideoStyles = () => {
-    return styles.fullScreenTile;
+    return isPortrait() ? styles.fullScreenTile : styles.fullScreenLandscape;
   };
 
   const getMessageToList = (): Array<{
@@ -884,13 +884,23 @@ const styles = StyleSheet.create({
   },
   videoIcon: {},
   fullScreenTile: {
-    height: dimension.viewHeight(896),
-    width: dimension.viewWidth(414),
+    width: '100%',
     marginVertical: 1,
     padding: 0.5,
     overflow: 'hidden',
     borderRadius: 10,
     justifyContent: 'center',
+    alignSelf: 'center',
+  },
+  fullScreenLandscape: {
+    width: '100%',
+    marginVertical: 1,
+    padding: 0.5,
+    overflow: 'hidden',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignSelf: 'center',
+    aspectRatio: 16 / 9,
   },
   generalTile: {
     width: '49.5%',
