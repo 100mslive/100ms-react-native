@@ -9,6 +9,7 @@ import {
   Image,
   Platform,
   ActivityIndicator,
+  KeyboardAvoidingView,
 } from 'react-native';
 import {connect} from 'react-redux';
 import * as services from '../services/index';
@@ -16,6 +17,7 @@ import HmsManager, {
   HMSConfig,
   HMSUpdateListenerActions,
 } from '@100mslive/react-native-hms';
+
 import Feather from 'react-native-vector-icons/Feather';
 import UserIdModal from '../components/UserIdModal';
 import PreviewModal from '../components/PreviewModal';
@@ -277,7 +279,7 @@ const App = ({
         <Image style={styles.image} source={require('../assets/icon.png')} />
         <Text style={styles.logo}>100ms</Text>
       </View>
-      <View style={styles.inputContainer}>
+      <KeyboardAvoidingView style={styles.inputContainer} behavior="padding">
         <Text style={styles.heading}>Join a Meeting</Text>
         <View style={styles.textInputContainer}>
           <TextInput
@@ -311,7 +313,7 @@ const App = ({
             </>
           )}
         </TouchableOpacity>
-      </View>
+      </KeyboardAvoidingView>
       {modalVisible && (
         <UserIdModal
           join={(userID: string) => {
@@ -373,6 +375,7 @@ const App = ({
           join={joinRoom}
         />
       )}
+      <View />
     </View>
   );
 };
@@ -382,10 +385,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     backgroundColor: 'white',
+    justifyContent: 'space-between',
   },
   headerContainer: {
     marginTop: Platform.OS === 'ios' ? 50 : 20,
-    marginBottom: '65%',
     width: '85%',
     flexDirection: 'row',
     alignItems: 'center',

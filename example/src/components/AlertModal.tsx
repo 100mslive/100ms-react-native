@@ -22,6 +22,7 @@ const App = ({
       animationType="fade"
       transparent={true}
       visible={modalVisible}
+      supportedOrientations={['portrait', 'landscape']}
       onRequestClose={onRequestClose}>
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
