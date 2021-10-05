@@ -10,6 +10,7 @@ import {
   Platform,
   ActivityIndicator,
   KeyboardAvoidingView,
+  Dimensions,
 } from 'react-native';
 import {connect} from 'react-redux';
 import * as services from '../services/index';
@@ -105,6 +106,7 @@ const App = ({
   saveUserDataRequest,
   state,
 }: WelcomeProps) => {
+  const [orientation, setOrientation] = React.useState<Boolean>(true);
   const [roomID, setRoomID] = React.useState(
     'https://yogi.app.100ms.live/meeting/muggy-ultramarine-fish',
   );
@@ -158,6 +160,15 @@ const App = ({
       setupBuild();
       setInitialized(true);
     }
+    Dimensions.addEventListener('change', () => {
+      setOrientation(!orientation);
+    });
+
+    return () => {
+      Dimensions.removeEventListener('change', () => {
+        setOrientation(!orientation);
+      });
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

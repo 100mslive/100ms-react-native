@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   Dimensions,
   BackHandler,
+  Platform,
 } from 'react-native';
 import {connect} from 'react-redux';
 import HmsManager, {
@@ -39,7 +40,8 @@ import {
 } from '../utils/functions';
 
 const isPortrait = () => {
-  return Dimensions.get('screen').height > Dimensions.get('screen').width;
+  const dim = Dimensions.get('window');
+  return dim.height >= dim.width;
 };
 
 type Peer = {
@@ -190,6 +192,7 @@ const DisplayName = ({
             2)) /
         2
       : Dimensions.get('window').height -
+        (Platform.OS === 'ios' ? 0 : 25) -
         (dimension.viewHeight(50) +
           dimension.viewHeight(90) +
           top +
@@ -288,6 +291,7 @@ const Meeting = ({
   addMessageRequest,
   clearMessageRequest,
 }: MeetingProps) => {
+  const [orientation, setOrientation] = useState<Boolean>(true);
   const [instance, setInstance] = useState<any>(null);
   const [trackId, setTrackId] = useState<Peer>(DEFAULT_PEER);
   const [remoteTrackIds, setRemoteTrackIds] = useState<Peer[]>([]);
@@ -550,6 +554,10 @@ const Meeting = ({
   useEffect(() => {
     updateHmsInstance();
 
+    Dimensions.addEventListener('change', () => {
+      setOrientation(!orientation);
+    });
+
     const backAction = () => {
       setLeaveModalVisible(true);
       return true;
@@ -560,7 +568,12 @@ const Meeting = ({
       backAction,
     );
 
-    return () => backHandler.remove();
+    return () => {
+      backHandler.remove();
+      Dimensions.removeEventListener('change', () => {
+        setOrientation(!orientation);
+      });
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -707,6 +720,8 @@ const Meeting = ({
       <View style={styles.wrapper}>
         <FlatList
           data={pairDataForFlatlist([...auxTracks, trackId, ...remoteTrackIds])}
+          initialNumToRender={2}
+          maxToRenderPerBatch={3}
           renderItem={({item}) => {
             if (item?.second) {
               const {first, second} = item;
@@ -903,9 +918,9 @@ const styles = StyleSheet.create({
     aspectRatio: 16 / 9,
   },
   generalTile: {
-    width: '49.5%',
+    width: '50%',
     marginVertical: 1,
-    padding: '0.5%',
+    padding: '0.25%',
     overflow: 'hidden',
     borderRadius: 10,
   },
