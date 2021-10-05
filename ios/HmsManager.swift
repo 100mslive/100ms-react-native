@@ -287,19 +287,23 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     func on(peer: HMSPeer, update: HMSPeerUpdate) {
         // Listener for updates in Peers
         let roomData = HmsDecoder.getHmsRoom(hms?.room)
+        let type = getString(from: update)
+        
         let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
         let remotePeerData = HmsDecoder.getHmsRemotePeers(hms?.remotePeers)
                 
-        self.sendEvent(withName: ON_PEER_UPDATE, body: ["event": ON_PEER_UPDATE, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
+        self.sendEvent(withName: ON_PEER_UPDATE, body: ["event": ON_PEER_UPDATE, "type": type, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
     }
     
     func on(track: HMSTrack, update: HMSTrackUpdate, for peer: HMSPeer) {
         // Listener for updates in Tracks
         let roomData = HmsDecoder.getHmsRoom(hms?.room)
+        let type = getString(from: update)
+        
         let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
         let remotePeerData = HmsDecoder.getHmsRemotePeers(hms?.remotePeers)
         
-        self.sendEvent(withName: ON_TRACK_UPDATE, body: ["event": ON_TRACK_UPDATE, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
+        self.sendEvent(withName: ON_TRACK_UPDATE, body: ["event": ON_TRACK_UPDATE, "room": roomData, "type": type, "localPeer": localPeerData, "remotePeers": remotePeerData])
     }
     
     func on(error: HMSError) {
@@ -360,5 +364,39 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         let remotePeerData = HmsDecoder.getHmsRemotePeers(hms?.remotePeers)
         
         self.sendEvent(withName: ON_PEER_UPDATE, body: ["event": ON_PEER_UPDATE, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
+    }
+    
+    private func getString(from update: HMSPeerUpdate) -> String {
+        switch update {
+        case .peerJoined:
+            return "PEER_JOINED"
+        case .peerLeft:
+            return "PEER_LEFT"
+        case .roleUpdated:
+            return "ROLE_CHANGED"
+        default:
+            return ""
+        }
+    }
+    
+    private func getString(from update: HMSTrackUpdate) -> String {
+        switch update {
+        case .trackAdded:
+            return "TRACK_ADDED"
+        case .trackRemoved:
+            return "TRACK_REMOVED"
+        case .trackMuted:
+            return "TRACK_MUTED"
+        case .trackUnmuted:
+            return "TRACK_UNMUTED"
+        case .trackDescriptionChanged:
+            return "TRACK_DESCRIPTION_CHANGED"
+        case .trackDegraded:
+            return "TRACK_DEGRADED"
+        case .trackRestored:
+            return "TRACK_RESTORED"
+        default:
+            return ""
+        }
     }
 }
