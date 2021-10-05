@@ -260,6 +260,56 @@ export default class HMSSDK {
   };
 
   /**
+   * - This is a prototype event listener that takes action and listens for updates related to that particular action
+   * - This method will be @deprecated in future and event listener will be passed in join method
+   *
+   * @param {string} action
+   * @param {*} callback
+   * @memberof HMSSDK
+   */
+  removeEventListener = (action: HMSUpdateListenerActions) => {
+    switch (action) {
+      case HMSUpdateListenerActions.ON_PREVIEW:
+        this.onPreviewDelegate = null;
+        break;
+      case HMSUpdateListenerActions.ON_JOIN:
+        this.onJoinDelegate = null;
+        break;
+      case HMSUpdateListenerActions.ON_ROOM_UPDATE:
+        this.onRoomDelegate = null;
+        break;
+      case HMSUpdateListenerActions.ON_PEER_UPDATE:
+        this.onPeerDelegate = null;
+        break;
+      case HMSUpdateListenerActions.ON_TRACK_UPDATE:
+        this.onTrackDelegate = null;
+        break;
+      case HMSUpdateListenerActions.ON_ERROR:
+        this.onErrorDelegate = null;
+        break;
+      case HMSUpdateListenerActions.ON_MESSAGE:
+        this.onMessageDelegate = null;
+        break;
+      case HMSUpdateListenerActions.ON_SPEAKER:
+        this.onSpeakerDelegate = null;
+        break;
+      case HMSUpdateListenerActions.RECONNECTING:
+        this.onReconnectingDelegate = null;
+        break;
+      case HMSUpdateListenerActions.RECONNECTED:
+        this.onReconnectedDelegate = null;
+        break;
+      case HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST:
+        this.onRoleChangeRequestDelegate = null;
+        break;
+      case HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM:
+        this.onRemovedFromRoomDelegate = null;
+        break;
+      default:
+    }
+  };
+
+  /**
    * removes all the listeners
    *
    * @memberof HMSSDK
