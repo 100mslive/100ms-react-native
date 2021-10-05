@@ -38,6 +38,10 @@ import {
   pairDataForFlatlist,
 } from '../utils/functions';
 
+const isPortrait = () => {
+  return Dimensions.get('screen').height > Dimensions.get('screen').width;
+};
+
 type Peer = {
   trackId?: string;
   peerName?: string;
@@ -177,13 +181,20 @@ const DisplayName = ({
     type === 'screen'
       ? Dimensions.get('window').height -
         (dimension.viewHeight(50) + dimension.viewHeight(90) + top + bottom + 2)
-      : (Dimensions.get('window').height -
+      : isPortrait()
+      ? (Dimensions.get('window').height -
           (dimension.viewHeight(50) +
             dimension.viewHeight(90) +
             top +
             bottom +
             2)) /
-        2;
+        2
+      : Dimensions.get('window').height -
+        (dimension.viewHeight(50) +
+          dimension.viewHeight(90) +
+          top +
+          bottom +
+          2);
 
   return (
     <View
@@ -861,7 +872,7 @@ const Meeting = ({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    height: dimension.viewHeight(896),
+    height: '100%',
   },
   videoView: {
     width: '100%',
@@ -882,9 +893,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   generalTile: {
-    width: dimension.viewWidth(206),
+    width: '49.5%',
     marginVertical: 1,
-    padding: 0.5,
+    padding: '0.5%',
     overflow: 'hidden',
     borderRadius: 10,
   },
@@ -935,7 +946,7 @@ const styles = StyleSheet.create({
   },
   displayContainer: {
     position: 'absolute',
-    bottom: 0,
+    bottom: 2,
     alignSelf: 'center',
     backgroundColor: 'rgba(137,139,155,0.5)',
     paddingHorizontal: 8,
@@ -965,7 +976,9 @@ const styles = StyleSheet.create({
   avatar: {
     aspectRatio: 1,
     width: '50%',
-    borderRadius: 50,
+    maxWidth: dimension.viewWidth(100),
+    maxHeight: dimension.viewHeight(100),
+    borderRadius: 500,
     alignItems: 'center',
     justifyContent: 'center',
   },
