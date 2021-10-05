@@ -569,6 +569,12 @@ const Meeting = ({
       const remotePeers = instance?.remotePeers ? instance.remotePeers : [];
       updateVideoIds(remotePeers, instance?.localPeer);
     }
+
+    return () => {
+      if (instance) {
+        instance.removeAllListeners();
+      }
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [instance]);
 

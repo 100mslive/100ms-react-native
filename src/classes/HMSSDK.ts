@@ -259,6 +259,26 @@ export default class HMSSDK {
     }
   };
 
+  /**
+   * removes all the listeners
+   *
+   * @memberof HMSSDK
+   */
+  removeAllListeners = () => {
+    this.onPreviewDelegate = null;
+    this.onJoinDelegate = null;
+    this.onRoomDelegate = null;
+    this.onPeerDelegate = null;
+    this.onTrackDelegate = null;
+    this.onErrorDelegate = null;
+    this.onMessageDelegate = null;
+    this.onSpeakerDelegate = null;
+    this.onReconnectingDelegate = null;
+    this.onReconnectedDelegate = null;
+    this.onRoleChangeRequestDelegate = null;
+    this.onRemovedFromRoomDelegate = null;
+  };
+
   onPreviewListener = (data: any) => {
     const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
