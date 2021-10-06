@@ -122,8 +122,7 @@ hmsInstance.leave()
 
 ## Render video
 
-Let us next add a way to show a tile for every participant in the room. We use HmsView component to render video on screen. this component takes TrackId of HMSVideoTrack and renders the corresponding track.
-
+Let us next add a way to show a tile for every participant in the room. We use HmsView component to render video on screen. This component takes Sink, TrackId of HMSVideoTrack and renders the corresponding track. When sink is true the video will be visible and when it is false video would be removed. It is ios only prop for android it is handled by the package itself. 
 ```js
 import { HmsView } from 'react-native-hms';
 
@@ -134,7 +133,7 @@ const styles = StyleSheet.create({
   },
 });
 
-<HmsView style={styles.hmsView} trackId={trackId} />
+<HmsView sink={true} style={styles.hmsView} trackId={trackId} />
 ```
 
 There are 2 types of Peers - a localPeer & remotePeers. To extract trackId from peers we can use following code snippet.
