@@ -4,7 +4,6 @@ import {
   View,
   StyleSheet,
   TextInput,
-  KeyboardAvoidingView,
   ScrollView,
   TouchableOpacity,
   Text,
@@ -38,9 +37,7 @@ const ChatWindow = ({
   }, [messages]);
   return (
     <View style={styles.container}>
-      <KeyboardAvoidingView
-        behavior="padding"
-        style={styles.keyboardAvoidingView}>
+      <View style={styles.keyboardAvoidingView}>
         <View style={styles.headingContainer}>
           <Feather
             name="message-circle"
@@ -101,7 +98,7 @@ const ChatWindow = ({
             />
           </TouchableOpacity>
         </View>
-      </KeyboardAvoidingView>
+      </View>
     </View>
   );
 };
