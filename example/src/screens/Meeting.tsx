@@ -18,6 +18,7 @@ import HmsManager, {
   HMSPeerUpdate,
   HMSRoomUpdate,
   HMSTrackUpdate,
+  HMSRemotePeer,
 } from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
@@ -373,6 +374,7 @@ const Meeting = ({
           remoteVideoIds.push({
             ...decode(remotePeer, 'remote'),
             trackId: index.toString(),
+            isVideoMute: true,
           });
         }
 
@@ -673,17 +675,28 @@ const Meeting = ({
       const inst = HmsManager.build();
       const remotePeers = inst?.remotePeers;
       if (remotePeers) {
-        const sinkRemoteTrackIds = remotePeers.map((peer: Peer) => {
-          const remotePeer = decode(peer, 'remote');
-          const videoTrackId = remotePeer.trackId;
-          if (!viewableItemsIds?.includes(videoTrackId)) {
-            return {
-              ...remotePeer,
-              sink: false,
-            };
-          }
-          return remotePeer;
-        });
+        const sinkRemoteTrackIds = remotePeers.map(
+          (peer: HMSRemotePeer, index: number) => {
+            const remotePeer = decode(peer, 'remote');
+            const videoTrackId = remotePeer.trackId;
+            if (videoTrackId) {
+              if (!viewableItemsIds?.includes(videoTrackId)) {
+                return {
+                  ...remotePeer,
+                  sink: false,
+                };
+              }
+              return remotePeer;
+            } else {
+              return {
+                ...remotePeer,
+                trackId: index.toString(),
+                sink: false,
+                isVideoMute: true,
+              };
+            }
+          },
+        );
         setRemoteTrackIds(sinkRemoteTrackIds ? sinkRemoteTrackIds : []);
       }
     }
