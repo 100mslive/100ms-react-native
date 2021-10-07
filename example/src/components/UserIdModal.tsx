@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
-const UserIdModal = ({
+export const UserIdModal = ({
   cancel,
   join,
   user,
@@ -55,8 +55,6 @@ const UserIdModal = ({
     </View>
   );
 };
-
-export default UserIdModal;
 
 const styles = StyleSheet.create({
   container: {

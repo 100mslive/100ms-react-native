@@ -1,6 +1,6 @@
-import HMSVideoTrack from './HMSVideoTrack';
+import { HMSVideoTrack } from './HMSVideoTrack';
 
-export default class HMSRemoteVideoTrack extends HMSVideoTrack {
+export class HMSRemoteVideoTrack extends HMSVideoTrack {
   layer?: any; //TODO: layer to be made HMSSimulcastLayer type
   isPlaybackAllowed?: Function;
   setPlaybackAllowed?: Function;
@@ -10,7 +10,7 @@ export default class HMSRemoteVideoTrack extends HMSVideoTrack {
     trackId: string;
     source?: number | string;
     trackDescription?: string;
-    isMute?: Boolean;
+    isMute?: boolean;
     layer?: any;
     playbackAllowed?: boolean;
   }) {

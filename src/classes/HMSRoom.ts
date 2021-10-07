@@ -1,6 +1,6 @@
-import type HMSPeer from './HMSPeer';
+import type { HMSPeer } from './HMSPeer';
 
-export default class HMSRoom {
+export class HMSRoom {
   id: string;
   name: string;
   metaData?: string;

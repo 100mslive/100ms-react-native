@@ -1,12 +1,12 @@
-import type HMSAudioTrack from './HMSAudioTrack';
-import HMSPeer from './HMSPeer';
-import HMSRemoteAudioTrack from './HMSRemoteAudioTrack';
-import HMSRemoteVideoTrack from './HMSRemoteVideoTrack';
-import type HMSRole from './HMSRole';
-import type HMSTrack from './HMSTrack';
-import type HMSVideoTrack from './HMSVideoTrack';
+import type { HMSAudioTrack } from './HMSAudioTrack';
+import { HMSPeer } from './HMSPeer';
+import { HMSRemoteAudioTrack } from './HMSRemoteAudioTrack';
+import { HMSRemoteVideoTrack } from './HMSRemoteVideoTrack';
+import type { HMSRole } from './HMSRole';
+import type { HMSTrack } from './HMSTrack';
+import type { HMSVideoTrack } from './HMSVideoTrack';
 
-export default class HMSRemotePeer extends HMSPeer {
+export class HMSRemotePeer extends HMSPeer {
   private remoteAudio?: HMSRemoteAudioTrack;
   private remoteVideo?: HMSRemoteVideoTrack;
 
@@ -31,7 +31,7 @@ export default class HMSRemotePeer extends HMSPeer {
     remoteAudioTrackData?: {
       trackId: string;
       source?: number | string;
-      isMute?: Boolean;
+      isMute?: boolean;
       trackDescription?: string;
       playbackAllowed?: boolean;
     };
@@ -39,7 +39,7 @@ export default class HMSRemotePeer extends HMSPeer {
       trackId: string;
       source?: number | string;
       trackDescription?: string;
-      isMute?: Boolean;
+      isMute?: boolean;
       layer?: any;
       playbackAllowed?: boolean;
     };

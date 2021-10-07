@@ -1,6 +1,6 @@
 import { NativeModules } from 'react-native';
-import HMSVideoTrack from './HMSVideoTrack';
-import type HMSVideoTrackSettings from './HMSVideoTrackSettings';
+import { HMSVideoTrack } from './HMSVideoTrack';
+import type { HMSVideoTrackSettings } from './HMSVideoTrackSettings';
 
 const {
   /**
@@ -9,7 +9,7 @@ const {
   HmsManager,
 } = NativeModules;
 
-export default class HMSLocalVideoTrack extends HMSVideoTrack {
+export class HMSLocalVideoTrack extends HMSVideoTrack {
   settings?: HMSVideoTrackSettings;
   startCapturing?: Function;
   stopCapturing?: Function;
@@ -26,10 +26,10 @@ export default class HMSLocalVideoTrack extends HMSVideoTrack {
   /**
    * Switches local video feed on/off depending upon the value of isMute
    *
-   * @param {Boolean} isMute
+   * @param {boolean} isMute
    * @memberof HMSLocalVideoTrack
    */
-  setMute(isMute: Boolean) {
+  setMute(isMute: boolean) {
     HmsManager.setLocalVideoMute(isMute);
   }
 
@@ -37,7 +37,7 @@ export default class HMSLocalVideoTrack extends HMSVideoTrack {
     trackId: string;
     source?: number | string;
     trackDescription?: string;
-    isMute?: Boolean;
+    isMute?: boolean;
     settings?: HMSVideoTrackSettings;
   }) {
     super(params);

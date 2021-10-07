@@ -1,11 +1,11 @@
-export default class HMSSimulcastLayerSettings {
+export class HMSSimulcastLayerSettings {
   maxBitrate?: number;
   maxFrameRate?: number;
   scaleResolutionDownBy?: number;
-  rid?: String;
+  rid?: string;
 
   constructor(params: {
-    rid: String;
+    rid: string;
     maxBitrate: number;
     maxFrameRate: number;
     scaleResolutionDownBy: number;

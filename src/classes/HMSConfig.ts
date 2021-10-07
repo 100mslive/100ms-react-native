@@ -1,4 +1,4 @@
-export default class HMSConfig {
+export class HMSConfig {
   // endpoint: string;
   username: string;
   authToken: string;

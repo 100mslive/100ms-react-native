@@ -1,6 +1,6 @@
 import { NativeModules } from 'react-native';
-import HMSAudioTrack from './HMSAudioTrack';
-import type HMSAudioTrackSettings from './HMSAudioTrackSettings';
+import { HMSAudioTrack } from './HMSAudioTrack';
+import type { HMSAudioTrackSettings } from './HMSAudioTrackSettings';
 
 const {
   /**
@@ -9,16 +9,16 @@ const {
   HmsManager,
 } = NativeModules;
 
-export default class HMSLocalAudioTrack extends HMSAudioTrack {
+export class HMSLocalAudioTrack extends HMSAudioTrack {
   settings?: HMSAudioTrackSettings;
 
   /**
    * Switches Audio of current user on/off depending upon the value of isMute
    *
-   * @param {Boolean} isMute
+   * @param {boolean} isMute
    * @memberof HMSLocalAudioTrack
    */
-  setMute(isMute: Boolean) {
+  setMute(isMute: boolean) {
     HmsManager.setLocalMute(isMute);
   }
 
@@ -26,7 +26,7 @@ export default class HMSLocalAudioTrack extends HMSAudioTrack {
     trackId: string;
     source?: number | string;
     trackDescription?: string;
-    isMute?: Boolean;
+    isMute?: boolean;
     settings?: HMSAudioTrackSettings;
   }) {
     super(params);

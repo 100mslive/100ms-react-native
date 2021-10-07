@@ -1,4 +1,4 @@
-export default class HMSSubscribeSettings {
+export class HMSSubscribeSettings {
   subscribeToRoles?: [string];
   maxSubsBitRate: number;
   maxDisplayTiles?: number;

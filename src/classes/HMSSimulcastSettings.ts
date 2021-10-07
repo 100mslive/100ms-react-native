@@ -1,4 +1,4 @@
-export default class HMSSimulcastSettings {
+export class HMSSimulcastSettings {
   low: any;
   med: any;
   high: any;
