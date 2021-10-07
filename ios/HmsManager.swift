@@ -1,35 +1,30 @@
+
 import HMSSDK
-import AVKit
 
 @objc(HmsManager)
 class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
+    
     var hms: HMSSDK?
     var config: HMSConfig?
     var recentRoleChangeRequest: HMSRoleChangeRequest?
-    var ON_PREVIEW: String = "ON_PREVIEW"
-    var ON_JOIN: String = "ON_JOIN"
-    var ON_ROOM_UPDATE: String = "ON_ROOM_UPDATE"
-    var ON_PEER_UPDATE: String = "ON_PEER_UPDATE"
-    var ON_TRACK_UPDATE: String = "ON_TRACK_UPDATE"
-    var ON_ROLE_CHANGE_REQUEST: String = "ON_ROLE_CHANGE_REQUEST"
-    var ON_REMOVED_FROM_ROOM: String = "ON_REMOVED_FROM_ROOM"
-    var ON_ERROR: String = "ON_ERROR"
-    var ON_MESSAGE: String = "ON_MESSAGE"
-    var ON_SPEAKER: String = "ON_SPEAKER"
-    var RECONNECTING: String = "RECONNECTING"
-    var RECONNECTED: String = "RECONNECTED"
+    
+    let ON_PREVIEW = "ON_PREVIEW"
+    let ON_JOIN = "ON_JOIN"
+    let ON_ROOM_UPDATE = "ON_ROOM_UPDATE"
+    let ON_PEER_UPDATE = "ON_PEER_UPDATE"
+    let ON_TRACK_UPDATE = "ON_TRACK_UPDATE"
+    let ON_ROLE_CHANGE_REQUEST = "ON_ROLE_CHANGE_REQUEST"
+    let ON_REMOVED_FROM_ROOM = "ON_REMOVED_FROM_ROOM"
+    let ON_ERROR = "ON_ERROR"
+    let ON_MESSAGE = "ON_MESSAGE"
+    let ON_SPEAKER = "ON_SPEAKER"
+    let RECONNECTING = "RECONNECTING"
+    let RECONNECTED = "RECONNECTED"
     
     // MARK: - Setup
     
     override init() {
         super.init()
-        AVCaptureDevice.requestAccess(for: .video) { granted in
-            // Permission Acquired if value of 'granted' is true
-        }
-        
-        AVCaptureDevice.requestAccess(for: .audio) { granted in
-            // Permission Acquired if value of 'granted' is true
-        }
     }
     
     override class func requiresMainQueueSetup() -> Bool {
