@@ -3,7 +3,7 @@ import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import {HmsView} from '@100mslive/react-native-hms';
 
-const PreviewModal = ({
+export const PreviewModal = ({
   trackId,
   setAudio,
   setVideo,
@@ -62,8 +62,6 @@ const PreviewModal = ({
     </View>
   );
 };
-
-export default PreviewModal;
 
 const styles = StyleSheet.create({
   container: {

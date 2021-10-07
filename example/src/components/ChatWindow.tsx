@@ -10,11 +10,12 @@ import {
   Text,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
-import dimension from '../utils/dimension';
-import ChatBubble from './ChatBubble';
-import {CustomModalDropdown} from '../components/Picker';
 
-const ChatWindow = ({
+import dimension from '../utils/dimension';
+import {ChatBubble} from './ChatBubble';
+import {CustomModalDropdown} from './Picker';
+
+export const ChatWindow = ({
   messages,
   cancel,
   send,
@@ -105,8 +106,6 @@ const ChatWindow = ({
     </View>
   );
 };
-
-export default ChatWindow;
 
 const styles = StyleSheet.create({
   container: {
