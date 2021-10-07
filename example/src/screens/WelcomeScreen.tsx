@@ -127,7 +127,7 @@ const App = ({
     room: HMSRoom;
     previewTracks: {audioTrack: HMSAudioTrack; videoTrack: HMSVideoTrack};
   }) => {
-    console.warn('here in callback success', data);
+    console.log('here in callback success', data);
     const videoTrackId = data?.previewTracks?.videoTrack?.trackId;
 
     if (videoTrackId) {
