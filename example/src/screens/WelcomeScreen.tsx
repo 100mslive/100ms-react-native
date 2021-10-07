@@ -248,7 +248,7 @@ const App = ({
     userID: string,
     endpoint: string | undefined,
   ) => {
-    let HmsConfig: HMSConfig = null;
+    let HmsConfig: HMSConfig | null = null;
     if (endpoint) {
       HmsConfig = new HMSConfig({
         authToken: token,
