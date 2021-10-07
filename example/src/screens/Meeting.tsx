@@ -42,7 +42,7 @@ import {
   getInitials,
   pairDataForFlatlist,
 } from '../utils/functions';
-import {RootState} from '../redux';
+import type {RootState} from '../redux';
 
 const isPortrait = () => {
   const dim = Dimensions.get('window');
@@ -59,13 +59,6 @@ type Peer = {
   role?: HMSRole;
   sink: boolean;
   type: 'local' | 'remote' | 'screen';
-};
-
-type Permissions = {
-  changeRole: boolean;
-  endRoom: boolean;
-  removeOthers: boolean;
-  mute: boolean;
 };
 
 type DisplayNameProps = {

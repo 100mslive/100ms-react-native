@@ -29,7 +29,7 @@ import * as services from '../services/index';
 import {UserIdModal, PreviewModal} from '../components';
 import {setAudioVideoState, saveUserData} from '../redux/actions/index';
 import type {AppStackParamList} from '../navigator';
-import {RootState} from '../redux';
+import type {RootState} from '../redux';
 
 type WelcomeProps = {
   setAudioVideoStateRequest: Function;
