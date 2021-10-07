@@ -1048,9 +1048,9 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   highlight: {
-    backgroundColor: '#4578e0',
-    padding: 5,
     borderRadius: 10,
+    borderWidth: 5,
+    borderColor: '#4578e0',
   },
   messageDot: {
     width: 10,
