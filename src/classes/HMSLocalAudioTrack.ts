@@ -15,10 +15,10 @@ export class HMSLocalAudioTrack extends HMSAudioTrack {
   /**
    * Switches Audio of current user on/off depending upon the value of isMute
    *
-   * @param {Boolean} isMute
+   * @param {boolean} isMute
    * @memberof HMSLocalAudioTrack
    */
-  setMute(isMute: Boolean) {
+  setMute(isMute: boolean) {
     HmsManager.setLocalMute(isMute);
   }
 
@@ -26,7 +26,7 @@ export class HMSLocalAudioTrack extends HMSAudioTrack {
     trackId: string;
     source?: number | string;
     trackDescription?: string;
-    isMute?: Boolean;
+    isMute?: boolean;
     settings?: HMSAudioTrackSettings;
   }) {
     super(params);

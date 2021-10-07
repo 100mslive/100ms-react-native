@@ -26,10 +26,10 @@ export class HMSLocalVideoTrack extends HMSVideoTrack {
   /**
    * Switches local video feed on/off depending upon the value of isMute
    *
-   * @param {Boolean} isMute
+   * @param {boolean} isMute
    * @memberof HMSLocalVideoTrack
    */
-  setMute(isMute: Boolean) {
+  setMute(isMute: boolean) {
     HmsManager.setLocalVideoMute(isMute);
   }
 
@@ -37,7 +37,7 @@ export class HMSLocalVideoTrack extends HMSVideoTrack {
     trackId: string;
     source?: number | string;
     trackDescription?: string;
-    isMute?: Boolean;
+    isMute?: boolean;
     settings?: HMSVideoTrackSettings;
   }) {
     super(params);

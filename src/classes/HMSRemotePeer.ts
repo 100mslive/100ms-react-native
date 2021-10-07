@@ -31,7 +31,7 @@ export class HMSRemotePeer extends HMSPeer {
     remoteAudioTrackData?: {
       trackId: string;
       source?: number | string;
-      isMute?: Boolean;
+      isMute?: boolean;
       trackDescription?: string;
       playbackAllowed?: boolean;
     };
@@ -39,7 +39,7 @@ export class HMSRemotePeer extends HMSPeer {
       trackId: string;
       source?: number | string;
       trackDescription?: string;
-      isMute?: Boolean;
+      isMute?: boolean;
       layer?: any;
       playbackAllowed?: boolean;
     };

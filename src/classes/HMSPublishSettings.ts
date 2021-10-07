@@ -9,7 +9,7 @@ export class HMSPublishSettings {
   audioSimulcast?: HMSSimulcastSettings;
   videoSimulcast?: HMSSimulcastSettings;
   screenSimulcast?: HMSSimulcastSettings;
-  allowed?: [String];
+  allowed?: [string];
 
   constructor(params: {
     audio: HMSAudioSettings;
@@ -18,7 +18,7 @@ export class HMSPublishSettings {
     audioSimulcast?: HMSSimulcastSettings;
     videoSimulcast?: HMSSimulcastSettings;
     screenSimulcast?: HMSSimulcastSettings;
-    allowed?: [String];
+    allowed?: [string];
   }) {
     this.audio = params.audio;
     this.video = params.video;

@@ -9,7 +9,7 @@ export class HMSVideoTrack extends HMSTrack {
     trackId: string;
     source?: number | string;
     trackDescription?: string;
-    isMute?: Boolean;
+    isMute?: boolean;
   }) {
     super(params);
   }

@@ -7,7 +7,7 @@ export class HMSRemoteAudioTrack extends HMSAudioTrack {
   constructor(params: {
     trackId: string;
     source?: number | string;
-    isMute?: Boolean;
+    isMute?: boolean;
     trackDescription?: string;
     playbackAllowed?: boolean;
   }) {

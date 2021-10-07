@@ -3,7 +3,7 @@ import { requireNativeComponent, ViewStyle } from 'react-native';
 interface HmsViewProps {
   data: {
     trackId: string;
-    sink: Boolean;
+    sink: boolean;
   };
   style: ViewStyle;
 }
@@ -12,7 +12,7 @@ const HmsViewComponent = requireNativeComponent<HmsViewProps>('HmsView');
 
 interface HmsComponentProps {
   trackId: string;
-  sink: Boolean;
+  sink: boolean;
   style: ViewStyle;
 }
 

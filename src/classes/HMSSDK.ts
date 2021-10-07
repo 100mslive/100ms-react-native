@@ -147,25 +147,25 @@ export class HMSSDK {
     HmsManager.leave();
   };
 
-  sendBroadcastMessage = (message: String) => {
+  sendBroadcastMessage = (message: string) => {
     HmsManager.sendBroadcastMessage({ message });
   };
 
-  sendGroupMessage = (message: String, roles: HMSRole[]) => {
+  sendGroupMessage = (message: string, roles: HMSRole[]) => {
     HmsManager.sendGroupMessage({
       message,
       roles: HMSHelper.getRoleNames(roles),
     });
   };
 
-  sendDirectMessage = (message: String, peerId: String) => {
+  sendDirectMessage = (message: string, peerId: string) => {
     HmsManager.sendDirectMessage({
       message,
       peerId,
     });
   };
 
-  changeRole = (peerId: String, role: String, force: boolean = false) => {
+  changeRole = (peerId: string, role: string, force: boolean = false) => {
     const data = {
       peerId: peerId,
       role: role,
@@ -183,7 +183,7 @@ export class HMSSDK {
     HmsManager.changeTrackState(data);
   };
 
-  removePeer = (peerId: String, reason: String) => {
+  removePeer = (peerId: string, reason: string) => {
     const data = {
       peerId,
       reason,
@@ -192,7 +192,7 @@ export class HMSSDK {
     HmsManager.removePeer(data);
   };
 
-  endRoom = (lock: boolean, reason: String) => {
+  endRoom = (lock: boolean, reason: string) => {
     const data = {
       lock,
       reason,

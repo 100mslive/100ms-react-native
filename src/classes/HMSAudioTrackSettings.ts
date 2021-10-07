@@ -1,7 +1,7 @@
 export class HMSAudioTrackSettings {
   maxBitrate?: number;
-  trackDescription?: String;
-  constructor(params: { maxBitrate: number; trackDescription?: String }) {
+  trackDescription?: string;
+  constructor(params: { maxBitrate: number; trackDescription?: string }) {
     this.maxBitrate = params.maxBitrate;
     this.trackDescription = params.trackDescription;
   }

@@ -6,7 +6,7 @@ export class HMSVideoTrackSettings {
   maxBitrate?: number;
   maxFrameRate?: number;
   cameraFacing?: any; //TODO: make it HMSCameraFacing type
-  trackDescription?: String;
+  trackDescription?: string;
   simulcastSettings?: HMSSimulcastLayerSettings[];
 
   constructor(params: {
@@ -15,7 +15,7 @@ export class HMSVideoTrackSettings {
     maxBitrate?: number;
     maxFrameRate?: number;
     cameraFacing?: any; //TODO: make it HMSCameraFacing type
-    trackDescription?: String;
+    trackDescription?: string;
     simulcastSettings?: HMSSimulcastLayerSettings[];
   }) {
     this.codec = params.codec;

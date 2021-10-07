@@ -2,16 +2,16 @@ export class HMSPermissions {
   endRoom?: boolean;
   removeOthers?: boolean;
   stopPresentation?: boolean;
-  muteAll?: boolean;
+  mute?: boolean;
   askToUnmute?: boolean;
   muteSelective?: boolean;
-  changeRole?: Boolean;
+  changeRole?: boolean;
 
   constructor(params?: {
     endRoom?: boolean;
     removeOthers?: boolean;
     stopPresentation?: boolean;
-    muteAll?: boolean;
+    mute?: boolean;
     askToUnmute?: boolean;
     muteSelective?: boolean;
     changeRole?: boolean;
@@ -20,7 +20,7 @@ export class HMSPermissions {
       this.endRoom = params.endRoom;
       this.removeOthers = params.removeOthers;
       this.stopPresentation = params.stopPresentation;
-      this.muteAll = params.muteAll;
+      this.mute = params.mute;
       this.askToUnmute = params.askToUnmute;
       this.muteSelective = params.muteSelective;
       this.changeRole = params.changeRole;
