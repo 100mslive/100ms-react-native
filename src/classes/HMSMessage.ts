@@ -1,4 +1,4 @@
-export default class HMSMessage {
+export class HMSMessage {
   // endpoint: string;
   public message: string;
   public type: string;

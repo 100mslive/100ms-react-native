@@ -1,6 +1,6 @@
-import type HMSSimulcastLayerSettings from './HMSSimulcastLayerSettings';
+import type { HMSSimulcastLayerSettings } from './HMSSimulcastLayerSettings';
 
-export default class HMSVideoTrackSettings {
+export class HMSVideoTrackSettings {
   codec?: any; //TODO: make it HMSCodec Type
   resolution?: any; //TODO: make it HMSVideoResolution Type
   maxBitrate?: number;

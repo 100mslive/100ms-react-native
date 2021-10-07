@@ -1,8 +1,8 @@
-import type HMSAudioSettings from './HMSAudioSettings';
-import type HMSSimulcastSettings from './HMSSimulcastSettings';
-import type HMSVideoSettings from './HMSVideoSettings';
+import type { HMSAudioSettings } from './HMSAudioSettings';
+import type { HMSSimulcastSettings } from './HMSSimulcastSettings';
+import type { HMSVideoSettings } from './HMSVideoSettings';
 
-export default class HMSPublishSettings {
+export class HMSPublishSettings {
   audio: HMSAudioSettings;
   video: HMSVideoSettings;
   screen: HMSVideoSettings;

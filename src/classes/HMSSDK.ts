@@ -1,14 +1,14 @@
 import { NativeEventEmitter, NativeModules } from 'react-native';
-import HMSUpdateListenerActions from './HMSUpdateListenerActions';
-import type HMSConfig from './HMSConfig';
-import type HMSLocalPeer from './HMSLocalPeer';
-import type HMSRemotePeer from './HMSRemotePeer';
-import type HMSRoom from './HMSRoom';
-import type HMSRole from './HMSRole';
-import HMSEncoder from './HMSEncoder';
-import HMSMessage from './HMSMessage';
-import HMSHelper from './HMSHelper';
-import type HMSTrack from './HMSTrack';
+import { HMSUpdateListenerActions } from './HMSUpdateListenerActions';
+import type { HMSConfig } from './HMSConfig';
+import type { HMSLocalPeer } from './HMSLocalPeer';
+import type { HMSRemotePeer } from './HMSRemotePeer';
+import type { HMSRoom } from './HMSRoom';
+import type { HMSRole } from './HMSRole';
+import { HMSEncoder } from './HMSEncoder';
+import { HMSMessage } from './HMSMessage';
+import { HMSHelper } from './HMSHelper';
+import type { HMSTrack } from './HMSTrack';
 
 const {
   /**
@@ -21,7 +21,7 @@ const HmsEventEmitter = new NativeEventEmitter(HmsManager);
 
 let HmsSdk: HMSSDK | undefined;
 
-export default class HMSSDK {
+export class HMSSDK {
   room?: HMSRoom;
   localPeer?: HMSLocalPeer;
   remotePeers?: HMSRemotePeer[];

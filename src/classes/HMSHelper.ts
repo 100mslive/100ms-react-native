@@ -1,6 +1,6 @@
-import type HMSRole from './HMSRole';
+import type { HMSRole } from './HMSRole';
 
-export default class HMSHelper {
+export class HMSHelper {
   static getRoleNames(roles: HMSRole[]) {
     let names: String[] = [];
 

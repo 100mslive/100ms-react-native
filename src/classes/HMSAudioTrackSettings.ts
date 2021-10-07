@@ -1,4 +1,4 @@
-export default class HMSAudioTrackSettings {
+export class HMSAudioTrackSettings {
   maxBitrate?: number;
   trackDescription?: String;
   constructor(params: { maxBitrate: number; trackDescription?: String }) {

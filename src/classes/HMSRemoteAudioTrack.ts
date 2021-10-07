@@ -1,6 +1,6 @@
-import HMSAudioTrack from './HMSAudioTrack';
+import { HMSAudioTrack } from './HMSAudioTrack';
 
-export default class HMSRemoteAudioTrack extends HMSAudioTrack {
+export class HMSRemoteAudioTrack extends HMSAudioTrack {
   playbackAllowed?: boolean;
   isPlaybackAllowed?: Function;
   setPlaybackAllowed?: Function;

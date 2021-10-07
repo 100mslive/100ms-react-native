@@ -1,4 +1,4 @@
-export default class HMSSimulcastLayerSettings {
+export class HMSSimulcastLayerSettings {
   maxBitrate?: number;
   maxFrameRate?: number;
   scaleResolutionDownBy?: number;

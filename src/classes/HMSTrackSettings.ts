@@ -1,7 +1,7 @@
-import type HMSAudioTrackSettings from './HMSAudioTrackSettings';
-import type HMSVideoTrackSettings from './HMSVideoTrackSettings';
+import type { HMSAudioTrackSettings } from './HMSAudioTrackSettings';
+import type { HMSVideoTrackSettings } from './HMSVideoTrackSettings';
 
-export default class HMSTrackSettings {
+export class HMSTrackSettings {
   video?: HMSVideoTrackSettings;
   audio?: HMSAudioTrackSettings;
 

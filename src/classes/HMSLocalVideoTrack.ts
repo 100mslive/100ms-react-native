@@ -1,6 +1,6 @@
 import { NativeModules } from 'react-native';
-import HMSVideoTrack from './HMSVideoTrack';
-import type HMSVideoTrackSettings from './HMSVideoTrackSettings';
+import { HMSVideoTrack } from './HMSVideoTrack';
+import type { HMSVideoTrackSettings } from './HMSVideoTrackSettings';
 
 const {
   /**
@@ -9,7 +9,7 @@ const {
   HmsManager,
 } = NativeModules;
 
-export default class HMSLocalVideoTrack extends HMSVideoTrack {
+export class HMSLocalVideoTrack extends HMSVideoTrack {
   settings?: HMSVideoTrackSettings;
   startCapturing?: Function;
   stopCapturing?: Function;

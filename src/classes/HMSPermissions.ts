@@ -1,4 +1,4 @@
-export default class HMSPermissions {
+export class HMSPermissions {
   endRoom?: boolean;
   removeOthers?: boolean;
   stopPresentation?: boolean;

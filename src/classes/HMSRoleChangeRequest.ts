@@ -1,7 +1,7 @@
-import type HMSRole from './HMSRole';
-import type HMSPeer from './HMSPeer';
+import type { HMSRole } from './HMSRole';
+import type { HMSPeer } from './HMSPeer';
 
-export default class HMSRoleChangeRequest {
+export class HMSRoleChangeRequest {
   requestedBy: HMSPeer;
   suggestedRole: HMSRole;
 

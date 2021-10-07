@@ -1,6 +1,6 @@
-import type HMSAudioCodec from './HMSAudioCodec';
+import type { HMSAudioCodec } from './HMSAudioCodec';
 
-export default class HMSAudioSettings {
+export class HMSAudioSettings {
   bitRate: number;
   codec: HMSAudioCodec;
 

@@ -1,8 +1,8 @@
-import type HMSPermissions from './HMSPermissions';
-import type HMSPublishSettings from './HMSPublishSettings';
-import type HMSSubscribeSettings from './HMSSubscribeSettings';
+import type { HMSPermissions } from './HMSPermissions';
+import type { HMSPublishSettings } from './HMSPublishSettings';
+import type { HMSSubscribeSettings } from './HMSSubscribeSettings';
 
-export default class HMSRole {
+export class HMSRole {
   name?: string;
   publishSettings?: HMSPublishSettings;
   subscribeSettings?: HMSSubscribeSettings;

@@ -1,4 +1,4 @@
-enum HMSTrackUpdate {
+export enum HMSTrackUpdate {
   TRACK_ADDED = 'TRACK_ADDED',
   TRACK_REMOVED = 'TRACK_REMOVED',
   TRACK_MUTED = 'TRACK_MUTED',
@@ -7,5 +7,3 @@ enum HMSTrackUpdate {
   TRACK_DEGRADED = 'TRACK_DEGRADED',
   TRACK_RESTORED = 'TRACK_RESTORED',
 }
-
-export default HMSTrackUpdate;

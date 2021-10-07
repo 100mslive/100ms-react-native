@@ -1,20 +1,20 @@
-import HMSTrack from './HMSTrack';
-import HMSAudioTrack from './HMSAudioTrack';
-import HMSVideoTrack from './HMSVideoTrack';
-import HMSRoom from './HMSRoom';
-import HMSPeer from './HMSPeer';
+import { HMSTrack } from './HMSTrack';
+import { HMSAudioTrack } from './HMSAudioTrack';
+import { HMSVideoTrack } from './HMSVideoTrack';
+import { HMSRoom } from './HMSRoom';
+import { HMSPeer } from './HMSPeer';
 
-import HMSLocalPeer from './HMSLocalPeer';
-import HMSRemotePeer from './HMSRemotePeer';
+import { HMSLocalPeer } from './HMSLocalPeer';
+import { HMSRemotePeer } from './HMSRemotePeer';
 
-import HMSAudioTrackSettings from './HMSAudioTrackSettings';
-import HMSVideoTrackSettings from './HMSVideoTrackSettings';
-import HMSLocalVideoTrack from './HMSLocalVideoTrack';
-import HMSLocalAudioTrack from './HMSLocalAudioTrack';
-import HMSRole from './HMSRole';
-import HMSRoleChangeRequest from './HMSRoleChangeRequest';
+import { HMSAudioTrackSettings } from './HMSAudioTrackSettings';
+import { HMSVideoTrackSettings } from './HMSVideoTrackSettings';
+import { HMSLocalVideoTrack } from './HMSLocalVideoTrack';
+import { HMSLocalAudioTrack } from './HMSLocalAudioTrack';
+import { HMSRole } from './HMSRole';
+import { HMSRoleChangeRequest } from './HMSRoleChangeRequest';
 
-export default class HMSEncoder {
+export class HMSEncoder {
   static encodeHmsRoom(room: any) {
     const encodedObj = {
       id: room?.id,

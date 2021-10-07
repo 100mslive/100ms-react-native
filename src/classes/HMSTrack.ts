@@ -1,4 +1,4 @@
-export default class HMSTrack {
+export class HMSTrack {
   trackId: string;
   source?: number | string;
   trackDescription?: string;

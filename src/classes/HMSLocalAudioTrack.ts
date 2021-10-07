@@ -1,6 +1,6 @@
 import { NativeModules } from 'react-native';
-import HMSAudioTrack from './HMSAudioTrack';
-import type HMSAudioTrackSettings from './HMSAudioTrackSettings';
+import { HMSAudioTrack } from './HMSAudioTrack';
+import type { HMSAudioTrackSettings } from './HMSAudioTrackSettings';
 
 const {
   /**
@@ -9,7 +9,7 @@ const {
   HmsManager,
 } = NativeModules;
 
-export default class HMSLocalAudioTrack extends HMSAudioTrack {
+export class HMSLocalAudioTrack extends HMSAudioTrack {
   settings?: HMSAudioTrackSettings;
 
   /**

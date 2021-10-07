@@ -1,9 +1,9 @@
-import type HMSAudioTrack from './HMSAudioTrack';
-import type HMSRole from './HMSRole';
-import type HMSTrack from './HMSTrack';
-import type HMSVideoTrack from './HMSVideoTrack';
+import type { HMSAudioTrack } from './HMSAudioTrack';
+import type { HMSRole } from './HMSRole';
+import type { HMSTrack } from './HMSTrack';
+import type { HMSVideoTrack } from './HMSVideoTrack';
 
-export default class HMSPeer {
+export class HMSPeer {
   peerID: string;
   name: string;
   isLocal?: boolean;
