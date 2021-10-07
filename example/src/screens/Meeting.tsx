@@ -237,7 +237,7 @@ const DisplayName = ({
       ) : (
         <HmsView
           sink={sink}
-          trackId={trackId}
+          trackId={trackId!}
           style={type === 'screen' ? styles.hmsViewScreen : styles.hmsView}
         />
       )}
