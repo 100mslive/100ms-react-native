@@ -1,3 +1,8 @@
+---
+title: Join Room
+nav: 3.1
+---
+
 # Join Room
 
 Joining a room is one of the most basic functionalities so we at 100ms have built an easy, developer friendly API to get you started.
@@ -15,40 +20,37 @@ const hmsInstance = await HmsManager.build();
 ```
 
 ## Check Permissions
+
 Now you can proceed to request Camera and Audio permissions if already not given.
 
 ```js
-// android 
-import {PERMISSIONS, RESULTS, requestMultiple} from 'react-native-permissions';
+// android
+import { PERMISSIONS, RESULTS, requestMultiple } from 'react-native-permissions';
 
-requestMultiple([
-    PERMISSIONS.ANDROID.CAMERA,
-    PERMISSIONS.ANDROID.RECORD_AUDIO,
-]).then(results => {
+requestMultiple([PERMISSIONS.ANDROID.CAMERA, PERMISSIONS.ANDROID.RECORD_AUDIO]).then((results) => {
     if (
         results['android.permission.CAMERA'] === RESULTS.GRANTED &&
         results['android.permission.RECORD_AUDIO'] === RESULTS.GRANTED
     ) {
         joinRoom();
     }
-})
+});
 
-// ios 
+// ios
 joinRoom();
 ```
 
 ## Add event listeners
+
 Add event listeners for all the events such as onPreview, onJoin, onError etc. The actions can be found in HMSUpdateListenerActions class. The event handlers are the way of handling any update happening in hms.
 
 ```js
-import HmsManager, {
-  HMSUpdateListenerActions,
-} from 'react-native-hms';
+import HmsManager, { HMSUpdateListenerActions } from 'react-native-hms';
 
 // instance acquired from build() method
 hmsInstance.addEventListener(
-  HMSUpdateListenerActions.ON_PREVIEW,
-  onPreview, // function that will be called on Preview success
+    HMSUpdateListenerActions.ON_PREVIEW,
+    onPreview // function that will be called on Preview success
 );
 
 hmsInstance.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
@@ -69,23 +71,19 @@ When user indicates that they want to join the room, your app should have -
 Joining the room connects you to the remote peer and broadcasts your stream to other peers, we need instance of HMSConfig in order to pass the details of room and user to join function
 
 ```js
-import HmsManager, {
-  HMSUpdateListenerActions,
-  HMSConfig,
-} from 'react-native-hms';
+import HmsManager, { HMSUpdateListenerActions, HMSConfig } from 'react-native-hms';
 
 // instance acquired from build() method
-const HmsConfig = new HMSConfig({authToken, userID, roomID, userName});
+const HmsConfig = new HMSConfig({ authToken, userID, roomID, userName });
 
 hmsInstance.preview(HmsConfig); // to start preview
-// or 
+// or
 hmsInstance.join(HmsConfig); // to join a room
 ```
 
 Don't forget to add listeners before calling join or preview to receive an event callback which indicates if a call was a success or a failure.
 
 That's it. You have joined a room successfully. 🥳
-
 
 After calling join your app will be provided an update from the 100ms SDK.
 

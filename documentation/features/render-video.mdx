@@ -1,8 +1,13 @@
+---
+title: Render Video
+nav: 3.6
+---
 
 # Render Video
+
 It all comes down to this. All the setup so far has been done so that we can show live streaming video in our beautiful apps.
 
-The React Native SDK provides a Component HmsView that renders the video on screen. We have to pass video trackId and sink in this component. When sink is true the video will be visible and when it is false video would be removed. It is ios only prop for android it is handled by the package itself. Here is a code snippet explaining the way to link a videoTrack to HmsView. 
+The React Native SDK provides a Component HmsView that renders the video on screen. We have to pass video trackId and sink in this component. When sink is true the video will be visible and when it is false video would be removed. It is ios only prop for android it is handled by the package itself. Here is a code snippet explaining the way to link a videoTrack to HmsView.
 
 ```js
 import { HmsView } from 'react-native-hms';
@@ -20,39 +25,34 @@ const styles = StyleSheet.create({
 There are 2 types of Peers remotePeers and a localPeer to extract trackId from peers we can use following code snippet.
 
 ```js
-const localTrackId = hmsInstance.localPeer.videoTrack.trackId
-const remoteTrackId = hmsInstance.remotePeers[index].videoTrack.trackId
+const localTrackId = hmsInstance.localPeer.videoTrack.trackId;
+const remoteTrackId = hmsInstance.remotePeers[index].videoTrack.trackId;
 ```
+
 these track IDs can directly be passed to HmsView component
 
 > A Pro tip: for fastest updates we can use ON_PEER_UPDATE and ON_TRACK_UPDATE listeners, these listeners get updated localPeer and remotePeers whenever there is any event related to these values.
 
 ```js
-HmsInstance.addEventListener(
-    HMSUpdateListenerActions.ON_PEER_UPDATE,
-    onPeerListener,
-);
-HmsInstance.addEventListener(
-    HMSUpdateListenerActions.ON_TRACK_UPDATE,
-    onTrackListener,
-);
+HmsInstance.addEventListener(HMSUpdateListenerActions.ON_PEER_UPDATE, onPeerListener);
+HmsInstance.addEventListener(HMSUpdateListenerActions.ON_TRACK_UPDATE, onTrackListener);
 const onPeerListener = ({
     remotePeers,
-    localPeer,
+    localPeer
 }: {
-    room?: any;
-    localPeer: any;
-    remotePeers: any;
+    room?: any,
+    localPeer: any,
+    remotePeers: any
 }) => {
     updateVideoIds(remotePeers, localPeer); // this function can be used to update local and remotePeers on React-Native side
 };
 const onTrackListener = ({
     remotePeers,
-    localPeer,
+    localPeer
 }: {
-    room?: any;
-    localPeer: any;
-    remotePeers: any;
+    room?: any,
+    localPeer: any,
+    remotePeers: any
 }) => {
     updateVideoIds(remotePeers, localPeer);
 };

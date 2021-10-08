@@ -1,9 +1,14 @@
+---
+title: Preview
+nav: 3.4
+---
 
 # Preview
 
 Preview screen is a frequently used UX element which allows users to check if their input devices are working properly and set the initial state (mute/unmute) of their audio and video tracks before joining. 100ms SDKs provide an easy-to-use API to back this feature.
 
 ## Calling Preview function
+
 We can call preview method in HMSSDK Instance. it is advised to attach error listener and preview listener before calling that function in order to get updates if preview got executed successfully or if it failed.
 
 ```js
@@ -24,13 +29,9 @@ hmsInstance.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
 once listeners are attached we can call preview method as shown in following snippet.
 
 ```js
-import HmsManager, {
-  HMSUpdateListenerActions,
-  HMSConfig,
-} from 'react-native-hms';
+import HmsManager, { HMSUpdateListenerActions, HMSConfig } from 'react-native-hms';
 
 // instance acquired from build() method
-const HmsConfig = new HMSConfig({authToken, userID, roomID, userName});
+const HmsConfig = new HMSConfig({ authToken, userID, roomID, userName });
 hmsInstance.preview(HmsConfig); // to start preview
-
 ```

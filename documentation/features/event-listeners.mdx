@@ -1,119 +1,99 @@
+---
+title: Event Listeners
+nav: 3.7
+---
+
 # Event Listeners
 
 You can easily add or remove an event listener by using the addEventListener() or removeEventListener() method. All the types of event listeners are available in HMSUpdateListenerActions class.
 
 ```js
-import HmsManager, { HMSUpdateListenerActions, HMSException, HMSMessage, HMSLeaveRoomRequest } from '@100mslive/react-native-hms';
+import HmsManager, {
+    HMSUpdateListenerActions,
+    HMSException,
+    HMSMessage,
+    HMSLeaveRoomRequest
+} from '@100mslive/react-native-hms';
 
 const hmsInstance = await HmsManager.build();
 
-hmsInstance.addEventListener(
-  HMSUpdateListenerActions.ON_PREVIEW,
-  onPreviewListener,
-);
+hmsInstance.addEventListener(HMSUpdateListenerActions.ON_PREVIEW, onPreviewListener);
 
 const onPreviewListener = ({ previewTracks }) => {
-  const videoTrack = previewTracks.videoTrack;
-  const videoTrackId = videoTrack.trackId;
-  // perform action
-}
+    const videoTrack = previewTracks.videoTrack;
+    const videoTrackId = videoTrack.trackId;
+    // perform action
+};
 
-hmsInstance.addEventListener(
-  HMSUpdateListenerActions.ON_JOIN,
-  onJoinListener,
-);
+hmsInstance.addEventListener(HMSUpdateListenerActions.ON_JOIN, onJoinListener);
 
 const onJoinListener = ({ localPeer, remotePeers }) => {
-  // use these objects to update your local and remote peers.
-}
+    // use these objects to update your local and remote peers.
+};
 
-hmsInstance.addEventListener(
-  HMSUpdateListenerActions.ON_ROOM_UPDATE,
-  onRoomListener,
-);
+hmsInstance.addEventListener(HMSUpdateListenerActions.ON_ROOM_UPDATE, onRoomListener);
 
 const onRoomListener = ({ localPeer, remotePeers }) => {
-  // use these objects to update your local and remote peers.
-}
+    // use these objects to update your local and remote peers.
+};
 
-hmsInstance.addEventListener(
-  HMSUpdateListenerActions.ON_PEER_UPDATE,
-  onPeerListener,
-);
+hmsInstance.addEventListener(HMSUpdateListenerActions.ON_PEER_UPDATE, onPeerListener);
 
 const onPeerListener = ({ localPeer, remotePeers }) => {
-  // use these objects to update your local and remote peers.
-}
+    // use these objects to update your local and remote peers.
+};
 
-hmsInstance.addEventListener(
-  HMSUpdateListenerActions.ON_TRACK_UPDATE,
-  onTrackListener,
-);
+hmsInstance.addEventListener(HMSUpdateListenerActions.ON_TRACK_UPDATE, onTrackListener);
 
 const onTrackListener = ({ localPeer, remotePeers }) => {
-  // use these objects to update your local and remote peers.
-}
+    // use these objects to update your local and remote peers.
+};
 
-hmsInstance.addEventListener(
-  HMSUpdateListenerActions.ON_ERROR, 
-  onErrorListener
-);
+hmsInstance.addEventListener(HMSUpdateListenerActions.ON_ERROR, onErrorListener);
 
 const onErrorListener = (data: HMSException) => {
-  // data contains a error code and message due to which error occoured.
+    // data contains a error code and message due to which error occoured.
 };
 
-hmsInstance.addEventListener(
-  HMSUpdateListenerActions.ON_MESSAGE,
-  onMessageListener,
-);
+hmsInstance.addEventListener(HMSUpdateListenerActions.ON_MESSAGE, onMessageListener);
 
 const onMessageListener = (data: HMSMessage) => {
-  // whenever local peer receives a message this is triggered. Add the message to reducer.
+    // whenever local peer receives a message this is triggered. Add the message to reducer.
 };
 
-hmsInstance.addEventListener(
-  HMSUpdateListenerActions.ON_SPEAKER,
-  onSpeakerListener,
-);
+hmsInstance.addEventListener(HMSUpdateListenerActions.ON_SPEAKER, onSpeakerListener);
 
 const onSpeakerListener = ({ peers }) => {
-  // an array of speakers is received. Use it to highlight the speakers.
+    // an array of speakers is received. Use it to highlight the speakers.
 };
 
-hmsInstance.addEventListener(
-  HMSUpdateListenerActions.RECONNECTING,
-  onReconnectingListener,
-);
+hmsInstance.addEventListener(HMSUpdateListenerActions.RECONNECTING, onReconnectingListener);
 
 const onReconnectingListener = (data) => {
-  // triggered whenever local peer is trying to reconnect to room i.e. bad network.
+    // triggered whenever local peer is trying to reconnect to room i.e. bad network.
 };
 
-hmsInstance.addEventListener(
-  HMSUpdateListenerActions.RECONNECTED,
-  onReconnectedListener,
-);
+hmsInstance.addEventListener(HMSUpdateListenerActions.RECONNECTED, onReconnectedListener);
 
 const onReconnectedListener = (data) => {
-  // triggered when local peer is reconnected to the room.
+    // triggered when local peer is reconnected to the room.
 };
 
 hmsInstance.addEventListener(
-  HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST,
-  onRoleChangeRequestListener,
+    HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST,
+    onRoleChangeRequestListener
 );
 
-const onRoleChangeRequestListener = ({ requestedBy,suggestedRole }) => {
-  // triggered when someone requests a role change for local peer. We can get requestedBy.name, suggestedRole.name.
+const onRoleChangeRequestListener = ({ requestedBy, suggestedRole }) => {
+    // triggered when someone requests a role change for local peer. We can get requestedBy.name, suggestedRole.name.
 };
 
 hmsInstance.addEventListener(
-  HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM,
-  onRemovedFromRoomListener,
+    HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM,
+    onRemovedFromRoomListener
 );
 
 const onRemovedFromRoomListener = (data: HMSLeaveRoomRequest) => {
-  // triggered whenever someone removes local peer from the room or the room is ended.
+    // triggered whenever someone removes local peer from the room or the room is ended.
 };
 ```
