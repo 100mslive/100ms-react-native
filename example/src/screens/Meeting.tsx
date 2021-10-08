@@ -19,6 +19,7 @@ import HmsManager, {
   HMSRoomUpdate,
   HMSTrackUpdate,
   HMSRemotePeer,
+  HMSVideoViewMode,
 } from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
@@ -238,6 +239,7 @@ const DisplayName = ({
         <HmsView
           sink={sink}
           trackId={trackId!}
+          scaleType={HMSVideoViewMode.ASPECT_FIT}
           style={type === 'screen' ? styles.hmsViewScreen : styles.hmsView}
         />
       )}
@@ -1031,9 +1033,9 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   highlight: {
-    backgroundColor: '#4578e0',
-    padding: 5,
     borderRadius: 10,
+    borderWidth: 5,
+    borderColor: '#4578e0',
   },
   messageDot: {
     width: 10,

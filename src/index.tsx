@@ -33,6 +33,7 @@ import HMSVideoCodec from './classes/HMSVideoCodec';
 import HMSVideoSettings from './classes/HMSVideoSettings';
 import HMSVideoTrack from './classes/HMSVideoTrack';
 import HMSVideoTrackSettings from './classes/HMSVideoTrackSettings';
+import HMSVideoViewMode from './classes/HMSVideoViewMode';
 import HmsView from './classes/HmsView';
 
 export {
@@ -70,6 +71,7 @@ export {
   HMSVideoSettings,
   HMSVideoTrack,
   HMSVideoTrackSettings,
+  HMSVideoViewMode,
   HmsView,
 };
 

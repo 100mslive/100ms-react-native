@@ -37,6 +37,24 @@ class HmssdkDisplayView: UIView {
         hms = hmsInstance
     }
     
+    @objc var scaleType : String = "ASPECT_FILL" {
+        didSet {
+            switch(scaleType) {
+                case "ASPECT_FIT":
+                    videoView.videoContentMode = .scaleAspectFit
+                    return
+                case "ASPECT_FILL":
+                    videoView.videoContentMode = .scaleAspectFill
+                    return
+                case "ASPECT_BALANCED":
+                    videoView.videoContentMode = .center
+                    return
+                default:
+                    return
+            }
+        }
+    }
+    
     @objc var data: NSDictionary = [:] {
         didSet {
             guard let trackID = data.value(forKey: "trackId") as? String,
