@@ -1,15 +1,15 @@
-import type HMSAudioSettings from './HMSAudioSettings';
-import type HMSSimulcastSettings from './HMSSimulcastSettings';
-import type HMSVideoSettings from './HMSVideoSettings';
+import type { HMSAudioSettings } from './HMSAudioSettings';
+import type { HMSSimulcastSettings } from './HMSSimulcastSettings';
+import type { HMSVideoSettings } from './HMSVideoSettings';
 
-export default class HMSPublishSettings {
+export class HMSPublishSettings {
   audio: HMSAudioSettings;
   video: HMSVideoSettings;
   screen: HMSVideoSettings;
   audioSimulcast?: HMSSimulcastSettings;
   videoSimulcast?: HMSSimulcastSettings;
   screenSimulcast?: HMSSimulcastSettings;
-  allowed?: [String];
+  allowed?: [string];
 
   constructor(params: {
     audio: HMSAudioSettings;
@@ -18,7 +18,7 @@ export default class HMSPublishSettings {
     audioSimulcast?: HMSSimulcastSettings;
     videoSimulcast?: HMSSimulcastSettings;
     screenSimulcast?: HMSSimulcastSettings;
-    allowed?: [String];
+    allowed?: [string];
   }) {
     this.audio = params.audio;
     this.video = params.video;

@@ -1,7 +1,7 @@
 import React from 'react';
 import {Modal, StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 
-const App = ({
+export const AlertModal = ({
   modalVisible,
   setModalVisible,
   title,
@@ -106,5 +106,3 @@ const styles = StyleSheet.create({
     color: 'blue',
   },
 });
-
-export default App;

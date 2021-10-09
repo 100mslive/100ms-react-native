@@ -1,4 +1,4 @@
-enum HMSPeerUpdate {
+export enum HMSPeerUpdate {
   PEER_JOINED = 'PEER_JOINED',
   PEER_LEFT = 'PEER_LEFT',
   AUDIO_TOGGLED = 'AUDIO_TOGGLED',
@@ -10,5 +10,3 @@ enum HMSPeerUpdate {
   STOPPED_SPEAKING = 'STOPPED_SPEAKING',
   ROLE_CHANGED = 'ROLE_CHANGED',
 }
-
-export default HMSPeerUpdate;

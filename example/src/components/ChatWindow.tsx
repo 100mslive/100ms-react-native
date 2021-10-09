@@ -4,17 +4,17 @@ import {
   View,
   StyleSheet,
   TextInput,
-  KeyboardAvoidingView,
   ScrollView,
   TouchableOpacity,
   Text,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
-import dimension from '../utils/dimension';
-import ChatBubble from './ChatBubble';
-import {CustomModalDropdown} from '../components/Picker';
 
-const ChatWindow = ({
+import dimension from '../utils/dimension';
+import {ChatBubble} from './ChatBubble';
+import {CustomModalDropdown} from './Picker';
+
+export const ChatWindow = ({
   messages,
   cancel,
   send,
@@ -38,9 +38,7 @@ const ChatWindow = ({
   }, [messages]);
   return (
     <View style={styles.container}>
-      <KeyboardAvoidingView
-        behavior="padding"
-        style={styles.keyboardAvoidingView}>
+      <View style={styles.keyboardAvoidingView}>
         <View style={styles.headingContainer}>
           <Feather
             name="message-circle"
@@ -101,12 +99,10 @@ const ChatWindow = ({
             />
           </TouchableOpacity>
         </View>
-      </KeyboardAvoidingView>
+      </View>
     </View>
   );
 };
-
-export default ChatWindow;
 
 const styles = StyleSheet.create({
   container: {

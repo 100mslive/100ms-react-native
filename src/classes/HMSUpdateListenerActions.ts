@@ -1,4 +1,4 @@
-enum HMSUpdateListenerActions {
+export enum HMSUpdateListenerActions {
   ON_PREVIEW = 'ON_PREVIEW',
   ON_JOIN = 'ON_JOIN',
   ON_ROOM_UPDATE = 'ON_ROOM_UPDATE',
@@ -12,5 +12,3 @@ enum HMSUpdateListenerActions {
   ON_ROLE_CHANGE_REQUEST = 'ON_ROLE_CHANGE_REQUEST',
   ON_REMOVED_FROM_ROOM = 'ON_REMOVED_FROM_ROOM',
 }
-
-export default HMSUpdateListenerActions;

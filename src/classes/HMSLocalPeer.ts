@@ -1,14 +1,14 @@
-import type HMSAudioTrack from './HMSAudioTrack';
-import HMSPeer from './HMSPeer';
-import type HMSTrack from './HMSTrack';
-import type HMSVideoTrack from './HMSVideoTrack';
-import type HMSVideoTrackSettings from './HMSVideoTrackSettings';
-import type HMSAudioTrackSettings from './HMSAudioTrackSettings';
-import HMSLocalAudioTrack from './HMSLocalAudioTrack';
-import HMSLocalVideoTrack from './HMSLocalVideoTrack';
-import type HMSRole from './HMSRole';
+import type { HMSAudioTrack } from './HMSAudioTrack';
+import { HMSPeer } from './HMSPeer';
+import type { HMSTrack } from './HMSTrack';
+import type { HMSVideoTrack } from './HMSVideoTrack';
+import type { HMSVideoTrackSettings } from './HMSVideoTrackSettings';
+import type { HMSAudioTrackSettings } from './HMSAudioTrackSettings';
+import { HMSLocalAudioTrack } from './HMSLocalAudioTrack';
+import { HMSLocalVideoTrack } from './HMSLocalVideoTrack';
+import type { HMSRole } from './HMSRole';
 
-export default class HMSLocalPeer extends HMSPeer {
+export class HMSLocalPeer extends HMSPeer {
   private localAudio?: HMSLocalAudioTrack;
   private localVideo?: HMSLocalVideoTrack;
 
@@ -33,14 +33,14 @@ export default class HMSLocalPeer extends HMSPeer {
       trackId: string;
       source?: number | string;
       trackDescription?: string;
-      isMute?: Boolean;
+      isMute?: boolean;
       settings?: HMSAudioTrackSettings;
     };
     localVideoTrackData?: {
       trackId: string;
       source?: number | string;
       trackDescription?: string;
-      isMute?: Boolean;
+      isMute?: boolean;
       settings?: HMSVideoTrackSettings;
     };
   }) {

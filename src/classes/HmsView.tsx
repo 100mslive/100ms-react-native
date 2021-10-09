@@ -1,25 +1,25 @@
 import React from 'react';
 import { requireNativeComponent, ViewStyle } from 'react-native';
-import { HMSVideoViewMode } from '..';
+import { HMSVideoViewMode } from '../classes/HMSVideoViewMode';
 interface HmsViewProps {
   data: {
     trackId: string;
-    sink: Boolean;
+    sink: boolean;
   };
   scaleType: HMSVideoViewMode;
   style: ViewStyle;
 }
 
-const HmsView = requireNativeComponent<HmsViewProps>('HmsView');
+const HmsViewComponent = requireNativeComponent<HmsViewProps>('HmsView');
 
 interface HmsComponentProps {
   trackId: string;
-  sink: Boolean;
-  scaleType: HMSVideoViewMode;
+  sink: boolean;
   style: ViewStyle;
+  scaleType: HMSVideoViewMode;
 }
 
-const HmsViewComponent = ({
+export const HmsView = ({
   sink,
   trackId,
   style,
@@ -30,7 +30,5 @@ const HmsViewComponent = ({
     sink,
   };
 
-  return <HmsView data={data} scaleType={scaleType} style={style} />;
+  return <HmsViewComponent data={data} style={style} scaleType={scaleType} />;
 };
-
-export default HmsViewComponent;

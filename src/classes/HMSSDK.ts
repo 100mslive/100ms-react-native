@@ -1,14 +1,14 @@
 import { NativeEventEmitter, NativeModules } from 'react-native';
-import HMSUpdateListenerActions from './HMSUpdateListenerActions';
-import type HMSConfig from './HMSConfig';
-import type HMSLocalPeer from './HMSLocalPeer';
-import type HMSRemotePeer from './HMSRemotePeer';
-import type HMSRoom from './HMSRoom';
-import type HMSRole from './HMSRole';
-import HMSEncoder from './HMSEncoder';
-import HMSMessage from './HMSMessage';
-import HMSHelper from './HMSHelper';
-import type HMSTrack from './HMSTrack';
+import { HMSUpdateListenerActions } from './HMSUpdateListenerActions';
+import type { HMSConfig } from './HMSConfig';
+import type { HMSLocalPeer } from './HMSLocalPeer';
+import type { HMSRemotePeer } from './HMSRemotePeer';
+import type { HMSRoom } from './HMSRoom';
+import type { HMSRole } from './HMSRole';
+import { HMSEncoder } from './HMSEncoder';
+import { HMSMessage } from './HMSMessage';
+import { HMSHelper } from './HMSHelper';
+import type { HMSTrack } from './HMSTrack';
 
 const {
   /**
@@ -21,7 +21,7 @@ const HmsEventEmitter = new NativeEventEmitter(HmsManager);
 
 let HmsSdk: HMSSDK | undefined;
 
-export default class HMSSDK {
+export class HMSSDK {
   room?: HMSRoom;
   localPeer?: HMSLocalPeer;
   remotePeers?: HMSRemotePeer[];
@@ -147,25 +147,25 @@ export default class HMSSDK {
     HmsManager.leave();
   };
 
-  sendBroadcastMessage = (message: String) => {
+  sendBroadcastMessage = (message: string) => {
     HmsManager.sendBroadcastMessage({ message });
   };
 
-  sendGroupMessage = (message: String, roles: HMSRole[]) => {
+  sendGroupMessage = (message: string, roles: HMSRole[]) => {
     HmsManager.sendGroupMessage({
       message,
       roles: HMSHelper.getRoleNames(roles),
     });
   };
 
-  sendDirectMessage = (message: String, peerId: String) => {
+  sendDirectMessage = (message: string, peerId: string) => {
     HmsManager.sendDirectMessage({
       message,
       peerId,
     });
   };
 
-  changeRole = (peerId: String, role: String, force: boolean = false) => {
+  changeRole = (peerId: string, role: string, force: boolean = false) => {
     const data = {
       peerId: peerId,
       role: role,
@@ -183,7 +183,7 @@ export default class HMSSDK {
     HmsManager.changeTrackState(data);
   };
 
-  removePeer = (peerId: String, reason: String) => {
+  removePeer = (peerId: string, reason: string) => {
     const data = {
       peerId,
       reason,
@@ -192,7 +192,7 @@ export default class HMSSDK {
     HmsManager.removePeer(data);
   };
 
-  endRoom = (lock: boolean, reason: String) => {
+  endRoom = (lock: boolean, reason: string) => {
     const data = {
       lock,
       reason,
