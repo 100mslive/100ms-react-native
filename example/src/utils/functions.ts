@@ -59,3 +59,26 @@ export const pairDataForFlatlist = (data: any) => {
 
   return pairedData;
 };
+
+export const pairDataForScrollView = (data: Array<any>, batch: number) => {
+  const pairedData: Array<any> = [];
+  let groupData: Array<any> = [];
+  let itemsPushed: number = 0;
+  data.map((item: any) => {
+    if (item?.type === 'screen') {
+      pairedData.push([item]);
+    } else {
+      if (itemsPushed === batch) {
+        pairedData.push(groupData);
+        groupData = [];
+        itemsPushed = 0;
+      }
+      groupData.push(item);
+      itemsPushed++;
+    }
+  });
+  if (groupData.length) {
+    pairedData.push(groupData);
+  }
+  return pairedData;
+};
