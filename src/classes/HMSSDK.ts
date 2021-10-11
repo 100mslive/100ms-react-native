@@ -9,6 +9,7 @@ import { HMSEncoder } from './HMSEncoder';
 import { HMSMessage } from './HMSMessage';
 import { HMSHelper } from './HMSHelper';
 import type { HMSTrack } from './HMSTrack';
+import type { HMSLogger } from './HMSLogger';
 
 const {
   /**
@@ -26,6 +27,7 @@ export class HMSSDK {
   localPeer?: HMSLocalPeer;
   remotePeers?: HMSRemotePeer[];
   knownRoles?: HMSRole[];
+  logger?: HMSLogger;
 
   onPreviewDelegate?: any;
   onJoinDelegate?: any;
@@ -327,6 +329,10 @@ export class HMSSDK {
     this.onReconnectedDelegate = null;
     this.onRoleChangeRequestDelegate = null;
     this.onRemovedFromRoomDelegate = null;
+  };
+
+  setLogger = (hmsLogger: HMSLogger) => {
+    this.logger = hmsLogger;
   };
 
   onPreviewListener = (data: any) => {
