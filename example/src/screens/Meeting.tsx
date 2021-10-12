@@ -3,12 +3,12 @@ import {
   View,
   StyleSheet,
   TouchableOpacity,
+  FlatList,
   Text,
   SafeAreaView,
   Dimensions,
   BackHandler,
   Platform,
-  ScrollView,
 } from 'react-native';
 import {connect} from 'react-redux';
 import HmsManager, {
@@ -670,6 +670,52 @@ const Meeting = ({
     return buttons;
   };
 
+  const onViewRef = React.useRef(({viewableItems}: any) => {
+    if (viewableItems) {
+      const viewableItemsIds: (string | undefined)[] = [];
+      viewableItems.map(
+        (viewableItem: {
+          index: number;
+          item: Array<Peer>;
+          key: string;
+          isViewable: boolean;
+        }) => {
+          viewableItem?.item?.map((item: Peer) => {
+            viewableItemsIds.push(item?.trackId);
+          });
+        },
+      );
+
+      const inst = HmsManager.build();
+      const remotePeers = inst?.remotePeers;
+      if (remotePeers) {
+        const sinkRemoteTrackIds = remotePeers.map(
+          (peer: HMSRemotePeer, index: number) => {
+            const remotePeer = decode(peer, 'remote');
+            const videoTrackId = remotePeer.trackId;
+            if (videoTrackId) {
+              if (!viewableItemsIds?.includes(videoTrackId)) {
+                return {
+                  ...remotePeer,
+                  sink: false,
+                };
+              }
+              return remotePeer;
+            } else {
+              return {
+                ...remotePeer,
+                trackId: index.toString(),
+                sink: false,
+                isVideoMute: true,
+              };
+            }
+          },
+        );
+        setRemoteTrackIds(sinkRemoteTrackIds ? sinkRemoteTrackIds : []);
+      }
+    }
+  });
+
   return (
     <SafeAreaView style={styles.container}>
       <CustomModal
@@ -704,45 +750,52 @@ const Meeting = ({
           />
         </TouchableOpacity>
       </View>
-      <ScrollView
-        style={styles.wrapper}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}>
-        {pairedPeers.map((item: Array<Peer>, index: number) => {
-          return (
-            <View
-              key={index}
-              style={[styles.page, {width: Dimensions.get('window').width}]}>
-              {item?.map((view: Peer) =>
-                view.type === 'screen' ? (
-                  <DisplayName
-                    key={view?.peerId}
-                    peer={view}
-                    videoStyles={getAuxVideoStyles}
-                    speakers={speakers}
-                    instance={instance}
-                    type={view.type}
-                    permissions={localPeerPermissions}
-                    allAudioMute={muteAllAudio}
-                  />
-                ) : (
-                  <DisplayName
-                    key={view?.peerId}
-                    peer={view}
-                    videoStyles={getRemoteVideoStyles}
-                    speakers={speakers}
-                    instance={instance}
-                    type={view.type}
-                    permissions={localPeerPermissions}
-                    allAudioMute={muteAllAudio}
-                  />
-                ),
-              )}
-            </View>
-          );
-        })}
-      </ScrollView>
+      <View>
+        <FlatList
+          horizontal
+          data={pairedPeers}
+          initialNumToRender={2}
+          maxToRenderPerBatch={3}
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          renderItem={({item}) => {
+            return (
+              <View
+                key={item[0]?.trackId}
+                style={[styles.page, {width: Dimensions.get('window').width}]}>
+                {item?.map((view: Peer) =>
+                  view.type === 'screen' ? (
+                    <DisplayName
+                      key={view?.peerId}
+                      peer={view}
+                      videoStyles={getAuxVideoStyles}
+                      speakers={speakers}
+                      instance={instance}
+                      type={view.type}
+                      permissions={localPeerPermissions}
+                      allAudioMute={muteAllAudio}
+                    />
+                  ) : (
+                    <DisplayName
+                      key={view?.peerId}
+                      peer={view}
+                      videoStyles={getRemoteVideoStyles}
+                      speakers={speakers}
+                      instance={instance}
+                      type={view.type}
+                      permissions={localPeerPermissions}
+                      allAudioMute={muteAllAudio}
+                    />
+                  ),
+                )}
+              </View>
+            );
+          }}
+          numColumns={1}
+          onViewableItemsChanged={onViewRef.current}
+          keyExtractor={item => item[0]?.trackId!}
+        />
+      </View>
       <View style={styles.iconContainers}>
         <TouchableOpacity
           style={styles.singleIconContainer}
