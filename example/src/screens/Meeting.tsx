@@ -750,7 +750,7 @@ const Meeting = ({
           />
         </TouchableOpacity>
       </View>
-      <View>
+      <View style={styles.wrapper}>
         <FlatList
           horizontal
           data={pairedPeers}
