@@ -476,7 +476,7 @@ const Meeting = ({
 
   const onSpeaker = (data: any) => {
     setSpeakers(data?.peers);
-    console.log('data in onSpeaker: ', data);
+    // console.log('data in onSpeaker: ', data);
   };
 
   const reconnecting = (data: any) => {

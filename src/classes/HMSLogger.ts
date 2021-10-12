@@ -1,9 +1,9 @@
 import { HMSLogLevel } from './HMSLogLevel';
 
 export class HMSLogger {
-  _verbose: Boolean = false;
-  _warning: Boolean = false;
-  _error: Boolean = false;
+  private _verbose: Boolean = false;
+  private _warning: Boolean = false;
+  private _error: Boolean = false;
 
   constructor(params?: { verbose: Boolean; warning: Boolean; error: Boolean }) {
     if (params) {
@@ -13,21 +13,21 @@ export class HMSLogger {
     }
   }
 
-  verbose(message: String) {
+  verbose(message: string, data: any) {
     if (this._verbose === true) {
-      console.log(message);
+      console.log(message, data);
     }
   }
 
-  warn(message: String) {
+  warn(message: string, data: any) {
     if (this._warning) {
-      console.log(message);
+      console.warn(message, data);
     }
   }
 
-  error(message: String) {
+  error(message: string, data: any) {
     if (this._error) {
-      console.log(message);
+      console.error(message, data);
     }
   }
 

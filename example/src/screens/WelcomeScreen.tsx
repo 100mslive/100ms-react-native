@@ -19,6 +19,8 @@ import HmsManager, {
   HMSRoom,
   HMSUpdateListenerActions,
   HMSVideoTrack,
+  HMSLogger,
+  HMSLogLevel,
 } from '@100mslive/react-native-hms';
 import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
@@ -79,8 +81,6 @@ const tokenFromLinkService = async (
     userID,
   });
 
-  console.log(response, 'response');
-
   if (response.error || !response?.token) {
     // TODO: handle errors from API
     apiFailed();
@@ -127,7 +127,7 @@ const App = ({
     room: HMSRoom;
     previewTracks: {audioTrack: HMSAudioTrack; videoTrack: HMSVideoTrack};
   }) => {
-    console.log('here in callback success', data);
+    // console.log('here in callback success', data);
     const videoTrackId = data?.previewTracks?.videoTrack?.trackId;
 
     if (videoTrackId) {
@@ -151,6 +151,9 @@ const App = ({
 
   const setupBuild = async () => {
     const build = await HmsManager.build();
+    const logger = new HMSLogger();
+    logger.updateLogLevel(HMSLogLevel.VERBOSE, true);
+    build.setLogger(logger);
     setInstance(build);
   };
 
