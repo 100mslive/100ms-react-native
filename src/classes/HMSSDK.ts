@@ -9,6 +9,7 @@ import { HMSEncoder } from './HMSEncoder';
 import { HMSMessage } from './HMSMessage';
 import { HMSHelper } from './HMSHelper';
 import type { HMSTrack } from './HMSTrack';
+import type { HMSLogger } from './HMSLogger';
 
 const {
   /**
@@ -26,6 +27,8 @@ export class HMSSDK {
   localPeer?: HMSLocalPeer;
   remotePeers?: HMSRemotePeer[];
   knownRoles?: HMSRole[];
+  logger?: HMSLogger;
+  private id?: String;
 
   onPreviewDelegate?: any;
   onJoinDelegate?: any;
@@ -129,11 +132,13 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   join = async (config: HMSConfig) => {
+    this.logger?.verbose('JOIN', { config });
     this.attachListeners();
-    await HmsManager.join(config);
+    await HmsManager.join(config, this.id);
   };
 
   preview = (config: HMSConfig) => {
+    this.logger?.verbose('PREVIEW', { config });
     this.attachPreviewListener();
     HmsManager.preview(config);
   };
@@ -144,14 +149,17 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   leave = () => {
+    this.logger?.verbose('LEAVE', {});
     HmsManager.leave();
   };
 
   sendBroadcastMessage = (message: string) => {
+    this.logger?.verbose('SEND_BROADCAST_MESSAGE', { message });
     HmsManager.sendBroadcastMessage({ message });
   };
 
   sendGroupMessage = (message: string, roles: HMSRole[]) => {
+    this.logger?.verbose('SEND_GROUP_MESSAGE', { message, roles });
     HmsManager.sendGroupMessage({
       message,
       roles: HMSHelper.getRoleNames(roles),
@@ -159,6 +167,7 @@ export class HMSSDK {
   };
 
   sendDirectMessage = (message: string, peerId: string) => {
+    this.logger?.verbose('SEND_DIRECT_MESSAGE', { message, peerId });
     HmsManager.sendDirectMessage({
       message,
       peerId,
@@ -171,10 +180,12 @@ export class HMSSDK {
       role: role,
       force: force,
     };
+    this.logger?.verbose('CHANGE_ROLE', data);
     HmsManager.changeRole(data);
   };
 
   changeTrackState = (track: HMSTrack, mute: boolean) => {
+    this.logger?.verbose('CHANGE_TRACK_STATE', { track, mute });
     const data = {
       trackId: track.trackId,
       mute,
@@ -184,6 +195,7 @@ export class HMSSDK {
   };
 
   removePeer = (peerId: string, reason: string) => {
+    this.logger?.verbose('REMOVE_PEER', { peerId, reason });
     const data = {
       peerId,
       reason,
@@ -193,6 +205,7 @@ export class HMSSDK {
   };
 
   endRoom = (lock: boolean, reason: string) => {
+    this.logger?.verbose('END_ROOM', { lock, reason });
     const data = {
       lock,
       reason,
@@ -202,10 +215,12 @@ export class HMSSDK {
   };
 
   acceptRoleChange = () => {
+    this.logger?.verbose('ACCEPT_ROLE_CHANGE', {});
     HmsManager.acceptRoleChange();
   };
 
   muteAllPeersAudio = (mute: boolean) => {
+    this.logger?.verbose('ON_MUTE_ALL_PEERS', { mute });
     HmsManager.muteAllPeersAudio(mute);
   };
 
@@ -218,6 +233,7 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   addEventListener = (action: HMSUpdateListenerActions, callback: any) => {
+    this.logger?.verbose('ON_ATTACH_EVENT_LISTENER', { action });
     switch (action) {
       case HMSUpdateListenerActions.ON_PREVIEW:
         this.onPreviewDelegate = callback;
@@ -268,6 +284,7 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   removeEventListener = (action: HMSUpdateListenerActions) => {
+    this.logger?.verbose('ON_REMOVE_LISTENER', { action });
     switch (action) {
       case HMSUpdateListenerActions.ON_PREVIEW:
         this.onPreviewDelegate = null;
@@ -327,9 +344,17 @@ export class HMSSDK {
     this.onReconnectedDelegate = null;
     this.onRoleChangeRequestDelegate = null;
     this.onRemovedFromRoomDelegate = null;
+
+    this.logger?.verbose('REMOVE_ALL_LISTENER', {});
+  };
+
+  setLogger = (hmsLogger: HMSLogger) => {
+    this.logger = hmsLogger;
+    hmsLogger.verbose('UPDATE_LOGGER', { hmsLogger });
   };
 
   onPreviewListener = (data: any) => {
+    this.logger?.verbose('ON_PREVIEW', data);
     const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
       data.localPeer
@@ -340,11 +365,18 @@ export class HMSSDK {
     this.localPeer = localPeer;
     this.room = room;
     if (this.onPreviewDelegate) {
+      this.logger?.verbose('ON_PREVIEW_LISTENER_CALL', {
+        ...data,
+        room,
+        localPeer,
+        previewTracks,
+      });
       this.onPreviewDelegate({ ...data, room, localPeer, previewTracks });
     }
   };
 
   onJoinListener = (data: any) => {
+    this.logger?.verbose('ON_JOIN', data);
     // Preprocessing
     const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
@@ -359,11 +391,18 @@ export class HMSSDK {
     this.remotePeers = remotePeers;
     this.knownRoles = roles;
     if (this.onJoinDelegate) {
+      this.logger?.verbose('ON_JOIN_LISTENER_CALL', {
+        ...data,
+        room,
+        localPeer,
+        remotePeers,
+      });
       this.onJoinDelegate({ ...data, room, localPeer, remotePeers });
     }
   };
 
   onRoomListener = (data: any) => {
+    this.logger?.verbose('ON_ROOM', data);
     const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
       data.localPeer
@@ -375,12 +414,18 @@ export class HMSSDK {
     this.localPeer = localPeer;
     this.remotePeers = remotePeers;
     if (this.onRoomDelegate) {
+      this.logger?.verbose('ON_ROOM_LISTENER_CALL', {
+        ...data,
+        room,
+        localPeer,
+        remotePeers,
+      });
       this.onRoomDelegate({ ...data, room, localPeer, remotePeers });
     }
   };
 
   onPeerListener = (data: any) => {
-    // const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
+    this.logger?.verbose('ON_PEER', data);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
       data.localPeer
     );
@@ -391,11 +436,13 @@ export class HMSSDK {
     this.localPeer = localPeer;
     this.remotePeers = remotePeers;
     if (this.onPeerDelegate) {
+      this.logger?.verbose('ON_PEER_LISTENER_CALL', data);
       this.onPeerDelegate({ ...data, localPeer, remotePeers });
     }
   };
 
   onTrackListener = (data: any) => {
+    this.logger?.verbose('ON_TRACK', data);
     // const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
       data.localPeer
@@ -407,54 +454,73 @@ export class HMSSDK {
     this.localPeer = localPeer;
     this.remotePeers = remotePeers;
     if (this.onTrackDelegate) {
+      this.logger?.verbose('ON_TRACK_LISTENER_CALL', data);
       this.onTrackDelegate({ ...data, localPeer, remotePeers });
     }
   };
 
   onMessageListener = (data: any) => {
+    this.logger?.verbose('ON_MESSAGE', data);
     const message = new HMSMessage(data);
     if (this.onMessageDelegate) {
+      this.logger?.verbose('ON_MESSAGE_LISTENER_CALL', message);
       this.onMessageDelegate(message);
     }
   };
 
   onSpeakerListener = (data: any) => {
+    this.logger?.verbose('ON_SPEAKER', data);
     if (this.onSpeakerDelegate) {
       this.onSpeakerDelegate(data);
     }
   };
 
   onErrorListener = (data: any) => {
+    this.logger?.warn('ON_ERROR', data);
     if (this.onErrorDelegate) {
+      this.logger?.warn('ON_ERROR_LISTENER_CALL', data);
       this.onErrorDelegate(data);
     }
   };
 
   onRoleChangeRequestListener = (data: any) => {
+    this.logger?.verbose('ON_ROLE_CHANGE_REQUEST', data);
     if (this.onRoleChangeRequestDelegate) {
       const encodedRoleChangeRequest =
         HMSEncoder.encodeHmsRoleChangeRequest(data);
+      this.logger?.verbose(
+        'ON_ROLE_CHANGE_LISTENER_CALL',
+        encodedRoleChangeRequest
+      );
       this.onRoleChangeRequestDelegate(encodedRoleChangeRequest);
     }
   };
 
   onRemovedFromRoomListener = (data: any) => {
+    this.logger?.verbose('ON_REMOVED_FROM_ROOM', data);
     if (this.onRemovedFromRoomDelegate) {
       const requestedBy = HMSEncoder.encodeHmsPeer(data.requestedBy);
       const reason = data.reason;
       const roomEnded = data.roomEnded;
 
+      this.logger?.verbose('ON_REMOVED_FROM_ROOM_LISTENER_CALL', {
+        requestedBy,
+        reason,
+        roomEnded,
+      });
       this.onRemovedFromRoomDelegate({ requestedBy, reason, roomEnded });
     }
   };
 
   reconnectingListener = (data: any) => {
+    this.logger?.verbose('ON_RECONNECTING', data);
     if (this.onReconnectingDelegate) {
       this.onReconnectingDelegate(data);
     }
   };
 
   reconnectedListener = (data: any) => {
+    this.logger?.verbose('ON_RECONNECTED', data);
     if (this.onReconnectedDelegate) {
       this.onReconnectedDelegate(data);
     }
