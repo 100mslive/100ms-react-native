@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
-import {HmsView} from '@100mslive/react-native-hms';
+import {HMSVideoViewMode, HmsView} from '@100mslive/react-native-hms';
 
 export const PreviewModal = ({
   trackId,
@@ -20,7 +20,12 @@ export const PreviewModal = ({
   return (
     <View style={styles.container}>
       <View style={styles.modalContainer}>
-        <HmsView sink={true} style={styles.hmsView} trackId={trackId} />
+        <HmsView
+          scaleType={HMSVideoViewMode.ASPECT_FILL}
+          sink={true}
+          style={styles.hmsView}
+          trackId={trackId}
+        />
       </View>
       <View style={styles.buttonRow}>
         <View style={styles.iconContainer}>

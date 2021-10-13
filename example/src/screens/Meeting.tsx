@@ -19,6 +19,7 @@ import HmsManager, {
   HMSRoomUpdate,
   HMSTrackUpdate,
   HMSRemotePeer,
+  HMSVideoViewMode,
   HMSLocalPeer,
   HMSPermissions,
   HMSTrack,
@@ -235,6 +236,7 @@ const DisplayName = ({
         <HmsView
           sink={sink}
           trackId={trackId!}
+          scaleType={HMSVideoViewMode.ASPECT_FIT}
           style={type === 'screen' ? styles.hmsViewScreen : styles.hmsView}
         />
       )}

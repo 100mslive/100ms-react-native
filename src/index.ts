@@ -33,6 +33,7 @@ export * from './classes/HMSAudioCodec';
 export * from './classes/HMSPeerUpdate';
 export * from './classes/HMSRoomUpdate';
 export * from './classes/HMSTrackUpdate';
+export * from './classes/HMSVideoViewMode';
 
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
 export default HmsManager;
