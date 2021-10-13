@@ -37,6 +37,28 @@ class HmsView(
     videoTrack?.addSink(surfaceView)
   }
 
+  fun updateScaleType (scaleType: String?) {
+    if (scaleType != null) {
+      when (scaleType) {
+        "ASPECT_FIT" -> {
+          surfaceView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
+          return
+        }
+        "ASPECT_FILL" -> {
+          surfaceView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL)
+          return
+        }
+        "ASPECT_BALANCED" -> {
+          surfaceView.setScalingType((RendererCommon.ScalingType.SCALE_ASPECT_BALANCED))
+          return
+        }
+        else -> {
+          return
+        }
+      }
+    }
+  }
+
   fun setData(trackId: String?, sink: Boolean?, hms: HMSSDK?) {
     if (trackId != null) {
       localTrack = trackId

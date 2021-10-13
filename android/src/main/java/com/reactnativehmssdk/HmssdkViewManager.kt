@@ -38,6 +38,11 @@ class HmssdkViewManager : SimpleViewManager<HmsView>() {
     // do the processing here
   }
 
+  @ReactProp(name="scaleType")
+  fun setScaleType(view: HmsView, data: String?) {
+    view.updateScaleType(data)
+  }
+
   private fun getHms(): HMSSDK? {
     val hms = reactContext?.getNativeModule(HmsModule::class.java)?.getHmsInstance()
     return hms
