@@ -41,7 +41,7 @@ import type {AppStackParamList} from '../navigator';
 import {
   getRandomColor,
   getInitials,
-  pairDataForFlatlist,
+  pairDataForScrollView,
 } from '../utils/functions';
 import type {RootState} from '../redux';
 
@@ -332,6 +332,12 @@ const Meeting = ({
   ];
 
   const navigate = useNavigation<MeetingScreenProp>().navigate;
+  const {left, right} = useSafeAreaInsets();
+
+  const pairedPeers: Array<Array<Peer>> = pairDataForScrollView(
+    [...auxTracks, trackId, ...remoteTrackIds],
+    isPortrait() ? 4 : 2,
+  );
 
   const decode = (
     peer: HMSLocalPeer | HMSRemotePeer,
@@ -564,7 +570,7 @@ const Meeting = ({
     updateHmsInstance();
 
     Dimensions.addEventListener('change', () => {
-      setOrientation(!orientation);
+      setOrientation(isPortrait());
     });
 
     const backAction = () => {
@@ -670,20 +676,16 @@ const Meeting = ({
   const onViewRef = React.useRef(({viewableItems}: any) => {
     if (viewableItems) {
       const viewableItemsIds: (string | undefined)[] = [];
-      const names: (string | undefined)[] = [];
       viewableItems.map(
         (viewableItem: {
-          index: Number;
-          item: {first: Peer; second: Peer | undefined};
+          index: number;
+          item: Array<Peer>;
           key: string;
           isViewable: boolean;
         }) => {
-          viewableItemsIds.push(viewableItem?.item?.first?.trackId);
-          names.push(viewableItem?.item?.first?.peerName);
-          if (viewableItem?.item?.second) {
-            viewableItemsIds.push(viewableItem?.item?.second?.trackId);
-            names.push(viewableItem?.item?.second?.peerName);
-          }
+          viewableItem?.item?.map((item: Peer) => {
+            viewableItemsIds.push(item?.trackId);
+          });
         },
       );
 
@@ -753,65 +755,51 @@ const Meeting = ({
       </View>
       <View style={styles.wrapper}>
         <FlatList
-          data={pairDataForFlatlist([...auxTracks, trackId, ...remoteTrackIds])}
+          horizontal
+          data={pairedPeers}
           initialNumToRender={2}
           maxToRenderPerBatch={3}
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
           renderItem={({item}) => {
-            if (item?.second) {
-              const {first, second} = item;
-
-              return (
-                <View style={styles.rowWrapper}>
-                  <DisplayName
-                    peer={first}
-                    videoStyles={
-                      first.type === 'screen'
-                        ? getAuxVideoStyles
-                        : getRemoteVideoStyles
-                    }
-                    speakers={speakers}
-                    instance={instance}
-                    type={first.type}
-                    permissions={localPeerPermissions}
-                    allAudioMute={muteAllAudio}
-                  />
-                  <DisplayName
-                    peer={second}
-                    videoStyles={
-                      second.type === 'screen'
-                        ? getAuxVideoStyles
-                        : getRemoteVideoStyles
-                    }
-                    speakers={speakers}
-                    instance={instance}
-                    type={second.type}
-                    permissions={localPeerPermissions}
-                    allAudioMute={muteAllAudio}
-                  />
-                </View>
-              );
-            } else {
-              const {first} = item;
-              return (
-                <DisplayName
-                  peer={first}
-                  videoStyles={
-                    first.type === 'screen'
-                      ? getAuxVideoStyles
-                      : getRemoteVideoStyles
-                  }
-                  speakers={speakers}
-                  instance={instance}
-                  type={first.type}
-                  permissions={localPeerPermissions}
-                  allAudioMute={muteAllAudio}
-                />
-              );
-            }
+            return (
+              <View
+                key={item[0]?.trackId}
+                style={[
+                  styles.page,
+                  {width: Dimensions.get('window').width - left - right},
+                ]}>
+                {item?.map((view: Peer) =>
+                  view.type === 'screen' ? (
+                    <DisplayName
+                      key={view?.peerId}
+                      peer={view}
+                      videoStyles={getAuxVideoStyles}
+                      speakers={speakers}
+                      instance={instance}
+                      type={view.type}
+                      permissions={localPeerPermissions}
+                      allAudioMute={muteAllAudio}
+                    />
+                  ) : (
+                    <DisplayName
+                      key={view?.peerId}
+                      peer={view}
+                      videoStyles={getRemoteVideoStyles}
+                      speakers={speakers}
+                      instance={instance}
+                      type={view.type}
+                      permissions={localPeerPermissions}
+                      allAudioMute={muteAllAudio}
+                    />
+                  ),
+                )}
+              </View>
+            );
           }}
           numColumns={1}
           onViewableItemsChanged={onViewRef.current}
-          keyExtractor={item => item?.first?.trackId!}
+          keyExtractor={item => item[0]?.trackId!}
         />
       </View>
       <View style={styles.iconContainers}>
@@ -1091,6 +1079,11 @@ const styles = StyleSheet.create({
   },
   rowWrapper: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  page: {
+    flexDirection: 'row',
+    width: dimension.viewWidth(414),
     flexWrap: 'wrap',
   },
 });
