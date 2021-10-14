@@ -28,7 +28,6 @@ export class HMSSDK {
   remotePeers?: HMSRemotePeer[];
   knownRoles?: HMSRole[];
   logger?: HMSLogger;
-  private id?: String;
 
   onPreviewDelegate?: any;
   onJoinDelegate?: any;
@@ -134,7 +133,7 @@ export class HMSSDK {
   join = async (config: HMSConfig) => {
     this.logger?.verbose('JOIN', { config });
     this.attachListeners();
-    await HmsManager.join(config, this.id);
+    await HmsManager.join(config);
   };
 
   preview = (config: HMSConfig) => {
