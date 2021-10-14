@@ -147,8 +147,8 @@ export default class HMSSDK {
     HmsManager.leave();
   };
 
-  sendBroadcastMessage = (message: String) => {
-    HmsManager.sendBroadcastMessage({ message });
+  sendBroadcastMessage = (message: String, type?: string) => {
+    HmsManager.sendBroadcastMessage({ message, type });
   };
 
   sendGroupMessage = (message: String, roles: HMSRole[]) => {
