@@ -97,6 +97,14 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     func setLocalMute(_ isMute: Bool) {
         DispatchQueue.main.async { [weak self] in
             self?.hms?.localPeer?.localAudioTrack()?.setMute(isMute)
+
+            let roomData = HmsDecoder.getHmsRoom(self?.hms?.room)
+            let type = "LocalTrackUpdate"
+        
+            let localPeerData = HmsDecoder.getHmsLocalPeer(self?.hms?.localPeer)
+            let remotePeerData = HmsDecoder.getHmsRemotePeers(self?.hms?.remotePeers)
+        
+            self.sendEvent(withName: ON_TRACK_UPDATE, body: ["event": ON_TRACK_UPDATE, "room": roomData, "type": type, "localPeer": localPeerData, "remotePeers": remotePeerData])
         }
     }
     
@@ -104,7 +112,15 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     func setLocalVideoMute(_ isMute: Bool) {
         DispatchQueue.main.async { [weak self] in
             self?.hms?.localPeer?.localVideoTrack()?.setMute(isMute)
+            let roomData = HmsDecoder.getHmsRoom(self?.hms?.room)
+            let type = "LocalTrackUpdate"
+        
+            let localPeerData = HmsDecoder.getHmsLocalPeer(self?.hms?.localPeer)
+            let remotePeerData = HmsDecoder.getHmsRemotePeers(self?.hms?.remotePeers)
+        
+            self.sendEvent(withName: ON_TRACK_UPDATE, body: ["event": ON_TRACK_UPDATE, "room": roomData, "type": type, "localPeer": localPeerData, "remotePeers": remotePeerData])
         }
+        
     }
     
     @objc

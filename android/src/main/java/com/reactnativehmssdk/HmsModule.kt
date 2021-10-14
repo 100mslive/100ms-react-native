@@ -215,11 +215,31 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   @ReactMethod
   fun setLocalMute(isMute:Boolean) {
     hmsSDK?.getLocalPeer()?.audioTrack?.setMute(isMute)
+    val type = "LocalPeerUpdate"
+    val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
+    val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
+
+    val data: WritableMap = Arguments.createMap();
+
+    data.putString("type", type)
+    data.putMap("localPeer", localPeerData)
+    data.putArray("remotePeers", remotePeerData)
+    reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_TRACK_UPDATE", data)
   }
 
   @ReactMethod
   fun setLocalVideoMute(isMute:Boolean) {
     hmsSDK?.getLocalPeer()?.videoTrack?.setMute(isMute)
+    val type = "LocalPeerUpdate"
+    val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
+    val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
+
+    val data: WritableMap = Arguments.createMap();
+
+    data.putString("type", type)
+    data.putMap("localPeer", localPeerData)
+    data.putArray("remotePeers", remotePeerData)
+    reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_TRACK_UPDATE", data)
   }
 
   @ReactMethod
