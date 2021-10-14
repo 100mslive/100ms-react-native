@@ -330,6 +330,7 @@ const Meeting = ({
   ];
 
   const navigate = useNavigation<MeetingScreenProp>().navigate;
+  const {left, right} = useSafeAreaInsets();
 
   const pairedPeers: Array<Array<Peer>> = pairDataForScrollView(
     [...auxTracks, trackId, ...remoteTrackIds],
@@ -762,7 +763,10 @@ const Meeting = ({
             return (
               <View
                 key={item[0]?.trackId}
-                style={[styles.page, {width: Dimensions.get('window').width}]}>
+                style={[
+                  styles.page,
+                  {width: Dimensions.get('window').width - left - right},
+                ]}>
                 {item?.map((view: Peer) =>
                   view.type === 'screen' ? (
                     <DisplayName
