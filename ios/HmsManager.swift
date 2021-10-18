@@ -216,6 +216,32 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     }
     
     @objc
+    func isMute(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let trackId = data.value(forKey: "trackId") as? String
+        else {
+            return
+        }
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let localPeer = self?.hms?.localPeer,
+                let localTrack = HmsHelper.getLocalTrackFromTrackId(trackId, localPeer: localPeer)
+            else {
+                guard let remotePeers = self?.hms?.remotePeers,
+                    let track = HmsHelper.getTrackFromTrackId(trackId, remotePeers)
+                else {
+                    reject?(nil, "NOT_FOUND", nil)
+                    return
+                }
+                let mute = track.isMute()
+                resolve?(mute)
+                return
+            }
+            let mute = localTrack.isMute()
+            resolve?(mute)
+        }
+    }
+    
+    @objc
     func removePeer(_ data: NSDictionary) {
         
         

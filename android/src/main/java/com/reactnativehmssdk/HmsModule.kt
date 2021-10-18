@@ -122,14 +122,12 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
         override fun onPeerUpdate(type: HMSPeerUpdate, hmsPeer: HMSPeer) {
 
           val type = type.name
-//        val roomData = HmsDecoder.getHmsRoom(hmsSDK.room)
           val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
           val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
 
           val data: WritableMap = Arguments.createMap();
 
           data.putString("type", type)
-//        data.putMap("room", roomData)
           data.putMap("localPeer", localPeerData)
           data.putArray("remotePeers", remotePeerData)
           reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_PEER_UPDATE", data)
@@ -326,6 +324,30 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
         override fun onError(error: HMSException) {
         }
       })
+    }
+  }
+
+  @ReactMethod
+  fun isMute(data: ReadableMap, callback: Promise?) {
+    val trackId = data.getString("trackId")
+
+    val remotePeers = hmsSDK?.getRemotePeers()
+    val localPeer = hmsSDK?.getLocalPeer()
+
+    val localTrack = HmsHelper.getLocalTrackFromTrackId(trackId, localPeer)
+
+    if (localTrack == null) {
+      val track = HmsHelper.getTrackFromTrackId(trackId, remotePeers)
+
+      if (track != null) {
+        val mute = track.isMute
+        callback?.resolve(mute)
+      } else {
+        callback?.reject("101", "NOT_FOUND")
+      }
+    } else {
+      val mute = localTrack.isMute
+      callback?.resolve(mute)
     }
   }
 
