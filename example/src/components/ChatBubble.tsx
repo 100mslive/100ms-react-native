@@ -3,7 +3,7 @@ import {View, Text, StyleSheet} from 'react-native';
 
 import dimension from '../utils/dimension';
 
-const ChatBubble = ({
+export const ChatBubble = ({
   data,
   isLocal,
   name,
@@ -28,8 +28,6 @@ const ChatBubble = ({
     </View>
   );
 };
-
-export default ChatBubble;
 
 const styles = StyleSheet.create({
   textContainer: {

@@ -1,6 +1,6 @@
-import HMSTrack from './HMSTrack';
+import { HMSTrack } from './HMSTrack';
 
-export default class HMSVideoTrack extends HMSTrack {
+export class HMSVideoTrack extends HMSTrack {
   isDegraded?: Function;
   addSink?: Function;
   removeSink?: Function;
@@ -9,7 +9,7 @@ export default class HMSVideoTrack extends HMSTrack {
     trackId: string;
     source?: number | string;
     trackDescription?: string;
-    isMute?: Boolean;
+    isMute?: boolean;
   }) {
     super(params);
   }

@@ -1,7 +1,7 @@
 import React from 'react';
 import {Modal, StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 
-const App = ({
+export const AlertModal = ({
   modalVisible,
   setModalVisible,
   title,
@@ -22,6 +22,7 @@ const App = ({
       animationType="fade"
       transparent={true}
       visible={modalVisible}
+      supportedOrientations={['portrait', 'landscape']}
       onRequestClose={onRequestClose}>
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
@@ -105,5 +106,3 @@ const styles = StyleSheet.create({
     color: 'blue',
   },
 });
-
-export default App;

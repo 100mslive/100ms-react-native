@@ -1,13 +1,13 @@
-import HMSAudioTrack from './HMSAudioTrack';
+import { HMSAudioTrack } from './HMSAudioTrack';
 
-export default class HMSRemoteAudioTrack extends HMSAudioTrack {
+export class HMSRemoteAudioTrack extends HMSAudioTrack {
   playbackAllowed?: boolean;
   isPlaybackAllowed?: Function;
   setPlaybackAllowed?: Function;
   constructor(params: {
     trackId: string;
     source?: number | string;
-    isMute?: Boolean;
+    isMute?: boolean;
     trackDescription?: string;
     playbackAllowed?: boolean;
   }) {

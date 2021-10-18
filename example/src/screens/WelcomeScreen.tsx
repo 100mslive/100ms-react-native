@@ -1,5 +1,4 @@
-import * as React from 'react';
-
+import React, {useState, useEffect} from 'react';
 import {
   StyleSheet,
   View,
@@ -9,33 +8,35 @@ import {
   Image,
   Platform,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Dimensions,
 } from 'react-native';
 import {connect} from 'react-redux';
-import * as services from '../services/index';
 import HmsManager, {
+  HMSAudioTrack,
   HMSConfig,
+  HMSLocalPeer,
+  HMSRoom,
   HMSUpdateListenerActions,
+  HMSVideoTrack,
+  HMSLogger,
+  HMSLogLevel,
 } from '@100mslive/react-native-hms';
-import Feather from 'react-native-vector-icons/Feather';
-import UserIdModal from '../components/UserIdModal';
-import PreviewModal from '../components/PreviewModal';
 import {useNavigation} from '@react-navigation/native';
-import {setAudioVideoState, saveUserData} from '../redux/actions/index';
-import {PERMISSIONS, RESULTS, requestMultiple} from 'react-native-permissions';
 import type {StackNavigationProp} from '@react-navigation/stack';
-import type {AppStackParamList} from '../navigator';
+import {PERMISSIONS, RESULTS, requestMultiple} from 'react-native-permissions';
+import Feather from 'react-native-vector-icons/Feather';
 
-type HMSConfigType = {
-  username?: string;
-  authToken?: string;
-  roomID?: string;
-  userID?: string;
-};
+import * as services from '../services/index';
+import {UserIdModal, PreviewModal} from '../components';
+import {setAudioVideoState, saveUserData} from '../redux/actions/index';
+import type {AppStackParamList} from '../navigator';
+import type {RootState} from '../redux';
 
 type WelcomeProps = {
   setAudioVideoStateRequest: Function;
   saveUserDataRequest: Function;
-  state: any;
+  state: RootState;
 };
 
 type WelcomeScreenProp = StackNavigationProp<
@@ -80,8 +81,6 @@ const tokenFromLinkService = async (
     userID,
   });
 
-  console.log(response, 'response');
-
   if (response.error || !response?.token) {
     // TODO: handle errors from API
     apiFailed();
@@ -103,28 +102,32 @@ const App = ({
   saveUserDataRequest,
   state,
 }: WelcomeProps) => {
-  const [roomID, setRoomID] = React.useState(
+  const [orientation, setOrientation] = useState<boolean>(true);
+  const [roomID, setRoomID] = useState<string>(
     'https://yogi.app.100ms.live/meeting/muggy-ultramarine-fish',
   );
-  const [text, setText] = React.useState(
+  const [text, setText] = useState<string>(
     'https://yogi.app.100ms.live/meeting/muggy-ultramarine-fish',
   );
-  const [role] = React.useState('host');
-  const [initialized, setInitialized] = React.useState(false);
-  const [modalVisible, setModalVisible] = React.useState(false);
-  const [previewModal, setPreviewModal] = React.useState(false);
-  const [localVideoTrackId, setLocalVideoTrackId] = React.useState('');
-  const [config, setConfig] = React.useState<HMSConfigType | null>(null);
-  const [audio, setAudio] = React.useState(true);
-  const [video, setVideo] = React.useState(true);
-  const [buttonState, setButtonState] = React.useState<ButtonState>('Active');
+  const [role] = useState('host');
+  const [initialized, setInitialized] = useState<boolean>(false);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [previewModal, setPreviewModal] = useState<boolean>(false);
+  const [localVideoTrackId, setLocalVideoTrackId] = useState<string>('');
+  const [config, setConfig] = useState<HMSConfig | null>(null);
+  const [audio, setAudio] = useState<boolean>(true);
+  const [video, setVideo] = useState<boolean>(true);
+  const [buttonState, setButtonState] = useState<ButtonState>('Active');
+  const [instance, setInstance] = useState<HmsManager | null>(null);
 
   const navigate = useNavigation<WelcomeScreenProp>().navigate;
 
-  const [instance, setInstance] = React.useState<any>(null);
-
-  const previewSuccess = (data: any) => {
-    console.log('here in callback success', data);
+  const previewSuccess = (data: {
+    localPeer: HMSLocalPeer;
+    room: HMSRoom;
+    previewTracks: {audioTrack: HMSAudioTrack; videoTrack: HMSVideoTrack};
+  }) => {
+    // console.log('here in callback success', data);
     const videoTrackId = data?.previewTracks?.videoTrack?.trackId;
 
     if (videoTrackId) {
@@ -148,14 +151,26 @@ const App = ({
 
   const setupBuild = async () => {
     const build = await HmsManager.build();
+    const logger = new HMSLogger();
+    logger.updateLogLevel(HMSLogLevel.VERBOSE, true);
+    build.setLogger(logger);
     setInstance(build);
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!initialized) {
       setupBuild();
       setInitialized(true);
     }
+    Dimensions.addEventListener('change', () => {
+      setOrientation(!orientation);
+    });
+
+    return () => {
+      Dimensions.removeEventListener('change', () => {
+        setOrientation(!orientation);
+      });
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -220,13 +235,13 @@ const App = ({
       roomID,
       username: userID,
     });
-    instance.addEventListener(
+    instance?.addEventListener(
       HMSUpdateListenerActions.ON_PREVIEW,
       previewSuccess,
     );
     saveUserDataRequest({userName: userID, roomID: roomID});
-    instance.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
-    instance.preview(HmsConfig);
+    instance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
+    instance?.preview(HmsConfig);
     setConfig(HmsConfig);
   };
 
@@ -235,7 +250,7 @@ const App = ({
     userID: string,
     endpoint: string | undefined,
   ) => {
-    let HmsConfig: HMSConfig = null;
+    let HmsConfig: HMSConfig | null = null;
     if (endpoint) {
       HmsConfig = new HMSConfig({
         authToken: token,
@@ -253,22 +268,24 @@ const App = ({
       });
     }
 
-    instance.addEventListener(
+    instance?.addEventListener(
       HMSUpdateListenerActions.ON_PREVIEW,
       previewSuccess,
     );
 
     saveUserDataRequest({userName: userID, roomID: roomID});
-    instance.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
-    instance.preview(HmsConfig);
+    instance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
+    instance?.preview(HmsConfig);
     setConfig(HmsConfig);
   };
 
   const joinRoom = () => {
-    setPreviewModal(false);
-    instance.join(config);
-    navigate('Meeting');
-    setAudioVideoStateRequest({audioState: audio, videoState: video});
+    if (config !== null) {
+      setPreviewModal(false);
+      instance?.join(config);
+      navigate('Meeting');
+      setAudioVideoStateRequest({audioState: audio, videoState: video});
+    }
   };
 
   return (
@@ -277,7 +294,7 @@ const App = ({
         <Image style={styles.image} source={require('../assets/icon.png')} />
         <Text style={styles.logo}>100ms</Text>
       </View>
-      <View style={styles.inputContainer}>
+      <KeyboardAvoidingView style={styles.inputContainer} behavior="padding">
         <Text style={styles.heading}>Join a Meeting</Text>
         <View style={styles.textInputContainer}>
           <TextInput
@@ -294,6 +311,7 @@ const App = ({
           disabled={buttonState !== 'Active'}
           style={[
             styles.joinButtonContainer,
+            // eslint-disable-next-line react-native/no-inline-styles
             {opacity: buttonState !== 'Active' ? 0.5 : 1},
           ]}
           onPress={() => {
@@ -311,7 +329,7 @@ const App = ({
             </>
           )}
         </TouchableOpacity>
-      </View>
+      </KeyboardAvoidingView>
       {modalVisible && (
         <UserIdModal
           join={(userID: string) => {
@@ -363,16 +381,17 @@ const App = ({
         <PreviewModal
           setAudio={(value: boolean) => {
             setAudio(!value);
-            instance?.localPeer?.localAudioTrack().setMute(value);
+            instance?.localPeer?.localAudioTrack()?.setMute(value);
           }}
           setVideo={(value: boolean) => {
             setVideo(!value);
-            instance?.localPeer?.localVideoTrack().setMute(value);
+            instance?.localPeer?.localVideoTrack()?.setMute(value);
           }}
           trackId={localVideoTrackId}
           join={joinRoom}
         />
       )}
+      <View />
     </View>
   );
 };
@@ -382,10 +401,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     backgroundColor: 'white',
+    justifyContent: 'space-between',
   },
   headerContainer: {
     marginTop: Platform.OS === 'ios' ? 50 : 20,
-    marginBottom: '65%',
     width: '85%',
     flexDirection: 'row',
     alignItems: 'center',
@@ -453,7 +472,6 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 500,
   },
-
   buttonText: {
     backgroundColor: '#4578e0',
     padding: 10,
@@ -498,10 +516,10 @@ const mapDispatchToProps = (dispatch: Function) => ({
     audioState: boolean;
     videoState: boolean;
   }) => dispatch(setAudioVideoState(data)),
-  saveUserDataRequest: (data: {userName: String; roomID: String}) =>
+  saveUserDataRequest: (data: {userName: string; roomID: string}) =>
     dispatch(saveUserData(data)),
 });
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: RootState) => {
   return {
     state: state,
   };

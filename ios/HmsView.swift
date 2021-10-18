@@ -16,6 +16,10 @@ class HmsView: RCTViewManager {
     func getHmsFromBridge() -> HMSSDK? {
         return (bridge.module(for: HmsManager.classForCoder()) as? HmsManager)?.hms
     }
+    
+    override class func requiresMainQueueSetup() -> Bool {
+        true
+    }
 }
 
 class HmssdkDisplayView: UIView {
@@ -31,6 +35,24 @@ class HmssdkDisplayView: UIView {
     
     func setHms(_ hmsInstance: HMSSDK?) {
         hms = hmsInstance
+    }
+    
+    @objc var scaleType : String = "ASPECT_FILL" {
+        didSet {
+            switch(scaleType) {
+                case "ASPECT_FIT":
+                    videoView.videoContentMode = .scaleAspectFit
+                    return
+                case "ASPECT_FILL":
+                    videoView.videoContentMode = .scaleAspectFill
+                    return
+                case "ASPECT_BALANCED":
+                    videoView.videoContentMode = .center
+                    return
+                default:
+                    return
+            }
+        }
     }
     
     @objc var data: NSDictionary = [:] {

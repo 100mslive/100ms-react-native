@@ -5,7 +5,11 @@ type ActionType = {
   type: String;
 };
 
-const INITIAL_STATE = {
+type InitType = {
+  messages: Array<any>;
+};
+
+const INITIAL_STATE: InitType = {
   messages: [],
 };
 

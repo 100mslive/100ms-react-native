@@ -15,7 +15,6 @@
     "@react-native-picker/picker": "^2.0.0",
     "@react-navigation/native": "^6.0.2",
     "@react-navigation/stack": "^6.0.7",
-    "ios-deploy": "^1.11.4",
     "react": "17.0.1",
     "react-native": "0.64.1",
     "react-native-gesture-handler": "^1.10.3",

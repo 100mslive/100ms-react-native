@@ -8,22 +8,31 @@ import {
   SafeAreaView,
   Dimensions,
   BackHandler,
+  Platform,
 } from 'react-native';
 import {connect} from 'react-redux';
 import HmsManager, {
   HmsView,
   HMSUpdateListenerActions,
   HMSMessage,
+  HMSPeerUpdate,
+  HMSRoomUpdate,
+  HMSTrackUpdate,
+  HMSRemotePeer,
+  HMSVideoViewMode,
+  HMSLocalPeer,
+  HMSPermissions,
+  HMSTrack,
+  HMSRoom,
+  HMSRole,
+  HMSRoleChangeRequest,
 } from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import ChatWindow from '../components/ChatWindow';
-import AlertModal from '../components/AlertModal';
-import Modal from '../components/Modal';
-import Picker from '../components/Picker';
+import {ChatWindow, AlertModal, CustomModal, CustomPicker} from '../components';
 import {addMessage, clearMessageData} from '../redux/actions/index';
 import {useNavigation} from '@react-navigation/native';
 import dimension from '../utils/dimension';
@@ -32,34 +41,35 @@ import type {AppStackParamList} from '../navigator';
 import {
   getRandomColor,
   getInitials,
-  pairDataForFlatlist,
+  pairDataForScrollView,
 } from '../utils/functions';
+import type {RootState} from '../redux';
+
+const isPortrait = () => {
+  const dim = Dimensions.get('window');
+  return dim.height >= dim.width;
+};
 
 type Peer = {
   trackId?: string;
   peerName?: string;
   isAudioMute?: boolean;
   isVideoMute?: boolean;
-  peerId?: String;
+  peerId?: string;
   colour?: string;
-  role?: any;
-  sink: Boolean;
+  role?: HMSRole;
+  sink: boolean;
   type: 'local' | 'remote' | 'screen';
-};
-
-type Permissions = {
-  changeRole: boolean;
-  endRoom: boolean;
-  removeOthers: boolean;
 };
 
 type DisplayNameProps = {
   peer?: Peer;
   videoStyles: Function;
-  speakers: Array<String>;
+  speakers: Array<string>;
   type: 'local' | 'remote' | 'screen';
-  instance: any;
-  permissions: Permissions;
+  instance: HmsManager | null;
+  permissions: HMSPermissions | undefined;
+  allAudioMute: boolean;
 };
 
 type MeetingProps = {
@@ -68,7 +78,7 @@ type MeetingProps = {
   clearMessageRequest: Function;
   audioState: boolean;
   videoState: boolean;
-  state: any;
+  state: RootState;
 };
 
 const DEFAULT_PEER: Peer = {
@@ -79,7 +89,7 @@ const DEFAULT_PEER: Peer = {
   peerId: Math.random().toString(),
   colour: 'red',
   sink: true,
-  role: 'host',
+  role: {name: 'host'},
   type: 'local',
 };
 
@@ -92,6 +102,7 @@ const DisplayName = ({
   type,
   instance,
   permissions,
+  allAudioMute,
 }: DisplayNameProps) => {
   const {
     peerName,
@@ -113,8 +124,8 @@ const DisplayName = ({
   const selectActionTitle = 'Select action';
   const selectActionMessage = '';
   const selectActionButtons: Array<{
-    text: String;
-    type?: String;
+    text: string;
+    type?: string;
     onPress?: Function;
   }> = [{text: 'Cancel', type: 'cancel'}];
   if (permissions?.changeRole) {
@@ -141,20 +152,20 @@ const DisplayName = ({
     selectActionButtons.push({
       text: 'Remove Participant',
       onPress: () => {
-        instance?.removePeer(peerId, 'removed from room');
+        instance?.removePeer(peerId!, 'removed from room');
       },
     });
   }
   const roleRequestTitle = 'Select action';
   const roleRequestButtons: [
-    {text: String; onPress?: Function},
-    {text: String; onPress?: Function}?,
+    {text: string; onPress?: Function},
+    {text: string; onPress?: Function}?,
   ] = [
     {text: 'Cancel'},
     {
       text: 'Send',
       onPress: () => {
-        instance?.changeRole(peerId, newRole, force);
+        instance?.changeRole(peerId!, newRole!, force);
       },
     },
   ];
@@ -163,15 +174,29 @@ const DisplayName = ({
     setAlertModalVisible(true);
   };
 
+  const mute = type === 'remote' && allAudioMute ? true : isAudioMute;
+
   const {top, bottom} = useSafeAreaInsets();
-  // window height - (bottom container + top + bottom + padding) / views in one screen
+  // window height - (header + bottom container + top + bottom + padding) / views in one screen
   const viewHeight =
     type === 'screen'
       ? Dimensions.get('window').height -
-        (dimension.viewHeight(90) + top + bottom + 2)
-      : (Dimensions.get('window').height -
-          (dimension.viewHeight(90) + top + bottom + 2)) /
-        2;
+        (dimension.viewHeight(50) + dimension.viewHeight(90) + top + bottom + 2)
+      : isPortrait()
+      ? (Dimensions.get('window').height -
+          (dimension.viewHeight(50) +
+            dimension.viewHeight(90) +
+            top +
+            bottom +
+            2)) /
+        2
+      : Dimensions.get('window').height -
+        (Platform.OS === 'ios' ? 0 : 25) -
+        (dimension.viewHeight(50) +
+          dimension.viewHeight(90) +
+          top +
+          bottom +
+          2);
 
   return (
     <View
@@ -190,17 +215,17 @@ const DisplayName = ({
         message={selectActionMessage}
         buttons={selectActionButtons}
       />
-      <Modal
+      <CustomModal
         modalVisible={roleModalVisible}
         setModalVisible={setRoleModalVisible}
         title={roleRequestTitle}
         buttons={roleRequestButtons}>
-        <Picker
+        <CustomPicker
           data={knownRoles}
           selectedItem={newRole}
           onItemSelected={setNewRole}
         />
-      </Modal>
+      </CustomModal>
       {isVideoMute ? (
         <View style={styles.avatarContainer}>
           <View style={[styles.avatar, {backgroundColor: colour}]}>
@@ -210,7 +235,8 @@ const DisplayName = ({
       ) : (
         <HmsView
           sink={sink}
-          trackId={trackId}
+          trackId={trackId!}
+            scaleType={HMSVideoViewMode.ASPECT_FILL}
           style={type === 'screen' ? styles.hmsViewScreen : styles.hmsView}
         />
       )}
@@ -231,7 +257,7 @@ const DisplayName = ({
         </View>
         <View style={styles.micContainer}>
           <Feather
-            name={isAudioMute ? 'mic-off' : 'mic'}
+            name={mute ? 'mic-off' : 'mic'}
             style={styles.mic}
             size={20}
           />
@@ -249,13 +275,15 @@ const DisplayName = ({
 };
 
 const peerColour: any = {};
-const getPeerColour = (trackId: string): string => {
+const getPeerColour = (trackId?: string): string => {
   let colour = 'red';
-  if (peerColour[trackId]) {
-    colour = peerColour[trackId];
-  } else {
-    colour = getRandomColor();
-    peerColour[trackId] = colour;
+  if (trackId) {
+    if (peerColour[trackId]) {
+      colour = peerColour[trackId];
+    } else {
+      colour = getRandomColor();
+      peerColour[trackId] = colour;
+    }
   }
   return colour;
 };
@@ -265,31 +293,34 @@ const Meeting = ({
   addMessageRequest,
   clearMessageRequest,
 }: MeetingProps) => {
-  const [instance, setInstance] = useState<any>(null);
+  const [orientation, setOrientation] = useState<boolean>(true);
+  const [instance, setInstance] = useState<HmsManager | null>(null);
   const [trackId, setTrackId] = useState<Peer>(DEFAULT_PEER);
   const [remoteTrackIds, setRemoteTrackIds] = useState<Peer[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [speakers, setSpeakers] = useState([]);
   const [notification, setNotification] = useState(false);
+  const [muteAllAudio, setMuteAllAudio] = useState(false);
   const [auxTracks, setAuxTracks] = useState<Peer[]>([]);
   const [roleChangeRequest, setRoleChangeRequest] = useState<{
-    requestedBy?: String;
-    suggestedRole?: String;
+    requestedBy?: string;
+    suggestedRole?: string;
   }>({});
   const [roleChangeModalVisible, setRoleChangeModalVisible] = useState(false);
   const [leaveModalVisible, setLeaveModalVisible] = useState(false);
-  const [localPeerPermissions, setLocalPeerPermissions] = useState<Permissions>(
-    {
-      changeRole: false,
-      endRoom: false,
-      removeOthers: false,
-    },
-  );
+  const [localPeerPermissions, setLocalPeerPermissions] = useState<
+    HMSPermissions | undefined
+  >({
+    changeRole: false,
+    endRoom: false,
+    removeOthers: false,
+    mute: false,
+  });
 
   const roleChangeRequestTitle = 'Role Change Request';
   const roleChangeRequestButtons: [
-    {text: String; onPress?: Function},
-    {text: String; onPress?: Function},
+    {text: string; onPress?: Function},
+    {text: string; onPress?: Function},
   ] = [
     {text: 'Reject'},
     {
@@ -301,8 +332,17 @@ const Meeting = ({
   ];
 
   const navigate = useNavigation<MeetingScreenProp>().navigate;
+  const {left, right} = useSafeAreaInsets();
 
-  const decode = (peer: any, type: 'local' | 'remote' | 'screen'): Peer => {
+  const pairedPeers: Array<Array<Peer>> = pairDataForScrollView(
+    [...auxTracks, trackId, ...remoteTrackIds],
+    isPortrait() ? 4 : 2,
+  );
+
+  const decode = (
+    peer: HMSLocalPeer | HMSRemotePeer,
+    type: 'local' | 'remote' | 'screen',
+  ): Peer => {
     const peerId = peer?.peerID;
     const peerTrackId = peer?.videoTrack?.trackId;
     const peerName = peer?.name;
@@ -323,7 +363,10 @@ const Meeting = ({
     };
   };
 
-  const updateVideoIds = (remotePeers: any, localPeer: any) => {
+  const updateVideoIds = (
+    remotePeers: HMSRemotePeer[],
+    localPeer?: HMSLocalPeer,
+  ) => {
     // get local track Id
     const localTrackId = localPeer?.videoTrack?.trackId;
     if (localTrackId) {
@@ -336,7 +379,7 @@ const Meeting = ({
     let newAuxTracks: Peer[] = [];
 
     if (remotePeers) {
-      remotePeers.map((remotePeer: any, index: number) => {
+      remotePeers.map((remotePeer: HMSRemotePeer, index: number) => {
         const remoteTrackId = remotePeer?.videoTrack?.trackId;
         if (remoteTrackId) {
           remoteVideoIds.push(decode(remotePeer, 'remote'));
@@ -344,12 +387,13 @@ const Meeting = ({
           remoteVideoIds.push({
             ...decode(remotePeer, 'remote'),
             trackId: index.toString(),
+            isVideoMute: true,
           });
         }
 
         let auxiliaryTracks = remotePeer?.auxiliaryTracks;
 
-        auxiliaryTracks.map((track: any) => {
+        auxiliaryTracks?.map((track: HMSTrack) => {
           let auxTrackId = track?.trackId;
 
           if (auxTrackId) {
@@ -376,65 +420,71 @@ const Meeting = ({
     localPeer,
     remotePeers,
   }: {
-    room?: any;
-    localPeer: any;
-    remotePeers: any;
+    room?: HMSRoom;
+    localPeer: HMSLocalPeer;
+    remotePeers: HMSRemotePeer[];
   }) => {
-    console.log(localPeer, remotePeers, 'data in onJoin');
+    console.log('data in onJoinListener: ', localPeer, remotePeers);
   };
 
   const onRoomListener = ({
     // room,
+    type,
     localPeer,
     remotePeers,
   }: {
-    room?: any;
-    localPeer: Peer;
-    remotePeers: Peer;
+    room?: HMSRoom;
+    type?: HMSRoomUpdate;
+    localPeer: HMSLocalPeer;
+    remotePeers: HMSRemotePeer[];
   }) => {
     updateVideoIds(remotePeers, localPeer);
-    console.log(remotePeers, localPeer, 'data in onRoom');
+    console.log('data in onRoomListener: ', type, localPeer, remotePeers);
   };
 
   const onPeerListener = ({
     // room,
+    type,
     remotePeers,
     localPeer,
   }: {
-    room?: any;
-    localPeer: Peer;
-    remotePeers: Peer;
+    room?: HMSRoom;
+    type?: HMSPeerUpdate;
+    localPeer: HMSLocalPeer;
+    remotePeers: HMSRemotePeer[];
   }) => {
     updateVideoIds(remotePeers, localPeer);
-    console.log(remotePeers, localPeer, 'data in onPeer');
+    console.log('data in onPeerListener: ', type, localPeer, remotePeers);
   };
 
   const onTrackListener = ({
     // room,
+    type,
     remotePeers,
     localPeer,
   }: {
-    room?: any;
-    localPeer: Peer;
-    remotePeers: Peer;
+    room?: HMSRoom;
+    type?: HMSTrackUpdate;
+    localPeer: HMSLocalPeer;
+    remotePeers: HMSRemotePeer[];
   }) => {
     updateVideoIds(remotePeers, localPeer);
-    console.log(remotePeers, localPeer, 'data in onTrack');
+    console.log('data in onTrackListener: ', type, localPeer, remotePeers);
   };
 
-  const onMessage = (data: any) => {
+  const onMessage = (data: HMSMessage) => {
     addMessageRequest({data, isLocal: false});
     setNotification(true);
-    console.log(data, 'data in onMessage');
+    console.log('data in onMessage: ', data);
   };
 
   const onError = (data: any) => {
-    console.log(data, 'data in onError');
+    console.log('data in onError: ', data);
   };
 
   const onSpeaker = (data: any) => {
     setSpeakers(data?.peers);
-    console.log(data, 'data in onSpeaker');
+    // console.log('data in onSpeaker: ', data);
   };
 
   const reconnecting = (data: any) => {
@@ -445,7 +495,7 @@ const Meeting = ({
     console.log(data);
   };
 
-  const onRoleChangeRequest = (data: any) => {
+  const onRoleChangeRequest = (data: HMSRoleChangeRequest) => {
     console.log(data);
     setRoleChangeModalVisible(true);
     setRoleChangeRequest({
@@ -519,6 +569,10 @@ const Meeting = ({
   useEffect(() => {
     updateHmsInstance();
 
+    Dimensions.addEventListener('change', () => {
+      setOrientation(isPortrait());
+    });
+
     const backAction = () => {
       setLeaveModalVisible(true);
       return true;
@@ -529,7 +583,12 @@ const Meeting = ({
       backAction,
     );
 
-    return () => backHandler.remove();
+    return () => {
+      backHandler.remove();
+      Dimensions.removeEventListener('change', () => {
+        setOrientation(!orientation);
+      });
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -538,6 +597,12 @@ const Meeting = ({
       const remotePeers = instance?.remotePeers ? instance.remotePeers : [];
       updateVideoIds(remotePeers, instance?.localPeer);
     }
+
+    return () => {
+      if (instance) {
+        instance.removeAllListeners();
+      }
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [instance]);
 
@@ -546,7 +611,7 @@ const Meeting = ({
   };
 
   const getAuxVideoStyles = () => {
-    return styles.fullScreenTile;
+    return isPortrait() ? styles.fullScreenTile : styles.fullScreenLandscape;
   };
 
   const getMessageToList = (): Array<{
@@ -554,12 +619,14 @@ const Meeting = ({
     type: string;
     obj: any;
   }> => {
-    const everyone = {
-      name: 'everyone',
-      type: 'everyone',
-      obj: {},
-    };
-    const knownRoles = instance?.knownRoles.map((role: any) => ({
+    const messageList: any = [
+      {
+        name: 'everyone',
+        type: 'everyone',
+        obj: {},
+      },
+    ];
+    const knownRoles = instance?.knownRoles?.map((role: HMSRole) => ({
       name: role?.name,
       type: 'group',
       obj: role,
@@ -569,10 +636,16 @@ const Meeting = ({
       type: 'direct',
       obj: track,
     }));
-    return [everyone, ...knownRoles, ...peers];
+    if (knownRoles) {
+      messageList.push(...knownRoles);
+    }
+    if (peers) {
+      messageList.push(...peers);
+    }
+    return messageList;
   };
 
-  const getButtons = ({endRoom}: Permissions) => {
+  const getButtons = (permissions?: HMSPermissions) => {
     const buttons = [
       {
         text: 'Cancel',
@@ -581,17 +654,17 @@ const Meeting = ({
       {
         text: 'Leave without ending room',
         onPress: () => {
-          instance.leave();
+          instance?.leave();
           clearMessageRequest();
           navigate('WelcomeScreen');
         },
       },
     ];
-    if (endRoom) {
+    if (permissions?.endRoom) {
       buttons.push({
         text: 'End Room for all',
         onPress: () => {
-          instance.endRoom(false, 'Host ended the room');
+          instance?.endRoom(false, 'Host ended the room');
           clearMessageRequest();
           navigate('WelcomeScreen');
         },
@@ -603,37 +676,44 @@ const Meeting = ({
   const onViewRef = React.useRef(({viewableItems}: any) => {
     if (viewableItems) {
       const viewableItemsIds: (string | undefined)[] = [];
-      const names: (string | undefined)[] = [];
       viewableItems.map(
         (viewableItem: {
-          index: Number;
-          item: {first: Peer; second: Peer | undefined};
-          key: String;
-          isViewable: Boolean;
+          index: number;
+          item: Array<Peer>;
+          key: string;
+          isViewable: boolean;
         }) => {
-          viewableItemsIds.push(viewableItem?.item?.first?.trackId);
-          names.push(viewableItem?.item?.first?.peerName);
-          if (viewableItem?.item?.second) {
-            viewableItemsIds.push(viewableItem?.item?.second?.trackId);
-            names.push(viewableItem?.item?.second?.peerName);
-          }
+          viewableItem?.item?.map((item: Peer) => {
+            viewableItemsIds.push(item?.trackId);
+          });
         },
       );
 
       const inst = HmsManager.build();
       const remotePeers = inst?.remotePeers;
       if (remotePeers) {
-        const sinkRemoteTrackIds = remotePeers.map((peer: Peer) => {
-          const remotePeer = decode(peer, 'remote');
-          const videoTrackId = remotePeer.trackId;
-          if (!viewableItemsIds?.includes(videoTrackId)) {
-            return {
-              ...remotePeer,
-              sink: false,
-            };
-          }
-          return remotePeer;
-        });
+        const sinkRemoteTrackIds = remotePeers.map(
+          (peer: HMSRemotePeer, index: number) => {
+            const remotePeer = decode(peer, 'remote');
+            const videoTrackId = remotePeer.trackId;
+            if (videoTrackId) {
+              if (!viewableItemsIds?.includes(videoTrackId)) {
+                return {
+                  ...remotePeer,
+                  sink: false,
+                };
+              }
+              return remotePeer;
+            } else {
+              return {
+                ...remotePeer,
+                trackId: index.toString(),
+                sink: false,
+                isVideoMute: true,
+              };
+            }
+          },
+        );
         setRemoteTrackIds(sinkRemoteTrackIds ? sinkRemoteTrackIds : []);
       }
     }
@@ -641,7 +721,7 @@ const Meeting = ({
 
   return (
     <SafeAreaView style={styles.container}>
-      <Modal
+      <CustomModal
         modalVisible={roleChangeModalVisible}
         setModalVisible={setRoleChangeModalVisible}
         title={roleChangeRequestTitle}
@@ -650,7 +730,7 @@ const Meeting = ({
           Role change requested by {roleChangeRequest?.requestedBy}. Changing
           role to {roleChangeRequest?.suggestedRole}
         </Text>
-      </Modal>
+      </CustomModal>
       <AlertModal
         modalVisible={leaveModalVisible}
         setModalVisible={setLeaveModalVisible}
@@ -658,62 +738,68 @@ const Meeting = ({
         message=""
         buttons={getButtons(localPeerPermissions)}
       />
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerName}>{trackId?.peerName}</Text>
+        <TouchableOpacity
+          onPress={() => {
+            instance?.muteAllPeersAudio(!muteAllAudio);
+            setMuteAllAudio(!muteAllAudio);
+          }}
+          style={styles.headerIcon}>
+          <Ionicons
+            name={muteAllAudio ? 'volume-mute' : 'volume-high'}
+            style={styles.headerName}
+            size={dimension.viewHeight(30)}
+          />
+        </TouchableOpacity>
+      </View>
       <View style={styles.wrapper}>
         <FlatList
-          data={pairDataForFlatlist([...auxTracks, trackId, ...remoteTrackIds])}
+          horizontal
+          data={pairedPeers}
+          initialNumToRender={2}
+          maxToRenderPerBatch={3}
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
           renderItem={({item}) => {
-            if (item?.second) {
-              const {first, second} = item;
-
-              return (
-                <View style={styles.rowWrapper}>
-                  <DisplayName
-                    peer={first}
-                    videoStyles={
-                      first.type === 'screen'
-                        ? getAuxVideoStyles
-                        : getRemoteVideoStyles
-                    }
-                    speakers={speakers}
-                    instance={instance}
-                    type={first.type}
-                    permissions={localPeerPermissions}
-                  />
-                  <DisplayName
-                    peer={second}
-                    videoStyles={
-                      second.type === 'screen'
-                        ? getAuxVideoStyles
-                        : getRemoteVideoStyles
-                    }
-                    speakers={speakers}
-                    instance={instance}
-                    type={second.type}
-                    permissions={localPeerPermissions}
-                  />
-                </View>
-              );
-            } else {
-              const {first} = item;
-              return (
-                <DisplayName
-                  peer={first}
-                  videoStyles={
-                    first.type === 'screen'
-                      ? getAuxVideoStyles
-                      : getRemoteVideoStyles
-                  }
-                  speakers={speakers}
-                  instance={instance}
-                  type={first.type}
-                  permissions={localPeerPermissions}
-                />
-              );
-            }
+            return (
+              <View
+                key={item[0]?.trackId}
+                style={[
+                  styles.page,
+                  {width: Dimensions.get('window').width - left - right},
+                ]}>
+                {item?.map((view: Peer) =>
+                  view.type === 'screen' ? (
+                    <DisplayName
+                      key={view?.peerId}
+                      peer={view}
+                      videoStyles={getAuxVideoStyles}
+                      speakers={speakers}
+                      instance={instance}
+                      type={view.type}
+                      permissions={localPeerPermissions}
+                      allAudioMute={muteAllAudio}
+                    />
+                  ) : (
+                    <DisplayName
+                      key={view?.peerId}
+                      peer={view}
+                      videoStyles={getRemoteVideoStyles}
+                      speakers={speakers}
+                      instance={instance}
+                      type={view.type}
+                      permissions={localPeerPermissions}
+                      allAudioMute={muteAllAudio}
+                    />
+                  ),
+                )}
+              </View>
+            );
           }}
           numColumns={1}
           onViewableItemsChanged={onViewRef.current}
-          keyExtractor={item => item?.first?.trackId!}
+          keyExtractor={item => item[0]?.trackId!}
         />
       </View>
       <View style={styles.iconContainers}>
@@ -724,7 +810,9 @@ const Meeting = ({
               ...trackId,
               isAudioMute: !trackId.isAudioMute,
             });
-            instance.localPeer.localAudioTrack().setMute(!trackId.isAudioMute);
+            instance?.localPeer
+              ?.localAudioTrack()
+              ?.setMute(!trackId.isAudioMute);
           }}>
           <Feather
             name={trackId.isAudioMute ? 'mic-off' : 'mic'}
@@ -747,7 +835,7 @@ const Meeting = ({
         <TouchableOpacity
           style={styles.singleIconContainer}
           onPress={() => {
-            instance.localPeer.localVideoTrack().switchCamera();
+            instance?.localPeer?.localVideoTrack()?.switchCamera();
           }}>
           <Ionicons
             name="camera-reverse-outline"
@@ -762,7 +850,9 @@ const Meeting = ({
               ...trackId,
               isVideoMute: !trackId.isVideoMute,
             });
-            instance.localPeer.localVideoTrack().setMute(!trackId.isVideoMute);
+            instance?.localPeer
+              ?.localVideoTrack()
+              ?.setMute(!trackId.isVideoMute);
           }}>
           <Feather
             name={trackId.isVideoMute ? 'video-off' : 'video'}
@@ -801,11 +891,11 @@ const Meeting = ({
                 message: value,
               });
               if (messageTo?.type === 'everyone') {
-                instance.sendBroadcastMessage(value);
+                instance?.sendBroadcastMessage(value);
               } else if (messageTo?.type === 'group') {
-                instance.sendGroupMessage(value, [messageTo?.obj]);
+                instance?.sendGroupMessage(value, [messageTo?.obj]);
               } else if (messageTo.type === 'direct') {
-                instance.sendDirectMessage(value, messageTo?.obj?.peerId);
+                instance?.sendDirectMessage(value, messageTo?.obj?.peerId);
               }
               addMessageRequest({
                 data: hmsMessage,
@@ -823,7 +913,7 @@ const Meeting = ({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    height: dimension.viewHeight(896),
+    height: '100%',
   },
   videoView: {
     width: '100%',
@@ -835,18 +925,28 @@ const styles = StyleSheet.create({
   },
   videoIcon: {},
   fullScreenTile: {
-    height: dimension.viewHeight(896),
-    width: dimension.viewWidth(414),
+    width: '100%',
     marginVertical: 1,
     padding: 0.5,
     overflow: 'hidden',
     borderRadius: 10,
     justifyContent: 'center',
+    alignSelf: 'center',
   },
-  generalTile: {
-    width: dimension.viewWidth(206),
+  fullScreenLandscape: {
+    width: '100%',
     marginVertical: 1,
     padding: 0.5,
+    overflow: 'hidden',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignSelf: 'center',
+    aspectRatio: 16 / 9,
+  },
+  generalTile: {
+    width: '50%',
+    marginVertical: 1,
+    padding: '0.25%',
     overflow: 'hidden',
     borderRadius: 10,
   },
@@ -868,14 +968,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     height: dimension.viewHeight(90),
   },
-
   buttonText: {
     backgroundColor: '#4578e0',
     padding: 10,
     borderRadius: 10,
     color: '#efefef',
   },
-
   leaveIconContainer: {
     backgroundColor: '#ee4578',
     padding: dimension.viewHeight(10),
@@ -887,7 +985,6 @@ const styles = StyleSheet.create({
   leaveIcon: {
     color: 'white',
   },
-
   cameraImage: {
     width: dimension.viewHeight(30),
     height: dimension.viewHeight(30),
@@ -900,7 +997,7 @@ const styles = StyleSheet.create({
   },
   displayContainer: {
     position: 'absolute',
-    bottom: 0,
+    bottom: 2,
     alignSelf: 'center',
     backgroundColor: 'rgba(137,139,155,0.5)',
     paddingHorizontal: 8,
@@ -930,7 +1027,9 @@ const styles = StyleSheet.create({
   avatar: {
     aspectRatio: 1,
     width: '50%',
-    borderRadius: 50,
+    maxWidth: dimension.viewWidth(100),
+    maxHeight: dimension.viewHeight(100),
+    borderRadius: 500,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -939,9 +1038,9 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   highlight: {
-    backgroundColor: '#4578e0',
-    padding: 5,
     borderRadius: 10,
+    borderWidth: 5,
+    borderColor: '#4578e0',
   },
   messageDot: {
     width: 10,
@@ -965,8 +1064,26 @@ const styles = StyleSheet.create({
   roleChangeText: {
     padding: 12,
   },
+  headerName: {
+    color: '#4578e0',
+  },
+  headerIcon: {
+    padding: dimension.viewHeight(10),
+  },
+  headerContainer: {
+    height: dimension.viewHeight(50),
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
   rowWrapper: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  page: {
+    flexDirection: 'row',
+    width: dimension.viewWidth(414),
     flexWrap: 'wrap',
   },
 });
@@ -976,7 +1093,7 @@ const mapDispatchToProps = (dispatch: Function) => ({
   clearMessageRequest: () => dispatch(clearMessageData()),
 });
 
-const mapStateToProps = (state: any) => ({
+const mapStateToProps = (state: RootState) => ({
   messages: state?.messages?.messages,
   audioState: state?.app?.audioState,
   videoState: state?.app?.videoState,

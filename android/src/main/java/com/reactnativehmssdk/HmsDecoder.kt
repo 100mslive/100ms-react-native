@@ -113,6 +113,7 @@ object HmsDecoder {
       if(hmsPermissions != null) {
         permissions.putBoolean("endRoom", if (hmsPermissions.endRoom != null) hmsPermissions.endRoom else false);
         permissions.putBoolean("removeOthers", if (hmsPermissions.removeOthers != null) hmsPermissions.removeOthers else false);
+        permissions.putBoolean("mute", if (hmsPermissions.mute != null) hmsPermissions.mute else false);
 //        permissions.putBoolean("stopPresentation", if (hmsPermissions.stopPresentation != null) hmsPermissions.stopPresentation else false);
 //        permissions.putBoolean("muteAll", if (hmsPermissions.muteAll != null) hmsPermissions.muteAll else false);
 //        permissions.putBoolean("askToUnmute", if (hmsPermissions.askToUnmute != null) hmsPermissions.askToUnmute else false);

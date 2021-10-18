@@ -1,3 +1,8 @@
+---
+title: End Room
+nav: 3.8
+---
+
 # End Room
 
 If the local peer has endRoom permission they can end a room. It's also possible to lock the room to prevent any future rejoins.
@@ -5,7 +10,7 @@ If the local peer has endRoom permission they can end a room. It's also possible
 ## Check if user has permissions
 
 ```js
-const endRoom: boolean = peer.role.permissions.endRoom
+const endRoom: boolean = peer.role.permissions.endRoom;
 ```
 
 ## End Room for all
@@ -15,7 +20,7 @@ const reason = 'Host ended the room';
 const lock = false;
 
 // instance acquired from build() method
-hmsInstance.endRoom(lock, reason); 
+hmsInstance.endRoom(lock, reason);
 ```
 
 ## End Room Notification
@@ -27,12 +32,8 @@ Once the peer with adequate permissions calls endRoom, all other peers in the ro
 import { HMSUpdateListenerActions, HMSLeaveRoomRequest } from '@100mslive/react-native-hms';
 
 const onRemovedFromRoom = (data: HMSLeaveRoomRequest) => {
-  // redirect to home screen
+    // redirect to home screen
 };
 
-hmsInstance.addEventListener(
-  HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM,
-  onRemovedFromRoom,
-);
+hmsInstance.addEventListener(HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM, onRemovedFromRoom);
 ```
-

@@ -1,44 +1,53 @@
+---
+title: Chat
+nav: 3.35
+---
+
 # Chat
+
 What's a video without being able to send messages to each other too? 100ms supports chat for every video/audio room you create.
 
 ## Sending Chat Messages
+
 With the HMSSDK instance call different send message functions.
 
 ### Broadcast Messages
+
 This will be received by everyone in the room.
 
 ```js
 // instance acquired from build() method
-hmsInstance.sendBroadcastMessage("hello everyone!"); // yes it's that simple 😉
+hmsInstance.sendBroadcastMessage('hello everyone!'); // yes it's that simple 😉
 ```
 
 ### Group Messages
+
 This will be received by every peer who is part of the passed in roles.
 
 ```js
 // instance acquired from build() method
-hmsInstance.sendGroupMessage("hi folks!", ['moderator', 'host']);
+hmsInstance.sendGroupMessage('hi folks!', ['moderator', 'host']);
 ```
 
 ### Direct Messages
+
 This will only be received by the peer whom the message was sent to.
 
 ```js
 // instance acquired from build() method
-hmsInstance.sendDirectMessage("keep this message a secret!", peer.id);
+hmsInstance.sendDirectMessage('keep this message a secret!', peer.id);
 ```
 
 ## Receiving Chat Messages
+
 When you called hmsInstance.join(config) to join a room, add a ON_MESSAGE event listener with callback function onMessageReceived.
+
 ```js
 // import HMSUpdateListenerActions,HMSMessage classes
 import { HMSUpdateListenerActions, HMSMessage } from '@100mslive/react-native-hms';
 
 // instance acquired from build() method
-hmsInstance.addEventListener(
-    HMSUpdateListenerActions.ON_MESSAGE,
-    onMessageReceived,
-);
+hmsInstance.addEventListener(HMSUpdateListenerActions.ON_MESSAGE, onMessageReceived);
 
 const onMessageReceived = (message: HMSMessage) => {
     // perform action
@@ -46,4 +55,5 @@ const onMessageReceived = (message: HMSMessage) => {
 ```
 
 ## Putting together a list of chat messages.
+
 The UI is completely up to you to decide! You'll also need to hold onto all the received messages if you want to display history.

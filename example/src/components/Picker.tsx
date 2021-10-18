@@ -5,7 +5,7 @@ import ModalDropdown from 'react-native-modal-dropdown';
 import Material from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-const App = ({
+export const CustomPicker = ({
   selectedItem,
   data,
   onItemSelected,
@@ -98,8 +98,6 @@ export const CustomModalDropdown = ({
     </View>
   );
 };
-
-export default App;
 
 const styles = StyleSheet.create({
   dropdownArrowContainer: {

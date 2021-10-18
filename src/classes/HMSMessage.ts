@@ -1,15 +1,15 @@
-export default class HMSMessage {
+export class HMSMessage {
   // endpoint: string;
   public message: string;
   public type: string;
-  public time: string;
-  public sender: string;
+  public time?: string;
+  public sender?: string;
 
   constructor(params: {
     message: string;
     type: string;
-    time: string;
-    sender: string;
+    time?: string;
+    sender?: string;
   }) {
     this.message = params.message;
     this.type = params.type;

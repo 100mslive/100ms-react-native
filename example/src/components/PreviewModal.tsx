@@ -1,10 +1,9 @@
 import React, {useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
-import {HmsView} from '@100mslive/react-native-hms';
-import dimension from '../utils/dimension';
+import {HMSVideoViewMode, HmsView} from '@100mslive/react-native-hms';
 
-const PreviewModal = ({
+export const PreviewModal = ({
   trackId,
   setAudio,
   setVideo,
@@ -18,12 +17,15 @@ const PreviewModal = ({
   const [isMute, setIsMute] = useState(false);
   const [muteVideo, setMuteVideo] = useState(false);
 
-  console.log(trackId, 'trackID JS');
-
   return (
     <View style={styles.container}>
       <View style={styles.modalContainer}>
-        <HmsView sink={true} style={styles.hmsView} trackId={trackId} />
+        <HmsView
+          scaleType={HMSVideoViewMode.ASPECT_FILL}
+          sink={true}
+          style={styles.hmsView}
+          trackId={trackId}
+        />
       </View>
       <View style={styles.buttonRow}>
         <View style={styles.iconContainer}>
@@ -66,8 +68,6 @@ const PreviewModal = ({
   );
 };
 
-export default PreviewModal;
-
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
@@ -79,8 +79,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   modalContainer: {
-    width: dimension.viewWidth(414),
-    height: dimension.viewHeight(896),
+    width: '100%',
+    height: '100%',
     backgroundColor: 'white',
   },
   hmsView: {
@@ -104,8 +104,7 @@ const styles = StyleSheet.create({
   },
   buttonRow: {
     position: 'absolute',
-    top: dimension.viewHeight(360),
-    bottom: 0,
+    bottom: '10%',
     width: '100%',
   },
   iconContainer: {

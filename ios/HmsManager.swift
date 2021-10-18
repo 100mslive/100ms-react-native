@@ -1,126 +1,42 @@
+
 import HMSSDK
-import AVKit
 
 @objc(HmsManager)
 class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
+    
     var hms: HMSSDK?
     var config: HMSConfig?
     var recentRoleChangeRequest: HMSRoleChangeRequest?
-    var ON_PREVIEW: String = "ON_PREVIEW"
-    var ON_JOIN: String = "ON_JOIN"
-    var ON_ROOM_UPDATE: String = "ON_ROOM_UPDATE"
-    var ON_PEER_UPDATE: String = "ON_PEER_UPDATE"
-    var ON_TRACK_UPDATE: String = "ON_TRACK_UPDATE"
-    var ON_ROLE_CHANGE_REQUEST: String = "ON_ROLE_CHANGE_REQUEST"
-    var ON_REMOVED_FROM_ROOM: String = "ON_REMOVED_FROM_ROOM"
-    var ON_ERROR: String = "ON_ERROR"
-    var ON_MESSAGE: String = "ON_MESSAGE"
-    var ON_SPEAKER: String = "ON_SPEAKER"
-    var RECONNECTING: String = "RECONNECTING"
-    var RECONNECTED: String = "RECONNECTED"
+    
+    let ON_PREVIEW = "ON_PREVIEW"
+    let ON_JOIN = "ON_JOIN"
+    let ON_ROOM_UPDATE = "ON_ROOM_UPDATE"
+    let ON_PEER_UPDATE = "ON_PEER_UPDATE"
+    let ON_TRACK_UPDATE = "ON_TRACK_UPDATE"
+    let ON_ROLE_CHANGE_REQUEST = "ON_ROLE_CHANGE_REQUEST"
+    let ON_REMOVED_FROM_ROOM = "ON_REMOVED_FROM_ROOM"
+    let ON_ERROR = "ON_ERROR"
+    let ON_MESSAGE = "ON_MESSAGE"
+    let ON_SPEAKER = "ON_SPEAKER"
+    let RECONNECTING = "RECONNECTING"
+    let RECONNECTED = "RECONNECTED"
+    
+    // MARK: - Setup
     
     override init() {
         super.init()
-        AVCaptureDevice.requestAccess(for: .video) { granted in
-            // Permission Acquired if value of 'granted' is true
-        }
-        
-        AVCaptureDevice.requestAccess(for: .audio) { granted in
-            // Permission Acquired if value of 'granted' is true
-        }
     }
     
-    func on(join room: HMSRoom) {
-        // Callback from join action
-        let roomData = HmsDecoder.getHmsRoom(room)
-        let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
-        let remotePeerData = HmsDecoder.getHmsRemotePeers(hms?.remotePeers)
-        
-        let decodedRoles = HmsDecoder.getAllRoles(hms?.roles)
-        
-        self.sendEvent(withName: ON_JOIN, body: ["event": ON_JOIN, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData, "roles": decodedRoles])
-    }
-    
-    func onPreview(room: HMSRoom, localTracks: [HMSTrack]) {
-        let previewTracks = HmsDecoder.getPreviewTracks(localTracks)
-        let hmsRoom = HmsDecoder.getHmsRoom(room)
-        let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
-        
-        self.sendEvent(withName: ON_PREVIEW, body: ["event": ON_PREVIEW, "room": hmsRoom, "previewTracks": previewTracks, "localPeer": localPeerData])
-    }
-    
-    func on(room: HMSRoom, update: HMSRoomUpdate) {
-        // Listener for any updation in room
-        let roomData = HmsDecoder.getHmsRoom(room)
-        let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
-        let remotePeerData = HmsDecoder.getHmsRemotePeers(hms?.remotePeers)
-        
-        self.sendEvent(withName: ON_ROOM_UPDATE, body: ["event": ON_ROOM_UPDATE, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
-    }
-    
-    func on(peer: HMSPeer, update: HMSPeerUpdate) {
-        // Listener for updates in Peers
-        let roomData = HmsDecoder.getHmsRoom(hms?.room)
-        let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
-        let remotePeerData = HmsDecoder.getHmsRemotePeers(hms?.remotePeers)
-                
-        self.sendEvent(withName: ON_PEER_UPDATE, body: ["event": ON_PEER_UPDATE, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
-    }
-    
-    func on(track: HMSTrack, update: HMSTrackUpdate, for peer: HMSPeer) {
-        // Listener for updates in Tracks
-        let roomData = HmsDecoder.getHmsRoom(hms?.room)
-        let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
-        let remotePeerData = HmsDecoder.getHmsRemotePeers(hms?.remotePeers)
-        
-        self.sendEvent(withName: ON_TRACK_UPDATE, body: ["event": ON_TRACK_UPDATE, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
-    }
-    
-    func on(error: HMSError) {
-        self.sendEvent(withName: ON_ERROR, body: ["event": ON_ERROR, "error": error.description, "code": error.code.rawValue, "id": error.id, "message": error.message])
-    }
-    
-    func on(message: HMSMessage) {
-        self.sendEvent(withName: ON_MESSAGE, body: ["event": ON_MESSAGE, "sender": message.sender?.name ?? "", "time": message.time, "message": message.message, "type": message.type])
-    }
-    
-    func on(updated speakers: [HMSSpeaker]) {
-        var speakerPeerIds: [String] = []
-        for speaker in speakers {
-            speakerPeerIds.append(speaker.peer.peerID)
-        }
-        self.sendEvent(withName: ON_SPEAKER, body: ["event": ON_SPEAKER, "count": speakers.count, "peers" :speakerPeerIds])
-    }
-    
-    func onReconnecting() {
-        self.sendEvent(withName: RECONNECTING, body: ["event": RECONNECTING])
-    }
-    
-    func onReconnected() {
-        self.sendEvent(withName: RECONNECTED, body: ["event": RECONNECTED])
-    }
-    
-    func on(roleChangeRequest: HMSRoleChangeRequest) {
-        let decodedRoleChangeRequest = HmsDecoder.getHmsRoleChangeRequest(roleChangeRequest)
-        recentRoleChangeRequest = roleChangeRequest
-        self.sendEvent(withName: ON_ROLE_CHANGE_REQUEST, body: decodedRoleChangeRequest)
-    }
-    
-    func on(changeTrackStateRequest: HMSChangeTrackStateRequest) {
-        // On track state change required
-    }
-    
-    func on(removedFromRoom notification: HMSRemovedFromRoomNotification) {
-        let requestedBy = notification.requestedBy
-        let decodedRequestedBy = HmsDecoder.getHmsPeer(requestedBy)
-        let reason = notification.reason
-        let roomEnded = notification.roomEnded
-        self.sendEvent(withName: ON_REMOVED_FROM_ROOM, body: ["event": ON_REMOVED_FROM_ROOM, "requestedBy": decodedRequestedBy, "reason": reason, "roomEnded": roomEnded ])
+    override class func requiresMainQueueSetup() -> Bool {
+        true
     }
     
     override func supportedEvents() -> [String]! {
         return [ON_JOIN, ON_PREVIEW, ON_ROOM_UPDATE, ON_PEER_UPDATE, ON_TRACK_UPDATE, ON_ERROR, ON_MESSAGE, ON_SPEAKER, RECONNECTING, RECONNECTED, ON_ROLE_CHANGE_REQUEST, ON_REMOVED_FROM_ROOM]
     }
+    
+    
+    // MARK: - HMS SDK Actions
     
     @objc
     func build() {
@@ -330,6 +246,171 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         
         DispatchQueue.main.async { [weak self] in
             self?.hms?.endRoom(lock: lock ?? false, reason: reason ?? "Room was ended")
+        }
+    }
+    
+    // MARK: - HMS SDK Delegate Callbacks
+    
+    func on(join room: HMSRoom) {
+        // Callback from join action
+        let roomData = HmsDecoder.getHmsRoom(room)
+        let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
+        let remotePeerData = HmsDecoder.getHmsRemotePeers(hms?.remotePeers)
+        
+        let decodedRoles = HmsDecoder.getAllRoles(hms?.roles)
+        
+        self.sendEvent(withName: ON_JOIN, body: ["event": ON_JOIN, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData, "roles": decodedRoles])
+    }
+    
+    func onPreview(room: HMSRoom, localTracks: [HMSTrack]) {
+        let previewTracks = HmsDecoder.getPreviewTracks(localTracks)
+        let hmsRoom = HmsDecoder.getHmsRoom(room)
+        let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
+        
+        self.sendEvent(withName: ON_PREVIEW, body: ["event": ON_PREVIEW, "room": hmsRoom, "previewTracks": previewTracks, "localPeer": localPeerData])
+    }
+    
+    func on(room: HMSRoom, update: HMSRoomUpdate) {
+        // Listener for any updation in room
+        let roomData = HmsDecoder.getHmsRoom(room)
+        let type = getString(from: update)
+        
+        let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
+        let remotePeerData = HmsDecoder.getHmsRemotePeers(hms?.remotePeers)
+        
+        self.sendEvent(withName: ON_ROOM_UPDATE, body: ["event": ON_ROOM_UPDATE, "type": type, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
+    }
+    
+    func on(peer: HMSPeer, update: HMSPeerUpdate) {
+        // Listener for updates in Peers
+        let roomData = HmsDecoder.getHmsRoom(hms?.room)
+        let type = getString(from: update)
+        
+        let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
+        let remotePeerData = HmsDecoder.getHmsRemotePeers(hms?.remotePeers)
+                
+        self.sendEvent(withName: ON_PEER_UPDATE, body: ["event": ON_PEER_UPDATE, "type": type, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
+    }
+    
+    func on(track: HMSTrack, update: HMSTrackUpdate, for peer: HMSPeer) {
+        // Listener for updates in Tracks
+        let roomData = HmsDecoder.getHmsRoom(hms?.room)
+        let type = getString(from: update)
+        
+        let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
+        let remotePeerData = HmsDecoder.getHmsRemotePeers(hms?.remotePeers)
+        
+        self.sendEvent(withName: ON_TRACK_UPDATE, body: ["event": ON_TRACK_UPDATE, "room": roomData, "type": type, "localPeer": localPeerData, "remotePeers": remotePeerData])
+    }
+    
+    func on(error: HMSError) {
+        self.sendEvent(withName: ON_ERROR, body: ["event": ON_ERROR, "error": error.description, "code": error.code.rawValue, "id": error.id, "message": error.message])
+    }
+    
+    func on(message: HMSMessage) {
+        self.sendEvent(withName: ON_MESSAGE, body: ["event": ON_MESSAGE, "sender": message.sender?.name ?? "", "time": message.time, "message": message.message, "type": message.type])
+    }
+    
+    func on(updated speakers: [HMSSpeaker]) {
+        var speakerPeerIds: [String] = []
+        for speaker in speakers {
+            speakerPeerIds.append(speaker.peer.peerID)
+        }
+        self.sendEvent(withName: ON_SPEAKER, body: ["event": ON_SPEAKER, "count": speakers.count, "peers" :speakerPeerIds])
+    }
+    
+    func onReconnecting() {
+        self.sendEvent(withName: RECONNECTING, body: ["event": RECONNECTING])
+    }
+    
+    func onReconnected() {
+        self.sendEvent(withName: RECONNECTED, body: ["event": RECONNECTED])
+    }
+    
+    func on(roleChangeRequest: HMSRoleChangeRequest) {
+        let decodedRoleChangeRequest = HmsDecoder.getHmsRoleChangeRequest(roleChangeRequest)
+        recentRoleChangeRequest = roleChangeRequest
+        self.sendEvent(withName: ON_ROLE_CHANGE_REQUEST, body: decodedRoleChangeRequest)
+    }
+    
+    func on(changeTrackStateRequest: HMSChangeTrackStateRequest) {
+        // On track state change required
+    }
+    
+    func on(removedFromRoom notification: HMSRemovedFromRoomNotification) {
+        let requestedBy = notification.requestedBy
+        let decodedRequestedBy = HmsDecoder.getHmsPeer(requestedBy)
+        let reason = notification.reason
+        let roomEnded = notification.roomEnded
+        self.sendEvent(withName: ON_REMOVED_FROM_ROOM, body: ["event": ON_REMOVED_FROM_ROOM, "requestedBy": decodedRequestedBy, "reason": reason, "roomEnded": roomEnded ])
+    }
+    
+    
+    // MARK: Helper Functions
+    
+    @objc
+    func muteAllPeersAudio(_ mute: Bool) {
+        DispatchQueue.main.async { [weak self] in
+            let remotePeers = self?.hms?.remotePeers
+            for peer in remotePeers ?? [] {
+                peer.remoteAudioTrack()?.setPlaybackAllowed(!mute)
+            }
+        }
+        let roomData = HmsDecoder.getHmsRoom(hms?.room)
+        let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
+        let remotePeerData = HmsDecoder.getHmsRemotePeers(hms?.remotePeers)
+        
+        self.sendEvent(withName: ON_PEER_UPDATE, body: ["event": ON_PEER_UPDATE, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
+    }
+    
+    private func getString(from update: HMSPeerUpdate) -> String {
+        switch update {
+        case .peerJoined:
+            return "PEER_JOINED"
+        case .peerLeft:
+            return "PEER_LEFT"
+        case .roleUpdated:
+            return "ROLE_CHANGED"
+        default:
+            return ""
+        }
+    }
+    
+    private func getString(from update: HMSTrackUpdate) -> String {
+        switch update {
+        case .trackAdded:
+            return "TRACK_ADDED"
+        case .trackRemoved:
+            return "TRACK_REMOVED"
+        case .trackMuted:
+            return "TRACK_MUTED"
+        case .trackUnmuted:
+            return "TRACK_UNMUTED"
+        case .trackDescriptionChanged:
+            return "TRACK_DESCRIPTION_CHANGED"
+        case .trackDegraded:
+            return "TRACK_DEGRADED"
+        case .trackRestored:
+            return "TRACK_RESTORED"
+        default:
+            return ""
+        }
+    }
+    
+    func getString(from update: HMSRoomUpdate) -> String {
+        switch update {
+        case .roomTypeChanged:
+            return "ROOM_TYPE_CHANGED"
+        case .metaDataUpdated:
+            return "META_DATA_CHANGED"
+        case .browserRecordingStateUpdated:
+            return "BROWSER_RECORDING_STATE_UPDATED"
+        case .rtmpStreamingStateUpdated:
+            return "RTMP_STREAMING_STATE_UPDATED"
+        case.serverRecordingStateUpdated:
+            return "SERVER_RECORDING_STATE_UPDATED"
+        default:
+            return ""
         }
     }
 }

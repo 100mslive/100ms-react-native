@@ -1,6 +1,6 @@
-import type HMSAudioCodec from './HMSAudioCodec';
+import type { HMSAudioCodec } from './HMSAudioCodec';
 
-export default class HMSVideoSettings {
+export class HMSVideoSettings {
   bitrate?: number;
   frameRate: number;
   width: number;
