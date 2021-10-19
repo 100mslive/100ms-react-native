@@ -36,6 +36,7 @@ export * from './classes/HMSTrackUpdate';
 export * from './classes/HMSLogger';
 export * from './classes/HMSLogLevel';
 export * from './classes/HMSVideoViewMode';
+export * from './classes/HMSChangeTrackStateRequest';
 
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
 export default HmsManager;

@@ -24,6 +24,7 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   }
   private var hmsSDK: HMSSDK? = null
   private var recentRoleChangeRequest: HMSRoleChangeRequest? = null
+  private var changeTrackStateRequest: HMSChangeTrackStateRequest? = null
   override fun getName(): String {
     return "HmsManager"
   }
@@ -80,8 +81,10 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
 
     HMSCoroutineScope.launch {
       hmsSDK?.join(config, object : HMSUpdateListener {
-        override fun onChangeTrackStateRequest(details: HMSChangeTrackStateRequest) {
-//          Not yet implemented
+        override fun onChangeTrackStateRequest(request: HMSChangeTrackStateRequest) {
+          val decodedChangeTrackStateRequest = HmsDecoder.getHmsChangeTrackStateRequest(request)
+          reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_CHANGE_TRACK_STATE_REQUEST", decodedChangeTrackStateRequest)
+          changeTrackStateRequest = request
         }
 
         override fun onRemovedFromRoom(notification: HMSRemovedFromRoom) {
