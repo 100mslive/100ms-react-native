@@ -28,6 +28,22 @@ class HmsHelper: NSObject {
         return roles.first { $0.name == roleName }
     }
     
+    static func getLocalTrackFromTrackId(_ trackID: String?, localPeer: HMSLocalPeer?) -> HMSTrack? {
+        if localPeer?.videoTrack?.trackId == trackID {
+            return localPeer?.videoTrack
+        }
+        
+        if localPeer?.audioTrack?.trackId == trackID {
+            return localPeer?.audioTrack
+        }
+        
+        for track in localPeer?.auxiliaryTracks ?? [] where track.trackId == trackID {
+            return track
+        }
+        
+        return nil
+    }
+    
     
     static func getTrackFromTrackId(_ trackID: String?, _ remotePeers: [HMSRemotePeer]?) -> HMSTrack? {
         

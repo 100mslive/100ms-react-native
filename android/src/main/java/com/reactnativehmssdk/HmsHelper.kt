@@ -68,4 +68,23 @@ object HmsHelper {
     }
     return null
   }
+
+  fun getLocalTrackFromTrackId(trackId: String?, localPeer: HMSLocalPeer?): HMSTrack? {
+    if (trackId != null && localPeer != null) {
+      if (localPeer.audioTrack?.trackId == trackId) {
+        return localPeer.audioTrack as HMSTrack
+      }
+
+      if (localPeer.videoTrack?.trackId == trackId) {
+        return localPeer.videoTrack as HMSTrack
+      }
+
+      for (auxTrack in localPeer.auxiliaryTracks) {
+        if (auxTrack.trackId == trackId) {
+          return auxTrack
+        }
+      }
+    }
+    return null
+  }
 }

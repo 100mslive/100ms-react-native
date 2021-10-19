@@ -236,7 +236,7 @@ const DisplayName = ({
         <HmsView
           sink={sink}
           trackId={trackId!}
-            scaleType={HMSVideoViewMode.ASPECT_FILL}
+          scaleType={HMSVideoViewMode.ASPECT_FILL}
           style={type === 'screen' ? styles.hmsViewScreen : styles.hmsView}
         />
       )}
@@ -339,15 +339,15 @@ const Meeting = ({
     isPortrait() ? 4 : 2,
   );
 
-  const decode = (
+  const decode = async (
     peer: HMSLocalPeer | HMSRemotePeer,
     type: 'local' | 'remote' | 'screen',
-  ): Peer => {
+  ): Promise<Peer> => {
     const peerId = peer?.peerID;
     const peerTrackId = peer?.videoTrack?.trackId;
     const peerName = peer?.name;
-    const peerIsAudioMute = peer?.audioTrack?.mute;
-    const peerIsVideoMute = peer?.videoTrack?.mute;
+    const peerIsAudioMute = await peer?.audioTrack?.isMute();
+    const peerIsVideoMute = await peer?.videoTrack?.isMute();
     const peerRole = peer?.role;
     const newPeerColour = getPeerColour(peerTrackId);
     return {
@@ -363,33 +363,26 @@ const Meeting = ({
     };
   };
 
-  const updateVideoIds = (
+  const updateVideoIds = async (
     remotePeers: HMSRemotePeer[],
     localPeer?: HMSLocalPeer,
   ) => {
     // get local track Id
     const localTrackId = localPeer?.videoTrack?.trackId;
     if (localTrackId) {
-      setTrackId(decode(localPeer, 'local'));
+      const localTrackTemp = await decode(localPeer, 'local');
+      setTrackId(localTrackTemp);
     }
     const updatedLocalPeerPermissions = localPeer?.role?.permissions;
     setLocalPeerPermissions(updatedLocalPeerPermissions);
 
-    const remoteVideoIds: Peer[] = [];
+    const remoteVideoIds: Promise<Peer>[] = [];
     let newAuxTracks: Peer[] = [];
 
     if (remotePeers) {
-      remotePeers.map((remotePeer: HMSRemotePeer, index: number) => {
-        const remoteTrackId = remotePeer?.videoTrack?.trackId;
-        if (remoteTrackId) {
-          remoteVideoIds.push(decode(remotePeer, 'remote'));
-        } else {
-          remoteVideoIds.push({
-            ...decode(remotePeer, 'remote'),
-            trackId: index.toString(),
-            isVideoMute: true,
-          });
-        }
+      remotePeers.map((remotePeer: HMSRemotePeer) => {
+        const remoteTemp = decode(remotePeer, 'remote');
+        remoteVideoIds.push(remoteTemp);
 
         let auxiliaryTracks = remotePeer?.auxiliaryTracks;
 
@@ -412,7 +405,16 @@ const Meeting = ({
         setAuxTracks(newAuxTracks);
       });
 
-      setRemoteTrackIds(remoteVideoIds as []);
+      Promise.all(remoteVideoIds).then((results: Peer[]) => {
+        const updatedRemoteTracks = results.map((item: Peer, index: number) => {
+          if (item.trackId) {
+            return {...item};
+          } else {
+            return {...item, trackId: index.toString(), isVideoMute: true};
+          }
+        });
+        setRemoteTrackIds(updatedRemoteTracks as []);
+      });
     }
   };
 
@@ -673,7 +675,7 @@ const Meeting = ({
     return buttons;
   };
 
-  const onViewRef = React.useRef(({viewableItems}: any) => {
+  const onViewRef = React.useRef(async ({viewableItems}: any) => {
     if (viewableItems) {
       const viewableItemsIds: (string | undefined)[] = [];
       viewableItems.map(
@@ -693,8 +695,8 @@ const Meeting = ({
       const remotePeers = inst?.remotePeers;
       if (remotePeers) {
         const sinkRemoteTrackIds = remotePeers.map(
-          (peer: HMSRemotePeer, index: number) => {
-            const remotePeer = decode(peer, 'remote');
+          async (peer: HMSRemotePeer, index: number) => {
+            const remotePeer = await decode(peer, 'remote');
             const videoTrackId = remotePeer.trackId;
             if (videoTrackId) {
               if (!viewableItemsIds?.includes(videoTrackId)) {
@@ -714,7 +716,9 @@ const Meeting = ({
             }
           },
         );
-        setRemoteTrackIds(sinkRemoteTrackIds ? sinkRemoteTrackIds : []);
+        Promise.all(sinkRemoteTrackIds).then(result => {
+          setRemoteTrackIds(result ? result : []);
+        });
       }
     }
   });
