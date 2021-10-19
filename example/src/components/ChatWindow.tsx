@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
-import type {GestureResponderEvent} from 'react-native';
+import {GestureResponderEvent} from 'react-native';
 import {
   View,
   StyleSheet,
@@ -7,6 +7,8 @@ import {
   ScrollView,
   TouchableOpacity,
   Text,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 
@@ -76,7 +78,9 @@ export const ChatWindow = ({
             );
           })}
         </ScrollView>
-        <View style={styles.textInputContainer}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.textInputContainer}>
           <TextInput
             placeholder="Enter Message"
             placeholderTextColor="black"
@@ -98,7 +102,7 @@ export const ChatWindow = ({
               name="send"
             />
           </TouchableOpacity>
-        </View>
+        </KeyboardAvoidingView>
       </View>
     </View>
   );
@@ -130,7 +134,6 @@ const styles = StyleSheet.create({
     marginVertical: dimension.viewHeight(12),
     backgroundColor: '#67ed99',
     paddingHorizontal: 12,
-    paddingVertical: 6,
     borderTopLeftRadius: 30,
     borderBottomRightRadius: 30,
     borderTopRightRadius: 30,
@@ -153,6 +156,7 @@ const styles = StyleSheet.create({
     marginHorizontal: dimension.viewWidth(16),
     paddingHorizontal: dimension.viewWidth(16),
     flex: 1,
+    marginBottom: Platform.OS === 'ios' ? 16 : 0,
   },
   textInputContainer: {
     flexDirection: 'row',
