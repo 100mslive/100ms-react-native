@@ -1,58 +1,105 @@
 package com.reactnativehmssdk
 
-import live.hms.video.sdk.models.role.*
-import live.hms.video.sdk.models.*
+import com.facebook.react.bridge.ReadableMap
 import live.hms.video.media.tracks.*
+import live.hms.video.sdk.models.*
+import live.hms.video.sdk.models.role.*
 
 object HmsHelper {
 
-    fun getPeerFromPeerId(peerId: String?, peers: Array<HMSPeer>?): HMSPeer? {
-      if (peerId != null && peers != null) {
-        for (peer in peers) {
-          if (peerId == peer.peerID) {
-            return peer
-          }
-        }
-      }
-      return null
+  fun areAllRequiredKeysAvailable(
+      map: ReadableMap?,
+      requiredKeys: Array<Pair<String, String>>
+  ): Boolean {
+    if (map == null) {
+      return false
     }
-
-    fun getRemotePeerFromPeerId(peerId: String?, peers: Array<HMSRemotePeer>?): HMSRemotePeer? {
-      if (peerId != null && peers != null) {
-        for (peer in peers) {
-          if (peerId == peer.peerID) {
-            return peer
+    for ((key, value) in requiredKeys) {
+      if (map.hasKey(key)) {
+        when (value) {
+          "String" -> {
+            if (map.getString(key) == null) {
+              return false
+            }
           }
-        }
-      }
-      return null
-    }
-
-    fun getRolesFromRoleNames(targetedRoles: ArrayList<String>?, roles: List<HMSRole>?): List<HMSRole> {
-      val encodedRoles: MutableList<HMSRole> = mutableListOf()
-
-      if (targetedRoles != null && roles != null) {
-        for (role in roles) {
-          for (targetedRole in targetedRoles) {
-            if (targetedRole == role.name) {
-              encodedRoles.add(role)
+          "Boolean" -> {
+            if (map.getBoolean(key) == null) {
+              return false
+            }
+          }
+          "Array" -> {
+            if (map.getArray(key) == null) {
+              return false
+            }
+          }
+          "Int" -> {
+            if (map.getInt(key) == null) {
+              return false
+            }
+          }
+          "Map" -> {
+            if (map.getMap(key) == null) {
+              return false
             }
           }
         }
+      } else {
+        return false
       }
-      return encodedRoles.toList()
     }
+    return true
+  }
 
-    fun getRoleFromRoleName(role: String?, roles: List<HMSRole>?): HMSRole? {
-      if (role != null && roles!= null) {
-        for (hmsRole in roles) {
-          if (role == hmsRole.name) {
-            return hmsRole
+  fun getPeerFromPeerId(peerId: String?, peers: Array<HMSPeer>?): HMSPeer? {
+    if (peerId != null && peers != null) {
+      for (peer in peers) {
+        if (peerId == peer.peerID) {
+          return peer
+        }
+      }
+    }
+    return null
+  }
+
+  fun getRemotePeerFromPeerId(peerId: String?, peers: Array<HMSRemotePeer>?): HMSRemotePeer? {
+    if (peerId != null && peers != null) {
+      for (peer in peers) {
+        if (peerId == peer.peerID) {
+          return peer
+        }
+      }
+    }
+    return null
+  }
+
+  fun getRolesFromRoleNames(
+      targetedRoles: ArrayList<String>?,
+      roles: List<HMSRole>?
+  ): List<HMSRole> {
+    val encodedRoles: MutableList<HMSRole> = mutableListOf()
+
+    if (targetedRoles != null && roles != null) {
+      for (role in roles) {
+        for (targetedRole in targetedRoles) {
+          if (targetedRole == role.name) {
+            encodedRoles.add(role)
           }
         }
       }
-      return null
     }
+    return encodedRoles.toList()
+  }
+
+  fun getRoleFromRoleName(role: String?, roles: List<HMSRole>?): HMSRole? {
+    if (role != null && roles != null) {
+      for (hmsRole in roles) {
+        if (role == hmsRole.name) {
+          return hmsRole
+        }
+      }
+    }
+    return null
+  }
 
   fun getTrackFromTrackId(trackId: String?, remotePeers: Array<HMSRemotePeer>?): HMSTrack? {
     if (trackId != null && remotePeers != null) {
