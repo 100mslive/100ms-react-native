@@ -252,15 +252,16 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
             object : HMSAudioListener {
               override fun onAudioLevelUpdate(speakers: Array<HMSSpeaker>) {
                 val data: WritableMap = Arguments.createMap()
-                val count = speakers.size
-
-                data.putInt("count", count)
+                data.putInt("count", speakers.size)
                 data.putString("event", "ON_SPEAKER")
 
-                var peers: WritableArray = Arguments.createArray()
+                val peers: WritableArray = Arguments.createArray()
                 for (speaker in speakers) {
-                  val peerId = speaker.peer?.peerID
-                  peers.pushString(peerId)
+                  val speakerArray: WritableMap = Arguments.createMap()
+                  speakerArray.putMap("peer",HmsDecoder.getHmsPeer(speaker?.peer))
+                  speakerArray.putInt("level",speaker?.level)
+                  speakerArray.putMap("track",HmsDecoder.getHmsTrack(speaker?.hmsTrack))
+                  peers.pushMap(speakerArray)
                 }
                 data.putArray("peers", peers)
                 reactApplicationContext

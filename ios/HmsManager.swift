@@ -219,6 +219,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     func isMute(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let trackId = data.value(forKey: "trackId") as? String
         else {
+            reject?(nil, "NOT_FOUND", nil)
             return
         }
         
@@ -338,9 +339,9 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     }
     
     func on(updated speakers: [HMSSpeaker]) {
-        var speakerPeerIds: [String] = []
+        var speakerPeerIds: [[String : Any]] = []
         for speaker in speakers {
-            speakerPeerIds.append(speaker.peer.peerID)
+            speakerPeerIds.append(["peer": HmsDecoder.getHmsPeer(speaker.peer), "level": speaker.level, "track": HmsDecoder.getHmsTrack(speaker.track)])
         }
         self.sendEvent(withName: ON_SPEAKER, body: ["event": ON_SPEAKER, "count": speakers.count, "peers" :speakerPeerIds])
     }
