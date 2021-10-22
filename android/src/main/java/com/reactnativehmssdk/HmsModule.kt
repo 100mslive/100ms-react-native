@@ -260,7 +260,7 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
                   val speakerArray: WritableMap = Arguments.createMap()
                   speakerArray.putMap("peer",HmsDecoder.getHmsPeer(speaker?.peer))
                   speakerArray.putInt("level",speaker?.level)
-                  speakerArray.putString("trackId",speaker?.trackId)
+                  speakerArray.putMap("track",HmsDecoder.getHmsTrack(speaker?.hmsTrack))
                   peers.pushMap(speakerArray)
                 }
                 data.putArray("peers", peers)

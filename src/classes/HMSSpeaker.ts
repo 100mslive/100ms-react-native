@@ -1,13 +1,14 @@
+import type { HMSTrack } from './HMSTrack';
 import type { HMSPeer } from './HMSPeer';
 
 export class HMSSpeaker {
   level: Number;
   peer: HMSPeer;
-  trackId: string;
+  track: HMSTrack;
 
-  constructor(params: { level: Number; peer: HMSPeer; trackId: string }) {
+  constructor(params: { level: Number; peer: HMSPeer; track: HMSTrack }) {
     this.level = params.level;
     this.peer = params.peer;
-    this.trackId = params.trackId;
+    this.track = params.track;
   }
 }

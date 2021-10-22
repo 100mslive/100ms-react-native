@@ -341,7 +341,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     func on(updated speakers: [HMSSpeaker]) {
         var speakerPeerIds: [[String : Any]] = []
         for speaker in speakers {
-            speakerPeerIds.append(["peer": HmsDecoder.getHmsPeer(speaker.peer), "level": speaker.level, "trackId": HmsDecoder.getHmsTrack(speaker.track)])
+            speakerPeerIds.append(["peer": HmsDecoder.getHmsPeer(speaker.peer), "level": speaker.level, "track": HmsDecoder.getHmsTrack(speaker.track)])
         }
         self.sendEvent(withName: ON_SPEAKER, body: ["event": ON_SPEAKER, "count": speakers.count, "peers" :speakerPeerIds])
     }
