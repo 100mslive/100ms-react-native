@@ -219,6 +219,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     func isMute(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let trackId = data.value(forKey: "trackId") as? String
         else {
+            reject?(nil, "NOT_FOUND", nil)
             return
         }
         
