@@ -149,7 +149,7 @@ PODS:
     - GoogleUtilities/Logger
   - GoogleUtilities/UserDefaults (7.6.0):
     - GoogleUtilities/Logger
-  - HMSSDK (0.1.2):
+  - HMSSDK (0.1.5):
     - HMSWebRTC (= 1.0.4516)
   - HMSWebRTC (1.0.4516)
   - libevent (2.1.12)
@@ -642,7 +642,7 @@ SPEC CHECKSUMS:
   GoogleAppMeasurement: 5ba1164e3c844ba84272555e916d0a6d3d977e91
   GoogleDataTransport: 629c20a4d363167143f30ea78320d5a7eb8bd940
   GoogleUtilities: 684ee790a24f73ebb2d1d966e9711c203f2a4237
-  HMSSDK: fe7bed7187002d08205afffefec6b148b51d8296
+  HMSSDK: 5ad51730d9313c4fd6805e5a3a4e529820270472
   HMSWebRTC: 0dbcff2b03adf79ce6f1129e541af5dc342ed88f
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
