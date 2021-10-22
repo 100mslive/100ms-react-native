@@ -26,6 +26,7 @@ import HmsManager, {
   HMSRoom,
   HMSRole,
   HMSRoleChangeRequest,
+  HMSSpeakerUpdate,
 } from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
@@ -298,7 +299,7 @@ const Meeting = ({
   const [trackId, setTrackId] = useState<Peer>(DEFAULT_PEER);
   const [remoteTrackIds, setRemoteTrackIds] = useState<Peer[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [speakers, setSpeakers] = useState([]);
+  const [speakers, setSpeakers] = useState<Array<string>>([]);
   const [notification, setNotification] = useState(false);
   const [muteAllAudio, setMuteAllAudio] = useState(false);
   const [auxTracks, setAuxTracks] = useState<Peer[]>([]);
@@ -484,9 +485,10 @@ const Meeting = ({
     console.log('data in onError: ', data);
   };
 
-  const onSpeaker = (data: any) => {
-    setSpeakers(data?.peers);
-    // console.log('data in onSpeaker: ', data);
+  const onSpeaker = (data: HMSSpeakerUpdate) => {
+    const peerIds = data?.peers?.map(speaker => speaker?.peer?.peerID);
+    setSpeakers(peerIds || []);
+    console.log('data in onSpeaker: ', data);
   };
 
   const reconnecting = (data: any) => {
