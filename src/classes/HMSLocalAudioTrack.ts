@@ -19,7 +19,7 @@ export class HMSLocalAudioTrack extends HMSAudioTrack {
    * @memberof HMSLocalAudioTrack
    */
   setMute(isMute: boolean) {
-    HmsManager.setLocalMute(isMute);
+    HmsManager.setLocalMute({ isMute, id: '12345' });
   }
 
   constructor(params: {

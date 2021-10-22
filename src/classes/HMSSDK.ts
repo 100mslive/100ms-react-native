@@ -28,6 +28,7 @@ export class HMSSDK {
   remotePeers?: HMSRemotePeer[];
   knownRoles?: HMSRole[];
   logger?: HMSLogger;
+  private id: String;
 
   onPreviewDelegate?: any;
   onJoinDelegate?: any;
@@ -42,6 +43,10 @@ export class HMSSDK {
   onRoleChangeRequestDelegate?: any;
   onRemovedFromRoomDelegate?: any;
 
+  constructor(id: String) {
+    this.id = id;
+  }
+
   /**
    * - Returns an instance of [HMSSDK]{@link HMSSDK}
    * - This function must be called to get an instance of HMSSDK class and only then user can interact with its methods
@@ -50,12 +55,12 @@ export class HMSSDK {
    * @returns
    * @memberof HMSSDK
    */
-  static build() {
+  static async build() {
     if (HmsSdk) {
       return HmsSdk;
     }
-    HmsManager.build();
-    HmsSdk = new HMSSDK();
+    let id = await HmsManager.build();
+    HmsSdk = new HMSSDK(id);
     return HmsSdk;
   }
 
@@ -133,13 +138,13 @@ export class HMSSDK {
   join = async (config: HMSConfig) => {
     this.logger?.verbose('JOIN', { config });
     this.attachListeners();
-    await HmsManager.join(config);
+    await HmsManager.join({ ...config, id: this.id });
   };
 
   preview = (config: HMSConfig) => {
     this.logger?.verbose('PREVIEW', { config });
     this.attachPreviewListener();
-    HmsManager.preview(config);
+    HmsManager.preview({ ...config, id: this.id });
   };
 
   /**
@@ -149,12 +154,12 @@ export class HMSSDK {
    */
   leave = () => {
     this.logger?.verbose('LEAVE', {});
-    HmsManager.leave();
+    HmsManager.leave({ id: this.id });
   };
 
   sendBroadcastMessage = (message: string) => {
     this.logger?.verbose('SEND_BROADCAST_MESSAGE', { message });
-    HmsManager.sendBroadcastMessage({ message });
+    HmsManager.sendBroadcastMessage({ message, id: this.id });
   };
 
   sendGroupMessage = (message: string, roles: HMSRole[]) => {
@@ -162,6 +167,7 @@ export class HMSSDK {
     HmsManager.sendGroupMessage({
       message,
       roles: HMSHelper.getRoleNames(roles),
+      id: this.id,
     });
   };
 
@@ -170,6 +176,7 @@ export class HMSSDK {
     HmsManager.sendDirectMessage({
       message,
       peerId,
+      id: this.id,
     });
   };
 
@@ -178,6 +185,7 @@ export class HMSSDK {
       peerId: peerId,
       role: role,
       force: force,
+      id: this.id,
     };
     this.logger?.verbose('CHANGE_ROLE', data);
     HmsManager.changeRole(data);
@@ -188,6 +196,7 @@ export class HMSSDK {
     const data = {
       trackId: track.trackId,
       mute,
+      id: this.id,
     };
 
     HmsManager.changeTrackState(data);

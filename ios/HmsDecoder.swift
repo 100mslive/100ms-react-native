@@ -325,11 +325,11 @@ class HmsDecoder: NSObject {
         return layersSettingsPolicy
     }
     
-    static func getHmsRoleChangeRequest(_ roleChangeRequest: HMSRoleChangeRequest) -> [String: Any] {
+    static func getHmsRoleChangeRequest(_ roleChangeRequest: HMSRoleChangeRequest, _ id: String) -> [String: Any] {
         
         let requestedBy = getHmsPeer(roleChangeRequest.requestedBy)
         let suggestedRole = getHmsRole(roleChangeRequest.suggestedRole)
         
-        return ["requestedBy": requestedBy, "suggestedRole": suggestedRole]
+        return ["requestedBy": requestedBy, "suggestedRole": suggestedRole, "id": id]
     }
 }

@@ -691,7 +691,7 @@ const Meeting = ({
         },
       );
 
-      const inst = HmsManager.build();
+      const inst = await HmsManager.build();
       const remotePeers = inst?.remotePeers;
       if (remotePeers) {
         const sinkRemoteTrackIds = remotePeers.map(

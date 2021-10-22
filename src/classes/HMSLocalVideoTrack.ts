@@ -30,7 +30,7 @@ export class HMSLocalVideoTrack extends HMSVideoTrack {
    * @memberof HMSLocalVideoTrack
    */
   setMute(isMute: boolean) {
-    HmsManager.setLocalVideoMute(isMute);
+    HmsManager.setLocalVideoMute({ isMute, id: '12345' });
   }
 
   constructor(params: {
