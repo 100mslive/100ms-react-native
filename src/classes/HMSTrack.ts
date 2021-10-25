@@ -1,9 +1,26 @@
+import { NativeModules } from 'react-native';
+
+const {
+  /**
+   * @ignore
+   */
+  HmsManager,
+} = NativeModules;
+
 export class HMSTrack {
   trackId: string;
   source?: number | string;
   trackDescription?: string;
-  isMute?: Function;
   mute?: boolean;
+
+  isMute = async () => {
+    try {
+      let val = await HmsManager.isMute({ trackId: this.trackId });
+      return val;
+    } catch (e) {
+      return true;
+    }
+  };
 
   constructor(params: {
     trackId: string;

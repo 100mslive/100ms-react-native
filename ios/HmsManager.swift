@@ -216,6 +216,33 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     }
     
     @objc
+    func isMute(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let trackId = data.value(forKey: "trackId") as? String
+        else {
+            reject?(nil, "NOT_FOUND", nil)
+            return
+        }
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let localPeer = self?.hms?.localPeer,
+                let localTrack = HmsHelper.getLocalTrackFromTrackId(trackId, localPeer: localPeer)
+            else {
+                guard let remotePeers = self?.hms?.remotePeers,
+                    let track = HmsHelper.getTrackFromTrackId(trackId, remotePeers)
+                else {
+                    reject?(nil, "NOT_FOUND", nil)
+                    return
+                }
+                let mute = track.isMute()
+                resolve?(mute)
+                return
+            }
+            let mute = localTrack.isMute()
+            resolve?(mute)
+        }
+    }
+    
+    @objc
     func removePeer(_ data: NSDictionary) {
         
         
@@ -312,9 +339,9 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     }
     
     func on(updated speakers: [HMSSpeaker]) {
-        var speakerPeerIds: [String] = []
+        var speakerPeerIds: [[String : Any]] = []
         for speaker in speakers {
-            speakerPeerIds.append(speaker.peer.peerID)
+            speakerPeerIds.append(["peer": HmsDecoder.getHmsPeer(speaker.peer), "level": speaker.level, "track": HmsDecoder.getHmsTrack(speaker.track)])
         }
         self.sendEvent(withName: ON_SPEAKER, body: ["event": ON_SPEAKER, "count": speakers.count, "peers" :speakerPeerIds])
     }
