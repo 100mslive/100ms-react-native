@@ -4,7 +4,7 @@ import HMSSDK
 @objc(HmsManager)
 class HmsManager: RCTEventEmitter{
     
-    var hmsCollection: [String: HmsSDK]
+    var hmsCollection: [String: HmsSDK] = [:]
     
     let ON_PREVIEW = "ON_PREVIEW"
     let ON_JOIN = "ON_JOIN"
@@ -40,116 +40,121 @@ class HmsManager: RCTEventEmitter{
     func build(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         DispatchQueue.main.async { [weak self] in
 //            var id = UUID().uuidString
-            var id = "12345"
-            var hms = HmsSDK(delegate: self, uid: id)
+            let id = "12345"
+            let hms = HmsSDK(delegate: self, uid: id)
             self?.hmsCollection[id] = hms
             
-            resolve(id)
+            resolve?(id)
         }
     }
     
     @objc
     func preview(_ credentials: NSDictionary) {
-        var hms = HmsHelper.getHms(credentials, hmsCollection)
-        hms.preview(credentials)
+        let hms = HmsHelper.getHms(credentials, hmsCollection)
+        hms?.preview(credentials)
     }
     
     @objc
     func join(_ credentials: NSDictionary) {
-        var hms = HmsHelper.getHms(credentials, hmsCollection)
-        hms.join(credentials)
+        let hms = HmsHelper.getHms(credentials, hmsCollection)
+        hms?.join(credentials)
     }
     
     @objc
     func setLocalMute(_ data: NSDictionary) {
-        var hms = HmsHelper.getHms(credentials, hmsCollection)
+        let hms = HmsHelper.getHms(data, hmsCollection)
         
-        hms.setLocalMute(data)
+        hms?.setLocalMute(data)
     }
     
     @objc
     func setLocalVideoMute(_ data: NSDictionary) {
-        var hms = HmsHelper.getHms(credentials, hmsCollection)
+        let hms = HmsHelper.getHms(data, hmsCollection)
         
-        hms.setLocalVideoMute(data)
+        hms?.setLocalVideoMute(data)
     }
     
     @objc
-    func switchCamera() {
-        var hms = HmsHelper.getHms(credentials, hmsCollection)
+    func switchCamera(_ data: NSDictionary) {
+        let hms = HmsHelper.getHms(data, hmsCollection)
         
-        hms.switchCamera()
+        hms?.switchCamera()
     }
     
     @objc
-    func leave() {
-        var hms = HmsHelper.getHms(credentials, hmsCollection)
+    func leave(_ data: NSDictionary) {
+        let hms = HmsHelper.getHms(data, hmsCollection)
         
-        hms.leave()
+        hms?.leave()
     }
     
     @objc
     func sendBroadcastMessage(_ data: NSDictionary) {
-        var hms = HmsHelper.getHms(credentials, hmsCollection)
+        let hms = HmsHelper.getHms(data, hmsCollection)
         
-        hms.sendBroadcastMessage(data)
+        hms?.sendBroadcastMessage(data)
     }
     
     @objc
     func sendGroupMessage(_ data: NSDictionary) {
-        var hms = HmsHelper.getHms(credentials, hmsCollection)
+        let hms = HmsHelper.getHms(data, hmsCollection)
         
-        hms.sendGroupMessage(data)
+        hms?.sendGroupMessage(data)
     }
     
     @objc
     func sendDirectMessage(_ data: NSDictionary) {
-        var hms = HmsHelper.getHms(credentials, hmsCollection)
+        let hms = HmsHelper.getHms(data, hmsCollection)
         
-        hms.sendGroupMessage(data)
+        hms?.sendGroupMessage(data)
     }
     
     @objc
-    func acceptRoleChange() {
-        var hms = HmsHelper.getHms(credentials, hmsCollection)
+    func acceptRoleChange(_ data: NSDictionary) {
+        let hms = HmsHelper.getHms(data, hmsCollection)
         
-        hms.acceptRoleChange()
+        hms?.acceptRoleChange()
     }
     
     @objc
     func changeRole(_ data: NSDictionary) {
-        var hms = HmsHelper.getHms(credentials, hmsCollection)
+        let hms = HmsHelper.getHms(data, hmsCollection)
         
-        hms.changeRole(data)
+        hms?.changeRole(data)
     }
     
     @objc
     func changeTrackState(_ data: NSDictionary) {
-        var hms = HmsHelper.getHms(credentials, hmsCollection)
+        let hms = HmsHelper.getHms(data, hmsCollection)
         
-        hms.changeTrackState(data)
+        hms?.changeTrackState(data)
     }
     
     @objc
     func isMute(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        var hms = HmsHelper.getHms(credentials, hmsCollection)
+        let hms = HmsHelper.getHms(data, hmsCollection)
+        if let hmsInstance = hms {
+            hmsInstance.isMute(data, resolve, reject)
+        } else {
+            reject?(nil, "NO_INSTANCE", nil)
+            return
+        }
         
-        hms.isMute(data, resolve, reject)
     }
     
     @objc
     func removePeer(_ data: NSDictionary) {
-        var hms = HmsHelper.getHms(credentials, hmsCollection)
+        let hms = HmsHelper.getHms(data, hmsCollection)
         
-        hms.removePeer(data)
+        hms?.removePeer(data)
     }
     
     
     @objc
     func endRoom(_ data: NSDictionary) {
-        var hms = HmsHelper.getHms(credentials, hmsCollection)
+        let hms = HmsHelper.getHms(data, hmsCollection)
         
-        hms.endRoom(data)
+        hms?.endRoom(data)
     }
     
     // MARK: - HMS SDK Delegate Callbacks
@@ -161,8 +166,8 @@ class HmsManager: RCTEventEmitter{
     
     @objc
     func muteAllPeersAudio(_ data: NSDictionary) {
-        var hms = HmsHelper.getHms(credentials, hmsCollection)
+        let hms = HmsHelper.getHms(data, hmsCollection)
         
-        hms.muteAllPeersAudio(data)
+        hms?.muteAllPeersAudio(data)
     }
 }

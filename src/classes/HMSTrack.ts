@@ -14,8 +14,12 @@ export class HMSTrack {
   mute?: boolean;
 
   isMute = async () => {
-    let val = await HmsManager.isMute({ trackId: this.trackId });
-    return val;
+    try {
+      let val = await HmsManager.isMute({ trackId: this.trackId, id: '12345' });
+      return val;
+    } catch (err) {
+      return true;
+    }
   };
 
   constructor(params: {

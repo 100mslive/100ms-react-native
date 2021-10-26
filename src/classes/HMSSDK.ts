@@ -154,7 +154,11 @@ export class HMSSDK {
    */
   leave = () => {
     this.logger?.verbose('LEAVE', {});
-    HmsManager.leave({ id: this.id });
+    const data = {
+      id: this.id,
+    };
+
+    HmsManager.leave(data);
   };
 
   sendBroadcastMessage = (message: string) => {
@@ -207,6 +211,7 @@ export class HMSSDK {
     const data = {
       peerId,
       reason,
+      id: this.id,
     };
 
     HmsManager.removePeer(data);
@@ -217,6 +222,7 @@ export class HMSSDK {
     const data = {
       lock,
       reason,
+      id: this.id,
     };
 
     HmsManager.endRoom(data);
@@ -224,12 +230,12 @@ export class HMSSDK {
 
   acceptRoleChange = () => {
     this.logger?.verbose('ACCEPT_ROLE_CHANGE', {});
-    HmsManager.acceptRoleChange();
+    HmsManager.acceptRoleChange({ id: this.id });
   };
 
   muteAllPeersAudio = (mute: boolean) => {
     this.logger?.verbose('ON_MUTE_ALL_PEERS', { mute });
-    HmsManager.muteAllPeersAudio(mute);
+    HmsManager.muteAllPeersAudio({ mute, id: this.id });
   };
 
   /**

@@ -13,8 +13,9 @@ class HmsView: RCTViewManager {
         return view;
     }
     
-    func getHmsFromBridge() -> HMSSDK? {
-        return (bridge.module(for: HmsManager.classForCoder()) as? HmsManager)?.hms
+    func getHmsFromBridge() -> [String: HmsSDK] {
+        let collection: [String: HmsSDK] = (bridge.module(for: HmsManager.classForCoder()) as? HmsManager)?.hmsCollection ?? [:]
+        return collection
     }
     
     override class func requiresMainQueueSetup() -> Bool {
@@ -28,13 +29,13 @@ class HmssdkDisplayView: UIView {
         return HMSVideoView()
     }()
     
-    var hms: HMSSDK?
+    var hmsCollection: [String: HmsSDK] = [:]
     var localTrack: String?
     var sinked = false
     var sinkVideo = true
     
-    func setHms(_ hmsInstance: HMSSDK?) {
-        hms = hmsInstance
+    func setHms(_ hmsInstance: [String: HmsSDK]) {
+        hmsCollection = hmsInstance
     }
     
     @objc var scaleType : String = "ASPECT_FILL" {
@@ -64,7 +65,7 @@ class HmssdkDisplayView: UIView {
             sinkVideo = sink
             localTrack = trackID
             
-            if let videoTrack = hms?.localPeer?.videoTrack {
+            if let videoTrack: HMSVideoTrack = hmsCollection["12345"]?.hms?.localPeer?.videoTrack {
                 if videoTrack.trackId == trackID {
                     
                     if !sinked && sinkVideo {
@@ -78,7 +79,7 @@ class HmssdkDisplayView: UIView {
                 }
             }
             
-            if let remotePeers = hms?.remotePeers {
+            if let remotePeers: [HMSRemotePeer] = hmsCollection["12345"]?.hms?.remotePeers {
                 for peer in remotePeers where peer.videoTrack?.trackId == trackID {
                     
                     if !sinked && sinkVideo {

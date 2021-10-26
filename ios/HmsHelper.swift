@@ -65,7 +65,7 @@ class HmsHelper: NSObject {
     }
     
     static func getHms(_ credentials: NSDictionary, _ hmsCollection: [String: HmsSDK]) -> HmsSDK? {
-        guard let id = credentials.value(forKey: "id"),
+        guard let id = credentials.value(forKey: "id") as? String,
               let hms = hmsCollection[id]
         else {
             return nil
