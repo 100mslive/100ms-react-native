@@ -27,6 +27,8 @@ import HmsManager, {
   HMSRole,
   HMSRoleChangeRequest,
   HMSSpeakerUpdate,
+  HMSRemoteAudioTrack,
+  HMSRemoteVideoTrack,
 } from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
@@ -61,6 +63,8 @@ type Peer = {
   role?: HMSRole;
   sink: boolean;
   type: 'local' | 'remote' | 'screen';
+  remoteAudio?: HMSRemoteAudioTrack;
+  remoteVideo?: HMSRemoteVideoTrack;
 };
 
 type DisplayNameProps = {
@@ -114,9 +118,13 @@ const DisplayName = ({
     peerId,
     role,
     sink,
+    remoteAudio,
+    remoteVideo,
   } = peer!;
   const [alertModalVisible, setAlertModalVisible] = useState(false);
   const [roleModalVisible, setRoleModalVisible] = useState(false);
+  const [aaa, setAAA] = useState(true);
+  const [bbb, setBBB] = useState(true);
   const [newRole, setNewRole] = useState(role?.name);
   const [force, setForce] = useState(false);
 
@@ -156,6 +164,26 @@ const DisplayName = ({
         instance?.removePeer(peerId!, 'removed from room');
       },
     });
+    selectActionButtons.push(
+      ...[
+        {
+          text: 'mute video for me',
+          onPress: async () => {
+            console.error(await remoteVideo?.isPlaybackAllowed());
+            remoteVideo?.setPlaybackAllowed(!aaa);
+            setAAA(!aaa);
+          },
+        },
+        {
+          text: 'mute audio for me',
+          onPress: async () => {
+            console.warn(await remoteAudio?.isPlaybackAllowed());
+            remoteAudio?.setPlaybackAllowed(!bbb);
+            setBBB(!bbb);
+          },
+        },
+      ],
+    );
   }
   const roleRequestTitle = 'Select action';
   const roleRequestButtons: [
@@ -227,7 +255,7 @@ const DisplayName = ({
           onItemSelected={setNewRole}
         />
       </CustomModal>
-      {isVideoMute ? (
+      {isVideoMute || !aaa ? (
         <View style={styles.avatarContainer}>
           <View style={[styles.avatar, {backgroundColor: colour}]}>
             <Text style={styles.avatarText}>{getInitials(peerName!)}</Text>
@@ -344,6 +372,14 @@ const Meeting = ({
     peer: HMSLocalPeer | HMSRemotePeer,
     type: 'local' | 'remote' | 'screen',
   ): Promise<Peer> => {
+    let remoteTrack;
+    if (type === 'remote') {
+      const remotePeerData = peer as HMSRemotePeer;
+      remoteTrack = {
+        remoteAudio: remotePeerData?.remoteAudioTrack(),
+        remoteVideo: remotePeerData?.remoteVideoTrack(),
+      };
+    }
     const peerId = peer?.peerID;
     const peerTrackId = peer?.videoTrack?.trackId;
     const peerName = peer?.name;
@@ -361,6 +397,7 @@ const Meeting = ({
       sink: true,
       role: peerRole,
       type,
+      ...remoteTrack,
     };
   };
 

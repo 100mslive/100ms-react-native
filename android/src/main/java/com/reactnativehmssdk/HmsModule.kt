@@ -450,6 +450,52 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   }
 
   @ReactMethod
+  fun isPlaybackAllowed(data: ReadableMap, callback: Promise?) {
+    val requiredKeys =
+      HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("trackId", "String")))
+    if (requiredKeys) {
+      val trackId = data.getString("trackId")
+      val remotePeers = hmsSDK?.getRemotePeers()
+      val remoteAudioTrack = HmsHelper.getRemoteAudioTrackFromTrackId(trackId, remotePeers)
+      val remoteVideoTrack = HmsHelper.getRemoteVideoTrackFromTrackId(trackId, remotePeers)
+      if (remoteAudioTrack != null) {
+        val isPlaybackAllowed = remoteAudioTrack.isPlaybackAllowed
+        callback?.resolve(isPlaybackAllowed)
+      } else if (remoteVideoTrack != null) {
+        val isPlaybackAllowed = remoteVideoTrack.isPlaybackAllowed
+        callback?.resolve(isPlaybackAllowed)
+      } else {
+        callback?.reject("101", "NOT_FOUND")
+      }
+    }else {
+      callback?.reject("101", "TRACK_ID_NOT_FOUND")
+    }
+  }
+
+  @ReactMethod
+  fun setPlaybackAllowed(data: ReadableMap) {
+    val requiredKeys =
+      HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("trackId", "String"),Pair("playbackAllowed", "Boolean")))
+    if (requiredKeys) {
+      val trackId = data.getString("trackId")
+      val playbackAllowed = data.getBoolean("playbackAllowed")
+      val remotePeers = hmsSDK?.getRemotePeers()
+      val remoteAudioTrack = HmsHelper.getRemoteAudioTrackFromTrackId(trackId, remotePeers)
+      val remoteVideoTrack = HmsHelper.getRemoteVideoTrackFromTrackId(trackId, remotePeers)
+      if (remoteAudioTrack != null) {
+        if(playbackAllowed){
+          remoteAudioTrack.setVolume(1.0)
+        }else {
+          remoteAudioTrack.setVolume(0.0)
+        }
+      } else if (remoteVideoTrack != null) {
+        remoteVideoTrack.isPlaybackAllowed = playbackAllowed
+      }
+    }
+  }
+
+
+  @ReactMethod
   fun removePeer(data: ReadableMap) {
     val requiredKeys =
         HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("peerId", "String")))
