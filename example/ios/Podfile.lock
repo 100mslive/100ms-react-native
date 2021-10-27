@@ -357,7 +357,7 @@ PODS:
     - React-jsi (= 0.64.1)
     - React-perflogger (= 0.64.1)
   - React-jsinspector (0.64.1)
-  - react-native-hms (0.6.0):
+  - react-native-hms (0.7.0):
     - HMSSDK
     - React-Core
   - react-native-safe-area-context (3.3.2):
@@ -661,7 +661,7 @@ SPEC CHECKSUMS:
   React-jsi: 5de8204706bd872b78ea646aee5d2561ca1214b6
   React-jsiexecutor: 124e8f99992490d0d13e0649d950d3e1aae06fe9
   React-jsinspector: 500a59626037be5b3b3d89c5151bc3baa9abf1a9
-  react-native-hms: d44085931e5d83baf4e5b7dd1c60f1758b902617
+  react-native-hms: f17bdaa2bd64745375e22b0e1d408f4e05cc13b9
   react-native-safe-area-context: 584dc04881deb49474363f3be89e4ca0e854c057
   React-perflogger: aad6d4b4a267936b3667260d1f649b6f6069a675
   React-RCTActionSheet: fc376be462c9c8d6ad82c0905442fd77f82a9d2a
