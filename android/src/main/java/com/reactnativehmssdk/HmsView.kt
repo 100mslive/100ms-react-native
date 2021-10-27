@@ -1,19 +1,14 @@
 package com.reactnativehmssdk
 
-import android.content.Context
 import android.widget.FrameLayout
-import com.facebook.react.bridge.LifecycleEventListener
 import com.facebook.react.bridge.ReactContext
-import live.hms.video.media.tracks.HMSLocalVideoTrack
 import live.hms.video.media.tracks.HMSVideoTrack
 import live.hms.video.sdk.HMSSDK
-import org.webrtc.SurfaceViewRenderer
 import live.hms.video.utils.SharedEglContext
 import org.webrtc.RendererCommon
+import org.webrtc.SurfaceViewRenderer
 
-class HmsView(
-  context: ReactContext
-) : FrameLayout(context) {
+class HmsView(context: ReactContext) : FrameLayout(context) {
   private var surfaceView: SurfaceViewRenderer
   private var videoTrack: HMSVideoTrack? = null
   private var localTrack: String? = null
@@ -37,7 +32,7 @@ class HmsView(
     videoTrack?.addSink(surfaceView)
   }
 
-  fun updateScaleType (scaleType: String?) {
+  fun updateScaleType(scaleType: String?) {
     if (scaleType != null) {
       when (scaleType) {
         "ASPECT_FIT" -> {
@@ -59,33 +54,36 @@ class HmsView(
     }
   }
 
-  fun setData(trackId: String?, sink: Boolean?, hms: HMSSDK?) {
+  fun setData(trackId: String?, sink: Boolean?,mirror: Boolean?, hms: HMSSDK?) {
     if (trackId != null) {
       localTrack = trackId
-        val localTrackId = hms?.getLocalPeer()?.videoTrack?.trackId
-        if (localTrackId == localTrack) {
-          videoTrack = hms?.getLocalPeer()?.videoTrack
-        }
+      if (mirror != null) {
+        surfaceView.setMirror(mirror)
+      }
+      val localTrackId = hms?.getLocalPeer()?.videoTrack?.trackId
+      if (localTrackId == localTrack) {
+        videoTrack = hms?.getLocalPeer()?.videoTrack
+      }
 
-        val remotePeers = hms?.getRemotePeers()
-        if (remotePeers !== null) {
-          for (peer in remotePeers) {
-            val videoTrackId = peer.videoTrack?.trackId
+      val remotePeers = hms?.getRemotePeers()
+      if (remotePeers !== null) {
+        for (peer in remotePeers) {
+          val videoTrackId = peer.videoTrack?.trackId
 
-            val auxiliaryTracks = peer.auxiliaryTracks
-            for (track in auxiliaryTracks) {
-              val auxTrackId = track.trackId
-              if(trackId == auxTrackId && track.source == "screen" && !track.isMute){
-                videoTrack = track as HMSVideoTrack
-                return
-              }
-            }
-            if (videoTrackId == localTrack) {
-              videoTrack = peer.videoTrack
+          val auxiliaryTracks = peer.auxiliaryTracks
+          for (track in auxiliaryTracks) {
+            val auxTrackId = track.trackId
+            if (trackId == auxTrackId && track.source == "screen" && !track.isMute) {
+              videoTrack = track as HMSVideoTrack
               return
             }
+          }
+          if (videoTrackId == localTrack) {
+            videoTrack = peer.videoTrack
+            return
           }
         }
       }
     }
   }
+}

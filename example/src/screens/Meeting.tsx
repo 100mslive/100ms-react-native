@@ -29,6 +29,7 @@ import HmsManager, {
   HMSChangeTrackStateRequest,
   HMSAudioTrack,
   HMSVideoTrack,
+  HMSSpeakerUpdate,
 } from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
@@ -293,6 +294,7 @@ const DisplayName = ({
         <HmsView
           sink={sink}
           trackId={trackId!}
+          mirror={type === 'local' ? true : false}
           scaleType={HMSVideoViewMode.ASPECT_FILL}
           style={type === 'screen' ? styles.hmsViewScreen : styles.hmsView}
         />
@@ -355,7 +357,7 @@ const Meeting = ({
   const [trackId, setTrackId] = useState<Peer>(DEFAULT_PEER);
   const [remoteTrackIds, setRemoteTrackIds] = useState<Peer[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [speakers, setSpeakers] = useState([]);
+  const [speakers, setSpeakers] = useState<Array<string>>([]);
   const [notification, setNotification] = useState(false);
   const [muteAllAudio, setMuteAllAudio] = useState(false);
   const [auxTracks, setAuxTracks] = useState<Peer[]>([]);
@@ -428,15 +430,15 @@ const Meeting = ({
     isPortrait() ? 4 : 2,
   );
 
-  const decode = (
+  const decode = async (
     peer: HMSLocalPeer | HMSRemotePeer,
     type: 'local' | 'remote' | 'screen',
-  ): Peer => {
+  ): Promise<Peer> => {
     const peerId = peer?.peerID;
     const peerTrackId = peer?.videoTrack?.trackId;
     const peerName = peer?.name;
-    const peerIsAudioMute = peer?.audioTrack?.mute;
-    const peerIsVideoMute = peer?.videoTrack?.mute;
+    const peerIsAudioMute = await peer?.audioTrack?.isMute();
+    const peerIsVideoMute = await peer?.videoTrack?.isMute();
     const peerRole = peer?.role;
     const peerAudioTrack = peer?.audioTrack;
     const peerVideoTrack = peer?.videoTrack;
@@ -456,33 +458,26 @@ const Meeting = ({
     };
   };
 
-  const updateVideoIds = (
+  const updateVideoIds = async (
     remotePeers: HMSRemotePeer[],
     localPeer?: HMSLocalPeer,
   ) => {
     // get local track Id
     const localTrackId = localPeer?.videoTrack?.trackId;
     if (localTrackId) {
-      setTrackId(decode(localPeer, 'local'));
+      const localTrackTemp = await decode(localPeer, 'local');
+      setTrackId(localTrackTemp);
     }
     const updatedLocalPeerPermissions = localPeer?.role?.permissions;
     setLocalPeerPermissions(updatedLocalPeerPermissions);
 
-    const remoteVideoIds: Peer[] = [];
+    const remoteVideoIds: Promise<Peer>[] = [];
     let newAuxTracks: Peer[] = [];
 
     if (remotePeers) {
-      remotePeers.map((remotePeer: HMSRemotePeer, index: number) => {
-        const remoteTrackId = remotePeer?.videoTrack?.trackId;
-        if (remoteTrackId) {
-          remoteVideoIds.push(decode(remotePeer, 'remote'));
-        } else {
-          remoteVideoIds.push({
-            ...decode(remotePeer, 'remote'),
-            trackId: index.toString(),
-            isVideoMute: true,
-          });
-        }
+      remotePeers.map((remotePeer: HMSRemotePeer) => {
+        const remoteTemp = decode(remotePeer, 'remote');
+        remoteVideoIds.push(remoteTemp);
 
         let auxiliaryTracks = remotePeer?.auxiliaryTracks;
 
@@ -505,7 +500,16 @@ const Meeting = ({
         setAuxTracks(newAuxTracks);
       });
 
-      setRemoteTrackIds(remoteVideoIds as []);
+      Promise.all(remoteVideoIds).then((results: Peer[]) => {
+        const updatedRemoteTracks = results.map((item: Peer, index: number) => {
+          if (item.trackId) {
+            return {...item};
+          } else {
+            return {...item, trackId: index.toString(), isVideoMute: true};
+          }
+        });
+        setRemoteTrackIds(updatedRemoteTracks as []);
+      });
     }
   };
 
@@ -575,9 +579,10 @@ const Meeting = ({
     console.log('data in onError: ', data);
   };
 
-  const onSpeaker = (data: any) => {
-    setSpeakers(data?.peers);
-    // console.log('data in onSpeaker: ', data);
+  const onSpeaker = (data: HMSSpeakerUpdate) => {
+    const peerIds = data?.peers?.map(speaker => speaker?.peer?.peerID);
+    setSpeakers(peerIds || []);
+    console.log('data in onSpeaker: ', data);
   };
 
   const reconnecting = (data: any) => {
@@ -780,7 +785,7 @@ const Meeting = ({
     return buttons;
   };
 
-  const onViewRef = React.useRef(({viewableItems}: any) => {
+  const onViewRef = React.useRef(async ({viewableItems}: any) => {
     if (viewableItems) {
       const viewableItemsIds: (string | undefined)[] = [];
       viewableItems.map(
@@ -800,8 +805,8 @@ const Meeting = ({
       const remotePeers = inst?.remotePeers;
       if (remotePeers) {
         const sinkRemoteTrackIds = remotePeers.map(
-          (peer: HMSRemotePeer, index: number) => {
-            const remotePeer = decode(peer, 'remote');
+          async (peer: HMSRemotePeer, index: number) => {
+            const remotePeer = await decode(peer, 'remote');
             const videoTrackId = remotePeer.trackId;
             if (videoTrackId) {
               if (!viewableItemsIds?.includes(videoTrackId)) {
@@ -821,7 +826,9 @@ const Meeting = ({
             }
           },
         );
-        setRemoteTrackIds(sinkRemoteTrackIds ? sinkRemoteTrackIds : []);
+        Promise.all(sinkRemoteTrackIds).then(result => {
+          setRemoteTrackIds(result ? result : []);
+        });
       }
     }
   });

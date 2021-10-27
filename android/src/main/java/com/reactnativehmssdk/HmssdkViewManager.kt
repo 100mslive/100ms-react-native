@@ -5,14 +5,10 @@ import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.annotations.ReactProp
 import live.hms.video.sdk.HMSSDK
-import org.webrtc.SurfaceViewRenderer
-import live.hms.video.utils.SharedEglContext
-import org.webrtc.RendererCommon
 
 class HmssdkViewManager : SimpleViewManager<HmsView>() {
 
   private var reactContext: ThemedReactContext? = null
-
 
   override fun getName(): String {
     return REACT_CLASS
@@ -28,17 +24,18 @@ class HmssdkViewManager : SimpleViewManager<HmsView>() {
     return view
   }
 
-  @ReactProp(name="data")
+  @ReactProp(name = "data")
   fun setData(view: HmsView, data: ReadableMap) {
     val trackId = data.getString("trackId")
     val sink = data.getBoolean("sink")
+    val mirror = data.getBoolean("mirror")
 
     val hms = getHms()
-    view.setData(trackId, sink, hms)
+    view.setData(trackId, sink, mirror, hms)
     // do the processing here
   }
 
-  @ReactProp(name="scaleType")
+  @ReactProp(name = "scaleType")
   fun setScaleType(view: HmsView, data: String?) {
     view.updateScaleType(data)
   }
