@@ -363,11 +363,9 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     }
     
     func on(changeTrackStateRequest: HMSChangeTrackStateRequest) {
-        if(!changeTrackStateRequest.mute){
-            let decodedChangeTrackStateRequest = HmsDecoder.getHmsChangeTrackStateRequest(changeTrackStateRequest)
-            recentChangeTrackStateRequest = changeTrackStateRequest
-            self.sendEvent(withName: ON_CHANGE_TRACK_STATE_REQUEST, body: decodedChangeTrackStateRequest)
-        }
+        let decodedChangeTrackStateRequest = HmsDecoder.getHmsChangeTrackStateRequest(changeTrackStateRequest)
+        recentChangeTrackStateRequest = changeTrackStateRequest
+        self.sendEvent(withName: ON_CHANGE_TRACK_STATE_REQUEST, body: decodedChangeTrackStateRequest)
     }
     
     func on(removedFromRoom notification: HMSRemovedFromRoomNotification) {
