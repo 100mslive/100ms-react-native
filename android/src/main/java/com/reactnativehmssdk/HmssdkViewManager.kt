@@ -28,9 +28,10 @@ class HmssdkViewManager : SimpleViewManager<HmsView>() {
   fun setData(view: HmsView, data: ReadableMap) {
     val trackId = data.getString("trackId")
     val sink = data.getBoolean("sink")
+    val mirror = data.getBoolean("mirror")
 
     val hms = getHms()
-    view.setData(trackId, sink, hms)
+    view.setData(trackId, sink, mirror, hms)
     // do the processing here
   }
 
