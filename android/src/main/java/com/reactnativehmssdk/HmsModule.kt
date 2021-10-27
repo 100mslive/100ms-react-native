@@ -120,8 +120,10 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
         hmsSDK?.join(
             config,
             object : HMSUpdateListener {
-              override fun onChangeTrackStateRequest(details: HMSChangeTrackStateRequest) {
-                //          Not yet implemented
+              override fun onChangeTrackStateRequest(request: HMSChangeTrackStateRequest) {
+                val decodedChangeTrackStateRequest = HmsDecoder.getHmsChangeTrackStateRequest(request)
+                reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_CHANGE_TRACK_STATE_REQUEST", decodedChangeTrackStateRequest)
+                changeTrackStateRequest = request
               }
 
               override fun onRemovedFromRoom(notification: HMSRemovedFromRoom) {
