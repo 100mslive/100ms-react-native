@@ -31,7 +31,7 @@ export const HmsView = ({
   const data = {
     trackId,
     sink,
-    mirror: mirror || true,
+    mirror: mirror || false,
   };
 
   return <HmsViewComponent data={data} style={style} scaleType={scaleType} />;
