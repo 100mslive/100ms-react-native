@@ -7,6 +7,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     var hms: HMSSDK?
     var config: HMSConfig?
     var recentRoleChangeRequest: HMSRoleChangeRequest?
+    var recentChangeTrackStateRequest: HMSChangeTrackStateRequest?
     
     let ON_PREVIEW = "ON_PREVIEW"
     let ON_JOIN = "ON_JOIN"
@@ -14,6 +15,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     let ON_PEER_UPDATE = "ON_PEER_UPDATE"
     let ON_TRACK_UPDATE = "ON_TRACK_UPDATE"
     let ON_ROLE_CHANGE_REQUEST = "ON_ROLE_CHANGE_REQUEST"
+    let ON_CHANGE_TRACK_STATE_REQUEST = "ON_CHANGE_TRACK_STATE_REQUEST"
     let ON_REMOVED_FROM_ROOM = "ON_REMOVED_FROM_ROOM"
     let ON_ERROR = "ON_ERROR"
     let ON_MESSAGE = "ON_MESSAGE"
@@ -32,7 +34,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     }
     
     override func supportedEvents() -> [String]! {
-        return [ON_JOIN, ON_PREVIEW, ON_ROOM_UPDATE, ON_PEER_UPDATE, ON_TRACK_UPDATE, ON_ERROR, ON_MESSAGE, ON_SPEAKER, RECONNECTING, RECONNECTED, ON_ROLE_CHANGE_REQUEST, ON_REMOVED_FROM_ROOM]
+        return [ON_JOIN, ON_PREVIEW, ON_ROOM_UPDATE, ON_PEER_UPDATE, ON_TRACK_UPDATE, ON_ERROR, ON_MESSAGE, ON_SPEAKER, RECONNECTING, RECONNECTED, ON_ROLE_CHANGE_REQUEST, ON_CHANGE_TRACK_STATE_REQUEST, ON_REMOVED_FROM_ROOM]
     }
     
     
@@ -361,7 +363,9 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     }
     
     func on(changeTrackStateRequest: HMSChangeTrackStateRequest) {
-        // On track state change required
+        let decodedChangeTrackStateRequest = HmsDecoder.getHmsChangeTrackStateRequest(changeTrackStateRequest)
+        recentChangeTrackStateRequest = changeTrackStateRequest
+        self.sendEvent(withName: ON_CHANGE_TRACK_STATE_REQUEST, body: decodedChangeTrackStateRequest)
     }
     
     func on(removedFromRoom notification: HMSRemovedFromRoomNotification) {

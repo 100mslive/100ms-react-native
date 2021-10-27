@@ -7,6 +7,7 @@ import live.hms.video.media.settings.HMSVideoTrackSettings
 import live.hms.video.media.tracks.*
 import live.hms.video.sdk.models.*
 import live.hms.video.sdk.models.role.*
+import live.hms.video.sdk.models.trackchangerequest.HMSChangeTrackStateRequest
 
 object HmsDecoder {
 
@@ -390,5 +391,14 @@ object HmsDecoder {
     roleChangeRequest.putMap("suggestedRole", getHmsRole(request.suggestedRole))
 
     return roleChangeRequest
+  }
+
+  fun getHmsChangeTrackStateRequest(request: HMSChangeTrackStateRequest): WritableMap {
+    val changeTrackStateRequest: WritableMap = Arguments.createMap()
+
+    changeTrackStateRequest.putMap("requestedBy", getHmsPeer(request.requestedBy))
+    changeTrackStateRequest.putString("trackType", request.track.type.name)
+
+    return changeTrackStateRequest
   }
 }
