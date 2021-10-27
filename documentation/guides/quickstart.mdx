@@ -50,9 +50,9 @@ Add following lines in `Info.plist` file
 
 ## Concepts
 
--   Room: When we join a conference call, the participants are said to be in a video call room.
--   Peer: A participant in the video call. You are the local peer while others are remote peers.
--   Track: Media. There are two types of track a peer can have - audio and video.
+- Room: When we join a conference call, the participants are said to be in a video call room.
+- Peer: A participant in the video call. You are the local peer while others are remote peers.
+- Track: Media. There are two types of track a peer can have - audio and video.
 
 ## Initializing the SDK
 
@@ -77,8 +77,8 @@ import HmsManager, { HMSUpdateListenerActions } from 'react-native-hms';
 
 // instance acquired from build() method
 hmsInstance.addEventListener(
-    HMSUpdateListenerActions.ON_PREVIEW,
-    onPreview // function that will be called on Preview success
+  HMSUpdateListenerActions.ON_PREVIEW,
+  onPreview // function that will be called on Preview success
 );
 
 hmsInstance.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
@@ -96,7 +96,10 @@ To join a room 3 fields are required:
 - `roomID` (optional): The ID of the room that you wanna join
 
 ```js
-import HmsManager, { HMSUpdateListenerActions, HMSConfig } from 'react-native-hms';
+import HmsManager, {
+  HMSUpdateListenerActions,
+  HMSConfig,
+} from 'react-native-hms';
 
 // instance acquired from build() method
 const HmsConfig = new HMSConfig({ authToken, userID, roomID, userName });
@@ -118,19 +121,25 @@ hmsInstance.leave();
 
 ## Render video
 
-Let us next add a way to show a tile for every participant in the room. We use HmsView component to render video on screen. This component takes Sink, TrackId of HMSVideoTrack and renders the corresponding track. When sink is true the video will be visible and when it is false video would be removed. It is ios only prop for android it is handled by the package itself.
+Let us next add a way to show a tile for every participant in the room. We use HmsView component to render video on screen. This component takes sink, trackId and scaleType of HMSVideoTrack and renders the corresponding track. The prop scaleType can be selected from HMSVideoViewMode as required. When sink is true the video will be visible and when it is false video would be removed. It is ios only prop for android it is handled by the package itself. We can also add mirror a boolean prop as true to flip videos horizontally. Here is a code snippet explaining the way to link a videoTrack to HmsView.
 
 ```js
-import { HmsView } from 'react-native-hms';
+import { HmsView, HMSVideoViewMode } from 'react-native-hms';
 
 const styles = StyleSheet.create({
-    hmsView: {
-        height: '100%',
-        width: '100%'
-    }
+  hmsView: {
+    height: '100%',
+    width: '100%',
+  },
 });
 
-<HmsView sink={true} style={styles.hmsView} trackId={trackId} />;
+<HmsView
+  sink={true}
+  style={styles.hmsView}
+  trackId={trackId}
+  mirror={true}
+  scaleType={HMSVideoViewMode.ASPECT_FILL}
+/>;
 ```
 
 There are 2 types of Peers - a localPeer & remotePeers. To extract trackId from peers we can use following code snippet.
@@ -146,30 +155,36 @@ These track IDs can directly be passed to HmsView component
 > A Pro tip: for fastest updates we can use ON_PEER_UPDATE and ON_TRACK_UPDATE listeners, these listeners get updated localPeer and remotePeers whenever there is any event related to these values.
 
 ```js
-HmsInstance.addEventListener(HMSUpdateListenerActions.ON_PEER_UPDATE, onPeerListener);
+HmsInstance.addEventListener(
+  HMSUpdateListenerActions.ON_PEER_UPDATE,
+  onPeerListener
+);
 
-HmsInstance.addEventListener(HMSUpdateListenerActions.ON_TRACK_UPDATE, onTrackListener);
+HmsInstance.addEventListener(
+  HMSUpdateListenerActions.ON_TRACK_UPDATE,
+  onTrackListener
+);
 
 const onPeerListener = ({
-    remotePeers,
-    localPeer
+  remotePeers,
+  localPeer,
 }: {
-    room?: any,
-    localPeer: any,
-    remotePeers: any
+  room?: any,
+  localPeer: any,
+  remotePeers: any,
 }) => {
-    updateVideoIds(remotePeers, localPeer); // this function can be used to update local and remotePeers on React-Native side
+  updateVideoIds(remotePeers, localPeer); // this function can be used to update local and remotePeers on React-Native side
 };
 
 const onTrackListener = ({
-    remotePeers,
-    localPeer
+  remotePeers,
+  localPeer,
 }: {
-    room?: any,
-    localPeer: any,
-    remotePeers: any
+  room?: any,
+  localPeer: any,
+  remotePeers: any,
 }) => {
-    updateVideoIds(remotePeers, localPeer);
+  updateVideoIds(remotePeers, localPeer);
 };
 ```
 

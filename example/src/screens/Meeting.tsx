@@ -237,6 +237,7 @@ const DisplayName = ({
         <HmsView
           sink={sink}
           trackId={trackId!}
+          mirror={type === 'local' ? true : false}
           scaleType={HMSVideoViewMode.ASPECT_FILL}
           style={type === 'screen' ? styles.hmsViewScreen : styles.hmsView}
         />
