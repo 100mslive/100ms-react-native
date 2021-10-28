@@ -1,4 +1,5 @@
 import { NativeModules } from 'react-native';
+import { HMSVideoTrack } from './HMSVideoTrack';
 
 const {
   /**
@@ -7,13 +8,8 @@ const {
   HmsManager,
 } = NativeModules;
 
-import { HMSVideoTrack } from './HMSVideoTrack';
-
 export class HMSRemoteVideoTrack extends HMSVideoTrack {
   layer?: any; //TODO: layer to be made HMSSimulcastLayer type
-  // isPlaybackAllowed?: Function;
-  // setPlaybackAllowed?: Function;
-  // playbackAllowed?: boolean;
 
   /**
    * Switches Video of remote user on/off depending upon the value of playbackAllowed
@@ -27,7 +23,7 @@ export class HMSRemoteVideoTrack extends HMSVideoTrack {
 
   isPlaybackAllowed = async () => {
     try {
-      let val = await HmsManager.isPlaybackAllowed({ trackId: this.trackId });
+      const val = await HmsManager.isPlaybackAllowed({ trackId: this.trackId });
       return val;
     } catch (e) {
       return true;
@@ -40,10 +36,8 @@ export class HMSRemoteVideoTrack extends HMSVideoTrack {
     trackDescription?: string;
     isMute?: boolean;
     layer?: any;
-    // playbackAllowed?: boolean;
   }) {
     super(params);
     this.layer = params.layer;
-    // this.playbackAllowed = params.playbackAllowed;
   }
 }

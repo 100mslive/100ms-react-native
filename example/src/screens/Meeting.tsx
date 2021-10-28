@@ -123,8 +123,6 @@ const DisplayName = ({
   } = peer!;
   const [alertModalVisible, setAlertModalVisible] = useState(false);
   const [roleModalVisible, setRoleModalVisible] = useState(false);
-  const [aaa, setAAA] = useState(true);
-  const [bbb, setBBB] = useState(true);
   const [newRole, setNewRole] = useState(role?.name);
   const [force, setForce] = useState(false);
 
@@ -136,7 +134,24 @@ const DisplayName = ({
     text: string;
     type?: string;
     onPress?: Function;
-  }> = [{text: 'Cancel', type: 'cancel'}];
+  }> = [
+    {text: 'Cancel', type: 'cancel'},
+    {
+      text: 'mute/unmute video for me',
+      onPress: async () => {
+        const playbackAllowed = await remoteVideo?.isPlaybackAllowed();
+        remoteVideo?.setPlaybackAllowed(!playbackAllowed);
+      },
+    },
+    {
+      text: 'mute/unmute audio for me',
+      onPress: async () => {
+        const playbackAllowed = await remoteAudio?.isPlaybackAllowed();
+        remoteAudio?.setPlaybackAllowed(!playbackAllowed);
+      },
+    },
+  ];
+
   if (permissions?.changeRole) {
     selectActionButtons.push(
       ...[
@@ -164,26 +179,6 @@ const DisplayName = ({
         instance?.removePeer(peerId!, 'removed from room');
       },
     });
-    selectActionButtons.push(
-      ...[
-        {
-          text: 'mute video for me',
-          onPress: async () => {
-            console.error(await remoteVideo?.isPlaybackAllowed());
-            remoteVideo?.setPlaybackAllowed(!aaa);
-            setAAA(!aaa);
-          },
-        },
-        {
-          text: 'mute audio for me',
-          onPress: async () => {
-            console.warn(await remoteAudio?.isPlaybackAllowed());
-            remoteAudio?.setPlaybackAllowed(!bbb);
-            setBBB(!bbb);
-          },
-        },
-      ],
-    );
   }
   const roleRequestTitle = 'Select action';
   const roleRequestButtons: [
@@ -255,7 +250,7 @@ const DisplayName = ({
           onItemSelected={setNewRole}
         />
       </CustomModal>
-      {isVideoMute || !aaa ? (
+      {isVideoMute ? (
         <View style={styles.avatarContainer}>
           <View style={[styles.avatar, {backgroundColor: colour}]}>
             <Text style={styles.avatarText}>{getInitials(peerName!)}</Text>
