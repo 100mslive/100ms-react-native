@@ -63,6 +63,10 @@ class HmssdkDisplayView: UIView {
             
             sinkVideo = sink
             localTrack = trackID
+            let mirror = data.value(forKey: "mirror") as? Bool
+            if(mirror != nil){
+                videoView.mirror = mirror!
+            }
             
             if let videoTrack = hms?.localPeer?.videoTrack {
                 if videoTrack.trackId == trackID {

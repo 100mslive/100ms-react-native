@@ -54,9 +54,12 @@ class HmsView(context: ReactContext) : FrameLayout(context) {
     }
   }
 
-  fun setData(trackId: String?, sink: Boolean?, hms: HMSSDK?) {
+  fun setData(trackId: String?, sink: Boolean?,mirror: Boolean?, hms: HMSSDK?) {
     if (trackId != null) {
       localTrack = trackId
+      if (mirror != null) {
+        surfaceView.setMirror(mirror)
+      }
       val localTrackId = hms?.getLocalPeer()?.videoTrack?.trackId
       if (localTrackId == localTrack) {
         videoTrack = hms?.getLocalPeer()?.videoTrack
