@@ -245,6 +245,65 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     }
     
     @objc
+    func isPlaybackAllowed(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let trackId = data.value(forKey: "trackId") as? String
+        else {
+            reject?(nil, "NOT_FOUND", nil)
+            return
+        }
+        DispatchQueue.main.async { [weak self] in
+            guard let remotePeers = self?.hms?.remotePeers
+            else {
+                reject?(nil, "NOT_FOUND", nil)
+                return
+            }
+            let remoteAudioTrack = HmsHelper.getRemoteAudioTrackFromTrackId(trackId, remotePeers)
+            let remoteVideoTrack = HmsHelper.getRemoteVideoTrackFromTrackId(trackId, remotePeers)
+            if (remoteAudioTrack != nil) {
+                let isPlaybackAllowed = remoteAudioTrack?.isPlaybackAllowed()
+                resolve?(isPlaybackAllowed)
+                return
+            } else if (remoteVideoTrack != nil) {
+                let isPlaybackAllowed = remoteVideoTrack?.isPlaybackAllowed()
+                resolve?(isPlaybackAllowed)
+                return
+            } else {
+                reject?(nil, "NOT_FOUND",nil)
+                return
+            }
+        }
+    }
+    
+    @objc
+    func setPlaybackAllowed(_ data: NSDictionary) {
+        guard let trackId = data.value(forKey: "trackId") as? String
+        else {
+            return
+        }
+        guard let playbackAllowed = data.value(forKey: "playbackAllowed") as? Bool
+        else {
+            return
+        }
+        DispatchQueue.main.async { [weak self] in
+            guard let remotePeers = self?.hms?.remotePeers
+            else {
+                return
+            }
+            let remoteAudioTrack = HmsHelper.getRemoteAudioTrackFromTrackId(trackId, remotePeers)
+            let remoteVideoTrack = HmsHelper.getRemoteVideoTrackFromTrackId(trackId, remotePeers)
+            if (remoteAudioTrack != nil) {
+                if(playbackAllowed){
+                    remoteAudioTrack?.setPlaybackAllowed(playbackAllowed)
+                }else {
+                    remoteAudioTrack?.setPlaybackAllowed(playbackAllowed)
+                }
+            } else if (remoteVideoTrack != nil) {
+                remoteVideoTrack?.setPlaybackAllowed(playbackAllowed)
+            }
+        }
+    }
+    
+    @objc
     func removePeer(_ data: NSDictionary) {
         
         

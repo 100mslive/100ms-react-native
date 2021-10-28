@@ -453,6 +453,48 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   }
 
   @ReactMethod
+  fun isPlaybackAllowed(data: ReadableMap, callback: Promise?) {
+    val requiredKeys =
+      HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("trackId", "String")))
+    if (requiredKeys) {
+      val trackId = data.getString("trackId")
+      val remotePeers = hmsSDK?.getRemotePeers()
+      val remoteAudioTrack = HmsHelper.getRemoteAudioTrackFromTrackId(trackId, remotePeers)
+      val remoteVideoTrack = HmsHelper.getRemoteVideoTrackFromTrackId(trackId, remotePeers)
+      if (remoteAudioTrack != null) {
+        val isPlaybackAllowed = remoteAudioTrack.isPlaybackAllowed
+        callback?.resolve(isPlaybackAllowed)
+      } else if (remoteVideoTrack != null) {
+        val isPlaybackAllowed = remoteVideoTrack.isPlaybackAllowed
+        callback?.resolve(isPlaybackAllowed)
+      } else {
+        callback?.reject("101", "NOT_FOUND")
+      }
+    }else {
+      callback?.reject("101", "TRACK_ID_NOT_FOUND")
+    }
+  }
+
+  @ReactMethod
+  fun setPlaybackAllowed(data: ReadableMap) {
+    val requiredKeys =
+      HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("trackId", "String"),Pair("playbackAllowed", "Boolean")))
+    if (requiredKeys) {
+      val trackId = data.getString("trackId")
+      val playbackAllowed = data.getBoolean("playbackAllowed")
+      val remotePeers = hmsSDK?.getRemotePeers()
+      val remoteAudioTrack = HmsHelper.getRemoteAudioTrackFromTrackId(trackId, remotePeers)
+      val remoteVideoTrack = HmsHelper.getRemoteVideoTrackFromTrackId(trackId, remotePeers)
+      if (remoteAudioTrack != null) {
+        remoteAudioTrack.isPlaybackAllowed = playbackAllowed
+      } else if (remoteVideoTrack != null) {
+        remoteVideoTrack.isPlaybackAllowed = playbackAllowed
+      }
+    }
+  }
+
+
+  @ReactMethod
   fun removePeer(data: ReadableMap) {
     val requiredKeys =
         HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("peerId", "String")))
@@ -523,11 +565,7 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
         val peerId = remotePeer?.peerID
         val peer = HmsHelper.getRemotePeerFromPeerId(peerId, peers)
         if (peerId != null) {
-          if (mute) {
-            peer?.audioTrack?.setVolume(0.0)
-          } else {
-            peer?.audioTrack?.setVolume(1.0)
-          }
+          peer?.audioTrack?.isPlaybackAllowed = !mute
         }
       }
       val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())

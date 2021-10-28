@@ -44,6 +44,23 @@ class HmsHelper: NSObject {
         return nil
     }
     
+    static func getRemoteAudioTrackFromTrackId(_ trackID: String?, _ remotePeers: [HMSRemotePeer]?) -> HMSRemoteAudioTrack? {
+        for peer in remotePeers ?? [] {
+            if peer.audioTrack?.trackId == trackID {
+                return peer.audioTrack as? HMSRemoteAudioTrack
+            }
+        }
+        return nil
+    }
+    
+    static func getRemoteVideoTrackFromTrackId(_ trackID: String?, _ remotePeers: [HMSRemotePeer]?) -> HMSRemoteVideoTrack? {
+        for peer in remotePeers ?? [] {
+            if peer.videoTrack?.trackId == trackID {
+                return peer.videoTrack as? HMSRemoteVideoTrack
+            }
+        }
+        return nil
+    }
     
     static func getTrackFromTrackId(_ trackID: String?, _ remotePeers: [HMSRemotePeer]?) -> HMSTrack? {
         
