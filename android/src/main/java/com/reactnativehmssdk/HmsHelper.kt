@@ -1,5 +1,6 @@
 package com.reactnativehmssdk
 
+import com.facebook.react.bridge.ReadableMap
 import live.hms.video.sdk.models.role.*
 import live.hms.video.sdk.models.*
 import live.hms.video.media.tracks.*
@@ -86,5 +87,15 @@ object HmsHelper {
       }
     }
     return null
+  }
+
+  fun getHms(credentials: ReadableMap, hmsCollection: MutableMap<String, HmsSDK>): HmsSDK? {
+    val id = credentials.getString("id")
+
+    if (id != null) {
+      return hmsCollection[id]
+    } else {
+      return null
+    }
   }
 }
