@@ -117,12 +117,15 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
       }
 
       HMSCoroutineScope.launch {
-        hmsSDK?.join(
+        try {
+          hmsSDK?.join(
             config,
             object : HMSUpdateListener {
               override fun onChangeTrackStateRequest(request: HMSChangeTrackStateRequest) {
-                val decodedChangeTrackStateRequest = HmsDecoder.getHmsChangeTrackStateRequest(request)
-                reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_CHANGE_TRACK_STATE_REQUEST", decodedChangeTrackStateRequest)
+                val decodedChangeTrackStateRequest =
+                  HmsDecoder.getHmsChangeTrackStateRequest(request)
+                reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                  .emit("ON_CHANGE_TRACK_STATE_REQUEST", decodedChangeTrackStateRequest)
                 changeTrackStateRequest = request
               }
 
@@ -140,14 +143,14 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
                 data.putString("reason", reason)
 
                 reactApplicationContext
-                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-                    .emit("ON_REMOVED_FROM_ROOM", data)
+                  .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                  .emit("ON_REMOVED_FROM_ROOM", data)
               }
 
               override fun onError(error: HMSException) {
                 reactApplicationContext
-                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-                    .emit("ON_ERROR", "ERROR")
+                  .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                  .emit("ON_ERROR", "ERROR")
               }
 
               override fun onJoin(room: HMSRoom) {
@@ -163,8 +166,8 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
                 data.putArray("remotePeers", remotePeerData)
                 data.putArray("roles", roles)
                 reactApplicationContext
-                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-                    .emit("ON_JOIN", data)
+                  .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                  .emit("ON_JOIN", data)
               }
 
               override fun onPeerUpdate(type: HMSPeerUpdate, hmsPeer: HMSPeer) {
@@ -179,8 +182,8 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
                 data.putMap("localPeer", localPeerData)
                 data.putArray("remotePeers", remotePeerData)
                 reactApplicationContext
-                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-                    .emit("ON_PEER_UPDATE", data)
+                  .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                  .emit("ON_PEER_UPDATE", data)
               }
 
               override fun onRoomUpdate(type: HMSRoomUpdate, hmsRoom: HMSRoom) {
@@ -196,8 +199,8 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
                 data.putMap("localPeer", localPeerData)
                 data.putArray("remotePeers", remotePeerData)
                 reactApplicationContext
-                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-                    .emit("ON_ROOM_UPDATE", data)
+                  .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                  .emit("ON_ROOM_UPDATE", data)
               }
 
               override fun onTrackUpdate(type: HMSTrackUpdate, track: HMSTrack, peer: HMSPeer) {
@@ -211,8 +214,8 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
                 data.putMap("localPeer", localPeerData)
                 data.putArray("remotePeers", remotePeerData)
                 reactApplicationContext
-                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-                    .emit("ON_TRACK_UPDATE", data)
+                  .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                  .emit("ON_TRACK_UPDATE", data)
               }
 
               override fun onMessageReceived(message: HMSMessage) {
@@ -225,31 +228,36 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
                 data.putString("event", "ON_MESSAGE")
 
                 reactApplicationContext
-                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-                    .emit("ON_MESSAGE", data)
+                  .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                  .emit("ON_MESSAGE", data)
               }
 
               override fun onReconnected() {
                 reactApplicationContext
-                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-                    .emit("RECONNECTED", "RECONNECTED")
+                  .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                  .emit("RECONNECTED", "RECONNECTED")
               }
 
               override fun onReconnecting(error: HMSException) {
                 reactApplicationContext
-                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-                    .emit("RECONNECTING", "RECONNECTING")
+                  .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                  .emit("RECONNECTING", "RECONNECTING")
               }
 
               override fun onRoleChangeRequest(request: HMSRoleChangeRequest) {
                 val decodedChangeRoleRequest = HmsDecoder.getHmsRoleChangeRequest(request)
                 reactApplicationContext
-                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-                    .emit("ON_ROLE_CHANGE_REQUEST", decodedChangeRoleRequest)
+                  .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                  .emit("ON_ROLE_CHANGE_REQUEST", decodedChangeRoleRequest)
                 recentRoleChangeRequest = request
               }
             }
-        )
+          )
+        }catch (e: Exception){
+          reactApplicationContext
+            .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+            .emit("ON_ERROR", e)
+        }
 
         hmsSDK?.addAudioObserver(
             object : HMSAudioListener {

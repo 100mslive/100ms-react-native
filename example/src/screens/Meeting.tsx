@@ -159,6 +159,26 @@ const DisplayName = ({
     },
   ];
 
+  if (permissions?.unmute) {
+    const unmute = false;
+    if (isAudioMute) {
+      selectActionButtons.push({
+        text: 'Unmute audio',
+        onPress: () => {
+          instance?.changeTrackState(audioTrack as HMSTrack, unmute);
+        },
+      });
+    }
+    if (isVideoMute) {
+      selectActionButtons.push({
+        text: 'Unmute video',
+        onPress: () => {
+          instance?.changeTrackState(videoTrack as HMSTrack, unmute);
+        },
+      });
+    }
+  }
+
   if (permissions?.changeRole) {
     selectActionButtons.push(
       ...[
@@ -203,52 +223,21 @@ const DisplayName = ({
 
   if (permissions?.mute) {
     const mute = true;
-    const unmute = false;
     if (!isAudioMute) {
-      selectActionButtons.push(
-        ...[
-          {
-            text: 'Request peer to mute audio',
-            onPress: () => {
-              instance?.changeTrackState(audioTrack as HMSTrack, mute);
-            },
-          },
-        ],
-      );
-    } else {
-      selectActionButtons.push(
-        ...[
-          {
-            text: 'Request peer to unmute audio',
-            onPress: () => {
-              instance?.changeTrackState(audioTrack as HMSTrack, unmute);
-            },
-          },
-        ],
-      );
+      selectActionButtons.push({
+        text: 'Mute audio',
+        onPress: () => {
+          instance?.changeTrackState(audioTrack as HMSTrack, mute);
+        },
+      });
     }
     if (!isVideoMute) {
-      selectActionButtons.push(
-        ...[
-          {
-            text: 'Request peer to mute video',
-            onPress: () => {
-              instance?.changeTrackState(videoTrack as HMSTrack, mute);
-            },
-          },
-        ],
-      );
-    } else {
-      selectActionButtons.push(
-        ...[
-          {
-            text: 'Request peer to unmute video',
-            onPress: () => {
-              instance?.changeTrackState(videoTrack as HMSTrack, unmute);
-            },
-          },
-        ],
-      );
+      selectActionButtons.push({
+        text: 'Mute video',
+        onPress: () => {
+          instance?.changeTrackState(videoTrack as HMSTrack, mute);
+        },
+      });
     }
   }
 
@@ -393,14 +382,8 @@ const Meeting = ({
   const [changeTrackStateModalVisible, setChangeTrackStateModalVisible] =
     useState(false);
   const [leaveModalVisible, setLeaveModalVisible] = useState(false);
-  const [localPeerPermissions, setLocalPeerPermissions] = useState<
-    HMSPermissions | undefined
-  >({
-    changeRole: false,
-    endRoom: false,
-    removeOthers: false,
-    mute: false,
-  });
+  const [localPeerPermissions, setLocalPeerPermissions] =
+    useState<HMSPermissions>();
 
   const roleChangeRequestTitle = roleChangeModalVisible
     ? 'Role Change Request'
