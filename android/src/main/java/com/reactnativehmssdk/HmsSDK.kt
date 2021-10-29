@@ -57,7 +57,7 @@ class HmsSDK(HmsDelegate: HmsModule, sdkId: String, reactApplicationContext: Rea
 
   fun join(credentials: ReadableMap) {
     var config =
-      HMSConfig(credentials.getString("username") as String, credentials.getString("authToken") as String)
+      HMSConfig(credentials.getString("username") as String,  credentials.getString("authToken") as String)
 
     if (credentials.getString("endpoint") != null) {
       config = HMSConfig(credentials.getString("username") as String, credentials.getString("authToken") as String, initEndpoint = credentials.getString("endpoint") as String)
@@ -87,7 +87,7 @@ class HmsSDK(HmsDelegate: HmsModule, sdkId: String, reactApplicationContext: Rea
 
         override fun onError(error: HMSException) {
           val data: WritableMap = Arguments.createMap();
-          data.putString("ERROR", "ERROR")
+          data.putString("ERROR", error.description)
           delegate.emitEvent("ON_ERROR", data)
         }
 
