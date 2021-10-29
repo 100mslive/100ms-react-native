@@ -82,14 +82,26 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
             if let config = strongSelf.config {
-                strongSelf.hms?.join(config: config, delegate: strongSelf)
+                do{
+                    try strongSelf.hms?.join(config: config, delegate: strongSelf)
+                }catch let error{
+                    strongSelf.sendEvent(withName: strongSelf.ON_ERROR, body: ["event": strongSelf.ON_ERROR, "error": error.localizedDescription])
+                }
             } else {
                 if let endpoint = credentials.value(forKey: "endpoint") as? String {
-                    strongSelf.config = HMSConfig(userName: user, userID: UUID().uuidString, roomID: room, authToken: authToken, endpoint: endpoint)
-                    strongSelf.hms?.join(config: strongSelf.config!, delegate: strongSelf)
+                    do{
+                        strongSelf.config = HMSConfig(userName: user, userID: UUID().uuidString, roomID: room, authToken: authToken, endpoint: endpoint)
+                        try strongSelf.hms?.join(config: strongSelf.config!, delegate: strongSelf)
+                    }catch let error{
+                        strongSelf.sendEvent(withName: strongSelf.ON_ERROR, body: ["event": strongSelf.ON_ERROR, "error": error.localizedDescription])
+                    }
                 } else {
-                    strongSelf.config = HMSConfig(userName: user, userID: UUID().uuidString, roomID: room, authToken: authToken)
-                    strongSelf.hms?.join(config: strongSelf.config!, delegate: strongSelf)
+                    do{
+                        strongSelf.config = HMSConfig(userName: user, userID: UUID().uuidString, roomID: room, authToken: authToken)
+                        try strongSelf.hms?.join(config: strongSelf.config!, delegate: strongSelf)
+                    }catch let error{
+                        strongSelf.sendEvent(withName: strongSelf.ON_ERROR, body: ["event": strongSelf.ON_ERROR, "error": error.localizedDescription])
+                    }
                 }
             }
         }
