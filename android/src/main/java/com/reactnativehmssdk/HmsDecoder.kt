@@ -132,14 +132,22 @@ object HmsDecoder {
           "mute",
           if (hmsPermissions.mute != null) hmsPermissions.mute else false
       )
-      //        permissions.putBoolean("stopPresentation", if (hmsPermissions.stopPresentation !=
-      // null) hmsPermissions.stopPresentation else false);
-      //        permissions.putBoolean("muteAll", if (hmsPermissions.muteAll != null)
-      // hmsPermissions.muteAll else false);
-      //        permissions.putBoolean("askToUnmute", if (hmsPermissions.askToUnmute != null)
-      // hmsPermissions.askToUnmute else false);
-      //        permissions.putBoolean("muteSelective", if (hmsPermissions.muteSelective != null)
-      // hmsPermissions.muteSelective else false);
+      permissions.putBoolean(
+        "changeRoleForce",
+        if (hmsPermissions.changeRoleForce != null) hmsPermissions.changeRoleForce else false
+      )
+      permissions.putBoolean(
+        "unmute",
+        if (hmsPermissions.unmute != null) hmsPermissions.unmute else false
+      )
+      permissions.putBoolean(
+        "recording",
+        if (hmsPermissions.recording != null) hmsPermissions.recording else false
+      )
+      permissions.putBoolean(
+        "rtmp",
+        if (hmsPermissions.rtmp != null) hmsPermissions.rtmp else false
+      )
       permissions.putBoolean(
           "changeRole",
           if (hmsPermissions.changeRole != null) hmsPermissions.changeRole else false
