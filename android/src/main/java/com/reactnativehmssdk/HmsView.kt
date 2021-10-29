@@ -59,15 +59,17 @@ class HmsView(
     }
   }
 
-  fun setData(trackId: String?, sink: Boolean?, hms: HMSSDK?) {
-    if (trackId != null) {
+  fun setData(id: String?, trackId: String?, sink: Boolean?, hmsCollection: MutableMap<String, HmsSDK>) {
+    val hms = hmsCollection["12345"]?.hmsSDK
+
+    if (trackId != null && hms != null) {
       localTrack = trackId
-        val localTrackId = hms?.getLocalPeer()?.videoTrack?.trackId
+        val localTrackId = hms.getLocalPeer()?.videoTrack?.trackId
         if (localTrackId == localTrack) {
-          videoTrack = hms?.getLocalPeer()?.videoTrack
+          videoTrack = hms.getLocalPeer()?.videoTrack
         }
 
-        val remotePeers = hms?.getRemotePeers()
+        val remotePeers = hms.getRemotePeers()
         if (remotePeers !== null) {
           for (peer in remotePeers) {
             val videoTrackId = peer.videoTrack?.trackId

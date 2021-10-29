@@ -32,9 +32,12 @@ class HmssdkViewManager : SimpleViewManager<HmsView>() {
   fun setData(view: HmsView, data: ReadableMap) {
     val trackId = data.getString("trackId")
     val sink = data.getBoolean("sink")
+    val id = data.getString("id")
 
-    val hms = getHms()
-    view.setData(trackId, sink, hms)
+    val hmsCollection = getHms()
+    if (hmsCollection != null) {
+      view.setData(id, trackId, sink, hmsCollection)
+    }
     // do the processing here
   }
 
@@ -43,9 +46,9 @@ class HmssdkViewManager : SimpleViewManager<HmsView>() {
     view.updateScaleType(data)
   }
 
-  private fun getHms(): HMSSDK? {
-    val hms = reactContext?.getNativeModule(HmsModule::class.java)?.getHmsInstance()
-    return hms
+  private fun getHms(): MutableMap<String, HmsSDK>? {
+    val hmsCollection = reactContext?.getNativeModule(HmsModule::class.java)?.getHmsInstance()
+    return hmsCollection
   }
 
   companion object {

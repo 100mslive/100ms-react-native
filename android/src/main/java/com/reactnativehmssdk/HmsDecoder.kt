@@ -335,12 +335,14 @@ object HmsDecoder {
       return hmsTracks
     }
 
-  fun getHmsRoleChangeRequest(request: HMSRoleChangeRequest): WritableMap {
+  fun getHmsRoleChangeRequest(request: HMSRoleChangeRequest, id: String?): WritableMap {
     val roleChangeRequest: WritableMap = Arguments.createMap()
-
-    roleChangeRequest.putMap("requestedBy", getHmsPeer(request.requestedBy))
-    roleChangeRequest.putMap("suggestedRole", getHmsRole(request.suggestedRole))
-
+    if (id != null) {
+      roleChangeRequest.putMap("requestedBy", getHmsPeer(request.requestedBy))
+      roleChangeRequest.putMap("suggestedRole", getHmsRole(request.suggestedRole))
+      roleChangeRequest.putString("id", id)
+      return roleChangeRequest
+    }
     return roleChangeRequest
   }
 }
