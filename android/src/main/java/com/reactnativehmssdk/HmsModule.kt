@@ -137,7 +137,7 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   fun acceptRoleChange(data: ReadableMap) {
     val hms = HmsHelper.getHms(data, hmsCollection)
 
-    hms?.endRoom(data)
+    hms?.acceptRoleChange()
   }
 
   @ReactMethod
