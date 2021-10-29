@@ -7,6 +7,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     var hms: HMSSDK?
     var config: HMSConfig?
     var recentRoleChangeRequest: HMSRoleChangeRequest?
+    var recentChangeTrackStateRequest: HMSChangeTrackStateRequest?
     
     let ON_PREVIEW = "ON_PREVIEW"
     let ON_JOIN = "ON_JOIN"
@@ -14,6 +15,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     let ON_PEER_UPDATE = "ON_PEER_UPDATE"
     let ON_TRACK_UPDATE = "ON_TRACK_UPDATE"
     let ON_ROLE_CHANGE_REQUEST = "ON_ROLE_CHANGE_REQUEST"
+    let ON_CHANGE_TRACK_STATE_REQUEST = "ON_CHANGE_TRACK_STATE_REQUEST"
     let ON_REMOVED_FROM_ROOM = "ON_REMOVED_FROM_ROOM"
     let ON_ERROR = "ON_ERROR"
     let ON_MESSAGE = "ON_MESSAGE"
@@ -32,7 +34,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     }
     
     override func supportedEvents() -> [String]! {
-        return [ON_JOIN, ON_PREVIEW, ON_ROOM_UPDATE, ON_PEER_UPDATE, ON_TRACK_UPDATE, ON_ERROR, ON_MESSAGE, ON_SPEAKER, RECONNECTING, RECONNECTED, ON_ROLE_CHANGE_REQUEST, ON_REMOVED_FROM_ROOM]
+        return [ON_JOIN, ON_PREVIEW, ON_ROOM_UPDATE, ON_PEER_UPDATE, ON_TRACK_UPDATE, ON_ERROR, ON_MESSAGE, ON_SPEAKER, RECONNECTING, RECONNECTED, ON_ROLE_CHANGE_REQUEST, ON_CHANGE_TRACK_STATE_REQUEST, ON_REMOVED_FROM_ROOM]
     }
     
     
@@ -243,6 +245,65 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     }
     
     @objc
+    func isPlaybackAllowed(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let trackId = data.value(forKey: "trackId") as? String
+        else {
+            reject?(nil, "NOT_FOUND", nil)
+            return
+        }
+        DispatchQueue.main.async { [weak self] in
+            guard let remotePeers = self?.hms?.remotePeers
+            else {
+                reject?(nil, "NOT_FOUND", nil)
+                return
+            }
+            let remoteAudioTrack = HmsHelper.getRemoteAudioTrackFromTrackId(trackId, remotePeers)
+            let remoteVideoTrack = HmsHelper.getRemoteVideoTrackFromTrackId(trackId, remotePeers)
+            if (remoteAudioTrack != nil) {
+                let isPlaybackAllowed = remoteAudioTrack?.isPlaybackAllowed()
+                resolve?(isPlaybackAllowed)
+                return
+            } else if (remoteVideoTrack != nil) {
+                let isPlaybackAllowed = remoteVideoTrack?.isPlaybackAllowed()
+                resolve?(isPlaybackAllowed)
+                return
+            } else {
+                reject?(nil, "NOT_FOUND",nil)
+                return
+            }
+        }
+    }
+    
+    @objc
+    func setPlaybackAllowed(_ data: NSDictionary) {
+        guard let trackId = data.value(forKey: "trackId") as? String
+        else {
+            return
+        }
+        guard let playbackAllowed = data.value(forKey: "playbackAllowed") as? Bool
+        else {
+            return
+        }
+        DispatchQueue.main.async { [weak self] in
+            guard let remotePeers = self?.hms?.remotePeers
+            else {
+                return
+            }
+            let remoteAudioTrack = HmsHelper.getRemoteAudioTrackFromTrackId(trackId, remotePeers)
+            let remoteVideoTrack = HmsHelper.getRemoteVideoTrackFromTrackId(trackId, remotePeers)
+            if (remoteAudioTrack != nil) {
+                if(playbackAllowed){
+                    remoteAudioTrack?.setPlaybackAllowed(playbackAllowed)
+                }else {
+                    remoteAudioTrack?.setPlaybackAllowed(playbackAllowed)
+                }
+            } else if (remoteVideoTrack != nil) {
+                remoteVideoTrack?.setPlaybackAllowed(playbackAllowed)
+            }
+        }
+    }
+    
+    @objc
     func removePeer(_ data: NSDictionary) {
         
         
@@ -361,7 +422,9 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     }
     
     func on(changeTrackStateRequest: HMSChangeTrackStateRequest) {
-        // On track state change required
+        let decodedChangeTrackStateRequest = HmsDecoder.getHmsChangeTrackStateRequest(changeTrackStateRequest)
+        recentChangeTrackStateRequest = changeTrackStateRequest
+        self.sendEvent(withName: ON_CHANGE_TRACK_STATE_REQUEST, body: decodedChangeTrackStateRequest)
     }
     
     func on(removedFromRoom notification: HMSRemovedFromRoomNotification) {

@@ -26,25 +26,30 @@ import HmsManager, {
   HMSRoom,
   HMSRole,
   HMSRoleChangeRequest,
+  HMSChangeTrackStateRequest,
+  HMSAudioTrack,
+  HMSVideoTrack,
   HMSSpeakerUpdate,
+  HMSRemoteAudioTrack,
+  HMSRemoteVideoTrack,
 } from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {useNavigation} from '@react-navigation/native';
+import type {StackNavigationProp} from '@react-navigation/stack';
 
 import {ChatWindow, AlertModal, CustomModal, CustomPicker} from '../components';
 import {addMessage, clearMessageData} from '../redux/actions/index';
-import {useNavigation} from '@react-navigation/native';
 import dimension from '../utils/dimension';
-import type {StackNavigationProp} from '@react-navigation/stack';
-import type {AppStackParamList} from '../navigator';
 import {
   getRandomColor,
   getInitials,
   pairDataForScrollView,
 } from '../utils/functions';
 import type {RootState} from '../redux';
+import type {AppStackParamList} from '../navigator';
 
 const isPortrait = () => {
   const dim = Dimensions.get('window');
@@ -61,6 +66,10 @@ type Peer = {
   role?: HMSRole;
   sink: boolean;
   type: 'local' | 'remote' | 'screen';
+  remoteAudio?: HMSRemoteAudioTrack;
+  remoteVideo?: HMSRemoteVideoTrack;
+  audioTrack?: HMSAudioTrack;
+  videoTrack?: HMSVideoTrack;
 };
 
 type DisplayNameProps = {
@@ -114,6 +123,10 @@ const DisplayName = ({
     peerId,
     role,
     sink,
+    remoteAudio,
+    remoteVideo,
+    audioTrack,
+    videoTrack,
   } = peer!;
   const [alertModalVisible, setAlertModalVisible] = useState(false);
   const [roleModalVisible, setRoleModalVisible] = useState(false);
@@ -128,7 +141,24 @@ const DisplayName = ({
     text: string;
     type?: string;
     onPress?: Function;
-  }> = [{text: 'Cancel', type: 'cancel'}];
+  }> = [
+    {text: 'Cancel', type: 'cancel'},
+    {
+      text: 'Mute/Unmute video locally',
+      onPress: async () => {
+        const playbackAllowed = await remoteVideo?.isPlaybackAllowed();
+        remoteVideo?.setPlaybackAllowed(!playbackAllowed);
+      },
+    },
+    {
+      text: 'Mute/Unmute audio locally',
+      onPress: async () => {
+        const playbackAllowed = await remoteAudio?.isPlaybackAllowed();
+        remoteAudio?.setPlaybackAllowed(!playbackAllowed);
+      },
+    },
+  ];
+
   if (permissions?.changeRole) {
     selectActionButtons.push(
       ...[
@@ -140,7 +170,7 @@ const DisplayName = ({
           },
         },
         {
-          text: 'Force change',
+          text: 'Force change role',
           onPress: () => {
             setForce(true);
             setRoleModalVisible(true);
@@ -170,6 +200,57 @@ const DisplayName = ({
       },
     },
   ];
+
+  if (permissions?.mute) {
+    const mute = true;
+    const unmute = false;
+    if (!isAudioMute) {
+      selectActionButtons.push(
+        ...[
+          {
+            text: 'Request peer to mute audio',
+            onPress: () => {
+              instance?.changeTrackState(audioTrack as HMSTrack, mute);
+            },
+          },
+        ],
+      );
+    } else {
+      selectActionButtons.push(
+        ...[
+          {
+            text: 'Request peer to unmute audio',
+            onPress: () => {
+              instance?.changeTrackState(audioTrack as HMSTrack, unmute);
+            },
+          },
+        ],
+      );
+    }
+    if (!isVideoMute) {
+      selectActionButtons.push(
+        ...[
+          {
+            text: 'Request peer to mute video',
+            onPress: () => {
+              instance?.changeTrackState(videoTrack as HMSTrack, mute);
+            },
+          },
+        ],
+      );
+    } else {
+      selectActionButtons.push(
+        ...[
+          {
+            text: 'Request peer to unmute video',
+            onPress: () => {
+              instance?.changeTrackState(videoTrack as HMSTrack, unmute);
+            },
+          },
+        ],
+      );
+    }
+  }
 
   const promptUser = () => {
     setAlertModalVisible(true);
@@ -309,6 +390,8 @@ const Meeting = ({
     suggestedRole?: string;
   }>({});
   const [roleChangeModalVisible, setRoleChangeModalVisible] = useState(false);
+  const [changeTrackStateModalVisible, setChangeTrackStateModalVisible] =
+    useState(false);
   const [leaveModalVisible, setLeaveModalVisible] = useState(false);
   const [localPeerPermissions, setLocalPeerPermissions] = useState<
     HMSPermissions | undefined
@@ -319,19 +402,49 @@ const Meeting = ({
     mute: false,
   });
 
-  const roleChangeRequestTitle = 'Role Change Request';
+  const roleChangeRequestTitle = roleChangeModalVisible
+    ? 'Role Change Request'
+    : changeTrackStateModalVisible
+    ? 'Change Track State Request'
+    : '';
   const roleChangeRequestButtons: [
     {text: string; onPress?: Function},
     {text: string; onPress?: Function},
-  ] = [
-    {text: 'Reject'},
-    {
-      text: 'Accept',
-      onPress: () => {
-        instance?.acceptRoleChange();
-      },
-    },
-  ];
+  ] = roleChangeModalVisible
+    ? [
+        {text: 'Reject'},
+        {
+          text: 'Accept',
+          onPress: () => {
+            instance?.acceptRoleChange();
+          },
+        },
+      ]
+    : changeTrackStateModalVisible
+    ? [
+        {text: 'Reject'},
+        {
+          text: 'Accept',
+          onPress: () => {
+            if (
+              roleChangeRequest?.suggestedRole?.toLocaleLowerCase() === 'video'
+            ) {
+              setTrackId({
+                ...trackId,
+                isVideoMute: false,
+              });
+              instance?.localPeer?.localVideoTrack()?.setMute(false);
+            } else {
+              setTrackId({
+                ...trackId,
+                isAudioMute: false,
+              });
+              instance?.localPeer?.localAudioTrack()?.setMute(false);
+            }
+          },
+        },
+      ]
+    : [{text: 'Reject'}, {text: 'Accept'}];
 
   const navigate = useNavigation<MeetingScreenProp>().navigate;
   const {left, right} = useSafeAreaInsets();
@@ -345,12 +458,22 @@ const Meeting = ({
     peer: HMSLocalPeer | HMSRemotePeer,
     type: 'local' | 'remote' | 'screen',
   ): Promise<Peer> => {
+    let remoteTrack;
+    if (type === 'remote') {
+      const remotePeerData = peer as HMSRemotePeer;
+      remoteTrack = {
+        remoteAudio: remotePeerData?.remoteAudioTrack(),
+        remoteVideo: remotePeerData?.remoteVideoTrack(),
+      };
+    }
     const peerId = peer?.peerID;
     const peerTrackId = peer?.videoTrack?.trackId;
     const peerName = peer?.name;
     const peerIsAudioMute = await peer?.audioTrack?.isMute();
     const peerIsVideoMute = await peer?.videoTrack?.isMute();
     const peerRole = peer?.role;
+    const peerAudioTrack = peer?.audioTrack;
+    const peerVideoTrack = peer?.videoTrack;
     const newPeerColour = getPeerColour(peerTrackId);
     return {
       trackId: peerTrackId,
@@ -362,6 +485,9 @@ const Meeting = ({
       sink: true,
       role: peerRole,
       type,
+      ...remoteTrack,
+      audioTrack: peerAudioTrack,
+      videoTrack: peerVideoTrack,
     };
   };
 
@@ -509,6 +635,15 @@ const Meeting = ({
     });
   };
 
+  const onChangeTrackStateRequest = (data: HMSChangeTrackStateRequest) => {
+    console.log(data);
+    setChangeTrackStateModalVisible(true);
+    setRoleChangeRequest({
+      requestedBy: data?.requestedBy?.name,
+      suggestedRole: data?.trackType,
+    });
+  };
+
   const onRemovedFromRoom = (data: any) => {
     console.log(data);
     clearMessageRequest();
@@ -563,6 +698,11 @@ const Meeting = ({
     HmsInstance.addEventListener(
       HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST,
       onRoleChangeRequest,
+    );
+
+    HmsInstance.addEventListener(
+      HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST,
+      onChangeTrackStateRequest,
     );
 
     HmsInstance.addEventListener(
@@ -734,8 +874,20 @@ const Meeting = ({
         title={roleChangeRequestTitle}
         buttons={roleChangeRequestButtons}>
         <Text style={styles.roleChangeText}>
-          Role change requested by {roleChangeRequest?.requestedBy}. Changing
-          role to {roleChangeRequest?.suggestedRole}
+          Role change requested by{' '}
+          {roleChangeRequest?.requestedBy?.toLocaleUpperCase()}. Changing role
+          to {roleChangeRequest?.suggestedRole?.toLocaleUpperCase()}
+        </Text>
+      </CustomModal>
+      <CustomModal
+        modalVisible={changeTrackStateModalVisible}
+        setModalVisible={setChangeTrackStateModalVisible}
+        title={roleChangeRequestTitle}
+        buttons={roleChangeRequestButtons}>
+        <Text style={styles.roleChangeText}>
+          {roleChangeRequest?.requestedBy?.toLocaleUpperCase()} requested to
+          unmute your regular{' '}
+          {roleChangeRequest?.suggestedRole?.toLocaleUpperCase()}.
         </Text>
       </CustomModal>
       <AlertModal
