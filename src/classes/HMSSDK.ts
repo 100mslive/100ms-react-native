@@ -155,6 +155,10 @@ export class HMSSDK {
    */
   leave = () => {
     this.logger?.verbose('LEAVE', {});
+    this.localPeer = undefined;
+    this.remotePeers = undefined;
+    this.room = undefined;
+    this.knownRoles = undefined;
     HmsManager.leave();
   };
 
