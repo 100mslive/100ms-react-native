@@ -253,10 +253,13 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
               }
             }
           )
-        }catch (e: Exception){
+        }catch (e: HMSException){
+          val error: WritableMap = Arguments.createMap()
+          error.putString("message",e.localizedMessage)
+          error.putInt("code",e.code)
           reactApplicationContext
             .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-            .emit("ON_ERROR", e)
+            .emit("ON_ERROR", error)
         }
 
         hmsSDK?.addAudioObserver(
