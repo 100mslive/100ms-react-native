@@ -130,7 +130,10 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     
     @objc
     func leave() {
-        DispatchQueue.main.async { [weak self] in
+        DispatchQueue.main.async { [weak self] in           
+            self?.config = nil
+            self?.recentRoleChangeRequest = nil
+            self?.recentChangeTrackStateRequest = nil
             self?.hms?.leave();
         }
     }
