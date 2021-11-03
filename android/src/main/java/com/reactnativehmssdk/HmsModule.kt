@@ -338,6 +338,10 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
             arrayOf(Pair("message", "String"), Pair("roles", "Array"))
         )
     if (requiredKeys) {
+      val type =
+        if (HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("type", "String"))))
+          data.getString("type")
+        else "chat"
       val message = data.getString("message")
       val targetedRoles = data.getArray("roles")?.toArrayList() as? ArrayList<String>
       val roles = hmsSDK?.getRoles()
@@ -346,7 +350,7 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
       if (message != null) {
         hmsSDK?.sendGroupMessage(
             message,
-            "chat",
+            type as String,
             encodedTargetedRoles,
             object : HMSMessageResultListener {
               override fun onError(error: HMSException) {}
@@ -365,6 +369,10 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
             arrayOf(Pair("message", "String"), Pair("peerId", "String"))
         )
     if (requiredKeys) {
+      val type =
+        if (HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("type", "String"))))
+          data.getString("type")
+        else "chat"
       val message = data.getString("message")
       val peerId = data.getString("peerId")
       val peers = hmsSDK?.getPeers()
@@ -372,7 +380,7 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
       if (message != null && peer != null) {
         hmsSDK?.sendDirectMessage(
             message,
-            "chat",
+            type as String,
             peer,
             object : HMSMessageResultListener {
               override fun onError(error: HMSException) {}

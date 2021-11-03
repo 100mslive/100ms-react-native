@@ -225,24 +225,26 @@ export class HMSSDK {
     HmsManager.leave();
   };
 
-  sendBroadcastMessage = (message: string) => {
+  sendBroadcastMessage = (message: string, type?: string) => {
     this.logger?.verbose('SEND_BROADCAST_MESSAGE', { message });
-    HmsManager.sendBroadcastMessage({ message });
+    HmsManager.sendBroadcastMessage({ message, type: type || null });
   };
 
-  sendGroupMessage = (message: string, roles: HMSRole[]) => {
+  sendGroupMessage = (message: string, roles: HMSRole[], type?: string) => {
     this.logger?.verbose('SEND_GROUP_MESSAGE', { message, roles });
     HmsManager.sendGroupMessage({
       message,
       roles: HMSHelper.getRoleNames(roles),
+      type: type || null,
     });
   };
 
-  sendDirectMessage = (message: string, peerId: string) => {
+  sendDirectMessage = (message: string, peerId: string, type?: string) => {
     this.logger?.verbose('SEND_DIRECT_MESSAGE', { message, peerId });
     HmsManager.sendDirectMessage({
       message,
       peerId,
+      type: type || null,
     });
   };
 
