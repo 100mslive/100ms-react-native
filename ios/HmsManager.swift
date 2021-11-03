@@ -95,12 +95,6 @@ class HmsManager: RCTEventEmitter{
         let hms = HmsHelper.getHms(data, hmsCollection)
         
         hms?.leave()
-        guard let id = data.value(forKey: "id") as? String,
-             let _ = hmsCollection[id]
-        else {
-            return
-        }
-        hmsCollection.removeValue(forKey: id)
     }
     
     @objc

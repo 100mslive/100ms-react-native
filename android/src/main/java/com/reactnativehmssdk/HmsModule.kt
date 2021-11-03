@@ -85,9 +85,6 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
 
     hms?.leave()
     val id = data.getString("id")
-    if (id != null && hmsCollection.containsKey(id)) {
-      hmsCollection.remove(id)
-    }
   }
 
   @ReactMethod
