@@ -5,7 +5,7 @@ interface HmsViewProps {
   data: {
     trackId: string;
     sink: boolean;
-    id: string | undefined;
+    id?: string | null;
   };
   scaleType: HMSVideoViewMode;
   style: ViewStyle;
@@ -18,7 +18,7 @@ interface HmsComponentProps {
   sink: boolean;
   style: ViewStyle;
   scaleType: HMSVideoViewMode;
-  id: string | undefined;
+  id?: string | null;
 }
 
 export const HmsView = ({
@@ -31,7 +31,7 @@ export const HmsView = ({
   const data = {
     trackId,
     sink,
-    id,
+    id: id || null,
   };
 
   return <HmsViewComponent data={data} style={style} scaleType={scaleType} />;
