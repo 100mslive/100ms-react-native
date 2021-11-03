@@ -60,7 +60,13 @@ class HmsView(
   }
 
   fun setData(id: String?, trackId: String?, sink: Boolean?, hmsCollection: MutableMap<String, HmsSDK>) {
-    val hms = hmsCollection["12345"]?.hmsSDK
+    var sdkId : String = "12345"
+
+    if (id!=null) {
+      sdkId = id
+    }
+
+    val hms = hmsCollection[sdkId]?.hmsSDK
 
     if (trackId != null && hms != null) {
       localTrack = trackId

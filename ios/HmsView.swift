@@ -65,7 +65,13 @@ class HmssdkDisplayView: UIView {
             sinkVideo = sink
             localTrack = trackID
             
-            if let videoTrack: HMSVideoTrack = hmsCollection["12345"]?.hms?.localPeer?.videoTrack {
+            var id : String = "12345"
+            
+            if let sdkId = data.value(forKey: "id") as? String {
+                id = sdkId
+            }
+            
+            if let videoTrack: HMSVideoTrack = hmsCollection[id]?.hms?.localPeer?.videoTrack {
                 if videoTrack.trackId == trackID {
                     
                     if !sinked && sinkVideo {
@@ -79,7 +85,7 @@ class HmssdkDisplayView: UIView {
                 }
             }
             
-            if let remotePeers: [HMSRemotePeer] = hmsCollection["12345"]?.hms?.remotePeers {
+            if let remotePeers: [HMSRemotePeer] = hmsCollection[id]?.hms?.remotePeers {
                 for peer in remotePeers where peer.videoTrack?.trackId == trackID {
                     
                     if !sinked && sinkVideo {

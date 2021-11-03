@@ -25,14 +25,23 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   // See https://reactnative.dev/docs/native-modules-android
   @ReactMethod
   fun build(callback: Promise?) {
-    val uuid = UUID.randomUUID()
-//    val randomUUIDString = uuid.toString()
-    val randomUUIDString = "12345"
-    val sdkInstance: HmsSDK = HmsSDK(this, randomUUIDString, reactApplicationContext)
+    val hasItem = hmsCollection.containsKey("12345")
+    if (hasItem) {
+      val uuid = UUID.randomUUID()
+      val randomUUIDString = uuid.toString()
+      val sdkInstance: HmsSDK = HmsSDK(this, randomUUIDString, reactApplicationContext)
 
-    hmsCollection[randomUUIDString] = sdkInstance
+      hmsCollection[randomUUIDString] = sdkInstance
 
-    callback?.resolve(randomUUIDString)
+      callback?.resolve(randomUUIDString)
+    } else {
+      val randomUUIDString = "12345"
+      val sdkInstance: HmsSDK = HmsSDK(this, randomUUIDString, reactApplicationContext)
+
+      hmsCollection[randomUUIDString] = sdkInstance
+
+      callback?.resolve(randomUUIDString)
+    }
   }
 
   @ReactMethod
@@ -75,6 +84,10 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     val hms = HmsHelper.getHms(data, hmsCollection)
 
     hms?.leave()
+    val id = data.getString("id")
+    if (id != null && hmsCollection.containsKey(id)) {
+      hmsCollection.remove(id)
+    }
   }
 
   @ReactMethod

@@ -39,12 +39,21 @@ class HmsManager: RCTEventEmitter{
     @objc
     func build(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         DispatchQueue.main.async { [weak self] in
-//            var id = UUID().uuidString
-            let id = "12345"
-            let hms = HmsSDK(delegate: self, uid: id)
-            self?.hmsCollection[id] = hms
+            let hasItem = self?.hmsCollection.index(forKey: "12345")
             
-            resolve?(id)
+            if let _ = hasItem {
+                let id = UUID().uuidString
+                let hms = HmsSDK(delegate: self, uid: id)
+                self?.hmsCollection[id] = hms
+                
+                resolve?(id)
+            } else {
+                let id = "12345"
+                let hms = HmsSDK(delegate: self, uid: id)
+                self?.hmsCollection[id] = hms
+                
+                resolve?(id)
+            }
         }
     }
     
@@ -86,6 +95,12 @@ class HmsManager: RCTEventEmitter{
         let hms = HmsHelper.getHms(data, hmsCollection)
         
         hms?.leave()
+        guard let id = data.value(forKey: "id") as? String,
+             let _ = hmsCollection[id]
+        else {
+            return
+        }
+        hmsCollection.removeValue(forKey: id)
     }
     
     @objc

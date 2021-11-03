@@ -37,6 +37,7 @@ class HmsSDK(HmsDelegate: HmsModule, sdkId: String, reactApplicationContext: Rea
       override fun onError(error: HMSException) {
         val data: WritableMap = Arguments.createMap();
         data.putString("ERROR", "ERROR")
+        data.putString("id", id)
         delegate.emitEvent("ON_ERROR", data)
       }
 

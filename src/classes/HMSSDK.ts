@@ -56,9 +56,6 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   static async build() {
-    if (HmsSdk) {
-      return HmsSdk;
-    }
     let id = await HmsManager.build();
     HmsSdk = new HMSSDK(id);
     return HmsSdk;
@@ -368,6 +365,9 @@ export class HMSSDK {
   };
 
   onPreviewListener = (data: any) => {
+    if (data.id !== this.id) {
+      return;
+    }
     this.logger?.verbose('ON_PREVIEW', data);
     const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
@@ -390,6 +390,9 @@ export class HMSSDK {
   };
 
   onJoinListener = (data: any) => {
+    if (data.id !== this.id) {
+      return;
+    }
     this.logger?.verbose('ON_JOIN', data);
     // Preprocessing
     const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
@@ -416,6 +419,9 @@ export class HMSSDK {
   };
 
   onRoomListener = (data: any) => {
+    if (data.id !== this.id) {
+      return;
+    }
     this.logger?.verbose('ON_ROOM', data);
     const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
@@ -439,6 +445,9 @@ export class HMSSDK {
   };
 
   onPeerListener = (data: any) => {
+    if (data.id !== this.id) {
+      return;
+    }
     this.logger?.verbose('ON_PEER', data);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
       data.localPeer
@@ -456,6 +465,9 @@ export class HMSSDK {
   };
 
   onTrackListener = (data: any) => {
+    if (data.id !== this.id) {
+      return;
+    }
     this.logger?.verbose('ON_TRACK', data);
     // const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
@@ -474,6 +486,9 @@ export class HMSSDK {
   };
 
   onMessageListener = (data: any) => {
+    if (data.id !== this.id) {
+      return;
+    }
     this.logger?.verbose('ON_MESSAGE', data);
     const message = new HMSMessage(data);
     if (this.onMessageDelegate) {
@@ -483,6 +498,9 @@ export class HMSSDK {
   };
 
   onSpeakerListener = (data: any) => {
+    if (data.id !== this.id) {
+      return;
+    }
     this.logger?.verbose('ON_SPEAKER', data);
     if (this.onSpeakerDelegate) {
       this.onSpeakerDelegate(data);
@@ -490,6 +508,9 @@ export class HMSSDK {
   };
 
   onErrorListener = (data: any) => {
+    if (data.id !== this.id) {
+      return;
+    }
     this.logger?.warn('ON_ERROR', data);
     if (this.onErrorDelegate) {
       this.logger?.warn('ON_ERROR_LISTENER_CALL', data);
@@ -498,6 +519,9 @@ export class HMSSDK {
   };
 
   onRoleChangeRequestListener = (data: any) => {
+    if (data.id !== this.id) {
+      return;
+    }
     this.logger?.verbose('ON_ROLE_CHANGE_REQUEST', data);
     if (this.onRoleChangeRequestDelegate) {
       const encodedRoleChangeRequest =
@@ -511,6 +535,9 @@ export class HMSSDK {
   };
 
   onRemovedFromRoomListener = (data: any) => {
+    if (data.id !== this.id) {
+      return;
+    }
     this.logger?.verbose('ON_REMOVED_FROM_ROOM', data);
     if (this.onRemovedFromRoomDelegate) {
       const requestedBy = HMSEncoder.encodeHmsPeer(data.requestedBy);
@@ -527,6 +554,9 @@ export class HMSSDK {
   };
 
   reconnectingListener = (data: any) => {
+    if (data.id !== this.id) {
+      return;
+    }
     this.logger?.verbose('ON_RECONNECTING', data);
     if (this.onReconnectingDelegate) {
       this.onReconnectingDelegate(data);
@@ -534,6 +564,9 @@ export class HMSSDK {
   };
 
   reconnectedListener = (data: any) => {
+    if (data.id !== this.id) {
+      return;
+    }
     this.logger?.verbose('ON_RECONNECTED', data);
     if (this.onReconnectedDelegate) {
       this.onReconnectedDelegate(data);
