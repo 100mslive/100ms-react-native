@@ -129,6 +129,68 @@ export class HMSSDK {
     );
   };
 
+  removeListeners = () => {
+    HmsEventEmitter.removeListener(
+      HMSUpdateListenerActions.ON_JOIN,
+      this.onJoinListener
+    );
+
+    HmsEventEmitter.removeListener(
+      HMSUpdateListenerActions.ON_ROOM_UPDATE,
+      this.onRoomListener
+    );
+
+    HmsEventEmitter.removeListener(
+      HMSUpdateListenerActions.ON_PEER_UPDATE,
+      this.onPeerListener
+    );
+
+    HmsEventEmitter.removeListener(
+      HMSUpdateListenerActions.ON_TRACK_UPDATE,
+      this.onTrackListener
+    );
+
+    HmsEventEmitter.removeListener(
+      HMSUpdateListenerActions.ON_ERROR,
+      this.onErrorListener
+    );
+
+    HmsEventEmitter.removeListener(
+      HMSUpdateListenerActions.ON_MESSAGE,
+      this.onMessageListener
+    );
+
+    HmsEventEmitter.removeListener(
+      HMSUpdateListenerActions.ON_SPEAKER,
+      this.onSpeakerListener
+    );
+
+    HmsEventEmitter.removeListener(
+      HMSUpdateListenerActions.RECONNECTING,
+      this.reconnectingListener
+    );
+
+    HmsEventEmitter.removeListener(
+      HMSUpdateListenerActions.RECONNECTED,
+      this.reconnectedListener
+    );
+
+    HmsEventEmitter.removeListener(
+      HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST,
+      this.onRoleChangeRequestListener
+    );
+
+    HmsEventEmitter.removeListener(
+      HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST,
+      this.onChangeTrackStateRequestListener
+    );
+
+    HmsEventEmitter.removeListener(
+      HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM,
+      this.onRemovedFromRoomListener
+    );
+  };
+
   /**
    * takes an instance of [HMSConfig]{@link HMSConfig} and joins the room
    * after joining the room user will start receiving the events and updates of the room
@@ -159,27 +221,30 @@ export class HMSSDK {
     this.remotePeers = undefined;
     this.room = undefined;
     this.knownRoles = undefined;
+    this.removeListeners();
     HmsManager.leave();
   };
 
-  sendBroadcastMessage = (message: string) => {
+  sendBroadcastMessage = (message: string, type?: string) => {
     this.logger?.verbose('SEND_BROADCAST_MESSAGE', { message });
-    HmsManager.sendBroadcastMessage({ message });
+    HmsManager.sendBroadcastMessage({ message, type: type || null });
   };
 
-  sendGroupMessage = (message: string, roles: HMSRole[]) => {
+  sendGroupMessage = (message: string, roles: HMSRole[], type?: string) => {
     this.logger?.verbose('SEND_GROUP_MESSAGE', { message, roles });
     HmsManager.sendGroupMessage({
       message,
       roles: HMSHelper.getRoleNames(roles),
+      type: type || null,
     });
   };
 
-  sendDirectMessage = (message: string, peerId: string) => {
+  sendDirectMessage = (message: string, peerId: string, type?: string) => {
     this.logger?.verbose('SEND_DIRECT_MESSAGE', { message, peerId });
     HmsManager.sendDirectMessage({
       message,
       peerId,
+      type: type || null,
     });
   };
 

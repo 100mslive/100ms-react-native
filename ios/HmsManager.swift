@@ -130,7 +130,10 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     
     @objc
     func leave() {
-        DispatchQueue.main.async { [weak self] in
+        DispatchQueue.main.async { [weak self] in           
+            self?.config = nil
+            self?.recentRoleChangeRequest = nil
+            self?.recentChangeTrackStateRequest = nil
             self?.hms?.leave();
         }
     }
@@ -141,9 +144,7 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         else {
             return
         }
-        
         let type = data.value(forKey: "type") as? String ?? "chat"
-        
         DispatchQueue.main.async { [weak self] in
             self?.hms?.sendBroadcastMessage(type: type, message: message)
         }
@@ -156,10 +157,10 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         else {
             return
         }
-        
+        let type = data.value(forKey: "type") as? String ?? "chat"
         DispatchQueue.main.async { [weak self] in
             let encodedTargetedRoles = HmsHelper.getRolesFromRoleNames(targetedRoles, roles: self?.hms?.roles)
-            self?.hms?.sendGroupMessage(message: message, roles: encodedTargetedRoles)
+            self?.hms?.sendGroupMessage(type: type, message: message, roles: encodedTargetedRoles)
         }
     }
     
@@ -170,10 +171,10 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
         else {
             return
         }
-        
+        let type = data.value(forKey: "type") as? String ?? "chat"
         DispatchQueue.main.async { [weak self] in
             guard let peer = HmsHelper.getPeerFromPeerId(peerId, remotePeers: self?.hms?.remotePeers) else { return }
-            self?.hms?.sendDirectMessage(message: message, peer: peer)
+            self?.hms?.sendDirectMessage(type: type, message: message, peer: peer)
         }
     }
     
