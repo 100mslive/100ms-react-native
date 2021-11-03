@@ -28,7 +28,7 @@ export class HMSSDK {
   remotePeers?: HMSRemotePeer[];
   knownRoles?: HMSRole[];
   logger?: HMSLogger;
-  private id: String;
+  id: string;
 
   onPreviewDelegate?: any;
   onJoinDelegate?: any;
@@ -43,7 +43,7 @@ export class HMSSDK {
   onRoleChangeRequestDelegate?: any;
   onRemovedFromRoomDelegate?: any;
 
-  constructor(id: String) {
+  constructor(id: string) {
     this.id = id;
   }
 
