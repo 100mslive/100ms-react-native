@@ -10,6 +10,7 @@ export class HMSRemoteAudioTrack extends HMSAudioTrack {
     isMute?: boolean;
     trackDescription?: string;
     playbackAllowed?: boolean;
+    id: string;
   }) {
     super(params);
     this.playbackAllowed = params.playbackAllowed;

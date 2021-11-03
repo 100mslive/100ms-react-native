@@ -11,6 +11,7 @@ const {
 
 export class HMSLocalAudioTrack extends HMSAudioTrack {
   settings?: HMSAudioTrackSettings;
+  id: string;
 
   /**
    * Switches Audio of current user on/off depending upon the value of isMute
@@ -19,10 +20,11 @@ export class HMSLocalAudioTrack extends HMSAudioTrack {
    * @memberof HMSLocalAudioTrack
    */
   setMute(isMute: boolean) {
-    HmsManager.setLocalMute({ isMute, id: '12345' });
+    HmsManager.setLocalMute({ isMute, id: this.id });
   }
 
   constructor(params: {
+    id: string;
     trackId: string;
     source?: number | string;
     trackDescription?: string;
@@ -30,6 +32,7 @@ export class HMSLocalAudioTrack extends HMSAudioTrack {
     settings?: HMSAudioTrackSettings;
   }) {
     super(params);
+    this.id = params.id;
     this.settings = params.settings;
   }
 }

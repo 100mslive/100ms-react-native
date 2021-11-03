@@ -13,6 +13,7 @@ export class HMSRemoteVideoTrack extends HMSVideoTrack {
     isMute?: boolean;
     layer?: any;
     playbackAllowed?: boolean;
+    id: string;
   }) {
     super(params);
     this.layer = params.layer;

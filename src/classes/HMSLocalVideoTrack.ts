@@ -13,6 +13,7 @@ export class HMSLocalVideoTrack extends HMSVideoTrack {
   settings?: HMSVideoTrackSettings;
   startCapturing?: Function;
   stopCapturing?: Function;
+  id: string;
 
   /**
    * switches camera between front/back
@@ -20,7 +21,7 @@ export class HMSLocalVideoTrack extends HMSVideoTrack {
    * @memberof HMSSDK
    */
   switchCamera = () => {
-    HmsManager.switchCamera({ id: '12345' });
+    HmsManager.switchCamera({ id: this.id });
   };
 
   /**
@@ -30,10 +31,11 @@ export class HMSLocalVideoTrack extends HMSVideoTrack {
    * @memberof HMSLocalVideoTrack
    */
   setMute(isMute: boolean) {
-    HmsManager.setLocalVideoMute({ isMute, id: '12345' });
+    HmsManager.setLocalVideoMute({ isMute, id: this.id });
   }
 
   constructor(params: {
+    id: string;
     trackId: string;
     source?: number | string;
     trackDescription?: string;
@@ -42,5 +44,6 @@ export class HMSLocalVideoTrack extends HMSVideoTrack {
   }) {
     super(params);
     this.settings = params.settings;
+    this.id = params.id;
   }
 }

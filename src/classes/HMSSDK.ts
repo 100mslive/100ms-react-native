@@ -369,9 +369,10 @@ export class HMSSDK {
       return;
     }
     this.logger?.verbose('ON_PREVIEW', data);
-    const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
+    const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room, this.id);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
-      data.localPeer
+      data.localPeer,
+      this.id
     );
 
     const previewTracks = HMSEncoder.encodeHmsPreviewTracks(data.previewTracks);
@@ -395,12 +396,14 @@ export class HMSSDK {
     }
     this.logger?.verbose('ON_JOIN', data);
     // Preprocessing
-    const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
+    const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room, this.id);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
-      data.localPeer
+      data.localPeer,
+      this.id
     );
     const remotePeers: HMSRemotePeer[] = HMSEncoder.encodeHmsRemotePeers(
-      data.remotePeers
+      data.remotePeers,
+      this.id
     );
     const roles: HMSRole[] = HMSEncoder.encodeHmsRoles(data.roles);
     this.room = room;
@@ -423,12 +426,14 @@ export class HMSSDK {
       return;
     }
     this.logger?.verbose('ON_ROOM', data);
-    const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
+    const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room, this.id);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
-      data.localPeer
+      data.localPeer,
+      this.id
     );
     const remotePeers: HMSRemotePeer[] = HMSEncoder.encodeHmsRemotePeers(
-      data.remotePeers
+      data.remotePeers,
+      this.id
     );
     this.room = room;
     this.localPeer = localPeer;
@@ -450,10 +455,12 @@ export class HMSSDK {
     }
     this.logger?.verbose('ON_PEER', data);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
-      data.localPeer
+      data.localPeer,
+      this.id
     );
     const remotePeers: HMSRemotePeer[] = HMSEncoder.encodeHmsRemotePeers(
-      data.remotePeers
+      data.remotePeers,
+      this.id
     );
     // this.room = room;
     this.localPeer = localPeer;
@@ -471,10 +478,12 @@ export class HMSSDK {
     this.logger?.verbose('ON_TRACK', data);
     // const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
-      data.localPeer
+      data.localPeer,
+      this.id
     );
     const remotePeers: HMSRemotePeer[] = HMSEncoder.encodeHmsRemotePeers(
-      data.remotePeers
+      data.remotePeers,
+      this.id
     );
     // this.room = room;
     this.localPeer = localPeer;
@@ -524,8 +533,10 @@ export class HMSSDK {
     }
     this.logger?.verbose('ON_ROLE_CHANGE_REQUEST', data);
     if (this.onRoleChangeRequestDelegate) {
-      const encodedRoleChangeRequest =
-        HMSEncoder.encodeHmsRoleChangeRequest(data);
+      const encodedRoleChangeRequest = HMSEncoder.encodeHmsRoleChangeRequest(
+        data,
+        this.id
+      );
       this.logger?.verbose(
         'ON_ROLE_CHANGE_LISTENER_CALL',
         encodedRoleChangeRequest
@@ -540,7 +551,7 @@ export class HMSSDK {
     }
     this.logger?.verbose('ON_REMOVED_FROM_ROOM', data);
     if (this.onRemovedFromRoomDelegate) {
-      const requestedBy = HMSEncoder.encodeHmsPeer(data.requestedBy);
+      const requestedBy = HMSEncoder.encodeHmsPeer(data.requestedBy, this.id);
       const reason = data.reason;
       const roomEnded = data.roomEnded;
 

@@ -15,27 +15,27 @@ import { HMSRole } from './HMSRole';
 import { HMSRoleChangeRequest } from './HMSRoleChangeRequest';
 
 export class HMSEncoder {
-  static encodeHmsRoom(room: any) {
+  static encodeHmsRoom(room: any, id: string) {
     const encodedObj = {
       id: room?.id,
       metaData: room?.metaData,
       name: room?.name,
-      peers: HMSEncoder.encodeHmsPeers(room?.peers),
+      peers: HMSEncoder.encodeHmsPeers(room?.peers, id),
     };
 
     return new HMSRoom(encodedObj);
   }
 
-  static encodeHmsPeers(peers: any) {
+  static encodeHmsPeers(peers: any, id: string) {
     const encodedPeers: HMSPeer[] = [];
     peers?.map((peer: any) => {
-      encodedPeers.push(HMSEncoder.encodeHmsPeer(peer));
+      encodedPeers.push(HMSEncoder.encodeHmsPeer(peer, id));
     });
 
     return encodedPeers;
   }
 
-  static encodeHmsPeer(peer: any) {
+  static encodeHmsPeer(peer: any, id: string) {
     const encodedObj = {
       peerID: peer?.peerID,
       name: peer?.name,
@@ -43,29 +43,32 @@ export class HMSEncoder {
       role: HMSEncoder.encodeHmsRole(peer?.role),
       customerUserID: peer?.customerUserID,
       customerDescription: peer?.customerDescription,
-      audioTrack: HMSEncoder.encodeHmsAudioTrack(peer?.audioTrack),
-      videoTrack: HMSEncoder.encodeHmsVideoTrack(peer?.videoTrack),
+      audioTrack: HMSEncoder.encodeHmsAudioTrack(peer?.audioTrack, id),
+      videoTrack: HMSEncoder.encodeHmsVideoTrack(peer?.videoTrack, id),
       auxiliaryTracks: HMSEncoder.encodeHmsAuxiliaryTracks(
-        peer?.auxiliaryTracks
+        peer?.auxiliaryTracks,
+        id
       ),
     };
 
     return new HMSPeer(encodedObj);
   }
 
-  static encodeHmsAudioTrack(track: any) {
+  static encodeHmsAudioTrack(track: any, id: string) {
     const encodedObj = {
       trackId: track?.trackId,
       source: track?.source,
       trackDescription: track?.trackDescription,
       isMute: track?.isMute,
+      id: id,
     };
 
     return new HMSAudioTrack(encodedObj);
   }
 
-  static encodeHmsVideoTrack(track: any) {
+  static encodeHmsVideoTrack(track: any, id: string) {
     const encodedObj = {
+      id: id,
       trackId: track?.trackId,
       source: track?.source,
       trackDescription: track?.trackDescription,
@@ -75,26 +78,27 @@ export class HMSEncoder {
     return new HMSVideoTrack(encodedObj);
   }
 
-  static encodeHmsAuxiliaryTracks(tracks: any) {
+  static encodeHmsAuxiliaryTracks(tracks: any, id: string) {
     const auxiliaryTracks: HMSTrack[] = [];
     tracks?.map((track: any) => {
-      auxiliaryTracks.push(HMSEncoder.encodeHmsTrack(track));
+      auxiliaryTracks.push(HMSEncoder.encodeHmsTrack(track, id));
     });
     return auxiliaryTracks;
   }
 
-  static encodeHmsTrack(track: any) {
+  static encodeHmsTrack(track: any, id: string) {
     const encodedObj = {
       trackId: track?.trackId,
       source: track?.source,
       trackDescription: track?.trackDescription,
       isMute: track?.isMute,
+      id: id,
     };
 
     return new HMSTrack(encodedObj);
   }
 
-  static encodeHmsLocalPeer(peer: any) {
+  static encodeHmsLocalPeer(peer: any, id: string) {
     const encodedObj = {
       peerID: peer.peerID,
       name: peer.name,
@@ -102,12 +106,14 @@ export class HMSEncoder {
       customerUserID: peer.customerUserID,
       customerDescription: peer.customerDescription,
       role: HMSEncoder.encodeHmsRole(peer?.role),
-      audioTrack: HMSEncoder.encodeHmsAudioTrack(peer.audioTrack),
-      videoTrack: HMSEncoder.encodeHmsVideoTrack(peer.videoTrack),
+      audioTrack: HMSEncoder.encodeHmsAudioTrack(peer.audioTrack, id),
+      videoTrack: HMSEncoder.encodeHmsVideoTrack(peer.videoTrack, id),
       auxiliaryTracks: HMSEncoder.encodeHmsAuxiliaryTracks(
-        peer.auxiliaryTracks
+        peer.auxiliaryTracks,
+        id
       ),
       localAudioTrackData: {
+        id: id,
         trackId: peer?.localAudioTrackData?.trackId,
         source: peer?.localAudioTrackData?.source,
         trackDescription: peer?.localAudioTrackData?.trackDescription,
@@ -117,6 +123,7 @@ export class HMSEncoder {
         ),
       },
       localVideoTrackData: {
+        id: id,
         trackId: peer?.localVideoTrackData?.trackId,
         source: peer?.localVideoTrackData?.source,
         trackDescription: peer?.localVideoTrackData?.trackDescription,
@@ -152,11 +159,11 @@ export class HMSEncoder {
     return new HMSVideoTrackSettings(encodedObj);
   }
 
-  static encodeHmsRemotePeers(peers: any) {
+  static encodeHmsRemotePeers(peers: any, id: string) {
     const hmsPeers: any[] = [];
 
     peers.map((peer: any) => {
-      const encodedPeer = HMSEncoder.encodeHmsRemotePeer(peer);
+      const encodedPeer = HMSEncoder.encodeHmsRemotePeer(peer, id);
 
       hmsPeers.push(encodedPeer);
     });
@@ -164,7 +171,7 @@ export class HMSEncoder {
     return hmsPeers;
   }
 
-  static encodeHmsRemotePeer(peer: any) {
+  static encodeHmsRemotePeer(peer: any, id: string) {
     const encodedObj = {
       peerID: peer.peerID,
       name: peer.name,
@@ -172,12 +179,14 @@ export class HMSEncoder {
       customerUserID: peer.customerUserID,
       customerDescription: peer.customerDescription,
       role: HMSEncoder.encodeHmsRole(peer?.role),
-      audioTrack: HMSEncoder.encodeHmsAudioTrack(peer.audioTrack),
-      videoTrack: HMSEncoder.encodeHmsVideoTrack(peer.videoTrack),
+      audioTrack: HMSEncoder.encodeHmsAudioTrack(peer.audioTrack, id),
+      videoTrack: HMSEncoder.encodeHmsVideoTrack(peer.videoTrack, id),
       auxiliaryTracks: HMSEncoder.encodeHmsAuxiliaryTracks(
-        peer.auxiliaryTracks
+        peer.auxiliaryTracks,
+        id
       ),
       remoteAudioTrackData: {
+        id: id,
         trackId: peer?.remoteAudioTrackData?.trackId,
         source: peer?.remoteAudioTrackData?.source,
         trackDescription: peer?.remoteAudioTrackData?.trackDescription,
@@ -185,6 +194,7 @@ export class HMSEncoder {
         playbackAllowed: peer?.remoteAudioTrackData?.playbackAllowed,
       },
       remoteVideoTrackData: {
+        id: id,
         trackId: peer?.remoteVideoTrackData?.trackId,
         source: peer?.remoteVideoTrackData?.source,
         trackDescription: peer?.remoteVideoTrackData?.trackDescription,
@@ -226,9 +236,9 @@ export class HMSEncoder {
     return hmsRole;
   }
 
-  static encodeHmsRoleChangeRequest(data: any) {
+  static encodeHmsRoleChangeRequest(data: any, id: string) {
     const encodedRoleChangeRequest = {
-      requestedBy: HMSEncoder.encodeHmsPeer(data.requestedBy),
+      requestedBy: HMSEncoder.encodeHmsPeer(data.requestedBy, id),
       suggestedRole: HMSEncoder.encodeHmsRole(data.suggestedRole),
     };
 
