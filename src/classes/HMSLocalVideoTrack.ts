@@ -20,7 +20,7 @@ export class HMSLocalVideoTrack extends HMSVideoTrack {
    * @memberof HMSSDK
    */
   switchCamera = () => {
-    HmsManager.switchCamera();
+    HmsManager.switchCamera({ id: '12345' });
   };
 
   /**
