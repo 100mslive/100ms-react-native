@@ -41,6 +41,7 @@ export class HMSSDK {
   onReconnectingDelegate?: any;
   onReconnectedDelegate?: any;
   onRoleChangeRequestDelegate?: any;
+  onChangeTrackStateRequestDelegate?: any;
   onRemovedFromRoomDelegate?: any;
 
   constructor(id: string) {
@@ -120,6 +121,73 @@ export class HMSSDK {
     );
 
     HmsEventEmitter.addListener(
+      HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST,
+      this.onChangeTrackStateRequestListener
+    );
+
+    HmsEventEmitter.addListener(
+      HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM,
+      this.onRemovedFromRoomListener
+    );
+  };
+
+  removeListeners = () => {
+    HmsEventEmitter.removeListener(
+      HMSUpdateListenerActions.ON_JOIN,
+      this.onJoinListener
+    );
+
+    HmsEventEmitter.removeListener(
+      HMSUpdateListenerActions.ON_ROOM_UPDATE,
+      this.onRoomListener
+    );
+
+    HmsEventEmitter.removeListener(
+      HMSUpdateListenerActions.ON_PEER_UPDATE,
+      this.onPeerListener
+    );
+
+    HmsEventEmitter.removeListener(
+      HMSUpdateListenerActions.ON_TRACK_UPDATE,
+      this.onTrackListener
+    );
+
+    HmsEventEmitter.removeListener(
+      HMSUpdateListenerActions.ON_ERROR,
+      this.onErrorListener
+    );
+
+    HmsEventEmitter.removeListener(
+      HMSUpdateListenerActions.ON_MESSAGE,
+      this.onMessageListener
+    );
+
+    HmsEventEmitter.removeListener(
+      HMSUpdateListenerActions.ON_SPEAKER,
+      this.onSpeakerListener
+    );
+
+    HmsEventEmitter.removeListener(
+      HMSUpdateListenerActions.RECONNECTING,
+      this.reconnectingListener
+    );
+
+    HmsEventEmitter.removeListener(
+      HMSUpdateListenerActions.RECONNECTED,
+      this.reconnectedListener
+    );
+
+    HmsEventEmitter.removeListener(
+      HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST,
+      this.onRoleChangeRequestListener
+    );
+
+    HmsEventEmitter.removeListener(
+      HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST,
+      this.onChangeTrackStateRequestListener
+    );
+
+    HmsEventEmitter.removeListener(
       HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM,
       this.onRemovedFromRoomListener
     );
@@ -156,28 +224,39 @@ export class HMSSDK {
     };
 
     HmsManager.leave(data);
+    this.localPeer = undefined;
+    this.remotePeers = undefined;
+    this.room = undefined;
+    this.knownRoles = undefined;
+    this.removeListeners();
   };
 
-  sendBroadcastMessage = (message: string) => {
+  sendBroadcastMessage = (message: string, type?: string) => {
     this.logger?.verbose('SEND_BROADCAST_MESSAGE', { message });
-    HmsManager.sendBroadcastMessage({ message, id: this.id });
+    HmsManager.sendBroadcastMessage({
+      message,
+      type: type || null,
+      id: this.id,
+    });
   };
 
-  sendGroupMessage = (message: string, roles: HMSRole[]) => {
+  sendGroupMessage = (message: string, roles: HMSRole[], type?: string) => {
     this.logger?.verbose('SEND_GROUP_MESSAGE', { message, roles });
     HmsManager.sendGroupMessage({
       message,
       roles: HMSHelper.getRoleNames(roles),
       id: this.id,
+      type: type || null,
     });
   };
 
-  sendDirectMessage = (message: string, peerId: string) => {
+  sendDirectMessage = (message: string, peerId: string, type?: string) => {
     this.logger?.verbose('SEND_DIRECT_MESSAGE', { message, peerId });
     HmsManager.sendDirectMessage({
       message,
       peerId,
       id: this.id,
+      type: type || null,
     });
   };
 
@@ -279,6 +358,9 @@ export class HMSSDK {
       case HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST:
         this.onRoleChangeRequestDelegate = callback;
         break;
+      case HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST:
+        this.onChangeTrackStateRequestDelegate = callback;
+        break;
       case HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM:
         this.onRemovedFromRoomDelegate = callback;
         break;
@@ -330,6 +412,9 @@ export class HMSSDK {
       case HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST:
         this.onRoleChangeRequestDelegate = null;
         break;
+      case HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST:
+        this.onChangeTrackStateRequestDelegate = null;
+        break;
       case HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM:
         this.onRemovedFromRoomDelegate = null;
         break;
@@ -354,6 +439,7 @@ export class HMSSDK {
     this.onReconnectingDelegate = null;
     this.onReconnectedDelegate = null;
     this.onRoleChangeRequestDelegate = null;
+    this.onChangeTrackStateRequestDelegate = null;
     this.onRemovedFromRoomDelegate = null;
 
     this.logger?.verbose('REMOVE_ALL_LISTENER', {});
@@ -542,6 +628,19 @@ export class HMSSDK {
         encodedRoleChangeRequest
       );
       this.onRoleChangeRequestDelegate(encodedRoleChangeRequest);
+    }
+  };
+
+  onChangeTrackStateRequestListener = (data: any) => {
+    this.logger?.verbose('ON_CHANGE_TRACK_STATE_REQUEST', data);
+    if (this.onChangeTrackStateRequestDelegate) {
+      const encodedRoleChangeRequest =
+        HMSEncoder.encodeHmsChangeTrackStateRequest(data);
+      this.logger?.verbose(
+        'ON_CHANGE_TRACK_STATE_REQUEST_LISTENER_CALL',
+        encodedRoleChangeRequest
+      );
+      this.onChangeTrackStateRequestDelegate(encodedRoleChangeRequest);
     }
   };
 

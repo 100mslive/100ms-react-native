@@ -16,6 +16,7 @@ import live.hms.video.sdk.models.trackchangerequest.HMSChangeTrackStateRequest
 class HmsSDK(HmsDelegate: HmsModule, sdkId: String, reactApplicationContext: ReactApplicationContext) {
   var hmsSDK: HMSSDK? = null
   private var recentRoleChangeRequest: HMSRoleChangeRequest? = null
+  private var changeTrackStateRequest: HMSChangeTrackStateRequest? = null
   val delegate: HmsModule = HmsDelegate
   val id: String = sdkId
 
@@ -26,12 +27,26 @@ class HmsSDK(HmsDelegate: HmsModule, sdkId: String, reactApplicationContext: Rea
   }
 
   fun preview(credentials: ReadableMap) {
-    var config =
-      HMSConfig(credentials.getString("username") as String, credentials.getString("authToken") as String)
+    val requiredKeys =
+        HmsHelper.areAllRequiredKeysAvailable(
+            credentials,
+            arrayOf(Pair("username", "String"), Pair("authToken", "String"))
+        )
+    if (requiredKeys) {
+      var config =
+          HMSConfig(
+              credentials.getString("username") as String,
+              credentials.getString("authToken") as String
+          )
 
-    if (credentials.getString("endpoint") != null) {
-      config = HMSConfig(credentials.getString("username") as String, credentials.getString("authToken") as String, initEndpoint = credentials.getString("endpoint") as String)
-    }
+      if (HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("endpoint", "String")))) {
+        config =
+            HMSConfig(
+                credentials.getString("username") as String,
+                credentials.getString("authToken") as String,
+                initEndpoint = credentials.getString("endpoint") as String
+            )
+      }
 
     hmsSDK?.preview(config, object: HMSPreviewListener {
       override fun onError(error: HMSException) {
@@ -55,158 +70,191 @@ class HmsSDK(HmsDelegate: HmsModule, sdkId: String, reactApplicationContext: Rea
       }
     })
   }
+  }
 
   fun join(credentials: ReadableMap) {
-    var config =
-      HMSConfig(credentials.getString("username") as String,  credentials.getString("authToken") as String)
+    val requiredKeys =
+        HmsHelper.areAllRequiredKeysAvailable(
+            credentials,
+            arrayOf(Pair("username", "String"), Pair("authToken", "String"))
+        )
+    if (requiredKeys) {
+      var config =
+        HMSConfig(
+          credentials.getString("username") as String,
+          credentials.getString("authToken") as String
+        )
 
-    if (credentials.getString("endpoint") != null) {
-      config = HMSConfig(credentials.getString("username") as String, credentials.getString("authToken") as String, initEndpoint = credentials.getString("endpoint") as String)
-    }
+      if (HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("endpoint", "String")))) {
+        config =
+          HMSConfig(
+            credentials.getString("username") as String,
+            credentials.getString("authToken") as String,
+            initEndpoint = credentials.getString("endpoint") as String
+          )
+      }
 
-    HMSCoroutineScope.launch {
-      hmsSDK?.join(config, object : HMSUpdateListener {
-        override fun onChangeTrackStateRequest(details: HMSChangeTrackStateRequest) {
-//          Not yet implemented
+      HMSCoroutineScope.launch {
+        try {
+          hmsSDK?.join(
+            config,
+            object : HMSUpdateListener {
+              override fun onChangeTrackStateRequest(request: HMSChangeTrackStateRequest) {
+                val decodedChangeTrackStateRequest =
+                  HmsDecoder.getHmsChangeTrackStateRequest(request)
+                delegate.emitEvent("ON_CHANGE_TRACK_STATE_REQUEST", decodedChangeTrackStateRequest)
+                changeTrackStateRequest = request
+              }
+
+              override fun onRemovedFromRoom(notification: HMSRemovedFromRoom) {
+                super.onRemovedFromRoom(notification)
+
+                val data: WritableMap = Arguments.createMap()
+
+                val requestedBy = HmsDecoder.getHmsRemotePeer(notification.peerWhoRemoved)
+                val roomEnded = notification.roomWasEnded
+                val reason = notification.reason
+
+                data.putMap("requestedBy", requestedBy)
+                data.putBoolean("roomEnded", roomEnded)
+                data.putString("reason", reason)
+                data.putString("id", id)
+
+                delegate.emitEvent("ON_REMOVED_FROM_ROOM", data)
+              }
+
+              override fun onError(error: HMSException) {
+                val data: WritableMap = Arguments.createMap();
+                data.putString("ERROR", error.description)
+                data.putString("id", id)
+                delegate.emitEvent("ON_ERROR", data)
+              }
+
+              override fun onJoin(room: HMSRoom) {
+                val roomData = HmsDecoder.getHmsRoom(room)
+                val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
+                val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
+                val roles = HmsDecoder.getAllRoles(hmsSDK?.getRoles())
+
+                val data: WritableMap = Arguments.createMap()
+
+                data.putMap("room", roomData)
+                data.putMap("localPeer", localPeerData)
+                data.putArray("remotePeers", remotePeerData)
+                data.putArray("roles", roles)
+                data.putString("id", id)
+                delegate.emitEvent("ON_JOIN", data)
+              }
+
+              override fun onPeerUpdate(type: HMSPeerUpdate, hmsPeer: HMSPeer) {
+
+                val type = type.name
+                val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
+                val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
+
+                val data: WritableMap = Arguments.createMap()
+
+                data.putString("type", type)
+                data.putMap("localPeer", localPeerData)
+                data.putArray("remotePeers", remotePeerData)
+                data.putString("id", id)
+                delegate.emitEvent("ON_PEER_UPDATE", data)
+              }
+
+              override fun onRoomUpdate(type: HMSRoomUpdate, hmsRoom: HMSRoom) {
+                val type = type.name
+                val roomData = HmsDecoder.getHmsRoom(hmsRoom)
+                val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
+                val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
+
+                val data: WritableMap = Arguments.createMap()
+
+                data.putString("type", type)
+                data.putMap("room", roomData)
+                data.putMap("localPeer", localPeerData)
+                data.putArray("remotePeers", remotePeerData)
+                data.putString("id", id)
+                delegate.emitEvent("ON_ROOM_UPDATE", data)
+              }
+
+              override fun onTrackUpdate(type: HMSTrackUpdate, track: HMSTrack, peer: HMSPeer) {
+                val type = type.name
+                val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
+                val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
+
+                val data: WritableMap = Arguments.createMap()
+
+                data.putString("type", type)
+                data.putMap("localPeer", localPeerData)
+                data.putArray("remotePeers", remotePeerData)
+                data.putString("id", id)
+                delegate.emitEvent("ON_TRACK_UPDATE", data)
+              }
+
+              override fun onMessageReceived(message: HMSMessage) {
+                val data: WritableMap = Arguments.createMap()
+
+                data.putString("sender", message.sender.name)
+                data.putString("message", message.message)
+                data.putString("type", message.type)
+                data.putString("time", message.serverReceiveTime.toString())
+                data.putString("id", id)
+                data.putString("event", "ON_MESSAGE")
+
+                delegate.emitEvent("ON_MESSAGE", data)
+              }
+
+              override fun onReconnected() {
+                val data: WritableMap = Arguments.createMap()
+                data.putString("event", "RECONNECTED")
+                data.putString("id", id)
+                delegate.emitEvent("RECONNECTED", data)
+              }
+
+              override fun onReconnecting(error: HMSException) {
+                val data: WritableMap = Arguments.createMap()
+                data.putString("event", "RECONNECTING")
+                data.putString("id", id)
+                delegate.emitEvent("RECONNECTING", data)
+              }
+
+              override fun onRoleChangeRequest(request: HMSRoleChangeRequest) {
+                val decodedChangeRoleRequest = HmsDecoder.getHmsRoleChangeRequest(request, id)
+                delegate.emitEvent("ON_ROLE_CHANGE_REQUEST", decodedChangeRoleRequest)
+                recentRoleChangeRequest = request
+              }
+            }
+          )
+        } catch (e: HMSException) {
+          val error: WritableMap = Arguments.createMap()
+          error.putString("message", e.localizedMessage)
+          error.putInt("code", e.code)
+          error.putString("id", id)
+          delegate.emitEvent("ON_ERROR", error)
         }
 
-        override fun onRemovedFromRoom(notification: HMSRemovedFromRoom) {
-          super.onRemovedFromRoom(notification)
+        hmsSDK?.addAudioObserver(
+          object : HMSAudioListener {
+            override fun onAudioLevelUpdate(speakers: Array<HMSSpeaker>) {
+              val data: WritableMap = Arguments.createMap()
+              data.putInt("count", speakers.size)
+              data.putString("event", "ON_SPEAKER")
 
-          val data: WritableMap = Arguments.createMap();
-
-          val requestedBy = HmsDecoder.getHmsRemotePeer(notification.peerWhoRemoved)
-          val roomEnded = notification.roomWasEnded
-          val reason = notification.reason
-
-          data.putMap("requestedBy", requestedBy)
-          data.putBoolean("roomEnded", roomEnded)
-          data.putString("reason", reason)
-          data.putString("id", id)
-          delegate.emitEvent("ON_REMOVED_FROM_ROOM", data)
-        }
-
-        override fun onError(error: HMSException) {
-          val data: WritableMap = Arguments.createMap();
-          data.putString("ERROR", error.description)
-          delegate.emitEvent("ON_ERROR", data)
-        }
-
-        override fun onJoin(room: HMSRoom) {
-          val roomData = HmsDecoder.getHmsRoom(room)
-          val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
-          val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
-          val roles = HmsDecoder.getAllRoles(hmsSDK?.getRoles())
-
-          val data: WritableMap = Arguments.createMap();
-
-          data.putMap("room", roomData)
-          data.putMap("localPeer", localPeerData)
-          data.putArray("remotePeers", remotePeerData)
-          data.putArray("roles", roles)
-          data.putString("id", id)
-          delegate.emitEvent("ON_JOIN", data)
-        }
-
-        override fun onPeerUpdate(type: HMSPeerUpdate, hmsPeer: HMSPeer) {
-
-          val typeString = type.name
-          val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
-          val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
-
-          val data: WritableMap = Arguments.createMap();
-
-          data.putString("type", typeString)
-          data.putMap("localPeer", localPeerData)
-          data.putArray("remotePeers", remotePeerData)
-          data.putString("id", id)
-          delegate.emitEvent("ON_PEER_UPDATE", data)
-        }
-
-        override fun onRoomUpdate(type: HMSRoomUpdate, hmsRoom: HMSRoom) {
-          val typeString = type.name
-          val roomData = HmsDecoder.getHmsRoom(hmsRoom)
-          val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
-          val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
-
-          val data: WritableMap = Arguments.createMap();
-
-          data.putString("type", typeString)
-          data.putMap("room", roomData)
-          data.putMap("localPeer", localPeerData)
-          data.putArray("remotePeers", remotePeerData)
-          data.putString("id", id)
-          delegate.emitEvent("ON_ROOM_UPDATE", data)
-        }
-
-        override fun onTrackUpdate(type: HMSTrackUpdate, track: HMSTrack, peer: HMSPeer) {
-          val typeString = type.name
-//        val roomData = HmsDecoder.getHmsRoom(hmsSDK.room)
-          val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
-          val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
-
-          val data: WritableMap = Arguments.createMap();
-
-          data.putString("type", typeString)
-//        data.putMap("room", roomData)
-          data.putMap("localPeer", localPeerData)
-          data.putArray("remotePeers", remotePeerData)
-          data.putString("id", id)
-          delegate.emitEvent("ON_TRACK_UPDATE", data)
-        }
-
-        override fun onMessageReceived(message: HMSMessage) {
-          val data: WritableMap = Arguments.createMap()
-
-          data.putString("sender", message.sender.name)
-          data.putString("message", message.message)
-          data.putString("type", message.type)
-          data.putString("time", message.serverReceiveTime.toString())
-          data.putString("id", id)
-          data.putString("event", "ON_MESSAGE")
-
-          delegate.emitEvent("ON_MESSAGE", data)
-        }
-
-        override fun onReconnected() {
-          val data: WritableMap = Arguments.createMap()
-          data.putString("event", "RECONNECTED")
-          data.putString("id", id)
-          delegate.emitEvent("RECONNECTED", data)
-        }
-
-        override fun onReconnecting(error: HMSException) {
-          val data: WritableMap = Arguments.createMap()
-          data.putString("event", "RECONNECTED")
-          data.putString("id", id)
-          delegate.emitEvent("RECONNECTING", data)
-        }
-
-        override fun onRoleChangeRequest(request: HMSRoleChangeRequest) {
-          val decodedChangeRoleRequest = HmsDecoder.getHmsRoleChangeRequest(request, id)
-          delegate.emitEvent("ON_ROLE_CHANGE_REQUEST", decodedChangeRoleRequest)
-          recentRoleChangeRequest = request
-        }
-      })
-
-      hmsSDK?.addAudioObserver(object: HMSAudioListener {
-        override fun onAudioLevelUpdate(speakers: Array<HMSSpeaker>) {
-          val data: WritableMap = Arguments.createMap()
-          val count = speakers.size
-
-          data.putInt("count", count)
-          data.putString("event", "ON_SPEAKER")
-          data.putString("id", id)
-
-          val peers: WritableArray = Arguments.createArray()
-          for (speaker in speakers) {
-            val peerId = speaker.peer?.peerID
-            peers.pushString(peerId)
+              val peers: WritableArray = Arguments.createArray()
+              for (speaker in speakers) {
+                val speakerArray: WritableMap = Arguments.createMap()
+                speakerArray.putMap("peer", HmsDecoder.getHmsPeer(speaker?.peer))
+                speakerArray.putInt("level", speaker?.level)
+                speakerArray.putMap("track", HmsDecoder.getHmsTrack(speaker?.hmsTrack))
+                peers.pushMap(speakerArray)
+              }
+              data.putArray("peers", peers)
+              data.putString("id", id)
+              delegate.emitEvent("ON_SPEAKER", data)
+            }
           }
-          data.putArray("peers", peers)
-          delegate.emitEvent("ON_SPEAKER", data)
-        }
-      })
+        )
+      }
     }
   }
 
@@ -234,112 +282,157 @@ class HmsSDK(HmsDelegate: HmsModule, sdkId: String, reactApplicationContext: Rea
   }
 
   fun sendBroadcastMessage(data:ReadableMap) {
-    val type = if(data.getString("type") !== null) data.getString("type") else "chat"
-    hmsSDK?.sendBroadcastMessage(data.getString("message") as String,type as String,object : HMSMessageResultListener {
-      override fun onError(error: HMSException) {
-      }
-      override fun onSuccess(hmsMessage: HMSMessage) {
-      }
-    })
+    val requiredKeys =
+        HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("message", "String")))
+    if (requiredKeys) {
+      val type =
+          if (HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("type", "String"))))
+              data.getString("type")
+          else "chat"
+      hmsSDK?.sendBroadcastMessage(
+          data.getString("message") as String,
+          type as String,
+          object : HMSMessageResultListener {
+            override fun onError(error: HMSException) {}
+            override fun onSuccess(hmsMessage: HMSMessage) {}
+          }
+      )
+    }
   }
 
   fun sendGroupMessage(data:ReadableMap) {
-    val message = data.getString("message")
-    val targetedRoles = data.getArray("roles")?.toArrayList() as? ArrayList<String>
-    val roles = hmsSDK?.getRoles()
-    val encodedTargetedRoles = HmsHelper.getRolesFromRoleNames(targetedRoles, roles);
+    val requiredKeys =
+        HmsHelper.areAllRequiredKeysAvailable(
+            data,
+            arrayOf(Pair("message", "String"), Pair("roles", "Array"))
+        )
+    if (requiredKeys) {
+      val type =
+        if (HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("type", "String"))))
+          data.getString("type")
+        else "chat"
+      val message = data.getString("message")
+      val targetedRoles = data.getArray("roles")?.toArrayList() as? ArrayList<String>
+      val roles = hmsSDK?.getRoles()
+      val encodedTargetedRoles = HmsHelper.getRolesFromRoleNames(targetedRoles, roles)
 
-    if (message != null) {
-      hmsSDK?.sendGroupMessage(message, "chat", encodedTargetedRoles, object : HMSMessageResultListener {
-        override fun onError(error: HMSException) {
-        }
-        override fun onSuccess(hmsMessage: HMSMessage) {
-        }
-      })
+      if (message != null) {
+        hmsSDK?.sendGroupMessage(
+            message,
+            type as String,
+            encodedTargetedRoles,
+            object : HMSMessageResultListener {
+              override fun onError(error: HMSException) {}
+              override fun onSuccess(hmsMessage: HMSMessage) {}
+            }
+        )
+      }
     }
   }
 
   fun sendDirectMessage(data:ReadableMap) {
-    val message = data.getString("message")
-    val peerId = data.getString("peerId")
-
-    val peers = hmsSDK?.getPeers()
-
-    val peer = HmsHelper.getPeerFromPeerId(peerId, peers)
-
-
-    if (message != null && peer != null) {
-      hmsSDK?.sendDirectMessage(message, "chat", peer,
-        object : HMSMessageResultListener {
-          override fun onError(error: HMSException) {
-          }
-
-          override fun onSuccess(hmsMessage: HMSMessage) {
-          }
-        })
+    val requiredKeys =
+        HmsHelper.areAllRequiredKeysAvailable(
+            data,
+            arrayOf(Pair("message", "String"), Pair("peerId", "String"))
+        )
+    if (requiredKeys) {
+      val type =
+        if (HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("type", "String"))))
+          data.getString("type")
+        else "chat"
+      val message = data.getString("message")
+      val peerId = data.getString("peerId")
+      val peers = hmsSDK?.getPeers()
+      val peer = HmsHelper.getPeerFromPeerId(peerId, peers)
+      if (message != null && peer != null) {
+        hmsSDK?.sendDirectMessage(
+            message,
+            type as String,
+            peer,
+            object : HMSMessageResultListener {
+              override fun onError(error: HMSException) {}
+              override fun onSuccess(hmsMessage: HMSMessage) {}
+            }
+        )
+      }
     }
   }
 
   fun changeRole(data: ReadableMap) {
-    val peerId = data.getString("peerId")
-    val role = data.getString("role")
-    val force = data.getBoolean("force")
+    val requiredKeys =
+      HmsHelper.areAllRequiredKeysAvailable(
+        data,
+        arrayOf(Pair("peerId", "String"), Pair("role", "String"), Pair("force", "Boolean"))
+      )
+    if (requiredKeys) {
+      val peerId = data.getString("peerId")
+      val role = data.getString("role")
+      val force = data.getBoolean("force")
 
-    if (peerId !== null &&  role !== null) {
-      val hmsPeer = HmsHelper.getPeerFromPeerId(peerId, hmsSDK?.getPeers())
-      val hmsRole = HmsHelper.getRoleFromRoleName(role, hmsSDK?.getRoles())
+      if (peerId !== null && role !== null) {
+        val hmsPeer = HmsHelper.getPeerFromPeerId(peerId, hmsSDK?.getPeers())
+        val hmsRole = HmsHelper.getRoleFromRoleName(role, hmsSDK?.getRoles())
 
-      if (hmsRole != null && hmsPeer != null) {
-        hmsSDK?.changeRole(hmsPeer as HMSRemotePeer, hmsRole, force, object : HMSActionResultListener {
-          override fun onSuccess() {
-          }
-
-          override fun onError(error: HMSException) {
-          }
-        })
+        if (hmsRole != null && hmsPeer != null) {
+          hmsSDK?.changeRole(
+            hmsPeer as HMSRemotePeer,
+            hmsRole,
+            force,
+            object : HMSActionResultListener {
+              override fun onSuccess() {}
+              override fun onError(error: HMSException) {}
+            }
+          )
+        }
       }
     }
   }
 
   fun changeTrackState(data: ReadableMap) {
-    val trackId = data.getString("trackId")
-    val mute = data.getBoolean("mute")
-
-    val remotePeers = hmsSDK?.getRemotePeers()
-
-    val track = HmsHelper.getTrackFromTrackId(trackId, remotePeers)
-
-    if (track != null) {
-      hmsSDK?.changeTrackState(track, mute, object: HMSActionResultListener {
-        override fun onSuccess() {
-        }
-
-        override fun onError(error: HMSException) {
-        }
-      })
+    val requiredKeys =
+        HmsHelper.areAllRequiredKeysAvailable(
+            data,
+            arrayOf(Pair("trackId", "String"), Pair("mute", "Boolean"))
+        )
+    if (requiredKeys) {
+      val trackId = data.getString("trackId")
+      val mute = data.getBoolean("mute")
+      val remotePeers = hmsSDK?.getRemotePeers()
+      val track = HmsHelper.getTrackFromTrackId(trackId, remotePeers)
+      if (track != null) {
+        hmsSDK?.changeTrackState(
+            track,
+            mute,
+            object : HMSActionResultListener {
+              override fun onSuccess() {}
+              override fun onError(error: HMSException) {}
+            }
+        )
+      }
     }
   }
 
   fun isMute(data: ReadableMap, callback: Promise?) {
-    val trackId = data.getString("trackId")
-
-    val remotePeers = hmsSDK?.getRemotePeers()
-    val localPeer = hmsSDK?.getLocalPeer()
-
-    val localTrack = HmsHelper.getLocalTrackFromTrackId(trackId, localPeer)
-
-    if (localTrack == null) {
-      val track = HmsHelper.getTrackFromTrackId(trackId, remotePeers)
-
-      if (track != null) {
-        val mute = track.isMute
-        callback?.resolve(mute)
+    val requiredKeys =
+        HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("trackId", "String")))
+    if (requiredKeys) {
+      val trackId = data.getString("trackId")
+      val remotePeers = hmsSDK?.getRemotePeers()
+      val localPeer = hmsSDK?.getLocalPeer()
+      val localTrack = HmsHelper.getLocalTrackFromTrackId(trackId, localPeer)
+      if (localTrack == null) {
+        val track = HmsHelper.getTrackFromTrackId(trackId, remotePeers)
+        if (track != null) {
+          val mute = track.isMute
+          callback?.resolve(mute)
+        } else {
+          callback?.reject("101", "NOT_FOUND")
+        }
       } else {
-        callback?.reject("101", "NOT_FOUND")
+        val mute = localTrack.isMute
+        callback?.resolve(mute)
       }
-    } else {
-      val mute = localTrack.isMute
-      callback?.resolve(mute)
     }
   }
 
@@ -420,6 +513,45 @@ class HmsSDK(HmsDelegate: HmsModule, sdkId: String, reactApplicationContext: Rea
       data.putArray("remotePeers", remotePeerData)
       data.putString("id", id)
       delegate.emitEvent("ON_PEER_UPDATE", data)
+    }
+  }
+
+  fun setPlaybackAllowed(data: ReadableMap) {
+    val requiredKeys =
+      HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("trackId", "String"),Pair("playbackAllowed", "Boolean")))
+    if (requiredKeys) {
+      val trackId = data.getString("trackId")
+      val playbackAllowed = data.getBoolean("playbackAllowed")
+      val remotePeers = hmsSDK?.getRemotePeers()
+      val remoteAudioTrack = HmsHelper.getRemoteAudioTrackFromTrackId(trackId, remotePeers)
+      val remoteVideoTrack = HmsHelper.getRemoteVideoTrackFromTrackId(trackId, remotePeers)
+      if (remoteAudioTrack != null) {
+        remoteAudioTrack.isPlaybackAllowed = playbackAllowed
+      } else if (remoteVideoTrack != null) {
+        remoteVideoTrack.isPlaybackAllowed = playbackAllowed
+      }
+    }
+  }
+
+  fun isPlaybackAllowed(data: ReadableMap, callback: Promise?) {
+    val requiredKeys =
+      HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("trackId", "String")))
+    if (requiredKeys) {
+      val trackId = data.getString("trackId")
+      val remotePeers = hmsSDK?.getRemotePeers()
+      val remoteAudioTrack = HmsHelper.getRemoteAudioTrackFromTrackId(trackId, remotePeers)
+      val remoteVideoTrack = HmsHelper.getRemoteVideoTrackFromTrackId(trackId, remotePeers)
+      if (remoteAudioTrack != null) {
+        val isPlaybackAllowed = remoteAudioTrack.isPlaybackAllowed
+        callback?.resolve(isPlaybackAllowed)
+      } else if (remoteVideoTrack != null) {
+        val isPlaybackAllowed = remoteVideoTrack.isPlaybackAllowed
+        callback?.resolve(isPlaybackAllowed)
+      } else {
+        callback?.reject("101", "NOT_FOUND")
+      }
+    }else {
+      callback?.reject("101", "TRACK_ID_NOT_FOUND")
     }
   }
 }

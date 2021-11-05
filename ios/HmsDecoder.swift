@@ -336,4 +336,11 @@ class HmsDecoder: NSObject {
         
         return [:]
     }
+    
+    static func getHmsChangeTrackStateRequest(_ changeTrackStateRequest: HMSChangeTrackStateRequest) -> [String: Any] {
+        let requestedBy = getHmsPeer(changeTrackStateRequest.requestedBy)
+        let trackType = changeTrackStateRequest.track.kind == .video ? "video" : "audio"
+        
+        return ["requestedBy": requestedBy, "trackType": trackType]
+    }
 }

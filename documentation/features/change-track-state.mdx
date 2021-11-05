@@ -1,0 +1,66 @@
+---
+title: Change Track State
+nav: 3.92
+---
+
+Changing track state is a concept that allows users to mute other peers's audio / video and request unmute other peer's audio / video if they have required permissions or not according to their role.
+
+## Check if user has permissions
+
+```js
+const mute: boolean = peer.role.permissions.mute;
+const unmute: boolean = peer.role.permissions.unmute;
+```
+
+## Example
+
+Imagine a room with 10 people having 3 speakers and they have to speak one by one. The first speaker can mute other 2 speakers and start. After some point when the first speaker is finished they can mute himself and request other speakers to unmute.
+
+## Mute other tracks
+
+If you have the required permissions you can mute remote tracks audio / video. The track of the remote peer would be muted without any requests.
+
+```js
+const mute: boolean = true;
+
+// instance acquired from build() method
+hmsInstance?.changeTrackState(audioTrack as HMSTrack, mute);
+hmsInstance?.changeTrackState(videoTrack as HMSTrack, mute);
+```
+
+## Unmute other tracks
+
+If you have the required permissions you can request to unmute remote tracks audio / video. If the request is accepted by the remote peer ON_TRACK_UPDATE listener will get triggered.
+
+```js
+const unmute: boolean = false;
+
+// instance acquired from build() method
+hmsInstance?.changeTrackState(audioTrack as HMSTrack, unmute);
+hmsInstance?.changeTrackState(videoTrack as HMSTrack, unmute);
+```
+
+## Accept Track change request
+
+Once the peer with adequate permissions calls change track state or unmute, you can either accept or reject the request.
+
+```js
+import { HMSUpdateListenerActions, HMSChangeTrackStateRequest } from '@100mslive/react-native-hms';
+
+// add change track state listener
+hmsInstance.addEventListener(
+  HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST,
+  onChangeTrackStateRequest,
+);
+
+// reject or accept the request
+const onChangeTrackStateRequest = (data: HMSChangeTrackStateRequest) => {
+  const requestedBy = data?.requestedBy?.name
+  const trackType = data?.trackType            
+  if( trackType === 'audio' ) {
+    hmsInstance?.localPeer?.localAudioTrack()?.setMute(false);
+  } else if ( trackType === 'video' ) {
+      hmsInstance?.localPeer?.localVideoTrack()?.setMute(false);
+  }
+};
+```

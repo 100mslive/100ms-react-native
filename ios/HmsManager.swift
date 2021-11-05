@@ -12,6 +12,7 @@ class HmsManager: RCTEventEmitter{
     let ON_PEER_UPDATE = "ON_PEER_UPDATE"
     let ON_TRACK_UPDATE = "ON_TRACK_UPDATE"
     let ON_ROLE_CHANGE_REQUEST = "ON_ROLE_CHANGE_REQUEST"
+    let ON_CHANGE_TRACK_STATE_REQUEST = "ON_CHANGE_TRACK_STATE_REQUEST"
     let ON_REMOVED_FROM_ROOM = "ON_REMOVED_FROM_ROOM"
     let ON_ERROR = "ON_ERROR"
     let ON_MESSAGE = "ON_MESSAGE"
@@ -30,7 +31,7 @@ class HmsManager: RCTEventEmitter{
     }
     
     override func supportedEvents() -> [String]! {
-        return [ON_JOIN, ON_PREVIEW, ON_ROOM_UPDATE, ON_PEER_UPDATE, ON_TRACK_UPDATE, ON_ERROR, ON_MESSAGE, ON_SPEAKER, RECONNECTING, RECONNECTED, ON_ROLE_CHANGE_REQUEST, ON_REMOVED_FROM_ROOM]
+        return [ON_JOIN, ON_PREVIEW, ON_ROOM_UPDATE, ON_PEER_UPDATE, ON_TRACK_UPDATE, ON_ERROR, ON_MESSAGE, ON_SPEAKER, RECONNECTING, RECONNECTED, ON_ROLE_CHANGE_REQUEST, ON_CHANGE_TRACK_STATE_REQUEST, ON_REMOVED_FROM_ROOM]
     }
     
     
@@ -147,9 +148,9 @@ class HmsManager: RCTEventEmitter{
         } else {
             reject?(nil, "NO_INSTANCE", nil)
             return
-        }
-        
+        } 
     }
+    
     
     @objc
     func removePeer(_ data: NSDictionary) {
@@ -164,6 +165,18 @@ class HmsManager: RCTEventEmitter{
         let hms = HmsHelper.getHms(data, hmsCollection)
         
         hms?.endRoom(data)
+    }
+    
+    func setPlaybackAllowed(_ data: NSDictionary) {
+        let hms = HmsHelper.getHms(data, hmsCollection)
+        
+        hms?.setPlaybackAllowed(data)
+    }
+    
+    func isPlaybackAllowed(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HmsHelper.getHms(data, hmsCollection)
+        
+        hms?.isPlaybackAllowed(data, resolve, reject)
     }
     
     // MARK: - HMS SDK Delegate Callbacks

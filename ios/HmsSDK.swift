@@ -12,6 +12,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     var hms: HMSSDK?
     var config: HMSConfig?
     var recentRoleChangeRequest: HMSRoleChangeRequest?
+    var recentChangeTrackStateRequest: HMSChangeTrackStateRequest?
     var delegate: HmsManager?
     var id: String?
     
@@ -69,6 +70,33 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         else {
             return
         }
+
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
+            if let config = strongSelf.config {
+                do{
+                    try strongSelf.hms?.join(config: config, delegate: strongSelf)
+                } catch let error{
+                    strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["event": strongSelf.ON_ERROR, "error": error.localizedDescription])
+                }
+            } else {
+                if let endpoint = credentials.value(forKey: "endpoint") as? String {
+                    do{
+                        strongSelf.config = HMSConfig(userName: user, userID: UUID().uuidString, roomID: room, authToken: authToken, endpoint: endpoint)
+                        try strongSelf.hms?.join(config: strongSelf.config!, delegate: strongSelf)
+                    } catch let error{
+                        strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["event": strongSelf.ON_ERROR, "error": error.localizedDescription])
+                    }
+                } else {
+                    do{
+                        strongSelf.config = HMSConfig(userName: user, userID: UUID().uuidString, roomID: room, authToken: authToken)
+                        try strongSelf.hms?.join(config: strongSelf.config!, delegate: strongSelf)
+                    } catch let error{
+                        strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["event": strongSelf.ON_ERROR, "error": error.localizedDescription])
+                    }
+                }
+            }
+        }
         
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
@@ -112,6 +140,9 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     
     func leave() {
         DispatchQueue.main.async { [weak self] in
+            self?.config = nil
+            self?.recentRoleChangeRequest = nil
+            self?.recentChangeTrackStateRequest = nil
             self?.hms?.leave();
         }
     }
@@ -136,9 +167,10 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
         
+        let type = data.value(forKey: "type") as? String ?? "chat"
         DispatchQueue.main.async { [weak self] in
             let encodedTargetedRoles = HmsHelper.getRolesFromRoleNames(targetedRoles, roles: self?.hms?.roles)
-            self?.hms?.sendGroupMessage(message: message, roles: encodedTargetedRoles)
+            self?.hms?.sendGroupMessage(type: type, message: message, roles: encodedTargetedRoles)
         }
     }
     
@@ -149,9 +181,10 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
         
+        let type = data.value(forKey: "type") as? String ?? "chat"
         DispatchQueue.main.async { [weak self] in
             guard let peer = HmsHelper.getPeerFromPeerId(peerId, remotePeers: self?.hms?.remotePeers) else { return }
-            self?.hms?.sendDirectMessage(message: message, peer: peer)
+            self?.hms?.sendDirectMessage(type: type, message: message, peer: peer)
         }
     }
     
@@ -258,6 +291,63 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         
         DispatchQueue.main.async { [weak self] in
             self?.hms?.endRoom(lock: lock ?? false, reason: reason ?? "Room was ended")
+        }
+    }
+    
+    func isPlaybackAllowed(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let trackId = data.value(forKey: "trackId") as? String
+        else {
+            reject?(nil, "NOT_FOUND", nil)
+            return
+        }
+        DispatchQueue.main.async { [weak self] in
+            guard let remotePeers = self?.hms?.remotePeers
+            else {
+                reject?(nil, "NOT_FOUND", nil)
+                return
+            }
+            let remoteAudioTrack = HmsHelper.getRemoteAudioTrackFromTrackId(trackId, remotePeers)
+            let remoteVideoTrack = HmsHelper.getRemoteVideoTrackFromTrackId(trackId, remotePeers)
+            if (remoteAudioTrack != nil) {
+                let isPlaybackAllowed = remoteAudioTrack?.isPlaybackAllowed()
+                resolve?(isPlaybackAllowed)
+                return
+            } else if (remoteVideoTrack != nil) {
+                let isPlaybackAllowed = remoteVideoTrack?.isPlaybackAllowed()
+                resolve?(isPlaybackAllowed)
+                return
+            } else {
+                reject?(nil, "NOT_FOUND",nil)
+                return
+            }
+        }
+    }
+    
+    func setPlaybackAllowed(_ data: NSDictionary) {
+        guard let trackId = data.value(forKey: "trackId") as? String
+        else {
+            return
+        }
+        guard let playbackAllowed = data.value(forKey: "playbackAllowed") as? Bool
+        else {
+            return
+        }
+        DispatchQueue.main.async { [weak self] in
+            guard let remotePeers = self?.hms?.remotePeers
+            else {
+                return
+            }
+            let remoteAudioTrack = HmsHelper.getRemoteAudioTrackFromTrackId(trackId, remotePeers)
+            let remoteVideoTrack = HmsHelper.getRemoteVideoTrackFromTrackId(trackId, remotePeers)
+            if (remoteAudioTrack != nil) {
+                if(playbackAllowed){
+                    remoteAudioTrack?.setPlaybackAllowed(playbackAllowed)
+                }else {
+                    remoteAudioTrack?.setPlaybackAllowed(playbackAllowed)
+                }
+            } else if (remoteVideoTrack != nil) {
+                remoteVideoTrack?.setPlaybackAllowed(playbackAllowed)
+            }
         }
     }
     

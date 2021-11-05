@@ -13,6 +13,7 @@ import { HMSLocalVideoTrack } from './HMSLocalVideoTrack';
 import { HMSLocalAudioTrack } from './HMSLocalAudioTrack';
 import { HMSRole } from './HMSRole';
 import { HMSRoleChangeRequest } from './HMSRoleChangeRequest';
+import { HMSChangeTrackStateRequest } from './HMSChangeTrackStateRequest';
 
 export class HMSEncoder {
   static encodeHmsRoom(room: any, id: string) {
@@ -243,5 +244,14 @@ export class HMSEncoder {
     };
 
     return new HMSRoleChangeRequest(encodedRoleChangeRequest);
+  }
+
+  static encodeHmsChangeTrackStateRequest(data: HMSChangeTrackStateRequest) {
+    const encodedChangeTrackStateRequest = {
+      requestedBy: HMSEncoder.encodeHmsPeer(data.requestedBy),
+      trackType: data.trackType,
+    };
+
+    return new HMSChangeTrackStateRequest(encodedChangeTrackStateRequest);
   }
 }

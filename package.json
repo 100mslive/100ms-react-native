@@ -1,6 +1,6 @@
 {
   "name": "@100mslive/react-native-hms",
-  "version": "0.6.0",
+  "version": "0.7.4",
   "description": "The React Native package for 100ms SDK",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -92,10 +92,7 @@
     "eslint-plugin-prettier": "^3.1.3",
     "husky": "^4.2.5",
     "jest": "^26.0.1",
-    "pod-install": "^0.1.0",
     "prettier": "^2.0.5",
-    "react": "17.0.2",
-    "react-native": "0.65.1",
     "react-native-builder-bob": "^0.18.0",
     "release-it": "^14.2.2",
     "typescript": "^4.1.3"
