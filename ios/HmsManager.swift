@@ -166,13 +166,15 @@ class HmsManager: RCTEventEmitter{
         
         hms?.endRoom(data)
     }
-    
+
+    @objc
     func setPlaybackAllowed(_ data: NSDictionary) {
         let hms = HmsHelper.getHms(data, hmsCollection)
         
         hms?.setPlaybackAllowed(data)
     }
     
+    @objc
     func isPlaybackAllowed(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HmsHelper.getHms(data, hmsCollection)
         
