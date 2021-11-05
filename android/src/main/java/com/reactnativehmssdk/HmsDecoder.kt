@@ -133,20 +133,20 @@ object HmsDecoder {
           if (hmsPermissions.mute != null) hmsPermissions.mute else false
       )
       permissions.putBoolean(
-        "changeRoleForce",
-        if (hmsPermissions.changeRoleForce != null) hmsPermissions.changeRoleForce else false
+          "changeRoleForce",
+          if (hmsPermissions.changeRoleForce != null) hmsPermissions.changeRoleForce else false
       )
       permissions.putBoolean(
-        "unmute",
-        if (hmsPermissions.unmute != null) hmsPermissions.unmute else false
+          "unmute",
+          if (hmsPermissions.unmute != null) hmsPermissions.unmute else false
       )
       permissions.putBoolean(
-        "recording",
-        if (hmsPermissions.recording != null) hmsPermissions.recording else false
+          "recording",
+          if (hmsPermissions.recording != null) hmsPermissions.recording else false
       )
       permissions.putBoolean(
-        "rtmp",
-        if (hmsPermissions.rtmp != null) hmsPermissions.rtmp else false
+          "rtmp",
+          if (hmsPermissions.rtmp != null) hmsPermissions.rtmp else false
       )
       permissions.putBoolean(
           "changeRole",

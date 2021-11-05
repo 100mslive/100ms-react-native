@@ -4,7 +4,6 @@ import com.facebook.react.bridge.*
 import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.reactnativehmssdk.HmsModule.Companion.REACT_CLASS
-
 import java.util.UUID
 
 @ReactModule(name = REACT_CLASS)
@@ -66,14 +65,14 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   }
 
   @ReactMethod
-  fun setLocalVideoMute(data:ReadableMap) {
+  fun setLocalVideoMute(data: ReadableMap) {
     val hms = HmsHelper.getHms(data, hmsCollection)
 
     hms?.setLocalVideoMute(data)
   }
 
   @ReactMethod
-   fun switchCamera(data: ReadableMap) {
+  fun switchCamera(data: ReadableMap) {
     val hms = HmsHelper.getHms(data, hmsCollection)
 
     hms?.switchCamera()
@@ -88,21 +87,21 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   }
 
   @ReactMethod
-  fun sendBroadcastMessage(data:ReadableMap) {
+  fun sendBroadcastMessage(data: ReadableMap) {
     val hms = HmsHelper.getHms(data, hmsCollection)
 
     hms?.sendBroadcastMessage(data)
   }
 
   @ReactMethod
-  fun sendGroupMessage(data:ReadableMap) {
+  fun sendGroupMessage(data: ReadableMap) {
     val hms = HmsHelper.getHms(data, hmsCollection)
 
     hms?.sendGroupMessage(data)
   }
 
   @ReactMethod
-  fun sendDirectMessage(data:ReadableMap) {
+  fun sendDirectMessage(data: ReadableMap) {
     val hms = HmsHelper.getHms(data, hmsCollection)
 
     hms?.sendDirectMessage(data)
@@ -172,6 +171,8 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   }
 
   fun emitEvent(event: String, data: WritableMap) {
-    reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit(event, data)
+    reactApplicationContext
+        .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+        .emit(event, data)
   }
 }

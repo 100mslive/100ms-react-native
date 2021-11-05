@@ -3,7 +3,6 @@ package com.reactnativehmssdk
 import android.widget.FrameLayout
 import com.facebook.react.bridge.ReactContext
 import live.hms.video.media.tracks.HMSVideoTrack
-import live.hms.video.sdk.HMSSDK
 import live.hms.video.utils.SharedEglContext
 import org.webrtc.RendererCommon
 import org.webrtc.SurfaceViewRenderer
@@ -54,10 +53,16 @@ class HmsView(context: ReactContext) : FrameLayout(context) {
     }
   }
 
-  fun setData(id: String?, trackId: String?, sink: Boolean?, hmsCollection: MutableMap<String, HmsSDK>, mirror: Boolean?) {
-    var sdkId : String = "12345"
+  fun setData(
+      id: String?,
+      trackId: String?,
+      sink: Boolean?,
+      hmsCollection: MutableMap<String, HmsSDK>,
+      mirror: Boolean?
+  ) {
+    var sdkId: String = "12345"
 
-    if (id!=null) {
+    if (id != null) {
       sdkId = id
     }
 
@@ -68,15 +73,15 @@ class HmsView(context: ReactContext) : FrameLayout(context) {
         surfaceView.setMirror(mirror)
       }
       localTrack = trackId
-        val localTrackId = hms.getLocalPeer()?.videoTrack?.trackId
-        if (localTrackId == localTrack) {
-          videoTrack = hms.getLocalPeer()?.videoTrack
-        }
+      val localTrackId = hms.getLocalPeer()?.videoTrack?.trackId
+      if (localTrackId == localTrack) {
+        videoTrack = hms.getLocalPeer()?.videoTrack
+      }
 
-        val remotePeers = hms.getRemotePeers()
-        if (remotePeers !== null) {
-          for (peer in remotePeers) {
-            val videoTrackId = peer.videoTrack?.trackId
+      val remotePeers = hms.getRemotePeers()
+      if (remotePeers !== null) {
+        for (peer in remotePeers) {
+          val videoTrackId = peer.videoTrack?.trackId
 
           val auxiliaryTracks = peer.auxiliaryTracks
           for (track in auxiliaryTracks) {

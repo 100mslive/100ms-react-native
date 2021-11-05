@@ -101,7 +101,10 @@ object HmsHelper {
     return null
   }
 
-  fun getRemoteAudioTrackFromTrackId(trackId: String?, remotePeers: Array<HMSRemotePeer>?): HMSRemoteAudioTrack? {
+  fun getRemoteAudioTrackFromTrackId(
+      trackId: String?,
+      remotePeers: Array<HMSRemotePeer>?
+  ): HMSRemoteAudioTrack? {
     if (trackId != null && remotePeers != null) {
       for (remotePeer in remotePeers) {
         if (remotePeer.audioTrack?.trackId == trackId) {
@@ -112,7 +115,10 @@ object HmsHelper {
     return null
   }
 
-  fun getRemoteVideoTrackFromTrackId(trackId: String?, remotePeers: Array<HMSRemotePeer>?): HMSRemoteVideoTrack? {
+  fun getRemoteVideoTrackFromTrackId(
+      trackId: String?,
+      remotePeers: Array<HMSRemotePeer>?
+  ): HMSRemoteVideoTrack? {
     if (trackId != null && remotePeers != null) {
       for (remotePeer in remotePeers) {
         if (remotePeer.videoTrack?.trackId == trackId) {
