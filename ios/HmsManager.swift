@@ -181,6 +181,13 @@ class HmsManager: RCTEventEmitter{
         hms?.isPlaybackAllowed(data, resolve, reject)
     }
     
+    @objc
+    func getRoom(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HmsHelper.getHms(data, hmsCollection)
+        
+        hms?.getRoom(data, resolve, reject)
+    }
+    
     // MARK: - HMS SDK Delegate Callbacks
     func emitEvent(_ name: String, _ data: [String: Any]) {
         self.sendEvent(withName: name, body: data)

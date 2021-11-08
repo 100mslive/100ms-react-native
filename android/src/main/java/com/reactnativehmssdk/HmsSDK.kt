@@ -570,4 +570,10 @@ class HmsSDK(
       callback?.reject("101", "TRACK_ID_NOT_FOUND")
     }
   }
+
+  fun getRoom(callback: Promise?) {
+    val roomData = HmsDecoder.getHmsRoom(hmsSDK?.getRoom())
+
+    callback?.resolve(roomData)
+  }
 }

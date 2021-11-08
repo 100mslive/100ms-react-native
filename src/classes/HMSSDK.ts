@@ -314,6 +314,14 @@ export class HMSSDK {
     HmsManager.muteAllPeersAudio({ mute, id: this.id });
   };
 
+  getRoom = async () => {
+    this.logger?.verbose('GET_ROOM_API_CALL', { roomID: this.id });
+    const hmsRoom = await HmsManager.getRoom({ id: this.id });
+
+    const encodedHmsRoom = HMSEncoder.encodeHmsRoom(hmsRoom, this.id);
+    return encodedHmsRoom;
+  };
+
   /**
    * - This is a prototype event listener that takes action and listens for updates related to that particular action
    * - This method will be @deprecated in future and event listener will be passed in join method
