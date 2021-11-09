@@ -405,7 +405,8 @@ class HmsManager: RCTEventEmitter, HMSUpdateListener, HMSPreviewListener {
     }
     
     func on(error: HMSError) {
-        self.sendEvent(withName: ON_ERROR, body: ["event": ON_ERROR, "error": error.description, "code": error.code.rawValue, "id": error.id, "message": error.message])
+        let hmsError = HmsDecoder.getError(error)
+        self.sendEvent(withName: ON_ERROR, body: hmsError)
     }
     
     func on(message: HMSMessage) {
