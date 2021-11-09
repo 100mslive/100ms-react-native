@@ -70,7 +70,7 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
             override fun onError(error: HMSException) {
               reactApplicationContext
                   .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-                  .emit("ON_ERROR", error)
+                  .emit("ON_ERROR", HmsDecoder.getError(error))
             }
 
             override fun onPreview(room: HMSRoom, localTracks: Array<HMSTrack>) {
@@ -150,7 +150,7 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
               override fun onError(error: HMSException) {
                 reactApplicationContext
                   .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-                  .emit("ON_ERROR", error)
+                  .emit("ON_ERROR", HmsDecoder.getError(error))
               }
 
               override fun onJoin(room: HMSRoom) {

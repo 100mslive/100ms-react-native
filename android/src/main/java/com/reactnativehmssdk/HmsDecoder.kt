@@ -1,6 +1,7 @@
 package com.reactnativehmssdk
 
 import com.facebook.react.bridge.*
+import live.hms.video.error.HMSException
 import java.util.*
 import live.hms.video.media.settings.HMSAudioTrackSettings
 import live.hms.video.media.settings.HMSVideoTrackSettings
@@ -408,5 +409,17 @@ object HmsDecoder {
     changeTrackStateRequest.putString("trackType", request.track.type.name)
 
     return changeTrackStateRequest
+  }
+
+  fun getError(error: HMSException): WritableMap {
+    val decodedError: WritableMap = Arguments.createMap()
+
+    decodedError.putInt("code", error.code)
+    decodedError.putString("description", error.description)
+    decodedError.putString("message", error.message)
+    decodedError.putString("name", error.name)
+    decodedError.putString("action", error.action)
+
+    return decodedError
   }
 }
