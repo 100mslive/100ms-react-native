@@ -57,7 +57,13 @@ export class HMSSDK {
     }
     HmsManager.build();
     HmsSdk = new HMSSDK();
+    HmsSdk.attachListeners();
+    HmsSdk.attachPreviewListener();
     return HmsSdk;
+  }
+
+  destroy = () => {
+    this.removeListeners();
   }
 
   attachPreviewListener = () => {
@@ -221,7 +227,6 @@ export class HMSSDK {
     this.remotePeers = undefined;
     this.room = undefined;
     this.knownRoles = undefined;
-    this.removeListeners();
     HmsManager.leave();
   };
 
