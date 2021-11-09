@@ -317,6 +317,9 @@ const App = ({
             placeholder="Enter room ID"
             style={styles.input}
             defaultValue={roomID}
+            returnKeyType="done"
+            multiline
+            blurOnSubmit
           />
         </View>
         <TouchableOpacity

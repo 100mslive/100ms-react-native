@@ -406,7 +406,8 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     }
     
     func on(error: HMSError) {
-        self.delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "id": self.id, "error": error.description, "code": error.code.rawValue, "id": error.id, "message": error.message])
+        let hmsError = HmsDecoder.getError(error)
+        self.delegate?.emitEvent(ON_ERROR, hmsError)
     }
     
     func on(message: HMSMessage) {

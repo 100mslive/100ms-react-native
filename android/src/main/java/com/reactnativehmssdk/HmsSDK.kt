@@ -55,10 +55,7 @@ class HmsSDK(
           config,
           object : HMSPreviewListener {
             override fun onError(error: HMSException) {
-              val data: WritableMap = Arguments.createMap()
-              data.putString("ERROR", "ERROR")
-              data.putString("id", id)
-              delegate.emitEvent("ON_ERROR", data)
+              delegate.emitEvent("ON_ERROR", HmsDecoder.getError(error))
             }
 
             override fun onPreview(room: HMSRoom, localTracks: Array<HMSTrack>) {
@@ -133,10 +130,7 @@ class HmsSDK(
                 }
 
                 override fun onError(error: HMSException) {
-                  val data: WritableMap = Arguments.createMap()
-                  data.putString("ERROR", error.description)
-                  data.putString("id", id)
-                  delegate.emitEvent("ON_ERROR", data)
+                  delegate.emitEvent("ON_ERROR", HmsDecoder.getError(error))
                 }
 
                 override fun onJoin(room: HMSRoom) {

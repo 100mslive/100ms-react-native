@@ -343,4 +343,17 @@ class HmsDecoder: NSObject {
         
         return ["requestedBy": requestedBy, "trackType": trackType]
     }
+    
+    static func getError(_ error: HMSError) -> [String: Any] {
+        let code = error.code
+        let description = error.description
+        let localizedDescription = error.localizedDescription
+        let debugDescription = error.debugDescription
+        let message = error.message
+        let name = error.id
+        let id = error.id
+        let action = error.action
+        
+        return ["code": code, "description": description, "localizedDescription":localizedDescription, "debugDescription":debugDescription, "message":message, "name":name, "action":action, "id": id]
+    }
 }
