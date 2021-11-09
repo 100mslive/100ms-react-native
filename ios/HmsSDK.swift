@@ -415,9 +415,9 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     }
     
     func on(updated speakers: [HMSSpeaker]) {
-        var speakerPeerIds: [String] = []
+        var speakerPeerIds: [[String : Any]] = []
         for speaker in speakers {
-            speakerPeerIds.append(speaker.peer.peerID)
+            speakerPeerIds.append(["peer": HmsDecoder.getHmsPeer(speaker.peer), "level": speaker.level, "track": HmsDecoder.getHmsTrack(speaker.track)])
         }
         self.delegate?.emitEvent(ON_SPEAKER, ["event": ON_SPEAKER, "id": self.id, "count": speakers.count, "peers" :speakerPeerIds])
     }
