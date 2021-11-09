@@ -78,8 +78,9 @@ class HmsDecoder: NSObject {
         let source = hmsTrack.source
         let trackDescription = hmsTrack.trackDescription
         let isMute = hmsTrack.isMute()
+        let isDegraded = hmsTrack.isDegraded()
         
-        return ["trackId": trackId, "source": source, "trackDescription": trackDescription, "isMute": isMute]
+        return ["trackId": trackId, "source": source, "trackDescription": trackDescription, "isMute": isMute, "isDegraded": isDegraded]
     }
     
     static func getHmsLocalPeer(_ hmsLocalPeer: HMSLocalPeer?) -> [String: Any] {
