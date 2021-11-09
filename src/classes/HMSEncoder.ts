@@ -71,6 +71,7 @@ export class HMSEncoder {
       source: track?.source,
       trackDescription: track?.trackDescription,
       isMute: track?.isMute,
+      isDegraded: track?.isDegraded,
     };
 
     return new HMSVideoTrack(encodedObj);

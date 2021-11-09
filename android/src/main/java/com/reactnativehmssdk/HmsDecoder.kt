@@ -70,6 +70,7 @@ object HmsDecoder {
       hmsTrack.putString("source", hmsVideoTrack.source)
       hmsTrack.putString("trackDescription", hmsVideoTrack.description)
       hmsTrack.putBoolean("isMute", hmsVideoTrack.isMute)
+      hmsTrack.putBoolean("isDegraded", hmsVideoTrack.isDegraded)
     }
     return hmsTrack
   }
