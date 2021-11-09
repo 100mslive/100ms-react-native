@@ -43,6 +43,7 @@ type WelcomeProps = {
   saveUserDataRequest: Function;
   updateHms: Function;
   state: RootState;
+  hmsInstance: HMSSDK | undefined;
 };
 
 type WelcomeScreenProp = StackNavigationProp<
@@ -108,6 +109,7 @@ const App = ({
   saveUserDataRequest,
   state,
   updateHms,
+  hmsInstance,
 }: WelcomeProps) => {
   const [orientation, setOrientation] = useState<boolean>(true);
   const [roomID, setRoomID] = useState<string>(
@@ -157,6 +159,7 @@ const App = ({
   // let ref = React.useRef();
 
   const setupBuild = async () => {
+    console.log('here');
     const build = await HmsManager.build();
     const logger = new HMSLogger();
     logger.updateLogLevel(HMSLogLevel.VERBOSE, true);
@@ -175,6 +178,7 @@ const App = ({
     });
 
     return () => {
+      hmsInstance?.destroy();
       Dimensions.removeEventListener('change', () => {
         setOrientation(!orientation);
       });
@@ -532,6 +536,7 @@ const mapDispatchToProps = (dispatch: Function) => ({
 const mapStateToProps = (state: RootState) => {
   return {
     state: state,
+    hmsInstance: state?.user?.hmsInstance,
   };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(App);

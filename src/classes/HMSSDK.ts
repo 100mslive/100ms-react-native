@@ -59,8 +59,14 @@ export class HMSSDK {
   static async build() {
     let id = await HmsManager.build();
     HmsSdk = new HMSSDK(id);
+    HmsSdk.attachPreviewListener();
+    HmsSdk.attachListeners();
     return HmsSdk;
   }
+
+  destroy = () => {
+    this.removeListeners();
+  };
 
   attachPreviewListener = () => {
     HmsEventEmitter.addListener(
@@ -202,13 +208,11 @@ export class HMSSDK {
    */
   join = async (config: HMSConfig) => {
     this.logger?.verbose('JOIN', { config });
-    this.attachListeners();
     await HmsManager.join({ ...config, id: this.id });
   };
 
   preview = (config: HMSConfig) => {
     this.logger?.verbose('PREVIEW', { config });
-    this.attachPreviewListener();
     HmsManager.preview({ ...config, id: this.id });
   };
 
@@ -228,7 +232,6 @@ export class HMSSDK {
     this.remotePeers = undefined;
     this.room = undefined;
     this.knownRoles = undefined;
-    this.removeListeners();
   };
 
   sendBroadcastMessage = (message: string, type?: string) => {
