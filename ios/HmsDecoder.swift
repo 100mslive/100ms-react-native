@@ -347,8 +347,9 @@ class HmsDecoder: NSObject {
         let debugDescription = error.debugDescription
         let message = error.message
         let name = error.id
+        let id = error.id
         let action = error.action
         
-        return ["code": code, "description": description, "localizedDescription":localizedDescription, "debugDescription":debugDescription, "message":message, "name":name, "action":action]
+        return ["code": code, "description": description, "localizedDescription":localizedDescription, "debugDescription":debugDescription, "message":message, "name":name, "action":action, "id": id]
     }
 }
