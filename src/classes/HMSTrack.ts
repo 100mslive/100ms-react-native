@@ -12,12 +12,13 @@ export class HMSTrack {
   source?: number | string;
   trackDescription?: string;
   mute?: boolean;
+  id: string;
 
   isMute = async () => {
     try {
-      let val = await HmsManager.isMute({ trackId: this.trackId });
+      let val = await HmsManager.isMute({ trackId: this.trackId, id: this.id });
       return val;
-    } catch (e) {
+    } catch (err) {
       return true;
     }
   };
@@ -27,10 +28,12 @@ export class HMSTrack {
     source?: number | string;
     trackDescription?: string;
     isMute?: boolean;
+    id: string;
   }) {
     this.trackId = params.trackId;
     this.source = params.source;
     this.trackDescription = params.trackDescription;
     this.mute = params.isMute;
+    this.id = params.id;
   }
 }

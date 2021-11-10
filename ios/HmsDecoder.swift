@@ -6,8 +6,8 @@ class HmsDecoder: NSObject {
         
         guard let room = hmsRoom else { return [:] }
         
-        let id = room.roomID
-        let name = room.name
+        let id = room.roomID ?? ""
+        let name = room.name ?? ""
         let metaData = room.metaData ?? ""
         var peers = [[String: Any]]()
         
@@ -326,12 +326,16 @@ class HmsDecoder: NSObject {
         return layersSettingsPolicy
     }
     
-    static func getHmsRoleChangeRequest(_ roleChangeRequest: HMSRoleChangeRequest) -> [String: Any] {
+    static func getHmsRoleChangeRequest(_ roleChangeRequest: HMSRoleChangeRequest, _ id: String?) -> [String: Any] {
         
-        let requestedBy = getHmsPeer(roleChangeRequest.requestedBy)
-        let suggestedRole = getHmsRole(roleChangeRequest.suggestedRole)
+        if let sdkId = id {
+            let requestedBy = getHmsPeer(roleChangeRequest.requestedBy)
+            let suggestedRole = getHmsRole(roleChangeRequest.suggestedRole)
+            
+            return ["requestedBy": requestedBy, "suggestedRole": suggestedRole, "id": sdkId]
+        }
         
-        return ["requestedBy": requestedBy, "suggestedRole": suggestedRole]
+        return [:]
     }
     
     static func getHmsChangeTrackStateRequest(_ changeTrackStateRequest: HMSChangeTrackStateRequest) -> [String: Any] {

@@ -16,12 +16,19 @@ export class HMSRemoteAudioTrack extends HMSAudioTrack {
    * @memberof HMSRemoteAudioTrack
    */
   setPlaybackAllowed(playbackAllowed: boolean) {
-    HmsManager.setPlaybackAllowed({ trackId: this.trackId, playbackAllowed });
+    HmsManager.setPlaybackAllowed({
+      id: this.id,
+      trackId: this.trackId,
+      playbackAllowed,
+    });
   }
 
   isPlaybackAllowed = async () => {
     try {
-      const val = await HmsManager.isPlaybackAllowed({ trackId: this.trackId });
+      const val = await HmsManager.isPlaybackAllowed({
+        id: this.id,
+        trackId: this.trackId,
+      });
       return val;
     } catch (e) {
       return true;
@@ -33,6 +40,8 @@ export class HMSRemoteAudioTrack extends HMSAudioTrack {
     source?: number | string;
     isMute?: boolean;
     trackDescription?: string;
+    playbackAllowed?: boolean;
+    id: string;
   }) {
     super(params);
   }
