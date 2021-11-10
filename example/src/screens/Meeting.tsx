@@ -879,9 +879,12 @@ const Meeting = ({
       <View style={styles.headerContainer}>
         <Text style={styles.headerName}>{trackId?.peerName}</Text>
         <TouchableOpacity
-          onPress={() => {
+          onPress={async () => {
             instance?.muteAllPeersAudio(!muteAllAudio);
             setMuteAllAudio(!muteAllAudio);
+            // const room = await instance?.getRoom();
+
+            // console.log(room, 'ROOM HERE');
           }}
           style={styles.headerIcon}>
           <Ionicons

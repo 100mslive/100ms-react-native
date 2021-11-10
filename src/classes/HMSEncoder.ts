@@ -247,9 +247,12 @@ export class HMSEncoder {
     return new HMSRoleChangeRequest(encodedRoleChangeRequest);
   }
 
-  static encodeHmsChangeTrackStateRequest(data: HMSChangeTrackStateRequest) {
+  static encodeHmsChangeTrackStateRequest(
+    data: HMSChangeTrackStateRequest,
+    id: string
+  ) {
     const encodedChangeTrackStateRequest = {
-      requestedBy: HMSEncoder.encodeHmsPeer(data.requestedBy),
+      requestedBy: HMSEncoder.encodeHmsPeer(data.requestedBy, id),
       trackType: data.trackType,
     };
 
