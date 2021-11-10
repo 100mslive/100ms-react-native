@@ -33,6 +33,7 @@ import {
   HMSSpeakerUpdate,
   HMSRemoteAudioTrack,
   HMSRemoteVideoTrack,
+  HMSPeer,
 } from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
@@ -62,6 +63,7 @@ const isPortrait = () => {
 };
 
 type Peer = {
+  peerRefrence?: HMSPeer;
   trackId?: string;
   peerName?: string;
   isAudioMute?: boolean;
@@ -133,10 +135,11 @@ const DisplayName = ({
     remoteVideo,
     audioTrack,
     videoTrack,
+    peerRefrence,
   } = peer!;
   const [alertModalVisible, setAlertModalVisible] = useState(false);
   const [roleModalVisible, setRoleModalVisible] = useState(false);
-  const [newRole, setNewRole] = useState(role?.name);
+  const [newRole, setNewRole] = useState(role);
   const [force, setForce] = useState(false);
 
   const knownRoles = instance?.knownRoles || [];
@@ -222,7 +225,7 @@ const DisplayName = ({
     {
       text: 'Send',
       onPress: () => {
-        instance?.changeRole(peerId!, newRole!, force);
+        instance?.changeRole(peerRefrence!, newRole!, force);
       },
     },
   ];
@@ -456,6 +459,7 @@ const Meeting = ({
         remoteVideo: remotePeerData?.remoteVideoTrack(),
       };
     }
+    const peerRefrence = peer;
     const peerId = peer?.peerID;
     const peerTrackId = peer?.videoTrack?.trackId;
     const peerName = peer?.name;
@@ -478,6 +482,7 @@ const Meeting = ({
       ...remoteTrack,
       audioTrack: peerAudioTrack,
       videoTrack: peerVideoTrack,
+      peerRefrence,
     };
   };
 
