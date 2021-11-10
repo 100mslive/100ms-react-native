@@ -152,11 +152,13 @@ class HmsSDK(
                 override fun onPeerUpdate(type: HMSPeerUpdate, hmsPeer: HMSPeer) {
 
                   val type = type.name
+                  val roomData = HmsDecoder.getHmsRoom(hmsSDK?.getRoom())
                   val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
                   val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
 
                   val data: WritableMap = Arguments.createMap()
 
+                  data.putMap("room", roomData)
                   data.putString("type", type)
                   data.putMap("localPeer", localPeerData)
                   data.putArray("remotePeers", remotePeerData)
@@ -184,9 +186,11 @@ class HmsSDK(
                   val type = type.name
                   val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
                   val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
+                  val roomData = HmsDecoder.getHmsRoom(hmsSDK?.getRoom())
 
                   val data: WritableMap = Arguments.createMap()
 
+                  data.putMap("room", roomData)
                   data.putString("type", type)
                   data.putMap("localPeer", localPeerData)
                   data.putArray("remotePeers", remotePeerData)
