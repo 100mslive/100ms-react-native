@@ -1,7 +1,7 @@
 import { HMSTrack } from './HMSTrack';
 
 export class HMSVideoTrack extends HMSTrack {
-  isDegraded?: Function;
+  isDegraded?: boolean;
   addSink?: Function;
   removeSink?: Function;
 
@@ -11,7 +11,9 @@ export class HMSVideoTrack extends HMSTrack {
     trackDescription?: string;
     isMute?: boolean;
     id: string;
+    isDegraded?: boolean;
   }) {
     super(params);
+    this.isDegraded = params.isDegraded;
   }
 }

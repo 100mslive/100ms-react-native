@@ -23,12 +23,14 @@ hmsInstance.addEventListener(
 const onPreviewListener = ({ previewTracks }) => {
   const videoTrack = previewTracks.videoTrack;
   const videoTrackId = videoTrack.trackId;
+  // gets triggered when we call preview function. You can set your camera and mic on/off while joining.
   // perform action
 };
 
 hmsInstance.addEventListener(HMSUpdateListenerActions.ON_JOIN, onJoinListener);
 
 const onJoinListener = ({ localPeer, remotePeers }) => {
+  // gets triggered when join is successful. You can navigate to other screens.
   // use these objects to update your local and remote peers.
 };
 
@@ -38,6 +40,7 @@ hmsInstance.addEventListener(
 );
 
 const onRoomListener = ({ localPeer, remotePeers }) => {
+  // gets triggered when room is muted or unmuted.
   // use these objects to update your local and remote peers.
 };
 
@@ -47,6 +50,7 @@ hmsInstance.addEventListener(
 );
 
 const onPeerListener = ({ localPeer, remotePeers }) => {
+  // gets triggered when peer leaves, joins, peer's audio or video is muted, starts or stops speaking, role is changed or becomes dominant speaker.
   // use these objects to update your local and remote peers.
 };
 
@@ -56,6 +60,7 @@ hmsInstance.addEventListener(
 );
 
 const onTrackListener = ({ localPeer, remotePeers }) => {
+  // gets triggered when track is added, removed, muted, unmuted, degraded and restored back.
   // use these objects to update your local and remote peers.
 };
 
@@ -65,6 +70,7 @@ hmsInstance.addEventListener(
 );
 
 const onErrorListener = (data: HMSException) => {
+  // gets triggered whenever some error occours with a error description. You can either log it or navigate to some error screen.
   // data contains a error code and message due to which error occoured.
 };
 
@@ -74,6 +80,7 @@ hmsInstance.addEventListener(
 );
 
 const onMessageListener = (data: HMSMessage) => {
+  // gets triggered whenever you receive a direct message, broadcasted message or role-based message.
   // whenever local peer receives a message this is triggered. Add the message to reducer.
 };
 
@@ -83,6 +90,7 @@ hmsInstance.addEventListener(
 );
 
 const onSpeakerListener = ({ peers }) => {
+  // gets triggered whenever someone speaks
   // an array of speakers is received. Use it to highlight the speakers.
 };
 
@@ -111,6 +119,7 @@ hmsInstance.addEventListener(
 
 const onRoleChangeRequestListener = (data: HMSRoleChangeRequest) => {
   // triggered when someone requests a role change for local peer. We can get data.requestedBy.name, data.suggestedRole.name
+  // You can show a modal allowing user to accept or decline the role change request whenever this is triggered.
 };
 
 hmsInstance.addEventListener(
@@ -120,6 +129,7 @@ hmsInstance.addEventListener(
 
 const onRemovedFromRoomListener = (data: HMSLeaveRoomRequest) => {
   // triggered whenever someone removes local peer from the room or the room is ended.
+  // You can navigate to home screen, clear all reducers and reset all the states whenever this is triggered
 };
 
 hmsInstance.addEventListener(
@@ -129,5 +139,6 @@ hmsInstance.addEventListener(
 
 const onChangeTrackStateRequest = (data: HMSChangeTrackStateRequest) => {
   // triggered when someone requests a unmute for local peer. We can get data.requestedBy.name, data.trackType
+  // You can show a modal allowing user to accept or decline the role change request whenever this is triggered.
 };
 ```

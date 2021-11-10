@@ -412,7 +412,8 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     }
     
     func on(error: HMSError) {
-        self.delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "id": self.id, "error": error.description, "code": error.code.rawValue, "id": error.id, "message": error.message])
+        let hmsError = HmsDecoder.getError(error)
+        self.delegate?.emitEvent(ON_ERROR, hmsError)
     }
     
     func on(message: HMSMessage) {
@@ -420,9 +421,9 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     }
     
     func on(updated speakers: [HMSSpeaker]) {
-        var speakerPeerIds: [String] = []
+        var speakerPeerIds: [[String : Any]] = []
         for speaker in speakers {
-            speakerPeerIds.append(speaker.peer.peerID)
+            speakerPeerIds.append(["peer": HmsDecoder.getHmsPeer(speaker.peer), "level": speaker.level, "track": HmsDecoder.getHmsTrack(speaker.track)])
         }
         self.delegate?.emitEvent(ON_SPEAKER, ["event": ON_SPEAKER, "id": self.id, "count": speakers.count, "peers" :speakerPeerIds])
     }

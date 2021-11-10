@@ -78,8 +78,9 @@ class HmsDecoder: NSObject {
         let source = hmsTrack.source
         let trackDescription = hmsTrack.trackDescription
         let isMute = hmsTrack.isMute()
+        let isDegraded = hmsTrack.isDegraded()
         
-        return ["trackId": trackId, "source": source, "trackDescription": trackDescription, "isMute": isMute]
+        return ["trackId": trackId, "source": source, "trackDescription": trackDescription, "isMute": isMute, "isDegraded": isDegraded]
     }
     
     static func getHmsLocalPeer(_ hmsLocalPeer: HMSLocalPeer?) -> [String: Any] {
@@ -342,5 +343,18 @@ class HmsDecoder: NSObject {
         let trackType = changeTrackStateRequest.track.kind == .video ? "video" : "audio"
         
         return ["requestedBy": requestedBy, "trackType": trackType]
+    }
+    
+    static func getError(_ error: HMSError) -> [String: Any] {
+        let code = error.code
+        let description = error.description
+        let localizedDescription = error.localizedDescription
+        let debugDescription = error.debugDescription
+        let message = error.message
+        let name = error.id
+        let id = error.id
+        let action = error.action
+        
+        return ["code": code, "description": description, "localizedDescription":localizedDescription, "debugDescription":debugDescription, "message":message, "name":name, "action":action, "id": id]
     }
 }

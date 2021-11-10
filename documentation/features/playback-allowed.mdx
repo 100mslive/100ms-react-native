@@ -1,0 +1,35 @@
+---
+title: Playback Allowed
+nav: 3.93
+---
+
+Mute is something that applies to both audio and video and its possible to mute remote peers only for yourself. When you will mute audio or video, you won't be able to hear or see the remote person but it will be audible and visible to others.
+
+## Fetch isPlaybackAllowed
+
+You can check if playback is allowed or not for a certain remote peer's audio or video.
+
+```js
+const remotePeer: HMSRemotePeer;
+const isAudioPlaybackAllowed = remotePeer.remoteAudioTrack().isPlaybackAllowed(); 
+const isVideoPlaybackAllowed = remotePeer.remoteVideoTrack().isPlaybackAllowed();
+```
+
+## Set isPlaybackAllowed
+
+You can set playback for a certain remote peer's audio or video. If you set it to false it will turn off the audio or video only for you. You can revert it back by setting it true.
+
+```js
+const remotePeer: HMSRemotePeer;
+const isAudioPlaybackAllowed = remotePeer.remoteAudioTrack().setPlaybackAllowed(false);
+const isVideoPlaybackAllowed = remotePeer.remoteVideoTrack().setPlaybackAllowed(true);
+```
+
+## Mute all remote peers
+
+```js
+// instance acquired from build method
+
+hmsInstance.muteAllPeersAudio(true)  // mute
+hmsInstance.muteAllPeersAudio(false) // unmute
+```

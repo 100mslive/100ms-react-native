@@ -43,6 +43,7 @@ type WelcomeProps = {
   saveUserDataRequest: Function;
   updateHms: Function;
   state: RootState;
+  hmsInstance: HMSSDK | undefined;
 };
 
 type WelcomeScreenProp = StackNavigationProp<
@@ -108,6 +109,7 @@ const App = ({
   saveUserDataRequest,
   state,
   updateHms,
+  hmsInstance,
 }: WelcomeProps) => {
   const [orientation, setOrientation] = useState<boolean>(true);
   const [roomID, setRoomID] = useState<string>(
@@ -175,6 +177,7 @@ const App = ({
     });
 
     return () => {
+      hmsInstance?.destroy();
       Dimensions.removeEventListener('change', () => {
         setOrientation(!orientation);
       });
@@ -313,6 +316,9 @@ const App = ({
             placeholder="Enter room ID"
             style={styles.input}
             defaultValue={roomID}
+            returnKeyType="done"
+            multiline
+            blurOnSubmit
           />
         </View>
         <TouchableOpacity
@@ -532,6 +538,7 @@ const mapDispatchToProps = (dispatch: Function) => ({
 const mapStateToProps = (state: RootState) => {
   return {
     state: state,
+    hmsInstance: state?.user?.hmsInstance,
   };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(App);
