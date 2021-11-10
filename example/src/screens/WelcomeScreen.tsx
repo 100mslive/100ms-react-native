@@ -21,6 +21,7 @@ import HmsManager, {
   HMSVideoTrack,
   HMSLogger,
   HMSLogLevel,
+  HMSSDK,
 } from '@100mslive/react-native-hms';
 import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
@@ -29,14 +30,20 @@ import Feather from 'react-native-vector-icons/Feather';
 
 import * as services from '../services/index';
 import {UserIdModal, PreviewModal} from '../components';
-import {setAudioVideoState, saveUserData} from '../redux/actions/index';
+import {
+  setAudioVideoState,
+  saveUserData,
+  updateHmsReference,
+} from '../redux/actions/index';
 import type {AppStackParamList} from '../navigator';
 import type {RootState} from '../redux';
 
 type WelcomeProps = {
   setAudioVideoStateRequest: Function;
   saveUserDataRequest: Function;
+  updateHms: Function;
   state: RootState;
+  hmsInstance: HMSSDK | undefined;
 };
 
 type WelcomeScreenProp = StackNavigationProp<
@@ -101,6 +108,8 @@ const App = ({
   setAudioVideoStateRequest,
   saveUserDataRequest,
   state,
+  updateHms,
+  hmsInstance,
 }: WelcomeProps) => {
   const [orientation, setOrientation] = useState<boolean>(true);
   const [roomID, setRoomID] = useState<string>(
@@ -150,11 +159,13 @@ const App = ({
   // let ref = React.useRef();
 
   const setupBuild = async () => {
+    console.log('here');
     const build = await HmsManager.build();
     const logger = new HMSLogger();
     logger.updateLogLevel(HMSLogLevel.VERBOSE, true);
     build.setLogger(logger);
     setInstance(build);
+    updateHms({hmsInstance: build});
   };
 
   useEffect(() => {
@@ -167,6 +178,7 @@ const App = ({
     });
 
     return () => {
+      hmsInstance?.destroy();
       Dimensions.removeEventListener('change', () => {
         setOrientation(!orientation);
       });
@@ -521,10 +533,13 @@ const mapDispatchToProps = (dispatch: Function) => ({
   }) => dispatch(setAudioVideoState(data)),
   saveUserDataRequest: (data: {userName: string; roomID: string}) =>
     dispatch(saveUserData(data)),
+  updateHms: (data: {hmsInstance: HMSSDK}) =>
+    dispatch(updateHmsReference(data)),
 });
 const mapStateToProps = (state: RootState) => {
   return {
     state: state,
+    hmsInstance: state?.user?.hmsInstance,
   };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(App);

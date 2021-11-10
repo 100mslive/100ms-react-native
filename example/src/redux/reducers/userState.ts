@@ -7,11 +7,17 @@ type ActionType = {
 
 const INITIAL_STATE = {
   userName: null,
+  hmsInstance: undefined,
 };
 
 const userReducer = (state = INITIAL_STATE, action: ActionType) => {
   switch (action.type) {
     case ActionTypes.SAVE_USER_DATA.REQUEST:
+      return {
+        ...state,
+        ...action.payload,
+      };
+    case ActionTypes.UPDATE_HMS_INSTANCE:
       return {
         ...state,
         ...action.payload,

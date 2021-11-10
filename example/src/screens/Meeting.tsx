@@ -11,7 +11,7 @@ import {
   Platform,
 } from 'react-native';
 import {connect} from 'react-redux';
-import HmsManager, {
+import {
   HmsView,
   HMSUpdateListenerActions,
   HMSMessage,
@@ -26,6 +26,7 @@ import HmsManager, {
   HMSRoom,
   HMSRole,
   HMSRoleChangeRequest,
+  HMSSDK,
   HMSChangeTrackStateRequest,
   HMSAudioTrack,
   HMSVideoTrack,
@@ -41,7 +42,11 @@ import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 
 import {ChatWindow, AlertModal, CustomModal, CustomPicker} from '../components';
-import {addMessage, clearMessageData} from '../redux/actions/index';
+import {
+  addMessage,
+  clearMessageData,
+  updateHmsReference,
+} from '../redux/actions/index';
 import dimension from '../utils/dimension';
 import {
   getRandomColor,
@@ -77,7 +82,7 @@ type DisplayNameProps = {
   videoStyles: Function;
   speakers: Array<string>;
   type: 'local' | 'remote' | 'screen';
-  instance: HmsManager | null;
+  instance: HMSSDK | undefined;
   permissions: HMSPermissions | undefined;
   allAudioMute: boolean;
 };
@@ -89,6 +94,7 @@ type MeetingProps = {
   audioState: boolean;
   videoState: boolean;
   state: RootState;
+  hmsInstance: HMSSDK | undefined;
 };
 
 const DEFAULT_PEER: Peer = {
@@ -364,9 +370,10 @@ const Meeting = ({
   messages,
   addMessageRequest,
   clearMessageRequest,
+  hmsInstance,
 }: MeetingProps) => {
   const [orientation, setOrientation] = useState<boolean>(true);
-  const [instance, setInstance] = useState<HmsManager | null>(null);
+  const [instance, setInstance] = useState<HMSSDK | undefined>();
   const [trackId, setTrackId] = useState<Peer>(DEFAULT_PEER);
   const [remoteTrackIds, setRemoteTrackIds] = useState<Peer[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -633,69 +640,53 @@ const Meeting = ({
     navigate('WelcomeScreen');
   };
 
-  const updateHmsInstance = async () => {
-    const HmsInstance = await HmsManager.build();
-    setInstance(HmsInstance);
-    HmsInstance.addEventListener(
-      HMSUpdateListenerActions.ON_JOIN,
-      onJoinListener,
-    );
+  const updateHmsInstance = async (hms: HMSSDK | undefined) => {
+    console.log('instance', hms);
+    setInstance(hms);
+    hms?.addEventListener(HMSUpdateListenerActions.ON_JOIN, onJoinListener);
 
-    HmsInstance.addEventListener(
+    hms?.addEventListener(
       HMSUpdateListenerActions.ON_ROOM_UPDATE,
       onRoomListener,
     );
 
-    HmsInstance.addEventListener(
+    hms?.addEventListener(
       HMSUpdateListenerActions.ON_PEER_UPDATE,
       onPeerListener,
     );
 
-    HmsInstance.addEventListener(
+    hms?.addEventListener(
       HMSUpdateListenerActions.ON_TRACK_UPDATE,
       onTrackListener,
     );
 
-    HmsInstance.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
+    hms?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
 
-    HmsInstance.addEventListener(
-      HMSUpdateListenerActions.ON_MESSAGE,
-      onMessage,
-    );
+    hms?.addEventListener(HMSUpdateListenerActions.ON_MESSAGE, onMessage);
 
-    HmsInstance.addEventListener(
-      HMSUpdateListenerActions.ON_SPEAKER,
-      onSpeaker,
-    );
+    hms?.addEventListener(HMSUpdateListenerActions.ON_SPEAKER, onSpeaker);
 
-    HmsInstance.addEventListener(
-      HMSUpdateListenerActions.RECONNECTING,
-      reconnecting,
-    );
+    hms?.addEventListener(HMSUpdateListenerActions.RECONNECTING, reconnecting);
 
-    HmsInstance.addEventListener(
-      HMSUpdateListenerActions.RECONNECTED,
-      reconnected,
-    );
+    hms?.addEventListener(HMSUpdateListenerActions.RECONNECTED, reconnected);
 
-    HmsInstance.addEventListener(
+    hms?.addEventListener(
       HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST,
       onRoleChangeRequest,
     );
 
-    HmsInstance.addEventListener(
-      HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST,
-      onChangeTrackStateRequest,
-    );
-
-    HmsInstance.addEventListener(
+    hms?.addEventListener(
       HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM,
       onRemovedFromRoom,
+    );
+    hms?.addEventListener(
+      HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST,
+      onChangeTrackStateRequest,
     );
   };
 
   useEffect(() => {
-    updateHmsInstance();
+    updateHmsInstance(hmsInstance);
 
     Dimensions.addEventListener('change', () => {
       setOrientation(isPortrait());
@@ -718,7 +709,7 @@ const Meeting = ({
       });
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [hmsInstance]);
 
   useEffect(() => {
     if (instance) {
@@ -817,7 +808,7 @@ const Meeting = ({
         },
       );
 
-      const inst = HmsManager.build();
+      const inst = hmsInstance;
       const remotePeers = inst?.remotePeers;
       if (remotePeers) {
         const sinkRemoteTrackIds = remotePeers.map(
@@ -1233,12 +1224,16 @@ const styles = StyleSheet.create({
 const mapDispatchToProps = (dispatch: Function) => ({
   addMessageRequest: (data: any) => dispatch(addMessage(data)),
   clearMessageRequest: () => dispatch(clearMessageData()),
+  updateHms: (data: {hmsInstance: HMSSDK}) =>
+    dispatch(updateHmsReference(data)),
 });
 
 const mapStateToProps = (state: RootState) => ({
   messages: state?.messages?.messages,
   audioState: state?.app?.audioState,
   videoState: state?.app?.videoState,
+  hmsInstance: state?.user?.hmsInstance,
+  state: state,
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Meeting);

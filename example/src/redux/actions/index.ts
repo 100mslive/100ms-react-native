@@ -1,3 +1,4 @@
+import {HMSSDK} from '@100mslive/react-native-hms';
 import actionTypes from '../actionTypes';
 
 export const addMessage = (data: any) => ({
@@ -19,5 +20,10 @@ export const setAudioVideoState = (data: {
 
 export const saveUserData = (data: {userName: String; roomID: String}) => ({
   type: actionTypes.SAVE_USER_DATA.REQUEST,
+  payload: data,
+});
+
+export const updateHmsReference = (data: {hmsInstance: HMSSDK}) => ({
+  type: actionTypes.UPDATE_HMS_INSTANCE,
   payload: data,
 });

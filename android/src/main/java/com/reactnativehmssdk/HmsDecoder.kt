@@ -135,20 +135,20 @@ object HmsDecoder {
           if (hmsPermissions.mute != null) hmsPermissions.mute else false
       )
       permissions.putBoolean(
-        "changeRoleForce",
-        if (hmsPermissions.changeRoleForce != null) hmsPermissions.changeRoleForce else false
+          "changeRoleForce",
+          if (hmsPermissions.changeRoleForce != null) hmsPermissions.changeRoleForce else false
       )
       permissions.putBoolean(
-        "unmute",
-        if (hmsPermissions.unmute != null) hmsPermissions.unmute else false
+          "unmute",
+          if (hmsPermissions.unmute != null) hmsPermissions.unmute else false
       )
       permissions.putBoolean(
-        "recording",
-        if (hmsPermissions.recording != null) hmsPermissions.recording else false
+          "recording",
+          if (hmsPermissions.recording != null) hmsPermissions.recording else false
       )
       permissions.putBoolean(
-        "rtmp",
-        if (hmsPermissions.rtmp != null) hmsPermissions.rtmp else false
+          "rtmp",
+          if (hmsPermissions.rtmp != null) hmsPermissions.rtmp else false
       )
       permissions.putBoolean(
           "changeRole",
@@ -394,12 +394,14 @@ object HmsDecoder {
     return hmsTracks
   }
 
-  fun getHmsRoleChangeRequest(request: HMSRoleChangeRequest): WritableMap {
+  fun getHmsRoleChangeRequest(request: HMSRoleChangeRequest, id: String?): WritableMap {
     val roleChangeRequest: WritableMap = Arguments.createMap()
-
-    roleChangeRequest.putMap("requestedBy", getHmsPeer(request.requestedBy))
-    roleChangeRequest.putMap("suggestedRole", getHmsRole(request.suggestedRole))
-
+    if (id != null) {
+      roleChangeRequest.putMap("requestedBy", getHmsPeer(request.requestedBy))
+      roleChangeRequest.putMap("suggestedRole", getHmsRole(request.suggestedRole))
+      roleChangeRequest.putString("id", id)
+      return roleChangeRequest
+    }
     return roleChangeRequest
   }
 

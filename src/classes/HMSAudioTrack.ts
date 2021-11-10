@@ -6,6 +6,7 @@ export class HMSAudioTrack extends HMSTrack {
     source?: number | string;
     trackDescription?: string;
     isMute?: boolean;
+    id: string;
   }) {
     if (params) {
       super(params);

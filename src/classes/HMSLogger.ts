@@ -1,11 +1,11 @@
 import { HMSLogLevel } from './HMSLogLevel';
 
 export class HMSLogger {
-  private _verbose: Boolean = false;
-  private _warning: Boolean = false;
-  private _error: Boolean = false;
+  private _verbose: boolean = false;
+  private _warning: boolean = false;
+  private _error: boolean = false;
 
-  constructor(params?: { verbose: Boolean; warning: Boolean; error: Boolean }) {
+  constructor(params?: { verbose: boolean; warning: boolean; error: boolean }) {
     if (params) {
       this._verbose = params.verbose;
       this._warning = params.warning;
@@ -31,7 +31,7 @@ export class HMSLogger {
     }
   }
 
-  updateLogLevel(level: HMSLogLevel, value: Boolean) {
+  updateLogLevel(level: HMSLogLevel, value: boolean) {
     switch (level) {
       case HMSLogLevel.VERBOSE: {
         this._verbose = value;
