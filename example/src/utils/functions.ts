@@ -1,3 +1,5 @@
+export const getThemeColour = () => '#4578e0';
+
 export const getRandomColor = () => {
   var letters = '0123456789ABCDEF';
   var color = '#';
