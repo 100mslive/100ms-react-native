@@ -437,6 +437,8 @@ class HmsSDK(
         val mute = localTrack.isMute
         callback?.resolve(mute)
       }
+    } else {
+      callback?.reject("102", "REQUIRED_KEYS_NOT_AVAILABLE")
     }
   }
 
