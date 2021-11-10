@@ -83,7 +83,6 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     val hms = HmsHelper.getHms(data, hmsCollection)
 
     hms?.leave()
-    val id = data.getString("id")
   }
 
   @ReactMethod

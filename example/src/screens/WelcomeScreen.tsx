@@ -159,7 +159,6 @@ const App = ({
   // let ref = React.useRef();
 
   const setupBuild = async () => {
-    console.log('here');
     const build = await HmsManager.build();
     const logger = new HMSLogger();
     logger.updateLogLevel(HMSLogLevel.VERBOSE, true);
