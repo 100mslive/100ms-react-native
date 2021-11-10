@@ -10,6 +10,7 @@ import { HMSMessage } from './HMSMessage';
 import { HMSHelper } from './HMSHelper';
 import type { HMSTrack } from './HMSTrack';
 import type { HMSLogger } from './HMSLogger';
+import type { HMSPeer } from './HMSPeer';
 
 const {
   /**
@@ -263,10 +264,10 @@ export class HMSSDK {
     });
   };
 
-  changeRole = (peerId: string, role: string, force: boolean = false) => {
+  changeRole = (peer: HMSPeer, role: HMSRole, force: boolean = false) => {
     const data = {
-      peerId: peerId,
-      role: role,
+      peerId: peer?.peerID,
+      role: role?.name,
       force: force,
       id: this.id,
     };

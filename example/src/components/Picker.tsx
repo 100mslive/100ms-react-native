@@ -25,7 +25,7 @@ export const CustomPicker = ({
         dropdownIconColor="black"
         dropdownIconRippleColor="grey">
         {data.map((item, index) => (
-          <Picker.Item key={index} label={item.name} value={item.name} />
+          <Picker.Item key={index} label={item.name} value={item} />
         ))}
       </Picker>
     </View>
