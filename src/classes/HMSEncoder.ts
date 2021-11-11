@@ -95,6 +95,7 @@ export class HMSEncoder {
       trackDescription: track?.trackDescription,
       isMute: track?.isMute,
       id: id,
+      type: track?.type,
     };
 
     return new HMSTrack(encodedObj);

@@ -486,7 +486,7 @@ const Meeting = ({
         auxiliaryTracks?.map((track: HMSTrack) => {
           let auxTrackId = track?.trackId;
 
-          if (auxTrackId) {
+          if (auxTrackId && track?.type === HMSTrackType.VIDEO) {
             newAuxTracks.push({
               trackId: auxTrackId,
               name: `${remotePeer?.name}'s Screen`,
