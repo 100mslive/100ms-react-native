@@ -142,6 +142,13 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   }
 
   @ReactMethod
+  fun getRoom(data: ReadableMap, callback: Promise?) {
+    val hms = HmsHelper.getHms(data, hmsCollection)
+
+    hms?.getRoom(callback)
+  }
+
+  @ReactMethod
   fun setPlaybackAllowed(data: ReadableMap) {
     val hms = HmsHelper.getHms(data, hmsCollection)
 

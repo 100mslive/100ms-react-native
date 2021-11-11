@@ -323,6 +323,12 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
     
+    func getRoom(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let roomData = HmsDecoder.getHmsRoom(hms?.room)
+        
+        resolve?(roomData)
+    }
+    
     func setPlaybackAllowed(_ data: NSDictionary) {
         guard let trackId = data.value(forKey: "trackId") as? String
         else {

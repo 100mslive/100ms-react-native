@@ -318,6 +318,14 @@ export class HMSSDK {
     HmsManager.muteAllPeersAudio({ mute, id: this.id });
   };
 
+  getRoom = async () => {
+    this.logger?.verbose('GET_ROOM_API_CALL', { roomID: this.id });
+    const hmsRoom = await HmsManager.getRoom({ id: this.id });
+
+    const encodedHmsRoom = HMSEncoder.encodeHmsRoom(hmsRoom, this.id);
+    return encodedHmsRoom;
+  };
+
   /**
    * - This is a prototype event listener that takes action and listens for updates related to that particular action
    * - This method will be @deprecated in future and event listener will be passed in join method
@@ -544,6 +552,7 @@ export class HMSSDK {
       return;
     }
     this.logger?.verbose('ON_PEER', data);
+    const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room, this.id);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
       data.localPeer,
       this.id
@@ -555,9 +564,10 @@ export class HMSSDK {
     // this.room = room;
     this.localPeer = localPeer;
     this.remotePeers = remotePeers;
+    this.room = room;
     if (this.onPeerDelegate) {
       this.logger?.verbose('ON_PEER_LISTENER_CALL', data);
-      this.onPeerDelegate({ ...data, localPeer, remotePeers });
+      this.onPeerDelegate({ ...data, localPeer, remotePeers, room });
     }
   };
 
@@ -566,7 +576,7 @@ export class HMSSDK {
       return;
     }
     this.logger?.verbose('ON_TRACK', data);
-    // const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room);
+    const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room, this.id);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
       data.localPeer,
       this.id
@@ -575,12 +585,12 @@ export class HMSSDK {
       data.remotePeers,
       this.id
     );
-    // this.room = room;
+    this.room = room;
     this.localPeer = localPeer;
     this.remotePeers = remotePeers;
     if (this.onTrackDelegate) {
       this.logger?.verbose('ON_TRACK_LISTENER_CALL', data);
-      this.onTrackDelegate({ ...data, localPeer, remotePeers });
+      this.onTrackDelegate({ ...data, localPeer, remotePeers, room });
     }
   };
 
@@ -639,7 +649,7 @@ export class HMSSDK {
     this.logger?.verbose('ON_CHANGE_TRACK_STATE_REQUEST', data);
     if (this.onChangeTrackStateRequestDelegate) {
       const encodedRoleChangeRequest =
-        HMSEncoder.encodeHmsChangeTrackStateRequest(data);
+        HMSEncoder.encodeHmsChangeTrackStateRequest(data, this.id);
       this.logger?.verbose(
         'ON_CHANGE_TRACK_STATE_REQUEST_LISTENER_CALL',
         encodedRoleChangeRequest
