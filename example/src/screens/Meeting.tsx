@@ -28,11 +28,7 @@ import {
   HMSRoleChangeRequest,
   HMSSDK,
   HMSChangeTrackStateRequest,
-  HMSAudioTrack,
-  HMSVideoTrack,
   HMSSpeakerUpdate,
-  HMSRemoteAudioTrack,
-  HMSRemoteVideoTrack,
   HMSPeer,
 } from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -50,7 +46,7 @@ import {
 } from '../redux/actions/index';
 import dimension from '../utils/dimension';
 import {
-  getRandomColor,
+  getThemeColour,
   getInitials,
   pairDataForScrollView,
 } from '../utils/functions';
@@ -65,21 +61,16 @@ const isPortrait = () => {
 type Peer = {
   peerRefrence?: HMSPeer;
   trackId?: string;
-  peerName?: string;
-  isAudioMute?: boolean;
-  isVideoMute?: boolean;
-  peerId?: string;
-  colour?: string;
-  role?: HMSRole;
+  name: string;
+  isAudioMute: boolean;
+  isVideoMute: boolean;
+  id?: string;
+  colour: string;
   sink: boolean;
   type: 'local' | 'remote' | 'screen';
-  remoteAudio?: HMSRemoteAudioTrack;
-  remoteVideo?: HMSRemoteVideoTrack;
-  audioTrack?: HMSAudioTrack;
-  videoTrack?: HMSVideoTrack;
 };
 
-type DisplayNameProps = {
+type DisplayTrackProps = {
   peer?: Peer;
   videoStyles: Function;
   speakers: Array<string>;
@@ -101,19 +92,18 @@ type MeetingProps = {
 
 const DEFAULT_PEER: Peer = {
   trackId: Math.random().toString(),
-  peerName: Math.random().toString(),
+  name: '',
   isAudioMute: true,
   isVideoMute: true,
-  peerId: Math.random().toString(),
-  colour: 'red',
+  id: Math.random().toString(),
+  colour: getThemeColour(),
   sink: true,
-  role: {name: 'host'},
   type: 'local',
 };
 
 type MeetingScreenProp = StackNavigationProp<AppStackParamList, 'Meeting'>;
 
-const DisplayName = ({
+const DisplayTrack = ({
   peer,
   videoStyles,
   speakers,
@@ -121,29 +111,24 @@ const DisplayName = ({
   instance,
   permissions,
   allAudioMute,
-}: DisplayNameProps) => {
+}: DisplayTrackProps) => {
   const {
-    peerName,
+    name,
     isAudioMute,
     isVideoMute,
     trackId,
     colour,
-    peerId,
-    role,
+    id,
     sink,
-    remoteAudio,
-    remoteVideo,
-    audioTrack,
-    videoTrack,
     peerRefrence,
   } = peer!;
   const [alertModalVisible, setAlertModalVisible] = useState(false);
   const [roleModalVisible, setRoleModalVisible] = useState(false);
-  const [newRole, setNewRole] = useState(role);
+  const [newRole, setNewRole] = useState(peerRefrence?.role);
   const [force, setForce] = useState(false);
 
   const knownRoles = instance?.knownRoles || [];
-  const speaking = speakers.includes(peerId!);
+  const speaking = speakers.includes(id!);
   const selectActionTitle = 'Select action';
   const selectActionMessage = '';
   const selectActionButtons: Array<{
@@ -155,38 +140,24 @@ const DisplayName = ({
     {
       text: 'Mute/Unmute video locally',
       onPress: async () => {
-        const playbackAllowed = await remoteVideo?.isPlaybackAllowed();
-        remoteVideo?.setPlaybackAllowed(!playbackAllowed);
+        const remotePeer = peerRefrence as HMSRemotePeer;
+        const playbackAllowed = await remotePeer
+          ?.remoteAudioTrack()
+          ?.isPlaybackAllowed();
+        remotePeer?.remoteAudioTrack()?.setPlaybackAllowed(!playbackAllowed);
       },
     },
     {
       text: 'Mute/Unmute audio locally',
       onPress: async () => {
-        const playbackAllowed = await remoteAudio?.isPlaybackAllowed();
-        remoteAudio?.setPlaybackAllowed(!playbackAllowed);
+        const remotePeer = peerRefrence as HMSRemotePeer;
+        const playbackAllowed = await remotePeer
+          ?.remoteVideoTrack()
+          ?.isPlaybackAllowed();
+        remotePeer?.remoteVideoTrack()?.setPlaybackAllowed(!playbackAllowed);
       },
     },
   ];
-
-  if (permissions?.unmute) {
-    const unmute = false;
-    if (isAudioMute) {
-      selectActionButtons.push({
-        text: 'Unmute audio',
-        onPress: () => {
-          instance?.changeTrackState(audioTrack as HMSTrack, unmute);
-        },
-      });
-    }
-    if (isVideoMute) {
-      selectActionButtons.push({
-        text: 'Unmute video',
-        onPress: () => {
-          instance?.changeTrackState(videoTrack as HMSTrack, unmute);
-        },
-      });
-    }
-  }
 
   if (permissions?.changeRole) {
     selectActionButtons.push(
@@ -212,7 +183,7 @@ const DisplayName = ({
     selectActionButtons.push({
       text: 'Remove Participant',
       onPress: () => {
-        instance?.removePeer(peerId!, 'removed from room');
+        instance?.removePeer(id!, 'removed from room');
       },
     });
   }
@@ -230,13 +201,42 @@ const DisplayName = ({
     },
   ];
 
+  if (permissions?.unmute) {
+    const unmute = false;
+    if (isAudioMute) {
+      selectActionButtons.push({
+        text: 'Unmute audio',
+        onPress: () => {
+          instance?.changeTrackState(
+            peerRefrence?.audioTrack as HMSTrack,
+            unmute,
+          );
+        },
+      });
+    }
+    if (isVideoMute) {
+      selectActionButtons.push({
+        text: 'Unmute video',
+        onPress: () => {
+          instance?.changeTrackState(
+            peerRefrence?.videoTrack as HMSTrack,
+            unmute,
+          );
+        },
+      });
+    }
+  }
+
   if (permissions?.mute) {
     const mute = true;
     if (!isAudioMute) {
       selectActionButtons.push({
         text: 'Mute audio',
         onPress: () => {
-          instance?.changeTrackState(audioTrack as HMSTrack, mute);
+          instance?.changeTrackState(
+            peerRefrence?.audioTrack as HMSTrack,
+            mute,
+          );
         },
       });
     }
@@ -244,7 +244,10 @@ const DisplayName = ({
       selectActionButtons.push({
         text: 'Mute video',
         onPress: () => {
-          instance?.changeTrackState(videoTrack as HMSTrack, mute);
+          instance?.changeTrackState(
+            peerRefrence?.videoTrack as HMSTrack,
+            mute,
+          );
         },
       });
     }
@@ -309,7 +312,7 @@ const DisplayName = ({
       {isVideoMute ? (
         <View style={styles.avatarContainer}>
           <View style={[styles.avatar, {backgroundColor: colour}]}>
-            <Text style={styles.avatarText}>{getInitials(peerName!)}</Text>
+            <Text style={styles.avatarText}>{getInitials(name!)}</Text>
           </View>
         </View>
       ) : (
@@ -333,7 +336,7 @@ const DisplayName = ({
       <View style={styles.displayContainer}>
         <View style={styles.peerNameContainer}>
           <Text numberOfLines={2} style={styles.peerName}>
-            {peerName}
+            {name}
           </Text>
         </View>
         <View style={styles.micContainer}>
@@ -353,20 +356,6 @@ const DisplayName = ({
       </View>
     </View>
   );
-};
-
-const peerColour: any = {};
-const getPeerColour = (trackId?: string): string => {
-  let colour = 'red';
-  if (trackId) {
-    if (peerColour[trackId]) {
-      colour = peerColour[trackId];
-    } else {
-      colour = getRandomColor();
-      peerColour[trackId] = colour;
-    }
-  }
-  return colour;
 };
 
 const Meeting = ({
@@ -451,38 +440,18 @@ const Meeting = ({
     peer: HMSLocalPeer | HMSRemotePeer,
     type: 'local' | 'remote' | 'screen',
   ): Promise<Peer> => {
-    let remoteTrack;
-    if (type === 'remote') {
-      const remotePeerData = peer as HMSRemotePeer;
-      remoteTrack = {
-        remoteAudio: remotePeerData?.remoteAudioTrack(),
-        remoteVideo: remotePeerData?.remoteVideoTrack(),
-      };
-    }
-    const peerRefrence = peer;
-    const peerId = peer?.peerID;
-    const peerTrackId = peer?.videoTrack?.trackId;
-    const peerName = peer?.name;
     const peerIsAudioMute = await peer?.audioTrack?.isMute();
     const peerIsVideoMute = await peer?.videoTrack?.isMute();
-    const peerRole = peer?.role;
-    const peerAudioTrack = peer?.audioTrack;
-    const peerVideoTrack = peer?.videoTrack;
-    const newPeerColour = getPeerColour(peerTrackId);
     return {
-      trackId: peerTrackId,
-      peerName: peerName,
+      trackId: peer?.videoTrack?.trackId,
+      name: peer?.name,
       isAudioMute: peerIsAudioMute,
       isVideoMute: peerIsVideoMute,
-      peerId: peerId,
-      colour: newPeerColour,
+      id: peer?.peerID,
+      colour: getThemeColour(),
       sink: true,
-      role: peerRole,
       type,
-      ...remoteTrack,
-      audioTrack: peerAudioTrack,
-      videoTrack: peerVideoTrack,
-      peerRefrence,
+      peerRefrence: peer,
     };
   };
 
@@ -515,11 +484,11 @@ const Meeting = ({
           if (auxTrackId) {
             newAuxTracks.push({
               trackId: auxTrackId,
-              peerName: `${remotePeer?.name}'s Screen`,
+              name: `${remotePeer?.name}'s Screen`,
               isAudioMute: true,
               isVideoMute: false,
-              peerId: `${remotePeer?.peerID}_${auxTrackId}`,
-              colour: 'red',
+              id: `${remotePeer?.peerID}_${auxTrackId}`,
+              colour: getThemeColour(),
               sink: true,
               type: 'screen',
             });
@@ -756,7 +725,7 @@ const Meeting = ({
       obj: role,
     }));
     const peers = remoteTrackIds.map(track => ({
-      name: track?.peerName,
+      name: track?.name,
       type: 'direct',
       obj: track,
     }));
@@ -877,7 +846,7 @@ const Meeting = ({
         buttons={getButtons(localPeerPermissions)}
       />
       <View style={styles.headerContainer}>
-        <Text style={styles.headerName}>{trackId?.peerName}</Text>
+        <Text style={styles.headerName}>{trackId?.name}</Text>
         <TouchableOpacity
           onPress={async () => {
             instance?.muteAllPeersAudio(!muteAllAudio);
@@ -912,8 +881,8 @@ const Meeting = ({
                 ]}>
                 {item?.map((view: Peer) =>
                   view.type === 'screen' ? (
-                    <DisplayName
-                      key={view?.peerId}
+                    <DisplayTrack
+                      key={view?.id}
                       peer={view}
                       videoStyles={getAuxVideoStyles}
                       speakers={speakers}
@@ -923,8 +892,8 @@ const Meeting = ({
                       allAudioMute={muteAllAudio}
                     />
                   ) : (
-                    <DisplayName
-                      key={view?.peerId}
+                    <DisplayTrack
+                      key={view?.id}
                       peer={view}
                       videoStyles={getRemoteVideoStyles}
                       speakers={speakers}
@@ -1110,7 +1079,7 @@ const styles = StyleSheet.create({
     height: dimension.viewHeight(90),
   },
   buttonText: {
-    backgroundColor: '#4578e0',
+    backgroundColor: getThemeColour(),
     padding: 10,
     borderRadius: 10,
     color: '#efefef',
@@ -1148,7 +1117,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   peerName: {
-    color: '#4578e0',
+    color: getThemeColour(),
   },
   peerNameContainer: {
     maxWidth: 80,
@@ -1157,7 +1126,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 3,
   },
   mic: {
-    color: '#4578e0',
+    color: getThemeColour(),
   },
   avatarContainer: {
     flex: 1,
@@ -1181,7 +1150,7 @@ const styles = StyleSheet.create({
   highlight: {
     borderRadius: 10,
     borderWidth: 5,
-    borderColor: '#4578e0',
+    borderColor: getThemeColour(),
   },
   messageDot: {
     width: 10,
@@ -1206,7 +1175,7 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   headerName: {
-    color: '#4578e0',
+    color: getThemeColour(),
   },
   headerIcon: {
     padding: dimension.viewHeight(10),

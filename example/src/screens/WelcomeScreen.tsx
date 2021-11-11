@@ -35,6 +35,7 @@ import {
   saveUserData,
   updateHmsReference,
 } from '../redux/actions/index';
+import {getThemeColour} from '../utils/functions';
 import type {AppStackParamList} from '../navigator';
 import type {RootState} from '../redux';
 
@@ -425,7 +426,7 @@ const styles = StyleSheet.create({
   },
   logo: {
     fontWeight: '700',
-    color: '#4578e0',
+    color: getThemeColour(),
     fontSize: 44,
   },
   image: {
@@ -438,7 +439,7 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     fontSize: 20,
     fontWeight: '500',
-    color: '#4578e0',
+    color: getThemeColour(),
   },
   box: {
     width: '100%',
@@ -453,12 +454,12 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     paddingLeft: 10,
     minHeight: 32,
-    color: '#4578e0',
+    color: getThemeColour(),
   },
   joinButtonContainer: {
     padding: 12,
     marginTop: 20,
-    backgroundColor: '#4578e0',
+    backgroundColor: getThemeColour(),
     borderRadius: 15,
     flexDirection: 'row',
     justifyContent: 'center',
@@ -487,7 +488,7 @@ const styles = StyleSheet.create({
     zIndex: 500,
   },
   buttonText: {
-    backgroundColor: '#4578e0',
+    backgroundColor: getThemeColour(),
     padding: 10,
     borderRadius: 10,
     color: '#efefef',
