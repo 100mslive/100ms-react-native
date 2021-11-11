@@ -9,6 +9,7 @@ import { HMSEncoder } from './HMSEncoder';
 import { HMSMessage } from './HMSMessage';
 import { HMSHelper } from './HMSHelper';
 import type { HMSTrack } from './HMSTrack';
+import type { HMSTrackType } from './HMSTrackType';
 import type { HMSLogger } from './HMSLogger';
 import type { HMSPeer } from './HMSPeer';
 
@@ -284,6 +285,29 @@ export class HMSSDK {
     };
 
     HmsManager.changeTrackState(data);
+  };
+
+  changeTrackStateRoles = (
+    type: HMSTrackType,
+    mute: boolean,
+    source: string,
+    roles: Array<HMSRole>
+  ) => {
+    this.logger?.verbose('CHANGE_TRACK_STATE_ROLES', {
+      source,
+      mute,
+      type,
+      roles,
+    });
+    const data = {
+      source,
+      mute,
+      type,
+      roles: HMSHelper.getRoleNames(roles),
+      id: this.id,
+    };
+
+    HmsManager.changeTrackStateRoles(data);
   };
 
   removePeer = (peerId: string, reason: string) => {

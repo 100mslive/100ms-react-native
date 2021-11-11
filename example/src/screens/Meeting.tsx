@@ -30,6 +30,7 @@ import {
   HMSChangeTrackStateRequest,
   HMSSpeakerUpdate,
   HMSPeer,
+  HMSTrackType,
 } from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
@@ -377,6 +378,10 @@ const Meeting = ({
     requestedBy?: string;
     suggestedRole?: string;
   }>({});
+  const [action, setAction] = useState(0);
+  const [newRole, setNewRole] = useState(trackId?.peerRefrence?.role);
+  const [roleModalVisible, setRoleModalVisible] = useState(false);
+  const [settingsModal, setSettingsModal] = useState(false);
   const [roleChangeModalVisible, setRoleChangeModalVisible] = useState(false);
   const [changeTrackStateModalVisible, setChangeTrackStateModalVisible] =
     useState(false);
@@ -738,6 +743,94 @@ const Meeting = ({
     return messageList;
   };
 
+  const getSettingButtons = () => {
+    const buttons = [
+      {
+        text: 'Cancel',
+        type: 'cancel',
+      },
+      {
+        text: 'Mute video of custom roles',
+        onPress: () => {
+          setRoleModalVisible(true);
+          setAction(1);
+        },
+      },
+      {
+        text: 'Unmute video of custom roles',
+        onPress: () => {
+          setRoleModalVisible(true);
+          setAction(2);
+        },
+      },
+      {
+        text: 'Mute audio of custom roles',
+        onPress: () => {
+          setRoleModalVisible(true);
+          setAction(3);
+        },
+      },
+      {
+        text: 'Unmute audio of custom roles',
+        onPress: () => {
+          setRoleModalVisible(true);
+          setAction(4);
+        },
+      },
+    ];
+    return buttons;
+  };
+
+  const getRoleRequestButtons = () => {
+    const roleRequestButtons: [
+      {text: string; onPress?: Function},
+      {text: string; onPress?: Function}?,
+    ] = [
+      {text: 'Cancel'},
+      {
+        text: 'Send',
+        onPress: () => {
+          const source = 'regular';
+          switch (action) {
+            case 1:
+              instance?.changeTrackStateRoles(
+                HMSTrackType.VIDEO,
+                true,
+                source,
+                [newRole!],
+              );
+              break;
+            case 2:
+              instance?.changeTrackStateRoles(
+                HMSTrackType.VIDEO,
+                false,
+                source,
+                [newRole!],
+              );
+              break;
+            case 3:
+              instance?.changeTrackStateRoles(
+                HMSTrackType.AUDIO,
+                true,
+                source,
+                [newRole!],
+              );
+              break;
+            case 4:
+              instance?.changeTrackStateRoles(
+                HMSTrackType.AUDIO,
+                false,
+                source,
+                [newRole!],
+              );
+              break;
+          }
+        },
+      },
+    ];
+    return roleRequestButtons;
+  };
+
   const getButtons = (permissions?: HMSPermissions) => {
     const buttons = [
       {
@@ -845,23 +938,51 @@ const Meeting = ({
         message=""
         buttons={getButtons(localPeerPermissions)}
       />
+      <AlertModal
+        modalVisible={settingsModal}
+        setModalVisible={setSettingsModal}
+        title="Settings"
+        message=""
+        buttons={getSettingButtons()}
+      />
+      <CustomModal
+        modalVisible={roleModalVisible}
+        setModalVisible={setRoleModalVisible}
+        title="Select action"
+        buttons={getRoleRequestButtons()}>
+        <CustomPicker
+          data={instance?.knownRoles || []}
+          selectedItem={newRole}
+          onItemSelected={setNewRole}
+        />
+      </CustomModal>
       <View style={styles.headerContainer}>
         <Text style={styles.headerName}>{trackId?.name}</Text>
-        <TouchableOpacity
-          onPress={async () => {
-            instance?.muteAllPeersAudio(!muteAllAudio);
-            setMuteAllAudio(!muteAllAudio);
-            // const room = await instance?.getRoom();
-
-            // console.log(room, 'ROOM HERE');
-          }}
-          style={styles.headerIcon}>
-          <Ionicons
-            name={muteAllAudio ? 'volume-mute' : 'volume-high'}
-            style={styles.headerName}
-            size={dimension.viewHeight(30)}
-          />
-        </TouchableOpacity>
+        <View style={styles.headerRight}>
+          <TouchableOpacity
+            onPress={() => {
+              instance?.muteAllPeersAudio(!muteAllAudio);
+              setMuteAllAudio(!muteAllAudio);
+            }}
+            style={styles.headerIcon}>
+            <Ionicons
+              name={muteAllAudio ? 'volume-mute' : 'volume-high'}
+              style={styles.headerName}
+              size={dimension.viewHeight(30)}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              setSettingsModal(true);
+            }}
+            style={styles.headerIcon}>
+            <Ionicons
+              name="settings"
+              style={styles.headerName}
+              size={dimension.viewHeight(30)}
+            />
+          </TouchableOpacity>
+        </View>
       </View>
       <View style={styles.wrapper}>
         <FlatList
@@ -915,7 +1036,7 @@ const Meeting = ({
       <View style={styles.iconContainers}>
         <TouchableOpacity
           style={styles.singleIconContainer}
-          onPress={async () => {
+          onPress={() => {
             setTrackId({
               ...trackId,
               isAudioMute: !trackId.isAudioMute,
@@ -1195,6 +1316,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: dimension.viewWidth(414),
     flexWrap: 'wrap',
+  },
+  headerRight: {
+    flexDirection: 'row',
   },
 });
 
