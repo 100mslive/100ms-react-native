@@ -243,8 +243,6 @@ const App = ({
   const previewRoom = (token: string, userID: string) => {
     const HmsConfig = new HMSConfig({
       authToken: token,
-      userID,
-      roomID,
       username: userID,
     });
     instance?.addEventListener(
@@ -266,17 +264,13 @@ const App = ({
     if (endpoint) {
       HmsConfig = new HMSConfig({
         authToken: token,
-        userID,
         username: userID,
-        roomID: '',
         endpoint,
       });
     } else {
       HmsConfig = new HMSConfig({
         authToken: token,
-        userID,
         username: userID,
-        roomID: '',
       });
     }
 

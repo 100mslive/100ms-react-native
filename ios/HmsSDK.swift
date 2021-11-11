@@ -44,8 +44,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     func preview(_ credentials: NSDictionary) {
         
         guard let authToken = credentials.value(forKey: "authToken") as? String,
-              let user = credentials.value(forKey: "userID") as? String,
-              let room = credentials.value(forKey: "roomID") as? String
+              let user = credentials.value(forKey: "username") as? String
         else {
             return
         }
@@ -53,10 +52,10 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
             if let endpoint = credentials.value(forKey: "endpoint") as? String {
-                strongSelf.config = HMSConfig(userName: user, userID: UUID().uuidString, roomID: room, authToken: authToken, endpoint: endpoint)
+                strongSelf.config = HMSConfig(userName: user, authToken: authToken, endpoint: endpoint)
                 strongSelf.hms?.preview(config: strongSelf.config!, delegate: strongSelf)
             } else {
-                strongSelf.config = HMSConfig(userName: user, userID: UUID().uuidString, roomID: room, authToken: authToken)
+                strongSelf.config = HMSConfig(userName: user, authToken: authToken)
                 strongSelf.hms?.preview(config: strongSelf.config!, delegate: strongSelf)
             }
         }
@@ -65,8 +64,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     func join(_ credentials: NSDictionary) {
         
         guard let authToken = credentials.value(forKey: "authToken") as? String,
-              let user = credentials.value(forKey: "username") as? String,
-              let room = credentials.value(forKey: "roomID") as? String
+              let user = credentials.value(forKey: "username") as? String
         else {
             return
         }
@@ -82,14 +80,14 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
             } else {
                 if let endpoint = credentials.value(forKey: "endpoint") as? String {
                     do{
-                        strongSelf.config = HMSConfig(userName: user, userID: UUID().uuidString, roomID: room, authToken: authToken, endpoint: endpoint)
+                        strongSelf.config = HMSConfig(userName: user, authToken: authToken, endpoint: endpoint)
                         try strongSelf.hms?.join(config: strongSelf.config!, delegate: strongSelf)
                     } catch let error{
                         strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["event": strongSelf.ON_ERROR, "error": error.localizedDescription])
                     }
                 } else {
                     do{
-                        strongSelf.config = HMSConfig(userName: user, userID: UUID().uuidString, roomID: room, authToken: authToken)
+                        strongSelf.config = HMSConfig(userName: user, authToken: authToken)
                         try strongSelf.hms?.join(config: strongSelf.config!, delegate: strongSelf)
                     } catch let error{
                         strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["event": strongSelf.ON_ERROR, "error": error.localizedDescription])
@@ -104,10 +102,10 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
                 strongSelf.hms?.join(config: config, delegate: strongSelf)
             } else {
                 if let endpoint = credentials.value(forKey: "endpoint") as? String {
-                    strongSelf.config = HMSConfig(userName: user, userID: UUID().uuidString, roomID: room, authToken: authToken, endpoint: endpoint)
+                    strongSelf.config = HMSConfig(userName: user, authToken: authToken, endpoint: endpoint)
                     strongSelf.hms?.join(config: strongSelf.config!, delegate: strongSelf)
                 } else {
-                    strongSelf.config = HMSConfig(userName: user, userID: UUID().uuidString, roomID: room, authToken: authToken)
+                    strongSelf.config = HMSConfig(userName: user, authToken: authToken)
                     strongSelf.hms?.join(config: strongSelf.config!, delegate: strongSelf)
                 }
             }
