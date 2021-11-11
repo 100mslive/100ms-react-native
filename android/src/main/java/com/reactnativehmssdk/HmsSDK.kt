@@ -72,6 +72,19 @@ class HmsSDK(
             }
           }
       )
+    } else {
+      delegate.emitEvent(
+          "ON_ERROR",
+          HmsDecoder.getError(
+              HMSException(
+                  102,
+                  "NOT_FOUND",
+                  "SEND_ALL_REQUIRED_KEYS",
+                  "REQUIRED_KEYS_NOT_FOUND",
+                  "REQUIRED_KEYS_NOT_FOUND"
+              )
+          )
+      )
     }
   }
 
@@ -262,6 +275,19 @@ class HmsSDK(
             }
         )
       }
+    } else {
+      delegate.emitEvent(
+          "ON_ERROR",
+          HmsDecoder.getError(
+              HMSException(
+                  102,
+                  "NOT_FOUND",
+                  "SEND_ALL_REQUIRED_KEYS",
+                  "REQUIRED_KEYS_NOT_FOUND",
+                  "REQUIRED_KEYS_NOT_FOUND"
+              )
+          )
+      )
     }
   }
 
@@ -301,6 +327,19 @@ class HmsSDK(
             override fun onSuccess(hmsMessage: HMSMessage) {}
           }
       )
+    } else {
+      delegate.emitEvent(
+          "ON_ERROR",
+          HmsDecoder.getError(
+              HMSException(
+                  102,
+                  "NOT_FOUND",
+                  "SEND_ALL_REQUIRED_KEYS",
+                  "REQUIRED_KEYS_NOT_FOUND",
+                  "REQUIRED_KEYS_NOT_FOUND"
+              )
+          )
+      )
     }
   }
 
@@ -331,6 +370,19 @@ class HmsSDK(
             }
         )
       }
+    } else {
+      delegate.emitEvent(
+          "ON_ERROR",
+          HmsDecoder.getError(
+              HMSException(
+                  102,
+                  "NOT_FOUND",
+                  "SEND_ALL_REQUIRED_KEYS",
+                  "REQUIRED_KEYS_NOT_FOUND",
+                  "REQUIRED_KEYS_NOT_FOUND"
+              )
+          )
+      )
     }
   }
 
@@ -360,6 +412,19 @@ class HmsSDK(
             }
         )
       }
+    } else {
+      delegate.emitEvent(
+          "ON_ERROR",
+          HmsDecoder.getError(
+              HMSException(
+                  102,
+                  "NOT_FOUND",
+                  "SEND_ALL_REQUIRED_KEYS",
+                  "REQUIRED_KEYS_NOT_FOUND",
+                  "REQUIRED_KEYS_NOT_FOUND"
+              )
+          )
+      )
     }
   }
 
@@ -390,6 +455,19 @@ class HmsSDK(
           )
         }
       }
+    } else {
+      delegate.emitEvent(
+          "ON_ERROR",
+          HmsDecoder.getError(
+              HMSException(
+                  102,
+                  "NOT_FOUND",
+                  "SEND_ALL_REQUIRED_KEYS",
+                  "REQUIRED_KEYS_NOT_FOUND",
+                  "REQUIRED_KEYS_NOT_FOUND"
+              )
+          )
+      )
     }
   }
 
@@ -414,6 +492,19 @@ class HmsSDK(
             }
         )
       }
+    } else {
+      delegate.emitEvent(
+          "ON_ERROR",
+          HmsDecoder.getError(
+              HMSException(
+                  102,
+                  "NOT_FOUND",
+                  "SEND_ALL_REQUIRED_KEYS",
+                  "REQUIRED_KEYS_NOT_FOUND",
+                  "REQUIRED_KEYS_NOT_FOUND"
+              )
+          )
+      )
     }
   }
 
@@ -546,6 +637,19 @@ class HmsSDK(
       } else if (remoteVideoTrack != null) {
         remoteVideoTrack.isPlaybackAllowed = playbackAllowed
       }
+    } else {
+      delegate.emitEvent(
+          "ON_ERROR",
+          HmsDecoder.getError(
+              HMSException(
+                  102,
+                  "NOT_FOUND",
+                  "SEND_ALL_REQUIRED_KEYS",
+                  "REQUIRED_KEYS_NOT_FOUND",
+                  "REQUIRED_KEYS_NOT_FOUND"
+              )
+          )
+      )
     }
   }
 
