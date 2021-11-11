@@ -11,6 +11,7 @@ import live.hms.video.sdk.models.HMSConfig
 import live.hms.video.sdk.models.enums.HMSPeerUpdate
 import live.hms.video.sdk.models.enums.HMSRoomUpdate
 import live.hms.video.sdk.models.enums.HMSTrackUpdate
+import live.hms.video.sdk.models.role.HMSRole
 import live.hms.video.sdk.models.trackchangerequest.HMSChangeTrackStateRequest
 import live.hms.video.utils.HMSCoroutineScope
 
@@ -414,6 +415,39 @@ class HmsSDK(
             }
         )
       }
+    }
+  }
+
+  fun changeTrackStateRoles(data: ReadableMap) {
+    val requiredKeys =
+      HmsHelper.areAllRequiredKeysAvailable(
+        data,
+        arrayOf(Pair("source", "String"), Pair("mute", "Boolean"), Pair("type", "String"), Pair("roles", "Array"))
+      )
+    if (requiredKeys) {
+      val mute: Boolean = data.getBoolean("mute")
+      val type = if(data.getString("type") == HMSTrackType.AUDIO.toString()) HMSTrackType.AUDIO else HMSTrackType.VIDEO
+      val source = data.getString("source")
+      val targetedRoles = data.getArray("roles")?.toArrayList() as? ArrayList<String>
+      val roles = hmsSDK?.getRoles()
+      val encodedTargetedRoles = HmsHelper.getRolesFromRoleNames(targetedRoles, roles)
+        hmsSDK?.changeTrackState(mute, type, source, encodedTargetedRoles, object : HMSActionResultListener {
+          override fun onSuccess() {}
+          override fun onError(error: HMSException) {}
+        })
+    }else {
+      delegate.emitEvent(
+        "ON_ERROR",
+        HmsDecoder.getError(
+          HMSException(
+            102,
+            "NOT_FOUND",
+            "SEND_ALL_REQUIRED_KEYS",
+            "REQUIRED_KEYS_NOT_FOUND",
+            "REQUIRED_KEYS_NOT_FOUND"
+          )
+        )
+      )
     }
   }
 

@@ -237,6 +237,28 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
     
+    func changeTrackStateRoles(_ data: NSDictionary) {
+        
+        guard let source = data.value(forKey: "source") as? String,
+                let targetedRoles = data.value(forKey: "roles") as? [String],
+                    let type = data.value(forKey: "type") as? String
+        else {
+            return
+        }
+        var decodeType: HMSTrackKind;
+        if( type == "AUDIO") {
+            decodeType = HMSTrackKind.audio
+        }else {
+            decodeType = HMSTrackKind.video
+        }
+        let mute = data.value(forKey: "mute") as? Bool ?? true
+        
+        DispatchQueue.main.async { [weak self] in
+            let encodedTargetedRoles = HmsHelper.getRolesFromRoleNames(targetedRoles, roles: self?.hms?.roles)
+            self?.hms?.changeTrackState(mute: mute, for: decodeType, source: source, roles: encodedTargetedRoles)
+        }
+    }
+    
     func isMute(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let trackId = data.value(forKey: "trackId") as? String
         else {

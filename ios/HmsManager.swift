@@ -141,6 +141,13 @@ class HmsManager: RCTEventEmitter{
     }
     
     @objc
+    func changeTrackStateRoles(_ data: NSDictionary) {
+        let hms = HmsHelper.getHms(data, hmsCollection)
+        
+        hms?.changeTrackStateRoles(data)
+    }
+    
+    @objc
     func isMute(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HmsHelper.getHms(data, hmsCollection)
         if let hmsInstance = hms {
