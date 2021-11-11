@@ -62,6 +62,15 @@ class HmsHelper: NSObject {
         return nil
     }
     
+    static func getHmsTrackType(_ kind: HMSTrackKind?) -> String? {
+        if(kind == HMSTrackKind.video){
+            return "VIDEO"
+        }else if(kind == HMSTrackKind.audio){
+            return "AUDIO"
+        }
+        return nil
+    }
+    
     static func getTrackFromTrackId(_ trackID: String?, _ remotePeers: [HMSRemotePeer]?) -> HMSTrack? {
         
         for peer in remotePeers ?? [] {

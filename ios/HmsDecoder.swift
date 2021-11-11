@@ -54,8 +54,9 @@ class HmsDecoder: NSObject {
         let source = hmsTrack.source
         let trackDescription = hmsTrack.trackDescription
         let isMute = hmsTrack.isMute()
+        let type = HmsHelper.getHmsTrackType(hmsTrack.kind)
         
-        return ["trackId": trackId, "source": source, "trackDescription": trackDescription, "isMute": isMute]
+        return ["trackId": trackId, "source": source, "trackDescription": trackDescription, "isMute": isMute, "type": type]
     }
     
     static func getHmsAudioTrack (_ hmsAudioTrack: HMSAudioTrack?) -> [String: Any] {

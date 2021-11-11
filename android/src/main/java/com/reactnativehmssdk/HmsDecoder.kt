@@ -83,6 +83,7 @@ object HmsDecoder {
       hmsTrack.putString("source", track.source)
       hmsTrack.putString("trackDescription", track.description)
       hmsTrack.putBoolean("isMute", track.isMute)
+      hmsTrack.putString("type", track.type.toString())
     }
     return hmsTrack
   }

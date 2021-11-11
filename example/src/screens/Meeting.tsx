@@ -486,7 +486,7 @@ const Meeting = ({
         auxiliaryTracks?.map((track: HMSTrack) => {
           let auxTrackId = track?.trackId;
 
-          if (auxTrackId) {
+          if (auxTrackId && track?.type === HMSTrackType.VIDEO) {
             newAuxTracks.push({
               trackId: auxTrackId,
               name: `${remotePeer?.name}'s Screen`,
@@ -499,8 +499,8 @@ const Meeting = ({
             });
           }
         });
-        setAuxTracks(newAuxTracks);
       });
+      setAuxTracks(newAuxTracks);
 
       Promise.all(remoteVideoIds).then((results: Peer[]) => {
         const updatedRemoteTracks = results.map((item: Peer, index: number) => {
@@ -1284,7 +1284,7 @@ const styles = StyleSheet.create({
     top: dimension.viewHeight(10),
   },
   options: {
-    color: 'white',
+    color: getThemeColour(),
   },
   optionsContainer: {
     padding: 10,
