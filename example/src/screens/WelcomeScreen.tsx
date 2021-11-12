@@ -38,6 +38,7 @@ import {
 import {getThemeColour} from '../utils/functions';
 import type {AppStackParamList} from '../navigator';
 import type {RootState} from '../redux';
+import {Alert} from 'react-native';
 
 type WelcomeProps = {
   setAudioVideoStateRequest: Function;
@@ -68,8 +69,7 @@ const callService = async (
   });
 
   if (response.error || !response?.token) {
-    // TODO: handle errors from API
-    apiFailed();
+    apiFailed(response);
   } else {
     joinRoom(response.token, userID);
   }
@@ -90,8 +90,7 @@ const tokenFromLinkService = async (
   });
 
   if (response.error || !response?.token) {
-    // TODO: handle errors from API
-    apiFailed();
+    apiFailed(response);
   } else {
     if (subdomain.search('.qa-') >= 0) {
       fetchTokenFromLinkSuccess(
@@ -151,11 +150,6 @@ const App = ({
   const onError = (data: any) => {
     console.log('here on error', data);
   };
-
-  // const callBackFailed = (data) => {
-  //   console.log(data, 'data in failed');
-  //   // TODO: failure handling here
-  // };
 
   // let ref = React.useRef();
 
@@ -236,8 +230,9 @@ const App = ({
     }
   };
 
-  const apiFailed = () => {
+  const apiFailed = (error: any) => {
     setButtonState('Active');
+    Alert.alert('Fetching token failed', error?.msg || 'Something went wrong');
   };
 
   const previewRoom = (token: string, userID: string) => {
