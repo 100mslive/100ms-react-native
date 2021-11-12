@@ -79,10 +79,10 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   }
 
   @ReactMethod
-  fun leave(data: ReadableMap) {
+  fun leave(data: ReadableMap, callback: Promise?) {
     val hms = HmsHelper.getHms(data, hmsCollection)
 
-    hms?.leave()
+    hms?.leave(callback)
   }
 
   @ReactMethod

@@ -92,10 +92,10 @@ class HmsManager: RCTEventEmitter{
     }
     
     @objc
-    func leave(_ data: NSDictionary) {
+    func leave(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HmsHelper.getHms(data, hmsCollection)
         
-        hms?.leave()
+        hms?.leave(resolve, reject)
     }
     
     @objc
