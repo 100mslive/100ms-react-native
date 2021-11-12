@@ -131,7 +131,7 @@ class HmsSDK(
 
                   val data: WritableMap = Arguments.createMap()
 
-                  val requestedBy = HmsDecoder.getHmsRemotePeer(notification.peerWhoRemoved)
+                  val requestedBy = HmsDecoder.getHmsRemotePeer(notification.peerWhoRemoved as HMSRemotePeer)
                   val roomEnded = notification.roomWasEnded
                   val reason = notification.reason
 
@@ -308,8 +308,16 @@ class HmsSDK(
     }
   }
 
-  fun leave() {
-    hmsSDK?.leave()
+  fun leave(callback: Promise?) {
+    hmsSDK?.leave(object : HMSActionResultListener {
+      override fun onSuccess() {
+        callback?.resolve("")
+      }
+
+      override fun onError(error: HMSException) {
+        callback?.reject("101", "NOT_FOUND")
+      }
+    })
   }
 
   fun sendBroadcastMessage(data: ReadableMap) {

@@ -21,7 +21,7 @@ RCT_EXTERN_METHOD(isMute: (NSDictionary) data :(RCTPromiseResolveBlock) resolve 
 RCT_EXTERN_METHOD(getRoom: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(switchCamera: (NSDictionary) data)
 RCT_EXTERN_METHOD(build :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
-RCT_EXTERN_METHOD(leave: (NSDictionary) data)
+RCT_EXTERN_METHOD(leave: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(muteAllPeersAudio: (NSDictionary) mute)
 RCT_EXTERN_METHOD(isPlaybackAllowed: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 @end

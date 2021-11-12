@@ -136,12 +136,18 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
     
-    func leave() {
+    func leave(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         DispatchQueue.main.async { [weak self] in
             self?.config = nil
             self?.recentRoleChangeRequest = nil
             self?.recentChangeTrackStateRequest = nil
-            self?.hms?.leave();
+            self?.hms?.leave({ success, error in
+                if(success){
+                    resolve?("")
+                }else{
+                    reject?(nil, "error in leave",nil)
+                }
+            })
         }
     }
     

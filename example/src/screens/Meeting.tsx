@@ -839,8 +839,8 @@ const Meeting = ({
       },
       {
         text: 'Leave without ending room',
-        onPress: () => {
-          instance?.leave();
+        onPress: async () => {
+          await instance?.leave();
           clearMessageRequest();
           navigate('WelcomeScreen');
         },
@@ -849,7 +849,7 @@ const Meeting = ({
     if (permissions?.endRoom) {
       buttons.push({
         text: 'End Room for all',
-        onPress: () => {
+        onPress: async () => {
           instance?.endRoom(false, 'Host ended the room');
           clearMessageRequest();
           navigate('WelcomeScreen');

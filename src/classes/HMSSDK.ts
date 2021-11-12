@@ -223,13 +223,13 @@ export class HMSSDK {
    *
    * @memberof HMSSDK
    */
-  leave = () => {
+  leave = async () => {
     this.logger?.verbose('LEAVE', {});
     const data = {
       id: this.id,
     };
 
-    HmsManager.leave(data);
+    await HmsManager.leave(data);
     this.localPeer = undefined;
     this.remotePeers = undefined;
     this.room = undefined;
