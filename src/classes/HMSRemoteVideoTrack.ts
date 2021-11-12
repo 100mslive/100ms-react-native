@@ -1,5 +1,6 @@
 import { NativeModules } from 'react-native';
 import { HMSVideoTrack } from './HMSVideoTrack';
+import type { HMSTrackType } from './HMSTrackType';
 
 const {
   /**
@@ -45,6 +46,7 @@ export class HMSRemoteVideoTrack extends HMSVideoTrack {
     layer?: any;
     playbackAllowed?: boolean;
     id: string;
+    type?: HMSTrackType;
   }) {
     super(params);
     this.layer = params.layer;

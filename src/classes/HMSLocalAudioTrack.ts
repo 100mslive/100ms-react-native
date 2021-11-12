@@ -1,6 +1,7 @@
 import { NativeModules } from 'react-native';
 import { HMSAudioTrack } from './HMSAudioTrack';
 import type { HMSAudioTrackSettings } from './HMSAudioTrackSettings';
+import type { HMSTrackType } from './HMSTrackType';
 
 const {
   /**
@@ -30,6 +31,7 @@ export class HMSLocalAudioTrack extends HMSAudioTrack {
     trackDescription?: string;
     isMute?: boolean;
     settings?: HMSAudioTrackSettings;
+    type?: HMSTrackType;
   }) {
     super(params);
     this.id = params.id;
