@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import {connect} from 'react-redux';
 import {
-  HmsView,
+  // HmsView,
   HMSUpdateListenerActions,
   HMSMessage,
   HMSPeerUpdate,
@@ -128,6 +128,7 @@ const DisplayTrack = ({
   const [newRole, setNewRole] = useState(peerRefrence?.role);
   const [force, setForce] = useState(false);
 
+  const HmsViewComponent = instance?.HmsView;
   const knownRoles = instance?.knownRoles || [];
   const speaking = speakers.includes(id!);
   const selectActionTitle = 'Select action';
@@ -281,82 +282,87 @@ const DisplayTrack = ({
           top +
           bottom +
           2);
-
-  return (
-    <View
-      key={trackId}
-      style={[
-        videoStyles(),
-        {
-          height: viewHeight,
-        },
-        speaking && styles.highlight,
-      ]}>
-      <AlertModal
-        modalVisible={alertModalVisible}
-        setModalVisible={setAlertModalVisible}
-        title={selectActionTitle}
-        message={selectActionMessage}
-        buttons={selectActionButtons}
-      />
-      <CustomModal
-        modalVisible={roleModalVisible}
-        setModalVisible={setRoleModalVisible}
-        title={roleRequestTitle}
-        buttons={roleRequestButtons}>
-        <CustomPicker
-          data={knownRoles}
-          selectedItem={newRole}
-          onItemSelected={setNewRole}
+  if (HmsViewComponent) {
+    return (
+      <View
+        key={trackId}
+        style={[
+          videoStyles(),
+          {
+            height: viewHeight,
+          },
+          speaking && styles.highlight,
+        ]}>
+        <AlertModal
+          modalVisible={alertModalVisible}
+          setModalVisible={setAlertModalVisible}
+          title={selectActionTitle}
+          message={selectActionMessage}
+          buttons={selectActionButtons}
         />
-      </CustomModal>
-      {isVideoMute ? (
-        <View style={styles.avatarContainer}>
-          <View style={[styles.avatar, {backgroundColor: colour}]}>
-            <Text style={styles.avatarText}>{getInitials(name!)}</Text>
+        <CustomModal
+          modalVisible={roleModalVisible}
+          setModalVisible={setRoleModalVisible}
+          title={roleRequestTitle}
+          buttons={roleRequestButtons}>
+          <CustomPicker
+            data={knownRoles}
+            selectedItem={newRole}
+            onItemSelected={setNewRole}
+          />
+        </CustomModal>
+        {isVideoMute ? (
+          <View style={styles.avatarContainer}>
+            <View style={[styles.avatar, {backgroundColor: colour}]}>
+              <Text style={styles.avatarText}>{getInitials(name!)}</Text>
+            </View>
+          </View>
+        ) : (
+          <HmsViewComponent
+            sink={sink}
+            trackId={trackId!}
+            mirror={type === 'local' ? true : false}
+            scaleType={HMSVideoViewMode.ASPECT_FILL}
+            style={type === 'screen' ? styles.hmsViewScreen : styles.hmsView}
+          />
+        )}
+        {type === 'remote' && selectActionButtons.length > 1 && (
+          <TouchableOpacity
+            onPress={promptUser}
+            style={styles.optionsContainer}>
+            <Entypo
+              name="dots-three-horizontal"
+              style={styles.options}
+              size={20}
+            />
+          </TouchableOpacity>
+        )}
+        <View style={styles.displayContainer}>
+          <View style={styles.peerNameContainer}>
+            <Text numberOfLines={2} style={styles.peerName}>
+              {name}
+            </Text>
+          </View>
+          <View style={styles.micContainer}>
+            <Feather
+              name={mute ? 'mic-off' : 'mic'}
+              style={styles.mic}
+              size={20}
+            />
+          </View>
+          <View style={styles.micContainer}>
+            <Feather
+              name={isVideoMute ? 'video-off' : 'video'}
+              style={styles.mic}
+              size={20}
+            />
           </View>
         </View>
-      ) : (
-        <HmsView
-          sink={sink}
-          trackId={trackId!}
-          mirror={type === 'local' ? true : false}
-          scaleType={HMSVideoViewMode.ASPECT_FILL}
-          style={type === 'screen' ? styles.hmsViewScreen : styles.hmsView}
-        />
-      )}
-      {type === 'remote' && selectActionButtons.length > 1 && (
-        <TouchableOpacity onPress={promptUser} style={styles.optionsContainer}>
-          <Entypo
-            name="dots-three-horizontal"
-            style={styles.options}
-            size={20}
-          />
-        </TouchableOpacity>
-      )}
-      <View style={styles.displayContainer}>
-        <View style={styles.peerNameContainer}>
-          <Text numberOfLines={2} style={styles.peerName}>
-            {name}
-          </Text>
-        </View>
-        <View style={styles.micContainer}>
-          <Feather
-            name={mute ? 'mic-off' : 'mic'}
-            style={styles.mic}
-            size={20}
-          />
-        </View>
-        <View style={styles.micContainer}>
-          <Feather
-            name={isVideoMute ? 'video-off' : 'video'}
-            style={styles.mic}
-            size={20}
-          />
-        </View>
       </View>
-    </View>
-  );
+    );
+  } else {
+    return null;
+  }
 };
 
 const Meeting = ({

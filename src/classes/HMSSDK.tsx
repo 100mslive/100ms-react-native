@@ -1,4 +1,5 @@
-import { NativeEventEmitter, NativeModules } from 'react-native';
+import React from 'react';
+import { NativeEventEmitter, NativeModules, ViewStyle } from 'react-native';
 import { HMSUpdateListenerActions } from './HMSUpdateListenerActions';
 import type { HMSConfig } from './HMSConfig';
 import type { HMSLocalPeer } from './HMSLocalPeer';
@@ -12,6 +13,17 @@ import type { HMSTrack } from './HMSTrack';
 import type { HMSTrackType } from './HMSTrackType';
 import type { HMSLogger } from './HMSLogger';
 import type { HMSPeer } from './HMSPeer';
+import { HmsView as HMSViewComponent } from './HmsView';
+import { HMSVideoViewMode } from './HMSVideoViewMode';
+
+interface HmsComponentProps {
+  trackId: string;
+  sink: boolean;
+  style: ViewStyle;
+  mirror?: boolean;
+  scaleType: HMSVideoViewMode;
+  id?: string | null;
+}
 
 const {
   /**
@@ -216,6 +228,25 @@ export class HMSSDK {
   preview = (config: HMSConfig) => {
     this.logger?.verbose('PREVIEW', { config });
     HmsManager.preview({ ...config, id: this.id });
+  };
+
+  HmsView = ({
+    sink,
+    trackId,
+    style,
+    mirror,
+    scaleType = HMSVideoViewMode.ASPECT_FIT,
+  }: HmsComponentProps) => {
+    return (
+      <HMSViewComponent
+        sink={sink}
+        trackId={trackId}
+        style={style}
+        mirror={mirror}
+        scaleType={scaleType}
+        id={this.id}
+      />
+    );
   };
 
   /**
