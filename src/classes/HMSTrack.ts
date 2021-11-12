@@ -14,7 +14,7 @@ export class HMSTrack {
   trackDescription?: string;
   mute?: boolean;
   id: string;
-  type: HMSTrackType;
+  type?: HMSTrackType;
 
   isMute = async () => {
     try {
@@ -31,7 +31,7 @@ export class HMSTrack {
     trackDescription?: string;
     isMute?: boolean;
     id: string;
-    type: HMSTrackType;
+    type?: HMSTrackType;
   }) {
     this.trackId = params.trackId;
     this.source = params.source;

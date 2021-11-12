@@ -62,6 +62,7 @@ export class HMSEncoder {
       trackDescription: track?.trackDescription,
       isMute: track?.isMute,
       id: id,
+      type: track?.type,
     };
 
     return new HMSAudioTrack(encodedObj);
@@ -75,6 +76,7 @@ export class HMSEncoder {
       trackDescription: track?.trackDescription,
       isMute: track?.isMute,
       isDegraded: track?.isDegraded,
+      type: track?.type,
     };
 
     return new HMSVideoTrack(encodedObj);

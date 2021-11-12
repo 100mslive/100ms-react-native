@@ -1,6 +1,7 @@
 import { NativeModules } from 'react-native';
 import { HMSVideoTrack } from './HMSVideoTrack';
 import type { HMSVideoTrackSettings } from './HMSVideoTrackSettings';
+import type { HMSTrackType } from './HMSTrackType';
 
 const {
   /**
@@ -41,6 +42,7 @@ export class HMSLocalVideoTrack extends HMSVideoTrack {
     trackDescription?: string;
     isMute?: boolean;
     settings?: HMSVideoTrackSettings;
+    type?: HMSTrackType;
   }) {
     super(params);
     this.settings = params.settings;

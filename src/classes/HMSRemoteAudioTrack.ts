@@ -1,4 +1,5 @@
 import { NativeModules } from 'react-native';
+import type { HMSTrackType } from './HMSTrackType';
 import { HMSAudioTrack } from './HMSAudioTrack';
 
 const {
@@ -42,6 +43,7 @@ export class HMSRemoteAudioTrack extends HMSAudioTrack {
     trackDescription?: string;
     playbackAllowed?: boolean;
     id: string;
+    type?: HMSTrackType;
   }) {
     super(params);
   }
