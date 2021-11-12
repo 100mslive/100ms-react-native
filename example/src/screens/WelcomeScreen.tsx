@@ -393,6 +393,7 @@ const App = ({
           }}
           trackId={localVideoTrackId}
           join={joinRoom}
+          instance={instance}
         />
       )}
       <View />
