@@ -2,6 +2,8 @@ package com.reactnativehmssdk
 
 import android.widget.FrameLayout
 import com.facebook.react.bridge.ReactContext
+import live.hms.video.media.tracks.HMSTrackSource
+import live.hms.video.media.tracks.HMSTrackType
 import live.hms.video.media.tracks.HMSVideoTrack
 import live.hms.video.utils.SharedEglContext
 import org.webrtc.RendererCommon
@@ -86,7 +88,7 @@ class HmsView(context: ReactContext) : FrameLayout(context) {
           val auxiliaryTracks = peer.auxiliaryTracks
           for (track in auxiliaryTracks) {
             val auxTrackId = track.trackId
-            if (trackId == auxTrackId && track.source == "screen" && !track.isMute) {
+            if (trackId == auxTrackId && track.source == HMSTrackSource.SCREEN && track.type == HMSTrackType.VIDEO && !track.isMute) {
               videoTrack = track as HMSVideoTrack
               return
             }
