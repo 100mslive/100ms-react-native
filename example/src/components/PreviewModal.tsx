@@ -1,23 +1,26 @@
 import React, {useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
-import {HMSVideoViewMode, HmsView} from '@100mslive/react-native-hms';
+import HmsManager, {HMSVideoViewMode} from '@100mslive/react-native-hms';
 
 export const PreviewModal = ({
   trackId,
   setAudio,
   setVideo,
   join,
+  instance,
 }: {
   trackId: string;
   setAudio: Function;
   setVideo: Function;
   join: Function;
+  instance: HmsManager | null;
 }) => {
   const [isMute, setIsMute] = useState(false);
   const [muteVideo, setMuteVideo] = useState(false);
+  const HmsView = instance?.HmsView;
 
-  return (
+  return HmsView ? (
     <View style={styles.container}>
       <View style={styles.modalContainer}>
         <HmsView
@@ -65,6 +68,8 @@ export const PreviewModal = ({
         </View>
       </View>
     </View>
+  ) : (
+    <></>
   );
 };
 
