@@ -96,7 +96,7 @@ const DEFAULT_PEER: Peer = {
   name: '',
   isAudioMute: true,
   isVideoMute: true,
-  id: Math.random().toString(),
+  id: undefined,
   colour: getThemeColour(),
   sink: true,
   type: 'local',
@@ -113,20 +113,21 @@ const DisplayTrack = ({
   permissions,
   allAudioMute,
 }: DisplayTrackProps) => {
-  const {
-    name,
-    isAudioMute,
-    isVideoMute,
-    trackId,
-    colour,
-    id,
-    sink,
-    peerRefrence,
-  } = peer!;
+  const {name, trackId, colour, id, sink, peerRefrence} = peer!;
   const [alertModalVisible, setAlertModalVisible] = useState(false);
   const [roleModalVisible, setRoleModalVisible] = useState(false);
   const [newRole, setNewRole] = useState(peerRefrence?.role);
   const [force, setForce] = useState(false);
+  const [isAudioMute, setIsAudioMute] = useState(true);
+  const [isVideoMute, setIsVideoMute] = useState(true);
+
+  useEffect(() => {
+    const fetchTrackStates = async () => {
+      setIsAudioMute(await peerRefrence?.audioTrack?.isMute());
+      setIsVideoMute(await peerRefrence?.videoTrack?.isMute());
+    };
+    fetchTrackStates();
+  }, [peerRefrence, peer?.isAudioMute, peer?.isVideoMute]);
 
   const HmsViewComponent = instance?.HmsView;
   const knownRoles = instance?.knownRoles || [];
@@ -282,6 +283,7 @@ const DisplayTrack = ({
           top +
           bottom +
           2);
+
   if (HmsViewComponent) {
     return (
       <View
@@ -447,17 +449,15 @@ const Meeting = ({
     isPortrait() ? 4 : 2,
   );
 
-  const decode = async (
+  const decode = (
     peer: HMSLocalPeer | HMSRemotePeer,
     type: 'local' | 'remote' | 'screen',
-  ): Promise<Peer> => {
-    const peerIsAudioMute = await peer?.audioTrack?.isMute();
-    const peerIsVideoMute = await peer?.videoTrack?.isMute();
+  ): Peer => {
     return {
       trackId: peer?.videoTrack?.trackId,
       name: peer?.name,
-      isAudioMute: peerIsAudioMute,
-      isVideoMute: peerIsVideoMute,
+      isAudioMute: true,
+      isVideoMute: true,
       id: peer?.peerID,
       colour: getThemeColour(),
       sink: true,
@@ -473,13 +473,13 @@ const Meeting = ({
     // get local track Id
     const localTrackId = localPeer?.videoTrack?.trackId;
     if (localTrackId) {
-      const localTrackTemp = await decode(localPeer, 'local');
+      const localTrackTemp = decode(localPeer, 'local');
       setTrackId(localTrackTemp);
     }
     const updatedLocalPeerPermissions = localPeer?.role?.permissions;
     setLocalPeerPermissions(updatedLocalPeerPermissions);
 
-    const remoteVideoIds: Promise<Peer>[] = [];
+    const remoteVideoIds: Peer[] = [];
     let newAuxTracks: Peer[] = [];
 
     if (remotePeers) {
@@ -885,8 +885,8 @@ const Meeting = ({
       const remotePeers = inst?.remotePeers;
       if (remotePeers) {
         const sinkRemoteTrackIds = remotePeers.map(
-          async (peer: HMSRemotePeer, index: number) => {
-            const remotePeer = await decode(peer, 'remote');
+          (peer: HMSRemotePeer, index: number) => {
+            const remotePeer = decode(peer, 'remote');
             const videoTrackId = remotePeer.trackId;
             if (videoTrackId) {
               if (!viewableItemsIds?.includes(videoTrackId)) {
@@ -1006,30 +1006,32 @@ const Meeting = ({
                   styles.page,
                   {width: Dimensions.get('window').width - left - right},
                 ]}>
-                {item?.map((view: Peer) =>
-                  view.type === 'screen' ? (
-                    <DisplayTrack
-                      key={view?.id}
-                      peer={view}
-                      videoStyles={getAuxVideoStyles}
-                      speakers={speakers}
-                      instance={instance}
-                      type={view.type}
-                      permissions={localPeerPermissions}
-                      allAudioMute={muteAllAudio}
-                    />
-                  ) : (
-                    <DisplayTrack
-                      key={view?.id}
-                      peer={view}
-                      videoStyles={getRemoteVideoStyles}
-                      speakers={speakers}
-                      instance={instance}
-                      type={view.type}
-                      permissions={localPeerPermissions}
-                      allAudioMute={muteAllAudio}
-                    />
-                  ),
+                {item?.map(
+                  (view: Peer) =>
+                    view?.id &&
+                    (view.type === 'screen' ? (
+                      <DisplayTrack
+                        key={view?.id}
+                        peer={view}
+                        videoStyles={getAuxVideoStyles}
+                        speakers={speakers}
+                        instance={instance}
+                        type={view.type}
+                        permissions={localPeerPermissions}
+                        allAudioMute={muteAllAudio}
+                      />
+                    ) : (
+                      <DisplayTrack
+                        key={view?.id}
+                        peer={view}
+                        videoStyles={getRemoteVideoStyles}
+                        speakers={speakers}
+                        instance={instance}
+                        type={view.type}
+                        permissions={localPeerPermissions}
+                        allAudioMute={muteAllAudio}
+                      />
+                    )),
                 )}
               </View>
             );
@@ -1043,13 +1045,13 @@ const Meeting = ({
         <TouchableOpacity
           style={styles.singleIconContainer}
           onPress={() => {
+            instance?.localPeer
+              ?.localAudioTrack()
+              ?.setMute(!trackId.isAudioMute);
             setTrackId({
               ...trackId,
               isAudioMute: !trackId.isAudioMute,
             });
-            instance?.localPeer
-              ?.localAudioTrack()
-              ?.setMute(!trackId.isAudioMute);
           }}>
           <Feather
             name={trackId.isAudioMute ? 'mic-off' : 'mic'}
@@ -1083,13 +1085,13 @@ const Meeting = ({
         <TouchableOpacity
           style={styles.singleIconContainer}
           onPress={() => {
+            instance?.localPeer
+              ?.localVideoTrack()
+              ?.setMute(!trackId.isVideoMute);
             setTrackId({
               ...trackId,
               isVideoMute: !trackId.isVideoMute,
             });
-            instance?.localPeer
-              ?.localVideoTrack()
-              ?.setMute(!trackId.isVideoMute);
           }}>
           <Feather
             name={trackId.isVideoMute ? 'video-off' : 'video'}
