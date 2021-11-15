@@ -449,15 +449,34 @@ const Meeting = ({
     isPortrait() ? 4 : 2,
   );
 
-  const decode = (
-    peer: HMSLocalPeer | HMSRemotePeer,
-    type: 'local' | 'remote' | 'screen',
+  const decodeRemotePeer = (
+    peer: HMSRemotePeer,
+    type: 'remote' | 'screen',
   ): Peer => {
     return {
       trackId: peer?.videoTrack?.trackId,
       name: peer?.name,
       isAudioMute: true,
       isVideoMute: true,
+      id: peer?.peerID,
+      colour: getThemeColour(),
+      sink: true,
+      type,
+      peerRefrence: peer,
+    };
+  };
+
+  const decodeLocalPeer = async (
+    peer: HMSLocalPeer,
+    type: 'local' | 'screen',
+  ): Promise<Peer> => {
+    const peerIsAudioMute = await peer?.audioTrack?.isMute();
+    const peerIsVideoMute = await peer?.videoTrack?.isMute();
+    return {
+      trackId: peer?.videoTrack?.trackId,
+      name: peer?.name,
+      isAudioMute: peerIsAudioMute,
+      isVideoMute: peerIsVideoMute,
       id: peer?.peerID,
       colour: getThemeColour(),
       sink: true,
@@ -473,7 +492,7 @@ const Meeting = ({
     // get local track Id
     const localTrackId = localPeer?.videoTrack?.trackId;
     if (localTrackId) {
-      const localTrackTemp = decode(localPeer, 'local');
+      const localTrackTemp = await decodeLocalPeer(localPeer, 'local');
       setTrackId(localTrackTemp);
     }
     const updatedLocalPeerPermissions = localPeer?.role?.permissions;
@@ -484,7 +503,7 @@ const Meeting = ({
 
     if (remotePeers) {
       remotePeers.map((remotePeer: HMSRemotePeer) => {
-        const remoteTemp = decode(remotePeer, 'remote');
+        const remoteTemp = decodeRemotePeer(remotePeer, 'remote');
         remoteVideoIds.push(remoteTemp);
 
         let auxiliaryTracks = remotePeer?.auxiliaryTracks;
@@ -508,16 +527,16 @@ const Meeting = ({
       });
       setAuxTracks(newAuxTracks);
 
-      Promise.all(remoteVideoIds).then((results: Peer[]) => {
-        const updatedRemoteTracks = results.map((item: Peer, index: number) => {
+      const updatedRemoteTracks = remoteVideoIds.map(
+        (item: Peer, index: number) => {
           if (item.trackId) {
             return {...item};
           } else {
             return {...item, trackId: index.toString(), isVideoMute: true};
           }
-        });
-        setRemoteTrackIds(updatedRemoteTracks as []);
-      });
+        },
+      );
+      setRemoteTrackIds(updatedRemoteTracks as []);
     }
   };
 
@@ -886,7 +905,7 @@ const Meeting = ({
       if (remotePeers) {
         const sinkRemoteTrackIds = remotePeers.map(
           (peer: HMSRemotePeer, index: number) => {
-            const remotePeer = decode(peer, 'remote');
+            const remotePeer = decodeRemotePeer(peer, 'remote');
             const videoTrackId = remotePeer.trackId;
             if (videoTrackId) {
               if (!viewableItemsIds?.includes(videoTrackId)) {
