@@ -10,9 +10,9 @@ To turn on subscribe degradation in your room, open the templates in the dashboa
 
 ## Responding in the app
 
-All HMSVideoTracks, within the HMSPeer's have a variable called isDegraded.
+All HMSVideoTracks, within the HMSPeer's have a variable called `isDegraded`.
 
-If isDegraded is true, treat it as if the video is turned off. If the UI is not changed, the video tile will appear black.
+If `isDegraded` is true, treat it as if the video is turned off. If the UI is not changed, the video tile will appear black.
 
 ```js
 const isDegraded: boolean = peer.videoTrack.isDegraded
