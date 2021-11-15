@@ -14,6 +14,7 @@ import { HMSLocalAudioTrack } from './HMSLocalAudioTrack';
 import { HMSRole } from './HMSRole';
 import { HMSRoleChangeRequest } from './HMSRoleChangeRequest';
 import { HMSChangeTrackStateRequest } from './HMSChangeTrackStateRequest';
+import { HMSVideoResolution } from './HMSVideoResolution';
 
 export class HMSEncoder {
   static encodeHmsRoom(room: any, id: string) {
@@ -154,7 +155,7 @@ export class HMSEncoder {
   static encodeHmsVideoTrackSettings(settings: any) {
     const encodedObj = {
       codec: settings?.codec,
-      resolution: settings?.resolution,
+      resolution: HMSEncoder.encodeHmsVideoResolution(settings?.resolution),
       maxBitrate: settings?.maxBitrate,
       maxFrameRate: settings?.maxFrameRate,
       cameraFacing: settings?.cameraFacing,
@@ -162,6 +163,15 @@ export class HMSEncoder {
     };
 
     return new HMSVideoTrackSettings(encodedObj);
+  }
+
+  static encodeHmsVideoResolution(resolution: any) {
+    const encodedObj = {
+      height: resolution.height,
+      width: resolution.width,
+    };
+
+    return new HMSVideoResolution(encodedObj);
   }
 
   static encodeHmsRemotePeers(peers: any, id: string) {

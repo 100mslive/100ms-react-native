@@ -113,10 +113,10 @@ const App = ({
 }: WelcomeProps) => {
   const [orientation, setOrientation] = useState<boolean>(true);
   const [roomID, setRoomID] = useState<string>(
-    'https://yogi.app.100ms.live/meeting/muggy-ultramarine-fish',
+    'https://app-frontrow.qa-app.100ms.live/meeting/kqu-ooj-zjg',
   );
   const [text, setText] = useState<string>(
-    'https://yogi.app.100ms.live/meeting/muggy-ultramarine-fish',
+    'https://app-frontrow.qa-app.100ms.live/meeting/kqu-ooj-zjg',
   );
   const [role] = useState('host');
   const [initialized, setInitialized] = useState<boolean>(false);

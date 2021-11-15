@@ -40,6 +40,7 @@ export * from './classes/HMSVideoViewMode';
 export * from './classes/HMSChangeTrackStateRequest';
 export * from './classes/HMSSpeaker';
 export * from './classes/HMSSpeakerUpdate';
+export * from './classes/HMSCameraFacing';
 
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
 export default HmsManager;

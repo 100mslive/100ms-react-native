@@ -1,20 +1,23 @@
+import type { HMSVideoCodec } from './HMSVideoCodec';
 import type { HMSSimulcastLayerSettings } from './HMSSimulcastLayerSettings';
+import type { HMSCameraFacing } from './HMSCameraFacing';
+import type { HMSVideoResolution } from './HMSVideoResolution';
 
 export class HMSVideoTrackSettings {
-  codec?: any; //TODO: make it HMSCodec Type
-  resolution?: any; //TODO: make it HMSVideoResolution Type
+  codec?: HMSVideoCodec;
+  resolution?: HMSVideoResolution;
   maxBitrate?: number;
   maxFrameRate?: number;
-  cameraFacing?: any; //TODO: make it HMSCameraFacing type
+  cameraFacing?: HMSCameraFacing;
   trackDescription?: string;
   simulcastSettings?: HMSSimulcastLayerSettings[];
 
   constructor(params: {
-    codec?: any; //TODO: make it HMSCodec Type
-    resolution?: any; //TODO: make it HMSVideoResolution Type
+    codec?: HMSVideoCodec;
+    resolution?: HMSVideoResolution;
     maxBitrate?: number;
     maxFrameRate?: number;
-    cameraFacing?: any; //TODO: make it HMSCameraFacing type
+    cameraFacing?: HMSCameraFacing;
     trackDescription?: string;
     simulcastSettings?: HMSSimulcastLayerSettings[];
   }) {

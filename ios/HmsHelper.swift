@@ -98,4 +98,18 @@ class HmsHelper: NSObject {
         }
         return hms
     }
+    
+    static func getLocalVideoSettings(_ data: NSDictionary) -> HMSVideoTrackSettings? {
+        guard let codec = data.value(forKey: "codec") as? String,
+              let resolution = data.value(forKey: "resolution") as? [String : Float]?,
+              let maxBitrate = data.value(forKey: "maxBitrate") as? Float,
+              let maxFrameRate = data.value(forKey: "maxFrameRate") as? Float,
+              let cameraFacing = data.value(forKey: "cameraFacing") as? String,
+              let trackDescription = data.value(forKey: "trackDescription") as? String
+        else {
+            return nil
+        }
+        // TODO: update it to HMSVideoTrackSettings
+        return nil
+    }
 }

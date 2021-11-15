@@ -451,8 +451,10 @@ const Meeting = ({
     peer: HMSLocalPeer | HMSRemotePeer,
     type: 'local' | 'remote' | 'screen',
   ): Promise<Peer> => {
-    const peerIsAudioMute = await peer?.audioTrack?.isMute();
-    const peerIsVideoMute = await peer?.videoTrack?.isMute();
+    // const peerIsAudioMute = await peer?.audioTrack?.isMute();
+    // const peerIsVideoMute = await peer?.videoTrack?.isMute();
+    const peerIsAudioMute = false;
+    const peerIsVideoMute = false;
     return {
       trackId: peer?.videoTrack?.trackId,
       name: peer?.name,
