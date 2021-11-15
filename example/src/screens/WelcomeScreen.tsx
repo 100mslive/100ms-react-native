@@ -127,6 +127,8 @@ const App = ({
   const [audio, setAudio] = useState<boolean>(true);
   const [video, setVideo] = useState<boolean>(true);
   const [buttonState, setButtonState] = useState<ButtonState>('Active');
+  const [previewButtonState, setPreviewButtonState] =
+    useState<ButtonState>('Active');
   const [instance, setInstance] = useState<HmsManager | null>(null);
 
   const navigate = useNavigation<WelcomeScreenProp>().navigate;
@@ -274,18 +276,27 @@ const App = ({
       previewSuccess,
     );
 
+    instance?.addEventListener(
+      HMSUpdateListenerActions.ON_JOIN,
+      onJoinListener,
+    );
+
     saveUserDataRequest({userName: userID, roomID: roomID});
     instance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
     instance?.preview(HmsConfig);
     setConfig(HmsConfig);
   };
 
+  const onJoinListener = () => {
+    setPreviewButtonState('Active');
+    setPreviewModal(false);
+    setAudioVideoStateRequest({audioState: audio, videoState: video});
+    navigate('Meeting');
+  };
+
   const joinRoom = () => {
     if (config !== null) {
-      setPreviewModal(false);
       instance?.join(config);
-      navigate('Meeting');
-      setAudioVideoStateRequest({audioState: audio, videoState: video});
     }
   };
 
@@ -394,6 +405,8 @@ const App = ({
           trackId={localVideoTrackId}
           join={joinRoom}
           instance={instance}
+          setPreviewButtonState={setPreviewButtonState}
+          previewButtonState={previewButtonState}
         />
       )}
       <View />

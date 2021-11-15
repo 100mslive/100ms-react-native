@@ -1,5 +1,11 @@
 import React, {useState} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import HmsManager, {HMSVideoViewMode} from '@100mslive/react-native-hms';
 
@@ -9,12 +15,16 @@ export const PreviewModal = ({
   setVideo,
   join,
   instance,
+  setPreviewButtonState,
+  previewButtonState,
 }: {
   trackId: string;
   setAudio: Function;
   setVideo: Function;
   join: Function;
   instance: HmsManager | null;
+  setPreviewButtonState: Function;
+  previewButtonState: string;
 }) => {
   const [isMute, setIsMute] = useState(false);
   const [muteVideo, setMuteVideo] = useState(false);
@@ -59,11 +69,20 @@ export const PreviewModal = ({
         </View>
         <View style={styles.joinButtonContainer}>
           <TouchableOpacity
-            style={styles.buttonTextContainer}
+            disabled={previewButtonState !== 'Active'}
+            style={[
+              styles.buttonTextContainer,
+              {opacity: previewButtonState !== 'Active' ? 0.5 : 1},
+            ]}
             onPress={() => {
               join();
+              setPreviewButtonState('Loading');
             }}>
-            <Text style={styles.joinButtonText}>Join</Text>
+            {previewButtonState === 'Loading' ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text style={styles.joinButtonText}>Join</Text>
+            )}
           </TouchableOpacity>
         </View>
       </View>
