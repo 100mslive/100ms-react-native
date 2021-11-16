@@ -719,7 +719,10 @@ export class HMSSDK {
     }
     this.logger?.verbose('ON_REMOVED_FROM_ROOM', data);
     if (this.onRemovedFromRoomDelegate) {
-      const requestedBy = HMSEncoder.encodeHmsPeer(data.requestedBy, this.id);
+      let requestedBy = null;
+      if (data.requestedBy) {
+        requestedBy = HMSEncoder.encodeHmsPeer(data.requestedBy, this.id);
+      }
       const reason = data.reason;
       const roomEnded = data.roomEnded;
 
