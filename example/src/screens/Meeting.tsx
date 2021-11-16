@@ -96,7 +96,7 @@ const DEFAULT_PEER: Peer = {
   name: '',
   isAudioMute: true,
   isVideoMute: true,
-  id: Math.random().toString(),
+  id: undefined,
   colour: getThemeColour(),
   sink: true,
   type: 'local',
@@ -113,23 +113,37 @@ const DisplayTrack = ({
   permissions,
   allAudioMute,
 }: DisplayTrackProps) => {
-  const {
-    name,
-    isAudioMute,
-    isVideoMute,
-    trackId,
-    colour,
-    id,
-    sink,
-    peerRefrence,
-  } = peer!;
+  const {name, trackId, colour, id, sink, peerRefrence} = peer!;
   const [alertModalVisible, setAlertModalVisible] = useState(false);
   const [roleModalVisible, setRoleModalVisible] = useState(false);
   const [newRole, setNewRole] = useState(peerRefrence?.role);
   const [force, setForce] = useState(false);
+  const [isAudioMute, setIsAudioMute] = useState(true);
+  const [isVideoMute, setIsVideoMute] = useState(true);
+  let mounted = true;
+
+  const fetchTrackStates = async () => {
+    const localIsAudioMute = await peerRefrence?.audioTrack?.isMute();
+    const localIsVideoMute = await peerRefrence?.videoTrack?.isMute();
+    if (mounted) {
+      setIsAudioMute(localIsAudioMute);
+      setIsVideoMute(localIsVideoMute);
+    }
+  };
+
+  useEffect(() => {
+    fetchTrackStates();
+  }, [peerRefrence, peer?.isAudioMute, peer?.isVideoMute, mounted]);
+
+  useEffect(() => {
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const HmsViewComponent = instance?.HmsView;
   const knownRoles = instance?.knownRoles || [];
+  const isDegraded = peerRefrence?.videoTrack?.isDegraded || false;
   const speaking = speakers.includes(id!);
   const selectActionTitle = 'Select action';
   const selectActionMessage = '';
@@ -282,6 +296,7 @@ const DisplayTrack = ({
           top +
           bottom +
           2);
+
   if (HmsViewComponent) {
     return (
       <View
@@ -311,7 +326,7 @@ const DisplayTrack = ({
             onItemSelected={setNewRole}
           />
         </CustomModal>
-        {isVideoMute ? (
+        {isVideoMute || isDegraded ? (
           <View style={styles.avatarContainer}>
             <View style={[styles.avatar, {backgroundColor: colour}]}>
               <Text style={styles.avatarText}>{getInitials(name!)}</Text>
@@ -447,9 +462,26 @@ const Meeting = ({
     isPortrait() ? 4 : 2,
   );
 
-  const decode = async (
-    peer: HMSLocalPeer | HMSRemotePeer,
-    type: 'local' | 'remote' | 'screen',
+  const decodeRemotePeer = (
+    peer: HMSRemotePeer,
+    type: 'remote' | 'screen',
+  ): Peer => {
+    return {
+      trackId: peer?.videoTrack?.trackId,
+      name: peer?.name,
+      isAudioMute: true,
+      isVideoMute: true,
+      id: peer?.peerID,
+      colour: getThemeColour(),
+      sink: true,
+      type,
+      peerRefrence: peer,
+    };
+  };
+
+  const decodeLocalPeer = async (
+    peer: HMSLocalPeer,
+    type: 'local' | 'screen',
   ): Promise<Peer> => {
     const peerIsAudioMute = await peer?.audioTrack?.isMute();
     const peerIsVideoMute = await peer?.videoTrack?.isMute();
@@ -473,18 +505,18 @@ const Meeting = ({
     // get local track Id
     const localTrackId = localPeer?.videoTrack?.trackId;
     if (localTrackId) {
-      const localTrackTemp = await decode(localPeer, 'local');
+      const localTrackTemp = await decodeLocalPeer(localPeer, 'local');
       setTrackId(localTrackTemp);
     }
     const updatedLocalPeerPermissions = localPeer?.role?.permissions;
     setLocalPeerPermissions(updatedLocalPeerPermissions);
 
-    const remoteVideoIds: Promise<Peer>[] = [];
+    const remoteVideoIds: Peer[] = [];
     let newAuxTracks: Peer[] = [];
 
     if (remotePeers) {
       remotePeers.map((remotePeer: HMSRemotePeer) => {
-        const remoteTemp = decode(remotePeer, 'remote');
+        const remoteTemp = decodeRemotePeer(remotePeer, 'remote');
         remoteVideoIds.push(remoteTemp);
 
         let auxiliaryTracks = remotePeer?.auxiliaryTracks;
@@ -508,16 +540,16 @@ const Meeting = ({
       });
       setAuxTracks(newAuxTracks);
 
-      Promise.all(remoteVideoIds).then((results: Peer[]) => {
-        const updatedRemoteTracks = results.map((item: Peer, index: number) => {
+      const updatedRemoteTracks = remoteVideoIds.map(
+        (item: Peer, index: number) => {
           if (item.trackId) {
             return {...item};
           } else {
             return {...item, trackId: index.toString(), isVideoMute: true};
           }
-        });
-        setRemoteTrackIds(updatedRemoteTracks as []);
-      });
+        },
+      );
+      setRemoteTrackIds(updatedRemoteTracks as []);
     }
   };
 
@@ -885,8 +917,8 @@ const Meeting = ({
       const remotePeers = inst?.remotePeers;
       if (remotePeers) {
         const sinkRemoteTrackIds = remotePeers.map(
-          async (peer: HMSRemotePeer, index: number) => {
-            const remotePeer = await decode(peer, 'remote');
+          (peer: HMSRemotePeer, index: number) => {
+            const remotePeer = decodeRemotePeer(peer, 'remote');
             const videoTrackId = remotePeer.trackId;
             if (videoTrackId) {
               if (!viewableItemsIds?.includes(videoTrackId)) {
@@ -1006,30 +1038,32 @@ const Meeting = ({
                   styles.page,
                   {width: Dimensions.get('window').width - left - right},
                 ]}>
-                {item?.map((view: Peer) =>
-                  view.type === 'screen' ? (
-                    <DisplayTrack
-                      key={view?.id}
-                      peer={view}
-                      videoStyles={getAuxVideoStyles}
-                      speakers={speakers}
-                      instance={instance}
-                      type={view.type}
-                      permissions={localPeerPermissions}
-                      allAudioMute={muteAllAudio}
-                    />
-                  ) : (
-                    <DisplayTrack
-                      key={view?.id}
-                      peer={view}
-                      videoStyles={getRemoteVideoStyles}
-                      speakers={speakers}
-                      instance={instance}
-                      type={view.type}
-                      permissions={localPeerPermissions}
-                      allAudioMute={muteAllAudio}
-                    />
-                  ),
+                {item?.map(
+                  (view: Peer) =>
+                    view?.id &&
+                    (view.type === 'screen' ? (
+                      <DisplayTrack
+                        key={view?.id}
+                        peer={view}
+                        videoStyles={getAuxVideoStyles}
+                        speakers={speakers}
+                        instance={instance}
+                        type={view.type}
+                        permissions={localPeerPermissions}
+                        allAudioMute={muteAllAudio}
+                      />
+                    ) : (
+                      <DisplayTrack
+                        key={view?.id}
+                        peer={view}
+                        videoStyles={getRemoteVideoStyles}
+                        speakers={speakers}
+                        instance={instance}
+                        type={view.type}
+                        permissions={localPeerPermissions}
+                        allAudioMute={muteAllAudio}
+                      />
+                    )),
                 )}
               </View>
             );
@@ -1043,13 +1077,13 @@ const Meeting = ({
         <TouchableOpacity
           style={styles.singleIconContainer}
           onPress={() => {
+            instance?.localPeer
+              ?.localAudioTrack()
+              ?.setMute(!trackId.isAudioMute);
             setTrackId({
               ...trackId,
               isAudioMute: !trackId.isAudioMute,
             });
-            instance?.localPeer
-              ?.localAudioTrack()
-              ?.setMute(!trackId.isAudioMute);
           }}>
           <Feather
             name={trackId.isAudioMute ? 'mic-off' : 'mic'}
@@ -1083,13 +1117,13 @@ const Meeting = ({
         <TouchableOpacity
           style={styles.singleIconContainer}
           onPress={() => {
+            instance?.localPeer
+              ?.localVideoTrack()
+              ?.setMute(!trackId.isVideoMute);
             setTrackId({
               ...trackId,
               isVideoMute: !trackId.isVideoMute,
             });
-            instance?.localPeer
-              ?.localVideoTrack()
-              ?.setMute(!trackId.isVideoMute);
           }}>
           <Feather
             name={trackId.isVideoMute ? 'video-off' : 'video'}
