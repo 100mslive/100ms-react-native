@@ -101,15 +101,50 @@ class HmsHelper: NSObject {
     
     static func getLocalVideoSettings(_ data: NSDictionary) -> HMSVideoTrackSettings? {
         guard let codec = data.value(forKey: "codec") as? String,
-              let resolution = data.value(forKey: "resolution") as? [String : Float]?,
-              let maxBitrate = data.value(forKey: "maxBitrate") as? Float,
-              let maxFrameRate = data.value(forKey: "maxFrameRate") as? Float,
+              let resolution = data.value(forKey: "resolution") as? [String : Double]?,
+              let maxBitrate = data.value(forKey: "maxBitrate") as? Int,
+              let maxFrameRate = data.value(forKey: "maxFrameRate") as? Int,
               let cameraFacing = data.value(forKey: "cameraFacing") as? String,
-              let trackDescription = data.value(forKey: "trackDescription") as? String
+              let trackDescription = data.value(forKey: "trackDescription") as? String?,
+              let resolutionObj = HmsHelper.getVideoResolution(resolution ?? [:])
         else {
             return nil
         }
-        // TODO: update it to HMSVideoTrackSettings
-        return nil
+        let codecEncoded = HmsHelper.getVideoCodec(codec)
+            let cameraFacingEncoded = HmsHelper.getCameraFacing(cameraFacing)
+        let hmsTrackSettings = HMSVideoTrackSettings(codec: codecEncoded, resolution: resolutionObj, maxBitrate: maxBitrate, maxFrameRate: maxFrameRate, cameraFacing: cameraFacingEncoded, trackDescription: trackDescription)
+        return hmsTrackSettings
+    }
+    
+    static func getVideoResolution(_ data: [String : Double]) -> HMSVideoResolution? {
+        guard let width = data["width"],
+              let height = data["height"]
+        else {
+            return nil
+        }
+        
+        return HMSVideoResolution.init(width: width, height: height)
+    }
+    
+    static func getVideoCodec(_ codecString: String?) -> HMSCodec {
+        switch codecString {
+        case "h264":
+            return HMSCodec.H264
+        case "vp8":
+            return HMSCodec.VP8
+        default:
+            return HMSCodec.H264
+        }
+    }
+    
+    static func getCameraFacing(_ cameraFacing: String) -> HMSCameraFacing {
+        switch cameraFacing {
+        case "FRONT":
+            return HMSCameraFacing.front
+        case "BACK":
+            return HMSCameraFacing.back
+        default:
+            return HMSCameraFacing.front
+        }
     }
 }

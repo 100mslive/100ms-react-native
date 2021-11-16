@@ -718,6 +718,44 @@ class HmsSDK(
     }
   }
 
+  fun setLocalVideoSettings(data: ReadableMap) {
+    val requiredKeys =
+      HmsHelper.areAllRequiredKeysAvailable(
+        data,
+        arrayOf(
+          Pair("codec", "String"),
+          Pair("resolution", "Map"),
+          Pair("maxBitrate", "Int"),
+          Pair("maxFrameRate", "Int"),
+          Pair("cameraFacing", "String")
+        )
+      )
+    if (requiredKeys) {
+      val codec = data.getString("codec")
+      val resolution = data.getMap("resolution")
+      val maxBitrate = data.getInt("maxBitrate")
+      val maxFrameRate = data.getInt("maxFrameRate")
+      val cameraFacing = data.getString("cameraFacing")
+      val trackDescription = data.getString("trackDescription")
+
+      // TODO: call getVideoTrackSettings function and use the object with setSettings
+
+    } else {
+      delegate.emitEvent(
+        "ON_ERROR",
+        HmsDecoder.getError(
+          HMSException(
+            102,
+            "NOT_FOUND",
+            "SEND_ALL_REQUIRED_KEYS",
+            "REQUIRED_KEYS_NOT_FOUND",
+            "REQUIRED_KEYS_NOT_FOUND"
+          )
+        )
+      )
+    }
+  }
+
   fun getRoom(callback: Promise?) {
     val roomData = HmsDecoder.getHmsRoom(hmsSDK?.getRoom())
 

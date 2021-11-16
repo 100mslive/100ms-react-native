@@ -183,6 +183,13 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     hms?.muteAllPeersAudio(data)
   }
 
+  @ReactMethod
+  fun setLocalVideoSettings(data: ReadableMap) {
+    val hms = HmsHelper.getHms(data, hmsCollection)
+
+    hms?.setLocalVideoSettings(data)
+  }
+
   fun emitEvent(event: String, data: WritableMap) {
     reactApplicationContext
         .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)

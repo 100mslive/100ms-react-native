@@ -403,8 +403,13 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     
     func setLocalVideoSettings(_ data: NSDictionary) {
         let localVideoTrack = self.hms?.localPeer?.localVideoTrack()
-        //TODO: get settings object and assign it to settings
-//        let settings = HmsHelper.getLocalVideoSettings(data)
+        
+        guard let settings = HmsHelper.getLocalVideoSettings(data)
+        else {
+            //TODO: throw an error for invalid arguements
+            return
+        }
+        localVideoTrack?.settings = settings
     }
     
     // MARK: - HMS SDK Delegate Callbacks

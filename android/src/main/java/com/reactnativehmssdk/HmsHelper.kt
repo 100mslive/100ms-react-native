@@ -1,6 +1,9 @@
 package com.reactnativehmssdk
 
 import com.facebook.react.bridge.ReadableMap
+import live.hms.video.media.codec.HMSVideoCodec
+import live.hms.video.media.settings.HMSVideoResolution
+import live.hms.video.media.settings.HMSVideoTrackSettings
 import live.hms.video.media.tracks.*
 import live.hms.video.sdk.models.*
 import live.hms.video.sdk.models.role.*
@@ -161,6 +164,46 @@ object HmsHelper {
       }
     }
     return null
+  }
+
+  // TODO: create getVideoTrackSettings function
+
+  fun getVideoResolution(map: ReadableMap?): HMSVideoResolution? {
+    val width = map?.getDouble("width")
+    val height = map?.getDouble("height")
+
+    return if (width != null && height != null) {
+      HMSVideoResolution(width = width.toInt(), height = height.toInt())
+    } else {
+      null
+    }
+  }
+
+  fun getVideoCodec(codecString: String?): HMSVideoCodec {
+    when (codecString) {
+      "h264" -> {
+        return HMSVideoCodec.H264
+      }
+      "vp8" -> {
+        return HMSVideoCodec.VP8
+      }
+      "vp9" -> {
+        return HMSVideoCodec.VP9
+      }
+    }
+    return HMSVideoCodec.H264
+  }
+
+  fun getCameraFacing(cameraFacing: String?): HMSVideoTrackSettings.CameraFacing {
+    when (cameraFacing) {
+      "FRONT" -> {
+        return HMSVideoTrackSettings.CameraFacing.FRONT
+      }
+      "BACK" -> {
+        return HMSVideoTrackSettings.CameraFacing.BACK
+      }
+    }
+    return HMSVideoTrackSettings.CameraFacing.FRONT
   }
 
   fun getHms(credentials: ReadableMap, hmsCollection: MutableMap<String, HmsSDK>): HmsSDK? {
