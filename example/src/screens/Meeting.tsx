@@ -120,17 +120,30 @@ const DisplayTrack = ({
   const [force, setForce] = useState(false);
   const [isAudioMute, setIsAudioMute] = useState(true);
   const [isVideoMute, setIsVideoMute] = useState(true);
+  let mounted = true;
+
+  const fetchTrackStates = async () => {
+    const localIsAudioMute = await peerRefrence?.audioTrack?.isMute();
+    const localIsVideoMute = await peerRefrence?.videoTrack?.isMute();
+    if (mounted) {
+      setIsAudioMute(localIsAudioMute);
+      setIsVideoMute(localIsVideoMute);
+    }
+  };
 
   useEffect(() => {
-    const fetchTrackStates = async () => {
-      setIsAudioMute(await peerRefrence?.audioTrack?.isMute());
-      setIsVideoMute(await peerRefrence?.videoTrack?.isMute());
-    };
     fetchTrackStates();
-  }, [peerRefrence, peer?.isAudioMute, peer?.isVideoMute]);
+  }, [peerRefrence, peer?.isAudioMute, peer?.isVideoMute, mounted]);
+
+  useEffect(() => {
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const HmsViewComponent = instance?.HmsView;
   const knownRoles = instance?.knownRoles || [];
+  const isDegraded = peerRefrence?.videoTrack?.isDegraded || false;
   const speaking = speakers.includes(id!);
   const selectActionTitle = 'Select action';
   const selectActionMessage = '';
@@ -313,7 +326,7 @@ const DisplayTrack = ({
             onItemSelected={setNewRole}
           />
         </CustomModal>
-        {isVideoMute ? (
+        {isVideoMute || isDegraded ? (
           <View style={styles.avatarContainer}>
             <View style={[styles.avatar, {backgroundColor: colour}]}>
               <Text style={styles.avatarText}>{getInitials(name!)}</Text>
