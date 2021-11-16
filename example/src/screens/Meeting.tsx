@@ -1172,7 +1172,7 @@ const Meeting = ({
               } else if (messageTo?.type === 'group') {
                 instance?.sendGroupMessage(value, [messageTo?.obj]);
               } else if (messageTo.type === 'direct') {
-                instance?.sendDirectMessage(value, messageTo?.obj?.peerId);
+                instance?.sendDirectMessage(value, messageTo?.obj?.id);
               }
               addMessageRequest({
                 data: hmsMessage,
