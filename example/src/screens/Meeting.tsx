@@ -136,6 +136,12 @@ const DisplayTrack = ({
   }, [peerRefrence, peer?.isAudioMute, peer?.isVideoMute, mounted]);
 
   useEffect(() => {
+    knownRoles?.map(role => {
+      if (role?.name === peerRefrence?.role?.name) {
+        setNewRole(role);
+        return;
+      }
+    });
     return () => {
       mounted = false;
     };
