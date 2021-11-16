@@ -507,11 +507,14 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     }
     
     func on(removedFromRoom notification: HMSRemovedFromRoomNotification) {
-        let requestedBy = notification.requestedBy
-        let decodedRequestedBy = HmsDecoder.getHmsPeer(requestedBy)
+        let requestedBy = notification.requestedBy as HMSPeer?
+        var decodedRequestedBy: [String: Any]? = nil
+        if let requested = requestedBy {
+            decodedRequestedBy = HmsDecoder.getHmsPeer(requested)
+        }
         let reason = notification.reason
         let roomEnded = notification.roomEnded
-        self.delegate?.emitEvent(ON_REMOVED_FROM_ROOM, ["event": ON_REMOVED_FROM_ROOM, "id": self.id ?? "", "requestedBy": decodedRequestedBy, "reason": reason, "roomEnded": roomEnded ])
+        self.delegate?.emitEvent(ON_REMOVED_FROM_ROOM, ["event": ON_REMOVED_FROM_ROOM, "id": self.id, "requestedBy": decodedRequestedBy as Any, "reason": reason, "roomEnded": roomEnded ])
     }
     
     
