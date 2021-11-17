@@ -130,8 +130,7 @@ class HmsSDK(
                   super.onRemovedFromRoom(notification)
 
                   val data: WritableMap = Arguments.createMap()
-
-                  val requestedBy = HmsDecoder.getHmsRemotePeer(notification.peerWhoRemoved as HMSRemotePeer)
+                  val requestedBy = HmsDecoder.getHmsRemotePeer(notification.peerWhoRemoved as HMSRemotePeer?)
                   val roomEnded = notification.roomWasEnded
                   val reason = notification.reason
 
