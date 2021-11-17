@@ -126,6 +126,7 @@ class HmssdkDisplayView: UIView {
         super.init(frame: frame)
         self.addSubview(videoView)
         self.frame = frame
+        self.backgroundColor = UIColor(displayP3Red: 0, green: 0, blue: 0, alpha: 1)
         
         videoView.translatesAutoresizingMaskIntoConstraints = false
         
