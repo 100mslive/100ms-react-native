@@ -645,29 +645,45 @@ class HmsSDK(
   }
 
   fun muteAllPeersAudio(data: ReadableMap) {
-    val mute = data.getBoolean("mute")
-    val peers = hmsSDK?.getRemotePeers()
-    if (peers != null) {
-      for (remotePeer in peers) {
-        val peerId = remotePeer.peerID
-        val peer = HmsHelper.getRemotePeerFromPeerId(peerId, peers)
-        if (peerId != null) {
-          if (mute) {
-            peer?.audioTrack?.setVolume(0.0)
-          } else {
-            peer?.audioTrack?.setVolume(1.0)
+    val requiredKeys =
+      HmsHelper.areAllRequiredKeysAvailable(
+        data,
+        arrayOf(Pair("mute", "Boolean"))
+      )
+    if (requiredKeys) {
+      val mute = data.getBoolean("mute")
+      val peers = hmsSDK?.getRemotePeers()
+      if (peers != null) {
+        for (remotePeer in peers) {
+          val peerId = remotePeer.peerID
+          val peer = HmsHelper.getRemotePeerFromPeerId(peerId, peers)
+          if (peerId != null) {
+            peer?.audioTrack?.isPlaybackAllowed = !mute
           }
         }
+        val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
+        val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
+
+        val data: WritableMap = Arguments.createMap()
+
+        data.putMap("localPeer", localPeerData)
+        data.putArray("remotePeers", remotePeerData)
+        data.putString("id", id)
+        delegate.emitEvent("ON_PEER_UPDATE", data)
       }
-      val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
-      val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
-
-      val data: WritableMap = Arguments.createMap()
-
-      data.putMap("localPeer", localPeerData)
-      data.putArray("remotePeers", remotePeerData)
-      data.putString("id", id)
-      delegate.emitEvent("ON_PEER_UPDATE", data)
+    }else {
+      delegate.emitEvent(
+        "ON_ERROR",
+        HmsDecoder.getError(
+          HMSException(
+            102,
+            "NOT_FOUND",
+            "SEND_ALL_REQUIRED_KEYS",
+            "REQUIRED_KEYS_NOT_FOUND",
+            "REQUIRED_KEYS_NOT_FOUND"
+          )
+        )
+      )
     }
   }
 
