@@ -635,18 +635,14 @@ class HmsSDK(
   }
 
   fun muteAllPeersAudio(data: ReadableMap) {
-    val mute = data.getBoolean("mute")
+    val mute = data.getBoolean("mute") || true
     val peers = hmsSDK?.getRemotePeers()
     if (peers != null) {
       for (remotePeer in peers) {
         val peerId = remotePeer.peerID
         val peer = HmsHelper.getRemotePeerFromPeerId(peerId, peers)
         if (peerId != null) {
-          if (mute) {
-            peer?.audioTrack?.setVolume(0.0)
-          } else {
-            peer?.audioTrack?.setVolume(1.0)
-          }
+          peer?.audioTrack?.isPlaybackAllowed = !mute
         }
       }
       val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
