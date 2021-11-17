@@ -332,11 +332,15 @@ const DisplayTrack = ({
             onItemSelected={setNewRole}
           />
         </CustomModal>
-        {isVideoMute || isDegraded ? (
+        {isVideoMute ? (
           <View style={styles.avatarContainer}>
             <View style={[styles.avatar, {backgroundColor: colour}]}>
               <Text style={styles.avatarText}>{getInitials(name!)}</Text>
             </View>
+          </View>
+        ) : isDegraded ? (
+          <View style={styles.avatarContainer}>
+            <Text style={styles.degradedText}>Degraded</Text>
           </View>
         ) : (
           <HmsViewComponent
@@ -1312,6 +1316,10 @@ const styles = StyleSheet.create({
   },
   avatarText: {
     fontSize: 30,
+    color: 'white',
+  },
+  degradedText: {
+    fontSize: 20,
     color: 'white',
   },
   highlight: {
