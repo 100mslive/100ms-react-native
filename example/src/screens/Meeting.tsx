@@ -280,27 +280,32 @@ const DisplayTrack = ({
   };
 
   const mute = type === 'remote' && allAudioMute ? true : isAudioMute;
+  const isTab =
+    Dimensions.get('window').height / Dimensions.get('window').width < 1.6
+      ? true
+      : false;
 
   const {top, bottom} = useSafeAreaInsets();
   // window height - (header + bottom container + top + bottom + padding) / views in one screen
   const viewHeight =
     type === 'screen'
       ? Dimensions.get('window').height -
-        (dimension.viewHeight(50) + dimension.viewHeight(90) + top + bottom + 2)
+        (dimension.viewHeight(50) +
+          dimension.viewHeight(90) +
+          (isTab ? dimension.viewHeight(20) : top + bottom) +
+          2)
       : isPortrait()
       ? (Dimensions.get('window').height -
           (dimension.viewHeight(50) +
             dimension.viewHeight(90) +
-            top +
-            bottom +
+            (isTab ? dimension.viewHeight(20) : top + bottom) +
             2)) /
         2
       : Dimensions.get('window').height -
         (Platform.OS === 'ios' ? 0 : 25) -
         (dimension.viewHeight(50) +
           dimension.viewHeight(90) +
-          top +
-          bottom +
+          (isTab ? dimension.viewHeight(20) : top + bottom) +
           2);
 
   if (HmsViewComponent) {
