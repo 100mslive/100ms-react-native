@@ -37,6 +37,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
+import {getDeviceType} from 'react-native-device-info';
 import type {StackNavigationProp} from '@react-navigation/stack';
 
 import {ChatWindow, AlertModal, CustomModal, CustomPicker} from '../components';
@@ -280,10 +281,7 @@ const DisplayTrack = ({
   };
 
   const mute = type === 'remote' && allAudioMute ? true : isAudioMute;
-  const isTab =
-    Dimensions.get('window').height / Dimensions.get('window').width < 1.6
-      ? true
-      : false;
+  const isTab = getDeviceType() === 'Tablet';
 
   const {top, bottom} = useSafeAreaInsets();
   // window height - (header + bottom container + top + bottom + padding) / views in one screen
