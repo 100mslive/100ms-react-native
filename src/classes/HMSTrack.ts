@@ -1,4 +1,5 @@
 import { NativeModules } from 'react-native';
+import type { HMSTrackType } from './HMSTrackType';
 
 const {
   /**
@@ -12,12 +13,14 @@ export class HMSTrack {
   source?: number | string;
   trackDescription?: string;
   mute?: boolean;
+  id: string;
+  type?: HMSTrackType;
 
   isMute = async () => {
     try {
-      let val = await HmsManager.isMute({ trackId: this.trackId });
+      let val = await HmsManager.isMute({ trackId: this.trackId, id: this.id });
       return val;
-    } catch (e) {
+    } catch (err) {
       return true;
     }
   };
@@ -27,10 +30,14 @@ export class HMSTrack {
     source?: number | string;
     trackDescription?: string;
     isMute?: boolean;
+    id: string;
+    type?: HMSTrackType;
   }) {
     this.trackId = params.trackId;
     this.source = params.source;
     this.trackDescription = params.trackDescription;
     this.mute = params.isMute;
+    this.id = params.id;
+    this.type = params.type;
   }
 }

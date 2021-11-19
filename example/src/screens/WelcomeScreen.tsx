@@ -21,6 +21,7 @@ import HmsManager, {
   HMSVideoTrack,
   HMSLogger,
   HMSLogLevel,
+  HMSSDK,
 } from '@100mslive/react-native-hms';
 import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
@@ -29,14 +30,22 @@ import Feather from 'react-native-vector-icons/Feather';
 
 import * as services from '../services/index';
 import {UserIdModal, PreviewModal} from '../components';
-import {setAudioVideoState, saveUserData} from '../redux/actions/index';
+import {
+  setAudioVideoState,
+  saveUserData,
+  updateHmsReference,
+} from '../redux/actions/index';
+import {getThemeColour} from '../utils/functions';
 import type {AppStackParamList} from '../navigator';
 import type {RootState} from '../redux';
+import {Alert} from 'react-native';
 
 type WelcomeProps = {
   setAudioVideoStateRequest: Function;
   saveUserDataRequest: Function;
+  updateHms: Function;
   state: RootState;
+  hmsInstance: HMSSDK | undefined;
 };
 
 type WelcomeScreenProp = StackNavigationProp<
@@ -60,8 +69,7 @@ const callService = async (
   });
 
   if (response.error || !response?.token) {
-    // TODO: handle errors from API
-    apiFailed();
+    apiFailed(response);
   } else {
     joinRoom(response.token, userID);
   }
@@ -82,8 +90,7 @@ const tokenFromLinkService = async (
   });
 
   if (response.error || !response?.token) {
-    // TODO: handle errors from API
-    apiFailed();
+    apiFailed(response);
   } else {
     if (subdomain.search('.qa-') >= 0) {
       fetchTokenFromLinkSuccess(
@@ -101,13 +108,15 @@ const App = ({
   setAudioVideoStateRequest,
   saveUserDataRequest,
   state,
+  updateHms,
+  hmsInstance,
 }: WelcomeProps) => {
   const [orientation, setOrientation] = useState<boolean>(true);
   const [roomID, setRoomID] = useState<string>(
-    'https://yogi.app.100ms.live/meeting/muggy-ultramarine-fish',
+    'https://yogi.app.100ms.live/meeting/nih-bkn-vek',
   );
   const [text, setText] = useState<string>(
-    'https://yogi.app.100ms.live/meeting/muggy-ultramarine-fish',
+    'https://yogi.app.100ms.live/meeting/nih-bkn-vek',
   );
   const [role] = useState('host');
   const [initialized, setInitialized] = useState<boolean>(false);
@@ -118,6 +127,8 @@ const App = ({
   const [audio, setAudio] = useState<boolean>(true);
   const [video, setVideo] = useState<boolean>(true);
   const [buttonState, setButtonState] = useState<ButtonState>('Active');
+  const [previewButtonState, setPreviewButtonState] =
+    useState<ButtonState>('Active');
   const [instance, setInstance] = useState<HmsManager | null>(null);
 
   const navigate = useNavigation<WelcomeScreenProp>().navigate;
@@ -142,11 +153,6 @@ const App = ({
     console.log('here on error', data);
   };
 
-  // const callBackFailed = (data) => {
-  //   console.log(data, 'data in failed');
-  //   // TODO: failure handling here
-  // };
-
   // let ref = React.useRef();
 
   const setupBuild = async () => {
@@ -155,6 +161,7 @@ const App = ({
     logger.updateLogLevel(HMSLogLevel.VERBOSE, true);
     build.setLogger(logger);
     setInstance(build);
+    updateHms({hmsInstance: build});
   };
 
   useEffect(() => {
@@ -167,6 +174,7 @@ const App = ({
     });
 
     return () => {
+      hmsInstance?.destroy();
       Dimensions.removeEventListener('change', () => {
         setOrientation(!orientation);
       });
@@ -224,15 +232,14 @@ const App = ({
     }
   };
 
-  const apiFailed = () => {
+  const apiFailed = (error: any) => {
     setButtonState('Active');
+    Alert.alert('Fetching token failed', error?.msg || 'Something went wrong');
   };
 
   const previewRoom = (token: string, userID: string) => {
     const HmsConfig = new HMSConfig({
       authToken: token,
-      userID,
-      roomID,
       username: userID,
     });
     instance?.addEventListener(
@@ -254,17 +261,13 @@ const App = ({
     if (endpoint) {
       HmsConfig = new HMSConfig({
         authToken: token,
-        userID,
         username: userID,
-        roomID: '',
         endpoint,
       });
     } else {
       HmsConfig = new HMSConfig({
         authToken: token,
-        userID,
         username: userID,
-        roomID: '',
       });
     }
 
@@ -273,18 +276,27 @@ const App = ({
       previewSuccess,
     );
 
+    instance?.addEventListener(
+      HMSUpdateListenerActions.ON_JOIN,
+      onJoinListener,
+    );
+
     saveUserDataRequest({userName: userID, roomID: roomID});
     instance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
     instance?.preview(HmsConfig);
     setConfig(HmsConfig);
   };
 
+  const onJoinListener = () => {
+    setPreviewButtonState('Active');
+    setPreviewModal(false);
+    setAudioVideoStateRequest({audioState: audio, videoState: video});
+    navigate('Meeting');
+  };
+
   const joinRoom = () => {
     if (config !== null) {
-      setPreviewModal(false);
       instance?.join(config);
-      navigate('Meeting');
-      setAudioVideoStateRequest({audioState: audio, videoState: video});
     }
   };
 
@@ -305,6 +317,9 @@ const App = ({
             placeholder="Enter room ID"
             style={styles.input}
             defaultValue={roomID}
+            returnKeyType="done"
+            multiline
+            blurOnSubmit
           />
         </View>
         <TouchableOpacity
@@ -389,6 +404,9 @@ const App = ({
           }}
           trackId={localVideoTrackId}
           join={joinRoom}
+          instance={instance}
+          setPreviewButtonState={setPreviewButtonState}
+          previewButtonState={previewButtonState}
         />
       )}
       <View />
@@ -411,7 +429,7 @@ const styles = StyleSheet.create({
   },
   logo: {
     fontWeight: '700',
-    color: '#4578e0',
+    color: getThemeColour(),
     fontSize: 44,
   },
   image: {
@@ -424,7 +442,7 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     fontSize: 20,
     fontWeight: '500',
-    color: '#4578e0',
+    color: getThemeColour(),
   },
   box: {
     width: '100%',
@@ -439,12 +457,12 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     paddingLeft: 10,
     minHeight: 32,
-    color: '#4578e0',
+    color: getThemeColour(),
   },
   joinButtonContainer: {
     padding: 12,
     marginTop: 20,
-    backgroundColor: '#4578e0',
+    backgroundColor: getThemeColour(),
     borderRadius: 15,
     flexDirection: 'row',
     justifyContent: 'center',
@@ -473,7 +491,7 @@ const styles = StyleSheet.create({
     zIndex: 500,
   },
   buttonText: {
-    backgroundColor: '#4578e0',
+    backgroundColor: getThemeColour(),
     padding: 10,
     borderRadius: 10,
     color: '#efefef',
@@ -518,10 +536,13 @@ const mapDispatchToProps = (dispatch: Function) => ({
   }) => dispatch(setAudioVideoState(data)),
   saveUserDataRequest: (data: {userName: string; roomID: string}) =>
     dispatch(saveUserData(data)),
+  updateHms: (data: {hmsInstance: HMSSDK}) =>
+    dispatch(updateHmsReference(data)),
 });
 const mapStateToProps = (state: RootState) => {
   return {
     state: state,
+    hmsInstance: state?.user?.hmsInstance,
   };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(App);

@@ -4,7 +4,6 @@ import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.annotations.ReactProp
-import live.hms.video.sdk.HMSSDK
 
 class HmssdkViewManager : SimpleViewManager<HmsView>() {
 
@@ -28,10 +27,13 @@ class HmssdkViewManager : SimpleViewManager<HmsView>() {
   fun setData(view: HmsView, data: ReadableMap) {
     val trackId = data.getString("trackId")
     val sink = data.getBoolean("sink")
+    val id = data.getString("id")
     val mirror = data.getBoolean("mirror")
 
-    val hms = getHms()
-    view.setData(trackId, sink, mirror, hms)
+    val hmsCollection = getHms()
+    if (hmsCollection != null) {
+      view.setData(id, trackId, sink, hmsCollection, mirror)
+    }
     // do the processing here
   }
 
@@ -40,9 +42,9 @@ class HmssdkViewManager : SimpleViewManager<HmsView>() {
     view.updateScaleType(data)
   }
 
-  private fun getHms(): HMSSDK? {
-    val hms = reactContext?.getNativeModule(HmsModule::class.java)?.getHmsInstance()
-    return hms
+  private fun getHms(): MutableMap<String, HmsSDK>? {
+    val hmsCollection = reactContext?.getNativeModule(HmsModule::class.java)?.getHmsInstance()
+    return hmsCollection
   }
 
   companion object {

@@ -88,11 +88,9 @@ const App = () => {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
 
-  const joinRoom = (token: string, userID: string, roomID: string) => {
+  const joinRoom = (token: string, userID: string) => {
     const HmsConfig = new HMSConfig({
       authToken: token,
-      userID,
-      roomID,
       username: userID,
     });
     console.log(instance, 'instance');

@@ -2,8 +2,9 @@ package com.reactnativehmssdk
 
 import android.widget.FrameLayout
 import com.facebook.react.bridge.ReactContext
+import live.hms.video.media.tracks.HMSTrackSource
+import live.hms.video.media.tracks.HMSTrackType
 import live.hms.video.media.tracks.HMSVideoTrack
-import live.hms.video.sdk.HMSSDK
 import live.hms.video.utils.SharedEglContext
 import org.webrtc.RendererCommon
 import org.webrtc.SurfaceViewRenderer
@@ -54,18 +55,32 @@ class HmsView(context: ReactContext) : FrameLayout(context) {
     }
   }
 
-  fun setData(trackId: String?, sink: Boolean?,mirror: Boolean?, hms: HMSSDK?) {
-    if (trackId != null) {
-      localTrack = trackId
+  fun setData(
+      id: String?,
+      trackId: String?,
+      sink: Boolean?,
+      hmsCollection: MutableMap<String, HmsSDK>,
+      mirror: Boolean?
+  ) {
+    var sdkId: String = "12345"
+
+    if (id != null) {
+      sdkId = id
+    }
+
+    val hms = hmsCollection[sdkId]?.hmsSDK
+
+    if (trackId != null && hms != null) {
       if (mirror != null) {
         surfaceView.setMirror(mirror)
       }
-      val localTrackId = hms?.getLocalPeer()?.videoTrack?.trackId
+      localTrack = trackId
+      val localTrackId = hms.getLocalPeer()?.videoTrack?.trackId
       if (localTrackId == localTrack) {
-        videoTrack = hms?.getLocalPeer()?.videoTrack
+        videoTrack = hms.getLocalPeer()?.videoTrack
       }
 
-      val remotePeers = hms?.getRemotePeers()
+      val remotePeers = hms.getRemotePeers()
       if (remotePeers !== null) {
         for (peer in remotePeers) {
           val videoTrackId = peer.videoTrack?.trackId
@@ -73,7 +88,7 @@ class HmsView(context: ReactContext) : FrameLayout(context) {
           val auxiliaryTracks = peer.auxiliaryTracks
           for (track in auxiliaryTracks) {
             val auxTrackId = track.trackId
-            if (trackId == auxTrackId && track.source == "screen" && !track.isMute) {
+            if (trackId == auxTrackId && track.source == HMSTrackSource.SCREEN && track.type == HMSTrackType.VIDEO && !track.isMute) {
               videoTrack = track as HMSVideoTrack
               return
             }

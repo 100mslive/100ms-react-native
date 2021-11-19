@@ -13,8 +13,9 @@ class HmsView: RCTViewManager {
         return view;
     }
     
-    func getHmsFromBridge() -> HMSSDK? {
-        return (bridge.module(for: HmsManager.classForCoder()) as? HmsManager)?.hms
+    func getHmsFromBridge() -> [String: HmsSDK] {
+        let collection: [String: HmsSDK] = (bridge.module(for: HmsManager.classForCoder()) as? HmsManager)?.hmsCollection ?? [:]
+        return collection
     }
     
     override class func requiresMainQueueSetup() -> Bool {
@@ -28,13 +29,13 @@ class HmssdkDisplayView: UIView {
         return HMSVideoView()
     }()
     
-    var hms: HMSSDK?
+    var hmsCollection: [String: HmsSDK] = [:]
     var localTrack: String?
     var sinked = false
     var sinkVideo = true
     
-    func setHms(_ hmsInstance: HMSSDK?) {
-        hms = hmsInstance
+    func setHms(_ hmsInstance: [String: HmsSDK]) {
+        hmsCollection = hmsInstance
     }
     
     @objc var scaleType : String = "ASPECT_FILL" {
@@ -68,7 +69,13 @@ class HmssdkDisplayView: UIView {
                 videoView.mirror = mirror!
             }
             
-            if let videoTrack = hms?.localPeer?.videoTrack {
+            var id : String = "12345"
+            
+            if let sdkId = data.value(forKey: "id") as? String {
+                id = sdkId
+            }
+            
+            if let videoTrack: HMSVideoTrack = hmsCollection[id]?.hms?.localPeer?.videoTrack {
                 if videoTrack.trackId == trackID {
                     
                     if !sinked && sinkVideo {
@@ -82,7 +89,7 @@ class HmssdkDisplayView: UIView {
                 }
             }
             
-            if let remotePeers = hms?.remotePeers {
+            if let remotePeers: [HMSRemotePeer] = hmsCollection[id]?.hms?.remotePeers {
                 for peer in remotePeers where peer.videoTrack?.trackId == trackID {
                     
                     if !sinked && sinkVideo {
@@ -98,7 +105,7 @@ class HmssdkDisplayView: UIView {
                     let auxTracks = peer.auxiliaryTracks
                     if let auxTracksVals = auxTracks {
                         for track in auxTracksVals where track.trackId == trackID {
-                            if (track.source == "screen") {
+                            if (track.source == "screen" && HmsHelper.getHmsTrackType(track.kind) == "VIDEO") {
                                 if !sinked && sinkVideo {
                                     videoView.setVideoTrack(track as? HMSVideoTrack)
                                     sinked = true
@@ -119,6 +126,7 @@ class HmssdkDisplayView: UIView {
         super.init(frame: frame)
         self.addSubview(videoView)
         self.frame = frame
+        self.backgroundColor = UIColor(displayP3Red: 0, green: 0, blue: 0, alpha: 1)
         
         videoView.translatesAutoresizingMaskIntoConstraints = false
         

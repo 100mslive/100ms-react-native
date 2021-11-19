@@ -1,5 +1,6 @@
 import { NativeModules } from 'react-native';
 import { HMSVideoTrack } from './HMSVideoTrack';
+import type { HMSTrackType } from './HMSTrackType';
 
 const {
   /**
@@ -18,12 +19,19 @@ export class HMSRemoteVideoTrack extends HMSVideoTrack {
    * @memberof HMSRemoteVideoTrack
    */
   setPlaybackAllowed(playbackAllowed: boolean) {
-    HmsManager.setPlaybackAllowed({ trackId: this.trackId, playbackAllowed });
+    HmsManager.setPlaybackAllowed({
+      id: this.id,
+      trackId: this.trackId,
+      playbackAllowed,
+    });
   }
 
   isPlaybackAllowed = async () => {
     try {
-      const val = await HmsManager.isPlaybackAllowed({ trackId: this.trackId });
+      const val = await HmsManager.isPlaybackAllowed({
+        id: this.id,
+        trackId: this.trackId,
+      });
       return val;
     } catch (e) {
       return true;
@@ -36,6 +44,9 @@ export class HMSRemoteVideoTrack extends HMSVideoTrack {
     trackDescription?: string;
     isMute?: boolean;
     layer?: any;
+    playbackAllowed?: boolean;
+    id: string;
+    type?: HMSTrackType;
   }) {
     super(params);
     this.layer = params.layer;

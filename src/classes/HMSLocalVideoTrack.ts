@@ -1,6 +1,7 @@
 import { NativeModules } from 'react-native';
 import { HMSVideoTrack } from './HMSVideoTrack';
 import type { HMSVideoTrackSettings } from './HMSVideoTrackSettings';
+import type { HMSTrackType } from './HMSTrackType';
 
 const {
   /**
@@ -13,6 +14,7 @@ export class HMSLocalVideoTrack extends HMSVideoTrack {
   settings?: HMSVideoTrackSettings;
   startCapturing?: Function;
   stopCapturing?: Function;
+  id: string;
 
   /**
    * switches camera between front/back
@@ -20,7 +22,7 @@ export class HMSLocalVideoTrack extends HMSVideoTrack {
    * @memberof HMSSDK
    */
   switchCamera = () => {
-    HmsManager.switchCamera();
+    HmsManager.switchCamera({ id: this.id });
   };
 
   /**
@@ -30,17 +32,20 @@ export class HMSLocalVideoTrack extends HMSVideoTrack {
    * @memberof HMSLocalVideoTrack
    */
   setMute(isMute: boolean) {
-    HmsManager.setLocalVideoMute(isMute);
+    HmsManager.setLocalVideoMute({ isMute, id: this.id });
   }
 
   constructor(params: {
+    id: string;
     trackId: string;
     source?: number | string;
     trackDescription?: string;
     isMute?: boolean;
     settings?: HMSVideoTrackSettings;
+    type?: HMSTrackType;
   }) {
     super(params);
     this.settings = params.settings;
+    this.id = params.id;
   }
 }

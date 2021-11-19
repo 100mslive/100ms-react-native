@@ -30,6 +30,7 @@ export class HMSLocalPeer extends HMSPeer {
     role?: HMSRole;
     auxiliaryTracks?: HMSTrack[];
     localAudioTrackData?: {
+      id: string;
       trackId: string;
       source?: number | string;
       trackDescription?: string;
@@ -37,6 +38,7 @@ export class HMSLocalPeer extends HMSPeer {
       settings?: HMSAudioTrackSettings;
     };
     localVideoTrackData?: {
+      id: string;
       trackId: string;
       source?: number | string;
       trackDescription?: string;

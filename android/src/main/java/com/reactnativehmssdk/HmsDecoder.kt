@@ -1,6 +1,7 @@
 package com.reactnativehmssdk
 
 import com.facebook.react.bridge.*
+import live.hms.video.error.HMSException
 import java.util.*
 import live.hms.video.media.settings.HMSAudioTrackSettings
 import live.hms.video.media.settings.HMSVideoTrackSettings
@@ -70,6 +71,7 @@ object HmsDecoder {
       hmsTrack.putString("source", hmsVideoTrack.source)
       hmsTrack.putString("trackDescription", hmsVideoTrack.description)
       hmsTrack.putBoolean("isMute", hmsVideoTrack.isMute)
+      hmsTrack.putBoolean("isDegraded", hmsVideoTrack.isDegraded)
     }
     return hmsTrack
   }
@@ -81,6 +83,7 @@ object HmsDecoder {
       hmsTrack.putString("source", track.source)
       hmsTrack.putString("trackDescription", track.description)
       hmsTrack.putBoolean("isMute", track.isMute)
+      hmsTrack.putString("type", track.type.toString())
     }
     return hmsTrack
   }
@@ -133,20 +136,20 @@ object HmsDecoder {
           if (hmsPermissions.mute != null) hmsPermissions.mute else false
       )
       permissions.putBoolean(
-        "changeRoleForce",
-        if (hmsPermissions.changeRoleForce != null) hmsPermissions.changeRoleForce else false
+          "changeRoleForce",
+          if (hmsPermissions.changeRoleForce != null) hmsPermissions.changeRoleForce else false
       )
       permissions.putBoolean(
-        "unmute",
-        if (hmsPermissions.unmute != null) hmsPermissions.unmute else false
+          "unmute",
+          if (hmsPermissions.unmute != null) hmsPermissions.unmute else false
       )
       permissions.putBoolean(
-        "recording",
-        if (hmsPermissions.recording != null) hmsPermissions.recording else false
+          "recording",
+          if (hmsPermissions.recording != null) hmsPermissions.recording else false
       )
       permissions.putBoolean(
-        "rtmp",
-        if (hmsPermissions.rtmp != null) hmsPermissions.rtmp else false
+          "rtmp",
+          if (hmsPermissions.rtmp != null) hmsPermissions.rtmp else false
       )
       permissions.putBoolean(
           "changeRole",
@@ -392,12 +395,14 @@ object HmsDecoder {
     return hmsTracks
   }
 
-  fun getHmsRoleChangeRequest(request: HMSRoleChangeRequest): WritableMap {
+  fun getHmsRoleChangeRequest(request: HMSRoleChangeRequest, id: String?): WritableMap {
     val roleChangeRequest: WritableMap = Arguments.createMap()
-
-    roleChangeRequest.putMap("requestedBy", getHmsPeer(request.requestedBy))
-    roleChangeRequest.putMap("suggestedRole", getHmsRole(request.suggestedRole))
-
+    if (id != null) {
+      roleChangeRequest.putMap("requestedBy", getHmsPeer(request.requestedBy))
+      roleChangeRequest.putMap("suggestedRole", getHmsRole(request.suggestedRole))
+      roleChangeRequest.putString("id", id)
+      return roleChangeRequest
+    }
     return roleChangeRequest
   }
 
@@ -408,5 +413,18 @@ object HmsDecoder {
     changeTrackStateRequest.putString("trackType", request.track.type.name)
 
     return changeTrackStateRequest
+  }
+
+  fun getError(error: HMSException): WritableMap {
+    val decodedError: WritableMap = Arguments.createMap()
+
+    decodedError.putInt("code", error.code)
+    decodedError.putString("localizedDescription", error.localizedMessage)
+    decodedError.putString("description", error.description)
+    decodedError.putString("message", error.message)
+    decodedError.putString("name", error.name)
+    decodedError.putString("action", error.action)
+
+    return decodedError
   }
 }

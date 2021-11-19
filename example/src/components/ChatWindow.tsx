@@ -157,6 +157,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: dimension.viewWidth(16),
     flex: 1,
     marginBottom: Platform.OS === 'ios' ? 16 : 0,
+    color: 'black',
   },
   textInputContainer: {
     flexDirection: 'row',
