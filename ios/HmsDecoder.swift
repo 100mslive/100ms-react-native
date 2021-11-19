@@ -24,7 +24,7 @@ class HmsDecoder: NSObject {
         let name = peer.name
         let isLocal = peer.isLocal
         let customerUserID = peer.customerUserID ?? ""
-        let customerDescription = peer.customerDescription ?? ""
+        let customerDescription = peer.metadata ?? ""
         let audioTrack = getHmsAudioTrack(peer.audioTrack)
         let videoTrack = getHmsVideoTrack(peer.videoTrack)
         let role = getHmsRole(peer.role)
@@ -92,7 +92,7 @@ class HmsDecoder: NSObject {
         let name = peer.name
         let isLocal = peer.isLocal
         let customerUserID = peer.customerUserID ?? ""
-        let customerDescription = peer.customerDescription ?? ""
+        let customerDescription = peer.metadata ?? ""
         let audioTrack = getHmsAudioTrack(peer.audioTrack)
         let videoTrack = getHmsVideoTrack(peer.videoTrack)
         let role = getHmsRole(peer.role)
@@ -199,7 +199,7 @@ class HmsDecoder: NSObject {
         let name = hmsRemotePeer.name
         let isLocal = hmsRemotePeer.isLocal
         let customerUserID = hmsRemotePeer.customerUserID ?? ""
-        let customerDescription = hmsRemotePeer.customerDescription ?? ""
+        let customerDescription = hmsRemotePeer.metadata ?? ""
         let audioTrack = getHmsAudioTrack(hmsRemotePeer.audioTrack)
         let videoTrack = getHmsVideoTrack(hmsRemotePeer.videoTrack)
         let role = getHmsRole(hmsRemotePeer.role)
@@ -358,20 +358,36 @@ class HmsDecoder: NSObject {
     static func getHmsRoleChangeRequest(_ roleChangeRequest: HMSRoleChangeRequest, _ id: String?) -> [String: Any] {
         
         if let sdkId = id {
-            let requestedBy = getHmsPeer(roleChangeRequest.requestedBy)
+            var requestedBy: [String: Any]?
+            if let peer = roleChangeRequest.requestedBy {
+                requestedBy = getHmsPeer(peer)
+            }
+            
             let suggestedRole = getHmsRole(roleChangeRequest.suggestedRole)
             
-            return ["requestedBy": requestedBy, "suggestedRole": suggestedRole, "id": sdkId]
+            var request = ["suggestedRole": suggestedRole, "id": sdkId] as [String : Any]
+            if let requestedBy = requestedBy {
+                request["requestedBy"] = requestedBy
+            }
+            return request
         }
         
         return [:]
     }
     
     static func getHmsChangeTrackStateRequest(_ changeTrackStateRequest: HMSChangeTrackStateRequest) -> [String: Any] {
-        let requestedBy = getHmsPeer(changeTrackStateRequest.requestedBy)
+        var requestedBy: [String: Any]?
+        if let peer = changeTrackStateRequest.requestedBy {
+            requestedBy = getHmsPeer(peer)
+        }
         let trackType = changeTrackStateRequest.track.kind == .video ? "video" : "audio"
         
-        return ["requestedBy": requestedBy, "trackType": trackType]
+        var request = ["trackType": trackType] as [String: Any]
+        if let requestedBy = requestedBy {
+            request["requestedBy"] = requestedBy
+        }
+        
+        return request
     }
     
     static func getError(_ error: HMSError) -> [String: Any] {
