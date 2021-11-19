@@ -116,7 +116,7 @@ class HmsManager: RCTEventEmitter{
     func sendDirectMessage(_ data: NSDictionary) {
         let hms = HmsHelper.getHms(data, hmsCollection)
         
-        hms?.sendGroupMessage(data)
+        hms?.sendDirectMessage(data)
     }
     
     @objc
