@@ -3,6 +3,25 @@ title: Release Notes
 nav: 4.1
 ---
 
+## 0.8.0 - 2021-11-19
+
+### Breaking
+- `build` function of HMSSDK will not create a singleton now.
+- `requestedBy` field has been made optional for HMSChangeTrackStateRequest, HMSRemovedFromRoomNotification, HMSRoleChangeRequest. It will be nil if the request originated from the REST API.
+- `leave` function is now asynchronous. Join another room only when the previous leave call has been completed.
+
+### Changed
+- Corrected a bug where userId was not being passed.
+- Sending full error description when any error/exceptions occur.
+- `isMute` function of HMSTrack now returns correct status.
+- `HMSView` is now exported from HMSSDK class.
+
+### Added
+- Added `isPlaybackAllowed` & `setPlaybackAllowed` for Remote Audio/Video tracks.
+- Added `getRoom` function on HMSSDK which returns the currently joined room. Returns null if the peer is not in a room.
+- Added `changeTrackStateForRole` API with which you can mute/unmute audio/video of all peers of a particular Role.
+
+
 ## 0.7.4 - 2021-11-03
 - Catching exception on join function
 - Cleared iOS global variables on leave
