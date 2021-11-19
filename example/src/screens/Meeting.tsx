@@ -161,7 +161,7 @@ const DisplayTrack = ({
   }> = [
     {text: 'Cancel', type: 'cancel'},
     {
-      text: 'Mute/Unmute video locally',
+      text: 'Mute/Unmute audio locally',
       onPress: async () => {
         const remotePeer = peerRefrence as HMSRemotePeer;
         const playbackAllowed = await remotePeer
@@ -171,7 +171,7 @@ const DisplayTrack = ({
       },
     },
     {
-      text: 'Mute/Unmute audio locally',
+      text: 'Mute/Unmute video locally',
       onPress: async () => {
         const remotePeer = peerRefrence as HMSRemotePeer;
         const playbackAllowed = await remotePeer
