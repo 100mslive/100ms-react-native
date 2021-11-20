@@ -4,6 +4,8 @@ import com.facebook.react.bridge.*
 import java.util.*
 import kotlinx.coroutines.launch
 import live.hms.video.error.HMSException
+import live.hms.video.media.settings.HMSTrackSettings
+import live.hms.video.media.settings.HMSVideoTrackSettings
 import live.hms.video.media.tracks.*
 import live.hms.video.sdk.*
 import live.hms.video.sdk.models.*
@@ -16,6 +18,7 @@ import live.hms.video.sdk.models.trackchangerequest.HMSChangeTrackStateRequest
 import live.hms.video.utils.HMSCoroutineScope
 
 class HmsSDK(
+    data: ReadableMap?,
     HmsDelegate: HmsModule,
     sdkId: String,
     reactApplicationContext: ReactApplicationContext
@@ -27,7 +30,13 @@ class HmsSDK(
   val id: String = sdkId
 
   init {
-    this.hmsSDK = HMSSDK.Builder(reactApplicationContext).build()
+    val videoSettings = HmsHelper.getVideoTrackSettings(data?.getMap("video"))
+    val audioSettings = HmsHelper.getAudioTrackSettings(data?.getMap("audio"))
+
+    val trackSettingsBuilder = HMSTrackSettings.Builder()
+    val trackSettings = trackSettingsBuilder.audio(audioSettings).video(videoSettings).build()
+
+    this.hmsSDK = HMSSDK.Builder(reactApplicationContext).setTrackSettings(trackSettings).build()
   }
 
   fun preview(credentials: ReadableMap) {
@@ -715,44 +724,6 @@ class HmsSDK(
       }
     } else {
       callback?.reject("101", "TRACK_ID_NOT_FOUND")
-    }
-  }
-
-  fun setLocalVideoSettings(data: ReadableMap) {
-    val requiredKeys =
-      HmsHelper.areAllRequiredKeysAvailable(
-        data,
-        arrayOf(
-          Pair("codec", "String"),
-          Pair("resolution", "Map"),
-          Pair("maxBitrate", "Int"),
-          Pair("maxFrameRate", "Int"),
-          Pair("cameraFacing", "String")
-        )
-      )
-    if (requiredKeys) {
-      val codec = data.getString("codec")
-      val resolution = data.getMap("resolution")
-      val maxBitrate = data.getInt("maxBitrate")
-      val maxFrameRate = data.getInt("maxFrameRate")
-      val cameraFacing = data.getString("cameraFacing")
-      val trackDescription = data.getString("trackDescription")
-
-      // TODO: call getVideoTrackSettings function and use the object with setSettings
-
-    } else {
-      delegate.emitEvent(
-        "ON_ERROR",
-        HmsDecoder.getError(
-          HMSException(
-            102,
-            "NOT_FOUND",
-            "SEND_ALL_REQUIRED_KEYS",
-            "REQUIRED_KEYS_NOT_FOUND",
-            "REQUIRED_KEYS_NOT_FOUND"
-          )
-        )
-      )
     }
   }
 

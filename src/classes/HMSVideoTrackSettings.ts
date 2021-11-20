@@ -4,20 +4,20 @@ import type { HMSCameraFacing } from './HMSCameraFacing';
 import type { HMSVideoResolution } from './HMSVideoResolution';
 
 export class HMSVideoTrackSettings {
-  codec?: HMSVideoCodec;
-  resolution?: HMSVideoResolution;
-  maxBitrate?: number;
-  maxFrameRate?: number;
-  cameraFacing?: HMSCameraFacing;
+  codec: HMSVideoCodec;
+  resolution: HMSVideoResolution;
+  maxBitrate: number;
+  maxFrameRate: number;
+  cameraFacing: HMSCameraFacing;
   trackDescription?: string;
   simulcastSettings?: HMSSimulcastLayerSettings[];
 
   constructor(params: {
-    codec?: HMSVideoCodec;
-    resolution?: HMSVideoResolution;
-    maxBitrate?: number;
-    maxFrameRate?: number;
-    cameraFacing?: HMSCameraFacing;
+    codec: HMSVideoCodec;
+    resolution: HMSVideoResolution;
+    maxBitrate: number;
+    maxFrameRate: number;
+    cameraFacing: HMSCameraFacing;
     trackDescription?: string;
     simulcastSettings?: HMSSimulcastLayerSettings[];
   }) {

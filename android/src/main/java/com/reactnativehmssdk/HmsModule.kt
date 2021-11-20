@@ -23,19 +23,19 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   // Example method
   // See https://reactnative.dev/docs/native-modules-android
   @ReactMethod
-  fun build(callback: Promise?) {
+  fun build(data: ReadableMap?, callback: Promise?) {
     val hasItem = hmsCollection.containsKey("12345")
     if (hasItem) {
       val uuid = UUID.randomUUID()
       val randomUUIDString = uuid.toString()
-      val sdkInstance: HmsSDK = HmsSDK(this, randomUUIDString, reactApplicationContext)
+      val sdkInstance: HmsSDK = HmsSDK(data,this, randomUUIDString, reactApplicationContext)
 
       hmsCollection[randomUUIDString] = sdkInstance
 
       callback?.resolve(randomUUIDString)
     } else {
       val randomUUIDString = "12345"
-      val sdkInstance: HmsSDK = HmsSDK(this, randomUUIDString, reactApplicationContext)
+      val sdkInstance: HmsSDK = HmsSDK(data,this, randomUUIDString, reactApplicationContext)
 
       hmsCollection[randomUUIDString] = sdkInstance
 
@@ -181,13 +181,6 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     val hms = HmsHelper.getHms(data, hmsCollection)
 
     hms?.muteAllPeersAudio(data)
-  }
-
-  @ReactMethod
-  fun setLocalVideoSettings(data: ReadableMap) {
-    val hms = HmsHelper.getHms(data, hmsCollection)
-
-    hms?.setLocalVideoSettings(data)
   }
 
   fun emitEvent(event: String, data: WritableMap) {

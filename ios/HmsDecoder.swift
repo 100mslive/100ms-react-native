@@ -132,11 +132,11 @@ class HmsDecoder: NSObject {
         
         guard let settings = hmsVideoTrackSettings else { return [:] }
         
-        let codec = settings.codec.rawValue
+        let codec = getHmsVideoTrackCodec(settings.codec)
         let resolution = getHmsVideoResolution(settings.resolution)
         let maxBitrate = settings.maxBitrate
         let maxFrameRate = settings.maxFrameRate
-        let cameraFacing = settings.cameraFacing.rawValue
+        let cameraFacing = getHmsVideoTrackCameraFacing(settings.cameraFacing)
         let trackDescription = settings.trackDescription ?? ""
         
         var simulcastSettingsData = [[String: Any]]()
@@ -153,6 +153,28 @@ class HmsDecoder: NSObject {
         return ["codec": codec, "resolution": resolution, "maxBitrate": maxBitrate, "maxFrameRate": maxFrameRate, "cameraFacing": cameraFacing, "trackDescription": trackDescription, "simulcastSettings": simulcastSettingsData]
     }
     
+    static func getHmsVideoTrackCodec(_ codec : HMSCodec) -> String {
+        switch(codec) {
+        case HMSCodec.VP8:
+            return "vp8"
+        case HMSCodec.H264:
+            return "h264"
+        default:
+            return "h264"
+        }
+    }
+    
+    static func getHmsVideoTrackCameraFacing(_ cameraFacing : HMSCameraFacing) -> String {
+        switch(cameraFacing) {
+        case HMSCameraFacing.front:
+            return "FRONT"
+        case HMSCameraFacing.back:
+            return "BACK"
+        default:
+            return "FRONT"
+        }
+    }
+ 
     static func getHmsVideoResolution(_ hmsVideoResolution: HMSVideoResolution?) -> [String: Any] {
         guard let resolution = hmsVideoResolution else { return [:] }
         

@@ -99,8 +99,9 @@ class HmsHelper: NSObject {
         return hms
     }
     
-    static func getLocalVideoSettings(_ data: NSDictionary) -> HMSVideoTrackSettings? {
-        guard let codec = data.value(forKey: "codec") as? String,
+    static func getLocalVideoSettings(_ settings: NSDictionary?) -> HMSVideoTrackSettings? {
+        guard let data = settings,
+              let codec = data.value(forKey: "codec") as? String,
               let resolution = data.value(forKey: "resolution") as? [String : Double]?,
               let maxBitrate = data.value(forKey: "maxBitrate") as? Int,
               let maxFrameRate = data.value(forKey: "maxFrameRate") as? Int,
@@ -111,8 +112,19 @@ class HmsHelper: NSObject {
             return nil
         }
         let codecEncoded = HmsHelper.getVideoCodec(codec)
-            let cameraFacingEncoded = HmsHelper.getCameraFacing(cameraFacing)
+        let cameraFacingEncoded = HmsHelper.getCameraFacing(cameraFacing)
         let hmsTrackSettings = HMSVideoTrackSettings(codec: codecEncoded, resolution: resolutionObj, maxBitrate: maxBitrate, maxFrameRate: maxFrameRate, cameraFacing: cameraFacingEncoded, trackDescription: trackDescription)
+        return hmsTrackSettings
+    }
+    
+    static func getLocalAudioSettings(_ settings: NSDictionary?) -> HMSAudioTrackSettings? {
+        guard let data = settings,
+              let maxBitrate = data.value(forKey: "maxBitrate") as? Int,
+              let trackDescription = data.value(forKey: "trackDescription") as? String?
+        else {
+            return nil
+        }
+        let hmsTrackSettings = HMSAudioTrackSettings(maxBitrate: maxBitrate, trackDescription: trackDescription)
         return hmsTrackSettings
     }
     

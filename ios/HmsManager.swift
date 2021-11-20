@@ -38,19 +38,19 @@ class HmsManager: RCTEventEmitter{
     // MARK: - HMS SDK Actions
     
     @objc
-    func build(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    func build(_ data: NSDictionary?, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         DispatchQueue.main.async { [weak self] in
             let hasItem = self?.hmsCollection.index(forKey: "12345")
             
             if let _ = hasItem {
                 let id = UUID().uuidString
-                let hms = HmsSDK(delegate: self, uid: id)
+                let hms = HmsSDK(data: data, delegate: self, uid: id)
                 self?.hmsCollection[id] = hms
                 
                 resolve?(id)
             } else {
                 let id = "12345"
-                let hms = HmsSDK(delegate: self, uid: id)
+                let hms = HmsSDK(data: data, delegate: self, uid: id)
                 self?.hmsCollection[id] = hms
                 
                 resolve?(id)
@@ -209,10 +209,10 @@ class HmsManager: RCTEventEmitter{
         hms?.muteAllPeersAudio(data)
     }
     
-    @objc
-    func setLocalVideoSettings(_ data: NSDictionary) {
-        let hms = HmsHelper.getHms(data, hmsCollection)
-        
-        hms?.setLocalVideoSettings(data)
-    }
+//    @objc
+//    func setLocalVideoSettings(_ data: NSDictionary) {
+//        let hms = HmsHelper.getHms(data, hmsCollection)
+//
+//        hms?.setLocalVideoSettings(data)
+//    }
 }

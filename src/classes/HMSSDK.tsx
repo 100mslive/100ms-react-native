@@ -15,6 +15,7 @@ import type { HMSLogger } from './HMSLogger';
 import type { HMSPeer } from './HMSPeer';
 import { HmsView as HMSViewComponent } from './HmsView';
 import { HMSVideoViewMode } from './HMSVideoViewMode';
+import type { HMSTrackSettings } from './HMSTrackSettings';
 
 interface HmsComponentProps {
   trackId: string;
@@ -70,8 +71,8 @@ export class HMSSDK {
    * @returns
    * @memberof HMSSDK
    */
-  static async build() {
-    let id = await HmsManager.build();
+  static async build(params?: { trackSettings?: HMSTrackSettings }) {
+    let id = await HmsManager.build(params);
     HmsSdk = new HMSSDK(id);
     HmsSdk.attachPreviewListener();
     HmsSdk.attachListeners();

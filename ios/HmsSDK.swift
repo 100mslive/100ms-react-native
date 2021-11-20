@@ -31,16 +31,21 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     
     // MARK: - Setup
     
-    init(delegate manager: HmsManager?, uid id: String) {
+    init(data: NSDictionary?, delegate manager: HmsManager?, uid id: String) {
+        let videoSettings = HmsHelper.getLocalVideoSettings(data?.value(forKey: "video") as? NSDictionary)
+        let audioSettings = HmsHelper.getLocalAudioSettings(data?.value(forKey: "audio") as? NSDictionary)
         DispatchQueue.main.async { [weak self] in
-            self?.hms = HMSSDK.build()
+            let hmsTrackSettings = HMSTrackSettings(videoSettings: videoSettings, audioSettings: audioSettings)
+            self?.hms = HMSSDK.build { sdk in
+                sdk.trackSettings = hmsTrackSettings
+            }
         }
         self.delegate = manager
         self.id = id
     }
     
     // MARK: - HMS SDK Actions
-        
+
     func preview(_ credentials: NSDictionary) {
         
         guard let authToken = credentials.value(forKey: "authToken") as? String,
@@ -401,16 +406,16 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
     
-    func setLocalVideoSettings(_ data: NSDictionary) {
-        let localVideoTrack = self.hms?.localPeer?.localVideoTrack()
-        
-        guard let settings = HmsHelper.getLocalVideoSettings(data)
-        else {
-            //TODO: throw an error for invalid arguements
-            return
-        }
-        localVideoTrack?.settings = settings
-    }
+//    func setLocalVideoSettings(_ data: NSDictionary) {
+//        let localVideoTrack = self.hms?.localPeer?.localVideoTrack()
+//
+//        guard let settings = HmsHelper.getLocalVideoSettings(data)
+//        else {
+//            //TODO: throw an error for invalid arguements
+//            return
+//        }
+//        localVideoTrack?.settings = settings
+//    }
     
     // MARK: - HMS SDK Delegate Callbacks
     

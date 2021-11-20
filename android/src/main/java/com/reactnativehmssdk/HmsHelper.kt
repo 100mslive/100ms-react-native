@@ -1,7 +1,9 @@
 package com.reactnativehmssdk
 
 import com.facebook.react.bridge.ReadableMap
+import live.hms.video.media.codec.HMSAudioCodec
 import live.hms.video.media.codec.HMSVideoCodec
+import live.hms.video.media.settings.HMSAudioTrackSettings
 import live.hms.video.media.settings.HMSVideoResolution
 import live.hms.video.media.settings.HMSVideoTrackSettings
 import live.hms.video.media.tracks.*
@@ -166,7 +168,44 @@ object HmsHelper {
     return null
   }
 
-  // TODO: create getVideoTrackSettings function
+  fun getAudioTrackSettings(data: ReadableMap?): HMSAudioTrackSettings {
+    val builder = HMSAudioTrackSettings.Builder()
+
+    if (data != null) {
+      val maxBitrate = data.getInt("maxBitrate")
+      val codec = getAudioCodec(data.getString("codec"))
+      val trackDescription = data.getString("trackDescription")
+
+      builder.maxBitrate(maxBitrate)
+      builder.codec(codec)
+    }
+
+    return builder.build()
+  }
+
+  // TODO: find out a way to set settings required to create HMSVideTrackSettings
+
+  fun getVideoTrackSettings(data: ReadableMap?): HMSVideoTrackSettings {
+    val builder = HMSVideoTrackSettings.Builder()
+    if (data != null) {
+      val codec = getVideoCodec(data.getString("codec"))
+      val resolution = getVideoResolution(data.getMap("resolution"))
+      val maxBitrate = data.getInt("maxBitrate")
+      val maxFrameRate = data.getInt("maxFrameRate")
+      val cameraFacing = getCameraFacing(data.getString("cameraFacing"))
+      val trackDescription = data.getString("trackDescription")
+
+      builder.codec(codec)
+      builder.cameraFacing(cameraFacing)
+      if (resolution != null) {
+        builder.resolution(resolution)
+      }
+      builder.maxBitrate(maxBitrate)
+      builder.maxFrameRate(maxFrameRate)
+
+    }
+    return builder.build()
+  }
 
   fun getVideoResolution(map: ReadableMap?): HMSVideoResolution? {
     val width = map?.getDouble("width")
@@ -177,6 +216,15 @@ object HmsHelper {
     } else {
       null
     }
+  }
+
+  fun getAudioCodec(codecString: String?): HMSAudioCodec {
+    when (codecString) {
+      "opus" -> {
+        return HMSAudioCodec.OPUS
+      }
+    }
+    return HMSAudioCodec.OPUS
   }
 
   fun getVideoCodec(codecString: String?): HMSVideoCodec {
