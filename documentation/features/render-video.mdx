@@ -3,12 +3,12 @@ title: Render Video
 nav: 3.6
 ---
 
-# Render Video
-
 It all comes down to this. All the setup so far has been done so that we can show live streaming video in our beautiful apps.
-The React Native SDK provides a Component HmsView that renders the video on screen. We can pass video trackId, scaleType, mirror and sink to this component.
 
-## Render video
+
+The React Native SDK provides a Component `HmsView` that renders the video on screen.
+We can pass video trackId, scaleType, mirror and sink to this component.
+
 ```js
 import { HMSVideoViewMode } from 'react-native-hms';
 ...
@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
 ```
 
 
-### Track Id
+## Track Id
 There are 2 types of Peers remotePeers and a localPeer to extract trackId from peers we can use following code snippet. These track IDs can directly be passed to HmsView component
 ```js
 const localTrackId = hmsInstance.localPeer.videoTrack.trackId;
@@ -33,7 +33,7 @@ const remoteTrackId = hmsInstance.remotePeers[index].videoTrack.trackId;
 ```
 
 
-### Scale Type
+## Scale Type
 There are 3 scale types you can pass to render a video 
 ```js
 import { HMSVideoViewMode } from 'react-native-hms';
@@ -44,18 +44,20 @@ const ASPECT_BALANCED = HMSVideoViewMode.ASPECT_BALANCED
 ```
 
 
-### Mirror
+## Mirror
 You can mirror the videos as well. By default the mirror prop is set to false. For an attractive rendering you can set mirror true for the videos rendered to the left of the camera.
 
 
 
-### Sink
+## Sink
 This is a extremely important prop which is set to true by default. In android if the video is off the screen the sink is automatically set to false and vice versa on the other hand user has to manually manage it for iOS.
 
 
 
 ## Manage sink
 Whenever the video is off the screen or isPlaybackAllowed is set to false for a peer remove sink of the following track in order to get a better experience for other videos.
+
+> A Pro tip: Try to render only 2 to 4 videos on a screen and set sink false for other videos. This will stop downloading video data of tiles which are not visible on screen.
 
 
 ## Is Degraded
@@ -65,7 +67,7 @@ Show a black tile with avatar or initials when isDegraded is true.
 const isDegraded: boolean = peer.videoTrack.isDegraded
 ```
 
-> A Pro tip: Try to render only 2 to 4 videos on a screen and set sink false for other videos
+
 > A Pro tip: For fastest updates we can use ON_PEER_UPDATE and ON_TRACK_UPDATE listeners, these listeners get updated localPeer and remotePeers whenever there is any event related to these values.
 
 ```js
