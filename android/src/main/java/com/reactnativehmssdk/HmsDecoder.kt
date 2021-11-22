@@ -172,11 +172,22 @@ object HmsDecoder {
       // getHmsSimulcastLayers(hmsPublishSettings.screenSimulcastLayers));
       publishSettings.putMap("videoSimulcastLayers", null)
       publishSettings.putMap("screenSimulcastLayers", null)
-      //        publishSettings.putArray("allowed", if (hmsPublishSettings.allowed != null)
-      // hmsPublishSettings.allowed as WritableArray else emptyArray);
+              publishSettings.putArray("allowed", if (hmsPublishSettings.allowed != null)
+       getWriteableArray(hmsPublishSettings.allowed) else emptyArray);
     }
     return publishSettings
   }
+
+  fun getWriteableArray(array: List<String>?):  WritableArray {
+    val decodedArray: WritableArray = Arguments.createArray()
+    if (array != null) {
+      for (value in array) {
+        decodedArray.pushString(value)
+      }
+    }
+    return decodedArray
+  }
+
   fun getHmsAudioSettings(hmsAudioSettings: AudioParams?): WritableMap {
     val audioSettings: WritableMap = Arguments.createMap()
     if (hmsAudioSettings != null) {

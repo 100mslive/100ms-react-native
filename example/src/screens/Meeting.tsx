@@ -1087,23 +1087,27 @@ const Meeting = ({
         />
       </View>
       <View style={styles.iconContainers}>
-        <TouchableOpacity
-          style={styles.singleIconContainer}
-          onPress={() => {
-            instance?.localPeer
-              ?.localAudioTrack()
-              ?.setMute(!trackId.isAudioMute);
-            setTrackId({
-              ...trackId,
-              isAudioMute: !trackId.isAudioMute,
-            });
-          }}>
-          <Feather
-            name={trackId.isAudioMute ? 'mic-off' : 'mic'}
-            style={styles.videoIcon}
-            size={dimension.viewHeight(30)}
-          />
-        </TouchableOpacity>
+        {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
+          'audio',
+        ) && (
+          <TouchableOpacity
+            style={styles.singleIconContainer}
+            onPress={() => {
+              instance?.localPeer
+                ?.localAudioTrack()
+                ?.setMute(!trackId.isAudioMute);
+              setTrackId({
+                ...trackId,
+                isAudioMute: !trackId.isAudioMute,
+              });
+            }}>
+            <Feather
+              name={trackId.isAudioMute ? 'mic-off' : 'mic'}
+              style={styles.videoIcon}
+              size={dimension.viewHeight(30)}
+            />
+          </TouchableOpacity>
+        )}
         <TouchableOpacity
           style={styles.singleIconContainer}
           onPress={() => {
@@ -1116,34 +1120,42 @@ const Meeting = ({
           />
           {notification && <View style={styles.messageDot} />}
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.singleIconContainer}
-          onPress={() => {
-            instance?.localPeer?.localVideoTrack()?.switchCamera();
-          }}>
-          <Ionicons
-            name="camera-reverse-outline"
-            style={styles.videoIcon}
-            size={dimension.viewHeight(30)}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.singleIconContainer}
-          onPress={() => {
-            instance?.localPeer
-              ?.localVideoTrack()
-              ?.setMute(!trackId.isVideoMute);
-            setTrackId({
-              ...trackId,
-              isVideoMute: !trackId.isVideoMute,
-            });
-          }}>
-          <Feather
-            name={trackId.isVideoMute ? 'video-off' : 'video'}
-            style={styles.videoIcon}
-            size={dimension.viewHeight(30)}
-          />
-        </TouchableOpacity>
+        {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
+          'video',
+        ) && (
+          <TouchableOpacity
+            style={styles.singleIconContainer}
+            onPress={() => {
+              instance?.localPeer?.localVideoTrack()?.switchCamera();
+            }}>
+            <Ionicons
+              name="camera-reverse-outline"
+              style={styles.videoIcon}
+              size={dimension.viewHeight(30)}
+            />
+          </TouchableOpacity>
+        )}
+        {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
+          'video',
+        ) && (
+          <TouchableOpacity
+            style={styles.singleIconContainer}
+            onPress={() => {
+              instance?.localPeer
+                ?.localVideoTrack()
+                ?.setMute(!trackId.isVideoMute);
+              setTrackId({
+                ...trackId,
+                isVideoMute: !trackId.isVideoMute,
+              });
+            }}>
+            <Feather
+              name={trackId.isVideoMute ? 'video-off' : 'video'}
+              style={styles.videoIcon}
+              size={dimension.viewHeight(30)}
+            />
+          </TouchableOpacity>
+        )}
         <TouchableOpacity
           style={styles.leaveIconContainer}
           onPress={async () => {

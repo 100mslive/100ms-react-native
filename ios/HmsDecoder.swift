@@ -267,7 +267,12 @@ class HmsDecoder: NSObject {
         let screen = getHmsVideoSettings(publishSettings.screen)
         let videoSimulcastLayers = getHmsSimulcastLayers(publishSettings.videoSimulcastLayers)
         let screenSimulcastLayers = getHmsSimulcastLayers(publishSettings.screenSimulcastLayers)
-        let allowed = publishSettings.allowed ?? []
+        var allowed = publishSettings.allowed ?? []
+        if((publishSettings.allowed) != nil) {
+            allowed = getWriteableArray(publishSettings.allowed)
+        }else {
+            allowed = []
+        }
         
         return ["audio": audio,
                 "video": video,
@@ -275,6 +280,16 @@ class HmsDecoder: NSObject {
                 "videoSimulcastLayers": videoSimulcastLayers,
                 "screenSimulcastLayers": screenSimulcastLayers,
                 "allowed": allowed]
+    }
+
+    static func getWriteableArray(_ array: [String]?) -> [String] {
+        var decodedArray = [String]()
+        if let extractedArray = array {
+            for value in extractedArray {
+                decodedArray.append(value)
+            }
+        }
+        return decodedArray
     }
     
     static func getHmsAudioSettings(_ audioSettings: HMSAudioSettings) -> [String: Any] {
