@@ -147,6 +147,7 @@ export class HMSEncoder {
     const encodedObj = {
       maxBitrate: settings?.maxBitrate,
       trackDescription: settings?.trackDescription,
+      codec: settings?.codec,
     };
 
     return new HMSAudioTrackSettings(encodedObj);
@@ -167,8 +168,8 @@ export class HMSEncoder {
 
   static encodeHmsVideoResolution(resolution: any) {
     const encodedObj = {
-      height: resolution.height,
-      width: resolution.width,
+      height: resolution?.height,
+      width: resolution?.width,
     };
 
     return new HMSVideoResolution(encodedObj);
