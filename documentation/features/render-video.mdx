@@ -3,35 +3,72 @@ title: Render Video
 nav: 3.6
 ---
 
-# Render Video
-
 It all comes down to this. All the setup so far has been done so that we can show live streaming video in our beautiful apps.
 
-The React Native SDK provides a Component HmsView that renders the video on screen. We have to pass video trackId, scaleType and sink in this component. The prop scaleType can be selected from HMSVideoViewMode as required. When sink is true the video will be visible and when it is false video would be removed. We can also add mirror a boolean prop as true to flip videos horizontally. Here is a code snippet explaining the way to link a videoTrack to HmsView.
+
+The React Native SDK provides a Component `HmsView` that renders the video on screen.
+We can pass video trackId, scaleType, mirror and sink to this component.
 
 ```js
-import { HmsView, HMSVideoViewMode } from 'react-native-hms';
+import { HMSVideoViewMode } from 'react-native-hms';
 ...
+// hms instance acquired from build method
+const HmsView = hmsInstance.HmsView;
 const styles = StyleSheet.create({
   hmsView: {
     height: '100%',
     width: '100%',
   },
 });
-<HmsView sink={true} style={styles.hmsView} trackId={trackId} mirror={true} scaleType={HMSVideoViewMode.ASPECT_FILL} />
+<HmsView trackId={trackId} scaleType={HMSVideoViewMode.ASPECT_FILL} style={styles.hmsView} mirror={true} sink={true} />
 ...
 ```
 
-There are 2 types of Peers remotePeers and a localPeer to extract trackId from peers we can use following code snippet.
 
+## Track Id
+There are 2 types of Peers remotePeers and a localPeer to extract trackId from peers we can use following code snippet. These track IDs can directly be passed to HmsView component
 ```js
 const localTrackId = hmsInstance.localPeer.videoTrack.trackId;
 const remoteTrackId = hmsInstance.remotePeers[index].videoTrack.trackId;
 ```
 
-these track IDs can directly be passed to HmsView component
 
-> A Pro tip: for fastest updates we can use ON_PEER_UPDATE and ON_TRACK_UPDATE listeners, these listeners get updated localPeer and remotePeers whenever there is any event related to these values.
+## Scale Type
+There are 3 scale types you can pass to render a video 
+```js
+import { HMSVideoViewMode } from 'react-native-hms';
+
+const ASPECT_FILL = HMSVideoViewMode.ASPECT_FILL
+const ASPECT_FIT = HMSVideoViewMode.ASPECT_FIT
+const ASPECT_BALANCED = HMSVideoViewMode.ASPECT_BALANCED
+```
+
+
+## Mirror
+You can mirror the videos as well. By default the mirror prop is set to false. For an attractive rendering you can set mirror true for the videos rendered to the left of the camera.
+
+
+
+## Sink
+This is a extremely important prop which is set to true by default. In android if the video is off the screen the sink is automatically set to false and vice versa on the other hand user has to manually manage it for iOS.
+
+
+
+## Manage sink
+Whenever the video is off the screen or isPlaybackAllowed is set to false for a peer remove sink of the following track in order to get a better experience for other videos.
+
+> A Pro tip: Try to render only 2 to 4 videos on a screen and set sink false for other videos. This will stop downloading video data of tiles which are not visible on screen.
+
+
+## Is Degraded
+Sometimes people have bad internet connections but everyone deserves a good meeting.When the network is too slow to support audio and video conversations together, the 100ms SDK can automatically turn off downloading other peer's videos, which may improve the audio quality and avoid disconnections.If the network quality improves, the videos will be restored automatically as well.
+Show a black tile with avatar or initials when isDegraded is true.
+```js
+const isDegraded: boolean = peer.videoTrack.isDegraded
+```
+
+
+> A Pro tip: For fastest updates we can use ON_PEER_UPDATE and ON_TRACK_UPDATE listeners, these listeners get updated localPeer and remotePeers whenever there is any event related to these values.
 
 ```js
 HmsInstance.addEventListener(

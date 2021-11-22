@@ -1,0 +1,121 @@
+---
+title: Event Listeners Enums
+nav: 3.71
+---
+
+## HMSPeerUpdate
+
+```js
+import { HMSPeerUpdate, HMSUpdateListenerActions, HMSRoom, HMSLocalPeer, HMSRemotePeer } from '@100mslive/react-native-hms';
+
+// hms instance acquired from build method
+hmsInstance?.addEventListener(
+  HMSUpdateListenerActions.ON_PEER_UPDATE,
+  onPeerListener,
+);
+
+const onPeerListener = ({ type } : {
+  room?: HMSRoom;
+  type?: HMSPeerUpdate;
+  localPeer: HMSLocalPeer;
+  remotePeers: HMSRemotePeer[];
+}) => {
+  if(type === HMSPeerUpdate.PEER_JOINED){
+    // when a peer joins
+  }
+  if(type === HMSPeerUpdate.PEER_LEFT){
+    // when a peer leaves
+  }
+  if(type === HMSPeerUpdate.AUDIO_TOGGLED){
+    // when remote peer toggles audio
+  }
+  if(type === HMSPeerUpdate.VIDEO_TOGGLED){
+    // when remote peer toggles video
+  }
+  if(type === HMSPeerUpdate.ROLE_CHANGED){
+    // when a peer's role is changed
+  }
+  if(type === HMSPeerUpdate.BECAME_DOMINANT_SPEAKER){
+    // when a peer becomes dominant speaker
+  }
+  if(type === HMSPeerUpdate.NO_DOMINANT_SPEAKER){
+    // when a peer is not a dominant speaker
+  }
+  if(type === HMSPeerUpdate.RESIGNED_DOMINANT_SPEAKER){
+    // when a peer resigns from dominant speaker
+  }
+  if(type === HMSPeerUpdate.STARTED_SPEAKING){
+    // when a peer starts speaking
+  }
+  if(type === HMSPeerUpdate.STOPPED_SPEAKING){
+    // when a peer stops speaking
+  }
+};
+```
+
+## HMSTrackUpdate
+
+```js
+import { HMSTrackUpdate, HMSUpdateListenerActions, HMSRoom, HMSLocalPeer, HMSRemotePeer } from '@100mslive/react-native-hms';
+
+// hms instance acquired from build method
+hmsInstance?.addEventListener(
+  HMSUpdateListenerActions.ON_TRACK_UPDATE,
+  onTrackListener,
+);
+
+const onTrackListener = ({ type } : {
+  room?: HMSRoom;
+  type?: HMSTrackUpdate;
+  localPeer: HMSLocalPeer;
+  remotePeers: HMSRemotePeer[];
+}) => {
+  if(type === HMSTrackUpdate.TRACK_ADDED){
+    // when track is added
+  }
+  if(type === HMSTrackUpdate.TRACK_REMOVED){
+    // when track is removed
+  }
+  if(type === HMSTrackUpdate.TRACK_MUTED){
+    // when track is muted
+  }
+  if(type === HMSTrackUpdate.TRACK_UNMUTED){
+    // when track is unmuted
+  }
+  if(type === HMSTrackUpdate.TRACK_DESCRIPTION_CHANGED){
+    // when track's description is changed
+  }
+  if(type === HMSTrackUpdate.TRACK_DEGRADED){
+    // when track is degraded
+  }
+  if(type === HMSTrackUpdate.TRACK_RESTORED){
+    // when track is restored
+  }
+};
+```
+
+## HMSRoomUpdate
+
+```js
+import { HMSRoomUpdate, HMSUpdateListenerActions, HMSRoom, HMSLocalPeer, HMSRemotePeer } from '@100mslive/react-native-hms';
+
+// hms instance acquired from build method
+hmsInstance?.addEventListener(
+  HMSUpdateListenerActions.ON_ROOM_UPDATE,
+  onRoomListener,
+);
+
+const onRoomListener = ({ type } : {
+  room?: HMSRoom;
+  type?: HMSRoomUpdate;
+  localPeer: HMSLocalPeer;
+  remotePeers: HMSRemotePeer[];
+}) => {
+  if(type === HMSRoomUpdate.ROOM_MUTED){
+    // when room is muted
+  }
+  if(type === HMSRoomUpdate.ROOM_UNMUTED){
+    // when room is unmuted
+  }
+};
+```
