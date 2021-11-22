@@ -72,7 +72,7 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   static async build(params?: { trackSettings?: HMSTrackSettings }) {
-    let id = await HmsManager.build(params);
+    let id = await HmsManager.build(params || {});
     HmsSdk = new HMSSDK(id);
     HmsSdk.attachPreviewListener();
     HmsSdk.attachListeners();

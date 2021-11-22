@@ -38,7 +38,7 @@ class HmsManager: RCTEventEmitter{
     // MARK: - HMS SDK Actions
     
     @objc
-    func build(_ data: NSDictionary?, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    func build(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         DispatchQueue.main.async { [weak self] in
             let hasItem = self?.hmsCollection.index(forKey: "12345")
             
