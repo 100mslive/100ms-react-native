@@ -1,29 +1,9 @@
-# HMSRoomUpdate
+---
+title: Event Listeners Enums
+nav: 3.71
+---
 
-```js
-import { HMSRoomUpdate, HMSUpdateListenerActions, HMSRoom, HMSLocalPeer, HMSRemotePeer } from '@100mslive/react-native-hms';
-
-// hms instance acquired from build method
-hmsInstance?.addEventListener(
-  HMSUpdateListenerActions.ON_ROOM_UPDATE,
-  onRoomListener,
-);
-
-const onRoomListener = ({ type } : {
-  room?: HMSRoom;
-  type?: HMSRoomUpdate;
-  localPeer: HMSLocalPeer;
-  remotePeers: HMSRemotePeer[];
-}) => {
-  if(type === HMSRoomUpdate.ROOM_MUTED){
-    // when room is muted
-  }
-  if(type === HMSRoomUpdate.ROOM_UNMUTED){
-    // when room is unmuted
-  }
-};
-```
-# HMSPeerUpdate
+## HMSPeerUpdate
 
 ```js
 import { HMSPeerUpdate, HMSUpdateListenerActions, HMSRoom, HMSLocalPeer, HMSRemotePeer } from '@100mslive/react-native-hms';
@@ -72,7 +52,8 @@ const onPeerListener = ({ type } : {
   }
 };
 ```
-# HMSRoomUpdate
+
+## HMSTrackUpdate
 
 ```js
 import { HMSTrackUpdate, HMSUpdateListenerActions, HMSRoom, HMSLocalPeer, HMSRemotePeer } from '@100mslive/react-native-hms';
@@ -109,6 +90,32 @@ const onTrackListener = ({ type } : {
   }
   if(type === HMSTrackUpdate.TRACK_RESTORED){
     // when track is restored
+  }
+};
+```
+
+## HMSRoomUpdate
+
+```js
+import { HMSRoomUpdate, HMSUpdateListenerActions, HMSRoom, HMSLocalPeer, HMSRemotePeer } from '@100mslive/react-native-hms';
+
+// hms instance acquired from build method
+hmsInstance?.addEventListener(
+  HMSUpdateListenerActions.ON_ROOM_UPDATE,
+  onRoomListener,
+);
+
+const onRoomListener = ({ type } : {
+  room?: HMSRoom;
+  type?: HMSRoomUpdate;
+  localPeer: HMSLocalPeer;
+  remotePeers: HMSRemotePeer[];
+}) => {
+  if(type === HMSRoomUpdate.ROOM_MUTED){
+    // when room is muted
+  }
+  if(type === HMSRoomUpdate.ROOM_UNMUTED){
+    // when room is unmuted
   }
 };
 ```
