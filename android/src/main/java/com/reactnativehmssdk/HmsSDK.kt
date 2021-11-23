@@ -304,6 +304,19 @@ class HmsSDK(
   fun setLocalMute(data: ReadableMap) {
     val isMute = data.getBoolean("isMute")
     hmsSDK?.getLocalPeer()?.audioTrack?.setMute(isMute)
+    val type = if(isMute) "TRACK_MUTED" else "TRACK_UNMUTED"
+    val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
+    val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
+    val roomData = HmsDecoder.getHmsRoom(hmsSDK?.getRoom())
+
+    val data: WritableMap = Arguments.createMap()
+
+    data.putMap("room", roomData)
+    data.putString("type", type)
+    data.putMap("localPeer", localPeerData)
+    data.putArray("remotePeers", remotePeerData)
+    data.putString("id", id)
+    delegate.emitEvent("ON_TRACK_UPDATE", data)
   }
 
   fun setLocalVideoMute(data: ReadableMap) {
