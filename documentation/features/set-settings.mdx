@@ -1,22 +1,16 @@
-# Set settings
-You can set the quality and description of the audio tracks while creating 100ms instances with props like codec, maxBitrate and trackDescription. 
-Similarly with video tracks as well using props like codec, maxBitrate, maxFrameRate, cameraFacing, resolution and trackDescription.
-These settings are a optional parameter and can be passed in the build function as `trackSettings` parameter which is a `HMSTrackSettings` object.
+# Set Track Settings
 
-## codec
-This can effectively reduce the storage space and the bandwidth required for transmission of the stored audio/video file. 
-It is a computer program capable of encoding or decoding a digital data stream into a format that can later be decoded or edited.
+You can customize local peer's Audio & Video track settings while creating instance of 100ms SDK.
 
-```js
-// audio codec
-HMSAudioCodec.opus
 
-// video codec
-HMSVideoCodec.h264
-HMSVideoCodec.vp8
-HMSVideoCodec.vp9
-HMSVideoCodec.h265
-```
+These settings are a optional parameter and meant to be passed in the `build` function as `trackSettings` parameter which is a `HMSTrackSettings` object.
+
+
+You can set the quality and description of the Audio tracks with props like maxBitrate and trackDescription. 
+
+
+Similarly, for Video tracks you can use props like maxBitrate, maxFrameRate, cameraFacing, resolution and trackDescription.
+
 
 ## maxBitrate
 Property specifies the maximum number of bits per second to allow a track.
@@ -69,3 +63,23 @@ const getTrackSettings = () => {
 const trackSettings = getTrackSettings();
 const build = await HmsManager.build({trackSettings});
 ```
+
+
+Here's a sample implementation of adding track settings while initializing 100ms SDK -
+
+```js
+const getTrackSettings = () => {
+    let audioSettings = new HMSAudioTrackSettings({ maxBitrate: 32, trackDescription: "Simple Audio Track" });
+    let videoSettings = new HMSVideoTrackSettings({ codec: HMSVideoCodec.vp8, maxBitrate: 512, maxFrameRate: 25, cameraFacing: HMSCameraFacing.FRONT, trackDescription: "Simple Video Track", resolution: new HMSVideoResolution({height: 180, width: 320})});
+
+    return new HMSTrackSettings({video: videoSettings, audio: audioSettings});
+  }
+
+  const setupBuild = async () => {
+    const trackSettings = getTrackSettings();
+    const build = await HmsManager.build({ trackSettings });
+    setInstance(build);
+    updateHms({hmsInstance: build});
+  };
+```
+
