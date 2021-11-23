@@ -114,27 +114,20 @@ const DisplayTrack = ({
   permissions,
   allAudioMute,
 }: DisplayTrackProps) => {
-  const {name, trackId, colour, id, sink, peerRefrence} = peer!;
+  const {
+    name,
+    trackId,
+    colour,
+    id,
+    sink,
+    peerRefrence,
+    isAudioMute,
+    isVideoMute,
+  } = peer!;
   const [alertModalVisible, setAlertModalVisible] = useState(false);
   const [roleModalVisible, setRoleModalVisible] = useState(false);
   const [newRole, setNewRole] = useState(peerRefrence?.role);
   const [force, setForce] = useState(false);
-  const [isAudioMute, setIsAudioMute] = useState(true);
-  const [isVideoMute, setIsVideoMute] = useState(true);
-  let mounted = true;
-
-  const fetchTrackStates = async () => {
-    const localIsAudioMute = await peerRefrence?.audioTrack?.isMute();
-    const localIsVideoMute = await peerRefrence?.videoTrack?.isMute();
-    if (mounted) {
-      setIsAudioMute(localIsAudioMute);
-      setIsVideoMute(localIsVideoMute);
-    }
-  };
-
-  useEffect(() => {
-    fetchTrackStates();
-  }, [peerRefrence, peer?.isAudioMute, peer?.isVideoMute, mounted]);
 
   useEffect(() => {
     knownRoles?.map(role => {
@@ -143,9 +136,6 @@ const DisplayTrack = ({
         return;
       }
     });
-    return () => {
-      mounted = false;
-    };
   }, []);
 
   const HmsViewComponent = instance?.HmsView;
@@ -280,7 +270,6 @@ const DisplayTrack = ({
     setAlertModalVisible(true);
   };
 
-  const mute = type === 'remote' && allAudioMute ? true : isAudioMute;
   const isTab = getDeviceType() === 'Tablet';
 
   const {top, bottom} = useSafeAreaInsets();
@@ -373,7 +362,7 @@ const DisplayTrack = ({
           </View>
           <View style={styles.micContainer}>
             <Feather
-              name={mute ? 'mic-off' : 'mic'}
+              name={isAudioMute ? 'mic-off' : 'mic'}
               style={styles.mic}
               size={20}
             />
@@ -482,8 +471,8 @@ const Meeting = ({
     return {
       trackId: peer?.videoTrack?.trackId,
       name: peer?.name,
-      isAudioMute: true,
-      isVideoMute: true,
+      isAudioMute: peer?.audioTrack?.isMute() || false,
+      isVideoMute: peer?.videoTrack?.isMute() || false,
       id: peer?.peerID,
       colour: getThemeColour(),
       sink: true,
@@ -492,17 +481,15 @@ const Meeting = ({
     };
   };
 
-  const decodeLocalPeer = async (
+  const decodeLocalPeer = (
     peer: HMSLocalPeer,
     type: 'local' | 'screen',
-  ): Promise<Peer> => {
-    const peerIsAudioMute = await peer?.audioTrack?.isMute();
-    const peerIsVideoMute = await peer?.videoTrack?.isMute();
+  ): Peer => {
     return {
       trackId: peer?.videoTrack?.trackId,
       name: peer?.name,
-      isAudioMute: peerIsAudioMute,
-      isVideoMute: peerIsVideoMute,
+      isAudioMute: peer?.audioTrack?.isMute() || false,
+      isVideoMute: peer?.videoTrack?.isMute() || false,
       id: peer?.peerID,
       colour: getThemeColour(),
       sink: true,
@@ -511,14 +498,14 @@ const Meeting = ({
     };
   };
 
-  const updateVideoIds = async (
+  const updateVideoIds = (
     remotePeers: HMSRemotePeer[],
     localPeer?: HMSLocalPeer,
   ) => {
     // get local track Id
     const localTrackId = localPeer?.videoTrack?.trackId;
     if (localTrackId) {
-      const localTrackTemp = await decodeLocalPeer(localPeer, 'local');
+      const localTrackTemp = decodeLocalPeer(localPeer, 'local');
       setTrackId(localTrackTemp);
     }
     const updatedLocalPeerPermissions = localPeer?.role?.permissions;
@@ -670,7 +657,7 @@ const Meeting = ({
     navigate('WelcomeScreen');
   };
 
-  const updateHmsInstance = async (hms: HMSSDK | undefined) => {
+  const updateHmsInstance = (hms: HMSSDK | undefined) => {
     console.log('instance', hms);
     setInstance(hms);
     hms?.addEventListener(HMSUpdateListenerActions.ON_JOIN, onJoinListener);
@@ -910,7 +897,7 @@ const Meeting = ({
     return buttons;
   };
 
-  const onViewRef = React.useRef(async ({viewableItems}: any) => {
+  const onViewRef = React.useRef(({viewableItems}: any) => {
     if (viewableItems) {
       const viewableItemsIds: (string | undefined)[] = [];
       viewableItems.map(
@@ -951,9 +938,9 @@ const Meeting = ({
             }
           },
         );
-        Promise.all(sinkRemoteTrackIds).then(result => {
-          setRemoteTrackIds(result ? result : []);
-        });
+        // Promise.all(sinkRemoteTrackIds).then(result => {
+        setRemoteTrackIds(sinkRemoteTrackIds ? sinkRemoteTrackIds : []);
+        // });
       }
     }
   });
@@ -1158,7 +1145,7 @@ const Meeting = ({
         )}
         <TouchableOpacity
           style={styles.leaveIconContainer}
-          onPress={async () => {
+          onPress={() => {
             setLeaveModalVisible(true);
           }}>
           <Feather
