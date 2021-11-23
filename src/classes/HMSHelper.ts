@@ -5,8 +5,8 @@ export class HMSHelper {
     let names: string[] = [];
 
     roles?.map((item: HMSRole) => {
-      if (item.name) {
-        names.push(item.name);
+      if (item?.name) {
+        names.push(item?.name);
       }
     });
 

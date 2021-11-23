@@ -157,7 +157,6 @@ class HmsSDK(
 
                 override fun onJoin(room: HMSRoom) {
                   val roomData = HmsDecoder.getHmsRoom(room)
-//                  val datas = hmsSDK?.getLocalPeer().videoTrack.settings.
                   val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
                   val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
                   val roles = HmsDecoder.getAllRoles(hmsSDK?.getRoles())
