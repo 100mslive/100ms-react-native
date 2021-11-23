@@ -7,6 +7,17 @@ These settings are a optional parameter and can be passed in the build function 
 This can effectively reduce the storage space and the bandwidth required for transmission of the stored audio/video file. 
 It is a computer program capable of encoding or decoding a digital data stream into a format that can later be decoded or edited.
 
+```js
+// audio codec
+HMSAudioCodec.opus
+
+// video codec
+HMSVideoCodec.h264
+HMSVideoCodec.vp8
+HMSVideoCodec.vp9
+HMSVideoCodec.h265
+```
+
 ## maxBitrate
 Property specifies the maximum number of bits per second to allow a track.
 
@@ -15,6 +26,11 @@ Frames Per Second is used to measure frame rate – the number of consecutive fu
 
 ## cameraFacing
 Property specifies which camera to open while joining. It can be toggled later on.
+
+```js
+HMSCameraFacing.FRONT
+HMSCameraFacing.BACK
+```
 
 ## resolution
 Video resolution is the number of pixels contained in each frame. 
