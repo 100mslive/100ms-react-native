@@ -12,7 +12,6 @@ import {
 } from 'react-native';
 import {connect} from 'react-redux';
 import {
-  // HmsView,
   HMSUpdateListenerActions,
   HMSMessage,
   HMSPeerUpdate,
@@ -79,7 +78,6 @@ type DisplayTrackProps = {
   type: 'local' | 'remote' | 'screen';
   instance: HMSSDK | undefined;
   permissions: HMSPermissions | undefined;
-  allAudioMute: boolean;
 };
 
 type MeetingProps = {
@@ -112,7 +110,6 @@ const DisplayTrack = ({
   type,
   instance,
   permissions,
-  allAudioMute,
 }: DisplayTrackProps) => {
   const {
     name,
@@ -502,7 +499,6 @@ const Meeting = ({
     remotePeers: HMSRemotePeer[],
     localPeer?: HMSLocalPeer,
   ) => {
-    // get local track Id
     const localTrackId = localPeer?.videoTrack?.trackId;
     if (localTrackId) {
       const localTrackTemp = decodeLocalPeer(localPeer, 'local');
@@ -565,7 +561,6 @@ const Meeting = ({
   };
 
   const onRoomListener = ({
-    // room,
     type,
     localPeer,
     remotePeers,
@@ -580,7 +575,6 @@ const Meeting = ({
   };
 
   const onPeerListener = ({
-    // room,
     type,
     remotePeers,
     localPeer,
@@ -595,7 +589,6 @@ const Meeting = ({
   };
 
   const onTrackListener = ({
-    // room,
     type,
     remotePeers,
     localPeer,
@@ -732,6 +725,12 @@ const Meeting = ({
     if (instance) {
       const remotePeers = instance?.remotePeers ? instance.remotePeers : [];
       updateVideoIds(remotePeers, instance?.localPeer);
+      instance?.knownRoles?.map(role => {
+        if (role?.name === instance?.localPeer?.role?.name) {
+          setNewRole(role);
+          return;
+        }
+      });
     }
 
     return () => {
@@ -938,9 +937,7 @@ const Meeting = ({
             }
           },
         );
-        // Promise.all(sinkRemoteTrackIds).then(result => {
         setRemoteTrackIds(sinkRemoteTrackIds ? sinkRemoteTrackIds : []);
-        // });
       }
     }
   });
@@ -1050,7 +1047,6 @@ const Meeting = ({
                         instance={instance}
                         type={view.type}
                         permissions={localPeerPermissions}
-                        allAudioMute={muteAllAudio}
                       />
                     ) : (
                       <DisplayTrack
@@ -1061,7 +1057,6 @@ const Meeting = ({
                         instance={instance}
                         type={view.type}
                         permissions={localPeerPermissions}
-                        allAudioMute={muteAllAudio}
                       />
                     )),
                 )}
