@@ -44,6 +44,7 @@ export class HMSSDK {
   knownRoles?: HMSRole[];
   logger?: HMSLogger;
   id: string;
+  private muteStatus: boolean | undefined;
 
   onPreviewDelegate?: any;
   onJoinDelegate?: any;
@@ -262,6 +263,7 @@ export class HMSSDK {
     };
 
     await HmsManager.leave(data);
+    this.muteStatus = undefined;
     this.localPeer = undefined;
     this.remotePeers = undefined;
     this.room = undefined;
@@ -371,6 +373,7 @@ export class HMSSDK {
 
   muteAllPeersAudio = (mute: boolean) => {
     this.logger?.verbose('ON_MUTE_ALL_PEERS', { mute });
+    this.muteStatus = mute;
     HmsManager.muteAllPeersAudio({ mute, id: this.id });
   };
 
@@ -641,6 +644,9 @@ export class HMSSDK {
       data.remotePeers,
       this.id
     );
+    if (this.muteStatus && data?.type === 'TRACK_ADDED') {
+      this.muteAllPeersAudio(this.muteStatus);
+    }
     this.room = room;
     this.localPeer = localPeer;
     this.remotePeers = remotePeers;
