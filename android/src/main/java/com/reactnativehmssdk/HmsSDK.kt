@@ -4,6 +4,8 @@ import com.facebook.react.bridge.*
 import java.util.*
 import kotlinx.coroutines.launch
 import live.hms.video.error.HMSException
+import live.hms.video.media.settings.HMSTrackSettings
+import live.hms.video.media.settings.HMSVideoTrackSettings
 import live.hms.video.media.tracks.*
 import live.hms.video.sdk.*
 import live.hms.video.sdk.models.*
@@ -16,6 +18,7 @@ import live.hms.video.sdk.models.trackchangerequest.HMSChangeTrackStateRequest
 import live.hms.video.utils.HMSCoroutineScope
 
 class HmsSDK(
+    data: ReadableMap?,
     HmsDelegate: HmsModule,
     sdkId: String,
     reactApplicationContext: ReactApplicationContext
@@ -27,7 +30,13 @@ class HmsSDK(
   val id: String = sdkId
 
   init {
-    this.hmsSDK = HMSSDK.Builder(reactApplicationContext).build()
+    val videoSettings = HmsHelper.getVideoTrackSettings(data?.getMap("video"))
+    val audioSettings = HmsHelper.getAudioTrackSettings(data?.getMap("audio"))
+
+    val trackSettingsBuilder = HMSTrackSettings.Builder()
+    val trackSettings = trackSettingsBuilder.audio(audioSettings).video(videoSettings).build()
+
+    this.hmsSDK = HMSSDK.Builder(reactApplicationContext).setTrackSettings(trackSettings).build()
   }
 
   fun preview(credentials: ReadableMap) {
@@ -148,6 +157,7 @@ class HmsSDK(
 
                 override fun onJoin(room: HMSRoom) {
                   val roomData = HmsDecoder.getHmsRoom(room)
+//                  val datas = hmsSDK?.getLocalPeer().videoTrack.settings.
                   val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
                   val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
                   val roles = HmsDecoder.getAllRoles(hmsSDK?.getRoles())

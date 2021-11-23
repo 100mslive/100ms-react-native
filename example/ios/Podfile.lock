@@ -629,7 +629,7 @@ SPEC CHECKSUMS:
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: cf9b38bf0b2d048436d9a82ad2abe1404f11e7de
   FBLazyVector: 7b423f9e248eae65987838148c36eec1dbfe0b53
-  FBReactNativeSpec: 90a2b974c62a9d69281d28a74b48a43fe754c982
+  FBReactNativeSpec: 77018d6e699dd90d6babbe5626de92fb9e8ebbc9
   Firebase: 629510f1a9ddb235f3a7c5c8ceb23ba887f0f814
   FirebaseAnalytics: 5506ea8b867d8423485a84b4cd612d279f7b0b8a
   FirebaseCore: 98b29e3828f0a53651c363937a7f7d92a19f1ba2
@@ -652,8 +652,8 @@ SPEC CHECKSUMS:
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   OpenSSL-Universal: 1aa4f6a6ee7256b83db99ec1ccdaa80d10f9af9b
-  Permission-Camera: 0db4fd6e1c556c1cf47f38b989a8084cea3ec3dd
-  Permission-Microphone: 7b75718196244a6e59dd60f82f12962562c2ea12
+  Permission-Camera: 1f383e3f9a38ba393c63ba9b09a4726f94eda769
+  Permission-Microphone: 8d496c068d65f9d4ee599b0fdd7ada102a905acf
   PromisesObjC: 68159ce6952d93e17b2dfe273b8c40907db5ba58
   RCT-Folly: ec7a233ccc97cc556cf7237f0db1ff65b986f27c
   RCTRequired: ec2ebc96b7bfba3ca5c32740f5a0c6a014a274d2

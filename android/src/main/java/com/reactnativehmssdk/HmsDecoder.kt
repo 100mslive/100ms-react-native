@@ -2,6 +2,7 @@ package com.reactnativehmssdk
 
 import com.facebook.react.bridge.*
 import live.hms.video.error.HMSException
+import live.hms.video.media.codec.HMSVideoCodec
 import java.util.*
 import live.hms.video.media.settings.HMSAudioTrackSettings
 import live.hms.video.media.settings.HMSVideoTrackSettings
@@ -299,7 +300,7 @@ object HmsDecoder {
   fun getHmsVideoTrackSettings(hmsVideoTrackSettings: HMSVideoTrackSettings?): WritableMap {
     val settings: WritableMap = Arguments.createMap()
     if (hmsVideoTrackSettings != null) {
-      settings.putInt("codec", hmsVideoTrackSettings.codec.ordinal)
+      settings.putString("codec", getHmsVideoTrackCodec(hmsVideoTrackSettings.codec))
 
       val resolution: WritableMap = Arguments.createMap()
       resolution.putInt("height", hmsVideoTrackSettings.resolution.height)
@@ -308,13 +309,38 @@ object HmsDecoder {
 
       settings.putInt("maxBitrate", hmsVideoTrackSettings.maxBitRate)
       settings.putInt("maxFrameRate", hmsVideoTrackSettings.maxFrameRate)
-      settings.putInt("cameraFacing", hmsVideoTrackSettings.cameraFacing.ordinal)
+      settings.putString("cameraFacing", getHmsVideoTrackCameraFacing(hmsVideoTrackSettings.cameraFacing))
       //        settings.putString("trackDescription",
       // if(hmsVideoTrackSettings.trackDescription!==null)hmsVideoTrackSettings.trackDescription
       // else "");
       settings.putString("trackDescription", "")
     }
     return settings
+  }
+
+  fun getHmsVideoTrackCodec(codec: HMSVideoCodec) :String {
+    return when (codec) {
+      HMSVideoCodec.H264 -> {
+        "h264"
+      }
+      HMSVideoCodec.VP9 -> {
+        "vp9"
+      }
+      HMSVideoCodec.VP8 -> {
+        "vp8"
+      }
+    }
+  }
+
+  fun getHmsVideoTrackCameraFacing(cameraFacing: HMSVideoTrackSettings.CameraFacing) : String {
+    return when(cameraFacing) {
+      HMSVideoTrackSettings.CameraFacing.FRONT -> {
+        "FRONT"
+      }
+      HMSVideoTrackSettings.CameraFacing.BACK -> {
+        "BACK"
+      }
+    }
   }
 
   fun getHmsRemotePeers(remotePeers: Array<HMSRemotePeer>?): WritableArray {
