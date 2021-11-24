@@ -1,5 +1,10 @@
 import React from 'react';
-import { NativeEventEmitter, NativeModules, ViewStyle } from 'react-native';
+import {
+  NativeEventEmitter,
+  NativeModules,
+  Platform,
+  ViewStyle,
+} from 'react-native';
 import { HMSUpdateListenerActions } from './HMSUpdateListenerActions';
 import type { HMSConfig } from './HMSConfig';
 import type { HMSLocalPeer } from './HMSLocalPeer';
@@ -383,6 +388,19 @@ export class HMSSDK {
 
     const encodedHmsRoom = HMSEncoder.encodeHmsRoom(hmsRoom, this.id);
     return encodedHmsRoom;
+  };
+
+  setVolume = (track: HMSTrack, volume: number) => {
+    if (Platform.OS === 'ios') {
+      return 'This API not available for IOS';
+    } else {
+      HmsManager.setVolume({
+        id: this.id,
+        trackId: track.trackId,
+        volume,
+      });
+      return;
+    }
   };
 
   /**

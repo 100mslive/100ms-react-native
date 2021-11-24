@@ -24,18 +24,6 @@ export class HMSLocalAudioTrack extends HMSAudioTrack {
     HmsManager.setLocalMute({ isMute, id: this.id });
   }
 
-  setVolume = (volume: number) => {
-    if (Platform.OS === 'ios') {
-      return 'This API not available for IOS';
-    } else {
-      HmsManager.setVolume({
-        id: this.id,
-        trackId: this.trackId,
-        volume,
-      });
-    }
-  };
-
   getVolume = async () => {
     if (Platform.OS === 'ios') {
       return 'This API not available for IOS';

@@ -31,8 +31,6 @@ import {
   HMSPeer,
   HMSTrackType,
   // HMSRemoteAudioTrack,
-  HMSRemoteVideoTrack,
-  HMSRemoteAudioTrack,
 } from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
@@ -138,6 +136,11 @@ const DisplayTrack = ({
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // TODO: use this piece of code to setVolume of remoteAudioTrack
+  // const remoteTrack = peerRefrence?.audioTrack;
+
+  // instance?.setVolume(remoteTrack as HMSTrack, 0.2);
 
   const HmsViewComponent = instance?.HmsView;
   const knownRoles = instance?.knownRoles || [];
@@ -1079,33 +1082,31 @@ const Meeting = ({
           <TouchableOpacity
             style={styles.singleIconContainer}
             onPress={() => {
-              // instance?.localPeer
-              //   ?.localAudioTrack()
-              //   ?.setMute(!trackId.isAudioMute);
-              // setTrackId({
-              //   ...trackId,
-              //   isAudioMute: !trackId.isAudioMute,
-              // });
-
-              let remotePeers = instance?.remotePeers;
-
-              remotePeers?.map((value: HMSRemotePeer) => {
-                console.log(value, 'Value here');
-                let auxTracks = value.auxiliaryTracks;
-
-                auxTracks?.map((item: HMSTrack) => {
-                  console.log(item, 'Value here in loop');
-                  if (item.type === HMSTrackType.AUDIO) {
-                    console.log(item, 'Value here in loop in if');
-                    let track = item as HMSRemoteAudioTrack;
-                    console.log(track, 'track after conversion');
-                    if (track?.setVolume) {
-                      console.log('here in type checking');
-                      track?.setVolume(0.2);
-                    }
-                  }
-                });
+              instance?.localPeer
+                ?.localAudioTrack()
+                ?.setMute(!trackId.isAudioMute);
+              setTrackId({
+                ...trackId,
+                isAudioMute: !trackId.isAudioMute,
               });
+              // TODO: use this piece of code to set volume of localAudioTrack
+              // instance?.setVolume(
+              //   instance?.localPeer?.audioTrack as HMSTrack,
+              //   0.2,
+              // );
+
+              //TODO: use this piece of code to set volume of remote Aux tracks
+              // const remotePeers = instance?.remotePeers;
+
+              // remotePeers?.map((peer: HMSRemotePeer) => {
+              //   const remoteAuxTracks = peer.auxiliaryTracks;
+
+              //   remoteAuxTracks?.map((track: HMSTrack) => {
+              //     if (track.type === HMSTrackType.AUDIO) {
+              //       instance?.setVolume(track, 0.2);
+              //     }
+              //   });
+              // });
             }}>
             <Feather
               name={trackId.isAudioMute ? 'mic-off' : 'mic'}
