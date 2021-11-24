@@ -33,6 +33,7 @@ export class HMSLocalAudioTrack extends HMSAudioTrack {
         trackId: this.trackId,
         volume,
       });
+      return;
     }
   };
 

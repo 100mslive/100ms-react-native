@@ -45,6 +45,7 @@ export class HMSRemoteAudioTrack extends HMSAudioTrack {
         trackId: this.trackId,
         volume,
       });
+      return;
     }
   };
 
