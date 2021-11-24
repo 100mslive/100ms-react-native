@@ -1,5 +1,5 @@
 export class HMSConfig {
-  // endpoint: string;
+  
   username: string;
   authToken: string;
   endpoint?: string;
