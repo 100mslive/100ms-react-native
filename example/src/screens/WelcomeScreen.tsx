@@ -44,8 +44,8 @@ import {getThemeColour} from '../utils/functions';
 import type {AppStackParamList} from '../navigator';
 import type {RootState} from '../redux';
 import {Alert} from 'react-native';
-import { HMSCameraFacing } from '../../../src/classes/HMSCameraFacing';
-import { HMSVideoResolution } from '../../../src/classes/HMSVideoResolution';
+import {HMSCameraFacing} from '../../../src/classes/HMSCameraFacing';
+import {HMSVideoResolution} from '../../../src/classes/HMSVideoResolution';
 
 type WelcomeProps = {
   setAudioVideoStateRequest: Function;
@@ -163,15 +163,26 @@ const App = ({
   // let ref = React.useRef();
 
   const getTrackSettings = () => {
-    let audioSettings = new HMSAudioTrackSettings({ codec: HMSAudioCodec.opus, maxBitrate: 32, trackDescription: "Simple Audio Track" });
-    let videoSettings = new HMSVideoTrackSettings({ codec: HMSVideoCodec.vp8, maxBitrate: 512, maxFrameRate: 25, cameraFacing: HMSCameraFacing.FRONT, trackDescription: "Simple Video Track", resolution: new HMSVideoResolution({height: 180, width: 320})});
+    let audioSettings = new HMSAudioTrackSettings({
+      codec: HMSAudioCodec.opus,
+      maxBitrate: 32,
+      trackDescription: 'Simple Audio Track',
+    });
+    let videoSettings = new HMSVideoTrackSettings({
+      codec: HMSVideoCodec.vp8,
+      maxBitrate: 512,
+      maxFrameRate: 25,
+      cameraFacing: HMSCameraFacing.FRONT,
+      trackDescription: 'Simple Video Track',
+      resolution: new HMSVideoResolution({height: 180, width: 320}),
+    });
 
     return new HMSTrackSettings({video: videoSettings, audio: audioSettings});
-  }
+  };
 
   const setupBuild = async () => {
     const trackSettings = getTrackSettings();
-    const build = await HmsManager.build({ trackSettings });
+    const build = await HmsManager.build({trackSettings});
     const logger = new HMSLogger();
     logger.updateLogLevel(HMSLogLevel.VERBOSE, true);
     build.setLogger(logger);

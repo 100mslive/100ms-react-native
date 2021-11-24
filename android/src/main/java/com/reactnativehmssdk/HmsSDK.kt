@@ -759,4 +759,53 @@ class HmsSDK(
 
     callback?.resolve(roomData)
   }
+
+  fun setVolume(data: ReadableMap) {
+    val requiredKeys =
+      HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("trackId", "String"), Pair("volume", "Float")))
+
+    if (requiredKeys) {
+      val trackId = data.getString("trackId")
+      val volume = data.getDouble("volume")
+
+      val localPeer = hmsSDK?.getLocalPeer()
+      val remotePeers = hmsSDK?.getRemotePeers()
+
+      if (localPeer?.audioTrack?.trackId == trackId) {
+        localPeer?.audioTrack?.volume = volume
+        return
+      }
+
+      if (remotePeers != null) {
+        for (peer in remotePeers) {
+          val audioTrackId = peer.audioTrack?.trackId
+
+          if (audioTrackId == trackId) {
+            peer.audioTrack?.setVolume(volume)
+            return
+          }
+        }
+      }
+    }
+  }
+
+  fun getVolume(data: ReadableMap, callback: Promise?) {
+    val requiredKeys =
+      HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("trackId", "String")))
+
+    if (requiredKeys) {
+      val trackId = data.getString("trackId")
+
+      val localPeer = hmsSDK?.getLocalPeer()
+
+      if (localPeer?.audioTrack?.trackId == trackId) {
+        val volume = localPeer?.audioTrack?.volume
+        callback?.resolve(volume)
+      } else {
+        callback?.reject("101", "TRACK_IDS_DO_NOT_MATCH")
+      }
+    } else {
+      callback?.reject("101", "TRACK_NOT_FOUND")
+    }
+  }
 }

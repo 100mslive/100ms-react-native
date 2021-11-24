@@ -27,6 +27,11 @@ object HmsHelper {
               return false
             }
           }
+          "Float" -> {
+            if (map.getDouble(key) == null) {
+              return false
+            }
+          }
           "Boolean" -> {
             if (map.getBoolean(key) == null) {
               return false
