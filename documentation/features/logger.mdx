@@ -1,7 +1,9 @@
-# HMSLogger
+---
+title: Logging
+nav: 3.97
+---
 
-HMSLogger is a logging api that lets you see all the other api logs as they are called. Instead of logging the values on your app in each and every function
-you can easily monitor and debug via these logs.
+HMSLogger is a logging api that lets you see all the other api logs as they are called. Instead of logging the values on your app in each and every function you can easily monitor and debug via these logs.
 
 ```js
 import { HMSLogger, HMSLogLevel } from '@100mslive/react-native-hms';
@@ -13,9 +15,11 @@ logger.updateLogLevel(HMSLogLevel.VERBOSE, true);
 // instance acquired from build method
 build.setLogger(logger);
 ```
+
+
 ## HMSLogLevel
 
-You can subscribe to different log levels by passing `HMSLogLevel` enums to hms logger
+You can subscribe to different log levels by passing `HMSLogLevel` enums to `HMSLogger`
 
 ```js
 HMSLogLevel.VERBOSE
