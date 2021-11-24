@@ -1,0 +1,16 @@
+---
+title: Release Resources 
+nav: 3.96
+---
+
+Releasing resources when they are not required anymore is an important part of the app.
+
+If the resources are not released and acquired again time to time, 
+it might hamper app performance. 
+
+When the hms instance is not required any more or when a new hms instance has to be created instead of using the previous one, `destroy` the previous instance. 
+
+```js
+// instance aquired from build method 
+hmsInstance?.destroy();
+```
