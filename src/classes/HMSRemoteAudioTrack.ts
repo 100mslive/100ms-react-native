@@ -1,4 +1,4 @@
-import { NativeModules } from 'react-native';
+import { NativeModules, Platform } from 'react-native';
 import type { HMSTrackType } from './HMSTrackType';
 import { HMSAudioTrack } from './HMSAudioTrack';
 
@@ -33,6 +33,18 @@ export class HMSRemoteAudioTrack extends HMSAudioTrack {
       return val;
     } catch (e) {
       return true;
+    }
+  };
+
+  setVolume = (volume: number) => {
+    if (Platform.OS === 'ios') {
+      return 'This API not available for IOS';
+    } else {
+      HmsManager.setVolume({
+        id: this.id,
+        trackId: this.trackId,
+        volume,
+      });
     }
   };
 

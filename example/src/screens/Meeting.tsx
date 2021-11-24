@@ -133,6 +133,7 @@ const DisplayTrack = ({
         return;
       }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const HmsViewComponent = instance?.HmsView;

@@ -177,6 +177,20 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   }
 
   @ReactMethod
+  fun setVolume(data: ReadableMap) {
+    val hms = HmsHelper.getHms(data, hmsCollection)
+
+    hms?.setVolume(data)
+  }
+
+  @ReactMethod
+  fun getVolume(data: ReadableMap, callback: Promise?) {
+    val hms = HmsHelper.getHms(data, hmsCollection)
+
+    hms?.getVolume(data, callback)
+  }
+
+  @ReactMethod
   fun muteAllPeersAudio(data: ReadableMap) {
     val hms = HmsHelper.getHms(data, hmsCollection)
 
