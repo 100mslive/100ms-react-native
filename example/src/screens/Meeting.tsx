@@ -170,15 +170,7 @@ const DisplayTrack = ({
     text: string;
     type?: string;
     onPress?: Function;
-  }> = [
-    {text: 'Cancel', type: 'cancel'},
-    {
-      text: 'Set Volume',
-      onPress: () => {
-        setVolumeModal(true);
-      },
-    },
-  ];
+  }> = [{text: 'Cancel', type: 'cancel'}];
 
   const selectRemoteActionButtons: Array<{
     text: string;
@@ -186,12 +178,6 @@ const DisplayTrack = ({
     onPress?: Function;
   }> = [
     {text: 'Cancel', type: 'cancel'},
-    {
-      text: 'Set Volume',
-      onPress: () => {
-        setVolumeModal(true);
-      },
-    },
     {
       text: 'Mute/Unmute audio locally',
       onPress: async () => {
@@ -307,6 +293,20 @@ const DisplayTrack = ({
       });
     }
   }
+  if (Platform.OS === 'android') {
+    selectRemoteActionButtons.push({
+      text: 'Set Volume',
+      onPress: () => {
+        setVolumeModal(true);
+      },
+    });
+    selectLocalActionButtons.push({
+      text: 'Set Volume',
+      onPress: () => {
+        setVolumeModal(true);
+      },
+    });
+  }
 
   const promptUser = () => {
     setAlertModalVisible(true);
@@ -399,13 +399,20 @@ const DisplayTrack = ({
             style={type === 'screen' ? styles.hmsViewScreen : styles.hmsView}
           />
         )}
-        <TouchableOpacity onPress={promptUser} style={styles.optionsContainer}>
-          <Entypo
-            name="dots-three-horizontal"
-            style={styles.options}
-            size={20}
-          />
-        </TouchableOpacity>
+        {(type === 'local' && selectLocalActionButtons.length > 1) ||
+        (type === 'remote' && selectRemoteActionButtons.length > 1) ? (
+          <TouchableOpacity
+            onPress={promptUser}
+            style={styles.optionsContainer}>
+            <Entypo
+              name="dots-three-horizontal"
+              style={styles.options}
+              size={20}
+            />
+          </TouchableOpacity>
+        ) : (
+          <></>
+        )}
         <View style={styles.displayContainer}>
           <View style={styles.peerNameContainer}>
             <Text numberOfLines={2} style={styles.peerName}>
