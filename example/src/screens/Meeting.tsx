@@ -30,6 +30,7 @@ import {
   HMSSpeakerUpdate,
   HMSPeer,
   HMSTrackType,
+  // HMSRemoteAudioTrack,
 } from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
@@ -135,6 +136,11 @@ const DisplayTrack = ({
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // TODO: use this piece of code to setVolume of remoteAudioTrack
+  // const remoteTrack = peerRefrence?.audioTrack;
+
+  // instance?.setVolume(remoteTrack as HMSTrack, 0.2);
 
   const HmsViewComponent = instance?.HmsView;
   const knownRoles = instance?.knownRoles || [];
@@ -1083,6 +1089,24 @@ const Meeting = ({
                 ...trackId,
                 isAudioMute: !trackId.isAudioMute,
               });
+              // TODO: use this piece of code to set volume of localAudioTrack
+              // instance?.setVolume(
+              //   instance?.localPeer?.audioTrack as HMSTrack,
+              //   0.2,
+              // );
+
+              //TODO: use this piece of code to set volume of remote Aux tracks
+              // const remotePeers = instance?.remotePeers;
+
+              // remotePeers?.map((peer: HMSRemotePeer) => {
+              //   const remoteAuxTracks = peer.auxiliaryTracks;
+
+              //   remoteAuxTracks?.map((track: HMSTrack) => {
+              //     if (track.type === HMSTrackType.AUDIO) {
+              //       instance?.setVolume(track, 0.2);
+              //     }
+              //   });
+              // });
             }}>
             <Feather
               name={trackId.isAudioMute ? 'mic-off' : 'mic'}

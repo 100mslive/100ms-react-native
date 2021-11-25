@@ -784,6 +784,30 @@ class HmsSDK(
             peer.audioTrack?.setVolume(volume)
             return
           }
+
+          for (auxTrack in peer.auxiliaryTracks) {
+            if (auxTrack.trackId == trackId && auxTrack.type == HMSTrackType.AUDIO) {
+              val trackExtracted = auxTrack as? HMSRemoteAudioTrack
+
+              if(trackExtracted != null) {
+                trackExtracted.setVolume(volume)
+                return
+              } else {
+                delegate.emitEvent(
+                  "ON_ERROR",
+                  HmsDecoder.getError(
+                    HMSException(
+                      102,
+                      "HMSTrack Could not be converted to HMSRemoteAudioTrack",
+                      "CONVERSION_ERROR",
+                      "CONVERSION_ERROR",
+                      "CONVERSION_ERROR"
+                    )
+                  )
+                )
+              }
+            }
+          }
         }
       }
     }
@@ -801,9 +825,9 @@ class HmsSDK(
       if (localPeer?.audioTrack?.trackId == trackId) {
         val volume = localPeer?.audioTrack?.volume
         callback?.resolve(volume)
-      } else {
-        callback?.reject("101", "TRACK_IDS_DO_NOT_MATCH")
+        return
       }
+      callback?.reject("101", "TRACK_IDS_DO_NOT_MATCH")
     } else {
       callback?.reject("101", "TRACK_NOT_FOUND")
     }
