@@ -135,9 +135,9 @@ const DisplayTrack = ({
     {text: string; onPress?: Function},
     {text: string; onPress?: Function},
   ] = [
-    {text: 'Reject'},
+    {text: 'Cancel'},
     {
-      text: 'Accept',
+      text: 'Set',
       onPress: async () => {
         instance?.setVolume(peerRefrence?.audioTrack as HMSTrack, volume);
       },
