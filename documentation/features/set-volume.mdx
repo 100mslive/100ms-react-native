@@ -1,0 +1,13 @@
+# Set Volume
+
+This is a android only API. It allows you to vary the volume level of the remote peer individually for yourself. 
+Suppose a remote peer is too loud compared to others you can reduce their volume level and vice versa.
+Volume can vary from 0(min) to 1(max).
+
+```js
+const volume: Float = 0.5;
+const track: HMSTrack = remotePeer.audioTrack as HMSTrack;
+
+//hms instance acquired by build method
+instance?.setVolume(track, volume);
+```
