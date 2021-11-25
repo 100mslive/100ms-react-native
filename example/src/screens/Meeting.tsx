@@ -164,15 +164,22 @@ const DisplayTrack = ({
   const knownRoles = instance?.knownRoles || [];
   const isDegraded = peerRefrence?.videoTrack?.isDegraded || false;
   const speaking = speakers.includes(id!);
+  const roleRequestTitle = 'Select action';
+  const roleRequestButtons: [
+    {text: string; onPress?: Function},
+    {text: string; onPress?: Function}?,
+  ] = [
+    {text: 'Cancel'},
+    {
+      text: 'Send',
+      onPress: () => {
+        instance?.changeRole(peerRefrence!, newRole!, force);
+      },
+    },
+  ];
   const selectActionTitle = 'Select action';
   const selectActionMessage = '';
-  const selectLocalActionButtons: Array<{
-    text: string;
-    type?: string;
-    onPress?: Function;
-  }> = [{text: 'Cancel', type: 'cancel'}];
-
-  const selectRemoteActionButtons: Array<{
+  const selectActionButtons: Array<{
     text: string;
     type?: string;
     onPress?: Function;
@@ -199,9 +206,8 @@ const DisplayTrack = ({
       },
     },
   ];
-
   if (permissions?.changeRole) {
-    selectRemoteActionButtons.push(
+    selectActionButtons.push(
       ...[
         {
           text: 'Prompt to change role',
@@ -221,31 +227,17 @@ const DisplayTrack = ({
     );
   }
   if (permissions?.removeOthers) {
-    selectRemoteActionButtons.push({
+    selectActionButtons.push({
       text: 'Remove Participant',
       onPress: () => {
         instance?.removePeer(id!, 'removed from room');
       },
     });
   }
-  const roleRequestTitle = 'Select action';
-  const roleRequestButtons: [
-    {text: string; onPress?: Function},
-    {text: string; onPress?: Function}?,
-  ] = [
-    {text: 'Cancel'},
-    {
-      text: 'Send',
-      onPress: () => {
-        instance?.changeRole(peerRefrence!, newRole!, force);
-      },
-    },
-  ];
-
   if (permissions?.unmute) {
     const unmute = false;
     if (isAudioMute) {
-      selectRemoteActionButtons.push({
+      selectActionButtons.push({
         text: 'Unmute audio',
         onPress: () => {
           instance?.changeTrackState(
@@ -256,7 +248,7 @@ const DisplayTrack = ({
       });
     }
     if (isVideoMute) {
-      selectRemoteActionButtons.push({
+      selectActionButtons.push({
         text: 'Unmute video',
         onPress: () => {
           instance?.changeTrackState(
@@ -267,11 +259,10 @@ const DisplayTrack = ({
       });
     }
   }
-
   if (permissions?.mute) {
     const mute = true;
     if (!isAudioMute) {
-      selectRemoteActionButtons.push({
+      selectActionButtons.push({
         text: 'Mute audio',
         onPress: () => {
           instance?.changeTrackState(
@@ -282,7 +273,7 @@ const DisplayTrack = ({
       });
     }
     if (!isVideoMute) {
-      selectRemoteActionButtons.push({
+      selectActionButtons.push({
         text: 'Mute video',
         onPress: () => {
           instance?.changeTrackState(
@@ -294,13 +285,7 @@ const DisplayTrack = ({
     }
   }
   if (Platform.OS === 'android') {
-    selectRemoteActionButtons.push({
-      text: 'Set Volume',
-      onPress: () => {
-        setVolumeModal(true);
-      },
-    });
-    selectLocalActionButtons.push({
+    selectActionButtons.push({
       text: 'Set Volume',
       onPress: () => {
         setVolumeModal(true);
@@ -353,11 +338,7 @@ const DisplayTrack = ({
           setModalVisible={setAlertModalVisible}
           title={selectActionTitle}
           message={selectActionMessage}
-          buttons={
-            type === 'local'
-              ? selectLocalActionButtons
-              : selectRemoteActionButtons
-          }
+          buttons={selectActionButtons}
         />
         <CustomModal
           modalVisible={volumeModal}
@@ -399,8 +380,7 @@ const DisplayTrack = ({
             style={type === 'screen' ? styles.hmsViewScreen : styles.hmsView}
           />
         )}
-        {(type === 'local' && selectLocalActionButtons.length > 1) ||
-        (type === 'remote' && selectRemoteActionButtons.length > 1) ? (
+        {type === 'remote' && selectActionButtons.length > 1 && (
           <TouchableOpacity
             onPress={promptUser}
             style={styles.optionsContainer}>
@@ -410,8 +390,6 @@ const DisplayTrack = ({
               size={20}
             />
           </TouchableOpacity>
-        ) : (
-          <></>
         )}
         <View style={styles.displayContainer}>
           <View style={styles.peerNameContainer}>

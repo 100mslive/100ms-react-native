@@ -28,14 +28,14 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     if (hasItem) {
       val uuid = UUID.randomUUID()
       val randomUUIDString = uuid.toString()
-      val sdkInstance: HmsSDK = HmsSDK(data,this, randomUUIDString, reactApplicationContext)
+      val sdkInstance: HmsSDK = HmsSDK(data, this, randomUUIDString, reactApplicationContext)
 
       hmsCollection[randomUUIDString] = sdkInstance
 
       callback?.resolve(randomUUIDString)
     } else {
       val randomUUIDString = "12345"
-      val sdkInstance: HmsSDK = HmsSDK(data,this, randomUUIDString, reactApplicationContext)
+      val sdkInstance: HmsSDK = HmsSDK(data, this, randomUUIDString, reactApplicationContext)
 
       hmsCollection[randomUUIDString] = sdkInstance
 
