@@ -30,7 +30,6 @@ import {
   HMSSpeakerUpdate,
   HMSPeer,
   HMSTrackType,
-  // HMSRemoteAudioTrack,
 } from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
@@ -38,6 +37,7 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
 import {getDeviceType} from 'react-native-device-info';
+import {Slider} from '@miblanchard/react-native-slider';
 import type {StackNavigationProp} from '@react-navigation/stack';
 
 import {ChatWindow, AlertModal, CustomModal, CustomPicker} from '../components';
@@ -126,6 +126,29 @@ const DisplayTrack = ({
   const [roleModalVisible, setRoleModalVisible] = useState(false);
   const [newRole, setNewRole] = useState(peerRefrence?.role);
   const [force, setForce] = useState(false);
+  const [volumeModal, setVolumeModal] = useState(false);
+  const [volume, setVolume] = useState(1);
+
+  const modalTitle = 'Set Volume';
+
+  const modalButtons: [
+    {text: string; onPress?: Function},
+    {text: string; onPress?: Function},
+  ] = [
+    {text: 'Reject'},
+    {
+      text: 'Accept',
+      onPress: async () => {
+        let localVolume = volume;
+        if (type === 'local') {
+          localVolume = await instance?.localPeer
+            ?.localAudioTrack()
+            ?.getVolume();
+        }
+        instance?.setVolume(peerRefrence?.audioTrack as HMSTrack, localVolume);
+      },
+    },
+  ];
 
   useEffect(() => {
     knownRoles?.map(role => {
@@ -148,12 +171,32 @@ const DisplayTrack = ({
   const speaking = speakers.includes(id!);
   const selectActionTitle = 'Select action';
   const selectActionMessage = '';
-  const selectActionButtons: Array<{
+  const selectLocalActionButtons: Array<{
     text: string;
     type?: string;
     onPress?: Function;
   }> = [
     {text: 'Cancel', type: 'cancel'},
+    {
+      text: 'Set Volume',
+      onPress: () => {
+        setVolumeModal(true);
+      },
+    },
+  ];
+
+  const selectRemoteActionButtons: Array<{
+    text: string;
+    type?: string;
+    onPress?: Function;
+  }> = [
+    {text: 'Cancel', type: 'cancel'},
+    {
+      text: 'Set Volume',
+      onPress: () => {
+        setVolumeModal(true);
+      },
+    },
     {
       text: 'Mute/Unmute audio locally',
       onPress: async () => {
@@ -177,7 +220,7 @@ const DisplayTrack = ({
   ];
 
   if (permissions?.changeRole) {
-    selectActionButtons.push(
+    selectRemoteActionButtons.push(
       ...[
         {
           text: 'Prompt to change role',
@@ -197,7 +240,7 @@ const DisplayTrack = ({
     );
   }
   if (permissions?.removeOthers) {
-    selectActionButtons.push({
+    selectRemoteActionButtons.push({
       text: 'Remove Participant',
       onPress: () => {
         instance?.removePeer(id!, 'removed from room');
@@ -221,7 +264,7 @@ const DisplayTrack = ({
   if (permissions?.unmute) {
     const unmute = false;
     if (isAudioMute) {
-      selectActionButtons.push({
+      selectRemoteActionButtons.push({
         text: 'Unmute audio',
         onPress: () => {
           instance?.changeTrackState(
@@ -232,7 +275,7 @@ const DisplayTrack = ({
       });
     }
     if (isVideoMute) {
-      selectActionButtons.push({
+      selectRemoteActionButtons.push({
         text: 'Unmute video',
         onPress: () => {
           instance?.changeTrackState(
@@ -247,7 +290,7 @@ const DisplayTrack = ({
   if (permissions?.mute) {
     const mute = true;
     if (!isAudioMute) {
-      selectActionButtons.push({
+      selectRemoteActionButtons.push({
         text: 'Mute audio',
         onPress: () => {
           instance?.changeTrackState(
@@ -258,7 +301,7 @@ const DisplayTrack = ({
       });
     }
     if (!isVideoMute) {
-      selectActionButtons.push({
+      selectRemoteActionButtons.push({
         text: 'Mute video',
         onPress: () => {
           instance?.changeTrackState(
@@ -315,8 +358,22 @@ const DisplayTrack = ({
           setModalVisible={setAlertModalVisible}
           title={selectActionTitle}
           message={selectActionMessage}
-          buttons={selectActionButtons}
+          buttons={
+            type === 'local'
+              ? selectLocalActionButtons
+              : selectRemoteActionButtons
+          }
         />
+        <CustomModal
+          modalVisible={volumeModal}
+          setModalVisible={setVolumeModal}
+          title={modalTitle}
+          buttons={modalButtons}>
+          <Slider
+            value={volume}
+            onValueChange={(value: any) => setVolume(value[0])}
+          />
+        </CustomModal>
         <CustomModal
           modalVisible={roleModalVisible}
           setModalVisible={setRoleModalVisible}
@@ -347,17 +404,13 @@ const DisplayTrack = ({
             style={type === 'screen' ? styles.hmsViewScreen : styles.hmsView}
           />
         )}
-        {type === 'remote' && selectActionButtons.length > 1 && (
-          <TouchableOpacity
-            onPress={promptUser}
-            style={styles.optionsContainer}>
-            <Entypo
-              name="dots-three-horizontal"
-              style={styles.options}
-              size={20}
-            />
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity onPress={promptUser} style={styles.optionsContainer}>
+          <Entypo
+            name="dots-three-horizontal"
+            style={styles.options}
+            size={20}
+          />
+        </TouchableOpacity>
         <View style={styles.displayContainer}>
           <View style={styles.peerNameContainer}>
             <Text numberOfLines={2} style={styles.peerName}>
