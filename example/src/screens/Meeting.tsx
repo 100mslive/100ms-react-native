@@ -139,13 +139,7 @@ const DisplayTrack = ({
     {
       text: 'Accept',
       onPress: async () => {
-        let localVolume = volume;
-        if (type === 'local') {
-          localVolume = await instance?.localPeer
-            ?.localAudioTrack()
-            ?.getVolume();
-        }
-        instance?.setVolume(peerRefrence?.audioTrack as HMSTrack, localVolume);
+        instance?.setVolume(peerRefrence?.audioTrack as HMSTrack, volume);
       },
     },
   ];
@@ -157,13 +151,14 @@ const DisplayTrack = ({
         return;
       }
     });
+    const getVolume = async () => {
+      if (type === 'local') {
+        setVolume(await instance?.localPeer?.localAudioTrack()?.getVolume());
+      }
+    };
+    getVolume();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // TODO: use this piece of code to setVolume of remoteAudioTrack
-  // const remoteTrack = peerRefrence?.audioTrack;
-
-  // instance?.setVolume(remoteTrack as HMSTrack, 0.2);
 
   const HmsViewComponent = instance?.HmsView;
   const knownRoles = instance?.knownRoles || [];
