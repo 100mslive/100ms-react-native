@@ -284,14 +284,12 @@ const DisplayTrack = ({
       });
     }
   }
-  if (Platform.OS === 'android') {
-    selectActionButtons.push({
-      text: 'Set Volume',
-      onPress: () => {
-        setVolumeModal(true);
-      },
-    });
-  }
+  selectActionButtons.push({
+    text: 'Set Volume',
+    onPress: () => {
+      setVolumeModal(true);
+    },
+  });
 
   const promptUser = () => {
     setAlertModalVisible(true);

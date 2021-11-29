@@ -209,6 +209,13 @@ class HmsManager: RCTEventEmitter{
         hms?.muteAllPeersAudio(data)
     }
     
+    @objc
+    func setVolume(_ data: NSDictionary) {
+        let hms = HmsHelper.getHms(data, hmsCollection)
+        
+        hms?.setVolume(data)
+    }
+    
 //    @objc
 //    func setLocalVideoSettings(_ data: NSDictionary) {
 //        let hms = HmsHelper.getHms(data, hmsCollection)

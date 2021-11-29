@@ -406,6 +406,43 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
     
+    func setVolume(_ data: NSDictionary) {
+        guard let trackId = data.value(forKey: "trackId") as? String,
+              let volume = data.value(forKey: "volume") as? Double
+        else {
+            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": "REQUIRED_KEYS_NOT_FOUND"])
+            return
+        }
+        
+        DispatchQueue.main.async { [weak self] in
+        
+            let remotePeers = self?.hms?.remotePeers
+        
+            let remoteAudioTrack = HmsHelper.getRemoteAudioAuxiliaryTrackFromTrackId(trackId, remotePeers)
+        
+            if (remoteAudioTrack != nil) {
+                remoteAudioTrack?.setVolume(volume)
+            } else {
+                self?.delegate?.emitEvent("ON_ERROR", ["event": "ON_ERROR", "error": "TRACK_ID_NOT_FOUND_IN_REMOTE_TRACKS"])
+            }
+        }
+    }
+    
+    //TODO: to be implemented after volume is exposed for iOS
+//    func getVolume(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+//        guard let trackId = data.value(forKey: "trackId") as? String
+//        else {
+//            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": "REQUIRED_KEYS_NOT_FOUND"])
+//            reject?(nil, "REQUIRED_KEYS_NOT_FOUND", nil)
+//            return
+//        }
+//
+//
+//        if (localPeer?.localAudioTrack()?.trackId == trackId) {
+//
+//        }
+//    }
+    
 //    func setLocalVideoSettings(_ data: NSDictionary) {
 //        let localVideoTrack = self.hms?.localPeer?.localVideoTrack()
 //

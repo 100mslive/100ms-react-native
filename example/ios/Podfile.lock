@@ -149,7 +149,7 @@ PODS:
     - GoogleUtilities/Logger
   - GoogleUtilities/UserDefaults (7.6.0):
     - GoogleUtilities/Logger
-  - HMSSDK (0.2.1):
+  - HMSSDK (0.2.2):
     - HMSWebRTC (= 1.0.4516)
   - HMSWebRTC (1.0.4516)
   - libevent (2.1.12)
@@ -629,7 +629,7 @@ SPEC CHECKSUMS:
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: cf9b38bf0b2d048436d9a82ad2abe1404f11e7de
   FBLazyVector: 7b423f9e248eae65987838148c36eec1dbfe0b53
-  FBReactNativeSpec: 77b9f26c7da4c2cb22f820840032881adf60353c
+  FBReactNativeSpec: 77018d6e699dd90d6babbe5626de92fb9e8ebbc9
   Firebase: 629510f1a9ddb235f3a7c5c8ceb23ba887f0f814
   FirebaseAnalytics: 5506ea8b867d8423485a84b4cd612d279f7b0b8a
   FirebaseCore: 98b29e3828f0a53651c363937a7f7d92a19f1ba2
@@ -647,13 +647,13 @@ SPEC CHECKSUMS:
   GoogleAppMeasurement: 5ba1164e3c844ba84272555e916d0a6d3d977e91
   GoogleDataTransport: 629c20a4d363167143f30ea78320d5a7eb8bd940
   GoogleUtilities: 684ee790a24f73ebb2d1d966e9711c203f2a4237
-  HMSSDK: 6d3fcede6707e0706f498644b0b288152fd7f3ae
+  HMSSDK: f9e4270d3a36dd4605915a9d33d8025bf066c59c
   HMSWebRTC: 0dbcff2b03adf79ce6f1129e541af5dc342ed88f
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   OpenSSL-Universal: 1aa4f6a6ee7256b83db99ec1ccdaa80d10f9af9b
-  Permission-Camera: 0db4fd6e1c556c1cf47f38b989a8084cea3ec3dd
-  Permission-Microphone: 7b75718196244a6e59dd60f82f12962562c2ea12
+  Permission-Camera: 1f383e3f9a38ba393c63ba9b09a4726f94eda769
+  Permission-Microphone: 8d496c068d65f9d4ee599b0fdd7ada102a905acf
   PromisesObjC: 68159ce6952d93e17b2dfe273b8c40907db5ba58
   RCT-Folly: ec7a233ccc97cc556cf7237f0db1ff65b986f27c
   RCTRequired: ec2ebc96b7bfba3ca5c32740f5a0c6a014a274d2
@@ -667,7 +667,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 124e8f99992490d0d13e0649d950d3e1aae06fe9
   React-jsinspector: 500a59626037be5b3b3d89c5151bc3baa9abf1a9
   react-native-hms: b1ed5a8664c5367f665d7f9019918691bb9deb3a
-  react-native-safe-area-context: 584dc04881deb49474363f3be89e4ca0e854c057
+  react-native-safe-area-context: 5cf05f49df9d17261e40e518481f2e334c6cd4b5
   React-perflogger: aad6d4b4a267936b3667260d1f649b6f6069a675
   React-RCTActionSheet: fc376be462c9c8d6ad82c0905442fd77f82a9d2a
   React-RCTAnimation: ba0a1c3a2738be224a08092fa7f1b444ab77d309
@@ -681,11 +681,11 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: ff951a0c241bfaefc4940a3f1f1a229e7cb32fa6
   ReactCommon: bedc99ed4dae329c4fcf128d0c31b9115e5365ca
   RNCPicker: 2568e0d0b4644dd9d5f2cec9eca197f5f3f5acb3
-  RNDeviceInfo: 0400a6d0c94186d1120c3cbd97b23abc022187a9
+  RNDeviceInfo: 417b2ef4456c13a9d50ad8c57895eea837b735a8
   RNFBApp: 729c0666395b1953198dc4a1ec6deb8fbe1c302e
   RNFBCrashlytics: 2061ca863e8e2fa1aae9b12477d7dfa8e88ca0f9
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
-  RNPermissions: 4b54095940aea8c03fa3e6c92d4ac3647b31ed4e
+  RNPermissions: b3588a19e12bff03fe21bc46911fd32343666dc0
   RNScreens: 4d79118be80f79fa1f4aa131909a1d6e86280af3
   RNVectorIcons: 31cebfcf94e8cf8686eb5303ae0357da64d7a5a4
   Yoga: a7de31c64fe738607e7a3803e3f591a4b1df7393
