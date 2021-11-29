@@ -9,6 +9,7 @@ import {
   Dimensions,
   BackHandler,
   Platform,
+  Alert,
 } from 'react-native';
 import {connect} from 'react-redux';
 import {
@@ -30,6 +31,7 @@ import {
   HMSSpeakerUpdate,
   HMSPeer,
   HMSTrackType,
+  HMSException,
   // HMSRemoteAudioTrack,
 } from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -39,6 +41,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
 import {getDeviceType} from 'react-native-device-info';
 import type {StackNavigationProp} from '@react-navigation/stack';
+import Toast from 'react-native-simple-toast';
 
 import {ChatWindow, AlertModal, CustomModal, CustomPicker} from '../components';
 import {
@@ -615,8 +618,13 @@ const Meeting = ({
     console.log('data in onMessage: ', data);
   };
 
-  const onError = (data: any) => {
+  const onError = (data: HMSException) => {
     console.log('data in onError: ', data);
+    Toast.showWithGravity(
+      data?.error.message || 'Something went wrong',
+      Toast.LONG,
+      Toast.TOP,
+    );
   };
 
   const onSpeaker = (data: HMSSpeakerUpdate) => {

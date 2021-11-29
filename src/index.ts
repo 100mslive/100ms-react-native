@@ -41,6 +41,7 @@ export * from './classes/HMSChangeTrackStateRequest';
 export * from './classes/HMSSpeaker';
 export * from './classes/HMSSpeakerUpdate';
 export * from './classes/HMSCameraFacing';
+export * from './classes/HMSException';
 
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
 export default HmsManager;
