@@ -55,13 +55,14 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
         
+        let metadata = credentials.value(forKey: "metadata") as? String
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
             if let endpoint = credentials.value(forKey: "endpoint") as? String {
-                strongSelf.config = HMSConfig(userName: user, authToken: authToken, endpoint: endpoint)
+                strongSelf.config = HMSConfig(userName: user, authToken: authToken, metadata: metadata, endpoint: endpoint)
                 strongSelf.hms?.preview(config: strongSelf.config!, delegate: strongSelf)
             } else {
-                strongSelf.config = HMSConfig(userName: user, authToken: authToken)
+                strongSelf.config = HMSConfig(userName: user, authToken: authToken, metadata: metadata)
                 strongSelf.hms?.preview(config: strongSelf.config!, delegate: strongSelf)
             }
         }
@@ -76,32 +77,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
 
-        DispatchQueue.main.async { [weak self] in
-            guard let strongSelf = self else { return }
-            if let config = strongSelf.config {
-                do{
-                    try strongSelf.hms?.join(config: config, delegate: strongSelf)
-                } catch let error{
-                    strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["event": strongSelf.ON_ERROR, "error": error.localizedDescription])
-                }
-            } else {
-                if let endpoint = credentials.value(forKey: "endpoint") as? String {
-                    do{
-                        strongSelf.config = HMSConfig(userName: user, authToken: authToken, endpoint: endpoint)
-                        try strongSelf.hms?.join(config: strongSelf.config!, delegate: strongSelf)
-                    } catch let error{
-                        strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["event": strongSelf.ON_ERROR, "error": error.localizedDescription])
-                    }
-                } else {
-                    do{
-                        strongSelf.config = HMSConfig(userName: user, authToken: authToken)
-                        try strongSelf.hms?.join(config: strongSelf.config!, delegate: strongSelf)
-                    } catch let error{
-                        strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["event": strongSelf.ON_ERROR, "error": error.localizedDescription])
-                    }
-                }
-            }
-        }
+        let metadata = credentials.value(forKey: "metadata") as? String
         
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
@@ -109,10 +85,10 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
                 strongSelf.hms?.join(config: config, delegate: strongSelf)
             } else {
                 if let endpoint = credentials.value(forKey: "endpoint") as? String {
-                    strongSelf.config = HMSConfig(userName: user, authToken: authToken, endpoint: endpoint)
+                    strongSelf.config = HMSConfig(userName: user, authToken: authToken, metadata: metadata, endpoint: endpoint)
                     strongSelf.hms?.join(config: strongSelf.config!, delegate: strongSelf)
                 } else {
-                    strongSelf.config = HMSConfig(userName: user, authToken: authToken)
+                    strongSelf.config = HMSConfig(userName: user, authToken: authToken, metadata: metadata)
                     strongSelf.hms?.join(config: strongSelf.config!, delegate: strongSelf)
                 }
             }
@@ -492,6 +468,9 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     
     func on(error: HMSError) {
         let hmsError = HmsDecoder.getError(error)
+        print("ERROR IS HERE")
+        print(error)
+        
         self.delegate?.emitEvent(ON_ERROR, hmsError)
     }
     
@@ -567,6 +546,8 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
             return "PEER_LEFT"
         case .roleUpdated:
             return "ROLE_CHANGED"
+        case .metadataUpdated:
+            return "METADATA_CHANGED"
         default:
             return ""
         }
