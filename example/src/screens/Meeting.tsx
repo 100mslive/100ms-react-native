@@ -70,7 +70,9 @@ type Peer = {
   colour: string;
   sink: boolean;
   type: 'local' | 'remote' | 'screen';
-  metadata: {};
+  metadata?: {
+    isHandRaised: boolean;
+  };
 };
 
 type DisplayTrackProps = {
@@ -101,7 +103,6 @@ const DEFAULT_PEER: Peer = {
   colour: getThemeColour(),
   sink: true,
   type: 'local',
-  metadata: {},
 };
 
 type MeetingScreenProp = StackNavigationProp<AppStackParamList, 'Meeting'>;
@@ -123,6 +124,7 @@ const DisplayTrack = ({
     peerRefrence,
     isAudioMute,
     isVideoMute,
+    metadata,
   } = peer!;
   const [alertModalVisible, setAlertModalVisible] = useState(false);
   const [roleModalVisible, setRoleModalVisible] = useState(false);
@@ -349,6 +351,15 @@ const DisplayTrack = ({
             style={type === 'screen' ? styles.hmsViewScreen : styles.hmsView}
           />
         )}
+        {metadata?.isHandRaised === true && (
+          <View style={styles.raiseHandContainer}>
+            <Ionicons
+              name="ios-hand-left"
+              style={styles.raiseHand}
+              size={dimension.viewHeight(30)}
+            />
+          </View>
+        )}
         {type === 'remote' && selectActionButtons.length > 1 && (
           <TouchableOpacity
             onPress={promptUser}
@@ -356,7 +367,7 @@ const DisplayTrack = ({
             <Entypo
               name="dots-three-horizontal"
               style={styles.options}
-              size={20}
+              size={dimension.viewHeight(30)}
             />
           </TouchableOpacity>
         )}
@@ -543,7 +554,6 @@ const Meeting = ({
               colour: getThemeColour(),
               sink: true,
               type: 'screen',
-              metadata: {},
             });
           }
         });
@@ -956,8 +966,6 @@ const Meeting = ({
     }
   });
 
-  console.log(remoteTrackIds, trackId, 'here everything');
-
   return (
     <SafeAreaView style={styles.container}>
       <CustomModal
@@ -1010,6 +1018,21 @@ const Meeting = ({
       <View style={styles.headerContainer}>
         <Text style={styles.headerName}>{trackId?.name}</Text>
         <View style={styles.headerRight}>
+          {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
+            'video',
+          ) && (
+            <TouchableOpacity
+              style={styles.headerIcon}
+              onPress={() => {
+                instance?.localPeer?.localVideoTrack()?.switchCamera();
+              }}>
+              <Ionicons
+                name="camera-reverse-outline"
+                style={styles.videoIcon}
+                size={dimension.viewHeight(30)}
+              />
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
             onPress={() => {
               instance?.muteAllPeersAudio(!muteAllAudio);
@@ -1098,24 +1121,6 @@ const Meeting = ({
                 ...trackId,
                 isAudioMute: !trackId.isAudioMute,
               });
-              // TODO: use this piece of code to set volume of localAudioTrack
-              // instance?.setVolume(
-              //   instance?.localPeer?.audioTrack as HMSTrack,
-              //   0.2,
-              // );
-
-              //TODO: use this piece of code to set volume of remote Aux tracks
-              // const remotePeers = instance?.remotePeers;
-
-              // remotePeers?.map((peer: HMSRemotePeer) => {
-              //   const remoteAuxTracks = peer.auxiliaryTracks;
-
-              //   remoteAuxTracks?.map((track: HMSTrack) => {
-              //     if (track.type === HMSTrackType.AUDIO) {
-              //       instance?.setVolume(track, 0.2);
-              //     }
-              //   });
-              // });
             }}>
             <Feather
               name={trackId.isAudioMute ? 'mic-off' : 'mic'}
@@ -1136,21 +1141,23 @@ const Meeting = ({
           />
           {notification && <View style={styles.messageDot} />}
         </TouchableOpacity>
-        {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
-          'video',
-        ) && (
-          <TouchableOpacity
-            style={styles.singleIconContainer}
-            onPress={() => {
-              instance?.localPeer?.localVideoTrack()?.switchCamera();
-            }}>
-            <Ionicons
-              name="camera-reverse-outline"
-              style={styles.videoIcon}
-              size={dimension.viewHeight(30)}
-            />
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity
+          style={styles.singleIconContainer}
+          onPress={() => {
+            instance?.changeMetadata(
+              `{"isHandRaised":${!trackId?.metadata?.isHandRaised}}`,
+            );
+          }}>
+          <Ionicons
+            name={
+              trackId?.metadata?.isHandRaised
+                ? 'ios-hand-left'
+                : 'ios-hand-left-outline'
+            }
+            style={styles.videoIcon}
+            size={dimension.viewHeight(30)}
+          />
+        </TouchableOpacity>
         {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
           'video',
         ) && (
@@ -1235,7 +1242,18 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     flex: 1,
   },
-  videoIcon: {},
+  videoIcon: {
+    color: getThemeColour(),
+  },
+  raiseHandContainer: {
+    padding: 10,
+    position: 'absolute',
+    left: 0,
+    top: 0,
+  },
+  raiseHand: {
+    color: 'rgb(242,202,73)',
+  },
   fullScreenTile: {
     width: '100%',
     marginVertical: 1,

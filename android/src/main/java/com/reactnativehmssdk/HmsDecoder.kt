@@ -39,8 +39,8 @@ object HmsDecoder {
           if (hmsPeer.customerUserID == null) hmsPeer.customerUserID else ""
       )
       peer.putString(
-          "customerDescription",
-          if (hmsPeer.customerDescription == null) hmsPeer.customerDescription else ""
+          "metadata",
+          if (hmsPeer.metadata == null) hmsPeer.metadata else ""
       )
       peer.putMap("audioTrack", getHmsAudioTrack(hmsPeer.audioTrack))
       peer.putMap("videoTrack", getHmsVideoTrack(hmsPeer.videoTrack))
@@ -249,8 +249,8 @@ object HmsDecoder {
           if (hmsLocalPeer.customerUserID != null) hmsLocalPeer.customerUserID else ""
       )
       peer.putString(
-          "customerDescription",
-          if (hmsLocalPeer.customerDescription != null) hmsLocalPeer.customerDescription else ""
+          "metadata",
+          if (hmsLocalPeer.metadata != null) hmsLocalPeer.metadata else ""
       )
       peer.putMap("audioTrack", getHmsAudioTrack(hmsLocalPeer.audioTrack))
       peer.putMap("videoTrack", getHmsVideoTrack(hmsLocalPeer.videoTrack))
@@ -364,8 +364,8 @@ object HmsDecoder {
           if (hmsRemotePeer.customerUserID != null) hmsRemotePeer.customerUserID else ""
       )
       peer.putString(
-          "customerDescription",
-          if (hmsRemotePeer.customerDescription != null) hmsRemotePeer.customerDescription else ""
+          "metadata",
+          if (hmsRemotePeer.metadata != null) hmsRemotePeer.metadata else ""
       )
       peer.putMap("audioTrack", getHmsAudioTrack(hmsRemotePeer.audioTrack))
       peer.putMap("videoTrack", getHmsVideoTrack(hmsRemotePeer.videoTrack))
