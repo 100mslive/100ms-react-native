@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Dimensions,
+  Alert,
 } from 'react-native';
 import {connect} from 'react-redux';
 import HmsManager, {
@@ -27,11 +28,13 @@ import HmsManager, {
   HMSVideoTrackSettings,
   HMSVideoCodec,
   HMSTrackSettings,
+  HMSException,
 } from '@100mslive/react-native-hms';
 import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import {PERMISSIONS, RESULTS, requestMultiple} from 'react-native-permissions';
 import Feather from 'react-native-vector-icons/Feather';
+import Toast from 'react-native-simple-toast';
 
 import * as services from '../services/index';
 import {UserIdModal, PreviewModal} from '../components';
@@ -43,7 +46,6 @@ import {
 import {getThemeColour} from '../utils/functions';
 import type {AppStackParamList} from '../navigator';
 import type {RootState} from '../redux';
-import {Alert} from 'react-native';
 import {HMSCameraFacing} from '../../../src/classes/HMSCameraFacing';
 import {HMSVideoResolution} from '../../../src/classes/HMSVideoResolution';
 
@@ -156,8 +158,13 @@ const App = ({
     }
   };
 
-  const onError = (data: any) => {
+  const onError = (data: HMSException) => {
     console.log('here on error', data);
+    Toast.showWithGravity(
+      data?.error?.message || 'Something went wrong',
+      Toast.LONG,
+      Toast.TOP,
+    );
   };
 
   // let ref = React.useRef();

@@ -78,7 +78,11 @@ class HmsSDK(
           config,
           object : HMSPreviewListener {
             override fun onError(error: HMSException) {
-              delegate.emitEvent("ON_ERROR", HmsDecoder.getError(error))
+              val data: WritableMap = Arguments.createMap()
+              data.putString("event", "ON_ERROR")
+              data.putString("id", id)
+              data.putMap("error", HmsDecoder.getError(error))
+              delegate.emitEvent("ON_ERROR", data)
             }
 
             override fun onPreview(room: HMSRoom, localTracks: Array<HMSTrack>) {
@@ -96,18 +100,19 @@ class HmsSDK(
           }
       )
     } else {
-      delegate.emitEvent(
-          "ON_ERROR",
-          HmsDecoder.getError(
-              HMSException(
-                  102,
-                  "NOT_FOUND",
-                  "SEND_ALL_REQUIRED_KEYS",
-                  "REQUIRED_KEYS_NOT_FOUND",
-                  "REQUIRED_KEYS_NOT_FOUND"
-              )
+      val data: WritableMap = Arguments.createMap()
+      val hmsError =
+          HMSException(
+              102,
+              "NOT_FOUND",
+              "SEND_ALL_REQUIRED_KEYS",
+              "REQUIRED_KEYS_NOT_FOUND",
+              "REQUIRED_KEYS_NOT_FOUND"
           )
-      )
+      data.putString("event", "ON_ERROR")
+      data.putString("id", id)
+      data.putMap("error", HmsDecoder.getError(hmsError))
+      delegate.emitEvent("ON_ERROR", data)
     }
   }
 
@@ -181,7 +186,11 @@ class HmsSDK(
                 }
 
                 override fun onError(error: HMSException) {
-                  delegate.emitEvent("ON_ERROR", HmsDecoder.getError(error))
+                  val data: WritableMap = Arguments.createMap()
+                  data.putString("event", "ON_ERROR")
+                  data.putString("id", id)
+                  data.putMap("error", HmsDecoder.getError(error))
+                  delegate.emitEvent("ON_ERROR", data)
                 }
 
                 override fun onJoin(room: HMSRoom) {
@@ -313,18 +322,19 @@ class HmsSDK(
         )
       }
     } else {
-      delegate.emitEvent(
-          "ON_ERROR",
-          HmsDecoder.getError(
-              HMSException(
-                  102,
-                  "NOT_FOUND",
-                  "SEND_ALL_REQUIRED_KEYS",
-                  "REQUIRED_KEYS_NOT_FOUND",
-                  "REQUIRED_KEYS_NOT_FOUND"
-              )
+      val data: WritableMap = Arguments.createMap()
+      val hmsError =
+          HMSException(
+              102,
+              "NOT_FOUND",
+              "SEND_ALL_REQUIRED_KEYS",
+              "REQUIRED_KEYS_NOT_FOUND",
+              "REQUIRED_KEYS_NOT_FOUND"
           )
-      )
+      data.putString("event", "ON_ERROR")
+      data.putString("id", id)
+      data.putMap("error", HmsDecoder.getError(hmsError))
+      delegate.emitEvent("ON_ERROR", data)
     }
   }
 
@@ -388,18 +398,19 @@ class HmsSDK(
           }
       )
     } else {
-      delegate.emitEvent(
-          "ON_ERROR",
-          HmsDecoder.getError(
-              HMSException(
-                  102,
-                  "NOT_FOUND",
-                  "SEND_ALL_REQUIRED_KEYS",
-                  "REQUIRED_KEYS_NOT_FOUND",
-                  "REQUIRED_KEYS_NOT_FOUND"
-              )
+      val data: WritableMap = Arguments.createMap()
+      val hmsError =
+          HMSException(
+              102,
+              "NOT_FOUND",
+              "SEND_ALL_REQUIRED_KEYS",
+              "REQUIRED_KEYS_NOT_FOUND",
+              "REQUIRED_KEYS_NOT_FOUND"
           )
-      )
+      data.putString("event", "ON_ERROR")
+      data.putString("id", id)
+      data.putMap("error", HmsDecoder.getError(hmsError))
+      delegate.emitEvent("ON_ERROR", data)
     }
   }
 
@@ -431,18 +442,19 @@ class HmsSDK(
         )
       }
     } else {
-      delegate.emitEvent(
-          "ON_ERROR",
-          HmsDecoder.getError(
-              HMSException(
-                  102,
-                  "NOT_FOUND",
-                  "SEND_ALL_REQUIRED_KEYS",
-                  "REQUIRED_KEYS_NOT_FOUND",
-                  "REQUIRED_KEYS_NOT_FOUND"
-              )
+      val data: WritableMap = Arguments.createMap()
+      val hmsError =
+          HMSException(
+              102,
+              "NOT_FOUND",
+              "SEND_ALL_REQUIRED_KEYS",
+              "REQUIRED_KEYS_NOT_FOUND",
+              "REQUIRED_KEYS_NOT_FOUND"
           )
-      )
+      data.putString("event", "ON_ERROR")
+      data.putString("id", id)
+      data.putMap("error", HmsDecoder.getError(hmsError))
+      delegate.emitEvent("ON_ERROR", data)
     }
   }
 
@@ -473,18 +485,19 @@ class HmsSDK(
         )
       }
     } else {
-      delegate.emitEvent(
-          "ON_ERROR",
-          HmsDecoder.getError(
-              HMSException(
-                  102,
-                  "NOT_FOUND",
-                  "SEND_ALL_REQUIRED_KEYS",
-                  "REQUIRED_KEYS_NOT_FOUND",
-                  "REQUIRED_KEYS_NOT_FOUND"
-              )
+      val data: WritableMap = Arguments.createMap()
+      val hmsError =
+          HMSException(
+              102,
+              "NOT_FOUND",
+              "SEND_ALL_REQUIRED_KEYS",
+              "REQUIRED_KEYS_NOT_FOUND",
+              "REQUIRED_KEYS_NOT_FOUND"
           )
-      )
+      data.putString("event", "ON_ERROR")
+      data.putString("id", id)
+      data.putMap("error", HmsDecoder.getError(hmsError))
+      delegate.emitEvent("ON_ERROR", data)
     }
   }
 
@@ -516,18 +529,19 @@ class HmsSDK(
         }
       }
     } else {
-      delegate.emitEvent(
-          "ON_ERROR",
-          HmsDecoder.getError(
-              HMSException(
-                  102,
-                  "NOT_FOUND",
-                  "SEND_ALL_REQUIRED_KEYS",
-                  "REQUIRED_KEYS_NOT_FOUND",
-                  "REQUIRED_KEYS_NOT_FOUND"
-              )
+      val data: WritableMap = Arguments.createMap()
+      val hmsError =
+          HMSException(
+              102,
+              "NOT_FOUND",
+              "SEND_ALL_REQUIRED_KEYS",
+              "REQUIRED_KEYS_NOT_FOUND",
+              "REQUIRED_KEYS_NOT_FOUND"
           )
-      )
+      data.putString("event", "ON_ERROR")
+      data.putString("id", id)
+      data.putMap("error", HmsDecoder.getError(hmsError))
+      delegate.emitEvent("ON_ERROR", data)
     }
   }
 
@@ -553,18 +567,19 @@ class HmsSDK(
         )
       }
     } else {
-      delegate.emitEvent(
-          "ON_ERROR",
-          HmsDecoder.getError(
-              HMSException(
-                  102,
-                  "NOT_FOUND",
-                  "SEND_ALL_REQUIRED_KEYS",
-                  "REQUIRED_KEYS_NOT_FOUND",
-                  "REQUIRED_KEYS_NOT_FOUND"
-              )
+      val data: WritableMap = Arguments.createMap()
+      val hmsError =
+          HMSException(
+              102,
+              "NOT_FOUND",
+              "SEND_ALL_REQUIRED_KEYS",
+              "REQUIRED_KEYS_NOT_FOUND",
+              "REQUIRED_KEYS_NOT_FOUND"
           )
-      )
+      data.putString("event", "ON_ERROR")
+      data.putString("id", id)
+      data.putMap("error", HmsDecoder.getError(hmsError))
+      delegate.emitEvent("ON_ERROR", data)
     }
   }
 
@@ -599,18 +614,19 @@ class HmsSDK(
           }
       )
     } else {
-      delegate.emitEvent(
-          "ON_ERROR",
-          HmsDecoder.getError(
-              HMSException(
-                  102,
-                  "NOT_FOUND",
-                  "SEND_ALL_REQUIRED_KEYS",
-                  "REQUIRED_KEYS_NOT_FOUND",
-                  "REQUIRED_KEYS_NOT_FOUND"
-              )
+      val data: WritableMap = Arguments.createMap()
+      val hmsError =
+          HMSException(
+              102,
+              "NOT_FOUND",
+              "SEND_ALL_REQUIRED_KEYS",
+              "REQUIRED_KEYS_NOT_FOUND",
+              "REQUIRED_KEYS_NOT_FOUND"
           )
-      )
+      data.putString("event", "ON_ERROR")
+      data.putString("id", id)
+      data.putMap("error", HmsDecoder.getError(hmsError))
+      delegate.emitEvent("ON_ERROR", data)
     }
   }
 
@@ -723,18 +739,19 @@ class HmsSDK(
         delegate.emitEvent("ON_PEER_UPDATE", data)
       }
     } else {
-      delegate.emitEvent(
-          "ON_ERROR",
-          HmsDecoder.getError(
-              HMSException(
-                  102,
-                  "NOT_FOUND",
-                  "SEND_ALL_REQUIRED_KEYS",
-                  "REQUIRED_KEYS_NOT_FOUND",
-                  "REQUIRED_KEYS_NOT_FOUND"
-              )
+      val data: WritableMap = Arguments.createMap()
+      val hmsError =
+          HMSException(
+              102,
+              "NOT_FOUND",
+              "SEND_ALL_REQUIRED_KEYS",
+              "REQUIRED_KEYS_NOT_FOUND",
+              "REQUIRED_KEYS_NOT_FOUND"
           )
-      )
+      data.putString("event", "ON_ERROR")
+      data.putString("id", id)
+      data.putMap("error", HmsDecoder.getError(hmsError))
+      delegate.emitEvent("ON_ERROR", data)
     }
   }
 
@@ -756,18 +773,19 @@ class HmsSDK(
         remoteVideoTrack.isPlaybackAllowed = playbackAllowed
       }
     } else {
-      delegate.emitEvent(
-          "ON_ERROR",
-          HmsDecoder.getError(
-              HMSException(
-                  102,
-                  "NOT_FOUND",
-                  "SEND_ALL_REQUIRED_KEYS",
-                  "REQUIRED_KEYS_NOT_FOUND",
-                  "REQUIRED_KEYS_NOT_FOUND"
-              )
+      val data: WritableMap = Arguments.createMap()
+      val hmsError =
+          HMSException(
+              102,
+              "NOT_FOUND",
+              "SEND_ALL_REQUIRED_KEYS",
+              "REQUIRED_KEYS_NOT_FOUND",
+              "REQUIRED_KEYS_NOT_FOUND"
           )
-      )
+      data.putString("event", "ON_ERROR")
+      data.putString("id", id)
+      data.putMap("error", HmsDecoder.getError(hmsError))
+      delegate.emitEvent("ON_ERROR", data)
     }
   }
 
@@ -829,18 +847,19 @@ class HmsSDK(
                 trackExtracted.setVolume(volume)
                 return
               } else {
-                delegate.emitEvent(
-                    "ON_ERROR",
-                    HmsDecoder.getError(
-                        HMSException(
-                            102,
-                            "HMSTrack Could not be converted to HMSRemoteAudioTrack",
-                            "CONVERSION_ERROR",
-                            "CONVERSION_ERROR",
-                            "CONVERSION_ERROR"
-                        )
+                val data: WritableMap = Arguments.createMap()
+                val hmsError =
+                    HMSException(
+                        102,
+                        "NOT_FOUND",
+                        "SEND_ALL_REQUIRED_KEYS",
+                        "REQUIRED_KEYS_NOT_FOUND",
+                        "REQUIRED_KEYS_NOT_FOUND"
                     )
-                )
+                data.putString("event", "ON_ERROR")
+                data.putString("id", id)
+                data.putMap("error", HmsDecoder.getError(hmsError))
+                delegate.emitEvent("ON_ERROR", data)
               }
             }
           }
