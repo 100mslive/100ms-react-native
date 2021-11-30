@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  NativeEventEmitter,
-  NativeModules,
-  Platform,
-  ViewStyle,
-} from 'react-native';
+import { NativeEventEmitter, NativeModules, ViewStyle } from 'react-native';
 import { HMSUpdateListenerActions } from './HMSUpdateListenerActions';
 import type { HMSConfig } from './HMSConfig';
 import type { HMSLocalPeer } from './HMSLocalPeer';
@@ -396,16 +391,13 @@ export class HMSSDK {
   };
 
   setVolume = (track: HMSTrack, volume: number) => {
-    if (Platform.OS === 'ios') {
-      return 'This API not available for IOS';
-    } else {
-      HmsManager.setVolume({
-        id: this.id,
-        trackId: track.trackId,
-        volume,
-      });
-      return;
-    }
+    this.logger?.verbose('SET_VOLUME_CALL', { track, volume });
+    HmsManager.setVolume({
+      id: this.id,
+      trackId: track.trackId,
+      volume,
+    });
+    return;
   };
 
   /**
@@ -706,7 +698,9 @@ export class HMSSDK {
       return;
     }
     this.logger?.warn('ON_ERROR', data);
+    this.logger?.verbose('ON_ERROR', data);
     if (this.onErrorDelegate) {
+      this.logger?.verbose('ON_ERROR_LISTENER_CALL', data);
       this.logger?.warn('ON_ERROR_LISTENER_CALL', data);
       this.onErrorDelegate(data);
     }

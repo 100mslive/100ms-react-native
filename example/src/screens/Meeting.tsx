@@ -30,7 +30,6 @@ import {
   HMSSpeakerUpdate,
   HMSPeer,
   HMSTrackType,
-  // HMSRemoteAudioTrack,
 } from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
@@ -38,6 +37,7 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
 import {getDeviceType} from 'react-native-device-info';
+import {Slider} from '@miblanchard/react-native-slider';
 import type {StackNavigationProp} from '@react-navigation/stack';
 
 import {ChatWindow, AlertModal, CustomModal, CustomPicker} from '../components';
@@ -73,6 +73,7 @@ type Peer = {
   metadata?: {
     isHandRaised: boolean;
   };
+  track?: HMSTrack;
 };
 
 type DisplayTrackProps = {
@@ -130,6 +131,25 @@ const DisplayTrack = ({
   const [roleModalVisible, setRoleModalVisible] = useState(false);
   const [newRole, setNewRole] = useState(peerRefrence?.role);
   const [force, setForce] = useState(false);
+  const [volumeModal, setVolumeModal] = useState(false);
+  const [volume, setVolume] = useState(1);
+
+  const modalTitle = 'Set Volume';
+
+  const modalButtons: [
+    {text: string; onPress?: Function},
+    {text: string; onPress?: Function},
+  ] = [
+    {text: 'Cancel'},
+    {
+      text: 'Set',
+      onPress: () => {
+        type === 'screen'
+          ? instance?.setVolume(peer?.track as HMSTrack, volume)
+          : instance?.setVolume(peerRefrence?.audioTrack as HMSTrack, volume);
+      },
+    },
+  ];
 
   useEffect(() => {
     knownRoles?.map(role => {
@@ -138,18 +158,47 @@ const DisplayTrack = ({
         return;
       }
     });
+    const getVolume = async () => {
+      if (type === 'local') {
+        setVolume(await instance?.localPeer?.localAudioTrack()?.getVolume());
+      }
+    };
+    getVolume();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // TODO: use this piece of code to setVolume of remoteAudioTrack
-  // const remoteTrack = peerRefrence?.audioTrack;
-
-  // instance?.setVolume(remoteTrack as HMSTrack, 0.2);
 
   const HmsViewComponent = instance?.HmsView;
   const knownRoles = instance?.knownRoles || [];
   const isDegraded = peerRefrence?.videoTrack?.isDegraded || false;
   const speaking = speakers.includes(id!);
+  const roleRequestTitle = 'Select action';
+  const roleRequestButtons: [
+    {text: string; onPress?: Function},
+    {text: string; onPress?: Function}?,
+  ] = [
+    {text: 'Cancel'},
+    {
+      text: 'Send',
+      onPress: () => {
+        instance?.changeRole(peerRefrence!, newRole!, force);
+      },
+    },
+  ];
+
+  const selectAuxActionButtons: Array<{
+    text: string;
+    type?: string;
+    onPress?: Function;
+  }> = [
+    {text: 'Cancel', type: 'cancel'},
+    {
+      text: 'Set Volume',
+      onPress: () => {
+        setVolumeModal(true);
+      },
+    },
+  ];
+
   const selectActionTitle = 'Select action';
   const selectActionMessage = '';
   const selectActionButtons: Array<{
@@ -158,6 +207,12 @@ const DisplayTrack = ({
     onPress?: Function;
   }> = [
     {text: 'Cancel', type: 'cancel'},
+    {
+      text: 'Set Volume',
+      onPress: () => {
+        setVolumeModal(true);
+      },
+    },
     {
       text: 'Mute/Unmute audio locally',
       onPress: async () => {
@@ -179,7 +234,6 @@ const DisplayTrack = ({
       },
     },
   ];
-
   if (permissions?.changeRole) {
     selectActionButtons.push(
       ...[
@@ -208,20 +262,6 @@ const DisplayTrack = ({
       },
     });
   }
-  const roleRequestTitle = 'Select action';
-  const roleRequestButtons: [
-    {text: string; onPress?: Function},
-    {text: string; onPress?: Function}?,
-  ] = [
-    {text: 'Cancel'},
-    {
-      text: 'Send',
-      onPress: () => {
-        instance?.changeRole(peerRefrence!, newRole!, force);
-      },
-    },
-  ];
-
   if (permissions?.unmute) {
     const unmute = false;
     if (isAudioMute) {
@@ -247,7 +287,6 @@ const DisplayTrack = ({
       });
     }
   }
-
   if (permissions?.mute) {
     const mute = true;
     if (!isAudioMute) {
@@ -319,8 +358,23 @@ const DisplayTrack = ({
           setModalVisible={setAlertModalVisible}
           title={selectActionTitle}
           message={selectActionMessage}
-          buttons={selectActionButtons}
+          buttons={
+            type === 'screen' ? selectAuxActionButtons : selectActionButtons
+          }
         />
+        <CustomModal
+          modalVisible={volumeModal}
+          setModalVisible={setVolumeModal}
+          title={modalTitle}
+          buttons={modalButtons}>
+          <Slider
+            value={volume}
+            maximumValue={10}
+            minimumValue={0}
+            step={0.1}
+            onValueChange={(value: any) => setVolume(value[0])}
+          />
+        </CustomModal>
         <CustomModal
           modalVisible={roleModalVisible}
           setModalVisible={setRoleModalVisible}
@@ -360,7 +414,8 @@ const DisplayTrack = ({
             />
           </View>
         )}
-        {type === 'remote' && selectActionButtons.length > 1 && (
+        {type === 'screen' ||
+        (type === 'remote' && selectActionButtons.length > 1) ? (
           <TouchableOpacity
             onPress={promptUser}
             style={styles.optionsContainer}>
@@ -370,6 +425,8 @@ const DisplayTrack = ({
               size={dimension.viewHeight(30)}
             />
           </TouchableOpacity>
+        ) : (
+          <></>
         )}
         <View style={styles.displayContainer}>
           <View style={styles.peerNameContainer}>
@@ -540,12 +597,19 @@ const Meeting = ({
         remoteVideoIds.push(remoteTemp);
 
         let auxiliaryTracks = remotePeer?.auxiliaryTracks;
+        let auxAudioTrack: HMSTrack | undefined = undefined;
+        let auxVideoTrack: Peer | undefined = undefined;
 
         auxiliaryTracks?.map((track: HMSTrack) => {
           let auxTrackId = track?.trackId;
-
-          if (auxTrackId && track?.type === HMSTrackType.VIDEO) {
-            newAuxTracks.push({
+          if (
+            auxTrackId &&
+            track?.type === HMSTrackType.AUDIO &&
+            track?.source === 'screen'
+          ) {
+            auxAudioTrack = track;
+          } else if (auxTrackId && track?.type === HMSTrackType.VIDEO) {
+            auxVideoTrack = {
               trackId: auxTrackId,
               name: `${remotePeer?.name}'s Screen`,
               isAudioMute: true,
@@ -554,9 +618,12 @@ const Meeting = ({
               colour: getThemeColour(),
               sink: true,
               type: 'screen',
-            });
+            };
           }
         });
+        if (auxVideoTrack !== undefined) {
+          newAuxTracks.push({...(auxVideoTrack as Peer), track: auxAudioTrack});
+        }
       });
       setAuxTracks(newAuxTracks);
 
