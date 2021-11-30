@@ -956,8 +956,6 @@ const Meeting = ({
     }
   });
 
-  console.log(remoteTrackIds, trackId, 'here everything');
-
   return (
     <SafeAreaView style={styles.container}>
       <CustomModal

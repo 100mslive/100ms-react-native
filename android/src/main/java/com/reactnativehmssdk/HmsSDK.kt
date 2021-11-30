@@ -49,16 +49,31 @@ class HmsSDK(
       var config =
           HMSConfig(
               credentials.getString("username") as String,
-              credentials.getString("authToken") as String
+              credentials.getString("authToken") as String,
           )
 
-      if (HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("endpoint", "String")))) {
+      if (HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("endpoint", "String"), Pair("metadata", "String")))) {
         config =
             HMSConfig(
                 credentials.getString("username") as String,
                 credentials.getString("authToken") as String,
-                initEndpoint = credentials.getString("endpoint") as String
+                initEndpoint = credentials.getString("endpoint") as String,
+                metadata = credentials.getString("metadata") as String,
             )
+      } else if (HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("endpoint", "String")))) {
+        config =
+          HMSConfig(
+            credentials.getString("username") as String,
+            credentials.getString("authToken") as String,
+            initEndpoint = credentials.getString("endpoint") as String,
+          )
+      } else if (HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("metadata", "String")))) {
+        config =
+          HMSConfig(
+            credentials.getString("username") as String,
+            credentials.getString("authToken") as String,
+            metadata = credentials.getString("metadata") as String,
+          )
       }
 
       hmsSDK?.preview(
@@ -111,13 +126,28 @@ class HmsSDK(
               credentials.getString("authToken") as String
           )
 
-      if (HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("endpoint", "String")))) {
+      if (HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("endpoint", "String"), Pair("metadata", "String")))) {
         config =
-            HMSConfig(
-                credentials.getString("username") as String,
-                credentials.getString("authToken") as String,
-                initEndpoint = credentials.getString("endpoint") as String
-            )
+          HMSConfig(
+            credentials.getString("username") as String,
+            credentials.getString("authToken") as String,
+            initEndpoint = credentials.getString("endpoint") as String,
+            metadata = credentials.getString("metadata") as String,
+          )
+      } else if (HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("endpoint", "String")))) {
+        config =
+          HMSConfig(
+            credentials.getString("username") as String,
+            credentials.getString("authToken") as String,
+            initEndpoint = credentials.getString("endpoint") as String,
+          )
+      } else if (HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("metadata", "String")))) {
+        config =
+          HMSConfig(
+            credentials.getString("username") as String,
+            credentials.getString("authToken") as String,
+            metadata = credentials.getString("metadata") as String,
+          )
       }
 
       HMSCoroutineScope.launch {
@@ -172,7 +202,6 @@ class HmsSDK(
                 }
 
                 override fun onPeerUpdate(type: HMSPeerUpdate, hmsPeer: HMSPeer) {
-
                   val type = type.name
                   val roomData = HmsDecoder.getHmsRoom(hmsSDK?.getRoom())
                   val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
