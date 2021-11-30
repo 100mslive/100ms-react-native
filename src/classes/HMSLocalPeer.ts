@@ -25,6 +25,7 @@ export class HMSLocalPeer extends HMSPeer {
     isLocal?: boolean;
     customerUserID?: string;
     customerDescription?: string;
+    metadata?: string;
     audioTrack?: HMSAudioTrack;
     videoTrack?: HMSVideoTrack;
     role?: HMSRole;

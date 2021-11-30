@@ -25,6 +25,7 @@ class HmsDecoder: NSObject {
         let isLocal = peer.isLocal
         let customerUserID = peer.customerUserID ?? ""
         let customerDescription = peer.metadata ?? ""
+        let metadata = peer.metadata ?? ""
         let audioTrack = getHmsAudioTrack(peer.audioTrack)
         let videoTrack = getHmsVideoTrack(peer.videoTrack)
         let role = getHmsRole(peer.role)
@@ -40,6 +41,7 @@ class HmsDecoder: NSObject {
                 "isLocal": isLocal,
                 "customerUserID": customerUserID,
                 "customerDescription": customerDescription,
+                "metadata": metadata,
                 "audioTrack": audioTrack,
                 "videoTrack": videoTrack,
                 "auxiliaryTracks": auxiliaryTracks,
@@ -93,6 +95,7 @@ class HmsDecoder: NSObject {
         let isLocal = peer.isLocal
         let customerUserID = peer.customerUserID ?? ""
         let customerDescription = peer.metadata ?? ""
+        let metadata = peer.metadata ?? ""
         let audioTrack = getHmsAudioTrack(peer.audioTrack)
         let videoTrack = getHmsVideoTrack(peer.videoTrack)
         let role = getHmsRole(peer.role)
@@ -115,7 +118,7 @@ class HmsDecoder: NSObject {
             localVideoTrackData = ["trackId": localVideo.trackId, "source": localVideo.source, "trackDescription": localVideo.trackDescription, "settings": getHmsVideoTrackSettings(localVideo.settings), "isMute":localAudioTrack?.isMute() ?? false]
         }
         
-        return ["peerID": peerID, "name": name, "isLocal": isLocal, "customerUserID": customerUserID, "customerDescription": customerDescription, "audioTrack": audioTrack, "videoTrack": videoTrack, "auxiliaryTracks": auxiliaryTracks, "localAudioTrackData": localAudioTrackData, "localVideoTrackData": localVideoTrackData, "role": role]
+        return ["peerID": peerID, "name": name, "isLocal": isLocal, "customerUserID": customerUserID, "customerDescription": customerDescription, "metadata": metadata, "audioTrack": audioTrack, "videoTrack": videoTrack, "auxiliaryTracks": auxiliaryTracks, "localAudioTrackData": localAudioTrackData, "localVideoTrackData": localVideoTrackData, "role": role]
     }
     
     static func getHmsAudioTrackSettings(_ hmsAudioTrackSettings: HMSAudioTrackSettings?) -> [String: Any] {
@@ -200,6 +203,7 @@ class HmsDecoder: NSObject {
         let isLocal = hmsRemotePeer.isLocal
         let customerUserID = hmsRemotePeer.customerUserID ?? ""
         let customerDescription = hmsRemotePeer.metadata ?? ""
+        let metadata = hmsRemotePeer.metadata ?? ""
         let audioTrack = getHmsAudioTrack(hmsRemotePeer.audioTrack)
         let videoTrack = getHmsVideoTrack(hmsRemotePeer.videoTrack)
         let role = getHmsRole(hmsRemotePeer.role)
@@ -223,7 +227,7 @@ class HmsDecoder: NSObject {
             remoteVideoTrackData = ["trackId": remoteVideo.trackId, "source": remoteVideo.source, "trackDescription": remoteVideo.trackDescription, "layer": remoteVideo.layer.rawValue, "playbackAllowed": remoteVideo.isPlaybackAllowed(), "isMute": remoteVideo.isMute()]
         }
         
-        return ["peerID": peerID, "name": name, "isLocal": isLocal, "customerUserID": customerUserID, "customerDescription": customerDescription, "audioTrack": audioTrack, "videoTrack": videoTrack, "auxiliaryTracks": auxiliaryTracks, "remoteAudioTrackData": remoteAudioTrackData, "remoteVideoTrackData": remoteVideoTrackData, "role": role]
+        return ["peerID": peerID, "name": name, "isLocal": isLocal, "customerUserID": customerUserID, "customerDescription": customerDescription, "metadata": metadata, "audioTrack": audioTrack, "videoTrack": videoTrack, "auxiliaryTracks": auxiliaryTracks, "remoteAudioTrackData": remoteAudioTrackData, "remoteVideoTrackData": remoteVideoTrackData, "role": role]
     }
     
     static func getPreviewTracks(_ tracks: [HMSTrack]) -> [String: Any] {

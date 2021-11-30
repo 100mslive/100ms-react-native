@@ -70,6 +70,7 @@ type Peer = {
   colour: string;
   sink: boolean;
   type: 'local' | 'remote' | 'screen';
+  metadata: {};
 };
 
 type DisplayTrackProps = {
@@ -100,6 +101,7 @@ const DEFAULT_PEER: Peer = {
   colour: getThemeColour(),
   sink: true,
   type: 'local',
+  metadata: {},
 };
 
 type MeetingScreenProp = StackNavigationProp<AppStackParamList, 'Meeting'>;
@@ -472,6 +474,7 @@ const Meeting = ({
     peer: HMSRemotePeer,
     type: 'remote' | 'screen',
   ): Peer => {
+    const metadata = peer.metadata;
     return {
       trackId: peer?.videoTrack?.trackId,
       name: peer?.name,
@@ -482,6 +485,7 @@ const Meeting = ({
       sink: true,
       type,
       peerRefrence: peer,
+      metadata: metadata && metadata !== '' ? JSON.parse(metadata) : {},
     };
   };
 
@@ -489,6 +493,7 @@ const Meeting = ({
     peer: HMSLocalPeer,
     type: 'local' | 'screen',
   ): Peer => {
+    const metadata = peer.metadata;
     return {
       trackId: peer?.videoTrack?.trackId,
       name: peer?.name,
@@ -499,6 +504,7 @@ const Meeting = ({
       sink: true,
       type,
       peerRefrence: peer,
+      metadata: metadata && metadata !== '' ? JSON.parse(metadata) : {},
     };
   };
 
@@ -537,6 +543,7 @@ const Meeting = ({
               colour: getThemeColour(),
               sink: true,
               type: 'screen',
+              metadata: {},
             });
           }
         });
@@ -948,6 +955,8 @@ const Meeting = ({
       }
     }
   });
+
+  console.log(remoteTrackIds, trackId, 'here everything');
 
   return (
     <SafeAreaView style={styles.container}>

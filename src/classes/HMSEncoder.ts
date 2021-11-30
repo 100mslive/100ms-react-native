@@ -45,6 +45,7 @@ export class HMSEncoder {
       role: HMSEncoder.encodeHmsRole(peer?.role),
       customerUserID: peer?.customerUserID,
       customerDescription: peer?.customerDescription,
+      metadata: peer.metadata,
       audioTrack: HMSEncoder.encodeHmsAudioTrack(peer?.audioTrack, id),
       videoTrack: HMSEncoder.encodeHmsVideoTrack(peer?.videoTrack, id),
       auxiliaryTracks: HMSEncoder.encodeHmsAuxiliaryTracks(
@@ -111,6 +112,7 @@ export class HMSEncoder {
       isLocal: peer.isLocal,
       customerUserID: peer.customerUserID,
       customerDescription: peer.customerDescription,
+      metadata: peer.metadata,
       role: HMSEncoder.encodeHmsRole(peer?.role),
       audioTrack: HMSEncoder.encodeHmsAudioTrack(peer.audioTrack, id),
       videoTrack: HMSEncoder.encodeHmsVideoTrack(peer.videoTrack, id),
@@ -194,6 +196,7 @@ export class HMSEncoder {
       isLocal: peer.isLocal,
       customerUserID: peer.customerUserID,
       customerDescription: peer.customerDescription,
+      metadata: peer.metadata,
       role: HMSEncoder.encodeHmsRole(peer?.role),
       audioTrack: HMSEncoder.encodeHmsAudioTrack(peer.audioTrack, id),
       videoTrack: HMSEncoder.encodeHmsVideoTrack(peer.videoTrack, id),

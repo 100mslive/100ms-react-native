@@ -197,6 +197,13 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     hms?.muteAllPeersAudio(data)
   }
 
+  @ReactMethod
+  fun changeMetadata(data: ReadableMap, callback: Promise?) {
+    val hms = HmsHelper.getHms(data, hmsCollection)
+
+    hms?.changeMetadata(data, callback)
+  }
+
   fun emitEvent(event: String, data: WritableMap) {
     reactApplicationContext
         .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)

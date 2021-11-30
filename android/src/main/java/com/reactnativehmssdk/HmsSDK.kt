@@ -832,4 +832,29 @@ class HmsSDK(
       callback?.reject("101", "TRACK_NOT_FOUND")
     }
   }
+
+  fun changeMetadata(data: ReadableMap, callback: Promise?) {
+    val requiredKeys = HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("metadata", "String")))
+
+    if (requiredKeys) {
+      val metadata = data.getString("metadata")
+
+      if (metadata != null) {
+        hmsSDK?.changeMetadata(metadata, object : HMSActionResultListener {
+          override fun onSuccess() {
+            val result: WritableMap = Arguments.createMap()
+
+            result.putBoolean("success", true)
+
+            callback?.resolve(result)
+          }
+          override fun onError(error: HMSException) {
+            callback?.reject(error.message, error.description)
+          }
+        })
+      }
+    } else {
+      callback?.reject("101", "METADATA_NOT_FOUND")
+    }
+  }
 }

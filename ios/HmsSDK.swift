@@ -406,6 +406,25 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
     
+    func changeMetadata(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let metadata = data.value(forKey: "metadata") as? String
+        else {
+            reject?(nil, "REQUIRED_KEYS_NOT_FOUND", nil)
+            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": "REQUIRED_KEYS_NOT_FOUND"])
+            return
+        }
+        
+        hms?.change(metadata: metadata, completion: { success, error in
+            if (success) {
+                resolve?(["success": success])
+                return
+            } else {
+                reject?(error?.message, error?.localizedDescription, nil)
+                return
+            }
+        })
+    }
+    
 //    func setLocalVideoSettings(_ data: NSDictionary) {
 //        let localVideoTrack = self.hms?.localPeer?.localVideoTrack()
 //
