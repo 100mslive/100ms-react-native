@@ -70,6 +70,7 @@ type Peer = {
   colour: string;
   sink: boolean;
   type: 'local' | 'remote' | 'screen';
+  track?: HMSTrack;
 };
 
 type DisplayTrackProps = {
@@ -138,8 +139,10 @@ const DisplayTrack = ({
     {text: 'Cancel'},
     {
       text: 'Set',
-      onPress: async () => {
-        instance?.setVolume(peerRefrence?.audioTrack as HMSTrack, volume);
+      onPress: () => {
+        type === 'screen'
+          ? instance?.setVolume(peer?.track as HMSTrack, volume)
+          : instance?.setVolume(peerRefrence?.audioTrack as HMSTrack, volume);
       },
     },
   ];
@@ -177,6 +180,21 @@ const DisplayTrack = ({
       },
     },
   ];
+
+  const selectAuxActionButtons: Array<{
+    text: string;
+    type?: string;
+    onPress?: Function;
+  }> = [
+    {text: 'Cancel', type: 'cancel'},
+    {
+      text: 'Set Volume',
+      onPress: () => {
+        setVolumeModal(true);
+      },
+    },
+  ];
+
   const selectActionTitle = 'Select action';
   const selectActionMessage = '';
   const selectActionButtons: Array<{
@@ -185,6 +203,12 @@ const DisplayTrack = ({
     onPress?: Function;
   }> = [
     {text: 'Cancel', type: 'cancel'},
+    {
+      text: 'Set Volume',
+      onPress: () => {
+        setVolumeModal(true);
+      },
+    },
     {
       text: 'Mute/Unmute audio locally',
       onPress: async () => {
@@ -284,12 +308,6 @@ const DisplayTrack = ({
       });
     }
   }
-  selectActionButtons.push({
-    text: 'Set Volume',
-    onPress: () => {
-      setVolumeModal(true);
-    },
-  });
 
   const promptUser = () => {
     setAlertModalVisible(true);
@@ -336,7 +354,9 @@ const DisplayTrack = ({
           setModalVisible={setAlertModalVisible}
           title={selectActionTitle}
           message={selectActionMessage}
-          buttons={selectActionButtons}
+          buttons={
+            type === 'screen' ? selectAuxActionButtons : selectActionButtons
+          }
         />
         <CustomModal
           modalVisible={volumeModal}
@@ -345,6 +365,9 @@ const DisplayTrack = ({
           buttons={modalButtons}>
           <Slider
             value={volume}
+            maximumValue={10}
+            minimumValue={0}
+            step={0.1}
             onValueChange={(value: any) => setVolume(value[0])}
           />
         </CustomModal>
@@ -378,7 +401,8 @@ const DisplayTrack = ({
             style={type === 'screen' ? styles.hmsViewScreen : styles.hmsView}
           />
         )}
-        {type === 'remote' && selectActionButtons.length > 1 && (
+        {type === 'screen' ||
+        (type === 'remote' && selectActionButtons.length > 1) ? (
           <TouchableOpacity
             onPress={promptUser}
             style={styles.optionsContainer}>
@@ -388,6 +412,8 @@ const DisplayTrack = ({
               size={20}
             />
           </TouchableOpacity>
+        ) : (
+          <></>
         )}
         <View style={styles.displayContainer}>
           <View style={styles.peerNameContainer}>
@@ -554,12 +580,19 @@ const Meeting = ({
         remoteVideoIds.push(remoteTemp);
 
         let auxiliaryTracks = remotePeer?.auxiliaryTracks;
+        let auxAudioTrack: HMSTrack | undefined = undefined;
+        let auxVideoTrack: Peer | undefined = undefined;
 
         auxiliaryTracks?.map((track: HMSTrack) => {
           let auxTrackId = track?.trackId;
-
-          if (auxTrackId && track?.type === HMSTrackType.VIDEO) {
-            newAuxTracks.push({
+          if (
+            auxTrackId &&
+            track?.type === HMSTrackType.AUDIO &&
+            track?.source === 'screen'
+          ) {
+            auxAudioTrack = track;
+          } else if (auxTrackId && track?.type === HMSTrackType.VIDEO) {
+            auxVideoTrack = {
               trackId: auxTrackId,
               name: `${remotePeer?.name}'s Screen`,
               isAudioMute: true,
@@ -568,9 +601,12 @@ const Meeting = ({
               colour: getThemeColour(),
               sink: true,
               type: 'screen',
-            });
+            };
           }
         });
+        if (auxVideoTrack !== undefined) {
+          newAuxTracks.push({...(auxVideoTrack as Peer), track: auxAudioTrack});
+        }
       });
       setAuxTracks(newAuxTracks);
 
