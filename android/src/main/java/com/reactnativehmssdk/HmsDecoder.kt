@@ -1,9 +1,9 @@
 package com.reactnativehmssdk
 
 import com.facebook.react.bridge.*
+import java.util.*
 import live.hms.video.error.HMSException
 import live.hms.video.media.codec.HMSVideoCodec
-import java.util.*
 import live.hms.video.media.settings.HMSAudioTrackSettings
 import live.hms.video.media.settings.HMSVideoTrackSettings
 import live.hms.video.media.tracks.*
@@ -173,13 +173,16 @@ object HmsDecoder {
       // getHmsSimulcastLayers(hmsPublishSettings.screenSimulcastLayers));
       publishSettings.putMap("videoSimulcastLayers", null)
       publishSettings.putMap("screenSimulcastLayers", null)
-              publishSettings.putArray("allowed", if (hmsPublishSettings.allowed != null)
-       getWriteableArray(hmsPublishSettings.allowed) else emptyArray);
+      publishSettings.putArray(
+          "allowed",
+          if (hmsPublishSettings.allowed != null) getWriteableArray(hmsPublishSettings.allowed)
+          else emptyArray
+      )
     }
     return publishSettings
   }
 
-  fun getWriteableArray(array: List<String>?):  WritableArray {
+  fun getWriteableArray(array: List<String>?): WritableArray {
     val decodedArray: WritableArray = Arguments.createArray()
     if (array != null) {
       for (value in array) {
@@ -309,7 +312,10 @@ object HmsDecoder {
 
       settings.putInt("maxBitrate", hmsVideoTrackSettings.maxBitRate)
       settings.putInt("maxFrameRate", hmsVideoTrackSettings.maxFrameRate)
-      settings.putString("cameraFacing", getHmsVideoTrackCameraFacing(hmsVideoTrackSettings.cameraFacing))
+      settings.putString(
+          "cameraFacing",
+          getHmsVideoTrackCameraFacing(hmsVideoTrackSettings.cameraFacing)
+      )
       //        settings.putString("trackDescription",
       // if(hmsVideoTrackSettings.trackDescription!==null)hmsVideoTrackSettings.trackDescription
       // else "");
@@ -318,7 +324,7 @@ object HmsDecoder {
     return settings
   }
 
-  fun getHmsVideoTrackCodec(codec: HMSVideoCodec) :String {
+  fun getHmsVideoTrackCodec(codec: HMSVideoCodec): String {
     return when (codec) {
       HMSVideoCodec.H264 -> {
         "h264"
@@ -332,8 +338,8 @@ object HmsDecoder {
     }
   }
 
-  fun getHmsVideoTrackCameraFacing(cameraFacing: HMSVideoTrackSettings.CameraFacing) : String {
-    return when(cameraFacing) {
+  fun getHmsVideoTrackCameraFacing(cameraFacing: HMSVideoTrackSettings.CameraFacing): String {
+    return when (cameraFacing) {
       HMSVideoTrackSettings.CameraFacing.FRONT -> {
         "FRONT"
       }

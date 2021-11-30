@@ -799,13 +799,7 @@ class HmsSDK(
       val trackId = data.getString("trackId")
       val volume = data.getDouble("volume")
 
-      val localPeer = hmsSDK?.getLocalPeer()
       val remotePeers = hmsSDK?.getRemotePeers()
-
-      if (localPeer?.audioTrack?.trackId == trackId) {
-        localPeer?.audioTrack?.volume = volume
-        return
-      }
 
       if (remotePeers != null) {
         for (peer in remotePeers) {
@@ -842,6 +836,19 @@ class HmsSDK(
           }
         }
       }
+    } else {
+      delegate.emitEvent(
+          "ON_ERROR",
+          HmsDecoder.getError(
+              HMSException(
+                  102,
+                  "NOT_FOUND",
+                  "SEND_ALL_REQUIRED_KEYS",
+                  "REQUIRED_KEYS_NOT_FOUND",
+                  "REQUIRED_KEYS_NOT_FOUND"
+              )
+          )
+      )
     }
   }
 

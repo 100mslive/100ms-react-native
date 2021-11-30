@@ -1,0 +1,11 @@
+# Mute/Unmute status
+
+Mute/Unmute is something that applies to both audio and video. Mute/Unmute can be done for local peer as well as remote peer according to their mute status.
+In most of the cases you would need to render the components on basis of current mute status of peers like their mic and camera icons.
+
+```js
+isAudioMute: boolean = peer?.audioTrack?.isMute(),
+isVideoMute: boolean = peer?.videoTrack?.isMute(),
+```
+For muting local peer refer to `mute` docs, for muting remote peer refer to `change track state` docs 
+and for muting remote peers locally refer to `playback allowed` docs.
