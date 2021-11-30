@@ -47,16 +47,31 @@ class HmsSDK(
       var config =
           HMSConfig(
               credentials.getString("username") as String,
-              credentials.getString("authToken") as String
+              credentials.getString("authToken") as String,
           )
 
-      if (HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("endpoint", "String")))) {
+      if (HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("endpoint", "String"), Pair("metadata", "String")))) {
         config =
             HMSConfig(
                 credentials.getString("username") as String,
                 credentials.getString("authToken") as String,
-                initEndpoint = credentials.getString("endpoint") as String
+                initEndpoint = credentials.getString("endpoint") as String,
+                metadata = credentials.getString("metadata") as String,
             )
+      } else if (HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("endpoint", "String")))) {
+        config =
+          HMSConfig(
+            credentials.getString("username") as String,
+            credentials.getString("authToken") as String,
+            initEndpoint = credentials.getString("endpoint") as String,
+          )
+      } else if (HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("metadata", "String")))) {
+        config =
+          HMSConfig(
+            credentials.getString("username") as String,
+            credentials.getString("authToken") as String,
+            metadata = credentials.getString("metadata") as String,
+          )
       }
 
       hmsSDK?.preview(
@@ -114,13 +129,28 @@ class HmsSDK(
               credentials.getString("authToken") as String
           )
 
-      if (HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("endpoint", "String")))) {
+      if (HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("endpoint", "String"), Pair("metadata", "String")))) {
         config =
-            HMSConfig(
-                credentials.getString("username") as String,
-                credentials.getString("authToken") as String,
-                initEndpoint = credentials.getString("endpoint") as String
-            )
+          HMSConfig(
+            credentials.getString("username") as String,
+            credentials.getString("authToken") as String,
+            initEndpoint = credentials.getString("endpoint") as String,
+            metadata = credentials.getString("metadata") as String,
+          )
+      } else if (HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("endpoint", "String")))) {
+        config =
+          HMSConfig(
+            credentials.getString("username") as String,
+            credentials.getString("authToken") as String,
+            initEndpoint = credentials.getString("endpoint") as String,
+          )
+      } else if (HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("metadata", "String")))) {
+        config =
+          HMSConfig(
+            credentials.getString("username") as String,
+            credentials.getString("authToken") as String,
+            metadata = credentials.getString("metadata") as String,
+          )
       }
 
       HMSCoroutineScope.launch {
@@ -180,7 +210,6 @@ class HmsSDK(
                 }
 
                 override fun onPeerUpdate(type: HMSPeerUpdate, hmsPeer: HMSPeer) {
-
                   val type = type.name
                   val roomData = HmsDecoder.getHmsRoom(hmsSDK?.getRoom())
                   val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
@@ -869,6 +898,31 @@ class HmsSDK(
       callback?.reject("101", "TRACK_IDS_DO_NOT_MATCH")
     } else {
       callback?.reject("101", "TRACK_NOT_FOUND")
+    }
+  }
+
+  fun changeMetadata(data: ReadableMap, callback: Promise?) {
+    val requiredKeys = HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("metadata", "String")))
+
+    if (requiredKeys) {
+      val metadata = data.getString("metadata")
+
+      if (metadata != null) {
+        hmsSDK?.changeMetadata(metadata, object : HMSActionResultListener {
+          override fun onSuccess() {
+            val result: WritableMap = Arguments.createMap()
+
+            result.putBoolean("success", true)
+
+            callback?.resolve(result)
+          }
+          override fun onError(error: HMSException) {
+            callback?.reject(error.message, error.description)
+          }
+        })
+      }
+    } else {
+      callback?.reject("101", "METADATA_NOT_FOUND")
     }
   }
 }

@@ -56,13 +56,14 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
         
+        let metadata = credentials.value(forKey: "metadata") as? String
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
             if let endpoint = credentials.value(forKey: "endpoint") as? String {
-                strongSelf.config = HMSConfig(userName: user, authToken: authToken, endpoint: endpoint)
+                strongSelf.config = HMSConfig(userName: user, authToken: authToken, metadata: metadata, endpoint: endpoint)
                 strongSelf.hms?.preview(config: strongSelf.config!, delegate: strongSelf)
             } else {
-                strongSelf.config = HMSConfig(userName: user, authToken: authToken)
+                strongSelf.config = HMSConfig(userName: user, authToken: authToken, metadata: metadata)
                 strongSelf.hms?.preview(config: strongSelf.config!, delegate: strongSelf)
             }
         }
@@ -78,35 +79,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
 
-        DispatchQueue.main.async { [weak self] in
-            guard let strongSelf = self else { return }
-            if let config = strongSelf.config {
-                do{
-                    try strongSelf.hms?.join(config: config, delegate: strongSelf)
-                } catch let error{
-                    let error = HMSError(id: "103", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
-                    strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["event": strongSelf.ON_ERROR, "error": HmsDecoder.getError(error), "id":strongSelf.id])
-                }
-            } else {
-                if let endpoint = credentials.value(forKey: "endpoint") as? String {
-                    do{
-                        strongSelf.config = HMSConfig(userName: user, authToken: authToken, endpoint: endpoint)
-                        try strongSelf.hms?.join(config: strongSelf.config!, delegate: strongSelf)
-                    } catch let error{
-                        let error = HMSError(id: "104", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
-                        strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["event": strongSelf.ON_ERROR, "error": HmsDecoder.getError(error), "id":strongSelf.id])
-                    }
-                } else {
-                    do{
-                        strongSelf.config = HMSConfig(userName: user, authToken: authToken)
-                        try strongSelf.hms?.join(config: strongSelf.config!, delegate: strongSelf)
-                    } catch let error{
-                        let error = HMSError(id: "105", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
-                        strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["event": strongSelf.ON_ERROR, "error": HmsDecoder.getError(error), "id":strongSelf.id])
-                    }
-                }
-            }
-        }
+        let metadata = credentials.value(forKey: "metadata") as? String
         
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
@@ -114,10 +87,10 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
                 strongSelf.hms?.join(config: config, delegate: strongSelf)
             } else {
                 if let endpoint = credentials.value(forKey: "endpoint") as? String {
-                    strongSelf.config = HMSConfig(userName: user, authToken: authToken, endpoint: endpoint)
+                    strongSelf.config = HMSConfig(userName: user, authToken: authToken, metadata: metadata, endpoint: endpoint)
                     strongSelf.hms?.join(config: strongSelf.config!, delegate: strongSelf)
                 } else {
-                    strongSelf.config = HMSConfig(userName: user, authToken: authToken)
+                    strongSelf.config = HMSConfig(userName: user, authToken: authToken, metadata: metadata)
                     strongSelf.hms?.join(config: strongSelf.config!, delegate: strongSelf)
                 }
             }
@@ -424,6 +397,23 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
     
+    func changeMetadata(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let metadata = data.value(forKey: "metadata") as? String
+        else {
+            reject?(nil, "REQUIRED_KEYS_NOT_FOUND", nil)
+        }
+        
+        hms?.change(metadata: metadata, completion: { success, error in
+            if (success) {
+                resolve?(["success": success])
+                return
+            } else {
+                reject?(error?.message, error?.localizedDescription, nil)
+                return
+            }
+        })
+    }
+
     func setVolume(_ data: NSDictionary) {
         guard let trackId = data.value(forKey: "trackId") as? String,
               let volume = data.value(forKey: "volume") as? Double
@@ -431,7 +421,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
             delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": "REQUIRED_KEYS_NOT_FOUND"])
             return
         }
-        
+
         DispatchQueue.main.async { [weak self] in
         
             let remotePeers = self?.hms?.remotePeers
@@ -603,6 +593,8 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
             return "PEER_LEFT"
         case .roleUpdated:
             return "ROLE_CHANGED"
+        case .metadataUpdated:
+            return "METADATA_CHANGED"
         default:
             return ""
         }

@@ -9,6 +9,7 @@ export class HMSPeer {
   isLocal?: boolean;
   customerUserID?: string;
   customerDescription?: string;
+  metadata?: string;
   role?: HMSRole;
 
   audioTrack?: HMSAudioTrack;
@@ -22,6 +23,7 @@ export class HMSPeer {
     isLocal?: boolean;
     customerUserID?: string;
     customerDescription?: string;
+    metadata?: string;
     role?: HMSRole;
     audioTrack?: HMSAudioTrack;
     videoTrack?: HMSVideoTrack;
@@ -36,5 +38,6 @@ export class HMSPeer {
     this.videoTrack = params.videoTrack;
     this.auxiliaryTracks = params.auxiliaryTracks;
     this.role = params.role;
+    this.metadata = params.metadata;
   }
 }

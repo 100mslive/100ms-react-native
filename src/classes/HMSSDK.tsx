@@ -299,6 +299,11 @@ export class HMSSDK {
     });
   };
 
+  changeMetadata = (metadata: string) => {
+    this.logger?.verbose('CHANGE_METADATA', { metadata });
+    HmsManager.changeMetadata({ metadata, id: this.id });
+  };
+
   changeRole = (peer: HMSPeer, role: HMSRole, force: boolean = false) => {
     const data = {
       peerId: peer?.peerID,

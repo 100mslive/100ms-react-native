@@ -210,6 +210,13 @@ class HmsManager: RCTEventEmitter{
     }
     
     @objc
+    func changeMetadata(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HmsHelper.getHms(data, hmsCollection)
+        
+        hms?.changeMetadata(data, resolve, reject)
+    }
+
+    @objc
     func setVolume(_ data: NSDictionary) {
         let hms = HmsHelper.getHms(data, hmsCollection)
         

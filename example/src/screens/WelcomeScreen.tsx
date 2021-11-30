@@ -301,6 +301,7 @@ const App = ({
       HmsConfig = new HMSConfig({
         authToken: token,
         username: userID,
+        // metadata: JSON.stringify({isHandRaised: true}), // To join with hand raised
       });
     }
 
