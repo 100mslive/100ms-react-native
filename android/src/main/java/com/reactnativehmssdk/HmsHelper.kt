@@ -207,7 +207,6 @@ object HmsHelper {
       }
       builder.maxBitrate(maxBitrate)
       builder.maxFrameRate(maxFrameRate)
-
     }
     return builder.build()
   }
