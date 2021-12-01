@@ -403,7 +403,7 @@ const DisplayTrack = ({
             sink={sink}
             trackId={trackId!}
             mirror={type === 'local' ? true : false}
-            scaleType={HMSVideoViewMode.ASPECT_FILL}
+            scaleType={HMSVideoViewMode.ASPECT_FIT}
             style={type === 'screen' ? styles.hmsViewScreen : styles.hmsView}
           />
         )}

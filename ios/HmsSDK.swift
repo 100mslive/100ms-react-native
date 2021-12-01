@@ -401,6 +401,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         guard let metadata = data.value(forKey: "metadata") as? String
         else {
             reject?(nil, "REQUIRED_KEYS_NOT_FOUND", nil)
+            return
         }
         
         hms?.change(metadata: metadata, completion: { success, error in
