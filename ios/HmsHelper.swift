@@ -175,4 +175,19 @@ class HmsHelper: NSObject {
             return HMSCameraFacing.front
         }
     }
+    
+    static func getRtmpUrls(_ strings: [String]?) -> [URL]? {
+        if let extractedStrings = strings {
+            var arr: [URL] = []
+            for urlString in extractedStrings {
+                let urlInstance = URL(string: urlString)
+                if let urlExtracted = urlInstance {
+                    arr.append(urlExtracted)
+                }
+            }
+            return arr
+        } else {
+            return nil
+        }
+    }
 }
