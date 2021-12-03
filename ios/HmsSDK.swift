@@ -437,6 +437,38 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
     
+    func startRTMPOrRecording(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let record = data.value(forKey: "record") as? Bool
+        else {
+            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": "REQUIRED_KEYS_NOT_FOUND"])
+            return
+        }
+        
+        let meetingString = data.value(forKey: "meetingURL") as? String
+        let rtmpStrings = data.value(forKey: "rtmpURLs") as? [String]
+        
+        var meetingUrl: URL? = nil
+        if let meetLink = meetingString {
+            meetingUrl = URL(string: meetLink)
+        } else {
+            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": "INVALID_MEETING_URL_PASSED"])
+        }
+        
+        let URLs = HmsHelper.getRtmpUrls(rtmpStrings)
+        
+        
+        let config = HMSRTMPConfig(meetingURL: meetingUrl, rtmpURLs: URLs, record: record)
+        hms?.startRTMPOrRecording(config: config, completion: { success, error in
+            if (success) {
+                resolve?(["success": success])
+                return
+            } else {
+                reject?(error?.message, error?.localizedDescription, nil)
+                return
+            }
+        })
+    }
+    
     //TODO: to be implemented after volume is exposed for iOS
 //    func getVolume(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
 //        guard let trackId = data.value(forKey: "trackId") as? String
