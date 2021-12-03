@@ -880,4 +880,20 @@ class HmsSDK(
       self.emitRequiredKeysError()
     }
   }
+
+  fun stopRtmpAndRecording(callback: Promise?) {
+    hmsSDK?.stopRtmpAndRecording(
+        object : HMSActionResultListener {
+          override fun onSuccess() {
+            val result: WritableMap = Arguments.createMap()
+            result.putBoolean("success", true)
+            callback?.resolve(result)
+          }
+          override fun onError(error: HMSException) {
+            callback?.reject(error.message, error.description)
+            self.emitHMSError(error)
+          }
+        }
+    )
+  }
 }

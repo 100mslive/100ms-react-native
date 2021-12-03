@@ -31,6 +31,7 @@ import {
   HMSPeer,
   HMSTrackType,
   HMSException,
+  HMSRTMPConfig,
 } from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
@@ -889,40 +890,76 @@ const Meeting = ({
   };
 
   const getSettingButtons = () => {
-    const buttons = [
+    const buttons: Array<{text: string; type?: string; onPress?: Function}> = [
       {
         text: 'Cancel',
         type: 'cancel',
       },
-      {
-        text: 'Mute video of custom roles',
-        onPress: () => {
-          setRoleModalVisible(true);
-          setAction(1);
-        },
-      },
-      {
-        text: 'Unmute video of custom roles',
-        onPress: () => {
-          setRoleModalVisible(true);
-          setAction(2);
-        },
-      },
-      {
-        text: 'Mute audio of custom roles',
-        onPress: () => {
-          setRoleModalVisible(true);
-          setAction(3);
-        },
-      },
-      {
-        text: 'Unmute audio of custom roles',
-        onPress: () => {
-          setRoleModalVisible(true);
-          setAction(4);
-        },
-      },
     ];
+    if (localPeerPermissions?.mute) {
+      buttons.push(
+        ...[
+          {
+            text: 'Mute video of custom roles',
+            onPress: () => {
+              setRoleModalVisible(true);
+              setAction(1);
+            },
+          },
+          {
+            text: 'Mute audio of custom roles',
+            onPress: () => {
+              setRoleModalVisible(true);
+              setAction(3);
+            },
+          },
+        ],
+      );
+    }
+    if (localPeerPermissions?.unmute) {
+      buttons.push(
+        ...[
+          {
+            text: 'Unmute video of custom roles',
+            onPress: () => {
+              setRoleModalVisible(true);
+              setAction(2);
+            },
+          },
+
+          {
+            text: 'Unmute audio of custom roles',
+            onPress: () => {
+              setRoleModalVisible(true);
+              setAction(4);
+            },
+          },
+        ],
+      );
+    }
+    if (localPeerPermissions?.recording && localPeerPermissions?.rtmp) {
+      buttons.push(
+        ...[
+          {
+            text: 'Start RTMP or Recording',
+            onPress: () => {
+              const rtmpConfig = new HMSRTMPConfig({
+                meetingURL: '',
+                rtmpURLs: [''],
+                record: true,
+              });
+              instance?.startRTMPOrRecording(rtmpConfig);
+            },
+          },
+          {
+            text: 'Stop RTMP or Recording',
+            onPress: () => {
+              instance?.stopRtmpAndRecording();
+            },
+          },
+        ],
+      );
+    }
     return buttons;
   };
 
@@ -1102,6 +1139,20 @@ const Meeting = ({
       <View style={styles.headerContainer}>
         <Text style={styles.headerName}>{trackId?.name}</Text>
         <View style={styles.headerRight}>
+          {instance?.room?.browserRecordingState?.running && (
+            <Entypo
+              name="controller-record"
+              style={styles.recording}
+              size={dimension.viewHeight(30)}
+            />
+          )}
+          {instance?.room?.rtmpHMSRtmpStreamingState?.running && (
+            <Entypo
+              name="light-up"
+              style={styles.streaming}
+              size={dimension.viewHeight(30)}
+            />
+          )}
           {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
             'video',
           ) && (
@@ -1506,6 +1557,15 @@ const styles = StyleSheet.create({
   },
   headerRight: {
     flexDirection: 'row',
+    alignItems: 'center',
+  },
+  recording: {
+    color: 'red',
+    padding: dimension.viewHeight(10),
+  },
+  streaming: {
+    color: 'red',
+    padding: dimension.viewHeight(10),
   },
 });
 

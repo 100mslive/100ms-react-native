@@ -310,6 +310,11 @@ export class HMSSDK {
     HmsManager.startRTMPOrRecording({ ...data, id: this.id });
   };
 
+  stopRtmpAndRecording = () => {
+    this.logger?.verbose('STOP_RTMP_OR_RECORDING', {});
+    HmsManager.stopRtmpAndRecording({ id: this.id });
+  };
+
   changeRole = (peer: HMSPeer, role: HMSRole, force: boolean = false) => {
     const data = {
       peerId: peer?.peerID,
