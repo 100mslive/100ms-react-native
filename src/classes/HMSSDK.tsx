@@ -16,6 +16,7 @@ import type { HMSPeer } from './HMSPeer';
 import { HmsView as HMSViewComponent } from './HmsView';
 import { HMSVideoViewMode } from './HMSVideoViewMode';
 import type { HMSTrackSettings } from './HMSTrackSettings';
+import type { HMSRTMPConfig } from './HMSRTMPConfig';
 
 interface HmsComponentProps {
   trackId: string;
@@ -302,6 +303,11 @@ export class HMSSDK {
   changeMetadata = (metadata: string) => {
     this.logger?.verbose('CHANGE_METADATA', { metadata });
     HmsManager.changeMetadata({ metadata, id: this.id });
+  };
+
+  startRTMPOrRecording = (data: HMSRTMPConfig) => {
+    this.logger?.verbose('START_RTMP_OR_RECORDING', { data });
+    HmsManager.startRTMPOrRecording({ ...data, id: this.id });
   };
 
   changeRole = (peer: HMSPeer, role: HMSRole, force: boolean = false) => {

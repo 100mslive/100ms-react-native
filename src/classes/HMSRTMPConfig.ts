@@ -1,4 +1,4 @@
-export class HMSConfig {
+export class HMSRTMPConfig {
   meetingURL?: string;
   rtmpURLs?: [string];
   record: boolean;
