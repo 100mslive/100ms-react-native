@@ -643,6 +643,7 @@ const Meeting = ({
   };
 
   const onJoinListener = ({
+    room,
     localPeer,
     remotePeers,
   }: {
@@ -650,10 +651,11 @@ const Meeting = ({
     localPeer: HMSLocalPeer;
     remotePeers: HMSRemotePeer[];
   }) => {
-    console.log('data in onJoinListener: ', localPeer, remotePeers);
+    console.log('data in onJoinListener: ', room, localPeer, remotePeers);
   };
 
   const onRoomListener = ({
+    room,
     type,
     localPeer,
     remotePeers,
@@ -664,10 +666,11 @@ const Meeting = ({
     remotePeers: HMSRemotePeer[];
   }) => {
     updateVideoIds(remotePeers, localPeer);
-    console.log('data in onRoomListener: ', type, localPeer, remotePeers);
+    console.log('data in onRoomListener: ', room, type, localPeer, remotePeers);
   };
 
   const onPeerListener = ({
+    room,
     type,
     remotePeers,
     localPeer,
@@ -678,10 +681,11 @@ const Meeting = ({
     remotePeers: HMSRemotePeer[];
   }) => {
     updateVideoIds(remotePeers, localPeer);
-    console.log('data in onPeerListener: ', type, localPeer, remotePeers);
+    console.log('data in onPeerListener: ', room, type, localPeer, remotePeers);
   };
 
   const onTrackListener = ({
+    room,
     type,
     remotePeers,
     localPeer,
@@ -692,7 +696,13 @@ const Meeting = ({
     remotePeers: HMSRemotePeer[];
   }) => {
     updateVideoIds(remotePeers, localPeer);
-    console.log('data in onTrackListener: ', type, localPeer, remotePeers);
+    console.log(
+      'data in onTrackListener: ',
+      room,
+      type,
+      localPeer,
+      remotePeers,
+    );
   };
 
   const onMessage = (data: HMSMessage) => {
