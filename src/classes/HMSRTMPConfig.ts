@@ -1,10 +1,10 @@
 export class HMSRTMPConfig {
-  meetingURL?: string;
+  meetingURL: string;
   rtmpURLs?: [string];
   record: boolean;
 
   constructor(params: {
-    meetingURL?: string;
+    meetingURL: string;
     rtmpURLs?: [string];
     record: boolean;
   }) {
