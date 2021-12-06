@@ -27,4 +27,5 @@ RCT_EXTERN_METHOD(muteAllPeersAudio: (NSDictionary) mute)
 RCT_EXTERN_METHOD(isPlaybackAllowed: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(changeMetadata: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(startRTMPOrRecording: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(stopRtmpAndRecording: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 @end

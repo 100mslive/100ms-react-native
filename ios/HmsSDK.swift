@@ -469,6 +469,18 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         })
     }
     
+    func stopRtmpAndRecording(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        hms?.stopRTMPAndRecording(completion: { success, error in
+            if (success) {
+                resolve?(["success": success])
+                return
+            } else {
+                reject?(error?.message, error?.localizedDescription, nil)
+                return
+            }
+        })
+    }
+    
     //TODO: to be implemented after volume is exposed for iOS
 //    func getVolume(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
 //        guard let trackId = data.value(forKey: "trackId") as? String
