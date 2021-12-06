@@ -465,6 +465,7 @@ const Meeting = ({
   addMessageRequest,
   clearMessageRequest,
   hmsInstance,
+  state,
 }: MeetingProps) => {
   const [orientation, setOrientation] = useState<boolean>(true);
   const [instance, setInstance] = useState<HMSSDK | undefined>();
@@ -486,8 +487,9 @@ const Meeting = ({
   const [recordingModal, setRecordingModal] = useState(false);
   const [recordingDetails, setRecordingDetails] = useState<HMSRTMPConfig>({
     record: false,
-    meetingURL:
-      'https://yogi.app.100ms.live/preview/nih-bkn-vek/viewer?token=beam_recording',
+    meetingURL: state.user.roomID
+      ? state.user.roomID + '/viewer?token=beam_recording'
+      : '',
     // rtmpURLs: [
     //   'rtmp://fra05.contribute.live-video.net/app/live_727134716_hmEXKyF2XCjDfFLUJnSW2FD4Ch5I4q',
     // ],
@@ -1686,6 +1688,7 @@ const mapStateToProps = (state: RootState) => ({
   audioState: state?.app?.audioState,
   videoState: state?.app?.videoState,
   hmsInstance: state?.user?.hmsInstance,
+  roomID: state.user.roomID,
   state: state,
 });
 

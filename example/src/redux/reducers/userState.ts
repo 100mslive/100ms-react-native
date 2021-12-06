@@ -7,6 +7,7 @@ type ActionType = {
 
 const INITIAL_STATE = {
   userName: null,
+  roomID: null,
   hmsInstance: undefined,
 };
 
