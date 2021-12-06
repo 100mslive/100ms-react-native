@@ -305,14 +305,17 @@ export class HMSSDK {
     HmsManager.changeMetadata({ metadata, id: this.id });
   };
 
-  startRTMPOrRecording = (data: HMSRTMPConfig) => {
+  startRTMPOrRecording = async (data: HMSRTMPConfig) => {
     this.logger?.verbose('START_RTMP_OR_RECORDING', { data });
-    HmsManager.startRTMPOrRecording({ ...data, id: this.id });
+
+    const op = await HmsManager.startRTMPOrRecording({ ...data, id: this.id });
+    return op;
   };
 
-  stopRtmpAndRecording = () => {
+  stopRtmpAndRecording = async () => {
     this.logger?.verbose('STOP_RTMP_OR_RECORDING', {});
-    HmsManager.stopRtmpAndRecording({ id: this.id });
+    const op = await HmsManager.stopRtmpAndRecording({ id: this.id });
+    return op;
   };
 
   changeRole = (peer: HMSPeer, role: HMSRole, force: boolean = false) => {

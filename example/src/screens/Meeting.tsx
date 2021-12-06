@@ -487,7 +487,7 @@ const Meeting = ({
   const [recordingDetails, setRecordingDetails] = useState<HMSRTMPConfig>({
     record: false,
     meetingURL:
-      'https://geeks.app.100ms.live/preview/61aa03d56c7feb698cc7d5f1/viewer?token=beam_recording',
+      'https://yogi.app.100ms.live/preview/nih-bkn-vek/viewer?token=beam_recording',
     // rtmpURLs: [
     //   'rtmp://fra05.contribute.live-video.net/app/live_727134716_hmEXKyF2XCjDfFLUJnSW2FD4Ch5I4q',
     // ],
@@ -515,8 +515,15 @@ const Meeting = ({
         {text: 'Cancel'},
         {
           text: 'Start',
-          onPress: () => {
-            instance?.startRTMPOrRecording(recordingDetails);
+          onPress: async () => {
+            try {
+              const result = await instance?.startRTMPOrRecording(
+                recordingDetails,
+              );
+              console.log(result);
+            } catch (error) {
+              console.log(error, 'error');
+            }
           },
         },
       ]
@@ -623,8 +630,8 @@ const Meeting = ({
         remoteVideoIds.push(remoteTemp);
 
         let auxiliaryTracks = remotePeer?.auxiliaryTracks;
-        let auxAudioTrack: HMSTrack | undefined = undefined;
-        let auxVideoTrack: Peer | undefined = undefined;
+        let auxAudioTrack: HMSTrack | undefined;
+        let auxVideoTrack: Peer | undefined;
 
         auxiliaryTracks?.map((track: HMSTrack) => {
           let auxTrackId = track?.trackId;
@@ -926,8 +933,13 @@ const Meeting = ({
       },
       {
         text: 'Stop RTMP or Recording',
-        onPress: () => {
-          instance?.stopRtmpAndRecording();
+        onPress: async () => {
+          try {
+            const result = await instance?.stopRtmpAndRecording();
+            console.log(result);
+          } catch (error) {
+            console.log(error, 'error');
+          }
         },
       },
     ];

@@ -18,7 +18,7 @@ class HmsDecoder: NSObject {
             peers.append(getHmsPeer(peer))
         }
         
-        return ["id": id, "name": name, "metaData": metaData, "peers": peers, "browserRecordingState": browserRecordingState, "rtmpStreamingState": rtmpStreamingState, "serverRecordingState": serverRecordingState]
+        return ["id": id, "name": name, "metaData": metaData, "peers": peers, "browserRecordingState": browserRecordingState, "rtmpHMSRtmpStreamingState": rtmpStreamingState, "serverRecordingState": serverRecordingState]
     }
     
     static func getHmsPeer (_ peer: HMSPeer) -> [String: Any] {
