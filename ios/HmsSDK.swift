@@ -477,6 +477,12 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         let config = HMSRTMPConfig(meetingURL: meetingUrl, rtmpURLs: URLs, record: record)
         hms?.startRTMPOrRecording(config: config, completion: { success, error in
             if (success) {
+                let roomData = HmsDecoder.getHmsRoom(self.hms?.room)
+                let type = self.getString(from: HMSRoomUpdate.browserRecordingStateUpdated)
+                
+                let localPeerData = HmsDecoder.getHmsLocalPeer(self.hms?.localPeer)
+                let remotePeerData = HmsDecoder.getHmsRemotePeers(self.hms?.remotePeers)
+                self.delegate?.emitEvent(self.ON_ROOM_UPDATE, ["event": self.ON_ROOM_UPDATE, "id": self.id, "type": type, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
                 resolve?(["success": success])
                 return
             } else {
@@ -490,6 +496,12 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     func stopRtmpAndRecording(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         hms?.stopRTMPAndRecording(completion: { success, error in
             if (success) {
+                let roomData = HmsDecoder.getHmsRoom(self.hms?.room)
+                let type = self.getString(from: HMSRoomUpdate.browserRecordingStateUpdated)
+                
+                let localPeerData = HmsDecoder.getHmsLocalPeer(self.hms?.localPeer)
+                let remotePeerData = HmsDecoder.getHmsRemotePeers(self.hms?.remotePeers)
+                self.delegate?.emitEvent(self.ON_ROOM_UPDATE, ["event": self.ON_ROOM_UPDATE, "id": self.id, "type": type, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
                 resolve?(["success": success])
                 return
             } else {
