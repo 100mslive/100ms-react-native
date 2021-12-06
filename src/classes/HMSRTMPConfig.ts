@@ -1,11 +1,11 @@
 export class HMSRTMPConfig {
   meetingURL: string;
-  rtmpURLs?: [string];
+  rtmpURLs?: Array<string>;
   record: boolean;
 
   constructor(params: {
     meetingURL: string;
-    rtmpURLs?: [string];
+    rtmpURLs?: Array<string>;
     record: boolean;
   }) {
     this.meetingURL = params.meetingURL;

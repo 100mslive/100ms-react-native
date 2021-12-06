@@ -9,6 +9,7 @@ import {
   Dimensions,
   BackHandler,
   Platform,
+  TextInput,
 } from 'react-native';
 import {connect} from 'react-redux';
 import {
@@ -482,6 +483,16 @@ const Meeting = ({
   const [newRole, setNewRole] = useState(trackId?.peerRefrence?.role);
   const [roleModalVisible, setRoleModalVisible] = useState(false);
   const [settingsModal, setSettingsModal] = useState(false);
+  const [recordingModal, setRecordingModal] = useState(false);
+  const [recordingDetails, setRecordingDetails] = useState<HMSRTMPConfig>({
+    record: false,
+    meetingURL:
+      'https://geeks.app.100ms.live/preview/61aa03d56c7feb698cc7d5f1/viewer?token=beam_recording',
+    // rtmpURLs: [
+    //   'rtmp://fra05.contribute.live-video.net/app/live_727134716_hmEXKyF2XCjDfFLUJnSW2FD4Ch5I4q',
+    // ],
+    rtmpURLs: [],
+  });
   const [roleChangeModalVisible, setRoleChangeModalVisible] = useState(false);
   const [changeTrackStateModalVisible, setChangeTrackStateModalVisible] =
     useState(false);
@@ -489,7 +500,9 @@ const Meeting = ({
   const [localPeerPermissions, setLocalPeerPermissions] =
     useState<HMSPermissions>();
 
-  const roleChangeRequestTitle = roleChangeModalVisible
+  const roleChangeRequestTitle = recordingModal
+    ? 'Recording Details'
+    : roleChangeModalVisible
     ? 'Role Change Request'
     : changeTrackStateModalVisible
     ? 'Change Track State Request'
@@ -497,7 +510,17 @@ const Meeting = ({
   const roleChangeRequestButtons: [
     {text: string; onPress?: Function},
     {text: string; onPress?: Function},
-  ] = roleChangeModalVisible
+  ] = recordingModal
+    ? [
+        {text: 'Cancel'},
+        {
+          text: 'Start',
+          onPress: () => {
+            instance?.startRTMPOrRecording(recordingDetails);
+          },
+        },
+      ]
+    : roleChangeModalVisible
     ? [
         {text: 'Reject'},
         {
@@ -895,6 +918,18 @@ const Meeting = ({
         text: 'Cancel',
         type: 'cancel',
       },
+      {
+        text: 'Start RTMP or Recording',
+        onPress: () => {
+          setRecordingModal(true);
+        },
+      },
+      {
+        text: 'Stop RTMP or Recording',
+        onPress: () => {
+          instance?.stopRtmpAndRecording();
+        },
+      },
     ];
     if (localPeerPermissions?.mute) {
       buttons.push(
@@ -932,29 +967,6 @@ const Meeting = ({
             onPress: () => {
               setRoleModalVisible(true);
               setAction(4);
-            },
-          },
-        ],
-      );
-    }
-    if (localPeerPermissions?.recording && localPeerPermissions?.rtmp) {
-      buttons.push(
-        ...[
-          {
-            text: 'Start RTMP or Recording',
-            onPress: () => {
-              const rtmpConfig = new HMSRTMPConfig({
-                meetingURL: '',
-                rtmpURLs: [''],
-                record: true,
-              });
-              instance?.startRTMPOrRecording(rtmpConfig);
-            },
-          },
-          {
-            text: 'Stop RTMP or Recording',
-            onPress: () => {
-              instance?.stopRtmpAndRecording();
             },
           },
         ],
@@ -1099,6 +1111,61 @@ const Meeting = ({
           {roleChangeRequest?.requestedBy?.toLocaleUpperCase()}. Changing role
           to {roleChangeRequest?.suggestedRole?.toLocaleUpperCase()}
         </Text>
+      </CustomModal>
+      <CustomModal
+        modalVisible={recordingModal}
+        setModalVisible={setRecordingModal}
+        title={roleChangeRequestTitle}
+        buttons={roleChangeRequestButtons}>
+        <TextInput
+          onChangeText={value => {
+            setRecordingDetails({...recordingDetails, meetingURL: value});
+          }}
+          placeholderTextColor="#454545"
+          placeholder="Enter meeting url"
+          style={styles.input}
+          defaultValue={recordingDetails.meetingURL}
+          returnKeyType="done"
+          multiline
+          blurOnSubmit
+        />
+        <TextInput
+          onChangeText={value => {
+            if (value == '') {
+              setRecordingDetails({...recordingDetails, rtmpURLs: []});
+            } else {
+              setRecordingDetails({...recordingDetails, rtmpURLs: [value]});
+            }
+          }}
+          placeholderTextColor="#454545"
+          placeholder="Enter rtmp url"
+          style={styles.input}
+          defaultValue={
+            recordingDetails.rtmpURLs ? recordingDetails.rtmpURLs[0] : ''
+          }
+          returnKeyType="done"
+          multiline
+          blurOnSubmit
+        />
+        <TouchableOpacity
+          onPress={() => {
+            setRecordingDetails({
+              ...recordingDetails,
+              record: !recordingDetails.record,
+            });
+          }}
+          style={styles.recordingDetails}>
+          <Text>Record</Text>
+          <View style={styles.checkboxContainer}>
+            {recordingDetails.record && (
+              <Entypo
+                name="check"
+                style={styles.checkbox}
+                size={dimension.viewHeight(20)}
+              />
+            )}
+          </View>
+        </TouchableOpacity>
       </CustomModal>
       <CustomModal
         modalVisible={changeTrackStateModalVisible}
@@ -1566,6 +1633,32 @@ const styles = StyleSheet.create({
   streaming: {
     color: 'red',
     padding: dimension.viewHeight(10),
+  },
+  input: {
+    borderWidth: 1,
+    borderRadius: 10,
+    borderColor: 'black',
+    paddingLeft: 10,
+    minHeight: 32,
+    color: getThemeColour(),
+    margin: 10,
+  },
+  recordingDetails: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    padding: 10,
+  },
+  checkboxContainer: {
+    height: 25,
+    width: 25,
+    borderColor: 'black',
+    borderWidth: 2,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  checkbox: {
+    color: 'black',
   },
 });
 
