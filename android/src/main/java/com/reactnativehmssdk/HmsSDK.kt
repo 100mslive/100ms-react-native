@@ -1,5 +1,12 @@
 package com.reactnativehmssdk
 
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.media.projection.MediaProjectionManager
+import androidx.activity.ComponentActivity
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.fragment.app.Fragment
 import com.facebook.react.bridge.*
 import java.util.*
 import kotlinx.coroutines.launch
@@ -24,7 +31,9 @@ class HmsSDK(
   var hmsSDK: HMSSDK? = null
   private var recentRoleChangeRequest: HMSRoleChangeRequest? = null
   private var changeTrackStateRequest: HMSChangeTrackStateRequest? = null
+  private var isScreenShared: Boolean = false
   val delegate: HmsModule = HmsDelegate
+  val context: ReactApplicationContext = reactApplicationContext
   val id: String = sdkId
 
   init {
@@ -924,5 +933,57 @@ class HmsSDK(
     } else {
       callback?.reject("101", "METADATA_NOT_FOUND")
     }
+      }
+
+  fun startScreenshare(callback: Promise?) {
+    println("entered")
+//    HMSCoroutineScope.launch {
+//      var resultLauncher =
+//        registerForActivityResult(
+//          ActivityResultContracts.StartActivityForResult()
+//        ) { result ->
+//          if (result.resultCode == Activity.RESULT_OK) {
+//            val mediaProjectionPermissionResultData: Intent? = result.data
+//            hmsSDK?.startScreenshare(
+//              object : HMSActionResultListener {
+//                override fun onError(error: HMSException) {
+//                  callback?.reject(error.code.toString(), error.message)
+//                }
+//
+//                override fun onSuccess() {
+//                  isScreenShared = true
+//                }
+//              },
+//              mediaProjectionPermissionResultData
+//            )
+//          }
+//        }
+//      if (!isScreenShared) {
+//        val mediaProjectionManager: MediaProjectionManager? =
+//          context.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+//        resultLauncher.launch(mediaProjectionManager?.createScreenCaptureIntent())
+//        val result: WritableMap = Arguments.createMap()
+//        result.putBoolean("success", true)
+//        callback?.resolve(result)
+//      } else {
+//        callback?.reject("101", "ScreenShare already running!")
+//      }
+//    }
+  }
+
+  fun stopScreenshare(callback: Promise?) {
+    hmsSDK?.stopScreenshare(
+        object : HMSActionResultListener {
+          override fun onError(error: HMSException) {
+            callback?.reject(error.code.toString(), error.message)
+          }
+
+          override fun onSuccess() {
+            val result: WritableMap = Arguments.createMap()
+            result.putBoolean("success", true)
+            callback?.resolve(result)
+          }
+        }
+    )
   }
 }

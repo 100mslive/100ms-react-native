@@ -204,6 +204,20 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     hms?.changeMetadata(data, callback)
   }
 
+  @ReactMethod
+  fun startScreenshare(data: ReadableMap, callback: Promise?) {
+    val hms = HmsHelper.getHms(data, hmsCollection)
+
+    hms?.startScreenshare(callback)
+  }
+
+  @ReactMethod
+  fun stopScreenshare(data: ReadableMap, callback: Promise?) {
+    val hms = HmsHelper.getHms(data, hmsCollection)
+
+    hms?.stopScreenshare(callback)
+  }
+
   fun emitEvent(event: String, data: WritableMap) {
     reactApplicationContext
         .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)

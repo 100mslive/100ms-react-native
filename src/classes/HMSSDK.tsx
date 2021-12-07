@@ -400,6 +400,16 @@ export class HMSSDK {
     return;
   };
 
+  startScreenshare = async () => {
+    this.logger?.verbose('START_SCREENSHARE_API_CALL', { id: this.id });
+    await HmsManager.startScreenshare({ id: this.id });
+  };
+
+  stopScreenshare = async () => {
+    this.logger?.verbose('STOP_SCREENSHARE_API_CALL', { id: this.id });
+    await HmsManager.stopScreenshare({ id: this.id });
+  };
+
   /**
    * - This is a prototype event listener that takes action and listens for updates related to that particular action
    * - This method will be @deprecated in future and event listener will be passed in join method

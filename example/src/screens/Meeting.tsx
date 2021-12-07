@@ -156,6 +156,7 @@ const DisplayTrack = ({
   ];
 
   useEffect(() => {
+    instance?.startScreenshare();
     knownRoles?.map(role => {
       if (role?.name === peerRefrence?.role?.name) {
         setNewRole(role);
