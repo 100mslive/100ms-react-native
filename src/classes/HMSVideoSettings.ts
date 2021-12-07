@@ -1,18 +1,18 @@
-import type { HMSAudioCodec } from './HMSAudioCodec';
+import type { HMSVideoCodec } from '..';
 
 export class HMSVideoSettings {
   bitrate?: number;
   frameRate: number;
   width: number;
   height: number;
-  codec: HMSAudioCodec;
+  codec: HMSVideoCodec;
 
   constructor(params: {
     bitrate?: number;
     frameRate: number;
     width: number;
     height: number;
-    codec: HMSAudioCodec;
+    codec: HMSVideoCodec;
   }) {
     this.bitrate = params.bitrate;
     this.frameRate = params.frameRate;
