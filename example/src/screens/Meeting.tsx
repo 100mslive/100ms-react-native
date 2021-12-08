@@ -156,7 +156,6 @@ const DisplayTrack = ({
   ];
 
   useEffect(() => {
-    instance?.startScreenshare();
     knownRoles?.map(role => {
       if (role?.name === peerRefrence?.role?.name) {
         setNewRole(role);
@@ -1198,13 +1197,14 @@ const Meeting = ({
           <TouchableOpacity
             style={styles.singleIconContainer}
             onPress={() => {
-              instance?.localPeer
-                ?.localAudioTrack()
-                ?.setMute(!trackId.isAudioMute);
-              setTrackId({
-                ...trackId,
-                isAudioMute: !trackId.isAudioMute,
-              });
+              // instance?.localPeer
+              //   ?.localAudioTrack()
+              //   ?.setMute(!trackId.isAudioMute);
+              // setTrackId({
+              //   ...trackId,
+              //   isAudioMute: !trackId.isAudioMute,
+              // });
+              instance?.startScreenshare();
             }}>
             <Feather
               name={trackId.isAudioMute ? 'mic-off' : 'mic'}

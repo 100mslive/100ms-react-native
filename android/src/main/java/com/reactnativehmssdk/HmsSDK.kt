@@ -1,12 +1,5 @@
 package com.reactnativehmssdk
 
-import android.app.Activity
-import android.content.Context
-import android.content.Intent
-import android.media.projection.MediaProjectionManager
-import androidx.activity.ComponentActivity
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.fragment.app.Fragment
 import com.facebook.react.bridge.*
 import java.util.*
 import kotlinx.coroutines.launch
@@ -35,6 +28,7 @@ class HmsSDK(
   val delegate: HmsModule = HmsDelegate
   val context: ReactApplicationContext = reactApplicationContext
   val id: String = sdkId
+  private var screenShareObj: HmsScreenshareFragment? = null
 
   init {
     val videoSettings = HmsHelper.getVideoTrackSettings(data?.getMap("video"))
@@ -59,7 +53,11 @@ class HmsSDK(
               credentials.getString("authToken") as String,
           )
 
-      if (HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("endpoint", "String"), Pair("metadata", "String")))) {
+      if (HmsHelper.areAllRequiredKeysAvailable(
+              credentials,
+              arrayOf(Pair("endpoint", "String"), Pair("metadata", "String"))
+          )
+      ) {
         config =
             HMSConfig(
                 credentials.getString("username") as String,
@@ -67,20 +65,28 @@ class HmsSDK(
                 initEndpoint = credentials.getString("endpoint") as String,
                 metadata = credentials.getString("metadata") as String,
             )
-      } else if (HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("endpoint", "String")))) {
-        config =
-          HMSConfig(
-            credentials.getString("username") as String,
-            credentials.getString("authToken") as String,
-            initEndpoint = credentials.getString("endpoint") as String,
+      } else if (HmsHelper.areAllRequiredKeysAvailable(
+              credentials,
+              arrayOf(Pair("endpoint", "String"))
           )
-      } else if (HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("metadata", "String")))) {
+      ) {
         config =
-          HMSConfig(
-            credentials.getString("username") as String,
-            credentials.getString("authToken") as String,
-            metadata = credentials.getString("metadata") as String,
+            HMSConfig(
+                credentials.getString("username") as String,
+                credentials.getString("authToken") as String,
+                initEndpoint = credentials.getString("endpoint") as String,
+            )
+      } else if (HmsHelper.areAllRequiredKeysAvailable(
+              credentials,
+              arrayOf(Pair("metadata", "String"))
           )
+      ) {
+        config =
+            HMSConfig(
+                credentials.getString("username") as String,
+                credentials.getString("authToken") as String,
+                metadata = credentials.getString("metadata") as String,
+            )
       }
 
       hmsSDK?.preview(
@@ -138,28 +144,40 @@ class HmsSDK(
               credentials.getString("authToken") as String
           )
 
-      if (HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("endpoint", "String"), Pair("metadata", "String")))) {
-        config =
-          HMSConfig(
-            credentials.getString("username") as String,
-            credentials.getString("authToken") as String,
-            initEndpoint = credentials.getString("endpoint") as String,
-            metadata = credentials.getString("metadata") as String,
+      if (HmsHelper.areAllRequiredKeysAvailable(
+              credentials,
+              arrayOf(Pair("endpoint", "String"), Pair("metadata", "String"))
           )
-      } else if (HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("endpoint", "String")))) {
+      ) {
         config =
-          HMSConfig(
-            credentials.getString("username") as String,
-            credentials.getString("authToken") as String,
-            initEndpoint = credentials.getString("endpoint") as String,
+            HMSConfig(
+                credentials.getString("username") as String,
+                credentials.getString("authToken") as String,
+                initEndpoint = credentials.getString("endpoint") as String,
+                metadata = credentials.getString("metadata") as String,
+            )
+      } else if (HmsHelper.areAllRequiredKeysAvailable(
+              credentials,
+              arrayOf(Pair("endpoint", "String"))
           )
-      } else if (HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("metadata", "String")))) {
+      ) {
         config =
-          HMSConfig(
-            credentials.getString("username") as String,
-            credentials.getString("authToken") as String,
-            metadata = credentials.getString("metadata") as String,
+            HMSConfig(
+                credentials.getString("username") as String,
+                credentials.getString("authToken") as String,
+                initEndpoint = credentials.getString("endpoint") as String,
+            )
+      } else if (HmsHelper.areAllRequiredKeysAvailable(
+              credentials,
+              arrayOf(Pair("metadata", "String"))
           )
+      ) {
+        config =
+            HMSConfig(
+                credentials.getString("username") as String,
+                credentials.getString("authToken") as String,
+                metadata = credentials.getString("metadata") as String,
+            )
       }
 
       HMSCoroutineScope.launch {
@@ -911,79 +929,41 @@ class HmsSDK(
   }
 
   fun changeMetadata(data: ReadableMap, callback: Promise?) {
-    val requiredKeys = HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("metadata", "String")))
+    val requiredKeys =
+        HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("metadata", "String")))
 
     if (requiredKeys) {
       val metadata = data.getString("metadata")
 
       if (metadata != null) {
-        hmsSDK?.changeMetadata(metadata, object : HMSActionResultListener {
-          override fun onSuccess() {
-            val result: WritableMap = Arguments.createMap()
+        hmsSDK?.changeMetadata(
+            metadata,
+            object : HMSActionResultListener {
+              override fun onSuccess() {
+                val result: WritableMap = Arguments.createMap()
 
-            result.putBoolean("success", true)
+                result.putBoolean("success", true)
 
-            callback?.resolve(result)
-          }
-          override fun onError(error: HMSException) {
-            callback?.reject(error.message, error.description)
-          }
-        })
+                callback?.resolve(result)
+              }
+              override fun onError(error: HMSException) {
+                callback?.reject(error.message, error.description)
+              }
+            }
+        )
       }
     } else {
       callback?.reject("101", "METADATA_NOT_FOUND")
     }
-      }
+  }
 
   fun startScreenshare(callback: Promise?) {
-    println("entered")
-//    HMSCoroutineScope.launch {
-//      var resultLauncher =
-//        registerForActivityResult(
-//          ActivityResultContracts.StartActivityForResult()
-//        ) { result ->
-//          if (result.resultCode == Activity.RESULT_OK) {
-//            val mediaProjectionPermissionResultData: Intent? = result.data
-//            hmsSDK?.startScreenshare(
-//              object : HMSActionResultListener {
-//                override fun onError(error: HMSException) {
-//                  callback?.reject(error.code.toString(), error.message)
-//                }
-//
-//                override fun onSuccess() {
-//                  isScreenShared = true
-//                }
-//              },
-//              mediaProjectionPermissionResultData
-//            )
-//          }
-//        }
-//      if (!isScreenShared) {
-//        val mediaProjectionManager: MediaProjectionManager? =
-//          context.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-//        resultLauncher.launch(mediaProjectionManager?.createScreenCaptureIntent())
-//        val result: WritableMap = Arguments.createMap()
-//        result.putBoolean("success", true)
-//        callback?.resolve(result)
-//      } else {
-//        callback?.reject("101", "ScreenShare already running!")
-//      }
-//    }
+    val obj = HmsScreenshareFragment(hmsSDK, context)
+//    obj.startScreenshare(callback)
+    screenShareObj = obj
   }
 
   fun stopScreenshare(callback: Promise?) {
-    hmsSDK?.stopScreenshare(
-        object : HMSActionResultListener {
-          override fun onError(error: HMSException) {
-            callback?.reject(error.code.toString(), error.message)
-          }
-
-          override fun onSuccess() {
-            val result: WritableMap = Arguments.createMap()
-            result.putBoolean("success", true)
-            callback?.resolve(result)
-          }
-        }
-    )
+    screenShareObj?.stopScreenshare(callback)
   }
 }
