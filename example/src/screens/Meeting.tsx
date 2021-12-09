@@ -148,9 +148,11 @@ const DisplayTrack = ({
     {
       text: 'Set',
       onPress: () => {
-        type === 'screen'
-          ? instance?.setVolume(peer?.track as HMSTrack, volume)
-          : instance?.setVolume(peerRefrence?.audioTrack as HMSTrack, volume);
+        if (type === 'remote' || type === 'local') {
+          instance?.setVolume(peerRefrence?.audioTrack as HMSTrack, volume);
+        } else if (peer?.track) {
+          instance?.setVolume(peer?.track, volume);
+        }
       },
     },
   ];
@@ -632,18 +634,24 @@ const Meeting = ({
         remoteVideoIds.push(remoteTemp);
 
         let auxiliaryTracks = remotePeer?.auxiliaryTracks;
-        let auxAudioTrack: HMSTrack | undefined;
+        // let auxAudioTrack: HMSTrack | undefined;
         let auxVideoTrack: Peer | undefined;
+
+        let auxTrackObj: any = {};
 
         auxiliaryTracks?.map((track: HMSTrack) => {
           let auxTrackId = track?.trackId;
-          if (
-            auxTrackId &&
-            track?.type === HMSTrackType.AUDIO &&
-            track?.source === 'screen'
-          ) {
-            auxAudioTrack = track;
-          } else if (auxTrackId && track?.type === HMSTrackType.VIDEO) {
+          if (auxTrackId && track?.type === HMSTrackType.AUDIO) {
+            let key = track?.source;
+            if (key) {
+              auxTrackObj[key] = track;
+            }
+          }
+        });
+
+        auxiliaryTracks?.map((track: HMSTrack) => {
+          let auxTrackId = track?.trackId;
+          if (auxTrackId && track?.type === HMSTrackType.VIDEO) {
             auxVideoTrack = {
               trackId: auxTrackId,
               name: `${remotePeer?.name}'s Screen`,
@@ -653,11 +661,12 @@ const Meeting = ({
               colour: getThemeColour(),
               sink: true,
               type: 'screen',
+              track: auxTrackObj[track.source ? track.source : ' '],
             };
           }
         });
         if (auxVideoTrack !== undefined) {
-          newAuxTracks.push({...(auxVideoTrack as Peer), track: auxAudioTrack});
+          newAuxTracks.push({...(auxVideoTrack as Peer)});
         }
       });
       setAuxTracks(newAuxTracks);
