@@ -20,3 +20,21 @@ hmsInstance.localPeer.localAudioTrack().setMute(true); // audio track
 
 hmsInstance.localPeer.localVideoTrack().setMute(true); // video track
 ```
+
+
+### Mute/Unmute Status
+
+Mute/Unmute can be done for local peer as well as remote peer according to their mute status.
+
+
+In most of the cases you would need to render the components on basis of current mute status of peers like their mic and camera icons.
+
+
+```js
+isAudioMute: boolean = peer?.audioTrack?.isMute(),
+isVideoMute: boolean = peer?.videoTrack?.isMute(),
+```
+
+
+For muting remote peer refer to [Change Track State](./change-track-state) docs and for muting remote peers locally refer to [Playback Allowed](./playback-allowed) docs.
+
