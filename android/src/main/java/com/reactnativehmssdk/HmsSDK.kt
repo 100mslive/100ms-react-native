@@ -1,6 +1,7 @@
 package com.reactnativehmssdk
 
 import com.facebook.react.bridge.*
+import com.facebook.react.bridge.UiThreadUtil.runOnUiThread
 import java.util.*
 import kotlinx.coroutines.launch
 import live.hms.video.error.HMSException
@@ -28,7 +29,7 @@ class HmsSDK(
   val delegate: HmsModule = HmsDelegate
   val context: ReactApplicationContext = reactApplicationContext
   val id: String = sdkId
-  private var screenShareObj: HmsScreenshareFragment? = null
+  private var screenShareObj: HmsScreenshareActivity? = null
 
   init {
     val videoSettings = HmsHelper.getVideoTrackSettings(data?.getMap("video"))
@@ -958,9 +959,11 @@ class HmsSDK(
   }
 
   fun startScreenshare(callback: Promise?) {
-    val obj = HmsScreenshareFragment(hmsSDK, context)
-//    obj.startScreenshare(callback)
-    screenShareObj = obj
+    runOnUiThread {
+      val obj = HmsScreenshareActivity(hmsSDK, context)
+      screenShareObj = obj
+      obj.startScreenshare(callback)
+    }
   }
 
   fun stopScreenshare(callback: Promise?) {
