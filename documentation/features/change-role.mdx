@@ -22,14 +22,21 @@ You can either request a user to accept a role change request or forcefully chan
 Imagine that the newly nominated speaker is not behaving nicely and we want to move him back to listener without a prompt. This is where the force parameter comes in. When it is set to true the other party will not receive a confirmation roleChangeRequest but instead will straight away receive a new set of updated permissions and stop publishing.
 
 ```js
-const newRole = 'listener';
+import { HMSRole, HMSRemotePeer } from '@100mslive/react-native-hms';
+const roles: HMSRole[] = hmsInstance?.knownRoles
+const newRole: HMSRole = roles[0];
+
+// can any remote peer
+const peer: HMSRemotePeer = hmsInstance?.remotePeers[0] 
+
+const force = false
 
 // instance acquired from build() method
-hmsInstance.changeRole(peer.id, newRole, false); // request role change
-hmsInstance.changeRole(peer.id, newRole, true); // force role change
+hmsInstance.changeRole(peer, newRole, force); // request role change
+hmsInstance.changeRole(peer, newRole, !force); // force role change
 ```
 
-## Request Role Change
+## Request Role Change Listener
 
 Once the peer with adequate permissions calls change role, following peer in the room will receive a notification with type ON_ROLE_CHANGE_REQUEST containing requestedBy and suggestedRole in the data object.
 
