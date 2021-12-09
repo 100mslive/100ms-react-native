@@ -492,9 +492,6 @@ const Meeting = ({
     meetingURL: state.user.roomID
       ? state.user.roomID + '/viewer?token=beam_recording'
       : '',
-    // rtmpURLs: [
-    //   'rtmp://fra05.contribute.live-video.net/app/live_727134716_hmEXKyF2XCjDfFLUJnSW2FD4Ch5I4q',
-    // ],
     rtmpURLs: [],
   });
   const [roleChangeModalVisible, setRoleChangeModalVisible] = useState(false);
