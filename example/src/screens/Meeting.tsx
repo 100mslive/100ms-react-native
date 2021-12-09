@@ -9,6 +9,7 @@ import {
   Dimensions,
   BackHandler,
   Platform,
+  TextInput,
 } from 'react-native';
 import {connect} from 'react-redux';
 import {
@@ -31,6 +32,7 @@ import {
   HMSPeer,
   HMSTrackType,
   HMSException,
+  HMSRTMPConfig,
 } from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
@@ -465,6 +467,7 @@ const Meeting = ({
   addMessageRequest,
   clearMessageRequest,
   hmsInstance,
+  state,
 }: MeetingProps) => {
   const [orientation, setOrientation] = useState<boolean>(true);
   const [instance, setInstance] = useState<HMSSDK | undefined>();
@@ -483,6 +486,14 @@ const Meeting = ({
   const [newRole, setNewRole] = useState(trackId?.peerRefrence?.role);
   const [roleModalVisible, setRoleModalVisible] = useState(false);
   const [settingsModal, setSettingsModal] = useState(false);
+  const [recordingModal, setRecordingModal] = useState(false);
+  const [recordingDetails, setRecordingDetails] = useState<HMSRTMPConfig>({
+    record: false,
+    meetingURL: state.user.roomID
+      ? state.user.roomID + '/viewer?token=beam_recording'
+      : '',
+    rtmpURLs: [],
+  });
   const [roleChangeModalVisible, setRoleChangeModalVisible] = useState(false);
   const [changeTrackStateModalVisible, setChangeTrackStateModalVisible] =
     useState(false);
@@ -490,7 +501,9 @@ const Meeting = ({
   const [localPeerPermissions, setLocalPeerPermissions] =
     useState<HMSPermissions>();
 
-  const roleChangeRequestTitle = roleChangeModalVisible
+  const roleChangeRequestTitle = recordingModal
+    ? 'Recording Details'
+    : roleChangeModalVisible
     ? 'Role Change Request'
     : changeTrackStateModalVisible
     ? 'Change Track State Request'
@@ -498,7 +511,24 @@ const Meeting = ({
   const roleChangeRequestButtons: [
     {text: string; onPress?: Function},
     {text: string; onPress?: Function},
-  ] = roleChangeModalVisible
+  ] = recordingModal
+    ? [
+        {text: 'Cancel'},
+        {
+          text: 'Start',
+          onPress: async () => {
+            try {
+              const result = await instance?.startRTMPOrRecording(
+                recordingDetails,
+              );
+              console.log(result);
+            } catch (error) {
+              console.log(error, 'error');
+            }
+          },
+        },
+      ]
+    : roleChangeModalVisible
     ? [
         {text: 'Reject'},
         {
@@ -652,6 +682,7 @@ const Meeting = ({
   };
 
   const onJoinListener = ({
+    room,
     localPeer,
     remotePeers,
   }: {
@@ -659,10 +690,11 @@ const Meeting = ({
     localPeer: HMSLocalPeer;
     remotePeers: HMSRemotePeer[];
   }) => {
-    console.log('data in onJoinListener: ', localPeer, remotePeers);
+    console.log('data in onJoinListener: ', room, localPeer, remotePeers);
   };
 
   const onRoomListener = ({
+    room,
     type,
     localPeer,
     remotePeers,
@@ -673,10 +705,11 @@ const Meeting = ({
     remotePeers: HMSRemotePeer[];
   }) => {
     updateVideoIds(remotePeers, localPeer);
-    console.log('data in onRoomListener: ', type, localPeer, remotePeers);
+    console.log('data in onRoomListener: ', room, type, localPeer, remotePeers);
   };
 
   const onPeerListener = ({
+    room,
     type,
     remotePeers,
     localPeer,
@@ -687,10 +720,11 @@ const Meeting = ({
     remotePeers: HMSRemotePeer[];
   }) => {
     updateVideoIds(remotePeers, localPeer);
-    console.log('data in onPeerListener: ', type, localPeer, remotePeers);
+    console.log('data in onPeerListener: ', room, type, localPeer, remotePeers);
   };
 
   const onTrackListener = ({
+    room,
     type,
     remotePeers,
     localPeer,
@@ -701,7 +735,13 @@ const Meeting = ({
     remotePeers: HMSRemotePeer[];
   }) => {
     updateVideoIds(remotePeers, localPeer);
-    console.log('data in onTrackListener: ', type, localPeer, remotePeers);
+    console.log(
+      'data in onTrackListener: ',
+      room,
+      type,
+      localPeer,
+      remotePeers,
+    );
   };
 
   const onMessage = (data: HMSMessage) => {
@@ -888,40 +928,70 @@ const Meeting = ({
   };
 
   const getSettingButtons = () => {
-    const buttons = [
+    const buttons: Array<{text: string; type?: string; onPress?: Function}> = [
       {
         text: 'Cancel',
         type: 'cancel',
       },
       {
-        text: 'Mute video of custom roles',
+        text: 'Start RTMP or Recording',
         onPress: () => {
-          setRoleModalVisible(true);
-          setAction(1);
+          setRecordingModal(true);
         },
       },
       {
-        text: 'Unmute video of custom roles',
-        onPress: () => {
-          setRoleModalVisible(true);
-          setAction(2);
-        },
-      },
-      {
-        text: 'Mute audio of custom roles',
-        onPress: () => {
-          setRoleModalVisible(true);
-          setAction(3);
-        },
-      },
-      {
-        text: 'Unmute audio of custom roles',
-        onPress: () => {
-          setRoleModalVisible(true);
-          setAction(4);
+        text: 'Stop RTMP or Recording',
+        onPress: async () => {
+          try {
+            const result = await instance?.stopRtmpAndRecording();
+            console.log(result);
+          } catch (error) {
+            console.log(error, 'error');
+          }
         },
       },
     ];
+    if (localPeerPermissions?.mute) {
+      buttons.push(
+        ...[
+          {
+            text: 'Mute video of custom roles',
+            onPress: () => {
+              setRoleModalVisible(true);
+              setAction(1);
+            },
+          },
+          {
+            text: 'Mute audio of custom roles',
+            onPress: () => {
+              setRoleModalVisible(true);
+              setAction(3);
+            },
+          },
+        ],
+      );
+    }
+    if (localPeerPermissions?.unmute) {
+      buttons.push(
+        ...[
+          {
+            text: 'Unmute video of custom roles',
+            onPress: () => {
+              setRoleModalVisible(true);
+              setAction(2);
+            },
+          },
+
+          {
+            text: 'Unmute audio of custom roles',
+            onPress: () => {
+              setRoleModalVisible(true);
+              setAction(4);
+            },
+          },
+        ],
+      );
+    }
     return buttons;
   };
 
@@ -1063,6 +1133,61 @@ const Meeting = ({
         </Text>
       </CustomModal>
       <CustomModal
+        modalVisible={recordingModal}
+        setModalVisible={setRecordingModal}
+        title={roleChangeRequestTitle}
+        buttons={roleChangeRequestButtons}>
+        <TextInput
+          onChangeText={value => {
+            setRecordingDetails({...recordingDetails, meetingURL: value});
+          }}
+          placeholderTextColor="#454545"
+          placeholder="Enter meeting url"
+          style={styles.input}
+          defaultValue={recordingDetails.meetingURL}
+          returnKeyType="done"
+          multiline
+          blurOnSubmit
+        />
+        <TextInput
+          onChangeText={value => {
+            if (value == '') {
+              setRecordingDetails({...recordingDetails, rtmpURLs: []});
+            } else {
+              setRecordingDetails({...recordingDetails, rtmpURLs: [value]});
+            }
+          }}
+          placeholderTextColor="#454545"
+          placeholder="Enter rtmp url"
+          style={styles.input}
+          defaultValue={
+            recordingDetails.rtmpURLs ? recordingDetails.rtmpURLs[0] : ''
+          }
+          returnKeyType="done"
+          multiline
+          blurOnSubmit
+        />
+        <TouchableOpacity
+          onPress={() => {
+            setRecordingDetails({
+              ...recordingDetails,
+              record: !recordingDetails.record,
+            });
+          }}
+          style={styles.recordingDetails}>
+          <Text>Record</Text>
+          <View style={styles.checkboxContainer}>
+            {recordingDetails.record && (
+              <Entypo
+                name="check"
+                style={styles.checkbox}
+                size={dimension.viewHeight(20)}
+              />
+            )}
+          </View>
+        </TouchableOpacity>
+      </CustomModal>
+      <CustomModal
         modalVisible={changeTrackStateModalVisible}
         setModalVisible={setChangeTrackStateModalVisible}
         title={roleChangeRequestTitle}
@@ -1101,6 +1226,20 @@ const Meeting = ({
       <View style={styles.headerContainer}>
         <Text style={styles.headerName}>{trackId?.name}</Text>
         <View style={styles.headerRight}>
+          {instance?.room?.browserRecordingState?.running && (
+            <Entypo
+              name="controller-record"
+              style={styles.recording}
+              size={dimension.viewHeight(30)}
+            />
+          )}
+          {instance?.room?.rtmpHMSRtmpStreamingState?.running && (
+            <Entypo
+              name="light-up"
+              style={styles.streaming}
+              size={dimension.viewHeight(30)}
+            />
+          )}
           {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
             'video',
           ) && (
@@ -1505,6 +1644,41 @@ const styles = StyleSheet.create({
   },
   headerRight: {
     flexDirection: 'row',
+    alignItems: 'center',
+  },
+  recording: {
+    color: 'red',
+    padding: dimension.viewHeight(10),
+  },
+  streaming: {
+    color: 'red',
+    padding: dimension.viewHeight(10),
+  },
+  input: {
+    borderWidth: 1,
+    borderRadius: 10,
+    borderColor: 'black',
+    paddingLeft: 10,
+    minHeight: 32,
+    color: getThemeColour(),
+    margin: 10,
+  },
+  recordingDetails: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    padding: 10,
+  },
+  checkboxContainer: {
+    height: 25,
+    width: 25,
+    borderColor: 'black',
+    borderWidth: 2,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  checkbox: {
+    color: 'black',
   },
 });
 
@@ -1520,6 +1694,7 @@ const mapStateToProps = (state: RootState) => ({
   audioState: state?.app?.audioState,
   videoState: state?.app?.videoState,
   hmsInstance: state?.user?.hmsInstance,
+  roomID: state.user.roomID,
   state: state,
 });
 

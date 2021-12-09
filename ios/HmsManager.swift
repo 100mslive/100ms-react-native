@@ -223,6 +223,20 @@ class HmsManager: RCTEventEmitter{
         hms?.setVolume(data)
     }
     
+    @objc
+    func startRTMPOrRecording(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HmsHelper.getHms(data, hmsCollection)
+        
+        hms?.startRTMPOrRecording(data, resolve, reject)
+    }
+    
+    @objc
+    func stopRtmpAndRecording(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HmsHelper.getHms(data, hmsCollection)
+        
+        hms?.stopRtmpAndRecording(resolve, reject)
+    }
+    
 //    @objc
 //    func setLocalVideoSettings(_ data: NSDictionary) {
 //        let hms = HmsHelper.getHms(data, hmsCollection)

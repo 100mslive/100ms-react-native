@@ -204,6 +204,20 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     hms?.changeMetadata(data, callback)
   }
 
+  @ReactMethod
+  fun startRTMPOrRecording(data: ReadableMap, callback: Promise?) {
+    val hms = HmsHelper.getHms(data, hmsCollection)
+
+    hms?.startRTMPOrRecording(data, callback)
+  }
+
+  @ReactMethod
+  fun stopRtmpAndRecording(data: ReadableMap, callback: Promise?) {
+    val hms = HmsHelper.getHms(data, hmsCollection)
+
+    hms?.stopRtmpAndRecording(callback)
+  }
+
   fun emitEvent(event: String, data: WritableMap) {
     reactApplicationContext
         .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)

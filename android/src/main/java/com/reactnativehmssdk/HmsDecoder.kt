@@ -19,6 +19,19 @@ object HmsDecoder {
       room.putString("id", hmsRoom.roomId)
       room.putString("name", hmsRoom.name)
       room.putString("metaData", null)
+      room.putString("startedAt", hmsRoom.startedAt.toString())
+      room.putMap(
+          "browserRecordingState",
+          this.getHMSBrowserRecordingState(hmsRoom.browserRecordingState)
+      )
+      room.putMap(
+          "rtmpHMSRtmpStreamingState",
+          this.getHMSRtmpStreamingState(hmsRoom.rtmpHMSRtmpStreamingState)
+      )
+      room.putMap(
+          "serverRecordingState",
+          this.getHMSServerRecordingState(hmsRoom.serverRecordingState)
+      )
       var peers: WritableArray = Arguments.createArray()
       for (peer in hmsRoom.peerList) {
         peers.pushMap(getHmsPeer(peer))
@@ -38,10 +51,7 @@ object HmsDecoder {
           "customerUserID",
           if (hmsPeer.customerUserID == null) hmsPeer.customerUserID else ""
       )
-      peer.putString(
-          "metadata",
-          if (hmsPeer.metadata == null) hmsPeer.metadata else ""
-      )
+      peer.putString("metadata", if (hmsPeer.metadata == null) hmsPeer.metadata else "")
       peer.putMap("audioTrack", getHmsAudioTrack(hmsPeer.audioTrack))
       peer.putMap("videoTrack", getHmsVideoTrack(hmsPeer.videoTrack))
       peer.putMap("role", getHmsRole(hmsPeer.hmsRole))
@@ -251,10 +261,7 @@ object HmsDecoder {
           "customerUserID",
           if (hmsLocalPeer.customerUserID != null) hmsLocalPeer.customerUserID else ""
       )
-      peer.putString(
-          "metadata",
-          if (hmsLocalPeer.metadata != null) hmsLocalPeer.metadata else ""
-      )
+      peer.putString("metadata", if (hmsLocalPeer.metadata != null) hmsLocalPeer.metadata else "")
       peer.putMap("audioTrack", getHmsAudioTrack(hmsLocalPeer.audioTrack))
       peer.putMap("videoTrack", getHmsVideoTrack(hmsLocalPeer.videoTrack))
       peer.putMap("role", getHmsRole(hmsLocalPeer.hmsRole))
@@ -369,10 +376,7 @@ object HmsDecoder {
           "customerUserID",
           if (hmsRemotePeer.customerUserID != null) hmsRemotePeer.customerUserID else ""
       )
-      peer.putString(
-          "metadata",
-          if (hmsRemotePeer.metadata != null) hmsRemotePeer.metadata else ""
-      )
+      peer.putString("metadata", if (hmsRemotePeer.metadata != null) hmsRemotePeer.metadata else "")
       peer.putMap("audioTrack", getHmsAudioTrack(hmsRemotePeer.audioTrack))
       peer.putMap("videoTrack", getHmsVideoTrack(hmsRemotePeer.videoTrack))
       peer.putMap("role", getHmsRole(hmsRemotePeer.hmsRole))
@@ -469,5 +473,32 @@ object HmsDecoder {
     decodedError.putString("action", error.action)
 
     return decodedError
+  }
+
+  fun getHMSBrowserRecordingState(data: HMSBrowserRecordingState?): ReadableMap {
+    val input = Arguments.createMap()
+    if (data !== null) {
+      input.putBoolean("running", data.running)
+      input.putMap("error", data.error?.let { this.getError(it) })
+    }
+    return input
+  }
+
+  fun getHMSRtmpStreamingState(data: HMSRtmpStreamingState?): ReadableMap {
+    val input = Arguments.createMap()
+    if (data !== null) {
+      input.putBoolean("running", data.running)
+      input.putMap("error", data.error?.let { this.getError(it) })
+    }
+    return input
+  }
+
+  fun getHMSServerRecordingState(data: HMSServerRecordingState?): ReadableMap {
+    val input = Arguments.createMap()
+    if (data !== null) {
+      input.putBoolean("running", data.running)
+      input.putMap("error", data.error?.let { this.getError(it) })
+    }
+    return input
   }
 }

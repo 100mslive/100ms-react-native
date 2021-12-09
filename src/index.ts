@@ -42,6 +42,10 @@ export * from './classes/HMSSpeaker';
 export * from './classes/HMSSpeakerUpdate';
 export * from './classes/HMSCameraFacing';
 export * from './classes/HMSException';
+export * from './classes/HMSRtmpStreamingState';
+export * from './classes/HMSServerRecordingState';
+export * from './classes/HMSBrowserRecordingState';
+export * from './classes/HMSRTMPConfig';
 
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
 export default HmsManager;

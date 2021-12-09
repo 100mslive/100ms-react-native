@@ -26,6 +26,7 @@ class HmsSDK(
   private var changeTrackStateRequest: HMSChangeTrackStateRequest? = null
   val delegate: HmsModule = HmsDelegate
   val id: String = sdkId
+  val self = this
 
   init {
     val videoSettings = HmsHelper.getVideoTrackSettings(data?.getMap("video"))
@@ -35,6 +36,30 @@ class HmsSDK(
     val trackSettings = trackSettingsBuilder.audio(audioSettings).video(videoSettings).build()
 
     this.hmsSDK = HMSSDK.Builder(reactApplicationContext).setTrackSettings(trackSettings).build()
+  }
+
+  fun emitRequiredKeysError() {
+    val data: WritableMap = Arguments.createMap()
+    val hmsError =
+        HMSException(
+            102,
+            "NOT_FOUND",
+            "SEND_ALL_REQUIRED_KEYS",
+            "REQUIRED_KEYS_NOT_FOUND",
+            "REQUIRED_KEYS_NOT_FOUND"
+        )
+    data.putString("event", "ON_ERROR")
+    data.putString("id", id)
+    data.putMap("error", HmsDecoder.getError(hmsError))
+    delegate.emitEvent("ON_ERROR", data)
+  }
+
+  fun emitHMSError(error: HMSException) {
+    val data: WritableMap = Arguments.createMap()
+    data.putString("event", "ON_ERROR")
+    data.putString("id", id)
+    data.putMap("error", HmsDecoder.getError(error))
+    delegate.emitEvent("ON_ERROR", data)
   }
 
   fun preview(credentials: ReadableMap) {
@@ -50,7 +75,11 @@ class HmsSDK(
               credentials.getString("authToken") as String,
           )
 
-      if (HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("endpoint", "String"), Pair("metadata", "String")))) {
+      if (HmsHelper.areAllRequiredKeysAvailable(
+              credentials,
+              arrayOf(Pair("endpoint", "String"), Pair("metadata", "String"))
+          )
+      ) {
         config =
             HMSConfig(
                 credentials.getString("username") as String,
@@ -58,31 +87,35 @@ class HmsSDK(
                 initEndpoint = credentials.getString("endpoint") as String,
                 metadata = credentials.getString("metadata") as String,
             )
-      } else if (HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("endpoint", "String")))) {
-        config =
-          HMSConfig(
-            credentials.getString("username") as String,
-            credentials.getString("authToken") as String,
-            initEndpoint = credentials.getString("endpoint") as String,
+      } else if (HmsHelper.areAllRequiredKeysAvailable(
+              credentials,
+              arrayOf(Pair("endpoint", "String"))
           )
-      } else if (HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("metadata", "String")))) {
+      ) {
         config =
-          HMSConfig(
-            credentials.getString("username") as String,
-            credentials.getString("authToken") as String,
-            metadata = credentials.getString("metadata") as String,
+            HMSConfig(
+                credentials.getString("username") as String,
+                credentials.getString("authToken") as String,
+                initEndpoint = credentials.getString("endpoint") as String,
+            )
+      } else if (HmsHelper.areAllRequiredKeysAvailable(
+              credentials,
+              arrayOf(Pair("metadata", "String"))
           )
+      ) {
+        config =
+            HMSConfig(
+                credentials.getString("username") as String,
+                credentials.getString("authToken") as String,
+                metadata = credentials.getString("metadata") as String,
+            )
       }
 
       hmsSDK?.preview(
           config,
           object : HMSPreviewListener {
             override fun onError(error: HMSException) {
-              val data: WritableMap = Arguments.createMap()
-              data.putString("event", "ON_ERROR")
-              data.putString("id", id)
-              data.putMap("error", HmsDecoder.getError(error))
-              delegate.emitEvent("ON_ERROR", data)
+              self.emitHMSError(error)
             }
 
             override fun onPreview(room: HMSRoom, localTracks: Array<HMSTrack>) {
@@ -100,19 +133,7 @@ class HmsSDK(
           }
       )
     } else {
-      val data: WritableMap = Arguments.createMap()
-      val hmsError =
-          HMSException(
-              102,
-              "NOT_FOUND",
-              "SEND_ALL_REQUIRED_KEYS",
-              "REQUIRED_KEYS_NOT_FOUND",
-              "REQUIRED_KEYS_NOT_FOUND"
-          )
-      data.putString("event", "ON_ERROR")
-      data.putString("id", id)
-      data.putMap("error", HmsDecoder.getError(hmsError))
-      delegate.emitEvent("ON_ERROR", data)
+      self.emitRequiredKeysError()
     }
   }
 
@@ -129,28 +150,40 @@ class HmsSDK(
               credentials.getString("authToken") as String
           )
 
-      if (HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("endpoint", "String"), Pair("metadata", "String")))) {
-        config =
-          HMSConfig(
-            credentials.getString("username") as String,
-            credentials.getString("authToken") as String,
-            initEndpoint = credentials.getString("endpoint") as String,
-            metadata = credentials.getString("metadata") as String,
+      if (HmsHelper.areAllRequiredKeysAvailable(
+              credentials,
+              arrayOf(Pair("endpoint", "String"), Pair("metadata", "String"))
           )
-      } else if (HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("endpoint", "String")))) {
+      ) {
         config =
-          HMSConfig(
-            credentials.getString("username") as String,
-            credentials.getString("authToken") as String,
-            initEndpoint = credentials.getString("endpoint") as String,
+            HMSConfig(
+                credentials.getString("username") as String,
+                credentials.getString("authToken") as String,
+                initEndpoint = credentials.getString("endpoint") as String,
+                metadata = credentials.getString("metadata") as String,
+            )
+      } else if (HmsHelper.areAllRequiredKeysAvailable(
+              credentials,
+              arrayOf(Pair("endpoint", "String"))
           )
-      } else if (HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("metadata", "String")))) {
+      ) {
         config =
-          HMSConfig(
-            credentials.getString("username") as String,
-            credentials.getString("authToken") as String,
-            metadata = credentials.getString("metadata") as String,
+            HMSConfig(
+                credentials.getString("username") as String,
+                credentials.getString("authToken") as String,
+                initEndpoint = credentials.getString("endpoint") as String,
+            )
+      } else if (HmsHelper.areAllRequiredKeysAvailable(
+              credentials,
+              arrayOf(Pair("metadata", "String"))
           )
+      ) {
+        config =
+            HMSConfig(
+                credentials.getString("username") as String,
+                credentials.getString("authToken") as String,
+                metadata = credentials.getString("metadata") as String,
+            )
       }
 
       HMSCoroutineScope.launch {
@@ -186,11 +219,7 @@ class HmsSDK(
                 }
 
                 override fun onError(error: HMSException) {
-                  val data: WritableMap = Arguments.createMap()
-                  data.putString("event", "ON_ERROR")
-                  data.putString("id", id)
-                  data.putMap("error", HmsDecoder.getError(error))
-                  delegate.emitEvent("ON_ERROR", data)
+                  self.emitHMSError(error)
                 }
 
                 override fun onJoin(room: HMSRoom) {
@@ -292,11 +321,7 @@ class HmsSDK(
               }
           )
         } catch (e: HMSException) {
-          val error: WritableMap = Arguments.createMap()
-          error.putString("message", e.localizedMessage)
-          error.putInt("code", e.code)
-          error.putString("id", id)
-          delegate.emitEvent("ON_ERROR", error)
+          self.emitHMSError(e)
         }
 
         hmsSDK?.addAudioObserver(
@@ -322,19 +347,7 @@ class HmsSDK(
         )
       }
     } else {
-      val data: WritableMap = Arguments.createMap()
-      val hmsError =
-          HMSException(
-              102,
-              "NOT_FOUND",
-              "SEND_ALL_REQUIRED_KEYS",
-              "REQUIRED_KEYS_NOT_FOUND",
-              "REQUIRED_KEYS_NOT_FOUND"
-          )
-      data.putString("event", "ON_ERROR")
-      data.putString("id", id)
-      data.putMap("error", HmsDecoder.getError(hmsError))
-      delegate.emitEvent("ON_ERROR", data)
+      self.emitRequiredKeysError()
     }
   }
 
@@ -376,6 +389,7 @@ class HmsSDK(
 
           override fun onError(error: HMSException) {
             callback?.reject("101", "NOT_FOUND")
+            self.emitHMSError(error)
           }
         }
     )
@@ -393,24 +407,14 @@ class HmsSDK(
           data.getString("message") as String,
           type as String,
           object : HMSMessageResultListener {
-            override fun onError(error: HMSException) {}
+            override fun onError(error: HMSException) {
+              self.emitHMSError(error)
+            }
             override fun onSuccess(hmsMessage: HMSMessage) {}
           }
       )
     } else {
-      val data: WritableMap = Arguments.createMap()
-      val hmsError =
-          HMSException(
-              102,
-              "NOT_FOUND",
-              "SEND_ALL_REQUIRED_KEYS",
-              "REQUIRED_KEYS_NOT_FOUND",
-              "REQUIRED_KEYS_NOT_FOUND"
-          )
-      data.putString("event", "ON_ERROR")
-      data.putString("id", id)
-      data.putMap("error", HmsDecoder.getError(hmsError))
-      delegate.emitEvent("ON_ERROR", data)
+      self.emitRequiredKeysError()
     }
   }
 
@@ -436,25 +440,15 @@ class HmsSDK(
             type as String,
             encodedTargetedRoles,
             object : HMSMessageResultListener {
-              override fun onError(error: HMSException) {}
+              override fun onError(error: HMSException) {
+                self.emitHMSError(error)
+              }
               override fun onSuccess(hmsMessage: HMSMessage) {}
             }
         )
       }
     } else {
-      val data: WritableMap = Arguments.createMap()
-      val hmsError =
-          HMSException(
-              102,
-              "NOT_FOUND",
-              "SEND_ALL_REQUIRED_KEYS",
-              "REQUIRED_KEYS_NOT_FOUND",
-              "REQUIRED_KEYS_NOT_FOUND"
-          )
-      data.putString("event", "ON_ERROR")
-      data.putString("id", id)
-      data.putMap("error", HmsDecoder.getError(hmsError))
-      delegate.emitEvent("ON_ERROR", data)
+      self.emitRequiredKeysError()
     }
   }
 
@@ -479,25 +473,15 @@ class HmsSDK(
             type as String,
             peer,
             object : HMSMessageResultListener {
-              override fun onError(error: HMSException) {}
+              override fun onError(error: HMSException) {
+                self.emitHMSError(error)
+              }
               override fun onSuccess(hmsMessage: HMSMessage) {}
             }
         )
       }
     } else {
-      val data: WritableMap = Arguments.createMap()
-      val hmsError =
-          HMSException(
-              102,
-              "NOT_FOUND",
-              "SEND_ALL_REQUIRED_KEYS",
-              "REQUIRED_KEYS_NOT_FOUND",
-              "REQUIRED_KEYS_NOT_FOUND"
-          )
-      data.putString("event", "ON_ERROR")
-      data.putString("id", id)
-      data.putMap("error", HmsDecoder.getError(hmsError))
-      delegate.emitEvent("ON_ERROR", data)
+      self.emitRequiredKeysError()
     }
   }
 
@@ -523,25 +507,15 @@ class HmsSDK(
               force,
               object : HMSActionResultListener {
                 override fun onSuccess() {}
-                override fun onError(error: HMSException) {}
+                override fun onError(error: HMSException) {
+                  self.emitHMSError(error)
+                }
               }
           )
         }
       }
     } else {
-      val data: WritableMap = Arguments.createMap()
-      val hmsError =
-          HMSException(
-              102,
-              "NOT_FOUND",
-              "SEND_ALL_REQUIRED_KEYS",
-              "REQUIRED_KEYS_NOT_FOUND",
-              "REQUIRED_KEYS_NOT_FOUND"
-          )
-      data.putString("event", "ON_ERROR")
-      data.putString("id", id)
-      data.putMap("error", HmsDecoder.getError(hmsError))
-      delegate.emitEvent("ON_ERROR", data)
+      self.emitRequiredKeysError()
     }
   }
 
@@ -562,24 +536,14 @@ class HmsSDK(
             mute,
             object : HMSActionResultListener {
               override fun onSuccess() {}
-              override fun onError(error: HMSException) {}
+              override fun onError(error: HMSException) {
+                self.emitHMSError(error)
+              }
             }
         )
       }
     } else {
-      val data: WritableMap = Arguments.createMap()
-      val hmsError =
-          HMSException(
-              102,
-              "NOT_FOUND",
-              "SEND_ALL_REQUIRED_KEYS",
-              "REQUIRED_KEYS_NOT_FOUND",
-              "REQUIRED_KEYS_NOT_FOUND"
-          )
-      data.putString("event", "ON_ERROR")
-      data.putString("id", id)
-      data.putMap("error", HmsDecoder.getError(hmsError))
-      delegate.emitEvent("ON_ERROR", data)
+      self.emitRequiredKeysError()
     }
   }
 
@@ -610,23 +574,13 @@ class HmsSDK(
           encodedTargetedRoles,
           object : HMSActionResultListener {
             override fun onSuccess() {}
-            override fun onError(error: HMSException) {}
+            override fun onError(error: HMSException) {
+              self.emitHMSError(error)
+            }
           }
       )
     } else {
-      val data: WritableMap = Arguments.createMap()
-      val hmsError =
-          HMSException(
-              102,
-              "NOT_FOUND",
-              "SEND_ALL_REQUIRED_KEYS",
-              "REQUIRED_KEYS_NOT_FOUND",
-              "REQUIRED_KEYS_NOT_FOUND"
-          )
-      data.putString("event", "ON_ERROR")
-      data.putString("id", id)
-      data.putMap("error", HmsDecoder.getError(hmsError))
-      delegate.emitEvent("ON_ERROR", data)
+      self.emitRequiredKeysError()
     }
   }
 
@@ -656,27 +610,34 @@ class HmsSDK(
   }
 
   fun removePeer(data: ReadableMap) {
-    val peerId = data.getString("peerId")
-    var reason = data.getString("reason")
+    val requiredKeys =
+        HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("peerId", "String")))
+    if (requiredKeys) {
+      val peerId = data.getString("peerId")
+      var reason = data.getString("reason")
 
-    if (reason == null) {
-      reason = ""
-    }
+      if (reason == null) {
+        reason = ""
+      }
 
-    val peers = hmsSDK?.getRemotePeers()
+      val peers = hmsSDK?.getRemotePeers()
 
-    val peer = HmsHelper.getRemotePeerFromPeerId(peerId, peers)
+      val peer = HmsHelper.getRemotePeerFromPeerId(peerId, peers)
 
-    if (peer != null) {
-      hmsSDK?.removePeerRequest(
-          peer,
-          reason,
-          object : HMSActionResultListener {
-            override fun onSuccess() {}
-
-            override fun onError(error: HMSException) {}
-          }
-      )
+      if (peer != null) {
+        hmsSDK?.removePeerRequest(
+            peer,
+            reason,
+            object : HMSActionResultListener {
+              override fun onSuccess() {}
+              override fun onError(error: HMSException) {
+                self.emitHMSError(error)
+              }
+            }
+        )
+      }
+    } else {
+      self.emitRequiredKeysError()
     }
   }
 
@@ -692,8 +653,9 @@ class HmsSDK(
         lock,
         object : HMSActionResultListener {
           override fun onSuccess() {}
-
-          override fun onError(error: HMSException) {}
+          override fun onError(error: HMSException) {
+            self.emitHMSError(error)
+          }
         }
     )
   }
@@ -709,6 +671,7 @@ class HmsSDK(
 
             override fun onError(error: HMSException) {
               recentRoleChangeRequest = null
+              self.emitHMSError(error)
             }
           }
       )
@@ -739,19 +702,7 @@ class HmsSDK(
         delegate.emitEvent("ON_PEER_UPDATE", data)
       }
     } else {
-      val data: WritableMap = Arguments.createMap()
-      val hmsError =
-          HMSException(
-              102,
-              "NOT_FOUND",
-              "SEND_ALL_REQUIRED_KEYS",
-              "REQUIRED_KEYS_NOT_FOUND",
-              "REQUIRED_KEYS_NOT_FOUND"
-          )
-      data.putString("event", "ON_ERROR")
-      data.putString("id", id)
-      data.putMap("error", HmsDecoder.getError(hmsError))
-      delegate.emitEvent("ON_ERROR", data)
+      this.emitRequiredKeysError()
     }
   }
 
@@ -773,19 +724,7 @@ class HmsSDK(
         remoteVideoTrack.isPlaybackAllowed = playbackAllowed
       }
     } else {
-      val data: WritableMap = Arguments.createMap()
-      val hmsError =
-          HMSException(
-              102,
-              "NOT_FOUND",
-              "SEND_ALL_REQUIRED_KEYS",
-              "REQUIRED_KEYS_NOT_FOUND",
-              "REQUIRED_KEYS_NOT_FOUND"
-          )
-      data.putString("event", "ON_ERROR")
-      data.putString("id", id)
-      data.putMap("error", HmsDecoder.getError(hmsError))
-      delegate.emitEvent("ON_ERROR", data)
+      this.emitRequiredKeysError()
     }
   }
 
@@ -846,38 +785,13 @@ class HmsSDK(
               if (trackExtracted != null) {
                 trackExtracted.setVolume(volume)
                 return
-              } else {
-                val data: WritableMap = Arguments.createMap()
-                val hmsError =
-                    HMSException(
-                        102,
-                        "NOT_FOUND",
-                        "SEND_ALL_REQUIRED_KEYS",
-                        "REQUIRED_KEYS_NOT_FOUND",
-                        "REQUIRED_KEYS_NOT_FOUND"
-                    )
-                data.putString("event", "ON_ERROR")
-                data.putString("id", id)
-                data.putMap("error", HmsDecoder.getError(hmsError))
-                delegate.emitEvent("ON_ERROR", data)
               }
             }
           }
         }
       }
     } else {
-      delegate.emitEvent(
-          "ON_ERROR",
-          HmsDecoder.getError(
-              HMSException(
-                  102,
-                  "NOT_FOUND",
-                  "SEND_ALL_REQUIRED_KEYS",
-                  "REQUIRED_KEYS_NOT_FOUND",
-                  "REQUIRED_KEYS_NOT_FOUND"
-              )
-          )
-      )
+      this.emitRequiredKeysError()
     }
   }
 
@@ -902,27 +816,84 @@ class HmsSDK(
   }
 
   fun changeMetadata(data: ReadableMap, callback: Promise?) {
-    val requiredKeys = HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("metadata", "String")))
+    val requiredKeys =
+        HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("metadata", "String")))
 
     if (requiredKeys) {
       val metadata = data.getString("metadata")
 
       if (metadata != null) {
-        hmsSDK?.changeMetadata(metadata, object : HMSActionResultListener {
+        hmsSDK?.changeMetadata(
+            metadata,
+            object : HMSActionResultListener {
+              override fun onSuccess() {
+                val result: WritableMap = Arguments.createMap()
+
+                result.putBoolean("success", true)
+
+                callback?.resolve(result)
+              }
+              override fun onError(error: HMSException) {
+                callback?.reject(error.message, error.description)
+                self.emitHMSError(error)
+              }
+            }
+        )
+      }
+    } else {
+      self.emitRequiredKeysError()
+    }
+  }
+
+  fun startRTMPOrRecording(data: ReadableMap, callback: Promise?) {
+    val requiredKeys =
+        HmsHelper.areAllRequiredKeysAvailable(
+            data,
+            arrayOf(Pair("record", "Boolean"), Pair("meetingURL", "String"))
+        )
+    if (requiredKeys) {
+      val record = data.getBoolean("record")
+      var meetingURL = data.getString("meetingURL") as String
+      var rtmpURLs = data.getArray("rtmpURLs")
+      if (rtmpURLs == null) {
+        rtmpURLs = Arguments.createArray()
+      }
+      val rtmpURLsList = HmsHelper.getRtmpUrls(rtmpURLs)
+      val config = HMSRecordingConfig(meetingURL, rtmpURLsList, record)
+
+      hmsSDK?.startRtmpOrRecording(
+          config,
+          object : HMSActionResultListener {
+            override fun onSuccess() {
+              val result: WritableMap = Arguments.createMap()
+              result.putBoolean("success", true)
+              callback?.resolve(result)
+            }
+            override fun onError(error: HMSException) {
+              callback?.reject(error.message, error.description)
+              self.emitHMSError(error)
+            }
+          }
+      )
+    } else {
+      callback?.reject("101", "REQUIRED_KEYS_NOT_FOUND")
+      self.emitRequiredKeysError()
+    }
+  }
+
+  fun stopRtmpAndRecording(callback: Promise?) {
+    hmsSDK?.stopRtmpAndRecording(
+        object : HMSActionResultListener {
           override fun onSuccess() {
             val result: WritableMap = Arguments.createMap()
-
             result.putBoolean("success", true)
-
             callback?.resolve(result)
           }
           override fun onError(error: HMSException) {
             callback?.reject(error.message, error.description)
+            self.emitHMSError(error)
           }
-        })
-      }
-    } else {
-      callback?.reject("101", "METADATA_NOT_FOUND")
-    }
+        }
+    )
   }
 }

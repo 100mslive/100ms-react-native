@@ -1,5 +1,6 @@
 package com.reactnativehmssdk
 
+import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
 import live.hms.video.media.codec.HMSAudioCodec
 import live.hms.video.media.codec.HMSVideoCodec
@@ -266,5 +267,15 @@ object HmsHelper {
     } else {
       return null
     }
+  }
+
+  fun getRtmpUrls(rtmpURLsList: ReadableArray?): List<String> {
+    val rtmpURLs = mutableListOf<String>()
+    if (rtmpURLsList !== null) {
+      for (rtmpURL in rtmpURLsList.toArrayList()) {
+        rtmpURLs.add(rtmpURL as String)
+      }
+    }
+    return rtmpURLs
   }
 }

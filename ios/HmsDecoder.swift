@@ -9,13 +9,16 @@ class HmsDecoder: NSObject {
         let id = room.roomID ?? ""
         let name = room.name ?? ""
         let metaData = room.metaData ?? ""
+        let browserRecordingState = HmsDecoder.getHMSBrowserRecordingState(hmsRoom?.browserRecordingState)
+        let rtmpStreamingState = HmsDecoder.getHMSRtmpStreamingState(hmsRoom?.rtmpStreamingState)
+        let serverRecordingState = HmsDecoder.getHMSServerRecordingState(hmsRoom?.serverRecordingState)
         var peers = [[String: Any]]()
         
         for peer in room.peers {
             peers.append(getHmsPeer(peer))
         }
         
-        return ["id": id, "name": name, "metaData": metaData, "peers": peers]
+        return ["id": id, "name": name, "metaData": metaData, "peers": peers, "browserRecordingState": browserRecordingState, "rtmpHMSRtmpStreamingState": rtmpStreamingState, "serverRecordingState": serverRecordingState]
     }
     
     static func getHmsPeer (_ peer: HMSPeer) -> [String: Any] {
@@ -409,16 +412,53 @@ class HmsDecoder: NSObject {
         return request
     }
     
-    static func getError(_ error: HMSError) -> [String: Any] {
-        let code = error.code
-        let description = error.description
-        let localizedDescription = error.localizedDescription
-        let debugDescription = error.debugDescription
-        let message = error.message
-        let name = error.id
-        let id = error.id
-        let action = error.action
-        
-        return ["code": code, "description": description, "localizedDescription":localizedDescription, "debugDescription":debugDescription, "message":message, "name":name, "action":action, "id": id]
+    static func getError(_ errorObj: HMSError?) -> [String: Any] {
+        if let error = errorObj {
+            let code = error.code
+            let description = error.description
+            let localizedDescription = error.localizedDescription
+            let debugDescription = error.debugDescription
+            let message = error.message
+            let name = error.id
+            let id = error.id
+            let action = error.action
+            
+            return ["code": code, "description": description, "localizedDescription":localizedDescription, "debugDescription":debugDescription, "message":message, "name":name, "action":action, "id": id]
+        } else {
+            return [:]
+        }
+    }
+    
+    static func getHMSBrowserRecordingState(_ data: HMSBrowserRecordingState?) -> [String: Any] {
+        if let recordingState = data {
+            let running = recordingState.running
+            let error = HmsDecoder.getError(recordingState.error)
+            
+            return ["running": running, "error": error]
+        } else {
+            return  [:]
+        }
+    }
+    
+    static func getHMSRtmpStreamingState(_ data: HMSRTMPStreamingState?) -> [String: Any] {
+        if let streamingState = data {
+            let running = streamingState.running
+            let error = HmsDecoder.getError(streamingState.error)
+            
+            return ["running": running, "error": error]
+        } else {
+            return [:]
+        }
+    }
+    
+    static func getHMSServerRecordingState(_ data: HMSServerRecordingState?) -> [String: Any] {
+        if let recordingState = data {
+            let running = recordingState.running
+            let error = HmsDecoder.getError(recordingState.error)
+            
+            return ["running": running, "error": error]
+        } else {
+            return [:]
+        }
     }
 }

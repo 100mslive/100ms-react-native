@@ -131,6 +131,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     
     func leave(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
             self?.config = nil
             self?.recentRoleChangeRequest = nil
             self?.recentChangeTrackStateRequest = nil
@@ -138,6 +139,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
                 if(success){
                     resolve?("")
                 }else{
+                    strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["event": strongSelf.ON_ERROR, "error": HmsDecoder.getError(error), "id":strongSelf.id])
                     reject?(nil, "error in leave",nil)
                 }
             })
@@ -278,12 +280,15 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         }
         
         DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
             guard let localPeer = self?.hms?.localPeer,
                 let localTrack = HmsHelper.getLocalTrackFromTrackId(trackId, localPeer: localPeer)
             else {
                 guard let remotePeers = self?.hms?.remotePeers,
                     let track = HmsHelper.getTrackFromTrackId(trackId, remotePeers)
                 else {
+                    let error = HMSError(id: "120", code: HMSErrorCode.genericErrorUnknown, message: "NOT_FOUND")
+                    strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["event": strongSelf.ON_ERROR, "error": HmsDecoder.getError(error), "id":strongSelf.id])
                     reject?(nil, "NOT_FOUND", nil)
                     return
                 }
@@ -342,8 +347,11 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
         DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
             guard let remotePeers = self?.hms?.remotePeers
             else {
+                let error = HMSError(id: "121", code: HMSErrorCode.genericErrorUnknown, message: "NOT_FOUND")
+                strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["event": strongSelf.ON_ERROR, "error": HmsDecoder.getError(error), "id":strongSelf.id])
                 reject?(nil, "NOT_FOUND", nil)
                 return
             }
@@ -358,6 +366,8 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
                 resolve?(isPlaybackAllowed)
                 return
             } else {
+                let error = HMSError(id: "122", code: HMSErrorCode.genericErrorUnknown, message: "NOT_FOUND")
+                strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["event": strongSelf.ON_ERROR, "error": HmsDecoder.getError(error), "id":strongSelf.id])
                 reject?(nil, "NOT_FOUND",nil)
                 return
             }
@@ -400,6 +410,8 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     func changeMetadata(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let metadata = data.value(forKey: "metadata") as? String
         else {
+            let error = HMSError(id: "123", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
+            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id":id])
             reject?(nil, "REQUIRED_KEYS_NOT_FOUND", nil)
             return
         }
@@ -409,6 +421,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
                 resolve?(["success": success])
                 return
             } else {
+                self.delegate?.emitEvent(self.ON_ERROR, ["event": self.ON_ERROR, "error": HmsDecoder.getError(error), "id":self.id])
                 reject?(error?.message, error?.localizedDescription, nil)
                 return
             }
@@ -419,12 +432,13 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         guard let trackId = data.value(forKey: "trackId") as? String,
               let volume = data.value(forKey: "volume") as? Double
         else {
-            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": "REQUIRED_KEYS_NOT_FOUND"])
+            let error = HMSError(id: "124", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
+            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id":id])
             return
         }
 
         DispatchQueue.main.async { [weak self] in
-        
+            guard let strongSelf = self else { return }
             let remotePeers = self?.hms?.remotePeers
         
             let remoteAudioTrack = HmsHelper.getRemoteAudioAuxiliaryTrackFromTrackId(trackId, remotePeers)
@@ -432,9 +446,70 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
             if (remoteAudioTrack != nil) {
                 remoteAudioTrack?.setVolume(volume)
             } else {
-                self?.delegate?.emitEvent("ON_ERROR", ["event": "ON_ERROR", "error": "TRACK_ID_NOT_FOUND_IN_REMOTE_TRACKS"])
+                let error = HMSError(id: "125", code: HMSErrorCode.genericErrorUnknown, message: "TRACK_ID_NOT_FOUND_IN_REMOTE_TRACKS")
+                strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["event": strongSelf.ON_ERROR, "error": HmsDecoder.getError(error), "id":strongSelf.id])
             }
         }
+    }
+    
+    func startRTMPOrRecording(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let record = data.value(forKey: "record") as? Bool
+        else {
+            let error = HMSError(id: "126", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
+            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id":id])
+            return
+        }
+        
+        let meetingString = data.value(forKey: "meetingURL") as? String
+        let rtmpStrings = data.value(forKey: "rtmpURLs") as? [String]
+        
+        var meetingUrl: URL? = nil
+        if let meetLink = meetingString {
+            meetingUrl = URL(string: meetLink)
+        } else {
+            let error = HMSError(id: "127", code: HMSErrorCode.genericErrorUnknown, message: "INVALID_MEETING_URL_PASSED")
+            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id":id])
+        }
+        
+        let URLs = HmsHelper.getRtmpUrls(rtmpStrings)
+        
+        
+        let config = HMSRTMPConfig(meetingURL: meetingUrl, rtmpURLs: URLs, record: record)
+        hms?.startRTMPOrRecording(config: config, completion: { success, error in
+            if (success) {
+                let roomData = HmsDecoder.getHmsRoom(self.hms?.room)
+                let type = self.getString(from: HMSRoomUpdate.browserRecordingStateUpdated)
+                
+                let localPeerData = HmsDecoder.getHmsLocalPeer(self.hms?.localPeer)
+                let remotePeerData = HmsDecoder.getHmsRemotePeers(self.hms?.remotePeers)
+                self.delegate?.emitEvent(self.ON_ROOM_UPDATE, ["event": self.ON_ROOM_UPDATE, "id": self.id, "type": type, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
+                resolve?(["success": success])
+                return
+            } else {
+                self.delegate?.emitEvent(self.ON_ERROR, ["event": self.ON_ERROR, "error": HmsDecoder.getError(error), "id":self.id])
+                reject?(error?.message, error?.localizedDescription, nil)
+                return
+            }
+        })
+    }
+    
+    func stopRtmpAndRecording(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        hms?.stopRTMPAndRecording(completion: { success, error in
+            if (success) {
+                let roomData = HmsDecoder.getHmsRoom(self.hms?.room)
+                let type = self.getString(from: HMSRoomUpdate.browserRecordingStateUpdated)
+                
+                let localPeerData = HmsDecoder.getHmsLocalPeer(self.hms?.localPeer)
+                let remotePeerData = HmsDecoder.getHmsRemotePeers(self.hms?.remotePeers)
+                self.delegate?.emitEvent(self.ON_ROOM_UPDATE, ["event": self.ON_ROOM_UPDATE, "id": self.id, "type": type, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
+                resolve?(["success": success])
+                return
+            } else {
+                self.delegate?.emitEvent(self.ON_ERROR, ["event": self.ON_ERROR, "error": HmsDecoder.getError(error), "id":self.id])
+                reject?(error?.message, error?.localizedDescription, nil)
+                return
+            }
+        })
     }
     
     //TODO: to be implemented after volume is exposed for iOS
