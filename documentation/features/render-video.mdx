@@ -10,7 +10,7 @@ The React Native SDK provides a Component `HmsView` that renders the video on sc
 We can pass video trackId, scaleType, mirror and sink to this component.
 
 ```js
-import { HMSVideoViewMode } from 'react-native-hms';
+import { HMSVideoViewMode } from '@100mslive/react-native-hms';
 ...
 // hms instance acquired from build method
 const HmsView = hmsInstance.HmsView;
@@ -36,7 +36,7 @@ const remoteTrackId = hmsInstance.remotePeers[index].videoTrack.trackId;
 ## Scale Type
 There are 3 scale types you can pass to render a video 
 ```js
-import { HMSVideoViewMode } from 'react-native-hms';
+import { HMSVideoViewMode } from '@100mslive/react-native-hms';
 
 const ASPECT_FILL = HMSVideoViewMode.ASPECT_FILL
 const ASPECT_FIT = HMSVideoViewMode.ASPECT_FIT
