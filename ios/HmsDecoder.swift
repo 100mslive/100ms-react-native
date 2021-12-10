@@ -9,13 +9,16 @@ class HmsDecoder: NSObject {
         let id = room.roomID ?? ""
         let name = room.name ?? ""
         let metaData = room.metaData ?? ""
+        let browserRecordingState = HmsDecoder.getHMSBrowserRecordingState(hmsRoom?.browserRecordingState)
+        let rtmpStreamingState = HmsDecoder.getHMSRtmpStreamingState(hmsRoom?.rtmpStreamingState)
+        let serverRecordingState = HmsDecoder.getHMSServerRecordingState(hmsRoom?.serverRecordingState)
         var peers = [[String: Any]]()
         
         for peer in room.peers {
             peers.append(getHmsPeer(peer))
         }
         
-        return ["id": id, "name": name, "metaData": metaData, "peers": peers]
+        return ["id": id, "name": name, "metaData": metaData, "peers": peers, "browserRecordingState": browserRecordingState, "rtmpHMSRtmpStreamingState": rtmpStreamingState, "serverRecordingState": serverRecordingState]
     }
     
     static func getHmsPeer (_ peer: HMSPeer) -> [String: Any] {
@@ -25,6 +28,7 @@ class HmsDecoder: NSObject {
         let isLocal = peer.isLocal
         let customerUserID = peer.customerUserID ?? ""
         let customerDescription = peer.metadata ?? ""
+        let metadata = peer.metadata ?? ""
         let audioTrack = getHmsAudioTrack(peer.audioTrack)
         let videoTrack = getHmsVideoTrack(peer.videoTrack)
         let role = getHmsRole(peer.role)
@@ -40,6 +44,7 @@ class HmsDecoder: NSObject {
                 "isLocal": isLocal,
                 "customerUserID": customerUserID,
                 "customerDescription": customerDescription,
+                "metadata": metadata,
                 "audioTrack": audioTrack,
                 "videoTrack": videoTrack,
                 "auxiliaryTracks": auxiliaryTracks,
@@ -93,6 +98,7 @@ class HmsDecoder: NSObject {
         let isLocal = peer.isLocal
         let customerUserID = peer.customerUserID ?? ""
         let customerDescription = peer.metadata ?? ""
+        let metadata = peer.metadata ?? ""
         let audioTrack = getHmsAudioTrack(peer.audioTrack)
         let videoTrack = getHmsVideoTrack(peer.videoTrack)
         let role = getHmsRole(peer.role)
@@ -115,7 +121,7 @@ class HmsDecoder: NSObject {
             localVideoTrackData = ["trackId": localVideo.trackId, "source": localVideo.source, "trackDescription": localVideo.trackDescription, "settings": getHmsVideoTrackSettings(localVideo.settings), "isMute":localAudioTrack?.isMute() ?? false]
         }
         
-        return ["peerID": peerID, "name": name, "isLocal": isLocal, "customerUserID": customerUserID, "customerDescription": customerDescription, "audioTrack": audioTrack, "videoTrack": videoTrack, "auxiliaryTracks": auxiliaryTracks, "localAudioTrackData": localAudioTrackData, "localVideoTrackData": localVideoTrackData, "role": role]
+        return ["peerID": peerID, "name": name, "isLocal": isLocal, "customerUserID": customerUserID, "customerDescription": customerDescription, "metadata": metadata, "audioTrack": audioTrack, "videoTrack": videoTrack, "auxiliaryTracks": auxiliaryTracks, "localAudioTrackData": localAudioTrackData, "localVideoTrackData": localVideoTrackData, "role": role]
     }
     
     static func getHmsAudioTrackSettings(_ hmsAudioTrackSettings: HMSAudioTrackSettings?) -> [String: Any] {
@@ -132,11 +138,11 @@ class HmsDecoder: NSObject {
         
         guard let settings = hmsVideoTrackSettings else { return [:] }
         
-        let codec = settings.codec.rawValue
-        let resolution = settings.resolution
+        let codec = getHmsVideoTrackCodec(settings.codec)
+        let resolution = getHmsVideoResolution(settings.resolution)
         let maxBitrate = settings.maxBitrate
         let maxFrameRate = settings.maxFrameRate
-        let cameraFacing = settings.cameraFacing.rawValue
+        let cameraFacing = getHmsVideoTrackCameraFacing(settings.cameraFacing)
         let trackDescription = settings.trackDescription ?? ""
         
         var simulcastSettingsData = [[String: Any]]()
@@ -151,6 +157,34 @@ class HmsDecoder: NSObject {
         }
         
         return ["codec": codec, "resolution": resolution, "maxBitrate": maxBitrate, "maxFrameRate": maxFrameRate, "cameraFacing": cameraFacing, "trackDescription": trackDescription, "simulcastSettings": simulcastSettingsData]
+    }
+    
+    static func getHmsVideoTrackCodec(_ codec : HMSCodec) -> String {
+        switch(codec) {
+        case HMSCodec.VP8:
+            return "vp8"
+        case HMSCodec.H264:
+            return "h264"
+        default:
+            return "h264"
+        }
+    }
+    
+    static func getHmsVideoTrackCameraFacing(_ cameraFacing : HMSCameraFacing) -> String {
+        switch(cameraFacing) {
+        case HMSCameraFacing.front:
+            return "FRONT"
+        case HMSCameraFacing.back:
+            return "BACK"
+        default:
+            return "FRONT"
+        }
+    }
+ 
+    static func getHmsVideoResolution(_ hmsVideoResolution: HMSVideoResolution?) -> [String: Any] {
+        guard let resolution = hmsVideoResolution else { return [:] }
+        
+        return ["width": resolution.width, "height": resolution.height]
     }
     
     static func getHmsRemotePeers (_ remotePeers: [HMSRemotePeer]?) -> [[String: Any]] {
@@ -172,6 +206,7 @@ class HmsDecoder: NSObject {
         let isLocal = hmsRemotePeer.isLocal
         let customerUserID = hmsRemotePeer.customerUserID ?? ""
         let customerDescription = hmsRemotePeer.metadata ?? ""
+        let metadata = hmsRemotePeer.metadata ?? ""
         let audioTrack = getHmsAudioTrack(hmsRemotePeer.audioTrack)
         let videoTrack = getHmsVideoTrack(hmsRemotePeer.videoTrack)
         let role = getHmsRole(hmsRemotePeer.role)
@@ -195,7 +230,7 @@ class HmsDecoder: NSObject {
             remoteVideoTrackData = ["trackId": remoteVideo.trackId, "source": remoteVideo.source, "trackDescription": remoteVideo.trackDescription, "layer": remoteVideo.layer.rawValue, "playbackAllowed": remoteVideo.isPlaybackAllowed(), "isMute": remoteVideo.isMute()]
         }
         
-        return ["peerID": peerID, "name": name, "isLocal": isLocal, "customerUserID": customerUserID, "customerDescription": customerDescription, "audioTrack": audioTrack, "videoTrack": videoTrack, "auxiliaryTracks": auxiliaryTracks, "remoteAudioTrackData": remoteAudioTrackData, "remoteVideoTrackData": remoteVideoTrackData, "role": role]
+        return ["peerID": peerID, "name": name, "isLocal": isLocal, "customerUserID": customerUserID, "customerDescription": customerDescription, "metadata": metadata, "audioTrack": audioTrack, "videoTrack": videoTrack, "auxiliaryTracks": auxiliaryTracks, "remoteAudioTrackData": remoteAudioTrackData, "remoteVideoTrackData": remoteVideoTrackData, "role": role]
     }
     
     static func getPreviewTracks(_ tracks: [HMSTrack]) -> [String: Any] {
@@ -267,7 +302,12 @@ class HmsDecoder: NSObject {
         let screen = getHmsVideoSettings(publishSettings.screen)
         let videoSimulcastLayers = getHmsSimulcastLayers(publishSettings.videoSimulcastLayers)
         let screenSimulcastLayers = getHmsSimulcastLayers(publishSettings.screenSimulcastLayers)
-        let allowed = publishSettings.allowed ?? []
+        var allowed = publishSettings.allowed ?? []
+        if((publishSettings.allowed) != nil) {
+            allowed = getWriteableArray(publishSettings.allowed)
+        }else {
+            allowed = []
+        }
         
         return ["audio": audio,
                 "video": video,
@@ -275,6 +315,16 @@ class HmsDecoder: NSObject {
                 "videoSimulcastLayers": videoSimulcastLayers,
                 "screenSimulcastLayers": screenSimulcastLayers,
                 "allowed": allowed]
+    }
+
+    static func getWriteableArray(_ array: [String]?) -> [String] {
+        var decodedArray = [String]()
+        if let extractedArray = array {
+            for value in extractedArray {
+                decodedArray.append(value)
+            }
+        }
+        return decodedArray
     }
     
     static func getHmsAudioSettings(_ audioSettings: HMSAudioSettings) -> [String: Any] {
@@ -362,16 +412,53 @@ class HmsDecoder: NSObject {
         return request
     }
     
-    static func getError(_ error: HMSError) -> [String: Any] {
-        let code = error.code
-        let description = error.description
-        let localizedDescription = error.localizedDescription
-        let debugDescription = error.debugDescription
-        let message = error.message
-        let name = error.id
-        let id = error.id
-        let action = error.action
-        
-        return ["code": code, "description": description, "localizedDescription":localizedDescription, "debugDescription":debugDescription, "message":message, "name":name, "action":action, "id": id]
+    static func getError(_ errorObj: HMSError?) -> [String: Any] {
+        if let error = errorObj {
+            let code = error.code
+            let description = error.description
+            let localizedDescription = error.localizedDescription
+            let debugDescription = error.debugDescription
+            let message = error.message
+            let name = error.id
+            let id = error.id
+            let action = error.action
+            
+            return ["code": code, "description": description, "localizedDescription":localizedDescription, "debugDescription":debugDescription, "message":message, "name":name, "action":action, "id": id]
+        } else {
+            return [:]
+        }
+    }
+    
+    static func getHMSBrowserRecordingState(_ data: HMSBrowserRecordingState?) -> [String: Any] {
+        if let recordingState = data {
+            let running = recordingState.running
+            let error = HmsDecoder.getError(recordingState.error)
+            
+            return ["running": running, "error": error]
+        } else {
+            return  [:]
+        }
+    }
+    
+    static func getHMSRtmpStreamingState(_ data: HMSRTMPStreamingState?) -> [String: Any] {
+        if let streamingState = data {
+            let running = streamingState.running
+            let error = HmsDecoder.getError(streamingState.error)
+            
+            return ["running": running, "error": error]
+        } else {
+            return [:]
+        }
+    }
+    
+    static func getHMSServerRecordingState(_ data: HMSServerRecordingState?) -> [String: Any] {
+        if let recordingState = data {
+            let running = recordingState.running
+            let error = HmsDecoder.getError(recordingState.error)
+            
+            return ["running": running, "error": error]
+        } else {
+            return [:]
+        }
     }
 }

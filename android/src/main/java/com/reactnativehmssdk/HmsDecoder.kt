@@ -1,8 +1,9 @@
 package com.reactnativehmssdk
 
 import com.facebook.react.bridge.*
-import live.hms.video.error.HMSException
 import java.util.*
+import live.hms.video.error.HMSException
+import live.hms.video.media.codec.HMSVideoCodec
 import live.hms.video.media.settings.HMSAudioTrackSettings
 import live.hms.video.media.settings.HMSVideoTrackSettings
 import live.hms.video.media.tracks.*
@@ -18,6 +19,19 @@ object HmsDecoder {
       room.putString("id", hmsRoom.roomId)
       room.putString("name", hmsRoom.name)
       room.putString("metaData", null)
+      room.putString("startedAt", hmsRoom.startedAt.toString())
+      room.putMap(
+          "browserRecordingState",
+          this.getHMSBrowserRecordingState(hmsRoom.browserRecordingState)
+      )
+      room.putMap(
+          "rtmpHMSRtmpStreamingState",
+          this.getHMSRtmpStreamingState(hmsRoom.rtmpHMSRtmpStreamingState)
+      )
+      room.putMap(
+          "serverRecordingState",
+          this.getHMSServerRecordingState(hmsRoom.serverRecordingState)
+      )
       var peers: WritableArray = Arguments.createArray()
       for (peer in hmsRoom.peerList) {
         peers.pushMap(getHmsPeer(peer))
@@ -37,10 +51,7 @@ object HmsDecoder {
           "customerUserID",
           if (hmsPeer.customerUserID == null) hmsPeer.customerUserID else ""
       )
-      peer.putString(
-          "customerDescription",
-          if (hmsPeer.customerDescription == null) hmsPeer.customerDescription else ""
-      )
+      peer.putString("metadata", if (hmsPeer.metadata == null) hmsPeer.metadata else "")
       peer.putMap("audioTrack", getHmsAudioTrack(hmsPeer.audioTrack))
       peer.putMap("videoTrack", getHmsVideoTrack(hmsPeer.videoTrack))
       peer.putMap("role", getHmsRole(hmsPeer.hmsRole))
@@ -172,11 +183,25 @@ object HmsDecoder {
       // getHmsSimulcastLayers(hmsPublishSettings.screenSimulcastLayers));
       publishSettings.putMap("videoSimulcastLayers", null)
       publishSettings.putMap("screenSimulcastLayers", null)
-      //        publishSettings.putArray("allowed", if (hmsPublishSettings.allowed != null)
-      // hmsPublishSettings.allowed as WritableArray else emptyArray);
+      publishSettings.putArray(
+          "allowed",
+          if (hmsPublishSettings.allowed != null) getWriteableArray(hmsPublishSettings.allowed)
+          else emptyArray
+      )
     }
     return publishSettings
   }
+
+  fun getWriteableArray(array: List<String>?): WritableArray {
+    val decodedArray: WritableArray = Arguments.createArray()
+    if (array != null) {
+      for (value in array) {
+        decodedArray.pushString(value)
+      }
+    }
+    return decodedArray
+  }
+
   fun getHmsAudioSettings(hmsAudioSettings: AudioParams?): WritableMap {
     val audioSettings: WritableMap = Arguments.createMap()
     if (hmsAudioSettings != null) {
@@ -236,10 +261,7 @@ object HmsDecoder {
           "customerUserID",
           if (hmsLocalPeer.customerUserID != null) hmsLocalPeer.customerUserID else ""
       )
-      peer.putString(
-          "customerDescription",
-          if (hmsLocalPeer.customerDescription != null) hmsLocalPeer.customerDescription else ""
-      )
+      peer.putString("metadata", if (hmsLocalPeer.metadata != null) hmsLocalPeer.metadata else "")
       peer.putMap("audioTrack", getHmsAudioTrack(hmsLocalPeer.audioTrack))
       peer.putMap("videoTrack", getHmsVideoTrack(hmsLocalPeer.videoTrack))
       peer.putMap("role", getHmsRole(hmsLocalPeer.hmsRole))
@@ -288,7 +310,7 @@ object HmsDecoder {
   fun getHmsVideoTrackSettings(hmsVideoTrackSettings: HMSVideoTrackSettings?): WritableMap {
     val settings: WritableMap = Arguments.createMap()
     if (hmsVideoTrackSettings != null) {
-      settings.putInt("codec", hmsVideoTrackSettings.codec.ordinal)
+      settings.putString("codec", getHmsVideoTrackCodec(hmsVideoTrackSettings.codec))
 
       val resolution: WritableMap = Arguments.createMap()
       resolution.putInt("height", hmsVideoTrackSettings.resolution.height)
@@ -297,13 +319,41 @@ object HmsDecoder {
 
       settings.putInt("maxBitrate", hmsVideoTrackSettings.maxBitRate)
       settings.putInt("maxFrameRate", hmsVideoTrackSettings.maxFrameRate)
-      settings.putInt("cameraFacing", hmsVideoTrackSettings.cameraFacing.ordinal)
+      settings.putString(
+          "cameraFacing",
+          getHmsVideoTrackCameraFacing(hmsVideoTrackSettings.cameraFacing)
+      )
       //        settings.putString("trackDescription",
       // if(hmsVideoTrackSettings.trackDescription!==null)hmsVideoTrackSettings.trackDescription
       // else "");
       settings.putString("trackDescription", "")
     }
     return settings
+  }
+
+  fun getHmsVideoTrackCodec(codec: HMSVideoCodec): String {
+    return when (codec) {
+      HMSVideoCodec.H264 -> {
+        "h264"
+      }
+      HMSVideoCodec.VP9 -> {
+        "vp9"
+      }
+      HMSVideoCodec.VP8 -> {
+        "vp8"
+      }
+    }
+  }
+
+  fun getHmsVideoTrackCameraFacing(cameraFacing: HMSVideoTrackSettings.CameraFacing): String {
+    return when (cameraFacing) {
+      HMSVideoTrackSettings.CameraFacing.FRONT -> {
+        "FRONT"
+      }
+      HMSVideoTrackSettings.CameraFacing.BACK -> {
+        "BACK"
+      }
+    }
   }
 
   fun getHmsRemotePeers(remotePeers: Array<HMSRemotePeer>?): WritableArray {
@@ -326,10 +376,7 @@ object HmsDecoder {
           "customerUserID",
           if (hmsRemotePeer.customerUserID != null) hmsRemotePeer.customerUserID else ""
       )
-      peer.putString(
-          "customerDescription",
-          if (hmsRemotePeer.customerDescription != null) hmsRemotePeer.customerDescription else ""
-      )
+      peer.putString("metadata", if (hmsRemotePeer.metadata != null) hmsRemotePeer.metadata else "")
       peer.putMap("audioTrack", getHmsAudioTrack(hmsRemotePeer.audioTrack))
       peer.putMap("videoTrack", getHmsVideoTrack(hmsRemotePeer.videoTrack))
       peer.putMap("role", getHmsRole(hmsRemotePeer.hmsRole))
@@ -426,5 +473,32 @@ object HmsDecoder {
     decodedError.putString("action", error.action)
 
     return decodedError
+  }
+
+  fun getHMSBrowserRecordingState(data: HMSBrowserRecordingState?): ReadableMap {
+    val input = Arguments.createMap()
+    if (data !== null) {
+      input.putBoolean("running", data.running)
+      input.putMap("error", data.error?.let { this.getError(it) })
+    }
+    return input
+  }
+
+  fun getHMSRtmpStreamingState(data: HMSRtmpStreamingState?): ReadableMap {
+    val input = Arguments.createMap()
+    if (data !== null) {
+      input.putBoolean("running", data.running)
+      input.putMap("error", data.error?.let { this.getError(it) })
+    }
+    return input
+  }
+
+  fun getHMSServerRecordingState(data: HMSServerRecordingState?): ReadableMap {
+    val input = Arguments.createMap()
+    if (data !== null) {
+      input.putBoolean("running", data.running)
+      input.putMap("error", data.error?.let { this.getError(it) })
+    }
+    return input
   }
 }

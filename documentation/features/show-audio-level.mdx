@@ -1,0 +1,59 @@
+---
+title: Show Audio Levels
+nav: 3.99
+---
+
+### Getting Audio Levels for all speaking peers
+
+```js
+import {
+  HMSUpdateListenerActions,
+  HMSSpeakerUpdate,
+  HMSSpeaker,
+} from '@100mslive/react-native-hms';
+
+// hmsInstance obtained by build method
+hmsInstance?.addEventListener(HMSUpdateListenerActions.ON_SPEAKER, onSpeaker);
+
+const onSpeaker = (data: HMSSpeakerUpdate) => {
+  data?.peers?.map((speaker: HMSSpeaker) => console.log('speaker audio level: ', speaker?.level));  
+};
+```
+
+
+Here are the properties on the HMSSpeaker class:
+
+1. level : Number -> The level of the audio. It may vary from 0-100. A higher value indicates a higher speaking volume.
+2. hmsTrack : HMSTrack -> The audio track corresponding to this speaker. It may be null when the speaker who was speaking loudly, leaves.
+3. peer : HMSPeer -> The peer who was speaking. This may be null if the peer has left before the update information has reached the other person.
+
+
+
+### Active Speaker Views
+To maintain an active speaker view, such as the default view in the open source advanced sample app, you need to keep track of who the active
+speakers are over time. We'll be using the input from `ON_SPEAKER` listener update as mentioned above and then building something that attempts to show all
+the active speakers while minimizing re-ordering the list.
+
+
+
+### Dominant Speaker - the loudest speaker.
+The dominant speaker is the speaker who's the loudest at any given moment. There's a callback for this in the onPeerUpdate callback for HMSUpdateListener.
+
+```js
+import {
+  HMSUpdateListenerActions,
+} from '@100mslive/react-native-hms';
+
+// hmsInstance obtained by build method
+hmsInstance?.addEventListener(HMSUpdateListenerActions.ON_PEER_UPDATE, onPeerListener);
+```
+
+Here's the method signature for onPeerUpdate: `fun onPeerUpdate(type: HMSPeerUpdate, localPeer: HMSLocalPeer, remotePeers: HMSRemotePeer[], room?: HMSRoom)`
+
+
+When the dominant speaker has changed, there will be updates of the type:
+
+`HMSPeerUpdate.BECAME_DOMINANT_SPEAKER` When a new person becomes the dominant speaker.
+
+`HMSPeerUpdate.NO_DOMINANT_SPEAKER` When the current dominant speaker stops talking and there's no one to replace them.
+

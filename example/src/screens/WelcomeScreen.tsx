@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Dimensions,
+  Alert,
 } from 'react-native';
 import {connect} from 'react-redux';
 import HmsManager, {
@@ -22,11 +23,18 @@ import HmsManager, {
   HMSLogger,
   HMSLogLevel,
   HMSSDK,
+  HMSAudioTrackSettings,
+  HMSAudioCodec,
+  HMSVideoTrackSettings,
+  HMSVideoCodec,
+  HMSTrackSettings,
+  HMSException,
 } from '@100mslive/react-native-hms';
 import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import {PERMISSIONS, RESULTS, requestMultiple} from 'react-native-permissions';
 import Feather from 'react-native-vector-icons/Feather';
+import Toast from 'react-native-simple-toast';
 
 import * as services from '../services/index';
 import {UserIdModal, PreviewModal} from '../components';
@@ -38,7 +46,8 @@ import {
 import {getThemeColour} from '../utils/functions';
 import type {AppStackParamList} from '../navigator';
 import type {RootState} from '../redux';
-import {Alert} from 'react-native';
+import {HMSCameraFacing} from '../../../src/classes/HMSCameraFacing';
+import {HMSVideoResolution} from '../../../src/classes/HMSVideoResolution';
 
 type WelcomeProps = {
   setAudioVideoStateRequest: Function;
@@ -113,10 +122,10 @@ const App = ({
 }: WelcomeProps) => {
   const [orientation, setOrientation] = useState<boolean>(true);
   const [roomID, setRoomID] = useState<string>(
-    'https://yogi.app.100ms.live/meeting/nih-bkn-vek',
+    'https://yogi.app.100ms.live/preview/nih-bkn-vek',
   );
   const [text, setText] = useState<string>(
-    'https://yogi.app.100ms.live/meeting/nih-bkn-vek',
+    'https://yogi.app.100ms.live/preview/nih-bkn-vek',
   );
   const [role] = useState('host');
   const [initialized, setInitialized] = useState<boolean>(false);
@@ -149,14 +158,38 @@ const App = ({
     }
   };
 
-  const onError = (data: any) => {
+  const onError = (data: HMSException) => {
     console.log('here on error', data);
+    Toast.showWithGravity(
+      data?.error?.message || 'Something went wrong',
+      Toast.LONG,
+      Toast.TOP,
+    );
   };
 
   // let ref = React.useRef();
 
+  const getTrackSettings = () => {
+    let audioSettings = new HMSAudioTrackSettings({
+      codec: HMSAudioCodec.opus,
+      maxBitrate: 32,
+      trackDescription: 'Simple Audio Track',
+    });
+    let videoSettings = new HMSVideoTrackSettings({
+      codec: HMSVideoCodec.vp8,
+      maxBitrate: 512,
+      maxFrameRate: 25,
+      cameraFacing: HMSCameraFacing.FRONT,
+      trackDescription: 'Simple Video Track',
+      resolution: new HMSVideoResolution({height: 180, width: 320}),
+    });
+
+    return new HMSTrackSettings({video: videoSettings, audio: audioSettings});
+  };
+
   const setupBuild = async () => {
-    const build = await HmsManager.build();
+    const trackSettings = getTrackSettings();
+    const build = await HmsManager.build({trackSettings});
     const logger = new HMSLogger();
     logger.updateLogLevel(HMSLogLevel.VERBOSE, true);
     build.setLogger(logger);
@@ -268,6 +301,7 @@ const App = ({
       HmsConfig = new HMSConfig({
         authToken: token,
         username: userID,
+        // metadata: JSON.stringify({isHandRaised: true}), // To join with hand raised
       });
     }
 

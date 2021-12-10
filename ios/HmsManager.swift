@@ -26,9 +26,9 @@ class HmsManager: RCTEventEmitter{
         super.init()
     }
     
-    override class func requiresMainQueueSetup() -> Bool {
-        true
-    }
+//    override class func requiresMainQueueSetup() -> Bool {
+//        true
+//    }
     
     override func supportedEvents() -> [String]! {
         return [ON_JOIN, ON_PREVIEW, ON_ROOM_UPDATE, ON_PEER_UPDATE, ON_TRACK_UPDATE, ON_ERROR, ON_MESSAGE, ON_SPEAKER, RECONNECTING, RECONNECTED, ON_ROLE_CHANGE_REQUEST, ON_CHANGE_TRACK_STATE_REQUEST, ON_REMOVED_FROM_ROOM]
@@ -38,19 +38,19 @@ class HmsManager: RCTEventEmitter{
     // MARK: - HMS SDK Actions
     
     @objc
-    func build(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    func build(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         DispatchQueue.main.async { [weak self] in
             let hasItem = self?.hmsCollection.index(forKey: "12345")
             
             if let _ = hasItem {
                 let id = UUID().uuidString
-                let hms = HmsSDK(delegate: self, uid: id)
+                let hms = HmsSDK(data: data, delegate: self, uid: id)
                 self?.hmsCollection[id] = hms
                 
                 resolve?(id)
             } else {
                 let id = "12345"
-                let hms = HmsSDK(delegate: self, uid: id)
+                let hms = HmsSDK(data: data, delegate: self, uid: id)
                 self?.hmsCollection[id] = hms
                 
                 resolve?(id)
@@ -208,4 +208,39 @@ class HmsManager: RCTEventEmitter{
         
         hms?.muteAllPeersAudio(data)
     }
+    
+    @objc
+    func changeMetadata(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HmsHelper.getHms(data, hmsCollection)
+        
+        hms?.changeMetadata(data, resolve, reject)
+    }
+
+    @objc
+    func setVolume(_ data: NSDictionary) {
+        let hms = HmsHelper.getHms(data, hmsCollection)
+        
+        hms?.setVolume(data)
+    }
+    
+    @objc
+    func startRTMPOrRecording(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HmsHelper.getHms(data, hmsCollection)
+        
+        hms?.startRTMPOrRecording(data, resolve, reject)
+    }
+    
+    @objc
+    func stopRtmpAndRecording(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HmsHelper.getHms(data, hmsCollection)
+        
+        hms?.stopRtmpAndRecording(resolve, reject)
+    }
+    
+//    @objc
+//    func setLocalVideoSettings(_ data: NSDictionary) {
+//        let hms = HmsHelper.getHms(data, hmsCollection)
+//
+//        hms?.setLocalVideoSettings(data)
+//    }
 }

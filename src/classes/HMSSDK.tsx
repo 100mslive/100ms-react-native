@@ -15,6 +15,8 @@ import type { HMSLogger } from './HMSLogger';
 import type { HMSPeer } from './HMSPeer';
 import { HmsView as HMSViewComponent } from './HmsView';
 import { HMSVideoViewMode } from './HMSVideoViewMode';
+import type { HMSTrackSettings } from './HMSTrackSettings';
+import type { HMSRTMPConfig } from './HMSRTMPConfig';
 
 interface HmsComponentProps {
   trackId: string;
@@ -43,6 +45,7 @@ export class HMSSDK {
   knownRoles?: HMSRole[];
   logger?: HMSLogger;
   id: string;
+  private muteStatus: boolean | undefined;
 
   onPreviewDelegate?: any;
   onJoinDelegate?: any;
@@ -70,8 +73,8 @@ export class HMSSDK {
    * @returns
    * @memberof HMSSDK
    */
-  static async build() {
-    let id = await HmsManager.build();
+  static async build(params?: { trackSettings?: HMSTrackSettings }) {
+    let id = await HmsManager.build(params?.trackSettings || {});
     HmsSdk = new HMSSDK(id);
     HmsSdk.attachPreviewListener();
     HmsSdk.attachListeners();
@@ -261,6 +264,7 @@ export class HMSSDK {
     };
 
     await HmsManager.leave(data);
+    this.muteStatus = undefined;
     this.localPeer = undefined;
     this.remotePeers = undefined;
     this.room = undefined;
@@ -294,6 +298,24 @@ export class HMSSDK {
       id: this.id,
       type: type || null,
     });
+  };
+
+  changeMetadata = (metadata: string) => {
+    this.logger?.verbose('CHANGE_METADATA', { metadata });
+    HmsManager.changeMetadata({ metadata, id: this.id });
+  };
+
+  startRTMPOrRecording = async (data: HMSRTMPConfig) => {
+    this.logger?.verbose('START_RTMP_OR_RECORDING', { data });
+
+    const op = await HmsManager.startRTMPOrRecording({ ...data, id: this.id });
+    return op;
+  };
+
+  stopRtmpAndRecording = async () => {
+    this.logger?.verbose('STOP_RTMP_OR_RECORDING', {});
+    const op = await HmsManager.stopRtmpAndRecording({ id: this.id });
+    return op;
   };
 
   changeRole = (peer: HMSPeer, role: HMSRole, force: boolean = false) => {
@@ -370,6 +392,7 @@ export class HMSSDK {
 
   muteAllPeersAudio = (mute: boolean) => {
     this.logger?.verbose('ON_MUTE_ALL_PEERS', { mute });
+    this.muteStatus = mute;
     HmsManager.muteAllPeersAudio({ mute, id: this.id });
   };
 
@@ -379,6 +402,16 @@ export class HMSSDK {
 
     const encodedHmsRoom = HMSEncoder.encodeHmsRoom(hmsRoom, this.id);
     return encodedHmsRoom;
+  };
+
+  setVolume = (track: HMSTrack, volume: number) => {
+    this.logger?.verbose('SET_VOLUME_CALL', { track, volume });
+    HmsManager.setVolume({
+      id: this.id,
+      trackId: track.trackId,
+      volume,
+    });
+    return;
   };
 
   /**
@@ -640,6 +673,9 @@ export class HMSSDK {
       data.remotePeers,
       this.id
     );
+    if (this.muteStatus && data?.type === 'TRACK_ADDED') {
+      this.muteAllPeersAudio(this.muteStatus);
+    }
     this.room = room;
     this.localPeer = localPeer;
     this.remotePeers = remotePeers;
@@ -676,7 +712,9 @@ export class HMSSDK {
       return;
     }
     this.logger?.warn('ON_ERROR', data);
+    this.logger?.verbose('ON_ERROR', data);
     if (this.onErrorDelegate) {
+      this.logger?.verbose('ON_ERROR_LISTENER_CALL', data);
       this.logger?.warn('ON_ERROR_LISTENER_CALL', data);
       this.onErrorDelegate(data);
     }

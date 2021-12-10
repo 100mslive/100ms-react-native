@@ -88,7 +88,10 @@ class HmsView(context: ReactContext) : FrameLayout(context) {
           val auxiliaryTracks = peer.auxiliaryTracks
           for (track in auxiliaryTracks) {
             val auxTrackId = track.trackId
-            if (trackId == auxTrackId && track.source == HMSTrackSource.SCREEN && track.type == HMSTrackType.VIDEO && !track.isMute) {
+            if (trackId == auxTrackId &&
+                    track.type == HMSTrackType.VIDEO &&
+                    !track.isMute
+            ) {
               videoTrack = track as HMSVideoTrack
               return
             }

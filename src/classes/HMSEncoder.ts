@@ -14,14 +14,18 @@ import { HMSLocalAudioTrack } from './HMSLocalAudioTrack';
 import { HMSRole } from './HMSRole';
 import { HMSRoleChangeRequest } from './HMSRoleChangeRequest';
 import { HMSChangeTrackStateRequest } from './HMSChangeTrackStateRequest';
+import { HMSVideoResolution } from './HMSVideoResolution';
 
 export class HMSEncoder {
-  static encodeHmsRoom(room: any, id: string) {
+  static encodeHmsRoom(room: HMSRoom, id: string) {
     const encodedObj = {
       id: room?.id,
       metaData: room?.metaData,
       name: room?.name,
       peers: HMSEncoder.encodeHmsPeers(room?.peers, id),
+      browserRecordingState: room?.browserRecordingState,
+      rtmpHMSRtmpStreamingState: room?.rtmpHMSRtmpStreamingState,
+      serverRecordingState: room?.serverRecordingState,
     };
 
     return new HMSRoom(encodedObj);
@@ -44,6 +48,7 @@ export class HMSEncoder {
       role: HMSEncoder.encodeHmsRole(peer?.role),
       customerUserID: peer?.customerUserID,
       customerDescription: peer?.customerDescription,
+      metadata: peer.metadata,
       audioTrack: HMSEncoder.encodeHmsAudioTrack(peer?.audioTrack, id),
       videoTrack: HMSEncoder.encodeHmsVideoTrack(peer?.videoTrack, id),
       auxiliaryTracks: HMSEncoder.encodeHmsAuxiliaryTracks(
@@ -110,6 +115,7 @@ export class HMSEncoder {
       isLocal: peer.isLocal,
       customerUserID: peer.customerUserID,
       customerDescription: peer.customerDescription,
+      metadata: peer.metadata,
       role: HMSEncoder.encodeHmsRole(peer?.role),
       audioTrack: HMSEncoder.encodeHmsAudioTrack(peer.audioTrack, id),
       videoTrack: HMSEncoder.encodeHmsVideoTrack(peer.videoTrack, id),
@@ -146,6 +152,7 @@ export class HMSEncoder {
     const encodedObj = {
       maxBitrate: settings?.maxBitrate,
       trackDescription: settings?.trackDescription,
+      codec: settings?.codec,
     };
 
     return new HMSAudioTrackSettings(encodedObj);
@@ -154,7 +161,7 @@ export class HMSEncoder {
   static encodeHmsVideoTrackSettings(settings: any) {
     const encodedObj = {
       codec: settings?.codec,
-      resolution: settings?.resolution,
+      resolution: HMSEncoder.encodeHmsVideoResolution(settings?.resolution),
       maxBitrate: settings?.maxBitrate,
       maxFrameRate: settings?.maxFrameRate,
       cameraFacing: settings?.cameraFacing,
@@ -162,6 +169,15 @@ export class HMSEncoder {
     };
 
     return new HMSVideoTrackSettings(encodedObj);
+  }
+
+  static encodeHmsVideoResolution(resolution: any) {
+    const encodedObj = {
+      height: resolution?.height,
+      width: resolution?.width,
+    };
+
+    return new HMSVideoResolution(encodedObj);
   }
 
   static encodeHmsRemotePeers(peers: any, id: string) {
@@ -183,6 +199,7 @@ export class HMSEncoder {
       isLocal: peer.isLocal,
       customerUserID: peer.customerUserID,
       customerDescription: peer.customerDescription,
+      metadata: peer.metadata,
       role: HMSEncoder.encodeHmsRole(peer?.role),
       audioTrack: HMSEncoder.encodeHmsAudioTrack(peer.audioTrack, id),
       videoTrack: HMSEncoder.encodeHmsVideoTrack(peer.videoTrack, id),

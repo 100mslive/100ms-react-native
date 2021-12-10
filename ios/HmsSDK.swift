@@ -14,7 +14,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     var recentRoleChangeRequest: HMSRoleChangeRequest?
     var recentChangeTrackStateRequest: HMSChangeTrackStateRequest?
     var delegate: HmsManager?
-    var id: String?
+    var id: String = "12345"
     
     let ON_PREVIEW = "ON_PREVIEW"
     let ON_JOIN = "ON_JOIN"
@@ -31,32 +31,39 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     
     // MARK: - Setup
     
-    init(delegate manager: HmsManager?, uid id: String) {
+    init(data: NSDictionary?, delegate manager: HmsManager?, uid id: String) {
+        let videoSettings = HmsHelper.getLocalVideoSettings(data?.value(forKey: "video") as? NSDictionary)
+        let audioSettings = HmsHelper.getLocalAudioSettings(data?.value(forKey: "audio") as? NSDictionary)
         DispatchQueue.main.async { [weak self] in
-            self?.hms = HMSSDK.build()
+            let hmsTrackSettings = HMSTrackSettings(videoSettings: videoSettings, audioSettings: audioSettings)
+            self?.hms = HMSSDK.build { sdk in
+                sdk.trackSettings = hmsTrackSettings
+            }
         }
         self.delegate = manager
         self.id = id
     }
     
     // MARK: - HMS SDK Actions
-        
+
     func preview(_ credentials: NSDictionary) {
         
         guard let authToken = credentials.value(forKey: "authToken") as? String,
               let user = credentials.value(forKey: "username") as? String
         else {
-            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": "REQUIRED_KEYS_NOT_FOUND"])
+            let error = HMSError(id: "101", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
+            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id":id])
             return
         }
         
+        let metadata = credentials.value(forKey: "metadata") as? String
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
             if let endpoint = credentials.value(forKey: "endpoint") as? String {
-                strongSelf.config = HMSConfig(userName: user, authToken: authToken, endpoint: endpoint)
+                strongSelf.config = HMSConfig(userName: user, authToken: authToken, metadata: metadata, endpoint: endpoint)
                 strongSelf.hms?.preview(config: strongSelf.config!, delegate: strongSelf)
             } else {
-                strongSelf.config = HMSConfig(userName: user, authToken: authToken)
+                strongSelf.config = HMSConfig(userName: user, authToken: authToken, metadata: metadata)
                 strongSelf.hms?.preview(config: strongSelf.config!, delegate: strongSelf)
             }
         }
@@ -67,36 +74,12 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         guard let authToken = credentials.value(forKey: "authToken") as? String,
               let user = credentials.value(forKey: "username") as? String
         else {
-            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": "REQUIRED_KEYS_NOT_FOUND"])
+            let error = HMSError(id: "102", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
+            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id":id])
             return
         }
 
-        DispatchQueue.main.async { [weak self] in
-            guard let strongSelf = self else { return }
-            if let config = strongSelf.config {
-                do{
-                    try strongSelf.hms?.join(config: config, delegate: strongSelf)
-                } catch let error{
-                    strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["event": strongSelf.ON_ERROR, "error": error.localizedDescription])
-                }
-            } else {
-                if let endpoint = credentials.value(forKey: "endpoint") as? String {
-                    do{
-                        strongSelf.config = HMSConfig(userName: user, authToken: authToken, endpoint: endpoint)
-                        try strongSelf.hms?.join(config: strongSelf.config!, delegate: strongSelf)
-                    } catch let error{
-                        strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["event": strongSelf.ON_ERROR, "error": error.localizedDescription])
-                    }
-                } else {
-                    do{
-                        strongSelf.config = HMSConfig(userName: user, authToken: authToken)
-                        try strongSelf.hms?.join(config: strongSelf.config!, delegate: strongSelf)
-                    } catch let error{
-                        strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["event": strongSelf.ON_ERROR, "error": error.localizedDescription])
-                    }
-                }
-            }
-        }
+        let metadata = credentials.value(forKey: "metadata") as? String
         
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
@@ -104,10 +87,10 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
                 strongSelf.hms?.join(config: config, delegate: strongSelf)
             } else {
                 if let endpoint = credentials.value(forKey: "endpoint") as? String {
-                    strongSelf.config = HMSConfig(userName: user, authToken: authToken, endpoint: endpoint)
+                    strongSelf.config = HMSConfig(userName: user, authToken: authToken, metadata: metadata, endpoint: endpoint)
                     strongSelf.hms?.join(config: strongSelf.config!, delegate: strongSelf)
                 } else {
-                    strongSelf.config = HMSConfig(userName: user, authToken: authToken)
+                    strongSelf.config = HMSConfig(userName: user, authToken: authToken, metadata: metadata)
                     strongSelf.hms?.join(config: strongSelf.config!, delegate: strongSelf)
                 }
             }
@@ -117,7 +100,8 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     func setLocalMute(_ data: NSDictionary) {
         guard let isMute = data.value(forKey: "isMute") as? Bool
         else {
-            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": "REQUIRED_KEYS_NOT_FOUND"])
+            let error = HMSError(id: "106", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
+            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id":id])
             return
         }
         
@@ -129,7 +113,8 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     func setLocalVideoMute(_ data: NSDictionary) {
         guard let isMute = data.value(forKey: "isMute") as? Bool
         else {
-            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": "REQUIRED_KEYS_NOT_FOUND"])
+            let error = HMSError(id: "107", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
+            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id":id])
             return
         }
         
@@ -146,6 +131,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     
     func leave(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
             self?.config = nil
             self?.recentRoleChangeRequest = nil
             self?.recentChangeTrackStateRequest = nil
@@ -153,6 +139,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
                 if(success){
                     resolve?("")
                 }else{
+                    strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["event": strongSelf.ON_ERROR, "error": HmsDecoder.getError(error), "id":strongSelf.id])
                     reject?(nil, "error in leave",nil)
                 }
             })
@@ -162,7 +149,8 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     func sendBroadcastMessage(_ data: NSDictionary) {
         guard let message = data.value(forKey: "message") as? String
         else {
-            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": "REQUIRED_KEYS_NOT_FOUND"])
+            let error = HMSError(id: "108", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
+            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id":id])
             return
         }
         
@@ -177,7 +165,8 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         guard let message = data.value(forKey: "message") as? String,
               let targetedRoles = data.value(forKey: "roles") as? [String]
         else {
-            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": "REQUIRED_KEYS_NOT_FOUND"])
+            let error = HMSError(id: "109", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
+            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id":id])
             return
         }
         
@@ -192,7 +181,8 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         guard let message = data.value(forKey: "message") as? String,
               let peerId = data.value(forKey: "peerId") as? String
         else {
-            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": "REQUIRED_KEYS_NOT_FOUND"])
+            let error = HMSError(id: "110", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
+            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id":id])
             return
         }
         
@@ -220,7 +210,8 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         guard let peerId = data.value(forKey: "peerId") as? String,
               let role = data.value(forKey: "role") as? String
         else {
-            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": "REQUIRED_KEYS_NOT_FOUND"])
+            let error = HMSError(id: "111", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
+            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id":id])
             return
         }
         
@@ -239,7 +230,8 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         
         guard let trackId = data.value(forKey: "trackId") as? String
         else {
-            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": "REQUIRED_KEYS_NOT_FOUND"])
+            let error = HMSError(id: "112", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
+            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id":id])
             return
         }
         
@@ -260,7 +252,8 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
                 let targetedRoles = data.value(forKey: "roles") as? [String],
                     let type = data.value(forKey: "type") as? String
         else {
-            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": "REQUIRED_KEYS_NOT_FOUND"])
+            let error = HMSError(id: "113", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
+            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id":id])
             return
         }
         var decodeType: HMSTrackKind;
@@ -281,17 +274,21 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         guard let trackId = data.value(forKey: "trackId") as? String
         else {
             reject?(nil, "NO_SDK_ID", nil)
-            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": "REQUIRED_KEYS_NOT_FOUND"])
+            let error = HMSError(id: "114", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
+            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id":id])
             return
         }
         
         DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
             guard let localPeer = self?.hms?.localPeer,
                 let localTrack = HmsHelper.getLocalTrackFromTrackId(trackId, localPeer: localPeer)
             else {
                 guard let remotePeers = self?.hms?.remotePeers,
                     let track = HmsHelper.getTrackFromTrackId(trackId, remotePeers)
                 else {
+                    let error = HMSError(id: "120", code: HMSErrorCode.genericErrorUnknown, message: "NOT_FOUND")
+                    strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["event": strongSelf.ON_ERROR, "error": HmsDecoder.getError(error), "id":strongSelf.id])
                     reject?(nil, "NOT_FOUND", nil)
                     return
                 }
@@ -308,7 +305,8 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         
         guard let peerId = data.value(forKey: "peerId") as? String
         else {
-            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": "REQUIRED_KEYS_NOT_FOUND"])
+            let error = HMSError(id: "115", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
+            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id":id])
             return
         }
         
@@ -330,7 +328,8 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         guard let lock = data.value(forKey: "lock") as? Bool,
                 let reason = data.value(forKey: "reason") as? String
         else {
-            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": "REQUIRED_KEYS_NOT_FOUND"])
+            let error = HMSError(id: "116", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
+            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id":id])
             return
         }
         
@@ -343,12 +342,16 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         guard let trackId = data.value(forKey: "trackId") as? String
         else {
             reject?(nil, "NOT_FOUND", nil)
-            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": "REQUIRED_KEYS_NOT_FOUND"])
+            let error = HMSError(id: "117", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
+            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id":id])
             return
         }
         DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
             guard let remotePeers = self?.hms?.remotePeers
             else {
+                let error = HMSError(id: "121", code: HMSErrorCode.genericErrorUnknown, message: "NOT_FOUND")
+                strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["event": strongSelf.ON_ERROR, "error": HmsDecoder.getError(error), "id":strongSelf.id])
                 reject?(nil, "NOT_FOUND", nil)
                 return
             }
@@ -363,6 +366,8 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
                 resolve?(isPlaybackAllowed)
                 return
             } else {
+                let error = HMSError(id: "122", code: HMSErrorCode.genericErrorUnknown, message: "NOT_FOUND")
+                strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["event": strongSelf.ON_ERROR, "error": HmsDecoder.getError(error), "id":strongSelf.id])
                 reject?(nil, "NOT_FOUND",nil)
                 return
             }
@@ -379,7 +384,8 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         guard let trackId = data.value(forKey: "trackId") as? String,
               let playbackAllowed = data.value(forKey: "playbackAllowed") as? Bool
         else {
-            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": "REQUIRED_KEYS_NOT_FOUND"])
+            let error = HMSError(id: "118", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
+            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id":id])
             return
         }
         DispatchQueue.main.async { [weak self] in
@@ -401,6 +407,137 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
     
+    func changeMetadata(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let metadata = data.value(forKey: "metadata") as? String
+        else {
+            let error = HMSError(id: "123", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
+            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id":id])
+            reject?(nil, "REQUIRED_KEYS_NOT_FOUND", nil)
+            return
+        }
+        
+        hms?.change(metadata: metadata, completion: { success, error in
+            if (success) {
+                resolve?(["success": success])
+                return
+            } else {
+                self.delegate?.emitEvent(self.ON_ERROR, ["event": self.ON_ERROR, "error": HmsDecoder.getError(error), "id":self.id])
+                reject?(error?.message, error?.localizedDescription, nil)
+                return
+            }
+        })
+    }
+
+    func setVolume(_ data: NSDictionary) {
+        guard let trackId = data.value(forKey: "trackId") as? String,
+              let volume = data.value(forKey: "volume") as? Double
+        else {
+            let error = HMSError(id: "124", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
+            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id":id])
+            return
+        }
+
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
+            let remotePeers = self?.hms?.remotePeers
+        
+            let remoteAudioTrack = HmsHelper.getRemoteAudioAuxiliaryTrackFromTrackId(trackId, remotePeers)
+        
+            if (remoteAudioTrack != nil) {
+                remoteAudioTrack?.setVolume(volume)
+            } else {
+                let error = HMSError(id: "125", code: HMSErrorCode.genericErrorUnknown, message: "TRACK_ID_NOT_FOUND_IN_REMOTE_TRACKS")
+                strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["event": strongSelf.ON_ERROR, "error": HmsDecoder.getError(error), "id":strongSelf.id])
+            }
+        }
+    }
+    
+    func startRTMPOrRecording(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let record = data.value(forKey: "record") as? Bool
+        else {
+            let error = HMSError(id: "126", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
+            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id":id])
+            return
+        }
+        
+        let meetingString = data.value(forKey: "meetingURL") as? String
+        let rtmpStrings = data.value(forKey: "rtmpURLs") as? [String]
+        
+        var meetingUrl: URL? = nil
+        if let meetLink = meetingString {
+            meetingUrl = URL(string: meetLink)
+        } else {
+            let error = HMSError(id: "127", code: HMSErrorCode.genericErrorUnknown, message: "INVALID_MEETING_URL_PASSED")
+            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id":id])
+        }
+        
+        let URLs = HmsHelper.getRtmpUrls(rtmpStrings)
+        
+        
+        let config = HMSRTMPConfig(meetingURL: meetingUrl, rtmpURLs: URLs, record: record)
+        hms?.startRTMPOrRecording(config: config, completion: { success, error in
+            if (success) {
+                let roomData = HmsDecoder.getHmsRoom(self.hms?.room)
+                let type = self.getString(from: HMSRoomUpdate.browserRecordingStateUpdated)
+                
+                let localPeerData = HmsDecoder.getHmsLocalPeer(self.hms?.localPeer)
+                let remotePeerData = HmsDecoder.getHmsRemotePeers(self.hms?.remotePeers)
+                self.delegate?.emitEvent(self.ON_ROOM_UPDATE, ["event": self.ON_ROOM_UPDATE, "id": self.id, "type": type, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
+                resolve?(["success": success])
+                return
+            } else {
+                self.delegate?.emitEvent(self.ON_ERROR, ["event": self.ON_ERROR, "error": HmsDecoder.getError(error), "id":self.id])
+                reject?(error?.message, error?.localizedDescription, nil)
+                return
+            }
+        })
+    }
+    
+    func stopRtmpAndRecording(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        hms?.stopRTMPAndRecording(completion: { success, error in
+            if (success) {
+                let roomData = HmsDecoder.getHmsRoom(self.hms?.room)
+                let type = self.getString(from: HMSRoomUpdate.browserRecordingStateUpdated)
+                
+                let localPeerData = HmsDecoder.getHmsLocalPeer(self.hms?.localPeer)
+                let remotePeerData = HmsDecoder.getHmsRemotePeers(self.hms?.remotePeers)
+                self.delegate?.emitEvent(self.ON_ROOM_UPDATE, ["event": self.ON_ROOM_UPDATE, "id": self.id, "type": type, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
+                resolve?(["success": success])
+                return
+            } else {
+                self.delegate?.emitEvent(self.ON_ERROR, ["event": self.ON_ERROR, "error": HmsDecoder.getError(error), "id":self.id])
+                reject?(error?.message, error?.localizedDescription, nil)
+                return
+            }
+        })
+    }
+    
+    //TODO: to be implemented after volume is exposed for iOS
+//    func getVolume(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+//        guard let trackId = data.value(forKey: "trackId") as? String
+//        else {
+//            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": "REQUIRED_KEYS_NOT_FOUND"])
+//            reject?(nil, "REQUIRED_KEYS_NOT_FOUND", nil)
+//            return
+//        }
+//
+//
+//        if (localPeer?.localAudioTrack()?.trackId == trackId) {
+//
+//        }
+//    }
+    
+//    func setLocalVideoSettings(_ data: NSDictionary) {
+//        let localVideoTrack = self.hms?.localPeer?.localVideoTrack()
+//
+//        guard let settings = HmsHelper.getLocalVideoSettings(data)
+//        else {
+//            //TODO: throw an error for invalid arguements
+//            return
+//        }
+//        localVideoTrack?.settings = settings
+//    }
+    
     // MARK: - HMS SDK Delegate Callbacks
     
     func on(join room: HMSRoom) {
@@ -419,7 +556,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         let hmsRoom = HmsDecoder.getHmsRoom(room)
         let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
         
-        self.delegate?.emitEvent(ON_PREVIEW, ["event": ON_PREVIEW, "id": self.id, "room": hmsRoom, "previewTracks": previewTracks, "localPeer": localPeerData])
+        self.delegate?.emitEvent(ON_PREVIEW, ["event": ON_PREVIEW, "id": self.id ?? "", "room": hmsRoom, "previewTracks": previewTracks, "localPeer": localPeerData])
     }
     
     func on(room: HMSRoom, update: HMSRoomUpdate) {
@@ -430,7 +567,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
         let remotePeerData = HmsDecoder.getHmsRemotePeers(hms?.remotePeers)
         
-        self.delegate?.emitEvent(ON_ROOM_UPDATE, ["event": ON_ROOM_UPDATE, "id": self.id, "type": type, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
+        self.delegate?.emitEvent(ON_ROOM_UPDATE, ["event": ON_ROOM_UPDATE, "id": self.id ?? "", "type": type, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
     }
     
     func on(peer: HMSPeer, update: HMSPeerUpdate) {
@@ -441,7 +578,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
         let remotePeerData = HmsDecoder.getHmsRemotePeers(hms?.remotePeers)
                 
-        self.delegate?.emitEvent(ON_PEER_UPDATE, ["event": ON_PEER_UPDATE, "id": self.id, "type": type, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
+        self.delegate?.emitEvent(ON_PEER_UPDATE, ["event": ON_PEER_UPDATE, "id": self.id ?? "", "type": type, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
     }
     
     func on(track: HMSTrack, update: HMSTrackUpdate, for peer: HMSPeer) {
@@ -452,16 +589,15 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
         let remotePeerData = HmsDecoder.getHmsRemotePeers(hms?.remotePeers)
         
-        self.delegate?.emitEvent(ON_TRACK_UPDATE, ["event": ON_TRACK_UPDATE, "id": self.id, "room": roomData, "type": type, "localPeer": localPeerData, "remotePeers": remotePeerData])
+        self.delegate?.emitEvent(ON_TRACK_UPDATE, ["event": ON_TRACK_UPDATE, "id": self.id ?? "", "room": roomData, "type": type, "localPeer": localPeerData, "remotePeers": remotePeerData])
     }
     
     func on(error: HMSError) {
-        let hmsError = HmsDecoder.getError(error)
-        self.delegate?.emitEvent(ON_ERROR, hmsError)
+        self.delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id":id])
     }
     
     func on(message: HMSMessage) {
-        self.delegate?.emitEvent(ON_MESSAGE, ["event": ON_MESSAGE, "id": self.id, "sender": message.sender?.name ?? "", "time": message.time, "message": message.message, "type": message.type])
+        self.delegate?.emitEvent(ON_MESSAGE, ["event": ON_MESSAGE, "id": self.id ?? "", "sender": message.sender?.name ?? "", "time": message.time, "message": message.message, "type": message.type])
     }
     
     func on(updated speakers: [HMSSpeaker]) {
@@ -469,15 +605,15 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         for speaker in speakers {
             speakerPeerIds.append(["peer": HmsDecoder.getHmsPeer(speaker.peer), "level": speaker.level, "track": HmsDecoder.getHmsTrack(speaker.track)])
         }
-        self.delegate?.emitEvent(ON_SPEAKER, ["event": ON_SPEAKER, "id": self.id, "count": speakers.count, "peers" :speakerPeerIds])
+        self.delegate?.emitEvent(ON_SPEAKER, ["event": ON_SPEAKER, "id": self.id ?? "", "count": speakers.count, "peers" :speakerPeerIds])
     }
     
     func onReconnecting() {
-        self.delegate?.emitEvent(RECONNECTING, ["event": RECONNECTING, "id": self.id])
+        self.delegate?.emitEvent(RECONNECTING, ["event": RECONNECTING, "id": self.id ?? ""])
     }
     
     func onReconnected() {
-        self.delegate?.emitEvent(RECONNECTED, ["event": RECONNECTED, "id": self.id])
+        self.delegate?.emitEvent(RECONNECTED, ["event": RECONNECTED, "id": self.id ?? ""])
     }
     
     func on(roleChangeRequest: HMSRoleChangeRequest) {
@@ -507,7 +643,8 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     func muteAllPeersAudio(_ data: NSDictionary) {
         guard let mute = data.value(forKey: "mute") as? Bool
         else {
-            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": "REQUIRED_KEYS_NOT_FOUND"])
+            let error = HMSError(id: "119", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
+            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id":id])
             return
         }
         
@@ -532,6 +669,8 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
             return "PEER_LEFT"
         case .roleUpdated:
             return "ROLE_CHANGED"
+        case .metadataUpdated:
+            return "METADATA_CHANGED"
         default:
             return ""
         }
