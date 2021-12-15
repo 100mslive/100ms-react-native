@@ -21,7 +21,7 @@ class HmsSDK(
     sdkId: String,
     reactApplicationContext: ReactApplicationContext
 ) {
-  private var hmsSDK: HMSSDK? = null
+  var hmsSDK: HMSSDK? = null
   private var recentRoleChangeRequest: HMSRoleChangeRequest? = null
   private var changeTrackStateRequest: HMSChangeTrackStateRequest? = null
   private var delegate: HmsModule = HmsDelegate
