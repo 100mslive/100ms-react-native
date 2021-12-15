@@ -158,7 +158,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         
         DispatchQueue.main.async { [weak self] in
             self?.hms?.sendBroadcastMessage(type: type, message: message, completion: { message, error in
-                if (error != nil) {
+                if (error == nil) {
                     resolve?(["success": true, "data": ["sender": message?.sender?.name ?? "", "message": message?.message ?? "", "type": message?.type]])
                     return
                 } else {
@@ -183,7 +183,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         DispatchQueue.main.async { [weak self] in
             let encodedTargetedRoles = HmsHelper.getRolesFromRoleNames(targetedRoles, roles: self?.hms?.roles)
             self?.hms?.sendGroupMessage(type: type, message: message, roles: encodedTargetedRoles, completion: { message, error in
-                if (error != nil) {
+                if (error == nil) {
                     resolve?(["success": true, "data": ["sender": message?.sender?.name ?? "", "message": message?.message ?? "", "type": message?.type]])
                     return
                 } else {
@@ -208,7 +208,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         DispatchQueue.main.async { [weak self] in
             guard let peer = HmsHelper.getPeerFromPeerId(peerId, remotePeers: self?.hms?.remotePeers) else { return }
             self?.hms?.sendDirectMessage(type: type, message: message, peer: peer, completion: { message, error in
-                if (error != nil) {
+                if (error == nil) {
                     resolve?(["success": true, "data": ["sender": message?.sender?.name ?? "", "message": message?.message ?? "", "type": message?.type]])
                     return
                 } else {
