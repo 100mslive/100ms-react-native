@@ -174,8 +174,8 @@ object HmsHelper {
     return null
   }
 
-  fun getAudioTrackSettings(data: ReadableMap?): HMSAudioTrackSettings {
-    val builder = HMSAudioTrackSettings.Builder()
+  fun getAudioTrackSettings(data: ReadableMap?, useHardwareEchoCancellation: Boolean): HMSAudioTrackSettings {
+    val builder = HMSAudioTrackSettings.Builder().setUseHardwareAcousticEchoCanceler(useHardwareEchoCancellation)
 
     if (data != null) {
       val maxBitrate = data.getInt("maxBitrate")

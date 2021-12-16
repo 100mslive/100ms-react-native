@@ -3,6 +3,7 @@ package com.reactnativehmssdk
 import com.facebook.react.bridge.*
 import java.util.*
 import kotlinx.coroutines.launch
+import android.os.Build
 import live.hms.video.error.HMSException
 import live.hms.video.media.settings.HMSTrackSettings
 import live.hms.video.media.tracks.*
@@ -29,8 +30,14 @@ class HmsSDK(
   val self = this
 
   init {
+    val faultyHardwareCancellationModels: HashSet<String> =
+      hashSetOf("phone 1", "phone 2") // Get this from Build.MODEL for the device.
+
+    val useHardwareEchoCancellation = !faultyHardwareCancellationModels
+      .contains(Build.MODEL)
+
     val videoSettings = HmsHelper.getVideoTrackSettings(data?.getMap("video"))
-    val audioSettings = HmsHelper.getAudioTrackSettings(data?.getMap("audio"))
+    val audioSettings = HmsHelper.getAudioTrackSettings(data?.getMap("audio"), useHardwareEchoCancellation)
 
     val trackSettingsBuilder = HMSTrackSettings.Builder()
     val trackSettings = trackSettingsBuilder.audio(audioSettings).video(videoSettings).build()
