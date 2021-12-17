@@ -1,4 +1,5 @@
 import { NativeModules } from 'react-native';
+import { HMSSDK } from './HMSSDK';
 import type { HMSTrackType } from './HMSTrackType';
 import { HMSAudioTrack } from './HMSAudioTrack';
 
@@ -17,6 +18,14 @@ export class HMSRemoteAudioTrack extends HMSAudioTrack {
    * @memberof HMSRemoteAudioTrack
    */
   setPlaybackAllowed(playbackAllowed: boolean) {
+    const logger = HMSSDK.getLogger();
+    logger?.verbose('#Function setPlaybackAllowed', {
+      trackId: this.trackId,
+      id: this.id,
+      source: this.source,
+      type: this.type,
+      playbackAllowed,
+    });
     HmsManager.setPlaybackAllowed({
       id: this.id,
       trackId: this.trackId,
@@ -26,6 +35,13 @@ export class HMSRemoteAudioTrack extends HMSAudioTrack {
 
   isPlaybackAllowed = async () => {
     try {
+      const logger = HMSSDK.getLogger();
+      logger?.verbose('#Function isPlaybackAllowed', {
+        trackId: this.trackId,
+        id: this.id,
+        source: this.source,
+        type: this.type,
+      });
       const val = await HmsManager.isPlaybackAllowed({
         id: this.id,
         trackId: this.trackId,
