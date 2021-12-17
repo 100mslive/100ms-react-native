@@ -623,7 +623,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     }
     
     func on(changeTrackStateRequest: HMSChangeTrackStateRequest) {
-        let decodedChangeTrackStateRequest = HmsDecoder.getHmsChangeTrackStateRequest(changeTrackStateRequest)
+        let decodedChangeTrackStateRequest = HmsDecoder.getHmsChangeTrackStateRequest(changeTrackStateRequest, id)
         delegate?.emitEvent("ON_CHANGE_TRACK_STATE_REQUEST", decodedChangeTrackStateRequest)
         recentChangeTrackStateRequest = changeTrackStateRequest
     }

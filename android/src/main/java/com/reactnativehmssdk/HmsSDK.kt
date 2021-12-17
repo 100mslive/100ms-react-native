@@ -193,7 +193,7 @@ class HmsSDK(
               object : HMSUpdateListener {
                 override fun onChangeTrackStateRequest(request: HMSChangeTrackStateRequest) {
                   val decodedChangeTrackStateRequest =
-                      HmsDecoder.getHmsChangeTrackStateRequest(request)
+                      HmsDecoder.getHmsChangeTrackStateRequest(request,id)
                   delegate.emitEvent(
                       "ON_CHANGE_TRACK_STATE_REQUEST",
                       decodedChangeTrackStateRequest
