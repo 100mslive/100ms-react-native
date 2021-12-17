@@ -10,6 +10,7 @@ import {
   BackHandler,
   Platform,
   TextInput,
+  PermissionsAndroid,
 } from 'react-native';
 import {connect} from 'react-redux';
 import {
@@ -43,6 +44,7 @@ import {getDeviceType} from 'react-native-device-info';
 import {Slider} from '@miblanchard/react-native-slider';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import Toast from 'react-native-simple-toast';
+import RNFetchBlob from 'rn-fetch-blob';
 
 import {ChatWindow, AlertModal, CustomModal, CustomPicker} from '../components';
 import {
@@ -55,6 +57,7 @@ import {
   getThemeColour,
   getInitials,
   pairDataForScrollView,
+  writeFile,
 } from '../utils/functions';
 import type {RootState} from '../redux';
 import type {AppStackParamList} from '../navigator';
@@ -934,6 +937,12 @@ const Meeting = ({
         type: 'cancel',
       },
       {
+        text: 'Report issue and share logs',
+        onPress: async () => {
+          await checkPermissionToWriteExternalStroage();
+        },
+      },
+      {
         text: 'Start RTMP or Recording',
         onPress: () => {
           setRecordingModal(true);
@@ -1118,6 +1127,46 @@ const Meeting = ({
       }
     }
   });
+
+  const checkPermissionToWriteExternalStroage = async () => {
+    // Function to check the platform
+    // If Platform is Android then check for permissions.
+    if (Platform.OS === 'ios') {
+      await reportIssue();
+    } else {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+          {
+            title: 'Storage Permission Required',
+            message:
+              'Application needs access to your storage to download File',
+            buttonPositive: 'true',
+          },
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          // Start downloading
+          await reportIssue();
+          console.log('Storage Permission Granted.');
+        } else {
+          // If permission denied then show alert
+          Toast.showWithGravity(
+            'Storage Permission Not Granted',
+            Toast.LONG,
+            Toast.TOP,
+          );
+        }
+      } catch (err) {
+        // To handle permission related exception
+        console.log('++++' + err);
+      }
+    }
+  };
+
+  const reportIssue = async () => {
+    const fileUrl = RNFetchBlob.fs.dirs.DocumentDir + '/report-logs.json';
+    await writeFile({data: 'all hms logs'}, fileUrl);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
