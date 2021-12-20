@@ -88,7 +88,7 @@ export class HMSSDK {
 
   setLogger = (hmsLogger: HMSLogger) => {
     logger = hmsLogger;
-    hmsLogger.verbose('#Function UPDATE_LOGGER', { hmsLogger, id: this.id });
+    hmsLogger.verbose('#Function setLogger', { hmsLogger, id: this.id });
   };
 
   destroy = () => {
@@ -234,12 +234,12 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   join = async (config: HMSConfig) => {
-    logger?.verbose('#Function JOIN', { config, id: this.id });
+    logger?.verbose('#Function join', { config, id: this.id });
     await HmsManager.join({ ...config, id: this.id });
   };
 
   preview = (config: HMSConfig) => {
-    logger?.verbose('#Function PREVIEW', { config, id: this.id });
+    logger?.verbose('#Function preview', { config, id: this.id });
     HmsManager.preview({ ...config, id: this.id });
   };
 
@@ -268,7 +268,7 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   leave = async () => {
-    logger?.verbose('#Function LEAVE', { id: this.id });
+    logger?.verbose('#Function leave', { id: this.id });
     const data = {
       id: this.id,
     };
@@ -282,7 +282,7 @@ export class HMSSDK {
   };
 
   sendBroadcastMessage = (message: string, type?: string) => {
-    logger?.verbose('#Function SEND_BROADCAST_MESSAGE', {
+    logger?.verbose('#Function sendBroadcastMessage', {
       message,
       type: type || null,
       id: this.id,
@@ -295,7 +295,7 @@ export class HMSSDK {
   };
 
   sendGroupMessage = (message: string, roles: HMSRole[], type?: string) => {
-    logger?.verbose('#Function SEND_GROUP_MESSAGE', {
+    logger?.verbose('#Function sendGroupMessage', {
       message,
       roles,
       id: this.id,
@@ -310,7 +310,7 @@ export class HMSSDK {
   };
 
   sendDirectMessage = (message: string, peerId: string, type?: string) => {
-    logger?.verbose('#Function SEND_DIRECT_MESSAGE', {
+    logger?.verbose('#Function sendDirectMessage', {
       message,
       peerId,
       id: this.id,
@@ -325,12 +325,12 @@ export class HMSSDK {
   };
 
   changeMetadata = (metadata: string) => {
-    logger?.verbose('#Function CHANGE_METADATA', { metadata, id: this.id });
+    logger?.verbose('#Function changeMetadata', { metadata, id: this.id });
     HmsManager.changeMetadata({ metadata, id: this.id });
   };
 
   startRTMPOrRecording = async (data: HMSRTMPConfig) => {
-    logger?.verbose('#Function START_RTMP_OR_RECORDING', {
+    logger?.verbose('#Function startRTMPOrRecording', {
       ...data,
       id: this.id,
     });
@@ -340,7 +340,7 @@ export class HMSSDK {
   };
 
   stopRtmpAndRecording = async () => {
-    logger?.verbose('#Function STOP_RTMP_OR_RECORDING', {});
+    logger?.verbose('#Function stopRtmpAndRecording', {});
     const op = await HmsManager.stopRtmpAndRecording({ id: this.id });
     return op;
   };
@@ -352,12 +352,12 @@ export class HMSSDK {
       force: force,
       id: this.id,
     };
-    logger?.verbose('#Function CHANGE_ROLE', data);
+    logger?.verbose('#Function changeRole', data);
     HmsManager.changeRole(data);
   };
 
   changeTrackState = (track: HMSTrack, mute: boolean) => {
-    logger?.verbose('#Function CHANGE_TRACK_STATE', {
+    logger?.verbose('#Function changeTrackState', {
       track,
       mute,
       id: this.id,
@@ -377,7 +377,7 @@ export class HMSSDK {
     source: string,
     roles: Array<HMSRole>
   ) => {
-    logger?.verbose('#Function CHANGE_TRACK_STATE_ROLES', {
+    logger?.verbose('#Function changeTrackStateRoles', {
       source,
       mute,
       type,
@@ -396,7 +396,7 @@ export class HMSSDK {
   };
 
   removePeer = (peerId: string, reason: string) => {
-    logger?.verbose('#Function REMOVE_PEER', { peerId, reason, id: this.id });
+    logger?.verbose('#Function removePeer', { peerId, reason, id: this.id });
     const data = {
       peerId,
       reason,
@@ -407,7 +407,7 @@ export class HMSSDK {
   };
 
   endRoom = (lock: boolean, reason: string) => {
-    logger?.verbose('#Function END_ROOM', { lock, reason, id: this.id });
+    logger?.verbose('#Function endRoom', { lock, reason, id: this.id });
     const data = {
       lock,
       reason,
@@ -418,18 +418,18 @@ export class HMSSDK {
   };
 
   acceptRoleChange = () => {
-    logger?.verbose('#Function ACCEPT_ROLE_CHANGE', { id: this.id });
+    logger?.verbose('#Function acceptRoleChange', { id: this.id });
     HmsManager.acceptRoleChange({ id: this.id });
   };
 
   muteAllPeersAudio = (mute: boolean) => {
-    logger?.verbose('#Function ON_MUTE_ALL_PEERS', { mute, id: this.id });
+    logger?.verbose('#Function muteAllPeersAudio', { mute, id: this.id });
     this.muteStatus = mute;
     HmsManager.muteAllPeersAudio({ mute, id: this.id });
   };
 
   getRoom = async () => {
-    logger?.verbose('#Function GET_ROOM_API_CALL', {
+    logger?.verbose('#Function getRoom', {
       roomID: this.room?.id,
       id: this.id,
     });
@@ -440,7 +440,7 @@ export class HMSSDK {
   };
 
   setVolume = (track: HMSTrack, volume: number) => {
-    logger?.verbose('#Function SET_VOLUME_CALL', {
+    logger?.verbose('#Function setVolume', {
       track,
       volume,
       id: this.id,
@@ -462,7 +462,7 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   addEventListener = (action: HMSUpdateListenerActions, callback: any) => {
-    logger?.verbose('#Function ON_ATTACH_EVENT_LISTENER', {
+    logger?.verbose('#Function addEventListener', {
       action,
       id: this.id,
     });
@@ -519,7 +519,7 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   removeEventListener = (action: HMSUpdateListenerActions) => {
-    logger?.verbose('#Function ON_REMOVE_LISTENER', { action, id: this.id });
+    logger?.verbose('#Function removeEventListener', { action, id: this.id });
     switch (action) {
       case HMSUpdateListenerActions.ON_PREVIEW:
         this.onPreviewDelegate = null;
@@ -584,7 +584,7 @@ export class HMSSDK {
     this.onChangeTrackStateRequestDelegate = null;
     this.onRemovedFromRoomDelegate = null;
 
-    logger?.verbose('REMOVE_ALL_LISTENER', { id: this.id });
+    logger?.verbose('#Function REMOVE_ALL_LISTENER', { id: this.id });
   };
 
   onPreviewListener = (data: any) => {
