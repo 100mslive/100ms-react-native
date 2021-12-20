@@ -184,7 +184,11 @@ const App = ({
       resolution: new HMSVideoResolution({height: 180, width: 320}),
     });
 
-    return new HMSTrackSettings({video: videoSettings, audio: audioSettings});
+    return new HMSTrackSettings({
+      video: videoSettings,
+      audio: audioSettings,
+      useHardwareEchoCancellation: true,
+    });
   };
 
   const setupBuild = async () => {

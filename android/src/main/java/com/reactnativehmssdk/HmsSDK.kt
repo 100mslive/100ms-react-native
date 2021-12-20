@@ -30,12 +30,10 @@ class HmsSDK(
   val self = this
 
   init {
-    val faultyHardwareCancellationModels: HashSet<String> =
-      hashSetOf("phone 1", "phone 2") // Get this from Build.MODEL for the device.
-
-    val useHardwareEchoCancellation = !faultyHardwareCancellationModels
-      .contains(Build.MODEL)
-
+    var useHardwareEchoCancellation = data?.getBoolean("useHardwareEchoCancellation")
+    if (useHardwareEchoCancellation == null) {
+      useHardwareEchoCancellation = false
+    }
     val videoSettings = HmsHelper.getVideoTrackSettings(data?.getMap("video"))
     val audioSettings = HmsHelper.getAudioTrackSettings(data?.getMap("audio"), useHardwareEchoCancellation)
 
