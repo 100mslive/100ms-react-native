@@ -1,3 +1,7 @@
+import {Platform} from 'react-native';
+import RNFetchBlob from 'rn-fetch-blob';
+import Share from 'react-native-share';
+
 export const getThemeColour = () => '#4578e0';
 
 export const getRandomColor = () => {
@@ -83,4 +87,22 @@ export const pairDataForScrollView = (data: Array<any>, batch: number) => {
     pairedData.push(groupData);
   }
   return pairedData;
+};
+
+export const writeFile = async (content: any, fileUrl: string) => {
+  await RNFetchBlob.fs
+    .writeFile(fileUrl, JSON.stringify(content), 'utf8')
+    .then(() => {
+      shareFile(fileUrl);
+    })
+    .catch(e => console.error(e));
+};
+
+export const shareFile = async (fileUrl: string) => {
+  await Share.open({
+    url: Platform.OS === 'android' ? 'file://' + fileUrl : fileUrl,
+    type: 'application/json',
+  })
+    .then(success => console.log(success))
+    .catch(e => console.error(e));
 };
