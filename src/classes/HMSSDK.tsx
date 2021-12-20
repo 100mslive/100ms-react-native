@@ -273,35 +273,40 @@ export class HMSSDK {
       id: this.id,
     };
 
-    await HmsManager.leave(data);
+    const op = await HmsManager.leave(data);
     this.muteStatus = undefined;
     this.localPeer = undefined;
     this.remotePeers = undefined;
     this.room = undefined;
     this.knownRoles = undefined;
+    return op;
   };
 
-  sendBroadcastMessage = (message: string, type?: string) => {
+  sendBroadcastMessage = async (message: string, type?: string) => {
     logger?.verbose('#Function sendBroadcastMessage', {
       message,
       type: type || null,
       id: this.id,
     });
-    HmsManager.sendBroadcastMessage({
+    return await HmsManager.sendBroadcastMessage({
       message,
       type: type || null,
       id: this.id,
     });
   };
 
-  sendGroupMessage = (message: string, roles: HMSRole[], type?: string) => {
+  sendGroupMessage = async (
+    message: string,
+    roles: HMSRole[],
+    type?: string
+  ) => {
     logger?.verbose('#Function sendGroupMessage', {
       message,
       roles,
       id: this.id,
       type: type || null,
     });
-    HmsManager.sendGroupMessage({
+    return await HmsManager.sendGroupMessage({
       message,
       roles: HMSHelper.getRoleNames(roles),
       id: this.id,
@@ -309,14 +314,18 @@ export class HMSSDK {
     });
   };
 
-  sendDirectMessage = (message: string, peerId: string, type?: string) => {
+  sendDirectMessage = async (
+    message: string,
+    peerId: string,
+    type?: string
+  ) => {
     logger?.verbose('#Function sendDirectMessage', {
       message,
       peerId,
       id: this.id,
       type: type || null,
     });
-    HmsManager.sendDirectMessage({
+    return await HmsManager.sendDirectMessage({
       message,
       peerId,
       id: this.id,
@@ -345,7 +354,7 @@ export class HMSSDK {
     return op;
   };
 
-  changeRole = (peer: HMSPeer, role: HMSRole, force: boolean = false) => {
+  changeRole = async (peer: HMSPeer, role: HMSRole, force: boolean = false) => {
     const data = {
       peerId: peer?.peerID,
       role: role?.name,
@@ -353,10 +362,10 @@ export class HMSSDK {
       id: this.id,
     };
     logger?.verbose('#Function changeRole', data);
-    HmsManager.changeRole(data);
+    return await HmsManager.changeRole(data);
   };
 
-  changeTrackState = (track: HMSTrack, mute: boolean) => {
+  changeTrackState = async (track: HMSTrack, mute: boolean) => {
     logger?.verbose('#Function changeTrackState', {
       track,
       mute,
@@ -368,10 +377,10 @@ export class HMSSDK {
       id: this.id,
     };
 
-    HmsManager.changeTrackState(data);
+    return await HmsManager.changeTrackState(data);
   };
 
-  changeTrackStateRoles = (
+  changeTrackStateRoles = async (
     type: HMSTrackType,
     mute: boolean,
     source: string,
@@ -392,10 +401,10 @@ export class HMSSDK {
       id: this.id,
     };
 
-    HmsManager.changeTrackStateRoles(data);
+    return await HmsManager.changeTrackStateRoles(data);
   };
 
-  removePeer = (peerId: string, reason: string) => {
+  removePeer = async (peerId: string, reason: string) => {
     logger?.verbose('#Function removePeer', { peerId, reason, id: this.id });
     const data = {
       peerId,
@@ -403,10 +412,10 @@ export class HMSSDK {
       id: this.id,
     };
 
-    HmsManager.removePeer(data);
+    return await HmsManager.removePeer(data);
   };
 
-  endRoom = (lock: boolean, reason: string) => {
+  endRoom = async (lock: boolean, reason: string) => {
     logger?.verbose('#Function endRoom', { lock, reason, id: this.id });
     const data = {
       lock,
@@ -414,7 +423,7 @@ export class HMSSDK {
       id: this.id,
     };
 
-    HmsManager.endRoom(data);
+    return await HmsManager.endRoom(data);
   };
 
   acceptRoleChange = () => {

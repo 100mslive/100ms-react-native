@@ -7,6 +7,7 @@ export const fetchToken = async ({
   userID: string;
   role: string;
 }) => {
+  // TOKEN_ENDPOINT="https://prod-in.100ms.live/hmsapi/<your-subdomain>/api/token" # Valid
   const endPoint =
     'https://prod-in.100ms.live/hmsapi/random.app.100ms.live/api/token';
   const body = {
