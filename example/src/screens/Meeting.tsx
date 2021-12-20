@@ -185,8 +185,8 @@ const DisplayTrack = ({
     {text: 'Cancel'},
     {
       text: 'Send',
-      onPress: () => {
-        instance?.changeRole(peerRefrence!, newRole!, force);
+      onPress: async () => {
+        await instance?.changeRole(peerRefrence!, newRole!, force);
       },
     },
   ];
@@ -263,8 +263,8 @@ const DisplayTrack = ({
   if (permissions?.removeOthers) {
     selectActionButtons.push({
       text: 'Remove Participant',
-      onPress: () => {
-        instance?.removePeer(id!, 'removed from room');
+      onPress: async () => {
+        await instance?.removePeer(id!, 'removed from room');
       },
     });
   }
@@ -273,8 +273,8 @@ const DisplayTrack = ({
     if (isAudioMute) {
       selectActionButtons.push({
         text: 'Unmute audio',
-        onPress: () => {
-          instance?.changeTrackState(
+        onPress: async () => {
+          await instance?.changeTrackState(
             peerRefrence?.audioTrack as HMSTrack,
             unmute,
           );
@@ -284,8 +284,8 @@ const DisplayTrack = ({
     if (isVideoMute) {
       selectActionButtons.push({
         text: 'Unmute video',
-        onPress: () => {
-          instance?.changeTrackState(
+        onPress: async () => {
+          await instance?.changeTrackState(
             peerRefrence?.videoTrack as HMSTrack,
             unmute,
           );
@@ -298,8 +298,8 @@ const DisplayTrack = ({
     if (!isAudioMute) {
       selectActionButtons.push({
         text: 'Mute audio',
-        onPress: () => {
-          instance?.changeTrackState(
+        onPress: async () => {
+          await instance?.changeTrackState(
             peerRefrence?.audioTrack as HMSTrack,
             mute,
           );
@@ -309,8 +309,8 @@ const DisplayTrack = ({
     if (!isVideoMute) {
       selectActionButtons.push({
         text: 'Mute video',
-        onPress: () => {
-          instance?.changeTrackState(
+        onPress: async () => {
+          await instance?.changeTrackState(
             peerRefrence?.videoTrack as HMSTrack,
             mute,
           );
@@ -1003,11 +1003,11 @@ const Meeting = ({
       {text: 'Cancel'},
       {
         text: 'Send',
-        onPress: () => {
+        onPress: async () => {
           const source = 'regular';
           switch (action) {
             case 1:
-              instance?.changeTrackStateRoles(
+              await instance?.changeTrackStateRoles(
                 HMSTrackType.VIDEO,
                 true,
                 source,
@@ -1015,7 +1015,7 @@ const Meeting = ({
               );
               break;
             case 2:
-              instance?.changeTrackStateRoles(
+              await instance?.changeTrackStateRoles(
                 HMSTrackType.VIDEO,
                 false,
                 source,
@@ -1023,7 +1023,7 @@ const Meeting = ({
               );
               break;
             case 3:
-              instance?.changeTrackStateRoles(
+              await instance?.changeTrackStateRoles(
                 HMSTrackType.AUDIO,
                 true,
                 source,
@@ -1031,7 +1031,7 @@ const Meeting = ({
               );
               break;
             case 4:
-              instance?.changeTrackStateRoles(
+              await instance?.changeTrackStateRoles(
                 HMSTrackType.AUDIO,
                 false,
                 source,
@@ -1064,7 +1064,7 @@ const Meeting = ({
       buttons.push({
         text: 'End Room for all',
         onPress: async () => {
-          instance?.endRoom(false, 'Host ended the room');
+          await instance?.endRoom(false, 'Host ended the room');
           clearMessageRequest();
           navigate('WelcomeScreen');
         },
@@ -1421,7 +1421,7 @@ const Meeting = ({
             setNotification(false);
           }}
           messageToList={getMessageToList()}
-          send={(
+          send={async (
             value: string,
             messageTo: {name: string; type: string; obj: any},
           ) => {
@@ -1432,11 +1432,11 @@ const Meeting = ({
                 message: value,
               });
               if (messageTo?.type === 'everyone') {
-                instance?.sendBroadcastMessage(value);
+                await instance?.sendBroadcastMessage(value);
               } else if (messageTo?.type === 'group') {
-                instance?.sendGroupMessage(value, [messageTo?.obj]);
+                await instance?.sendGroupMessage(value, [messageTo?.obj]);
               } else if (messageTo.type === 'direct') {
-                instance?.sendDirectMessage(value, messageTo?.obj?.id);
+                await instance?.sendDirectMessage(value, messageTo?.obj?.id);
               }
               addMessageRequest({
                 data: hmsMessage,
