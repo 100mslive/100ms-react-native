@@ -88,7 +88,7 @@ export class HMSSDK {
 
   setLogger = (hmsLogger: HMSLogger) => {
     logger = hmsLogger;
-    hmsLogger.verbose('#Function setLogger', { hmsLogger, id: this.id });
+    hmsLogger.verbose('#Function setLogger', { id: this.id });
   };
 
   destroy = () => {

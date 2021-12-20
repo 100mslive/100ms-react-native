@@ -1164,8 +1164,15 @@ const Meeting = ({
   };
 
   const reportIssue = async () => {
-    const fileUrl = RNFetchBlob.fs.dirs.DocumentDir + '/report-logs.json';
-    await writeFile({data: 'all hms logs'}, fileUrl);
+    try {
+      const fileUrl = RNFetchBlob.fs.dirs.DocumentDir + '/report-logs.json';
+      const logger = HMSSDK.getLogger();
+      const logs = logger?.getLogs();
+      console.log(logs);
+      await writeFile({data: logs}, fileUrl);
+    } catch (err) {
+      console.log(err, 'error');
+    }
   };
 
   return (
