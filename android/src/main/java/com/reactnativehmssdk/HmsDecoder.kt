@@ -453,11 +453,12 @@ object HmsDecoder {
     return roleChangeRequest
   }
 
-  fun getHmsChangeTrackStateRequest(request: HMSChangeTrackStateRequest): WritableMap {
+  fun getHmsChangeTrackStateRequest(request: HMSChangeTrackStateRequest, id: String): WritableMap {
     val changeTrackStateRequest: WritableMap = Arguments.createMap()
 
     changeTrackStateRequest.putMap("requestedBy", getHmsPeer(request.requestedBy))
     changeTrackStateRequest.putString("trackType", request.track.type.name)
+    changeTrackStateRequest.putString("id", id)
 
     return changeTrackStateRequest
   }

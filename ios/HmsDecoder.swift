@@ -397,14 +397,14 @@ class HmsDecoder: NSObject {
         return [:]
     }
     
-    static func getHmsChangeTrackStateRequest(_ changeTrackStateRequest: HMSChangeTrackStateRequest) -> [String: Any] {
+    static func getHmsChangeTrackStateRequest(_ changeTrackStateRequest: HMSChangeTrackStateRequest, _ id: String) -> [String: Any] {
         var requestedBy: [String: Any]?
         if let peer = changeTrackStateRequest.requestedBy {
             requestedBy = getHmsPeer(peer)
         }
         let trackType = changeTrackStateRequest.track.kind == .video ? "video" : "audio"
         
-        var request = ["trackType": trackType] as [String: Any]
+        var request = ["trackType": trackType, "id": id] as [String: Any]
         if let requestedBy = requestedBy {
             request["requestedBy"] = requestedBy
         }
