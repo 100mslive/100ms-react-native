@@ -13,26 +13,21 @@ class HmssdkViewManager : SimpleViewManager<HmsView>() {
     return REACT_CLASS
   }
 
-  override fun onDropViewInstance(view: HmsView) {
-    super.onDropViewInstance(view)
-  }
-
   public override fun createViewInstance(reactContext: ThemedReactContext): HmsView {
     this.reactContext = reactContext
-    val view = HmsView(reactContext)
-    return view
+    return HmsView(reactContext)
   }
 
   @ReactProp(name = "data")
   fun setData(view: HmsView, data: ReadableMap) {
     val trackId = data.getString("trackId")
-    val sink = data.getBoolean("sink")
+    //    val sink = data.getBoolean("sink")
     val id = data.getString("id")
     val mirror = data.getBoolean("mirror")
 
     val hmsCollection = getHms()
     if (hmsCollection != null) {
-      view.setData(id, trackId, sink, hmsCollection, mirror)
+      view.setData(id, trackId, hmsCollection, mirror)
     }
     // do the processing here
   }
@@ -43,8 +38,7 @@ class HmssdkViewManager : SimpleViewManager<HmsView>() {
   }
 
   private fun getHms(): MutableMap<String, HmsSDK>? {
-    val hmsCollection = reactContext?.getNativeModule(HmsModule::class.java)?.getHmsInstance()
-    return hmsCollection
+    return reactContext?.getNativeModule(HmsModule::class.java)?.getHmsInstance()
   }
 
   companion object {

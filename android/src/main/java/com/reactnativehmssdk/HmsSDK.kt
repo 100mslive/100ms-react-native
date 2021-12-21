@@ -3,7 +3,6 @@ package com.reactnativehmssdk
 import com.facebook.react.bridge.*
 import java.util.*
 import kotlinx.coroutines.launch
-import android.os.Build
 import live.hms.video.error.HMSException
 import live.hms.video.media.settings.HMSTrackSettings
 import live.hms.video.media.tracks.*
@@ -35,7 +34,8 @@ class HmsSDK(
       useHardwareEchoCancellation = false
     }
     val videoSettings = HmsHelper.getVideoTrackSettings(data?.getMap("video"))
-    val audioSettings = HmsHelper.getAudioTrackSettings(data?.getMap("audio"), useHardwareEchoCancellation)
+    val audioSettings =
+        HmsHelper.getAudioTrackSettings(data?.getMap("audio"), useHardwareEchoCancellation)
 
     val trackSettingsBuilder = HMSTrackSettings.Builder()
     val trackSettings = trackSettingsBuilder.audio(audioSettings).video(videoSettings).build()
@@ -68,7 +68,8 @@ class HmsSDK(
   }
 
   fun emitHMSSuccess(message: HMSMessage? = null): ReadableMap {
-    val hmsMessage = if (message !== null) message.message else "undefined"
+    val hmsMessage =
+        if (message !== null) message.message else "function call executed successfully"
     val data: WritableMap = Arguments.createMap()
     data.putBoolean("success", true)
     data.putString("message", hmsMessage)
@@ -196,7 +197,7 @@ class HmsSDK(
               object : HMSUpdateListener {
                 override fun onChangeTrackStateRequest(request: HMSChangeTrackStateRequest) {
                   val decodedChangeTrackStateRequest =
-                      HmsDecoder.getHmsChangeTrackStateRequest(request,id)
+                      HmsDecoder.getHmsChangeTrackStateRequest(request, id)
                   delegate.emitEvent(
                       "ON_CHANGE_TRACK_STATE_REQUEST",
                       decodedChangeTrackStateRequest
