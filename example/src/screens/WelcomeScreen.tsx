@@ -177,7 +177,7 @@ const App = ({
       trackDescription: 'Simple Audio Track',
     });
     let videoSettings = new HMSVideoTrackSettings({
-      codec: HMSVideoCodec.vp8,
+      codec: HMSVideoCodec.VP8,
       maxBitrate: 512,
       maxFrameRate: 25,
       cameraFacing: HMSCameraFacing.FRONT,
