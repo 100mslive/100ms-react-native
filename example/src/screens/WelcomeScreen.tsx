@@ -35,6 +35,7 @@ import type {StackNavigationProp} from '@react-navigation/stack';
 import {PERMISSIONS, RESULTS, requestMultiple} from 'react-native-permissions';
 import Feather from 'react-native-vector-icons/Feather';
 import Toast from 'react-native-simple-toast';
+import {getModel} from 'react-native-device-info';
 
 import * as services from '../services/index';
 import {UserIdModal, PreviewModal} from '../components';
@@ -184,10 +185,28 @@ const App = ({
       resolution: new HMSVideoResolution({height: 180, width: 320}),
     });
 
+    const listOfFaultyDevices = [
+      'Pixel',
+      'Pixel XL',
+      'Moto G5',
+      'Moto G (5S) Plus',
+      'Moto G4',
+      'TA-1053',
+      'Mi A1',
+      'Mi A2',
+      'E5823', // Sony z5 compact
+      'Redmi Note 5',
+      'FP2', // Fairphone FP2
+      'MI 5',
+    ];
+    const deviceModal = getModel();
+
     return new HMSTrackSettings({
       video: videoSettings,
       audio: audioSettings,
-      useHardwareEchoCancellation: true,
+      useHardwareEchoCancellation: listOfFaultyDevices.includes(deviceModal)
+        ? true
+        : false,
     });
   };
 
