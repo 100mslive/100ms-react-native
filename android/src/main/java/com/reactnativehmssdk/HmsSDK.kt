@@ -195,14 +195,14 @@ class HmsSDK(
           hmsSDK?.join(
               config,
               object : HMSUpdateListener {
-                override fun onChangeTrackStateRequest(request: HMSChangeTrackStateRequest) {
+                override fun onChangeTrackStateRequest(details: HMSChangeTrackStateRequest) {
                   val decodedChangeTrackStateRequest =
-                      HmsDecoder.getHmsChangeTrackStateRequest(request, id)
+                      HmsDecoder.getHmsChangeTrackStateRequest(details, id)
                   delegate.emitEvent(
                       "ON_CHANGE_TRACK_STATE_REQUEST",
                       decodedChangeTrackStateRequest
                   )
-                  changeTrackStateRequest = request
+                  changeTrackStateRequest = details
                 }
 
                 override fun onRemovedFromRoom(notification: HMSRemovedFromRoom) {
@@ -242,8 +242,8 @@ class HmsSDK(
                   delegate.emitEvent("ON_JOIN", data)
                 }
 
-                override fun onPeerUpdate(type: HMSPeerUpdate, hmsPeer: HMSPeer) {
-                  val type = type.name
+                override fun onPeerUpdate(type: HMSPeerUpdate, peer: HMSPeer) {
+                  val updateType = type.name
                   val roomData = HmsDecoder.getHmsRoom(hmsSDK?.getRoom())
                   val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
                   val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
@@ -251,7 +251,7 @@ class HmsSDK(
                   val data: WritableMap = Arguments.createMap()
 
                   data.putMap("room", roomData)
-                  data.putString("type", type)
+                  data.putString("type", updateType)
                   data.putMap("localPeer", localPeerData)
                   data.putArray("remotePeers", remotePeerData)
                   data.putString("id", id)
@@ -259,14 +259,14 @@ class HmsSDK(
                 }
 
                 override fun onRoomUpdate(type: HMSRoomUpdate, hmsRoom: HMSRoom) {
-                  val type = type.name
+                  val updateType = type.name
                   val roomData = HmsDecoder.getHmsRoom(hmsRoom)
                   val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
                   val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
 
                   val data: WritableMap = Arguments.createMap()
 
-                  data.putString("type", type)
+                  data.putString("type", updateType)
                   data.putMap("room", roomData)
                   data.putMap("localPeer", localPeerData)
                   data.putArray("remotePeers", remotePeerData)
@@ -275,7 +275,7 @@ class HmsSDK(
                 }
 
                 override fun onTrackUpdate(type: HMSTrackUpdate, track: HMSTrack, peer: HMSPeer) {
-                  val type = type.name
+                  val updateType = type.name
                   val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
                   val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
                   val roomData = HmsDecoder.getHmsRoom(hmsSDK?.getRoom())
@@ -283,7 +283,7 @@ class HmsSDK(
                   val data: WritableMap = Arguments.createMap()
 
                   data.putMap("room", roomData)
-                  data.putString("type", type)
+                  data.putString("type", updateType)
                   data.putMap("localPeer", localPeerData)
                   data.putArray("remotePeers", remotePeerData)
                   data.putString("id", id)
@@ -363,14 +363,14 @@ class HmsSDK(
     val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
     val roomData = HmsDecoder.getHmsRoom(hmsSDK?.getRoom())
 
-    val data: WritableMap = Arguments.createMap()
+    val map: WritableMap = Arguments.createMap()
 
-    data.putMap("room", roomData)
-    data.putString("type", type)
-    data.putMap("localPeer", localPeerData)
-    data.putArray("remotePeers", remotePeerData)
-    data.putString("id", id)
-    delegate.emitEvent("ON_TRACK_UPDATE", data)
+    map.putMap("room", roomData)
+    map.putString("type", type)
+    map.putMap("localPeer", localPeerData)
+    map.putArray("remotePeers", remotePeerData)
+    map.putString("id", id)
+    delegate.emitEvent("ON_TRACK_UPDATE", map)
   }
 
   fun setLocalVideoMute(data: ReadableMap) {
@@ -729,12 +729,12 @@ class HmsSDK(
         val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
         val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
 
-        val data: WritableMap = Arguments.createMap()
+        val map: WritableMap = Arguments.createMap()
 
-        data.putMap("localPeer", localPeerData)
-        data.putArray("remotePeers", remotePeerData)
-        data.putString("id", id)
-        delegate.emitEvent("ON_PEER_UPDATE", data)
+        map.putMap("localPeer", localPeerData)
+        map.putArray("remotePeers", remotePeerData)
+        map.putString("id", id)
+        delegate.emitEvent("ON_PEER_UPDATE", map)
       }
     } else {
       this.emitRequiredKeysError()
