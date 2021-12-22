@@ -28,23 +28,8 @@ object HmsHelper {
               return false
             }
           }
-          "Float" -> {
-            if (map.getDouble(key) == null) {
-              return false
-            }
-          }
-          "Boolean" -> {
-            if (map.getBoolean(key) == null) {
-              return false
-            }
-          }
           "Array" -> {
             if (map.getArray(key) == null) {
-              return false
-            }
-          }
-          "Int" -> {
-            if (map.getInt(key) == null) {
               return false
             }
           }
