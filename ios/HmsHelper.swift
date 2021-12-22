@@ -3,7 +3,17 @@ import Foundation
 
 class HmsHelper: NSObject {
     
-    static func getPeerFromPeerId(_ peerID: String?, remotePeers: [HMSRemotePeer]?) -> HMSPeer? {
+    static func getPeerFromPeerId(_ peerID: String?, remotePeers: [HMSRemotePeer]?, localPeer: HMSLocalPeer?) -> HMSPeer? {
+
+        guard let peerID = peerID, let peers = remotePeers else { return nil }
+        if(peerID == localPeer?.peerID) {
+            return localPeer
+        }
+        return peers.first { $0.peerID == peerID }
+    }
+
+
+    static func getRemotePeerFromPeerId(_ peerID: String?, remotePeers: [HMSRemotePeer]?) -> HMSPeer? {
         
         guard let peerID = peerID, let peers = remotePeers else { return nil }
 
