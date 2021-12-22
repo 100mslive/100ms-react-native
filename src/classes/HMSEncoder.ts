@@ -132,6 +132,7 @@ export class HMSEncoder {
         settings: HMSEncoder.encodeHmsAudioTrackSettings(
           peer?.localAudioTrackData?.settings
         ),
+        type: peer?.localAudioTrackData?.type,
       },
       localVideoTrackData: {
         id: id,
@@ -142,6 +143,7 @@ export class HMSEncoder {
         settings: HMSEncoder.encodeHmsVideoTrackSettings(
           peer?.localVideoTrackData?.settings
         ),
+        type: peer?.localVideoTrackData?.type,
       },
     };
 

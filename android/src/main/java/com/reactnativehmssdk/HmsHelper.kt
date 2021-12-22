@@ -222,13 +222,13 @@ object HmsHelper {
 
   private fun getVideoCodec(codecString: String?): HMSVideoCodec {
     when (codecString) {
-      "h264" -> {
+      "H264" -> {
         return HMSVideoCodec.H264
       }
-      "vp8" -> {
+      "VP8" -> {
         return HMSVideoCodec.VP8
       }
-      "vp9" -> {
+      "VP9" -> {
         return HMSVideoCodec.VP9
       }
     }

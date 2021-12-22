@@ -166,9 +166,9 @@ class HmsHelper: NSObject {
     
     static func getVideoCodec(_ codecString: String?) -> HMSCodec {
         switch codecString {
-        case "h264":
+        case "H264":
             return HMSCodec.H264
-        case "vp8":
+        case "VP8":
             return HMSCodec.VP8
         default:
             return HMSCodec.H264
