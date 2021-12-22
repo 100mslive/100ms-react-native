@@ -192,8 +192,9 @@ const DisplayTrack = ({
   ] = [
     {text: 'Cancel'},
     {
-      text: 'Send',
+      text: force ? 'Set' : 'Send',
       onPress: async () => {
+        console.warn(knownRoles[0]);
         await instance?.changeRole(peerRefrence!, newRole!, force);
       },
     },
@@ -213,9 +214,15 @@ const DisplayTrack = ({
     },
   ];
 
+  const selectLocalActionButtons: Array<{
+    text: string;
+    type?: string;
+    onPress?: Function;
+  }> = [{text: 'Cancel', type: 'cancel'}];
+
   const selectActionTitle = 'Select action';
   const selectActionMessage = '';
-  const selectActionButtons: Array<{
+  const selectRemoteActionButtons: Array<{
     text: string;
     type?: string;
     onPress?: Function;
@@ -249,7 +256,14 @@ const DisplayTrack = ({
     },
   ];
   if (permissions?.changeRole) {
-    selectActionButtons.push(
+    selectLocalActionButtons.push({
+      text: 'Change Role',
+      onPress: () => {
+        setForce(true);
+        setRoleModalVisible(true);
+      },
+    });
+    selectRemoteActionButtons.push(
       ...[
         {
           text: 'Prompt to change role',
@@ -269,7 +283,7 @@ const DisplayTrack = ({
     );
   }
   if (permissions?.removeOthers) {
-    selectActionButtons.push({
+    selectRemoteActionButtons.push({
       text: 'Remove Participant',
       onPress: async () => {
         await instance?.removePeer(id!, 'removed from room');
@@ -279,7 +293,7 @@ const DisplayTrack = ({
   if (permissions?.unmute) {
     const unmute = false;
     if (isAudioMute) {
-      selectActionButtons.push({
+      selectRemoteActionButtons.push({
         text: 'Unmute audio',
         onPress: async () => {
           await instance?.changeTrackState(
@@ -290,7 +304,7 @@ const DisplayTrack = ({
       });
     }
     if (isVideoMute) {
-      selectActionButtons.push({
+      selectRemoteActionButtons.push({
         text: 'Unmute video',
         onPress: async () => {
           await instance?.changeTrackState(
@@ -304,7 +318,7 @@ const DisplayTrack = ({
   if (permissions?.mute) {
     const mute = true;
     if (!isAudioMute) {
-      selectActionButtons.push({
+      selectRemoteActionButtons.push({
         text: 'Mute audio',
         onPress: async () => {
           await instance?.changeTrackState(
@@ -315,7 +329,7 @@ const DisplayTrack = ({
       });
     }
     if (!isVideoMute) {
-      selectActionButtons.push({
+      selectRemoteActionButtons.push({
         text: 'Mute video',
         onPress: async () => {
           await instance?.changeTrackState(
@@ -372,7 +386,11 @@ const DisplayTrack = ({
         title={selectActionTitle}
         message={selectActionMessage}
         buttons={
-          type === 'screen' ? selectAuxActionButtons : selectActionButtons
+          type === 'screen'
+            ? selectAuxActionButtons
+            : type === 'local'
+            ? selectLocalActionButtons
+            : selectRemoteActionButtons
         }
       />
       <CustomModal
@@ -428,7 +446,8 @@ const DisplayTrack = ({
         </View>
       )}
       {type === 'screen' ||
-      (type === 'remote' && selectActionButtons.length > 1) ? (
+      (type === 'local' && selectLocalActionButtons.length > 1) ||
+      (type === 'remote' && selectRemoteActionButtons.length > 1) ? (
         <TouchableOpacity onPress={promptUser} style={styles.optionsContainer}>
           <Entypo
             name="dots-three-horizontal"

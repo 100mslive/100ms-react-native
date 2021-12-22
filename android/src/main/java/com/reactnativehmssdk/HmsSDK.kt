@@ -518,7 +518,7 @@ class HmsSDK(
 
         if (hmsRole != null && hmsPeer != null) {
           hmsSDK?.changeRole(
-              hmsPeer as HMSRemotePeer,
+              hmsPeer,
               hmsRole,
               force,
               object : HMSActionResultListener {

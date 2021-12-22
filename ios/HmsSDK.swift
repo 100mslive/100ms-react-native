@@ -206,7 +206,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         
         let type = data.value(forKey: "type") as? String ?? "chat"
         DispatchQueue.main.async { [weak self] in
-            guard let peer = HmsHelper.getPeerFromPeerId(peerId, remotePeers: self?.hms?.remotePeers) else { return }
+            guard let peer = HmsHelper.getRemotePeerFromPeerId(peerId, remotePeers: self?.hms?.remotePeers) else { return }
             self?.hms?.sendDirectMessage(type: type, message: message, peer: peer, completion: { message, error in
                 if (error == nil) {
                     resolve?(["success": true, "data": ["sender": message?.sender?.name ?? "", "message": message?.message ?? "", "type": message?.type]])
@@ -246,7 +246,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         let force = data.value(forKey: "force") as? Bool ?? false
         
         DispatchQueue.main.async { [weak self] in
-            guard let peer = HmsHelper.getPeerFromPeerId(peerId, remotePeers: self?.hms?.remotePeers),
+            guard let peer = HmsHelper.getPeerFromPeerId(peerId, remotePeers: self?.hms?.remotePeers, localPeer:self?.hms?.localPeer),
             let role = HmsHelper.getRoleFromRoleName(role, roles: self?.hms?.roles)
             else { return }
             
@@ -364,7 +364,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         DispatchQueue.main.async { [weak self] in
 
             guard let remotePeers = self?.hms?.remotePeers,
-                  let peer = HmsHelper.getPeerFromPeerId(peerId, remotePeers: remotePeers)
+                  let peer = HmsHelper.getRemotePeerFromPeerId(peerId, remotePeers: remotePeers)
             else { return }
             
             self?.hms?.removePeer(peer, reason: reason ?? "Removed from room", completion: { success, error in
