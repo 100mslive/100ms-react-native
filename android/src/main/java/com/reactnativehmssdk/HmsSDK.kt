@@ -247,9 +247,11 @@ class HmsSDK(
                   val roomData = HmsDecoder.getHmsRoom(hmsSDK?.getRoom())
                   val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
                   val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
+                  val hmsPeer = HmsDecoder.getHmsPeer(peer)
 
                   val data: WritableMap = Arguments.createMap()
 
+                  data.putMap("peer", hmsPeer)
                   data.putMap("room", roomData)
                   data.putString("type", updateType)
                   data.putMap("localPeer", localPeerData)
@@ -279,9 +281,13 @@ class HmsSDK(
                   val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
                   val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
                   val roomData = HmsDecoder.getHmsRoom(hmsSDK?.getRoom())
+                  val hmsPeer = HmsDecoder.getHmsPeer(peer)
+                  val hmsTrack = HmsDecoder.getHmsTrack(track)
 
                   val data: WritableMap = Arguments.createMap()
 
+                  data.putMap("peer", hmsPeer)
+                  data.putMap("track", hmsTrack)
                   data.putMap("room", roomData)
                   data.putString("type", updateType)
                   data.putMap("localPeer", localPeerData)
