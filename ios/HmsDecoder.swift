@@ -12,13 +12,14 @@ class HmsDecoder: NSObject {
         let browserRecordingState = HmsDecoder.getHMSBrowserRecordingState(hmsRoom?.browserRecordingState)
         let rtmpStreamingState = HmsDecoder.getHMSRtmpStreamingState(hmsRoom?.rtmpStreamingState)
         let serverRecordingState = HmsDecoder.getHMSServerRecordingState(hmsRoom?.serverRecordingState)
+        let hlsStreamingState = HmsDecoder.getHlsStreamingState(hmsRoom?.hlsStreamingState)
         var peers = [[String: Any]]()
         
         for peer in room.peers {
             peers.append(getHmsPeer(peer))
         }
         
-        return ["id": id, "name": name, "metaData": metaData, "peers": peers, "browserRecordingState": browserRecordingState, "rtmpHMSRtmpStreamingState": rtmpStreamingState, "serverRecordingState": serverRecordingState]
+        return ["id": id, "name": name, "metaData": metaData, "peers": peers, "browserRecordingState": browserRecordingState, "rtmpHMSRtmpStreamingState": rtmpStreamingState, "serverRecordingState": serverRecordingState, "hlsStreamingState": hlsStreamingState]
     }
     
     static func getHmsPeer (_ peer: HMSPeer) -> [String: Any] {
@@ -460,5 +461,33 @@ class HmsDecoder: NSObject {
         } else {
             return [:]
         }
+    }
+    
+    static func getHlsStreamingState(_ data: HMSHLSStreamingState?) -> [String: Any] {
+        if let streamingState = data {
+            let running = streamingState.running
+            let variants = HmsDecoder.getHMSHlsVariant(streamingState.variants)
+            
+            return ["running": running, "variants": variants]
+        } else {
+            return [:]
+        }
+    }
+    
+    static func getHMSHlsVariant(_ data: [HMSHLSVariant]?) -> [[String: Any]] {
+        var variants = [[String: Any]]()
+        
+        if let hlsVariant = data {
+            for variant in hlsVariant {
+                let meetingUrl = variant.meetingURL
+                let metadata = variant.metadata
+                let startedAt = variant.startedAt?.timeIntervalSince1970 ?? 0
+                let hlsStreamingUrl = variant.url
+                
+                let decodedVariant = ["meetingUrl": meetingUrl, "metadata": metadata, "hlsStreamUrl": hlsStreamingUrl, "startedAt": startedAt] as [String: Any]
+                variants.append(decodedVariant)
+            }
+        }
+        return variants
     }
 }
