@@ -492,6 +492,8 @@ const Meeting = ({
   const [newRole, setNewRole] = useState(trackId?.peerRefrence?.role);
   const [roleModalVisible, setRoleModalVisible] = useState(false);
   const [settingsModal, setSettingsModal] = useState(false);
+  const [hlsStreaming, setHlsStreaming] = useState(false);
+  const [recording, setRecording] = useState(false);
   const [recordingModal, setRecordingModal] = useState(false);
   const [recordingDetails, setRecordingDetails] = useState<HMSRTMPConfig>({
     record: false,
@@ -535,15 +537,14 @@ const Meeting = ({
         {text: 'Cancel'},
         {
           text: 'Start',
-          onPress: async () => {
-            try {
-              const result = await instance?.startRTMPOrRecording(
-                recordingDetails,
-              );
-              console.log(result);
-            } catch (error) {
-              console.log(error, 'error');
-            }
+          onPress: () => {
+            instance
+              ?.startRTMPOrRecording(recordingDetails)
+              .then(d => {
+                console.log(d);
+                setRecording(true);
+              })
+              .catch(d => console.log(d));
           },
         },
       ]
@@ -953,32 +954,56 @@ const Meeting = ({
         type: 'cancel',
       },
       {
-        text: 'Report issue and share logs',
-        onPress: async () => {
-          await checkPermissionToWriteExternalStroage();
-        },
-      },
-      {
         text: 'Set Layout',
         onPress: () => {
           setLayoutModal(true);
         },
       },
       {
-        text: 'Start RTMP or Recording',
-        onPress: () => {
-          setRecordingModal(true);
+        text: 'Report issue and share logs',
+        onPress: async () => {
+          await checkPermissionToWriteExternalStroage();
         },
       },
       {
-        text: 'Stop RTMP or Recording',
-        onPress: async () => {
-          try {
-            const result = await instance?.stopRtmpAndRecording();
-            console.log(result);
-          } catch (error) {
-            console.log(error, 'error');
-          }
+        text: 'Start/Stop RTMP or Recording',
+        onPress: () => {
+          recording
+            ? instance
+                ?.stopRtmpAndRecording()
+                .then(d => {
+                  console.log(d);
+                  setRecording(false);
+                })
+                .catch(d => console.log(d))
+            : setRecordingModal(true);
+        },
+      },
+      {
+        text: 'Start/Stop HLS Streaming',
+        onPress: () => {
+          hlsStreaming
+            ? instance
+                ?.stopHLSStreaming()
+                .then(d => {
+                  console.log(d);
+                  setHlsStreaming(false);
+                })
+                .catch(d => console.log(d))
+            : instance
+                ?.startHLSStreaming({
+                  meetingURLVariants: [
+                    {
+                      meetingUrl: state.user.roomID!,
+                      metadata: instance?.localPeer?.metadata!,
+                    },
+                  ],
+                })
+                .then(d => {
+                  console.log(d);
+                  setHlsStreaming(true);
+                })
+                .catch(d => console.log(d));
         },
       },
     ];
@@ -1326,7 +1351,8 @@ const Meeting = ({
               size={dimension.viewHeight(30)}
             />
           )}
-          {instance?.room?.rtmpHMSRtmpStreamingState?.running && (
+          {(instance?.room?.hlsStreamingState?.running ||
+            instance?.room?.rtmpHMSRtmpStreamingState?.running) && (
             <Entypo
               name="light-up"
               style={styles.streaming}

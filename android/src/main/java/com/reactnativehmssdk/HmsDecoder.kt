@@ -31,6 +31,10 @@ object HmsDecoder {
           "serverRecordingState",
           this.getHMSServerRecordingState(hmsRoom.serverRecordingState)
       )
+      room.putMap(
+        "hlsStreamingState",
+        this.getHMSHlsStreamingState(hmsRoom.hlsStreamingState)
+      )
       room.putMap("localPeer", this.getHmsLocalPeer(hmsRoom.localPeer))
       room.putArray("peers", this.getAllPeers(hmsRoom.peerList))
     }
@@ -385,6 +389,30 @@ object HmsDecoder {
       input.putMap("error", data.error?.let { this.getError(it) })
     }
     return input
+  }
+
+  private fun getHMSHlsStreamingState(data: HMSHLSStreamingState?): ReadableMap {
+    val input = Arguments.createMap()
+    if (data !== null) {
+      input.putBoolean("running", data.running)
+      input.putArray("variants", this.getHMSHLSVariant(data.variants))
+    }
+    return input
+  }
+
+  private fun getHMSHLSVariant(data: ArrayList<HMSHLSVariant>?): ReadableArray {
+    val variants = Arguments.createArray()
+    if (data !== null) {
+      for (variant in data) {
+        val input = Arguments.createMap()
+        input.putString("hlsStreamUrl", variant.hlsStreamUrl)
+        input.putString("meetingUrl", variant.meetingUrl)
+        input.putString("metadata", variant.metadata)
+        variant.startedAt?.let { input.putInt("startedAt", it.toInt()) }
+        variants.pushMap(input)
+      }
+    }
+    return variants
   }
 
   private fun getHmsSubscribeSettings(hmsSubscribeSettings: SubscribeParams?): WritableMap {

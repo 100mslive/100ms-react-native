@@ -218,6 +218,20 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     hms?.stopRtmpAndRecording(callback)
   }
 
+  @ReactMethod
+  fun startHLSStreaming(data: ReadableMap, callback: Promise?) {
+    val hms = HmsHelper.getHms(data, hmsCollection)
+
+    hms?.startHLSStreaming(data, callback)
+  }
+
+  @ReactMethod
+  fun stopHLSStreaming(data: ReadableMap, callback: Promise?) {
+    val hms = HmsHelper.getHms(data, hmsCollection)
+
+    hms?.stopHLSStreaming(callback)
+  }
+
   fun emitEvent(event: String, data: WritableMap) {
     reactApplicationContext
         .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)

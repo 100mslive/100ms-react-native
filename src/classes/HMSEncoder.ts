@@ -26,6 +26,7 @@ export class HMSEncoder {
       browserRecordingState: room?.browserRecordingState,
       rtmpHMSRtmpStreamingState: room?.rtmpHMSRtmpStreamingState,
       serverRecordingState: room?.serverRecordingState,
+      hlsStreamingState: room?.hlsStreamingState,
     };
 
     return new HMSRoom(encodedObj);
