@@ -640,8 +640,9 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         
         let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
         let remotePeerData = HmsDecoder.getHmsRemotePeers(hms?.remotePeers)
+        let hmsPeer = HmsDecoder.getHmsPeer(peer)
                 
-        self.delegate?.emitEvent(ON_PEER_UPDATE, ["event": ON_PEER_UPDATE, "id": self.id , "type": type, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
+        self.delegate?.emitEvent(ON_PEER_UPDATE, ["event": ON_PEER_UPDATE, "id": self.id, "type": type, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData, "peer": hmsPeer])
     }
     
     func on(track: HMSTrack, update: HMSTrackUpdate, for peer: HMSPeer) {
@@ -651,8 +652,10 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         
         let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
         let remotePeerData = HmsDecoder.getHmsRemotePeers(hms?.remotePeers)
+        let hmsPeer = HmsDecoder.getHmsPeer(peer)
+        let hmsTrack = HmsDecoder.getHmsTrack(track)
         
-        self.delegate?.emitEvent(ON_TRACK_UPDATE, ["event": ON_TRACK_UPDATE, "id": self.id , "room": roomData, "type": type, "localPeer": localPeerData, "remotePeers": remotePeerData])
+        self.delegate?.emitEvent(ON_TRACK_UPDATE, ["event": ON_TRACK_UPDATE, "id": self.id, "room": roomData, "type": type, "localPeer": localPeerData, "remotePeers": remotePeerData, "peer": hmsPeer, "track": hmsTrack])
     }
     
     func on(error: HMSError) {

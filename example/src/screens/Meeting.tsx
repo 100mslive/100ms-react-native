@@ -747,26 +747,39 @@ const Meeting = ({
   };
 
   const onPeerListener = ({
+    peer,
     room,
     type,
     remotePeers,
     localPeer,
   }: {
+    peer: HMSPeer;
     room?: HMSRoom;
     type?: HMSPeerUpdate;
     localPeer: HMSLocalPeer;
     remotePeers: HMSRemotePeer[];
   }) => {
     updateVideoIds(remotePeers, localPeer);
-    console.log('data in onPeerListener: ', room, type, localPeer, remotePeers);
+    console.log(
+      'data in onPeerListener: ',
+      peer,
+      room,
+      type,
+      localPeer,
+      remotePeers,
+    );
   };
 
   const onTrackListener = ({
+    peer,
+    track,
     room,
     type,
     remotePeers,
     localPeer,
   }: {
+    peer: HMSPeer;
+    track: HMSTrack;
     room?: HMSRoom;
     type?: HMSTrackUpdate;
     localPeer: HMSLocalPeer;
@@ -775,6 +788,8 @@ const Meeting = ({
     updateVideoIds(remotePeers, localPeer);
     console.log(
       'data in onTrackListener: ',
+      peer,
+      track,
       room,
       type,
       localPeer,
