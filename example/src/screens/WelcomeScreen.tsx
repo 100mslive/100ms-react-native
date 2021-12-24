@@ -29,6 +29,8 @@ import HmsManager, {
   HMSVideoCodec,
   HMSTrackSettings,
   HMSException,
+  HMSCameraFacing,
+  HMSVideoResolution,
 } from '@100mslive/react-native-hms';
 import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
@@ -47,8 +49,6 @@ import {
 import {getThemeColour} from '../utils/functions';
 import type {AppStackParamList} from '../navigator';
 import type {RootState} from '../redux';
-import {HMSCameraFacing} from '../../../src/classes/HMSCameraFacing';
-import {HMSVideoResolution} from '../../../src/classes/HMSVideoResolution';
 
 type WelcomeProps = {
   setAudioVideoStateRequest: Function;
