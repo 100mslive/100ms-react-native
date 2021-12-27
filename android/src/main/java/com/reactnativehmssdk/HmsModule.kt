@@ -217,7 +217,7 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
 
     hms?.stopScreenshare(callback)
   }
-  
+
   @ReactMethod
   fun startRTMPOrRecording(data: ReadableMap, callback: Promise?) {
     val hms = HmsHelper.getHms(data, hmsCollection)

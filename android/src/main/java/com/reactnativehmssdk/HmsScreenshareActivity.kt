@@ -6,36 +6,26 @@ import android.content.Intent
 import android.media.projection.MediaProjectionManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
-import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.WritableMap
 import live.hms.video.error.HMSException
 import live.hms.video.sdk.HMSActionResultListener
 import live.hms.video.sdk.HMSSDK
 
-class HmsScreenshareActivity(sdk: HMSSDK?, reactApplicationContext: ReactApplicationContext) :
-    AppCompatActivity() {
-
-  companion object {
-    private const val TAG = "HmsScreenshareActivity"
-  }
+class HmsScreenshareActivity : ComponentActivity() {
 
   private var hmsSDK: HMSSDK? = null
   private var isScreenShared = false
-  private val context: ReactApplicationContext = reactApplicationContext
-  private val resultLauncher =
-      (this as ComponentActivity).registerForActivityResult(
-          ActivityResultContracts.StartActivityForResult()
-      ) { result ->
+  private var resultLauncher: ActivityResultLauncher<Intent> =
+      this.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
           val mediaProjectionPermissionResultData: Intent? = result.data
           hmsSDK?.startScreenshare(
               object : HMSActionResultListener {
                 override fun onError(error: HMSException) {}
-
                 override fun onSuccess() {
                   isScreenShared = true
                 }
@@ -46,20 +36,7 @@ class HmsScreenshareActivity(sdk: HMSSDK?, reactApplicationContext: ReactApplica
       }
 
   init {
-    this.hmsSDK = sdk
-  }
-
-  override fun onResume() {
-    super.onResume()
-  }
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    println("####onCreate")
-  }
-
-  override fun onStop() {
-    super.onStop()
+    //    this.hmsSDK = sdk
   }
 
   override fun onDestroy() {
@@ -74,18 +51,25 @@ class HmsScreenshareActivity(sdk: HMSSDK?, reactApplicationContext: ReactApplica
     )
   }
 
-  fun startScreenshare(callback: Promise?) {
-    println("entered")
-    if (!isScreenShared) {
-      val mediaProjectionManager: MediaProjectionManager? =
-          context.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-      resultLauncher.launch(mediaProjectionManager?.createScreenCaptureIntent())
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+//    getReactNativeHost()
+    startScreenshare()
+//    this.applicationContext
+  }
 
-      val result: WritableMap = Arguments.createMap()
-      result.putBoolean("success", true)
-      callback?.resolve(result)
+  fun startScreenshare() {
+    if (!isScreenShared) {
+      try {
+        val mediaProjectionManager =
+            getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+        resultLauncher.launch(mediaProjectionManager.createScreenCaptureIntent())
+        //        callback?.resolve(result)
+      } catch (e: Exception) {
+        println(e)
+      }
     } else {
-      callback?.reject("101", "ScreenShare already running!")
+      //      callback?.reject("101", "ScreenShare already running!")
     }
   }
 

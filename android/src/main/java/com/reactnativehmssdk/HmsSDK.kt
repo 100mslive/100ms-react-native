@@ -1,5 +1,7 @@
 package com.reactnativehmssdk
 
+import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import com.facebook.react.bridge.*
 import com.facebook.react.bridge.UiThreadUtil.runOnUiThread
 import java.util.*
@@ -25,11 +27,9 @@ class HmsSDK(
   var hmsSDK: HMSSDK? = null
   private var recentRoleChangeRequest: HMSRoleChangeRequest? = null
   private var changeTrackStateRequest: HMSChangeTrackStateRequest? = null
-  private var isScreenShared: Boolean = false
-  val delegate: HmsModule = HmsDelegate
-  val context: ReactApplicationContext = reactApplicationContext
-  val id: String = sdkId
-  private var screenShareObj: HmsScreenshareActivity? = null
+  private var delegate: HmsModule = HmsDelegate
+  private var context: ReactApplicationContext = reactApplicationContext
+  private var id: String = sdkId
   private var self = this
 
   init {
@@ -883,10 +883,12 @@ class HmsSDK(
               }
             }
         )
-      } else {
+      }
+    } else {
       self.emitRequiredKeysError()
     }
-    }
+  }
+
   fun startRTMPOrRecording(data: ReadableMap, callback: Promise?) {
     val requiredKeys =
         HmsHelper.areAllRequiredKeysAvailable(
@@ -921,18 +923,6 @@ class HmsSDK(
     }
   }
 
-  fun startScreenshare(callback: Promise?) {
-    runOnUiThread {
-      val obj = HmsScreenshareActivity(hmsSDK, context)
-      screenShareObj = obj
-      obj.startScreenshare(callback)
-    }
-  }
-
-  fun stopScreenshare(callback: Promise?) {
-    screenShareObj?.stopScreenshare(callback)
-  }
-  
   fun stopRtmpAndRecording(callback: Promise?) {
     hmsSDK?.stopRtmpAndRecording(
         object : HMSActionResultListener {
@@ -945,5 +935,20 @@ class HmsSDK(
           }
         }
     )
+  }
+
+  fun startScreenshare(callback: Promise?) {
+    runOnUiThread {
+      val  intent = Intent(context, HmsScreenshareActivity::class.java)
+      intent.flags = FLAG_ACTIVITY_NEW_TASK
+//      val map = Arguments.createMap()
+//      map.putString("a","A")
+//      intent.putExtra("obj",map)
+      context.startActivity(intent)
+    }
+  }
+
+  fun stopScreenshare(callback: Promise?) {
+//    screenShareObj?.stopScreenshare(callback)
   }
 }
