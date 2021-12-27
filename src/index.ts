@@ -46,10 +46,7 @@ export * from './classes/HMSRtmpStreamingState';
 export * from './classes/HMSServerRecordingState';
 export * from './classes/HMSBrowserRecordingState';
 export * from './classes/HMSRTMPConfig';
-<<<<<<< HEAD
-=======
 export * from './classes/HMSVideoResolution';
->>>>>>> 8844c317d19fa028c40999e8b0563aa4978b8622
 
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
 export default HmsManager;

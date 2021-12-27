@@ -27,11 +27,8 @@ class HmsSDK(
   var hmsSDK: HMSSDK? = null
   private var recentRoleChangeRequest: HMSRoleChangeRequest? = null
   private var changeTrackStateRequest: HMSChangeTrackStateRequest? = null
-  private var delegate: HmsModule = HmsDelegate
-<<<<<<< HEAD
+  var delegate: HmsModule = HmsDelegate
   private var context: ReactApplicationContext = reactApplicationContext
-=======
->>>>>>> 8844c317d19fa028c40999e8b0563aa4978b8622
   private var id: String = sdkId
   private var self = this
 
@@ -940,18 +937,26 @@ class HmsSDK(
     )
   }
 
-  fun startScreenshare(callback: Promise?) {
+  fun startScreenshare() {
     runOnUiThread {
-      val  intent = Intent(context, HmsScreenshareActivity::class.java)
+      val intent = Intent(context, HmsScreenshareActivity::class.java)
       intent.flags = FLAG_ACTIVITY_NEW_TASK
-//      val map = Arguments.createMap()
-//      map.putString("a","A")
-//      intent.putExtra("obj",map)
+      intent.putExtra("id", id)
       context.startActivity(intent)
     }
   }
 
   fun stopScreenshare(callback: Promise?) {
-//    screenShareObj?.stopScreenshare(callback)
+    hmsSDK?.stopScreenshare(
+        object : HMSActionResultListener {
+          override fun onError(error: HMSException) {
+            callback?.reject(error.code.toString(), error.message)
+            self.emitHMSError(error)
+          }
+          override fun onSuccess() {
+            callback?.resolve(emitHMSSuccess())
+          }
+        }
+    )
   }
 }

@@ -1005,6 +1005,18 @@ const Meeting = ({
         },
       },
       {
+        text: 'Start Screenshare',
+        onPress: () => {
+          instance?.startScreenshare();
+        },
+      },
+      {
+        text: 'Stop Screenshare',
+        onPress: () => {
+          instance?.stopScreenshare();
+        },
+      },
+      {
         text: 'Stop RTMP or Recording',
         onPress: async () => {
           try {
@@ -1464,14 +1476,13 @@ const Meeting = ({
           <TouchableOpacity
             style={styles.singleIconContainer}
             onPress={() => {
-              // instance?.localPeer
-              //   ?.localAudioTrack()
-              //   ?.setMute(!trackId.isAudioMute);
-              // setTrackId({
-              //   ...trackId,
-              //   isAudioMute: !trackId.isAudioMute,
-              // });
-              instance?.startScreenshare();
+              instance?.localPeer
+                ?.localAudioTrack()
+                ?.setMute(!trackId.isAudioMute);
+              setTrackId({
+                ...trackId,
+                isAudioMute: !trackId.isAudioMute,
+              });
             }}>
             <Feather
               name={trackId.isAudioMute ? 'mic-off' : 'mic'}

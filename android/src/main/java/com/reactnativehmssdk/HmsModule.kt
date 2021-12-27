@@ -10,8 +10,8 @@ import java.util.UUID
 class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
   companion object {
     const val REACT_CLASS = "HmsManager"
+    var hmsCollection = mutableMapOf<String, HmsSDK>()
   }
-  private var hmsCollection = mutableMapOf<String, HmsSDK>()
   override fun getName(): String {
     return "HmsManager"
   }
@@ -205,10 +205,10 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   }
 
   @ReactMethod
-  fun startScreenshare(data: ReadableMap, callback: Promise?) {
+  fun startScreenshare(data: ReadableMap) {
     val hms = HmsHelper.getHms(data, hmsCollection)
 
-    hms?.startScreenshare(callback)
+    hms?.startScreenshare()
   }
 
   @ReactMethod
