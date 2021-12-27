@@ -463,12 +463,12 @@ export class HMSSDK {
   };
 
   startScreenshare = async () => {
-    this.logger?.verbose('START_SCREENSHARE_API_CALL', { id: this.id });
+    this.logger?.verbose('#Function startScreenshare', { id: this.id });
     await HmsManager.startScreenshare({ id: this.id });
   };
 
   stopScreenshare = async () => {
-    this.logger?.verbose('STOP_SCREENSHARE_API_CALL', { id: this.id });
+    this.logger?.verbose('#Function startScreenshare', { id: this.id });
     await HmsManager.stopScreenshare({ id: this.id });
   };
 

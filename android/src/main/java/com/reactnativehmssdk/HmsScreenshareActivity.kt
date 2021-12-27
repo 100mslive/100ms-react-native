@@ -54,11 +54,11 @@ class HmsScreenshareActivity : ComponentActivity() {
       val id = intent.getStringExtra("id")
       HmsModule.hmsCollection[id]?.emitHMSError(
           HMSException(
-              102,
-              "NOT_FOUND",
-              "SEND_ALL_REQUIRED_KEYS",
-              "REQUIRED_KEYS_NOT_FOUND",
-              "REQUIRED_KEYS_NOT_FOUND"
+              103,
+              "SCREENSHARE_IS_ALREADY_RUNNING",
+              "SCREENSHARE_IS_ALREADY_RUNNING",
+              "SCREENSHARE_IS_ALREADY_RUNNING",
+              "SCREENSHARE_IS_ALREADY_RUNNING"
           )
       )
     }
