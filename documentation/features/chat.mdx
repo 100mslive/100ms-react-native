@@ -24,7 +24,11 @@ This will be received by every peer who is part of the passed in roles.
 
 ```js
 // instance acquired from build() method
-hmsInstance.sendGroupMessage('hi folks!', ['moderator', 'host']);
+
+// all available Roles can be obtained from hmsInstance using hmsInstance.knownRoles. 
+// it will return an array of HMSRole from which required roles can be selected for this API.
+
+hmsInstance.sendGroupMessage('hi folks!', [role1, role2]);
 ```
 
 ### Direct Messages
@@ -33,7 +37,7 @@ This will only be received by the peer whom the message was sent to.
 
 ```js
 // instance acquired from build() method
-hmsInstance.sendDirectMessage('keep this message a secret!', peer.id);
+hmsInstance.sendDirectMessage('keep this message a secret!', peer);
 ```
 
 ## Receiving Chat Messages

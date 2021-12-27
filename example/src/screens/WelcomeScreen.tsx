@@ -35,6 +35,7 @@ import type {StackNavigationProp} from '@react-navigation/stack';
 import {PERMISSIONS, RESULTS, requestMultiple} from 'react-native-permissions';
 import Feather from 'react-native-vector-icons/Feather';
 import Toast from 'react-native-simple-toast';
+import {getModel} from 'react-native-device-info';
 
 import * as services from '../services/index';
 import {UserIdModal, PreviewModal} from '../components';
@@ -122,10 +123,10 @@ const App = ({
 }: WelcomeProps) => {
   const [orientation, setOrientation] = useState<boolean>(true);
   const [roomID, setRoomID] = useState<string>(
-    'https://yogi.app.100ms.live/meeting/nih-bkn-vek',
+    'https://yogi.app.100ms.live/preview/nih-bkn-vek',
   );
   const [text, setText] = useState<string>(
-    'https://yogi.app.100ms.live/meeting/nih-bkn-vek',
+    'https://yogi.app.100ms.live/preview/nih-bkn-vek',
   );
   const [role] = useState('host');
   const [initialized, setInitialized] = useState<boolean>(false);
@@ -176,7 +177,7 @@ const App = ({
       trackDescription: 'Simple Audio Track',
     });
     let videoSettings = new HMSVideoTrackSettings({
-      codec: HMSVideoCodec.vp8,
+      codec: HMSVideoCodec.VP8,
       maxBitrate: 512,
       maxFrameRate: 25,
       cameraFacing: HMSCameraFacing.FRONT,
@@ -184,7 +185,29 @@ const App = ({
       resolution: new HMSVideoResolution({height: 180, width: 320}),
     });
 
-    return new HMSTrackSettings({video: videoSettings, audio: audioSettings});
+    const listOfFaultyDevices = [
+      'Pixel',
+      'Pixel XL',
+      'Moto G5',
+      'Moto G (5S) Plus',
+      'Moto G4',
+      'TA-1053',
+      'Mi A1',
+      'Mi A2',
+      'E5823', // Sony z5 compact
+      'Redmi Note 5',
+      'FP2', // Fairphone FP2
+      'MI 5',
+    ];
+    const deviceModal = getModel();
+
+    return new HMSTrackSettings({
+      video: videoSettings,
+      audio: audioSettings,
+      useHardwareEchoCancellation: listOfFaultyDevices.includes(deviceModal)
+        ? true
+        : false,
+    });
   };
 
   const setupBuild = async () => {

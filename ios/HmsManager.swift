@@ -99,24 +99,24 @@ class HmsManager: RCTEventEmitter{
     }
     
     @objc
-    func sendBroadcastMessage(_ data: NSDictionary) {
+    func sendBroadcastMessage(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HmsHelper.getHms(data, hmsCollection)
         
-        hms?.sendBroadcastMessage(data)
+        hms?.sendBroadcastMessage(data, resolve, reject)
     }
     
     @objc
-    func sendGroupMessage(_ data: NSDictionary) {
+    func sendGroupMessage(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HmsHelper.getHms(data, hmsCollection)
         
-        hms?.sendGroupMessage(data)
+        hms?.sendGroupMessage(data, resolve, reject)
     }
     
     @objc
-    func sendDirectMessage(_ data: NSDictionary) {
+    func sendDirectMessage(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HmsHelper.getHms(data, hmsCollection)
         
-        hms?.sendDirectMessage(data)
+        hms?.sendDirectMessage(data, resolve, reject)
     }
     
     @objc
@@ -127,24 +127,24 @@ class HmsManager: RCTEventEmitter{
     }
     
     @objc
-    func changeRole(_ data: NSDictionary) {
+    func changeRole(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HmsHelper.getHms(data, hmsCollection)
         
-        hms?.changeRole(data)
+        hms?.changeRole(data, resolve, reject)
     }
     
     @objc
-    func changeTrackState(_ data: NSDictionary) {
+    func changeTrackState(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HmsHelper.getHms(data, hmsCollection)
         
-        hms?.changeTrackState(data)
+        hms?.changeTrackState(data, resolve, reject)
     }
     
     @objc
-    func changeTrackStateRoles(_ data: NSDictionary) {
+    func changeTrackStateRoles(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HmsHelper.getHms(data, hmsCollection)
         
-        hms?.changeTrackStateRoles(data)
+        hms?.changeTrackStateRoles(data, resolve, reject)
     }
     
     @objc
@@ -160,18 +160,18 @@ class HmsManager: RCTEventEmitter{
     
     
     @objc
-    func removePeer(_ data: NSDictionary) {
+    func removePeer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HmsHelper.getHms(data, hmsCollection)
         
-        hms?.removePeer(data)
+        hms?.removePeer(data, resolve, reject)
     }
     
     
     @objc
-    func endRoom(_ data: NSDictionary) {
+    func endRoom(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HmsHelper.getHms(data, hmsCollection)
         
-        hms?.endRoom(data)
+        hms?.endRoom(data, resolve, reject)
     }
 
     @objc
@@ -221,6 +221,20 @@ class HmsManager: RCTEventEmitter{
         let hms = HmsHelper.getHms(data, hmsCollection)
         
         hms?.setVolume(data)
+    }
+    
+    @objc
+    func startRTMPOrRecording(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HmsHelper.getHms(data, hmsCollection)
+        
+        hms?.startRTMPOrRecording(data, resolve, reject)
+    }
+    
+    @objc
+    func stopRtmpAndRecording(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HmsHelper.getHms(data, hmsCollection)
+        
+        hms?.stopRtmpAndRecording(resolve, reject)
     }
     
 //    @objc

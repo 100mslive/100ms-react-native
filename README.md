@@ -61,18 +61,18 @@ We suggest using [react-native-permission](https://www.npmjs.com/package/react-n
 
 ## QuickStart
 
-The package exports four Classes and an HMSManager class that manages everything.
+The package exports all the classes and a HMSSDK class that manages everything.
 
 # Setting up the HMS Instance:
 
-first we'll have to call build method, that method returns an instance of HMSManager class and the same is used to perform all the operations
+first we'll have to call build method, that method returns an instance of HMSSDK class and the same is used to perform all the operations
 
 ```js
-import HmsManager from 'react-native-hms';
+import { HMSSDK } from '@100mslive/react-native-hms';
 ...
 
-const hmsInstance = await HmsManager.build();
-//save this instance, will be used for all the operations that we'll perform
+const hmsInstance = await HMSSDK.build();
+// save this instance, it will be used for all the operations that we'll perform
 
 ...
 ```
@@ -82,9 +82,7 @@ const hmsInstance = await HmsManager.build();
 add event listeners for all the events such as onPreview, onJoin, onPeerUpdate etc. the actions can be found in HMSUpdateListenerActions class
 
 ```js
-import HmsManager, {
-  HMSUpdateListenerActions,
-} from 'react-native-hms';
+import { HMSUpdateListenerActions } from '@100mslive/react-native-hms';
 ...
 
 // instance acquired from build() method
@@ -103,17 +101,15 @@ The event handlers are the way of handling any update happening in hms all event
 Joining the room connects you to the remote peer and broadcasts your stream to other peers, we need instance of HMSConfig in order to pass the details of room and user to join function
 
 ```js
-import HmsManager, {
-  HMSUpdateListenerActions,
-  HMSConfig,
-} from 'react-native-hms';
+import { HMSUpdateListenerActions, HMSConfig } from '@100mslive/react-native-hms';
 ...
 
-// instance acquired from build() method
 const HmsConfig = new HMSConfig({authToken, userID, roomID});
-instance.preview(HmsConfig); // to start preview
+
+// instance acquired from build() method
+hmsInstance.preview(HmsConfig); // to start preview
 // or
-instance.join(HmsConfig); // to join a room
+hmsInstance.join(HmsConfig); // to join a room
 
 ...
 ```
@@ -126,16 +122,17 @@ To display a video on screen the package provide a UI component named HmsView th
 
 ```js
 ...
+import { HMSRemotePeer } from '@100mslive/react-native-hms';
 
-//getting local track ID
-const localTrackId = instance?.localPeer?.videoTrack?.trackId;
+// getting local track ID 
+const localTrackId: string = hmsInstance?.localPeer?.videoTrack?.trackId;
 
 // getting remote track IDs
-const remotePeers = instance?.remotePeers
+const remotePeers: HMSRemotePeer[] = hmsInstance?.remotePeers
 const remoteVideoIds: string[] = [];
 
-remotePeers.map((remotePeer: any) => {
-  const remoteTrackId = remotePeer?.videoTrack?.trackId;
+remotePeers.map((remotePeer: HMSRemotePeer) => {
+  const remoteTrackId: string = remotePeer?.videoTrack?.trackId;
 
   if (remoteTrackId) {
     remoteVideoIds.push(remoteTrackId);
@@ -148,8 +145,10 @@ remotePeers.map((remotePeer: any) => {
 # Display a video in HmsView
 
 ```js
-import { HmsView, HMSVideoViewMode } from 'react-native-hms';
+import { HMSVideoViewMode } from '@100mslive/react-native-hms';
 
+// instance acquired from build() method
+const HmsView = hmsInstance?.HmsView;
 ...
 const styles = StyleSheet.create({
   hmsView: {
@@ -162,7 +161,7 @@ const styles = StyleSheet.create({
 // sink is passed false video would be removed. It is a ios only prop, for android it is handled by the package itself.
 // scaleType can be selected from HMSVideoViewMode as required
 // mirror can be passed as true to flip videos horizontally
-<HmsView sink={true} style={styles.hmsView} trackId={trackId} mirror={true} scaleType={HMSVideoViewMode.ASPECT_FILL} />
+<HmsView sink={true} style={styles.hmsView} trackId={trackId} mirror={true} scaleType={HMSVideoViewMode.ASPECT_FIT} />
 
 ...
 ```
@@ -171,40 +170,39 @@ const styles = StyleSheet.create({
 
 ```js
 // Mute Audio
-instance.localPeer.localAudioTrack().setMute(isMute);
+hmsInstance?.localPeer?.localAudioTrack()?.setMute(true);
 
 // Stop Video
-instance.localPeer.localVideoTrack().setMute(muteVideo);
+hmsInstance?.localPeer?.localVideoTrack()?.setMute(true);
 
 // Switch Camera
-instance.localPeer.localVideoTrack().switchCamera();
+hmsInstance?.localPeer?.localVideoTrack()?.switchCamera();
 
-// Leave the call
-instance.leave();
+// Leave the call (async function)
+await hmsInstance?.leave();
 ```
 
 # Sending messages
 
 ```js
-import { HMSMessage } from '@100mslive/react-native-hms';
+import { HMSRole } from '@100mslive/react-native-hms';
 
-// message object
-const message = new HMSMessage({
-  type: 'chat',
-  time: new Date().toISOString(),
-  message: value,
-});
+const message = 'hello'
+const roles: HMSRole[] = hmsInstance?.knownRoles
+// can any remote peer's peerID
+const peerId: string = hmsInstance?.localPeer?.peerID  
 
-// send a message
-instance.send(message);
+// send a different type of messages
+hmsInstance?.sendBroadcastMessage(message);
+hmsInstance?.sendGroupMessage(message, [role[0]);
+hmsInstance?.sendDirectMessage(message, peerId);
 ```
 
 # Error handling
 
 ```js
-// import actions
 import { HMSUpdateListenerActions } from '@100mslive/react-native-hms';
 
-// add a event listener
-instance.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
+// add an error event listener 
+hmsInstance.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
 ```

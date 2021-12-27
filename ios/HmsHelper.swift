@@ -3,7 +3,17 @@ import Foundation
 
 class HmsHelper: NSObject {
     
-    static func getPeerFromPeerId(_ peerID: String?, remotePeers: [HMSRemotePeer]?) -> HMSPeer? {
+    static func getPeerFromPeerId(_ peerID: String?, remotePeers: [HMSRemotePeer]?, localPeer: HMSLocalPeer?) -> HMSPeer? {
+
+        guard let peerID = peerID, let peers = remotePeers else { return nil }
+        if(peerID == localPeer?.peerID) {
+            return localPeer
+        }
+        return peers.first { $0.peerID == peerID }
+    }
+
+
+    static func getRemotePeerFromPeerId(_ peerID: String?, remotePeers: [HMSRemotePeer]?) -> HMSPeer? {
         
         guard let peerID = peerID, let peers = remotePeers else { return nil }
 
@@ -156,9 +166,9 @@ class HmsHelper: NSObject {
     
     static func getVideoCodec(_ codecString: String?) -> HMSCodec {
         switch codecString {
-        case "h264":
+        case "H264":
             return HMSCodec.H264
-        case "vp8":
+        case "VP8":
             return HMSCodec.VP8
         default:
             return HMSCodec.H264
@@ -173,6 +183,21 @@ class HmsHelper: NSObject {
             return HMSCameraFacing.back
         default:
             return HMSCameraFacing.front
+        }
+    }
+    
+    static func getRtmpUrls(_ strings: [String]?) -> [URL]? {
+        if let extractedStrings = strings {
+            var arr: [URL] = []
+            for urlString in extractedStrings {
+                let urlInstance = URL(string: urlString)
+                if let urlExtracted = urlInstance {
+                    arr.append(urlExtracted)
+                }
+            }
+            return arr
+        } else {
+            return nil
         }
     }
 }

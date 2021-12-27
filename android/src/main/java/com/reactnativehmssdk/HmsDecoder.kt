@@ -1,10 +1,9 @@
 package com.reactnativehmssdk
 
 import com.facebook.react.bridge.*
-import java.util.*
 import live.hms.video.error.HMSException
-import live.hms.video.media.codec.HMSVideoCodec
 import live.hms.video.media.settings.HMSAudioTrackSettings
+import live.hms.video.media.settings.HMSVideoResolution
 import live.hms.video.media.settings.HMSVideoTrackSettings
 import live.hms.video.media.tracks.*
 import live.hms.video.sdk.models.*
@@ -19,11 +18,21 @@ object HmsDecoder {
       room.putString("id", hmsRoom.roomId)
       room.putString("name", hmsRoom.name)
       room.putString("metaData", null)
-      var peers: WritableArray = Arguments.createArray()
-      for (peer in hmsRoom.peerList) {
-        peers.pushMap(getHmsPeer(peer))
-      }
-      room.putArray("peers", peers)
+      room.putString("startedAt", hmsRoom.startedAt.toString())
+      room.putMap(
+          "browserRecordingState",
+          this.getHMSBrowserRecordingState(hmsRoom.browserRecordingState)
+      )
+      room.putMap(
+          "rtmpHMSRtmpStreamingState",
+          this.getHMSRtmpStreamingState(hmsRoom.rtmpHMSRtmpStreamingState)
+      )
+      room.putMap(
+          "serverRecordingState",
+          this.getHMSServerRecordingState(hmsRoom.serverRecordingState)
+      )
+      room.putMap("localPeer", this.getHmsLocalPeer(hmsRoom.localPeer))
+      room.putArray("peers", this.getAllPeers(hmsRoom.peerList))
     }
     return room
   }
@@ -34,29 +43,20 @@ object HmsDecoder {
       peer.putString("peerID", hmsPeer.peerID)
       peer.putString("name", hmsPeer.name)
       peer.putBoolean("isLocal", hmsPeer.isLocal)
-      peer.putString(
-          "customerUserID",
-          if (hmsPeer.customerUserID == null) hmsPeer.customerUserID else ""
-      )
-      peer.putString(
-          "metadata",
-          if (hmsPeer.metadata == null) hmsPeer.metadata else ""
-      )
-      peer.putMap("audioTrack", getHmsAudioTrack(hmsPeer.audioTrack))
-      peer.putMap("videoTrack", getHmsVideoTrack(hmsPeer.videoTrack))
-      peer.putMap("role", getHmsRole(hmsPeer.hmsRole))
-      var auxiliaryTracks: WritableArray = Arguments.createArray()
-      for (track in hmsPeer.auxiliaryTracks) {
-        auxiliaryTracks.pushMap(getHmsTrack(track))
-      }
-      peer.putArray("auxiliaryTracks", auxiliaryTracks)
+      peer.putString("customerUserID", hmsPeer.customerUserID)
+      peer.putString("metadata", hmsPeer.metadata)
+      peer.putMap("audioTrack", this.getHmsAudioTrack(hmsPeer.audioTrack))
+      peer.putMap("videoTrack", this.getHmsVideoTrack(hmsPeer.videoTrack))
+      peer.putMap("role", this.getHmsRole(hmsPeer.hmsRole))
+      peer.putArray("auxiliaryTracks", this.getAllTracks(hmsPeer.auxiliaryTracks))
     }
     return peer
   }
 
-  fun getHmsAudioTrack(hmsAudioTrack: HMSAudioTrack?): WritableMap {
+  private fun getHmsAudioTrack(hmsAudioTrack: HMSAudioTrack?): WritableMap {
     val hmsTrack: WritableMap = Arguments.createMap()
     if (hmsAudioTrack != null) {
+      hmsTrack.putString("type", hmsAudioTrack.type.name)
       hmsTrack.putString("trackId", hmsAudioTrack.trackId)
       hmsTrack.putString("source", hmsAudioTrack.source)
       hmsTrack.putString("trackDescription", hmsAudioTrack.description)
@@ -65,9 +65,10 @@ object HmsDecoder {
     return hmsTrack
   }
 
-  fun getHmsVideoTrack(hmsVideoTrack: HMSVideoTrack?): WritableMap {
+  private fun getHmsVideoTrack(hmsVideoTrack: HMSVideoTrack?): WritableMap {
     val hmsTrack: WritableMap = Arguments.createMap()
     if (hmsVideoTrack != null) {
+      hmsTrack.putString("type", hmsVideoTrack.type.name)
       hmsTrack.putString("trackId", hmsVideoTrack.trackId)
       hmsTrack.putString("source", hmsVideoTrack.source)
       hmsTrack.putString("trackDescription", hmsVideoTrack.description)
@@ -84,105 +85,63 @@ object HmsDecoder {
       hmsTrack.putString("source", track.source)
       hmsTrack.putString("trackDescription", track.description)
       hmsTrack.putBoolean("isMute", track.isMute)
-      hmsTrack.putString("type", track.type.toString())
+      hmsTrack.putString("type", track.type.name)
     }
     return hmsTrack
   }
 
   fun getAllRoles(roles: List<HMSRole>?): WritableArray {
     val decodedRoles: WritableArray = Arguments.createArray()
-
     if (roles != null) {
       for (role in roles) {
-        val decodedRole = getHmsRole(role)
-
+        val decodedRole = this.getHmsRole(role)
         decodedRoles.pushMap(decodedRole)
       }
     }
-
     return decodedRoles
   }
 
-  fun getHmsRole(hmsRole: HMSRole?): WritableMap {
+  private fun getHmsRole(hmsRole: HMSRole?): WritableMap {
     val role: WritableMap = Arguments.createMap()
-    //      val emptyMap: WritableArray = Arguments.createMap();
     if (hmsRole != null) {
       role.putString("name", hmsRole.name)
-      role.putMap("permissions", getHmsPermissions(hmsRole.permission))
-      role.putMap("publishSettings", getHmsPublishSettings(hmsRole.publishParams))
+      role.putMap("permissions", this.getHmsPermissions(hmsRole.permission))
+      role.putMap("publishSettings", this.getHmsPublishSettings(hmsRole.publishParams))
+      role.putMap("subscribeSettings", this.getHmsSubscribeSettings(hmsRole.subscribeParams))
       role.putInt("priority", hmsRole.priority)
-      //        role.putArray("generalPermissions",
-      // if(hmsRole.generalPermissions!=null)hmsRole.generalPermissions else emptyMap);
-      //        role.putArray("internalPlugins",
-      // if(hmsRole.internalPlugins!=null)hmsRole.internalPlugins else emptyMap);
-      //        role.putArray("externalPlugins",
-      // if(hmsRole.externalPlugins!=null)hmsRole.externalPlugins else emptyMap);
     }
     return role
   }
 
-  fun getHmsPermissions(hmsPermissions: PermissionsParams?): WritableMap {
+  private fun getHmsPermissions(hmsPermissions: PermissionsParams?): WritableMap {
     val permissions: WritableMap = Arguments.createMap()
     if (hmsPermissions != null) {
-      permissions.putBoolean(
-          "endRoom",
-          if (hmsPermissions.endRoom != null) hmsPermissions.endRoom else false
-      )
-      permissions.putBoolean(
-          "removeOthers",
-          if (hmsPermissions.removeOthers != null) hmsPermissions.removeOthers else false
-      )
-      permissions.putBoolean(
-          "mute",
-          if (hmsPermissions.mute != null) hmsPermissions.mute else false
-      )
-      permissions.putBoolean(
-          "changeRoleForce",
-          if (hmsPermissions.changeRoleForce != null) hmsPermissions.changeRoleForce else false
-      )
-      permissions.putBoolean(
-          "unmute",
-          if (hmsPermissions.unmute != null) hmsPermissions.unmute else false
-      )
-      permissions.putBoolean(
-          "recording",
-          if (hmsPermissions.recording != null) hmsPermissions.recording else false
-      )
-      permissions.putBoolean(
-          "rtmp",
-          if (hmsPermissions.rtmp != null) hmsPermissions.rtmp else false
-      )
-      permissions.putBoolean(
-          "changeRole",
-          if (hmsPermissions.changeRole != null) hmsPermissions.changeRole else false
-      )
+      permissions.putBoolean("endRoom", hmsPermissions.endRoom)
+      permissions.putBoolean("removeOthers", hmsPermissions.removeOthers)
+      permissions.putBoolean("mute", hmsPermissions.mute)
+      permissions.putBoolean("changeRoleForce", hmsPermissions.changeRoleForce)
+      permissions.putBoolean("unmute", hmsPermissions.unmute)
+      permissions.putBoolean("recording", hmsPermissions.recording)
+      permissions.putBoolean("rtmp", hmsPermissions.rtmp)
+      permissions.putBoolean("changeRole", hmsPermissions.changeRole)
     }
     return permissions
   }
 
-  fun getHmsPublishSettings(hmsPublishSettings: PublishParams?): WritableMap {
+  private fun getHmsPublishSettings(hmsPublishSettings: PublishParams?): WritableMap {
     val publishSettings: WritableMap = Arguments.createMap()
-    val emptyArray: WritableArray = Arguments.createArray()
     if (hmsPublishSettings != null) {
-      publishSettings.putMap("audio", getHmsAudioSettings(hmsPublishSettings.audio))
-      publishSettings.putMap("video", getHmsVideoSettings(hmsPublishSettings.video))
-      publishSettings.putMap("screen", getHmsVideoSettings(hmsPublishSettings.screen))
-      //        publishSettings.putMap("videoSimulcastLayers",
-      // getHmsSimulcastLayers(hmsPublishSettings.videoSimulcastLayers));
-      //        publishSettings.putMap("screenSimulcastLayers",
-      // getHmsSimulcastLayers(hmsPublishSettings.screenSimulcastLayers));
+      publishSettings.putMap("audio", this.getHmsAudioSettings(hmsPublishSettings.audio))
+      publishSettings.putMap("video", this.getHmsVideoSettings(hmsPublishSettings.video))
+      publishSettings.putMap("screen", this.getHmsVideoSettings(hmsPublishSettings.screen))
       publishSettings.putMap("videoSimulcastLayers", null)
       publishSettings.putMap("screenSimulcastLayers", null)
-      publishSettings.putArray(
-          "allowed",
-          if (hmsPublishSettings.allowed != null) getWriteableArray(hmsPublishSettings.allowed)
-          else emptyArray
-      )
+      publishSettings.putArray("allowed", this.getWriteableArray(hmsPublishSettings.allowed))
     }
     return publishSettings
   }
 
-  fun getWriteableArray(array: List<String>?): WritableArray {
+  private fun getWriteableArray(array: List<String>?): WritableArray {
     val decodedArray: WritableArray = Arguments.createArray()
     if (array != null) {
       for (value in array) {
@@ -192,54 +151,26 @@ object HmsDecoder {
     return decodedArray
   }
 
-  fun getHmsAudioSettings(hmsAudioSettings: AudioParams?): WritableMap {
+  private fun getHmsAudioSettings(hmsAudioSettings: AudioParams?): WritableMap {
     val audioSettings: WritableMap = Arguments.createMap()
     if (hmsAudioSettings != null) {
       audioSettings.putInt("bitRate", hmsAudioSettings.bitRate)
-      audioSettings.putString("codec", hmsAudioSettings.codec.toString())
+      audioSettings.putString("codec", hmsAudioSettings.codec.name)
     }
     return audioSettings
   }
 
-  fun getHmsVideoSettings(hmsVideoSettings: VideoParams?): WritableMap {
+  private fun getHmsVideoSettings(hmsVideoSettings: VideoParams?): WritableMap {
     val videoSettings: WritableMap = Arguments.createMap()
     if (hmsVideoSettings != null) {
       videoSettings.putInt("bitRate", hmsVideoSettings.bitRate)
       videoSettings.putInt("frameRate", hmsVideoSettings.frameRate)
       videoSettings.putInt("width", hmsVideoSettings.width)
       videoSettings.putInt("height", hmsVideoSettings.height)
-      videoSettings.putString("codec", hmsVideoSettings.codec.toString())
+      videoSettings.putString("codec", hmsVideoSettings.codec.name)
     }
     return videoSettings
   }
-
-  //    fun getHmsSimulcastLayers(videoSimulcastLayers: HMSSimulcastSettingsPolicy?): WritableMap {
-  //      val videoLayers: WritableMap = Arguments.createMap();
-  //      if(videoSimulcastLayers != null) {
-  //        videoLayers.putInt("width", videoSimulcastLayers.width);
-  //        videoLayers.putString("height", videoSimulcastLayers.height);
-  //        videoLayers.putArray("layers",
-  // getHmsSimulcastLayerSettingsPolicy(videoSimulcastLayers.layers));
-  //      }
-  //      return videoLayers;
-  //    }
-
-  //    fun getHmsSimulcastLayerSettingsPolicy(layers: HMSSimulcastLayerSettingsPolicy?):
-  // WritableArray {
-  //      val layersSettingsPolicy: WritableArray = Arguments.createArray();
-  //      val hmsLayersSettingsPolicy: WritableMap = Arguments.createMap();
-  //      if(layers != null) {
-  //        hmsLayersSettingsPolicy.putString("rid", layers.rid);
-  //        hmsLayersSettingsPolicy.putInt("scaleResolutionDownBy", if (layers.scaleResolutionDownBy
-  // != null) layers.scaleResolutionDownBy else 0);
-  //        hmsLayersSettingsPolicy.putInt("maxBitrate", if (layers.maxBitrate != null)
-  // layers.maxBitrate else -1);
-  //        hmsLayersSettingsPolicy.putInt("maxFramerate", if (layers.maxFramerate != null)
-  // layers.maxFramerate else -1);
-  //      }
-  //      layersSettingsPolicy.pushMap(hmsLayersSettingsPolicy)
-  //      return layersSettingsPolicy;
-  //    }
 
   fun getHmsLocalPeer(hmsLocalPeer: HMSLocalPeer?): WritableMap {
     val peer: WritableMap = Arguments.createMap()
@@ -247,113 +178,89 @@ object HmsDecoder {
       peer.putString("peerID", hmsLocalPeer.peerID)
       peer.putString("name", hmsLocalPeer.name)
       peer.putBoolean("isLocal", hmsLocalPeer.isLocal)
-      peer.putString(
-          "customerUserID",
-          if (hmsLocalPeer.customerUserID != null) hmsLocalPeer.customerUserID else ""
-      )
-      peer.putString(
-          "metadata",
-          if (hmsLocalPeer.metadata != null) hmsLocalPeer.metadata else ""
-      )
-      peer.putMap("audioTrack", getHmsAudioTrack(hmsLocalPeer.audioTrack))
-      peer.putMap("videoTrack", getHmsVideoTrack(hmsLocalPeer.videoTrack))
-      peer.putMap("role", getHmsRole(hmsLocalPeer.hmsRole))
-
-      var auxiliaryTracks: WritableArray = Arguments.createArray()
-      for (track in hmsLocalPeer.auxiliaryTracks) {
-        auxiliaryTracks.pushMap(getHmsTrack(track))
-      }
-      peer.putArray("auxiliaryTracks", auxiliaryTracks)
-
-      val localAudioTrack = hmsLocalPeer.audioTrack
-      var localAudioTrackData: WritableMap = Arguments.createMap()
-      localAudioTrackData.putString("trackId", localAudioTrack?.trackId)
-      localAudioTrackData.putString("source", localAudioTrack?.source)
-      localAudioTrackData.putString("trackDescription", localAudioTrack?.description)
-      localAudioTrackData.putMap("settings", getHmsAudioTrackSettings(localAudioTrack?.settings))
-      if (localAudioTrack != null) {
-        localAudioTrackData.putBoolean("isMute", localAudioTrack.isMute)
-      }
-      peer.putMap("localAudioTrackData", localAudioTrackData)
-
-      val localVideoTrack = hmsLocalPeer.videoTrack
-      var localVideoTrackData: WritableMap = Arguments.createMap()
-      localVideoTrackData.putString("trackId", localVideoTrack?.trackId)
-      localVideoTrackData.putString("source", localVideoTrack?.source)
-      localVideoTrackData.putString("trackDescription", localVideoTrack?.description)
-      localVideoTrackData.putMap("settings", getHmsVideoTrackSettings(localVideoTrack?.settings))
-      if (localVideoTrack != null) {
-        localVideoTrackData.putBoolean("isMute", localVideoTrack.isMute)
-      }
-      peer.putMap("localVideoTrackData", localVideoTrackData)
+      peer.putString("customerUserID", hmsLocalPeer.customerUserID)
+      peer.putString("metadata", hmsLocalPeer.metadata)
+      peer.putMap("audioTrack", this.getHmsAudioTrack(hmsLocalPeer.audioTrack))
+      peer.putMap("videoTrack", this.getHmsVideoTrack(hmsLocalPeer.videoTrack))
+      peer.putMap("role", this.getHmsRole(hmsLocalPeer.hmsRole))
+      peer.putArray("auxiliaryTracks", this.getAllTracks(hmsLocalPeer.auxiliaryTracks))
+      peer.putMap("localAudioTrackData", this.getHmsLocalAudioTrack(hmsLocalPeer.audioTrack))
+      peer.putMap("localVideoTrackData", this.getHmsLocalVideoTrack(hmsLocalPeer.videoTrack))
     }
     return peer
   }
 
-  fun getHmsAudioTrackSettings(hmsAudioTrackSettings: HMSAudioTrackSettings?): WritableMap {
+  private fun getHmsLocalAudioTrack(track: HMSLocalAudioTrack?): WritableMap {
+    val hmsTrack: WritableMap = Arguments.createMap()
+    if (track != null) {
+      hmsTrack.putDouble("volume", track.volume)
+      hmsTrack.putMap("settings", this.getHmsAudioTrackSettings(track.settings))
+      hmsTrack.putString("trackId", track.trackId)
+      hmsTrack.putString("source", track.source)
+      hmsTrack.putString("trackDescription", track.description)
+      hmsTrack.putBoolean("isMute", track.isMute)
+      hmsTrack.putString("type", track.type.name)
+    }
+    return hmsTrack
+  }
+
+  private fun getHmsLocalVideoTrack(track: HMSLocalVideoTrack?): WritableMap {
+    val hmsTrack: WritableMap = Arguments.createMap()
+    if (track != null) {
+      hmsTrack.putBoolean("isDegraded", track.isDegraded)
+      hmsTrack.putMap("settings", this.getHmsVideoTrackSettings(track.settings))
+      hmsTrack.putString("trackId", track.trackId)
+      hmsTrack.putString("source", track.source)
+      hmsTrack.putString("trackDescription", track.description)
+      hmsTrack.putBoolean("isMute", track.isMute)
+      hmsTrack.putString("type", track.type.name)
+    }
+    return hmsTrack
+  }
+
+  private fun getHmsAudioTrackSettings(hmsAudioTrackSettings: HMSAudioTrackSettings?): WritableMap {
     val settings: WritableMap = Arguments.createMap()
     if (hmsAudioTrackSettings != null) {
       settings.putInt("maxBitrate", hmsAudioTrackSettings.maxBitrate)
-      //        settings.putString("trackDescription", hmsAudioTrackSettings.trackDescription);
+      settings.putDouble("volume", hmsAudioTrackSettings.volume)
+      settings.putBoolean(
+          "useHardwareAcousticEchoCanceler",
+          hmsAudioTrackSettings.useHardwareAcousticEchoCanceler
+      )
+      settings.putString("codec", hmsAudioTrackSettings.codec.name)
       settings.putString("trackDescription", "")
     }
     return settings
   }
 
-  fun getHmsVideoTrackSettings(hmsVideoTrackSettings: HMSVideoTrackSettings?): WritableMap {
+  private fun getHmsVideoTrackSettings(hmsVideoTrackSettings: HMSVideoTrackSettings?): WritableMap {
     val settings: WritableMap = Arguments.createMap()
     if (hmsVideoTrackSettings != null) {
-      settings.putString("codec", getHmsVideoTrackCodec(hmsVideoTrackSettings.codec))
-
-      val resolution: WritableMap = Arguments.createMap()
-      resolution.putInt("height", hmsVideoTrackSettings.resolution.height)
-      resolution.putInt("width", hmsVideoTrackSettings.resolution.width)
-      settings.putMap("resolution", resolution)
-
+      settings.putString("codec", hmsVideoTrackSettings.codec.name)
       settings.putInt("maxBitrate", hmsVideoTrackSettings.maxBitRate)
       settings.putInt("maxFrameRate", hmsVideoTrackSettings.maxFrameRate)
-      settings.putString(
-          "cameraFacing",
-          getHmsVideoTrackCameraFacing(hmsVideoTrackSettings.cameraFacing)
+      settings.putString("cameraFacing", hmsVideoTrackSettings.cameraFacing.name)
+      settings.putString("trackDescription", hmsVideoTrackSettings.codec.name)
+      settings.putMap(
+          "resolution",
+          this.getHmsVideoTrackResolution(hmsVideoTrackSettings.resolution)
       )
-      //        settings.putString("trackDescription",
-      // if(hmsVideoTrackSettings.trackDescription!==null)hmsVideoTrackSettings.trackDescription
-      // else "");
-      settings.putString("trackDescription", "")
     }
     return settings
   }
 
-  fun getHmsVideoTrackCodec(codec: HMSVideoCodec): String {
-    return when (codec) {
-      HMSVideoCodec.H264 -> {
-        "h264"
-      }
-      HMSVideoCodec.VP9 -> {
-        "vp9"
-      }
-      HMSVideoCodec.VP8 -> {
-        "vp8"
-      }
-    }
-  }
-
-  fun getHmsVideoTrackCameraFacing(cameraFacing: HMSVideoTrackSettings.CameraFacing): String {
-    return when (cameraFacing) {
-      HMSVideoTrackSettings.CameraFacing.FRONT -> {
-        "FRONT"
-      }
-      HMSVideoTrackSettings.CameraFacing.BACK -> {
-        "BACK"
-      }
-    }
+  private fun getHmsVideoTrackResolution(hmsResolution: HMSVideoResolution): WritableMap {
+    val resolution: WritableMap = Arguments.createMap()
+    resolution.putInt("height", hmsResolution.height)
+    resolution.putInt("width", hmsResolution.width)
+    return resolution
   }
 
   fun getHmsRemotePeers(remotePeers: Array<HMSRemotePeer>?): WritableArray {
     val peers: WritableArray = Arguments.createArray()
     if (remotePeers != null) {
       for (peer in remotePeers) {
-        peers.pushMap(getHmsRemotePeer(peer))
+        peers.pushMap(this.getHmsRemotePeer(peer))
       }
     }
     return peers
@@ -365,53 +272,43 @@ object HmsDecoder {
       peer.putString("peerID", hmsRemotePeer.peerID)
       peer.putString("name", hmsRemotePeer.name)
       peer.putBoolean("isLocal", hmsRemotePeer.isLocal)
-      peer.putString(
-          "customerUserID",
-          if (hmsRemotePeer.customerUserID != null) hmsRemotePeer.customerUserID else ""
-      )
-      peer.putString(
-          "metadata",
-          if (hmsRemotePeer.metadata != null) hmsRemotePeer.metadata else ""
-      )
-      peer.putMap("audioTrack", getHmsAudioTrack(hmsRemotePeer.audioTrack))
-      peer.putMap("videoTrack", getHmsVideoTrack(hmsRemotePeer.videoTrack))
-      peer.putMap("role", getHmsRole(hmsRemotePeer.hmsRole))
-
-      var auxiliaryTracks: WritableArray = Arguments.createArray()
-      for (track in hmsRemotePeer.auxiliaryTracks) {
-        auxiliaryTracks.pushMap(getHmsTrack(track))
-      }
-      peer.putArray("auxiliaryTracks", auxiliaryTracks)
-
-      val remoteAudioTrack = hmsRemotePeer.audioTrack
-      var remoteAudioTrackData: WritableMap = Arguments.createMap()
-      remoteAudioTrackData.putString("trackId", remoteAudioTrack?.trackId)
-      remoteAudioTrackData.putString("source", remoteAudioTrack?.source)
-      remoteAudioTrackData.putString("trackDescription", remoteAudioTrack?.description)
-      if (remoteAudioTrack != null) {
-        remoteAudioTrackData.putBoolean("playbackAllowed", remoteAudioTrack.isPlaybackAllowed)
-        remoteAudioTrackData.putBoolean("isMute", remoteAudioTrack.isMute)
-      }
-      //        remoteAudioTrackData.putMap("settings",
-      // getHmsAudioTrackSettings(remoteAudioTrack.settings));
-      remoteAudioTrackData.putMap("settings", null)
-      peer.putMap("remoteAudioTrackData", remoteAudioTrackData)
-
-      val remoteVideoTrack = hmsRemotePeer.videoTrack
-      var remoteVideoTrackData: WritableMap = Arguments.createMap()
-      remoteVideoTrackData.putString("trackId", remoteVideoTrack?.trackId)
-      remoteVideoTrackData.putString("source", remoteVideoTrack?.source)
-      remoteVideoTrackData.putString("trackDescription", remoteVideoTrack?.description)
-      if (remoteVideoTrack != null) {
-        remoteVideoTrackData.putBoolean("playbackAllowed", remoteVideoTrack.isPlaybackAllowed)
-        remoteVideoTrackData.putBoolean("isMute", remoteVideoTrack.isMute)
-      }
-      //        remoteVideoTrackData.putMap("settings",
-      // getHmsVideoTrackSettings(remoteVideoTrack.settings));
-      remoteVideoTrackData.putMap("settings", null)
-      peer.putMap("remoteVideoTrackData", remoteVideoTrackData)
+      peer.putString("customerUserID", hmsRemotePeer.customerUserID)
+      peer.putString("metadata", hmsRemotePeer.metadata)
+      peer.putMap("audioTrack", this.getHmsAudioTrack(hmsRemotePeer.audioTrack))
+      peer.putMap("videoTrack", this.getHmsVideoTrack(hmsRemotePeer.videoTrack))
+      peer.putMap("role", this.getHmsRole(hmsRemotePeer.hmsRole))
+      peer.putArray("auxiliaryTracks", this.getAllTracks(hmsRemotePeer.auxiliaryTracks))
+      peer.putMap("remoteAudioTrackData", this.getHmsRemoteAudioTrack(hmsRemotePeer.audioTrack))
+      peer.putMap("remoteVideoTrackData", this.getHmsRemoteVideoTrack(hmsRemotePeer.videoTrack))
     }
     return peer
+  }
+
+  private fun getHmsRemoteAudioTrack(track: HMSRemoteAudioTrack?): WritableMap {
+    val hmsTrack: WritableMap = Arguments.createMap()
+    if (track != null) {
+      hmsTrack.putBoolean("isPlaybackAllowed", track.isPlaybackAllowed)
+      hmsTrack.putString("trackId", track.trackId)
+      hmsTrack.putString("source", track.source)
+      hmsTrack.putString("trackDescription", track.description)
+      hmsTrack.putBoolean("isMute", track.isMute)
+      hmsTrack.putString("type", track.type.name)
+    }
+    return hmsTrack
+  }
+
+  private fun getHmsRemoteVideoTrack(track: HMSRemoteVideoTrack?): WritableMap {
+    val hmsTrack: WritableMap = Arguments.createMap()
+    if (track != null) {
+      hmsTrack.putBoolean("isDegraded", track.isDegraded)
+      hmsTrack.putBoolean("isPlaybackAllowed", track.isPlaybackAllowed)
+      hmsTrack.putString("trackId", track.trackId)
+      hmsTrack.putString("source", track.source)
+      hmsTrack.putString("trackDescription", track.description)
+      hmsTrack.putBoolean("isMute", track.isMute)
+      hmsTrack.putString("type", track.type.name)
+    }
+    return hmsTrack
   }
 
   fun getPreviewTracks(tracks: Array<HMSTrack>?): WritableMap {
@@ -419,19 +316,10 @@ object HmsDecoder {
     if (tracks != null) {
       for (track: HMSTrack in tracks) {
         if (track is HMSLocalVideoTrack) {
-          val localVideoTrackData: WritableMap = Arguments.createMap()
-          localVideoTrackData.putString("trackId", track.trackId)
-          localVideoTrackData.putString("source", track.source)
-          localVideoTrackData.putString("trackDescription", track.description)
-          localVideoTrackData.putMap("settings", getHmsVideoTrackSettings(track.settings))
-          hmsTracks.putMap("videoTrack", localVideoTrackData)
+          hmsTracks.putMap("videoTrack", this.getHmsLocalVideoTrack(track))
         }
         if (track is HMSLocalAudioTrack) {
-          val localAudioTrackData: WritableMap = Arguments.createMap()
-          localAudioTrackData.putString("trackId", track.trackId)
-          localAudioTrackData.putString("source", track.source)
-          localAudioTrackData.putMap("settings", getHmsAudioTrackSettings(track.settings))
-          hmsTracks.putMap("audioTrack", localAudioTrackData)
+          hmsTracks.putMap("audioTrack", this.getHmsLocalAudioTrack(track))
         }
       }
     }
@@ -441,19 +329,20 @@ object HmsDecoder {
   fun getHmsRoleChangeRequest(request: HMSRoleChangeRequest, id: String?): WritableMap {
     val roleChangeRequest: WritableMap = Arguments.createMap()
     if (id != null) {
-      roleChangeRequest.putMap("requestedBy", getHmsPeer(request.requestedBy))
-      roleChangeRequest.putMap("suggestedRole", getHmsRole(request.suggestedRole))
+      roleChangeRequest.putMap("requestedBy", this.getHmsPeer(request.requestedBy))
+      roleChangeRequest.putMap("suggestedRole", this.getHmsRole(request.suggestedRole))
       roleChangeRequest.putString("id", id)
       return roleChangeRequest
     }
     return roleChangeRequest
   }
 
-  fun getHmsChangeTrackStateRequest(request: HMSChangeTrackStateRequest): WritableMap {
+  fun getHmsChangeTrackStateRequest(request: HMSChangeTrackStateRequest, id: String): WritableMap {
     val changeTrackStateRequest: WritableMap = Arguments.createMap()
 
-    changeTrackStateRequest.putMap("requestedBy", getHmsPeer(request.requestedBy))
+    changeTrackStateRequest.putMap("requestedBy", this.getHmsPeer(request.requestedBy))
     changeTrackStateRequest.putString("trackType", request.track.type.name)
+    changeTrackStateRequest.putString("id", id)
 
     return changeTrackStateRequest
   }
@@ -469,5 +358,91 @@ object HmsDecoder {
     decodedError.putString("action", error.action)
 
     return decodedError
+  }
+
+  private fun getHMSBrowserRecordingState(data: HMSBrowserRecordingState?): ReadableMap {
+    val input = Arguments.createMap()
+    if (data !== null) {
+      input.putBoolean("running", data.running)
+      input.putMap("error", data.error?.let { this.getError(it) })
+    }
+    return input
+  }
+
+  private fun getHMSRtmpStreamingState(data: HMSRtmpStreamingState?): ReadableMap {
+    val input = Arguments.createMap()
+    if (data !== null) {
+      input.putBoolean("running", data.running)
+      input.putMap("error", data.error?.let { this.getError(it) })
+    }
+    return input
+  }
+
+  private fun getHMSServerRecordingState(data: HMSServerRecordingState?): ReadableMap {
+    val input = Arguments.createMap()
+    if (data !== null) {
+      input.putBoolean("running", data.running)
+      input.putMap("error", data.error?.let { this.getError(it) })
+    }
+    return input
+  }
+
+  private fun getHmsSubscribeSettings(hmsSubscribeSettings: SubscribeParams?): WritableMap {
+    val subscribeSettings: WritableMap = Arguments.createMap()
+    if (hmsSubscribeSettings != null) {
+      subscribeSettings.putInt("maxSubsBitRate", hmsSubscribeSettings.maxSubsBitRate)
+      subscribeSettings.putMap(
+          "subscribeDegradationParam",
+          this.getHmsSubscribeDegradationSettings(hmsSubscribeSettings.subscribeDegradationParam)
+      )
+      subscribeSettings.putArray(
+          "subscribeTo",
+          this.getWriteableArray(hmsSubscribeSettings.subscribeTo)
+      )
+    }
+    return subscribeSettings
+  }
+
+  private fun getHmsSubscribeDegradationSettings(
+      hmsSubscribeDegradationParams: SubscribeDegradationParams?
+  ): WritableMap {
+    val subscribeDegradationParams: WritableMap = Arguments.createMap()
+    if (hmsSubscribeDegradationParams != null) {
+      subscribeDegradationParams.putString(
+          "degradeGracePeriodSeconds",
+          hmsSubscribeDegradationParams.degradeGracePeriodSeconds.toString()
+      )
+      subscribeDegradationParams.putString(
+          "packetLossThreshold",
+          hmsSubscribeDegradationParams.packetLossThreshold.toString()
+      )
+      subscribeDegradationParams.putString(
+          "recoverGracePeriodSeconds",
+          hmsSubscribeDegradationParams.recoverGracePeriodSeconds.toString()
+      )
+    }
+    return subscribeDegradationParams
+  }
+
+  private fun getAllPeers(peers: Array<HMSPeer>?): WritableArray {
+    val decodedPeers: WritableArray = Arguments.createArray()
+    if (peers != null) {
+      for (peer in peers) {
+        val decodedPeer = this.getHmsPeer(peer)
+        decodedPeers.pushMap(decodedPeer)
+      }
+    }
+    return decodedPeers
+  }
+
+  private fun getAllTracks(tracks: MutableList<HMSTrack>?): WritableArray {
+    val decodedTracks: WritableArray = Arguments.createArray()
+    if (tracks != null) {
+      for (track in tracks) {
+        val decodedTrack = this.getHmsTrack(track)
+        decodedTracks.pushMap(decodedTrack)
+      }
+    }
+    return decodedTracks
   }
 }

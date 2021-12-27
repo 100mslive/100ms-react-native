@@ -28,14 +28,14 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     if (hasItem) {
       val uuid = UUID.randomUUID()
       val randomUUIDString = uuid.toString()
-      val sdkInstance: HmsSDK = HmsSDK(data, this, randomUUIDString, reactApplicationContext)
+      val sdkInstance = HmsSDK(data, this, randomUUIDString, reactApplicationContext)
 
       hmsCollection[randomUUIDString] = sdkInstance
 
       callback?.resolve(randomUUIDString)
     } else {
       val randomUUIDString = "12345"
-      val sdkInstance: HmsSDK = HmsSDK(data, this, randomUUIDString, reactApplicationContext)
+      val sdkInstance = HmsSDK(data, this, randomUUIDString, reactApplicationContext)
 
       hmsCollection[randomUUIDString] = sdkInstance
 
@@ -86,45 +86,45 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   }
 
   @ReactMethod
-  fun sendBroadcastMessage(data: ReadableMap) {
+  fun sendBroadcastMessage(data: ReadableMap, callback: Promise?) {
     val hms = HmsHelper.getHms(data, hmsCollection)
 
-    hms?.sendBroadcastMessage(data)
+    hms?.sendBroadcastMessage(data, callback)
   }
 
   @ReactMethod
-  fun sendGroupMessage(data: ReadableMap) {
+  fun sendGroupMessage(data: ReadableMap, callback: Promise?) {
     val hms = HmsHelper.getHms(data, hmsCollection)
 
-    hms?.sendGroupMessage(data)
+    hms?.sendGroupMessage(data, callback)
   }
 
   @ReactMethod
-  fun sendDirectMessage(data: ReadableMap) {
+  fun sendDirectMessage(data: ReadableMap, callback: Promise?) {
     val hms = HmsHelper.getHms(data, hmsCollection)
 
-    hms?.sendDirectMessage(data)
+    hms?.sendDirectMessage(data, callback)
   }
 
   @ReactMethod
-  fun changeRole(data: ReadableMap) {
+  fun changeRole(data: ReadableMap, callback: Promise?) {
     val hms = HmsHelper.getHms(data, hmsCollection)
 
-    hms?.changeRole(data)
+    hms?.changeRole(data, callback)
   }
 
   @ReactMethod
-  fun changeTrackState(data: ReadableMap) {
+  fun changeTrackState(data: ReadableMap, callback: Promise?) {
     val hms = HmsHelper.getHms(data, hmsCollection)
 
-    hms?.changeTrackState(data)
+    hms?.changeTrackState(data, callback)
   }
 
   @ReactMethod
-  fun changeTrackStateRoles(data: ReadableMap) {
+  fun changeTrackStateRoles(data: ReadableMap, callback: Promise?) {
     val hms = HmsHelper.getHms(data, hmsCollection)
 
-    hms?.changeTrackStateRoles(data)
+    hms?.changeTrackStateRoles(data, callback)
   }
 
   @ReactMethod
@@ -135,10 +135,10 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   }
 
   @ReactMethod
-  fun removePeer(data: ReadableMap) {
+  fun removePeer(data: ReadableMap, callback: Promise?) {
     val hms = HmsHelper.getHms(data, hmsCollection)
 
-    hms?.removePeer(data)
+    hms?.removePeer(data, callback)
   }
 
   @ReactMethod
@@ -163,10 +163,10 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   }
 
   @ReactMethod
-  fun endRoom(data: ReadableMap) {
+  fun endRoom(data: ReadableMap, callback: Promise?) {
     val hms = HmsHelper.getHms(data, hmsCollection)
 
-    hms?.endRoom(data)
+    hms?.endRoom(data, callback)
   }
 
   @ReactMethod
@@ -216,6 +216,20 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     val hms = HmsHelper.getHms(data, hmsCollection)
 
     hms?.stopScreenshare(callback)
+  }
+  
+  @ReactMethod
+  fun startRTMPOrRecording(data: ReadableMap, callback: Promise?) {
+    val hms = HmsHelper.getHms(data, hmsCollection)
+
+    hms?.startRTMPOrRecording(data, callback)
+  }
+
+  @ReactMethod
+  fun stopRtmpAndRecording(data: ReadableMap, callback: Promise?) {
+    val hms = HmsHelper.getHms(data, hmsCollection)
+
+    hms?.stopRtmpAndRecording(callback)
   }
 
   fun emitEvent(event: String, data: WritableMap) {

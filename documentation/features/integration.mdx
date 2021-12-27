@@ -37,3 +37,19 @@ Add following permissions in `AndroidManifest.xml`
 You will also need to request Camera and Record Audio permissions at runtime before you join a call or display a preview. Please follow [Android Documentation](https://developer.android.com/training/permissions/requesting#request-permission) for runtime permissions.
 
 We suggest using [react-native-permission](https://www.npmjs.com/package/react-native-permissions) to acquire permissions from both platforms.
+
+#### Proguard configuration
+
+##### 100ms Android SDK 2.1.2 or higher
+If using 100ms Android SDK version 2.1.2 and higher proguard configuration is bundled inside it. No additional code is required.
+
+##### Prior to Android SDK version 2.1.2
+Prior to Android SDK version 2.1.2, the following configuration was needed in release builds.
+
+Add it to your proguard-rules.pro
+
+```js
+# 100ms proguard rules
+-keep class org.webrtc.** { *; }
+-keep class live.hms.video.** { *; }
+```

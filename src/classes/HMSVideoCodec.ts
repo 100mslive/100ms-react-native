@@ -1,6 +1,6 @@
 export enum HMSVideoCodec {
-  h264 = 'h264',
-  vp8 = 'vp8',
-  vp9 = 'vp9',
-  h265 = 'h265',
+  H264 = 'H264',
+  VP8 = 'VP8',
+  VP9 = 'VP9',
+  H265 = 'H265',
 }
