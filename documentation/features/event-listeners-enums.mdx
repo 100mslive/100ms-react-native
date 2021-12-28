@@ -15,6 +15,7 @@ hmsInstance?.addEventListener(
 );
 
 const onPeerListener = ({ type } : {
+  peer: HMSPeer;
   room?: HMSRoom;
   type?: HMSPeerUpdate;
   localPeer: HMSLocalPeer;
@@ -68,6 +69,8 @@ hmsInstance?.addEventListener(
 );
 
 const onTrackListener = ({ type } : {
+  peer: HMSPeer;
+  track: HMSTrack;
   room?: HMSRoom;
   type?: HMSTrackUpdate;
   localPeer: HMSLocalPeer;
