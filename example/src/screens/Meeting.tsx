@@ -1005,18 +1005,6 @@ const Meeting = ({
         },
       },
       {
-        text: 'Start Screenshare',
-        onPress: () => {
-          instance?.startScreenshare();
-        },
-      },
-      {
-        text: 'Stop Screenshare',
-        onPress: () => {
-          instance?.stopScreenshare();
-        },
-      },
-      {
         text: 'Stop RTMP or Recording',
         onPress: async () => {
           try {
@@ -1028,6 +1016,24 @@ const Meeting = ({
         },
       },
     ];
+    if (Platform.OS === 'android') {
+      buttons.push(
+        ...[
+          {
+            text: 'Start Screenshare',
+            onPress: () => {
+              instance?.startScreenshare();
+            },
+          },
+          {
+            text: 'Stop Screenshare',
+            onPress: () => {
+              instance?.stopScreenshare();
+            },
+          },
+        ],
+      );
+    }
     if (localPeerPermissions?.mute) {
       buttons.push(
         ...[

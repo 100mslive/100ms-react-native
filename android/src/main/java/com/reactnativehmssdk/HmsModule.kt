@@ -11,6 +11,7 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   companion object {
     const val REACT_CLASS = "HmsManager"
     var hmsCollection = mutableMapOf<String, HmsSDK>()
+    var isScreenShared = false
   }
   override fun getName(): String {
     return "HmsManager"

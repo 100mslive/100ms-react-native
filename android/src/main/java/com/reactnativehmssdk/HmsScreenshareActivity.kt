@@ -12,7 +12,6 @@ import live.hms.video.error.HMSException
 import live.hms.video.sdk.HMSActionResultListener
 
 class HmsScreenshareActivity : ComponentActivity() {
-  private var isScreenShared = false
   private var resultLauncher: ActivityResultLauncher<Intent> =
       this.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -25,7 +24,7 @@ class HmsScreenshareActivity : ComponentActivity() {
                   HmsModule.hmsCollection[id]?.emitHMSError(error)
                 }
                 override fun onSuccess() {
-                  isScreenShared = true
+                  HmsModule.isScreenShared = true
                   finish()
                 }
               },
@@ -42,7 +41,7 @@ class HmsScreenshareActivity : ComponentActivity() {
   }
 
   fun startScreenshare() {
-    if (!isScreenShared) {
+    if (!HmsModule.isScreenShared) {
       try {
         val mediaProjectionManager =
             getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
@@ -61,6 +60,7 @@ class HmsScreenshareActivity : ComponentActivity() {
               "SCREENSHARE_IS_ALREADY_RUNNING"
           )
       )
+      finish()
     }
   }
 }

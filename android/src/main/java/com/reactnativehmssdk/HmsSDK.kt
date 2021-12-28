@@ -955,6 +955,7 @@ class HmsSDK(
           }
           override fun onSuccess() {
             callback?.resolve(emitHMSSuccess())
+            HmsModule.isScreenShared = false
           }
         }
     )
