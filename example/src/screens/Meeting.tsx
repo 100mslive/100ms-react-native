@@ -194,7 +194,6 @@ const DisplayTrack = ({
     {
       text: force ? 'Set' : 'Send',
       onPress: async () => {
-        console.warn(knownRoles[0]);
         await instance?.changeRole(peerRefrence!, newRole!, force);
       },
     },
