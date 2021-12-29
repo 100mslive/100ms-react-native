@@ -253,8 +253,8 @@ const App = ({
         })
         .catch(error => {
           console.log(error);
-          setButtonState('Active');
         });
+      setButtonState('Active');
     } else {
       previewWithLink(token, userID, endpoint);
     }
