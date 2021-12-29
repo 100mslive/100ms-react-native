@@ -211,8 +211,17 @@ const App = ({
   };
 
   const setupBuild = async () => {
-    const trackSettings = getTrackSettings();
-    const build = await HmsManager.build({trackSettings});
+
+    /**
+     * Regular Usage: 
+     * const build = await HmsManager.build();
+     * 
+     * Advanced Usage: Pass custom track settings while building HmsManager instance
+     * const trackSettings = getTrackSettings();
+     * const build = await HmsManager.build({ trackSettings });
+     */
+
+    const build = await HmsManager.build();
     const logger = new HMSLogger();
     logger.updateLogLevel(HMSLogLevel.VERBOSE, true);
     build.setLogger(logger);
