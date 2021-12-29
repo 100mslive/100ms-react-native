@@ -515,7 +515,7 @@ const Meeting = ({
   const [recordingDetails, setRecordingDetails] = useState<HMSRTMPConfig>({
     record: false,
     meetingURL: state.user.roomID
-      ? state.user.roomID + '/viewer?token=beam_recording'
+      ? state.user.roomID + '?token=beam_recording'
       : '',
     rtmpURLs: [],
   });
