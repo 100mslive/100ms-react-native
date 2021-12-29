@@ -45,7 +45,7 @@ import HmsManager, {
 } from '@100mslive/react-native-hms';
 
 const getTrackSettings = () => {
-  let audioSettings = new HMSAudioTrackSettings({. 
+  let audioSettings = new HMSAudioTrackSettings({ 
     codec: HMSAudioCodec.opus,                    
     maxBitrate: 32,                               
     trackDescription: 'Simple Audio Track',       
@@ -60,7 +60,11 @@ const getTrackSettings = () => {
     resolution: new HMSVideoResolution({height: 180, width: 320}), 
   });
   
-  return new HMSTrackSettings({video: videoSettings, audio: audioSettings});
+  return new HMSTrackSettings({
+    video: videoSettings,
+    audio: audioSettings,
+    useHardwareEchoCancellation: false // true if its not handled automatically 
+  });
 }
 
 const trackSettings = getTrackSettings();
