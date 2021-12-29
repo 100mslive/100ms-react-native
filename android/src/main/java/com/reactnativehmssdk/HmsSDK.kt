@@ -29,9 +29,14 @@ class HmsSDK(
   private var self = this
 
   init {
-    var useHardwareEchoCancellation = data?.getBoolean("useHardwareEchoCancellation")
-    if (useHardwareEchoCancellation == null) {
-      useHardwareEchoCancellation = false
+    val requiredKeys =
+        HmsHelper.areAllRequiredKeysAvailable(
+            data,
+            arrayOf(Pair("useHardwareEchoCancellation", "Boolean"))
+        )
+    var useHardwareEchoCancellation = false
+    if (requiredKeys && data !== null) {
+      useHardwareEchoCancellation = data.getBoolean("useHardwareEchoCancellation")
     }
     val videoSettings = HmsHelper.getVideoTrackSettings(data?.getMap("video"))
     val audioSettings =
