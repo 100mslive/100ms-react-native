@@ -248,13 +248,8 @@ const App = ({
         PERMISSIONS.ANDROID.CAMERA,
         PERMISSIONS.ANDROID.RECORD_AUDIO,
       ])
-        .then(results => {
-          if (
-            results['android.permission.CAMERA'] === RESULTS.GRANTED &&
-            results['android.permission.RECORD_AUDIO'] === RESULTS.GRANTED
-          ) {
-            previewWithLink(token, userID, endpoint);
-          }
+        .then(() => {
+          previewWithLink(token, userID, endpoint);
         })
         .catch(error => {
           console.log(error);
