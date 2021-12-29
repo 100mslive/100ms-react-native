@@ -7,6 +7,7 @@ import type { HMSAudioTrackSettings } from './HMSAudioTrackSettings';
 import { HMSLocalAudioTrack } from './HMSLocalAudioTrack';
 import { HMSLocalVideoTrack } from './HMSLocalVideoTrack';
 import type { HMSRole } from './HMSRole';
+import type { HMSTrackType } from './HMSTrackType';
 
 export class HMSLocalPeer extends HMSPeer {
   private localAudio?: HMSLocalAudioTrack;
@@ -37,6 +38,7 @@ export class HMSLocalPeer extends HMSPeer {
       trackDescription?: string;
       isMute?: boolean;
       settings?: HMSAudioTrackSettings;
+      type: HMSTrackType;
     };
     localVideoTrackData?: {
       id: string;
@@ -45,6 +47,7 @@ export class HMSLocalPeer extends HMSPeer {
       trackDescription?: string;
       isMute?: boolean;
       settings?: HMSVideoTrackSettings;
+      type: HMSTrackType;
     };
   }) {
     super(params);

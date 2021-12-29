@@ -28,23 +28,8 @@ object HmsHelper {
               return false
             }
           }
-          "Float" -> {
-            if (map.getDouble(key) == null) {
-              return false
-            }
-          }
-          "Boolean" -> {
-            if (map.getBoolean(key) == null) {
-              return false
-            }
-          }
           "Array" -> {
             if (map.getArray(key) == null) {
-              return false
-            }
-          }
-          "Int" -> {
-            if (map.getInt(key) == null) {
               return false
             }
           }
@@ -174,13 +159,17 @@ object HmsHelper {
     return null
   }
 
-  fun getAudioTrackSettings(data: ReadableMap?): HMSAudioTrackSettings {
-    val builder = HMSAudioTrackSettings.Builder()
+  fun getAudioTrackSettings(
+      data: ReadableMap?,
+      useHardwareEchoCancellation: Boolean
+  ): HMSAudioTrackSettings {
+    val builder =
+        HMSAudioTrackSettings.Builder()
+            .setUseHardwareAcousticEchoCanceler(useHardwareEchoCancellation)
 
     if (data != null) {
       val maxBitrate = data.getInt("maxBitrate")
       val codec = getAudioCodec(data.getString("codec"))
-      val trackDescription = data.getString("trackDescription")
 
       builder.maxBitrate(maxBitrate)
       builder.codec(codec)
@@ -189,7 +178,7 @@ object HmsHelper {
     return builder.build()
   }
 
-  // TODO: find out a way to set settings required to create HMSVideTrackSettings
+  // TODO: find out a way to set settings required to create HMSVideoTrackSettings
 
   fun getVideoTrackSettings(data: ReadableMap?): HMSVideoTrackSettings {
     val builder = HMSVideoTrackSettings.Builder()
@@ -199,7 +188,6 @@ object HmsHelper {
       val maxBitrate = data.getInt("maxBitrate")
       val maxFrameRate = data.getInt("maxFrameRate")
       val cameraFacing = getCameraFacing(data.getString("cameraFacing"))
-      val trackDescription = data.getString("trackDescription")
 
       builder.codec(codec)
       builder.cameraFacing(cameraFacing)
@@ -212,7 +200,7 @@ object HmsHelper {
     return builder.build()
   }
 
-  fun getVideoResolution(map: ReadableMap?): HMSVideoResolution? {
+  private fun getVideoResolution(map: ReadableMap?): HMSVideoResolution? {
     val width = map?.getDouble("width")
     val height = map?.getDouble("height")
 
@@ -223,7 +211,7 @@ object HmsHelper {
     }
   }
 
-  fun getAudioCodec(codecString: String?): HMSAudioCodec {
+  private fun getAudioCodec(codecString: String?): HMSAudioCodec {
     when (codecString) {
       "opus" -> {
         return HMSAudioCodec.OPUS
@@ -232,22 +220,22 @@ object HmsHelper {
     return HMSAudioCodec.OPUS
   }
 
-  fun getVideoCodec(codecString: String?): HMSVideoCodec {
+  private fun getVideoCodec(codecString: String?): HMSVideoCodec {
     when (codecString) {
-      "h264" -> {
+      "H264" -> {
         return HMSVideoCodec.H264
       }
-      "vp8" -> {
+      "VP8" -> {
         return HMSVideoCodec.VP8
       }
-      "vp9" -> {
+      "VP9" -> {
         return HMSVideoCodec.VP9
       }
     }
     return HMSVideoCodec.H264
   }
 
-  fun getCameraFacing(cameraFacing: String?): HMSVideoTrackSettings.CameraFacing {
+  private fun getCameraFacing(cameraFacing: String?): HMSVideoTrackSettings.CameraFacing {
     when (cameraFacing) {
       "FRONT" -> {
         return HMSVideoTrackSettings.CameraFacing.FRONT
@@ -262,10 +250,10 @@ object HmsHelper {
   fun getHms(credentials: ReadableMap, hmsCollection: MutableMap<String, HmsSDK>): HmsSDK? {
     val id = credentials.getString("id")
 
-    if (id != null) {
-      return hmsCollection[id]
+    return if (id != null) {
+      hmsCollection[id]
     } else {
-      return null
+      null
     }
   }
 

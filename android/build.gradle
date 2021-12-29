@@ -27,7 +27,6 @@ def safeExtGet(prop, fallback) {
 
 android {
     compileSdkVersion safeExtGet('Hmssdk_compileSdkVersion', 29)
-    buildToolsVersion safeExtGet('Hmssdk_buildToolsVersion', '29.0.2')
     defaultConfig {
         minSdkVersion safeExtGet('Hmssdk_minSdkVersion', 21)
         targetSdkVersion safeExtGet('Hmssdk_targetSdkVersion', 29)
@@ -64,6 +63,6 @@ dependencies {
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"  // From node_modules
-    implementation 'com.github.100mslive:android-sdk:2.2.3'
+    implementation 'com.github.100mslive:android-sdk:2.2.4'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.0'
 }

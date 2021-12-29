@@ -100,3 +100,13 @@ const onTrackListener = ({
   updateVideoIds(remotePeers, localPeer);
 };
 ```
+
+
+
+## Troubleshooting in HmsView
+
+If a video renders for the first time and then it doesn't appear at all this can be due to the usage of multiple instances.
+
+However we will recommend you to use a single instance approach if possible, which means once you call a build method and get a hms instance from that save that instance in a global state. Do not call the build method again and again as it will return a new hms instance every time.
+
+If you need to use a multiple instance approach according to your usage then we recommend you to use the HmsView from the instance as shown above. Do not use the HmsView from the exports of the package, this export will be discarded in the upcoming versions.

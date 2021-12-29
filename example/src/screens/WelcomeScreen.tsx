@@ -29,12 +29,15 @@ import HmsManager, {
   HMSVideoCodec,
   HMSTrackSettings,
   HMSException,
+  HMSCameraFacing,
+  HMSVideoResolution,
 } from '@100mslive/react-native-hms';
 import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import {PERMISSIONS, RESULTS, requestMultiple} from 'react-native-permissions';
 import Feather from 'react-native-vector-icons/Feather';
 import Toast from 'react-native-simple-toast';
+import {getModel} from 'react-native-device-info';
 
 import * as services from '../services/index';
 import {UserIdModal, PreviewModal} from '../components';
@@ -46,8 +49,6 @@ import {
 import {getThemeColour} from '../utils/functions';
 import type {AppStackParamList} from '../navigator';
 import type {RootState} from '../redux';
-import {HMSCameraFacing} from '../../../src/classes/HMSCameraFacing';
-import {HMSVideoResolution} from '../../../src/classes/HMSVideoResolution';
 
 type WelcomeProps = {
   setAudioVideoStateRequest: Function;
@@ -176,7 +177,7 @@ const App = ({
       trackDescription: 'Simple Audio Track',
     });
     let videoSettings = new HMSVideoTrackSettings({
-      codec: HMSVideoCodec.vp8,
+      codec: HMSVideoCodec.VP8,
       maxBitrate: 512,
       maxFrameRate: 25,
       cameraFacing: HMSCameraFacing.FRONT,
@@ -184,7 +185,29 @@ const App = ({
       resolution: new HMSVideoResolution({height: 180, width: 320}),
     });
 
-    return new HMSTrackSettings({video: videoSettings, audio: audioSettings});
+    const listOfFaultyDevices = [
+      'Pixel',
+      'Pixel XL',
+      'Moto G5',
+      'Moto G (5S) Plus',
+      'Moto G4',
+      'TA-1053',
+      'Mi A1',
+      'Mi A2',
+      'E5823', // Sony z5 compact
+      'Redmi Note 5',
+      'FP2', // Fairphone FP2
+      'MI 5',
+    ];
+    const deviceModal = getModel();
+
+    return new HMSTrackSettings({
+      video: videoSettings,
+      audio: audioSettings,
+      useHardwareEchoCancellation: listOfFaultyDevices.includes(deviceModal)
+        ? true
+        : false,
+    });
   };
 
   const setupBuild = async () => {
@@ -225,13 +248,9 @@ const App = ({
         PERMISSIONS.ANDROID.CAMERA,
         PERMISSIONS.ANDROID.RECORD_AUDIO,
       ])
-        .then(results => {
-          if (
-            results['android.permission.CAMERA'] === RESULTS.GRANTED &&
-            results['android.permission.RECORD_AUDIO'] === RESULTS.GRANTED
-          ) {
-            previewWithLink(token, userID, endpoint);
-          }
+        .then(() => {
+          previewWithLink(token, userID, endpoint);
+          setButtonState('Active');
         })
         .catch(error => {
           console.log(error);

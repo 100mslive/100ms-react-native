@@ -1,5 +1,6 @@
 import { NativeModules, Platform } from 'react-native';
 import { HMSAudioTrack } from './HMSAudioTrack';
+import { HMSSDK } from './HMSSDK';
 import type { HMSAudioTrackSettings } from './HMSAudioTrackSettings';
 import type { HMSTrackType } from './HMSTrackType';
 
@@ -21,10 +22,25 @@ export class HMSLocalAudioTrack extends HMSAudioTrack {
    * @memberof HMSLocalAudioTrack
    */
   setMute(isMute: boolean) {
+    const logger = HMSSDK.getLogger();
+    logger?.verbose('#Function setMute', {
+      trackId: this.trackId,
+      id: this.id,
+      source: this.source,
+      type: this.type,
+      isMute,
+    });
     HmsManager.setLocalMute({ isMute, id: this.id });
   }
 
   getVolume = async () => {
+    const logger = HMSSDK.getLogger();
+    logger?.verbose('#Function getVolume', {
+      trackId: this.trackId,
+      id: this.id,
+      source: this.source,
+      type: this.type,
+    });
     if (Platform.OS === 'ios') {
       return 'This API not available for IOS';
     }

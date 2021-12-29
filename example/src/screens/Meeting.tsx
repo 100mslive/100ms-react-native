@@ -10,6 +10,7 @@ import {
   BackHandler,
   Platform,
   TextInput,
+  PermissionsAndroid,
 } from 'react-native';
 import {connect} from 'react-redux';
 import {
@@ -43,6 +44,8 @@ import {getDeviceType} from 'react-native-device-info';
 import {Slider} from '@miblanchard/react-native-slider';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import Toast from 'react-native-simple-toast';
+import RNFetchBlob from 'rn-fetch-blob';
+import {Picker} from '@react-native-picker/picker';
 
 import {ChatWindow, AlertModal, CustomModal, CustomPicker} from '../components';
 import {
@@ -55,6 +58,7 @@ import {
   getThemeColour,
   getInitials,
   pairDataForScrollView,
+  writeFile,
 } from '../utils/functions';
 import type {RootState} from '../redux';
 import type {AppStackParamList} from '../navigator';
@@ -87,6 +91,7 @@ type DisplayTrackProps = {
   type: 'local' | 'remote' | 'screen';
   instance: HMSSDK | undefined;
   permissions: HMSPermissions | undefined;
+  layout?: LayoutParams;
 };
 
 type MeetingProps = {
@@ -110,6 +115,8 @@ const DEFAULT_PEER: Peer = {
   type: 'local',
 };
 
+type LayoutParams = 'audio' | 'normal';
+
 type MeetingScreenProp = StackNavigationProp<AppStackParamList, 'Meeting'>;
 
 const DisplayTrack = ({
@@ -119,6 +126,7 @@ const DisplayTrack = ({
   type,
   instance,
   permissions,
+  layout,
 }: DisplayTrackProps) => {
   const {
     name,
@@ -184,9 +192,9 @@ const DisplayTrack = ({
   ] = [
     {text: 'Cancel'},
     {
-      text: 'Send',
-      onPress: () => {
-        instance?.changeRole(peerRefrence!, newRole!, force);
+      text: force ? 'Set' : 'Send',
+      onPress: async () => {
+        await instance?.changeRole(peerRefrence!, newRole!, force);
       },
     },
   ];
@@ -205,9 +213,15 @@ const DisplayTrack = ({
     },
   ];
 
+  const selectLocalActionButtons: Array<{
+    text: string;
+    type?: string;
+    onPress?: Function;
+  }> = [{text: 'Cancel', type: 'cancel'}];
+
   const selectActionTitle = 'Select action';
   const selectActionMessage = '';
-  const selectActionButtons: Array<{
+  const selectRemoteActionButtons: Array<{
     text: string;
     type?: string;
     onPress?: Function;
@@ -241,7 +255,14 @@ const DisplayTrack = ({
     },
   ];
   if (permissions?.changeRole) {
-    selectActionButtons.push(
+    selectLocalActionButtons.push({
+      text: 'Change Role',
+      onPress: () => {
+        setForce(true);
+        setRoleModalVisible(true);
+      },
+    });
+    selectRemoteActionButtons.push(
       ...[
         {
           text: 'Prompt to change role',
@@ -261,20 +282,20 @@ const DisplayTrack = ({
     );
   }
   if (permissions?.removeOthers) {
-    selectActionButtons.push({
+    selectRemoteActionButtons.push({
       text: 'Remove Participant',
-      onPress: () => {
-        instance?.removePeer(id!, 'removed from room');
+      onPress: async () => {
+        await instance?.removePeer(id!, 'removed from room');
       },
     });
   }
   if (permissions?.unmute) {
     const unmute = false;
     if (isAudioMute) {
-      selectActionButtons.push({
+      selectRemoteActionButtons.push({
         text: 'Unmute audio',
-        onPress: () => {
-          instance?.changeTrackState(
+        onPress: async () => {
+          await instance?.changeTrackState(
             peerRefrence?.audioTrack as HMSTrack,
             unmute,
           );
@@ -282,10 +303,10 @@ const DisplayTrack = ({
       });
     }
     if (isVideoMute) {
-      selectActionButtons.push({
+      selectRemoteActionButtons.push({
         text: 'Unmute video',
-        onPress: () => {
-          instance?.changeTrackState(
+        onPress: async () => {
+          await instance?.changeTrackState(
             peerRefrence?.videoTrack as HMSTrack,
             unmute,
           );
@@ -296,10 +317,10 @@ const DisplayTrack = ({
   if (permissions?.mute) {
     const mute = true;
     if (!isAudioMute) {
-      selectActionButtons.push({
+      selectRemoteActionButtons.push({
         text: 'Mute audio',
-        onPress: () => {
-          instance?.changeTrackState(
+        onPress: async () => {
+          await instance?.changeTrackState(
             peerRefrence?.audioTrack as HMSTrack,
             mute,
           );
@@ -307,10 +328,10 @@ const DisplayTrack = ({
       });
     }
     if (!isVideoMute) {
-      selectActionButtons.push({
+      selectRemoteActionButtons.push({
         text: 'Mute video',
-        onPress: () => {
-          instance?.changeTrackState(
+        onPress: async () => {
+          await instance?.changeTrackState(
             peerRefrence?.videoTrack as HMSTrack,
             mute,
           );
@@ -340,7 +361,7 @@ const DisplayTrack = ({
             dimension.viewHeight(90) +
             (isTab ? dimension.viewHeight(20) : top + bottom) +
             2)) /
-        2
+        (layout === 'audio' ? 3 : 2)
       : Dimensions.get('window').height -
         (Platform.OS === 'ios' ? 0 : 25) -
         (dimension.viewHeight(50) +
@@ -348,118 +369,119 @@ const DisplayTrack = ({
           (isTab ? dimension.viewHeight(20) : top + bottom) +
           2);
 
-  if (HmsViewComponent) {
-    return (
-      <View
-        key={trackId}
-        style={[
-          videoStyles(),
-          {
-            height: viewHeight,
-          },
-          speaking && styles.highlight,
-        ]}>
-        <AlertModal
-          modalVisible={alertModalVisible}
-          setModalVisible={setAlertModalVisible}
-          title={selectActionTitle}
-          message={selectActionMessage}
-          buttons={
-            type === 'screen' ? selectAuxActionButtons : selectActionButtons
-          }
+  return HmsViewComponent ? (
+    <View
+      key={trackId}
+      style={[
+        videoStyles(),
+        {
+          height: viewHeight,
+        },
+        speaking && styles.highlight,
+      ]}>
+      <AlertModal
+        modalVisible={alertModalVisible}
+        setModalVisible={setAlertModalVisible}
+        title={selectActionTitle}
+        message={selectActionMessage}
+        buttons={
+          type === 'screen'
+            ? selectAuxActionButtons
+            : type === 'local'
+            ? selectLocalActionButtons
+            : selectRemoteActionButtons
+        }
+      />
+      <CustomModal
+        modalVisible={volumeModal}
+        setModalVisible={setVolumeModal}
+        title={modalTitle}
+        buttons={modalButtons}>
+        <Slider
+          value={volume}
+          maximumValue={10}
+          minimumValue={0}
+          step={0.1}
+          onValueChange={(value: any) => setVolume(value[0])}
         />
-        <CustomModal
-          modalVisible={volumeModal}
-          setModalVisible={setVolumeModal}
-          title={modalTitle}
-          buttons={modalButtons}>
-          <Slider
-            value={volume}
-            maximumValue={10}
-            minimumValue={0}
-            step={0.1}
-            onValueChange={(value: any) => setVolume(value[0])}
-          />
-        </CustomModal>
-        <CustomModal
-          modalVisible={roleModalVisible}
-          setModalVisible={setRoleModalVisible}
-          title={roleRequestTitle}
-          buttons={roleRequestButtons}>
-          <CustomPicker
-            data={knownRoles}
-            selectedItem={newRole}
-            onItemSelected={setNewRole}
-          />
-        </CustomModal>
-        {isVideoMute ? (
-          <View style={styles.avatarContainer}>
-            <View style={[styles.avatar, {backgroundColor: colour}]}>
-              <Text style={styles.avatarText}>{getInitials(name!)}</Text>
-            </View>
-          </View>
-        ) : isDegraded ? (
-          <View style={styles.avatarContainer}>
-            <Text style={styles.degradedText}>Degraded</Text>
-          </View>
-        ) : (
-          <HmsViewComponent
-            sink={sink}
-            trackId={trackId!}
-            mirror={type === 'local' ? true : false}
-            scaleType={HMSVideoViewMode.ASPECT_FIT}
-            style={type === 'screen' ? styles.hmsViewScreen : styles.hmsView}
-          />
-        )}
-        {metadata?.isHandRaised === true && (
-          <View style={styles.raiseHandContainer}>
-            <Ionicons
-              name="ios-hand-left"
-              style={styles.raiseHand}
-              size={dimension.viewHeight(30)}
-            />
-          </View>
-        )}
-        {type === 'screen' ||
-        (type === 'remote' && selectActionButtons.length > 1) ? (
-          <TouchableOpacity
-            onPress={promptUser}
-            style={styles.optionsContainer}>
-            <Entypo
-              name="dots-three-horizontal"
-              style={styles.options}
-              size={dimension.viewHeight(30)}
-            />
-          </TouchableOpacity>
-        ) : (
-          <></>
-        )}
-        <View style={styles.displayContainer}>
-          <View style={styles.peerNameContainer}>
-            <Text numberOfLines={2} style={styles.peerName}>
-              {name}
-            </Text>
-          </View>
-          <View style={styles.micContainer}>
-            <Feather
-              name={isAudioMute ? 'mic-off' : 'mic'}
-              style={styles.mic}
-              size={20}
-            />
-          </View>
-          <View style={styles.micContainer}>
-            <Feather
-              name={isVideoMute ? 'video-off' : 'video'}
-              style={styles.mic}
-              size={20}
-            />
+      </CustomModal>
+      <CustomModal
+        modalVisible={roleModalVisible}
+        setModalVisible={setRoleModalVisible}
+        title={roleRequestTitle}
+        buttons={roleRequestButtons}>
+        <CustomPicker
+          data={knownRoles}
+          selectedItem={newRole}
+          onItemSelected={setNewRole}
+        />
+      </CustomModal>
+      {isVideoMute || layout === 'audio' ? (
+        <View style={styles.avatarContainer}>
+          <View style={[styles.avatar, {backgroundColor: colour}]}>
+            <Text style={styles.avatarText}>{getInitials(name!)}</Text>
           </View>
         </View>
+      ) : isDegraded ? (
+        <View style={styles.avatarContainer}>
+          <Text style={styles.degradedText}>Degraded</Text>
+        </View>
+      ) : (
+        <HmsViewComponent
+          sink={sink}
+          trackId={trackId!}
+          mirror={type === 'local' ? true : false}
+          scaleType={HMSVideoViewMode.ASPECT_FIT}
+          style={type === 'screen' ? styles.hmsViewScreen : styles.hmsView}
+        />
+      )}
+      {metadata?.isHandRaised === true && (
+        <View style={styles.raiseHandContainer}>
+          <Ionicons
+            name="ios-hand-left"
+            style={styles.raiseHand}
+            size={dimension.viewHeight(30)}
+          />
+        </View>
+      )}
+      {type === 'screen' ||
+      (type === 'local' && selectLocalActionButtons.length > 1) ||
+      (type === 'remote' && selectRemoteActionButtons.length > 1) ? (
+        <TouchableOpacity onPress={promptUser} style={styles.optionsContainer}>
+          <Entypo
+            name="dots-three-horizontal"
+            style={styles.options}
+            size={dimension.viewHeight(30)}
+          />
+        </TouchableOpacity>
+      ) : (
+        <></>
+      )}
+      <View style={styles.displayContainer}>
+        <View style={styles.peerNameContainer}>
+          <Text numberOfLines={2} style={styles.peerName}>
+            {name}
+          </Text>
+        </View>
+        <View style={styles.micContainer}>
+          <Feather
+            name={isAudioMute ? 'mic-off' : 'mic'}
+            style={styles.mic}
+            size={20}
+          />
+        </View>
+        <View style={styles.micContainer}>
+          <Feather
+            name={isVideoMute ? 'video-off' : 'video'}
+            style={styles.mic}
+            size={20}
+          />
+        </View>
       </View>
-    );
-  } else {
-    return null;
-  }
+    </View>
+  ) : (
+    <></>
+  );
 };
 
 const Meeting = ({
@@ -483,6 +505,8 @@ const Meeting = ({
     suggestedRole?: string;
   }>({});
   const [action, setAction] = useState(0);
+  const [layout, setLayout] = useState<LayoutParams>('normal');
+  const [newLayout, setNewLayout] = useState<LayoutParams>('normal');
   const [newRole, setNewRole] = useState(trackId?.peerRefrence?.role);
   const [roleModalVisible, setRoleModalVisible] = useState(false);
   const [settingsModal, setSettingsModal] = useState(false);
@@ -490,18 +514,21 @@ const Meeting = ({
   const [recordingDetails, setRecordingDetails] = useState<HMSRTMPConfig>({
     record: false,
     meetingURL: state.user.roomID
-      ? state.user.roomID + '/viewer?token=beam_recording'
+      ? state.user.roomID + '?token=beam_recording'
       : '',
     rtmpURLs: [],
   });
   const [roleChangeModalVisible, setRoleChangeModalVisible] = useState(false);
+  const [layoutModal, setLayoutModal] = useState(false);
   const [changeTrackStateModalVisible, setChangeTrackStateModalVisible] =
     useState(false);
   const [leaveModalVisible, setLeaveModalVisible] = useState(false);
   const [localPeerPermissions, setLocalPeerPermissions] =
     useState<HMSPermissions>();
 
-  const roleChangeRequestTitle = recordingModal
+  const roleChangeRequestTitle = layoutModal
+    ? 'Layout Modal'
+    : recordingModal
     ? 'Recording Details'
     : roleChangeModalVisible
     ? 'Role Change Request'
@@ -511,7 +538,17 @@ const Meeting = ({
   const roleChangeRequestButtons: [
     {text: string; onPress?: Function},
     {text: string; onPress?: Function},
-  ] = recordingModal
+  ] = layoutModal
+    ? [
+        {text: 'Cancel'},
+        {
+          text: 'Set',
+          onPress: async () => {
+            setLayout(newLayout);
+          },
+        },
+      ]
+    : recordingModal
     ? [
         {text: 'Cancel'},
         {
@@ -569,7 +606,7 @@ const Meeting = ({
 
   const pairedPeers: Array<Array<Peer>> = pairDataForScrollView(
     [...auxTracks, trackId, ...remoteTrackIds],
-    isPortrait() ? 4 : 2,
+    isPortrait() ? (layout === 'audio' ? 6 : 4) : 2,
   );
 
   const decodeRemotePeer = (
@@ -709,26 +746,39 @@ const Meeting = ({
   };
 
   const onPeerListener = ({
+    peer,
     room,
     type,
     remotePeers,
     localPeer,
   }: {
+    peer: HMSPeer;
     room?: HMSRoom;
     type?: HMSPeerUpdate;
     localPeer: HMSLocalPeer;
     remotePeers: HMSRemotePeer[];
   }) => {
     updateVideoIds(remotePeers, localPeer);
-    console.log('data in onPeerListener: ', room, type, localPeer, remotePeers);
+    console.log(
+      'data in onPeerListener: ',
+      peer,
+      room,
+      type,
+      localPeer,
+      remotePeers,
+    );
   };
 
   const onTrackListener = ({
+    peer,
+    track,
     room,
     type,
     remotePeers,
     localPeer,
   }: {
+    peer: HMSPeer;
+    track: HMSTrack;
     room?: HMSRoom;
     type?: HMSTrackUpdate;
     localPeer: HMSLocalPeer;
@@ -737,6 +787,8 @@ const Meeting = ({
     updateVideoIds(remotePeers, localPeer);
     console.log(
       'data in onTrackListener: ',
+      peer,
+      track,
       room,
       type,
       localPeer,
@@ -767,10 +819,12 @@ const Meeting = ({
 
   const reconnecting = (data: any) => {
     console.log(data);
+    Toast.showWithGravity('Reconnecting...', Toast.LONG, Toast.TOP);
   };
 
   const reconnected = (data: any) => {
     console.log(data);
+    Toast.showWithGravity('Reconnected', Toast.LONG, Toast.TOP);
   };
 
   const onRoleChangeRequest = (data: HMSRoleChangeRequest) => {
@@ -934,6 +988,18 @@ const Meeting = ({
         type: 'cancel',
       },
       {
+        text: 'Report issue and share logs',
+        onPress: async () => {
+          await checkPermissionToWriteExternalStroage();
+        },
+      },
+      {
+        text: 'Set Layout',
+        onPress: () => {
+          setLayoutModal(true);
+        },
+      },
+      {
         text: 'Start RTMP or Recording',
         onPress: () => {
           setRecordingModal(true);
@@ -1003,11 +1069,11 @@ const Meeting = ({
       {text: 'Cancel'},
       {
         text: 'Send',
-        onPress: () => {
+        onPress: async () => {
           const source = 'regular';
           switch (action) {
             case 1:
-              instance?.changeTrackStateRoles(
+              await instance?.changeTrackStateRoles(
                 HMSTrackType.VIDEO,
                 true,
                 source,
@@ -1015,7 +1081,7 @@ const Meeting = ({
               );
               break;
             case 2:
-              instance?.changeTrackStateRoles(
+              await instance?.changeTrackStateRoles(
                 HMSTrackType.VIDEO,
                 false,
                 source,
@@ -1023,7 +1089,7 @@ const Meeting = ({
               );
               break;
             case 3:
-              instance?.changeTrackStateRoles(
+              await instance?.changeTrackStateRoles(
                 HMSTrackType.AUDIO,
                 true,
                 source,
@@ -1031,7 +1097,7 @@ const Meeting = ({
               );
               break;
             case 4:
-              instance?.changeTrackStateRoles(
+              await instance?.changeTrackStateRoles(
                 HMSTrackType.AUDIO,
                 false,
                 source,
@@ -1064,7 +1130,7 @@ const Meeting = ({
       buttons.push({
         text: 'End Room for all',
         onPress: async () => {
-          instance?.endRoom(false, 'Host ended the room');
+          await instance?.endRoom(false, 'Host ended the room');
           clearMessageRequest();
           navigate('WelcomeScreen');
         },
@@ -1118,6 +1184,53 @@ const Meeting = ({
       }
     }
   });
+
+  const checkPermissionToWriteExternalStroage = async () => {
+    // Function to check the platform
+    // If Platform is Android then check for permissions.
+    if (Platform.OS === 'ios') {
+      await reportIssue();
+    } else {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+          {
+            title: 'Storage Permission Required',
+            message:
+              'Application needs access to your storage to download File',
+            buttonPositive: 'true',
+          },
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          // Start downloading
+          await reportIssue();
+          console.log('Storage Permission Granted.');
+        } else {
+          // If permission denied then show alert
+          Toast.showWithGravity(
+            'Storage Permission Not Granted',
+            Toast.LONG,
+            Toast.TOP,
+          );
+        }
+      } catch (err) {
+        // To handle permission related exception
+        console.log('++++' + err);
+      }
+    }
+  };
+
+  const reportIssue = async () => {
+    try {
+      const fileUrl = RNFetchBlob.fs.dirs.DocumentDir + '/report-logs.json';
+      const logger = HMSSDK.getLogger();
+      const logs = logger?.getLogs();
+      console.log(logs);
+      await writeFile({data: logs}, fileUrl);
+    } catch (err) {
+      console.log(err, 'error');
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -1223,6 +1336,21 @@ const Meeting = ({
           onItemSelected={setNewRole}
         />
       </CustomModal>
+      <CustomModal
+        modalVisible={layoutModal}
+        setModalVisible={setLayoutModal}
+        title={roleChangeRequestTitle}
+        buttons={roleChangeRequestButtons}>
+        <Picker
+          selectedValue={newLayout}
+          onValueChange={setNewLayout}
+          dropdownIconColor="black"
+          dropdownIconRippleColor="grey">
+          {[{name: 'normal'}, {name: 'audio'}].map((item, index) => (
+            <Picker.Item key={index} label={item.name} value={item.name} />
+          ))}
+        </Picker>
+      </CustomModal>
       <View style={styles.headerContainer}>
         <Text style={styles.headerName}>{trackId?.name}</Text>
         <View style={styles.headerRight}>
@@ -1318,6 +1446,7 @@ const Meeting = ({
                         instance={instance}
                         type={view.type}
                         permissions={localPeerPermissions}
+                        layout={layout}
                       />
                     )),
                 )}
@@ -1421,7 +1550,7 @@ const Meeting = ({
             setNotification(false);
           }}
           messageToList={getMessageToList()}
-          send={(
+          send={async (
             value: string,
             messageTo: {name: string; type: string; obj: any},
           ) => {
@@ -1432,11 +1561,11 @@ const Meeting = ({
                 message: value,
               });
               if (messageTo?.type === 'everyone') {
-                instance?.sendBroadcastMessage(value);
+                await instance?.sendBroadcastMessage(value);
               } else if (messageTo?.type === 'group') {
-                instance?.sendGroupMessage(value, [messageTo?.obj]);
+                await instance?.sendGroupMessage(value, [messageTo?.obj]);
               } else if (messageTo.type === 'direct') {
-                instance?.sendDirectMessage(value, messageTo?.obj?.id);
+                await instance?.sendDirectMessage(value, messageTo?.obj?.id);
               }
               addMessageRequest({
                 data: hmsMessage,

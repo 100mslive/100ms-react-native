@@ -1,0 +1,113 @@
+---
+title: RTMP Streaming / Recording
+nav: 3.991
+---
+
+Want to preserve your video call for posterity in a recording? Or live stream it out to millions of viewers on Twitch or YouTube or whatever gives you an RTMP injest URL?
+
+Turn on RTMP Streaming or Recording!
+
+In 100ms, recording and streaming is usually achieved by having a bot join your room and stream what it sees and hears to a file (recording) or to an rtmp injest url (streaming).
+
+The topics covered in this doc are:
+
+1. How to start streaming / recording.
+2. How to stop streaming / recording.
+3. How to check the current status for streaming / recording.
+
+### Starting Streaming / Recording
+
+
+To start recording, streaming or both, create an instance of HMSRTMPConfig.
+
+HMSRTMPConfig takes the following:
+
+1. meetingUrl: String. The url the 100ms bot user will open to join your room. It must allow access without any user level interaction.
+2. rtmpUrls: `Array<String>`. If streaming is required, this has to be one or more RTMP Injest Urls where the stream should go. If only recording, this can be an empty list.
+3. record: Boolean. If recording is required, set true. If recording is not required, set false. This value has no effect on streaming.
+
+* If both rtmpUrls and record = true are provided, both streaming and recording will begin.
+* If only rtmpUrls are provided, only streaming will begin.
+* If only record true is provided, only recording will begin.
+
+If either one is started, the other can't be started without first stopping whatever is running. Eg: Only streaming is started. Recording can't be started unless streaming is stopped first.
+
+If both are required, they have to be started together by providing both RTMP Injest Urls and recording = true.
+
+The result of the action is returned. On failure to start then an error will be sent in onError listener.
+
+```js
+import { HMSRTMPConfig } from '@100mslive/react-native-hms';
+  
+const recordingDetails = HMSRTMPConfig({
+  record: true,
+  meetingURL: roomID + '/viewer?token=beam_recording',
+  rtmpURLs: [],
+});
+  
+const result = await instance?.startRTMPOrRecording(recordingDetails);
+```
+
+
+### Stopping Streaming / Recording
+
+
+To stop streaming AND recording. It is not currently possible to stop just one, whatever is running will be stopped.
+
+Here's how to stop both:
+
+The result of the action is returned. On failure to start then an error will be sent in onError listener.
+  
+
+
+```js
+const result = await instance?.stopRtmpAndRecording();
+```
+
+
+### Current Room Status
+
+The current status for the room is always reflected in the HMSRoom object that is returned from the `hmsInstance.room`.
+
+Here are the relevant properties inside the HMSRoom object which you can read to get the current recording/streaming status of the room namely: rtmpHMSRtmpStreamingState, browserRecordingState and serverRecordingState.
+
+Each of them are objects which contain a boolean running which lets you know if it's active on the room right now and error which lets you know if there was an error.
+
+Apart from the rtmp stream and the browser recording, which are ones you can start and stop, there is also a serverRecording, which can be turned on for the room for archival purposes and which cannot currently be stopped if enabled for the room from the dashboard.  
+
+1. rtmpHMSRtmpStreamingState an instance of HMSRtmpStreamingState, which looks like:
+
+```js 
+class HMSRtmpStreamingState(
+    val running : Boolean,
+    val error : HMSException?
+)
+```
+
+
+This represents a livestream to one or more RTMP urls.
+
+2. browserRecordingState an instance of HMSBrowserRecordingState, which looks like:
+
+```js 
+class HMSBrowserRecordingState(
+    val running : Boolean,
+    val error : HMSException?
+)
+```
+
+
+This represents the recording that can be requested to start.
+
+3. serverRecordingState an instance of HMSServerRecordingState, which looks like:
+```js
+class HMSServerRecordingState(
+    val running : Boolean,
+    val error : HMSException?
+)
+```
+
+
+This represents that the room was set to be recorded when it was created and all sessions within it will always be recorded for archival by the server.
+  
+  
