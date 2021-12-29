@@ -820,10 +820,12 @@ const Meeting = ({
 
   const reconnecting = (data: any) => {
     console.log(data);
+    Toast.showWithGravity('Reconnecting...', Toast.LONG, Toast.TOP);
   };
 
   const reconnected = (data: any) => {
     console.log(data);
+    Toast.showWithGravity('Reconnected', Toast.LONG, Toast.TOP);
   };
 
   const onRoleChangeRequest = (data: HMSRoleChangeRequest) => {
