@@ -700,6 +700,7 @@ export class HMSSDK {
       return;
     }
     logger?.verbose('#Listener ON_PEER', data);
+    const peer: HMSPeer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
     const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room, this.id);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
       data.localPeer,
@@ -715,7 +716,7 @@ export class HMSSDK {
     this.room = room;
     if (this.onPeerDelegate) {
       logger?.verbose('#Listener ON_PEER_LISTENER_CALL', data);
-      this.onPeerDelegate({ ...data, localPeer, remotePeers, room });
+      this.onPeerDelegate({ ...data, localPeer, remotePeers, room, peer });
     }
   };
 
@@ -724,6 +725,8 @@ export class HMSSDK {
       return;
     }
     logger?.verbose('#Listener ON_TRACK', data);
+    const track: HMSTrack = HMSEncoder.encodeHmsTrack(data.track, this.id);
+    const peer: HMSPeer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
     const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room, this.id);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
       data.localPeer,
@@ -741,7 +744,14 @@ export class HMSSDK {
     this.remotePeers = remotePeers;
     if (this.onTrackDelegate) {
       logger?.verbose('#Listener ON_TRACK_LISTENER_CALL', data);
-      this.onTrackDelegate({ ...data, localPeer, remotePeers, room });
+      this.onTrackDelegate({
+        ...data,
+        localPeer,
+        remotePeers,
+        room,
+        peer,
+        track,
+      });
     }
   };
 

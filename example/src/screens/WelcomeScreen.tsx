@@ -29,6 +29,8 @@ import HmsManager, {
   HMSVideoCodec,
   HMSTrackSettings,
   HMSException,
+  HMSCameraFacing,
+  HMSVideoResolution,
 } from '@100mslive/react-native-hms';
 import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
@@ -47,8 +49,6 @@ import {
 import {getThemeColour} from '../utils/functions';
 import type {AppStackParamList} from '../navigator';
 import type {RootState} from '../redux';
-import {HMSCameraFacing} from '../../../src/classes/HMSCameraFacing';
-import {HMSVideoResolution} from '../../../src/classes/HMSVideoResolution';
 
 type WelcomeProps = {
   setAudioVideoStateRequest: Function;
@@ -177,7 +177,7 @@ const App = ({
       trackDescription: 'Simple Audio Track',
     });
     let videoSettings = new HMSVideoTrackSettings({
-      codec: HMSVideoCodec.vp8,
+      codec: HMSVideoCodec.VP8,
       maxBitrate: 512,
       maxFrameRate: 25,
       cameraFacing: HMSCameraFacing.FRONT,
@@ -211,8 +211,17 @@ const App = ({
   };
 
   const setupBuild = async () => {
-    const trackSettings = getTrackSettings();
-    const build = await HmsManager.build({trackSettings});
+
+    /**
+     * Regular Usage: 
+     * const build = await HmsManager.build();
+     * 
+     * Advanced Usage: Pass custom track settings while building HmsManager instance
+     * const trackSettings = getTrackSettings();
+     * const build = await HmsManager.build({ trackSettings });
+     */
+
+    const build = await HmsManager.build();
     const logger = new HMSLogger();
     logger.updateLogLevel(HMSLogLevel.VERBOSE, true);
     build.setLogger(logger);
@@ -248,13 +257,9 @@ const App = ({
         PERMISSIONS.ANDROID.CAMERA,
         PERMISSIONS.ANDROID.RECORD_AUDIO,
       ])
-        .then(results => {
-          if (
-            results['android.permission.CAMERA'] === RESULTS.GRANTED &&
-            results['android.permission.RECORD_AUDIO'] === RESULTS.GRANTED
-          ) {
-            previewWithLink(token, userID, endpoint);
-          }
+        .then(() => {
+          previewWithLink(token, userID, endpoint);
+          setButtonState('Active');
         })
         .catch(error => {
           console.log(error);

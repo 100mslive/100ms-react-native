@@ -29,9 +29,14 @@ class HmsSDK(
   private var self = this
 
   init {
-    var useHardwareEchoCancellation = data?.getBoolean("useHardwareEchoCancellation")
-    if (useHardwareEchoCancellation == null) {
-      useHardwareEchoCancellation = false
+    val requiredKeys =
+        HmsHelper.areAllRequiredKeysAvailable(
+            data,
+            arrayOf(Pair("useHardwareEchoCancellation", "Boolean"))
+        )
+    var useHardwareEchoCancellation = false
+    if (requiredKeys && data !== null) {
+      useHardwareEchoCancellation = data.getBoolean("useHardwareEchoCancellation")
     }
     val videoSettings = HmsHelper.getVideoTrackSettings(data?.getMap("video"))
     val audioSettings =
@@ -247,9 +252,11 @@ class HmsSDK(
                   val roomData = HmsDecoder.getHmsRoom(hmsSDK?.getRoom())
                   val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
                   val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
+                  val hmsPeer = HmsDecoder.getHmsPeer(peer)
 
                   val data: WritableMap = Arguments.createMap()
 
+                  data.putMap("peer", hmsPeer)
                   data.putMap("room", roomData)
                   data.putString("type", updateType)
                   data.putMap("localPeer", localPeerData)
@@ -279,9 +286,13 @@ class HmsSDK(
                   val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
                   val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
                   val roomData = HmsDecoder.getHmsRoom(hmsSDK?.getRoom())
+                  val hmsPeer = HmsDecoder.getHmsPeer(peer)
+                  val hmsTrack = HmsDecoder.getHmsTrack(track)
 
                   val data: WritableMap = Arguments.createMap()
 
+                  data.putMap("peer", hmsPeer)
+                  data.putMap("track", hmsTrack)
                   data.putMap("room", roomData)
                   data.putString("type", updateType)
                   data.putMap("localPeer", localPeerData)
@@ -518,7 +529,7 @@ class HmsSDK(
 
         if (hmsRole != null && hmsPeer != null) {
           hmsSDK?.changeRole(
-              hmsPeer as HMSRemotePeer,
+              hmsPeer,
               hmsRole,
               force,
               object : HMSActionResultListener {
