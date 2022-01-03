@@ -47,7 +47,7 @@ import Toast from 'react-native-simple-toast';
 import RNFetchBlob from 'rn-fetch-blob';
 import {Picker} from '@react-native-picker/picker';
 
-import {ChatWindow, AlertModal, CustomModal, CustomPicker} from '../components';
+import {ChatWindow, AlertModal, CustomModal, RolePicker} from '../components';
 import {
   addMessage,
   clearMessageData,
@@ -410,7 +410,7 @@ const DisplayTrack = ({
         setModalVisible={setRoleModalVisible}
         title={roleRequestTitle}
         buttons={roleRequestButtons}>
-        <CustomPicker
+        <RolePicker
           data={knownRoles}
           selectedItem={newRole}
           onItemSelected={setNewRole}
@@ -1330,7 +1330,7 @@ const Meeting = ({
         setModalVisible={setRoleModalVisible}
         title="Select action"
         buttons={getRoleRequestButtons()}>
-        <CustomPicker
+        <RolePicker
           data={instance?.knownRoles || []}
           selectedItem={newRole}
           onItemSelected={setNewRole}
