@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   View,
   StyleSheet,
@@ -525,6 +525,8 @@ const Meeting = ({
   const [leaveModalVisible, setLeaveModalVisible] = useState(false);
   const [localPeerPermissions, setLocalPeerPermissions] =
     useState<HMSPermissions>();
+  const flatlistRef = useRef<FlatList>(null);
+  const [page, setPage] = useState(0);
 
   const roleChangeRequestTitle = layoutModal
     ? 'Layout Modal'
@@ -1232,6 +1234,10 @@ const Meeting = ({
     }
   };
 
+  if (page + 1 > pairedPeers.length) {
+    flatlistRef?.current?.scrollToEnd();
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <CustomModal
@@ -1410,10 +1416,15 @@ const Meeting = ({
       </View>
       <View style={styles.wrapper}>
         <FlatList
+          ref={flatlistRef}
           horizontal
           data={pairedPeers}
           initialNumToRender={2}
           maxToRenderPerBatch={3}
+          onScroll={({nativeEvent}) => {
+            const {contentOffset, layoutMeasurement} = nativeEvent;
+            setPage(contentOffset.x / layoutMeasurement.width);
+          }}
           pagingEnabled
           showsHorizontalScrollIndicator={false}
           renderItem={({item}) => {
