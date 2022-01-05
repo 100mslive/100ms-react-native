@@ -211,8 +211,17 @@ const App = ({
   };
 
   const setupBuild = async () => {
-    const trackSettings = getTrackSettings();
-    const build = await HmsManager.build({trackSettings});
+
+    /**
+     * Regular Usage: 
+     * const build = await HmsManager.build();
+     * 
+     * Advanced Usage: Pass custom track settings while building HmsManager instance
+     * const trackSettings = getTrackSettings();
+     * const build = await HmsManager.build({ trackSettings });
+     */
+
+    const build = await HmsManager.build();
     const logger = new HMSLogger();
     logger.updateLogLevel(HMSLogLevel.VERBOSE, true);
     build.setLogger(logger);
@@ -248,13 +257,9 @@ const App = ({
         PERMISSIONS.ANDROID.CAMERA,
         PERMISSIONS.ANDROID.RECORD_AUDIO,
       ])
-        .then(results => {
-          if (
-            results['android.permission.CAMERA'] === RESULTS.GRANTED &&
-            results['android.permission.RECORD_AUDIO'] === RESULTS.GRANTED
-          ) {
-            previewWithLink(token, userID, endpoint);
-          }
+        .then(() => {
+          previewWithLink(token, userID, endpoint);
+          setButtonState('Active');
         })
         .catch(error => {
           console.log(error);

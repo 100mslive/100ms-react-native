@@ -11,6 +11,9 @@ import HmsManager, {
   HMSException,
   HMSMessage,
   HMSLeaveRoomRequest,
+  HMSSpeakerUpdate,
+  HMSPeer,
+  HMSTrack
 } from '@100mslive/react-native-hms';
 
 const hmsInstance = await HmsManager.build();
@@ -39,7 +42,17 @@ hmsInstance.addEventListener(
   onRoomListener
 );
 
-const onRoomListener = ({ localPeer, remotePeers }) => {
+const onRoomListener = ({
+  room,
+  type,
+  localPeer,
+  remotePeers,
+}:{
+  room?: HMSRoom;
+  type?: HMSRoomUpdate;
+  localPeer: HMSLocalPeer;
+  remotePeers: HMSRemotePeer[];
+}) => {
   // gets triggered when room is muted or unmuted.
   // use these objects to update your local and remote peers.
 };
@@ -49,7 +62,19 @@ hmsInstance.addEventListener(
   onPeerListener
 );
 
-const onPeerListener = ({ localPeer, remotePeers }) => {
+const onPeerListener = ({
+  room,
+  type,
+  remotePeers,
+  localPeer,
+  peer,
+}: {
+  room?: HMSRoom;
+  type?: HMSPeerUpdate;
+  localPeer: HMSLocalPeer;
+  remotePeers: HMSRemotePeer[];
+  peer: HMSPeer;
+}) => {
   // gets triggered when peer leaves, joins, peer's audio or video is muted, starts or stops speaking, role is changed or becomes dominant speaker.
   // use these objects to update your local and remote peers.
 };
@@ -59,7 +84,21 @@ hmsInstance.addEventListener(
   onTrackListener
 );
 
-const onTrackListener = ({ localPeer, remotePeers }) => {
+const onTrackListener = ({
+  track,
+  peer,
+  room,
+  type,
+  remotePeers,
+  localPeer,
+}: {
+  track: HMSTrack;
+  peer: HMSPeer;
+  room?: HMSRoom;
+  type?: HMSTrackUpdate;
+  localPeer: HMSLocalPeer;
+  remotePeers: HMSRemotePeer[];
+}) => {
   // gets triggered when track is added, removed, muted, unmuted, degraded and restored back.
   // use these objects to update your local and remote peers.
 };
@@ -89,7 +128,7 @@ hmsInstance.addEventListener(
   onSpeakerListener
 );
 
-const onSpeakerListener = ({ peers }) => {
+const onSpeakerListener = (data: HMSSpeakerUpdate) => {
   // gets triggered whenever someone speaks
   // an array of speakers is received. Use it to highlight the speakers.
 };

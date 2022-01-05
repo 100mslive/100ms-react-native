@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   View,
   StyleSheet,
@@ -47,7 +47,7 @@ import Toast from 'react-native-simple-toast';
 import RNFetchBlob from 'rn-fetch-blob';
 import {Picker} from '@react-native-picker/picker';
 
-import {ChatWindow, AlertModal, CustomModal, CustomPicker} from '../components';
+import {ChatWindow, AlertModal, CustomModal, RolePicker} from '../components';
 import {
   addMessage,
   clearMessageData,
@@ -194,7 +194,6 @@ const DisplayTrack = ({
     {
       text: force ? 'Set' : 'Send',
       onPress: async () => {
-        console.warn(knownRoles[0]);
         await instance?.changeRole(peerRefrence!, newRole!, force);
       },
     },
@@ -411,7 +410,7 @@ const DisplayTrack = ({
         setModalVisible={setRoleModalVisible}
         title={roleRequestTitle}
         buttons={roleRequestButtons}>
-        <CustomPicker
+        <RolePicker
           data={knownRoles}
           selectedItem={newRole}
           onItemSelected={setNewRole}
@@ -515,7 +514,7 @@ const Meeting = ({
   const [recordingDetails, setRecordingDetails] = useState<HMSRTMPConfig>({
     record: false,
     meetingURL: state.user.roomID
-      ? state.user.roomID + '/viewer?token=beam_recording'
+      ? state.user.roomID + '?token=beam_recording'
       : '',
     rtmpURLs: [],
   });
@@ -526,6 +525,8 @@ const Meeting = ({
   const [leaveModalVisible, setLeaveModalVisible] = useState(false);
   const [localPeerPermissions, setLocalPeerPermissions] =
     useState<HMSPermissions>();
+  const flatlistRef = useRef<FlatList>(null);
+  const [page, setPage] = useState(0);
 
   const roleChangeRequestTitle = layoutModal
     ? 'Layout Modal'
@@ -820,10 +821,12 @@ const Meeting = ({
 
   const reconnecting = (data: any) => {
     console.log(data);
+    Toast.showWithGravity('Reconnecting...', Toast.LONG, Toast.TOP);
   };
 
   const reconnected = (data: any) => {
     console.log(data);
+    Toast.showWithGravity('Reconnected', Toast.LONG, Toast.TOP);
   };
 
   const onRoleChangeRequest = (data: HMSRoleChangeRequest) => {
@@ -1249,6 +1252,10 @@ const Meeting = ({
     }
   };
 
+  if (page + 1 > pairedPeers.length) {
+    flatlistRef?.current?.scrollToEnd();
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <CustomModal
@@ -1347,7 +1354,7 @@ const Meeting = ({
         setModalVisible={setRoleModalVisible}
         title="Select action"
         buttons={getRoleRequestButtons()}>
-        <CustomPicker
+        <RolePicker
           data={instance?.knownRoles || []}
           selectedItem={newRole}
           onItemSelected={setNewRole}
@@ -1427,10 +1434,15 @@ const Meeting = ({
       </View>
       <View style={styles.wrapper}>
         <FlatList
+          ref={flatlistRef}
           horizontal
           data={pairedPeers}
           initialNumToRender={2}
           maxToRenderPerBatch={3}
+          onScroll={({nativeEvent}) => {
+            const {contentOffset, layoutMeasurement} = nativeEvent;
+            setPage(contentOffset.x / layoutMeasurement.width);
+          }}
           pagingEnabled
           showsHorizontalScrollIndicator={false}
           renderItem={({item}) => {

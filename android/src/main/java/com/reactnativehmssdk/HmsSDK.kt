@@ -7,7 +7,6 @@ import com.facebook.react.bridge.UiThreadUtil.runOnUiThread
 import java.util.*
 import kotlinx.coroutines.launch
 import live.hms.video.error.HMSException
-import live.hms.video.media.settings.HMSTrackSettings
 import live.hms.video.media.tracks.*
 import live.hms.video.sdk.*
 import live.hms.video.sdk.models.*
@@ -33,18 +32,12 @@ class HmsSDK(
   private var self = this
 
   init {
-    var useHardwareEchoCancellation = data?.getBoolean("useHardwareEchoCancellation")
-    if (useHardwareEchoCancellation == null) {
-      useHardwareEchoCancellation = false
+    val trackSettings = HmsHelper.getTrackSettings(data)
+    if (trackSettings == null) {
+      this.hmsSDK = HMSSDK.Builder(reactApplicationContext).build()
+    } else {
+      this.hmsSDK = HMSSDK.Builder(reactApplicationContext).setTrackSettings(trackSettings).build()
     }
-    val videoSettings = HmsHelper.getVideoTrackSettings(data?.getMap("video"))
-    val audioSettings =
-        HmsHelper.getAudioTrackSettings(data?.getMap("audio"), useHardwareEchoCancellation)
-
-    val trackSettingsBuilder = HMSTrackSettings.Builder()
-    val trackSettings = trackSettingsBuilder.audio(audioSettings).video(videoSettings).build()
-
-    this.hmsSDK = HMSSDK.Builder(reactApplicationContext).setTrackSettings(trackSettings).build()
   }
 
   private fun emitRequiredKeysError() {
