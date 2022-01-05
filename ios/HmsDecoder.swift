@@ -410,7 +410,10 @@ class HmsDecoder: NSObject {
         return [:]
     }
     
-    static func getHmsChangeTrackStateRequest(_ changeTrackStateRequest: HMSChangeTrackStateRequest, _ id: String) -> [String: Any] {
+    static func getHmsChangeTrackStateRequest(_ changeTrackStateRequest: HMSChangeTrackStateRequest, _ id: String) -> [String: Any]? {
+        if (changeTrackStateRequest.mute) {
+            return nil
+        }
         var requestedBy: [String: Any]?
         if let peer = changeTrackStateRequest.requestedBy {
             requestedBy = getHmsPeer(peer)
