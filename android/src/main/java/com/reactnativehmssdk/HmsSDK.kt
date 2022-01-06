@@ -190,12 +190,10 @@ class HmsSDK(
                 override fun onChangeTrackStateRequest(details: HMSChangeTrackStateRequest) {
                   val decodedChangeTrackStateRequest =
                       HmsDecoder.getHmsChangeTrackStateRequest(details, id)
-                  if (decodedChangeTrackStateRequest != null) {
-                    delegate.emitEvent(
-                        "ON_CHANGE_TRACK_STATE_REQUEST",
-                        decodedChangeTrackStateRequest
-                    )
-                  }
+                  delegate.emitEvent(
+                      "ON_CHANGE_TRACK_STATE_REQUEST",
+                      decodedChangeTrackStateRequest
+                  )
                 }
 
                 override fun onRemovedFromRoom(notification: HMSRemovedFromRoom) {

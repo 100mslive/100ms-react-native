@@ -694,10 +694,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     }
     
     func on(changeTrackStateRequest: HMSChangeTrackStateRequest) {
-        guard let decodedChangeTrackStateRequest = HmsDecoder.getHmsChangeTrackStateRequest(changeTrackStateRequest, id)
-        else {
-            return
-        }
+        let decodedChangeTrackStateRequest = HmsDecoder.getHmsChangeTrackStateRequest(changeTrackStateRequest, id)
         delegate?.emitEvent("ON_CHANGE_TRACK_STATE_REQUEST", decodedChangeTrackStateRequest)
     }
     
