@@ -22,6 +22,7 @@ class HmsSDK(
 ) {
   var hmsSDK: HMSSDK? = null
   private var recentRoleChangeRequest: HMSRoleChangeRequest? = null
+  private var previewInProgress: Boolean = false
   private var delegate: HmsModule = HmsDelegate
   private var id: String = sdkId
   private var self = this
@@ -33,6 +34,22 @@ class HmsSDK(
     } else {
       this.hmsSDK = HMSSDK.Builder(reactApplicationContext).setTrackSettings(trackSettings).build()
     }
+  }
+
+  private fun emitCustomError(message: String) {
+    val data: WritableMap = Arguments.createMap()
+    val hmsError =
+      HMSException(
+        102,
+        message,
+        message,
+        message,
+        message
+      )
+    data.putString("event", "ON_ERROR")
+    data.putString("id", id)
+    data.putMap("error", HmsDecoder.getError(hmsError))
+    delegate.emitEvent("ON_ERROR", data)
   }
 
   private fun emitRequiredKeysError() {
@@ -69,12 +86,17 @@ class HmsSDK(
   }
 
   fun preview(credentials: ReadableMap) {
+    if(previewInProgress){
+      self.emitCustomError("PREVIEW_ALREADY_IN_PROGRESS")
+      return
+    }
     val requiredKeys =
         HmsHelper.areAllRequiredKeysAvailable(
             credentials,
             arrayOf(Pair("username", "String"), Pair("authToken", "String"))
         )
     if (requiredKeys) {
+      previewInProgress = true
       var config =
           HMSConfig(
               credentials.getString("username") as String,
@@ -117,6 +139,7 @@ class HmsSDK(
           object : HMSPreviewListener {
             override fun onError(error: HMSException) {
               self.emitHMSError(error)
+              previewInProgress = false
             }
 
             override fun onPreview(room: HMSRoom, localTracks: Array<HMSTrack>) {
@@ -130,6 +153,7 @@ class HmsSDK(
               data.putMap("localPeer", localPeerData)
               data.putString("id", id)
               delegate.emitEvent("ON_PREVIEW", data)
+              previewInProgress = false
             }
           }
       )
@@ -139,6 +163,10 @@ class HmsSDK(
   }
 
   fun join(credentials: ReadableMap) {
+    if(previewInProgress){
+      self.emitCustomError("PREVIEW_IS_IN_PROGRESS")
+      return
+    }
     val requiredKeys =
         HmsHelper.areAllRequiredKeysAvailable(
             credentials,

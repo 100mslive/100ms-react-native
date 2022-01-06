@@ -7,6 +7,8 @@
 
 import Foundation
 import HMSSDK
+
+
 class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     
     var hms: HMSSDK?
@@ -44,8 +46,16 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     }
     
     // MARK: - HMS SDK Actions
+    
+    private var previewInProgress = false
 
     func preview(_ credentials: NSDictionary) {
+        
+        guard !previewInProgress else {
+            let error = HMSError(id: "PREVIEW", code: .joinErrorServer, message: "PREVIEW_IS_IN_PROGRESS", params: ["function": #function, "credentials": credentials])
+            on(error: error)
+            return
+        }
         
         guard let authToken = credentials.value(forKey: "authToken") as? String,
               let user = credentials.value(forKey: "username") as? String
@@ -65,10 +75,18 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
                 strongSelf.config = HMSConfig(userName: user, authToken: authToken, metadata: metadata)
                 strongSelf.hms?.preview(config: strongSelf.config!, delegate: strongSelf)
             }
+            strongSelf.previewInProgress = true
         }
     }
     
+    
     func join(_ credentials: NSDictionary) {
+        
+        guard !previewInProgress else {
+            let error = HMSError(id: "PREVIEW", code: .joinErrorServer, message: "PREVIEW_IS_IN_PROGRESS", params: ["function": #function, "credentials": credentials])
+            on(error: error)
+            return
+        }
         
         guard let authToken = credentials.value(forKey: "authToken") as? String,
               let user = credentials.value(forKey: "username") as? String
@@ -624,6 +642,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         let hmsRoom = HmsDecoder.getHmsRoom(room)
         let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
         
+        previewInProgress = false
         self.delegate?.emitEvent(ON_PREVIEW, ["event": ON_PREVIEW, "id": self.id , "room": hmsRoom, "previewTracks": previewTracks, "localPeer": localPeerData])
     }
     
@@ -664,6 +683,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     }
     
     func on(error: HMSError) {
+        if (previewInProgress) { previewInProgress = false }
         self.delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id":id])
     }
     
@@ -786,3 +806,9 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
 }
+
+//extension HmsSDK: HMSLogger {
+//    func log(_ message: String, _ level: HMSLogLevel) {
+//
+//    }
+//}
