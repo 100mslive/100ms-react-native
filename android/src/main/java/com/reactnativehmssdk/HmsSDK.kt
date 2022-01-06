@@ -3,7 +3,6 @@ package com.reactnativehmssdk
 import com.facebook.react.bridge.*
 import kotlinx.coroutines.launch
 import live.hms.video.error.HMSException
-import live.hms.video.media.settings.HMSTrackSettings
 import live.hms.video.media.tracks.HMSRemoteAudioTrack
 import live.hms.video.media.tracks.HMSTrack
 import live.hms.video.media.tracks.HMSTrackType
@@ -23,29 +22,17 @@ class HmsSDK(
 ) {
   var hmsSDK: HMSSDK? = null
   private var recentRoleChangeRequest: HMSRoleChangeRequest? = null
-  private var changeTrackStateRequest: HMSChangeTrackStateRequest? = null
   private var delegate: HmsModule = HmsDelegate
   private var id: String = sdkId
   private var self = this
 
   init {
-    val requiredKeys =
-        HmsHelper.areAllRequiredKeysAvailable(
-            data,
-            arrayOf(Pair("useHardwareEchoCancellation", "Boolean"))
-        )
-    var useHardwareEchoCancellation = false
-    if (requiredKeys && data !== null) {
-      useHardwareEchoCancellation = data.getBoolean("useHardwareEchoCancellation")
+    val trackSettings = HmsHelper.getTrackSettings(data)
+    if (trackSettings == null) {
+      this.hmsSDK = HMSSDK.Builder(reactApplicationContext).build()
+    } else {
+      this.hmsSDK = HMSSDK.Builder(reactApplicationContext).setTrackSettings(trackSettings).build()
     }
-    val videoSettings = HmsHelper.getVideoTrackSettings(data?.getMap("video"))
-    val audioSettings =
-        HmsHelper.getAudioTrackSettings(data?.getMap("audio"), useHardwareEchoCancellation)
-
-    val trackSettingsBuilder = HMSTrackSettings.Builder()
-    val trackSettings = trackSettingsBuilder.audio(audioSettings).video(videoSettings).build()
-
-    this.hmsSDK = HMSSDK.Builder(reactApplicationContext).setTrackSettings(trackSettings).build()
   }
 
   private fun emitRequiredKeysError() {
@@ -207,7 +194,6 @@ class HmsSDK(
                       "ON_CHANGE_TRACK_STATE_REQUEST",
                       decodedChangeTrackStateRequest
                   )
-                  changeTrackStateRequest = details
                 }
 
                 override fun onRemovedFromRoom(notification: HMSRemovedFromRoom) {
@@ -708,21 +694,23 @@ class HmsSDK(
     )
   }
 
-  fun acceptRoleChange() {
+  fun acceptRoleChange(callback: Promise?) {
     if (recentRoleChangeRequest !== null) {
+
       hmsSDK?.acceptChangeRole(
           recentRoleChangeRequest!!,
           object : HMSActionResultListener {
             override fun onSuccess() {
-              recentRoleChangeRequest = null
+              callback?.resolve(emitHMSSuccess())
             }
-
             override fun onError(error: HMSException) {
-              recentRoleChangeRequest = null
               self.emitHMSError(error)
+              callback?.reject(error.code.toString(), error.message)
             }
           }
       )
+
+      recentRoleChangeRequest = null
     }
   }
 

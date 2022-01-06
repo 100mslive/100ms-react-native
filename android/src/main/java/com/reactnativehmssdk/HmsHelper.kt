@@ -5,6 +5,7 @@ import com.facebook.react.bridge.ReadableMap
 import live.hms.video.media.codec.HMSAudioCodec
 import live.hms.video.media.codec.HMSVideoCodec
 import live.hms.video.media.settings.HMSAudioTrackSettings
+import live.hms.video.media.settings.HMSTrackSettings
 import live.hms.video.media.settings.HMSVideoResolution
 import live.hms.video.media.settings.HMSVideoTrackSettings
 import live.hms.video.media.tracks.*
@@ -159,7 +160,44 @@ object HmsHelper {
     return null
   }
 
-  fun getAudioTrackSettings(
+  fun getTrackSettings(data: ReadableMap?): HMSTrackSettings? {
+    if (data == null) {
+      return null
+    }
+
+    var useHardwareEchoCancellation = false
+    val requiredKeysUseHardwareEchoCancellation =
+        this.areAllRequiredKeysAvailable(
+            data,
+            arrayOf(Pair("useHardwareEchoCancellation", "Boolean"))
+        )
+    if (requiredKeysUseHardwareEchoCancellation) {
+      useHardwareEchoCancellation = data.getBoolean("useHardwareEchoCancellation")
+    }
+
+    var video: ReadableMap? = null
+    val requiredKeysVideo = this.areAllRequiredKeysAvailable(data, arrayOf(Pair("video", "Map")))
+    if (requiredKeysVideo) {
+      video = data.getMap("video")
+    }
+
+    var audio: ReadableMap? = null
+    val requiredKeysAudio = this.areAllRequiredKeysAvailable(data, arrayOf(Pair("audio", "Map")))
+    if (requiredKeysAudio) {
+      audio = data.getMap("audio")
+    }
+
+    if (video == null && audio == null && !useHardwareEchoCancellation) {
+      return null
+    }
+
+    val videoSettings = this.getVideoTrackSettings(video)
+    val audioSettings = this.getAudioTrackSettings(audio, useHardwareEchoCancellation)
+    val trackSettingsBuilder = HMSTrackSettings.Builder()
+    return trackSettingsBuilder.audio(audioSettings).video(videoSettings).build()
+  }
+
+  private fun getAudioTrackSettings(
       data: ReadableMap?,
       useHardwareEchoCancellation: Boolean
   ): HMSAudioTrackSettings {
@@ -180,7 +218,7 @@ object HmsHelper {
 
   // TODO: find out a way to set settings required to create HMSVideoTrackSettings
 
-  fun getVideoTrackSettings(data: ReadableMap?): HMSVideoTrackSettings {
+  private fun getVideoTrackSettings(data: ReadableMap?): HMSVideoTrackSettings {
     val builder = HMSVideoTrackSettings.Builder()
     if (data != null) {
       val codec = getVideoCodec(data.getString("codec"))

@@ -120,10 +120,10 @@ class HmsManager: RCTEventEmitter{
     }
     
     @objc
-    func acceptRoleChange(_ data: NSDictionary) {
+    func acceptRoleChange(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HmsHelper.getHms(data, hmsCollection)
         
-        hms?.acceptRoleChange()
+        hms?.acceptRoleChange(resolve, reject)
     }
     
     @objc

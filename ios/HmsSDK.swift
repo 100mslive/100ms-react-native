@@ -12,7 +12,6 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     var hms: HMSSDK?
     var config: HMSConfig?
     var recentRoleChangeRequest: HMSRoleChangeRequest?
-    var recentChangeTrackStateRequest: HMSChangeTrackStateRequest?
     var delegate: HmsManager?
     var id: String = "12345"
     
@@ -134,7 +133,6 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
             guard let strongSelf = self else { return }
             self?.config = nil
             self?.recentRoleChangeRequest = nil
-            self?.recentChangeTrackStateRequest = nil
             self?.hms?.leave({ success, error in
                 if(success){
                     resolve?("")
@@ -221,13 +219,20 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
     
-    func acceptRoleChange() {
+    func acceptRoleChange(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         
         DispatchQueue.main.async { [weak self] in
             
             guard let request = self?.recentRoleChangeRequest else { return }
             
-            self?.hms?.accept(changeRole: request)
+            self?.hms?.accept(changeRole: request, completion: { success, error in
+                if(success) {
+                    resolve?(["success": true])
+                } else{
+                    self?.delegate?.emitEvent("ON_ERROR", ["event": self?.ON_ERROR ?? "", "error": HmsDecoder.getError(error), "id":self?.id ?? "12345"])
+                    reject?(error?.message, error?.localizedDescription,nil)
+                }
+            })
             
             self?.recentRoleChangeRequest = nil
         }
@@ -739,7 +744,6 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     func on(changeTrackStateRequest: HMSChangeTrackStateRequest) {
         let decodedChangeTrackStateRequest = HmsDecoder.getHmsChangeTrackStateRequest(changeTrackStateRequest, id)
         delegate?.emitEvent("ON_CHANGE_TRACK_STATE_REQUEST", decodedChangeTrackStateRequest)
-        recentChangeTrackStateRequest = changeTrackStateRequest
     }
     
     func on(removedFromRoom notification: HMSRemovedFromRoomNotification) {

@@ -346,6 +346,7 @@ object HmsDecoder {
 
     changeTrackStateRequest.putMap("requestedBy", this.getHmsPeer(request.requestedBy))
     changeTrackStateRequest.putString("trackType", request.track.type.name)
+    changeTrackStateRequest.putBoolean("mute", request.mute)
     changeTrackStateRequest.putString("id", id)
 
     return changeTrackStateRequest

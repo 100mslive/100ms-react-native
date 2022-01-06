@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   View,
   StyleSheet,
@@ -47,7 +47,7 @@ import Toast from 'react-native-simple-toast';
 import RNFetchBlob from 'rn-fetch-blob';
 import {Picker} from '@react-native-picker/picker';
 
-import {ChatWindow, AlertModal, CustomModal, CustomPicker} from '../components';
+import {ChatWindow, AlertModal, CustomModal, RolePicker} from '../components';
 import {
   addMessage,
   clearMessageData,
@@ -410,7 +410,7 @@ const DisplayTrack = ({
         setModalVisible={setRoleModalVisible}
         title={roleRequestTitle}
         buttons={roleRequestButtons}>
-        <CustomPicker
+        <RolePicker
           data={knownRoles}
           selectedItem={newRole}
           onItemSelected={setNewRole}
@@ -527,6 +527,8 @@ const Meeting = ({
   const [leaveModalVisible, setLeaveModalVisible] = useState(false);
   const [localPeerPermissions, setLocalPeerPermissions] =
     useState<HMSPermissions>();
+  const flatlistRef = useRef<FlatList>(null);
+  const [page, setPage] = useState(0);
 
   const roleChangeRequestTitle = layoutModal
     ? 'Layout Modal'
@@ -839,11 +841,13 @@ const Meeting = ({
 
   const onChangeTrackStateRequest = (data: HMSChangeTrackStateRequest) => {
     console.log(data);
-    setChangeTrackStateModalVisible(true);
-    setRoleChangeRequest({
-      requestedBy: data?.requestedBy?.name,
-      suggestedRole: data?.trackType,
-    });
+    if (!data?.mute) {
+      setChangeTrackStateModalVisible(true);
+      setRoleChangeRequest({
+        requestedBy: data?.requestedBy?.name,
+        suggestedRole: data?.trackType,
+      });
+    }
   };
 
   const onRemovedFromRoom = (data: any) => {
@@ -1257,6 +1261,10 @@ const Meeting = ({
     }
   };
 
+  if (page + 1 > pairedPeers.length) {
+    flatlistRef?.current?.scrollToEnd();
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <CustomModal
@@ -1355,7 +1363,7 @@ const Meeting = ({
         setModalVisible={setRoleModalVisible}
         title="Select action"
         buttons={getRoleRequestButtons()}>
-        <CustomPicker
+        <RolePicker
           data={instance?.knownRoles || []}
           selectedItem={newRole}
           onItemSelected={setNewRole}
@@ -1436,10 +1444,15 @@ const Meeting = ({
       </View>
       <View style={styles.wrapper}>
         <FlatList
+          ref={flatlistRef}
           horizontal
           data={pairedPeers}
           initialNumToRender={2}
           maxToRenderPerBatch={3}
+          onScroll={({nativeEvent}) => {
+            const {contentOffset, layoutMeasurement} = nativeEvent;
+            setPage(contentOffset.x / layoutMeasurement.width);
+          }}
           pagingEnabled
           showsHorizontalScrollIndicator={false}
           renderItem={({item}) => {
