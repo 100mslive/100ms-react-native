@@ -840,11 +840,13 @@ const Meeting = ({
 
   const onChangeTrackStateRequest = (data: HMSChangeTrackStateRequest) => {
     console.log(data);
-    setChangeTrackStateModalVisible(true);
-    setRoleChangeRequest({
-      requestedBy: data?.requestedBy?.name,
-      suggestedRole: data?.trackType,
-    });
+    if (!data?.mute) {
+      setChangeTrackStateModalVisible(true);
+      setRoleChangeRequest({
+        requestedBy: data?.requestedBy?.name,
+        suggestedRole: data?.trackType,
+      });
+    }
   };
 
   const onRemovedFromRoom = (data: any) => {

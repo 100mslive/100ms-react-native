@@ -276,6 +276,7 @@ export class HMSEncoder {
     const encodedChangeTrackStateRequest = {
       requestedBy: HMSEncoder.encodeHmsPeer(data.requestedBy, id),
       trackType: data.trackType,
+      mute: data.mute,
     };
 
     return new HMSChangeTrackStateRequest(encodedChangeTrackStateRequest);

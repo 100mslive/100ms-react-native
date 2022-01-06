@@ -426,9 +426,9 @@ export class HMSSDK {
     return await HmsManager.endRoom(data);
   };
 
-  acceptRoleChange = () => {
+  acceptRoleChange = async () => {
     logger?.verbose('#Function acceptRoleChange', { id: this.id });
-    HmsManager.acceptRoleChange({ id: this.id });
+    return await HmsManager.acceptRoleChange({ id: this.id });
   };
 
   muteAllPeersAudio = (mute: boolean) => {

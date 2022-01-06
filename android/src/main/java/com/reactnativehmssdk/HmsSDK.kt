@@ -22,7 +22,6 @@ class HmsSDK(
 ) {
   var hmsSDK: HMSSDK? = null
   private var recentRoleChangeRequest: HMSRoleChangeRequest? = null
-  private var changeTrackStateRequest: HMSChangeTrackStateRequest? = null
   private var delegate: HmsModule = HmsDelegate
   private var id: String = sdkId
   private var self = this
@@ -195,7 +194,6 @@ class HmsSDK(
                       "ON_CHANGE_TRACK_STATE_REQUEST",
                       decodedChangeTrackStateRequest
                   )
-                  changeTrackStateRequest = details
                 }
 
                 override fun onRemovedFromRoom(notification: HMSRemovedFromRoom) {
@@ -696,21 +694,23 @@ class HmsSDK(
     )
   }
 
-  fun acceptRoleChange() {
+  fun acceptRoleChange(callback: Promise?) {
     if (recentRoleChangeRequest !== null) {
+
       hmsSDK?.acceptChangeRole(
           recentRoleChangeRequest!!,
           object : HMSActionResultListener {
             override fun onSuccess() {
-              recentRoleChangeRequest = null
+              callback?.resolve(emitHMSSuccess())
             }
-
             override fun onError(error: HMSException) {
-              recentRoleChangeRequest = null
               self.emitHMSError(error)
+              callback?.reject(error.code.toString(), error.message)
             }
           }
       )
+
+      recentRoleChangeRequest = null
     }
   }
 
