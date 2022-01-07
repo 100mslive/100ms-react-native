@@ -4,7 +4,6 @@ import com.facebook.react.bridge.*
 import java.util.*
 import kotlinx.coroutines.launch
 import live.hms.video.error.HMSException
-import live.hms.video.media.settings.HMSTrackSettings
 import live.hms.video.media.tracks.*
 import live.hms.video.sdk.*
 import live.hms.video.sdk.models.*
@@ -23,29 +22,34 @@ class HmsSDK(
 ) {
   var hmsSDK: HMSSDK? = null
   private var recentRoleChangeRequest: HMSRoleChangeRequest? = null
-  private var changeTrackStateRequest: HMSChangeTrackStateRequest? = null
+  private var previewInProgress: Boolean = false
   private var delegate: HmsModule = HmsDelegate
   private var id: String = sdkId
   private var self = this
 
   init {
-    val requiredKeys =
-        HmsHelper.areAllRequiredKeysAvailable(
-            data,
-            arrayOf(Pair("useHardwareEchoCancellation", "Boolean"))
-        )
-    var useHardwareEchoCancellation = false
-    if (requiredKeys && data !== null) {
-      useHardwareEchoCancellation = data.getBoolean("useHardwareEchoCancellation")
+    val trackSettings = HmsHelper.getTrackSettings(data)
+    if (trackSettings == null) {
+      this.hmsSDK = HMSSDK.Builder(reactApplicationContext).build()
+    } else {
+      this.hmsSDK = HMSSDK.Builder(reactApplicationContext).setTrackSettings(trackSettings).build()
     }
-    val videoSettings = HmsHelper.getVideoTrackSettings(data?.getMap("video"))
-    val audioSettings =
-        HmsHelper.getAudioTrackSettings(data?.getMap("audio"), useHardwareEchoCancellation)
+  }
 
-    val trackSettingsBuilder = HMSTrackSettings.Builder()
-    val trackSettings = trackSettingsBuilder.audio(audioSettings).video(videoSettings).build()
-
-    this.hmsSDK = HMSSDK.Builder(reactApplicationContext).setTrackSettings(trackSettings).build()
+  private fun emitCustomError(message: String) {
+    val data: WritableMap = Arguments.createMap()
+    val hmsError =
+      HMSException(
+        102,
+        message,
+        message,
+        message,
+        message
+      )
+    data.putString("event", "ON_ERROR")
+    data.putString("id", id)
+    data.putMap("error", HmsDecoder.getError(hmsError))
+    delegate.emitEvent("ON_ERROR", data)
   }
 
   private fun emitRequiredKeysError() {
@@ -82,12 +86,17 @@ class HmsSDK(
   }
 
   fun preview(credentials: ReadableMap) {
+    if(previewInProgress){
+      self.emitCustomError("PREVIEW_ALREADY_IN_PROGRESS")
+      return
+    }
     val requiredKeys =
         HmsHelper.areAllRequiredKeysAvailable(
             credentials,
             arrayOf(Pair("username", "String"), Pair("authToken", "String"))
         )
     if (requiredKeys) {
+      previewInProgress = true
       var config =
           HMSConfig(
               credentials.getString("username") as String,
@@ -130,6 +139,7 @@ class HmsSDK(
           object : HMSPreviewListener {
             override fun onError(error: HMSException) {
               self.emitHMSError(error)
+              previewInProgress = false
             }
 
             override fun onPreview(room: HMSRoom, localTracks: Array<HMSTrack>) {
@@ -143,6 +153,7 @@ class HmsSDK(
               data.putMap("localPeer", localPeerData)
               data.putString("id", id)
               delegate.emitEvent("ON_PREVIEW", data)
+              previewInProgress = false
             }
           }
       )
@@ -152,6 +163,10 @@ class HmsSDK(
   }
 
   fun join(credentials: ReadableMap) {
+    if(previewInProgress){
+      self.emitCustomError("PREVIEW_IS_IN_PROGRESS")
+      return
+    }
     val requiredKeys =
         HmsHelper.areAllRequiredKeysAvailable(
             credentials,
@@ -207,7 +222,6 @@ class HmsSDK(
                       "ON_CHANGE_TRACK_STATE_REQUEST",
                       decodedChangeTrackStateRequest
                   )
-                  changeTrackStateRequest = details
                 }
 
                 override fun onRemovedFromRoom(notification: HMSRemovedFromRoom) {
@@ -708,21 +722,23 @@ class HmsSDK(
     )
   }
 
-  fun acceptRoleChange() {
+  fun acceptRoleChange(callback: Promise?) {
     if (recentRoleChangeRequest !== null) {
+
       hmsSDK?.acceptChangeRole(
           recentRoleChangeRequest!!,
           object : HMSActionResultListener {
             override fun onSuccess() {
-              recentRoleChangeRequest = null
+              callback?.resolve(emitHMSSuccess())
             }
-
             override fun onError(error: HMSException) {
-              recentRoleChangeRequest = null
               self.emitHMSError(error)
+              callback?.reject(error.code.toString(), error.message)
             }
           }
       )
+
+      recentRoleChangeRequest = null
     }
   }
 

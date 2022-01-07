@@ -417,7 +417,7 @@ class HmsDecoder: NSObject {
         }
         let trackType = changeTrackStateRequest.track.kind == .video ? "video" : "audio"
         
-        var request = ["trackType": trackType, "id": id] as [String: Any]
+        var request = ["trackType": trackType, "id": id, "mute": changeTrackStateRequest.mute] as [String: Any]
         if let requestedBy = requestedBy {
             request["requestedBy"] = requestedBy
         }

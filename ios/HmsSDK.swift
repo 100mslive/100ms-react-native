@@ -7,12 +7,13 @@
 
 import Foundation
 import HMSSDK
+
+
 class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     
     var hms: HMSSDK?
     var config: HMSConfig?
     var recentRoleChangeRequest: HMSRoleChangeRequest?
-    var recentChangeTrackStateRequest: HMSChangeTrackStateRequest?
     var delegate: HmsManager?
     var id: String = "12345"
     
@@ -45,8 +46,16 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     }
     
     // MARK: - HMS SDK Actions
+    
+    private var previewInProgress = false
 
     func preview(_ credentials: NSDictionary) {
+        
+        guard !previewInProgress else {
+            let error = HMSError(id: "PREVIEW", code: .joinErrorServer, message: "PREVIEW_IS_IN_PROGRESS", params: ["function": #function, "credentials": credentials])
+            on(error: error)
+            return
+        }
         
         guard let authToken = credentials.value(forKey: "authToken") as? String,
               let user = credentials.value(forKey: "username") as? String
@@ -66,10 +75,18 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
                 strongSelf.config = HMSConfig(userName: user, authToken: authToken, metadata: metadata)
                 strongSelf.hms?.preview(config: strongSelf.config!, delegate: strongSelf)
             }
+            strongSelf.previewInProgress = true
         }
     }
     
+    
     func join(_ credentials: NSDictionary) {
+        
+        guard !previewInProgress else {
+            let error = HMSError(id: "PREVIEW", code: .joinErrorServer, message: "PREVIEW_IS_IN_PROGRESS", params: ["function": #function, "credentials": credentials])
+            on(error: error)
+            return
+        }
         
         guard let authToken = credentials.value(forKey: "authToken") as? String,
               let user = credentials.value(forKey: "username") as? String
@@ -134,7 +151,6 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
             guard let strongSelf = self else { return }
             self?.config = nil
             self?.recentRoleChangeRequest = nil
-            self?.recentChangeTrackStateRequest = nil
             self?.hms?.leave({ success, error in
                 if(success){
                     resolve?("")
@@ -221,13 +237,20 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
     
-    func acceptRoleChange() {
+    func acceptRoleChange(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         
         DispatchQueue.main.async { [weak self] in
             
             guard let request = self?.recentRoleChangeRequest else { return }
             
-            self?.hms?.accept(changeRole: request)
+            self?.hms?.accept(changeRole: request, completion: { success, error in
+                if(success) {
+                    resolve?(["success": true])
+                } else{
+                    self?.delegate?.emitEvent("ON_ERROR", ["event": self?.ON_ERROR ?? "", "error": HmsDecoder.getError(error), "id":self?.id ?? "12345"])
+                    reject?(error?.message, error?.localizedDescription,nil)
+                }
+            })
             
             self?.recentRoleChangeRequest = nil
         }
@@ -619,6 +642,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         let hmsRoom = HmsDecoder.getHmsRoom(room)
         let localPeerData = HmsDecoder.getHmsLocalPeer(hms?.localPeer)
         
+        previewInProgress = false
         self.delegate?.emitEvent(ON_PREVIEW, ["event": ON_PREVIEW, "id": self.id , "room": hmsRoom, "previewTracks": previewTracks, "localPeer": localPeerData])
     }
     
@@ -659,6 +683,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     }
     
     func on(error: HMSError) {
+        if (previewInProgress) { previewInProgress = false }
         self.delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id":id])
     }
     
@@ -691,7 +716,6 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     func on(changeTrackStateRequest: HMSChangeTrackStateRequest) {
         let decodedChangeTrackStateRequest = HmsDecoder.getHmsChangeTrackStateRequest(changeTrackStateRequest, id)
         delegate?.emitEvent("ON_CHANGE_TRACK_STATE_REQUEST", decodedChangeTrackStateRequest)
-        recentChangeTrackStateRequest = changeTrackStateRequest
     }
     
     func on(removedFromRoom notification: HMSRemovedFromRoomNotification) {
@@ -782,3 +806,9 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
 }
+
+//extension HmsSDK: HMSLogger {
+//    func log(_ message: String, _ level: HMSLogLevel) {
+//
+//    }
+//}
