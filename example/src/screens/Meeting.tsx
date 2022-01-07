@@ -145,7 +145,9 @@ const DisplayTrack = ({
   const [force, setForce] = useState(false);
   const [volumeModal, setVolumeModal] = useState(false);
   const [volume, setVolume] = useState(1);
-
+  const videoPublishPermission = peerRefrence?.role?.publishSettings?.allowed
+    ? peerRefrence?.role?.publishSettings?.allowed?.includes('video')
+    : true;
   const modalTitle = 'Set Volume';
 
   const modalButtons: [
@@ -416,7 +418,7 @@ const DisplayTrack = ({
           onItemSelected={setNewRole}
         />
       </CustomModal>
-      {isVideoMute || layout === 'audio' ? (
+      {isVideoMute || layout === 'audio' || !videoPublishPermission ? (
         <View style={styles.avatarContainer}>
           <View style={[styles.avatar, {backgroundColor: colour}]}>
             <Text style={styles.avatarText}>{getInitials(name!)}</Text>
@@ -472,7 +474,9 @@ const DisplayTrack = ({
         </View>
         <View style={styles.micContainer}>
           <Feather
-            name={isVideoMute ? 'video-off' : 'video'}
+            name={
+              isVideoMute || !videoPublishPermission ? 'video-off' : 'video'
+            }
             style={styles.mic}
             size={20}
           />
