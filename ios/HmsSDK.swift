@@ -598,6 +598,54 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         })
     }
     
+    func startHLSStreaming(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let meetingURLVariants = data.value(forKey: "meetingURLVariants") as? [[String: Any]]?
+        else {
+            let error = HMSError(id: "126", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
+            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id":id])
+            return
+        }
+        
+        let hlsMeetingUrlVariant = HmsHelper.getHMSHLSMeetingURLVariants(meetingURLVariants)
+        let config = HMSHLSConfig(variants: hlsMeetingUrlVariant)
+        
+        hms?.startHLSStreaming(config: config, completion: { success, error in
+            if (success) {
+                let roomData = HmsDecoder.getHmsRoom(self.hms?.room)
+                let type = self.getString(from: HMSRoomUpdate.hlsStreamingStateUpdated)
+                
+                let localPeerData = HmsDecoder.getHmsLocalPeer(self.hms?.localPeer)
+                let remotePeerData = HmsDecoder.getHmsRemotePeers(self.hms?.remotePeers)
+                self.delegate?.emitEvent(self.ON_ROOM_UPDATE, ["event": self.ON_ROOM_UPDATE, "id": self.id, "type": type, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
+                resolve?(["success": success])
+                return
+            } else {
+                self.delegate?.emitEvent(self.ON_ERROR, ["event": self.ON_ERROR, "error": HmsDecoder.getError(error), "id":self.id])
+                reject?(error?.message, error?.localizedDescription, nil)
+                return
+            }
+        })
+    }
+    
+    func stopHLSStreaming(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        hms?.stopHLSStreaming(config: nil, completion: { success, error in
+            if (success) {
+                let roomData = HmsDecoder.getHmsRoom(self.hms?.room)
+                let type = self.getString(from: HMSRoomUpdate.browserRecordingStateUpdated)
+                
+                let localPeerData = HmsDecoder.getHmsLocalPeer(self.hms?.localPeer)
+                let remotePeerData = HmsDecoder.getHmsRemotePeers(self.hms?.remotePeers)
+                self.delegate?.emitEvent(self.ON_ROOM_UPDATE, ["event": self.ON_ROOM_UPDATE, "id": self.id, "type": type, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
+                resolve?(["success": success])
+                return
+            } else {
+                self.delegate?.emitEvent(self.ON_ERROR, ["event": self.ON_ERROR, "error": HmsDecoder.getError(error), "id":self.id])
+                reject?(error?.message, error?.localizedDescription, nil)
+                return
+            }
+        })
+    }
+    
     //TODO: to be implemented after volume is exposed for iOS
 //    func getVolume(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
 //        guard let trackId = data.value(forKey: "trackId") as? String
@@ -797,6 +845,8 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
             return "META_DATA_CHANGED"
         case .browserRecordingStateUpdated:
             return "BROWSER_RECORDING_STATE_UPDATED"
+        case .hlsStreamingStateUpdated:
+            return "HLS_STREAMING_STATE_UPDATED"
         case .rtmpStreamingStateUpdated:
             return "RTMP_STREAMING_STATE_UPDATED"
         case.serverRecordingStateUpdated:

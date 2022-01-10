@@ -1,13 +1,13 @@
 package com.reactnativehmssdk
 
 import com.facebook.react.bridge.*
-import java.util.*
 import kotlinx.coroutines.launch
 import live.hms.video.error.HMSException
-import live.hms.video.media.tracks.*
+import live.hms.video.media.tracks.HMSRemoteAudioTrack
+import live.hms.video.media.tracks.HMSTrack
+import live.hms.video.media.tracks.HMSTrackType
 import live.hms.video.sdk.*
 import live.hms.video.sdk.models.*
-import live.hms.video.sdk.models.HMSConfig
 import live.hms.video.sdk.models.enums.HMSPeerUpdate
 import live.hms.video.sdk.models.enums.HMSRoomUpdate
 import live.hms.video.sdk.models.enums.HMSTrackUpdate
@@ -942,6 +942,48 @@ class HmsSDK(
 
   fun stopRtmpAndRecording(callback: Promise?) {
     hmsSDK?.stopRtmpAndRecording(
+        object : HMSActionResultListener {
+          override fun onSuccess() {
+            callback?.resolve(emitHMSSuccess())
+          }
+          override fun onError(error: HMSException) {
+            callback?.reject(error.code.toString(), error.message)
+            self.emitHMSError(error)
+          }
+        }
+    )
+  }
+
+  fun startHLSStreaming(data: ReadableMap, callback: Promise?) {
+    val requiredKeys =
+        HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("meetingURLVariants", "Array")))
+    if (requiredKeys) {
+      val meetingURLVariants =
+          data.getArray("meetingURLVariants")?.toArrayList() as? ArrayList<HashMap<String, String>>
+      val hlsMeetingUrlVariant = HmsHelper.getHMSHLSMeetingURLVariants(meetingURLVariants)
+      val config = HMSHLSConfig(hlsMeetingUrlVariant)
+
+      hmsSDK?.startHLSStreaming(
+          config,
+          object : HMSActionResultListener {
+            override fun onSuccess() {
+              callback?.resolve(emitHMSSuccess())
+            }
+            override fun onError(error: HMSException) {
+              callback?.reject(error.code.toString(), error.message)
+              self.emitHMSError(error)
+            }
+          }
+      )
+    } else {
+      callback?.reject("101", "REQUIRED_KEYS_NOT_FOUND")
+      self.emitRequiredKeysError()
+    }
+  }
+
+  fun stopHLSStreaming(callback: Promise?) {
+    hmsSDK?.stopHLSStreaming(
+        null,
         object : HMSActionResultListener {
           override fun onSuccess() {
             callback?.resolve(emitHMSSuccess())

@@ -17,6 +17,7 @@ import { HmsView as HMSViewComponent } from './HmsView';
 import { HMSVideoViewMode } from './HMSVideoViewMode';
 import type { HMSTrackSettings } from './HMSTrackSettings';
 import type { HMSRTMPConfig } from './HMSRTMPConfig';
+import type { HMSHLSConfig } from './HMSHLSConfig';
 
 interface HmsComponentProps {
   trackId: string;
@@ -352,6 +353,19 @@ export class HMSSDK {
     logger?.verbose('#Function stopRtmpAndRecording', {});
     const op = await HmsManager.stopRtmpAndRecording({ id: this.id });
     return op;
+  };
+
+  startHLSStreaming = async (data: HMSHLSConfig) => {
+    logger?.verbose('#Function startHLSStreaming', {
+      ...data,
+      id: this.id,
+    });
+    return await HmsManager.startHLSStreaming({ ...data, id: this.id });
+  };
+
+  stopHLSStreaming = async () => {
+    logger?.verbose('#Function stopHLSStreaming', {});
+    return await HmsManager.stopHLSStreaming({ id: this.id });
   };
 
   changeRole = async (peer: HMSPeer, role: HMSRole, force: boolean = false) => {

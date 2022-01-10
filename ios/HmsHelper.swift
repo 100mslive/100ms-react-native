@@ -200,4 +200,25 @@ class HmsHelper: NSObject {
             return nil
         }
     }
+    
+    static func getHMSHLSMeetingURLVariants(_ variants: [[String: Any]]?) -> [HMSHLSMeetingURLVariant] {
+        var hlsVariants: [HMSHLSMeetingURLVariant] = []
+        for variant in variants ?? [] {
+            let meetingURLVariant = HmsHelper.getHMSHLSMeetingURLVariant(variant)
+            if let extractedVariant = meetingURLVariant {
+                hlsVariants.append(extractedVariant)
+            }
+        }
+        return hlsVariants
+    }
+    
+    static func getHMSHLSMeetingURLVariant(_ variant: [String: Any]) -> HMSHLSMeetingURLVariant? {
+        let meetingUrl = variant["meetingUrl"] as? String
+        let metadata = variant["metadata"] as? String
+            
+        if let extractedUrl = meetingUrl, let url = URL(string: extractedUrl) {
+            return HMSHLSMeetingURLVariant(meetingURL: url, metadata: metadata ?? "")
+        }
+        return nil
+    }
 }

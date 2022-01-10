@@ -34,6 +34,8 @@ import {
   HMSTrackType,
   HMSException,
   HMSRTMPConfig,
+  HMSHLSMeetingURLVariant,
+  HMSHLSConfig,
 } from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
@@ -515,6 +517,7 @@ const Meeting = ({
   const [roleModalVisible, setRoleModalVisible] = useState(false);
   const [settingsModal, setSettingsModal] = useState(false);
   const [recordingModal, setRecordingModal] = useState(false);
+  const [hlsStreamingModal, setHLSStreamingModal] = useState(false);
   const [recordingDetails, setRecordingDetails] = useState<HMSRTMPConfig>({
     record: false,
     meetingURL: state.user.roomID
@@ -522,6 +525,13 @@ const Meeting = ({
       : '',
     rtmpURLs: [],
   });
+  const [hlsStreamingDetails, setHLSStreamingDetails] =
+    useState<HMSHLSMeetingURLVariant>({
+      meetingUrl: state.user.roomID
+        ? state.user.roomID + '?token=beam_recording'
+        : '',
+      metadata: '',
+    });
   const [roleChangeModalVisible, setRoleChangeModalVisible] = useState(false);
   const [layoutModal, setLayoutModal] = useState(false);
   const [changeTrackStateModalVisible, setChangeTrackStateModalVisible] =
@@ -536,6 +546,8 @@ const Meeting = ({
     ? 'Layout Modal'
     : recordingModal
     ? 'Recording Details'
+    : hlsStreamingModal
+    ? 'HLS Streaming Details'
     : roleChangeModalVisible
     ? 'Role Change Request'
     : changeTrackStateModalVisible
@@ -554,20 +566,32 @@ const Meeting = ({
           },
         },
       ]
+    : hlsStreamingModal
+    ? [
+        {text: 'Cancel'},
+        {
+          text: 'Start',
+          onPress: () => {
+            const hmsHLSConfig = new HMSHLSConfig({
+              meetingURLVariants: [hlsStreamingDetails],
+            });
+            instance
+              ?.startHLSStreaming(hmsHLSConfig)
+              .then(d => console.log(d))
+              .catch(d => console.log(d));
+          },
+        },
+      ]
     : recordingModal
     ? [
         {text: 'Cancel'},
         {
           text: 'Start',
-          onPress: async () => {
-            try {
-              const result = await instance?.startRTMPOrRecording(
-                recordingDetails,
-              );
-              console.log(result);
-            } catch (error) {
-              console.log(error, 'error');
-            }
+          onPress: () => {
+            instance
+              ?.startRTMPOrRecording(recordingDetails)
+              .then(d => console.log(d))
+              .catch(d => console.log(d));
           },
         },
       ]
@@ -996,15 +1020,15 @@ const Meeting = ({
         type: 'cancel',
       },
       {
-        text: 'Report issue and share logs',
-        onPress: async () => {
-          await checkPermissionToWriteExternalStroage();
-        },
-      },
-      {
         text: 'Set Layout',
         onPress: () => {
           setLayoutModal(true);
+        },
+      },
+      {
+        text: 'Report issue and share logs',
+        onPress: async () => {
+          await checkPermissionToWriteExternalStroage();
         },
       },
       {
@@ -1015,13 +1039,26 @@ const Meeting = ({
       },
       {
         text: 'Stop RTMP or Recording',
-        onPress: async () => {
-          try {
-            const result = await instance?.stopRtmpAndRecording();
-            console.log(result);
-          } catch (error) {
-            console.log(error, 'error');
-          }
+        onPress: () => {
+          instance
+            ?.stopRtmpAndRecording()
+            .then(d => console.log(d))
+            .catch(d => console.log(d));
+        },
+      },
+      {
+        text: 'Start HLS Streaming',
+        onPress: () => {
+          setHLSStreamingModal(true);
+        },
+      },
+      {
+        text: 'Stop HLS Streaming',
+        onPress: () => {
+          instance
+            ?.stopHLSStreaming()
+            .then(d => console.log(d))
+            .catch(d => console.log(d));
         },
       },
     ];
@@ -1313,6 +1350,24 @@ const Meeting = ({
         </TouchableOpacity>
       </CustomModal>
       <CustomModal
+        modalVisible={hlsStreamingModal}
+        setModalVisible={setHLSStreamingModal}
+        title={roleChangeRequestTitle}
+        buttons={roleChangeRequestButtons}>
+        <TextInput
+          onChangeText={value => {
+            setHLSStreamingDetails({...hlsStreamingDetails, meetingUrl: value});
+          }}
+          placeholderTextColor="#454545"
+          placeholder="Enter meeting url"
+          style={styles.input}
+          defaultValue={hlsStreamingDetails.meetingUrl}
+          returnKeyType="done"
+          multiline
+          blurOnSubmit
+        />
+      </CustomModal>
+      <CustomModal
         modalVisible={changeTrackStateModalVisible}
         setModalVisible={setChangeTrackStateModalVisible}
         title={roleChangeRequestTitle}
@@ -1373,7 +1428,8 @@ const Meeting = ({
               size={dimension.viewHeight(30)}
             />
           )}
-          {instance?.room?.rtmpHMSRtmpStreamingState?.running && (
+          {(instance?.room?.hlsStreamingState?.running ||
+            instance?.room?.rtmpHMSRtmpStreamingState?.running) && (
             <Entypo
               name="light-up"
               style={styles.streaming}

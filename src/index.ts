@@ -46,6 +46,10 @@ export * from './classes/HMSRtmpStreamingState';
 export * from './classes/HMSServerRecordingState';
 export * from './classes/HMSBrowserRecordingState';
 export * from './classes/HMSRTMPConfig';
+export * from './classes/HMSHLSConfig';
+export * from './classes/HMSHLSMeetingURLVariant';
+export * from './classes/HMSHLSVariant';
+export * from './classes/HMSHLSStreamingState';
 export * from './classes/HMSVideoResolution';
 
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
