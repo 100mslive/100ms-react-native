@@ -11,6 +11,7 @@ import {
   KeyboardAvoidingView,
   Dimensions,
   Alert,
+  Linking,
 } from 'react-native';
 import {connect} from 'react-redux';
 import HmsManager, {
@@ -122,12 +123,8 @@ const App = ({
   hmsInstance,
 }: WelcomeProps) => {
   const [orientation, setOrientation] = useState<boolean>(true);
-  const [roomID, setRoomID] = useState<string>(
-    'https://yogi.app.100ms.live/preview/nih-bkn-vek',
-  );
-  const [text, setText] = useState<string>(
-    'https://yogi.app.100ms.live/preview/nih-bkn-vek',
-  );
+  const [roomID, setRoomID] = useState<string>('');
+  const [text, setText] = useState<string>('');
   const [role] = useState('host');
   const [initialized, setInitialized] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
@@ -211,11 +208,10 @@ const App = ({
   };
 
   const setupBuild = async () => {
-
     /**
-     * Regular Usage: 
+     * Regular Usage:
      * const build = await HmsManager.build();
-     * 
+     *
      * Advanced Usage: Pass custom track settings while building HmsManager instance
      * const trackSettings = getTrackSettings();
      * const build = await HmsManager.build({ trackSettings });
@@ -230,6 +226,15 @@ const App = ({
   };
 
   useEffect(() => {
+    Linking.getInitialURL().then(url => {
+      if (url) {
+        setRoomID(url);
+        setText(url);
+      } else {
+        setRoomID('https://yogi.app.100ms.live/preview/nih-bkn-vek');
+        setText('https://yogi.app.100ms.live/preview/nih-bkn-vek');
+      }
+    });
     if (!initialized) {
       setupBuild();
       setInitialized(true);
