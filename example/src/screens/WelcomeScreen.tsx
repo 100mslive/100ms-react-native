@@ -69,14 +69,12 @@ type ButtonState = 'Active' | 'Loading';
 const callService = async (
   userID: string,
   roomID: string,
-  role: string,
   joinRoom: Function,
   apiFailed: Function,
 ) => {
   const response = await services.fetchToken({
     userID,
     roomID,
-    role,
   });
 
   if (response.error || !response?.token) {
@@ -115,6 +113,8 @@ const tokenFromLinkService = async (
   }
 };
 
+let config: HMSConfig | null = null;
+
 const App = ({
   setAudioVideoStateRequest,
   saveUserDataRequest,
@@ -125,18 +125,18 @@ const App = ({
   const [orientation, setOrientation] = useState<boolean>(true);
   const [roomID, setRoomID] = useState<string>('');
   const [text, setText] = useState<string>('');
-  const [role] = useState('host');
   const [initialized, setInitialized] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [previewModal, setPreviewModal] = useState<boolean>(false);
   const [localVideoTrackId, setLocalVideoTrackId] = useState<string>('');
-  const [config, setConfig] = useState<HMSConfig | null>(null);
   const [audio, setAudio] = useState<boolean>(true);
   const [video, setVideo] = useState<boolean>(true);
   const [buttonState, setButtonState] = useState<ButtonState>('Active');
   const [previewButtonState, setPreviewButtonState] =
     useState<ButtonState>('Active');
   const [instance, setInstance] = useState<HmsManager | null>(null);
+  const [videoAllowed, setVideoAllowed] = useState<boolean>(false);
+  const [audioAllowed, setAudioAllowed] = useState<boolean>(false);
 
   const navigate = useNavigation<WelcomeScreenProp>().navigate;
 
@@ -145,15 +145,35 @@ const App = ({
     room: HMSRoom;
     previewTracks: {audioTrack: HMSAudioTrack; videoTrack: HMSVideoTrack};
   }) => {
-    // console.log('here in callback success', data);
+    const localVideoAllowed =
+      instance?.localPeer?.role?.publishSettings?.allowed?.includes('video');
+
+    const localAudioAllowed =
+      instance?.localPeer?.role?.publishSettings?.allowed?.includes('audio');
+
+    setVideoAllowed(localVideoAllowed ? localVideoAllowed : false);
+    setAudioAllowed(localAudioAllowed ? localAudioAllowed : false);
+
     const videoTrackId = data?.previewTracks?.videoTrack?.trackId;
 
-    if (videoTrackId) {
+    if (localVideoAllowed && localAudioAllowed) {
       setLocalVideoTrackId(videoTrackId);
       setPreviewModal(true);
-      setButtonState('Active');
-      setAudioVideoStateRequest({audioState: true, videoState: true});
+    } else if (localVideoAllowed) {
+      setLocalVideoTrackId(videoTrackId);
+      setPreviewModal(true);
+      setAudio(false);
+    } else if (localAudioAllowed) {
+      setPreviewModal(true);
+      setVideo(false);
+    } else {
+      if (config) {
+        instance?.join(config);
+      } else {
+        console.log('config: ', config);
+      }
     }
+    setButtonState('Active');
   };
 
   const onError = (data: HMSException) => {
@@ -165,8 +185,7 @@ const App = ({
     );
   };
 
-  // let ref = React.useRef();
-
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const getTrackSettings = () => {
     let audioSettings = new HMSAudioTrackSettings({
       codec: HMSAudioCodec.opus,
@@ -264,7 +283,6 @@ const App = ({
       ])
         .then(() => {
           previewWithLink(token, userID, endpoint);
-          setButtonState('Active');
         })
         .catch(error => {
           console.log(error);
@@ -308,6 +326,8 @@ const App = ({
       authToken: token,
       username: userID,
     });
+    config = HmsConfig;
+
     instance?.addEventListener(
       HMSUpdateListenerActions.ON_PREVIEW,
       previewSuccess,
@@ -315,7 +335,6 @@ const App = ({
     saveUserDataRequest({userName: userID, roomID: roomID});
     instance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
     instance?.preview(HmsConfig);
-    setConfig(HmsConfig);
   };
 
   const previewWithLink = (
@@ -337,6 +356,7 @@ const App = ({
         // metadata: JSON.stringify({isHandRaised: true}), // To join with hand raised
       });
     }
+    config = HmsConfig;
 
     instance?.addEventListener(
       HMSUpdateListenerActions.ON_PREVIEW,
@@ -351,7 +371,6 @@ const App = ({
     saveUserDataRequest({userName: userID, roomID: roomID});
     instance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
     instance?.preview(HmsConfig);
-    setConfig(HmsConfig);
   };
 
   const onJoinListener = () => {
@@ -451,7 +470,7 @@ const App = ({
               setModalVisible(false);
             } else {
               setButtonState('Loading');
-              callService(userID, roomID, role, checkPermissions, apiFailed);
+              callService(userID, roomID, checkPermissions, apiFailed);
               setModalVisible(false);
             }
           }}
@@ -469,6 +488,8 @@ const App = ({
             setVideo(!value);
             instance?.localPeer?.localVideoTrack()?.setMute(value);
           }}
+          videoAllowed={videoAllowed}
+          audioAllowed={audioAllowed}
           trackId={localVideoTrackId}
           join={joinRoom}
           instance={instance}
