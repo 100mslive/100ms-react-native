@@ -17,7 +17,11 @@ export const PreviewModal = ({
   instance,
   setPreviewButtonState,
   previewButtonState,
+  videoAllowed,
+  audioAllowed,
 }: {
+  videoAllowed: boolean;
+  audioAllowed: boolean;
   trackId: string;
   setAudio: Function;
   setVideo: Function;
@@ -42,30 +46,34 @@ export const PreviewModal = ({
       </View>
       <View style={styles.buttonRow}>
         <View style={styles.iconContainer}>
-          <TouchableOpacity
-            style={styles.singleIconContainer}
-            onPress={async () => {
-              setIsMute(!isMute);
-              setAudio(!isMute);
-            }}>
-            <Feather
-              name={isMute ? 'mic-off' : 'mic'}
-              style={styles.videoIcon}
-              size={50}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.singleIconContainer}
-            onPress={() => {
-              setMuteVideo(!muteVideo);
-              setVideo(!muteVideo);
-            }}>
-            <Feather
-              name={muteVideo ? 'video-off' : 'video'}
-              style={styles.videoIcon}
-              size={50}
-            />
-          </TouchableOpacity>
+          {audioAllowed && (
+            <TouchableOpacity
+              style={styles.singleIconContainer}
+              onPress={async () => {
+                setIsMute(!isMute);
+                setAudio(!isMute);
+              }}>
+              <Feather
+                name={isMute ? 'mic-off' : 'mic'}
+                style={styles.videoIcon}
+                size={50}
+              />
+            </TouchableOpacity>
+          )}
+          {videoAllowed && (
+            <TouchableOpacity
+              style={styles.singleIconContainer}
+              onPress={() => {
+                setMuteVideo(!muteVideo);
+                setVideo(!muteVideo);
+              }}>
+              <Feather
+                name={muteVideo ? 'video-off' : 'video'}
+                style={styles.videoIcon}
+                size={50}
+              />
+            </TouchableOpacity>
+          )}
         </View>
         <View style={styles.joinButtonContainer}>
           <TouchableOpacity
