@@ -432,7 +432,11 @@ const DisplayTrack = ({
           sink={sink}
           trackId={trackId!}
           mirror={type === 'local' ? true : false}
-          scaleType={HMSVideoViewMode.ASPECT_FIT}
+          scaleType={
+            type === 'screen'
+              ? HMSVideoViewMode.ASPECT_FIT
+              : HMSVideoViewMode.ASPECT_FILL
+          }
           style={type === 'screen' ? styles.hmsViewScreen : styles.hmsView}
         />
       )}
@@ -1698,7 +1702,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     alignSelf: 'center',
-    aspectRatio: 16 / 9,
+    height: '100%',
   },
   generalTile: {
     width: '50%',
@@ -1713,7 +1717,7 @@ const styles = StyleSheet.create({
   },
   hmsViewScreen: {
     width: '100%',
-    aspectRatio: 16 / 9,
+    height: '100%',
   },
   iconContainers: {
     display: 'flex',

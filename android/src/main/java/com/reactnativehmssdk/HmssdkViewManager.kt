@@ -4,6 +4,7 @@ import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.annotations.ReactProp
+import com.facebook.react.common.MapBuilder
 
 class HmssdkViewManager : SimpleViewManager<HmsView>() {
 
@@ -18,13 +19,22 @@ class HmssdkViewManager : SimpleViewManager<HmsView>() {
     return HmsView(reactContext)
   }
 
+  override fun getExportedCustomBubblingEventTypeConstants(): MutableMap<String, Any>? {
+    return MapBuilder.builder<String, Any>().put(
+      "topChange",
+      MapBuilder.of(
+        "phasedRegistrationNames",
+        MapBuilder.of("bubbled", "onChange")
+      )
+    ).build()
+  }
+
   @ReactProp(name = "data")
   fun setData(view: HmsView, data: ReadableMap) {
     val trackId = data.getString("trackId")
     //    val sink = data.getBoolean("sink")
     val id = data.getString("id")
     val mirror = data.getBoolean("mirror")
-
     val hmsCollection = getHms()
     if (hmsCollection != null) {
       view.setData(id, trackId, hmsCollection, mirror)
