@@ -34,6 +34,8 @@ import {
   HMSTrackType,
   HMSException,
   HMSRTMPConfig,
+  HMSHLSMeetingURLVariant,
+  HMSHLSConfig,
 } from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
@@ -110,7 +112,7 @@ const DEFAULT_PEER: Peer = {
   name: '',
   isAudioMute: true,
   isVideoMute: true,
-  id: undefined,
+  id: Math.random().toString(),
   colour: getThemeColour(),
   sink: true,
   type: 'local',
@@ -146,7 +148,6 @@ const DisplayTrack = ({
   const [force, setForce] = useState(false);
   const [volumeModal, setVolumeModal] = useState(false);
   const [volume, setVolume] = useState(1);
-
   const modalTitle = 'Set Volume';
 
   const modalButtons: [
@@ -174,7 +175,7 @@ const DisplayTrack = ({
       }
     });
     const getVolume = async () => {
-      if (type === 'local') {
+      if (type === 'local' && !isAudioMute) {
         setVolume(await instance?.localPeer?.localAudioTrack()?.getVolume());
       }
     };
@@ -372,7 +373,7 @@ const DisplayTrack = ({
 
   return HmsViewComponent ? (
     <View
-      key={trackId}
+      key={id}
       style={[
         videoStyles(),
         {
@@ -512,6 +513,7 @@ const Meeting = ({
   const [roleModalVisible, setRoleModalVisible] = useState(false);
   const [settingsModal, setSettingsModal] = useState(false);
   const [recordingModal, setRecordingModal] = useState(false);
+  const [hlsStreamingModal, setHLSStreamingModal] = useState(false);
   const [recordingDetails, setRecordingDetails] = useState<HMSRTMPConfig>({
     record: false,
     meetingURL: state.user.roomID
@@ -519,6 +521,13 @@ const Meeting = ({
       : '',
     rtmpURLs: [],
   });
+  const [hlsStreamingDetails, setHLSStreamingDetails] =
+    useState<HMSHLSMeetingURLVariant>({
+      meetingUrl: state.user.roomID
+        ? state.user.roomID + '?token=beam_recording'
+        : '',
+      metadata: '',
+    });
   const [roleChangeModalVisible, setRoleChangeModalVisible] = useState(false);
   const [layoutModal, setLayoutModal] = useState(false);
   const [changeTrackStateModalVisible, setChangeTrackStateModalVisible] =
@@ -533,6 +542,8 @@ const Meeting = ({
     ? 'Layout Modal'
     : recordingModal
     ? 'Recording Details'
+    : hlsStreamingModal
+    ? 'HLS Streaming Details'
     : roleChangeModalVisible
     ? 'Role Change Request'
     : changeTrackStateModalVisible
@@ -551,20 +562,32 @@ const Meeting = ({
           },
         },
       ]
+    : hlsStreamingModal
+    ? [
+        {text: 'Cancel'},
+        {
+          text: 'Start',
+          onPress: () => {
+            const hmsHLSConfig = new HMSHLSConfig({
+              meetingURLVariants: [hlsStreamingDetails],
+            });
+            instance
+              ?.startHLSStreaming(hmsHLSConfig)
+              .then(d => console.log('Start HLS Streaming Success: ', d))
+              .catch(e => console.log('Start HLS Streaming Error: ', e));
+          },
+        },
+      ]
     : recordingModal
     ? [
         {text: 'Cancel'},
         {
           text: 'Start',
-          onPress: async () => {
-            try {
-              const result = await instance?.startRTMPOrRecording(
-                recordingDetails,
-              );
-              console.log(result);
-            } catch (error) {
-              console.log(error, 'error');
-            }
+          onPress: () => {
+            instance
+              ?.startRTMPOrRecording(recordingDetails)
+              .then(d => console.log('Start RTMP Or Recording Success: ', d))
+              .catch(e => console.log('Start RTMP Or Recording Error: ', e));
           },
         },
       ]
@@ -636,11 +659,21 @@ const Meeting = ({
     type: 'local' | 'screen',
   ): Peer => {
     const metadata = peer.metadata;
+    const videoPublishPermission = peer?.role?.publishSettings?.allowed
+      ? peer?.role?.publishSettings?.allowed?.includes('video')
+      : true;
+    const audioPublishPermission = peer?.role?.publishSettings?.allowed
+      ? peer?.role?.publishSettings?.allowed?.includes('audio')
+      : true;
     return {
       trackId: peer?.videoTrack?.trackId,
       name: peer?.name,
-      isAudioMute: peer?.audioTrack?.isMute() || false,
-      isVideoMute: peer?.videoTrack?.isMute() || false,
+      isAudioMute: audioPublishPermission
+        ? peer?.audioTrack?.isMute() || false
+        : true,
+      isVideoMute: videoPublishPermission
+        ? peer?.videoTrack?.isMute() || false
+        : true,
       id: peer?.peerID,
       colour: getThemeColour(),
       sink: true,
@@ -654,8 +687,7 @@ const Meeting = ({
     remotePeers: HMSRemotePeer[],
     localPeer?: HMSLocalPeer,
   ) => {
-    const localTrackId = localPeer?.videoTrack?.trackId;
-    if (localTrackId) {
+    if (localPeer) {
       const localTrackTemp = decodeLocalPeer(localPeer, 'local');
       setTrackId(localTrackTemp);
     }
@@ -821,17 +853,17 @@ const Meeting = ({
   };
 
   const reconnecting = (data: any) => {
-    console.log(data);
+    console.log('data in reconnecting: ', data);
     Toast.showWithGravity('Reconnecting...', Toast.LONG, Toast.TOP);
   };
 
   const reconnected = (data: any) => {
-    console.log(data);
+    console.log('data in reconnected: ', data);
     Toast.showWithGravity('Reconnected', Toast.LONG, Toast.TOP);
   };
 
   const onRoleChangeRequest = (data: HMSRoleChangeRequest) => {
-    console.log(data);
+    console.log('data in onRoleChangeRequest: ', data);
     setRoleChangeModalVisible(true);
     setRoleChangeRequest({
       requestedBy: data?.requestedBy?.name,
@@ -840,22 +872,24 @@ const Meeting = ({
   };
 
   const onChangeTrackStateRequest = (data: HMSChangeTrackStateRequest) => {
-    console.log(data);
-    setChangeTrackStateModalVisible(true);
-    setRoleChangeRequest({
-      requestedBy: data?.requestedBy?.name,
-      suggestedRole: data?.trackType,
-    });
+    console.log('data in onChangeTrackStateRequest: ', data);
+    if (!data?.mute) {
+      setChangeTrackStateModalVisible(true);
+      setRoleChangeRequest({
+        requestedBy: data?.requestedBy?.name,
+        suggestedRole: data?.trackType,
+      });
+    }
   };
 
   const onRemovedFromRoom = (data: any) => {
-    console.log(data);
+    console.log('data in onRemovedFromRoom: ', data);
     clearMessageRequest();
     navigate('WelcomeScreen');
   };
 
   const updateHmsInstance = (hms: HMSSDK | undefined) => {
-    console.log('instance', hms);
+    console.log('data in updateHmsInstance: ', hms);
     setInstance(hms);
     hms?.addEventListener(HMSUpdateListenerActions.ON_JOIN, onJoinListener);
 
@@ -991,15 +1025,15 @@ const Meeting = ({
         type: 'cancel',
       },
       {
-        text: 'Report issue and share logs',
-        onPress: async () => {
-          await checkPermissionToWriteExternalStroage();
-        },
-      },
-      {
         text: 'Set Layout',
         onPress: () => {
           setLayoutModal(true);
+        },
+      },
+      {
+        text: 'Report issue and share logs',
+        onPress: async () => {
+          await checkPermissionToWriteExternalStroage();
         },
       },
       {
@@ -1009,14 +1043,27 @@ const Meeting = ({
         },
       },
       {
-        text: 'Stop RTMP or Recording',
-        onPress: async () => {
-          try {
-            const result = await instance?.stopRtmpAndRecording();
-            console.log(result);
-          } catch (error) {
-            console.log(error, 'error');
-          }
+        text: 'Stop RTMP And Recording',
+        onPress: () => {
+          instance
+            ?.stopRtmpAndRecording()
+            .then(d => console.log('Stop RTMP And Recording Success: ', d))
+            .catch(e => console.log('Stop RTMP And Recording Error: ', e));
+        },
+      },
+      {
+        text: 'Start HLS Streaming',
+        onPress: () => {
+          setHLSStreamingModal(true);
+        },
+      },
+      {
+        text: 'Stop HLS Streaming',
+        onPress: () => {
+          instance
+            ?.stopHLSStreaming()
+            .then(d => console.log('Stop HLS Streaming Success: ', d))
+            .catch(e => console.log('Stop HLS Streaming Error: ', e));
         },
       },
     ];
@@ -1236,7 +1283,7 @@ const Meeting = ({
         }
       } catch (err) {
         // To handle permission related exception
-        console.log('++++' + err);
+        console.log('checkPermissionToWriteExternalStroage: ' + err);
       }
     }
   };
@@ -1246,10 +1293,9 @@ const Meeting = ({
       const fileUrl = RNFetchBlob.fs.dirs.DocumentDir + '/report-logs.json';
       const logger = HMSSDK.getLogger();
       const logs = logger?.getLogs();
-      console.log(logs);
       await writeFile({data: logs}, fileUrl);
     } catch (err) {
-      console.log(err, 'error');
+      console.log('reportIssue: ', err);
     }
   };
 
@@ -1289,7 +1335,7 @@ const Meeting = ({
         />
         <TextInput
           onChangeText={value => {
-            if (value == '') {
+            if (value === '') {
               setRecordingDetails({...recordingDetails, rtmpURLs: []});
             } else {
               setRecordingDetails({...recordingDetails, rtmpURLs: [value]});
@@ -1324,6 +1370,24 @@ const Meeting = ({
             )}
           </View>
         </TouchableOpacity>
+      </CustomModal>
+      <CustomModal
+        modalVisible={hlsStreamingModal}
+        setModalVisible={setHLSStreamingModal}
+        title={roleChangeRequestTitle}
+        buttons={roleChangeRequestButtons}>
+        <TextInput
+          onChangeText={value => {
+            setHLSStreamingDetails({...hlsStreamingDetails, meetingUrl: value});
+          }}
+          placeholderTextColor="#454545"
+          placeholder="Enter meeting url"
+          style={styles.input}
+          defaultValue={hlsStreamingDetails.meetingUrl}
+          returnKeyType="done"
+          multiline
+          blurOnSubmit
+        />
       </CustomModal>
       <CustomModal
         modalVisible={changeTrackStateModalVisible}
@@ -1386,7 +1450,8 @@ const Meeting = ({
               size={dimension.viewHeight(30)}
             />
           )}
-          {instance?.room?.rtmpHMSRtmpStreamingState?.running && (
+          {(instance?.room?.hlsStreamingState?.running ||
+            instance?.room?.rtmpHMSRtmpStreamingState?.running) && (
             <Entypo
               name="light-up"
               style={styles.streaming}
@@ -1493,7 +1558,7 @@ const Meeting = ({
           }}
           numColumns={1}
           onViewableItemsChanged={onViewRef.current}
-          keyExtractor={item => item[0]?.trackId!}
+          keyExtractor={item => item[0]?.id}
         />
       </View>
       <View style={styles.iconContainers}>

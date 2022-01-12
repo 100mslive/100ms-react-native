@@ -304,4 +304,29 @@ object HmsHelper {
     }
     return rtmpURLs
   }
+
+  fun getHMSHLSMeetingURLVariants(
+      hmsMeetingURLVariants: ArrayList<HashMap<String, String>>?
+  ): List<HMSHLSMeetingURLVariant> {
+    val meetingURLVariants = mutableListOf<HMSHLSMeetingURLVariant>()
+    if (hmsMeetingURLVariants !== null) {
+      for (variant in hmsMeetingURLVariants) {
+        val meetingURLVariant = this.getHMSHLSMeetingURLVariant(variant)
+        meetingURLVariants.add(meetingURLVariant)
+      }
+    }
+    return meetingURLVariants
+  }
+
+  private fun getHMSHLSMeetingURLVariant(
+      hmsMeetingURLVariant: HashMap<String, String>?
+  ): HMSHLSMeetingURLVariant {
+    var meetingURLVariant = HMSHLSMeetingURLVariant("", "")
+    if (hmsMeetingURLVariant !== null) {
+      val meetingUrl = hmsMeetingURLVariant["meetingUrl"] as String
+      val metadata = hmsMeetingURLVariant["metadata"] as String
+      meetingURLVariant = HMSHLSMeetingURLVariant(meetingUrl, metadata)
+    }
+    return meetingURLVariant
+  }
 }

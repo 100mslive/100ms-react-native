@@ -171,10 +171,10 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   }
 
   @ReactMethod
-  fun acceptRoleChange(data: ReadableMap) {
+  fun acceptRoleChange(data: ReadableMap, callback: Promise?) {
     val hms = HmsHelper.getHms(data, hmsCollection)
 
-    hms?.acceptRoleChange()
+    hms?.acceptRoleChange(callback)
   }
 
   @ReactMethod
@@ -231,6 +231,20 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     val hms = HmsHelper.getHms(data, hmsCollection)
 
     hms?.stopRtmpAndRecording(callback)
+  }
+
+  @ReactMethod
+  fun startHLSStreaming(data: ReadableMap, callback: Promise?) {
+    val hms = HmsHelper.getHms(data, hmsCollection)
+
+    hms?.startHLSStreaming(data, callback)
+  }
+
+  @ReactMethod
+  fun stopHLSStreaming(data: ReadableMap, callback: Promise?) {
+    val hms = HmsHelper.getHms(data, hmsCollection)
+
+    hms?.stopHLSStreaming(callback)
   }
 
   fun emitEvent(event: String, data: WritableMap) {

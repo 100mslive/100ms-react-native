@@ -7,10 +7,11 @@ import com.facebook.react.bridge.UiThreadUtil.runOnUiThread
 import java.util.*
 import kotlinx.coroutines.launch
 import live.hms.video.error.HMSException
-import live.hms.video.media.tracks.*
+import live.hms.video.media.tracks.HMSRemoteAudioTrack
+import live.hms.video.media.tracks.HMSTrack
+import live.hms.video.media.tracks.HMSTrackType
 import live.hms.video.sdk.*
 import live.hms.video.sdk.models.*
-import live.hms.video.sdk.models.HMSConfig
 import live.hms.video.sdk.models.enums.HMSPeerUpdate
 import live.hms.video.sdk.models.enums.HMSRoomUpdate
 import live.hms.video.sdk.models.enums.HMSTrackUpdate
@@ -25,9 +26,9 @@ class HmsSDK(
 ) {
   var hmsSDK: HMSSDK? = null
   private var recentRoleChangeRequest: HMSRoleChangeRequest? = null
-  private var changeTrackStateRequest: HMSChangeTrackStateRequest? = null
   var delegate: HmsModule = HmsDelegate
   private var context: ReactApplicationContext = reactApplicationContext
+  private var previewInProgress: Boolean = false
   private var id: String = sdkId
   private var self = this
 
@@ -38,6 +39,22 @@ class HmsSDK(
     } else {
       this.hmsSDK = HMSSDK.Builder(reactApplicationContext).setTrackSettings(trackSettings).build()
     }
+  }
+
+  private fun emitCustomError(message: String) {
+    val data: WritableMap = Arguments.createMap()
+    val hmsError =
+      HMSException(
+        102,
+        message,
+        message,
+        message,
+        message
+      )
+    data.putString("event", "ON_ERROR")
+    data.putString("id", id)
+    data.putMap("error", HmsDecoder.getError(hmsError))
+    delegate.emitEvent("ON_ERROR", data)
   }
 
   private fun emitRequiredKeysError() {
@@ -74,12 +91,17 @@ class HmsSDK(
   }
 
   fun preview(credentials: ReadableMap) {
+    if(previewInProgress){
+      self.emitCustomError("PREVIEW_ALREADY_IN_PROGRESS")
+      return
+    }
     val requiredKeys =
         HmsHelper.areAllRequiredKeysAvailable(
             credentials,
             arrayOf(Pair("username", "String"), Pair("authToken", "String"))
         )
     if (requiredKeys) {
+      previewInProgress = true
       var config =
           HMSConfig(
               credentials.getString("username") as String,
@@ -122,6 +144,7 @@ class HmsSDK(
           object : HMSPreviewListener {
             override fun onError(error: HMSException) {
               self.emitHMSError(error)
+              previewInProgress = false
             }
 
             override fun onPreview(room: HMSRoom, localTracks: Array<HMSTrack>) {
@@ -135,6 +158,7 @@ class HmsSDK(
               data.putMap("localPeer", localPeerData)
               data.putString("id", id)
               delegate.emitEvent("ON_PREVIEW", data)
+              previewInProgress = false
             }
           }
       )
@@ -144,6 +168,10 @@ class HmsSDK(
   }
 
   fun join(credentials: ReadableMap) {
+    if(previewInProgress){
+      self.emitCustomError("PREVIEW_IS_IN_PROGRESS")
+      return
+    }
     val requiredKeys =
         HmsHelper.areAllRequiredKeysAvailable(
             credentials,
@@ -199,7 +227,6 @@ class HmsSDK(
                       "ON_CHANGE_TRACK_STATE_REQUEST",
                       decodedChangeTrackStateRequest
                   )
-                  changeTrackStateRequest = details
                 }
 
                 override fun onRemovedFromRoom(notification: HMSRemovedFromRoom) {
@@ -700,21 +727,23 @@ class HmsSDK(
     )
   }
 
-  fun acceptRoleChange() {
+  fun acceptRoleChange(callback: Promise?) {
     if (recentRoleChangeRequest !== null) {
+
       hmsSDK?.acceptChangeRole(
           recentRoleChangeRequest!!,
           object : HMSActionResultListener {
             override fun onSuccess() {
-              recentRoleChangeRequest = null
+              callback?.resolve(emitHMSSuccess())
             }
-
             override fun onError(error: HMSException) {
-              recentRoleChangeRequest = null
               self.emitHMSError(error)
+              callback?.reject(error.code.toString(), error.message)
             }
           }
       )
+
+      recentRoleChangeRequest = null
     }
   }
 
@@ -941,16 +970,58 @@ class HmsSDK(
 
   fun stopScreenshare(callback: Promise?) {
     hmsSDK?.stopScreenshare(
+      object : HMSActionResultListener {
+        override fun onError(error: HMSException) {
+          callback?.reject(error.code.toString(), error.message)
+          self.emitHMSError(error)
+        }
+        override fun onSuccess() {
+          callback?.resolve(emitHMSSuccess())
+          HmsModule.isScreenShared = false
+        }
+      }
+    )
+  }
+
+  fun startHLSStreaming(data: ReadableMap, callback: Promise?) {
+    val requiredKeys =
+        HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("meetingURLVariants", "Array")))
+    if (requiredKeys) {
+      val meetingURLVariants =
+          data.getArray("meetingURLVariants")?.toArrayList() as? ArrayList<HashMap<String, String>>
+      val hlsMeetingUrlVariant = HmsHelper.getHMSHLSMeetingURLVariants(meetingURLVariants)
+      val config = HMSHLSConfig(hlsMeetingUrlVariant)
+
+      hmsSDK?.startHLSStreaming(
+        config,
         object : HMSActionResultListener {
+          override fun onSuccess() {
+            callback?.resolve(emitHMSSuccess())
+          }
           override fun onError(error: HMSException) {
             callback?.reject(error.code.toString(), error.message)
             self.emitHMSError(error)
           }
-          override fun onSuccess() {
-            callback?.resolve(emitHMSSuccess())
-            HmsModule.isScreenShared = false
-          }
         }
+      )
+    } else {
+      callback?.reject("101", "REQUIRED_KEYS_NOT_FOUND")
+      self.emitRequiredKeysError()
+    }
+  }
+
+  fun stopHLSStreaming(callback: Promise?) {
+    hmsSDK?.stopHLSStreaming(
+      null,
+      object : HMSActionResultListener {
+        override fun onSuccess() {
+          callback?.resolve(emitHMSSuccess())
+        }
+        override fun onError(error: HMSException) {
+          callback?.reject(error.code.toString(), error.message)
+          self.emitHMSError(error)
+        }
+      }
     )
   }
 }

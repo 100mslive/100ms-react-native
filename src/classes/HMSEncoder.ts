@@ -26,6 +26,7 @@ export class HMSEncoder {
       browserRecordingState: room?.browserRecordingState,
       rtmpHMSRtmpStreamingState: room?.rtmpHMSRtmpStreamingState,
       serverRecordingState: room?.serverRecordingState,
+      hlsStreamingState: room?.hlsStreamingState,
     };
 
     return new HMSRoom(encodedObj);
@@ -276,6 +277,7 @@ export class HMSEncoder {
     const encodedChangeTrackStateRequest = {
       requestedBy: HMSEncoder.encodeHmsPeer(data.requestedBy, id),
       trackType: data.trackType,
+      mute: data.mute,
     };
 
     return new HMSChangeTrackStateRequest(encodedChangeTrackStateRequest);

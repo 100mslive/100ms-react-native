@@ -17,6 +17,7 @@ import { HmsView as HMSViewComponent } from './HmsView';
 import { HMSVideoViewMode } from './HMSVideoViewMode';
 import type { HMSTrackSettings } from './HMSTrackSettings';
 import type { HMSRTMPConfig } from './HMSRTMPConfig';
+import type { HMSHLSConfig } from './HMSHLSConfig';
 
 interface HmsComponentProps {
   trackId: string;
@@ -354,6 +355,19 @@ export class HMSSDK {
     return op;
   };
 
+  startHLSStreaming = async (data: HMSHLSConfig) => {
+    logger?.verbose('#Function startHLSStreaming', {
+      ...data,
+      id: this.id,
+    });
+    return await HmsManager.startHLSStreaming({ ...data, id: this.id });
+  };
+
+  stopHLSStreaming = async () => {
+    logger?.verbose('#Function stopHLSStreaming', {});
+    return await HmsManager.stopHLSStreaming({ id: this.id });
+  };
+
   changeRole = async (peer: HMSPeer, role: HMSRole, force: boolean = false) => {
     const data = {
       peerId: peer?.peerID,
@@ -426,9 +440,9 @@ export class HMSSDK {
     return await HmsManager.endRoom(data);
   };
 
-  acceptRoleChange = () => {
+  acceptRoleChange = async () => {
     logger?.verbose('#Function acceptRoleChange', { id: this.id });
-    HmsManager.acceptRoleChange({ id: this.id });
+    return await HmsManager.acceptRoleChange({ id: this.id });
   };
 
   muteAllPeersAudio = (mute: boolean) => {
