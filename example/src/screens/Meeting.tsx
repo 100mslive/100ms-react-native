@@ -48,6 +48,7 @@ import type {StackNavigationProp} from '@react-navigation/stack';
 import Toast from 'react-native-simple-toast';
 import RNFetchBlob from 'rn-fetch-blob';
 import {Picker} from '@react-native-picker/picker';
+import Video from 'react-native-video';
 
 import {ChatWindow, AlertModal, CustomModal, RolePicker} from '../components';
 import {
@@ -175,7 +176,11 @@ const DisplayTrack = ({
     });
     const getVolume = async () => {
       if (type === 'local' && !isAudioMute) {
-        setVolume(await instance?.localPeer?.localAudioTrack()?.getVolume());
+        try {
+          setVolume(await instance?.localPeer?.localAudioTrack()?.getVolume());
+        } catch (e) {
+          console.log('error in get volume', e);
+        }
       }
     };
     getVolume();
@@ -535,6 +540,8 @@ const Meeting = ({
   const [localPeerPermissions, setLocalPeerPermissions] =
     useState<HMSPermissions>();
   const flatlistRef = useRef<FlatList>(null);
+  const hlsPlayerRef = useRef<Video>(null);
+  const [hlsPlayerSeek, setHlsPlayerSeek] = useState(0);
   const [page, setPage] = useState(0);
 
   const roleChangeRequestTitle = layoutModal
@@ -977,6 +984,12 @@ const Meeting = ({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [instance]);
+
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      hlsPlayerRef?.current?.seek(hlsPlayerSeek);
+    }
+  }, [hlsPlayerRef, hlsPlayerSeek, instance?.room?.hlsStreamingState]);
 
   const getRemoteVideoStyles = () => {
     return styles.generalTile;
@@ -1480,59 +1493,96 @@ const Meeting = ({
         </View>
       </View>
       <View style={styles.wrapper}>
-        <FlatList
-          ref={flatlistRef}
-          horizontal
-          data={pairedPeers}
-          initialNumToRender={2}
-          maxToRenderPerBatch={3}
-          onScroll={({nativeEvent}) => {
-            const {contentOffset, layoutMeasurement} = nativeEvent;
-            setPage(contentOffset.x / layoutMeasurement.width);
-          }}
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          renderItem={({item}) => {
-            return (
-              <View
-                key={item[0]?.trackId}
-                style={[
-                  styles.page,
-                  {width: Dimensions.get('window').width - left - right},
-                ]}>
-                {item?.map(
-                  (view: Peer) =>
-                    view?.id &&
-                    (view.type === 'screen' ? (
-                      <DisplayTrack
-                        key={view?.id}
-                        peer={view}
-                        videoStyles={getAuxVideoStyles}
-                        speakers={speakers}
-                        instance={instance}
-                        type={view.type}
-                        permissions={localPeerPermissions}
-                      />
-                    ) : (
-                      <DisplayTrack
-                        key={view?.id}
-                        peer={view}
-                        videoStyles={getRemoteVideoStyles}
-                        speakers={speakers}
-                        instance={instance}
-                        type={view.type}
-                        permissions={localPeerPermissions}
-                        layout={layout}
-                      />
-                    )),
-                )}
-              </View>
-            );
-          }}
-          numColumns={1}
-          onViewableItemsChanged={onViewRef.current}
-          keyExtractor={item => item[0]?.id}
-        />
+        {instance?.localPeer?.role?.name?.includes('hls-') ? (
+          instance?.room?.hlsStreamingState?.running ? (
+            instance?.room?.hlsStreamingState?.variants
+              ?.slice(0, 1)
+              ?.map((variant, index) =>
+                variant?.hlsStreamUrl ? (
+                  <Video
+                    key={index}
+                    source={{
+                      uri: variant?.hlsStreamUrl,
+                    }} // Can be a URL or a local file.
+                    controls
+                    onLoad={({duration}) => {
+                      if (Platform.OS === 'android') {
+                        setHlsPlayerSeek(duration);
+                      }
+                    }}
+                    ref={hlsPlayerRef}
+                    resizeMode="contain"
+                    onError={() => console.log('hls video streaming error')}
+                    // Callback when video cannot be loaded
+                    allowsExternalPlayback={false}
+                    style={styles.renderVideo}
+                  />
+                ) : (
+                  <View key={index} style={styles.renderVideo}>
+                    <Text>Trying to load empty source...</Text>
+                  </View>
+                ),
+              )
+          ) : (
+            <View style={styles.renderVideo}>
+              <Text>Waiting for the Streaming to start...</Text>
+            </View>
+          )
+        ) : (
+          <FlatList
+            ref={flatlistRef}
+            horizontal
+            data={pairedPeers}
+            initialNumToRender={2}
+            maxToRenderPerBatch={3}
+            onScroll={({nativeEvent}) => {
+              const {contentOffset, layoutMeasurement} = nativeEvent;
+              setPage(contentOffset.x / layoutMeasurement.width);
+            }}
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            renderItem={({item}) => {
+              return (
+                <View
+                  key={item[0]?.trackId}
+                  style={[
+                    styles.page,
+                    {width: Dimensions.get('window').width - left - right},
+                  ]}>
+                  {item?.map(
+                    (view: Peer) =>
+                      view?.id &&
+                      (view.type === 'screen' ? (
+                        <DisplayTrack
+                          key={view?.id}
+                          peer={view}
+                          videoStyles={getAuxVideoStyles}
+                          speakers={speakers}
+                          instance={instance}
+                          type={view.type}
+                          permissions={localPeerPermissions}
+                        />
+                      ) : (
+                        <DisplayTrack
+                          key={view?.id}
+                          peer={view}
+                          videoStyles={getRemoteVideoStyles}
+                          speakers={speakers}
+                          instance={instance}
+                          type={view.type}
+                          permissions={localPeerPermissions}
+                          layout={layout}
+                        />
+                      )),
+                  )}
+                </View>
+              );
+            }}
+            numColumns={1}
+            onViewableItemsChanged={onViewRef.current}
+            keyExtractor={item => item[0]?.id}
+          />
+        )}
       </View>
       <View style={styles.iconContainers}>
         {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
@@ -1884,6 +1934,12 @@ const styles = StyleSheet.create({
   },
   checkbox: {
     color: 'black',
+  },
+  renderVideo: {
+    height: '100%',
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
