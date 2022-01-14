@@ -33,5 +33,11 @@ platform :android do
       build_type: 'Release'
     )
     commit = last_git_commit
+    firebase_app_distribution(
+      app: "1:408505141940:android:7fae09bd993f283fc325e1",
+      testers: "internal, external",
+      android_artifact_path: "/Users/lavi/Sites/projects/HMS/100ms-react-native/example/android/app/build/outputs/apk/release/app-release.apk",
+      release_notes: commit[:message]
+    )
   end
 end
