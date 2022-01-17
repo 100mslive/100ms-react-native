@@ -541,7 +541,6 @@ const Meeting = ({
     useState<HMSPermissions>();
   const flatlistRef = useRef<FlatList>(null);
   const hlsPlayerRef = useRef<Video>(null);
-  const [hlsPlayerSeek, setHlsPlayerSeek] = useState(0);
   const [page, setPage] = useState(0);
 
   const roleChangeRequestTitle = layoutModal
@@ -984,12 +983,6 @@ const Meeting = ({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [instance]);
-
-  useEffect(() => {
-    if (Platform.OS === 'android') {
-      hlsPlayerRef?.current?.seek(hlsPlayerSeek);
-    }
-  }, [hlsPlayerRef, hlsPlayerSeek, instance?.room?.hlsStreamingState]);
 
   const getRemoteVideoStyles = () => {
     return styles.generalTile;
@@ -1504,10 +1497,10 @@ const Meeting = ({
                     source={{
                       uri: variant?.hlsStreamUrl,
                     }} // Can be a URL or a local file.
-                    controls
+                    controls={Platform.OS === 'ios' ? true : false}
                     onLoad={({duration}) => {
                       if (Platform.OS === 'android') {
-                        setHlsPlayerSeek(duration);
+                        hlsPlayerRef?.current?.seek(duration);
                       }
                     }}
                     ref={hlsPlayerRef}
