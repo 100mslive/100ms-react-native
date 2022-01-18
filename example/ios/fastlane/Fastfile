@@ -1,0 +1,69 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:ios)
+commit = last_git_commit
+platform :ios do
+  desc "Release the app via firebase app distribution"
+  lane :distribute do
+    increment_build_number()
+    increment_version_number(
+      bump_type: "patch"
+    )
+
+    build_app(
+      scheme: "RNHMSExample",
+      workspace: "./RNHMSExample.xcworkspace",
+      include_symbols: true,
+      export_options: {
+        method: "development",
+        provisioningProfiles: { 
+          "live.100ms.reactnative" => "ReactNativeDistributionCertificate"
+        }
+      }
+    )
+
+    commit = last_git_commit
+
+    firebase_app_distribution(
+      app: "1:408505141940:ios:1d2339892d9ffd8cc325e1",
+      groups: "internal, external",
+      release_notes: commit[:message]
+      # googleservice_info_plist_path: '../GoogleService-Info.plist'
+      ipa_path: './RNHMSExample.ipa'
+    )
+
+    build_number = get_build_number(xcodeproj: "./RNHMSExample.xcodeproj")
+    version = get_version_number()
+
+    slack(
+      message: "🎉🍀📱 React Native iOS App released! 📱🍀 Download here 👉 https://appdistribution.firebase.dev/i/bdfa6517b69c31d6",
+      slack_url: "https://hooks.slack.com/services/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",
+      payload: {  
+        "Build Date" => Time.new.to_s
+      },
+      default_payloads: [:last_git_commit], 
+      attachment_properties: {      
+        fields: [{
+          title: "🎊 Version",
+          value: version + " (" + build_number + ")",
+          short: false 
+        }]
+      }
+    )
+
+
+  end
+end
