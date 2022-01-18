@@ -519,10 +519,10 @@ class HmsDecoder: NSObject {
         
         if let hlsVariant = data {
             for variant in hlsVariant {
-                let meetingUrl = variant.meetingURL
+                let meetingUrl = variant.meetingURL.absoluteString
                 let metadata = variant.metadata
                 let startedAt = variant.startedAt?.timeIntervalSince1970 ?? 0
-                let hlsStreamingUrl = variant.url
+                let hlsStreamingUrl = variant.url.absoluteString
                 
                 let decodedVariant = ["meetingUrl": meetingUrl, "metadata": metadata, "hlsStreamUrl": hlsStreamingUrl, "startedAt": startedAt] as [String: Any]
                 variants.append(decodedVariant)
