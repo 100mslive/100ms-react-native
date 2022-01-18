@@ -25,18 +25,40 @@ platform :android do
     versionCode = s[re, 1].to_i
     s[re, 1] = (versionCode + 1).to_s
     s[vn, 1] = (versionCode+1).to_s
+
+    updatedVersionCode = s[re, 1]
+    updatedVersionName = s[/versionName\s+"(\d.\d.\d+)"/, 1]
+
     f = File.new(path, 'w')
     f.write(s)
     f.close
+
     build_android_app(
       task: 'assemble',
       build_type: 'Release'
     )
+
     commit = last_git_commit
     firebase_app_distribution(
       app: "1:408505141940:android:7fae09bd993f283fc325e1",
       groups: "internal, external",
       release_notes: commit[:message]
+    )
+
+    slack(
+      message: "🎉🍀📱 React Native android App released! 📱🍀 Download here 👉 https://appdistribution.firebase.dev/i/7b7ab3b30e627c35",
+      slack_url: "https://hooks.slack.com/services/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",
+      payload: {  
+        "Build Date" => Time.new.to_s
+      },
+      default_payloads: [:last_git_commit], 
+      attachment_properties: {      
+        fields: [{
+          title: "🎊 Version",
+          value: updatedVersionName + " (" + updatedVersionCode + ")",
+          short: false 
+        }]
+      }
     )
   end
 end

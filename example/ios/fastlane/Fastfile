@@ -50,7 +50,7 @@ platform :ios do
 
     slack(
       message: "🎉🍀📱 React Native iOS App released! 📱🍀 Download here 👉 https://appdistribution.firebase.dev/i/bdfa6517b69c31d6",
-      slack_url: "https://hooks.slack.com/services/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",
+      slack_url: "https://hooks.slack.com/services/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",
       payload: {  
         "Build Date" => Time.new.to_s
       },
