@@ -1,5 +1,11 @@
 import React from 'react';
-import { NativeEventEmitter, NativeModules, ViewStyle } from 'react-native';
+import {
+  NativeEventEmitter,
+  NativeModules,
+  Platform,
+  ViewStyle,
+  AppState,
+} from 'react-native';
 import { HMSUpdateListenerActions } from './HMSUpdateListenerActions';
 import type { HMSConfig } from './HMSConfig';
 import type { HMSLocalPeer } from './HMSLocalPeer';
@@ -48,6 +54,7 @@ export class HMSSDK {
   knownRoles?: HMSRole[];
   id: string;
   private muteStatus: boolean | undefined;
+  appStateSubscription?: any;
 
   onPreviewDelegate?: any;
   onJoinDelegate?: any;
@@ -236,6 +243,7 @@ export class HMSSDK {
    */
   join = async (config: HMSConfig) => {
     logger?.verbose('#Function join', { config, id: this.id });
+    this.addAppStateListener();
     await HmsManager.join({ ...config, id: this.id });
   };
 
@@ -280,6 +288,7 @@ export class HMSSDK {
     this.remotePeers = undefined;
     this.room = undefined;
     this.knownRoles = undefined;
+    this?.appStateSubscription?.remove();
     return op;
   };
 
@@ -474,6 +483,23 @@ export class HMSSDK {
       volume,
     });
     return;
+  };
+
+  resetVolume = () => {
+    logger?.verbose('#Function resetVolume', { id: this.id });
+    if (Platform.OS === 'android') HmsManager.resetVolume({ id: this.id });
+  };
+
+  addAppStateListener = () => {
+    logger?.verbose('#Function addAppStateListener', { id: this.id });
+    this.appStateSubscription = AppState.addEventListener(
+      'change',
+      (nextAppState) => {
+        if (nextAppState === 'active' && Platform.OS === 'android') {
+          this.resetVolume();
+        }
+      }
+    );
   };
 
   /**

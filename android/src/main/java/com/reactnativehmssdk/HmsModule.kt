@@ -232,6 +232,13 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     hms?.stopHLSStreaming(callback)
   }
 
+  @ReactMethod
+  fun resetVolume(data: ReadableMap) {
+    val hms = HmsHelper.getHms(data, hmsCollection)
+
+    hms?.resetVolume()
+  }
+
   fun emitEvent(event: String, data: WritableMap) {
     reactApplicationContext
         .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
