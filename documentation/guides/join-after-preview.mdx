@@ -34,11 +34,15 @@ Once the listeners are attached we can call preview function. Wait for the previ
 If we get a error callback display the error with a toast or alert and if we get a preview callback open a preview modal or call join function.
 
 ```js
+import {
+  HMSException,
+} from '@100mslive/react-native-hms';
+
 const preview = () => {
-  hmsInstance.preview(HmsConfig);
+  hmsInstance.preview(config);
 }
 
-const onErrorListener = () => {
+const onErrorListener = (data: HMSException) => {
   Alert.alert(data?.error?.message || 'Something went wrong'); // display error with a toast or alert
 }
 
