@@ -1,4 +1,4 @@
-# How to call Join if Preview is implemented 
+# Joining with Preview
 
 ## Attaching Preview and Error Listeners
 It is important to attach preview listener and error listener before calling the preview 
@@ -30,8 +30,9 @@ const build = () => {
 ```
 
 ## Calling Preview and Join functions
-Once the listeners are attached we can call preview function. Wait for the preview or error callback to trigger before calling the join function.
-If we get a error callback display the error with a toast or alert and if we get a preview callback open a preview modal or call join function.
+Preview screen is a frequently used UX element which allows users to check if their input devices are working properly and set the initial state 
+(mute/unmute) of their audio and video tracks before joining. Once the listeners are attached we can call the preview function. After the preview 
+function is called we have to wait for the preview or error callback before calling the join function.
 
 ```js
 import {
@@ -43,15 +44,16 @@ const preview = () => {
 }
 
 const onErrorListener = (data: HMSException) => {
-  Alert.alert(data?.error?.message || 'Something went wrong'); // display error with a toast or alert
+  // this callback will be triggered if preview or join functions fails
 }
 
 const onPreviewListener = () => {
-  hmsInstance.join(config); // or open a preview modal or navigate to a preview screen and call join from there
+  // this callback will be triggered if preview is successful and then only we should call join
+  hmsInstance.join(config);  
 }
 
 const onJoinListener = () => {
-  navigate('Meeting'); // close the preview modal and navigate to Meeting screen
+  // this callback will be triggered if join is successful
 };
 ```
 
