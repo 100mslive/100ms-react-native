@@ -30,7 +30,6 @@ class HmssdkDisplayView: UIView {
     }()
     
     var hmsCollection: [String: HmsSDK] = [:]
-    var localTrack: String?
     var sinked = false
     var sinkVideo = true
     
@@ -58,66 +57,31 @@ class HmssdkDisplayView: UIView {
     
     @objc var data: NSDictionary = [:] {
         didSet {
-            guard let trackID = data.value(forKey: "trackId") as? String,
+            
+            let sdkID = data.value(forKey: "id") as? String ?? "12345"
+            
+            guard let hmsSDK = hmsCollection[sdkID]?.hms,
+                  let trackID = data.value(forKey: "trackId") as? String,
+                  let videoTrack = HMSUtilities.getVideoTrack(for: trackID, in: hmsSDK.room!),
                   let sink = data.value(forKey: "sink") as? Bool
-            else { return }
+            else {
+                print(#function, "Required data to setup video view not found")
+                return
+            }
             
             sinkVideo = sink
-            localTrack = trackID
+            
             let mirror = data.value(forKey: "mirror") as? Bool
-            if(mirror != nil){
+            if (mirror != nil) {
                 videoView.mirror = mirror!
             }
             
-            var id : String = "12345"
-            
-            if let sdkId = data.value(forKey: "id") as? String {
-                id = sdkId
-            }
-            
-            if let videoTrack: HMSVideoTrack = hmsCollection[id]?.hms?.localPeer?.videoTrack {
-                if videoTrack.trackId == trackID {
-                    
-                    if !sinked && sinkVideo {
-                        videoView.setVideoTrack(videoTrack)
-                        sinked = true
-                    } else if !sinkVideo {
-                        videoView.setVideoTrack(nil)
-                        sinked = false
-                    }
-                    return
-                }
-            }
-            
-            if let remotePeers: [HMSRemotePeer] = hmsCollection[id]?.hms?.remotePeers {
-                for peer in remotePeers where peer.videoTrack?.trackId == trackID {
-                    
-                    if !sinked && sinkVideo {
-                        videoView.setVideoTrack(peer.videoTrack)
-                        sinked = true
-                    } else if !sinkVideo {
-                        videoView.setVideoTrack(nil)
-                        sinked = false
-                    }
-                    return
-                }
-                for peer in remotePeers {
-                    let auxTracks = peer.auxiliaryTracks
-                    if let auxTracksVals = auxTracks {
-                        for track in auxTracksVals where track.trackId == trackID {
-                            if (HmsHelper.getHmsTrackType(track.kind) == "VIDEO") {
-                                if !sinked && sinkVideo {
-                                    videoView.setVideoTrack(track as? HMSVideoTrack)
-                                    sinked = true
-                                } else if !sinkVideo {
-                                    videoView.setVideoTrack(nil)
-                                    sinked = false
-                                }
-                                return
-                            }
-                        }
-                    }
-                }
+            if !sinked && sinkVideo {
+                videoView.setVideoTrack(videoTrack)
+                sinked = true
+            } else if !sinkVideo {
+                videoView.setVideoTrack(nil)
+                sinked = false
             }
         }
     }
