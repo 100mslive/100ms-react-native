@@ -10,6 +10,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
+    "@dudigital/react-native-zoomable-view": "^1.1.3",
     "@miblanchard/react-native-slider": "^2.0.2",
     "@react-native-firebase/app": "^12.8.0",
     "@react-native-firebase/crashlytics": "^12.8.0",

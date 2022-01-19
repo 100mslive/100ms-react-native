@@ -11,6 +11,7 @@ import {
   Platform,
   TextInput,
   PermissionsAndroid,
+  // Modal,
 } from 'react-native';
 import {connect} from 'react-redux';
 import {
@@ -48,6 +49,8 @@ import type {StackNavigationProp} from '@react-navigation/stack';
 import Toast from 'react-native-simple-toast';
 import RNFetchBlob from 'rn-fetch-blob';
 import {Picker} from '@react-native-picker/picker';
+import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView';
+// import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
 
 import {ChatWindow, AlertModal, CustomModal, RolePicker} from '../components';
 import {
@@ -540,6 +543,8 @@ const Meeting = ({
     useState<HMSPermissions>();
   const flatlistRef = useRef<FlatList>(null);
   const [page, setPage] = useState(0);
+  // const [zoomableModal, setZoomableModal] = useState(false);
+  // var doublePress = 0;
 
   const roleChangeRequestTitle = layoutModal
     ? 'Layout Modal'
@@ -1487,7 +1492,7 @@ const Meeting = ({
         <FlatList
           ref={flatlistRef}
           horizontal
-          data={pairedPeers}
+          data={pairedPeers.splice(0, 1)}
           initialNumToRender={2}
           maxToRenderPerBatch={3}
           onScroll={({nativeEvent}) => {
@@ -1508,15 +1513,62 @@ const Meeting = ({
                   (view: Peer) =>
                     view?.id &&
                     (view.type === 'screen' ? (
-                      <DisplayTrack
-                        key={view?.id}
-                        peer={view}
-                        videoStyles={getAuxVideoStyles}
-                        speakers={speakers}
-                        instance={instance}
-                        type={view.type}
-                        permissions={localPeerPermissions}
-                      />
+                      <View style={styles.flex} key={view?.id}>
+                        {/* <TouchableWithoutFeedback
+                          onPress={() => {
+                            console.log('Single Tap');
+                            doublePress++;
+                            if (doublePress === 2) {
+                              console.log('Double Tap');
+                              doublePress = 0;
+                              setZoomableModal(true);
+                            } else {
+                              setTimeout(() => {
+                                doublePress = 0;
+                              }, 500);
+                            }
+                          }}>
+                          <DisplayTrack
+                            // key={view?.id}
+                            peer={view}
+                            videoStyles={getAuxVideoStyles}
+                            speakers={speakers}
+                            instance={instance}
+                            type={view.type}
+                            permissions={localPeerPermissions}
+                          />
+                        </TouchableWithoutFeedback> */}
+                        {/* <Modal
+                          animationType="fade"
+                          visible={zoomableModal}
+                          supportedOrientations={['portrait', 'landscape']}>
+                          <TouchableOpacity
+                            style={styles.closeButton}
+                            onPress={() => setZoomableModal(false)}>
+                            <Entypo
+                              name="circle-with-cross"
+                              style={styles.videoIcon}
+                              size={dimension.viewHeight(50)}
+                            />
+                          </TouchableOpacity> */}
+                        <ReactNativeZoomableView
+                          maxZoom={1.25}
+                          minZoom={1}
+                          zoomStep={0.1}
+                          initialZoom={1}
+                          bindToBorders={true}>
+                          <DisplayTrack
+                            key={view?.id}
+                            peer={view}
+                            videoStyles={getAuxVideoStyles}
+                            speakers={speakers}
+                            instance={instance}
+                            type={view.type}
+                            permissions={localPeerPermissions}
+                          />
+                        </ReactNativeZoomableView>
+                        {/* </Modal> */}
+                      </View>
                     ) : (
                       <DisplayTrack
                         key={view?.id}
@@ -1888,6 +1940,15 @@ const styles = StyleSheet.create({
   },
   checkbox: {
     color: 'black',
+  },
+  closeButton: {
+    position: 'absolute',
+    left: 1,
+    top: 70,
+    zIndex: 10,
+  },
+  flex: {
+    flex: 1,
   },
 });
 
