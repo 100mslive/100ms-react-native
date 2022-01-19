@@ -1,0 +1,54 @@
+# How to call Join if Preview is implemented 
+
+## Attaching Preview and Error Listeners
+It is important to attach preview listener and error listener before calling the preview 
+function in order to get updates if preview got executed successfully or if it failed.
+
+```js
+import HmsManager, {
+  HMSUpdateListenerActions,
+} from '@100mslive/react-native-hms';
+
+const build = () => {
+  const hmsInstance = HmsManager.build() // save this hms instance
+
+  hmsInstance.addEventListener(
+    HMSUpdateListenerActions.ON_PREVIEW,
+    onPreviewListener, // function that will be called on Preview success
+  );
+  
+  hmsInstance.addEventListener(
+    HMSUpdateListenerActions.ON_JOIN,
+    onJoinListener, // function that will be called on Join success
+  );
+
+  hmsInstance.addEventListener(
+    HMSUpdateListenerActions.ON_ERROR, 
+    onErrorListener, // function that will be called on Preview or Join failure
+  );
+}
+```
+
+## Calling Preview and Join functions
+Once the listeners are attached we can call preview function. Wait for the preview or error callback to trigger before calling the join function.
+If we get a error callback display the error with a toast or alert and if we get a preview callback open a preview modal or call join function.
+
+```js
+const preview = () => {
+  hmsInstance.preview(HmsConfig);
+}
+
+const onErrorListener = () => {
+  Alert.alert(data?.error?.message || 'Something went wrong'); // display error with a toast or alert
+}
+
+const onPreviewListener = () => {
+  hmsInstance.join(config); // or open a preview modal or navigate to a preview screen and call join from there
+}
+
+const onJoinListener = () => {
+  navigate('Meeting'); // close the preview modal and navigate to Meeting screen
+};
+```
+
+
