@@ -990,4 +990,25 @@ class HmsSDK(
         }
     )
   }
+
+  fun resetVolume() {
+    val remotePeers = hmsSDK?.getRemotePeers()
+
+    if (remotePeers != null) {
+      for (peer in remotePeers) {
+        val playbackAllowed = peer.audioTrack?.isPlaybackAllowed
+        if (playbackAllowed !== null && playbackAllowed) {
+          peer.audioTrack?.setVolume(10.0)
+        }
+        val auxTracks = peer.auxiliaryTracks
+
+        for (track in auxTracks) {
+          if (track.type === HMSTrackType.AUDIO) {
+
+            (track as? HMSRemoteAudioTrack)?.setVolume(10.0)
+          }
+        }
+      }
+    }
+  }
 }
