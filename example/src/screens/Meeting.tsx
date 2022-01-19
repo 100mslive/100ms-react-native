@@ -291,7 +291,7 @@ const DisplayTrack = ({
     selectRemoteActionButtons.push({
       text: 'Remove Participant',
       onPress: async () => {
-        await instance?.removePeer(id!, 'removed from room');
+        await instance?.removePeer(peerRefrence!, 'removed from room');
       },
     });
   }
@@ -1128,33 +1128,33 @@ const Meeting = ({
           const source = 'regular';
           switch (action) {
             case 1:
-              await instance?.changeTrackStateRoles(
-                HMSTrackType.VIDEO,
+              await instance?.changeTrackStateForRoles(
                 true,
+                HMSTrackType.VIDEO,
                 source,
                 [newRole!],
               );
               break;
             case 2:
-              await instance?.changeTrackStateRoles(
-                HMSTrackType.VIDEO,
+              await instance?.changeTrackStateForRoles(
                 false,
+                HMSTrackType.VIDEO,
                 source,
                 [newRole!],
               );
               break;
             case 3:
-              await instance?.changeTrackStateRoles(
-                HMSTrackType.AUDIO,
+              await instance?.changeTrackStateForRoles(
                 true,
+                HMSTrackType.AUDIO,
                 source,
                 [newRole!],
               );
               break;
             case 4:
-              await instance?.changeTrackStateRoles(
-                HMSTrackType.AUDIO,
+              await instance?.changeTrackStateForRoles(
                 false,
+                HMSTrackType.AUDIO,
                 source,
                 [newRole!],
               );
@@ -1185,7 +1185,7 @@ const Meeting = ({
       buttons.push({
         text: 'End Room for all',
         onPress: async () => {
-          await instance?.endRoom(false, 'Host ended the room');
+          await instance?.endRoom('Host ended the room');
           clearMessageRequest();
           navigate('WelcomeScreen');
         },
@@ -1684,7 +1684,10 @@ const Meeting = ({
               } else if (messageTo?.type === 'group') {
                 await instance?.sendGroupMessage(value, [messageTo?.obj]);
               } else if (messageTo.type === 'direct') {
-                await instance?.sendDirectMessage(value, messageTo?.obj?.id);
+                await instance?.sendDirectMessage(
+                  value,
+                  messageTo?.obj?.peerRefrence,
+                );
               }
               addMessageRequest({
                 data: hmsMessage,
