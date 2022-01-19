@@ -11,7 +11,7 @@ import {
   Platform,
   TextInput,
   PermissionsAndroid,
-  // Modal,
+  Animated,
 } from 'react-native';
 import {connect} from 'react-redux';
 import {
@@ -49,8 +49,12 @@ import type {StackNavigationProp} from '@react-navigation/stack';
 import Toast from 'react-native-simple-toast';
 import RNFetchBlob from 'rn-fetch-blob';
 import {Picker} from '@react-native-picker/picker';
-import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView';
-// import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
+// import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView';
+import {
+  TouchableWithoutFeedback,
+  PinchGestureHandler,
+  GestureHandlerRootView,
+} from 'react-native-gesture-handler';
 
 import {ChatWindow, AlertModal, CustomModal, RolePicker} from '../components';
 import {
@@ -527,6 +531,7 @@ const Meeting = ({
       : '',
     rtmpURLs: [],
   });
+  const [zoomableTrackId, setZoomableTrackId] = useState('');
   const [hlsStreamingDetails, setHLSStreamingDetails] =
     useState<HMSHLSMeetingURLVariant>({
       meetingUrl: state.user.roomID
@@ -543,8 +548,8 @@ const Meeting = ({
     useState<HMSPermissions>();
   const flatlistRef = useRef<FlatList>(null);
   const [page, setPage] = useState(0);
-  // const [zoomableModal, setZoomableModal] = useState(false);
-  // var doublePress = 0;
+  const [zoomableModal, setZoomableModal] = useState(false);
+  var doublePress = 0;
 
   const roleChangeRequestTitle = layoutModal
     ? 'Layout Modal'
@@ -1293,6 +1298,18 @@ const Meeting = ({
     flatlistRef?.current?.scrollToEnd();
   }
 
+  const scale = useRef(new Animated.Value(1)).current;
+
+  const handlePinch = Animated.event([{nativeEvent: {scale}}], {
+    useNativeDriver: true,
+  });
+
+  const handleStateChange = () => {
+    console.log('state changed');
+  };
+
+  const HmsViewComponent = instance?.HmsView;
+
   return (
     <SafeAreaView style={styles.container}>
       <CustomModal
@@ -1489,106 +1506,98 @@ const Meeting = ({
         </View>
       </View>
       <View style={styles.wrapper}>
-        <FlatList
-          ref={flatlistRef}
-          horizontal
-          data={pairedPeers.splice(0, 1)}
-          initialNumToRender={2}
-          maxToRenderPerBatch={3}
-          onScroll={({nativeEvent}) => {
-            const {contentOffset, layoutMeasurement} = nativeEvent;
-            setPage(contentOffset.x / layoutMeasurement.width);
-          }}
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          renderItem={({item}) => {
-            return (
-              <View
-                key={item[0]?.trackId}
-                style={[
-                  styles.page,
-                  {width: Dimensions.get('window').width - left - right},
-                ]}>
-                {item?.map(
-                  (view: Peer) =>
-                    view?.id &&
-                    (view.type === 'screen' ? (
-                      <View style={styles.flex} key={view?.id}>
-                        {/* <TouchableWithoutFeedback
-                          onPress={() => {
-                            console.log('Single Tap');
-                            doublePress++;
-                            if (doublePress === 2) {
-                              console.log('Double Tap');
-                              doublePress = 0;
-                              setZoomableModal(true);
-                            } else {
-                              setTimeout(() => {
-                                doublePress = 0;
-                              }, 500);
-                            }
-                          }}>
-                          <DisplayTrack
-                            // key={view?.id}
-                            peer={view}
-                            videoStyles={getAuxVideoStyles}
-                            speakers={speakers}
-                            instance={instance}
-                            type={view.type}
-                            permissions={localPeerPermissions}
-                          />
-                        </TouchableWithoutFeedback> */}
-                        {/* <Modal
-                          animationType="fade"
-                          visible={zoomableModal}
-                          supportedOrientations={['portrait', 'landscape']}>
-                          <TouchableOpacity
-                            style={styles.closeButton}
-                            onPress={() => setZoomableModal(false)}>
-                            <Entypo
-                              name="circle-with-cross"
-                              style={styles.videoIcon}
-                              size={dimension.viewHeight(50)}
-                            />
-                          </TouchableOpacity> */}
-                        <ReactNativeZoomableView
-                          maxZoom={1.25}
-                          minZoom={1}
-                          zoomStep={0.1}
-                          initialZoom={1}
-                          bindToBorders={true}>
-                          <DisplayTrack
-                            key={view?.id}
-                            peer={view}
-                            videoStyles={getAuxVideoStyles}
-                            speakers={speakers}
-                            instance={instance}
-                            type={view.type}
-                            permissions={localPeerPermissions}
-                          />
-                        </ReactNativeZoomableView>
-                        {/* </Modal> */}
-                      </View>
-                    ) : (
-                      <DisplayTrack
-                        key={view?.id}
-                        peer={view}
-                        videoStyles={getRemoteVideoStyles}
-                        speakers={speakers}
-                        instance={instance}
-                        type={view.type}
-                        permissions={localPeerPermissions}
-                        layout={layout}
-                      />
-                    )),
+        {zoomableModal ? (
+          <GestureHandlerRootView>
+            <PinchGestureHandler
+              onHandlerStateChange={handleStateChange}
+              onGestureEvent={handlePinch}>
+              <Animated.View
+                style={[getAuxVideoStyles(), {transform: [{scale}]}]}>
+                {HmsViewComponent && (
+                  <HmsViewComponent
+                    sink={true}
+                    trackId={zoomableTrackId}
+                    mirror={false}
+                    scaleType={HMSVideoViewMode.ASPECT_FIT}
+                    style={styles.hmsViewScreen}
+                  />
                 )}
-              </View>
-            );
-          }}
-          numColumns={1}
-          onViewableItemsChanged={onViewRef.current}
-          keyExtractor={item => item[0]?.id}
-        />
+              </Animated.View>
+            </PinchGestureHandler>
+          </GestureHandlerRootView>
+        ) : (
+          <FlatList
+            ref={flatlistRef}
+            horizontal
+            data={pairedPeers.splice(0, 1)}
+            initialNumToRender={2}
+            maxToRenderPerBatch={3}
+            onScroll={({nativeEvent}) => {
+              const {contentOffset, layoutMeasurement} = nativeEvent;
+              setPage(contentOffset.x / layoutMeasurement.width);
+            }}
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            renderItem={({item}) => {
+              return (
+                <View
+                  key={item[0]?.trackId}
+                  style={[
+                    styles.page,
+                    {width: Dimensions.get('window').width - left - right},
+                  ]}>
+                  {item?.map(
+                    (view: Peer) =>
+                      view?.id &&
+                      (view.type === 'screen' ? (
+                        <View style={styles.flex} key={view?.id}>
+                          <TouchableWithoutFeedback
+                            onPress={() => {
+                              console.log('Single Tap');
+                              doublePress++;
+                              if (doublePress === 2) {
+                                console.log('Double Tap');
+                                doublePress = 0;
+                                setZoomableModal(true);
+                                setZoomableTrackId(view.trackId!);
+                              } else {
+                                setTimeout(() => {
+                                  doublePress = 0;
+                                }, 500);
+                              }
+                            }}>
+                            <DisplayTrack
+                              // key={view?.id}
+                              peer={view}
+                              videoStyles={getAuxVideoStyles}
+                              speakers={speakers}
+                              instance={instance}
+                              type={view.type}
+                              permissions={localPeerPermissions}
+                            />
+                          </TouchableWithoutFeedback>
+                        </View>
+                      ) : (
+                        <DisplayTrack
+                          key={view?.id}
+                          peer={view}
+                          videoStyles={getRemoteVideoStyles}
+                          speakers={speakers}
+                          instance={instance}
+                          type={view.type}
+                          permissions={localPeerPermissions}
+                          layout={layout}
+                        />
+                      )),
+                  )}
+                </View>
+              );
+            }}
+            numColumns={1}
+            onViewableItemsChanged={onViewRef.current}
+            keyExtractor={item => item[0]?.id}
+          />
+        )}
       </View>
       <View style={styles.iconContainers}>
         {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
@@ -1745,6 +1754,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     alignSelf: 'center',
+    backgroundColor: 'red',
   },
   fullScreenLandscape: {
     width: '100%',
