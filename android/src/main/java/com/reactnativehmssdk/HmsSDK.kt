@@ -1,6 +1,10 @@
 package com.reactnativehmssdk
 
+import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import com.facebook.react.bridge.*
+import com.facebook.react.bridge.UiThreadUtil.runOnUiThread
+import java.util.*
 import kotlinx.coroutines.launch
 import live.hms.video.error.HMSException
 import live.hms.video.media.tracks.HMSRemoteAudioTrack
@@ -22,8 +26,9 @@ class HmsSDK(
 ) {
   var hmsSDK: HMSSDK? = null
   private var recentRoleChangeRequest: HMSRoleChangeRequest? = null
+  var delegate: HmsModule = HmsDelegate
+  private var context: ReactApplicationContext = reactApplicationContext
   private var previewInProgress: Boolean = false
-  private var delegate: HmsModule = HmsDelegate
   private var id: String = sdkId
   private var self = this
 
@@ -949,6 +954,30 @@ class HmsSDK(
     )
   }
 
+  fun startScreenshare() {
+    runOnUiThread {
+      val intent = Intent(context, HmsScreenshareActivity::class.java)
+      intent.flags = FLAG_ACTIVITY_NEW_TASK
+      intent.putExtra("id", id)
+      context.startActivity(intent)
+    }
+  }
+
+  fun stopScreenshare(callback: Promise?) {
+    hmsSDK?.stopScreenshare(
+      object : HMSActionResultListener {
+        override fun onError(error: HMSException) {
+          callback?.reject(error.code.toString(), error.message)
+          self.emitHMSError(error)
+        }
+        override fun onSuccess() {
+          callback?.resolve(emitHMSSuccess())
+          HmsModule.isScreenShared = false
+        }
+      }
+    )
+  }
+
   fun startHLSStreaming(data: ReadableMap, callback: Promise?) {
     val requiredKeys =
         HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("meetingURLVariants", "Array")))
@@ -959,26 +988,7 @@ class HmsSDK(
       val config = HMSHLSConfig(hlsMeetingUrlVariant)
 
       hmsSDK?.startHLSStreaming(
-          config,
-          object : HMSActionResultListener {
-            override fun onSuccess() {
-              callback?.resolve(emitHMSSuccess())
-            }
-            override fun onError(error: HMSException) {
-              callback?.reject(error.code.toString(), error.message)
-              self.emitHMSError(error)
-            }
-          }
-      )
-    } else {
-      callback?.reject("101", "REQUIRED_KEYS_NOT_FOUND")
-      self.emitRequiredKeysError()
-    }
-  }
-
-  fun stopHLSStreaming(callback: Promise?) {
-    hmsSDK?.stopHLSStreaming(
-        null,
+        config,
         object : HMSActionResultListener {
           override fun onSuccess() {
             callback?.resolve(emitHMSSuccess())
@@ -988,6 +998,25 @@ class HmsSDK(
             self.emitHMSError(error)
           }
         }
+      )
+    } else {
+      callback?.reject("101", "REQUIRED_KEYS_NOT_FOUND")
+      self.emitRequiredKeysError()
+    }
+  }
+
+  fun stopHLSStreaming(callback: Promise?) {
+    hmsSDK?.stopHLSStreaming(
+      null,
+      object : HMSActionResultListener {
+        override fun onSuccess() {
+          callback?.resolve(emitHMSSuccess())
+        }
+        override fun onError(error: HMSException) {
+          callback?.reject(error.code.toString(), error.message)
+          self.emitHMSError(error)
+        }
+      }
     )
   }
 
