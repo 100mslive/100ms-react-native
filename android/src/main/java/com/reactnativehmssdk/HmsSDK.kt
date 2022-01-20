@@ -38,14 +38,7 @@ class HmsSDK(
 
   private fun emitCustomError(message: String) {
     val data: WritableMap = Arguments.createMap()
-    val hmsError =
-      HMSException(
-        102,
-        message,
-        message,
-        message,
-        message
-      )
+    val hmsError = HMSException(102, message, message, message, message)
     data.putString("event", "ON_ERROR")
     data.putString("id", id)
     data.putMap("error", HmsDecoder.getError(hmsError))
@@ -86,7 +79,7 @@ class HmsSDK(
   }
 
   fun preview(credentials: ReadableMap) {
-    if(previewInProgress){
+    if (previewInProgress) {
       self.emitCustomError("PREVIEW_ALREADY_IN_PROGRESS")
       return
     }
@@ -163,7 +156,7 @@ class HmsSDK(
   }
 
   fun join(credentials: ReadableMap) {
-    if(previewInProgress){
+    if (previewInProgress) {
       self.emitCustomError("PREVIEW_IS_IN_PROGRESS")
       return
     }
@@ -426,15 +419,14 @@ class HmsSDK(
 
   fun sendBroadcastMessage(data: ReadableMap, callback: Promise?) {
     val requiredKeys =
-        HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("message", "String")))
+        HmsHelper.areAllRequiredKeysAvailable(
+            data,
+            arrayOf(Pair("message", "String"), Pair("type", "String"))
+        )
     if (requiredKeys) {
-      val type =
-          if (HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("type", "String"))))
-              data.getString("type")
-          else "chat"
       hmsSDK?.sendBroadcastMessage(
           data.getString("message") as String,
-          type as String,
+          data.getString("type") as String,
           object : HMSMessageResultListener {
             override fun onError(error: HMSException) {
               self.emitHMSError(error)
@@ -455,34 +447,27 @@ class HmsSDK(
     val requiredKeys =
         HmsHelper.areAllRequiredKeysAvailable(
             data,
-            arrayOf(Pair("message", "String"), Pair("roles", "Array"))
+            arrayOf(Pair("message", "String"), Pair("roles", "Array"), Pair("type", "String"))
         )
     if (requiredKeys) {
-      val type =
-          if (HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("type", "String"))))
-              data.getString("type")
-          else "chat"
-      val message = data.getString("message")
       val targetedRoles = data.getArray("roles")?.toArrayList() as? ArrayList<String>
       val roles = hmsSDK?.getRoles()
       val encodedTargetedRoles = HmsHelper.getRolesFromRoleNames(targetedRoles, roles)
 
-      if (message != null) {
-        hmsSDK?.sendGroupMessage(
-            message,
-            type as String,
-            encodedTargetedRoles,
-            object : HMSMessageResultListener {
-              override fun onError(error: HMSException) {
-                self.emitHMSError(error)
-                callback?.reject(error.code.toString(), error.message)
-              }
-              override fun onSuccess(hmsMessage: HMSMessage) {
-                callback?.resolve(emitHMSSuccess(hmsMessage))
-              }
+      hmsSDK?.sendGroupMessage(
+          data.getString("message") as String,
+          data.getString("type") as String,
+          encodedTargetedRoles,
+          object : HMSMessageResultListener {
+            override fun onError(error: HMSException) {
+              self.emitHMSError(error)
+              callback?.reject(error.code.toString(), error.message)
             }
-        )
-      }
+            override fun onSuccess(hmsMessage: HMSMessage) {
+              callback?.resolve(emitHMSSuccess(hmsMessage))
+            }
+          }
+      )
     } else {
       self.emitRequiredKeysError()
       callback?.reject("101", "REQUIRED_KEYS_NOT_FOUND")
@@ -493,21 +478,16 @@ class HmsSDK(
     val requiredKeys =
         HmsHelper.areAllRequiredKeysAvailable(
             data,
-            arrayOf(Pair("message", "String"), Pair("peerId", "String"))
+            arrayOf(Pair("message", "String"), Pair("peerId", "String"), Pair("type", "String"))
         )
     if (requiredKeys) {
-      val type =
-          if (HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("type", "String"))))
-              data.getString("type")
-          else "chat"
-      val message = data.getString("message")
       val peerId = data.getString("peerId")
       val peers = hmsSDK?.getPeers()
       val peer = HmsHelper.getPeerFromPeerId(peerId, peers)
-      if (message != null && peer != null) {
+      if (peer != null) {
         hmsSDK?.sendDirectMessage(
-            message,
-            type as String,
+            data.getString("message") as String,
+            data.getString("type") as String,
             peer,
             object : HMSMessageResultListener {
               override fun onError(error: HMSException) {
@@ -519,6 +499,9 @@ class HmsSDK(
               }
             }
         )
+      } else {
+        self.emitCustomError("PEER_NOT_FOUND")
+        callback?.reject("101", "PEER_NOT_FOUND")
       }
     } else {
       self.emitRequiredKeysError()
@@ -596,24 +579,35 @@ class HmsSDK(
     }
   }
 
-  fun changeTrackStateRoles(data: ReadableMap, callback: Promise?) {
+  fun changeTrackStateForRoles(data: ReadableMap, callback: Promise?) {
     val requiredKeys =
         HmsHelper.areAllRequiredKeysAvailable(
             data,
             arrayOf(
-                Pair("source", "String"),
                 Pair("mute", "Boolean"),
-                Pair("type", "String"),
-                Pair("roles", "Array")
             )
         )
     if (requiredKeys) {
       val mute: Boolean = data.getBoolean("mute")
       val type =
-          if (data.getString("type") == HMSTrackType.AUDIO.toString()) HMSTrackType.AUDIO
-          else HMSTrackType.VIDEO
-      val source = data.getString("source")
-      val targetedRoles = data.getArray("roles")?.toArrayList() as? ArrayList<String>
+          if (HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("type", "String")))) {
+            if (data.getString("type") == HMSTrackType.AUDIO.toString()) HMSTrackType.AUDIO
+            else HMSTrackType.VIDEO
+          } else {
+            null
+          }
+      val source =
+          if (HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("source", "String")))) {
+            data.getString("source")
+          } else {
+            null
+          }
+      val targetedRoles =
+          if (HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("roles", "Array")))) {
+            data.getArray("roles")?.toArrayList() as? ArrayList<String>
+          } else {
+            null
+          }
       val roles = hmsSDK?.getRoles()
       val encodedTargetedRoles = HmsHelper.getRolesFromRoleNames(targetedRoles, roles)
       hmsSDK?.changeTrackState(
@@ -664,23 +658,19 @@ class HmsSDK(
 
   fun removePeer(data: ReadableMap, callback: Promise?) {
     val requiredKeys =
-        HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("peerId", "String")))
+        HmsHelper.areAllRequiredKeysAvailable(
+            data,
+            arrayOf(Pair("peerId", "String"), Pair("reason", "String"))
+        )
     if (requiredKeys) {
       val peerId = data.getString("peerId")
-      var reason = data.getString("reason")
-
-      if (reason == null) {
-        reason = ""
-      }
-
       val peers = hmsSDK?.getRemotePeers()
-
       val peer = HmsHelper.getRemotePeerFromPeerId(peerId, peers)
 
       if (peer != null) {
         hmsSDK?.removePeerRequest(
             peer,
-            reason,
+            data.getString("reason") as String,
             object : HMSActionResultListener {
               override fun onSuccess() {
                 callback?.resolve(emitHMSSuccess())
@@ -692,6 +682,7 @@ class HmsSDK(
             }
         )
       } else {
+        self.emitCustomError("PEER_NOT_FOUND")
         callback?.reject("101", "PEER_NOT_FOUND")
       }
     } else {
@@ -701,25 +692,29 @@ class HmsSDK(
   }
 
   fun endRoom(data: ReadableMap, callback: Promise?) {
-    val lock = data.getBoolean("lock")
-    var reason = data.getString("reason")
-    if (reason == null) {
-      reason = ""
+    val requiredKeys =
+        HmsHelper.areAllRequiredKeysAvailable(
+            data,
+            arrayOf(Pair("lock", "Boolean"), Pair("reason", "String"))
+        )
+    if (requiredKeys) {
+      hmsSDK?.endRoom(
+          data.getString("reason") as String,
+          data.getBoolean("lock"),
+          object : HMSActionResultListener {
+            override fun onSuccess() {
+              callback?.resolve(emitHMSSuccess())
+            }
+            override fun onError(error: HMSException) {
+              self.emitHMSError(error)
+              callback?.reject(error.code.toString(), error.message)
+            }
+          }
+      )
+    } else {
+      self.emitRequiredKeysError()
+      callback?.reject("101", "REQUIRED_KEYS_NOT_FOUND")
     }
-
-    hmsSDK?.endRoom(
-        reason,
-        lock,
-        object : HMSActionResultListener {
-          override fun onSuccess() {
-            callback?.resolve(emitHMSSuccess())
-          }
-          override fun onError(error: HMSException) {
-            self.emitHMSError(error)
-            callback?.reject(error.code.toString(), error.message)
-          }
-        }
-    )
   }
 
   fun acceptRoleChange(callback: Promise?) {

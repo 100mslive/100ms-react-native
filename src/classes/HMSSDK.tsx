@@ -82,7 +82,7 @@ export class HMSSDK {
    * @returns
    * @memberof HMSSDK
    */
-  static async build(params?: { trackSettings?: HMSTrackSettings }) {
+  static async build(params?: { trackSettings: HMSTrackSettings }) {
     let id = await HmsManager.build(params?.trackSettings || {});
     HmsSdk = new HMSSDK(id);
     HmsSdk.attachPreviewListener();
@@ -292,7 +292,7 @@ export class HMSSDK {
     return op;
   };
 
-  sendBroadcastMessage = async (message: string, type?: string) => {
+  sendBroadcastMessage = async (message: string, type: string = 'chat') => {
     logger?.verbose('#Function sendBroadcastMessage', {
       message,
       type: type || null,
@@ -308,7 +308,7 @@ export class HMSSDK {
   sendGroupMessage = async (
     message: string,
     roles: HMSRole[],
-    type?: string
+    type: string = 'chat'
   ) => {
     logger?.verbose('#Function sendGroupMessage', {
       message,
@@ -326,18 +326,18 @@ export class HMSSDK {
 
   sendDirectMessage = async (
     message: string,
-    peerId: string,
-    type?: string
+    peer: HMSPeer,
+    type: string = 'chat'
   ) => {
     logger?.verbose('#Function sendDirectMessage', {
       message,
-      peerId,
+      peerId: peer.peerID,
       id: this.id,
       type: type || null,
     });
     return await HmsManager.sendDirectMessage({
       message,
-      peerId,
+      peerId: peer.peerID,
       id: this.id,
       type: type || null,
     });
@@ -403,12 +403,16 @@ export class HMSSDK {
     return await HmsManager.changeTrackState(data);
   };
 
-  changeTrackStateRoles = async (
-    type: HMSTrackType,
+  changeTrackStateForRoles = async (
     mute: boolean,
-    source: string,
-    roles: Array<HMSRole>
+    type?: HMSTrackType,
+    source?: string,
+    roles?: Array<HMSRole>
   ) => {
+    let roleNames = null;
+    if (roles) {
+      roleNames = HMSHelper.getRoleNames(roles);
+    }
     logger?.verbose('#Function changeTrackStateRoles', {
       source,
       mute,
@@ -420,17 +424,21 @@ export class HMSSDK {
       source,
       mute,
       type,
-      roles: HMSHelper.getRoleNames(roles),
+      roles: roleNames,
       id: this.id,
     };
 
-    return await HmsManager.changeTrackStateRoles(data);
+    return await HmsManager.changeTrackStateForRoles(data);
   };
 
-  removePeer = async (peerId: string, reason: string) => {
-    logger?.verbose('#Function removePeer', { peerId, reason, id: this.id });
+  removePeer = async (peer: HMSPeer, reason: string) => {
+    logger?.verbose('#Function removePeer', {
+      peerId: peer.peerID,
+      reason,
+      id: this.id,
+    });
     const data = {
-      peerId,
+      peerId: peer.peerID,
       reason,
       id: this.id,
     };
@@ -438,7 +446,7 @@ export class HMSSDK {
     return await HmsManager.removePeer(data);
   };
 
-  endRoom = async (lock: boolean, reason: string) => {
+  endRoom = async (reason: string, lock: boolean = false) => {
     logger?.verbose('#Function endRoom', { lock, reason, id: this.id });
     const data = {
       lock,
@@ -482,7 +490,6 @@ export class HMSSDK {
       trackId: track.trackId,
       volume,
     });
-    return;
   };
 
   resetVolume = () => {
