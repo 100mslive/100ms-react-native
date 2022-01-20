@@ -124,7 +124,7 @@ To display a video on screen the package provide a UI component named HmsView th
 ...
 import { HMSRemotePeer } from '@100mslive/react-native-hms';
 
-// getting local track ID 
+// getting local track ID
 const localTrackId: string = hmsInstance?.localPeer?.videoTrack?.trackId;
 
 // getting remote track IDs
@@ -185,17 +185,17 @@ await hmsInstance?.leave();
 # Sending messages
 
 ```js
-import { HMSRole } from '@100mslive/react-native-hms';
+import { HMSRole, HMSPeer } from '@100mslive/react-native-hms';
 
 const message = 'hello'
 const roles: HMSRole[] = hmsInstance?.knownRoles
-// can any remote peer's peerID
-const peerId: string = hmsInstance?.localPeer?.peerID  
+// any remote peer
+const peer: HMSPeer = hmsInstance?.remotePeers[0]
 
 // send a different type of messages
 hmsInstance?.sendBroadcastMessage(message);
 hmsInstance?.sendGroupMessage(message, [role[0]);
-hmsInstance?.sendDirectMessage(message, peerId);
+hmsInstance?.sendDirectMessage(message, peer);
 ```
 
 # Error handling
@@ -203,6 +203,6 @@ hmsInstance?.sendDirectMessage(message, peerId);
 ```js
 import { HMSUpdateListenerActions } from '@100mslive/react-native-hms';
 
-// add an error event listener 
+// add an error event listener
 hmsInstance.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
 ```
