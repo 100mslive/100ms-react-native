@@ -1464,29 +1464,33 @@ const Meeting = ({
               />
             </TouchableOpacity>
           )}
-          <TouchableOpacity
-            onPress={() => {
-              instance?.muteAllPeersAudio(!muteAllAudio);
-              setMuteAllAudio(!muteAllAudio);
-            }}
-            style={styles.headerIcon}>
-            <Ionicons
-              name={muteAllAudio ? 'volume-mute' : 'volume-high'}
-              style={styles.headerName}
-              size={dimension.viewHeight(30)}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              setSettingsModal(true);
-            }}
-            style={styles.headerIcon}>
-            <Ionicons
-              name="settings"
-              style={styles.headerName}
-              size={dimension.viewHeight(30)}
-            />
-          </TouchableOpacity>
+          {!instance?.localPeer?.role?.name?.includes('hls-') && (
+            <TouchableOpacity
+              onPress={() => {
+                instance?.muteAllPeersAudio(!muteAllAudio);
+                setMuteAllAudio(!muteAllAudio);
+              }}
+              style={styles.headerIcon}>
+              <Ionicons
+                name={muteAllAudio ? 'volume-mute' : 'volume-high'}
+                style={styles.headerName}
+                size={dimension.viewHeight(30)}
+              />
+            </TouchableOpacity>
+          )}
+          {!instance?.localPeer?.role?.name?.includes('hls-') && (
+            <TouchableOpacity
+              onPress={() => {
+                setSettingsModal(true);
+              }}
+              style={styles.headerIcon}>
+              <Ionicons
+                name="settings"
+                style={styles.headerName}
+                size={dimension.viewHeight(30)}
+              />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
       <View style={styles.wrapper}>
