@@ -121,10 +121,10 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   }
 
   @ReactMethod
-  fun changeTrackStateRoles(data: ReadableMap, callback: Promise?) {
+  fun changeTrackStateForRoles(data: ReadableMap, callback: Promise?) {
     val hms = HmsHelper.getHms(data, hmsCollection)
 
-    hms?.changeTrackStateRoles(data, callback)
+    hms?.changeTrackStateForRoles(data, callback)
   }
 
   @ReactMethod
@@ -230,6 +230,13 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     val hms = HmsHelper.getHms(data, hmsCollection)
 
     hms?.stopHLSStreaming(callback)
+  }
+
+  @ReactMethod
+  fun resetVolume(data: ReadableMap) {
+    val hms = HmsHelper.getHms(data, hmsCollection)
+
+    hms?.resetVolume()
   }
 
   fun emitEvent(event: String, data: WritableMap) {

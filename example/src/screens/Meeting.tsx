@@ -291,7 +291,7 @@ const DisplayTrack = ({
     selectRemoteActionButtons.push({
       text: 'Remove Participant',
       onPress: async () => {
-        await instance?.removePeer(id!, 'removed from room');
+        await instance?.removePeer(peerRefrence!, 'removed from room');
       },
     });
   }
@@ -437,7 +437,11 @@ const DisplayTrack = ({
           sink={sink}
           trackId={trackId!}
           mirror={type === 'local' ? true : false}
-          scaleType={HMSVideoViewMode.ASPECT_FIT}
+          scaleType={
+            type === 'screen'
+              ? HMSVideoViewMode.ASPECT_FIT
+              : HMSVideoViewMode.ASPECT_FILL
+          }
           style={type === 'screen' ? styles.hmsViewScreen : styles.hmsView}
         />
       )}
@@ -1128,33 +1132,33 @@ const Meeting = ({
           const source = 'regular';
           switch (action) {
             case 1:
-              await instance?.changeTrackStateRoles(
-                HMSTrackType.VIDEO,
+              await instance?.changeTrackStateForRoles(
                 true,
+                HMSTrackType.VIDEO,
                 source,
                 [newRole!],
               );
               break;
             case 2:
-              await instance?.changeTrackStateRoles(
-                HMSTrackType.VIDEO,
+              await instance?.changeTrackStateForRoles(
                 false,
+                HMSTrackType.VIDEO,
                 source,
                 [newRole!],
               );
               break;
             case 3:
-              await instance?.changeTrackStateRoles(
-                HMSTrackType.AUDIO,
+              await instance?.changeTrackStateForRoles(
                 true,
+                HMSTrackType.AUDIO,
                 source,
                 [newRole!],
               );
               break;
             case 4:
-              await instance?.changeTrackStateRoles(
-                HMSTrackType.AUDIO,
+              await instance?.changeTrackStateForRoles(
                 false,
+                HMSTrackType.AUDIO,
                 source,
                 [newRole!],
               );
@@ -1185,7 +1189,7 @@ const Meeting = ({
       buttons.push({
         text: 'End Room for all',
         onPress: async () => {
-          await instance?.endRoom(false, 'Host ended the room');
+          await instance?.endRoom('Host ended the room');
           clearMessageRequest();
           navigate('WelcomeScreen');
         },
@@ -1460,29 +1464,33 @@ const Meeting = ({
               />
             </TouchableOpacity>
           )}
-          <TouchableOpacity
-            onPress={() => {
-              instance?.muteAllPeersAudio(!muteAllAudio);
-              setMuteAllAudio(!muteAllAudio);
-            }}
-            style={styles.headerIcon}>
-            <Ionicons
-              name={muteAllAudio ? 'volume-mute' : 'volume-high'}
-              style={styles.headerName}
-              size={dimension.viewHeight(30)}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              setSettingsModal(true);
-            }}
-            style={styles.headerIcon}>
-            <Ionicons
-              name="settings"
-              style={styles.headerName}
-              size={dimension.viewHeight(30)}
-            />
-          </TouchableOpacity>
+          {!instance?.localPeer?.role?.name?.includes('hls-') && (
+            <TouchableOpacity
+              onPress={() => {
+                instance?.muteAllPeersAudio(!muteAllAudio);
+                setMuteAllAudio(!muteAllAudio);
+              }}
+              style={styles.headerIcon}>
+              <Ionicons
+                name={muteAllAudio ? 'volume-mute' : 'volume-high'}
+                style={styles.headerName}
+                size={dimension.viewHeight(30)}
+              />
+            </TouchableOpacity>
+          )}
+          {!instance?.localPeer?.role?.name?.includes('hls-') && (
+            <TouchableOpacity
+              onPress={() => {
+                setSettingsModal(true);
+              }}
+              style={styles.headerIcon}>
+              <Ionicons
+                name="settings"
+                style={styles.headerName}
+                size={dimension.viewHeight(30)}
+              />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
       <View style={styles.wrapper}>
@@ -1684,7 +1692,10 @@ const Meeting = ({
               } else if (messageTo?.type === 'group') {
                 await instance?.sendGroupMessage(value, [messageTo?.obj]);
               } else if (messageTo.type === 'direct') {
-                await instance?.sendDirectMessage(value, messageTo?.obj?.id);
+                await instance?.sendDirectMessage(
+                  value,
+                  messageTo?.obj?.peerRefrence,
+                );
               }
               addMessageRequest({
                 data: hmsMessage,

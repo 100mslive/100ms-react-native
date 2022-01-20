@@ -15,10 +15,10 @@ const endRoom: boolean = peer.role.permissions.endRoom;
 
 ```js
 const reason = 'Host ended the room';
-const lock = false;
+const lock = false; // optional parameter
 
 // instance acquired from build() method
-hmsInstance.endRoom(lock, reason);
+hmsInstance.endRoom(reason, lock);
 ```
 
 ## End Room Notification

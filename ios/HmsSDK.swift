@@ -233,7 +233,6 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
                     return
                 }
             })
-            self?.hms?.sendDirectMessage(type: type, message: message, peer: peer)
         }
     }
     
@@ -311,23 +310,26 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
     
-    func changeTrackStateRoles(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    func changeTrackStateForRoles(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         
-        guard let source = data.value(forKey: "source") as? String,
-                let targetedRoles = data.value(forKey: "roles") as? [String],
-                    let type = data.value(forKey: "type") as? String
+        guard let mute = data.value(forKey: "mute") as? Bool
         else {
             let error = HMSError(id: "113", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
             delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id":id])
             return
         }
-        var decodeType: HMSTrackKind;
-        if( type == "AUDIO") {
-            decodeType = HMSTrackKind.audio
-        }else {
-            decodeType = HMSTrackKind.video
+        let source = data.value(forKey: "source") as? String
+        let targetedRoles = data.value(forKey: "roles") as? [String]
+        let type = data.value(forKey: "type") as? String
+
+        var decodeType: HMSTrackKind? = nil;
+        if( type != nil){
+            if( type == "AUDIO") {
+                decodeType = HMSTrackKind.audio
+            }else {
+                decodeType = HMSTrackKind.video
+            }
         }
-        let mute = data.value(forKey: "mute") as? Bool ?? true
         
         DispatchQueue.main.async { [weak self] in
             let encodedTargetedRoles = HmsHelper.getRolesFromRoleNames(targetedRoles, roles: self?.hms?.roles)
