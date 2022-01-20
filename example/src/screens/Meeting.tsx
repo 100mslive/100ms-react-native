@@ -41,6 +41,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {useNavigation} from '@react-navigation/native';
 import {getDeviceType} from 'react-native-device-info';
 import {Slider} from '@miblanchard/react-native-slider';
@@ -48,6 +49,7 @@ import type {StackNavigationProp} from '@react-navigation/stack';
 import Toast from 'react-native-simple-toast';
 import RNFetchBlob from 'rn-fetch-blob';
 import {Picker} from '@react-native-picker/picker';
+import Video from 'react-native-video';
 
 import {ChatWindow, AlertModal, CustomModal, RolePicker} from '../components';
 import {
@@ -175,7 +177,11 @@ const DisplayTrack = ({
     });
     const getVolume = async () => {
       if (type === 'local' && !isAudioMute) {
-        setVolume(await instance?.localPeer?.localAudioTrack()?.getVolume());
+        try {
+          setVolume(await instance?.localPeer?.localAudioTrack()?.getVolume());
+        } catch (e) {
+          console.log('error in get volume', e);
+        }
       }
     };
     getVolume();
@@ -286,7 +292,7 @@ const DisplayTrack = ({
     selectRemoteActionButtons.push({
       text: 'Remove Participant',
       onPress: async () => {
-        await instance?.removePeer(id!, 'removed from room');
+        await instance?.removePeer(peerRefrence!, 'removed from room');
       },
     });
   }
@@ -539,6 +545,7 @@ const Meeting = ({
   const [localPeerPermissions, setLocalPeerPermissions] =
     useState<HMSPermissions>();
   const flatlistRef = useRef<FlatList>(null);
+  const hlsPlayerRef = useRef<Video>(null);
   const [page, setPage] = useState(0);
 
   const roleChangeRequestTitle = layoutModal
@@ -1070,6 +1077,24 @@ const Meeting = ({
         },
       },
     ];
+    if (Platform.OS === 'android') {
+      buttons.push(
+        ...[
+          {
+            text: 'Start Screenshare',
+            onPress: () => {
+              instance?.startScreenshare();
+            },
+          },
+          {
+            text: 'Stop Screenshare',
+            onPress: () => {
+              instance?.stopScreenshare();
+            },
+          },
+        ],
+      );
+    }
     if (localPeerPermissions?.mute) {
       buttons.push(
         ...[
@@ -1126,33 +1151,33 @@ const Meeting = ({
           const source = 'regular';
           switch (action) {
             case 1:
-              await instance?.changeTrackStateRoles(
-                HMSTrackType.VIDEO,
+              await instance?.changeTrackStateForRoles(
                 true,
+                HMSTrackType.VIDEO,
                 source,
                 [newRole!],
               );
               break;
             case 2:
-              await instance?.changeTrackStateRoles(
-                HMSTrackType.VIDEO,
+              await instance?.changeTrackStateForRoles(
                 false,
+                HMSTrackType.VIDEO,
                 source,
                 [newRole!],
               );
               break;
             case 3:
-              await instance?.changeTrackStateRoles(
-                HMSTrackType.AUDIO,
+              await instance?.changeTrackStateForRoles(
                 true,
+                HMSTrackType.AUDIO,
                 source,
                 [newRole!],
               );
               break;
             case 4:
-              await instance?.changeTrackStateRoles(
-                HMSTrackType.AUDIO,
+              await instance?.changeTrackStateForRoles(
                 false,
+                HMSTrackType.AUDIO,
                 source,
                 [newRole!],
               );
@@ -1183,7 +1208,7 @@ const Meeting = ({
       buttons.push({
         text: 'End Room for all',
         onPress: async () => {
-          await instance?.endRoom(false, 'Host ended the room');
+          await instance?.endRoom('Host ended the room');
           clearMessageRequest();
           navigate('WelcomeScreen');
         },
@@ -1443,6 +1468,14 @@ const Meeting = ({
               size={dimension.viewHeight(30)}
             />
           )}
+          {trackId?.peerRefrence?.auxiliaryTracks &&
+            trackId?.peerRefrence?.auxiliaryTracks?.length > 0 && (
+              <MaterialIcons
+                name="fit-screen"
+                style={styles.streaming}
+                size={dimension.viewHeight(30)}
+              />
+            )}
           {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
             'video',
           ) && (
@@ -1458,85 +1491,126 @@ const Meeting = ({
               />
             </TouchableOpacity>
           )}
-          <TouchableOpacity
-            onPress={() => {
-              instance?.muteAllPeersAudio(!muteAllAudio);
-              setMuteAllAudio(!muteAllAudio);
-            }}
-            style={styles.headerIcon}>
-            <Ionicons
-              name={muteAllAudio ? 'volume-mute' : 'volume-high'}
-              style={styles.headerName}
-              size={dimension.viewHeight(30)}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              setSettingsModal(true);
-            }}
-            style={styles.headerIcon}>
-            <Ionicons
-              name="settings"
-              style={styles.headerName}
-              size={dimension.viewHeight(30)}
-            />
-          </TouchableOpacity>
+          {!instance?.localPeer?.role?.name?.includes('hls-') && (
+            <TouchableOpacity
+              onPress={() => {
+                instance?.muteAllPeersAudio(!muteAllAudio);
+                setMuteAllAudio(!muteAllAudio);
+              }}
+              style={styles.headerIcon}>
+              <Ionicons
+                name={muteAllAudio ? 'volume-mute' : 'volume-high'}
+                style={styles.headerName}
+                size={dimension.viewHeight(30)}
+              />
+            </TouchableOpacity>
+          )}
+          {!instance?.localPeer?.role?.name?.includes('hls-') && (
+            <TouchableOpacity
+              onPress={() => {
+                setSettingsModal(true);
+              }}
+              style={styles.headerIcon}>
+              <Ionicons
+                name="settings"
+                style={styles.headerName}
+                size={dimension.viewHeight(30)}
+              />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
       <View style={styles.wrapper}>
-        <FlatList
-          ref={flatlistRef}
-          horizontal
-          data={pairedPeers}
-          initialNumToRender={2}
-          maxToRenderPerBatch={3}
-          onScroll={({nativeEvent}) => {
-            const {contentOffset, layoutMeasurement} = nativeEvent;
-            setPage(contentOffset.x / layoutMeasurement.width);
-          }}
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          renderItem={({item}) => {
-            return (
-              <View
-                key={item[0]?.trackId}
-                style={[
-                  styles.page,
-                  {width: Dimensions.get('window').width - left - right},
-                ]}>
-                {item?.map(
-                  (view: Peer) =>
-                    view?.id &&
-                    (view.type === 'screen' ? (
-                      <DisplayTrack
-                        key={view?.id}
-                        peer={view}
-                        videoStyles={getAuxVideoStyles}
-                        speakers={speakers}
-                        instance={instance}
-                        type={view.type}
-                        permissions={localPeerPermissions}
-                      />
-                    ) : (
-                      <DisplayTrack
-                        key={view?.id}
-                        peer={view}
-                        videoStyles={getRemoteVideoStyles}
-                        speakers={speakers}
-                        instance={instance}
-                        type={view.type}
-                        permissions={localPeerPermissions}
-                        layout={layout}
-                      />
-                    )),
-                )}
-              </View>
-            );
-          }}
-          numColumns={1}
-          onViewableItemsChanged={onViewRef.current}
-          keyExtractor={item => item[0]?.id}
-        />
+        {instance?.localPeer?.role?.name?.includes('hls-') ? (
+          instance?.room?.hlsStreamingState?.running ? (
+            instance?.room?.hlsStreamingState?.variants
+              ?.slice(0, 1)
+              ?.map((variant, index) =>
+                variant?.hlsStreamUrl ? (
+                  <Video
+                    key={index}
+                    source={{
+                      uri: variant?.hlsStreamUrl,
+                    }} // Can be a URL or a local file.
+                    controls={Platform.OS === 'ios' ? true : false}
+                    onLoad={({duration}) => {
+                      if (Platform.OS === 'android') {
+                        hlsPlayerRef?.current?.seek(duration);
+                      }
+                    }}
+                    ref={hlsPlayerRef}
+                    resizeMode="contain"
+                    onError={() => console.log('hls video streaming error')}
+                    // Callback when video cannot be loaded
+                    allowsExternalPlayback={false}
+                    style={styles.renderVideo}
+                  />
+                ) : (
+                  <View key={index} style={styles.renderVideo}>
+                    <Text>Trying to load empty source...</Text>
+                  </View>
+                ),
+              )
+          ) : (
+            <View style={styles.renderVideo}>
+              <Text>Waiting for the Streaming to start...</Text>
+            </View>
+          )
+        ) : (
+          <FlatList
+            ref={flatlistRef}
+            horizontal
+            data={pairedPeers}
+            initialNumToRender={2}
+            maxToRenderPerBatch={3}
+            onScroll={({nativeEvent}) => {
+              const {contentOffset, layoutMeasurement} = nativeEvent;
+              setPage(contentOffset.x / layoutMeasurement.width);
+            }}
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            renderItem={({item}) => {
+              return (
+                <View
+                  key={item[0]?.trackId}
+                  style={[
+                    styles.page,
+                    {width: Dimensions.get('window').width - left - right},
+                  ]}>
+                  {item?.map(
+                    (view: Peer) =>
+                      view?.id &&
+                      (view.type === 'screen' ? (
+                        <DisplayTrack
+                          key={view?.id}
+                          peer={view}
+                          videoStyles={getAuxVideoStyles}
+                          speakers={speakers}
+                          instance={instance}
+                          type={view.type}
+                          permissions={localPeerPermissions}
+                        />
+                      ) : (
+                        <DisplayTrack
+                          key={view?.id}
+                          peer={view}
+                          videoStyles={getRemoteVideoStyles}
+                          speakers={speakers}
+                          instance={instance}
+                          type={view.type}
+                          permissions={localPeerPermissions}
+                          layout={layout}
+                        />
+                      )),
+                  )}
+                </View>
+              );
+            }}
+            numColumns={1}
+            onViewableItemsChanged={onViewRef.current}
+            keyExtractor={item => item[0]?.id}
+          />
+        )}
       </View>
       <View style={styles.iconContainers}>
         {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
@@ -1645,7 +1719,10 @@ const Meeting = ({
               } else if (messageTo?.type === 'group') {
                 await instance?.sendGroupMessage(value, [messageTo?.obj]);
               } else if (messageTo.type === 'direct') {
-                await instance?.sendDirectMessage(value, messageTo?.obj?.id);
+                await instance?.sendDirectMessage(
+                  value,
+                  messageTo?.obj?.peerRefrence,
+                );
               }
               addMessageRequest({
                 data: hmsMessage,
@@ -1888,6 +1965,12 @@ const styles = StyleSheet.create({
   },
   checkbox: {
     color: 'black',
+  },
+  renderVideo: {
+    height: '100%',
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

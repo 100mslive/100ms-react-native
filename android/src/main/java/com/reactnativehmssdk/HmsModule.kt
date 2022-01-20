@@ -10,8 +10,9 @@ import java.util.UUID
 class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
   companion object {
     const val REACT_CLASS = "HmsManager"
+    var hmsCollection = mutableMapOf<String, HmsSDK>()
+    var isScreenShared = false
   }
-  private var hmsCollection = mutableMapOf<String, HmsSDK>()
   override fun getName(): String {
     return "HmsManager"
   }
@@ -121,10 +122,10 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   }
 
   @ReactMethod
-  fun changeTrackStateRoles(data: ReadableMap, callback: Promise?) {
+  fun changeTrackStateForRoles(data: ReadableMap, callback: Promise?) {
     val hms = HmsHelper.getHms(data, hmsCollection)
 
-    hms?.changeTrackStateRoles(data, callback)
+    hms?.changeTrackStateForRoles(data, callback)
   }
 
   @ReactMethod
@@ -205,6 +206,20 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   }
 
   @ReactMethod
+  fun startScreenshare(data: ReadableMap) {
+    val hms = HmsHelper.getHms(data, hmsCollection)
+
+    hms?.startScreenshare()
+  }
+
+  @ReactMethod
+  fun stopScreenshare(data: ReadableMap, callback: Promise?) {
+    val hms = HmsHelper.getHms(data, hmsCollection)
+
+    hms?.stopScreenshare(callback)
+  }
+
+  @ReactMethod
   fun startRTMPOrRecording(data: ReadableMap, callback: Promise?) {
     val hms = HmsHelper.getHms(data, hmsCollection)
 
@@ -230,6 +245,13 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     val hms = HmsHelper.getHms(data, hmsCollection)
 
     hms?.stopHLSStreaming(callback)
+  }
+
+  @ReactMethod
+  fun resetVolume(data: ReadableMap) {
+    val hms = HmsHelper.getHms(data, hmsCollection)
+
+    hms?.resetVolume()
   }
 
   fun emitEvent(event: String, data: WritableMap) {
