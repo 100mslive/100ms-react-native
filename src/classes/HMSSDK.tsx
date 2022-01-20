@@ -510,12 +510,12 @@ export class HMSSDK {
   };
 
   startScreenshare = async () => {
-    this.logger?.verbose('#Function startScreenshare', { id: this.id });
+    logger?.verbose('#Function startScreenshare', { id: this.id });
     await HmsManager.startScreenshare({ id: this.id });
   };
 
   stopScreenshare = async () => {
-    this.logger?.verbose('#Function startScreenshare', { id: this.id });
+    logger?.verbose('#Function startScreenshare', { id: this.id });
     await HmsManager.stopScreenshare({ id: this.id });
   };
 
