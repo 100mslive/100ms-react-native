@@ -41,6 +41,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {useNavigation} from '@react-navigation/native';
 import {getDeviceType} from 'react-native-device-info';
 import {Slider} from '@miblanchard/react-native-slider';
@@ -1076,6 +1077,24 @@ const Meeting = ({
         },
       },
     ];
+    if (Platform.OS === 'android') {
+      buttons.push(
+        ...[
+          {
+            text: 'Start Screenshare',
+            onPress: () => {
+              instance?.startScreenshare();
+            },
+          },
+          {
+            text: 'Stop Screenshare',
+            onPress: () => {
+              instance?.stopScreenshare();
+            },
+          },
+        ],
+      );
+    }
     if (localPeerPermissions?.mute) {
       buttons.push(
         ...[
@@ -1449,6 +1468,14 @@ const Meeting = ({
               size={dimension.viewHeight(30)}
             />
           )}
+          {trackId?.peerRefrence?.auxiliaryTracks &&
+            trackId?.peerRefrence?.auxiliaryTracks?.length > 0 && (
+              <MaterialIcons
+                name="fit-screen"
+                style={styles.streaming}
+                size={dimension.viewHeight(30)}
+              />
+            )}
           {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
             'video',
           ) && (
