@@ -1,6 +1,7 @@
-import React from 'react';
-import { requireNativeComponent, ViewStyle } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { requireNativeComponent, StyleSheet, ViewStyle } from 'react-native';
 import { HMSVideoViewMode } from '../classes/HMSVideoViewMode';
+
 interface HmsViewProps {
   data: {
     trackId: string;
@@ -10,6 +11,7 @@ interface HmsViewProps {
   };
   scaleType: HMSVideoViewMode;
   style: ViewStyle;
+  onChange: Function;
 }
 
 const HmsViewComponent = requireNativeComponent<HmsViewProps>('HmsView');
@@ -29,8 +31,9 @@ export const HmsView = ({
   style,
   id,
   mirror,
-  scaleType = HMSVideoViewMode.ASPECT_FIT,
+  scaleType = HMSVideoViewMode.ASPECT_FILL,
 }: HmsComponentProps) => {
+  const [tempVal, setTempVal] = useState(0);
   const data = {
     trackId,
     sink,
@@ -38,5 +41,30 @@ export const HmsView = ({
     mirror: mirror || false,
   };
 
-  return <HmsViewComponent data={data} style={style} scaleType={scaleType} />;
+  const onChange = (values: any) => {
+    console.log(values, 'values');
+    setTimeout(() => {
+      setTempVal(1);
+    }, 1000);
+  };
+
+  useEffect(() => {
+    setTempVal(0);
+  }, [tempVal]);
+
+  return (
+    <HmsViewComponent
+      onChange={onChange}
+      data={data}
+      style={tempVal === 0 ? style : temporaryStyles.customStyle}
+      scaleType={scaleType}
+    />
+  );
 };
+
+const temporaryStyles = StyleSheet.create({
+  customStyle: {
+    width: '100%',
+    height: '50%',
+  },
+});

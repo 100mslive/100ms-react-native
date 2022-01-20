@@ -1779,7 +1779,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     alignSelf: 'center',
-    aspectRatio: 16 / 9,
+    height: '100%',
   },
   generalTile: {
     width: '50%',
@@ -1794,7 +1794,7 @@ const styles = StyleSheet.create({
   },
   hmsViewScreen: {
     width: '100%',
-    aspectRatio: 16 / 9,
+    height: '100%',
   },
   iconContainers: {
     display: 'flex',
