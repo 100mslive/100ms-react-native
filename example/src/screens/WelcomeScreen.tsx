@@ -12,6 +12,7 @@ import {
   Dimensions,
   Alert,
   Linking,
+  AppState,
 } from 'react-native';
 import {connect} from 'react-redux';
 import HmsManager, {
@@ -258,6 +259,21 @@ const App = ({
       setupBuild();
       setInitialized(true);
     }
+
+    AppState.addEventListener('change', nextAppState => {
+      if (nextAppState === 'active') {
+        Linking.getInitialURL().then(url => {
+          if (url) {
+            setRoomID(url);
+            setText(url);
+          } else {
+            setRoomID('https://yogi.app.100ms.live/preview/nih-bkn-vek');
+            setText('https://yogi.app.100ms.live/preview/nih-bkn-vek');
+          }
+        });
+      }
+    });
+
     Dimensions.addEventListener('change', () => {
       setOrientation(!orientation);
     });

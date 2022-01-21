@@ -11,7 +11,6 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   companion object {
     const val REACT_CLASS = "HmsManager"
     var hmsCollection = mutableMapOf<String, HmsSDK>()
-    var isScreenShared = false
   }
   override fun getName(): String {
     return "HmsManager"
@@ -210,6 +209,13 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     val hms = HmsHelper.getHms(data, hmsCollection)
 
     hms?.startScreenshare()
+  }
+
+  @ReactMethod
+  fun isScreenShared(data: ReadableMap, callback: Promise?) {
+    val hms = HmsHelper.getHms(data, hmsCollection)
+
+    hms?.isScreenShared(callback)
   }
 
   @ReactMethod

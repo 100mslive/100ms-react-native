@@ -1,10 +1,10 @@
 package com.reactnativehmssdk
 
 import com.facebook.react.bridge.ReadableMap
+import com.facebook.react.common.MapBuilder
 import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.annotations.ReactProp
-import com.facebook.react.common.MapBuilder
 
 class HmssdkViewManager : SimpleViewManager<HmsView>() {
 
@@ -20,13 +20,12 @@ class HmssdkViewManager : SimpleViewManager<HmsView>() {
   }
 
   override fun getExportedCustomBubblingEventTypeConstants(): MutableMap<String, Any>? {
-    return MapBuilder.builder<String, Any>().put(
-      "topChange",
-      MapBuilder.of(
-        "phasedRegistrationNames",
-        MapBuilder.of("bubbled", "onChange")
-      )
-    ).build()
+    return MapBuilder.builder<String, Any>()
+        .put(
+            "topChange",
+            MapBuilder.of("phasedRegistrationNames", MapBuilder.of("bubbled", "onChange"))
+        )
+        .build()
   }
 
   @ReactProp(name = "data")

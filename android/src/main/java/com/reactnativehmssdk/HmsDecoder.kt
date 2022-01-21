@@ -31,10 +31,7 @@ object HmsDecoder {
           "serverRecordingState",
           this.getHMSServerRecordingState(hmsRoom.serverRecordingState)
       )
-      room.putMap(
-        "hlsStreamingState",
-        this.getHMSHlsStreamingState(hmsRoom.hlsStreamingState)
-      )
+      room.putMap("hlsStreamingState", this.getHMSHlsStreamingState(hmsRoom.hlsStreamingState))
       room.putMap("localPeer", this.getHmsLocalPeer(hmsRoom.localPeer))
       room.putArray("peers", this.getAllPeers(hmsRoom.peerList))
     }

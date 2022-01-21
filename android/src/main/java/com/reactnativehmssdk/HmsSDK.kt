@@ -963,18 +963,21 @@ class HmsSDK(
     }
   }
 
+  fun isScreenShared(callback: Promise?) {
+    callback?.resolve(hmsSDK?.isScreenShared())
+  }
+
   fun stopScreenshare(callback: Promise?) {
     hmsSDK?.stopScreenshare(
-      object : HMSActionResultListener {
-        override fun onError(error: HMSException) {
-          callback?.reject(error.code.toString(), error.message)
-          self.emitHMSError(error)
+        object : HMSActionResultListener {
+          override fun onError(error: HMSException) {
+            callback?.reject(error.code.toString(), error.message)
+            self.emitHMSError(error)
+          }
+          override fun onSuccess() {
+            callback?.resolve(emitHMSSuccess())
+          }
         }
-        override fun onSuccess() {
-          callback?.resolve(emitHMSSuccess())
-          HmsModule.isScreenShared = false
-        }
-      }
     )
   }
 
@@ -988,16 +991,16 @@ class HmsSDK(
       val config = HMSHLSConfig(hlsMeetingUrlVariant)
 
       hmsSDK?.startHLSStreaming(
-        config,
-        object : HMSActionResultListener {
-          override fun onSuccess() {
-            callback?.resolve(emitHMSSuccess())
+          config,
+          object : HMSActionResultListener {
+            override fun onSuccess() {
+              callback?.resolve(emitHMSSuccess())
+            }
+            override fun onError(error: HMSException) {
+              callback?.reject(error.code.toString(), error.message)
+              self.emitHMSError(error)
+            }
           }
-          override fun onError(error: HMSException) {
-            callback?.reject(error.code.toString(), error.message)
-            self.emitHMSError(error)
-          }
-        }
       )
     } else {
       callback?.reject("101", "REQUIRED_KEYS_NOT_FOUND")
@@ -1007,16 +1010,16 @@ class HmsSDK(
 
   fun stopHLSStreaming(callback: Promise?) {
     hmsSDK?.stopHLSStreaming(
-      null,
-      object : HMSActionResultListener {
-        override fun onSuccess() {
-          callback?.resolve(emitHMSSuccess())
+        null,
+        object : HMSActionResultListener {
+          override fun onSuccess() {
+            callback?.resolve(emitHMSSuccess())
+          }
+          override fun onError(error: HMSException) {
+            callback?.reject(error.code.toString(), error.message)
+            self.emitHMSError(error)
+          }
         }
-        override fun onError(error: HMSException) {
-          callback?.reject(error.code.toString(), error.message)
-          self.emitHMSError(error)
-        }
-      }
     )
   }
 
