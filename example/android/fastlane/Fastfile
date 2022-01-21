@@ -1,23 +1,12 @@
-# This file contains the fastlane.tools configuration
-# You can find the documentation at https://docs.fastlane.tools
-#
-# For a list of all available actions, check out
-#
-#     https://docs.fastlane.tools/actions
-#
-# For a list of all available plugins, check out
-#
-#     https://docs.fastlane.tools/plugins/available-plugins
-#
 
-# Uncomment the line if you want fastlane to automatically update itself
-# update_fastlane
+update_fastlane
 
 default_platform(:android)
 
 platform :android do
   desc "Firebase App Distribution"
-  lane :distribute do
+  lane :release_on_firebase do
+
     path = '../app/build.gradle'
     re = /versionCode\s+(\d+)/
     vn = /versionName\s+"\d.\d.(\d+)"/
@@ -41,13 +30,13 @@ platform :android do
     commit = last_git_commit
     firebase_app_distribution(
       app: "1:408505141940:android:7fae09bd993f283fc325e1",
-      groups: "internal, external",
+      groups: "internal, External",
       release_notes: commit[:message]
     )
 
     slack(
-      message: "🎉🍀📱 React Native android App released! 📱🍀 Download here 👉 https://appdistribution.firebase.dev/i/7b7ab3b30e627c35",
-      slack_url: "https://hooks.slack.com/services/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",
+      message: "🎉♻️🤖 React Native Android App released! 🤖♻️ Download here 👉 https://appdistribution.firebase.dev/i/7b7ab3b30e627c35",
+      slack_url: "https://hooks.slack.com/services/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",
       payload: {  
         "Build Date" => Time.new.to_s
       },
