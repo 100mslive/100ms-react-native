@@ -42,7 +42,7 @@ class HmsScreenshareActivity : ComponentActivity() {
   private fun startScreenshare() {
     val id = intent.getStringExtra("id")
     val isScreenShared = HmsModule.hmsCollection[id]?.hmsSDK?.isScreenShared()
-    if (isScreenShared !== null && isScreenShared) {
+    if (isScreenShared !== null && !isScreenShared) {
       try {
         val mediaProjectionManager =
             getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
