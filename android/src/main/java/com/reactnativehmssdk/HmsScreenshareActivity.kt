@@ -24,7 +24,6 @@ class HmsScreenshareActivity : ComponentActivity() {
                   HmsModule.hmsCollection[id]?.emitHMSError(error)
                 }
                 override fun onSuccess() {
-                  HmsModule.isScreenShared = true
                   finish()
                 }
               },
@@ -40,8 +39,10 @@ class HmsScreenshareActivity : ComponentActivity() {
     startScreenshare()
   }
 
-  fun startScreenshare() {
-    if (!HmsModule.isScreenShared) {
+  private fun startScreenshare() {
+    val id = intent.getStringExtra("id")
+    val isScreenShared = HmsModule.hmsCollection[id]?.hmsSDK?.isScreenShared()
+    if (isScreenShared !== null && isScreenShared) {
       try {
         val mediaProjectionManager =
             getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
@@ -50,7 +51,6 @@ class HmsScreenshareActivity : ComponentActivity() {
         println(e)
       }
     } else {
-      val id = intent.getStringExtra("id")
       HmsModule.hmsCollection[id]?.emitHMSError(
           HMSException(
               103,
