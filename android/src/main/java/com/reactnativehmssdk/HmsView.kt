@@ -1,19 +1,18 @@
 package com.reactnativehmssdk
 
 import android.annotation.SuppressLint
-import android.widget.FrameLayout
 import android.content.Context
 import android.view.LayoutInflater
+import android.widget.FrameLayout
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactContext
+import com.facebook.react.bridge.WritableMap
+import com.facebook.react.uimanager.events.RCTEventEmitter
 import live.hms.video.media.tracks.HMSTrackType
 import live.hms.video.media.tracks.HMSVideoTrack
 import live.hms.video.utils.SharedEglContext
 import org.webrtc.RendererCommon
 import org.webrtc.SurfaceViewRenderer
-import com.facebook.react.uimanager.events.RCTEventEmitter
-
-import com.facebook.react.bridge.WritableMap
 
 @SuppressLint("ViewConstructor")
 class HmsView(context: ReactContext) : FrameLayout(context) {
@@ -21,7 +20,8 @@ class HmsView(context: ReactContext) : FrameLayout(context) {
   private var videoTrack: HMSVideoTrack? = null
   private var localTrack: String? = null
   private var scaleTypeApplied: Boolean = false
-  private var currentScaleType: RendererCommon.ScalingType = RendererCommon.ScalingType.SCALE_ASPECT_FILL
+  private var currentScaleType: RendererCommon.ScalingType =
+      RendererCommon.ScalingType.SCALE_ASPECT_FILL
 
   init {
     val inflater = getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -35,15 +35,13 @@ class HmsView(context: ReactContext) : FrameLayout(context) {
     val event: WritableMap = Arguments.createMap()
     event.putString("message", "MyMessage")
     val reactContext = context as ReactContext
-    reactContext
-      .getJSModule(RCTEventEmitter::class.java)
-      .receiveEvent(id, "topChange", event)
+    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "topChange", event)
   }
 
   override fun onDetachedFromWindow() {
     super.onDetachedFromWindow()
-      videoTrack?.removeSink(surfaceView)
-      surfaceView.release()
+    videoTrack?.removeSink(surfaceView)
+    surfaceView.release()
   }
 
   override fun onAttachedToWindow() {

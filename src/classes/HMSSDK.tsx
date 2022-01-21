@@ -509,14 +509,33 @@ export class HMSSDK {
     );
   };
 
-  startScreenshare = async () => {
+  startScreenshare = () => {
     logger?.verbose('#Function startScreenshare', { id: this.id });
-    await HmsManager.startScreenshare({ id: this.id });
+    if (Platform.OS === 'android') {
+      HmsManager.startScreenshare({ id: this.id });
+    } else {
+      console.log('API currently not avaialble for iOS');
+    }
+  };
+
+  isScreenShared = async () => {
+    logger?.verbose('#Function isScreenShared', { id: this.id });
+    if (Platform.OS === 'android') {
+      return await HmsManager.isScreenShared({ id: this.id });
+    } else {
+      console.log('API currently not avaialble for iOS');
+      return 'API currently not avaialble for iOS';
+    }
   };
 
   stopScreenshare = async () => {
-    logger?.verbose('#Function startScreenshare', { id: this.id });
-    await HmsManager.stopScreenshare({ id: this.id });
+    logger?.verbose('#Function stopScreenshare', { id: this.id });
+    if (Platform.OS === 'android') {
+      return await HmsManager.stopScreenshare({ id: this.id });
+    } else {
+      console.log('API currently not avaialble for iOS');
+      return 'API currently not avaialble for iOS';
+    }
   };
 
   /**

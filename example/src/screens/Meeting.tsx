@@ -944,8 +944,6 @@ const Meeting = ({
   };
 
   useEffect(() => {
-    updateHmsInstance(hmsInstance);
-
     Dimensions.addEventListener('change', () => {
       setOrientation(isPortrait());
     });
@@ -965,7 +963,12 @@ const Meeting = ({
       Dimensions.removeEventListener('change', () => {
         setOrientation(!orientation);
       });
+      instance?.leave();
     };
+  }, []);
+
+  useEffect(() => {
+    updateHmsInstance(hmsInstance);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hmsInstance]);
 
