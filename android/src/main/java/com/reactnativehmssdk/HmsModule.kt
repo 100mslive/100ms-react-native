@@ -1,5 +1,8 @@
 package com.reactnativehmssdk
 
+import android.app.Activity
+import android.app.Application
+import android.os.Bundle
 import com.facebook.react.bridge.*
 import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.modules.core.DeviceEventManagerModule
@@ -7,7 +10,8 @@ import com.reactnativehmssdk.HmsModule.Companion.REACT_CLASS
 import java.util.UUID
 
 @ReactModule(name = REACT_CLASS)
-class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
+class HmsModule(reactContext: ReactApplicationContext) :
+    ReactContextBaseJavaModule(reactContext), Application.ActivityLifecycleCallbacks {
   companion object {
     const val REACT_CLASS = "HmsManager"
     var hmsCollection = mutableMapOf<String, HmsSDK>()
@@ -22,8 +26,10 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
 
   // Example method
   // See https://reactnative.dev/docs/native-modules-android
+  // See https://reactnative.dev/docs/native-modules-android
   @ReactMethod
   fun build(data: ReadableMap?, callback: Promise?) {
+    currentActivity?.application?.registerActivityLifecycleCallbacks(this)
     val hasItem = hmsCollection.containsKey("12345")
     if (hasItem) {
       val uuid = UUID.randomUUID()
@@ -264,5 +270,34 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     reactApplicationContext
         .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
         .emit(event, data)
+  }
+
+  override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
+
+  override fun onActivityStarted(activity: Activity) {}
+
+  override fun onActivityResumed(activity: Activity) {}
+
+  override fun onActivityPaused(activity: Activity) {}
+
+  override fun onActivityStopped(activity: Activity) {}
+
+  override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
+
+  override fun onActivityDestroyed(activity: Activity) {
+    //    Log.d("hihihihhih", hmsCollection.toString())
+    try {
+      if (activity !is HmsScreenshareActivity) {
+        //        Log.d("hihihihhih", "destroy")
+        //        for(hms in hmsCollection.keys){
+        //          hmsCollection[hms]?.leave(null)
+        //        }
+        hmsCollection["12345"]?.leave(null)
+        currentActivity?.application?.unregisterActivityLifecycleCallbacks(this)
+        hmsCollection = mutableMapOf<String, HmsSDK>()
+      }
+    } catch (e: Exception) {
+      //      Log.d("hihihihhih", e.message)
+    }
   }
 }
