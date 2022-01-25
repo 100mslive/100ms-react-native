@@ -26,10 +26,8 @@ class HmsModule(reactContext: ReactApplicationContext) :
 
   // Example method
   // See https://reactnative.dev/docs/native-modules-android
-  // See https://reactnative.dev/docs/native-modules-android
   @ReactMethod
   fun build(data: ReadableMap?, callback: Promise?) {
-    currentActivity?.application?.registerActivityLifecycleCallbacks(this)
     val hasItem = hmsCollection.containsKey("12345")
     if (hasItem) {
       val uuid = UUID.randomUUID()
@@ -212,6 +210,7 @@ class HmsModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun startScreenshare(data: ReadableMap) {
+    currentActivity?.application?.registerActivityLifecycleCallbacks(this)
     val hms = HmsHelper.getHms(data, hmsCollection)
 
     hms?.startScreenshare()
