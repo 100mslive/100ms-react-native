@@ -84,6 +84,7 @@ type Peer = {
   type: 'local' | 'remote' | 'screen';
   metadata?: {
     isHandRaised: boolean;
+    isBRBOn: boolean;
   };
   track?: HMSTrack;
 };
@@ -964,6 +965,7 @@ const Meeting = ({
         setOrientation(!orientation);
       });
       instance?.leave();
+      navigate('WelcomeScreen');
     };
   }, []);
 
@@ -1653,7 +1655,10 @@ const Meeting = ({
           style={styles.singleIconContainer}
           onPress={() => {
             instance?.changeMetadata(
-              `{"isHandRaised":${!trackId?.metadata?.isHandRaised}}`,
+              JSON.stringify({
+                ...trackId?.metadata,
+                isHandRaised: !trackId?.metadata?.isHandRaised,
+              }),
             );
           }}>
           <Ionicons
@@ -1665,6 +1670,26 @@ const Meeting = ({
             style={styles.videoIcon}
             size={dimension.viewHeight(30)}
           />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.singleIconContainer}
+          onPress={() => {
+            instance?.changeMetadata(
+              JSON.stringify({
+                ...trackId?.metadata,
+                isBRBOn: !trackId?.metadata?.isBRBOn,
+              }),
+            );
+          }}>
+          {trackId?.metadata?.isBRBOn ? (
+            <View style={styles.brbOnContainer}>
+              <Text style={styles.brbOn}>BRB</Text>
+            </View>
+          ) : (
+            <View style={styles.brbContainer}>
+              <Text style={styles.brb}>BRB</Text>
+            </View>
+          )}
         </TouchableOpacity>
         {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
           'video',
@@ -1974,6 +1999,29 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  brbContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 5,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: getThemeColour(),
+  },
+  brb: {
+    color: getThemeColour(),
+  },
+  brbOnContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 5,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: getThemeColour(),
+    backgroundColor: getThemeColour(),
+  },
+  brbOn: {
+    color: 'white',
   },
 });
 
