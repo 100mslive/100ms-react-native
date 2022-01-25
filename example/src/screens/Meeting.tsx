@@ -84,6 +84,7 @@ type Peer = {
   type: 'local' | 'remote' | 'screen';
   metadata?: {
     isHandRaised: boolean;
+    isBRBOn: boolean;
   };
   track?: HMSTrack;
 };
@@ -446,15 +447,24 @@ const DisplayTrack = ({
           style={type === 'screen' ? styles.hmsViewScreen : styles.hmsView}
         />
       )}
-      {metadata?.isHandRaised === true && (
-        <View style={styles.raiseHandContainer}>
-          <Ionicons
-            name="ios-hand-left"
-            style={styles.raiseHand}
-            size={dimension.viewHeight(30)}
-          />
-        </View>
-      )}
+      <View style={styles.labelContainer}>
+        {metadata?.isHandRaised && (
+          <View>
+            <Ionicons
+              name="ios-hand-left"
+              style={styles.raiseHand}
+              size={dimension.viewHeight(30)}
+            />
+          </View>
+        )}
+        {metadata?.isBRBOn && (
+          <View>
+            <View style={styles.brbOnContainer}>
+              <Text style={styles.brbOn}>BRB</Text>
+            </View>
+          </View>
+        )}
+      </View>
       {type === 'screen' ||
       (type === 'local' && selectLocalActionButtons.length > 1) ||
       (type === 'remote' && selectRemoteActionButtons.length > 1) ? (
@@ -964,6 +974,7 @@ const Meeting = ({
         setOrientation(!orientation);
       });
       instance?.leave();
+      navigate('WelcomeScreen');
     };
   }, []);
 
@@ -1653,7 +1664,10 @@ const Meeting = ({
           style={styles.singleIconContainer}
           onPress={() => {
             instance?.changeMetadata(
-              `{"isHandRaised":${!trackId?.metadata?.isHandRaised}}`,
+              JSON.stringify({
+                ...trackId?.metadata,
+                isHandRaised: !trackId?.metadata?.isHandRaised,
+              }),
             );
           }}>
           <Ionicons
@@ -1665,6 +1679,26 @@ const Meeting = ({
             style={styles.videoIcon}
             size={dimension.viewHeight(30)}
           />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.singleIconContainer}
+          onPress={() => {
+            instance?.changeMetadata(
+              JSON.stringify({
+                ...trackId?.metadata,
+                isBRBOn: !trackId?.metadata?.isBRBOn,
+              }),
+            );
+          }}>
+          {trackId?.metadata?.isBRBOn ? (
+            <View style={styles.brbOnContainer}>
+              <Text style={styles.brbOn}>BRB</Text>
+            </View>
+          ) : (
+            <View style={styles.brbContainer}>
+              <Text style={styles.brb}>BRB</Text>
+            </View>
+          )}
         </TouchableOpacity>
         {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
           'video',
@@ -1756,11 +1790,12 @@ const styles = StyleSheet.create({
   videoIcon: {
     color: getThemeColour(),
   },
-  raiseHandContainer: {
-    padding: 10,
+  labelContainer: {
     position: 'absolute',
     left: 0,
     top: 0,
+    flexDirection: 'row',
+    padding: 10,
   },
   raiseHand: {
     color: 'rgb(242,202,73)',
@@ -1974,6 +2009,29 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  brbContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 5,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: getThemeColour(),
+  },
+  brb: {
+    color: getThemeColour(),
+  },
+  brbOnContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 5,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: getThemeColour(),
+    backgroundColor: getThemeColour(),
+  },
+  brbOn: {
+    color: 'white',
   },
 });
 
