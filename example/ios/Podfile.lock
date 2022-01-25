@@ -357,7 +357,7 @@ PODS:
     - React-jsi (= 0.64.1)
     - React-perflogger (= 0.64.1)
   - React-jsinspector (0.64.1)
-  - react-native-hms (0.8.5):
+  - react-native-hms (0.9.0):
     - HMSSDK
     - React-Core
   - react-native-safe-area-context (3.3.2):
@@ -451,10 +451,10 @@ PODS:
     - React-Core
   - RNPermissions (3.2.0):
     - React-Core
-  - RNScreens (3.10.1):
+  - RNScreens (3.10.2):
     - React-Core
     - React-RCTImage
-  - RNShare (7.3.2):
+  - RNShare (7.3.3):
     - React-Core
   - RNVectorIcons (8.1.0):
     - React-Core
@@ -692,7 +692,7 @@ SPEC CHECKSUMS:
   React-jsi: 5de8204706bd872b78ea646aee5d2561ca1214b6
   React-jsiexecutor: 124e8f99992490d0d13e0649d950d3e1aae06fe9
   React-jsinspector: 500a59626037be5b3b3d89c5151bc3baa9abf1a9
-  react-native-hms: 165c0ddc8b0a6b6070371162c706be1e55c58c20
+  react-native-hms: 1bc6824747deba0bb6201ebbd06a047eb2e02d71
   react-native-safe-area-context: 584dc04881deb49474363f3be89e4ca0e854c057
   react-native-simple-toast: bf002828cf816775a6809f7a9ec3907509bce11f
   react-native-video: a4c2635d0802f983594b7057e1bce8f442f0ad28
@@ -715,8 +715,8 @@ SPEC CHECKSUMS:
   RNFBCrashlytics: 2061ca863e8e2fa1aae9b12477d7dfa8e88ca0f9
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNPermissions: f7ebe52db07c00901127966ca080b4ec6a6ceb0a
-  RNScreens: 522705f2e5c9d27efb17f24aceb2bf8335bc7b8e
-  RNShare: d76b8c9c6e6ffb38fc18f40b4338c9d867592ed3
+  RNScreens: d6da2b9e29cf523832c2542f47bf1287318b1868
+  RNShare: 3185c074441b7e8897014d95ba982434a0a024a1
   RNVectorIcons: 31cebfcf94e8cf8686eb5303ae0357da64d7a5a4
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
   Yoga: a7de31c64fe738607e7a3803e3f591a4b1df7393
