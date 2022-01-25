@@ -54,6 +54,7 @@ import {
   TouchableWithoutFeedback,
   PinchGestureHandler,
   GestureHandlerRootView,
+  PanGestureHandler,
 } from 'react-native-gesture-handler';
 
 import {ChatWindow, AlertModal, CustomModal, RolePicker} from '../components';
@@ -1299,10 +1300,17 @@ const Meeting = ({
   }
 
   const scale = useRef(new Animated.Value(1)).current;
+  const translateX = useRef(new Animated.Value(1)).current;
+  const translateY = useRef(new Animated.Value(1)).current;
 
   const handlePinch = Animated.event([{nativeEvent: {scale}}], {
     useNativeDriver: true,
   });
+
+  const handlePan = Animated.event(
+    [{nativeEvent: {translationX: translateX, translationY: translateY}}],
+    {listener: e => console.log(e), useNativeDriver: true},
+  );
 
   const handleStateChange = () => {
     console.log('state changed');
@@ -1508,22 +1516,29 @@ const Meeting = ({
       <View style={styles.wrapper}>
         {zoomableModal ? (
           <GestureHandlerRootView>
-            <PinchGestureHandler
-              onHandlerStateChange={handleStateChange}
-              onGestureEvent={handlePinch}>
-              <Animated.View
-                style={[getAuxVideoStyles(), {transform: [{scale}]}]}>
-                {HmsViewComponent && (
-                  <HmsViewComponent
-                    sink={true}
-                    trackId={zoomableTrackId}
-                    mirror={false}
-                    scaleType={HMSVideoViewMode.ASPECT_FIT}
-                    style={styles.hmsViewScreen}
-                  />
-                )}
+            <PanGestureHandler onGestureEvent={handlePan}>
+              <Animated.View>
+                <PinchGestureHandler
+                  onHandlerStateChange={handleStateChange}
+                  onGestureEvent={handlePinch}>
+                  <Animated.View
+                    style={[
+                      getAuxVideoStyles(),
+                      {transform: [{scale}, {translateX}, {translateY}]},
+                    ]}>
+                    {HmsViewComponent && (
+                      <HmsViewComponent
+                        sink={true}
+                        trackId={zoomableTrackId}
+                        mirror={false}
+                        scaleType={HMSVideoViewMode.ASPECT_FIT}
+                        style={styles.hmsViewScreen}
+                      />
+                    )}
+                  </Animated.View>
+                </PinchGestureHandler>
               </Animated.View>
-            </PinchGestureHandler>
+            </PanGestureHandler>
           </GestureHandlerRootView>
         ) : (
           <FlatList
@@ -1754,7 +1769,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     alignSelf: 'center',
-    backgroundColor: 'red',
   },
   fullScreenLandscape: {
     width: '100%',
@@ -1817,6 +1831,7 @@ const styles = StyleSheet.create({
   },
   wrapper: {
     flex: 1,
+    backgroundColor: 'black',
   },
   displayContainer: {
     position: 'absolute',
