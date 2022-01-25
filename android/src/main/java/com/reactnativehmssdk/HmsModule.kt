@@ -285,19 +285,19 @@ class HmsModule(reactContext: ReactApplicationContext) :
   override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
 
   override fun onActivityDestroyed(activity: Activity) {
-    //    Log.d("hihihihhih", hmsCollection.toString())
     try {
-      if (activity !is HmsScreenshareActivity) {
-        //        Log.d("hihihihhih", "destroy")
-        //        for(hms in hmsCollection.keys){
-        //          hmsCollection[hms]?.leave(null)
-        //        }
-        hmsCollection["12345"]?.leave(null)
+      if (activity.componentName.shortClassName == ".MainActivity") {
+        for (key in hmsCollection.keys) {
+          val hmsLocalPeer = hmsCollection[key]?.hmsSDK?.getLocalPeer()
+          if (hmsLocalPeer != null) {
+            hmsCollection[key]?.leave(null)
+          }
+        }
         currentActivity?.application?.unregisterActivityLifecycleCallbacks(this)
         hmsCollection = mutableMapOf<String, HmsSDK>()
       }
     } catch (e: Exception) {
-      //      Log.d("hihihihhih", e.message)
+      //      Log.d("error", e.message)
     }
   }
 }
