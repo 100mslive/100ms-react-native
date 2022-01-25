@@ -229,7 +229,7 @@ const App = ({
   };
 
   const getCrashlyticsLog = ({message, data}: {message: string; data: any}) => {
-    crashlytics().log(message.toString() + ' ' + data.toString());
+    crashlytics().log(message.toString() + ' ' + JSON.stringify(data));
   };
 
   const setupBuild = async () => {
