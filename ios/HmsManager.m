@@ -16,7 +16,7 @@ RCT_EXTERN_METHOD(endRoom: (NSDictionary) data :(RCTPromiseResolveBlock) resolve
 RCT_EXTERN_METHOD(changeRole: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(changeTrackState: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(changeTrackStateForRoles: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
-RCT_EXTERN_METHOD(acceptRoleChange: (NSDictionary) data)
+RCT_EXTERN_METHOD(acceptRoleChange: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(isMute: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(getRoom: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(switchCamera: (NSDictionary) data)
