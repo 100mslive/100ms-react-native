@@ -447,15 +447,24 @@ const DisplayTrack = ({
           style={type === 'screen' ? styles.hmsViewScreen : styles.hmsView}
         />
       )}
-      {metadata?.isHandRaised === true && (
-        <View style={styles.raiseHandContainer}>
-          <Ionicons
-            name="ios-hand-left"
-            style={styles.raiseHand}
-            size={dimension.viewHeight(30)}
-          />
-        </View>
-      )}
+      <View style={styles.labelContainer}>
+        {metadata?.isHandRaised && (
+          <View>
+            <Ionicons
+              name="ios-hand-left"
+              style={styles.raiseHand}
+              size={dimension.viewHeight(30)}
+            />
+          </View>
+        )}
+        {metadata?.isBRBOn && (
+          <View>
+            <View style={styles.brbOnContainer}>
+              <Text style={styles.brbOn}>BRB</Text>
+            </View>
+          </View>
+        )}
+      </View>
       {type === 'screen' ||
       (type === 'local' && selectLocalActionButtons.length > 1) ||
       (type === 'remote' && selectRemoteActionButtons.length > 1) ? (
@@ -1781,11 +1790,12 @@ const styles = StyleSheet.create({
   videoIcon: {
     color: getThemeColour(),
   },
-  raiseHandContainer: {
-    padding: 10,
+  labelContainer: {
     position: 'absolute',
     left: 0,
     top: 0,
+    flexDirection: 'row',
+    padding: 10,
   },
   raiseHand: {
     color: 'rgb(242,202,73)',
