@@ -40,6 +40,7 @@ import {PERMISSIONS, RESULTS, requestMultiple} from 'react-native-permissions';
 import Feather from 'react-native-vector-icons/Feather';
 import Toast from 'react-native-simple-toast';
 import {getModel} from 'react-native-device-info';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 import * as services from '../services/index';
 import {UserIdModal, PreviewModal} from '../components';
@@ -227,6 +228,10 @@ const App = ({
     });
   };
 
+  const getCrashlyticsLog = ({message, data}: {message: string; data: any}) => {
+    crashlytics().log(message.toString() + ' ' + data.toString());
+  };
+
   const setupBuild = async () => {
     /**
      * Regular Usage:
@@ -240,6 +245,7 @@ const App = ({
     const build = await HmsManager.build();
     const logger = new HMSLogger();
     logger.updateLogLevel(HMSLogLevel.VERBOSE, true);
+    logger.setLogListener(getCrashlyticsLog);
     build.setLogger(logger);
     setInstance(build);
     updateHms({hmsInstance: build});
