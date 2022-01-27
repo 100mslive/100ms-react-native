@@ -11,7 +11,6 @@ import {
   Platform,
   TextInput,
   PermissionsAndroid,
-  Animated,
 } from 'react-native';
 import {connect} from 'react-redux';
 import {
@@ -49,15 +48,15 @@ import type {StackNavigationProp} from '@react-navigation/stack';
 import Toast from 'react-native-simple-toast';
 import RNFetchBlob from 'rn-fetch-blob';
 import {Picker} from '@react-native-picker/picker';
-// import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView';
-import {
-  TouchableWithoutFeedback,
-  PinchGestureHandler,
-  GestureHandlerRootView,
-  PanGestureHandler,
-} from 'react-native-gesture-handler';
+import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
 
-import {ChatWindow, AlertModal, CustomModal, RolePicker} from '../components';
+import {
+  ChatWindow,
+  AlertModal,
+  CustomModal,
+  RolePicker,
+  ZoomableView,
+} from '../components';
 import {
   addMessage,
   clearMessageData,
@@ -532,7 +531,6 @@ const Meeting = ({
       : '',
     rtmpURLs: [],
   });
-  const [zoomableTrackId, setZoomableTrackId] = useState('');
   const [hlsStreamingDetails, setHLSStreamingDetails] =
     useState<HMSHLSMeetingURLVariant>({
       meetingUrl: state.user.roomID
@@ -549,6 +547,7 @@ const Meeting = ({
     useState<HMSPermissions>();
   const flatlistRef = useRef<FlatList>(null);
   const [page, setPage] = useState(0);
+  const [zoomableTrackId, setZoomableTrackId] = useState('');
   const [zoomableModal, setZoomableModal] = useState(false);
   var doublePress = 0;
 
@@ -1299,21 +1298,14 @@ const Meeting = ({
     flatlistRef?.current?.scrollToEnd();
   }
 
-  const scale = useRef(new Animated.Value(1)).current;
-  const translateX = useRef(new Animated.Value(1)).current;
-  const translateY = useRef(new Animated.Value(1)).current;
-
-  const handlePinch = Animated.event([{nativeEvent: {scale}}], {
-    useNativeDriver: true,
-  });
-
-  const handlePan = Animated.event(
-    [{nativeEvent: {translationX: translateX, translationY: translateY}}],
-    {listener: e => console.log(e), useNativeDriver: true},
-  );
-
-  const handleStateChange = () => {
-    console.log('state changed');
+  const fetchZoomableId = (id: string): boolean => {
+    let idPresent = false;
+    auxTracks.map(track => {
+      if (track.trackId === id) {
+        idPresent = true;
+      }
+    });
+    return idPresent;
   };
 
   const HmsViewComponent = instance?.HmsView;
@@ -1514,32 +1506,31 @@ const Meeting = ({
         </View>
       </View>
       <View style={styles.wrapper}>
-        {zoomableModal ? (
-          <GestureHandlerRootView>
-            <PanGestureHandler onGestureEvent={handlePan}>
-              <Animated.View>
-                <PinchGestureHandler
-                  onHandlerStateChange={handleStateChange}
-                  onGestureEvent={handlePinch}>
-                  <Animated.View
-                    style={[
-                      getAuxVideoStyles(),
-                      {transform: [{scale}, {translateX}, {translateY}]},
-                    ]}>
-                    {HmsViewComponent && (
-                      <HmsViewComponent
-                        sink={true}
-                        trackId={zoomableTrackId}
-                        mirror={false}
-                        scaleType={HMSVideoViewMode.ASPECT_FIT}
-                        style={styles.hmsViewScreen}
-                      />
-                    )}
-                  </Animated.View>
-                </PinchGestureHandler>
-              </Animated.View>
-            </PanGestureHandler>
-          </GestureHandlerRootView>
+        {fetchZoomableId(zoomableTrackId) && zoomableModal ? (
+          <View>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => {
+                setZoomableModal(false);
+              }}>
+              <Entypo
+                name={'circle-with-cross'}
+                style={styles.videoIcon}
+                size={dimension.viewHeight(50)}
+              />
+            </TouchableOpacity>
+            <ZoomableView>
+              {HmsViewComponent && (
+                <HmsViewComponent
+                  sink={true}
+                  trackId={zoomableTrackId}
+                  mirror={false}
+                  scaleType={HMSVideoViewMode.ASPECT_FIT}
+                  style={styles.hmsViewScreen}
+                />
+              )}
+            </ZoomableView>
+          </View>
         ) : (
           <FlatList
             ref={flatlistRef}
@@ -1831,7 +1822,6 @@ const styles = StyleSheet.create({
   },
   wrapper: {
     flex: 1,
-    backgroundColor: 'black',
   },
   displayContainer: {
     position: 'absolute',
@@ -1967,10 +1957,12 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   closeButton: {
+    zIndex: 2,
     position: 'absolute',
-    left: 1,
-    top: 70,
-    zIndex: 10,
+    left: 2,
+    top: 0,
+    height: 50,
+    width: 50,
   },
   flex: {
     flex: 1,
