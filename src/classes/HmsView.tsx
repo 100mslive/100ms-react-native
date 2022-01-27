@@ -45,7 +45,7 @@ export const HmsView = ({
     console.log(values, 'values');
     setTimeout(() => {
       setTempVal(1);
-    }, 1000);
+    }, 3000);
   };
 
   useEffect(() => {

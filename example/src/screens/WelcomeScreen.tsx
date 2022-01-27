@@ -12,6 +12,7 @@ import {
   Dimensions,
   Alert,
   Linking,
+  AppState,
 } from 'react-native';
 import {connect} from 'react-redux';
 import HmsManager, {
@@ -39,6 +40,7 @@ import {PERMISSIONS, RESULTS, requestMultiple} from 'react-native-permissions';
 import Feather from 'react-native-vector-icons/Feather';
 import Toast from 'react-native-simple-toast';
 import {getModel} from 'react-native-device-info';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 import * as services from '../services/index';
 import {UserIdModal, PreviewModal} from '../components';
@@ -226,6 +228,10 @@ const App = ({
     });
   };
 
+  const getCrashlyticsLog = ({message, data}: {message: string; data: any}) => {
+    crashlytics().log(message.toString() + ' ' + JSON.stringify(data));
+  };
+
   const setupBuild = async () => {
     /**
      * Regular Usage:
@@ -239,6 +245,7 @@ const App = ({
     const build = await HmsManager.build();
     const logger = new HMSLogger();
     logger.updateLogLevel(HMSLogLevel.VERBOSE, true);
+    logger.setLogListener(getCrashlyticsLog);
     build.setLogger(logger);
     setInstance(build);
     updateHms({hmsInstance: build});
@@ -258,6 +265,21 @@ const App = ({
       setupBuild();
       setInitialized(true);
     }
+
+    AppState.addEventListener('change', nextAppState => {
+      if (nextAppState === 'active') {
+        Linking.getInitialURL().then(url => {
+          if (url) {
+            setRoomID(url);
+            setText(url);
+          } else {
+            setRoomID('https://yogi.app.100ms.live/preview/nih-bkn-vek');
+            setText('https://yogi.app.100ms.live/preview/nih-bkn-vek');
+          }
+        });
+      }
+    });
+
     Dimensions.addEventListener('change', () => {
       setOrientation(!orientation);
     });

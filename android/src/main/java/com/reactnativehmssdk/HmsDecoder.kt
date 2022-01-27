@@ -31,10 +31,7 @@ object HmsDecoder {
           "serverRecordingState",
           this.getHMSServerRecordingState(hmsRoom.serverRecordingState)
       )
-      room.putMap(
-        "hlsStreamingState",
-        this.getHMSHlsStreamingState(hmsRoom.hlsStreamingState)
-      )
+      room.putMap("hlsStreamingState", this.getHMSHlsStreamingState(hmsRoom.hlsStreamingState))
       room.putMap("localPeer", this.getHmsLocalPeer(hmsRoom.localPeer))
       room.putArray("peers", this.getAllPeers(hmsRoom.peerList))
     }
@@ -157,7 +154,7 @@ object HmsDecoder {
 
   private fun getHmsAudioSettings(hmsAudioSettings: AudioParams?): WritableMap {
     val audioSettings: WritableMap = Arguments.createMap()
-    if (hmsAudioSettings != null) {
+    if (hmsAudioSettings != null && hmsAudioSettings.codec != null) {
       audioSettings.putInt("bitRate", hmsAudioSettings.bitRate)
       audioSettings.putString("codec", hmsAudioSettings.codec.name)
     }
@@ -166,7 +163,7 @@ object HmsDecoder {
 
   private fun getHmsVideoSettings(hmsVideoSettings: VideoParams?): WritableMap {
     val videoSettings: WritableMap = Arguments.createMap()
-    if (hmsVideoSettings != null) {
+    if (hmsVideoSettings != null && hmsVideoSettings.codec != null) {
       videoSettings.putInt("bitRate", hmsVideoSettings.bitRate)
       videoSettings.putInt("frameRate", hmsVideoSettings.frameRate)
       videoSettings.putInt("width", hmsVideoSettings.width)
