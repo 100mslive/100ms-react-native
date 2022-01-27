@@ -227,6 +227,7 @@ class HmsModule(reactContext: ReactApplicationContext) :
   fun stopScreenshare(data: ReadableMap, callback: Promise?) {
     val hms = HmsHelper.getHms(data, hmsCollection)
 
+    currentActivity?.application?.unregisterActivityLifecycleCallbacks(this)
     hms?.stopScreenshare(callback)
   }
 
