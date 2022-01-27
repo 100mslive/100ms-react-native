@@ -303,6 +303,7 @@ class HmsSDK(
 
                   val data: WritableMap = Arguments.createMap()
 
+                  hmsSDK?.isScreenShared()?.let { data.putBoolean("isScreenShared", it) }
                   data.putMap("peer", hmsPeer)
                   data.putMap("track", hmsTrack)
                   data.putMap("room", roomData)
@@ -961,10 +962,6 @@ class HmsSDK(
       intent.putExtra("id", id)
       context.startActivity(intent)
     }
-  }
-
-  fun isScreenShared(callback: Promise?) {
-    callback?.resolve(hmsSDK?.isScreenShared())
   }
 
   fun stopScreenshare(callback: Promise?) {

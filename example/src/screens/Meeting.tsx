@@ -976,6 +976,7 @@ const Meeting = ({
       instance?.leave();
       navigate('WelcomeScreen');
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -1482,14 +1483,13 @@ const Meeting = ({
               size={dimension.viewHeight(30)}
             />
           )}
-          {trackId?.peerRefrence?.auxiliaryTracks &&
-            trackId?.peerRefrence?.auxiliaryTracks?.length > 0 && (
-              <MaterialIcons
-                name="fit-screen"
-                style={styles.streaming}
-                size={dimension.viewHeight(30)}
-              />
-            )}
+          {instance?.isScreenShared() && (
+            <MaterialIcons
+              name="fit-screen"
+              style={styles.streaming}
+              size={dimension.viewHeight(30)}
+            />
+          )}
           {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
             'video',
           ) && (

@@ -212,13 +212,6 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   }
 
   @ReactMethod
-  fun isScreenShared(data: ReadableMap, callback: Promise?) {
-    val hms = HmsHelper.getHms(data, hmsCollection)
-
-    hms?.isScreenShared(callback)
-  }
-
-  @ReactMethod
   fun stopScreenshare(data: ReadableMap, callback: Promise?) {
     val hms = HmsHelper.getHms(data, hmsCollection)
 

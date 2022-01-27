@@ -53,6 +53,7 @@ export class HMSSDK {
   remotePeers?: HMSRemotePeer[];
   knownRoles?: HMSRole[];
   id: string;
+  private localScreenShared: boolean | undefined;
   private muteStatus: boolean | undefined;
   appStateSubscription?: any;
 
@@ -518,10 +519,10 @@ export class HMSSDK {
     }
   };
 
-  isScreenShared = async () => {
+  isScreenShared = () => {
     logger?.verbose('#Function isScreenShared', { id: this.id });
     if (Platform.OS === 'android') {
-      return await HmsManager.isScreenShared({ id: this.id });
+      return this.localScreenShared;
     } else {
       console.log('API currently not avaialble for iOS');
       return 'API currently not avaialble for iOS';
@@ -801,6 +802,7 @@ export class HMSSDK {
     if (this.muteStatus && data?.type === 'TRACK_ADDED') {
       this.muteAllPeersAudio(this.muteStatus);
     }
+    this.localScreenShared = data?.isScreenShared;
     this.room = room;
     this.localPeer = localPeer;
     this.remotePeers = remotePeers;
