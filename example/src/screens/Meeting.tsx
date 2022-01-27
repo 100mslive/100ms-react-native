@@ -1506,32 +1506,7 @@ const Meeting = ({
         </View>
       </View>
       <View style={styles.wrapper}>
-        {fetchZoomableId(zoomableTrackId) && zoomableModal ? (
-          <View>
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => {
-                setZoomableModal(false);
-              }}>
-              <Entypo
-                name={'circle-with-cross'}
-                style={styles.videoIcon}
-                size={dimension.viewHeight(50)}
-              />
-            </TouchableOpacity>
-            <ZoomableView>
-              {HmsViewComponent && (
-                <HmsViewComponent
-                  sink={true}
-                  trackId={zoomableTrackId}
-                  mirror={false}
-                  scaleType={HMSVideoViewMode.ASPECT_FIT}
-                  style={styles.hmsViewScreen}
-                />
-              )}
-            </ZoomableView>
-          </View>
-        ) : (
+        {!(fetchZoomableId(zoomableTrackId) && zoomableModal) ? (
           <FlatList
             ref={flatlistRef}
             horizontal
@@ -1603,6 +1578,31 @@ const Meeting = ({
             onViewableItemsChanged={onViewRef.current}
             keyExtractor={item => item[0]?.id}
           />
+        ) : (
+          <View>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => {
+                setZoomableModal(false);
+              }}>
+              <Entypo
+                name={'circle-with-cross'}
+                style={styles.videoIcon}
+                size={dimension.viewHeight(50)}
+              />
+            </TouchableOpacity>
+            <ZoomableView>
+              {HmsViewComponent && (
+                <HmsViewComponent
+                  sink={true}
+                  trackId={zoomableTrackId}
+                  mirror={false}
+                  scaleType={HMSVideoViewMode.ASPECT_FIT}
+                  style={styles.hmsViewScreen}
+                />
+              )}
+            </ZoomableView>
+          </View>
         )}
       </View>
       <View style={styles.iconContainers}>
