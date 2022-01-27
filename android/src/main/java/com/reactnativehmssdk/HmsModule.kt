@@ -1,5 +1,8 @@
 package com.reactnativehmssdk
 
+import android.app.Activity
+import android.app.Application
+import android.os.Bundle
 import com.facebook.react.bridge.*
 import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.modules.core.DeviceEventManagerModule
@@ -7,7 +10,8 @@ import com.reactnativehmssdk.HmsModule.Companion.REACT_CLASS
 import java.util.UUID
 
 @ReactModule(name = REACT_CLASS)
-class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
+class HmsModule(reactContext: ReactApplicationContext) :
+    ReactContextBaseJavaModule(reactContext), Application.ActivityLifecycleCallbacks {
   companion object {
     const val REACT_CLASS = "HmsManager"
     var hmsCollection = mutableMapOf<String, HmsSDK>()
@@ -206,6 +210,7 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
 
   @ReactMethod
   fun startScreenshare(data: ReadableMap) {
+    currentActivity?.application?.registerActivityLifecycleCallbacks(this)
     val hms = HmsHelper.getHms(data, hmsCollection)
 
     hms?.startScreenshare()
@@ -222,6 +227,7 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
   fun stopScreenshare(data: ReadableMap, callback: Promise?) {
     val hms = HmsHelper.getHms(data, hmsCollection)
 
+    currentActivity?.application?.unregisterActivityLifecycleCallbacks(this)
     hms?.stopScreenshare(callback)
   }
 
@@ -264,5 +270,34 @@ class HmsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     reactApplicationContext
         .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
         .emit(event, data)
+  }
+
+  override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
+
+  override fun onActivityStarted(activity: Activity) {}
+
+  override fun onActivityResumed(activity: Activity) {}
+
+  override fun onActivityPaused(activity: Activity) {}
+
+  override fun onActivityStopped(activity: Activity) {}
+
+  override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
+
+  override fun onActivityDestroyed(activity: Activity) {
+    try {
+      if (activity.componentName.shortClassName == ".MainActivity") {
+        for (key in hmsCollection.keys) {
+          val hmsLocalPeer = hmsCollection[key]?.hmsSDK?.getLocalPeer()
+          if (hmsLocalPeer != null) {
+            hmsCollection[key]?.leave(null)
+          }
+        }
+        currentActivity?.application?.unregisterActivityLifecycleCallbacks(this)
+        hmsCollection = mutableMapOf<String, HmsSDK>()
+      }
+    } catch (e: Exception) {
+      //      Log.d("error", e.message)
+    }
   }
 }
