@@ -1510,7 +1510,7 @@ const Meeting = ({
           <FlatList
             ref={flatlistRef}
             horizontal
-            data={pairedPeers.splice(0, 1)}
+            data={pairedPeers}
             initialNumToRender={2}
             maxToRenderPerBatch={3}
             onScroll={({nativeEvent}) => {
