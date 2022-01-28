@@ -49,9 +49,16 @@ import type {StackNavigationProp} from '@react-navigation/stack';
 import Toast from 'react-native-simple-toast';
 import RNFetchBlob from 'rn-fetch-blob';
 import {Picker} from '@react-native-picker/picker';
+import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
 import Video from 'react-native-video';
 
-import {ChatWindow, AlertModal, CustomModal, RolePicker} from '../components';
+import {
+  ChatWindow,
+  AlertModal,
+  CustomModal,
+  RolePicker,
+  ZoomableView,
+} from '../components';
 import {
   addMessage,
   clearMessageData,
@@ -557,6 +564,9 @@ const Meeting = ({
   const flatlistRef = useRef<FlatList>(null);
   const hlsPlayerRef = useRef<Video>(null);
   const [page, setPage] = useState(0);
+  const [zoomableTrackId, setZoomableTrackId] = useState('');
+  const [zoomableModal, setZoomableModal] = useState(false);
+  var doublePress = 0;
 
   const roleChangeRequestTitle = layoutModal
     ? 'Layout Modal'
@@ -976,6 +986,7 @@ const Meeting = ({
       instance?.leave();
       navigate('WelcomeScreen');
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -1327,6 +1338,18 @@ const Meeting = ({
     flatlistRef?.current?.scrollToEnd();
   }
 
+  const fetchZoomableId = (id: string): boolean => {
+    let idPresent = false;
+    auxTracks.map(track => {
+      if (track.trackId === id) {
+        idPresent = true;
+      }
+    });
+    return idPresent;
+  };
+
+  const HmsViewComponent = instance?.HmsView;
+
   return (
     <SafeAreaView style={styles.container}>
       <CustomModal
@@ -1570,7 +1593,7 @@ const Meeting = ({
               <Text>Waiting for the Streaming to start...</Text>
             </View>
           )
-        ) : (
+        ) : !(fetchZoomableId(zoomableTrackId) && zoomableModal) ? (
           <FlatList
             ref={flatlistRef}
             horizontal
@@ -1595,15 +1618,33 @@ const Meeting = ({
                     (view: Peer) =>
                       view?.id &&
                       (view.type === 'screen' ? (
-                        <DisplayTrack
-                          key={view?.id}
-                          peer={view}
-                          videoStyles={getAuxVideoStyles}
-                          speakers={speakers}
-                          instance={instance}
-                          type={view.type}
-                          permissions={localPeerPermissions}
-                        />
+                        <View style={styles.flex} key={view?.id}>
+                          <TouchableWithoutFeedback
+                            onPress={() => {
+                              console.log('Single Tap');
+                              doublePress++;
+                              if (doublePress === 2) {
+                                console.log('Double Tap');
+                                doublePress = 0;
+                                setZoomableModal(true);
+                                setZoomableTrackId(view.trackId!);
+                              } else {
+                                setTimeout(() => {
+                                  doublePress = 0;
+                                }, 500);
+                              }
+                            }}>
+                            <DisplayTrack
+                              // key={view?.id}
+                              peer={view}
+                              videoStyles={getAuxVideoStyles}
+                              speakers={speakers}
+                              instance={instance}
+                              type={view.type}
+                              permissions={localPeerPermissions}
+                            />
+                          </TouchableWithoutFeedback>
+                        </View>
                       ) : (
                         <DisplayTrack
                           key={view?.id}
@@ -1624,6 +1665,31 @@ const Meeting = ({
             onViewableItemsChanged={onViewRef.current}
             keyExtractor={item => item[0]?.id}
           />
+        ) : (
+          <View>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => {
+                setZoomableModal(false);
+              }}>
+              <Entypo
+                name={'circle-with-cross'}
+                style={styles.videoIcon}
+                size={dimension.viewHeight(50)}
+              />
+            </TouchableOpacity>
+            <ZoomableView>
+              {HmsViewComponent && (
+                <HmsViewComponent
+                  sink={true}
+                  trackId={zoomableTrackId}
+                  mirror={false}
+                  scaleType={HMSVideoViewMode.ASPECT_FIT}
+                  style={styles.hmsViewScreen}
+                />
+              )}
+            </ZoomableView>
+          </View>
         )}
       </View>
       <View style={styles.iconContainers}>
@@ -1870,6 +1936,7 @@ const styles = StyleSheet.create({
   },
   wrapper: {
     flex: 1,
+    overflow: 'hidden',
   },
   displayContainer: {
     position: 'absolute',
@@ -2003,6 +2070,17 @@ const styles = StyleSheet.create({
   },
   checkbox: {
     color: 'black',
+  },
+  closeButton: {
+    zIndex: 2,
+    position: 'absolute',
+    left: 2,
+    top: 0,
+    height: 50,
+    width: 50,
+  },
+  flex: {
+    flex: 1,
   },
   renderVideo: {
     height: '100%',
