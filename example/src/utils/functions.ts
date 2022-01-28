@@ -95,7 +95,7 @@ export const writeFile = async (content: any, fileUrl: string) => {
     .then(() => {
       shareFile(fileUrl);
     })
-    .catch(e => console.error(e));
+    .catch(e => console.log(e));
 };
 
 export const shareFile = async (fileUrl: string) => {
@@ -104,5 +104,5 @@ export const shareFile = async (fileUrl: string) => {
     type: 'application/json',
   })
     .then(success => console.log(success))
-    .catch(e => console.error(e));
+    .catch(e => console.log(e));
 };

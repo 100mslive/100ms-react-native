@@ -19,6 +19,7 @@ export const PreviewModal = ({
   previewButtonState,
   videoAllowed,
   audioAllowed,
+  mirrorLocalVideo,
 }: {
   videoAllowed: boolean;
   audioAllowed: boolean;
@@ -29,6 +30,7 @@ export const PreviewModal = ({
   instance: HmsManager | null;
   setPreviewButtonState: Function;
   previewButtonState: string;
+  mirrorLocalVideo: boolean;
 }) => {
   const [isMute, setIsMute] = useState(false);
   const [muteVideo, setMuteVideo] = useState(false);
@@ -42,6 +44,7 @@ export const PreviewModal = ({
           sink={true}
           style={styles.hmsView}
           trackId={trackId}
+          mirror={mirrorLocalVideo}
         />
       </View>
       <View style={styles.buttonRow}>
