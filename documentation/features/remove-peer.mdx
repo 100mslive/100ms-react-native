@@ -14,10 +14,14 @@ const removeOthers: boolean = peer.role.permissions.removeOthers;
 ## Remove Peer
 
 ```js
+import { HMSPeer } from '@100mslive/react-native-hms';
+
 const reason = 'removed from room';
 
 // instance acquired from build() method
-hmsInstance.removePeer(peer.id, reason);
+const peer: HMSPeer = hmsInstance?.remotePeers[0]
+
+hmsInstance.removePeer(peer, reason);
 ```
 
 ## Remove Peer Notification

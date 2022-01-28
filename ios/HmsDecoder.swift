@@ -12,13 +12,14 @@ class HmsDecoder: NSObject {
         let browserRecordingState = HmsDecoder.getHMSBrowserRecordingState(hmsRoom?.browserRecordingState)
         let rtmpStreamingState = HmsDecoder.getHMSRtmpStreamingState(hmsRoom?.rtmpStreamingState)
         let serverRecordingState = HmsDecoder.getHMSServerRecordingState(hmsRoom?.serverRecordingState)
+        let hlsStreamingState = HmsDecoder.getHlsStreamingState(hmsRoom?.hlsStreamingState)
         var peers = [[String: Any]]()
         
         for peer in room.peers {
             peers.append(getHmsPeer(peer))
         }
         
-        return ["id": id, "name": name, "metaData": metaData, "peers": peers, "browserRecordingState": browserRecordingState, "rtmpHMSRtmpStreamingState": rtmpStreamingState, "serverRecordingState": serverRecordingState]
+        return ["id": id, "name": name, "metaData": metaData, "peers": peers, "browserRecordingState": browserRecordingState, "rtmpHMSRtmpStreamingState": rtmpStreamingState, "serverRecordingState": serverRecordingState, "hlsStreamingState": hlsStreamingState]
     }
     
     static func getHmsPeer (_ peer: HMSPeer) -> [String: Any] {
@@ -281,12 +282,13 @@ class HmsDecoder: NSObject {
         let name = role.name
         let permissions = getHmsPermissions(role.permissions)
         let publishSettings = getHmsPublishSettings(role.publishSettings)
+        let subscribeSettings = getHmsSubscribeSettings(role.subscribeSettings)
         let priority = role.priority
         let generalPermissions = role.generalPermissions ?? [:]
         let internalPlugins = role.internalPlugins ?? [:]
         let externalPlugins = role.externalPlugins ?? [:]
         
-        return ["name": name, "permissions": permissions, "publishSettings": publishSettings, "priority": priority, "generalPermissions": generalPermissions, "internalPlugins": internalPlugins, "externalPlugins": externalPlugins]
+        return ["name": name, "permissions": permissions, "publishSettings": publishSettings, "subscribeSettings": subscribeSettings, "priority": priority, "generalPermissions": generalPermissions, "internalPlugins": internalPlugins, "externalPlugins": externalPlugins]
     }
     
     static func getHmsPermissions (_ permissions: HMSPermissions) -> [String: Any] {
@@ -329,6 +331,30 @@ class HmsDecoder: NSObject {
                 "screenSimulcastLayers": screenSimulcastLayers,
                 "allowed": allowed]
     }
+    
+    static func getHmsSubscribeSettings (_ subscribeSettings: HMSSubscribeSettings?) -> [String: Any] {
+        guard let settings = subscribeSettings
+        else { return [:] }
+        
+        let maxSubsBitRate = settings.maxSubsBitRate
+        let subscribeDegradationParam = getHmsSubscribeDegradationSettings(settings.subscribeDegradation)
+        let subscribeTo = settings.subscribeToRoles
+        
+        return ["maxSubsBitRate": maxSubsBitRate, "subscribeDegradationParam": subscribeDegradationParam, "subscribeTo": subscribeTo ?? []]
+    }
+    
+    static func getHmsSubscribeDegradationSettings (_ hmsSubscribeDegradationParams: HMSSubscribeDegradationPolicy?) -> [String: Any] {
+        guard let params = hmsSubscribeDegradationParams
+        else {
+            return [:]
+        }
+        
+        let degradeGracePeriodSeconds = String(params.degradeGracePeriodSeconds ?? 0)
+        let packetLossThreshold = String(params.packetLossThreshold ?? 0)
+        let recoverGracePeriodSeconds = String(params.recoverGracePeriodSeconds ?? 0)
+        
+        return ["degradeGracePeriodSeconds": degradeGracePeriodSeconds, "packetLossThreshold": packetLossThreshold, "recoverGracePeriodSeconds": recoverGracePeriodSeconds]
+    }
 
     static func getWriteableArray(_ array: [String]?) -> [String] {
         var decodedArray = [String]()
@@ -354,6 +380,8 @@ class HmsDecoder: NSObject {
         let frameRate = videoSettings.frameRate
         let width = videoSettings.width
         let height = videoSettings.height
+        
+        
         
         return ["bitRate": bitRate ?? 0, "codec": codec, "frameRate": frameRate, "width": width, "height": height]
     }
@@ -473,5 +501,33 @@ class HmsDecoder: NSObject {
         } else {
             return [:]
         }
+    }
+    
+    static func getHlsStreamingState(_ data: HMSHLSStreamingState?) -> [String: Any] {
+        if let streamingState = data {
+            let running = streamingState.running
+            let variants = HmsDecoder.getHMSHlsVariant(streamingState.variants)
+            
+            return ["running": running, "variants": variants]
+        } else {
+            return [:]
+        }
+    }
+    
+    static func getHMSHlsVariant(_ data: [HMSHLSVariant]?) -> [[String: Any]] {
+        var variants = [[String: Any]]()
+        
+        if let hlsVariant = data {
+            for variant in hlsVariant {
+                let meetingUrl = variant.meetingURL.absoluteString
+                let metadata = variant.metadata
+                let startedAt = variant.startedAt?.timeIntervalSince1970 ?? 0
+                let hlsStreamingUrl = variant.url.absoluteString
+                
+                let decodedVariant = ["meetingUrl": meetingUrl, "metadata": metadata, "hlsStreamUrl": hlsStreamingUrl, "startedAt": startedAt] as [String: Any]
+                variants.append(decodedVariant)
+            }
+        }
+        return variants
     }
 }

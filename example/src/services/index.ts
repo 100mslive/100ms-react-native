@@ -1,11 +1,9 @@
 export const fetchToken = async ({
   roomID,
   userID,
-  role,
 }: {
   roomID: string;
   userID: string;
-  role: string;
 }) => {
   // TOKEN_ENDPOINT="https://prod-in.100ms.live/hmsapi/<your-subdomain>/api/token" # Valid
   const endPoint =
@@ -13,7 +11,7 @@ export const fetchToken = async ({
   const body = {
     room_id: roomID,
     user_id: userID,
-    role: role,
+    role: 'host', // select role from your dashboard
   };
   const headers = {
     'Content-Type': 'application/json',

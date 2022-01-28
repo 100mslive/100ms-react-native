@@ -34,11 +34,14 @@ import {
   HMSTrackType,
   HMSException,
   HMSRTMPConfig,
+  HMSHLSMeetingURLVariant,
+  HMSHLSConfig,
 } from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {useNavigation} from '@react-navigation/native';
 import {getDeviceType} from 'react-native-device-info';
 import {Slider} from '@miblanchard/react-native-slider';
@@ -46,8 +49,16 @@ import type {StackNavigationProp} from '@react-navigation/stack';
 import Toast from 'react-native-simple-toast';
 import RNFetchBlob from 'rn-fetch-blob';
 import {Picker} from '@react-native-picker/picker';
+import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
+import Video from 'react-native-video';
 
-import {ChatWindow, AlertModal, CustomModal, RolePicker} from '../components';
+import {
+  ChatWindow,
+  AlertModal,
+  CustomModal,
+  RolePicker,
+  ZoomableView,
+} from '../components';
 import {
   addMessage,
   clearMessageData,
@@ -80,6 +91,7 @@ type Peer = {
   type: 'local' | 'remote' | 'screen';
   metadata?: {
     isHandRaised: boolean;
+    isBRBOn: boolean;
   };
   track?: HMSTrack;
 };
@@ -92,6 +104,7 @@ type DisplayTrackProps = {
   instance: HMSSDK | undefined;
   permissions: HMSPermissions | undefined;
   layout?: LayoutParams;
+  mirrorLocalVideo?: boolean;
 };
 
 type MeetingProps = {
@@ -109,7 +122,7 @@ const DEFAULT_PEER: Peer = {
   name: '',
   isAudioMute: true,
   isVideoMute: true,
-  id: undefined,
+  id: Math.random().toString(),
   colour: getThemeColour(),
   sink: true,
   type: 'local',
@@ -127,6 +140,7 @@ const DisplayTrack = ({
   instance,
   permissions,
   layout,
+  mirrorLocalVideo,
 }: DisplayTrackProps) => {
   const {
     name,
@@ -145,9 +159,6 @@ const DisplayTrack = ({
   const [force, setForce] = useState(false);
   const [volumeModal, setVolumeModal] = useState(false);
   const [volume, setVolume] = useState(1);
-  const videoPublishPermission = peerRefrence?.role?.publishSettings?.allowed
-    ? peerRefrence?.role?.publishSettings?.allowed?.includes('video')
-    : true;
   const modalTitle = 'Set Volume';
 
   const modalButtons: [
@@ -175,8 +186,12 @@ const DisplayTrack = ({
       }
     });
     const getVolume = async () => {
-      if (type === 'local') {
-        setVolume(await instance?.localPeer?.localAudioTrack()?.getVolume());
+      if (type === 'local' && !isAudioMute) {
+        try {
+          setVolume(await instance?.localPeer?.localAudioTrack()?.getVolume());
+        } catch (e) {
+          console.log('error in get volume', e);
+        }
       }
     };
     getVolume();
@@ -287,7 +302,7 @@ const DisplayTrack = ({
     selectRemoteActionButtons.push({
       text: 'Remove Participant',
       onPress: async () => {
-        await instance?.removePeer(id!, 'removed from room');
+        await instance?.removePeer(peerRefrence!, 'removed from room');
       },
     });
   }
@@ -373,7 +388,7 @@ const DisplayTrack = ({
 
   return HmsViewComponent ? (
     <View
-      key={trackId}
+      key={id}
       style={[
         videoStyles(),
         {
@@ -418,7 +433,7 @@ const DisplayTrack = ({
           onItemSelected={setNewRole}
         />
       </CustomModal>
-      {isVideoMute || layout === 'audio' || !videoPublishPermission ? (
+      {isVideoMute || layout === 'audio' ? (
         <View style={styles.avatarContainer}>
           <View style={[styles.avatar, {backgroundColor: colour}]}>
             <Text style={styles.avatarText}>{getInitials(name!)}</Text>
@@ -432,20 +447,33 @@ const DisplayTrack = ({
         <HmsViewComponent
           sink={sink}
           trackId={trackId!}
-          mirror={type === 'local' ? true : false}
-          scaleType={HMSVideoViewMode.ASPECT_FIT}
+          mirror={type === 'local' ? mirrorLocalVideo : false}
+          scaleType={
+            type === 'screen'
+              ? HMSVideoViewMode.ASPECT_FIT
+              : HMSVideoViewMode.ASPECT_FILL
+          }
           style={type === 'screen' ? styles.hmsViewScreen : styles.hmsView}
         />
       )}
-      {metadata?.isHandRaised === true && (
-        <View style={styles.raiseHandContainer}>
-          <Ionicons
-            name="ios-hand-left"
-            style={styles.raiseHand}
-            size={dimension.viewHeight(30)}
-          />
-        </View>
-      )}
+      <View style={styles.labelContainer}>
+        {metadata?.isHandRaised && (
+          <View>
+            <Ionicons
+              name="ios-hand-left"
+              style={styles.raiseHand}
+              size={dimension.viewHeight(30)}
+            />
+          </View>
+        )}
+        {metadata?.isBRBOn && (
+          <View>
+            <View style={styles.brbOnContainer}>
+              <Text style={styles.brbOn}>BRB</Text>
+            </View>
+          </View>
+        )}
+      </View>
       {type === 'screen' ||
       (type === 'local' && selectLocalActionButtons.length > 1) ||
       (type === 'remote' && selectRemoteActionButtons.length > 1) ? (
@@ -474,9 +502,7 @@ const DisplayTrack = ({
         </View>
         <View style={styles.micContainer}>
           <Feather
-            name={
-              isVideoMute || !videoPublishPermission ? 'video-off' : 'video'
-            }
+            name={isVideoMute ? 'video-off' : 'video'}
             style={styles.mic}
             size={20}
           />
@@ -515,6 +541,7 @@ const Meeting = ({
   const [roleModalVisible, setRoleModalVisible] = useState(false);
   const [settingsModal, setSettingsModal] = useState(false);
   const [recordingModal, setRecordingModal] = useState(false);
+  const [hlsStreamingModal, setHLSStreamingModal] = useState(false);
   const [recordingDetails, setRecordingDetails] = useState<HMSRTMPConfig>({
     record: false,
     meetingURL: state.user.roomID
@@ -522,6 +549,13 @@ const Meeting = ({
       : '',
     rtmpURLs: [],
   });
+  const [hlsStreamingDetails, setHLSStreamingDetails] =
+    useState<HMSHLSMeetingURLVariant>({
+      meetingUrl: state.user.roomID
+        ? state.user.roomID + '?token=beam_recording'
+        : '',
+      metadata: '',
+    });
   const [roleChangeModalVisible, setRoleChangeModalVisible] = useState(false);
   const [layoutModal, setLayoutModal] = useState(false);
   const [changeTrackStateModalVisible, setChangeTrackStateModalVisible] =
@@ -530,12 +564,18 @@ const Meeting = ({
   const [localPeerPermissions, setLocalPeerPermissions] =
     useState<HMSPermissions>();
   const flatlistRef = useRef<FlatList>(null);
+  const hlsPlayerRef = useRef<Video>(null);
   const [page, setPage] = useState(0);
+  const [zoomableTrackId, setZoomableTrackId] = useState('');
+  const [zoomableModal, setZoomableModal] = useState(false);
+  var doublePress = 0;
 
   const roleChangeRequestTitle = layoutModal
     ? 'Layout Modal'
     : recordingModal
     ? 'Recording Details'
+    : hlsStreamingModal
+    ? 'HLS Streaming Details'
     : roleChangeModalVisible
     ? 'Role Change Request'
     : changeTrackStateModalVisible
@@ -554,20 +594,32 @@ const Meeting = ({
           },
         },
       ]
+    : hlsStreamingModal
+    ? [
+        {text: 'Cancel'},
+        {
+          text: 'Start',
+          onPress: () => {
+            const hmsHLSConfig = new HMSHLSConfig({
+              meetingURLVariants: [hlsStreamingDetails],
+            });
+            instance
+              ?.startHLSStreaming(hmsHLSConfig)
+              .then(d => console.log('Start HLS Streaming Success: ', d))
+              .catch(e => console.log('Start HLS Streaming Error: ', e));
+          },
+        },
+      ]
     : recordingModal
     ? [
         {text: 'Cancel'},
         {
           text: 'Start',
-          onPress: async () => {
-            try {
-              const result = await instance?.startRTMPOrRecording(
-                recordingDetails,
-              );
-              console.log(result);
-            } catch (error) {
-              console.log(error, 'error');
-            }
+          onPress: () => {
+            instance
+              ?.startRTMPOrRecording(recordingDetails)
+              .then(d => console.log('Start RTMP Or Recording Success: ', d))
+              .catch(e => console.log('Start RTMP Or Recording Error: ', e));
           },
         },
       ]
@@ -639,11 +691,21 @@ const Meeting = ({
     type: 'local' | 'screen',
   ): Peer => {
     const metadata = peer.metadata;
+    const videoPublishPermission = peer?.role?.publishSettings?.allowed
+      ? peer?.role?.publishSettings?.allowed?.includes('video')
+      : true;
+    const audioPublishPermission = peer?.role?.publishSettings?.allowed
+      ? peer?.role?.publishSettings?.allowed?.includes('audio')
+      : true;
     return {
       trackId: peer?.videoTrack?.trackId,
       name: peer?.name,
-      isAudioMute: peer?.audioTrack?.isMute() || false,
-      isVideoMute: peer?.videoTrack?.isMute() || false,
+      isAudioMute: audioPublishPermission
+        ? peer?.audioTrack?.isMute() || false
+        : true,
+      isVideoMute: videoPublishPermission
+        ? peer?.videoTrack?.isMute() || false
+        : true,
       id: peer?.peerID,
       colour: getThemeColour(),
       sink: true,
@@ -657,8 +719,7 @@ const Meeting = ({
     remotePeers: HMSRemotePeer[],
     localPeer?: HMSLocalPeer,
   ) => {
-    const localTrackId = localPeer?.videoTrack?.trackId;
-    if (localTrackId) {
+    if (localPeer) {
       const localTrackTemp = decodeLocalPeer(localPeer, 'local');
       setTrackId(localTrackTemp);
     }
@@ -748,6 +809,38 @@ const Meeting = ({
     remotePeers: HMSRemotePeer[];
   }) => {
     updateVideoIds(remotePeers, localPeer);
+    if (type === HMSRoomUpdate.BROWSER_RECORDING_STATE_UPDATED) {
+      let streaming = room?.browserRecordingState?.running;
+      Toast.showWithGravity(
+        `Browser Recording ${streaming ? 'Started' : 'Stopped'}`,
+        Toast.LONG,
+        Toast.TOP,
+      );
+    }
+    if (type === HMSRoomUpdate.HLS_STREAMING_STATE_UPDATED) {
+      let streaming = room?.hlsStreamingState?.running;
+      Toast.showWithGravity(
+        `HLS Streaming ${streaming ? 'Started' : 'Stopped'}`,
+        Toast.LONG,
+        Toast.TOP,
+      );
+    }
+    if (type === HMSRoomUpdate.RTMP_STREAMING_STATE_UPDATED) {
+      let streaming = room?.rtmpHMSRtmpStreamingState?.running;
+      Toast.showWithGravity(
+        `RTMP Streaming ${streaming ? 'Started' : 'Stopped'}`,
+        Toast.LONG,
+        Toast.TOP,
+      );
+    }
+    if (type === HMSRoomUpdate.SERVER_RECORDING_STATE_UPDATED) {
+      let streaming = room?.rtmpHMSRtmpStreamingState?.running;
+      Toast.showWithGravity(
+        `Server Recording ${streaming ? 'Started' : 'Stopped'}`,
+        Toast.LONG,
+        Toast.TOP,
+      );
+    }
     console.log('data in onRoomListener: ', room, type, localPeer, remotePeers);
   };
 
@@ -765,6 +858,27 @@ const Meeting = ({
     remotePeers: HMSRemotePeer[];
   }) => {
     updateVideoIds(remotePeers, localPeer);
+    if (type === HMSPeerUpdate.PEER_LEFT) {
+      Toast.showWithGravity(
+        `Peer Left: ${peer.name} left the Room`,
+        Toast.LONG,
+        Toast.TOP,
+      );
+    }
+    if (type === HMSPeerUpdate.PEER_JOINED) {
+      Toast.showWithGravity(
+        `Peer Joined: ${peer.name} joined the Room`,
+        Toast.LONG,
+        Toast.TOP,
+      );
+    }
+    if (type === HMSPeerUpdate.ROLE_CHANGED) {
+      Toast.showWithGravity(
+        `Role Changed: Role of ${peer?.name} changed to ${peer?.role?.name}`,
+        Toast.LONG,
+        Toast.TOP,
+      );
+    }
     console.log(
       'data in onPeerListener: ',
       peer,
@@ -824,17 +938,17 @@ const Meeting = ({
   };
 
   const reconnecting = (data: any) => {
-    console.log(data);
+    console.log('data in reconnecting: ', data);
     Toast.showWithGravity('Reconnecting...', Toast.LONG, Toast.TOP);
   };
 
   const reconnected = (data: any) => {
-    console.log(data);
+    console.log('data in reconnected: ', data);
     Toast.showWithGravity('Reconnected', Toast.LONG, Toast.TOP);
   };
 
   const onRoleChangeRequest = (data: HMSRoleChangeRequest) => {
-    console.log(data);
+    console.log('data in onRoleChangeRequest: ', data);
     setRoleChangeModalVisible(true);
     setRoleChangeRequest({
       requestedBy: data?.requestedBy?.name,
@@ -843,24 +957,30 @@ const Meeting = ({
   };
 
   const onChangeTrackStateRequest = (data: HMSChangeTrackStateRequest) => {
-    console.log(data);
+    console.log('data in onChangeTrackStateRequest: ', data);
     if (!data?.mute) {
       setChangeTrackStateModalVisible(true);
       setRoleChangeRequest({
         requestedBy: data?.requestedBy?.name,
         suggestedRole: data?.trackType,
       });
+    } else {
+      Toast.showWithGravity(
+        `Track Muted: ${data?.requestedBy?.name} Muted Your ${data?.trackType}`,
+        Toast.LONG,
+        Toast.TOP,
+      );
     }
   };
 
   const onRemovedFromRoom = (data: any) => {
-    console.log(data);
+    console.log('data in onRemovedFromRoom: ', data);
     clearMessageRequest();
     navigate('WelcomeScreen');
   };
 
   const updateHmsInstance = (hms: HMSSDK | undefined) => {
-    console.log('instance', hms);
+    console.log('data in updateHmsInstance: ', hms);
     setInstance(hms);
     hms?.addEventListener(HMSUpdateListenerActions.ON_JOIN, onJoinListener);
 
@@ -905,8 +1025,6 @@ const Meeting = ({
   };
 
   useEffect(() => {
-    updateHmsInstance(hmsInstance);
-
     Dimensions.addEventListener('change', () => {
       setOrientation(isPortrait());
     });
@@ -926,7 +1044,14 @@ const Meeting = ({
       Dimensions.removeEventListener('change', () => {
         setOrientation(!orientation);
       });
+      instance?.leave();
+      navigate('WelcomeScreen');
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    updateHmsInstance(hmsInstance);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hmsInstance]);
 
@@ -996,15 +1121,15 @@ const Meeting = ({
         type: 'cancel',
       },
       {
-        text: 'Report issue and share logs',
-        onPress: async () => {
-          await checkPermissionToWriteExternalStroage();
-        },
-      },
-      {
         text: 'Set Layout',
         onPress: () => {
           setLayoutModal(true);
+        },
+      },
+      {
+        text: 'Report issue and share logs',
+        onPress: async () => {
+          await checkPermissionToWriteExternalStroage();
         },
       },
       {
@@ -1014,17 +1139,48 @@ const Meeting = ({
         },
       },
       {
-        text: 'Stop RTMP or Recording',
-        onPress: async () => {
-          try {
-            const result = await instance?.stopRtmpAndRecording();
-            console.log(result);
-          } catch (error) {
-            console.log(error, 'error');
-          }
+        text: 'Stop RTMP And Recording',
+        onPress: () => {
+          instance
+            ?.stopRtmpAndRecording()
+            .then(d => console.log('Stop RTMP And Recording Success: ', d))
+            .catch(e => console.log('Stop RTMP And Recording Error: ', e));
+        },
+      },
+      {
+        text: 'Start HLS Streaming',
+        onPress: () => {
+          setHLSStreamingModal(true);
+        },
+      },
+      {
+        text: 'Stop HLS Streaming',
+        onPress: () => {
+          instance
+            ?.stopHLSStreaming()
+            .then(d => console.log('Stop HLS Streaming Success: ', d))
+            .catch(e => console.log('Stop HLS Streaming Error: ', e));
         },
       },
     ];
+    if (Platform.OS === 'android') {
+      buttons.push(
+        ...[
+          {
+            text: 'Start Screenshare',
+            onPress: () => {
+              instance?.startScreenshare();
+            },
+          },
+          {
+            text: 'Stop Screenshare',
+            onPress: () => {
+              instance?.stopScreenshare();
+            },
+          },
+        ],
+      );
+    }
     if (localPeerPermissions?.mute) {
       buttons.push(
         ...[
@@ -1081,33 +1237,33 @@ const Meeting = ({
           const source = 'regular';
           switch (action) {
             case 1:
-              await instance?.changeTrackStateRoles(
-                HMSTrackType.VIDEO,
+              await instance?.changeTrackStateForRoles(
                 true,
+                HMSTrackType.VIDEO,
                 source,
                 [newRole!],
               );
               break;
             case 2:
-              await instance?.changeTrackStateRoles(
-                HMSTrackType.VIDEO,
+              await instance?.changeTrackStateForRoles(
                 false,
+                HMSTrackType.VIDEO,
                 source,
                 [newRole!],
               );
               break;
             case 3:
-              await instance?.changeTrackStateRoles(
-                HMSTrackType.AUDIO,
+              await instance?.changeTrackStateForRoles(
                 true,
+                HMSTrackType.AUDIO,
                 source,
                 [newRole!],
               );
               break;
             case 4:
-              await instance?.changeTrackStateRoles(
-                HMSTrackType.AUDIO,
+              await instance?.changeTrackStateForRoles(
                 false,
+                HMSTrackType.AUDIO,
                 source,
                 [newRole!],
               );
@@ -1138,7 +1294,7 @@ const Meeting = ({
       buttons.push({
         text: 'End Room for all',
         onPress: async () => {
-          await instance?.endRoom(false, 'Host ended the room');
+          await instance?.endRoom('Host ended the room');
           clearMessageRequest();
           navigate('WelcomeScreen');
         },
@@ -1223,7 +1379,7 @@ const Meeting = ({
         }
       } catch (err) {
         // To handle permission related exception
-        console.log('++++' + err);
+        console.log('checkPermissionToWriteExternalStroage: ' + err);
       }
     }
   };
@@ -1233,16 +1389,27 @@ const Meeting = ({
       const fileUrl = RNFetchBlob.fs.dirs.DocumentDir + '/report-logs.json';
       const logger = HMSSDK.getLogger();
       const logs = logger?.getLogs();
-      console.log(logs);
       await writeFile({data: logs}, fileUrl);
     } catch (err) {
-      console.log(err, 'error');
+      console.log('reportIssue: ', err);
     }
   };
 
   if (page + 1 > pairedPeers.length) {
     flatlistRef?.current?.scrollToEnd();
   }
+
+  const fetchZoomableId = (id: string): boolean => {
+    let idPresent = false;
+    auxTracks.map(track => {
+      if (track.trackId === id) {
+        idPresent = true;
+      }
+    });
+    return idPresent;
+  };
+
+  const HmsViewComponent = instance?.HmsView;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -1276,7 +1443,7 @@ const Meeting = ({
         />
         <TextInput
           onChangeText={value => {
-            if (value == '') {
+            if (value === '') {
               setRecordingDetails({...recordingDetails, rtmpURLs: []});
             } else {
               setRecordingDetails({...recordingDetails, rtmpURLs: [value]});
@@ -1311,6 +1478,24 @@ const Meeting = ({
             )}
           </View>
         </TouchableOpacity>
+      </CustomModal>
+      <CustomModal
+        modalVisible={hlsStreamingModal}
+        setModalVisible={setHLSStreamingModal}
+        title={roleChangeRequestTitle}
+        buttons={roleChangeRequestButtons}>
+        <TextInput
+          onChangeText={value => {
+            setHLSStreamingDetails({...hlsStreamingDetails, meetingUrl: value});
+          }}
+          placeholderTextColor="#454545"
+          placeholder="Enter meeting url"
+          style={styles.input}
+          defaultValue={hlsStreamingDetails.meetingUrl}
+          returnKeyType="done"
+          multiline
+          blurOnSubmit
+        />
       </CustomModal>
       <CustomModal
         modalVisible={changeTrackStateModalVisible}
@@ -1373,13 +1558,22 @@ const Meeting = ({
               size={dimension.viewHeight(30)}
             />
           )}
-          {instance?.room?.rtmpHMSRtmpStreamingState?.running && (
+          {(instance?.room?.hlsStreamingState?.running ||
+            instance?.room?.rtmpHMSRtmpStreamingState?.running) && (
             <Entypo
               name="light-up"
               style={styles.streaming}
               size={dimension.viewHeight(30)}
             />
           )}
+          {trackId?.peerRefrence?.auxiliaryTracks &&
+            trackId?.peerRefrence?.auxiliaryTracks?.length > 0 && (
+              <MaterialIcons
+                name="fit-screen"
+                style={styles.streaming}
+                size={dimension.viewHeight(30)}
+              />
+            )}
           {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
             'video',
           ) && (
@@ -1395,85 +1589,169 @@ const Meeting = ({
               />
             </TouchableOpacity>
           )}
-          <TouchableOpacity
-            onPress={() => {
-              instance?.muteAllPeersAudio(!muteAllAudio);
-              setMuteAllAudio(!muteAllAudio);
-            }}
-            style={styles.headerIcon}>
-            <Ionicons
-              name={muteAllAudio ? 'volume-mute' : 'volume-high'}
-              style={styles.headerName}
-              size={dimension.viewHeight(30)}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              setSettingsModal(true);
-            }}
-            style={styles.headerIcon}>
-            <Ionicons
-              name="settings"
-              style={styles.headerName}
-              size={dimension.viewHeight(30)}
-            />
-          </TouchableOpacity>
+          {!instance?.localPeer?.role?.name?.includes('hls-') && (
+            <TouchableOpacity
+              onPress={() => {
+                instance?.muteAllPeersAudio(!muteAllAudio);
+                setMuteAllAudio(!muteAllAudio);
+              }}
+              style={styles.headerIcon}>
+              <Ionicons
+                name={muteAllAudio ? 'volume-mute' : 'volume-high'}
+                style={styles.headerName}
+                size={dimension.viewHeight(30)}
+              />
+            </TouchableOpacity>
+          )}
+          {!instance?.localPeer?.role?.name?.includes('hls-') && (
+            <TouchableOpacity
+              onPress={() => {
+                setSettingsModal(true);
+              }}
+              style={styles.headerIcon}>
+              <Ionicons
+                name="settings"
+                style={styles.headerName}
+                size={dimension.viewHeight(30)}
+              />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
       <View style={styles.wrapper}>
-        <FlatList
-          ref={flatlistRef}
-          horizontal
-          data={pairedPeers}
-          initialNumToRender={2}
-          maxToRenderPerBatch={3}
-          onScroll={({nativeEvent}) => {
-            const {contentOffset, layoutMeasurement} = nativeEvent;
-            setPage(contentOffset.x / layoutMeasurement.width);
-          }}
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          renderItem={({item}) => {
-            return (
-              <View
-                key={item[0]?.trackId}
-                style={[
-                  styles.page,
-                  {width: Dimensions.get('window').width - left - right},
-                ]}>
-                {item?.map(
-                  (view: Peer) =>
-                    view?.id &&
-                    (view.type === 'screen' ? (
-                      <DisplayTrack
-                        key={view?.id}
-                        peer={view}
-                        videoStyles={getAuxVideoStyles}
-                        speakers={speakers}
-                        instance={instance}
-                        type={view.type}
-                        permissions={localPeerPermissions}
-                      />
-                    ) : (
-                      <DisplayTrack
-                        key={view?.id}
-                        peer={view}
-                        videoStyles={getRemoteVideoStyles}
-                        speakers={speakers}
-                        instance={instance}
-                        type={view.type}
-                        permissions={localPeerPermissions}
-                        layout={layout}
-                      />
-                    )),
-                )}
-              </View>
-            );
-          }}
-          numColumns={1}
-          onViewableItemsChanged={onViewRef.current}
-          keyExtractor={item => item[0]?.trackId!}
-        />
+        {instance?.localPeer?.role?.name?.includes('hls-') ? (
+          instance?.room?.hlsStreamingState?.running ? (
+            instance?.room?.hlsStreamingState?.variants
+              ?.slice(0, 1)
+              ?.map((variant, index) =>
+                variant?.hlsStreamUrl ? (
+                  <Video
+                    key={index}
+                    source={{
+                      uri: variant?.hlsStreamUrl,
+                    }} // Can be a URL or a local file.
+                    controls={Platform.OS === 'ios' ? true : false}
+                    onLoad={({duration}) => {
+                      if (Platform.OS === 'android') {
+                        hlsPlayerRef?.current?.seek(duration);
+                      }
+                    }}
+                    ref={hlsPlayerRef}
+                    resizeMode="contain"
+                    onError={() => console.log('hls video streaming error')}
+                    // Callback when video cannot be loaded
+                    allowsExternalPlayback={false}
+                    style={styles.renderVideo}
+                  />
+                ) : (
+                  <View key={index} style={styles.renderVideo}>
+                    <Text>Trying to load empty source...</Text>
+                  </View>
+                ),
+              )
+          ) : (
+            <View style={styles.renderVideo}>
+              <Text>Waiting for the Streaming to start...</Text>
+            </View>
+          )
+        ) : !(fetchZoomableId(zoomableTrackId) && zoomableModal) ? (
+          <FlatList
+            ref={flatlistRef}
+            horizontal
+            data={pairedPeers}
+            initialNumToRender={2}
+            maxToRenderPerBatch={3}
+            onScroll={({nativeEvent}) => {
+              const {contentOffset, layoutMeasurement} = nativeEvent;
+              setPage(contentOffset.x / layoutMeasurement.width);
+            }}
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            renderItem={({item}) => {
+              return (
+                <View
+                  key={item[0]?.trackId}
+                  style={[
+                    styles.page,
+                    {width: Dimensions.get('window').width - left - right},
+                  ]}>
+                  {item?.map(
+                    (view: Peer) =>
+                      view?.id &&
+                      (view.type === 'screen' ? (
+                        <View style={styles.flex} key={view?.id}>
+                          <TouchableWithoutFeedback
+                            onPress={() => {
+                              console.log('Single Tap');
+                              doublePress++;
+                              if (doublePress === 2) {
+                                console.log('Double Tap');
+                                doublePress = 0;
+                                setZoomableModal(true);
+                                setZoomableTrackId(view.trackId!);
+                              } else {
+                                setTimeout(() => {
+                                  doublePress = 0;
+                                }, 500);
+                              }
+                            }}>
+                            <DisplayTrack
+                              peer={view}
+                              videoStyles={getAuxVideoStyles}
+                              speakers={speakers}
+                              instance={instance}
+                              type={view.type}
+                              permissions={localPeerPermissions}
+                            />
+                          </TouchableWithoutFeedback>
+                        </View>
+                      ) : (
+                        <DisplayTrack
+                          key={view?.id}
+                          peer={view}
+                          videoStyles={getRemoteVideoStyles}
+                          speakers={speakers}
+                          instance={instance}
+                          type={view.type}
+                          permissions={localPeerPermissions}
+                          layout={layout}
+                          mirrorLocalVideo={state.user.mirrorLocalVideo}
+                        />
+                      )),
+                  )}
+                </View>
+              );
+            }}
+            numColumns={1}
+            onViewableItemsChanged={onViewRef.current}
+            keyExtractor={item => item[0]?.id}
+          />
+        ) : (
+          <View>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => {
+                setZoomableModal(false);
+              }}>
+              <Entypo
+                name={'circle-with-cross'}
+                style={styles.videoIcon}
+                size={dimension.viewHeight(50)}
+              />
+            </TouchableOpacity>
+            <ZoomableView>
+              {HmsViewComponent && (
+                <HmsViewComponent
+                  sink={true}
+                  trackId={zoomableTrackId}
+                  mirror={false}
+                  scaleType={HMSVideoViewMode.ASPECT_FIT}
+                  style={styles.hmsViewScreen}
+                />
+              )}
+            </ZoomableView>
+          </View>
+        )}
       </View>
       <View style={styles.iconContainers}>
         {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
@@ -1513,7 +1791,10 @@ const Meeting = ({
           style={styles.singleIconContainer}
           onPress={() => {
             instance?.changeMetadata(
-              `{"isHandRaised":${!trackId?.metadata?.isHandRaised}}`,
+              JSON.stringify({
+                ...trackId?.metadata,
+                isHandRaised: !trackId?.metadata?.isHandRaised,
+              }),
             );
           }}>
           <Ionicons
@@ -1525,6 +1806,26 @@ const Meeting = ({
             style={styles.videoIcon}
             size={dimension.viewHeight(30)}
           />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.singleIconContainer}
+          onPress={() => {
+            instance?.changeMetadata(
+              JSON.stringify({
+                ...trackId?.metadata,
+                isBRBOn: !trackId?.metadata?.isBRBOn,
+              }),
+            );
+          }}>
+          {trackId?.metadata?.isBRBOn ? (
+            <View style={styles.brbOnContainer}>
+              <Text style={styles.brbOn}>BRB</Text>
+            </View>
+          ) : (
+            <View style={styles.brbContainer}>
+              <Text style={styles.brb}>BRB</Text>
+            </View>
+          )}
         </TouchableOpacity>
         {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
           'video',
@@ -1582,7 +1883,10 @@ const Meeting = ({
               } else if (messageTo?.type === 'group') {
                 await instance?.sendGroupMessage(value, [messageTo?.obj]);
               } else if (messageTo.type === 'direct') {
-                await instance?.sendDirectMessage(value, messageTo?.obj?.id);
+                await instance?.sendDirectMessage(
+                  value,
+                  messageTo?.obj?.peerRefrence,
+                );
               }
               addMessageRequest({
                 data: hmsMessage,
@@ -1613,11 +1917,12 @@ const styles = StyleSheet.create({
   videoIcon: {
     color: getThemeColour(),
   },
-  raiseHandContainer: {
-    padding: 10,
+  labelContainer: {
     position: 'absolute',
     left: 0,
     top: 0,
+    flexDirection: 'row',
+    padding: 10,
   },
   raiseHand: {
     color: 'rgb(242,202,73)',
@@ -1639,7 +1944,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     alignSelf: 'center',
-    aspectRatio: 16 / 9,
+    height: '100%',
   },
   generalTile: {
     width: '50%',
@@ -1654,7 +1959,7 @@ const styles = StyleSheet.create({
   },
   hmsViewScreen: {
     width: '100%',
-    aspectRatio: 16 / 9,
+    height: '100%',
   },
   iconContainers: {
     display: 'flex',
@@ -1692,6 +1997,7 @@ const styles = StyleSheet.create({
   },
   wrapper: {
     flex: 1,
+    overflow: 'hidden',
   },
   displayContainer: {
     position: 'absolute',
@@ -1825,6 +2131,46 @@ const styles = StyleSheet.create({
   },
   checkbox: {
     color: 'black',
+  },
+  closeButton: {
+    zIndex: 2,
+    position: 'absolute',
+    left: 2,
+    top: 0,
+    height: 50,
+    width: 50,
+  },
+  flex: {
+    flex: 1,
+  },
+  renderVideo: {
+    height: '100%',
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  brbContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 5,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: getThemeColour(),
+  },
+  brb: {
+    color: getThemeColour(),
+  },
+  brbOnContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 5,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: getThemeColour(),
+    backgroundColor: getThemeColour(),
+  },
+  brbOn: {
+    color: 'white',
   },
 });
 

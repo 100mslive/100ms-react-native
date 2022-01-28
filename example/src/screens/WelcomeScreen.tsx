@@ -11,6 +11,9 @@ import {
   KeyboardAvoidingView,
   Dimensions,
   Alert,
+  Linking,
+  AppState,
+  PermissionsAndroid,
 } from 'react-native';
 import {connect} from 'react-redux';
 import HmsManager, {
@@ -36,19 +39,24 @@ import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import {PERMISSIONS, RESULTS, requestMultiple} from 'react-native-permissions';
 import Feather from 'react-native-vector-icons/Feather';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import Entypo from 'react-native-vector-icons/Entypo';
 import Toast from 'react-native-simple-toast';
 import {getModel} from 'react-native-device-info';
+import crashlytics from '@react-native-firebase/crashlytics';
+import RNFetchBlob from 'rn-fetch-blob';
 
 import * as services from '../services/index';
-import {UserIdModal, PreviewModal} from '../components';
+import {UserIdModal, PreviewModal, AlertModal} from '../components';
 import {
   setAudioVideoState,
   saveUserData,
   updateHmsReference,
 } from '../redux/actions/index';
-import {getThemeColour} from '../utils/functions';
+import {getThemeColour, writeFile} from '../utils/functions';
 import type {AppStackParamList} from '../navigator';
 import type {RootState} from '../redux';
+import packageJson from '../../package.json';
 
 type WelcomeProps = {
   setAudioVideoStateRequest: Function;
@@ -68,14 +76,12 @@ type ButtonState = 'Active' | 'Loading';
 const callService = async (
   userID: string,
   roomID: string,
-  role: string,
   joinRoom: Function,
   apiFailed: Function,
 ) => {
   const response = await services.fetchToken({
     userID,
     roomID,
-    role,
   });
 
   if (response.error || !response?.token) {
@@ -114,6 +120,8 @@ const tokenFromLinkService = async (
   }
 };
 
+let config: HMSConfig | null = null;
+
 const App = ({
   setAudioVideoStateRequest,
   saveUserDataRequest,
@@ -122,24 +130,23 @@ const App = ({
   hmsInstance,
 }: WelcomeProps) => {
   const [orientation, setOrientation] = useState<boolean>(true);
-  const [roomID, setRoomID] = useState<string>(
-    'https://yogi.app.100ms.live/preview/nih-bkn-vek',
-  );
-  const [text, setText] = useState<string>(
-    'https://yogi.app.100ms.live/preview/nih-bkn-vek',
-  );
-  const [role] = useState('host');
+  const [roomID, setRoomID] = useState<string>('');
+  const [text, setText] = useState<string>('');
   const [initialized, setInitialized] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [previewModal, setPreviewModal] = useState<boolean>(false);
   const [localVideoTrackId, setLocalVideoTrackId] = useState<string>('');
-  const [config, setConfig] = useState<HMSConfig | null>(null);
   const [audio, setAudio] = useState<boolean>(true);
   const [video, setVideo] = useState<boolean>(true);
   const [buttonState, setButtonState] = useState<ButtonState>('Active');
   const [previewButtonState, setPreviewButtonState] =
     useState<ButtonState>('Active');
   const [instance, setInstance] = useState<HmsManager | null>(null);
+  const [videoAllowed, setVideoAllowed] = useState<boolean>(false);
+  const [audioAllowed, setAudioAllowed] = useState<boolean>(false);
+  const [settingsModal, setSettingsModal] = useState(false);
+  const [skipPreview, setSkipPreview] = useState(false);
+  const [mirrorLocalVideo, setMirrorLocalVideo] = useState(false);
 
   const navigate = useNavigation<WelcomeScreenProp>().navigate;
 
@@ -148,15 +155,31 @@ const App = ({
     room: HMSRoom;
     previewTracks: {audioTrack: HMSAudioTrack; videoTrack: HMSVideoTrack};
   }) => {
-    // console.log('here in callback success', data);
+    const localVideoAllowed =
+      instance?.localPeer?.role?.publishSettings?.allowed?.includes('video');
+
+    const localAudioAllowed =
+      instance?.localPeer?.role?.publishSettings?.allowed?.includes('audio');
+
+    setVideoAllowed(localVideoAllowed ? localVideoAllowed : false);
+    setAudioAllowed(localAudioAllowed ? localAudioAllowed : false);
+
     const videoTrackId = data?.previewTracks?.videoTrack?.trackId;
 
-    if (videoTrackId) {
+    if (localVideoAllowed && localAudioAllowed) {
       setLocalVideoTrackId(videoTrackId);
       setPreviewModal(true);
-      setButtonState('Active');
-      setAudioVideoStateRequest({audioState: true, videoState: true});
+    } else if (localVideoAllowed) {
+      setLocalVideoTrackId(videoTrackId);
+      setPreviewModal(true);
+      setAudio(false);
+    } else if (localAudioAllowed) {
+      setPreviewModal(true);
+      setVideo(false);
+    } else {
+      joinRoom();
     }
+    setButtonState('Active');
   };
 
   const onError = (data: HMSException) => {
@@ -168,8 +191,7 @@ const App = ({
     );
   };
 
-  // let ref = React.useRef();
-
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const getTrackSettings = () => {
     let audioSettings = new HMSAudioTrackSettings({
       codec: HMSAudioCodec.opus,
@@ -210,12 +232,15 @@ const App = ({
     });
   };
 
-  const setupBuild = async () => {
+  const getCrashlyticsLog = ({message, data}: {message: string; data: any}) => {
+    crashlytics().log(message.toString() + ' ' + JSON.stringify(data));
+  };
 
+  const setupBuild = async () => {
     /**
-     * Regular Usage: 
+     * Regular Usage:
      * const build = await HmsManager.build();
-     * 
+     *
      * Advanced Usage: Pass custom track settings while building HmsManager instance
      * const trackSettings = getTrackSettings();
      * const build = await HmsManager.build({ trackSettings });
@@ -224,16 +249,41 @@ const App = ({
     const build = await HmsManager.build();
     const logger = new HMSLogger();
     logger.updateLogLevel(HMSLogLevel.VERBOSE, true);
+    logger.setLogListener(getCrashlyticsLog);
     build.setLogger(logger);
     setInstance(build);
     updateHms({hmsInstance: build});
   };
 
   useEffect(() => {
+    Linking.getInitialURL().then(url => {
+      if (url) {
+        setRoomID(url);
+        setText(url);
+      } else {
+        setRoomID('https://yogi.app.100ms.live/preview/nih-bkn-vek');
+        setText('https://yogi.app.100ms.live/preview/nih-bkn-vek');
+      }
+    });
     if (!initialized) {
       setupBuild();
       setInitialized(true);
     }
+
+    AppState.addEventListener('change', nextAppState => {
+      if (nextAppState === 'active') {
+        Linking.getInitialURL().then(url => {
+          if (url) {
+            setRoomID(url);
+            setText(url);
+          } else {
+            setRoomID('https://yogi.app.100ms.live/preview/nih-bkn-vek');
+            setText('https://yogi.app.100ms.live/preview/nih-bkn-vek');
+          }
+        });
+      }
+    });
+
     Dimensions.addEventListener('change', () => {
       setOrientation(!orientation);
     });
@@ -259,7 +309,6 @@ const App = ({
       ])
         .then(() => {
           previewWithLink(token, userID, endpoint);
-          setButtonState('Active');
         })
         .catch(error => {
           console.log(error);
@@ -303,14 +352,24 @@ const App = ({
       authToken: token,
       username: userID,
     });
+    config = HmsConfig;
+
     instance?.addEventListener(
       HMSUpdateListenerActions.ON_PREVIEW,
       previewSuccess,
     );
-    saveUserDataRequest({userName: userID, roomID: roomID});
+    saveUserDataRequest({
+      userName: userID,
+      roomID: roomID,
+      mirrorLocalVideo: !mirrorLocalVideo,
+    });
     instance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
-    instance?.preview(HmsConfig);
-    setConfig(HmsConfig);
+    if (skipPreview) {
+      setSkipPreview(false);
+      joinRoom();
+    } else {
+      instance?.preview(HmsConfig);
+    }
   };
 
   const previewWithLink = (
@@ -332,6 +391,7 @@ const App = ({
         // metadata: JSON.stringify({isHandRaised: true}), // To join with hand raised
       });
     }
+    config = HmsConfig;
 
     instance?.addEventListener(
       HMSUpdateListenerActions.ON_PREVIEW,
@@ -343,14 +403,23 @@ const App = ({
       onJoinListener,
     );
 
-    saveUserDataRequest({userName: userID, roomID: roomID});
+    saveUserDataRequest({
+      userName: userID,
+      roomID: roomID,
+      mirrorLocalVideo: !mirrorLocalVideo,
+    });
     instance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
-    instance?.preview(HmsConfig);
-    setConfig(HmsConfig);
+    if (skipPreview) {
+      setSkipPreview(false);
+      joinRoom();
+    } else {
+      instance?.preview(HmsConfig);
+    }
   };
 
   const onJoinListener = () => {
     setPreviewButtonState('Active');
+    setButtonState('Active');
     setPreviewModal(false);
     setAudioVideoStateRequest({audioState: audio, videoState: video});
     navigate('Meeting');
@@ -359,18 +428,109 @@ const App = ({
   const joinRoom = () => {
     if (config !== null) {
       instance?.join(config);
+      setMirrorLocalVideo(false);
+    } else {
+      console.log('config: ', config);
     }
+  };
+
+  const reportIssue = async () => {
+    try {
+      const fileUrl = RNFetchBlob.fs.dirs.DocumentDir + '/report-logs.json';
+      const logger = HMSSDK.getLogger();
+      const logs = logger?.getLogs();
+      await writeFile({data: logs}, fileUrl);
+    } catch (err) {
+      console.log('reportIssue: ', err);
+    }
+  };
+
+  const checkPermissionToWriteExternalStroage = async () => {
+    // Function to check the platform
+    // If Platform is Android then check for permissions.
+    if (Platform.OS === 'ios') {
+      await reportIssue();
+    } else {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+          {
+            title: 'Storage Permission Required',
+            message:
+              'Application needs access to your storage to download File',
+            buttonPositive: 'true',
+          },
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          // Start downloading
+          await reportIssue();
+          console.log('Storage Permission Granted.');
+        } else {
+          // If permission denied then show alert
+          Toast.showWithGravity(
+            'Storage Permission Not Granted',
+            Toast.LONG,
+            Toast.TOP,
+          );
+        }
+      } catch (err) {
+        // To handle permission related exception
+        console.log('checkPermissionToWriteExternalStroage: ' + err);
+      }
+    }
+  };
+
+  const getSettingButtons = () => {
+    const buttons: Array<{text: string; type?: string; onPress?: Function}> = [
+      {
+        text: 'Cancel',
+        type: 'cancel',
+      },
+      {
+        text: 'Report issue and share logs',
+        onPress: async () => {
+          await checkPermissionToWriteExternalStroage();
+        },
+      },
+      {
+        text: skipPreview ? "Don't Skip Preview" : 'Skip Preview',
+        onPress: () => {
+          setSkipPreview(!skipPreview);
+        },
+      },
+      {
+        text: mirrorLocalVideo ? "Don't Mirror My Video" : 'Mirror My Video',
+        onPress: () => {
+          setMirrorLocalVideo(!mirrorLocalVideo);
+        },
+      },
+    ];
+    return buttons;
   };
 
   return (
     <View style={styles.container}>
+      <AlertModal
+        modalVisible={settingsModal}
+        setModalVisible={setSettingsModal}
+        title="Settings"
+        message=""
+        buttons={getSettingButtons()}
+      />
       <View style={styles.headerContainer}>
         <Image style={styles.image} source={require('../assets/icon.png')} />
         <Text style={styles.logo}>100ms</Text>
       </View>
+      <TouchableOpacity
+        onPress={() => {
+          setSettingsModal(true);
+        }}
+        style={styles.settingsIconContainer}>
+        <Ionicons name="settings" style={styles.settingsIcon} size={40} />
+      </TouchableOpacity>
       <KeyboardAvoidingView style={styles.inputContainer} behavior="padding">
         <Text style={styles.heading}>Join a Meeting</Text>
-        <View style={styles.textInputContainer}>
+        <View>
           <TextInput
             onChangeText={value => {
               setText(value);
@@ -382,7 +542,20 @@ const App = ({
             returnKeyType="done"
             multiline
             blurOnSubmit
+            value={text}
           />
+          <View style={styles.clear}>
+            <TouchableOpacity
+              onPress={() => {
+                setText('');
+              }}>
+              <Entypo
+                name="circle-with-cross"
+                style={styles.settingsIcon}
+                size={24}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
         <TouchableOpacity
           disabled={buttonState !== 'Active'}
@@ -406,6 +579,9 @@ const App = ({
             </>
           )}
         </TouchableOpacity>
+        <Text style={styles.appVersion}>
+          {`App Version :    ${packageJson.version}`}
+        </Text>
       </KeyboardAvoidingView>
       {modalVisible && (
         <UserIdModal
@@ -446,7 +622,7 @@ const App = ({
               setModalVisible(false);
             } else {
               setButtonState('Loading');
-              callService(userID, roomID, role, checkPermissions, apiFailed);
+              callService(userID, roomID, checkPermissions, apiFailed);
               setModalVisible(false);
             }
           }}
@@ -464,11 +640,14 @@ const App = ({
             setVideo(!value);
             instance?.localPeer?.localVideoTrack()?.setMute(value);
           }}
+          videoAllowed={videoAllowed}
+          audioAllowed={audioAllowed}
           trackId={localVideoTrackId}
           join={joinRoom}
           instance={instance}
           setPreviewButtonState={setPreviewButtonState}
           previewButtonState={previewButtonState}
+          mirrorLocalVideo={mirrorLocalVideo}
         />
       )}
       <View />
@@ -520,6 +699,7 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     minHeight: 32,
     color: getThemeColour(),
+    paddingRight: 40,
   },
   joinButtonContainer: {
     padding: 12,
@@ -588,7 +768,27 @@ const styles = StyleSheet.create({
     width: 200,
     height: 500,
   },
-  textInputContainer: {},
+  settingsIcon: {
+    color: getThemeColour(),
+  },
+  settingsIconContainer: {
+    position: 'absolute',
+    right: 0,
+    top: 10,
+    padding: 20,
+  },
+  appVersion: {
+    alignSelf: 'center',
+    paddingTop: 10,
+    fontSize: 20,
+    color: getThemeColour(),
+  },
+  clear: {
+    position: 'absolute',
+    right: 5,
+    height: '100%',
+    justifyContent: 'center',
+  },
 });
 
 const mapDispatchToProps = (dispatch: Function) => ({

@@ -141,10 +141,10 @@ class HmsManager: RCTEventEmitter{
     }
     
     @objc
-    func changeTrackStateRoles(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    func changeTrackStateForRoles(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HmsHelper.getHms(data, hmsCollection)
         
-        hms?.changeTrackStateRoles(data, resolve, reject)
+        hms?.changeTrackStateForRoles(data, resolve, reject)
     }
     
     @objc
@@ -235,6 +235,20 @@ class HmsManager: RCTEventEmitter{
         let hms = HmsHelper.getHms(data, hmsCollection)
         
         hms?.stopRtmpAndRecording(resolve, reject)
+    }
+    
+    @objc
+    func startHLSStreaming(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HmsHelper.getHms(data, hmsCollection)
+        
+        hms?.startHLSStreaming(data, resolve, reject)
+    }
+    
+    @objc
+    func stopHLSStreaming(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HmsHelper.getHms(data, hmsCollection)
+        
+        hms?.stopHLSStreaming(resolve, reject)
     }
     
 //    @objc

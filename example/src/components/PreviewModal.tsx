@@ -17,7 +17,12 @@ export const PreviewModal = ({
   instance,
   setPreviewButtonState,
   previewButtonState,
+  videoAllowed,
+  audioAllowed,
+  mirrorLocalVideo,
 }: {
+  videoAllowed: boolean;
+  audioAllowed: boolean;
   trackId: string;
   setAudio: Function;
   setVideo: Function;
@@ -25,6 +30,7 @@ export const PreviewModal = ({
   instance: HmsManager | null;
   setPreviewButtonState: Function;
   previewButtonState: string;
+  mirrorLocalVideo: boolean;
 }) => {
   const [isMute, setIsMute] = useState(false);
   const [muteVideo, setMuteVideo] = useState(false);
@@ -38,34 +44,39 @@ export const PreviewModal = ({
           sink={true}
           style={styles.hmsView}
           trackId={trackId}
+          mirror={mirrorLocalVideo}
         />
       </View>
       <View style={styles.buttonRow}>
         <View style={styles.iconContainer}>
-          <TouchableOpacity
-            style={styles.singleIconContainer}
-            onPress={async () => {
-              setIsMute(!isMute);
-              setAudio(!isMute);
-            }}>
-            <Feather
-              name={isMute ? 'mic-off' : 'mic'}
-              style={styles.videoIcon}
-              size={50}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.singleIconContainer}
-            onPress={() => {
-              setMuteVideo(!muteVideo);
-              setVideo(!muteVideo);
-            }}>
-            <Feather
-              name={muteVideo ? 'video-off' : 'video'}
-              style={styles.videoIcon}
-              size={50}
-            />
-          </TouchableOpacity>
+          {audioAllowed && (
+            <TouchableOpacity
+              style={styles.singleIconContainer}
+              onPress={async () => {
+                setIsMute(!isMute);
+                setAudio(!isMute);
+              }}>
+              <Feather
+                name={isMute ? 'mic-off' : 'mic'}
+                style={styles.videoIcon}
+                size={50}
+              />
+            </TouchableOpacity>
+          )}
+          {videoAllowed && (
+            <TouchableOpacity
+              style={styles.singleIconContainer}
+              onPress={() => {
+                setMuteVideo(!muteVideo);
+                setVideo(!muteVideo);
+              }}>
+              <Feather
+                name={muteVideo ? 'video-off' : 'video'}
+                style={styles.videoIcon}
+                size={50}
+              />
+            </TouchableOpacity>
+          )}
         </View>
         <View style={styles.joinButtonContainer}>
           <TouchableOpacity

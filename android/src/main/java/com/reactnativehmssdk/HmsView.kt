@@ -1,8 +1,13 @@
 package com.reactnativehmssdk
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.view.LayoutInflater
 import android.widget.FrameLayout
+import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactContext
+import com.facebook.react.bridge.WritableMap
+import com.facebook.react.uimanager.events.RCTEventEmitter
 import live.hms.video.media.tracks.HMSTrackType
 import live.hms.video.media.tracks.HMSVideoTrack
 import live.hms.video.utils.SharedEglContext
@@ -14,11 +19,23 @@ class HmsView(context: ReactContext) : FrameLayout(context) {
   private var surfaceView: SurfaceViewRenderer = SurfaceViewRenderer(context)
   private var videoTrack: HMSVideoTrack? = null
   private var localTrack: String? = null
+  private var scaleTypeApplied: Boolean = false
+  private var currentScaleType: RendererCommon.ScalingType =
+      RendererCommon.ScalingType.SCALE_ASPECT_FILL
 
   init {
+    val inflater = getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    val view = inflater.inflate(R.layout.hms_view, this)
+
+    surfaceView = view.findViewById(R.id.surfaceView)
     surfaceView.setEnableHardwareScaler(true)
-    surfaceView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
-    addView(surfaceView)
+  }
+
+  fun onReceiveNativeEvent() {
+    val event: WritableMap = Arguments.createMap()
+    event.putString("message", "MyMessage")
+    val reactContext = context as ReactContext
+    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "topChange", event)
   }
 
   override fun onDetachedFromWindow() {
@@ -31,6 +48,12 @@ class HmsView(context: ReactContext) : FrameLayout(context) {
     super.onAttachedToWindow()
     surfaceView.init(SharedEglContext.context, null)
     videoTrack?.addSink(surfaceView)
+    if (!scaleTypeApplied) {
+      if (currentScaleType != RendererCommon.ScalingType.SCALE_ASPECT_FILL) {
+        onReceiveNativeEvent()
+      }
+      scaleTypeApplied = true
+    }
   }
 
   fun updateScaleType(scaleType: String?) {
@@ -38,14 +61,17 @@ class HmsView(context: ReactContext) : FrameLayout(context) {
       when (scaleType) {
         "ASPECT_FIT" -> {
           surfaceView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
+          currentScaleType = RendererCommon.ScalingType.SCALE_ASPECT_FIT
           return
         }
         "ASPECT_FILL" -> {
           surfaceView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL)
+          currentScaleType = RendererCommon.ScalingType.SCALE_ASPECT_FILL
           return
         }
         "ASPECT_BALANCED" -> {
           surfaceView.setScalingType((RendererCommon.ScalingType.SCALE_ASPECT_BALANCED))
+          currentScaleType = RendererCommon.ScalingType.SCALE_ASPECT_BALANCED
           return
         }
         else -> {
@@ -62,7 +88,6 @@ class HmsView(context: ReactContext) : FrameLayout(context) {
       mirror: Boolean?
   ) {
     var sdkId = "12345"
-
     if (id != null) {
       sdkId = id
     }

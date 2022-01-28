@@ -2,6 +2,7 @@ import type { HMSPeer } from './HMSPeer';
 import type { HMSRtmpStreamingState } from './HMSRtmpStreamingState';
 import type { HMSServerRecordingState } from './HMSServerRecordingState';
 import type { HMSBrowserRecordingState } from './HMSBrowserRecordingState';
+import type { HMSHLSStreamingState } from './HMSHLSStreamingState';
 
 export class HMSRoom {
   id: string;
@@ -11,6 +12,7 @@ export class HMSRoom {
   browserRecordingState: HMSBrowserRecordingState;
   rtmpHMSRtmpStreamingState: HMSRtmpStreamingState;
   serverRecordingState: HMSServerRecordingState;
+  hlsStreamingState: HMSHLSStreamingState;
 
   constructor(params: {
     id: string;
@@ -20,6 +22,7 @@ export class HMSRoom {
     browserRecordingState: HMSBrowserRecordingState;
     rtmpHMSRtmpStreamingState: HMSRtmpStreamingState;
     serverRecordingState: HMSServerRecordingState;
+    hlsStreamingState: HMSHLSStreamingState;
   }) {
     this.id = params.id;
     this.name = params.name;
@@ -28,5 +31,6 @@ export class HMSRoom {
     this.browserRecordingState = params.browserRecordingState;
     this.rtmpHMSRtmpStreamingState = params.rtmpHMSRtmpStreamingState;
     this.serverRecordingState = params.serverRecordingState;
+    this.hlsStreamingState = params.hlsStreamingState;
   }
 }
