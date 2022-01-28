@@ -797,6 +797,38 @@ const Meeting = ({
     remotePeers: HMSRemotePeer[];
   }) => {
     updateVideoIds(remotePeers, localPeer);
+    if (type === HMSRoomUpdate.BROWSER_RECORDING_STATE_UPDATED) {
+      let streaming = room?.browserRecordingState?.running;
+      Toast.showWithGravity(
+        `Browser Recording ${streaming ? 'Started' : 'Stopped'}`,
+        Toast.LONG,
+        Toast.TOP,
+      );
+    }
+    if (type === HMSRoomUpdate.HLS_STREAMING_STATE_UPDATED) {
+      let streaming = room?.hlsStreamingState?.running;
+      Toast.showWithGravity(
+        `HLS Streaming ${streaming ? 'Started' : 'Stopped'}`,
+        Toast.LONG,
+        Toast.TOP,
+      );
+    }
+    if (type === HMSRoomUpdate.RTMP_STREAMING_STATE_UPDATED) {
+      let streaming = room?.rtmpHMSRtmpStreamingState?.running;
+      Toast.showWithGravity(
+        `RTMP Streaming ${streaming ? 'Started' : 'Stopped'}`,
+        Toast.LONG,
+        Toast.TOP,
+      );
+    }
+    if (type === HMSRoomUpdate.SERVER_RECORDING_STATE_UPDATED) {
+      let streaming = room?.rtmpHMSRtmpStreamingState?.running;
+      Toast.showWithGravity(
+        `Server Recording ${streaming ? 'Started' : 'Stopped'}`,
+        Toast.LONG,
+        Toast.TOP,
+      );
+    }
     console.log('data in onRoomListener: ', room, type, localPeer, remotePeers);
   };
 
@@ -814,6 +846,27 @@ const Meeting = ({
     remotePeers: HMSRemotePeer[];
   }) => {
     updateVideoIds(remotePeers, localPeer);
+    if (type === HMSPeerUpdate.PEER_LEFT) {
+      Toast.showWithGravity(
+        `Peer Left: ${peer.name} left the Room`,
+        Toast.LONG,
+        Toast.TOP,
+      );
+    }
+    if (type === HMSPeerUpdate.PEER_JOINED) {
+      Toast.showWithGravity(
+        `Peer Joined: ${peer.name} joined the Room`,
+        Toast.LONG,
+        Toast.TOP,
+      );
+    }
+    if (type === HMSPeerUpdate.ROLE_CHANGED) {
+      Toast.showWithGravity(
+        `Role Changed: Role of ${peer?.name} changed to ${peer?.role?.name}`,
+        Toast.LONG,
+        Toast.TOP,
+      );
+    }
     console.log(
       'data in onPeerListener: ',
       peer,
@@ -899,6 +952,12 @@ const Meeting = ({
         requestedBy: data?.requestedBy?.name,
         suggestedRole: data?.trackType,
       });
+    } else {
+      Toast.showWithGravity(
+        `Track Muted: ${data?.requestedBy?.name} Muted Your ${data?.trackType}`,
+        Toast.LONG,
+        Toast.TOP,
+      );
     }
   };
 
@@ -976,6 +1035,7 @@ const Meeting = ({
       instance?.leave();
       navigate('WelcomeScreen');
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
