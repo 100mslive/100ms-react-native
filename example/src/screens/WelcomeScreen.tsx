@@ -13,6 +13,7 @@ import {
   Alert,
   Linking,
   AppState,
+  PermissionsAndroid,
 } from 'react-native';
 import {connect} from 'react-redux';
 import HmsManager, {
@@ -38,20 +39,24 @@ import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import {PERMISSIONS, RESULTS, requestMultiple} from 'react-native-permissions';
 import Feather from 'react-native-vector-icons/Feather';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import Entypo from 'react-native-vector-icons/Entypo';
 import Toast from 'react-native-simple-toast';
 import {getModel} from 'react-native-device-info';
 import crashlytics from '@react-native-firebase/crashlytics';
+import RNFetchBlob from 'rn-fetch-blob';
 
 import * as services from '../services/index';
-import {UserIdModal, PreviewModal} from '../components';
+import {UserIdModal, PreviewModal, AlertModal} from '../components';
 import {
   setAudioVideoState,
   saveUserData,
   updateHmsReference,
 } from '../redux/actions/index';
-import {getThemeColour} from '../utils/functions';
+import {getThemeColour, writeFile} from '../utils/functions';
 import type {AppStackParamList} from '../navigator';
 import type {RootState} from '../redux';
+import packageJson from '../../package.json';
 
 type WelcomeProps = {
   setAudioVideoStateRequest: Function;
@@ -139,6 +144,9 @@ const App = ({
   const [instance, setInstance] = useState<HmsManager | null>(null);
   const [videoAllowed, setVideoAllowed] = useState<boolean>(false);
   const [audioAllowed, setAudioAllowed] = useState<boolean>(false);
+  const [settingsModal, setSettingsModal] = useState(false);
+  const [skipPreview, setSkipPreview] = useState(false);
+  const [mirrorLocalVideo, setMirrorLocalVideo] = useState(false);
 
   const navigate = useNavigation<WelcomeScreenProp>().navigate;
 
@@ -169,11 +177,7 @@ const App = ({
       setPreviewModal(true);
       setVideo(false);
     } else {
-      if (config) {
-        instance?.join(config);
-      } else {
-        console.log('config: ', config);
-      }
+      joinRoom();
     }
     setButtonState('Active');
   };
@@ -354,9 +358,18 @@ const App = ({
       HMSUpdateListenerActions.ON_PREVIEW,
       previewSuccess,
     );
-    saveUserDataRequest({userName: userID, roomID: roomID});
+    saveUserDataRequest({
+      userName: userID,
+      roomID: roomID,
+      mirrorLocalVideo: !mirrorLocalVideo,
+    });
     instance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
-    instance?.preview(HmsConfig);
+    if (skipPreview) {
+      setSkipPreview(false);
+      joinRoom();
+    } else {
+      instance?.preview(HmsConfig);
+    }
   };
 
   const previewWithLink = (
@@ -390,13 +403,23 @@ const App = ({
       onJoinListener,
     );
 
-    saveUserDataRequest({userName: userID, roomID: roomID});
+    saveUserDataRequest({
+      userName: userID,
+      roomID: roomID,
+      mirrorLocalVideo: !mirrorLocalVideo,
+    });
     instance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
-    instance?.preview(HmsConfig);
+    if (skipPreview) {
+      setSkipPreview(false);
+      joinRoom();
+    } else {
+      instance?.preview(HmsConfig);
+    }
   };
 
   const onJoinListener = () => {
     setPreviewButtonState('Active');
+    setButtonState('Active');
     setPreviewModal(false);
     setAudioVideoStateRequest({audioState: audio, videoState: video});
     navigate('Meeting');
@@ -405,18 +428,109 @@ const App = ({
   const joinRoom = () => {
     if (config !== null) {
       instance?.join(config);
+      setMirrorLocalVideo(false);
+    } else {
+      console.log('config: ', config);
     }
+  };
+
+  const reportIssue = async () => {
+    try {
+      const fileUrl = RNFetchBlob.fs.dirs.DocumentDir + '/report-logs.json';
+      const logger = HMSSDK.getLogger();
+      const logs = logger?.getLogs();
+      await writeFile({data: logs}, fileUrl);
+    } catch (err) {
+      console.log('reportIssue: ', err);
+    }
+  };
+
+  const checkPermissionToWriteExternalStroage = async () => {
+    // Function to check the platform
+    // If Platform is Android then check for permissions.
+    if (Platform.OS === 'ios') {
+      await reportIssue();
+    } else {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+          {
+            title: 'Storage Permission Required',
+            message:
+              'Application needs access to your storage to download File',
+            buttonPositive: 'true',
+          },
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          // Start downloading
+          await reportIssue();
+          console.log('Storage Permission Granted.');
+        } else {
+          // If permission denied then show alert
+          Toast.showWithGravity(
+            'Storage Permission Not Granted',
+            Toast.LONG,
+            Toast.TOP,
+          );
+        }
+      } catch (err) {
+        // To handle permission related exception
+        console.log('checkPermissionToWriteExternalStroage: ' + err);
+      }
+    }
+  };
+
+  const getSettingButtons = () => {
+    const buttons: Array<{text: string; type?: string; onPress?: Function}> = [
+      {
+        text: 'Cancel',
+        type: 'cancel',
+      },
+      {
+        text: 'Report issue and share logs',
+        onPress: async () => {
+          await checkPermissionToWriteExternalStroage();
+        },
+      },
+      {
+        text: skipPreview ? "Don't Skip Preview" : 'Skip Preview',
+        onPress: () => {
+          setSkipPreview(!skipPreview);
+        },
+      },
+      {
+        text: mirrorLocalVideo ? "Don't Mirror My Video" : 'Mirror My Video',
+        onPress: () => {
+          setMirrorLocalVideo(!mirrorLocalVideo);
+        },
+      },
+    ];
+    return buttons;
   };
 
   return (
     <View style={styles.container}>
+      <AlertModal
+        modalVisible={settingsModal}
+        setModalVisible={setSettingsModal}
+        title="Settings"
+        message=""
+        buttons={getSettingButtons()}
+      />
       <View style={styles.headerContainer}>
         <Image style={styles.image} source={require('../assets/icon.png')} />
         <Text style={styles.logo}>100ms</Text>
       </View>
+      <TouchableOpacity
+        onPress={() => {
+          setSettingsModal(true);
+        }}
+        style={styles.settingsIconContainer}>
+        <Ionicons name="settings" style={styles.settingsIcon} size={40} />
+      </TouchableOpacity>
       <KeyboardAvoidingView style={styles.inputContainer} behavior="padding">
         <Text style={styles.heading}>Join a Meeting</Text>
-        <View style={styles.textInputContainer}>
+        <View>
           <TextInput
             onChangeText={value => {
               setText(value);
@@ -428,7 +542,20 @@ const App = ({
             returnKeyType="done"
             multiline
             blurOnSubmit
+            value={text}
           />
+          <View style={styles.clear}>
+            <TouchableOpacity
+              onPress={() => {
+                setText('');
+              }}>
+              <Entypo
+                name="circle-with-cross"
+                style={styles.settingsIcon}
+                size={24}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
         <TouchableOpacity
           disabled={buttonState !== 'Active'}
@@ -452,6 +579,9 @@ const App = ({
             </>
           )}
         </TouchableOpacity>
+        <Text style={styles.appVersion}>
+          {`App Version :    ${packageJson.version}`}
+        </Text>
       </KeyboardAvoidingView>
       {modalVisible && (
         <UserIdModal
@@ -517,6 +647,7 @@ const App = ({
           instance={instance}
           setPreviewButtonState={setPreviewButtonState}
           previewButtonState={previewButtonState}
+          mirrorLocalVideo={mirrorLocalVideo}
         />
       )}
       <View />
@@ -568,6 +699,7 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     minHeight: 32,
     color: getThemeColour(),
+    paddingRight: 40,
   },
   joinButtonContainer: {
     padding: 12,
@@ -636,7 +768,27 @@ const styles = StyleSheet.create({
     width: 200,
     height: 500,
   },
-  textInputContainer: {},
+  settingsIcon: {
+    color: getThemeColour(),
+  },
+  settingsIconContainer: {
+    position: 'absolute',
+    right: 0,
+    top: 10,
+    padding: 20,
+  },
+  appVersion: {
+    alignSelf: 'center',
+    paddingTop: 10,
+    fontSize: 20,
+    color: getThemeColour(),
+  },
+  clear: {
+    position: 'absolute',
+    right: 5,
+    height: '100%',
+    justifyContent: 'center',
+  },
 });
 
 const mapDispatchToProps = (dispatch: Function) => ({

@@ -104,6 +104,7 @@ type DisplayTrackProps = {
   instance: HMSSDK | undefined;
   permissions: HMSPermissions | undefined;
   layout?: LayoutParams;
+  mirrorLocalVideo?: boolean;
 };
 
 type MeetingProps = {
@@ -139,6 +140,7 @@ const DisplayTrack = ({
   instance,
   permissions,
   layout,
+  mirrorLocalVideo,
 }: DisplayTrackProps) => {
   const {
     name,
@@ -445,7 +447,7 @@ const DisplayTrack = ({
         <HmsViewComponent
           sink={sink}
           trackId={trackId!}
-          mirror={type === 'local' ? true : false}
+          mirror={type === 'local' ? mirrorLocalVideo : false}
           scaleType={
             type === 'screen'
               ? HMSVideoViewMode.ASPECT_FIT
@@ -1635,7 +1637,6 @@ const Meeting = ({
                               }
                             }}>
                             <DisplayTrack
-                              // key={view?.id}
                               peer={view}
                               videoStyles={getAuxVideoStyles}
                               speakers={speakers}
@@ -1655,6 +1656,7 @@ const Meeting = ({
                           type={view.type}
                           permissions={localPeerPermissions}
                           layout={layout}
+                          mirrorLocalVideo={state.user.mirrorLocalVideo}
                         />
                       )),
                   )}

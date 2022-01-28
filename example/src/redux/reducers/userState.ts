@@ -9,6 +9,7 @@ const INITIAL_STATE = {
   userName: null,
   roomID: null,
   hmsInstance: undefined,
+  mirrorLocalVideo: false,
 };
 
 const userReducer = (state = INITIAL_STATE, action: ActionType) => {
