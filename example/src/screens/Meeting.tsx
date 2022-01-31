@@ -439,22 +439,27 @@ const DisplayTrack = ({
             <Text style={styles.avatarText}>{getInitials(name!)}</Text>
           </View>
         </View>
-      ) : isDegraded ? (
-        <View style={styles.avatarContainer}>
-          <Text style={styles.degradedText}>Degraded</Text>
-        </View>
       ) : (
-        <HmsViewComponent
-          sink={sink}
-          trackId={trackId!}
-          mirror={type === 'local' ? mirrorLocalVideo : false}
-          scaleType={
-            type === 'screen'
-              ? HMSVideoViewMode.ASPECT_FIT
-              : HMSVideoViewMode.ASPECT_FILL
-          }
-          style={type === 'screen' ? styles.hmsViewScreen : styles.hmsView}
-        />
+        <View style={styles.flex}>
+          <HmsViewComponent
+            sink={sink}
+            trackId={trackId!}
+            mirror={type === 'local' ? mirrorLocalVideo : false}
+            scaleType={
+              type === 'screen'
+                ? HMSVideoViewMode.ASPECT_FIT
+                : HMSVideoViewMode.ASPECT_FILL
+            }
+            style={type === 'screen' ? styles.hmsViewScreen : styles.hmsView}
+          />
+          {isDegraded && (
+            <View style={styles.degradedContainer}>
+              <View style={styles.avatarContainer}>
+                <Text style={styles.degradedText}>Degraded</Text>
+              </View>
+            </View>
+          )}
+        </View>
       )}
       <View style={styles.labelContainer}>
         {metadata?.isHandRaised && (
@@ -2027,6 +2032,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'black',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  degradedContainer: {
+    position: 'absolute',
+    height: '100%',
+    width: '100%',
+    backgroundColor: 'black',
+    zIndex: 10,
   },
   avatar: {
     aspectRatio: 1,
