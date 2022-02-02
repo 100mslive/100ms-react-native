@@ -44,4 +44,4 @@ git add example/ios/Podfile.lock
 git add example/ios/RNHMSExample/Info.plist
 git add example/ios/RNHMSExample.xcodeproj/project.pbxproj
 
-git commit -m "released sample app version $versionCode ($buildNumber) ⚛️"
+git commit -m "released sample app version $versionCode ($buildNumber) ⚛️" --no-verify
