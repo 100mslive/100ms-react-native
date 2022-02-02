@@ -6,3 +6,4 @@ export * from './PreviewModal';
 export * from './UserIdModal';
 export * from './Picker';
 export * from './RolePicker';
+export * from './ZoomableView';
