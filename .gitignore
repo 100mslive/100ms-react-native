@@ -62,3 +62,5 @@ example/ios/fastlane
 example/ios/GoogleService-Info.plist
 example/android/fastlane
 example/android/app/google-services.json
+*.p8
+*.keystore
