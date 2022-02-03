@@ -26,7 +26,7 @@ def safeExtGet(prop, fallback) {
 }
 
 android {
-    compileSdkVersion safeExtGet('Hmssdk_compileSdkVersion', 29)
+    compileSdkVersion safeExtGet('Hmssdk_compileSdkVersion', 30)
     defaultConfig {
         minSdkVersion safeExtGet('Hmssdk_minSdkVersion', 21)
         targetSdkVersion safeExtGet('Hmssdk_targetSdkVersion', 29)
