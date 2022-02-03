@@ -24,11 +24,11 @@ class HmsManager: RCTEventEmitter {
     override init() {
         super.init()
     }
-
-//    override class func requiresMainQueueSetup() -> Bool {
-//        true
-//    }
-
+    
+   override class func requiresMainQueueSetup() -> Bool {
+       true
+   }
+    
     override func supportedEvents() -> [String]! {
         return [ON_JOIN, ON_PREVIEW, ON_ROOM_UPDATE, ON_PEER_UPDATE, ON_TRACK_UPDATE, ON_ERROR, ON_MESSAGE, ON_SPEAKER, RECONNECTING, RECONNECTED, ON_ROLE_CHANGE_REQUEST, ON_CHANGE_TRACK_STATE_REQUEST, ON_REMOVED_FROM_ROOM]
     }
