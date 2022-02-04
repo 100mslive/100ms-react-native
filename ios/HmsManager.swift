@@ -246,6 +246,13 @@ class HmsManager: RCTEventEmitter {
 
         hms?.stopHLSStreaming(resolve, reject)
     }
+    
+    @objc
+    func changeName(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HmsHelper.getHms(data, hmsCollection)
+
+        hms?.changeName(data, resolve, reject)
+    }
 
 //    @objc
 //    func setLocalVideoSettings(_ data: NSDictionary) {
