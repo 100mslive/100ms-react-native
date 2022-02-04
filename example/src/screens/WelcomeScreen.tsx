@@ -43,7 +43,6 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Toast from 'react-native-simple-toast';
 import {getModel} from 'react-native-device-info';
-import crashlytics from '@react-native-firebase/crashlytics';
 import RNFetchBlob from 'rn-fetch-blob';
 
 import * as services from '../services/index';
@@ -232,10 +231,6 @@ const App = ({
     });
   };
 
-  const getCrashlyticsLog = ({message, data}: {message: string; data: any}) => {
-    crashlytics().log(message.toString() + ' ' + JSON.stringify(data));
-  };
-
   const setupBuild = async () => {
     /**
      * Regular Usage:
@@ -249,7 +244,6 @@ const App = ({
     const build = await HmsManager.build();
     const logger = new HMSLogger();
     logger.updateLogLevel(HMSLogLevel.VERBOSE, true);
-    logger.setLogListener(getCrashlyticsLog);
     build.setLogger(logger);
     setInstance(build);
     updateHms({hmsInstance: build});
