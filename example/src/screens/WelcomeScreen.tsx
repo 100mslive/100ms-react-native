@@ -45,6 +45,7 @@ import Toast from 'react-native-simple-toast';
 import {getModel} from 'react-native-device-info';
 import crashlytics from '@react-native-firebase/crashlytics';
 import RNFetchBlob from 'rn-fetch-blob';
+import {getVersion} from 'react-native-device-info';
 
 import * as services from '../services/index';
 import {UserIdModal, PreviewModal, AlertModal} from '../components';
@@ -56,7 +57,6 @@ import {
 import {getThemeColour, writeFile} from '../utils/functions';
 import type {AppStackParamList} from '../navigator';
 import type {RootState} from '../redux';
-import packageJson from '../../package.json';
 
 type WelcomeProps = {
   setAudioVideoStateRequest: Function;
@@ -520,14 +520,14 @@ const App = ({
       <View style={styles.headerContainer}>
         <Image style={styles.image} source={require('../assets/icon.png')} />
         <Text style={styles.logo}>100ms</Text>
+        <TouchableOpacity
+          onPress={() => {
+            setSettingsModal(true);
+          }}
+          style={styles.settingsIconContainer}>
+          <Ionicons name="settings" style={styles.settingsIcon} size={40} />
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity
-        onPress={() => {
-          setSettingsModal(true);
-        }}
-        style={styles.settingsIconContainer}>
-        <Ionicons name="settings" style={styles.settingsIcon} size={40} />
-      </TouchableOpacity>
       <KeyboardAvoidingView style={styles.inputContainer} behavior="padding">
         <Text style={styles.heading}>Join a Meeting</Text>
         <View>
@@ -580,7 +580,7 @@ const App = ({
           )}
         </TouchableOpacity>
         <Text style={styles.appVersion}>
-          {`App Version :    ${packageJson.version}`}
+          {`App Version :    ${getVersion()}`}
         </Text>
       </KeyboardAvoidingView>
       {modalVisible && (
@@ -774,8 +774,8 @@ const styles = StyleSheet.create({
   settingsIconContainer: {
     position: 'absolute',
     right: 0,
-    top: 10,
-    padding: 20,
+    top: 0,
+    padding: 10,
   },
   appVersion: {
     alignSelf: 'center',
