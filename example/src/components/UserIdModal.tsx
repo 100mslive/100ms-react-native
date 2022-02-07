@@ -10,17 +10,21 @@ import {
 export const UserIdModal = ({
   cancel,
   join,
-  user,
+  userName,
+  screen,
 }: {
   cancel: Function;
   join: Function;
-  user: any;
+  userName: any;
+  screen: 'Welcome' | 'Meeting';
 }) => {
-  const [text, setText] = useState(user?.userName ? user.userName : '');
+  const [text, setText] = useState(userName || '');
   return (
     <View style={styles.container}>
       <View style={styles.modalContainer}>
-        <Text style={styles.heading}>Join a Meeting</Text>
+        <Text style={styles.heading}>
+          {screen === 'Welcome' ? 'Join a Meeting' : 'Change Name'}
+        </Text>
         <View style={styles.inputContainer}>
           <TextInput
             onChangeText={value => {
@@ -47,7 +51,9 @@ export const UserIdModal = ({
                   join(text);
                 }
               }}>
-              <Text style={styles.joinButtonText}>Join</Text>
+              <Text style={styles.joinButtonText}>
+                {screen === 'Welcome' ? 'Join' : 'Set'}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>

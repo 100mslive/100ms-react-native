@@ -58,11 +58,13 @@ import {
   CustomModal,
   RolePicker,
   ZoomableView,
+  UserIdModal,
 } from '../components';
 import {
   addMessage,
   clearMessageData,
   updateHmsReference,
+  saveUserData,
 } from '../redux/actions/index';
 import dimension from '../utils/dimension';
 import {
@@ -105,6 +107,7 @@ type DisplayTrackProps = {
   permissions: HMSPermissions | undefined;
   layout?: LayoutParams;
   mirrorLocalVideo?: boolean;
+  setChangeNameModal?: Function;
 };
 
 type MeetingProps = {
@@ -115,6 +118,7 @@ type MeetingProps = {
   videoState: boolean;
   state: RootState;
   hmsInstance: HMSSDK | undefined;
+  saveUserDataRequest?: Function;
 };
 
 const DEFAULT_PEER: Peer = {
@@ -141,6 +145,7 @@ const DisplayTrack = ({
   permissions,
   layout,
   mirrorLocalVideo,
+  setChangeNameModal,
 }: DisplayTrackProps) => {
   const {
     name,
@@ -234,7 +239,15 @@ const DisplayTrack = ({
     text: string;
     type?: string;
     onPress?: Function;
-  }> = [{text: 'Cancel', type: 'cancel'}];
+  }> = [
+    {text: 'Cancel', type: 'cancel'},
+    {
+      text: 'Change Name',
+      onPress: () => {
+        setChangeNameModal && setChangeNameModal(true);
+      },
+    },
+  ];
 
   const selectActionTitle = 'Select action';
   const selectActionMessage = '';
@@ -525,6 +538,7 @@ const Meeting = ({
   clearMessageRequest,
   hmsInstance,
   state,
+  saveUserDataRequest,
 }: MeetingProps) => {
   const [orientation, setOrientation] = useState<boolean>(true);
   const [instance, setInstance] = useState<HMSSDK | undefined>();
@@ -574,6 +588,7 @@ const Meeting = ({
   const [zoomableTrackId, setZoomableTrackId] = useState('');
   const [zoomableModal, setZoomableModal] = useState(false);
   var doublePress = 0;
+  const [changeNameModal, setChangeNameModal] = useState(false);
 
   const roleChangeRequestTitle = layoutModal
     ? 'Layout Modal'
@@ -1721,6 +1736,7 @@ const Meeting = ({
                           permissions={localPeerPermissions}
                           layout={layout}
                           mirrorLocalVideo={state.user.mirrorLocalVideo}
+                          setChangeNameModal={setChangeNameModal}
                         />
                       )),
                   )}
@@ -1900,6 +1916,23 @@ const Meeting = ({
               });
             }
           }}
+        />
+      )}
+      {changeNameModal && (
+        <UserIdModal
+          screen="Meeting"
+          join={async (newName: string) => {
+            if (newName && newName != '') {
+              instance?.changeName(newName);
+              saveUserDataRequest &&
+                saveUserDataRequest({
+                  userName: newName,
+                });
+            }
+            setChangeNameModal(false);
+          }}
+          cancel={() => setChangeNameModal(false)}
+          userName={instance?.localPeer?.name}
         />
       )}
     </SafeAreaView>
@@ -2191,6 +2224,8 @@ const mapDispatchToProps = (dispatch: Function) => ({
   clearMessageRequest: () => dispatch(clearMessageData()),
   updateHms: (data: {hmsInstance: HMSSDK}) =>
     dispatch(updateHmsReference(data)),
+  saveUserDataRequest: (data: {userName: string; roomID: string}) =>
+    dispatch(saveUserData(data)),
 });
 
 const mapStateToProps = (state: RootState) => ({

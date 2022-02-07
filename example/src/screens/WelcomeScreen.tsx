@@ -360,7 +360,7 @@ const App = ({
     );
     saveUserDataRequest({
       userName: userID,
-      roomID: roomID,
+      roomID: roomID.replace('meeting', 'preview'),
       mirrorLocalVideo: !mirrorLocalVideo,
     });
     instance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
@@ -405,7 +405,7 @@ const App = ({
 
     saveUserDataRequest({
       userName: userID,
-      roomID: roomID,
+      roomID: roomID.replace('meeting', 'preview'),
       mirrorLocalVideo: !mirrorLocalVideo,
     });
     instance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
@@ -585,6 +585,7 @@ const App = ({
       </KeyboardAvoidingView>
       {modalVisible && (
         <UserIdModal
+          screen="Welcome"
           join={(userID: string) => {
             var pattern = new RegExp(
               '^(https?:\\/\\/)?' +
@@ -627,7 +628,7 @@ const App = ({
             }
           }}
           cancel={() => setModalVisible(false)}
-          user={state.user}
+          userName={state.user.userName}
         />
       )}
       {previewModal && (
