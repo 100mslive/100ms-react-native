@@ -585,6 +585,7 @@ const App = ({
       </KeyboardAvoidingView>
       {modalVisible && (
         <UserIdModal
+          screen="Welcome"
           join={(userID: string) => {
             var pattern = new RegExp(
               '^(https?:\\/\\/)?' +
@@ -627,7 +628,7 @@ const App = ({
             }
           }}
           cancel={() => setModalVisible(false)}
-          user={state.user}
+          userName={state.user.userName}
         />
       )}
       {previewModal && (

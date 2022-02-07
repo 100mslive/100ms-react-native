@@ -643,6 +643,25 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
             }
         })
     }
+    
+    func changeName(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let name = data.value(forKey: "name") as? String
+        else {
+            let error = HMSError(id: "123", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
+            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id": id])
+            reject?(nil, "REQUIRED_KEYS_NOT_FOUND", nil)
+            return
+        }
+
+        hms?.change(name: name) { success, error in
+            if success {
+                resolve?(["success": success])
+            } else {
+                self.delegate?.emitEvent(self.ON_ERROR, ["event": self.ON_ERROR, "error": HmsDecoder.getError(error), "id": self.id])
+                reject?(error?.message, error?.localizedDescription, nil)
+            }
+        }
+    }
 
     // TODO: to be implemented after volume is exposed for iOS
 //    func getVolume(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {

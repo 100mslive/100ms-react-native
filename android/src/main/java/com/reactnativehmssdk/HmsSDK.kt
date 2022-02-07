@@ -1043,4 +1043,34 @@ class HmsSDK(
       }
     }
   }
+
+  fun changeName(data: ReadableMap, callback: Promise?) {
+    val requiredKeys =
+      HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("name", "String")))
+    if (requiredKeys) {
+      val name =
+        data?.getString("name")
+      if (name != null && name != "") {
+        hmsSDK?.changeName(
+          name,
+          object : HMSActionResultListener {
+            override fun onSuccess() {
+              callback?.resolve(emitHMSSuccess())
+            }
+
+            override fun onError(error: HMSException) {
+              callback?.reject(error.code.toString(), error.message)
+              self.emitHMSError(error)
+            }
+          }
+        )
+      }else {
+        self.emitCustomError("NAME_UNDEFINED")
+        callback?.reject("101", "NAME_UNDEFINED")
+      }
+    }else{
+      callback?.reject("101", "REQUIRED_KEYS_NOT_FOUND")
+      self.emitRequiredKeysError()
+    }
+  }
 }

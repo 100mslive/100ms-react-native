@@ -457,6 +457,16 @@ export class HMSSDK {
     return await HmsManager.endRoom(data);
   };
 
+  changeName = async (name: string) => {
+    logger?.verbose('#Function changeName', { name, id: this.id });
+    const data = {
+      name,
+      id: this.id,
+    };
+
+    return await HmsManager.changeName(data);
+  };
+
   acceptRoleChange = async () => {
     logger?.verbose('#Function acceptRoleChange', { id: this.id });
     return await HmsManager.acceptRoleChange({ id: this.id });
