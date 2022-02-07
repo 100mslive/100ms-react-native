@@ -532,6 +532,9 @@ const DisplayTrack = ({
   );
 };
 
+let peerListViewport: (string | undefined)[] = [];
+let recentSpeakers: Array<string> = [];
+
 const Meeting = ({
   messages,
   addMessageRequest,
@@ -836,24 +839,21 @@ const Meeting = ({
         Toast.LONG,
         Toast.TOP,
       );
-    }
-    if (type === HMSRoomUpdate.HLS_STREAMING_STATE_UPDATED) {
+    } else if (type === HMSRoomUpdate.HLS_STREAMING_STATE_UPDATED) {
       let streaming = room?.hlsStreamingState?.running;
       Toast.showWithGravity(
         `HLS Streaming ${streaming ? 'Started' : 'Stopped'}`,
         Toast.LONG,
         Toast.TOP,
       );
-    }
-    if (type === HMSRoomUpdate.RTMP_STREAMING_STATE_UPDATED) {
+    } else if (type === HMSRoomUpdate.RTMP_STREAMING_STATE_UPDATED) {
       let streaming = room?.rtmpHMSRtmpStreamingState?.running;
       Toast.showWithGravity(
         `RTMP Streaming ${streaming ? 'Started' : 'Stopped'}`,
         Toast.LONG,
         Toast.TOP,
       );
-    }
-    if (type === HMSRoomUpdate.SERVER_RECORDING_STATE_UPDATED) {
+    } else if (type === HMSRoomUpdate.SERVER_RECORDING_STATE_UPDATED) {
       let streaming = room?.rtmpHMSRtmpStreamingState?.running;
       Toast.showWithGravity(
         `Server Recording ${streaming ? 'Started' : 'Stopped'}`,
@@ -884,15 +884,13 @@ const Meeting = ({
         Toast.LONG,
         Toast.TOP,
       );
-    }
-    if (type === HMSPeerUpdate.PEER_JOINED) {
+    } else if (type === HMSPeerUpdate.PEER_JOINED) {
       Toast.showWithGravity(
         `Peer Joined: ${peer.name} joined the Room`,
         Toast.LONG,
         Toast.TOP,
       );
-    }
-    if (type === HMSPeerUpdate.ROLE_CHANGED) {
+    } else if (type === HMSPeerUpdate.ROLE_CHANGED) {
       Toast.showWithGravity(
         `Role Changed: Role of ${peer?.name} changed to ${peer?.role?.name}`,
         Toast.LONG,
@@ -953,18 +951,39 @@ const Meeting = ({
 
   const onSpeaker = (data: HMSSpeakerUpdate) => {
     const peerIds = data?.peers?.map(speaker => speaker?.peer?.peerID);
-    setSpeakers(peerIds || []);
+    let updateSpeekerList = false;
+    peerIds?.map(id => {
+      if (peerListViewport.includes(id)) {
+        if (!recentSpeakers.includes(id)) {
+          updateSpeekerList = true;
+          return;
+        }
+      }
+    });
+    peerListViewport.map(peerViewport => {
+      if (
+        recentSpeakers.includes(peerViewport!) &&
+        !peerIds?.includes(peerViewport!)
+      ) {
+        updateSpeekerList = true;
+      }
+    });
+    if (updateSpeekerList) {
+      console.error(peerListViewport, peerIds, recentSpeakers);
+      setSpeakers(peerIds || []);
+      recentSpeakers = peerIds || [];
+    }
     console.log('data in onSpeaker: ', data);
   };
 
   const reconnecting = (data: any) => {
     console.log('data in reconnecting: ', data);
-    Toast.showWithGravity('Reconnecting...', Toast.LONG, Toast.TOP);
+    Toast.showWithGravity('Reconnecting...', Toast.SHORT, Toast.TOP);
   };
 
   const reconnected = (data: any) => {
     console.log('data in reconnected: ', data);
-    Toast.showWithGravity('Reconnected', Toast.LONG, Toast.TOP);
+    Toast.showWithGravity('Reconnected', Toast.SHORT, Toast.TOP);
   };
 
   const onRoleChangeRequest = (data: HMSRoleChangeRequest) => {
@@ -1326,6 +1345,7 @@ const Meeting = ({
   const onViewRef = React.useRef(({viewableItems}: any) => {
     if (viewableItems) {
       const viewableItemsIds: (string | undefined)[] = [];
+      const viewablePeerIds: (string | undefined)[] = [];
       viewableItems.map(
         (viewableItem: {
           index: number;
@@ -1335,9 +1355,11 @@ const Meeting = ({
         }) => {
           viewableItem?.item?.map((item: Peer) => {
             viewableItemsIds.push(item?.trackId);
+            viewablePeerIds.push(item?.id);
           });
         },
       );
+      peerListViewport = viewablePeerIds;
 
       const inst = hmsInstance;
       const remotePeers = inst?.remotePeers;
