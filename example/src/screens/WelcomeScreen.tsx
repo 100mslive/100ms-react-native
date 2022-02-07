@@ -360,7 +360,7 @@ const App = ({
     );
     saveUserDataRequest({
       userName: userID,
-      roomID: roomID,
+      roomID: roomID.replace('meeting', 'preview'),
       mirrorLocalVideo: !mirrorLocalVideo,
     });
     instance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
@@ -405,7 +405,7 @@ const App = ({
 
     saveUserDataRequest({
       userName: userID,
-      roomID: roomID,
+      roomID: roomID.replace('meeting', 'preview'),
       mirrorLocalVideo: !mirrorLocalVideo,
     });
     instance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
