@@ -653,16 +653,14 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
 
-        hms?.change(name: name, completion: { success, error in
+        hms?.change(name: name) { success, error in
             if success {
                 resolve?(["success": success])
-                return
             } else {
                 self.delegate?.emitEvent(self.ON_ERROR, ["event": self.ON_ERROR, "error": HmsDecoder.getError(error), "id": self.id])
                 reject?(error?.message, error?.localizedDescription, nil)
-                return
             }
-        })
+        }
     }
 
     // TODO: to be implemented after volume is exposed for iOS
