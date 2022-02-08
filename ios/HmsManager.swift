@@ -61,6 +61,20 @@ class HmsManager: RCTEventEmitter {
         let hms = HmsHelper.getHms(credentials, hmsCollection)
         hms?.preview(credentials)
     }
+    
+    @objc
+    func previewForRole(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HmsHelper.getHms(data, hmsCollection)
+
+        hms?.previewForRole(data, resolve, reject)
+    }
+    
+    @objc
+    func cancelPreview(_ data: NSDictionary) {
+        let hms = HmsHelper.getHms(data, hmsCollection)
+        
+        hms?.cancelPreview()
+    }
 
     @objc
     func join(_ credentials: NSDictionary) {

@@ -77,6 +77,37 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
             strongSelf.previewInProgress = true
         }
     }
+    
+    func previewForRole(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let role = data.value(forKey: "role") as? String
+        else {
+            let error = HMSError(id: "111", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
+            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id": id])
+            reject?(error.message, "FAILED_TO_INITIATE_PREVIEW_FOR_ROLE",nil)
+            return
+        }
+        
+        let roleObj = HmsHelper.getRoleFromRoleName(role, roles: hms?.roles)
+        
+        if let extractedRole = roleObj {
+            hms?.preview(role: extractedRole, completion: { tracks, error in
+                if (error != nil) {
+                    delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id": id])
+                    reject?(error?.message, error?.localizedDescription, nil)
+                    return
+                }
+                
+                let decodedTracks = HmsDecoder.getAllTracks(tracks ?? [])
+                
+                resolve?(["success": true, "tracks": decodedTracks])
+                return
+            })
+        }
+    }
+    
+    func cancelPreview() {
+        hms?.cancelPreview()
+    }
 
     func join(_ credentials: NSDictionary) {
 

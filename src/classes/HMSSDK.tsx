@@ -252,6 +252,19 @@ export class HMSSDK {
     HmsManager.preview({ ...config, id: this.id });
   };
 
+  previewForRole = async (role: HMSRole) => {
+    logger?.verbose('#Function previewForRole', {
+      role,
+      id: this.id,
+    });
+    if (Platform.OS === 'ios') {
+      return await HmsManager.previewForRole({ role: role?.name, id: this.id });
+    } else {
+      console.log('API currently not available for android');
+      return 'API currently not available for android';
+    }
+  };
+
   HmsView = ({
     sink,
     trackId,
@@ -524,7 +537,7 @@ export class HMSSDK {
     if (Platform.OS === 'android') {
       HmsManager.startScreenshare({ id: this.id });
     } else {
-      console.log('API currently not avaialble for iOS');
+      console.log('API currently not available for iOS');
     }
   };
 
@@ -533,8 +546,8 @@ export class HMSSDK {
     if (Platform.OS === 'android') {
       return await HmsManager.isScreenShared({ id: this.id });
     } else {
-      console.log('API currently not avaialble for iOS');
-      return 'API currently not avaialble for iOS';
+      console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
     }
   };
 
@@ -543,8 +556,8 @@ export class HMSSDK {
     if (Platform.OS === 'android') {
       return await HmsManager.stopScreenshare({ id: this.id });
     } else {
-      console.log('API currently not avaialble for iOS');
-      return 'API currently not avaialble for iOS';
+      console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
     }
   };
 
