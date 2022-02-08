@@ -258,6 +258,13 @@ class HmsManager: RCTEventEmitter {
 
         hms?.changeName(data, resolve, reject)
     }
+    
+    @objc
+    func enableRTCStats(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HmsHelper.getHms(data, hmsCollection)
+        
+        hms?.enableRTCStats(data, resolve, reject)
+    }
 
 //    @objc
 //    func setLocalVideoSettings(_ data: NSDictionary) {
