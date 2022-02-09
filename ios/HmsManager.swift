@@ -260,10 +260,17 @@ class HmsManager: RCTEventEmitter {
     }
     
     @objc
-    func enableRTCStats(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    func enableRTCStats(_ data: NSDictionary) {
         let hms = HmsHelper.getHms(data, hmsCollection)
         
-        hms?.enableRTCStats(data, resolve, reject)
+        hms?.enableRTCStats()
+    }
+    
+    @objc
+    func disableRTCStats(_ data: NSDictionary) {
+        let hms = HmsHelper.getHms(data, hmsCollection)
+        
+        hms?.disableRTCStats()
     }
 
 //    @objc

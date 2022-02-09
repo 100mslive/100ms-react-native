@@ -15,11 +15,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     var recentRoleChangeRequest: HMSRoleChangeRequest?
     var delegate: HmsManager?
     var id: String = "12345"
-    var rtcStatsAllowed: Bool = false
-    var localAudioStatsAllowed: Bool = false
-    var localVideoStatsAllowed: Bool = false
-    var remoteAudioStatsAllowed: Bool = false
-    var remoteVideoStatsAllowed: Bool = false
+    var rtcStatsAttached = false
 
     let ON_PREVIEW = "ON_PREVIEW"
     let ON_JOIN = "ON_JOIN"
@@ -673,19 +669,12 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
     
-    func enableRTCStats(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        guard let config = data.value(forKey: "config") as? NSDictionary
-        else {
-            let error = HMSError(id: "123", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
-            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id": id])
-            reject?(nil, "REQUIRED_KEYS_NOT_FOUND", nil)
-            return
-        }
-        rtcStatsAllowed = config.value(forKey: "rtcStatsAllowed") as? Bool ?? false
-        localAudioStatsAllowed = config.value(forKey: "localAudioStatsAllowed") as? Bool ?? false
-        localVideoStatsAllowed = config.value(forKey: "localVideoStatsAllowed") as? Bool ?? false
-        remoteAudioStatsAllowed = config.value(forKey: "remoteAudioStatsAllowed") as? Bool ?? false
-        remoteVideoStatsAllowed = config.value(forKey: "remoteVideoStatsAllowed") as? Bool ?? false
+    func enableRTCStats() {
+        rtcStatsAttached = true
+    }
+    
+    func disableRTCStats() {
+        rtcStatsAttached = false
     }
 
     // TODO: to be implemented after volume is exposed for iOS
@@ -820,7 +809,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     }
     
     func on(rtcStats: HMSRTCStatsReport) {
-        if (!rtcStatsAllowed) {
+        if (!rtcStatsAttached) {
             return
         }
         let video = HmsDecoder.getHMSRTCStats(rtcStats.video)
@@ -831,7 +820,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     }
     
     func on(localAudioStats: HMSLocalAudioStats, track: HMSLocalAudioTrack, peer: HMSPeer) {
-        if (!localAudioStatsAllowed) {
+        if (!rtcStatsAttached) {
             return
         }
         let localStats = HmsDecoder.getLocalAudioStats(localAudioStats)
@@ -842,7 +831,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     }
     
     func on(localVideoStats: HMSLocalVideoStats, track: HMSLocalVideoTrack, peer: HMSPeer) {
-        if (!localVideoStatsAllowed) {
+        if (!rtcStatsAttached) {
             return
         }
         let localStats = HmsDecoder.getLocalVideoStats(localVideoStats)
@@ -853,7 +842,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     }
     
     func on(remoteAudioStats: HMSRemoteAudioStats, track: HMSRemoteAudioTrack, peer: HMSPeer) {
-        if (!remoteAudioStatsAllowed) {
+        if (!rtcStatsAttached) {
             return
         }
         let remoteStats = HmsDecoder.getRemoteAudioStats(remoteAudioStats)
@@ -864,7 +853,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     }
     
     func on(remoteVideoStats: HMSRemoteVideoStats, track: HMSRemoteVideoTrack, peer: HMSPeer) {
-        if (!remoteVideoStatsAllowed) {
+        if (!rtcStatsAttached) {
             return
         }
         let remoteStats = HmsDecoder.getRemoteVideoStats(remoteVideoStats)

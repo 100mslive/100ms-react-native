@@ -28,7 +28,6 @@ import { HMSLocalAudioStats } from './HMSLocalAudioStats';
 import { HMSLocalVideoStats } from './HMSLocalVideoStats';
 import { HMSRemoteVideoStats } from './HMSRemoteVideoStats';
 import { HMSRemoteAudioStats } from './HMSRemoteAudioStats';
-import type { HMSRTCConfig } from './HMSRTCConfig';
 
 interface HmsComponentProps {
   trackId: string;
@@ -608,11 +607,18 @@ export class HMSSDK {
     }
   };
 
-  enableRTCStats = async (config: HMSRTCConfig) => {
-    logger?.verbose('#Function enableRTCStats', config);
-
+  enableRTCStats = () => {
     if (Platform.OS === 'ios') {
-      return await HmsManager.enableRTCStats({ id: this.id, config });
+      HmsManager.enableRTCStats({ id: this.id });
+    } else {
+      console.log('API currently not avaialble for android');
+      return 'API currently not avaialble for android';
+    }
+  };
+
+  disableRTCStats = () => {
+    if (Platform.OS === 'ios') {
+      HmsManager.disableRTCStats({ id: this.id });
     } else {
       console.log('API currently not avaialble for android');
       return 'API currently not avaialble for android';
