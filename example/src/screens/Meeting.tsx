@@ -1345,7 +1345,6 @@ const Meeting = ({
   const onViewRef = React.useRef(({viewableItems}: any) => {
     if (viewableItems) {
       const viewableItemsIds: (string | undefined)[] = [];
-      const viewablePeerIds: (string | undefined)[] = [];
       viewableItems.map(
         (viewableItem: {
           index: number;
@@ -1355,11 +1354,9 @@ const Meeting = ({
         }) => {
           viewableItem?.item?.map((item: Peer) => {
             viewableItemsIds.push(item?.trackId);
-            viewablePeerIds.push(item?.id);
           });
         },
       );
-      peerListViewport = viewablePeerIds;
 
       const inst = hmsInstance;
       const remotePeers = inst?.remotePeers;
@@ -1439,6 +1436,13 @@ const Meeting = ({
 
   if (page + 1 > pairedPeers.length) {
     flatlistRef?.current?.scrollToEnd();
+  } else {
+    let arr = [];
+    let pageNumber = parseInt(page.toString(), 10);
+    for (let i = 0; i < pairedPeers[pageNumber].length; i++) {
+      arr.push(pairedPeers[pageNumber][i]?.id);
+    }
+    peerListViewport = arr;
   }
 
   const fetchZoomableId = (id: string): boolean => {
