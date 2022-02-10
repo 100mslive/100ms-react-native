@@ -301,7 +301,7 @@ class HmsModule(reactContext: ReactApplicationContext) :
           }
         }
         currentActivity?.application?.unregisterActivityLifecycleCallbacks(this)
-        hmsCollection = mutableMapOf<String, HmsSDK>()
+        hmsCollection = mutableMapOf()
       }
     } catch (e: Exception) {
       //      Log.d("error", e.message)
