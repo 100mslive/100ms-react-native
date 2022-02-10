@@ -1,6 +1,5 @@
 import React, {useState, useEffect} from 'react';
 import {
-  StyleSheet,
   View,
   TextInput,
   Text,
@@ -46,16 +45,17 @@ import {getModel} from 'react-native-device-info';
 import RNFetchBlob from 'rn-fetch-blob';
 import {getVersion} from 'react-native-device-info';
 
-import * as services from '../services/index';
-import {UserIdModal, PreviewModal, AlertModal} from '../components';
+import * as services from '../../services/index';
+import {UserIdModal, PreviewModal, AlertModal} from '../../components';
 import {
   setAudioVideoState,
   saveUserData,
   updateHmsReference,
-} from '../redux/actions/index';
-import {getThemeColour, writeFile} from '../utils/functions';
-import type {AppStackParamList} from '../navigator';
-import type {RootState} from '../redux';
+} from '../../redux/actions/index';
+import {writeFile} from '../../utils/functions';
+import {styles} from './styles';
+import type {AppStackParamList} from '../../navigator';
+import type {RootState} from '../../redux';
 
 type WelcomeProps = {
   setAudioVideoStateRequest: Function;
@@ -512,7 +512,7 @@ const App = ({
         buttons={getSettingButtons()}
       />
       <View style={styles.headerContainer}>
-        <Image style={styles.image} source={require('../assets/icon.png')} />
+        <Image style={styles.image} source={require('../../assets/icon.png')} />
         <Text style={styles.logo}>100ms</Text>
         <TouchableOpacity
           onPress={() => {
@@ -649,142 +649,6 @@ const App = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    backgroundColor: 'white',
-    justifyContent: 'space-between',
-  },
-  headerContainer: {
-    marginTop: Platform.OS === 'ios' ? 50 : 20,
-    width: '85%',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  logo: {
-    fontWeight: '700',
-    color: getThemeColour(),
-    fontSize: 44,
-  },
-  image: {
-    width: 60,
-    height: 60,
-  },
-  heading: {
-    textAlign: 'center',
-    paddingTop: 10,
-    paddingBottom: 10,
-    fontSize: 20,
-    fontWeight: '500',
-    color: getThemeColour(),
-  },
-  box: {
-    width: '100%',
-    height: '100%',
-    marginVertical: 20,
-  },
-  inputContainer: {
-    width: '80%',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: 'black',
-    paddingLeft: 10,
-    minHeight: 32,
-    color: getThemeColour(),
-    paddingRight: 40,
-  },
-  joinButtonContainer: {
-    padding: 12,
-    marginTop: 20,
-    backgroundColor: getThemeColour(),
-    borderRadius: 15,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  videoIcon: {
-    color: 'white',
-    marginRight: 8,
-  },
-  joinButtonText: {
-    textAlign: 'center',
-    color: 'white',
-    fontSize: 20,
-    paddingRight: 8,
-  },
-  iconContainers: {
-    display: 'flex',
-    flexDirection: 'row',
-    position: 'absolute',
-    justifyContent: 'space-around',
-    bottom: 0,
-    paddingBottom: 26,
-    width: '100%',
-    left: 0,
-    right: 0,
-    zIndex: 500,
-  },
-  buttonText: {
-    backgroundColor: getThemeColour(),
-    padding: 10,
-    borderRadius: 10,
-    color: '#efefef',
-  },
-
-  leaveButtonText: {
-    padding: 10,
-    borderRadius: 10,
-    color: '#efefef',
-    backgroundColor: '#de4578',
-  },
-  videoView: {
-    width: '100%',
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    flexWrap: 'wrap',
-  },
-  singleVideo: {
-    flex: 1,
-    width: '100%',
-    height: '50%',
-  },
-  hmsView: {
-    height: '100%',
-    width: '100%',
-  },
-  localVideo: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    width: 200,
-    height: 500,
-  },
-  settingsIcon: {
-    color: getThemeColour(),
-  },
-  settingsIconContainer: {
-    position: 'absolute',
-    right: 0,
-    top: 0,
-    padding: 10,
-  },
-  appVersion: {
-    alignSelf: 'center',
-    paddingTop: 10,
-    fontSize: 20,
-    color: getThemeColour(),
-  },
-  clear: {
-    position: 'absolute',
-    right: 5,
-    height: '100%',
-    justifyContent: 'center',
-  },
-});
 
 const mapDispatchToProps = (dispatch: Function) => ({
   setAudioVideoStateRequest: (data: {
