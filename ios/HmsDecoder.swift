@@ -121,17 +121,25 @@ class HmsDecoder: NSObject {
 
         var localAudioTrackData = [String: Any]()
         if let localAudio = localAudioTrack {
-            let type = HmsHelper.getHmsTrackType(localAudio.kind) ?? ""
-            localAudioTrackData = ["trackId": localAudio.trackId, "source": localAudio.source, "trackDescription": localAudio.trackDescription, "settings": getHmsAudioTrackSettings(localAudio.settings), "isMute": localAudioTrack?.isMute() ?? false, "type": type, "kind": type]
+            localAudioTrackData = getHmsLocalAudioTrack(localAudio)
         }
 
         var localVideoTrackData = [String: Any]()
         if let localVideo = localVideoTrack {
-            let type = HmsHelper.getHmsTrackType(localVideo.kind) ?? ""
-            localVideoTrackData = ["trackId": localVideo.trackId, "source": localVideo.source, "trackDescription": localVideo.trackDescription, "settings": getHmsVideoTrackSettings(localVideo.settings), "isMute": localAudioTrack?.isMute() ?? false, "type": type, "kind": type]
+            localVideoTrackData = getHmsLocalVideoTrack(localVideo)
         }
 
         return ["peerID": peerID, "name": name, "isLocal": isLocal, "customerUserID": customerUserID, "customerDescription": customerDescription, "metadata": metadata, "audioTrack": audioTrack, "videoTrack": videoTrack, "auxiliaryTracks": auxiliaryTracks, "localAudioTrackData": localAudioTrackData, "localVideoTrackData": localVideoTrackData, "role": role]
+    }
+    
+    static func getHmsLocalAudioTrack(_ localAudio: HMSLocalAudioTrack) -> [String: Any] {
+        let type = HmsHelper.getHmsTrackType(localAudio.kind) ?? ""
+        return ["trackId": localAudio.trackId, "source": localAudio.source, "trackDescription": localAudio.trackDescription, "settings": getHmsAudioTrackSettings(localAudio.settings), "isMute": localAudio.isMute(), "type": type, "kind": type]
+    }
+    
+    static func getHmsLocalVideoTrack(_ localVideo: HMSLocalVideoTrack) -> [String: Any] {
+        let type = HmsHelper.getHmsTrackType(localVideo.kind) ?? ""
+        return ["trackId": localVideo.trackId, "source": localVideo.source, "trackDescription": localVideo.trackDescription, "settings": getHmsVideoTrackSettings(localVideo.settings), "isMute": localVideo.isMute(), "type": type, "kind": type]
     }
 
     static func getHmsAudioTrackSettings(_ hmsAudioTrackSettings: HMSAudioTrackSettings?) -> [String: Any] {
@@ -232,17 +240,25 @@ class HmsDecoder: NSObject {
 
         var remoteAudioTrackData = [String: Any]()
         if let remoteAudio = remoteAudioTrack {
-            let type = HmsHelper.getHmsTrackType(remoteAudio.kind) ?? ""
-            remoteAudioTrackData = ["trackId": remoteAudio.trackId, "source": remoteAudio.source, "trackDescription": remoteAudio.trackDescription, "playbackAllowed": remoteAudio.isPlaybackAllowed(), "isMute": remoteAudio.isMute(), "type": type, "kind": type]
+            remoteAudioTrackData = getHMSRemoteAudioTrack(remoteAudio)
         }
 
         var remoteVideoTrackData = [String: Any]()
         if let remoteVideo = remoteVideoTrack {
-            let type = HmsHelper.getHmsTrackType(remoteVideo.kind) ?? ""
-            remoteVideoTrackData = ["trackId": remoteVideo.trackId, "source": remoteVideo.source, "trackDescription": remoteVideo.trackDescription, "layer": remoteVideo.layer.rawValue, "playbackAllowed": remoteVideo.isPlaybackAllowed(), "isMute": remoteVideo.isMute(), "isDegraded": remoteVideo.isDegraded(), "type": type, "kind": type]
+            remoteVideoTrackData = getHMSRemoteVideoTrack(remoteVideo)
         }
 
         return ["peerID": peerID, "name": name, "isLocal": isLocal, "customerUserID": customerUserID, "customerDescription": customerDescription, "metadata": metadata, "audioTrack": audioTrack, "videoTrack": videoTrack, "auxiliaryTracks": auxiliaryTracks, "remoteAudioTrackData": remoteAudioTrackData, "remoteVideoTrackData": remoteVideoTrackData, "role": role]
+    }
+    
+    static func getHMSRemoteAudioTrack(_ remoteAudio: HMSRemoteAudioTrack) -> [String: Any] {
+        let type = HmsHelper.getHmsTrackType(remoteAudio.kind) ?? ""
+        return ["trackId": remoteAudio.trackId, "source": remoteAudio.source, "trackDescription": remoteAudio.trackDescription, "playbackAllowed": remoteAudio.isPlaybackAllowed(), "isMute": remoteAudio.isMute(), "type": type, "kind": type]
+    }
+    
+    static func getHMSRemoteVideoTrack(_ remoteVideo: HMSRemoteVideoTrack) -> [String: Any] {
+        let type = HmsHelper.getHmsTrackType(remoteVideo.kind) ?? ""
+        return ["trackId": remoteVideo.trackId, "source": remoteVideo.source, "trackDescription": remoteVideo.trackDescription, "layer": remoteVideo.layer.rawValue, "playbackAllowed": remoteVideo.isPlaybackAllowed(), "isMute": remoteVideo.isMute(), "isDegraded": remoteVideo.isDegraded(), "type": type, "kind": type]
     }
 
     static func getPreviewTracks(_ tracks: [HMSTrack]) -> [String: Any] {
@@ -527,5 +543,25 @@ class HmsDecoder: NSObject {
             }
         }
         return variants
+    }
+    
+    static func getHMSRTCStats(_ data: HMSRTCStats) -> [String: Any] {
+        return ["bitrateReceived": data.bitrateReceived, "bitrateSent": data.bitrateSent, "bytesReceived": data.bytesReceived, "bytesSent": data.bytesSent, "packetsLost": data.packetsLost, "packetsReceived": data.packetsReceived, "roundTripTime": data.roundTripTime]
+    }
+    
+    static func getLocalAudioStats(_ data: HMSLocalAudioStats) -> [String: Any] {
+        return ["roundTripTime": data.roundTripTime, "bytesSent": data.bytesSent, "bitrate": data.bitrate]
+    }
+    
+    static func getLocalVideoStats(_ data: HMSLocalVideoStats) -> [String: Any] {
+        return ["roundTripTime": data.roundTripTime, "bytesSent": data.bytesSent, "bitrate": data.bitrate, "resolution": HmsDecoder.getHmsVideoResolution(data.resolution), "frameRate": data.frameRate]
+    }
+    
+    static func getRemoteAudioStats(_ data: HMSRemoteAudioStats) -> [String: Any] {
+        return ["bitrate": data.bitrate, "packetsReceived": data.packetsReceived, "packetsLost": data.packetsLost, "bytesReceived": data.bytesReceived, "jitter": data.jitter]
+    }
+    
+    static func getRemoteVideoStats(_ data: HMSRemoteVideoStats) -> [String: Any] {
+        return ["bitrate": data.bitrate, "packetsReceived": data.packetsReceived, "packetsLost": data.packetsLost, "bytesReceived": data.bytesReceived, "jitter": data.jitter, "resolution": HmsDecoder.getHmsVideoResolution(data.resolution), "frameRate": data.frameRate]
     }
 }

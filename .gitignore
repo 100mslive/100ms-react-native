@@ -59,8 +59,9 @@ lib/
 .project
 
 example/ios/fastlane
-example/ios/GoogleService-Info.plist
+example/ios/RNHMSExample/GoogleService-Info.plist
 example/android/fastlane
 example/android/app/google-services.json
+example/setupFirebase.js
 *.p8
 *.keystore

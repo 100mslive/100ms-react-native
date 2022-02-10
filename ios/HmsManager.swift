@@ -18,6 +18,11 @@ class HmsManager: RCTEventEmitter {
     let ON_SPEAKER = "ON_SPEAKER"
     let RECONNECTING = "RECONNECTING"
     let RECONNECTED = "RECONNECTED"
+    let ON_RTC_STATS = "ON_RTC_STATS"
+    let ON_LOCAL_AUDIO_STATS = "ON_LOCAL_AUDIO_STATS"
+    let ON_LOCAL_VIDEO_STATS = "ON_LOCAL_VIDEO_STATS"
+    let ON_REMOTE_AUDIO_STATS = "ON_REMOTE_AUDIO_STATS"
+    let ON_REMOTE_VIDEO_STATS = "ON_REMOTE_VIDEO_STATS"
 
     // MARK: - Setup
 
@@ -30,7 +35,7 @@ class HmsManager: RCTEventEmitter {
    }
     
     override func supportedEvents() -> [String]! {
-        return [ON_JOIN, ON_PREVIEW, ON_ROOM_UPDATE, ON_PEER_UPDATE, ON_TRACK_UPDATE, ON_ERROR, ON_MESSAGE, ON_SPEAKER, RECONNECTING, RECONNECTED, ON_ROLE_CHANGE_REQUEST, ON_CHANGE_TRACK_STATE_REQUEST, ON_REMOVED_FROM_ROOM]
+        return [ON_JOIN, ON_PREVIEW, ON_ROOM_UPDATE, ON_PEER_UPDATE, ON_TRACK_UPDATE, ON_ERROR, ON_MESSAGE, ON_SPEAKER, RECONNECTING, RECONNECTED, ON_ROLE_CHANGE_REQUEST, ON_CHANGE_TRACK_STATE_REQUEST, ON_REMOVED_FROM_ROOM, ON_RTC_STATS, ON_LOCAL_AUDIO_STATS, ON_LOCAL_VIDEO_STATS, ON_REMOTE_AUDIO_STATS, ON_REMOTE_VIDEO_STATS]
     }
 
     // MARK: - HMS SDK Actions
@@ -266,6 +271,20 @@ class HmsManager: RCTEventEmitter {
         let hms = HmsHelper.getHms(data, hmsCollection)
 
         hms?.changeName(data, resolve, reject)
+    }
+    
+    @objc
+    func enableRTCStats(_ data: NSDictionary) {
+        let hms = HmsHelper.getHms(data, hmsCollection)
+        
+        hms?.enableRTCStats()
+    }
+    
+    @objc
+    func disableRTCStats(_ data: NSDictionary) {
+        let hms = HmsHelper.getHms(data, hmsCollection)
+        
+        hms?.disableRTCStats()
     }
 
 //    @objc

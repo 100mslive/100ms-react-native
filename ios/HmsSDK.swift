@@ -15,6 +15,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     var recentRoleChangeRequest: HMSRoleChangeRequest?
     var delegate: HmsManager?
     var id: String = "12345"
+    var rtcStatsAttached = false
 
     let ON_PREVIEW = "ON_PREVIEW"
     let ON_JOIN = "ON_JOIN"
@@ -28,6 +29,11 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     let ON_SPEAKER = "ON_SPEAKER"
     let RECONNECTING = "RECONNECTING"
     let RECONNECTED = "RECONNECTED"
+    let ON_RTC_STATS = "ON_RTC_STATS"
+    let ON_LOCAL_AUDIO_STATS = "ON_LOCAL_AUDIO_STATS"
+    let ON_LOCAL_VIDEO_STATS = "ON_LOCAL_VIDEO_STATS"
+    let ON_REMOTE_AUDIO_STATS = "ON_REMOTE_AUDIO_STATS"
+    let ON_REMOTE_VIDEO_STATS = "ON_REMOTE_VIDEO_STATS"
 
     // MARK: - Setup
 
@@ -693,6 +699,14 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
             }
         }
     }
+    
+    func enableRTCStats() {
+        rtcStatsAttached = true
+    }
+    
+    func disableRTCStats() {
+        rtcStatsAttached = false
+    }
 
     // TODO: to be implemented after volume is exposed for iOS
 //    func getVolume(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
@@ -823,6 +837,61 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         let reason = notification.reason
         let roomEnded = notification.roomEnded
         self.delegate?.emitEvent(ON_REMOVED_FROM_ROOM, ["event": ON_REMOVED_FROM_ROOM, "id": self.id, "requestedBy": decodedRequestedBy as Any, "reason": reason, "roomEnded": roomEnded ])
+    }
+    
+    func on(rtcStats: HMSRTCStatsReport) {
+        if (!rtcStatsAttached) {
+            return
+        }
+        let video = HmsDecoder.getHMSRTCStats(rtcStats.video)
+        let audio = HmsDecoder.getHMSRTCStats(rtcStats.audio)
+        let combined = HmsDecoder.getHMSRTCStats(rtcStats.combined)
+        
+        self.delegate?.emitEvent(ON_RTC_STATS, ["video": video, "audio": audio, "combined": combined, "id": self.id])
+    }
+    
+    func on(localAudioStats: HMSLocalAudioStats, track: HMSLocalAudioTrack, peer: HMSPeer) {
+        if (!rtcStatsAttached) {
+            return
+        }
+        let localStats = HmsDecoder.getLocalAudioStats(localAudioStats)
+        let localTrack = HmsDecoder.getHmsLocalAudioTrack(track)
+        let decodedPeer = HmsDecoder.getHmsPeer(peer)
+        
+        self.delegate?.emitEvent(ON_LOCAL_AUDIO_STATS, ["localAudioStats": localStats, "track": localTrack, "peer": decodedPeer, "id": self.id])
+    }
+    
+    func on(localVideoStats: HMSLocalVideoStats, track: HMSLocalVideoTrack, peer: HMSPeer) {
+        if (!rtcStatsAttached) {
+            return
+        }
+        let localStats = HmsDecoder.getLocalVideoStats(localVideoStats)
+        let decodedPeer = HmsDecoder.getHmsPeer(peer)
+        let localTrack = HmsDecoder.getHmsLocalVideoTrack(track)
+        
+        self.delegate?.emitEvent(ON_LOCAL_VIDEO_STATS, ["localVideoStats": localStats, "track": localTrack, "peer": decodedPeer, "id": self.id])
+    }
+    
+    func on(remoteAudioStats: HMSRemoteAudioStats, track: HMSRemoteAudioTrack, peer: HMSPeer) {
+        if (!rtcStatsAttached) {
+            return
+        }
+        let remoteStats = HmsDecoder.getRemoteAudioStats(remoteAudioStats)
+        let remoteTrack = HmsDecoder.getHMSRemoteAudioTrack(track)
+        let decodedPeer = HmsDecoder.getHmsPeer(peer)
+        
+        self.delegate?.emitEvent(ON_REMOTE_AUDIO_STATS, ["remoteAudioStats": remoteStats, "track": remoteTrack, "peer": decodedPeer, "id": self.id])
+    }
+    
+    func on(remoteVideoStats: HMSRemoteVideoStats, track: HMSRemoteVideoTrack, peer: HMSPeer) {
+        if (!rtcStatsAttached) {
+            return
+        }
+        let remoteStats = HmsDecoder.getRemoteVideoStats(remoteVideoStats)
+        let decodedPeer = HmsDecoder.getHmsPeer(peer)
+        let remoteTrack = HmsDecoder.getHMSRemoteVideoTrack(track)
+        
+        self.delegate?.emitEvent(ON_REMOTE_VIDEO_STATS, ["remoteVideoStats": remoteStats, "track": remoteTrack, "peer": decodedPeer, "id": self.id])
     }
 
     // MARK: Helper Functions
