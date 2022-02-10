@@ -51,6 +51,12 @@ export * from './classes/HMSHLSMeetingURLVariant';
 export * from './classes/HMSHLSVariant';
 export * from './classes/HMSHLSStreamingState';
 export * from './classes/HMSVideoResolution';
+export * from './classes/HMSLocalAudioStats';
+export * from './classes/HMSLocalVideoStats';
+export * from './classes/HMSRTCStats';
+export * from './classes/HMSRTCStatsReport';
+export * from './classes/HMSRemoteAudioStats';
+export * from './classes/HMSRemoteVideoStats';
 
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
 export default HmsManager;

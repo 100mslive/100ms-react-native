@@ -31,4 +31,6 @@ RCT_EXTERN_METHOD(stopRtmpAndRecording: (NSDictionary) data :(RCTPromiseResolveB
 RCT_EXTERN_METHOD(startHLSStreaming: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(stopHLSStreaming: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(changeName: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(enableRTCStats: (NSDictionary) data)
+RCT_EXTERN_METHOD(disableRTCStats: (NSDictionary) data)
 @end
