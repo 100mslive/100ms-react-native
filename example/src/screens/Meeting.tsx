@@ -36,6 +36,15 @@ import {
   HMSRTMPConfig,
   HMSHLSMeetingURLVariant,
   HMSHLSConfig,
+  HMSLocalAudioTrack,
+  HMSLocalAudioStats,
+  HMSLocalVideoStats,
+  HMSRTCStatsReport,
+  HMSLocalVideoTrack,
+  HMSRemoteAudioStats,
+  HMSRemoteAudioTrack,
+  HMSRemoteVideoStats,
+  HMSRemoteVideoTrack,
 } from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
@@ -108,6 +117,8 @@ type DisplayTrackProps = {
   layout?: LayoutParams;
   mirrorLocalVideo?: boolean;
   setChangeNameModal?: Function;
+  statsForNerds?: boolean;
+  rtcStats?: HMSRTCStatsReport;
 };
 
 type MeetingProps = {
@@ -146,6 +157,7 @@ const DisplayTrack = ({
   layout,
   mirrorLocalVideo,
   setChangeNameModal,
+  statsForNerds,
 }: DisplayTrackProps) => {
   const {
     name,
@@ -446,6 +458,35 @@ const DisplayTrack = ({
           onItemSelected={setNewRole}
         />
       </CustomModal>
+      {statsForNerds && (
+        <View style={styles.statsContainer}>
+          {type === 'local' ? (
+            <View>
+              <Text style={styles.statsText}>
+                Bitrate(A) = {localAudioStats?.bitrate}
+              </Text>
+              <Text style={styles.statsText}>
+                Bitrate(V) = {localVideoStats?.bitrate}
+              </Text>
+            </View>
+          ) : (
+            <View>
+              <Text style={styles.statsText}>
+                Bitrate(A) = {remoteAudioStats[id!]?.bitrate}
+              </Text>
+              <Text style={styles.statsText}>
+                Bitrate(V) = {remoteVideoStats[id!]?.bitrate}
+              </Text>
+              <Text style={styles.statsText}>
+                Jitter(A) = {remoteAudioStats[id!]?.jitter}
+              </Text>
+              <Text style={styles.statsText}>
+                Jitter(V) = {remoteVideoStats[id!]?.jitter}
+              </Text>
+            </View>
+          )}
+        </View>
+      )}
       {isVideoMute || layout === 'audio' ? (
         <View style={styles.avatarContainer}>
           <View style={[styles.avatar, {backgroundColor: colour}]}>
@@ -534,6 +575,10 @@ const DisplayTrack = ({
 
 let peerListViewport: (string | undefined)[] = [];
 let recentSpeakers: Array<string> = [];
+let remoteAudioStats: any = {};
+let remoteVideoStats: any = {};
+let localAudioStats: HMSLocalAudioStats = {};
+let localVideoStats: HMSLocalVideoStats = {};
 
 const Meeting = ({
   messages,
@@ -571,6 +616,7 @@ const Meeting = ({
       : '',
     rtmpURLs: [],
   });
+  const [rtcStats, setRtcStats] = useState<HMSRTCStatsReport>();
   const [hlsStreamingDetails, setHLSStreamingDetails] =
     useState<HMSHLSMeetingURLVariant>({
       meetingUrl: state.user.roomID
@@ -592,6 +638,7 @@ const Meeting = ({
   const [zoomableModal, setZoomableModal] = useState(false);
   var doublePress = 0;
   const [changeNameModal, setChangeNameModal] = useState(false);
+  const [statsForNerds, setStatsForNerds] = useState(false);
 
   const roleChangeRequestTitle = layoutModal
     ? 'Layout Modal'
@@ -1012,6 +1059,42 @@ const Meeting = ({
     }
   };
 
+  const onChangeLocalAudioStats = (data: {
+    localAudioStats: HMSLocalAudioStats;
+    track: HMSLocalAudioTrack;
+    peer: HMSPeer;
+  }) => {
+    localAudioStats = data.localAudioStats;
+  };
+
+  const onChangeLocalVideoStats = (data: {
+    localVideoStats: HMSLocalVideoStats;
+    track: HMSLocalVideoTrack;
+    peer: HMSPeer;
+  }) => {
+    localVideoStats = data.localVideoStats;
+  };
+
+  const onChangeRtcStats = (data: {rtcStats: HMSRTCStatsReport}) => {
+    setRtcStats(data.rtcStats);
+  };
+
+  const onChangeRemoteAudioStats = (data: {
+    remoteAudioStats: HMSRemoteAudioStats;
+    track: HMSRemoteAudioTrack;
+    peer: HMSPeer;
+  }) => {
+    remoteAudioStats[data.peer.peerID] = data.remoteAudioStats;
+  };
+
+  const onChangeRemoteVideoStats = (data: {
+    remoteVideoStats: HMSRemoteVideoStats;
+    track: HMSRemoteVideoTrack;
+    peer: HMSPeer;
+  }) => {
+    remoteVideoStats[data.peer.peerID] = data.remoteVideoStats;
+  };
+
   const onRemovedFromRoom = (data: any) => {
     console.log('data in onRemovedFromRoom: ', data);
     clearMessageRequest();
@@ -1060,6 +1143,26 @@ const Meeting = ({
     hms?.addEventListener(
       HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST,
       onChangeTrackStateRequest,
+    );
+    hms?.addEventListener(
+      HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS,
+      onChangeLocalAudioStats,
+    );
+    hms?.addEventListener(
+      HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS,
+      onChangeLocalVideoStats,
+    );
+    hms?.addEventListener(
+      HMSUpdateListenerActions.ON_RTC_STATS,
+      onChangeRtcStats,
+    );
+    hms?.addEventListener(
+      HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS,
+      onChangeRemoteAudioStats,
+    );
+    hms?.addEventListener(
+      HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS,
+      onChangeRemoteVideoStats,
     );
   };
 
@@ -1219,6 +1322,21 @@ const Meeting = ({
           },
         ],
       );
+    } else {
+      buttons.push({
+        text: statsForNerds
+          ? 'Disable Stats For Nerds'
+          : 'Enable Stats For Nerds',
+        onPress: () => {
+          if (statsForNerds) {
+            instance?.disableRTCStats();
+            setStatsForNerds(false);
+          } else {
+            instance?.enableRTCStats();
+            setStatsForNerds(true);
+          }
+        },
+      });
     }
     if (localPeerPermissions?.mute) {
       buttons.push(
@@ -1763,6 +1881,8 @@ const Meeting = ({
                           layout={layout}
                           mirrorLocalVideo={state.user.mirrorLocalVideo}
                           setChangeNameModal={setChangeNameModal}
+                          statsForNerds={statsForNerds}
+                          rtcStats={rtcStats}
                         />
                       )),
                   )}
@@ -2242,6 +2362,18 @@ const styles = StyleSheet.create({
   },
   brbOn: {
     color: 'white',
+  },
+  statsContainer: {
+    position: 'absolute',
+    zIndex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    padding: 5,
+    borderRadius: 10,
+    margin: 1,
+  },
+  statsText: {
+    color: 'white',
+    fontSize: 16,
   },
 });
 
