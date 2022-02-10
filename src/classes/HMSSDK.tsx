@@ -1084,12 +1084,12 @@ export class HMSSDK {
 
     logger?.verbose('#Listener onLocalVideoStatsListener', data);
 
-    let localAudioStats = new HMSLocalVideoStats(data.localVideoStats);
+    let localVideoStats = new HMSLocalVideoStats(data.localVideoStats);
     let peer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
-    let track = HMSEncoder.encodeHmsLocalAudioTrack(data.track, this.id);
+    let track = HMSEncoder.encodeHmsLocalVideoTrack(data.track, this.id);
 
     if (this.onLocalVideoStatsDelegate) {
-      this.onLocalVideoStatsDelegate({ ...data, localAudioStats, peer, track });
+      this.onLocalVideoStatsDelegate({ ...data, localVideoStats, peer, track });
     }
   };
 

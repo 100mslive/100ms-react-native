@@ -17,6 +17,8 @@ import { HMSChangeTrackStateRequest } from './HMSChangeTrackStateRequest';
 import { HMSVideoResolution } from './HMSVideoResolution';
 import { HMSRTCStats } from './HMSRTCStats';
 import { HMSRTCStatsReport } from './HMSRTCStatsReport';
+import { HMSRemoteAudioTrack } from './HMSRemoteAudioTrack';
+import { HMSRemoteVideoTrack } from './HMSRemoteVideoTrack';
 
 export class HMSEncoder {
   static encodeHmsRoom(room: HMSRoom, id: string) {
@@ -272,7 +274,7 @@ export class HMSEncoder {
       playbackAllowed: track?.playbackAllowed,
     };
 
-    return new HMSLocalAudioTrack(encodedObj);
+    return new HMSRemoteAudioTrack(encodedObj);
   }
 
   static encodeHmsRemoteVideoTrack(track: any, id: string) {
@@ -286,7 +288,7 @@ export class HMSEncoder {
       playbackAllowed: track?.playbackAllowed,
     };
 
-    return new HMSLocalVideoTrack(encodedObj);
+    return new HMSRemoteVideoTrack(encodedObj);
   }
 
   static encodeHmsPreviewTracks(previewTracks: any) {
