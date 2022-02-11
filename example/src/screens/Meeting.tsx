@@ -1016,7 +1016,6 @@ const Meeting = ({
       }
     });
     if (updateSpeekerList) {
-      console.error(peerListViewport, peerIds, recentSpeakers);
       setSpeakers(peerIds || []);
       recentSpeakers = peerIds || [];
     }
@@ -1846,10 +1845,8 @@ const Meeting = ({
                         <View style={styles.flex} key={view?.id}>
                           <TouchableWithoutFeedback
                             onPress={() => {
-                              console.log('Single Tap');
                               doublePress++;
                               if (doublePress === 2) {
-                                console.log('Double Tap');
                                 doublePress = 0;
                                 setZoomableModal(true);
                                 setZoomableTrackId(view.trackId!);
