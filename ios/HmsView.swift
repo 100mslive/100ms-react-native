@@ -62,26 +62,37 @@ class HmssdkDisplayView: UIView {
 
             guard let hmsSDK = hmsCollection[sdkID]?.hms,
                   let trackID = data.value(forKey: "trackId") as? String,
-                  let videoTrack = HMSUtilities.getVideoTrack(for: trackID, in: hmsSDK.room!),
                   let sink = data.value(forKey: "sink") as? Bool
             else {
                 print(#function, "Required data to setup video view not found")
                 return
             }
-
-            sinkVideo = sink
-
-            let mirror = data.value(forKey: "mirror") as? Bool
-            if mirror != nil {
-                videoView.mirror = mirror!
+            
+            var videoTrack = HMSUtilities.getVideoTrack(for: trackID, in: hmsSDK.room!)
+            
+            if videoTrack == nil {
+                for track in hmsCollection[sdkID]?.recentPreviewTracks ?? [] {
+                    if track.trackId == trackID && track.kind == HMSTrackKind.video {
+                        videoTrack = track as? HMSVideoTrack
+                    }
+                }
             }
+            
+            if videoTrack != nil {
+                sinkVideo = sink
 
-            if !sinked && sinkVideo {
-                videoView.setVideoTrack(videoTrack)
-                sinked = true
-            } else if !sinkVideo {
-                videoView.setVideoTrack(nil)
-                sinked = false
+                let mirror = data.value(forKey: "mirror") as? Bool
+                if mirror != nil {
+                    videoView.mirror = mirror!
+                }
+
+                if !sinked && sinkVideo {
+                    videoView.setVideoTrack(videoTrack)
+                    sinked = true
+                } else if !sinkVideo {
+                    videoView.setVideoTrack(nil)
+                    sinked = false
+                }
             }
         }
     }

@@ -16,6 +16,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     var delegate: HmsManager?
     var id: String = "12345"
     var rtcStatsAttached = false
+    var recentPreviewTracks: [HMSTrack]? = []
 
     let ON_PREVIEW = "ON_PREVIEW"
     let ON_JOIN = "ON_JOIN"
@@ -102,6 +103,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
                     reject?(error?.message, error?.localizedDescription, nil)
                     return
                 }
+                self.recentPreviewTracks = tracks
                 
                 let decodedTracks = HmsDecoder.getAllTracks(tracks ?? [])
                 
@@ -112,6 +114,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     }
     
     func cancelPreview() {
+        self.recentPreviewTracks = []
         hms?.cancelPreview()
     }
 
@@ -285,7 +288,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
                     reject?(error?.message, error?.localizedDescription, nil)
                 }
             })
-
+            self.recentPreviewTracks = []
             self?.recentRoleChangeRequest = nil
         }
     }
@@ -743,7 +746,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         let remotePeerData = HmsDecoder.getHmsRemotePeers(hms?.remotePeers)
 
         let decodedRoles = HmsDecoder.getAllRoles(hms?.roles)
-
+        self.recentPreviewTracks = []
         self.delegate?.emitEvent(ON_JOIN, ["event": ON_JOIN, "id": self.id, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData, "roles": decodedRoles])
     }
 
