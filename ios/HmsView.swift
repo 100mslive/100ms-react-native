@@ -93,6 +93,9 @@ class HmssdkDisplayView: UIView {
                     videoView.setVideoTrack(nil)
                     sinked = false
                 }
+            } else {
+                print(#function, "Required data to setup video view not found")
+                return
             }
         }
     }
