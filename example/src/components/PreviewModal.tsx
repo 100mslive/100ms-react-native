@@ -141,6 +141,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: '10%',
     width: '100%',
+    zIndex: 99,
   },
   iconContainer: {
     width: '100%',
