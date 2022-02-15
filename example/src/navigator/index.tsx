@@ -2,7 +2,7 @@ import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 import {NavigationContainer} from '@react-navigation/native';
 import WelcomeScreen from '../screens/WelcomeScreen';
-import Meeting from '../screens/Meeting';
+import Meeting from '../screens/MeetingScreen';
 
 export type AppStackParamList = {
   AppWelcomeScreen: undefined;
