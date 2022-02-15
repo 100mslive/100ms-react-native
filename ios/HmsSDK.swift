@@ -16,6 +16,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     var delegate: HmsManager?
     var id: String = "12345"
     var rtcStatsAttached = false
+    var recentPreviewTracks: [HMSTrack]? = []
 
     let ON_PREVIEW = "ON_PREVIEW"
     let ON_JOIN = "ON_JOIN"
@@ -82,6 +83,39 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
             }
             strongSelf.previewInProgress = true
         }
+    }
+    
+    func previewForRole(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let role = data.value(forKey: "role") as? String
+        else {
+            let error = HMSError(id: "111", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
+            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id": id])
+            reject?(error.message, "FAILED_TO_INITIATE_PREVIEW_FOR_ROLE",nil)
+            return
+        }
+        
+        let roleObj = HmsHelper.getRoleFromRoleName(role, roles: hms?.roles)
+        
+        if let extractedRole = roleObj {
+            hms?.preview(role: extractedRole, completion: { tracks, error in
+                if (error != nil) {
+                    delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id": id])
+                    reject?(error?.message, error?.localizedDescription, nil)
+                    return
+                }
+                self.recentPreviewTracks = tracks
+                
+                let decodedTracks = HmsDecoder.getAllTracks(tracks ?? [])
+                
+                resolve?(["success": true, "tracks": decodedTracks])
+                return
+            })
+        }
+    }
+    
+    func cancelPreview() {
+        self.recentPreviewTracks = []
+        hms?.cancelPreview()
     }
 
     func join(_ credentials: NSDictionary) {
@@ -254,7 +288,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
                     reject?(error?.message, error?.localizedDescription, nil)
                 }
             })
-
+            self.recentPreviewTracks = []
             self?.recentRoleChangeRequest = nil
         }
     }
@@ -712,7 +746,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         let remotePeerData = HmsDecoder.getHmsRemotePeers(hms?.remotePeers)
 
         let decodedRoles = HmsDecoder.getAllRoles(hms?.roles)
-
+        self.recentPreviewTracks = []
         self.delegate?.emitEvent(ON_JOIN, ["event": ON_JOIN, "id": self.id, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData, "roles": decodedRoles])
     }
 
