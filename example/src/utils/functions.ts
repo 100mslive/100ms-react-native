@@ -1,6 +1,13 @@
-import {Platform} from 'react-native';
+import {Platform, Dimensions} from 'react-native';
 import RNFetchBlob from 'rn-fetch-blob';
 import Share from 'react-native-share';
+import {getDeviceType} from 'react-native-device-info';
+
+import dimension from '../utils/dimension';
+
+type TrackType = 'local' | 'remote' | 'screen';
+
+type LayoutParams = 'audio' | 'normal';
 
 export const getThemeColour = () => '#4578e0';
 
@@ -87,6 +94,62 @@ export const pairDataForScrollView = (data: Array<any>, batch: number) => {
     pairedData.push(groupData);
   }
   return pairedData;
+};
+
+export const isPortrait = () => {
+  const dim = Dimensions.get('window');
+  return dim.height >= dim.width;
+};
+
+export const getHmsViewHeight = (
+  layout: LayoutParams,
+  type: TrackType,
+  peersInPage: number,
+  top: number,
+  bottom: number,
+) => {
+  const isTab = getDeviceType() === 'Tablet';
+
+  // window height - (header + bottom container + top + bottom + padding) / views in one screen
+  const viewHeight =
+    type === 'screen'
+      ? Dimensions.get('window').height -
+        (dimension.viewHeight(50) +
+          dimension.viewHeight(90) +
+          (isTab ? dimension.viewHeight(20) : top + bottom) +
+          2)
+      : isPortrait()
+      ? (Dimensions.get('window').height -
+          (dimension.viewHeight(50) +
+            dimension.viewHeight(90) +
+            (isTab ? dimension.viewHeight(20) : top + bottom) +
+            2)) /
+        (layout === 'audio' ? 3 : 2)
+      : Dimensions.get('window').height -
+        (Platform.OS === 'ios' ? 0 : 25) -
+        (dimension.viewHeight(50) +
+          dimension.viewHeight(90) +
+          (isTab ? dimension.viewHeight(20) : top + bottom) +
+          2);
+
+  const height =
+    peersInPage === 1
+      ? viewHeight * 2
+      : peersInPage === 2
+      ? viewHeight
+      : peersInPage === 3
+      ? (viewHeight * 2) / 3
+      : viewHeight;
+  const width =
+    peersInPage === 1
+      ? '100%'
+      : peersInPage === 2
+      ? '100%'
+      : peersInPage === 3
+      ? '100%'
+      : '50%';
+
+  return {height, width};
 };
 
 export const writeFile = async (content: any, fileUrl: string) => {

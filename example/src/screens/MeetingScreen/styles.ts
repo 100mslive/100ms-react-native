@@ -41,7 +41,8 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   generalTile: {
-    width: '50%',
+    height: '100%',
+    width: '100%',
     marginVertical: 1,
     padding: '0.25%',
     overflow: 'hidden',
