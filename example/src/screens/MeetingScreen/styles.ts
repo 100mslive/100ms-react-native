@@ -29,6 +29,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     alignSelf: 'center',
+    height: '100%',
   },
   fullScreenLandscape: {
     width: '100%',
