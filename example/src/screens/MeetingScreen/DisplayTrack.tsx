@@ -6,7 +6,6 @@ import {
   HMSPermissions,
   HMSTrack,
   HMSSDK,
-  HMSPeer,
   HMSLocalAudioStats,
   HMSLocalVideoStats,
   HMSRTCStatsReport,
@@ -17,34 +16,15 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {Slider} from '@miblanchard/react-native-slider';
 
 import {AlertModal, CustomModal, RolePicker} from '../../components';
-
 import dimension from '../../utils/dimension';
 import {getInitials} from '../../utils/functions';
 import {styles} from './styles';
-
-type Peer = {
-  peerRefrence?: HMSPeer;
-  trackId?: string;
-  name: string;
-  isAudioMute: boolean;
-  isVideoMute: boolean;
-  id?: string;
-  colour: string;
-  sink: boolean;
-  type: 'local' | 'remote' | 'screen';
-  metadata?: {
-    isHandRaised: boolean;
-    isBRBOn: boolean;
-  };
-  track?: HMSTrack;
-};
-
-type LayoutParams = 'audio' | 'normal';
+import type {Peer, LayoutParams} from '../../utils/types';
 
 type DisplayTrackProps = {
   peer?: Peer;
   videoStyles: Function;
-  speakers: Array<string>;
+  speakerIds: Array<string>;
   type: 'local' | 'remote' | 'screen';
   instance: HMSSDK | undefined;
   permissions: HMSPermissions | undefined;
@@ -62,7 +42,7 @@ type DisplayTrackProps = {
 const DisplayTrack = ({
   peer,
   videoStyles,
-  speakers,
+  speakerIds,
   type,
   instance,
   permissions,
@@ -134,7 +114,7 @@ const DisplayTrack = ({
   const HmsViewComponent = instance?.HmsView;
   const knownRoles = instance?.knownRoles || [];
   const isDegraded = peerRefrence?.videoTrack?.isDegraded || false;
-  const speaking = speakers.includes(id!);
+  const speaking = speakerIds.includes(id!);
   const roleRequestTitle = 'Select action';
   const roleRequestButtons: [
     {text: string; onPress?: Function},
