@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, TouchableOpacity, Text, Dimensions, Platform} from 'react-native';
+import {View, TouchableOpacity, Text} from 'react-native';
 import {
   HMSRemotePeer,
   HMSVideoViewMode,
@@ -11,11 +11,9 @@ import {
   HMSLocalVideoStats,
   HMSRTCStatsReport,
 } from '@100mslive/react-native-hms';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {getDeviceType} from 'react-native-device-info';
 import {Slider} from '@miblanchard/react-native-slider';
 
 import {AlertModal, CustomModal, RolePicker} from '../../components';
@@ -59,11 +57,6 @@ type DisplayTrackProps = {
   remoteVideoStats?: any;
   localAudioStats?: HMSLocalAudioStats;
   localVideoStats?: HMSLocalVideoStats;
-};
-
-const isPortrait = () => {
-  const dim = Dimensions.get('window');
-  return dim.height >= dim.width;
 };
 
 const DisplayTrack = ({
@@ -309,41 +302,8 @@ const DisplayTrack = ({
     setAlertModalVisible(true);
   };
 
-  const isTab = getDeviceType() === 'Tablet';
-
-  const {top, bottom} = useSafeAreaInsets();
-  // window height - (header + bottom container + top + bottom + padding) / views in one screen
-  const viewHeight =
-    type === 'screen'
-      ? Dimensions.get('window').height -
-        (dimension.viewHeight(50) +
-          dimension.viewHeight(90) +
-          (isTab ? dimension.viewHeight(20) : top + bottom) +
-          2)
-      : isPortrait()
-      ? (Dimensions.get('window').height -
-          (dimension.viewHeight(50) +
-            dimension.viewHeight(90) +
-            (isTab ? dimension.viewHeight(20) : top + bottom) +
-            2)) /
-        (layout === 'audio' ? 3 : 2)
-      : Dimensions.get('window').height -
-        (Platform.OS === 'ios' ? 0 : 25) -
-        (dimension.viewHeight(50) +
-          dimension.viewHeight(90) +
-          (isTab ? dimension.viewHeight(20) : top + bottom) +
-          2);
-
   return HmsViewComponent ? (
-    <View
-      key={id}
-      style={[
-        videoStyles(),
-        {
-          height: viewHeight,
-        },
-        speaking && styles.highlight,
-      ]}>
+    <View key={id} style={[videoStyles(), speaking && styles.highlight]}>
       <AlertModal
         modalVisible={alertModalVisible}
         setModalVisible={setAlertModalVisible}

@@ -77,6 +77,7 @@ import {
   getThemeColour,
   pairDataForScrollView,
   writeFile,
+  getHmsViewHeight,
 } from '../../utils/functions';
 import type {RootState} from '../../redux';
 import type {AppStackParamList} from '../../navigator';
@@ -286,7 +287,7 @@ const Meeting = ({
     : [{text: 'Reject'}, {text: 'Accept'}];
 
   const navigate = useNavigation<MeetingScreenProp>().navigate;
-  const {left, right} = useSafeAreaInsets();
+  const {left, right, top, bottom} = useSafeAreaInsets();
 
   const pairedPeers: Array<Array<Peer>> = pairDataForScrollView(
     [...auxTracks, trackId, ...remoteTrackIds],
@@ -1398,24 +1399,35 @@ const Meeting = ({
                           </TouchableWithoutFeedback>
                         </View>
                       ) : (
-                        <DisplayTrack
+                        <View
                           key={view?.id}
-                          peer={view}
-                          videoStyles={getRemoteVideoStyles}
-                          speakers={speakers}
-                          instance={instance}
-                          type={view.type}
-                          permissions={localPeerPermissions}
-                          layout={layout}
-                          mirrorLocalVideo={state.user.mirrorLocalVideo}
-                          setChangeNameModal={setChangeNameModal}
-                          statsForNerds={statsForNerds}
-                          rtcStats={rtcStats}
-                          remoteAudioStats={remoteAudioStats}
-                          remoteVideoStats={remoteVideoStats}
-                          localAudioStats={localAudioStats}
-                          localVideoStats={localVideoStats}
-                        />
+                          style={{
+                            ...getHmsViewHeight(
+                              layout,
+                              view.type,
+                              item.length,
+                              top,
+                              bottom,
+                            ),
+                          }}>
+                          <DisplayTrack
+                            peer={view}
+                            videoStyles={getRemoteVideoStyles}
+                            speakers={speakers}
+                            instance={instance}
+                            type={view.type}
+                            permissions={localPeerPermissions}
+                            layout={layout}
+                            mirrorLocalVideo={state.user.mirrorLocalVideo}
+                            setChangeNameModal={setChangeNameModal}
+                            statsForNerds={statsForNerds}
+                            rtcStats={rtcStats}
+                            remoteAudioStats={remoteAudioStats}
+                            remoteVideoStats={remoteVideoStats}
+                            localAudioStats={localAudioStats}
+                            localVideoStats={localVideoStats}
+                          />
+                        </View>
                       )),
                   )}
                 </View>

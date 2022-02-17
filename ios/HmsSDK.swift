@@ -288,7 +288,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
                     reject?(error?.message, error?.localizedDescription, nil)
                 }
             })
-            self.recentPreviewTracks = []
+            self?.recentPreviewTracks = []
             self?.recentRoleChangeRequest = nil
         }
     }
