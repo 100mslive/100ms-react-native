@@ -179,10 +179,8 @@ export const decodePeer = (peer: HMSPeer): Peer => {
   return {
     trackId: peer?.videoTrack?.trackId,
     name: peer?.name,
-    isAudioMute: false,
-    isVideoMute: false,
-    // isAudioMute: peer?.audioTrack?.isMute() || false,
-    // isVideoMute: peer?.videoTrack?.isMute() || false,
+    isAudioMute: peer?.audioTrack?.isMute() || false,
+    isVideoMute: peer?.videoTrack?.isMute() || false,
     id: peer?.peerID,
     colour: getThemeColour(),
     sink: true,
