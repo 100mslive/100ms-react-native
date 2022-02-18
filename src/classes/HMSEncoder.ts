@@ -19,7 +19,8 @@ import { HMSRTCStats } from './HMSRTCStats';
 import { HMSRTCStatsReport } from './HMSRTCStatsReport';
 import { HMSRemoteAudioTrack } from './HMSRemoteAudioTrack';
 import { HMSRemoteVideoTrack } from './HMSRemoteVideoTrack';
-import { HMSSpeaker, HMSSpeakerUpdate } from '..';
+import { HMSSpeaker } from './HMSSpeaker';
+import { HMSSpeakerUpdate } from './HMSSpeakerUpdate';
 
 export class HMSEncoder {
   static encodeHmsRoom(room: HMSRoom, id: string) {
@@ -367,16 +368,16 @@ export class HMSEncoder {
     return new HMSSpeakerUpdate({
       event: data?.event,
       count: data?.count,
-      peers: HMSEncoder.encodeHmsSpeakers(data?.peers, id)
-    })
+      peers: HMSEncoder.encodeHmsSpeakers(data?.peers, id),
+    });
   }
 
   static encodeHmsSpeakers(data: any, id: string) {
-    let encodedSpeakers: Array<HMSSpeaker> = []
+    let encodedSpeakers: Array<HMSSpeaker> = [];
 
     data?.map((item: any) => {
-      encodedSpeakers.push(HMSEncoder.encodeHmsSpeaker(item, id))
-    })
+      encodedSpeakers.push(HMSEncoder.encodeHmsSpeaker(item, id));
+    });
 
     return encodedSpeakers;
   }
@@ -386,6 +387,6 @@ export class HMSEncoder {
       level: data?.level,
       peer: HMSEncoder.encodeHmsPeer(data?.peer, id),
       track: HMSEncoder.encodeHmsTrack(data?.track, id),
-    })
+    });
   }
 }
