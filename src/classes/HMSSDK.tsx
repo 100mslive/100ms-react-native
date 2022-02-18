@@ -953,7 +953,7 @@ export class HMSSDK {
     logger?.verbose('#Listener ON_SPEAKER', data);
     if (this.onSpeakerDelegate) {
       logger?.verbose('#Listener ON_SPEAKER_LISTENER_CALL', data);
-      this.onSpeakerDelegate(data);
+      this.onSpeakerDelegate(HMSEncoder.encodeHmsSpeakerUpdate(data, this.id));
     }
   };
 
