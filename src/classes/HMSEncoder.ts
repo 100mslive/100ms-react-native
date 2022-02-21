@@ -19,6 +19,8 @@ import { HMSRTCStats } from './HMSRTCStats';
 import { HMSRTCStatsReport } from './HMSRTCStatsReport';
 import { HMSRemoteAudioTrack } from './HMSRemoteAudioTrack';
 import { HMSRemoteVideoTrack } from './HMSRemoteVideoTrack';
+import { HMSSpeaker } from './HMSSpeaker';
+import { HMSSpeakerUpdate } from './HMSSpeakerUpdate';
 
 export class HMSEncoder {
   static encodeHmsRoom(room: HMSRoom, id: string) {
@@ -359,6 +361,32 @@ export class HMSEncoder {
       packetsLost: data?.packetsLost,
       packetsReceived: data?.packetsReceived,
       roundTripTime: data?.roundTripTime,
+    });
+  }
+
+  static encodeHmsSpeakerUpdate(data: any, id: string) {
+    return new HMSSpeakerUpdate({
+      event: data?.event,
+      count: data?.count,
+      peers: HMSEncoder.encodeHmsSpeakers(data?.peers, id),
+    });
+  }
+
+  static encodeHmsSpeakers(data: any, id: string) {
+    let encodedSpeakers: Array<HMSSpeaker> = [];
+
+    data?.map((item: any) => {
+      encodedSpeakers.push(HMSEncoder.encodeHmsSpeaker(item, id));
+    });
+
+    return encodedSpeakers;
+  }
+
+  static encodeHmsSpeaker(data: any, id: string) {
+    return new HMSSpeaker({
+      level: data?.level,
+      peer: HMSEncoder.encodeHmsPeer(data?.peer, id),
+      track: HMSEncoder.encodeHmsTrack(data?.track, id),
     });
   }
 }
