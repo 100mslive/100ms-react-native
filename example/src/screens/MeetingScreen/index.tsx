@@ -651,8 +651,8 @@ const Meeting = ({
       Dimensions.removeEventListener('change', () => {
         setOrientation(!orientation);
       });
-      instance?.leave();
-      navigate('WelcomeScreen');
+      // instance?.leave();
+      // navigate('WelcomeScreen');
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

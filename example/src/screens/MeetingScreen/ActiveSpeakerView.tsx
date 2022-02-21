@@ -35,6 +35,15 @@ type ActiveSpeakerViewProps = {
   localVideoStats: HMSLocalVideoStats;
 };
 
+const includesPeerId = (speakers: Peer[], peerId: string): boolean => {
+  speakers.map(speaker => {
+    if (speaker.id === peerId) {
+      return true;
+    }
+  });
+  return false;
+};
+
 const getActiveSpeakers = (
   peers: Array<HMSPeer>,
   speakers: Array<HMSSpeaker>,
@@ -43,12 +52,17 @@ const getActiveSpeakers = (
   const currentActiveSpeakers = speakers.map(speaker =>
     decodePeer(speaker?.peer),
   );
-  let speakersRequired =
-    peers.length >= 4
-      ? 4 - currentActiveSpeakers.length
-      : peers.length - currentActiveSpeakers.length;
+  if (currentActiveSpeakers.length >= 4) {
+    currentActiveSpeakers.length = 4;
+    return currentActiveSpeakers;
+  }
+  let speakersRequired = 4 - currentActiveSpeakers.length;
   peers.map(peer => {
-    if (speakersRequired !== 0 && !speakerIds.includes(peer.peerID)) {
+    if (
+      speakersRequired > 0 &&
+      !speakerIds.includes(peer.peerID) &&
+      !includesPeerId(currentActiveSpeakers, peer.peerID)
+    ) {
       currentActiveSpeakers.push(decodePeer(peer));
       speakersRequired--;
     }
