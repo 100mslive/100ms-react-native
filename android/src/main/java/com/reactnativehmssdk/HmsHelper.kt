@@ -11,6 +11,7 @@ import live.hms.video.media.settings.HMSVideoTrackSettings
 import live.hms.video.media.tracks.*
 import live.hms.video.sdk.models.*
 import live.hms.video.sdk.models.role.*
+import live.hms.video.utils.HmsUtilities
 
 object HmsHelper {
 
@@ -47,24 +48,16 @@ object HmsHelper {
     return true
   }
 
-  fun getPeerFromPeerId(peerId: String?, peers: Array<HMSPeer>?): HMSPeer? {
-    if (peerId != null && peers != null) {
-      for (peer in peers) {
-        if (peerId == peer.peerID) {
-          return peer
-        }
-      }
+  fun getPeerFromPeerId(peerId: String?, room: HMSRoom?): HMSPeer? {
+    if (peerId != null && room != null) {
+      return HmsUtilities.getPeer(peerId, room)
     }
     return null
   }
 
-  fun getRemotePeerFromPeerId(peerId: String?, peers: Array<HMSRemotePeer>?): HMSRemotePeer? {
-    if (peerId != null && peers != null) {
-      for (peer in peers) {
-        if (peerId == peer.peerID) {
-          return peer
-        }
-      }
+  fun getRemotePeerFromPeerId(peerId: String?, room: HMSRoom?): HMSRemotePeer? {
+    if (peerId != null && room != null) {
+      return HmsUtilities.getPeer(peerId, room) as? HMSRemotePeer
     }
     return null
   }
@@ -98,64 +91,23 @@ object HmsHelper {
     return null
   }
 
-  fun getRemoteAudioTrackFromTrackId(
-      trackId: String?,
-      remotePeers: Array<HMSRemotePeer>?
-  ): HMSRemoteAudioTrack? {
-    if (trackId != null && remotePeers != null) {
-      for (remotePeer in remotePeers) {
-        if (remotePeer.audioTrack?.trackId == trackId) {
-          return remotePeer.audioTrack as HMSRemoteAudioTrack
-        }
-      }
+  fun getRemoteAudioTrackFromTrackId(trackId: String?, room: HMSRoom?): HMSRemoteAudioTrack? {
+    if (trackId != null && room != null) {
+      return HmsUtilities.getAudioTrack(trackId, room) as? HMSRemoteAudioTrack
     }
     return null
   }
 
-  fun getRemoteVideoTrackFromTrackId(
-      trackId: String?,
-      remotePeers: Array<HMSRemotePeer>?
-  ): HMSRemoteVideoTrack? {
-    if (trackId != null && remotePeers != null) {
-      for (remotePeer in remotePeers) {
-        if (remotePeer.videoTrack?.trackId == trackId) {
-          return remotePeer.videoTrack as HMSRemoteVideoTrack
-        }
-      }
+  fun getRemoteVideoTrackFromTrackId(trackId: String?, room: HMSRoom?): HMSRemoteVideoTrack? {
+    if (trackId != null && room != null) {
+      return HmsUtilities.getVideoTrack(trackId, room) as? HMSRemoteVideoTrack
     }
     return null
   }
 
-  fun getTrackFromTrackId(trackId: String?, remotePeers: Array<HMSRemotePeer>?): HMSTrack? {
-    if (trackId != null && remotePeers != null) {
-      for (remotePeer in remotePeers) {
-        if (remotePeer.audioTrack?.trackId == trackId) {
-          return remotePeer.audioTrack as HMSTrack
-        }
-
-        if (remotePeer.videoTrack?.trackId == trackId) {
-          return remotePeer.videoTrack as HMSTrack
-        }
-      }
-    }
-    return null
-  }
-
-  fun getLocalTrackFromTrackId(trackId: String?, localPeer: HMSLocalPeer?): HMSTrack? {
-    if (trackId != null && localPeer != null) {
-      if (localPeer.audioTrack?.trackId == trackId) {
-        return localPeer.audioTrack as HMSTrack
-      }
-
-      if (localPeer.videoTrack?.trackId == trackId) {
-        return localPeer.videoTrack as HMSTrack
-      }
-
-      for (auxTrack in localPeer.auxiliaryTracks) {
-        if (auxTrack.trackId == trackId) {
-          return auxTrack
-        }
-      }
+  fun getTrackFromTrackId(trackId: String?, room: HMSRoom?): HMSTrack? {
+    if (trackId != null && room != null) {
+      HmsUtilities.getTrack(trackId, room)
     }
     return null
   }

@@ -15,6 +15,12 @@ import { HMSRole } from './HMSRole';
 import { HMSRoleChangeRequest } from './HMSRoleChangeRequest';
 import { HMSChangeTrackStateRequest } from './HMSChangeTrackStateRequest';
 import { HMSVideoResolution } from './HMSVideoResolution';
+import { HMSRTCStats } from './HMSRTCStats';
+import { HMSRTCStatsReport } from './HMSRTCStatsReport';
+import { HMSRemoteAudioTrack } from './HMSRemoteAudioTrack';
+import { HMSRemoteVideoTrack } from './HMSRemoteVideoTrack';
+import { HMSSpeaker } from './HMSSpeaker';
+import { HMSSpeakerUpdate } from './HMSSpeakerUpdate';
 
 export class HMSEncoder {
   static encodeHmsRoom(room: HMSRoom, id: string) {
@@ -183,6 +189,34 @@ export class HMSEncoder {
     return new HMSVideoResolution(encodedObj);
   }
 
+  static encodeHmsLocalAudioTrack(track: any, id: string) {
+    const encodedObj = {
+      id: id,
+      trackId: track?.trackId,
+      source: track?.source,
+      trackDescription: track?.trackDescription,
+      isMute: track?.isMute,
+      settings: HMSEncoder.encodeHmsAudioTrackSettings(track?.settings),
+      type: track?.type,
+    };
+
+    return new HMSLocalAudioTrack(encodedObj);
+  }
+
+  static encodeHmsLocalVideoTrack(track: any, id: string) {
+    const encodedObj = {
+      id: id,
+      trackId: track?.trackId,
+      source: track?.source,
+      trackDescription: track?.trackDescription,
+      isMute: track?.isMute,
+      settings: HMSEncoder.encodeHmsVideoTrackSettings(track?.settings),
+      type: track?.type,
+    };
+
+    return new HMSLocalVideoTrack(encodedObj);
+  }
+
   static encodeHmsRemotePeers(peers: any, id: string) {
     const hmsPeers: any[] = [];
 
@@ -230,6 +264,33 @@ export class HMSEncoder {
     };
 
     return new HMSRemotePeer(encodedObj);
+  }
+
+  static encodeHmsRemoteAudioTrack(track: any, id: string) {
+    const encodedObj = {
+      id: id,
+      trackId: track?.trackId,
+      source: track?.source,
+      trackDescription: track?.trackDescription,
+      isMute: track?.isMute,
+      playbackAllowed: track?.playbackAllowed,
+    };
+
+    return new HMSRemoteAudioTrack(encodedObj);
+  }
+
+  static encodeHmsRemoteVideoTrack(track: any, id: string) {
+    const encodedObj = {
+      id: id,
+      trackId: track?.trackId,
+      source: track?.source,
+      trackDescription: track?.trackDescription,
+      layer: track?.layer,
+      isMute: track?.isMute,
+      playbackAllowed: track?.playbackAllowed,
+    };
+
+    return new HMSRemoteVideoTrack(encodedObj);
   }
 
   static encodeHmsPreviewTracks(previewTracks: any) {
@@ -281,5 +342,51 @@ export class HMSEncoder {
     };
 
     return new HMSChangeTrackStateRequest(encodedChangeTrackStateRequest);
+  }
+
+  static encodeRTCStats(data: any) {
+    let video = this.encodeRTCStatsUnit(data?.video);
+    let audio = this.encodeRTCStatsUnit(data?.audio);
+    let combined = this.encodeRTCStatsUnit(data?.combined);
+
+    return new HMSRTCStatsReport({ video, audio, combined });
+  }
+
+  static encodeRTCStatsUnit(data: any) {
+    return new HMSRTCStats({
+      bitrateReceived: data?.bitrateReceived,
+      bitrateSent: data?.bitrateSent,
+      bytesReceived: data?.bytesReceived,
+      bytesSent: data?.bytesSent,
+      packetsLost: data?.packetsLost,
+      packetsReceived: data?.packetsReceived,
+      roundTripTime: data?.roundTripTime,
+    });
+  }
+
+  static encodeHmsSpeakerUpdate(data: any, id: string) {
+    return new HMSSpeakerUpdate({
+      event: data?.event,
+      count: data?.count,
+      peers: HMSEncoder.encodeHmsSpeakers(data?.peers, id),
+    });
+  }
+
+  static encodeHmsSpeakers(data: any, id: string) {
+    let encodedSpeakers: Array<HMSSpeaker> = [];
+
+    data?.map((item: any) => {
+      encodedSpeakers.push(HMSEncoder.encodeHmsSpeaker(item, id));
+    });
+
+    return encodedSpeakers;
+  }
+
+  static encodeHmsSpeaker(data: any, id: string) {
+    return new HMSSpeaker({
+      level: data?.level,
+      peer: HMSEncoder.encodeHmsPeer(data?.peer, id),
+      track: HMSEncoder.encodeHmsTrack(data?.track, id),
+    });
   }
 }

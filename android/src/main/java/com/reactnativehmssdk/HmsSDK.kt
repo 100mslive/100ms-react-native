@@ -381,19 +381,6 @@ class HmsSDK(
   fun setLocalMute(data: ReadableMap) {
     val isMute = data.getBoolean("isMute")
     hmsSDK?.getLocalPeer()?.audioTrack?.setMute(isMute)
-    val type = if (isMute) "TRACK_MUTED" else "TRACK_UNMUTED"
-    val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
-    val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
-    val roomData = HmsDecoder.getHmsRoom(hmsSDK?.getRoom())
-
-    val map: WritableMap = Arguments.createMap()
-
-    map.putMap("room", roomData)
-    map.putString("type", type)
-    map.putMap("localPeer", localPeerData)
-    map.putArray("remotePeers", remotePeerData)
-    map.putString("id", id)
-    delegate.emitEvent("ON_TRACK_UPDATE", map)
   }
 
   fun setLocalVideoMute(data: ReadableMap) {
@@ -487,8 +474,7 @@ class HmsSDK(
         )
     if (requiredKeys) {
       val peerId = data.getString("peerId")
-      val peers = hmsSDK?.getPeers()
-      val peer = HmsHelper.getPeerFromPeerId(peerId, peers)
+      val peer = HmsHelper.getPeerFromPeerId(peerId, hmsSDK?.getRoom())
       if (peer != null) {
         hmsSDK?.sendDirectMessage(
             data.getString("message") as String,
@@ -526,7 +512,7 @@ class HmsSDK(
       val force = data.getBoolean("force")
 
       if (peerId !== null && role !== null) {
-        val hmsPeer = HmsHelper.getPeerFromPeerId(peerId, hmsSDK?.getPeers())
+        val hmsPeer = HmsHelper.getPeerFromPeerId(peerId, hmsSDK?.getRoom())
         val hmsRole = HmsHelper.getRoleFromRoleName(role, hmsSDK?.getRoles())
 
         if (hmsRole != null && hmsPeer != null) {
@@ -561,8 +547,7 @@ class HmsSDK(
     if (requiredKeys) {
       val trackId = data.getString("trackId")
       val mute = data.getBoolean("mute")
-      val remotePeers = hmsSDK?.getRemotePeers()
-      val track = HmsHelper.getTrackFromTrackId(trackId, remotePeers)
+      val track = HmsHelper.getTrackFromTrackId(trackId, hmsSDK?.getRoom())
       if (track != null) {
         hmsSDK?.changeTrackState(
             track,
@@ -641,11 +626,9 @@ class HmsSDK(
         HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("trackId", "String")))
     if (requiredKeys) {
       val trackId = data.getString("trackId")
-      val remotePeers = hmsSDK?.getRemotePeers()
-      val localPeer = hmsSDK?.getLocalPeer()
-      val localTrack = HmsHelper.getLocalTrackFromTrackId(trackId, localPeer)
+      val localTrack = HmsHelper.getTrackFromTrackId(trackId, hmsSDK?.getRoom())
       if (localTrack == null) {
-        val track = HmsHelper.getTrackFromTrackId(trackId, remotePeers)
+        val track = HmsHelper.getTrackFromTrackId(trackId, hmsSDK?.getRoom())
         if (track != null) {
           val mute = track.isMute
           callback?.resolve(mute)
@@ -669,8 +652,7 @@ class HmsSDK(
         )
     if (requiredKeys) {
       val peerId = data.getString("peerId")
-      val peers = hmsSDK?.getRemotePeers()
-      val peer = HmsHelper.getRemotePeerFromPeerId(peerId, peers)
+      val peer = HmsHelper.getRemotePeerFromPeerId(peerId, hmsSDK?.getRoom())
 
       if (peer != null) {
         hmsSDK?.removePeerRequest(
@@ -750,7 +732,7 @@ class HmsSDK(
       if (peers != null) {
         for (remotePeer in peers) {
           val peerId = remotePeer.peerID
-          val peer = HmsHelper.getRemotePeerFromPeerId(peerId, peers)
+          val peer = HmsHelper.getRemotePeerFromPeerId(peerId, hmsSDK?.getRoom())
           peer?.audioTrack?.isPlaybackAllowed = !mute
         }
         val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
@@ -777,9 +759,8 @@ class HmsSDK(
     if (requiredKeys) {
       val trackId = data.getString("trackId")
       val playbackAllowed = data.getBoolean("playbackAllowed")
-      val remotePeers = hmsSDK?.getRemotePeers()
-      val remoteAudioTrack = HmsHelper.getRemoteAudioTrackFromTrackId(trackId, remotePeers)
-      val remoteVideoTrack = HmsHelper.getRemoteVideoTrackFromTrackId(trackId, remotePeers)
+      val remoteAudioTrack = HmsHelper.getRemoteAudioTrackFromTrackId(trackId, hmsSDK?.getRoom())
+      val remoteVideoTrack = HmsHelper.getRemoteVideoTrackFromTrackId(trackId, hmsSDK?.getRoom())
       if (remoteAudioTrack != null) {
         remoteAudioTrack.isPlaybackAllowed = playbackAllowed
       } else if (remoteVideoTrack != null) {
@@ -795,9 +776,8 @@ class HmsSDK(
         HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("trackId", "String")))
     if (requiredKeys) {
       val trackId = data.getString("trackId")
-      val remotePeers = hmsSDK?.getRemotePeers()
-      val remoteAudioTrack = HmsHelper.getRemoteAudioTrackFromTrackId(trackId, remotePeers)
-      val remoteVideoTrack = HmsHelper.getRemoteVideoTrackFromTrackId(trackId, remotePeers)
+      val remoteAudioTrack = HmsHelper.getRemoteAudioTrackFromTrackId(trackId, hmsSDK?.getRoom())
+      val remoteVideoTrack = HmsHelper.getRemoteVideoTrackFromTrackId(trackId, hmsSDK?.getRoom())
       when {
         remoteAudioTrack != null -> {
           val isPlaybackAllowed = remoteAudioTrack.isPlaybackAllowed
@@ -1041,6 +1021,34 @@ class HmsSDK(
           }
         }
       }
+    }
+  }
+
+  fun changeName(data: ReadableMap, callback: Promise?) {
+    val requiredKeys = HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("name", "String")))
+    if (requiredKeys) {
+      val name = data.getString("name")
+      if (name != null && name != "") {
+        hmsSDK?.changeName(
+            name,
+            object : HMSActionResultListener {
+              override fun onSuccess() {
+                callback?.resolve(emitHMSSuccess())
+              }
+
+              override fun onError(error: HMSException) {
+                callback?.reject(error.code.toString(), error.message)
+                self.emitHMSError(error)
+              }
+            }
+        )
+      } else {
+        self.emitCustomError("NAME_UNDEFINED")
+        callback?.reject("101", "NAME_UNDEFINED")
+      }
+    } else {
+      callback?.reject("101", "REQUIRED_KEYS_NOT_FOUND")
+      self.emitRequiredKeysError()
     }
   }
 }

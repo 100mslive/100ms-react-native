@@ -31,7 +31,7 @@ class HmsView(context: ReactContext) : FrameLayout(context) {
     surfaceView.setEnableHardwareScaler(true)
   }
 
-  fun onReceiveNativeEvent() {
+  private fun onReceiveNativeEvent() {
     val event: WritableMap = Arguments.createMap()
     event.putString("message", "MyMessage")
     val reactContext = context as ReactContext

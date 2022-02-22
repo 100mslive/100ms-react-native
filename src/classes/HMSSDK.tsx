@@ -24,6 +24,10 @@ import { HMSVideoViewMode } from './HMSVideoViewMode';
 import type { HMSTrackSettings } from './HMSTrackSettings';
 import type { HMSRTMPConfig } from './HMSRTMPConfig';
 import type { HMSHLSConfig } from './HMSHLSConfig';
+import { HMSLocalAudioStats } from './HMSLocalAudioStats';
+import { HMSLocalVideoStats } from './HMSLocalVideoStats';
+import { HMSRemoteVideoStats } from './HMSRemoteVideoStats';
+import { HMSRemoteAudioStats } from './HMSRemoteAudioStats';
 
 interface HmsComponentProps {
   trackId: string;
@@ -69,6 +73,11 @@ export class HMSSDK {
   onRoleChangeRequestDelegate?: any;
   onChangeTrackStateRequestDelegate?: any;
   onRemovedFromRoomDelegate?: any;
+  onRtcStatsDelegate?: any;
+  onLocalAudioStatsDelegate?: any;
+  onLocalVideoStatsDelegate?: any;
+  onRemoteAudioStatsDelegate?: any;
+  onRemoteVideoStatsDelegate?: any;
 
   constructor(id: string) {
     this.id = id;
@@ -170,6 +179,31 @@ export class HMSSDK {
       HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM,
       this.onRemovedFromRoomListener
     );
+
+    HmsEventEmitter.addListener(
+      HMSUpdateListenerActions.ON_RTC_STATS,
+      this.RTCStatsListener
+    );
+
+    HmsEventEmitter.addListener(
+      HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS,
+      this.onLocalAudioStatsListener
+    );
+
+    HmsEventEmitter.addListener(
+      HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS,
+      this.onLocalVideoStatsListener
+    );
+
+    HmsEventEmitter.addListener(
+      HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS,
+      this.onRemoteAudioStatsListener
+    );
+
+    HmsEventEmitter.addListener(
+      HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS,
+      this.onRemoteVideoStatsListener
+    );
   };
 
   removeListeners = () => {
@@ -232,6 +266,31 @@ export class HMSSDK {
       HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM,
       this.onRemovedFromRoomListener
     );
+
+    HmsEventEmitter.removeListener(
+      HMSUpdateListenerActions.ON_RTC_STATS,
+      this.RTCStatsListener
+    );
+
+    HmsEventEmitter.removeListener(
+      HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS,
+      this.onLocalAudioStatsListener
+    );
+
+    HmsEventEmitter.removeListener(
+      HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS,
+      this.onLocalVideoStatsListener
+    );
+
+    HmsEventEmitter.removeListener(
+      HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS,
+      this.onRemoteAudioStatsListener
+    );
+
+    HmsEventEmitter.removeListener(
+      HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS,
+      this.onRemoteVideoStatsListener
+    );
   };
 
   /**
@@ -250,6 +309,19 @@ export class HMSSDK {
   preview = (config: HMSConfig) => {
     logger?.verbose('#Function preview', { config, id: this.id });
     HmsManager.preview({ ...config, id: this.id });
+  };
+
+  previewForRole = async (role: HMSRole) => {
+    logger?.verbose('#Function previewForRole', {
+      role,
+      id: this.id,
+    });
+    if (Platform.OS === 'ios') {
+      return await HmsManager.previewForRole({ role: role?.name, id: this.id });
+    } else {
+      console.log('API currently not available for android');
+      return 'API currently not available for android';
+    }
   };
 
   HmsView = ({
@@ -457,6 +529,16 @@ export class HMSSDK {
     return await HmsManager.endRoom(data);
   };
 
+  changeName = async (name: string) => {
+    logger?.verbose('#Function changeName', { name, id: this.id });
+    const data = {
+      name,
+      id: this.id,
+    };
+
+    return await HmsManager.changeName(data);
+  };
+
   acceptRoleChange = async () => {
     logger?.verbose('#Function acceptRoleChange', { id: this.id });
     return await HmsManager.acceptRoleChange({ id: this.id });
@@ -514,7 +596,7 @@ export class HMSSDK {
     if (Platform.OS === 'android') {
       HmsManager.startScreenshare({ id: this.id });
     } else {
-      console.log('API currently not avaialble for iOS');
+      console.log('API currently not available for iOS');
     }
   };
 
@@ -523,8 +605,8 @@ export class HMSSDK {
     if (Platform.OS === 'android') {
       return await HmsManager.isScreenShared({ id: this.id });
     } else {
-      console.log('API currently not avaialble for iOS');
-      return 'API currently not avaialble for iOS';
+      console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
     }
   };
 
@@ -533,8 +615,26 @@ export class HMSSDK {
     if (Platform.OS === 'android') {
       return await HmsManager.stopScreenshare({ id: this.id });
     } else {
-      console.log('API currently not avaialble for iOS');
-      return 'API currently not avaialble for iOS';
+      console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
+    }
+  };
+
+  enableRTCStats = () => {
+    logger?.verbose('#Function enableRTCStats', { id: this.id });
+    if (Platform.OS === 'ios') {
+      HmsManager.enableRTCStats({ id: this.id });
+    } else {
+      console.log('API currently not avaialble for android');
+    }
+  };
+
+  disableRTCStats = () => {
+    logger?.verbose('#Function disableRTCStats', { id: this.id });
+    if (Platform.OS === 'ios') {
+      HmsManager.disableRTCStats({ id: this.id });
+    } else {
+      console.log('API currently not avaialble for android');
     }
   };
 
@@ -591,6 +691,21 @@ export class HMSSDK {
       case HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM:
         this.onRemovedFromRoomDelegate = callback;
         break;
+      case HMSUpdateListenerActions.ON_RTC_STATS:
+        this.onRtcStatsDelegate = callback;
+        break;
+      case HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS:
+        this.onLocalAudioStatsDelegate = callback;
+        break;
+      case HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS:
+        this.onLocalVideoStatsDelegate = callback;
+        break;
+      case HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS:
+        this.onRemoteAudioStatsDelegate = callback;
+        break;
+      case HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS:
+        this.onRemoteVideoStatsDelegate = callback;
+        break;
       default:
     }
   };
@@ -644,6 +759,21 @@ export class HMSSDK {
         break;
       case HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM:
         this.onRemovedFromRoomDelegate = null;
+        break;
+      case HMSUpdateListenerActions.ON_RTC_STATS:
+        this.onRtcStatsDelegate = null;
+        break;
+      case HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS:
+        this.onLocalAudioStatsDelegate = null;
+        break;
+      case HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS:
+        this.onLocalVideoStatsDelegate = null;
+        break;
+      case HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS:
+        this.onRemoteAudioStatsDelegate = null;
+        break;
+      case HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS:
+        this.onRemoteVideoStatsDelegate = null;
         break;
       default:
     }
@@ -836,7 +966,7 @@ export class HMSSDK {
     logger?.verbose('#Listener ON_SPEAKER', data);
     if (this.onSpeakerDelegate) {
       logger?.verbose('#Listener ON_SPEAKER_LISTENER_CALL', data);
-      this.onSpeakerDelegate(data);
+      this.onSpeakerDelegate(HMSEncoder.encodeHmsSpeakerUpdate(data, this.id));
     }
   };
 
@@ -927,6 +1057,94 @@ export class HMSSDK {
     logger?.verbose('#Listener ON_RECONNECTED', data);
     if (this.onReconnectedDelegate) {
       this.onReconnectedDelegate(data);
+    }
+  };
+
+  RTCStatsListener = (data: any) => {
+    if (data.id !== this.id) {
+      return;
+    }
+
+    logger?.verbose('#Listener RTCStatsListener', data);
+
+    let rtcStats = HMSEncoder.encodeRTCStats(data);
+
+    if (this.onRtcStatsDelegate) {
+      this.onRtcStatsDelegate({ rtcStats });
+    }
+  };
+
+  onLocalAudioStatsListener = (data: any) => {
+    if (data.id !== this.id) {
+      return;
+    }
+
+    logger?.verbose('#Listener onLocalAudioStatsListener', data);
+
+    let localAudioStats = new HMSLocalAudioStats(data.localAudioStats);
+    let peer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
+    let track = HMSEncoder.encodeHmsLocalAudioTrack(data.track, this.id);
+
+    if (this.onLocalAudioStatsDelegate) {
+      this.onLocalAudioStatsDelegate({ ...data, localAudioStats, peer, track });
+    }
+  };
+
+  onLocalVideoStatsListener = (data: any) => {
+    if (data.id !== this.id) {
+      return;
+    }
+
+    logger?.verbose('#Listener onLocalVideoStatsListener', data);
+
+    let localVideoStats = new HMSLocalVideoStats(data.localVideoStats);
+    let peer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
+    let track = HMSEncoder.encodeHmsLocalVideoTrack(data.track, this.id);
+
+    if (this.onLocalVideoStatsDelegate) {
+      this.onLocalVideoStatsDelegate({ ...data, localVideoStats, peer, track });
+    }
+  };
+
+  onRemoteAudioStatsListener = (data: any) => {
+    if (data.id !== this.id) {
+      return;
+    }
+
+    logger?.verbose('#Listener onRemoteAudioStatsListener', data);
+
+    let remoteAudioStats = new HMSRemoteAudioStats(data.remoteAudioStats);
+    let peer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
+    let track = HMSEncoder.encodeHmsRemoteAudioTrack(data.track, this.id);
+
+    if (this.onRemoteAudioStatsDelegate) {
+      this.onRemoteAudioStatsDelegate({
+        ...data,
+        remoteAudioStats,
+        peer,
+        track,
+      });
+    }
+  };
+
+  onRemoteVideoStatsListener = (data: any) => {
+    if (data.id !== this.id) {
+      return;
+    }
+
+    logger?.verbose('#Listener onRemoteVideoStatsListener', data);
+
+    let remoteVideoStats = new HMSRemoteVideoStats(data.remoteVideoStats);
+    let peer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
+    let track = HMSEncoder.encodeHmsRemoteVideoTrack(data.track, this.id);
+
+    if (this.onRemoteVideoStatsDelegate) {
+      this.onRemoteVideoStatsDelegate({
+        ...data,
+        remoteVideoStats,
+        peer,
+        track,
+      });
     }
   };
 }

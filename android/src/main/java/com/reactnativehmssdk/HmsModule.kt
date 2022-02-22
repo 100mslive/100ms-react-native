@@ -266,6 +266,13 @@ class HmsModule(reactContext: ReactApplicationContext) :
     hms?.resetVolume()
   }
 
+  @ReactMethod
+  fun changeName(data: ReadableMap, callback: Promise?) {
+    val hms = HmsHelper.getHms(data, hmsCollection)
+
+    hms?.changeName(data, callback)
+  }
+
   fun emitEvent(event: String, data: WritableMap) {
     reactApplicationContext
         .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
@@ -294,7 +301,7 @@ class HmsModule(reactContext: ReactApplicationContext) :
           }
         }
         currentActivity?.application?.unregisterActivityLifecycleCallbacks(this)
-        hmsCollection = mutableMapOf<String, HmsSDK>()
+        hmsCollection = mutableMapOf()
       }
     } catch (e: Exception) {
       //      Log.d("error", e.message)

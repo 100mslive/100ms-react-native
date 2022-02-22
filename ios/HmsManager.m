@@ -5,6 +5,8 @@
 
 RCT_EXTERN_METHOD(join: (NSDictionary) credentials)
 RCT_EXTERN_METHOD(preview: (NSDictionary) credentials)
+RCT_EXTERN_METHOD(previewForRole: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(cancelPreview: (NSDictionary) data)
 RCT_EXTERN_METHOD(setLocalMute: (NSDictionary) isMute)
 RCT_EXTERN_METHOD(setLocalVideoMute: (NSDictionary) isMute)
 RCT_EXTERN_METHOD(sendBroadcastMessage: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
@@ -30,4 +32,7 @@ RCT_EXTERN_METHOD(startRTMPOrRecording: (NSDictionary) data :(RCTPromiseResolveB
 RCT_EXTERN_METHOD(stopRtmpAndRecording: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(startHLSStreaming: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(stopHLSStreaming: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(changeName: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(enableRTCStats: (NSDictionary) data)
+RCT_EXTERN_METHOD(disableRTCStats: (NSDictionary) data)
 @end
