@@ -51,6 +51,9 @@ export const PreviewModal = ({
         <View style={styles.iconContainer}>
           {audioAllowed && (
             <TouchableOpacity
+              accessible={true}
+              accessibilityLabel="previewMuteAudio"
+              testID="previewMuteAudio"
               style={styles.singleIconContainer}
               onPress={async () => {
                 setIsMute(!isMute);
@@ -65,6 +68,9 @@ export const PreviewModal = ({
           )}
           {videoAllowed && (
             <TouchableOpacity
+              accessible={true}
+              accessibilityLabel="previewMuteVideo"
+              testID="previewMuteVideo"
               style={styles.singleIconContainer}
               onPress={() => {
                 setMuteVideo(!muteVideo);
@@ -80,6 +86,9 @@ export const PreviewModal = ({
         </View>
         <View style={styles.joinButtonContainer}>
           <TouchableOpacity
+            accessible={true}
+            accessibilityLabel="previewModalJoin"
+            testID="previewModalJoin"
             disabled={previewButtonState !== 'Active'}
             style={[
               styles.buttonTextContainer,

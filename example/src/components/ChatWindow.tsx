@@ -82,6 +82,9 @@ export const ChatWindow = ({
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.textInputContainer}>
           <TextInput
+            accessible={true}
+            accessibilityLabel="messageInput"
+            testID="messageInput"
             placeholder="Enter Message"
             placeholderTextColor="black"
             style={styles.textInput}
@@ -91,6 +94,9 @@ export const ChatWindow = ({
             value={text}
           />
           <TouchableOpacity
+            accessible={true}
+            accessibilityLabel="sendMessage"
+            testID="sendMessage"
             style={styles.sendContainer}
             onPress={() => {
               send(text, messageToList[messageTo]);

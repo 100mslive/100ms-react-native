@@ -27,6 +27,9 @@ export const UserIdModal = ({
         </Text>
         <View style={styles.inputContainer}>
           <TextInput
+            accessible={true}
+            accessibilityLabel="usernameInput"
+            testID="usernameInput"
             onChangeText={value => {
               setText(value);
             }}
@@ -38,6 +41,9 @@ export const UserIdModal = ({
           />
           <View style={styles.buttonContainer}>
             <TouchableOpacity
+              accessible={true}
+              accessibilityLabel={screen === "Welcome" ? "cancelJoinButton" : "cancelSetUsernameButton"}
+              testID={screen === "Welcome" ? "cancelJoinButton" : "cancelSetUsernameButton"}
               style={styles.buttonTextContainer}
               onPress={() => {
                 cancel();
@@ -45,6 +51,9 @@ export const UserIdModal = ({
               <Text style={styles.joinButtonText}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity
+              accessible={true}
+              accessibilityLabel={screen === "Welcome" ? "joinButtonWithName" : "setUsernameButton"}
+              testID={screen === "Welcome" ? "joinButtonWithName" : "setUsernameButton"}
               style={styles.buttonTextContainer}
               onPress={() => {
                 if (text !== '') {

@@ -526,6 +526,9 @@ const App = ({
         <Text style={styles.heading}>Join a Meeting</Text>
         <View>
           <TextInput
+            accessible={true}
+            accessibilityLabel="roomIdInput"
+            testID="roomIdInputTest"
             onChangeText={value => {
               setText(value);
             }}
@@ -540,6 +543,9 @@ const App = ({
           />
           <View style={styles.clear}>
             <TouchableOpacity
+              accessible={true}
+              accessibilityLabel="removeText"
+              testID="removeTextTest"
               onPress={() => {
                 setText('');
               }}>
@@ -552,6 +558,9 @@ const App = ({
           </View>
         </View>
         <TouchableOpacity
+          accessible={true}
+          accessibilityLabel="joinButton"
+          testID="joinButtonTest"
           disabled={buttonState !== 'Active'}
           style={[
             styles.joinButtonContainer,

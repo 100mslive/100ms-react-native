@@ -1469,6 +1469,9 @@ const Meeting = ({
           'audio',
         ) && (
           <TouchableOpacity
+            accessible={true}
+            accessibilityLabel="audioMute"
+            testID="audioMute"
             style={styles.singleIconContainer}
             onPress={() => {
               instance?.localPeer
@@ -1487,6 +1490,9 @@ const Meeting = ({
           </TouchableOpacity>
         )}
         <TouchableOpacity
+          accessible={true}
+          accessibilityLabel="sendMessage"
+          testID="sendMessage"
           style={styles.singleIconContainer}
           onPress={() => {
             setModalVisible(true);
@@ -1499,6 +1505,9 @@ const Meeting = ({
           {notification && <View style={styles.messageDot} />}
         </TouchableOpacity>
         <TouchableOpacity
+          accessible={true}
+          accessibilityLabel="raiseHand"
+          testID="raiseHand"
           style={styles.singleIconContainer}
           onPress={() => {
             instance?.changeMetadata(
@@ -1519,6 +1528,9 @@ const Meeting = ({
           />
         </TouchableOpacity>
         <TouchableOpacity
+          accessible={true}
+          accessibilityLabel="BRB"
+          testID="BRB"
           style={styles.singleIconContainer}
           onPress={() => {
             instance?.changeMetadata(
@@ -1542,6 +1554,9 @@ const Meeting = ({
           'video',
         ) && (
           <TouchableOpacity
+            accessible={true}
+            accessibilityLabel="videoMute"
+            testID="videoMute"
             style={styles.singleIconContainer}
             onPress={() => {
               instance?.localPeer
@@ -1560,6 +1575,9 @@ const Meeting = ({
           </TouchableOpacity>
         )}
         <TouchableOpacity
+          accessible={true}
+          accessibilityLabel="leaveMeeting"
+          testID="leaveMeeting"
           style={styles.leaveIconContainer}
           onPress={() => {
             setLeaveModalVisible(true);
