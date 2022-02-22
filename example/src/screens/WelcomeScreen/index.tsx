@@ -98,24 +98,28 @@ const tokenFromLinkService = async (
   fetchTokenFromLinkSuccess: Function,
   apiFailed: Function,
 ) => {
-  const response = await services.fetchTokenFromLink({
-    code,
-    subdomain,
-    userID,
-  });
-
-  if (response.error || !response?.token) {
-    apiFailed(response);
-  } else {
-    if (subdomain.search('.qa-') >= 0) {
-      fetchTokenFromLinkSuccess(
-        response.token,
-        userID,
-        'https://qa-init.100ms.live/init',
-      );
+  try {
+    const response = await services.fetchTokenFromLink({
+      code,
+      subdomain,
+      userID,
+    });
+  
+    if (response.error || !response?.token) {
+      apiFailed(response);
     } else {
-      fetchTokenFromLinkSuccess(response.token, userID);
+      if (subdomain.search('.qa-') >= 0) {
+        fetchTokenFromLinkSuccess(
+          response.token,
+          userID,
+          'https://qa-init.100ms.live/init',
+        );
+      } else {
+        fetchTokenFromLinkSuccess(response.token, userID);
+      }
     }
+  } catch (error) {
+    console.log(error, "error in getToken")
   }
 };
 

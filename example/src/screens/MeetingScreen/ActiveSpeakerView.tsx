@@ -36,13 +36,49 @@ type ActiveSpeakerViewProps = {
 };
 
 const includesPeerId = (speakers: Peer[], peerId: string): boolean => {
-  speakers.map(speaker => {
-    if (speaker.id === peerId) {
-      return true;
+  for (let i = 0; i < speakers.length;i++) {
+    if (speakers[i].id === peerId) {
+      return true
     }
-  });
+  }
   return false;
 };
+
+const findPeerIndex = (peer: Peer, speakers: Peer[]) => {
+  let id = -1
+  speakers.map((speaker: Peer, index: number) => {
+    if (speaker.id == peer.id) {
+      id = index;
+    }
+  })
+  return id
+}
+
+const rearrangeActiveSpeakers = (recentSpeakers:Peer[], currentSpeakers: Peer[]) => {
+  if (recentActiveSpeakers.length === currentSpeakers.length) {
+    currentSpeakers.map((item: Peer, index: number) => {
+      let recentIndex = findPeerIndex(item, recentSpeakers);
+      if (recentIndex !== -1) {
+        // Swap
+        let temp = currentSpeakers[recentIndex];
+        currentSpeakers[recentIndex] = currentSpeakers[index]
+        currentSpeakers[index] = temp
+      }
+    })
+  }
+}
+
+const checkInPeerList = (peers: Array<HMSPeer>, id?: string): boolean => {
+  let rt = false
+  peers.map((peer: HMSPeer) => {
+    if (peer.peerID === id) {
+      rt = true
+    }
+  })
+  return rt
+}
+
+let recentActiveSpeakers: Peer[] = []
 
 const getActiveSpeakers = (
   peers: Array<HMSPeer>,
@@ -52,22 +88,56 @@ const getActiveSpeakers = (
   const currentActiveSpeakers = speakers.map(speaker =>
     decodePeer(speaker?.peer),
   );
+
   if (currentActiveSpeakers.length >= 4) {
     currentActiveSpeakers.length = 4;
     return currentActiveSpeakers;
   }
-  let speakersRequired = 4 - currentActiveSpeakers.length;
-  peers.map(peer => {
-    if (
-      speakersRequired > 0 &&
-      !speakerIds.includes(peer.peerID) &&
-      !includesPeerId(currentActiveSpeakers, peer.peerID)
-    ) {
-      currentActiveSpeakers.push(decodePeer(peer));
-      speakersRequired--;
-    }
-  });
-  return currentActiveSpeakers;
+
+  if (recentActiveSpeakers.length == 0) {
+    let speakersRequired = 4 - currentActiveSpeakers.length;
+    peers.map(peer => {
+      if (
+        speakersRequired > 0 &&
+        !speakerIds.includes(peer.peerID) &&
+        !includesPeerId(currentActiveSpeakers, peer.peerID)
+      ) {
+        currentActiveSpeakers.push(decodePeer(peer));
+        speakersRequired--;
+      }
+    });
+    recentActiveSpeakers = currentActiveSpeakers
+
+    return currentActiveSpeakers;
+  } else {
+    let speakersRequired = 4 - currentActiveSpeakers.length;
+    
+    recentActiveSpeakers.map(peer => {
+      if (
+        speakersRequired > 0 &&
+        !includesPeerId(currentActiveSpeakers, peer.id ? peer.id : " ") &&
+        checkInPeerList(peers, peer.id)
+      ) {
+        currentActiveSpeakers.push(peer);
+        speakersRequired--;
+      }
+    })
+
+    peers.map(peer => {
+      if (
+        speakersRequired > 0 &&
+        !speakerIds.includes(peer.peerID) &&
+        !includesPeerId(currentActiveSpeakers, peer.peerID)
+      ) {
+        currentActiveSpeakers.push(decodePeer(peer));
+        speakersRequired--;
+      }
+    });
+
+    rearrangeActiveSpeakers(recentActiveSpeakers, currentActiveSpeakers)
+    recentActiveSpeakers = currentActiveSpeakers
+    return currentActiveSpeakers
+  }
 };
 
 const ActiveSpeakerView = ({
