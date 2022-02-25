@@ -4,10 +4,16 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   ActivityIndicator,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
-import HmsManager, {HMSVideoViewMode} from '@100mslive/react-native-hms';
+import HmsManager, {
+  HMSVideoViewMode,
+  HMSPeer,
+} from '@100mslive/react-native-hms';
+
+import {getThemeColour} from '../utils/functions';
 
 export const PreviewModal = ({
   trackId,
@@ -34,7 +40,9 @@ export const PreviewModal = ({
 }) => {
   const [isMute, setIsMute] = useState(false);
   const [muteVideo, setMuteVideo] = useState(false);
+  const [numberOfLines, setNumberOfLines] = useState(true);
   const HmsView = instance?.HmsView;
+  const peers: HMSPeer[] = instance?.room?.peers ? instance?.room?.peers : [];
 
   return HmsView ? (
     <View style={styles.container}>
@@ -48,6 +56,18 @@ export const PreviewModal = ({
         />
       </View>
       <View style={styles.buttonRow}>
+        <TouchableWithoutFeedback
+          onPress={() => {
+            setNumberOfLines(!numberOfLines);
+          }}>
+          <Text
+            style={styles.collapsibleText}
+            numberOfLines={numberOfLines ? 1 : undefined}>
+            {peers.map((peer, index) => {
+              return (index !== 0 ? ', ' : '') + peer.name;
+            })}
+          </Text>
+        </TouchableWithoutFeedback>
         <View style={styles.iconContainer}>
           {audioAllowed && (
             <TouchableOpacity
@@ -155,5 +175,11 @@ const styles = StyleSheet.create({
   joinButtonContainer: {
     width: '100%',
     alignItems: 'center',
+  },
+  collapsibleText: {
+    backgroundColor: getThemeColour(),
+    color: 'white',
+    fontSize: 20,
+    paddingHorizontal: 16,
   },
 });

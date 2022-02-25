@@ -46,7 +46,7 @@ export const fetchTokenFromLink = async ({
   let endPoint = 'https://prod-in.100ms.live/hmsapi/get-token';
   let body: any = null;
   if (subdomain.search('.qa-') >= 0) {
-    endPoint = 'https://qa-in.100ms.live/hmsapi/get-token';
+    endPoint = 'https://qa-in2.100ms.live/hmsapi/get-token';
     body = {
       user_id: userID,
       code,
