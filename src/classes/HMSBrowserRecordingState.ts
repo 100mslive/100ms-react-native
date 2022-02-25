@@ -3,14 +3,14 @@ import type { HMSException } from './HMSException';
 export class HMSBrowserRecordingState {
   running: string;
   error: HMSException;
-  startedAt: number;
-  stoppedAt: number;
+  startedAt: Date;
+  stoppedAt: Date;
 
   constructor(params: {
     running: string;
     error: HMSException;
-    startedAt: number;
-    stoppedAt: number;
+    startedAt: Date;
+    stoppedAt: Date;
   }) {
     this.running = params.running;
     this.error = params.error;
