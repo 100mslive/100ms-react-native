@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -8,13 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
-import HmsManager, {
-  HMSVideoViewMode,
-  HMSPeer,
-} from '@100mslive/react-native-hms';
-
-import {getThemeColour} from '../utils/functions';
-import { useEffect } from 'react';
+import HmsManager, {HMSVideoViewMode} from '@100mslive/react-native-hms';
 
 export const PreviewModal = ({
   trackId,
@@ -43,11 +37,13 @@ export const PreviewModal = ({
   const [muteVideo, setMuteVideo] = useState(false);
   const [numberOfLines, setNumberOfLines] = useState(true);
   const HmsView = instance?.HmsView;
-  const [peers, setPeers] = useState(instance?.room?.peers ? instance?.room?.peers : []);
+  const [peers, setPeers] = useState(
+    instance?.room?.peers ? instance?.room?.peers : [],
+  );
 
   useEffect(() => {
-    setPeers(instance?.room?.peers ? instance?.room?.peers : [])
-  }, [instance?.room?.peers])
+    setPeers(instance?.room?.peers ? instance?.room?.peers : []);
+  }, [instance?.room?.peers]);
 
   return HmsView ? (
     <View style={styles.container}>
@@ -60,7 +56,7 @@ export const PreviewModal = ({
           mirror={mirrorLocalVideo}
         />
       </View>
-      <View style={styles.buttonRow}>
+      <View style={styles.peerList}>
         <TouchableWithoutFeedback
           onPress={() => {
             setNumberOfLines(!numberOfLines);
@@ -73,6 +69,8 @@ export const PreviewModal = ({
             })}
           </Text>
         </TouchableWithoutFeedback>
+      </View>
+      <View style={styles.buttonRow}>
         <View style={styles.iconContainer}>
           {audioAllowed && (
             <TouchableOpacity
@@ -168,6 +166,15 @@ const styles = StyleSheet.create({
     width: '100%',
     zIndex: 99,
   },
+  peerList: {
+    position: 'absolute',
+    top: '15%',
+    width: '70%',
+    zIndex: 99,
+    alignSelf: 'center',
+    backgroundColor: 'rgba(137,139,155,0.5)',
+    borderRadius: 20,
+  },
   iconContainer: {
     width: '100%',
     flexDirection: 'row',
@@ -182,7 +189,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   collapsibleText: {
-    backgroundColor: getThemeColour(),
+    paddingVertical: 8,
     color: 'white',
     fontSize: 20,
     paddingHorizontal: 16,
