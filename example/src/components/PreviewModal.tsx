@@ -14,6 +14,7 @@ import HmsManager, {
 } from '@100mslive/react-native-hms';
 
 import {getThemeColour} from '../utils/functions';
+import { useEffect } from 'react';
 
 export const PreviewModal = ({
   trackId,
@@ -42,7 +43,11 @@ export const PreviewModal = ({
   const [muteVideo, setMuteVideo] = useState(false);
   const [numberOfLines, setNumberOfLines] = useState(true);
   const HmsView = instance?.HmsView;
-  const peers: HMSPeer[] = instance?.room?.peers ? instance?.room?.peers : [];
+  const [peers, setPeers] = useState(instance?.room?.peers ? instance?.room?.peers : []);
+
+  useEffect(() => {
+    setPeers(instance?.room?.peers ? instance?.room?.peers : [])
+  }, [instance?.room?.peers])
 
   return HmsView ? (
     <View style={styles.container}>
