@@ -34,6 +34,7 @@ object HmsDecoder {
       room.putMap("hlsStreamingState", this.getHMSHlsStreamingState(hmsRoom.hlsStreamingState))
       room.putMap("localPeer", this.getHmsLocalPeer(hmsRoom.localPeer))
       room.putArray("peers", this.getAllPeers(hmsRoom.peerList))
+      room.putInt("peerCount", hmsRoom.peerCount)
     }
     return room
   }

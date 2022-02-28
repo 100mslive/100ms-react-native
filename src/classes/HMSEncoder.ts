@@ -29,6 +29,7 @@ export class HMSEncoder {
       id: room?.id,
       metaData: room?.metaData,
       name: room?.name,
+      peerCount: room?.peerCount,
       peers: HMSEncoder.encodeHmsPeers(room?.peers, id),
       browserRecordingState: HMSEncoder.encodeBrowserRecordingState(room?.browserRecordingState),
       rtmpHMSRtmpStreamingState: HMSEncoder.encodeRTMPStreamingState(room?.rtmpHMSRtmpStreamingState),
