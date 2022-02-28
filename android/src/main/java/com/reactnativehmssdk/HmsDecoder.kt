@@ -432,7 +432,7 @@ object HmsDecoder {
         input.putString("hlsStreamUrl", variant.hlsStreamUrl)
         input.putString("meetingUrl", variant.meetingUrl)
         input.putString("metadata", variant.metadata)
-        variant.startedAt?.let { input.putInt("startedAt", it.toInt()) }
+        input.putString("startedAt", variant.startedAt.toString())
         variants.pushMap(input)
       }
     }
