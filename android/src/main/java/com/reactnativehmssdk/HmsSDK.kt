@@ -140,6 +140,40 @@ class HmsSDK(
               previewInProgress = false
             }
 
+            override fun onPeerUpdate(type: HMSPeerUpdate, peer: HMSPeer) {
+              val updateType = type.name
+              val roomData = HmsDecoder.getHmsRoom(hmsSDK?.getRoom())
+              val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
+              val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
+              val hmsPeer = HmsDecoder.getHmsPeer(peer)
+
+              val data: WritableMap = Arguments.createMap()
+
+              data.putMap("peer", hmsPeer)
+              data.putMap("room", roomData)
+              data.putString("type", updateType)
+              data.putMap("localPeer", localPeerData)
+              data.putArray("remotePeers", remotePeerData)
+              data.putString("id", id)
+              delegate.emitEvent("ON_PEER_UPDATE", data)
+            }
+
+            override fun onRoomUpdate(type: HMSRoomUpdate, hmsRoom: HMSRoom) {
+              val updateType = type.name
+              val roomData = HmsDecoder.getHmsRoom(hmsRoom)
+              val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
+              val remotePeerData = HmsDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
+
+              val data: WritableMap = Arguments.createMap()
+
+              data.putString("type", updateType)
+              data.putMap("room", roomData)
+              data.putMap("localPeer", localPeerData)
+              data.putArray("remotePeers", remotePeerData)
+              data.putString("id", id)
+              delegate.emitEvent("ON_ROOM_UPDATE", data)
+            }
+
             override fun onPreview(room: HMSRoom, localTracks: Array<HMSTrack>) {
               val previewTracks = HmsDecoder.getPreviewTracks(localTracks)
               val hmsRoom = HmsDecoder.getHmsRoom(room)

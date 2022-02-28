@@ -34,6 +34,7 @@ object HmsDecoder {
       room.putMap("hlsStreamingState", this.getHMSHlsStreamingState(hmsRoom.hlsStreamingState))
       room.putMap("localPeer", this.getHmsLocalPeer(hmsRoom.localPeer))
       room.putArray("peers", this.getAllPeers(hmsRoom.peerList))
+      room.putInt("peerCount", hmsRoom.peerCount)
     }
     return room
   }
@@ -362,15 +363,22 @@ object HmsDecoder {
     return decodedError
   }
 
-  private fun getCustomError(message: String, code: String): WritableMap {
+  private fun getCustomError(message: String?, code: Int?): WritableMap {
     val decodedError: WritableMap = Arguments.createMap()
-
-    decodedError.putInt("code", code.toInt())
-    decodedError.putString("localizedDescription", message)
-    decodedError.putString("description", message)
-    decodedError.putString("message", message)
-    decodedError.putString("name", code)
-    decodedError.putString("action", code)
+    var customCode = 101
+    var customMessage = "SOMETHING WENT WRONG"
+    if (code !== null) {
+      customCode = code.toInt()
+    }
+    if (message !== null) {
+      customMessage = message
+    }
+    decodedError.putInt("code", customCode)
+    decodedError.putString("localizedDescription", customMessage)
+    decodedError.putString("description", customMessage)
+    decodedError.putString("message", customMessage)
+    decodedError.putInt("name", customCode)
+    decodedError.putInt("action", customCode)
 
     return decodedError
   }
@@ -382,10 +390,7 @@ object HmsDecoder {
       input.putString("startedAt", data.startedAt.toString())
       input.putString("stoppedAt", data.stoppedAt.toString())
       input.putBoolean("running", data.running)
-      input.putMap(
-          "error",
-          data.error?.code?.let { data.error?.message?.let { it1 -> this.getCustomError(it, it1) } }
-      )
+      input.putMap("error", this.getCustomError(data.error?.message, data.error?.code))
     }
     return input
   }
@@ -396,10 +401,7 @@ object HmsDecoder {
       input.putBoolean("running", data.running)
       input.putString("startedAt", data.startedAt.toString())
       input.putString("stoppedAt", data.stoppedAt.toString())
-      input.putMap(
-          "error",
-          data.error?.code?.let { data.error?.message?.let { it1 -> this.getCustomError(it, it1) } }
-      )
+      input.putMap("error", this.getCustomError(data.error?.message, data.error?.code))
     }
     return input
   }
