@@ -392,26 +392,48 @@ export class HMSEncoder {
   }
 
   static encodeBrowserRecordingState(data: any) {
-    return new HMSBrowserRecordingState({running: data?.running, startedAt: new Date(data?.startedAt), stoppedAt: new Date(data?.stoppedAt), error: data?.error})
+    return new HMSBrowserRecordingState({
+      running: data?.running,
+      startedAt: new Date(parseInt(data?.startedAt)),
+      stoppedAt: new Date(parseInt(data?.stoppedAt)),
+      error: data?.error,
+    })
   }
 
   static encodeServerRecordingState(data: any) {
-    return new HMSServerRecordingState({ running: data?.running, error: data?.error, startedAt: new Date(data?.startedAt)})
+    return new HMSServerRecordingState({
+      running: data?.running,
+      error: data?.error,
+      startedAt: new Date(parseInt(data?.startedAt))
+    })
   }
 
   static encodeRTMPStreamingState(data: any) {
-    return new HMSRtmpStreamingState({ running: data?.running, startedAt: new Date(data?.startedAt), stoppedAt: new Date(data?.stoppedAt), error: data?.error })
+    return new HMSRtmpStreamingState({
+      running: data?.running,
+      startedAt: new Date(parseInt(data?.startedAt)),
+      stoppedAt: new Date(parseInt(data?.stoppedAt)),
+      error: data?.error
+    })
   }
 
   static encodeHLSStreamingState(data: any) {
-    return new HMSHLSStreamingState({running: data?.running, variants: this.encodeHLSVariants(data?.variants)})
+    return new HMSHLSStreamingState({
+      running: data?.running,
+      variants: this.encodeHLSVariants(data?.variants)
+    })
   }
 
   static encodeHLSVariants(data: any) {
     let variants: HMSHLSVariant[] = []
 
     data?.map((item: any) => {
-      let variant = new HMSHLSVariant({ hlsStreamUrl: item.hlsStreamUrl, meetingUrl: item.meetingUrl, metadata: item?.metadata, startedAt: new Date(item?.startedAt) })
+      let variant = new HMSHLSVariant({
+        hlsStreamUrl: item.hlsStreamUrl,
+        meetingUrl: item.meetingUrl,
+        metadata: item?.metadata,
+        startedAt: new Date(parseInt(item?.startedAt)) 
+      })
       variants.push(variant);
     })
 
