@@ -379,8 +379,8 @@ object HmsDecoder {
     val input = Arguments.createMap()
     if (data !== null) {
       input.putBoolean("running", data.running)
-      data.startedAt?.let { input.putInt("startedAt", it.toInt()) }
-      data.stoppedAt?.let { input.putInt("stoppedAt", it.toInt()) }
+      input.putString("startedAt", data.startedAt.toString())
+      input.putString("stoppedAt", data.stoppedAt.toString())
       input.putBoolean("running", data.running)
       input.putMap(
           "error",
@@ -394,8 +394,8 @@ object HmsDecoder {
     val input = Arguments.createMap()
     if (data !== null) {
       input.putBoolean("running", data.running)
-      data.startedAt?.let { input.putInt("startedAt", it.toInt()) }
-      data.stoppedAt?.let { input.putInt("stoppedAt", it.toInt()) }
+      input.putString("startedAt", data.startedAt.toString())
+      input.putString("stoppedAt", data.stoppedAt.toString())
       input.putMap(
           "error",
           data.error?.code?.let { data.error?.message?.let { it1 -> this.getCustomError(it, it1) } }
@@ -408,7 +408,7 @@ object HmsDecoder {
     val input = Arguments.createMap()
     if (data !== null) {
       input.putBoolean("running", data.running)
-      data.startedAt?.let { input.putInt("startedAt", it.toInt()) }
+      input.putString("startedAt", data.startedAt.toString())
       input.putMap("error", data.error?.let { this.getError(it) })
     }
     return input
@@ -431,7 +431,7 @@ object HmsDecoder {
         input.putString("hlsStreamUrl", variant.hlsStreamUrl)
         input.putString("meetingUrl", variant.meetingUrl)
         input.putString("metadata", variant.metadata)
-        variant.startedAt?.let { input.putInt("startedAt", it.toInt()) }
+        input.putString("startedAt", variant.startedAt.toString())
         variants.pushMap(input)
       }
     }

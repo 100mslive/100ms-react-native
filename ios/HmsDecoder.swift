@@ -487,9 +487,10 @@ class HmsDecoder: NSObject {
     static func getHMSBrowserRecordingState(_ data: HMSBrowserRecordingState?) -> [String: Any] {
         if let recordingState = data {
             let running = recordingState.running
+            let startedAt = recordingState.startedAt?.timeIntervalSince1970 ?? 0
             let error = HmsDecoder.getError(recordingState.error)
 
-            return ["running": running, "error": error]
+            return ["running": running, "error": error, "startedAt": startedAt * 1000]
         } else {
             return  [:]
         }
@@ -498,9 +499,10 @@ class HmsDecoder: NSObject {
     static func getHMSRtmpStreamingState(_ data: HMSRTMPStreamingState?) -> [String: Any] {
         if let streamingState = data {
             let running = streamingState.running
+            let startedAt = streamingState.startedAt?.timeIntervalSince1970 ?? 0
             let error = HmsDecoder.getError(streamingState.error)
 
-            return ["running": running, "error": error]
+            return ["running": running, "error": error, "startedAt": startedAt * 1000]
         } else {
             return [:]
         }
@@ -509,9 +511,10 @@ class HmsDecoder: NSObject {
     static func getHMSServerRecordingState(_ data: HMSServerRecordingState?) -> [String: Any] {
         if let recordingState = data {
             let running = recordingState.running
+            let startedAt = recordingState.startedAt?.timeIntervalSince1970 ?? 0
             let error = HmsDecoder.getError(recordingState.error)
 
-            return ["running": running, "error": error]
+            return ["running": running, "error": error, "startedAt": startedAt * 1000]
         } else {
             return [:]
         }
@@ -538,7 +541,7 @@ class HmsDecoder: NSObject {
                 let startedAt = variant.startedAt?.timeIntervalSince1970 ?? 0
                 let hlsStreamingUrl = variant.url.absoluteString
 
-                let decodedVariant = ["meetingUrl": meetingUrl, "metadata": metadata, "hlsStreamUrl": hlsStreamingUrl, "startedAt": startedAt] as [String: Any]
+                let decodedVariant = ["meetingUrl": meetingUrl, "metadata": metadata, "hlsStreamUrl": hlsStreamingUrl, "startedAt": startedAt * 1000] as [String: Any]
                 variants.append(decodedVariant)
             }
         }
