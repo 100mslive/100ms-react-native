@@ -223,6 +223,13 @@ class HmsManager: RCTEventEmitter {
 
         hms?.muteAllPeersAudio(data)
     }
+    
+    @objc
+    func remoteMuteAllPeersAudio(_ data: NSDictionary) {
+        let hms = HmsHelper.getHms(data, hmsCollection)
+
+        hms?.remoteMuteAllPeersAudio()
+    }
 
     @objc
     func changeMetadata(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {

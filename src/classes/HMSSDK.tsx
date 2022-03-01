@@ -550,6 +550,11 @@ export class HMSSDK {
     HmsManager.muteAllPeersAudio({ mute, id: this.id });
   };
 
+  remoteMuteAllPeersAudio = () => {
+    logger?.verbose('#Function remoteMuteAllPeersAudio', { id: this.id });
+    HmsManager.remoteMuteAllPeersAudio({ id: this.id });
+  };
+
   getRoom = async () => {
     logger?.verbose('#Function getRoom', {
       roomID: this.room?.id,

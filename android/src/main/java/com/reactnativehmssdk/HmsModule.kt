@@ -202,6 +202,13 @@ class HmsModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
+  fun remoteMuteAllPeersAudio(data: ReadableMap) {
+    val hms = HmsHelper.getHms(data, hmsCollection)
+
+    hms?.remoteMuteAllPeersAudio()
+  }
+
+  @ReactMethod
   fun changeMetadata(data: ReadableMap, callback: Promise?) {
     val hms = HmsHelper.getHms(data, hmsCollection)
 
