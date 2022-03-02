@@ -831,6 +831,12 @@ const Meeting = ({
       buttons.push(
         ...[
           {
+            text: 'Remote mute all peers audio',
+            onPress: () => {
+              instance?.remoteMuteAllAudio();
+            },
+          },
+          {
             text: 'Mute video of custom roles',
             onPress: () => {
               setRoleModalVisible(true);
@@ -1190,7 +1196,7 @@ const Meeting = ({
           {!instance?.localPeer?.role?.name?.includes('hls-') && (
             <TouchableOpacity
               onPress={() => {
-                instance?.muteAllPeersAudio(!muteAllAudio);
+                instance?.setPlaybackForAllAudio(!muteAllAudio);
                 setMuteAllAudio(!muteAllAudio);
               }}
               style={styles.headerIcon}>

@@ -17,6 +17,7 @@ import live.hms.video.sdk.models.enums.HMSRoomUpdate
 import live.hms.video.sdk.models.enums.HMSTrackUpdate
 import live.hms.video.sdk.models.trackchangerequest.HMSChangeTrackStateRequest
 import live.hms.video.utils.HMSCoroutineScope
+import live.hms.video.utils.HmsUtilities
 
 class HmsSDK(
     data: ReadableMap?,
@@ -758,7 +759,29 @@ class HmsSDK(
     }
   }
 
-  fun muteAllPeersAudio(data: ReadableMap) {
+  fun remoteMuteAllAudio() {
+    val allAudioTracks = hmsSDK?.getRoom()?.let { HmsUtilities.getAllAudioTracks(it) }
+    if (allAudioTracks != null) {
+      var customError: HMSException? = null
+      for (audioTrack in allAudioTracks) {
+        hmsSDK?.changeTrackState(
+            audioTrack,
+            true,
+            object : HMSActionResultListener {
+              override fun onSuccess() {}
+              override fun onError(error: HMSException) {
+                customError = error
+              }
+            }
+        )
+      }
+      if (customError != null) {
+        self.emitHMSError(customError!!)
+      }
+    }
+  }
+
+  fun setPlaybackForAllAudio(data: ReadableMap) {
     val requiredKeys = HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("mute", "Boolean")))
     if (requiredKeys) {
       val mute = data.getBoolean("mute")
