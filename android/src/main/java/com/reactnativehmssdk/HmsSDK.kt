@@ -759,7 +759,7 @@ class HmsSDK(
     }
   }
 
-  fun remoteMuteAllPeersAudio() {
+  fun remoteMuteAllAudio() {
     val allAudioTracks = hmsSDK?.getRoom()?.let { HmsUtilities.getAllAudioTracks(it) }
     if (allAudioTracks != null) {
       var customError: HMSException? = null
@@ -781,7 +781,7 @@ class HmsSDK(
     }
   }
 
-  fun muteAllPeersAudio(data: ReadableMap) {
+  fun setPlaybackForAllAudio(data: ReadableMap) {
     val requiredKeys = HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("mute", "Boolean")))
     if (requiredKeys) {
       val mute = data.getBoolean("mute")

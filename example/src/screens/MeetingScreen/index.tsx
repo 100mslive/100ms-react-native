@@ -904,7 +904,7 @@ const Meeting = ({
           {
             text: 'Remote mute all peers audio',
             onPress: () => {
-              instance?.remoteMuteAllPeersAudio();
+              instance?.remoteMuteAllAudio();
             },
           },
           {
@@ -1315,7 +1315,7 @@ const Meeting = ({
           {!instance?.localPeer?.role?.name?.includes('hls-') && (
             <TouchableOpacity
               onPress={() => {
-                instance?.muteAllPeersAudio(!muteAllAudio);
+                instance?.setPlaybackForAllAudio(!muteAllAudio);
                 setMuteAllAudio(!muteAllAudio);
               }}
               style={styles.headerIcon}>

@@ -544,15 +544,15 @@ export class HMSSDK {
     return await HmsManager.acceptRoleChange({ id: this.id });
   };
 
-  muteAllPeersAudio = (mute: boolean) => {
-    logger?.verbose('#Function muteAllPeersAudio', { mute, id: this.id });
+  setPlaybackForAllAudio = (mute: boolean) => {
+    logger?.verbose('#Function setPlaybackForAllAudio', { mute, id: this.id });
     this.muteStatus = mute;
-    HmsManager.muteAllPeersAudio({ mute, id: this.id });
+    HmsManager.setPlaybackForAllAudio({ mute, id: this.id });
   };
 
-  remoteMuteAllPeersAudio = () => {
-    logger?.verbose('#Function remoteMuteAllPeersAudio', { id: this.id });
-    HmsManager.remoteMuteAllPeersAudio({ id: this.id });
+  remoteMuteAllAudio = () => {
+    logger?.verbose('#Function remoteMuteAllAudio', { id: this.id });
+    HmsManager.remoteMuteAllAudio({ id: this.id });
   };
 
   getRoom = async () => {
@@ -934,7 +934,7 @@ export class HMSSDK {
       this.id
     );
     if (this.muteStatus && data?.type === 'TRACK_ADDED') {
-      this.muteAllPeersAudio(this.muteStatus);
+      this.setPlaybackForAllAudio(this.muteStatus);
     }
     this.room = room;
     this.localPeer = localPeer;

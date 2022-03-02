@@ -898,7 +898,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     // MARK: Helper Functions
-    func remoteMuteAllPeersAudio() {
+    func remoteMuteAllAudio() {
         let allAudioTracks = HMSUtilities.getAllAudioTracks(in: (self.hms?.room)!!)
         var customError: HMSError? = nil
         for audioTrack in allAudioTracks {
@@ -914,7 +914,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
 
-    func muteAllPeersAudio(_ data: NSDictionary) {
+    func setPlaybackForAllAudio(_ data: NSDictionary) {
         guard let mute = data.value(forKey: "mute") as? Bool
         else {
             let error = HMSError(id: "119", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
