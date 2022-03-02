@@ -23,8 +23,6 @@ React native wrapper for 100ms SDK
 
 ```bash
 npm install @100mslive/react-native-hms --save
-
-cd ios/ && pod install
 ```
 
 📲 Download the Sample iOS App here: https://testflight.apple.com/join/v4bSIPad
@@ -207,3 +205,12 @@ import { HMSUpdateListenerActions } from '@100mslive/react-native-hms';
 // add an error event listener
 hmsInstance.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
 ```
+
+# Run Example App
+To run the example app on your system, follow these steps - 
+1. In the project root, run `npm install`
+2. Go to the example folder, `cd example`
+3. In the example folder, run `npm install`
+4. To run on Android, run `npx react-native run-android`
+5. To run on iOS, first install the pods in iOS folder, `cd ios; pod install`. Then, in example folder, run `npx react-native run-ios`
+
