@@ -13,6 +13,7 @@ export class HMSRoom {
   rtmpHMSRtmpStreamingState: HMSRtmpStreamingState;
   serverRecordingState: HMSServerRecordingState;
   hlsStreamingState: HMSHLSStreamingState;
+  peerCount: number;
 
   constructor(params: {
     id: string;
@@ -23,6 +24,7 @@ export class HMSRoom {
     rtmpHMSRtmpStreamingState: HMSRtmpStreamingState;
     serverRecordingState: HMSServerRecordingState;
     hlsStreamingState: HMSHLSStreamingState;
+    peerCount: number;
   }) {
     this.id = params.id;
     this.name = params.name;
@@ -32,5 +34,6 @@ export class HMSRoom {
     this.rtmpHMSRtmpStreamingState = params.rtmpHMSRtmpStreamingState;
     this.serverRecordingState = params.serverRecordingState;
     this.hlsStreamingState = params.hlsStreamingState;
+    this.peerCount = params.peerCount;
   }
 }

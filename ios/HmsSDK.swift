@@ -930,6 +930,10 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
             return "ROLE_CHANGED"
         case .metadataUpdated:
             return "METADATA_CHANGED"
+        case .nameUpdated:
+            return "NAME_CHANGED"
+        case .defaultUpdate:
+            return "DEFAULT_UPDATE"
         default:
             return ""
         }
