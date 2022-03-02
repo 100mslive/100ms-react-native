@@ -23,8 +23,6 @@ React native wrapper for 100ms SDK
 
 ```bash
 npm install @100mslive/react-native-hms --save
-
-cd ios/ && pod install
 ```
 
 📲 Download the Sample iOS App here: https://testflight.apple.com/join/v4bSIPad
@@ -207,3 +205,4 @@ import { HMSUpdateListenerActions } from '@100mslive/react-native-hms';
 // add an error event listener
 hmsInstance.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
 ```
+
