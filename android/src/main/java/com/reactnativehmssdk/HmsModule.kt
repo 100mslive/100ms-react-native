@@ -195,10 +195,17 @@ class HmsModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun muteAllPeersAudio(data: ReadableMap) {
+  fun setPlaybackForAllAudio(data: ReadableMap) {
     val hms = HmsHelper.getHms(data, hmsCollection)
 
-    hms?.muteAllPeersAudio(data)
+    hms?.setPlaybackForAllAudio(data)
+  }
+
+  @ReactMethod
+  fun remoteMuteAllAudio(data: ReadableMap) {
+    val hms = HmsHelper.getHms(data, hmsCollection)
+
+    hms?.remoteMuteAllAudio()
   }
 
   @ReactMethod
