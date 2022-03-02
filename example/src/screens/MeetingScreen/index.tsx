@@ -367,9 +367,11 @@ const Meeting = ({
     if (type === HMSRoomUpdate.BROWSER_RECORDING_STATE_UPDATED) {
       let streaming = room?.browserRecordingState?.running;
       let hours = room?.browserRecordingState?.startedAt.getHours().toString();
-      let minutes = room?.browserRecordingState?.startedAt.getMinutes()?.toString()
+      let minutes = room?.browserRecordingState?.startedAt
+        .getMinutes()
+        ?.toString();
 
-      let time = hours+":"+minutes;
+      let time = hours + ':' + minutes;
 
       Toast.showWithGravity(
         `Browser Recording ${streaming ? 'Started At ' + time : 'Stopped'}`,
@@ -385,10 +387,14 @@ const Meeting = ({
       );
     } else if (type === HMSRoomUpdate.RTMP_STREAMING_STATE_UPDATED) {
       let streaming = room?.rtmpHMSRtmpStreamingState?.running;
-      let hours = room?.rtmpHMSRtmpStreamingState?.startedAt.getHours().toString();
-      let minutes = room?.rtmpHMSRtmpStreamingState?.startedAt.getMinutes()?.toString()
+      let hours = room?.rtmpHMSRtmpStreamingState?.startedAt
+        .getHours()
+        .toString();
+      let minutes = room?.rtmpHMSRtmpStreamingState?.startedAt
+        .getMinutes()
+        ?.toString();
 
-      let time = hours + ":" + minutes;
+      let time = hours + ':' + minutes;
 
       Toast.showWithGravity(
         `RTMP Streaming ${streaming ? 'Started At ' + time : 'Stopped'}`,
@@ -399,12 +405,14 @@ const Meeting = ({
       let streaming = room?.serverRecordingState?.running;
 
       let hours = room?.serverRecordingState?.startedAt.getHours().toString();
-      let minutes = room?.serverRecordingState?.startedAt.getMinutes()?.toString()
+      let minutes = room?.serverRecordingState?.startedAt
+        .getMinutes()
+        ?.toString();
 
-      let time = hours + ":" + minutes;
+      let time = hours + ':' + minutes;
 
       Toast.showWithGravity(
-        `Server Recording ${streaming ? 'Started At ' + time  : 'Stopped'}`,
+        `Server Recording ${streaming ? 'Started At ' + time : 'Stopped'}`,
         Toast.LONG,
         Toast.TOP,
       );
@@ -667,8 +675,8 @@ const Meeting = ({
       Dimensions.removeEventListener('change', () => {
         setOrientation(!orientation);
       });
-      // instance?.leave();
-      // navigate('WelcomeScreen');
+      instance?.leave();
+      navigate('WelcomeScreen');
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
