@@ -7,15 +7,15 @@
     "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "setup-firebase": "node setupFirebase.js"
   },
   "dependencies": {
     "@miblanchard/react-native-slider": "^2.0.2",
-    "@react-native-firebase/app": "^12.8.0",
-    "@react-native-firebase/crashlytics": "^12.8.0",
     "@react-native-picker/picker": "^2.0.0",
     "@react-navigation/native": "^6.0.2",
     "@react-navigation/stack": "^6.0.7",
+    "axios": "^0.26.0",
     "react": "17.0.1",
     "react-native": "0.64.2",
     "react-native-device-info": "^8.4.8",

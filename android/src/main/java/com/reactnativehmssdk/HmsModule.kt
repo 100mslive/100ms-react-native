@@ -195,10 +195,17 @@ class HmsModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun muteAllPeersAudio(data: ReadableMap) {
+  fun setPlaybackForAllAudio(data: ReadableMap) {
     val hms = HmsHelper.getHms(data, hmsCollection)
 
-    hms?.muteAllPeersAudio(data)
+    hms?.setPlaybackForAllAudio(data)
+  }
+
+  @ReactMethod
+  fun remoteMuteAllAudio(data: ReadableMap) {
+    val hms = HmsHelper.getHms(data, hmsCollection)
+
+    hms?.remoteMuteAllAudio()
   }
 
   @ReactMethod
@@ -266,6 +273,13 @@ class HmsModule(reactContext: ReactApplicationContext) :
     hms?.resetVolume()
   }
 
+  @ReactMethod
+  fun changeName(data: ReadableMap, callback: Promise?) {
+    val hms = HmsHelper.getHms(data, hmsCollection)
+
+    hms?.changeName(data, callback)
+  }
+
   fun emitEvent(event: String, data: WritableMap) {
     reactApplicationContext
         .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
@@ -294,7 +308,7 @@ class HmsModule(reactContext: ReactApplicationContext) :
           }
         }
         currentActivity?.application?.unregisterActivityLifecycleCallbacks(this)
-        hmsCollection = mutableMapOf<String, HmsSDK>()
+        hmsCollection = mutableMapOf()
       }
     } catch (e: Exception) {
       //      Log.d("error", e.message)

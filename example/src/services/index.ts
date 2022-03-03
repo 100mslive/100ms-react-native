@@ -1,10 +1,18 @@
+import axios from 'axios';
+
 export const fetchToken = async ({
   roomID,
   userID,
 }: {
   roomID: string;
   userID: string;
-}) => {
+}): Promise<{
+  msg: string;
+  status: number;
+  token: string;
+  success: boolean;
+  error: any;
+}> => {
   // TOKEN_ENDPOINT="https://prod-in.100ms.live/hmsapi/<your-subdomain>/api/token" # Valid
   const endPoint =
     'https://prod-in.100ms.live/hmsapi/random.app.100ms.live/api/token';
@@ -18,13 +26,11 @@ export const fetchToken = async ({
     Accept: 'application/json',
   };
 
-  const response = await fetch(endPoint, {
-    method: 'POST',
-    body: JSON.stringify(body),
-    headers,
+  const response = await axios.post(endPoint, JSON.stringify(body), {
+    headers: headers,
   });
 
-  const result = await response.json();
+  const result = await response.data;
   return result;
 };
 
@@ -36,11 +42,11 @@ export const fetchTokenFromLink = async ({
   code: string;
   subdomain: string;
   userID: string;
-}) => {
+}): Promise<{msg: string; status: number; token: string; error: any}> => {
   let endPoint = 'https://prod-in.100ms.live/hmsapi/get-token';
   let body: any = null;
   if (subdomain.search('.qa-') >= 0) {
-    endPoint = 'https://qa-in.100ms.live/hmsapi/get-token';
+    endPoint = 'https://qa-in2.100ms.live/hmsapi/get-token';
     body = {
       user_id: userID,
       code,
@@ -51,19 +57,16 @@ export const fetchTokenFromLink = async ({
     };
   }
 
-  console.log(code, subdomain, endPoint, body);
   const headers = {
     'Content-Type': 'application/json',
     Accept: 'application/json',
     subdomain,
   };
 
-  const response = await fetch(endPoint, {
-    method: 'POST',
-    body: JSON.stringify(body),
-    headers,
+  const response = await axios.post(endPoint, JSON.stringify(body), {
+    headers: headers,
   });
 
-  const result = await response.json();
+  const result = await response.data;
   return result;
 };

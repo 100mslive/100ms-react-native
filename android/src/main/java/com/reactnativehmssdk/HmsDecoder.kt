@@ -34,6 +34,7 @@ object HmsDecoder {
       room.putMap("hlsStreamingState", this.getHMSHlsStreamingState(hmsRoom.hlsStreamingState))
       room.putMap("localPeer", this.getHmsLocalPeer(hmsRoom.localPeer))
       room.putArray("peers", this.getAllPeers(hmsRoom.peerList))
+      room.putInt("peerCount", hmsRoom.peerCount)
     }
     return room
   }
@@ -123,7 +124,7 @@ object HmsDecoder {
       permissions.putBoolean("changeRoleForce", hmsPermissions.changeRoleForce)
       permissions.putBoolean("unmute", hmsPermissions.unmute)
       permissions.putBoolean("recording", hmsPermissions.recording)
-      permissions.putBoolean("rtmp", hmsPermissions.rtmp)
+      permissions.putBoolean("streaming", hmsPermissions.streaming)
       permissions.putBoolean("changeRole", hmsPermissions.changeRole)
     }
     return permissions
@@ -362,11 +363,34 @@ object HmsDecoder {
     return decodedError
   }
 
+  private fun getCustomError(message: String?, code: Int?): WritableMap {
+    val decodedError: WritableMap = Arguments.createMap()
+    var customCode = 101
+    var customMessage = "SOMETHING WENT WRONG"
+    if (code !== null) {
+      customCode = code.toInt()
+    }
+    if (message !== null) {
+      customMessage = message
+    }
+    decodedError.putInt("code", customCode)
+    decodedError.putString("localizedDescription", customMessage)
+    decodedError.putString("description", customMessage)
+    decodedError.putString("message", customMessage)
+    decodedError.putInt("name", customCode)
+    decodedError.putInt("action", customCode)
+
+    return decodedError
+  }
+
   private fun getHMSBrowserRecordingState(data: HMSBrowserRecordingState?): ReadableMap {
     val input = Arguments.createMap()
     if (data !== null) {
       input.putBoolean("running", data.running)
-      input.putMap("error", data.error?.let { this.getError(it) })
+      input.putString("startedAt", data.startedAt.toString())
+      input.putString("stoppedAt", data.stoppedAt.toString())
+      input.putBoolean("running", data.running)
+      input.putMap("error", this.getCustomError(data.error?.message, data.error?.code))
     }
     return input
   }
@@ -375,7 +399,9 @@ object HmsDecoder {
     val input = Arguments.createMap()
     if (data !== null) {
       input.putBoolean("running", data.running)
-      input.putMap("error", data.error?.let { this.getError(it) })
+      input.putString("startedAt", data.startedAt.toString())
+      input.putString("stoppedAt", data.stoppedAt.toString())
+      input.putMap("error", this.getCustomError(data.error?.message, data.error?.code))
     }
     return input
   }
@@ -384,6 +410,7 @@ object HmsDecoder {
     val input = Arguments.createMap()
     if (data !== null) {
       input.putBoolean("running", data.running)
+      input.putString("startedAt", data.startedAt.toString())
       input.putMap("error", data.error?.let { this.getError(it) })
     }
     return input
@@ -406,7 +433,7 @@ object HmsDecoder {
         input.putString("hlsStreamUrl", variant.hlsStreamUrl)
         input.putString("meetingUrl", variant.meetingUrl)
         input.putString("metadata", variant.metadata)
-        variant.startedAt?.let { input.putInt("startedAt", it.toInt()) }
+        input.putString("startedAt", variant.startedAt.toString())
         variants.pushMap(input)
       }
     }
