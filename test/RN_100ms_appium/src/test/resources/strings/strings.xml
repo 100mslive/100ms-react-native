@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<!-- Home page Text -->
+    <string name="empty_meeting_url">Enter room ID</string>
+  <string name="empty_name_space">Enter user ID</string>
+
+
+
+</resources>

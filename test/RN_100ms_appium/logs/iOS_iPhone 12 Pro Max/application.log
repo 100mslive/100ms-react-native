@@ -1,0 +1,15 @@
+[logs/iOS_iPhone 12 Pro Max INFO ] 2022-02-26 20:19:24.477 BaseTest:221 - log path: logs/iOS_iPhone 12 Pro Max
+[logs/iOS_iPhone 12 Pro Max INFO ] 2022-02-26 20:19:24.479 BaseTest:228 - load config.properties
+[logs/iOS_iPhone 12 Pro Max INFO ] 2022-02-26 20:19:24.482 BaseTest:233 - load strings/strings.xml
+[logs/iOS_iPhone 12 Pro Max INFO ] 2022-02-26 20:19:24.489 BaseTest:267 - appUrl is/Users/ronitroy/Appium_extra/appium-pageobjectmodel/src/test/resources/app/SwagLabsMobileApp.app
+[logs/iOS_iPhone 12 Pro Max FATAL] 2022-02-26 20:19:26.314 BaseTest:281 - driver initialization failure. ABORT!!!
+org.openqa.selenium.SessionNotCreatedException: Unable to create a new remote session. Please check the server log for more details. Original error: An unknown server-side error occurred while processing the command. Original error: Unknown device or simulator UDID: '63E2D54C-CA63-4ECA-89C2-61F2F41EE2F7'
+Build info: version: '3.141.59', revision: 'e82be7d358', time: '2018-11-14T08:17:03'
+System info: host: 'Ronits-MBP.Dlink', ip: 'fd01:0:0:0:46c:cd47:b624:e6ea%en0', os.name: 'Mac OS X', os.arch: 'aarch64', os.version: '12.1', java.version: '17.0.1'
+Driver info: driver.version: IOSDriver
+remote stacktrace: UnknownError: An unknown server-side error occurred while processing the command. Original error: Unknown device or simulator UDID: '63E2D54C-CA63-4ECA-89C2-61F2F41EE2F7'
+    at getResponseForW3CError (/Applications/Appium Server GUI.app/Contents/Resources/app/node_modules/appium/node_modules/appium-base-driver/lib/protocol/errors.js:804:9)
+    at asyncHandler (/Applications/Appium Server GUI.app/Contents/Resources/app/node_modules/appium/node_modules/appium-base-driver/lib/protocol/protocol.js:380:37)
+Build info: version: '3.141.59', revision: 'e82be7d358', time: '2018-11-14T08:17:03'
+System info: host: 'Ronits-MBP.Dlink', ip: 'fd01:0:0:0:46c:cd47:b624:e6ea%en0', os.name: 'Mac OS X', os.arch: 'aarch64', os.version: '12.1', java.version: '17.0.1'
+Driver info: driver.version: IOSDriver
