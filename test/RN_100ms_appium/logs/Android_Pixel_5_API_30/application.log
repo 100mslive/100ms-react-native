@@ -1,0 +1,115 @@
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:37:48.034 BaseTest:222 - log path: logs/Android_Pixel_5_API_30
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:37:48.037 BaseTest:229 - load config.properties
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:37:48.037 BaseTest:234 - load strings/strings.xml
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:37:58.309 BaseTest:280 - driver initialized: io.appium.java_client.android.AndroidDriver, Capabilities: {appActivity=.MainActivity, appPackage=live.hms.rn, automationName=UiAutomator2, avd=Pixel_5_API_30, avdLaunchTimeout=120000, chromeDriverPort=11000, databaseEnabled=false, desired={platformName=android, chromeDriverPort=11000, appActivity=.MainActivity, appPackage=live.hms.rn, automationName=UiAutomator2, avd=Pixel_5_API_30, avdLaunchTimeout=120000, deviceName=Pixel_5_API_30, systemPort=10000}, deviceApiLevel=30, deviceManufacturer=Google, deviceModel=sdk_gphone_arm64, deviceName=emulator-5554, deviceScreenDensity=440, deviceScreenSize=1080x2340, deviceUDID=emulator-5554, javascriptEnabled=true, locationContextEnabled=false, networkConnectionEnabled=true, pixelRatio=2.75, platform=LINUX, platformName=Android, platformVersion=11, statBarHeight=66, systemPort=10000, takesScreenshot=true, viewportRect={left=0, top=66, width=1080, height=2142}, warnings={}, webStorageEnabled=false}
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:38:02.237 PreviewPageTest:51 - 
+****** starting test:Test_PreviewPage******
+
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:38:05.364 BaseTest:331 - login with https://ronitroy-xyz.app.100ms.live/meeting/kfg-ahl-lxm
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:39:16.747 BaseTest:222 - log path: logs/Android_Pixel_5_API_30
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:39:16.749 BaseTest:229 - load config.properties
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:39:16.750 BaseTest:234 - load strings/strings.xml
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:39:24.608 BaseTest:280 - driver initialized: io.appium.java_client.android.AndroidDriver, Capabilities: {appActivity=.MainActivity, appPackage=live.hms.rn, automationName=UiAutomator2, avd=Pixel_5_API_30, avdLaunchTimeout=120000, chromeDriverPort=11000, databaseEnabled=false, desired={platformName=android, chromeDriverPort=11000, appActivity=.MainActivity, appPackage=live.hms.rn, automationName=UiAutomator2, avd=Pixel_5_API_30, avdLaunchTimeout=120000, deviceName=Pixel_5_API_30, systemPort=10000}, deviceApiLevel=30, deviceManufacturer=Google, deviceModel=sdk_gphone_arm64, deviceName=emulator-5554, deviceScreenDensity=440, deviceScreenSize=1080x2340, deviceUDID=emulator-5554, javascriptEnabled=true, locationContextEnabled=false, networkConnectionEnabled=true, pixelRatio=2.75, platform=LINUX, platformName=Android, platformVersion=11, statBarHeight=66, systemPort=10000, takesScreenshot=true, viewportRect={left=0, top=66, width=1080, height=2142}, warnings={}, webStorageEnabled=false}
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:39:28.861 PreviewPageTest:51 - 
+****** starting test:Test_PreviewPage******
+
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:39:32.201 BaseTest:331 - login with https://ronitroy-xyz.app.100ms.live/meeting/kfg-ahl-lxm
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:40:29.815 BaseTest:222 - log path: logs/Android_Pixel_5_API_30
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:40:29.817 BaseTest:229 - load config.properties
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:40:29.818 BaseTest:234 - load strings/strings.xml
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:40:40.474 BaseTest:280 - driver initialized: io.appium.java_client.android.AndroidDriver, Capabilities: {appActivity=.MainActivity, appPackage=live.hms.rn, automationName=UiAutomator2, avd=Pixel_5_API_30, avdLaunchTimeout=120000, chromeDriverPort=11000, databaseEnabled=false, desired={platformName=android, chromeDriverPort=11000, appActivity=.MainActivity, appPackage=live.hms.rn, automationName=UiAutomator2, avd=Pixel_5_API_30, avdLaunchTimeout=120000, deviceName=Pixel_5_API_30, systemPort=10000}, deviceApiLevel=30, deviceManufacturer=Google, deviceModel=sdk_gphone_arm64, deviceName=emulator-5554, deviceScreenDensity=440, deviceScreenSize=1080x2340, deviceUDID=emulator-5554, javascriptEnabled=true, locationContextEnabled=false, networkConnectionEnabled=true, pixelRatio=2.75, platform=LINUX, platformName=Android, platformVersion=11, statBarHeight=66, systemPort=10000, takesScreenshot=true, viewportRect={left=0, top=66, width=1080, height=2142}, warnings={}, webStorageEnabled=false}
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:40:44.790 HomePageTest:53 - 
+****** starting test:Test_HomePage******
+
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:40:48.110 BaseTest:351 - meeting_url_text - Enter room ID
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:40:48.742 BaseTest:331 - login with https://ronitroy-xyz.app.100ms.live/meeting/kfg-ahl-lxm
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:40:49.951 BaseTest:351 - meeting_url_text - https://ronitroy-xyz.app.100ms.live/meeting/kfg-ahl-lxm
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:40:51.274 BaseTest:133 - video path: videos/Android_Pixel_5_API_30/2022-03-04-01-40-29/HomePageTest/Test_HomePage.mp4
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:40:53.200 HomePageTest:53 - 
+****** starting test:Test_ParticipantName_Popup******
+
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:40:56.086 BaseTest:331 - login with https://ronitroy-xyz.app.100ms.live/meeting/kfg-ahl-lxm
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:40:57.935 BaseTest:351 - name_field_text - Enter user ID
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:40:58.655 BaseTest:331 - Participant name- Ronit
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:40:59.668 BaseTest:351 - name_field_text - Ronit
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:41:01.147 BaseTest:133 - video path: videos/Android_Pixel_5_API_30/2022-03-04-01-40-29/HomePageTest/Test_ParticipantName_Popup.mp4
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:43:30.320 BaseTest:222 - log path: logs/Android_Pixel_5_API_30
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:43:30.323 BaseTest:229 - load config.properties
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:43:30.325 BaseTest:234 - load strings/strings.xml
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:43:35.905 BaseTest:280 - driver initialized: io.appium.java_client.android.AndroidDriver, Capabilities: {appActivity=.MainActivity, appPackage=live.hms.rn, automationName=UiAutomator2, avd=Pixel_5_API_30, avdLaunchTimeout=120000, chromeDriverPort=11000, databaseEnabled=false, desired={platformName=android, chromeDriverPort=11000, appActivity=.MainActivity, appPackage=live.hms.rn, automationName=UiAutomator2, avd=Pixel_5_API_30, avdLaunchTimeout=120000, deviceName=Pixel_5_API_30, systemPort=10000}, deviceApiLevel=30, deviceManufacturer=Google, deviceModel=sdk_gphone_arm64, deviceName=emulator-5554, deviceScreenDensity=440, deviceScreenSize=1080x2340, deviceUDID=emulator-5554, javascriptEnabled=true, locationContextEnabled=false, networkConnectionEnabled=true, pixelRatio=2.75, platform=LINUX, platformName=Android, platformVersion=11, statBarHeight=66, systemPort=10000, takesScreenshot=true, viewportRect={left=0, top=66, width=1080, height=2142}, warnings={}, webStorageEnabled=false}
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:43:39.831 PreviewPageTest:51 - 
+****** starting test:Test_PreviewPage******
+
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:43:42.986 BaseTest:331 - login with https://ronitroy-xyz.app.100ms.live/meeting/kfg-ahl-lxm
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:44:54.480 BaseTest:222 - log path: logs/Android_Pixel_5_API_30
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:44:54.482 BaseTest:229 - load config.properties
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:44:54.483 BaseTest:234 - load strings/strings.xml
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:45:02.920 BaseTest:222 - log path: logs/Android_Pixel_5_API_30
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:45:02.922 BaseTest:229 - load config.properties
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:45:02.923 BaseTest:234 - load strings/strings.xml
+[logs/Android_Pixel_5_API_30 FATAL] 2022-03-04 01:45:04.719 BaseTest:282 - driver initialization failure. ABORT!!!
+org.openqa.selenium.SessionNotCreatedException: Unable to create a new remote session. Please check the server log for more details. Original error: An unknown server-side error occurred while processing the command. Original error: UiAutomator2 Server cannot start because the local port #10000 is busy. Make sure the port you provide via 'systemPort' capability is not occupied. This situation might often be a result of an inaccurate sessions management, e.g. old automation sessions on the same device must always be closed before starting new ones.
+Build info: version: '3.141.59', revision: 'e82be7d358', time: '2018-11-14T08:17:03'
+System info: host: 'Ronits-MacBook-Pro.local', ip: 'fe80:0:0:0:ce9:7644:aabd:8e7a%en0', os.name: 'Mac OS X', os.arch: 'aarch64', os.version: '12.1', java.version: '15.0.6'
+Driver info: driver.version: AndroidDriver
+remote stacktrace: UnknownError: An unknown server-side error occurred while processing the command. Original error: UiAutomator2 Server cannot start because the local port #10000 is busy. Make sure the port you provide via 'systemPort' capability is not occupied. This situation might often be a result of an inaccurate sessions management, e.g. old automation sessions on the same device must always be closed before starting new ones.
+    at getResponseForW3CError (/Applications/Appium Server GUI.app/Contents/Resources/app/node_modules/appium/node_modules/appium-base-driver/lib/protocol/errors.js:804:9)
+    at asyncHandler (/Applications/Appium Server GUI.app/Contents/Resources/app/node_modules/appium/node_modules/appium-base-driver/lib/protocol/protocol.js:380:37)
+Build info: version: '3.141.59', revision: 'e82be7d358', time: '2018-11-14T08:17:03'
+System info: host: 'Ronits-MacBook-Pro.local', ip: 'fe80:0:0:0:ce9:7644:aabd:8e7a%en0', os.name: 'Mac OS X', os.arch: 'aarch64', os.version: '12.1', java.version: '15.0.6'
+Driver info: driver.version: AndroidDriver
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:45:25.091 BaseTest:222 - log path: logs/Android_Pixel_5_API_30
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:45:25.094 BaseTest:229 - load config.properties
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:45:25.094 BaseTest:234 - load strings/strings.xml
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:45:31.751 BaseTest:280 - driver initialized: io.appium.java_client.android.AndroidDriver, Capabilities: {appActivity=.MainActivity, appPackage=live.hms.rn, automationName=UiAutomator2, avd=Pixel_5_API_30, avdLaunchTimeout=120000, chromeDriverPort=11000, databaseEnabled=false, desired={platformName=android, chromeDriverPort=11000, appActivity=.MainActivity, appPackage=live.hms.rn, automationName=UiAutomator2, avd=Pixel_5_API_30, avdLaunchTimeout=120000, deviceName=Pixel_5_API_30, systemPort=10000}, deviceApiLevel=30, deviceManufacturer=Google, deviceModel=sdk_gphone_arm64, deviceName=emulator-5554, deviceScreenDensity=440, deviceScreenSize=1080x2340, deviceUDID=emulator-5554, javascriptEnabled=true, locationContextEnabled=false, networkConnectionEnabled=true, pixelRatio=2.75, platform=LINUX, platformName=Android, platformVersion=11, statBarHeight=66, systemPort=10000, takesScreenshot=true, viewportRect={left=0, top=66, width=1080, height=2142}, warnings={}, webStorageEnabled=false}
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:45:34.561 PreviewPageTest:51 - 
+****** starting test:Test_PreviewPage******
+
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:45:37.620 BaseTest:331 - login with https://ronitroy-xyz.app.100ms.live/meeting/kfg-ahl-lxm
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:53:38.142 BaseTest:222 - log path: logs/Android_Pixel_5_API_30
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:53:38.148 BaseTest:229 - load config.properties
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:53:38.149 BaseTest:234 - load strings/strings.xml
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:53:44.217 BaseTest:280 - driver initialized: io.appium.java_client.android.AndroidDriver, Capabilities: {appActivity=.MainActivity, appPackage=live.hms.rn, automationName=UiAutomator2, avd=Pixel_5_API_30, avdLaunchTimeout=120000, chromeDriverPort=11000, databaseEnabled=false, desired={platformName=android, chromeDriverPort=11000, appActivity=.MainActivity, appPackage=live.hms.rn, automationName=UiAutomator2, avd=Pixel_5_API_30, avdLaunchTimeout=120000, deviceName=Pixel_5_API_30, systemPort=10000}, deviceApiLevel=30, deviceManufacturer=Google, deviceModel=sdk_gphone_arm64, deviceName=emulator-5554, deviceScreenDensity=440, deviceScreenSize=1080x2340, deviceUDID=emulator-5554, javascriptEnabled=true, locationContextEnabled=false, networkConnectionEnabled=true, pixelRatio=2.75, platform=LINUX, platformName=Android, platformVersion=11, statBarHeight=66, systemPort=10000, takesScreenshot=true, viewportRect={left=0, top=66, width=1080, height=2142}, warnings={}, webStorageEnabled=false}
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:53:46.315 PreviewPageTest:51 - 
+****** starting test:Test_PreviewPage******
+
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:53:50.709 BaseTest:331 - login with https://ronitroy-xyz.app.100ms.live/meeting/kfg-ahl-lxm
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:57:24.001 BaseTest:222 - log path: logs/Android_Pixel_5_API_30
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:57:24.004 BaseTest:229 - load config.properties
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:57:24.005 BaseTest:234 - load strings/strings.xml
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:57:29.894 BaseTest:280 - driver initialized: io.appium.java_client.android.AndroidDriver, Capabilities: {appActivity=.MainActivity, appPackage=live.hms.rn, automationName=UiAutomator2, avd=Pixel_5_API_30, avdLaunchTimeout=120000, chromeDriverPort=11000, databaseEnabled=false, desired={platformName=android, chromeDriverPort=11000, appActivity=.MainActivity, appPackage=live.hms.rn, automationName=UiAutomator2, avd=Pixel_5_API_30, avdLaunchTimeout=120000, deviceName=Pixel_5_API_30, systemPort=10000}, deviceApiLevel=30, deviceManufacturer=Google, deviceModel=sdk_gphone_arm64, deviceName=emulator-5554, deviceScreenDensity=440, deviceScreenSize=1080x2340, deviceUDID=emulator-5554, javascriptEnabled=true, locationContextEnabled=false, networkConnectionEnabled=true, pixelRatio=2.75, platform=LINUX, platformName=Android, platformVersion=11, statBarHeight=66, systemPort=10000, takesScreenshot=true, viewportRect={left=0, top=66, width=1080, height=2142}, warnings={}, webStorageEnabled=false}
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:57:31.835 PreviewPageTest:51 - 
+****** starting test:Test_PreviewPage******
+
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 01:57:36.132 BaseTest:331 - login with https://ronitroy-xyz.app.100ms.live/meeting/kfg-ahl-lxm
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 02:08:59.532 BaseTest:222 - log path: logs/Android_Pixel_5_API_30
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 02:08:59.534 BaseTest:229 - load config.properties
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 02:08:59.534 BaseTest:234 - load strings/strings.xml
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 02:09:10.997 BaseTest:280 - driver initialized: io.appium.java_client.android.AndroidDriver, Capabilities: {appActivity=.MainActivity, appPackage=live.hms.rn, automationName=UiAutomator2, avd=Pixel_5_API_30, avdLaunchTimeout=120000, chromeDriverPort=11000, databaseEnabled=false, desired={platformName=android, chromeDriverPort=11000, appActivity=.MainActivity, appPackage=live.hms.rn, automationName=UiAutomator2, avd=Pixel_5_API_30, avdLaunchTimeout=120000, deviceName=Pixel_5_API_30, systemPort=10000}, deviceApiLevel=30, deviceManufacturer=Google, deviceModel=sdk_gphone_arm64, deviceName=emulator-5554, deviceScreenDensity=440, deviceScreenSize=1080x2340, deviceUDID=emulator-5554, javascriptEnabled=true, locationContextEnabled=false, networkConnectionEnabled=true, pixelRatio=2.75, platform=LINUX, platformName=Android, platformVersion=11, statBarHeight=66, systemPort=10000, takesScreenshot=true, viewportRect={left=0, top=66, width=1080, height=2142}, warnings={}, webStorageEnabled=false}
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 02:09:13.547 PreviewPageTest:51 - 
+****** starting test:Test_PreviewPage******
+
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 02:09:16.366 BaseTest:331 - login with https://ronitroy-xyz.app.100ms.live/meeting/kfg-ahl-lxm
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 02:10:17.749 BaseTest:222 - log path: logs/Android_Pixel_5_API_30
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 02:10:17.752 BaseTest:229 - load config.properties
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 02:10:17.753 BaseTest:234 - load strings/strings.xml
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 02:10:26.704 BaseTest:280 - driver initialized: io.appium.java_client.android.AndroidDriver, Capabilities: {appActivity=.MainActivity, appPackage=live.hms.rn, automationName=UiAutomator2, avd=Pixel_5_API_30, avdLaunchTimeout=120000, chromeDriverPort=11000, databaseEnabled=false, desired={platformName=android, chromeDriverPort=11000, appActivity=.MainActivity, appPackage=live.hms.rn, automationName=UiAutomator2, avd=Pixel_5_API_30, avdLaunchTimeout=120000, deviceName=Pixel_5_API_30, systemPort=10000}, deviceApiLevel=30, deviceManufacturer=Google, deviceModel=sdk_gphone_arm64, deviceName=emulator-5554, deviceScreenDensity=440, deviceScreenSize=1080x2340, deviceUDID=emulator-5554, javascriptEnabled=true, locationContextEnabled=false, networkConnectionEnabled=true, pixelRatio=2.75, platform=LINUX, platformName=Android, platformVersion=11, statBarHeight=66, systemPort=10000, takesScreenshot=true, viewportRect={left=0, top=66, width=1080, height=2142}, warnings={}, webStorageEnabled=false}
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 02:10:29.069 PreviewPageTest:51 - 
+****** starting test:Test_PreviewPage******
+
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 02:10:31.920 BaseTest:331 - login with https://ronitroy-xyz.app.100ms.live/meeting/kfg-ahl-lxm
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 02:53:21.212 BaseTest:222 - log path: logs/Android_Pixel_5_API_30
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 02:53:21.214 BaseTest:229 - load config.properties
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 02:53:21.214 BaseTest:234 - load strings/strings.xml
+[logs/Android_Pixel_5_API_30 FATAL] 2022-03-04 02:53:24.940 BaseTest:282 - driver initialization failure. ABORT!!!
+org.openqa.selenium.SessionNotCreatedException: Unable to create a new remote session. Please check the server log for more details. Original error: An unknown server-side error occurred while processing the command. Original error: 'app' option is required for reinstall
+Build info: version: '3.141.59', revision: 'e82be7d358', time: '2018-11-14T08:17:03'
+System info: host: 'Ronits-MacBook-Pro.local', ip: 'fe80:0:0:0:ce9:7644:aabd:8e7a%en0', os.name: 'Mac OS X', os.arch: 'aarch64', os.version: '12.1', java.version: '15.0.6'
+Driver info: driver.version: AndroidDriver
+remote stacktrace: UnknownError: An unknown server-side error occurred while processing the command. Original error: 'app' option is required for reinstall
+    at getResponseForW3CError (/Applications/Appium Server GUI.app/Contents/Resources/app/node_modules/appium/node_modules/appium-base-driver/lib/protocol/errors.js:804:9)
+    at asyncHandler (/Applications/Appium Server GUI.app/Contents/Resources/app/node_modules/appium/node_modules/appium-base-driver/lib/protocol/protocol.js:380:37)
+Build info: version: '3.141.59', revision: 'e82be7d358', time: '2018-11-14T08:17:03'
+System info: host: 'Ronits-MacBook-Pro.local', ip: 'fe80:0:0:0:ce9:7644:aabd:8e7a%en0', os.name: 'Mac OS X', os.arch: 'aarch64', os.version: '12.1', java.version: '15.0.6'
+Driver info: driver.version: AndroidDriver
+[logs/Android_Pixel_5_API_30 INFO ] 2022-03-04 02:53:25.495 BaseTest:176 - Appium server stopped

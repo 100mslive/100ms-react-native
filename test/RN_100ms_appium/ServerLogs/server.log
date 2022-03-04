@@ -1,0 +1,5 @@
+2022-03-03 20:40:18:889 [Appium] Welcome to Appium v1.22.0
+2022-03-03 20:40:18:889 [Appium] Non-default server args:
+2022-03-03 20:40:18:890 [Appium]   sessionOverride: true
+2022-03-03 20:40:18:890 [Appium]   logFile: /Users/ronitroy/IdeaProjects/react-native-hms/test/RN_100ms_appium/ServerLogs/server.log
+2022-03-03 20:40:18:898 [HTTP] Could not start REST http interface listener. The requested port may already be in use. Please make sure there is no other instance of this server running already.
