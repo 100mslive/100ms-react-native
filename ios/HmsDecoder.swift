@@ -9,6 +9,7 @@ class HmsDecoder: NSObject {
         let id = room.roomID ?? ""
         let name = room.name ?? ""
         let metaData = room.metaData ?? ""
+        let count = room.peerCount ?? 0
         let browserRecordingState = HmsDecoder.getHMSBrowserRecordingState(hmsRoom?.browserRecordingState)
         let rtmpStreamingState = HmsDecoder.getHMSRtmpStreamingState(hmsRoom?.rtmpStreamingState)
         let serverRecordingState = HmsDecoder.getHMSServerRecordingState(hmsRoom?.serverRecordingState)
@@ -19,7 +20,7 @@ class HmsDecoder: NSObject {
             peers.append(getHmsPeer(peer))
         }
 
-        return ["id": id, "name": name, "metaData": metaData, "peers": peers, "browserRecordingState": browserRecordingState, "rtmpHMSRtmpStreamingState": rtmpStreamingState, "serverRecordingState": serverRecordingState, "hlsStreamingState": hlsStreamingState]
+        return ["id": id, "name": name, "metaData": metaData, "peers": peers, "browserRecordingState": browserRecordingState, "rtmpHMSRtmpStreamingState": rtmpStreamingState, "serverRecordingState": serverRecordingState, "hlsStreamingState": hlsStreamingState, "peerCount": count]
     }
 
     static func getHmsPeer (_ peer: HMSPeer) -> [String: Any] {
@@ -487,9 +488,10 @@ class HmsDecoder: NSObject {
     static func getHMSBrowserRecordingState(_ data: HMSBrowserRecordingState?) -> [String: Any] {
         if let recordingState = data {
             let running = recordingState.running
+            let startedAt = recordingState.startedAt?.timeIntervalSince1970 ?? 0
             let error = HmsDecoder.getError(recordingState.error)
 
-            return ["running": running, "error": error]
+            return ["running": running, "error": error, "startedAt": startedAt * 1000]
         } else {
             return  [:]
         }
@@ -498,9 +500,10 @@ class HmsDecoder: NSObject {
     static func getHMSRtmpStreamingState(_ data: HMSRTMPStreamingState?) -> [String: Any] {
         if let streamingState = data {
             let running = streamingState.running
+            let startedAt = streamingState.startedAt?.timeIntervalSince1970 ?? 0
             let error = HmsDecoder.getError(streamingState.error)
 
-            return ["running": running, "error": error]
+            return ["running": running, "error": error, "startedAt": startedAt * 1000]
         } else {
             return [:]
         }
@@ -509,9 +512,10 @@ class HmsDecoder: NSObject {
     static func getHMSServerRecordingState(_ data: HMSServerRecordingState?) -> [String: Any] {
         if let recordingState = data {
             let running = recordingState.running
+            let startedAt = recordingState.startedAt?.timeIntervalSince1970 ?? 0
             let error = HmsDecoder.getError(recordingState.error)
 
-            return ["running": running, "error": error]
+            return ["running": running, "error": error, "startedAt": startedAt * 1000]
         } else {
             return [:]
         }
@@ -538,7 +542,7 @@ class HmsDecoder: NSObject {
                 let startedAt = variant.startedAt?.timeIntervalSince1970 ?? 0
                 let hlsStreamingUrl = variant.url.absoluteString
 
-                let decodedVariant = ["meetingUrl": meetingUrl, "metadata": metadata, "hlsStreamUrl": hlsStreamingUrl, "startedAt": startedAt] as [String: Any]
+                let decodedVariant = ["meetingUrl": meetingUrl, "metadata": metadata, "hlsStreamUrl": hlsStreamingUrl, "startedAt": startedAt * 1000] as [String: Any]
                 variants.append(decodedVariant)
             }
         }

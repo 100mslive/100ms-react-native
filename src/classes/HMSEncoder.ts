@@ -21,6 +21,7 @@ import { HMSRemoteAudioTrack } from './HMSRemoteAudioTrack';
 import { HMSRemoteVideoTrack } from './HMSRemoteVideoTrack';
 import { HMSSpeaker } from './HMSSpeaker';
 import { HMSSpeakerUpdate } from './HMSSpeakerUpdate';
+import { HMSBrowserRecordingState, HMSHLSStreamingState, HMSHLSVariant, HMSRtmpStreamingState, HMSServerRecordingState } from '..';
 
 export class HMSEncoder {
   static encodeHmsRoom(room: HMSRoom, id: string) {
@@ -28,11 +29,12 @@ export class HMSEncoder {
       id: room?.id,
       metaData: room?.metaData,
       name: room?.name,
+      peerCount: room?.peerCount,
       peers: HMSEncoder.encodeHmsPeers(room?.peers, id),
-      browserRecordingState: room?.browserRecordingState,
-      rtmpHMSRtmpStreamingState: room?.rtmpHMSRtmpStreamingState,
-      serverRecordingState: room?.serverRecordingState,
-      hlsStreamingState: room?.hlsStreamingState,
+      browserRecordingState: HMSEncoder.encodeBrowserRecordingState(room?.browserRecordingState),
+      rtmpHMSRtmpStreamingState: HMSEncoder.encodeRTMPStreamingState(room?.rtmpHMSRtmpStreamingState),
+      serverRecordingState: HMSEncoder.encodeServerRecordingState(room?.serverRecordingState),
+      hlsStreamingState: HMSEncoder.encodeHLSStreamingState(room?.hlsStreamingState),
     };
 
     return new HMSRoom(encodedObj);
@@ -388,5 +390,54 @@ export class HMSEncoder {
       peer: HMSEncoder.encodeHmsPeer(data?.peer, id),
       track: HMSEncoder.encodeHmsTrack(data?.track, id),
     });
+  }
+
+  static encodeBrowserRecordingState(data: any) {
+    return new HMSBrowserRecordingState({
+      running: data?.running,
+      startedAt: new Date(parseInt(data?.startedAt)),
+      stoppedAt: new Date(parseInt(data?.stoppedAt)),
+      error: data?.error,
+    })
+  }
+
+  static encodeServerRecordingState(data: any) {
+    return new HMSServerRecordingState({
+      running: data?.running,
+      error: data?.error,
+      startedAt: new Date(parseInt(data?.startedAt))
+    })
+  }
+
+  static encodeRTMPStreamingState(data: any) {
+    return new HMSRtmpStreamingState({
+      running: data?.running,
+      startedAt: new Date(parseInt(data?.startedAt)),
+      stoppedAt: new Date(parseInt(data?.stoppedAt)),
+      error: data?.error
+    })
+  }
+
+  static encodeHLSStreamingState(data: any) {
+    return new HMSHLSStreamingState({
+      running: data?.running,
+      variants: this.encodeHLSVariants(data?.variants)
+    })
+  }
+
+  static encodeHLSVariants(data: any) {
+    let variants: HMSHLSVariant[] = []
+
+    data?.map((item: any) => {
+      let variant = new HMSHLSVariant({
+        hlsStreamUrl: item.hlsStreamUrl,
+        meetingUrl: item.meetingUrl,
+        metadata: item?.metadata,
+        startedAt: new Date(parseInt(item?.startedAt)) 
+      })
+      variants.push(variant);
+    })
+
+    return variants;
   }
 }

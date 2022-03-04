@@ -218,10 +218,17 @@ class HmsManager: RCTEventEmitter {
     // MARK: Helper Functions
 
     @objc
-    func muteAllPeersAudio(_ data: NSDictionary) {
+    func setPlaybackForAllAudio(_ data: NSDictionary) {
         let hms = HmsHelper.getHms(data, hmsCollection)
 
-        hms?.muteAllPeersAudio(data)
+        hms?.setPlaybackForAllAudio(data)
+    }
+    
+    @objc
+    func remoteMuteAllAudio(_ data: NSDictionary) {
+        let hms = HmsHelper.getHms(data, hmsCollection)
+
+        hms?.remoteMuteAllAudio()
     }
 
     @objc
