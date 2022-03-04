@@ -55,7 +55,7 @@ const findPeerIndex = (peer: Peer, speakers: Peer[]) => {
 }
 
 const rearrangeActiveSpeakers = (recentSpeakers:Peer[], currentSpeakers: Peer[]) => {
-  if (recentActiveSpeakers.length === currentSpeakers.length) {
+  if (recentActiveSpeakers.length <= currentSpeakers.length) {
     currentSpeakers.map((item: Peer, index: number) => {
       let recentIndex = findPeerIndex(item, recentSpeakers);
       if (recentIndex !== -1) {
@@ -89,13 +89,16 @@ const getActiveSpeakers = (
     decodePeer(speaker?.peer),
   );
 
-  if (currentActiveSpeakers.length >= 4) {
-    currentActiveSpeakers.length = 4;
-    return currentActiveSpeakers;
-  }
+  // if (currentActiveSpeakers.length >= 4) {
+  //   currentActiveSpeakers.length = 4;
+  //   return currentActiveSpeakers;
+  // }
+
+  let speakersRequired = peers.length - currentActiveSpeakers.length
 
   if (recentActiveSpeakers.length == 0) {
-    let speakersRequired = 4 - currentActiveSpeakers.length;
+    // let speakersRequired = 4 - currentActiveSpeakers.length;
+    // let speakersRequired = peers.length - currentActiveSpeakers.length
     peers.map(peer => {
       if (
         speakersRequired > 0 &&
@@ -106,11 +109,11 @@ const getActiveSpeakers = (
         speakersRequired--;
       }
     });
-    recentActiveSpeakers = currentActiveSpeakers
+    recentActiveSpeakers = currentActiveSpeakers.slice(0, 4);
 
     return currentActiveSpeakers;
   } else {
-    let speakersRequired = 4 - currentActiveSpeakers.length;
+    // let speakersRequired = 4 - currentActiveSpeakers.length;
     
     recentActiveSpeakers.map(peer => {
       if (
@@ -135,7 +138,7 @@ const getActiveSpeakers = (
     });
 
     rearrangeActiveSpeakers(recentActiveSpeakers, currentActiveSpeakers)
-    recentActiveSpeakers = currentActiveSpeakers
+    recentActiveSpeakers = currentActiveSpeakers.slice(0,4)
     return currentActiveSpeakers
   }
 };
