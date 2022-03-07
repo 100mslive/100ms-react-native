@@ -142,6 +142,16 @@ class HmsSDK(
             }
 
             override fun onPeerUpdate(type: HMSPeerUpdate, peer: HMSPeer) {
+              if (type === HMSPeerUpdate.AUDIO_TOGGLED ||
+                      type === HMSPeerUpdate.VIDEO_TOGGLED ||
+                      type === HMSPeerUpdate.BECAME_DOMINANT_SPEAKER ||
+                      type === HMSPeerUpdate.NO_DOMINANT_SPEAKER ||
+                      type === HMSPeerUpdate.RESIGNED_DOMINANT_SPEAKER ||
+                      type === HMSPeerUpdate.STARTED_SPEAKING ||
+                      type === HMSPeerUpdate.STOPPED_SPEAKING
+              ) {
+                return
+              }
               val updateType = type.name
               val roomData = HmsDecoder.getHmsRoom(hmsSDK?.getRoom())
               val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
@@ -295,6 +305,16 @@ class HmsSDK(
                 }
 
                 override fun onPeerUpdate(type: HMSPeerUpdate, peer: HMSPeer) {
+                  if (type === HMSPeerUpdate.AUDIO_TOGGLED ||
+                    type === HMSPeerUpdate.VIDEO_TOGGLED ||
+                    type === HMSPeerUpdate.BECAME_DOMINANT_SPEAKER ||
+                    type === HMSPeerUpdate.NO_DOMINANT_SPEAKER ||
+                    type === HMSPeerUpdate.RESIGNED_DOMINANT_SPEAKER ||
+                    type === HMSPeerUpdate.STARTED_SPEAKING ||
+                    type === HMSPeerUpdate.STOPPED_SPEAKING
+                  ) {
+                    return
+                  }
                   val updateType = type.name
                   val roomData = HmsDecoder.getHmsRoom(hmsSDK?.getRoom())
                   val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
