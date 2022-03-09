@@ -270,6 +270,32 @@ object HmsHelper {
     return meetingURLVariants
   }
 
+  fun getHlsRecordingConfig(data: ReadableMap): HMSHlsRecordingConfig? {
+    if (areAllRequiredKeysAvailable(data, arrayOf(Pair("hlsRecordingConfig", "Map")))) {
+      val hmsHlsRecordingConfig = data.getMap("hlsRecordingConfig")
+      if (hmsHlsRecordingConfig != null) {
+        var singleFilePerLayer = false
+        var videoOnDemand = false
+        if (areAllRequiredKeysAvailable(
+                hmsHlsRecordingConfig,
+                arrayOf(Pair("singleFilePerLayer", "Boolean"))
+            )
+        ) {
+          singleFilePerLayer = hmsHlsRecordingConfig.getBoolean("singleFilePerLayer")
+        }
+        if (areAllRequiredKeysAvailable(
+                hmsHlsRecordingConfig,
+                arrayOf(Pair("videoOnDemand", "Boolean"))
+            )
+        ) {
+          videoOnDemand = hmsHlsRecordingConfig.getBoolean("videoOnDemand")
+        }
+        return HMSHlsRecordingConfig(singleFilePerLayer, videoOnDemand)
+      }
+    }
+    return null
+  }
+
   private fun getHMSHLSMeetingURLVariant(
       hmsMeetingURLVariant: HashMap<String, String>?
   ): HMSHLSMeetingURLVariant {

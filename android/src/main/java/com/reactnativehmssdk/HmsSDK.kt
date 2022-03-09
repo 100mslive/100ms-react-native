@@ -306,12 +306,12 @@ class HmsSDK(
 
                 override fun onPeerUpdate(type: HMSPeerUpdate, peer: HMSPeer) {
                   if (type === HMSPeerUpdate.AUDIO_TOGGLED ||
-                    type === HMSPeerUpdate.VIDEO_TOGGLED ||
-                    type === HMSPeerUpdate.BECAME_DOMINANT_SPEAKER ||
-                    type === HMSPeerUpdate.NO_DOMINANT_SPEAKER ||
-                    type === HMSPeerUpdate.RESIGNED_DOMINANT_SPEAKER ||
-                    type === HMSPeerUpdate.STARTED_SPEAKING ||
-                    type === HMSPeerUpdate.STOPPED_SPEAKING
+                          type === HMSPeerUpdate.VIDEO_TOGGLED ||
+                          type === HMSPeerUpdate.BECAME_DOMINANT_SPEAKER ||
+                          type === HMSPeerUpdate.NO_DOMINANT_SPEAKER ||
+                          type === HMSPeerUpdate.RESIGNED_DOMINANT_SPEAKER ||
+                          type === HMSPeerUpdate.STARTED_SPEAKING ||
+                          type === HMSPeerUpdate.STOPPED_SPEAKING
                   ) {
                     return
                   }
@@ -1045,7 +1045,8 @@ class HmsSDK(
       val meetingURLVariants =
           data.getArray("meetingURLVariants")?.toArrayList() as? ArrayList<HashMap<String, String>>
       val hlsMeetingUrlVariant = HmsHelper.getHMSHLSMeetingURLVariants(meetingURLVariants)
-      val config = HMSHLSConfig(hlsMeetingUrlVariant)
+      val hlsRecordingConfig = HmsHelper.getHlsRecordingConfig(data)
+      val config = HMSHLSConfig(hlsMeetingUrlVariant, hlsRecordingConfig)
 
       hmsSDK?.startHLSStreaming(
           config,

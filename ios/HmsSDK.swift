@@ -643,9 +643,10 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
             delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id": id])
             return
         }
-
+        
+        let recordConfig = HmsHelper.getHlsRecordingConfig(data)
         let hlsMeetingUrlVariant = HmsHelper.getHMSHLSMeetingURLVariants(meetingURLVariants)
-        let config = HMSHLSConfig(variants: hlsMeetingUrlVariant)
+        let config = HMSHLSConfig(variants: hlsMeetingUrlVariant, recording: recordConfig)
 
         hms?.startHLSStreaming(config: config, completion: { success, error in
             if success {

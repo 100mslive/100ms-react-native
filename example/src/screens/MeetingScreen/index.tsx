@@ -44,6 +44,7 @@ import {
   HMSRemoteAudioTrack,
   HMSRemoteVideoStats,
   HMSRemoteVideoTrack,
+  HMSHLSRecordingConfig,
 } from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
@@ -181,6 +182,11 @@ const Meeting = ({
         : '',
       metadata: '',
     });
+  const [hlsRecordingDetails, setHLSRecordingDetails] =
+    useState<HMSHLSRecordingConfig>({
+      singleFilePerLayer: false,
+      videoOnDemand: false,
+    });
   const [roleChangeModalVisible, setRoleChangeModalVisible] = useState(false);
   const [layoutModal, setLayoutModal] = useState(false);
   const [changeTrackStateModalVisible, setChangeTrackStateModalVisible] =
@@ -228,6 +234,7 @@ const Meeting = ({
           text: 'Start',
           onPress: () => {
             const hmsHLSConfig = new HMSHLSConfig({
+              hlsRecordingConfig: hlsRecordingDetails,
               meetingURLVariants: [hlsStreamingDetails],
             });
             instance
@@ -1219,6 +1226,44 @@ const Meeting = ({
           multiline
           blurOnSubmit
         />
+        <TouchableOpacity
+          onPress={() => {
+            setHLSRecordingDetails({
+              ...hlsRecordingDetails,
+              singleFilePerLayer: !hlsRecordingDetails.singleFilePerLayer,
+            });
+          }}
+          style={styles.recordingDetails}>
+          <Text>singleFilePerLayer</Text>
+          <View style={styles.checkboxContainer}>
+            {hlsRecordingDetails.singleFilePerLayer && (
+              <Entypo
+                name="check"
+                style={styles.checkbox}
+                size={dimension.viewHeight(20)}
+              />
+            )}
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            setHLSRecordingDetails({
+              ...hlsRecordingDetails,
+              videoOnDemand: !hlsRecordingDetails.videoOnDemand,
+            });
+          }}
+          style={styles.recordingDetails}>
+          <Text>videoOnDemand</Text>
+          <View style={styles.checkboxContainer}>
+            {hlsRecordingDetails.videoOnDemand && (
+              <Entypo
+                name="check"
+                style={styles.checkbox}
+                size={dimension.viewHeight(20)}
+              />
+            )}
+          </View>
+        </TouchableOpacity>
       </CustomModal>
       <CustomModal
         modalVisible={changeTrackStateModalVisible}
