@@ -57,6 +57,8 @@ export * from './classes/HMSRTCStats';
 export * from './classes/HMSRTCStatsReport';
 export * from './classes/HMSRemoteAudioStats';
 export * from './classes/HMSRemoteVideoStats';
+export * from './classes/HMSHLSRecordingConfig';
+export * from './classes/HMSHLSRecordingState';
 
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
 export default HmsManager;

@@ -208,6 +208,20 @@ class HmsHelper: NSObject {
         }
         return hlsVariants
     }
+    
+    static func getHlsRecordingConfig(_ data: NSDictionary) -> HMSHLSRecordingConfig? {
+        guard let meetingURLVariants = data.value(forKey: "hlsRecordingConfig") as? NSDictionary
+        else {
+            return nil
+        }
+        guard let singleFilePerLayer = meetingURLVariants.value(forKey: "singleFilePerLayer") as? Bool ,
+        let videoOnDemand = meetingURLVariants.value(forKey: "videoOnDemand") as? Bool
+        else {
+            return nil
+        }
+        
+        return HMSHLSRecordingConfig(singleFilePerLayer: singleFilePerLayer, enableVOD: videoOnDemand)
+    }
 
     static func getHMSHLSMeetingURLVariant(_ variant: [String: Any]) -> HMSHLSMeetingURLVariant? {
         let meetingUrl = variant["meetingUrl"] as? String
