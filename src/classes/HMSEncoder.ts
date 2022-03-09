@@ -444,12 +444,16 @@ export class HMSEncoder {
   }
 
   static encodeHLSRecordingState(data: any) {
-    return new HMSHLSRecordingState({
-      running: data?.running,
-      startedAt: new Date(parseInt(data?.startedAt)),
-      singleFilePerLayer: data?.singleFilePerLayer,
-      videoOnDemand: data?.videoOnDemand,
-    });
+    if (data) {
+      return new HMSHLSRecordingState({
+        running: data?.running,
+        startedAt: new Date(parseInt(data?.startedAt)),
+        singleFilePerLayer: data?.singleFilePerLayer,
+        videoOnDemand: data?.videoOnDemand,
+      });
+    } else {
+      return undefined;
+    }
   }
 
   static encodeHLSVariants(data: any) {
