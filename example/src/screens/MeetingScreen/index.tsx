@@ -1561,6 +1561,27 @@ const Meeting = ({
             />
           </TouchableOpacity>
         )}
+        {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
+          'video',
+        ) && (
+          <TouchableOpacity
+            style={styles.singleIconContainer}
+            onPress={() => {
+              instance?.localPeer
+                ?.localVideoTrack()
+                ?.setMute(!trackId.isVideoMute);
+              setTrackId({
+                ...trackId,
+                isVideoMute: !trackId.isVideoMute,
+              });
+            }}>
+            <Feather
+              name={trackId.isVideoMute ? 'video-off' : 'video'}
+              style={styles.videoIcon}
+              size={dimension.viewHeight(30)}
+            />
+          </TouchableOpacity>
+        )}
         <TouchableOpacity
           style={styles.singleIconContainer}
           onPress={() => {
@@ -1613,27 +1634,6 @@ const Meeting = ({
             </View>
           )}
         </TouchableOpacity>
-        {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
-          'video',
-        ) && (
-          <TouchableOpacity
-            style={styles.singleIconContainer}
-            onPress={() => {
-              instance?.localPeer
-                ?.localVideoTrack()
-                ?.setMute(!trackId.isVideoMute);
-              setTrackId({
-                ...trackId,
-                isVideoMute: !trackId.isVideoMute,
-              });
-            }}>
-            <Feather
-              name={trackId.isVideoMute ? 'video-off' : 'video'}
-              style={styles.videoIcon}
-              size={dimension.viewHeight(30)}
-            />
-          </TouchableOpacity>
-        )}
         <TouchableOpacity
           style={styles.leaveIconContainer}
           onPress={() => {
