@@ -297,7 +297,12 @@ const Meeting = ({
   const {left, right, top, bottom} = useSafeAreaInsets();
 
   const pairedPeers: Array<Array<Peer>> = pairDataForScrollView(
-    [...auxTracks, trackId, ...remoteTrackIds],
+    [...auxTracks, trackId, ...remoteTrackIds].filter(peer => {
+      if (peer?.peerRefrence?.role?.name?.includes('hls-')) {
+        return false;
+      }
+      return true;
+    }),
     isPortrait() ? (layout === 'audio' ? 6 : 4) : 2,
   );
 
