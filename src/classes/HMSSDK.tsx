@@ -327,7 +327,7 @@ export class HMSSDK {
   /**
    * takes an instance of [HMSConfig]{@link HMSConfig} and joins the room.
    * after joining the room user will start receiving the events and updates of the room.
-   * 
+   *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/join} for more info
    *
    * @param {HMSConfig} config
@@ -342,9 +342,9 @@ export class HMSSDK {
   /**
    * - preview function is used to initiate a preview for the localPeer.
    * - We can call this function and wait for a response in previewListener, the response will contain previewTracks for local peer.
-   * 
+   *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/preview} for more info
-   * 
+   *
    * @param {HMSConfig} config
    * @memberof HMSSDK
    */
@@ -354,13 +354,13 @@ export class HMSSDK {
   };
 
   /**
-   * - previewForRole can be used when there is role change request for current localPeer and we want 
+   * - previewForRole can be used when there is role change request for current localPeer and we want
    * to show the localPeer how the tracks look before publishing them to room.
-   * 
+   *
    * - It requires a role of type [HMSRole]{@link HMSRole} for which we want to preview the tracks.
-   * 
+   *
    * checkout {@link https://www.100ms.live/docs/react-native} for more info
-   * 
+   *
    * @param {HMSRole}
    * @memberof HMSSDK
    */
@@ -382,9 +382,9 @@ export class HMSSDK {
    * - The appearance of tile is completely customizable with style prop.
    * - setting sink true or false for a video tile will add or remove sink for a video.
    * - scale type can determine how the incoming video will fit in the canvas check {@link HMSVideoViewMode} for more information.
-   * 
+   *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/render-video} for more info
-   * 
+   *
    * @param {HmsComponentProps}
    * @memberof HMSSDK
    */
@@ -409,7 +409,7 @@ export class HMSSDK {
 
   /**
    * Calls leave function of native sdk and session of current user is invalidated.
-   * 
+   *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/leave} for more info
    *
    * @memberof HMSSDK
@@ -430,12 +430,11 @@ export class HMSSDK {
     return op;
   };
 
-
   /**
    * - This function sends message to all the peers in the room, the get the message in onMessage listener.
-   * 
+   *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/chat} for more info
-   * 
+   *
    * @param {message: string} and @param {type: string}
    * @memberof HMSSDK
    */
@@ -455,7 +454,7 @@ export class HMSSDK {
   /**
    * - sendGroupMessage sends a message to specific set of roles, whoever has any of those role in room
    * will get the message in onMessage listener.
-   * 
+   *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/chat} for more info
    *
    * @memberof HMSSDK
@@ -482,7 +481,7 @@ export class HMSSDK {
   /**
    * - sendDirectMessage sends a private message to a single peer, only that peer will get the message
    * in onMessage Listener.
-   * 
+   *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/chat} for more info
    *
    * @memberof HMSSDK
@@ -510,9 +509,9 @@ export class HMSSDK {
    * - changeMetadata changes a specific field in localPeer which is [metadata] it is a string that can
    * be used for various functionalities like raiseHand, beRightBack and many more that explains the
    * current status of the peer.
-   * 
+   *
    * - it is advised to use a json object in string format to store multiple dataPoints in metadata.
-   * 
+   *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/change-metadata} for more info
    *
    * @param {string}
@@ -527,7 +526,7 @@ export class HMSSDK {
    * - startRTMPOrRecording takes a configuration object {@link HMSRTMPConfig} and stats the RTMP recording
    * - this object of {@link HMSRTMPConfig} sets the urls for streaming and weather to set recording on or not
    * - we get the response of this function in onRoomUpdate as RTMP_STREAMING_STATE_UPDATED.
-   * 
+   *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/recording} for more info
    *
    * @memberof HMSSDK
@@ -545,7 +544,7 @@ export class HMSSDK {
   /**
    * - this function stops all the ongoing RTMP streaming and recording.
    * - we get the response of this function in onRoomUpdate as RTMP_STREAMING_STATE_UPDATED.
-   * 
+   *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/recording} for more info
    *
    * @memberof HMSSDK
@@ -559,9 +558,9 @@ export class HMSSDK {
   /**
    * - This function starts HLSStreaming.
    * - we get the response of this function in onRoomUpdate as HLS_STREAMING_STATE_UPDATED.
-   * 
+   *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/hls-streaming} for more info
-   * 
+   *
    * @param {HMSHLSConfig}
    * @memberof HMSSDK
    */
@@ -576,9 +575,9 @@ export class HMSSDK {
   /**
    * - stopHLSStreaming function stops the ongoing HLSStreams.
    * - we get the response of this function in onRoomUpdate as HLS_STREAMING_STATE_UPDATED.
-   * 
+   *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/hls-streaming} for more info
-   * 
+   *
    * @memberof HMSSDK
    */
   stopHLSStreaming = async () => {
@@ -591,11 +590,11 @@ export class HMSSDK {
    * access and rights in the current room, it takes the peer {@link HMSPeer} whom role we want to change,
    * role {@link HMSRole} which will be the new role for that peer and weather to forcefully change
    * the role or ask the to accept the role change request using a boolean force.
-   * 
+   *
    * - if we change the role forcefully the peer's role will be updated without asking the peer
    * otherwise the user will get the roleChangeRequest in roleChangeRequest listener.
    * for more information on this checkout {@link onRoleChangeRequestListener}
-   * 
+   *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/change-role} for more info
    *
    * @memberof HMSSDK
@@ -614,9 +613,9 @@ export class HMSSDK {
   /**
    * - This function can be used to manipulate mute status of any track.
    * - Targeted peer affected by this action will get a callback in {@link onChangeTrackStateRequestListener}.
-   * 
+   *
    * * checkout {@link https://www.100ms.live/docs/react-native/v2/features/change-track-state} for more info
-   * 
+   *
    * @param {HMSTrack}
    * @memberof HMSSDK
    */
@@ -674,7 +673,7 @@ export class HMSSDK {
   /**
    * - removePeer can forcefully disconnect a Peer from the room.
    * - the user who's removed from this action will get a callback in {@link onRemovedFromRoomListener}.
-   * 
+   *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/remove-peer} for more info
    *
    * @memberof HMSSDK
@@ -698,7 +697,7 @@ export class HMSSDK {
    * - endRoom can be used in a situation where we want to disconnect all the peers from current room
    * and end the call.
    * - everyone in the room will get an update of this action in {@link onRemovedFromRoomListener}.
-   * 
+   *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/end-room} for more info
    *
    * @memberof HMSSDK
@@ -718,7 +717,7 @@ export class HMSSDK {
    * - This function can be used to change name of localPeer.
    *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/change-name} for more info
-   * 
+   *
    * @memberof HMSSDK
    */
   changeName = async (name: string) => {
@@ -731,12 +730,11 @@ export class HMSSDK {
     return await HmsManager.changeName(data);
   };
 
-
   /**
    * - Calling this function will accept the most recent roleChange request made by anyone in the room
    *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/change-role} for more info
-   * 
+   *
    * @memberof HMSSDK
    */
   acceptRoleChange = async () => {
@@ -744,11 +742,10 @@ export class HMSSDK {
     return await HmsManager.acceptRoleChange({ id: this.id });
   };
 
-
   /**
-   * - setPlaybackForAllAudio is an extension of the abilities of {@link setPlaybackAllowed} in 
+   * - setPlaybackForAllAudio is an extension of the abilities of {@link setPlaybackAllowed} in
    * {@link HMSRemoteAudioTrack}, it sets mute status for all peers in the room
-   * 
+   *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/playback-allowed} for more info
    *
    * @memberof HMSSDK
@@ -769,11 +766,10 @@ export class HMSSDK {
     HmsManager.remoteMuteAllAudio({ id: this.id });
   };
 
-
-  /** 
+  /**
    * - getRoom is a wrapper function on an existing native function also known as getRoom the returns
    * current room object which is of type {@link HMSRoom}
-   * 
+   *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/room} for more info
    *
    * @memberof HMSSDK
@@ -792,7 +788,7 @@ export class HMSSDK {
 
   /**
    * - This function sets the volume of any peer in the room
-   * 
+   *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/set-volume} for more info
    *
    * @memberof HMSSDK
@@ -816,7 +812,7 @@ export class HMSSDK {
   };
 
   /**
-   * - This is a temporary solution for the situation when mic access is taken from the app and 
+   * - This is a temporary solution for the situation when mic access is taken from the app and
    * user returns to the app with no mic access. It will re-acquire the mic by setting the volume
    * from native side
    *
@@ -838,7 +834,7 @@ export class HMSSDK {
    * - This function is used to start screenshare, currently available only for android
    *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/screenshare} for more info
-   * 
+   *
    * @memberof HMSSDK
    */
   startScreenshare = () => {
@@ -854,7 +850,7 @@ export class HMSSDK {
    * - Returns a boolean stating if the screen is currently shared or not
    *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/screenshare} for more info
-   * 
+   *
    * @memberof HMSSDK
    */
   isScreenShared = async () => {
@@ -869,7 +865,7 @@ export class HMSSDK {
 
   /**
    * - stops the screenShare, currently available for android only.
-   * 
+   *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/screenshare} for more info
    *
    * @memberof HMSSDK
@@ -891,9 +887,9 @@ export class HMSSDK {
    *
    * - These listeners get various dataPoints for current peers and their connectivity to the room
    * such as jitter, latency etc.
-   * 
+   *
    * - currently available for iOS only
-   * 
+   *
    * @memberof HMSSDK
    */
   enableRTCStats = () => {
@@ -1086,17 +1082,17 @@ export class HMSSDK {
 
   /**
    * - Below are all the listeners that are connected to native side.
-   * 
+   *
    * - All of the are connected when build function is called, we can connect them to the app by
    * calling {@link addEventListener} with corresponding event type.
-   * 
-   * - Before passing the data to the eventListener of the app these listeners encode the data in 
+   *
+   * - Before passing the data to the eventListener of the app these listeners encode the data in
    * ts classes for a proper structuring of the data.
-   * 
+   *
    * - Even When event listeners of the app are disconnected using {@link removeEventListener} or
    * {@link removeAllListeners} or not even connected in first place, these functions still run to
    * maintain the current state of the instance of {@link HMSSDK}.
-   * 
+   *
    */
 
   onPreviewListener = (data: any) => {

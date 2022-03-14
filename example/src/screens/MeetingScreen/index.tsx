@@ -44,6 +44,7 @@ import {
   HMSRemoteAudioTrack,
   HMSRemoteVideoStats,
   HMSRemoteVideoTrack,
+  HMSHLSRecordingConfig,
 } from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
@@ -181,6 +182,11 @@ const Meeting = ({
         : '',
       metadata: '',
     });
+  const [hlsRecordingDetails, setHLSRecordingDetails] =
+    useState<HMSHLSRecordingConfig>({
+      singleFilePerLayer: false,
+      videoOnDemand: false,
+    });
   const [roleChangeModalVisible, setRoleChangeModalVisible] = useState(false);
   const [layoutModal, setLayoutModal] = useState(false);
   const [changeTrackStateModalVisible, setChangeTrackStateModalVisible] =
@@ -228,6 +234,7 @@ const Meeting = ({
           text: 'Start',
           onPress: () => {
             const hmsHLSConfig = new HMSHLSConfig({
+              hlsRecordingConfig: hlsRecordingDetails,
               meetingURLVariants: [hlsStreamingDetails],
             });
             instance
@@ -290,7 +297,12 @@ const Meeting = ({
   const {left, right, top, bottom} = useSafeAreaInsets();
 
   const pairedPeers: Array<Array<Peer>> = pairDataForScrollView(
-    [...auxTracks, trackId, ...remoteTrackIds],
+    [...auxTracks, trackId, ...remoteTrackIds].filter(peer => {
+      if (peer?.peerRefrence?.role?.name?.includes('hls-')) {
+        return false;
+      }
+      return true;
+    }),
     isPortrait() ? (layout === 'audio' ? 6 : 4) : 2,
   );
 
@@ -1219,6 +1231,44 @@ const Meeting = ({
           multiline
           blurOnSubmit
         />
+        <TouchableOpacity
+          onPress={() => {
+            setHLSRecordingDetails({
+              ...hlsRecordingDetails,
+              singleFilePerLayer: !hlsRecordingDetails.singleFilePerLayer,
+            });
+          }}
+          style={styles.recordingDetails}>
+          <Text>singleFilePerLayer</Text>
+          <View style={styles.checkboxContainer}>
+            {hlsRecordingDetails.singleFilePerLayer && (
+              <Entypo
+                name="check"
+                style={styles.checkbox}
+                size={dimension.viewHeight(20)}
+              />
+            )}
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            setHLSRecordingDetails({
+              ...hlsRecordingDetails,
+              videoOnDemand: !hlsRecordingDetails.videoOnDemand,
+            });
+          }}
+          style={styles.recordingDetails}>
+          <Text>videoOnDemand</Text>
+          <View style={styles.checkboxContainer}>
+            {hlsRecordingDetails.videoOnDemand && (
+              <Entypo
+                name="check"
+                style={styles.checkbox}
+                size={dimension.viewHeight(20)}
+              />
+            )}
+          </View>
+        </TouchableOpacity>
       </CustomModal>
       <CustomModal
         modalVisible={changeTrackStateModalVisible}
@@ -1514,6 +1564,27 @@ const Meeting = ({
             }}>
             <Feather
               name={trackId.isAudioMute ? 'mic-off' : 'mic'}
+              style={styles.videoIcon}
+              size={dimension.viewHeight(30)}
+            />
+          </TouchableOpacity>
+        )}
+        {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
+          'video',
+        ) && (
+          <TouchableOpacity
+            style={styles.singleIconContainer}
+            onPress={() => {
+              instance?.localPeer
+                ?.localVideoTrack()
+                ?.setMute(!trackId.isVideoMute);
+              setTrackId({
+                ...trackId,
+                isVideoMute: !trackId.isVideoMute,
+              });
+            }}>
+            <Feather
+              name={trackId.isVideoMute ? 'video-off' : 'video'}
               style={styles.videoIcon}
               size={dimension.viewHeight(30)}
             />
