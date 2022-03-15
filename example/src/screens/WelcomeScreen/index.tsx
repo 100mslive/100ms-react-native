@@ -104,7 +104,7 @@ const tokenFromLinkService = async (
       subdomain,
       userID,
     });
-  
+
     if (response.error || !response?.token) {
       apiFailed(response);
     } else {
@@ -119,7 +119,7 @@ const tokenFromLinkService = async (
       }
     }
   } catch (error) {
-    console.log(error, "error in getToken")
+    console.log(error, 'error in getToken');
   }
 };
 

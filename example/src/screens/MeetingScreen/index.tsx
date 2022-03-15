@@ -1275,6 +1275,14 @@ const Meeting = ({
             remoteVideoStats={remoteVideoStats}
             localAudioStats={localAudioStats}
             localVideoStats={localVideoStats}
+            setPage={setPage}
+            setZoomableModal={setZoomableModal}
+            setZoomableTrackId={setZoomableTrackId}
+            getAuxVideoStyles={getAuxVideoStyles}
+            page={page}
+            setRemoteTrackIds={setRemoteTrackIds}
+            decodeRemotePeer={decodeRemotePeer}
+            hmsInstance={hmsInstance}
           />
         ) : !(fetchZoomableId(zoomableTrackId) && zoomableModal) ? (
           <SwipeableView
