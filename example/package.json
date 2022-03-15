@@ -15,7 +15,6 @@
     "@react-native-picker/picker": "^2.0.0",
     "@react-navigation/native": "^6.0.8",
     "@react-navigation/native-stack": "^6.5.0",
-    "@react-navigation/stack": "^6.0.7",
     "axios": "^0.26.0",
     "react": "17.0.1",
     "react-native": "0.64.2",
