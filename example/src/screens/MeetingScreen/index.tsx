@@ -52,7 +52,7 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {useNavigation} from '@react-navigation/native';
-import type {StackNavigationProp} from '@react-navigation/stack';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import Toast from 'react-native-simple-toast';
 import RNFetchBlob from 'rn-fetch-blob';
 import {Picker} from '@react-native-picker/picker';
@@ -131,7 +131,10 @@ const DEFAULT_PEER: Peer = {
 
 type LayoutParams = 'audio' | 'normal';
 
-type MeetingScreenProp = StackNavigationProp<AppStackParamList, 'Meeting'>;
+type MeetingScreenProp = NativeStackNavigationProp<
+  AppStackParamList,
+  'Meeting'
+>;
 
 let remoteAudioStats: any = {};
 let remoteVideoStats: any = {};
