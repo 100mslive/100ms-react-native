@@ -13,8 +13,8 @@
   "dependencies": {
     "@miblanchard/react-native-slider": "^2.0.2",
     "@react-native-picker/picker": "^2.0.0",
-    "@react-navigation/native": "^6.0.2",
-    "@react-navigation/stack": "^6.0.7",
+    "@react-navigation/native": "^6.0.8",
+    "@react-navigation/native-stack": "^6.5.0",
     "axios": "^0.26.0",
     "react": "17.0.1",
     "react-native": "0.64.2",
@@ -31,7 +31,6 @@
     "react-native-video": "^5.2.0",
     "react-redux": "^7.2.4",
     "redux": "^4.1.0",
-    "redux-devtools-extension": "^2.13.9",
     "rn-fetch-blob": "^0.12.0"
   },
   "devDependencies": {

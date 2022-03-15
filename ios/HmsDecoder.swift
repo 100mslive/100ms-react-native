@@ -14,13 +14,14 @@ class HmsDecoder: NSObject {
         let rtmpStreamingState = HmsDecoder.getHMSRtmpStreamingState(hmsRoom?.rtmpStreamingState)
         let serverRecordingState = HmsDecoder.getHMSServerRecordingState(hmsRoom?.serverRecordingState)
         let hlsStreamingState = HmsDecoder.getHlsStreamingState(hmsRoom?.hlsStreamingState)
+        let hlsRecordingState = HmsDecoder.getHlsRecordingState(hmsRoom?.hlsRecordingState)
         var peers = [[String: Any]]()
 
         for peer in room.peers {
             peers.append(getHmsPeer(peer))
         }
 
-        return ["id": id, "name": name, "metaData": metaData, "peers": peers, "browserRecordingState": browserRecordingState, "rtmpHMSRtmpStreamingState": rtmpStreamingState, "serverRecordingState": serverRecordingState, "hlsStreamingState": hlsStreamingState, "peerCount": count]
+        return ["id": id, "name": name, "metaData": metaData, "peers": peers, "browserRecordingState": browserRecordingState, "rtmpHMSRtmpStreamingState": rtmpStreamingState, "serverRecordingState": serverRecordingState, "hlsRecordingState": hlsRecordingState, "hlsStreamingState": hlsStreamingState, "peerCount": count]
     }
 
     static func getHmsPeer (_ peer: HMSPeer) -> [String: Any] {
@@ -527,6 +528,19 @@ class HmsDecoder: NSObject {
             let variants = HmsDecoder.getHMSHlsVariant(streamingState.variants)
 
             return ["running": running, "variants": variants]
+        } else {
+            return [:]
+        }
+    }
+    
+    static func getHlsRecordingState(_ data: HMSHLSRecordingState?) -> [String: Any] {
+        if let recordingState = data {
+            let running = recordingState.running
+            let startedAt = recordingState.startedAt?.timeIntervalSince1970 ?? 0
+            let singleFilePerLayer = recordingState.singleFilePerLayer
+            let enableVOD = recordingState.enableVOD
+
+            return ["running": running, "startedAt": startedAt * 1000, "singleFilePerLayer": singleFilePerLayer, "videoOnDemand": enableVOD]
         } else {
             return [:]
         }

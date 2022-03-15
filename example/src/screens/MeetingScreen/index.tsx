@@ -44,17 +44,18 @@ import {
   HMSRemoteVideoStats,
   HMSRemoteVideoTrack,
   HMSSpeaker,
+  HMSHLSRecordingConfig,
 } from '@100mslive/react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {useNavigation} from '@react-navigation/native';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import Toast from 'react-native-simple-toast';
 import RNFetchBlob from 'rn-fetch-blob';
 import {Picker} from '@react-native-picker/picker';
 import Video from 'react-native-video';
-import type {StackNavigationProp} from '@react-navigation/stack';
 
 import {
   ChatWindow,
@@ -108,7 +109,10 @@ const DEFAULT_PEER: Peer = {
   type: 'local',
 };
 
-type MeetingScreenProp = StackNavigationProp<AppStackParamList, 'Meeting'>;
+type MeetingScreenProp = NativeStackNavigationProp<
+  AppStackParamList,
+  'Meeting'
+>;
 
 let remoteAudioStats: any = {};
 let remoteVideoStats: any = {};
@@ -160,6 +164,11 @@ const Meeting = ({
         : '',
       metadata: '',
     });
+  const [hlsRecordingDetails, setHLSRecordingDetails] =
+    useState<HMSHLSRecordingConfig>({
+      singleFilePerLayer: false,
+      videoOnDemand: false,
+    });
   const [roleChangeModalVisible, setRoleChangeModalVisible] = useState(false);
   const [layoutModal, setLayoutModal] = useState(false);
   const [changeTrackStateModalVisible, setChangeTrackStateModalVisible] =
@@ -205,6 +214,7 @@ const Meeting = ({
           text: 'Start',
           onPress: () => {
             const hmsHLSConfig = new HMSHLSConfig({
+              hlsRecordingConfig: hlsRecordingDetails,
               meetingURLVariants: [hlsStreamingDetails],
             });
             instance
@@ -266,7 +276,12 @@ const Meeting = ({
   const navigate = useNavigation<MeetingScreenProp>().navigate;
 
   const pairedPeers: Array<Array<Peer>> = pairDataForScrollView(
-    [...auxTracks, trackId, ...remoteTrackIds],
+    [...auxTracks, trackId, ...remoteTrackIds].filter(peer => {
+      if (peer?.peerRefrence?.role?.name?.includes('hls-')) {
+        return false;
+      }
+      return true;
+    }),
     isPortrait() ? (layout === 'audio' ? 6 : 4) : 2,
   );
 
@@ -1098,6 +1113,44 @@ const Meeting = ({
           multiline
           blurOnSubmit
         />
+        <TouchableOpacity
+          onPress={() => {
+            setHLSRecordingDetails({
+              ...hlsRecordingDetails,
+              singleFilePerLayer: !hlsRecordingDetails.singleFilePerLayer,
+            });
+          }}
+          style={styles.recordingDetails}>
+          <Text>singleFilePerLayer</Text>
+          <View style={styles.checkboxContainer}>
+            {hlsRecordingDetails.singleFilePerLayer && (
+              <Entypo
+                name="check"
+                style={styles.checkbox}
+                size={dimension.viewHeight(20)}
+              />
+            )}
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            setHLSRecordingDetails({
+              ...hlsRecordingDetails,
+              videoOnDemand: !hlsRecordingDetails.videoOnDemand,
+            });
+          }}
+          style={styles.recordingDetails}>
+          <Text>videoOnDemand</Text>
+          <View style={styles.checkboxContainer}>
+            {hlsRecordingDetails.videoOnDemand && (
+              <Entypo
+                name="check"
+                style={styles.checkbox}
+                size={dimension.viewHeight(20)}
+              />
+            )}
+          </View>
+        </TouchableOpacity>
       </CustomModal>
       <CustomModal
         modalVisible={changeTrackStateModalVisible}
@@ -1359,6 +1412,27 @@ const Meeting = ({
             />
           </TouchableOpacity>
         )}
+        {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
+          'video',
+        ) && (
+          <TouchableOpacity
+            style={styles.singleIconContainer}
+            onPress={() => {
+              instance?.localPeer
+                ?.localVideoTrack()
+                ?.setMute(!trackId.isVideoMute);
+              setTrackId({
+                ...trackId,
+                isVideoMute: !trackId.isVideoMute,
+              });
+            }}>
+            <Feather
+              name={trackId.isVideoMute ? 'video-off' : 'video'}
+              style={styles.videoIcon}
+              size={dimension.viewHeight(30)}
+            />
+          </TouchableOpacity>
+        )}
         <TouchableOpacity
           style={styles.singleIconContainer}
           onPress={() => {
@@ -1411,27 +1485,6 @@ const Meeting = ({
             </View>
           )}
         </TouchableOpacity>
-        {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
-          'video',
-        ) && (
-          <TouchableOpacity
-            style={styles.singleIconContainer}
-            onPress={() => {
-              instance?.localPeer
-                ?.localVideoTrack()
-                ?.setMute(!trackId.isVideoMute);
-              setTrackId({
-                ...trackId,
-                isVideoMute: !trackId.isVideoMute,
-              });
-            }}>
-            <Feather
-              name={trackId.isVideoMute ? 'video-off' : 'video'}
-              style={styles.videoIcon}
-              size={dimension.viewHeight(30)}
-            />
-          </TouchableOpacity>
-        )}
         <TouchableOpacity
           style={styles.leaveIconContainer}
           onPress={() => {
