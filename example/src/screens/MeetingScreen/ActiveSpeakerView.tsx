@@ -9,11 +9,8 @@ import {
   HMSSDK,
   HMSSpeaker,
 } from '@100mslive/react-native-hms';
-// import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {decodePeer, pairDataForScrollView} from '../../utils/functions';
-// import {styles} from './styles';
-// import {DisplayTrack} from './DisplayTrack';
 import type {RootState} from '../../redux';
 import type {Peer, LayoutParams} from '../../utils/types';
 import {SwipeableView} from './SwipeableView';
@@ -104,18 +101,9 @@ const getActiveSpeakers = (
     decodePeer(speaker?.peer),
   );
 
-  console.log(currentActiveSpeakers, 'currentActiveSpeakers 1');
-
-  // if (currentActiveSpeakers.length >= 4) {
-  //   currentActiveSpeakers.length = 4;
-  //   return currentActiveSpeakers;
-  // }
-
   let speakersRequired = peers.length - currentActiveSpeakers.length;
 
   if (recentActiveSpeakers.length === 0) {
-    // let speakersRequired = 4 - currentActiveSpeakers.length;
-    // let speakersRequired = peers.length - currentActiveSpeakers.length
     peers.map(peer => {
       if (
         speakersRequired > 0 &&
@@ -128,12 +116,8 @@ const getActiveSpeakers = (
     });
     recentActiveSpeakers = currentActiveSpeakers.slice(0, 4);
 
-    console.log(currentActiveSpeakers, 'currentActiveSpeakers 2');
-
     return currentActiveSpeakers;
   } else {
-    // let speakersRequired = 4 - currentActiveSpeakers.length;
-
     recentActiveSpeakers.map(peer => {
       if (
         speakersRequired > 0 &&
@@ -145,8 +129,6 @@ const getActiveSpeakers = (
       }
     });
 
-    console.log(currentActiveSpeakers, 'currentActiveSpeakers 3');
-
     peers.map(peer => {
       if (
         speakersRequired > 0 &&
@@ -157,8 +139,6 @@ const getActiveSpeakers = (
         speakersRequired--;
       }
     });
-
-    console.log(currentActiveSpeakers, 'currentActiveSpeakers 4');
 
     rearrangeActiveSpeakers(recentActiveSpeakers, currentActiveSpeakers);
     recentActiveSpeakers = currentActiveSpeakers.slice(0, 4);
@@ -191,7 +171,6 @@ const ActiveSpeakerView = ({
   decodeRemotePeer,
   hmsInstance,
 }: ActiveSpeakerViewProps) => {
-  // const {left, right, top, bottom} = useSafeAreaInsets();
   const currentPeers: HMSPeer[] = [];
   if (instance?.localPeer) {
     currentPeers.push(instance.localPeer);
@@ -201,7 +180,6 @@ const ActiveSpeakerView = ({
   }
 
   const data = getActiveSpeakers(currentPeers, speakers, speakerIds);
-  console.log(data, 'DATA in here');
   const pairedPeers: Array<Array<Peer>> = pairDataForScrollView(data, 4);
 
   return (
@@ -231,48 +209,5 @@ const ActiveSpeakerView = ({
       hmsInstance={hmsInstance}
     />
   );
-
-  // return (
-  //   <View
-  //     style={[
-  //       styles.page,
-  //       {width: Dimensions.get('window').width - left - right},
-  //     ]}>
-  //     {data.map(
-  //       (view: Peer) =>
-  //         view?.id && (
-  //           <View
-  //             key={view?.id}
-  //             style={{
-  //               ...getHmsViewHeight(
-  //                 layout,
-  //                 view.type,
-  //                 data.length,
-  //                 top,
-  //                 bottom,
-  //               ),
-  //             }}>
-  //             <DisplayTrack
-  //               peer={view}
-  //               videoStyles={getRemoteVideoStyles}
-  //               speakerIds={speakerIds}
-  //               instance={instance}
-  //               type={view.type}
-  //               permissions={localPeerPermissions}
-  //               layout={layout}
-  //               mirrorLocalVideo={state.user.mirrorLocalVideo}
-  //               setChangeNameModal={setChangeNameModal}
-  //               statsForNerds={statsForNerds}
-  //               rtcStats={rtcStats}
-  //               remoteAudioStats={remoteAudioStats}
-  //               remoteVideoStats={remoteVideoStats}
-  //               localAudioStats={localAudioStats}
-  //               localVideoStats={localVideoStats}
-  //             />
-  //           </View>
-  //         ),
-  //     )}
-  //   </View>
-  // );
 };
 export {ActiveSpeakerView};
