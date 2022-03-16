@@ -1326,6 +1326,9 @@ const Meeting = ({
         <View style={styles.headerRight}>
           {instance?.room?.browserRecordingState?.running && (
             <Entypo
+              accessible={true}
+              accessibilityLabel="browserRecording"
+              testID="browserRecording"
               name="controller-record"
               style={styles.recording}
               size={dimension.viewHeight(30)}
@@ -1334,6 +1337,9 @@ const Meeting = ({
           {(instance?.room?.hlsStreamingState?.running ||
             instance?.room?.rtmpHMSRtmpStreamingState?.running) && (
             <Entypo
+              accessible={true}
+              accessibilityLabel="streaming"
+              testID="streaming"
               name="light-up"
               style={styles.streaming}
               size={dimension.viewHeight(30)}
@@ -1342,6 +1348,9 @@ const Meeting = ({
           {trackId?.peerRefrence?.auxiliaryTracks &&
             trackId?.peerRefrence?.auxiliaryTracks?.length > 0 && (
               <MaterialIcons
+                accessible={true}
+                accessibilityLabel="localPeerScreenshare"
+                testID="localPeerScreenshare"
                 name="fit-screen"
                 style={styles.streaming}
                 size={dimension.viewHeight(30)}
@@ -1351,6 +1360,9 @@ const Meeting = ({
             'video',
           ) && (
             <TouchableOpacity
+              accessible={true}
+              accessibilityLabel="switchCamera"
+              testID="switchCamera"
               style={styles.headerIcon}
               onPress={() => {
                 instance?.localPeer?.localVideoTrack()?.switchCamera();
@@ -1364,6 +1376,9 @@ const Meeting = ({
           )}
           {!instance?.localPeer?.role?.name?.includes('hls-') && (
             <TouchableOpacity
+              accessible={true}
+              accessibilityLabel="localMuteRemotePeers"
+              testID="localMuteRemotePeers"
               onPress={() => {
                 instance?.setPlaybackForAllAudio(!muteAllAudio);
                 setMuteAllAudio(!muteAllAudio);
@@ -1378,6 +1393,9 @@ const Meeting = ({
           )}
           {!instance?.localPeer?.role?.name?.includes('hls-') && (
             <TouchableOpacity
+              accessible={true}
+              accessibilityLabel="meetingScreenHeaderSettings"
+              testID="meetingScreenHeaderSettings"
               onPress={() => {
                 setSettingsModal(true);
               }}
@@ -1573,6 +1591,9 @@ const Meeting = ({
           'video',
         ) && (
           <TouchableOpacity
+            accessible={true}
+            accessibilityLabel="videoMute"
+            testID="videoMute"
             style={styles.singleIconContainer}
             onPress={() => {
               instance?.localPeer
@@ -1651,30 +1672,6 @@ const Meeting = ({
             </View>
           )}
         </TouchableOpacity>
-        {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
-          'video',
-        ) && (
-          <TouchableOpacity
-            accessible={true}
-            accessibilityLabel="videoMute"
-            testID="videoMute"
-            style={styles.singleIconContainer}
-            onPress={() => {
-              instance?.localPeer
-                ?.localVideoTrack()
-                ?.setMute(!trackId.isVideoMute);
-              setTrackId({
-                ...trackId,
-                isVideoMute: !trackId.isVideoMute,
-              });
-            }}>
-            <Feather
-              name={trackId.isVideoMute ? 'video-off' : 'video'}
-              style={styles.videoIcon}
-              size={dimension.viewHeight(30)}
-            />
-          </TouchableOpacity>
-        )}
         <TouchableOpacity
           accessible={true}
           accessibilityLabel="leaveMeeting"
