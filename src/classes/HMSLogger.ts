@@ -26,8 +26,8 @@ export class HMSLogger {
       if (this.onLog) {
         this?.onLog({ message, data });
       }
+      this.logs.push({ type: 'verbose', message, data, id: data?.id });
     }
-    this.logs.push({ type: 'verbose', message, data, id: data?.id });
   }
 
   warn(message: string, data: any) {
@@ -36,8 +36,8 @@ export class HMSLogger {
       if (this.onLog) {
         this?.onLog({ message, data });
       }
+      this.logs.push({ type: 'warn', message, data, id: data?.id });
     }
-    this.logs.push({ type: 'warn', message, data, id: data?.id });
   }
 
   error(message: string, data: any) {
@@ -46,8 +46,8 @@ export class HMSLogger {
       if (this.onLog) {
         this?.onLog({ message, data });
       }
+      this.logs.push({ type: 'error', message, data, id: data?.id });
     }
-    this.logs.push({ type: 'error', message, data, id: data?.id });
   }
 
   getLogs() {
