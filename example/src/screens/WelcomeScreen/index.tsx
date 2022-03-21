@@ -35,7 +35,8 @@ import HmsManager, {
   HMSVideoResolution,
 } from '@100mslive/react-native-hms';
 import {useNavigation} from '@react-navigation/native';
-import type {StackNavigationProp} from '@react-navigation/stack';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+
 import {PERMISSIONS, RESULTS, requestMultiple} from 'react-native-permissions';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -65,7 +66,7 @@ type WelcomeProps = {
   hmsInstance: HMSSDK | undefined;
 };
 
-type WelcomeScreenProp = StackNavigationProp<
+type WelcomeScreenProp = NativeStackNavigationProp<
   AppStackParamList,
   'WelcomeScreen'
 >;
@@ -98,24 +99,28 @@ const tokenFromLinkService = async (
   fetchTokenFromLinkSuccess: Function,
   apiFailed: Function,
 ) => {
-  const response = await services.fetchTokenFromLink({
-    code,
-    subdomain,
-    userID,
-  });
+  try {
+    const response = await services.fetchTokenFromLink({
+      code,
+      subdomain,
+      userID,
+    });
 
-  if (response.error || !response?.token) {
-    apiFailed(response);
-  } else {
-    if (subdomain.search('.qa-') >= 0) {
-      fetchTokenFromLinkSuccess(
-        response.token,
-        userID,
-        'https://qa-init.100ms.live/init',
-      );
+    if (response.error || !response?.token) {
+      apiFailed(response);
     } else {
-      fetchTokenFromLinkSuccess(response.token, userID);
+      if (subdomain.search('.qa-') >= 0) {
+        fetchTokenFromLinkSuccess(
+          response.token,
+          userID,
+          'https://qa-init.100ms.live/init',
+        );
+      } else {
+        fetchTokenFromLinkSuccess(response.token, userID);
+      }
     }
+  } catch (error) {
+    console.log(error, 'error in getToken');
   }
 };
 

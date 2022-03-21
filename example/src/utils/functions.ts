@@ -2,12 +2,16 @@ import {Platform, Dimensions} from 'react-native';
 import RNFetchBlob from 'rn-fetch-blob';
 import Share from 'react-native-share';
 import {getDeviceType} from 'react-native-device-info';
+import {
+  HMSLocalPeer,
+  HMSPeer,
+  HMSRemotePeer,
+} from '@100mslive/react-native-hms';
 
+import {LayoutParams, Peer} from './types';
 import dimension from '../utils/dimension';
 
 type TrackType = 'local' | 'remote' | 'screen';
-
-type LayoutParams = 'audio' | 'normal';
 
 export const getThemeColour = () => '#4578e0';
 
@@ -168,4 +172,68 @@ export const shareFile = async (fileUrl: string) => {
   })
     .then(success => console.log(success))
     .catch(e => console.log(e));
+};
+
+export const decodePeer = (peer: HMSPeer): Peer => {
+  const metadata = peer.metadata;
+  return {
+    trackId: peer?.videoTrack?.trackId,
+    name: peer?.name,
+    isAudioMute: peer?.audioTrack?.isMute() || false,
+    isVideoMute: peer?.videoTrack?.isMute() || false,
+    id: peer?.peerID,
+    colour: getThemeColour(),
+    sink: true,
+    type: 'remote',
+    peerRefrence: peer,
+    metadata: metadata && metadata !== '' ? JSON.parse(metadata) : {},
+  };
+};
+
+export const decodeRemotePeer = (
+  peer: HMSRemotePeer,
+  type: 'remote' | 'screen',
+): Peer => {
+  const metadata = peer.metadata;
+  return {
+    trackId: peer?.videoTrack?.trackId,
+    name: peer?.name,
+    isAudioMute: peer?.audioTrack?.isMute() || false,
+    isVideoMute: peer?.videoTrack?.isMute() || false,
+    id: peer?.peerID,
+    colour: getThemeColour(),
+    sink: true,
+    type,
+    peerRefrence: peer,
+    metadata: metadata && metadata !== '' ? JSON.parse(metadata) : {},
+  };
+};
+
+export const decodeLocalPeer = (
+  peer: HMSLocalPeer,
+  type: 'local' | 'screen',
+): Peer => {
+  const metadata = peer.metadata;
+  const videoPublishPermission = peer?.role?.publishSettings?.allowed
+    ? peer?.role?.publishSettings?.allowed?.includes('video')
+    : true;
+  const audioPublishPermission = peer?.role?.publishSettings?.allowed
+    ? peer?.role?.publishSettings?.allowed?.includes('audio')
+    : true;
+  return {
+    trackId: peer?.videoTrack?.trackId,
+    name: peer?.name,
+    isAudioMute: audioPublishPermission
+      ? peer?.audioTrack?.isMute() || false
+      : true,
+    isVideoMute: videoPublishPermission
+      ? peer?.videoTrack?.isMute() || false
+      : true,
+    id: peer?.peerID,
+    colour: getThemeColour(),
+    sink: true,
+    type,
+    peerRefrence: peer,
+    metadata: metadata && metadata !== '' ? JSON.parse(metadata) : {},
+  };
 };

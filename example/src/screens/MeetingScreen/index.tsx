@@ -2,7 +2,6 @@ import React, {useEffect, useRef, useState} from 'react';
 import {
   View,
   TouchableOpacity,
-  FlatList,
   Text,
   SafeAreaView,
   Dimensions,
@@ -44,19 +43,18 @@ import {
   HMSRemoteAudioTrack,
   HMSRemoteVideoStats,
   HMSRemoteVideoTrack,
+  HMSSpeaker,
   HMSHLSRecordingConfig,
 } from '@100mslive/react-native-hms';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {useNavigation} from '@react-navigation/native';
-import type {StackNavigationProp} from '@react-navigation/stack';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import Toast from 'react-native-simple-toast';
 import RNFetchBlob from 'rn-fetch-blob';
 import {Picker} from '@react-native-picker/picker';
-import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
 import Video from 'react-native-video';
 
 import {
@@ -75,37 +73,19 @@ import {
 } from '../../redux/actions/index';
 import dimension from '../../utils/dimension';
 import {
+  decodeLocalPeer,
+  decodeRemotePeer,
   getThemeColour,
   pairDataForScrollView,
   writeFile,
-  getHmsViewHeight,
+  isPortrait,
 } from '../../utils/functions';
+import {styles} from './styles';
+import {SwipeableView} from './SwipeableView';
+import {ActiveSpeakerView} from './ActiveSpeakerView';
 import type {RootState} from '../../redux';
 import type {AppStackParamList} from '../../navigator';
-import {styles} from './styles';
-import {DisplayTrack} from './DisplayTrack';
-
-const isPortrait = () => {
-  const dim = Dimensions.get('window');
-  return dim.height >= dim.width;
-};
-
-type Peer = {
-  peerRefrence?: HMSPeer;
-  trackId?: string;
-  name: string;
-  isAudioMute: boolean;
-  isVideoMute: boolean;
-  id?: string;
-  colour: string;
-  sink: boolean;
-  type: 'local' | 'remote' | 'screen';
-  metadata?: {
-    isHandRaised: boolean;
-    isBRBOn: boolean;
-  };
-  track?: HMSTrack;
-};
+import type {Peer, LayoutParams} from '../../utils/types';
 
 type MeetingProps = {
   messages: any;
@@ -129,9 +109,10 @@ const DEFAULT_PEER: Peer = {
   type: 'local',
 };
 
-type LayoutParams = 'audio' | 'normal';
-
-type MeetingScreenProp = StackNavigationProp<AppStackParamList, 'Meeting'>;
+type MeetingScreenProp = NativeStackNavigationProp<
+  AppStackParamList,
+  'Meeting'
+>;
 
 let remoteAudioStats: any = {};
 let remoteVideoStats: any = {};
@@ -151,7 +132,8 @@ const Meeting = ({
   const [trackId, setTrackId] = useState<Peer>(DEFAULT_PEER);
   const [remoteTrackIds, setRemoteTrackIds] = useState<Peer[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [speakers, setSpeakers] = useState<Array<string>>([]);
+  const [speakerIds, setSpeakerIds] = useState<Array<string>>([]);
+  const [speakers, setSpeakers] = useState<Array<HMSSpeaker>>([]);
   const [notification, setNotification] = useState(false);
   const [muteAllAudio, setMuteAllAudio] = useState(false);
   const [auxTracks, setAuxTracks] = useState<Peer[]>([]);
@@ -194,12 +176,10 @@ const Meeting = ({
   const [leaveModalVisible, setLeaveModalVisible] = useState(false);
   const [localPeerPermissions, setLocalPeerPermissions] =
     useState<HMSPermissions>();
-  const flatlistRef = useRef<FlatList>(null);
   const hlsPlayerRef = useRef<Video>(null);
   const [page, setPage] = useState(0);
   const [zoomableTrackId, setZoomableTrackId] = useState('');
   const [zoomableModal, setZoomableModal] = useState(false);
-  var doublePress = 0;
   const [changeNameModal, setChangeNameModal] = useState(false);
   const [statsForNerds, setStatsForNerds] = useState(false);
 
@@ -294,7 +274,6 @@ const Meeting = ({
     : [{text: 'Reject'}, {text: 'Accept'}];
 
   const navigate = useNavigation<MeetingScreenProp>().navigate;
-  const {left, right, top, bottom} = useSafeAreaInsets();
 
   const pairedPeers: Array<Array<Peer>> = pairDataForScrollView(
     [...auxTracks, trackId, ...remoteTrackIds].filter(peer => {
@@ -305,54 +284,6 @@ const Meeting = ({
     }),
     isPortrait() ? (layout === 'audio' ? 6 : 4) : 2,
   );
-
-  const decodeRemotePeer = (
-    peer: HMSRemotePeer,
-    type: 'remote' | 'screen',
-  ): Peer => {
-    const metadata = peer.metadata;
-    return {
-      trackId: peer?.videoTrack?.trackId,
-      name: peer?.name,
-      isAudioMute: peer?.audioTrack?.isMute() || false,
-      isVideoMute: peer?.videoTrack?.isMute() || false,
-      id: peer?.peerID,
-      colour: getThemeColour(),
-      sink: true,
-      type,
-      peerRefrence: peer,
-      metadata: metadata && metadata !== '' ? JSON.parse(metadata) : {},
-    };
-  };
-
-  const decodeLocalPeer = (
-    peer: HMSLocalPeer,
-    type: 'local' | 'screen',
-  ): Peer => {
-    const metadata = peer.metadata;
-    const videoPublishPermission = peer?.role?.publishSettings?.allowed
-      ? peer?.role?.publishSettings?.allowed?.includes('video')
-      : true;
-    const audioPublishPermission = peer?.role?.publishSettings?.allowed
-      ? peer?.role?.publishSettings?.allowed?.includes('audio')
-      : true;
-    return {
-      trackId: peer?.videoTrack?.trackId,
-      name: peer?.name,
-      isAudioMute: audioPublishPermission
-        ? peer?.audioTrack?.isMute() || false
-        : true,
-      isVideoMute: videoPublishPermission
-        ? peer?.videoTrack?.isMute() || false
-        : true,
-      id: peer?.peerID,
-      colour: getThemeColour(),
-      sink: true,
-      type,
-      peerRefrence: peer,
-      metadata: metadata && metadata !== '' ? JSON.parse(metadata) : {},
-    };
-  };
 
   const updateVideoIds = (
     remotePeers: HMSRemotePeer[],
@@ -591,7 +522,8 @@ const Meeting = ({
 
   const onSpeaker = (data: HMSSpeakerUpdate) => {
     const peerIds = data?.peers?.map(speaker => speaker?.peer?.peerID);
-    setSpeakers(peerIds || []);
+    setSpeakerIds(peerIds || []);
+    setSpeakers(data?.peers || []);
     console.log('data in onSpeaker: ', data);
   };
 
@@ -1038,52 +970,6 @@ const Meeting = ({
     return buttons;
   };
 
-  const onViewRef = React.useRef(({viewableItems}: any) => {
-    if (viewableItems) {
-      const viewableItemsIds: (string | undefined)[] = [];
-      viewableItems.map(
-        (viewableItem: {
-          index: number;
-          item: Array<Peer>;
-          key: string;
-          isViewable: boolean;
-        }) => {
-          viewableItem?.item?.map((item: Peer) => {
-            viewableItemsIds.push(item?.trackId);
-          });
-        },
-      );
-
-      const inst = hmsInstance;
-      const remotePeers = inst?.remotePeers;
-      if (remotePeers) {
-        const sinkRemoteTrackIds = remotePeers.map(
-          (peer: HMSRemotePeer, index: number) => {
-            const remotePeer = decodeRemotePeer(peer, 'remote');
-            const videoTrackId = remotePeer.trackId;
-            if (videoTrackId) {
-              if (!viewableItemsIds?.includes(videoTrackId)) {
-                return {
-                  ...remotePeer,
-                  sink: false,
-                };
-              }
-              return remotePeer;
-            } else {
-              return {
-                ...remotePeer,
-                trackId: index.toString(),
-                sink: false,
-                isVideoMute: true,
-              };
-            }
-          },
-        );
-        setRemoteTrackIds(sinkRemoteTrackIds ? sinkRemoteTrackIds : []);
-      }
-    }
-  });
-
   const checkPermissionToWriteExternalStroage = async () => {
     // Function to check the platform
     // If Platform is Android then check for permissions.
@@ -1129,10 +1015,6 @@ const Meeting = ({
       console.log('reportIssue: ', err);
     }
   };
-
-  if (page + 1 > pairedPeers.length) {
-    flatlistRef?.current?.scrollToEnd();
-  }
 
   const fetchZoomableId = (id: string): boolean => {
     let idPresent = false;
@@ -1316,9 +1198,11 @@ const Meeting = ({
           onValueChange={setNewLayout}
           dropdownIconColor="black"
           dropdownIconRippleColor="grey">
-          {[{name: 'normal'}, {name: 'audio'}].map((item, index) => (
-            <Picker.Item key={index} label={item.name} value={item.name} />
-          ))}
+          {[{name: 'normal'}, {name: 'audio'}, {name: 'active speaker'}].map(
+            (item, index) => (
+              <Picker.Item key={index} label={item.name} value={item.name} />
+            ),
+          )}
         </Picker>
       </CustomModal>
       <View style={styles.headerContainer}>
@@ -1427,95 +1311,57 @@ const Meeting = ({
               <Text>Waiting for the Streaming to start...</Text>
             </View>
           )
+        ) : layout === 'active speaker' ? (
+          <ActiveSpeakerView
+            Dimensions={Dimensions}
+            speakerIds={speakerIds}
+            speakers={speakers}
+            instance={instance}
+            localPeerPermissions={localPeerPermissions}
+            layout={layout}
+            getRemoteVideoStyles={getRemoteVideoStyles}
+            state={state}
+            setChangeNameModal={setChangeNameModal}
+            statsForNerds={statsForNerds}
+            rtcStats={rtcStats}
+            remoteAudioStats={remoteAudioStats}
+            remoteVideoStats={remoteVideoStats}
+            localAudioStats={localAudioStats}
+            localVideoStats={localVideoStats}
+            setPage={setPage}
+            setZoomableModal={setZoomableModal}
+            setZoomableTrackId={setZoomableTrackId}
+            getAuxVideoStyles={getAuxVideoStyles}
+            page={page}
+            setRemoteTrackIds={setRemoteTrackIds}
+            decodeRemotePeer={decodeRemotePeer}
+            hmsInstance={hmsInstance}
+          />
         ) : !(fetchZoomableId(zoomableTrackId) && zoomableModal) ? (
-          <FlatList
-            ref={flatlistRef}
-            horizontal
-            data={pairedPeers}
-            initialNumToRender={2}
-            maxToRenderPerBatch={3}
-            onScroll={({nativeEvent}) => {
-              const {contentOffset, layoutMeasurement} = nativeEvent;
-              setPage(contentOffset.x / layoutMeasurement.width);
-            }}
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            renderItem={({item}) => {
-              return (
-                <View
-                  key={item[0]?.trackId}
-                  style={[
-                    styles.page,
-                    {width: Dimensions.get('window').width - left - right},
-                  ]}>
-                  {item?.map(
-                    (view: Peer) =>
-                      view?.id &&
-                      (view.type === 'screen' ? (
-                        <View style={styles.flex} key={view?.id}>
-                          <TouchableWithoutFeedback
-                            onPress={() => {
-                              console.log('Single Tap');
-                              doublePress++;
-                              if (doublePress === 2) {
-                                console.log('Double Tap');
-                                doublePress = 0;
-                                setZoomableModal(true);
-                                setZoomableTrackId(view.trackId!);
-                              } else {
-                                setTimeout(() => {
-                                  doublePress = 0;
-                                }, 500);
-                              }
-                            }}>
-                            <DisplayTrack
-                              peer={view}
-                              videoStyles={getAuxVideoStyles}
-                              speakers={speakers}
-                              instance={instance}
-                              type={view.type}
-                              permissions={localPeerPermissions}
-                            />
-                          </TouchableWithoutFeedback>
-                        </View>
-                      ) : (
-                        <View
-                          key={view?.id}
-                          style={{
-                            ...getHmsViewHeight(
-                              layout,
-                              view.type,
-                              item.length,
-                              top,
-                              bottom,
-                            ),
-                          }}>
-                          <DisplayTrack
-                            peer={view}
-                            videoStyles={getRemoteVideoStyles}
-                            speakers={speakers}
-                            instance={instance}
-                            type={view.type}
-                            permissions={localPeerPermissions}
-                            layout={layout}
-                            mirrorLocalVideo={state.user.mirrorLocalVideo}
-                            setChangeNameModal={setChangeNameModal}
-                            statsForNerds={statsForNerds}
-                            rtcStats={rtcStats}
-                            remoteAudioStats={remoteAudioStats}
-                            remoteVideoStats={remoteVideoStats}
-                            localAudioStats={localAudioStats}
-                            localVideoStats={localVideoStats}
-                          />
-                        </View>
-                      )),
-                  )}
-                </View>
-              );
-            }}
-            numColumns={1}
-            onViewableItemsChanged={onViewRef.current}
-            keyExtractor={item => item[0]?.id}
+          <SwipeableView
+            pairedPeers={pairedPeers}
+            setPage={setPage}
+            Dimensions={Dimensions}
+            setZoomableModal={setZoomableModal}
+            setZoomableTrackId={setZoomableTrackId}
+            getAuxVideoStyles={getAuxVideoStyles}
+            speakerIds={speakerIds}
+            instance={instance}
+            localPeerPermissions={localPeerPermissions}
+            layout={layout}
+            getRemoteVideoStyles={getRemoteVideoStyles}
+            state={state}
+            setChangeNameModal={setChangeNameModal}
+            statsForNerds={statsForNerds}
+            rtcStats={rtcStats}
+            remoteAudioStats={remoteAudioStats}
+            remoteVideoStats={remoteVideoStats}
+            localAudioStats={localAudioStats}
+            localVideoStats={localVideoStats}
+            page={page}
+            setRemoteTrackIds={setRemoteTrackIds}
+            decodeRemotePeer={decodeRemotePeer}
+            hmsInstance={hmsInstance}
           />
         ) : (
           <View>
