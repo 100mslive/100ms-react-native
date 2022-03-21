@@ -135,7 +135,7 @@ const HeroView = ({
       </View>
       <View style={styles.heroListContainer}>
         <FlatList
-          data={peers}
+          data={peers.filter(item => item.id != mainSpeaker?.id)}
           horizontal={true}
           renderItem={({item}) => {
             return (
