@@ -86,6 +86,7 @@ import {ActiveSpeakerView} from './ActiveSpeakerView';
 import type {RootState} from '../../redux';
 import type {AppStackParamList} from '../../navigator';
 import type {Peer, LayoutParams} from '../../utils/types';
+// import {HeroView} from './HeroView';
 
 type MeetingProps = {
   messages: any;
@@ -1198,11 +1199,14 @@ const Meeting = ({
           onValueChange={setNewLayout}
           dropdownIconColor="black"
           dropdownIconRippleColor="grey">
-          {[{name: 'normal'}, {name: 'audio'}, {name: 'active speaker'}].map(
-            (item, index) => (
-              <Picker.Item key={index} label={item.name} value={item.name} />
-            ),
-          )}
+          {[
+            {name: 'normal'},
+            {name: 'audio'},
+            {name: 'active speaker'},
+            {name: 'hero'},
+          ].map((item, index) => (
+            <Picker.Item key={index} label={item.name} value={item.name} />
+          ))}
         </Picker>
       </CustomModal>
       <View style={styles.headerContainer}>
@@ -1337,7 +1341,20 @@ const Meeting = ({
             decodeRemotePeer={decodeRemotePeer}
             hmsInstance={hmsInstance}
           />
-        ) : !(fetchZoomableId(zoomableTrackId) && zoomableModal) ? (
+        ) : // <HeroView
+        //   speakers={speakers}
+        //   instance={instance}
+        //   localPeerPermissions={localPeerPermissions}
+        //   state={state}
+        //   setChangeNameModal={setChangeNameModal}
+        //   // statsForNerds={false}
+        //   // rtcStats={undefined}
+        //   // remoteAudioStats={undefined}
+        //   // remoteVideoStats={undefined}
+        //   // localAudioStats={undefined}
+        //   // localVideoStats={undefined}
+        // />
+        !(fetchZoomableId(zoomableTrackId) && zoomableModal) ? (
           <SwipeableView
             pairedPeers={pairedPeers}
             setPage={setPage}
