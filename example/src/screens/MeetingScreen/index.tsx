@@ -86,7 +86,7 @@ import {ActiveSpeakerView} from './ActiveSpeakerView';
 import type {RootState} from '../../redux';
 import type {AppStackParamList} from '../../navigator';
 import type {Peer, LayoutParams} from '../../utils/types';
-// import {HeroView} from './HeroView';
+import {HeroView} from './HeroView';
 
 type MeetingProps = {
   messages: any;
@@ -1341,20 +1341,15 @@ const Meeting = ({
             decodeRemotePeer={decodeRemotePeer}
             hmsInstance={hmsInstance}
           />
-        ) : // <HeroView
-        //   speakers={speakers}
-        //   instance={instance}
-        //   localPeerPermissions={localPeerPermissions}
-        //   state={state}
-        //   setChangeNameModal={setChangeNameModal}
-        //   // statsForNerds={false}
-        //   // rtcStats={undefined}
-        //   // remoteAudioStats={undefined}
-        //   // remoteVideoStats={undefined}
-        //   // localAudioStats={undefined}
-        //   // localVideoStats={undefined}
-        // />
-        !(fetchZoomableId(zoomableTrackId) && zoomableModal) ? (
+        ) : layout === 'hero' ? (
+          <HeroView
+            speakers={speakers}
+            instance={instance}
+            localPeerPermissions={localPeerPermissions}
+            state={state}
+            setChangeNameModal={setChangeNameModal}
+          />
+        ) : !(fetchZoomableId(zoomableTrackId) && zoomableModal) ? (
           <SwipeableView
             pairedPeers={pairedPeers}
             setPage={setPage}

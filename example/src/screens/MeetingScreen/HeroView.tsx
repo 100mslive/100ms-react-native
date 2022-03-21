@@ -1,14 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {FlatList, View} from 'react-native';
-import {
-  // HMSLocalAudioStats,
-  // HMSLocalVideoStats,
-  // HMSPeer,
-  HMSPermissions,
-  // HMSRTCStatsReport,
-  HMSSDK,
-  HMSSpeaker,
-} from '@100mslive/react-native-hms';
+import {HMSPermissions, HMSSDK, HMSSpeaker} from '@100mslive/react-native-hms';
 
 import {decodePeer} from '../../utils/functions';
 import type {RootState} from '../../redux';
@@ -19,12 +11,6 @@ import {styles} from './styles';
 type HeroViewProps = {
   instance: HMSSDK | undefined;
   speakers: HMSSpeaker[];
-  // statsForNerds: boolean;
-  // rtcStats: HMSRTCStatsReport | undefined;
-  // remoteAudioStats: any;
-  // remoteVideoStats: any;
-  // localAudioStats: HMSLocalAudioStats;
-  // localVideoStats: HMSLocalVideoStats;
   state: RootState;
   localPeerPermissions: HMSPermissions | undefined;
   setChangeNameModal: Function;
@@ -43,12 +29,6 @@ const searchMainSpeaker = (speaker: Peer | undefined, list: Peer[]) => {
 const HeroView = ({
   instance,
   speakers,
-  // statsForNerds,
-  // rtcStats,
-  // remoteAudioStats,
-  // remoteVideoStats,
-  // localAudioStats,
-  // localVideoStats,
   state,
   localPeerPermissions,
   setChangeNameModal,
@@ -83,7 +63,46 @@ const HeroView = ({
     setPeers(newPeerList);
   }, [instance?.remotePeers, instance?.localPeer]);
 
-  console.log(mainSpeaker, 'mainSpeaker');
+  const onViewRef = React.useRef(({viewableItems}: any) => {
+    if (viewableItems) {
+      const viewableItemsIds: (string | undefined)[] = [];
+      viewableItems.map(
+        (viewableItem: {
+          index: number;
+          item: Array<Peer>;
+          key: string;
+          isViewable: boolean;
+        }) => {
+          viewableItem?.item?.map((item: Peer) => {
+            viewableItemsIds.push(item?.trackId);
+          });
+        },
+      );
+
+      if (peers) {
+        const sinkRemoteTrackIds = peers.map((peer: Peer, index: number) => {
+          const videoTrackId = peer.trackId;
+          if (videoTrackId) {
+            if (!viewableItemsIds?.includes(videoTrackId)) {
+              return {
+                ...peer,
+                sink: false,
+              };
+            }
+            return peer;
+          } else {
+            return {
+              ...peer,
+              trackId: index.toString(),
+              sink: false,
+              isVideoMute: true,
+            };
+          }
+        });
+        setPeers(sinkRemoteTrackIds ? sinkRemoteTrackIds : []);
+      }
+    }
+  });
 
   return (
     <View style={styles.heroContainer}>
@@ -98,7 +117,7 @@ const HeroView = ({
             mirrorLocalVideo={state.user.mirrorLocalVideo}
             speakerIds={[]}
             type={mainSpeaker.type}
-            layout={'hero'}
+            layout="hero"
             setChangeNameModal={setChangeNameModal}
           />
         )}
@@ -117,12 +136,13 @@ const HeroView = ({
                   permissions={localPeerPermissions}
                   speakerIds={[]}
                   type={item.type}
-                  layout={'hero'}
+                  layout="hero"
                   setChangeNameModal={setChangeNameModal}
                 />
               </View>
             );
           }}
+          onViewableItemsChanged={onViewRef.current}
         />
       </View>
     </View>
