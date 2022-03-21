@@ -19,6 +19,16 @@
 
 React native wrapper for 100ms SDK
 
+## Run Example App
+
+To run the example app on your system, follow these steps -
+
+1. In the project root, run `npm install`
+2. Go to the example folder, `cd example`
+3. In the example folder, run `npm install`
+4. To run on Android, run `npx react-native run-android`
+5. To run on iOS, first install the pods in iOS folder, `cd ios; pod install`. Then, in example folder, run `npx react-native run-ios`
+
 ## Installation
 
 ```bash
@@ -62,7 +72,7 @@ We suggest using [react-native-permission](https://www.npmjs.com/package/react-n
 
 The package exports all the classes and a HMSSDK class that manages everything.
 
-# Setting up the HMS Instance:
+## Setting up the HMS Instance
 
 first we'll have to call build method, that method returns an instance of HMSSDK class and the same is used to perform all the operations
 
@@ -76,7 +86,7 @@ const hmsInstance = await HMSSDK.build();
 ...
 ```
 
-# Add event listeners
+## Add event listeners
 
 add event listeners for all the events such as onPreview, onJoin, onPeerUpdate etc. the actions can be found in HMSUpdateListenerActions class
 
@@ -95,7 +105,16 @@ hmsInstance.addEventListener(
 
 The event handlers are the way of handling any update happening in hms all events can be found in HMSUpdateListenerActions class
 
-# Join the room
+## Error handling
+
+```js
+import { HMSUpdateListenerActions } from '@100mslive/react-native-hms';
+
+// add an error event listener
+hmsInstance.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
+```
+
+## Join the room
 
 Joining the room connects you to the remote peer and broadcasts your stream to other peers, we need instance of HMSConfig in order to pass the details of room and user to join function
 
@@ -115,35 +134,23 @@ hmsInstance.join(HmsConfig); // to join a room
 
 don't forget to add ON_JOIN listener before calling join to receive an event callback
 
-# Join with specific track settings
+## Calling various functions of HMS
 
 ```js
-const getTrackSettings = () => {
-  let audioSettings = new HMSAudioTrackSettings({
-    maxBitrate: 32,
-    trackDescription: 'Simple Audio Track',
-  });
-  let videoSettings = new HMSVideoTrackSettings({
-    codec: HMSVideoCodec.vp8,
-    maxBitrate: 512,
-    maxFrameRate: 25,
-    cameraFacing: HMSCameraFacing.FRONT,
-    trackDescription: 'Simple Video Track',
-    resolution: new HMSVideoResolution({ height: 180, width: 320 }),
-  });
+// Mute Audio
+hmsInstance?.localPeer?.localAudioTrack()?.setMute(true);
 
-  return new HMSTrackSettings({ video: videoSettings, audio: audioSettings });
-};
+// Stop Video
+hmsInstance?.localPeer?.localVideoTrack()?.setMute(true);
 
-const setupBuild = async () => {
-  const trackSettings = getTrackSettings();
-  const build = await HmsManager.build({ trackSettings });
-  setInstance(build);
-  updateHms({ hmsInstance: build });
-};
+// Switch Camera
+hmsInstance?.localPeer?.localVideoTrack()?.switchCamera();
+
+// Leave the call (async function)
+await hmsInstance?.leave();
 ```
 
-# Viewing the video of a peer
+## Viewing the video of a peer
 
 To display a video on screen the package provide a UI component named HmsView that takes the video track ID and displays the video in that component, this component requires on _width_ and _height_ in _style_ prop to set bounds of the tile that will show the video stream
 
@@ -169,7 +176,7 @@ remotePeers.map((remotePeer: HMSRemotePeer) => {
 ...
 ```
 
-# Display a video in HmsView
+## Display a video in HmsView
 
 ```js
 import { HMSVideoViewMode } from '@100mslive/react-native-hms';
@@ -193,32 +200,44 @@ const styles = StyleSheet.create({
 ...
 ```
 
-# Calling various functions of HMS
+## Mute/Unmute others
 
 ```js
-// Mute Audio
-hmsInstance?.localPeer?.localAudioTrack()?.setMute(true);
+const mute: boolean = true;
 
-// Stop Video
-hmsInstance?.localPeer?.localVideoTrack()?.setMute(true);
+// hms instance acquired by build methodhmsInstance?.changeTrackState(audioTrack as HMSTrack, mute);
+hmsInstance?.changeTrackState(videoTrack as HMSTrack, mute);
 
-// Switch Camera
-hmsInstance?.localPeer?.localVideoTrack()?.switchCamera();
+const unmute: boolean = false;
 
-// Leave the call (async function)
-await hmsInstance?.leave();
+hmsInstance?.changeTrackState(audioTrack as HMSTrack, unmute);
+hmsInstance?.changeTrackState(videoTrack as HMSTrack, unmute);
 ```
 
-# Change name
+## End Room for all
 
 ```js
-const newName: string = 'new name';
+const reason = 'Host ended the room';
+const lock = false; // optional parameter
 
 // hms instance acquired by build method
-hmsInstance.changeName(newName);
+hmsInstance.endRoom(reason, lock);
 ```
 
-# Sending messages
+## Remove Peer
+
+```js
+import { HMSPeer } from '@100mslive/react-native-hms';
+
+const reason = 'removed from room';
+
+// hms instance acquired by build method
+const peer: HMSPeer = hmsInstance?.remotePeers[0];
+
+hmsInstance.removePeer(peer, reason);
+```
+
+## Sending messages
 
 ```js
 import { HMSRole, HMSPeer } from '@100mslive/react-native-hms';
@@ -234,7 +253,24 @@ hmsInstance?.sendGroupMessage(message, [role[0]);
 hmsInstance?.sendDirectMessage(message, peer);
 ```
 
-# Raise Hand & BRB
+## Role Change
+
+```js
+import { HMSRole, HMSRemotePeer } from '@100mslive/react-native-hms';
+// hms instance acquired by build method
+const roles: HMSRole[] = hmsInstance?.knownRoles;
+const newRole: HMSRole = roles[0];
+
+// can any remote peer
+const peer: HMSRemotePeer = hmsInstance?.remotePeers[0];
+
+const force = false;
+
+hmsInstance.changeRole(peer, newRole, force); // request role change
+hmsInstance.changeRole(peer, newRole, !force); // force role change
+```
+
+## Raise Hand & BRB
 
 ```js
 const parsedMetadata = JSON.parse(hmsInstance?.localPeer?.metadata);
@@ -258,60 +294,7 @@ hmsInstance?.changeMetadata(
 );
 ```
 
-# Role Change
-
-```js
-import { HMSRole, HMSRemotePeer } from '@100mslive/react-native-hms';
-// hms instance acquired by build method
-const roles: HMSRole[] = hmsInstance?.knownRoles;
-const newRole: HMSRole = roles[0];
-
-// can any remote peer
-const peer: HMSRemotePeer = hmsInstance?.remotePeers[0];
-
-const force = false;
-
-hmsInstance.changeRole(peer, newRole, force); // request role change
-hmsInstance.changeRole(peer, newRole, !force); // force role change
-```
-
-# Mute/Unmute others
-
-```js
-const mute: boolean = true;
-
-// hms instance acquired by build methodhmsInstance?.changeTrackState(audioTrack as HMSTrack, mute);
-hmsInstance?.changeTrackState(videoTrack as HMSTrack, mute);
-
-const unmute: boolean = false;
-
-hmsInstance?.changeTrackState(audioTrack as HMSTrack, unmute);
-hmsInstance?.changeTrackState(videoTrack as HMSTrack, unmute);
-```
-
-# Local mute others
-
-```js
-const remotePeer: HMSRemotePeer;
-const isAudioPlaybackAllowed = remotePeer.remoteAudioTrack().setPlaybackAllowed(false);
-const isVideoPlaybackAllowed = remotePeer.remoteVideoTrack().setPlaybackAllowed(true);
-
-// hms instance acquired by build method
-hmsInstance.muteAllPeersAudio(true)  // mute
-hmsInstance.muteAllPeersAudio(false) // unmute
-```
-
-# Locally Set Volume
-
-```js
-const volume: Float = 1.0;
-const track: HMSTrack = remotePeer.audioTrack as HMSTrack;
-
-// hms instance acquired by build method
-hmsInstance?.setVolume(track, volume);
-```
-
-# HLS Streaming
+## HLS Streaming
 
 ```js
 import {
@@ -338,7 +321,7 @@ const startHLSStreaming = () => {
 };
 ```
 
-# Start Streaming / Recording
+## Start Streaming / Recording
 
 ```js
 import { HMSRTMPConfig } from '@100mslive/react-native-hms';
@@ -353,21 +336,21 @@ const recordingDetails = HMSRTMPConfig({
 const result = await hmsInstance?.startRTMPOrRecording(recordingDetails);
 ```
 
-# Get RTC Stats
+## Get RTC Stats
 
 ```js
 // hms instance acquired by build method
 hmsInstance?.enableRTCStats();
 ```
 
-# Screenshare
+## Screenshare
 
 ```js
 // hms instance acquired by build method
 hmsInstance?.startScreenshare();
 ```
 
-# Getting Audio Levels for all speaking peers
+## Getting Audio Levels for all speaking peers
 
 ```js
 import {
@@ -386,51 +369,61 @@ const onSpeaker = (data: HMSSpeakerUpdate) => {
 };
 ```
 
-# End Room for all
+## Local mute others
 
 ```js
-const reason = 'Host ended the room';
-const lock = false; // optional parameter
+const remotePeer: HMSRemotePeer;
+const isAudioPlaybackAllowed = remotePeer.remoteAudioTrack().setPlaybackAllowed(false);
+const isVideoPlaybackAllowed = remotePeer.remoteVideoTrack().setPlaybackAllowed(true);
 
 // hms instance acquired by build method
-hmsInstance.endRoom(reason, lock);
+hmsInstance.muteAllPeersAudio(true)  // mute
+hmsInstance.muteAllPeersAudio(false) // unmute
 ```
 
-# Remove Peer
+## Locally Set Volume
 
 ```js
-import { HMSPeer } from '@100mslive/react-native-hms';
-
-const reason = 'removed from room';
+const volume: Float = 1.0;
+const track: HMSTrack = remotePeer.audioTrack as HMSTrack;
 
 // hms instance acquired by build method
-const peer: HMSPeer = hmsInstance?.remotePeers[0];
-
-hmsInstance.removePeer(peer, reason);
+hmsInstance?.setVolume(track, volume);
 ```
 
-# Leave
+## Change name
 
 ```js
+const newName: string = 'new name';
+
 // hms instance acquired by build method
-await hmsInstance.leave();
+hmsInstance.changeName(newName);
 ```
 
-# Error handling
+## Join with specific Track Settings
 
 ```js
-import { HMSUpdateListenerActions } from '@100mslive/react-native-hms';
+const getTrackSettings = () => {
+  let audioSettings = new HMSAudioTrackSettings({
+    maxBitrate: 32,
+    trackDescription: 'Simple Audio Track',
+  });
+  let videoSettings = new HMSVideoTrackSettings({
+    codec: HMSVideoCodec.vp8,
+    maxBitrate: 512,
+    maxFrameRate: 25,
+    cameraFacing: HMSCameraFacing.FRONT,
+    trackDescription: 'Simple Video Track',
+    resolution: new HMSVideoResolution({ height: 180, width: 320 }),
+  });
 
-// add an error event listener
-hmsInstance.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
+  return new HMSTrackSettings({ video: videoSettings, audio: audioSettings });
+};
+
+const setupBuild = async () => {
+  const trackSettings = getTrackSettings();
+  const build = await HmsManager.build({ trackSettings });
+  setInstance(build);
+  updateHms({ hmsInstance: build });
+};
 ```
-
-# Run Example App
-
-To run the example app on your system, follow these steps -
-
-1. In the project root, run `npm install`
-2. Go to the example folder, `cd example`
-3. In the example folder, run `npm install`
-4. To run on Android, run `npx react-native run-android`
-5. To run on iOS, first install the pods in iOS folder, `cd ios; pod install`. Then, in example folder, run `npx react-native run-ios`
