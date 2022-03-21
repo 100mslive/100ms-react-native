@@ -127,7 +127,7 @@ const HeroView = ({
             permissions={localPeerPermissions}
             mirrorLocalVideo={state.user.mirrorLocalVideo}
             speakerIds={[]}
-            type={mainSpeaker.type}
+            type={undefined}
             layout="hero"
             setChangeNameModal={setChangeNameModal}
           />
@@ -146,7 +146,7 @@ const HeroView = ({
                   videoStyles={() => styles.heroListView}
                   permissions={localPeerPermissions}
                   speakerIds={[]}
-                  type={item.type}
+                  type={undefined}
                   layout="hero"
                   setChangeNameModal={setChangeNameModal}
                 />
