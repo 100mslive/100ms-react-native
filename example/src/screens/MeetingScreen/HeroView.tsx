@@ -69,36 +69,47 @@ const HeroView = ({
       viewableItems.map(
         (viewableItem: {
           index: number;
-          item: Array<Peer>;
+          item: Peer;
           key: string;
           isViewable: boolean;
         }) => {
-          viewableItem?.item?.map((item: Peer) => {
-            viewableItemsIds.push(item?.trackId);
-          });
+          viewableItemsIds.push(viewableItem.item.trackId);
         },
       );
 
-      if (peers) {
-        const sinkRemoteTrackIds = peers.map((peer: Peer, index: number) => {
-          const videoTrackId = peer.trackId;
-          if (videoTrackId) {
-            if (!viewableItemsIds?.includes(videoTrackId)) {
+      const newPeerList = [];
+      if (instance?.localPeer) {
+        newPeerList.push(decodePeer(instance?.localPeer));
+      }
+
+      if (instance?.remotePeers) {
+        instance.remotePeers.map(item => {
+          newPeerList.push(decodePeer(item));
+        });
+      }
+
+      if (newPeerList.length) {
+        const sinkRemoteTrackIds = newPeerList.map(
+          (peer: Peer, index: number) => {
+            const videoTrackId = peer.trackId;
+            if (videoTrackId) {
+              if (!viewableItemsIds?.includes(videoTrackId)) {
+                return {
+                  ...peer,
+                  sink: false,
+                };
+              }
+              return peer;
+            } else {
               return {
                 ...peer,
+                trackId: index.toString(),
                 sink: false,
+                isVideoMute: true,
               };
             }
-            return peer;
-          } else {
-            return {
-              ...peer,
-              trackId: index.toString(),
-              sink: false,
-              isVideoMute: true,
-            };
-          }
-        });
+          },
+        );
         setPeers(sinkRemoteTrackIds ? sinkRemoteTrackIds : []);
       }
     }
