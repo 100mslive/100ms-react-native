@@ -81,7 +81,7 @@ import {
   isPortrait,
 } from '../../utils/functions';
 import {styles} from './styles';
-import {SwipeableView} from './SwipeableView';
+import {GridView} from './Grid';
 import {ActiveSpeakerView} from './ActiveSpeakerView';
 import type {RootState} from '../../redux';
 import type {AppStackParamList} from '../../navigator';
@@ -112,7 +112,7 @@ const DEFAULT_PEER: Peer = {
 
 type MeetingScreenProp = NativeStackNavigationProp<
   AppStackParamList,
-  'Meeting'
+  'MeetingScreen'
 >;
 
 let remoteAudioStats: any = {};
@@ -143,8 +143,8 @@ const Meeting = ({
     suggestedRole?: string;
   }>({});
   const [action, setAction] = useState(0);
-  const [layout, setLayout] = useState<LayoutParams>('normal');
-  const [newLayout, setNewLayout] = useState<LayoutParams>('normal');
+  const [layout, setLayout] = useState<LayoutParams>('grid');
+  const [newLayout, setNewLayout] = useState<LayoutParams>('grid');
   const [newRole, setNewRole] = useState(trackId?.peerRefrence?.role);
   const [roleModalVisible, setRoleModalVisible] = useState(false);
   const [settingsModal, setSettingsModal] = useState(false);
@@ -722,10 +722,6 @@ const Meeting = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [instance]);
 
-  const getRemoteVideoStyles = () => {
-    return styles.generalTile;
-  };
-
   const getAuxVideoStyles = () => {
     return isPortrait() ? styles.fullScreenTile : styles.fullScreenLandscape;
   };
@@ -1200,7 +1196,7 @@ const Meeting = ({
           dropdownIconColor="black"
           dropdownIconRippleColor="grey">
           {[
-            {name: 'normal'},
+            {name: 'grid'},
             {name: 'audio'},
             {name: 'active speaker'},
             {name: 'hero'},
@@ -1317,13 +1313,11 @@ const Meeting = ({
           )
         ) : layout === 'active speaker' ? (
           <ActiveSpeakerView
-            Dimensions={Dimensions}
             speakerIds={speakerIds}
             speakers={speakers}
             instance={instance}
             localPeerPermissions={localPeerPermissions}
             layout={layout}
-            getRemoteVideoStyles={getRemoteVideoStyles}
             state={state}
             setChangeNameModal={setChangeNameModal}
             statsForNerds={statsForNerds}
@@ -1338,7 +1332,6 @@ const Meeting = ({
             getAuxVideoStyles={getAuxVideoStyles}
             page={page}
             setRemoteTrackIds={setRemoteTrackIds}
-            decodeRemotePeer={decodeRemotePeer}
             hmsInstance={hmsInstance}
           />
         ) : layout === 'hero' ? (
@@ -1350,10 +1343,9 @@ const Meeting = ({
             setChangeNameModal={setChangeNameModal}
           />
         ) : !(fetchZoomableId(zoomableTrackId) && zoomableModal) ? (
-          <SwipeableView
+          <GridView
             pairedPeers={pairedPeers}
             setPage={setPage}
-            Dimensions={Dimensions}
             setZoomableModal={setZoomableModal}
             setZoomableTrackId={setZoomableTrackId}
             getAuxVideoStyles={getAuxVideoStyles}
@@ -1361,7 +1353,6 @@ const Meeting = ({
             instance={instance}
             localPeerPermissions={localPeerPermissions}
             layout={layout}
-            getRemoteVideoStyles={getRemoteVideoStyles}
             state={state}
             setChangeNameModal={setChangeNameModal}
             statsForNerds={statsForNerds}
@@ -1372,7 +1363,6 @@ const Meeting = ({
             localVideoStats={localVideoStats}
             page={page}
             setRemoteTrackIds={setRemoteTrackIds}
-            decodeRemotePeer={decodeRemotePeer}
             hmsInstance={hmsInstance}
           />
         ) : (

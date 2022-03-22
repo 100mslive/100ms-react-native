@@ -11,26 +11,21 @@ import {
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
 
-import {getHmsViewHeight} from '../../utils/functions';
+import {decodeRemotePeer, getHmsViewHeight} from '../../utils/functions';
 import {styles} from './styles';
 import {DisplayTrack} from './DisplayTrack';
 import type {RootState} from '../../redux';
 import type {Peer, LayoutParams} from '../../utils/types';
 
-type SwipeableViewProps = {
+type GridViewProps = {
   pairedPeers: Peer[][];
-  setPage: React.Dispatch<React.SetStateAction<number>>;
-  Dimensions: Dimensions;
-  setZoomableModal: React.Dispatch<React.SetStateAction<boolean>>;
-  setZoomableTrackId: React.Dispatch<React.SetStateAction<string>>;
   getAuxVideoStyles: Function;
-  getRemoteVideoStyles: Function;
   speakerIds: string[];
   instance: HMSSDK | undefined;
+  hmsInstance: HMSSDK | undefined;
   localPeerPermissions: HMSPermissions | undefined;
   layout: LayoutParams;
   state: RootState;
-  setChangeNameModal: React.Dispatch<React.SetStateAction<boolean>>;
   statsForNerds: boolean;
   rtcStats: HMSRTCStatsReport | undefined;
   remoteAudioStats: any;
@@ -38,15 +33,16 @@ type SwipeableViewProps = {
   localAudioStats: HMSLocalAudioStats;
   localVideoStats: HMSLocalVideoStats;
   page: number;
+  setChangeNameModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setPage: React.Dispatch<React.SetStateAction<number>>;
+  setZoomableModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setZoomableTrackId: React.Dispatch<React.SetStateAction<string>>;
   setRemoteTrackIds: React.Dispatch<React.SetStateAction<Peer[]>>;
-  decodeRemotePeer: Function;
-  hmsInstance: HMSSDK | undefined;
 };
 
-const SwipeableView = ({
+const GridView = ({
   pairedPeers,
   setPage,
-  Dimensions,
   setZoomableModal,
   setZoomableTrackId,
   getAuxVideoStyles,
@@ -54,7 +50,6 @@ const SwipeableView = ({
   instance,
   localPeerPermissions,
   layout,
-  getRemoteVideoStyles,
   state,
   setChangeNameModal,
   statsForNerds,
@@ -65,9 +60,8 @@ const SwipeableView = ({
   localVideoStats,
   page,
   setRemoteTrackIds,
-  decodeRemotePeer,
   hmsInstance,
-}: SwipeableViewProps) => {
+}: GridViewProps) => {
   const {left, right, top, bottom} = useSafeAreaInsets();
   const flatlistRef = useRef<FlatList>(null);
   var doublePress = 0;
@@ -186,7 +180,7 @@ const SwipeableView = ({
                     }}>
                     <DisplayTrack
                       peer={view}
-                      videoStyles={getRemoteVideoStyles}
+                      videoStyles={() => styles.generalTile}
                       speakerIds={speakerIds}
                       instance={instance}
                       type={view.type}
@@ -213,4 +207,4 @@ const SwipeableView = ({
     />
   );
 };
-export {SwipeableView};
+export {GridView};
