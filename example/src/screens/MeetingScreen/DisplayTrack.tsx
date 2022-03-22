@@ -25,7 +25,7 @@ type DisplayTrackProps = {
   peer?: Peer;
   videoStyles: Function;
   speakerIds: Array<string>;
-  type: 'local' | 'remote' | 'screen';
+  type?: 'local' | 'remote' | 'screen';
   instance: HMSSDK | undefined;
   permissions: HMSPermissions | undefined;
   layout?: LayoutParams;

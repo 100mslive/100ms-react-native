@@ -270,6 +270,39 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
   },
+  heroContainer: {
+    width: '100%',
+    height: '100%',
+  },
+  heroView: {
+    height: '100%',
+    width: '100%',
+    marginVertical: 1,
+    padding: '0.25%',
+    overflow: 'hidden',
+    borderRadius: 10,
+  },
+  heroTileContainer: {
+    height: '80%',
+    width: '100%',
+    marginVertical: 1,
+    padding: '0.25%',
+    overflow: 'hidden',
+    borderRadius: 10,
+  },
+  heroListContainer: {
+    width: '100%',
+    height: '20%',
+  },
+  heroListView: {
+    width: 150,
+    height: '100%',
+  },
+  heroListViewContainer: {
+    marginHorizontal: 1,
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
 });
 
 export {styles};
