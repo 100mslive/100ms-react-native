@@ -62,9 +62,9 @@ PODS:
   - HMSWebRTC (1.0.4518)
   - libevent (2.1.12)
   - OpenSSL-Universal (1.1.180)
-  - Permission-Camera (3.3.0):
+  - Permission-Camera (3.3.1):
     - RNPermissions
-  - Permission-Microphone (3.3.0):
+  - Permission-Microphone (3.3.1):
     - RNPermissions
   - RCT-Folly (2020.01.13.00):
     - boost-for-react-native
@@ -338,18 +338,18 @@ PODS:
     - React-perflogger (= 0.64.2)
   - rn-fetch-blob (0.12.0):
     - React-Core
-  - RNCPicker (2.3.1):
+  - RNCPicker (2.4.0):
     - React-Core
-  - RNDeviceInfo (8.5.0):
+  - RNDeviceInfo (8.5.1):
     - React-Core
   - RNGestureHandler (1.10.3):
     - React-Core
-  - RNPermissions (3.3.0):
+  - RNPermissions (3.3.1):
     - React-Core
   - RNScreens (3.13.1):
     - React-Core
     - React-RCTImage
-  - RNShare (7.3.6):
+  - RNShare (7.3.7):
     - React-Core
   - RNVectorIcons (8.1.0):
     - React-Core
@@ -530,9 +530,9 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
-  DoubleConversion: 831926d9b8bf8166fd87886c4abab286c2422662
+  DoubleConversion: cf9b38bf0b2d048436d9a82ad2abe1404f11e7de
   FBLazyVector: e686045572151edef46010a6f819ade377dfeb4b
-  FBReactNativeSpec: 978556cb9c183a32af51f818206b201b3deb0d1e
+  FBReactNativeSpec: 0094aca9cd5d4a79abcb5a2c1d1f52d0c106aaf9
   Flipper: d3da1aa199aad94455ae725e9f3aa43f3ec17021
   Flipper-DoubleConversion: 38631e41ef4f9b12861c67d17cb5518d06badc41
   Flipper-Folly: 755929a4f851b2fb2c347d533a23f191b008554c
@@ -545,8 +545,8 @@ SPEC CHECKSUMS:
   HMSWebRTC: 599fb1d886daecd6e58984f84224d708bce8b565
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   OpenSSL-Universal: 1aa4f6a6ee7256b83db99ec1ccdaa80d10f9af9b
-  Permission-Camera: 597646618d1edcc055a3f660844c2ee6de8e0596
-  Permission-Microphone: 964f87c350f8bc7aa163700a9736dd33c028817a
+  Permission-Camera: bae27a8503530770c35aadfecbb97ec71823382a
+  Permission-Microphone: 13922195a81b9d46d2df8050c225006eae126d49
   RCT-Folly: ec7a233ccc97cc556cf7237f0db1ff65b986f27c
   RCTRequired: 6d3e854f0e7260a648badd0d44fc364bc9da9728
   RCTTypeSafety: c1f31d19349c6b53085766359caac425926fafaa
@@ -575,12 +575,12 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: a9904c6d0218fb9f8b19d6dd88607225927668f9
   ReactCommon: 149906e01aa51142707a10665185db879898e966
   rn-fetch-blob: f065bb7ab7fb48dd002629f8bdcb0336602d3cba
-  RNCPicker: f6c760d4b314585ff35165d8640d7917ae30afb1
-  RNDeviceInfo: a674f06c5a5bd496aebb809cbc3be61cfd612a65
+  RNCPicker: 6d5d64e7b90c240c779ee0938ec433c11e2dd758
+  RNDeviceInfo: 8d4177859b062334835962799460528869a487fb
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
-  RNPermissions: bcd846e8f5a7f39e921cc7ca7172e2de0e698b6f
+  RNPermissions: 34d678157c800b25b22a488e4d8babb57456e796
   RNScreens: 40a2cb40a02a609938137a1e0acfbf8fc9eebf19
-  RNShare: b955e66f1af2849711f13c193debda72b94f8aa0
+  RNShare: f116bbb04f310c665ca483d0bd1e88cf59b3b334
   RNVectorIcons: 31cebfcf94e8cf8686eb5303ae0357da64d7a5a4
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
   Yoga: 575c581c63e0d35c9a83f4b46d01d63abc1100ac
@@ -588,4 +588,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 81336404126da1ad295fdc6b6256b7a5ec96553e
 
-COCOAPODS: 1.11.2
+COCOAPODS: 1.11.3
