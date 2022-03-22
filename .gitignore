@@ -65,3 +65,4 @@ example/android/app/google-services.json
 example/setupFirebase.js
 *.p8
 *.keystore
+*.zip
