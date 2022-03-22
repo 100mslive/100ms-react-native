@@ -2,13 +2,13 @@ import {Platform, Dimensions} from 'react-native';
 import RNFetchBlob from 'rn-fetch-blob';
 import Share from 'react-native-share';
 import {getDeviceType} from 'react-native-device-info';
-import {
+import type {
   HMSLocalPeer,
   HMSPeer,
   HMSRemotePeer,
 } from '@100mslive/react-native-hms';
 
-import {LayoutParams, Peer} from './types';
+import type {LayoutParams, Peer} from './types';
 import dimension from '../utils/dimension';
 import * as services from '../services/index';
 

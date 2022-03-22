@@ -15,13 +15,13 @@ export const ChatBubble = ({
   return (
     <View style={isLocal ? styles.senderMessageBubble : styles.messageBubble}>
       <View style={styles.textContainer}>
-        <View style={{flexDirection: 'row'}}>
+        <View style={styles.textSubContainer}>
           <Text style={isLocal ? styles.senderText : styles.receiverText}>
             {isLocal ? 'You' : data.sender}
           </Text>
-          {name && <Text style={{color: 'white'}}>{' to ' + name}</Text>}
+          {name && <Text style={styles.text}>{' to ' + name}</Text>}
         </View>
-        <Text style={[styles.message, isLocal && {textAlign: 'right'}]}>
+        <Text style={[styles.message, isLocal && styles.data]}>
           {data.message}
         </Text>
       </View>
@@ -40,6 +40,15 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 30,
     borderTopRightRadius: 30,
     maxWidth: '80%',
+  },
+  textSubContainer: {
+    flexDirection: 'row',
+  },
+  text: {
+    color: 'white',
+  },
+  data: {
+    textAlign: 'right',
   },
   messageBubble: {
     flexDirection: 'row',

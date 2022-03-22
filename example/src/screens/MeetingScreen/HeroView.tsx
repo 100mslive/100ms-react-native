@@ -1,6 +1,10 @@
 import React, {useState, useEffect} from 'react';
 import {FlatList, View} from 'react-native';
-import {HMSPermissions, HMSSDK, HMSSpeaker} from '@100mslive/react-native-hms';
+import type {
+  HMSPermissions,
+  HMSSDK,
+  HMSSpeaker,
+} from '@100mslive/react-native-hms';
 
 import {decodePeer} from '../../utils/functions';
 import type {RootState} from '../../redux';
@@ -135,7 +139,7 @@ const HeroView = ({
       </View>
       <View style={styles.heroListContainer}>
         <FlatList
-          data={peers.filter(item => item.id != mainSpeaker?.id)}
+          data={peers.filter(item => item.id !== mainSpeaker?.id)}
           horizontal={true}
           renderItem={({item}) => {
             return (

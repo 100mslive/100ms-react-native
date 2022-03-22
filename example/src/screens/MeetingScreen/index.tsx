@@ -1540,7 +1540,7 @@ const Meeting = ({
         <UserIdModal
           screen="Meeting"
           join={async (newName: string) => {
-            if (newName && newName != '') {
+            if (newName && newName !== '') {
               instance?.changeName(newName);
               saveUserDataRequest &&
                 saveUserDataRequest({

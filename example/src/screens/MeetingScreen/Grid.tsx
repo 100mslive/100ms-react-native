@@ -1,6 +1,6 @@
 import React, {useRef} from 'react';
 import {View, FlatList, Dimensions} from 'react-native';
-import {
+import type {
   HMSLocalAudioStats,
   HMSLocalVideoStats,
   HMSPermissions,

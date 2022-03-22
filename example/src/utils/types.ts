@@ -1,4 +1,4 @@
-import {HMSTrack, HMSPeer} from '@100mslive/react-native-hms';
+import type {HMSTrack, HMSPeer} from '@100mslive/react-native-hms';
 
 type Peer = {
   peerRefrence?: HMSPeer;
