@@ -2,12 +2,11 @@ import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {NavigationContainer} from '@react-navigation/native';
 import WelcomeScreen from '../screens/WelcomeScreen';
-import Meeting from '../screens/MeetingScreen';
+import MeetingScreen from '../screens/MeetingScreen';
 
 export type AppStackParamList = {
-  AppWelcomeScreen: undefined;
   WelcomeScreen: undefined;
-  Meeting: undefined;
+  MeetingScreen: undefined;
 };
 
 const AppStack = createNativeStackNavigator<AppStackParamList>();
@@ -25,8 +24,8 @@ const AppStackNavigator = () => (
         options={navigationOptions}
       />
       <AppStack.Screen
-        name="Meeting"
-        component={Meeting}
+        name="MeetingScreen"
+        component={MeetingScreen}
         options={navigationOptions}
       />
     </AppStack.Navigator>

@@ -2,18 +2,22 @@ import {Platform, Dimensions} from 'react-native';
 import RNFetchBlob from 'rn-fetch-blob';
 import Share from 'react-native-share';
 import {getDeviceType} from 'react-native-device-info';
-import {
+import type {
   HMSLocalPeer,
   HMSPeer,
   HMSRemotePeer,
 } from '@100mslive/react-native-hms';
 
-import {LayoutParams, Peer} from './types';
+import type {LayoutParams, Peer} from './types';
 import dimension from '../utils/dimension';
+import * as services from '../services/index';
 
 type TrackType = 'local' | 'remote' | 'screen';
 
 export const getThemeColour = () => '#4578e0';
+
+export const getMeetingUrl = () =>
+  'https://yogi.app.100ms.live/preview/nih-bkn-vek';
 
 export const getRandomColor = () => {
   var letters = '0123456789ABCDEF';
@@ -236,4 +240,55 @@ export const decodeLocalPeer = (
     peerRefrence: peer,
     metadata: metadata && metadata !== '' ? JSON.parse(metadata) : {},
   };
+};
+
+export const callService = async (
+  userID: string,
+  roomID: string,
+  joinRoom: Function,
+  apiFailed: Function,
+) => {
+  const response = await services.fetchToken({
+    userID,
+    roomID,
+  });
+
+  if (response.error || !response?.token) {
+    apiFailed(response);
+  } else {
+    joinRoom(response.token, userID);
+  }
+  return response;
+};
+
+export const tokenFromLinkService = async (
+  code: string,
+  subdomain: string,
+  userID: string,
+  fetchTokenFromLinkSuccess: Function,
+  apiFailed: Function,
+) => {
+  try {
+    const response = await services.fetchTokenFromLink({
+      code,
+      subdomain,
+      userID,
+    });
+
+    if (response.error || !response?.token) {
+      apiFailed(response);
+    } else {
+      if (subdomain.search('.qa-') >= 0) {
+        fetchTokenFromLinkSuccess(
+          response.token,
+          userID,
+          'https://qa-init.100ms.live/init',
+        );
+      } else {
+        fetchTokenFromLinkSuccess(response.token, userID);
+      }
+    }
+  } catch (error) {
+    console.log(error, 'error in getToken');
+  }
 };

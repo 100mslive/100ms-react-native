@@ -1,4 +1,4 @@
-import {HMSTrack, HMSPeer} from '@100mslive/react-native-hms';
+import type {HMSTrack, HMSPeer} from '@100mslive/react-native-hms';
 
 type Peer = {
   peerRefrence?: HMSPeer;
@@ -17,7 +17,7 @@ type Peer = {
   track?: HMSTrack;
 };
 
-type LayoutParams = 'audio' | 'normal' | 'active speaker' | 'hero';
+type LayoutParams = 'audio' | 'grid' | 'active speaker' | 'hero';
 
 // eslint-disable-next-line no-undef
 export type {Peer, LayoutParams};

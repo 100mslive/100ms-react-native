@@ -1,6 +1,5 @@
 import React from 'react';
-import {Dimensions} from 'react-native';
-import {
+import type {
   HMSLocalAudioStats,
   HMSLocalVideoStats,
   HMSPeer,
@@ -13,11 +12,9 @@ import {
 import {decodePeer, pairDataForScrollView} from '../../utils/functions';
 import type {RootState} from '../../redux';
 import type {Peer, LayoutParams} from '../../utils/types';
-import {SwipeableView} from './SwipeableView';
+import {GridView} from './Grid';
 
 type ActiveSpeakerViewProps = {
-  Dimensions: Dimensions;
-  getRemoteVideoStyles: Function;
   speakerIds: string[];
   speakers: HMSSpeaker[];
   instance: HMSSDK | undefined;
@@ -37,7 +34,6 @@ type ActiveSpeakerViewProps = {
   getAuxVideoStyles: Function;
   page: number;
   setRemoteTrackIds: React.Dispatch<React.SetStateAction<Peer[]>>;
-  decodeRemotePeer: Function;
   hmsInstance: HMSSDK | undefined;
 };
 
@@ -147,13 +143,11 @@ const getActiveSpeakers = (
 };
 
 const ActiveSpeakerView = ({
-  Dimensions,
   speakerIds,
   speakers,
   instance,
   localPeerPermissions,
   layout,
-  getRemoteVideoStyles,
   state,
   setChangeNameModal,
   statsForNerds,
@@ -168,7 +162,6 @@ const ActiveSpeakerView = ({
   getAuxVideoStyles,
   page,
   setRemoteTrackIds,
-  decodeRemotePeer,
   hmsInstance,
 }: ActiveSpeakerViewProps) => {
   const currentPeers: HMSPeer[] = [];
@@ -183,10 +176,9 @@ const ActiveSpeakerView = ({
   const pairedPeers: Array<Array<Peer>> = pairDataForScrollView(data, 4);
 
   return (
-    <SwipeableView
+    <GridView
       pairedPeers={pairedPeers}
       setPage={setPage}
-      Dimensions={Dimensions}
       setZoomableModal={setZoomableModal}
       setZoomableTrackId={setZoomableTrackId}
       getAuxVideoStyles={getAuxVideoStyles}
@@ -194,7 +186,6 @@ const ActiveSpeakerView = ({
       instance={instance}
       localPeerPermissions={localPeerPermissions}
       layout={layout}
-      getRemoteVideoStyles={getRemoteVideoStyles}
       state={state}
       setChangeNameModal={setChangeNameModal}
       statsForNerds={statsForNerds}
@@ -205,7 +196,6 @@ const ActiveSpeakerView = ({
       localVideoStats={localVideoStats}
       page={page}
       setRemoteTrackIds={setRemoteTrackIds}
-      decodeRemotePeer={decodeRemotePeer}
       hmsInstance={hmsInstance}
     />
   );

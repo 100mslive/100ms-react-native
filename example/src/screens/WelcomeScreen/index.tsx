@@ -25,14 +25,14 @@ import HmsManager, {
   HMSLogger,
   HMSLogLevel,
   HMSSDK,
-  HMSAudioTrackSettings,
-  HMSAudioCodec,
-  HMSVideoTrackSettings,
-  HMSVideoCodec,
-  HMSTrackSettings,
+  // HMSAudioTrackSettings,
+  // HMSAudioCodec,
+  // HMSVideoTrackSettings,
+  // HMSVideoCodec,
+  // HMSTrackSettings,
   HMSException,
-  HMSCameraFacing,
-  HMSVideoResolution,
+  // HMSCameraFacing,
+  // HMSVideoResolution,
 } from '@100mslive/react-native-hms';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -42,18 +42,24 @@ import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Toast from 'react-native-simple-toast';
-import {getModel} from 'react-native-device-info';
+import {
+  // getModel,
+  getVersion,
+} from 'react-native-device-info';
 import RNFetchBlob from 'rn-fetch-blob';
-import {getVersion} from 'react-native-device-info';
 
-import * as services from '../../services/index';
 import {UserIdModal, PreviewModal, AlertModal} from '../../components';
 import {
   setAudioVideoState,
   saveUserData,
   updateHmsReference,
 } from '../../redux/actions/index';
-import {writeFile} from '../../utils/functions';
+import {
+  writeFile,
+  callService,
+  tokenFromLinkService,
+  getMeetingUrl,
+} from '../../utils/functions';
 import {styles} from './styles';
 import type {AppStackParamList} from '../../navigator';
 import type {RootState} from '../../redux';
@@ -72,57 +78,6 @@ type WelcomeScreenProp = NativeStackNavigationProp<
 >;
 
 type ButtonState = 'Active' | 'Loading';
-
-const callService = async (
-  userID: string,
-  roomID: string,
-  joinRoom: Function,
-  apiFailed: Function,
-) => {
-  const response = await services.fetchToken({
-    userID,
-    roomID,
-  });
-
-  if (response.error || !response?.token) {
-    apiFailed(response);
-  } else {
-    joinRoom(response.token, userID);
-  }
-  return response;
-};
-
-const tokenFromLinkService = async (
-  code: string,
-  subdomain: string,
-  userID: string,
-  fetchTokenFromLinkSuccess: Function,
-  apiFailed: Function,
-) => {
-  try {
-    const response = await services.fetchTokenFromLink({
-      code,
-      subdomain,
-      userID,
-    });
-
-    if (response.error || !response?.token) {
-      apiFailed(response);
-    } else {
-      if (subdomain.search('.qa-') >= 0) {
-        fetchTokenFromLinkSuccess(
-          response.token,
-          userID,
-          'https://qa-init.100ms.live/init',
-        );
-      } else {
-        fetchTokenFromLinkSuccess(response.token, userID);
-      }
-    }
-  } catch (error) {
-    console.log(error, 'error in getToken');
-  }
-};
 
 let config: HMSConfig | null = null;
 
@@ -187,7 +142,6 @@ const App = ({
   };
 
   const onError = (data: HMSException) => {
-    console.log('here on error', data);
     Toast.showWithGravity(
       data?.error?.message || 'Something went wrong',
       Toast.LONG,
@@ -195,46 +149,45 @@ const App = ({
     );
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const getTrackSettings = () => {
-    let audioSettings = new HMSAudioTrackSettings({
-      codec: HMSAudioCodec.opus,
-      maxBitrate: 32,
-      trackDescription: 'Simple Audio Track',
-    });
-    let videoSettings = new HMSVideoTrackSettings({
-      codec: HMSVideoCodec.VP8,
-      maxBitrate: 512,
-      maxFrameRate: 25,
-      cameraFacing: HMSCameraFacing.FRONT,
-      trackDescription: 'Simple Video Track',
-      resolution: new HMSVideoResolution({height: 180, width: 320}),
-    });
+  // const getTrackSettings = () => {
+  //   let audioSettings = new HMSAudioTrackSettings({
+  //     codec: HMSAudioCodec.opus,
+  //     maxBitrate: 32,
+  //     trackDescription: 'Simple Audio Track',
+  //   });
+  //   let videoSettings = new HMSVideoTrackSettings({
+  //     codec: HMSVideoCodec.VP8,
+  //     maxBitrate: 512,
+  //     maxFrameRate: 25,
+  //     cameraFacing: HMSCameraFacing.FRONT,
+  //     trackDescription: 'Simple Video Track',
+  //     resolution: new HMSVideoResolution({height: 180, width: 320}),
+  //   });
 
-    const listOfFaultyDevices = [
-      'Pixel',
-      'Pixel XL',
-      'Moto G5',
-      'Moto G (5S) Plus',
-      'Moto G4',
-      'TA-1053',
-      'Mi A1',
-      'Mi A2',
-      'E5823', // Sony z5 compact
-      'Redmi Note 5',
-      'FP2', // Fairphone FP2
-      'MI 5',
-    ];
-    const deviceModal = getModel();
+  //   const listOfFaultyDevices = [
+  //     'Pixel',
+  //     'Pixel XL',
+  //     'Moto G5',
+  //     'Moto G (5S) Plus',
+  //     'Moto G4',
+  //     'TA-1053',
+  //     'Mi A1',
+  //     'Mi A2',
+  //     'E5823', // Sony z5 compact
+  //     'Redmi Note 5',
+  //     'FP2', // Fairphone FP2
+  //     'MI 5',
+  //   ];
+  //   const deviceModal = getModel();
 
-    return new HMSTrackSettings({
-      video: videoSettings,
-      audio: audioSettings,
-      useHardwareEchoCancellation: listOfFaultyDevices.includes(deviceModal)
-        ? true
-        : false,
-    });
-  };
+  //   return new HMSTrackSettings({
+  //     video: videoSettings,
+  //     audio: audioSettings,
+  //     useHardwareEchoCancellation: listOfFaultyDevices.includes(deviceModal)
+  //       ? true
+  //       : false,
+  //   });
+  // };
 
   const setupBuild = async () => {
     /**
@@ -260,8 +213,8 @@ const App = ({
         setRoomID(url);
         setText(url);
       } else {
-        setRoomID('https://yogi.app.100ms.live/preview/nih-bkn-vek');
-        setText('https://yogi.app.100ms.live/preview/nih-bkn-vek');
+        setRoomID(getMeetingUrl());
+        setText(getMeetingUrl());
       }
     });
     if (!initialized) {
@@ -276,8 +229,8 @@ const App = ({
             setRoomID(url);
             setText(url);
           } else {
-            setRoomID('https://yogi.app.100ms.live/preview/nih-bkn-vek');
-            setText('https://yogi.app.100ms.live/preview/nih-bkn-vek');
+            setRoomID(getMeetingUrl());
+            setText(getMeetingUrl());
           }
         });
       }
@@ -421,7 +374,7 @@ const App = ({
     setButtonState('Active');
     setPreviewModal(false);
     setAudioVideoStateRequest({audioState: audio, videoState: video});
-    navigate('Meeting');
+    navigate('MeetingScreen');
   };
 
   const joinRoom = () => {
@@ -507,6 +460,48 @@ const App = ({
     return buttons;
   };
 
+  const validateMeetingUrl = (userID: string) => {
+    var pattern = new RegExp(
+      '^(https?:\\/\\/)?' +
+        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
+        '((\\d{1,3}\\.){3}\\d{1,3}))' +
+        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
+        '(\\?[;&a-z\\d%_.~+=-]*)?' +
+        '(\\#[-a-z\\d_]*)?$',
+      'i',
+    );
+
+    const isUrl = pattern.test(roomID);
+    if (isUrl) {
+      setButtonState('Loading');
+      const codeObject = RegExp(/(?!\/)[a-zA-Z\-0-9]*$/g).exec(text);
+
+      const domainObject = RegExp(/(https:\/\/)?(?:[a-zA-Z0-9.-])+(?!\\)/).exec(
+        text,
+      );
+
+      if (codeObject && domainObject) {
+        const code = codeObject[0];
+        const domain = domainObject[0];
+
+        const strippedDomain = domain.replace('https://', '');
+
+        tokenFromLinkService(
+          code,
+          strippedDomain,
+          userID,
+          checkPermissionsForLink,
+          apiFailed,
+        );
+      }
+      setModalVisible(false);
+    } else {
+      setButtonState('Loading');
+      callService(userID, roomID, checkPermissions, apiFailed);
+      setModalVisible(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <AlertModal
@@ -585,47 +580,7 @@ const App = ({
       {modalVisible && (
         <UserIdModal
           screen="Welcome"
-          join={(userID: string) => {
-            var pattern = new RegExp(
-              '^(https?:\\/\\/)?' +
-                '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
-                '((\\d{1,3}\\.){3}\\d{1,3}))' +
-                '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
-                '(\\?[;&a-z\\d%_.~+=-]*)?' +
-                '(\\#[-a-z\\d_]*)?$',
-              'i',
-            );
-
-            const isUrl = pattern.test(roomID);
-            if (isUrl) {
-              setButtonState('Loading');
-              const codeObject = RegExp(/(?!\/)[a-zA-Z\-0-9]*$/g).exec(text);
-
-              const domainObject = RegExp(
-                /(https:\/\/)?(?:[a-zA-Z0-9.-])+(?!\\)/,
-              ).exec(text);
-
-              if (codeObject && domainObject) {
-                const code = codeObject[0];
-                const domain = domainObject[0];
-
-                const strippedDomain = domain.replace('https://', '');
-
-                tokenFromLinkService(
-                  code,
-                  strippedDomain,
-                  userID,
-                  checkPermissionsForLink,
-                  apiFailed,
-                );
-              }
-              setModalVisible(false);
-            } else {
-              setButtonState('Loading');
-              callService(userID, roomID, checkPermissions, apiFailed);
-              setModalVisible(false);
-            }
-          }}
+          join={validateMeetingUrl}
           cancel={() => setModalVisible(false)}
           userName={state.user.userName}
         />
