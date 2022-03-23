@@ -11,8 +11,8 @@ type Peer = {
   sink: boolean;
   type: 'local' | 'remote' | 'screen';
   metadata?: {
-    isHandRaised: boolean;
-    isBRBOn: boolean;
+    isHandRaised?: boolean;
+    isBRBOn?: boolean;
   };
   track?: HMSTrack;
 };

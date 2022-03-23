@@ -178,8 +178,19 @@ export const shareFile = async (fileUrl: string) => {
     .catch(e => console.log(e));
 };
 
+const parseMetadata = (metadata?: string) => {
+  try {
+    if (metadata) {
+      const parsedMetadata = JSON.parse(metadata);
+      return parsedMetadata;
+    }
+  } catch (e) {
+    console.log(e);
+  }
+  return {};
+};
+
 export const decodePeer = (peer: HMSPeer): Peer => {
-  const metadata = peer.metadata;
   return {
     trackId: peer?.videoTrack?.trackId,
     name: peer?.name,
@@ -190,7 +201,7 @@ export const decodePeer = (peer: HMSPeer): Peer => {
     sink: true,
     type: 'remote',
     peerRefrence: peer,
-    metadata: metadata && metadata !== '' ? JSON.parse(metadata) : {},
+    metadata: parseMetadata(peer?.metadata),
   };
 };
 
@@ -198,7 +209,6 @@ export const decodeRemotePeer = (
   peer: HMSRemotePeer,
   type: 'remote' | 'screen',
 ): Peer => {
-  const metadata = peer.metadata;
   return {
     trackId: peer?.videoTrack?.trackId,
     name: peer?.name,
@@ -209,7 +219,7 @@ export const decodeRemotePeer = (
     sink: true,
     type,
     peerRefrence: peer,
-    metadata: metadata && metadata !== '' ? JSON.parse(metadata) : {},
+    metadata: parseMetadata(peer?.metadata),
   };
 };
 
@@ -217,7 +227,6 @@ export const decodeLocalPeer = (
   peer: HMSLocalPeer,
   type: 'local' | 'screen',
 ): Peer => {
-  const metadata = peer.metadata;
   const videoPublishPermission = peer?.role?.publishSettings?.allowed
     ? peer?.role?.publishSettings?.allowed?.includes('video')
     : true;
@@ -238,7 +247,7 @@ export const decodeLocalPeer = (
     sink: true,
     type,
     peerRefrence: peer,
-    metadata: metadata && metadata !== '' ? JSON.parse(metadata) : {},
+    metadata: parseMetadata(peer?.metadata),
   };
 };
 
