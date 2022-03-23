@@ -911,6 +911,9 @@ class HmsSDK(
             }
           }
         }
+        this.emitCustomError("TRACKID_NOT_MATCHED")
+      }else{
+        this.emitCustomError("REMOTE_PEERS_NOT_FOUND")
       }
     } else {
       this.emitRequiredKeysError()
