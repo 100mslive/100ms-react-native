@@ -1,4 +1,4 @@
-import {Platform, Dimensions} from 'react-native';
+import {Platform, Dimensions, PermissionsAndroid} from 'react-native';
 import RNFetchBlob from 'rn-fetch-blob';
 import Share from 'react-native-share';
 import {getDeviceType} from 'react-native-device-info';
@@ -300,4 +300,34 @@ export const tokenFromLinkService = async (
   } catch (error) {
     console.log(error, 'error in getToken');
   }
+};
+
+export const requestExternalStoragePermission = async (): Promise<boolean> => {
+  let permissionGranted = false;
+  if (Platform.OS === 'ios') {
+    permissionGranted = true;
+  } else {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        {
+          title: 'Storage Permission Required',
+          message: 'Application needs access to your storage to download File',
+          buttonPositive: 'true',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        // Start downloading
+        permissionGranted = true;
+        console.log('Storage Permission Granted.');
+      } else {
+        // If permission denied then show alert
+        console.log('Storage Permission Not Granted');
+      }
+    } catch (err) {
+      // To handle permission related exception
+      console.log('checkPermissionToWriteExternalStroage: ' + err);
+    }
+  }
+  return permissionGranted;
 };

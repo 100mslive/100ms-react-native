@@ -8,7 +8,6 @@ import {
   BackHandler,
   Platform,
   TextInput,
-  PermissionsAndroid,
 } from 'react-native';
 import {connect} from 'react-redux';
 import {
@@ -56,6 +55,8 @@ import Toast from 'react-native-simple-toast';
 import RNFetchBlob from 'rn-fetch-blob';
 import {Picker} from '@react-native-picker/picker';
 import Video from 'react-native-video';
+import ViewShot from 'react-native-view-shot';
+import CameraRoll from '@react-native-community/cameraroll';
 
 import {
   ChatWindow,
@@ -79,6 +80,7 @@ import {
   pairDataForScrollView,
   writeFile,
   isPortrait,
+  requestExternalStoragePermission,
 } from '../../utils/functions';
 import {styles} from './styles';
 import {GridView} from './Grid';
@@ -183,6 +185,7 @@ const Meeting = ({
   const [zoomableModal, setZoomableModal] = useState(false);
   const [changeNameModal, setChangeNameModal] = useState(false);
   const [statsForNerds, setStatsForNerds] = useState(false);
+  const screenshotRef: any = useRef(null);
 
   const roleChangeRequestTitle = layoutModal
     ? 'Layout Modal'
@@ -719,7 +722,6 @@ const Meeting = ({
         instance.removeAllListeners();
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [instance]);
 
   const getAuxVideoStyles = () => {
@@ -770,9 +772,18 @@ const Meeting = ({
         },
       },
       {
+        text: 'Take Screenshot',
+        onPress: () => {
+          takeScreenShot();
+        },
+      },
+      {
         text: 'Report issue and share logs',
         onPress: async () => {
-          await checkPermissionToWriteExternalStroage();
+          const granted = await requestExternalStoragePermission();
+          if (granted) {
+            await reportIssue();
+          }
         },
       },
       {
@@ -967,41 +978,6 @@ const Meeting = ({
     return buttons;
   };
 
-  const checkPermissionToWriteExternalStroage = async () => {
-    // Function to check the platform
-    // If Platform is Android then check for permissions.
-    if (Platform.OS === 'ios') {
-      await reportIssue();
-    } else {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-          {
-            title: 'Storage Permission Required',
-            message:
-              'Application needs access to your storage to download File',
-            buttonPositive: 'true',
-          },
-        );
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          // Start downloading
-          await reportIssue();
-          console.log('Storage Permission Granted.');
-        } else {
-          // If permission denied then show alert
-          Toast.showWithGravity(
-            'Storage Permission Not Granted',
-            Toast.LONG,
-            Toast.TOP,
-          );
-        }
-      } catch (err) {
-        // To handle permission related exception
-        console.log('checkPermissionToWriteExternalStroage: ' + err);
-      }
-    }
-  };
-
   const reportIssue = async () => {
     try {
       const fileUrl = RNFetchBlob.fs.dirs.DocumentDir + '/report-logs.json';
@@ -1021,6 +997,17 @@ const Meeting = ({
       }
     });
     return idPresent;
+  };
+
+  const takeScreenShot = async () => {
+    screenshotRef.current?.capture().then(async (uri: string) => {
+      const granted = await requestExternalStoragePermission();
+      if (granted) {
+        CameraRoll.save(uri, {type: 'photo'})
+          .then(res => console.log(res))
+          .catch(err => console.log(err));
+      }
+    });
   };
 
   const HmsViewComponent = instance?.HmsView;
@@ -1205,300 +1192,308 @@ const Meeting = ({
           ))}
         </Picker>
       </CustomModal>
-      <View style={styles.headerContainer}>
-        <Text style={styles.headerName}>{trackId?.name}</Text>
-        <View style={styles.headerRight}>
-          {instance?.room?.browserRecordingState?.running && (
-            <Entypo
-              name="controller-record"
-              style={styles.recording}
-              size={dimension.viewHeight(30)}
-            />
-          )}
-          {(instance?.room?.hlsStreamingState?.running ||
-            instance?.room?.rtmpHMSRtmpStreamingState?.running) && (
-            <Entypo
-              name="light-up"
-              style={styles.streaming}
-              size={dimension.viewHeight(30)}
-            />
-          )}
-          {trackId?.peerRefrence?.auxiliaryTracks &&
-            trackId?.peerRefrence?.auxiliaryTracks?.length > 0 && (
-              <MaterialIcons
-                name="fit-screen"
+      <ViewShot
+        options={{
+          format: 'jpg',
+          quality: 0.8,
+        }}
+        style={styles.screenshot}
+        ref={screenshotRef}>
+        <View style={styles.headerContainer}>
+          <Text style={styles.headerName}>{trackId?.name}</Text>
+          <View style={styles.headerRight}>
+            {instance?.room?.browserRecordingState?.running && (
+              <Entypo
+                name="controller-record"
+                style={styles.recording}
+                size={dimension.viewHeight(30)}
+              />
+            )}
+            {(instance?.room?.hlsStreamingState?.running ||
+              instance?.room?.rtmpHMSRtmpStreamingState?.running) && (
+              <Entypo
+                name="light-up"
                 style={styles.streaming}
                 size={dimension.viewHeight(30)}
               />
             )}
+            {trackId?.peerRefrence?.auxiliaryTracks &&
+              trackId?.peerRefrence?.auxiliaryTracks?.length > 0 && (
+                <MaterialIcons
+                  name="fit-screen"
+                  style={styles.streaming}
+                  size={dimension.viewHeight(30)}
+                />
+              )}
+            {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
+              'video',
+            ) && (
+              <TouchableOpacity
+                style={styles.headerIcon}
+                onPress={() => {
+                  instance?.localPeer?.localVideoTrack()?.switchCamera();
+                }}>
+                <Ionicons
+                  name="camera-reverse-outline"
+                  style={styles.videoIcon}
+                  size={dimension.viewHeight(30)}
+                />
+              </TouchableOpacity>
+            )}
+            {!instance?.localPeer?.role?.name?.includes('hls-') && (
+              <TouchableOpacity
+                onPress={() => {
+                  instance?.setPlaybackForAllAudio(!muteAllAudio);
+                  setMuteAllAudio(!muteAllAudio);
+                }}
+                style={styles.headerIcon}>
+                <Ionicons
+                  name={muteAllAudio ? 'volume-mute' : 'volume-high'}
+                  style={styles.headerName}
+                  size={dimension.viewHeight(30)}
+                />
+              </TouchableOpacity>
+            )}
+            {!instance?.localPeer?.role?.name?.includes('hls-') && (
+              <TouchableOpacity
+                onPress={() => {
+                  setSettingsModal(true);
+                }}
+                style={styles.headerIcon}>
+                <Ionicons
+                  name="settings"
+                  style={styles.headerName}
+                  size={dimension.viewHeight(30)}
+                />
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+        <View style={styles.wrapper}>
+          {instance?.localPeer?.role?.name?.includes('hls-') ? (
+            instance?.room?.hlsStreamingState?.running ? (
+              instance?.room?.hlsStreamingState?.variants
+                ?.slice(0, 1)
+                ?.map((variant, index) =>
+                  variant?.hlsStreamUrl ? (
+                    <Video
+                      key={index}
+                      source={{
+                        uri: variant?.hlsStreamUrl,
+                      }} // Can be a URL or a local file.
+                      controls={Platform.OS === 'ios' ? true : false}
+                      onLoad={({duration}) => {
+                        if (Platform.OS === 'android') {
+                          hlsPlayerRef?.current?.seek(duration);
+                        }
+                      }}
+                      ref={hlsPlayerRef}
+                      resizeMode="contain"
+                      onError={() => console.log('hls video streaming error')}
+                      // Callback when video cannot be loaded
+                      allowsExternalPlayback={false}
+                      style={styles.renderVideo}
+                    />
+                  ) : (
+                    <View key={index} style={styles.renderVideo}>
+                      <Text>Trying to load empty source...</Text>
+                    </View>
+                  ),
+                )
+            ) : (
+              <View style={styles.renderVideo}>
+                <Text>Waiting for the Streaming to start...</Text>
+              </View>
+            )
+          ) : layout === 'active speaker' ? (
+            <ActiveSpeakerView
+              speakerIds={speakerIds}
+              speakers={speakers}
+              instance={instance}
+              localPeerPermissions={localPeerPermissions}
+              layout={layout}
+              state={state}
+              setChangeNameModal={setChangeNameModal}
+              statsForNerds={statsForNerds}
+              rtcStats={rtcStats}
+              remoteAudioStats={remoteAudioStats}
+              remoteVideoStats={remoteVideoStats}
+              localAudioStats={localAudioStats}
+              localVideoStats={localVideoStats}
+              setPage={setPage}
+              setZoomableModal={setZoomableModal}
+              setZoomableTrackId={setZoomableTrackId}
+              getAuxVideoStyles={getAuxVideoStyles}
+              page={page}
+              setRemoteTrackIds={setRemoteTrackIds}
+              hmsInstance={hmsInstance}
+            />
+          ) : layout === 'hero' ? (
+            <HeroView
+              speakers={speakers}
+              instance={instance}
+              localPeerPermissions={localPeerPermissions}
+              state={state}
+              setChangeNameModal={setChangeNameModal}
+            />
+          ) : !(fetchZoomableId(zoomableTrackId) && zoomableModal) ? (
+            <GridView
+              pairedPeers={pairedPeers}
+              setPage={setPage}
+              setZoomableModal={setZoomableModal}
+              setZoomableTrackId={setZoomableTrackId}
+              getAuxVideoStyles={getAuxVideoStyles}
+              speakerIds={speakerIds}
+              instance={instance}
+              localPeerPermissions={localPeerPermissions}
+              layout={layout}
+              state={state}
+              setChangeNameModal={setChangeNameModal}
+              statsForNerds={statsForNerds}
+              rtcStats={rtcStats}
+              remoteAudioStats={remoteAudioStats}
+              remoteVideoStats={remoteVideoStats}
+              localAudioStats={localAudioStats}
+              localVideoStats={localVideoStats}
+              page={page}
+              setRemoteTrackIds={setRemoteTrackIds}
+              hmsInstance={hmsInstance}
+            />
+          ) : (
+            <View>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => {
+                  setZoomableModal(false);
+                }}>
+                <Entypo
+                  name={'circle-with-cross'}
+                  style={styles.videoIcon}
+                  size={dimension.viewHeight(50)}
+                />
+              </TouchableOpacity>
+              <ZoomableView>
+                {HmsViewComponent && (
+                  <HmsViewComponent
+                    sink={true}
+                    trackId={zoomableTrackId}
+                    mirror={false}
+                    scaleType={HMSVideoViewMode.ASPECT_FIT}
+                    style={styles.hmsViewScreen}
+                  />
+                )}
+              </ZoomableView>
+            </View>
+          )}
+        </View>
+        <View style={styles.iconContainers}>
+          {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
+            'audio',
+          ) && (
+            <TouchableOpacity
+              style={styles.singleIconContainer}
+              onPress={() => {
+                instance?.localPeer
+                  ?.localAudioTrack()
+                  ?.setMute(!trackId.isAudioMute);
+                setTrackId({
+                  ...trackId,
+                  isAudioMute: !trackId.isAudioMute,
+                });
+              }}>
+              <Feather
+                name={trackId.isAudioMute ? 'mic-off' : 'mic'}
+                style={styles.videoIcon}
+                size={dimension.viewHeight(30)}
+              />
+            </TouchableOpacity>
+          )}
           {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
             'video',
           ) && (
             <TouchableOpacity
-              style={styles.headerIcon}
+              style={styles.singleIconContainer}
               onPress={() => {
-                instance?.localPeer?.localVideoTrack()?.switchCamera();
+                instance?.localPeer
+                  ?.localVideoTrack()
+                  ?.setMute(!trackId.isVideoMute);
+                setTrackId({
+                  ...trackId,
+                  isVideoMute: !trackId.isVideoMute,
+                });
               }}>
-              <Ionicons
-                name="camera-reverse-outline"
+              <Feather
+                name={trackId.isVideoMute ? 'video-off' : 'video'}
                 style={styles.videoIcon}
                 size={dimension.viewHeight(30)}
               />
             </TouchableOpacity>
           )}
-          {!instance?.localPeer?.role?.name?.includes('hls-') && (
-            <TouchableOpacity
-              onPress={() => {
-                instance?.setPlaybackForAllAudio(!muteAllAudio);
-                setMuteAllAudio(!muteAllAudio);
-              }}
-              style={styles.headerIcon}>
-              <Ionicons
-                name={muteAllAudio ? 'volume-mute' : 'volume-high'}
-                style={styles.headerName}
-                size={dimension.viewHeight(30)}
-              />
-            </TouchableOpacity>
-          )}
-          {!instance?.localPeer?.role?.name?.includes('hls-') && (
-            <TouchableOpacity
-              onPress={() => {
-                setSettingsModal(true);
-              }}
-              style={styles.headerIcon}>
-              <Ionicons
-                name="settings"
-                style={styles.headerName}
-                size={dimension.viewHeight(30)}
-              />
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity
+            style={styles.singleIconContainer}
+            onPress={() => {
+              setModalVisible(true);
+            }}>
+            <Feather
+              name="message-circle"
+              style={styles.videoIcon}
+              size={dimension.viewHeight(30)}
+            />
+            {notification && <View style={styles.messageDot} />}
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.singleIconContainer}
+            onPress={() => {
+              instance?.changeMetadata(
+                JSON.stringify({
+                  ...trackId?.metadata,
+                  isHandRaised: !trackId?.metadata?.isHandRaised,
+                }),
+              );
+            }}>
+            <Ionicons
+              name={
+                trackId?.metadata?.isHandRaised
+                  ? 'ios-hand-left'
+                  : 'ios-hand-left-outline'
+              }
+              style={styles.videoIcon}
+              size={dimension.viewHeight(30)}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.singleIconContainer}
+            onPress={() => {
+              instance?.changeMetadata(
+                JSON.stringify({
+                  ...trackId?.metadata,
+                  isBRBOn: !trackId?.metadata?.isBRBOn,
+                }),
+              );
+            }}>
+            {trackId?.metadata?.isBRBOn ? (
+              <View style={styles.brbOnContainer}>
+                <Text style={styles.brbOn}>BRB</Text>
+              </View>
+            ) : (
+              <View style={styles.brbContainer}>
+                <Text style={styles.brb}>BRB</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.leaveIconContainer}
+            onPress={() => {
+              setLeaveModalVisible(true);
+            }}>
+            <Feather
+              name="phone-off"
+              style={styles.leaveIcon}
+              size={dimension.viewHeight(30)}
+            />
+          </TouchableOpacity>
         </View>
-      </View>
-      <View style={styles.wrapper}>
-        {instance?.localPeer?.role?.name?.includes('hls-') ? (
-          instance?.room?.hlsStreamingState?.running ? (
-            instance?.room?.hlsStreamingState?.variants
-              ?.slice(0, 1)
-              ?.map((variant, index) =>
-                variant?.hlsStreamUrl ? (
-                  <Video
-                    key={index}
-                    source={{
-                      uri: variant?.hlsStreamUrl,
-                    }} // Can be a URL or a local file.
-                    controls={Platform.OS === 'ios' ? true : false}
-                    onLoad={({duration}) => {
-                      if (Platform.OS === 'android') {
-                        hlsPlayerRef?.current?.seek(duration);
-                      }
-                    }}
-                    ref={hlsPlayerRef}
-                    resizeMode="contain"
-                    onError={() => console.log('hls video streaming error')}
-                    // Callback when video cannot be loaded
-                    allowsExternalPlayback={false}
-                    style={styles.renderVideo}
-                  />
-                ) : (
-                  <View key={index} style={styles.renderVideo}>
-                    <Text>Trying to load empty source...</Text>
-                  </View>
-                ),
-              )
-          ) : (
-            <View style={styles.renderVideo}>
-              <Text>Waiting for the Streaming to start...</Text>
-            </View>
-          )
-        ) : layout === 'active speaker' ? (
-          <ActiveSpeakerView
-            speakerIds={speakerIds}
-            speakers={speakers}
-            instance={instance}
-            localPeerPermissions={localPeerPermissions}
-            layout={layout}
-            state={state}
-            setChangeNameModal={setChangeNameModal}
-            statsForNerds={statsForNerds}
-            rtcStats={rtcStats}
-            remoteAudioStats={remoteAudioStats}
-            remoteVideoStats={remoteVideoStats}
-            localAudioStats={localAudioStats}
-            localVideoStats={localVideoStats}
-            setPage={setPage}
-            setZoomableModal={setZoomableModal}
-            setZoomableTrackId={setZoomableTrackId}
-            getAuxVideoStyles={getAuxVideoStyles}
-            page={page}
-            setRemoteTrackIds={setRemoteTrackIds}
-            hmsInstance={hmsInstance}
-          />
-        ) : layout === 'hero' ? (
-          <HeroView
-            speakers={speakers}
-            instance={instance}
-            localPeerPermissions={localPeerPermissions}
-            state={state}
-            setChangeNameModal={setChangeNameModal}
-          />
-        ) : !(fetchZoomableId(zoomableTrackId) && zoomableModal) ? (
-          <GridView
-            pairedPeers={pairedPeers}
-            setPage={setPage}
-            setZoomableModal={setZoomableModal}
-            setZoomableTrackId={setZoomableTrackId}
-            getAuxVideoStyles={getAuxVideoStyles}
-            speakerIds={speakerIds}
-            instance={instance}
-            localPeerPermissions={localPeerPermissions}
-            layout={layout}
-            state={state}
-            setChangeNameModal={setChangeNameModal}
-            statsForNerds={statsForNerds}
-            rtcStats={rtcStats}
-            remoteAudioStats={remoteAudioStats}
-            remoteVideoStats={remoteVideoStats}
-            localAudioStats={localAudioStats}
-            localVideoStats={localVideoStats}
-            page={page}
-            setRemoteTrackIds={setRemoteTrackIds}
-            hmsInstance={hmsInstance}
-          />
-        ) : (
-          <View>
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => {
-                setZoomableModal(false);
-              }}>
-              <Entypo
-                name={'circle-with-cross'}
-                style={styles.videoIcon}
-                size={dimension.viewHeight(50)}
-              />
-            </TouchableOpacity>
-            <ZoomableView>
-              {HmsViewComponent && (
-                <HmsViewComponent
-                  sink={true}
-                  trackId={zoomableTrackId}
-                  mirror={false}
-                  scaleType={HMSVideoViewMode.ASPECT_FIT}
-                  style={styles.hmsViewScreen}
-                />
-              )}
-            </ZoomableView>
-          </View>
-        )}
-      </View>
-      <View style={styles.iconContainers}>
-        {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
-          'audio',
-        ) && (
-          <TouchableOpacity
-            style={styles.singleIconContainer}
-            onPress={() => {
-              instance?.localPeer
-                ?.localAudioTrack()
-                ?.setMute(!trackId.isAudioMute);
-              setTrackId({
-                ...trackId,
-                isAudioMute: !trackId.isAudioMute,
-              });
-            }}>
-            <Feather
-              name={trackId.isAudioMute ? 'mic-off' : 'mic'}
-              style={styles.videoIcon}
-              size={dimension.viewHeight(30)}
-            />
-          </TouchableOpacity>
-        )}
-        {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
-          'video',
-        ) && (
-          <TouchableOpacity
-            style={styles.singleIconContainer}
-            onPress={() => {
-              instance?.localPeer
-                ?.localVideoTrack()
-                ?.setMute(!trackId.isVideoMute);
-              setTrackId({
-                ...trackId,
-                isVideoMute: !trackId.isVideoMute,
-              });
-            }}>
-            <Feather
-              name={trackId.isVideoMute ? 'video-off' : 'video'}
-              style={styles.videoIcon}
-              size={dimension.viewHeight(30)}
-            />
-          </TouchableOpacity>
-        )}
-        <TouchableOpacity
-          style={styles.singleIconContainer}
-          onPress={() => {
-            setModalVisible(true);
-          }}>
-          <Feather
-            name="message-circle"
-            style={styles.videoIcon}
-            size={dimension.viewHeight(30)}
-          />
-          {notification && <View style={styles.messageDot} />}
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.singleIconContainer}
-          onPress={() => {
-            instance?.changeMetadata(
-              JSON.stringify({
-                ...trackId?.metadata,
-                isHandRaised: !trackId?.metadata?.isHandRaised,
-              }),
-            );
-          }}>
-          <Ionicons
-            name={
-              trackId?.metadata?.isHandRaised
-                ? 'ios-hand-left'
-                : 'ios-hand-left-outline'
-            }
-            style={styles.videoIcon}
-            size={dimension.viewHeight(30)}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.singleIconContainer}
-          onPress={() => {
-            instance?.changeMetadata(
-              JSON.stringify({
-                ...trackId?.metadata,
-                isBRBOn: !trackId?.metadata?.isBRBOn,
-              }),
-            );
-          }}>
-          {trackId?.metadata?.isBRBOn ? (
-            <View style={styles.brbOnContainer}>
-              <Text style={styles.brbOn}>BRB</Text>
-            </View>
-          ) : (
-            <View style={styles.brbContainer}>
-              <Text style={styles.brb}>BRB</Text>
-            </View>
-          )}
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.leaveIconContainer}
-          onPress={() => {
-            setLeaveModalVisible(true);
-          }}>
-          <Feather
-            name="phone-off"
-            style={styles.leaveIcon}
-            size={dimension.viewHeight(30)}
-          />
-        </TouchableOpacity>
-      </View>
+      </ViewShot>
       {modalVisible && (
         <ChatWindow
           messages={messages}

@@ -303,6 +303,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     overflow: 'hidden',
   },
+  screenshot: {
+    backgroundColor: 'white',
+    flex: 1,
+  },
 });
 
 export {styles};

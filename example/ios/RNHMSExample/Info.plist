@@ -39,6 +39,8 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Example App wants to use your camera</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Example App wants to save photo to device</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Example App wants to use your local network</string>
 	<key>NSMicrophoneUsageDescription</key>

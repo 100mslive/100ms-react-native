@@ -19,6 +19,10 @@ target 'RNHMSExample' do
 
   pod 'react-native-video', :path => '../node_modules/react-native-video'
 
+  pod 'react-native-view-shot', :path => '../node_modules/react-native-view-shot'
+
+  pod 'react-native-cameraroll', :path => '../node_modules/@react-native-community/cameraroll'
+
   target 'RNHMSExampleTests' do
     inherit! :complete
     # Pods for testing
