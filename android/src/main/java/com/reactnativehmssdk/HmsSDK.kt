@@ -371,12 +371,12 @@ class HmsSDK(
                 override fun onMessageReceived(message: HMSMessage) {
                   val data: WritableMap = Arguments.createMap()
 
-                  data.putString("sender", message.sender.name)
+                  data.putMap("sender", HmsDecoder.getHmsPeer(message.sender))
                   data.putString("message", message.message)
                   data.putString("type", message.type)
                   data.putString("time", message.serverReceiveTime.toString())
                   data.putString("id", id)
-                  data.putString("event", "ON_MESSAGE")
+                  data.putMap("recipient", HmsDecoder.getHmsMessageRecipient(message.recipient))
 
                   delegate.emitEvent("ON_MESSAGE", data)
                 }

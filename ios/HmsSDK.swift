@@ -802,7 +802,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func on(message: HMSMessage) {
-        self.delegate?.emitEvent(ON_MESSAGE, ["event": ON_MESSAGE, "id": self.id, "sender": message.sender?.name ?? "", "time": message.time, "message": message.message, "type": message.type])
+        self.delegate?.emitEvent(ON_MESSAGE, ["event": ON_MESSAGE, "id": self.id, "sender": HmsDecoder.getHmsPeer(message.sender), "recipient": HmsDecoder.getHmsMessageRecipient(message.recipient), "time": message.time.timeIntervalSince1970 * 1000, "message": message.message, "type": message.type])
     }
 
     func on(updated speakers: [HMSSpeaker]) {

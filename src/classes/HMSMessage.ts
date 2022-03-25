@@ -1,19 +1,25 @@
+import type { HMSMessageRecipient } from './HMSMessageRecipient';
+import type { HMSPeer } from './HMSPeer';
+
 export class HMSMessage {
   // endpoint: string;
   public message: string;
   public type: string;
-  public time?: string;
-  public sender?: string;
+  public time: Date;
+  public sender: HMSPeer;
+  public recipient: HMSMessageRecipient;
 
   constructor(params: {
     message: string;
     type: string;
-    time?: string;
-    sender?: string;
+    time: string;
+    sender: HMSPeer;
+    recipient: HMSMessageRecipient;
   }) {
     this.message = params.message;
     this.type = params.type;
-    this.time = params.time;
+    this.time = new Date(params.time);
     this.sender = params.sender;
+    this.recipient = params.recipient;
   }
 }

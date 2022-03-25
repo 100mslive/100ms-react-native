@@ -24,7 +24,9 @@ class HmsDecoder: NSObject {
         return ["id": id, "name": name, "metaData": metaData, "peers": peers, "browserRecordingState": browserRecordingState, "rtmpHMSRtmpStreamingState": rtmpStreamingState, "serverRecordingState": serverRecordingState, "hlsRecordingState": hlsRecordingState, "hlsStreamingState": hlsStreamingState, "peerCount": count]
     }
 
-    static func getHmsPeer (_ peer: HMSPeer) -> [String: Any] {
+    static func getHmsPeer (_ hmsPeer: HMSPeer?) -> [String: Any] {
+
+        guard let peer = hmsPeer else { return [:] }
 
         let peerID = peer.peerID
         let name = peer.name
@@ -581,5 +583,22 @@ class HmsDecoder: NSObject {
     
     static func getRemoteVideoStats(_ data: HMSRemoteVideoStats) -> [String: Any] {
         return ["bitrate": data.bitrate, "packetsReceived": data.packetsReceived, "packetsLost": data.packetsLost, "bytesReceived": data.bytesReceived, "jitter": data.jitter, "resolution": HmsDecoder.getHmsVideoResolution(data.resolution), "frameRate": data.frameRate]
+    }
+    
+    static func getHmsMessageRecipient(_ recipient: HMSMessageRecipient) -> [String: Any] {
+        return ["recipientPeer": getHmsPeer(recipient.peerRecipient), "recipientRoles": getAllRoles(recipient.rolesRecipient), "type": self.getRecipientType(from: recipient.type)]
+    }
+    
+    static private func getRecipientType(from recipientType: HMSMessageRecipientType) -> String {
+        switch recipientType {
+        case .broadcast:
+            return "BROADCAST"
+        case .peer:
+            return "PEER"
+        case .roles:
+            return "ROLES"
+        default:
+            return ""
+        }
     }
 }
