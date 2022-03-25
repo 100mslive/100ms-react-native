@@ -107,7 +107,7 @@ object HmsHelper {
 
   fun getTrackFromTrackId(trackId: String?, room: HMSRoom?): HMSTrack? {
     if (trackId != null && room != null) {
-      HmsUtilities.getTrack(trackId, room)
+      return HmsUtilities.getTrack(trackId, room)
     }
     return null
   }
