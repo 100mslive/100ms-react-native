@@ -11,6 +11,7 @@ import {
   Platform,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import dimension from '../utils/dimension';
 import {ChatBubble} from './ChatBubble';
@@ -30,6 +31,7 @@ export const ChatWindow = ({
   const [text, setText] = useState('');
   const [messageTo, setMessageTo] = useState(0);
   const scollviewRef = useRef<ScrollView>(null);
+  const {top, bottom} = useSafeAreaInsets();
 
   useEffect(() => {
     scollviewRef?.current?.scrollToEnd({animated: false});
@@ -40,7 +42,7 @@ export const ChatWindow = ({
   }, [messages]);
   return (
     <View style={styles.container}>
-      <View style={styles.keyboardAvoidingView}>
+      <View style={[styles.keyboardAvoidingView, {paddingTop: top}]}>
         <View style={styles.headingContainer}>
           <Feather
             name="message-circle"
@@ -66,7 +68,10 @@ export const ChatWindow = ({
             data={messageToList}
           />
         </View>
-        <ScrollView ref={scollviewRef} style={styles.chatContainer}>
+        <ScrollView
+          ref={scollviewRef}
+          style={styles.chatContainer}
+          contentContainerStyle={styles.contentContainerStyle}>
           {messages.map((item: any, index: number) => {
             return (
               <ChatBubble
@@ -80,27 +85,25 @@ export const ChatWindow = ({
         </ScrollView>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={styles.textInputContainer}>
-          <TextInput
-            placeholder="Enter Message"
-            placeholderTextColor="black"
-            style={styles.textInput}
-            onChangeText={value => {
-              setText(value);
-            }}
-            value={text}
-          />
+          style={[styles.textInputContainer, {marginBottom: bottom}]}>
+          <View style={styles.flex}>
+            <TextInput
+              placeholder="Enter Message"
+              placeholderTextColor="black"
+              style={styles.textInput}
+              onChangeText={value => {
+                setText(value);
+              }}
+              value={text}
+            />
+          </View>
           <TouchableOpacity
             style={styles.sendContainer}
             onPress={() => {
               send(text, messageToList[messageTo]);
               setText('');
             }}>
-            <Feather
-              size={dimension.viewHeight(24)}
-              style={styles.sendIcon}
-              name="send"
-            />
+            <Feather size={dimension.viewHeight(24)} name="send" />
           </TouchableOpacity>
         </KeyboardAvoidingView>
       </View>
@@ -117,18 +120,26 @@ const styles = StyleSheet.create({
     right: 0,
     backgroundColor: 'rgba(34, 34, 34, 0.3)',
     justifyContent: 'center',
-    zIndex: 502,
+    zIndex: 1,
   },
-  sendIcon: {},
+  flex: {
+    flex: 1,
+  },
   keyboardAvoidingView: {
     backgroundColor: 'white',
     width: '100%',
     height: '100%',
-    paddingTop: dimension.viewHeight(40),
-    paddingHorizontal: dimension.viewWidth(24),
+  },
+  contentContainerStyle: {
+    paddingBottom: 8,
   },
   chatContainer: {
     flex: 1,
+    paddingHorizontal: dimension.viewWidth(24),
+    borderTopWidth: 2,
+    borderTopColor: 'lightgrey',
+    borderBottomWidth: 2,
+    borderBottomColor: 'lightgrey',
   },
   textContainer: {
     marginVertical: dimension.viewHeight(12),
@@ -152,21 +163,17 @@ const styles = StyleSheet.create({
   textInput: {
     borderColor: 'black',
     borderWidth: 1,
-    height: dimension.viewHeight(52),
-    marginHorizontal: dimension.viewWidth(16),
     paddingHorizontal: dimension.viewWidth(16),
     flex: 1,
-    marginBottom: Platform.OS === 'ios' ? 16 : 0,
     color: 'black',
   },
   textInputContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    paddingBottom: 16,
+    paddingBottom: 8,
     paddingTop: 10,
+    paddingHorizontal: dimension.viewWidth(24),
   },
   sendContainer: {
-    marginRight: dimension.viewWidth(24),
     padding: 8,
   },
   closeIcon: {
@@ -174,14 +181,15 @@ const styles = StyleSheet.create({
   },
   closeIconContainer: {
     position: 'absolute',
-    right: 0,
+    right: 20,
     padding: 10,
   },
   headingContainer: {
-    padding: 10,
+    paddingTop: 8,
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'center',
+    paddingHorizontal: dimension.viewWidth(24),
   },
   heading: {
     fontSize: 20,
@@ -192,6 +200,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
+    paddingHorizontal: dimension.viewWidth(24),
   },
   subHeading: {
     fontSize: 16,

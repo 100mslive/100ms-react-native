@@ -1512,11 +1512,6 @@ const Meeting = ({
             messageTo: {name: string; type: string; obj: any},
           ) => {
             if (value.length > 0) {
-              const hmsMessage = new HMSMessage({
-                type: 'chat',
-                time: new Date().toISOString(),
-                message: value,
-              });
               if (messageTo?.type === 'everyone') {
                 await instance?.sendBroadcastMessage(value);
               } else if (messageTo?.type === 'group') {
@@ -1528,7 +1523,11 @@ const Meeting = ({
                 );
               }
               addMessageRequest({
-                data: hmsMessage,
+                data: {
+                  type: 'chat',
+                  time: new Date(),
+                  message: value,
+                },
                 isLocal: true,
                 name: messageTo?.name,
               });
