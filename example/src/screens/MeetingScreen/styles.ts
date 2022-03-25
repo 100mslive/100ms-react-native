@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     marginVertical: 1,
     padding: '0.25%',
     overflow: 'hidden',
-    borderRadius: 10,
+    borderRadius: 20,
   },
   hmsView: {
     height: '100%',
