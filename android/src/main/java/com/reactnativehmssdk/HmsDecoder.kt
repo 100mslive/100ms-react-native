@@ -498,4 +498,14 @@ object HmsDecoder {
     }
     return decodedTracks
   }
+
+  fun getHmsMessageRecipient(recipient: HMSMessageRecipient?): WritableMap {
+    val hmsRecipient: WritableMap = Arguments.createMap()
+    if (recipient != null) {
+      hmsRecipient.putMap("recipientPeer", this.getHmsPeer(recipient.recipientPeer))
+      hmsRecipient.putArray("recipientRoles", this.getAllRoles(recipient.recipientRoles))
+      hmsRecipient.putString("recipientType", recipient.recipientType.name)
+    }
+    return hmsRecipient
+  }
 }

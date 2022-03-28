@@ -1,4 +1,4 @@
-import {HMSSDK} from '@100mslive/react-native-hms';
+import type {HMSSDK} from '@100mslive/react-native-hms';
 import actionTypes from '../actionTypes';
 
 export const addMessage = (data: any) => ({

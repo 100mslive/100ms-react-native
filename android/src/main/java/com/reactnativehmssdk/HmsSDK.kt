@@ -26,8 +26,9 @@ class HmsSDK(
     reactApplicationContext: ReactApplicationContext
 ) {
   var hmsSDK: HMSSDK? = null
-  private var recentRoleChangeRequest: HMSRoleChangeRequest? = null
+  var screenshareCallback: Promise? = null
   var delegate: HmsModule = HmsDelegate
+  private var recentRoleChangeRequest: HMSRoleChangeRequest? = null
   private var context: ReactApplicationContext = reactApplicationContext
   private var previewInProgress: Boolean = false
   private var id: String = sdkId
@@ -142,6 +143,16 @@ class HmsSDK(
             }
 
             override fun onPeerUpdate(type: HMSPeerUpdate, peer: HMSPeer) {
+              if (type === HMSPeerUpdate.AUDIO_TOGGLED ||
+                      type === HMSPeerUpdate.VIDEO_TOGGLED ||
+                      type === HMSPeerUpdate.BECAME_DOMINANT_SPEAKER ||
+                      type === HMSPeerUpdate.NO_DOMINANT_SPEAKER ||
+                      type === HMSPeerUpdate.RESIGNED_DOMINANT_SPEAKER ||
+                      type === HMSPeerUpdate.STARTED_SPEAKING ||
+                      type === HMSPeerUpdate.STOPPED_SPEAKING
+              ) {
+                return
+              }
               val updateType = type.name
               val roomData = HmsDecoder.getHmsRoom(hmsSDK?.getRoom())
               val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
@@ -295,6 +306,16 @@ class HmsSDK(
                 }
 
                 override fun onPeerUpdate(type: HMSPeerUpdate, peer: HMSPeer) {
+                  if (type === HMSPeerUpdate.AUDIO_TOGGLED ||
+                          type === HMSPeerUpdate.VIDEO_TOGGLED ||
+                          type === HMSPeerUpdate.BECAME_DOMINANT_SPEAKER ||
+                          type === HMSPeerUpdate.NO_DOMINANT_SPEAKER ||
+                          type === HMSPeerUpdate.RESIGNED_DOMINANT_SPEAKER ||
+                          type === HMSPeerUpdate.STARTED_SPEAKING ||
+                          type === HMSPeerUpdate.STOPPED_SPEAKING
+                  ) {
+                    return
+                  }
                   val updateType = type.name
                   val roomData = HmsDecoder.getHmsRoom(hmsSDK?.getRoom())
                   val localPeerData = HmsDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
@@ -351,12 +372,12 @@ class HmsSDK(
                 override fun onMessageReceived(message: HMSMessage) {
                   val data: WritableMap = Arguments.createMap()
 
-                  data.putString("sender", message.sender.name)
+                  data.putMap("sender", HmsDecoder.getHmsPeer(message.sender))
                   data.putString("message", message.message)
                   data.putString("type", message.type)
                   data.putString("time", message.serverReceiveTime.toString())
                   data.putString("id", id)
-                  data.putString("event", "ON_MESSAGE")
+                  data.putMap("recipient", HmsDecoder.getHmsMessageRecipient(message.recipient))
 
                   delegate.emitEvent("ON_MESSAGE", data)
                 }
@@ -433,6 +454,7 @@ class HmsSDK(
     hmsSDK?.leave(
         object : HMSActionResultListener {
           override fun onSuccess() {
+            screenshareCallback = null
             callback?.resolve(emitHMSSuccess())
           }
 
@@ -891,6 +913,9 @@ class HmsSDK(
             }
           }
         }
+        this.emitCustomError("TRACKID_NOT_MATCHED")
+      } else {
+        this.emitCustomError("REMOTE_PEERS_NOT_FOUND")
       }
     } else {
       this.emitRequiredKeysError()
@@ -991,7 +1016,8 @@ class HmsSDK(
     )
   }
 
-  fun startScreenshare() {
+  fun startScreenshare(callback: Promise?) {
+    screenshareCallback = callback
     runOnUiThread {
       val intent = Intent(context, HmsScreenshareActivity::class.java)
       intent.flags = FLAG_ACTIVITY_NEW_TASK
@@ -1008,10 +1034,12 @@ class HmsSDK(
     hmsSDK?.stopScreenshare(
         object : HMSActionResultListener {
           override fun onError(error: HMSException) {
+            screenshareCallback = null
             callback?.reject(error.code.toString(), error.message)
             self.emitHMSError(error)
           }
           override fun onSuccess() {
+            screenshareCallback = null
             callback?.resolve(emitHMSSuccess())
           }
         }
@@ -1025,7 +1053,8 @@ class HmsSDK(
       val meetingURLVariants =
           data.getArray("meetingURLVariants")?.toArrayList() as? ArrayList<HashMap<String, String>>
       val hlsMeetingUrlVariant = HmsHelper.getHMSHLSMeetingURLVariants(meetingURLVariants)
-      val config = HMSHLSConfig(hlsMeetingUrlVariant)
+      val hlsRecordingConfig = HmsHelper.getHlsRecordingConfig(data)
+      val config = HMSHLSConfig(hlsMeetingUrlVariant, hlsRecordingConfig)
 
       hmsSDK?.startHLSStreaming(
           config,

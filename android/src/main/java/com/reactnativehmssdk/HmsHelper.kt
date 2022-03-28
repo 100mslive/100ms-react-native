@@ -107,7 +107,7 @@ object HmsHelper {
 
   fun getTrackFromTrackId(trackId: String?, room: HMSRoom?): HMSTrack? {
     if (trackId != null && room != null) {
-      HmsUtilities.getTrack(trackId, room)
+      return HmsUtilities.getTrack(trackId, room)
     }
     return null
   }
@@ -268,6 +268,32 @@ object HmsHelper {
       }
     }
     return meetingURLVariants
+  }
+
+  fun getHlsRecordingConfig(data: ReadableMap): HMSHlsRecordingConfig? {
+    if (areAllRequiredKeysAvailable(data, arrayOf(Pair("hlsRecordingConfig", "Map")))) {
+      val hmsHlsRecordingConfig = data.getMap("hlsRecordingConfig")
+      if (hmsHlsRecordingConfig != null) {
+        var singleFilePerLayer = false
+        var videoOnDemand = false
+        if (areAllRequiredKeysAvailable(
+                hmsHlsRecordingConfig,
+                arrayOf(Pair("singleFilePerLayer", "Boolean"))
+            )
+        ) {
+          singleFilePerLayer = hmsHlsRecordingConfig.getBoolean("singleFilePerLayer")
+        }
+        if (areAllRequiredKeysAvailable(
+                hmsHlsRecordingConfig,
+                arrayOf(Pair("videoOnDemand", "Boolean"))
+            )
+        ) {
+          videoOnDemand = hmsHlsRecordingConfig.getBoolean("videoOnDemand")
+        }
+        return HMSHlsRecordingConfig(singleFilePerLayer, videoOnDemand)
+      }
+    }
+    return null
   }
 
   private fun getHMSHLSMeetingURLVariant(

@@ -643,9 +643,10 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
             delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HmsDecoder.getError(error), "id": id])
             return
         }
-
+        
+        let recordConfig = HmsHelper.getHlsRecordingConfig(data)
         let hlsMeetingUrlVariant = HmsHelper.getHMSHLSMeetingURLVariants(meetingURLVariants)
-        let config = HMSHLSConfig(variants: hlsMeetingUrlVariant)
+        let config = HMSHLSConfig(variants: hlsMeetingUrlVariant, recording: recordConfig)
 
         hms?.startHLSStreaming(config: config, completion: { success, error in
             if success {
@@ -801,7 +802,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func on(message: HMSMessage) {
-        self.delegate?.emitEvent(ON_MESSAGE, ["event": ON_MESSAGE, "id": self.id, "sender": message.sender?.name ?? "", "time": message.time, "message": message.message, "type": message.type])
+        self.delegate?.emitEvent(ON_MESSAGE, ["event": ON_MESSAGE, "id": self.id, "sender": HmsDecoder.getHmsPeer(message.sender), "recipient": HmsDecoder.getHmsMessageRecipient(message.recipient), "time": message.time.timeIntervalSince1970 * 1000, "message": message.message, "type": message.type])
     }
 
     func on(updated speakers: [HMSSpeaker]) {

@@ -1,5 +1,6 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
+import type {HMSMessage} from '@100mslive/react-native-hms';
 
 import dimension from '../utils/dimension';
 
@@ -8,38 +9,56 @@ export const ChatBubble = ({
   isLocal,
   name,
 }: {
-  data: any;
+  data: HMSMessage;
   isLocal: boolean;
   name: string;
 }) => {
   return (
-    <View style={isLocal ? styles.senderMessageBubble : styles.messageBubble}>
-      <View style={styles.textContainer}>
-        <View style={{flexDirection: 'row'}}>
-          <Text style={isLocal ? styles.senderText : styles.receiverText}>
-            {isLocal ? 'You' : data.sender}
+    <View>
+      <View style={isLocal ? styles.senderMessageBubble : styles.messageBubble}>
+        <View style={styles.textContainer}>
+          <View style={styles.textSubContainer}>
+            <Text style={[styles.senderText, isLocal && styles.data]}>
+              {isLocal ? 'You' : data?.sender?.name}
+            </Text>
+            {name && <Text style={styles.text}>{' to ' + name}</Text>}
+          </View>
+          <Text style={[styles.message, isLocal && styles.data]}>
+            {data.message}
           </Text>
-          {name && <Text style={{color: 'white'}}>{' to ' + name}</Text>}
         </View>
-        <Text style={[styles.message, isLocal && {textAlign: 'right'}]}>
-          {data.message}
-        </Text>
       </View>
+      <Text style={[styles.message, isLocal && styles.data, styles.time]}>
+        {data.time?.getHours() +
+          '.' +
+          data.time?.getMinutes() +
+          '.' +
+          data.time?.getSeconds()}
+      </Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   textContainer: {
-    marginVertical: dimension.viewHeight(6),
+    marginTop: dimension.viewHeight(12),
+    marginBottom: dimension.viewHeight(4),
     backgroundColor: '#67cd99',
     paddingHorizontal: 22,
     paddingVertical: 6,
-    borderTopLeftRadius: 30,
-    borderBottomRightRadius: 30,
-    borderBottomLeftRadius: 30,
-    borderTopRightRadius: 30,
+    borderRadius: 24,
     maxWidth: '80%',
+  },
+  textSubContainer: {
+    flexDirection: 'row',
+  },
+  text: {
+    color: '#ccffee',
+    fontWeight: 'bold',
+    fontSize: dimension.viewHeight(16),
+  },
+  data: {
+    textAlign: 'right',
   },
   messageBubble: {
     flexDirection: 'row',
@@ -50,17 +69,18 @@ const styles = StyleSheet.create({
   },
   message: {
     color: 'white',
-    fontSize: dimension.viewHeight(18),
+    fontSize: dimension.viewHeight(20),
     textAlign: 'left',
   },
   senderText: {
     textAlign: 'right',
     color: '#ccffee',
     fontWeight: 'bold',
+    fontSize: dimension.viewHeight(16),
   },
-
-  receiverText: {
-    color: '#ccffee',
-    fontWeight: 'bold',
+  time: {
+    fontSize: dimension.viewHeight(12),
+    color: 'black',
+    paddingHorizontal: 8,
   },
 });

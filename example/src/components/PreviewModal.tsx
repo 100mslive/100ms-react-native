@@ -106,7 +106,9 @@ export const PreviewModal = ({
             disabled={previewButtonState !== 'Active'}
             style={[
               styles.buttonTextContainer,
-              {opacity: previewButtonState !== 'Active' ? 0.5 : 1},
+              previewButtonState !== 'Active'
+                ? styles.lowOpacity
+                : styles.highOpacity,
             ]}
             onPress={() => {
               join();
@@ -193,5 +195,11 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 20,
     paddingHorizontal: 16,
+  },
+  lowOpacity: {
+    opacity: 0.5,
+  },
+  highOpacity: {
+    opacity: 1,
   },
 });

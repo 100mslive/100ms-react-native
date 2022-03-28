@@ -39,7 +39,7 @@ export const AlertModal = ({
               <Text
                 style={[
                   styles.buttonItemText,
-                  button.type === 'cancel' && {color: 'red'},
+                  button.type === 'cancel' && styles.red,
                 ]}>
                 {button.text}
               </Text>
@@ -104,5 +104,8 @@ const styles = StyleSheet.create({
   buttonItemText: {
     alignSelf: 'center',
     color: 'blue',
+  },
+  red: {
+    color: 'red',
   },
 });

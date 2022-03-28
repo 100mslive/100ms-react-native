@@ -216,11 +216,11 @@ class HmsModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun startScreenshare(data: ReadableMap) {
+  fun startScreenshare(data: ReadableMap, callback: Promise?) {
     currentActivity?.application?.registerActivityLifecycleCallbacks(this)
     val hms = HmsHelper.getHms(data, hmsCollection)
 
-    hms?.startScreenshare()
+    hms?.startScreenshare(callback)
   }
 
   @ReactMethod
