@@ -454,6 +454,7 @@ class HmsSDK(
     hmsSDK?.leave(
         object : HMSActionResultListener {
           override fun onSuccess() {
+            screenshareCallback = null
             callback?.resolve(emitHMSSuccess())
           }
 
@@ -1033,6 +1034,7 @@ class HmsSDK(
     hmsSDK?.stopScreenshare(
         object : HMSActionResultListener {
           override fun onError(error: HMSException) {
+            screenshareCallback = null
             callback?.reject(error.code.toString(), error.message)
             self.emitHMSError(error)
           }
