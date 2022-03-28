@@ -1039,6 +1039,7 @@ class HmsSDK(
             self.emitHMSError(error)
           }
           override fun onSuccess() {
+            screenshareCallback = null
             callback?.resolve(emitHMSSuccess())
           }
         }
