@@ -26,8 +26,9 @@ class HmsSDK(
     reactApplicationContext: ReactApplicationContext
 ) {
   var hmsSDK: HMSSDK? = null
-  private var recentRoleChangeRequest: HMSRoleChangeRequest? = null
+  var screenshareCallback: Promise? = null
   var delegate: HmsModule = HmsDelegate
+  private var recentRoleChangeRequest: HMSRoleChangeRequest? = null
   private var context: ReactApplicationContext = reactApplicationContext
   private var previewInProgress: Boolean = false
   private var id: String = sdkId
@@ -912,7 +913,7 @@ class HmsSDK(
           }
         }
         this.emitCustomError("TRACKID_NOT_MATCHED")
-      }else{
+      } else {
         this.emitCustomError("REMOTE_PEERS_NOT_FOUND")
       }
     } else {
@@ -1014,7 +1015,8 @@ class HmsSDK(
     )
   }
 
-  fun startScreenshare() {
+  fun startScreenshare(callback: Promise?) {
+    screenshareCallback = callback
     runOnUiThread {
       val intent = Intent(context, HmsScreenshareActivity::class.java)
       intent.flags = FLAG_ACTIVITY_NEW_TASK

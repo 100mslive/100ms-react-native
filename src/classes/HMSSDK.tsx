@@ -837,12 +837,13 @@ export class HMSSDK {
    *
    * @memberof HMSSDK
    */
-  startScreenshare = () => {
+  startScreenshare = async () => {
     logger?.verbose('#Function startScreenshare', { id: this.id });
     if (Platform.OS === 'android') {
-      HmsManager.startScreenshare({ id: this.id });
+      return await HmsManager.startScreenshare({ id: this.id });
     } else {
       console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
     }
   };
 
