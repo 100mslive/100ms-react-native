@@ -812,13 +812,19 @@ const Meeting = ({
           {
             text: 'Start Screenshare',
             onPress: () => {
-              instance?.startScreenshare();
+              instance
+                ?.startScreenshare()
+                .then(d => console.log('Start Screenshare Success: ', d))
+                .catch(e => console.log('Start Screenshare Error: ', e));
             },
           },
           {
             text: 'Stop Screenshare',
             onPress: () => {
-              instance?.stopScreenshare();
+              instance
+                ?.stopScreenshare()
+                .then(d => console.log('Stop Screenshare Success: ', d))
+                .catch(e => console.log('Stop Screenshare Error: ', e));
             },
           },
         ],

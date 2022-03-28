@@ -8,6 +8,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import com.facebook.react.bridge.Arguments
+import com.facebook.react.bridge.WritableMap
 import live.hms.video.error.HMSException
 import live.hms.video.sdk.HMSActionResultListener
 
@@ -21,15 +23,24 @@ class HmsScreenshareActivity : ComponentActivity() {
               object : HMSActionResultListener {
                 override fun onError(error: HMSException) {
                   finish()
+                  HmsModule.hmsCollection[id]?.screenshareCallback?.reject(error)
                   HmsModule.hmsCollection[id]?.emitHMSError(error)
                 }
                 override fun onSuccess() {
+                  HmsModule.hmsCollection[id]?.screenshareCallback?.resolve(
+                      HmsModule.hmsCollection[id]?.emitHMSSuccess()
+                  )
                   finish()
                 }
               },
               mediaProjectionPermissionResultData
           )
         } else {
+          val id = intent.getStringExtra("id")
+          val data: WritableMap = Arguments.createMap()
+          data.putBoolean("success", true)
+          data.putString("message", "RESULT_CANCELED")
+          HmsModule.hmsCollection[id]?.screenshareCallback?.resolve(data)
           finish()
         }
       }
