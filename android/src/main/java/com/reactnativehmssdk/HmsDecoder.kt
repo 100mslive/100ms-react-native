@@ -1,6 +1,7 @@
 package com.reactnativehmssdk
 
 import com.facebook.react.bridge.*
+import live.hms.video.connection.stats.quality.HMSNetworkQuality
 import live.hms.video.error.HMSException
 import live.hms.video.media.settings.HMSAudioTrackSettings
 import live.hms.video.media.settings.HMSVideoResolution
@@ -47,6 +48,7 @@ object HmsDecoder {
       peer.putBoolean("isLocal", hmsPeer.isLocal)
       peer.putString("customerUserID", hmsPeer.customerUserID)
       peer.putString("metadata", hmsPeer.metadata)
+      peer.putMap("networkQuality", this.getHmsNetworkQuality(hmsPeer.networkQuality))
       peer.putMap("audioTrack", this.getHmsAudioTrack(hmsPeer.audioTrack))
       peer.putMap("videoTrack", this.getHmsVideoTrack(hmsPeer.videoTrack))
       peer.putMap("role", this.getHmsRole(hmsPeer.hmsRole))
@@ -182,6 +184,7 @@ object HmsDecoder {
       peer.putBoolean("isLocal", hmsLocalPeer.isLocal)
       peer.putString("customerUserID", hmsLocalPeer.customerUserID)
       peer.putString("metadata", hmsLocalPeer.metadata)
+      peer.putMap("networkQuality", this.getHmsNetworkQuality(hmsLocalPeer.networkQuality))
       peer.putMap("audioTrack", this.getHmsAudioTrack(hmsLocalPeer.audioTrack))
       peer.putMap("videoTrack", this.getHmsVideoTrack(hmsLocalPeer.videoTrack))
       peer.putMap("role", this.getHmsRole(hmsLocalPeer.hmsRole))
@@ -276,6 +279,7 @@ object HmsDecoder {
       peer.putBoolean("isLocal", hmsRemotePeer.isLocal)
       peer.putString("customerUserID", hmsRemotePeer.customerUserID)
       peer.putString("metadata", hmsRemotePeer.metadata)
+      peer.putMap("networkQuality", this.getHmsNetworkQuality(hmsRemotePeer.networkQuality))
       peer.putMap("audioTrack", this.getHmsAudioTrack(hmsRemotePeer.audioTrack))
       peer.putMap("videoTrack", this.getHmsVideoTrack(hmsRemotePeer.videoTrack))
       peer.putMap("role", this.getHmsRole(hmsRemotePeer.hmsRole))
@@ -507,5 +511,13 @@ object HmsDecoder {
       hmsRecipient.putString("recipientType", recipient.recipientType.name)
     }
     return hmsRecipient
+  }
+
+  private fun getHmsNetworkQuality(networkQuality: HMSNetworkQuality?): WritableMap {
+    val hmsNetworkQuality: WritableMap = Arguments.createMap()
+    if (networkQuality != null) {
+      hmsNetworkQuality.putInt("downlinkQuality", networkQuality.downlinkQuality)
+    }
+    return hmsNetworkQuality
   }
 }

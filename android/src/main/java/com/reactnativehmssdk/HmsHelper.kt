@@ -307,4 +307,100 @@ object HmsHelper {
     }
     return meetingURLVariant
   }
+
+  fun getHmsConfig(credentials: ReadableMap): HMSConfig {
+    var config =
+        HMSConfig(
+            credentials.getString("username") as String,
+            credentials.getString("authToken") as String,
+        )
+
+    when {
+      areAllRequiredKeysAvailable(
+          credentials,
+          arrayOf(
+              Pair("endpoint", "String"),
+              Pair("metadata", "String"),
+              Pair("captureNetworkQualityInPreview", "Boolean")
+          )
+      ) -> {
+        config =
+            HMSConfig(
+                credentials.getString("username") as String,
+                credentials.getString("authToken") as String,
+                initEndpoint = credentials.getString("endpoint") as String,
+                metadata = credentials.getString("metadata") as String,
+                captureNetworkQualityInPreview =
+                    credentials.getBoolean("captureNetworkQualityInPreview"),
+            )
+      }
+      areAllRequiredKeysAvailable(
+          credentials,
+          arrayOf(Pair("endpoint", "String"), Pair("metadata", "String"))
+      ) -> {
+        config =
+            HMSConfig(
+                credentials.getString("username") as String,
+                credentials.getString("authToken") as String,
+                initEndpoint = credentials.getString("endpoint") as String,
+                metadata = credentials.getString("metadata") as String,
+            )
+      }
+      areAllRequiredKeysAvailable(
+          credentials,
+          arrayOf(Pair("endpoint", "String"), Pair("captureNetworkQualityInPreview", "Boolean"))
+      ) -> {
+        config =
+            HMSConfig(
+                credentials.getString("username") as String,
+                credentials.getString("authToken") as String,
+                initEndpoint = credentials.getString("endpoint") as String,
+                captureNetworkQualityInPreview =
+                    credentials.getBoolean("captureNetworkQualityInPreview"),
+            )
+      }
+      areAllRequiredKeysAvailable(
+          credentials,
+          arrayOf(Pair("metadata", "String"), Pair("captureNetworkQualityInPreview", "Boolean"))
+      ) -> {
+        config =
+            HMSConfig(
+                credentials.getString("username") as String,
+                credentials.getString("authToken") as String,
+                metadata = credentials.getString("metadata") as String,
+                captureNetworkQualityInPreview =
+                    credentials.getBoolean("captureNetworkQualityInPreview"),
+            )
+      }
+      areAllRequiredKeysAvailable(credentials, arrayOf(Pair("endpoint", "String"))) -> {
+        config =
+            HMSConfig(
+                credentials.getString("username") as String,
+                credentials.getString("authToken") as String,
+                initEndpoint = credentials.getString("endpoint") as String,
+            )
+      }
+      areAllRequiredKeysAvailable(credentials, arrayOf(Pair("metadata", "String"))) -> {
+        config =
+            HMSConfig(
+                credentials.getString("username") as String,
+                credentials.getString("authToken") as String,
+                metadata = credentials.getString("metadata") as String,
+            )
+      }
+      areAllRequiredKeysAvailable(
+          credentials,
+          arrayOf(Pair("captureNetworkQualityInPreview", "Boolean"))
+      ) -> {
+        config =
+            HMSConfig(
+                credentials.getString("username") as String,
+                credentials.getString("authToken") as String,
+                captureNetworkQualityInPreview =
+                    credentials.getBoolean("captureNetworkQualityInPreview")
+            )
+      }
+    }
+    return config
+  }
 }

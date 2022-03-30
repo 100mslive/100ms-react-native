@@ -29,6 +29,7 @@ import {
   HMSServerRecordingState,
 } from '..';
 import { HMSHLSRecordingState } from './HMSHLSRecordingState';
+import { HMSNetworkQuality } from './HMSNetworkQuality';
 
 export class HMSEncoder {
   static encodeHmsRoom(room: HMSRoom, id: string) {
@@ -72,10 +73,11 @@ export class HMSEncoder {
       peerID: peer?.peerID,
       name: peer?.name,
       isLocal: peer?.isLocal,
-      role: HMSEncoder.encodeHmsRole(peer?.role),
       customerUserID: peer?.customerUserID,
       customerDescription: peer?.customerDescription,
       metadata: peer?.metadata,
+      role: HMSEncoder.encodeHmsRole(peer?.role),
+      networkQuality: HMSEncoder.encodeHMSNetworkQuality(peer?.networkQuality),
       audioTrack: HMSEncoder.encodeHmsAudioTrack(peer?.audioTrack, id),
       videoTrack: HMSEncoder.encodeHmsVideoTrack(peer?.videoTrack, id),
       auxiliaryTracks: HMSEncoder.encodeHmsAuxiliaryTracks(
@@ -144,6 +146,7 @@ export class HMSEncoder {
       customerDescription: peer.customerDescription,
       metadata: peer.metadata,
       role: HMSEncoder.encodeHmsRole(peer?.role),
+      networkQuality: HMSEncoder.encodeHMSNetworkQuality(peer?.networkQuality),
       audioTrack: HMSEncoder.encodeHmsAudioTrack(peer.audioTrack, id),
       videoTrack: HMSEncoder.encodeHmsVideoTrack(peer.videoTrack, id),
       auxiliaryTracks: HMSEncoder.encodeHmsAuxiliaryTracks(
@@ -258,6 +261,7 @@ export class HMSEncoder {
       customerDescription: peer.customerDescription,
       metadata: peer.metadata,
       role: HMSEncoder.encodeHmsRole(peer?.role),
+      networkQuality: HMSEncoder.encodeHMSNetworkQuality(peer?.networkQuality),
       audioTrack: HMSEncoder.encodeHmsAudioTrack(peer.audioTrack, id),
       videoTrack: HMSEncoder.encodeHmsVideoTrack(peer.videoTrack, id),
       auxiliaryTracks: HMSEncoder.encodeHmsAuxiliaryTracks(
@@ -470,5 +474,15 @@ export class HMSEncoder {
     });
 
     return variants;
+  }
+
+  static encodeHMSNetworkQuality(data: any) {
+    if (data) {
+      return new HMSNetworkQuality({
+        downlinkQuality: data?.downlinkQuality,
+      });
+    } else {
+      return undefined;
+    }
   }
 }
