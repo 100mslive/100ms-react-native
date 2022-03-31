@@ -298,6 +298,23 @@ const styles = StyleSheet.create({
     width: 150,
     height: '100%',
   },
+  mainTileContainer: {
+    height: '100%',
+    width: '100%',
+    padding: '0.25%',
+    zIndex: 2,
+  },
+  miniTileContainer: {
+    position: 'absolute',
+    bottom: 10,
+    right: 10,
+    width: '33%',
+    height: '33%',
+    borderWidth: 2,
+    borderRadius: 10,
+    borderColor: 'lightgray',
+    zIndex: 3,
+  },
   heroListViewContainer: {
     marginHorizontal: 1,
     borderRadius: 10,

@@ -22,12 +22,12 @@ import {styles} from './styles';
 import type {Peer, LayoutParams} from '../../utils/types';
 
 type DisplayTrackProps = {
-  peer?: Peer;
+  peer: Peer;
   videoStyles: Function;
-  speakerIds: Array<string>;
-  type?: 'local' | 'remote' | 'screen';
   instance: HMSSDK | undefined;
   permissions: HMSPermissions | undefined;
+  speakerIds?: Array<string>;
+  type?: 'local' | 'remote' | 'screen';
   layout?: LayoutParams;
   mirrorLocalVideo?: boolean;
   setChangeNameModal?: Function;
@@ -114,7 +114,7 @@ const DisplayTrack = ({
   const HmsViewComponent = instance?.HmsView;
   const knownRoles = instance?.knownRoles || [];
   const isDegraded = peerRefrence?.videoTrack?.isDegraded || false;
-  const speaking = speakerIds.includes(id!);
+  const speaking = speakerIds !== undefined ? speakerIds.includes(id!) : false;
   const roleRequestTitle = 'Select action';
   const roleRequestButtons: [
     {text: string; onPress?: Function},
@@ -361,7 +361,11 @@ const DisplayTrack = ({
           <HmsViewComponent
             sink={sink}
             trackId={trackId!}
-            mirror={type === 'local' ? mirrorLocalVideo : false}
+            mirror={
+              type === 'local' && mirrorLocalVideo !== undefined
+                ? mirrorLocalVideo
+                : false
+            }
             scaleType={
               type === 'screen'
                 ? HMSVideoViewMode.ASPECT_FIT
