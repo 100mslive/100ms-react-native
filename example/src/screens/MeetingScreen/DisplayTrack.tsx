@@ -13,6 +13,7 @@ import {
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Slider} from '@miblanchard/react-native-slider';
 
 import {AlertModal, CustomModal, RolePicker} from '../../components';
@@ -379,6 +380,25 @@ const DisplayTrack = ({
         </View>
       )}
       <View style={styles.labelContainer}>
+        <View>
+          <MaterialCommunityIcons
+            name={
+              peerRefrence?.networkQuality?.downlinkQuality === -1
+                ? 'network-strength-off-outline'
+                : peerRefrence?.networkQuality?.downlinkQuality === 0
+                ? 'network-strength-outline'
+                : peerRefrence?.networkQuality?.downlinkQuality === 1
+                ? 'network-strength-1'
+                : peerRefrence?.networkQuality?.downlinkQuality === 2
+                ? 'network-strength-2'
+                : peerRefrence?.networkQuality?.downlinkQuality === 3
+                ? 'network-strength-3'
+                : 'network-strength-4'
+            }
+            style={styles.network}
+            size={dimension.viewHeight(30)}
+          />
+        </View>
         {metadata?.isHandRaised && (
           <View>
             <Ionicons
