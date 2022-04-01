@@ -37,6 +37,7 @@ type DisplayTrackProps = {
   remoteVideoStats?: any;
   localAudioStats?: HMSLocalAudioStats;
   localVideoStats?: HMSLocalVideoStats;
+  miniView?: boolean;
 };
 
 const DisplayTrack = ({
@@ -54,6 +55,7 @@ const DisplayTrack = ({
   remoteVideoStats,
   localAudioStats,
   localVideoStats,
+  miniView,
 }: DisplayTrackProps) => {
   const {
     name,
@@ -359,6 +361,7 @@ const DisplayTrack = ({
       ) : (
         <View style={styles.flex}>
           <HmsViewComponent
+            setZOrderMediaOverlay={miniView}
             sink={sink}
             trackId={trackId!}
             mirror={

@@ -301,15 +301,14 @@ const styles = StyleSheet.create({
   mainTileContainer: {
     height: '100%',
     width: '100%',
-    padding: '0.25%',
     zIndex: 2,
   },
   miniTileContainer: {
     position: 'absolute',
     bottom: 10,
     right: 10,
-    width: '33%',
-    height: '33%',
+    width: '40%',
+    height: '40%',
     borderWidth: 2,
     borderRadius: 10,
     borderColor: 'lightgray',

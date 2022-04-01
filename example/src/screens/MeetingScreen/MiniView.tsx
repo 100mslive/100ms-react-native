@@ -1,10 +1,14 @@
-import React, {useState, useEffect} from 'react';
-import {View} from 'react-native';
+import React, {useState, useEffect, useRef, useCallback} from 'react';
+import {View, Animated} from 'react-native';
 import type {
   HMSPermissions,
   HMSSDK,
   HMSSpeaker,
 } from '@100mslive/react-native-hms';
+import {
+  GestureHandlerRootView,
+  PanGestureHandler,
+} from 'react-native-gesture-handler';
 
 import {decodePeer} from '../../utils/functions';
 import type {Peer} from '../../utils/types';
@@ -24,6 +28,18 @@ const MiniView = ({
 }: MiniViewProps) => {
   const [mainSpeaker, setMainSpeaker] = useState<Peer | undefined>(undefined);
   const [miniSpeaker, setMiniSpeaker] = useState<Peer | undefined>(undefined);
+  const translateX = useRef(new Animated.Value(1)).current;
+  const translateY = useRef(new Animated.Value(1)).current;
+
+  const handlePan = Animated.event(
+    [{nativeEvent: {translationX: translateX, translationY: translateY}}],
+    {useNativeDriver: true},
+  );
+
+  const onHandlerStateChange = useCallback(() => {
+    translateY.extractOffset();
+    translateX.extractOffset();
+  }, [translateX, translateY]);
 
   useEffect(() => {
     const decodedLocalPeer = decodePeer(instance?.localPeer!);
@@ -43,28 +59,38 @@ const MiniView = ({
 
   return (
     <View style={styles.heroContainer}>
-      {mainSpeaker && (
-        <View style={styles.mainTileContainer} key={mainSpeaker.trackId}>
-          <DisplayTrack
-            peer={mainSpeaker}
-            instance={instance}
-            videoStyles={() => styles.heroView}
-            permissions={localPeerPermissions}
-            layout="hero"
-          />
-        </View>
-      )}
-      {miniSpeaker && (
-        <View style={styles.miniTileContainer} key={miniSpeaker.trackId}>
-          <DisplayTrack
-            peer={miniSpeaker}
-            instance={instance}
-            videoStyles={() => styles.heroView}
-            permissions={localPeerPermissions}
-            layout="hero"
-          />
-        </View>
-      )}
+      <GestureHandlerRootView style={styles.container}>
+        {mainSpeaker && (
+          <View style={styles.mainTileContainer} key={mainSpeaker.trackId}>
+            <DisplayTrack
+              peer={mainSpeaker}
+              instance={instance}
+              videoStyles={() => styles.heroView}
+              permissions={localPeerPermissions}
+            />
+          </View>
+        )}
+        {miniSpeaker && (
+          <PanGestureHandler
+            onGestureEvent={handlePan}
+            onHandlerStateChange={onHandlerStateChange}>
+            <Animated.View
+              style={[
+                {transform: [{translateX}, {translateY}]},
+                styles.miniTileContainer,
+              ]}
+              key={miniSpeaker.trackId}>
+              <DisplayTrack
+                miniView={true}
+                peer={miniSpeaker}
+                instance={instance}
+                videoStyles={() => styles.heroView}
+                permissions={localPeerPermissions}
+              />
+            </Animated.View>
+          </PanGestureHandler>
+        )}
+      </GestureHandlerRootView>
     </View>
   );
 };

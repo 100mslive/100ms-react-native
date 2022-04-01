@@ -46,6 +46,11 @@ class HmssdkViewManager : SimpleViewManager<HmsView>() {
     view.updateScaleType(data)
   }
 
+  @ReactProp(name = "setZOrderMediaOverlay")
+  fun setZOrderMediaOverlay(view: HmsView, data: Boolean?) {
+    view.updateZOrderMediaOverlay(data)
+  }
+
   private fun getHms(): MutableMap<String, HmsSDK>? {
     return reactContext?.getNativeModule(HmsModule::class.java)?.getHmsInstance()
   }
