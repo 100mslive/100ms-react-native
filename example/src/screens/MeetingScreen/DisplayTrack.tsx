@@ -381,23 +381,24 @@ const DisplayTrack = ({
       )}
       <View style={styles.labelContainer}>
         <View>
-          <MaterialCommunityIcons
-            name={
-              peerRefrence?.networkQuality?.downlinkQuality === -1
-                ? 'network-strength-off-outline'
-                : peerRefrence?.networkQuality?.downlinkQuality === 0
-                ? 'network-strength-outline'
-                : peerRefrence?.networkQuality?.downlinkQuality === 1
-                ? 'network-strength-1'
-                : peerRefrence?.networkQuality?.downlinkQuality === 2
-                ? 'network-strength-2'
-                : peerRefrence?.networkQuality?.downlinkQuality === 3
-                ? 'network-strength-3'
-                : 'network-strength-4'
-            }
-            style={styles.network}
-            size={dimension.viewHeight(30)}
-          />
+          {peerRefrence?.networkQuality?.downlinkQuality &&
+            peerRefrence?.networkQuality?.downlinkQuality > -1 && (
+              <MaterialCommunityIcons
+                name={
+                  peerRefrence?.networkQuality?.downlinkQuality === 0
+                    ? 'network-strength-outline'
+                    : peerRefrence?.networkQuality?.downlinkQuality === 1
+                    ? 'network-strength-1'
+                    : peerRefrence?.networkQuality?.downlinkQuality === 2
+                    ? 'network-strength-2'
+                    : peerRefrence?.networkQuality?.downlinkQuality === 3
+                    ? 'network-strength-3'
+                    : 'network-strength-4'
+                }
+                style={styles.network}
+                size={dimension.viewHeight(30)}
+              />
+            )}
         </View>
         {metadata?.isHandRaised && (
           <View>
