@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, TouchableOpacity, Text} from 'react-native';
+import {View, TouchableOpacity, Text, Image} from 'react-native';
 import {
   HMSRemotePeer,
   HMSVideoViewMode,
@@ -380,25 +380,37 @@ const DisplayTrack = ({
         </View>
       )}
       <View style={styles.labelContainer}>
-        <View>
-          <MaterialCommunityIcons
-            name={
-              peerRefrence?.networkQuality?.downlinkQuality === -1
-                ? 'network-strength-off-outline'
-                : peerRefrence?.networkQuality?.downlinkQuality === 0
-                ? 'network-strength-outline'
-                : peerRefrence?.networkQuality?.downlinkQuality === 1
-                ? 'network-strength-1'
-                : peerRefrence?.networkQuality?.downlinkQuality === 2
-                ? 'network-strength-2'
-                : peerRefrence?.networkQuality?.downlinkQuality === 3
-                ? 'network-strength-3'
-                : 'network-strength-4'
-            }
-            style={styles.network}
-            size={dimension.viewHeight(30)}
-          />
-        </View>
+        {peerRefrence?.networkQuality?.downlinkQuality &&
+          peerRefrence?.networkQuality?.downlinkQuality > -1 && (
+            <View>
+              {peerRefrence?.networkQuality?.downlinkQuality === 0 ? (
+                <Image
+                  style={styles.network}
+                  source={require('../../assets/network_0.png')}
+                />
+              ) : peerRefrence?.networkQuality?.downlinkQuality === 1 ? (
+                <Image
+                  style={styles.network}
+                  source={require('../../assets/network_1.png')}
+                />
+              ) : peerRefrence?.networkQuality?.downlinkQuality === 2 ? (
+                <Image
+                  style={styles.network}
+                  source={require('../../assets/network_2.png')}
+                />
+              ) : peerRefrence?.networkQuality?.downlinkQuality === 3 ? (
+                <Image
+                  style={styles.network}
+                  source={require('../../assets/network_3.png')}
+                />
+              ) : (
+                <Image
+                  style={styles.network}
+                  source={require('../../assets/network_4.png')}
+                />
+              )}
+            </View>
+          )}
         {metadata?.isHandRaised && (
           <View>
             <Ionicons

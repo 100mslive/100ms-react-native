@@ -304,7 +304,9 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   network: {
-    color: 'green',
+    height: 30,
+    width: 30,
+    marginRight: 3,
   },
 });
 

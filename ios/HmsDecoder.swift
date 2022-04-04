@@ -37,6 +37,7 @@ class HmsDecoder: NSObject {
         let audioTrack = getHmsAudioTrack(peer.audioTrack)
         let videoTrack = getHmsVideoTrack(peer.videoTrack)
         let role = getHmsRole(peer.role)
+        let networkQuality = getHmsNetworkQuality(peer.networkQuality)
 
         let auxiliaryTracks = getAllTracks(peer.auxiliaryTracks ?? [] )
 
@@ -49,6 +50,7 @@ class HmsDecoder: NSObject {
                 "audioTrack": audioTrack,
                 "videoTrack": videoTrack,
                 "auxiliaryTracks": auxiliaryTracks,
+                "networkQuality": networkQuality,
                 "role": role]
     }
 
@@ -114,6 +116,7 @@ class HmsDecoder: NSObject {
         let audioTrack = getHmsAudioTrack(peer.audioTrack)
         let videoTrack = getHmsVideoTrack(peer.videoTrack)
         let role = getHmsRole(peer.role)
+        let networkQuality = getHmsNetworkQuality(peer.networkQuality)
 
         var auxiliaryTracks = [[String: Any]]()
         for track in peer.auxiliaryTracks ?? [] {
@@ -133,7 +136,7 @@ class HmsDecoder: NSObject {
             localVideoTrackData = getHmsLocalVideoTrack(localVideo)
         }
 
-        return ["peerID": peerID, "name": name, "isLocal": isLocal, "customerUserID": customerUserID, "customerDescription": customerDescription, "metadata": metadata, "audioTrack": audioTrack, "videoTrack": videoTrack, "auxiliaryTracks": auxiliaryTracks, "localAudioTrackData": localAudioTrackData, "localVideoTrackData": localVideoTrackData, "role": role]
+        return ["peerID": peerID, "name": name, "isLocal": isLocal, "customerUserID": customerUserID, "customerDescription": customerDescription, "metadata": metadata, "audioTrack": audioTrack, "videoTrack": videoTrack, "auxiliaryTracks": auxiliaryTracks, "localAudioTrackData": localAudioTrackData, "localVideoTrackData": localVideoTrackData, "role": role, "networkQuality": networkQuality]
     }
     
     static func getHmsLocalAudioTrack(_ localAudio: HMSLocalAudioTrack) -> [String: Any] {
@@ -232,6 +235,7 @@ class HmsDecoder: NSObject {
         let audioTrack = getHmsAudioTrack(hmsRemotePeer.audioTrack)
         let videoTrack = getHmsVideoTrack(hmsRemotePeer.videoTrack)
         let role = getHmsRole(hmsRemotePeer.role)
+        let networkQuality = getHmsNetworkQuality(hmsRemotePeer.networkQuality)
 
         var auxiliaryTracks = [[String: Any]]()
 
@@ -252,7 +256,7 @@ class HmsDecoder: NSObject {
             remoteVideoTrackData = getHMSRemoteVideoTrack(remoteVideo)
         }
 
-        return ["peerID": peerID, "name": name, "isLocal": isLocal, "customerUserID": customerUserID, "customerDescription": customerDescription, "metadata": metadata, "audioTrack": audioTrack, "videoTrack": videoTrack, "auxiliaryTracks": auxiliaryTracks, "remoteAudioTrackData": remoteAudioTrackData, "remoteVideoTrackData": remoteVideoTrackData, "role": role]
+        return ["peerID": peerID, "name": name, "isLocal": isLocal, "customerUserID": customerUserID, "customerDescription": customerDescription, "metadata": metadata, "audioTrack": audioTrack, "videoTrack": videoTrack, "auxiliaryTracks": auxiliaryTracks, "remoteAudioTrackData": remoteAudioTrackData, "remoteVideoTrackData": remoteVideoTrackData, "role": role, "networkQuality": networkQuality]
     }
     
     static func getHMSRemoteAudioTrack(_ remoteAudio: HMSRemoteAudioTrack) -> [String: Any] {
@@ -587,6 +591,12 @@ class HmsDecoder: NSObject {
     
     static func getHmsMessageRecipient(_ recipient: HMSMessageRecipient) -> [String: Any] {
         return ["recipientPeer": getHmsPeer(recipient.peerRecipient), "recipientRoles": getAllRoles(recipient.rolesRecipient), "type": self.getRecipientType(from: recipient.type)]
+    }
+    
+    static func getHmsNetworkQuality(_ hmsNetworkQuality: HMSNetworkQuality?) -> [String: Any] {
+        guard let networkQuality = hmsNetworkQuality else { return [:] }
+        
+        return ["downlinkQuality": networkQuality.downlinkQuality]
     }
     
     static private func getRecipientType(from recipientType: HMSMessageRecipientType) -> String {
