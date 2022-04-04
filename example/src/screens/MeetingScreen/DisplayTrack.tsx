@@ -13,7 +13,6 @@ import {
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Slider} from '@miblanchard/react-native-slider';
 
 import {AlertModal, CustomModal, RolePicker} from '../../components';
@@ -381,36 +380,26 @@ const DisplayTrack = ({
       )}
       <View style={styles.labelContainer}>
         {peerRefrence?.networkQuality?.downlinkQuality &&
-          peerRefrence?.networkQuality?.downlinkQuality > -1 && (
-            <View>
-              {peerRefrence?.networkQuality?.downlinkQuality === 0 ? (
-                <Image
-                  style={styles.network}
-                  source={require('../../assets/network_0.png')}
-                />
-              ) : peerRefrence?.networkQuality?.downlinkQuality === 1 ? (
-                <Image
-                  style={styles.network}
-                  source={require('../../assets/network_1.png')}
-                />
-              ) : peerRefrence?.networkQuality?.downlinkQuality === 2 ? (
-                <Image
-                  style={styles.network}
-                  source={require('../../assets/network_2.png')}
-                />
-              ) : peerRefrence?.networkQuality?.downlinkQuality === 3 ? (
-                <Image
-                  style={styles.network}
-                  source={require('../../assets/network_3.png')}
-                />
-              ) : (
-                <Image
-                  style={styles.network}
-                  source={require('../../assets/network_4.png')}
-                />
-              )}
-            </View>
-          )}
+        peerRefrence?.networkQuality?.downlinkQuality > -1 ? (
+          <View>
+            <Image
+              style={styles.network}
+              source={
+                peerRefrence?.networkQuality?.downlinkQuality === 0
+                  ? require('../../assets/network_0.png')
+                  : peerRefrence?.networkQuality?.downlinkQuality === 1
+                  ? require('../../assets/network_1.png')
+                  : peerRefrence?.networkQuality?.downlinkQuality === 2
+                  ? require('../../assets/network_2.png')
+                  : peerRefrence?.networkQuality?.downlinkQuality === 3
+                  ? require('../../assets/network_3.png')
+                  : require('../../assets/network_4.png')
+              }
+            />
+          </View>
+        ) : (
+          <></>
+        )}
         {metadata?.isHandRaised && (
           <View>
             <Ionicons
