@@ -953,6 +953,8 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
             return "NAME_CHANGED"
         case .defaultUpdate:
             return "DEFAULT_UPDATE"
+        case .networkQualityUpdated:
+            return "NETWORK_QUALITY_UPDATED"
         default:
             return ""
         }
