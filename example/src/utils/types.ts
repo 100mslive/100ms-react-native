@@ -1,7 +1,7 @@
 import type {HMSTrack, HMSPeer} from '@100mslive/react-native-hms';
 
 type Peer = {
-  peerRefrence?: HMSPeer;
+  peerReference?: HMSPeer;
   trackId?: string;
   name: string;
   isAudioMute: boolean;
