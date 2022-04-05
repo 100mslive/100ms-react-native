@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, TouchableOpacity, Text} from 'react-native';
+import {View, TouchableOpacity, Text, Image} from 'react-native';
 import {
   HMSRemotePeer,
   HMSVideoViewMode,
@@ -61,14 +61,14 @@ const DisplayTrack = ({
     colour,
     id,
     sink,
-    peerRefrence,
+    peerReference,
     isAudioMute,
     isVideoMute,
     metadata,
   } = peer!;
   const [alertModalVisible, setAlertModalVisible] = useState(false);
   const [roleModalVisible, setRoleModalVisible] = useState(false);
-  const [newRole, setNewRole] = useState(peerRefrence?.role);
+  const [newRole, setNewRole] = useState(peerReference?.role);
   const [force, setForce] = useState(false);
   const [volumeModal, setVolumeModal] = useState(false);
   const [volume, setVolume] = useState(1);
@@ -83,7 +83,7 @@ const DisplayTrack = ({
       text: 'Set',
       onPress: () => {
         if (type === 'remote' || type === 'local') {
-          instance?.setVolume(peerRefrence?.audioTrack as HMSTrack, volume);
+          instance?.setVolume(peerReference?.audioTrack as HMSTrack, volume);
         } else if (peer?.track) {
           instance?.setVolume(peer?.track, volume);
         }
@@ -93,7 +93,7 @@ const DisplayTrack = ({
 
   useEffect(() => {
     knownRoles?.map(role => {
-      if (role?.name === peerRefrence?.role?.name) {
+      if (role?.name === peerReference?.role?.name) {
         setNewRole(role);
         return;
       }
@@ -113,7 +113,7 @@ const DisplayTrack = ({
 
   const HmsViewComponent = instance?.HmsView;
   const knownRoles = instance?.knownRoles || [];
-  const isDegraded = peerRefrence?.videoTrack?.isDegraded || false;
+  const isDegraded = peerReference?.videoTrack?.isDegraded || false;
   const speaking = speakerIds.includes(id!);
   const roleRequestTitle = 'Select action';
   const roleRequestButtons: [
@@ -124,7 +124,7 @@ const DisplayTrack = ({
     {
       text: force ? 'Set' : 'Send',
       onPress: async () => {
-        await instance?.changeRole(peerRefrence!, newRole!, force);
+        await instance?.changeRole(peerReference!, newRole!, force);
       },
     },
   ];
@@ -174,7 +174,7 @@ const DisplayTrack = ({
     {
       text: 'Mute/Unmute audio locally',
       onPress: async () => {
-        const remotePeer = peerRefrence as HMSRemotePeer;
+        const remotePeer = peerReference as HMSRemotePeer;
         const playbackAllowed = await remotePeer
           ?.remoteAudioTrack()
           ?.isPlaybackAllowed();
@@ -184,7 +184,7 @@ const DisplayTrack = ({
     {
       text: 'Mute/Unmute video locally',
       onPress: async () => {
-        const remotePeer = peerRefrence as HMSRemotePeer;
+        const remotePeer = peerReference as HMSRemotePeer;
         const playbackAllowed = await remotePeer
           ?.remoteVideoTrack()
           ?.isPlaybackAllowed();
@@ -223,7 +223,7 @@ const DisplayTrack = ({
     selectRemoteActionButtons.push({
       text: 'Remove Participant',
       onPress: async () => {
-        await instance?.removePeer(peerRefrence!, 'removed from room');
+        await instance?.removePeer(peerReference!, 'removed from room');
       },
     });
   }
@@ -234,7 +234,7 @@ const DisplayTrack = ({
         text: 'Unmute audio',
         onPress: async () => {
           await instance?.changeTrackState(
-            peerRefrence?.audioTrack as HMSTrack,
+            peerReference?.audioTrack as HMSTrack,
             unmute,
           );
         },
@@ -245,7 +245,7 @@ const DisplayTrack = ({
         text: 'Unmute video',
         onPress: async () => {
           await instance?.changeTrackState(
-            peerRefrence?.videoTrack as HMSTrack,
+            peerReference?.videoTrack as HMSTrack,
             unmute,
           );
         },
@@ -259,7 +259,7 @@ const DisplayTrack = ({
         text: 'Mute audio',
         onPress: async () => {
           await instance?.changeTrackState(
-            peerRefrence?.audioTrack as HMSTrack,
+            peerReference?.audioTrack as HMSTrack,
             mute,
           );
         },
@@ -270,7 +270,7 @@ const DisplayTrack = ({
         text: 'Mute video',
         onPress: async () => {
           await instance?.changeTrackState(
-            peerRefrence?.videoTrack as HMSTrack,
+            peerReference?.videoTrack as HMSTrack,
             mute,
           );
         },
@@ -378,7 +378,29 @@ const DisplayTrack = ({
           )}
         </View>
       )}
+      {ReferenceError}
       <View style={styles.labelContainer}>
+        {peerReference?.networkQuality?.downlinkQuality &&
+        peerReference?.networkQuality?.downlinkQuality > -1 ? (
+          <View>
+            <Image
+              style={styles.network}
+              source={
+                peerReference?.networkQuality?.downlinkQuality === 0
+                  ? require('../../assets/network_0.png')
+                  : peerReference?.networkQuality?.downlinkQuality === 1
+                  ? require('../../assets/network_1.png')
+                  : peerReference?.networkQuality?.downlinkQuality === 2
+                  ? require('../../assets/network_2.png')
+                  : peerReference?.networkQuality?.downlinkQuality === 3
+                  ? require('../../assets/network_3.png')
+                  : require('../../assets/network_4.png')
+              }
+            />
+          </View>
+        ) : (
+          <></>
+        )}
         {metadata?.isHandRaised && (
           <View>
             <Ionicons

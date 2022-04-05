@@ -145,7 +145,7 @@ const Meeting = ({
   const [action, setAction] = useState(0);
   const [layout, setLayout] = useState<LayoutParams>('grid');
   const [newLayout, setNewLayout] = useState<LayoutParams>('grid');
-  const [newRole, setNewRole] = useState(trackId?.peerRefrence?.role);
+  const [newRole, setNewRole] = useState(trackId?.peerReference?.role);
   const [roleModalVisible, setRoleModalVisible] = useState(false);
   const [settingsModal, setSettingsModal] = useState(false);
   const [recordingModal, setRecordingModal] = useState(false);
@@ -278,7 +278,7 @@ const Meeting = ({
 
   const pairedPeers: Array<Array<Peer>> = pairDataForScrollView(
     [...auxTracks, trackId, ...remoteTrackIds].filter(peer => {
-      if (peer?.peerRefrence?.role?.name?.includes('hls-')) {
+      if (peer?.peerReference?.role?.name?.includes('hls-')) {
         return false;
       }
       return true;
@@ -1229,15 +1229,15 @@ const Meeting = ({
               size={dimension.viewHeight(30)}
             />
           )}
-          {trackId?.peerRefrence?.auxiliaryTracks &&
-            trackId?.peerRefrence?.auxiliaryTracks?.length > 0 && (
+          {trackId?.peerReference?.auxiliaryTracks &&
+            trackId?.peerReference?.auxiliaryTracks?.length > 0 && (
               <MaterialIcons
                 name="fit-screen"
                 style={styles.streaming}
                 size={dimension.viewHeight(30)}
               />
             )}
-          {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
+          {trackId?.peerReference?.role?.publishSettings?.allowed?.includes(
             'video',
           ) && (
             <TouchableOpacity
@@ -1399,7 +1399,7 @@ const Meeting = ({
         )}
       </View>
       <View style={styles.iconContainers}>
-        {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
+        {trackId?.peerReference?.role?.publishSettings?.allowed?.includes(
           'audio',
         ) && (
           <TouchableOpacity
@@ -1420,7 +1420,7 @@ const Meeting = ({
             />
           </TouchableOpacity>
         )}
-        {trackId?.peerRefrence?.role?.publishSettings?.allowed?.includes(
+        {trackId?.peerReference?.role?.publishSettings?.allowed?.includes(
           'video',
         ) && (
           <TouchableOpacity
@@ -1525,7 +1525,7 @@ const Meeting = ({
               } else if (messageTo.type === 'direct') {
                 await instance?.sendDirectMessage(
                   value,
-                  messageTo?.obj?.peerRefrence,
+                  messageTo?.obj?.peerReference,
                 );
               }
               addMessageRequest({

@@ -31,14 +31,12 @@ class HmssdkViewManager : SimpleViewManager<HmsView>() {
   @ReactProp(name = "data")
   fun setData(view: HmsView, data: ReadableMap) {
     val trackId = data.getString("trackId")
-    //    val sink = data.getBoolean("sink")
     val id = data.getString("id")
     val mirror = data.getBoolean("mirror")
     val hmsCollection = getHms()
     if (hmsCollection != null) {
       view.setData(id, trackId, hmsCollection, mirror)
     }
-    // do the processing here
   }
 
   @ReactProp(name = "scaleType")

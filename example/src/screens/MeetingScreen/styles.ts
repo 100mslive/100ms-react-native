@@ -303,6 +303,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     overflow: 'hidden',
   },
+  network: {
+    height: 30,
+    width: 30,
+    marginRight: 3,
+  },
 });
 
 export {styles};
