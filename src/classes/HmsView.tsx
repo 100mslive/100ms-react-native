@@ -10,6 +10,7 @@ interface HmsViewProps {
     mirror?: boolean;
   };
   scaleType: HMSVideoViewMode;
+  screenshot: boolean;
   style: ViewStyle;
   onChange: Function;
 }
@@ -21,7 +22,8 @@ interface HmsComponentProps {
   sink: boolean;
   style: ViewStyle;
   mirror?: boolean;
-  scaleType: HMSVideoViewMode;
+  scaleType?: HMSVideoViewMode;
+  screenshot?: boolean;
   id?: string | null;
 }
 
@@ -32,6 +34,7 @@ export const HmsView = ({
   id,
   mirror,
   scaleType = HMSVideoViewMode.ASPECT_FILL,
+  screenshot = false,
 }: HmsComponentProps) => {
   const [tempVal, setTempVal] = useState(0);
   const data = {
@@ -58,6 +61,7 @@ export const HmsView = ({
       data={data}
       style={tempVal === 0 ? style : temporaryStyles.customStyle}
       scaleType={scaleType}
+      screenshot={screenshot}
     />
   );
 };

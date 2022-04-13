@@ -20,7 +20,7 @@ import type { HMSTrackType } from './HMSTrackType';
 import type { HMSLogger } from './HMSLogger';
 import type { HMSPeer } from './HMSPeer';
 import { HmsView as HMSViewComponent } from './HmsView';
-import { HMSVideoViewMode } from './HMSVideoViewMode';
+import type { HMSVideoViewMode } from './HMSVideoViewMode';
 import type { HMSTrackSettings } from './HMSTrackSettings';
 import type { HMSRTMPConfig } from './HMSRTMPConfig';
 import type { HMSHLSConfig } from './HMSHLSConfig';
@@ -34,7 +34,8 @@ interface HmsComponentProps {
   sink: boolean;
   style: ViewStyle;
   mirror?: boolean;
-  scaleType: HMSVideoViewMode;
+  scaleType?: HMSVideoViewMode;
+  screenshot?: boolean;
   id?: string | null;
 }
 
@@ -393,7 +394,8 @@ export class HMSSDK {
     trackId,
     style,
     mirror,
-    scaleType = HMSVideoViewMode.ASPECT_FIT,
+    scaleType,
+    screenshot,
   }: HmsComponentProps) => {
     return (
       <HMSViewComponent
@@ -403,6 +405,7 @@ export class HMSSDK {
         mirror={mirror}
         scaleType={scaleType}
         id={this.id}
+        screenshot={screenshot}
       />
     );
   };

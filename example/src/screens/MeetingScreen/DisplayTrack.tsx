@@ -72,6 +72,7 @@ const DisplayTrack = ({
   const [force, setForce] = useState(false);
   const [volumeModal, setVolumeModal] = useState(false);
   const [volume, setVolume] = useState(1);
+  const [screenshot, setScreenshot] = useState(false);
   const modalTitle = 'Set Volume';
 
   const modalButtons: [
@@ -141,6 +142,15 @@ const DisplayTrack = ({
         setVolumeModal(true);
       },
     },
+    {
+      text: 'Take Screenshot',
+      onPress: () => {
+        setScreenshot(true);
+        setTimeout(() => {
+          setScreenshot(false);
+        }, 1000);
+      },
+    },
   ];
 
   const selectLocalActionButtons: Array<{
@@ -153,6 +163,15 @@ const DisplayTrack = ({
       text: 'Change Name',
       onPress: () => {
         setChangeNameModal && setChangeNameModal(true);
+      },
+    },
+    {
+      text: 'Take Screenshot',
+      onPress: () => {
+        setScreenshot(true);
+        setTimeout(() => {
+          setScreenshot(false);
+        }, 1000);
       },
     },
   ];
@@ -169,6 +188,15 @@ const DisplayTrack = ({
       text: 'Set Volume',
       onPress: () => {
         setVolumeModal(true);
+      },
+    },
+    {
+      text: 'Take Screenshot',
+      onPress: () => {
+        setScreenshot(true);
+        setTimeout(() => {
+          setScreenshot(false);
+        }, 1000);
       },
     },
     {
@@ -368,6 +396,7 @@ const DisplayTrack = ({
                 : HMSVideoViewMode.ASPECT_FILL
             }
             style={type === 'screen' ? styles.hmsViewScreen : styles.hmsView}
+            screenshot={screenshot}
           />
           {isDegraded && (
             <View style={styles.degradedContainer}>
