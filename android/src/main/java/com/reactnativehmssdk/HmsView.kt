@@ -2,8 +2,10 @@ package com.reactnativehmssdk
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
 import android.view.LayoutInflater
 import android.widget.FrameLayout
+import androidx.annotation.RequiresApi
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.WritableMap
@@ -28,6 +30,12 @@ class HmsView(context: ReactContext) : FrameLayout(context) {
 
     surfaceView = view.findViewById(R.id.surfaceView)
     surfaceView.setEnableHardwareScaler(true)
+  }
+
+
+  @RequiresApi(Build.VERSION_CODES.N)
+  fun captureHmsView() {
+    HmsHelper.captureSurfaceView(surfaceView, context)
   }
 
   private fun onReceiveNativeEvent() {
