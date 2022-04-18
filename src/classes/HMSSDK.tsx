@@ -20,7 +20,7 @@ import type { HMSTrackType } from './HMSTrackType';
 import type { HMSLogger } from './HMSLogger';
 import type { HMSPeer } from './HMSPeer';
 import { HmsView as HMSViewComponent } from './HmsView';
-import { HMSVideoViewMode } from './HMSVideoViewMode';
+import type { HMSVideoViewMode } from './HMSVideoViewMode';
 import type { HMSTrackSettings } from './HMSTrackSettings';
 import type { HMSRTMPConfig } from './HMSRTMPConfig';
 import type { HMSHLSConfig } from './HMSHLSConfig';
@@ -31,11 +31,10 @@ import { HMSRemoteAudioStats } from './HMSRemoteAudioStats';
 
 interface HmsComponentProps {
   trackId: string;
-  sink: boolean;
   style: ViewStyle;
   mirror?: boolean;
-  scaleType: HMSVideoViewMode;
-  id?: string | null;
+  scaleType?: HMSVideoViewMode;
+  id?: string;
 }
 
 const {
@@ -389,20 +388,19 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   HmsView = ({
-    sink,
     trackId,
     style,
     mirror,
-    scaleType = HMSVideoViewMode.ASPECT_FIT,
+    scaleType,
+    id = this.id,
   }: HmsComponentProps) => {
     return (
       <HMSViewComponent
-        sink={sink}
         trackId={trackId}
         style={style}
         mirror={mirror}
         scaleType={scaleType}
-        id={this.id}
+        id={id}
       />
     );
   };

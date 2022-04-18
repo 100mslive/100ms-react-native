@@ -31,16 +31,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     height: '100%',
   },
-  fullScreenLandscape: {
-    width: '100%',
-    marginVertical: 1,
-    padding: 0.5,
-    overflow: 'hidden',
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignSelf: 'center',
-    height: '100%',
-  },
   generalTile: {
     height: '100%',
     width: '100%',
@@ -126,6 +116,7 @@ const styles = StyleSheet.create({
     borderRadius: 500,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: getThemeColour(),
   },
   avatarText: {
     fontSize: 30,

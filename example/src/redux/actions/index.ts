@@ -18,7 +18,11 @@ export const setAudioVideoState = (data: {
   payload: data,
 });
 
-export const saveUserData = (data: {userName: String; roomID: String}) => ({
+export const saveUserData = (data: {
+  userName?: String;
+  roomID?: String;
+  mirrorLocalVideo?: boolean;
+}) => ({
   type: actionTypes.SAVE_USER_DATA.REQUEST,
   payload: data,
 });

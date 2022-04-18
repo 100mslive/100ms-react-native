@@ -5,13 +5,11 @@ export const AlertModal = ({
   modalVisible,
   setModalVisible,
   title,
-  message,
   buttons,
 }: {
   modalVisible: boolean;
   setModalVisible: any;
   title: String;
-  message: String;
   buttons: Array<{text: String; type?: String; onPress?: Function}>;
 }) => {
   const onRequestClose: any = () => {
@@ -27,7 +25,6 @@ export const AlertModal = ({
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
           <Text style={styles.title}>{title}</Text>
-          {message.length > 0 && <Text>{message}</Text>}
           {buttons.map((button, index) => (
             <TouchableOpacity
               key={index}

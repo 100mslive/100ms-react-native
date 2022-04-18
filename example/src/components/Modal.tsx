@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {ReactNode} from 'react';
 import {Modal, StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 
 export const CustomModal = ({
@@ -11,11 +11,8 @@ export const CustomModal = ({
   modalVisible: boolean;
   setModalVisible: any;
   title: String;
-  children: Element;
-  buttons: [
-    {text: String; onPress?: Function},
-    {text: String; onPress?: Function}?,
-  ];
+  children: ReactNode;
+  buttons: Array<{text: string; type?: string; onPress?: Function}>;
 }) => {
   const onRequestClose: any = () => {
     setModalVisible(!modalVisible);

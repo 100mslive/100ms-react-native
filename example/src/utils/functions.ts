@@ -1,18 +1,12 @@
-import {Platform, Dimensions} from 'react-native';
+import {Platform, Dimensions, PermissionsAndroid} from 'react-native';
 import RNFetchBlob from 'rn-fetch-blob';
 import Share from 'react-native-share';
 import {getDeviceType} from 'react-native-device-info';
-import type {
-  HMSLocalPeer,
-  HMSPeer,
-  HMSRemotePeer,
-} from '@100mslive/react-native-hms';
+import Toast from 'react-native-simple-toast';
 
-import type {LayoutParams, Peer} from './types';
+import {LayoutParams, PeerTrackNode, TrackType} from './types';
 import dimension from '../utils/dimension';
 import * as services from '../services/index';
-
-type TrackType = 'local' | 'remote' | 'screen';
 
 export const getThemeColour = () => '#4578e0';
 
@@ -28,85 +22,57 @@ export const getRandomColor = () => {
   return color;
 };
 
-export const getInitials = (name: String): String => {
+export const getInitials = (name?: String): String => {
   let initials = '';
-  if (name.includes(' ')) {
-    const nameArray = name.split(' ');
-    if (nameArray[1].length > 0) {
-      initials = nameArray[0].substring(0, 1) + nameArray[1].substring(0, 1);
-    } else {
-      if (nameArray[0].length > 1) {
-        initials = nameArray[0].substring(0, 2);
+  if (name) {
+    if (name.includes(' ')) {
+      const nameArray = name.split(' ');
+      if (nameArray[1].length > 0) {
+        initials = nameArray[0].substring(0, 1) + nameArray[1].substring(0, 1);
       } else {
-        initials = nameArray[0].substring(0, 1);
+        if (nameArray[0].length > 1) {
+          initials = nameArray[0].substring(0, 2);
+        } else {
+          initials = nameArray[0].substring(0, 1);
+        }
       }
-    }
-  } else {
-    if (name.length > 1) {
-      initials = name.substring(0, 2);
     } else {
-      initials = name.substring(0, 1);
+      if (name.length > 1) {
+        initials = name.substring(0, 2);
+      } else {
+        initials = name.substring(0, 1);
+      }
     }
   }
   return initials.toUpperCase();
 };
 
-export const pairDataForFlatlist = (data: any) => {
-  let pairedData: any[] = [];
-
-  let currentObject: {first: any; second: any} = {
-    first: undefined,
-    second: undefined,
-  };
-  data.map((item: any) => {
-    if (item?.type === 'screen') {
-      pairedData.push({first: item});
-    } else {
-      if (currentObject?.first) {
-        pairedData.push({...currentObject, second: item});
-        currentObject = {
-          first: undefined,
-          second: undefined,
-        };
-      } else {
-        currentObject.first = item;
-      }
-    }
-  });
-
-  if (currentObject.first) {
-    pairedData.push({...currentObject});
-  }
-
-  return pairedData;
-};
-
-export const pairDataForScrollView = (data: Array<any>, batch: number) => {
-  const pairedData: Array<any> = [];
-  let groupData: Array<any> = [];
+export const pairDataForFlatlist = (
+  data: Array<PeerTrackNode>,
+  batch: number,
+) => {
+  const pairedData: Array<Array<PeerTrackNode>> = [];
+  let groupData: Array<PeerTrackNode> = [];
   let itemsPushed: number = 0;
-  data.map((item: any) => {
-    if (item?.type === 'screen') {
+  data.map((item: PeerTrackNode) => {
+    if (item.track?.source !== 'regular') {
       pairedData.push([item]);
     } else {
-      if (itemsPushed === batch) {
-        pairedData.push(groupData);
-        groupData = [];
-        itemsPushed = 0;
+      if (item.track) {
+        if (itemsPushed === batch) {
+          pairedData.push(groupData);
+          groupData = [];
+          itemsPushed = 0;
+        }
+        groupData.push(item);
+        itemsPushed++;
       }
-      groupData.push(item);
-      itemsPushed++;
     }
   });
   if (groupData.length) {
     pairedData.push(groupData);
   }
   return pairedData;
-};
-
-export const isPortrait = () => {
-  const dim = Dimensions.get('window');
-  return dim.height >= dim.width;
 };
 
 export const getHmsViewHeight = (
@@ -120,25 +86,18 @@ export const getHmsViewHeight = (
 
   // window height - (header + bottom container + top + bottom + padding) / views in one screen
   const viewHeight =
-    type === 'screen'
+    type === TrackType.SCREEN
       ? Dimensions.get('window').height -
         (dimension.viewHeight(50) +
           dimension.viewHeight(90) +
           (isTab ? dimension.viewHeight(20) : top + bottom) +
           2)
-      : isPortrait()
-      ? (Dimensions.get('window').height -
+      : (Dimensions.get('window').height -
           (dimension.viewHeight(50) +
             dimension.viewHeight(90) +
             (isTab ? dimension.viewHeight(20) : top + bottom) +
             2)) /
-        (layout === 'audio' ? 3 : 2)
-      : Dimensions.get('window').height -
-        (Platform.OS === 'ios' ? 0 : 25) -
-        (dimension.viewHeight(50) +
-          dimension.viewHeight(90) +
-          (isTab ? dimension.viewHeight(20) : top + bottom) +
-          2);
+        (layout === LayoutParams.AUDIO ? 3 : 2);
 
   const height =
     peersInPage === 1
@@ -178,7 +137,12 @@ export const shareFile = async (fileUrl: string) => {
     .catch(e => console.log(e));
 };
 
-const parseMetadata = (metadata?: string) => {
+export const parseMetadata = (
+  metadata?: string,
+): {
+  isHandRaised?: boolean;
+  isBRBOn?: boolean;
+} => {
   try {
     if (metadata) {
       const parsedMetadata = JSON.parse(metadata);
@@ -190,66 +154,42 @@ const parseMetadata = (metadata?: string) => {
   return {};
 };
 
-export const decodePeer = (peer: HMSPeer): Peer => {
-  return {
-    trackId: peer?.videoTrack?.trackId,
-    name: peer?.name,
-    isAudioMute: peer?.audioTrack?.isMute() || false,
-    isVideoMute: peer?.videoTrack?.isMute() || false,
-    id: peer?.peerID,
-    colour: getThemeColour(),
-    sink: true,
-    type: 'remote',
-    peerReference: peer,
-    metadata: parseMetadata(peer?.metadata),
+export const checkPermissionToWriteExternalStroage =
+  async (): Promise<boolean> => {
+    // Function to check the platform
+    // If Platform is Android then check for permissions.
+    if (Platform.OS === 'ios') {
+      return true;
+    } else {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+          {
+            title: 'Storage Permission Required',
+            message:
+              'Application needs access to your storage to download File',
+            buttonPositive: 'true',
+          },
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          // Start downloading
+          console.log('Storage Permission Granted.');
+          return true;
+        } else {
+          // If permission denied then show alert
+          Toast.showWithGravity(
+            'Storage Permission Not Granted',
+            Toast.LONG,
+            Toast.TOP,
+          );
+        }
+      } catch (err) {
+        // To handle permission related exception
+        console.log('checkPermissionToWriteExternalStroage: ' + err);
+      }
+    }
+    return false;
   };
-};
-
-export const decodeRemotePeer = (
-  peer: HMSRemotePeer,
-  type: 'remote' | 'screen',
-): Peer => {
-  return {
-    trackId: peer?.videoTrack?.trackId,
-    name: peer?.name,
-    isAudioMute: peer?.audioTrack?.isMute() || false,
-    isVideoMute: peer?.videoTrack?.isMute() || false,
-    id: peer?.peerID,
-    colour: getThemeColour(),
-    sink: true,
-    type,
-    peerReference: peer,
-    metadata: parseMetadata(peer?.metadata),
-  };
-};
-
-export const decodeLocalPeer = (
-  peer: HMSLocalPeer,
-  type: 'local' | 'screen',
-): Peer => {
-  const videoPublishPermission = peer?.role?.publishSettings?.allowed
-    ? peer?.role?.publishSettings?.allowed?.includes('video')
-    : true;
-  const audioPublishPermission = peer?.role?.publishSettings?.allowed
-    ? peer?.role?.publishSettings?.allowed?.includes('audio')
-    : true;
-  return {
-    trackId: peer?.videoTrack?.trackId,
-    name: peer?.name,
-    isAudioMute: audioPublishPermission
-      ? peer?.audioTrack?.isMute() || false
-      : true,
-    isVideoMute: videoPublishPermission
-      ? peer?.videoTrack?.isMute() || false
-      : true,
-    id: peer?.peerID,
-    colour: getThemeColour(),
-    sink: true,
-    type,
-    peerReference: peer,
-    metadata: parseMetadata(peer?.metadata),
-  };
-};
 
 export const callService = async (
   userID: string,
@@ -300,4 +240,28 @@ export const tokenFromLinkService = async (
   } catch (error) {
     console.log(error, 'error in getToken');
   }
+};
+
+export const getRoomIdDetails = (
+  roomID: string,
+): {code: string; domain: string} => {
+  const codeObject = RegExp(/(?!\/)[a-zA-Z\-0-9]*$/g).exec(roomID);
+
+  const domainObject = RegExp(/(https:\/\/)?(?:[a-zA-Z0-9.-])+(?!\\)/).exec(
+    roomID,
+  );
+
+  let code = '';
+  let domain = '';
+
+  if (codeObject && domainObject) {
+    code = codeObject[0];
+    domain = domainObject[0];
+    domain = domain.replace('https://', '');
+  }
+
+  return {
+    code,
+    domain,
+  };
 };

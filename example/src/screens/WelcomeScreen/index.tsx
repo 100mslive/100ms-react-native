@@ -8,13 +8,12 @@ import {
   Platform,
   ActivityIndicator,
   KeyboardAvoidingView,
-  Dimensions,
   Alert,
   Linking,
   AppState,
   PermissionsAndroid,
 } from 'react-native';
-import {connect} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import HmsManager, {
   HMSAudioTrack,
   HMSConfig,
@@ -59,18 +58,11 @@ import {
   callService,
   tokenFromLinkService,
   getMeetingUrl,
+  getRoomIdDetails,
 } from '../../utils/functions';
 import {styles} from './styles';
 import type {AppStackParamList} from '../../navigator';
 import type {RootState} from '../../redux';
-
-type WelcomeProps = {
-  setAudioVideoStateRequest: Function;
-  saveUserDataRequest: Function;
-  updateHms: Function;
-  state: RootState;
-  hmsInstance: HMSSDK | undefined;
-};
 
 type WelcomeScreenProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -81,14 +73,11 @@ type ButtonState = 'Active' | 'Loading';
 
 let config: HMSConfig | null = null;
 
-const App = ({
-  setAudioVideoStateRequest,
-  saveUserDataRequest,
-  state,
-  updateHms,
-  hmsInstance,
-}: WelcomeProps) => {
-  const [orientation, setOrientation] = useState<boolean>(true);
+const App = () => {
+  const {hmsInstance, userName} = useSelector((state: RootState) => state.user);
+  const [instance, setInstance] = useState<HMSSDK | undefined>();
+  const dispatch = useDispatch();
+
   const [roomID, setRoomID] = useState<string>('');
   const [text, setText] = useState<string>('');
   const [initialized, setInitialized] = useState<boolean>(false);
@@ -100,7 +89,6 @@ const App = ({
   const [buttonState, setButtonState] = useState<ButtonState>('Active');
   const [previewButtonState, setPreviewButtonState] =
     useState<ButtonState>('Active');
-  const [instance, setInstance] = useState<HmsManager | null>(null);
   const [videoAllowed, setVideoAllowed] = useState<boolean>(false);
   const [audioAllowed, setAudioAllowed] = useState<boolean>(false);
   const [settingsModal, setSettingsModal] = useState(false);
@@ -142,6 +130,7 @@ const App = ({
   };
 
   const onError = (data: HMSException) => {
+    console.log('data in onError: ', data);
     Toast.showWithGravity(
       data?.error?.message || 'Something went wrong',
       Toast.LONG,
@@ -204,7 +193,7 @@ const App = ({
     logger.updateLogLevel(HMSLogLevel.VERBOSE, true);
     build.setLogger(logger);
     setInstance(build);
-    updateHms({hmsInstance: build});
+    dispatch(updateHmsReference({hmsInstance: build}));
   };
 
   useEffect(() => {
@@ -236,15 +225,8 @@ const App = ({
       }
     });
 
-    Dimensions.addEventListener('change', () => {
-      setOrientation(!orientation);
-    });
-
     return () => {
       hmsInstance?.destroy();
-      Dimensions.removeEventListener('change', () => {
-        setOrientation(!orientation);
-      });
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -311,11 +293,13 @@ const App = ({
       HMSUpdateListenerActions.ON_PREVIEW,
       previewSuccess,
     );
-    saveUserDataRequest({
-      userName: userID,
-      roomID: roomID.replace('meeting', 'preview'),
-      mirrorLocalVideo: !mirrorLocalVideo,
-    });
+    dispatch(
+      saveUserData({
+        userName: userID,
+        roomID: roomID.replace('meeting', 'preview'),
+        mirrorLocalVideo,
+      }),
+    );
     instance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
     if (skipPreview) {
       setSkipPreview(false);
@@ -358,11 +342,13 @@ const App = ({
       onJoinListener,
     );
 
-    saveUserDataRequest({
-      userName: userID,
-      roomID: roomID.replace('meeting', 'preview'),
-      mirrorLocalVideo: !mirrorLocalVideo,
-    });
+    dispatch(
+      saveUserData({
+        userName: userID,
+        roomID: roomID.replace('meeting', 'preview'),
+        mirrorLocalVideo,
+      }),
+    );
     instance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
     if (skipPreview) {
       setSkipPreview(false);
@@ -376,7 +362,7 @@ const App = ({
     setPreviewButtonState('Active');
     setButtonState('Active');
     setPreviewModal(false);
-    setAudioVideoStateRequest({audioState: audio, videoState: video});
+    dispatch(setAudioVideoState({audioState: audio, videoState: video}));
     navigate('MeetingScreen');
   };
 
@@ -477,21 +463,12 @@ const App = ({
     const isUrl = pattern.test(roomID);
     if (isUrl) {
       setButtonState('Loading');
-      const codeObject = RegExp(/(?!\/)[a-zA-Z\-0-9]*$/g).exec(text);
+      const {code, domain} = getRoomIdDetails(roomID);
 
-      const domainObject = RegExp(/(https:\/\/)?(?:[a-zA-Z0-9.-])+(?!\\)/).exec(
-        text,
-      );
-
-      if (codeObject && domainObject) {
-        const code = codeObject[0];
-        const domain = domainObject[0];
-
-        const strippedDomain = domain.replace('https://', '');
-
+      if (code && domain) {
         tokenFromLinkService(
           code,
-          strippedDomain,
+          domain,
           userID,
           checkPermissionsForLink,
           apiFailed,
@@ -511,7 +488,6 @@ const App = ({
         modalVisible={settingsModal}
         setModalVisible={setSettingsModal}
         title="Settings"
-        message=""
         buttons={getSettingButtons()}
       />
       <View style={styles.headerContainer}>
@@ -558,8 +534,7 @@ const App = ({
           disabled={buttonState !== 'Active'}
           style={[
             styles.joinButtonContainer,
-            // eslint-disable-next-line react-native/no-inline-styles
-            {opacity: buttonState !== 'Active' ? 0.5 : 1},
+            buttonState !== 'Active' ? styles.halfOpacity : styles.fullOpacity,
           ]}
           onPress={() => {
             if (text !== '') {
@@ -585,7 +560,7 @@ const App = ({
           screen="Welcome"
           join={validateMeetingUrl}
           cancel={() => setModalVisible(false)}
-          userName={state.user.userName}
+          userName={userName}
         />
       )}
       {previewModal && (
@@ -605,7 +580,6 @@ const App = ({
           instance={instance}
           setPreviewButtonState={setPreviewButtonState}
           previewButtonState={previewButtonState}
-          mirrorLocalVideo={mirrorLocalVideo}
         />
       )}
       <View />
@@ -613,20 +587,4 @@ const App = ({
   );
 };
 
-const mapDispatchToProps = (dispatch: Function) => ({
-  setAudioVideoStateRequest: (data: {
-    audioState: boolean;
-    videoState: boolean;
-  }) => dispatch(setAudioVideoState(data)),
-  saveUserDataRequest: (data: {userName: string; roomID: string}) =>
-    dispatch(saveUserData(data)),
-  updateHms: (data: {hmsInstance: HMSSDK}) =>
-    dispatch(updateHmsReference(data)),
-});
-const mapStateToProps = (state: RootState) => {
-  return {
-    state: state,
-    hmsInstance: state?.user?.hmsInstance,
-  };
-};
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default App;

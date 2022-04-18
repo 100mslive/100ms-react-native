@@ -9,6 +9,9 @@ import {
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import HmsManager, {HMSVideoViewMode} from '@100mslive/react-native-hms';
+import {useSelector} from 'react-redux';
+
+import type {RootState} from '../redux';
 
 export const PreviewModal = ({
   trackId,
@@ -20,7 +23,6 @@ export const PreviewModal = ({
   previewButtonState,
   videoAllowed,
   audioAllowed,
-  mirrorLocalVideo,
 }: {
   videoAllowed: boolean;
   audioAllowed: boolean;
@@ -28,11 +30,11 @@ export const PreviewModal = ({
   setAudio: Function;
   setVideo: Function;
   join: Function;
-  instance: HmsManager | null;
+  instance?: HmsManager;
   setPreviewButtonState: Function;
   previewButtonState: string;
-  mirrorLocalVideo: boolean;
 }) => {
+  const {mirrorLocalVideo} = useSelector((state: RootState) => state.user);
   const [isMute, setIsMute] = useState(false);
   const [muteVideo, setMuteVideo] = useState(false);
   const [numberOfLines, setNumberOfLines] = useState(true);
@@ -50,7 +52,6 @@ export const PreviewModal = ({
       <View style={styles.modalContainer}>
         <HmsView
           scaleType={HMSVideoViewMode.ASPECT_FILL}
-          sink={true}
           style={styles.hmsView}
           trackId={trackId}
           mirror={mirrorLocalVideo}

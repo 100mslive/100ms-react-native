@@ -354,7 +354,7 @@ PODS:
     - React-perflogger (= 0.64.2)
   - rn-fetch-blob (0.12.0):
     - React-Core
-  - RNCPicker (2.4.0):
+  - RNCPicker (2.4.1):
     - React-Core
   - RNDeviceInfo (8.7.0):
     - React-Core
@@ -552,7 +552,7 @@ SPEC CHECKSUMS:
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: cf9b38bf0b2d048436d9a82ad2abe1404f11e7de
   FBLazyVector: e686045572151edef46010a6f819ade377dfeb4b
-  FBReactNativeSpec: 0094aca9cd5d4a79abcb5a2c1d1f52d0c106aaf9
+  FBReactNativeSpec: 978556cb9c183a32af51f818206b201b3deb0d1e
   Flipper: d3da1aa199aad94455ae725e9f3aa43f3ec17021
   Flipper-DoubleConversion: 38631e41ef4f9b12861c67d17cb5518d06badc41
   Flipper-Folly: 755929a4f851b2fb2c347d533a23f191b008554c
@@ -596,7 +596,7 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: a9904c6d0218fb9f8b19d6dd88607225927668f9
   ReactCommon: 149906e01aa51142707a10665185db879898e966
   rn-fetch-blob: f065bb7ab7fb48dd002629f8bdcb0336602d3cba
-  RNCPicker: 6d5d64e7b90c240c779ee0938ec433c11e2dd758
+  RNCPicker: abc646b53a3d28ccfa3232c927a0ca52e0cf024d
   RNDeviceInfo: 36286df381fcaf1933ff9d2d3c34ba2abeb2d8d8
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNPermissions: 34d678157c800b25b22a488e4d8babb57456e796
@@ -609,4 +609,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 70de241d9385afb219b81ff3c6e4ba2cacf76271
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.11.2

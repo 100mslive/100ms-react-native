@@ -83,6 +83,12 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
   },
+  halfOpacity: {
+    opacity: 0.5,
+  },
+  fullOpacity: {
+    opacity: 1,
+  },
 });
 
 export {styles};

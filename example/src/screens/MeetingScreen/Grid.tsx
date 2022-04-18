@@ -3,29 +3,28 @@ import {View, FlatList, Dimensions} from 'react-native';
 import type {
   HMSLocalAudioStats,
   HMSLocalVideoStats,
-  HMSPermissions,
-  HMSRemotePeer,
   HMSRTCStatsReport,
   HMSSDK,
+  HMSSpeaker,
 } from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
 
-import {decodeRemotePeer, getHmsViewHeight} from '../../utils/functions';
+import {getHmsViewHeight} from '../../utils/functions';
 import {styles} from './styles';
 import {DisplayTrack} from './DisplayTrack';
-import type {RootState} from '../../redux';
-import type {Peer, LayoutParams} from '../../utils/types';
+import {
+  LayoutParams,
+  ModalTypes,
+  PeerTrackNode,
+  TrackType,
+} from '../../utils/types';
 
 type GridViewProps = {
-  pairedPeers: Peer[][];
-  getAuxVideoStyles: Function;
-  speakerIds: string[];
+  pairedPeers: PeerTrackNode[][];
+  speakers: HMSSpeaker[];
   instance: HMSSDK | undefined;
-  hmsInstance: HMSSDK | undefined;
-  localPeerPermissions: HMSPermissions | undefined;
   layout: LayoutParams;
-  state: RootState;
   statsForNerds: boolean;
   rtcStats: HMSRTCStatsReport | undefined;
   remoteAudioStats: any;
@@ -33,25 +32,19 @@ type GridViewProps = {
   localAudioStats: HMSLocalAudioStats;
   localVideoStats: HMSLocalVideoStats;
   page: number;
-  setChangeNameModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setModalVisible: React.Dispatch<React.SetStateAction<ModalTypes>>;
   setPage: React.Dispatch<React.SetStateAction<number>>;
-  setZoomableModal: React.Dispatch<React.SetStateAction<boolean>>;
   setZoomableTrackId: React.Dispatch<React.SetStateAction<string>>;
-  setRemoteTrackIds: React.Dispatch<React.SetStateAction<Peer[]>>;
 };
 
 const GridView = ({
   pairedPeers,
   setPage,
-  setZoomableModal,
+  setModalVisible,
   setZoomableTrackId,
-  getAuxVideoStyles,
-  speakerIds,
+  speakers,
   instance,
-  localPeerPermissions,
   layout,
-  state,
-  setChangeNameModal,
   statsForNerds,
   rtcStats,
   remoteAudioStats,
@@ -59,8 +52,6 @@ const GridView = ({
   localAudioStats,
   localVideoStats,
   page,
-  setRemoteTrackIds,
-  hmsInstance,
 }: GridViewProps) => {
   const {left, right, top, bottom} = useSafeAreaInsets();
   const flatlistRef = useRef<FlatList>(null);
@@ -68,52 +59,7 @@ const GridView = ({
   if (page + 1 > pairedPeers.length) {
     flatlistRef?.current?.scrollToEnd();
   }
-
-  const onViewRef = React.useRef(({viewableItems}: any) => {
-    if (viewableItems) {
-      const viewableItemsIds: (string | undefined)[] = [];
-      viewableItems.map(
-        (viewableItem: {
-          index: number;
-          item: Array<Peer>;
-          key: string;
-          isViewable: boolean;
-        }) => {
-          viewableItem?.item?.map((item: Peer) => {
-            viewableItemsIds.push(item?.trackId);
-          });
-        },
-      );
-
-      const inst = hmsInstance;
-      const remotePeers = inst?.remotePeers;
-      if (remotePeers) {
-        const sinkRemoteTrackIds = remotePeers.map(
-          (peer: HMSRemotePeer, index: number) => {
-            const remotePeer = decodeRemotePeer(peer, 'remote');
-            const videoTrackId = remotePeer.trackId;
-            if (videoTrackId) {
-              if (!viewableItemsIds?.includes(videoTrackId)) {
-                return {
-                  ...remotePeer,
-                  sink: false,
-                };
-              }
-              return remotePeer;
-            } else {
-              return {
-                ...remotePeer,
-                trackId: index.toString(),
-                sink: false,
-                isVideoMute: true,
-              };
-            }
-          },
-        );
-        setRemoteTrackIds(sinkRemoteTrackIds ? sinkRemoteTrackIds : []);
-      }
-    }
-  });
+  const speakerIds = speakers?.map(speaker => speaker?.peer?.peerID);
 
   return (
     <FlatList
@@ -128,19 +74,24 @@ const GridView = ({
       }}
       pagingEnabled
       showsHorizontalScrollIndicator={false}
-      renderItem={({item}) => {
+      renderItem={({item}: {item: Array<PeerTrackNode>}) => {
         return (
           <View
-            key={item[0]?.trackId}
+            key={item[0]?.id}
             style={[
               styles.page,
               {width: Dimensions.get('window').width - left - right},
             ]}>
-            {item?.map(
-              (view: Peer) =>
-                view?.id &&
-                (view.type === 'screen' ? (
-                  <View style={styles.flex} key={view?.id}>
+            {item?.map(view => {
+              const type: TrackType =
+                view?.track?.source !== 'regular'
+                  ? TrackType.SCREEN
+                  : view?.peer.isLocal
+                  ? TrackType.LOCAL
+                  : TrackType.REMOTE;
+              if (type === TrackType.SCREEN) {
+                return (
+                  <View style={styles.flex} key={view.id}>
                     <TouchableWithoutFeedback
                       onPress={() => {
                         console.log('Single Tap');
@@ -148,8 +99,8 @@ const GridView = ({
                         if (doublePress === 2) {
                           console.log('Double Tap');
                           doublePress = 0;
-                          setZoomableModal(true);
-                          setZoomableTrackId(view.trackId!);
+                          setModalVisible(ModalTypes.ZOOM);
+                          setZoomableTrackId(view.track?.trackId!);
                         } else {
                           setTimeout(() => {
                             doublePress = 0;
@@ -157,37 +108,34 @@ const GridView = ({
                         }
                       }}>
                       <DisplayTrack
-                        peer={view}
-                        videoStyles={getAuxVideoStyles}
+                        peerTrackNode={view}
+                        videoStyles={styles.generalTile}
                         speakerIds={speakerIds}
                         instance={instance}
-                        type={view.type}
-                        permissions={localPeerPermissions}
                       />
                     </TouchableWithoutFeedback>
                   </View>
-                ) : (
+                );
+              } else {
+                return (
                   <View
                     key={view?.id}
                     style={{
                       ...getHmsViewHeight(
                         layout,
-                        view.type,
+                        type,
                         item.length,
                         top,
                         bottom,
                       ),
                     }}>
                     <DisplayTrack
-                      peer={view}
-                      videoStyles={() => styles.generalTile}
+                      peerTrackNode={view}
+                      videoStyles={styles.generalTile}
                       speakerIds={speakerIds}
                       instance={instance}
-                      type={view.type}
-                      permissions={localPeerPermissions}
                       layout={layout}
-                      mirrorLocalVideo={state.user.mirrorLocalVideo}
-                      setChangeNameModal={setChangeNameModal}
+                      setModalVisible={setModalVisible}
                       statsForNerds={statsForNerds}
                       rtcStats={rtcStats}
                       remoteAudioStats={remoteAudioStats}
@@ -196,13 +144,13 @@ const GridView = ({
                       localVideoStats={localVideoStats}
                     />
                   </View>
-                )),
-            )}
+                );
+              }
+            })}
           </View>
         );
       }}
       numColumns={1}
-      onViewableItemsChanged={onViewRef.current}
       keyExtractor={item => item[0]?.id}
     />
   );

@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { requireNativeComponent, StyleSheet, ViewStyle } from 'react-native';
-import { HMSVideoViewMode } from '../classes/HMSVideoViewMode';
+import { HMSVideoViewMode } from './HMSVideoViewMode';
 
 interface HmsViewProps {
   data: {
     trackId: string;
-    sink: boolean;
-    id?: string | null;
+    id: string;
     mirror?: boolean;
   };
   scaleType: HMSVideoViewMode;
@@ -18,15 +17,13 @@ const HmsViewComponent = requireNativeComponent<HmsViewProps>('HmsView');
 
 interface HmsComponentProps {
   trackId: string;
-  sink: boolean;
   style: ViewStyle;
   mirror?: boolean;
-  scaleType: HMSVideoViewMode;
-  id?: string | null;
+  scaleType?: HMSVideoViewMode;
+  id: string;
 }
 
 export const HmsView = ({
-  sink,
   trackId,
   style,
   id,
@@ -36,9 +33,8 @@ export const HmsView = ({
   const [tempVal, setTempVal] = useState(0);
   const data = {
     trackId,
-    sink,
-    id: id || null,
-    mirror: mirror || false,
+    id,
+    mirror,
   };
 
   const onChange = (values: any) => {

@@ -1,3 +1,4 @@
+import type HmsManager from '@100mslive/react-native-hms';
 import ActionTypes from '../actionTypes';
 
 type ActionType = {
@@ -5,9 +6,16 @@ type ActionType = {
   type: String;
 };
 
-const INITIAL_STATE = {
-  userName: null,
-  roomID: null,
+type IntialStateType = {
+  userName?: string;
+  roomID?: string;
+  hmsInstance?: HmsManager;
+  mirrorLocalVideo: boolean;
+};
+
+const INITIAL_STATE: IntialStateType = {
+  userName: undefined,
+  roomID: undefined,
   hmsInstance: undefined,
   mirrorLocalVideo: false,
 };
