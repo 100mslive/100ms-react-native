@@ -22,12 +22,12 @@ import {styles} from './styles';
 import type {Peer, LayoutParams} from '../../utils/types';
 
 type DisplayTrackProps = {
-  peer?: Peer;
+  peer: Peer;
   videoStyles: Function;
-  speakerIds: Array<string>;
-  type?: 'local' | 'remote' | 'screen';
   instance: HMSSDK | undefined;
   permissions: HMSPermissions | undefined;
+  speakerIds?: Array<string>;
+  type?: 'local' | 'remote' | 'screen';
   layout?: LayoutParams;
   mirrorLocalVideo?: boolean;
   setChangeNameModal?: Function;
@@ -37,6 +37,7 @@ type DisplayTrackProps = {
   remoteVideoStats?: any;
   localAudioStats?: HMSLocalAudioStats;
   localVideoStats?: HMSLocalVideoStats;
+  miniView?: boolean;
 };
 
 const DisplayTrack = ({
@@ -54,6 +55,7 @@ const DisplayTrack = ({
   remoteVideoStats,
   localAudioStats,
   localVideoStats,
+  miniView,
 }: DisplayTrackProps) => {
   const {
     name,
@@ -115,7 +117,7 @@ const DisplayTrack = ({
   const HmsViewComponent = instance?.HmsView;
   const knownRoles = instance?.knownRoles || [];
   const isDegraded = peerReference?.videoTrack?.isDegraded || false;
-  const speaking = speakerIds.includes(id!);
+  const speaking = speakerIds !== undefined ? speakerIds.includes(id!) : false;
   const roleRequestTitle = 'Select action';
   const roleRequestButtons: [
     {text: string; onPress?: Function},
@@ -387,9 +389,14 @@ const DisplayTrack = ({
       ) : (
         <View style={styles.flex}>
           <HmsViewComponent
+            setZOrderMediaOverlay={miniView}
             sink={sink}
             trackId={trackId!}
-            mirror={type === 'local' ? mirrorLocalVideo : false}
+            mirror={
+              type === 'local' && mirrorLocalVideo !== undefined
+                ? mirrorLocalVideo
+                : false
+            }
             scaleType={
               type === 'screen'
                 ? HMSVideoViewMode.ASPECT_FIT
@@ -407,7 +414,6 @@ const DisplayTrack = ({
           )}
         </View>
       )}
-      {ReferenceError}
       <View style={styles.labelContainer}>
         {peerReference?.networkQuality?.downlinkQuality &&
         peerReference?.networkQuality?.downlinkQuality > -1 ? (

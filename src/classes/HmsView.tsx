@@ -7,8 +7,9 @@ interface HmsViewProps {
     trackId: string;
     sink: boolean;
     id?: string | null;
-    mirror?: boolean;
+    mirror: boolean;
   };
+  setZOrderMediaOverlay: boolean;
   scaleType: HMSVideoViewMode;
   screenshot: boolean;
   style: ViewStyle;
@@ -23,6 +24,7 @@ interface HmsComponentProps {
   style: ViewStyle;
   mirror?: boolean;
   scaleType?: HMSVideoViewMode;
+  setZOrderMediaOverlay?: boolean;
   screenshot?: boolean;
   id?: string | null;
 }
@@ -31,8 +33,9 @@ export const HmsView = ({
   sink,
   trackId,
   style,
-  id,
-  mirror,
+  id = null,
+  mirror = false,
+  setZOrderMediaOverlay = false,
   scaleType = HMSVideoViewMode.ASPECT_FILL,
   screenshot = false,
 }: HmsComponentProps) => {
@@ -40,8 +43,8 @@ export const HmsView = ({
   const data = {
     trackId,
     sink,
-    id: id || null,
-    mirror: mirror || false,
+    id,
+    mirror,
   };
 
   const onChange = (values: any) => {
@@ -61,6 +64,7 @@ export const HmsView = ({
       data={data}
       style={tempVal === 0 ? style : temporaryStyles.customStyle}
       scaleType={scaleType}
+      setZOrderMediaOverlay={setZOrderMediaOverlay}
       screenshot={screenshot}
     />
   );

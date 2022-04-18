@@ -63,6 +63,13 @@ class HmsView(context: ReactContext) : FrameLayout(context) {
     }
   }
 
+  fun updateZOrderMediaOverlay(setZOrderMediaOverlay: Boolean?) {
+    if (setZOrderMediaOverlay != null && setZOrderMediaOverlay) {
+      // surfaceView.setZOrderOnTop(true);
+      surfaceView.setZOrderMediaOverlay(setZOrderMediaOverlay)
+    }
+  }
+
   fun updateScaleType(scaleType: String?) {
     if (scaleType != null) {
       when (scaleType) {

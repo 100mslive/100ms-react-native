@@ -46,6 +46,11 @@ class HmssdkViewManager : SimpleViewManager<HmsView>() {
     view.updateScaleType(data)
   }
 
+  @ReactProp(name = "setZOrderMediaOverlay")
+  fun setZOrderMediaOverlay(view: HmsView, data: Boolean?) {
+    view.updateZOrderMediaOverlay(data)
+  }
+  
   @RequiresApi(Build.VERSION_CODES.N)
   @ReactProp(name = "screenshot")
   fun setCaptureHmsView(view: HmsView, screenshot: Boolean?) {
