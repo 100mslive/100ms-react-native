@@ -17,7 +17,10 @@ import {Slider} from '@miblanchard/react-native-slider';
 
 import {AlertModal, CustomModal, RolePicker} from '../../components';
 import dimension from '../../utils/dimension';
-import {getInitials} from '../../utils/functions';
+import {
+  getInitials,
+  requestExternalStoragePermission,
+} from '../../utils/functions';
 import {styles} from './styles';
 import type {Peer, LayoutParams} from '../../utils/types';
 
@@ -146,11 +149,14 @@ const DisplayTrack = ({
     },
     {
       text: 'Take Screenshot',
-      onPress: () => {
-        setScreenshot(true);
-        setTimeout(() => {
-          setScreenshot(false);
-        }, 1000);
+      onPress: async () => {
+        const granted = await requestExternalStoragePermission();
+        if (granted) {
+          setScreenshot(true);
+          setTimeout(() => {
+            setScreenshot(false);
+          }, 1000);
+        }
       },
     },
   ];
@@ -169,11 +175,14 @@ const DisplayTrack = ({
     },
     {
       text: 'Take Screenshot',
-      onPress: () => {
-        setScreenshot(true);
-        setTimeout(() => {
-          setScreenshot(false);
-        }, 1000);
+      onPress: async () => {
+        const granted = await requestExternalStoragePermission();
+        if (granted) {
+          setScreenshot(true);
+          setTimeout(() => {
+            setScreenshot(false);
+          }, 1000);
+        }
       },
     },
   ];
@@ -194,11 +203,14 @@ const DisplayTrack = ({
     },
     {
       text: 'Take Screenshot',
-      onPress: () => {
-        setScreenshot(true);
-        setTimeout(() => {
-          setScreenshot(false);
-        }, 1000);
+      onPress: async () => {
+        const granted = await requestExternalStoragePermission();
+        if (granted) {
+          setScreenshot(true);
+          setTimeout(() => {
+            setScreenshot(false);
+          }, 1000);
+        }
       },
     },
     {
