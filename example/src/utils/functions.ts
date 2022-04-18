@@ -200,7 +200,7 @@ export const decodePeer = (peer: HMSPeer): Peer => {
     colour: getThemeColour(),
     sink: true,
     type: 'remote',
-    peerRefrence: peer,
+    peerReference: peer,
     metadata: parseMetadata(peer?.metadata),
   };
 };
@@ -218,7 +218,7 @@ export const decodeRemotePeer = (
     colour: getThemeColour(),
     sink: true,
     type,
-    peerRefrence: peer,
+    peerReference: peer,
     metadata: parseMetadata(peer?.metadata),
   };
 };
@@ -246,7 +246,7 @@ export const decodeLocalPeer = (
     colour: getThemeColour(),
     sink: true,
     type,
-    peerRefrence: peer,
+    peerReference: peer,
     metadata: parseMetadata(peer?.metadata),
   };
 };

@@ -303,6 +303,7 @@ const App = ({
     const HmsConfig = new HMSConfig({
       authToken: token,
       username: userID,
+      captureNetworkQualityInPreview: true,
     });
     config = HmsConfig;
 
@@ -334,12 +335,14 @@ const App = ({
       HmsConfig = new HMSConfig({
         authToken: token,
         username: userID,
+        captureNetworkQualityInPreview: true,
         endpoint,
       });
     } else {
       HmsConfig = new HMSConfig({
         authToken: token,
         username: userID,
+        captureNetworkQualityInPreview: true,
         // metadata: JSON.stringify({isHandRaised: true}), // To join with hand raised
       });
     }

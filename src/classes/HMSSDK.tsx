@@ -35,6 +35,7 @@ interface HmsComponentProps {
   style: ViewStyle;
   mirror?: boolean;
   scaleType?: HMSVideoViewMode;
+  screenshot?: boolean;
   id?: string | null;
   setZOrderMediaOverlay?: boolean;
 }
@@ -394,8 +395,9 @@ export class HMSSDK {
     trackId,
     style,
     mirror,
-    setZOrderMediaOverlay,
     scaleType,
+    screenshot,
+    setZOrderMediaOverlay,
   }: HmsComponentProps) => {
     return (
       <HMSViewComponent
@@ -406,6 +408,7 @@ export class HMSSDK {
         mirror={mirror}
         scaleType={scaleType}
         id={this.id}
+        screenshot={screenshot}
       />
     );
   };

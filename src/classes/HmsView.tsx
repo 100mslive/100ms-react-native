@@ -11,6 +11,7 @@ interface HmsViewProps {
   };
   setZOrderMediaOverlay: boolean;
   scaleType: HMSVideoViewMode;
+  screenshot: boolean;
   style: ViewStyle;
   onChange: Function;
 }
@@ -24,6 +25,7 @@ interface HmsComponentProps {
   mirror?: boolean;
   scaleType?: HMSVideoViewMode;
   setZOrderMediaOverlay?: boolean;
+  screenshot?: boolean;
   id?: string | null;
 }
 
@@ -35,6 +37,7 @@ export const HmsView = ({
   mirror = false,
   setZOrderMediaOverlay = false,
   scaleType = HMSVideoViewMode.ASPECT_FILL,
+  screenshot = false,
 }: HmsComponentProps) => {
   const [tempVal, setTempVal] = useState(0);
   const data = {
@@ -62,6 +65,7 @@ export const HmsView = ({
       style={tempVal === 0 ? style : temporaryStyles.customStyle}
       scaleType={scaleType}
       setZOrderMediaOverlay={setZOrderMediaOverlay}
+      screenshot={screenshot}
     />
   );
 };

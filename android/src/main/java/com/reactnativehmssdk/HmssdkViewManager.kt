@@ -1,5 +1,7 @@
 package com.reactnativehmssdk
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.common.MapBuilder
 import com.facebook.react.uimanager.SimpleViewManager
@@ -31,14 +33,12 @@ class HmssdkViewManager : SimpleViewManager<HmsView>() {
   @ReactProp(name = "data")
   fun setData(view: HmsView, data: ReadableMap) {
     val trackId = data.getString("trackId")
-    //    val sink = data.getBoolean("sink")
     val id = data.getString("id")
     val mirror = data.getBoolean("mirror")
     val hmsCollection = getHms()
     if (hmsCollection != null) {
       view.setData(id, trackId, hmsCollection, mirror)
     }
-    // do the processing here
   }
 
   @ReactProp(name = "scaleType")
@@ -49,6 +49,14 @@ class HmssdkViewManager : SimpleViewManager<HmsView>() {
   @ReactProp(name = "setZOrderMediaOverlay")
   fun setZOrderMediaOverlay(view: HmsView, data: Boolean?) {
     view.updateZOrderMediaOverlay(data)
+  }
+  
+  @RequiresApi(Build.VERSION_CODES.N)
+  @ReactProp(name = "screenshot")
+  fun setCaptureHmsView(view: HmsView, screenshot: Boolean?) {
+    if(screenshot == true){
+      view.captureHmsView()
+    }
   }
 
   private fun getHms(): MutableMap<String, HmsSDK>? {

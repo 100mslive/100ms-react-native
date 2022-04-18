@@ -97,42 +97,7 @@ class HmsSDK(
         )
     if (requiredKeys) {
       previewInProgress = true
-      var config =
-          HMSConfig(
-              credentials.getString("username") as String,
-              credentials.getString("authToken") as String,
-          )
-
-      when {
-        HmsHelper.areAllRequiredKeysAvailable(
-            credentials,
-            arrayOf(Pair("endpoint", "String"), Pair("metadata", "String"))
-        ) -> {
-          config =
-              HMSConfig(
-                  credentials.getString("username") as String,
-                  credentials.getString("authToken") as String,
-                  initEndpoint = credentials.getString("endpoint") as String,
-                  metadata = credentials.getString("metadata") as String,
-              )
-        }
-        HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("endpoint", "String"))) -> {
-          config =
-              HMSConfig(
-                  credentials.getString("username") as String,
-                  credentials.getString("authToken") as String,
-                  initEndpoint = credentials.getString("endpoint") as String,
-              )
-        }
-        HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("metadata", "String"))) -> {
-          config =
-              HMSConfig(
-                  credentials.getString("username") as String,
-                  credentials.getString("authToken") as String,
-                  metadata = credentials.getString("metadata") as String,
-              )
-        }
-      }
+      val config = HmsHelper.getHmsConfig(credentials)
 
       hmsSDK?.preview(
           config,
@@ -217,42 +182,7 @@ class HmsSDK(
             arrayOf(Pair("username", "String"), Pair("authToken", "String"))
         )
     if (requiredKeys) {
-      var config =
-          HMSConfig(
-              credentials.getString("username") as String,
-              credentials.getString("authToken") as String
-          )
-
-      when {
-        HmsHelper.areAllRequiredKeysAvailable(
-            credentials,
-            arrayOf(Pair("endpoint", "String"), Pair("metadata", "String"))
-        ) -> {
-          config =
-              HMSConfig(
-                  credentials.getString("username") as String,
-                  credentials.getString("authToken") as String,
-                  initEndpoint = credentials.getString("endpoint") as String,
-                  metadata = credentials.getString("metadata") as String,
-              )
-        }
-        HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("endpoint", "String"))) -> {
-          config =
-              HMSConfig(
-                  credentials.getString("username") as String,
-                  credentials.getString("authToken") as String,
-                  initEndpoint = credentials.getString("endpoint") as String,
-              )
-        }
-        HmsHelper.areAllRequiredKeysAvailable(credentials, arrayOf(Pair("metadata", "String"))) -> {
-          config =
-              HMSConfig(
-                  credentials.getString("username") as String,
-                  credentials.getString("authToken") as String,
-                  metadata = credentials.getString("metadata") as String,
-              )
-        }
-      }
+      val config = HmsHelper.getHmsConfig(credentials)
 
       HMSCoroutineScope.launch {
         try {
