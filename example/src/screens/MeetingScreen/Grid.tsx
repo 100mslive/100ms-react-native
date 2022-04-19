@@ -112,6 +112,7 @@ const GridView = ({
                         videoStyles={styles.generalTile}
                         speakerIds={speakerIds}
                         instance={instance}
+                        layout={layout}
                       />
                     </TouchableWithoutFeedback>
                   </View>

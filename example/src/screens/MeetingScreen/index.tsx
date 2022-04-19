@@ -104,6 +104,7 @@ const Meeting = () => {
   const [peerTrackNodes, setPeerTrackNodes] = useState<Array<PeerTrackNode>>(
     [],
   );
+  const [hmsRoom, setHmsRoom] = useState<HMSRoom>();
   const peerTrackNodesRef = React.useRef(peerTrackNodes);
   const HmsViewComponent = instance?.HmsView;
   const [speakers, setSpeakers] = useState<Array<HMSSpeaker>>([]);
@@ -569,7 +570,10 @@ const Meeting = () => {
     const uniqueId =
       peer.peerID + (track.source === 'regular' ? 'regular' : track.trackId);
     const isVideo = track.type === HMSTrackType.VIDEO;
-    if (type === HMSTrackUpdate.TRACK_ADDED) {
+    if (
+      type === HMSTrackUpdate.TRACK_ADDED &&
+      !(track.source === 'screen' && peer.isLocal) // remove this condition to show local screenshare
+    ) {
       if (isVideo) {
         let peerTrackNodeUpdated = false;
         newPeerTrackNodes = peerTrackNodesRef.current?.map(peerTrackNode => {
@@ -632,6 +636,7 @@ const Meeting = () => {
     localPeer: HMSLocalPeer;
     remotePeers: HMSRemotePeer[];
   }) => {
+    setHmsRoom(room);
     if (type === HMSRoomUpdate.BROWSER_RECORDING_STATE_UPDATED) {
       let streaming = room?.browserRecordingState?.running;
       let hours = room?.browserRecordingState?.startedAt.getHours().toString();
@@ -914,8 +919,8 @@ const Meeting = () => {
 
     return () => {
       backHandler.remove();
-      // instance?.leave();
-      // navigate('WelcomeScreen');
+      instance?.leave();
+      navigate('WelcomeScreen');
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -1123,15 +1128,15 @@ const Meeting = () => {
       <View style={styles.headerContainer}>
         <Text style={styles.headerName}>{getRoomIdDetails(roomID!).code}</Text>
         <View style={styles.headerRight}>
-          {instance?.room?.browserRecordingState?.running && (
+          {hmsRoom?.browserRecordingState?.running && (
             <Entypo
               name="controller-record"
               style={styles.recording}
               size={dimension.viewHeight(30)}
             />
           )}
-          {(instance?.room?.hlsStreamingState?.running ||
-            instance?.room?.rtmpHMSRtmpStreamingState?.running) && (
+          {(hmsRoom?.hlsStreamingState?.running ||
+            hmsRoom?.rtmpHMSRtmpStreamingState?.running) && (
             <Entypo
               name="light-up"
               style={styles.streaming}
@@ -1192,8 +1197,8 @@ const Meeting = () => {
       </View>
       <View style={styles.wrapper}>
         {instance?.localPeer?.role?.name?.includes('hls-') ? (
-          instance?.room?.hlsStreamingState?.running ? (
-            instance?.room?.hlsStreamingState?.variants
+          hmsRoom?.hlsStreamingState?.running ? (
+            hmsRoom?.hlsStreamingState?.variants
               ?.slice(0, 1)
               ?.map((variant, index) =>
                 variant?.hlsStreamUrl ? (

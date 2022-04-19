@@ -8,6 +8,7 @@ import {
   HMSLocalVideoStats,
   HMSRTCStatsReport,
   HMSSDK,
+  HMSTrackType,
 } from '@100mslive/react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -92,10 +93,16 @@ const DisplayTrack = ({
             peerTrackNode.peer?.audioTrack as HMSTrack,
             volume,
           );
+        } else {
+          peerTrackNode.peer?.auxiliaryTracks?.map(track => {
+            if (
+              track.source === TrackType.SCREEN &&
+              track.type === HMSTrackType.AUDIO
+            ) {
+              instance?.setVolume(track, volume);
+            }
+          });
         }
-        // else if (peer?.track) {
-        //   instance?.setVolume(peer?.track, volume);
-        // }
       },
     },
   ];
