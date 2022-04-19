@@ -11,6 +11,7 @@ import android.view.PixelCopy
 import androidx.annotation.RequiresApi
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
+import live.hms.video.error.HMSException
 import live.hms.video.media.codec.HMSAudioCodec
 import live.hms.video.media.codec.HMSVideoCodec
 import live.hms.video.media.settings.HMSAudioTrackSettings
@@ -405,28 +406,38 @@ object HmsHelper {
   }
 
   @RequiresApi(Build.VERSION_CODES.N)
-  fun captureSurfaceView(surfaceView: SurfaceViewRenderer, context: Context) {
+  fun captureSurfaceView(surfaceView: SurfaceViewRenderer, context: Context, id: String?) {
     try {
       val bitmap: Bitmap =
-          Bitmap.createBitmap(surfaceView.width, surfaceView.height, Bitmap.Config.ARGB_8888)
+        Bitmap.createBitmap(surfaceView.width, surfaceView.height, Bitmap.Config.ARGB_8888)
       PixelCopy.request(
-          surfaceView,
-          bitmap,
-          { copyResult ->
-            if (copyResult === PixelCopy.SUCCESS) {
-              Log.e("bitmap", bitmap.toString())
-              saveImage(bitmap, context)
-            } else {
-              Log.e("copyResult", copyResult.toString())
-            }
-          },
-          Handler())
+        surfaceView,
+        bitmap,
+        { copyResult ->
+          if (copyResult === PixelCopy.SUCCESS) {
+            Log.d("captureSurfaceView", "bitmap: $bitmap")
+            saveImage(bitmap, context, id)
+          } else {
+            HmsModule.hmsCollection[id]?.emitHMSError(
+              HMSException(
+                103,
+                copyResult.toString(),
+                copyResult.toString(),
+                copyResult.toString(),
+                copyResult.toString()
+              )
+            )
+            Log.e("captureSurfaceView", "copyResult: $copyResult")
+          }
+        },
+        Handler()
+      )
     } catch (e: Exception) {
-      Log.e("errorCapture", e.toString())
+      Log.e("captureSurfaceView", "error: $e")
     }
   }
 
-  private fun saveImage(finalBitmap: Bitmap, context: Context) {
+  private fun saveImage(finalBitmap: Bitmap, context: Context, id: String?) {
     val folder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)
     if (!folder.exists()) {
       folder.mkdir()
@@ -443,15 +454,20 @@ object HmsHelper {
       out.flush()
       out.close()
     } catch (e: Exception) {
-      Log.e("errorSaveImage", e.toString())
+      HmsModule.hmsCollection[id]?.emitHMSError(
+        HMSException(
+          103,
+          e.message.toString(),
+          e.message.toString(),
+          e.message.toString(),
+          e.message.toString()
+        )
+      )
+      Log.e("saveImage", "error: $e")
     }
     // Tell the media scanner about the new file so that it is
     // immediately available to the user.
-    MediaScannerConnection.scanFile(
-        context,
-        arrayOf(file.toString()),
-        null
-    ) { path, uri ->
+    MediaScannerConnection.scanFile(context, arrayOf(file.toString()), null) { path, uri ->
       Log.i("ExternalStorage", "Scanned $path:")
       Log.i("ExternalStorage", "-> uri=$uri")
     }
