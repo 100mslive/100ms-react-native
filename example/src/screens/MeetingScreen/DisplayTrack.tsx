@@ -17,17 +17,20 @@ import {Slider} from '@miblanchard/react-native-slider';
 
 import {AlertModal, CustomModal, RolePicker} from '../../components';
 import dimension from '../../utils/dimension';
-import {getInitials} from '../../utils/functions';
+import {
+  getInitials,
+  requestExternalStoragePermission,
+} from '../../utils/functions';
 import {styles} from './styles';
 import type {Peer, LayoutParams} from '../../utils/types';
 
 type DisplayTrackProps = {
-  peer?: Peer;
+  peer: Peer;
   videoStyles: Function;
-  speakerIds: Array<string>;
-  type?: 'local' | 'remote' | 'screen';
   instance: HMSSDK | undefined;
   permissions: HMSPermissions | undefined;
+  speakerIds?: Array<string>;
+  type?: 'local' | 'remote' | 'screen';
   layout?: LayoutParams;
   mirrorLocalVideo?: boolean;
   setChangeNameModal?: Function;
@@ -37,6 +40,7 @@ type DisplayTrackProps = {
   remoteVideoStats?: any;
   localAudioStats?: HMSLocalAudioStats;
   localVideoStats?: HMSLocalVideoStats;
+  miniView?: boolean;
 };
 
 const DisplayTrack = ({
@@ -54,6 +58,7 @@ const DisplayTrack = ({
   remoteVideoStats,
   localAudioStats,
   localVideoStats,
+  miniView,
 }: DisplayTrackProps) => {
   const {
     name,
@@ -72,6 +77,7 @@ const DisplayTrack = ({
   const [force, setForce] = useState(false);
   const [volumeModal, setVolumeModal] = useState(false);
   const [volume, setVolume] = useState(1);
+  const [screenshot, setScreenshot] = useState(false);
   const modalTitle = 'Set Volume';
 
   const modalButtons: [
@@ -114,7 +120,7 @@ const DisplayTrack = ({
   const HmsViewComponent = instance?.HmsView;
   const knownRoles = instance?.knownRoles || [];
   const isDegraded = peerReference?.videoTrack?.isDegraded || false;
-  const speaking = speakerIds.includes(id!);
+  const speaking = speakerIds !== undefined ? speakerIds.includes(id!) : false;
   const roleRequestTitle = 'Select action';
   const roleRequestButtons: [
     {text: string; onPress?: Function},
@@ -141,6 +147,18 @@ const DisplayTrack = ({
         setVolumeModal(true);
       },
     },
+    {
+      text: 'Take Screenshot',
+      onPress: async () => {
+        const granted = await requestExternalStoragePermission();
+        if (granted) {
+          setScreenshot(true);
+          setTimeout(() => {
+            setScreenshot(false);
+          }, 1000);
+        }
+      },
+    },
   ];
 
   const selectLocalActionButtons: Array<{
@@ -153,6 +171,18 @@ const DisplayTrack = ({
       text: 'Change Name',
       onPress: () => {
         setChangeNameModal && setChangeNameModal(true);
+      },
+    },
+    {
+      text: 'Take Screenshot',
+      onPress: async () => {
+        const granted = await requestExternalStoragePermission();
+        if (granted) {
+          setScreenshot(true);
+          setTimeout(() => {
+            setScreenshot(false);
+          }, 1000);
+        }
       },
     },
   ];
@@ -169,6 +199,18 @@ const DisplayTrack = ({
       text: 'Set Volume',
       onPress: () => {
         setVolumeModal(true);
+      },
+    },
+    {
+      text: 'Take Screenshot',
+      onPress: async () => {
+        const granted = await requestExternalStoragePermission();
+        if (granted) {
+          setScreenshot(true);
+          setTimeout(() => {
+            setScreenshot(false);
+          }, 1000);
+        }
       },
     },
     {
@@ -359,15 +401,21 @@ const DisplayTrack = ({
       ) : (
         <View style={styles.flex}>
           <HmsViewComponent
+            setZOrderMediaOverlay={miniView}
             sink={sink}
             trackId={trackId!}
-            mirror={type === 'local' ? mirrorLocalVideo : false}
+            mirror={
+              type === 'local' && mirrorLocalVideo !== undefined
+                ? mirrorLocalVideo
+                : false
+            }
             scaleType={
               type === 'screen'
                 ? HMSVideoViewMode.ASPECT_FIT
                 : HMSVideoViewMode.ASPECT_FILL
             }
             style={type === 'screen' ? styles.hmsViewScreen : styles.hmsView}
+            screenshot={screenshot}
           />
           {isDegraded && (
             <View style={styles.degradedContainer}>
@@ -378,7 +426,6 @@ const DisplayTrack = ({
           )}
         </View>
       )}
-      {ReferenceError}
       <View style={styles.labelContainer}>
         {peerReference?.networkQuality?.downlinkQuality &&
         peerReference?.networkQuality?.downlinkQuality > -1 ? (

@@ -1,5 +1,7 @@
 package com.reactnativehmssdk
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.common.MapBuilder
 import com.facebook.react.uimanager.SimpleViewManager
@@ -42,6 +44,19 @@ class HmssdkViewManager : SimpleViewManager<HmsView>() {
   @ReactProp(name = "scaleType")
   fun setScaleType(view: HmsView, data: String?) {
     view.updateScaleType(data)
+  }
+
+  @ReactProp(name = "setZOrderMediaOverlay")
+  fun setZOrderMediaOverlay(view: HmsView, data: Boolean?) {
+    view.updateZOrderMediaOverlay(data)
+  }
+  
+  @RequiresApi(Build.VERSION_CODES.N)
+  @ReactProp(name = "screenshot")
+  fun setCaptureHmsView(view: HmsView, screenshot: Boolean?) {
+    if(screenshot == true){
+      view.captureHmsView()
+    }
   }
 
   private fun getHms(): MutableMap<String, HmsSDK>? {

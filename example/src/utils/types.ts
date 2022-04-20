@@ -17,7 +17,7 @@ type Peer = {
   track?: HMSTrack;
 };
 
-type LayoutParams = 'audio' | 'grid' | 'active speaker' | 'hero';
+type LayoutParams = 'audio' | 'grid' | 'active speaker' | 'hero' | 'mini';
 
 // eslint-disable-next-line no-undef
 export type {Peer, LayoutParams};

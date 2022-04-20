@@ -8,7 +8,6 @@ import {
   BackHandler,
   Platform,
   TextInput,
-  PermissionsAndroid,
 } from 'react-native';
 import {connect} from 'react-redux';
 import {
@@ -79,6 +78,7 @@ import {
   pairDataForScrollView,
   writeFile,
   isPortrait,
+  requestExternalStoragePermission,
 } from '../../utils/functions';
 import {styles} from './styles';
 import {GridView} from './Grid';
@@ -87,6 +87,7 @@ import type {RootState} from '../../redux';
 import type {AppStackParamList} from '../../navigator';
 import type {Peer, LayoutParams} from '../../utils/types';
 import {HeroView} from './HeroView';
+import {MiniView} from './MiniView';
 
 type MeetingProps = {
   messages: any;
@@ -144,7 +145,7 @@ const Meeting = ({
   }>({});
   const [action, setAction] = useState(0);
   const [layout, setLayout] = useState<LayoutParams>('grid');
-  const [newLayout, setNewLayout] = useState<LayoutParams>('grid');
+  const [newLayout, setNewLayout] = useState<LayoutParams>(layout);
   const [newRole, setNewRole] = useState(trackId?.peerReference?.role);
   const [roleModalVisible, setRoleModalVisible] = useState(false);
   const [settingsModal, setSettingsModal] = useState(false);
@@ -719,7 +720,6 @@ const Meeting = ({
         instance.removeAllListeners();
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [instance]);
 
   const getAuxVideoStyles = () => {
@@ -772,7 +772,10 @@ const Meeting = ({
       {
         text: 'Report issue and share logs',
         onPress: async () => {
-          await checkPermissionToWriteExternalStroage();
+          const granted = await requestExternalStoragePermission();
+          if (granted) {
+            await reportIssue();
+          }
         },
       },
       {
@@ -973,41 +976,6 @@ const Meeting = ({
     return buttons;
   };
 
-  const checkPermissionToWriteExternalStroage = async () => {
-    // Function to check the platform
-    // If Platform is Android then check for permissions.
-    if (Platform.OS === 'ios') {
-      await reportIssue();
-    } else {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-          {
-            title: 'Storage Permission Required',
-            message:
-              'Application needs access to your storage to download File',
-            buttonPositive: 'true',
-          },
-        );
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          // Start downloading
-          await reportIssue();
-          console.log('Storage Permission Granted.');
-        } else {
-          // If permission denied then show alert
-          Toast.showWithGravity(
-            'Storage Permission Not Granted',
-            Toast.LONG,
-            Toast.TOP,
-          );
-        }
-      } catch (err) {
-        // To handle permission related exception
-        console.log('checkPermissionToWriteExternalStroage: ' + err);
-      }
-    }
-  };
-
   const reportIssue = async () => {
     try {
       const fileUrl = RNFetchBlob.fs.dirs.DocumentDir + '/report-logs.json';
@@ -1206,6 +1174,7 @@ const Meeting = ({
             {name: 'audio'},
             {name: 'active speaker'},
             {name: 'hero'},
+            {name: 'mini'},
           ].map((item, index) => (
             <Picker.Item key={index} label={item.name} value={item.name} />
           ))}
@@ -1317,6 +1286,31 @@ const Meeting = ({
               <Text>Waiting for the Streaming to start...</Text>
             </View>
           )
+        ) : fetchZoomableId(zoomableTrackId) && zoomableModal ? (
+          <View>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => {
+                setZoomableModal(false);
+              }}>
+              <Entypo
+                name={'circle-with-cross'}
+                style={styles.videoIcon}
+                size={dimension.viewHeight(50)}
+              />
+            </TouchableOpacity>
+            <ZoomableView>
+              {HmsViewComponent && (
+                <HmsViewComponent
+                  sink={true}
+                  trackId={zoomableTrackId}
+                  mirror={false}
+                  scaleType={HMSVideoViewMode.ASPECT_FIT}
+                  style={styles.hmsViewScreen}
+                />
+              )}
+            </ZoomableView>
+          </View>
         ) : layout === 'active speaker' ? (
           <ActiveSpeakerView
             speakerIds={speakerIds}
@@ -1348,7 +1342,13 @@ const Meeting = ({
             state={state}
             setChangeNameModal={setChangeNameModal}
           />
-        ) : !(fetchZoomableId(zoomableTrackId) && zoomableModal) ? (
+        ) : layout === 'mini' ? (
+          <MiniView
+            speakers={speakers}
+            instance={instance}
+            localPeerPermissions={localPeerPermissions}
+          />
+        ) : (
           <GridView
             pairedPeers={pairedPeers}
             setPage={setPage}
@@ -1371,31 +1371,6 @@ const Meeting = ({
             setRemoteTrackIds={setRemoteTrackIds}
             hmsInstance={hmsInstance}
           />
-        ) : (
-          <View>
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => {
-                setZoomableModal(false);
-              }}>
-              <Entypo
-                name={'circle-with-cross'}
-                style={styles.videoIcon}
-                size={dimension.viewHeight(50)}
-              />
-            </TouchableOpacity>
-            <ZoomableView>
-              {HmsViewComponent && (
-                <HmsViewComponent
-                  sink={true}
-                  trackId={zoomableTrackId}
-                  mirror={false}
-                  scaleType={HMSVideoViewMode.ASPECT_FIT}
-                  style={styles.hmsViewScreen}
-                />
-              )}
-            </ZoomableView>
-          </View>
         )}
       </View>
       <View style={styles.iconContainers}>

@@ -1,17 +1,33 @@
 package com.reactnativehmssdk
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.media.MediaScannerConnection
+import android.os.Build
+import android.os.Environment
+import android.os.Handler
+import android.util.Log
+import android.view.PixelCopy
+import androidx.annotation.RequiresApi
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
+import live.hms.video.error.HMSException
 import live.hms.video.media.codec.HMSAudioCodec
 import live.hms.video.media.codec.HMSVideoCodec
 import live.hms.video.media.settings.HMSAudioTrackSettings
 import live.hms.video.media.settings.HMSTrackSettings
 import live.hms.video.media.settings.HMSVideoResolution
 import live.hms.video.media.settings.HMSVideoTrackSettings
-import live.hms.video.media.tracks.*
+import live.hms.video.media.tracks.HMSRemoteAudioTrack
+import live.hms.video.media.tracks.HMSRemoteVideoTrack
+import live.hms.video.media.tracks.HMSTrack
 import live.hms.video.sdk.models.*
-import live.hms.video.sdk.models.role.*
+import live.hms.video.sdk.models.role.HMSRole
 import live.hms.video.utils.HmsUtilities
+import org.webrtc.SurfaceViewRenderer
+import java.io.File
+import java.io.FileOutputStream
+import java.util.*
 
 object HmsHelper {
 
@@ -120,9 +136,7 @@ object HmsHelper {
     var useHardwareEchoCancellation = false
     val requiredKeysUseHardwareEchoCancellation =
         this.areAllRequiredKeysAvailable(
-            data,
-            arrayOf(Pair("useHardwareEchoCancellation", "Boolean"))
-        )
+            data, arrayOf(Pair("useHardwareEchoCancellation", "Boolean")))
     if (requiredKeysUseHardwareEchoCancellation) {
       useHardwareEchoCancellation = data.getBoolean("useHardwareEchoCancellation")
     }
@@ -277,17 +291,11 @@ object HmsHelper {
         var singleFilePerLayer = false
         var videoOnDemand = false
         if (areAllRequiredKeysAvailable(
-                hmsHlsRecordingConfig,
-                arrayOf(Pair("singleFilePerLayer", "Boolean"))
-            )
-        ) {
+            hmsHlsRecordingConfig, arrayOf(Pair("singleFilePerLayer", "Boolean")))) {
           singleFilePerLayer = hmsHlsRecordingConfig.getBoolean("singleFilePerLayer")
         }
         if (areAllRequiredKeysAvailable(
-                hmsHlsRecordingConfig,
-                arrayOf(Pair("videoOnDemand", "Boolean"))
-            )
-        ) {
+            hmsHlsRecordingConfig, arrayOf(Pair("videoOnDemand", "Boolean")))) {
           videoOnDemand = hmsHlsRecordingConfig.getBoolean("videoOnDemand")
         }
         return HMSHlsRecordingConfig(singleFilePerLayer, videoOnDemand)
@@ -321,9 +329,7 @@ object HmsHelper {
           arrayOf(
               Pair("endpoint", "String"),
               Pair("metadata", "String"),
-              Pair("captureNetworkQualityInPreview", "Boolean")
-          )
-      ) -> {
+              Pair("captureNetworkQualityInPreview", "Boolean"))) -> {
         config =
             HMSConfig(
                 credentials.getString("username") as String,
@@ -335,9 +341,7 @@ object HmsHelper {
             )
       }
       areAllRequiredKeysAvailable(
-          credentials,
-          arrayOf(Pair("endpoint", "String"), Pair("metadata", "String"))
-      ) -> {
+          credentials, arrayOf(Pair("endpoint", "String"), Pair("metadata", "String"))) -> {
         config =
             HMSConfig(
                 credentials.getString("username") as String,
@@ -348,8 +352,8 @@ object HmsHelper {
       }
       areAllRequiredKeysAvailable(
           credentials,
-          arrayOf(Pair("endpoint", "String"), Pair("captureNetworkQualityInPreview", "Boolean"))
-      ) -> {
+          arrayOf(
+              Pair("endpoint", "String"), Pair("captureNetworkQualityInPreview", "Boolean"))) -> {
         config =
             HMSConfig(
                 credentials.getString("username") as String,
@@ -361,8 +365,8 @@ object HmsHelper {
       }
       areAllRequiredKeysAvailable(
           credentials,
-          arrayOf(Pair("metadata", "String"), Pair("captureNetworkQualityInPreview", "Boolean"))
-      ) -> {
+          arrayOf(
+              Pair("metadata", "String"), Pair("captureNetworkQualityInPreview", "Boolean"))) -> {
         config =
             HMSConfig(
                 credentials.getString("username") as String,
@@ -389,18 +393,83 @@ object HmsHelper {
             )
       }
       areAllRequiredKeysAvailable(
-          credentials,
-          arrayOf(Pair("captureNetworkQualityInPreview", "Boolean"))
-      ) -> {
+          credentials, arrayOf(Pair("captureNetworkQualityInPreview", "Boolean"))) -> {
         config =
             HMSConfig(
                 credentials.getString("username") as String,
                 credentials.getString("authToken") as String,
                 captureNetworkQualityInPreview =
-                    credentials.getBoolean("captureNetworkQualityInPreview")
-            )
+                    credentials.getBoolean("captureNetworkQualityInPreview"))
       }
     }
     return config
+  }
+
+  @RequiresApi(Build.VERSION_CODES.N)
+  fun captureSurfaceView(surfaceView: SurfaceViewRenderer, context: Context, id: String?) {
+    try {
+      val bitmap: Bitmap =
+        Bitmap.createBitmap(surfaceView.width, surfaceView.height, Bitmap.Config.ARGB_8888)
+      PixelCopy.request(
+        surfaceView,
+        bitmap,
+        { copyResult ->
+          if (copyResult === PixelCopy.SUCCESS) {
+            Log.d("captureSurfaceView", "bitmap: $bitmap")
+            saveImage(bitmap, context, id)
+          } else {
+            HmsModule.hmsCollection[id]?.emitHMSError(
+              HMSException(
+                103,
+                copyResult.toString(),
+                copyResult.toString(),
+                copyResult.toString(),
+                copyResult.toString()
+              )
+            )
+            Log.e("captureSurfaceView", "copyResult: $copyResult")
+          }
+        },
+        Handler()
+      )
+    } catch (e: Exception) {
+      Log.e("captureSurfaceView", "error: $e")
+    }
+  }
+
+  private fun saveImage(finalBitmap: Bitmap, context: Context, id: String?) {
+    val folder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)
+    if (!folder.exists()) {
+      folder.mkdir()
+    }
+    val generator = Random()
+    var n = 10000
+    n = generator.nextInt(n)
+    val fileName = "Image-$n.jpg"
+    val file = File(folder.absolutePath, fileName)
+    if (file.exists()) file.delete()
+    try {
+      val out = FileOutputStream(file)
+      finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
+      out.flush()
+      out.close()
+    } catch (e: Exception) {
+      HmsModule.hmsCollection[id]?.emitHMSError(
+        HMSException(
+          103,
+          e.message.toString(),
+          e.message.toString(),
+          e.message.toString(),
+          e.message.toString()
+        )
+      )
+      Log.e("saveImage", "error: $e")
+    }
+    // Tell the media scanner about the new file so that it is
+    // immediately available to the user.
+    MediaScannerConnection.scanFile(context, arrayOf(file.toString()), null) { path, uri ->
+      Log.i("ExternalStorage", "Scanned $path:")
+      Log.i("ExternalStorage", "-> uri=$uri")
+    }
   }
 }
