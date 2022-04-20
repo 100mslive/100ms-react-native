@@ -1,31 +1,17 @@
 import React from 'react';
-import type {
-  HMSLocalAudioStats,
-  HMSLocalVideoStats,
-  HMSPeer,
-  HMSRTCStatsReport,
-  HMSSDK,
-  HMSSpeaker,
-} from '@100mslive/react-native-hms';
+import type {HMSSDK, HMSSpeaker} from '@100mslive/react-native-hms';
 
 import {pairDataForFlatlist} from '../../utils/functions';
-import type {LayoutParams, ModalTypes, PeerTrackNode} from '../../utils/types';
+import type {LayoutParams, PeerTrackNode} from '../../utils/types';
 import {GridView} from './Grid';
 
 type ActiveSpeakerViewProps = {
+  peerTrackNodes: PeerTrackNode[];
   speakers: HMSSpeaker[];
-  instance: HMSSDK | undefined;
+  instance?: HMSSDK;
   layout: LayoutParams;
-  statsForNerds: boolean;
-  rtcStats: HMSRTCStatsReport | undefined;
-  remoteAudioStats: any;
-  remoteVideoStats: any;
-  localAudioStats: HMSLocalAudioStats;
-  localVideoStats: HMSLocalVideoStats;
-  setPage: React.Dispatch<React.SetStateAction<number>>;
-  setModalVisible: React.Dispatch<React.SetStateAction<ModalTypes>>;
-  setZoomableTrackId: React.Dispatch<React.SetStateAction<string>>;
   page: number;
+  setPage: React.Dispatch<React.SetStateAction<number>>;
 };
 
 const includesPeerId = (speakers: PeerTrackNode[], peerId: string): boolean => {
@@ -67,10 +53,10 @@ const rearrangeActiveSpeakers = (
   }
 };
 
-const checkInPeerList = (peers: Array<HMSPeer>, id?: string): boolean => {
+const checkInPeerList = (peers: Array<PeerTrackNode>, id?: string): boolean => {
   let rt = false;
-  peers.map((peer: HMSPeer) => {
-    if (peer.peerID === id) {
+  peers.map(peerTrackNode => {
+    if (peerTrackNode.peer.peerID === id) {
       rt = true;
     }
   });
@@ -80,7 +66,7 @@ const checkInPeerList = (peers: Array<HMSPeer>, id?: string): boolean => {
 let recentActiveSpeakers: PeerTrackNode[] = [];
 
 const getActiveSpeakers = (
-  peers: Array<HMSPeer>,
+  peers: Array<PeerTrackNode>,
   speakers: Array<HMSSpeaker>,
   speakerIds: Array<string>,
 ): PeerTrackNode[] => {
@@ -96,17 +82,13 @@ const getActiveSpeakers = (
   let speakersRequired = peers.length - currentActiveSpeakers.length;
 
   if (recentActiveSpeakers.length === 0) {
-    peers.map(peer => {
+    peers.map(peerTrackNode => {
       if (
         speakersRequired > 0 &&
-        !speakerIds.includes(peer.peerID) &&
-        !includesPeerId(currentActiveSpeakers, peer.peerID)
+        !speakerIds.includes(peerTrackNode.peer.peerID) &&
+        !includesPeerId(currentActiveSpeakers, peerTrackNode.peer.peerID)
       ) {
-        currentActiveSpeakers.push({
-          id: peer.peerID + 'regular',
-          peer,
-          track: peer.videoTrack,
-        });
+        currentActiveSpeakers.push(peerTrackNode);
         speakersRequired--;
       }
     });
@@ -123,22 +105,22 @@ const getActiveSpeakers = (
         ) &&
         checkInPeerList(peers, peerTrackNode?.peer?.peerID)
       ) {
-        currentActiveSpeakers.push(peerTrackNode);
+        const updatedPeerTrackNode = getUpdatedPeerTrackNode(
+          peerTrackNode,
+          peers,
+        );
+        currentActiveSpeakers.push(updatedPeerTrackNode);
         speakersRequired--;
       }
     });
 
-    peers.map(peer => {
+    peers.map(peerTrackNode => {
       if (
         speakersRequired > 0 &&
-        !speakerIds.includes(peer.peerID) &&
-        !includesPeerId(currentActiveSpeakers, peer.peerID)
+        !speakerIds.includes(peerTrackNode.peer.peerID) &&
+        !includesPeerId(currentActiveSpeakers, peerTrackNode.peer.peerID)
       ) {
-        currentActiveSpeakers.push({
-          id: peer.peerID + 'regular',
-          peer,
-          track: peer.videoTrack,
-        });
+        currentActiveSpeakers.push(peerTrackNode);
         speakersRequired--;
       }
     });
@@ -149,48 +131,38 @@ const getActiveSpeakers = (
   }
 };
 
+const getUpdatedPeerTrackNode = (
+  oldPeerTrackNode: PeerTrackNode,
+  peerTrackNodes: PeerTrackNode[],
+) => {
+  let updatedPeerTrackNode = oldPeerTrackNode;
+  peerTrackNodes.map(peerTrackNode => {
+    if (oldPeerTrackNode.id === peerTrackNode.id) {
+      updatedPeerTrackNode = peerTrackNode;
+    }
+  });
+  return updatedPeerTrackNode;
+};
+
 const ActiveSpeakerView = ({
+  peerTrackNodes,
   speakers,
   instance,
   layout,
-  statsForNerds,
-  rtcStats,
-  remoteAudioStats,
-  remoteVideoStats,
-  localAudioStats,
-  localVideoStats,
   setPage,
   page,
-  setModalVisible,
-  setZoomableTrackId,
 }: ActiveSpeakerViewProps) => {
-  const currentPeers: HMSPeer[] = [];
-  if (instance?.localPeer) {
-    currentPeers.push(instance.localPeer);
-  }
-  if (instance?.remotePeers) {
-    currentPeers.push(...instance.remotePeers);
-  }
-
   const speakerIds = speakers?.map(speaker => speaker?.peer?.peerID);
-  const data = getActiveSpeakers(currentPeers, speakers, speakerIds);
+  const data = getActiveSpeakers(peerTrackNodes, speakers, speakerIds);
   const pairedPeers: Array<Array<PeerTrackNode>> = pairDataForFlatlist(data, 4);
 
   return (
     <GridView
-      setModalVisible={setModalVisible}
-      setZoomableTrackId={setZoomableTrackId}
       pairedPeers={pairedPeers}
       setPage={setPage}
       speakers={speakers}
       instance={instance}
       layout={layout}
-      statsForNerds={statsForNerds}
-      rtcStats={rtcStats}
-      remoteAudioStats={remoteAudioStats}
-      remoteVideoStats={remoteVideoStats}
-      localAudioStats={localAudioStats}
-      localVideoStats={localVideoStats}
       page={page}
     />
   );

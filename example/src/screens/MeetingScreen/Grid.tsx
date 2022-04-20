@@ -23,18 +23,18 @@ import {
 type GridViewProps = {
   pairedPeers: PeerTrackNode[][];
   speakers: HMSSpeaker[];
-  instance: HMSSDK | undefined;
+  instance?: HMSSDK;
   layout: LayoutParams;
-  statsForNerds: boolean;
-  rtcStats: HMSRTCStatsReport | undefined;
-  remoteAudioStats: any;
-  remoteVideoStats: any;
-  localAudioStats: HMSLocalAudioStats;
-  localVideoStats: HMSLocalVideoStats;
+  statsForNerds?: boolean;
+  rtcStats?: HMSRTCStatsReport;
+  remoteAudioStats?: any;
+  remoteVideoStats?: any;
+  localAudioStats?: HMSLocalAudioStats;
+  localVideoStats?: HMSLocalVideoStats;
   page: number;
-  setModalVisible: React.Dispatch<React.SetStateAction<ModalTypes>>;
+  setModalVisible?: React.Dispatch<React.SetStateAction<ModalTypes>>;
   setPage: React.Dispatch<React.SetStateAction<number>>;
-  setZoomableTrackId: React.Dispatch<React.SetStateAction<string>>;
+  setZoomableTrackId?: React.Dispatch<React.SetStateAction<string>>;
 };
 
 const GridView = ({
@@ -99,8 +99,9 @@ const GridView = ({
                         if (doublePress === 2) {
                           console.log('Double Tap');
                           doublePress = 0;
-                          setModalVisible(ModalTypes.ZOOM);
-                          setZoomableTrackId(view.track?.trackId!);
+                          setModalVisible && setModalVisible(ModalTypes.ZOOM);
+                          setZoomableTrackId &&
+                            setZoomableTrackId(view.track?.trackId!);
                         } else {
                           setTimeout(() => {
                             doublePress = 0;

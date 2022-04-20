@@ -1262,16 +1262,9 @@ const Meeting = () => {
           <ActiveSpeakerView
             speakers={speakers}
             instance={instance}
+            peerTrackNodes={peerTrackNodes}
             layout={layout}
-            statsForNerds={statsForNerds}
-            rtcStats={rtcStats}
-            remoteAudioStats={remoteAudioStats}
-            remoteVideoStats={remoteVideoStats}
-            localAudioStats={localAudioStats}
-            localVideoStats={localVideoStats}
             setPage={setPage}
-            setModalVisible={setModalVisible}
-            setZoomableTrackId={setZoomableTrackId}
             page={page}
           />
         ) : layout === LayoutParams.HERO ? (

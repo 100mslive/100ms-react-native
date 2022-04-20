@@ -84,7 +84,6 @@ const DisplayTrack = ({
   const modalTitle = 'Set Volume';
   const HmsViewComponent = instance?.HmsView;
   const knownRoles = instance?.knownRoles || [];
-  const isDegraded = peerTrackNode.track?.isDegraded || false;
   const speaking = speakerIds?.length ? speakerIds.includes(id!) : false;
 
   const modalButtons: [
@@ -348,7 +347,7 @@ const DisplayTrack = ({
   };
 
   return HmsViewComponent ? (
-    <View key={id} style={[videoStyles, speaking && styles.highlight]}>
+    <View style={[videoStyles, speaking && styles.highlight]}>
       <AlertModal
         modalVisible={alertModalVisible}
         setModalVisible={setAlertModalVisible}
@@ -440,7 +439,7 @@ const DisplayTrack = ({
               type === TrackType.SCREEN ? styles.hmsViewScreen : styles.hmsView
             }
           />
-          {isDegraded && (
+          {peerTrackNode.track?.isDegraded && (
             <View style={styles.degradedContainer}>
               <View style={styles.avatarContainer}>
                 <Text style={styles.degradedText}>Degraded</Text>
