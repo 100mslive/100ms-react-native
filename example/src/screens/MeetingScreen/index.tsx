@@ -53,6 +53,8 @@ import RNFetchBlob from 'rn-fetch-blob';
 import {Picker} from '@react-native-picker/picker';
 import Video from 'react-native-video';
 
+import {styles} from './styles';
+import type {AppStackParamList} from '../../navigator';
 import {
   ChatWindow,
   AlertModal,
@@ -62,21 +64,20 @@ import {
   UserIdModal,
 } from '../../components';
 import {addMessage, clearMessageData, saveUserData} from '../../redux/actions';
+import type {RootState} from '../../redux';
 import dimension from '../../utils/dimension';
 import {
   pairDataForFlatlist,
   getRoomIdDetails,
   parseMetadata,
   writeFile,
-  checkPermissionToWriteExternalStroage,
+  requestExternalStoragePermission,
 } from '../../utils/functions';
-import {styles} from './styles';
+import {LayoutParams, ModalTypes, PeerTrackNode} from '../../utils/types';
 import {GridView} from './Grid';
 import {ActiveSpeakerView} from './ActiveSpeakerView';
-import type {RootState} from '../../redux';
-import type {AppStackParamList} from '../../navigator';
-import {LayoutParams, ModalTypes, PeerTrackNode} from '../../utils/types';
 import {HeroView} from './HeroView';
+import {MiniView} from './MiniView';
 
 type MessageObject = {
   name: string;
@@ -312,7 +313,7 @@ const Meeting = () => {
           {
             text: 'Report issue and share logs',
             onPress: async () => {
-              const permission = await checkPermissionToWriteExternalStroage();
+              const permission = await requestExternalStoragePermission();
               if (permission) {
                 await reportIssue();
               }
@@ -1120,6 +1121,7 @@ const Meeting = () => {
             {name: LayoutParams.AUDIO},
             {name: LayoutParams.ACTIVE_SPEAKER},
             {name: LayoutParams.HERO},
+            {name: LayoutParams.MINI},
           ].map((item, index) => (
             <Picker.Item key={index} label={item.name} value={item.name} />
           ))}
@@ -1231,6 +1233,31 @@ const Meeting = () => {
               <Text>Waiting for the Streaming to start...</Text>
             </View>
           )
+        ) : fetchZoomableId(zoomableTrackId) &&
+          modalVisible === ModalTypes.ZOOM ? (
+          <View>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => {
+                setModalVisible(ModalTypes.DEFAULT);
+              }}>
+              <Entypo
+                name={'circle-with-cross'}
+                style={styles.videoIcon}
+                size={dimension.viewHeight(50)}
+              />
+            </TouchableOpacity>
+            <ZoomableView>
+              {HmsViewComponent && (
+                <HmsViewComponent
+                  trackId={zoomableTrackId}
+                  mirror={false}
+                  scaleType={HMSVideoViewMode.ASPECT_FIT}
+                  style={styles.hmsViewScreen}
+                />
+              )}
+            </ZoomableView>
+          </View>
         ) : layout === LayoutParams.ACTIVE_SPEAKER ? (
           <ActiveSpeakerView
             speakers={speakers}
@@ -1253,9 +1280,9 @@ const Meeting = () => {
             instance={instance}
             setModalVisible={setModalVisible}
           />
-        ) : !(
-            fetchZoomableId(zoomableTrackId) && modalVisible === ModalTypes.ZOOM
-          ) ? (
+        ) : layout === LayoutParams.MINI ? (
+          <MiniView speakers={speakers} instance={instance} />
+        ) : (
           <GridView
             speakers={speakers}
             pairedPeers={pairedPeers}
@@ -1272,30 +1299,6 @@ const Meeting = () => {
             localVideoStats={localVideoStats}
             page={page}
           />
-        ) : (
-          <View>
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => {
-                setModalVisible(ModalTypes.ZOOM);
-              }}>
-              <Entypo
-                name={'circle-with-cross'}
-                style={styles.videoIcon}
-                size={dimension.viewHeight(50)}
-              />
-            </TouchableOpacity>
-            <ZoomableView>
-              {HmsViewComponent && (
-                <HmsViewComponent
-                  trackId={zoomableTrackId}
-                  mirror={false}
-                  scaleType={HMSVideoViewMode.ASPECT_FIT}
-                  style={styles.hmsViewScreen}
-                />
-              )}
-            </ZoomableView>
-          </View>
         )}
       </View>
       <View style={styles.iconContainers}>

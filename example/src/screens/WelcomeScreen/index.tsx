@@ -11,7 +11,6 @@ import {
   Alert,
   Linking,
   AppState,
-  PermissionsAndroid,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import HmsManager, {
@@ -59,6 +58,7 @@ import {
   tokenFromLinkService,
   getMeetingUrl,
   getRoomIdDetails,
+  requestExternalStoragePermission,
 } from '../../utils/functions';
 import {styles} from './styles';
 import type {AppStackParamList} from '../../navigator';
@@ -386,41 +386,6 @@ const App = () => {
     }
   };
 
-  const checkPermissionToWriteExternalStroage = async () => {
-    // Function to check the platform
-    // If Platform is Android then check for permissions.
-    if (Platform.OS === 'ios') {
-      await reportIssue();
-    } else {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-          {
-            title: 'Storage Permission Required',
-            message:
-              'Application needs access to your storage to download File',
-            buttonPositive: 'true',
-          },
-        );
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          // Start downloading
-          await reportIssue();
-          console.log('Storage Permission Granted.');
-        } else {
-          // If permission denied then show alert
-          Toast.showWithGravity(
-            'Storage Permission Not Granted',
-            Toast.LONG,
-            Toast.TOP,
-          );
-        }
-      } catch (err) {
-        // To handle permission related exception
-        console.log('checkPermissionToWriteExternalStroage: ' + err);
-      }
-    }
-  };
-
   const getSettingButtons = () => {
     const buttons: Array<{text: string; type?: string; onPress?: Function}> = [
       {
@@ -430,7 +395,10 @@ const App = () => {
       {
         text: 'Report issue and share logs',
         onPress: async () => {
-          await checkPermissionToWriteExternalStroage();
+          const granted = await requestExternalStoragePermission();
+          if (granted) {
+            await reportIssue();
+          }
         },
       },
       {

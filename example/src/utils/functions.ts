@@ -154,42 +154,41 @@ export const parseMetadata = (
   return {};
 };
 
-export const checkPermissionToWriteExternalStroage =
-  async (): Promise<boolean> => {
-    // Function to check the platform
-    // If Platform is Android then check for permissions.
-    if (Platform.OS === 'ios') {
-      return true;
-    } else {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-          {
-            title: 'Storage Permission Required',
-            message:
-              'Application needs access to your storage to download File',
-            buttonPositive: 'true',
-          },
+export const requestExternalStoragePermission = async (): Promise<boolean> => {
+  // Function to check the platform
+  // If Platform is Android then check for permissions.
+  if (Platform.OS === 'ios') {
+    return true;
+  } else {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        {
+          title: 'Storage Permission Required',
+          message: 'Application needs access to your storage to download File',
+          buttonPositive: 'true',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        // Start downloading
+        console.log('Storage Permission Granted.');
+        return true;
+      } else {
+        // If permission denied then show alert
+        Toast.showWithGravity(
+          'Storage Permission Not Granted',
+          Toast.LONG,
+          Toast.TOP,
         );
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          // Start downloading
-          console.log('Storage Permission Granted.');
-          return true;
-        } else {
-          // If permission denied then show alert
-          Toast.showWithGravity(
-            'Storage Permission Not Granted',
-            Toast.LONG,
-            Toast.TOP,
-          );
-        }
-      } catch (err) {
-        // To handle permission related exception
-        console.log('checkPermissionToWriteExternalStroage: ' + err);
+        console.log('Storage Permission Not Granted');
       }
+    } catch (err) {
+      // To handle permission related exception
+      console.log('checkPermissionToWriteExternalStroage: ' + err);
     }
-    return false;
-  };
+  }
+  return false;
+};
 
 export const callService = async (
   userID: string,

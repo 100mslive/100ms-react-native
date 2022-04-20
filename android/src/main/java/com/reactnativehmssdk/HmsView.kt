@@ -2,8 +2,10 @@ package com.reactnativehmssdk
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
 import android.view.LayoutInflater
 import android.widget.FrameLayout
+import androidx.annotation.RequiresApi
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.WritableMap
@@ -19,15 +21,22 @@ class HmsView(context: ReactContext) : FrameLayout(context) {
   private var surfaceView: SurfaceViewRenderer = SurfaceViewRenderer(context)
   private var videoTrack: HMSVideoTrack? = null
   private var scaleTypeApplied: Boolean = false
+  private var sdkId: String = "12345"
   private var currentScaleType: RendererCommon.ScalingType =
-      RendererCommon.ScalingType.SCALE_ASPECT_FILL
+    RendererCommon.ScalingType.SCALE_ASPECT_FILL
 
   init {
-    val inflater = getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    val inflater =
+      getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     val view = inflater.inflate(R.layout.hms_view, this)
 
     surfaceView = view.findViewById(R.id.surfaceView)
     surfaceView.setEnableHardwareScaler(true)
+  }
+
+  @RequiresApi(Build.VERSION_CODES.N)
+  fun captureHmsView() {
+    HmsHelper.captureSurfaceView(surfaceView, context, sdkId)
   }
 
   private fun onReceiveNativeEvent() {
@@ -52,6 +61,13 @@ class HmsView(context: ReactContext) : FrameLayout(context) {
         onReceiveNativeEvent()
       }
       scaleTypeApplied = true
+    }
+  }
+
+  fun updateZOrderMediaOverlay(setZOrderMediaOverlay: Boolean?) {
+    if (setZOrderMediaOverlay != null && setZOrderMediaOverlay) {
+      // surfaceView.setZOrderOnTop(true);
+      surfaceView.setZOrderMediaOverlay(setZOrderMediaOverlay)
     }
   }
 
@@ -81,12 +97,11 @@ class HmsView(context: ReactContext) : FrameLayout(context) {
   }
 
   fun setData(
-      id: String?,
-      trackId: String?,
-      hmsCollection: MutableMap<String, HmsSDK>,
-      mirror: Boolean?
+    id: String?,
+    trackId: String?,
+    hmsCollection: MutableMap<String, HmsSDK>,
+    mirror: Boolean?
   ) {
-    var sdkId = "12345"
     if (id != null) {
       sdkId = id
     }

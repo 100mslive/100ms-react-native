@@ -17,7 +17,11 @@ import {Slider} from '@miblanchard/react-native-slider';
 
 import {AlertModal, CustomModal, RolePicker} from '../../components';
 import dimension from '../../utils/dimension';
-import {getInitials, parseMetadata} from '../../utils/functions';
+import {
+  getInitials,
+  parseMetadata,
+  requestExternalStoragePermission,
+} from '../../utils/functions';
 import {styles} from './styles';
 import {
   LayoutParams,
@@ -38,6 +42,7 @@ type DisplayTrackProps = {
   localAudioStats?: HMSLocalAudioStats;
   localVideoStats?: HMSLocalVideoStats;
   speakerIds?: Array<string>;
+  miniView?: boolean;
   instance: HMSSDK | undefined;
   peerTrackNode: PeerTrackNode;
   videoStyles: any;
@@ -55,6 +60,7 @@ const DisplayTrack = ({
   localAudioStats,
   localVideoStats,
   setModalVisible,
+  miniView,
 }: DisplayTrackProps) => {
   const {mirrorLocalVideo} = useSelector((state: RootState) => state.user);
   const isVideoMute = peerTrackNode.track?.isMute();
@@ -74,6 +80,7 @@ const DisplayTrack = ({
   const [force, setForce] = useState(false);
   const [volumeModal, setVolumeModal] = useState(false);
   const [volume, setVolume] = useState(1);
+  const [screenshot, setScreenshot] = useState(false);
   const modalTitle = 'Set Volume';
   const HmsViewComponent = instance?.HmsView;
   const knownRoles = instance?.knownRoles || [];
@@ -154,6 +161,18 @@ const DisplayTrack = ({
         setVolumeModal(true);
       },
     },
+    {
+      text: 'Take Screenshot',
+      onPress: async () => {
+        const granted = await requestExternalStoragePermission();
+        if (granted) {
+          setScreenshot(true);
+          setTimeout(() => {
+            setScreenshot(false);
+          }, 1000);
+        }
+      },
+    },
   ];
 
   const selectLocalActionButtons: Array<{
@@ -166,6 +185,18 @@ const DisplayTrack = ({
       text: 'Change Name',
       onPress: () => {
         setModalVisible && setModalVisible(ModalTypes.CHANGE_NAME);
+      },
+    },
+    {
+      text: 'Take Screenshot',
+      onPress: async () => {
+        const granted = await requestExternalStoragePermission();
+        if (granted) {
+          setScreenshot(true);
+          setTimeout(() => {
+            setScreenshot(false);
+          }, 1000);
+        }
       },
     },
   ];
@@ -181,6 +212,18 @@ const DisplayTrack = ({
       text: 'Set Volume',
       onPress: () => {
         setVolumeModal(true);
+      },
+    },
+    {
+      text: 'Take Screenshot',
+      onPress: async () => {
+        const granted = await requestExternalStoragePermission();
+        if (granted) {
+          setScreenshot(true);
+          setTimeout(() => {
+            setScreenshot(false);
+          }, 1000);
+        }
       },
     },
     {
@@ -380,8 +423,14 @@ const DisplayTrack = ({
       ) : (
         <View style={styles.flex}>
           <HmsViewComponent
+            screenshot={screenshot}
+            setZOrderMediaOverlay={miniView}
             trackId={peerTrackNode.track?.trackId!}
-            mirror={type === TrackType.LOCAL ? mirrorLocalVideo : false}
+            mirror={
+              type === TrackType.LOCAL && mirrorLocalVideo !== undefined
+                ? mirrorLocalVideo
+                : false
+            }
             scaleType={
               type === TrackType.SCREEN
                 ? HMSVideoViewMode.ASPECT_FIT

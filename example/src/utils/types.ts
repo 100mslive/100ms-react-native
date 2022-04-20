@@ -5,19 +5,13 @@ export type PeerTrackNode = {
   peer: HMSPeer;
   track?: HMSVideoTrack;
 };
-export type Peer = {
-  ref?: HMSPeer;
-  isAudioMute: boolean;
-  isVideoMute: boolean;
-  name: string;
-  type: TrackType;
-};
 
 export enum LayoutParams {
   AUDIO = 'audio',
   GRID = 'grid',
   ACTIVE_SPEAKER = 'active speaker',
   HERO = 'hero',
+  MINI = 'mini',
   DEFAULT = '',
 }
 
