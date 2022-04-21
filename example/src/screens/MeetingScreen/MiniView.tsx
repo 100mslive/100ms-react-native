@@ -67,7 +67,7 @@ const MiniView = ({instance, speakers}: MiniViewProps) => {
             <DisplayTrack
               peerTrackNode={mainSpeaker}
               instance={instance}
-              videoStyles={() => styles.heroView}
+              videoStyles={styles.heroView}
             />
           </View>
         )}
@@ -85,7 +85,7 @@ const MiniView = ({instance, speakers}: MiniViewProps) => {
                 miniView={true}
                 peerTrackNode={miniSpeaker}
                 instance={instance}
-                videoStyles={() => styles.heroView}
+                videoStyles={styles.heroView}
               />
             </Animated.View>
           </PanGestureHandler>
