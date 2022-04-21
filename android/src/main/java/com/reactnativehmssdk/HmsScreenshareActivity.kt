@@ -37,10 +37,15 @@ class HmsScreenshareActivity : ComponentActivity() {
           )
         } else {
           val id = intent.getStringExtra("id")
-          val data: WritableMap = Arguments.createMap()
-          data.putBoolean("success", true)
-          data.putString("message", "RESULT_CANCELED")
-          HmsModule.hmsCollection[id]?.screenshareCallback?.resolve(data)
+          val error = HMSException(
+            103,
+            "RESULT_CANCELED",
+            "RESULT_CANCELED",
+            "RESULT_CANCELED",
+            "RESULT_CANCELED"
+          )
+          HmsModule.hmsCollection[id]?.screenshareCallback?.reject(error)
+          HmsModule.hmsCollection[id]?.emitHMSError(error)
           finish()
         }
       }
