@@ -19,7 +19,7 @@ import type { HMSTrack } from './HMSTrack';
 import type { HMSTrackType } from './HMSTrackType';
 import type { HMSLogger } from './HMSLogger';
 import type { HMSPeer } from './HMSPeer';
-import { HmsView as HMSViewComponent } from './HmsView';
+import { HmsViewComponent } from './HmsView';
 import type { HMSVideoViewMode } from './HMSVideoViewMode';
 import type { HMSTrackSettings } from './HMSTrackSettings';
 import type { HMSRTMPConfig } from './HMSRTMPConfig';
@@ -29,14 +29,13 @@ import { HMSLocalVideoStats } from './HMSLocalVideoStats';
 import { HMSRemoteVideoStats } from './HMSRemoteVideoStats';
 import { HMSRemoteAudioStats } from './HMSRemoteAudioStats';
 
-interface HmsComponentProps {
+interface HmsViewProps {
   trackId: string;
   sink: boolean;
   style: ViewStyle;
   mirror?: boolean;
   scaleType?: HMSVideoViewMode;
-  screenshot?: boolean;
-  id?: string | null;
+  id?: string;
   setZOrderMediaOverlay?: boolean;
 }
 
@@ -390,28 +389,29 @@ export class HMSSDK {
    * @param {HmsComponentProps}
    * @memberof HMSSDK
    */
-  HmsView = ({
-    sink,
-    trackId,
-    style,
-    mirror,
-    scaleType,
-    screenshot,
-    setZOrderMediaOverlay,
-  }: HmsComponentProps) => {
+  HmsView = React.forwardRef<any, HmsViewProps>((props, ref) => {
+    const {
+      sink,
+      trackId,
+      style,
+      mirror,
+      scaleType,
+      setZOrderMediaOverlay,
+      id = this.id,
+    } = props;
     return (
-      <HMSViewComponent
+      <HmsViewComponent
+        ref={ref}
         sink={sink}
         trackId={trackId}
         style={style}
         setZOrderMediaOverlay={setZOrderMediaOverlay}
         mirror={mirror}
         scaleType={scaleType}
-        id={this.id}
-        screenshot={screenshot}
+        id={id}
       />
     );
-  };
+  });
 
   /**
    * Calls leave function of native sdk and session of current user is invalidated.

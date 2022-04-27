@@ -1,7 +1,10 @@
 package com.reactnativehmssdk
 
 import android.os.Build
+import androidx.annotation.NonNull
+import androidx.annotation.Nullable
 import androidx.annotation.RequiresApi
+import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.common.MapBuilder
 import com.facebook.react.uimanager.SimpleViewManager
@@ -30,6 +33,32 @@ class HmssdkViewManager : SimpleViewManager<HmsView>() {
         .build()
   }
 
+  override fun getExportedCustomDirectEventTypeConstants(): MutableMap<String, Any>? {
+    return MapBuilder.of(
+        "captureFrame",
+        MapBuilder.of("registrationName", "onDataReturned"),
+    )
+  }
+
+  @RequiresApi(Build.VERSION_CODES.N)
+  override fun receiveCommand(@NonNull root: HmsView, commandId: String?, args: ReadableArray?) {
+    when (commandId) {
+      "capture" -> root.captureHmsView(args)
+    }
+  }
+
+  @RequiresApi(Build.VERSION_CODES.N)
+  override fun receiveCommand(@NonNull root: HmsView, commandId: Int, args: ReadableArray?) {
+    when (commandId) {
+      1 -> root.captureHmsView(args)
+    }
+  }
+
+  @Nullable
+  override fun getCommandsMap(): Map<String, Int>? {
+    return MapBuilder.of("capture", 1)
+  }
+
   @ReactProp(name = "data")
   fun setData(view: HmsView, data: ReadableMap) {
     val trackId = data.getString("trackId")
@@ -49,14 +78,6 @@ class HmssdkViewManager : SimpleViewManager<HmsView>() {
   @ReactProp(name = "setZOrderMediaOverlay")
   fun setZOrderMediaOverlay(view: HmsView, data: Boolean?) {
     view.updateZOrderMediaOverlay(data)
-  }
-  
-  @RequiresApi(Build.VERSION_CODES.N)
-  @ReactProp(name = "screenshot")
-  fun setCaptureHmsView(view: HmsView, screenshot: Boolean?) {
-    if(screenshot == true){
-      view.captureHmsView()
-    }
   }
 
   private fun getHms(): MutableMap<String, HmsSDK>? {

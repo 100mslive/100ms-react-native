@@ -11,7 +11,7 @@ export const CustomModal = ({
   modalVisible: boolean;
   setModalVisible: any;
   title: String;
-  children: Element;
+  children: React.ReactNode;
   buttons: [
     {text: String; onPress?: Function},
     {text: String; onPress?: Function}?,
