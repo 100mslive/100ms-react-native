@@ -16,6 +16,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {Slider} from '@miblanchard/react-native-slider';
 import RNFS from 'react-native-fs';
 import CameraRoll from '@react-native-community/cameraroll';
+import Toast from 'react-native-simple-toast';
 
 import {AlertModal, CustomModal, RolePicker} from '../../components';
 import dimension from '../../utils/dimension';
@@ -298,12 +299,17 @@ const DisplayTrack = ({
               RNFS.writeFile(imagePath, d, 'base64')
                 .then(() => {
                   CameraRoll.save(imagePath, {type: 'photo'})
-                    .then(() =>
+                    .then(() => {
+                      Toast.showWithGravity(
+                        'Image converted to jpg and saved at ' + imagePath,
+                        Toast.LONG,
+                        Toast.TOP,
+                      );
                       console.log(
                         'Image converted to jpg and saved at ',
                         imagePath,
-                      ),
-                    )
+                      );
+                    })
                     .catch(err => console.log(err));
                 })
                 .catch(e => console.log(e));
