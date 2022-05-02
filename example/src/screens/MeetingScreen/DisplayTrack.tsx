@@ -68,7 +68,6 @@ const DisplayTrack = ({
     trackId,
     colour,
     id,
-    sink,
     peerReference,
     isAudioMute,
     isVideoMute,
@@ -406,7 +405,6 @@ const DisplayTrack = ({
           <HmsView
             ref={hmsViewRef}
             setZOrderMediaOverlay={miniView}
-            sink={sink}
             trackId={trackId!}
             mirror={
               type === 'local' && mirrorLocalVideo !== undefined

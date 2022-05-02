@@ -67,58 +67,6 @@ const HeroView = ({
     setPeers(newPeerList);
   }, [instance?.remotePeers, instance?.localPeer]);
 
-  const onViewRef = React.useRef(({viewableItems}: any) => {
-    if (viewableItems) {
-      const viewableItemsIds: (string | undefined)[] = [];
-      viewableItems.map(
-        (viewableItem: {
-          index: number;
-          item: Peer;
-          key: string;
-          isViewable: boolean;
-        }) => {
-          viewableItemsIds.push(viewableItem.item.trackId);
-        },
-      );
-
-      const newPeerList = [];
-      if (instance?.localPeer) {
-        newPeerList.push(decodePeer(instance?.localPeer));
-      }
-
-      if (instance?.remotePeers) {
-        instance.remotePeers.map(item => {
-          newPeerList.push(decodePeer(item));
-        });
-      }
-
-      if (newPeerList.length) {
-        const sinkRemoteTrackIds = newPeerList.map(
-          (peer: Peer, index: number) => {
-            const videoTrackId = peer.trackId;
-            if (videoTrackId) {
-              if (!viewableItemsIds?.includes(videoTrackId)) {
-                return {
-                  ...peer,
-                  sink: false,
-                };
-              }
-              return peer;
-            } else {
-              return {
-                ...peer,
-                trackId: index.toString(),
-                sink: false,
-                isVideoMute: true,
-              };
-            }
-          },
-        );
-        setPeers(sinkRemoteTrackIds ? sinkRemoteTrackIds : []);
-      }
-    }
-  });
-
   return (
     <View style={styles.heroContainer}>
       <View style={styles.heroTileContainer}>
@@ -157,7 +105,6 @@ const HeroView = ({
               </View>
             );
           }}
-          onViewableItemsChanged={onViewRef.current}
         />
       </View>
     </View>

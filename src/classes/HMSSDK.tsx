@@ -31,11 +31,9 @@ import { HMSRemoteAudioStats } from './HMSRemoteAudioStats';
 
 interface HmsViewProps {
   trackId: string;
-  sink: boolean;
-  style: ViewStyle;
+  style?: ViewStyle;
   mirror?: boolean;
   scaleType?: HMSVideoViewMode;
-  id?: string;
   setZOrderMediaOverlay?: boolean;
 }
 
@@ -381,7 +379,6 @@ export class HMSSDK {
   /**
    * - HmsView is react component that takes one track and starts showing that track on a tile.
    * - The appearance of tile is completely customizable with style prop.
-   * - setting sink true or false for a video tile will add or remove sink for a video.
    * - scale type can determine how the incoming video will fit in the canvas check {@link HMSVideoViewMode} for more information.
    *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/render-video} for more info
@@ -390,25 +387,16 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   HmsView = React.forwardRef<any, HmsViewProps>((props, ref) => {
-    const {
-      sink,
-      trackId,
-      style,
-      mirror,
-      scaleType,
-      setZOrderMediaOverlay,
-      id = this.id,
-    } = props;
+    const { trackId, style, mirror, scaleType, setZOrderMediaOverlay } = props;
     return (
       <HmsViewComponent
         ref={ref}
-        sink={sink}
         trackId={trackId}
         style={style}
         setZOrderMediaOverlay={setZOrderMediaOverlay}
         mirror={mirror}
         scaleType={scaleType}
-        id={id}
+        id={this.id}
       />
     );
   });

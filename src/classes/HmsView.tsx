@@ -11,7 +11,6 @@ import { HMSVideoViewMode } from './HMSVideoViewMode';
 interface HmsViewProps {
   data: {
     trackId: string;
-    sink: boolean;
     id: string;
     mirror: boolean;
   };
@@ -28,8 +27,7 @@ let _requestMap = new Map();
 
 interface HmsComponentProps {
   trackId: string;
-  sink: boolean;
-  style: ViewStyle;
+  style?: ViewStyle;
   mirror?: boolean;
   scaleType?: HMSVideoViewMode;
   setZOrderMediaOverlay?: boolean;
@@ -39,19 +37,18 @@ interface HmsComponentProps {
 export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
   (props, ref) => {
     const {
-      sink,
       trackId,
-      style,
-      id,
+      style = temporaryStyles.customStyle,
+      id = '12345',
       mirror = false,
       setZOrderMediaOverlay = false,
       scaleType = HMSVideoViewMode.ASPECT_FILL,
     } = props;
+
     const hmsViewRef: any = useRef();
     const [tempVal, setTempVal] = useState(0);
     const data = {
       trackId,
-      sink,
       id,
       mirror,
     };
