@@ -58,7 +58,7 @@ PODS:
     - FlipperKit/FlipperKitNetworkPlugin
   - glog (0.3.5)
   - hermes-engine (0.7.2)
-  - HMSSDK (0.2.9):
+  - HMSSDK (0.2.11):
     - HMSWebRTC (= 1.0.4518)
   - HMSWebRTC (1.0.4518)
   - libevent (2.1.12)
@@ -275,8 +275,8 @@ PODS:
     - React-jsi (= 0.64.2)
     - React-perflogger (= 0.64.2)
   - React-jsinspector (0.64.2)
-  - react-native-hms (0.9.4):
-    - HMSSDK (= 0.2.9)
+  - react-native-hms (0.9.5):
+    - HMSSDK (= 0.2.11)
     - React-Core
   - react-native-safe-area-context (3.4.1):
     - React-Core
@@ -562,7 +562,7 @@ SPEC CHECKSUMS:
   FlipperKit: 8a20b5c5fcf9436cac58551dc049867247f64b00
   glog: 73c2498ac6884b13ede40eda8228cb1eee9d9d62
   hermes-engine: 7d97ba46a1e29bacf3e3c61ecb2804a5ddd02d4f
-  HMSSDK: 080a5ebfbe96fa5a4005e9a43c9c6673e4d8181a
+  HMSSDK: b923aa800e01fe30af1403cbf2174a61fb31e023
   HMSWebRTC: 599fb1d886daecd6e58984f84224d708bce8b565
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   OpenSSL-Universal: 1aa4f6a6ee7256b83db99ec1ccdaa80d10f9af9b
@@ -579,7 +579,7 @@ SPEC CHECKSUMS:
   React-jsi: 67747b9722f6dab2ffe15b011bcf6b3f2c3f1427
   React-jsiexecutor: 80c46bd381fd06e418e0d4f53672dc1d1945c4c3
   React-jsinspector: cc614ec18a9ca96fd275100c16d74d62ee11f0ae
-  react-native-hms: 7ccddaeb0c3586cb5feb73316bd42340f41ca95a
+  react-native-hms: 30e796bfa55698154d02c6bbb71e601b93b54f5a
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
   react-native-simple-toast: bf002828cf816775a6809f7a9ec3907509bce11f
   react-native-video: a4c2635d0802f983594b7057e1bce8f442f0ad28
