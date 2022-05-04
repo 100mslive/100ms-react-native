@@ -1,7 +1,6 @@
 export * from './classes/HMSConfig';
 export * from './classes/HMSUpdateListenerActions';
 export * from './classes/HMSMessage';
-export * from './classes/HmsView';
 export * from './classes/HMSVideoTrackSettings';
 export * from './classes/HMSVideoTrack';
 export * from './classes/HMSVideoSettings';

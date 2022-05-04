@@ -6,7 +6,7 @@ import {
   PanGestureHandler,
 } from 'react-native-gesture-handler';
 
-const ZoomableView = ({children}: {children?: Element}) => {
+const ZoomableView = ({children}: {children?: React.ReactNode}) => {
   const scale = useRef(new Animated.Value(1)).current;
   const translateX = useRef(new Animated.Value(1)).current;
   const translateY = useRef(new Animated.Value(1)).current;

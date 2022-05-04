@@ -4,14 +4,13 @@ import type {
   HMSLocalAudioStats,
   HMSLocalVideoStats,
   HMSPermissions,
-  HMSRemotePeer,
   HMSRTCStatsReport,
   HMSSDK,
 } from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
 
-import {decodeRemotePeer, getHmsViewHeight} from '../../utils/functions';
+import {getHmsViewHeight} from '../../utils/functions';
 import {styles} from './styles';
 import {DisplayTrack} from './DisplayTrack';
 import type {RootState} from '../../redux';
@@ -22,7 +21,6 @@ type GridViewProps = {
   getAuxVideoStyles: Function;
   speakerIds: string[];
   instance: HMSSDK | undefined;
-  hmsInstance: HMSSDK | undefined;
   localPeerPermissions: HMSPermissions | undefined;
   layout: LayoutParams;
   state: RootState;
@@ -37,7 +35,6 @@ type GridViewProps = {
   setPage: React.Dispatch<React.SetStateAction<number>>;
   setZoomableModal: React.Dispatch<React.SetStateAction<boolean>>;
   setZoomableTrackId: React.Dispatch<React.SetStateAction<string>>;
-  setRemoteTrackIds: React.Dispatch<React.SetStateAction<Peer[]>>;
 };
 
 const GridView = ({
@@ -59,8 +56,6 @@ const GridView = ({
   localAudioStats,
   localVideoStats,
   page,
-  setRemoteTrackIds,
-  hmsInstance,
 }: GridViewProps) => {
   const {left, right, top, bottom} = useSafeAreaInsets();
   const flatlistRef = useRef<FlatList>(null);
@@ -68,52 +63,6 @@ const GridView = ({
   if (page + 1 > pairedPeers.length) {
     flatlistRef?.current?.scrollToEnd();
   }
-
-  const onViewRef = React.useRef(({viewableItems}: any) => {
-    if (viewableItems) {
-      const viewableItemsIds: (string | undefined)[] = [];
-      viewableItems.map(
-        (viewableItem: {
-          index: number;
-          item: Array<Peer>;
-          key: string;
-          isViewable: boolean;
-        }) => {
-          viewableItem?.item?.map((item: Peer) => {
-            viewableItemsIds.push(item?.trackId);
-          });
-        },
-      );
-
-      const inst = hmsInstance;
-      const remotePeers = inst?.remotePeers;
-      if (remotePeers) {
-        const sinkRemoteTrackIds = remotePeers.map(
-          (peer: HMSRemotePeer, index: number) => {
-            const remotePeer = decodeRemotePeer(peer, 'remote');
-            const videoTrackId = remotePeer.trackId;
-            if (videoTrackId) {
-              if (!viewableItemsIds?.includes(videoTrackId)) {
-                return {
-                  ...remotePeer,
-                  sink: false,
-                };
-              }
-              return remotePeer;
-            } else {
-              return {
-                ...remotePeer,
-                trackId: index.toString(),
-                sink: false,
-                isVideoMute: true,
-              };
-            }
-          },
-        );
-        setRemoteTrackIds(sinkRemoteTrackIds ? sinkRemoteTrackIds : []);
-      }
-    }
-  });
 
   return (
     <FlatList
@@ -202,7 +151,6 @@ const GridView = ({
         );
       }}
       numColumns={1}
-      onViewableItemsChanged={onViewRef.current}
       keyExtractor={item => item[0]?.id}
     />
   );

@@ -10,7 +10,7 @@ import { HMSUpdateListenerActions } from './HMSUpdateListenerActions';
 import { HMSEncoder } from './HMSEncoder';
 import { HMSMessage } from './HMSMessage';
 import { HMSHelper } from './HMSHelper';
-import { HmsView as HMSViewComponent } from './HmsView';
+import { HmsViewComponent } from './HmsView';
 import { HMSLocalAudioStats } from './HMSLocalAudioStats';
 import { HMSLocalVideoStats } from './HMSLocalVideoStats';
 import { HMSRemoteVideoStats } from './HMSRemoteVideoStats';
@@ -31,14 +31,11 @@ import type {
   HMSHLSConfig,
 } from '..';
 
-interface HmsComponentProps {
+interface HmsViewProps {
   trackId: string;
-  sink: boolean;
-  style: ViewStyle;
+  style?: ViewStyle;
   mirror?: boolean;
   scaleType?: HMSVideoViewMode;
-  screenshot?: boolean;
-  id?: string | null;
   setZOrderMediaOverlay?: boolean;
 }
 
@@ -384,7 +381,6 @@ export class HMSSDK {
   /**
    * - HmsView is react component that takes one track and starts showing that track on a tile.
    * - The appearance of tile is completely customizable with style prop.
-   * - setting sink true or false for a video tile will add or remove sink for a video.
    * - scale type can determine how the incoming video will fit in the canvas check {@link HMSVideoViewMode} for more information.
    *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/render-video} for more info
@@ -392,28 +388,20 @@ export class HMSSDK {
    * @param {HmsComponentProps}
    * @memberof HMSSDK
    */
-  HmsView = ({
-    sink,
-    trackId,
-    style,
-    mirror,
-    scaleType,
-    screenshot,
-    setZOrderMediaOverlay,
-  }: HmsComponentProps) => {
+  HmsView = React.forwardRef<any, HmsViewProps>((props, ref) => {
+    const { trackId, style, mirror, scaleType, setZOrderMediaOverlay } = props;
     return (
-      <HMSViewComponent
-        sink={sink}
+      <HmsViewComponent
+        ref={ref}
         trackId={trackId}
         style={style}
         setZOrderMediaOverlay={setZOrderMediaOverlay}
         mirror={mirror}
         scaleType={scaleType}
         id={this.id}
-        screenshot={screenshot}
       />
     );
-  };
+  });
 
   /**
    * Calls leave function of native sdk and session of current user is invalidated.

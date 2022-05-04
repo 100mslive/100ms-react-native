@@ -30,8 +30,6 @@ class HmssdkDisplayView: UIView {
     }()
 
     var hmsCollection: [String: HmsSDK] = [:]
-    var sinked = false
-    var sinkVideo = true
 
     func setHms(_ hmsInstance: [String: HmsSDK]) {
         hmsCollection = hmsInstance
@@ -61,8 +59,7 @@ class HmssdkDisplayView: UIView {
             let sdkID = data.value(forKey: "id") as? String ?? "12345"
 
             guard let hmsSDK = hmsCollection[sdkID]?.hms,
-                  let trackID = data.value(forKey: "trackId") as? String,
-                  let sink = data.value(forKey: "sink") as? Bool
+                  let trackID = data.value(forKey: "trackId") as? String
             else {
                 print(#function, "Required data to setup video view not found")
                 return
@@ -79,20 +76,11 @@ class HmssdkDisplayView: UIView {
             }
             
             if videoTrack != nil {
-                sinkVideo = sink
-
                 let mirror = data.value(forKey: "mirror") as? Bool
                 if mirror != nil {
                     videoView.mirror = mirror!
                 }
-
-                if !sinked && sinkVideo {
-                    videoView.setVideoTrack(videoTrack)
-                    sinked = true
-                } else if !sinkVideo {
-                    videoView.setVideoTrack(nil)
-                    sinked = false
-                }
+                videoView.setVideoTrack(videoTrack)
             } else {
                 print(#function, "Required data to setup video view not found")
                 return

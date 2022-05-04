@@ -8,6 +8,7 @@ import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactContext
+import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.uimanager.events.RCTEventEmitter
 import live.hms.video.media.tracks.HMSVideoTrack
@@ -23,11 +24,10 @@ class HmsView(context: ReactContext) : FrameLayout(context) {
   private var scaleTypeApplied: Boolean = false
   private var sdkId: String = "12345"
   private var currentScaleType: RendererCommon.ScalingType =
-    RendererCommon.ScalingType.SCALE_ASPECT_FILL
+      RendererCommon.ScalingType.SCALE_ASPECT_FILL
 
   init {
-    val inflater =
-      getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    val inflater = getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     val view = inflater.inflate(R.layout.hms_view, this)
 
     surfaceView = view.findViewById(R.id.surfaceView)
@@ -35,8 +35,8 @@ class HmsView(context: ReactContext) : FrameLayout(context) {
   }
 
   @RequiresApi(Build.VERSION_CODES.N)
-  fun captureHmsView() {
-    HmsHelper.captureSurfaceView(surfaceView, context, sdkId)
+  fun captureHmsView(args: ReadableArray?) {
+    HmsHelper.captureSurfaceView(surfaceView, sdkId, args, context, id)
   }
 
   private fun onReceiveNativeEvent() {
@@ -97,10 +97,10 @@ class HmsView(context: ReactContext) : FrameLayout(context) {
   }
 
   fun setData(
-    id: String?,
-    trackId: String?,
-    hmsCollection: MutableMap<String, HmsSDK>,
-    mirror: Boolean?
+      id: String?,
+      trackId: String?,
+      hmsCollection: MutableMap<String, HmsSDK>,
+      mirror: Boolean?
   ) {
     if (id != null) {
       sdkId = id
