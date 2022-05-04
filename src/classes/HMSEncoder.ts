@@ -1,35 +1,33 @@
-import { HMSTrack } from './HMSTrack';
-import { HMSAudioTrack } from './HMSAudioTrack';
-import { HMSVideoTrack } from './HMSVideoTrack';
-import { HMSRoom } from './HMSRoom';
-import { HMSPeer } from './HMSPeer';
-
-import { HMSLocalPeer } from './HMSLocalPeer';
-import { HMSRemotePeer } from './HMSRemotePeer';
-
-import { HMSAudioTrackSettings } from './HMSAudioTrackSettings';
-import { HMSVideoTrackSettings } from './HMSVideoTrackSettings';
-import { HMSLocalVideoTrack } from './HMSLocalVideoTrack';
-import { HMSLocalAudioTrack } from './HMSLocalAudioTrack';
-import { HMSRole } from './HMSRole';
-import { HMSRoleChangeRequest } from './HMSRoleChangeRequest';
-import { HMSChangeTrackStateRequest } from './HMSChangeTrackStateRequest';
-import { HMSVideoResolution } from './HMSVideoResolution';
-import { HMSRTCStats } from './HMSRTCStats';
-import { HMSRTCStatsReport } from './HMSRTCStatsReport';
-import { HMSRemoteAudioTrack } from './HMSRemoteAudioTrack';
-import { HMSRemoteVideoTrack } from './HMSRemoteVideoTrack';
-import { HMSSpeaker } from './HMSSpeaker';
-import { HMSSpeakerUpdate } from './HMSSpeakerUpdate';
 import {
+  HMSTrack,
+  HMSAudioTrack,
+  HMSVideoTrack,
+  HMSRoom,
+  HMSPeer,
+  HMSLocalPeer,
+  HMSRemotePeer,
+  HMSAudioTrackSettings,
+  HMSVideoTrackSettings,
+  HMSLocalVideoTrack,
+  HMSLocalAudioTrack,
+  HMSRole,
+  HMSRoleChangeRequest,
+  HMSChangeTrackStateRequest,
+  HMSVideoResolution,
+  HMSRTCStats,
+  HMSRTCStatsReport,
+  HMSRemoteAudioTrack,
+  HMSRemoteVideoTrack,
+  HMSSpeaker,
+  HMSSpeakerUpdate,
+  HMSHLSRecordingState,
+  HMSNetworkQuality,
   HMSBrowserRecordingState,
   HMSHLSStreamingState,
   HMSHLSVariant,
   HMSRtmpStreamingState,
   HMSServerRecordingState,
 } from '..';
-import { HMSHLSRecordingState } from './HMSHLSRecordingState';
-import { HMSNetworkQuality } from './HMSNetworkQuality';
 
 export class HMSEncoder {
   static encodeHmsRoom(room: HMSRoom, id: string) {
