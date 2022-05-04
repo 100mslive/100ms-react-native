@@ -8,7 +8,6 @@ type Peer = {
   isVideoMute: boolean;
   id?: string;
   colour: string;
-  sink: boolean;
   type: 'local' | 'remote' | 'screen';
   metadata?: {
     isHandRaised?: boolean;

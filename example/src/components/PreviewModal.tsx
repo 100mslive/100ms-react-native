@@ -50,7 +50,6 @@ export const PreviewModal = ({
       <View style={styles.modalContainer}>
         <HmsView
           scaleType={HMSVideoViewMode.ASPECT_FILL}
-          sink={true}
           style={styles.hmsView}
           trackId={trackId}
           mirror={mirrorLocalVideo}

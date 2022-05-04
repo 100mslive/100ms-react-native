@@ -192,10 +192,9 @@ const styles = StyleSheet.create({
 });
 
 // trackId can be acquired from the method explained above
-// sink is passed false video would be removed. It is a ios only prop, for android it is handled by the package itself.
 // scaleType can be selected from HMSVideoViewMode as required
 // mirror can be passed as true to flip videos horizontally
-<HmsView sink={true} style={styles.hmsView} trackId={trackId} mirror={true} scaleType={HMSVideoViewMode.ASPECT_FIT} />
+<HmsView style={styles.hmsView} trackId={trackId} mirror={true} scaleType={HMSVideoViewMode.ASPECT_FIT} />
 
 ...
 ```

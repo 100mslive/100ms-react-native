@@ -33,8 +33,6 @@ type ActiveSpeakerViewProps = {
   setZoomableTrackId: React.Dispatch<React.SetStateAction<string>>;
   getAuxVideoStyles: Function;
   page: number;
-  setRemoteTrackIds: React.Dispatch<React.SetStateAction<Peer[]>>;
-  hmsInstance: HMSSDK | undefined;
 };
 
 const includesPeerId = (speakers: Peer[], peerId: string): boolean => {
@@ -161,8 +159,6 @@ const ActiveSpeakerView = ({
   setZoomableTrackId,
   getAuxVideoStyles,
   page,
-  setRemoteTrackIds,
-  hmsInstance,
 }: ActiveSpeakerViewProps) => {
   const currentPeers: HMSPeer[] = [];
   if (instance?.localPeer) {
@@ -195,8 +191,6 @@ const ActiveSpeakerView = ({
       localAudioStats={localAudioStats}
       localVideoStats={localVideoStats}
       page={page}
-      setRemoteTrackIds={setRemoteTrackIds}
-      hmsInstance={hmsInstance}
     />
   );
 };
