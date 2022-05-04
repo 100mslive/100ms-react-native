@@ -311,7 +311,7 @@ const App = ({
     saveUserDataRequest({
       userName: userID,
       roomID: roomID.replace('meeting', 'preview'),
-      mirrorLocalVideo: !mirrorLocalVideo,
+      mirrorLocalVideo,
     });
     instance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
     if (skipPreview) {
@@ -358,7 +358,7 @@ const App = ({
     saveUserDataRequest({
       userName: userID,
       roomID: roomID.replace('meeting', 'preview'),
-      mirrorLocalVideo: !mirrorLocalVideo,
+      mirrorLocalVideo,
     });
     instance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
     if (skipPreview) {
@@ -373,6 +373,7 @@ const App = ({
     setPreviewButtonState('Active');
     setButtonState('Active');
     setPreviewModal(false);
+    setMirrorLocalVideo(false);
     setAudioVideoStateRequest({audioState: audio, videoState: video});
     navigate('MeetingScreen');
   };
@@ -380,7 +381,6 @@ const App = ({
   const joinRoom = () => {
     if (config !== null) {
       instance?.join(config);
-      setMirrorLocalVideo(false);
     } else {
       console.log('config: ', config);
     }
