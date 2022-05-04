@@ -7,27 +7,29 @@ import {
   AppState,
 } from 'react-native';
 import { HMSUpdateListenerActions } from './HMSUpdateListenerActions';
-import type { HMSConfig } from './HMSConfig';
-import type { HMSLocalPeer } from './HMSLocalPeer';
-import type { HMSRemotePeer } from './HMSRemotePeer';
-import type { HMSRoom } from './HMSRoom';
-import type { HMSRole } from './HMSRole';
 import { HMSEncoder } from './HMSEncoder';
 import { HMSMessage } from './HMSMessage';
 import { HMSHelper } from './HMSHelper';
-import type { HMSTrack } from './HMSTrack';
-import type { HMSTrackType } from './HMSTrackType';
-import type { HMSLogger } from './HMSLogger';
-import type { HMSPeer } from './HMSPeer';
 import { HmsView as HMSViewComponent } from './HmsView';
-import type { HMSVideoViewMode } from './HMSVideoViewMode';
-import type { HMSTrackSettings } from './HMSTrackSettings';
-import type { HMSRTMPConfig } from './HMSRTMPConfig';
-import type { HMSHLSConfig } from './HMSHLSConfig';
 import { HMSLocalAudioStats } from './HMSLocalAudioStats';
 import { HMSLocalVideoStats } from './HMSLocalVideoStats';
 import { HMSRemoteVideoStats } from './HMSRemoteVideoStats';
 import { HMSRemoteAudioStats } from './HMSRemoteAudioStats';
+import type {
+  HMSConfig,
+  HMSLocalPeer,
+  HMSRemotePeer,
+  HMSRoom,
+  HMSRole,
+  HMSTrack,
+  HMSTrackType,
+  HMSLogger,
+  HMSPeer,
+  HMSVideoViewMode,
+  HMSTrackSettings,
+  HMSRTMPConfig,
+  HMSHLSConfig,
+} from '..';
 
 interface HmsComponentProps {
   trackId: string;
