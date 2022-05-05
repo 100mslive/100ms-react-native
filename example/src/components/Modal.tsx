@@ -24,16 +24,18 @@ export const CustomModal = ({
       visible={modalVisible}
       supportedOrientations={['portrait', 'landscape']}
       onRequestClose={onRequestClose}>
-      <View style={styles.centeredView}>
+      <View
+        style={styles.centeredView}
+        onTouchEnd={() => {
+          onRequestClose();
+        }}>
         <View style={styles.modalView}>
           <View style={styles.titleContainer}>
             <Text style={styles.title}>{title}</Text>
           </View>
           <View>{children}</View>
           <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={onRequestClose}>
+            <TouchableOpacity style={styles.closeButton}>
               <Text numberOfLines={1} style={styles.closeButtonItemText}>
                 {buttons[0].text}
               </Text>
@@ -42,7 +44,6 @@ export const CustomModal = ({
               <TouchableOpacity
                 style={[styles.okButton]}
                 onPress={() => {
-                  onRequestClose();
                   buttons[1]?.onPress && buttons[1].onPress();
                 }}>
                 <Text numberOfLines={1} style={styles.okButtonItemText}>

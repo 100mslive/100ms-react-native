@@ -1,12 +1,15 @@
 import React from 'react';
 import {Modal, StyleSheet, Text, View, TouchableOpacity} from 'react-native';
+import {getVersion} from 'react-native-device-info';
 
 export const AlertModal = ({
   modalVisible,
   setModalVisible,
   title,
   buttons,
+  screen,
 }: {
+  screen?: String;
   modalVisible: boolean;
   setModalVisible: any;
   title: String;
@@ -22,17 +25,23 @@ export const AlertModal = ({
       visible={modalVisible}
       supportedOrientations={['portrait', 'landscape']}
       onRequestClose={onRequestClose}>
-      <View style={styles.centeredView}>
+      <View
+        style={styles.centeredView}
+        onTouchEnd={() => {
+          onRequestClose();
+        }}>
         <View style={styles.modalView}>
           <Text style={styles.title}>{title}</Text>
           {buttons.map((button, index) => (
             <TouchableOpacity
               key={index}
               onPress={() => {
-                onRequestClose();
                 button.onPress && button.onPress();
               }}
-              style={styles.buttonItem}>
+              style={[
+                styles.buttonItem,
+                index === buttons.length - 1 && styles.buttonItemLast,
+              ]}>
               <Text
                 style={[
                   styles.buttonItemText,
@@ -42,6 +51,10 @@ export const AlertModal = ({
               </Text>
             </TouchableOpacity>
           ))}
+          {screen !== undefined && screen === 'welcome' && (
+            <Text
+              style={styles.title}>{`App Version :    ${getVersion()}`}</Text>
+          )}
         </View>
       </View>
     </Modal>
@@ -97,6 +110,10 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: 'lightgrey',
     padding: 12,
+  },
+  buttonItemLast: {
+    borderBottomWidth: 1,
+    borderBottomColor: 'lightgrey',
   },
   buttonItemText: {
     alignSelf: 'center',

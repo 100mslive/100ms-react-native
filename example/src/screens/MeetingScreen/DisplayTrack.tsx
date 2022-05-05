@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import {View, TouchableOpacity, Text, Image} from 'react-native';
+import React, {useEffect, useRef, useState} from 'react';
+import {View, TouchableOpacity, Text, Image, Platform} from 'react-native';
 import {
   HMSRemotePeer,
   HMSVideoViewMode,
@@ -14,6 +14,9 @@ import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {Slider} from '@miblanchard/react-native-slider';
+import RNFS from 'react-native-fs';
+import CameraRoll from '@react-native-community/cameraroll';
+import Toast from 'react-native-simple-toast';
 
 import {AlertModal, CustomModal, RolePicker} from '../../components';
 import dimension from '../../utils/dimension';
@@ -80,9 +83,9 @@ const DisplayTrack = ({
   const [force, setForce] = useState(false);
   const [volumeModal, setVolumeModal] = useState(false);
   const [volume, setVolume] = useState(1);
-  const [screenshot, setScreenshot] = useState(false);
   const modalTitle = 'Set Volume';
-  const HmsViewComponent = instance?.HmsView;
+  const hmsViewRef: any = useRef();
+  const HmsView = instance?.HmsView;
   const knownRoles = instance?.knownRoles || [];
   const speaking = speakerIds?.length ? speakerIds.includes(id!) : false;
 
@@ -160,18 +163,6 @@ const DisplayTrack = ({
         setVolumeModal(true);
       },
     },
-    {
-      text: 'Take Screenshot',
-      onPress: async () => {
-        const granted = await requestExternalStoragePermission();
-        if (granted) {
-          setScreenshot(true);
-          setTimeout(() => {
-            setScreenshot(false);
-          }, 1000);
-        }
-      },
-    },
   ];
 
   const selectLocalActionButtons: Array<{
@@ -184,18 +175,6 @@ const DisplayTrack = ({
       text: 'Change Name',
       onPress: () => {
         setModalVisible && setModalVisible(ModalTypes.CHANGE_NAME);
-      },
-    },
-    {
-      text: 'Take Screenshot',
-      onPress: async () => {
-        const granted = await requestExternalStoragePermission();
-        if (granted) {
-          setScreenshot(true);
-          setTimeout(() => {
-            setScreenshot(false);
-          }, 1000);
-        }
       },
     },
   ];
@@ -211,18 +190,6 @@ const DisplayTrack = ({
       text: 'Set Volume',
       onPress: () => {
         setVolumeModal(true);
-      },
-    },
-    {
-      text: 'Take Screenshot',
-      onPress: async () => {
-        const granted = await requestExternalStoragePermission();
-        if (granted) {
-          setScreenshot(true);
-          setTimeout(() => {
-            setScreenshot(false);
-          }, 1000);
-        }
       },
     },
     {
@@ -341,12 +308,48 @@ const DisplayTrack = ({
       });
     }
   }
+  if (Platform.OS === 'android') {
+    const takeScreenshot = {
+      text: 'Take Screenshot',
+      onPress: async () => {
+        const granted = await requestExternalStoragePermission();
+        if (granted) {
+          hmsViewRef?.current
+            ?.capture()
+            .then(async (d: string) => {
+              const imagePath = `${RNFS.DownloadDirectoryPath}image.jpg`;
+              RNFS.writeFile(imagePath, d, 'base64')
+                .then(() => {
+                  CameraRoll.save(imagePath, {type: 'photo'})
+                    .then(() => {
+                      Toast.showWithGravity(
+                        'Image converted to jpg and saved at ' + imagePath,
+                        Toast.LONG,
+                        Toast.TOP,
+                      );
+                      console.log(
+                        'Image converted to jpg and saved at ',
+                        imagePath,
+                      );
+                    })
+                    .catch(err => console.log(err));
+                })
+                .catch(e => console.log(e));
+            })
+            .catch((e: any) => console.log(e));
+        }
+      },
+    };
+    selectAuxActionButtons.push(takeScreenshot);
+    selectRemoteActionButtons.push(takeScreenshot);
+    selectLocalActionButtons.push(takeScreenshot);
+  }
 
   const promptUser = () => {
     setAlertModalVisible(true);
   };
 
-  return HmsViewComponent ? (
+  return HmsView ? (
     <View style={[videoStyles, speaking && styles.highlight]}>
       <AlertModal
         modalVisible={alertModalVisible}
@@ -421,8 +424,8 @@ const DisplayTrack = ({
         </View>
       ) : (
         <View style={styles.flex}>
-          <HmsViewComponent
-            screenshot={screenshot}
+          <HmsView
+            ref={hmsViewRef}
             setZOrderMediaOverlay={miniView}
             trackId={peerTrackNode.track?.trackId!}
             mirror={
