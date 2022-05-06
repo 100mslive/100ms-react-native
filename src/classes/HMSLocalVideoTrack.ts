@@ -1,6 +1,6 @@
 import { NativeModules } from 'react-native';
 import { HMSVideoTrack } from './HMSVideoTrack';
-import { HMSSDK } from './HMSSDK';
+import { getLogger } from './HMSLogger';
 import type { HMSVideoTrackSettings } from './HMSVideoTrackSettings';
 import type { HMSTrackType } from './HMSTrackType';
 
@@ -23,7 +23,7 @@ export class HMSLocalVideoTrack extends HMSVideoTrack {
    * @memberof HMSSDK
    */
   switchCamera = () => {
-    const logger = HMSSDK.getLogger();
+    const logger = getLogger();
     logger?.verbose('#Function switchCamera', {
       trackId: this.trackId,
       source: this.source,
@@ -40,7 +40,7 @@ export class HMSLocalVideoTrack extends HMSVideoTrack {
    * @memberof HMSLocalVideoTrack
    */
   setMute(isMute: boolean) {
-    const logger = HMSSDK.getLogger();
+    const logger = getLogger();
     logger?.verbose('#Function setMute', {
       trackId: this.trackId,
       source: this.source,
