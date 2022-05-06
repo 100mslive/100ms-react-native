@@ -15,21 +15,20 @@ import { HMSLocalAudioStats } from './HMSLocalAudioStats';
 import { HMSLocalVideoStats } from './HMSLocalVideoStats';
 import { HMSRemoteVideoStats } from './HMSRemoteVideoStats';
 import { HMSRemoteAudioStats } from './HMSRemoteAudioStats';
-import type {
-  HMSConfig,
-  HMSLocalPeer,
-  HMSRemotePeer,
-  HMSRoom,
-  HMSRole,
-  HMSTrack,
-  HMSTrackType,
-  HMSLogger,
-  HMSPeer,
-  HMSVideoViewMode,
-  HMSTrackSettings,
-  HMSRTMPConfig,
-  HMSHLSConfig,
-} from '..';
+import { logger, getLogger, setLogger } from './HMSLogger';
+import type { HMSConfig } from './HMSConfig';
+import type { HMSLocalPeer } from './HMSLocalPeer';
+import type { HMSRemotePeer } from './HMSRemotePeer';
+import type { HMSRoom } from './HMSRoom';
+import type { HMSRole } from './HMSRole';
+import type { HMSTrack } from './HMSTrack';
+import type { HMSTrackType } from './HMSTrackType';
+import type { HMSLogger } from './HMSLogger';
+import type { HMSPeer } from './HMSPeer';
+import type { HMSVideoViewMode } from './HMSVideoViewMode';
+import type { HMSTrackSettings } from './HMSTrackSettings';
+import type { HMSRTMPConfig } from './HMSRTMPConfig';
+import type { HMSHLSConfig } from './HMSHLSConfig';
 
 interface HmsViewProps {
   trackId: string;
@@ -49,8 +48,6 @@ const {
 const HmsEventEmitter = new NativeEventEmitter(HmsManager);
 
 let HmsSdk: HMSSDK | undefined;
-
-let logger: HMSLogger | undefined;
 
 export class HMSSDK {
   room?: HMSRoom;
@@ -106,7 +103,7 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   static getLogger() {
-    return logger;
+    return getLogger();
   }
 
   /**
@@ -115,8 +112,7 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   setLogger = (hmsLogger: HMSLogger) => {
-    logger = hmsLogger;
-    hmsLogger.verbose('#Function setLogger', { id: this.id });
+    setLogger(hmsLogger, this.id);
   };
 
   /**

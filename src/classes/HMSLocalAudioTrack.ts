@@ -1,6 +1,6 @@
 import { NativeModules, Platform } from 'react-native';
 import { HMSAudioTrack } from './HMSAudioTrack';
-import { HMSSDK } from './HMSSDK';
+import { getLogger } from './HMSLogger';
 import type { HMSAudioTrackSettings } from './HMSAudioTrackSettings';
 import type { HMSTrackType } from './HMSTrackType';
 
@@ -22,7 +22,7 @@ export class HMSLocalAudioTrack extends HMSAudioTrack {
    * @memberof HMSLocalAudioTrack
    */
   setMute(isMute: boolean) {
-    const logger = HMSSDK.getLogger();
+    const logger = getLogger();
     logger?.verbose('#Function setMute', {
       trackId: this.trackId,
       id: this.id,
@@ -34,7 +34,7 @@ export class HMSLocalAudioTrack extends HMSAudioTrack {
   }
 
   getVolume = async () => {
-    const logger = HMSSDK.getLogger();
+    const logger = getLogger();
     logger?.verbose('#Function getVolume', {
       trackId: this.trackId,
       id: this.id,
