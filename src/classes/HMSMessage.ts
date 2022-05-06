@@ -18,7 +18,7 @@ export class HMSMessage {
   }) {
     this.message = params.message;
     this.type = params.type;
-    this.time = new Date(params.time);
+    this.time = new Date(parseInt(params.time));
     this.sender = params.sender;
     this.recipient = params.recipient;
   }
