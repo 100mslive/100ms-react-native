@@ -305,7 +305,7 @@ class HmsSDK(
                   data.putMap("sender", HmsDecoder.getHmsPeer(message.sender))
                   data.putString("message", message.message)
                   data.putString("type", message.type)
-                  data.putString("time", message.serverReceiveTime.toString())
+                  data.putString("time", message.serverReceiveTime.time.toString())
                   data.putString("id", id)
                   data.putMap("recipient", HmsDecoder.getHmsMessageRecipient(message.recipient))
 
