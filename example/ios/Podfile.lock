@@ -369,7 +369,7 @@ PODS:
   - RNScreens (3.13.1):
     - React-Core
     - React-RCTImage
-  - RNShare (7.3.9):
+  - RNShare (7.4.0):
     - React-Core
   - RNVectorIcons (8.1.0):
     - React-Core
@@ -613,7 +613,7 @@ SPEC CHECKSUMS:
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNPermissions: 34d678157c800b25b22a488e4d8babb57456e796
   RNScreens: 40a2cb40a02a609938137a1e0acfbf8fc9eebf19
-  RNShare: 807d6f8231b8ebcf6dd839294b877342eb93d4e5
+  RNShare: 7c4868fdd769705a24692497592ae0b1cfc7419d
   RNVectorIcons: 31cebfcf94e8cf8686eb5303ae0357da64d7a5a4
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
   Yoga: 575c581c63e0d35c9a83f4b46d01d63abc1100ac
