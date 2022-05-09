@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Example app wants access to photo library to save screenshots from the Video call</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
@@ -45,6 +43,8 @@
 	<string>Example App wants to use your local network</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Example App wants to use your microphone</string>
+  <key>NSPhotoLibraryUsageDescription</key>
+  <string>Example app wants access to photo library to save screenshots from the Video call</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>
