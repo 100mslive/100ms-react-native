@@ -32,7 +32,11 @@ export const AlertModal = ({
         onTouchEnd={() => {
           onRequestClose();
         }}>
-        <View style={styles.modalView}>
+        <View
+          style={styles.modalView}
+          onTouchEnd={e => {
+            e.stopPropagation();
+          }}>
           <Text style={styles.title}>{title}</Text>
           {message !== undefined && message.length > 0 && (
             <Text>{message}</Text>
@@ -41,6 +45,7 @@ export const AlertModal = ({
             <TouchableOpacity
               key={index}
               onPress={() => {
+                onRequestClose();
                 button.onPress && button.onPress();
               }}
               style={[
