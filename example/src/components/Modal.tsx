@@ -32,13 +32,19 @@ export const CustomModal = ({
         onTouchEnd={() => {
           onRequestClose();
         }}>
-        <View style={styles.modalView}>
+        <View
+          style={styles.modalView}
+          onTouchEnd={e => {
+            e.stopPropagation();
+          }}>
           <View style={styles.titleContainer}>
             <Text style={styles.title}>{title}</Text>
           </View>
           <View>{children}</View>
           <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.closeButton}>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={onRequestClose}>
               <Text numberOfLines={1} style={styles.closeButtonItemText}>
                 {buttons[0].text}
               </Text>
@@ -47,6 +53,7 @@ export const CustomModal = ({
               <TouchableOpacity
                 style={[styles.okButton]}
                 onPress={() => {
+                  onRequestClose();
                   buttons[1]?.onPress && buttons[1].onPress();
                 }}>
                 <Text numberOfLines={1} style={styles.okButtonItemText}>
