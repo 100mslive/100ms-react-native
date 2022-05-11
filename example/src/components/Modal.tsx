@@ -11,7 +11,7 @@ export const CustomModal = ({
   modalVisible: boolean;
   setModalVisible: any;
   title: String;
-  children: Element;
+  children: React.ReactNode;
   buttons: [
     {text: String; onPress?: Function},
     {text: String; onPress?: Function}?,
@@ -27,8 +27,16 @@ export const CustomModal = ({
       visible={modalVisible}
       supportedOrientations={['portrait', 'landscape']}
       onRequestClose={onRequestClose}>
-      <View style={styles.centeredView}>
-        <View style={styles.modalView}>
+      <View
+        style={styles.centeredView}
+        onTouchEnd={() => {
+          onRequestClose();
+        }}>
+        <View
+          style={styles.modalView}
+          onTouchEnd={e => {
+            e.stopPropagation();
+          }}>
           <View style={styles.titleContainer}>
             <Text style={styles.title}>{title}</Text>
           </View>

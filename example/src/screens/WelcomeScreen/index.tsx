@@ -41,10 +41,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Toast from 'react-native-simple-toast';
-import {
-  // getModel,
-  getVersion,
-} from 'react-native-device-info';
+// import {getModel} from 'react-native-device-info';
 import RNFetchBlob from 'rn-fetch-blob';
 
 import {UserIdModal, PreviewModal, AlertModal} from '../../components';
@@ -314,7 +311,7 @@ const App = ({
     saveUserDataRequest({
       userName: userID,
       roomID: roomID.replace('meeting', 'preview'),
-      mirrorLocalVideo: !mirrorLocalVideo,
+      mirrorLocalVideo,
     });
     instance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
     if (skipPreview) {
@@ -361,7 +358,7 @@ const App = ({
     saveUserDataRequest({
       userName: userID,
       roomID: roomID.replace('meeting', 'preview'),
-      mirrorLocalVideo: !mirrorLocalVideo,
+      mirrorLocalVideo,
     });
     instance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
     if (skipPreview) {
@@ -376,6 +373,7 @@ const App = ({
     setPreviewButtonState('Active');
     setButtonState('Active');
     setPreviewModal(false);
+    setMirrorLocalVideo(false);
     setAudioVideoStateRequest({audioState: audio, videoState: video});
     navigate('MeetingScreen');
   };
@@ -383,7 +381,6 @@ const App = ({
   const joinRoom = () => {
     if (config !== null) {
       instance?.join(config);
-      setMirrorLocalVideo(false);
     } else {
       console.log('config: ', config);
     }
@@ -479,6 +476,7 @@ const App = ({
         modalVisible={settingsModal}
         setModalVisible={setSettingsModal}
         title="Settings"
+        screen="welcome"
         message=""
         buttons={getSettingButtons()}
       />
@@ -544,9 +542,6 @@ const App = ({
             </>
           )}
         </TouchableOpacity>
-        <Text style={styles.appVersion}>
-          {`App Version :    ${getVersion()}`}
-        </Text>
       </KeyboardAvoidingView>
       {modalVisible && (
         <UserIdModal

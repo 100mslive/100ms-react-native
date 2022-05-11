@@ -7,36 +7,34 @@ import {
   AppState,
 } from 'react-native';
 import { HMSUpdateListenerActions } from './HMSUpdateListenerActions';
+import { HMSEncoder } from './HMSEncoder';
+import { HMSMessage } from './HMSMessage';
+import { HMSHelper } from './HMSHelper';
+import { HmsViewComponent } from './HmsView';
+import { HMSLocalAudioStats } from './HMSLocalAudioStats';
+import { HMSLocalVideoStats } from './HMSLocalVideoStats';
+import { HMSRemoteVideoStats } from './HMSRemoteVideoStats';
+import { HMSRemoteAudioStats } from './HMSRemoteAudioStats';
+import { logger, getLogger, setLogger } from './HMSLogger';
 import type { HMSConfig } from './HMSConfig';
 import type { HMSLocalPeer } from './HMSLocalPeer';
 import type { HMSRemotePeer } from './HMSRemotePeer';
 import type { HMSRoom } from './HMSRoom';
 import type { HMSRole } from './HMSRole';
-import { HMSEncoder } from './HMSEncoder';
-import { HMSMessage } from './HMSMessage';
-import { HMSHelper } from './HMSHelper';
 import type { HMSTrack } from './HMSTrack';
 import type { HMSTrackType } from './HMSTrackType';
 import type { HMSLogger } from './HMSLogger';
 import type { HMSPeer } from './HMSPeer';
-import { HmsView as HMSViewComponent } from './HmsView';
 import type { HMSVideoViewMode } from './HMSVideoViewMode';
 import type { HMSTrackSettings } from './HMSTrackSettings';
 import type { HMSRTMPConfig } from './HMSRTMPConfig';
 import type { HMSHLSConfig } from './HMSHLSConfig';
-import { HMSLocalAudioStats } from './HMSLocalAudioStats';
-import { HMSLocalVideoStats } from './HMSLocalVideoStats';
-import { HMSRemoteVideoStats } from './HMSRemoteVideoStats';
-import { HMSRemoteAudioStats } from './HMSRemoteAudioStats';
 
-interface HmsComponentProps {
+interface HmsViewProps {
   trackId: string;
-  sink: boolean;
-  style: ViewStyle;
+  style?: ViewStyle;
   mirror?: boolean;
   scaleType?: HMSVideoViewMode;
-  screenshot?: boolean;
-  id?: string | null;
   setZOrderMediaOverlay?: boolean;
 }
 
@@ -50,8 +48,6 @@ const {
 const HmsEventEmitter = new NativeEventEmitter(HmsManager);
 
 let HmsSdk: HMSSDK | undefined;
-
-let logger: HMSLogger | undefined;
 
 export class HMSSDK {
   room?: HMSRoom;
@@ -107,7 +103,7 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   static getLogger() {
-    return logger;
+    return getLogger();
   }
 
   /**
@@ -116,8 +112,7 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   setLogger = (hmsLogger: HMSLogger) => {
-    logger = hmsLogger;
-    hmsLogger.verbose('#Function setLogger', { id: this.id });
+    setLogger(hmsLogger, this.id);
   };
 
   /**
@@ -382,7 +377,6 @@ export class HMSSDK {
   /**
    * - HmsView is react component that takes one track and starts showing that track on a tile.
    * - The appearance of tile is completely customizable with style prop.
-   * - setting sink true or false for a video tile will add or remove sink for a video.
    * - scale type can determine how the incoming video will fit in the canvas check {@link HMSVideoViewMode} for more information.
    *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/render-video} for more info
@@ -390,28 +384,20 @@ export class HMSSDK {
    * @param {HmsComponentProps}
    * @memberof HMSSDK
    */
-  HmsView = ({
-    sink,
-    trackId,
-    style,
-    mirror,
-    scaleType,
-    screenshot,
-    setZOrderMediaOverlay,
-  }: HmsComponentProps) => {
+  HmsView = React.forwardRef<any, HmsViewProps>((props, ref) => {
+    const { trackId, style, mirror, scaleType, setZOrderMediaOverlay } = props;
     return (
-      <HMSViewComponent
-        sink={sink}
+      <HmsViewComponent
+        ref={ref}
         trackId={trackId}
         style={style}
         setZOrderMediaOverlay={setZOrderMediaOverlay}
         mirror={mirror}
         scaleType={scaleType}
         id={this.id}
-        screenshot={screenshot}
       />
     );
-  };
+  });
 
   /**
    * Calls leave function of native sdk and session of current user is invalidated.

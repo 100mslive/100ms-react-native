@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import {View, TouchableOpacity, Text, Image} from 'react-native';
+import React, {useEffect, useRef, useState} from 'react';
+import {View, TouchableOpacity, Text, Image, Platform} from 'react-native';
 import {
   HMSRemotePeer,
   HMSVideoViewMode,
@@ -14,6 +14,9 @@ import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {Slider} from '@miblanchard/react-native-slider';
+import RNFS from 'react-native-fs';
+import CameraRoll from '@react-native-community/cameraroll';
+import Toast from 'react-native-simple-toast';
 
 import {AlertModal, CustomModal, RolePicker} from '../../components';
 import dimension from '../../utils/dimension';
@@ -65,7 +68,6 @@ const DisplayTrack = ({
     trackId,
     colour,
     id,
-    sink,
     peerReference,
     isAudioMute,
     isVideoMute,
@@ -77,7 +79,7 @@ const DisplayTrack = ({
   const [force, setForce] = useState(false);
   const [volumeModal, setVolumeModal] = useState(false);
   const [volume, setVolume] = useState(1);
-  const [screenshot, setScreenshot] = useState(false);
+  const [isDegraded, setIsDegraded] = useState(false);
   const modalTitle = 'Set Volume';
 
   const modalButtons: [
@@ -117,9 +119,13 @@ const DisplayTrack = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const HmsViewComponent = instance?.HmsView;
+  useEffect(() => {
+    setIsDegraded(peerReference?.videoTrack?.isDegraded || false);
+  }, [peerReference?.videoTrack?.isDegraded]);
+
+  const HmsView = instance?.HmsView;
+  const hmsViewRef: any = useRef();
   const knownRoles = instance?.knownRoles || [];
-  const isDegraded = peerReference?.videoTrack?.isDegraded || false;
   const speaking = speakerIds !== undefined ? speakerIds.includes(id!) : false;
   const roleRequestTitle = 'Select action';
   const roleRequestButtons: [
@@ -147,18 +153,6 @@ const DisplayTrack = ({
         setVolumeModal(true);
       },
     },
-    {
-      text: 'Take Screenshot',
-      onPress: async () => {
-        const granted = await requestExternalStoragePermission();
-        if (granted) {
-          setScreenshot(true);
-          setTimeout(() => {
-            setScreenshot(false);
-          }, 1000);
-        }
-      },
-    },
   ];
 
   const selectLocalActionButtons: Array<{
@@ -171,18 +165,6 @@ const DisplayTrack = ({
       text: 'Change Name',
       onPress: () => {
         setChangeNameModal && setChangeNameModal(true);
-      },
-    },
-    {
-      text: 'Take Screenshot',
-      onPress: async () => {
-        const granted = await requestExternalStoragePermission();
-        if (granted) {
-          setScreenshot(true);
-          setTimeout(() => {
-            setScreenshot(false);
-          }, 1000);
-        }
       },
     },
   ];
@@ -199,18 +181,6 @@ const DisplayTrack = ({
       text: 'Set Volume',
       onPress: () => {
         setVolumeModal(true);
-      },
-    },
-    {
-      text: 'Take Screenshot',
-      onPress: async () => {
-        const granted = await requestExternalStoragePermission();
-        if (granted) {
-          setScreenshot(true);
-          setTimeout(() => {
-            setScreenshot(false);
-          }, 1000);
-        }
       },
     },
     {
@@ -319,12 +289,48 @@ const DisplayTrack = ({
       });
     }
   }
+  if (Platform.OS === 'android') {
+    const takeScreenshot = {
+      text: 'Take Screenshot',
+      onPress: async () => {
+        const granted = await requestExternalStoragePermission();
+        if (granted) {
+          hmsViewRef?.current
+            ?.capture()
+            .then(async (d: string) => {
+              const imagePath = `${RNFS.DownloadDirectoryPath}image.jpg`;
+              RNFS.writeFile(imagePath, d, 'base64')
+                .then(() => {
+                  CameraRoll.save(imagePath, {type: 'photo'})
+                    .then(() => {
+                      Toast.showWithGravity(
+                        'Image converted to jpg and saved at ' + imagePath,
+                        Toast.LONG,
+                        Toast.TOP,
+                      );
+                      console.log(
+                        'Image converted to jpg and saved at ',
+                        imagePath,
+                      );
+                    })
+                    .catch(err => console.log(err));
+                })
+                .catch(e => console.log(e));
+            })
+            .catch((e: any) => console.log(e));
+        }
+      },
+    };
+    selectAuxActionButtons.push(takeScreenshot);
+    selectRemoteActionButtons.push(takeScreenshot);
+    selectLocalActionButtons.push(takeScreenshot);
+  }
 
   const promptUser = () => {
     setAlertModalVisible(true);
   };
 
-  return HmsViewComponent ? (
+  return HmsView ? (
     <View key={id} style={[videoStyles(), speaking && styles.highlight]}>
       <AlertModal
         modalVisible={alertModalVisible}
@@ -400,9 +406,9 @@ const DisplayTrack = ({
         </View>
       ) : (
         <View style={styles.flex}>
-          <HmsViewComponent
+          <HmsView
+            ref={hmsViewRef}
             setZOrderMediaOverlay={miniView}
-            sink={sink}
             trackId={trackId!}
             mirror={
               type === 'local' && mirrorLocalVideo !== undefined
@@ -415,7 +421,6 @@ const DisplayTrack = ({
                 : HMSVideoViewMode.ASPECT_FILL
             }
             style={type === 'screen' ? styles.hmsViewScreen : styles.hmsView}
-            screenshot={screenshot}
           />
           {isDegraded && (
             <View style={styles.degradedContainer}>

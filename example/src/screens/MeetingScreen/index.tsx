@@ -107,7 +107,6 @@ const DEFAULT_PEER: Peer = {
   isVideoMute: true,
   id: Math.random().toString(),
   colour: getThemeColour(),
-  sink: true,
   type: 'local',
 };
 
@@ -332,7 +331,6 @@ const Meeting = ({
               isVideoMute: false,
               id: `${remotePeer?.peerID}_${auxTrackId}`,
               colour: getThemeColour(),
-              sink: true,
               type: 'screen',
               track: auxTrackObj[track.source ? track.source : ' '],
             };
@@ -1302,7 +1300,6 @@ const Meeting = ({
             <ZoomableView>
               {HmsViewComponent && (
                 <HmsViewComponent
-                  sink={true}
                   trackId={zoomableTrackId}
                   mirror={false}
                   scaleType={HMSVideoViewMode.ASPECT_FIT}
@@ -1331,8 +1328,6 @@ const Meeting = ({
             setZoomableTrackId={setZoomableTrackId}
             getAuxVideoStyles={getAuxVideoStyles}
             page={page}
-            setRemoteTrackIds={setRemoteTrackIds}
-            hmsInstance={hmsInstance}
           />
         ) : layout === 'hero' ? (
           <HeroView
@@ -1368,8 +1363,6 @@ const Meeting = ({
             localAudioStats={localAudioStats}
             localVideoStats={localVideoStats}
             page={page}
-            setRemoteTrackIds={setRemoteTrackIds}
-            hmsInstance={hmsInstance}
           />
         )}
       </View>
@@ -1435,6 +1428,7 @@ const Meeting = ({
               JSON.stringify({
                 ...trackId?.metadata,
                 isHandRaised: !trackId?.metadata?.isHandRaised,
+                isBRBOn: false,
               }),
             );
           }}>
@@ -1454,6 +1448,7 @@ const Meeting = ({
             instance?.changeMetadata(
               JSON.stringify({
                 ...trackId?.metadata,
+                isHandRaised: false,
                 isBRBOn: !trackId?.metadata?.isBRBOn,
               }),
             );

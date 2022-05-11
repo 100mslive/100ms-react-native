@@ -1,5 +1,16 @@
 import { HMSLogLevel } from './HMSLogLevel';
 
+export let logger: HMSLogger | undefined;
+
+export const getLogger = () => {
+  return logger;
+};
+
+export const setLogger = (hmsLogger: HMSLogger, id: string) => {
+  logger = hmsLogger;
+  hmsLogger.verbose('#Function setLogger', { id });
+};
+
 export class HMSLogger {
   private _verbose: boolean = false;
   private _warning: boolean = false;

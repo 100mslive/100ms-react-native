@@ -3,10 +3,8 @@ import { HMSAudioTrack } from './HMSAudioTrack';
 import { HMSVideoTrack } from './HMSVideoTrack';
 import { HMSRoom } from './HMSRoom';
 import { HMSPeer } from './HMSPeer';
-
 import { HMSLocalPeer } from './HMSLocalPeer';
 import { HMSRemotePeer } from './HMSRemotePeer';
-
 import { HMSAudioTrackSettings } from './HMSAudioTrackSettings';
 import { HMSVideoTrackSettings } from './HMSVideoTrackSettings';
 import { HMSLocalVideoTrack } from './HMSLocalVideoTrack';
@@ -21,15 +19,13 @@ import { HMSRemoteAudioTrack } from './HMSRemoteAudioTrack';
 import { HMSRemoteVideoTrack } from './HMSRemoteVideoTrack';
 import { HMSSpeaker } from './HMSSpeaker';
 import { HMSSpeakerUpdate } from './HMSSpeakerUpdate';
-import {
-  HMSBrowserRecordingState,
-  HMSHLSStreamingState,
-  HMSHLSVariant,
-  HMSRtmpStreamingState,
-  HMSServerRecordingState,
-} from '..';
 import { HMSHLSRecordingState } from './HMSHLSRecordingState';
 import { HMSNetworkQuality } from './HMSNetworkQuality';
+import { HMSBrowserRecordingState } from './HMSBrowserRecordingState';
+import { HMSHLSStreamingState } from './HMSHLSStreamingState';
+import { HMSHLSVariant } from './HMSHLSVariant';
+import { HMSRtmpStreamingState } from './HMSRtmpStreamingState';
+import { HMSServerRecordingState } from './HMSServerRecordingState';
 
 export class HMSEncoder {
   static encodeHmsRoom(room: HMSRoom, id: string) {

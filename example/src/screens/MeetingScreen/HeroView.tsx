@@ -39,6 +39,7 @@ const HeroView = ({
 }: HeroViewProps) => {
   const [mainSpeaker, setMainSpeaker] = useState<Peer | undefined>(undefined);
   const [peers, setPeers] = useState<Peer[]>([]);
+  const [filteredPeers, setFilteredPeers] = useState<Peer[]>([]);
 
   useEffect(() => {
     console.log(speakers, 'speakers');
@@ -53,7 +54,7 @@ const HeroView = ({
   }, [speakers, instance?.remotePeers, instance?.localPeer]);
 
   useEffect(() => {
-    const newPeerList = [];
+    const newPeerList: Peer[] = [];
     if (instance?.localPeer) {
       newPeerList.push(decodePeer(instance?.localPeer));
     }
@@ -64,64 +65,22 @@ const HeroView = ({
       });
     }
 
+    setFilteredPeers(
+      newPeerList.filter(
+        item => item.id !== searchMainSpeaker(mainSpeaker, newPeerList)?.id,
+      ),
+    );
     setPeers(newPeerList);
-  }, [instance?.remotePeers, instance?.localPeer]);
-
-  const onViewRef = React.useRef(({viewableItems}: any) => {
-    if (viewableItems) {
-      const viewableItemsIds: (string | undefined)[] = [];
-      viewableItems.map(
-        (viewableItem: {
-          index: number;
-          item: Peer;
-          key: string;
-          isViewable: boolean;
-        }) => {
-          viewableItemsIds.push(viewableItem.item.trackId);
-        },
-      );
-
-      const newPeerList = [];
-      if (instance?.localPeer) {
-        newPeerList.push(decodePeer(instance?.localPeer));
-      }
-
-      if (instance?.remotePeers) {
-        instance.remotePeers.map(item => {
-          newPeerList.push(decodePeer(item));
-        });
-      }
-
-      if (newPeerList.length) {
-        const sinkRemoteTrackIds = newPeerList.map(
-          (peer: Peer, index: number) => {
-            const videoTrackId = peer.trackId;
-            if (videoTrackId) {
-              if (!viewableItemsIds?.includes(videoTrackId)) {
-                return {
-                  ...peer,
-                  sink: false,
-                };
-              }
-              return peer;
-            } else {
-              return {
-                ...peer,
-                trackId: index.toString(),
-                sink: false,
-                isVideoMute: true,
-              };
-            }
-          },
-        );
-        setPeers(sinkRemoteTrackIds ? sinkRemoteTrackIds : []);
-      }
-    }
-  });
+  }, [instance?.remotePeers, instance?.localPeer, mainSpeaker]);
 
   return (
     <View style={styles.heroContainer}>
-      <View style={styles.heroTileContainer}>
+      <View
+        style={
+          filteredPeers.length
+            ? styles.heroTileContainer
+            : styles.heroTileContainerSingle
+        }>
         {mainSpeaker && (
           <DisplayTrack
             key={mainSpeaker.id}
@@ -139,7 +98,7 @@ const HeroView = ({
       </View>
       <View style={styles.heroListContainer}>
         <FlatList
-          data={peers.filter(item => item.id !== mainSpeaker?.id)}
+          data={filteredPeers}
           horizontal={true}
           renderItem={({item}) => {
             return (
@@ -157,7 +116,6 @@ const HeroView = ({
               </View>
             );
           }}
-          onViewableItemsChanged={onViewRef.current}
         />
       </View>
     </View>
