@@ -1428,6 +1428,7 @@ const Meeting = ({
               JSON.stringify({
                 ...trackId?.metadata,
                 isHandRaised: !trackId?.metadata?.isHandRaised,
+                isBRBOn: false,
               }),
             );
           }}>
@@ -1447,6 +1448,7 @@ const Meeting = ({
             instance?.changeMetadata(
               JSON.stringify({
                 ...trackId?.metadata,
+                isHandRaised: false,
                 isBRBOn: !trackId?.metadata?.isBRBOn,
               }),
             );
