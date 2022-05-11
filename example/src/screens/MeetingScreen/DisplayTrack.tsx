@@ -79,6 +79,7 @@ const DisplayTrack = ({
   const [force, setForce] = useState(false);
   const [volumeModal, setVolumeModal] = useState(false);
   const [volume, setVolume] = useState(1);
+  const [isDegraded, setIsDegraded] = useState(false);
   const modalTitle = 'Set Volume';
 
   const modalButtons: [
@@ -118,10 +119,13 @@ const DisplayTrack = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    setIsDegraded(peerReference?.videoTrack?.isDegraded || false);
+  }, [peerReference?.videoTrack?.isDegraded]);
+
   const HmsView = instance?.HmsView;
   const hmsViewRef: any = useRef();
   const knownRoles = instance?.knownRoles || [];
-  const isDegraded = peerReference?.videoTrack?.isDegraded || false;
   const speaking = speakerIds !== undefined ? speakerIds.includes(id!) : false;
   const roleRequestTitle = 'Select action';
   const roleRequestButtons: [

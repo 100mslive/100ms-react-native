@@ -39,6 +39,7 @@ const HeroView = ({
 }: HeroViewProps) => {
   const [mainSpeaker, setMainSpeaker] = useState<Peer | undefined>(undefined);
   const [peers, setPeers] = useState<Peer[]>([]);
+  const [filteredPeers, setFilteredPeers] = useState<Peer[]>([]);
 
   useEffect(() => {
     console.log(speakers, 'speakers');
@@ -53,7 +54,7 @@ const HeroView = ({
   }, [speakers, instance?.remotePeers, instance?.localPeer]);
 
   useEffect(() => {
-    const newPeerList = [];
+    const newPeerList: Peer[] = [];
     if (instance?.localPeer) {
       newPeerList.push(decodePeer(instance?.localPeer));
     }
@@ -64,12 +65,22 @@ const HeroView = ({
       });
     }
 
+    setFilteredPeers(
+      newPeerList.filter(
+        item => item.id !== searchMainSpeaker(mainSpeaker, newPeerList)?.id,
+      ),
+    );
     setPeers(newPeerList);
-  }, [instance?.remotePeers, instance?.localPeer]);
+  }, [instance?.remotePeers, instance?.localPeer, mainSpeaker]);
 
   return (
     <View style={styles.heroContainer}>
-      <View style={styles.heroTileContainer}>
+      <View
+        style={
+          filteredPeers.length
+            ? styles.heroTileContainer
+            : styles.heroTileContainerSingle
+        }>
         {mainSpeaker && (
           <DisplayTrack
             key={mainSpeaker.id}
@@ -87,7 +98,7 @@ const HeroView = ({
       </View>
       <View style={styles.heroListContainer}>
         <FlatList
-          data={peers.filter(item => item.id !== mainSpeaker?.id)}
+          data={filteredPeers}
           horizontal={true}
           renderItem={({item}) => {
             return (
