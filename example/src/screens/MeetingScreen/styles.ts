@@ -92,6 +92,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     flexDirection: 'row',
     alignItems: 'center',
+    zIndex: 3,
   },
   peerName: {
     color: getThemeColour(),
@@ -116,7 +117,7 @@ const styles = StyleSheet.create({
     height: '100%',
     width: '100%',
     backgroundColor: 'black',
-    zIndex: 10,
+    zIndex: 2,
   },
   avatar: {
     aspectRatio: 1,
@@ -284,6 +285,14 @@ const styles = StyleSheet.create({
   },
   heroTileContainer: {
     height: '80%',
+    width: '100%',
+    marginVertical: 1,
+    padding: '0.25%',
+    overflow: 'hidden',
+    borderRadius: 10,
+  },
+  heroTileContainerSingle: {
+    height: '100%',
     width: '100%',
     marginVertical: 1,
     padding: '0.25%',
