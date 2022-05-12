@@ -1,6 +1,6 @@
 {
   "name": "@100mslive/react-native-hms",
-  "version": "0.9.5",
+  "version": "0.9.6",
   "description": "The React Native package for 100ms SDK",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
