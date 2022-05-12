@@ -17,6 +17,7 @@ object HmsDecoder {
     val room: WritableMap = Arguments.createMap()
     if (hmsRoom != null) {
       room.putString("id", hmsRoom.roomId)
+      room.putString("sessionId", hmsRoom.sessionId)
       room.putString("name", hmsRoom.name)
       room.putString("metaData", null)
       room.putString("startedAt", hmsRoom.startedAt.toString())
