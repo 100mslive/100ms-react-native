@@ -8,6 +8,7 @@ type ActionType = {
 const INITIAL_STATE = {
   userName: null,
   roomID: null,
+  roomCode: null,
   hmsInstance: undefined,
   mirrorLocalVideo: false,
 };

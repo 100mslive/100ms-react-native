@@ -13,7 +13,6 @@ import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
 import {getHmsViewHeight} from '../../utils/functions';
 import {styles} from './styles';
 import {DisplayTrack} from './DisplayTrack';
-import type {RootState} from '../../redux';
 import type {Peer, LayoutParams} from '../../utils/types';
 
 type GridViewProps = {
@@ -23,7 +22,6 @@ type GridViewProps = {
   instance: HMSSDK | undefined;
   localPeerPermissions: HMSPermissions | undefined;
   layout: LayoutParams;
-  state: RootState;
   statsForNerds: boolean;
   rtcStats: HMSRTCStatsReport | undefined;
   remoteAudioStats: any;
@@ -47,7 +45,6 @@ const GridView = ({
   instance,
   localPeerPermissions,
   layout,
-  state,
   setChangeNameModal,
   statsForNerds,
   rtcStats,
@@ -135,7 +132,6 @@ const GridView = ({
                       type={view.type}
                       permissions={localPeerPermissions}
                       layout={layout}
-                      mirrorLocalVideo={state.user.mirrorLocalVideo}
                       setChangeNameModal={setChangeNameModal}
                       statsForNerds={statsForNerds}
                       rtcStats={rtcStats}

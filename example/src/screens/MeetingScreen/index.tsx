@@ -93,11 +93,10 @@ type MeetingProps = {
   messages: any;
   addMessageRequest: Function;
   clearMessageRequest: Function;
-  audioState: boolean;
-  videoState: boolean;
-  state: RootState;
+  roomID: string | null;
+  roomCode: string | null;
   hmsInstance: HMSSDK | undefined;
-  saveUserDataRequest?: Function;
+  saveUserDataRequest: Function;
 };
 
 const DEFAULT_PEER: Peer = {
@@ -125,7 +124,8 @@ const Meeting = ({
   addMessageRequest,
   clearMessageRequest,
   hmsInstance,
-  state,
+  roomID,
+  roomCode,
   saveUserDataRequest,
 }: MeetingProps) => {
   const [orientation, setOrientation] = useState<boolean>(true);
@@ -152,17 +152,13 @@ const Meeting = ({
   const [hlsStreamingModal, setHLSStreamingModal] = useState(false);
   const [recordingDetails, setRecordingDetails] = useState<HMSRTMPConfig>({
     record: false,
-    meetingURL: state.user.roomID
-      ? state.user.roomID + '?token=beam_recording'
-      : '',
+    meetingURL: roomID ? roomID + '?token=beam_recording' : '',
     rtmpURLs: [],
   });
   const [rtcStats, setRtcStats] = useState<HMSRTCStatsReport>();
   const [hlsStreamingDetails, setHLSStreamingDetails] =
     useState<HMSHLSMeetingURLVariant>({
-      meetingUrl: state.user.roomID
-        ? state.user.roomID + '?token=beam_recording'
-        : '',
+      meetingUrl: roomID ? roomID + '?token=beam_recording' : '',
       metadata: '',
     });
   const [hlsRecordingDetails, setHLSRecordingDetails] =
@@ -1179,7 +1175,11 @@ const Meeting = ({
         </Picker>
       </CustomModal>
       <View style={styles.headerContainer}>
-        <Text style={styles.headerName}>{trackId?.name}</Text>
+        <Text style={styles.headerName}>
+          {speakers?.length > 0 && speakers[0]?.peer?.name
+            ? `${speakers[0]?.peer?.name}  🔊`
+            : roomCode}
+        </Text>
         <View style={styles.headerRight}>
           {instance?.room?.browserRecordingState?.running && (
             <Entypo
@@ -1315,7 +1315,6 @@ const Meeting = ({
             instance={instance}
             localPeerPermissions={localPeerPermissions}
             layout={layout}
-            state={state}
             setChangeNameModal={setChangeNameModal}
             statsForNerds={statsForNerds}
             rtcStats={rtcStats}
@@ -1334,7 +1333,6 @@ const Meeting = ({
             speakers={speakers}
             instance={instance}
             localPeerPermissions={localPeerPermissions}
-            state={state}
             setChangeNameModal={setChangeNameModal}
           />
         ) : layout === 'mini' ? (
@@ -1354,7 +1352,6 @@ const Meeting = ({
             instance={instance}
             localPeerPermissions={localPeerPermissions}
             layout={layout}
-            state={state}
             setChangeNameModal={setChangeNameModal}
             statsForNerds={statsForNerds}
             rtcStats={rtcStats}
@@ -1543,11 +1540,9 @@ const mapDispatchToProps = (dispatch: Function) => ({
 
 const mapStateToProps = (state: RootState) => ({
   messages: state?.messages?.messages,
-  audioState: state?.app?.audioState,
-  videoState: state?.app?.videoState,
   hmsInstance: state?.user?.hmsInstance,
   roomID: state.user.roomID,
-  state: state,
+  roomCode: state.user.roomCode,
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Meeting);
