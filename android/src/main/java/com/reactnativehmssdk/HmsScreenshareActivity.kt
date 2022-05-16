@@ -8,8 +8,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import com.facebook.react.bridge.Arguments
-import com.facebook.react.bridge.WritableMap
 import live.hms.video.error.HMSException
 import live.hms.video.sdk.HMSActionResultListener
 

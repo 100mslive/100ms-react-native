@@ -76,22 +76,22 @@ object HmsHelper {
         when (value) {
           "String" -> {
             if (map.getString(key) == null) {
-              return key+"_String_Is_Null"
+              return key+"_Is_Null"
             }
           }
           "Array" -> {
             if (map.getArray(key) == null) {
-              return key+"_Array_Is_Null"
+              return key+"_Is_Null"
             }
           }
           "Map" -> {
             if (map.getMap(key) == null) {
-              return key+"_Object_Is_Null"
+              return key+"_Is_Null"
             }
           }
         }
       } else {
-        return key+"_Is_Not_Present"
+        return key+"_Is_Required"
       }
     }
     return null
@@ -475,7 +475,7 @@ object HmsHelper {
           surfaceView,
           bitmap,
           { copyResult ->
-            if (copyResult === PixelCopy.SUCCESS) {
+            if (copyResult == PixelCopy.SUCCESS) {
               Log.d("captureSurfaceView", "bitmap: $bitmap")
               val byteArrayOutputStream = ByteArrayOutputStream()
               bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
