@@ -52,20 +52,24 @@ class HmsSDK(
     delegate.emitEvent("ON_ERROR", data)
   }
 
-  private fun emitRequiredKeysError() {
+  private fun emitRequiredKeysError(message: String) {
     val data: WritableMap = Arguments.createMap()
     val hmsError =
         HMSException(
             102,
-            "NOT_FOUND",
-            "SEND_ALL_REQUIRED_KEYS",
             "REQUIRED_KEYS_NOT_FOUND",
-            "REQUIRED_KEYS_NOT_FOUND"
+            "SEND_ALL_REQUIRED_KEYS",
+            message,
+            message
         )
     data.putString("event", "ON_ERROR")
     data.putString("id", id)
     data.putMap("error", HmsDecoder.getError(hmsError))
     delegate.emitEvent("ON_ERROR", data)
+  }
+
+  private fun rejectCallback(callback: Promise?, message: String) {
+    callback?.reject("102", message)
   }
 
   fun emitHMSError(error: HMSException) {
@@ -91,11 +95,11 @@ class HmsSDK(
       return
     }
     val requiredKeys =
-        HmsHelper.areAllRequiredKeysAvailable(
+        HmsHelper.getUnavailableRequiredKey(
             credentials,
             arrayOf(Pair("username", "String"), Pair("authToken", "String"))
         )
-    if (requiredKeys) {
+    if (requiredKeys === null) {
       previewInProgress = true
       val config = HmsHelper.getHmsConfig(credentials)
 
@@ -167,7 +171,8 @@ class HmsSDK(
           }
       )
     } else {
-      self.emitRequiredKeysError()
+      val errorMessage = "preview: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
     }
   }
 
@@ -177,11 +182,11 @@ class HmsSDK(
       return
     }
     val requiredKeys =
-        HmsHelper.areAllRequiredKeysAvailable(
+        HmsHelper.getUnavailableRequiredKey(
             credentials,
             arrayOf(Pair("username", "String"), Pair("authToken", "String"))
         )
-    if (requiredKeys) {
+    if (requiredKeys === null) {
       val config = HmsHelper.getHmsConfig(credentials)
 
       HMSCoroutineScope.launch {
@@ -360,7 +365,8 @@ class HmsSDK(
         )
       }
     } else {
-      self.emitRequiredKeysError()
+      val errorMessage = "join: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
     }
   }
 
@@ -398,11 +404,11 @@ class HmsSDK(
 
   fun sendBroadcastMessage(data: ReadableMap, callback: Promise?) {
     val requiredKeys =
-        HmsHelper.areAllRequiredKeysAvailable(
+        HmsHelper.getUnavailableRequiredKey(
             data,
             arrayOf(Pair("message", "String"), Pair("type", "String"))
         )
-    if (requiredKeys) {
+    if (requiredKeys === null) {
       hmsSDK?.sendBroadcastMessage(
           data.getString("message") as String,
           data.getString("type") as String,
@@ -417,18 +423,19 @@ class HmsSDK(
           }
       )
     } else {
-      self.emitRequiredKeysError()
-      callback?.reject("101", "REQUIRED_KEYS_NOT_FOUND")
+      val errorMessage = "sendBroadcastMessage: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(callback, errorMessage)
     }
   }
 
   fun sendGroupMessage(data: ReadableMap, callback: Promise?) {
     val requiredKeys =
-        HmsHelper.areAllRequiredKeysAvailable(
+        HmsHelper.getUnavailableRequiredKey(
             data,
             arrayOf(Pair("message", "String"), Pair("roles", "Array"), Pair("type", "String"))
         )
-    if (requiredKeys) {
+    if (requiredKeys === null) {
       val targetedRoles = data.getArray("roles")?.toArrayList() as? ArrayList<String>
       val roles = hmsSDK?.getRoles()
       val encodedTargetedRoles = HmsHelper.getRolesFromRoleNames(targetedRoles, roles)
@@ -448,18 +455,19 @@ class HmsSDK(
           }
       )
     } else {
-      self.emitRequiredKeysError()
-      callback?.reject("101", "REQUIRED_KEYS_NOT_FOUND")
+      val errorMessage = "sendGroupMessage: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(callback, errorMessage)
     }
   }
 
   fun sendDirectMessage(data: ReadableMap, callback: Promise?) {
     val requiredKeys =
-        HmsHelper.areAllRequiredKeysAvailable(
+        HmsHelper.getUnavailableRequiredKey(
             data,
             arrayOf(Pair("message", "String"), Pair("peerId", "String"), Pair("type", "String"))
         )
-    if (requiredKeys) {
+    if (requiredKeys === null) {
       val peerId = data.getString("peerId")
       val peer = HmsHelper.getPeerFromPeerId(peerId, hmsSDK?.getRoom())
       if (peer != null) {
@@ -482,18 +490,19 @@ class HmsSDK(
         callback?.reject("101", "PEER_NOT_FOUND")
       }
     } else {
-      self.emitRequiredKeysError()
-      callback?.reject("101", "REQUIRED_KEYS_NOT_FOUND")
+      val errorMessage = "sendDirectMessage: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(callback, errorMessage)
     }
   }
 
   fun changeRole(data: ReadableMap, callback: Promise?) {
     val requiredKeys =
-        HmsHelper.areAllRequiredKeysAvailable(
+        HmsHelper.getUnavailableRequiredKey(
             data,
             arrayOf(Pair("peerId", "String"), Pair("role", "String"), Pair("force", "Boolean"))
         )
-    if (requiredKeys) {
+    if (requiredKeys === null) {
       val peerId = data.getString("peerId")
       val role = data.getString("role")
       val force = data.getBoolean("force")
@@ -520,18 +529,19 @@ class HmsSDK(
         }
       }
     } else {
-      self.emitRequiredKeysError()
-      callback?.reject("101", "REQUIRED_KEYS_NOT_FOUND")
+      val errorMessage = "changeRole: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(callback, errorMessage)
     }
   }
 
   fun changeTrackState(data: ReadableMap, callback: Promise?) {
     val requiredKeys =
-        HmsHelper.areAllRequiredKeysAvailable(
+        HmsHelper.getUnavailableRequiredKey(
             data,
             arrayOf(Pair("trackId", "String"), Pair("mute", "Boolean"))
         )
-    if (requiredKeys) {
+    if (requiredKeys === null) {
       val trackId = data.getString("trackId")
       val mute = data.getBoolean("mute")
       val track = HmsHelper.getTrackFromTrackId(trackId, hmsSDK?.getRoom())
@@ -551,20 +561,19 @@ class HmsSDK(
         )
       }
     } else {
-      self.emitRequiredKeysError()
-      callback?.reject("101", "REQUIRED_KEYS_NOT_FOUND")
+      val errorMessage = "changeTrackState: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(callback, errorMessage)
     }
   }
 
   fun changeTrackStateForRoles(data: ReadableMap, callback: Promise?) {
     val requiredKeys =
-        HmsHelper.areAllRequiredKeysAvailable(
+        HmsHelper.getUnavailableRequiredKey(
             data,
-            arrayOf(
-                Pair("mute", "Boolean"),
-            )
+            arrayOf(Pair("mute", "Boolean"))
         )
-    if (requiredKeys) {
+    if (requiredKeys === null) {
       val mute: Boolean = data.getBoolean("mute")
       val type =
           if (HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("type", "String")))) {
@@ -603,15 +612,16 @@ class HmsSDK(
           }
       )
     } else {
-      self.emitRequiredKeysError()
-      callback?.reject("101", "REQUIRED_KEYS_NOT_FOUND")
+      val errorMessage = "changeTrackStateForRoles: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(callback, errorMessage)
     }
   }
 
   fun isMute(data: ReadableMap, callback: Promise?) {
     val requiredKeys =
-        HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("trackId", "String")))
-    if (requiredKeys) {
+        HmsHelper.getUnavailableRequiredKey(data, arrayOf(Pair("trackId", "String")))
+    if (requiredKeys === null) {
       val trackId = data.getString("trackId")
       val localTrack = HmsHelper.getTrackFromTrackId(trackId, hmsSDK?.getRoom())
       if (localTrack == null) {
@@ -627,17 +637,19 @@ class HmsSDK(
         callback?.resolve(mute)
       }
     } else {
-      callback?.reject("101", "REQUIRED_KEYS_NOT_FOUND")
+      val errorMessage = "isMute: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(callback, errorMessage)
     }
   }
 
   fun removePeer(data: ReadableMap, callback: Promise?) {
     val requiredKeys =
-        HmsHelper.areAllRequiredKeysAvailable(
+        HmsHelper.getUnavailableRequiredKey(
             data,
             arrayOf(Pair("peerId", "String"), Pair("reason", "String"))
         )
-    if (requiredKeys) {
+    if (requiredKeys === null) {
       val peerId = data.getString("peerId")
       val peer = HmsHelper.getRemotePeerFromPeerId(peerId, hmsSDK?.getRoom())
 
@@ -660,18 +672,19 @@ class HmsSDK(
         callback?.reject("101", "PEER_NOT_FOUND")
       }
     } else {
-      self.emitRequiredKeysError()
-      callback?.reject("101", "REQUIRED_KEYS_NOT_FOUND")
+      val errorMessage = "removePeer: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(callback, errorMessage)
     }
   }
 
   fun endRoom(data: ReadableMap, callback: Promise?) {
     val requiredKeys =
-        HmsHelper.areAllRequiredKeysAvailable(
+        HmsHelper.getUnavailableRequiredKey(
             data,
             arrayOf(Pair("lock", "Boolean"), Pair("reason", "String"))
         )
-    if (requiredKeys) {
+    if (requiredKeys === null) {
       hmsSDK?.endRoom(
           data.getString("reason") as String,
           data.getBoolean("lock"),
@@ -686,14 +699,14 @@ class HmsSDK(
           }
       )
     } else {
-      self.emitRequiredKeysError()
-      callback?.reject("101", "REQUIRED_KEYS_NOT_FOUND")
+      val errorMessage = "endRoom: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(callback, errorMessage)
     }
   }
 
   fun acceptRoleChange(callback: Promise?) {
     if (recentRoleChangeRequest !== null) {
-
       hmsSDK?.acceptChangeRole(
           recentRoleChangeRequest!!,
           object : HMSActionResultListener {
@@ -706,8 +719,11 @@ class HmsSDK(
             }
           }
       )
-
       recentRoleChangeRequest = null
+    } else {
+      val errorMessage = "acceptRoleChange: recentRoleChangeRequest null"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(callback, errorMessage)
     }
   }
 
@@ -734,8 +750,8 @@ class HmsSDK(
   }
 
   fun setPlaybackForAllAudio(data: ReadableMap) {
-    val requiredKeys = HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("mute", "Boolean")))
-    if (requiredKeys) {
+    val requiredKeys = HmsHelper.getUnavailableRequiredKey(data, arrayOf(Pair("mute", "Boolean")))
+    if (requiredKeys === null) {
       val mute = data.getBoolean("mute")
       val peers = hmsSDK?.getRemotePeers()
       if (peers != null) {
@@ -755,17 +771,18 @@ class HmsSDK(
         delegate.emitEvent("ON_PEER_UPDATE", map)
       }
     } else {
-      this.emitRequiredKeysError()
+      val errorMessage = "setPlaybackForAllAudio: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
     }
   }
 
   fun setPlaybackAllowed(data: ReadableMap) {
     val requiredKeys =
-        HmsHelper.areAllRequiredKeysAvailable(
+        HmsHelper.getUnavailableRequiredKey(
             data,
             arrayOf(Pair("trackId", "String"), Pair("playbackAllowed", "Boolean"))
         )
-    if (requiredKeys) {
+    if (requiredKeys === null) {
       val trackId = data.getString("trackId")
       val playbackAllowed = data.getBoolean("playbackAllowed")
       val remoteAudioTrack = HmsHelper.getRemoteAudioTrackFromTrackId(trackId, hmsSDK?.getRoom())
@@ -776,14 +793,15 @@ class HmsSDK(
         remoteVideoTrack.isPlaybackAllowed = playbackAllowed
       }
     } else {
-      this.emitRequiredKeysError()
+      val errorMessage = "setPlaybackAllowed: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
     }
   }
 
   fun isPlaybackAllowed(data: ReadableMap, callback: Promise?) {
     val requiredKeys =
-        HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("trackId", "String")))
-    if (requiredKeys) {
+        HmsHelper.getUnavailableRequiredKey(data, arrayOf(Pair("trackId", "String")))
+    if (requiredKeys === null) {
       val trackId = data.getString("trackId")
       val remoteAudioTrack = HmsHelper.getRemoteAudioTrackFromTrackId(trackId, hmsSDK?.getRoom())
       val remoteVideoTrack = HmsHelper.getRemoteVideoTrackFromTrackId(trackId, hmsSDK?.getRoom())
@@ -801,7 +819,9 @@ class HmsSDK(
         }
       }
     } else {
-      callback?.reject("101", "TRACK_ID_NOT_FOUND")
+      val errorMessage = "isPlaybackAllowed: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(callback, errorMessage)
     }
   }
 
@@ -812,12 +832,12 @@ class HmsSDK(
 
   fun setVolume(data: ReadableMap) {
     val requiredKeys =
-        HmsHelper.areAllRequiredKeysAvailable(
+        HmsHelper.getUnavailableRequiredKey(
             data,
             arrayOf(Pair("trackId", "String"), Pair("volume", "Float"))
         )
 
-    if (requiredKeys) {
+    if (requiredKeys === null) {
       val trackId = data.getString("trackId")
       val volume = data.getDouble("volume")
 
@@ -848,15 +868,15 @@ class HmsSDK(
         this.emitCustomError("REMOTE_PEERS_NOT_FOUND")
       }
     } else {
-      this.emitRequiredKeysError()
+      val errorMessage = "setVolume: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
     }
   }
 
   fun getVolume(data: ReadableMap, callback: Promise?) {
     val requiredKeys =
-        HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("trackId", "String")))
-
-    if (requiredKeys) {
+        HmsHelper.getUnavailableRequiredKey(data, arrayOf(Pair("trackId", "String")))
+    if (requiredKeys === null) {
       val trackId = data.getString("trackId")
 
       val localPeer = hmsSDK?.getLocalPeer()
@@ -868,15 +888,16 @@ class HmsSDK(
       }
       callback?.reject("101", "TRACK_IDS_DO_NOT_MATCH")
     } else {
-      callback?.reject("101", "TRACK_NOT_FOUND")
+      val errorMessage = "getVolume: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(callback, errorMessage)
     }
   }
 
   fun changeMetadata(data: ReadableMap, callback: Promise?) {
     val requiredKeys =
-        HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("metadata", "String")))
-
-    if (requiredKeys) {
+        HmsHelper.getUnavailableRequiredKey(data, arrayOf(Pair("metadata", "String")))
+    if (requiredKeys === null) {
       val metadata = data.getString("metadata")
 
       if (metadata != null) {
@@ -894,17 +915,19 @@ class HmsSDK(
         )
       }
     } else {
-      self.emitRequiredKeysError()
+      val errorMessage = "changeMetadata: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(callback, errorMessage)
     }
   }
 
   fun startRTMPOrRecording(data: ReadableMap, callback: Promise?) {
     val requiredKeys =
-        HmsHelper.areAllRequiredKeysAvailable(
+        HmsHelper.getUnavailableRequiredKey(
             data,
             arrayOf(Pair("record", "Boolean"), Pair("meetingURL", "String"))
         )
-    if (requiredKeys) {
+    if (requiredKeys === null) {
       val record = data.getBoolean("record")
       val meetingURL = data.getString("meetingURL") as String
       var rtmpURLs = data.getArray("rtmpURLs")
@@ -927,8 +950,9 @@ class HmsSDK(
           }
       )
     } else {
-      callback?.reject("101", "REQUIRED_KEYS_NOT_FOUND")
-      self.emitRequiredKeysError()
+      val errorMessage = "startRTMPOrRecording: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(callback, errorMessage)
     }
   }
 
@@ -978,8 +1002,8 @@ class HmsSDK(
 
   fun startHLSStreaming(data: ReadableMap, callback: Promise?) {
     val requiredKeys =
-        HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("meetingURLVariants", "Array")))
-    if (requiredKeys) {
+        HmsHelper.getUnavailableRequiredKey(data, arrayOf(Pair("meetingURLVariants", "Array")))
+    if (requiredKeys === null) {
       val meetingURLVariants =
           data.getArray("meetingURLVariants")?.toArrayList() as? ArrayList<HashMap<String, String>>
       val hlsMeetingUrlVariant = HmsHelper.getHMSHLSMeetingURLVariants(meetingURLVariants)
@@ -999,8 +1023,9 @@ class HmsSDK(
           }
       )
     } else {
-      callback?.reject("101", "REQUIRED_KEYS_NOT_FOUND")
-      self.emitRequiredKeysError()
+      val errorMessage = "startHLSStreaming: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(callback, errorMessage)
     }
   }
 
@@ -1041,8 +1066,8 @@ class HmsSDK(
   }
 
   fun changeName(data: ReadableMap, callback: Promise?) {
-    val requiredKeys = HmsHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("name", "String")))
-    if (requiredKeys) {
+    val requiredKeys = HmsHelper.getUnavailableRequiredKey(data, arrayOf(Pair("name", "String")))
+    if (requiredKeys === null) {
       val name = data.getString("name")
       if (name != null && name != "") {
         hmsSDK?.changeName(
@@ -1063,8 +1088,9 @@ class HmsSDK(
         callback?.reject("101", "NAME_UNDEFINED")
       }
     } else {
-      callback?.reject("101", "REQUIRED_KEYS_NOT_FOUND")
-      self.emitRequiredKeysError()
+      val errorMessage = "changeName: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(callback, errorMessage)
     }
   }
 }
