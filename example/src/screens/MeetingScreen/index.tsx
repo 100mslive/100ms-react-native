@@ -1177,7 +1177,7 @@ const Meeting = ({
       <View style={styles.headerContainer}>
         <Text style={styles.headerName}>
           {speakers?.length > 0 && speakers[0]?.peer?.name
-            ? `${speakers[0]?.peer?.name}  🔊`
+            ? `🔊  ${speakers[0]?.peer?.name}`
             : roomCode}
         </Text>
         <View style={styles.headerRight}>
