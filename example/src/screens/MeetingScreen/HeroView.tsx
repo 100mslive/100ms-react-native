@@ -7,7 +7,6 @@ import type {
 } from '@100mslive/react-native-hms';
 
 import {decodePeer} from '../../utils/functions';
-import type {RootState} from '../../redux';
 import type {Peer} from '../../utils/types';
 import {DisplayTrack} from './DisplayTrack';
 import {styles} from './styles';
@@ -15,7 +14,6 @@ import {styles} from './styles';
 type HeroViewProps = {
   instance: HMSSDK | undefined;
   speakers: HMSSpeaker[];
-  state: RootState;
   localPeerPermissions: HMSPermissions | undefined;
   setChangeNameModal: Function;
 };
@@ -33,7 +31,6 @@ const searchMainSpeaker = (speaker: Peer | undefined, list: Peer[]) => {
 const HeroView = ({
   instance,
   speakers,
-  state,
   localPeerPermissions,
   setChangeNameModal,
 }: HeroViewProps) => {
@@ -88,7 +85,6 @@ const HeroView = ({
             instance={instance}
             videoStyles={() => styles.heroView}
             permissions={localPeerPermissions}
-            mirrorLocalVideo={state.user.mirrorLocalVideo}
             speakerIds={[]}
             type={undefined}
             layout="hero"

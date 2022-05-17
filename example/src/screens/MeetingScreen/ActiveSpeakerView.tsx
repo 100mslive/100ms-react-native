@@ -10,7 +10,6 @@ import type {
 } from '@100mslive/react-native-hms';
 
 import {decodePeer, pairDataForScrollView} from '../../utils/functions';
-import type {RootState} from '../../redux';
 import type {Peer, LayoutParams} from '../../utils/types';
 import {GridView} from './Grid';
 
@@ -20,7 +19,6 @@ type ActiveSpeakerViewProps = {
   instance: HMSSDK | undefined;
   localPeerPermissions: HMSPermissions | undefined;
   layout: LayoutParams;
-  state: RootState;
   setChangeNameModal: React.Dispatch<React.SetStateAction<boolean>>;
   statsForNerds: boolean;
   rtcStats: HMSRTCStatsReport | undefined;
@@ -146,7 +144,6 @@ const ActiveSpeakerView = ({
   instance,
   localPeerPermissions,
   layout,
-  state,
   setChangeNameModal,
   statsForNerds,
   rtcStats,
@@ -182,7 +179,6 @@ const ActiveSpeakerView = ({
       instance={instance}
       localPeerPermissions={localPeerPermissions}
       layout={layout}
-      state={state}
       setChangeNameModal={setChangeNameModal}
       statsForNerds={statsForNerds}
       rtcStats={rtcStats}

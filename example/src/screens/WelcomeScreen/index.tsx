@@ -77,6 +77,7 @@ type WelcomeScreenProp = NativeStackNavigationProp<
 type ButtonState = 'Active' | 'Loading';
 
 let config: HMSConfig | null = null;
+let roomCode: string | null = null;
 
 const App = ({
   setAudioVideoStateRequest,
@@ -312,6 +313,7 @@ const App = ({
       userName: userID,
       roomID: roomID.replace('meeting', 'preview'),
       mirrorLocalVideo,
+      roomCode,
     });
     instance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
     if (skipPreview) {
@@ -359,6 +361,7 @@ const App = ({
       userName: userID,
       roomID: roomID.replace('meeting', 'preview'),
       mirrorLocalVideo,
+      roomCode,
     });
     instance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
     if (skipPreview) {
@@ -449,13 +452,13 @@ const App = ({
       );
 
       if (codeObject && domainObject) {
-        const code = codeObject[0];
+        roomCode = codeObject[0];
         const domain = domainObject[0];
 
         const strippedDomain = domain.replace('https://', '');
 
         tokenFromLinkService(
-          code,
+          roomCode,
           strippedDomain,
           userID,
           checkPermissionsForLink,

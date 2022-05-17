@@ -14,6 +14,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {Slider} from '@miblanchard/react-native-slider';
+import {useSelector} from 'react-redux';
 import RNFS from 'react-native-fs';
 import CameraRoll from '@react-native-community/cameraroll';
 import Toast from 'react-native-simple-toast';
@@ -26,6 +27,7 @@ import {
 } from '../../utils/functions';
 import {styles} from './styles';
 import type {Peer, LayoutParams} from '../../utils/types';
+import type {RootState} from '../../redux';
 
 type DisplayTrackProps = {
   peer: Peer;
@@ -35,7 +37,6 @@ type DisplayTrackProps = {
   speakerIds?: Array<string>;
   type?: 'local' | 'remote' | 'screen';
   layout?: LayoutParams;
-  mirrorLocalVideo?: boolean;
   setChangeNameModal?: Function;
   statsForNerds?: boolean;
   rtcStats?: HMSRTCStatsReport;
@@ -54,7 +55,6 @@ const DisplayTrack = ({
   instance,
   permissions,
   layout,
-  mirrorLocalVideo,
   setChangeNameModal,
   statsForNerds,
   remoteAudioStats,
@@ -73,6 +73,7 @@ const DisplayTrack = ({
     isVideoMute,
     metadata,
   } = peer!;
+  const {mirrorLocalVideo} = useSelector((state: RootState) => state.user);
   const [alertModalVisible, setAlertModalVisible] = useState(false);
   const [roleModalVisible, setRoleModalVisible] = useState(false);
   const [newRole, setNewRole] = useState(peerReference?.role);
