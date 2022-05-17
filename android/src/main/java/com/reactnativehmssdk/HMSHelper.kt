@@ -286,7 +286,7 @@ object HMSHelper {
     return HMSVideoTrackSettings.CameraFacing.FRONT
   }
 
-  fun getHms(credentials: ReadableMap, hmsCollection: MutableMap<String, HmsSDK>): HmsSDK? {
+  fun getHms(credentials: ReadableMap, hmsCollection: MutableMap<String, HMSRNSDK>): HMSRNSDK? {
     val id = credentials.getString("id")
 
     return if (id != null) {

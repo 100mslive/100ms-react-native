@@ -19,7 +19,7 @@ import live.hms.video.sdk.models.trackchangerequest.HMSChangeTrackStateRequest
 import live.hms.video.utils.HMSCoroutineScope
 import live.hms.video.utils.HmsUtilities
 
-class HmsSDK(
+class HMSRNSDK(
     data: ReadableMap?,
     HmsDelegate: HMSManager,
     sdkId: String,

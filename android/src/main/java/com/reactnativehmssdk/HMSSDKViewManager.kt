@@ -80,7 +80,7 @@ class HMSSDKViewManager : SimpleViewManager<HMSView>() {
     view.updateZOrderMediaOverlay(data)
   }
 
-  private fun getHms(): MutableMap<String, HmsSDK>? {
+  private fun getHms(): MutableMap<String, HMSRNSDK>? {
     return reactContext?.getNativeModule(HMSManager::class.java)?.getHmsInstance()
   }
 

@@ -14,13 +14,13 @@ class HMSManager(reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext), Application.ActivityLifecycleCallbacks {
   companion object {
     const val REACT_CLASS = "HmsManager"
-    var hmsCollection = mutableMapOf<String, HmsSDK>()
+    var hmsCollection = mutableMapOf<String, HMSRNSDK>()
   }
   override fun getName(): String {
     return "HmsManager"
   }
 
-  fun getHmsInstance(): MutableMap<String, HmsSDK> {
+  fun getHmsInstance(): MutableMap<String, HMSRNSDK> {
     return hmsCollection
   }
 
@@ -32,14 +32,14 @@ class HMSManager(reactContext: ReactApplicationContext) :
     if (hasItem) {
       val uuid = UUID.randomUUID()
       val randomUUIDString = uuid.toString()
-      val sdkInstance = HmsSDK(data, this, randomUUIDString, reactApplicationContext)
+      val sdkInstance = HMSRNSDK(data, this, randomUUIDString, reactApplicationContext)
 
       hmsCollection[randomUUIDString] = sdkInstance
 
       callback?.resolve(randomUUIDString)
     } else {
       val randomUUIDString = "12345"
-      val sdkInstance = HmsSDK(data, this, randomUUIDString, reactApplicationContext)
+      val sdkInstance = HMSRNSDK(data, this, randomUUIDString, reactApplicationContext)
 
       hmsCollection[randomUUIDString] = sdkInstance
 
