@@ -29,7 +29,7 @@ import live.hms.video.sdk.models.role.HMSRole
 import live.hms.video.utils.HmsUtilities
 import org.webrtc.SurfaceViewRenderer
 
-object HmsHelper {
+object HMSHelper {
 
   fun areAllRequiredKeysAvailable(
       map: ReadableMap?,
