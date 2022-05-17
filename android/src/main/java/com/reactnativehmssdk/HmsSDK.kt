@@ -21,13 +21,13 @@ import live.hms.video.utils.HmsUtilities
 
 class HmsSDK(
     data: ReadableMap?,
-    HmsDelegate: HmsModule,
+    HmsDelegate: HMSManager,
     sdkId: String,
     reactApplicationContext: ReactApplicationContext
 ) {
   var hmsSDK: HMSSDK? = null
   var screenshareCallback: Promise? = null
-  var delegate: HmsModule = HmsDelegate
+  var delegate: HMSManager = HmsDelegate
   private var recentRoleChangeRequest: HMSRoleChangeRequest? = null
   private var context: ReactApplicationContext = reactApplicationContext
   private var previewInProgress: Boolean = false
@@ -55,13 +55,7 @@ class HmsSDK(
   private fun emitRequiredKeysError(message: String) {
     val data: WritableMap = Arguments.createMap()
     val hmsError =
-        HMSException(
-            102,
-            "REQUIRED_KEYS_NOT_FOUND",
-            "SEND_ALL_REQUIRED_KEYS",
-            message,
-            message
-        )
+        HMSException(102, "REQUIRED_KEYS_NOT_FOUND", "SEND_ALL_REQUIRED_KEYS", message, message)
     data.putString("event", "ON_ERROR")
     data.putString("id", id)
     data.putMap("error", HmsDecoder.getError(hmsError))
@@ -568,11 +562,7 @@ class HmsSDK(
   }
 
   fun changeTrackStateForRoles(data: ReadableMap, callback: Promise?) {
-    val requiredKeys =
-        HmsHelper.getUnavailableRequiredKey(
-            data,
-            arrayOf(Pair("mute", "Boolean"))
-        )
+    val requiredKeys = HmsHelper.getUnavailableRequiredKey(data, arrayOf(Pair("mute", "Boolean")))
     if (requiredKeys === null) {
       val mute: Boolean = data.getBoolean("mute")
       val type =
@@ -619,8 +609,7 @@ class HmsSDK(
   }
 
   fun isMute(data: ReadableMap, callback: Promise?) {
-    val requiredKeys =
-        HmsHelper.getUnavailableRequiredKey(data, arrayOf(Pair("trackId", "String")))
+    val requiredKeys = HmsHelper.getUnavailableRequiredKey(data, arrayOf(Pair("trackId", "String")))
     if (requiredKeys === null) {
       val trackId = data.getString("trackId")
       val localTrack = HmsHelper.getTrackFromTrackId(trackId, hmsSDK?.getRoom())
@@ -799,8 +788,7 @@ class HmsSDK(
   }
 
   fun isPlaybackAllowed(data: ReadableMap, callback: Promise?) {
-    val requiredKeys =
-        HmsHelper.getUnavailableRequiredKey(data, arrayOf(Pair("trackId", "String")))
+    val requiredKeys = HmsHelper.getUnavailableRequiredKey(data, arrayOf(Pair("trackId", "String")))
     if (requiredKeys === null) {
       val trackId = data.getString("trackId")
       val remoteAudioTrack = HmsHelper.getRemoteAudioTrackFromTrackId(trackId, hmsSDK?.getRoom())
@@ -874,8 +862,7 @@ class HmsSDK(
   }
 
   fun getVolume(data: ReadableMap, callback: Promise?) {
-    val requiredKeys =
-        HmsHelper.getUnavailableRequiredKey(data, arrayOf(Pair("trackId", "String")))
+    val requiredKeys = HmsHelper.getUnavailableRequiredKey(data, arrayOf(Pair("trackId", "String")))
     if (requiredKeys === null) {
       val trackId = data.getString("trackId")
 

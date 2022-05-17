@@ -81,7 +81,7 @@ class HmssdkViewManager : SimpleViewManager<HmsView>() {
   }
 
   private fun getHms(): MutableMap<String, HmsSDK>? {
-    return reactContext?.getNativeModule(HmsModule::class.java)?.getHmsInstance()
+    return reactContext?.getNativeModule(HMSManager::class.java)?.getHmsInstance()
   }
 
   companion object {

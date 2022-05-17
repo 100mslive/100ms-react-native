@@ -6,11 +6,11 @@ import android.os.Bundle
 import com.facebook.react.bridge.*
 import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.modules.core.DeviceEventManagerModule
-import com.reactnativehmssdk.HmsModule.Companion.REACT_CLASS
+import com.reactnativehmssdk.HMSManager.Companion.REACT_CLASS
 import java.util.UUID
 
 @ReactModule(name = REACT_CLASS)
-class HmsModule(reactContext: ReactApplicationContext) :
+class HMSManager(reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext), Application.ActivityLifecycleCallbacks {
   companion object {
     const val REACT_CLASS = "HmsManager"
