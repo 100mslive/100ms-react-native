@@ -64,6 +64,39 @@ object HmsHelper {
     return true
   }
 
+  fun getUnavailableRequiredKey(
+    map: ReadableMap?,
+    requiredKeys: Array<Pair<String, String>>
+  ): String? {
+    if (map == null) {
+      return "Object_Is_Null"
+    }
+    for ((key, value) in requiredKeys) {
+      if (map.hasKey(key)) {
+        when (value) {
+          "String" -> {
+            if (map.getString(key) == null) {
+              return key+"_Is_Null"
+            }
+          }
+          "Array" -> {
+            if (map.getArray(key) == null) {
+              return key+"_Is_Null"
+            }
+          }
+          "Map" -> {
+            if (map.getMap(key) == null) {
+              return key+"_Is_Null"
+            }
+          }
+        }
+      } else {
+        return key+"_Is_Required"
+      }
+    }
+    return null
+  }
+
   fun getPeerFromPeerId(peerId: String?, room: HMSRoom?): HMSPeer? {
     if (peerId != null && room != null) {
       return HmsUtilities.getPeer(peerId, room)
@@ -442,7 +475,7 @@ object HmsHelper {
           surfaceView,
           bitmap,
           { copyResult ->
-            if (copyResult === PixelCopy.SUCCESS) {
+            if (copyResult == PixelCopy.SUCCESS) {
               Log.d("captureSurfaceView", "bitmap: $bitmap")
               val byteArrayOutputStream = ByteArrayOutputStream()
               bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
