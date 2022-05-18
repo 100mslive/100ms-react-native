@@ -97,10 +97,10 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
   }
 
   fun setData(
-    id: String?,
-    trackId: String?,
-    hmsCollection: MutableMap<String, HMSRNSDK>,
-    mirror: Boolean?
+      id: String?,
+      trackId: String?,
+      hmsCollection: MutableMap<String, HMSRNSDK>,
+      mirror: Boolean?
   ) {
     if (id != null) {
       sdkId = id
