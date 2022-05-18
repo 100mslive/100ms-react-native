@@ -8,7 +8,7 @@ const {
   /**
    * @ignore
    */
-  HmsManager,
+  HMSManager,
 } = NativeModules;
 
 export class HMSLocalAudioTrack extends HMSAudioTrack {
@@ -30,7 +30,7 @@ export class HMSLocalAudioTrack extends HMSAudioTrack {
       type: this.type,
       isMute,
     });
-    HmsManager.setLocalMute({ isMute, id: this.id });
+    HMSManager.setLocalMute({ isMute, id: this.id });
   }
 
   getVolume = async () => {
@@ -44,7 +44,7 @@ export class HMSLocalAudioTrack extends HMSAudioTrack {
     if (Platform.OS === 'ios') {
       return 'This API not available for IOS';
     }
-    const volume = await HmsManager.getVolume({
+    const volume = await HMSManager.getVolume({
       trackId: this.trackId,
       id: this.id,
     });

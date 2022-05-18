@@ -13,11 +13,11 @@ import java.util.UUID
 class HMSManager(reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext), Application.ActivityLifecycleCallbacks {
   companion object {
-    const val REACT_CLASS = "HmsManager"
+    const val REACT_CLASS = "HMSManager"
     var hmsCollection = mutableMapOf<String, HMSRNSDK>()
   }
   override fun getName(): String {
-    return "HmsManager"
+    return "HMSManager"
   }
 
   fun getHmsInstance(): MutableMap<String, HMSRNSDK> {

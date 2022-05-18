@@ -13,7 +13,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     var hms: HMSSDK?
     var config: HMSConfig?
     var recentRoleChangeRequest: HMSRoleChangeRequest?
-    var delegate: HmsManager?
+    var delegate: HMSManager?
     var id: String = "12345"
     var rtcStatsAttached = false
     var recentPreviewTracks: [HMSTrack]? = []
@@ -38,7 +38,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
     // MARK: - Setup
 
-    init(data: NSDictionary?, delegate manager: HmsManager?, uid id: String) {
+    init(data: NSDictionary?, delegate manager: HMSManager?, uid id: String) {
         let videoSettings = HMSHelper.getLocalVideoSettings(data?.value(forKey: "video") as? NSDictionary)
         let audioSettings = HMSHelper.getLocalAudioSettings(data?.value(forKey: "audio") as? NSDictionary)
         DispatchQueue.main.async { [weak self] in

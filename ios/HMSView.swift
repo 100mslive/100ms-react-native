@@ -14,7 +14,7 @@ class HMSView: RCTViewManager {
     }
 
     func getHmsFromBridge() -> [String: HMSRNSDK] {
-        let collection: [String: HMSRNSDK] = (bridge.module(for: HmsManager.classForCoder()) as? HmsManager)?.hmsCollection ?? [:]
+        let collection: [String: HMSRNSDK] = (bridge.module(for: HMSManager.classForCoder()) as? HMSManager)?.hmsCollection ?? [:]
         return collection
     }
 
