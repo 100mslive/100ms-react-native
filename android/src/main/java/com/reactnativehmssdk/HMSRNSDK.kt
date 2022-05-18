@@ -960,7 +960,7 @@ class HMSRNSDK(
   fun startScreenshare(callback: Promise?) {
     screenshareCallback = callback
     runOnUiThread {
-      val intent = Intent(context, HMSScreenshareActivity::class.java)
+      val intent = Intent(context, HmsScreenshareActivity::class.java)
       intent.flags = FLAG_ACTIVITY_NEW_TASK
       intent.putExtra("id", id)
       context.startActivity(intent)

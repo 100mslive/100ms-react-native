@@ -11,7 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import live.hms.video.error.HMSException
 import live.hms.video.sdk.HMSActionResultListener
 
-class HMSScreenshareActivity : ComponentActivity() {
+class HmsScreenshareActivity : ComponentActivity() {
   private var resultLauncher: ActivityResultLauncher<Intent> =
       this.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
