@@ -63,110 +63,110 @@ class HmsManager: RCTEventEmitter {
 
     @objc
     func preview(_ credentials: NSDictionary) {
-        let hms = HmsHelper.getHms(credentials, hmsCollection)
+        let hms = HMSHelper.getHms(credentials, hmsCollection)
         hms?.preview(credentials)
     }
     
     @objc
     func previewForRole(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HmsHelper.getHms(data, hmsCollection)
+        let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.previewForRole(data, resolve, reject)
     }
     
     @objc
     func cancelPreview(_ data: NSDictionary) {
-        let hms = HmsHelper.getHms(data, hmsCollection)
+        let hms = HMSHelper.getHms(data, hmsCollection)
         
         hms?.cancelPreview()
     }
 
     @objc
     func join(_ credentials: NSDictionary) {
-        let hms = HmsHelper.getHms(credentials, hmsCollection)
+        let hms = HMSHelper.getHms(credentials, hmsCollection)
         hms?.join(credentials)
     }
 
     @objc
     func setLocalMute(_ data: NSDictionary) {
-        let hms = HmsHelper.getHms(data, hmsCollection)
+        let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.setLocalMute(data)
     }
 
     @objc
     func setLocalVideoMute(_ data: NSDictionary) {
-        let hms = HmsHelper.getHms(data, hmsCollection)
+        let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.setLocalVideoMute(data)
     }
 
     @objc
     func switchCamera(_ data: NSDictionary) {
-        let hms = HmsHelper.getHms(data, hmsCollection)
+        let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.switchCamera()
     }
 
     @objc
     func leave(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HmsHelper.getHms(data, hmsCollection)
+        let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.leave(resolve, reject)
     }
 
     @objc
     func sendBroadcastMessage(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HmsHelper.getHms(data, hmsCollection)
+        let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.sendBroadcastMessage(data, resolve, reject)
     }
 
     @objc
     func sendGroupMessage(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HmsHelper.getHms(data, hmsCollection)
+        let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.sendGroupMessage(data, resolve, reject)
     }
 
     @objc
     func sendDirectMessage(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HmsHelper.getHms(data, hmsCollection)
+        let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.sendDirectMessage(data, resolve, reject)
     }
 
     @objc
     func acceptRoleChange(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HmsHelper.getHms(data, hmsCollection)
+        let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.acceptRoleChange(resolve, reject)
     }
 
     @objc
     func changeRole(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HmsHelper.getHms(data, hmsCollection)
+        let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.changeRole(data, resolve, reject)
     }
 
     @objc
     func changeTrackState(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HmsHelper.getHms(data, hmsCollection)
+        let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.changeTrackState(data, resolve, reject)
     }
 
     @objc
     func changeTrackStateForRoles(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HmsHelper.getHms(data, hmsCollection)
+        let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.changeTrackStateForRoles(data, resolve, reject)
     }
 
     @objc
     func isMute(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HmsHelper.getHms(data, hmsCollection)
+        let hms = HMSHelper.getHms(data, hmsCollection)
         if let hmsInstance = hms {
             hmsInstance.isMute(data, resolve, reject)
         } else {
@@ -177,35 +177,35 @@ class HmsManager: RCTEventEmitter {
 
     @objc
     func removePeer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HmsHelper.getHms(data, hmsCollection)
+        let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.removePeer(data, resolve, reject)
     }
 
     @objc
     func endRoom(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HmsHelper.getHms(data, hmsCollection)
+        let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.endRoom(data, resolve, reject)
     }
 
     @objc
     func setPlaybackAllowed(_ data: NSDictionary) {
-        let hms = HmsHelper.getHms(data, hmsCollection)
+        let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.setPlaybackAllowed(data)
     }
 
     @objc
     func isPlaybackAllowed(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HmsHelper.getHms(data, hmsCollection)
+        let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.isPlaybackAllowed(data, resolve, reject)
     }
 
     @objc
     func getRoom(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HmsHelper.getHms(data, hmsCollection)
+        let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.getRoom(data, resolve, reject)
     }
@@ -219,84 +219,84 @@ class HmsManager: RCTEventEmitter {
 
     @objc
     func setPlaybackForAllAudio(_ data: NSDictionary) {
-        let hms = HmsHelper.getHms(data, hmsCollection)
+        let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.setPlaybackForAllAudio(data)
     }
     
     @objc
     func remoteMuteAllAudio(_ data: NSDictionary) {
-        let hms = HmsHelper.getHms(data, hmsCollection)
+        let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.remoteMuteAllAudio()
     }
 
     @objc
     func changeMetadata(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HmsHelper.getHms(data, hmsCollection)
+        let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.changeMetadata(data, resolve, reject)
     }
 
     @objc
     func setVolume(_ data: NSDictionary) {
-        let hms = HmsHelper.getHms(data, hmsCollection)
+        let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.setVolume(data)
     }
 
     @objc
     func startRTMPOrRecording(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HmsHelper.getHms(data, hmsCollection)
+        let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.startRTMPOrRecording(data, resolve, reject)
     }
 
     @objc
     func stopRtmpAndRecording(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HmsHelper.getHms(data, hmsCollection)
+        let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.stopRtmpAndRecording(resolve, reject)
     }
 
     @objc
     func startHLSStreaming(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HmsHelper.getHms(data, hmsCollection)
+        let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.startHLSStreaming(data, resolve, reject)
     }
 
     @objc
     func stopHLSStreaming(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HmsHelper.getHms(data, hmsCollection)
+        let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.stopHLSStreaming(resolve, reject)
     }
     
     @objc
     func changeName(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HmsHelper.getHms(data, hmsCollection)
+        let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.changeName(data, resolve, reject)
     }
     
     @objc
     func enableRTCStats(_ data: NSDictionary) {
-        let hms = HmsHelper.getHms(data, hmsCollection)
+        let hms = HMSHelper.getHms(data, hmsCollection)
         
         hms?.enableRTCStats()
     }
     
     @objc
     func disableRTCStats(_ data: NSDictionary) {
-        let hms = HmsHelper.getHms(data, hmsCollection)
+        let hms = HMSHelper.getHms(data, hmsCollection)
         
         hms?.disableRTCStats()
     }
 
 //    @objc
 //    func setLocalVideoSettings(_ data: NSDictionary) {
-//        let hms = HmsHelper.getHms(data, hmsCollection)
+//        let hms = HMSHelper.getHms(data, hmsCollection)
 //
 //        hms?.setLocalVideoSettings(data)
 //    }

@@ -71,7 +71,7 @@ class HMSDecoder: NSObject {
         let source = hmsTrack.source
         let trackDescription = hmsTrack.trackDescription
         let isMute = hmsTrack.isMute()
-        let type = HmsHelper.getHmsTrackType(hmsTrack.kind) ?? ""
+        let type = HMSHelper.getHmsTrackType(hmsTrack.kind) ?? ""
 
         return ["trackId": trackId, "source": source, "trackDescription": trackDescription, "isMute": isMute, "type": type, "kind": type]
     }
@@ -84,7 +84,7 @@ class HMSDecoder: NSObject {
         let source: String = hmsTrack.source
         let trackDescription: String = hmsTrack.trackDescription
         let isMute: Bool = hmsTrack.isMute()
-        let kind: String = HmsHelper.getHmsTrackType(hmsTrack.kind) ?? ""
+        let kind: String = HMSHelper.getHmsTrackType(hmsTrack.kind) ?? ""
 
         return ["trackId": trackId, "source": source, "trackDescription": trackDescription, "isMute": isMute, "type": kind, "kind": kind]
     }
@@ -98,7 +98,7 @@ class HMSDecoder: NSObject {
         let trackDescription = hmsTrack.trackDescription
         let isMute = hmsTrack.isMute()
         let isDegraded = hmsTrack.isDegraded()
-        let kind: String = HmsHelper.getHmsTrackType(hmsTrack.kind) ?? ""
+        let kind: String = HMSHelper.getHmsTrackType(hmsTrack.kind) ?? ""
 
         return ["trackId": trackId, "source": source, "trackDescription": trackDescription, "isMute": isMute, "isDegraded": isDegraded, "type": kind, "kind": kind]
     }
@@ -140,12 +140,12 @@ class HMSDecoder: NSObject {
     }
     
     static func getHmsLocalAudioTrack(_ localAudio: HMSLocalAudioTrack) -> [String: Any] {
-        let type = HmsHelper.getHmsTrackType(localAudio.kind) ?? ""
+        let type = HMSHelper.getHmsTrackType(localAudio.kind) ?? ""
         return ["trackId": localAudio.trackId, "source": localAudio.source, "trackDescription": localAudio.trackDescription, "settings": getHmsAudioTrackSettings(localAudio.settings), "isMute": localAudio.isMute(), "type": type, "kind": type]
     }
     
     static func getHmsLocalVideoTrack(_ localVideo: HMSLocalVideoTrack) -> [String: Any] {
-        let type = HmsHelper.getHmsTrackType(localVideo.kind) ?? ""
+        let type = HMSHelper.getHmsTrackType(localVideo.kind) ?? ""
         return ["trackId": localVideo.trackId, "source": localVideo.source, "trackDescription": localVideo.trackDescription, "settings": getHmsVideoTrackSettings(localVideo.settings), "isMute": localVideo.isMute(), "type": type, "kind": type]
     }
 
@@ -260,12 +260,12 @@ class HMSDecoder: NSObject {
     }
     
     static func getHMSRemoteAudioTrack(_ remoteAudio: HMSRemoteAudioTrack) -> [String: Any] {
-        let type = HmsHelper.getHmsTrackType(remoteAudio.kind) ?? ""
+        let type = HMSHelper.getHmsTrackType(remoteAudio.kind) ?? ""
         return ["trackId": remoteAudio.trackId, "source": remoteAudio.source, "trackDescription": remoteAudio.trackDescription, "playbackAllowed": remoteAudio.isPlaybackAllowed(), "isMute": remoteAudio.isMute(), "type": type, "kind": type]
     }
     
     static func getHMSRemoteVideoTrack(_ remoteVideo: HMSRemoteVideoTrack) -> [String: Any] {
-        let type = HmsHelper.getHmsTrackType(remoteVideo.kind) ?? ""
+        let type = HMSHelper.getHmsTrackType(remoteVideo.kind) ?? ""
         return ["trackId": remoteVideo.trackId, "source": remoteVideo.source, "trackDescription": remoteVideo.trackDescription, "layer": remoteVideo.layer.rawValue, "playbackAllowed": remoteVideo.isPlaybackAllowed(), "isMute": remoteVideo.isMute(), "isDegraded": remoteVideo.isDegraded(), "type": type, "kind": type]
     }
 
@@ -275,13 +275,13 @@ class HMSDecoder: NSObject {
 
         for track in tracks {
             if let localVideo = track as? HMSLocalVideoTrack {
-                let type = HmsHelper.getHmsTrackType(localVideo.kind) ?? ""
+                let type = HMSHelper.getHmsTrackType(localVideo.kind) ?? ""
                 let localVideoTrackData: [String: Any] = ["trackId": localVideo.trackId, "source": localVideo.source, "trackDescription": localVideo.trackDescription, "settings": getHmsVideoTrackSettings(localVideo.settings), "isMute": localVideo.isMute(), "kind": type, "type": type]
                 hmsTracks["videoTrack"] = localVideoTrackData
             }
 
             if let localAudio = track as? HMSLocalAudioTrack {
-                let type = HmsHelper.getHmsTrackType(localAudio.kind) ?? ""
+                let type = HMSHelper.getHmsTrackType(localAudio.kind) ?? ""
                 let localAudioTrackData: [String: Any]  = ["trackId": localAudio.trackId, "source": localAudio.source, "trackDescription": localAudio.trackDescription, "settings": getHmsAudioTrackSettings(localAudio.settings), "isMute": localAudio.isMute(), "kind": type, "type": type]
                 hmsTracks["audioTrack"] = localAudioTrackData
             }

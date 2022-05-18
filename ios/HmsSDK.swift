@@ -39,8 +39,8 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
     // MARK: - Setup
 
     init(data: NSDictionary?, delegate manager: HmsManager?, uid id: String) {
-        let videoSettings = HmsHelper.getLocalVideoSettings(data?.value(forKey: "video") as? NSDictionary)
-        let audioSettings = HmsHelper.getLocalAudioSettings(data?.value(forKey: "audio") as? NSDictionary)
+        let videoSettings = HMSHelper.getLocalVideoSettings(data?.value(forKey: "video") as? NSDictionary)
+        let audioSettings = HMSHelper.getLocalAudioSettings(data?.value(forKey: "audio") as? NSDictionary)
         DispatchQueue.main.async { [weak self] in
             let hmsTrackSettings = HMSTrackSettings(videoSettings: videoSettings, audioSettings: audioSettings)
             self?.hms = HMSSDK.build { sdk in
@@ -96,7 +96,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
         
-        let roleObj = HmsHelper.getRoleFromRoleName(role, roles: hms?.roles)
+        let roleObj = HMSHelper.getRoleFromRoleName(role, roles: hms?.roles)
         
         if let extractedRole = roleObj {
             hms?.preview(role: extractedRole, completion: { tracks, error in
@@ -238,7 +238,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
 
         let type = data.value(forKey: "type") as? String ?? "chat"
         DispatchQueue.main.async { [weak self] in
-            let encodedTargetedRoles = HmsHelper.getRolesFromRoleNames(targetedRoles, roles: self?.hms?.roles)
+            let encodedTargetedRoles = HMSHelper.getRolesFromRoleNames(targetedRoles, roles: self?.hms?.roles)
             self?.hms?.sendGroupMessage(type: type, message: message, roles: encodedTargetedRoles, completion: { message, error in
                 if error == nil {
                     resolve?(["success": true, "data": ["sender": message?.sender?.name ?? "", "message": message?.message ?? "", "type": message?.type]])
@@ -263,7 +263,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
 
         let type = data.value(forKey: "type") as? String ?? "chat"
         DispatchQueue.main.async { [weak self] in
-            guard let peer = HmsHelper.getRemotePeerFromPeerId(peerId, remotePeers: self?.hms?.remotePeers) else { return }
+            guard let peer = HMSHelper.getRemotePeerFromPeerId(peerId, remotePeers: self?.hms?.remotePeers) else { return }
             self?.hms?.sendDirectMessage(type: type, message: message, peer: peer, completion: { message, error in
                 if error == nil {
                     resolve?(["success": true, "data": ["sender": message?.sender?.name ?? "", "message": message?.message ?? "", "type": message?.type]])
@@ -309,8 +309,8 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         let force = data.value(forKey: "force") as? Bool ?? false
 
         DispatchQueue.main.async { [weak self] in
-            guard let peer = HmsHelper.getPeerFromPeerId(peerId, remotePeers: self?.hms?.remotePeers, localPeer: self?.hms?.localPeer),
-            let role = HmsHelper.getRoleFromRoleName(role, roles: self?.hms?.roles)
+            guard let peer = HMSHelper.getPeerFromPeerId(peerId, remotePeers: self?.hms?.remotePeers, localPeer: self?.hms?.localPeer),
+            let role = HMSHelper.getRoleFromRoleName(role, roles: self?.hms?.roles)
             else { return }
 
             self?.hms?.changeRole(for: peer, to: role, force: force, completion: { success, error in
@@ -337,7 +337,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
 
         DispatchQueue.main.async { [weak self] in
             guard let remotePeers = self?.hms?.remotePeers,
-                  let track = HmsHelper.getTrackFromTrackId(trackId, remotePeers)
+                  let track = HMSHelper.getTrackFromTrackId(trackId, remotePeers)
             else { return }
 
             self?.hms?.changeTrackState(for: track, mute: mute, completion: { success, error in
@@ -373,7 +373,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         }
 
         DispatchQueue.main.async { [weak self] in
-            let encodedTargetedRoles = HmsHelper.getRolesFromRoleNames(targetedRoles, roles: self?.hms?.roles)
+            let encodedTargetedRoles = HMSHelper.getRolesFromRoleNames(targetedRoles, roles: self?.hms?.roles)
             self?.hms?.changeTrackState(mute: mute, for: decodeType, source: source, roles: encodedTargetedRoles, completion: { success, error in
                 if success {
                     resolve?(["success": true])
@@ -397,10 +397,10 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
             guard let localPeer = self?.hms?.localPeer,
-                let localTrack = HmsHelper.getLocalTrackFromTrackId(trackId, localPeer: localPeer)
+                let localTrack = HMSHelper.getLocalTrackFromTrackId(trackId, localPeer: localPeer)
             else {
                 guard let remotePeers = self?.hms?.remotePeers,
-                    let track = HmsHelper.getTrackFromTrackId(trackId, remotePeers)
+                    let track = HMSHelper.getTrackFromTrackId(trackId, remotePeers)
                 else {
                     let error = HMSError(id: "120", code: HMSErrorCode.genericErrorUnknown, message: "NOT_FOUND")
                     strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["event": strongSelf.ON_ERROR, "error": HMSDecoder.getError(error), "id": strongSelf.id])
@@ -430,7 +430,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
         DispatchQueue.main.async { [weak self] in
 
             guard let remotePeers = self?.hms?.remotePeers,
-                  let peer = HmsHelper.getRemotePeerFromPeerId(peerId, remotePeers: remotePeers)
+                  let peer = HMSHelper.getRemotePeerFromPeerId(peerId, remotePeers: remotePeers)
             else { return }
 
             self?.hms?.removePeer(peer, reason: reason ?? "Removed from room", completion: { success, error in
@@ -483,8 +483,8 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
                 reject?(nil, "NOT_FOUND", nil)
                 return
             }
-            let remoteAudioTrack = HmsHelper.getRemoteAudioTrackFromTrackId(trackId, remotePeers)
-            let remoteVideoTrack = HmsHelper.getRemoteVideoTrackFromTrackId(trackId, remotePeers)
+            let remoteAudioTrack = HMSHelper.getRemoteAudioTrackFromTrackId(trackId, remotePeers)
+            let remoteVideoTrack = HMSHelper.getRemoteVideoTrackFromTrackId(trackId, remotePeers)
             if remoteAudioTrack != nil {
                 let isPlaybackAllowed = remoteAudioTrack?.isPlaybackAllowed()
                 resolve?(isPlaybackAllowed)
@@ -521,8 +521,8 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
             else {
                 return
             }
-            let remoteAudioTrack = HmsHelper.getRemoteAudioTrackFromTrackId(trackId, remotePeers)
-            let remoteVideoTrack = HmsHelper.getRemoteVideoTrackFromTrackId(trackId, remotePeers)
+            let remoteAudioTrack = HMSHelper.getRemoteAudioTrackFromTrackId(trackId, remotePeers)
+            let remoteVideoTrack = HMSHelper.getRemoteVideoTrackFromTrackId(trackId, remotePeers)
             if remoteAudioTrack != nil {
                 if playbackAllowed {
                     remoteAudioTrack?.setPlaybackAllowed(playbackAllowed)
@@ -569,7 +569,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
             guard let strongSelf = self else { return }
             let remotePeers = self?.hms?.remotePeers
 
-            let remoteAudioTrack = HmsHelper.getRemoteAudioAuxiliaryTrackFromTrackId(trackId, remotePeers)
+            let remoteAudioTrack = HMSHelper.getRemoteAudioAuxiliaryTrackFromTrackId(trackId, remotePeers)
 
             if remoteAudioTrack != nil {
                 remoteAudioTrack?.setVolume(volume)
@@ -599,7 +599,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
             delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HMSDecoder.getError(error), "id": id])
         }
 
-        let URLs = HmsHelper.getRtmpUrls(rtmpStrings)
+        let URLs = HMSHelper.getRtmpUrls(rtmpStrings)
 
         let config = HMSRTMPConfig(meetingURL: meetingUrl, rtmpURLs: URLs, record: record)
         hms?.startRTMPOrRecording(config: config, completion: { success, error in
@@ -647,8 +647,8 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
         
-        let recordConfig = HmsHelper.getHlsRecordingConfig(data)
-        let hlsMeetingUrlVariant = HmsHelper.getHMSHLSMeetingURLVariants(meetingURLVariants)
+        let recordConfig = HMSHelper.getHlsRecordingConfig(data)
+        let hlsMeetingUrlVariant = HMSHelper.getHMSHLSMeetingURLVariants(meetingURLVariants)
         let config = HMSHLSConfig(variants: hlsMeetingUrlVariant, recording: recordConfig)
 
         hms?.startHLSStreaming(config: config, completion: { success, error in
@@ -733,7 +733,7 @@ class HmsSDK: HMSUpdateListener, HMSPreviewListener {
 //    func setLocalVideoSettings(_ data: NSDictionary) {
 //        let localVideoTrack = self.hms?.localPeer?.localVideoTrack()
 //
-//        guard let settings = HmsHelper.getLocalVideoSettings(data)
+//        guard let settings = HMSHelper.getLocalVideoSettings(data)
 //        else {
 //            //TODO: throw an error for invalid arguements
 //            return
