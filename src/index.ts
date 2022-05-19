@@ -8,6 +8,7 @@ export * from './classes/HMSVideoCodec';
 export * from './classes/HMSTrackSettings';
 export * from './classes/HMSTrack';
 export * from './classes/HMSTrackType';
+export * from './classes/HMSTrackSource';
 export * from './classes/HMSSubscribeSettings';
 export * from './classes/HMSSimulcastSettings';
 export * from './classes/HMSSimulcastLayerSettings';
