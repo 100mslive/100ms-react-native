@@ -18,7 +18,7 @@ import org.webrtc.RendererCommon
 import org.webrtc.SurfaceViewRenderer
 
 @SuppressLint("ViewConstructor")
-class HmsView(context: ReactContext) : FrameLayout(context) {
+class HMSView(context: ReactContext) : FrameLayout(context) {
   private var surfaceView: SurfaceViewRenderer = SurfaceViewRenderer(context)
   private var videoTrack: HMSVideoTrack? = null
   private var scaleTypeApplied: Boolean = false
@@ -36,7 +36,7 @@ class HmsView(context: ReactContext) : FrameLayout(context) {
 
   @RequiresApi(Build.VERSION_CODES.N)
   fun captureHmsView(args: ReadableArray?) {
-    HmsHelper.captureSurfaceView(surfaceView, sdkId, args, context, id)
+    HMSHelper.captureSurfaceView(surfaceView, sdkId, args, context, id)
   }
 
   private fun onReceiveNativeEvent() {
@@ -99,7 +99,7 @@ class HmsView(context: ReactContext) : FrameLayout(context) {
   fun setData(
       id: String?,
       trackId: String?,
-      hmsCollection: MutableMap<String, HmsSDK>,
+      hmsCollection: MutableMap<String, HMSRNSDK>,
       mirror: Boolean?
   ) {
     if (id != null) {

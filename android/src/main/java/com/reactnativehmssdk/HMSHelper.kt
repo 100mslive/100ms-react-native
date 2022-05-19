@@ -29,7 +29,7 @@ import live.hms.video.sdk.models.role.HMSRole
 import live.hms.video.utils.HmsUtilities
 import org.webrtc.SurfaceViewRenderer
 
-object HmsHelper {
+object HMSHelper {
 
   fun areAllRequiredKeysAvailable(
       map: ReadableMap?,
@@ -65,8 +65,8 @@ object HmsHelper {
   }
 
   fun getUnavailableRequiredKey(
-    map: ReadableMap?,
-    requiredKeys: Array<Pair<String, String>>
+      map: ReadableMap?,
+      requiredKeys: Array<Pair<String, String>>
   ): String? {
     if (map == null) {
       return "Object_Is_Null"
@@ -76,22 +76,22 @@ object HmsHelper {
         when (value) {
           "String" -> {
             if (map.getString(key) == null) {
-              return key+"_Is_Null"
+              return key + "_Is_Null"
             }
           }
           "Array" -> {
             if (map.getArray(key) == null) {
-              return key+"_Is_Null"
+              return key + "_Is_Null"
             }
           }
           "Map" -> {
             if (map.getMap(key) == null) {
-              return key+"_Is_Null"
+              return key + "_Is_Null"
             }
           }
         }
       } else {
-        return key+"_Is_Required"
+        return key + "_Is_Required"
       }
     }
     return null
@@ -286,7 +286,7 @@ object HmsHelper {
     return HMSVideoTrackSettings.CameraFacing.FRONT
   }
 
-  fun getHms(credentials: ReadableMap, hmsCollection: MutableMap<String, HmsSDK>): HmsSDK? {
+  fun getHms(credentials: ReadableMap, hmsCollection: MutableMap<String, HMSRNSDK>): HMSRNSDK? {
     val id = credentials.getString("id")
 
     return if (id != null) {
@@ -488,7 +488,7 @@ object HmsHelper {
                   .receiveEvent(id, "captureFrame", output)
             } else {
               Log.e("captureSurfaceView", "copyResult: $copyResult")
-              HmsModule.hmsCollection[sdkId]?.emitHMSError(
+              HMSManager.hmsCollection[sdkId]?.emitHMSError(
                   HMSException(
                       103,
                       copyResult.toString(),
@@ -507,7 +507,7 @@ object HmsHelper {
       )
     } catch (e: Exception) {
       Log.e("captureSurfaceView", "error: $e")
-      HmsModule.hmsCollection[sdkId]?.emitHMSError(e as HMSException)
+      HMSManager.hmsCollection[sdkId]?.emitHMSError(e as HMSException)
       output.putString("error", e.message)
       reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "captureFrame", output)
     }

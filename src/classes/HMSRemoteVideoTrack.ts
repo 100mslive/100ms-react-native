@@ -7,7 +7,7 @@ const {
   /**
    * @ignore
    */
-  HmsManager,
+  HMSManager,
 } = NativeModules;
 
 export class HMSRemoteVideoTrack extends HMSVideoTrack {
@@ -28,7 +28,7 @@ export class HMSRemoteVideoTrack extends HMSVideoTrack {
       type: this.type,
       playbackAllowed,
     });
-    HmsManager.setPlaybackAllowed({
+    HMSManager.setPlaybackAllowed({
       id: this.id,
       trackId: this.trackId,
       playbackAllowed,
@@ -44,7 +44,7 @@ export class HMSRemoteVideoTrack extends HMSVideoTrack {
         source: this.source,
         type: this.type,
       });
-      const val = await HmsManager.isPlaybackAllowed({
+      const val = await HMSManager.isPlaybackAllowed({
         id: this.id,
         trackId: this.trackId,
       });

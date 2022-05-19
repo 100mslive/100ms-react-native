@@ -8,7 +8,7 @@ const {
   /**
    * @ignore
    */
-  HmsManager,
+  HMSManager,
 } = NativeModules;
 
 export class HMSLocalVideoTrack extends HMSVideoTrack {
@@ -30,7 +30,7 @@ export class HMSLocalVideoTrack extends HMSVideoTrack {
       type: this.type,
       id: this.id,
     });
-    HmsManager.switchCamera({ id: this.id });
+    HMSManager.switchCamera({ id: this.id });
   };
 
   /**
@@ -47,7 +47,7 @@ export class HMSLocalVideoTrack extends HMSVideoTrack {
       type: this.type,
       id: this.id,
     });
-    HmsManager.setLocalVideoMute({ isMute, id: this.id });
+    HMSManager.setLocalVideoMute({ isMute, id: this.id });
   }
 
   constructor(params: {
