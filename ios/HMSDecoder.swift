@@ -475,7 +475,7 @@ class HMSDecoder: NSObject {
         return request
     }
 
-    static func getError(_ errorObj: HMSError?) -> [String: Any] {
+    static func getError(_ errorObj: HMSError?) -> [String: Any]? {
         if let error = errorObj {
             let code = error.code
             let description = error.description
@@ -488,7 +488,7 @@ class HMSDecoder: NSObject {
 
             return ["code": code, "description": description, "localizedDescription": localizedDescription, "debugDescription": debugDescription, "message": message, "name": name, "action": action, "id": id]
         } else {
-            return [:]
+            return nil
         }
     }
 

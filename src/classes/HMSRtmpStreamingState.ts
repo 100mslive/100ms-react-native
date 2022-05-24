@@ -2,13 +2,13 @@ import type { HMSException } from './HMSException';
 
 export class HMSRtmpStreamingState {
   running: string;
-  error: HMSException;
+  error?: HMSException;
   startedAt: Date;
   stoppedAt: Date;
 
   constructor(params: {
     running: string;
-    error: HMSException;
+    error?: HMSException;
     startedAt: Date;
     stoppedAt: Date;
   }) {
