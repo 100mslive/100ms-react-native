@@ -1,7 +1,7 @@
 import HMSSDK
 import Foundation
 
-class HmsDecoder: NSObject {
+class HMSDecoder: NSObject {
     static func getHmsRoom (_ hmsRoom: HMSRoom?) -> [String: Any] {
 
         guard let room = hmsRoom else { return [:] }
@@ -10,11 +10,11 @@ class HmsDecoder: NSObject {
         let name = room.name ?? ""
         let metaData = room.metaData ?? ""
         let count = room.peerCount ?? 0
-        let browserRecordingState = HmsDecoder.getHMSBrowserRecordingState(hmsRoom?.browserRecordingState)
-        let rtmpStreamingState = HmsDecoder.getHMSRtmpStreamingState(hmsRoom?.rtmpStreamingState)
-        let serverRecordingState = HmsDecoder.getHMSServerRecordingState(hmsRoom?.serverRecordingState)
-        let hlsStreamingState = HmsDecoder.getHlsStreamingState(hmsRoom?.hlsStreamingState)
-        let hlsRecordingState = HmsDecoder.getHlsRecordingState(hmsRoom?.hlsRecordingState)
+        let browserRecordingState = HMSDecoder.getHMSBrowserRecordingState(hmsRoom?.browserRecordingState)
+        let rtmpStreamingState = HMSDecoder.getHMSRtmpStreamingState(hmsRoom?.rtmpStreamingState)
+        let serverRecordingState = HMSDecoder.getHMSServerRecordingState(hmsRoom?.serverRecordingState)
+        let hlsStreamingState = HMSDecoder.getHlsStreamingState(hmsRoom?.hlsStreamingState)
+        let hlsRecordingState = HMSDecoder.getHlsRecordingState(hmsRoom?.hlsRecordingState)
         var peers = [[String: Any]]()
 
         for peer in room.peers {
@@ -71,7 +71,7 @@ class HmsDecoder: NSObject {
         let source = hmsTrack.source
         let trackDescription = hmsTrack.trackDescription
         let isMute = hmsTrack.isMute()
-        let type = HmsHelper.getHmsTrackType(hmsTrack.kind) ?? ""
+        let type = HMSHelper.getHmsTrackType(hmsTrack.kind) ?? ""
 
         return ["trackId": trackId, "source": source, "trackDescription": trackDescription, "isMute": isMute, "type": type, "kind": type]
     }
@@ -84,7 +84,7 @@ class HmsDecoder: NSObject {
         let source: String = hmsTrack.source
         let trackDescription: String = hmsTrack.trackDescription
         let isMute: Bool = hmsTrack.isMute()
-        let kind: String = HmsHelper.getHmsTrackType(hmsTrack.kind) ?? ""
+        let kind: String = HMSHelper.getHmsTrackType(hmsTrack.kind) ?? ""
 
         return ["trackId": trackId, "source": source, "trackDescription": trackDescription, "isMute": isMute, "type": kind, "kind": kind]
     }
@@ -98,7 +98,7 @@ class HmsDecoder: NSObject {
         let trackDescription = hmsTrack.trackDescription
         let isMute = hmsTrack.isMute()
         let isDegraded = hmsTrack.isDegraded()
-        let kind: String = HmsHelper.getHmsTrackType(hmsTrack.kind) ?? ""
+        let kind: String = HMSHelper.getHmsTrackType(hmsTrack.kind) ?? ""
 
         return ["trackId": trackId, "source": source, "trackDescription": trackDescription, "isMute": isMute, "isDegraded": isDegraded, "type": kind, "kind": kind]
     }
@@ -140,12 +140,12 @@ class HmsDecoder: NSObject {
     }
     
     static func getHmsLocalAudioTrack(_ localAudio: HMSLocalAudioTrack) -> [String: Any] {
-        let type = HmsHelper.getHmsTrackType(localAudio.kind) ?? ""
+        let type = HMSHelper.getHmsTrackType(localAudio.kind) ?? ""
         return ["trackId": localAudio.trackId, "source": localAudio.source, "trackDescription": localAudio.trackDescription, "settings": getHmsAudioTrackSettings(localAudio.settings), "isMute": localAudio.isMute(), "type": type, "kind": type]
     }
     
     static func getHmsLocalVideoTrack(_ localVideo: HMSLocalVideoTrack) -> [String: Any] {
-        let type = HmsHelper.getHmsTrackType(localVideo.kind) ?? ""
+        let type = HMSHelper.getHmsTrackType(localVideo.kind) ?? ""
         return ["trackId": localVideo.trackId, "source": localVideo.source, "trackDescription": localVideo.trackDescription, "settings": getHmsVideoTrackSettings(localVideo.settings), "isMute": localVideo.isMute(), "type": type, "kind": type]
     }
 
@@ -260,12 +260,12 @@ class HmsDecoder: NSObject {
     }
     
     static func getHMSRemoteAudioTrack(_ remoteAudio: HMSRemoteAudioTrack) -> [String: Any] {
-        let type = HmsHelper.getHmsTrackType(remoteAudio.kind) ?? ""
+        let type = HMSHelper.getHmsTrackType(remoteAudio.kind) ?? ""
         return ["trackId": remoteAudio.trackId, "source": remoteAudio.source, "trackDescription": remoteAudio.trackDescription, "playbackAllowed": remoteAudio.isPlaybackAllowed(), "isMute": remoteAudio.isMute(), "type": type, "kind": type]
     }
     
     static func getHMSRemoteVideoTrack(_ remoteVideo: HMSRemoteVideoTrack) -> [String: Any] {
-        let type = HmsHelper.getHmsTrackType(remoteVideo.kind) ?? ""
+        let type = HMSHelper.getHmsTrackType(remoteVideo.kind) ?? ""
         return ["trackId": remoteVideo.trackId, "source": remoteVideo.source, "trackDescription": remoteVideo.trackDescription, "layer": remoteVideo.layer.rawValue, "playbackAllowed": remoteVideo.isPlaybackAllowed(), "isMute": remoteVideo.isMute(), "isDegraded": remoteVideo.isDegraded(), "type": type, "kind": type]
     }
 
@@ -275,13 +275,13 @@ class HmsDecoder: NSObject {
 
         for track in tracks {
             if let localVideo = track as? HMSLocalVideoTrack {
-                let type = HmsHelper.getHmsTrackType(localVideo.kind) ?? ""
+                let type = HMSHelper.getHmsTrackType(localVideo.kind) ?? ""
                 let localVideoTrackData: [String: Any] = ["trackId": localVideo.trackId, "source": localVideo.source, "trackDescription": localVideo.trackDescription, "settings": getHmsVideoTrackSettings(localVideo.settings), "isMute": localVideo.isMute(), "kind": type, "type": type]
                 hmsTracks["videoTrack"] = localVideoTrackData
             }
 
             if let localAudio = track as? HMSLocalAudioTrack {
-                let type = HmsHelper.getHmsTrackType(localAudio.kind) ?? ""
+                let type = HMSHelper.getHmsTrackType(localAudio.kind) ?? ""
                 let localAudioTrackData: [String: Any]  = ["trackId": localAudio.trackId, "source": localAudio.source, "trackDescription": localAudio.trackDescription, "settings": getHmsAudioTrackSettings(localAudio.settings), "isMute": localAudio.isMute(), "kind": type, "type": type]
                 hmsTracks["audioTrack"] = localAudioTrackData
             }
@@ -293,7 +293,7 @@ class HmsDecoder: NSObject {
         var decodedRoles = [[String: Any]]()
         if let extractedRoles = roles {
             for role in extractedRoles {
-                decodedRoles.append(HmsDecoder.getHmsRole(role))
+                decodedRoles.append(HMSDecoder.getHmsRole(role))
             }
         }
         return decodedRoles
@@ -496,7 +496,7 @@ class HmsDecoder: NSObject {
         if let recordingState = data {
             let running = recordingState.running
             let startedAt = recordingState.startedAt?.timeIntervalSince1970 ?? 0
-            let error = HmsDecoder.getError(recordingState.error)
+            let error = HMSDecoder.getError(recordingState.error)
 
             return ["running": running, "error": error, "startedAt": startedAt * 1000]
         } else {
@@ -508,7 +508,7 @@ class HmsDecoder: NSObject {
         if let streamingState = data {
             let running = streamingState.running
             let startedAt = streamingState.startedAt?.timeIntervalSince1970 ?? 0
-            let error = HmsDecoder.getError(streamingState.error)
+            let error = HMSDecoder.getError(streamingState.error)
 
             return ["running": running, "error": error, "startedAt": startedAt * 1000]
         } else {
@@ -520,7 +520,7 @@ class HmsDecoder: NSObject {
         if let recordingState = data {
             let running = recordingState.running
             let startedAt = recordingState.startedAt?.timeIntervalSince1970 ?? 0
-            let error = HmsDecoder.getError(recordingState.error)
+            let error = HMSDecoder.getError(recordingState.error)
 
             return ["running": running, "error": error, "startedAt": startedAt * 1000]
         } else {
@@ -531,7 +531,7 @@ class HmsDecoder: NSObject {
     static func getHlsStreamingState(_ data: HMSHLSStreamingState?) -> [String: Any] {
         if let streamingState = data {
             let running = streamingState.running
-            let variants = HmsDecoder.getHMSHlsVariant(streamingState.variants)
+            let variants = HMSDecoder.getHMSHlsVariant(streamingState.variants)
 
             return ["running": running, "variants": variants]
         } else {
@@ -578,7 +578,7 @@ class HmsDecoder: NSObject {
     }
     
     static func getLocalVideoStats(_ data: HMSLocalVideoStats) -> [String: Any] {
-        return ["roundTripTime": data.roundTripTime, "bytesSent": data.bytesSent, "bitrate": data.bitrate, "resolution": HmsDecoder.getHmsVideoResolution(data.resolution), "frameRate": data.frameRate]
+        return ["roundTripTime": data.roundTripTime, "bytesSent": data.bytesSent, "bitrate": data.bitrate, "resolution": HMSDecoder.getHmsVideoResolution(data.resolution), "frameRate": data.frameRate]
     }
     
     static func getRemoteAudioStats(_ data: HMSRemoteAudioStats) -> [String: Any] {
@@ -586,7 +586,7 @@ class HmsDecoder: NSObject {
     }
     
     static func getRemoteVideoStats(_ data: HMSRemoteVideoStats) -> [String: Any] {
-        return ["bitrate": data.bitrate, "packetsReceived": data.packetsReceived, "packetsLost": data.packetsLost, "bytesReceived": data.bytesReceived, "jitter": data.jitter, "resolution": HmsDecoder.getHmsVideoResolution(data.resolution), "frameRate": data.frameRate]
+        return ["bitrate": data.bitrate, "packetsReceived": data.packetsReceived, "packetsLost": data.packetsLost, "bytesReceived": data.bytesReceived, "jitter": data.jitter, "resolution": HMSDecoder.getHmsVideoResolution(data.resolution), "frameRate": data.frameRate]
     }
     
     static func getHmsMessageRecipient(_ recipient: HMSMessageRecipient) -> [String: Any] {

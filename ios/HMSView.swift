@@ -1,8 +1,8 @@
 import HMSSDK
 import AVKit
 
-@objc(HmsView)
-class HmsView: RCTViewManager {
+@objc(HMSView)
+class HMSView: RCTViewManager {
 
     override func view() -> (HmssdkDisplayView) {
         let view = HmssdkDisplayView()
@@ -13,8 +13,8 @@ class HmsView: RCTViewManager {
         return view
     }
 
-    func getHmsFromBridge() -> [String: HmsSDK] {
-        let collection: [String: HmsSDK] = (bridge.module(for: HmsManager.classForCoder()) as? HmsManager)?.hmsCollection ?? [:]
+    func getHmsFromBridge() -> [String: HMSRNSDK] {
+        let collection: [String: HMSRNSDK] = (bridge.module(for: HMSManager.classForCoder()) as? HMSManager)?.hmsCollection ?? [:]
         return collection
     }
 
@@ -29,9 +29,9 @@ class HmssdkDisplayView: UIView {
         return HMSVideoView()
     }()
 
-    var hmsCollection: [String: HmsSDK] = [:]
+    var hmsCollection: [String: HMSRNSDK] = [:]
 
-    func setHms(_ hmsInstance: [String: HmsSDK]) {
+    func setHms(_ hmsInstance: [String: HMSRNSDK]) {
         hmsCollection = hmsInstance
     }
 
@@ -110,3 +110,4 @@ class HmssdkDisplayView: UIView {
         videoView.setVideoTrack(nil)
     }
 }
+

@@ -21,7 +21,7 @@ interface HmsViewProps {
   onDataReturned: Function;
 }
 
-const HmsView = requireNativeComponent<HmsViewProps>('HmsView');
+const HmsView = requireNativeComponent<HmsViewProps>('HMSView');
 let _nextRequestId = 1;
 let _requestMap = new Map();
 
@@ -87,7 +87,7 @@ export const HmsViewComponent = React.forwardRef<any, HmsViewComponentProps>(
       let promise = new Promise(function (resolve, reject) {
         requestMap.set(requestId, { resolve, reject });
       });
-      const viewManagerConfig = UIManager.getViewManagerConfig('HmsView');
+      const viewManagerConfig = UIManager.getViewManagerConfig('HMSView');
       UIManager.dispatchViewManagerCommand(
         findNodeHandle(hmsViewRef.current),
         viewManagerConfig.Commands.capture,

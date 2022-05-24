@@ -7,10 +7,10 @@ import com.facebook.react.uimanager.ViewManager
 
 class HmssdkPackage : ReactPackage {
   override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> {
-    return listOf(HmsModule(reactContext))
+    return listOf(HMSManager(reactContext))
   }
 
   override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager<*, *>> {
-    return listOf<ViewManager<*, *>>(HmssdkViewManager())
+    return listOf<ViewManager<*, *>>(HMSSDKViewManager())
   }
 }

@@ -68,7 +68,6 @@ import type {RootState} from '../../redux';
 import dimension from '../../utils/dimension';
 import {
   pairDataForFlatlist,
-  getRoomIdDetails,
   parseMetadata,
   writeFile,
   requestExternalStoragePermission,
@@ -96,7 +95,9 @@ let localAudioStats: HMSLocalAudioStats = {};
 let localVideoStats: HMSLocalVideoStats = {};
 
 const Meeting = () => {
-  const {hmsInstance, roomID} = useSelector((state: RootState) => state.user);
+  const {hmsInstance, roomID, roomCode} = useSelector(
+    (state: RootState) => state.user,
+  );
   const [instance, setInstance] = useState<HMSSDK | undefined>();
   const {messages} = useSelector((state: RootState) => state.messages);
   const dispatch = useDispatch();
@@ -1128,7 +1129,11 @@ const Meeting = () => {
         </Picker>
       </CustomModal>
       <View style={styles.headerContainer}>
-        <Text style={styles.headerName}>{getRoomIdDetails(roomID!).code}</Text>
+        <Text style={styles.headerName}>
+          {speakers?.length > 0 && speakers[0]?.peer?.name
+            ? `🔊  ${speakers[0]?.peer?.name}`
+            : roomCode}
+        </Text>
         <View style={styles.headerRight}>
           {hmsRoom?.browserRecordingState?.running && (
             <Entypo
@@ -1355,6 +1360,7 @@ const Meeting = () => {
               JSON.stringify({
                 ...parsedMetadata,
                 isHandRaised: !parsedMetadata?.isHandRaised,
+                isBRBOn: false,
               }),
             );
           }}>
@@ -1376,6 +1382,7 @@ const Meeting = () => {
               JSON.stringify({
                 ...parsedMetadata,
                 isBRBOn: !parsedMetadata?.isBRBOn,
+                isHandRaised: false,
               }),
             );
           }}>

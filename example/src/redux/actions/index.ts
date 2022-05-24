@@ -22,6 +22,7 @@ export const saveUserData = (data: {
   userName?: String;
   roomID?: String;
   mirrorLocalVideo?: boolean;
+  roomCode?: String;
 }) => ({
   type: actionTypes.SAVE_USER_DATA.REQUEST,
   payload: data,

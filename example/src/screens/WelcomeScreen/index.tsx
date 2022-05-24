@@ -69,6 +69,7 @@ type WelcomeScreenProp = NativeStackNavigationProp<
 type ButtonState = 'Active' | 'Loading';
 
 let config: HMSConfig | null = null;
+let roomCode: string | undefined;
 
 const App = () => {
   const {hmsInstance, userName} = useSelector((state: RootState) => state.user);
@@ -295,6 +296,7 @@ const App = () => {
         userName: userID,
         roomID: roomID.replace('meeting', 'preview'),
         mirrorLocalVideo,
+        roomCode,
       }),
     );
     instance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
@@ -344,6 +346,7 @@ const App = () => {
         userName: userID,
         roomID: roomID.replace('meeting', 'preview'),
         mirrorLocalVideo,
+        roomCode,
       }),
     );
     instance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
@@ -429,6 +432,7 @@ const App = () => {
     if (isUrl) {
       setButtonState('Loading');
       const {code, domain} = getRoomIdDetails(roomID);
+      roomCode = code;
 
       if (code && domain) {
         tokenFromLinkService(

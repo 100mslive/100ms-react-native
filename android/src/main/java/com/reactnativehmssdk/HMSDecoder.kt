@@ -11,7 +11,7 @@ import live.hms.video.sdk.models.*
 import live.hms.video.sdk.models.role.*
 import live.hms.video.sdk.models.trackchangerequest.HMSChangeTrackStateRequest
 
-object HmsDecoder {
+object HMSDecoder {
 
   fun getHmsRoom(hmsRoom: HMSRoom?): WritableMap {
     val room: WritableMap = Arguments.createMap()

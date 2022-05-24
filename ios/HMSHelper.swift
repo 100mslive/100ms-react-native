@@ -1,7 +1,7 @@
 import HMSSDK
 import Foundation
 
-class HmsHelper: NSObject {
+class HMSHelper: NSObject {
 
     static func getPeerFromPeerId(_ peerID: String?, remotePeers: [HMSRemotePeer]?, localPeer: HMSLocalPeer?) -> HMSPeer? {
 
@@ -113,7 +113,7 @@ class HmsHelper: NSObject {
         return nil
     }
 
-    static func getHms(_ credentials: NSDictionary, _ hmsCollection: [String: HmsSDK]) -> HmsSDK? {
+    static func getHms(_ credentials: NSDictionary, _ hmsCollection: [String: HMSRNSDK]) -> HMSRNSDK? {
         guard let id = credentials.value(forKey: "id") as? String,
               let hms = hmsCollection[id]
         else {
@@ -130,12 +130,12 @@ class HmsHelper: NSObject {
               let maxFrameRate = data.value(forKey: "maxFrameRate") as? Int,
               let cameraFacing = data.value(forKey: "cameraFacing") as? String,
               let trackDescription = data.value(forKey: "trackDescription") as? String?,
-              let resolutionObj = HmsHelper.getVideoResolution(resolution ?? [:])
+              let resolutionObj = HMSHelper.getVideoResolution(resolution ?? [:])
         else {
             return nil
         }
-        let codecEncoded = HmsHelper.getVideoCodec(codec)
-        let cameraFacingEncoded = HmsHelper.getCameraFacing(cameraFacing)
+        let codecEncoded = HMSHelper.getVideoCodec(codec)
+        let cameraFacingEncoded = HMSHelper.getCameraFacing(cameraFacing)
         let hmsTrackSettings = HMSVideoTrackSettings(codec: codecEncoded, resolution: resolutionObj, maxBitrate: maxBitrate, maxFrameRate: maxFrameRate, cameraFacing: cameraFacingEncoded, trackDescription: trackDescription)
         return hmsTrackSettings
     }
@@ -201,7 +201,7 @@ class HmsHelper: NSObject {
     static func getHMSHLSMeetingURLVariants(_ variants: [[String: Any]]?) -> [HMSHLSMeetingURLVariant] {
         var hlsVariants: [HMSHLSMeetingURLVariant] = []
         for variant in variants ?? [] {
-            let meetingURLVariant = HmsHelper.getHMSHLSMeetingURLVariant(variant)
+            let meetingURLVariant = HMSHelper.getHMSHLSMeetingURLVariant(variant)
             if let extractedVariant = meetingURLVariant {
                 hlsVariants.append(extractedVariant)
             }

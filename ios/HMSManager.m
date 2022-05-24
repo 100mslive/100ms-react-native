@@ -1,7 +1,7 @@
 #import <React/RCTEventEmitter.h>
 #import <Foundation/Foundation.h>
 
-@interface RCT_EXTERN_MODULE(HmsManager, RCTEventEmitter)
+@interface RCT_EXTERN_MODULE(HMSManager, RCTEventEmitter)
 
 RCT_EXTERN_METHOD(join: (NSDictionary) credentials)
 RCT_EXTERN_METHOD(preview: (NSDictionary) credentials)

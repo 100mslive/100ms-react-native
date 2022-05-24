@@ -97,9 +97,9 @@ export const getHmsViewHeight = (
             dimension.viewHeight(90) +
             (isTab ? dimension.viewHeight(20) : top + bottom) +
             2)) /
-        (layout === LayoutParams.AUDIO ? 3 : 2);
+        2;
 
-  const height =
+  let height =
     peersInPage === 1
       ? viewHeight * 2
       : peersInPage === 2
@@ -115,6 +115,10 @@ export const getHmsViewHeight = (
       : peersInPage === 3
       ? '100%'
       : '50%';
+
+  if (layout === 'audio' && peersInPage > 4) {
+    height = (height * 2) / 3;
+  }
 
   return {height, width};
 };

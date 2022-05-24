@@ -14,6 +14,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {Slider} from '@miblanchard/react-native-slider';
+import {useSelector} from 'react-redux';
 import RNFS from 'react-native-fs';
 import CameraRoll from '@react-native-community/cameraroll';
 import Toast from 'react-native-simple-toast';
@@ -32,7 +33,6 @@ import {
   PeerTrackNode,
   TrackType,
 } from '../../utils/types';
-import {useSelector} from 'react-redux';
 import type {RootState} from '../../redux';
 
 type DisplayTrackProps = {
@@ -83,6 +83,7 @@ const DisplayTrack = ({
   const [force, setForce] = useState(false);
   const [volumeModal, setVolumeModal] = useState(false);
   const [volume, setVolume] = useState(1);
+  const [isDegraded, setIsDegraded] = useState(false);
   const modalTitle = 'Set Volume';
   const hmsViewRef: any = useRef();
   const HmsView = instance?.HmsView;
@@ -135,6 +136,10 @@ const DisplayTrack = ({
     getVolume();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    setIsDegraded(peerTrackNode.track?.isDegraded || false);
+  }, [peerTrackNode.track?.isDegraded]);
 
   const roleRequestTitle = 'Select action';
   const roleRequestButtons: Array<{
@@ -442,7 +447,7 @@ const DisplayTrack = ({
               type === TrackType.SCREEN ? styles.hmsViewScreen : styles.hmsView
             }
           />
-          {peerTrackNode.track?.isDegraded && (
+          {isDegraded && (
             <View style={styles.degradedContainer}>
               <View style={styles.avatarContainer}>
                 <Text style={styles.degradedText}>Degraded</Text>

@@ -10,12 +10,14 @@ type IntialStateType = {
   userName?: string;
   roomID?: string;
   hmsInstance?: HmsManager;
+  roomCode?: string;
   mirrorLocalVideo: boolean;
 };
 
 const INITIAL_STATE: IntialStateType = {
   userName: undefined,
   roomID: undefined,
+  roomCode: undefined,
   hmsInstance: undefined,
   mirrorLocalVideo: false,
 };
