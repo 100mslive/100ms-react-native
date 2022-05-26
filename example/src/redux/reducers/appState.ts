@@ -1,5 +1,5 @@
-import {PeerTrackNode} from '../../utils/types';
 import ActionTypes from '../actionTypes';
+import type {PeerTrackNode} from '../../utils/types';
 
 type ActionType = {
   payload: Object;

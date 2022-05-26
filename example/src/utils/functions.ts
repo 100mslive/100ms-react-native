@@ -319,6 +319,7 @@ export const updatePeersTrackNodesOnPeerListener = (
         return {
           ...peerTrackNode,
           peer,
+          track: peer.videoTrack,
         };
       }
       return peerTrackNode;

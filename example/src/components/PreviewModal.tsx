@@ -8,10 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
-import HmsManager, {
-  HMSRoom,
-  HMSVideoViewMode,
-} from '@100mslive/react-native-hms';
+import HmsManager, {HMSVideoViewMode} from '@100mslive/react-native-hms';
 import {useSelector} from 'react-redux';
 
 import type {RootState} from '../redux';
@@ -26,7 +23,6 @@ export const PreviewModal = ({
   previewButtonState,
   videoAllowed,
   audioAllowed,
-  room,
 }: {
   videoAllowed: boolean;
   audioAllowed: boolean;
@@ -37,7 +33,6 @@ export const PreviewModal = ({
   instance?: HmsManager;
   setPreviewButtonState: Function;
   previewButtonState: string;
-  room?: HMSRoom;
 }) => {
   const {mirrorLocalVideo} = useSelector((state: RootState) => state.user);
   const [isMute, setIsMute] = useState(false);
@@ -49,8 +44,8 @@ export const PreviewModal = ({
   );
 
   useEffect(() => {
-    setPeers(room?.peers || []);
-  }, [room?.peers]);
+    setPeers(instance?.room?.peers ? instance?.room?.peers : []);
+  }, [instance?.room?.peers]);
 
   return HmsView ? (
     <View style={styles.container}>

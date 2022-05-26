@@ -69,7 +69,7 @@ import {
 import {styles} from './styles';
 import type {AppStackParamList} from '../../navigator';
 import type {RootState} from '../../redux';
-import {PeerTrackNode} from '../../utils/types';
+import type {PeerTrackNode} from '../../utils/types';
 
 type WelcomeScreenProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -86,8 +86,10 @@ const App = () => {
   const [instance, setInstance] = useState<HMSSDK | undefined>();
   const dispatch = useDispatch();
 
-  const [hmsRoom, setHmsRoom] = useState<HMSRoom>();
-  const peerTrackNodesRef = React.useRef<Array<PeerTrackNode>>([]);
+  const [peerTrackNodes, setPeerTrackNodes] = useState<Array<PeerTrackNode>>(
+    [],
+  );
+  const peerTrackNodesRef = React.useRef<Array<PeerTrackNode>>(peerTrackNodes);
   const [roomID, setRoomID] = useState<string>('');
   const [text, setText] = useState<string>('');
   const [initialized, setInitialized] = useState<boolean>(false);
@@ -112,6 +114,13 @@ const App = () => {
     room: HMSRoom;
     previewTracks: {audioTrack: HMSAudioTrack; videoTrack: HMSVideoTrack};
   }) => {
+    const newPeerTrackNodes = updatePeersTrackNodesOnPeerListener(
+      peerTrackNodesRef,
+      data?.localPeer,
+      HMSPeerUpdate.PEER_JOINED,
+    );
+    peerTrackNodesRef.current = newPeerTrackNodes;
+    setPeerTrackNodes(newPeerTrackNodes);
     const localVideoAllowed =
       instance?.localPeer?.role?.publishSettings?.allowed?.includes('video');
 
@@ -170,7 +179,6 @@ const App = () => {
     localPeer: HMSLocalPeer;
     remotePeers: HMSRemotePeer[];
   }) => {
-    setHmsRoom(room);
     console.log('data in onRoomListener: ', type, room, localPeer, remotePeers);
   };
 
@@ -187,12 +195,6 @@ const App = () => {
     localPeer: HMSLocalPeer;
     remotePeers: HMSRemotePeer[];
   }) => {
-    const newPeerTrackNodes = updatePeersTrackNodesOnPeerListener(
-      peerTrackNodesRef,
-      peer,
-      type,
-    );
-    peerTrackNodesRef.current = newPeerTrackNodes;
     console.log(
       'data in onPeerListener: ',
       type,
@@ -201,6 +203,13 @@ const App = () => {
       localPeer,
       remotePeers,
     );
+    const newPeerTrackNodes = updatePeersTrackNodesOnPeerListener(
+      peerTrackNodesRef,
+      peer,
+      type,
+    );
+    peerTrackNodesRef.current = newPeerTrackNodes;
+    setPeerTrackNodes(newPeerTrackNodes);
   };
 
   const onTrackListener = ({
@@ -218,14 +227,7 @@ const App = () => {
     localPeer: HMSLocalPeer;
     remotePeers: HMSRemotePeer[];
   }) => {
-    const newPeerTrackNodes = updatePeersTrackNodesOnTrackListener(
-      peerTrackNodesRef,
-      track,
-      peer,
-      type,
-    );
-    peerTrackNodesRef.current = newPeerTrackNodes;
-    console.warn(
+    console.log(
       'data in onTrackListener: ',
       type,
       peer,
@@ -234,6 +236,14 @@ const App = () => {
       localPeer,
       remotePeers,
     );
+    const newPeerTrackNodes = updatePeersTrackNodesOnTrackListener(
+      peerTrackNodesRef,
+      track,
+      peer,
+      type,
+    );
+    peerTrackNodesRef.current = newPeerTrackNodes;
+    setPeerTrackNodes(newPeerTrackNodes);
   };
 
   // const getTrackSettings = () => {
@@ -677,7 +687,6 @@ const App = () => {
           instance={instance}
           setPreviewButtonState={setPreviewButtonState}
           previewButtonState={previewButtonState}
-          room={hmsRoom}
         />
       )}
       <View />
