@@ -29,6 +29,12 @@ import HmsManager, {
   // HMSVideoCodec,
   // HMSTrackSettings,
   HMSException,
+  HMSRoomUpdate,
+  HMSRemotePeer,
+  HMSPeer,
+  HMSPeerUpdate,
+  HMSTrack,
+  HMSTrackUpdate,
   // HMSCameraFacing,
   // HMSVideoResolution,
 } from '@100mslive/react-native-hms';
@@ -48,6 +54,7 @@ import {
   setAudioVideoState,
   saveUserData,
   updateHmsReference,
+  setPeerState,
 } from '../../redux/actions/index';
 import {
   writeFile,
@@ -56,10 +63,13 @@ import {
   getMeetingUrl,
   getRoomIdDetails,
   requestExternalStoragePermission,
+  updatePeersTrackNodesOnPeerListener,
+  updatePeersTrackNodesOnTrackListener,
 } from '../../utils/functions';
 import {styles} from './styles';
 import type {AppStackParamList} from '../../navigator';
 import type {RootState} from '../../redux';
+import {PeerTrackNode} from '../../utils/types';
 
 type WelcomeScreenProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -76,6 +86,8 @@ const App = () => {
   const [instance, setInstance] = useState<HMSSDK | undefined>();
   const dispatch = useDispatch();
 
+  const [hmsRoom, setHmsRoom] = useState<HMSRoom>();
+  const peerTrackNodesRef = React.useRef<Array<PeerTrackNode>>([]);
   const [roomID, setRoomID] = useState<string>('');
   const [text, setText] = useState<string>('');
   const [initialized, setInitialized] = useState<boolean>(false);
@@ -127,12 +139,100 @@ const App = () => {
     setButtonState('Active');
   };
 
+  const onJoinListener = () => {
+    setPreviewButtonState('Active');
+    setButtonState('Active');
+    setPreviewModal(false);
+    setMirrorLocalVideo(false);
+    dispatch(setAudioVideoState({audioState: audio, videoState: video}));
+    dispatch(setPeerState({peerState: peerTrackNodesRef?.current}));
+    peerTrackNodesRef.current = [];
+    navigate('MeetingScreen');
+  };
+
   const onError = (data: HMSException) => {
     console.log('data in onError: ', data);
     Toast.showWithGravity(
       data?.error?.message || 'Something went wrong',
       Toast.LONG,
       Toast.TOP,
+    );
+  };
+
+  const onRoomListener = ({
+    room,
+    type,
+    localPeer,
+    remotePeers,
+  }: {
+    room?: HMSRoom;
+    type: HMSRoomUpdate;
+    localPeer: HMSLocalPeer;
+    remotePeers: HMSRemotePeer[];
+  }) => {
+    setHmsRoom(room);
+    console.log('data in onRoomListener: ', type, room, localPeer, remotePeers);
+  };
+
+  const onPeerListener = ({
+    peer,
+    room,
+    type,
+    remotePeers,
+    localPeer,
+  }: {
+    room?: HMSRoom;
+    peer: HMSPeer;
+    type: HMSPeerUpdate;
+    localPeer: HMSLocalPeer;
+    remotePeers: HMSRemotePeer[];
+  }) => {
+    const newPeerTrackNodes = updatePeersTrackNodesOnPeerListener(
+      peerTrackNodesRef,
+      peer,
+      type,
+    );
+    peerTrackNodesRef.current = newPeerTrackNodes;
+    console.log(
+      'data in onPeerListener: ',
+      type,
+      peer,
+      room,
+      localPeer,
+      remotePeers,
+    );
+  };
+
+  const onTrackListener = ({
+    peer,
+    track,
+    room,
+    type,
+    remotePeers,
+    localPeer,
+  }: {
+    room?: HMSRoom;
+    peer: HMSPeer;
+    track: HMSTrack;
+    type: HMSTrackUpdate;
+    localPeer: HMSLocalPeer;
+    remotePeers: HMSRemotePeer[];
+  }) => {
+    const newPeerTrackNodes = updatePeersTrackNodesOnTrackListener(
+      peerTrackNodesRef,
+      track,
+      peer,
+      type,
+    );
+    peerTrackNodesRef.current = newPeerTrackNodes;
+    console.warn(
+      'data in onTrackListener: ',
+      type,
+      peer,
+      track,
+      room,
+      localPeer,
+      remotePeers,
     );
   };
 
@@ -291,6 +391,28 @@ const App = () => {
       HMSUpdateListenerActions.ON_PREVIEW,
       previewSuccess,
     );
+    instance?.addEventListener(
+      HMSUpdateListenerActions.ON_JOIN,
+      onJoinListener,
+    );
+
+    instance?.addEventListener(
+      HMSUpdateListenerActions.ON_ROOM_UPDATE,
+      onRoomListener,
+    );
+
+    instance?.addEventListener(
+      HMSUpdateListenerActions.ON_PEER_UPDATE,
+      onPeerListener,
+    );
+
+    instance?.addEventListener(
+      HMSUpdateListenerActions.ON_TRACK_UPDATE,
+      onTrackListener,
+    );
+
+    instance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
+
     dispatch(
       saveUserData({
         userName: userID,
@@ -299,7 +421,7 @@ const App = () => {
         roomCode,
       }),
     );
-    instance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
+
     if (skipPreview) {
       setSkipPreview(false);
       joinRoom();
@@ -341,6 +463,23 @@ const App = () => {
       onJoinListener,
     );
 
+    instance?.addEventListener(
+      HMSUpdateListenerActions.ON_ROOM_UPDATE,
+      onRoomListener,
+    );
+
+    instance?.addEventListener(
+      HMSUpdateListenerActions.ON_PEER_UPDATE,
+      onPeerListener,
+    );
+
+    instance?.addEventListener(
+      HMSUpdateListenerActions.ON_TRACK_UPDATE,
+      onTrackListener,
+    );
+
+    instance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
+
     dispatch(
       saveUserData({
         userName: userID,
@@ -349,22 +488,13 @@ const App = () => {
         roomCode,
       }),
     );
-    instance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
+
     if (skipPreview) {
       setSkipPreview(false);
       joinRoom();
     } else {
       instance?.preview(HmsConfig);
     }
-  };
-
-  const onJoinListener = () => {
-    setPreviewButtonState('Active');
-    setButtonState('Active');
-    setPreviewModal(false);
-    setMirrorLocalVideo(false);
-    dispatch(setAudioVideoState({audioState: audio, videoState: video}));
-    navigate('MeetingScreen');
   };
 
   const joinRoom = () => {
@@ -547,6 +677,7 @@ const App = () => {
           instance={instance}
           setPreviewButtonState={setPreviewButtonState}
           previewButtonState={previewButtonState}
+          room={hmsRoom}
         />
       )}
       <View />

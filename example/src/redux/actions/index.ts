@@ -1,4 +1,5 @@
 import type {HMSSDK} from '@100mslive/react-native-hms';
+import {PeerTrackNode} from '../../utils/types';
 import actionTypes from '../actionTypes';
 
 export const addMessage = (data: any) => ({
@@ -16,6 +17,15 @@ export const setAudioVideoState = (data: {
 }) => ({
   type: actionTypes.SET_AUDIO_VIDEO_STATE,
   payload: data,
+});
+
+export const setPeerState = (data: {peerState: PeerTrackNode[]}) => ({
+  type: actionTypes.SET_PEER_STATE,
+  payload: data,
+});
+
+export const clearPeerData = () => ({
+  type: actionTypes.CLEAR_PEER_DATA.REQUEST,
 });
 
 export const saveUserData = (data: {
