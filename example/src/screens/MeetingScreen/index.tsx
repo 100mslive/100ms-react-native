@@ -63,7 +63,12 @@ import {
   ZoomableView,
   UserIdModal,
 } from '../../components';
-import {addMessage, clearMessageData, saveUserData} from '../../redux/actions';
+import {
+  addMessage,
+  clearMessageData,
+  clearPeerData,
+  saveUserData,
+} from '../../redux/actions';
 import type {RootState} from '../../redux';
 import dimension from '../../utils/dimension';
 import {
@@ -71,6 +76,8 @@ import {
   parseMetadata,
   writeFile,
   requestExternalStoragePermission,
+  updatePeersTrackNodesOnPeerListener,
+  updatePeersTrackNodesOnTrackListener,
 } from '../../utils/functions';
 import {LayoutParams, ModalTypes, PeerTrackNode} from '../../utils/types';
 import {GridView} from './Grid';
@@ -100,12 +107,12 @@ const Meeting = () => {
   );
   const [instance, setInstance] = useState<HMSSDK | undefined>();
   const {messages} = useSelector((state: RootState) => state.messages);
+  const {peerState} = useSelector((state: RootState) => state.app);
   const dispatch = useDispatch();
   const navigate = useNavigation<MeetingScreenProp>().navigate;
 
-  const [peerTrackNodes, setPeerTrackNodes] = useState<Array<PeerTrackNode>>(
-    [],
-  );
+  const [peerTrackNodes, setPeerTrackNodes] =
+    useState<Array<PeerTrackNode>>(peerState);
   const [hmsRoom, setHmsRoom] = useState<HMSRoom>();
   const peerTrackNodesRef = React.useRef(peerTrackNodes);
   const HmsViewComponent = instance?.HmsView;
@@ -463,6 +470,7 @@ const Meeting = () => {
             onPress: async () => {
               await instance?.leave();
               dispatch(clearMessageData());
+              dispatch(clearPeerData());
               navigate('WelcomeScreen');
             },
           },
@@ -527,104 +535,6 @@ const Meeting = () => {
         break;
     }
     return buttons;
-  };
-
-  const updatePeersTrackNodesOnPeerListener = (
-    peer: HMSPeer,
-    type: HMSPeerUpdate,
-  ) => {
-    let newPeerTrackNodes = peerTrackNodesRef.current;
-    if (type === HMSPeerUpdate.PEER_JOINED) {
-      const newPeerTrackNode: PeerTrackNode = {
-        id: peer.peerID + 'regular',
-        peer,
-        track: peer?.videoTrack,
-      };
-      newPeerTrackNodes?.push(newPeerTrackNode);
-    } else if (type === HMSPeerUpdate.PEER_LEFT) {
-      newPeerTrackNodes = peerTrackNodesRef.current?.filter(peerTrackNode => {
-        if (peerTrackNode.peer.peerID === peer.peerID) {
-          return false;
-        }
-        return true;
-      });
-    } else {
-      newPeerTrackNodes = peerTrackNodesRef.current?.map(peerTrackNode => {
-        if (peerTrackNode.peer.peerID === peer.peerID) {
-          return {
-            ...peerTrackNode,
-            peer,
-          };
-        }
-        return peerTrackNode;
-      });
-    }
-    peerTrackNodesRef.current = newPeerTrackNodes;
-    setPeerTrackNodes(newPeerTrackNodes);
-  };
-
-  const updatePeersTrackNodesOnTrackListener = (
-    track: HMSTrack,
-    peer: HMSPeer,
-    type: HMSTrackUpdate,
-  ) => {
-    let newPeerTrackNodes = peerTrackNodesRef.current;
-    const uniqueId =
-      peer.peerID + (track.source === 'regular' ? 'regular' : track.trackId);
-    const isVideo = track.type === HMSTrackType.VIDEO;
-    if (
-      type === HMSTrackUpdate.TRACK_ADDED &&
-      !(track.source === 'screen' && peer.isLocal) // remove this condition to show local screenshare
-    ) {
-      if (isVideo) {
-        let peerTrackNodeUpdated = false;
-        newPeerTrackNodes = peerTrackNodesRef.current?.map(peerTrackNode => {
-          if (peerTrackNode.id === uniqueId) {
-            peerTrackNodeUpdated = true;
-            return {
-              ...peerTrackNode,
-              peer,
-              track,
-            };
-          }
-          return peerTrackNode;
-        });
-        if (!peerTrackNodeUpdated && track.type === HMSTrackType.VIDEO) {
-          const newPeerTrackNode: PeerTrackNode = {
-            id: uniqueId,
-            peer,
-            track,
-          };
-          newPeerTrackNodes?.push(newPeerTrackNode);
-        }
-      }
-    } else if (type === HMSTrackUpdate.TRACK_REMOVED) {
-      newPeerTrackNodes = peerTrackNodesRef.current?.filter(peerTrackNode => {
-        if (peerTrackNode.id === uniqueId) {
-          return false;
-        }
-        return true;
-      });
-    } else {
-      newPeerTrackNodes = peerTrackNodesRef.current?.map(peerTrackNode => {
-        if (isVideo && peerTrackNode.id === uniqueId) {
-          return {
-            ...peerTrackNode,
-            peer,
-            track,
-          };
-        }
-        if (!isVideo && peerTrackNode.id === uniqueId) {
-          return {
-            ...peerTrackNode,
-            peer,
-          };
-        }
-        return peerTrackNode;
-      });
-    }
-    peerTrackNodesRef.current = newPeerTrackNodes;
-    setPeerTrackNodes(newPeerTrackNodes);
   };
 
   const onRoomListener = ({
@@ -692,7 +602,7 @@ const Meeting = () => {
         Toast.TOP,
       );
     }
-    console.log('data in onRoomListener: ', room, type, localPeer, remotePeers);
+    console.log('data in onRoomListener: ', type, room, localPeer, remotePeers);
   };
 
   const onPeerListener = ({
@@ -708,7 +618,13 @@ const Meeting = () => {
     localPeer: HMSLocalPeer;
     remotePeers: HMSRemotePeer[];
   }) => {
-    updatePeersTrackNodesOnPeerListener(peer, type);
+    const newPeerTrackNodes = updatePeersTrackNodesOnPeerListener(
+      peerTrackNodesRef,
+      peer,
+      type,
+    );
+    peerTrackNodesRef.current = newPeerTrackNodes;
+    setPeerTrackNodes(newPeerTrackNodes);
     if (type === HMSPeerUpdate.PEER_LEFT) {
       Toast.showWithGravity(
         `Peer Left: ${peer.name} left the Room`,
@@ -730,9 +646,9 @@ const Meeting = () => {
     }
     console.log(
       'data in onPeerListener: ',
+      type,
       peer,
       room,
-      type,
       localPeer,
       remotePeers,
     );
@@ -753,13 +669,20 @@ const Meeting = () => {
     localPeer: HMSLocalPeer;
     remotePeers: HMSRemotePeer[];
   }) => {
-    updatePeersTrackNodesOnTrackListener(track, peer, type);
+    const newPeerTrackNodes = updatePeersTrackNodesOnTrackListener(
+      peerTrackNodesRef,
+      track,
+      peer,
+      type,
+    );
+    peerTrackNodesRef.current = newPeerTrackNodes;
+    setPeerTrackNodes(newPeerTrackNodes);
     console.log(
       'data in onTrackListener: ',
+      type,
       peer,
       track,
       room,
-      type,
       localPeer,
       remotePeers,
     );

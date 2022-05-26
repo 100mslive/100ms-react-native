@@ -3,6 +3,13 @@ import RNFetchBlob from 'rn-fetch-blob';
 import Share from 'react-native-share';
 import {getDeviceType} from 'react-native-device-info';
 import Toast from 'react-native-simple-toast';
+import {
+  HMSPeer,
+  HMSPeerUpdate,
+  HMSTrack,
+  HMSTrackType,
+  HMSTrackUpdate,
+} from '@100mslive/react-native-hms';
 
 import {LayoutParams, PeerTrackNode, TrackType} from './types';
 import dimension from '../utils/dimension';
@@ -267,4 +274,123 @@ export const getRoomIdDetails = (
     code,
     domain,
   };
+};
+
+export const updatePeersTrackNodesOnPeerListener = (
+  peerTrackNodesRef: React.MutableRefObject<PeerTrackNode[]>,
+  peer: HMSPeer,
+  type: HMSPeerUpdate,
+): PeerTrackNode[] => {
+  let newPeerTrackNodes = peerTrackNodesRef.current;
+  if (type === HMSPeerUpdate.PEER_JOINED) {
+    let alreadyPresent = false;
+    const updatePeerTrackNodes = peerTrackNodesRef.current?.map(
+      peerTrackNode => {
+        if (peerTrackNode.peer.peerID === peer.peerID) {
+          alreadyPresent = true;
+          return {
+            ...peerTrackNode,
+            peer,
+          };
+        }
+        return peerTrackNode;
+      },
+    );
+    if (alreadyPresent) {
+      newPeerTrackNodes = updatePeerTrackNodes;
+    } else {
+      const newPeerTrackNode: PeerTrackNode = {
+        id: peer.peerID + 'regular',
+        peer,
+        track: peer?.videoTrack,
+      };
+      newPeerTrackNodes?.push(newPeerTrackNode);
+    }
+  } else if (type === HMSPeerUpdate.PEER_LEFT) {
+    newPeerTrackNodes = peerTrackNodesRef.current?.filter(peerTrackNode => {
+      if (peerTrackNode.peer.peerID === peer.peerID) {
+        return false;
+      }
+      return true;
+    });
+  } else {
+    newPeerTrackNodes = peerTrackNodesRef.current?.map(peerTrackNode => {
+      if (peerTrackNode.peer.peerID === peer.peerID) {
+        return {
+          ...peerTrackNode,
+          peer,
+        };
+      }
+      return peerTrackNode;
+    });
+  }
+  return newPeerTrackNodes;
+};
+
+export const updatePeersTrackNodesOnTrackListener = (
+  peerTrackNodesRef: React.MutableRefObject<PeerTrackNode[]>,
+  track: HMSTrack,
+  peer: HMSPeer,
+  type: HMSTrackUpdate,
+): PeerTrackNode[] => {
+  let newPeerTrackNodes = peerTrackNodesRef.current;
+  const uniqueId =
+    peer.peerID + (track.source === 'regular' ? 'regular' : track.trackId);
+  const isVideo = track.type === HMSTrackType.VIDEO;
+  if (
+    type === HMSTrackUpdate.TRACK_ADDED &&
+    !(track.source === 'screen' && peer.isLocal) // remove this condition to show local screenshare
+  ) {
+    if (isVideo) {
+      let peerTrackNodeUpdated = false;
+      const updatePeerTrackNodes = peerTrackNodesRef.current?.map(
+        peerTrackNode => {
+          if (peerTrackNode.id === uniqueId) {
+            peerTrackNodeUpdated = true;
+            return {
+              ...peerTrackNode,
+              peer,
+              track,
+            };
+          }
+          return peerTrackNode;
+        },
+      );
+      if (peerTrackNodeUpdated) {
+        newPeerTrackNodes = updatePeerTrackNodes;
+      } else if (!peerTrackNodeUpdated && track.type === HMSTrackType.VIDEO) {
+        const newPeerTrackNode: PeerTrackNode = {
+          id: uniqueId,
+          peer,
+          track,
+        };
+        newPeerTrackNodes?.push(newPeerTrackNode);
+      }
+    }
+  } else if (type === HMSTrackUpdate.TRACK_REMOVED) {
+    newPeerTrackNodes = peerTrackNodesRef.current?.filter(peerTrackNode => {
+      if (peerTrackNode.id === uniqueId) {
+        return false;
+      }
+      return true;
+    });
+  } else {
+    newPeerTrackNodes = peerTrackNodesRef.current?.map(peerTrackNode => {
+      if (isVideo && peerTrackNode.id === uniqueId) {
+        return {
+          ...peerTrackNode,
+          peer,
+          track,
+        };
+      }
+      if (!isVideo && peerTrackNode.id === uniqueId) {
+        return {
+          ...peerTrackNode,
+          peer,
+        };
+      }
+      return peerTrackNode;
+    });
+  }
+  return newPeerTrackNodes;
 };
