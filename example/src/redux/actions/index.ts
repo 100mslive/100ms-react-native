@@ -42,3 +42,7 @@ export const updateHmsReference = (data: {hmsInstance: HMSSDK}) => ({
   type: actionTypes.UPDATE_HMS_INSTANCE,
   payload: data,
 });
+
+export const clearHmsReference = () => ({
+  type: actionTypes.CLEAR_HMS_INSTANCE,
+});

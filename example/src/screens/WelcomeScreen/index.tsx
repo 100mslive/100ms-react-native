@@ -80,10 +80,11 @@ type ButtonState = 'Active' | 'Loading';
 
 let config: HMSConfig | null = null;
 let roomCode: string | undefined;
+let instance: HMSSDK | undefined;
 
 const App = () => {
-  const {hmsInstance, userName} = useSelector((state: RootState) => state.user);
-  const [instance, setInstance] = useState<HMSSDK | undefined>();
+  const {userName} = useSelector((state: RootState) => state.user);
+  const [hmsInstance, setHmsInstance] = useState<HMSSDK | undefined>();
   const dispatch = useDispatch();
 
   const [peerTrackNodes, setPeerTrackNodes] = useState<Array<PeerTrackNode>>(
@@ -146,6 +147,7 @@ const App = () => {
       joinRoom();
     }
     setButtonState('Active');
+    setInitialized(false);
   };
 
   const onJoinListener = () => {
@@ -300,7 +302,8 @@ const App = () => {
     const logger = new HMSLogger();
     logger.updateLogLevel(HMSLogLevel.VERBOSE, true);
     build.setLogger(logger);
-    setInstance(build);
+    setHmsInstance(build);
+    instance = build;
     dispatch(updateHmsReference({hmsInstance: build}));
   };
 
@@ -314,10 +317,6 @@ const App = () => {
         setText(getMeetingUrl());
       }
     });
-    if (!initialized) {
-      setupBuild();
-      setInitialized(true);
-    }
 
     AppState.addEventListener('change', nextAppState => {
       if (nextAppState === 'active') {
@@ -332,11 +331,6 @@ const App = () => {
         });
       }
     });
-
-    return () => {
-      hmsInstance?.destroy();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkPermissionsForLink = (
@@ -389,13 +383,18 @@ const App = () => {
     Alert.alert('Fetching token failed', error?.msg || 'Something went wrong');
   };
 
-  const previewRoom = (token: string, userID: string) => {
+  const previewRoom = async (token: string, userID: string) => {
     const HmsConfig = new HMSConfig({
       authToken: token,
       username: userID,
       captureNetworkQualityInPreview: true,
     });
     config = HmsConfig;
+
+    if (!initialized) {
+      await setupBuild();
+      setInitialized(true);
+    }
 
     instance?.addEventListener(
       HMSUpdateListenerActions.ON_PREVIEW,
@@ -440,7 +439,7 @@ const App = () => {
     }
   };
 
-  const previewWithLink = (
+  const previewWithLink = async (
     token: string,
     userID: string,
     endpoint: string | undefined,
@@ -462,6 +461,11 @@ const App = () => {
       });
     }
     config = HmsConfig;
+
+    if (!initialized) {
+      await setupBuild();
+      setInitialized(true);
+    }
 
     instance?.addEventListener(
       HMSUpdateListenerActions.ON_PREVIEW,
@@ -509,7 +513,7 @@ const App = () => {
 
   const joinRoom = () => {
     if (config !== null) {
-      instance?.join(config);
+      hmsInstance?.join(config);
     } else {
       console.log('config: ', config);
     }

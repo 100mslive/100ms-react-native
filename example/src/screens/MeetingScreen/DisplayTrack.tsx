@@ -66,8 +66,8 @@ const DisplayTrack = ({
   miniView,
 }: DisplayTrackProps) => {
   const {mirrorLocalVideo} = useSelector((state: RootState) => state.user);
-  const isVideoMute = peerTrackNode.track?.isMute();
-  const isAudioMute = peerTrackNode.peer.audioTrack?.isMute();
+  const isVideoMute = peerTrackNode.track?.isMute() ?? true;
+  const isAudioMute = peerTrackNode.peer.audioTrack?.isMute() ?? true;
   const metadata = parseMetadata(peerTrackNode.peer.metadata);
   const id = peerTrackNode.peer.peerID;
   const name = peerTrackNode.peer.name;

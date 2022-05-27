@@ -65,6 +65,7 @@ import {
 } from '../../components';
 import {
   addMessage,
+  clearHmsReference,
   clearMessageData,
   clearPeerData,
   saveUserData,
@@ -468,10 +469,7 @@ const Meeting = () => {
           {
             text: 'Leave without ending room',
             onPress: async () => {
-              await instance?.leave();
-              dispatch(clearMessageData());
-              dispatch(clearPeerData());
-              navigate('WelcomeScreen');
+              await onLeavePress();
             },
           },
         ];
@@ -535,6 +533,14 @@ const Meeting = () => {
         break;
     }
     return buttons;
+  };
+
+  const onLeavePress = async () => {
+    await instance?.leave();
+    dispatch(clearMessageData());
+    dispatch(clearPeerData());
+    dispatch(clearHmsReference());
+    navigate('WelcomeScreen');
   };
 
   const onRoomListener = ({
@@ -844,8 +850,7 @@ const Meeting = () => {
 
     return () => {
       backHandler.remove();
-      instance?.leave();
-      navigate('WelcomeScreen');
+      onLeavePress();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

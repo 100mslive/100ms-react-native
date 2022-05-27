@@ -34,6 +34,11 @@ const userReducer = (state = INITIAL_STATE, action: ActionType) => {
         ...state,
         ...action.payload,
       };
+    case ActionTypes.CLEAR_HMS_INSTANCE:
+      return {
+        ...state,
+        hmsInstance: undefined,
+      };
     default:
       return state;
   }
