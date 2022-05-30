@@ -14,7 +14,7 @@ interface HmsViewProps {
     id: string;
     mirror: boolean;
   };
-  setZOrderMediaOverlay?: boolean;
+  setZOrderMediaOverlay: boolean;
   scaleType: HMSVideoViewMode;
   style: ViewStyle;
   onChange: Function;
