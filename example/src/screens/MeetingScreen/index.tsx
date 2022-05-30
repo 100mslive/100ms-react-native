@@ -537,6 +537,10 @@ const Meeting = () => {
 
   const onLeavePress = async () => {
     await instance?.leave();
+    await instance
+      ?.destroy()
+      .then(d => console.log('Destroy Success: ', d))
+      .catch(e => console.log('Destroy Error: ', e));
     dispatch(clearMessageData());
     dispatch(clearPeerData());
     dispatch(clearHmsReference());
