@@ -393,10 +393,10 @@ export class HMSSDK {
         ref={ref}
         trackId={trackId}
         style={style}
+        setZOrderMediaOverlay={setZOrderMediaOverlay}
         mirror={mirror}
         scaleType={scaleType}
         id={this.id}
-        setZOrderMediaOverlay={setZOrderMediaOverlay}
       />
     );
   });

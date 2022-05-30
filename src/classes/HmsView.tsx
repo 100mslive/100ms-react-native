@@ -14,8 +14,8 @@ interface HmsViewProps {
     id: string;
     mirror: boolean;
   };
-  scaleType: HMSVideoViewMode;
   setZOrderMediaOverlay?: boolean;
+  scaleType: HMSVideoViewMode;
   style: ViewStyle;
   onChange: Function;
   onDataReturned: Function;
@@ -25,7 +25,7 @@ const HmsView = requireNativeComponent<HmsViewProps>('HMSView');
 let _nextRequestId = 1;
 let _requestMap = new Map();
 
-interface HmsViewComponentProps {
+interface HmsComponentProps {
   trackId: string;
   style?: ViewStyle;
   mirror?: boolean;
@@ -34,15 +34,15 @@ interface HmsViewComponentProps {
   id: string;
 }
 
-export const HmsViewComponent = React.forwardRef<any, HmsViewComponentProps>(
+export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
   (props, ref) => {
     const {
       trackId,
       style = temporaryStyles.customStyle,
       id = '12345',
       mirror = false,
-      scaleType = HMSVideoViewMode.ASPECT_FILL,
       setZOrderMediaOverlay = false,
+      scaleType = HMSVideoViewMode.ASPECT_FILL,
     } = props;
 
     const hmsViewRef: any = useRef();
