@@ -136,7 +136,13 @@ class HMSHelper: NSObject {
         }
         let codecEncoded = HMSHelper.getVideoCodec(codec)
         let cameraFacingEncoded = HMSHelper.getCameraFacing(cameraFacing)
-        let hmsTrackSettings = HMSVideoTrackSettings(codec: codecEncoded, resolution: resolutionObj, maxBitrate: maxBitrate, maxFrameRate: maxFrameRate, cameraFacing: cameraFacingEncoded, trackDescription: trackDescription)
+        let hmsTrackSettings = HMSVideoTrackSettings(codec: codecEncoded,
+                                                     resolution: resolutionObj,
+                                                     maxBitrate: maxBitrate,
+                                                     maxFrameRate: maxFrameRate,
+                                                     cameraFacing: cameraFacingEncoded,
+                                                     trackDescription: trackDescription,
+                                                     videoPlugins: nil)
         return hmsTrackSettings
     }
 
