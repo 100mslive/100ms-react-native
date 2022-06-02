@@ -7,7 +7,7 @@ class HMSDecoder: NSObject {
         guard let room = hmsRoom else { return [:] }
 
         let id = room.roomID ?? ""
-        let sessionId = "sessionId"
+        let sessionId = room.sessionID ?? ""
         let name = room.name ?? ""
         let metaData = room.metaData ?? ""
         let count = room.peerCount ?? 0
