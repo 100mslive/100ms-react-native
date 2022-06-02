@@ -7,6 +7,7 @@ import type { HMSHLSRecordingState } from './HMSHLSRecordingState';
 
 export class HMSRoom {
   id: string;
+  sessionId: string;
   name: string;
   metaData?: string;
   peers: HMSPeer[];
@@ -19,6 +20,7 @@ export class HMSRoom {
 
   constructor(params: {
     id: string;
+    sessionId: string;
     name: string;
     metaData?: string;
     peers: HMSPeer[];
@@ -30,6 +32,7 @@ export class HMSRoom {
     peerCount: number;
   }) {
     this.id = params.id;
+    this.sessionId = params.sessionId;
     this.name = params.name;
     this.metaData = params.metaData;
     this.peers = params.peers;
