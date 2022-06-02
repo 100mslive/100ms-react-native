@@ -11,11 +11,13 @@ import {
   Platform,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import dimension from '../utils/dimension';
 import {ChatBubble} from './ChatBubble';
 import {CustomModalDropdown} from './Picker';
+import {COLORS, FONTS} from '../utils/theme';
 
 export const ChatWindow = ({
   messages,
@@ -44,8 +46,8 @@ export const ChatWindow = ({
     <View style={styles.container}>
       <View style={[styles.keyboardAvoidingView, {paddingTop: top}]}>
         <View style={styles.headingContainer}>
-          <Feather
-            name="message-circle"
+          <MaterialCommunityIcons
+            name="message-outline"
             style={styles.closeIcon}
             size={dimension.viewHeight(30)}
           />
@@ -89,7 +91,7 @@ export const ChatWindow = ({
           <View style={styles.flex}>
             <TextInput
               placeholder="Enter Message"
-              placeholderTextColor="black"
+              placeholderTextColor="#454545"
               style={styles.textInput}
               onChangeText={value => {
                 setText(value);
@@ -103,7 +105,11 @@ export const ChatWindow = ({
               send(text, messageToList[messageTo]);
               setText('');
             }}>
-            <Feather size={dimension.viewHeight(24)} name="send" />
+            <MaterialCommunityIcons
+              style={styles.closeIcon}
+              size={dimension.viewHeight(28)}
+              name="send"
+            />
           </TouchableOpacity>
         </KeyboardAvoidingView>
       </View>
@@ -118,7 +124,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(34, 34, 34, 0.3)',
     justifyContent: 'center',
     zIndex: 1,
   },
@@ -126,7 +131,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   keyboardAvoidingView: {
-    backgroundColor: 'white',
+    backgroundColor: COLORS.WHITE,
     width: '100%',
     height: '100%',
   },
@@ -137,35 +142,17 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: dimension.viewWidth(24),
     borderTopWidth: 2,
-    borderTopColor: 'lightgrey',
+    borderTopColor: COLORS.BORDER.DEFAULT,
     borderBottomWidth: 2,
-    borderBottomColor: 'lightgrey',
-  },
-  textContainer: {
-    marginVertical: dimension.viewHeight(12),
-    backgroundColor: '#67ed99',
-    paddingHorizontal: 12,
-    borderTopLeftRadius: 30,
-    borderBottomRightRadius: 30,
-    borderTopRightRadius: 30,
-    maxWidth: '80%',
-  },
-  messageBubble: {
-    flexDirection: 'row',
-  },
-  senderMessageBubble: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  message: {
-    color: 'white',
+    borderBottomColor: COLORS.BORDER.DEFAULT,
   },
   textInput: {
-    borderColor: 'black',
+    borderColor: COLORS.PRIMARY.DEFAULT,
     borderWidth: 1,
     paddingHorizontal: dimension.viewWidth(16),
     flex: 1,
-    color: 'black',
+    color: COLORS.PRIMARY.DEFAULT,
+    fontFamily: 'Inter-Regular',
   },
   textInputContainer: {
     flexDirection: 'row',
@@ -177,7 +164,7 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   closeIcon: {
-    color: '#4578e0',
+    color: COLORS.PRIMARY.DEFAULT,
   },
   closeIconContainer: {
     position: 'absolute',
@@ -192,8 +179,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: dimension.viewWidth(24),
   },
   heading: {
-    fontSize: 20,
     paddingLeft: 10,
+    ...FONTS.H5,
+    color: COLORS.PRIMARY.DEFAULT,
   },
   subHeadingContainer: {
     padding: 10,
@@ -204,6 +192,8 @@ const styles = StyleSheet.create({
   },
   subHeading: {
     fontSize: 16,
+    fontFamily: 'Inter-Medium',
+    color: COLORS.PRIMARY.LIGHT,
   },
   picker: {width: '50%'},
 });

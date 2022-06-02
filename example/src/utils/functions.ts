@@ -15,8 +15,6 @@ import {LayoutParams, PeerTrackNode, TrackType} from './types';
 import dimension from '../utils/dimension';
 import * as services from '../services/index';
 
-export const getThemeColour = () => '#4578e0';
-
 export const getMeetingUrl = () =>
   'https://yogi.app.100ms.live/preview/nih-bkn-vek';
 

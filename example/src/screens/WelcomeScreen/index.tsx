@@ -605,7 +605,10 @@ const App = () => {
         buttons={getSettingButtons()}
       />
       <View style={styles.headerContainer}>
-        <Image style={styles.image} source={require('../../assets/icon.png')} />
+        <Image
+          style={styles.image}
+          source={require('../../../assets/icon.png')}
+        />
         <Text style={styles.logo}>100ms</Text>
         <TouchableOpacity
           onPress={() => {

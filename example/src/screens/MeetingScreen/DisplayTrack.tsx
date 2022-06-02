@@ -133,7 +133,13 @@ const DisplayTrack = ({
         }
       }
     };
-    getVolume();
+    let fetchVolume = true;
+    if (fetchVolume) {
+      getVolume();
+    }
+    return () => {
+      fetchVolume = false;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -464,14 +470,14 @@ const DisplayTrack = ({
               style={styles.network}
               source={
                 peerTrackNode.peer?.networkQuality?.downlinkQuality === 0
-                  ? require('../../assets/network_0.png')
+                  ? require('../../../assets/network_0.png')
                   : peerTrackNode.peer?.networkQuality?.downlinkQuality === 1
-                  ? require('../../assets/network_1.png')
+                  ? require('../../../assets/network_1.png')
                   : peerTrackNode.peer?.networkQuality?.downlinkQuality === 2
-                  ? require('../../assets/network_2.png')
+                  ? require('../../../assets/network_2.png')
                   : peerTrackNode.peer?.networkQuality?.downlinkQuality === 3
-                  ? require('../../assets/network_3.png')
-                  : require('../../assets/network_4.png')
+                  ? require('../../../assets/network_3.png')
+                  : require('../../../assets/network_4.png')
               }
             />
           </View>

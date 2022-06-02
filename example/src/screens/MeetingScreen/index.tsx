@@ -45,7 +45,7 @@ import {
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import Toast from 'react-native-simple-toast';
@@ -85,6 +85,7 @@ import {GridView} from './Grid';
 import {ActiveSpeakerView} from './ActiveSpeakerView';
 import {HeroView} from './HeroView';
 import {MiniView} from './MiniView';
+import {COLORS} from '../../utils/theme';
 
 type MessageObject = {
   name: string;
@@ -937,7 +938,7 @@ const Meeting = () => {
             });
           }}
           style={styles.recordingDetails}>
-          <Text>Record</Text>
+          <Text style={styles.interRegular}>Record</Text>
           <View style={styles.checkboxContainer}>
             {recordingDetails.record && (
               <Entypo
@@ -974,7 +975,7 @@ const Meeting = () => {
             });
           }}
           style={styles.recordingDetails}>
-          <Text>singleFilePerLayer</Text>
+          <Text style={styles.interRegular}>singleFilePerLayer</Text>
           <View style={styles.checkboxContainer}>
             {hlsRecordingDetails.singleFilePerLayer && (
               <Entypo
@@ -993,7 +994,7 @@ const Meeting = () => {
             });
           }}
           style={styles.recordingDetails}>
-          <Text>videoOnDemand</Text>
+          <Text style={styles.interRegular}>videoOnDemand</Text>
           <View style={styles.checkboxContainer}>
             {hlsRecordingDetails.videoOnDemand && (
               <Entypo
@@ -1047,7 +1048,7 @@ const Meeting = () => {
         <Picker
           selectedValue={newLayout}
           onValueChange={setNewLayout}
-          dropdownIconColor="black"
+          dropdownIconColor={COLORS.BLACK}
           dropdownIconRippleColor="grey">
           {[
             {name: LayoutParams.GRID},
@@ -1067,25 +1068,26 @@ const Meeting = () => {
             : roomCode}
         </Text>
         <View style={styles.headerRight}>
-          {hmsRoom?.browserRecordingState?.running && (
-            <Entypo
-              name="controller-record"
+          {(hmsRoom?.browserRecordingState?.running ||
+            hmsRoom?.hlsRecordingState?.running) && (
+            <MaterialCommunityIcons
+              name="record-circle-outline"
               style={styles.recording}
               size={dimension.viewHeight(30)}
             />
           )}
           {(hmsRoom?.hlsStreamingState?.running ||
             hmsRoom?.rtmpHMSRtmpStreamingState?.running) && (
-            <Entypo
-              name="light-up"
+            <Ionicons
+              name="globe-outline"
               style={styles.streaming}
               size={dimension.viewHeight(30)}
             />
           )}
           {instance?.localPeer?.auxiliaryTracks &&
             instance?.localPeer?.auxiliaryTracks?.length > 0 && (
-              <MaterialIcons
-                name="fit-screen"
+              <Feather
+                name="copy"
                 style={styles.streaming}
                 size={dimension.viewHeight(30)}
               />
@@ -1161,13 +1163,17 @@ const Meeting = () => {
                   />
                 ) : (
                   <View key={index} style={styles.renderVideo}>
-                    <Text>Trying to load empty source...</Text>
+                    <Text style={styles.interRegular}>
+                      Trying to load empty source...
+                    </Text>
                   </View>
                 ),
               )
           ) : (
             <View style={styles.renderVideo}>
-              <Text>Waiting for the Streaming to start...</Text>
+              <Text style={styles.interRegular}>
+                Waiting for the Streaming to start...
+              </Text>
             </View>
           )
         ) : fetchZoomableId(zoomableTrackId) &&
@@ -1277,8 +1283,8 @@ const Meeting = () => {
           onPress={() => {
             setModalVisible(ModalTypes.CHAT);
           }}>
-          <Feather
-            name="message-circle"
+          <MaterialCommunityIcons
+            name="message-outline"
             style={styles.videoIcon}
             size={dimension.viewHeight(30)}
           />
@@ -1333,8 +1339,8 @@ const Meeting = () => {
           onPress={() => {
             setModalVisible(ModalTypes.LEAVE);
           }}>
-          <Feather
-            name="phone-off"
+          <Entypo
+            name="login"
             style={styles.leaveIcon}
             size={dimension.viewHeight(30)}
           />

@@ -43,8 +43,8 @@
 	<string>Example App wants to use your local network</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Example App wants to use your microphone</string>
-  <key>NSPhotoLibraryUsageDescription</key>
-  <string>Example app wants access to photo library to save screenshots from the Video call</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Example app wants access to photo library to save screenshots from the Video call</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>
@@ -63,6 +63,9 @@
 		<string>Octicons.ttf</string>
 		<string>SimpleLineIcons.ttf</string>
 		<string>Zocial.ttf</string>
+		<string>Inter-Bold.ttf</string>
+		<string>Inter-Medium.ttf</string>
+		<string>Inter-Regular.ttf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>

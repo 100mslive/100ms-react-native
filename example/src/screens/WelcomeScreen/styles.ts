@@ -1,12 +1,12 @@
 import {StyleSheet, Platform} from 'react-native';
 
-import {getThemeColour} from '../../utils/functions';
+import {COLORS, FONTS} from '../../utils/theme';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: COLORS.WHITE,
     justifyContent: 'space-between',
   },
   headerContainer: {
@@ -16,9 +16,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logo: {
-    fontWeight: '700',
-    color: getThemeColour(),
-    fontSize: 44,
+    color: COLORS.PRIMARY.DEFAULT,
+    ...FONTS.H2,
   },
   image: {
     width: 60,
@@ -28,42 +27,42 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingTop: 10,
     paddingBottom: 10,
-    fontSize: 20,
-    fontWeight: '500',
-    color: getThemeColour(),
+    ...FONTS.H6,
+    color: COLORS.PRIMARY.DEFAULT,
   },
   inputContainer: {
     width: '80%',
   },
   input: {
     borderWidth: 1,
-    borderColor: 'black',
+    borderColor: COLORS.BLACK,
     paddingLeft: 10,
     minHeight: 32,
-    color: getThemeColour(),
+    fontFamily: 'Inter-Regular',
+    color: COLORS.PRIMARY.DEFAULT,
     paddingRight: 40,
   },
   joinButtonContainer: {
     padding: 12,
     marginTop: 20,
-    backgroundColor: getThemeColour(),
+    backgroundColor: COLORS.PRIMARY.DEFAULT,
     borderRadius: 15,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
   },
   videoIcon: {
-    color: 'white',
+    color: COLORS.WHITE,
     marginRight: 8,
   },
   joinButtonText: {
     textAlign: 'center',
-    color: 'white',
-    fontSize: 20,
+    color: COLORS.WHITE,
+    ...FONTS.H6,
     paddingRight: 8,
   },
   settingsIcon: {
-    color: getThemeColour(),
+    color: COLORS.PRIMARY.DEFAULT,
   },
   settingsIconContainer: {
     position: 'absolute',
@@ -75,7 +74,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     paddingTop: 10,
     fontSize: 20,
-    color: getThemeColour(),
+    color: COLORS.PRIMARY.DEFAULT,
   },
   clear: {
     position: 'absolute',

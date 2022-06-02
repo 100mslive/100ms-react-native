@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
+import {COLORS, FONTS} from '../utils/theme';
 
 export const UserIdModal = ({
   cancel,
@@ -69,11 +70,11 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(34, 34, 34, 0.3)',
+    backgroundColor: COLORS.OVERLAY,
     justifyContent: 'center',
   },
   modalContainer: {
-    backgroundColor: 'white',
+    backgroundColor: COLORS.WHITE,
     marginBottom: 185,
     marginLeft: 42,
     marginRight: 42,
@@ -85,18 +86,18 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     paddingBottom: 10,
     marginBottom: 10,
-    fontSize: 20,
-    fontWeight: '500',
-    color: '#4578e0',
+    ...FONTS.H6,
+    color: COLORS.PRIMARY.DEFAULT,
   },
   input: {
     borderWidth: 1,
-    borderColor: 'black',
+    borderColor: COLORS.BLACK,
     paddingLeft: 10,
     minHeight: 42,
     width: '80%',
     marginBottom: 16,
-    color: '#4578e0',
+    fontFamily: 'Inter-Regular',
+    color: COLORS.PRIMARY.DEFAULT,
   },
   inputContainer: {
     alignItems: 'center',
@@ -109,12 +110,12 @@ const styles = StyleSheet.create({
   },
   joinButtonText: {
     textAlign: 'center',
-    color: 'white',
-    fontSize: 20,
+    color: COLORS.WHITE,
+    ...FONTS.H6,
     paddingHorizontal: 8,
   },
   buttonTextContainer: {
-    backgroundColor: '#4578e0',
+    backgroundColor: COLORS.PRIMARY.DEFAULT,
     padding: 10,
     borderRadius: 5,
     width: '48%',
