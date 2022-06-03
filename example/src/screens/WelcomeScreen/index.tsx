@@ -115,13 +115,6 @@ const App = () => {
     room: HMSRoom;
     previewTracks: {audioTrack: HMSAudioTrack; videoTrack: HMSVideoTrack};
   }) => {
-    const newPeerTrackNodes = updatePeersTrackNodesOnPeerListener(
-      peerTrackNodesRef?.current,
-      data?.localPeer,
-      HMSPeerUpdate.PEER_JOINED,
-    );
-    peerTrackNodesRef.current = newPeerTrackNodes;
-    setPeerTrackNodes(newPeerTrackNodes);
     const localVideoAllowed =
       instance?.localPeer?.role?.publishSettings?.allowed?.includes('video');
 
@@ -150,13 +143,24 @@ const App = () => {
     setInitialized(false);
   };
 
-  const onJoinListener = () => {
+  const onJoinListener = ({
+    localPeer,
+  }: {
+    room: HMSRoom;
+    localPeer: HMSLocalPeer;
+    remotePeers: Array<HMSRemotePeer>;
+  }) => {
+    const newPeerTrackNodes = updatePeersTrackNodesOnPeerListener(
+      peerTrackNodesRef?.current,
+      localPeer,
+      HMSPeerUpdate.PEER_JOINED,
+    );
     setPreviewButtonState('Active');
     setButtonState('Active');
     setPreviewModal(false);
     setMirrorLocalVideo(false);
     dispatch(setAudioVideoState({audioState: audio, videoState: video}));
-    dispatch(setPeerState({peerState: peerTrackNodesRef?.current}));
+    dispatch(setPeerState({peerState: newPeerTrackNodes}));
     peerTrackNodesRef.current = [];
     navigate('MeetingScreen');
   };

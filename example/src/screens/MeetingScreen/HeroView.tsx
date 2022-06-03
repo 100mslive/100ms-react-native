@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {FlatList, View} from 'react-native';
-import type {HMSSDK, HMSSpeaker} from '@100mslive/react-native-hms';
+import {HMSSDK, HMSSpeaker, HMSTrackSource} from '@100mslive/react-native-hms';
 
 import {LayoutParams, PeerTrackNode} from '../../utils/types';
 import {DisplayTrack} from './DisplayTrack';
@@ -34,7 +34,7 @@ const HeroView = ({instance, speakers, setModalVisible}: HeroViewProps) => {
     if (speakers.length > 0) {
       const peer = speakers[0].peer;
       setMainSpeaker({
-        id: peer.peerID + 'regular',
+        id: peer.peerID + HMSTrackSource.REGULAR,
         peer,
         track: peer.videoTrack,
       });
@@ -42,7 +42,7 @@ const HeroView = ({instance, speakers, setModalVisible}: HeroViewProps) => {
     if (speakers.length === 0 && !mainSpeaker && instance?.localPeer) {
       const peer = instance.localPeer;
       setMainSpeaker({
-        id: peer.peerID + 'regular',
+        id: peer.peerID + HMSTrackSource.REGULAR,
         peer,
         track: peer.videoTrack,
       });
@@ -55,7 +55,7 @@ const HeroView = ({instance, speakers, setModalVisible}: HeroViewProps) => {
     if (instance?.localPeer) {
       const peer = instance.localPeer;
       newPeerList.push({
-        id: peer.peerID + 'regular',
+        id: peer.peerID + HMSTrackSource.REGULAR,
         peer,
         track: peer.videoTrack,
       });
@@ -65,7 +65,7 @@ const HeroView = ({instance, speakers, setModalVisible}: HeroViewProps) => {
       instance.remotePeers.map(item => {
         const peer = item;
         newPeerList.push({
-          id: peer.peerID + 'regular',
+          id: peer.peerID + HMSTrackSource.REGULAR,
           peer,
           track: peer.videoTrack,
         });

@@ -1,5 +1,5 @@
 import React from 'react';
-import type {HMSSDK, HMSSpeaker} from '@100mslive/react-native-hms';
+import {HMSSDK, HMSSpeaker, HMSTrackSource} from '@100mslive/react-native-hms';
 
 import {pairDataForFlatlist} from '../../utils/functions';
 import type {LayoutParams, PeerTrackNode} from '../../utils/types';
@@ -73,7 +73,7 @@ const getActiveSpeakers = (
   const currentActiveSpeakers: PeerTrackNode[] = speakers.map(speaker => {
     const {peer} = speaker;
     return {
-      id: peer.peerID + 'regular',
+      id: peer.peerID + HMSTrackSource.REGULAR,
       peer,
       track: peer.videoTrack,
     };

@@ -1,11 +1,12 @@
 import React, {useRef} from 'react';
 import {View, FlatList, Dimensions} from 'react-native';
-import type {
+import {
   HMSLocalAudioStats,
   HMSLocalVideoStats,
   HMSRTCStatsReport,
   HMSSDK,
   HMSSpeaker,
+  HMSTrackSource,
 } from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
@@ -84,7 +85,7 @@ const GridView = ({
             ]}>
             {item?.map(view => {
               const type: TrackType =
-                view?.track?.source !== 'regular'
+                view?.track?.source !== HMSTrackSource.REGULAR
                   ? TrackType.SCREEN
                   : view?.peer.isLocal
                   ? TrackType.LOCAL

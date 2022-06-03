@@ -41,6 +41,7 @@ import {
   HMSRemoteVideoTrack,
   HMSSpeaker,
   HMSHLSRecordingConfig,
+  HMSTrackSource,
 } from '@100mslive/react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -269,7 +270,7 @@ const Meeting = () => {
           {
             text: 'Send',
             onPress: async () => {
-              const source = 'regular';
+              const source = HMSTrackSource.REGULAR;
               switch (action) {
                 case 1:
                   await instance?.changeTrackStateForRoles(

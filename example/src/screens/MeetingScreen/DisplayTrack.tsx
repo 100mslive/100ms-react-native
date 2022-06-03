@@ -9,9 +9,11 @@ import {
   HMSRTCStatsReport,
   HMSSDK,
   HMSTrackType,
+  HMSTrackSource,
 } from '@100mslive/react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {Slider} from '@miblanchard/react-native-slider';
 import {useSelector} from 'react-redux';
@@ -72,7 +74,7 @@ const DisplayTrack = ({
   const id = peerTrackNode.peer.peerID;
   const name = peerTrackNode.peer.name;
   const type =
-    peerTrackNode?.track?.source !== 'regular'
+    peerTrackNode?.track?.source !== HMSTrackSource.REGULAR
       ? TrackType.SCREEN
       : peerTrackNode?.peer.isLocal
       ? TrackType.LOCAL
@@ -500,6 +502,15 @@ const DisplayTrack = ({
             </View>
           </View>
         )}
+        {isDegraded && (
+          <View>
+            <MaterialCommunityIcons
+              name="shield-alert-outline"
+              style={styles.degraded}
+              size={dimension.viewHeight(30)}
+            />
+          </View>
+        )}
       </View>
       {layout === LayoutParams.GRID &&
         (type === TrackType.SCREEN ||
@@ -519,7 +530,9 @@ const DisplayTrack = ({
       <View style={styles.displayContainer}>
         <View style={styles.peerNameContainer}>
           <Text numberOfLines={2} style={styles.peerName}>
-            {name}
+            {peerTrackNode.track?.source === HMSTrackSource.SCREEN
+              ? `${name}'s Screen`
+              : name}
           </Text>
         </View>
         <View style={styles.micContainer}>

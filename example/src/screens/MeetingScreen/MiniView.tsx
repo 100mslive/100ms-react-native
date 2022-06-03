@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useRef, useCallback} from 'react';
 import {View, Animated} from 'react-native';
-import type {HMSSDK, HMSSpeaker} from '@100mslive/react-native-hms';
+import {HMSSDK, HMSSpeaker, HMSTrackSource} from '@100mslive/react-native-hms';
 import {
   GestureHandlerRootView,
   PanGestureHandler,
@@ -33,21 +33,21 @@ const MiniView = ({instance, speakers}: MiniViewProps) => {
 
   useEffect(() => {
     const decodedLocalPeer = {
-      id: instance?.localPeer?.peerID + 'regular',
+      id: instance?.localPeer?.peerID + HMSTrackSource.REGULAR,
       peer: instance?.localPeer!,
       track: instance?.localPeer?.videoTrack,
     };
     if (instance?.remotePeers && instance.remotePeers.length > 0) {
       if (speakers.length > 0) {
         setMainSpeaker({
-          id: speakers[0].peer.peerID + 'regular',
+          id: speakers[0].peer.peerID + HMSTrackSource.REGULAR,
           peer: speakers[0].peer,
           track: speakers[0].peer?.videoTrack,
         });
         setMiniSpeaker(decodedLocalPeer);
       } else {
         setMainSpeaker({
-          id: instance?.remotePeers[0]?.peerID + 'regular',
+          id: instance?.remotePeers[0]?.peerID + HMSTrackSource.REGULAR,
           peer: instance?.remotePeers[0],
           track: instance?.remotePeers[0]?.videoTrack,
         });

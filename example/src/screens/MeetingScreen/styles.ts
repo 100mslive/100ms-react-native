@@ -21,6 +21,9 @@ const styles = StyleSheet.create({
   raiseHand: {
     color: COLORS.INDICATORS.WARNING,
   },
+  degraded: {
+    color: COLORS.INDICATORS.ERROR,
+  },
   fullScreenTile: {
     width: '100%',
     marginVertical: 1,

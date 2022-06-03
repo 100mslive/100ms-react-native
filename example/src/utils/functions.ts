@@ -9,6 +9,7 @@ import {
   HMSTrack,
   HMSTrackType,
   HMSTrackUpdate,
+  HMSTrackSource,
 } from '@100mslive/react-native-hms';
 
 import {LayoutParams, PeerTrackNode, TrackType} from './types';
@@ -60,7 +61,7 @@ export const pairDataForFlatlist = (
   let groupData: Array<PeerTrackNode> = [];
   let itemsPushed: number = 0;
   data.map((item: PeerTrackNode) => {
-    if (item.track?.source !== 'regular') {
+    if (item.track?.source !== HMSTrackSource.REGULAR) {
       pairedData.push([item]);
     } else {
       if (item.track) {
@@ -285,10 +286,14 @@ export const updatePeersTrackNodesOnPeerListener = (
     const updatePeerTrackNodes = oldPeerTrackNodes?.map(peerTrackNode => {
       if (peerTrackNode.peer.peerID === peer.peerID) {
         alreadyPresent = true;
+        const track =
+          peerTrackNode.track?.source === HMSTrackSource.REGULAR
+            ? peer?.videoTrack
+            : peerTrackNode.track;
         return {
           ...peerTrackNode,
           peer,
-          track: peer.videoTrack,
+          track,
         };
       }
       return peerTrackNode;
@@ -297,7 +302,7 @@ export const updatePeersTrackNodesOnPeerListener = (
       return updatePeerTrackNodes;
     } else {
       const newPeerTrackNode: PeerTrackNode = {
-        id: peer.peerID + 'regular',
+        id: peer.peerID + HMSTrackSource.REGULAR,
         peer,
         track: peer?.videoTrack,
       };
@@ -313,11 +318,15 @@ export const updatePeersTrackNodesOnPeerListener = (
     });
   } else {
     return oldPeerTrackNodes?.map(peerTrackNode => {
+      const track =
+        peerTrackNode.track?.source === HMSTrackSource.REGULAR
+          ? peer?.videoTrack
+          : peerTrackNode.track;
       if (peerTrackNode.peer.peerID === peer.peerID) {
         return {
           ...peerTrackNode,
           peer,
-          track: peer.videoTrack,
+          track,
         };
       }
       return peerTrackNode;
@@ -333,11 +342,14 @@ export const updatePeersTrackNodesOnTrackListener = (
 ): PeerTrackNode[] => {
   const oldPeerTrackNodes: PeerTrackNode[] = peerTrackNodes;
   const uniqueId =
-    peer.peerID + (track.source === 'regular' ? 'regular' : track.trackId);
+    peer.peerID +
+    (track.source === HMSTrackSource.REGULAR
+      ? HMSTrackSource.REGULAR
+      : track.trackId);
   const isVideo = track.type === HMSTrackType.VIDEO;
   if (
     type === HMSTrackUpdate.TRACK_ADDED &&
-    !(track.source === 'screen' && peer.isLocal) // remove this condition to show local screenshare
+    !(track.source === HMSTrackSource.SCREEN && peer.isLocal) // remove this condition to show local screenshare
   ) {
     if (isVideo) {
       let peerTrackNodeUpdated = false;
