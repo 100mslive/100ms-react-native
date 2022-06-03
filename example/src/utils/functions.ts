@@ -275,45 +275,44 @@ export const getRoomIdDetails = (
 };
 
 export const updatePeersTrackNodesOnPeerListener = (
-  peerTrackNodesRef: React.MutableRefObject<PeerTrackNode[]>,
+  peerTrackNodes: PeerTrackNode[],
   peer: HMSPeer,
   type: HMSPeerUpdate,
 ): PeerTrackNode[] => {
-  let newPeerTrackNodes = peerTrackNodesRef.current;
+  const oldPeerTrackNodes: PeerTrackNode[] = peerTrackNodes;
   if (type === HMSPeerUpdate.PEER_JOINED) {
     let alreadyPresent = false;
-    const updatePeerTrackNodes = peerTrackNodesRef.current?.map(
-      peerTrackNode => {
-        if (peerTrackNode.peer.peerID === peer.peerID) {
-          alreadyPresent = true;
-          return {
-            ...peerTrackNode,
-            peer,
-            track: peer.videoTrack,
-          };
-        }
-        return peerTrackNode;
-      },
-    );
+    const updatePeerTrackNodes = oldPeerTrackNodes?.map(peerTrackNode => {
+      if (peerTrackNode.peer.peerID === peer.peerID) {
+        alreadyPresent = true;
+        return {
+          ...peerTrackNode,
+          peer,
+          track: peer.videoTrack,
+        };
+      }
+      return peerTrackNode;
+    });
     if (alreadyPresent) {
-      newPeerTrackNodes = updatePeerTrackNodes;
+      return updatePeerTrackNodes;
     } else {
       const newPeerTrackNode: PeerTrackNode = {
         id: peer.peerID + 'regular',
         peer,
         track: peer?.videoTrack,
       };
-      newPeerTrackNodes?.push(newPeerTrackNode);
+      updatePeerTrackNodes?.push(newPeerTrackNode);
+      return updatePeerTrackNodes;
     }
   } else if (type === HMSPeerUpdate.PEER_LEFT) {
-    newPeerTrackNodes = peerTrackNodesRef.current?.filter(peerTrackNode => {
+    return oldPeerTrackNodes?.filter(peerTrackNode => {
       if (peerTrackNode.peer.peerID === peer.peerID) {
         return false;
       }
       return true;
     });
   } else {
-    newPeerTrackNodes = peerTrackNodesRef.current?.map(peerTrackNode => {
+    return oldPeerTrackNodes?.map(peerTrackNode => {
       if (peerTrackNode.peer.peerID === peer.peerID) {
         return {
           ...peerTrackNode,
@@ -324,16 +323,15 @@ export const updatePeersTrackNodesOnPeerListener = (
       return peerTrackNode;
     });
   }
-  return newPeerTrackNodes;
 };
 
 export const updatePeersTrackNodesOnTrackListener = (
-  peerTrackNodesRef: React.MutableRefObject<PeerTrackNode[]>,
+  peerTrackNodes: PeerTrackNode[],
   track: HMSTrack,
   peer: HMSPeer,
   type: HMSTrackUpdate,
 ): PeerTrackNode[] => {
-  let newPeerTrackNodes = peerTrackNodesRef.current;
+  const oldPeerTrackNodes: PeerTrackNode[] = peerTrackNodes;
   const uniqueId =
     peer.peerID + (track.source === 'regular' ? 'regular' : track.trackId);
   const isVideo = track.type === HMSTrackType.VIDEO;
@@ -343,39 +341,39 @@ export const updatePeersTrackNodesOnTrackListener = (
   ) {
     if (isVideo) {
       let peerTrackNodeUpdated = false;
-      const updatePeerTrackNodes = peerTrackNodesRef.current?.map(
-        peerTrackNode => {
-          if (peerTrackNode.id === uniqueId) {
-            peerTrackNodeUpdated = true;
-            return {
-              ...peerTrackNode,
-              peer,
-              track,
-            };
-          }
-          return peerTrackNode;
-        },
-      );
+      const updatePeerTrackNodes = oldPeerTrackNodes?.map(peerTrackNode => {
+        if (peerTrackNode.id === uniqueId) {
+          peerTrackNodeUpdated = true;
+          return {
+            ...peerTrackNode,
+            peer,
+            track,
+          };
+        }
+        return peerTrackNode;
+      });
       if (peerTrackNodeUpdated) {
-        newPeerTrackNodes = updatePeerTrackNodes;
+        return updatePeerTrackNodes;
       } else if (!peerTrackNodeUpdated && track.type === HMSTrackType.VIDEO) {
         const newPeerTrackNode: PeerTrackNode = {
           id: uniqueId,
           peer,
           track,
         };
-        newPeerTrackNodes?.push(newPeerTrackNode);
+        updatePeerTrackNodes.push(newPeerTrackNode);
+        return updatePeerTrackNodes;
       }
     }
+    return oldPeerTrackNodes;
   } else if (type === HMSTrackUpdate.TRACK_REMOVED) {
-    newPeerTrackNodes = peerTrackNodesRef.current?.filter(peerTrackNode => {
+    return oldPeerTrackNodes?.filter(peerTrackNode => {
       if (peerTrackNode.id === uniqueId) {
         return false;
       }
       return true;
     });
   } else {
-    newPeerTrackNodes = peerTrackNodesRef.current?.map(peerTrackNode => {
+    return oldPeerTrackNodes?.map(peerTrackNode => {
       if (isVideo && peerTrackNode.id === uniqueId) {
         return {
           ...peerTrackNode,
@@ -392,5 +390,4 @@ export const updatePeersTrackNodesOnTrackListener = (
       return peerTrackNode;
     });
   }
-  return newPeerTrackNodes;
 };

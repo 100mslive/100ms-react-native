@@ -116,7 +116,7 @@ const App = () => {
     previewTracks: {audioTrack: HMSAudioTrack; videoTrack: HMSVideoTrack};
   }) => {
     const newPeerTrackNodes = updatePeersTrackNodesOnPeerListener(
-      peerTrackNodesRef,
+      peerTrackNodesRef?.current,
       data?.localPeer,
       HMSPeerUpdate.PEER_JOINED,
     );
@@ -206,7 +206,7 @@ const App = () => {
       remotePeers,
     );
     const newPeerTrackNodes = updatePeersTrackNodesOnPeerListener(
-      peerTrackNodesRef,
+      peerTrackNodesRef?.current,
       peer,
       type,
     );
@@ -239,7 +239,7 @@ const App = () => {
       remotePeers,
     );
     const newPeerTrackNodes = updatePeersTrackNodesOnTrackListener(
-      peerTrackNodesRef,
+      peerTrackNodesRef?.current,
       track,
       peer,
       type,

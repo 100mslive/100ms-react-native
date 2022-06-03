@@ -630,12 +630,12 @@ const Meeting = () => {
     remotePeers: HMSRemotePeer[];
   }) => {
     const newPeerTrackNodes = updatePeersTrackNodesOnPeerListener(
-      peerTrackNodesRef,
+      peerTrackNodesRef?.current,
       peer,
       type,
     );
-    peerTrackNodesRef.current = newPeerTrackNodes;
     setPeerTrackNodes(newPeerTrackNodes);
+    peerTrackNodesRef.current = newPeerTrackNodes;
     if (type === HMSPeerUpdate.PEER_LEFT) {
       Toast.showWithGravity(
         `Peer Left: ${peer.name} left the Room`,
@@ -681,13 +681,13 @@ const Meeting = () => {
     remotePeers: HMSRemotePeer[];
   }) => {
     const newPeerTrackNodes = updatePeersTrackNodesOnTrackListener(
-      peerTrackNodesRef,
+      peerTrackNodesRef?.current,
       track,
       peer,
       type,
     );
-    peerTrackNodesRef.current = newPeerTrackNodes;
     setPeerTrackNodes(newPeerTrackNodes);
+    peerTrackNodesRef.current = newPeerTrackNodes;
     console.log(
       'data in onTrackListener: ',
       type,
