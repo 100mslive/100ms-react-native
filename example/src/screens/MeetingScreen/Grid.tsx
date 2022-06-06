@@ -14,12 +14,7 @@ import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
 import {getHmsViewHeight} from '../../utils/functions';
 import {styles} from './styles';
 import {DisplayTrack} from './DisplayTrack';
-import {
-  LayoutParams,
-  ModalTypes,
-  PeerTrackNode,
-  TrackType,
-} from '../../utils/types';
+import {LayoutParams, ModalTypes, PeerTrackNode} from '../../utils/types';
 
 type GridViewProps = {
   pairedPeers: PeerTrackNode[][];
@@ -84,13 +79,7 @@ const GridView = ({
               {width: Dimensions.get('window').width - left - right},
             ]}>
             {item?.map(view => {
-              const type: TrackType =
-                view?.track?.source !== HMSTrackSource.REGULAR
-                  ? TrackType.SCREEN
-                  : view?.peer.isLocal
-                  ? TrackType.LOCAL
-                  : TrackType.REMOTE;
-              if (type === TrackType.SCREEN) {
+              if (view.track?.source === HMSTrackSource.SCREEN) {
                 return (
                   <View style={styles.flex} key={view.id}>
                     <TouchableWithoutFeedback
@@ -124,13 +113,7 @@ const GridView = ({
                   <View
                     key={view?.id}
                     style={{
-                      ...getHmsViewHeight(
-                        layout,
-                        type,
-                        item.length,
-                        top,
-                        bottom,
-                      ),
+                      ...getHmsViewHeight(layout, item.length, top, bottom),
                     }}>
                     <DisplayTrack
                       peerTrackNode={view}

@@ -12,7 +12,7 @@ import {
   HMSTrackSource,
 } from '@100mslive/react-native-hms';
 
-import {LayoutParams, PeerTrackNode, TrackType} from './types';
+import type {LayoutParams, PeerTrackNode} from './types';
 import dimension from '../utils/dimension';
 import * as services from '../services/index';
 
@@ -61,18 +61,19 @@ export const pairDataForFlatlist = (
   let groupData: Array<PeerTrackNode> = [];
   let itemsPushed: number = 0;
   data.map((item: PeerTrackNode) => {
-    if (item.track?.source !== HMSTrackSource.REGULAR) {
+    if (
+      item.track?.source !== HMSTrackSource.REGULAR &&
+      item.track?.source !== undefined
+    ) {
       pairedData.push([item]);
     } else {
-      if (item.track) {
-        if (itemsPushed === batch) {
-          pairedData.push(groupData);
-          groupData = [];
-          itemsPushed = 0;
-        }
-        groupData.push(item);
-        itemsPushed++;
+      if (itemsPushed === batch) {
+        pairedData.push(groupData);
+        groupData = [];
+        itemsPushed = 0;
       }
+      groupData.push(item);
+      itemsPushed++;
     }
   });
   if (groupData.length) {
@@ -83,7 +84,6 @@ export const pairDataForFlatlist = (
 
 export const getHmsViewHeight = (
   layout: LayoutParams,
-  type: TrackType,
   peersInPage: number,
   top: number,
   bottom: number,
@@ -92,18 +92,12 @@ export const getHmsViewHeight = (
 
   // window height - (header + bottom container + top + bottom + padding) / views in one screen
   const viewHeight =
-    type === TrackType.SCREEN
-      ? Dimensions.get('window').height -
-        (dimension.viewHeight(50) +
-          dimension.viewHeight(90) +
-          (isTab ? dimension.viewHeight(20) : top + bottom) +
-          2)
-      : (Dimensions.get('window').height -
-          (dimension.viewHeight(50) +
-            dimension.viewHeight(90) +
-            (isTab ? dimension.viewHeight(20) : top + bottom) +
-            2)) /
-        2;
+    (Dimensions.get('window').height -
+      (dimension.viewHeight(50) +
+        dimension.viewHeight(90) +
+        (isTab ? dimension.viewHeight(20) : top + bottom) +
+        2)) /
+    2;
 
   let height =
     peersInPage === 1
@@ -286,14 +280,9 @@ export const updatePeersTrackNodesOnPeerListener = (
     const updatePeerTrackNodes = oldPeerTrackNodes?.map(peerTrackNode => {
       if (peerTrackNode.peer.peerID === peer.peerID) {
         alreadyPresent = true;
-        const track =
-          peerTrackNode.track?.source === HMSTrackSource.REGULAR
-            ? peer?.videoTrack
-            : peerTrackNode.track;
         return {
           ...peerTrackNode,
           peer,
-          track,
         };
       }
       return peerTrackNode;
@@ -304,7 +293,6 @@ export const updatePeersTrackNodesOnPeerListener = (
       const newPeerTrackNode: PeerTrackNode = {
         id: peer.peerID + HMSTrackSource.REGULAR,
         peer,
-        track: peer?.videoTrack,
       };
       updatePeerTrackNodes?.push(newPeerTrackNode);
       return updatePeerTrackNodes;
@@ -318,15 +306,10 @@ export const updatePeersTrackNodesOnPeerListener = (
     });
   } else {
     return oldPeerTrackNodes?.map(peerTrackNode => {
-      const track =
-        peerTrackNode.track?.source === HMSTrackSource.REGULAR
-          ? peer?.videoTrack
-          : peerTrackNode.track;
       if (peerTrackNode.peer.peerID === peer.peerID) {
         return {
           ...peerTrackNode,
           peer,
-          track,
         };
       }
       return peerTrackNode;
@@ -351,30 +334,35 @@ export const updatePeersTrackNodesOnTrackListener = (
     type === HMSTrackUpdate.TRACK_ADDED &&
     !(track.source === HMSTrackSource.SCREEN && peer.isLocal) // remove this condition to show local screenshare
   ) {
-    if (isVideo) {
-      let peerTrackNodeUpdated = false;
-      const updatePeerTrackNodes = oldPeerTrackNodes?.map(peerTrackNode => {
-        if (peerTrackNode.id === uniqueId) {
-          peerTrackNodeUpdated = true;
-          return {
-            ...peerTrackNode,
-            peer,
-            track,
-          };
-        }
-        return peerTrackNode;
-      });
-      if (peerTrackNodeUpdated) {
-        return updatePeerTrackNodes;
-      } else if (!peerTrackNodeUpdated && track.type === HMSTrackType.VIDEO) {
-        const newPeerTrackNode: PeerTrackNode = {
-          id: uniqueId,
+    let alreadyPresent = false;
+    const updatePeerTrackNodes = oldPeerTrackNodes?.map(peerTrackNode => {
+      if (isVideo && peerTrackNode.id === uniqueId) {
+        alreadyPresent = true;
+        return {
+          ...peerTrackNode,
           peer,
           track,
         };
-        updatePeerTrackNodes.push(newPeerTrackNode);
-        return updatePeerTrackNodes;
       }
+      if (!isVideo && peerTrackNode.id === uniqueId) {
+        alreadyPresent = true;
+        return {
+          ...peerTrackNode,
+          peer,
+        };
+      }
+      return peerTrackNode;
+    });
+    if (alreadyPresent) {
+      return updatePeerTrackNodes;
+    } else if (!alreadyPresent && isVideo) {
+      const newPeerTrackNode: PeerTrackNode = {
+        id: uniqueId,
+        peer,
+        track,
+      };
+      updatePeerTrackNodes.push(newPeerTrackNode);
+      return updatePeerTrackNodes;
     }
     return oldPeerTrackNodes;
   } else if (type === HMSTrackUpdate.TRACK_REMOVED) {

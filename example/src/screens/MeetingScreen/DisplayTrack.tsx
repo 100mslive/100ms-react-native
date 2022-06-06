@@ -532,6 +532,8 @@ const DisplayTrack = ({
           <Text numberOfLines={2} style={styles.peerName}>
             {peerTrackNode.track?.source === HMSTrackSource.SCREEN
               ? `${name}'s Screen`
+              : peerTrackNode.peer.isLocal
+              ? `You (${name})`
               : name}
           </Text>
         </View>
