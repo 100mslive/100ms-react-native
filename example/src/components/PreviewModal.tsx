@@ -9,6 +9,10 @@ import {
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import HmsManager, {HMSVideoViewMode} from '@100mslive/react-native-hms';
+import {useSelector} from 'react-redux';
+
+import type {RootState} from '../redux';
+import {COLORS, FONTS} from '../utils/theme';
 
 export const PreviewModal = ({
   trackId,
@@ -20,7 +24,6 @@ export const PreviewModal = ({
   previewButtonState,
   videoAllowed,
   audioAllowed,
-  mirrorLocalVideo,
 }: {
   videoAllowed: boolean;
   audioAllowed: boolean;
@@ -28,11 +31,11 @@ export const PreviewModal = ({
   setAudio: Function;
   setVideo: Function;
   join: Function;
-  instance: HmsManager | null;
+  instance?: HmsManager;
   setPreviewButtonState: Function;
   previewButtonState: string;
-  mirrorLocalVideo: boolean;
 }) => {
+  const {mirrorLocalVideo} = useSelector((state: RootState) => state.user);
   const [isMute, setIsMute] = useState(false);
   const [muteVideo, setMuteVideo] = useState(false);
   const [numberOfLines, setNumberOfLines] = useState(true);
@@ -114,7 +117,7 @@ export const PreviewModal = ({
               setPreviewButtonState('Loading');
             }}>
             {previewButtonState === 'Loading' ? (
-              <ActivityIndicator color="white" />
+              <ActivityIndicator color={COLORS.WHITE} />
             ) : (
               <Text style={styles.joinButtonText}>Join</Text>
             )}
@@ -134,31 +137,31 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(34, 34, 34, 0.3)',
+    backgroundColor: COLORS.OVERLAY,
     justifyContent: 'center',
   },
   modalContainer: {
     width: '100%',
     height: '100%',
-    backgroundColor: 'white',
+    backgroundColor: COLORS.WHITE,
   },
   hmsView: {
     height: '100%',
     width: '100%',
   },
   buttonTextContainer: {
-    backgroundColor: '#4578e0',
+    backgroundColor: COLORS.PRIMARY.DEFAULT,
     padding: 10,
     borderRadius: 5,
     width: '48%',
   },
   videoIcon: {
-    color: '#4578e0',
+    color: COLORS.PRIMARY.DEFAULT,
   },
   joinButtonText: {
     textAlign: 'center',
-    color: 'white',
-    fontSize: 20,
+    color: COLORS.WHITE,
+    ...FONTS.H6,
     paddingHorizontal: 8,
   },
   buttonRow: {
@@ -173,7 +176,7 @@ const styles = StyleSheet.create({
     width: '70%',
     zIndex: 99,
     alignSelf: 'center',
-    backgroundColor: 'rgba(137,139,155,0.5)',
+    backgroundColor: COLORS.OVERLAY,
     borderRadius: 20,
   },
   iconContainer: {
@@ -191,8 +194,8 @@ const styles = StyleSheet.create({
   },
   collapsibleText: {
     paddingVertical: 8,
-    color: 'white',
-    fontSize: 20,
+    color: COLORS.WHITE,
+    ...FONTS.H6,
     paddingHorizontal: 16,
   },
   lowOpacity: {

@@ -120,8 +120,10 @@ export class HMSSDK {
    *
    * @memberof HMSSDK
    */
-  destroy = () => {
+  destroy = async () => {
+    logger?.verbose('#Function destroy', { id: this.id });
     this.removeListeners();
+    return await HMSManager.destroy({ id: this.id });
   };
 
   /**

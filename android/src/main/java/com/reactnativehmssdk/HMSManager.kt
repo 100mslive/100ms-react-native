@@ -280,6 +280,16 @@ class HMSManager(reactContext: ReactApplicationContext) :
     hms?.changeName(data, callback)
   }
 
+  @ReactMethod
+  fun destroy(data: ReadableMap, callback: Promise?) {
+    val id = data.getString("id")
+    hmsCollection.remove(id)
+    val result: WritableMap = Arguments.createMap()
+    result.putBoolean("success", true)
+    result.putString("message", "$id removed")
+    callback?.resolve(result)
+  }
+
   fun emitEvent(event: String, data: WritableMap) {
     reactApplicationContext
         .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)

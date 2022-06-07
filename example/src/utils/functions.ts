@@ -2,19 +2,19 @@ import {Platform, Dimensions, PermissionsAndroid} from 'react-native';
 import RNFetchBlob from 'rn-fetch-blob';
 import Share from 'react-native-share';
 import {getDeviceType} from 'react-native-device-info';
-import type {
-  HMSLocalPeer,
+import Toast from 'react-native-simple-toast';
+import {
   HMSPeer,
-  HMSRemotePeer,
+  HMSPeerUpdate,
+  HMSTrack,
+  HMSTrackType,
+  HMSTrackUpdate,
+  HMSTrackSource,
 } from '@100mslive/react-native-hms';
 
-import type {LayoutParams, Peer} from './types';
+import type {LayoutParams, PeerTrackNode} from './types';
 import dimension from '../utils/dimension';
 import * as services from '../services/index';
-
-type TrackType = 'local' | 'remote' | 'screen';
-
-export const getThemeColour = () => '#4578e0';
 
 export const getMeetingUrl = () =>
   'https://yogi.app.100ms.live/preview/nih-bkn-vek';
@@ -28,65 +28,43 @@ export const getRandomColor = () => {
   return color;
 };
 
-export const getInitials = (name: String): String => {
+export const getInitials = (name?: String): String => {
   let initials = '';
-  if (name.includes(' ')) {
-    const nameArray = name.split(' ');
-    if (nameArray[1].length > 0) {
-      initials = nameArray[0].substring(0, 1) + nameArray[1].substring(0, 1);
-    } else {
-      if (nameArray[0].length > 1) {
-        initials = nameArray[0].substring(0, 2);
+  if (name) {
+    if (name.includes(' ')) {
+      const nameArray = name.split(' ');
+      if (nameArray[1].length > 0) {
+        initials = nameArray[0].substring(0, 1) + nameArray[1].substring(0, 1);
       } else {
-        initials = nameArray[0].substring(0, 1);
+        if (nameArray[0].length > 1) {
+          initials = nameArray[0].substring(0, 2);
+        } else {
+          initials = nameArray[0].substring(0, 1);
+        }
       }
-    }
-  } else {
-    if (name.length > 1) {
-      initials = name.substring(0, 2);
     } else {
-      initials = name.substring(0, 1);
+      if (name.length > 1) {
+        initials = name.substring(0, 2);
+      } else {
+        initials = name.substring(0, 1);
+      }
     }
   }
   return initials.toUpperCase();
 };
 
-export const pairDataForFlatlist = (data: any) => {
-  let pairedData: any[] = [];
-
-  let currentObject: {first: any; second: any} = {
-    first: undefined,
-    second: undefined,
-  };
-  data.map((item: any) => {
-    if (item?.type === 'screen') {
-      pairedData.push({first: item});
-    } else {
-      if (currentObject?.first) {
-        pairedData.push({...currentObject, second: item});
-        currentObject = {
-          first: undefined,
-          second: undefined,
-        };
-      } else {
-        currentObject.first = item;
-      }
-    }
-  });
-
-  if (currentObject.first) {
-    pairedData.push({...currentObject});
-  }
-
-  return pairedData;
-};
-
-export const pairDataForScrollView = (data: Array<any>, batch: number) => {
-  const pairedData: Array<any> = [];
-  let groupData: Array<any> = [];
+export const pairDataForFlatlist = (
+  data: Array<PeerTrackNode>,
+  batch: number,
+) => {
+  const pairedData: Array<Array<PeerTrackNode>> = [];
+  let groupData: Array<PeerTrackNode> = [];
   let itemsPushed: number = 0;
-  data.map((item: any) => {
-    if (item?.type === 'screen') {
+  data.map((item: PeerTrackNode) => {
+    if (
+      item.track?.source !== HMSTrackSource.REGULAR &&
+      item.track?.source !== undefined
+    ) {
       pairedData.push([item]);
     } else {
       if (itemsPushed === batch) {
@@ -104,14 +82,8 @@ export const pairDataForScrollView = (data: Array<any>, batch: number) => {
   return pairedData;
 };
 
-export const isPortrait = () => {
-  const dim = Dimensions.get('window');
-  return dim.height >= dim.width;
-};
-
 export const getHmsViewHeight = (
   layout: LayoutParams,
-  type: TrackType,
   peersInPage: number,
   top: number,
   bottom: number,
@@ -120,25 +92,12 @@ export const getHmsViewHeight = (
 
   // window height - (header + bottom container + top + bottom + padding) / views in one screen
   const viewHeight =
-    type === 'screen'
-      ? Dimensions.get('window').height -
-        (dimension.viewHeight(50) +
-          dimension.viewHeight(90) +
-          (isTab ? dimension.viewHeight(20) : top + bottom) +
-          2)
-      : isPortrait()
-      ? (Dimensions.get('window').height -
-          (dimension.viewHeight(50) +
-            dimension.viewHeight(90) +
-            (isTab ? dimension.viewHeight(20) : top + bottom) +
-            2)) /
-        2
-      : Dimensions.get('window').height -
-        (Platform.OS === 'ios' ? 0 : 25) -
-        (dimension.viewHeight(50) +
-          dimension.viewHeight(90) +
-          (isTab ? dimension.viewHeight(20) : top + bottom) +
-          2);
+    (Dimensions.get('window').height -
+      (dimension.viewHeight(50) +
+        dimension.viewHeight(90) +
+        (isTab ? dimension.viewHeight(20) : top + bottom) +
+        2)) /
+    2;
 
   let height =
     peersInPage === 1
@@ -182,7 +141,12 @@ export const shareFile = async (fileUrl: string) => {
     .catch(e => console.log(e));
 };
 
-const parseMetadata = (metadata?: string) => {
+export const parseMetadata = (
+  metadata?: string,
+): {
+  isHandRaised?: boolean;
+  isBRBOn?: boolean;
+} => {
   try {
     if (metadata) {
       const parsedMetadata = JSON.parse(metadata);
@@ -194,62 +158,40 @@ const parseMetadata = (metadata?: string) => {
   return {};
 };
 
-export const decodePeer = (peer: HMSPeer): Peer => {
-  return {
-    trackId: peer?.videoTrack?.trackId,
-    name: peer?.name,
-    isAudioMute: peer?.audioTrack?.isMute() || false,
-    isVideoMute: peer?.videoTrack?.isMute() || false,
-    id: peer?.peerID,
-    colour: getThemeColour(),
-    type: 'remote',
-    peerReference: peer,
-    metadata: parseMetadata(peer?.metadata),
-  };
-};
-
-export const decodeRemotePeer = (
-  peer: HMSRemotePeer,
-  type: 'remote' | 'screen',
-): Peer => {
-  return {
-    trackId: peer?.videoTrack?.trackId,
-    name: peer?.name,
-    isAudioMute: peer?.audioTrack?.isMute() || false,
-    isVideoMute: peer?.videoTrack?.isMute() || false,
-    id: peer?.peerID,
-    colour: getThemeColour(),
-    type,
-    peerReference: peer,
-    metadata: parseMetadata(peer?.metadata),
-  };
-};
-
-export const decodeLocalPeer = (
-  peer: HMSLocalPeer,
-  type: 'local' | 'screen',
-): Peer => {
-  const videoPublishPermission = peer?.role?.publishSettings?.allowed
-    ? peer?.role?.publishSettings?.allowed?.includes('video')
-    : true;
-  const audioPublishPermission = peer?.role?.publishSettings?.allowed
-    ? peer?.role?.publishSettings?.allowed?.includes('audio')
-    : true;
-  return {
-    trackId: peer?.videoTrack?.trackId,
-    name: peer?.name,
-    isAudioMute: audioPublishPermission
-      ? peer?.audioTrack?.isMute() || false
-      : true,
-    isVideoMute: videoPublishPermission
-      ? peer?.videoTrack?.isMute() || false
-      : true,
-    id: peer?.peerID,
-    colour: getThemeColour(),
-    type,
-    peerReference: peer,
-    metadata: parseMetadata(peer?.metadata),
-  };
+export const requestExternalStoragePermission = async (): Promise<boolean> => {
+  // Function to check the platform
+  // If Platform is Android then check for permissions.
+  if (Platform.OS === 'ios') {
+    return true;
+  } else {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        {
+          title: 'Storage Permission Required',
+          message: 'Application needs access to your storage to download File',
+          buttonPositive: 'true',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        // Start downloading
+        console.log('Storage Permission Granted.');
+        return true;
+      } else {
+        // If permission denied then show alert
+        Toast.showWithGravity(
+          'Storage Permission Not Granted',
+          Toast.LONG,
+          Toast.TOP,
+        );
+        console.log('Storage Permission Not Granted');
+      }
+    } catch (err) {
+      // To handle permission related exception
+      console.log('checkPermissionToWriteExternalStroage: ' + err);
+    }
+  }
+  return false;
 };
 
 export const callService = async (
@@ -303,32 +245,149 @@ export const tokenFromLinkService = async (
   }
 };
 
-export const requestExternalStoragePermission = async (): Promise<boolean> => {
-  let permissionGranted = false;
-  if (Platform.OS === 'ios') {
-    permissionGranted = true;
-  } else {
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-        {
-          title: 'Storage Permission Required',
-          message: 'Application needs access to your storage to download File',
-          buttonPositive: 'true',
-        },
-      );
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        // Start downloading
-        permissionGranted = true;
-        console.log('Storage Permission Granted.');
-      } else {
-        // If permission denied then show alert
-        console.log('Storage Permission Not Granted');
-      }
-    } catch (err) {
-      // To handle permission related exception
-      console.log('checkPermissionToWriteExternalStroage: ' + err);
-    }
+export const getRoomIdDetails = (
+  roomID: string,
+): {code: string; domain: string} => {
+  const codeObject = RegExp(/(?!\/)[a-zA-Z\-0-9]*$/g).exec(roomID);
+
+  const domainObject = RegExp(/(https:\/\/)?(?:[a-zA-Z0-9.-])+(?!\\)/).exec(
+    roomID,
+  );
+
+  let code = '';
+  let domain = '';
+
+  if (codeObject && domainObject) {
+    code = codeObject[0];
+    domain = domainObject[0];
+    domain = domain.replace('https://', '');
   }
-  return permissionGranted;
+
+  return {
+    code,
+    domain,
+  };
+};
+
+export const updatePeersTrackNodesOnPeerListener = (
+  peerTrackNodes: PeerTrackNode[],
+  peer: HMSPeer,
+  type: HMSPeerUpdate,
+): PeerTrackNode[] => {
+  const oldPeerTrackNodes: PeerTrackNode[] = peerTrackNodes;
+  if (type === HMSPeerUpdate.PEER_JOINED) {
+    let alreadyPresent = false;
+    const updatePeerTrackNodes = oldPeerTrackNodes?.map(peerTrackNode => {
+      if (peerTrackNode.peer.peerID === peer.peerID) {
+        alreadyPresent = true;
+        return {
+          ...peerTrackNode,
+          peer,
+        };
+      }
+      return peerTrackNode;
+    });
+    if (alreadyPresent) {
+      return updatePeerTrackNodes;
+    } else {
+      const newPeerTrackNode: PeerTrackNode = {
+        id: peer.peerID + HMSTrackSource.REGULAR,
+        peer,
+      };
+      updatePeerTrackNodes?.push(newPeerTrackNode);
+      return updatePeerTrackNodes;
+    }
+  } else if (type === HMSPeerUpdate.PEER_LEFT) {
+    return oldPeerTrackNodes?.filter(peerTrackNode => {
+      if (peerTrackNode.peer.peerID === peer.peerID) {
+        return false;
+      }
+      return true;
+    });
+  } else {
+    return oldPeerTrackNodes?.map(peerTrackNode => {
+      if (peerTrackNode.peer.peerID === peer.peerID) {
+        return {
+          ...peerTrackNode,
+          peer,
+        };
+      }
+      return peerTrackNode;
+    });
+  }
+};
+
+export const updatePeersTrackNodesOnTrackListener = (
+  peerTrackNodes: PeerTrackNode[],
+  track: HMSTrack,
+  peer: HMSPeer,
+  type: HMSTrackUpdate,
+): PeerTrackNode[] => {
+  const oldPeerTrackNodes: PeerTrackNode[] = peerTrackNodes;
+  const uniqueId =
+    peer.peerID +
+    (track.source === HMSTrackSource.REGULAR
+      ? HMSTrackSource.REGULAR
+      : track.trackId);
+  const isVideo = track.type === HMSTrackType.VIDEO;
+  if (
+    type === HMSTrackUpdate.TRACK_ADDED &&
+    !(track.source === HMSTrackSource.SCREEN && peer.isLocal) // remove this condition to show local screenshare
+  ) {
+    let alreadyPresent = false;
+    const updatePeerTrackNodes = oldPeerTrackNodes?.map(peerTrackNode => {
+      if (isVideo && peerTrackNode.id === uniqueId) {
+        alreadyPresent = true;
+        return {
+          ...peerTrackNode,
+          peer,
+          track,
+        };
+      }
+      if (!isVideo && peerTrackNode.id === uniqueId) {
+        alreadyPresent = true;
+        return {
+          ...peerTrackNode,
+          peer,
+        };
+      }
+      return peerTrackNode;
+    });
+    if (alreadyPresent) {
+      return updatePeerTrackNodes;
+    } else if (!alreadyPresent && isVideo) {
+      const newPeerTrackNode: PeerTrackNode = {
+        id: uniqueId,
+        peer,
+        track,
+      };
+      updatePeerTrackNodes.push(newPeerTrackNode);
+      return updatePeerTrackNodes;
+    }
+    return oldPeerTrackNodes;
+  } else if (type === HMSTrackUpdate.TRACK_REMOVED) {
+    return oldPeerTrackNodes?.filter(peerTrackNode => {
+      if (peerTrackNode.id === uniqueId) {
+        return false;
+      }
+      return true;
+    });
+  } else {
+    return oldPeerTrackNodes?.map(peerTrackNode => {
+      if (isVideo && peerTrackNode.id === uniqueId) {
+        return {
+          ...peerTrackNode,
+          peer,
+          track,
+        };
+      }
+      if (!isVideo && peerTrackNode.id === uniqueId) {
+        return {
+          ...peerTrackNode,
+          peer,
+        };
+      }
+      return peerTrackNode;
+    });
+  }
 };

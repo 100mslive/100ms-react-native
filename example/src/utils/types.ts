@@ -1,22 +1,38 @@
-import type {HMSTrack, HMSPeer} from '@100mslive/react-native-hms';
+import type {HMSPeer, HMSVideoTrack} from '@100mslive/react-native-hms';
 
-type Peer = {
-  peerReference?: HMSPeer;
-  trackId?: string;
-  name: string;
-  isAudioMute: boolean;
-  isVideoMute: boolean;
-  id?: string;
-  colour: string;
-  type: 'local' | 'remote' | 'screen';
-  metadata?: {
-    isHandRaised?: boolean;
-    isBRBOn?: boolean;
-  };
-  track?: HMSTrack;
+export type PeerTrackNode = {
+  id: string;
+  peer: HMSPeer;
+  track?: HMSVideoTrack;
 };
 
-type LayoutParams = 'audio' | 'grid' | 'active speaker' | 'hero' | 'mini';
+export enum LayoutParams {
+  AUDIO = 'audio',
+  GRID = 'grid',
+  ACTIVE_SPEAKER = 'active speaker',
+  HERO = 'hero',
+  MINI = 'mini',
+  DEFAULT = '',
+}
 
-// eslint-disable-next-line no-undef
-export type {Peer, LayoutParams};
+export enum TrackType {
+  LOCAL = 'local',
+  REMOTE = 'remote',
+  SCREEN = 'screen',
+  DEFAULT = '',
+}
+
+export enum ModalTypes {
+  ROLE_CHANGE = 'roleChange',
+  CHANGE_TRACK = 'changeTrackState',
+  CHANGE_NAME = 'changeName',
+  HLS_STREAMING = 'hlsStreaming',
+  RECORDING = 'recording',
+  LAYOUT = 'layout',
+  LEAVE = 'leave',
+  SETTINGS = 'settings',
+  CHAT = 'chat',
+  ZOOM = 'zoom',
+  ROLE = 'role',
+  DEFAULT = '',
+}

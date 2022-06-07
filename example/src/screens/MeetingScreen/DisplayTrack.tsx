@@ -3,15 +3,17 @@ import {View, TouchableOpacity, Text, Image, Platform} from 'react-native';
 import {
   HMSRemotePeer,
   HMSVideoViewMode,
-  HMSPermissions,
   HMSTrack,
-  HMSSDK,
   HMSLocalAudioStats,
   HMSLocalVideoStats,
   HMSRTCStatsReport,
+  HMSSDK,
+  HMSTrackType,
+  HMSTrackSource,
 } from '@100mslive/react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {Slider} from '@miblanchard/react-native-slider';
 import {useSelector} from 'react-redux';
@@ -23,65 +25,72 @@ import {AlertModal, CustomModal, RolePicker} from '../../components';
 import dimension from '../../utils/dimension';
 import {
   getInitials,
+  parseMetadata,
   requestExternalStoragePermission,
 } from '../../utils/functions';
 import {styles} from './styles';
-import type {Peer, LayoutParams} from '../../utils/types';
+import {
+  LayoutParams,
+  ModalTypes,
+  PeerTrackNode,
+  TrackType,
+} from '../../utils/types';
 import type {RootState} from '../../redux';
 
 type DisplayTrackProps = {
-  peer: Peer;
-  videoStyles: Function;
-  instance: HMSSDK | undefined;
-  permissions: HMSPermissions | undefined;
-  speakerIds?: Array<string>;
-  type?: 'local' | 'remote' | 'screen';
   layout?: LayoutParams;
-  setChangeNameModal?: Function;
+  setModalVisible?: Function;
   statsForNerds?: boolean;
   rtcStats?: HMSRTCStatsReport;
   remoteAudioStats?: any;
   remoteVideoStats?: any;
   localAudioStats?: HMSLocalAudioStats;
   localVideoStats?: HMSLocalVideoStats;
+  speakerIds?: Array<string>;
   miniView?: boolean;
+  instance: HMSSDK | undefined;
+  peerTrackNode: PeerTrackNode;
+  videoStyles: any;
 };
 
 const DisplayTrack = ({
-  peer,
+  peerTrackNode,
   videoStyles,
   speakerIds,
-  type,
   instance,
-  permissions,
   layout,
-  setChangeNameModal,
   statsForNerds,
   remoteAudioStats,
   remoteVideoStats,
   localAudioStats,
   localVideoStats,
+  setModalVisible,
   miniView,
 }: DisplayTrackProps) => {
-  const {
-    name,
-    trackId,
-    colour,
-    id,
-    peerReference,
-    isAudioMute,
-    isVideoMute,
-    metadata,
-  } = peer!;
   const {mirrorLocalVideo} = useSelector((state: RootState) => state.user);
+  const isVideoMute = peerTrackNode.track?.isMute() ?? true;
+  const isAudioMute = peerTrackNode.peer.audioTrack?.isMute() ?? true;
+  const metadata = parseMetadata(peerTrackNode.peer.metadata);
+  const id = peerTrackNode.peer.peerID;
+  const name = peerTrackNode.peer.name;
+  const type =
+    peerTrackNode?.track?.source !== HMSTrackSource.REGULAR
+      ? TrackType.SCREEN
+      : peerTrackNode?.peer.isLocal
+      ? TrackType.LOCAL
+      : TrackType.REMOTE;
   const [alertModalVisible, setAlertModalVisible] = useState(false);
   const [roleModalVisible, setRoleModalVisible] = useState(false);
-  const [newRole, setNewRole] = useState(peerReference?.role);
+  const [newRole, setNewRole] = useState(peerTrackNode.peer.role);
   const [force, setForce] = useState(false);
   const [volumeModal, setVolumeModal] = useState(false);
   const [volume, setVolume] = useState(1);
   const [isDegraded, setIsDegraded] = useState(false);
   const modalTitle = 'Set Volume';
+  const hmsViewRef: any = useRef();
+  const HmsView = instance?.HmsView;
+  const knownRoles = instance?.knownRoles || [];
+  const speaking = speakerIds?.length ? speakerIds.includes(id!) : false;
 
   const modalButtons: [
     {text: string; onPress?: Function},
@@ -91,10 +100,20 @@ const DisplayTrack = ({
     {
       text: 'Set',
       onPress: () => {
-        if (type === 'remote' || type === 'local') {
-          instance?.setVolume(peerReference?.audioTrack as HMSTrack, volume);
-        } else if (peer?.track) {
-          instance?.setVolume(peer?.track, volume);
+        if (type === TrackType.LOCAL || type === TrackType.REMOTE) {
+          instance?.setVolume(
+            peerTrackNode.peer?.audioTrack as HMSTrack,
+            volume,
+          );
+        } else {
+          peerTrackNode.peer?.auxiliaryTracks?.map(track => {
+            if (
+              track.source === TrackType.SCREEN &&
+              track.type === HMSTrackType.AUDIO
+            ) {
+              instance?.setVolume(track, volume);
+            }
+          });
         }
       },
     },
@@ -102,13 +121,13 @@ const DisplayTrack = ({
 
   useEffect(() => {
     knownRoles?.map(role => {
-      if (role?.name === peerReference?.role?.name) {
+      if (role?.name === peerTrackNode.peer?.role?.name) {
         setNewRole(role);
         return;
       }
     });
     const getVolume = async () => {
-      if (type === 'local' && !isAudioMute) {
+      if (type === TrackType.LOCAL && !isAudioMute) {
         try {
           setVolume(await instance?.localPeer?.localAudioTrack()?.getVolume());
         } catch (e) {
@@ -116,28 +135,31 @@ const DisplayTrack = ({
         }
       }
     };
-    getVolume();
+    let fetchVolume = true;
+    if (fetchVolume) {
+      getVolume();
+    }
+    return () => {
+      fetchVolume = false;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    setIsDegraded(peerReference?.videoTrack?.isDegraded || false);
-  }, [peerReference?.videoTrack?.isDegraded]);
+    setIsDegraded(peerTrackNode.track?.isDegraded || false);
+  }, [peerTrackNode.track?.isDegraded]);
 
-  const HmsView = instance?.HmsView;
-  const hmsViewRef: any = useRef();
-  const knownRoles = instance?.knownRoles || [];
-  const speaking = speakerIds !== undefined ? speakerIds.includes(id!) : false;
   const roleRequestTitle = 'Select action';
-  const roleRequestButtons: [
-    {text: string; onPress?: Function},
-    {text: string; onPress?: Function}?,
-  ] = [
+  const roleRequestButtons: Array<{
+    text: string;
+    type?: string;
+    onPress?: Function;
+  }> = [
     {text: 'Cancel'},
     {
       text: force ? 'Set' : 'Send',
       onPress: async () => {
-        await instance?.changeRole(peerReference!, newRole!, force);
+        await instance?.changeRole(peerTrackNode.peer, newRole!, force);
       },
     },
   ];
@@ -165,13 +187,12 @@ const DisplayTrack = ({
     {
       text: 'Change Name',
       onPress: () => {
-        setChangeNameModal && setChangeNameModal(true);
+        setModalVisible && setModalVisible(ModalTypes.CHANGE_NAME);
       },
     },
   ];
 
   const selectActionTitle = 'Select action';
-  const selectActionMessage = '';
   const selectRemoteActionButtons: Array<{
     text: string;
     type?: string;
@@ -187,7 +208,12 @@ const DisplayTrack = ({
     {
       text: 'Mute/Unmute audio locally',
       onPress: async () => {
-        const remotePeer = peerReference as HMSRemotePeer;
+        let remotePeer = peerTrackNode.peer as HMSRemotePeer;
+        instance?.remotePeers?.map(item => {
+          if (item.peerID === remotePeer.peerID) {
+            remotePeer = item;
+          }
+        });
         const playbackAllowed = await remotePeer
           ?.remoteAudioTrack()
           ?.isPlaybackAllowed();
@@ -197,7 +223,12 @@ const DisplayTrack = ({
     {
       text: 'Mute/Unmute video locally',
       onPress: async () => {
-        const remotePeer = peerReference as HMSRemotePeer;
+        let remotePeer = peerTrackNode.peer as HMSRemotePeer;
+        instance?.remotePeers?.map(item => {
+          if (item.peerID === remotePeer.peerID) {
+            remotePeer = item;
+          }
+        });
         const playbackAllowed = await remotePeer
           ?.remoteVideoTrack()
           ?.isPlaybackAllowed();
@@ -205,7 +236,7 @@ const DisplayTrack = ({
       },
     },
   ];
-  if (permissions?.changeRole) {
+  if (instance?.localPeer?.role?.permissions?.changeRole) {
     selectLocalActionButtons.push({
       text: 'Change Role',
       onPress: () => {
@@ -232,22 +263,22 @@ const DisplayTrack = ({
       ],
     );
   }
-  if (permissions?.removeOthers) {
+  if (instance?.localPeer?.role?.permissions?.removeOthers) {
     selectRemoteActionButtons.push({
       text: 'Remove Participant',
       onPress: async () => {
-        await instance?.removePeer(peerReference!, 'removed from room');
+        await instance?.removePeer(peerTrackNode.peer, 'removed from room');
       },
     });
   }
-  if (permissions?.unmute) {
+  if (instance?.localPeer?.role?.permissions?.unmute) {
     const unmute = false;
     if (isAudioMute) {
       selectRemoteActionButtons.push({
         text: 'Unmute audio',
         onPress: async () => {
           await instance?.changeTrackState(
-            peerReference?.audioTrack as HMSTrack,
+            peerTrackNode.peer?.audioTrack as HMSTrack,
             unmute,
           );
         },
@@ -258,21 +289,21 @@ const DisplayTrack = ({
         text: 'Unmute video',
         onPress: async () => {
           await instance?.changeTrackState(
-            peerReference?.videoTrack as HMSTrack,
+            peerTrackNode.peer?.videoTrack as HMSTrack,
             unmute,
           );
         },
       });
     }
   }
-  if (permissions?.mute) {
+  if (instance?.localPeer?.role?.permissions?.mute) {
     const mute = true;
     if (!isAudioMute) {
       selectRemoteActionButtons.push({
         text: 'Mute audio',
         onPress: async () => {
           await instance?.changeTrackState(
-            peerReference?.audioTrack as HMSTrack,
+            peerTrackNode.peer?.audioTrack as HMSTrack,
             mute,
           );
         },
@@ -283,7 +314,7 @@ const DisplayTrack = ({
         text: 'Mute video',
         onPress: async () => {
           await instance?.changeTrackState(
-            peerReference?.videoTrack as HMSTrack,
+            peerTrackNode.peer?.videoTrack as HMSTrack,
             mute,
           );
         },
@@ -332,16 +363,15 @@ const DisplayTrack = ({
   };
 
   return HmsView ? (
-    <View key={id} style={[videoStyles(), speaking && styles.highlight]}>
+    <View style={[videoStyles, speaking && styles.highlight]}>
       <AlertModal
         modalVisible={alertModalVisible}
         setModalVisible={setAlertModalVisible}
         title={selectActionTitle}
-        message={selectActionMessage}
         buttons={
-          type === 'screen'
+          type === TrackType.SCREEN
             ? selectAuxActionButtons
-            : type === 'local'
+            : type === TrackType.LOCAL
             ? selectLocalActionButtons
             : selectRemoteActionButtons
         }
@@ -372,7 +402,7 @@ const DisplayTrack = ({
       </CustomModal>
       {statsForNerds && (
         <View style={styles.statsContainer}>
-          {type === 'local' ? (
+          {type === TrackType.LOCAL ? (
             <View>
               <Text style={styles.statsText}>
                 Bitrate(A) = {localAudioStats?.bitrate}
@@ -399,10 +429,10 @@ const DisplayTrack = ({
           )}
         </View>
       )}
-      {isVideoMute || layout === 'audio' ? (
+      {isVideoMute || layout === LayoutParams.AUDIO ? (
         <View style={styles.avatarContainer}>
-          <View style={[styles.avatar, {backgroundColor: colour}]}>
-            <Text style={styles.avatarText}>{getInitials(name!)}</Text>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>{getInitials(name)}</Text>
           </View>
         </View>
       ) : (
@@ -410,18 +440,20 @@ const DisplayTrack = ({
           <HmsView
             ref={hmsViewRef}
             setZOrderMediaOverlay={miniView}
-            trackId={trackId!}
+            trackId={peerTrackNode.track?.trackId!}
             mirror={
-              type === 'local' && mirrorLocalVideo !== undefined
+              type === TrackType.LOCAL && mirrorLocalVideo !== undefined
                 ? mirrorLocalVideo
                 : false
             }
             scaleType={
-              type === 'screen'
+              type === TrackType.SCREEN
                 ? HMSVideoViewMode.ASPECT_FIT
                 : HMSVideoViewMode.ASPECT_FILL
             }
-            style={type === 'screen' ? styles.hmsViewScreen : styles.hmsView}
+            style={
+              type === TrackType.SCREEN ? styles.hmsViewScreen : styles.hmsView
+            }
           />
           {isDegraded && (
             <View style={styles.degradedContainer}>
@@ -433,21 +465,21 @@ const DisplayTrack = ({
         </View>
       )}
       <View style={styles.labelContainer}>
-        {peerReference?.networkQuality?.downlinkQuality &&
-        peerReference?.networkQuality?.downlinkQuality > -1 ? (
+        {peerTrackNode.peer?.networkQuality?.downlinkQuality &&
+        peerTrackNode.peer?.networkQuality?.downlinkQuality > -1 ? (
           <View>
             <Image
               style={styles.network}
               source={
-                peerReference?.networkQuality?.downlinkQuality === 0
-                  ? require('../../assets/network_0.png')
-                  : peerReference?.networkQuality?.downlinkQuality === 1
-                  ? require('../../assets/network_1.png')
-                  : peerReference?.networkQuality?.downlinkQuality === 2
-                  ? require('../../assets/network_2.png')
-                  : peerReference?.networkQuality?.downlinkQuality === 3
-                  ? require('../../assets/network_3.png')
-                  : require('../../assets/network_4.png')
+                peerTrackNode.peer?.networkQuality?.downlinkQuality === 0
+                  ? require('../../../assets/network_0.png')
+                  : peerTrackNode.peer?.networkQuality?.downlinkQuality === 1
+                  ? require('../../../assets/network_1.png')
+                  : peerTrackNode.peer?.networkQuality?.downlinkQuality === 2
+                  ? require('../../../assets/network_2.png')
+                  : peerTrackNode.peer?.networkQuality?.downlinkQuality === 3
+                  ? require('../../../assets/network_3.png')
+                  : require('../../../assets/network_4.png')
               }
             />
           </View>
@@ -470,24 +502,39 @@ const DisplayTrack = ({
             </View>
           </View>
         )}
+        {isDegraded && (
+          <View>
+            <MaterialCommunityIcons
+              name="shield-alert-outline"
+              style={styles.degraded}
+              size={dimension.viewHeight(30)}
+            />
+          </View>
+        )}
       </View>
-      {type === 'screen' ||
-      (type === 'local' && selectLocalActionButtons.length > 1) ||
-      (type === 'remote' && selectRemoteActionButtons.length > 1) ? (
-        <TouchableOpacity onPress={promptUser} style={styles.optionsContainer}>
-          <Entypo
-            name="dots-three-horizontal"
-            style={styles.options}
-            size={dimension.viewHeight(30)}
-          />
-        </TouchableOpacity>
-      ) : (
-        <></>
-      )}
+      {layout === LayoutParams.GRID &&
+        (type === TrackType.SCREEN ||
+          (type === TrackType.LOCAL && selectLocalActionButtons.length > 1) ||
+          (type === TrackType.REMOTE &&
+            selectRemoteActionButtons.length > 1)) && (
+          <TouchableOpacity
+            onPress={promptUser}
+            style={styles.optionsContainer}>
+            <Entypo
+              name="dots-three-horizontal"
+              style={styles.options}
+              size={dimension.viewHeight(30)}
+            />
+          </TouchableOpacity>
+        )}
       <View style={styles.displayContainer}>
         <View style={styles.peerNameContainer}>
           <Text numberOfLines={2} style={styles.peerName}>
-            {name}
+            {peerTrackNode.track?.source === HMSTrackSource.SCREEN
+              ? `${name}'s Screen`
+              : peerTrackNode.peer.isLocal
+              ? `You (${name})`
+              : name}
           </Text>
         </View>
         <View style={styles.micContainer}>

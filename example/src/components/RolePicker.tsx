@@ -1,5 +1,5 @@
 import React from 'react';
-import {View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 
 export const RolePicker = ({
@@ -24,6 +24,7 @@ export const RolePicker = ({
       <Picker
         selectedValue={selectedItem?.name}
         onValueChange={onPress}
+        itemStyle={styles.itemStyle}
         dropdownIconColor="black"
         dropdownIconRippleColor="grey">
         {data.map((item, index) => (
@@ -33,3 +34,9 @@ export const RolePicker = ({
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  itemStyle: {
+    fontFamily: 'Inter-Regular',
+  },
+});

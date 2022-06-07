@@ -7,6 +7,7 @@ class HMSDecoder: NSObject {
         guard let room = hmsRoom else { return [:] }
 
         let id = room.roomID ?? ""
+        let sessionId = room.sessionID ?? ""
         let name = room.name ?? ""
         let metaData = room.metaData ?? ""
         let count = room.peerCount ?? 0
@@ -21,7 +22,7 @@ class HMSDecoder: NSObject {
             peers.append(getHmsPeer(peer))
         }
 
-        return ["id": id, "name": name, "metaData": metaData, "peers": peers, "browserRecordingState": browserRecordingState, "rtmpHMSRtmpStreamingState": rtmpStreamingState, "serverRecordingState": serverRecordingState, "hlsRecordingState": hlsRecordingState, "hlsStreamingState": hlsStreamingState, "peerCount": count]
+        return ["id": id, "name": name, "metaData": metaData, "peers": peers, "browserRecordingState": browserRecordingState, "rtmpHMSRtmpStreamingState": rtmpStreamingState, "serverRecordingState": serverRecordingState, "hlsRecordingState": hlsRecordingState, "hlsStreamingState": hlsStreamingState, "peerCount": count, "sessionId": sessionId]
     }
 
     static func getHmsPeer (_ hmsPeer: HMSPeer?) -> [String: Any] {
