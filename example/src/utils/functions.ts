@@ -293,6 +293,7 @@ export const updatePeersTrackNodesOnPeerListener = (
       const newPeerTrackNode: PeerTrackNode = {
         id: peer.peerID + HMSTrackSource.REGULAR,
         peer,
+        track: peer.videoTrack,
       };
       updatePeerTrackNodes?.push(newPeerTrackNode);
       return updatePeerTrackNodes;
