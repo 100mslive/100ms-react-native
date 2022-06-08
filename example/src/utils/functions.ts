@@ -293,6 +293,7 @@ export const updatePeersTrackNodesOnPeerListener = (
       const newPeerTrackNode: PeerTrackNode = {
         id: peer.peerID + HMSTrackSource.REGULAR,
         peer,
+        track: peer.videoTrack,
       };
       updatePeerTrackNodes?.push(newPeerTrackNode);
       return updatePeerTrackNodes;
@@ -361,8 +362,13 @@ export const updatePeersTrackNodesOnTrackListener = (
         peer,
         track,
       };
-      updatePeerTrackNodes.push(newPeerTrackNode);
-      return updatePeerTrackNodes;
+      // push screenshare track to 0th index
+      if (track.source === HMSTrackSource.SCREEN) {
+        return [newPeerTrackNode, ...updatePeerTrackNodes];
+      } else {
+        updatePeerTrackNodes.push(newPeerTrackNode);
+        return updatePeerTrackNodes;
+      }
     }
     return oldPeerTrackNodes;
   } else if (type === HMSTrackUpdate.TRACK_REMOVED) {
