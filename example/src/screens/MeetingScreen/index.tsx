@@ -1104,11 +1104,13 @@ const Meeting = () => {
           onValueChange={setSortingType}
           dropdownIconColor={COLORS.BLACK}
           dropdownIconRippleColor="grey">
-          {[{name: 'Select'}, {name: SortingType.ALPHABETICAL}].map(
-            (item, index) => (
-              <Picker.Item key={index} label={item.name} value={item.name} />
-            ),
-          )}
+          {[
+            {name: 'Select'},
+            {name: SortingType.ALPHABETICAL},
+            {name: SortingType.VIDEO_ON},
+          ].map((item, index) => (
+            <Picker.Item key={index} label={item.name} value={item.name} />
+          ))}
         </Picker>
       </CustomModal>
       <View style={styles.headerContainer}>

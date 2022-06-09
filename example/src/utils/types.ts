@@ -39,6 +39,7 @@ export enum ModalTypes {
 }
 
 export enum SortingType {
-  ALPHABETICAL = 'alphabetical',
+  ALPHABETICAL = 'Alphabetical Order',
+  VIDEO_ON = 'Video On',
   DEFAULT = '',
 }

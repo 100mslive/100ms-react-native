@@ -413,6 +413,16 @@ const sortPeerTrackNodes = (
       return peerTrackNodes.sort((a, b) =>
         a.peer.name.localeCompare(b.peer.name),
       );
+    case SortingType.VIDEO_ON:
+      return peerTrackNodes.sort((a, b) => {
+        if (a.track?.isMute() === true) {
+          return 1;
+        }
+        if (b.track?.isMute() === true) {
+          return -1;
+        }
+        return 0;
+      });
     default:
       return peerTrackNodes;
   }
