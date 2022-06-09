@@ -121,6 +121,9 @@ const Meeting = () => {
 
   const [peerTrackNodes, setPeerTrackNodes] =
     useState<Array<PeerTrackNode>>(peerState);
+  const [pinnedPeerTrackIds, setPinnedPeerTrackIds] = useState<Array<String>>(
+    [],
+  );
   const [hmsRoom, setHmsRoom] = useState<HMSRoom>();
   const peerTrackNodesRef = React.useRef(peerTrackNodes);
   const HmsViewComponent = instance?.HmsView;
@@ -911,9 +914,10 @@ const Meeting = () => {
       peerTrackNodes,
       layout === LayoutParams.AUDIO ? 6 : 4,
       selectedSortingType,
+      pinnedPeerTrackIds,
     );
     setPairedPeers(updatedPairedPeers);
-  }, [layout, peerTrackNodes, selectedSortingType]);
+  }, [layout, peerTrackNodes, selectedSortingType, pinnedPeerTrackIds]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -1286,6 +1290,8 @@ const Meeting = () => {
             localAudioStats={localAudioStats}
             localVideoStats={localVideoStats}
             page={page}
+            pinnedPeerTrackIds={pinnedPeerTrackIds}
+            setPinnedPeerTrackIds={setPinnedPeerTrackIds}
           />
         )}
       </View>

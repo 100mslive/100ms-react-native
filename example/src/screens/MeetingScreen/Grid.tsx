@@ -28,9 +28,11 @@ type GridViewProps = {
   localAudioStats?: HMSLocalAudioStats;
   localVideoStats?: HMSLocalVideoStats;
   page: number;
+  pinnedPeerTrackIds?: String[];
   setModalVisible?: React.Dispatch<React.SetStateAction<ModalTypes>>;
   setPage: React.Dispatch<React.SetStateAction<number>>;
   setZoomableTrackId?: React.Dispatch<React.SetStateAction<string>>;
+  setPinnedPeerTrackIds?: React.Dispatch<React.SetStateAction<String[]>>;
 };
 
 const GridView = ({
@@ -38,6 +40,7 @@ const GridView = ({
   setPage,
   setModalVisible,
   setZoomableTrackId,
+  setPinnedPeerTrackIds,
   speakers,
   instance,
   layout,
@@ -48,6 +51,7 @@ const GridView = ({
   localAudioStats,
   localVideoStats,
   page,
+  pinnedPeerTrackIds,
 }: GridViewProps) => {
   const {left, right, top, bottom} = useSafeAreaInsets();
   const flatlistRef = useRef<FlatList>(null);
@@ -128,6 +132,8 @@ const GridView = ({
                       remoteVideoStats={remoteVideoStats}
                       localAudioStats={localAudioStats}
                       localVideoStats={localVideoStats}
+                      pinnedPeerTrackIds={pinnedPeerTrackIds}
+                      setPinnedPeerTrackIds={setPinnedPeerTrackIds}
                     />
                   </View>
                 );

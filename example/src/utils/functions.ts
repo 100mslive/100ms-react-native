@@ -57,6 +57,7 @@ export const pairDataForFlatlist = (
   data: Array<PeerTrackNode>,
   batch: number,
   sortingType?: SortingType,
+  pinnedPeerTrackIds?: String[],
 ) => {
   let sortedData = data;
   if (sortingType) {
@@ -64,10 +65,13 @@ export const pairDataForFlatlist = (
   }
   const pairedDataRegular: Array<Array<PeerTrackNode>> = [];
   const pairedDataSource: Array<Array<PeerTrackNode>> = [];
+  const pairedDataPinned: Array<Array<PeerTrackNode>> = [];
   let groupData: Array<PeerTrackNode> = [];
   let itemsPushed: number = 0;
   sortedData.map((item: PeerTrackNode) => {
-    if (
+    if (pinnedPeerTrackIds?.includes(item.id)) {
+      pairedDataPinned.push([item]);
+    } else if (
       item.track?.source !== HMSTrackSource.REGULAR &&
       item.track?.source !== undefined
     ) {
@@ -85,7 +89,7 @@ export const pairDataForFlatlist = (
   if (groupData.length) {
     pairedDataRegular.push(groupData);
   }
-  return [...pairedDataSource, ...pairedDataRegular];
+  return [...pairedDataPinned, ...pairedDataSource, ...pairedDataRegular];
 };
 
 export const getHmsViewHeight = (

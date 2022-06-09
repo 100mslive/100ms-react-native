@@ -51,6 +51,8 @@ type DisplayTrackProps = {
   instance: HMSSDK | undefined;
   peerTrackNode: PeerTrackNode;
   videoStyles: any;
+  pinnedPeerTrackIds?: String[];
+  setPinnedPeerTrackIds?: React.Dispatch<React.SetStateAction<String[]>>;
 };
 
 const DisplayTrack = ({
@@ -66,6 +68,8 @@ const DisplayTrack = ({
   localVideoStats,
   setModalVisible,
   miniView,
+  pinnedPeerTrackIds,
+  setPinnedPeerTrackIds,
 }: DisplayTrackProps) => {
   const {mirrorLocalVideo} = useSelector((state: RootState) => state.user);
   const isVideoMute = peerTrackNode.track?.isMute() ?? true;
@@ -199,6 +203,30 @@ const DisplayTrack = ({
     onPress?: Function;
   }> = [
     {text: 'Cancel', type: 'cancel'},
+    {
+      text: pinnedPeerTrackIds?.includes(peerTrackNode.id) ? 'Unpin' : 'Pin',
+      onPress: () => {
+        if (pinnedPeerTrackIds && setPinnedPeerTrackIds) {
+          if (pinnedPeerTrackIds?.includes(peerTrackNode.id)) {
+            const newPinnedPeerTrackIds = pinnedPeerTrackIds.filter(
+              pinnedPeerTrackId => {
+                if (pinnedPeerTrackId === peerTrackNode.id) {
+                  return false;
+                }
+                return true;
+              },
+            );
+            setPinnedPeerTrackIds(newPinnedPeerTrackIds);
+          } else {
+            const newPinnedPeerTrackIds = [
+              peerTrackNode.id,
+              ...pinnedPeerTrackIds,
+            ];
+            setPinnedPeerTrackIds(newPinnedPeerTrackIds);
+          }
+        }
+      },
+    },
     {
       text: 'Set Volume',
       onPress: () => {
