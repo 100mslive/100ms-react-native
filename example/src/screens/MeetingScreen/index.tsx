@@ -81,7 +81,12 @@ import {
   updatePeersTrackNodesOnPeerListener,
   updatePeersTrackNodesOnTrackListener,
 } from '../../utils/functions';
-import {LayoutParams, ModalTypes, PeerTrackNode} from '../../utils/types';
+import {
+  LayoutParams,
+  ModalTypes,
+  PeerTrackNode,
+  SortingType,
+} from '../../utils/types';
 import {GridView} from './Grid';
 import {ActiveSpeakerView} from './ActiveSpeakerView';
 import {HeroView} from './HeroView';
@@ -124,6 +129,8 @@ const Meeting = () => {
   const [muteAllTracksAudio, setMuteAllTracksAudio] = useState(false);
   const [action, setAction] = useState(0);
   const [layout, setLayout] = useState<LayoutParams>(LayoutParams.GRID);
+  const [sortingType, setSortingType] = useState<SortingType>();
+  const [selectedSortingType, setSelectedSortingType] = useState<SortingType>();
   const [newLayout, setNewLayout] = useState<LayoutParams>(layout);
   const [newRole, setNewRole] = useState(instance?.localPeer?.role);
   const [rtcStats, setRtcStats] = useState<HMSRTCStatsReport>();
@@ -131,6 +138,9 @@ const Meeting = () => {
   const [page, setPage] = useState(0);
   const [zoomableTrackId, setZoomableTrackId] = useState('');
   const [statsForNerds, setStatsForNerds] = useState(false);
+  const [pairedPeers, setPairedPeers] = useState<Array<Array<PeerTrackNode>>>(
+    [],
+  );
   const [modalVisible, setModalVisible] = useState<ModalTypes>(
     ModalTypes.DEFAULT,
   );
@@ -153,10 +163,6 @@ const Meeting = () => {
       singleFilePerLayer: false,
       videoOnDemand: false,
     });
-  const pairedPeers: Array<Array<PeerTrackNode>> = pairDataForFlatlist(
-    peerTrackNodes,
-    layout === LayoutParams.AUDIO ? 6 : 4,
-  );
 
   const getMessageToList = (): MessageObject[] => {
     const messageList: MessageObject[] = [
@@ -220,6 +226,9 @@ const Meeting = () => {
       case ModalTypes.LAYOUT:
         modalTitle = 'Layout Details';
         break;
+      case ModalTypes.SORTING:
+        modalTitle = 'Sorting Style';
+        break;
       case ModalTypes.ROLE:
         modalTitle = 'Select action';
         break;
@@ -260,6 +269,17 @@ const Meeting = () => {
             text: 'Set',
             onPress: () => {
               setLayout(newLayout);
+            },
+          },
+        ];
+        break;
+      case ModalTypes.SORTING:
+        buttons = [
+          {text: 'Cancel'},
+          {
+            text: 'Set',
+            onPress: () => {
+              setSelectedSortingType(sortingType);
             },
           },
         ];
@@ -319,6 +339,12 @@ const Meeting = () => {
             text: 'Set Layout',
             onPress: () => {
               setModalVisible(ModalTypes.LAYOUT);
+            },
+          },
+          {
+            text: 'Set Sorting Style',
+            onPress: () => {
+              setModalVisible(ModalTypes.SORTING);
             },
           },
           {
@@ -844,6 +870,8 @@ const Meeting = () => {
   };
 
   useEffect(() => {
+    updateHmsInstance(hmsInstance);
+
     const backAction = () => {
       setModalVisible(ModalTypes.LEAVE);
       return true;
@@ -858,11 +886,6 @@ const Meeting = () => {
       backHandler.remove();
       onLeavePress();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    updateHmsInstance(hmsInstance);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -882,6 +905,15 @@ const Meeting = () => {
       }
     };
   }, [instance]);
+
+  useEffect(() => {
+    const updatedPairedPeers: Array<Array<PeerTrackNode>> = pairDataForFlatlist(
+      peerTrackNodes,
+      layout === LayoutParams.AUDIO ? 6 : 4,
+      selectedSortingType,
+    );
+    setPairedPeers(updatedPairedPeers);
+  }, [layout, peerTrackNodes, selectedSortingType]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -1060,6 +1092,23 @@ const Meeting = () => {
           ].map((item, index) => (
             <Picker.Item key={index} label={item.name} value={item.name} />
           ))}
+        </Picker>
+      </CustomModal>
+      <CustomModal
+        modalVisible={modalVisible === ModalTypes.SORTING}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+        title={getModalTitle(ModalTypes.SORTING)}
+        buttons={getModalButtons(ModalTypes.SORTING)}>
+        <Picker
+          selectedValue={sortingType}
+          onValueChange={setSortingType}
+          dropdownIconColor={COLORS.BLACK}
+          dropdownIconRippleColor="grey">
+          {[{name: 'Select'}, {name: SortingType.ALPHABETICAL}].map(
+            (item, index) => (
+              <Picker.Item key={index} label={item.name} value={item.name} />
+            ),
+          )}
         </Picker>
       </CustomModal>
       <View style={styles.headerContainer}>

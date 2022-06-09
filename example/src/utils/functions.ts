@@ -12,7 +12,7 @@ import {
   HMSTrackSource,
 } from '@100mslive/react-native-hms';
 
-import type {LayoutParams, PeerTrackNode} from './types';
+import {LayoutParams, PeerTrackNode, SortingType} from './types';
 import dimension from '../utils/dimension';
 import * as services from '../services/index';
 
@@ -56,19 +56,25 @@ export const getInitials = (name?: String): String => {
 export const pairDataForFlatlist = (
   data: Array<PeerTrackNode>,
   batch: number,
+  sortingType?: SortingType,
 ) => {
-  const pairedData: Array<Array<PeerTrackNode>> = [];
+  let sortedData = data;
+  if (sortingType) {
+    sortedData = sortPeerTrackNodes(sortedData, sortingType);
+  }
+  const pairedDataRegular: Array<Array<PeerTrackNode>> = [];
+  const pairedDataSource: Array<Array<PeerTrackNode>> = [];
   let groupData: Array<PeerTrackNode> = [];
   let itemsPushed: number = 0;
-  data.map((item: PeerTrackNode) => {
+  sortedData.map((item: PeerTrackNode) => {
     if (
       item.track?.source !== HMSTrackSource.REGULAR &&
       item.track?.source !== undefined
     ) {
-      pairedData.push([item]);
+      pairedDataSource.push([item]);
     } else {
       if (itemsPushed === batch) {
-        pairedData.push(groupData);
+        pairedDataRegular.push(groupData);
         groupData = [];
         itemsPushed = 0;
       }
@@ -77,9 +83,9 @@ export const pairDataForFlatlist = (
     }
   });
   if (groupData.length) {
-    pairedData.push(groupData);
+    pairedDataRegular.push(groupData);
   }
-  return pairedData;
+  return [...pairedDataSource, ...pairedDataRegular];
 };
 
 export const getHmsViewHeight = (
@@ -395,5 +401,19 @@ export const updatePeersTrackNodesOnTrackListener = (
       }
       return peerTrackNode;
     });
+  }
+};
+
+const sortPeerTrackNodes = (
+  peerTrackNodes: Array<PeerTrackNode>,
+  type: SortingType,
+): Array<PeerTrackNode> => {
+  switch (type) {
+    case SortingType.ALPHABETICAL:
+      return peerTrackNodes.sort((a, b) =>
+        a.peer.name.localeCompare(b.peer.name),
+      );
+    default:
+      return peerTrackNodes;
   }
 };
