@@ -1,11 +1,12 @@
 import React, {useRef} from 'react';
 import {View, FlatList, Dimensions} from 'react-native';
-import type {
+import {
   HMSLocalAudioStats,
   HMSLocalVideoStats,
-  HMSPermissions,
   HMSRTCStatsReport,
   HMSSDK,
+  HMSSpeaker,
+  HMSTrackSource,
 } from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
@@ -13,42 +14,33 @@ import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
 import {getHmsViewHeight} from '../../utils/functions';
 import {styles} from './styles';
 import {DisplayTrack} from './DisplayTrack';
-import type {RootState} from '../../redux';
-import type {Peer, LayoutParams} from '../../utils/types';
+import {LayoutParams, ModalTypes, PeerTrackNode} from '../../utils/types';
 
 type GridViewProps = {
-  pairedPeers: Peer[][];
-  getAuxVideoStyles: Function;
-  speakerIds: string[];
-  instance: HMSSDK | undefined;
-  localPeerPermissions: HMSPermissions | undefined;
+  pairedPeers: PeerTrackNode[][];
+  speakers: HMSSpeaker[];
+  instance?: HMSSDK;
   layout: LayoutParams;
-  state: RootState;
-  statsForNerds: boolean;
-  rtcStats: HMSRTCStatsReport | undefined;
-  remoteAudioStats: any;
-  remoteVideoStats: any;
-  localAudioStats: HMSLocalAudioStats;
-  localVideoStats: HMSLocalVideoStats;
+  statsForNerds?: boolean;
+  rtcStats?: HMSRTCStatsReport;
+  remoteAudioStats?: any;
+  remoteVideoStats?: any;
+  localAudioStats?: HMSLocalAudioStats;
+  localVideoStats?: HMSLocalVideoStats;
   page: number;
-  setChangeNameModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setModalVisible?: React.Dispatch<React.SetStateAction<ModalTypes>>;
   setPage: React.Dispatch<React.SetStateAction<number>>;
-  setZoomableModal: React.Dispatch<React.SetStateAction<boolean>>;
-  setZoomableTrackId: React.Dispatch<React.SetStateAction<string>>;
+  setZoomableTrackId?: React.Dispatch<React.SetStateAction<string>>;
 };
 
 const GridView = ({
   pairedPeers,
   setPage,
-  setZoomableModal,
+  setModalVisible,
   setZoomableTrackId,
-  getAuxVideoStyles,
-  speakerIds,
+  speakers,
   instance,
-  localPeerPermissions,
   layout,
-  state,
-  setChangeNameModal,
   statsForNerds,
   rtcStats,
   remoteAudioStats,
@@ -63,6 +55,7 @@ const GridView = ({
   if (page + 1 > pairedPeers.length) {
     flatlistRef?.current?.scrollToEnd();
   }
+  const speakerIds = speakers?.map(speaker => speaker?.peer?.peerID);
 
   return (
     <FlatList
@@ -77,19 +70,18 @@ const GridView = ({
       }}
       pagingEnabled
       showsHorizontalScrollIndicator={false}
-      renderItem={({item}) => {
+      renderItem={({item}: {item: Array<PeerTrackNode>}) => {
         return (
           <View
-            key={item[0]?.trackId}
+            key={item[0]?.id}
             style={[
               styles.page,
               {width: Dimensions.get('window').width - left - right},
             ]}>
-            {item?.map(
-              (view: Peer) =>
-                view?.id &&
-                (view.type === 'screen' ? (
-                  <View style={styles.flex} key={view?.id}>
+            {item?.map(view => {
+              if (view.track?.source === HMSTrackSource.SCREEN) {
+                return (
+                  <View style={styles.flex} key={view.id}>
                     <TouchableWithoutFeedback
                       onPress={() => {
                         console.log('Single Tap');
@@ -97,8 +89,9 @@ const GridView = ({
                         if (doublePress === 2) {
                           console.log('Double Tap');
                           doublePress = 0;
-                          setZoomableModal(true);
-                          setZoomableTrackId(view.trackId!);
+                          setModalVisible && setModalVisible(ModalTypes.ZOOM);
+                          setZoomableTrackId &&
+                            setZoomableTrackId(view.track?.trackId!);
                         } else {
                           setTimeout(() => {
                             doublePress = 0;
@@ -106,37 +99,29 @@ const GridView = ({
                         }
                       }}>
                       <DisplayTrack
-                        peer={view}
-                        videoStyles={getAuxVideoStyles}
+                        peerTrackNode={view}
+                        videoStyles={styles.generalTile}
                         speakerIds={speakerIds}
                         instance={instance}
-                        type={view.type}
-                        permissions={localPeerPermissions}
+                        layout={layout}
                       />
                     </TouchableWithoutFeedback>
                   </View>
-                ) : (
+                );
+              } else {
+                return (
                   <View
                     key={view?.id}
                     style={{
-                      ...getHmsViewHeight(
-                        layout,
-                        view.type,
-                        item.length,
-                        top,
-                        bottom,
-                      ),
+                      ...getHmsViewHeight(layout, item.length, top, bottom),
                     }}>
                     <DisplayTrack
-                      peer={view}
-                      videoStyles={() => styles.generalTile}
+                      peerTrackNode={view}
+                      videoStyles={styles.generalTile}
                       speakerIds={speakerIds}
                       instance={instance}
-                      type={view.type}
-                      permissions={localPeerPermissions}
                       layout={layout}
-                      mirrorLocalVideo={state.user.mirrorLocalVideo}
-                      setChangeNameModal={setChangeNameModal}
+                      setModalVisible={setModalVisible}
                       statsForNerds={statsForNerds}
                       rtcStats={rtcStats}
                       remoteAudioStats={remoteAudioStats}
@@ -145,8 +130,9 @@ const GridView = ({
                       localVideoStats={localVideoStats}
                     />
                   </View>
-                )),
-            )}
+                );
+              }
+            })}
           </View>
         );
       }}

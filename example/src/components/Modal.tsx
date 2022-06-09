@@ -1,5 +1,6 @@
-import React from 'react';
+import React, {ReactNode} from 'react';
 import {Modal, StyleSheet, Text, View, TouchableOpacity} from 'react-native';
+import {COLORS} from '../utils/theme';
 
 export const CustomModal = ({
   modalVisible,
@@ -11,11 +12,8 @@ export const CustomModal = ({
   modalVisible: boolean;
   setModalVisible: any;
   title: String;
-  children: React.ReactNode;
-  buttons: [
-    {text: String; onPress?: Function},
-    {text: String; onPress?: Function}?,
-  ];
+  children: ReactNode;
+  buttons: Array<{text: string; type?: string; onPress?: Function}>;
 }) => {
   const onRequestClose: any = () => {
     setModalVisible(!modalVisible);
@@ -73,11 +71,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#25313780',
+    backgroundColor: COLORS.OVERLAY,
   },
   modalView: {
     width: '80%',
-    backgroundColor: 'white',
+    backgroundColor: COLORS.WHITE,
     borderRadius: 10,
     shadowColor: '#000',
     shadowOffset: {
@@ -93,54 +91,42 @@ const styles = StyleSheet.create({
     padding: 10,
     elevation: 2,
   },
-  buttonOpen: {
-    backgroundColor: '#F194FF',
-  },
-  buttonClose: {
-    backgroundColor: '#2196F3',
-  },
-  textStyle: {
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  modalText: {
-    marginBottom: 15,
-    textAlign: 'center',
-  },
   titleContainer: {
-    borderBottomColor: 'lightgrey',
+    borderBottomColor: COLORS.BORDER.DEFAULT,
     borderBottomWidth: 1,
   },
   title: {
     alignSelf: 'center',
-    padding: 16,
-    fontWeight: 'bold',
+    padding: 14,
+    fontSize: 16,
+    fontFamily: 'Inter-Bold',
   },
   buttonItem: {
     borderTopWidth: 1,
-    borderTopColor: 'lightgrey',
+    borderTopColor: COLORS.BORDER.DEFAULT,
     padding: 12,
   },
   closeButtonItemText: {
     alignSelf: 'center',
-    color: 'red',
+    color: COLORS.INDICATORS.ERROR,
+    fontFamily: 'Inter-Bold',
   },
   okButtonItemText: {
     alignSelf: 'center',
-    color: 'blue',
+    color: COLORS.PRIMARY.DEFAULT,
+    fontFamily: 'Inter-Bold',
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    borderTopColor: 'lightgrey',
+    borderTopColor: COLORS.BORDER.DEFAULT,
     borderTopWidth: 1,
   },
   okButton: {
     flex: 1,
     padding: 12,
     borderLeftWidth: 1,
-    borderLeftColor: 'lightgrey',
+    borderLeftColor: COLORS.BORDER.DEFAULT,
   },
   closeButton: {
     flex: 1,

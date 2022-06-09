@@ -4,12 +4,11 @@ import {
   TouchableOpacity,
   Text,
   SafeAreaView,
-  Dimensions,
   BackHandler,
   Platform,
   TextInput,
 } from 'react-native';
-import {connect} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {
   HMSUpdateListenerActions,
   HMSMessage,
@@ -19,7 +18,6 @@ import {
   HMSRemotePeer,
   HMSVideoViewMode,
   HMSLocalPeer,
-  HMSPermissions,
   HMSTrack,
   HMSRoom,
   HMSRole,
@@ -29,7 +27,6 @@ import {
   HMSSpeakerUpdate,
   HMSPeer,
   HMSTrackType,
-  HMSException,
   HMSRTMPConfig,
   HMSHLSMeetingURLVariant,
   HMSHLSConfig,
@@ -44,11 +41,12 @@ import {
   HMSRemoteVideoTrack,
   HMSSpeaker,
   HMSHLSRecordingConfig,
+  HMSTrackSource,
 } from '@100mslive/react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import Toast from 'react-native-simple-toast';
@@ -56,6 +54,8 @@ import RNFetchBlob from 'rn-fetch-blob';
 import {Picker} from '@react-native-picker/picker';
 import Video from 'react-native-video';
 
+import {styles} from './styles';
+import type {AppStackParamList} from '../../navigator';
 import {
   ChatWindow,
   AlertModal,
@@ -66,48 +66,32 @@ import {
 } from '../../components';
 import {
   addMessage,
+  clearHmsReference,
   clearMessageData,
-  updateHmsReference,
+  clearPeerData,
   saveUserData,
-} from '../../redux/actions/index';
+} from '../../redux/actions';
+import type {RootState} from '../../redux';
 import dimension from '../../utils/dimension';
 import {
-  decodeLocalPeer,
-  decodeRemotePeer,
-  getThemeColour,
-  pairDataForScrollView,
+  pairDataForFlatlist,
+  parseMetadata,
   writeFile,
-  isPortrait,
   requestExternalStoragePermission,
+  updatePeersTrackNodesOnPeerListener,
+  updatePeersTrackNodesOnTrackListener,
 } from '../../utils/functions';
-import {styles} from './styles';
+import {LayoutParams, ModalTypes, PeerTrackNode} from '../../utils/types';
 import {GridView} from './Grid';
 import {ActiveSpeakerView} from './ActiveSpeakerView';
-import type {RootState} from '../../redux';
-import type {AppStackParamList} from '../../navigator';
-import type {Peer, LayoutParams} from '../../utils/types';
 import {HeroView} from './HeroView';
 import {MiniView} from './MiniView';
+import {COLORS} from '../../utils/theme';
 
-type MeetingProps = {
-  messages: any;
-  addMessageRequest: Function;
-  clearMessageRequest: Function;
-  audioState: boolean;
-  videoState: boolean;
-  state: RootState;
-  hmsInstance: HMSSDK | undefined;
-  saveUserDataRequest?: Function;
-};
-
-const DEFAULT_PEER: Peer = {
-  trackId: Math.random().toString(),
-  name: '',
-  isAudioMute: true,
-  isVideoMute: true,
-  id: Math.random().toString(),
-  colour: getThemeColour(),
-  type: 'local',
+type MessageObject = {
+  name: string;
+  type: string;
+  obj?: HMSRole | PeerTrackNode;
 };
 
 type MeetingScreenProp = NativeStackNavigationProp<
@@ -120,49 +104,48 @@ let remoteVideoStats: any = {};
 let localAudioStats: HMSLocalAudioStats = {};
 let localVideoStats: HMSLocalVideoStats = {};
 
-const Meeting = ({
-  messages,
-  addMessageRequest,
-  clearMessageRequest,
-  hmsInstance,
-  state,
-  saveUserDataRequest,
-}: MeetingProps) => {
-  const [orientation, setOrientation] = useState<boolean>(true);
+const Meeting = () => {
+  const {hmsInstance, roomID, roomCode} = useSelector(
+    (state: RootState) => state.user,
+  );
   const [instance, setInstance] = useState<HMSSDK | undefined>();
-  const [trackId, setTrackId] = useState<Peer>(DEFAULT_PEER);
-  const [remoteTrackIds, setRemoteTrackIds] = useState<Peer[]>([]);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [speakerIds, setSpeakerIds] = useState<Array<string>>([]);
+  const {messages} = useSelector((state: RootState) => state.messages);
+  const {peerState} = useSelector((state: RootState) => state.app);
+  const dispatch = useDispatch();
+  const navigate = useNavigation<MeetingScreenProp>().navigate;
+
+  const [peerTrackNodes, setPeerTrackNodes] =
+    useState<Array<PeerTrackNode>>(peerState);
+  const [hmsRoom, setHmsRoom] = useState<HMSRoom>();
+  const peerTrackNodesRef = React.useRef(peerTrackNodes);
+  const HmsViewComponent = instance?.HmsView;
   const [speakers, setSpeakers] = useState<Array<HMSSpeaker>>([]);
   const [notification, setNotification] = useState(false);
-  const [muteAllAudio, setMuteAllAudio] = useState(false);
-  const [auxTracks, setAuxTracks] = useState<Peer[]>([]);
+  const [muteAllTracksAudio, setMuteAllTracksAudio] = useState(false);
+  const [action, setAction] = useState(0);
+  const [layout, setLayout] = useState<LayoutParams>(LayoutParams.GRID);
+  const [newLayout, setNewLayout] = useState<LayoutParams>(layout);
+  const [newRole, setNewRole] = useState(instance?.localPeer?.role);
+  const [rtcStats, setRtcStats] = useState<HMSRTCStatsReport>();
+  const hlsPlayerRef = useRef<Video>(null);
+  const [page, setPage] = useState(0);
+  const [zoomableTrackId, setZoomableTrackId] = useState('');
+  const [statsForNerds, setStatsForNerds] = useState(false);
+  const [modalVisible, setModalVisible] = useState<ModalTypes>(
+    ModalTypes.DEFAULT,
+  );
   const [roleChangeRequest, setRoleChangeRequest] = useState<{
     requestedBy?: string;
     suggestedRole?: string;
   }>({});
-  const [action, setAction] = useState(0);
-  const [layout, setLayout] = useState<LayoutParams>('grid');
-  const [newLayout, setNewLayout] = useState<LayoutParams>(layout);
-  const [newRole, setNewRole] = useState(trackId?.peerReference?.role);
-  const [roleModalVisible, setRoleModalVisible] = useState(false);
-  const [settingsModal, setSettingsModal] = useState(false);
-  const [recordingModal, setRecordingModal] = useState(false);
-  const [hlsStreamingModal, setHLSStreamingModal] = useState(false);
   const [recordingDetails, setRecordingDetails] = useState<HMSRTMPConfig>({
     record: false,
-    meetingURL: state.user.roomID
-      ? state.user.roomID + '?token=beam_recording'
-      : '',
+    meetingURL: roomID ? roomID + '?token=beam_recording' : '',
     rtmpURLs: [],
   });
-  const [rtcStats, setRtcStats] = useState<HMSRTCStatsReport>();
   const [hlsStreamingDetails, setHLSStreamingDetails] =
     useState<HMSHLSMeetingURLVariant>({
-      meetingUrl: state.user.roomID
-        ? state.user.roomID + '?token=beam_recording'
-        : '',
+      meetingUrl: roomID ? roomID + '?token=beam_recording' : '',
       metadata: '',
     });
   const [hlsRecordingDetails, setHLSRecordingDetails] =
@@ -170,201 +153,400 @@ const Meeting = ({
       singleFilePerLayer: false,
       videoOnDemand: false,
     });
-  const [roleChangeModalVisible, setRoleChangeModalVisible] = useState(false);
-  const [layoutModal, setLayoutModal] = useState(false);
-  const [changeTrackStateModalVisible, setChangeTrackStateModalVisible] =
-    useState(false);
-  const [leaveModalVisible, setLeaveModalVisible] = useState(false);
-  const [localPeerPermissions, setLocalPeerPermissions] =
-    useState<HMSPermissions>();
-  const hlsPlayerRef = useRef<Video>(null);
-  const [page, setPage] = useState(0);
-  const [zoomableTrackId, setZoomableTrackId] = useState('');
-  const [zoomableModal, setZoomableModal] = useState(false);
-  const [changeNameModal, setChangeNameModal] = useState(false);
-  const [statsForNerds, setStatsForNerds] = useState(false);
+  const pairedPeers: Array<Array<PeerTrackNode>> = pairDataForFlatlist(
+    peerTrackNodes,
+    layout === LayoutParams.AUDIO ? 6 : 4,
+  );
 
-  const roleChangeRequestTitle = layoutModal
-    ? 'Layout Modal'
-    : recordingModal
-    ? 'Recording Details'
-    : hlsStreamingModal
-    ? 'HLS Streaming Details'
-    : roleChangeModalVisible
-    ? 'Role Change Request'
-    : changeTrackStateModalVisible
-    ? 'Change Track State Request'
-    : '';
-  const roleChangeRequestButtons: [
-    {text: string; onPress?: Function},
-    {text: string; onPress?: Function},
-  ] = layoutModal
-    ? [
-        {text: 'Cancel'},
-        {
-          text: 'Set',
-          onPress: async () => {
-            setLayout(newLayout);
-          },
-        },
-      ]
-    : hlsStreamingModal
-    ? [
-        {text: 'Cancel'},
-        {
-          text: 'Start',
-          onPress: () => {
-            const hmsHLSConfig = new HMSHLSConfig({
-              hlsRecordingConfig: hlsRecordingDetails,
-              meetingURLVariants: [hlsStreamingDetails],
-            });
-            instance
-              ?.startHLSStreaming(hmsHLSConfig)
-              .then(d => console.log('Start HLS Streaming Success: ', d))
-              .catch(e => console.log('Start HLS Streaming Error: ', e));
-          },
-        },
-      ]
-    : recordingModal
-    ? [
-        {text: 'Cancel'},
-        {
-          text: 'Start',
-          onPress: () => {
-            instance
-              ?.startRTMPOrRecording(recordingDetails)
-              .then(d => console.log('Start RTMP Or Recording Success: ', d))
-              .catch(e => console.log('Start RTMP Or Recording Error: ', e));
-          },
-        },
-      ]
-    : roleChangeModalVisible
-    ? [
-        {text: 'Reject'},
-        {
-          text: 'Accept',
-          onPress: () => {
-            instance?.acceptRoleChange();
-          },
-        },
-      ]
-    : changeTrackStateModalVisible
-    ? [
-        {text: 'Reject'},
-        {
-          text: 'Accept',
-          onPress: () => {
-            if (
-              roleChangeRequest?.suggestedRole?.toLocaleLowerCase() === 'video'
-            ) {
-              setTrackId({
-                ...trackId,
-                isVideoMute: false,
-              });
-              instance?.localPeer?.localVideoTrack()?.setMute(false);
-            } else {
-              setTrackId({
-                ...trackId,
-                isAudioMute: false,
-              });
-              instance?.localPeer?.localAudioTrack()?.setMute(false);
-            }
-          },
-        },
-      ]
-    : [{text: 'Reject'}, {text: 'Accept'}];
+  const getMessageToList = (): MessageObject[] => {
+    const messageList: MessageObject[] = [
+      {
+        name: 'everyone',
+        type: 'everyone',
+      },
+    ];
 
-  const navigate = useNavigation<MeetingScreenProp>().navigate;
+    const knownRoles = instance?.knownRoles?.map((role: HMSRole) => ({
+      name: role.name || '',
+      type: 'group',
+      obj: role,
+    }));
+    if (knownRoles) {
+      messageList.push(...knownRoles);
+    }
 
-  const pairedPeers: Array<Array<Peer>> = pairDataForScrollView(
-    [...auxTracks, trackId, ...remoteTrackIds].filter(peer => {
-      if (peer?.peerReference?.role?.name?.includes('hls-')) {
+    const remotePeers = peerTrackNodes.filter(peerTrackNode => {
+      if (peerTrackNode.peer.isLocal) {
         return false;
       }
       return true;
-    }),
-    isPortrait() ? (layout === 'audio' ? 6 : 4) : 2,
-  );
-
-  const updateVideoIds = (
-    remotePeers: HMSRemotePeer[],
-    localPeer?: HMSLocalPeer,
-  ) => {
-    if (localPeer) {
-      const localTrackTemp = decodeLocalPeer(localPeer, 'local');
-      setTrackId(localTrackTemp);
+    });
+    const peers = remotePeers.map(remotePeer => ({
+      name: remotePeer.peer.name,
+      type: 'direct',
+      obj: remotePeer.peer,
+    }));
+    if (peers) {
+      messageList.push(...peers);
     }
-    const updatedLocalPeerPermissions = localPeer?.role?.permissions;
-    setLocalPeerPermissions(updatedLocalPeerPermissions);
 
-    const remoteVideoIds: Peer[] = [];
-    let newAuxTracks: Peer[] = [];
+    return messageList;
+  };
 
-    if (remotePeers) {
-      remotePeers.map((remotePeer: HMSRemotePeer) => {
-        const remoteTemp = decodeRemotePeer(remotePeer, 'remote');
-        remoteVideoIds.push(remoteTemp);
-
-        let auxiliaryTracks = remotePeer?.auxiliaryTracks;
-        // let auxAudioTrack: HMSTrack | undefined;
-        let auxVideoTrack: Peer | undefined;
-
-        let auxTrackObj: any = {};
-
-        auxiliaryTracks?.map((track: HMSTrack) => {
-          let auxTrackId = track?.trackId;
-          if (auxTrackId && track?.type === HMSTrackType.AUDIO) {
-            let key = track?.source;
-            if (key) {
-              auxTrackObj[key] = track;
-            }
-          }
-        });
-
-        auxiliaryTracks?.map((track: HMSTrack) => {
-          let auxTrackId = track?.trackId;
-          if (auxTrackId && track?.type === HMSTrackType.VIDEO) {
-            auxVideoTrack = {
-              trackId: auxTrackId,
-              name: `${remotePeer?.name}'s Screen`,
-              isAudioMute: true,
-              isVideoMute: false,
-              id: `${remotePeer?.peerID}_${auxTrackId}`,
-              colour: getThemeColour(),
-              type: 'screen',
-              track: auxTrackObj[track.source ? track.source : ' '],
-            };
-          }
-        });
-        if (auxVideoTrack !== undefined) {
-          newAuxTracks.push({...(auxVideoTrack as Peer)});
-        }
-      });
-      setAuxTracks(newAuxTracks);
-
-      const updatedRemoteTracks = remoteVideoIds.map(
-        (item: Peer, index: number) => {
-          if (item.trackId) {
-            return {...item};
-          } else {
-            return {...item, trackId: index.toString(), isVideoMute: true};
-          }
-        },
-      );
-      setRemoteTrackIds(updatedRemoteTracks as []);
+  const reportIssue = async () => {
+    try {
+      const fileUrl = RNFetchBlob.fs.dirs.DocumentDir + '/report-logs.json';
+      const logger = HMSSDK.getLogger();
+      const logs = logger?.getLogs();
+      await writeFile({data: logs}, fileUrl);
+    } catch (err) {
+      console.log('reportIssue: ', err);
     }
   };
 
-  const onJoinListener = ({
-    room,
-    localPeer,
-    remotePeers,
-  }: {
-    room?: HMSRoom;
-    localPeer: HMSLocalPeer;
-    remotePeers: HMSRemotePeer[];
-  }) => {
-    console.log('data in onJoinListener: ', room, localPeer, remotePeers);
+  const fetchZoomableId = (id: string): boolean => {
+    let idPresent = false;
+    peerTrackNodes.map(({track}) => {
+      if (track?.trackId === id) {
+        idPresent = true;
+      }
+    });
+    return idPresent;
+  };
+
+  const getModalTitle = (type: ModalTypes): string => {
+    let modalTitle = 'Default';
+    switch (type) {
+      case ModalTypes.LAYOUT:
+        modalTitle = 'Layout Details';
+        break;
+      case ModalTypes.ROLE:
+        modalTitle = 'Select action';
+        break;
+      case ModalTypes.SETTINGS:
+        modalTitle = 'Settings';
+        break;
+      case ModalTypes.RECORDING:
+        modalTitle = 'Recording Details';
+        break;
+      case ModalTypes.LEAVE:
+        modalTitle = 'End Room';
+        break;
+      case ModalTypes.HLS_STREAMING:
+        modalTitle = 'HLS Streaming Details';
+        break;
+      case ModalTypes.ROLE_CHANGE:
+        modalTitle = 'Role Change Details';
+        break;
+      case ModalTypes.CHANGE_TRACK:
+        modalTitle = 'Change Track State Request';
+        break;
+    }
+    return modalTitle;
+  };
+
+  const getModalButtons = (
+    type: ModalTypes,
+  ): Array<{text: string; type?: string; onPress?: Function}> => {
+    let buttons: Array<{text: string; type?: string; onPress?: Function}> = [
+      {text: 'Reject'},
+      {text: 'Accept'},
+    ];
+    switch (type) {
+      case ModalTypes.LAYOUT:
+        buttons = [
+          {text: 'Cancel'},
+          {
+            text: 'Set',
+            onPress: () => {
+              setLayout(newLayout);
+            },
+          },
+        ];
+        break;
+      case ModalTypes.ROLE:
+        buttons = [
+          {text: 'Cancel'},
+          {
+            text: 'Send',
+            onPress: async () => {
+              const source = HMSTrackSource.REGULAR;
+              switch (action) {
+                case 1:
+                  await instance?.changeTrackStateForRoles(
+                    true,
+                    HMSTrackType.VIDEO,
+                    source,
+                    [newRole!],
+                  );
+                  break;
+                case 2:
+                  await instance?.changeTrackStateForRoles(
+                    false,
+                    HMSTrackType.VIDEO,
+                    source,
+                    [newRole!],
+                  );
+                  break;
+                case 3:
+                  await instance?.changeTrackStateForRoles(
+                    true,
+                    HMSTrackType.AUDIO,
+                    source,
+                    [newRole!],
+                  );
+                  break;
+                case 4:
+                  await instance?.changeTrackStateForRoles(
+                    false,
+                    HMSTrackType.AUDIO,
+                    source,
+                    [newRole!],
+                  );
+                  break;
+              }
+            },
+          },
+        ];
+        break;
+      case ModalTypes.SETTINGS:
+        buttons = [
+          {
+            text: 'Cancel',
+            type: 'cancel',
+          },
+          {
+            text: 'Set Layout',
+            onPress: () => {
+              setModalVisible(ModalTypes.LAYOUT);
+            },
+          },
+          {
+            text: 'Report issue and share logs',
+            onPress: async () => {
+              const permission = await requestExternalStoragePermission();
+              if (permission) {
+                await reportIssue();
+              }
+            },
+          },
+          {
+            text: 'Start RTMP or Recording',
+            onPress: () => {
+              setModalVisible(ModalTypes.RECORDING);
+            },
+          },
+          {
+            text: 'Stop RTMP And Recording',
+            onPress: () => {
+              instance
+                ?.stopRtmpAndRecording()
+                .then(d => console.log('Stop RTMP And Recording Success: ', d))
+                .catch(e => console.log('Stop RTMP And Recording Error: ', e));
+            },
+          },
+          {
+            text: 'Start HLS Streaming',
+            onPress: () => {
+              setModalVisible(ModalTypes.HLS_STREAMING);
+            },
+          },
+          {
+            text: 'Stop HLS Streaming',
+            onPress: () => {
+              instance
+                ?.stopHLSStreaming()
+                .then(d => console.log('Stop HLS Streaming Success: ', d))
+                .catch(e => console.log('Stop HLS Streaming Error: ', e));
+            },
+          },
+        ];
+        if (Platform.OS === 'android') {
+          buttons.push(
+            ...[
+              {
+                text: 'Start Screenshare',
+                onPress: () => {
+                  instance
+                    ?.startScreenshare()
+                    .then(d => console.log('Start Screenshare Success: ', d))
+                    .catch(e => console.log('Start Screenshare Error: ', e));
+                },
+              },
+              {
+                text: 'Stop Screenshare',
+                onPress: () => {
+                  instance
+                    ?.stopScreenshare()
+                    .then(d => console.log('Stop Screenshare Success: ', d))
+                    .catch(e => console.log('Stop Screenshare Error: ', e));
+                },
+              },
+            ],
+          );
+        } else {
+          buttons.push({
+            text: statsForNerds
+              ? 'Disable Stats For Nerds'
+              : 'Enable Stats For Nerds',
+            onPress: () => {
+              if (statsForNerds) {
+                instance?.disableRTCStats();
+                setStatsForNerds(false);
+              } else {
+                instance?.enableRTCStats();
+                setStatsForNerds(true);
+              }
+            },
+          });
+        }
+        if (instance?.localPeer?.role?.permissions?.mute) {
+          buttons.push(
+            ...[
+              {
+                text: 'Remote mute all peers audio',
+                onPress: () => {
+                  instance?.remoteMuteAllAudio();
+                },
+              },
+              {
+                text: 'Mute video of custom roles',
+                onPress: () => {
+                  setModalVisible(ModalTypes.ROLE);
+                  setAction(1);
+                },
+              },
+              {
+                text: 'Mute audio of custom roles',
+                onPress: () => {
+                  setModalVisible(ModalTypes.ROLE);
+                  setAction(3);
+                },
+              },
+            ],
+          );
+        }
+        if (instance?.localPeer?.role?.permissions?.unmute) {
+          buttons.push(
+            ...[
+              {
+                text: 'Unmute video of custom roles',
+                onPress: () => {
+                  setModalVisible(ModalTypes.ROLE);
+                  setAction(2);
+                },
+              },
+
+              {
+                text: 'Unmute audio of custom roles',
+                onPress: () => {
+                  setModalVisible(ModalTypes.ROLE);
+                  setAction(4);
+                },
+              },
+            ],
+          );
+        }
+        break;
+      case ModalTypes.RECORDING:
+        buttons = [
+          {text: 'Cancel'},
+          {
+            text: 'Start',
+            onPress: () => {
+              instance
+                ?.startRTMPOrRecording(recordingDetails)
+                .then(d => console.log('Start RTMP Or Recording Success: ', d))
+                .catch(e => console.log('Start RTMP Or Recording Error: ', e));
+            },
+          },
+        ];
+        break;
+      case ModalTypes.LEAVE:
+        buttons = [
+          {
+            text: 'Cancel',
+            type: 'cancel',
+          },
+          {
+            text: 'Leave without ending room',
+            onPress: async () => {
+              await onLeavePress();
+            },
+          },
+        ];
+        if (instance?.localPeer?.role?.permissions?.endRoom) {
+          buttons.push({
+            text: 'End Room for all',
+            onPress: async () => {
+              await instance?.endRoom('Host ended the room');
+              dispatch(clearMessageData());
+              navigate('WelcomeScreen');
+            },
+          });
+        }
+        break;
+      case ModalTypes.HLS_STREAMING:
+        buttons = [
+          {text: 'Cancel'},
+          {
+            text: 'Start',
+            onPress: () => {
+              const hmsHLSConfig = new HMSHLSConfig({
+                hlsRecordingConfig: hlsRecordingDetails,
+                meetingURLVariants: [hlsStreamingDetails],
+              });
+              instance
+                ?.startHLSStreaming(hmsHLSConfig)
+                .then(d => console.log('Start HLS Streaming Success: ', d))
+                .catch(e => console.log('Start HLS Streaming Error: ', e));
+            },
+          },
+        ];
+        break;
+      case ModalTypes.ROLE_CHANGE:
+        buttons = [
+          {text: 'Reject'},
+          {
+            text: 'Accept',
+            onPress: () => {
+              instance?.acceptRoleChange();
+            },
+          },
+        ];
+        break;
+      case ModalTypes.CHANGE_TRACK:
+        buttons = [
+          {text: 'Reject'},
+          {
+            text: 'Accept',
+            onPress: () => {
+              if (
+                roleChangeRequest?.suggestedRole?.toLocaleLowerCase() ===
+                'video'
+              ) {
+                instance?.localPeer?.localVideoTrack()?.setMute(false);
+              } else {
+                instance?.localPeer?.localAudioTrack()?.setMute(false);
+              }
+            },
+          },
+        ];
+        break;
+    }
+    return buttons;
+  };
+
+  const onLeavePress = async () => {
+    await instance?.leave();
+    await instance
+      ?.destroy()
+      .then(d => console.log('Destroy Success: ', d))
+      .catch(e => console.log('Destroy Error: ', e));
+    dispatch(clearMessageData());
+    dispatch(clearPeerData());
+    dispatch(clearHmsReference());
+    navigate('WelcomeScreen');
   };
 
   const onRoomListener = ({
@@ -374,11 +556,11 @@ const Meeting = ({
     remotePeers,
   }: {
     room?: HMSRoom;
-    type?: HMSRoomUpdate;
+    type: HMSRoomUpdate;
     localPeer: HMSLocalPeer;
     remotePeers: HMSRemotePeer[];
   }) => {
-    updateVideoIds(remotePeers, localPeer);
+    setHmsRoom(room);
     if (type === HMSRoomUpdate.BROWSER_RECORDING_STATE_UPDATED) {
       let streaming = room?.browserRecordingState?.running;
       let hours = room?.browserRecordingState?.startedAt.getHours().toString();
@@ -432,7 +614,7 @@ const Meeting = ({
         Toast.TOP,
       );
     }
-    console.log('data in onRoomListener: ', room, type, localPeer, remotePeers);
+    console.log('data in onRoomListener: ', type, room, localPeer, remotePeers);
   };
 
   const onPeerListener = ({
@@ -442,13 +624,19 @@ const Meeting = ({
     remotePeers,
     localPeer,
   }: {
-    peer: HMSPeer;
     room?: HMSRoom;
-    type?: HMSPeerUpdate;
+    peer: HMSPeer;
+    type: HMSPeerUpdate;
     localPeer: HMSLocalPeer;
     remotePeers: HMSRemotePeer[];
   }) => {
-    updateVideoIds(remotePeers, localPeer);
+    const newPeerTrackNodes = updatePeersTrackNodesOnPeerListener(
+      peerTrackNodesRef?.current,
+      peer,
+      type,
+    );
+    setPeerTrackNodes(newPeerTrackNodes);
+    peerTrackNodesRef.current = newPeerTrackNodes;
     if (type === HMSPeerUpdate.PEER_LEFT) {
       Toast.showWithGravity(
         `Peer Left: ${peer.name} left the Room`,
@@ -470,9 +658,9 @@ const Meeting = ({
     }
     console.log(
       'data in onPeerListener: ',
+      type,
       peer,
       room,
-      type,
       localPeer,
       remotePeers,
     );
@@ -486,43 +674,39 @@ const Meeting = ({
     remotePeers,
     localPeer,
   }: {
+    room?: HMSRoom;
     peer: HMSPeer;
     track: HMSTrack;
-    room?: HMSRoom;
-    type?: HMSTrackUpdate;
+    type: HMSTrackUpdate;
     localPeer: HMSLocalPeer;
     remotePeers: HMSRemotePeer[];
   }) => {
-    updateVideoIds(remotePeers, localPeer);
+    const newPeerTrackNodes = updatePeersTrackNodesOnTrackListener(
+      peerTrackNodesRef?.current,
+      track,
+      peer,
+      type,
+    );
+    setPeerTrackNodes(newPeerTrackNodes);
+    peerTrackNodesRef.current = newPeerTrackNodes;
     console.log(
       'data in onTrackListener: ',
+      type,
       peer,
       track,
       room,
-      type,
       localPeer,
       remotePeers,
     );
   };
 
   const onMessage = (data: HMSMessage) => {
-    addMessageRequest({data, isLocal: false});
+    dispatch(addMessage({data, isLocal: false}));
     setNotification(true);
     console.log('data in onMessage: ', data);
   };
 
-  const onError = (data: HMSException) => {
-    console.log('data in onError: ', data);
-    Toast.showWithGravity(
-      data?.error.message || 'Something went wrong',
-      Toast.LONG,
-      Toast.TOP,
-    );
-  };
-
   const onSpeaker = (data: HMSSpeakerUpdate) => {
-    const peerIds = data?.peers?.map(speaker => speaker?.peer?.peerID);
-    setSpeakerIds(peerIds || []);
     setSpeakers(data?.peers || []);
     console.log('data in onSpeaker: ', data);
   };
@@ -539,7 +723,7 @@ const Meeting = ({
 
   const onRoleChangeRequest = (data: HMSRoleChangeRequest) => {
     console.log('data in onRoleChangeRequest: ', data);
-    setRoleChangeModalVisible(true);
+    setModalVisible(ModalTypes.ROLE_CHANGE);
     setRoleChangeRequest({
       requestedBy: data?.requestedBy?.name,
       suggestedRole: data?.suggestedRole?.name,
@@ -549,7 +733,7 @@ const Meeting = ({
   const onChangeTrackStateRequest = (data: HMSChangeTrackStateRequest) => {
     console.log('data in onChangeTrackStateRequest: ', data);
     if (!data?.mute) {
-      setChangeTrackStateModalVisible(true);
+      setModalVisible(ModalTypes.CHANGE_TRACK);
       setRoleChangeRequest({
         requestedBy: data?.requestedBy?.name,
         suggestedRole: data?.trackType,
@@ -601,45 +785,34 @@ const Meeting = ({
 
   const onRemovedFromRoom = (data: any) => {
     console.log('data in onRemovedFromRoom: ', data);
-    clearMessageRequest();
+    dispatch(clearMessageData());
     navigate('WelcomeScreen');
   };
 
   const updateHmsInstance = (hms: HMSSDK | undefined) => {
     console.log('data in updateHmsInstance: ', hms);
     setInstance(hms);
-    hms?.addEventListener(HMSUpdateListenerActions.ON_JOIN, onJoinListener);
 
     hms?.addEventListener(
       HMSUpdateListenerActions.ON_ROOM_UPDATE,
       onRoomListener,
     );
-
     hms?.addEventListener(
       HMSUpdateListenerActions.ON_PEER_UPDATE,
       onPeerListener,
     );
-
     hms?.addEventListener(
       HMSUpdateListenerActions.ON_TRACK_UPDATE,
       onTrackListener,
     );
-
-    hms?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
-
     hms?.addEventListener(HMSUpdateListenerActions.ON_MESSAGE, onMessage);
-
     hms?.addEventListener(HMSUpdateListenerActions.ON_SPEAKER, onSpeaker);
-
     hms?.addEventListener(HMSUpdateListenerActions.RECONNECTING, reconnecting);
-
     hms?.addEventListener(HMSUpdateListenerActions.RECONNECTED, reconnected);
-
     hms?.addEventListener(
       HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST,
       onRoleChangeRequest,
     );
-
     hms?.addEventListener(
       HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM,
       onRemovedFromRoom,
@@ -671,12 +844,8 @@ const Meeting = ({
   };
 
   useEffect(() => {
-    Dimensions.addEventListener('change', () => {
-      setOrientation(isPortrait());
-    });
-
     const backAction = () => {
-      setLeaveModalVisible(true);
+      setModalVisible(ModalTypes.LEAVE);
       return true;
     };
 
@@ -687,11 +856,7 @@ const Meeting = ({
 
     return () => {
       backHandler.remove();
-      Dimensions.removeEventListener('change', () => {
-        setOrientation(!orientation);
-      });
-      instance?.leave();
-      navigate('WelcomeScreen');
+      onLeavePress();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -699,12 +864,10 @@ const Meeting = ({
   useEffect(() => {
     updateHmsInstance(hmsInstance);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hmsInstance]);
+  }, []);
 
   useEffect(() => {
     if (instance) {
-      const remotePeers = instance?.remotePeers ? instance.remotePeers : [];
-      updateVideoIds(remotePeers, instance?.localPeer);
       instance?.knownRoles?.map(role => {
         if (role?.name === instance?.localPeer?.role?.name) {
           setNewRole(role);
@@ -720,290 +883,13 @@ const Meeting = ({
     };
   }, [instance]);
 
-  const getAuxVideoStyles = () => {
-    return isPortrait() ? styles.fullScreenTile : styles.fullScreenLandscape;
-  };
-
-  const getMessageToList = (): Array<{
-    name: string;
-    type: string;
-    obj: any;
-  }> => {
-    const messageList: any = [
-      {
-        name: 'everyone',
-        type: 'everyone',
-        obj: {},
-      },
-    ];
-    const knownRoles = instance?.knownRoles?.map((role: HMSRole) => ({
-      name: role?.name,
-      type: 'group',
-      obj: role,
-    }));
-    const peers = remoteTrackIds.map(track => ({
-      name: track?.name,
-      type: 'direct',
-      obj: track,
-    }));
-    if (knownRoles) {
-      messageList.push(...knownRoles);
-    }
-    if (peers) {
-      messageList.push(...peers);
-    }
-    return messageList;
-  };
-
-  const getSettingButtons = () => {
-    const buttons: Array<{text: string; type?: string; onPress?: Function}> = [
-      {
-        text: 'Cancel',
-        type: 'cancel',
-      },
-      {
-        text: 'Set Layout',
-        onPress: () => {
-          setLayoutModal(true);
-        },
-      },
-      {
-        text: 'Report issue and share logs',
-        onPress: async () => {
-          const granted = await requestExternalStoragePermission();
-          if (granted) {
-            await reportIssue();
-          }
-        },
-      },
-      {
-        text: 'Start RTMP or Recording',
-        onPress: () => {
-          setRecordingModal(true);
-        },
-      },
-      {
-        text: 'Stop RTMP And Recording',
-        onPress: () => {
-          instance
-            ?.stopRtmpAndRecording()
-            .then(d => console.log('Stop RTMP And Recording Success: ', d))
-            .catch(e => console.log('Stop RTMP And Recording Error: ', e));
-        },
-      },
-      {
-        text: 'Start HLS Streaming',
-        onPress: () => {
-          setHLSStreamingModal(true);
-        },
-      },
-      {
-        text: 'Stop HLS Streaming',
-        onPress: () => {
-          instance
-            ?.stopHLSStreaming()
-            .then(d => console.log('Stop HLS Streaming Success: ', d))
-            .catch(e => console.log('Stop HLS Streaming Error: ', e));
-        },
-      },
-    ];
-    if (Platform.OS === 'android') {
-      buttons.push(
-        ...[
-          {
-            text: 'Start Screenshare',
-            onPress: () => {
-              instance
-                ?.startScreenshare()
-                .then(d => console.log('Start Screenshare Success: ', d))
-                .catch(e => console.log('Start Screenshare Error: ', e));
-            },
-          },
-          {
-            text: 'Stop Screenshare',
-            onPress: () => {
-              instance
-                ?.stopScreenshare()
-                .then(d => console.log('Stop Screenshare Success: ', d))
-                .catch(e => console.log('Stop Screenshare Error: ', e));
-            },
-          },
-        ],
-      );
-    } else {
-      buttons.push({
-        text: statsForNerds
-          ? 'Disable Stats For Nerds'
-          : 'Enable Stats For Nerds',
-        onPress: () => {
-          if (statsForNerds) {
-            instance?.disableRTCStats();
-            setStatsForNerds(false);
-          } else {
-            instance?.enableRTCStats();
-            setStatsForNerds(true);
-          }
-        },
-      });
-    }
-    if (localPeerPermissions?.mute) {
-      buttons.push(
-        ...[
-          {
-            text: 'Remote mute all peers audio',
-            onPress: () => {
-              instance?.remoteMuteAllAudio();
-            },
-          },
-          {
-            text: 'Mute video of custom roles',
-            onPress: () => {
-              setRoleModalVisible(true);
-              setAction(1);
-            },
-          },
-          {
-            text: 'Mute audio of custom roles',
-            onPress: () => {
-              setRoleModalVisible(true);
-              setAction(3);
-            },
-          },
-        ],
-      );
-    }
-    if (localPeerPermissions?.unmute) {
-      buttons.push(
-        ...[
-          {
-            text: 'Unmute video of custom roles',
-            onPress: () => {
-              setRoleModalVisible(true);
-              setAction(2);
-            },
-          },
-
-          {
-            text: 'Unmute audio of custom roles',
-            onPress: () => {
-              setRoleModalVisible(true);
-              setAction(4);
-            },
-          },
-        ],
-      );
-    }
-    return buttons;
-  };
-
-  const getRoleRequestButtons = () => {
-    const roleRequestButtons: [
-      {text: string; onPress?: Function},
-      {text: string; onPress?: Function}?,
-    ] = [
-      {text: 'Cancel'},
-      {
-        text: 'Send',
-        onPress: async () => {
-          const source = 'regular';
-          switch (action) {
-            case 1:
-              await instance?.changeTrackStateForRoles(
-                true,
-                HMSTrackType.VIDEO,
-                source,
-                [newRole!],
-              );
-              break;
-            case 2:
-              await instance?.changeTrackStateForRoles(
-                false,
-                HMSTrackType.VIDEO,
-                source,
-                [newRole!],
-              );
-              break;
-            case 3:
-              await instance?.changeTrackStateForRoles(
-                true,
-                HMSTrackType.AUDIO,
-                source,
-                [newRole!],
-              );
-              break;
-            case 4:
-              await instance?.changeTrackStateForRoles(
-                false,
-                HMSTrackType.AUDIO,
-                source,
-                [newRole!],
-              );
-              break;
-          }
-        },
-      },
-    ];
-    return roleRequestButtons;
-  };
-
-  const getButtons = (permissions?: HMSPermissions) => {
-    const buttons = [
-      {
-        text: 'Cancel',
-        type: 'cancel',
-      },
-      {
-        text: 'Leave without ending room',
-        onPress: async () => {
-          await instance?.leave();
-          clearMessageRequest();
-          navigate('WelcomeScreen');
-        },
-      },
-    ];
-    if (permissions?.endRoom) {
-      buttons.push({
-        text: 'End Room for all',
-        onPress: async () => {
-          await instance?.endRoom('Host ended the room');
-          clearMessageRequest();
-          navigate('WelcomeScreen');
-        },
-      });
-    }
-    return buttons;
-  };
-
-  const reportIssue = async () => {
-    try {
-      const fileUrl = RNFetchBlob.fs.dirs.DocumentDir + '/report-logs.json';
-      const logger = HMSSDK.getLogger();
-      const logs = logger?.getLogs();
-      await writeFile({data: logs}, fileUrl);
-    } catch (err) {
-      console.log('reportIssue: ', err);
-    }
-  };
-
-  const fetchZoomableId = (id: string): boolean => {
-    let idPresent = false;
-    auxTracks.map(track => {
-      if (track.trackId === id) {
-        idPresent = true;
-      }
-    });
-    return idPresent;
-  };
-
-  const HmsViewComponent = instance?.HmsView;
-
   return (
     <SafeAreaView style={styles.container}>
       <CustomModal
-        modalVisible={roleChangeModalVisible}
-        setModalVisible={setRoleChangeModalVisible}
-        title={roleChangeRequestTitle}
-        buttons={roleChangeRequestButtons}>
+        modalVisible={modalVisible === ModalTypes.ROLE_CHANGE}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+        title={getModalTitle(ModalTypes.ROLE_CHANGE)}
+        buttons={getModalButtons(ModalTypes.ROLE_CHANGE)}>
         <Text style={styles.roleChangeText}>
           Role change requested by{' '}
           {roleChangeRequest?.requestedBy?.toLocaleUpperCase()}. Changing role
@@ -1011,10 +897,10 @@ const Meeting = ({
         </Text>
       </CustomModal>
       <CustomModal
-        modalVisible={recordingModal}
-        setModalVisible={setRecordingModal}
-        title={roleChangeRequestTitle}
-        buttons={roleChangeRequestButtons}>
+        modalVisible={modalVisible === ModalTypes.RECORDING}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+        title={getModalTitle(ModalTypes.RECORDING)}
+        buttons={getModalButtons(ModalTypes.RECORDING)}>
         <TextInput
           onChangeText={value => {
             setRecordingDetails({...recordingDetails, meetingURL: value});
@@ -1053,7 +939,7 @@ const Meeting = ({
             });
           }}
           style={styles.recordingDetails}>
-          <Text>Record</Text>
+          <Text style={styles.interRegular}>Record</Text>
           <View style={styles.checkboxContainer}>
             {recordingDetails.record && (
               <Entypo
@@ -1066,10 +952,10 @@ const Meeting = ({
         </TouchableOpacity>
       </CustomModal>
       <CustomModal
-        modalVisible={hlsStreamingModal}
-        setModalVisible={setHLSStreamingModal}
-        title={roleChangeRequestTitle}
-        buttons={roleChangeRequestButtons}>
+        modalVisible={modalVisible === ModalTypes.HLS_STREAMING}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+        title={getModalTitle(ModalTypes.HLS_STREAMING)}
+        buttons={getModalButtons(ModalTypes.HLS_STREAMING)}>
         <TextInput
           onChangeText={value => {
             setHLSStreamingDetails({...hlsStreamingDetails, meetingUrl: value});
@@ -1090,7 +976,7 @@ const Meeting = ({
             });
           }}
           style={styles.recordingDetails}>
-          <Text>singleFilePerLayer</Text>
+          <Text style={styles.interRegular}>singleFilePerLayer</Text>
           <View style={styles.checkboxContainer}>
             {hlsRecordingDetails.singleFilePerLayer && (
               <Entypo
@@ -1109,7 +995,7 @@ const Meeting = ({
             });
           }}
           style={styles.recordingDetails}>
-          <Text>videoOnDemand</Text>
+          <Text style={styles.interRegular}>videoOnDemand</Text>
           <View style={styles.checkboxContainer}>
             {hlsRecordingDetails.videoOnDemand && (
               <Entypo
@@ -1122,10 +1008,10 @@ const Meeting = ({
         </TouchableOpacity>
       </CustomModal>
       <CustomModal
-        modalVisible={changeTrackStateModalVisible}
-        setModalVisible={setChangeTrackStateModalVisible}
-        title={roleChangeRequestTitle}
-        buttons={roleChangeRequestButtons}>
+        modalVisible={modalVisible === ModalTypes.CHANGE_TRACK}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+        title={getModalTitle(ModalTypes.CHANGE_TRACK)}
+        buttons={getModalButtons(ModalTypes.CHANGE_TRACK)}>
         <Text style={styles.roleChangeText}>
           {roleChangeRequest?.requestedBy?.toLocaleUpperCase()} requested to
           unmute your regular{' '}
@@ -1133,24 +1019,22 @@ const Meeting = ({
         </Text>
       </CustomModal>
       <AlertModal
-        modalVisible={leaveModalVisible}
-        setModalVisible={setLeaveModalVisible}
-        title="End Room"
-        message=""
-        buttons={getButtons(localPeerPermissions)}
+        modalVisible={modalVisible === ModalTypes.LEAVE}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+        title={getModalTitle(ModalTypes.LEAVE)}
+        buttons={getModalButtons(ModalTypes.LEAVE)}
       />
       <AlertModal
-        modalVisible={settingsModal}
-        setModalVisible={setSettingsModal}
-        title="Settings"
-        message=""
-        buttons={getSettingButtons()}
+        modalVisible={modalVisible === ModalTypes.SETTINGS}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+        title={getModalTitle(ModalTypes.SETTINGS)}
+        buttons={getModalButtons(ModalTypes.SETTINGS)}
       />
       <CustomModal
-        modalVisible={roleModalVisible}
-        setModalVisible={setRoleModalVisible}
-        title="Select action"
-        buttons={getRoleRequestButtons()}>
+        modalVisible={modalVisible === ModalTypes.ROLE}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+        title={getModalTitle(ModalTypes.ROLE)}
+        buttons={getModalButtons(ModalTypes.ROLE)}>
         <RolePicker
           data={instance?.knownRoles || []}
           selectedItem={newRole}
@@ -1158,53 +1042,58 @@ const Meeting = ({
         />
       </CustomModal>
       <CustomModal
-        modalVisible={layoutModal}
-        setModalVisible={setLayoutModal}
-        title={roleChangeRequestTitle}
-        buttons={roleChangeRequestButtons}>
+        modalVisible={modalVisible === ModalTypes.LAYOUT}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+        title={getModalTitle(ModalTypes.LAYOUT)}
+        buttons={getModalButtons(ModalTypes.LAYOUT)}>
         <Picker
           selectedValue={newLayout}
           onValueChange={setNewLayout}
-          dropdownIconColor="black"
+          dropdownIconColor={COLORS.BLACK}
           dropdownIconRippleColor="grey">
           {[
-            {name: 'grid'},
-            {name: 'audio'},
-            {name: 'active speaker'},
-            {name: 'hero'},
-            {name: 'mini'},
+            {name: LayoutParams.GRID},
+            {name: LayoutParams.AUDIO},
+            {name: LayoutParams.ACTIVE_SPEAKER},
+            {name: LayoutParams.HERO},
+            {name: LayoutParams.MINI},
           ].map((item, index) => (
             <Picker.Item key={index} label={item.name} value={item.name} />
           ))}
         </Picker>
       </CustomModal>
       <View style={styles.headerContainer}>
-        <Text style={styles.headerName}>{trackId?.name}</Text>
+        <Text style={styles.headerName}>
+          {speakers?.length > 0 && speakers[0]?.peer?.name
+            ? `🔊  ${speakers[0]?.peer?.name}`
+            : roomCode}
+        </Text>
         <View style={styles.headerRight}>
-          {instance?.room?.browserRecordingState?.running && (
-            <Entypo
-              name="controller-record"
+          {(hmsRoom?.browserRecordingState?.running ||
+            hmsRoom?.hlsRecordingState?.running) && (
+            <MaterialCommunityIcons
+              name="record-circle-outline"
               style={styles.recording}
               size={dimension.viewHeight(30)}
             />
           )}
-          {(instance?.room?.hlsStreamingState?.running ||
-            instance?.room?.rtmpHMSRtmpStreamingState?.running) && (
-            <Entypo
-              name="light-up"
+          {(hmsRoom?.hlsStreamingState?.running ||
+            hmsRoom?.rtmpHMSRtmpStreamingState?.running) && (
+            <Ionicons
+              name="globe-outline"
               style={styles.streaming}
               size={dimension.viewHeight(30)}
             />
           )}
-          {trackId?.peerReference?.auxiliaryTracks &&
-            trackId?.peerReference?.auxiliaryTracks?.length > 0 && (
-              <MaterialIcons
-                name="fit-screen"
+          {instance?.localPeer?.auxiliaryTracks &&
+            instance?.localPeer?.auxiliaryTracks?.length > 0 && (
+              <Feather
+                name="copy"
                 style={styles.streaming}
                 size={dimension.viewHeight(30)}
               />
             )}
-          {trackId?.peerReference?.role?.publishSettings?.allowed?.includes(
+          {instance?.localPeer?.role?.publishSettings?.allowed?.includes(
             'video',
           ) && (
             <TouchableOpacity
@@ -1222,12 +1111,12 @@ const Meeting = ({
           {!instance?.localPeer?.role?.name?.includes('hls-') && (
             <TouchableOpacity
               onPress={() => {
-                instance?.setPlaybackForAllAudio(!muteAllAudio);
-                setMuteAllAudio(!muteAllAudio);
+                instance?.setPlaybackForAllAudio(!muteAllTracksAudio);
+                setMuteAllTracksAudio(!muteAllTracksAudio);
               }}
               style={styles.headerIcon}>
               <Ionicons
-                name={muteAllAudio ? 'volume-mute' : 'volume-high'}
+                name={muteAllTracksAudio ? 'volume-mute' : 'volume-high'}
                 style={styles.headerName}
                 size={dimension.viewHeight(30)}
               />
@@ -1236,7 +1125,7 @@ const Meeting = ({
           {!instance?.localPeer?.role?.name?.includes('hls-') && (
             <TouchableOpacity
               onPress={() => {
-                setSettingsModal(true);
+                setModalVisible(ModalTypes.SETTINGS);
               }}
               style={styles.headerIcon}>
               <Ionicons
@@ -1250,8 +1139,8 @@ const Meeting = ({
       </View>
       <View style={styles.wrapper}>
         {instance?.localPeer?.role?.name?.includes('hls-') ? (
-          instance?.room?.hlsStreamingState?.running ? (
-            instance?.room?.hlsStreamingState?.variants
+          hmsRoom?.hlsStreamingState?.running ? (
+            hmsRoom?.hlsStreamingState?.variants
               ?.slice(0, 1)
               ?.map((variant, index) =>
                 variant?.hlsStreamUrl ? (
@@ -1275,21 +1164,26 @@ const Meeting = ({
                   />
                 ) : (
                   <View key={index} style={styles.renderVideo}>
-                    <Text>Trying to load empty source...</Text>
+                    <Text style={styles.interRegular}>
+                      Trying to load empty source...
+                    </Text>
                   </View>
                 ),
               )
           ) : (
             <View style={styles.renderVideo}>
-              <Text>Waiting for the Streaming to start...</Text>
+              <Text style={styles.interRegular}>
+                Waiting for the Streaming to start...
+              </Text>
             </View>
           )
-        ) : fetchZoomableId(zoomableTrackId) && zoomableModal ? (
+        ) : fetchZoomableId(zoomableTrackId) &&
+          modalVisible === ModalTypes.ZOOM ? (
           <View>
             <TouchableOpacity
               style={styles.closeButton}
               onPress={() => {
-                setZoomableModal(false);
+                setModalVisible(ModalTypes.DEFAULT);
               }}>
               <Entypo
                 name={'circle-with-cross'}
@@ -1308,54 +1202,32 @@ const Meeting = ({
               )}
             </ZoomableView>
           </View>
-        ) : layout === 'active speaker' ? (
+        ) : layout === LayoutParams.ACTIVE_SPEAKER ? (
           <ActiveSpeakerView
-            speakerIds={speakerIds}
             speakers={speakers}
             instance={instance}
-            localPeerPermissions={localPeerPermissions}
+            peerTrackNodes={peerTrackNodes}
             layout={layout}
-            state={state}
-            setChangeNameModal={setChangeNameModal}
-            statsForNerds={statsForNerds}
-            rtcStats={rtcStats}
-            remoteAudioStats={remoteAudioStats}
-            remoteVideoStats={remoteVideoStats}
-            localAudioStats={localAudioStats}
-            localVideoStats={localVideoStats}
             setPage={setPage}
-            setZoomableModal={setZoomableModal}
-            setZoomableTrackId={setZoomableTrackId}
-            getAuxVideoStyles={getAuxVideoStyles}
             page={page}
           />
-        ) : layout === 'hero' ? (
+        ) : layout === LayoutParams.HERO ? (
           <HeroView
             speakers={speakers}
             instance={instance}
-            localPeerPermissions={localPeerPermissions}
-            state={state}
-            setChangeNameModal={setChangeNameModal}
+            setModalVisible={setModalVisible}
           />
-        ) : layout === 'mini' ? (
-          <MiniView
-            speakers={speakers}
-            instance={instance}
-            localPeerPermissions={localPeerPermissions}
-          />
+        ) : layout === LayoutParams.MINI ? (
+          <MiniView speakers={speakers} instance={instance} />
         ) : (
           <GridView
+            speakers={speakers}
             pairedPeers={pairedPeers}
             setPage={setPage}
-            setZoomableModal={setZoomableModal}
+            setModalVisible={setModalVisible}
             setZoomableTrackId={setZoomableTrackId}
-            getAuxVideoStyles={getAuxVideoStyles}
-            speakerIds={speakerIds}
             instance={instance}
-            localPeerPermissions={localPeerPermissions}
             layout={layout}
-            state={state}
-            setChangeNameModal={setChangeNameModal}
             statsForNerds={statsForNerds}
             rtcStats={rtcStats}
             remoteAudioStats={remoteAudioStats}
@@ -1367,7 +1239,7 @@ const Meeting = ({
         )}
       </View>
       <View style={styles.iconContainers}>
-        {trackId?.peerReference?.role?.publishSettings?.allowed?.includes(
+        {instance?.localPeer?.role?.publishSettings?.allowed?.includes(
           'audio',
         ) && (
           <TouchableOpacity
@@ -1375,20 +1247,18 @@ const Meeting = ({
             onPress={() => {
               instance?.localPeer
                 ?.localAudioTrack()
-                ?.setMute(!trackId.isAudioMute);
-              setTrackId({
-                ...trackId,
-                isAudioMute: !trackId.isAudioMute,
-              });
+                ?.setMute(!instance?.localPeer?.audioTrack?.isMute());
             }}>
             <Feather
-              name={trackId.isAudioMute ? 'mic-off' : 'mic'}
+              name={
+                instance?.localPeer?.audioTrack?.isMute() ? 'mic-off' : 'mic'
+              }
               style={styles.videoIcon}
               size={dimension.viewHeight(30)}
             />
           </TouchableOpacity>
         )}
-        {trackId?.peerReference?.role?.publishSettings?.allowed?.includes(
+        {instance?.localPeer?.role?.publishSettings?.allowed?.includes(
           'video',
         ) && (
           <TouchableOpacity
@@ -1396,14 +1266,14 @@ const Meeting = ({
             onPress={() => {
               instance?.localPeer
                 ?.localVideoTrack()
-                ?.setMute(!trackId.isVideoMute);
-              setTrackId({
-                ...trackId,
-                isVideoMute: !trackId.isVideoMute,
-              });
+                ?.setMute(!instance?.localPeer?.videoTrack?.isMute());
             }}>
             <Feather
-              name={trackId.isVideoMute ? 'video-off' : 'video'}
+              name={
+                instance?.localPeer?.videoTrack?.isMute()
+                  ? 'video-off'
+                  : 'video'
+              }
               style={styles.videoIcon}
               size={dimension.viewHeight(30)}
             />
@@ -1412,10 +1282,10 @@ const Meeting = ({
         <TouchableOpacity
           style={styles.singleIconContainer}
           onPress={() => {
-            setModalVisible(true);
+            setModalVisible(ModalTypes.CHAT);
           }}>
-          <Feather
-            name="message-circle"
+          <MaterialCommunityIcons
+            name="message-outline"
             style={styles.videoIcon}
             size={dimension.viewHeight(30)}
           />
@@ -1424,17 +1294,18 @@ const Meeting = ({
         <TouchableOpacity
           style={styles.singleIconContainer}
           onPress={() => {
+            const parsedMetadata = parseMetadata(instance?.localPeer?.metadata);
             instance?.changeMetadata(
               JSON.stringify({
-                ...trackId?.metadata,
-                isHandRaised: !trackId?.metadata?.isHandRaised,
+                ...parsedMetadata,
+                isHandRaised: !parsedMetadata?.isHandRaised,
                 isBRBOn: false,
               }),
             );
           }}>
           <Ionicons
             name={
-              trackId?.metadata?.isHandRaised
+              parseMetadata(instance?.localPeer?.metadata)?.isHandRaised
                 ? 'ios-hand-left'
                 : 'ios-hand-left-outline'
             }
@@ -1445,15 +1316,16 @@ const Meeting = ({
         <TouchableOpacity
           style={styles.singleIconContainer}
           onPress={() => {
+            const parsedMetadata = parseMetadata(instance?.localPeer?.metadata);
             instance?.changeMetadata(
               JSON.stringify({
-                ...trackId?.metadata,
+                ...parsedMetadata,
+                isBRBOn: !parsedMetadata?.isBRBOn,
                 isHandRaised: false,
-                isBRBOn: !trackId?.metadata?.isBRBOn,
               }),
             );
           }}>
-          {trackId?.metadata?.isBRBOn ? (
+          {parseMetadata(instance?.localPeer?.metadata)?.isBRBOn ? (
             <View style={styles.brbOnContainer}>
               <Text style={styles.brbOn}>BRB</Text>
             </View>
@@ -1466,65 +1338,63 @@ const Meeting = ({
         <TouchableOpacity
           style={styles.leaveIconContainer}
           onPress={() => {
-            setLeaveModalVisible(true);
+            setModalVisible(ModalTypes.LEAVE);
           }}>
-          <Feather
-            name="phone-off"
+          <Entypo
+            name="login"
             style={styles.leaveIcon}
             size={dimension.viewHeight(30)}
           />
         </TouchableOpacity>
       </View>
-      {modalVisible && (
+      {modalVisible === ModalTypes.CHAT && (
         <ChatWindow
           messages={messages}
           cancel={() => {
-            setModalVisible(false);
+            setModalVisible(ModalTypes.DEFAULT);
             setNotification(false);
           }}
           messageToList={getMessageToList()}
-          send={async (
-            value: string,
-            messageTo: {name: string; type: string; obj: any},
-          ) => {
+          send={(value: string, messageTo: MessageObject) => {
             if (value.length > 0) {
               if (messageTo?.type === 'everyone') {
-                await instance?.sendBroadcastMessage(value);
+                instance?.sendBroadcastMessage(value);
               } else if (messageTo?.type === 'group') {
-                await instance?.sendGroupMessage(value, [messageTo?.obj]);
+                instance?.sendGroupMessage(value, [messageTo.obj as HMSRole]);
               } else if (messageTo.type === 'direct') {
-                await instance?.sendDirectMessage(
-                  value,
-                  messageTo?.obj?.peerReference,
-                );
+                instance?.sendDirectMessage(value, messageTo.obj as HMSPeer);
               }
-              addMessageRequest({
-                data: {
-                  type: 'chat',
-                  time: new Date(),
-                  message: value,
-                },
-                isLocal: true,
-                name: messageTo?.name,
-              });
+              dispatch(
+                addMessage({
+                  data: {
+                    type: 'chat',
+                    time: new Date(),
+                    message: value,
+                  },
+                  isLocal: true,
+                  name: messageTo?.name,
+                }),
+              );
             }
           }}
         />
       )}
-      {changeNameModal && (
+      {modalVisible === ModalTypes.CHANGE_NAME && (
         <UserIdModal
           screen="Meeting"
           join={async (newName: string) => {
             if (newName && newName !== '') {
               instance?.changeName(newName);
-              saveUserDataRequest &&
-                saveUserDataRequest({
-                  userName: newName,
-                });
+              saveUserData &&
+                dispatch(
+                  saveUserData({
+                    userName: newName,
+                  }),
+                );
             }
-            setChangeNameModal(false);
+            setModalVisible(ModalTypes.DEFAULT);
           }}
-          cancel={() => setChangeNameModal(false)}
+          cancel={() => setModalVisible(ModalTypes.DEFAULT)}
           userName={instance?.localPeer?.name}
         />
       )}
@@ -1532,22 +1402,4 @@ const Meeting = ({
   );
 };
 
-const mapDispatchToProps = (dispatch: Function) => ({
-  addMessageRequest: (data: any) => dispatch(addMessage(data)),
-  clearMessageRequest: () => dispatch(clearMessageData()),
-  updateHms: (data: {hmsInstance: HMSSDK}) =>
-    dispatch(updateHmsReference(data)),
-  saveUserDataRequest: (data: {userName: string; roomID: string}) =>
-    dispatch(saveUserData(data)),
-});
-
-const mapStateToProps = (state: RootState) => ({
-  messages: state?.messages?.messages,
-  audioState: state?.app?.audioState,
-  videoState: state?.app?.videoState,
-  hmsInstance: state?.user?.hmsInstance,
-  roomID: state.user.roomID,
-  state: state,
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(Meeting);
+export default Meeting;

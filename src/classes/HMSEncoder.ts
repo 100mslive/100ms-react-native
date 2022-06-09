@@ -31,6 +31,7 @@ export class HMSEncoder {
   static encodeHmsRoom(room: HMSRoom, id: string) {
     const encodedObj = {
       id: room?.id,
+      sessionId: room?.sessionId,
       metaData: room?.metaData,
       name: room?.name,
       peerCount: room?.peerCount,

@@ -8,12 +8,11 @@ import {
   Platform,
   ActivityIndicator,
   KeyboardAvoidingView,
-  Dimensions,
   Alert,
   Linking,
   AppState,
 } from 'react-native';
-import {connect} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import HmsManager, {
   HMSAudioTrack,
   HMSConfig,
@@ -30,6 +29,12 @@ import HmsManager, {
   // HMSVideoCodec,
   // HMSTrackSettings,
   HMSException,
+  HMSRoomUpdate,
+  HMSRemotePeer,
+  HMSPeer,
+  HMSPeerUpdate,
+  HMSTrack,
+  HMSTrackUpdate,
   // HMSCameraFacing,
   // HMSVideoResolution,
 } from '@100mslive/react-native-hms';
@@ -49,25 +54,22 @@ import {
   setAudioVideoState,
   saveUserData,
   updateHmsReference,
+  setPeerState,
 } from '../../redux/actions/index';
 import {
   writeFile,
   callService,
   tokenFromLinkService,
   getMeetingUrl,
+  getRoomIdDetails,
   requestExternalStoragePermission,
+  updatePeersTrackNodesOnPeerListener,
+  updatePeersTrackNodesOnTrackListener,
 } from '../../utils/functions';
 import {styles} from './styles';
 import type {AppStackParamList} from '../../navigator';
 import type {RootState} from '../../redux';
-
-type WelcomeProps = {
-  setAudioVideoStateRequest: Function;
-  saveUserDataRequest: Function;
-  updateHms: Function;
-  state: RootState;
-  hmsInstance: HMSSDK | undefined;
-};
+import type {PeerTrackNode} from '../../utils/types';
 
 type WelcomeScreenProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -77,15 +79,18 @@ type WelcomeScreenProp = NativeStackNavigationProp<
 type ButtonState = 'Active' | 'Loading';
 
 let config: HMSConfig | null = null;
+let roomCode: string | undefined;
+let instance: HMSSDK | undefined;
 
-const App = ({
-  setAudioVideoStateRequest,
-  saveUserDataRequest,
-  state,
-  updateHms,
-  hmsInstance,
-}: WelcomeProps) => {
-  const [orientation, setOrientation] = useState<boolean>(true);
+const App = () => {
+  const {userName} = useSelector((state: RootState) => state.user);
+  const [hmsInstance, setHmsInstance] = useState<HMSSDK | undefined>();
+  const dispatch = useDispatch();
+
+  const [peerTrackNodes, setPeerTrackNodes] = useState<Array<PeerTrackNode>>(
+    [],
+  );
+  const peerTrackNodesRef = React.useRef<Array<PeerTrackNode>>(peerTrackNodes);
   const [roomID, setRoomID] = useState<string>('');
   const [text, setText] = useState<string>('');
   const [initialized, setInitialized] = useState<boolean>(false);
@@ -97,7 +102,6 @@ const App = ({
   const [buttonState, setButtonState] = useState<ButtonState>('Active');
   const [previewButtonState, setPreviewButtonState] =
     useState<ButtonState>('Active');
-  const [instance, setInstance] = useState<HmsManager | null>(null);
   const [videoAllowed, setVideoAllowed] = useState<boolean>(false);
   const [audioAllowed, setAudioAllowed] = useState<boolean>(false);
   const [settingsModal, setSettingsModal] = useState(false);
@@ -136,14 +140,116 @@ const App = ({
       joinRoom();
     }
     setButtonState('Active');
+    setInitialized(false);
+  };
+
+  const onJoinListener = ({
+    localPeer,
+  }: {
+    room: HMSRoom;
+    localPeer: HMSLocalPeer;
+    remotePeers: Array<HMSRemotePeer>;
+  }) => {
+    const newPeerTrackNodes = updatePeersTrackNodesOnPeerListener(
+      peerTrackNodesRef?.current,
+      localPeer,
+      HMSPeerUpdate.PEER_JOINED,
+    );
+    setPreviewButtonState('Active');
+    setButtonState('Active');
+    setPreviewModal(false);
+    setMirrorLocalVideo(false);
+    dispatch(setAudioVideoState({audioState: audio, videoState: video}));
+    dispatch(setPeerState({peerState: newPeerTrackNodes}));
+    peerTrackNodesRef.current = [];
+    navigate('MeetingScreen');
   };
 
   const onError = (data: HMSException) => {
+    console.log('data in onError: ', data);
     Toast.showWithGravity(
       data?.error?.message || 'Something went wrong',
       Toast.LONG,
       Toast.TOP,
     );
+  };
+
+  const onRoomListener = ({
+    room,
+    type,
+    localPeer,
+    remotePeers,
+  }: {
+    room?: HMSRoom;
+    type: HMSRoomUpdate;
+    localPeer: HMSLocalPeer;
+    remotePeers: HMSRemotePeer[];
+  }) => {
+    console.log('data in onRoomListener: ', type, room, localPeer, remotePeers);
+  };
+
+  const onPeerListener = ({
+    peer,
+    room,
+    type,
+    remotePeers,
+    localPeer,
+  }: {
+    room?: HMSRoom;
+    peer: HMSPeer;
+    type: HMSPeerUpdate;
+    localPeer: HMSLocalPeer;
+    remotePeers: HMSRemotePeer[];
+  }) => {
+    console.log(
+      'data in onPeerListener: ',
+      type,
+      peer,
+      room,
+      localPeer,
+      remotePeers,
+    );
+    const newPeerTrackNodes = updatePeersTrackNodesOnPeerListener(
+      peerTrackNodesRef?.current,
+      peer,
+      type,
+    );
+    peerTrackNodesRef.current = newPeerTrackNodes;
+    setPeerTrackNodes(newPeerTrackNodes);
+  };
+
+  const onTrackListener = ({
+    peer,
+    track,
+    room,
+    type,
+    remotePeers,
+    localPeer,
+  }: {
+    room?: HMSRoom;
+    peer: HMSPeer;
+    track: HMSTrack;
+    type: HMSTrackUpdate;
+    localPeer: HMSLocalPeer;
+    remotePeers: HMSRemotePeer[];
+  }) => {
+    console.log(
+      'data in onTrackListener: ',
+      type,
+      peer,
+      track,
+      room,
+      localPeer,
+      remotePeers,
+    );
+    const newPeerTrackNodes = updatePeersTrackNodesOnTrackListener(
+      peerTrackNodesRef?.current,
+      track,
+      peer,
+      type,
+    );
+    peerTrackNodesRef.current = newPeerTrackNodes;
+    setPeerTrackNodes(newPeerTrackNodes);
   };
 
   // const getTrackSettings = () => {
@@ -200,8 +306,9 @@ const App = ({
     const logger = new HMSLogger();
     logger.updateLogLevel(HMSLogLevel.VERBOSE, true);
     build.setLogger(logger);
-    setInstance(build);
-    updateHms({hmsInstance: build});
+    setHmsInstance(build);
+    instance = build;
+    dispatch(updateHmsReference({hmsInstance: build}));
   };
 
   useEffect(() => {
@@ -214,10 +321,6 @@ const App = ({
         setText(getMeetingUrl());
       }
     });
-    if (!initialized) {
-      setupBuild();
-      setInitialized(true);
-    }
 
     AppState.addEventListener('change', nextAppState => {
       if (nextAppState === 'active') {
@@ -232,18 +335,6 @@ const App = ({
         });
       }
     });
-
-    Dimensions.addEventListener('change', () => {
-      setOrientation(!orientation);
-    });
-
-    return () => {
-      hmsInstance?.destroy();
-      Dimensions.removeEventListener('change', () => {
-        setOrientation(!orientation);
-      });
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkPermissionsForLink = (
@@ -296,7 +387,7 @@ const App = ({
     Alert.alert('Fetching token failed', error?.msg || 'Something went wrong');
   };
 
-  const previewRoom = (token: string, userID: string) => {
+  const previewRoom = async (token: string, userID: string) => {
     const HmsConfig = new HMSConfig({
       authToken: token,
       username: userID,
@@ -304,16 +395,46 @@ const App = ({
     });
     config = HmsConfig;
 
+    if (!initialized) {
+      await setupBuild();
+      setInitialized(true);
+    }
+
     instance?.addEventListener(
       HMSUpdateListenerActions.ON_PREVIEW,
       previewSuccess,
     );
-    saveUserDataRequest({
-      userName: userID,
-      roomID: roomID.replace('meeting', 'preview'),
-      mirrorLocalVideo,
-    });
+    instance?.addEventListener(
+      HMSUpdateListenerActions.ON_JOIN,
+      onJoinListener,
+    );
+
+    instance?.addEventListener(
+      HMSUpdateListenerActions.ON_ROOM_UPDATE,
+      onRoomListener,
+    );
+
+    instance?.addEventListener(
+      HMSUpdateListenerActions.ON_PEER_UPDATE,
+      onPeerListener,
+    );
+
+    instance?.addEventListener(
+      HMSUpdateListenerActions.ON_TRACK_UPDATE,
+      onTrackListener,
+    );
+
     instance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
+
+    dispatch(
+      saveUserData({
+        userName: userID,
+        roomID: roomID.replace('meeting', 'preview'),
+        mirrorLocalVideo,
+        roomCode,
+      }),
+    );
+
     if (skipPreview) {
       setSkipPreview(false);
       joinRoom();
@@ -322,7 +443,7 @@ const App = ({
     }
   };
 
-  const previewWithLink = (
+  const previewWithLink = async (
     token: string,
     userID: string,
     endpoint: string | undefined,
@@ -345,6 +466,11 @@ const App = ({
     }
     config = HmsConfig;
 
+    if (!initialized) {
+      await setupBuild();
+      setInitialized(true);
+    }
+
     instance?.addEventListener(
       HMSUpdateListenerActions.ON_PREVIEW,
       previewSuccess,
@@ -355,12 +481,32 @@ const App = ({
       onJoinListener,
     );
 
-    saveUserDataRequest({
-      userName: userID,
-      roomID: roomID.replace('meeting', 'preview'),
-      mirrorLocalVideo,
-    });
+    instance?.addEventListener(
+      HMSUpdateListenerActions.ON_ROOM_UPDATE,
+      onRoomListener,
+    );
+
+    instance?.addEventListener(
+      HMSUpdateListenerActions.ON_PEER_UPDATE,
+      onPeerListener,
+    );
+
+    instance?.addEventListener(
+      HMSUpdateListenerActions.ON_TRACK_UPDATE,
+      onTrackListener,
+    );
+
     instance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
+
+    dispatch(
+      saveUserData({
+        userName: userID,
+        roomID: roomID.replace('meeting', 'preview'),
+        mirrorLocalVideo,
+        roomCode,
+      }),
+    );
+
     if (skipPreview) {
       setSkipPreview(false);
       joinRoom();
@@ -369,18 +515,9 @@ const App = ({
     }
   };
 
-  const onJoinListener = () => {
-    setPreviewButtonState('Active');
-    setButtonState('Active');
-    setPreviewModal(false);
-    setMirrorLocalVideo(false);
-    setAudioVideoStateRequest({audioState: audio, videoState: video});
-    navigate('MeetingScreen');
-  };
-
   const joinRoom = () => {
     if (config !== null) {
-      instance?.join(config);
+      hmsInstance?.join(config);
     } else {
       console.log('config: ', config);
     }
@@ -442,21 +579,13 @@ const App = ({
     const isUrl = pattern.test(roomID);
     if (isUrl) {
       setButtonState('Loading');
-      const codeObject = RegExp(/(?!\/)[a-zA-Z\-0-9]*$/g).exec(text);
+      const {code, domain} = getRoomIdDetails(roomID);
+      roomCode = code;
 
-      const domainObject = RegExp(/(https:\/\/)?(?:[a-zA-Z0-9.-])+(?!\\)/).exec(
-        text,
-      );
-
-      if (codeObject && domainObject) {
-        const code = codeObject[0];
-        const domain = domainObject[0];
-
-        const strippedDomain = domain.replace('https://', '');
-
+      if (code && domain) {
         tokenFromLinkService(
           code,
-          strippedDomain,
+          domain,
           userID,
           checkPermissionsForLink,
           apiFailed,
@@ -477,11 +606,13 @@ const App = ({
         setModalVisible={setSettingsModal}
         title="Settings"
         screen="welcome"
-        message=""
         buttons={getSettingButtons()}
       />
       <View style={styles.headerContainer}>
-        <Image style={styles.image} source={require('../../assets/icon.png')} />
+        <Image
+          style={styles.image}
+          source={require('../../../assets/icon.png')}
+        />
         <Text style={styles.logo}>100ms</Text>
         <TouchableOpacity
           onPress={() => {
@@ -524,8 +655,7 @@ const App = ({
           disabled={buttonState !== 'Active'}
           style={[
             styles.joinButtonContainer,
-            // eslint-disable-next-line react-native/no-inline-styles
-            {opacity: buttonState !== 'Active' ? 0.5 : 1},
+            buttonState !== 'Active' ? styles.halfOpacity : styles.fullOpacity,
           ]}
           onPress={() => {
             if (text !== '') {
@@ -548,7 +678,7 @@ const App = ({
           screen="Welcome"
           join={validateMeetingUrl}
           cancel={() => setModalVisible(false)}
-          userName={state.user.userName}
+          userName={userName}
         />
       )}
       {previewModal && (
@@ -568,7 +698,6 @@ const App = ({
           instance={instance}
           setPreviewButtonState={setPreviewButtonState}
           previewButtonState={previewButtonState}
-          mirrorLocalVideo={mirrorLocalVideo}
         />
       )}
       <View />
@@ -576,20 +705,4 @@ const App = ({
   );
 };
 
-const mapDispatchToProps = (dispatch: Function) => ({
-  setAudioVideoStateRequest: (data: {
-    audioState: boolean;
-    videoState: boolean;
-  }) => dispatch(setAudioVideoState(data)),
-  saveUserDataRequest: (data: {userName: string; roomID: string}) =>
-    dispatch(saveUserData(data)),
-  updateHms: (data: {hmsInstance: HMSSDK}) =>
-    dispatch(updateHmsReference(data)),
-});
-const mapStateToProps = (state: RootState) => {
-  return {
-    state: state,
-    hmsInstance: state?.user?.hmsInstance,
-  };
-};
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default App;

@@ -7,7 +7,7 @@ const {
   /**
    * @ignore
    */
-  HmsManager,
+  HMSManager,
 } = NativeModules;
 
 export class HMSRemoteAudioTrack extends HMSAudioTrack {
@@ -26,7 +26,7 @@ export class HMSRemoteAudioTrack extends HMSAudioTrack {
       type: this.type,
       playbackAllowed,
     });
-    HmsManager.setPlaybackAllowed({
+    HMSManager.setPlaybackAllowed({
       id: this.id,
       trackId: this.trackId,
       playbackAllowed,
@@ -42,7 +42,7 @@ export class HMSRemoteAudioTrack extends HMSAudioTrack {
         source: this.source,
         type: this.type,
       });
-      const val = await HmsManager.isPlaybackAllowed({
+      const val = await HMSManager.isPlaybackAllowed({
         id: this.id,
         trackId: this.trackId,
       });

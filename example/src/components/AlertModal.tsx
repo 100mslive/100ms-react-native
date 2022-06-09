@@ -1,12 +1,12 @@
 import React from 'react';
 import {Modal, StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 import {getVersion} from 'react-native-device-info';
+import {COLORS} from '../utils/theme';
 
 export const AlertModal = ({
   modalVisible,
   setModalVisible,
   title,
-  message,
   buttons,
   screen,
 }: {
@@ -14,7 +14,6 @@ export const AlertModal = ({
   modalVisible: boolean;
   setModalVisible: any;
   title: String;
-  message: String;
   buttons: Array<{text: String; type?: String; onPress?: Function}>;
 }) => {
   const onRequestClose: any = () => {
@@ -38,9 +37,6 @@ export const AlertModal = ({
             e.stopPropagation();
           }}>
           <Text style={styles.title}>{title}</Text>
-          {message !== undefined && message.length > 0 && (
-            <Text>{message}</Text>
-          )}
           {buttons.map((button, index) => (
             <TouchableOpacity
               key={index}
@@ -55,7 +51,7 @@ export const AlertModal = ({
               <Text
                 style={[
                   styles.buttonItemText,
-                  button.type === 'cancel' && styles.red,
+                  button.type === 'cancel' && styles.cancel,
                 ]}>
                 {button.text}
               </Text>
@@ -76,11 +72,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#25313780',
+    backgroundColor: COLORS.OVERLAY,
   },
   modalView: {
     width: '80%',
-    backgroundColor: 'white',
+    backgroundColor: COLORS.WHITE,
     borderRadius: 10,
     shadowColor: '#000',
     shadowOffset: {
@@ -91,45 +87,27 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  button: {
-    borderRadius: 20,
-    padding: 10,
-    elevation: 2,
-  },
-  buttonOpen: {
-    backgroundColor: '#F194FF',
-  },
-  buttonClose: {
-    backgroundColor: '#2196F3',
-  },
-  textStyle: {
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  modalText: {
-    marginBottom: 15,
-    textAlign: 'center',
-  },
   title: {
     alignSelf: 'center',
-    padding: 16,
-    fontWeight: 'bold',
+    padding: 14,
+    fontSize: 16,
+    fontFamily: 'Inter-Bold',
   },
   buttonItem: {
     borderTopWidth: 1,
-    borderTopColor: 'lightgrey',
-    padding: 12,
+    borderTopColor: COLORS.BORDER.DEFAULT,
+    padding: 10,
   },
   buttonItemLast: {
     borderBottomWidth: 1,
-    borderBottomColor: 'lightgrey',
+    borderBottomColor: COLORS.BORDER.DEFAULT,
   },
   buttonItemText: {
     alignSelf: 'center',
-    color: 'blue',
+    color: COLORS.PRIMARY.DEFAULT,
+    fontFamily: 'Inter-Bold',
   },
-  red: {
-    color: 'red',
+  cancel: {
+    color: COLORS.INDICATORS.ERROR,
   },
 });

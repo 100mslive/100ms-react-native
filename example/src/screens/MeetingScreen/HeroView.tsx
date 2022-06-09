@@ -1,67 +1,74 @@
 import React, {useState, useEffect} from 'react';
 import {FlatList, View} from 'react-native';
-import type {
-  HMSPermissions,
-  HMSSDK,
-  HMSSpeaker,
-} from '@100mslive/react-native-hms';
+import {HMSSDK, HMSSpeaker, HMSTrackSource} from '@100mslive/react-native-hms';
 
-import {decodePeer} from '../../utils/functions';
-import type {RootState} from '../../redux';
-import type {Peer} from '../../utils/types';
+import {LayoutParams, PeerTrackNode} from '../../utils/types';
 import {DisplayTrack} from './DisplayTrack';
 import {styles} from './styles';
 
 type HeroViewProps = {
   instance: HMSSDK | undefined;
   speakers: HMSSpeaker[];
-  state: RootState;
-  localPeerPermissions: HMSPermissions | undefined;
-  setChangeNameModal: Function;
+  setModalVisible: Function;
 };
 
-const searchMainSpeaker = (speaker: Peer | undefined, list: Peer[]) => {
+const searchMainSpeaker = (
+  speaker: PeerTrackNode | undefined,
+  list: PeerTrackNode[],
+) => {
   let returnItem = null;
   list.map(item => {
-    if (item.id === speaker?.id) {
+    if (item?.peer?.peerID === speaker?.peer?.peerID) {
       returnItem = item;
     }
   });
   return returnItem ? returnItem : list[0];
 };
 
-const HeroView = ({
-  instance,
-  speakers,
-  state,
-  localPeerPermissions,
-  setChangeNameModal,
-}: HeroViewProps) => {
-  const [mainSpeaker, setMainSpeaker] = useState<Peer | undefined>(undefined);
-  const [peers, setPeers] = useState<Peer[]>([]);
-  const [filteredPeers, setFilteredPeers] = useState<Peer[]>([]);
+const HeroView = ({instance, speakers, setModalVisible}: HeroViewProps) => {
+  const [mainSpeaker, setMainSpeaker] = useState<PeerTrackNode>();
+  const [peers, setPeers] = useState<PeerTrackNode[]>([]);
+  const [filteredPeers, setFilteredPeers] = useState<PeerTrackNode[]>([]);
 
   useEffect(() => {
-    console.log(speakers, 'speakers');
     if (speakers.length > 0) {
-      console.log(mainSpeaker);
-      setMainSpeaker(decodePeer(speakers[0].peer));
+      const peer = speakers[0].peer;
+      setMainSpeaker({
+        id: peer.peerID + HMSTrackSource.REGULAR,
+        peer,
+        track: peer.videoTrack,
+      });
     }
     if (speakers.length === 0 && !mainSpeaker && instance?.localPeer) {
-      setMainSpeaker(decodePeer(instance.localPeer));
+      const peer = instance.localPeer;
+      setMainSpeaker({
+        id: peer.peerID + HMSTrackSource.REGULAR,
+        peer,
+        track: peer.videoTrack,
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [speakers, instance?.remotePeers, instance?.localPeer]);
 
   useEffect(() => {
-    const newPeerList: Peer[] = [];
+    const newPeerList: PeerTrackNode[] = [];
     if (instance?.localPeer) {
-      newPeerList.push(decodePeer(instance?.localPeer));
+      const peer = instance.localPeer;
+      newPeerList.push({
+        id: peer.peerID + HMSTrackSource.REGULAR,
+        peer,
+        track: peer.videoTrack,
+      });
     }
 
     if (instance?.remotePeers) {
       instance.remotePeers.map(item => {
-        newPeerList.push(decodePeer(item));
+        const peer = item;
+        newPeerList.push({
+          id: peer.peerID + HMSTrackSource.REGULAR,
+          peer,
+          track: peer.videoTrack,
+        });
       });
     }
 
@@ -83,16 +90,12 @@ const HeroView = ({
         }>
         {mainSpeaker && (
           <DisplayTrack
-            key={mainSpeaker.id}
-            peer={searchMainSpeaker(mainSpeaker, peers)}
+            key={mainSpeaker?.id}
+            peerTrackNode={searchMainSpeaker(mainSpeaker, peers)}
+            videoStyles={styles.heroView}
             instance={instance}
-            videoStyles={() => styles.heroView}
-            permissions={localPeerPermissions}
-            mirrorLocalVideo={state.user.mirrorLocalVideo}
-            speakerIds={[]}
-            type={undefined}
-            layout="hero"
-            setChangeNameModal={setChangeNameModal}
+            layout={LayoutParams.HERO}
+            setModalVisible={setModalVisible}
           />
         )}
       </View>
@@ -104,14 +107,12 @@ const HeroView = ({
             return (
               <View style={styles.heroListViewContainer}>
                 <DisplayTrack
-                  peer={item}
+                  key={item?.id}
+                  videoStyles={styles.heroListView}
+                  peerTrackNode={item}
                   instance={instance}
-                  videoStyles={() => styles.heroListView}
-                  permissions={localPeerPermissions}
-                  speakerIds={[]}
-                  type={undefined}
-                  layout="hero"
-                  setChangeNameModal={setChangeNameModal}
+                  layout={LayoutParams.HERO}
+                  setModalVisible={setModalVisible}
                 />
               </View>
             );

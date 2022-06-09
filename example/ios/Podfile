@@ -17,7 +17,6 @@ target 'RNHMSExample' do
   pod 'react-native-hms', :path => '../..'
   pod 'Permission-Camera', :path => "#{permissions_path}/Camera"
   pod 'Permission-Microphone', :path => "#{permissions_path}/Microphone"
-
   pod 'react-native-video', :path => '../node_modules/react-native-video'
 
   target 'RNHMSExampleTests' do

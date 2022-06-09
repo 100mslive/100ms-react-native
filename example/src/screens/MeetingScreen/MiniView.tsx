@@ -1,33 +1,23 @@
 import React, {useState, useEffect, useRef, useCallback} from 'react';
 import {View, Animated} from 'react-native';
-import type {
-  HMSPermissions,
-  HMSSDK,
-  HMSSpeaker,
-} from '@100mslive/react-native-hms';
+import {HMSSDK, HMSSpeaker, HMSTrackSource} from '@100mslive/react-native-hms';
 import {
   GestureHandlerRootView,
   PanGestureHandler,
 } from 'react-native-gesture-handler';
 
-import {decodePeer} from '../../utils/functions';
-import type {Peer} from '../../utils/types';
+import type {PeerTrackNode} from '../../utils/types';
 import {DisplayTrack} from './DisplayTrack';
 import {styles} from './styles';
 
 type MiniViewProps = {
   instance: HMSSDK | undefined;
   speakers: HMSSpeaker[];
-  localPeerPermissions: HMSPermissions | undefined;
 };
 
-const MiniView = ({
-  instance,
-  speakers,
-  localPeerPermissions,
-}: MiniViewProps) => {
-  const [mainSpeaker, setMainSpeaker] = useState<Peer | undefined>(undefined);
-  const [miniSpeaker, setMiniSpeaker] = useState<Peer | undefined>(undefined);
+const MiniView = ({instance, speakers}: MiniViewProps) => {
+  const [mainSpeaker, setMainSpeaker] = useState<PeerTrackNode>();
+  const [miniSpeaker, setMiniSpeaker] = useState<PeerTrackNode>();
   const translateX = useRef(new Animated.Value(1)).current;
   const translateY = useRef(new Animated.Value(1)).current;
 
@@ -42,13 +32,25 @@ const MiniView = ({
   }, [translateX, translateY]);
 
   useEffect(() => {
-    const decodedLocalPeer = decodePeer(instance?.localPeer!);
+    const decodedLocalPeer = {
+      id: instance?.localPeer?.peerID + HMSTrackSource.REGULAR,
+      peer: instance?.localPeer!,
+      track: instance?.localPeer?.videoTrack,
+    };
     if (instance?.remotePeers && instance.remotePeers.length > 0) {
       if (speakers.length > 0) {
-        setMainSpeaker(decodePeer(speakers[0].peer));
+        setMainSpeaker({
+          id: speakers[0].peer.peerID + HMSTrackSource.REGULAR,
+          peer: speakers[0].peer,
+          track: speakers[0].peer?.videoTrack,
+        });
         setMiniSpeaker(decodedLocalPeer);
       } else {
-        setMainSpeaker(decodePeer(instance?.remotePeers[0]));
+        setMainSpeaker({
+          id: instance?.remotePeers[0]?.peerID + HMSTrackSource.REGULAR,
+          peer: instance?.remotePeers[0],
+          track: instance?.remotePeers[0]?.videoTrack,
+        });
         setMiniSpeaker(decodedLocalPeer);
       }
     } else {
@@ -61,12 +63,11 @@ const MiniView = ({
     <View style={styles.heroContainer}>
       <GestureHandlerRootView style={styles.container}>
         {mainSpeaker && (
-          <View style={styles.mainTileContainer} key={mainSpeaker.trackId}>
+          <View style={styles.mainTileContainer} key={mainSpeaker.id}>
             <DisplayTrack
-              peer={mainSpeaker}
+              peerTrackNode={mainSpeaker}
               instance={instance}
-              videoStyles={() => styles.heroView}
-              permissions={localPeerPermissions}
+              videoStyles={styles.heroView}
             />
           </View>
         )}
@@ -79,13 +80,12 @@ const MiniView = ({
                 {transform: [{translateX}, {translateY}]},
                 styles.miniTileContainer,
               ]}
-              key={miniSpeaker.trackId}>
+              key={miniSpeaker.id}>
               <DisplayTrack
                 miniView={true}
-                peer={miniSpeaker}
+                peerTrackNode={miniSpeaker}
                 instance={instance}
-                videoStyles={() => styles.heroView}
-                permissions={localPeerPermissions}
+                videoStyles={styles.heroView}
               />
             </Animated.View>
           </PanGestureHandler>

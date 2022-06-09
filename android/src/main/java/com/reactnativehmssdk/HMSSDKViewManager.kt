@@ -11,7 +11,7 @@ import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.annotations.ReactProp
 
-class HmssdkViewManager : SimpleViewManager<HmsView>() {
+class HMSSDKViewManager : SimpleViewManager<HMSView>() {
 
   private var reactContext: ThemedReactContext? = null
 
@@ -19,9 +19,9 @@ class HmssdkViewManager : SimpleViewManager<HmsView>() {
     return REACT_CLASS
   }
 
-  public override fun createViewInstance(reactContext: ThemedReactContext): HmsView {
+  public override fun createViewInstance(reactContext: ThemedReactContext): HMSView {
     this.reactContext = reactContext
-    return HmsView(reactContext)
+    return HMSView(reactContext)
   }
 
   override fun getExportedCustomBubblingEventTypeConstants(): MutableMap<String, Any>? {
@@ -41,14 +41,14 @@ class HmssdkViewManager : SimpleViewManager<HmsView>() {
   }
 
   @RequiresApi(Build.VERSION_CODES.N)
-  override fun receiveCommand(@NonNull root: HmsView, commandId: String?, args: ReadableArray?) {
+  override fun receiveCommand(@NonNull root: HMSView, commandId: String?, args: ReadableArray?) {
     when (commandId) {
       "capture" -> root.captureHmsView(args)
     }
   }
 
   @RequiresApi(Build.VERSION_CODES.N)
-  override fun receiveCommand(@NonNull root: HmsView, commandId: Int, args: ReadableArray?) {
+  override fun receiveCommand(@NonNull root: HMSView, commandId: Int, args: ReadableArray?) {
     when (commandId) {
       1 -> root.captureHmsView(args)
     }
@@ -60,7 +60,7 @@ class HmssdkViewManager : SimpleViewManager<HmsView>() {
   }
 
   @ReactProp(name = "data")
-  fun setData(view: HmsView, data: ReadableMap) {
+  fun setData(view: HMSView, data: ReadableMap) {
     val trackId = data.getString("trackId")
     val id = data.getString("id")
     val mirror = data.getBoolean("mirror")
@@ -71,20 +71,20 @@ class HmssdkViewManager : SimpleViewManager<HmsView>() {
   }
 
   @ReactProp(name = "scaleType")
-  fun setScaleType(view: HmsView, data: String?) {
+  fun setScaleType(view: HMSView, data: String?) {
     view.updateScaleType(data)
   }
 
   @ReactProp(name = "setZOrderMediaOverlay")
-  fun setZOrderMediaOverlay(view: HmsView, data: Boolean?) {
+  fun setZOrderMediaOverlay(view: HMSView, data: Boolean?) {
     view.updateZOrderMediaOverlay(data)
   }
 
-  private fun getHms(): MutableMap<String, HmsSDK>? {
-    return reactContext?.getNativeModule(HmsModule::class.java)?.getHmsInstance()
+  private fun getHms(): MutableMap<String, HMSRNSDK>? {
+    return reactContext?.getNativeModule(HMSManager::class.java)?.getHmsInstance()
   }
 
   companion object {
-    const val REACT_CLASS = "HmsView"
+    const val REACT_CLASS = "HMSView"
   }
 }
