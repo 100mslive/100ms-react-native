@@ -19,7 +19,7 @@
     "axios": "^0.26.0",
     "react": "17.0.1",
     "react-native": "0.64.2",
-    "react-native-device-info": "^8.4.8",
+    "react-native-device-info": "^9.0.2",
     "react-native-fs": "^2.19.0",
     "react-native-gesture-handler": "^1.10.3",
     "react-native-keyboard-aware-scroll-view": "^0.9.4",
