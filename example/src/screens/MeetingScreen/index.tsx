@@ -1114,6 +1114,7 @@ const Meeting = () => {
             {name: 'Select'},
             {name: SortingType.ALPHABETICAL},
             {name: SortingType.VIDEO_ON},
+            {name: SortingType.ROLE_PRIORITY},
           ].map((item, index) => (
             <Picker.Item key={index} label={item.name} value={item.name} />
           ))}
