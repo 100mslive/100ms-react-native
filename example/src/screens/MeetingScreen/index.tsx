@@ -53,6 +53,7 @@ import Toast from 'react-native-simple-toast';
 import RNFetchBlob from 'rn-fetch-blob';
 import {Picker} from '@react-native-picker/picker';
 import Video from 'react-native-video';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {styles} from './styles';
 import type {AppStackParamList} from '../../navigator';
@@ -166,6 +167,7 @@ const Meeting = () => {
       singleFilePerLayer: false,
       videoOnDemand: false,
     });
+  const {bottom} = useSafeAreaInsets();
 
   const getMessageToList = (): MessageObject[] => {
     const messageList: MessageObject[] = [
@@ -1295,7 +1297,7 @@ const Meeting = () => {
           />
         )}
       </View>
-      <View style={styles.iconContainers}>
+      <View style={[styles.iconContainers, {bottom}]}>
         {instance?.localPeer?.role?.publishSettings?.allowed?.includes(
           'audio',
         ) && (
