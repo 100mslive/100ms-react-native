@@ -94,7 +94,10 @@ const DisplayTrack = ({
   const hmsViewRef: any = useRef();
   const HmsView = instance?.HmsView;
   const knownRoles = instance?.knownRoles || [];
-  const speaking = speakerIds?.length ? speakerIds.includes(id!) : false;
+  const speaking =
+    type !== TrackType.SCREEN && speakerIds?.length
+      ? speakerIds.includes(id!)
+      : false;
 
   const modalButtons: [
     {text: string; onPress?: Function},
@@ -492,6 +495,22 @@ const DisplayTrack = ({
           )}
         </View>
       )}
+      {metadata?.isHandRaised && (
+        <View style={styles.status}>
+          <Ionicons
+            name="ios-hand-left"
+            style={styles.raiseHand}
+            size={dimension.viewHeight(30)}
+          />
+        </View>
+      )}
+      {metadata?.isBRBOn && (
+        <View style={styles.status}>
+          <View style={styles.brbOnContainer}>
+            <Text style={styles.brbOn}>BRB</Text>
+          </View>
+        </View>
+      )}
       <View style={styles.labelContainer}>
         {peerTrackNode.peer?.networkQuality?.downlinkQuality &&
         peerTrackNode.peer?.networkQuality?.downlinkQuality > -1 ? (
@@ -513,22 +532,6 @@ const DisplayTrack = ({
           </View>
         ) : (
           <></>
-        )}
-        {metadata?.isHandRaised && (
-          <View>
-            <Ionicons
-              name="ios-hand-left"
-              style={styles.raiseHand}
-              size={dimension.viewHeight(30)}
-            />
-          </View>
-        )}
-        {metadata?.isBRBOn && (
-          <View>
-            <View style={styles.brbOnContainer}>
-              <Text style={styles.brbOn}>BRB</Text>
-            </View>
-          </View>
         )}
         {isDegraded && (
           <View>
@@ -566,18 +569,12 @@ const DisplayTrack = ({
           </Text>
         </View>
         <View style={styles.micContainer}>
-          <Feather
-            name={isAudioMute ? 'mic-off' : 'mic'}
-            style={styles.mic}
-            size={20}
-          />
-        </View>
-        <View style={styles.micContainer}>
-          <Feather
-            name={isVideoMute ? 'video-off' : 'video'}
-            style={styles.mic}
-            size={20}
-          />
+          {isAudioMute && (
+            <Feather name="mic-off" style={styles.mic} size={20} />
+          )}
+          {isVideoMute && (
+            <Feather name="video-off" style={styles.mic} size={20} />
+          )}
         </View>
       </View>
     </View>
