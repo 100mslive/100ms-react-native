@@ -52,7 +52,6 @@ const styles = StyleSheet.create({
   },
   iconContainers: {
     position: 'absolute',
-    bottom: 0,
     flexDirection: 'row',
     justifyContent: 'space-around',
     paddingBottom: dimension.viewHeight(4),
