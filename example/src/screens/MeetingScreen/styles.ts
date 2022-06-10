@@ -51,14 +51,16 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   iconContainers: {
-    display: 'flex',
+    position: 'absolute',
+    bottom: 0,
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingBottom: dimension.viewHeight(22),
-    paddingTop: dimension.viewHeight(15),
+    paddingBottom: dimension.viewHeight(4),
+    paddingTop: dimension.viewHeight(4),
     width: '100%',
-    backgroundColor: COLORS.WHITE,
-    height: dimension.viewHeight(90),
+    backgroundColor: COLORS.OVERLAY,
+    borderRadius: 20,
+    height: dimension.viewHeight(60),
   },
   leaveIconContainer: {
     backgroundColor: COLORS.INDICATORS.ERROR,
@@ -77,13 +79,11 @@ const styles = StyleSheet.create({
   },
   displayContainer: {
     position: 'absolute',
-    bottom: 2,
+    top: 4,
     alignSelf: 'center',
-    backgroundColor: COLORS.OVERLAY,
-    paddingHorizontal: 8,
-    paddingVertical: 16,
+    padding: 8,
     borderRadius: 8,
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'center',
     zIndex: 3,
   },
@@ -92,13 +92,14 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Bold',
   },
   peerNameContainer: {
-    maxWidth: 80,
+    maxWidth: 70,
   },
   micContainer: {
-    paddingHorizontal: 3,
+    flexDirection: 'row',
   },
   mic: {
     color: COLORS.PRIMARY.DEFAULT,
+    paddingHorizontal: 3,
   },
   avatarContainer: {
     flex: 1,
@@ -335,6 +336,11 @@ const styles = StyleSheet.create({
   },
   interRegular: {
     fontFamily: 'Inter-Regular',
+  },
+  status: {
+    alignSelf: 'center',
+    position: 'absolute',
+    top: '70%',
   },
 });
 

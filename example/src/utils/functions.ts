@@ -100,11 +100,10 @@ export const getHmsViewHeight = (
 ) => {
   const isTab = getDeviceType() === 'Tablet';
 
-  // window height - (header + bottom container + top + bottom + padding) / views in one screen
+  // window height - (header + top + bottom + padding) / views in one screen
   const viewHeight =
     (Dimensions.get('window').height -
       (dimension.viewHeight(50) +
-        dimension.viewHeight(90) +
         (isTab ? dimension.viewHeight(20) : top + bottom) +
         2)) /
     2;
