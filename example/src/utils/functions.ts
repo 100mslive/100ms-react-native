@@ -380,6 +380,15 @@ export const updatePeersTrackNodesOnTrackListener = (
       }
     }
     return oldPeerTrackNodes;
+  } else if (type === HMSTrackUpdate.TRACK_REMOVED) {
+    if (track.source !== HMSTrackSource.REGULAR) {
+      return oldPeerTrackNodes?.filter(peerTrackNode => {
+        if (peerTrackNode.id === uniqueId) {
+          return false;
+        }
+        return true;
+      });
+    }
   } else {
     return oldPeerTrackNodes?.map(peerTrackNode => {
       if (isVideo && peerTrackNode.id === uniqueId) {
