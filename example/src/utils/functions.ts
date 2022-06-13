@@ -389,6 +389,7 @@ export const updatePeersTrackNodesOnTrackListener = (
         return true;
       });
     }
+    return oldPeerTrackNodes;
   } else {
     return oldPeerTrackNodes?.map(peerTrackNode => {
       if (isVideo && peerTrackNode.id === uniqueId) {
