@@ -46,7 +46,7 @@ type DisplayTrackProps = {
   remoteVideoStats?: any;
   localAudioStats?: HMSLocalAudioStats;
   localVideoStats?: HMSLocalVideoStats;
-  speakerIds?: Array<string>;
+  isSpeaking?: Function;
   miniView?: boolean;
   instance: HMSSDK | undefined;
   peerTrackNode: PeerTrackNode;
@@ -58,7 +58,7 @@ type DisplayTrackProps = {
 const DisplayTrack = ({
   peerTrackNode,
   videoStyles,
-  speakerIds,
+  isSpeaking,
   instance,
   layout,
   statsForNerds,
@@ -94,10 +94,7 @@ const DisplayTrack = ({
   const hmsViewRef: any = useRef();
   const HmsView = instance?.HmsView;
   const knownRoles = instance?.knownRoles || [];
-  const speaking =
-    type !== TrackType.SCREEN && speakerIds?.length
-      ? speakerIds.includes(id!)
-      : false;
+  const speaking = isSpeaking && isSpeaking(peerTrackNode);
 
   const modalButtons: [
     {text: string; onPress?: Function},

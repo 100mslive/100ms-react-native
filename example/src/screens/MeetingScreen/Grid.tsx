@@ -59,7 +59,22 @@ const GridView = ({
   if (page + 1 > pairedPeers.length) {
     flatlistRef?.current?.scrollToEnd();
   }
-  const speakerIds = speakers?.map(speaker => speaker?.peer?.peerID);
+
+  const isSpeaking = (peerTrackNode: PeerTrackNode): boolean => {
+    if (speakers.length > 0) {
+      let speaking = false;
+      speakers.map(speaker => {
+        if (
+          speaker.peer.peerID === peerTrackNode.peer.peerID &&
+          speaker.track.source === peerTrackNode.track?.source
+        ) {
+          speaking = true;
+        }
+      });
+      return speaking;
+    }
+    return false;
+  };
 
   return (
     <FlatList
@@ -105,7 +120,7 @@ const GridView = ({
                       <DisplayTrack
                         peerTrackNode={view}
                         videoStyles={styles.generalTile}
-                        speakerIds={speakerIds}
+                        isSpeaking={isSpeaking}
                         instance={instance}
                         layout={layout}
                       />
@@ -122,7 +137,7 @@ const GridView = ({
                     <DisplayTrack
                       peerTrackNode={view}
                       videoStyles={styles.generalTile}
-                      speakerIds={speakerIds}
+                      isSpeaking={isSpeaking}
                       instance={instance}
                       layout={layout}
                       setModalVisible={setModalVisible}
