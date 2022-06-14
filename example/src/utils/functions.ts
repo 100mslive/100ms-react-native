@@ -346,20 +346,20 @@ export const updatePeersTrackNodesOnTrackListener = (
   ) {
     let alreadyPresent = false;
     const updatePeerTrackNodes = oldPeerTrackNodes?.map(peerTrackNode => {
-      if (isVideo && peerTrackNode.id === uniqueId) {
+      if (peerTrackNode.id === uniqueId) {
         alreadyPresent = true;
-        return {
-          ...peerTrackNode,
-          peer,
-          track,
-        };
-      }
-      if (!isVideo && peerTrackNode.id === uniqueId) {
-        alreadyPresent = true;
-        return {
-          ...peerTrackNode,
-          peer,
-        };
+        if (isVideo) {
+          return {
+            ...peerTrackNode,
+            peer,
+            track,
+          };
+        } else {
+          return {
+            ...peerTrackNode,
+            peer,
+          };
+        }
       }
       return peerTrackNode;
     });
@@ -381,12 +381,15 @@ export const updatePeersTrackNodesOnTrackListener = (
     }
     return oldPeerTrackNodes;
   } else if (type === HMSTrackUpdate.TRACK_REMOVED) {
-    return oldPeerTrackNodes?.filter(peerTrackNode => {
-      if (peerTrackNode.id === uniqueId) {
-        return false;
-      }
-      return true;
-    });
+    if (track.source !== HMSTrackSource.REGULAR) {
+      return oldPeerTrackNodes?.filter(peerTrackNode => {
+        if (peerTrackNode.id === uniqueId) {
+          return false;
+        }
+        return true;
+      });
+    }
+    return oldPeerTrackNodes;
   } else {
     return oldPeerTrackNodes?.map(peerTrackNode => {
       if (isVideo && peerTrackNode.id === uniqueId) {
@@ -422,6 +425,16 @@ const sortPeerTrackNodes = (
           return 1;
         }
         if (b.track?.isMute() === true) {
+          return -1;
+        }
+        return 0;
+      });
+    case SortingType.ROLE_PRIORITY:
+      return peerTrackNodes.sort((a, b) => {
+        if ((a.peer.role?.priority ?? 0) >= (b.peer.role?.priority ?? 0)) {
+          return 1;
+        }
+        if ((b.peer.role?.priority ?? 0) >= (a.peer.role?.priority ?? 0)) {
           return -1;
         }
         return 0;
