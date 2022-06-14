@@ -1,8 +1,8 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {HMSSDK, HMSSpeaker, HMSTrackSource} from '@100mslive/react-native-hms';
 
 import {pairDataForFlatlist} from '../../utils/functions';
-import type {LayoutParams, PeerTrackNode} from '../../utils/types';
+import type {LayoutParams, PeerTrackNode, SortingType} from '../../utils/types';
 import {GridView} from './Grid';
 
 type ActiveSpeakerViewProps = {
@@ -12,6 +12,7 @@ type ActiveSpeakerViewProps = {
   layout: LayoutParams;
   page: number;
   setPage: React.Dispatch<React.SetStateAction<number>>;
+  selectedSortingType?: SortingType;
 };
 
 const includesPeerId = (speakers: PeerTrackNode[], peerId: string): boolean => {
@@ -151,10 +152,14 @@ const ActiveSpeakerView = ({
   layout,
   setPage,
   page,
+  selectedSortingType,
 }: ActiveSpeakerViewProps) => {
   const speakerIds = speakers?.map(speaker => speaker?.peer?.peerID);
   const data = getActiveSpeakers(peerTrackNodes, speakers, speakerIds);
-  const pairedPeers: Array<Array<PeerTrackNode>> = pairDataForFlatlist(data, 4);
+  const pairedPeers = useMemo(
+    () => pairDataForFlatlist(data, 4, selectedSortingType),
+    [data, selectedSortingType],
+  );
 
   return (
     <GridView

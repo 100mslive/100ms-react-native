@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {
   View,
   TouchableOpacity,
@@ -141,8 +141,15 @@ const Meeting = () => {
   const [page, setPage] = useState(0);
   const [zoomableTrackId, setZoomableTrackId] = useState('');
   const [statsForNerds, setStatsForNerds] = useState(false);
-  const [pairedPeers, setPairedPeers] = useState<Array<Array<PeerTrackNode>>>(
-    [],
+  const pairedPeers = useMemo(
+    () =>
+      pairDataForFlatlist(
+        peerTrackNodes,
+        layout === LayoutParams.AUDIO ? 6 : 4,
+        selectedSortingType,
+        pinnedPeerTrackIds,
+      ),
+    [layout, peerTrackNodes, selectedSortingType, pinnedPeerTrackIds],
   );
   const [modalVisible, setModalVisible] = useState<ModalTypes>(
     ModalTypes.DEFAULT,
@@ -910,16 +917,6 @@ const Meeting = () => {
     };
   }, [instance]);
 
-  useEffect(() => {
-    const updatedPairedPeers: Array<Array<PeerTrackNode>> = pairDataForFlatlist(
-      peerTrackNodes,
-      layout === LayoutParams.AUDIO ? 6 : 4,
-      selectedSortingType,
-      pinnedPeerTrackIds,
-    );
-    setPairedPeers(updatedPairedPeers);
-  }, [layout, peerTrackNodes, selectedSortingType, pinnedPeerTrackIds]);
-
   return (
     <SafeAreaView style={styles.container}>
       <CustomModal
@@ -1267,6 +1264,7 @@ const Meeting = () => {
             layout={layout}
             setPage={setPage}
             page={page}
+            selectedSortingType={selectedSortingType}
           />
         ) : layout === LayoutParams.HERO ? (
           <HeroView
