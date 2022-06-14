@@ -813,7 +813,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         for speaker in speakers {
             speakerPeerIds.append(["peer": HMSDecoder.getHmsPeer(speaker.peer), "level": speaker.level, "track": HMSDecoder.getHmsTrack(speaker.track)])
         }
-        self.delegate?.emitEvent(ON_SPEAKER, ["event": ON_SPEAKER, "id": self.id, "count": speakers.count, "peers": speakerPeerIds])
+        self.delegate?.emitEvent(ON_SPEAKER, ["event": ON_SPEAKER, "id": self.id, "speakers": speakerPeerIds])
     }
 
     func onReconnecting() {

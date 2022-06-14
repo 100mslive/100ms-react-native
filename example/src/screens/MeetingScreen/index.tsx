@@ -24,7 +24,6 @@ import {
   HMSRoleChangeRequest,
   HMSSDK,
   HMSChangeTrackStateRequest,
-  HMSSpeakerUpdate,
   HMSPeer,
   HMSTrackType,
   HMSRTMPConfig,
@@ -737,8 +736,8 @@ const Meeting = () => {
     console.log('data in onMessage: ', data);
   };
 
-  const onSpeaker = (data: HMSSpeakerUpdate) => {
-    setSpeakers(data?.peers || []);
+  const onSpeaker = (data: HMSSpeaker[]) => {
+    setSpeakers(data || []);
     console.log('data in onSpeaker: ', data);
   };
 
