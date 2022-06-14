@@ -24,7 +24,7 @@ export const ChatBubble = ({
           ]}>
           <View style={styles.textSubContainer}>
             <Text style={styles.senderText}>
-              {isLocal ? 'You' : data?.sender?.name}
+              {isLocal ? 'You' : data?.sender?.name ?? 'Server'}
             </Text>
             {name && <Text style={styles.text}>{' to ' + name}</Text>}
           </View>

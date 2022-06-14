@@ -6,14 +6,14 @@ export class HMSMessage {
   public message: string;
   public type: string;
   public time: Date;
-  public sender: HMSPeer;
+  public sender?: HMSPeer;
   public recipient: HMSMessageRecipient;
 
   constructor(params: {
     message: string;
     type: string;
     time: string;
-    sender: HMSPeer;
+    sender?: HMSPeer;
     recipient: HMSMessageRecipient;
   }) {
     this.message = params.message;
