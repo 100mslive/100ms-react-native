@@ -1251,10 +1251,12 @@ export class HMSSDK {
     if (data.id !== this.id) {
       return;
     }
-    logger?.verbose('#Listener ON_SPEAKER', data);
+    logger?.verbose('#Listener ON_SPEAKER', data?.speakers);
     if (this.onSpeakerDelegate) {
-      logger?.verbose('#Listener ON_SPEAKER_LISTENER_CALL', data);
-      this.onSpeakerDelegate(HMSEncoder.encodeHmsSpeakerUpdate(data, this.id));
+      logger?.verbose('#Listener ON_SPEAKER_LISTENER_CALL', data?.speakers);
+      this.onSpeakerDelegate(
+        HMSEncoder.encodeHmsSpeakers(data?.speakers, this.id)
+      );
     }
   };
 

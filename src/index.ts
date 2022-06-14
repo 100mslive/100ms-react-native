@@ -39,7 +39,6 @@ export * from './classes/HMSLogLevel';
 export * from './classes/HMSVideoViewMode';
 export * from './classes/HMSChangeTrackStateRequest';
 export * from './classes/HMSSpeaker';
-export * from './classes/HMSSpeakerUpdate';
 export * from './classes/HMSCameraFacing';
 export * from './classes/HMSException';
 export * from './classes/HMSRtmpStreamingState';

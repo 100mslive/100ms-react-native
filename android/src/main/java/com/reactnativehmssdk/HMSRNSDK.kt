@@ -340,7 +340,6 @@ class HMSRNSDK(
             object : HMSAudioListener {
               override fun onAudioLevelUpdate(speakers: Array<HMSSpeaker>) {
                 val data: WritableMap = Arguments.createMap()
-                data.putInt("count", speakers.size)
                 data.putString("event", "ON_SPEAKER")
 
                 val peers: WritableArray = Arguments.createArray()
@@ -351,7 +350,7 @@ class HMSRNSDK(
                   speakerArray.putMap("track", HMSDecoder.getHmsTrack(speaker.hmsTrack))
                   peers.pushMap(speakerArray)
                 }
-                data.putArray("peers", peers)
+                data.putArray("speakers", peers)
                 data.putString("id", id)
                 delegate.emitEvent("ON_SPEAKER", data)
               }
