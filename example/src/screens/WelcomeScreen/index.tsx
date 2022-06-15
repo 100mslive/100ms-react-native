@@ -84,7 +84,6 @@ let instance: HMSSDK | undefined;
 
 const App = () => {
   const {userName} = useSelector((state: RootState) => state.user);
-  const [hmsInstance, setHmsInstance] = useState<HMSSDK | undefined>();
   const dispatch = useDispatch();
 
   const [peerTrackNodes, setPeerTrackNodes] = useState<Array<PeerTrackNode>>(
@@ -158,7 +157,7 @@ const App = () => {
     setPreviewButtonState('Active');
     setButtonState('Active');
     setPreviewModal(false);
-    setMirrorLocalVideo(false);
+    setInitialized(false);
     dispatch(setAudioVideoState({audioState: audio, videoState: video}));
     dispatch(setPeerState({peerState: newPeerTrackNodes}));
     peerTrackNodesRef.current = [];
@@ -306,7 +305,6 @@ const App = () => {
     const logger = new HMSLogger();
     logger.updateLogLevel(HMSLogLevel.VERBOSE, true);
     build.setLogger(logger);
-    setHmsInstance(build);
     instance = build;
     dispatch(updateHmsReference({hmsInstance: build}));
   };
@@ -436,7 +434,6 @@ const App = () => {
     );
 
     if (skipPreview) {
-      setSkipPreview(false);
       joinRoom();
     } else {
       instance?.preview(HmsConfig);
@@ -508,7 +505,6 @@ const App = () => {
     );
 
     if (skipPreview) {
-      setSkipPreview(false);
       joinRoom();
     } else {
       instance?.preview(HmsConfig);
@@ -517,7 +513,7 @@ const App = () => {
 
   const joinRoom = () => {
     if (config !== null) {
-      hmsInstance?.join(config);
+      instance?.join(config);
     } else {
       console.log('config: ', config);
     }
