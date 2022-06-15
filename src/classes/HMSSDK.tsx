@@ -8,7 +8,6 @@ import {
 } from 'react-native';
 import { HMSUpdateListenerActions } from './HMSUpdateListenerActions';
 import { HMSEncoder } from './HMSEncoder';
-import { HMSMessage } from './HMSMessage';
 import { HMSHelper } from './HMSHelper';
 import { HmsViewComponent } from './HmsView';
 import { HMSLocalAudioStats } from './HMSLocalAudioStats';
@@ -1240,7 +1239,7 @@ export class HMSSDK {
       return;
     }
     logger?.verbose('#Listener ON_MESSAGE', data);
-    const message = new HMSMessage(data);
+    const message = HMSEncoder.encodeHMSMessage(data, this.id);
     if (this.onMessageDelegate) {
       logger?.verbose('#Listener ON_MESSAGE_LISTENER_CALL', message);
       this.onMessageDelegate(message);
