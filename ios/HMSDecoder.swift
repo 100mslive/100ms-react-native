@@ -591,7 +591,7 @@ class HMSDecoder: NSObject {
     }
     
     static func getHmsMessageRecipient(_ recipient: HMSMessageRecipient) -> [String: Any] {
-        return ["recipientPeer": getHmsPeer(recipient.peerRecipient), "recipientRoles": getAllRoles(recipient.rolesRecipient), "type": self.getRecipientType(from: recipient.type)]
+        return ["recipientPeer": getHmsPeer(recipient.peerRecipient), "recipientRoles": getAllRoles(recipient.rolesRecipient), "recipientType": self.getRecipientType(from: recipient.type)]
     }
     
     static func getHmsNetworkQuality(_ hmsNetworkQuality: HMSNetworkQuality?) -> [String: Any] {

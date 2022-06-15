@@ -12,13 +12,13 @@ export class HMSMessage {
   constructor(params: {
     message: string;
     type: string;
-    time: string;
+    time: Date;
     sender?: HMSPeer;
     recipient: HMSMessageRecipient;
   }) {
     this.message = params.message;
     this.type = params.type;
-    this.time = new Date(parseInt(params.time));
+    this.time = params.time;
     this.sender = params.sender;
     this.recipient = params.recipient;
   }

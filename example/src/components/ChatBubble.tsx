@@ -1,6 +1,6 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import type {HMSMessage} from '@100mslive/react-native-hms';
+import {HMSMessage, HMSMessageRecipientType} from '@100mslive/react-native-hms';
 
 import dimension from '../utils/dimension';
 import {COLORS} from '../utils/theme';
@@ -26,7 +26,20 @@ export const ChatBubble = ({
             <Text style={styles.senderText}>
               {isLocal ? 'You' : data?.sender?.name ?? 'Server'}
             </Text>
-            {name && <Text style={styles.text}>{' to ' + name}</Text>}
+            <Text style={styles.text}>
+              {isLocal
+                ? ` to ${name}`
+                : ` to ${
+                    data.recipient.recipientType ===
+                    HMSMessageRecipientType.ROLES
+                      ? data?.recipient?.recipientRoles &&
+                        data.recipient.recipientRoles[0].name
+                      : data.recipient.recipientType ===
+                        HMSMessageRecipientType.PEER
+                      ? 'me'
+                      : 'everyone'
+                  }`}
+            </Text>
           </View>
           <Text style={styles.message}>{data.message}</Text>
         </View>
