@@ -49,7 +49,7 @@ import Toast from 'react-native-simple-toast';
 // import {getModel} from 'react-native-device-info';
 import RNFetchBlob from 'rn-fetch-blob';
 
-import {UserIdModal, PreviewModal, AlertModal, Loader} from '../../components';
+import {UserIdModal, PreviewModal, AlertModal} from '../../components';
 import {
   setAudioVideoState,
   saveUserData,
@@ -697,7 +697,6 @@ const App = () => {
         />
       )}
       <View />
-      {buttonState === 'Loading' && <Loader />}
     </View>
   );
 };
