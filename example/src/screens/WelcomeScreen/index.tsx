@@ -51,7 +51,6 @@ import RNFetchBlob from 'rn-fetch-blob';
 
 import {UserIdModal, PreviewModal, AlertModal} from '../../components';
 import {
-  setAudioVideoState,
   saveUserData,
   updateHmsReference,
   setPeerState,
@@ -96,8 +95,6 @@ const App = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [previewModal, setPreviewModal] = useState<boolean>(false);
   const [localVideoTrackId, setLocalVideoTrackId] = useState<string>('');
-  const [audio, setAudio] = useState<boolean>(true);
-  const [video, setVideo] = useState<boolean>(true);
   const [buttonState, setButtonState] = useState<ButtonState>('Active');
   const [previewButtonState, setPreviewButtonState] =
     useState<ButtonState>('Active');
@@ -106,6 +103,8 @@ const App = () => {
   const [settingsModal, setSettingsModal] = useState(false);
   const [skipPreview, setSkipPreview] = useState(false);
   const [mirrorLocalVideo, setMirrorLocalVideo] = useState(false);
+  const [audioVideoOff, setAudioVideoOff] = useState(false);
+  let audioVideoOffSet = false;
 
   const navigate = useNavigation<WelcomeScreenProp>().navigate;
 
@@ -114,6 +113,12 @@ const App = () => {
     room: HMSRoom;
     previewTracks: {audioTrack: HMSAudioTrack; videoTrack: HMSVideoTrack};
   }) => {
+    if (audioVideoOff && !audioVideoOffSet) {
+      instance?.localPeer?.localVideoTrack()?.setMute(true);
+      instance?.localPeer?.localAudioTrack()?.setMute(true);
+      audioVideoOffSet = true;
+    }
+
     const localVideoAllowed =
       instance?.localPeer?.role?.publishSettings?.allowed?.includes('video');
 
@@ -131,10 +136,8 @@ const App = () => {
     } else if (localVideoAllowed) {
       setLocalVideoTrackId(videoTrackId);
       setPreviewModal(true);
-      setAudio(false);
     } else if (localAudioAllowed) {
       setPreviewModal(true);
-      setVideo(false);
     } else {
       joinRoom();
     }
@@ -149,6 +152,11 @@ const App = () => {
     localPeer: HMSLocalPeer;
     remotePeers: Array<HMSRemotePeer>;
   }) => {
+    if (audioVideoOff && !audioVideoOffSet) {
+      instance?.localPeer?.localVideoTrack()?.setMute(true);
+      instance?.localPeer?.localAudioTrack()?.setMute(true);
+      audioVideoOffSet = true;
+    }
     const newPeerTrackNodes = updatePeersTrackNodesOnPeerListener(
       peerTrackNodesRef?.current,
       localPeer,
@@ -158,7 +166,6 @@ const App = () => {
     setButtonState('Active');
     setPreviewModal(false);
     setInitialized(false);
-    dispatch(setAudioVideoState({audioState: audio, videoState: video}));
     dispatch(setPeerState({peerState: newPeerTrackNodes}));
     peerTrackNodesRef.current = [];
     navigate('MeetingScreen');
@@ -557,6 +564,18 @@ const App = () => {
           setMirrorLocalVideo(!mirrorLocalVideo);
         },
       },
+      {
+        text: audioVideoOff
+          ? skipPreview
+            ? 'Join with audio & video ON'
+            : 'Preview with audio & video ON'
+          : skipPreview
+          ? 'Join with audio & video OFF'
+          : 'Preview with audio & video OFF',
+        onPress: () => {
+          setAudioVideoOff(!audioVideoOff);
+        },
+      },
     ];
     return buttons;
   };
@@ -679,14 +698,8 @@ const App = () => {
       )}
       {previewModal && (
         <PreviewModal
-          setAudio={(value: boolean) => {
-            setAudio(!value);
-            instance?.localPeer?.localAudioTrack()?.setMute(value);
-          }}
-          setVideo={(value: boolean) => {
-            setVideo(!value);
-            instance?.localPeer?.localVideoTrack()?.setMute(value);
-          }}
+          audio={audioVideoOff ? true : false}
+          video={audioVideoOff ? true : false}
           videoAllowed={videoAllowed}
           audioAllowed={audioAllowed}
           trackId={localVideoTrackId}

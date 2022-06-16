@@ -16,8 +16,8 @@ import {COLORS, FONTS} from '../utils/theme';
 
 export const PreviewModal = ({
   trackId,
-  setAudio,
-  setVideo,
+  audio,
+  video,
   join,
   instance,
   setPreviewButtonState,
@@ -28,16 +28,16 @@ export const PreviewModal = ({
   videoAllowed: boolean;
   audioAllowed: boolean;
   trackId: string;
-  setAudio: Function;
-  setVideo: Function;
+  video: boolean;
+  audio: boolean;
   join: Function;
   instance?: HmsManager;
   setPreviewButtonState: Function;
   previewButtonState: string;
 }) => {
   const {mirrorLocalVideo} = useSelector((state: RootState) => state.user);
-  const [isMute, setIsMute] = useState(false);
-  const [muteVideo, setMuteVideo] = useState(false);
+  const [isMute, setIsMute] = useState(audio);
+  const [muteVideo, setMuteVideo] = useState(video);
   const [numberOfLines, setNumberOfLines] = useState(true);
   const HmsView = instance?.HmsView;
   const [peers, setPeers] = useState(
@@ -79,7 +79,7 @@ export const PreviewModal = ({
               style={styles.singleIconContainer}
               onPress={async () => {
                 setIsMute(!isMute);
-                setAudio(!isMute);
+                instance?.localPeer?.localAudioTrack()?.setMute(!isMute);
               }}>
               <Feather
                 name={isMute ? 'mic-off' : 'mic'}
@@ -93,7 +93,7 @@ export const PreviewModal = ({
               style={styles.singleIconContainer}
               onPress={() => {
                 setMuteVideo(!muteVideo);
-                setVideo(!muteVideo);
+                instance?.localPeer?.localVideoTrack()?.setMute(!muteVideo);
               }}>
               <Feather
                 name={muteVideo ? 'video-off' : 'video'}
