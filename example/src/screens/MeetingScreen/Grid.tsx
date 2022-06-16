@@ -9,7 +9,6 @@ import {
   HMSTrackSource,
 } from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
 
 import {getHmsViewHeight} from '../../utils/functions';
 import {styles} from './styles';
@@ -76,6 +75,21 @@ const GridView = ({
     return false;
   };
 
+  const zoomScreen = (peerTrackNode: PeerTrackNode) => {
+    console.log('Single Tap');
+    doublePress++;
+    if (doublePress === 2) {
+      console.log('Double Tap');
+      doublePress = 0;
+      setModalVisible && setModalVisible(ModalTypes.ZOOM);
+      setZoomableTrackId && setZoomableTrackId(peerTrackNode.track?.trackId!);
+    } else {
+      setTimeout(() => {
+        doublePress = 0;
+      }, 500);
+    }
+  };
+
   return (
     <FlatList
       ref={flatlistRef}
@@ -100,31 +114,20 @@ const GridView = ({
             {item?.map(view => {
               if (view.track?.source === HMSTrackSource.SCREEN) {
                 return (
-                  <View style={styles.flex} key={view.id}>
-                    <TouchableWithoutFeedback
-                      onPress={() => {
-                        console.log('Single Tap');
-                        doublePress++;
-                        if (doublePress === 2) {
-                          console.log('Double Tap');
-                          doublePress = 0;
-                          setModalVisible && setModalVisible(ModalTypes.ZOOM);
-                          setZoomableTrackId &&
-                            setZoomableTrackId(view.track?.trackId!);
-                        } else {
-                          setTimeout(() => {
-                            doublePress = 0;
-                          }, 500);
-                        }
-                      }}>
-                      <DisplayTrack
-                        peerTrackNode={view}
-                        videoStyles={styles.generalTile}
-                        isSpeaking={isSpeaking}
-                        instance={instance}
-                        layout={layout}
-                      />
-                    </TouchableWithoutFeedback>
+                  <View
+                    style={styles.flex}
+                    key={view.id}
+                    onTouchEnd={e => {
+                      e.stopPropagation();
+                      zoomScreen(view);
+                    }}>
+                    <DisplayTrack
+                      peerTrackNode={view}
+                      videoStyles={styles.generalTile}
+                      isSpeaking={isSpeaking}
+                      instance={instance}
+                      layout={layout}
+                    />
                   </View>
                 );
               } else {
