@@ -354,15 +354,14 @@ hmsInstance?.startScreenshare();
 ```js
 import {
   HMSUpdateListenerActions,
-  HMSSpeakerUpdate,
   HMSSpeaker,
 } from '@100mslive/react-native-hms';
 
 // hms instance acquired by build method
 hmsInstance?.addEventListener(HMSUpdateListenerActions.ON_SPEAKER, onSpeaker);
 
-const onSpeaker = (data: HMSSpeakerUpdate) => {
-  data?.peers?.map((speaker: HMSSpeaker) =>
+const onSpeaker = (data: HMSSpeaker[]) => {
+  data?.map((speaker: HMSSpeaker) =>
     console.log('speaker audio level: ', speaker?.level)
   );
 };
