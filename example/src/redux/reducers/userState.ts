@@ -1,3 +1,4 @@
+import type HmsManager from '@100mslive/react-native-hms';
 import ActionTypes from '../actionTypes';
 
 type ActionType = {
@@ -5,9 +6,18 @@ type ActionType = {
   type: String;
 };
 
-const INITIAL_STATE = {
-  userName: null,
-  roomID: null,
+type IntialStateType = {
+  userName?: string;
+  roomID?: string;
+  hmsInstance?: HmsManager;
+  roomCode?: string;
+  mirrorLocalVideo: boolean;
+};
+
+const INITIAL_STATE: IntialStateType = {
+  userName: undefined,
+  roomID: undefined,
+  roomCode: undefined,
   hmsInstance: undefined,
   mirrorLocalVideo: false,
 };
@@ -23,6 +33,11 @@ const userReducer = (state = INITIAL_STATE, action: ActionType) => {
       return {
         ...state,
         ...action.payload,
+      };
+    case ActionTypes.CLEAR_HMS_INSTANCE:
+      return {
+        ...state,
+        hmsInstance: undefined,
       };
     default:
       return state;

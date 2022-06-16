@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {GestureResponderEvent} from 'react-native';
+import type {GestureResponderEvent} from 'react-native';
 import {
   View,
   StyleSheet,
@@ -11,10 +11,13 @@ import {
   Platform,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import dimension from '../utils/dimension';
 import {ChatBubble} from './ChatBubble';
 import {CustomModalDropdown} from './Picker';
+import {COLORS, FONTS} from '../utils/theme';
 
 export const ChatWindow = ({
   messages,
@@ -30,6 +33,7 @@ export const ChatWindow = ({
   const [text, setText] = useState('');
   const [messageTo, setMessageTo] = useState(0);
   const scollviewRef = useRef<ScrollView>(null);
+  const {top, bottom} = useSafeAreaInsets();
 
   useEffect(() => {
     scollviewRef?.current?.scrollToEnd({animated: false});
@@ -40,10 +44,10 @@ export const ChatWindow = ({
   }, [messages]);
   return (
     <View style={styles.container}>
-      <View style={styles.keyboardAvoidingView}>
+      <View style={[styles.keyboardAvoidingView, {paddingTop: top}]}>
         <View style={styles.headingContainer}>
-          <Feather
-            name="message-circle"
+          <MaterialCommunityIcons
+            name="message-outline"
             style={styles.closeIcon}
             size={dimension.viewHeight(30)}
           />
@@ -66,7 +70,10 @@ export const ChatWindow = ({
             data={messageToList}
           />
         </View>
-        <ScrollView ref={scollviewRef} style={styles.chatContainer}>
+        <ScrollView
+          ref={scollviewRef}
+          style={styles.chatContainer}
+          contentContainerStyle={styles.contentContainerStyle}>
           {messages.map((item: any, index: number) => {
             return (
               <ChatBubble
@@ -80,19 +87,21 @@ export const ChatWindow = ({
         </ScrollView>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={styles.textInputContainer}>
-          <TextInput
-            accessible={true}
-            accessibilityLabel="messageInput"
-            testID="messageInput"
-            placeholder="Enter Message"
-            placeholderTextColor="black"
-            style={styles.textInput}
-            onChangeText={value => {
-              setText(value);
-            }}
-            value={text}
-          />
+          style={[styles.textInputContainer, {marginBottom: bottom}]}>
+          <View style={styles.flex}>
+            <TextInput
+              accessible={true}
+              accessibilityLabel="messageInput"
+              testID="messageInput"
+              placeholder="Enter Message"
+              placeholderTextColor="#454545"
+              style={styles.textInput}
+              onChangeText={value => {
+                setText(value);
+              }}
+              value={text}
+            />
+          </View>
           <TouchableOpacity
             accessible={true}
             accessibilityLabel="sendMessage"
@@ -102,9 +111,9 @@ export const ChatWindow = ({
               send(text, messageToList[messageTo]);
               setText('');
             }}>
-            <Feather
-              size={dimension.viewHeight(24)}
-              style={styles.sendIcon}
+            <MaterialCommunityIcons
+              style={styles.closeIcon}
+              size={dimension.viewHeight(28)}
               name="send"
             />
           </TouchableOpacity>
@@ -121,86 +130,76 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(34, 34, 34, 0.3)',
     justifyContent: 'center',
-    zIndex: 502,
+    zIndex: 1,
   },
-  sendIcon: {},
+  flex: {
+    flex: 1,
+  },
   keyboardAvoidingView: {
-    backgroundColor: 'white',
+    backgroundColor: COLORS.WHITE,
     width: '100%',
     height: '100%',
-    paddingTop: dimension.viewHeight(40),
-    paddingHorizontal: dimension.viewWidth(24),
+  },
+  contentContainerStyle: {
+    paddingBottom: 8,
   },
   chatContainer: {
     flex: 1,
-  },
-  textContainer: {
-    marginVertical: dimension.viewHeight(12),
-    backgroundColor: '#67ed99',
-    paddingHorizontal: 12,
-    borderTopLeftRadius: 30,
-    borderBottomRightRadius: 30,
-    borderTopRightRadius: 30,
-    maxWidth: '80%',
-  },
-  messageBubble: {
-    flexDirection: 'row',
-  },
-  senderMessageBubble: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  message: {
-    color: 'white',
+    paddingHorizontal: dimension.viewWidth(24),
+    borderTopWidth: 2,
+    borderTopColor: COLORS.BORDER.DEFAULT,
+    borderBottomWidth: 2,
+    borderBottomColor: COLORS.BORDER.DEFAULT,
   },
   textInput: {
-    borderColor: 'black',
+    borderColor: COLORS.PRIMARY.DEFAULT,
     borderWidth: 1,
-    height: dimension.viewHeight(52),
-    marginHorizontal: dimension.viewWidth(16),
     paddingHorizontal: dimension.viewWidth(16),
     flex: 1,
-    marginBottom: Platform.OS === 'ios' ? 16 : 0,
-    color: 'black',
+    color: COLORS.PRIMARY.DEFAULT,
+    fontFamily: 'Inter-Regular',
   },
   textInputContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    paddingBottom: 16,
+    paddingBottom: 8,
     paddingTop: 10,
+    paddingHorizontal: dimension.viewWidth(24),
   },
   sendContainer: {
-    marginRight: dimension.viewWidth(24),
     padding: 8,
   },
   closeIcon: {
-    color: '#4578e0',
+    color: COLORS.PRIMARY.DEFAULT,
   },
   closeIconContainer: {
     position: 'absolute',
-    right: 0,
+    right: 20,
     padding: 10,
   },
   headingContainer: {
-    padding: 10,
+    paddingTop: 8,
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'center',
+    paddingHorizontal: dimension.viewWidth(24),
   },
   heading: {
-    fontSize: 20,
     paddingLeft: 10,
+    ...FONTS.H5,
+    color: COLORS.PRIMARY.DEFAULT,
   },
   subHeadingContainer: {
     padding: 10,
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
+    paddingHorizontal: dimension.viewWidth(24),
   },
   subHeading: {
     fontSize: 16,
+    fontFamily: 'Inter-Medium',
+    color: COLORS.PRIMARY.LIGHT,
   },
   picker: {width: '50%'},
 });

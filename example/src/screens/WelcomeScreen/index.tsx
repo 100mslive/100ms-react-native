@@ -8,13 +8,11 @@ import {
   Platform,
   ActivityIndicator,
   KeyboardAvoidingView,
-  Dimensions,
   Alert,
   Linking,
   AppState,
-  PermissionsAndroid,
 } from 'react-native';
-import {connect} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import HmsManager, {
   HMSAudioTrack,
   HMSConfig,
@@ -25,110 +23,73 @@ import HmsManager, {
   HMSLogger,
   HMSLogLevel,
   HMSSDK,
-  HMSAudioTrackSettings,
-  HMSAudioCodec,
-  HMSVideoTrackSettings,
-  HMSVideoCodec,
-  HMSTrackSettings,
+  // HMSAudioTrackSettings,
+  // HMSAudioCodec,
+  // HMSVideoTrackSettings,
+  // HMSVideoCodec,
+  // HMSTrackSettings,
   HMSException,
-  HMSCameraFacing,
-  HMSVideoResolution,
+  HMSRoomUpdate,
+  HMSRemotePeer,
+  HMSPeer,
+  HMSPeerUpdate,
+  HMSTrack,
+  HMSTrackUpdate,
+  // HMSCameraFacing,
+  // HMSVideoResolution,
 } from '@100mslive/react-native-hms';
 import {useNavigation} from '@react-navigation/native';
-import type {StackNavigationProp} from '@react-navigation/stack';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+
 import {PERMISSIONS, RESULTS, requestMultiple} from 'react-native-permissions';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Toast from 'react-native-simple-toast';
-import {getModel} from 'react-native-device-info';
+// import {getModel} from 'react-native-device-info';
 import RNFetchBlob from 'rn-fetch-blob';
-import {getVersion} from 'react-native-device-info';
 
-import * as services from '../../services/index';
 import {UserIdModal, PreviewModal, AlertModal} from '../../components';
 import {
   setAudioVideoState,
   saveUserData,
   updateHmsReference,
+  setPeerState,
 } from '../../redux/actions/index';
-import {writeFile} from '../../utils/functions';
+import {
+  writeFile,
+  callService,
+  tokenFromLinkService,
+  getMeetingUrl,
+  getRoomIdDetails,
+  requestExternalStoragePermission,
+  updatePeersTrackNodesOnPeerListener,
+  updatePeersTrackNodesOnTrackListener,
+} from '../../utils/functions';
 import {styles} from './styles';
 import type {AppStackParamList} from '../../navigator';
 import type {RootState} from '../../redux';
+import type {PeerTrackNode} from '../../utils/types';
 
-type WelcomeProps = {
-  setAudioVideoStateRequest: Function;
-  saveUserDataRequest: Function;
-  updateHms: Function;
-  state: RootState;
-  hmsInstance: HMSSDK | undefined;
-};
-
-type WelcomeScreenProp = StackNavigationProp<
+type WelcomeScreenProp = NativeStackNavigationProp<
   AppStackParamList,
   'WelcomeScreen'
 >;
 
 type ButtonState = 'Active' | 'Loading';
 
-const callService = async (
-  userID: string,
-  roomID: string,
-  joinRoom: Function,
-  apiFailed: Function,
-) => {
-  const response = await services.fetchToken({
-    userID,
-    roomID,
-  });
-
-  if (response.error || !response?.token) {
-    apiFailed(response);
-  } else {
-    joinRoom(response.token, userID);
-  }
-  return response;
-};
-
-const tokenFromLinkService = async (
-  code: string,
-  subdomain: string,
-  userID: string,
-  fetchTokenFromLinkSuccess: Function,
-  apiFailed: Function,
-) => {
-  const response = await services.fetchTokenFromLink({
-    code,
-    subdomain,
-    userID,
-  });
-
-  if (response.error || !response?.token) {
-    apiFailed(response);
-  } else {
-    if (subdomain.search('.qa-') >= 0) {
-      fetchTokenFromLinkSuccess(
-        response.token,
-        userID,
-        'https://qa-init.100ms.live/init',
-      );
-    } else {
-      fetchTokenFromLinkSuccess(response.token, userID);
-    }
-  }
-};
-
 let config: HMSConfig | null = null;
+let roomCode: string | undefined;
+let instance: HMSSDK | undefined;
 
-const App = ({
-  setAudioVideoStateRequest,
-  saveUserDataRequest,
-  state,
-  updateHms,
-  hmsInstance,
-}: WelcomeProps) => {
-  const [orientation, setOrientation] = useState<boolean>(true);
+const App = () => {
+  const {userName} = useSelector((state: RootState) => state.user);
+  const dispatch = useDispatch();
+
+  const [peerTrackNodes, setPeerTrackNodes] = useState<Array<PeerTrackNode>>(
+    [],
+  );
+  const peerTrackNodesRef = React.useRef<Array<PeerTrackNode>>(peerTrackNodes);
   const [roomID, setRoomID] = useState<string>('');
   const [text, setText] = useState<string>('');
   const [initialized, setInitialized] = useState<boolean>(false);
@@ -140,7 +101,6 @@ const App = ({
   const [buttonState, setButtonState] = useState<ButtonState>('Active');
   const [previewButtonState, setPreviewButtonState] =
     useState<ButtonState>('Active');
-  const [instance, setInstance] = useState<HmsManager | null>(null);
   const [videoAllowed, setVideoAllowed] = useState<boolean>(false);
   const [audioAllowed, setAudioAllowed] = useState<boolean>(false);
   const [settingsModal, setSettingsModal] = useState(false);
@@ -179,10 +139,33 @@ const App = ({
       joinRoom();
     }
     setButtonState('Active');
+    setInitialized(false);
+  };
+
+  const onJoinListener = ({
+    localPeer,
+  }: {
+    room: HMSRoom;
+    localPeer: HMSLocalPeer;
+    remotePeers: Array<HMSRemotePeer>;
+  }) => {
+    const newPeerTrackNodes = updatePeersTrackNodesOnPeerListener(
+      peerTrackNodesRef?.current,
+      localPeer,
+      HMSPeerUpdate.PEER_JOINED,
+    );
+    setPreviewButtonState('Active');
+    setButtonState('Active');
+    setPreviewModal(false);
+    setInitialized(false);
+    dispatch(setAudioVideoState({audioState: audio, videoState: video}));
+    dispatch(setPeerState({peerState: newPeerTrackNodes}));
+    peerTrackNodesRef.current = [];
+    navigate('MeetingScreen');
   };
 
   const onError = (data: HMSException) => {
-    console.log('here on error', data);
+    console.log('data in onError: ', data);
     Toast.showWithGravity(
       data?.error?.message || 'Something went wrong',
       Toast.LONG,
@@ -190,46 +173,123 @@ const App = ({
     );
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const getTrackSettings = () => {
-    let audioSettings = new HMSAudioTrackSettings({
-      codec: HMSAudioCodec.opus,
-      maxBitrate: 32,
-      trackDescription: 'Simple Audio Track',
-    });
-    let videoSettings = new HMSVideoTrackSettings({
-      codec: HMSVideoCodec.VP8,
-      maxBitrate: 512,
-      maxFrameRate: 25,
-      cameraFacing: HMSCameraFacing.FRONT,
-      trackDescription: 'Simple Video Track',
-      resolution: new HMSVideoResolution({height: 180, width: 320}),
-    });
-
-    const listOfFaultyDevices = [
-      'Pixel',
-      'Pixel XL',
-      'Moto G5',
-      'Moto G (5S) Plus',
-      'Moto G4',
-      'TA-1053',
-      'Mi A1',
-      'Mi A2',
-      'E5823', // Sony z5 compact
-      'Redmi Note 5',
-      'FP2', // Fairphone FP2
-      'MI 5',
-    ];
-    const deviceModal = getModel();
-
-    return new HMSTrackSettings({
-      video: videoSettings,
-      audio: audioSettings,
-      useHardwareEchoCancellation: listOfFaultyDevices.includes(deviceModal)
-        ? true
-        : false,
-    });
+  const onRoomListener = ({
+    room,
+    type,
+    localPeer,
+    remotePeers,
+  }: {
+    room?: HMSRoom;
+    type: HMSRoomUpdate;
+    localPeer: HMSLocalPeer;
+    remotePeers: HMSRemotePeer[];
+  }) => {
+    console.log('data in onRoomListener: ', type, room, localPeer, remotePeers);
   };
+
+  const onPeerListener = ({
+    peer,
+    room,
+    type,
+    remotePeers,
+    localPeer,
+  }: {
+    room?: HMSRoom;
+    peer: HMSPeer;
+    type: HMSPeerUpdate;
+    localPeer: HMSLocalPeer;
+    remotePeers: HMSRemotePeer[];
+  }) => {
+    console.log(
+      'data in onPeerListener: ',
+      type,
+      peer,
+      room,
+      localPeer,
+      remotePeers,
+    );
+    const newPeerTrackNodes = updatePeersTrackNodesOnPeerListener(
+      peerTrackNodesRef?.current,
+      peer,
+      type,
+    );
+    peerTrackNodesRef.current = newPeerTrackNodes;
+    setPeerTrackNodes(newPeerTrackNodes);
+  };
+
+  const onTrackListener = ({
+    peer,
+    track,
+    room,
+    type,
+    remotePeers,
+    localPeer,
+  }: {
+    room?: HMSRoom;
+    peer: HMSPeer;
+    track: HMSTrack;
+    type: HMSTrackUpdate;
+    localPeer: HMSLocalPeer;
+    remotePeers: HMSRemotePeer[];
+  }) => {
+    console.log(
+      'data in onTrackListener: ',
+      type,
+      peer,
+      track,
+      room,
+      localPeer,
+      remotePeers,
+    );
+    const newPeerTrackNodes = updatePeersTrackNodesOnTrackListener(
+      peerTrackNodesRef?.current,
+      track,
+      peer,
+      type,
+    );
+    peerTrackNodesRef.current = newPeerTrackNodes;
+    setPeerTrackNodes(newPeerTrackNodes);
+  };
+
+  // const getTrackSettings = () => {
+  //   let audioSettings = new HMSAudioTrackSettings({
+  //     codec: HMSAudioCodec.opus,
+  //     maxBitrate: 32,
+  //     trackDescription: 'Simple Audio Track',
+  //   });
+  //   let videoSettings = new HMSVideoTrackSettings({
+  //     codec: HMSVideoCodec.VP8,
+  //     maxBitrate: 512,
+  //     maxFrameRate: 25,
+  //     cameraFacing: HMSCameraFacing.FRONT,
+  //     trackDescription: 'Simple Video Track',
+  //     resolution: new HMSVideoResolution({height: 180, width: 320}),
+  //   });
+
+  //   const listOfFaultyDevices = [
+  //     'Pixel',
+  //     'Pixel XL',
+  //     'Moto G5',
+  //     'Moto G (5S) Plus',
+  //     'Moto G4',
+  //     'TA-1053',
+  //     'Mi A1',
+  //     'Mi A2',
+  //     'E5823', // Sony z5 compact
+  //     'Redmi Note 5',
+  //     'FP2', // Fairphone FP2
+  //     'MI 5',
+  //   ];
+  //   const deviceModal = getModel();
+
+  //   return new HMSTrackSettings({
+  //     video: videoSettings,
+  //     audio: audioSettings,
+  //     useHardwareEchoCancellation: listOfFaultyDevices.includes(deviceModal)
+  //       ? true
+  //       : false,
+  //   });
+  // };
 
   const setupBuild = async () => {
     /**
@@ -245,8 +305,8 @@ const App = ({
     const logger = new HMSLogger();
     logger.updateLogLevel(HMSLogLevel.VERBOSE, true);
     build.setLogger(logger);
-    setInstance(build);
-    updateHms({hmsInstance: build});
+    instance = build;
+    dispatch(updateHmsReference({hmsInstance: build}));
   };
 
   useEffect(() => {
@@ -255,14 +315,10 @@ const App = ({
         setRoomID(url);
         setText(url);
       } else {
-        setRoomID('https://yogi.app.100ms.live/preview/nih-bkn-vek');
-        setText('https://yogi.app.100ms.live/preview/nih-bkn-vek');
+        setRoomID(getMeetingUrl());
+        setText(getMeetingUrl());
       }
     });
-    if (!initialized) {
-      setupBuild();
-      setInitialized(true);
-    }
 
     AppState.addEventListener('change', nextAppState => {
       if (nextAppState === 'active') {
@@ -271,24 +327,12 @@ const App = ({
             setRoomID(url);
             setText(url);
           } else {
-            setRoomID('https://yogi.app.100ms.live/preview/nih-bkn-vek');
-            setText('https://yogi.app.100ms.live/preview/nih-bkn-vek');
+            setRoomID(getMeetingUrl());
+            setText(getMeetingUrl());
           }
         });
       }
     });
-
-    Dimensions.addEventListener('change', () => {
-      setOrientation(!orientation);
-    });
-
-    return () => {
-      hmsInstance?.destroy();
-      Dimensions.removeEventListener('change', () => {
-        setOrientation(!orientation);
-      });
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkPermissionsForLink = (
@@ -341,32 +385,62 @@ const App = ({
     Alert.alert('Fetching token failed', error?.msg || 'Something went wrong');
   };
 
-  const previewRoom = (token: string, userID: string) => {
+  const previewRoom = async (token: string, userID: string) => {
     const HmsConfig = new HMSConfig({
       authToken: token,
       username: userID,
+      captureNetworkQualityInPreview: true,
     });
     config = HmsConfig;
+
+    if (!initialized) {
+      await setupBuild();
+      setInitialized(true);
+    }
 
     instance?.addEventListener(
       HMSUpdateListenerActions.ON_PREVIEW,
       previewSuccess,
     );
-    saveUserDataRequest({
-      userName: userID,
-      roomID: roomID.replace('meeting', 'preview'),
-      mirrorLocalVideo: !mirrorLocalVideo,
-    });
+    instance?.addEventListener(
+      HMSUpdateListenerActions.ON_JOIN,
+      onJoinListener,
+    );
+
+    instance?.addEventListener(
+      HMSUpdateListenerActions.ON_ROOM_UPDATE,
+      onRoomListener,
+    );
+
+    instance?.addEventListener(
+      HMSUpdateListenerActions.ON_PEER_UPDATE,
+      onPeerListener,
+    );
+
+    instance?.addEventListener(
+      HMSUpdateListenerActions.ON_TRACK_UPDATE,
+      onTrackListener,
+    );
+
     instance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
+
+    dispatch(
+      saveUserData({
+        userName: userID,
+        roomID: roomID.replace('meeting', 'preview'),
+        mirrorLocalVideo,
+        roomCode,
+      }),
+    );
+
     if (skipPreview) {
-      setSkipPreview(false);
       joinRoom();
     } else {
       instance?.preview(HmsConfig);
     }
   };
 
-  const previewWithLink = (
+  const previewWithLink = async (
     token: string,
     userID: string,
     endpoint: string | undefined,
@@ -376,16 +450,23 @@ const App = ({
       HmsConfig = new HMSConfig({
         authToken: token,
         username: userID,
+        captureNetworkQualityInPreview: true,
         endpoint,
       });
     } else {
       HmsConfig = new HMSConfig({
         authToken: token,
         username: userID,
+        captureNetworkQualityInPreview: true,
         // metadata: JSON.stringify({isHandRaised: true}), // To join with hand raised
       });
     }
     config = HmsConfig;
+
+    if (!initialized) {
+      await setupBuild();
+      setInitialized(true);
+    }
 
     instance?.addEventListener(
       HMSUpdateListenerActions.ON_PREVIEW,
@@ -397,32 +478,42 @@ const App = ({
       onJoinListener,
     );
 
-    saveUserDataRequest({
-      userName: userID,
-      roomID: roomID.replace('meeting', 'preview'),
-      mirrorLocalVideo: !mirrorLocalVideo,
-    });
+    instance?.addEventListener(
+      HMSUpdateListenerActions.ON_ROOM_UPDATE,
+      onRoomListener,
+    );
+
+    instance?.addEventListener(
+      HMSUpdateListenerActions.ON_PEER_UPDATE,
+      onPeerListener,
+    );
+
+    instance?.addEventListener(
+      HMSUpdateListenerActions.ON_TRACK_UPDATE,
+      onTrackListener,
+    );
+
     instance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
+
+    dispatch(
+      saveUserData({
+        userName: userID,
+        roomID: roomID.replace('meeting', 'preview'),
+        mirrorLocalVideo,
+        roomCode,
+      }),
+    );
+
     if (skipPreview) {
-      setSkipPreview(false);
       joinRoom();
     } else {
       instance?.preview(HmsConfig);
     }
   };
 
-  const onJoinListener = () => {
-    setPreviewButtonState('Active');
-    setButtonState('Active');
-    setPreviewModal(false);
-    setAudioVideoStateRequest({audioState: audio, videoState: video});
-    navigate('Meeting');
-  };
-
   const joinRoom = () => {
     if (config !== null) {
       instance?.join(config);
-      setMirrorLocalVideo(false);
     } else {
       console.log('config: ', config);
     }
@@ -439,41 +530,6 @@ const App = ({
     }
   };
 
-  const checkPermissionToWriteExternalStroage = async () => {
-    // Function to check the platform
-    // If Platform is Android then check for permissions.
-    if (Platform.OS === 'ios') {
-      await reportIssue();
-    } else {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-          {
-            title: 'Storage Permission Required',
-            message:
-              'Application needs access to your storage to download File',
-            buttonPositive: 'true',
-          },
-        );
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          // Start downloading
-          await reportIssue();
-          console.log('Storage Permission Granted.');
-        } else {
-          // If permission denied then show alert
-          Toast.showWithGravity(
-            'Storage Permission Not Granted',
-            Toast.LONG,
-            Toast.TOP,
-          );
-        }
-      } catch (err) {
-        // To handle permission related exception
-        console.log('checkPermissionToWriteExternalStroage: ' + err);
-      }
-    }
-  };
-
   const getSettingButtons = () => {
     const buttons: Array<{text: string; type?: string; onPress?: Function}> = [
       {
@@ -483,7 +539,10 @@ const App = ({
       {
         text: 'Report issue and share logs',
         onPress: async () => {
-          await checkPermissionToWriteExternalStroage();
+          const granted = await requestExternalStoragePermission();
+          if (granted) {
+            await reportIssue();
+          }
         },
       },
       {
@@ -502,17 +561,54 @@ const App = ({
     return buttons;
   };
 
+  const validateMeetingUrl = (userID: string) => {
+    var pattern = new RegExp(
+      '^(https?:\\/\\/)?' +
+        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
+        '((\\d{1,3}\\.){3}\\d{1,3}))' +
+        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
+        '(\\?[;&a-z\\d%_.~+=-]*)?' +
+        '(\\#[-a-z\\d_]*)?$',
+      'i',
+    );
+
+    const isUrl = pattern.test(roomID);
+    if (isUrl) {
+      setButtonState('Loading');
+      const {code, domain} = getRoomIdDetails(roomID);
+      roomCode = code;
+
+      if (code && domain) {
+        tokenFromLinkService(
+          code,
+          domain,
+          userID,
+          checkPermissionsForLink,
+          apiFailed,
+        );
+      }
+      setModalVisible(false);
+    } else {
+      setButtonState('Loading');
+      callService(userID, roomID, checkPermissions, apiFailed);
+      setModalVisible(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <AlertModal
         modalVisible={settingsModal}
         setModalVisible={setSettingsModal}
         title="Settings"
-        message=""
+        screen="welcome"
         buttons={getSettingButtons()}
       />
       <View style={styles.headerContainer}>
-        <Image style={styles.image} source={require('../../assets/icon.png')} />
+        <Image
+          style={styles.image}
+          source={require('../../../assets/icon.png')}
+        />
         <Text style={styles.logo}>100ms</Text>
         <TouchableOpacity
           onPress={() => {
@@ -564,8 +660,7 @@ const App = ({
           disabled={buttonState !== 'Active'}
           style={[
             styles.joinButtonContainer,
-            // eslint-disable-next-line react-native/no-inline-styles
-            {opacity: buttonState !== 'Active' ? 0.5 : 1},
+            buttonState !== 'Active' ? styles.halfOpacity : styles.fullOpacity,
           ]}
           onPress={() => {
             if (text !== '') {
@@ -582,56 +677,13 @@ const App = ({
             </>
           )}
         </TouchableOpacity>
-        <Text style={styles.appVersion}>
-          {`App Version :    ${getVersion()}`}
-        </Text>
       </KeyboardAvoidingView>
       {modalVisible && (
         <UserIdModal
           screen="Welcome"
-          join={(userID: string) => {
-            var pattern = new RegExp(
-              '^(https?:\\/\\/)?' +
-                '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
-                '((\\d{1,3}\\.){3}\\d{1,3}))' +
-                '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
-                '(\\?[;&a-z\\d%_.~+=-]*)?' +
-                '(\\#[-a-z\\d_]*)?$',
-              'i',
-            );
-
-            const isUrl = pattern.test(roomID);
-            if (isUrl) {
-              setButtonState('Loading');
-              const codeObject = RegExp(/(?!\/)[a-zA-Z\-0-9]*$/g).exec(text);
-
-              const domainObject = RegExp(
-                /(https:\/\/)?(?:[a-zA-Z0-9.-])+(?!\\)/,
-              ).exec(text);
-
-              if (codeObject && domainObject) {
-                const code = codeObject[0];
-                const domain = domainObject[0];
-
-                const strippedDomain = domain.replace('https://', '');
-
-                tokenFromLinkService(
-                  code,
-                  strippedDomain,
-                  userID,
-                  checkPermissionsForLink,
-                  apiFailed,
-                );
-              }
-              setModalVisible(false);
-            } else {
-              setButtonState('Loading');
-              callService(userID, roomID, checkPermissions, apiFailed);
-              setModalVisible(false);
-            }
-          }}
+          join={validateMeetingUrl}
           cancel={() => setModalVisible(false)}
-          userName={state.user.userName}
+          userName={userName}
         />
       )}
       {previewModal && (
@@ -651,7 +703,6 @@ const App = ({
           instance={instance}
           setPreviewButtonState={setPreviewButtonState}
           previewButtonState={previewButtonState}
-          mirrorLocalVideo={mirrorLocalVideo}
         />
       )}
       <View />
@@ -659,20 +710,4 @@ const App = ({
   );
 };
 
-const mapDispatchToProps = (dispatch: Function) => ({
-  setAudioVideoStateRequest: (data: {
-    audioState: boolean;
-    videoState: boolean;
-  }) => dispatch(setAudioVideoState(data)),
-  saveUserDataRequest: (data: {userName: string; roomID: string}) =>
-    dispatch(saveUserData(data)),
-  updateHms: (data: {hmsInstance: HMSSDK}) =>
-    dispatch(updateHmsReference(data)),
-});
-const mapStateToProps = (state: RootState) => {
-  return {
-    state: state,
-    hmsInstance: state?.user?.hmsInstance,
-  };
-};
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default App;

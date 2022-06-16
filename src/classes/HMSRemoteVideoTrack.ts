@@ -1,5 +1,5 @@
 import { NativeModules } from 'react-native';
-import { HMSSDK } from './HMSSDK';
+import { getLogger } from './HMSLogger';
 import { HMSVideoTrack } from './HMSVideoTrack';
 import type { HMSTrackType } from './HMSTrackType';
 
@@ -7,7 +7,7 @@ const {
   /**
    * @ignore
    */
-  HmsManager,
+  HMSManager,
 } = NativeModules;
 
 export class HMSRemoteVideoTrack extends HMSVideoTrack {
@@ -20,7 +20,7 @@ export class HMSRemoteVideoTrack extends HMSVideoTrack {
    * @memberof HMSRemoteVideoTrack
    */
   setPlaybackAllowed(playbackAllowed: boolean) {
-    const logger = HMSSDK.getLogger();
+    const logger = getLogger();
     logger?.verbose('#Function setPlaybackAllowed', {
       trackId: this.trackId,
       id: this.id,
@@ -28,7 +28,7 @@ export class HMSRemoteVideoTrack extends HMSVideoTrack {
       type: this.type,
       playbackAllowed,
     });
-    HmsManager.setPlaybackAllowed({
+    HMSManager.setPlaybackAllowed({
       id: this.id,
       trackId: this.trackId,
       playbackAllowed,
@@ -37,14 +37,14 @@ export class HMSRemoteVideoTrack extends HMSVideoTrack {
 
   isPlaybackAllowed = async () => {
     try {
-      const logger = HMSSDK.getLogger();
+      const logger = getLogger();
       logger?.verbose('#Function isPlaybackAllowed', {
         trackId: this.trackId,
         id: this.id,
         source: this.source,
         type: this.type,
       });
-      const val = await HmsManager.isPlaybackAllowed({
+      const val = await HMSManager.isPlaybackAllowed({
         id: this.id,
         trackId: this.trackId,
       });

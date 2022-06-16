@@ -1,5 +1,16 @@
 import { HMSLogLevel } from './HMSLogLevel';
 
+export let logger: HMSLogger | undefined;
+
+export const getLogger = () => {
+  return logger;
+};
+
+export const setLogger = (hmsLogger: HMSLogger, id: string) => {
+  logger = hmsLogger;
+  hmsLogger.verbose('#Function setLogger', { id });
+};
+
 export class HMSLogger {
   private _verbose: boolean = false;
   private _warning: boolean = false;
@@ -26,8 +37,8 @@ export class HMSLogger {
       if (this.onLog) {
         this?.onLog({ message, data });
       }
+      this.logs.push({ type: 'verbose', message, data, id: data?.id });
     }
-    this.logs.push({ type: 'verbose', message, data, id: data?.id });
   }
 
   warn(message: string, data: any) {
@@ -36,8 +47,8 @@ export class HMSLogger {
       if (this.onLog) {
         this?.onLog({ message, data });
       }
+      this.logs.push({ type: 'warn', message, data, id: data?.id });
     }
-    this.logs.push({ type: 'warn', message, data, id: data?.id });
   }
 
   error(message: string, data: any) {
@@ -46,8 +57,8 @@ export class HMSLogger {
       if (this.onLog) {
         this?.onLog({ message, data });
       }
+      this.logs.push({ type: 'error', message, data, id: data?.id });
     }
-    this.logs.push({ type: 'error', message, data, id: data?.id });
   }
 
   getLogs() {

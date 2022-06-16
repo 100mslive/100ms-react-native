@@ -7,49 +7,46 @@ import {
   AppState,
 } from 'react-native';
 import { HMSUpdateListenerActions } from './HMSUpdateListenerActions';
+import { HMSEncoder } from './HMSEncoder';
+import { HMSHelper } from './HMSHelper';
+import { HmsViewComponent } from './HmsView';
+import { HMSLocalAudioStats } from './HMSLocalAudioStats';
+import { HMSLocalVideoStats } from './HMSLocalVideoStats';
+import { HMSRemoteVideoStats } from './HMSRemoteVideoStats';
+import { HMSRemoteAudioStats } from './HMSRemoteAudioStats';
+import { logger, getLogger, setLogger } from './HMSLogger';
 import type { HMSConfig } from './HMSConfig';
 import type { HMSLocalPeer } from './HMSLocalPeer';
 import type { HMSRemotePeer } from './HMSRemotePeer';
 import type { HMSRoom } from './HMSRoom';
 import type { HMSRole } from './HMSRole';
-import { HMSEncoder } from './HMSEncoder';
-import { HMSMessage } from './HMSMessage';
-import { HMSHelper } from './HMSHelper';
 import type { HMSTrack } from './HMSTrack';
 import type { HMSTrackType } from './HMSTrackType';
 import type { HMSLogger } from './HMSLogger';
 import type { HMSPeer } from './HMSPeer';
-import { HmsView as HMSViewComponent } from './HmsView';
-import { HMSVideoViewMode } from './HMSVideoViewMode';
+import type { HMSVideoViewMode } from './HMSVideoViewMode';
 import type { HMSTrackSettings } from './HMSTrackSettings';
 import type { HMSRTMPConfig } from './HMSRTMPConfig';
 import type { HMSHLSConfig } from './HMSHLSConfig';
-import { HMSLocalAudioStats } from './HMSLocalAudioStats';
-import { HMSLocalVideoStats } from './HMSLocalVideoStats';
-import { HMSRemoteVideoStats } from './HMSRemoteVideoStats';
-import { HMSRemoteAudioStats } from './HMSRemoteAudioStats';
 
-interface HmsComponentProps {
+interface HmsViewProps {
   trackId: string;
-  sink: boolean;
-  style: ViewStyle;
+  style?: ViewStyle;
   mirror?: boolean;
-  scaleType: HMSVideoViewMode;
-  id?: string | null;
+  scaleType?: HMSVideoViewMode;
+  setZOrderMediaOverlay?: boolean;
 }
 
 const {
   /**
    * @ignore
    */
-  HmsManager,
+  HMSManager,
 } = NativeModules;
 
-const HmsEventEmitter = new NativeEventEmitter(HmsManager);
+const HmsEventEmitter = new NativeEventEmitter(HMSManager);
 
 let HmsSdk: HMSSDK | undefined;
-
-let logger: HMSLogger | undefined;
 
 export class HMSSDK {
   room?: HMSRoom;
@@ -92,7 +89,7 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   static async build(params?: { trackSettings: HMSTrackSettings }) {
-    let id = await HmsManager.build(params?.trackSettings || {});
+    let id = await HMSManager.build(params?.trackSettings || {});
     HmsSdk = new HMSSDK(id);
     HmsSdk.attachPreviewListener();
     HmsSdk.attachListeners();
@@ -105,7 +102,7 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   static getLogger() {
-    return logger;
+    return getLogger();
   }
 
   /**
@@ -114,8 +111,7 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   setLogger = (hmsLogger: HMSLogger) => {
-    logger = hmsLogger;
-    hmsLogger.verbose('#Function setLogger', { id: this.id });
+    setLogger(hmsLogger, this.id);
   };
 
   /**
@@ -123,8 +119,10 @@ export class HMSSDK {
    *
    * @memberof HMSSDK
    */
-  destroy = () => {
+  destroy = async () => {
+    logger?.verbose('#Function destroy', { id: this.id });
     this.removeListeners();
+    return await HMSManager.destroy({ id: this.id });
   };
 
   /**
@@ -336,7 +334,7 @@ export class HMSSDK {
   join = async (config: HMSConfig) => {
     logger?.verbose('#Function join', { config, id: this.id });
     this.addAppStateListener();
-    await HmsManager.join({ ...config, id: this.id });
+    await HMSManager.join({ ...config, id: this.id });
   };
 
   /**
@@ -350,7 +348,7 @@ export class HMSSDK {
    */
   preview = (config: HMSConfig) => {
     logger?.verbose('#Function preview', { config, id: this.id });
-    HmsManager.preview({ ...config, id: this.id });
+    HMSManager.preview({ ...config, id: this.id });
   };
 
   /**
@@ -370,7 +368,7 @@ export class HMSSDK {
       id: this.id,
     });
     if (Platform.OS === 'ios') {
-      return await HmsManager.previewForRole({ role: role?.name, id: this.id });
+      return await HMSManager.previewForRole({ role: role?.name, id: this.id });
     } else {
       console.log('API currently not available for android');
       return 'API currently not available for android';
@@ -380,7 +378,6 @@ export class HMSSDK {
   /**
    * - HmsView is react component that takes one track and starts showing that track on a tile.
    * - The appearance of tile is completely customizable with style prop.
-   * - setting sink true or false for a video tile will add or remove sink for a video.
    * - scale type can determine how the incoming video will fit in the canvas check {@link HMSVideoViewMode} for more information.
    *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/render-video} for more info
@@ -388,24 +385,20 @@ export class HMSSDK {
    * @param {HmsComponentProps}
    * @memberof HMSSDK
    */
-  HmsView = ({
-    sink,
-    trackId,
-    style,
-    mirror,
-    scaleType = HMSVideoViewMode.ASPECT_FIT,
-  }: HmsComponentProps) => {
+  HmsView = React.forwardRef<any, HmsViewProps>((props, ref) => {
+    const { trackId, style, mirror, scaleType, setZOrderMediaOverlay } = props;
     return (
-      <HMSViewComponent
-        sink={sink}
+      <HmsViewComponent
+        ref={ref}
         trackId={trackId}
         style={style}
+        setZOrderMediaOverlay={setZOrderMediaOverlay}
         mirror={mirror}
         scaleType={scaleType}
         id={this.id}
       />
     );
-  };
+  });
 
   /**
    * Calls leave function of native sdk and session of current user is invalidated.
@@ -420,7 +413,7 @@ export class HMSSDK {
       id: this.id,
     };
 
-    const op = await HmsManager.leave(data);
+    const op = await HMSManager.leave(data);
     this.muteStatus = undefined;
     this.localPeer = undefined;
     this.remotePeers = undefined;
@@ -444,7 +437,7 @@ export class HMSSDK {
       type: type || null,
       id: this.id,
     });
-    return await HmsManager.sendBroadcastMessage({
+    return await HMSManager.sendBroadcastMessage({
       message,
       type: type || null,
       id: this.id,
@@ -470,7 +463,7 @@ export class HMSSDK {
       id: this.id,
       type: type || null,
     });
-    return await HmsManager.sendGroupMessage({
+    return await HMSManager.sendGroupMessage({
       message,
       roles: HMSHelper.getRoleNames(roles),
       id: this.id,
@@ -497,7 +490,7 @@ export class HMSSDK {
       id: this.id,
       type: type || null,
     });
-    return await HmsManager.sendDirectMessage({
+    return await HMSManager.sendDirectMessage({
       message,
       peerId: peer.peerID,
       id: this.id,
@@ -519,7 +512,7 @@ export class HMSSDK {
    */
   changeMetadata = (metadata: string) => {
     logger?.verbose('#Function changeMetadata', { metadata, id: this.id });
-    HmsManager.changeMetadata({ metadata, id: this.id });
+    HMSManager.changeMetadata({ metadata, id: this.id });
   };
 
   /**
@@ -537,7 +530,7 @@ export class HMSSDK {
       id: this.id,
     });
 
-    const op = await HmsManager.startRTMPOrRecording({ ...data, id: this.id });
+    const op = await HMSManager.startRTMPOrRecording({ ...data, id: this.id });
     return op;
   };
 
@@ -551,7 +544,7 @@ export class HMSSDK {
    */
   stopRtmpAndRecording = async () => {
     logger?.verbose('#Function stopRtmpAndRecording', {});
-    const op = await HmsManager.stopRtmpAndRecording({ id: this.id });
+    const op = await HMSManager.stopRtmpAndRecording({ id: this.id });
     return op;
   };
 
@@ -569,7 +562,7 @@ export class HMSSDK {
       ...data,
       id: this.id,
     });
-    return await HmsManager.startHLSStreaming({ ...data, id: this.id });
+    return await HMSManager.startHLSStreaming({ ...data, id: this.id });
   };
 
   /**
@@ -582,7 +575,7 @@ export class HMSSDK {
    */
   stopHLSStreaming = async () => {
     logger?.verbose('#Function stopHLSStreaming', {});
-    return await HmsManager.stopHLSStreaming({ id: this.id });
+    return await HMSManager.stopHLSStreaming({ id: this.id });
   };
 
   /**
@@ -607,7 +600,7 @@ export class HMSSDK {
       id: this.id,
     };
     logger?.verbose('#Function changeRole', data);
-    return await HmsManager.changeRole(data);
+    return await HMSManager.changeRole(data);
   };
 
   /**
@@ -631,7 +624,7 @@ export class HMSSDK {
       id: this.id,
     };
 
-    return await HmsManager.changeTrackState(data);
+    return await HMSManager.changeTrackState(data);
   };
 
   /**
@@ -667,7 +660,7 @@ export class HMSSDK {
       id: this.id,
     };
 
-    return await HmsManager.changeTrackStateForRoles(data);
+    return await HMSManager.changeTrackStateForRoles(data);
   };
 
   /**
@@ -690,7 +683,7 @@ export class HMSSDK {
       id: this.id,
     };
 
-    return await HmsManager.removePeer(data);
+    return await HMSManager.removePeer(data);
   };
 
   /**
@@ -710,7 +703,7 @@ export class HMSSDK {
       id: this.id,
     };
 
-    return await HmsManager.endRoom(data);
+    return await HMSManager.endRoom(data);
   };
 
   /**
@@ -727,7 +720,7 @@ export class HMSSDK {
       id: this.id,
     };
 
-    return await HmsManager.changeName(data);
+    return await HMSManager.changeName(data);
   };
 
   /**
@@ -739,7 +732,7 @@ export class HMSSDK {
    */
   acceptRoleChange = async () => {
     logger?.verbose('#Function acceptRoleChange', { id: this.id });
-    return await HmsManager.acceptRoleChange({ id: this.id });
+    return await HMSManager.acceptRoleChange({ id: this.id });
   };
 
   /**
@@ -753,7 +746,7 @@ export class HMSSDK {
   setPlaybackForAllAudio = (mute: boolean) => {
     logger?.verbose('#Function setPlaybackForAllAudio', { mute, id: this.id });
     this.muteStatus = mute;
-    HmsManager.setPlaybackForAllAudio({ mute, id: this.id });
+    HMSManager.setPlaybackForAllAudio({ mute, id: this.id });
   };
 
   /**
@@ -763,7 +756,7 @@ export class HMSSDK {
    */
   remoteMuteAllAudio = () => {
     logger?.verbose('#Function remoteMuteAllAudio', { id: this.id });
-    HmsManager.remoteMuteAllAudio({ id: this.id });
+    HMSManager.remoteMuteAllAudio({ id: this.id });
   };
 
   /**
@@ -780,7 +773,7 @@ export class HMSSDK {
       roomID: this.room?.id,
       id: this.id,
     });
-    const hmsRoom = await HmsManager.getRoom({ id: this.id });
+    const hmsRoom = await HMSManager.getRoom({ id: this.id });
 
     const encodedHmsRoom = HMSEncoder.encodeHmsRoom(hmsRoom, this.id);
     return encodedHmsRoom;
@@ -799,7 +792,7 @@ export class HMSSDK {
       volume,
       id: this.id,
     });
-    HmsManager.setVolume({
+    HMSManager.setVolume({
       id: this.id,
       trackId: track.trackId,
       volume,
@@ -808,7 +801,7 @@ export class HMSSDK {
 
   resetVolume = () => {
     logger?.verbose('#Function resetVolume', { id: this.id });
-    if (Platform.OS === 'android') HmsManager.resetVolume({ id: this.id });
+    if (Platform.OS === 'android') HMSManager.resetVolume({ id: this.id });
   };
 
   /**
@@ -837,12 +830,13 @@ export class HMSSDK {
    *
    * @memberof HMSSDK
    */
-  startScreenshare = () => {
+  startScreenshare = async () => {
     logger?.verbose('#Function startScreenshare', { id: this.id });
     if (Platform.OS === 'android') {
-      HmsManager.startScreenshare({ id: this.id });
+      return await HMSManager.startScreenshare({ id: this.id });
     } else {
       console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
     }
   };
 
@@ -856,7 +850,7 @@ export class HMSSDK {
   isScreenShared = async () => {
     logger?.verbose('#Function isScreenShared', { id: this.id });
     if (Platform.OS === 'android') {
-      return await HmsManager.isScreenShared({ id: this.id });
+      return await HMSManager.isScreenShared({ id: this.id });
     } else {
       console.log('API currently not available for iOS');
       return 'API currently not available for iOS';
@@ -873,7 +867,7 @@ export class HMSSDK {
   stopScreenshare = async () => {
     logger?.verbose('#Function stopScreenshare', { id: this.id });
     if (Platform.OS === 'android') {
-      return await HmsManager.stopScreenshare({ id: this.id });
+      return await HMSManager.stopScreenshare({ id: this.id });
     } else {
       console.log('API currently not available for iOS');
       return 'API currently not available for iOS';
@@ -895,7 +889,7 @@ export class HMSSDK {
   enableRTCStats = () => {
     logger?.verbose('#Function enableRTCStats', { id: this.id });
     if (Platform.OS === 'ios') {
-      HmsManager.enableRTCStats({ id: this.id });
+      HMSManager.enableRTCStats({ id: this.id });
     } else {
       console.log('API currently not avaialble for android');
     }
@@ -912,7 +906,7 @@ export class HMSSDK {
   disableRTCStats = () => {
     logger?.verbose('#Function disableRTCStats', { id: this.id });
     if (Platform.OS === 'ios') {
-      HmsManager.disableRTCStats({ id: this.id });
+      HMSManager.disableRTCStats({ id: this.id });
     } else {
       console.log('API currently not avaialble for android');
     }
@@ -1245,7 +1239,7 @@ export class HMSSDK {
       return;
     }
     logger?.verbose('#Listener ON_MESSAGE', data);
-    const message = new HMSMessage(data);
+    const message = HMSEncoder.encodeHMSMessage(data, this.id);
     if (this.onMessageDelegate) {
       logger?.verbose('#Listener ON_MESSAGE_LISTENER_CALL', message);
       this.onMessageDelegate(message);
@@ -1256,10 +1250,12 @@ export class HMSSDK {
     if (data.id !== this.id) {
       return;
     }
-    logger?.verbose('#Listener ON_SPEAKER', data);
+    logger?.verbose('#Listener ON_SPEAKER', data?.speakers);
     if (this.onSpeakerDelegate) {
-      logger?.verbose('#Listener ON_SPEAKER_LISTENER_CALL', data);
-      this.onSpeakerDelegate(HMSEncoder.encodeHmsSpeakerUpdate(data, this.id));
+      logger?.verbose('#Listener ON_SPEAKER_LISTENER_CALL', data?.speakers);
+      this.onSpeakerDelegate(
+        HMSEncoder.encodeHmsSpeakers(data?.speakers, this.id)
+      );
     }
   };
 

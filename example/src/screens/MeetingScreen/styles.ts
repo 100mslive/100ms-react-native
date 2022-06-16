@@ -1,7 +1,7 @@
 import {StyleSheet} from 'react-native';
 import dimension from '../../utils/dimension';
 
-import {getThemeColour} from '../../utils/functions';
+import {COLORS, FONTS} from '../../utils/theme';
 
 const styles = StyleSheet.create({
   container: {
@@ -9,7 +9,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   videoIcon: {
-    color: getThemeColour(),
+    color: COLORS.PRIMARY.DEFAULT,
   },
   labelContainer: {
     position: 'absolute',
@@ -19,19 +19,12 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   raiseHand: {
-    color: 'rgb(242,202,73)',
+    color: COLORS.INDICATORS.WARNING,
+  },
+  degraded: {
+    color: COLORS.INDICATORS.ERROR,
   },
   fullScreenTile: {
-    width: '100%',
-    marginVertical: 1,
-    padding: 0.5,
-    overflow: 'hidden',
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignSelf: 'center',
-    height: '100%',
-  },
-  fullScreenLandscape: {
     width: '100%',
     marginVertical: 1,
     padding: 0.5,
@@ -47,7 +40,7 @@ const styles = StyleSheet.create({
     marginVertical: 1,
     padding: '0.25%',
     overflow: 'hidden',
-    borderRadius: 10,
+    borderRadius: 20,
   },
   hmsView: {
     height: '100%',
@@ -58,25 +51,26 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   iconContainers: {
-    display: 'flex',
+    position: 'absolute',
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingBottom: dimension.viewHeight(22),
-    paddingTop: dimension.viewHeight(15),
+    paddingBottom: dimension.viewHeight(4),
+    paddingTop: dimension.viewHeight(4),
     width: '100%',
-    backgroundColor: 'white',
-    height: dimension.viewHeight(90),
+    backgroundColor: COLORS.OVERLAY,
+    borderRadius: 20,
+    height: dimension.viewHeight(60),
   },
   leaveIconContainer: {
-    backgroundColor: '#ee4578',
+    backgroundColor: COLORS.INDICATORS.ERROR,
     padding: dimension.viewHeight(10),
-    borderRadius: 50,
+    borderRadius: 60,
   },
   singleIconContainer: {
     padding: dimension.viewHeight(10),
   },
   leaveIcon: {
-    color: 'white',
+    color: COLORS.WHITE,
   },
   wrapper: {
     flex: 1,
@@ -84,30 +78,31 @@ const styles = StyleSheet.create({
   },
   displayContainer: {
     position: 'absolute',
-    bottom: 2,
+    top: 4,
     alignSelf: 'center',
-    backgroundColor: 'rgba(137,139,155,0.5)',
-    paddingHorizontal: 8,
-    paddingVertical: 16,
+    padding: 8,
     borderRadius: 8,
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'center',
+    zIndex: 3,
   },
   peerName: {
-    color: getThemeColour(),
+    color: COLORS.PRIMARY.DEFAULT,
+    fontFamily: 'Inter-Bold',
   },
   peerNameContainer: {
-    maxWidth: 80,
+    maxWidth: 70,
   },
   micContainer: {
-    paddingHorizontal: 3,
+    flexDirection: 'row',
   },
   mic: {
-    color: getThemeColour(),
+    color: COLORS.PRIMARY.DEFAULT,
+    paddingHorizontal: 3,
   },
   avatarContainer: {
     flex: 1,
-    backgroundColor: 'black',
+    backgroundColor: COLORS.BLACK,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -115,8 +110,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     height: '100%',
     width: '100%',
-    backgroundColor: 'black',
-    zIndex: 10,
+    backgroundColor: COLORS.BLACK,
+    zIndex: 2,
   },
   avatar: {
     aspectRatio: 1,
@@ -126,19 +121,20 @@ const styles = StyleSheet.create({
     borderRadius: 500,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: COLORS.PRIMARY.DEFAULT,
   },
   avatarText: {
-    fontSize: 30,
-    color: 'white',
+    color: COLORS.WHITE,
+    ...FONTS.H4,
   },
   degradedText: {
-    fontSize: 20,
-    color: 'white',
+    color: COLORS.WHITE,
+    ...FONTS.H6,
   },
   highlight: {
     borderRadius: 10,
     borderWidth: 5,
-    borderColor: getThemeColour(),
+    borderColor: COLORS.PRIMARY.DEFAULT,
   },
   messageDot: {
     width: 10,
@@ -146,12 +142,12 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     position: 'absolute',
     zIndex: 100,
-    backgroundColor: 'red',
-    right: dimension.viewWidth(10),
+    backgroundColor: COLORS.PRIMARY.DEFAULT,
+    right: dimension.viewWidth(8),
     top: dimension.viewHeight(10),
   },
   options: {
-    color: getThemeColour(),
+    color: COLORS.PRIMARY.DEFAULT,
   },
   optionsContainer: {
     padding: 10,
@@ -161,9 +157,11 @@ const styles = StyleSheet.create({
   },
   roleChangeText: {
     padding: 12,
+    fontFamily: 'Inter-Regular',
   },
   headerName: {
-    color: getThemeColour(),
+    color: COLORS.PRIMARY.DEFAULT,
+    fontFamily: 'Inter-Bold',
   },
   headerIcon: {
     padding: dimension.viewHeight(10),
@@ -185,20 +183,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   recording: {
-    color: 'red',
+    color: COLORS.INDICATORS.ERROR,
     padding: dimension.viewHeight(10),
   },
   streaming: {
-    color: 'red',
+    color: COLORS.INDICATORS.ERROR,
     padding: dimension.viewHeight(10),
   },
   input: {
     borderWidth: 1,
     borderRadius: 10,
-    borderColor: 'black',
+    borderColor: COLORS.BLACK,
     paddingLeft: 10,
     minHeight: 32,
-    color: getThemeColour(),
+    color: COLORS.PRIMARY.DEFAULT,
     margin: 10,
   },
   recordingDetails: {
@@ -209,14 +207,14 @@ const styles = StyleSheet.create({
   checkboxContainer: {
     height: 25,
     width: 25,
-    borderColor: 'black',
+    borderColor: COLORS.BLACK,
     borderWidth: 2,
     borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
   },
   checkbox: {
-    color: 'black',
+    color: COLORS.BLACK,
   },
   closeButton: {
     zIndex: 2,
@@ -241,10 +239,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: getThemeColour(),
+    borderColor: COLORS.PRIMARY.DEFAULT,
   },
   brb: {
-    color: getThemeColour(),
+    color: COLORS.PRIMARY.DEFAULT,
+    fontFamily: 'Inter-Bold',
   },
   brbOnContainer: {
     flex: 1,
@@ -252,23 +251,95 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: getThemeColour(),
-    backgroundColor: getThemeColour(),
+    borderColor: COLORS.PRIMARY.DEFAULT,
+    backgroundColor: COLORS.PRIMARY.DEFAULT,
   },
   brbOn: {
-    color: 'white',
+    color: COLORS.WHITE,
+    fontFamily: 'Inter-Bold',
   },
   statsContainer: {
     position: 'absolute',
     zIndex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: COLORS.OVERLAY,
     padding: 5,
     borderRadius: 10,
     margin: 1,
   },
   statsText: {
-    color: 'white',
+    color: COLORS.WHITE,
+    fontFamily: 'Inter-Bold',
     fontSize: 16,
+  },
+  heroContainer: {
+    width: '100%',
+    height: '100%',
+  },
+  heroView: {
+    height: '100%',
+    width: '100%',
+    marginVertical: 1,
+    padding: '0.25%',
+    overflow: 'hidden',
+    borderRadius: 10,
+  },
+  heroTileContainer: {
+    height: '80%',
+    width: '100%',
+    marginVertical: 1,
+    padding: '0.25%',
+    overflow: 'hidden',
+    borderRadius: 10,
+  },
+  heroTileContainerSingle: {
+    height: '100%',
+    width: '100%',
+    marginVertical: 1,
+    padding: '0.25%',
+    overflow: 'hidden',
+    borderRadius: 10,
+  },
+  heroListContainer: {
+    width: '100%',
+    height: '20%',
+  },
+  heroListView: {
+    width: 150,
+    height: '100%',
+  },
+  mainTileContainer: {
+    height: '100%',
+    width: '100%',
+    zIndex: 2,
+  },
+  miniTileContainer: {
+    position: 'absolute',
+    bottom: 10,
+    right: 10,
+    width: '40%',
+    height: '40%',
+    borderWidth: 2,
+    borderRadius: 10,
+    borderColor: COLORS.BORDER.DEFAULT,
+    zIndex: 3,
+  },
+  heroListViewContainer: {
+    marginHorizontal: 1,
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+  network: {
+    height: 30,
+    width: 30,
+    marginRight: 3,
+  },
+  interRegular: {
+    fontFamily: 'Inter-Regular',
+  },
+  status: {
+    alignSelf: 'center',
+    position: 'absolute',
+    top: '70%',
   },
 });
 

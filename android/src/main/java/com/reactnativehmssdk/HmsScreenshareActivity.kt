@@ -17,19 +17,34 @@ class HmsScreenshareActivity : ComponentActivity() {
         if (result.resultCode == Activity.RESULT_OK) {
           val mediaProjectionPermissionResultData: Intent? = result.data
           val id = intent.getStringExtra("id")
-          HmsModule.hmsCollection[id]?.hmsSDK?.startScreenshare(
+          HMSManager.hmsCollection[id]?.hmsSDK?.startScreenshare(
               object : HMSActionResultListener {
                 override fun onError(error: HMSException) {
                   finish()
-                  HmsModule.hmsCollection[id]?.emitHMSError(error)
+                  HMSManager.hmsCollection[id]?.screenshareCallback?.reject(error)
+                  HMSManager.hmsCollection[id]?.emitHMSError(error)
                 }
                 override fun onSuccess() {
+                  HMSManager.hmsCollection[id]?.screenshareCallback?.resolve(
+                      HMSManager.hmsCollection[id]?.emitHMSSuccess()
+                  )
                   finish()
                 }
               },
               mediaProjectionPermissionResultData
           )
         } else {
+          val id = intent.getStringExtra("id")
+          val error =
+              HMSException(
+                  103,
+                  "RESULT_CANCELED",
+                  "RESULT_CANCELED",
+                  "RESULT_CANCELED",
+                  "RESULT_CANCELED"
+              )
+          HMSManager.hmsCollection[id]?.screenshareCallback?.reject(error)
+          HMSManager.hmsCollection[id]?.emitHMSError(error)
           finish()
         }
       }
@@ -41,7 +56,7 @@ class HmsScreenshareActivity : ComponentActivity() {
 
   private fun startScreenshare() {
     val id = intent.getStringExtra("id")
-    val isScreenShared = HmsModule.hmsCollection[id]?.hmsSDK?.isScreenShared()
+    val isScreenShared = HMSManager.hmsCollection[id]?.hmsSDK?.isScreenShared()
     if (isScreenShared !== null && !isScreenShared) {
       try {
         val mediaProjectionManager =
@@ -51,7 +66,7 @@ class HmsScreenshareActivity : ComponentActivity() {
         println(e)
       }
     } else {
-      HmsModule.hmsCollection[id]?.emitHMSError(
+      HMSManager.hmsCollection[id]?.emitHMSError(
           HMSException(
               103,
               "SCREENSHARE_IS_ALREADY_RUNNING",

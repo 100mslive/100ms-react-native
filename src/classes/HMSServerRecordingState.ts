@@ -2,12 +2,12 @@ import type { HMSException } from './HMSException';
 
 export class HMSServerRecordingState {
   running: string;
-  error: HMSException;
+  error?: HMSException;
   startedAt: Date;
 
   constructor(params: {
     running: string;
-    error: HMSException;
+    error?: HMSException;
     startedAt: Date;
   }) {
     this.running = params.running;

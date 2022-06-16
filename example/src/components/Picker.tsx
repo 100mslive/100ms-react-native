@@ -4,6 +4,7 @@ import {Picker} from '@react-native-picker/picker';
 import ModalDropdown from 'react-native-modal-dropdown';
 import Material from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {COLORS} from '../utils/theme';
 
 export const CustomPicker = ({
   selectedItem,
@@ -106,10 +107,10 @@ const styles = StyleSheet.create({
     top: 10,
   },
   dropdownArrow: {
-    color: '#4578e0',
+    color: COLORS.PRIMARY.DEFAULT,
   },
   dropdownIcons: {
-    color: 'black',
+    color: COLORS.PRIMARY.DARK,
   },
   modalDropdown: {
     minWidth: 120,
@@ -117,7 +118,8 @@ const styles = StyleSheet.create({
   textStyle: {
     fontSize: 20,
     padding: 10,
-    color: '#4578e0',
+    fontFamily: 'Inter-Medium',
+    color: COLORS.PRIMARY.LIGHT,
   },
   dropdownStyle: {
     minWidth: '50%',
@@ -127,6 +129,8 @@ const styles = StyleSheet.create({
   dropdownTextStyle: {
     fontSize: 15,
     padding: 10,
+    fontFamily: 'Inter-Medium',
+    color: COLORS.PRIMARY.LIGHT,
   },
   dropdownRow: {
     flexDirection: 'row',
@@ -136,5 +140,7 @@ const styles = StyleSheet.create({
   },
   dropdownRowText: {
     padding: 5,
+    fontFamily: 'Inter-Medium',
+    color: COLORS.PRIMARY.LIGHT,
   },
 });

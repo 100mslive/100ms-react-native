@@ -1,7 +1,7 @@
 #import <React/RCTEventEmitter.h>
 #import <Foundation/Foundation.h>
 
-@interface RCT_EXTERN_MODULE(HmsManager, RCTEventEmitter)
+@interface RCT_EXTERN_MODULE(HMSManager, RCTEventEmitter)
 
 RCT_EXTERN_METHOD(join: (NSDictionary) credentials)
 RCT_EXTERN_METHOD(preview: (NSDictionary) credentials)
@@ -36,4 +36,5 @@ RCT_EXTERN_METHOD(stopHLSStreaming: (NSDictionary) data :(RCTPromiseResolveBlock
 RCT_EXTERN_METHOD(changeName: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(enableRTCStats: (NSDictionary) data)
 RCT_EXTERN_METHOD(disableRTCStats: (NSDictionary) data)
+RCT_EXTERN_METHOD(destroy: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 @end

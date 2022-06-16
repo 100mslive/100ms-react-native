@@ -1,19 +1,35 @@
 package com.reactnativehmssdk
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.os.Build
+import android.os.Handler
+import android.util.Base64
+import android.util.Log
+import android.view.PixelCopy
+import androidx.annotation.RequiresApi
+import com.facebook.react.bridge.*
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
+import com.facebook.react.uimanager.events.RCTEventEmitter
+import java.io.ByteArrayOutputStream
+import java.util.*
+import live.hms.video.error.HMSException
 import live.hms.video.media.codec.HMSAudioCodec
 import live.hms.video.media.codec.HMSVideoCodec
 import live.hms.video.media.settings.HMSAudioTrackSettings
 import live.hms.video.media.settings.HMSTrackSettings
 import live.hms.video.media.settings.HMSVideoResolution
 import live.hms.video.media.settings.HMSVideoTrackSettings
-import live.hms.video.media.tracks.*
+import live.hms.video.media.tracks.HMSRemoteAudioTrack
+import live.hms.video.media.tracks.HMSRemoteVideoTrack
+import live.hms.video.media.tracks.HMSTrack
 import live.hms.video.sdk.models.*
-import live.hms.video.sdk.models.role.*
+import live.hms.video.sdk.models.role.HMSRole
 import live.hms.video.utils.HmsUtilities
+import org.webrtc.SurfaceViewRenderer
 
-object HmsHelper {
+object HMSHelper {
 
   fun areAllRequiredKeysAvailable(
       map: ReadableMap?,
@@ -46,6 +62,39 @@ object HmsHelper {
       }
     }
     return true
+  }
+
+  fun getUnavailableRequiredKey(
+      map: ReadableMap?,
+      requiredKeys: Array<Pair<String, String>>
+  ): String? {
+    if (map == null) {
+      return "Object_Is_Null"
+    }
+    for ((key, value) in requiredKeys) {
+      if (map.hasKey(key)) {
+        when (value) {
+          "String" -> {
+            if (map.getString(key) == null) {
+              return key + "_Is_Null"
+            }
+          }
+          "Array" -> {
+            if (map.getArray(key) == null) {
+              return key + "_Is_Null"
+            }
+          }
+          "Map" -> {
+            if (map.getMap(key) == null) {
+              return key + "_Is_Null"
+            }
+          }
+        }
+      } else {
+        return key + "_Is_Required"
+      }
+    }
+    return null
   }
 
   fun getPeerFromPeerId(peerId: String?, room: HMSRoom?): HMSPeer? {
@@ -107,7 +156,7 @@ object HmsHelper {
 
   fun getTrackFromTrackId(trackId: String?, room: HMSRoom?): HMSTrack? {
     if (trackId != null && room != null) {
-      HmsUtilities.getTrack(trackId, room)
+      return HmsUtilities.getTrack(trackId, room)
     }
     return null
   }
@@ -237,7 +286,7 @@ object HmsHelper {
     return HMSVideoTrackSettings.CameraFacing.FRONT
   }
 
-  fun getHms(credentials: ReadableMap, hmsCollection: MutableMap<String, HmsSDK>): HmsSDK? {
+  fun getHms(credentials: ReadableMap, hmsCollection: MutableMap<String, HMSRNSDK>): HMSRNSDK? {
     val id = credentials.getString("id")
 
     return if (id != null) {
@@ -306,5 +355,161 @@ object HmsHelper {
       meetingURLVariant = HMSHLSMeetingURLVariant(meetingUrl, metadata)
     }
     return meetingURLVariant
+  }
+
+  fun getHmsConfig(credentials: ReadableMap): HMSConfig {
+    var config =
+        HMSConfig(
+            credentials.getString("username") as String,
+            credentials.getString("authToken") as String,
+        )
+
+    when {
+      areAllRequiredKeysAvailable(
+          credentials,
+          arrayOf(
+              Pair("endpoint", "String"),
+              Pair("metadata", "String"),
+              Pair("captureNetworkQualityInPreview", "Boolean")
+          )
+      ) -> {
+        config =
+            HMSConfig(
+                credentials.getString("username") as String,
+                credentials.getString("authToken") as String,
+                initEndpoint = credentials.getString("endpoint") as String,
+                metadata = credentials.getString("metadata") as String,
+                captureNetworkQualityInPreview =
+                    credentials.getBoolean("captureNetworkQualityInPreview"),
+            )
+      }
+      areAllRequiredKeysAvailable(
+          credentials,
+          arrayOf(Pair("endpoint", "String"), Pair("metadata", "String"))
+      ) -> {
+        config =
+            HMSConfig(
+                credentials.getString("username") as String,
+                credentials.getString("authToken") as String,
+                initEndpoint = credentials.getString("endpoint") as String,
+                metadata = credentials.getString("metadata") as String,
+            )
+      }
+      areAllRequiredKeysAvailable(
+          credentials,
+          arrayOf(Pair("endpoint", "String"), Pair("captureNetworkQualityInPreview", "Boolean"))
+      ) -> {
+        config =
+            HMSConfig(
+                credentials.getString("username") as String,
+                credentials.getString("authToken") as String,
+                initEndpoint = credentials.getString("endpoint") as String,
+                captureNetworkQualityInPreview =
+                    credentials.getBoolean("captureNetworkQualityInPreview"),
+            )
+      }
+      areAllRequiredKeysAvailable(
+          credentials,
+          arrayOf(Pair("metadata", "String"), Pair("captureNetworkQualityInPreview", "Boolean"))
+      ) -> {
+        config =
+            HMSConfig(
+                credentials.getString("username") as String,
+                credentials.getString("authToken") as String,
+                metadata = credentials.getString("metadata") as String,
+                captureNetworkQualityInPreview =
+                    credentials.getBoolean("captureNetworkQualityInPreview"),
+            )
+      }
+      areAllRequiredKeysAvailable(credentials, arrayOf(Pair("endpoint", "String"))) -> {
+        config =
+            HMSConfig(
+                credentials.getString("username") as String,
+                credentials.getString("authToken") as String,
+                initEndpoint = credentials.getString("endpoint") as String,
+            )
+      }
+      areAllRequiredKeysAvailable(credentials, arrayOf(Pair("metadata", "String"))) -> {
+        config =
+            HMSConfig(
+                credentials.getString("username") as String,
+                credentials.getString("authToken") as String,
+                metadata = credentials.getString("metadata") as String,
+            )
+      }
+      areAllRequiredKeysAvailable(
+          credentials,
+          arrayOf(Pair("captureNetworkQualityInPreview", "Boolean"))
+      ) -> {
+        config =
+            HMSConfig(
+                credentials.getString("username") as String,
+                credentials.getString("authToken") as String,
+                captureNetworkQualityInPreview =
+                    credentials.getBoolean("captureNetworkQualityInPreview")
+            )
+      }
+    }
+    return config
+  }
+
+  @RequiresApi(Build.VERSION_CODES.N)
+  fun captureSurfaceView(
+      surfaceView: SurfaceViewRenderer,
+      sdkId: String,
+      args: ReadableArray?,
+      context: Context,
+      id: Int
+  ) {
+    val output = Arguments.createMap()
+    if (args != null) {
+      output.putInt("requestId", args.getInt(0))
+    } else {
+      output.putInt("requestId", -1)
+    }
+    val reactContext = context as ReactContext
+    try {
+      val bitmap: Bitmap =
+          Bitmap.createBitmap(surfaceView.width, surfaceView.height, Bitmap.Config.ARGB_8888)
+      PixelCopy.request(
+          surfaceView,
+          bitmap,
+          { copyResult ->
+            if (copyResult == PixelCopy.SUCCESS) {
+              Log.d("captureSurfaceView", "bitmap: $bitmap")
+              val byteArrayOutputStream = ByteArrayOutputStream()
+              bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
+              val byteArray = byteArrayOutputStream.toByteArray()
+              val encoded: String = Base64.encodeToString(byteArray, Base64.DEFAULT)
+              Log.d("captureSurfaceView", "Base64: $encoded")
+              output.putString("result", encoded)
+              reactContext
+                  .getJSModule(RCTEventEmitter::class.java)
+                  .receiveEvent(id, "captureFrame", output)
+            } else {
+              Log.e("captureSurfaceView", "copyResult: $copyResult")
+              HMSManager.hmsCollection[sdkId]?.emitHMSError(
+                  HMSException(
+                      103,
+                      copyResult.toString(),
+                      copyResult.toString(),
+                      copyResult.toString(),
+                      copyResult.toString()
+                  )
+              )
+              output.putString("error", copyResult.toString())
+              reactContext
+                  .getJSModule(RCTEventEmitter::class.java)
+                  .receiveEvent(id, "captureFrame", output)
+            }
+          },
+          Handler()
+      )
+    } catch (e: Exception) {
+      Log.e("captureSurfaceView", "error: $e")
+      HMSManager.hmsCollection[sdkId]?.emitHMSError(e as HMSException)
+      output.putString("error", e.message)
+      reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "captureFrame", output)
+    }
   }
 }

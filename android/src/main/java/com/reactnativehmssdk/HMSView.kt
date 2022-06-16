@@ -2,24 +2,27 @@ package com.reactnativehmssdk
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
 import android.view.LayoutInflater
 import android.widget.FrameLayout
+import androidx.annotation.RequiresApi
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactContext
+import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.uimanager.events.RCTEventEmitter
-import live.hms.video.media.tracks.HMSTrackType
 import live.hms.video.media.tracks.HMSVideoTrack
+import live.hms.video.utils.HmsUtilities
 import live.hms.video.utils.SharedEglContext
 import org.webrtc.RendererCommon
 import org.webrtc.SurfaceViewRenderer
 
 @SuppressLint("ViewConstructor")
-class HmsView(context: ReactContext) : FrameLayout(context) {
+class HMSView(context: ReactContext) : FrameLayout(context) {
   private var surfaceView: SurfaceViewRenderer = SurfaceViewRenderer(context)
   private var videoTrack: HMSVideoTrack? = null
-  private var localTrack: String? = null
   private var scaleTypeApplied: Boolean = false
+  private var sdkId: String = "12345"
   private var currentScaleType: RendererCommon.ScalingType =
       RendererCommon.ScalingType.SCALE_ASPECT_FILL
 
@@ -29,6 +32,11 @@ class HmsView(context: ReactContext) : FrameLayout(context) {
 
     surfaceView = view.findViewById(R.id.surfaceView)
     surfaceView.setEnableHardwareScaler(true)
+  }
+
+  @RequiresApi(Build.VERSION_CODES.N)
+  fun captureHmsView(args: ReadableArray?) {
+    HMSHelper.captureSurfaceView(surfaceView, sdkId, args, context, id)
   }
 
   private fun onReceiveNativeEvent() {
@@ -53,6 +61,13 @@ class HmsView(context: ReactContext) : FrameLayout(context) {
         onReceiveNativeEvent()
       }
       scaleTypeApplied = true
+    }
+  }
+
+  fun updateZOrderMediaOverlay(setZOrderMediaOverlay: Boolean?) {
+    if (setZOrderMediaOverlay != null && setZOrderMediaOverlay) {
+      // surfaceView.setZOrderOnTop(true);
+      surfaceView.setZOrderMediaOverlay(setZOrderMediaOverlay)
     }
   }
 
@@ -84,43 +99,19 @@ class HmsView(context: ReactContext) : FrameLayout(context) {
   fun setData(
       id: String?,
       trackId: String?,
-      hmsCollection: MutableMap<String, HmsSDK>,
+      hmsCollection: MutableMap<String, HMSRNSDK>,
       mirror: Boolean?
   ) {
-    var sdkId = "12345"
     if (id != null) {
       sdkId = id
     }
-
     val hms = hmsCollection[sdkId]?.hmsSDK
 
     if (trackId != null && hms != null) {
       if (mirror != null) {
         surfaceView.setMirror(mirror)
       }
-      localTrack = trackId
-      val localTrackId = hms.getLocalPeer()?.videoTrack?.trackId
-      if (localTrackId == localTrack) {
-        videoTrack = hms.getLocalPeer()?.videoTrack
-      }
-
-      val remotePeers = hms.getRemotePeers()
-      for (peer in remotePeers) {
-        val videoTrackId = peer.videoTrack?.trackId
-
-        val auxiliaryTracks = peer.auxiliaryTracks
-        for (track in auxiliaryTracks) {
-          val auxTrackId = track.trackId
-          if (trackId == auxTrackId && track.type == HMSTrackType.VIDEO && !track.isMute) {
-            videoTrack = track as HMSVideoTrack
-            return
-          }
-        }
-        if (videoTrackId == localTrack) {
-          videoTrack = peer.videoTrack
-          return
-        }
-      }
+      videoTrack = hms.getRoom()?.let { HmsUtilities.getVideoTrack(trackId, it) }
     }
   }
 }

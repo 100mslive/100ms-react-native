@@ -1,4 +1,5 @@
 import type { HMSAudioTrack } from './HMSAudioTrack';
+import type { HMSNetworkQuality } from './HMSNetworkQuality';
 import { HMSPeer } from './HMSPeer';
 import { HMSRemoteAudioTrack } from './HMSRemoteAudioTrack';
 import { HMSRemoteVideoTrack } from './HMSRemoteVideoTrack';
@@ -28,6 +29,7 @@ export class HMSRemotePeer extends HMSPeer {
     audioTrack?: HMSAudioTrack;
     videoTrack?: HMSVideoTrack;
     role?: HMSRole;
+    networkQuality?: HMSNetworkQuality;
     auxiliaryTracks?: HMSTrack[];
     remoteAudioTrackData?: {
       trackId: string;

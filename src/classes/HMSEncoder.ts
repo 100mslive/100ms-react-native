@@ -3,10 +3,8 @@ import { HMSAudioTrack } from './HMSAudioTrack';
 import { HMSVideoTrack } from './HMSVideoTrack';
 import { HMSRoom } from './HMSRoom';
 import { HMSPeer } from './HMSPeer';
-
 import { HMSLocalPeer } from './HMSLocalPeer';
 import { HMSRemotePeer } from './HMSRemotePeer';
-
 import { HMSAudioTrackSettings } from './HMSAudioTrackSettings';
 import { HMSVideoTrackSettings } from './HMSVideoTrackSettings';
 import { HMSLocalVideoTrack } from './HMSLocalVideoTrack';
@@ -20,20 +18,21 @@ import { HMSRTCStatsReport } from './HMSRTCStatsReport';
 import { HMSRemoteAudioTrack } from './HMSRemoteAudioTrack';
 import { HMSRemoteVideoTrack } from './HMSRemoteVideoTrack';
 import { HMSSpeaker } from './HMSSpeaker';
-import { HMSSpeakerUpdate } from './HMSSpeakerUpdate';
-import {
-  HMSBrowserRecordingState,
-  HMSHLSStreamingState,
-  HMSHLSVariant,
-  HMSRtmpStreamingState,
-  HMSServerRecordingState,
-} from '..';
 import { HMSHLSRecordingState } from './HMSHLSRecordingState';
+import { HMSNetworkQuality } from './HMSNetworkQuality';
+import { HMSBrowserRecordingState } from './HMSBrowserRecordingState';
+import { HMSHLSStreamingState } from './HMSHLSStreamingState';
+import { HMSHLSVariant } from './HMSHLSVariant';
+import { HMSRtmpStreamingState } from './HMSRtmpStreamingState';
+import { HMSServerRecordingState } from './HMSServerRecordingState';
+import { HMSMessage } from './HMSMessage';
+import { HMSMessageRecipient } from './HMSMessageRecipient';
 
 export class HMSEncoder {
   static encodeHmsRoom(room: HMSRoom, id: string) {
     const encodedObj = {
       id: room?.id,
+      sessionId: room?.sessionId,
       metaData: room?.metaData,
       name: room?.name,
       peerCount: room?.peerCount,
@@ -72,10 +71,11 @@ export class HMSEncoder {
       peerID: peer?.peerID,
       name: peer?.name,
       isLocal: peer?.isLocal,
-      role: HMSEncoder.encodeHmsRole(peer?.role),
       customerUserID: peer?.customerUserID,
       customerDescription: peer?.customerDescription,
       metadata: peer?.metadata,
+      role: HMSEncoder.encodeHmsRole(peer?.role),
+      networkQuality: HMSEncoder.encodeHMSNetworkQuality(peer?.networkQuality),
       audioTrack: HMSEncoder.encodeHmsAudioTrack(peer?.audioTrack, id),
       videoTrack: HMSEncoder.encodeHmsVideoTrack(peer?.videoTrack, id),
       auxiliaryTracks: HMSEncoder.encodeHmsAuxiliaryTracks(
@@ -144,6 +144,7 @@ export class HMSEncoder {
       customerDescription: peer.customerDescription,
       metadata: peer.metadata,
       role: HMSEncoder.encodeHmsRole(peer?.role),
+      networkQuality: HMSEncoder.encodeHMSNetworkQuality(peer?.networkQuality),
       audioTrack: HMSEncoder.encodeHmsAudioTrack(peer.audioTrack, id),
       videoTrack: HMSEncoder.encodeHmsVideoTrack(peer.videoTrack, id),
       auxiliaryTracks: HMSEncoder.encodeHmsAuxiliaryTracks(
@@ -258,6 +259,7 @@ export class HMSEncoder {
       customerDescription: peer.customerDescription,
       metadata: peer.metadata,
       role: HMSEncoder.encodeHmsRole(peer?.role),
+      networkQuality: HMSEncoder.encodeHMSNetworkQuality(peer?.networkQuality),
       audioTrack: HMSEncoder.encodeHmsAudioTrack(peer.audioTrack, id),
       videoTrack: HMSEncoder.encodeHmsVideoTrack(peer.videoTrack, id),
       auxiliaryTracks: HMSEncoder.encodeHmsAuxiliaryTracks(
@@ -384,14 +386,6 @@ export class HMSEncoder {
     });
   }
 
-  static encodeHmsSpeakerUpdate(data: any, id: string) {
-    return new HMSSpeakerUpdate({
-      event: data?.event,
-      count: data?.count,
-      peers: HMSEncoder.encodeHmsSpeakers(data?.peers, id),
-    });
-  }
-
   static encodeHmsSpeakers(data: any, id: string) {
     let encodedSpeakers: Array<HMSSpeaker> = [];
 
@@ -470,5 +464,37 @@ export class HMSEncoder {
     });
 
     return variants;
+  }
+
+  static encodeHMSNetworkQuality(data: any) {
+    if (data) {
+      return new HMSNetworkQuality({
+        downlinkQuality: data?.downlinkQuality,
+      });
+    } else {
+      return undefined;
+    }
+  }
+
+  static encodeHMSMessage(data: any, id: string) {
+    if (data) {
+      return new HMSMessage({
+        message: data?.message,
+        type: data?.type,
+        time: new Date(parseInt(data?.time)),
+        sender: this.encodeHmsPeer(data?.sender, id),
+        recipient: this.encodeHMSMessageRecipient(data?.recipient, id),
+      });
+    } else {
+      return undefined;
+    }
+  }
+
+  static encodeHMSMessageRecipient(data: any, id: string) {
+    return new HMSMessageRecipient({
+      recipientType: data?.recipientType,
+      recipientPeer: this.encodeHmsPeer(data?.recipientPeer, id),
+      recipientRoles: this.encodeHmsRoles(data?.recipientRoles),
+    });
   }
 }
