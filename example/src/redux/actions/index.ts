@@ -11,14 +11,6 @@ export const clearMessageData = () => ({
   type: actionTypes.CLEAR_MESSAGE_DATA.REQUEST,
 });
 
-export const setAudioVideoState = (data: {
-  audioState: boolean;
-  videoState: boolean;
-}) => ({
-  type: actionTypes.SET_AUDIO_VIDEO_STATE,
-  payload: data,
-});
-
 export const setPeerState = (data: {peerState: PeerTrackNode[]}) => ({
   type: actionTypes.SET_PEER_STATE,
   payload: data,
