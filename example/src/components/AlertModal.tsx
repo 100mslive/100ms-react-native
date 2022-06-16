@@ -1,5 +1,12 @@
 import React from 'react';
-import {Modal, StyleSheet, Text, View, TouchableOpacity} from 'react-native';
+import {
+  Modal,
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  ScrollView,
+} from 'react-native';
 import {getVersion} from 'react-native-device-info';
 import {COLORS} from '../utils/theme';
 
@@ -36,31 +43,33 @@ export const AlertModal = ({
           onTouchEnd={e => {
             e.stopPropagation();
           }}>
-          <Text style={styles.title}>{title}</Text>
-          {buttons.map((button, index) => (
-            <TouchableOpacity
-              key={index}
-              onPress={() => {
-                onRequestClose();
-                button.onPress && button.onPress();
-              }}
-              style={[
-                styles.buttonItem,
-                index === buttons.length - 1 && styles.buttonItemLast,
-              ]}>
-              <Text
+          <ScrollView showsVerticalScrollIndicator>
+            <Text style={styles.title}>{title}</Text>
+            {buttons.map((button, index) => (
+              <TouchableOpacity
+                key={index}
+                onPress={() => {
+                  onRequestClose();
+                  button.onPress && button.onPress();
+                }}
                 style={[
-                  styles.buttonItemText,
-                  button.type === 'cancel' && styles.cancel,
+                  styles.buttonItem,
+                  index === buttons.length - 1 && styles.buttonItemLast,
                 ]}>
-                {button.text}
-              </Text>
-            </TouchableOpacity>
-          ))}
-          {screen !== undefined && screen === 'welcome' && (
-            <Text
-              style={styles.title}>{`App Version :    ${getVersion()}`}</Text>
-          )}
+                <Text
+                  style={[
+                    styles.buttonItemText,
+                    button.type === 'cancel' && styles.cancel,
+                  ]}>
+                  {button.text}
+                </Text>
+              </TouchableOpacity>
+            ))}
+            {screen !== undefined && screen === 'welcome' && (
+              <Text
+                style={styles.title}>{`App Version :    ${getVersion()}`}</Text>
+            )}
+          </ScrollView>
         </View>
       </View>
     </Modal>
@@ -76,6 +85,7 @@ const styles = StyleSheet.create({
   },
   modalView: {
     width: '80%',
+    maxHeight: '80%',
     backgroundColor: COLORS.WHITE,
     borderRadius: 10,
     shadowColor: '#000',

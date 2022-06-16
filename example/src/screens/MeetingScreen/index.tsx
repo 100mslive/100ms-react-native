@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {
   View,
   TouchableOpacity,
@@ -24,7 +24,6 @@ import {
   HMSRoleChangeRequest,
   HMSSDK,
   HMSChangeTrackStateRequest,
-  HMSSpeakerUpdate,
   HMSPeer,
   HMSTrackType,
   HMSRTMPConfig,
@@ -53,6 +52,7 @@ import Toast from 'react-native-simple-toast';
 import RNFetchBlob from 'rn-fetch-blob';
 import {Picker} from '@react-native-picker/picker';
 import Video from 'react-native-video';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {styles} from './styles';
 import type {AppStackParamList} from '../../navigator';
@@ -81,7 +81,12 @@ import {
   updatePeersTrackNodesOnPeerListener,
   updatePeersTrackNodesOnTrackListener,
 } from '../../utils/functions';
-import {LayoutParams, ModalTypes, PeerTrackNode} from '../../utils/types';
+import {
+  LayoutParams,
+  ModalTypes,
+  PeerTrackNode,
+  SortingType,
+} from '../../utils/types';
 import {GridView} from './Grid';
 import {ActiveSpeakerView} from './ActiveSpeakerView';
 import {HeroView} from './HeroView';
@@ -116,6 +121,9 @@ const Meeting = () => {
 
   const [peerTrackNodes, setPeerTrackNodes] =
     useState<Array<PeerTrackNode>>(peerState);
+  const [pinnedPeerTrackIds, setPinnedPeerTrackIds] = useState<Array<String>>(
+    [],
+  );
   const [hmsRoom, setHmsRoom] = useState<HMSRoom>();
   const peerTrackNodesRef = React.useRef(peerTrackNodes);
   const HmsViewComponent = instance?.HmsView;
@@ -124,6 +132,8 @@ const Meeting = () => {
   const [muteAllTracksAudio, setMuteAllTracksAudio] = useState(false);
   const [action, setAction] = useState(0);
   const [layout, setLayout] = useState<LayoutParams>(LayoutParams.GRID);
+  const [sortingType, setSortingType] = useState<SortingType>();
+  const [selectedSortingType, setSelectedSortingType] = useState<SortingType>();
   const [newLayout, setNewLayout] = useState<LayoutParams>(layout);
   const [newRole, setNewRole] = useState(instance?.localPeer?.role);
   const [rtcStats, setRtcStats] = useState<HMSRTCStatsReport>();
@@ -131,6 +141,16 @@ const Meeting = () => {
   const [page, setPage] = useState(0);
   const [zoomableTrackId, setZoomableTrackId] = useState('');
   const [statsForNerds, setStatsForNerds] = useState(false);
+  const pairedPeers = useMemo(
+    () =>
+      pairDataForFlatlist(
+        peerTrackNodes,
+        layout === LayoutParams.AUDIO ? 6 : 4,
+        selectedSortingType,
+        pinnedPeerTrackIds,
+      ),
+    [layout, peerTrackNodes, selectedSortingType, pinnedPeerTrackIds],
+  );
   const [modalVisible, setModalVisible] = useState<ModalTypes>(
     ModalTypes.DEFAULT,
   );
@@ -153,10 +173,7 @@ const Meeting = () => {
       singleFilePerLayer: false,
       videoOnDemand: false,
     });
-  const pairedPeers: Array<Array<PeerTrackNode>> = pairDataForFlatlist(
-    peerTrackNodes,
-    layout === LayoutParams.AUDIO ? 6 : 4,
-  );
+  const {bottom} = useSafeAreaInsets();
 
   const getMessageToList = (): MessageObject[] => {
     const messageList: MessageObject[] = [
@@ -220,6 +237,9 @@ const Meeting = () => {
       case ModalTypes.LAYOUT:
         modalTitle = 'Layout Details';
         break;
+      case ModalTypes.SORTING:
+        modalTitle = 'Sorting Style';
+        break;
       case ModalTypes.ROLE:
         modalTitle = 'Select action';
         break;
@@ -260,6 +280,17 @@ const Meeting = () => {
             text: 'Set',
             onPress: () => {
               setLayout(newLayout);
+            },
+          },
+        ];
+        break;
+      case ModalTypes.SORTING:
+        buttons = [
+          {text: 'Cancel'},
+          {
+            text: 'Set',
+            onPress: () => {
+              setSelectedSortingType(sortingType);
             },
           },
         ];
@@ -319,6 +350,12 @@ const Meeting = () => {
             text: 'Set Layout',
             onPress: () => {
               setModalVisible(ModalTypes.LAYOUT);
+            },
+          },
+          {
+            text: 'Set Sorting Style',
+            onPress: () => {
+              setModalVisible(ModalTypes.SORTING);
             },
           },
           {
@@ -706,8 +743,8 @@ const Meeting = () => {
     console.log('data in onMessage: ', data);
   };
 
-  const onSpeaker = (data: HMSSpeakerUpdate) => {
-    setSpeakers(data?.peers || []);
+  const onSpeaker = (data: HMSSpeaker[]) => {
+    setSpeakers(data || []);
     console.log('data in onSpeaker: ', data);
   };
 
@@ -844,6 +881,8 @@ const Meeting = () => {
   };
 
   useEffect(() => {
+    updateHmsInstance(hmsInstance);
+
     const backAction = () => {
       setModalVisible(ModalTypes.LEAVE);
       return true;
@@ -858,11 +897,6 @@ const Meeting = () => {
       backHandler.remove();
       onLeavePress();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    updateHmsInstance(hmsInstance);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -1062,6 +1096,26 @@ const Meeting = () => {
           ))}
         </Picker>
       </CustomModal>
+      <CustomModal
+        modalVisible={modalVisible === ModalTypes.SORTING}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+        title={getModalTitle(ModalTypes.SORTING)}
+        buttons={getModalButtons(ModalTypes.SORTING)}>
+        <Picker
+          selectedValue={sortingType}
+          onValueChange={setSortingType}
+          dropdownIconColor={COLORS.BLACK}
+          dropdownIconRippleColor="grey">
+          {[
+            {name: 'Select'},
+            {name: SortingType.ALPHABETICAL},
+            {name: SortingType.VIDEO_ON},
+            {name: SortingType.ROLE_PRIORITY},
+          ].map((item, index) => (
+            <Picker.Item key={index} label={item.name} value={item.name} />
+          ))}
+        </Picker>
+      </CustomModal>
       <View style={styles.headerContainer}>
         <Text style={styles.headerName}>
           {speakers?.length > 0 && speakers[0]?.peer?.name
@@ -1210,6 +1264,7 @@ const Meeting = () => {
             layout={layout}
             setPage={setPage}
             page={page}
+            selectedSortingType={selectedSortingType}
           />
         ) : layout === LayoutParams.HERO ? (
           <HeroView
@@ -1235,10 +1290,12 @@ const Meeting = () => {
             localAudioStats={localAudioStats}
             localVideoStats={localVideoStats}
             page={page}
+            pinnedPeerTrackIds={pinnedPeerTrackIds}
+            setPinnedPeerTrackIds={setPinnedPeerTrackIds}
           />
         )}
       </View>
-      <View style={styles.iconContainers}>
+      <View style={[styles.iconContainers, {bottom}]}>
         {instance?.localPeer?.role?.publishSettings?.allowed?.includes(
           'audio',
         ) && (

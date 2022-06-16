@@ -29,10 +29,18 @@ export enum ModalTypes {
   HLS_STREAMING = 'hlsStreaming',
   RECORDING = 'recording',
   LAYOUT = 'layout',
+  SORTING = 'sorting',
   LEAVE = 'leave',
   SETTINGS = 'settings',
   CHAT = 'chat',
   ZOOM = 'zoom',
   ROLE = 'role',
+  DEFAULT = '',
+}
+
+export enum SortingType {
+  ALPHABETICAL = 'Alphabetical Order',
+  VIDEO_ON = 'Video On',
+  ROLE_PRIORITY = 'Role Priority',
   DEFAULT = '',
 }

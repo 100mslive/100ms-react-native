@@ -12,7 +12,7 @@ import {
   HMSTrackSource,
 } from '@100mslive/react-native-hms';
 
-import type {LayoutParams, PeerTrackNode} from './types';
+import {LayoutParams, PeerTrackNode, SortingType} from './types';
 import dimension from '../utils/dimension';
 import * as services from '../services/index';
 
@@ -56,19 +56,29 @@ export const getInitials = (name?: String): String => {
 export const pairDataForFlatlist = (
   data: Array<PeerTrackNode>,
   batch: number,
+  sortingType?: SortingType,
+  pinnedPeerTrackIds?: String[],
 ) => {
-  const pairedData: Array<Array<PeerTrackNode>> = [];
+  let sortedData = data;
+  if (sortingType) {
+    sortedData = sortPeerTrackNodes(sortedData, sortingType);
+  }
+  const pairedDataRegular: Array<Array<PeerTrackNode>> = [];
+  const pairedDataSource: Array<Array<PeerTrackNode>> = [];
+  const pairedDataPinned: Array<Array<PeerTrackNode>> = [];
   let groupData: Array<PeerTrackNode> = [];
   let itemsPushed: number = 0;
-  data.map((item: PeerTrackNode) => {
-    if (
+  sortedData.map((item: PeerTrackNode) => {
+    if (pinnedPeerTrackIds?.includes(item.id)) {
+      pairedDataPinned.push([item]);
+    } else if (
       item.track?.source !== HMSTrackSource.REGULAR &&
       item.track?.source !== undefined
     ) {
-      pairedData.push([item]);
+      pairedDataSource.push([item]);
     } else {
       if (itemsPushed === batch) {
-        pairedData.push(groupData);
+        pairedDataRegular.push(groupData);
         groupData = [];
         itemsPushed = 0;
       }
@@ -77,9 +87,9 @@ export const pairDataForFlatlist = (
     }
   });
   if (groupData.length) {
-    pairedData.push(groupData);
+    pairedDataRegular.push(groupData);
   }
-  return pairedData;
+  return [...pairedDataPinned, ...pairedDataSource, ...pairedDataRegular];
 };
 
 export const getHmsViewHeight = (
@@ -90,11 +100,10 @@ export const getHmsViewHeight = (
 ) => {
   const isTab = getDeviceType() === 'Tablet';
 
-  // window height - (header + bottom container + top + bottom + padding) / views in one screen
+  // window height - (header + top + bottom + padding) / views in one screen
   const viewHeight =
     (Dimensions.get('window').height -
       (dimension.viewHeight(50) +
-        dimension.viewHeight(90) +
         (isTab ? dimension.viewHeight(20) : top + bottom) +
         2)) /
     2;
@@ -337,20 +346,20 @@ export const updatePeersTrackNodesOnTrackListener = (
   ) {
     let alreadyPresent = false;
     const updatePeerTrackNodes = oldPeerTrackNodes?.map(peerTrackNode => {
-      if (isVideo && peerTrackNode.id === uniqueId) {
+      if (peerTrackNode.id === uniqueId) {
         alreadyPresent = true;
-        return {
-          ...peerTrackNode,
-          peer,
-          track,
-        };
-      }
-      if (!isVideo && peerTrackNode.id === uniqueId) {
-        alreadyPresent = true;
-        return {
-          ...peerTrackNode,
-          peer,
-        };
+        if (isVideo) {
+          return {
+            ...peerTrackNode,
+            peer,
+            track,
+          };
+        } else {
+          return {
+            ...peerTrackNode,
+            peer,
+          };
+        }
       }
       return peerTrackNode;
     });
@@ -372,12 +381,15 @@ export const updatePeersTrackNodesOnTrackListener = (
     }
     return oldPeerTrackNodes;
   } else if (type === HMSTrackUpdate.TRACK_REMOVED) {
-    return oldPeerTrackNodes?.filter(peerTrackNode => {
-      if (peerTrackNode.id === uniqueId) {
-        return false;
-      }
-      return true;
-    });
+    if (track.source !== HMSTrackSource.REGULAR) {
+      return oldPeerTrackNodes?.filter(peerTrackNode => {
+        if (peerTrackNode.id === uniqueId) {
+          return false;
+        }
+        return true;
+      });
+    }
+    return oldPeerTrackNodes;
   } else {
     return oldPeerTrackNodes?.map(peerTrackNode => {
       if (isVideo && peerTrackNode.id === uniqueId) {
@@ -395,5 +407,39 @@ export const updatePeersTrackNodesOnTrackListener = (
       }
       return peerTrackNode;
     });
+  }
+};
+
+const sortPeerTrackNodes = (
+  peerTrackNodes: Array<PeerTrackNode>,
+  type: SortingType,
+): Array<PeerTrackNode> => {
+  switch (type) {
+    case SortingType.ALPHABETICAL:
+      return peerTrackNodes.sort((a, b) =>
+        a.peer.name.localeCompare(b.peer.name),
+      );
+    case SortingType.VIDEO_ON:
+      return peerTrackNodes.sort((a, b) => {
+        if (a.track?.isMute() === true) {
+          return 1;
+        }
+        if (b.track?.isMute() === true) {
+          return -1;
+        }
+        return 0;
+      });
+    case SortingType.ROLE_PRIORITY:
+      return peerTrackNodes.sort((a, b) => {
+        if ((a.peer.role?.priority ?? 0) >= (b.peer.role?.priority ?? 0)) {
+          return 1;
+        }
+        if ((b.peer.role?.priority ?? 0) >= (a.peer.role?.priority ?? 0)) {
+          return -1;
+        }
+        return 0;
+      });
+    default:
+      return peerTrackNodes;
   }
 };

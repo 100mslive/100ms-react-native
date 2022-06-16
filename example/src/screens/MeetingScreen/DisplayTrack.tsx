@@ -46,17 +46,19 @@ type DisplayTrackProps = {
   remoteVideoStats?: any;
   localAudioStats?: HMSLocalAudioStats;
   localVideoStats?: HMSLocalVideoStats;
-  speakerIds?: Array<string>;
+  isSpeaking?: Function;
   miniView?: boolean;
   instance: HMSSDK | undefined;
   peerTrackNode: PeerTrackNode;
   videoStyles: any;
+  pinnedPeerTrackIds?: String[];
+  setPinnedPeerTrackIds?: React.Dispatch<React.SetStateAction<String[]>>;
 };
 
 const DisplayTrack = ({
   peerTrackNode,
   videoStyles,
-  speakerIds,
+  isSpeaking,
   instance,
   layout,
   statsForNerds,
@@ -66,6 +68,8 @@ const DisplayTrack = ({
   localVideoStats,
   setModalVisible,
   miniView,
+  pinnedPeerTrackIds,
+  setPinnedPeerTrackIds,
 }: DisplayTrackProps) => {
   const {mirrorLocalVideo} = useSelector((state: RootState) => state.user);
   const isVideoMute = peerTrackNode.track?.isMute() ?? true;
@@ -90,7 +94,7 @@ const DisplayTrack = ({
   const hmsViewRef: any = useRef();
   const HmsView = instance?.HmsView;
   const knownRoles = instance?.knownRoles || [];
-  const speaking = speakerIds?.length ? speakerIds.includes(id!) : false;
+  const speaking = isSpeaking && isSpeaking(peerTrackNode);
 
   const modalButtons: [
     {text: string; onPress?: Function},
@@ -199,6 +203,30 @@ const DisplayTrack = ({
     onPress?: Function;
   }> = [
     {text: 'Cancel', type: 'cancel'},
+    {
+      text: pinnedPeerTrackIds?.includes(peerTrackNode.id) ? 'Unpin' : 'Pin',
+      onPress: () => {
+        if (pinnedPeerTrackIds && setPinnedPeerTrackIds) {
+          if (pinnedPeerTrackIds?.includes(peerTrackNode.id)) {
+            const newPinnedPeerTrackIds = pinnedPeerTrackIds.filter(
+              pinnedPeerTrackId => {
+                if (pinnedPeerTrackId === peerTrackNode.id) {
+                  return false;
+                }
+                return true;
+              },
+            );
+            setPinnedPeerTrackIds(newPinnedPeerTrackIds);
+          } else {
+            const newPinnedPeerTrackIds = [
+              peerTrackNode.id,
+              ...pinnedPeerTrackIds,
+            ];
+            setPinnedPeerTrackIds(newPinnedPeerTrackIds);
+          }
+        }
+      },
+    },
     {
       text: 'Set Volume',
       onPress: () => {
@@ -464,6 +492,22 @@ const DisplayTrack = ({
           )}
         </View>
       )}
+      {metadata?.isHandRaised && (
+        <View style={styles.status}>
+          <Ionicons
+            name="ios-hand-left"
+            style={styles.raiseHand}
+            size={dimension.viewHeight(30)}
+          />
+        </View>
+      )}
+      {metadata?.isBRBOn && (
+        <View style={styles.status}>
+          <View style={styles.brbOnContainer}>
+            <Text style={styles.brbOn}>BRB</Text>
+          </View>
+        </View>
+      )}
       <View style={styles.labelContainer}>
         {peerTrackNode.peer?.networkQuality?.downlinkQuality &&
         peerTrackNode.peer?.networkQuality?.downlinkQuality > -1 ? (
@@ -485,22 +529,6 @@ const DisplayTrack = ({
           </View>
         ) : (
           <></>
-        )}
-        {metadata?.isHandRaised && (
-          <View>
-            <Ionicons
-              name="ios-hand-left"
-              style={styles.raiseHand}
-              size={dimension.viewHeight(30)}
-            />
-          </View>
-        )}
-        {metadata?.isBRBOn && (
-          <View>
-            <View style={styles.brbOnContainer}>
-              <Text style={styles.brbOn}>BRB</Text>
-            </View>
-          </View>
         )}
         {isDegraded && (
           <View>
@@ -538,18 +566,12 @@ const DisplayTrack = ({
           </Text>
         </View>
         <View style={styles.micContainer}>
-          <Feather
-            name={isAudioMute ? 'mic-off' : 'mic'}
-            style={styles.mic}
-            size={20}
-          />
-        </View>
-        <View style={styles.micContainer}>
-          <Feather
-            name={isVideoMute ? 'video-off' : 'video'}
-            style={styles.mic}
-            size={20}
-          />
+          {isAudioMute && (
+            <Feather name="mic-off" style={styles.mic} size={20} />
+          )}
+          {isVideoMute && (
+            <Feather name="video-off" style={styles.mic} size={20} />
+          )}
         </View>
       </View>
     </View>

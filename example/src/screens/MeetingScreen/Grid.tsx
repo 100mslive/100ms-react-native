@@ -9,7 +9,6 @@ import {
   HMSTrackSource,
 } from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
 
 import {getHmsViewHeight} from '../../utils/functions';
 import {styles} from './styles';
@@ -28,9 +27,11 @@ type GridViewProps = {
   localAudioStats?: HMSLocalAudioStats;
   localVideoStats?: HMSLocalVideoStats;
   page: number;
+  pinnedPeerTrackIds?: String[];
   setModalVisible?: React.Dispatch<React.SetStateAction<ModalTypes>>;
   setPage: React.Dispatch<React.SetStateAction<number>>;
   setZoomableTrackId?: React.Dispatch<React.SetStateAction<string>>;
+  setPinnedPeerTrackIds?: React.Dispatch<React.SetStateAction<String[]>>;
 };
 
 const GridView = ({
@@ -38,6 +39,7 @@ const GridView = ({
   setPage,
   setModalVisible,
   setZoomableTrackId,
+  setPinnedPeerTrackIds,
   speakers,
   instance,
   layout,
@@ -48,6 +50,7 @@ const GridView = ({
   localAudioStats,
   localVideoStats,
   page,
+  pinnedPeerTrackIds,
 }: GridViewProps) => {
   const {left, right, top, bottom} = useSafeAreaInsets();
   const flatlistRef = useRef<FlatList>(null);
@@ -55,7 +58,37 @@ const GridView = ({
   if (page + 1 > pairedPeers.length) {
     flatlistRef?.current?.scrollToEnd();
   }
-  const speakerIds = speakers?.map(speaker => speaker?.peer?.peerID);
+
+  const isSpeaking = (peerTrackNode: PeerTrackNode): boolean => {
+    if (speakers.length > 0) {
+      let speaking = false;
+      speakers.map(speaker => {
+        if (
+          speaker.peer.peerID === peerTrackNode.peer.peerID &&
+          speaker.track.source === peerTrackNode.track?.source
+        ) {
+          speaking = true;
+        }
+      });
+      return speaking;
+    }
+    return false;
+  };
+
+  const zoomScreen = (peerTrackNode: PeerTrackNode) => {
+    console.log('Single Tap');
+    doublePress++;
+    if (doublePress === 2) {
+      console.log('Double Tap');
+      doublePress = 0;
+      setModalVisible && setModalVisible(ModalTypes.ZOOM);
+      setZoomableTrackId && setZoomableTrackId(peerTrackNode.track?.trackId!);
+    } else {
+      setTimeout(() => {
+        doublePress = 0;
+      }, 500);
+    }
+  };
 
   return (
     <FlatList
@@ -81,31 +114,20 @@ const GridView = ({
             {item?.map(view => {
               if (view.track?.source === HMSTrackSource.SCREEN) {
                 return (
-                  <View style={styles.flex} key={view.id}>
-                    <TouchableWithoutFeedback
-                      onPress={() => {
-                        console.log('Single Tap');
-                        doublePress++;
-                        if (doublePress === 2) {
-                          console.log('Double Tap');
-                          doublePress = 0;
-                          setModalVisible && setModalVisible(ModalTypes.ZOOM);
-                          setZoomableTrackId &&
-                            setZoomableTrackId(view.track?.trackId!);
-                        } else {
-                          setTimeout(() => {
-                            doublePress = 0;
-                          }, 500);
-                        }
-                      }}>
-                      <DisplayTrack
-                        peerTrackNode={view}
-                        videoStyles={styles.generalTile}
-                        speakerIds={speakerIds}
-                        instance={instance}
-                        layout={layout}
-                      />
-                    </TouchableWithoutFeedback>
+                  <View
+                    style={styles.flex}
+                    key={view.id}
+                    onTouchEnd={e => {
+                      e.stopPropagation();
+                      zoomScreen(view);
+                    }}>
+                    <DisplayTrack
+                      peerTrackNode={view}
+                      videoStyles={styles.generalTile}
+                      isSpeaking={isSpeaking}
+                      instance={instance}
+                      layout={layout}
+                    />
                   </View>
                 );
               } else {
@@ -118,7 +140,7 @@ const GridView = ({
                     <DisplayTrack
                       peerTrackNode={view}
                       videoStyles={styles.generalTile}
-                      speakerIds={speakerIds}
+                      isSpeaking={isSpeaking}
                       instance={instance}
                       layout={layout}
                       setModalVisible={setModalVisible}
@@ -128,6 +150,8 @@ const GridView = ({
                       remoteVideoStats={remoteVideoStats}
                       localAudioStats={localAudioStats}
                       localVideoStats={localVideoStats}
+                      pinnedPeerTrackIds={pinnedPeerTrackIds}
+                      setPinnedPeerTrackIds={setPinnedPeerTrackIds}
                     />
                   </View>
                 );
