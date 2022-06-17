@@ -381,7 +381,10 @@ export const updatePeersTrackNodesOnTrackListener = (
     }
     return oldPeerTrackNodes;
   } else if (type === HMSTrackUpdate.TRACK_REMOVED) {
-    if (track.source !== HMSTrackSource.REGULAR) {
+    if (
+      track.source !== HMSTrackSource.REGULAR ||
+      peer.role?.name?.includes('hls-')
+    ) {
       return oldPeerTrackNodes?.filter(peerTrackNode => {
         if (peerTrackNode.id === uniqueId) {
           return false;
