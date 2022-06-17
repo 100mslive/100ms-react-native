@@ -882,6 +882,7 @@ const Meeting = () => {
 
   useEffect(() => {
     updateHmsInstance(hmsInstance);
+    setHmsRoom(hmsInstance?.room);
 
     const backAction = () => {
       setModalVisible(ModalTypes.LEAVE);
