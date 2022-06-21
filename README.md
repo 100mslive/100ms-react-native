@@ -29,6 +29,8 @@ To run the example app on your system, follow these steps -
 4. To run on Android, run `npx react-native run-android`
 5. To run on iOS, first install the pods in iOS folder, `cd ios; pod install`. Then, in example folder, run `npx react-native run-ios`
 
+To get a better understanding of how the example app is stuctured, what to do on onJoin, onTrack and onPeer listeners, when to use redux, and what type of layouts and sorting you can implement in your app, checkout example app's [README](https://github.com/100mslive/react-native-hms/blob/develop/example/README.md)
+
 ## Installation
 
 ```bash
