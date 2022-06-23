@@ -13,9 +13,16 @@ import {styles} from './styles';
 type MiniViewProps = {
   instance: HMSSDK | undefined;
   speakers: HMSSpeaker[];
+  orientation: boolean;
+  peerTrackNodes: PeerTrackNode[];
 };
 
-const MiniView = ({instance, speakers}: MiniViewProps) => {
+const MiniView = ({
+  instance,
+  speakers,
+  orientation,
+  peerTrackNodes,
+}: MiniViewProps) => {
   const [mainSpeaker, setMainSpeaker] = useState<PeerTrackNode>();
   const [miniSpeaker, setMiniSpeaker] = useState<PeerTrackNode>();
   const translateX = useRef(new Animated.Value(1)).current;
@@ -32,12 +39,16 @@ const MiniView = ({instance, speakers}: MiniViewProps) => {
   }, [translateX, translateY]);
 
   useEffect(() => {
-    const decodedLocalPeer = {
-      id: instance?.localPeer?.peerID + HMSTrackSource.REGULAR,
-      peer: instance?.localPeer!,
-      track: instance?.localPeer?.videoTrack,
-    };
-    if (instance?.remotePeers && instance.remotePeers.length > 0) {
+    let decodedRemotePeers: PeerTrackNode[] = [];
+    let decodedLocalPeer;
+    peerTrackNodes.map(peerTrackNode => {
+      if (peerTrackNode.peer.isLocal) {
+        decodedLocalPeer = peerTrackNode;
+      } else {
+        decodedRemotePeers.push(peerTrackNode);
+      }
+    });
+    if (decodedRemotePeers.length > 0) {
       if (speakers.length > 0) {
         setMainSpeaker({
           id: speakers[0].peer.peerID + HMSTrackSource.REGULAR,
@@ -47,9 +58,9 @@ const MiniView = ({instance, speakers}: MiniViewProps) => {
         setMiniSpeaker(decodedLocalPeer);
       } else {
         setMainSpeaker({
-          id: instance?.remotePeers[0]?.peerID + HMSTrackSource.REGULAR,
-          peer: instance?.remotePeers[0],
-          track: instance?.remotePeers[0]?.videoTrack,
+          id: decodedRemotePeers[0].peer?.peerID + HMSTrackSource.REGULAR,
+          peer: decodedRemotePeers[0].peer,
+          track: decodedRemotePeers[0].peer?.videoTrack,
         });
         setMiniSpeaker(decodedLocalPeer);
       }
@@ -57,7 +68,7 @@ const MiniView = ({instance, speakers}: MiniViewProps) => {
       setMainSpeaker(decodedLocalPeer);
       setMiniSpeaker(undefined);
     }
-  }, [speakers, instance?.remotePeers, instance?.localPeer]);
+  }, [peerTrackNodes, speakers]);
 
   return (
     <View style={styles.heroContainer}>
@@ -79,6 +90,7 @@ const MiniView = ({instance, speakers}: MiniViewProps) => {
               style={[
                 {transform: [{translateX}, {translateY}]},
                 styles.miniTileContainer,
+                !orientation && styles.miniTileContainerLandscape,
               ]}
               key={miniSpeaker.id}>
               <DisplayTrack

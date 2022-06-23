@@ -14,7 +14,6 @@ import Feather from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
-import dimension from '../utils/dimension';
 import {ChatBubble} from './ChatBubble';
 import {CustomModalDropdown} from './Picker';
 import {COLORS, FONTS} from '../utils/theme';
@@ -33,7 +32,7 @@ export const ChatWindow = ({
   const [text, setText] = useState('');
   const [messageTo, setMessageTo] = useState(0);
   const scollviewRef = useRef<ScrollView>(null);
-  const {top, bottom} = useSafeAreaInsets();
+  const {top, bottom, left, right} = useSafeAreaInsets();
 
   useEffect(() => {
     scollviewRef?.current?.scrollToEnd({animated: false});
@@ -44,22 +43,22 @@ export const ChatWindow = ({
   }, [messages]);
   return (
     <View style={styles.container}>
-      <View style={[styles.keyboardAvoidingView, {paddingTop: top}]}>
+      <View
+        style={[
+          styles.keyboardAvoidingView,
+          {paddingTop: top, paddingLeft: left, paddingRight: right},
+        ]}>
         <View style={styles.headingContainer}>
           <MaterialCommunityIcons
             name="message-outline"
             style={styles.closeIcon}
-            size={dimension.viewHeight(30)}
+            size={30}
           />
           <Text style={styles.heading}>Chat</Text>
           <TouchableOpacity
             style={[styles.closeIconContainer]}
             onPress={cancel}>
-            <Feather
-              size={dimension.viewHeight(32)}
-              style={styles.closeIcon}
-              name="x"
-            />
+            <Feather size={32} style={styles.closeIcon} name="x" />
           </TouchableOpacity>
         </View>
         <View style={styles.subHeadingContainer}>
@@ -107,7 +106,7 @@ export const ChatWindow = ({
             }}>
             <MaterialCommunityIcons
               style={styles.closeIcon}
-              size={dimension.viewHeight(28)}
+              size={28}
               name="send"
             />
           </TouchableOpacity>
@@ -126,12 +125,12 @@ const styles = StyleSheet.create({
     right: 0,
     justifyContent: 'center',
     zIndex: 1,
+    backgroundColor: COLORS.WHITE,
   },
   flex: {
     flex: 1,
   },
   keyboardAvoidingView: {
-    backgroundColor: COLORS.WHITE,
     width: '100%',
     height: '100%',
   },
@@ -140,7 +139,7 @@ const styles = StyleSheet.create({
   },
   chatContainer: {
     flex: 1,
-    paddingHorizontal: dimension.viewWidth(24),
+    paddingHorizontal: 24,
     borderTopWidth: 2,
     borderTopColor: COLORS.BORDER.DEFAULT,
     borderBottomWidth: 2,
@@ -149,7 +148,7 @@ const styles = StyleSheet.create({
   textInput: {
     borderColor: COLORS.PRIMARY.DEFAULT,
     borderWidth: 1,
-    paddingHorizontal: dimension.viewWidth(16),
+    paddingHorizontal: 16,
     flex: 1,
     color: COLORS.PRIMARY.DEFAULT,
     fontFamily: 'Inter-Regular',
@@ -158,7 +157,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingBottom: 8,
     paddingTop: 10,
-    paddingHorizontal: dimension.viewWidth(24),
+    paddingHorizontal: 24,
   },
   sendContainer: {
     padding: 8,
@@ -176,7 +175,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'center',
-    paddingHorizontal: dimension.viewWidth(24),
+    paddingHorizontal: 24,
   },
   heading: {
     paddingLeft: 10,
@@ -188,7 +187,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: dimension.viewWidth(24),
+    paddingHorizontal: 24,
   },
   subHeading: {
     fontSize: 16,

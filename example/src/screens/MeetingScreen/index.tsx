@@ -7,6 +7,7 @@ import {
   BackHandler,
   Platform,
   TextInput,
+  Dimensions,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {
@@ -72,7 +73,6 @@ import {
   saveUserData,
 } from '../../redux/actions';
 import type {RootState} from '../../redux';
-import dimension from '../../utils/dimension';
 import {
   pairDataForFlatlist,
   parseMetadata,
@@ -80,6 +80,7 @@ import {
   requestExternalStoragePermission,
   updatePeersTrackNodesOnPeerListener,
   updatePeersTrackNodesOnTrackListener,
+  isPortrait,
 } from '../../utils/functions';
 import {
   LayoutParams,
@@ -141,15 +142,28 @@ const Meeting = () => {
   const [page, setPage] = useState(0);
   const [zoomableTrackId, setZoomableTrackId] = useState('');
   const [statsForNerds, setStatsForNerds] = useState(false);
+  const [orientation, setOrientation] = useState<boolean>(true);
   const pairedPeers = useMemo(
     () =>
       pairDataForFlatlist(
         peerTrackNodes,
-        layout === LayoutParams.AUDIO ? 6 : 4,
+        orientation
+          ? layout === LayoutParams.AUDIO
+            ? 6
+            : 4
+          : layout === LayoutParams.AUDIO
+          ? 3
+          : 2,
         selectedSortingType,
         pinnedPeerTrackIds,
       ),
-    [layout, peerTrackNodes, selectedSortingType, pinnedPeerTrackIds],
+    [
+      layout,
+      peerTrackNodes,
+      orientation,
+      selectedSortingType,
+      pinnedPeerTrackIds,
+    ],
   );
   const [modalVisible, setModalVisible] = useState<ModalTypes>(
     ModalTypes.DEFAULT,
@@ -173,7 +187,7 @@ const Meeting = () => {
       singleFilePerLayer: false,
       videoOnDemand: false,
     });
-  const {bottom} = useSafeAreaInsets();
+  const {bottom, left, right} = useSafeAreaInsets();
 
   const getMessageToList = (): MessageObject[] => {
     const messageList: MessageObject[] = [
@@ -884,6 +898,10 @@ const Meeting = () => {
     updateHmsInstance(hmsInstance);
     setHmsRoom(hmsInstance?.room);
 
+    const callback = () => setOrientation(isPortrait());
+    callback();
+    Dimensions.addEventListener('change', callback);
+
     const backAction = () => {
       setModalVisible(ModalTypes.LEAVE);
       return true;
@@ -896,6 +914,7 @@ const Meeting = () => {
 
     return () => {
       backHandler.remove();
+      Dimensions.removeEventListener('change', callback);
       onLeavePress();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -977,11 +996,7 @@ const Meeting = () => {
           <Text style={styles.interRegular}>Record</Text>
           <View style={styles.checkboxContainer}>
             {recordingDetails.record && (
-              <Entypo
-                name="check"
-                style={styles.checkbox}
-                size={dimension.viewHeight(20)}
-              />
+              <Entypo name="check" style={styles.checkbox} size={20} />
             )}
           </View>
         </TouchableOpacity>
@@ -1014,11 +1029,7 @@ const Meeting = () => {
           <Text style={styles.interRegular}>singleFilePerLayer</Text>
           <View style={styles.checkboxContainer}>
             {hlsRecordingDetails.singleFilePerLayer && (
-              <Entypo
-                name="check"
-                style={styles.checkbox}
-                size={dimension.viewHeight(20)}
-              />
+              <Entypo name="check" style={styles.checkbox} size={20} />
             )}
           </View>
         </TouchableOpacity>
@@ -1033,11 +1044,7 @@ const Meeting = () => {
           <Text style={styles.interRegular}>videoOnDemand</Text>
           <View style={styles.checkboxContainer}>
             {hlsRecordingDetails.videoOnDemand && (
-              <Entypo
-                name="check"
-                style={styles.checkbox}
-                size={dimension.viewHeight(20)}
-              />
+              <Entypo name="check" style={styles.checkbox} size={20} />
             )}
           </View>
         </TouchableOpacity>
@@ -1129,24 +1136,16 @@ const Meeting = () => {
             <MaterialCommunityIcons
               name="record-circle-outline"
               style={styles.recording}
-              size={dimension.viewHeight(30)}
+              size={30}
             />
           )}
           {(hmsRoom?.hlsStreamingState?.running ||
             hmsRoom?.rtmpHMSRtmpStreamingState?.running) && (
-            <Ionicons
-              name="globe-outline"
-              style={styles.streaming}
-              size={dimension.viewHeight(30)}
-            />
+            <Ionicons name="globe-outline" style={styles.streaming} size={30} />
           )}
           {instance?.localPeer?.auxiliaryTracks &&
             instance?.localPeer?.auxiliaryTracks?.length > 0 && (
-              <Feather
-                name="copy"
-                style={styles.streaming}
-                size={dimension.viewHeight(30)}
-              />
+              <Feather name="copy" style={styles.streaming} size={30} />
             )}
           {instance?.localPeer?.role?.publishSettings?.allowed?.includes(
             'video',
@@ -1159,7 +1158,7 @@ const Meeting = () => {
               <Ionicons
                 name="camera-reverse-outline"
                 style={styles.videoIcon}
-                size={dimension.viewHeight(30)}
+                size={30}
               />
             </TouchableOpacity>
           )}
@@ -1173,7 +1172,7 @@ const Meeting = () => {
               <Ionicons
                 name={muteAllTracksAudio ? 'volume-mute' : 'volume-high'}
                 style={styles.headerName}
-                size={dimension.viewHeight(30)}
+                size={30}
               />
             </TouchableOpacity>
           )}
@@ -1183,11 +1182,7 @@ const Meeting = () => {
                 setModalVisible(ModalTypes.SETTINGS);
               }}
               style={styles.headerIcon}>
-              <Ionicons
-                name="settings"
-                style={styles.headerName}
-                size={dimension.viewHeight(30)}
-              />
+              <Ionicons name="settings" style={styles.headerName} size={30} />
             </TouchableOpacity>
           )}
         </View>
@@ -1243,7 +1238,7 @@ const Meeting = () => {
               <Entypo
                 name={'circle-with-cross'}
                 style={styles.videoIcon}
-                size={dimension.viewHeight(50)}
+                size={50}
               />
             </TouchableOpacity>
             <ZoomableView>
@@ -1259,6 +1254,7 @@ const Meeting = () => {
           </View>
         ) : layout === LayoutParams.ACTIVE_SPEAKER ? (
           <ActiveSpeakerView
+            orientation={orientation}
             speakers={speakers}
             instance={instance}
             peerTrackNodes={peerTrackNodes}
@@ -1269,14 +1265,22 @@ const Meeting = () => {
           />
         ) : layout === LayoutParams.HERO ? (
           <HeroView
+            peerTrackNodes={peerTrackNodes}
+            orientation={orientation}
             speakers={speakers}
             instance={instance}
             setModalVisible={setModalVisible}
           />
         ) : layout === LayoutParams.MINI ? (
-          <MiniView speakers={speakers} instance={instance} />
+          <MiniView
+            peerTrackNodes={peerTrackNodes}
+            orientation={orientation}
+            speakers={speakers}
+            instance={instance}
+          />
         ) : (
           <GridView
+            orientation={orientation}
             speakers={speakers}
             pairedPeers={pairedPeers}
             setPage={setPage}
@@ -1296,7 +1300,7 @@ const Meeting = () => {
           />
         )}
       </View>
-      <View style={[styles.iconContainers, {bottom}]}>
+      <View style={[styles.iconContainers, {bottom, left, right}]}>
         {instance?.localPeer?.role?.publishSettings?.allowed?.includes(
           'audio',
         ) && (
@@ -1312,7 +1316,7 @@ const Meeting = () => {
                 instance?.localPeer?.audioTrack?.isMute() ? 'mic-off' : 'mic'
               }
               style={styles.videoIcon}
-              size={dimension.viewHeight(30)}
+              size={30}
             />
           </TouchableOpacity>
         )}
@@ -1333,7 +1337,7 @@ const Meeting = () => {
                   : 'video'
               }
               style={styles.videoIcon}
-              size={dimension.viewHeight(30)}
+              size={30}
             />
           </TouchableOpacity>
         )}
@@ -1345,7 +1349,7 @@ const Meeting = () => {
           <MaterialCommunityIcons
             name="message-outline"
             style={styles.videoIcon}
-            size={dimension.viewHeight(30)}
+            size={30}
           />
           {notification && <View style={styles.messageDot} />}
         </TouchableOpacity>
@@ -1368,7 +1372,7 @@ const Meeting = () => {
                 : 'ios-hand-left-outline'
             }
             style={styles.videoIcon}
-            size={dimension.viewHeight(30)}
+            size={30}
           />
         </TouchableOpacity>
         <TouchableOpacity
@@ -1398,11 +1402,7 @@ const Meeting = () => {
           onPress={() => {
             setModalVisible(ModalTypes.LEAVE);
           }}>
-          <Entypo
-            name="login"
-            style={styles.leaveIcon}
-            size={dimension.viewHeight(30)}
-          />
+          <Entypo name="login" style={styles.leaveIcon} size={30} />
         </TouchableOpacity>
       </View>
       {modalVisible === ModalTypes.CHAT && (

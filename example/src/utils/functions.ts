@@ -13,7 +13,6 @@ import {
 } from '@100mslive/react-native-hms';
 
 import {LayoutParams, PeerTrackNode, SortingType} from './types';
-import dimension from '../utils/dimension';
 import * as services from '../services/index';
 
 export const getMeetingUrl = () =>
@@ -97,36 +96,46 @@ export const getHmsViewHeight = (
   peersInPage: number,
   top: number,
   bottom: number,
+  orientation: boolean,
 ) => {
   const isTab = getDeviceType() === 'Tablet';
 
   // window height - (header + top + bottom + padding) / views in one screen
   const viewHeight =
     (Dimensions.get('window').height -
-      (dimension.viewHeight(50) +
-        (isTab ? dimension.viewHeight(20) : top + bottom) +
-        2)) /
+      (50 +
+        (isTab ? 20 : top + bottom) +
+        2 +
+        (orientation || Platform.OS === 'ios' ? 0 : 20))) /
     2;
 
-  let height =
-    peersInPage === 1
-      ? viewHeight * 2
-      : peersInPage === 2
-      ? viewHeight
-      : peersInPage === 3
-      ? (viewHeight * 2) / 3
-      : viewHeight;
-  const width =
-    peersInPage === 1
-      ? '100%'
-      : peersInPage === 2
-      ? '100%'
-      : peersInPage === 3
-      ? '100%'
-      : '50%';
+  let height, width;
+  if (orientation) {
+    height =
+      peersInPage === 1
+        ? viewHeight * 2
+        : peersInPage === 2
+        ? viewHeight
+        : peersInPage === 3
+        ? (viewHeight * 2) / 3
+        : viewHeight;
+    width =
+      peersInPage === 1
+        ? '100%'
+        : peersInPage === 2
+        ? '100%'
+        : peersInPage === 3
+        ? '100%'
+        : '50%';
+  } else {
+    height = viewHeight * 2;
+    width = peersInPage === 1 ? '100%' : '50%';
+  }
 
-  if (layout === 'audio' && peersInPage > 4) {
+  if (layout === 'audio' && peersInPage > 4 && orientation) {
     height = (height * 2) / 3;
+  } else if (layout === 'audio' && peersInPage > 2 && !orientation) {
+    width = '33.33%';
   }
 
   return {height, width};
@@ -445,4 +454,9 @@ const sortPeerTrackNodes = (
     default:
       return peerTrackNodes;
   }
+};
+
+export const isPortrait = () => {
+  const dim = Dimensions.get('window');
+  return dim.height >= dim.width;
 };

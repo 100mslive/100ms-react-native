@@ -22,7 +22,6 @@ import CameraRoll from '@react-native-community/cameraroll';
 import Toast from 'react-native-simple-toast';
 
 import {AlertModal, CustomModal, RolePicker} from '../../components';
-import dimension from '../../utils/dimension';
 import {
   getInitials,
   parseMetadata,
@@ -72,9 +71,9 @@ const DisplayTrack = ({
   setPinnedPeerTrackIds,
 }: DisplayTrackProps) => {
   const {mirrorLocalVideo} = useSelector((state: RootState) => state.user);
-  const isVideoMute = peerTrackNode.track?.isMute() ?? true;
-  const isAudioMute = peerTrackNode.peer.audioTrack?.isMute() ?? true;
-  const metadata = parseMetadata(peerTrackNode.peer.metadata);
+  const isVideoMute = peerTrackNode?.track?.isMute() ?? true;
+  const isAudioMute = peerTrackNode.peer?.audioTrack?.isMute() ?? true;
+  const metadata = parseMetadata(peerTrackNode.peer?.metadata);
   const id = peerTrackNode.peer.peerID;
   const name = peerTrackNode.peer.name;
   const type =
@@ -85,7 +84,7 @@ const DisplayTrack = ({
       : TrackType.REMOTE;
   const [alertModalVisible, setAlertModalVisible] = useState(false);
   const [roleModalVisible, setRoleModalVisible] = useState(false);
-  const [newRole, setNewRole] = useState(peerTrackNode.peer.role);
+  const [newRole, setNewRole] = useState(peerTrackNode.peer?.role);
   const [force, setForce] = useState(false);
   const [volumeModal, setVolumeModal] = useState(false);
   const [volume, setVolume] = useState(1);
@@ -494,11 +493,7 @@ const DisplayTrack = ({
       )}
       {metadata?.isHandRaised && (
         <View style={styles.status}>
-          <Ionicons
-            name="ios-hand-left"
-            style={styles.raiseHand}
-            size={dimension.viewHeight(30)}
-          />
+          <Ionicons name="ios-hand-left" style={styles.raiseHand} size={30} />
         </View>
       )}
       {metadata?.isBRBOn && (
@@ -535,7 +530,7 @@ const DisplayTrack = ({
             <MaterialCommunityIcons
               name="shield-alert-outline"
               style={styles.degraded}
-              size={dimension.viewHeight(30)}
+              size={30}
             />
           </View>
         )}
@@ -551,7 +546,7 @@ const DisplayTrack = ({
             <Entypo
               name="dots-three-horizontal"
               style={styles.options}
-              size={dimension.viewHeight(30)}
+              size={30}
             />
           </TouchableOpacity>
         )}
@@ -560,7 +555,7 @@ const DisplayTrack = ({
           <Text numberOfLines={2} style={styles.peerName}>
             {peerTrackNode.track?.source === HMSTrackSource.SCREEN
               ? `${name}'s Screen`
-              : peerTrackNode.peer.isLocal
+              : peerTrackNode.peer?.isLocal
               ? `You (${name})`
               : name}
           </Text>

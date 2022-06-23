@@ -10,6 +10,8 @@ type HeroViewProps = {
   instance: HMSSDK | undefined;
   speakers: HMSSpeaker[];
   setModalVisible: Function;
+  peerTrackNodes: PeerTrackNode[];
+  orientation: boolean;
 };
 
 const searchMainSpeaker = (
@@ -25,7 +27,13 @@ const searchMainSpeaker = (
   return returnItem ? returnItem : list[0];
 };
 
-const HeroView = ({instance, speakers, setModalVisible}: HeroViewProps) => {
+const HeroView = ({
+  instance,
+  speakers,
+  setModalVisible,
+  orientation,
+  peerTrackNodes,
+}: HeroViewProps) => {
   const [mainSpeaker, setMainSpeaker] = useState<PeerTrackNode>();
   const [peers, setPeers] = useState<PeerTrackNode[]>([]);
   const [filteredPeers, setFilteredPeers] = useState<PeerTrackNode[]>([]);
@@ -51,26 +59,7 @@ const HeroView = ({instance, speakers, setModalVisible}: HeroViewProps) => {
   }, [speakers, instance?.remotePeers, instance?.localPeer]);
 
   useEffect(() => {
-    const newPeerList: PeerTrackNode[] = [];
-    if (instance?.localPeer) {
-      const peer = instance.localPeer;
-      newPeerList.push({
-        id: peer.peerID + HMSTrackSource.REGULAR,
-        peer,
-        track: peer.videoTrack,
-      });
-    }
-
-    if (instance?.remotePeers) {
-      instance.remotePeers.map(item => {
-        const peer = item;
-        newPeerList.push({
-          id: peer.peerID + HMSTrackSource.REGULAR,
-          peer,
-          track: peer.videoTrack,
-        });
-      });
-    }
+    const newPeerList = peerTrackNodes;
 
     setFilteredPeers(
       newPeerList.filter(
@@ -78,14 +67,21 @@ const HeroView = ({instance, speakers, setModalVisible}: HeroViewProps) => {
       ),
     );
     setPeers(newPeerList);
-  }, [instance?.remotePeers, instance?.localPeer, mainSpeaker]);
+  }, [mainSpeaker, peerTrackNodes]);
 
   return (
-    <View style={styles.heroContainer}>
+    <View
+      style={[
+        styles.heroContainer,
+        !orientation && styles.heroContainerLandscaspe,
+      ]}>
       <View
         style={
           filteredPeers.length
-            ? styles.heroTileContainer
+            ? [
+                styles.heroTileContainer,
+                !orientation && styles.heroTileContainerLandscaspe,
+              ]
             : styles.heroTileContainerSingle
         }>
         {mainSpeaker && (
@@ -99,16 +95,29 @@ const HeroView = ({instance, speakers, setModalVisible}: HeroViewProps) => {
           />
         )}
       </View>
-      <View style={styles.heroListContainer}>
+      <View
+        style={
+          orientation
+            ? styles.heroListContainer
+            : styles.heroListContainerLandscaspe
+        }>
         <FlatList
           data={filteredPeers}
-          horizontal={true}
+          horizontal={orientation}
           renderItem={({item}) => {
             return (
-              <View style={styles.heroListViewContainer}>
+              <View
+                style={[
+                  styles.heroListViewContainer,
+                  !orientation && styles.heroListViewContainerLandscaspe,
+                ]}>
                 <DisplayTrack
                   key={item?.id}
-                  videoStyles={styles.heroListView}
+                  videoStyles={
+                    orientation
+                      ? styles.heroListView
+                      : styles.heroListViewLandscaspe
+                  }
                   peerTrackNode={item}
                   instance={instance}
                   layout={LayoutParams.HERO}
