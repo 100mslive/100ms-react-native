@@ -72,8 +72,8 @@ const DisplayTrack = ({
 }: DisplayTrackProps) => {
   const {mirrorLocalVideo} = useSelector((state: RootState) => state.user);
   const isVideoMute = peerTrackNode?.track?.isMute() ?? true;
-  const isAudioMute = peerTrackNode.peer?.audioTrack?.isMute() ?? true;
-  const metadata = parseMetadata(peerTrackNode.peer?.metadata);
+  const isAudioMute = peerTrackNode.peer.audioTrack?.isMute() ?? true;
+  const metadata = parseMetadata(peerTrackNode.peer.metadata);
   const id = peerTrackNode.peer.peerID;
   const name = peerTrackNode.peer.name;
   const type =
@@ -84,7 +84,7 @@ const DisplayTrack = ({
       : TrackType.REMOTE;
   const [alertModalVisible, setAlertModalVisible] = useState(false);
   const [roleModalVisible, setRoleModalVisible] = useState(false);
-  const [newRole, setNewRole] = useState(peerTrackNode.peer?.role);
+  const [newRole, setNewRole] = useState(peerTrackNode.peer.role);
   const [force, setForce] = useState(false);
   const [volumeModal, setVolumeModal] = useState(false);
   const [volume, setVolume] = useState(1);
