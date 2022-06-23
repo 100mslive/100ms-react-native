@@ -263,7 +263,7 @@ object HMSDecoder {
     return resolution
   }
 
-  fun getHmsRemotePeers(remotePeers: Array<HMSRemotePeer>?): WritableArray {
+  fun getHmsRemotePeers(remotePeers: List<HMSRemotePeer>?): WritableArray {
     val peers: WritableArray = Arguments.createArray()
     if (remotePeers != null) {
       for (peer in remotePeers) {
@@ -485,7 +485,7 @@ object HMSDecoder {
     return subscribeDegradationParams
   }
 
-  private fun getAllPeers(peers: Array<HMSPeer>?): WritableArray {
+  private fun getAllPeers(peers: List<HMSPeer>?): WritableArray {
     val decodedPeers: WritableArray = Arguments.createArray()
     if (peers != null) {
       for (peer in peers) {
