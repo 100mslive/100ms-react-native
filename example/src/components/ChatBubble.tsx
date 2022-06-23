@@ -2,7 +2,6 @@ import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import {HMSMessage, HMSMessageRecipientType} from '@100mslive/react-native-hms';
 
-import dimension from '../utils/dimension';
 import {COLORS} from '../utils/theme';
 
 export const ChatBubble = ({
@@ -57,8 +56,8 @@ export const ChatBubble = ({
 
 const styles = StyleSheet.create({
   textContainer: {
-    marginTop: dimension.viewHeight(12),
-    marginBottom: dimension.viewHeight(4),
+    marginTop: 12,
+    marginBottom: 4,
     paddingHorizontal: 22,
     paddingVertical: 6,
     borderRadius: 24,
@@ -76,7 +75,7 @@ const styles = StyleSheet.create({
   text: {
     color: COLORS.WHITE,
     fontFamily: 'Inter-Bold',
-    fontSize: dimension.viewHeight(16),
+    fontSize: 16,
   },
   data: {
     textAlign: 'right',
@@ -91,7 +90,7 @@ const styles = StyleSheet.create({
   message: {
     color: COLORS.TEXT.HIGH_EMPHASIS,
     fontFamily: 'Inter-Regular',
-    fontSize: dimension.viewHeight(20),
+    fontSize: 20,
     paddingTop: 4,
     textAlign: 'left',
   },
@@ -99,10 +98,10 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     color: COLORS.WHITE,
     fontFamily: 'Inter-Bold',
-    fontSize: dimension.viewHeight(16),
+    fontSize: 16,
   },
   time: {
-    fontSize: dimension.viewHeight(12),
+    fontSize: 12,
     color: COLORS.BLACK,
     fontFamily: 'Inter-Regular',
     paddingHorizontal: 8,

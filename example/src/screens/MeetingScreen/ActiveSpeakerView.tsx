@@ -13,6 +13,7 @@ type ActiveSpeakerViewProps = {
   page: number;
   setPage: React.Dispatch<React.SetStateAction<number>>;
   selectedSortingType?: SortingType;
+  orientation: boolean;
 };
 
 const includesPeerId = (speakers: PeerTrackNode[], peerId: string): boolean => {
@@ -153,16 +154,18 @@ const ActiveSpeakerView = ({
   setPage,
   page,
   selectedSortingType,
+  orientation,
 }: ActiveSpeakerViewProps) => {
   const speakerIds = speakers?.map(speaker => speaker?.peer?.peerID);
   const data = getActiveSpeakers(peerTrackNodes, speakers, speakerIds);
   const pairedPeers = useMemo(
-    () => pairDataForFlatlist(data, 4, selectedSortingType),
-    [data, selectedSortingType],
+    () => pairDataForFlatlist(data, orientation ? 4 : 2, selectedSortingType),
+    [data, orientation, selectedSortingType],
   );
 
   return (
     <GridView
+      orientation={orientation}
       pairedPeers={pairedPeers}
       setPage={setPage}
       speakers={speakers}

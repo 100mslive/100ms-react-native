@@ -1,5 +1,4 @@
 import {StyleSheet} from 'react-native';
-import dimension from '../../utils/dimension';
 
 import {COLORS, FONTS} from '../../utils/theme';
 
@@ -54,20 +53,20 @@ const styles = StyleSheet.create({
     position: 'absolute',
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingBottom: dimension.viewHeight(4),
-    paddingTop: dimension.viewHeight(4),
+    paddingBottom: 4,
+    paddingTop: 4,
     width: '100%',
     backgroundColor: COLORS.OVERLAY,
     borderRadius: 20,
-    height: dimension.viewHeight(60),
+    height: 60,
   },
   leaveIconContainer: {
     backgroundColor: COLORS.INDICATORS.ERROR,
-    padding: dimension.viewHeight(10),
+    padding: 10,
     borderRadius: 60,
   },
   singleIconContainer: {
-    padding: dimension.viewHeight(10),
+    padding: 10,
   },
   leaveIcon: {
     color: COLORS.WHITE,
@@ -116,8 +115,8 @@ const styles = StyleSheet.create({
   avatar: {
     aspectRatio: 1,
     width: '50%',
-    maxWidth: dimension.viewWidth(100),
-    maxHeight: dimension.viewHeight(100),
+    maxWidth: 100,
+    maxHeight: 100,
     borderRadius: 500,
     alignItems: 'center',
     justifyContent: 'center',
@@ -143,8 +142,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     zIndex: 100,
     backgroundColor: COLORS.PRIMARY.DEFAULT,
-    right: dimension.viewWidth(8),
-    top: dimension.viewHeight(10),
+    right: 8,
+    top: 10,
   },
   options: {
     color: COLORS.PRIMARY.DEFAULT,
@@ -164,10 +163,10 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Bold',
   },
   headerIcon: {
-    padding: dimension.viewHeight(10),
+    padding: 10,
   },
   headerContainer: {
-    height: dimension.viewHeight(50),
+    height: 50,
     justifyContent: 'space-between',
     flexDirection: 'row',
     alignItems: 'center',
@@ -175,7 +174,7 @@ const styles = StyleSheet.create({
   },
   page: {
     flexDirection: 'row',
-    width: dimension.viewWidth(414),
+    width: 414,
     flexWrap: 'wrap',
   },
   headerRight: {
@@ -184,11 +183,11 @@ const styles = StyleSheet.create({
   },
   recording: {
     color: COLORS.INDICATORS.ERROR,
-    padding: dimension.viewHeight(10),
+    padding: 10,
   },
   streaming: {
     color: COLORS.INDICATORS.ERROR,
-    padding: dimension.viewHeight(10),
+    padding: 10,
   },
   input: {
     borderWidth: 1,
@@ -275,6 +274,9 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
+  heroContainerLandscaspe: {
+    flexDirection: 'row',
+  },
   heroView: {
     height: '100%',
     width: '100%',
@@ -284,12 +286,16 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   heroTileContainer: {
-    height: '80%',
+    height: '70%',
     width: '100%',
     marginVertical: 1,
     padding: '0.25%',
     overflow: 'hidden',
     borderRadius: 10,
+  },
+  heroTileContainerLandscaspe: {
+    height: '100%',
+    width: '80%',
   },
   heroTileContainerSingle: {
     height: '100%',
@@ -301,11 +307,19 @@ const styles = StyleSheet.create({
   },
   heroListContainer: {
     width: '100%',
-    height: '20%',
+    height: '30%',
+  },
+  heroListContainerLandscaspe: {
+    width: '20%',
+    height: '100%',
   },
   heroListView: {
     width: 150,
     height: '100%',
+  },
+  heroListViewLandscaspe: {
+    height: 250,
+    width: '100%',
   },
   mainTileContainer: {
     height: '100%',
@@ -320,13 +334,20 @@ const styles = StyleSheet.create({
     height: '40%',
     borderWidth: 2,
     borderRadius: 10,
-    borderColor: COLORS.BORDER.DEFAULT,
+    borderColor: COLORS.WHITE,
     zIndex: 3,
+  },
+  miniTileContainerLandscape: {
+    width: '20%',
+    height: '80%',
   },
   heroListViewContainer: {
     marginHorizontal: 1,
     borderRadius: 10,
     overflow: 'hidden',
+  },
+  heroListViewContainerLandscaspe: {
+    marginVertical: 1,
   },
   network: {
     height: 30,

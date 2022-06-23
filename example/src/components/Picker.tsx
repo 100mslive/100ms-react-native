@@ -114,6 +114,7 @@ const styles = StyleSheet.create({
   },
   modalDropdown: {
     minWidth: 120,
+    paddingRight: 15,
   },
   textStyle: {
     fontSize: 20,
