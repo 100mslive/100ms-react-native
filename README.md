@@ -330,7 +330,17 @@ import { HMSRTMPConfig } from '@100mslive/react-native-hms';
 const recordingDetails = HMSRTMPConfig({
   record: true,
   meetingURL: roomID + '/viewer?token=beam_recording',
-  rtmpURLs: [],
+  rtmpURLs: [], // optional value
+  resolution: { height: 720, width: 1280 }, // optional value
+  // Resolution width
+  // Range is [500, 1280].
+  // Default value is 1280.
+  // If resolution height > 720 then max resolution width = 720.
+
+  // Resolution height
+  // Reange is [480, 1280].
+  // Default resolution width is 720.
+  // If resolution width > 720 then max resolution height = 720.
 });
 
 // hms instance acquired by build method

@@ -362,6 +362,16 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: '70%',
   },
+  resolutionContainer: {
+    padding: 16,
+  },
+  resolutionDetails: {
+    flexDirection: 'row',
+  },
+  resolutionValue: {
+    fontFamily: 'Inter-Regular',
+    paddingLeft: 16,
+  },
 });
 
 export {styles};

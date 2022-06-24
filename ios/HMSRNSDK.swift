@@ -581,19 +581,19 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func startRTMPOrRecording(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        guard let record = data.value(forKey: "record") as? Bool
+        guard let record = data.value(forKey: "record") as? Bool,
+              let meetingString = data.value(forKey: "meetingURL") as? String
         else {
             let error = HMSError(id: "126", code: HMSErrorCode.genericErrorUnknown, message: "REQUIRED_KEYS_NOT_FOUND")
             delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HMSDecoder.getError(error), "id": id])
             return
         }
 
-        let meetingString = data.value(forKey: "meetingURL") as? String
         let rtmpStrings = data.value(forKey: "rtmpURLs") as? [String]
 
         var meetingUrl: URL?
-        if let meetLink = meetingString {
-            meetingUrl = URL(string: meetLink)
+        if let meetLink = URL(string: meetingString) {
+            meetingUrl = meetLink
         } else {
             let error = HMSError(id: "127", code: HMSErrorCode.genericErrorUnknown, message: "INVALID_MEETING_URL_PASSED")
             delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HMSDecoder.getError(error), "id": id])

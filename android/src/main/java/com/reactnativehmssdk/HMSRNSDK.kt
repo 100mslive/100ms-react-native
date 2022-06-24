@@ -914,27 +914,25 @@ class HMSRNSDK(
             arrayOf(Pair("record", "Boolean"), Pair("meetingURL", "String"))
         )
     if (requiredKeys === null) {
-      val record = data.getBoolean("record")
-      val meetingURL = data.getString("meetingURL") as String
-      var rtmpURLs = data.getArray("rtmpURLs")
-      if (rtmpURLs == null) {
-        rtmpURLs = Arguments.createArray()
+      val config = HMSHelper.getRtmpConfig(data)
+      if (config === null) {
+        val errorMessage = "startRTMPOrRecording: INVALID_MEETING_URL_PASSED"
+        self.emitRequiredKeysError(errorMessage)
+        rejectCallback(callback, errorMessage)
+      } else {
+        hmsSDK?.startRtmpOrRecording(
+            config,
+            object : HMSActionResultListener {
+              override fun onSuccess() {
+                callback?.resolve(emitHMSSuccess())
+              }
+              override fun onError(error: HMSException) {
+                callback?.reject(error.code.toString(), error.message)
+                self.emitHMSError(error)
+              }
+            }
+        )
       }
-      val rtmpURLsList = HMSHelper.getRtmpUrls(rtmpURLs)
-      val config = HMSRecordingConfig(meetingURL, rtmpURLsList, record)
-
-      hmsSDK?.startRtmpOrRecording(
-          config,
-          object : HMSActionResultListener {
-            override fun onSuccess() {
-              callback?.resolve(emitHMSSuccess())
-            }
-            override fun onError(error: HMSException) {
-              callback?.reject(error.code.toString(), error.message)
-              self.emitHMSError(error)
-            }
-          }
-      )
     } else {
       val errorMessage = "startRTMPOrRecording: $requiredKeys"
       self.emitRequiredKeysError(errorMessage)
