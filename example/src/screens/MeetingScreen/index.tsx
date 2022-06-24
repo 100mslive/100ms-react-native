@@ -54,6 +54,7 @@ import RNFetchBlob from 'rn-fetch-blob';
 import {Picker} from '@react-native-picker/picker';
 import Video from 'react-native-video';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {Slider} from '@miblanchard/react-native-slider';
 
 import {styles} from './styles';
 import type {AppStackParamList} from '../../navigator';
@@ -175,8 +176,8 @@ const Meeting = () => {
   const [recordingDetails, setRecordingDetails] = useState<HMSRTMPConfig>({
     record: false,
     meetingURL: roomID ? roomID + '?token=beam_recording' : '',
-    rtmpURLs: [],
   });
+  const [resolutionDetails, setResolutionDetails] = useState<boolean>(false);
   const [hlsStreamingDetails, setHLSStreamingDetails] =
     useState<HMSHLSMeetingURLVariant>({
       meetingUrl: roomID ? roomID + '?token=beam_recording' : '',
@@ -262,6 +263,9 @@ const Meeting = () => {
         break;
       case ModalTypes.RECORDING:
         modalTitle = 'Recording Details';
+        break;
+      case ModalTypes.RESOLUTION:
+        modalTitle = 'Resolution Details';
         break;
       case ModalTypes.LEAVE:
         modalTitle = 'End Room';
@@ -499,12 +503,24 @@ const Meeting = () => {
           );
         }
         break;
+      case ModalTypes.RESOLUTION:
+        buttons = [{text: 'Back'}];
+        break;
       case ModalTypes.RECORDING:
         buttons = [
           {text: 'Cancel'},
           {
             text: 'Start',
             onPress: () => {
+              // Resolution width
+              // Range is [500, 1280].
+              // Default value is 1280.
+              // If resolution height > 720 then max resolution width = 720.
+
+              // Resolution height
+              // Reange is [480, 1280].
+              // Default resolution width is 720.
+              // If resolution width > 720 then max resolution height = 720.
               instance
                 ?.startRTMPOrRecording(recordingDetails)
                 .then(d => console.log('Start RTMP Or Recording Success: ', d))
@@ -970,7 +986,7 @@ const Meeting = () => {
         <TextInput
           onChangeText={value => {
             if (value === '') {
-              setRecordingDetails({...recordingDetails, rtmpURLs: []});
+              setRecordingDetails({...recordingDetails, rtmpURLs: undefined});
             } else {
               setRecordingDetails({...recordingDetails, rtmpURLs: [value]});
             }
@@ -1000,6 +1016,83 @@ const Meeting = () => {
             )}
           </View>
         </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            setResolutionDetails(!resolutionDetails);
+            if (!resolutionDetails) {
+              setModalVisible(ModalTypes.RESOLUTION);
+              setRecordingDetails({
+                ...recordingDetails,
+                resolution: {
+                  height: 720,
+                  width: 1280,
+                },
+              });
+            } else {
+              setRecordingDetails({
+                ...recordingDetails,
+                resolution: undefined,
+              });
+            }
+          }}
+          style={styles.recordingDetails}>
+          <Text style={styles.interRegular}>Resolution</Text>
+          <View style={styles.checkboxContainer}>
+            {resolutionDetails && (
+              <Entypo name="check" style={styles.checkbox} size={20} />
+            )}
+          </View>
+        </TouchableOpacity>
+      </CustomModal>
+      <CustomModal
+        modalVisible={modalVisible === ModalTypes.RESOLUTION}
+        setModalVisible={() => setModalVisible(ModalTypes.RECORDING)}
+        title={getModalTitle(ModalTypes.RESOLUTION)}
+        buttons={getModalButtons(ModalTypes.RESOLUTION)}>
+        <View style={styles.resolutionContainer}>
+          <View style={styles.resolutionDetails}>
+            <Text style={styles.interRegular}>Height :</Text>
+            <Text style={styles.resolutionValue}>
+              {recordingDetails.resolution?.height}
+            </Text>
+          </View>
+          <Slider
+            value={recordingDetails.resolution?.height}
+            maximumValue={1280}
+            minimumValue={480}
+            step={10}
+            onValueChange={(value: any) => {
+              setRecordingDetails({
+                ...recordingDetails,
+                resolution: {
+                  height: parseInt(value),
+                  width: recordingDetails.resolution?.width ?? 1280,
+                },
+              });
+            }}
+          />
+          <View style={styles.resolutionDetails}>
+            <Text style={styles.interRegular}>Width :</Text>
+            <Text style={styles.resolutionValue}>
+              {recordingDetails.resolution?.width}
+            </Text>
+          </View>
+          <Slider
+            value={recordingDetails.resolution?.width}
+            maximumValue={1280}
+            minimumValue={500}
+            step={10}
+            onValueChange={(value: any) => {
+              setRecordingDetails({
+                ...recordingDetails,
+                resolution: {
+                  width: parseInt(value),
+                  height: recordingDetails.resolution?.height ?? 720,
+                },
+              });
+            }}
+          />
+        </View>
       </CustomModal>
       <CustomModal
         modalVisible={modalVisible === ModalTypes.HLS_STREAMING}

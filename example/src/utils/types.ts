@@ -28,6 +28,7 @@ export enum ModalTypes {
   CHANGE_NAME = 'changeName',
   HLS_STREAMING = 'hlsStreaming',
   RECORDING = 'recording',
+  RESOLUTION = 'resolution',
   LAYOUT = 'layout',
   SORTING = 'sorting',
   LEAVE = 'leave',

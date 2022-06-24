@@ -21,7 +21,7 @@ import type { HMSRemotePeer } from './HMSRemotePeer';
 import type { HMSRoom } from './HMSRoom';
 import type { HMSRole } from './HMSRole';
 import type { HMSTrack } from './HMSTrack';
-import type { HMSTrackType } from './HMSTrackType';
+import { HMSTrackType } from './HMSTrackType';
 import type { HMSLogger } from './HMSLogger';
 import type { HMSPeer } from './HMSPeer';
 import type { HMSVideoViewMode } from './HMSVideoViewMode';
@@ -1215,7 +1215,11 @@ export class HMSSDK {
       data.remotePeers,
       this.id
     );
-    if (this.muteStatus && data?.type === 'TRACK_ADDED') {
+    if (
+      this.muteStatus &&
+      data?.type === 'TRACK_ADDED' &&
+      track.type === HMSTrackType.AUDIO
+    ) {
       this.setPlaybackForAllAudio(this.muteStatus);
     }
     this.room = room;
