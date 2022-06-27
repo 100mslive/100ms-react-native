@@ -75,7 +75,7 @@ const QRCode = () => {
       <Image
         style={styles.image}
         resizeMode="stretch"
-        source={require('../../../assets/Illustration.png')}
+        source={require('../../../assets/illustration.png')}
       />
       <View>
         <Text style={styles.heading}>Stream right from your mobile!</Text>

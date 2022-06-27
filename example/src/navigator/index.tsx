@@ -21,7 +21,7 @@ const navigationOptions = {
 
 const AppStackNavigator = () => (
   <NavigationContainer>
-    <AppStack.Navigator initialRouteName="WelcomeScreen">
+    <AppStack.Navigator initialRouteName="QRCodeScreen">
       <AppStack.Screen
         name="WelcomeScreen"
         component={WelcomeScreen}

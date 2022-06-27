@@ -5,6 +5,7 @@ import {COLORS} from '../../utils/theme';
 const styles = StyleSheet.create({
   contentContainerStyle: {
     alignItems: 'center',
+    justifyContent: 'center',
   },
   container: {
     flex: 1,
