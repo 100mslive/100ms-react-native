@@ -45,3 +45,8 @@ export enum SortingType {
   ROLE_PRIORITY = 'Role Priority',
   DEFAULT = '',
 }
+
+export enum Theme {
+  LIGHT = 'Light',
+  DARK = 'Dark',
+}
