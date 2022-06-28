@@ -3,10 +3,14 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {NavigationContainer} from '@react-navigation/native';
 import WelcomeScreen from '../screens/WelcomeScreen';
 import MeetingScreen from '../screens/MeetingScreen';
+import {QRCode} from '../screens/QRCode';
+import {QRCodeScanner} from '../screens/QRCodeScanner';
 
 export type AppStackParamList = {
   WelcomeScreen: undefined;
   MeetingScreen: undefined;
+  QRCodeScreen: undefined;
+  QRCodeScannerScreen: undefined;
 };
 
 const AppStack = createNativeStackNavigator<AppStackParamList>();
@@ -17,7 +21,7 @@ const navigationOptions = {
 
 const AppStackNavigator = () => (
   <NavigationContainer>
-    <AppStack.Navigator initialRouteName="WelcomeScreen">
+    <AppStack.Navigator initialRouteName="QRCodeScreen">
       <AppStack.Screen
         name="WelcomeScreen"
         component={WelcomeScreen}
@@ -26,6 +30,16 @@ const AppStackNavigator = () => (
       <AppStack.Screen
         name="MeetingScreen"
         component={MeetingScreen}
+        options={navigationOptions}
+      />
+      <AppStack.Screen
+        name="QRCodeScreen"
+        component={QRCode}
+        options={navigationOptions}
+      />
+      <AppStack.Screen
+        name="QRCodeScannerScreen"
+        component={QRCodeScanner}
         options={navigationOptions}
       />
     </AppStack.Navigator>
