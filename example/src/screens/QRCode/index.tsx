@@ -4,12 +4,14 @@ import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {useDispatch} from 'react-redux';
 
 import type {AppStackParamList} from '../../navigator';
 import {styles} from './styles';
 import {getMeetingUrl, validateUrl} from '../../utils/functions';
 import {COLORS} from '../../utils/theme';
 import {CustomButton, CustomInput} from '../../components';
+import {saveUserData} from '../../redux/actions';
 
 type QRCodeScreenProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -19,17 +21,18 @@ type QRCodeScreenProp = NativeStackNavigationProp<
 const QRCode = () => {
   const navigate = useNavigation<QRCodeScreenProp>().navigate;
   const {top, bottom, left, right} = useSafeAreaInsets();
+  const dispatch = useDispatch();
 
   const [joinDisabled, setJoinDisabled] = useState<boolean>(true);
   const [joiningLink, setJoiningLink] = useState<string>(getMeetingUrl());
 
-  const onJoiningLinkChange = (value: string) => {
-    setJoiningLink(value);
-    setJoinDisabled(!validateUrl(value));
-  };
-
   const onJoinPress = () => {
-    //
+    dispatch(
+      saveUserData({
+        roomID: joiningLink.replace('meeting', 'preview'),
+      }),
+    );
+    navigate('WelcomeScreen');
   };
 
   const onScanQRCodePress = () => {
@@ -38,19 +41,18 @@ const QRCode = () => {
 
   useEffect(() => {
     setJoinDisabled(!validateUrl(joiningLink));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [joiningLink]);
 
   useEffect(() => {
     Linking.getInitialURL().then(url => {
       if (url) {
-        onJoiningLinkChange(url);
+        setJoiningLink(url);
       }
     });
 
     const updateUrl = ({url}: {url: string}) => {
       if (url) {
-        onJoiningLinkChange(url);
+        setJoiningLink(url);
       }
     };
     Linking.addEventListener('url', updateUrl);
@@ -85,7 +87,7 @@ const QRCode = () => {
       </View>
       <CustomInput
         value={joiningLink}
-        onChangeText={onJoiningLinkChange}
+        onChangeText={setJoiningLink}
         textStyle={styles.joiningLinkInputText}
         viewStyle={styles.joiningLinkInputView}
         inputStyle={styles.joiningLinkInput}

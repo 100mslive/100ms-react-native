@@ -4,6 +4,7 @@ import {COLORS} from '../../utils/theme';
 
 const styles = StyleSheet.create({
   contentContainerStyle: {
+    flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },

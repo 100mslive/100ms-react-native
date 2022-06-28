@@ -613,7 +613,7 @@ const Meeting = () => {
     dispatch(clearMessageData());
     dispatch(clearPeerData());
     dispatch(clearHmsReference());
-    navigate('WelcomeScreen');
+    navigate('QRCodeScreen');
   };
 
   const onRoomListener = ({
