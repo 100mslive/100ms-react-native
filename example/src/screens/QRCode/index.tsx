@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Image, Linking, ScrollView, Text, View} from 'react-native';
+import {Alert, Image, Linking, ScrollView, Text, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -25,14 +25,20 @@ const QRCode = () => {
 
   const [joinDisabled, setJoinDisabled] = useState<boolean>(true);
   const [joiningLink, setJoiningLink] = useState<string>(getMeetingUrl());
+  const [isHLSFlow, setIsHLSFlow] = useState<boolean>(false);
 
   const onJoinPress = () => {
-    dispatch(
-      saveUserData({
-        roomID: joiningLink.replace('meeting', 'preview'),
-      }),
-    );
-    navigate('WelcomeScreen');
+    if (joiningLink.includes('.app.100ms.live/')) {
+      dispatch(
+        saveUserData({
+          roomID: joiningLink.replace('meeting', 'preview'),
+          isHLSFlow,
+        }),
+      );
+      navigate('WelcomeScreen');
+    } else {
+      Alert.alert('Error', 'Invalid URL');
+    }
   };
 
   const onScanQRCodePress = () => {
@@ -73,27 +79,48 @@ const QRCode = () => {
           paddingBottom: 24 + bottom,
         },
       ]}
-      style={styles.container}>
+      style={styles.container}
+      keyboardShouldPersistTaps="always">
       <Image
         style={styles.image}
         resizeMode="stretch"
         source={require('../../../assets/illustration.png')}
       />
       <View>
-        <Text style={styles.heading}>Stream right from your mobile!</Text>
+        <Text style={styles.heading}>Experience the power of 100ms</Text>
         <Text style={styles.description}>
-          Login or scan the QR code from the app to get started
+          Jump right in by pasting a room link or scanning a QR code
         </Text>
+      </View>
+      <View style={styles.joiningLinkInputView}>
+        <Text style={styles.joiningLinkInputText}>Joining Link</Text>
+        <View style={styles.joiningFlowContainer}>
+          <CustomButton
+            title="Meeting"
+            onPress={() => setIsHLSFlow(false)}
+            viewStyle={[
+              styles.joiningFlowLeft,
+              !isHLSFlow && styles.selectedFlow,
+            ]}
+            textStyle={[styles.joiningLinkInputText]}
+          />
+          <CustomButton
+            title="HLS"
+            onPress={() => setIsHLSFlow(true)}
+            viewStyle={[
+              styles.joiningFlowRight,
+              isHLSFlow && styles.selectedFlow,
+            ]}
+            textStyle={[styles.joiningLinkInputText]}
+          />
+        </View>
       </View>
       <CustomInput
         value={joiningLink}
         onChangeText={setJoiningLink}
-        textStyle={styles.joiningLinkInputText}
-        viewStyle={styles.joiningLinkInputView}
         inputStyle={styles.joiningLinkInput}
         placeholderTextColor={COLORS.TEXT.DISABLED}
         placeholder="Paste the link here"
-        title="Joining Link"
         multiline
       />
       <CustomButton

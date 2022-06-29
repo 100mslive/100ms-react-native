@@ -13,8 +13,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.BLACK,
   },
   image: {
-    height: 234,
-    width: 304,
+    height: 200,
+    width: 346,
   },
   heading: {
     color: COLORS.TEXT.HIGH_EMPHASIS,
@@ -24,7 +24,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.25,
     textAlign: 'center',
     paddingTop: 24,
-    paddingHorizontal: 16,
   },
   description: {
     color: COLORS.TEXT.MEDIUM_EMPHASIS,
@@ -34,7 +33,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
     textAlign: 'center',
     paddingTop: 16,
-    paddingHorizontal: 28,
   },
   joiningLinkInput: {
     backgroundColor: COLORS.SURFACE.LIGHT,
@@ -57,6 +55,10 @@ const styles = StyleSheet.create({
   },
   joiningLinkInputView: {
     marginTop: 56,
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   joinButton: {
     backgroundColor: COLORS.PRIMARY.DEFAULT,
@@ -102,6 +104,36 @@ const styles = StyleSheet.create({
   scanQRButtonIcon: {
     color: COLORS.TEXT.HIGH_EMPHASIS_ACCENT,
     paddingRight: 12,
+  },
+  joiningFlowLeft: {
+    width: 'auto',
+    backgroundColor: COLORS.SURFACE.LIGHT,
+    paddingVertical: 8,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.BORDER.LIGHT,
+    paddingLeft: 16,
+    paddingRight: 8,
+    borderTopLeftRadius: 8,
+    borderBottomLeftRadius: 8,
+  },
+  joiningFlowRight: {
+    width: 'auto',
+    backgroundColor: COLORS.SURFACE.LIGHT,
+    paddingVertical: 8,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.BORDER.LIGHT,
+    paddingRight: 16,
+    paddingLeft: 8,
+    borderTopRightRadius: 8,
+    borderBottomRightRadius: 8,
+  },
+  joiningFlowContainer: {
+    flexDirection: 'row',
+  },
+  selectedFlow: {
+    backgroundColor: COLORS.PRIMARY.DEFAULT,
   },
 });
 

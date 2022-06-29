@@ -23,6 +23,7 @@ const CustomInput = ({
   returnKeyType,
   multiline,
   blurOnSubmit,
+  disableFullscreenUI = true,
 }: {
   value?: string;
   title?: string;
@@ -36,6 +37,7 @@ const CustomInput = ({
   returnKeyType?: ReturnKeyTypeOptions;
   multiline?: boolean;
   blurOnSubmit?: boolean;
+  disableFullscreenUI?: boolean;
 }) => {
   const onChange = (newValue: string) => {
     onChangeText(newValue);
@@ -44,6 +46,7 @@ const CustomInput = ({
     <View style={[styles.inputContainer, viewStyle]}>
       {title && <Text style={textStyle}>{title}</Text>}
       <TextInput
+        disableFullscreenUI={disableFullscreenUI}
         value={value}
         onChangeText={onChange}
         placeholderTextColor={placeholderTextColor}
