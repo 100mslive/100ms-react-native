@@ -36,6 +36,7 @@ export enum ModalTypes {
   CHAT = 'chat',
   ZOOM = 'zoom',
   ROLE = 'role',
+  PREVIEW = 'preview',
   DEFAULT = '',
 }
 
