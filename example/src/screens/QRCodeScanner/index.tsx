@@ -28,7 +28,7 @@ const QRCodeScanner = () => {
   const onScanSuccess = (e: BarCodeReadEvent) => {
     const joiningLink = e.data.replace('meeting', 'preview');
     if (validateUrl(joiningLink)) {
-      if (!joiningLink.includes('.app.100ms.live/')) {
+      if (!joiningLink.includes('app.100ms.live/')) {
         goBack();
         Alert.alert('Error', 'Invalid URL');
         return;
