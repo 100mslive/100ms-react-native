@@ -550,6 +550,9 @@ export const validateUrl = (url?: string): boolean => {
 export const checkPermissions = async (
   permissions: Array<Permission>,
 ): Promise<boolean> => {
+  if (Platform.OS === 'ios') {
+    return true;
+  }
   return await requestMultiple(permissions)
     .then(results => {
       let allPermissionsGranted = true;

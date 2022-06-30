@@ -1,5 +1,13 @@
 import React, {useEffect, useState} from 'react';
-import {Alert, Image, ScrollView, Text, View} from 'react-native';
+import {
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -30,7 +38,6 @@ import {
   // HMSVideoResolution,
 } from '@100mslive/react-native-hms';
 import Toast from 'react-native-simple-toast';
-import GestureRecognizer from 'react-native-swipe-gestures';
 
 import type {AppStackParamList} from '../../navigator';
 import {styles} from './styles';
@@ -51,7 +58,6 @@ type WelcomeScreenProp = NativeStackNavigationProp<
 >;
 
 const Welcome = () => {
-  const goBack = useNavigation().goBack;
   const navigate = useNavigation<WelcomeScreenProp>().navigate;
   const {roomID, userName} = useSelector((state: RootState) => state.user);
   const {top, bottom, left, right} = useSafeAreaInsets();
@@ -72,10 +78,6 @@ const Welcome = () => {
   const [modalType, setModalType] = useState<ModalTypes>(ModalTypes.DEFAULT);
   const [videoAllowed, setVideoAllowed] = useState<boolean>(false);
   const [audioAllowed, setAudioAllowed] = useState<boolean>(false);
-  const gestureConfig = {
-    velocityThreshold: 0.3,
-    directionalOffsetThreshold: 80,
-  };
 
   const onPreviewSuccess = (data: {
     localPeer: HMSLocalPeer;
@@ -363,10 +365,10 @@ const Welcome = () => {
       loadingButtonState={joinButtonLoading}
     />
   ) : (
-    <GestureRecognizer
-      onSwipeRight={() => goBack()}
-      config={gestureConfig}
-      style={styles.flex}>
+    <KeyboardAvoidingView
+      enabled={Platform.OS === 'ios'}
+      behavior="padding"
+      style={styles.container}>
       <ScrollView
         contentContainerStyle={[
           styles.contentContainerStyle,
@@ -412,7 +414,7 @@ const Welcome = () => {
           loading={previewButtonLoading}
         />
       </ScrollView>
-    </GestureRecognizer>
+    </KeyboardAvoidingView>
   );
 };
 

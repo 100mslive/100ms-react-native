@@ -1,5 +1,14 @@
 import React, {useEffect, useState} from 'react';
-import {Alert, Image, Linking, ScrollView, Text, View} from 'react-native';
+import {
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Linking,
+  Platform,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -69,82 +78,91 @@ const QRCode = () => {
   }, []);
 
   return (
-    <ScrollView
-      contentContainerStyle={[
-        styles.contentContainerStyle,
-        {
-          paddingTop: 24 + top,
-          paddingLeft: 24 + left,
-          paddingRight: 24 + right,
-          paddingBottom: 24 + bottom,
-        },
-      ]}
-      style={styles.container}
-      keyboardShouldPersistTaps="always">
-      <Image
-        style={styles.image}
-        resizeMode="stretch"
-        source={require('../../../assets/illustration.png')}
-      />
-      <View>
-        <Text style={styles.heading}>Experience the power of 100ms</Text>
-        <Text style={styles.description}>
-          Jump right in by pasting a room link or scanning a QR code
-        </Text>
-      </View>
-      <View style={styles.joiningLinkInputView}>
-        <Text style={styles.joiningLinkInputText}>Joining Link</Text>
-        <View style={styles.joiningFlowContainer}>
-          <CustomButton
-            title="Meeting"
-            onPress={() => setIsHLSFlow(false)}
-            viewStyle={[
-              styles.joiningFlowLeft,
-              !isHLSFlow && styles.selectedFlow,
-            ]}
-            textStyle={[styles.joiningLinkInputText]}
-          />
-          <CustomButton
-            title="HLS"
-            onPress={() => setIsHLSFlow(true)}
-            viewStyle={[
-              styles.joiningFlowRight,
-              isHLSFlow && styles.selectedFlow,
-            ]}
-            textStyle={[styles.joiningLinkInputText]}
-          />
+    <KeyboardAvoidingView
+      enabled={Platform.OS === 'ios'}
+      behavior="padding"
+      style={styles.container}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.contentContainerStyle,
+          {
+            paddingTop: 24 + top,
+            paddingLeft: 24 + left,
+            paddingRight: 24 + right,
+            paddingBottom: 24 + bottom,
+          },
+        ]}
+        style={styles.container}
+        keyboardShouldPersistTaps="always">
+        <Image
+          style={styles.image}
+          resizeMode="stretch"
+          source={require('../../../assets/illustration.png')}
+        />
+        <View>
+          <Text style={styles.heading}>Experience the power of 100ms</Text>
+          <Text style={styles.description}>
+            Jump right in by pasting a room link or scanning a QR code
+          </Text>
         </View>
-      </View>
-      <CustomInput
-        value={joiningLink}
-        onChangeText={setJoiningLink}
-        inputStyle={styles.joiningLinkInput}
-        placeholderTextColor={COLORS.TEXT.DISABLED}
-        placeholder="Paste the link here"
-        multiline
-      />
-      <CustomButton
-        title="Join Now"
-        onPress={onJoinPress}
-        disabled={joinDisabled}
-        viewStyle={[styles.joinButton, joinDisabled && styles.disabled]}
-        textStyle={[styles.joinButtonText, joinDisabled && styles.disabledText]}
-      />
-      <View style={styles.horizontalSeparator} />
-      <CustomButton
-        title="Scan QR Code"
-        onPress={onScanQRCodePress}
-        viewStyle={styles.scanQRButton}
-        textStyle={styles.joinButtonText}
-        LeftIcon={
-          <MaterialCommunityIcons
-            name="qrcode"
-            style={styles.scanQRButtonIcon}
-            size={24}
-          />
-        }
-      />
-    </ScrollView>
+        <View style={styles.joiningLinkInputView}>
+          <Text style={styles.joiningLinkInputText}>Joining Link</Text>
+          <View style={styles.joiningFlowContainer}>
+            <CustomButton
+              title="Meeting"
+              onPress={() => setIsHLSFlow(false)}
+              viewStyle={[
+                styles.joiningFlowLeft,
+                !isHLSFlow && styles.selectedFlow,
+              ]}
+              textStyle={[styles.joiningLinkInputText]}
+            />
+            <CustomButton
+              title="HLS"
+              onPress={() => setIsHLSFlow(true)}
+              viewStyle={[
+                styles.joiningFlowRight,
+                isHLSFlow && styles.selectedFlow,
+              ]}
+              textStyle={[styles.joiningLinkInputText]}
+            />
+          </View>
+        </View>
+        <CustomInput
+          value={joiningLink}
+          onChangeText={setJoiningLink}
+          inputStyle={styles.joiningLinkInput}
+          placeholderTextColor={COLORS.TEXT.DISABLED}
+          placeholder="Paste the link here"
+          multiline
+          blurOnSubmit
+        />
+        <CustomButton
+          title="Join Now"
+          onPress={onJoinPress}
+          disabled={joinDisabled}
+          viewStyle={[styles.joinButton, joinDisabled && styles.disabled]}
+          textStyle={[
+            styles.joinButtonText,
+            joinDisabled && styles.disabledText,
+          ]}
+        />
+        <View style={styles.horizontalSeparator} />
+        <CustomButton
+          title="Scan QR Code"
+          onPress={onScanQRCodePress}
+          viewStyle={styles.scanQRButton}
+          textStyle={styles.joinButtonText}
+          LeftIcon={
+            <MaterialCommunityIcons
+              name="qrcode"
+              style={styles.scanQRButtonIcon}
+              size={24}
+            />
+          }
+        />
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
