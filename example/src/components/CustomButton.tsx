@@ -48,9 +48,11 @@ const CustomButton = ({
       ) : (
         <>
           {LeftIcon}
-          <Text style={[textStyle, disabled && styles.disabledText]}>
-            {title}
-          </Text>
+          {title && (
+            <Text style={[textStyle, disabled && styles.disabledText]}>
+              {title}
+            </Text>
+          )}
           {RightIcon}
         </>
       )}

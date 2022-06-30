@@ -1,5 +1,5 @@
 import React from 'react';
-import {Text, TouchableOpacity, View} from 'react-native';
+import {Alert, Text, TouchableOpacity, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -12,6 +12,7 @@ import type {AppStackParamList} from '../../navigator';
 import {styles} from './styles';
 import {CustomButton} from '../../components';
 import {saveUserData} from '../../redux/actions';
+import {validateUrl} from '../../utils/functions';
 
 type WelcomeScreenProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -20,17 +21,22 @@ type WelcomeScreenProp = NativeStackNavigationProp<
 
 const QRCodeScanner = () => {
   const navigate = useNavigation<WelcomeScreenProp>().navigate;
+  const goBack = useNavigation<WelcomeScreenProp>().goBack;
   const dispatch = useDispatch();
   const {top, bottom, left, right} = useSafeAreaInsets();
 
-  const onBackPress = () => {
-    navigate('QRCodeScreen');
-  };
-
   const onScanSuccess = (e: BarCodeReadEvent) => {
+    const joiningLink = e.data.replace('meeting', 'preview');
+    if (validateUrl(joiningLink)) {
+      if (!joiningLink.includes('.app.100ms.live/')) {
+        goBack();
+        Alert.alert('Error', 'Invalid URL');
+        return;
+      }
+    }
     dispatch(
       saveUserData({
-        roomID: e.data.replace('meeting', 'preview'),
+        roomID: joiningLink,
       }),
     );
     navigate('WelcomeScreen');
@@ -48,9 +54,7 @@ const QRCodeScanner = () => {
         },
       ]}>
       <View style={styles.headerContainer}>
-        <TouchableOpacity
-          style={styles.headerIconContainer}
-          onPress={onBackPress}>
+        <TouchableOpacity style={styles.headerIconContainer} onPress={goBack}>
           <Ionicons size={24} style={styles.headerIcon} name="chevron-back" />
         </TouchableOpacity>
         <Text style={styles.headerText}>Scan QR Code</Text>
@@ -61,7 +65,7 @@ const QRCodeScanner = () => {
       />
       <CustomButton
         title="Join with Link Instead"
-        onPress={onBackPress}
+        onPress={goBack}
         viewStyle={styles.joinWithLink}
         textStyle={styles.joinWithLinkText}
         LeftIcon={

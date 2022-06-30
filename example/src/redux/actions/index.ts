@@ -25,13 +25,10 @@ export const saveUserData = (data: {
   roomID?: String;
   mirrorLocalVideo?: boolean;
   roomCode?: String;
+  hmsInstance?: HMSSDK;
+  isHLSFlow?: boolean;
 }) => ({
   type: actionTypes.SAVE_USER_DATA.REQUEST,
-  payload: data,
-});
-
-export const updateHmsReference = (data: {hmsInstance: HMSSDK}) => ({
-  type: actionTypes.UPDATE_HMS_INSTANCE,
   payload: data,
 });
 

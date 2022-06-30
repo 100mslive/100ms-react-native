@@ -1,4 +1,9 @@
-import {Platform, Dimensions, PermissionsAndroid} from 'react-native';
+import {
+  Platform,
+  Dimensions,
+  PermissionsAndroid,
+  Permission,
+} from 'react-native';
 import RNFetchBlob from 'rn-fetch-blob';
 import Share from 'react-native-share';
 import {getDeviceType} from 'react-native-device-info';
@@ -14,9 +19,12 @@ import {
 
 import {LayoutParams, PeerTrackNode, SortingType} from './types';
 import * as services from '../services/index';
+import {PERMISSIONS, requestMultiple, RESULTS} from 'react-native-permissions';
 
 export const getMeetingUrl = () =>
   'https://yogi.app.100ms.live/preview/nih-bkn-vek';
+
+export const getMeetingCode = () => 'nih-bkn-vek';
 
 export const getRandomColor = () => {
   var letters = '0123456789ABCDEF';
@@ -215,6 +223,68 @@ export const requestExternalStoragePermission = async (): Promise<boolean> => {
 export const callService = async (
   userID: string,
   roomID: string,
+  success: Function,
+  failure: Function,
+) => {
+  let roomCode;
+  let subdomain;
+  let response;
+  try {
+    if (validateUrl(roomID)) {
+      const {code, domain} = getRoomIdDetails(roomID);
+      roomCode = code;
+      subdomain = domain;
+
+      if (code && domain) {
+        response = await services.fetchTokenFromLink({
+          code,
+          subdomain,
+          userID,
+        });
+      } else {
+        failure('code, domain not found');
+        return;
+      }
+    } else {
+      response = await services.fetchToken({
+        userID,
+        roomID,
+      });
+    }
+
+    if (response?.error || !response?.token) {
+      failure(response?.msg);
+      return;
+    }
+
+    const permissions = await checkPermissions([
+      PERMISSIONS.ANDROID.CAMERA,
+      PERMISSIONS.ANDROID.RECORD_AUDIO,
+    ]);
+    if (permissions) {
+      success(
+        response?.token,
+        userID,
+        roomCode,
+        subdomain && subdomain.search('.qa-') >= 0
+          ? 'https://qa-init.100ms.live/init'
+          : undefined,
+      );
+      return;
+    } else {
+      failure('permission not granted');
+      return;
+    }
+  } catch (error) {
+    console.log(error);
+    failure('error in call service');
+    return;
+  }
+};
+
+export const callIdService = async (
+  userID: string,
+  roomID: string,
   joinRoom: Function,
   apiFailed: Function,
 ) => {
@@ -231,7 +301,7 @@ export const callService = async (
   return response;
 };
 
-export const tokenFromLinkService = async (
+export const callLinkService = async (
   code: string,
   subdomain: string,
   userID: string,
@@ -461,16 +531,45 @@ export const isPortrait = () => {
   return dim.height >= dim.width;
 };
 
-export const validateUrl = (url: string): boolean => {
-  var pattern = new RegExp(
-    '^(https?:\\/\\/)?' +
-      '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
-      '((\\d{1,3}\\.){3}\\d{1,3}))' +
-      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
-      '(\\?[;&a-z\\d%_.~+=-]*)?' +
-      '(\\#[-a-z\\d_]*)?$',
-    'i',
-  );
+export const validateUrl = (url?: string): boolean => {
+  if (url) {
+    var pattern = new RegExp(
+      '^(https?:\\/\\/)?' +
+        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
+        '((\\d{1,3}\\.){3}\\d{1,3}))' +
+        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
+        '(\\?[;&a-z\\d%_.~+=-]*)?' +
+        '(\\#[-a-z\\d_]*)?$',
+      'i',
+    );
+    return pattern.test(url);
+  }
+  return false;
+};
 
-  return pattern.test(url);
+export const checkPermissions = async (
+  permissions: Array<Permission>,
+): Promise<boolean> => {
+  if (Platform.OS === 'ios') {
+    return true;
+  }
+  return await requestMultiple(permissions)
+    .then(results => {
+      let allPermissionsGranted = true;
+      for (let permission in permissions) {
+        if (!(results[permissions[permission]] === RESULTS.GRANTED)) {
+          allPermissionsGranted = false;
+        }
+        console.log(
+          permissions[permission],
+          ':',
+          results[permissions[permission]],
+        );
+      }
+      return allPermissionsGranted;
+    })
+    .catch(error => {
+      console.log(error);
+      return false;
+    });
 };

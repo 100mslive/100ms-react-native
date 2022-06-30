@@ -6,9 +6,13 @@ import {
   Text,
   TextInput,
   TextStyle,
+  TouchableOpacity,
   View,
   ViewStyle,
 } from 'react-native';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+
+import {COLORS} from '../utils/theme';
 
 const CustomInput = ({
   value,
@@ -23,6 +27,11 @@ const CustomInput = ({
   returnKeyType,
   multiline,
   blurOnSubmit,
+  disableFullscreenUI = true,
+  clear = true,
+  autoCapitalize = 'none',
+  autoCorrect = false,
+  autoCompleteType = 'off',
 }: {
   value?: string;
   title?: string;
@@ -36,24 +45,65 @@ const CustomInput = ({
   returnKeyType?: ReturnKeyTypeOptions;
   multiline?: boolean;
   blurOnSubmit?: boolean;
+  disableFullscreenUI?: boolean;
+  clear?: boolean;
+  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  autoCorrect?: boolean;
+  autoCompleteType?:
+    | 'off'
+    | 'cc-csc'
+    | 'cc-exp'
+    | 'cc-exp-month'
+    | 'cc-exp-year'
+    | 'cc-number'
+    | 'email'
+    | 'name'
+    | 'password'
+    | 'postal-code'
+    | 'street-address'
+    | 'tel'
+    | 'username';
 }) => {
+  const showClear = clear && value !== undefined && value?.length > 0;
+
   const onChange = (newValue: string) => {
     onChangeText(newValue);
   };
+
   return (
     <View style={[styles.inputContainer, viewStyle]}>
       {title && <Text style={textStyle}>{title}</Text>}
-      <TextInput
-        value={value}
-        onChangeText={onChange}
-        placeholderTextColor={placeholderTextColor}
-        placeholder={placeholder}
-        style={[!multiline && styles.input, inputStyle]}
-        defaultValue={defaultValue}
-        returnKeyType={returnKeyType}
-        multiline={multiline}
-        blurOnSubmit={blurOnSubmit}
-      />
+      <View>
+        <TextInput
+          disableFullscreenUI={disableFullscreenUI}
+          value={value}
+          onChangeText={onChange}
+          placeholderTextColor={placeholderTextColor}
+          placeholder={placeholder}
+          style={[
+            !multiline && styles.input,
+            showClear && styles.clear,
+            inputStyle,
+          ]}
+          defaultValue={defaultValue}
+          returnKeyType={returnKeyType}
+          multiline={multiline}
+          blurOnSubmit={blurOnSubmit}
+          keyboardAppearance="dark"
+          autoCapitalize={autoCapitalize}
+          autoCorrect={autoCorrect}
+          autoCompleteType={autoCompleteType}
+        />
+        {showClear && (
+          <TouchableOpacity
+            onPress={() => {
+              onChange('');
+            }}
+            style={styles.clearContainer}>
+            <MaterialIcons name="clear" style={styles.clearIcon} size={24} />
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 };
@@ -64,6 +114,20 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 48,
+  },
+  clearContainer: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    paddingRight: 8,
+  },
+  clear: {
+    paddingRight: 40,
+  },
+  clearIcon: {
+    color: COLORS.TEXT.HIGH_EMPHASIS,
   },
 });
 

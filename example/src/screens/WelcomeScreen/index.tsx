@@ -50,15 +50,11 @@ import Toast from 'react-native-simple-toast';
 import RNFetchBlob from 'rn-fetch-blob';
 
 import {UserIdModal, PreviewModal, AlertModal} from '../../components';
-import {
-  saveUserData,
-  updateHmsReference,
-  setPeerState,
-} from '../../redux/actions/index';
+import {saveUserData, setPeerState} from '../../redux/actions/index';
 import {
   writeFile,
-  callService,
-  tokenFromLinkService,
+  callIdService,
+  callLinkService,
   getMeetingUrl,
   getRoomIdDetails,
   requestExternalStoragePermission,
@@ -74,8 +70,6 @@ type WelcomeScreenProp = NativeStackNavigationProp<
   AppStackParamList,
   'WelcomeScreen'
 >;
-
-type ButtonState = 'Active' | 'Loading';
 
 let config: HMSConfig | null = null;
 let roomCode: string | undefined;
@@ -95,9 +89,8 @@ const App = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [previewModal, setPreviewModal] = useState<boolean>(false);
   const [localVideoTrackId, setLocalVideoTrackId] = useState<string>('');
-  const [buttonState, setButtonState] = useState<ButtonState>('Active');
-  const [previewButtonState, setPreviewButtonState] =
-    useState<ButtonState>('Active');
+  const [buttonState, setButtonState] = useState<boolean>(true);
+  const [loadingButtonState, setLoadingButtonState] = useState<boolean>(false);
   const [videoAllowed, setVideoAllowed] = useState<boolean>(false);
   const [audioAllowed, setAudioAllowed] = useState<boolean>(false);
   const [settingsModal, setSettingsModal] = useState(false);
@@ -141,7 +134,7 @@ const App = () => {
     } else {
       joinRoom();
     }
-    setButtonState('Active');
+    setButtonState(true);
     setInitialized(false);
   };
 
@@ -162,8 +155,8 @@ const App = () => {
       localPeer,
       HMSPeerUpdate.PEER_JOINED,
     );
-    setPreviewButtonState('Active');
-    setButtonState('Active');
+    setLoadingButtonState(false);
+    setButtonState(true);
     setPreviewModal(false);
     setInitialized(false);
     dispatch(setPeerState({peerState: newPeerTrackNodes}));
@@ -313,7 +306,7 @@ const App = () => {
     logger.updateLogLevel(HMSLogLevel.VERBOSE, true);
     build.setLogger(logger);
     instance = build;
-    dispatch(updateHmsReference({hmsInstance: build}));
+    dispatch(saveUserData({hmsInstance: build}));
   };
 
   useEffect(() => {
@@ -357,7 +350,7 @@ const App = () => {
         })
         .catch(error => {
           console.log(error);
-          setButtonState('Active');
+          setButtonState(true);
         });
     } else {
       previewWithLink(token, userID, endpoint);
@@ -380,7 +373,7 @@ const App = () => {
         })
         .catch(error => {
           console.log(error);
-          setButtonState('Active');
+          setButtonState(true);
         });
     } else {
       previewRoom(token, userID);
@@ -388,7 +381,7 @@ const App = () => {
   };
 
   const apiFailed = (error: any) => {
-    setButtonState('Active');
+    setButtonState(true);
     Alert.alert('Fetching token failed', error?.msg || 'Something went wrong');
   };
 
@@ -593,12 +586,12 @@ const App = () => {
 
     const isUrl = pattern.test(roomID);
     if (isUrl) {
-      setButtonState('Loading');
+      setButtonState(false);
       const {code, domain} = getRoomIdDetails(roomID);
       roomCode = code;
 
       if (code && domain) {
-        tokenFromLinkService(
+        callLinkService(
           code,
           domain,
           userID,
@@ -608,8 +601,8 @@ const App = () => {
       }
       setModalVisible(false);
     } else {
-      setButtonState('Loading');
-      callService(userID, roomID, checkPermissions, apiFailed);
+      setButtonState(false);
+      callIdService(userID, roomID, checkPermissions, apiFailed);
       setModalVisible(false);
     }
   };
@@ -667,10 +660,10 @@ const App = () => {
           </View>
         </View>
         <TouchableOpacity
-          disabled={buttonState !== 'Active'}
+          disabled={!buttonState}
           style={[
             styles.joinButtonContainer,
-            buttonState !== 'Active' ? styles.halfOpacity : styles.fullOpacity,
+            !buttonState ? styles.halfOpacity : styles.fullOpacity,
           ]}
           onPress={() => {
             if (text !== '') {
@@ -678,7 +671,7 @@ const App = () => {
               setModalVisible(true);
             }
           }}>
-          {buttonState === 'Loading' ? (
+          {!buttonState ? (
             <ActivityIndicator color="white" />
           ) : (
             <>
@@ -698,18 +691,16 @@ const App = () => {
       )}
       {previewModal && (
         <PreviewModal
-          audio={audioVideoOff ? true : false}
-          video={audioVideoOff ? true : false}
+          audio={audioVideoOff}
+          video={audioVideoOff}
           videoAllowed={videoAllowed}
           audioAllowed={audioAllowed}
           trackId={localVideoTrackId}
           join={joinRoom}
-          instance={instance}
-          setPreviewButtonState={setPreviewButtonState}
-          previewButtonState={previewButtonState}
+          setLoadingButtonState={setLoadingButtonState}
+          loadingButtonState={loadingButtonState}
         />
       )}
-      <View />
     </View>
   );
 };
