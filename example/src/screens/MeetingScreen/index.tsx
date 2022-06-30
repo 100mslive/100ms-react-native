@@ -852,8 +852,7 @@ const Meeting = () => {
 
   const onRemovedFromRoom = (data: any) => {
     console.log('data in onRemovedFromRoom: ', data);
-    dispatch(clearMessageData());
-    navigate('WelcomeScreen');
+    onLeavePress();
   };
 
   const updateHmsInstance = (hms: HMSSDK | undefined) => {

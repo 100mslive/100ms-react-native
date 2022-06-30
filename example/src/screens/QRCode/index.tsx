@@ -37,7 +37,7 @@ const QRCode = () => {
   const [isHLSFlow, setIsHLSFlow] = useState<boolean>(false);
 
   const onJoinPress = () => {
-    if (joiningLink.includes('.app.100ms.live/')) {
+    if (joiningLink.includes('app.100ms.live/')) {
       dispatch(
         saveUserData({
           roomID: joiningLink.replace('meeting', 'preview'),
