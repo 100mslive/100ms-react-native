@@ -65,6 +65,7 @@ import {
   RolePicker,
   ZoomableView,
   UserIdModal,
+  CustomButton,
 } from '../../components';
 import {
   addMessage,
@@ -189,6 +190,10 @@ const Meeting = () => {
       videoOnDemand: false,
     });
   const {bottom, left, right} = useSafeAreaInsets();
+  const parsedMetadata = parseMetadata(instance?.localPeer?.metadata);
+  const isScreenShared =
+    instance?.localPeer?.auxiliaryTracks &&
+    instance?.localPeer?.auxiliaryTracks?.length > 0;
 
   const getMessageToList = (): MessageObject[] => {
     const messageList: MessageObject[] = [
@@ -386,6 +391,18 @@ const Meeting = () => {
             },
           },
           {
+            text: parsedMetadata?.isBRBOn ? 'Remove BRB' : 'Set BRB',
+            onPress: () => {
+              instance?.changeMetadata(
+                JSON.stringify({
+                  ...parsedMetadata,
+                  isBRBOn: !parsedMetadata?.isBRBOn,
+                  isHandRaised: false,
+                }),
+              );
+            },
+          },
+          {
             text: 'Start RTMP or Recording',
             onPress: () => {
               setModalVisible(ModalTypes.RECORDING);
@@ -400,45 +417,8 @@ const Meeting = () => {
                 .catch(e => console.log('Stop RTMP And Recording Error: ', e));
             },
           },
-          {
-            text: 'Start HLS Streaming',
-            onPress: () => {
-              setModalVisible(ModalTypes.HLS_STREAMING);
-            },
-          },
-          {
-            text: 'Stop HLS Streaming',
-            onPress: () => {
-              instance
-                ?.stopHLSStreaming()
-                .then(d => console.log('Stop HLS Streaming Success: ', d))
-                .catch(e => console.log('Stop HLS Streaming Error: ', e));
-            },
-          },
         ];
         if (Platform.OS === 'android') {
-          buttons.push(
-            ...[
-              {
-                text: 'Start Screenshare',
-                onPress: () => {
-                  instance
-                    ?.startScreenshare()
-                    .then(d => console.log('Start Screenshare Success: ', d))
-                    .catch(e => console.log('Start Screenshare Error: ', e));
-                },
-              },
-              {
-                text: 'Stop Screenshare',
-                onPress: () => {
-                  instance
-                    ?.stopScreenshare()
-                    .then(d => console.log('Stop Screenshare Success: ', d))
-                    .catch(e => console.log('Stop Screenshare Error: ', e));
-                },
-              },
-            ],
-          );
         } else {
           buttons.push({
             text: statsForNerds
@@ -501,6 +481,17 @@ const Meeting = () => {
               },
             ],
           );
+        }
+        if (!instance?.localPeer?.role?.name?.includes('hls-')) {
+          buttons.push({
+            text: muteAllTracksAudio
+              ? 'Local unmute all audio tracks'
+              : 'Local mute all audio tracks',
+            onPress: () => {
+              instance?.setPlaybackForAllAudio(!muteAllTracksAudio);
+              setMuteAllTracksAudio(!muteAllTracksAudio);
+            },
+          });
         }
         break;
       case ModalTypes.RESOLUTION:
@@ -614,6 +605,69 @@ const Meeting = () => {
     dispatch(clearPeerData());
     dispatch(clearHmsReference());
     navigate('QRCodeScreen');
+  };
+
+  const onRaiseHandPress = () => {
+    instance?.changeMetadata(
+      JSON.stringify({
+        ...parsedMetadata,
+        isHandRaised: !parsedMetadata?.isHandRaised,
+        isBRBOn: false,
+      }),
+    );
+  };
+
+  const onSwitchCameraPress = () => {
+    instance?.localPeer?.localVideoTrack()?.switchCamera();
+  };
+
+  const onMicStatusPress = () => {
+    instance?.localPeer
+      ?.localAudioTrack()
+      ?.setMute(!instance?.localPeer?.audioTrack?.isMute());
+  };
+
+  const onVideoStatusPress = () => {
+    instance?.localPeer
+      ?.localVideoTrack()
+      ?.setMute(!instance?.localPeer?.videoTrack?.isMute());
+  };
+
+  const onStartScreenSharePress = () => {
+    if (Platform.OS === 'android') {
+      instance
+        ?.startScreenshare()
+        .then(d => console.log('Start Screenshare Success: ', d))
+        .catch(e => console.log('Start Screenshare Error: ', e));
+    } else {
+      Toast.showWithGravity('Api not available for iOS', Toast.LONG, Toast.TOP);
+    }
+  };
+
+  const onEndScreenSharePress = () => {
+    if (Platform.OS === 'android') {
+      instance
+        ?.stopScreenshare()
+        .then(d => console.log('Stop Screenshare Success: ', d))
+        .catch(e => console.log('Stop Screenshare Error: ', e));
+    } else {
+      Toast.showWithGravity('Api not available for iOS', Toast.LONG, Toast.TOP);
+    }
+  };
+
+  const onGoLivePress = () => {
+    setModalVisible(ModalTypes.HLS_STREAMING);
+  };
+
+  const onEndLivePress = () => {
+    instance
+      ?.stopHLSStreaming()
+      .then(d => console.log('Stop HLS Streaming Success: ', d))
+      .catch(e => console.log('Stop HLS Streaming Error: ', e));
+  };
+
+  const onSettingsPress = () => {
+    setModalVisible(ModalTypes.SETTINGS);
   };
 
   const onRoomListener = ({
@@ -1216,66 +1270,88 @@ const Meeting = () => {
           ))}
         </Picker>
       </CustomModal>
-      <View style={styles.headerContainer}>
-        <Text style={styles.headerName}>
-          {speakers?.length > 0 && speakers[0]?.peer?.name
-            ? `🔊  ${speakers[0]?.peer?.name}`
-            : roomCode}
-        </Text>
-        <View style={styles.headerRight}>
+      <View style={styles.iconTopWrapper}>
+        <View style={styles.iconTopSubWrapper}>
+          <CustomButton
+            onPress={() => {
+              setModalVisible(ModalTypes.LEAVE);
+            }}
+            viewStyle={[styles.iconContainer, styles.leaveIcon]}
+            LeftIcon={<Feather name="log-out" style={styles.icon} size={24} />}
+          />
+          <Text style={styles.headerName}>
+            {speakers?.length > 0 && speakers[0]?.peer?.name
+              ? `🔊  ${speakers[0]?.peer?.name}`
+              : roomCode}
+          </Text>
+        </View>
+        <View style={styles.iconTopSubWrapper}>
           {(hmsRoom?.browserRecordingState?.running ||
             hmsRoom?.hlsRecordingState?.running) && (
             <MaterialCommunityIcons
               name="record-circle-outline"
-              style={styles.recording}
-              size={30}
+              style={styles.roomStatus}
+              size={24}
             />
           )}
           {(hmsRoom?.hlsStreamingState?.running ||
             hmsRoom?.rtmpHMSRtmpStreamingState?.running) && (
-            <Ionicons name="globe-outline" style={styles.streaming} size={30} />
+            <Ionicons
+              name="globe-outline"
+              style={styles.roomStatus}
+              size={24}
+            />
           )}
-          {instance?.localPeer?.auxiliaryTracks &&
-            instance?.localPeer?.auxiliaryTracks?.length > 0 && (
-              <Feather name="copy" style={styles.streaming} size={30} />
-            )}
+          {isScreenShared && (
+            <Feather name="copy" style={styles.roomStatus} size={24} />
+          )}
+          <CustomButton
+            onPress={onRaiseHandPress}
+            viewStyle={[
+              styles.iconContainer,
+              parsedMetadata?.isHandRaised && styles.iconMuted,
+            ]}
+            LeftIcon={
+              <Ionicons
+                name="hand-left-outline"
+                style={[
+                  styles.icon,
+                  parsedMetadata?.isHandRaised && styles.handRaised,
+                ]}
+                size={24}
+              />
+            }
+          />
+          <CustomButton
+            onPress={() => {
+              setModalVisible(ModalTypes.CHAT);
+            }}
+            viewStyle={styles.iconContainer}
+            LeftIcon={
+              <View>
+                {notification && <View style={styles.messageDot} />}
+                <MaterialCommunityIcons
+                  name="message-outline"
+                  style={styles.icon}
+                  size={24}
+                />
+              </View>
+            }
+          />
           {instance?.localPeer?.role?.publishSettings?.allowed?.includes(
             'video',
           ) && (
-            <TouchableOpacity
-              style={styles.headerIcon}
-              onPress={() => {
-                instance?.localPeer?.localVideoTrack()?.switchCamera();
-              }}>
-              <Ionicons
-                name="camera-reverse-outline"
-                style={styles.videoIcon}
-                size={30}
-              />
-            </TouchableOpacity>
-          )}
-          {!instance?.localPeer?.role?.name?.includes('hls-') && (
-            <TouchableOpacity
-              onPress={() => {
-                instance?.setPlaybackForAllAudio(!muteAllTracksAudio);
-                setMuteAllTracksAudio(!muteAllTracksAudio);
-              }}
-              style={styles.headerIcon}>
-              <Ionicons
-                name={muteAllTracksAudio ? 'volume-mute' : 'volume-high'}
-                style={styles.headerName}
-                size={30}
-              />
-            </TouchableOpacity>
-          )}
-          {!instance?.localPeer?.role?.name?.includes('hls-') && (
-            <TouchableOpacity
-              onPress={() => {
-                setModalVisible(ModalTypes.SETTINGS);
-              }}
-              style={styles.headerIcon}>
-              <Ionicons name="settings" style={styles.headerName} size={30} />
-            </TouchableOpacity>
+            <CustomButton
+              onPress={onSwitchCameraPress}
+              viewStyle={styles.iconContainer}
+              LeftIcon={
+                <Ionicons
+                  name="camera-reverse-outline"
+                  style={styles.icon}
+                  size={28}
+                />
+              }
+            />
           )}
         </View>
       </View>
@@ -1392,110 +1468,92 @@ const Meeting = () => {
           />
         )}
       </View>
-      <View style={[styles.iconContainers, {bottom, left, right}]}>
-        {instance?.localPeer?.role?.publishSettings?.allowed?.includes(
-          'audio',
-        ) && (
-          <TouchableOpacity
-            style={styles.singleIconContainer}
-            onPress={() => {
-              instance?.localPeer
-                ?.localAudioTrack()
-                ?.setMute(!instance?.localPeer?.audioTrack?.isMute());
-            }}>
-            <Feather
-              name={
-                instance?.localPeer?.audioTrack?.isMute() ? 'mic-off' : 'mic'
-              }
-              style={styles.videoIcon}
-              size={30}
-            />
-          </TouchableOpacity>
-        )}
-        {instance?.localPeer?.role?.publishSettings?.allowed?.includes(
-          'video',
-        ) && (
-          <TouchableOpacity
-            style={styles.singleIconContainer}
-            onPress={() => {
-              instance?.localPeer
-                ?.localVideoTrack()
-                ?.setMute(!instance?.localPeer?.videoTrack?.isMute());
-            }}>
-            <Feather
-              name={
-                instance?.localPeer?.videoTrack?.isMute()
-                  ? 'video-off'
-                  : 'video'
-              }
-              style={styles.videoIcon}
-              size={30}
-            />
-          </TouchableOpacity>
-        )}
-        <TouchableOpacity
-          style={styles.singleIconContainer}
-          onPress={() => {
-            setModalVisible(ModalTypes.CHAT);
-          }}>
-          <MaterialCommunityIcons
-            name="message-outline"
-            style={styles.videoIcon}
-            size={30}
-          />
-          {notification && <View style={styles.messageDot} />}
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.singleIconContainer}
-          onPress={() => {
-            const parsedMetadata = parseMetadata(instance?.localPeer?.metadata);
-            instance?.changeMetadata(
-              JSON.stringify({
-                ...parsedMetadata,
-                isHandRaised: !parsedMetadata?.isHandRaised,
-                isBRBOn: false,
-              }),
-            );
-          }}>
-          <Ionicons
-            name={
-              parseMetadata(instance?.localPeer?.metadata)?.isHandRaised
-                ? 'ios-hand-left'
-                : 'ios-hand-left-outline'
+      <View style={[styles.iconBotttomWrapper, {bottom, left, right}]}>
+        <View style={styles.iconBotttomButtonWrapper}>
+          <CustomButton
+            onPress={onMicStatusPress}
+            viewStyle={[
+              styles.iconContainer,
+              instance?.localPeer?.audioTrack?.isMute() && styles.iconMuted,
+            ]}
+            LeftIcon={
+              <Feather
+                name={
+                  instance?.localPeer?.audioTrack?.isMute() ? 'mic-off' : 'mic'
+                }
+                style={styles.icon}
+                size={24}
+              />
             }
-            style={styles.videoIcon}
-            size={30}
           />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.singleIconContainer}
-          onPress={() => {
-            const parsedMetadata = parseMetadata(instance?.localPeer?.metadata);
-            instance?.changeMetadata(
-              JSON.stringify({
-                ...parsedMetadata,
-                isBRBOn: !parsedMetadata?.isBRBOn,
-                isHandRaised: false,
-              }),
-            );
-          }}>
-          {parseMetadata(instance?.localPeer?.metadata)?.isBRBOn ? (
-            <View style={styles.brbOnContainer}>
-              <Text style={styles.brbOn}>BRB</Text>
-            </View>
+          <CustomButton
+            onPress={onVideoStatusPress}
+            viewStyle={[
+              styles.iconContainer,
+              instance?.localPeer?.videoTrack?.isMute() && styles.iconMuted,
+            ]}
+            LeftIcon={
+              <Feather
+                name={
+                  instance?.localPeer?.videoTrack?.isMute()
+                    ? 'video-off'
+                    : 'video'
+                }
+                style={styles.icon}
+                size={24}
+              />
+            }
+          />
+          {hmsRoom?.hlsStreamingState?.running ? (
+            <CustomButton
+              onPress={onEndLivePress}
+              viewStyle={styles.endLiveIconContainer}
+              LeftIcon={
+                <Feather name="stop-circle" style={styles.icon} size={36} />
+              }
+            />
           ) : (
-            <View style={styles.brbContainer}>
-              <Text style={styles.brb}>BRB</Text>
-            </View>
+            <CustomButton
+              onPress={onGoLivePress}
+              viewStyle={styles.goLiveIconContainer}
+              LeftIcon={
+                <Ionicons name="radio-outline" style={styles.icon} size={48} />
+              }
+            />
           )}
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.leaveIconContainer}
-          onPress={() => {
-            setModalVisible(ModalTypes.LEAVE);
-          }}>
-          <Entypo name="login" style={styles.leaveIcon} size={30} />
-        </TouchableOpacity>
+          <CustomButton
+            onPress={
+              isScreenShared ? onEndScreenSharePress : onStartScreenSharePress
+            }
+            viewStyle={[
+              styles.iconContainer,
+              isScreenShared && styles.iconMuted,
+            ]}
+            LeftIcon={
+              <MaterialCommunityIcons
+                name="monitor-share"
+                style={styles.icon}
+                size={24}
+              />
+            }
+          />
+          <CustomButton
+            onPress={onSettingsPress}
+            viewStyle={styles.iconContainer}
+            LeftIcon={
+              <MaterialCommunityIcons
+                name="dots-vertical"
+                style={styles.icon}
+                size={28}
+              />
+            }
+          />
+        </View>
+        {hmsRoom?.hlsStreamingState?.running ? (
+          <Text style={styles.liveText}>End stream</Text>
+        ) : (
+          <Text style={styles.liveText}>Go Live</Text>
+        )}
       </View>
       {modalVisible === ModalTypes.CHAT && (
         <ChatWindow
