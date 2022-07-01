@@ -176,7 +176,7 @@ export const PreviewModal = ({
             join();
             setLoadingButtonState(true);
           }}
-          disabled={loadingButtonState}
+          loading={loadingButtonState}
           viewStyle={styles.joinButton}
           textStyle={styles.joinButtonText}
         />

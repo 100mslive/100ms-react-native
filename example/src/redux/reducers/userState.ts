@@ -21,7 +21,7 @@ const INITIAL_STATE: IntialStateType = {
   roomID: getMeetingUrl(),
   roomCode: getMeetingCode(),
   mirrorLocalVideo: false,
-  isHLSFlow: false,
+  isHLSFlow: true,
 };
 
 const userReducer = (state = INITIAL_STATE, action: ActionType) => {

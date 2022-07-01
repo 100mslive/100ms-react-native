@@ -270,9 +270,9 @@ const Welcome = () => {
 
   const onJoinRoom = () => {
     if (config) {
-      setJoinButtonLoading(true);
       instance?.join(config);
     } else {
+      setJoinButtonLoading(false);
       console.log('config: ', config);
     }
   };
@@ -353,9 +353,12 @@ const Welcome = () => {
 
   useEffect(() => {
     setNameDisabled(!validateName(peerName));
+    return () => {
+      setNameDisabled(!validateName(peerName));
+    };
   }, [peerName]);
 
-  return modalType === ModalTypes.PREVIEW ? (
+  return modalType === ModalTypes.PREVIEW && previewTrackId ? (
     <PreviewModal
       videoAllowed={videoAllowed}
       audioAllowed={audioAllowed}
