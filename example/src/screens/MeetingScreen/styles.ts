@@ -4,8 +4,8 @@ import {COLORS, FONTS} from '../../utils/theme';
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
-    height: '100%',
+    flex: 1,
+    backgroundColor: COLORS.BACKGROUND.DEFAULT,
   },
   videoIcon: {
     color: COLORS.PRIMARY.DEFAULT,
@@ -23,16 +23,6 @@ const styles = StyleSheet.create({
   degraded: {
     color: COLORS.INDICATORS.ERROR,
   },
-  fullScreenTile: {
-    width: '100%',
-    marginVertical: 1,
-    padding: 0.5,
-    overflow: 'hidden',
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignSelf: 'center',
-    height: '100%',
-  },
   generalTile: {
     height: '100%',
     width: '100%',
@@ -48,28 +38,6 @@ const styles = StyleSheet.create({
   hmsViewScreen: {
     width: '100%',
     height: '100%',
-  },
-  iconContainers: {
-    position: 'absolute',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingBottom: 4,
-    paddingTop: 4,
-    width: '100%',
-    backgroundColor: COLORS.OVERLAY,
-    borderRadius: 20,
-    height: 60,
-  },
-  leaveIconContainer: {
-    backgroundColor: COLORS.INDICATORS.ERROR,
-    padding: 10,
-    borderRadius: 60,
-  },
-  singleIconContainer: {
-    padding: 10,
-  },
-  leaveIcon: {
-    color: COLORS.WHITE,
   },
   wrapper: {
     flex: 1,
@@ -101,7 +69,7 @@ const styles = StyleSheet.create({
   },
   avatarContainer: {
     flex: 1,
-    backgroundColor: COLORS.BLACK,
+    backgroundColor: COLORS.SURFACE.DEFAULT,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -136,14 +104,14 @@ const styles = StyleSheet.create({
     borderColor: COLORS.PRIMARY.DEFAULT,
   },
   messageDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 20,
     position: 'absolute',
-    zIndex: 100,
+    right: 0,
+    top: 0,
+    height: 10,
+    aspectRatio: 1,
+    borderRadius: 20,
+    zIndex: 2,
     backgroundColor: COLORS.PRIMARY.DEFAULT,
-    right: 8,
-    top: 10,
   },
   options: {
     color: COLORS.PRIMARY.DEFAULT,
@@ -161,6 +129,7 @@ const styles = StyleSheet.create({
   headerName: {
     color: COLORS.PRIMARY.DEFAULT,
     fontFamily: 'Inter-Bold',
+    paddingLeft: 8,
   },
   headerIcon: {
     padding: 10,
@@ -176,18 +145,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: 414,
     flexWrap: 'wrap',
-  },
-  headerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  recording: {
-    color: COLORS.INDICATORS.ERROR,
-    padding: 10,
-  },
-  streaming: {
-    color: COLORS.INDICATORS.ERROR,
-    padding: 10,
   },
   input: {
     borderWidth: 1,
@@ -232,18 +189,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  brbContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 5,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: COLORS.PRIMARY.DEFAULT,
-  },
-  brb: {
-    color: COLORS.PRIMARY.DEFAULT,
-    fontFamily: 'Inter-Bold',
-  },
+  // brbContainer: {
+  //   flex: 1,
+  //   justifyContent: 'center',
+  //   paddingHorizontal: 5,
+  //   borderRadius: 10,
+  //   borderWidth: 1,
+  //   borderColor: COLORS.PRIMARY.DEFAULT,
+  // },
+  // brb: {
+  //   color: COLORS.PRIMARY.DEFAULT,
+  //   fontFamily: 'Inter-Bold',
+  // },
   brbOnContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -371,6 +328,91 @@ const styles = StyleSheet.create({
   resolutionValue: {
     fontFamily: 'Inter-Regular',
     paddingLeft: 16,
+  },
+  iconContainer: {
+    backgroundColor: COLORS.BACKGROUND.DEFAULT,
+    borderColor: COLORS.BORDER.LIGHT,
+    borderWidth: 1,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 12,
+    marginHorizontal: 6,
+  },
+  leaveIcon: {
+    backgroundColor: COLORS.INDICATORS.ERROR,
+    borderColor: COLORS.INDICATORS.ERROR,
+  },
+  roomStatus: {
+    color: COLORS.INDICATORS.ERROR,
+    marginHorizontal: 6,
+  },
+  iconTopWrapper: {
+    height: 50,
+    width: '100%',
+    // position: 'absolute',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: COLORS.OVERLAY,
+    zIndex: 1,
+  },
+  iconTopSubWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconMuted: {
+    backgroundColor: COLORS.BORDER.LIGHT,
+  },
+  icon: {
+    color: COLORS.TEXT.HIGH_EMPHASIS,
+  },
+  handRaised: {
+    color: COLORS.INDICATORS.WARNING,
+  },
+  iconBotttomButtonWrapper: {
+    height: 80,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  iconBotttomWrapper: {
+    width: '100%',
+    position: 'absolute',
+    paddingVertical: 4,
+    backgroundColor: COLORS.OVERLAY,
+    zIndex: 1,
+    borderRadius: 16,
+  },
+  goLiveIconContainer: {
+    backgroundColor: COLORS.PRIMARY.DEFAULT,
+    width: 80,
+    height: 80,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 54,
+    marginHorizontal: 6,
+  },
+  endLiveIconContainer: {
+    backgroundColor: COLORS.INDICATORS.ERROR,
+    width: 80,
+    height: 80,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 54,
+    marginHorizontal: 6,
+  },
+  liveText: {
+    fontFamily: 'Inter-Medium',
+    fontSize: 10,
+    lineHeight: 16,
+    textAlign: 'center',
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
+    color: COLORS.TEXT.HIGH_EMPHASIS,
+    marginTop: 4,
   },
 });
 

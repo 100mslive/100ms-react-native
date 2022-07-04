@@ -112,6 +112,7 @@ const Welcome = () => {
     dispatch(setPeerState({peerState: newPeerTrackNodes}));
     peerTrackNodesRef.current = [];
     setJoinButtonLoading(false);
+    setModalType(ModalTypes.DEFAULT);
     navigate('MeetingScreen');
   };
 
