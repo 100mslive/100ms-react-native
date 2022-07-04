@@ -536,10 +536,8 @@ const Meeting = () => {
         if (instance?.localPeer?.role?.permissions?.endRoom) {
           buttons.push({
             text: 'End Room for all',
-            onPress: async () => {
-              await instance?.endRoom('Host ended the room');
-              dispatch(clearMessageData());
-              navigate('WelcomeScreen');
+            onPress: () => {
+              onEndRoomPress();
             },
           });
         }
@@ -597,6 +595,18 @@ const Meeting = () => {
 
   const onLeavePress = async () => {
     await instance?.leave();
+    await instance
+      ?.destroy()
+      .then(d => console.log('Destroy Success: ', d))
+      .catch(e => console.log('Destroy Error: ', e));
+    dispatch(clearMessageData());
+    dispatch(clearPeerData());
+    dispatch(clearHmsReference());
+    navigate('QRCodeScreen');
+  };
+
+  const onEndRoomPress = async () => {
+    await instance?.endRoom('Host ended the room');
     await instance
       ?.destroy()
       .then(d => console.log('Destroy Success: ', d))
