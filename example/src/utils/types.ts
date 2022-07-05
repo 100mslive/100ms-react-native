@@ -23,7 +23,8 @@ export enum TrackType {
 }
 
 export enum ModalTypes {
-  ROLE_CHANGE = 'roleChange',
+  CHANGE_ROLE_ACCEPT = 'changeRoleAccept',
+  CHANGE_ROLE = 'changeRole',
   CHANGE_TRACK = 'changeTrackState',
   CHANGE_NAME = 'changeName',
   HLS_STREAMING = 'hlsStreaming',
@@ -37,6 +38,8 @@ export enum ModalTypes {
   ZOOM = 'zoom',
   ROLE = 'role',
   PREVIEW = 'preview',
+  PARTICIPANTS = 'participants',
+  VOLUME = 'volume',
   DEFAULT = '',
 }
 

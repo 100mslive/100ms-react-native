@@ -8,6 +8,7 @@ import {
   Platform,
   TextInput,
   Dimensions,
+  ScrollView,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {
@@ -47,6 +48,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import Toast from 'react-native-simple-toast';
@@ -66,6 +68,11 @@ import {
   ZoomableView,
   UserIdModal,
   CustomButton,
+  DefaultModal,
+  CustomInput,
+  Menu,
+  MenuItem,
+  MenuDivider,
 } from '../../components';
 import {
   addMessage,
@@ -83,6 +90,7 @@ import {
   updatePeersTrackNodesOnPeerListener,
   updatePeersTrackNodesOnTrackListener,
   isPortrait,
+  getInitials,
 } from '../../utils/functions';
 import {
   LayoutParams,
@@ -278,7 +286,7 @@ const Meeting = () => {
       case ModalTypes.HLS_STREAMING:
         modalTitle = 'HLS Streaming Details';
         break;
-      case ModalTypes.ROLE_CHANGE:
+      case ModalTypes.CHANGE_ROLE_ACCEPT:
         modalTitle = 'Role Change Details';
         break;
       case ModalTypes.CHANGE_TRACK:
@@ -560,7 +568,7 @@ const Meeting = () => {
           },
         ];
         break;
-      case ModalTypes.ROLE_CHANGE:
+      case ModalTypes.CHANGE_ROLE_ACCEPT:
         buttons = [
           {text: 'Reject'},
           {
@@ -678,6 +686,10 @@ const Meeting = () => {
 
   const onSettingsPress = () => {
     setModalVisible(ModalTypes.SETTINGS);
+  };
+
+  const onParticipantsPress = () => {
+    setModalVisible(ModalTypes.PARTICIPANTS);
   };
 
   const onRoomListener = ({
@@ -854,7 +866,7 @@ const Meeting = () => {
 
   const onRoleChangeRequest = (data: HMSRoleChangeRequest) => {
     console.log('data in onRoleChangeRequest: ', data);
-    setModalVisible(ModalTypes.ROLE_CHANGE);
+    setModalVisible(ModalTypes.CHANGE_ROLE_ACCEPT);
     setRoleChangeRequest({
       requestedBy: data?.requestedBy?.name,
       suggestedRole: data?.suggestedRole?.name,
@@ -1019,10 +1031,10 @@ const Meeting = () => {
   return (
     <SafeAreaView style={styles.container}>
       <CustomModal
-        modalVisible={modalVisible === ModalTypes.ROLE_CHANGE}
+        modalVisible={modalVisible === ModalTypes.CHANGE_ROLE_ACCEPT}
         setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
-        title={getModalTitle(ModalTypes.ROLE_CHANGE)}
-        buttons={getModalButtons(ModalTypes.ROLE_CHANGE)}>
+        title={getModalTitle(ModalTypes.CHANGE_ROLE_ACCEPT)}
+        buttons={getModalButtons(ModalTypes.CHANGE_ROLE_ACCEPT)}>
         <Text style={styles.roleChangeText}>
           Role change requested by{' '}
           {roleChangeRequest?.requestedBy?.toLocaleUpperCase()}. Changing role
@@ -1315,6 +1327,11 @@ const Meeting = () => {
           {isScreenShared && (
             <Feather name="copy" style={styles.roomStatus} size={24} />
           )}
+          <CustomButton
+            onPress={onParticipantsPress}
+            viewStyle={styles.iconContainer}
+            LeftIcon={<Ionicons name="people" style={styles.icon} size={24} />}
+          />
           <CustomButton
             onPress={onRaiseHandPress}
             viewStyle={[
@@ -1616,7 +1633,218 @@ const Meeting = () => {
           userName={instance?.localPeer?.name}
         />
       )}
+      <DefaultModal
+        modalVisible={modalVisible === ModalTypes.PARTICIPANTS}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        <ParticipantsModal
+          peerTrackNodes={peerTrackNodes}
+          instance={instance}
+        />
+      </DefaultModal>
     </SafeAreaView>
+  );
+};
+
+const ParticipantsModal = ({
+  instance,
+  peerTrackNodes,
+}: {
+  instance?: HMSSDK;
+  peerTrackNodes: PeerTrackNode[];
+}) => {
+  const [participantsSearchInput, setParticipantsSearchInput] = useState('');
+  const [visible, setVisible] = useState<number>(-1);
+  const [filteredPeerTrackNodes, setFilteredPeerTrackNodes] =
+    useState<PeerTrackNode[]>();
+  const [filter, setFilter] = useState('everyone');
+
+  const hideMenu = () => setVisible(-1);
+  const showMenu = (index: number) => setVisible(index);
+
+  useEffect(() => {
+    const newFilteredPeerTrackNodes = peerTrackNodes.filter(peerTrackNode => {
+      if (
+        participantsSearchInput.length < 1 ||
+        peerTrackNode.peer.name.includes(participantsSearchInput) ||
+        peerTrackNode.peer.role?.name?.includes(participantsSearchInput)
+      ) {
+        return true;
+      }
+      return false;
+    });
+    if (filter === 'everyone') {
+      setFilteredPeerTrackNodes(newFilteredPeerTrackNodes);
+    } else if (filter === 'raised hand') {
+      const updatedPeerTrackNodes = newFilteredPeerTrackNodes?.filter(
+        peerTrackNode => {
+          const parsedMetaData = parseMetadata(peerTrackNode?.peer?.metadata);
+          return parsedMetaData.isHandRaised === true;
+        },
+      );
+      setFilteredPeerTrackNodes(updatedPeerTrackNodes);
+    } else {
+      const updatedPeerTrackNodes = newFilteredPeerTrackNodes?.filter(
+        peerTrackNode => {
+          return peerTrackNode?.peer?.role?.name === filter;
+        },
+      );
+      setFilteredPeerTrackNodes(updatedPeerTrackNodes);
+    }
+  }, [peerTrackNodes, participantsSearchInput, filter]);
+
+  return (
+    <View style={styles.participantContainer}>
+      <View style={styles.participantsHeaderContainer}>
+        <Text style={styles.participantsHeading}>Participants</Text>
+        <ParticipantFilter
+          instance={instance}
+          filter={filter}
+          setFilter={setFilter}
+        />
+      </View>
+      <View>
+        <CustomInput
+          value={participantsSearchInput}
+          onChangeText={setParticipantsSearchInput}
+          inputStyle={styles.participantsSearchInput}
+          placeholderTextColor={COLORS.TEXT.DISABLED}
+          placeholder="Find what you’re looking for"
+        />
+        <Ionicons
+          name="search"
+          style={styles.participantsSearchInputIcon}
+          size={24}
+        />
+      </View>
+      <ScrollView keyboardShouldPersistTaps="always">
+        {filteredPeerTrackNodes?.map((peerTrackNode, index) => {
+          return (
+            <View style={styles.participantItem} key={peerTrackNode.id}>
+              <View style={styles.participantAvatar}>
+                <Text style={styles.participantAvatarText}>
+                  {getInitials(peerTrackNode.peer.name)}
+                </Text>
+              </View>
+              <View style={styles.participantDescription}>
+                <Text style={styles.participantName} numberOfLines={1}>
+                  {peerTrackNode.track?.source === HMSTrackSource.REGULAR ||
+                  peerTrackNode.track?.source === undefined
+                    ? peerTrackNode.peer.name
+                    : peerTrackNode.peer.name +
+                      "'s " +
+                      peerTrackNode.track?.source}
+                  {peerTrackNode.peer.isLocal && ' (You)'}
+                </Text>
+                <Text style={styles.participantRole} numberOfLines={1}>
+                  {peerTrackNode.peer.role?.name}
+                </Text>
+              </View>
+              <Menu
+                visible={visible === index}
+                anchor={
+                  <CustomButton
+                    onPress={() => showMenu(index)}
+                    viewStyle={styles.participantSettings}
+                    LeftIcon={
+                      <MaterialCommunityIcons
+                        name="dots-vertical"
+                        style={styles.icon}
+                        size={28}
+                      />
+                    }
+                  />
+                }
+                onRequestClose={hideMenu}
+                style={styles.participantsMenuContainer}>
+                {/*  */}
+              </Menu>
+            </View>
+          );
+        })}
+      </ScrollView>
+    </View>
+  );
+};
+
+const ParticipantFilter = ({
+  instance,
+  filter,
+  setFilter,
+}: {
+  instance?: HMSSDK;
+  filter?: string;
+  setFilter: React.Dispatch<React.SetStateAction<string>>;
+}) => {
+  const [visible, setVisible] = useState<boolean>(false);
+
+  const hideMenu = () => setVisible(false);
+  const showMenu = () => setVisible(true);
+
+  return (
+    <Menu
+      visible={visible}
+      anchor={
+        <TouchableOpacity
+          style={styles.participantFilterContainer}
+          onPress={showMenu}>
+          <Text style={styles.participantFilterText} numberOfLines={1}>
+            {filter}
+          </Text>
+          <MaterialIcons
+            name={visible ? 'arrow-drop-up' : 'arrow-drop-down'}
+            style={styles.participantFilterIcon}
+            size={24}
+          />
+        </TouchableOpacity>
+      }
+      onRequestClose={hideMenu}
+      style={styles.participantsMenuContainer}>
+      <MenuItem
+        onPress={() => {
+          hideMenu();
+          setFilter('everyone');
+        }}>
+        <View style={styles.participantMenuItem}>
+          <Ionicons
+            name="people-outline"
+            style={styles.participantMenuItemIcon}
+            size={20}
+          />
+          <Text style={styles.participantMenuItemName}>Everyone</Text>
+        </View>
+      </MenuItem>
+      <MenuItem
+        onPress={() => {
+          hideMenu();
+          setFilter('raised hand');
+        }}>
+        <View style={styles.participantMenuItem}>
+          <Ionicons
+            name="hand-left-outline"
+            style={styles.participantMenuItemIcon}
+            size={20}
+          />
+          <Text style={styles.participantMenuItemName}>Raised Hand</Text>
+        </View>
+      </MenuItem>
+      <MenuDivider color={COLORS.BORDER.LIGHT} />
+      {instance?.knownRoles?.map(knownRole => {
+        return (
+          <MenuItem
+            onPress={() => {
+              hideMenu();
+              setFilter(knownRole?.name!);
+            }}
+            key={knownRole.name}>
+            <View style={styles.participantMenuItem}>
+              <Text style={styles.participantMenuItemName}>
+                {knownRole?.name}
+              </Text>
+            </View>
+          </MenuItem>
+        );
+      })}
+    </Menu>
   );
 };
 
