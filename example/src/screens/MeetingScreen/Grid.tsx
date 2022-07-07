@@ -33,6 +33,7 @@ type GridViewProps = {
   setPage: React.Dispatch<React.SetStateAction<number>>;
   setZoomableTrackId?: React.Dispatch<React.SetStateAction<string>>;
   setPinnedPeerTrackIds?: React.Dispatch<React.SetStateAction<String[]>>;
+  setUpdatePeerTrackNode?: React.Dispatch<React.SetStateAction<PeerTrackNode>>;
 };
 
 const GridView = ({
@@ -53,6 +54,7 @@ const GridView = ({
   page,
   pinnedPeerTrackIds,
   orientation,
+  setUpdatePeerTrackNode,
 }: GridViewProps) => {
   const {left, right, top, bottom} = useSafeAreaInsets();
   const flatlistRef = useRef<FlatList>(null);
@@ -160,6 +162,7 @@ const GridView = ({
                       localVideoStats={localVideoStats}
                       pinnedPeerTrackIds={pinnedPeerTrackIds}
                       setPinnedPeerTrackIds={setPinnedPeerTrackIds}
+                      setUpdatePeerTrackNode={setUpdatePeerTrackNode}
                     />
                   </View>
                 );
