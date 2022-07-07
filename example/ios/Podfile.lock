@@ -285,7 +285,7 @@ PODS:
     - React-Core
   - react-native-cameraroll (4.1.2):
     - React-Core
-  - react-native-hms (0.9.7):
+  - react-native-hms (0.9.8):
     - HMSSDK (= 0.3.2)
     - React-Core
   - react-native-safe-area-context (3.4.1):
@@ -602,7 +602,7 @@ SPEC CHECKSUMS:
   React-jsinspector: cc614ec18a9ca96fd275100c16d74d62ee11f0ae
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
   react-native-cameraroll: 2957f2bce63ae896a848fbe0d5352c1bd4d20866
-  react-native-hms: 166c4ba6a7f862ebcc1c1321148f9767d9ec76be
+  react-native-hms: 3ad6e489bcdeae6d409d1b1e3d7fb0d00f0aa5a2
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
   react-native-simple-toast: bf002828cf816775a6809f7a9ec3907509bce11f
   react-native-video: a4c2635d0802f983594b7057e1bce8f442f0ad28
