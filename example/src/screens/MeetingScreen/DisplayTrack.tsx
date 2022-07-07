@@ -8,20 +8,18 @@ import {
   HMSLocalVideoStats,
   HMSRTCStatsReport,
   HMSSDK,
-  HMSTrackType,
   HMSTrackSource,
 } from '@100mslive/react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {Slider} from '@miblanchard/react-native-slider';
 import {useSelector} from 'react-redux';
 import RNFS from 'react-native-fs';
 import CameraRoll from '@react-native-community/cameraroll';
 import Toast from 'react-native-simple-toast';
 
-import {AlertModal, CustomModal, RolePicker} from '../../components';
+import {AlertModal} from '../../components';
 import {
   getInitials,
   parseMetadata,
@@ -52,6 +50,7 @@ type DisplayTrackProps = {
   videoStyles: any;
   pinnedPeerTrackIds?: String[];
   setPinnedPeerTrackIds?: React.Dispatch<React.SetStateAction<String[]>>;
+  setUpdatePeerTrackNode?: React.Dispatch<React.SetStateAction<PeerTrackNode>>;
 };
 
 const DisplayTrack = ({
@@ -69,288 +68,83 @@ const DisplayTrack = ({
   miniView,
   pinnedPeerTrackIds,
   setPinnedPeerTrackIds,
+  setUpdatePeerTrackNode,
 }: DisplayTrackProps) => {
-  const {mirrorLocalVideo} = useSelector((state: RootState) => state.user);
+  const {mirrorLocalVideo, isHLSFlow} = useSelector(
+    (state: RootState) => state.user,
+  );
+
+  const [alertModalVisible, setAlertModalVisible] = useState(false);
+  const [isDegraded, setIsDegraded] = useState(false);
+  const hmsViewRef: any = useRef();
+
+  const HmsView = instance?.HmsView;
   const isVideoMute = peerTrackNode?.track?.isMute() ?? true;
   const isAudioMute = peerTrackNode.peer.audioTrack?.isMute() ?? true;
-  const metadata = parseMetadata(peerTrackNode.peer.metadata);
   const id = peerTrackNode.peer.peerID;
   const name = peerTrackNode.peer.name;
-  const type =
-    peerTrackNode?.track?.source !== HMSTrackSource.REGULAR
-      ? TrackType.SCREEN
-      : peerTrackNode?.peer.isLocal
-      ? TrackType.LOCAL
-      : TrackType.REMOTE;
-  const [alertModalVisible, setAlertModalVisible] = useState(false);
-  const [roleModalVisible, setRoleModalVisible] = useState(false);
-  const [newRole, setNewRole] = useState(peerTrackNode.peer.role);
-  const [force, setForce] = useState(false);
-  const [volumeModal, setVolumeModal] = useState(false);
-  const [volume, setVolume] = useState(1);
-  const [isDegraded, setIsDegraded] = useState(false);
-  const modalTitle = 'Set Volume';
-  const hmsViewRef: any = useRef();
-  const HmsView = instance?.HmsView;
-  const knownRoles = instance?.knownRoles || [];
+  const metadata = parseMetadata(peerTrackNode.peer.metadata);
   const speaking = isSpeaking && isSpeaking(peerTrackNode);
-
-  const modalButtons: [
-    {text: string; onPress?: Function},
-    {text: string; onPress?: Function},
-  ] = [
-    {text: 'Cancel'},
-    {
-      text: 'Set',
-      onPress: () => {
-        if (type === TrackType.LOCAL || type === TrackType.REMOTE) {
-          instance?.setVolume(
-            peerTrackNode.peer?.audioTrack as HMSTrack,
-            volume,
-          );
-        } else {
-          peerTrackNode.peer?.auxiliaryTracks?.map(track => {
-            if (
-              track.source === TrackType.SCREEN &&
-              track.type === HMSTrackType.AUDIO
-            ) {
-              instance?.setVolume(track, volume);
-            }
-          });
-        }
-      },
-    },
-  ];
-
-  useEffect(() => {
-    knownRoles?.map(role => {
-      if (role?.name === peerTrackNode.peer?.role?.name) {
-        setNewRole(role);
-        return;
-      }
-    });
-    const getVolume = async () => {
-      if (type === TrackType.LOCAL && !isAudioMute) {
-        try {
-          setVolume(await instance?.localPeer?.localAudioTrack()?.getVolume());
-        } catch (e) {
-          console.log('error in get volume', e);
-        }
-      }
-    };
-    let fetchVolume = true;
-    if (fetchVolume) {
-      getVolume();
-    }
-    return () => {
-      fetchVolume = false;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    setIsDegraded(peerTrackNode.track?.isDegraded || false);
-  }, [peerTrackNode.track?.isDegraded]);
-
-  const roleRequestTitle = 'Select action';
-  const roleRequestButtons: Array<{
-    text: string;
-    type?: string;
-    onPress?: Function;
-  }> = [
-    {text: 'Cancel'},
-    {
-      text: force ? 'Set' : 'Send',
-      onPress: async () => {
-        await instance?.changeRole(peerTrackNode.peer, newRole!, force);
-      },
-    },
-  ];
+  const type =
+    peerTrackNode.track?.source === HMSTrackSource.REGULAR ||
+    peerTrackNode.track?.source === undefined
+      ? peerTrackNode.peer.isLocal
+        ? TrackType.LOCAL
+        : TrackType.REMOTE
+      : TrackType.SCREEN;
 
   const selectAuxActionButtons: Array<{
     text: string;
     type?: string;
     onPress?: Function;
-  }> = [
-    {text: 'Cancel', type: 'cancel'},
-    {
-      text: 'Set Volume',
-      onPress: () => {
-        setVolumeModal(true);
-      },
-    },
-  ];
+  }> = [{text: 'Cancel', type: 'cancel'}];
 
   const selectLocalActionButtons: Array<{
     text: string;
     type?: string;
     onPress?: Function;
-  }> = [
-    {text: 'Cancel', type: 'cancel'},
-    {
-      text: 'Change Name',
-      onPress: () => {
-        setModalVisible && setModalVisible(ModalTypes.CHANGE_NAME);
-      },
-    },
-  ];
+  }> = [{text: 'Cancel', type: 'cancel'}];
 
-  const selectActionTitle = 'Select action';
   const selectRemoteActionButtons: Array<{
     text: string;
     type?: string;
     onPress?: Function;
-  }> = [
-    {text: 'Cancel', type: 'cancel'},
-    {
-      text: pinnedPeerTrackIds?.includes(peerTrackNode.id) ? 'Unpin' : 'Pin',
-      onPress: () => {
-        if (pinnedPeerTrackIds && setPinnedPeerTrackIds) {
-          if (pinnedPeerTrackIds?.includes(peerTrackNode.id)) {
-            const newPinnedPeerTrackIds = pinnedPeerTrackIds.filter(
-              pinnedPeerTrackId => {
-                if (pinnedPeerTrackId === peerTrackNode.id) {
-                  return false;
-                }
-                return true;
-              },
-            );
-            setPinnedPeerTrackIds(newPinnedPeerTrackIds);
-          } else {
-            const newPinnedPeerTrackIds = [
-              peerTrackNode.id,
-              ...pinnedPeerTrackIds,
-            ];
-            setPinnedPeerTrackIds(newPinnedPeerTrackIds);
-          }
-        }
-      },
+  }> = [{text: 'Cancel', type: 'cancel'}];
+
+  const changeNameButton = {
+    text: 'Change Name',
+    onPress: () => {
+      setUpdatePeerTrackNode && setUpdatePeerTrackNode(peerTrackNode);
+      setModalVisible && setModalVisible(ModalTypes.CHANGE_NAME);
     },
-    {
-      text: 'Set Volume',
-      onPress: () => {
-        setVolumeModal(true);
-      },
-    },
-    {
-      text: 'Mute/Unmute audio locally',
-      onPress: async () => {
-        let remotePeer = peerTrackNode.peer as HMSRemotePeer;
-        instance?.remotePeers?.map(item => {
-          if (item.peerID === remotePeer.peerID) {
-            remotePeer = item;
-          }
-        });
-        const playbackAllowed = await remotePeer
-          ?.remoteAudioTrack()
-          ?.isPlaybackAllowed();
-        remotePeer?.remoteAudioTrack()?.setPlaybackAllowed(!playbackAllowed);
-      },
-    },
-    {
-      text: 'Mute/Unmute video locally',
-      onPress: async () => {
-        let remotePeer = peerTrackNode.peer as HMSRemotePeer;
-        instance?.remotePeers?.map(item => {
-          if (item.peerID === remotePeer.peerID) {
-            remotePeer = item;
-          }
-        });
-        const playbackAllowed = await remotePeer
-          ?.remoteVideoTrack()
-          ?.isPlaybackAllowed();
-        remotePeer?.remoteVideoTrack()?.setPlaybackAllowed(!playbackAllowed);
-      },
-    },
-  ];
+  };
+  selectLocalActionButtons.push(changeNameButton);
+
   if (instance?.localPeer?.role?.permissions?.changeRole) {
-    selectLocalActionButtons.push({
+    const changeRoleButton = {
       text: 'Change Role',
       onPress: () => {
-        setForce(true);
-        setRoleModalVisible(true);
+        setUpdatePeerTrackNode && setUpdatePeerTrackNode(peerTrackNode);
+        setModalVisible && setModalVisible(ModalTypes.CHANGE_ROLE);
       },
-    });
-    selectRemoteActionButtons.push(
-      ...[
-        {
-          text: 'Prompt to change role',
-          onPress: () => {
-            setForce(false);
-            setRoleModalVisible(true);
-          },
-        },
-        {
-          text: 'Force change role',
-          onPress: () => {
-            setForce(true);
-            setRoleModalVisible(true);
-          },
-        },
-      ],
-    );
+    };
+    selectLocalActionButtons.push(changeRoleButton);
+    selectRemoteActionButtons.push(changeRoleButton);
   }
+
   if (instance?.localPeer?.role?.permissions?.removeOthers) {
-    selectRemoteActionButtons.push({
+    const removePeerButton = {
       text: 'Remove Participant',
       onPress: async () => {
         await instance?.removePeer(peerTrackNode.peer, 'removed from room');
       },
-    });
+    };
+    selectRemoteActionButtons.push(removePeerButton);
   }
-  if (instance?.localPeer?.role?.permissions?.unmute) {
-    const unmute = false;
-    if (isAudioMute) {
-      selectRemoteActionButtons.push({
-        text: 'Unmute audio',
-        onPress: async () => {
-          await instance?.changeTrackState(
-            peerTrackNode.peer?.audioTrack as HMSTrack,
-            unmute,
-          );
-        },
-      });
-    }
-    if (isVideoMute) {
-      selectRemoteActionButtons.push({
-        text: 'Unmute video',
-        onPress: async () => {
-          await instance?.changeTrackState(
-            peerTrackNode.peer?.videoTrack as HMSTrack,
-            unmute,
-          );
-        },
-      });
-    }
-  }
-  if (instance?.localPeer?.role?.permissions?.mute) {
-    const mute = true;
-    if (!isAudioMute) {
-      selectRemoteActionButtons.push({
-        text: 'Mute audio',
-        onPress: async () => {
-          await instance?.changeTrackState(
-            peerTrackNode.peer?.audioTrack as HMSTrack,
-            mute,
-          );
-        },
-      });
-    }
-    if (!isVideoMute) {
-      selectRemoteActionButtons.push({
-        text: 'Mute video',
-        onPress: async () => {
-          await instance?.changeTrackState(
-            peerTrackNode.peer?.videoTrack as HMSTrack,
-            mute,
-          );
-        },
-      });
-    }
-  }
+
   if (Platform.OS === 'android') {
     const takeScreenshot = {
-      text: 'Take Screenshot',
+      text: 'Take Snapshot',
       onPress: async () => {
         const granted = await requestExternalStoragePermission();
         if (granted) {
@@ -385,48 +179,152 @@ const DisplayTrack = ({
     selectLocalActionButtons.push(takeScreenshot);
   }
 
-  const promptUser = () => {
-    setAlertModalVisible(true);
+  if (instance?.localPeer?.role?.permissions?.unmute) {
+    if (isAudioMute) {
+      const unmuteAudioButton = {
+        text: 'Remote Unmute Audio',
+        onPress: async () => {
+          await instance?.changeTrackState(
+            peerTrackNode.peer?.audioTrack as HMSTrack,
+            false,
+          );
+        },
+      };
+      selectRemoteActionButtons.push(unmuteAudioButton);
+    }
+    if (isVideoMute) {
+      const unmuteVideoButton = {
+        text: 'Remote Unmute Video',
+        onPress: async () => {
+          await instance?.changeTrackState(
+            peerTrackNode.peer?.videoTrack as HMSTrack,
+            false,
+          );
+        },
+      };
+      selectRemoteActionButtons.push(unmuteVideoButton);
+    }
+  }
+
+  if (instance?.localPeer?.role?.permissions?.mute) {
+    if (!isAudioMute) {
+      const muteAudioButton = {
+        text: 'Remote Mute Audio',
+        onPress: async () => {
+          await instance?.changeTrackState(
+            peerTrackNode.peer?.audioTrack as HMSTrack,
+            true,
+          );
+        },
+      };
+      selectRemoteActionButtons.push(muteAudioButton);
+    }
+    if (!isVideoMute) {
+      const muteVideoButton = {
+        text: 'Remote Mute Video',
+        onPress: async () => {
+          await instance?.changeTrackState(
+            peerTrackNode.peer?.videoTrack as HMSTrack,
+            true,
+          );
+        },
+      };
+      selectRemoteActionButtons.push(muteVideoButton);
+    }
+  }
+
+  const localMuteAudioButton = {
+    text: 'Local Mute/Unmute Audio',
+    onPress: async () => {
+      let remotePeer = peerTrackNode.peer as HMSRemotePeer;
+      instance?.remotePeers?.map(item => {
+        if (item.peerID === remotePeer.peerID) {
+          remotePeer = item;
+        }
+      });
+      const playbackAllowed = await remotePeer
+        ?.remoteAudioTrack()
+        ?.isPlaybackAllowed();
+      remotePeer?.remoteAudioTrack()?.setPlaybackAllowed(!playbackAllowed);
+    },
   };
+  selectRemoteActionButtons.push(localMuteAudioButton);
+
+  const localMuteVideoButton = {
+    text: 'Local Mute/Unmute Video',
+    onPress: async () => {
+      let remotePeer = peerTrackNode.peer as HMSRemotePeer;
+      instance?.remotePeers?.map(item => {
+        if (item.peerID === remotePeer.peerID) {
+          remotePeer = item;
+        }
+      });
+      const playbackAllowed = await remotePeer
+        ?.remoteVideoTrack()
+        ?.isPlaybackAllowed();
+      remotePeer?.remoteVideoTrack()?.setPlaybackAllowed(!playbackAllowed);
+    },
+  };
+  selectRemoteActionButtons.push(localMuteVideoButton);
+
+  const setVolumeButton = {
+    text: 'Set Volume',
+    onPress: () => {
+      setUpdatePeerTrackNode && setUpdatePeerTrackNode(peerTrackNode);
+      setModalVisible && setModalVisible(ModalTypes.VOLUME);
+    },
+  };
+  selectAuxActionButtons.push(setVolumeButton);
+  selectRemoteActionButtons.push(setVolumeButton);
+  selectLocalActionButtons.push(setVolumeButton);
+
+  const pinPeerButton = {
+    text: pinnedPeerTrackIds?.includes(peerTrackNode.id)
+      ? 'Unpin Peer'
+      : 'Pin Peer',
+    onPress: () => {
+      if (pinnedPeerTrackIds && setPinnedPeerTrackIds) {
+        if (pinnedPeerTrackIds?.includes(peerTrackNode.id)) {
+          const newPinnedPeerTrackIds = pinnedPeerTrackIds.filter(
+            pinnedPeerTrackId => {
+              if (pinnedPeerTrackId === peerTrackNode.id) {
+                return false;
+              }
+              return true;
+            },
+          );
+          setPinnedPeerTrackIds(newPinnedPeerTrackIds);
+        } else {
+          const newPinnedPeerTrackIds = [
+            peerTrackNode.id,
+            ...pinnedPeerTrackIds,
+          ];
+          setPinnedPeerTrackIds(newPinnedPeerTrackIds);
+        }
+      }
+    },
+  };
+  selectLocalActionButtons.push(pinPeerButton);
+  selectRemoteActionButtons.push(pinPeerButton);
+
+  useEffect(() => {
+    setIsDegraded(peerTrackNode.track?.isDegraded || false);
+  }, [peerTrackNode.track?.isDegraded]);
 
   return HmsView ? (
     <View style={[videoStyles, speaking && styles.highlight]}>
       <AlertModal
         modalVisible={alertModalVisible}
         setModalVisible={setAlertModalVisible}
-        title={selectActionTitle}
+        title="Select Action"
         buttons={
-          type === TrackType.SCREEN
-            ? selectAuxActionButtons
-            : type === TrackType.LOCAL
+          type === TrackType.LOCAL
             ? selectLocalActionButtons
-            : selectRemoteActionButtons
+            : type === TrackType.REMOTE
+            ? selectRemoteActionButtons
+            : selectAuxActionButtons
         }
       />
-      <CustomModal
-        modalVisible={volumeModal}
-        setModalVisible={setVolumeModal}
-        title={modalTitle}
-        buttons={modalButtons}>
-        <Slider
-          value={volume}
-          maximumValue={10}
-          minimumValue={0}
-          step={0.1}
-          onValueChange={(value: any) => setVolume(value[0])}
-        />
-      </CustomModal>
-      <CustomModal
-        modalVisible={roleModalVisible}
-        setModalVisible={setRoleModalVisible}
-        title={roleRequestTitle}
-        buttons={roleRequestButtons}>
-        <RolePicker
-          data={knownRoles}
-          selectedItem={newRole}
-          onItemSelected={setNewRole}
-        />
-      </CustomModal>
       {statsForNerds && (
         <View style={styles.statsContainer}>
           {type === TrackType.LOCAL ? (
@@ -536,12 +434,13 @@ const DisplayTrack = ({
         )}
       </View>
       {layout === LayoutParams.GRID &&
-        (type === TrackType.SCREEN ||
+        isHLSFlow === false &&
+        ((type === TrackType.SCREEN && selectAuxActionButtons.length > 1) ||
           (type === TrackType.LOCAL && selectLocalActionButtons.length > 1) ||
           (type === TrackType.REMOTE &&
             selectRemoteActionButtons.length > 1)) && (
           <TouchableOpacity
-            onPress={promptUser}
+            onPress={() => setAlertModalVisible(true)}
             style={styles.optionsContainer}>
             <Entypo
               name="dots-three-horizontal"

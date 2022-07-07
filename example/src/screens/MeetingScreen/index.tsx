@@ -8,7 +8,6 @@ import {
   Platform,
   TextInput,
   Dimensions,
-  ScrollView,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {
@@ -48,7 +47,6 @@ import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import Toast from 'react-native-simple-toast';
@@ -66,20 +64,14 @@ import {
   CustomModal,
   RolePicker,
   ZoomableView,
-  UserIdModal,
   CustomButton,
   DefaultModal,
-  CustomInput,
-  Menu,
-  MenuItem,
-  MenuDivider,
 } from '../../components';
 import {
   addMessage,
   clearHmsReference,
   clearMessageData,
   clearPeerData,
-  saveUserData,
 } from '../../redux/actions';
 import type {RootState} from '../../redux';
 import {
@@ -90,7 +82,6 @@ import {
   updatePeersTrackNodesOnPeerListener,
   updatePeersTrackNodesOnTrackListener,
   isPortrait,
-  getInitials,
 } from '../../utils/functions';
 import {
   LayoutParams,
@@ -102,6 +93,12 @@ import {GridView} from './Grid';
 import {ActiveSpeakerView} from './ActiveSpeakerView';
 import {HeroView} from './HeroView';
 import {MiniView} from './MiniView';
+import {
+  ParticipantsModal,
+  ChangeNameModal,
+  ChangeRoleModal,
+  ChangeVolumeModal,
+} from './Modals';
 import {COLORS} from '../../utils/theme';
 
 type MessageObject = {
@@ -153,6 +150,9 @@ const Meeting = () => {
   const [zoomableTrackId, setZoomableTrackId] = useState('');
   const [statsForNerds, setStatsForNerds] = useState(false);
   const [orientation, setOrientation] = useState<boolean>(true);
+  const [updatePeerTrackNode, setUpdatePeerTrackNode] = useState<PeerTrackNode>(
+    peerTrackNodes[0],
+  );
   const pairedPeers = useMemo(
     () =>
       pairDataForFlatlist(
@@ -1492,6 +1492,7 @@ const Meeting = () => {
             page={page}
             pinnedPeerTrackIds={pinnedPeerTrackIds}
             setPinnedPeerTrackIds={setPinnedPeerTrackIds}
+            setUpdatePeerTrackNode={setUpdatePeerTrackNode}
           />
         )}
       </View>
@@ -1614,237 +1615,55 @@ const Meeting = () => {
           }}
         />
       )}
-      {modalVisible === ModalTypes.CHANGE_NAME && (
-        <UserIdModal
-          screen="Meeting"
-          join={async (newName: string) => {
-            if (newName && newName !== '') {
-              instance?.changeName(newName);
-              saveUserData &&
-                dispatch(
-                  saveUserData({
-                    userName: newName,
-                  }),
-                );
-            }
-            setModalVisible(ModalTypes.DEFAULT);
-          }}
-          cancel={() => setModalVisible(ModalTypes.DEFAULT)}
-          userName={instance?.localPeer?.name}
-        />
-      )}
       <DefaultModal
         modalVisible={modalVisible === ModalTypes.PARTICIPANTS}
         setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
         <ParticipantsModal
           peerTrackNodes={peerTrackNodes}
           instance={instance}
+          setUpdatePeerTrackNode={setUpdatePeerTrackNode}
+          setModalVisible={setModalVisible}
+          pinnedPeerTrackIds={pinnedPeerTrackIds}
+          setPinnedPeerTrackIds={setPinnedPeerTrackIds}
+        />
+      </DefaultModal>
+      <DefaultModal
+        animationType="fade"
+        overlay={false}
+        modalPosiion="center"
+        modalVisible={modalVisible === ModalTypes.CHANGE_ROLE}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        <ChangeRoleModal
+          instance={instance}
+          peerTrackNode={updatePeerTrackNode}
+          cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
+        />
+      </DefaultModal>
+      <DefaultModal
+        animationType="fade"
+        overlay={false}
+        modalPosiion="center"
+        modalVisible={modalVisible === ModalTypes.VOLUME}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        <ChangeVolumeModal
+          instance={instance}
+          peerTrackNode={updatePeerTrackNode}
+          cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
+        />
+      </DefaultModal>
+      <DefaultModal
+        animationType="fade"
+        overlay={false}
+        modalPosiion="center"
+        modalVisible={modalVisible === ModalTypes.CHANGE_NAME}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        <ChangeNameModal
+          instance={instance}
+          peerTrackNode={updatePeerTrackNode}
+          cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
         />
       </DefaultModal>
     </SafeAreaView>
-  );
-};
-
-const ParticipantsModal = ({
-  instance,
-  peerTrackNodes,
-}: {
-  instance?: HMSSDK;
-  peerTrackNodes: PeerTrackNode[];
-}) => {
-  const [participantsSearchInput, setParticipantsSearchInput] = useState('');
-  const [visible, setVisible] = useState<number>(-1);
-  const [filteredPeerTrackNodes, setFilteredPeerTrackNodes] =
-    useState<PeerTrackNode[]>();
-  const [filter, setFilter] = useState('everyone');
-
-  const hideMenu = () => setVisible(-1);
-  const showMenu = (index: number) => setVisible(index);
-
-  useEffect(() => {
-    const newFilteredPeerTrackNodes = peerTrackNodes.filter(peerTrackNode => {
-      if (
-        participantsSearchInput.length < 1 ||
-        peerTrackNode.peer.name.includes(participantsSearchInput) ||
-        peerTrackNode.peer.role?.name?.includes(participantsSearchInput)
-      ) {
-        return true;
-      }
-      return false;
-    });
-    if (filter === 'everyone') {
-      setFilteredPeerTrackNodes(newFilteredPeerTrackNodes);
-    } else if (filter === 'raised hand') {
-      const updatedPeerTrackNodes = newFilteredPeerTrackNodes?.filter(
-        peerTrackNode => {
-          const parsedMetaData = parseMetadata(peerTrackNode?.peer?.metadata);
-          return parsedMetaData.isHandRaised === true;
-        },
-      );
-      setFilteredPeerTrackNodes(updatedPeerTrackNodes);
-    } else {
-      const updatedPeerTrackNodes = newFilteredPeerTrackNodes?.filter(
-        peerTrackNode => {
-          return peerTrackNode?.peer?.role?.name === filter;
-        },
-      );
-      setFilteredPeerTrackNodes(updatedPeerTrackNodes);
-    }
-  }, [peerTrackNodes, participantsSearchInput, filter]);
-
-  return (
-    <View style={styles.participantContainer}>
-      <View style={styles.participantsHeaderContainer}>
-        <Text style={styles.participantsHeading}>Participants</Text>
-        <ParticipantFilter
-          instance={instance}
-          filter={filter}
-          setFilter={setFilter}
-        />
-      </View>
-      <View>
-        <CustomInput
-          value={participantsSearchInput}
-          onChangeText={setParticipantsSearchInput}
-          inputStyle={styles.participantsSearchInput}
-          placeholderTextColor={COLORS.TEXT.DISABLED}
-          placeholder="Find what you’re looking for"
-        />
-        <Ionicons
-          name="search"
-          style={styles.participantsSearchInputIcon}
-          size={24}
-        />
-      </View>
-      <ScrollView keyboardShouldPersistTaps="always">
-        {filteredPeerTrackNodes?.map((peerTrackNode, index) => {
-          return (
-            <View style={styles.participantItem} key={peerTrackNode.id}>
-              <View style={styles.participantAvatar}>
-                <Text style={styles.participantAvatarText}>
-                  {getInitials(peerTrackNode.peer.name)}
-                </Text>
-              </View>
-              <View style={styles.participantDescription}>
-                <Text style={styles.participantName} numberOfLines={1}>
-                  {peerTrackNode.track?.source === HMSTrackSource.REGULAR ||
-                  peerTrackNode.track?.source === undefined
-                    ? peerTrackNode.peer.name
-                    : peerTrackNode.peer.name +
-                      "'s " +
-                      peerTrackNode.track?.source}
-                  {peerTrackNode.peer.isLocal && ' (You)'}
-                </Text>
-                <Text style={styles.participantRole} numberOfLines={1}>
-                  {peerTrackNode.peer.role?.name}
-                </Text>
-              </View>
-              <Menu
-                visible={visible === index}
-                anchor={
-                  <CustomButton
-                    onPress={() => showMenu(index)}
-                    viewStyle={styles.participantSettings}
-                    LeftIcon={
-                      <MaterialCommunityIcons
-                        name="dots-vertical"
-                        style={styles.icon}
-                        size={28}
-                      />
-                    }
-                  />
-                }
-                onRequestClose={hideMenu}
-                style={styles.participantsMenuContainer}>
-                {/*  */}
-              </Menu>
-            </View>
-          );
-        })}
-      </ScrollView>
-    </View>
-  );
-};
-
-const ParticipantFilter = ({
-  instance,
-  filter,
-  setFilter,
-}: {
-  instance?: HMSSDK;
-  filter?: string;
-  setFilter: React.Dispatch<React.SetStateAction<string>>;
-}) => {
-  const [visible, setVisible] = useState<boolean>(false);
-
-  const hideMenu = () => setVisible(false);
-  const showMenu = () => setVisible(true);
-
-  return (
-    <Menu
-      visible={visible}
-      anchor={
-        <TouchableOpacity
-          style={styles.participantFilterContainer}
-          onPress={showMenu}>
-          <Text style={styles.participantFilterText} numberOfLines={1}>
-            {filter}
-          </Text>
-          <MaterialIcons
-            name={visible ? 'arrow-drop-up' : 'arrow-drop-down'}
-            style={styles.participantFilterIcon}
-            size={24}
-          />
-        </TouchableOpacity>
-      }
-      onRequestClose={hideMenu}
-      style={styles.participantsMenuContainer}>
-      <MenuItem
-        onPress={() => {
-          hideMenu();
-          setFilter('everyone');
-        }}>
-        <View style={styles.participantMenuItem}>
-          <Ionicons
-            name="people-outline"
-            style={styles.participantMenuItemIcon}
-            size={20}
-          />
-          <Text style={styles.participantMenuItemName}>Everyone</Text>
-        </View>
-      </MenuItem>
-      <MenuItem
-        onPress={() => {
-          hideMenu();
-          setFilter('raised hand');
-        }}>
-        <View style={styles.participantMenuItem}>
-          <Ionicons
-            name="hand-left-outline"
-            style={styles.participantMenuItemIcon}
-            size={20}
-          />
-          <Text style={styles.participantMenuItemName}>Raised Hand</Text>
-        </View>
-      </MenuItem>
-      <MenuDivider color={COLORS.BORDER.LIGHT} />
-      {instance?.knownRoles?.map(knownRole => {
-        return (
-          <MenuItem
-            onPress={() => {
-              hideMenu();
-              setFilter(knownRole?.name!);
-            }}
-            key={knownRole.name}>
-            <View style={styles.participantMenuItem}>
-              <Text style={styles.participantMenuItemName}>
-                {knownRole?.name}
-              </Text>
-            </View>
-          </MenuItem>
-        );
-      })}
-    </Menu>
   );
 };
 
