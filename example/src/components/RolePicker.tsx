@@ -1,15 +1,23 @@
 import React from 'react';
-import {StyleSheet, View} from 'react-native';
+import {ColorValue, StyleProp, StyleSheet, TextStyle, View} from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 
 export const RolePicker = ({
   selectedItem,
   data,
   onItemSelected,
+  viewStyle,
+  itemStyle,
+  dropdownIconColor = 'black',
+  dropdownIconRippleColor = 'grey',
 }: {
   selectedItem: any;
   data: Array<any>;
   onItemSelected: any;
+  itemStyle?: StyleProp<TextStyle>;
+  viewStyle?: StyleProp<TextStyle>;
+  dropdownIconColor?: number | ColorValue;
+  dropdownIconRippleColor?: number | ColorValue;
 }) => {
   const onPress = (value: any) => {
     for (let i = 0; i < data.length; i++) {
@@ -24,9 +32,10 @@ export const RolePicker = ({
       <Picker
         selectedValue={selectedItem?.name}
         onValueChange={onPress}
-        itemStyle={styles.itemStyle}
-        dropdownIconColor="black"
-        dropdownIconRippleColor="grey">
+        itemStyle={[styles.itemStyle, itemStyle]}
+        style={viewStyle}
+        dropdownIconColor={dropdownIconColor}
+        dropdownIconRippleColor={dropdownIconRippleColor}>
         {data.map((item, index) => (
           <Picker.Item key={index} label={item.name} value={item?.name} />
         ))}

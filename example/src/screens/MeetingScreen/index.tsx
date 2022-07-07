@@ -7,6 +7,7 @@ import {
   BackHandler,
   Platform,
   TextInput,
+  Dimensions,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {
@@ -53,6 +54,7 @@ import RNFetchBlob from 'rn-fetch-blob';
 import {Picker} from '@react-native-picker/picker';
 import Video from 'react-native-video';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {Slider} from '@miblanchard/react-native-slider';
 
 import {styles} from './styles';
 import type {AppStackParamList} from '../../navigator';
@@ -62,17 +64,16 @@ import {
   CustomModal,
   RolePicker,
   ZoomableView,
-  UserIdModal,
+  CustomButton,
+  DefaultModal,
 } from '../../components';
 import {
   addMessage,
   clearHmsReference,
   clearMessageData,
   clearPeerData,
-  saveUserData,
 } from '../../redux/actions';
 import type {RootState} from '../../redux';
-import dimension from '../../utils/dimension';
 import {
   pairDataForFlatlist,
   parseMetadata,
@@ -80,6 +81,7 @@ import {
   requestExternalStoragePermission,
   updatePeersTrackNodesOnPeerListener,
   updatePeersTrackNodesOnTrackListener,
+  isPortrait,
 } from '../../utils/functions';
 import {
   LayoutParams,
@@ -91,6 +93,12 @@ import {GridView} from './Grid';
 import {ActiveSpeakerView} from './ActiveSpeakerView';
 import {HeroView} from './HeroView';
 import {MiniView} from './MiniView';
+import {
+  ParticipantsModal,
+  ChangeNameModal,
+  ChangeRoleModal,
+  ChangeVolumeModal,
+} from './Modals';
 import {COLORS} from '../../utils/theme';
 
 type MessageObject = {
@@ -141,15 +149,31 @@ const Meeting = () => {
   const [page, setPage] = useState(0);
   const [zoomableTrackId, setZoomableTrackId] = useState('');
   const [statsForNerds, setStatsForNerds] = useState(false);
+  const [orientation, setOrientation] = useState<boolean>(true);
+  const [updatePeerTrackNode, setUpdatePeerTrackNode] = useState<PeerTrackNode>(
+    peerTrackNodes[0],
+  );
   const pairedPeers = useMemo(
     () =>
       pairDataForFlatlist(
         peerTrackNodes,
-        layout === LayoutParams.AUDIO ? 6 : 4,
+        orientation
+          ? layout === LayoutParams.AUDIO
+            ? 6
+            : 4
+          : layout === LayoutParams.AUDIO
+          ? 3
+          : 2,
         selectedSortingType,
         pinnedPeerTrackIds,
       ),
-    [layout, peerTrackNodes, selectedSortingType, pinnedPeerTrackIds],
+    [
+      layout,
+      peerTrackNodes,
+      orientation,
+      selectedSortingType,
+      pinnedPeerTrackIds,
+    ],
   );
   const [modalVisible, setModalVisible] = useState<ModalTypes>(
     ModalTypes.DEFAULT,
@@ -161,8 +185,8 @@ const Meeting = () => {
   const [recordingDetails, setRecordingDetails] = useState<HMSRTMPConfig>({
     record: false,
     meetingURL: roomID ? roomID + '?token=beam_recording' : '',
-    rtmpURLs: [],
   });
+  const [resolutionDetails, setResolutionDetails] = useState<boolean>(false);
   const [hlsStreamingDetails, setHLSStreamingDetails] =
     useState<HMSHLSMeetingURLVariant>({
       meetingUrl: roomID ? roomID + '?token=beam_recording' : '',
@@ -173,7 +197,11 @@ const Meeting = () => {
       singleFilePerLayer: false,
       videoOnDemand: false,
     });
-  const {bottom} = useSafeAreaInsets();
+  const {bottom, left, right} = useSafeAreaInsets();
+  const parsedMetadata = parseMetadata(instance?.localPeer?.metadata);
+  const isScreenShared =
+    instance?.localPeer?.auxiliaryTracks &&
+    instance?.localPeer?.auxiliaryTracks?.length > 0;
 
   const getMessageToList = (): MessageObject[] => {
     const messageList: MessageObject[] = [
@@ -249,13 +277,16 @@ const Meeting = () => {
       case ModalTypes.RECORDING:
         modalTitle = 'Recording Details';
         break;
+      case ModalTypes.RESOLUTION:
+        modalTitle = 'Resolution Details';
+        break;
       case ModalTypes.LEAVE:
         modalTitle = 'End Room';
         break;
       case ModalTypes.HLS_STREAMING:
         modalTitle = 'HLS Streaming Details';
         break;
-      case ModalTypes.ROLE_CHANGE:
+      case ModalTypes.CHANGE_ROLE_ACCEPT:
         modalTitle = 'Role Change Details';
         break;
       case ModalTypes.CHANGE_TRACK:
@@ -368,6 +399,18 @@ const Meeting = () => {
             },
           },
           {
+            text: parsedMetadata?.isBRBOn ? 'Remove BRB' : 'Set BRB',
+            onPress: () => {
+              instance?.changeMetadata(
+                JSON.stringify({
+                  ...parsedMetadata,
+                  isBRBOn: !parsedMetadata?.isBRBOn,
+                  isHandRaised: false,
+                }),
+              );
+            },
+          },
+          {
             text: 'Start RTMP or Recording',
             onPress: () => {
               setModalVisible(ModalTypes.RECORDING);
@@ -382,45 +425,8 @@ const Meeting = () => {
                 .catch(e => console.log('Stop RTMP And Recording Error: ', e));
             },
           },
-          {
-            text: 'Start HLS Streaming',
-            onPress: () => {
-              setModalVisible(ModalTypes.HLS_STREAMING);
-            },
-          },
-          {
-            text: 'Stop HLS Streaming',
-            onPress: () => {
-              instance
-                ?.stopHLSStreaming()
-                .then(d => console.log('Stop HLS Streaming Success: ', d))
-                .catch(e => console.log('Stop HLS Streaming Error: ', e));
-            },
-          },
         ];
         if (Platform.OS === 'android') {
-          buttons.push(
-            ...[
-              {
-                text: 'Start Screenshare',
-                onPress: () => {
-                  instance
-                    ?.startScreenshare()
-                    .then(d => console.log('Start Screenshare Success: ', d))
-                    .catch(e => console.log('Start Screenshare Error: ', e));
-                },
-              },
-              {
-                text: 'Stop Screenshare',
-                onPress: () => {
-                  instance
-                    ?.stopScreenshare()
-                    .then(d => console.log('Stop Screenshare Success: ', d))
-                    .catch(e => console.log('Stop Screenshare Error: ', e));
-                },
-              },
-            ],
-          );
         } else {
           buttons.push({
             text: statsForNerds
@@ -484,6 +490,20 @@ const Meeting = () => {
             ],
           );
         }
+        if (!instance?.localPeer?.role?.name?.includes('hls-')) {
+          buttons.push({
+            text: muteAllTracksAudio
+              ? 'Local unmute all audio tracks'
+              : 'Local mute all audio tracks',
+            onPress: () => {
+              instance?.setPlaybackForAllAudio(!muteAllTracksAudio);
+              setMuteAllTracksAudio(!muteAllTracksAudio);
+            },
+          });
+        }
+        break;
+      case ModalTypes.RESOLUTION:
+        buttons = [{text: 'Back'}];
         break;
       case ModalTypes.RECORDING:
         buttons = [
@@ -491,6 +511,15 @@ const Meeting = () => {
           {
             text: 'Start',
             onPress: () => {
+              // Resolution width
+              // Range is [500, 1280].
+              // Default value is 1280.
+              // If resolution height > 720 then max resolution width = 720.
+
+              // Resolution height
+              // Reange is [480, 1280].
+              // Default resolution width is 720.
+              // If resolution width > 720 then max resolution height = 720.
               instance
                 ?.startRTMPOrRecording(recordingDetails)
                 .then(d => console.log('Start RTMP Or Recording Success: ', d))
@@ -515,10 +544,8 @@ const Meeting = () => {
         if (instance?.localPeer?.role?.permissions?.endRoom) {
           buttons.push({
             text: 'End Room for all',
-            onPress: async () => {
-              await instance?.endRoom('Host ended the room');
-              dispatch(clearMessageData());
-              navigate('WelcomeScreen');
+            onPress: () => {
+              onEndRoomPress();
             },
           });
         }
@@ -541,7 +568,7 @@ const Meeting = () => {
           },
         ];
         break;
-      case ModalTypes.ROLE_CHANGE:
+      case ModalTypes.CHANGE_ROLE_ACCEPT:
         buttons = [
           {text: 'Reject'},
           {
@@ -583,7 +610,86 @@ const Meeting = () => {
     dispatch(clearMessageData());
     dispatch(clearPeerData());
     dispatch(clearHmsReference());
-    navigate('WelcomeScreen');
+    navigate('QRCodeScreen');
+  };
+
+  const onEndRoomPress = async () => {
+    await instance?.endRoom('Host ended the room');
+    await instance
+      ?.destroy()
+      .then(d => console.log('Destroy Success: ', d))
+      .catch(e => console.log('Destroy Error: ', e));
+    dispatch(clearMessageData());
+    dispatch(clearPeerData());
+    dispatch(clearHmsReference());
+    navigate('QRCodeScreen');
+  };
+
+  const onRaiseHandPress = () => {
+    instance?.changeMetadata(
+      JSON.stringify({
+        ...parsedMetadata,
+        isHandRaised: !parsedMetadata?.isHandRaised,
+        isBRBOn: false,
+      }),
+    );
+  };
+
+  const onSwitchCameraPress = () => {
+    instance?.localPeer?.localVideoTrack()?.switchCamera();
+  };
+
+  const onMicStatusPress = () => {
+    instance?.localPeer
+      ?.localAudioTrack()
+      ?.setMute(!instance?.localPeer?.audioTrack?.isMute());
+  };
+
+  const onVideoStatusPress = () => {
+    instance?.localPeer
+      ?.localVideoTrack()
+      ?.setMute(!instance?.localPeer?.videoTrack?.isMute());
+  };
+
+  const onStartScreenSharePress = () => {
+    if (Platform.OS === 'android') {
+      instance
+        ?.startScreenshare()
+        .then(d => console.log('Start Screenshare Success: ', d))
+        .catch(e => console.log('Start Screenshare Error: ', e));
+    } else {
+      Toast.showWithGravity('Api not available for iOS', Toast.LONG, Toast.TOP);
+    }
+  };
+
+  const onEndScreenSharePress = () => {
+    if (Platform.OS === 'android') {
+      instance
+        ?.stopScreenshare()
+        .then(d => console.log('Stop Screenshare Success: ', d))
+        .catch(e => console.log('Stop Screenshare Error: ', e));
+    } else {
+      Toast.showWithGravity('Api not available for iOS', Toast.LONG, Toast.TOP);
+    }
+  };
+
+  const onGoLivePress = () => {
+    setModalVisible(ModalTypes.HLS_STREAMING);
+  };
+
+  const onEndLivePress = () => {
+    instance
+      ?.stopHLSStreaming()
+      .then(d => console.log('Stop HLS Streaming Success: ', d))
+      .catch(e => console.log('Stop HLS Streaming Error: ', e));
+  };
+
+  const onSettingsPress = () => {
+    setModalVisible(ModalTypes.SETTINGS);
+  };
+
+  const onParticipantsPress = () => {
+    setModalVisible(ModalTypes.PARTICIPANTS);
   };
 
   const onRoomListener = ({
@@ -760,7 +866,7 @@ const Meeting = () => {
 
   const onRoleChangeRequest = (data: HMSRoleChangeRequest) => {
     console.log('data in onRoleChangeRequest: ', data);
-    setModalVisible(ModalTypes.ROLE_CHANGE);
+    setModalVisible(ModalTypes.CHANGE_ROLE_ACCEPT);
     setRoleChangeRequest({
       requestedBy: data?.requestedBy?.name,
       suggestedRole: data?.suggestedRole?.name,
@@ -822,8 +928,7 @@ const Meeting = () => {
 
   const onRemovedFromRoom = (data: any) => {
     console.log('data in onRemovedFromRoom: ', data);
-    dispatch(clearMessageData());
-    navigate('WelcomeScreen');
+    onLeavePress();
   };
 
   const updateHmsInstance = (hms: HMSSDK | undefined) => {
@@ -882,6 +987,11 @@ const Meeting = () => {
 
   useEffect(() => {
     updateHmsInstance(hmsInstance);
+    setHmsRoom(hmsInstance?.room);
+
+    const callback = () => setOrientation(isPortrait());
+    callback();
+    Dimensions.addEventListener('change', callback);
 
     const backAction = () => {
       setModalVisible(ModalTypes.LEAVE);
@@ -895,6 +1005,7 @@ const Meeting = () => {
 
     return () => {
       backHandler.remove();
+      Dimensions.removeEventListener('change', callback);
       onLeavePress();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -920,10 +1031,10 @@ const Meeting = () => {
   return (
     <SafeAreaView style={styles.container}>
       <CustomModal
-        modalVisible={modalVisible === ModalTypes.ROLE_CHANGE}
+        modalVisible={modalVisible === ModalTypes.CHANGE_ROLE_ACCEPT}
         setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
-        title={getModalTitle(ModalTypes.ROLE_CHANGE)}
-        buttons={getModalButtons(ModalTypes.ROLE_CHANGE)}>
+        title={getModalTitle(ModalTypes.CHANGE_ROLE_ACCEPT)}
+        buttons={getModalButtons(ModalTypes.CHANGE_ROLE_ACCEPT)}>
         <Text style={styles.roleChangeText}>
           Role change requested by{' '}
           {roleChangeRequest?.requestedBy?.toLocaleUpperCase()}. Changing role
@@ -950,7 +1061,7 @@ const Meeting = () => {
         <TextInput
           onChangeText={value => {
             if (value === '') {
-              setRecordingDetails({...recordingDetails, rtmpURLs: []});
+              setRecordingDetails({...recordingDetails, rtmpURLs: undefined});
             } else {
               setRecordingDetails({...recordingDetails, rtmpURLs: [value]});
             }
@@ -976,14 +1087,87 @@ const Meeting = () => {
           <Text style={styles.interRegular}>Record</Text>
           <View style={styles.checkboxContainer}>
             {recordingDetails.record && (
-              <Entypo
-                name="check"
-                style={styles.checkbox}
-                size={dimension.viewHeight(20)}
-              />
+              <Entypo name="check" style={styles.checkbox} size={20} />
             )}
           </View>
         </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            setResolutionDetails(!resolutionDetails);
+            if (!resolutionDetails) {
+              setModalVisible(ModalTypes.RESOLUTION);
+              setRecordingDetails({
+                ...recordingDetails,
+                resolution: {
+                  height: 720,
+                  width: 1280,
+                },
+              });
+            } else {
+              setRecordingDetails({
+                ...recordingDetails,
+                resolution: undefined,
+              });
+            }
+          }}
+          style={styles.recordingDetails}>
+          <Text style={styles.interRegular}>Resolution</Text>
+          <View style={styles.checkboxContainer}>
+            {resolutionDetails && (
+              <Entypo name="check" style={styles.checkbox} size={20} />
+            )}
+          </View>
+        </TouchableOpacity>
+      </CustomModal>
+      <CustomModal
+        modalVisible={modalVisible === ModalTypes.RESOLUTION}
+        setModalVisible={() => setModalVisible(ModalTypes.RECORDING)}
+        title={getModalTitle(ModalTypes.RESOLUTION)}
+        buttons={getModalButtons(ModalTypes.RESOLUTION)}>
+        <View style={styles.resolutionContainer}>
+          <View style={styles.resolutionDetails}>
+            <Text style={styles.interRegular}>Height :</Text>
+            <Text style={styles.resolutionValue}>
+              {recordingDetails.resolution?.height}
+            </Text>
+          </View>
+          <Slider
+            value={recordingDetails.resolution?.height}
+            maximumValue={1280}
+            minimumValue={480}
+            step={10}
+            onValueChange={(value: any) => {
+              setRecordingDetails({
+                ...recordingDetails,
+                resolution: {
+                  height: parseInt(value),
+                  width: recordingDetails.resolution?.width ?? 1280,
+                },
+              });
+            }}
+          />
+          <View style={styles.resolutionDetails}>
+            <Text style={styles.interRegular}>Width :</Text>
+            <Text style={styles.resolutionValue}>
+              {recordingDetails.resolution?.width}
+            </Text>
+          </View>
+          <Slider
+            value={recordingDetails.resolution?.width}
+            maximumValue={1280}
+            minimumValue={500}
+            step={10}
+            onValueChange={(value: any) => {
+              setRecordingDetails({
+                ...recordingDetails,
+                resolution: {
+                  width: parseInt(value),
+                  height: recordingDetails.resolution?.height ?? 720,
+                },
+              });
+            }}
+          />
+        </View>
       </CustomModal>
       <CustomModal
         modalVisible={modalVisible === ModalTypes.HLS_STREAMING}
@@ -1013,11 +1197,7 @@ const Meeting = () => {
           <Text style={styles.interRegular}>singleFilePerLayer</Text>
           <View style={styles.checkboxContainer}>
             {hlsRecordingDetails.singleFilePerLayer && (
-              <Entypo
-                name="check"
-                style={styles.checkbox}
-                size={dimension.viewHeight(20)}
-              />
+              <Entypo name="check" style={styles.checkbox} size={20} />
             )}
           </View>
         </TouchableOpacity>
@@ -1032,11 +1212,7 @@ const Meeting = () => {
           <Text style={styles.interRegular}>videoOnDemand</Text>
           <View style={styles.checkboxContainer}>
             {hlsRecordingDetails.videoOnDemand && (
-              <Entypo
-                name="check"
-                style={styles.checkbox}
-                size={dimension.viewHeight(20)}
-              />
+              <Entypo name="check" style={styles.checkbox} size={20} />
             )}
           </View>
         </TouchableOpacity>
@@ -1116,78 +1292,93 @@ const Meeting = () => {
           ))}
         </Picker>
       </CustomModal>
-      <View style={styles.headerContainer}>
-        <Text style={styles.headerName}>
-          {speakers?.length > 0 && speakers[0]?.peer?.name
-            ? `🔊  ${speakers[0]?.peer?.name}`
-            : roomCode}
-        </Text>
-        <View style={styles.headerRight}>
+      <View style={styles.iconTopWrapper}>
+        <View style={styles.iconTopSubWrapper}>
+          <CustomButton
+            onPress={() => {
+              setModalVisible(ModalTypes.LEAVE);
+            }}
+            viewStyle={[styles.iconContainer, styles.leaveIcon]}
+            LeftIcon={<Feather name="log-out" style={styles.icon} size={24} />}
+          />
+          <Text style={styles.headerName}>
+            {speakers?.length > 0 && speakers[0]?.peer?.name
+              ? `🔊  ${speakers[0]?.peer?.name}`
+              : roomCode}
+          </Text>
+        </View>
+        <View style={styles.iconTopSubWrapper}>
           {(hmsRoom?.browserRecordingState?.running ||
             hmsRoom?.hlsRecordingState?.running) && (
             <MaterialCommunityIcons
               name="record-circle-outline"
-              style={styles.recording}
-              size={dimension.viewHeight(30)}
+              style={styles.roomStatus}
+              size={24}
             />
           )}
           {(hmsRoom?.hlsStreamingState?.running ||
             hmsRoom?.rtmpHMSRtmpStreamingState?.running) && (
             <Ionicons
               name="globe-outline"
-              style={styles.streaming}
-              size={dimension.viewHeight(30)}
+              style={styles.roomStatus}
+              size={24}
             />
           )}
-          {instance?.localPeer?.auxiliaryTracks &&
-            instance?.localPeer?.auxiliaryTracks?.length > 0 && (
-              <Feather
-                name="copy"
-                style={styles.streaming}
-                size={dimension.viewHeight(30)}
+          {isScreenShared && (
+            <Feather name="copy" style={styles.roomStatus} size={24} />
+          )}
+          <CustomButton
+            onPress={onParticipantsPress}
+            viewStyle={styles.iconContainer}
+            LeftIcon={<Ionicons name="people" style={styles.icon} size={24} />}
+          />
+          <CustomButton
+            onPress={onRaiseHandPress}
+            viewStyle={[
+              styles.iconContainer,
+              parsedMetadata?.isHandRaised && styles.iconMuted,
+            ]}
+            LeftIcon={
+              <Ionicons
+                name="hand-left-outline"
+                style={[
+                  styles.icon,
+                  parsedMetadata?.isHandRaised && styles.handRaised,
+                ]}
+                size={24}
               />
-            )}
+            }
+          />
+          <CustomButton
+            onPress={() => {
+              setModalVisible(ModalTypes.CHAT);
+            }}
+            viewStyle={styles.iconContainer}
+            LeftIcon={
+              <View>
+                {notification && <View style={styles.messageDot} />}
+                <MaterialCommunityIcons
+                  name="message-outline"
+                  style={styles.icon}
+                  size={24}
+                />
+              </View>
+            }
+          />
           {instance?.localPeer?.role?.publishSettings?.allowed?.includes(
             'video',
           ) && (
-            <TouchableOpacity
-              style={styles.headerIcon}
-              onPress={() => {
-                instance?.localPeer?.localVideoTrack()?.switchCamera();
-              }}>
-              <Ionicons
-                name="camera-reverse-outline"
-                style={styles.videoIcon}
-                size={dimension.viewHeight(30)}
-              />
-            </TouchableOpacity>
-          )}
-          {!instance?.localPeer?.role?.name?.includes('hls-') && (
-            <TouchableOpacity
-              onPress={() => {
-                instance?.setPlaybackForAllAudio(!muteAllTracksAudio);
-                setMuteAllTracksAudio(!muteAllTracksAudio);
-              }}
-              style={styles.headerIcon}>
-              <Ionicons
-                name={muteAllTracksAudio ? 'volume-mute' : 'volume-high'}
-                style={styles.headerName}
-                size={dimension.viewHeight(30)}
-              />
-            </TouchableOpacity>
-          )}
-          {!instance?.localPeer?.role?.name?.includes('hls-') && (
-            <TouchableOpacity
-              onPress={() => {
-                setModalVisible(ModalTypes.SETTINGS);
-              }}
-              style={styles.headerIcon}>
-              <Ionicons
-                name="settings"
-                style={styles.headerName}
-                size={dimension.viewHeight(30)}
-              />
-            </TouchableOpacity>
+            <CustomButton
+              onPress={onSwitchCameraPress}
+              viewStyle={styles.iconContainer}
+              LeftIcon={
+                <Ionicons
+                  name="camera-reverse-outline"
+                  style={styles.icon}
+                  size={28}
+                />
+              }
+            />
           )}
         </View>
       </View>
@@ -1242,7 +1433,7 @@ const Meeting = () => {
               <Entypo
                 name={'circle-with-cross'}
                 style={styles.videoIcon}
-                size={dimension.viewHeight(50)}
+                size={50}
               />
             </TouchableOpacity>
             <ZoomableView>
@@ -1258,6 +1449,7 @@ const Meeting = () => {
           </View>
         ) : layout === LayoutParams.ACTIVE_SPEAKER ? (
           <ActiveSpeakerView
+            orientation={orientation}
             speakers={speakers}
             instance={instance}
             peerTrackNodes={peerTrackNodes}
@@ -1268,14 +1460,22 @@ const Meeting = () => {
           />
         ) : layout === LayoutParams.HERO ? (
           <HeroView
+            peerTrackNodes={peerTrackNodes}
+            orientation={orientation}
             speakers={speakers}
             instance={instance}
             setModalVisible={setModalVisible}
           />
         ) : layout === LayoutParams.MINI ? (
-          <MiniView speakers={speakers} instance={instance} />
+          <MiniView
+            peerTrackNodes={peerTrackNodes}
+            orientation={orientation}
+            speakers={speakers}
+            instance={instance}
+          />
         ) : (
           <GridView
+            orientation={orientation}
             speakers={speakers}
             pairedPeers={pairedPeers}
             setPage={setPage}
@@ -1292,117 +1492,96 @@ const Meeting = () => {
             page={page}
             pinnedPeerTrackIds={pinnedPeerTrackIds}
             setPinnedPeerTrackIds={setPinnedPeerTrackIds}
+            setUpdatePeerTrackNode={setUpdatePeerTrackNode}
           />
         )}
       </View>
-      <View style={[styles.iconContainers, {bottom}]}>
-        {instance?.localPeer?.role?.publishSettings?.allowed?.includes(
-          'audio',
-        ) && (
-          <TouchableOpacity
-            style={styles.singleIconContainer}
-            onPress={() => {
-              instance?.localPeer
-                ?.localAudioTrack()
-                ?.setMute(!instance?.localPeer?.audioTrack?.isMute());
-            }}>
-            <Feather
-              name={
-                instance?.localPeer?.audioTrack?.isMute() ? 'mic-off' : 'mic'
-              }
-              style={styles.videoIcon}
-              size={dimension.viewHeight(30)}
-            />
-          </TouchableOpacity>
-        )}
-        {instance?.localPeer?.role?.publishSettings?.allowed?.includes(
-          'video',
-        ) && (
-          <TouchableOpacity
-            style={styles.singleIconContainer}
-            onPress={() => {
-              instance?.localPeer
-                ?.localVideoTrack()
-                ?.setMute(!instance?.localPeer?.videoTrack?.isMute());
-            }}>
-            <Feather
-              name={
-                instance?.localPeer?.videoTrack?.isMute()
-                  ? 'video-off'
-                  : 'video'
-              }
-              style={styles.videoIcon}
-              size={dimension.viewHeight(30)}
-            />
-          </TouchableOpacity>
-        )}
-        <TouchableOpacity
-          style={styles.singleIconContainer}
-          onPress={() => {
-            setModalVisible(ModalTypes.CHAT);
-          }}>
-          <MaterialCommunityIcons
-            name="message-outline"
-            style={styles.videoIcon}
-            size={dimension.viewHeight(30)}
-          />
-          {notification && <View style={styles.messageDot} />}
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.singleIconContainer}
-          onPress={() => {
-            const parsedMetadata = parseMetadata(instance?.localPeer?.metadata);
-            instance?.changeMetadata(
-              JSON.stringify({
-                ...parsedMetadata,
-                isHandRaised: !parsedMetadata?.isHandRaised,
-                isBRBOn: false,
-              }),
-            );
-          }}>
-          <Ionicons
-            name={
-              parseMetadata(instance?.localPeer?.metadata)?.isHandRaised
-                ? 'ios-hand-left'
-                : 'ios-hand-left-outline'
+      <View style={[styles.iconBotttomWrapper, {bottom, left, right}]}>
+        <View style={styles.iconBotttomButtonWrapper}>
+          <CustomButton
+            onPress={onMicStatusPress}
+            viewStyle={[
+              styles.iconContainer,
+              instance?.localPeer?.audioTrack?.isMute() && styles.iconMuted,
+            ]}
+            LeftIcon={
+              <Feather
+                name={
+                  instance?.localPeer?.audioTrack?.isMute() ? 'mic-off' : 'mic'
+                }
+                style={styles.icon}
+                size={24}
+              />
             }
-            style={styles.videoIcon}
-            size={dimension.viewHeight(30)}
           />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.singleIconContainer}
-          onPress={() => {
-            const parsedMetadata = parseMetadata(instance?.localPeer?.metadata);
-            instance?.changeMetadata(
-              JSON.stringify({
-                ...parsedMetadata,
-                isBRBOn: !parsedMetadata?.isBRBOn,
-                isHandRaised: false,
-              }),
-            );
-          }}>
-          {parseMetadata(instance?.localPeer?.metadata)?.isBRBOn ? (
-            <View style={styles.brbOnContainer}>
-              <Text style={styles.brbOn}>BRB</Text>
-            </View>
+          <CustomButton
+            onPress={onVideoStatusPress}
+            viewStyle={[
+              styles.iconContainer,
+              instance?.localPeer?.videoTrack?.isMute() && styles.iconMuted,
+            ]}
+            LeftIcon={
+              <Feather
+                name={
+                  instance?.localPeer?.videoTrack?.isMute()
+                    ? 'video-off'
+                    : 'video'
+                }
+                style={styles.icon}
+                size={24}
+              />
+            }
+          />
+          {hmsRoom?.hlsStreamingState?.running ? (
+            <CustomButton
+              onPress={onEndLivePress}
+              viewStyle={styles.endLiveIconContainer}
+              LeftIcon={
+                <Feather name="stop-circle" style={styles.icon} size={36} />
+              }
+            />
           ) : (
-            <View style={styles.brbContainer}>
-              <Text style={styles.brb}>BRB</Text>
-            </View>
+            <CustomButton
+              onPress={onGoLivePress}
+              viewStyle={styles.goLiveIconContainer}
+              LeftIcon={
+                <Ionicons name="radio-outline" style={styles.icon} size={48} />
+              }
+            />
           )}
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.leaveIconContainer}
-          onPress={() => {
-            setModalVisible(ModalTypes.LEAVE);
-          }}>
-          <Entypo
-            name="login"
-            style={styles.leaveIcon}
-            size={dimension.viewHeight(30)}
+          <CustomButton
+            onPress={
+              isScreenShared ? onEndScreenSharePress : onStartScreenSharePress
+            }
+            viewStyle={[
+              styles.iconContainer,
+              isScreenShared && styles.iconMuted,
+            ]}
+            LeftIcon={
+              <MaterialCommunityIcons
+                name="monitor-share"
+                style={styles.icon}
+                size={24}
+              />
+            }
           />
-        </TouchableOpacity>
+          <CustomButton
+            onPress={onSettingsPress}
+            viewStyle={styles.iconContainer}
+            LeftIcon={
+              <MaterialCommunityIcons
+                name="dots-vertical"
+                style={styles.icon}
+                size={28}
+              />
+            }
+          />
+        </View>
+        {hmsRoom?.hlsStreamingState?.running ? (
+          <Text style={styles.liveText}>End stream</Text>
+        ) : (
+          <Text style={styles.liveText}>Go Live</Text>
+        )}
       </View>
       {modalVisible === ModalTypes.CHAT && (
         <ChatWindow
@@ -1436,25 +1615,54 @@ const Meeting = () => {
           }}
         />
       )}
-      {modalVisible === ModalTypes.CHANGE_NAME && (
-        <UserIdModal
-          screen="Meeting"
-          join={async (newName: string) => {
-            if (newName && newName !== '') {
-              instance?.changeName(newName);
-              saveUserData &&
-                dispatch(
-                  saveUserData({
-                    userName: newName,
-                  }),
-                );
-            }
-            setModalVisible(ModalTypes.DEFAULT);
-          }}
-          cancel={() => setModalVisible(ModalTypes.DEFAULT)}
-          userName={instance?.localPeer?.name}
+      <DefaultModal
+        modalVisible={modalVisible === ModalTypes.PARTICIPANTS}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        <ParticipantsModal
+          peerTrackNodes={peerTrackNodes}
+          instance={instance}
+          setUpdatePeerTrackNode={setUpdatePeerTrackNode}
+          setModalVisible={setModalVisible}
+          pinnedPeerTrackIds={pinnedPeerTrackIds}
+          setPinnedPeerTrackIds={setPinnedPeerTrackIds}
         />
-      )}
+      </DefaultModal>
+      <DefaultModal
+        animationType="fade"
+        overlay={false}
+        modalPosiion="center"
+        modalVisible={modalVisible === ModalTypes.CHANGE_ROLE}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        <ChangeRoleModal
+          instance={instance}
+          peerTrackNode={updatePeerTrackNode}
+          cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
+        />
+      </DefaultModal>
+      <DefaultModal
+        animationType="fade"
+        overlay={false}
+        modalPosiion="center"
+        modalVisible={modalVisible === ModalTypes.VOLUME}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        <ChangeVolumeModal
+          instance={instance}
+          peerTrackNode={updatePeerTrackNode}
+          cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
+        />
+      </DefaultModal>
+      <DefaultModal
+        animationType="fade"
+        overlay={false}
+        modalPosiion="center"
+        modalVisible={modalVisible === ModalTypes.CHANGE_NAME}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        <ChangeNameModal
+          instance={instance}
+          peerTrackNode={updatePeerTrackNode}
+          cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
+        />
+      </DefaultModal>
     </SafeAreaView>
   );
 };

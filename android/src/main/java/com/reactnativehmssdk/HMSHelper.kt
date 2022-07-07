@@ -7,6 +7,7 @@ import android.os.Handler
 import android.util.Base64
 import android.util.Log
 import android.view.PixelCopy
+import android.webkit.URLUtil
 import androidx.annotation.RequiresApi
 import com.facebook.react.bridge.*
 import com.facebook.react.bridge.ReadableArray
@@ -17,10 +18,7 @@ import java.util.*
 import live.hms.video.error.HMSException
 import live.hms.video.media.codec.HMSAudioCodec
 import live.hms.video.media.codec.HMSVideoCodec
-import live.hms.video.media.settings.HMSAudioTrackSettings
-import live.hms.video.media.settings.HMSTrackSettings
-import live.hms.video.media.settings.HMSVideoResolution
-import live.hms.video.media.settings.HMSVideoTrackSettings
+import live.hms.video.media.settings.*
 import live.hms.video.media.tracks.HMSRemoteAudioTrack
 import live.hms.video.media.tracks.HMSRemoteVideoTrack
 import live.hms.video.media.tracks.HMSTrack
@@ -296,7 +294,7 @@ object HMSHelper {
     }
   }
 
-  fun getRtmpUrls(rtmpURLsList: ReadableArray?): List<String> {
+  private fun getRtmpUrls(rtmpURLsList: ReadableArray?): List<String> {
     val rtmpURLs = mutableListOf<String>()
     if (rtmpURLsList !== null) {
       for (rtmpURL in rtmpURLsList.toArrayList()) {
@@ -355,6 +353,38 @@ object HMSHelper {
       meetingURLVariant = HMSHLSMeetingURLVariant(meetingUrl, metadata)
     }
     return meetingURLVariant
+  }
+
+  private fun getResolution(data: ReadableMap): HMSRtmpVideoResolution {
+    val height = data.getInt("height")
+    val width = data.getInt("width")
+    return HMSRtmpVideoResolution(width, height)
+  }
+
+  fun getRtmpConfig(data: ReadableMap): HMSRecordingConfig? {
+    val record = data.getBoolean("record")
+    var meetingURL = ""
+    var rtmpURLs = listOf<String>()
+    var resolution: HMSRtmpVideoResolution? = null
+    if (areAllRequiredKeysAvailable(data, arrayOf(Pair("meetingURL", "String")))) {
+      val meetingURLValid = data.getString("meetingURL") as String
+      if (URLUtil.isValidUrl(meetingURLValid)) {
+        meetingURL = meetingURLValid
+      } else {
+        return null
+      }
+    }
+
+    if (areAllRequiredKeysAvailable(data, arrayOf(Pair("rtmpURLs", "Array")))) {
+      val rtmpURLsValid = data.getArray("rtmpURLs")
+      rtmpURLs = this.getRtmpUrls(rtmpURLsValid)
+    }
+
+    if (areAllRequiredKeysAvailable(data, arrayOf(Pair("resolution", "Map")))) {
+      val resolutionValid = data.getMap("resolution")
+      resolution = resolutionValid?.let { this.getResolution(it) }
+    }
+    return HMSRecordingConfig(meetingURL, rtmpURLs, record, resolution)
   }
 
   fun getHmsConfig(credentials: ReadableMap): HMSConfig {

@@ -21,6 +21,7 @@ type GridViewProps = {
   instance?: HMSSDK;
   layout: LayoutParams;
   statsForNerds?: boolean;
+  orientation: boolean;
   rtcStats?: HMSRTCStatsReport;
   remoteAudioStats?: any;
   remoteVideoStats?: any;
@@ -32,6 +33,7 @@ type GridViewProps = {
   setPage: React.Dispatch<React.SetStateAction<number>>;
   setZoomableTrackId?: React.Dispatch<React.SetStateAction<string>>;
   setPinnedPeerTrackIds?: React.Dispatch<React.SetStateAction<String[]>>;
+  setUpdatePeerTrackNode?: React.Dispatch<React.SetStateAction<PeerTrackNode>>;
 };
 
 const GridView = ({
@@ -51,6 +53,8 @@ const GridView = ({
   localVideoStats,
   page,
   pinnedPeerTrackIds,
+  orientation,
+  setUpdatePeerTrackNode,
 }: GridViewProps) => {
   const {left, right, top, bottom} = useSafeAreaInsets();
   const flatlistRef = useRef<FlatList>(null);
@@ -65,7 +69,7 @@ const GridView = ({
       speakers.map(speaker => {
         if (
           speaker.peer.peerID === peerTrackNode.peer.peerID &&
-          speaker.track.source === peerTrackNode.track?.source
+          speaker.track?.source === peerTrackNode.track?.source
         ) {
           speaking = true;
         }
@@ -135,7 +139,13 @@ const GridView = ({
                   <View
                     key={view?.id}
                     style={{
-                      ...getHmsViewHeight(layout, item.length, top, bottom),
+                      ...getHmsViewHeight(
+                        layout,
+                        item.length,
+                        top,
+                        bottom,
+                        orientation,
+                      ),
                     }}>
                     <DisplayTrack
                       peerTrackNode={view}
@@ -152,6 +162,7 @@ const GridView = ({
                       localVideoStats={localVideoStats}
                       pinnedPeerTrackIds={pinnedPeerTrackIds}
                       setPinnedPeerTrackIds={setPinnedPeerTrackIds}
+                      setUpdatePeerTrackNode={setUpdatePeerTrackNode}
                     />
                   </View>
                 );

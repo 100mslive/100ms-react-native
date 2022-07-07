@@ -85,7 +85,7 @@ class HMSRNSDK(
 
   fun preview(credentials: ReadableMap) {
     if (previewInProgress) {
-      self.emitCustomError("PREVIEW_ALREADY_IN_PROGRESS")
+      self.emitCustomError("PREVIEW_IS_IN_PROGRESS")
       return
     }
     val requiredKeys =
@@ -611,17 +611,11 @@ class HMSRNSDK(
     val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("trackId", "String")))
     if (requiredKeys === null) {
       val trackId = data.getString("trackId")
-      val localTrack = HMSHelper.getTrackFromTrackId(trackId, hmsSDK?.getRoom())
-      if (localTrack == null) {
-        val track = HMSHelper.getTrackFromTrackId(trackId, hmsSDK?.getRoom())
-        if (track != null) {
-          val mute = track.isMute
-          callback?.resolve(mute)
-        } else {
-          callback?.reject("101", "NOT_FOUND")
-        }
+      val track = HMSHelper.getTrackFromTrackId(trackId, hmsSDK?.getRoom())
+      if (track == null) {
+        callback?.reject("101", "TRACK_NOT_FOUND")
       } else {
-        val mute = localTrack.isMute
+        val mute = track.isMute
         callback?.resolve(mute)
       }
     } else {
@@ -709,7 +703,7 @@ class HMSRNSDK(
       )
       recentRoleChangeRequest = null
     } else {
-      val errorMessage = "acceptRoleChange: recentRoleChangeRequest null"
+      val errorMessage = "acceptRoleChange: recentRoleChangeRequest not found"
       self.emitRequiredKeysError(errorMessage)
       rejectCallback(callback, errorMessage)
     }
@@ -802,7 +796,7 @@ class HMSRNSDK(
           callback?.resolve(isPlaybackAllowed)
         }
         else -> {
-          callback?.reject("101", "NOT_FOUND")
+          callback?.reject("101", "TRACK_NOT_FOUND")
         }
       }
     } else {
@@ -850,7 +844,7 @@ class HMSRNSDK(
             }
           }
         }
-        this.emitCustomError("TRACKID_NOT_MATCHED")
+        this.emitCustomError("TRACK_NOT_FOUND")
       } else {
         this.emitCustomError("REMOTE_PEERS_NOT_FOUND")
       }
@@ -914,27 +908,25 @@ class HMSRNSDK(
             arrayOf(Pair("record", "Boolean"), Pair("meetingURL", "String"))
         )
     if (requiredKeys === null) {
-      val record = data.getBoolean("record")
-      val meetingURL = data.getString("meetingURL") as String
-      var rtmpURLs = data.getArray("rtmpURLs")
-      if (rtmpURLs == null) {
-        rtmpURLs = Arguments.createArray()
+      val config = HMSHelper.getRtmpConfig(data)
+      if (config === null) {
+        val errorMessage = "startRTMPOrRecording: INVALID_MEETING_URL_PASSED"
+        self.emitRequiredKeysError(errorMessage)
+        rejectCallback(callback, errorMessage)
+      } else {
+        hmsSDK?.startRtmpOrRecording(
+            config,
+            object : HMSActionResultListener {
+              override fun onSuccess() {
+                callback?.resolve(emitHMSSuccess())
+              }
+              override fun onError(error: HMSException) {
+                callback?.reject(error.code.toString(), error.message)
+                self.emitHMSError(error)
+              }
+            }
+        )
       }
-      val rtmpURLsList = HMSHelper.getRtmpUrls(rtmpURLs)
-      val config = HMSRecordingConfig(meetingURL, rtmpURLsList, record)
-
-      hmsSDK?.startRtmpOrRecording(
-          config,
-          object : HMSActionResultListener {
-            override fun onSuccess() {
-              callback?.resolve(emitHMSSuccess())
-            }
-            override fun onError(error: HMSException) {
-              callback?.reject(error.code.toString(), error.message)
-              self.emitHMSError(error)
-            }
-          }
-      )
     } else {
       val errorMessage = "startRTMPOrRecording: $requiredKeys"
       self.emitRequiredKeysError(errorMessage)

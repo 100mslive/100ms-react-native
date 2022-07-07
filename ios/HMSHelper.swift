@@ -3,6 +3,19 @@ import Foundation
 
 class HMSHelper: NSObject {
 
+    static func getUnavailableRequiredKey(_ data: NSDictionary, _ requiredKeys: [String]) -> String {
+        for (key) in requiredKeys {
+            let value = data.object(forKey: key)
+            if (value == nil) {
+                return key + "_Is_Required"
+            }
+            if (value is NSNull) {
+                return key + "_Is_Null"
+            }
+        }
+        return "SEND_ALL_REQUIRED_KEYS"
+    }
+
     static func getPeerFromPeerId(_ peerID: String?, remotePeers: [HMSRemotePeer]?, localPeer: HMSLocalPeer?) -> HMSPeer? {
 
         guard let peerID = peerID, let peers = remotePeers else { return nil }

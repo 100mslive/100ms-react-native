@@ -102,6 +102,7 @@ const styles = StyleSheet.create({
     padding: 14,
     fontSize: 16,
     fontFamily: 'Inter-Bold',
+    textTransform: 'capitalize',
   },
   buttonItem: {
     borderTopWidth: 1,
