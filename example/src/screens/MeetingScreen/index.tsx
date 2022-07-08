@@ -42,6 +42,7 @@ import {
   HMSSpeaker,
   HMSHLSRecordingConfig,
   HMSTrackSource,
+  HMSException,
 } from '@100mslive/react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -602,27 +603,37 @@ const Meeting = () => {
   };
 
   const onLeavePress = async () => {
-    await instance?.leave();
     await instance
-      ?.destroy()
-      .then(d => console.log('Destroy Success: ', d))
-      .catch(e => console.log('Destroy Error: ', e));
-    dispatch(clearMessageData());
-    dispatch(clearPeerData());
-    dispatch(clearHmsReference());
-    navigate('QRCodeScreen');
+      ?.leave()
+      .then(async d => {
+        console.log('Leave Success: ', d);
+        await instance
+          ?.destroy()
+          .then(s => console.log('Destroy Success: ', s))
+          .catch(e => console.log('Destroy Error: ', e));
+        dispatch(clearMessageData());
+        dispatch(clearPeerData());
+        dispatch(clearHmsReference());
+        navigate('QRCodeScreen');
+      })
+      .catch(e => console.log('Leave Error: ', e));
   };
 
   const onEndRoomPress = async () => {
-    await instance?.endRoom('Host ended the room');
     await instance
-      ?.destroy()
-      .then(d => console.log('Destroy Success: ', d))
-      .catch(e => console.log('Destroy Error: ', e));
-    dispatch(clearMessageData());
-    dispatch(clearPeerData());
-    dispatch(clearHmsReference());
-    navigate('QRCodeScreen');
+      ?.endRoom('Host ended the room')
+      .then(async d => {
+        console.log('Leave Success: ', d);
+        await instance
+          ?.destroy()
+          .then(s => console.log('Destroy Success: ', s))
+          .catch(e => console.log('Destroy Error: ', e));
+        dispatch(clearMessageData());
+        dispatch(clearPeerData());
+        dispatch(clearHmsReference());
+        navigate('QRCodeScreen');
+      })
+      .catch(e => console.log('Leave Error: ', e));
   };
 
   const onRaiseHandPress = () => {
@@ -931,6 +942,25 @@ const Meeting = () => {
     onLeavePress();
   };
 
+  const onError = (data: HMSException) => {
+    console.log('data in onError: ', data);
+    Toast.showWithGravity(
+      data?.error?.message || 'Something went wrong',
+      Toast.LONG,
+      Toast.TOP,
+    );
+    if (data?.error?.code === 4005) {
+      hmsInstance
+        ?.destroy()
+        .then(s => console.log('Destroy Success: ', s))
+        .catch(e => console.log('Destroy Error: ', e));
+      dispatch(clearMessageData());
+      dispatch(clearPeerData());
+      dispatch(clearHmsReference());
+      navigate('QRCodeScreen');
+    }
+  };
+
   const updateHmsInstance = (hms: HMSSDK | undefined) => {
     console.log('data in updateHmsInstance: ', hms);
     setInstance(hms);
@@ -947,6 +977,7 @@ const Meeting = () => {
       HMSUpdateListenerActions.ON_TRACK_UPDATE,
       onTrackListener,
     );
+    hms?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
     hms?.addEventListener(HMSUpdateListenerActions.ON_MESSAGE, onMessage);
     hms?.addEventListener(HMSUpdateListenerActions.ON_SPEAKER, onSpeaker);
     hms?.addEventListener(HMSUpdateListenerActions.RECONNECTING, reconnecting);

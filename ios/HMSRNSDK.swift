@@ -17,6 +17,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     var id: String = "12345"
     var rtcStatsAttached = false
     var recentPreviewTracks: [HMSTrack]? = []
+    private var reconnectingStage: Bool = false
 
     let ON_PREVIEW = "ON_PREVIEW"
     let ON_JOIN = "ON_JOIN"
@@ -192,18 +193,22 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func leave(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        DispatchQueue.main.async { [weak self] in
-            guard let strongSelf = self else { return }
-            self?.config = nil
-            self?.recentRoleChangeRequest = nil
-            self?.hms?.leave({ success, error in
-                if success {
-                    resolve?("")
-                } else {
-                    strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["event": strongSelf.ON_ERROR, "error": HMSDecoder.getError(error), "id": strongSelf.id])
-                    reject?(nil, "error in leave", nil)
-                }
-            })
+        if(reconnectingStage) {
+            reject?("101", "Still in reconnecting stage", nil)
+        } else {
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return }
+                self?.config = nil
+                self?.recentRoleChangeRequest = nil
+                self?.hms?.leave({ success, error in
+                    if success {
+                        resolve?("")
+                    } else {
+                        strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["event": strongSelf.ON_ERROR, "error": HMSDecoder.getError(error), "id": strongSelf.id])
+                        reject?(nil, "error in leave", nil)
+                    }
+                })
+            }
         }
     }
 
@@ -875,10 +880,12 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func onReconnecting() {
-        self.delegate?.emitEvent(RECONNECTING, ["event": RECONNECTING, "id": self.id ])
+        reconnectingStage = true
+        self.delegate?.emitEvent(RECONNECTING, ["event": RECONNECTING, "error": ["code": HMSErrorCode.websocketConnectionLost, "description": "Software caused connection abort", "localizedDescription": "Network connection lost ", "debugDescription": "Network connection lost ", "message": "Network connection lost ", "name": "WebSocketConnectionLost", "action": "NONE", "id": 101], "id": self.id ])
     }
 
     func onReconnected() {
+        reconnectingStage = false
         self.delegate?.emitEvent(RECONNECTED, ["event": RECONNECTED, "id": self.id ])
     }
 
