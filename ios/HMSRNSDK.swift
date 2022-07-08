@@ -140,7 +140,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             emitRequiredKeysError(errorMessage)
             return
         }
-
+        reconnectingStage = false
         let metadata = credentials.value(forKey: "metadata") as? String
         let captureNetworkQualityInPreview = credentials.value(forKey: "captureNetworkQualityInPreview") as? Bool ?? false
 

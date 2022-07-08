@@ -623,7 +623,7 @@ const Meeting = () => {
     await instance
       ?.endRoom('Host ended the room')
       .then(async d => {
-        console.log('Leave Success: ', d);
+        console.log('EndRoom Success: ', d);
         await instance
           ?.destroy()
           .then(s => console.log('Destroy Success: ', s))
@@ -633,7 +633,7 @@ const Meeting = () => {
         dispatch(clearHmsReference());
         navigate('QRCodeScreen');
       })
-      .catch(e => console.log('Leave Error: ', e));
+      .catch(e => console.log('EndRoom Error: ', e));
   };
 
   const onRaiseHandPress = () => {

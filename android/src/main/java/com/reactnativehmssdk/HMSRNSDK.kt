@@ -182,6 +182,7 @@ class HMSRNSDK(
             arrayOf(Pair("username", "String"), Pair("authToken", "String"))
         )
     if (requiredKeys === null) {
+      reconnectingStage = false
       val config = HMSHelper.getHmsConfig(credentials)
 
       HMSCoroutineScope.launch {
