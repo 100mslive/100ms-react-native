@@ -31,6 +31,7 @@ class HMSRNSDK(
   private var recentRoleChangeRequest: HMSRoleChangeRequest? = null
   private var context: ReactApplicationContext = reactApplicationContext
   private var previewInProgress: Boolean = false
+  private var reconnectingStage: Boolean = false
   private var id: String = sdkId
   private var self = this
 
@@ -312,6 +313,7 @@ class HMSRNSDK(
                 }
 
                 override fun onReconnected() {
+                  reconnectingStage = false
                   val data: WritableMap = Arguments.createMap()
                   data.putString("event", "RECONNECTED")
                   data.putString("id", id)
@@ -319,7 +321,9 @@ class HMSRNSDK(
                 }
 
                 override fun onReconnecting(error: HMSException) {
+                  reconnectingStage = true
                   val data: WritableMap = Arguments.createMap()
+                  data.putMap("error", HMSDecoder.getError(error))
                   data.putString("event", "RECONNECTING")
                   data.putString("id", id)
                   delegate.emitEvent("RECONNECTING", data)
@@ -380,19 +384,23 @@ class HMSRNSDK(
   }
 
   fun leave(callback: Promise?) {
-    hmsSDK?.leave(
-        object : HMSActionResultListener {
-          override fun onSuccess() {
-            screenshareCallback = null
-            callback?.resolve(emitHMSSuccess())
-          }
+    if (reconnectingStage) {
+      callback?.reject("101", "Still in reconnecting stage")
+    } else {
+      hmsSDK?.leave(
+          object : HMSActionResultListener {
+            override fun onSuccess() {
+              screenshareCallback = null
+              callback?.resolve(emitHMSSuccess())
+            }
 
-          override fun onError(error: HMSException) {
-            callback?.reject(error.code.toString(), error.message)
-            self.emitHMSError(error)
+            override fun onError(error: HMSException) {
+              callback?.reject(error.code.toString(), error.message)
+              self.emitHMSError(error)
+            }
           }
-        }
-    )
+      )
+    }
   }
 
   fun sendBroadcastMessage(data: ReadableMap, callback: Promise?) {
