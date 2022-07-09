@@ -202,7 +202,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 self?.recentRoleChangeRequest = nil
                 self?.hms?.leave({ success, error in
                     if success {
-                        resolve?("")
+                        resolve?(["success": success])
                     } else {
                         strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["event": strongSelf.ON_ERROR, "error": HMSDecoder.getError(error), "id": strongSelf.id])
                         reject?(nil, "error in leave", nil)
@@ -303,7 +303,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
             self?.hms?.accept(changeRole: request, completion: { success, error in
                 if success {
-                    resolve?(["success": true])
+                    resolve?(["success": success])
                 } else {
                     self?.delegate?.emitEvent("ON_ERROR", ["event": self?.ON_ERROR ?? "", "error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
                     reject?(error?.message, error?.localizedDescription, nil)
@@ -334,7 +334,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
             self?.hms?.changeRole(for: peer, to: role, force: force, completion: { success, error in
                 if success {
-                    resolve?(["success": true])
+                    resolve?(["success": success])
                 } else {
                     self?.delegate?.emitEvent("ON_ERROR", ["event": self?.ON_ERROR ?? "", "error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
                     reject?(error?.message, error?.localizedDescription, nil)
@@ -365,7 +365,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
             self?.hms?.changeTrackState(for: track, mute: mute, completion: { success, error in
                 if success {
-                    resolve?(["success": true])
+                    resolve?(["success": success])
                 } else {
                     self?.delegate?.emitEvent("ON_ERROR", ["event": self?.ON_ERROR ?? "", "error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
                     reject?(error?.message, error?.localizedDescription, nil)
@@ -400,7 +400,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             let encodedTargetedRoles = HMSHelper.getRolesFromRoleNames(targetedRoles, roles: self?.hms?.roles)
             self?.hms?.changeTrackState(mute: mute, for: decodeType, source: source, roles: encodedTargetedRoles, completion: { success, error in
                 if success {
-                    resolve?(["success": true])
+                    resolve?(["success": success])
                 } else {
                     self?.delegate?.emitEvent("ON_ERROR", ["event": self?.ON_ERROR ?? "", "error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
                     reject?(error?.message, error?.localizedDescription, nil)
@@ -463,7 +463,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
             self?.hms?.removePeer(peer, reason: reason ?? "Removed from room", completion: { success, error in
                 if success {
-                    resolve?(["success": true])
+                    resolve?(["success": success])
                 } else {
                     self?.delegate?.emitEvent("ON_ERROR", ["event": self?.ON_ERROR ?? "", "error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
                     reject?(error?.message, error?.localizedDescription, nil)
@@ -486,7 +486,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         DispatchQueue.main.async { [weak self] in
             self?.hms?.endRoom(lock: lock, reason: reason, completion: { success, error in
                 if success {
-                    resolve?(["success": true])
+                    resolve?(["success": success])
                 } else {
                     self?.delegate?.emitEvent("ON_ERROR", ["event": self?.ON_ERROR ?? "", "error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
                     reject?(error?.message, error?.localizedDescription, nil)
@@ -734,7 +734,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
     
-    func remoteMuteAllAudio() {
+    func remoteMuteAllAudio(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let allAudioTracks = HMSUtilities.getAllAudioTracks(in: (self.hms?.room)!!)
         var customError: HMSError? = nil
         for audioTrack in allAudioTracks {
@@ -745,8 +745,10 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 }
             })
         }
-        if (customError != nil) {
-            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HMSDecoder.getError(customError), "id": id])
+        if (customError === nil) {
+            resolve?(["success": true])
+        } else {
+            reject?(customError?.message, customError?.localizedDescription, nil)
         }
     }
 

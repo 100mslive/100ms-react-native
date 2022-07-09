@@ -510,9 +510,9 @@ export class HMSSDK {
    * @param {string}
    * @memberof HMSSDK
    */
-  changeMetadata = (metadata: string) => {
+  changeMetadata = async (metadata: string) => {
     logger?.verbose('#Function changeMetadata', { metadata, id: this.id });
-    HMSManager.changeMetadata({ metadata, id: this.id });
+    return await HMSManager.changeMetadata({ metadata, id: this.id });
   };
 
   /**
@@ -754,9 +754,9 @@ export class HMSSDK {
    *
    * @memberof HMSSDK
    */
-  remoteMuteAllAudio = () => {
+  remoteMuteAllAudio = async () => {
     logger?.verbose('#Function remoteMuteAllAudio', { id: this.id });
-    HMSManager.remoteMuteAllAudio({ id: this.id });
+    return await HMSManager.remoteMuteAllAudio({ id: this.id });
   };
 
   /**

@@ -401,14 +401,17 @@ const Meeting = () => {
           },
           {
             text: parsedMetadata?.isBRBOn ? 'Remove BRB' : 'Set BRB',
-            onPress: () => {
-              instance?.changeMetadata(
-                JSON.stringify({
-                  ...parsedMetadata,
-                  isBRBOn: !parsedMetadata?.isBRBOn,
-                  isHandRaised: false,
-                }),
-              );
+            onPress: async () => {
+              await instance
+                ?.changeMetadata(
+                  JSON.stringify({
+                    ...parsedMetadata,
+                    isBRBOn: !parsedMetadata?.isBRBOn,
+                    isHandRaised: false,
+                  }),
+                )
+                .then(d => console.log('Change Metadata Success: ', d))
+                .catch(e => console.log('Change Metadata Error: ', e));
             },
           },
           {
@@ -449,8 +452,15 @@ const Meeting = () => {
             ...[
               {
                 text: 'Remote mute all peers audio',
-                onPress: () => {
-                  instance?.remoteMuteAllAudio();
+                onPress: async () => {
+                  await instance
+                    ?.remoteMuteAllAudio()
+                    .then(d =>
+                      console.log('Remote Mute All Audio Success: ', d),
+                    )
+                    .catch(e =>
+                      console.log('Remote Mute All Audio Error: ', e),
+                    );
                 },
               },
               {
@@ -636,14 +646,17 @@ const Meeting = () => {
       .catch(e => console.log('Leave Error: ', e));
   };
 
-  const onRaiseHandPress = () => {
-    instance?.changeMetadata(
-      JSON.stringify({
-        ...parsedMetadata,
-        isHandRaised: !parsedMetadata?.isHandRaised,
-        isBRBOn: false,
-      }),
-    );
+  const onRaiseHandPress = async () => {
+    await instance
+      ?.changeMetadata(
+        JSON.stringify({
+          ...parsedMetadata,
+          isHandRaised: !parsedMetadata?.isHandRaised,
+          isBRBOn: false,
+        }),
+      )
+      .then(d => console.log('Change Metadata Success: ', d))
+      .catch(e => console.log('Change Metadata Error: ', e));
   };
 
   const onSwitchCameraPress = () => {

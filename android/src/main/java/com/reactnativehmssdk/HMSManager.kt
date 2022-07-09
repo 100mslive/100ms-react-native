@@ -202,10 +202,10 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun remoteMuteAllAudio(data: ReadableMap) {
+  fun remoteMuteAllAudio(data: ReadableMap, callback: Promise?) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
-    hms?.remoteMuteAllAudio()
+    hms?.remoteMuteAllAudio(callback)
   }
 
   @ReactMethod

@@ -717,7 +717,7 @@ class HMSRNSDK(
     }
   }
 
-  fun remoteMuteAllAudio() {
+  fun remoteMuteAllAudio(callback: Promise?) {
     val allAudioTracks = hmsSDK?.getRoom()?.let { HmsUtilities.getAllAudioTracks(it) }
     if (allAudioTracks != null) {
       var customError: HMSException? = null
@@ -733,10 +733,13 @@ class HMSRNSDK(
             }
         )
       }
-      if (customError != null) {
-        self.emitHMSError(customError!!)
+      if (customError === null) {
+        callback?.resolve(emitHMSSuccess())
+      } else {
+        rejectCallback(callback, customError!!.message)
       }
     }
+    rejectCallback(callback, "Audio tracks not found")
   }
 
   fun setPlaybackForAllAudio(data: ReadableMap) {
