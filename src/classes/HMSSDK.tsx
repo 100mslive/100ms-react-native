@@ -110,8 +110,8 @@ export class HMSSDK {
    * @param {HMSLogger} hmsLogger
    * @memberof HMSSDK
    */
-  setLogger = (hmsLogger: HMSLogger) => {
-    setLogger(hmsLogger, this.id);
+  setLogger = (hmsLogger?: HMSLogger) => {
+    setLogger(this.id, hmsLogger);
   };
 
   /**
@@ -510,9 +510,9 @@ export class HMSSDK {
    * @param {string}
    * @memberof HMSSDK
    */
-  changeMetadata = (metadata: string) => {
+  changeMetadata = async (metadata: string) => {
     logger?.verbose('#Function changeMetadata', { metadata, id: this.id });
-    HMSManager.changeMetadata({ metadata, id: this.id });
+    return await HMSManager.changeMetadata({ metadata, id: this.id });
   };
 
   /**
@@ -754,9 +754,9 @@ export class HMSSDK {
    *
    * @memberof HMSSDK
    */
-  remoteMuteAllAudio = () => {
+  remoteMuteAllAudio = async () => {
     logger?.verbose('#Function remoteMuteAllAudio', { id: this.id });
-    HMSManager.remoteMuteAllAudio({ id: this.id });
+    return await HMSManager.remoteMuteAllAudio({ id: this.id });
   };
 
   /**
@@ -1093,7 +1093,6 @@ export class HMSSDK {
     if (data.id !== this.id) {
       return;
     }
-    logger?.verbose('#Listener ON_PREVIEW', data);
     const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room, this.id);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
       data.localPeer,
@@ -1112,6 +1111,8 @@ export class HMSSDK {
         previewTracks,
       });
       this.onPreviewDelegate({ ...data, room, localPeer, previewTracks });
+    } else {
+      logger?.verbose('#Listener ON_PREVIEW', data);
     }
   };
 
@@ -1119,7 +1120,6 @@ export class HMSSDK {
     if (data.id !== this.id) {
       return;
     }
-    logger?.verbose('#LISTENER ON_JOIN', data);
     // Preprocessing
     const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room, this.id);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
@@ -1143,6 +1143,8 @@ export class HMSSDK {
         remotePeers,
       });
       this.onJoinDelegate({ ...data, room, localPeer, remotePeers });
+    } else {
+      logger?.verbose('#LISTENER ON_JOIN', data);
     }
   };
 
@@ -1150,7 +1152,6 @@ export class HMSSDK {
     if (data.id !== this.id) {
       return;
     }
-    logger?.verbose('#Listener ON_ROOM', data);
     const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room, this.id);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
       data.localPeer,
@@ -1171,6 +1172,8 @@ export class HMSSDK {
         remotePeers,
       });
       this.onRoomDelegate({ ...data, room, localPeer, remotePeers });
+    } else {
+      logger?.verbose('#Listener ON_ROOM', data);
     }
   };
 
@@ -1178,7 +1181,6 @@ export class HMSSDK {
     if (data.id !== this.id) {
       return;
     }
-    logger?.verbose('#Listener ON_PEER', data);
     const peer: HMSPeer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
     const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room, this.id);
     const localPeer: HMSLocalPeer = HMSEncoder.encodeHmsLocalPeer(
@@ -1194,8 +1196,16 @@ export class HMSSDK {
     this.remotePeers = remotePeers;
     this.room = room;
     if (this.onPeerDelegate) {
-      logger?.verbose('#Listener ON_PEER_LISTENER_CALL', data);
+      logger?.verbose('#Listener ON_PEER_LISTENER_CALL', {
+        ...data,
+        localPeer,
+        remotePeers,
+        room,
+        peer,
+      });
       this.onPeerDelegate({ ...data, localPeer, remotePeers, room, peer });
+    } else {
+      logger?.verbose('#Listener ON_PEER', data);
     }
   };
 
@@ -1203,7 +1213,6 @@ export class HMSSDK {
     if (data.id !== this.id) {
       return;
     }
-    logger?.verbose('#Listener ON_TRACK', data);
     const track: HMSTrack = HMSEncoder.encodeHmsTrack(data.track, this.id);
     const peer: HMSPeer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
     const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room, this.id);
@@ -1226,7 +1235,14 @@ export class HMSSDK {
     this.localPeer = localPeer;
     this.remotePeers = remotePeers;
     if (this.onTrackDelegate) {
-      logger?.verbose('#Listener ON_TRACK_LISTENER_CALL', data);
+      logger?.verbose('#Listener ON_TRACK_LISTENER_CALL', {
+        ...data,
+        localPeer,
+        remotePeers,
+        room,
+        peer,
+        track,
+      });
       this.onTrackDelegate({
         ...data,
         localPeer,
@@ -1235,6 +1251,8 @@ export class HMSSDK {
         peer,
         track,
       });
+    } else {
+      logger?.verbose('#Listener ON_TRACK', data);
     }
   };
 
@@ -1242,11 +1260,12 @@ export class HMSSDK {
     if (data.id !== this.id) {
       return;
     }
-    logger?.verbose('#Listener ON_MESSAGE', data);
     const message = HMSEncoder.encodeHMSMessage(data, this.id);
     if (this.onMessageDelegate) {
       logger?.verbose('#Listener ON_MESSAGE_LISTENER_CALL', message);
       this.onMessageDelegate(message);
+    } else {
+      logger?.verbose('#Listener ON_MESSAGE', data);
     }
   };
 
@@ -1254,12 +1273,13 @@ export class HMSSDK {
     if (data.id !== this.id) {
       return;
     }
-    logger?.verbose('#Listener ON_SPEAKER', data?.speakers);
     if (this.onSpeakerDelegate) {
       logger?.verbose('#Listener ON_SPEAKER_LISTENER_CALL', data?.speakers);
       this.onSpeakerDelegate(
         HMSEncoder.encodeHmsSpeakers(data?.speakers, this.id)
       );
+    } else {
+      logger?.verbose('#Listener ON_SPEAKER', data?.speakers);
     }
   };
 
@@ -1267,12 +1287,13 @@ export class HMSSDK {
     if (data.id !== this.id) {
       return;
     }
-    logger?.warn('#Listener ON_ERROR', data);
-    logger?.verbose('#Listener ON_ERROR', data);
     if (this.onErrorDelegate) {
       logger?.verbose('#Listener ON_ERROR_LISTENER_CALL', data);
       logger?.warn('#Listener ON_ERROR_LISTENER_CALL', data);
       this.onErrorDelegate(data);
+    } else {
+      logger?.warn('#Listener ON_ERROR', data);
+      logger?.verbose('#Listener ON_ERROR', data);
     }
   };
 
@@ -1280,7 +1301,6 @@ export class HMSSDK {
     if (data.id !== this.id) {
       return;
     }
-    logger?.verbose('#Listener ON_ROLE_CHANGE_REQUEST', data);
     if (this.onRoleChangeRequestDelegate) {
       const encodedRoleChangeRequest = HMSEncoder.encodeHmsRoleChangeRequest(
         data,
@@ -1291,6 +1311,8 @@ export class HMSSDK {
         encodedRoleChangeRequest
       );
       this.onRoleChangeRequestDelegate(encodedRoleChangeRequest);
+    } else {
+      logger?.verbose('#Listener ON_ROLE_CHANGE_REQUEST', data);
     }
   };
 
@@ -1298,7 +1320,6 @@ export class HMSSDK {
     if (data.id !== this.id) {
       return;
     }
-    logger?.verbose('#Listener ON_CHANGE_TRACK_STATE_REQUEST', data);
     if (this.onChangeTrackStateRequestDelegate) {
       const encodedRoleChangeRequest =
         HMSEncoder.encodeHmsChangeTrackStateRequest(data, this.id);
@@ -1307,6 +1328,8 @@ export class HMSSDK {
         encodedRoleChangeRequest
       );
       this.onChangeTrackStateRequestDelegate(encodedRoleChangeRequest);
+    } else {
+      logger?.verbose('#Listener ON_CHANGE_TRACK_STATE_REQUEST', data);
     }
   };
 
@@ -1314,7 +1337,6 @@ export class HMSSDK {
     if (data.id !== this.id) {
       return;
     }
-    logger?.verbose('#Listener ON_REMOVED_FROM_ROOM', data);
     if (this.onRemovedFromRoomDelegate) {
       let requestedBy = null;
       if (data.requestedBy) {
@@ -1330,6 +1352,8 @@ export class HMSSDK {
         id: this.id,
       });
       this.onRemovedFromRoomDelegate({ requestedBy, reason, roomEnded });
+    } else {
+      logger?.verbose('#Listener ON_REMOVED_FROM_ROOM', data);
     }
   };
 
@@ -1337,9 +1361,11 @@ export class HMSSDK {
     if (data.id !== this.id) {
       return;
     }
-    logger?.verbose('#Listener ON_RECONNECTING', data);
     if (this.onReconnectingDelegate) {
+      logger?.verbose('#Listener ON_RECONNECTING_CALL', data);
       this.onReconnectingDelegate(data);
+    } else {
+      logger?.verbose('#Listener ON_RECONNECTING', data);
     }
   };
 
@@ -1349,7 +1375,10 @@ export class HMSSDK {
     }
     logger?.verbose('#Listener ON_RECONNECTED', data);
     if (this.onReconnectedDelegate) {
+      logger?.verbose('#Listener ON_RECONNECTED_CALL', data);
       this.onReconnectedDelegate(data);
+    } else {
+      logger?.verbose('#Listener ON_RECONNECTED', data);
     }
   };
 
@@ -1358,12 +1387,13 @@ export class HMSSDK {
       return;
     }
 
-    logger?.verbose('#Listener RTCStatsListener', data);
-
     let rtcStats = HMSEncoder.encodeRTCStats(data);
 
     if (this.onRtcStatsDelegate) {
+      logger?.verbose('#Listener RTCStatsListener_CALL', { rtcStats });
       this.onRtcStatsDelegate({ rtcStats });
+    } else {
+      logger?.verbose('#Listener RTCStatsListener', data);
     }
   };
 
@@ -1372,14 +1402,20 @@ export class HMSSDK {
       return;
     }
 
-    logger?.verbose('#Listener onLocalAudioStatsListener', data);
-
     let localAudioStats = new HMSLocalAudioStats(data.localAudioStats);
     let peer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
     let track = HMSEncoder.encodeHmsLocalAudioTrack(data.track, this.id);
 
     if (this.onLocalAudioStatsDelegate) {
+      logger?.verbose('#Listener onLocalAudioStatsListener_CALL', {
+        ...data,
+        localAudioStats,
+        peer,
+        track,
+      });
       this.onLocalAudioStatsDelegate({ ...data, localAudioStats, peer, track });
+    } else {
+      logger?.verbose('#Listener onLocalAudioStatsListener', data);
     }
   };
 
@@ -1388,14 +1424,20 @@ export class HMSSDK {
       return;
     }
 
-    logger?.verbose('#Listener onLocalVideoStatsListener', data);
-
     let localVideoStats = new HMSLocalVideoStats(data.localVideoStats);
     let peer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
     let track = HMSEncoder.encodeHmsLocalVideoTrack(data.track, this.id);
 
     if (this.onLocalVideoStatsDelegate) {
+      logger?.verbose('#Listener onLocalVideoStatsListener_CALL', {
+        ...data,
+        localVideoStats,
+        peer,
+        track,
+      });
       this.onLocalVideoStatsDelegate({ ...data, localVideoStats, peer, track });
+    } else {
+      logger?.verbose('#Listener onLocalVideoStatsListener', data);
     }
   };
 
@@ -1404,19 +1446,25 @@ export class HMSSDK {
       return;
     }
 
-    logger?.verbose('#Listener onRemoteAudioStatsListener', data);
-
     let remoteAudioStats = new HMSRemoteAudioStats(data.remoteAudioStats);
     let peer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
     let track = HMSEncoder.encodeHmsRemoteAudioTrack(data.track, this.id);
 
     if (this.onRemoteAudioStatsDelegate) {
+      logger?.verbose('#Listener onRemoteAudioStatsListener_CALL', {
+        ...data,
+        remoteAudioStats,
+        peer,
+        track,
+      });
       this.onRemoteAudioStatsDelegate({
         ...data,
         remoteAudioStats,
         peer,
         track,
       });
+    } else {
+      logger?.verbose('#Listener onRemoteAudioStatsListener', data);
     }
   };
 
@@ -1425,19 +1473,25 @@ export class HMSSDK {
       return;
     }
 
-    logger?.verbose('#Listener onRemoteVideoStatsListener', data);
-
     let remoteVideoStats = new HMSRemoteVideoStats(data.remoteVideoStats);
     let peer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
     let track = HMSEncoder.encodeHmsRemoteVideoTrack(data.track, this.id);
 
     if (this.onRemoteVideoStatsDelegate) {
+      logger?.verbose('#Listener onRemoteVideoStatsListener_CALL', {
+        ...data,
+        remoteVideoStats,
+        peer,
+        track,
+      });
       this.onRemoteVideoStatsDelegate({
         ...data,
         remoteVideoStats,
         peer,
         track,
       });
+    } else {
+      logger?.verbose('#Listener onRemoteVideoStatsListener', data);
     }
   };
 }

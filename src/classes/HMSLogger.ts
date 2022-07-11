@@ -6,9 +6,9 @@ export const getLogger = () => {
   return logger;
 };
 
-export const setLogger = (hmsLogger: HMSLogger, id: string) => {
+export const setLogger = (id: string, hmsLogger?: HMSLogger) => {
   logger = hmsLogger;
-  hmsLogger.verbose('#Function setLogger', { id });
+  hmsLogger?.verbose('#Function setLogger', { id });
 };
 
 export class HMSLogger {

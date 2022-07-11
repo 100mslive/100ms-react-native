@@ -31,6 +31,7 @@ class HMSRNSDK(
   private var recentRoleChangeRequest: HMSRoleChangeRequest? = null
   private var context: ReactApplicationContext = reactApplicationContext
   private var previewInProgress: Boolean = false
+  private var reconnectingStage: Boolean = false
   private var id: String = sdkId
   private var self = this
 
@@ -181,6 +182,7 @@ class HMSRNSDK(
             arrayOf(Pair("username", "String"), Pair("authToken", "String"))
         )
     if (requiredKeys === null) {
+      reconnectingStage = false
       val config = HMSHelper.getHmsConfig(credentials)
 
       HMSCoroutineScope.launch {
@@ -312,6 +314,7 @@ class HMSRNSDK(
                 }
 
                 override fun onReconnected() {
+                  reconnectingStage = false
                   val data: WritableMap = Arguments.createMap()
                   data.putString("event", "RECONNECTED")
                   data.putString("id", id)
@@ -319,7 +322,9 @@ class HMSRNSDK(
                 }
 
                 override fun onReconnecting(error: HMSException) {
+                  reconnectingStage = true
                   val data: WritableMap = Arguments.createMap()
+                  data.putMap("error", HMSDecoder.getError(error))
                   data.putString("event", "RECONNECTING")
                   data.putString("id", id)
                   delegate.emitEvent("RECONNECTING", data)
@@ -380,19 +385,23 @@ class HMSRNSDK(
   }
 
   fun leave(callback: Promise?) {
-    hmsSDK?.leave(
-        object : HMSActionResultListener {
-          override fun onSuccess() {
-            screenshareCallback = null
-            callback?.resolve(emitHMSSuccess())
-          }
+    if (reconnectingStage) {
+      callback?.reject("101", "Still in reconnecting stage")
+    } else {
+      hmsSDK?.leave(
+          object : HMSActionResultListener {
+            override fun onSuccess() {
+              screenshareCallback = null
+              callback?.resolve(emitHMSSuccess())
+            }
 
-          override fun onError(error: HMSException) {
-            callback?.reject(error.code.toString(), error.message)
-            self.emitHMSError(error)
+            override fun onError(error: HMSException) {
+              callback?.reject(error.code.toString(), error.message)
+              self.emitHMSError(error)
+            }
           }
-        }
-    )
+      )
+    }
   }
 
   fun sendBroadcastMessage(data: ReadableMap, callback: Promise?) {
@@ -709,7 +718,7 @@ class HMSRNSDK(
     }
   }
 
-  fun remoteMuteAllAudio() {
+  fun remoteMuteAllAudio(callback: Promise?) {
     val allAudioTracks = hmsSDK?.getRoom()?.let { HmsUtilities.getAllAudioTracks(it) }
     if (allAudioTracks != null) {
       var customError: HMSException? = null
@@ -725,10 +734,13 @@ class HMSRNSDK(
             }
         )
       }
-      if (customError != null) {
-        self.emitHMSError(customError!!)
+      if (customError === null) {
+        callback?.resolve(emitHMSSuccess())
+      } else {
+        rejectCallback(callback, customError!!.message)
       }
     }
+    rejectCallback(callback, "Audio tracks not found")
   }
 
   fun setPlaybackForAllAudio(data: ReadableMap) {

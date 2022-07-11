@@ -42,6 +42,7 @@ import {
   HMSSpeaker,
   HMSHLSRecordingConfig,
   HMSTrackSource,
+  HMSException,
 } from '@100mslive/react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -400,14 +401,17 @@ const Meeting = () => {
           },
           {
             text: parsedMetadata?.isBRBOn ? 'Remove BRB' : 'Set BRB',
-            onPress: () => {
-              instance?.changeMetadata(
-                JSON.stringify({
-                  ...parsedMetadata,
-                  isBRBOn: !parsedMetadata?.isBRBOn,
-                  isHandRaised: false,
-                }),
-              );
+            onPress: async () => {
+              await instance
+                ?.changeMetadata(
+                  JSON.stringify({
+                    ...parsedMetadata,
+                    isBRBOn: !parsedMetadata?.isBRBOn,
+                    isHandRaised: false,
+                  }),
+                )
+                .then(d => console.log('Change Metadata Success: ', d))
+                .catch(e => console.log('Change Metadata Error: ', e));
             },
           },
           {
@@ -448,8 +452,15 @@ const Meeting = () => {
             ...[
               {
                 text: 'Remote mute all peers audio',
-                onPress: () => {
-                  instance?.remoteMuteAllAudio();
+                onPress: async () => {
+                  await instance
+                    ?.remoteMuteAllAudio()
+                    .then(d =>
+                      console.log('Remote Mute All Audio Success: ', d),
+                    )
+                    .catch(e =>
+                      console.log('Remote Mute All Audio Error: ', e),
+                    );
                 },
               },
               {
@@ -602,37 +613,50 @@ const Meeting = () => {
   };
 
   const onLeavePress = async () => {
-    await instance?.leave();
     await instance
-      ?.destroy()
-      .then(d => console.log('Destroy Success: ', d))
-      .catch(e => console.log('Destroy Error: ', e));
-    dispatch(clearMessageData());
-    dispatch(clearPeerData());
-    dispatch(clearHmsReference());
-    navigate('QRCodeScreen');
+      ?.leave()
+      .then(async d => {
+        console.log('Leave Success: ', d);
+        await instance
+          ?.destroy()
+          .then(s => console.log('Destroy Success: ', s))
+          .catch(e => console.log('Destroy Error: ', e));
+        dispatch(clearMessageData());
+        dispatch(clearPeerData());
+        dispatch(clearHmsReference());
+        navigate('QRCodeScreen');
+      })
+      .catch(e => console.log('Leave Error: ', e));
   };
 
   const onEndRoomPress = async () => {
-    await instance?.endRoom('Host ended the room');
     await instance
-      ?.destroy()
-      .then(d => console.log('Destroy Success: ', d))
-      .catch(e => console.log('Destroy Error: ', e));
-    dispatch(clearMessageData());
-    dispatch(clearPeerData());
-    dispatch(clearHmsReference());
-    navigate('QRCodeScreen');
+      ?.endRoom('Host ended the room')
+      .then(async d => {
+        console.log('EndRoom Success: ', d);
+        await instance
+          ?.destroy()
+          .then(s => console.log('Destroy Success: ', s))
+          .catch(e => console.log('Destroy Error: ', e));
+        dispatch(clearMessageData());
+        dispatch(clearPeerData());
+        dispatch(clearHmsReference());
+        navigate('QRCodeScreen');
+      })
+      .catch(e => console.log('EndRoom Error: ', e));
   };
 
-  const onRaiseHandPress = () => {
-    instance?.changeMetadata(
-      JSON.stringify({
-        ...parsedMetadata,
-        isHandRaised: !parsedMetadata?.isHandRaised,
-        isBRBOn: false,
-      }),
-    );
+  const onRaiseHandPress = async () => {
+    await instance
+      ?.changeMetadata(
+        JSON.stringify({
+          ...parsedMetadata,
+          isHandRaised: !parsedMetadata?.isHandRaised,
+          isBRBOn: false,
+        }),
+      )
+      .then(d => console.log('Change Metadata Success: ', d))
+      .catch(e => console.log('Change Metadata Error: ', e));
   };
 
   const onSwitchCameraPress = () => {
@@ -931,6 +955,25 @@ const Meeting = () => {
     onLeavePress();
   };
 
+  const onError = (data: HMSException) => {
+    console.log('data in onError: ', data);
+    Toast.showWithGravity(
+      data?.error?.message || 'Something went wrong',
+      Toast.LONG,
+      Toast.TOP,
+    );
+    if (data?.error?.code === 4005) {
+      hmsInstance
+        ?.destroy()
+        .then(s => console.log('Destroy Success: ', s))
+        .catch(e => console.log('Destroy Error: ', e));
+      dispatch(clearMessageData());
+      dispatch(clearPeerData());
+      dispatch(clearHmsReference());
+      navigate('QRCodeScreen');
+    }
+  };
+
   const updateHmsInstance = (hms: HMSSDK | undefined) => {
     console.log('data in updateHmsInstance: ', hms);
     setInstance(hms);
@@ -947,6 +990,7 @@ const Meeting = () => {
       HMSUpdateListenerActions.ON_TRACK_UPDATE,
       onTrackListener,
     );
+    hms?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
     hms?.addEventListener(HMSUpdateListenerActions.ON_MESSAGE, onMessage);
     hms?.addEventListener(HMSUpdateListenerActions.ON_SPEAKER, onSpeaker);
     hms?.addEventListener(HMSUpdateListenerActions.RECONNECTING, reconnecting);
