@@ -225,10 +225,10 @@ class HMSManager: RCTEventEmitter {
     }
     
     @objc
-    func remoteMuteAllAudio(_ data: NSDictionary) {
+    func remoteMuteAllAudio(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
-        hms?.remoteMuteAllAudio()
+        hms?.remoteMuteAllAudio(resolve, reject)
     }
 
     @objc
