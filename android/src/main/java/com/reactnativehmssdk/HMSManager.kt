@@ -290,6 +290,20 @@ class HMSManager(reactContext: ReactApplicationContext) :
     callback?.resolve(result)
   }
 
+  @ReactMethod
+  fun enableRTCStats(data: ReadableMap) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.enableRTCStats()
+  }
+
+  @ReactMethod
+  fun disableRTCStats(data: ReadableMap) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.disableRTCStats()
+  }
+
   fun emitEvent(event: String, data: WritableMap) {
     reactApplicationContext
         .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)

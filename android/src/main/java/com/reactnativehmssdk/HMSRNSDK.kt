@@ -6,10 +6,9 @@ import com.facebook.react.bridge.*
 import com.facebook.react.bridge.UiThreadUtil.runOnUiThread
 import java.util.*
 import kotlinx.coroutines.launch
+import live.hms.video.connection.stats.*
 import live.hms.video.error.HMSException
-import live.hms.video.media.tracks.HMSRemoteAudioTrack
-import live.hms.video.media.tracks.HMSTrack
-import live.hms.video.media.tracks.HMSTrackType
+import live.hms.video.media.tracks.*
 import live.hms.video.sdk.*
 import live.hms.video.sdk.models.*
 import live.hms.video.sdk.models.enums.HMSPeerUpdate
@@ -32,6 +31,7 @@ class HMSRNSDK(
   private var context: ReactApplicationContext = reactApplicationContext
   private var previewInProgress: Boolean = false
   private var reconnectingStage: Boolean = false
+  private var rtcStatsAttached: Boolean = false
   private var id: String = sdkId
   private var self = this
 
@@ -358,6 +358,109 @@ class HMSRNSDK(
                 data.putArray("speakers", peers)
                 data.putString("id", id)
                 delegate.emitEvent("ON_SPEAKER", data)
+              }
+            }
+        )
+
+        hmsSDK?.addRtcStatsObserver(
+            object : HMSStatsObserver {
+              override fun onLocalAudioStats(
+                  audioStats: HMSLocalAudioStats,
+                  hmsTrack: HMSTrack?,
+                  hmsPeer: HMSPeer?
+              ) {
+                if (!rtcStatsAttached) {
+                  return
+                }
+                val localAudioStats = HMSDecoder.getLocalAudioStats(audioStats)
+                val track = HMSDecoder.getHmsLocalAudioTrack(hmsTrack as HMSLocalAudioTrack)
+                val peer = HMSDecoder.getHmsPeer(hmsPeer)
+
+                val data: WritableMap = Arguments.createMap()
+                data.putMap("localAudioStats", localAudioStats)
+                data.putMap("track", track)
+                data.putMap("peer", peer)
+                data.putString("id", id)
+                delegate.emitEvent("ON_LOCAL_AUDIO_STATS", data)
+              }
+
+              override fun onLocalVideoStats(
+                  videoStats: HMSLocalVideoStats,
+                  hmsTrack: HMSTrack?,
+                  hmsPeer: HMSPeer?
+              ) {
+                if (!rtcStatsAttached) {
+                  return
+                }
+
+                val localVideoStats = HMSDecoder.getLocalVideoStats(videoStats)
+                val track = HMSDecoder.getHmsLocalVideoTrack(hmsTrack as HMSLocalVideoTrack)
+                val peer = HMSDecoder.getHmsPeer(hmsPeer)
+
+                val data: WritableMap = Arguments.createMap()
+                data.putMap("localVideoStats", localVideoStats)
+                data.putMap("track", track)
+                data.putMap("peer", peer)
+                data.putString("id", id)
+                delegate.emitEvent("ON_LOCAL_VIDEO_STATS", data)
+              }
+
+              override fun onRTCStats(rtcStats: HMSRTCStatsReport) {
+                if (!rtcStatsAttached) {
+                  return
+                }
+                val video = HMSDecoder.getHMSRTCStats(rtcStats.video)
+                val audio = HMSDecoder.getHMSRTCStats(rtcStats.audio)
+                val combined = HMSDecoder.getHMSRTCStats(rtcStats.combined)
+
+                val data: WritableMap = Arguments.createMap()
+                data.putMap("video", video)
+                data.putMap("audio", audio)
+                data.putMap("combined", combined)
+                data.putString("id", id)
+                delegate.emitEvent("ON_RTC_STATS", data)
+              }
+
+              override fun onRemoteAudioStats(
+                  audioStats: HMSRemoteAudioStats,
+                  hmsTrack: HMSTrack?,
+                  hmsPeer: HMSPeer?
+              ) {
+                if (!rtcStatsAttached) {
+                  return
+                }
+
+                val remoteAudioStats = HMSDecoder.getRemoteAudioStats(audioStats)
+                val track = HMSDecoder.getHmsRemoteAudioTrack(hmsTrack as HMSRemoteAudioTrack)
+                val peer = HMSDecoder.getHmsPeer(hmsPeer)
+
+                val data: WritableMap = Arguments.createMap()
+                data.putMap("remoteAudioStats", remoteAudioStats)
+                data.putMap("track", track)
+                data.putMap("peer", peer)
+                data.putString("id", id)
+                delegate.emitEvent("ON_REMOTE_AUDIO_STATS", data)
+              }
+
+              override fun onRemoteVideoStats(
+                  videoStats: HMSRemoteVideoStats,
+                  hmsTrack: HMSTrack?,
+                  hmsPeer: HMSPeer?
+              ) {
+                if (!rtcStatsAttached) {
+                  return
+                }
+
+                val remoteVideoStats = HMSDecoder.getRemoteVideoStats(videoStats)
+                val track = HMSDecoder.getHmsRemoteVideoTrack(hmsTrack as HMSRemoteVideoTrack)
+                val peer = HMSDecoder.getHmsPeer(hmsPeer)
+
+                val data: WritableMap = Arguments.createMap()
+                data.putMap("remoteVideoStats", remoteVideoStats)
+                data.putMap("track", track)
+                data.putMap("peer", peer)
+                data.putString("id", id)
+                delegate.emitEvent("ON_REMOTE_VIDEO_STATS", data)
               }
             }
         )
@@ -1082,5 +1185,13 @@ class HMSRNSDK(
       self.emitRequiredKeysError(errorMessage)
       rejectCallback(callback, errorMessage)
     }
+  }
+
+  fun enableRTCStats() {
+    rtcStatsAttached = true
+  }
+
+  fun disableRTCStats() {
+    rtcStatsAttached = false
   }
 }

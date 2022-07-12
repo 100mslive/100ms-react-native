@@ -383,7 +383,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     paddingVertical: 4,
     backgroundColor: COLORS.OVERLAY,
-    zIndex: 1,
+    zIndex: 2,
     borderRadius: 16,
   },
   goLiveIconContainer: {

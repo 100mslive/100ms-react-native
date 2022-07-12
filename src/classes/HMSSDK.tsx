@@ -888,11 +888,7 @@ export class HMSSDK {
    */
   enableRTCStats = () => {
     logger?.verbose('#Function enableRTCStats', { id: this.id });
-    if (Platform.OS === 'ios') {
-      HMSManager.enableRTCStats({ id: this.id });
-    } else {
-      console.log('API currently not avaialble for android');
-    }
+    HMSManager.enableRTCStats({ id: this.id });
   };
 
   /**
@@ -905,11 +901,7 @@ export class HMSSDK {
    */
   disableRTCStats = () => {
     logger?.verbose('#Function disableRTCStats', { id: this.id });
-    if (Platform.OS === 'ios') {
-      HMSManager.disableRTCStats({ id: this.id });
-    } else {
-      console.log('API currently not avaialble for android');
-    }
+    HMSManager.disableRTCStats({ id: this.id });
   };
 
   /**
