@@ -429,10 +429,7 @@ const Meeting = () => {
                 .catch(e => console.log('Stop RTMP And Recording Error: ', e));
             },
           },
-        ];
-        if (Platform.OS === 'android') {
-        } else {
-          buttons.push({
+          {
             text: statsForNerds
               ? 'Disable Stats For Nerds'
               : 'Enable Stats For Nerds',
@@ -445,8 +442,8 @@ const Meeting = () => {
                 setStatsForNerds(true);
               }
             },
-          });
-        }
+          },
+        ];
         if (instance?.localPeer?.role?.permissions?.mute) {
           buttons.push(
             ...[
