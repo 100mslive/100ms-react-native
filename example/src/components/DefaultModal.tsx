@@ -1,6 +1,7 @@
 import React, {ReactNode} from 'react';
 import {Modal, StyleSheet, View, StyleProp, ViewStyle} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {COLORS} from '../utils/theme';
 import {CustomButton} from './CustomButton';
@@ -26,6 +27,7 @@ export const DefaultModal = ({
   viewStyle?: StyleProp<ViewStyle>;
   modalStyle?: StyleProp<ViewStyle>;
 }) => {
+  const {left, right} = useSafeAreaInsets();
   return (
     <Modal
       animationType={animationType}
@@ -48,6 +50,7 @@ export const DefaultModal = ({
             styles.contentContainer,
             modalPosiion === 'flex-end' ? styles.end : styles.center,
             viewStyle,
+            {marginLeft: left, marginRight: right},
           ]}
           onTouchEnd={e => e.stopPropagation()}>
           {modalPosiion === 'flex-end' && (

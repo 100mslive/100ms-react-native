@@ -30,6 +30,7 @@ export enum ModalTypes {
   HLS_STREAMING = 'hlsStreaming',
   RECORDING = 'recording',
   RESOLUTION = 'resolution',
+  RTC_STATS = 'rtcStats',
   LAYOUT = 'layout',
   SORTING = 'sorting',
   LEAVE = 'leave',
