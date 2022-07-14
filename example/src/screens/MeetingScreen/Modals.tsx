@@ -7,6 +7,17 @@ import {
   HMSSDK,
   HMSTrackType,
   HMSTrackSource,
+  HMSRTCStatsReport,
+  HMSUpdateListenerActions,
+  HMSLocalAudioStats,
+  HMSLocalAudioTrack,
+  HMSPeer,
+  HMSLocalVideoStats,
+  HMSLocalVideoTrack,
+  HMSRemoteAudioStats,
+  HMSRemoteAudioTrack,
+  HMSRemoteVideoStats,
+  HMSRemoteVideoTrack,
 } from '@100mslive/react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -706,6 +717,243 @@ export const ChangeNameModal = ({
           textStyle={styles.roleChangeModalButtonText}
         />
       </View>
+    </View>
+  );
+};
+
+export const RtcStatsModal = ({instance}: {instance?: HMSSDK}) => {
+  const rtcStatsRef = React.useRef<any>({});
+  const [rtcStats, setRtcStats] = useState(Math.random());
+  const [statsVisible, setStatsVisible] = useState<boolean>(false);
+  const [visible, setVisible] = useState<boolean>(false);
+  const [currentTrack, setCurrentTrack] = useState<{
+    name: string;
+    track?: HMSTrack;
+  }>({
+    name: instance?.localPeer?.name + "'s audio",
+    track: instance?.localPeer?.audioTrack,
+  });
+  const [trackList, setTrackList] = useState<
+    {
+      name: string;
+      track?: HMSTrack;
+    }[]
+  >();
+
+  const hideMenu = () => setVisible(false);
+  const showMenu = () => setVisible(true);
+
+  const getStatsList = () => {
+    const list: {
+      name: string;
+      track?: HMSTrack;
+    }[] = [];
+    if (instance?.localPeer?.audioTrack?.trackId) {
+      list.push({
+        name: instance?.localPeer?.name + "'s audio",
+        track: instance?.localPeer?.audioTrack,
+      });
+    }
+    if (instance?.localPeer?.videoTrack?.trackId) {
+      list.push({
+        name: instance?.localPeer?.name + "'s video",
+        track: instance?.localPeer?.videoTrack,
+      });
+    }
+    instance?.remotePeers?.map(remotePeer => {
+      if (remotePeer?.audioTrack?.trackId) {
+        list.push({
+          name: remotePeer?.name + "'s audio",
+          track: remotePeer?.audioTrack,
+        });
+      }
+      if (remotePeer?.videoTrack?.trackId) {
+        list.push({
+          name: remotePeer?.name + "'s video",
+          track: remotePeer?.videoTrack,
+        });
+      }
+    });
+    setTrackList(list);
+  };
+
+  const enableRTCStats = () => {
+    instance?.enableRTCStats();
+    setStatsVisible(true);
+  };
+
+  const disableRTCStats = () => {
+    instance?.disableRTCStats();
+    setStatsVisible(false);
+  };
+
+  const onChangeLocalAudioStats = (data: {
+    localAudioStats: HMSLocalAudioStats;
+    track: HMSLocalAudioTrack;
+    peer: HMSPeer;
+  }) => {
+    const trackRtcStats = rtcStatsRef?.current;
+    trackRtcStats[data.track.trackId] = data.localAudioStats;
+    setRtcStats(Math.random());
+    rtcStatsRef.current = trackRtcStats;
+  };
+
+  const onChangeLocalVideoStats = (data: {
+    localVideoStats: HMSLocalVideoStats;
+    track: HMSLocalVideoTrack;
+    peer: HMSPeer;
+  }) => {
+    const trackRtcStats = rtcStatsRef?.current;
+    trackRtcStats[data.track.trackId] = data.localVideoStats;
+    setRtcStats(Math.random());
+    rtcStatsRef.current = trackRtcStats;
+  };
+
+  const onChangeRtcStats = (data: {rtcStats: HMSRTCStatsReport}) => {
+    console.log(data.rtcStats);
+  };
+
+  const onChangeRemoteAudioStats = (data: {
+    remoteAudioStats: HMSRemoteAudioStats;
+    track: HMSRemoteAudioTrack;
+    peer: HMSPeer;
+  }) => {
+    const trackRtcStats = rtcStatsRef?.current;
+    trackRtcStats[data.track.trackId] = data.remoteAudioStats;
+    setRtcStats(Math.random());
+    rtcStatsRef.current = trackRtcStats;
+  };
+
+  const onChangeRemoteVideoStats = (data: {
+    remoteVideoStats: HMSRemoteVideoStats;
+    track: HMSRemoteVideoTrack;
+    peer: HMSPeer;
+  }) => {
+    const trackRtcStats = rtcStatsRef?.current;
+    trackRtcStats[data.track.trackId] = data.remoteVideoStats;
+    setRtcStats(Math.random());
+    rtcStatsRef.current = trackRtcStats;
+  };
+
+  useEffect(() => {
+    getStatsList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [instance?.remotePeers]);
+
+  useEffect(() => {
+    instance?.addEventListener(
+      HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS,
+      onChangeLocalAudioStats,
+    );
+    instance?.addEventListener(
+      HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS,
+      onChangeLocalVideoStats,
+    );
+    instance?.addEventListener(
+      HMSUpdateListenerActions.ON_RTC_STATS,
+      onChangeRtcStats,
+    );
+    instance?.addEventListener(
+      HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS,
+      onChangeRemoteAudioStats,
+    );
+    instance?.addEventListener(
+      HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS,
+      onChangeRemoteVideoStats,
+    );
+    return () => {
+      instance?.removeEventListener(
+        HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS,
+      );
+      instance?.removeEventListener(
+        HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS,
+      );
+      instance?.removeEventListener(HMSUpdateListenerActions.ON_RTC_STATS);
+      instance?.removeEventListener(
+        HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS,
+      );
+      instance?.removeEventListener(
+        HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS,
+      );
+      disableRTCStats();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <View style={styles.participantContainer}>
+      <View style={styles.participantsHeaderContainer}>
+        <Text style={styles.participantsHeading}>Stats for Nerds</Text>
+      </View>
+      <TouchableOpacity
+        onPress={statsVisible ? disableRTCStats : enableRTCStats}
+        style={styles.statsModalContainer}>
+        <Text style={styles.statsModalText}>Enable Stats for Nerds</Text>
+        <View style={styles.statsModalCheckbox}>
+          {statsVisible && (
+            <Entypo name="check" style={styles.statsModalCheck} size={20} />
+          )}
+        </View>
+      </TouchableOpacity>
+      <Menu
+        visible={visible}
+        anchor={
+          <TouchableOpacity style={styles.statsModalMenu} onPress={showMenu}>
+            <Text style={styles.participantFilterText} numberOfLines={1}>
+              {currentTrack?.name ?? 'Choose'}
+            </Text>
+            <MaterialIcons
+              name={visible ? 'arrow-drop-up' : 'arrow-drop-down'}
+              style={styles.participantFilterIcon}
+              size={24}
+            />
+          </TouchableOpacity>
+        }
+        onRequestClose={hideMenu}
+        style={styles.participantsMenuContainer}>
+        {trackList?.map(trackObj => {
+          return (
+            <MenuItem
+              onPress={() => {
+                hideMenu();
+                setCurrentTrack(trackObj);
+              }}
+              key={trackObj?.track?.trackId}>
+              <View style={styles.participantMenuItem}>
+                <Text style={styles.participantMenuItemName}>
+                  {trackObj?.name}
+                </Text>
+              </View>
+            </MenuItem>
+          );
+        })}
+      </Menu>
+      <ScrollView contentContainerStyle={styles.statsModalCardContainer}>
+        {rtcStats &&
+          rtcStatsRef?.current &&
+          currentTrack?.track?.trackId &&
+          rtcStatsRef?.current[currentTrack?.track?.trackId] &&
+          Object.keys(rtcStatsRef?.current[currentTrack?.track?.trackId]).map(
+            item => {
+              const value =
+                currentTrack?.track &&
+                rtcStatsRef?.current[currentTrack?.track?.trackId][item];
+              return (
+                <View style={styles.statsModalCard} key={item}>
+                  <Text style={styles.statsModalCardHeading}>{item}</Text>
+                  <Text style={styles.statsModalCardDescription}>
+                    {item === 'resolution'
+                      ? 'Height: ' +
+                        (value?.height ?? 0) +
+                        ' Width: ' +
+                        (value?.width ?? 0)
+                      : value}
+                  </Text>
+                </View>
+              );
+            },
+          )}
+      </ScrollView>
     </View>
   );
 };

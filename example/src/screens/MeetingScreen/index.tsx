@@ -30,15 +30,6 @@ import {
   HMSRTMPConfig,
   HMSHLSMeetingURLVariant,
   HMSHLSConfig,
-  HMSLocalAudioTrack,
-  HMSLocalAudioStats,
-  HMSLocalVideoStats,
-  HMSRTCStatsReport,
-  HMSLocalVideoTrack,
-  HMSRemoteAudioStats,
-  HMSRemoteAudioTrack,
-  HMSRemoteVideoStats,
-  HMSRemoteVideoTrack,
   HMSSpeaker,
   HMSHLSRecordingConfig,
   HMSTrackSource,
@@ -99,6 +90,7 @@ import {
   ChangeNameModal,
   ChangeRoleModal,
   ChangeVolumeModal,
+  RtcStatsModal,
 } from './Modals';
 import {COLORS} from '../../utils/theme';
 
@@ -112,11 +104,6 @@ type MeetingScreenProp = NativeStackNavigationProp<
   AppStackParamList,
   'MeetingScreen'
 >;
-
-let remoteAudioStats: any = {};
-let remoteVideoStats: any = {};
-let localAudioStats: HMSLocalAudioStats = {};
-let localVideoStats: HMSLocalVideoStats = {};
 
 const Meeting = () => {
   const {hmsInstance, roomID, roomCode} = useSelector(
@@ -134,7 +121,7 @@ const Meeting = () => {
     [],
   );
   const [hmsRoom, setHmsRoom] = useState<HMSRoom>();
-  const peerTrackNodesRef = React.useRef(peerTrackNodes);
+  const peerTrackNodesRef = useRef(peerTrackNodes);
   const HmsViewComponent = instance?.HmsView;
   const [speakers, setSpeakers] = useState<Array<HMSSpeaker>>([]);
   const [notification, setNotification] = useState(false);
@@ -145,11 +132,9 @@ const Meeting = () => {
   const [selectedSortingType, setSelectedSortingType] = useState<SortingType>();
   const [newLayout, setNewLayout] = useState<LayoutParams>(layout);
   const [newRole, setNewRole] = useState(instance?.localPeer?.role);
-  const [rtcStats, setRtcStats] = useState<HMSRTCStatsReport>();
   const hlsPlayerRef = useRef<Video>(null);
   const [page, setPage] = useState(0);
   const [zoomableTrackId, setZoomableTrackId] = useState('');
-  const [statsForNerds, setStatsForNerds] = useState(false);
   const [orientation, setOrientation] = useState<boolean>(true);
   const [updatePeerTrackNode, setUpdatePeerTrackNode] = useState<PeerTrackNode>(
     peerTrackNodes[0],
@@ -430,17 +415,9 @@ const Meeting = () => {
             },
           },
           {
-            text: statsForNerds
-              ? 'Disable Stats For Nerds'
-              : 'Enable Stats For Nerds',
+            text: 'Stats For Nerds',
             onPress: () => {
-              if (statsForNerds) {
-                instance?.disableRTCStats();
-                setStatsForNerds(false);
-              } else {
-                instance?.enableRTCStats();
-                setStatsForNerds(true);
-              }
+              setModalVisible(ModalTypes.RTC_STATS);
             },
           },
         ];
@@ -911,45 +888,16 @@ const Meeting = () => {
     }
   };
 
-  const onChangeLocalAudioStats = (data: {
-    localAudioStats: HMSLocalAudioStats;
-    track: HMSLocalAudioTrack;
-    peer: HMSPeer;
-  }) => {
-    localAudioStats = data.localAudioStats;
-  };
-
-  const onChangeLocalVideoStats = (data: {
-    localVideoStats: HMSLocalVideoStats;
-    track: HMSLocalVideoTrack;
-    peer: HMSPeer;
-  }) => {
-    localVideoStats = data.localVideoStats;
-  };
-
-  const onChangeRtcStats = (data: {rtcStats: HMSRTCStatsReport}) => {
-    setRtcStats(data.rtcStats);
-  };
-
-  const onChangeRemoteAudioStats = (data: {
-    remoteAudioStats: HMSRemoteAudioStats;
-    track: HMSRemoteAudioTrack;
-    peer: HMSPeer;
-  }) => {
-    remoteAudioStats[data.peer.peerID] = data.remoteAudioStats;
-  };
-
-  const onChangeRemoteVideoStats = (data: {
-    remoteVideoStats: HMSRemoteVideoStats;
-    track: HMSRemoteVideoTrack;
-    peer: HMSPeer;
-  }) => {
-    remoteVideoStats[data.peer.peerID] = data.remoteVideoStats;
-  };
-
-  const onRemovedFromRoom = (data: any) => {
+  const onRemovedFromRoom = async (data: any) => {
     console.log('data in onRemovedFromRoom: ', data);
-    onLeavePress();
+    await instance
+      ?.destroy()
+      .then(s => console.log('Destroy Success: ', s))
+      .catch(e => console.log('Destroy Error: ', e));
+    dispatch(clearMessageData());
+    dispatch(clearPeerData());
+    dispatch(clearHmsReference());
+    navigate('QRCodeScreen');
   };
 
   const onError = (data: HMSException) => {
@@ -1003,26 +951,6 @@ const Meeting = () => {
     hms?.addEventListener(
       HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST,
       onChangeTrackStateRequest,
-    );
-    hms?.addEventListener(
-      HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS,
-      onChangeLocalAudioStats,
-    );
-    hms?.addEventListener(
-      HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS,
-      onChangeLocalVideoStats,
-    );
-    hms?.addEventListener(
-      HMSUpdateListenerActions.ON_RTC_STATS,
-      onChangeRtcStats,
-    );
-    hms?.addEventListener(
-      HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS,
-      onChangeRemoteAudioStats,
-    );
-    hms?.addEventListener(
-      HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS,
-      onChangeRemoteVideoStats,
     );
   };
 
@@ -1524,12 +1452,6 @@ const Meeting = () => {
             setZoomableTrackId={setZoomableTrackId}
             instance={instance}
             layout={layout}
-            statsForNerds={statsForNerds}
-            rtcStats={rtcStats}
-            remoteAudioStats={remoteAudioStats}
-            remoteVideoStats={remoteVideoStats}
-            localAudioStats={localAudioStats}
-            localVideoStats={localVideoStats}
             page={page}
             pinnedPeerTrackIds={pinnedPeerTrackIds}
             setPinnedPeerTrackIds={setPinnedPeerTrackIds}
@@ -1667,6 +1589,11 @@ const Meeting = () => {
           pinnedPeerTrackIds={pinnedPeerTrackIds}
           setPinnedPeerTrackIds={setPinnedPeerTrackIds}
         />
+      </DefaultModal>
+      <DefaultModal
+        modalVisible={modalVisible === ModalTypes.RTC_STATS}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        <RtcStatsModal instance={instance} />
       </DefaultModal>
       <DefaultModal
         animationType="fade"
