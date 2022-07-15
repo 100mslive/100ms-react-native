@@ -165,9 +165,12 @@ android {
             // see https://reactnative.dev/docs/signed-apk-android.
             signingConfig signingConfigs.debug
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-            crunchPngs false
+            shrinkResources true
+            minifyEnabled true
         }
     }
+
+    android.buildTypes.release.ndk.debugSymbolLevel "FULL"
 
     // applicationVariants are e.g. debug, release
     applicationVariants.all { variant ->
