@@ -1,12 +1,13 @@
+import type {HMSMessage} from '@100mslive/react-native-hms';
 import ActionTypes from '../actionTypes';
 
 type ActionType = {
-  payload: Object;
+  payload: {data: HMSMessage; isLocal: boolean};
   type: String;
 };
 
 type InitType = {
-  messages: Array<any>;
+  messages: Array<{data: HMSMessage; isLocal: boolean}>;
 };
 
 const INITIAL_STATE: InitType = {
