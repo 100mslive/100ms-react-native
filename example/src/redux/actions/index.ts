@@ -2,7 +2,7 @@ import type {HMSMessage, HMSSDK} from '@100mslive/react-native-hms';
 import type {PeerTrackNode} from '../../utils/types';
 import actionTypes from '../actionTypes';
 
-export const addMessage = (data: {data: HMSMessage; isLocal: boolean}) => ({
+export const addMessage = (data: HMSMessage) => ({
   type: actionTypes.ADD_MESSAGE.REQUEST,
   payload: data,
 });

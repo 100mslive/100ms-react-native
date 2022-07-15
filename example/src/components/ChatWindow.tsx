@@ -176,16 +176,15 @@ export const ChatWindow = () => {
         hmsInstance?.sendBroadcastMessage(text);
       }
       dispatch(
-        addMessage({
-          data: new HMSMessage({
+        addMessage(
+          new HMSMessage({
             message: text,
             type: 'chat',
             time: new Date(),
             sender: hmsInstance?.localPeer,
             recipient: hmsMessageRecipient,
           }),
-          isLocal: true,
-        }),
+        ),
       );
       setText('');
     }
@@ -240,55 +239,56 @@ export const ChatWindow = () => {
           ref={scollviewRef}
           style={styles.contentContainer}
           keyboardShouldPersistTaps="always">
-          {messages.map(
-            ({data, isLocal}: {data: HMSMessage; isLocal: boolean}) => {
-              return (
-                <View
-                  style={[
-                    styles.messageBubble,
-                    (data.recipient.recipientType ===
-                      HMSMessageRecipientType.PEER ||
-                      data.recipient.recipientType ===
-                        HMSMessageRecipientType.ROLES) &&
-                      styles.privateMessageBubble,
-                    isLocal && styles.sendMessageBubble,
-                  ]}
-                  key={Math.random()}>
-                  <View style={styles.headingContainer}>
-                    <View style={styles.headingLeftContainer}>
-                      <Text style={styles.senderName}>{data.sender?.name}</Text>
-                      <Text style={styles.messageTime}>
-                        {getTimeStringin12HourFormat(data.time)}
+          {messages.map((data: HMSMessage) => {
+            const isLocal = data.sender?.isLocal;
+            return (
+              <View
+                style={[
+                  styles.messageBubble,
+                  (data.recipient.recipientType ===
+                    HMSMessageRecipientType.PEER ||
+                    data.recipient.recipientType ===
+                      HMSMessageRecipientType.ROLES) &&
+                    styles.privateMessageBubble,
+                  isLocal && styles.sendMessageBubble,
+                ]}
+                key={Math.random()}>
+                <View style={styles.headingContainer}>
+                  <View style={styles.headingLeftContainer}>
+                    <Text style={styles.senderName}>
+                      {data.sender?.isLocal ? 'You' : data.sender?.name}
+                    </Text>
+                    <Text style={styles.messageTime}>
+                      {getTimeStringin12HourFormat(data.time)}
+                    </Text>
+                  </View>
+                  {(data.recipient.recipientType ===
+                    HMSMessageRecipientType.PEER ||
+                    data.recipient.recipientType ===
+                      HMSMessageRecipientType.ROLES) && (
+                    <View style={styles.headingRightContainer}>
+                      <Text style={styles.private}>
+                        {data.recipient.recipientType ===
+                          HMSMessageRecipientType.PEER &&
+                          `${
+                            isLocal
+                              ? 'TO ' +
+                                data.recipient.recipientPeer?.name +
+                                ' | '
+                              : 'TO YOU | '
+                          }PRIVATE`}
+                        {data.recipient.recipientType ===
+                          HMSMessageRecipientType.ROLES &&
+                          data?.recipient?.recipientRoles &&
+                          data.recipient.recipientRoles[0].name}
                       </Text>
                     </View>
-                    {(data.recipient.recipientType ===
-                      HMSMessageRecipientType.PEER ||
-                      data.recipient.recipientType ===
-                        HMSMessageRecipientType.ROLES) && (
-                      <View style={styles.headingRightContainer}>
-                        <Text style={styles.private}>
-                          {data.recipient.recipientType ===
-                            HMSMessageRecipientType.PEER &&
-                            `${
-                              isLocal
-                                ? 'TO ' +
-                                  data.recipient.recipientPeer?.name +
-                                  ' | '
-                                : 'TO YOU | '
-                            }PRIVATE`}
-                          {data.recipient.recipientType ===
-                            HMSMessageRecipientType.ROLES &&
-                            data?.recipient?.recipientRoles &&
-                            data.recipient.recipientRoles[0].name}
-                        </Text>
-                      </View>
-                    )}
-                  </View>
-                  <Text style={styles.messageText}>{data.message}</Text>
+                  )}
                 </View>
-              );
-            },
-          )}
+                <Text style={styles.messageText}>{data.message}</Text>
+              </View>
+            );
+          })}
         </ScrollView>
       </View>
       <View

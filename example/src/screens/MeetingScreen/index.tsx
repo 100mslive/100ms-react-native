@@ -799,7 +799,7 @@ const Meeting = () => {
   };
 
   const onMessage = (data: HMSMessage) => {
-    dispatch(addMessage({data, isLocal: false}));
+    dispatch(addMessage(data));
     setNotification(true);
     console.log('data in onMessage: ', data);
   };
