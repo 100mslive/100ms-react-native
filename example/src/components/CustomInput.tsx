@@ -22,6 +22,7 @@ const CustomInput = ({
   placeholder,
   textStyle,
   viewStyle,
+  clearButtonStyle,
   inputStyle,
   defaultValue,
   returnKeyType,
@@ -40,6 +41,7 @@ const CustomInput = ({
   placeholder?: string;
   textStyle?: StyleProp<TextStyle>;
   viewStyle?: StyleProp<ViewStyle>;
+  clearButtonStyle?: StyleProp<ViewStyle>;
   inputStyle?: StyleProp<ViewStyle>;
   defaultValue?: string;
   returnKeyType?: ReturnKeyTypeOptions;
@@ -99,7 +101,7 @@ const CustomInput = ({
             onPress={() => {
               onChange('');
             }}
-            style={styles.clearContainer}>
+            style={[styles.clearContainer, clearButtonStyle]}>
             <MaterialIcons name="clear" style={styles.clearIcon} size={24} />
           </TouchableOpacity>
         )}
@@ -121,7 +123,7 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     justifyContent: 'center',
-    paddingRight: 8,
+    paddingHorizontal: 8,
   },
   clear: {
     paddingRight: 40,

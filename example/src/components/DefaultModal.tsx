@@ -1,5 +1,13 @@
 import React, {ReactNode} from 'react';
-import {Modal, StyleSheet, View, StyleProp, ViewStyle} from 'react-native';
+import {
+  Modal,
+  StyleSheet,
+  View,
+  StyleProp,
+  ViewStyle,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
@@ -45,7 +53,9 @@ export const DefaultModal = ({
           !overlay && styles.overlay,
         ]}
         onTouchEnd={setModalVisible}>
-        <View
+        <KeyboardAvoidingView
+          enabled={Platform.OS === 'ios'}
+          behavior="padding"
           style={[
             styles.contentContainer,
             modalPosiion === 'flex-end' ? styles.end : styles.center,
@@ -67,7 +77,7 @@ export const DefaultModal = ({
             />
           )}
           {children}
-        </View>
+        </KeyboardAvoidingView>
       </View>
     </Modal>
   );
@@ -99,6 +109,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 24,
     borderWidth: 1,
     borderColor: COLORS.BORDER.LIGHT,
+    alignSelf: 'center',
+    width: '90%',
   },
   crossButton: {
     height: 40,

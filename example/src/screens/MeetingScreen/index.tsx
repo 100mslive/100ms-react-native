@@ -21,7 +21,6 @@ import {
   HMSLocalPeer,
   HMSTrack,
   HMSRoom,
-  HMSRole,
   HMSRoleChangeRequest,
   HMSSDK,
   HMSChangeTrackStateRequest,
@@ -85,6 +84,7 @@ import {GridView} from './Grid';
 import {ActiveSpeakerView} from './ActiveSpeakerView';
 import {HeroView} from './HeroView';
 import {MiniView} from './MiniView';
+import {COLORS} from '../../utils/theme';
 import {
   ParticipantsModal,
   ChangeNameModal,
@@ -92,13 +92,6 @@ import {
   ChangeVolumeModal,
   RtcStatsModal,
 } from './Modals';
-import {COLORS} from '../../utils/theme';
-
-type MessageObject = {
-  name: string;
-  type: string;
-  obj?: HMSRole | PeerTrackNode;
-};
 
 type MeetingScreenProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -110,7 +103,6 @@ const Meeting = () => {
     (state: RootState) => state.user,
   );
   const [instance, setInstance] = useState<HMSSDK | undefined>();
-  const {messages} = useSelector((state: RootState) => state.messages);
   const {peerState} = useSelector((state: RootState) => state.app);
   const dispatch = useDispatch();
   const navigate = useNavigation<MeetingScreenProp>().navigate;
@@ -188,41 +180,6 @@ const Meeting = () => {
   const isScreenShared =
     instance?.localPeer?.auxiliaryTracks &&
     instance?.localPeer?.auxiliaryTracks?.length > 0;
-
-  const getMessageToList = (): MessageObject[] => {
-    const messageList: MessageObject[] = [
-      {
-        name: 'everyone',
-        type: 'everyone',
-      },
-    ];
-
-    const knownRoles = instance?.knownRoles?.map((role: HMSRole) => ({
-      name: role.name || '',
-      type: 'group',
-      obj: role,
-    }));
-    if (knownRoles) {
-      messageList.push(...knownRoles);
-    }
-
-    const remotePeers = peerTrackNodes.filter(peerTrackNode => {
-      if (peerTrackNode.peer.isLocal) {
-        return false;
-      }
-      return true;
-    });
-    const peers = remotePeers.map(remotePeer => ({
-      name: remotePeer.peer.name,
-      type: 'direct',
-      obj: remotePeer.peer,
-    }));
-    if (peers) {
-      messageList.push(...peers);
-    }
-
-    return messageList;
-  };
 
   const reportIssue = async () => {
     try {
@@ -842,7 +799,7 @@ const Meeting = () => {
   };
 
   const onMessage = (data: HMSMessage) => {
-    dispatch(addMessage({data, isLocal: false}));
+    dispatch(addMessage(data));
     setNotification(true);
     console.log('data in onMessage: ', data);
   };
@@ -1321,6 +1278,7 @@ const Meeting = () => {
           <CustomButton
             onPress={() => {
               setModalVisible(ModalTypes.CHAT);
+              setNotification(false);
             }}
             viewStyle={styles.iconContainer}
             LeftIcon={
@@ -1546,38 +1504,11 @@ const Meeting = () => {
           <Text style={styles.liveText}>Go Live</Text>
         )}
       </View>
-      {modalVisible === ModalTypes.CHAT && (
-        <ChatWindow
-          messages={messages}
-          cancel={() => {
-            setModalVisible(ModalTypes.DEFAULT);
-            setNotification(false);
-          }}
-          messageToList={getMessageToList()}
-          send={(value: string, messageTo: MessageObject) => {
-            if (value.length > 0) {
-              if (messageTo?.type === 'everyone') {
-                instance?.sendBroadcastMessage(value);
-              } else if (messageTo?.type === 'group') {
-                instance?.sendGroupMessage(value, [messageTo.obj as HMSRole]);
-              } else if (messageTo.type === 'direct') {
-                instance?.sendDirectMessage(value, messageTo.obj as HMSPeer);
-              }
-              dispatch(
-                addMessage({
-                  data: {
-                    type: 'chat',
-                    time: new Date(),
-                    message: value,
-                  },
-                  isLocal: true,
-                  name: messageTo?.name,
-                }),
-              );
-            }
-          }}
-        />
-      )}
+      <DefaultModal
+        modalVisible={modalVisible === ModalTypes.CHAT}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        <ChatWindow />
+      </DefaultModal>
       <DefaultModal
         modalVisible={modalVisible === ModalTypes.PARTICIPANTS}
         setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>

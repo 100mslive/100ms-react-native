@@ -1,38 +1,194 @@
 import React, {useState, useEffect, useRef} from 'react';
-import type {GestureResponderEvent} from 'react-native';
 import {
   View,
   StyleSheet,
-  TextInput,
   ScrollView,
   TouchableOpacity,
   Text,
-  KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import {
+  HMSMessage,
+  HMSMessageRecipient,
+  HMSMessageRecipientType,
+  HMSPeer,
+  HMSRemotePeer,
+  HMSRole,
+  HMSSDK,
+} from '@100mslive/react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {useDispatch, useSelector} from 'react-redux';
 
-import {ChatBubble} from './ChatBubble';
-import {CustomModalDropdown} from './Picker';
-import {COLORS, FONTS} from '../utils/theme';
+import {Menu, MenuDivider, MenuItem} from './MenuModal';
+import {COLORS} from '../utils/theme';
+import type {RootState} from '../redux';
+import {CustomInput} from './CustomInput';
+import {CustomButton} from './CustomButton';
+import {addMessage} from '../redux/actions';
 
-export const ChatWindow = ({
-  messages,
-  cancel,
-  send,
-  messageToList,
+const getTimeStringin12HourFormat = (time: Date) => {
+  let hours = time.getHours();
+  const minutes = time.getMinutes();
+  const notation = hours / 12 > 1 ? ' PM' : ' AM';
+  hours = hours % 12;
+  return (
+    (hours < 10 ? '0' + hours : hours) +
+    ':' +
+    (minutes < 10 ? '0' + minutes : minutes) +
+    notation
+  );
+};
+
+const ChatFilter = ({
+  instance,
+  filter,
+  setFilter,
+  setType,
+  setReceiverObject,
 }: {
-  messages: any;
-  cancel: ((event: GestureResponderEvent) => void) | undefined;
-  send: Function;
-  messageToList: Array<any>;
+  instance?: HMSSDK;
+  filter?: string;
+  setFilter: React.Dispatch<React.SetStateAction<string>>;
+  setType: React.Dispatch<React.SetStateAction<'everyone' | 'direct' | 'role'>>;
+  setReceiverObject: React.Dispatch<
+    React.SetStateAction<'everyone' | HMSRole | HMSRemotePeer>
+  >;
 }) => {
-  const [text, setText] = useState('');
-  const [messageTo, setMessageTo] = useState(0);
+  const [visible, setVisible] = useState<boolean>(false);
+
+  const hideMenu = () => setVisible(false);
+  const showMenu = () => setVisible(true);
+
+  return (
+    <Menu
+      visible={visible}
+      anchor={
+        <TouchableOpacity style={styles.chatFilterContainer} onPress={showMenu}>
+          <Text style={styles.chatFilterText} numberOfLines={1}>
+            {filter}
+          </Text>
+          <MaterialIcons
+            name={visible ? 'arrow-drop-up' : 'arrow-drop-down'}
+            style={styles.chatFilterIcon}
+            size={24}
+          />
+        </TouchableOpacity>
+      }
+      onRequestClose={hideMenu}
+      style={styles.chatMenuContainer}>
+      <MenuItem
+        onPress={() => {
+          hideMenu();
+          setType('everyone');
+          setReceiverObject('everyone');
+          setFilter('everyone');
+        }}>
+        <View style={styles.chatMenuItem}>
+          <Ionicons
+            name="people-outline"
+            style={styles.chatMenuItemIcon}
+            size={20}
+          />
+          <Text style={styles.chatMenuItemName}>Everyone</Text>
+        </View>
+      </MenuItem>
+      <MenuDivider color={COLORS.BORDER.LIGHT} />
+      {instance?.knownRoles?.map(knownRole => {
+        return (
+          <MenuItem
+            onPress={() => {
+              hideMenu();
+              setType('role');
+              setReceiverObject(knownRole);
+              setFilter(knownRole?.name!);
+            }}
+            key={knownRole.name}>
+            <View style={styles.chatMenuItem}>
+              <Text style={styles.chatMenuItemName}>{knownRole?.name}</Text>
+            </View>
+          </MenuItem>
+        );
+      })}
+      <MenuDivider color={COLORS.BORDER.LIGHT} />
+      {instance?.remotePeers?.map(remotePeer => {
+        return (
+          <MenuItem
+            onPress={() => {
+              hideMenu();
+              setType('direct');
+              setReceiverObject(remotePeer);
+              setFilter(remotePeer.name);
+            }}
+            key={remotePeer.name}>
+            <View style={styles.chatMenuItem}>
+              <Ionicons
+                name="person-outline"
+                style={styles.chatMenuItemIcon}
+                size={20}
+              />
+              <Text style={styles.chatMenuItemName}>{remotePeer.name}</Text>
+            </View>
+          </MenuItem>
+        );
+      })}
+    </Menu>
+  );
+};
+
+export const ChatWindow = () => {
+  const {hmsInstance} = useSelector((state: RootState) => state.user);
+  const {messages} = useSelector((state: RootState) => state.messages);
+  const dispatch = useDispatch();
+  const {bottom} = useSafeAreaInsets();
   const scollviewRef = useRef<ScrollView>(null);
-  const {top, bottom, left, right} = useSafeAreaInsets();
+
+  const [filter, setFilter] = useState<string>('everyone');
+  const [type, setType] = useState<'everyone' | 'role' | 'direct'>('everyone');
+  const [receiverObject, setReceiverObject] = useState<
+    'everyone' | HMSRole | HMSRemotePeer
+  >('everyone');
+  const [showBanner, setShowBanner] = useState<boolean>(true);
+  const [text, setText] = useState('');
+
+  const sendMessage = () => {
+    let hmsMessageRecipient: HMSMessageRecipient;
+    if (text.length > 0) {
+      if (type === 'role') {
+        hmsMessageRecipient = new HMSMessageRecipient({
+          recipientType: HMSMessageRecipientType.ROLES,
+          recipientRoles: [receiverObject as HMSRole],
+        });
+        hmsInstance?.sendGroupMessage(text, [receiverObject as HMSRole]);
+      } else if (type === 'direct') {
+        hmsMessageRecipient = new HMSMessageRecipient({
+          recipientType: HMSMessageRecipientType.PEER,
+          recipientPeer: receiverObject as HMSPeer,
+        });
+        hmsInstance?.sendDirectMessage(text, receiverObject as HMSPeer);
+      } else {
+        hmsMessageRecipient = new HMSMessageRecipient({
+          recipientType: HMSMessageRecipientType.BROADCAST,
+        });
+        hmsInstance?.sendBroadcastMessage(text);
+      }
+      dispatch(
+        addMessage(
+          new HMSMessage({
+            message: text,
+            type: 'chat',
+            time: new Date(),
+            sender: hmsInstance?.localPeer,
+            recipient: hmsMessageRecipient,
+          }),
+        ),
+      );
+      setText('');
+    }
+  };
 
   useEffect(() => {
     scollviewRef?.current?.scrollToEnd({animated: false});
@@ -41,76 +197,123 @@ export const ChatWindow = ({
   useEffect(() => {
     scollviewRef?.current?.scrollToEnd({animated: true});
   }, [messages]);
+
   return (
     <View style={styles.container}>
-      <View
-        style={[
-          styles.keyboardAvoidingView,
-          {paddingTop: top, paddingLeft: left, paddingRight: right},
-        ]}>
-        <View style={styles.headingContainer}>
-          <MaterialCommunityIcons
-            name="message-outline"
-            style={styles.closeIcon}
-            size={30}
-          />
-          <Text style={styles.heading}>Chat</Text>
-          <TouchableOpacity
-            style={[styles.closeIconContainer]}
-            onPress={cancel}>
-            <Feather size={32} style={styles.closeIcon} name="x" />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.subHeadingContainer}>
-          <Text style={styles.subHeading}>Send Message to</Text>
-          <CustomModalDropdown
-            selectedItem={messageTo}
-            onItemSelected={setMessageTo}
-            data={messageToList}
-          />
-        </View>
+      <View style={styles.chatHeaderContainer}>
+        <Text style={styles.chatHeading}>Chat</Text>
+        <ChatFilter
+          instance={hmsInstance}
+          filter={filter}
+          setFilter={setFilter}
+          setType={setType}
+          setReceiverObject={setReceiverObject}
+        />
+      </View>
+      <View style={styles.contentContainer}>
+        {showBanner && (
+          <View style={styles.banner}>
+            <View style={styles.bannerIconContainer}>
+              <Feather style={styles.bannerIcon} size={16} name="info" />
+            </View>
+            <View style={styles.bannerTextContainer}>
+              <Text style={styles.bannerText}>
+                Messages can only be seen by people in the call and are deleted
+                when the call ends.
+              </Text>
+            </View>
+            <CustomButton
+              onPress={() => setShowBanner(false)}
+              viewStyle={styles.bannerIconContainer}
+              LeftIcon={
+                <MaterialCommunityIcons
+                  style={styles.bannerIcon}
+                  size={24}
+                  name="close"
+                />
+              }
+            />
+          </View>
+        )}
         <ScrollView
           ref={scollviewRef}
-          style={styles.chatContainer}
-          contentContainerStyle={styles.contentContainerStyle}>
-          {messages.map((item: any, index: number) => {
+          style={styles.contentContainer}
+          keyboardShouldPersistTaps="always">
+          {messages.map((data: HMSMessage) => {
+            const isLocal = data.sender?.isLocal;
             return (
-              <ChatBubble
-                key={index.toString()}
-                data={item.data}
-                isLocal={item.isLocal}
-                name={item?.name}
-              />
+              <View
+                style={[
+                  styles.messageBubble,
+                  (data.recipient.recipientType ===
+                    HMSMessageRecipientType.PEER ||
+                    data.recipient.recipientType ===
+                      HMSMessageRecipientType.ROLES) &&
+                    styles.privateMessageBubble,
+                  isLocal && styles.sendMessageBubble,
+                ]}
+                key={Math.random()}>
+                <View style={styles.headingContainer}>
+                  <View style={styles.headingLeftContainer}>
+                    <Text style={styles.senderName}>
+                      {data.sender?.isLocal ? 'You' : data.sender?.name}
+                    </Text>
+                    <Text style={styles.messageTime}>
+                      {getTimeStringin12HourFormat(data.time)}
+                    </Text>
+                  </View>
+                  {(data.recipient.recipientType ===
+                    HMSMessageRecipientType.PEER ||
+                    data.recipient.recipientType ===
+                      HMSMessageRecipientType.ROLES) && (
+                    <View style={styles.headingRightContainer}>
+                      <Text style={styles.private}>
+                        {data.recipient.recipientType ===
+                          HMSMessageRecipientType.PEER &&
+                          `${
+                            isLocal
+                              ? 'TO ' +
+                                data.recipient.recipientPeer?.name +
+                                ' | '
+                              : 'TO YOU | '
+                          }PRIVATE`}
+                        {data.recipient.recipientType ===
+                          HMSMessageRecipientType.ROLES &&
+                          data?.recipient?.recipientRoles &&
+                          data.recipient.recipientRoles[0].name}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+                <Text style={styles.messageText}>{data.message}</Text>
+              </View>
             );
           })}
         </ScrollView>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={[styles.textInputContainer, {marginBottom: bottom}]}>
-          <View style={styles.flex}>
-            <TextInput
-              placeholder="Enter Message"
-              placeholderTextColor="#454545"
-              style={styles.textInput}
-              onChangeText={value => {
-                setText(value);
-              }}
-              value={text}
-            />
-          </View>
-          <TouchableOpacity
-            style={styles.sendContainer}
-            onPress={() => {
-              send(text, messageToList[messageTo]);
-              setText('');
-            }}>
+      </View>
+      <View
+        style={bottom === 0 ? styles.inputContainer : {marginBottom: bottom}}>
+        <CustomInput
+          value={text}
+          onChangeText={setText}
+          inputStyle={styles.chatInput}
+          clearButtonStyle={styles.clearButtonStyle}
+          placeholderTextColor={COLORS.TEXT.DISABLED}
+          placeholder={`Send a message to ${
+            receiverObject === 'everyone' ? receiverObject : receiverObject.name
+          }`}
+        />
+        <CustomButton
+          onPress={sendMessage}
+          viewStyle={styles.sendMessageButton}
+          LeftIcon={
             <MaterialCommunityIcons
-              style={styles.closeIcon}
-              size={28}
+              style={styles.sendMessageIcon}
+              size={24}
               name="send"
             />
-          </TouchableOpacity>
-        </KeyboardAvoidingView>
+          }
+        />
       </View>
     </View>
   );
@@ -118,81 +321,193 @@ export const ChatWindow = ({
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    justifyContent: 'center',
-    zIndex: 2,
-    backgroundColor: COLORS.WHITE,
-  },
-  flex: {
-    flex: 1,
-  },
-  keyboardAvoidingView: {
-    width: '100%',
     height: '100%',
+    width: '100%',
+    backgroundColor: COLORS.SURFACE.DEFAULT,
   },
-  contentContainerStyle: {
-    paddingBottom: 8,
-  },
-  chatContainer: {
-    flex: 1,
-    paddingHorizontal: 24,
-    borderTopWidth: 2,
-    borderTopColor: COLORS.BORDER.DEFAULT,
-    borderBottomWidth: 2,
-    borderBottomColor: COLORS.BORDER.DEFAULT,
-  },
-  textInput: {
-    borderColor: COLORS.PRIMARY.DEFAULT,
-    borderWidth: 1,
-    paddingHorizontal: 16,
-    flex: 1,
-    color: COLORS.PRIMARY.DEFAULT,
-    fontFamily: 'Inter-Regular',
-  },
-  textInputContainer: {
+  chatHeaderContainer: {
+    height: 48,
+    width: '80%',
     flexDirection: 'row',
-    paddingBottom: 8,
-    paddingTop: 10,
-    paddingHorizontal: 24,
+    alignItems: 'center',
   },
-  sendContainer: {
+  chatHeading: {
+    fontFamily: 'Inter-Medium',
+    fontSize: 20,
+    lineHeight: 24,
+    letterSpacing: 0.15,
+    color: COLORS.TEXT.HIGH_EMPHASIS,
+    paddingRight: 12,
+  },
+  chatFilterContainer: {
     padding: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: 120,
+    borderWidth: 1,
+    borderColor: COLORS.BORDER.LIGHT,
+    borderRadius: 8,
   },
-  closeIcon: {
-    color: COLORS.PRIMARY.DEFAULT,
+  chatFilterText: {
+    color: COLORS.TEXT.HIGH_EMPHASIS,
+    fontFamily: 'Inter-Regular',
+    fontSize: 12,
+    lineHeight: 16,
+    letterSpacing: 0.4,
+    marginRight: 12,
+    textTransform: 'capitalize',
   },
-  closeIconContainer: {
+  chatFilterIcon: {
+    color: COLORS.TEXT.HIGH_EMPHASIS,
     position: 'absolute',
-    right: 20,
-    padding: 10,
+    right: 0,
+  },
+  chatMenuContainer: {
+    backgroundColor: COLORS.SURFACE.LIGHT,
+  },
+  chatMenuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: Platform.OS === 'ios' ? 16 : 0,
+  },
+  chatMenuItemIcon: {
+    color: COLORS.WHITE,
+    paddingRight: 16,
+    height: 24,
+  },
+  chatMenuItemName: {
+    color: COLORS.TEXT.HIGH_EMPHASIS,
+    fontSize: 14,
+    lineHeight: 20,
+    letterSpacing: 0.1,
+    fontFamily: 'Inter-Medium',
+    textTransform: 'capitalize',
+  },
+  chatInput: {
+    backgroundColor: COLORS.SURFACE.LIGHT,
+    color: COLORS.TEXT.HIGH_EMPHASIS,
+    fontFamily: 'Inter-Medium',
+    borderColor: COLORS.BORDER.LIGHT,
+    borderWidth: 1,
+    borderRadius: 8,
+    width: '100%',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    paddingLeft: 16,
+    paddingRight: 88,
+  },
+  sendMessageButton: {
+    position: 'absolute',
+    alignItems: 'center',
+    right: 0,
+    paddingHorizontal: 12,
+    width: 48,
+  },
+  sendMessageIcon: {
+    color: COLORS.TEXT.HIGH_EMPHASIS,
+  },
+  clearButtonStyle: {
+    right: 48,
+    width: 40,
+  },
+  messageContainer: {
+    flex: 1,
+    backgroundColor: 'blue',
+  },
+  banner: {
+    height: 80,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.SURFACE.LIGHT,
+    borderRadius: 8,
+  },
+  bannerIcon: {
+    color: COLORS.TEXT.DISABLED,
+  },
+  bannerIconContainer: {
+    width: 52,
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bannerTextContainer: {
+    flex: 1,
+  },
+  bannerText: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 12,
+    lineHeight: 16,
+    letterSpacing: 0.4,
+    color: COLORS.TEXT.MEDIUM_EMPHASIS,
+  },
+  contentContainer: {
+    flex: 1,
+    marginVertical: 4,
+  },
+  messageBubble: {
+    padding: 8,
+    borderRadius: 8,
+    marginBottom: 12,
+    width: '90%',
+  },
+  privateMessageBubble: {
+    backgroundColor: COLORS.SURFACE.LIGHT,
+  },
+  sendMessageBubble: {
+    alignSelf: 'flex-end',
   },
   headingContainer: {
-    paddingTop: 8,
-    alignItems: 'center',
     flexDirection: 'row',
-    justifyContent: 'center',
-    paddingHorizontal: 24,
-  },
-  heading: {
-    paddingLeft: 10,
-    ...FONTS.H5,
-    color: COLORS.PRIMARY.DEFAULT,
-  },
-  subHeadingContainer: {
-    padding: 10,
     alignItems: 'center',
-    flexDirection: 'row',
+    marginBottom: 8,
     justifyContent: 'space-between',
-    paddingHorizontal: 24,
   },
-  subHeading: {
-    fontSize: 16,
+  headingLeftContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headingRightContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderRadius: 4,
+    borderColor: COLORS.BORDER.LIGHT,
+    justifyContent: 'center',
+    padding: 4,
+  },
+  private: {
     fontFamily: 'Inter-Medium',
-    color: COLORS.PRIMARY.LIGHT,
+    fontSize: 10,
+    lineHeight: 16,
+    letterSpacing: 1.5,
+    color: COLORS.TEXT.HIGH_EMPHASIS,
+    textTransform: 'uppercase',
   },
-  picker: {width: '50%'},
+  senderName: {
+    fontFamily: 'Inter-Medium',
+    fontSize: 14,
+    lineHeight: 20,
+    letterSpacing: 0.1,
+    color: COLORS.TEXT.HIGH_EMPHASIS,
+    textTransform: 'capitalize',
+    marginRight: 8,
+  },
+  messageTime: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 12,
+    lineHeight: 16,
+    letterSpacing: 0.4,
+    color: COLORS.TEXT.MEDIUM_EMPHASIS,
+  },
+  messageText: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 14,
+    lineHeight: 20,
+    letterSpacing: 0.25,
+    color: COLORS.TEXT.MEDIUM_EMPHASIS,
+    flexWrap: 'wrap',
+  },
+  inputContainer: {
+    marginBottom: 16,
+  },
 });
