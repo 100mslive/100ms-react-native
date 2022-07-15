@@ -57,6 +57,8 @@ import {
   ZoomableView,
   CustomButton,
   DefaultModal,
+  Menu,
+  MenuItem,
 } from '../../components';
 import {
   addMessage,
@@ -91,6 +93,8 @@ import {
   ChangeRoleModal,
   ChangeVolumeModal,
   RtcStatsModal,
+  EndRoomModal,
+  LeaveRoomModal,
 } from './Modals';
 
 type MeetingScreenProp = NativeStackNavigationProp<
@@ -222,9 +226,6 @@ const Meeting = () => {
         break;
       case ModalTypes.RESOLUTION:
         modalTitle = 'Resolution Details';
-        break;
-      case ModalTypes.LEAVE:
-        modalTitle = 'End Room';
         break;
       case ModalTypes.HLS_STREAMING:
         modalTitle = 'HLS Streaming Details';
@@ -469,28 +470,6 @@ const Meeting = () => {
             },
           },
         ];
-        break;
-      case ModalTypes.LEAVE:
-        buttons = [
-          {
-            text: 'Cancel',
-            type: 'cancel',
-          },
-          {
-            text: 'Leave without ending room',
-            onPress: async () => {
-              await onLeavePress();
-            },
-          },
-        ];
-        if (instance?.localPeer?.role?.permissions?.endRoom) {
-          buttons.push({
-            text: 'End Room for all',
-            onPress: () => {
-              onEndRoomPress();
-            },
-          });
-        }
         break;
       case ModalTypes.HLS_STREAMING:
         buttons = [
@@ -920,7 +899,7 @@ const Meeting = () => {
     Dimensions.addEventListener('change', callback);
 
     const backAction = () => {
-      setModalVisible(ModalTypes.LEAVE);
+      setModalVisible(ModalTypes.LEAVE_MENU);
       return true;
     };
 
@@ -1155,12 +1134,6 @@ const Meeting = () => {
         </Text>
       </CustomModal>
       <AlertModal
-        modalVisible={modalVisible === ModalTypes.LEAVE}
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
-        title={getModalTitle(ModalTypes.LEAVE)}
-        buttons={getModalButtons(ModalTypes.LEAVE)}
-      />
-      <AlertModal
         modalVisible={modalVisible === ModalTypes.SETTINGS}
         setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
         title={getModalTitle(ModalTypes.SETTINGS)}
@@ -1220,13 +1193,56 @@ const Meeting = () => {
       </CustomModal>
       <View style={styles.iconTopWrapper}>
         <View style={styles.iconTopSubWrapper}>
-          <CustomButton
-            onPress={() => {
-              setModalVisible(ModalTypes.LEAVE);
-            }}
-            viewStyle={[styles.iconContainer, styles.leaveIcon]}
-            LeftIcon={<Feather name="log-out" style={styles.icon} size={24} />}
-          />
+          <Menu
+            visible={modalVisible === ModalTypes.LEAVE_MENU}
+            anchor={
+              <CustomButton
+                onPress={() => {
+                  setModalVisible(ModalTypes.LEAVE_MENU);
+                }}
+                viewStyle={[styles.iconContainer, styles.leaveIcon]}
+                LeftIcon={
+                  <Feather name="log-out" style={styles.icon} size={24} />
+                }
+              />
+            }
+            onRequestClose={() => setModalVisible(ModalTypes.DEFAULT)}
+            style={styles.participantsMenuContainer}>
+            <MenuItem
+              onPress={() => {
+                setModalVisible(ModalTypes.DEFAULT);
+                setTimeout(() => {
+                  setModalVisible(ModalTypes.LEAVE_ROOM);
+                }, 500);
+              }}>
+              <View style={styles.participantMenuItem}>
+                <Feather
+                  name="log-out"
+                  style={styles.participantMenuItemIcon}
+                  size={24}
+                />
+                <Text style={styles.participantMenuItemName}>Leave Studio</Text>
+              </View>
+            </MenuItem>
+            <MenuItem
+              onPress={() => {
+                setModalVisible(ModalTypes.DEFAULT);
+                setTimeout(() => {
+                  setModalVisible(ModalTypes.END_ROOM);
+                }, 500);
+              }}>
+              <View style={styles.participantMenuItem}>
+                <Feather
+                  name="alert-triangle"
+                  style={[styles.participantMenuItemIcon, styles.error]}
+                  size={24}
+                />
+                <Text style={[styles.participantMenuItemName, styles.error]}>
+                  End Session
+                </Text>
+              </View>
+            </MenuItem>
+          </Menu>
           <Text style={styles.headerName}>
             {speakers?.length > 0 && speakers[0]?.peer?.name
               ? `🔊  ${speakers[0]?.peer?.name}`
@@ -1559,6 +1575,28 @@ const Meeting = () => {
         <ChangeNameModal
           instance={instance}
           peerTrackNode={updatePeerTrackNode}
+          cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
+        />
+      </DefaultModal>
+      <DefaultModal
+        animationType="fade"
+        overlay={false}
+        modalPosiion="center"
+        modalVisible={modalVisible === ModalTypes.LEAVE_ROOM}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        <LeaveRoomModal
+          onSuccess={onLeavePress}
+          cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
+        />
+      </DefaultModal>
+      <DefaultModal
+        animationType="fade"
+        overlay={false}
+        modalPosiion="center"
+        modalVisible={modalVisible === ModalTypes.END_ROOM}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        <EndRoomModal
+          onSuccess={onEndRoomPress}
           cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
         />
       </DefaultModal>

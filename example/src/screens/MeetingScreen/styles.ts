@@ -741,6 +741,10 @@ const styles = StyleSheet.create({
     color: COLORS.TEXT.HIGH_EMPHASIS,
     paddingTop: 8,
   },
+  errorContainer: {
+    backgroundColor: COLORS.INDICATORS.ERROR,
+    borderColor: COLORS.INDICATORS.ERROR,
+  },
 });
 
 export {styles};
