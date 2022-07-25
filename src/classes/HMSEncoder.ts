@@ -27,6 +27,7 @@ import { HMSRtmpStreamingState } from './HMSRtmpStreamingState';
 import { HMSServerRecordingState } from './HMSServerRecordingState';
 import { HMSMessage } from './HMSMessage';
 import { HMSMessageRecipient } from './HMSMessageRecipient';
+import { HMSException } from './HMSException';
 
 export class HMSEncoder {
   static encodeHmsRoom(room: HMSRoom, id: string) {
@@ -495,6 +496,18 @@ export class HMSEncoder {
       recipientType: data?.recipientType,
       recipientPeer: this.encodeHmsPeer(data?.recipientPeer, id),
       recipientRoles: this.encodeHmsRoles(data?.recipientRoles),
+    });
+  }
+
+  static encodeHMSException(data: any) {
+    return new HMSException({
+      code: data?.error?.code,
+      description: data?.error?.description,
+      localizedDescription: data?.error?.localizedDescription,
+      message: data?.error?.message,
+      name: data?.error?.name,
+      action: data?.error?.action,
+      isTerminal: data?.error?.isTerminal,
     });
   }
 }

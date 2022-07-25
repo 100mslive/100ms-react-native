@@ -366,6 +366,7 @@ object HMSDecoder {
       decodedError.putString("message", error.message)
       decodedError.putString("name", error.name)
       decodedError.putString("action", error.action)
+      decodedError.putBoolean("isTerminal", error.isTerminal)
       return decodedError
     }
     return null

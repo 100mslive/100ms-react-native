@@ -839,11 +839,11 @@ const Meeting = () => {
   const onError = (data: HMSException) => {
     console.log('data in onError: ', data);
     Toast.showWithGravity(
-      data?.error?.message || 'Something went wrong',
+      data?.message || 'Something went wrong',
       Toast.LONG,
       Toast.TOP,
     );
-    if (data?.error?.code === 4005) {
+    if (data?.code === 4005) {
       hmsInstance
         ?.destroy()
         .then(s => console.log('Destroy Success: ', s))

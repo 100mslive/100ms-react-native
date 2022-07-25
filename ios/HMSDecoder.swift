@@ -486,8 +486,9 @@ class HMSDecoder: NSObject {
             let name = error.id
             let id = error.id
             let action = error.action
+            let isTerminal = false
 
-            return ["code": code, "description": description, "localizedDescription": localizedDescription, "debugDescription": debugDescription, "message": message, "name": name, "action": action, "id": id]
+            return ["code": code, "description": description, "localizedDescription": localizedDescription, "debugDescription": debugDescription, "message": message, "name": name, "action": action, "id": id, "isTerminal": isTerminal]
         } else {
             return nil
         }
