@@ -1,7 +1,6 @@
 export class HMSException {
   code: number;
   description: string;
-  localizedDescription: string;
   message: string;
   name: string;
   action: string;
@@ -10,7 +9,6 @@ export class HMSException {
   constructor(params: {
     code: number;
     description: string;
-    localizedDescription: string;
     message: string;
     name: string;
     action: string;
@@ -18,7 +16,6 @@ export class HMSException {
   }) {
     this.code = params.code;
     this.description = params.description;
-    this.localizedDescription = params.localizedDescription;
     this.message = params.message;
     this.name = params.name;
     this.action = params.action;

@@ -503,7 +503,6 @@ export class HMSEncoder {
     return new HMSException({
       code: data?.error?.code,
       description: data?.error?.description,
-      localizedDescription: data?.error?.localizedDescription,
       message: data?.error?.message,
       name: data?.error?.name,
       action: data?.error?.action,

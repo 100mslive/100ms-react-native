@@ -46,7 +46,7 @@ class HMSRNSDK(
 
   private fun emitCustomError(message: String) {
     val data: WritableMap = Arguments.createMap()
-    val hmsError = HMSException(102, message, message, message, message, null, false)
+    val hmsError = HMSException(6002, message, message, message, message, null, false)
     data.putString("id", id)
     data.putMap("error", HMSDecoder.getError(hmsError))
     delegate.emitEvent("ON_ERROR", data)
@@ -55,14 +55,14 @@ class HMSRNSDK(
   private fun emitRequiredKeysError(message: String) {
     val data: WritableMap = Arguments.createMap()
     val hmsError =
-        HMSException(102, "REQUIRED_KEYS_NOT_FOUND", "SEND_ALL_REQUIRED_KEYS", message, message, null, false)
+        HMSException(6002, "REQUIRED_KEYS_NOT_FOUND", "SEND_ALL_REQUIRED_KEYS", message, message, null, false)
     data.putString("id", id)
     data.putMap("error", HMSDecoder.getError(hmsError))
     delegate.emitEvent("ON_ERROR", data)
   }
 
   private fun rejectCallback(callback: Promise?, message: String) {
-    callback?.reject("102", message)
+    callback?.reject("6002", message)
   }
 
   fun emitHMSError(error: HMSException) {

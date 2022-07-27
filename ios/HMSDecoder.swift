@@ -478,17 +478,15 @@ class HMSDecoder: NSObject {
 
     static func getError(_ errorObj: HMSError?) -> [String: Any]? {
         if let error = errorObj {
-            let code = error.code
+            let code = error.code.rawValue
             let description = error.description
-            let localizedDescription = error.localizedDescription
-            let debugDescription = error.debugDescription
             let message = error.message
             let name = error.id
             let id = error.id
             let action = error.action
             let isTerminal = false
 
-            return ["code": code, "description": description, "localizedDescription": localizedDescription, "debugDescription": debugDescription, "message": message, "name": name, "action": action, "id": id, "isTerminal": isTerminal]
+            return ["code": code, "description": description, "message": message, "name": name, "action": action, "id": id, "isTerminal": isTerminal]
         } else {
             return nil
         }

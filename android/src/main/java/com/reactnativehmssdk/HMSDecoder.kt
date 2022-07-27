@@ -361,7 +361,6 @@ object HMSDecoder {
     if (error !== null) {
       val decodedError: WritableMap = Arguments.createMap()
       decodedError.putInt("code", error.code)
-      decodedError.putString("localizedDescription", error.localizedMessage)
       decodedError.putString("description", error.description)
       decodedError.putString("message", error.message)
       decodedError.putString("name", error.name)

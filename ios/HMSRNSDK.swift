@@ -57,7 +57,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     private var previewInProgress = false
 
     func emitRequiredKeysError(_ error: String) {
-        delegate?.emitEvent(ON_ERROR, ["error": ["code": HMSErrorCode.genericErrorUnknown, "description": error, "localizedDescription": error, "debugDescription": error, "message": error, "name": "REQUIRED_KEYS_NOT_FOUND", "action": "SEND_ALL_REQUIRED_KEYS", "id": 102, "isTerminal": false], "id": id])
+        delegate?.emitEvent(ON_ERROR, ["error": ["code": HMSErrorCode.genericErrorUnknown.rawValue, "description": error, "message": error, "name": "REQUIRED_KEYS_NOT_FOUND", "action": "SEND_ALL_REQUIRED_KEYS", "id": 102, "isTerminal": false], "id": id])
     }
 
     func preview(_ credentials: NSDictionary) {
