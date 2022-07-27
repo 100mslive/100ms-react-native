@@ -43,6 +43,7 @@ export enum ModalTypes {
   PREVIEW = 'preview',
   PARTICIPANTS = 'participants',
   VOLUME = 'volume',
+  AUDIO_MIXING_MODE = 'audioMixingMode',
   DEFAULT = '',
 }
 

@@ -18,6 +18,7 @@ import {
   HMSRemoteAudioTrack,
   HMSRemoteVideoStats,
   HMSRemoteVideoTrack,
+  AudioMixingMode,
 } from '@100mslive/react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -1048,6 +1049,74 @@ export const EndRoomModal = ({
             styles.roleChangeModalSuccessButton,
             styles.errorContainer,
           ]}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+      </View>
+    </View>
+  );
+};
+
+export const ChangeAudioMixingModeModal = ({
+  instance,
+  newAudioMixingMode,
+  setNewAudioMixingMode,
+  cancelModal,
+}: {
+  instance?: HMSSDK;
+  newAudioMixingMode: AudioMixingMode;
+  setNewAudioMixingMode: React.Dispatch<React.SetStateAction<AudioMixingMode>>;
+  cancelModal: Function;
+}) => {
+  const changeAudioMixingMode = async () => {
+    await instance?.setAudioMixingMode(newAudioMixingMode);
+    cancelModal();
+  };
+
+  return (
+    <View style={styles.roleChangeModal}>
+      <Text style={styles.roleChangeModalHeading}>
+        Change Audio Mixing Mode
+      </Text>
+      <Text style={styles.roleChangeModalDescription}>
+        TALK_ONLY : only data captured by mic will be streamed in the room,
+        TALK_AND_MUSIC : data captured by mic as well as playback audio being
+        captured from device will be streamed in the room, MUSIC_ONLY : only the
+        playback audio being captured from device will be streamed in the room
+      </Text>
+      {Object.keys(AudioMixingMode).map(audioMixingMode => {
+        return (
+          <TouchableOpacity
+            key={audioMixingMode}
+            style={styles.roleChangeModalPermissionContainer}
+            onPress={() => {
+              setNewAudioMixingMode(audioMixingMode as AudioMixingMode);
+            }}>
+            <View style={styles.roleChangeModalCheckBox}>
+              {newAudioMixingMode === audioMixingMode && (
+                <Entypo
+                  name="check"
+                  style={styles.roleChangeModalCheck}
+                  size={10}
+                />
+              )}
+            </View>
+            <Text style={styles.roleChangeModalPermission}>
+              {audioMixingMode}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
+      <View style={styles.roleChangeModalPermissionContainer}>
+        <CustomButton
+          title="Cancel"
+          onPress={cancelModal}
+          viewStyle={styles.roleChangeModalCancelButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+        <CustomButton
+          title="Change"
+          onPress={changeAudioMixingMode}
+          viewStyle={styles.roleChangeModalSuccessButton}
           textStyle={styles.roleChangeModalButtonText}
         />
       </View>
