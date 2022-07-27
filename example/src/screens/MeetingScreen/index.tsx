@@ -522,19 +522,23 @@ const Meeting = () => {
     return buttons;
   };
 
+  const destroy = async () => {
+    await hmsInstance
+      ?.destroy()
+      .then(s => console.log('Destroy Success: ', s))
+      .catch(e => console.log('Destroy Error: ', e));
+    dispatch(clearMessageData());
+    dispatch(clearPeerData());
+    dispatch(clearHmsReference());
+    navigate('QRCodeScreen');
+  };
+
   const onLeavePress = async () => {
     await instance
       ?.leave()
       .then(async d => {
         console.log('Leave Success: ', d);
-        await instance
-          ?.destroy()
-          .then(s => console.log('Destroy Success: ', s))
-          .catch(e => console.log('Destroy Error: ', e));
-        dispatch(clearMessageData());
-        dispatch(clearPeerData());
-        dispatch(clearHmsReference());
-        navigate('QRCodeScreen');
+        destroy();
       })
       .catch(e => console.log('Leave Error: ', e));
   };
@@ -544,14 +548,7 @@ const Meeting = () => {
       ?.endRoom('Host ended the room')
       .then(async d => {
         console.log('EndRoom Success: ', d);
-        await instance
-          ?.destroy()
-          .then(s => console.log('Destroy Success: ', s))
-          .catch(e => console.log('Destroy Error: ', e));
-        dispatch(clearMessageData());
-        dispatch(clearPeerData());
-        dispatch(clearHmsReference());
-        navigate('QRCodeScreen');
+        destroy();
       })
       .catch(e => console.log('EndRoom Error: ', e));
   };
@@ -826,32 +823,24 @@ const Meeting = () => {
 
   const onRemovedFromRoom = async (data: any) => {
     console.log('data in onRemovedFromRoom: ', data);
-    await instance
-      ?.destroy()
-      .then(s => console.log('Destroy Success: ', s))
-      .catch(e => console.log('Destroy Error: ', e));
-    dispatch(clearMessageData());
-    dispatch(clearPeerData());
-    dispatch(clearHmsReference());
-    navigate('QRCodeScreen');
+    destroy();
   };
 
   const onError = (data: HMSException) => {
     console.log('data in onError: ', data);
     Toast.showWithGravity(
-      data?.error?.message || 'Something went wrong',
+      `${data?.code} ${data?.message}` || 'Something went wrong',
       Toast.LONG,
       Toast.TOP,
     );
-    if (data?.error?.code === 4005) {
-      hmsInstance
-        ?.destroy()
-        .then(s => console.log('Destroy Success: ', s))
-        .catch(e => console.log('Destroy Error: ', e));
-      dispatch(clearMessageData());
-      dispatch(clearPeerData());
-      dispatch(clearHmsReference());
-      navigate('QRCodeScreen');
+    if (Platform.OS === 'android') {
+      if (data?.isTerminal === true) {
+        destroy();
+      }
+    } else {
+      if (data?.code === 4005 || data?.code === 2000) {
+        destroy();
+      }
     }
   };
 

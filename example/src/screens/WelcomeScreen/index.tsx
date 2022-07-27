@@ -167,7 +167,7 @@ const App = () => {
   const onError = (data: HMSException) => {
     console.log('data in onError: ', data);
     Toast.showWithGravity(
-      data?.error?.message || 'Something went wrong',
+      data?.message || 'Something went wrong',
       Toast.LONG,
       Toast.TOP,
     );
