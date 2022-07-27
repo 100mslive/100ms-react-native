@@ -320,8 +320,6 @@ class HMSDecoder: NSObject {
 
         let endRoom = permissions.endRoom ?? false
         let removeOthers = permissions.removeOthers ?? false
-        let stopPresentation = permissions.stopPresentation ?? false
-        let muteAll = permissions.muteAll ?? false
         let mute = permissions.mute ?? false
         let unmute = permissions.unmute ?? false
         let changeRole = permissions.changeRole ?? false
