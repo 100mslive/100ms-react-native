@@ -838,7 +838,7 @@ const Meeting = () => {
         destroy();
       }
     } else {
-      if (data?.code === 4005) {
+      if (data?.code === 4005 || data?.code === 2000) {
         destroy();
       }
     }
