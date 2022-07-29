@@ -33,6 +33,7 @@ import {
   HMSHLSRecordingConfig,
   HMSTrackSource,
   HMSException,
+  HMSAudioMode,
 } from '@100mslive/react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -95,6 +96,8 @@ import {
   RtcStatsModal,
   EndRoomModal,
   LeaveRoomModal,
+  ChangeAudioOutputModal,
+  ChangeAudioModeModal,
 } from './Modals';
 
 type MeetingScreenProp = NativeStackNavigationProp<
@@ -168,6 +171,11 @@ const Meeting = () => {
     record: false,
     meetingURL: roomID ? roomID + '?token=beam_recording' : '',
   });
+  const [audioMode, setAudioMode] = useState<HMSAudioMode>(
+    HMSAudioMode.MODE_NORMAL,
+  );
+  const [audioDeviceChangeListener, setAudioDeviceChangeListener] =
+    useState<boolean>(false);
   const [resolutionDetails, setResolutionDetails] = useState<boolean>(false);
   const [hlsStreamingDetails, setHLSStreamingDetails] =
     useState<HMSHLSMeetingURLVariant>({
@@ -443,6 +451,43 @@ const Meeting = () => {
               setMuteAllTracksAudio(!muteAllTracksAudio);
             },
           });
+        }
+        if (Platform.OS === 'android') {
+          if (audioDeviceChangeListener) {
+            buttons.push({
+              text: 'Remove Audio Device Change Listener',
+              onPress: () => {
+                instance?.removeEventListener(
+                  HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED,
+                );
+                setAudioDeviceChangeListener(false);
+              },
+            });
+          } else {
+            buttons.push({
+              text: 'Set Audio Device Change Listener',
+              onPress: () => {
+                instance?.setAudioDeviceChangeListener(onAudioDeviceChanged);
+                setAudioDeviceChangeListener(true);
+              },
+            });
+          }
+          buttons.push(
+            ...[
+              {
+                text: 'Switch Audio Output',
+                onPress: () => {
+                  setModalVisible(ModalTypes.SWITCH_AUDIO_OUTPUT);
+                },
+              },
+              {
+                text: 'Set Audio Mode',
+                onPress: () => {
+                  setModalVisible(ModalTypes.CHANGE_AUDIO_MODE);
+                },
+              },
+            ],
+          );
         }
         break;
       case ModalTypes.RESOLUTION:
@@ -853,6 +898,15 @@ const Meeting = () => {
       dispatch(clearHmsReference());
       navigate('QRCodeScreen');
     }
+  };
+
+  const onAudioDeviceChanged = (data: any) => {
+    console.log('data in onAudioDeviceChanged: ', data);
+    Toast.showWithGravity(
+      `Audio Device Output changed to ${data?.device}`,
+      Toast.LONG,
+      Toast.TOP,
+    );
   };
 
   const updateHmsInstance = (hms: HMSSDK | undefined) => {
@@ -1597,6 +1651,30 @@ const Meeting = () => {
         setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
         <EndRoomModal
           onSuccess={onEndRoomPress}
+          cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
+        />
+      </DefaultModal>
+      <DefaultModal
+        animationType="fade"
+        overlay={false}
+        modalPosiion="center"
+        modalVisible={modalVisible === ModalTypes.SWITCH_AUDIO_OUTPUT}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        <ChangeAudioOutputModal
+          instance={instance}
+          cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
+        />
+      </DefaultModal>
+      <DefaultModal
+        animationType="fade"
+        overlay={false}
+        modalPosiion="center"
+        modalVisible={modalVisible === ModalTypes.CHANGE_AUDIO_MODE}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        <ChangeAudioModeModal
+          instance={instance}
+          audioMode={audioMode}
+          setAudioMode={setAudioMode}
           cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
         />
       </DefaultModal>

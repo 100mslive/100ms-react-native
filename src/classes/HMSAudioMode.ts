@@ -1,0 +1,7 @@
+export enum HMSAudioMode {
+  MODE_NORMAL = 0,
+  MODE_RINGTONE = 1,
+  MODE_IN_CALL = 2,
+  MODE_IN_COMMUNICATION = 3,
+  MODE_CALL_SCREENING = 4,
+}

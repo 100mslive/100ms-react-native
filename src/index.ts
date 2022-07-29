@@ -62,6 +62,8 @@ export * from './classes/HMSMessageRecipient';
 export * from './classes/HMSMessageRecipientType';
 export * from './classes/HMSNetworkQuality';
 export * from './classes/HMSRtmpVideoResolution';
+export * from './classes/HMSAudioDevice';
+export * from './classes/HMSAudioMode';
 
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
 export default HmsManager;

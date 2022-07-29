@@ -304,6 +304,41 @@ class HMSManager(reactContext: ReactApplicationContext) :
     hms?.disableRTCStats()
   }
 
+  @ReactMethod
+  fun getAudioDevicesList(data: ReadableMap, callback: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.getAudioDevicesList(callback)
+  }
+
+  @ReactMethod
+  fun getAudioOutputRouteType(data: ReadableMap, callback: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.getAudioOutputRouteType(callback)
+  }
+
+  @ReactMethod
+  fun switchAudioOutput(data: ReadableMap) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.switchAudioOutput(data)
+  }
+
+  @ReactMethod
+  fun setAudioMode(data: ReadableMap) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.setAudioMode(data)
+  }
+
+  @ReactMethod
+  fun setAudioDeviceChangeListener(data: ReadableMap) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.setAudioDeviceChangeListener()
+  }
+
   fun emitEvent(event: String, data: WritableMap) {
     reactApplicationContext
         .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)

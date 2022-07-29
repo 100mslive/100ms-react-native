@@ -15,6 +15,7 @@ import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.uimanager.events.RCTEventEmitter
 import java.io.ByteArrayOutputStream
 import java.util.*
+import live.hms.video.audio.HMSAudioManager
 import live.hms.video.error.HMSException
 import live.hms.video.media.codec.HMSAudioCodec
 import live.hms.video.media.codec.HMSVideoCodec
@@ -541,5 +542,46 @@ object HMSHelper {
       output.putString("error", e.message)
       reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "captureFrame", output)
     }
+  }
+
+  fun getAudioDevicesList(audioDevicesList: List<HMSAudioManager.AudioDevice>?): ReadableArray {
+    val hmsAudioDevicesList = Arguments.createArray()
+    if (audioDevicesList != null) {
+      for (audioDevice in audioDevicesList) {
+        hmsAudioDevicesList.pushString(audioDevice.name)
+      }
+    }
+    return hmsAudioDevicesList
+  }
+
+  fun getAudioDevicesSet(audioDevicesSet: Set<HMSAudioManager.AudioDevice>?): ReadableArray {
+    val hmsAudioDevicesSet = Arguments.createArray()
+    if (audioDevicesSet != null) {
+      for (audioDevice in audioDevicesSet) {
+        hmsAudioDevicesSet.pushString(audioDevice.name)
+      }
+    }
+    return hmsAudioDevicesSet
+  }
+
+  fun getAudioDevice(audioDevice: String?): HMSAudioManager.AudioDevice {
+    when (audioDevice) {
+      "AUTOMATIC" -> {
+        return HMSAudioManager.AudioDevice.AUTOMATIC
+      }
+      "BLUETOOTH" -> {
+        return HMSAudioManager.AudioDevice.BLUETOOTH
+      }
+      "EARPIECE" -> {
+        return HMSAudioManager.AudioDevice.EARPIECE
+      }
+      "SPEAKER_PHONE" -> {
+        return HMSAudioManager.AudioDevice.SPEAKER_PHONE
+      }
+      "WIRED_HEADSET" -> {
+        return HMSAudioManager.AudioDevice.WIRED_HEADSET
+      }
+    }
+    return HMSAudioManager.AudioDevice.SPEAKER_PHONE
   }
 }

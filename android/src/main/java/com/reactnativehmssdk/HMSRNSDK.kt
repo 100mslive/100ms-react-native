@@ -6,6 +6,7 @@ import com.facebook.react.bridge.*
 import com.facebook.react.bridge.UiThreadUtil.runOnUiThread
 import java.util.*
 import kotlinx.coroutines.launch
+import live.hms.video.audio.HMSAudioManager
 import live.hms.video.connection.stats.*
 import live.hms.video.error.HMSException
 import live.hms.video.media.tracks.*
@@ -1193,5 +1194,57 @@ class HMSRNSDK(
 
   fun disableRTCStats() {
     rtcStatsAttached = false
+  }
+
+  fun getAudioDevicesList(callback: Promise?) {
+    callback?.resolve(HMSHelper.getAudioDevicesList(hmsSDK?.getAudioDevicesList()))
+  }
+
+  fun getAudioOutputRouteType(callback: Promise?) {
+    callback?.resolve(hmsSDK?.getAudioOutputRouteType()?.name)
+  }
+
+  fun switchAudioOutput(data: ReadableMap) {
+    val requiredKeys =
+        HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("audioDevice", "String")))
+    if (requiredKeys === null) {
+      val audioDevice = data.getString("audioDevice")
+      hmsSDK?.switchAudioOutput(HMSHelper.getAudioDevice(audioDevice))
+    } else {
+      val errorMessage = "switchAudioOutput: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+    }
+  }
+
+  fun setAudioMode(data: ReadableMap) {
+    val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("audioMode", "Int")))
+    if (requiredKeys === null) {
+      val audioMode = data.getInt("audioMode")
+      hmsSDK?.setAudioMode(audioMode)
+    } else {
+      val errorMessage = "setAudioMode: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+    }
+  }
+
+  fun setAudioDeviceChangeListener() {
+    hmsSDK?.setAudioDeviceChangeListener(
+        object : HMSAudioManager.AudioManagerDeviceChangeListener {
+          override fun onAudioDeviceChanged(
+              device: HMSAudioManager.AudioDevice?,
+              audioDevicesList: Set<HMSAudioManager.AudioDevice>?
+          ) {
+            val data: WritableMap = Arguments.createMap()
+            data.putString("device", device?.name)
+            data.putArray("audioDevicesList", HMSHelper.getAudioDevicesSet(audioDevicesList))
+            data.putString("id", id)
+            delegate.emitEvent("ON_AUDIO_DEVICE_CHANGED", data)
+          }
+
+          override fun onError(error: HMSException) {
+            self.emitHMSError(error)
+          }
+        }
+    )
   }
 }
