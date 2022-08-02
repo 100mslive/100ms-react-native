@@ -174,6 +174,7 @@ const Meeting = () => {
       meetingUrl: roomID ? roomID + '?token=beam_recording' : '',
       metadata: '',
     });
+  const [startHlsRetry, setStartHlsRetry] = useState(true);
   const [hlsRecordingDetails, setHLSRecordingDetails] =
     useState<HMSHLSRecordingConfig>({
       singleFilePerLayer: false,
@@ -477,14 +478,28 @@ const Meeting = () => {
           {
             text: 'Start',
             onPress: () => {
-              const hmsHLSConfig = new HMSHLSConfig({
-                hlsRecordingConfig: hlsRecordingDetails,
-                meetingURLVariants: [hlsStreamingDetails],
-              });
               instance
-                ?.startHLSStreaming(hmsHLSConfig)
+                ?.startHLSStreaming()
                 .then(d => console.log('Start HLS Streaming Success: ', d))
-                .catch(e => console.log('Start HLS Streaming Error: ', e));
+                .catch(err => {
+                  if (startHlsRetry) {
+                    setStartHlsRetry(false);
+                    const hmsHLSConfig = new HMSHLSConfig({
+                      hlsRecordingConfig: hlsRecordingDetails,
+                      meetingURLVariants: [hlsStreamingDetails],
+                    });
+                    instance
+                      ?.startHLSStreaming(hmsHLSConfig)
+                      .then(d =>
+                        console.log('Start HLS Streaming Success: ', d),
+                      )
+                      .catch(e =>
+                        console.log('Start HLS Streaming Error: ', e),
+                      );
+                  } else {
+                    console.log('Start HLS Streaming Error: ', err);
+                  }
+                });
             },
           },
         ];
