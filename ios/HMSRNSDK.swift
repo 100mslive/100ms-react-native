@@ -666,17 +666,12 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func startHLSStreaming(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        guard let meetingURLVariants = data.value(forKey: "meetingURLVariants") as? [[String: Any]]?
-        else {
-            let errorMessage = "startHLSStreaming: " + HMSHelper.getUnavailableRequiredKey(data, ["meetingURLVariants"])
-            emitRequiredKeysError(errorMessage)
-            reject?(errorMessage, errorMessage, nil)
-            return
+        let recordConfig = HMSHelper.getHlsRecordingConfig(data.value(forKey: "hlsRecordingConfig") as? NSDictionary)
+        let hlsMeetingUrlVariant = HMSHelper.getHMSHLSMeetingURLVariants(data.value(forKey: "meetingURLVariants") as? [[String : Any]])
+        var config: HMSHLSConfig? = nil
+        if(!hlsMeetingUrlVariant.isEmpty || recordConfig !== nil){
+            config = HMSHLSConfig(variants: hlsMeetingUrlVariant, recording: recordConfig)
         }
-        
-        let recordConfig = HMSHelper.getHlsRecordingConfig(data)
-        let hlsMeetingUrlVariant = HMSHelper.getHMSHLSMeetingURLVariants(meetingURLVariants)
-        let config = HMSHLSConfig(variants: hlsMeetingUrlVariant, recording: recordConfig)
 
         hms?.startHLSStreaming(config: config, completion: { success, error in
             if success {

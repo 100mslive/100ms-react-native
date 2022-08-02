@@ -304,7 +304,25 @@ object HMSHelper {
     return rtmpURLs
   }
 
-  fun getHMSHLSMeetingURLVariants(
+  fun getHLSConfig(data: ReadableMap?): HMSHLSConfig? {
+    if (data === null) {
+      return data
+    }
+    var hlsMeetingUrlVariant: List<HMSHLSMeetingURLVariant>? = null
+    if (areAllRequiredKeysAvailable(data, arrayOf(Pair("meetingURLVariants", "Array")))) {
+      val meetingURLVariants =
+          data.getArray("meetingURLVariants")?.toArrayList() as? ArrayList<HashMap<String, String>>
+      hlsMeetingUrlVariant = getHMSHLSMeetingURLVariants(meetingURLVariants)
+    }
+    var hlsRecordingConfig: HMSHlsRecordingConfig? = null
+    if (areAllRequiredKeysAvailable(data, arrayOf(Pair("hlsRecordingConfig", "Map")))) {
+      val recordingConfig = data.getMap("hlsRecordingConfig")
+      hlsRecordingConfig = getHlsRecordingConfig(recordingConfig)
+    }
+    return HMSHLSConfig(hlsMeetingUrlVariant, hlsRecordingConfig)
+  }
+
+  private fun getHMSHLSMeetingURLVariants(
       hmsMeetingURLVariants: ArrayList<HashMap<String, String>>?
   ): List<HMSHLSMeetingURLVariant> {
     val meetingURLVariants = mutableListOf<HMSHLSMeetingURLVariant>()
@@ -317,28 +335,25 @@ object HMSHelper {
     return meetingURLVariants
   }
 
-  fun getHlsRecordingConfig(data: ReadableMap): HMSHlsRecordingConfig? {
-    if (areAllRequiredKeysAvailable(data, arrayOf(Pair("hlsRecordingConfig", "Map")))) {
-      val hmsHlsRecordingConfig = data.getMap("hlsRecordingConfig")
-      if (hmsHlsRecordingConfig != null) {
-        var singleFilePerLayer = false
-        var videoOnDemand = false
-        if (areAllRequiredKeysAvailable(
-                hmsHlsRecordingConfig,
-                arrayOf(Pair("singleFilePerLayer", "Boolean"))
-            )
-        ) {
-          singleFilePerLayer = hmsHlsRecordingConfig.getBoolean("singleFilePerLayer")
-        }
-        if (areAllRequiredKeysAvailable(
-                hmsHlsRecordingConfig,
-                arrayOf(Pair("videoOnDemand", "Boolean"))
-            )
-        ) {
-          videoOnDemand = hmsHlsRecordingConfig.getBoolean("videoOnDemand")
-        }
-        return HMSHlsRecordingConfig(singleFilePerLayer, videoOnDemand)
+  private fun getHlsRecordingConfig(hmsHlsRecordingConfig: ReadableMap?): HMSHlsRecordingConfig? {
+    if (hmsHlsRecordingConfig !== null) {
+      var singleFilePerLayer = false
+      var videoOnDemand = false
+      if (areAllRequiredKeysAvailable(
+              hmsHlsRecordingConfig,
+              arrayOf(Pair("singleFilePerLayer", "Boolean"))
+          )
+      ) {
+        singleFilePerLayer = hmsHlsRecordingConfig.getBoolean("singleFilePerLayer")
       }
+      if (areAllRequiredKeysAvailable(
+              hmsHlsRecordingConfig,
+              arrayOf(Pair("videoOnDemand", "Boolean"))
+          )
+      ) {
+        videoOnDemand = hmsHlsRecordingConfig.getBoolean("videoOnDemand")
+      }
+      return HMSHlsRecordingConfig(singleFilePerLayer, videoOnDemand)
     }
     return null
   }

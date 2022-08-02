@@ -126,10 +126,10 @@ object HMSDecoder {
       permissions.putBoolean("endRoom", hmsPermissions.endRoom)
       permissions.putBoolean("removeOthers", hmsPermissions.removeOthers)
       permissions.putBoolean("mute", hmsPermissions.mute)
-      permissions.putBoolean("changeRoleForce", hmsPermissions.changeRoleForce)
+      permissions.putBoolean("browserRecording", hmsPermissions.browserRecording)
       permissions.putBoolean("unmute", hmsPermissions.unmute)
-      permissions.putBoolean("recording", hmsPermissions.recording)
-      permissions.putBoolean("streaming", hmsPermissions.streaming)
+      permissions.putBoolean("hlsStreaming", hmsPermissions.hlsStreaming)
+      permissions.putBoolean("rtmpStreaming", hmsPermissions.rtmpStreaming)
       permissions.putBoolean("changeRole", hmsPermissions.changeRole)
     }
     return permissions
