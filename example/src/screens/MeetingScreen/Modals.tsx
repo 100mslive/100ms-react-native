@@ -1158,7 +1158,6 @@ export const ChangeAudioModeModal = ({
   return (
     <View style={styles.roleChangeModal}>
       <Text style={styles.roleChangeModalHeading}>Switch Audio Output</Text>
-      <Text style={styles.roleChangeModalDescription}>Change the role of</Text>
       {AudioModeList.map(mode => {
         return (
           <TouchableOpacity
