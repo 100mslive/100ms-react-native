@@ -1282,7 +1282,7 @@ export class HMSSDK {
     if (this.onErrorDelegate) {
       logger?.verbose('#Listener ON_ERROR_LISTENER_CALL', data);
       logger?.warn('#Listener ON_ERROR_LISTENER_CALL', data);
-      this.onErrorDelegate(data);
+      this.onErrorDelegate(HMSEncoder.encodeHMSException(data));
     } else {
       logger?.warn('#Listener ON_ERROR', data);
       logger?.verbose('#Listener ON_ERROR', data);
