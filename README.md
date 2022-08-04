@@ -306,23 +306,23 @@ import {
 const startHLSStreaming = () => {
   // Default Settings
   await hmsInstance.startHLSStreaming()
-  
+
   // Custom Settings
   const hmsHLSMeetingURLVariant = new HMSHLSMeetingURLVariant({
-    meetingUrl: 'https://yogi.app.100ms.live/preview/nih-bkn-vek?token=beam_recording',
+    meetingUrl: 'https://yogi.app.100ms.live/preview/nih-bkn-vek?skip_preview=true',
     metadata: '',
   });
-  
+
   const hmsHLSRecordingConfig = new HMSHLSRecordingConfig({
     singleFilePerLayer: false,
     videoOnDemand: false,
   });
-  
+
   const hmsHLSConfig = new HMSHLSConfig({
     hlsRecordingConfig: hmsHLSRecordingConfig,
     meetingURLVariants: [hlsStreamingDetails],
   });
-  
+
   await hmsInstance.startHLSStreaming(hmsHLSConfig)
     .then(d => console.log('Start Hls Success: ', d))
     .catch(e => console.log('Start Hls Error: ', e));

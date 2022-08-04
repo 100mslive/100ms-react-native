@@ -182,7 +182,7 @@ const Meeting = () => {
   const [isAudioShared, setIsAudioShared] = useState<boolean>(false);
   const [hlsStreamingDetails, setHLSStreamingDetails] =
     useState<HMSHLSMeetingURLVariant>({
-      meetingUrl: roomID ? roomID + '?token=beam_recording' : '',
+      meetingUrl: roomID ? roomID + '?skip_preview=true' : '',
       metadata: '',
     });
   const [startHlsRetry, setStartHlsRetry] = useState(true);
