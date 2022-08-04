@@ -30,6 +30,7 @@ import type { HMSRTMPConfig } from './HMSRTMPConfig';
 import type { HMSHLSConfig } from './HMSHLSConfig';
 import type { HMSAudioDevice } from './HMSAudioDevice';
 import type { HMSAudioMode } from './HMSAudioMode';
+import type { HMSAudioMixingMode } from './HMSAudioMixingMode';
 
 interface HmsViewProps {
   trackId: string;
@@ -917,6 +918,65 @@ export class HMSSDK {
     HMSManager.disableRTCStats({ id: this.id });
   };
 
+  startAudioshare = async (audioMixingMode: HMSAudioMixingMode) => {
+    logger?.verbose('#Function startAudioshare', {
+      id: this.id,
+      audioMixingMode,
+    });
+    if (Platform.OS === 'android') {
+      return await HMSManager.startAudioshare({ id: this.id, audioMixingMode });
+    } else {
+      console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
+    }
+  };
+
+  isAudioShared = async () => {
+    logger?.verbose('#Function isAudioShared', { id: this.id });
+    if (Platform.OS === 'android') {
+      return await HMSManager.isAudioShared({ id: this.id });
+    } else {
+      console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
+    }
+  };
+
+  stopAudioshare = async () => {
+    logger?.verbose('#Function stopAudioshare', { id: this.id });
+    if (Platform.OS === 'android') {
+      return await HMSManager.stopAudioshare({ id: this.id });
+    } else {
+      console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
+    }
+  };
+
+  getAudioMixingMode = async () => {
+    logger?.verbose('#Function getAudioMixingMode', { id: this.id });
+    if (Platform.OS === 'android') {
+      return await HMSManager.getAudioMixingMode({ id: this.id });
+    } else {
+      console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
+    }
+  };
+
+  setAudioMixingMode = async (audioMixingMode: HMSAudioMixingMode) => {
+    logger?.verbose('#Function setAudioMixingMode', {
+      id: this.id,
+      audioMixingMode,
+    });
+    if (Platform.OS === 'android') {
+      return await HMSManager.setAudioMixingMode({
+        id: this.id,
+        audioMixingMode,
+      });
+    } else {
+      console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
+    }
+  };
+
   getAudioDevicesList = async () => {
     logger?.verbose('#Function getAudioDevicesList', {
       id: this.id,
@@ -1367,7 +1427,7 @@ export class HMSSDK {
     if (this.onErrorDelegate) {
       logger?.verbose('#Listener ON_ERROR_LISTENER_CALL', data);
       logger?.warn('#Listener ON_ERROR_LISTENER_CALL', data);
-      this.onErrorDelegate(data);
+      this.onErrorDelegate(HMSEncoder.encodeHMSException(data));
     } else {
       logger?.warn('#Listener ON_ERROR', data);
       logger?.verbose('#Listener ON_ERROR', data);

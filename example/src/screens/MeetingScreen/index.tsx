@@ -34,6 +34,7 @@ import {
   HMSTrackSource,
   HMSException,
   HMSAudioMode,
+  HMSAudioMixingMode,
 } from '@100mslive/react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -98,6 +99,7 @@ import {
   LeaveRoomModal,
   ChangeAudioOutputModal,
   ChangeAudioModeModal,
+  ChangeAudioMixingModeModal,
 } from './Modals';
 
 type MeetingScreenProp = NativeStackNavigationProp<
@@ -177,6 +179,7 @@ const Meeting = () => {
   const [audioDeviceChangeListener, setAudioDeviceChangeListener] =
     useState<boolean>(false);
   const [resolutionDetails, setResolutionDetails] = useState<boolean>(false);
+  const [isAudioShared, setIsAudioShared] = useState<boolean>(false);
   const [hlsStreamingDetails, setHLSStreamingDetails] =
     useState<HMSHLSMeetingURLVariant>({
       meetingUrl: roomID ? roomID + '?token=beam_recording' : '',
@@ -187,6 +190,8 @@ const Meeting = () => {
       singleFilePerLayer: false,
       videoOnDemand: false,
     });
+  const [newAudioMixingMode, setNewAudioMixingMode] =
+    useState<HMSAudioMixingMode>(HMSAudioMixingMode.TALK_AND_MUSIC);
   const {bottom, left, right} = useSafeAreaInsets();
   const parsedMetadata = parseMetadata(instance?.localPeer?.metadata);
   const isScreenShared =
@@ -486,8 +491,41 @@ const Meeting = () => {
                   setModalVisible(ModalTypes.CHANGE_AUDIO_MODE);
                 },
               },
+              {
+                text: 'Set Audio Mixing Mode',
+                onPress: () => {
+                  setModalVisible(ModalTypes.AUDIO_MIXING_MODE);
+                },
+              },
             ],
           );
+          if (isAudioShared) {
+            buttons.push({
+              text: 'Stop Audioshare',
+              onPress: () => {
+                instance
+                  ?.stopAudioshare()
+                  .then(d => {
+                    setIsAudioShared(false);
+                    console.log('Stop Audioshare Success: ', d);
+                  })
+                  .catch(e => console.log('Stop Audioshare Error: ', e));
+              },
+            });
+          } else {
+            buttons.push({
+              text: 'Start Audioshare',
+              onPress: () => {
+                instance
+                  ?.startAudioshare(newAudioMixingMode)
+                  .then(d => {
+                    setIsAudioShared(true);
+                    console.log('Start Audioshare Success: ', d);
+                  })
+                  .catch(e => console.log('Start Audioshare Error: ', e));
+              },
+            });
+          }
         }
         break;
       case ModalTypes.RESOLUTION:
@@ -567,19 +605,23 @@ const Meeting = () => {
     return buttons;
   };
 
+  const destroy = async () => {
+    await hmsInstance
+      ?.destroy()
+      .then(s => console.log('Destroy Success: ', s))
+      .catch(e => console.log('Destroy Error: ', e));
+    dispatch(clearMessageData());
+    dispatch(clearPeerData());
+    dispatch(clearHmsReference());
+    navigate('QRCodeScreen');
+  };
+
   const onLeavePress = async () => {
     await instance
       ?.leave()
       .then(async d => {
         console.log('Leave Success: ', d);
-        await instance
-          ?.destroy()
-          .then(s => console.log('Destroy Success: ', s))
-          .catch(e => console.log('Destroy Error: ', e));
-        dispatch(clearMessageData());
-        dispatch(clearPeerData());
-        dispatch(clearHmsReference());
-        navigate('QRCodeScreen');
+        destroy();
       })
       .catch(e => console.log('Leave Error: ', e));
   };
@@ -589,14 +631,7 @@ const Meeting = () => {
       ?.endRoom('Host ended the room')
       .then(async d => {
         console.log('EndRoom Success: ', d);
-        await instance
-          ?.destroy()
-          .then(s => console.log('Destroy Success: ', s))
-          .catch(e => console.log('Destroy Error: ', e));
-        dispatch(clearMessageData());
-        dispatch(clearPeerData());
-        dispatch(clearHmsReference());
-        navigate('QRCodeScreen');
+        destroy();
       })
       .catch(e => console.log('EndRoom Error: ', e));
   };
@@ -871,32 +906,24 @@ const Meeting = () => {
 
   const onRemovedFromRoom = async (data: any) => {
     console.log('data in onRemovedFromRoom: ', data);
-    await instance
-      ?.destroy()
-      .then(s => console.log('Destroy Success: ', s))
-      .catch(e => console.log('Destroy Error: ', e));
-    dispatch(clearMessageData());
-    dispatch(clearPeerData());
-    dispatch(clearHmsReference());
-    navigate('QRCodeScreen');
+    destroy();
   };
 
   const onError = (data: HMSException) => {
     console.log('data in onError: ', data);
     Toast.showWithGravity(
-      data?.error?.message || 'Something went wrong',
+      `${data?.code} ${data?.message}` || 'Something went wrong',
       Toast.LONG,
       Toast.TOP,
     );
-    if (data?.error?.code === 4005) {
-      hmsInstance
-        ?.destroy()
-        .then(s => console.log('Destroy Success: ', s))
-        .catch(e => console.log('Destroy Error: ', e));
-      dispatch(clearMessageData());
-      dispatch(clearPeerData());
-      dispatch(clearHmsReference());
-      navigate('QRCodeScreen');
+    if (Platform.OS === 'android') {
+      if (data?.isTerminal === true) {
+        destroy();
+      }
+    } else {
+      if (data?.code === 4005 || data?.code === 2000) {
+        destroy();
+      }
     }
   };
 
@@ -1675,6 +1702,19 @@ const Meeting = () => {
           instance={instance}
           audioMode={audioMode}
           setAudioMode={setAudioMode}
+          cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
+        />
+      </DefaultModal>
+      <DefaultModal
+        animationType="fade"
+        overlay={false}
+        modalPosiion="center"
+        modalVisible={modalVisible === ModalTypes.AUDIO_MIXING_MODE}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        <ChangeAudioMixingModeModal
+          instance={instance}
+          newAudioMixingMode={newAudioMixingMode}
+          setNewAudioMixingMode={setNewAudioMixingMode}
           cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
         />
       </DefaultModal>

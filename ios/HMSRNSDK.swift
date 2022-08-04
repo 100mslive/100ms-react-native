@@ -57,7 +57,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     private var previewInProgress = false
 
     func emitRequiredKeysError(_ error: String) {
-        delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": ["code": HMSErrorCode.genericErrorUnknown, "description": error, "localizedDescription": error, "debugDescription": error, "message": error, "name": "REQUIRED_KEYS_NOT_FOUND", "action": "SEND_ALL_REQUIRED_KEYS", "id": 102], "id": id])
+        delegate?.emitEvent(ON_ERROR, ["error": ["code": HMSErrorCode.genericErrorUnknown.rawValue, "description": error, "message": error, "name": "REQUIRED_KEYS_NOT_FOUND", "action": "SEND_ALL_REQUIRED_KEYS", "id": 102, "isTerminal": false], "id": id])
     }
 
     func preview(_ credentials: NSDictionary) {
@@ -106,7 +106,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         if let extractedRole = roleObj {
             hms?.preview(role: extractedRole, completion: { tracks, error in
                 if (error != nil) {
-                    delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HMSDecoder.getError(error), "id": id])
+                    delegate?.emitEvent(ON_ERROR, ["error": HMSDecoder.getError(error), "id": id])
                     reject?(error?.message, error?.localizedDescription, nil)
                     return
                 }
@@ -204,7 +204,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                     if success {
                         resolve?(["success": success])
                     } else {
-                        strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["event": strongSelf.ON_ERROR, "error": HMSDecoder.getError(error), "id": strongSelf.id])
+                        strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["error": HMSDecoder.getError(error), "id": strongSelf.id])
                         reject?(nil, "error in leave", nil)
                     }
                 })
@@ -229,7 +229,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                     resolve?(["success": true, "data": ["sender": message?.sender?.name ?? "", "message": message?.message ?? "", "type": message?.type]])
                     return
                 } else {
-                    self?.delegate?.emitEvent("ON_ERROR", ["event": "ON_ERROR", "error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
+                    self?.delegate?.emitEvent("ON_ERROR", ["error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
                     reject?(error?.message, error?.localizedDescription, nil)
                     return
                 }
@@ -255,7 +255,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                     resolve?(["success": true, "data": ["sender": message?.sender?.name ?? "", "message": message?.message ?? "", "type": message?.type]])
                     return
                 } else {
-                    self?.delegate?.emitEvent("ON_ERROR", ["event": "ON_ERROR", "error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
+                    self?.delegate?.emitEvent("ON_ERROR", ["error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
                     reject?(error?.message, error?.localizedDescription, nil)
                     return
                 }
@@ -281,7 +281,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                     resolve?(["success": true, "data": ["sender": message?.sender?.name ?? "", "message": message?.message ?? "", "type": message?.type]])
                     return
                 } else {
-                    self?.delegate?.emitEvent("ON_ERROR", ["event": "ON_ERROR", "error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
+                    self?.delegate?.emitEvent("ON_ERROR", ["error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
                     reject?(error?.message, error?.localizedDescription, nil)
                     return
                 }
@@ -305,7 +305,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 if success {
                     resolve?(["success": success])
                 } else {
-                    self?.delegate?.emitEvent("ON_ERROR", ["event": self?.ON_ERROR ?? "", "error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
+                    self?.delegate?.emitEvent("ON_ERROR", ["error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
                     reject?(error?.message, error?.localizedDescription, nil)
                 }
             })
@@ -336,7 +336,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 if success {
                     resolve?(["success": success])
                 } else {
-                    self?.delegate?.emitEvent("ON_ERROR", ["event": self?.ON_ERROR ?? "", "error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
+                    self?.delegate?.emitEvent("ON_ERROR", ["error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
                     reject?(error?.message, error?.localizedDescription, nil)
                 }
             })
@@ -367,7 +367,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 if success {
                     resolve?(["success": success])
                 } else {
-                    self?.delegate?.emitEvent("ON_ERROR", ["event": self?.ON_ERROR ?? "", "error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
+                    self?.delegate?.emitEvent("ON_ERROR", ["error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
                     reject?(error?.message, error?.localizedDescription, nil)
                 }
             })
@@ -402,7 +402,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 if success {
                     resolve?(["success": success])
                 } else {
-                    self?.delegate?.emitEvent("ON_ERROR", ["event": self?.ON_ERROR ?? "", "error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
+                    self?.delegate?.emitEvent("ON_ERROR", ["error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
                     reject?(error?.message, error?.localizedDescription, nil)
                 }
             })
@@ -427,7 +427,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                     let track = HMSHelper.getTrackFromTrackId(trackId, remotePeers)
                 else {
                     let error = HMSError(id: "120", code: HMSErrorCode.genericErrorUnknown, message: "TRACK_NOT_FOUND")
-                    strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["event": strongSelf.ON_ERROR, "error": HMSDecoder.getError(error), "id": strongSelf.id])
+                    strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["error": HMSDecoder.getError(error), "id": strongSelf.id])
                     reject?(nil, "TRACK_NOT_FOUND", nil)
                     return
                 }
@@ -465,7 +465,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 if success {
                     resolve?(["success": success])
                 } else {
-                    self?.delegate?.emitEvent("ON_ERROR", ["event": self?.ON_ERROR ?? "", "error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
+                    self?.delegate?.emitEvent("ON_ERROR", ["error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
                     reject?(error?.message, error?.localizedDescription, nil)
                 }
             })
@@ -488,7 +488,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 if success {
                     resolve?(["success": success])
                 } else {
-                    self?.delegate?.emitEvent("ON_ERROR", ["event": self?.ON_ERROR ?? "", "error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
+                    self?.delegate?.emitEvent("ON_ERROR", ["error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
                     reject?(error?.message, error?.localizedDescription, nil)
                 }
             })
@@ -573,7 +573,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 resolve?(["success": success])
                 return
             } else {
-                self.delegate?.emitEvent(self.ON_ERROR, ["event": self.ON_ERROR, "error": HMSDecoder.getError(error), "id": self.id])
+                self.delegate?.emitEvent(self.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self.id])
                 reject?(error?.message, error?.localizedDescription, nil)
                 return
             }
@@ -599,7 +599,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 remoteAudioTrack?.setVolume(volume)
             } else {
                 let error = HMSError(id: "125", code: HMSErrorCode.genericErrorUnknown, message: "TRACK_NOT_FOUND")
-                strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["event": strongSelf.ON_ERROR, "error": HMSDecoder.getError(error), "id": strongSelf.id])
+                strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["error": HMSDecoder.getError(error), "id": strongSelf.id])
             }
         }
     }
@@ -621,7 +621,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             meetingUrl = meetLink
         } else {
             let error = HMSError(id: "127", code: HMSErrorCode.genericErrorUnknown, message: "INVALID_MEETING_URL_PASSED")
-            delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HMSDecoder.getError(error), "id": id])
+            delegate?.emitEvent(ON_ERROR, ["error": HMSDecoder.getError(error), "id": id])
             reject?("INVALID_MEETING_URL_PASSED", "INVALID_MEETING_URL_PASSED", nil)
         }
 
@@ -639,7 +639,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 resolve?(["success": success])
                 return
             } else {
-                self.delegate?.emitEvent(self.ON_ERROR, ["event": self.ON_ERROR, "error": HMSDecoder.getError(error), "id": self.id])
+                self.delegate?.emitEvent(self.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self.id])
                 reject?(error?.message, error?.localizedDescription, nil)
                 return
             }
@@ -658,7 +658,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 resolve?(["success": success])
                 return
             } else {
-                self.delegate?.emitEvent(self.ON_ERROR, ["event": self.ON_ERROR, "error": HMSDecoder.getError(error), "id": self.id])
+                self.delegate?.emitEvent(self.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self.id])
                 reject?(error?.message, error?.localizedDescription, nil)
                 return
             }
@@ -689,7 +689,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 resolve?(["success": success])
                 return
             } else {
-                self.delegate?.emitEvent(self.ON_ERROR, ["event": self.ON_ERROR, "error": HMSDecoder.getError(error), "id": self.id])
+                self.delegate?.emitEvent(self.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self.id])
                 reject?(error?.message, error?.localizedDescription, nil)
                 return
             }
@@ -708,7 +708,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 resolve?(["success": success])
                 return
             } else {
-                self.delegate?.emitEvent(self.ON_ERROR, ["event": self.ON_ERROR, "error": HMSDecoder.getError(error), "id": self.id])
+                self.delegate?.emitEvent(self.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self.id])
                 reject?(error?.message, error?.localizedDescription, nil)
                 return
             }
@@ -728,7 +728,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             if success {
                 resolve?(["success": success])
             } else {
-                self.delegate?.emitEvent(self.ON_ERROR, ["event": self.ON_ERROR, "error": HMSDecoder.getError(error), "id": self.id])
+                self.delegate?.emitEvent(self.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self.id])
                 reject?(error?.message, error?.localizedDescription, nil)
             }
         }
@@ -866,7 +866,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
     func on(error: HMSError) {
         if previewInProgress { previewInProgress = false }
-        self.delegate?.emitEvent(ON_ERROR, ["event": ON_ERROR, "error": HMSDecoder.getError(error), "id": id])
+        self.delegate?.emitEvent(ON_ERROR, ["error": HMSDecoder.getError(error), "id": id])
     }
 
     func on(message: HMSMessage) {
