@@ -6,6 +6,7 @@ import com.facebook.react.bridge.*
 import com.facebook.react.bridge.UiThreadUtil.runOnUiThread
 import java.util.*
 import kotlinx.coroutines.launch
+import live.hms.video.audio.HMSAudioManager
 import live.hms.video.connection.stats.*
 import live.hms.video.error.HMSException
 import live.hms.video.media.tracks.*
@@ -59,7 +60,15 @@ class HMSRNSDK(
   private fun emitRequiredKeysError(message: String) {
     val data: WritableMap = Arguments.createMap()
     val hmsError =
-        HMSException(6002, "REQUIRED_KEYS_NOT_FOUND", "SEND_ALL_REQUIRED_KEYS", message, message, null, false)
+        HMSException(
+            6002,
+            "REQUIRED_KEYS_NOT_FOUND",
+            "SEND_ALL_REQUIRED_KEYS",
+            message,
+            message,
+            null,
+            false
+        )
     data.putString("id", id)
     data.putMap("error", HMSDecoder.getError(hmsError))
     delegate.emitEvent("ON_ERROR", data)
@@ -1196,6 +1205,58 @@ class HMSRNSDK(
 
   fun disableRTCStats() {
     rtcStatsAttached = false
+  }
+
+  fun getAudioDevicesList(callback: Promise?) {
+    callback?.resolve(HMSHelper.getAudioDevicesList(hmsSDK?.getAudioDevicesList()))
+  }
+
+  fun getAudioOutputRouteType(callback: Promise?) {
+    callback?.resolve(hmsSDK?.getAudioOutputRouteType()?.name)
+  }
+
+  fun switchAudioOutput(data: ReadableMap) {
+    val requiredKeys =
+        HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("audioDevice", "String")))
+    if (requiredKeys === null) {
+      val audioDevice = data.getString("audioDevice")
+      hmsSDK?.switchAudioOutput(HMSHelper.getAudioDevice(audioDevice))
+    } else {
+      val errorMessage = "switchAudioOutput: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+    }
+  }
+
+  fun setAudioMode(data: ReadableMap) {
+    val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("audioMode", "Int")))
+    if (requiredKeys === null) {
+      val audioMode = data.getInt("audioMode")
+      hmsSDK?.setAudioMode(audioMode)
+    } else {
+      val errorMessage = "setAudioMode: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+    }
+  }
+
+  fun setAudioDeviceChangeListener() {
+    hmsSDK?.setAudioDeviceChangeListener(
+        object : HMSAudioManager.AudioManagerDeviceChangeListener {
+          override fun onAudioDeviceChanged(
+              device: HMSAudioManager.AudioDevice?,
+              audioDevicesList: Set<HMSAudioManager.AudioDevice>?
+          ) {
+            val data: WritableMap = Arguments.createMap()
+            data.putString("device", device?.name)
+            data.putArray("audioDevicesList", HMSHelper.getAudioDevicesSet(audioDevicesList))
+            data.putString("id", id)
+            delegate.emitEvent("ON_AUDIO_DEVICE_CHANGED", data)
+          }
+
+          override fun onError(error: HMSException) {
+            self.emitHMSError(error)
+          }
+        }
+    )
   }
 
   fun startAudioshare(data: ReadableMap, callback: Promise?) {

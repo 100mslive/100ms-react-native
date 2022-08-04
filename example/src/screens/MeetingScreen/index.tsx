@@ -33,7 +33,8 @@ import {
   HMSHLSRecordingConfig,
   HMSTrackSource,
   HMSException,
-  AudioMixingMode,
+  HMSAudioMode,
+  HMSAudioMixingMode,
 } from '@100mslive/react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -96,6 +97,8 @@ import {
   RtcStatsModal,
   EndRoomModal,
   LeaveRoomModal,
+  ChangeAudioOutputModal,
+  ChangeAudioModeModal,
   ChangeAudioMixingModeModal,
 } from './Modals';
 
@@ -170,6 +173,11 @@ const Meeting = () => {
     record: false,
     meetingURL: roomID ? roomID + '?token=beam_recording' : '',
   });
+  const [audioMode, setAudioMode] = useState<HMSAudioMode>(
+    HMSAudioMode.MODE_NORMAL,
+  );
+  const [audioDeviceChangeListener, setAudioDeviceChangeListener] =
+    useState<boolean>(false);
   const [resolutionDetails, setResolutionDetails] = useState<boolean>(false);
   const [isAudioShared, setIsAudioShared] = useState<boolean>(false);
   const [hlsStreamingDetails, setHLSStreamingDetails] =
@@ -182,9 +190,8 @@ const Meeting = () => {
       singleFilePerLayer: false,
       videoOnDemand: false,
     });
-  const [newAudioMixingMode, setNewAudioMixingMode] = useState<AudioMixingMode>(
-    AudioMixingMode.TALK_AND_MUSIC,
-  );
+  const [newAudioMixingMode, setNewAudioMixingMode] =
+    useState<HMSAudioMixingMode>(HMSAudioMixingMode.TALK_AND_MUSIC);
   const {bottom, left, right} = useSafeAreaInsets();
   const parsedMetadata = parseMetadata(instance?.localPeer?.metadata);
   const isScreenShared =
@@ -451,12 +458,47 @@ const Meeting = () => {
           });
         }
         if (Platform.OS === 'android') {
-          buttons.push({
-            text: 'Set Audio Mixing Mode',
-            onPress: () => {
-              setModalVisible(ModalTypes.AUDIO_MIXING_MODE);
-            },
-          });
+          if (audioDeviceChangeListener) {
+            buttons.push({
+              text: 'Remove Audio Device Change Listener',
+              onPress: () => {
+                instance?.removeEventListener(
+                  HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED,
+                );
+                setAudioDeviceChangeListener(false);
+              },
+            });
+          } else {
+            buttons.push({
+              text: 'Set Audio Device Change Listener',
+              onPress: () => {
+                instance?.setAudioDeviceChangeListener(onAudioDeviceChanged);
+                setAudioDeviceChangeListener(true);
+              },
+            });
+          }
+          buttons.push(
+            ...[
+              {
+                text: 'Switch Audio Output',
+                onPress: () => {
+                  setModalVisible(ModalTypes.SWITCH_AUDIO_OUTPUT);
+                },
+              },
+              {
+                text: 'Set Audio Mode',
+                onPress: () => {
+                  setModalVisible(ModalTypes.CHANGE_AUDIO_MODE);
+                },
+              },
+              {
+                text: 'Set Audio Mixing Mode',
+                onPress: () => {
+                  setModalVisible(ModalTypes.AUDIO_MIXING_MODE);
+                },
+              },
+            ],
+          );
           if (isAudioShared) {
             buttons.push({
               text: 'Stop Audioshare',
@@ -883,6 +925,15 @@ const Meeting = () => {
         destroy();
       }
     }
+  };
+
+  const onAudioDeviceChanged = (data: any) => {
+    console.log('data in onAudioDeviceChanged: ', data);
+    Toast.showWithGravity(
+      `Audio Device Output changed to ${data?.device}`,
+      Toast.LONG,
+      Toast.TOP,
+    );
   };
 
   const updateHmsInstance = (hms: HMSSDK | undefined) => {
@@ -1627,6 +1678,30 @@ const Meeting = () => {
         setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
         <EndRoomModal
           onSuccess={onEndRoomPress}
+          cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
+        />
+      </DefaultModal>
+      <DefaultModal
+        animationType="fade"
+        overlay={false}
+        modalPosiion="center"
+        modalVisible={modalVisible === ModalTypes.SWITCH_AUDIO_OUTPUT}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        <ChangeAudioOutputModal
+          instance={instance}
+          cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
+        />
+      </DefaultModal>
+      <DefaultModal
+        animationType="fade"
+        overlay={false}
+        modalPosiion="center"
+        modalVisible={modalVisible === ModalTypes.CHANGE_AUDIO_MODE}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        <ChangeAudioModeModal
+          instance={instance}
+          audioMode={audioMode}
+          setAudioMode={setAudioMode}
           cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
         />
       </DefaultModal>

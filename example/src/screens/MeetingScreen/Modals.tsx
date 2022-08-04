@@ -18,7 +18,9 @@ import {
   HMSRemoteAudioTrack,
   HMSRemoteVideoStats,
   HMSRemoteVideoTrack,
-  AudioMixingMode,
+  HMSAudioDevice,
+  HMSAudioMode,
+  HMSAudioMixingMode,
 } from '@100mslive/react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -1056,6 +1058,147 @@ export const EndRoomModal = ({
   );
 };
 
+export const ChangeAudioOutputModal = ({
+  instance,
+  cancelModal,
+}: {
+  instance?: HMSSDK;
+  cancelModal: Function;
+}) => {
+  const [currentOutputDevice, setCurrentOutputDevice] =
+    useState<HMSAudioDevice>(HMSAudioDevice.SPEAKER_PHONE);
+  const [audioOutputDevicesList, setAudioOutputDevicesList] = useState<
+    HMSAudioDevice[]
+  >([]);
+
+  const switchAudioOutput = () => {
+    instance?.switchAudioOutput(currentOutputDevice);
+    cancelModal();
+  };
+
+  useEffect(() => {
+    const getList = async () => {
+      setAudioOutputDevicesList(await instance?.getAudioDevicesList());
+      setCurrentOutputDevice(await instance?.getAudioOutputRouteType());
+    };
+    getList();
+  }, [instance]);
+
+  return (
+    <View style={styles.roleChangeModal}>
+      <Text style={styles.roleChangeModalHeading}>Switch Audio Output</Text>
+      {audioOutputDevicesList.map(device => {
+        return (
+          <TouchableOpacity
+            key={device}
+            style={styles.roleChangeModalPermissionContainer}
+            onPress={() => {
+              setCurrentOutputDevice(device);
+            }}>
+            <View style={styles.roleChangeModalCheckBox}>
+              {currentOutputDevice === device && (
+                <Entypo
+                  name="check"
+                  style={styles.roleChangeModalCheck}
+                  size={10}
+                />
+              )}
+            </View>
+            <Text style={styles.roleChangeModalPermission}>{device}</Text>
+          </TouchableOpacity>
+        );
+      })}
+
+      <View style={styles.roleChangeModalPermissionContainer}>
+        <CustomButton
+          title="Cancel"
+          onPress={cancelModal}
+          viewStyle={styles.roleChangeModalCancelButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+        <CustomButton
+          title="Change"
+          onPress={switchAudioOutput}
+          viewStyle={styles.roleChangeModalSuccessButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+      </View>
+    </View>
+  );
+};
+
+export const ChangeAudioModeModal = ({
+  instance,
+  audioMode,
+  setAudioMode,
+  cancelModal,
+}: {
+  instance?: HMSSDK;
+  audioMode: HMSAudioMode;
+  setAudioMode: React.Dispatch<React.SetStateAction<HMSAudioMode>>;
+
+  cancelModal: Function;
+}) => {
+  const [currentAudioMode, setCurrentAudioMode] =
+    useState<HMSAudioMode>(audioMode);
+
+  const AudioModeList = [
+    'MODE_NORMAL',
+    'MODE_RINGTONE',
+    'MODE_IN_CALL',
+    'MODE_IN_COMMUNICATION',
+    'MODE_CALL_SCREENING',
+  ];
+
+  const switchAudioMode = () => {
+    instance?.setAudioMode(currentAudioMode);
+    setAudioMode(currentAudioMode);
+    cancelModal();
+  };
+
+  return (
+    <View style={styles.roleChangeModal}>
+      <Text style={styles.roleChangeModalHeading}>Switch Audio Output</Text>
+      {AudioModeList.map(mode => {
+        return (
+          <TouchableOpacity
+            key={mode}
+            style={styles.roleChangeModalPermissionContainer}
+            onPress={() => {
+              setCurrentAudioMode(AudioModeList.indexOf(mode));
+            }}>
+            <View style={styles.roleChangeModalCheckBox}>
+              {currentAudioMode === AudioModeList.indexOf(mode) && (
+                <Entypo
+                  name="check"
+                  style={styles.roleChangeModalCheck}
+                  size={10}
+                />
+              )}
+            </View>
+            <Text style={styles.roleChangeModalPermission}>{mode}</Text>
+          </TouchableOpacity>
+        );
+      })}
+
+      <View style={styles.roleChangeModalPermissionContainer}>
+        <CustomButton
+          title="Cancel"
+          onPress={cancelModal}
+          viewStyle={styles.roleChangeModalCancelButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+        <CustomButton
+          title="Change"
+          onPress={switchAudioMode}
+          viewStyle={styles.roleChangeModalSuccessButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+      </View>
+    </View>
+  );
+};
+
 export const ChangeAudioMixingModeModal = ({
   instance,
   newAudioMixingMode,
@@ -1063,8 +1206,10 @@ export const ChangeAudioMixingModeModal = ({
   cancelModal,
 }: {
   instance?: HMSSDK;
-  newAudioMixingMode: AudioMixingMode;
-  setNewAudioMixingMode: React.Dispatch<React.SetStateAction<AudioMixingMode>>;
+  newAudioMixingMode: HMSAudioMixingMode;
+  setNewAudioMixingMode: React.Dispatch<
+    React.SetStateAction<HMSAudioMixingMode>
+  >;
   cancelModal: Function;
 }) => {
   const changeAudioMixingMode = async () => {
@@ -1083,13 +1228,13 @@ export const ChangeAudioMixingModeModal = ({
         captured from device will be streamed in the room, MUSIC_ONLY : only the
         playback audio being captured from device will be streamed in the room
       </Text>
-      {Object.keys(AudioMixingMode).map(audioMixingMode => {
+      {Object.keys(HMSAudioMixingMode).map(audioMixingMode => {
         return (
           <TouchableOpacity
             key={audioMixingMode}
             style={styles.roleChangeModalPermissionContainer}
             onPress={() => {
-              setNewAudioMixingMode(audioMixingMode as AudioMixingMode);
+              setNewAudioMixingMode(audioMixingMode as HMSAudioMixingMode);
             }}>
             <View style={styles.roleChangeModalCheckBox}>
               {newAudioMixingMode === audioMixingMode && (

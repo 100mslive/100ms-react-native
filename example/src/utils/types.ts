@@ -24,6 +24,8 @@ export enum TrackType {
 
 export enum ModalTypes {
   CHANGE_ROLE_ACCEPT = 'changeRoleAccept',
+  SWITCH_AUDIO_OUTPUT = 'switchAudioOutput',
+  CHANGE_AUDIO_MODE = 'changeAudioMode',
   CHANGE_ROLE = 'changeRole',
   CHANGE_TRACK = 'changeTrackState',
   CHANGE_NAME = 'changeName',

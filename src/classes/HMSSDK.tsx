@@ -28,7 +28,9 @@ import type { HMSVideoViewMode } from './HMSVideoViewMode';
 import type { HMSTrackSettings } from './HMSTrackSettings';
 import type { HMSRTMPConfig } from './HMSRTMPConfig';
 import type { HMSHLSConfig } from './HMSHLSConfig';
-import type { AudioMixingMode } from './AudioMixingMode';
+import type { HMSAudioDevice } from './HMSAudioDevice';
+import type { HMSAudioMode } from './HMSAudioMode';
+import type { HMSAudioMixingMode } from './HMSAudioMixingMode';
 
 interface HmsViewProps {
   trackId: string;
@@ -76,6 +78,7 @@ export class HMSSDK {
   onLocalVideoStatsDelegate?: any;
   onRemoteAudioStatsDelegate?: any;
   onRemoteVideoStatsDelegate?: any;
+  onAudioDeviceChangedDelegate?: any;
 
   constructor(id: string) {
     this.id = id;
@@ -229,6 +232,11 @@ export class HMSSDK {
       HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS,
       this.onRemoteVideoStatsListener
     );
+
+    HmsEventEmitter.addListener(
+      HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED,
+      this.onAudioDeviceChangedListener
+    );
   };
 
   /**
@@ -320,6 +328,11 @@ export class HMSSDK {
     HmsEventEmitter.removeListener(
       HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS,
       this.onRemoteVideoStatsListener
+    );
+
+    HmsEventEmitter.removeListener(
+      HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED,
+      this.onAudioDeviceChangedListener
     );
   };
 
@@ -905,7 +918,7 @@ export class HMSSDK {
     HMSManager.disableRTCStats({ id: this.id });
   };
 
-  startAudioshare = async (audioMixingMode: AudioMixingMode) => {
+  startAudioshare = async (audioMixingMode: HMSAudioMixingMode) => {
     logger?.verbose('#Function startAudioshare', {
       id: this.id,
       audioMixingMode,
@@ -948,7 +961,7 @@ export class HMSSDK {
     }
   };
 
-  setAudioMixingMode = async (audioMixingMode: AudioMixingMode) => {
+  setAudioMixingMode = async (audioMixingMode: HMSAudioMixingMode) => {
     logger?.verbose('#Function setAudioMixingMode', {
       id: this.id,
       audioMixingMode,
@@ -958,6 +971,72 @@ export class HMSSDK {
         id: this.id,
         audioMixingMode,
       });
+    } else {
+      console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
+    }
+  };
+
+  getAudioDevicesList = async () => {
+    logger?.verbose('#Function getAudioDevicesList', {
+      id: this.id,
+    });
+    if (Platform.OS === 'android') {
+      return await HMSManager.getAudioDevicesList({ id: this.id });
+    } else {
+      console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
+    }
+  };
+
+  getAudioOutputRouteType = async () => {
+    logger?.verbose('#Function getAudioOutputRouteType', {
+      id: this.id,
+    });
+    if (Platform.OS === 'android') {
+      return await HMSManager.getAudioOutputRouteType({ id: this.id });
+    } else {
+      console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
+    }
+  };
+
+  switchAudioOutput = (audioDevice: HMSAudioDevice) => {
+    logger?.verbose('#Function switchAudioOutput', {
+      id: this.id,
+      audioDevice,
+    });
+    if (Platform.OS === 'android') {
+      return HMSManager.switchAudioOutput({ id: this.id, audioDevice });
+    } else {
+      console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
+    }
+  };
+
+  setAudioMode = (audioMode: HMSAudioMode) => {
+    logger?.verbose('#Function setAudioMode', {
+      id: this.id,
+      audioMode,
+    });
+    if (Platform.OS === 'android') {
+      return HMSManager.setAudioMode({ id: this.id, audioMode });
+    } else {
+      console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
+    }
+  };
+
+  setAudioDeviceChangeListener = (callback: Function) => {
+    logger?.verbose('#Function setAudioDeviceChangeListener', {
+      id: this.id,
+    });
+    if (Platform.OS === 'android') {
+      this.addEventListener(
+        HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED,
+        callback
+      );
+      return HMSManager.setAudioDeviceChangeListener({ id: this.id });
     } else {
       console.log('API currently not available for iOS');
       return 'API currently not available for iOS';
@@ -1031,6 +1110,9 @@ export class HMSSDK {
       case HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS:
         this.onRemoteVideoStatsDelegate = callback;
         break;
+      case HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED:
+        this.onAudioDeviceChangedDelegate = callback;
+        break;
       default:
     }
   };
@@ -1098,6 +1180,9 @@ export class HMSSDK {
         break;
       case HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS:
         this.onRemoteVideoStatsDelegate = null;
+        break;
+      case HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED:
+        this.onAudioDeviceChangedDelegate = null;
         break;
       default:
     }
@@ -1544,6 +1629,24 @@ export class HMSSDK {
       });
     } else {
       logger?.verbose('#Listener onRemoteVideoStatsListener', data);
+    }
+  };
+
+  onAudioDeviceChangedListener = (data: {
+    id: string;
+    device: string;
+    audioDevicesList: string[];
+  }) => {
+    if (data.id !== this.id) {
+      return;
+    }
+    if (this.onAudioDeviceChangedDelegate) {
+      logger?.verbose('#Listener onAudioDeviceChangedListener_CALL', data);
+      this.onAudioDeviceChangedDelegate({
+        ...data,
+      });
+    } else {
+      logger?.verbose('#Listener onAudioDeviceChangedListener', data);
     }
   };
 }
