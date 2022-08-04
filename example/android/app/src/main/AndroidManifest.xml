@@ -11,6 +11,7 @@
   <uses-feature android:name="android.hardware.camera" />
   <uses-feature android:name="android.hardware.camera.autofocus" />
   <uses-permission android:name="android.permission.VIBRATE"/>
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
       android:name=".MainApplication"
@@ -23,6 +24,10 @@
       <activity
         android:exported="true"
         android:name="com.reactnativehmssdk.HmsScreenshareActivity"
+        android:label="@string/app_name" />
+      <activity
+        android:exported="true"
+        android:name="com.reactnativehmssdk.HMSAudioshareActivity"
         android:label="@string/app_name" />
       <activity
         android:exported="true"

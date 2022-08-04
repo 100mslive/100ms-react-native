@@ -28,6 +28,7 @@ import type { HMSVideoViewMode } from './HMSVideoViewMode';
 import type { HMSTrackSettings } from './HMSTrackSettings';
 import type { HMSRTMPConfig } from './HMSRTMPConfig';
 import type { HMSHLSConfig } from './HMSHLSConfig';
+import type { AudioMixingMode } from './AudioMixingMode';
 
 interface HmsViewProps {
   trackId: string;
@@ -902,6 +903,65 @@ export class HMSSDK {
   disableRTCStats = () => {
     logger?.verbose('#Function disableRTCStats', { id: this.id });
     HMSManager.disableRTCStats({ id: this.id });
+  };
+
+  startAudioshare = async (audioMixingMode: AudioMixingMode) => {
+    logger?.verbose('#Function startAudioshare', {
+      id: this.id,
+      audioMixingMode,
+    });
+    if (Platform.OS === 'android') {
+      return await HMSManager.startAudioshare({ id: this.id, audioMixingMode });
+    } else {
+      console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
+    }
+  };
+
+  isAudioShared = async () => {
+    logger?.verbose('#Function isAudioShared', { id: this.id });
+    if (Platform.OS === 'android') {
+      return await HMSManager.isAudioShared({ id: this.id });
+    } else {
+      console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
+    }
+  };
+
+  stopAudioshare = async () => {
+    logger?.verbose('#Function stopAudioshare', { id: this.id });
+    if (Platform.OS === 'android') {
+      return await HMSManager.stopAudioshare({ id: this.id });
+    } else {
+      console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
+    }
+  };
+
+  getAudioMixingMode = async () => {
+    logger?.verbose('#Function getAudioMixingMode', { id: this.id });
+    if (Platform.OS === 'android') {
+      return await HMSManager.getAudioMixingMode({ id: this.id });
+    } else {
+      console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
+    }
+  };
+
+  setAudioMixingMode = async (audioMixingMode: AudioMixingMode) => {
+    logger?.verbose('#Function setAudioMixingMode', {
+      id: this.id,
+      audioMixingMode,
+    });
+    if (Platform.OS === 'android') {
+      return await HMSManager.setAudioMixingMode({
+        id: this.id,
+        audioMixingMode,
+      });
+    } else {
+      console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
+    }
   };
 
   /**

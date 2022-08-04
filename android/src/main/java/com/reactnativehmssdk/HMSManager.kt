@@ -239,6 +239,43 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
+  fun startAudioshare(data: ReadableMap, callback: Promise?) {
+    currentActivity?.application?.registerActivityLifecycleCallbacks(this)
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.startAudioshare(data, callback)
+  }
+
+  @ReactMethod
+  fun isAudioShared(data: ReadableMap, callback: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.isAudioShared(callback)
+  }
+
+  @ReactMethod
+  fun stopAudioshare(data: ReadableMap, callback: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    currentActivity?.application?.unregisterActivityLifecycleCallbacks(this)
+    hms?.stopAudioshare(callback)
+  }
+
+  @ReactMethod
+  fun getAudioMixingMode(data: ReadableMap, callback: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    callback?.resolve(hms?.getAudioMixingMode()?.name)
+  }
+
+  @ReactMethod
+  fun setAudioMixingMode(data: ReadableMap, callback: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.setAudioMixingMode(data, callback)
+  }
+
+  @ReactMethod
   fun startRTMPOrRecording(data: ReadableMap, callback: Promise?) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 

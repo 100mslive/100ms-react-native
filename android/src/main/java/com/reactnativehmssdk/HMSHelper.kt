@@ -23,6 +23,7 @@ import live.hms.video.media.tracks.HMSRemoteAudioTrack
 import live.hms.video.media.tracks.HMSRemoteVideoTrack
 import live.hms.video.media.tracks.HMSTrack
 import live.hms.video.sdk.models.*
+import live.hms.video.sdk.models.enums.AudioMixingMode
 import live.hms.video.sdk.models.role.HMSRole
 import live.hms.video.utils.HmsUtilities
 import org.webrtc.SurfaceViewRenderer
@@ -246,6 +247,21 @@ object HMSHelper {
     } else {
       null
     }
+  }
+
+  fun getAudioMixingMode(audioMixingMode: String?): AudioMixingMode {
+    when (audioMixingMode) {
+      "TALK_ONLY" -> {
+        return AudioMixingMode.TALK_ONLY
+      }
+      "MUSIC_ONLY" -> {
+        return AudioMixingMode.MUSIC_ONLY
+      }
+      "TALK_AND_MUSIC" -> {
+        return AudioMixingMode.TALK_AND_MUSIC
+      }
+    }
+    return AudioMixingMode.TALK_AND_MUSIC
   }
 
   private fun getAudioCodec(codecString: String?): HMSAudioCodec {

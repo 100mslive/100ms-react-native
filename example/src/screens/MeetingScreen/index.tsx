@@ -33,6 +33,7 @@ import {
   HMSHLSRecordingConfig,
   HMSTrackSource,
   HMSException,
+  AudioMixingMode,
 } from '@100mslive/react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -95,6 +96,7 @@ import {
   RtcStatsModal,
   EndRoomModal,
   LeaveRoomModal,
+  ChangeAudioMixingModeModal,
 } from './Modals';
 
 type MeetingScreenProp = NativeStackNavigationProp<
@@ -169,6 +171,7 @@ const Meeting = () => {
     meetingURL: roomID ? roomID + '?token=beam_recording' : '',
   });
   const [resolutionDetails, setResolutionDetails] = useState<boolean>(false);
+  const [isAudioShared, setIsAudioShared] = useState<boolean>(false);
   const [hlsStreamingDetails, setHLSStreamingDetails] =
     useState<HMSHLSMeetingURLVariant>({
       meetingUrl: roomID ? roomID + '?token=beam_recording' : '',
@@ -179,6 +182,9 @@ const Meeting = () => {
       singleFilePerLayer: false,
       videoOnDemand: false,
     });
+  const [newAudioMixingMode, setNewAudioMixingMode] = useState<AudioMixingMode>(
+    AudioMixingMode.TALK_AND_MUSIC,
+  );
   const {bottom, left, right} = useSafeAreaInsets();
   const parsedMetadata = parseMetadata(instance?.localPeer?.metadata);
   const isScreenShared =
@@ -443,6 +449,41 @@ const Meeting = () => {
               setMuteAllTracksAudio(!muteAllTracksAudio);
             },
           });
+        }
+        if (Platform.OS === 'android') {
+          buttons.push({
+            text: 'Set Audio Mixing Mode',
+            onPress: () => {
+              setModalVisible(ModalTypes.AUDIO_MIXING_MODE);
+            },
+          });
+          if (isAudioShared) {
+            buttons.push({
+              text: 'Stop Audioshare',
+              onPress: () => {
+                instance
+                  ?.stopAudioshare()
+                  .then(d => {
+                    setIsAudioShared(false);
+                    console.log('Stop Audioshare Success: ', d);
+                  })
+                  .catch(e => console.log('Stop Audioshare Error: ', e));
+              },
+            });
+          } else {
+            buttons.push({
+              text: 'Start Audioshare',
+              onPress: () => {
+                instance
+                  ?.startAudioshare(newAudioMixingMode)
+                  .then(d => {
+                    setIsAudioShared(true);
+                    console.log('Start Audioshare Success: ', d);
+                  })
+                  .catch(e => console.log('Start Audioshare Error: ', e));
+              },
+            });
+          }
         }
         break;
       case ModalTypes.RESOLUTION:
@@ -1586,6 +1627,19 @@ const Meeting = () => {
         setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
         <EndRoomModal
           onSuccess={onEndRoomPress}
+          cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
+        />
+      </DefaultModal>
+      <DefaultModal
+        animationType="fade"
+        overlay={false}
+        modalPosiion="center"
+        modalVisible={modalVisible === ModalTypes.AUDIO_MIXING_MODE}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        <ChangeAudioMixingModeModal
+          instance={instance}
+          newAudioMixingMode={newAudioMixingMode}
+          setNewAudioMixingMode={setNewAudioMixingMode}
           cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
         />
       </DefaultModal>
