@@ -1106,32 +1106,19 @@ class HMSRNSDK(
   }
 
   fun startHLSStreaming(data: ReadableMap, callback: Promise?) {
-    val requiredKeys =
-        HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("meetingURLVariants", "Array")))
-    if (requiredKeys === null) {
-      val meetingURLVariants =
-          data.getArray("meetingURLVariants")?.toArrayList() as? ArrayList<HashMap<String, String>>
-      val hlsMeetingUrlVariant = HMSHelper.getHMSHLSMeetingURLVariants(meetingURLVariants)
-      val hlsRecordingConfig = HMSHelper.getHlsRecordingConfig(data)
-      val config = HMSHLSConfig(hlsMeetingUrlVariant, hlsRecordingConfig)
-
-      hmsSDK?.startHLSStreaming(
-          config,
-          object : HMSActionResultListener {
-            override fun onSuccess() {
-              callback?.resolve(emitHMSSuccess())
-            }
-            override fun onError(error: HMSException) {
-              callback?.reject(error.code.toString(), error.message)
-              self.emitHMSError(error)
-            }
+    val hlsConfig = HMSHelper.getHLSConfig(data)
+    hmsSDK?.startHLSStreaming(
+        hlsConfig,
+        object : HMSActionResultListener {
+          override fun onSuccess() {
+            callback?.resolve(emitHMSSuccess())
           }
-      )
-    } else {
-      val errorMessage = "startHLSStreaming: $requiredKeys"
-      self.emitRequiredKeysError(errorMessage)
-      rejectCallback(callback, errorMessage)
-    }
+          override fun onError(error: HMSException) {
+            callback?.reject(error.code.toString(), error.message)
+            self.emitHMSError(error)
+          }
+        }
+    )
   }
 
   fun stopHLSStreaming(callback: Promise?) {

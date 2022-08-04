@@ -3,11 +3,11 @@ import type { HMSHLSRecordingConfig } from './HMSHLSRecordingConfig';
 
 export class HMSHLSConfig {
   hlsRecordingConfig?: HMSHLSRecordingConfig;
-  meetingURLVariants: Array<HMSHLSMeetingURLVariant>;
+  meetingURLVariants?: Array<HMSHLSMeetingURLVariant>;
 
   constructor(params: {
     hlsRecordingConfig?: HMSHLSRecordingConfig;
-    meetingURLVariants: Array<HMSHLSMeetingURLVariant>;
+    meetingURLVariants?: Array<HMSHLSMeetingURLVariant>;
   }) {
     this.hlsRecordingConfig = params.hlsRecordingConfig;
     this.meetingURLVariants = params.meetingURLVariants;

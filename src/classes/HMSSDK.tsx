@@ -571,7 +571,7 @@ export class HMSSDK {
    * @param {HMSHLSConfig}
    * @memberof HMSSDK
    */
-  startHLSStreaming = async (data: HMSHLSConfig) => {
+  startHLSStreaming = async (data?: HMSHLSConfig) => {
     logger?.verbose('#Function startHLSStreaming', {
       ...data,
       id: this.id,

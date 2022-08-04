@@ -320,14 +320,18 @@ class HMSDecoder: NSObject {
 
         let endRoom = permissions.endRoom ?? false
         let removeOthers = permissions.removeOthers ?? false
+        let browserRecording = permissions.browserRecording ?? false
+        let hlsStreaming = permissions.hlsStreaming ?? false
+        let rtmpStreaming = permissions.rtmpStreaming ?? false
         let mute = permissions.mute ?? false
         let unmute = permissions.unmute ?? false
         let changeRole = permissions.changeRole ?? false
 
         return ["endRoom": endRoom,
                 "removeOthers": removeOthers,
-                "stopPresentation": stopPresentation,
-                "muteAll": muteAll,
+                "browserRecording": browserRecording,
+                "hlsStreaming": hlsStreaming,
+                "rtmpStreaming": rtmpStreaming,
                 "mute": mute,
                 "unmute": unmute,
                 "changeRole": changeRole]

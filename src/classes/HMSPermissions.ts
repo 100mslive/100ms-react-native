@@ -4,8 +4,9 @@ export class HMSPermissions {
   unmute?: boolean;
   mute?: boolean;
   changeRole?: boolean;
-  recording?: boolean;
-  streaming?: boolean;
+  browserRecording?: boolean;
+  hlsStreaming?: boolean;
+  rtmpStreaming?: boolean;
 
   constructor(params?: {
     endRoom?: boolean;
@@ -13,8 +14,9 @@ export class HMSPermissions {
     unmute?: boolean;
     mute?: boolean;
     changeRole?: boolean;
-    recording?: boolean;
-    streaming?: boolean;
+    browserRecording?: boolean;
+    hlsStreaming?: boolean;
+    rtmpStreaming?: boolean;
   }) {
     if (params) {
       this.endRoom = params.endRoom;
@@ -22,8 +24,9 @@ export class HMSPermissions {
       this.unmute = params.unmute;
       this.mute = params.mute;
       this.changeRole = params.changeRole;
-      this.recording = params.recording;
-      this.streaming = params.streaming;
+      this.browserRecording = params.browserRecording;
+      this.hlsStreaming = params.hlsStreaming;
+      this.rtmpStreaming = params.rtmpStreaming;
     }
   }
 }
