@@ -70,7 +70,7 @@ You will also need to request Camera and Record Audio permissions at runtime bef
 
 We suggest using [react-native-permission](https://www.npmjs.com/package/react-native-permissions) to acquire permissions from both platforms.
 
-## QuickStart
+## [QuickStart](https://www.100ms.live/docs/react-native/v2/guides/quickstart)
 
 The package exports all the classes and a HMSSDK class that manages everything.
 
@@ -88,7 +88,7 @@ const hmsInstance = await HMSSDK.build();
 ...
 ```
 
-## Add event listeners
+## [Add event listeners](https://www.100ms.live/docs/react-native/v2/features/event-listeners)
 
 add event listeners for all the events such as onPreview, onJoin, onPeerUpdate etc. the actions can be found in HMSUpdateListenerActions class
 
@@ -107,7 +107,7 @@ hmsInstance.addEventListener(
 
 The event handlers are the way of handling any update happening in hms all events can be found in HMSUpdateListenerActions class
 
-## Error handling
+## [Error handling](https://www.100ms.live/docs/react-native/v2/features/error-handling)
 
 ```js
 import { HMSUpdateListenerActions } from '@100mslive/react-native-hms';
@@ -116,7 +116,7 @@ import { HMSUpdateListenerActions } from '@100mslive/react-native-hms';
 hmsInstance.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
 ```
 
-## Join the room
+## [Join the room](https://www.100ms.live/docs/react-native/v2/features/join)
 
 Joining the room connects you to the remote peer and broadcasts your stream to other peers, we need instance of HMSConfig in order to pass the details of room and user to join function
 
@@ -178,7 +178,7 @@ remotePeers.map((remotePeer: HMSRemotePeer) => {
 ...
 ```
 
-## Display a video in HmsView
+## [Display a video in HmsView](https://www.100ms.live/docs/react-native/v2/features/render-video)
 
 ```js
 import { HMSVideoViewMode } from '@100mslive/react-native-hms';
@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
 ...
 ```
 
-## Mute/Unmute others
+## [Mute/Unmute others](https://www.100ms.live/docs/react-native/v2/features/change-track-state)
 
 ```js
 const mute: boolean = true;
@@ -211,21 +211,21 @@ hmsInstance?.changeTrackState(videoTrack as HMSTrack, mute);
 
 const unmute: boolean = false;
 
-hmsInstance?.changeTrackState(audioTrack as HMSTrack, unmute);
-hmsInstance?.changeTrackState(videoTrack as HMSTrack, unmute);
+await hmsInstance?.changeTrackState(audioTrack as HMSTrack, unmute);
+await hmsInstance?.changeTrackState(videoTrack as HMSTrack, unmute);
 ```
 
-## End Room for all
+## [End Room for all](https://www.100ms.live/docs/react-native/v2/features/end-room)
 
 ```js
 const reason = 'Host ended the room';
 const lock = false; // optional parameter
 
 // hms instance acquired by build method
-hmsInstance.endRoom(reason, lock);
+await hmsInstance.endRoom(reason, lock);
 ```
 
-## Remove Peer
+## [Remove Peer](https://www.100ms.live/docs/react-native/v2/features/remove-peer)
 
 ```js
 import { HMSPeer } from '@100mslive/react-native-hms';
@@ -235,10 +235,10 @@ const reason = 'removed from room';
 // hms instance acquired by build method
 const peer: HMSPeer = hmsInstance?.remotePeers[0];
 
-hmsInstance.removePeer(peer, reason);
+await hmsInstance.removePeer(peer, reason);
 ```
 
-## Sending messages
+## [Sending messages](https://www.100ms.live/docs/react-native/v2/features/chat)
 
 ```js
 import { HMSRole, HMSPeer } from '@100mslive/react-native-hms';
@@ -249,12 +249,12 @@ const roles: HMSRole[] = hmsInstance?.knownRoles
 const peer: HMSPeer = hmsInstance?.remotePeers[0]
 
 // send a different type of messages
-hmsInstance?.sendBroadcastMessage(message);
-hmsInstance?.sendGroupMessage(message, [role[0]);
-hmsInstance?.sendDirectMessage(message, peer);
+await hmsInstance?.sendBroadcastMessage(message);
+await hmsInstance?.sendGroupMessage(message, [role[0]);
+await hmsInstance?.sendDirectMessage(message, peer);
 ```
 
-## Role Change
+## [Role Change](https://www.100ms.live/docs/react-native/v2/features/change-role)
 
 ```js
 import { HMSRole, HMSRemotePeer } from '@100mslive/react-native-hms';
@@ -267,18 +267,18 @@ const peer: HMSRemotePeer = hmsInstance?.remotePeers[0];
 
 const force = false;
 
-hmsInstance.changeRole(peer, newRole, force); // request role change
-hmsInstance.changeRole(peer, newRole, !force); // force role change
+await hmsInstance.changeRole(peer, newRole, force); // request role change
+await hmsInstance.changeRole(peer, newRole, !force); // force role change
 ```
 
-## Raise Hand & BRB
+## [Raise Hand & BRB](https://www.100ms.live/docs/react-native/v2/advanced-features/change-metadata)
 
 ```js
 const parsedMetadata = JSON.parse(hmsInstance?.localPeer?.metadata);
 
 // Raise Hand
 // hms instance acquired by build method
-hmsInstance?.changeMetadata(
+await hmsInstance?.changeMetadata(
   JSON.stringify({
     ...parsedMetadata,
     isHandRaised: true,
@@ -287,7 +287,7 @@ hmsInstance?.changeMetadata(
 
 // BRB
 // hms instance acquired by build method
-hmsInstance?.changeMetadata(
+await hmsInstance?.changeMetadata(
   JSON.stringify({
     ...parsedMetadata,
     isBRBOn: true,
@@ -295,7 +295,7 @@ hmsInstance?.changeMetadata(
 );
 ```
 
-## HLS Streaming
+## [HLS Streaming](https://www.100ms.live/docs/react-native/v2/features/hls-streaming)
 
 ```js
 import {
@@ -304,25 +304,32 @@ import {
 } from '@100mslive/react-native-hms';
 
 const startHLSStreaming = () => {
+  // Default Settings
+  await hmsInstance.startHLSStreaming()
+  
+  // Custom Settings
   const hmsHLSMeetingURLVariant = new HMSHLSMeetingURLVariant({
-    meetingUrl:
-      'https://yogi.app.100ms.live/preview/nih-bkn-vek?token=beam_recording',
+    meetingUrl: 'https://yogi.app.100ms.live/preview/nih-bkn-vek?token=beam_recording',
     metadata: '',
   });
-
+  
+  const hmsHLSRecordingConfig = new HMSHLSRecordingConfig({
+    singleFilePerLayer: false,
+    videoOnDemand: false,
+  });
+  
   const hmsHLSConfig = new HMSHLSConfig({
+    hlsRecordingConfig: hmsHLSRecordingConfig,
     meetingURLVariants: [hlsStreamingDetails],
   });
-
-  // hms instance acquired by build method
-  hmsInstance
-    .startHLSStreaming(hmsHLSConfig)
-    .then((r) => console.log(r))
-    .catch((e) => console.log(e));
+  
+  await hmsInstance.startHLSStreaming(hmsHLSConfig)
+    .then(d => console.log('Start Hls Success: ', d))
+    .catch(e => console.log('Start Hls Error: ', e));
 };
 ```
 
-## Start Streaming / Recording
+## [Start Streaming / Recording](https://www.100ms.live/docs/react-native/v2/features/recording)
 
 ```js
 import { HMSRTMPConfig } from '@100mslive/react-native-hms';
@@ -344,24 +351,24 @@ const recordingDetails = HMSRTMPConfig({
 });
 
 // hms instance acquired by build method
-const result = await hmsInstance?.startRTMPOrRecording(recordingDetails);
+await hmsInstance?.startRTMPOrRecording(recordingDetails);
 ```
 
-## Get RTC Stats
+## [Get RTC Stats](https://www.100ms.live/docs/react-native/v2/features/rtc-stats)
 
 ```js
 // hms instance acquired by build method
 hmsInstance?.enableRTCStats();
 ```
 
-## Screenshare
+## [Screenshare](https://www.100ms.live/docs/react-native/v2/features/screenshare)
 
 ```js
 // hms instance acquired by build method
-hmsInstance?.startScreenshare();
+await hmsInstance?.startScreenshare();
 ```
 
-## Getting Audio Levels for all speaking peers
+## [Getting Audio Levels for all speaking peers](https://www.100ms.live/docs/react-native/v2/advanced-features/show-audio-level)
 
 ```js
 import {
@@ -379,7 +386,7 @@ const onSpeaker = (data: HMSSpeaker[]) => {
 };
 ```
 
-## Local mute others
+## [Local mute others](https://www.100ms.live/docs/react-native/v2/features/playback-allowed)
 
 ```js
 const remotePeer: HMSRemotePeer;
@@ -387,11 +394,11 @@ const isAudioPlaybackAllowed = remotePeer.remoteAudioTrack().setPlaybackAllowed(
 const isVideoPlaybackAllowed = remotePeer.remoteVideoTrack().setPlaybackAllowed(true);
 
 // hms instance acquired by build method
-hmsInstance.muteAllPeersAudio(true)  // mute
-hmsInstance.muteAllPeersAudio(false) // unmute
+hmsInstance.setPlaybackForAllAudio(true)  // mute
+hmsInstance.setPlaybackForAllAudio(false) // unmute
 ```
 
-## Locally Set Volume
+## [Locally Set Volume](https://www.100ms.live/docs/react-native/v2/advanced-features/set-volume)
 
 ```js
 const volume: Float = 1.0;
@@ -401,16 +408,16 @@ const track: HMSTrack = remotePeer.audioTrack as HMSTrack;
 hmsInstance?.setVolume(track, volume);
 ```
 
-## Change name
+## [Change name](https://www.100ms.live/docs/react-native/v2/features/change-name)
 
 ```js
 const newName: string = 'new name';
 
 // hms instance acquired by build method
-hmsInstance.changeName(newName);
+await hmsInstance.changeName(newName);
 ```
 
-## Join with specific Track Settings
+## [Join with specific Track Settings](https://www.100ms.live/docs/react-native/v2/advanced-features/track-settings)
 
 ```js
 const getTrackSettings = () => {
