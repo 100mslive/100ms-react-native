@@ -63,9 +63,9 @@ PODS:
   - HMSWebRTC (1.0.4898)
   - libevent (2.1.12)
   - OpenSSL-Universal (1.1.180)
-  - Permission-Camera (3.6.0):
+  - Permission-Camera (3.4.0):
     - RNPermissions
-  - Permission-Microphone (3.6.0):
+  - Permission-Microphone (3.4.0):
     - RNPermissions
   - RCT-Folly (2020.01.13.00):
     - boost-for-react-native
@@ -372,7 +372,7 @@ PODS:
     - React-Core
   - RNGestureHandler (1.10.3):
     - React-Core
-  - RNPermissions (3.6.0):
+  - RNPermissions (3.4.0):
     - React-Core
   - RNScreens (3.15.0):
     - React-Core
@@ -587,8 +587,8 @@ SPEC CHECKSUMS:
   HMSWebRTC: d3a9b2866e4a36a1d3834728a548a4a46309bb86
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   OpenSSL-Universal: 1aa4f6a6ee7256b83db99ec1ccdaa80d10f9af9b
-  Permission-Camera: 0a0fb4341f50ab242f496fb2f73380e0ec454fe7
-  Permission-Microphone: 84bf2faad8d87969e8e275e9917a174424f948fc
+  Permission-Camera: 40f43388fa8a648dc6ced73f145ef329ab3ff3fe
+  Permission-Microphone: 62492e9e3026112dfaecd6fff87a245c3d7367b8
   RCT-Folly: ec7a233ccc97cc556cf7237f0db1ff65b986f27c
   RCTRequired: 6d3e854f0e7260a648badd0d44fc364bc9da9728
   RCTTypeSafety: c1f31d19349c6b53085766359caac425926fafaa
@@ -623,7 +623,7 @@ SPEC CHECKSUMS:
   RNDeviceInfo: 1e3f62b9ec32f7754fac60bd06b8f8a27124e7f0
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
-  RNPermissions: de7b7c3fe1680d974ac7a85e3e97aa539c0e68ea
+  RNPermissions: eac721f71748c4472d6e876038270b75397d6ee7
   RNScreens: 4a1af06327774490d97342c00aee0c2bafb497b7
   RNShare: d56424e3926cbc239db1cc1c168adcb051aad50b
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
