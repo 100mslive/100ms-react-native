@@ -43,7 +43,7 @@ export const AlertModal = ({
           onTouchEnd={e => {
             e.stopPropagation();
           }}>
-          <ScrollView showsVerticalScrollIndicator>
+          <ScrollView showsVerticalScrollIndicator indicatorStyle="white">
             <Text style={styles.title}>{title}</Text>
             {buttons.map((button, index) => (
               <TouchableOpacity
@@ -86,7 +86,9 @@ const styles = StyleSheet.create({
   modalView: {
     width: '80%',
     maxHeight: '80%',
-    backgroundColor: COLORS.WHITE,
+    backgroundColor: COLORS.SURFACE.DEFAULT,
+    borderWidth: 1,
+    borderColor: COLORS.BORDER.LIGHT,
     borderRadius: 10,
     shadowColor: '#000',
     shadowOffset: {
@@ -103,6 +105,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Inter-Bold',
     textTransform: 'capitalize',
+    color: COLORS.TEXT.HIGH_EMPHASIS,
   },
   buttonItem: {
     borderTopWidth: 1,
@@ -117,6 +120,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     color: COLORS.PRIMARY.DEFAULT,
     fontFamily: 'Inter-Bold',
+    textTransform: 'capitalize',
   },
   cancel: {
     color: COLORS.INDICATORS.ERROR,

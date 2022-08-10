@@ -54,18 +54,35 @@ const styles = StyleSheet.create({
     zIndex: 3,
   },
   peerName: {
-    color: COLORS.PRIMARY.DEFAULT,
-    fontFamily: 'Inter-Bold',
+    color: COLORS.TEXT.HIGH_EMPHASIS,
+    fontFamily: 'Inter-Regular',
+    paddingRight: 8,
   },
   peerNameContainer: {
-    maxWidth: 70,
+    position: 'absolute',
+    bottom: 8,
+    left: 8,
+    backgroundColor: COLORS.BLACK,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 12,
   },
   micContainer: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    height: 40,
+    aspectRatio: 1,
     flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 40,
+    backgroundColor: COLORS.BLACK,
   },
   mic: {
-    color: COLORS.PRIMARY.DEFAULT,
-    paddingHorizontal: 3,
+    color: COLORS.TEXT.HIGH_EMPHASIS,
   },
   avatarContainer: {
     flex: 1,
@@ -123,8 +140,9 @@ const styles = StyleSheet.create({
     top: 0,
   },
   roleChangeText: {
-    padding: 12,
+    paddingVertical: 12,
     fontFamily: 'Inter-Regular',
+    color: COLORS.TEXT.MEDIUM_EMPHASIS,
   },
   headerName: {
     color: COLORS.PRIMARY.DEFAULT,
@@ -149,11 +167,11 @@ const styles = StyleSheet.create({
   input: {
     borderWidth: 1,
     borderRadius: 10,
-    borderColor: COLORS.BLACK,
+    borderColor: COLORS.BORDER.LIGHT,
     paddingLeft: 10,
     minHeight: 32,
     color: COLORS.PRIMARY.DEFAULT,
-    margin: 10,
+    marginVertical: 10,
   },
   recordingDetails: {
     flexDirection: 'row',
@@ -163,14 +181,14 @@ const styles = StyleSheet.create({
   checkboxContainer: {
     height: 25,
     width: 25,
-    borderColor: COLORS.BLACK,
+    borderColor: COLORS.TEXT.MEDIUM_EMPHASIS,
     borderWidth: 2,
     borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
   },
   checkbox: {
-    color: COLORS.BLACK,
+    color: COLORS.TEXT.MEDIUM_EMPHASIS,
   },
   closeButton: {
     zIndex: 2,
@@ -202,17 +220,17 @@ const styles = StyleSheet.create({
   //   fontFamily: 'Inter-Bold',
   // },
   brbOnContainer: {
-    flex: 1,
+    height: 25,
     justifyContent: 'center',
+    alignItems: 'center',
     paddingHorizontal: 5,
-    borderRadius: 10,
+    borderRadius: 3,
     borderWidth: 1,
-    borderColor: COLORS.PRIMARY.DEFAULT,
-    backgroundColor: COLORS.PRIMARY.DEFAULT,
+    borderColor: COLORS.TEXT.HIGH_EMPHASIS,
   },
   brbOn: {
-    color: COLORS.WHITE,
-    fontFamily: 'Inter-Bold',
+    color: COLORS.TEXT.HIGH_EMPHASIS,
+    fontFamily: 'Inter-Regular',
   },
   statsContainer: {
     position: 'absolute',
@@ -307,17 +325,18 @@ const styles = StyleSheet.create({
     marginVertical: 1,
   },
   network: {
-    height: 30,
-    width: 30,
-    marginRight: 3,
+    height: 25,
+    width: 25,
   },
   interRegular: {
     fontFamily: 'Inter-Regular',
+    color: COLORS.TEXT.MEDIUM_EMPHASIS,
   },
   status: {
-    alignSelf: 'center',
     position: 'absolute',
-    top: '70%',
+    flexDirection: 'row',
+    top: 8,
+    left: 8,
   },
   resolutionContainer: {
     padding: 16,
@@ -328,6 +347,7 @@ const styles = StyleSheet.create({
   resolutionValue: {
     fontFamily: 'Inter-Regular',
     paddingLeft: 16,
+    color: COLORS.TEXT.MEDIUM_EMPHASIS,
   },
   iconContainer: {
     backgroundColor: COLORS.BACKGROUND.DEFAULT,
@@ -675,6 +695,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.BORDER.LIGHT,
     borderRadius: 8,
+    height: 48,
+    backgroundColor: COLORS.SURFACE.LIGHT,
   },
   statsModalContainer: {
     flexDirection: 'row',
@@ -744,6 +766,45 @@ const styles = StyleSheet.create({
   errorContainer: {
     backgroundColor: COLORS.INDICATORS.ERROR,
     borderColor: COLORS.INDICATORS.ERROR,
+  },
+  picker: {
+    backgroundColor: COLORS.SURFACE.LIGHT,
+    height: 48,
+    borderRadius: 8,
+  },
+  sortingButtonContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  checkboxButtonContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  changeTrackStateRoleOption: {
+    flexDirection: 'row',
+    marginRight: 8,
+  },
+  changeTrackStateRoleOptionHeading: {
+    color: COLORS.TEXT.HIGH_EMPHASIS,
+    fontSize: 16,
+    lineHeight: 20,
+    letterSpacing: 0.25,
+    fontFamily: 'Inter-Medium',
+    marginRight: 8,
+  },
+  backButton: {
+    backgroundColor: COLORS.SECONDARY.DISABLED,
+    borderColor: COLORS.SECONDARY.DISABLED,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderRadius: 8,
+    width: '100%',
+    alignSelf: 'center',
+    marginRight: '4%',
   },
 });
 

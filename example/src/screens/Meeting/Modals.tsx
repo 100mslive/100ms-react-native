@@ -1,5 +1,11 @@
 import React, {useEffect, useState} from 'react';
-import {View, TouchableOpacity, Text, ScrollView} from 'react-native';
+import {
+  View,
+  TouchableOpacity,
+  Text,
+  ScrollView,
+  TextInput,
+} from 'react-native';
 import {useDispatch} from 'react-redux';
 import {
   HMSTrack,
@@ -21,6 +27,10 @@ import {
   HMSAudioDevice,
   HMSAudioMode,
   HMSAudioMixingMode,
+  HMSHLSMeetingURLVariant,
+  HMSHLSRecordingConfig,
+  HMSHLSConfig,
+  HMSRTMPConfig,
 } from '@100mslive/react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -36,10 +46,17 @@ import {
   Menu,
   MenuItem,
   MenuDivider,
+  CustomPicker,
 } from '../../components';
 import {saveUserData} from '../../redux/actions';
 import {parseMetadata, getInitials} from '../../utils/functions';
-import {ModalTypes, PeerTrackNode, TrackType} from '../../utils/types';
+import {
+  LayoutParams,
+  ModalTypes,
+  PeerTrackNode,
+  SortingType,
+  TrackType,
+} from '../../utils/types';
 import {COLORS} from '../../utils/theme';
 
 export const ParticipantsModal = ({
@@ -1261,6 +1278,647 @@ export const ChangeAudioMixingModeModal = ({
         <CustomButton
           title="Change"
           onPress={changeAudioMixingMode}
+          viewStyle={styles.roleChangeModalSuccessButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+      </View>
+    </View>
+  );
+};
+
+export const ChangeSortingModal = ({
+  data,
+  selectedItem,
+  onItemSelected,
+  cancelModal,
+}: {
+  data: SortingType[];
+  selectedItem: SortingType | undefined;
+  onItemSelected: React.Dispatch<React.SetStateAction<SortingType | undefined>>;
+  cancelModal: Function;
+}) => {
+  const [sortingType, setSortingType] = useState<SortingType>(
+    selectedItem || SortingType.DEFAULT,
+  );
+
+  const changeSorting = () => {
+    onItemSelected(sortingType);
+    cancelModal();
+  };
+
+  return (
+    <View style={styles.roleChangeModal}>
+      <Text style={styles.roleChangeModalHeading}>Sorting Style</Text>
+      <CustomPicker
+        data={data}
+        selectedItem={sortingType}
+        onItemSelected={setSortingType}
+        viewStyle={styles.picker}
+      />
+      <View style={styles.sortingButtonContainer}>
+        <CustomButton
+          title="Cancel"
+          onPress={cancelModal}
+          viewStyle={styles.roleChangeModalCancelButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+        <CustomButton
+          title="Change"
+          onPress={changeSorting}
+          viewStyle={styles.roleChangeModalSuccessButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+      </View>
+    </View>
+  );
+};
+
+export const ChangeLayoutModal = ({
+  data,
+  selectedItem,
+  onItemSelected,
+  cancelModal,
+}: {
+  data: LayoutParams[];
+  selectedItem: LayoutParams;
+  onItemSelected: React.Dispatch<React.SetStateAction<LayoutParams>>;
+  cancelModal: Function;
+}) => {
+  const [layout, setLayout] = useState<LayoutParams>(selectedItem);
+
+  const changeLayout = () => {
+    onItemSelected(layout);
+    cancelModal();
+  };
+
+  return (
+    <View style={styles.roleChangeModal}>
+      <Text style={styles.roleChangeModalHeading}>Layout Style</Text>
+      <CustomPicker
+        data={data}
+        selectedItem={layout}
+        onItemSelected={setLayout}
+        viewStyle={styles.picker}
+      />
+      <View style={styles.sortingButtonContainer}>
+        <CustomButton
+          title="Cancel"
+          onPress={cancelModal}
+          viewStyle={styles.roleChangeModalCancelButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+        <CustomButton
+          title="Change"
+          onPress={changeLayout}
+          viewStyle={styles.roleChangeModalSuccessButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+      </View>
+    </View>
+  );
+};
+
+export const ChangeTrackStateForRoleModal = ({
+  instance,
+  cancelModal,
+}: {
+  instance?: HMSSDK;
+  cancelModal: Function;
+}) => {
+  const [role, setRole] = useState<HMSRole>(instance?.localPeer?.role!);
+  const [visible, setVisible] = useState<boolean>(false);
+  const [trackType, setTrackType] = useState<HMSTrackType>(HMSTrackType.VIDEO);
+  const [trackState, setTrackState] = useState<boolean>(false);
+
+  const hideMenu = () => setVisible(false);
+  const showMenu = () => setVisible(true);
+  const changeTrackState = async () => {
+    const source = HMSTrackSource.REGULAR;
+    await instance
+      ?.changeTrackStateForRoles(trackState, trackType, source, [role])
+      .then(d => console.log('Change Track State For Role Success: ', d))
+      .catch(e => console.log('Change Track State For Role Error: ', e));
+    cancelModal();
+  };
+
+  return (
+    <View style={styles.roleChangeModal}>
+      <Text style={styles.roleChangeModalHeading}>
+        Change Track State For Role
+      </Text>
+      <Menu
+        visible={visible}
+        anchor={
+          <TouchableOpacity
+            style={styles.participantChangeRoleContainer}
+            onPress={showMenu}>
+            <Text style={styles.participantFilterText} numberOfLines={1}>
+              {role?.name}
+            </Text>
+            <MaterialIcons
+              name={visible ? 'arrow-drop-up' : 'arrow-drop-down'}
+              style={styles.participantFilterIcon}
+              size={24}
+            />
+          </TouchableOpacity>
+        }
+        onRequestClose={hideMenu}
+        style={styles.participantsMenuContainer}>
+        {instance?.knownRoles?.map(knownRole => {
+          return (
+            <MenuItem
+              onPress={() => {
+                hideMenu();
+                setRole(knownRole);
+              }}
+              key={knownRole.name}>
+              <View style={styles.participantMenuItem}>
+                <Text style={styles.participantMenuItemName}>
+                  {knownRole?.name}
+                </Text>
+              </View>
+            </MenuItem>
+          );
+        })}
+      </Menu>
+      <View style={styles.roleChangeModalPermissionContainer}>
+        <Text style={styles.changeTrackStateRoleOptionHeading}>
+          {'Track State: '}
+        </Text>
+        {instance?.localPeer?.role?.permissions?.mute && (
+          <TouchableOpacity
+            style={styles.changeTrackStateRoleOption}
+            onPress={() => setTrackState(true)}>
+            <View style={styles.roleChangeModalCheckBox}>
+              {trackState && (
+                <Entypo
+                  name="check"
+                  style={styles.roleChangeModalCheck}
+                  size={10}
+                />
+              )}
+            </View>
+            <Text style={styles.roleChangeModalPermission}>MUTE</Text>
+          </TouchableOpacity>
+        )}
+        {instance?.localPeer?.role?.permissions?.unmute && (
+          <TouchableOpacity
+            style={styles.changeTrackStateRoleOption}
+            onPress={() => setTrackState(false)}>
+            <View style={styles.roleChangeModalCheckBox}>
+              {!trackState && (
+                <Entypo
+                  name="check"
+                  style={styles.roleChangeModalCheck}
+                  size={10}
+                />
+              )}
+            </View>
+            <Text style={styles.roleChangeModalPermission}>UNMUTE</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+      <View style={styles.roleChangeModalPermissionContainer}>
+        <Text style={styles.changeTrackStateRoleOptionHeading}>
+          {'Track Type: '}
+        </Text>
+        <TouchableOpacity
+          style={styles.changeTrackStateRoleOption}
+          onPress={() => setTrackType(HMSTrackType.AUDIO)}>
+          <View style={styles.roleChangeModalCheckBox}>
+            {trackType === HMSTrackType.AUDIO && (
+              <Entypo
+                name="check"
+                style={styles.roleChangeModalCheck}
+                size={10}
+              />
+            )}
+          </View>
+          <Text style={styles.roleChangeModalPermission}>
+            {HMSTrackType.AUDIO}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.changeTrackStateRoleOption}
+          onPress={() => setTrackType(HMSTrackType.VIDEO)}>
+          <View style={styles.roleChangeModalCheckBox}>
+            {trackType === HMSTrackType.VIDEO && (
+              <Entypo
+                name="check"
+                style={styles.roleChangeModalCheck}
+                size={10}
+              />
+            )}
+          </View>
+          <Text style={styles.roleChangeModalPermission}>
+            {HMSTrackType.VIDEO}
+          </Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.roleChangeModalPermissionContainer}>
+        <CustomButton
+          title="Cancel"
+          onPress={cancelModal}
+          viewStyle={styles.roleChangeModalCancelButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+        <CustomButton
+          title="Change"
+          onPress={changeTrackState}
+          viewStyle={styles.roleChangeModalSuccessButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+      </View>
+    </View>
+  );
+};
+
+export const ChangeTrackStateModal = ({
+  instance,
+  roleChangeRequest,
+  cancelModal,
+}: {
+  instance?: HMSSDK;
+  roleChangeRequest: {
+    requestedBy?: string;
+    suggestedRole?: string;
+  };
+  cancelModal: Function;
+}) => {
+  const changeLayout = () => {
+    if (roleChangeRequest?.suggestedRole?.toLocaleLowerCase() === 'video') {
+      instance?.localPeer?.localVideoTrack()?.setMute(false);
+    } else {
+      instance?.localPeer?.localAudioTrack()?.setMute(false);
+    }
+    cancelModal();
+  };
+
+  return (
+    <View style={styles.roleChangeModal}>
+      <Text style={styles.roleChangeModalHeading}>
+        Change Track State Request
+      </Text>
+      <Text style={styles.roleChangeText}>
+        {`${roleChangeRequest?.requestedBy?.toLocaleUpperCase()} requested to unmute your regular ${roleChangeRequest?.suggestedRole?.toLocaleUpperCase()}`}
+      </Text>
+      <View style={styles.sortingButtonContainer}>
+        <CustomButton
+          title="Reject"
+          onPress={cancelModal}
+          viewStyle={styles.roleChangeModalCancelButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+        <CustomButton
+          title="Accept"
+          onPress={changeLayout}
+          viewStyle={styles.roleChangeModalSuccessButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+      </View>
+    </View>
+  );
+};
+
+export const HlsStreamingModal = ({
+  instance,
+  roomID,
+  cancelModal,
+}: {
+  instance?: HMSSDK;
+  roomID: string;
+  cancelModal: Function;
+}) => {
+  const [hlsStreamingDetails, setHLSStreamingDetails] =
+    useState<HMSHLSMeetingURLVariant>({
+      meetingUrl: roomID ? roomID + '?skip_preview=true' : '',
+      metadata: '',
+    });
+  const [startHlsRetry, setStartHlsRetry] = useState(true);
+  const [hlsRecordingDetails, setHLSRecordingDetails] =
+    useState<HMSHLSRecordingConfig>({
+      singleFilePerLayer: false,
+      videoOnDemand: false,
+    });
+
+  const changeLayout = () => {
+    instance
+      ?.startHLSStreaming()
+      .then(d => console.log('Start HLS Streaming Success: ', d))
+      .catch(err => {
+        if (startHlsRetry) {
+          setStartHlsRetry(false);
+          const hmsHLSConfig = new HMSHLSConfig({
+            hlsRecordingConfig: hlsRecordingDetails,
+            meetingURLVariants: [hlsStreamingDetails],
+          });
+          instance
+            ?.startHLSStreaming(hmsHLSConfig)
+            .then(d => console.log('Start HLS Streaming Success: ', d))
+            .catch(e => console.log('Start HLS Streaming Error: ', e));
+        } else {
+          console.log('Start HLS Streaming Error: ', err);
+        }
+      });
+    cancelModal();
+  };
+
+  return (
+    <View style={styles.roleChangeModal}>
+      <Text style={styles.roleChangeModalHeading}>HLS Streaming Details</Text>
+      <TextInput
+        onChangeText={value => {
+          setHLSStreamingDetails({...hlsStreamingDetails, meetingUrl: value});
+        }}
+        placeholderTextColor="#454545"
+        placeholder="Enter meeting url"
+        style={styles.input}
+        defaultValue={hlsStreamingDetails.meetingUrl}
+        returnKeyType="done"
+        multiline
+        blurOnSubmit
+      />
+      <TouchableOpacity
+        style={styles.checkboxButtonContainer}
+        onPress={() => {
+          setHLSRecordingDetails({
+            ...hlsRecordingDetails,
+            singleFilePerLayer: !hlsRecordingDetails.singleFilePerLayer,
+          });
+        }}>
+        <View style={styles.roleChangeModalCheckBox}>
+          {hlsRecordingDetails.singleFilePerLayer && (
+            <Entypo
+              name="check"
+              style={styles.roleChangeModalCheck}
+              size={10}
+            />
+          )}
+        </View>
+        <Text style={styles.roleChangeModalPermission}>SingleFilePerLayer</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.checkboxButtonContainer}
+        onPress={() => {
+          setHLSRecordingDetails({
+            ...hlsRecordingDetails,
+            videoOnDemand: !hlsRecordingDetails.videoOnDemand,
+          });
+        }}>
+        <View style={styles.roleChangeModalCheckBox}>
+          {hlsRecordingDetails.videoOnDemand && (
+            <Entypo
+              name="check"
+              style={styles.roleChangeModalCheck}
+              size={10}
+            />
+          )}
+        </View>
+        <Text style={styles.roleChangeModalPermission}>VideoOnDemand</Text>
+      </TouchableOpacity>
+      <View style={styles.roleChangeModalPermissionContainer}>
+        <CustomButton
+          title="Cancel"
+          onPress={cancelModal}
+          viewStyle={styles.roleChangeModalCancelButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+        <CustomButton
+          title="Start"
+          onPress={changeLayout}
+          viewStyle={styles.roleChangeModalSuccessButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+      </View>
+    </View>
+  );
+};
+
+export const RecordingModal = ({
+  instance,
+  recordingDetails,
+  setRecordingDetails,
+  setModalVisible,
+  cancelModal,
+}: {
+  instance?: HMSSDK;
+  recordingDetails: HMSRTMPConfig;
+  setRecordingDetails: React.Dispatch<React.SetStateAction<HMSRTMPConfig>>;
+  setModalVisible: React.Dispatch<React.SetStateAction<ModalTypes>>;
+  cancelModal: Function;
+}) => {
+  const [resolutionDetails, setResolutionDetails] = useState<boolean>(false);
+
+  const changeLayout = () => {
+    instance
+      ?.startRTMPOrRecording(recordingDetails)
+      .then(d => console.log('Start RTMP Or Recording Success: ', d))
+      .catch(e => console.log('Start RTMP Or Recording Error: ', e));
+    cancelModal();
+  };
+
+  return (
+    <View style={styles.roleChangeModal}>
+      <Text style={styles.roleChangeModalHeading}>Recording Details</Text>
+      <TextInput
+        onChangeText={value => {
+          setRecordingDetails({...recordingDetails, meetingURL: value});
+        }}
+        placeholderTextColor="#454545"
+        placeholder="Enter meeting url"
+        style={styles.input}
+        defaultValue={recordingDetails.meetingURL}
+        returnKeyType="done"
+        multiline
+        blurOnSubmit
+      />
+      <TextInput
+        onChangeText={value => {
+          if (value === '') {
+            setRecordingDetails({...recordingDetails, rtmpURLs: undefined});
+          } else {
+            setRecordingDetails({...recordingDetails, rtmpURLs: [value]});
+          }
+        }}
+        placeholderTextColor="#454545"
+        placeholder="Enter rtmp url"
+        style={styles.input}
+        defaultValue={
+          recordingDetails.rtmpURLs ? recordingDetails.rtmpURLs[0] : ''
+        }
+        returnKeyType="done"
+        multiline
+        blurOnSubmit
+      />
+      <TouchableOpacity
+        style={styles.checkboxButtonContainer}
+        onPress={() => {
+          setRecordingDetails({
+            ...recordingDetails,
+            record: !recordingDetails.record,
+          });
+        }}>
+        <View style={styles.roleChangeModalCheckBox}>
+          {recordingDetails.record && (
+            <Entypo
+              name="check"
+              style={styles.roleChangeModalCheck}
+              size={10}
+            />
+          )}
+        </View>
+        <Text style={styles.roleChangeModalPermission}>Record</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.checkboxButtonContainer}
+        onPress={() => {
+          setResolutionDetails(!resolutionDetails);
+          if (!resolutionDetails) {
+            setModalVisible(ModalTypes.RESOLUTION);
+            setRecordingDetails({
+              ...recordingDetails,
+              resolution: {
+                height: 720,
+                width: 1280,
+              },
+            });
+          } else {
+            setRecordingDetails({
+              ...recordingDetails,
+              resolution: undefined,
+            });
+          }
+        }}>
+        <View style={styles.roleChangeModalCheckBox}>
+          {resolutionDetails && (
+            <Entypo
+              name="check"
+              style={styles.roleChangeModalCheck}
+              size={10}
+            />
+          )}
+        </View>
+        <Text style={styles.roleChangeModalPermission}>Resolution</Text>
+      </TouchableOpacity>
+      <View style={styles.roleChangeModalPermissionContainer}>
+        <CustomButton
+          title="Cancel"
+          onPress={cancelModal}
+          viewStyle={styles.roleChangeModalCancelButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+        <CustomButton
+          title="Start"
+          onPress={changeLayout}
+          viewStyle={styles.roleChangeModalSuccessButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+      </View>
+    </View>
+  );
+};
+
+export const ResolutionModal = ({
+  recordingDetails,
+  setRecordingDetails,
+  cancelModal,
+}: {
+  recordingDetails: HMSRTMPConfig;
+  setRecordingDetails: React.Dispatch<React.SetStateAction<HMSRTMPConfig>>;
+  cancelModal: Function;
+}) => {
+  return (
+    <View style={styles.roleChangeModal}>
+      <Text style={styles.roleChangeModalHeading}>Resolution Details</Text>
+      <View style={styles.resolutionContainer}>
+        <View style={styles.resolutionDetails}>
+          <Text style={styles.interRegular}>Height :</Text>
+          <Text style={styles.resolutionValue}>
+            {recordingDetails.resolution?.height}
+          </Text>
+        </View>
+        <Slider
+          value={recordingDetails.resolution?.height}
+          maximumValue={1280}
+          minimumValue={480}
+          step={10}
+          onValueChange={(value: any) => {
+            setRecordingDetails({
+              ...recordingDetails,
+              resolution: {
+                height: parseInt(value),
+                width: recordingDetails.resolution?.width ?? 1280,
+              },
+            });
+          }}
+        />
+        <View style={styles.resolutionDetails}>
+          <Text style={styles.interRegular}>Width :</Text>
+          <Text style={styles.resolutionValue}>
+            {recordingDetails.resolution?.width}
+          </Text>
+        </View>
+        <Slider
+          value={recordingDetails.resolution?.width}
+          maximumValue={1280}
+          minimumValue={500}
+          step={10}
+          onValueChange={(value: any) => {
+            setRecordingDetails({
+              ...recordingDetails,
+              resolution: {
+                width: parseInt(value),
+                height: recordingDetails.resolution?.height ?? 720,
+              },
+            });
+          }}
+        />
+      </View>
+      <View style={styles.sortingButtonContainer}>
+        <CustomButton
+          title="Back"
+          onPress={cancelModal}
+          viewStyle={styles.backButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+      </View>
+    </View>
+  );
+};
+
+export const ChangeRoleAccepteModal = ({
+  instance,
+  roleChangeRequest,
+  cancelModal,
+}: {
+  instance?: HMSSDK;
+  roleChangeRequest: {
+    requestedBy?: string;
+    suggestedRole?: string;
+  };
+  cancelModal: Function;
+}) => {
+  const changeLayout = () => {
+    instance?.acceptRoleChange();
+    cancelModal();
+  };
+
+  return (
+    <View style={styles.roleChangeModal}>
+      <Text style={styles.roleChangeModalHeading}>Role Change Details</Text>
+      <Text style={styles.roleChangeText}>
+        {`Role change requested by ${roleChangeRequest?.requestedBy?.toLocaleUpperCase()}. Changing role to ${roleChangeRequest?.suggestedRole?.toLocaleUpperCase()}`}
+      </Text>
+      <View style={styles.sortingButtonContainer}>
+        <CustomButton
+          title="Reject"
+          onPress={cancelModal}
+          viewStyle={styles.roleChangeModalCancelButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+        <CustomButton
+          title="Accept"
+          onPress={changeLayout}
           viewStyle={styles.roleChangeModalSuccessButton}
           textStyle={styles.roleChangeModalButtonText}
         />

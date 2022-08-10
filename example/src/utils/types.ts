@@ -28,6 +28,7 @@ export enum ModalTypes {
   CHANGE_AUDIO_MODE = 'changeAudioMode',
   CHANGE_ROLE = 'changeRole',
   CHANGE_TRACK = 'changeTrackState',
+  CHANGE_TRACK_ROLE = 'changeTrackStateRole',
   CHANGE_NAME = 'changeName',
   HLS_STREAMING = 'hlsStreaming',
   RECORDING = 'recording',
@@ -41,7 +42,6 @@ export enum ModalTypes {
   SETTINGS = 'settings',
   CHAT = 'chat',
   ZOOM = 'zoom',
-  ROLE = 'role',
   PREVIEW = 'preview',
   PARTICIPANTS = 'participants',
   VOLUME = 'volume',
@@ -53,7 +53,7 @@ export enum SortingType {
   ALPHABETICAL = 'Alphabetical Order',
   VIDEO_ON = 'Video On',
   ROLE_PRIORITY = 'Role Priority',
-  DEFAULT = '',
+  DEFAULT = 'None',
 }
 
 export enum Theme {
