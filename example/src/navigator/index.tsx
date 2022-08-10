@@ -2,7 +2,7 @@ import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {NavigationContainer} from '@react-navigation/native';
 import {Welcome} from '../screens/Welcome';
-import MeetingScreen from '../screens/MeetingScreen';
+import {Meeting} from '../screens/Meeting';
 import {QRCode} from '../screens/QRCode';
 import {QRCodeScanner} from '../screens/QRCodeScanner';
 
@@ -29,7 +29,7 @@ const AppStackNavigator = () => (
       />
       <AppStack.Screen
         name="MeetingScreen"
-        component={MeetingScreen}
+        component={Meeting}
         options={navigationOptions}
       />
       <AppStack.Screen

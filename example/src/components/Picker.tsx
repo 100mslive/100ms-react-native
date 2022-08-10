@@ -1,147 +1,106 @@
-import React from 'react';
-import {Text, View, TouchableOpacity, StyleSheet} from 'react-native';
-import {Picker} from '@react-native-picker/picker';
-import ModalDropdown from 'react-native-modal-dropdown';
-import Material from 'react-native-vector-icons/MaterialIcons';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import React, {useState} from 'react';
+import {
+  Platform,
+  StyleProp,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from 'react-native';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+
+import {Menu, MenuItem} from './MenuModal';
 import {COLORS} from '../utils/theme';
 
 export const CustomPicker = ({
-  selectedItem,
   data,
+  selectedItem,
   onItemSelected,
+  viewStyle,
 }: {
+  data: any[];
   selectedItem: any;
-  data: Array<any>;
-  onItemSelected: any;
+  onItemSelected: React.Dispatch<React.SetStateAction<any>>;
+  viewStyle?: StyleProp<ViewStyle>;
 }) => {
-  const onPress = (value: any) => {
-    onItemSelected(value);
-  };
-  return (
-    <View>
-      <Picker
-        selectedValue={selectedItem}
-        onValueChange={onPress}
-        dropdownIconColor="black"
-        dropdownIconRippleColor="grey">
-        {data.map((item, index) => (
-          <Picker.Item key={index} label={item.name} value={item} />
-        ))}
-      </Picker>
-    </View>
-  );
-};
+  const [visible, setVisible] = useState<boolean>(false);
 
-export const CustomModalDropdown = ({
-  selectedItem,
-  data,
-  onItemSelected,
-}: {
-  selectedItem: any;
-  data: Array<any>;
-  onItemSelected: any;
-  style?: Object;
-}) => {
-  const onSelect = (index: string) => {
-    onItemSelected(index);
-  };
-  const modalRef = React.useRef<any>();
+  const hideMenu = () => setVisible(false);
+  const showMenu = () => setVisible(true);
+
   return (
-    <View>
-      <ModalDropdown
-        ref={modalRef}
-        defaultValue={data[0]?.name}
-        defaultIndex={selectedItem}
-        onSelect={onSelect}
-        options={data.map(item => item.name)}
-        style={styles.modalDropdown}
-        textStyle={styles.textStyle}
-        dropdownStyle={styles.dropdownStyle}
-        dropdownTextStyle={styles.dropdownTextStyle}
-        renderRow={(value, index: string) => {
-          const type = data[parseInt(index)]?.type;
-          return (
-            <View style={styles.dropdownRow}>
-              <Text style={styles.dropdownRowText}>{value}</Text>
-              {type === 'everyone' ? (
-                <Ionicons
-                  size={25}
-                  style={styles.dropdownIcons}
-                  name="volume-high-outline"
-                />
-              ) : type === 'group' ? (
-                <Material
-                  size={25}
-                  style={styles.dropdownIcons}
-                  name="groups"
-                />
-              ) : (
-                <Ionicons
-                  size={25}
-                  style={styles.dropdownIcons}
-                  name="person-circle-outline"
-                />
-              )}
+    <Menu
+      visible={visible}
+      anchor={
+        <TouchableOpacity
+          style={[styles.chatFilterContainer, viewStyle]}
+          onPress={showMenu}>
+          <Text style={styles.chatFilterText} numberOfLines={1}>
+            {selectedItem}
+          </Text>
+          <MaterialIcons
+            name={visible ? 'arrow-drop-up' : 'arrow-drop-down'}
+            style={styles.chatFilterIcon}
+            size={24}
+          />
+        </TouchableOpacity>
+      }
+      onRequestClose={hideMenu}
+      style={styles.chatMenuContainer}>
+      {data?.map(value => {
+        return (
+          <MenuItem
+            onPress={() => {
+              hideMenu();
+              onItemSelected(value);
+            }}
+            key={value}>
+            <View style={styles.chatMenuItem}>
+              <Text style={styles.chatMenuItemName}>{value}</Text>
             </View>
-          );
-        }}
-      />
-      <TouchableOpacity
-        style={styles.dropdownArrowContainer}
-        onPress={() => modalRef?.current?.show()}>
-        <Material
-          size={30}
-          style={styles.dropdownArrow}
-          name="arrow-drop-down"
-        />
-      </TouchableOpacity>
-    </View>
+          </MenuItem>
+        );
+      })}
+    </Menu>
   );
 };
 
 const styles = StyleSheet.create({
-  dropdownArrowContainer: {
+  chatFilterContainer: {
+    padding: 8,
+    marginVertical: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  chatFilterText: {
+    color: COLORS.TEXT.HIGH_EMPHASIS,
+    fontFamily: 'Inter-Regular',
+    fontSize: 12,
+    lineHeight: 16,
+    letterSpacing: 0.4,
+    marginRight: 12,
+    textTransform: 'capitalize',
+  },
+  chatFilterIcon: {
+    color: COLORS.TEXT.HIGH_EMPHASIS,
     position: 'absolute',
     right: 0,
-    top: 10,
   },
-  dropdownArrow: {
-    color: COLORS.PRIMARY.DEFAULT,
+  chatMenuContainer: {
+    backgroundColor: COLORS.SURFACE.LIGHT,
   },
-  dropdownIcons: {
-    color: COLORS.PRIMARY.DARK,
-  },
-  modalDropdown: {
-    minWidth: 120,
-    paddingRight: 15,
-  },
-  textStyle: {
-    fontSize: 20,
-    padding: 10,
-    fontFamily: 'Inter-Medium',
-    color: COLORS.PRIMARY.LIGHT,
-  },
-  dropdownStyle: {
-    minWidth: '50%',
-    borderRadius: 10,
-    elevation: 5,
-  },
-  dropdownTextStyle: {
-    fontSize: 15,
-    padding: 10,
-    fontFamily: 'Inter-Medium',
-    color: COLORS.PRIMARY.LIGHT,
-  },
-  dropdownRow: {
+  chatMenuItem: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding: 10,
-    backgroundColor: 'white',
+    alignItems: 'center',
+    paddingLeft: Platform.OS === 'ios' ? 16 : 0,
   },
-  dropdownRowText: {
-    padding: 5,
+  chatMenuItemName: {
+    color: COLORS.TEXT.HIGH_EMPHASIS,
+    fontSize: 14,
+    lineHeight: 20,
+    letterSpacing: 0.1,
     fontFamily: 'Inter-Medium',
-    color: COLORS.PRIMARY.LIGHT,
+    textTransform: 'capitalize',
   },
 });

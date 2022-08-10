@@ -161,13 +161,13 @@ export const PreviewModal = ({
                 }
               />
             )}
-            <CustomButton
+            {/* <CustomButton
               onPress={() => {}}
               viewStyle={styles.singleIconContainer}
               LeftIcon={
                 <Feather name="settings" style={styles.videoIcon} size={32} />
               }
-            />
+            /> */}
           </View>
         </View>
         <CustomButton

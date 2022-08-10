@@ -112,6 +112,7 @@ export const getHmsViewHeight = (
   const viewHeight =
     (Dimensions.get('window').height -
       (50 +
+        110 +
         (isTab ? 20 : top + bottom) +
         2 +
         (orientation || Platform.OS === 'ios' ? 0 : 20))) /
