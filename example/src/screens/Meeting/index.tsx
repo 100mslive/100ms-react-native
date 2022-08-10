@@ -766,7 +766,7 @@ const Meeting = () => {
     return () => {
       backHandler.remove();
       Dimensions.removeEventListener('change', callback);
-      // onLeavePress();
+      onLeavePress();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

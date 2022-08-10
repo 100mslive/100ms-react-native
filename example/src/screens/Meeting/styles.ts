@@ -399,8 +399,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   iconBotttomWrapper: {
+    height: 110,
+    // position: 'absolute',
     width: '100%',
-    position: 'absolute',
     paddingVertical: 4,
     backgroundColor: COLORS.OVERLAY,
     zIndex: 2,
