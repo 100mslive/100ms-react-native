@@ -807,6 +807,24 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginRight: '4%',
   },
+  liveTextContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  liveStatus: {
+    height: 10,
+    aspectRatio: 1,
+    borderRadius: 10,
+    backgroundColor: COLORS.BACKGROUND.ERROR,
+    marginRight: 8,
+  },
+  liveTimeText: {
+    color: COLORS.TEXT.MEDIUM_EMPHASIS,
+    fontSize: 12,
+    lineHeight: 16,
+    fontFamily: 'Inter-Regular',
+    letterSpacing: 0.4,
+  },
 });
 
 export {styles};

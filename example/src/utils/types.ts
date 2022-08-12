@@ -31,6 +31,7 @@ export enum ModalTypes {
   CHANGE_TRACK_ROLE = 'changeTrackStateRole',
   CHANGE_NAME = 'changeName',
   HLS_STREAMING = 'hlsStreaming',
+  END_HLS_STREAMING = 'endHlsStreaming',
   RECORDING = 'recording',
   RESOLUTION = 'resolution',
   RTC_STATS = 'rtcStats',

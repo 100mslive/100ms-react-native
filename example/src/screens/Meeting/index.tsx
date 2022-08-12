@@ -97,6 +97,8 @@ import {
   RecordingModal,
   ResolutionModal,
   ChangeRoleAccepteModal,
+  EndHlsModal,
+  RealTime,
 } from './Modals';
 
 type MeetingScreenProp = NativeStackNavigationProp<
@@ -833,11 +835,21 @@ const Meeting = () => {
               </View>
             </MenuItem>
           </Menu>
-          <Text style={styles.headerName}>
-            {speakers?.length > 0 && speakers[0]?.peer?.name
-              ? `🔊  ${speakers[0]?.peer?.name}`
-              : roomCode}
-          </Text>
+          {hmsRoom?.hlsStreamingState?.running ? (
+            <View>
+              <View style={styles.liveTextContainer}>
+                <View style={styles.liveStatus} />
+                <Text style={styles.liveTimeText}>Live</Text>
+              </View>
+              <RealTime />
+            </View>
+          ) : (
+            <Text style={styles.headerName}>
+              {speakers?.length > 0 && speakers[0]?.peer?.name
+                ? `🔊  ${speakers[0]?.peer?.name}`
+                : roomCode}
+            </Text>
+          )}
         </View>
         <View style={styles.iconTopSubWrapper}>
           {(hmsRoom?.browserRecordingState?.running ||
@@ -1062,7 +1074,7 @@ const Meeting = () => {
           {instance?.localPeer?.role?.permissions?.hlsStreaming &&
             (hmsRoom?.hlsStreamingState?.running ? (
               <CustomButton
-                onPress={onEndLivePress}
+                onPress={() => setModalVisible(ModalTypes.END_HLS_STREAMING)}
                 viewStyle={styles.endLiveIconContainer}
                 LeftIcon={
                   <Feather name="stop-circle" style={styles.icon} size={36} />
@@ -1345,6 +1357,17 @@ const Meeting = () => {
         <ChangeRoleAccepteModal
           instance={instance}
           roleChangeRequest={roleChangeRequest}
+          cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
+        />
+      </DefaultModal>
+      <DefaultModal
+        animationType="fade"
+        overlay={false}
+        modalPosiion="center"
+        modalVisible={modalVisible === ModalTypes.END_HLS_STREAMING}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        <EndHlsModal
+          onSuccess={onEndLivePress}
           cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
         />
       </DefaultModal>

@@ -1926,3 +1926,111 @@ export const ChangeRoleAccepteModal = ({
     </View>
   );
 };
+
+export const EndHlsModal = ({
+  onSuccess,
+  cancelModal,
+}: {
+  onSuccess: Function;
+  cancelModal: Function;
+}) => {
+  const onEnd = () => {
+    cancelModal();
+    onSuccess();
+  };
+  return (
+    <View style={styles.volumeModalContainer}>
+      <View style={styles.participantMenuItem}>
+        <Feather
+          name="alert-triangle"
+          style={[styles.participantMenuItemIcon, styles.error]}
+          size={24}
+        />
+        <Text style={[styles.roleChangeModalHeading, styles.error]}>
+          End live stream for all?
+        </Text>
+      </View>
+      <View style={styles.roleChangeModalPermissionContainer}>
+        <Text style={styles.roleChangeModalDescription}>
+          Your stream will end and everone will go offline immediately in this
+          room. You can’t undo this action.
+        </Text>
+      </View>
+      <View style={styles.roleChangeModalPermissionContainer}>
+        <CustomButton
+          title="Don’t End"
+          onPress={cancelModal}
+          viewStyle={styles.roleChangeModalCancelButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+        <CustomButton
+          title="End Stream"
+          onPress={onEnd}
+          viewStyle={[
+            styles.roleChangeModalSuccessButton,
+            styles.errorContainer,
+          ]}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+      </View>
+    </View>
+  );
+};
+
+export const RealTime = () => {
+  const [hour, setHour] = useState(0);
+  const [minute, setMinute] = useState(0);
+  const [second, setSecond] = useState(0);
+
+  useEffect(() => {
+    const updatePostInfo = setInterval(() => {
+      setSecond(sec => sec + 1);
+    }, 1000);
+
+    return () => {
+      clearInterval(updatePostInfo);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (second === 60) {
+      setSecond(0);
+      setMinute(min => min + 1);
+    }
+    return () => {
+      if (second === 60) {
+        setSecond(0);
+        setMinute(min => min + 1);
+      }
+    };
+  }, [second]);
+
+  useEffect(() => {
+    if (minute === 60) {
+      setMinute(0);
+      setHour(hr => hr + 1);
+    }
+    return () => {
+      if (minute === 60) {
+        setMinute(0);
+        setHour(hr => hr + 1);
+      }
+    };
+  }, [minute]);
+
+  return (
+    <View style={styles.liveTextContainer}>
+      {hour > 0 && (
+        <Text style={styles.liveTimeText}>
+          {hour < 10 ? '0' + hour : hour}:
+        </Text>
+      )}
+      <Text style={styles.liveTimeText}>
+        {minute < 10 ? '0' + minute : minute}:
+      </Text>
+      <Text style={styles.liveTimeText}>
+        {second < 10 ? '0' + second : second}
+      </Text>
+    </View>
+  );
+};
