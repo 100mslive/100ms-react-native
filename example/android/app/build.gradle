@@ -136,8 +136,8 @@ android {
         applicationId "live.hms.rn"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 75
-        versionName "1.0.75"
+        versionCode 76
+        versionName "1.0.76"
         missingDimensionStrategy 'react-native-camera', 'general'
     }
     splits {
