@@ -6,12 +6,13 @@ import com.facebook.react.bridge.*
 import com.facebook.react.bridge.UiThreadUtil.runOnUiThread
 import java.util.*
 import kotlinx.coroutines.launch
+import live.hms.video.audio.HMSAudioManager
+import live.hms.video.connection.stats.*
 import live.hms.video.error.HMSException
-import live.hms.video.media.tracks.HMSRemoteAudioTrack
-import live.hms.video.media.tracks.HMSTrack
-import live.hms.video.media.tracks.HMSTrackType
+import live.hms.video.media.tracks.*
 import live.hms.video.sdk.*
 import live.hms.video.sdk.models.*
+import live.hms.video.sdk.models.enums.AudioMixingMode
 import live.hms.video.sdk.models.enums.HMSPeerUpdate
 import live.hms.video.sdk.models.enums.HMSRoomUpdate
 import live.hms.video.sdk.models.enums.HMSTrackUpdate
@@ -27,11 +28,15 @@ class HMSRNSDK(
 ) {
   var hmsSDK: HMSSDK? = null
   var screenshareCallback: Promise? = null
+  var audioshareCallback: Promise? = null
+  var isAudioSharing: Boolean = false
   var delegate: HMSManager = HmsDelegate
   private var recentRoleChangeRequest: HMSRoleChangeRequest? = null
   private var context: ReactApplicationContext = reactApplicationContext
   private var previewInProgress: Boolean = false
   private var reconnectingStage: Boolean = false
+  private var rtcStatsAttached: Boolean = false
+  private var audioMixingMode: AudioMixingMode = AudioMixingMode.TALK_AND_MUSIC
   private var id: String = sdkId
   private var self = this
 
@@ -46,8 +51,7 @@ class HMSRNSDK(
 
   private fun emitCustomError(message: String) {
     val data: WritableMap = Arguments.createMap()
-    val hmsError = HMSException(102, message, message, message, message)
-    data.putString("event", "ON_ERROR")
+    val hmsError = HMSException(6002, message, message, message, message, null, false)
     data.putString("id", id)
     data.putMap("error", HMSDecoder.getError(hmsError))
     delegate.emitEvent("ON_ERROR", data)
@@ -56,20 +60,26 @@ class HMSRNSDK(
   private fun emitRequiredKeysError(message: String) {
     val data: WritableMap = Arguments.createMap()
     val hmsError =
-        HMSException(102, "REQUIRED_KEYS_NOT_FOUND", "SEND_ALL_REQUIRED_KEYS", message, message)
-    data.putString("event", "ON_ERROR")
+        HMSException(
+            6002,
+            "REQUIRED_KEYS_NOT_FOUND",
+            "SEND_ALL_REQUIRED_KEYS",
+            message,
+            message,
+            null,
+            false
+        )
     data.putString("id", id)
     data.putMap("error", HMSDecoder.getError(hmsError))
     delegate.emitEvent("ON_ERROR", data)
   }
 
   private fun rejectCallback(callback: Promise?, message: String) {
-    callback?.reject("102", message)
+    callback?.reject("6002", message)
   }
 
   fun emitHMSError(error: HMSException) {
     val data: WritableMap = Arguments.createMap()
-    data.putString("event", "ON_ERROR")
     data.putString("id", id)
     data.putMap("error", HMSDecoder.getError(error))
     delegate.emitEvent("ON_ERROR", data)
@@ -361,6 +371,109 @@ class HMSRNSDK(
               }
             }
         )
+
+        hmsSDK?.addRtcStatsObserver(
+            object : HMSStatsObserver {
+              override fun onLocalAudioStats(
+                  audioStats: HMSLocalAudioStats,
+                  hmsTrack: HMSTrack?,
+                  hmsPeer: HMSPeer?
+              ) {
+                if (!rtcStatsAttached) {
+                  return
+                }
+                val localAudioStats = HMSDecoder.getLocalAudioStats(audioStats)
+                val track = HMSDecoder.getHmsLocalAudioTrack(hmsTrack as HMSLocalAudioTrack)
+                val peer = HMSDecoder.getHmsPeer(hmsPeer)
+
+                val data: WritableMap = Arguments.createMap()
+                data.putMap("localAudioStats", localAudioStats)
+                data.putMap("track", track)
+                data.putMap("peer", peer)
+                data.putString("id", id)
+                delegate.emitEvent("ON_LOCAL_AUDIO_STATS", data)
+              }
+
+              override fun onLocalVideoStats(
+                  videoStats: HMSLocalVideoStats,
+                  hmsTrack: HMSTrack?,
+                  hmsPeer: HMSPeer?
+              ) {
+                if (!rtcStatsAttached) {
+                  return
+                }
+
+                val localVideoStats = HMSDecoder.getLocalVideoStats(videoStats)
+                val track = HMSDecoder.getHmsLocalVideoTrack(hmsTrack as HMSLocalVideoTrack)
+                val peer = HMSDecoder.getHmsPeer(hmsPeer)
+
+                val data: WritableMap = Arguments.createMap()
+                data.putMap("localVideoStats", localVideoStats)
+                data.putMap("track", track)
+                data.putMap("peer", peer)
+                data.putString("id", id)
+                delegate.emitEvent("ON_LOCAL_VIDEO_STATS", data)
+              }
+
+              override fun onRTCStats(rtcStats: HMSRTCStatsReport) {
+                if (!rtcStatsAttached) {
+                  return
+                }
+                val video = HMSDecoder.getHMSRTCStats(rtcStats.video)
+                val audio = HMSDecoder.getHMSRTCStats(rtcStats.audio)
+                val combined = HMSDecoder.getHMSRTCStats(rtcStats.combined)
+
+                val data: WritableMap = Arguments.createMap()
+                data.putMap("video", video)
+                data.putMap("audio", audio)
+                data.putMap("combined", combined)
+                data.putString("id", id)
+                delegate.emitEvent("ON_RTC_STATS", data)
+              }
+
+              override fun onRemoteAudioStats(
+                  audioStats: HMSRemoteAudioStats,
+                  hmsTrack: HMSTrack?,
+                  hmsPeer: HMSPeer?
+              ) {
+                if (!rtcStatsAttached) {
+                  return
+                }
+
+                val remoteAudioStats = HMSDecoder.getRemoteAudioStats(audioStats)
+                val track = HMSDecoder.getHmsRemoteAudioTrack(hmsTrack as HMSRemoteAudioTrack)
+                val peer = HMSDecoder.getHmsPeer(hmsPeer)
+
+                val data: WritableMap = Arguments.createMap()
+                data.putMap("remoteAudioStats", remoteAudioStats)
+                data.putMap("track", track)
+                data.putMap("peer", peer)
+                data.putString("id", id)
+                delegate.emitEvent("ON_REMOTE_AUDIO_STATS", data)
+              }
+
+              override fun onRemoteVideoStats(
+                  videoStats: HMSRemoteVideoStats,
+                  hmsTrack: HMSTrack?,
+                  hmsPeer: HMSPeer?
+              ) {
+                if (!rtcStatsAttached) {
+                  return
+                }
+
+                val remoteVideoStats = HMSDecoder.getRemoteVideoStats(videoStats)
+                val track = HMSDecoder.getHmsRemoteVideoTrack(hmsTrack as HMSRemoteVideoTrack)
+                val peer = HMSDecoder.getHmsPeer(hmsPeer)
+
+                val data: WritableMap = Arguments.createMap()
+                data.putMap("remoteVideoStats", remoteVideoStats)
+                data.putMap("track", track)
+                data.putMap("peer", peer)
+                data.putString("id", id)
+                delegate.emitEvent("ON_REMOTE_VIDEO_STATS", data)
+              }
+            }
+        )
       }
     } else {
       val errorMessage = "join: $requiredKeys"
@@ -391,7 +504,9 @@ class HMSRNSDK(
       hmsSDK?.leave(
           object : HMSActionResultListener {
             override fun onSuccess() {
+              isAudioSharing = false
               screenshareCallback = null
+              audioshareCallback = null
               callback?.resolve(emitHMSSuccess())
             }
 
@@ -991,32 +1106,19 @@ class HMSRNSDK(
   }
 
   fun startHLSStreaming(data: ReadableMap, callback: Promise?) {
-    val requiredKeys =
-        HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("meetingURLVariants", "Array")))
-    if (requiredKeys === null) {
-      val meetingURLVariants =
-          data.getArray("meetingURLVariants")?.toArrayList() as? ArrayList<HashMap<String, String>>
-      val hlsMeetingUrlVariant = HMSHelper.getHMSHLSMeetingURLVariants(meetingURLVariants)
-      val hlsRecordingConfig = HMSHelper.getHlsRecordingConfig(data)
-      val config = HMSHLSConfig(hlsMeetingUrlVariant, hlsRecordingConfig)
-
-      hmsSDK?.startHLSStreaming(
-          config,
-          object : HMSActionResultListener {
-            override fun onSuccess() {
-              callback?.resolve(emitHMSSuccess())
-            }
-            override fun onError(error: HMSException) {
-              callback?.reject(error.code.toString(), error.message)
-              self.emitHMSError(error)
-            }
+    val hlsConfig = HMSHelper.getHLSConfig(data)
+    hmsSDK?.startHLSStreaming(
+        hlsConfig,
+        object : HMSActionResultListener {
+          override fun onSuccess() {
+            callback?.resolve(emitHMSSuccess())
           }
-      )
-    } else {
-      val errorMessage = "startHLSStreaming: $requiredKeys"
-      self.emitRequiredKeysError(errorMessage)
-      rejectCallback(callback, errorMessage)
-    }
+          override fun onError(error: HMSException) {
+            callback?.reject(error.code.toString(), error.message)
+            self.emitHMSError(error)
+          }
+        }
+    )
   }
 
   fun stopHLSStreaming(callback: Promise?) {
@@ -1079,6 +1181,125 @@ class HMSRNSDK(
       }
     } else {
       val errorMessage = "changeName: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(callback, errorMessage)
+    }
+  }
+
+  fun enableRTCStats() {
+    rtcStatsAttached = true
+  }
+
+  fun disableRTCStats() {
+    rtcStatsAttached = false
+  }
+
+  fun getAudioDevicesList(callback: Promise?) {
+    callback?.resolve(HMSHelper.getAudioDevicesList(hmsSDK?.getAudioDevicesList()))
+  }
+
+  fun getAudioOutputRouteType(callback: Promise?) {
+    callback?.resolve(hmsSDK?.getAudioOutputRouteType()?.name)
+  }
+
+  fun switchAudioOutput(data: ReadableMap) {
+    val requiredKeys =
+        HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("audioDevice", "String")))
+    if (requiredKeys === null) {
+      val audioDevice = data.getString("audioDevice")
+      hmsSDK?.switchAudioOutput(HMSHelper.getAudioDevice(audioDevice))
+    } else {
+      val errorMessage = "switchAudioOutput: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+    }
+  }
+
+  fun setAudioMode(data: ReadableMap) {
+    val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("audioMode", "Int")))
+    if (requiredKeys === null) {
+      val audioMode = data.getInt("audioMode")
+      hmsSDK?.setAudioMode(audioMode)
+    } else {
+      val errorMessage = "setAudioMode: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+    }
+  }
+
+  fun setAudioDeviceChangeListener() {
+    hmsSDK?.setAudioDeviceChangeListener(
+        object : HMSAudioManager.AudioManagerDeviceChangeListener {
+          override fun onAudioDeviceChanged(
+              device: HMSAudioManager.AudioDevice?,
+              audioDevicesList: Set<HMSAudioManager.AudioDevice>?
+          ) {
+            val data: WritableMap = Arguments.createMap()
+            data.putString("device", device?.name)
+            data.putArray("audioDevicesList", HMSHelper.getAudioDevicesSet(audioDevicesList))
+            data.putString("id", id)
+            delegate.emitEvent("ON_AUDIO_DEVICE_CHANGED", data)
+          }
+
+          override fun onError(error: HMSException) {
+            self.emitHMSError(error)
+          }
+        }
+    )
+  }
+
+  fun startAudioshare(data: ReadableMap, callback: Promise?) {
+    val requiredKeys =
+        HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("audioMixingMode", "String")))
+    if (requiredKeys === null) {
+      audioshareCallback = callback
+      runOnUiThread {
+        val intent = Intent(context, HMSAudioshareActivity::class.java)
+        intent.flags = FLAG_ACTIVITY_NEW_TASK
+        intent.putExtra("id", id)
+        intent.putExtra("audioMixingMode", data.getString("audioMixingMode"))
+        context.startActivity(intent)
+      }
+    } else {
+      val errorMessage = "startAudioshare: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(callback, errorMessage)
+    }
+  }
+
+  fun isAudioShared(callback: Promise?) {
+    callback?.resolve(isAudioSharing)
+  }
+
+  fun stopAudioshare(callback: Promise?) {
+    hmsSDK?.stopAudioshare(
+        object : HMSActionResultListener {
+          override fun onError(error: HMSException) {
+            audioshareCallback = null
+            callback?.reject(error.code.toString(), error.message)
+            self.emitHMSError(error)
+          }
+          override fun onSuccess() {
+            isAudioSharing = false
+            audioshareCallback = null
+            callback?.resolve(emitHMSSuccess())
+          }
+        }
+    )
+  }
+
+  fun getAudioMixingMode(): AudioMixingMode {
+    return audioMixingMode
+  }
+
+  fun setAudioMixingMode(data: ReadableMap, callback: Promise?) {
+    val requiredKeys =
+        HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("audioMixingMode", "String")))
+    if (requiredKeys === null) {
+      val mode = HMSHelper.getAudioMixingMode(data.getString("audioMixingMode"))
+      audioMixingMode = mode
+      hmsSDK?.setAudioMixingMode(mode)
+      callback?.resolve(emitHMSSuccess())
+    } else {
+      val errorMessage = "setAudioMixingMode: $requiredKeys"
       self.emitRequiredKeysError(errorMessage)
       rejectCallback(callback, errorMessage)
     }

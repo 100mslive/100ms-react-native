@@ -28,6 +28,9 @@ import type { HMSVideoViewMode } from './HMSVideoViewMode';
 import type { HMSTrackSettings } from './HMSTrackSettings';
 import type { HMSRTMPConfig } from './HMSRTMPConfig';
 import type { HMSHLSConfig } from './HMSHLSConfig';
+import type { HMSAudioDevice } from './HMSAudioDevice';
+import type { HMSAudioMode } from './HMSAudioMode';
+import type { HMSAudioMixingMode } from './HMSAudioMixingMode';
 
 interface HmsViewProps {
   trackId: string;
@@ -75,6 +78,7 @@ export class HMSSDK {
   onLocalVideoStatsDelegate?: any;
   onRemoteAudioStatsDelegate?: any;
   onRemoteVideoStatsDelegate?: any;
+  onAudioDeviceChangedDelegate?: any;
 
   constructor(id: string) {
     this.id = id;
@@ -228,6 +232,11 @@ export class HMSSDK {
       HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS,
       this.onRemoteVideoStatsListener
     );
+
+    HmsEventEmitter.addListener(
+      HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED,
+      this.onAudioDeviceChangedListener
+    );
   };
 
   /**
@@ -320,6 +329,11 @@ export class HMSSDK {
       HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS,
       this.onRemoteVideoStatsListener
     );
+
+    HmsEventEmitter.removeListener(
+      HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED,
+      this.onAudioDeviceChangedListener
+    );
   };
 
   /**
@@ -376,13 +390,14 @@ export class HMSSDK {
   };
 
   /**
-   * - HmsView is react component that takes one track and starts showing that track on a tile.
+   * - HmsView is react component that takes trackId and starts showing that track on a tile.
    * - The appearance of tile is completely customizable with style prop.
-   * - scale type can determine how the incoming video will fit in the canvas check {@link HMSVideoViewMode} for more information.
+   * - Scale type can determine how the incoming video will fit in the canvas check {@link HMSVideoViewMode} for more information.
+   * - Mirror to flip the video vertically.
    *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/render-video} for more info
    *
-   * @param {HmsComponentProps}
+   * @param {HmsViewProps}
    * @memberof HMSSDK
    */
   HmsView = React.forwardRef<any, HmsViewProps>((props, ref) => {
@@ -557,7 +572,7 @@ export class HMSSDK {
    * @param {HMSHLSConfig}
    * @memberof HMSSDK
    */
-  startHLSStreaming = async (data: HMSHLSConfig) => {
+  startHLSStreaming = async (data?: HMSHLSConfig) => {
     logger?.verbose('#Function startHLSStreaming', {
       ...data,
       id: this.id,
@@ -605,7 +620,7 @@ export class HMSSDK {
 
   /**
    * - This function can be used to manipulate mute status of any track.
-   * - Targeted peer affected by this action will get a callback in {@link onChangeTrackStateRequestListener}.
+   * - Targeted peer affected by this action will get a callback in onChangeTrackStateRequestListener.
    *
    * * checkout {@link https://www.100ms.live/docs/react-native/v2/features/change-track-state} for more info
    *
@@ -631,7 +646,7 @@ export class HMSSDK {
    * - changeTrackStateForRoles is an enhancement on the functionality of {@link changeTrackState}.
    * - We can change mute status for all the tracks of peers having a particular role.
    * - @param source determines the source of the track ex. video, audio etc.
-   * - The peers affected by this action will get a callback in {@link onChangeTrackStateRequestListener}.
+   * - The peers affected by this action will get a callback in onChangeTrackStateRequestListener.
    *
    * @memberof HMSSDK
    */
@@ -736,7 +751,7 @@ export class HMSSDK {
   };
 
   /**
-   * - setPlaybackForAllAudio is an extension of the abilities of {@link setPlaybackAllowed} in
+   * - setPlaybackForAllAudio is an extension of the abilities of setPlaybackAllowed in
    * {@link HMSRemoteAudioTrack}, it sets mute status for all peers in the room
    *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/playback-allowed} for more info
@@ -888,11 +903,7 @@ export class HMSSDK {
    */
   enableRTCStats = () => {
     logger?.verbose('#Function enableRTCStats', { id: this.id });
-    if (Platform.OS === 'ios') {
-      HMSManager.enableRTCStats({ id: this.id });
-    } else {
-      console.log('API currently not avaialble for android');
-    }
+    HMSManager.enableRTCStats({ id: this.id });
   };
 
   /**
@@ -905,10 +916,209 @@ export class HMSSDK {
    */
   disableRTCStats = () => {
     logger?.verbose('#Function disableRTCStats', { id: this.id });
-    if (Platform.OS === 'ios') {
-      HMSManager.disableRTCStats({ id: this.id });
+    HMSManager.disableRTCStats({ id: this.id });
+  };
+
+  /**
+   * - This wrapper function is used to start streaming device audio, currently available only for android.
+   *
+   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/audio-share#how-to-stream-device-audio-from-the-app} for more info.
+   *
+   * @param {HMSAudioMixingMode}
+   * @memberof HMSSDK
+   */
+  startAudioshare = async (audioMixingMode: HMSAudioMixingMode) => {
+    logger?.verbose('#Function startAudioshare', {
+      id: this.id,
+      audioMixingMode,
+    });
+    if (Platform.OS === 'android') {
+      return await HMSManager.startAudioshare({ id: this.id, audioMixingMode });
     } else {
-      console.log('API currently not avaialble for android');
+      console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
+    }
+  };
+
+  /**
+   * - This wrapper function returns true if audio is being shared and vice versa, currently available only for android.
+   *
+   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/audio-share#how-to-get-audio-share-status} for more info.
+   *
+   * @memberof HMSSDK
+   */
+  isAudioShared = async () => {
+    logger?.verbose('#Function isAudioShared', { id: this.id });
+    if (Platform.OS === 'android') {
+      return await HMSManager.isAudioShared({ id: this.id });
+    } else {
+      console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
+    }
+  };
+
+  /**
+   * - This wrapper function is used to stop streaming device audio, currently available only for android.
+   *
+   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/audio-share#how-to-stop-audio-sharing} for more info.
+   *
+   * @memberof HMSSDK
+   */
+  stopAudioshare = async () => {
+    logger?.verbose('#Function stopAudioshare', { id: this.id });
+    if (Platform.OS === 'android') {
+      return await HMSManager.stopAudioshare({ id: this.id });
+    } else {
+      console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
+    }
+  };
+
+  /**
+   * - This wrapper function returns the current audio mixing mode, currently available only for android.
+   *
+   * @memberof HMSSDK
+   * @return HMSAudioMixingMode
+   */
+  getAudioMixingMode = async () => {
+    logger?.verbose('#Function getAudioMixingMode', { id: this.id });
+    if (Platform.OS === 'android') {
+      return await HMSManager.getAudioMixingMode({ id: this.id });
+    } else {
+      console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
+    }
+  };
+
+  /**
+   * - This wrapper function used to change the mode while the user is streaming audio, currently available only for android.
+   *
+   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/audio-share#how-to-change-mode} for more info
+   *
+   * @param {HMSAudioMixingMode}
+   * @memberof HMSSDK
+   */
+  setAudioMixingMode = async (audioMixingMode: HMSAudioMixingMode) => {
+    logger?.verbose('#Function setAudioMixingMode', {
+      id: this.id,
+      audioMixingMode,
+    });
+    if (Platform.OS === 'android') {
+      return await HMSManager.setAudioMixingMode({
+        id: this.id,
+        audioMixingMode,
+      });
+    } else {
+      console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
+    }
+  };
+
+  /**
+   * - This wrapper function returns the array of audio output devices which is of
+   * type {@link HMSAudioDevice[]}, currently available only for android.
+   *
+   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/audio-output-routing#get-list-of-audio-device} for more info
+   *
+   * @memberof HMSSDK
+   * @return HMSAudioDevice[]
+   */
+  getAudioDevicesList = async () => {
+    logger?.verbose('#Function getAudioDevicesList', {
+      id: this.id,
+    });
+    if (Platform.OS === 'android') {
+      return await HMSManager.getAudioDevicesList({ id: this.id });
+    } else {
+      console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
+    }
+  };
+
+  /**
+   * - This wrapper function returns the current audio output device which is of
+   * type {@link HMSAudioDevice}, currently available only for android.
+   *
+   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/audio-output-routing#get-current-focussed-device} for more info
+   *
+   * @memberof HMSSDK
+   * @return HMSAudioDevice
+   */
+  getAudioOutputRouteType = async () => {
+    logger?.verbose('#Function getAudioOutputRouteType', {
+      id: this.id,
+    });
+    if (Platform.OS === 'android') {
+      return await HMSManager.getAudioOutputRouteType({ id: this.id });
+    } else {
+      console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
+    }
+  };
+
+  /**
+   * - This wrapper function used to switch output to device other than the default, currently available only for android.
+   *
+   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/audio-output-routing#switch-audio-focus-to-another-device} for more info
+   *
+   * @param {HMSAudioDevice}
+   * @memberof HMSSDK
+   */
+  switchAudioOutput = (audioDevice: HMSAudioDevice) => {
+    logger?.verbose('#Function switchAudioOutput', {
+      id: this.id,
+      audioDevice,
+    });
+    if (Platform.OS === 'android') {
+      return HMSManager.switchAudioOutput({ id: this.id, audioDevice });
+    } else {
+      console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
+    }
+  };
+
+  /**
+   * - This wrapper function used to change Audio Mode manually, currently available only for android.
+   *
+   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/audio-mode-change} for more info
+   *
+   * @param {HMSAudioMode}
+   * @memberof HMSSDK
+   */
+  setAudioMode = (audioMode: HMSAudioMode) => {
+    logger?.verbose('#Function setAudioMode', {
+      id: this.id,
+      audioMode,
+    });
+    if (Platform.OS === 'android') {
+      return HMSManager.setAudioMode({ id: this.id, audioMode });
+    } else {
+      console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
+    }
+  };
+
+  /**
+   * - This is a wrapper function which adds a listener which is triggered when audio output device is switched, currently available only for android.
+   *
+   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/audio-output-routing#adding-a-listener} for more info
+   *
+   * @param {Function}
+   * @memberof HMSSDK
+   */
+  setAudioDeviceChangeListener = (callback: Function) => {
+    logger?.verbose('#Function setAudioDeviceChangeListener', {
+      id: this.id,
+    });
+    if (Platform.OS === 'android') {
+      this.addEventListener(
+        HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED,
+        callback
+      );
+      return HMSManager.setAudioDeviceChangeListener({ id: this.id });
+    } else {
+      console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
     }
   };
 
@@ -979,6 +1189,9 @@ export class HMSSDK {
       case HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS:
         this.onRemoteVideoStatsDelegate = callback;
         break;
+      case HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED:
+        this.onAudioDeviceChangedDelegate = callback;
+        break;
       default:
     }
   };
@@ -1046,6 +1259,9 @@ export class HMSSDK {
         break;
       case HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS:
         this.onRemoteVideoStatsDelegate = null;
+        break;
+      case HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED:
+        this.onAudioDeviceChangedDelegate = null;
         break;
       default:
     }
@@ -1290,7 +1506,7 @@ export class HMSSDK {
     if (this.onErrorDelegate) {
       logger?.verbose('#Listener ON_ERROR_LISTENER_CALL', data);
       logger?.warn('#Listener ON_ERROR_LISTENER_CALL', data);
-      this.onErrorDelegate(data);
+      this.onErrorDelegate(HMSEncoder.encodeHMSException(data));
     } else {
       logger?.warn('#Listener ON_ERROR', data);
       logger?.verbose('#Listener ON_ERROR', data);
@@ -1492,6 +1708,24 @@ export class HMSSDK {
       });
     } else {
       logger?.verbose('#Listener onRemoteVideoStatsListener', data);
+    }
+  };
+
+  onAudioDeviceChangedListener = (data: {
+    id: string;
+    device: string;
+    audioDevicesList: string[];
+  }) => {
+    if (data.id !== this.id) {
+      return;
+    }
+    if (this.onAudioDeviceChangedDelegate) {
+      logger?.verbose('#Listener onAudioDeviceChangedListener_CALL', data);
+      this.onAudioDeviceChangedDelegate({
+        ...data,
+      });
+    } else {
+      logger?.verbose('#Listener onAudioDeviceChangedListener', data);
     }
   };
 }

@@ -1,13 +1,6 @@
 import React, {useRef} from 'react';
 import {View, FlatList, Dimensions} from 'react-native';
-import {
-  HMSLocalAudioStats,
-  HMSLocalVideoStats,
-  HMSRTCStatsReport,
-  HMSSDK,
-  HMSSpeaker,
-  HMSTrackSource,
-} from '@100mslive/react-native-hms';
+import {HMSSDK, HMSSpeaker, HMSTrackSource} from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {getHmsViewHeight} from '../../utils/functions';
@@ -20,13 +13,7 @@ type GridViewProps = {
   speakers: HMSSpeaker[];
   instance?: HMSSDK;
   layout: LayoutParams;
-  statsForNerds?: boolean;
   orientation: boolean;
-  rtcStats?: HMSRTCStatsReport;
-  remoteAudioStats?: any;
-  remoteVideoStats?: any;
-  localAudioStats?: HMSLocalAudioStats;
-  localVideoStats?: HMSLocalVideoStats;
   page: number;
   pinnedPeerTrackIds?: String[];
   setModalVisible?: React.Dispatch<React.SetStateAction<ModalTypes>>;
@@ -45,12 +32,6 @@ const GridView = ({
   speakers,
   instance,
   layout,
-  statsForNerds,
-  rtcStats,
-  remoteAudioStats,
-  remoteVideoStats,
-  localAudioStats,
-  localVideoStats,
   page,
   pinnedPeerTrackIds,
   orientation,
@@ -154,12 +135,6 @@ const GridView = ({
                       instance={instance}
                       layout={layout}
                       setModalVisible={setModalVisible}
-                      statsForNerds={statsForNerds}
-                      rtcStats={rtcStats}
-                      remoteAudioStats={remoteAudioStats}
-                      remoteVideoStats={remoteVideoStats}
-                      localAudioStats={localAudioStats}
-                      localVideoStats={localVideoStats}
                       pinnedPeerTrackIds={pinnedPeerTrackIds}
                       setPinnedPeerTrackIds={setPinnedPeerTrackIds}
                       setUpdatePeerTrackNode={setUpdatePeerTrackNode}

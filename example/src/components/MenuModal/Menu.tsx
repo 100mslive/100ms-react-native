@@ -14,6 +14,7 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
+import {ScrollView} from 'react-native-gesture-handler';
 
 export interface MenuProps {
   children?: React.ReactNode;
@@ -254,7 +255,11 @@ export class Menu extends React.Component<MenuProps, State> {
                 ]}>
                 <Animated.View
                   style={[styles.menuContainer, animationStarted && menuSize]}>
-                  {children}
+                  <ScrollView
+                    style={styles.children}
+                    keyboardShouldPersistTaps="always">
+                    {children}
+                  </ScrollView>
                 </Animated.View>
               </Animated.View>
             </View>
@@ -287,5 +292,8 @@ const styles = StyleSheet.create({
   },
   menuContainer: {
     overflow: 'hidden',
+  },
+  children: {
+    maxHeight: 300,
   },
 });

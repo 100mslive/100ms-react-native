@@ -320,16 +320,18 @@ class HMSDecoder: NSObject {
 
         let endRoom = permissions.endRoom ?? false
         let removeOthers = permissions.removeOthers ?? false
-        let stopPresentation = permissions.stopPresentation ?? false
-        let muteAll = permissions.muteAll ?? false
+        let browserRecording = permissions.browserRecording ?? false
+        let hlsStreaming = permissions.hlsStreaming ?? false
+        let rtmpStreaming = permissions.rtmpStreaming ?? false
         let mute = permissions.mute ?? false
         let unmute = permissions.unmute ?? false
         let changeRole = permissions.changeRole ?? false
 
         return ["endRoom": endRoom,
                 "removeOthers": removeOthers,
-                "stopPresentation": stopPresentation,
-                "muteAll": muteAll,
+                "browserRecording": browserRecording,
+                "hlsStreaming": hlsStreaming,
+                "rtmpStreaming": rtmpStreaming,
                 "mute": mute,
                 "unmute": unmute,
                 "changeRole": changeRole]
@@ -478,16 +480,15 @@ class HMSDecoder: NSObject {
 
     static func getError(_ errorObj: HMSError?) -> [String: Any]? {
         if let error = errorObj {
-            let code = error.code
+            let code = error.code.rawValue
             let description = error.description
-            let localizedDescription = error.localizedDescription
-            let debugDescription = error.debugDescription
             let message = error.message
             let name = error.id
             let id = error.id
             let action = error.action
+            let isTerminal = false
 
-            return ["code": code, "description": description, "localizedDescription": localizedDescription, "debugDescription": debugDescription, "message": message, "name": name, "action": action, "id": id]
+            return ["code": code, "description": description, "message": message, "name": name, "action": action, "id": id, "isTerminal": isTerminal]
         } else {
             return nil
         }

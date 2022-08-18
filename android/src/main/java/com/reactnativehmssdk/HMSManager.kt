@@ -239,6 +239,43 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
+  fun startAudioshare(data: ReadableMap, callback: Promise?) {
+    currentActivity?.application?.registerActivityLifecycleCallbacks(this)
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.startAudioshare(data, callback)
+  }
+
+  @ReactMethod
+  fun isAudioShared(data: ReadableMap, callback: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.isAudioShared(callback)
+  }
+
+  @ReactMethod
+  fun stopAudioshare(data: ReadableMap, callback: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    currentActivity?.application?.unregisterActivityLifecycleCallbacks(this)
+    hms?.stopAudioshare(callback)
+  }
+
+  @ReactMethod
+  fun getAudioMixingMode(data: ReadableMap, callback: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    callback?.resolve(hms?.getAudioMixingMode()?.name)
+  }
+
+  @ReactMethod
+  fun setAudioMixingMode(data: ReadableMap, callback: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.setAudioMixingMode(data, callback)
+  }
+
+  @ReactMethod
   fun startRTMPOrRecording(data: ReadableMap, callback: Promise?) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
@@ -288,6 +325,55 @@ class HMSManager(reactContext: ReactApplicationContext) :
     result.putBoolean("success", true)
     result.putString("message", "$id removed")
     callback?.resolve(result)
+  }
+
+  @ReactMethod
+  fun enableRTCStats(data: ReadableMap) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.enableRTCStats()
+  }
+
+  @ReactMethod
+  fun disableRTCStats(data: ReadableMap) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.disableRTCStats()
+  }
+
+  @ReactMethod
+  fun getAudioDevicesList(data: ReadableMap, callback: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.getAudioDevicesList(callback)
+  }
+
+  @ReactMethod
+  fun getAudioOutputRouteType(data: ReadableMap, callback: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.getAudioOutputRouteType(callback)
+  }
+
+  @ReactMethod
+  fun switchAudioOutput(data: ReadableMap) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.switchAudioOutput(data)
+  }
+
+  @ReactMethod
+  fun setAudioMode(data: ReadableMap) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.setAudioMode(data)
+  }
+
+  @ReactMethod
+  fun setAudioDeviceChangeListener(data: ReadableMap) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.setAudioDeviceChangeListener()
   }
 
   fun emitEvent(event: String, data: WritableMap) {

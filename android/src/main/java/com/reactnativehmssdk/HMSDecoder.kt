@@ -1,6 +1,7 @@
 package com.reactnativehmssdk
 
 import com.facebook.react.bridge.*
+import live.hms.video.connection.stats.*
 import live.hms.video.connection.stats.quality.HMSNetworkQuality
 import live.hms.video.error.HMSException
 import live.hms.video.media.settings.HMSAudioTrackSettings
@@ -125,10 +126,10 @@ object HMSDecoder {
       permissions.putBoolean("endRoom", hmsPermissions.endRoom)
       permissions.putBoolean("removeOthers", hmsPermissions.removeOthers)
       permissions.putBoolean("mute", hmsPermissions.mute)
-      permissions.putBoolean("changeRoleForce", hmsPermissions.changeRoleForce)
+      permissions.putBoolean("browserRecording", hmsPermissions.browserRecording)
       permissions.putBoolean("unmute", hmsPermissions.unmute)
-      permissions.putBoolean("recording", hmsPermissions.recording)
-      permissions.putBoolean("streaming", hmsPermissions.streaming)
+      permissions.putBoolean("hlsStreaming", hmsPermissions.hlsStreaming)
+      permissions.putBoolean("rtmpStreaming", hmsPermissions.rtmpStreaming)
       permissions.putBoolean("changeRole", hmsPermissions.changeRole)
     }
     return permissions
@@ -197,7 +198,7 @@ object HMSDecoder {
     return peer
   }
 
-  private fun getHmsLocalAudioTrack(track: HMSLocalAudioTrack?): WritableMap {
+  fun getHmsLocalAudioTrack(track: HMSLocalAudioTrack?): WritableMap {
     val hmsTrack: WritableMap = Arguments.createMap()
     if (track != null) {
       hmsTrack.putDouble("volume", track.volume)
@@ -211,7 +212,7 @@ object HMSDecoder {
     return hmsTrack
   }
 
-  private fun getHmsLocalVideoTrack(track: HMSLocalVideoTrack?): WritableMap {
+  fun getHmsLocalVideoTrack(track: HMSLocalVideoTrack?): WritableMap {
     val hmsTrack: WritableMap = Arguments.createMap()
     if (track != null) {
       hmsTrack.putBoolean("isDegraded", track.isDegraded)
@@ -292,7 +293,7 @@ object HMSDecoder {
     return peer
   }
 
-  private fun getHmsRemoteAudioTrack(track: HMSRemoteAudioTrack?): WritableMap {
+  fun getHmsRemoteAudioTrack(track: HMSRemoteAudioTrack?): WritableMap {
     val hmsTrack: WritableMap = Arguments.createMap()
     if (track != null) {
       hmsTrack.putBoolean("isPlaybackAllowed", track.isPlaybackAllowed)
@@ -305,7 +306,7 @@ object HMSDecoder {
     return hmsTrack
   }
 
-  private fun getHmsRemoteVideoTrack(track: HMSRemoteVideoTrack?): WritableMap {
+  fun getHmsRemoteVideoTrack(track: HMSRemoteVideoTrack?): WritableMap {
     val hmsTrack: WritableMap = Arguments.createMap()
     if (track != null) {
       hmsTrack.putBoolean("isDegraded", track.isDegraded)
@@ -360,11 +361,11 @@ object HMSDecoder {
     if (error !== null) {
       val decodedError: WritableMap = Arguments.createMap()
       decodedError.putInt("code", error.code)
-      decodedError.putString("localizedDescription", error.localizedMessage)
       decodedError.putString("description", error.description)
       decodedError.putString("message", error.message)
       decodedError.putString("name", error.name)
       decodedError.putString("action", error.action)
+      decodedError.putBoolean("isTerminal", error.isTerminal)
       return decodedError
     }
     return null
@@ -523,5 +524,73 @@ object HMSDecoder {
       hmsNetworkQuality.putInt("downlinkQuality", networkQuality.downlinkQuality)
     }
     return hmsNetworkQuality
+  }
+
+  fun getHMSRTCStats(hmsRtcStats: HMSRTCStats?): WritableMap {
+    val rtcStats: WritableMap = Arguments.createMap()
+    if (hmsRtcStats != null) {
+      rtcStats.putDouble("bitrateReceived", hmsRtcStats.bitrateReceived)
+      rtcStats.putDouble("bitrateSent", hmsRtcStats.bitrateSent)
+      rtcStats.putString("bytesSent", hmsRtcStats.bytesSent.toString())
+      rtcStats.putString("bytesReceived", hmsRtcStats.bytesReceived.toString())
+      rtcStats.putString("packetsLost", hmsRtcStats.packetsLost.toString())
+      rtcStats.putString("packetsReceived", hmsRtcStats.packetsReceived.toString())
+      rtcStats.putDouble("roundTripTime", hmsRtcStats.roundTripTime)
+    }
+    return rtcStats
+  }
+
+  fun getLocalAudioStats(hmsLocalAudioStats: HMSLocalAudioStats?): WritableMap {
+    val localAudioStats: WritableMap = Arguments.createMap()
+    if (hmsLocalAudioStats != null) {
+      hmsLocalAudioStats.bitrate?.let { localAudioStats.putDouble("bitrate", it) }
+      localAudioStats.putString("bytesSent", hmsLocalAudioStats.bytesSent.toString())
+      hmsLocalAudioStats.roundTripTime?.let { localAudioStats.putDouble("roundTripTime", it) }
+    }
+    return localAudioStats
+  }
+
+  fun getLocalVideoStats(hmsLocalVideoStats: HMSLocalVideoStats?): WritableMap {
+    val localVideoStats: WritableMap = Arguments.createMap()
+    if (hmsLocalVideoStats != null) {
+      localVideoStats.putString("bytesSent", hmsLocalVideoStats.bytesSent.toString())
+      localVideoStats.putMap(
+          "resolution",
+          hmsLocalVideoStats.resolution?.let { this.getHmsVideoTrackResolution(it) }
+      )
+      hmsLocalVideoStats.bitrate?.let { localVideoStats.putDouble("bitrate", it) }
+      hmsLocalVideoStats.roundTripTime?.let { localVideoStats.putDouble("roundTripTime", it) }
+      hmsLocalVideoStats.frameRate?.let { localVideoStats.putDouble("frameRate", it) }
+    }
+    return localVideoStats
+  }
+
+  fun getRemoteAudioStats(hmsRemoteAudioStats: HMSRemoteAudioStats?): WritableMap {
+    val remoteAudioStats: WritableMap = Arguments.createMap()
+    if (hmsRemoteAudioStats != null) {
+      hmsRemoteAudioStats.bitrate?.let { remoteAudioStats.putDouble("bitrate", it) }
+      remoteAudioStats.putString("bytesReceived", hmsRemoteAudioStats.bytesReceived.toString())
+      hmsRemoteAudioStats.jitter?.let { remoteAudioStats.putDouble("jitter", it) }
+      hmsRemoteAudioStats.packetsLost?.let { remoteAudioStats.putInt("packetsLost", it) }
+      remoteAudioStats.putString("packetsReceived", hmsRemoteAudioStats.packetsReceived.toString())
+    }
+    return remoteAudioStats
+  }
+
+  fun getRemoteVideoStats(hmsRemoteVideoStats: HMSRemoteVideoStats?): WritableMap {
+    val remoteVideoStats: WritableMap = Arguments.createMap()
+    if (hmsRemoteVideoStats != null) {
+      remoteVideoStats.putString("bytesReceived", hmsRemoteVideoStats.bytesReceived.toString())
+      remoteVideoStats.putString("packetsReceived", hmsRemoteVideoStats.packetsReceived.toString())
+      hmsRemoteVideoStats.bitrate?.let { remoteVideoStats.putDouble("bitrate", it) }
+      remoteVideoStats.putMap(
+          "resolution",
+          hmsRemoteVideoStats.resolution?.let { this.getHmsVideoTrackResolution(it) }
+      )
+      hmsRemoteVideoStats.frameRate?.let { remoteVideoStats.putDouble("frameRate", it) }
+      hmsRemoteVideoStats.jitter?.let { remoteVideoStats.putDouble("jitter", it) }
+      hmsRemoteVideoStats.packetsLost?.let { remoteVideoStats.putInt("packetsLost", it) }
+    }
+    return remoteVideoStats
   }
 }

@@ -24,22 +24,29 @@ export enum TrackType {
 
 export enum ModalTypes {
   CHANGE_ROLE_ACCEPT = 'changeRoleAccept',
+  SWITCH_AUDIO_OUTPUT = 'switchAudioOutput',
+  CHANGE_AUDIO_MODE = 'changeAudioMode',
   CHANGE_ROLE = 'changeRole',
   CHANGE_TRACK = 'changeTrackState',
+  CHANGE_TRACK_ROLE = 'changeTrackStateRole',
   CHANGE_NAME = 'changeName',
   HLS_STREAMING = 'hlsStreaming',
+  END_HLS_STREAMING = 'endHlsStreaming',
   RECORDING = 'recording',
   RESOLUTION = 'resolution',
+  RTC_STATS = 'rtcStats',
   LAYOUT = 'layout',
   SORTING = 'sorting',
-  LEAVE = 'leave',
+  LEAVE_MENU = 'leaveMenu',
+  LEAVE_ROOM = 'leaveRoom',
+  END_ROOM = 'endRoom',
   SETTINGS = 'settings',
   CHAT = 'chat',
   ZOOM = 'zoom',
-  ROLE = 'role',
   PREVIEW = 'preview',
   PARTICIPANTS = 'participants',
   VOLUME = 'volume',
+  AUDIO_MIXING_MODE = 'audioMixingMode',
   DEFAULT = '',
 }
 
@@ -47,7 +54,7 @@ export enum SortingType {
   ALPHABETICAL = 'Alphabetical Order',
   VIDEO_ON = 'Video On',
   ROLE_PRIORITY = 'Role Priority',
-  DEFAULT = '',
+  DEFAULT = 'None',
 }
 
 export enum Theme {

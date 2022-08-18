@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     width: '100%',
     borderRadius: 8,
     paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingLeft: 16,
     marginTop: 8,
     color: COLORS.TEXT.HIGH_EMPHASIS,
     fontFamily: 'Inter-Medium',

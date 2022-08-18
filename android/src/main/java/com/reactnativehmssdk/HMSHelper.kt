@@ -15,6 +15,7 @@ import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.uimanager.events.RCTEventEmitter
 import java.io.ByteArrayOutputStream
 import java.util.*
+import live.hms.video.audio.HMSAudioManager
 import live.hms.video.error.HMSException
 import live.hms.video.media.codec.HMSAudioCodec
 import live.hms.video.media.codec.HMSVideoCodec
@@ -23,6 +24,7 @@ import live.hms.video.media.tracks.HMSRemoteAudioTrack
 import live.hms.video.media.tracks.HMSRemoteVideoTrack
 import live.hms.video.media.tracks.HMSTrack
 import live.hms.video.sdk.models.*
+import live.hms.video.sdk.models.enums.AudioMixingMode
 import live.hms.video.sdk.models.role.HMSRole
 import live.hms.video.utils.HmsUtilities
 import org.webrtc.SurfaceViewRenderer
@@ -248,6 +250,21 @@ object HMSHelper {
     }
   }
 
+  fun getAudioMixingMode(audioMixingMode: String?): AudioMixingMode {
+    when (audioMixingMode) {
+      "TALK_ONLY" -> {
+        return AudioMixingMode.TALK_ONLY
+      }
+      "MUSIC_ONLY" -> {
+        return AudioMixingMode.MUSIC_ONLY
+      }
+      "TALK_AND_MUSIC" -> {
+        return AudioMixingMode.TALK_AND_MUSIC
+      }
+    }
+    return AudioMixingMode.TALK_AND_MUSIC
+  }
+
   private fun getAudioCodec(codecString: String?): HMSAudioCodec {
     when (codecString) {
       "opus" -> {
@@ -304,7 +321,25 @@ object HMSHelper {
     return rtmpURLs
   }
 
-  fun getHMSHLSMeetingURLVariants(
+  fun getHLSConfig(data: ReadableMap?): HMSHLSConfig? {
+    if (data === null) {
+      return data
+    }
+    var hlsMeetingUrlVariant: List<HMSHLSMeetingURLVariant>? = null
+    if (areAllRequiredKeysAvailable(data, arrayOf(Pair("meetingURLVariants", "Array")))) {
+      val meetingURLVariants =
+          data.getArray("meetingURLVariants")?.toArrayList() as? ArrayList<HashMap<String, String>>
+      hlsMeetingUrlVariant = getHMSHLSMeetingURLVariants(meetingURLVariants)
+    }
+    var hlsRecordingConfig: HMSHlsRecordingConfig? = null
+    if (areAllRequiredKeysAvailable(data, arrayOf(Pair("hlsRecordingConfig", "Map")))) {
+      val recordingConfig = data.getMap("hlsRecordingConfig")
+      hlsRecordingConfig = getHlsRecordingConfig(recordingConfig)
+    }
+    return HMSHLSConfig(hlsMeetingUrlVariant, hlsRecordingConfig)
+  }
+
+  private fun getHMSHLSMeetingURLVariants(
       hmsMeetingURLVariants: ArrayList<HashMap<String, String>>?
   ): List<HMSHLSMeetingURLVariant> {
     val meetingURLVariants = mutableListOf<HMSHLSMeetingURLVariant>()
@@ -317,28 +352,25 @@ object HMSHelper {
     return meetingURLVariants
   }
 
-  fun getHlsRecordingConfig(data: ReadableMap): HMSHlsRecordingConfig? {
-    if (areAllRequiredKeysAvailable(data, arrayOf(Pair("hlsRecordingConfig", "Map")))) {
-      val hmsHlsRecordingConfig = data.getMap("hlsRecordingConfig")
-      if (hmsHlsRecordingConfig != null) {
-        var singleFilePerLayer = false
-        var videoOnDemand = false
-        if (areAllRequiredKeysAvailable(
-                hmsHlsRecordingConfig,
-                arrayOf(Pair("singleFilePerLayer", "Boolean"))
-            )
-        ) {
-          singleFilePerLayer = hmsHlsRecordingConfig.getBoolean("singleFilePerLayer")
-        }
-        if (areAllRequiredKeysAvailable(
-                hmsHlsRecordingConfig,
-                arrayOf(Pair("videoOnDemand", "Boolean"))
-            )
-        ) {
-          videoOnDemand = hmsHlsRecordingConfig.getBoolean("videoOnDemand")
-        }
-        return HMSHlsRecordingConfig(singleFilePerLayer, videoOnDemand)
+  private fun getHlsRecordingConfig(hmsHlsRecordingConfig: ReadableMap?): HMSHlsRecordingConfig? {
+    if (hmsHlsRecordingConfig !== null) {
+      var singleFilePerLayer = false
+      var videoOnDemand = false
+      if (areAllRequiredKeysAvailable(
+              hmsHlsRecordingConfig,
+              arrayOf(Pair("singleFilePerLayer", "Boolean"))
+          )
+      ) {
+        singleFilePerLayer = hmsHlsRecordingConfig.getBoolean("singleFilePerLayer")
       }
+      if (areAllRequiredKeysAvailable(
+              hmsHlsRecordingConfig,
+              arrayOf(Pair("videoOnDemand", "Boolean"))
+          )
+      ) {
+        videoOnDemand = hmsHlsRecordingConfig.getBoolean("videoOnDemand")
+      }
+      return HMSHlsRecordingConfig(singleFilePerLayer, videoOnDemand)
     }
     return null
   }
@@ -541,5 +573,46 @@ object HMSHelper {
       output.putString("error", e.message)
       reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "captureFrame", output)
     }
+  }
+
+  fun getAudioDevicesList(audioDevicesList: List<HMSAudioManager.AudioDevice>?): ReadableArray {
+    val hmsAudioDevicesList = Arguments.createArray()
+    if (audioDevicesList != null) {
+      for (audioDevice in audioDevicesList) {
+        hmsAudioDevicesList.pushString(audioDevice.name)
+      }
+    }
+    return hmsAudioDevicesList
+  }
+
+  fun getAudioDevicesSet(audioDevicesSet: Set<HMSAudioManager.AudioDevice>?): ReadableArray {
+    val hmsAudioDevicesSet = Arguments.createArray()
+    if (audioDevicesSet != null) {
+      for (audioDevice in audioDevicesSet) {
+        hmsAudioDevicesSet.pushString(audioDevice.name)
+      }
+    }
+    return hmsAudioDevicesSet
+  }
+
+  fun getAudioDevice(audioDevice: String?): HMSAudioManager.AudioDevice {
+    when (audioDevice) {
+      "AUTOMATIC" -> {
+        return HMSAudioManager.AudioDevice.AUTOMATIC
+      }
+      "BLUETOOTH" -> {
+        return HMSAudioManager.AudioDevice.BLUETOOTH
+      }
+      "EARPIECE" -> {
+        return HMSAudioManager.AudioDevice.EARPIECE
+      }
+      "SPEAKER_PHONE" -> {
+        return HMSAudioManager.AudioDevice.SPEAKER_PHONE
+      }
+      "WIRED_HEADSET" -> {
+        return HMSAudioManager.AudioDevice.WIRED_HEADSET
+      }
+    }
+    return HMSAudioManager.AudioDevice.SPEAKER_PHONE
   }
 }

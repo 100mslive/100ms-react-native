@@ -4,9 +4,6 @@ import {
   HMSRemotePeer,
   HMSVideoViewMode,
   HMSTrack,
-  HMSLocalAudioStats,
-  HMSLocalVideoStats,
-  HMSRTCStatsReport,
   HMSSDK,
   HMSTrackSource,
 } from '@100mslive/react-native-hms';
@@ -37,12 +34,6 @@ import type {RootState} from '../../redux';
 type DisplayTrackProps = {
   layout?: LayoutParams;
   setModalVisible?: Function;
-  statsForNerds?: boolean;
-  rtcStats?: HMSRTCStatsReport;
-  remoteAudioStats?: any;
-  remoteVideoStats?: any;
-  localAudioStats?: HMSLocalAudioStats;
-  localVideoStats?: HMSLocalVideoStats;
   isSpeaking?: Function;
   miniView?: boolean;
   instance: HMSSDK | undefined;
@@ -59,11 +50,6 @@ const DisplayTrack = ({
   isSpeaking,
   instance,
   layout,
-  statsForNerds,
-  remoteAudioStats,
-  remoteVideoStats,
-  localAudioStats,
-  localVideoStats,
   setModalVisible,
   miniView,
   pinnedPeerTrackIds,
@@ -81,7 +67,6 @@ const DisplayTrack = ({
   const HmsView = instance?.HmsView;
   const isVideoMute = peerTrackNode?.track?.isMute() ?? true;
   const isAudioMute = peerTrackNode.peer.audioTrack?.isMute() ?? true;
-  const id = peerTrackNode.peer.peerID;
   const name = peerTrackNode.peer.name;
   const metadata = parseMetadata(peerTrackNode.peer.metadata);
   const speaking = isSpeaking && isSpeaking(peerTrackNode);
@@ -325,35 +310,6 @@ const DisplayTrack = ({
             : selectAuxActionButtons
         }
       />
-      {statsForNerds && (
-        <View style={styles.statsContainer}>
-          {type === TrackType.LOCAL ? (
-            <View>
-              <Text style={styles.statsText}>
-                Bitrate(A) = {localAudioStats?.bitrate}
-              </Text>
-              <Text style={styles.statsText}>
-                Bitrate(V) = {localVideoStats?.bitrate}
-              </Text>
-            </View>
-          ) : (
-            <View>
-              <Text style={styles.statsText}>
-                Bitrate(A) = {remoteAudioStats[id!]?.bitrate}
-              </Text>
-              <Text style={styles.statsText}>
-                Bitrate(V) = {remoteVideoStats[id!]?.bitrate}
-              </Text>
-              <Text style={styles.statsText}>
-                Jitter(A) = {remoteAudioStats[id!]?.jitter}
-              </Text>
-              <Text style={styles.statsText}>
-                Jitter(V) = {remoteVideoStats[id!]?.jitter}
-              </Text>
-            </View>
-          )}
-        </View>
-      )}
       {isVideoMute || layout === LayoutParams.AUDIO ? (
         <View style={styles.avatarContainer}>
           <View style={styles.avatar}>
@@ -389,48 +345,21 @@ const DisplayTrack = ({
           )}
         </View>
       )}
-      {metadata?.isHandRaised && (
-        <View style={styles.status}>
-          <Ionicons name="ios-hand-left" style={styles.raiseHand} size={30} />
-        </View>
-      )}
-      {metadata?.isBRBOn && (
-        <View style={styles.status}>
+      <View style={styles.status}>
+        {metadata?.isHandRaised && (
+          <Ionicons name="ios-hand-left" style={styles.raiseHand} size={25} />
+        )}
+        {metadata?.isBRBOn && (
           <View style={styles.brbOnContainer}>
             <Text style={styles.brbOn}>BRB</Text>
           </View>
-        </View>
-      )}
-      <View style={styles.labelContainer}>
-        {peerTrackNode.peer?.networkQuality?.downlinkQuality &&
-        peerTrackNode.peer?.networkQuality?.downlinkQuality > -1 ? (
-          <View>
-            <Image
-              style={styles.network}
-              source={
-                peerTrackNode.peer?.networkQuality?.downlinkQuality === 0
-                  ? require('../../../assets/network_0.png')
-                  : peerTrackNode.peer?.networkQuality?.downlinkQuality === 1
-                  ? require('../../../assets/network_1.png')
-                  : peerTrackNode.peer?.networkQuality?.downlinkQuality === 2
-                  ? require('../../../assets/network_2.png')
-                  : peerTrackNode.peer?.networkQuality?.downlinkQuality === 3
-                  ? require('../../../assets/network_3.png')
-                  : require('../../../assets/network_4.png')
-              }
-            />
-          </View>
-        ) : (
-          <></>
         )}
         {isDegraded && (
-          <View>
-            <MaterialCommunityIcons
-              name="shield-alert-outline"
-              style={styles.degraded}
-              size={30}
-            />
-          </View>
+          <MaterialCommunityIcons
+            name="shield-alert-outline"
+            style={styles.degraded}
+            size={25}
+          />
         )}
       </View>
       {layout === LayoutParams.GRID &&
@@ -449,25 +378,38 @@ const DisplayTrack = ({
             />
           </TouchableOpacity>
         )}
-      <View style={styles.displayContainer}>
-        <View style={styles.peerNameContainer}>
-          <Text numberOfLines={2} style={styles.peerName}>
-            {peerTrackNode.track?.source === HMSTrackSource.SCREEN
-              ? `${name}'s Screen`
-              : peerTrackNode.peer?.isLocal
-              ? `You (${name})`
-              : name}
-          </Text>
-        </View>
-        <View style={styles.micContainer}>
-          {isAudioMute && (
-            <Feather name="mic-off" style={styles.mic} size={20} />
-          )}
-          {isVideoMute && (
-            <Feather name="video-off" style={styles.mic} size={20} />
-          )}
-        </View>
+      <View style={styles.peerNameContainer}>
+        <Text numberOfLines={2} style={styles.peerName}>
+          {peerTrackNode.track?.source === HMSTrackSource.SCREEN
+            ? `${name}'s Screen`
+            : peerTrackNode.peer?.isLocal
+            ? `You (${name})`
+            : name}
+        </Text>
+        <Image
+          style={styles.network}
+          source={
+            peerTrackNode.peer?.networkQuality?.downlinkQuality === 0
+              ? require('../../../assets/network_0.png')
+              : peerTrackNode.peer?.networkQuality?.downlinkQuality === 1
+              ? require('../../../assets/network_1.png')
+              : peerTrackNode.peer?.networkQuality?.downlinkQuality === 2
+              ? require('../../../assets/network_2.png')
+              : peerTrackNode.peer?.networkQuality?.downlinkQuality === 3
+              ? require('../../../assets/network_3.png')
+              : require('../../../assets/network_4.png')
+          }
+          resizeMode="contain"
+        />
       </View>
+      {isAudioMute && (
+        <View style={styles.micContainer}>
+          <Feather name="mic-off" style={styles.mic} size={20} />
+        </View>
+      )}
+      {/* {isVideoMute && (
+          <Feather name="video-off" style={styles.mic} size={20} />
+        )} */}
     </View>
   ) : (
     <></>
