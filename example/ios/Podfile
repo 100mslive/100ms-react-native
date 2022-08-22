@@ -3,6 +3,11 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 
 platform :ios, '12.0'
 
+target 'RNHMSExampleBroadcastUpload' do
+  use_modular_headers!
+  pod 'HMSBroadcastExtensionSDK'
+end
+
 target 'RNHMSExample' do
   config = use_native_modules!
   permissions_path = '../node_modules/react-native-permissions/ios'
@@ -18,7 +23,6 @@ target 'RNHMSExample' do
   pod 'Permission-Camera', :path => "#{permissions_path}/Camera"
   pod 'Permission-Microphone', :path => "#{permissions_path}/Microphone"
   pod 'react-native-video', :path => '../node_modules/react-native-video'
-
   pod 'react-native-camera', :path => '../node_modules/react-native-camera'
 
   target 'RNHMSExampleTests' do

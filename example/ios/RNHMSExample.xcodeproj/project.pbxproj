@@ -10,6 +10,7 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		45CE41045BF2D737261AE641 /* libPods-RNHMSExampleBroadcastUpload.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E61A1F49A79D4FD80D10540 /* libPods-RNHMSExampleBroadcastUpload.a */; };
 		5B373DA026B9114500DFE478 /* libswiftWebKit.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B373D9F26B9112700DFE478 /* libswiftWebKit.tbd */; };
 		60501FBE68997AD593F5F40F /* libPods-RNHMSExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F8A7BB01F2990F6065CF65E5 /* libPods-RNHMSExample.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
@@ -17,6 +18,9 @@
 		A987F9192848F8790078014C /* Inter-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A987F9152848F6A80078014C /* Inter-Medium.ttf */; };
 		A987F91A2848F8790078014C /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A987F9172848F6A80078014C /* Inter-Regular.ttf */; };
 		D1A53095BCBDAEB5A58363D7 /* libPods-RNHMSExample-RNHMSExampleTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 011CE7C7CEFE0BA6530EEE05 /* libPods-RNHMSExample-RNHMSExampleTests.a */; };
+		ECD6520728B3BADE007B5AF8 /* ReplayKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ECD6520628B3BADE007B5AF8 /* ReplayKit.framework */; };
+		ECD6520A28B3BADE007B5AF8 /* SampleHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD6520928B3BADE007B5AF8 /* SampleHandler.swift */; };
+		ECD6520E28B3BADE007B5AF8 /* RNHMSExampleBroadcastUpload.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = ECD6520528B3BADE007B5AF8 /* RNHMSExampleBroadcastUpload.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -27,7 +31,28 @@
 			remoteGlobalIDString = 13B07F861A680F5B00A75B9A;
 			remoteInfo = RNHMSExample;
 		};
+		ECD6520C28B3BADE007B5AF8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = ECD6520428B3BADE007B5AF8;
+			remoteInfo = RNHMSExampleBroadcastUpload;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		ECD6520F28B3BADE007B5AF8 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				ECD6520E28B3BADE007B5AF8 /* RNHMSExampleBroadcastUpload.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		00E356EE1AD99517003FC87E /* RNHMSExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RNHMSExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -40,14 +65,24 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = RNHMSExample/main.m; sourceTree = "<group>"; };
 		249074DB2395F002F7348019 /* Pods-RNHMSExample-RNHMSExampleTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNHMSExample-RNHMSExampleTests.debug.xcconfig"; path = "Target Support Files/Pods-RNHMSExample-RNHMSExampleTests/Pods-RNHMSExample-RNHMSExampleTests.debug.xcconfig"; sourceTree = "<group>"; };
 		2C89024864789A6D93C93E64 /* Pods-RNHMSExample-RNHMSExampleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNHMSExample-RNHMSExampleTests.release.xcconfig"; path = "Target Support Files/Pods-RNHMSExample-RNHMSExampleTests/Pods-RNHMSExample-RNHMSExampleTests.release.xcconfig"; sourceTree = "<group>"; };
+		3C472A3108A40A15D204FEF8 /* Pods-RNHMSExampleBroadcastUpload.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNHMSExampleBroadcastUpload.release.xcconfig"; path = "Target Support Files/Pods-RNHMSExampleBroadcastUpload/Pods-RNHMSExampleBroadcastUpload.release.xcconfig"; sourceTree = "<group>"; };
 		5B373D9F26B9112700DFE478 /* libswiftWebKit.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libswiftWebKit.tbd; path = usr/lib/swift/libswiftWebKit.tbd; sourceTree = SDKROOT; };
 		5BB88596AC778B499EECBB9C /* Pods-RNHMSExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNHMSExample.release.xcconfig"; path = "Target Support Files/Pods-RNHMSExample/Pods-RNHMSExample.release.xcconfig"; sourceTree = "<group>"; };
+		68DD41E91EF6932E4667B3DC /* Pods-RNHMSExampleBroadcastUpload.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNHMSExampleBroadcastUpload.debug.xcconfig"; path = "Target Support Files/Pods-RNHMSExampleBroadcastUpload/Pods-RNHMSExampleBroadcastUpload.debug.xcconfig"; sourceTree = "<group>"; };
+		7E61A1F49A79D4FD80D10540 /* libPods-RNHMSExampleBroadcastUpload.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RNHMSExampleBroadcastUpload.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = RNHMSExample/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		971E4BD9AFA4897DEA02F210 /* Pods-RNHMSExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNHMSExample.debug.xcconfig"; path = "Target Support Files/Pods-RNHMSExample/Pods-RNHMSExample.debug.xcconfig"; sourceTree = "<group>"; };
 		A987F9152848F6A80078014C /* Inter-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Medium.ttf"; sourceTree = "<group>"; };
 		A987F9162848F6A80078014C /* Inter-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Bold.ttf"; sourceTree = "<group>"; };
 		A987F9172848F6A80078014C /* Inter-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Regular.ttf"; sourceTree = "<group>"; };
+		D4AB719DAEFB4D46F531402E /* Pods-RNHMSExample-RNHMSExampleBroadcastUpload.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNHMSExample-RNHMSExampleBroadcastUpload.release.xcconfig"; path = "Target Support Files/Pods-RNHMSExample-RNHMSExampleBroadcastUpload/Pods-RNHMSExample-RNHMSExampleBroadcastUpload.release.xcconfig"; sourceTree = "<group>"; };
+		EA52E17B97DC2D048D45F62D /* Pods-RNHMSExample-RNHMSExampleBroadcastUpload.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNHMSExample-RNHMSExampleBroadcastUpload.debug.xcconfig"; path = "Target Support Files/Pods-RNHMSExample-RNHMSExampleBroadcastUpload/Pods-RNHMSExample-RNHMSExampleBroadcastUpload.debug.xcconfig"; sourceTree = "<group>"; };
 		ECA3437726C3E17E007CB7C3 /* RNHMSExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = RNHMSExample.entitlements; path = RNHMSExample/RNHMSExample.entitlements; sourceTree = "<group>"; };
+		ECD6520528B3BADE007B5AF8 /* RNHMSExampleBroadcastUpload.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = RNHMSExampleBroadcastUpload.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		ECD6520628B3BADE007B5AF8 /* ReplayKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReplayKit.framework; path = System/Library/Frameworks/ReplayKit.framework; sourceTree = SDKROOT; };
+		ECD6520928B3BADE007B5AF8 /* SampleHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleHandler.swift; sourceTree = "<group>"; };
+		ECD6520B28B3BADE007B5AF8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		ECD6521328B3BB2B007B5AF8 /* RNHMSExampleBroadcastUpload.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = RNHMSExampleBroadcastUpload.entitlements; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F8A7BB01F2990F6065CF65E5 /* libPods-RNHMSExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RNHMSExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -67,6 +102,15 @@
 			files = (
 				5B373DA026B9114500DFE478 /* libswiftWebKit.tbd in Frameworks */,
 				60501FBE68997AD593F5F40F /* libPods-RNHMSExample.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		ECD6520228B3BADE007B5AF8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				ECD6520728B3BADE007B5AF8 /* ReplayKit.framework in Frameworks */,
+				45CE41045BF2D737261AE641 /* libPods-RNHMSExampleBroadcastUpload.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -94,6 +138,8 @@
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				F8A7BB01F2990F6065CF65E5 /* libPods-RNHMSExample.a */,
 				011CE7C7CEFE0BA6530EEE05 /* libPods-RNHMSExample-RNHMSExampleTests.a */,
+				ECD6520628B3BADE007B5AF8 /* ReplayKit.framework */,
+				7E61A1F49A79D4FD80D10540 /* libPods-RNHMSExampleBroadcastUpload.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -120,6 +166,7 @@
 			children = (
 				13B07FAE1A68108700A75B9A /* RNHMSExample */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
+				ECD6520828B3BADE007B5AF8 /* RNHMSExampleBroadcastUpload */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				E4E9F5E04BE3D65A2FF05FBF /* Pods */,
@@ -135,6 +182,7 @@
 			children = (
 				13B07F961A680F5B00A75B9A /* RNHMSExample.app */,
 				00E356EE1AD99517003FC87E /* RNHMSExampleTests.xctest */,
+				ECD6520528B3BADE007B5AF8 /* RNHMSExampleBroadcastUpload.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -146,8 +194,22 @@
 				5BB88596AC778B499EECBB9C /* Pods-RNHMSExample.release.xcconfig */,
 				249074DB2395F002F7348019 /* Pods-RNHMSExample-RNHMSExampleTests.debug.xcconfig */,
 				2C89024864789A6D93C93E64 /* Pods-RNHMSExample-RNHMSExampleTests.release.xcconfig */,
+				EA52E17B97DC2D048D45F62D /* Pods-RNHMSExample-RNHMSExampleBroadcastUpload.debug.xcconfig */,
+				D4AB719DAEFB4D46F531402E /* Pods-RNHMSExample-RNHMSExampleBroadcastUpload.release.xcconfig */,
+				68DD41E91EF6932E4667B3DC /* Pods-RNHMSExampleBroadcastUpload.debug.xcconfig */,
+				3C472A3108A40A15D204FEF8 /* Pods-RNHMSExampleBroadcastUpload.release.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		ECD6520828B3BADE007B5AF8 /* RNHMSExampleBroadcastUpload */ = {
+			isa = PBXGroup;
+			children = (
+				ECD6521328B3BB2B007B5AF8 /* RNHMSExampleBroadcastUpload.entitlements */,
+				ECD6520928B3BADE007B5AF8 /* SampleHandler.swift */,
+				ECD6520B28B3BADE007B5AF8 /* Info.plist */,
+			);
+			path = RNHMSExampleBroadcastUpload;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -186,15 +248,35 @@
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				DD8BCEFB47A49695E7D57291 /* [CP] Embed Pods Frameworks */,
 				7F8FF84FA36C80659B57D77B /* [CP] Copy Pods Resources */,
+				ECD6520F28B3BADE007B5AF8 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				ECD6520D28B3BADE007B5AF8 /* PBXTargetDependency */,
 			);
 			name = RNHMSExample;
 			productName = RNHMSExample;
 			productReference = 13B07F961A680F5B00A75B9A /* RNHMSExample.app */;
 			productType = "com.apple.product-type.application";
+		};
+		ECD6520428B3BADE007B5AF8 /* RNHMSExampleBroadcastUpload */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = ECD6521228B3BADE007B5AF8 /* Build configuration list for PBXNativeTarget "RNHMSExampleBroadcastUpload" */;
+			buildPhases = (
+				0CF43A09E33CF9AAC9A3872B /* [CP] Check Pods Manifest.lock */,
+				ECD6520128B3BADE007B5AF8 /* Sources */,
+				ECD6520228B3BADE007B5AF8 /* Frameworks */,
+				ECD6520328B3BADE007B5AF8 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = RNHMSExampleBroadcastUpload;
+			productName = RNHMSExampleBroadcastUpload;
+			productReference = ECD6520528B3BADE007B5AF8 /* RNHMSExampleBroadcastUpload.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -202,6 +284,7 @@
 		83CBB9F71A601CBA00E9B192 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 1340;
 				LastUpgradeCheck = 1340;
 				ORGANIZATIONNAME = 100ms;
 				TargetAttributes = {
@@ -211,6 +294,9 @@
 					};
 					13B07F861A680F5B00A75B9A = {
 						LastSwiftMigration = 1120;
+					};
+					ECD6520428B3BADE007B5AF8 = {
+						CreatedOnToolsVersion = 13.4.1;
 					};
 				};
 			};
@@ -229,6 +315,7 @@
 			targets = (
 				13B07F861A680F5B00A75B9A /* RNHMSExample */,
 				00E356ED1AD99517003FC87E /* RNHMSExampleTests */,
+				ECD6520428B3BADE007B5AF8 /* RNHMSExampleBroadcastUpload */,
 			);
 		};
 /* End PBXProject section */
@@ -253,6 +340,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		ECD6520328B3BADE007B5AF8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
@@ -269,6 +363,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "set -e\n\nexport NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
+		};
+		0CF43A09E33CF9AAC9A3872B /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-RNHMSExampleBroadcastUpload-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
 		};
 		4102487C5C13771EAD1B6496 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -420,6 +536,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		ECD6520128B3BADE007B5AF8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				ECD6520A28B3BADE007B5AF8 /* SampleHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -427,6 +551,11 @@
 			isa = PBXTargetDependency;
 			target = 13B07F861A680F5B00A75B9A /* RNHMSExample */;
 			targetProxy = 00E356F41AD99517003FC87E /* PBXContainerItemProxy */;
+		};
+		ECD6520D28B3BADE007B5AF8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = ECD6520428B3BADE007B5AF8 /* RNHMSExampleBroadcastUpload */;
+			targetProxy = ECD6520C28B3BADE007B5AF8 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -490,6 +619,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 971E4BD9AFA4897DEA02F210 /* Pods-RNHMSExample.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = RNHMSExample/RNHMSExample.entitlements;
@@ -531,6 +661,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 5BB88596AC778B499EECBB9C /* Pods-RNHMSExample.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = RNHMSExample/RNHMSExample.entitlements;
@@ -689,6 +820,91 @@
 			};
 			name = Release;
 		};
+		ECD6521028B3BADE007B5AF8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 68DD41E91EF6932E4667B3DC /* Pods-RNHMSExampleBroadcastUpload.debug.xcconfig */;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = RNHMSExampleBroadcastUpload/RNHMSExampleBroadcastUpload.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 5N85PP82A9;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = RNHMSExampleBroadcastUpload/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = RNHMSExampleBroadcastUpload;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 100ms. All rights reserved.";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = live.100ms.reactnative.RNHMSExampleBroadcastUpload;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		ECD6521128B3BADE007B5AF8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 3C472A3108A40A15D204FEF8 /* Pods-RNHMSExampleBroadcastUpload.release.xcconfig */;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = RNHMSExampleBroadcastUpload/RNHMSExampleBroadcastUpload.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 5N85PP82A9;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = RNHMSExampleBroadcastUpload/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = RNHMSExampleBroadcastUpload;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 100ms. All rights reserved.";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = live.100ms.reactnative.RNHMSExampleBroadcastUpload;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = ReactNativeAdhocBroadcastUploadExtension;
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -715,6 +931,15 @@
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,
 				83CBBA211A601CBA00E9B192 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		ECD6521228B3BADE007B5AF8 /* Build configuration list for PBXNativeTarget "RNHMSExampleBroadcastUpload" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				ECD6521028B3BADE007B5AF8 /* Debug */,
+				ECD6521128B3BADE007B5AF8 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

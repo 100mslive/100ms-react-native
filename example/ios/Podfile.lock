@@ -58,6 +58,7 @@ PODS:
     - FlipperKit/FlipperKitNetworkPlugin
   - glog (0.3.5)
   - hermes-engine (0.7.2)
+  - HMSBroadcastExtensionSDK (0.0.2)
   - HMSSDK (0.3.3):
     - HMSWebRTC (= 1.0.4898)
   - HMSWebRTC (1.0.4898)
@@ -411,6 +412,7 @@ DEPENDENCIES:
   - FlipperKit/SKIOSNetworkPlugin (~> 0.75.1)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (~> 0.7.2)
+  - HMSBroadcastExtensionSDK
   - libevent (~> 2.1.12)
   - Permission-Camera (from `../node_modules/react-native-permissions/ios/Camera`)
   - Permission-Microphone (from `../node_modules/react-native-permissions/ios/Microphone`)
@@ -469,6 +471,7 @@ SPEC REPOS:
     - Flipper-RSocket
     - FlipperKit
     - hermes-engine
+    - HMSBroadcastExtensionSDK
     - HMSSDK
     - HMSWebRTC
     - libevent
@@ -583,6 +586,7 @@ SPEC CHECKSUMS:
   FlipperKit: 8a20b5c5fcf9436cac58551dc049867247f64b00
   glog: 73c2498ac6884b13ede40eda8228cb1eee9d9d62
   hermes-engine: 7d97ba46a1e29bacf3e3c61ecb2804a5ddd02d4f
+  HMSBroadcastExtensionSDK: 2c3bf5b25453459d60799697bab1e30576690ab5
   HMSSDK: 7c9d01559f1ac06cea982097138c1d3c836df0ae
   HMSWebRTC: d3a9b2866e4a36a1d3834728a548a4a46309bb86
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
@@ -631,6 +635,6 @@ SPEC CHECKSUMS:
   Yoga: 575c581c63e0d35c9a83f4b46d01d63abc1100ac
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: e337a5a83ce7efd36d8015fd215f0b44e5529740
+PODFILE CHECKSUM: 3b82a406d2c13062ad921ba714c1df8187f5a662
 
 COCOAPODS: 1.11.3
