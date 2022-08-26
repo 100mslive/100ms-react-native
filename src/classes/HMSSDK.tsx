@@ -92,8 +92,20 @@ export class HMSSDK {
    * @returns
    * @memberof HMSSDK
    */
-  static async build(params?: { trackSettings: HMSTrackSettings }) {
-    let id = await HMSManager.build(params?.trackSettings || {});
+  static async build({
+    trackSettings,
+    appGroup,
+    preferredExtension,
+  }: {
+    trackSettings?: HMSTrackSettings;
+    appGroup?: String;
+    preferredExtension?: String;
+  }) {
+    let id = await HMSManager.build({
+      trackSettings: trackSettings,
+      appGroup: appGroup,
+      preferredExtension: preferredExtension,
+    });
     HmsSdk = new HMSSDK(id);
     HmsSdk.attachPreviewListener();
     HmsSdk.attachListeners();
@@ -847,12 +859,7 @@ export class HMSSDK {
    */
   startScreenshare = async () => {
     logger?.verbose('#Function startScreenshare', { id: this.id });
-    if (Platform.OS === 'android') {
-      return await HMSManager.startScreenshare({ id: this.id });
-    } else {
-      console.log('API currently not available for iOS');
-      return 'API currently not available for iOS';
-    }
+    return await HMSManager.startScreenshare({ id: this.id });
   };
 
   /**
@@ -864,12 +871,7 @@ export class HMSSDK {
    */
   isScreenShared = async () => {
     logger?.verbose('#Function isScreenShared', { id: this.id });
-    if (Platform.OS === 'android') {
-      return await HMSManager.isScreenShared({ id: this.id });
-    } else {
-      console.log('API currently not available for iOS');
-      return 'API currently not available for iOS';
-    }
+    return await HMSManager.isScreenShared({ id: this.id });
   };
 
   /**
@@ -881,12 +883,7 @@ export class HMSSDK {
    */
   stopScreenshare = async () => {
     logger?.verbose('#Function stopScreenshare', { id: this.id });
-    if (Platform.OS === 'android') {
-      return await HMSManager.stopScreenshare({ id: this.id });
-    } else {
-      console.log('API currently not available for iOS');
-      return 'API currently not available for iOS';
-    }
+    return await HMSManager.stopScreenshare({ id: this.id });
   };
 
   /**
