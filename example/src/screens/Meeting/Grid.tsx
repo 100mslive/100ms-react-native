@@ -21,6 +21,7 @@ type GridViewProps = {
   setZoomableTrackId?: React.Dispatch<React.SetStateAction<string>>;
   setPinnedPeerTrackIds?: React.Dispatch<React.SetStateAction<String[]>>;
   setUpdatePeerTrackNode?: React.Dispatch<React.SetStateAction<PeerTrackNode>>;
+  onEndScreenSharePress: Function;
 };
 
 const GridView = ({
@@ -36,6 +37,7 @@ const GridView = ({
   pinnedPeerTrackIds,
   orientation,
   setUpdatePeerTrackNode,
+  onEndScreenSharePress,
 }: GridViewProps) => {
   const {left, right, top, bottom} = useSafeAreaInsets();
   const flatlistRef = useRef<FlatList>(null);
@@ -103,10 +105,13 @@ const GridView = ({
                     style={styles.flex}
                     key={view.id}
                     onTouchEnd={e => {
-                      e.stopPropagation();
-                      zoomScreen(view);
+                      if (!view.peer.isLocal) {
+                        e.stopPropagation();
+                        zoomScreen(view);
+                      }
                     }}>
                     <DisplayTrack
+                      onEndScreenSharePress={onEndScreenSharePress}
                       peerTrackNode={view}
                       videoStyles={styles.generalTile}
                       isSpeaking={isSpeaking}

@@ -302,6 +302,27 @@ class HMSManager: RCTEventEmitter {
         resolve?(["success": id + " removed"])
     }
 
+    @objc
+    func startScreenshare(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.startScreenshare(resolve, reject)
+    }
+    
+    @objc
+    func stopScreenshare(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+        
+        hms?.stopScreenshare(resolve, reject)
+    }
+    
+    @objc
+    func isScreenShared(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+        
+        hms?.isScreenShared(resolve, reject)
+    }
+
 //    @objc
 //    func setLocalVideoSettings(_ data: NSDictionary) {
 //        let hms = HMSHelper.getHms(data, hmsCollection)
