@@ -14,6 +14,7 @@ type ActiveSpeakerViewProps = {
   setPage: React.Dispatch<React.SetStateAction<number>>;
   selectedSortingType?: SortingType;
   orientation: boolean;
+  onEndScreenSharePress: Function;
 };
 
 const includesPeerId = (speakers: PeerTrackNode[], peerId: string): boolean => {
@@ -155,6 +156,7 @@ const ActiveSpeakerView = ({
   page,
   selectedSortingType,
   orientation,
+  onEndScreenSharePress,
 }: ActiveSpeakerViewProps) => {
   const speakerIds = speakers?.map(speaker => speaker?.peer?.peerID);
   const data = getActiveSpeakers(peerTrackNodes, speakers, speakerIds);
@@ -165,6 +167,7 @@ const ActiveSpeakerView = ({
 
   return (
     <GridView
+      onEndScreenSharePress={onEndScreenSharePress}
       orientation={orientation}
       pairedPeers={pairedPeers}
       setPage={setPage}

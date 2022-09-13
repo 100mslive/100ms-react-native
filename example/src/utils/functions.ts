@@ -421,8 +421,8 @@ export const updatePeersTrackNodesOnTrackListener = (
       : track.trackId);
   const isVideo = track.type === HMSTrackType.VIDEO;
   if (
-    type === HMSTrackUpdate.TRACK_ADDED &&
-    !(track.source === HMSTrackSource.SCREEN && peer.isLocal) // remove this condition to show local screenshare
+    type === HMSTrackUpdate.TRACK_ADDED
+    // && !(track.source === HMSTrackSource.SCREEN && peer.isLocal) // add this condition to remove local screenshare
   ) {
     let alreadyPresent = false;
     const updatePeerTrackNodes = oldPeerTrackNodes?.map(peerTrackNode => {

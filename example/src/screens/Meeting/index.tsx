@@ -29,6 +29,8 @@ import {
   HMSAudioMode,
   HMSAudioMixingMode,
   HMSRTMPConfig,
+  HMSTrackSource,
+  HMSTrackType,
 } from '@100mslive/react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -136,6 +138,10 @@ const Meeting = () => {
   const [page, setPage] = useState(0);
   const [zoomableTrackId, setZoomableTrackId] = useState('');
   const [orientation, setOrientation] = useState<boolean>(true);
+  const [isScreenShared, setIsScreenShared] = useState(
+    instance?.localPeer?.auxiliaryTracks &&
+      instance?.localPeer?.auxiliaryTracks?.length > 0,
+  );
   const [updatePeerTrackNode, setUpdatePeerTrackNode] = useState<PeerTrackNode>(
     peerTrackNodes[0],
   );
@@ -172,9 +178,6 @@ const Meeting = () => {
     [layout, peerTrackNodes, orientation, sortingType, pinnedPeerTrackIds],
   );
   const parsedMetadata = parseMetadata(instance?.localPeer?.metadata);
-  const isScreenShared =
-    instance?.localPeer?.auxiliaryTracks &&
-    instance?.localPeer?.auxiliaryTracks?.length > 0;
 
   const reportIssue = async () => {
     try {
@@ -442,25 +445,17 @@ const Meeting = () => {
   };
 
   const onStartScreenSharePress = () => {
-    if (Platform.OS === 'android') {
-      instance
-        ?.startScreenshare()
-        .then(d => console.log('Start Screenshare Success: ', d))
-        .catch(e => console.log('Start Screenshare Error: ', e));
-    } else {
-      Toast.showWithGravity('Api not available for iOS', Toast.LONG, Toast.TOP);
-    }
+    instance
+      ?.startScreenshare()
+      .then(d => console.log('Start Screenshare Success: ', d))
+      .catch(e => console.log('Start Screenshare Error: ', e));
   };
 
   const onEndScreenSharePress = () => {
-    if (Platform.OS === 'android') {
-      instance
-        ?.stopScreenshare()
-        .then(d => console.log('Stop Screenshare Success: ', d))
-        .catch(e => console.log('Stop Screenshare Error: ', e));
-    } else {
-      Toast.showWithGravity('Api not available for iOS', Toast.LONG, Toast.TOP);
-    }
+    instance
+      ?.stopScreenshare()
+      .then(d => console.log('Stop Screenshare Success: ', d))
+      .catch(e => console.log('Stop Screenshare Error: ', e));
   };
 
   const onGoLivePress = () => {
@@ -622,6 +617,15 @@ const Meeting = () => {
     );
     setPeerTrackNodes(newPeerTrackNodes);
     peerTrackNodesRef.current = newPeerTrackNodes;
+    if (
+      peer?.isLocal &&
+      track.source === HMSTrackSource.SCREEN &&
+      track.type === HMSTrackType.VIDEO
+    ) {
+      hmsInstance?.isScreenShared().then(d => {
+        setIsScreenShared(d);
+      });
+    }
     console.log(
       'data in onTrackListener: ',
       type,
@@ -994,6 +998,7 @@ const Meeting = () => {
           </View>
         ) : layout === LayoutParams.ACTIVE_SPEAKER ? (
           <ActiveSpeakerView
+            onEndScreenSharePress={onEndScreenSharePress}
             orientation={orientation}
             speakers={speakers}
             instance={instance}
@@ -1020,6 +1025,7 @@ const Meeting = () => {
           />
         ) : (
           <GridView
+            onEndScreenSharePress={onEndScreenSharePress}
             orientation={orientation}
             speakers={speakers}
             pairedPeers={pairedPeers}

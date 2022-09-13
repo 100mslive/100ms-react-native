@@ -6,6 +6,7 @@ import {
   HMSTrack,
   HMSSDK,
   HMSTrackSource,
+  HMSTrackType,
 } from '@100mslive/react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -16,7 +17,7 @@ import RNFS from 'react-native-fs';
 import CameraRoll from '@react-native-community/cameraroll';
 import Toast from 'react-native-simple-toast';
 
-import {AlertModal} from '../../components';
+import {AlertModal, CustomButton} from '../../components';
 import {
   getInitials,
   parseMetadata,
@@ -42,6 +43,7 @@ type DisplayTrackProps = {
   pinnedPeerTrackIds?: String[];
   setPinnedPeerTrackIds?: React.Dispatch<React.SetStateAction<String[]>>;
   setUpdatePeerTrackNode?: React.Dispatch<React.SetStateAction<PeerTrackNode>>;
+  onEndScreenSharePress?: Function;
 };
 
 const DisplayTrack = ({
@@ -55,6 +57,7 @@ const DisplayTrack = ({
   pinnedPeerTrackIds,
   setPinnedPeerTrackIds,
   setUpdatePeerTrackNode,
+  onEndScreenSharePress,
 }: DisplayTrackProps) => {
   const {mirrorLocalVideo, isHLSFlow} = useSelector(
     (state: RootState) => state.user,
@@ -296,6 +299,10 @@ const DisplayTrack = ({
     setIsDegraded(peerTrackNode.track?.isDegraded || false);
   }, [peerTrackNode.track?.isDegraded]);
 
+  const onScreenshareEnd = () => {
+    onEndScreenSharePress && onEndScreenSharePress();
+  };
+
   return HmsView ? (
     <View style={[videoStyles, speaking && styles.highlight]}>
       <AlertModal
@@ -310,7 +317,26 @@ const DisplayTrack = ({
             : selectAuxActionButtons
         }
       />
-      {isVideoMute || layout === LayoutParams.AUDIO ? (
+      {peerTrackNode.peer.isLocal &&
+      peerTrackNode.track?.source === HMSTrackSource.SCREEN &&
+      peerTrackNode.track.type === HMSTrackType.VIDEO ? (
+        <View style={styles.screenshareContainer}>
+          <MaterialCommunityIcons
+            name="monitor-share"
+            style={styles.icon}
+            size={48}
+          />
+          <Text style={styles.screenshareText}>
+            You are sharing your screen
+          </Text>
+          <CustomButton
+            title="X   Stop Screenshare"
+            onPress={onScreenshareEnd}
+            viewStyle={styles.screenshareButton}
+            textStyle={styles.roleChangeModalButtonText}
+          />
+        </View>
+      ) : isVideoMute || layout === LayoutParams.AUDIO ? (
         <View style={styles.avatarContainer}>
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>{getInitials(name)}</Text>

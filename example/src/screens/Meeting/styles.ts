@@ -825,6 +825,31 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Regular',
     letterSpacing: 0.4,
   },
+  screenshareContainer: {
+    backgroundColor: COLORS.SURFACE.DEFAULT,
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  screenshareText: {
+    color: COLORS.TEXT.HIGH_EMPHASIS,
+    fontSize: 20,
+    lineHeight: 24,
+    letterSpacing: 0.15,
+    fontFamily: 'Inter-Medium',
+    marginTop: 16,
+  },
+  screenshareButton: {
+    backgroundColor: COLORS.INDICATORS.ERROR,
+    borderColor: COLORS.INDICATORS.ERROR,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderRadius: 8,
+    width: '60%',
+    alignSelf: 'center',
+    marginTop: 48,
+  },
 });
 
 export {styles};
