@@ -532,7 +532,7 @@ export class HMSSDK {
    *
    * - it is advised to use a json object in string format to store multiple dataPoints in metadata.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/change-metadata} for more info
+   * checkout {@link https://www.100ms.live/docs/react-native/v2/advanced-features/change-metadata} for more info
    *
    * @param {string}
    * @memberof HMSSDK
@@ -809,7 +809,7 @@ export class HMSSDK {
   /**
    * - This function sets the volume of any peer in the room
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/set-volume} for more info
+   * checkout {@link https://www.100ms.live/docs/react-native/v2/advanced-features/set-volume} for more info
    *
    * @memberof HMSSDK
    */
