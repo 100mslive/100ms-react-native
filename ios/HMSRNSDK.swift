@@ -19,10 +19,10 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     var rtcStatsAttached = false
     var recentPreviewTracks: [HMSTrack]? = []
     private var reconnectingStage: Bool = false
-    private var preferredExtension: String? = nil
-    private var systemBroadcastPicker: RPSystemBroadcastPickerView? = nil
-    private var startScreenshareResolve: RCTPromiseResolveBlock? = nil
-    private var stopScreenshareResolve: RCTPromiseResolveBlock? = nil
+    private var preferredExtension: String?
+    private var systemBroadcastPicker: RPSystemBroadcastPickerView?
+    private var startScreenshareResolve: RCTPromiseResolveBlock?
+    private var stopScreenshareResolve: RCTPromiseResolveBlock?
     private var isScreenShared: Bool? = false
     private var previewInProgress = false
 
@@ -81,7 +81,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
         let metadata = credentials.value(forKey: "metadata") as? String
         let captureNetworkQualityInPreview = credentials.value(forKey: "captureNetworkQualityInPreview") as? Bool ?? false
-        
+
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
             if let endpoint = credentials.value(forKey: "endpoint") as? String {
@@ -94,7 +94,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             strongSelf.previewInProgress = true
         }
     }
-    
+
     func previewForRole(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let role = data.value(forKey: "role") as? String
         else {
@@ -103,26 +103,26 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             reject?(errorMessage, errorMessage, nil)
             return
         }
-        
+
         let roleObj = HMSHelper.getRoleFromRoleName(role, roles: hms?.roles)
-        
+
         if let extractedRole = roleObj {
             hms?.preview(role: extractedRole, completion: { tracks, error in
-                if (error != nil) {
+                if error != nil {
                     delegate?.emitEvent(ON_ERROR, ["error": HMSDecoder.getError(error), "id": id])
                     reject?(error?.message, error?.localizedDescription, nil)
                     return
                 }
                 self.recentPreviewTracks = tracks
-                
+
                 let decodedTracks = HMSDecoder.getAllTracks(tracks ?? [])
-                
+
                 resolve?(["success": true, "tracks": decodedTracks])
                 return
             })
         }
     }
-    
+
     func cancelPreview() {
         self.recentPreviewTracks = []
         hms?.cancelPreview()
@@ -196,7 +196,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func leave(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        if(reconnectingStage) {
+        if reconnectingStage {
             reject?("Still in reconnecting stage", "Still in reconnecting stage", nil)
         } else {
             DispatchQueue.main.async { [weak self] in
@@ -366,9 +366,9 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         DispatchQueue.main.async { [weak self] in
             guard let remotePeers = self?.hms?.remotePeers,
                   let track = HMSHelper.getTrackFromTrackId(trackId, remotePeers)
-            else { 
+            else {
                 reject?("TRACK_NOT_FOUND", "TRACK_NOT_FOUND", nil)
-                return 
+                return
             }
 
             self?.hms?.changeTrackState(for: track, mute: mute, completion: { success, error in
@@ -464,9 +464,9 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
             guard let remotePeers = self?.hms?.remotePeers,
                   let peer = HMSHelper.getRemotePeerFromPeerId(peerId, remotePeers: remotePeers)
-            else { 
+            else {
                 reject?("PEER_NOT_FOUND", "PEER_NOT_FOUND", nil)
-                return 
+                return
             }
 
             self?.hms?.removePeer(peer, reason: reason ?? "Removed from room", completion: { success, error in
@@ -675,9 +675,9 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
     func startHLSStreaming(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let recordConfig = HMSHelper.getHlsRecordingConfig(data.value(forKey: "hlsRecordingConfig") as? NSDictionary)
-        let hlsMeetingUrlVariant = HMSHelper.getHMSHLSMeetingURLVariants(data.value(forKey: "meetingURLVariants") as? [[String : Any]])
-        var config: HMSHLSConfig? = nil
-        if(!hlsMeetingUrlVariant.isEmpty || recordConfig !== nil){
+        let hlsMeetingUrlVariant = HMSHelper.getHMSHLSMeetingURLVariants(data.value(forKey: "meetingURLVariants") as? [[String: Any]])
+        var config: HMSHLSConfig?
+        if !hlsMeetingUrlVariant.isEmpty || recordConfig !== nil {
             config = HMSHLSConfig(variants: hlsMeetingUrlVariant, recording: recordConfig)
         }
 
@@ -717,7 +717,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             }
         })
     }
-    
+
     func changeName(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let name = data.value(forKey: "name") as? String
         else {
@@ -736,10 +736,10 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             }
         }
     }
-    
+
     func remoteMuteAllAudio(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let allAudioTracks = HMSUtilities.getAllAudioTracks(in: (self.hms?.room)!!)
-        var customError: HMSError? = nil
+        var customError: HMSError?
         for audioTrack in allAudioTracks {
             self.hms?.changeTrackState(for: audioTrack, mute: true, completion: { success, error in
                 if success {
@@ -748,7 +748,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 }
             })
         }
-        if (customError === nil) {
+        if customError === nil {
             resolve?(["success": true])
         } else {
             reject?(customError?.message, customError?.localizedDescription, nil)
@@ -775,11 +775,11 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
         self.delegate?.emitEvent(ON_PEER_UPDATE, ["event": ON_PEER_UPDATE, "room": roomData, "localPeer": localPeerData, "remotePeers": remotePeerData])
     }
-    
+
     func enableRTCStats() {
         rtcStatsAttached = true
     }
-    
+
     func disableRTCStats() {
         rtcStatsAttached = false
     }
@@ -797,7 +797,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 self?.systemBroadcastPicker!.preferredExtension = preferredExtension
                 self?.systemBroadcastPicker!.showsMicrophoneButton = false
             }
-                        
+
             for view in self!.systemBroadcastPicker!.subviews {
                 if let button = view as? UIButton {
                     button.sendActions(for: .allEvents)
@@ -806,7 +806,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             self?.startScreenshareResolve = resolve
         }
     }
-    
+
     func stopScreenshare(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let preferredExtension = preferredExtension else {
             let error = HMSError(id: "103", code: .genericErrorUnknown, message: "Could not start Screen share, preferredExtension not passed in Build Method", params: ["function": #function])
@@ -820,7 +820,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 self?.systemBroadcastPicker!.preferredExtension = preferredExtension
                 self?.systemBroadcastPicker!.showsMicrophoneButton = false
             }
-                        
+
             for view in self!.systemBroadcastPicker!.subviews {
                 if let button = view as? UIButton {
                     button.sendActions(for: .allEvents)
@@ -829,7 +829,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             self?.stopScreenshareResolve = resolve
         }
     }
-    
+
     func isScreenShared(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         resolve?(isScreenShared)
     }
@@ -898,7 +898,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 stopScreenshareResolve = nil
             }
         }
-        
+
         self.delegate?.emitEvent(ON_TRACK_UPDATE, ["event": ON_TRACK_UPDATE, "id": self.id, "room": roomData, "type": type, "localPeer": localPeerData, "remotePeers": remotePeerData, "peer": hmsPeer, "track": hmsTrack])
     }
 
@@ -950,59 +950,59 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         let roomEnded = notification.roomEnded
         self.delegate?.emitEvent(ON_REMOVED_FROM_ROOM, ["event": ON_REMOVED_FROM_ROOM, "id": self.id, "requestedBy": decodedRequestedBy as Any, "reason": reason, "roomEnded": roomEnded ])
     }
-    
+
     func on(rtcStats: HMSRTCStatsReport) {
-        if (!rtcStatsAttached) {
+        if !rtcStatsAttached {
             return
         }
         let video = HMSDecoder.getHMSRTCStats(rtcStats.video)
         let audio = HMSDecoder.getHMSRTCStats(rtcStats.audio)
         let combined = HMSDecoder.getHMSRTCStats(rtcStats.combined)
-        
+
         self.delegate?.emitEvent(ON_RTC_STATS, ["video": video, "audio": audio, "combined": combined, "id": self.id])
     }
-    
+
     func on(localAudioStats: HMSLocalAudioStats, track: HMSLocalAudioTrack, peer: HMSPeer) {
-        if (!rtcStatsAttached) {
+        if !rtcStatsAttached {
             return
         }
         let localStats = HMSDecoder.getLocalAudioStats(localAudioStats)
         let localTrack = HMSDecoder.getHmsLocalAudioTrack(track)
         let decodedPeer = HMSDecoder.getHmsPeer(peer)
-        
+
         self.delegate?.emitEvent(ON_LOCAL_AUDIO_STATS, ["localAudioStats": localStats, "track": localTrack, "peer": decodedPeer, "id": self.id])
     }
-    
+
     func on(localVideoStats: HMSLocalVideoStats, track: HMSLocalVideoTrack, peer: HMSPeer) {
-        if (!rtcStatsAttached) {
+        if !rtcStatsAttached {
             return
         }
         let localStats = HMSDecoder.getLocalVideoStats(localVideoStats)
         let decodedPeer = HMSDecoder.getHmsPeer(peer)
         let localTrack = HMSDecoder.getHmsLocalVideoTrack(track)
-        
+
         self.delegate?.emitEvent(ON_LOCAL_VIDEO_STATS, ["localVideoStats": localStats, "track": localTrack, "peer": decodedPeer, "id": self.id])
     }
-    
+
     func on(remoteAudioStats: HMSRemoteAudioStats, track: HMSRemoteAudioTrack, peer: HMSPeer) {
-        if (!rtcStatsAttached) {
+        if !rtcStatsAttached {
             return
         }
         let remoteStats = HMSDecoder.getRemoteAudioStats(remoteAudioStats)
         let remoteTrack = HMSDecoder.getHMSRemoteAudioTrack(track)
         let decodedPeer = HMSDecoder.getHmsPeer(peer)
-        
+
         self.delegate?.emitEvent(ON_REMOTE_AUDIO_STATS, ["remoteAudioStats": remoteStats, "track": remoteTrack, "peer": decodedPeer, "id": self.id])
     }
-    
+
     func on(remoteVideoStats: HMSRemoteVideoStats, track: HMSRemoteVideoTrack, peer: HMSPeer) {
-        if (!rtcStatsAttached) {
+        if !rtcStatsAttached {
             return
         }
         let remoteStats = HMSDecoder.getRemoteVideoStats(remoteVideoStats)
         let decodedPeer = HMSDecoder.getHmsPeer(peer)
         let remoteTrack = HMSDecoder.getHMSRemoteVideoTrack(track)
-        
+
         self.delegate?.emitEvent(ON_REMOTE_VIDEO_STATS, ["remoteVideoStats": remoteStats, "track": remoteTrack, "peer": decodedPeer, "id": self.id])
     }
 

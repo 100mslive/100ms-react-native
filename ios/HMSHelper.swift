@@ -6,10 +6,10 @@ class HMSHelper: NSObject {
     static func getUnavailableRequiredKey(_ data: NSDictionary, _ requiredKeys: [String]) -> String {
         for (key) in requiredKeys {
             let value = data.object(forKey: key)
-            if (value == nil) {
+            if value == nil {
                 return key + "_Is_Required"
             }
-            if (value is NSNull) {
+            if value is NSNull {
                 return key + "_Is_Null"
             }
         }
@@ -227,7 +227,7 @@ class HMSHelper: NSObject {
         }
         return hlsVariants
     }
-    
+
     static func getHlsRecordingConfig(_ config: NSDictionary?) -> HMSHLSRecordingConfig? {
         guard let hlsRecordingConfig = config
         else {
@@ -235,7 +235,7 @@ class HMSHelper: NSObject {
         }
         let singleFilePerLayer = hlsRecordingConfig.value(forKey: "singleFilePerLayer") as? Bool
         let videoOnDemand = hlsRecordingConfig.value(forKey: "videoOnDemand") as? Bool
-        
+
         return HMSHLSRecordingConfig(singleFilePerLayer: singleFilePerLayer ?? false, enableVOD: videoOnDemand ?? false)
     }
 

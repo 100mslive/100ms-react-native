@@ -64,9 +64,9 @@ class HmssdkDisplayView: UIView {
                 print(#function, "Required data to setup video view not found")
                 return
             }
-            
+
             var videoTrack = HMSUtilities.getVideoTrack(for: trackID, in: hmsSDK.room!)
-            
+
             if videoTrack == nil {
                 for track in hmsCollection[sdkID]?.recentPreviewTracks ?? [] {
                     if track.trackId == trackID && track.kind == HMSTrackKind.video {
@@ -74,7 +74,7 @@ class HmssdkDisplayView: UIView {
                     }
                 }
             }
-            
+
             if videoTrack != nil {
                 let mirror = data.value(forKey: "mirror") as? Bool
                 if mirror != nil {
@@ -110,4 +110,3 @@ class HmssdkDisplayView: UIView {
         videoView.setVideoTrack(nil)
     }
 }
-
