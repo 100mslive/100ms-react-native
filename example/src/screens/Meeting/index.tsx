@@ -776,7 +776,7 @@ const Meeting = () => {
   const onError = (data: HMSException) => {
     console.log('data in onError: ', data);
     Toast.showWithGravity(
-      `${data?.code} ${data?.message}` || 'Something went wrong',
+      `${data?.code} ${data?.description}` || 'Something went wrong',
       Toast.LONG,
       Toast.TOP,
     );
