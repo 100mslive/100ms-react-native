@@ -507,6 +507,7 @@ export class HMSEncoder {
       name: data?.error?.name,
       action: data?.error?.action,
       isTerminal: data?.error?.isTerminal,
+      canRetry: data?.error?.canRetry,
     });
   }
 }

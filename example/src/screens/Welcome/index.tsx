@@ -122,7 +122,7 @@ const Welcome = () => {
     setPreviewButtonLoading(false);
     setJoinButtonLoading(false);
     Toast.showWithGravity(
-      data?.message || 'Something went wrong',
+      `${data?.code} ${data?.description}` || 'Something went wrong',
       Toast.LONG,
       Toast.TOP,
     );
