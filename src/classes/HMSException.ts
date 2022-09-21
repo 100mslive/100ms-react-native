@@ -1,11 +1,11 @@
 export class HMSException {
   code: number;
   description: string;
-  message?: string; // android only
-  name?: string; // android only
-  action?: string; // android only
+  message?: string; // `message` is available only on Android
+  name?: string; // `name` is available only on Android
+  action?: string; // `action` is available only on Android
   isTerminal: boolean;
-  canRetry?: boolean; // ios only
+  canRetry?: boolean; // `canRetry` is available only on Android
 
   constructor(params: {
     code: number;
