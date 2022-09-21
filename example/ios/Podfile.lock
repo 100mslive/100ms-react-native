@@ -286,6 +286,8 @@ PODS:
     - React-Core
   - react-native-cameraroll (5.0.2):
     - React-Core
+  - react-native-document-picker (8.1.1):
+    - React-Core
   - react-native-hms (0.9.93):
     - HMSBroadcastExtensionSDK (= 0.0.2)
     - HMSSDK (= 0.3.3)
@@ -433,6 +435,7 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - react-native-camera (from `../node_modules/react-native-camera`)
   - "react-native-cameraroll (from `../node_modules/@react-native-camera-roll/camera-roll`)"
+  - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - react-native-hms (from `../..`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-simple-toast (from `../node_modules/react-native-simple-toast`)
@@ -519,6 +522,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-camera"
   react-native-cameraroll:
     :path: "../node_modules/@react-native-camera-roll/camera-roll"
+  react-native-document-picker:
+    :path: "../node_modules/react-native-document-picker"
   react-native-hms:
     :path: "../.."
   react-native-safe-area-context:
@@ -577,7 +582,7 @@ SPEC CHECKSUMS:
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: cf9b38bf0b2d048436d9a82ad2abe1404f11e7de
   FBLazyVector: e686045572151edef46010a6f819ade377dfeb4b
-  FBReactNativeSpec: 978556cb9c183a32af51f818206b201b3deb0d1e
+  FBReactNativeSpec: 0094aca9cd5d4a79abcb5a2c1d1f52d0c106aaf9
   Flipper: d3da1aa199aad94455ae725e9f3aa43f3ec17021
   Flipper-DoubleConversion: 38631e41ef4f9b12861c67d17cb5518d06badc41
   Flipper-Folly: 755929a4f851b2fb2c347d533a23f191b008554c
@@ -607,6 +612,7 @@ SPEC CHECKSUMS:
   React-jsinspector: cc614ec18a9ca96fd275100c16d74d62ee11f0ae
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
   react-native-cameraroll: 4d0cb1c3413d4b7b85beb68a8c14325d887b404c
+  react-native-document-picker: f68191637788994baed5f57d12994aa32cf8bf88
   react-native-hms: 6eab9c7137f4b27b63021744a7ec73171f62a9fe
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
   react-native-simple-toast: 8ee5d23f0b92b935ab7434cdb65159ce12dfb4b7

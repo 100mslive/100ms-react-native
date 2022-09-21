@@ -2,6 +2,7 @@ import HMSSDK
 import Foundation
 
 class HMSHelper: NSObject {
+    static var audioMixerSourceHashMap: [String: HMSAudioNode]?
 
     static func getUnavailableRequiredKey(_ data: NSDictionary, _ requiredKeys: [String]) -> String {
         for (key) in requiredKeys {
@@ -159,15 +160,49 @@ class HMSHelper: NSObject {
         return hmsTrackSettings
     }
 
-    static func getLocalAudioSettings(_ settings: NSDictionary?) -> HMSAudioTrackSettings? {
+    static func getLocalAudioSettings(_ settings: NSDictionary?, _ hms: HMSSDK?, _ delegate: HMSManager?, _ id: String) -> HMSAudioTrackSettings? {
         guard let data = settings,
-              let maxBitrate = data.value(forKey: "maxBitrate") as? Int,
-              let trackDescription = data.value(forKey: "trackDescription") as? String?
+              let maxBitrate = data.value(forKey: "maxBitrate") as? Int
         else {
             return nil
         }
+        let trackDescription = data.value(forKey: "trackDescription") as? String
         let hmsTrackSettings = HMSAudioTrackSettings(maxBitrate: maxBitrate, trackDescription: trackDescription)
-        return hmsTrackSettings
+        if #available(iOS 13.0, *) {
+            var audioMixerSourceMap = [String: HMSAudioNode]()
+            if let playerNode = settings?.value(forKey: "audioSource") as? [String] {
+                for node in playerNode {
+                    if (audioMixerSourceMap[node] == nil) {
+                        if (node == "mic_node"){
+                            audioMixerSourceMap["mic_node"] = HMSMicNode()
+                        } else if (node == "screen_broadcast_audio_receiver_node"){
+                            do {
+                                audioMixerSourceMap["screen_broadcast_audio_receiver_node"] = try hms?.screenBroadcastAudioReceiverNode()
+                            } catch {
+                                delegate?.emitEvent("ON_ERROR", ["error": HMSError(id: "103", code: .genericErrorUnknown, message: error.localizedDescription, params: ["function": #function]), "id": id])
+                            }
+                        }
+                        else {
+                            audioMixerSourceMap[node] = HMSAudioFilePlayerNode()
+                        }
+                    }
+                }
+            }
+            do {
+                self.audioMixerSourceHashMap = audioMixerSourceMap
+                let audioMixerSource = try HMSAudioMixerSource(nodes: audioMixerSourceMap.values.map{$0})
+                return HMSAudioTrackSettings(maxBitrate: maxBitrate, trackDescription: trackDescription, audioSource: audioMixerSource)
+            } catch {
+                delegate?.emitEvent("ON_ERROR", ["error": HMSError(id: "103", code: .genericErrorUnknown, message: error.localizedDescription, params: ["function": #function]), "id": id])
+                return hmsTrackSettings
+            }
+        } else {
+            return hmsTrackSettings
+        }
+    }
+
+    static func getAudioMixerSourceMap() ->  [String : HMSAudioNode]? {
+        return self.audioMixerSourceHashMap
     }
 
     static func getVideoResolution(_ data: [String: Double]) -> HMSVideoResolution? {

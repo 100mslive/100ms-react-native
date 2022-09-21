@@ -323,10 +323,59 @@ class HMSManager: RCTEventEmitter {
         hms?.isScreenShared(resolve, reject)
     }
 
-//    @objc
-//    func setLocalVideoSettings(_ data: NSDictionary) {
-//        let hms = HMSHelper.getHms(data, hmsCollection)
-//
-//        hms?.setLocalVideoSettings(data)
-//    }
+    @objc
+    func playAudioShare(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.playAudioShare(data, resolve, reject)
+    }
+
+    @objc
+    func setAudioShareVolume(_ data: NSDictionary) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.setAudioShareVolume(data)
+    }
+    
+    @objc
+    func stopAudioShare(_ data: NSDictionary) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.stopAudioShare(data)
+    }
+    
+    @objc
+    func resumeAudioShare(_ data: NSDictionary) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.resumeAudioShare(data)
+    }
+    
+    @objc
+    func pauseAudioShare(_ data: NSDictionary) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.pauseAudioShare(data)
+    }
+    
+    @objc
+    func audioShareIsPlaying(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.audioShareIsPlaying(data, resolve, reject)
+    }
+    
+    @objc
+    func audioShareCurrentTime(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.audioShareCurrentTime(data, resolve, reject)
+    }
+    
+    @objc
+    func audioShareDuration(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.audioShareDuration(data, resolve, reject)
+    }
 }

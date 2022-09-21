@@ -2034,3 +2034,48 @@ export const RealTime = () => {
     </View>
   );
 };
+
+export const AudioShareSetVolumeModal = ({
+  success,
+  cancel,
+}: {
+  success: Function;
+  cancel: Function;
+}) => {
+  const [volume, setVolume] = useState<number>(0);
+
+  const changeVolume = () => {
+    success(volume);
+    cancel();
+  };
+
+  return (
+    <View style={styles.volumeModalContainer}>
+      <Text style={styles.roleChangeModalHeading}>Set Volume</Text>
+      <View style={styles.volumeModalSlider}>
+        <Text style={styles.roleChangeModalDescription}>Volume: {volume}</Text>
+        <Slider
+          value={volume}
+          maximumValue={1}
+          minimumValue={0}
+          step={0.1}
+          onValueChange={(value: any) => setVolume(value[0])}
+        />
+      </View>
+      <View style={styles.roleChangeModalPermissionContainer}>
+        <CustomButton
+          title="Cancel"
+          onPress={cancel}
+          viewStyle={styles.roleChangeModalCancelButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+        <CustomButton
+          title="Change"
+          onPress={changeVolume}
+          viewStyle={styles.roleChangeModalSuccessButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+      </View>
+    </View>
+  );
+};

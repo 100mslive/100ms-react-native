@@ -29,13 +29,13 @@ import {
   HMSPeer,
   HMSTrack,
   HMSTrackUpdate,
-  // HMSAudioTrackSettings,
-  // HMSAudioCodec,
-  // HMSVideoTrackSettings,
-  // HMSVideoCodec,
-  // HMSTrackSettings,
-  // HMSCameraFacing,
-  // HMSVideoResolution,
+  HMSAudioTrackSettings,
+  HMSAudioCodec,
+  HMSVideoTrackSettings,
+  HMSVideoCodec,
+  HMSTrackSettings,
+  HMSCameraFacing,
+  HMSVideoResolution,
 } from '@100mslive/react-native-hms';
 import Toast from 'react-native-simple-toast';
 
@@ -51,6 +51,7 @@ import {
 } from '../../utils/functions';
 import {saveUserData, setPeerState} from '../../redux/actions';
 import {ModalTypes, PeerTrackNode} from '../../utils/types';
+import {getModel} from 'react-native-device-info';
 
 type WelcomeScreenProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -278,57 +279,72 @@ const Welcome = () => {
     }
   };
 
-  // const getTrackSettings = () => {
-  //   let audioSettings = new HMSAudioTrackSettings({
-  //     codec: HMSAudioCodec.opus,
-  //     maxBitrate: 32,
-  //     trackDescription: 'Simple Audio Track',
-  //   });
-  //   let videoSettings = new HMSVideoTrackSettings({
-  //     codec: HMSVideoCodec.VP8,
-  //     maxBitrate: 512,
-  //     maxFrameRate: 25,
-  //     cameraFacing: HMSCameraFacing.FRONT,
-  //     trackDescription: 'Simple Video Track',
-  //     resolution: new HMSVideoResolution({height: 180, width: 320}),
-  //   });
+  const getTrackSettings = () => {
+    let audioSettings = new HMSAudioTrackSettings({
+      codec: HMSAudioCodec.opus,
+      maxBitrate: 32,
+      trackDescription: 'Simple Audio Track',
+      audioSource: [
+        'mic_node',
+        'screen_broadcast_audio_receiver_node',
+        'audio_file_player_node',
+      ],
+    });
 
-  //   const listOfFaultyDevices = [
-  //     'Pixel',
-  //     'Pixel XL',
-  //     'Moto G5',
-  //     'Moto G (5S) Plus',
-  //     'Moto G4',
-  //     'TA-1053',
-  //     'Mi A1',
-  //     'Mi A2',
-  //     'E5823', // Sony z5 compact
-  //     'Redmi Note 5',
-  //     'FP2', // Fairphone FP2
-  //     'MI 5',
-  //   ];
-  //   const deviceModal = getModel();
+    let videoSettings = new HMSVideoTrackSettings({
+      codec: HMSVideoCodec.VP8,
+      maxBitrate: 512,
+      maxFrameRate: 25,
+      cameraFacing: HMSCameraFacing.FRONT,
+      trackDescription: 'Simple Video Track',
+      resolution: new HMSVideoResolution({height: 180, width: 320}),
+    });
 
-  //   return new HMSTrackSettings({
-  //     video: videoSettings,
-  //     audio: audioSettings,
-  //     useHardwareEchoCancellation: listOfFaultyDevices.includes(deviceModal)
-  //       ? true
-  //       : false,
-  //   });
-  // };
+    const listOfFaultyDevices = [
+      'Pixel',
+      'Pixel XL',
+      'Moto G5',
+      'Moto G (5S) Plus',
+      'Moto G4',
+      'TA-1053',
+      'Mi A1',
+      'Mi A2',
+      'E5823', // Sony z5 compact
+      'Redmi Note 5',
+      'FP2', // Fairphone FP2
+      'MI 5',
+    ];
+    const deviceModal = getModel();
+
+    return new HMSTrackSettings({
+      video: videoSettings,
+      audio: audioSettings,
+      useHardwareEchoCancellation: listOfFaultyDevices.includes(deviceModal)
+        ? true
+        : false,
+    });
+  };
 
   const getHmsInstance = async (): Promise<HMSSDK> => {
     /**
      * Regular Usage:
-     * const build = await HmsManager.build();
+     * const hmsInstance = await HMSSDK.build({
+     *  appGroup: 'group.reactnativehms',
+     *  preferredExtension: 'RHHMSExampleBroadcastUpload',
+     * });
      *
      * Advanced Usage: Pass custom track settings while building HmsManager instance
      * const trackSettings = getTrackSettings();
-     * const build = await HmsManager.build({ trackSettings });
+     * const hmsInstance = await HMSSDK.build({
+     *  trackSettings,
+     *  appGroup: 'group.reactnativehms',
+     *  preferredExtension: 'RHHMSExampleBroadcastUpload',
+     * });
      */
 
+    const trackSettings = getTrackSettings();
     const hmsInstance = await HMSSDK.build({
+      trackSettings,
       appGroup: 'group.reactnativehms',
       preferredExtension: 'RHHMSExampleBroadcastUpload',
     });

@@ -40,4 +40,12 @@ RCT_EXTERN_METHOD(destroy: (NSDictionary) data :(RCTPromiseResolveBlock) resolve
 RCT_EXTERN_METHOD(startScreenshare: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(stopScreenshare: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(isScreenShared: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(playAudioShare: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(setAudioShareVolume: (NSDictionary) data)
+RCT_EXTERN_METHOD(stopAudioShare: (NSDictionary) data)
+RCT_EXTERN_METHOD(resumeAudioShare: (NSDictionary) data)
+RCT_EXTERN_METHOD(pauseAudioShare: (NSDictionary) data)
+RCT_EXTERN_METHOD(audioShareIsPlaying: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(audioShareCurrentTime: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(audioShareDuration: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 @end

@@ -47,6 +47,7 @@ export enum ModalTypes {
   PARTICIPANTS = 'participants',
   VOLUME = 'volume',
   AUDIO_MIXING_MODE = 'audioMixingMode',
+  SET_AUDIO_SHARE_VOLUME = 'setAudioShareVolume',
   DEFAULT = '',
 }
 

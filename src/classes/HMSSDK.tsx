@@ -58,29 +58,29 @@ export class HMSSDK {
   knownRoles?: HMSRole[];
   id: string;
   private muteStatus: boolean | undefined;
-  appStateSubscription?: any;
+  private appStateSubscription?: any;
 
-  onPreviewDelegate?: any;
-  onJoinDelegate?: any;
-  onRoomDelegate?: any;
-  onPeerDelegate?: any;
-  onTrackDelegate?: any;
-  onErrorDelegate?: any;
-  onMessageDelegate?: any;
-  onSpeakerDelegate?: any;
-  onReconnectingDelegate?: any;
-  onReconnectedDelegate?: any;
-  onRoleChangeRequestDelegate?: any;
-  onChangeTrackStateRequestDelegate?: any;
-  onRemovedFromRoomDelegate?: any;
-  onRtcStatsDelegate?: any;
-  onLocalAudioStatsDelegate?: any;
-  onLocalVideoStatsDelegate?: any;
-  onRemoteAudioStatsDelegate?: any;
-  onRemoteVideoStatsDelegate?: any;
-  onAudioDeviceChangedDelegate?: any;
+  private onPreviewDelegate?: any;
+  private onJoinDelegate?: any;
+  private onRoomDelegate?: any;
+  private onPeerDelegate?: any;
+  private onTrackDelegate?: any;
+  private onErrorDelegate?: any;
+  private onMessageDelegate?: any;
+  private onSpeakerDelegate?: any;
+  private onReconnectingDelegate?: any;
+  private onReconnectedDelegate?: any;
+  private onRoleChangeRequestDelegate?: any;
+  private onChangeTrackStateRequestDelegate?: any;
+  private onRemovedFromRoomDelegate?: any;
+  private onRtcStatsDelegate?: any;
+  private onLocalAudioStatsDelegate?: any;
+  private onLocalVideoStatsDelegate?: any;
+  private onRemoteAudioStatsDelegate?: any;
+  private onRemoteVideoStatsDelegate?: any;
+  private onAudioDeviceChangedDelegate?: any;
 
-  constructor(id: string) {
+  private constructor(id: string) {
     this.id = id;
   }
 

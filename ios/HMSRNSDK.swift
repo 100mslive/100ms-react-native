@@ -46,16 +46,15 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
     // MARK: - Setup
     init(data: NSDictionary?, delegate manager: HMSManager?, uid id: String) {
-        let trackSettings = data?.value(forKey: "trackSettings") as? NSDictionary
-        let videoSettings = HMSHelper.getLocalVideoSettings(trackSettings?.value(forKey: "video") as? NSDictionary)
-        let audioSettings = HMSHelper.getLocalAudioSettings(trackSettings?.value(forKey: "audio") as? NSDictionary)
         preferredExtension = data?.value(forKey: "preferredExtension") as? String
 
         DispatchQueue.main.async { [weak self] in
-            let hmsTrackSettings = HMSTrackSettings(videoSettings: videoSettings, audioSettings: audioSettings)
             self?.hms = HMSSDK.build { sdk in
-                sdk.trackSettings = hmsTrackSettings
                 sdk.appGroup = data?.value(forKey: "appGroup") as? String
+                let trackSettings = data?.value(forKey: "trackSettings") as? NSDictionary
+                let videoSettings = HMSHelper.getLocalVideoSettings(trackSettings?.value(forKey: "video") as? NSDictionary)
+                let audioSettings = HMSHelper.getLocalAudioSettings(trackSettings?.value(forKey: "audio") as? NSDictionary, sdk, self?.delegate, id)
+                sdk.trackSettings = HMSTrackSettings(videoSettings: videoSettings, audioSettings: audioSettings)
             }
         }
         self.delegate = manager
@@ -832,6 +831,162 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
     func isScreenShared(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         resolve?(isScreenShared)
+    }
+
+    func playAudioShare(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let fileUrl = data.value(forKey: "fileUrl") as? String,
+              let audioNodeName = data.value(forKey: "audioNode") as? String,
+              let audioMixerSourceMap = HMSHelper.getAudioMixerSourceMap(),
+              let playerNode = audioMixerSourceMap[audioNodeName]
+        else {
+            let errorMessage = "playAudioShare: " + HMSHelper.getUnavailableRequiredKey(data, ["audioNode", "fileUrl"])
+            emitRequiredKeysError(errorMessage)
+            reject?(errorMessage, errorMessage, nil)
+            return
+        }
+        let loops = data.value(forKey: "loops") as? Bool ?? false
+        let interrupts = data.value(forKey: "interrupts") as? Bool ?? false
+        if let audioFilePlayerNode = playerNode as? HMSAudioFilePlayerNode {
+            if let url = URL(string: fileUrl) {
+                do {
+                    try audioFilePlayerNode.play(fileUrl: url, loops: loops, interrupts: interrupts)
+                    resolve?(["success": true])
+                } catch {
+                    delegate?.emitEvent("ON_ERROR", ["error": HMSDecoder.getError(HMSError(id: "103", code: .genericErrorUnknown, message: error.localizedDescription, params: ["function": #function])), "id": id])
+                    reject?(error.localizedDescription, error.localizedDescription, nil)
+                }
+            } else {
+                delegate?.emitEvent("ON_ERROR", ["error": HMSDecoder.getError(HMSError(id: "103", code: .genericErrorUnknown, message: "Incorrect URL", params: ["function": #function])), "id": id])
+                reject?("Incorrect URL", "Incorrect URL", nil)
+            }
+        } else {
+            delegate?.emitEvent("ON_ERROR", ["error": HMSDecoder.getError(HMSError(id: "103", code: .genericErrorUnknown, message: "AudioFilePlayerNode not found", params: ["function": #function])), "id": id])
+            reject?("AudioFilePlayerNode not found", "AudioFilePlayerNode not found", nil)
+        }
+    }
+
+    func setAudioShareVolume(_ data: NSDictionary) {
+        guard let volume = data.value(forKey: "volume") as? NSNumber,
+              let audioNodeName = data.value(forKey: "audioNode") as? String,
+              let audioMixerSourceMap = HMSHelper.getAudioMixerSourceMap(),
+              let playerNode = audioMixerSourceMap[audioNodeName]
+        else {
+            let errorMessage = "setAudioShareVolume: " + HMSHelper.getUnavailableRequiredKey(data, ["audioNode", "volume"])
+            emitRequiredKeysError(errorMessage)
+            return
+        }
+        if let audioMicNode = playerNode as? HMSMicNode {
+            audioMicNode.volume = volume.floatValue
+        }
+        if let audioFilePlayerNode = playerNode as? HMSAudioFilePlayerNode {
+            audioFilePlayerNode.volume = volume.floatValue
+        }
+    }
+    
+    func stopAudioShare(_ data: NSDictionary) {
+        guard let audioNodeName = data.value(forKey: "audioNode") as? String,
+              let audioMixerSourceMap = HMSHelper.getAudioMixerSourceMap(),
+              let playerNode = audioMixerSourceMap[audioNodeName]
+        else {
+            let errorMessage = "stopAudioShare: " + HMSHelper.getUnavailableRequiredKey(data, ["audioNode"])
+            emitRequiredKeysError(errorMessage)
+            return
+        }
+        if let audioFilePlayerNode = playerNode as? HMSAudioFilePlayerNode {
+            audioFilePlayerNode.stop()
+        } else {
+            delegate?.emitEvent("ON_ERROR", ["error": HMSDecoder.getError(HMSError(id: "103", code: .genericErrorUnknown, message: "AudioFilePlayerNode not found", params: ["function": #function])), "id": id])
+        }
+    }
+    
+    func resumeAudioShare(_ data: NSDictionary) {
+        guard let audioNodeName = data.value(forKey: "audioNode") as? String,
+              let audioMixerSourceMap = HMSHelper.getAudioMixerSourceMap(),
+              let playerNode = audioMixerSourceMap[audioNodeName]
+        else {
+            let errorMessage = "resumeAudioShare: " + HMSHelper.getUnavailableRequiredKey(data, ["audioNode"])
+            emitRequiredKeysError(errorMessage)
+            return
+        }
+        if let audioFilePlayerNode = playerNode as? HMSAudioFilePlayerNode {
+            do {
+                try audioFilePlayerNode.resume()
+            } catch {
+                delegate?.emitEvent("ON_ERROR", ["error": HMSDecoder.getError(HMSError(id: "103", code: .genericErrorUnknown, message: error.localizedDescription, params: ["function": #function])), "id": id])
+            }
+        } else {
+            delegate?.emitEvent("ON_ERROR", ["error": HMSDecoder.getError(HMSError(id: "103", code: .genericErrorUnknown, message: "AudioFilePlayerNode not found", params: ["function": #function])), "id": id])
+        }
+    }
+    
+    func pauseAudioShare(_ data: NSDictionary) {
+        guard let audioNodeName = data.value(forKey: "audioNode") as? String,
+              let audioMixerSourceMap = HMSHelper.getAudioMixerSourceMap(),
+              let playerNode = audioMixerSourceMap[audioNodeName]
+        else {
+            let errorMessage = "pauseAudioShare: " + HMSHelper.getUnavailableRequiredKey(data, ["audioNode"])
+            emitRequiredKeysError(errorMessage)
+            return
+        }
+        if let audioFilePlayerNode = playerNode as? HMSAudioFilePlayerNode {
+            audioFilePlayerNode.pause()
+        } else {
+            delegate?.emitEvent("ON_ERROR", ["error": HMSDecoder.getError(HMSError(id: "103", code: .genericErrorUnknown, message: "AudioFilePlayerNode not found", params: ["function": #function])), "id": id])
+        }
+    }
+
+    func audioShareIsPlaying(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let audioNodeName = data.value(forKey: "audioNode") as? String,
+              let audioMixerSourceMap = HMSHelper.getAudioMixerSourceMap(),
+              let playerNode = audioMixerSourceMap[audioNodeName]
+        else {
+            let errorMessage = "pauseAudioShare: " + HMSHelper.getUnavailableRequiredKey(data, ["audioNode"])
+            emitRequiredKeysError(errorMessage)
+            reject?(errorMessage, errorMessage, nil)
+            return
+        }
+        if let audioFilePlayerNode = playerNode as? HMSAudioFilePlayerNode {
+            resolve?(audioFilePlayerNode.isPlaying)
+        } else {
+            delegate?.emitEvent("ON_ERROR", ["error": HMSDecoder.getError(HMSError(id: "103", code: .genericErrorUnknown, message: "AudioFilePlayerNode not found", params: ["function": #function])), "id": id])
+            reject?("AudioFilePlayerNode not found", "AudioFilePlayerNode not found", nil)
+        }
+    }
+
+    func audioShareCurrentTime(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let audioNodeName = data.value(forKey: "audioNode") as? String,
+              let audioMixerSourceMap = HMSHelper.getAudioMixerSourceMap(),
+              let playerNode = audioMixerSourceMap[audioNodeName]
+        else {
+            let errorMessage = "pauseAudioShare: " + HMSHelper.getUnavailableRequiredKey(data, ["audioNode"])
+            emitRequiredKeysError(errorMessage)
+            reject?(errorMessage, errorMessage, nil)
+            return
+        }
+        if let audioFilePlayerNode = playerNode as? HMSAudioFilePlayerNode {
+            resolve?(audioFilePlayerNode.currentTime)
+        } else {
+            delegate?.emitEvent("ON_ERROR", ["error": HMSDecoder.getError(HMSError(id: "103", code: .genericErrorUnknown, message: "AudioFilePlayerNode not found", params: ["function": #function])), "id": id])
+            reject?("AudioFilePlayerNode not found", "AudioFilePlayerNode not found", nil)
+        }
+    }
+    
+    func audioShareDuration(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let audioNodeName = data.value(forKey: "audioNode") as? String,
+              let audioMixerSourceMap = HMSHelper.getAudioMixerSourceMap(),
+              let playerNode = audioMixerSourceMap[audioNodeName]
+        else {
+            let errorMessage = "pauseAudioShare: " + HMSHelper.getUnavailableRequiredKey(data, ["audioNode"])
+            emitRequiredKeysError(errorMessage)
+            reject?(errorMessage, errorMessage, nil)
+            return
+        }
+        if let audioFilePlayerNode = playerNode as? HMSAudioFilePlayerNode {
+            resolve?(audioFilePlayerNode.duration)
+        } else {
+            delegate?.emitEvent("ON_ERROR", ["error": HMSDecoder.getError(HMSError(id: "103", code: .genericErrorUnknown, message: "AudioFilePlayerNode not found", params: ["function": #function])), "id": id])
+            reject?("AudioFilePlayerNode not found", "AudioFilePlayerNode not found", nil)
+        }
     }
 
     // MARK: - HMS SDK Delegate Callbacks
