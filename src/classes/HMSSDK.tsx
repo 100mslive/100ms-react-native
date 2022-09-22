@@ -790,7 +790,7 @@ export class HMSSDK {
    * - getRoom is a wrapper function on an existing native function also known as getRoom the returns
    * current room object which is of type {@link HMSRoom}
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/room} for more info
+   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/join#get-room} for more info
    *
    * @memberof HMSSDK
    * @return HMSRoom
