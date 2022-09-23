@@ -875,7 +875,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             audioFilePlayerNode.volume = volume.floatValue
         }
     }
-    
+
     func stopAudioShare(_ data: NSDictionary) {
         guard let audioNodeName = data.value(forKey: "audioNode") as? String,
               let audioMixerSourceMap = HMSHelper.getAudioMixerSourceMap(),
@@ -891,7 +891,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             delegate?.emitEvent(ON_ERROR, ["error": ["code": 6002, "description": "AudioFilePlayerNode not found", "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
         }
     }
-    
+
     func resumeAudioShare(_ data: NSDictionary) {
         guard let audioNodeName = data.value(forKey: "audioNode") as? String,
               let audioMixerSourceMap = HMSHelper.getAudioMixerSourceMap(),
@@ -911,7 +911,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             delegate?.emitEvent(ON_ERROR, ["error": ["code": 6002, "description": "AudioFilePlayerNode not found", "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
         }
     }
-    
+
     func pauseAudioShare(_ data: NSDictionary) {
         guard let audioNodeName = data.value(forKey: "audioNode") as? String,
               let audioMixerSourceMap = HMSHelper.getAudioMixerSourceMap(),
@@ -963,7 +963,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             reject?("AudioFilePlayerNode not found", "AudioFilePlayerNode not found", nil)
         }
     }
-    
+
     func audioShareDuration(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let audioNodeName = data.value(forKey: "audioNode") as? String,
               let audioMixerSourceMap = HMSHelper.getAudioMixerSourceMap(),
