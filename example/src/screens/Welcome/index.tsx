@@ -1,58 +1,50 @@
-import React, {useEffect, useState} from 'react';
 import {
-  Alert,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Text,
-  View,
-} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {useDispatch, useSelector} from 'react-redux';
-import {
+  HMSAudioCodec,
+  HMSAudioTrack,
+  HMSAudioTrackSettings,
+  HMSCameraFacing,
   HMSConfig,
-  HMSUpdateListenerActions,
+  HMSException,
+  HMSLocalPeer,
   HMSLogger,
   HMSLogLevel,
-  HMSSDK,
-  HMSLocalPeer,
-  HMSRoom,
-  HMSAudioTrack,
-  HMSVideoTrack,
-  HMSRemotePeer,
-  HMSPeerUpdate,
-  HMSException,
-  HMSRoomUpdate,
   HMSPeer,
+  HMSPeerUpdate,
+  HMSRemotePeer,
+  HMSRoom,
+  HMSRoomUpdate,
+  HMSSDK,
   HMSTrack,
-  HMSTrackUpdate,
-  HMSAudioTrackSettings,
-  HMSAudioCodec,
-  HMSVideoTrackSettings,
-  HMSVideoCodec,
   HMSTrackSettings,
-  HMSCameraFacing,
+  HMSTrackUpdate,
+  HMSUpdateListenerActions,
+  HMSVideoCodec,
   HMSVideoResolution,
+  HMSVideoTrack,
+  HMSVideoTrackSettings,
 } from '@100mslive/react-native-hms';
+import { useNavigation } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import { Alert, Image, KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
+import { getModel } from 'react-native-device-info';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-simple-toast';
+import { useDispatch, useSelector } from 'react-redux';
 
-import type {AppStackParamList} from '../../navigator';
-import {styles} from './styles';
-import {COLORS} from '../../utils/theme';
-import {CustomButton, CustomInput, PreviewModal} from '../../components';
-import type {RootState} from '../../redux';
+import { CustomButton, CustomInput, PreviewModal } from '../../components';
+import { saveUserData, setPeerState } from '../../redux/actions';
 import {
   callService,
   updatePeersTrackNodesOnPeerListener,
   updatePeersTrackNodesOnTrackListener,
 } from '../../utils/functions';
-import {saveUserData, setPeerState} from '../../redux/actions';
-import {ModalTypes, PeerTrackNode} from '../../utils/types';
-import {getModel} from 'react-native-device-info';
+import { COLORS } from '../../utils/theme';
+import { ModalTypes, PeerTrackNode } from '../../utils/types';
+import { styles } from './styles';
 
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import type {AppStackParamList} from '../../navigator';
+import type {RootState} from '../../redux';
 type WelcomeScreenProp = NativeStackNavigationProp<
   AppStackParamList,
   'WelcomeScreen'
@@ -330,12 +322,12 @@ const Welcome = () => {
      * Regular Usage:
      * const hmsInstance = await HMSSDK.build();
      *
-     * Advanced Usage: Pass custom track settings while building HmsManager instance
+     * Advanced Usage Example: Pass custom track settings while building HMSSDK instance
      * const trackSettings = getTrackSettings();
      * const hmsInstance = await HMSSDK.build({
      *  trackSettings,
-     *  appGroup: 'group.reactnativehms',
-     *  preferredExtension: 'RHHMSExampleBroadcastUpload',
+     *  appGroup: 'group.reactnativehms', // required for iOS Screenshare, not required for Android
+     *  preferredExtension: 'RHHMSExampleBroadcastUpload', // required for iOS Screenshare, not required for Android
      * });
      */
 

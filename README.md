@@ -50,10 +50,10 @@ Add following lines in `Info.plist` file
 ```xml
 <key>NSCameraUsageDescription</key>
 <string>Please allow access to Camera to enable video conferencing</string>
-<key>NSLocalNetworkUsageDescription</key>
-<string>Please allow access to network usage to enable video conferencing</string>
 <key>NSMicrophoneUsageDescription</key>
 <string>Please allow access to Microphone to enable video conferencing</string>
+<key>NSLocalNetworkUsageDescription</key>
+<string>Please allow access to network usage to enable video conferencing</string>
 ```
 
 ### For Android Permissions
@@ -61,9 +61,15 @@ Add following lines in `Info.plist` file
 Add following permissions in `AndroidManifest.xml`
 
 ```xml
-<uses-permission android:name="android.permission.CAMERA" />
-<uses-permission android:name="android.permission.RECORD_AUDIO" />
-<uses-permission android:name="android.permission.INTERNET" />
+<uses-feature android:name="android.hardware.camera.autofocus"/>
+<uses-permission android:name="android.permission.CAMERA"/>
+<uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+<uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+<uses-permission android:name="android.permission.RECORD_AUDIO"/>
+<uses-permission android:name="android.permission.BLUETOOTH"/>
+<uses-permission android:name="android.permission.INTERNET"/>
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 ```
 
 You will also need to request Camera and Record Audio permissions at runtime before you join a call or display a preview. Please follow [Android Documentation](https://developer.android.com/training/permissions/requesting#request-permission) for runtime permissions.
@@ -152,7 +158,7 @@ hmsInstance?.localPeer?.localVideoTrack()?.switchCamera();
 await hmsInstance?.leave();
 ```
 
-## Viewing the video of a peer
+## [Viewing the video of a peer](https://www.100ms.live/docs/react-native/v2/features/render-video)
 
 To display a video on screen the package provide a UI component named HmsView that takes the video track ID and displays the video in that component, this component requires on _width_ and _height_ in _style_ prop to set bounds of the tile that will show the video stream
 
@@ -408,7 +414,7 @@ const track: HMSTrack = remotePeer.audioTrack as HMSTrack;
 hmsInstance?.setVolume(track, volume);
 ```
 
-## [Change name](https://www.100ms.live/docs/react-native/v2/features/change-name)
+## [Change Name](https://www.100ms.live/docs/react-native/v2/features/change-name)
 
 ```js
 const newName: string = 'new name';

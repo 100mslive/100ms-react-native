@@ -1,27 +1,23 @@
 import React from 'react';
-import {
-  NativeEventEmitter,
-  NativeModules,
-  Platform,
-  ViewStyle,
-  AppState,
-} from 'react-native';
-import { HMSUpdateListenerActions } from './HMSUpdateListenerActions';
+import { AppState, NativeEventEmitter, NativeModules, Platform, ViewStyle } from 'react-native';
+
 import { HMSEncoder } from './HMSEncoder';
 import { HMSHelper } from './HMSHelper';
-import { HmsViewComponent } from './HmsView';
 import { HMSLocalAudioStats } from './HMSLocalAudioStats';
 import { HMSLocalVideoStats } from './HMSLocalVideoStats';
-import { HMSRemoteVideoStats } from './HMSRemoteVideoStats';
+import { getLogger, logger, setLogger } from './HMSLogger';
 import { HMSRemoteAudioStats } from './HMSRemoteAudioStats';
-import { logger, getLogger, setLogger } from './HMSLogger';
+import { HMSRemoteVideoStats } from './HMSRemoteVideoStats';
+import { HMSTrackType } from './HMSTrackType';
+import { HMSUpdateListenerActions } from './HMSUpdateListenerActions';
+import { HmsViewComponent } from './HmsView';
+
 import type { HMSConfig } from './HMSConfig';
 import type { HMSLocalPeer } from './HMSLocalPeer';
 import type { HMSRemotePeer } from './HMSRemotePeer';
 import type { HMSRoom } from './HMSRoom';
 import type { HMSRole } from './HMSRole';
 import type { HMSTrack } from './HMSTrack';
-import { HMSTrackType } from './HMSTrackType';
 import type { HMSLogger } from './HMSLogger';
 import type { HMSPeer } from './HMSPeer';
 import type { HMSVideoViewMode } from './HMSVideoViewMode';
@@ -99,8 +95,8 @@ export class HMSSDK {
   }) {
     let id = await HMSManager.build({
       trackSettings: params?.trackSettings,
-      appGroup: params?.appGroup, // iOS only
-      preferredExtension: params?.preferredExtension, // iOS only
+      appGroup: params?.appGroup, // required for iOS Screenshare, not required for Android
+      preferredExtension: params?.preferredExtension, // required for iOS Screenshare, not required for Android
     });
     HmsSdk = new HMSSDK(id);
     HmsSdk.attachPreviewListener();
