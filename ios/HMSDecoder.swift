@@ -139,12 +139,12 @@ class HMSDecoder: NSObject {
 
         return ["peerID": peerID, "name": name, "isLocal": isLocal, "customerUserID": customerUserID, "customerDescription": customerDescription, "metadata": metadata, "audioTrack": audioTrack, "videoTrack": videoTrack, "auxiliaryTracks": auxiliaryTracks, "localAudioTrackData": localAudioTrackData, "localVideoTrackData": localVideoTrackData, "role": role, "networkQuality": networkQuality]
     }
-    
+
     static func getHmsLocalAudioTrack(_ localAudio: HMSLocalAudioTrack) -> [String: Any] {
         let type = HMSHelper.getHmsTrackType(localAudio.kind) ?? ""
         return ["trackId": localAudio.trackId, "source": localAudio.source, "trackDescription": localAudio.trackDescription, "settings": getHmsAudioTrackSettings(localAudio.settings), "isMute": localAudio.isMute(), "type": type, "kind": type]
     }
-    
+
     static func getHmsLocalVideoTrack(_ localVideo: HMSLocalVideoTrack) -> [String: Any] {
         let type = HMSHelper.getHmsTrackType(localVideo.kind) ?? ""
         return ["trackId": localVideo.trackId, "source": localVideo.source, "trackDescription": localVideo.trackDescription, "settings": getHmsVideoTrackSettings(localVideo.settings), "isMute": localVideo.isMute(), "type": type, "kind": type]
@@ -259,12 +259,12 @@ class HMSDecoder: NSObject {
 
         return ["peerID": peerID, "name": name, "isLocal": isLocal, "customerUserID": customerUserID, "customerDescription": customerDescription, "metadata": metadata, "audioTrack": audioTrack, "videoTrack": videoTrack, "auxiliaryTracks": auxiliaryTracks, "remoteAudioTrackData": remoteAudioTrackData, "remoteVideoTrackData": remoteVideoTrackData, "role": role, "networkQuality": networkQuality]
     }
-    
+
     static func getHMSRemoteAudioTrack(_ remoteAudio: HMSRemoteAudioTrack) -> [String: Any] {
         let type = HMSHelper.getHmsTrackType(remoteAudio.kind) ?? ""
         return ["trackId": remoteAudio.trackId, "source": remoteAudio.source, "trackDescription": remoteAudio.trackDescription, "playbackAllowed": remoteAudio.isPlaybackAllowed(), "isMute": remoteAudio.isMute(), "type": type, "kind": type]
     }
-    
+
     static func getHMSRemoteVideoTrack(_ remoteVideo: HMSRemoteVideoTrack) -> [String: Any] {
         let type = HMSHelper.getHmsTrackType(remoteVideo.kind) ?? ""
         return ["trackId": remoteVideo.trackId, "source": remoteVideo.source, "trackDescription": remoteVideo.trackDescription, "layer": remoteVideo.layer.rawValue, "playbackAllowed": remoteVideo.isPlaybackAllowed(), "isMute": remoteVideo.isMute(), "isDegraded": remoteVideo.isDegraded(), "type": type, "kind": type]
@@ -478,17 +478,14 @@ class HMSDecoder: NSObject {
         return request
     }
 
-    static func getError(_ errorObj: HMSError?) -> [String: Any]? {
-        if let error = errorObj {
-            let code = error.code.rawValue
-            let description = error.description
-            let message = error.message
-            let name = error.id
-            let id = error.id
-            let action = error.action
-            let isTerminal = false
+    static func getError(_ errorObj: Error?) -> [String: Any]? {
+        if let error = errorObj as? HMSError {
+            let code = error.errorCode
+            let description = error.localizedDescription
+            let isTerminal = error.userInfo[HMSIsTerminalUserInfoKey] as? Bool ?? false
+            let canRetry = error.userInfo[HMSCanRetryUserInfoKey] as? Bool ?? false
 
-            return ["code": code, "description": description, "message": message, "name": name, "action": action, "id": id, "isTerminal": isTerminal]
+            return ["code": code, "description": description, "isTerminal": isTerminal, "canRetry": canRetry]
         } else {
             return nil
         }
@@ -540,7 +537,7 @@ class HMSDecoder: NSObject {
             return [:]
         }
     }
-    
+
     static func getHlsRecordingState(_ data: HMSHLSRecordingState?) -> [String: Any] {
         if let recordingState = data {
             let running = recordingState.running
@@ -570,37 +567,37 @@ class HMSDecoder: NSObject {
         }
         return variants
     }
-    
+
     static func getHMSRTCStats(_ data: HMSRTCStats) -> [String: Any] {
         return ["bitrateReceived": data.bitrateReceived, "bitrateSent": data.bitrateSent, "bytesReceived": data.bytesReceived, "bytesSent": data.bytesSent, "packetsLost": data.packetsLost, "packetsReceived": data.packetsReceived, "roundTripTime": data.roundTripTime]
     }
-    
+
     static func getLocalAudioStats(_ data: HMSLocalAudioStats) -> [String: Any] {
         return ["roundTripTime": data.roundTripTime, "bytesSent": data.bytesSent, "bitrate": data.bitrate]
     }
-    
+
     static func getLocalVideoStats(_ data: HMSLocalVideoStats) -> [String: Any] {
         return ["roundTripTime": data.roundTripTime, "bytesSent": data.bytesSent, "bitrate": data.bitrate, "resolution": HMSDecoder.getHmsVideoResolution(data.resolution), "frameRate": data.frameRate]
     }
-    
+
     static func getRemoteAudioStats(_ data: HMSRemoteAudioStats) -> [String: Any] {
         return ["bitrate": data.bitrate, "packetsReceived": data.packetsReceived, "packetsLost": data.packetsLost, "bytesReceived": data.bytesReceived, "jitter": data.jitter]
     }
-    
+
     static func getRemoteVideoStats(_ data: HMSRemoteVideoStats) -> [String: Any] {
         return ["bitrate": data.bitrate, "packetsReceived": data.packetsReceived, "packetsLost": data.packetsLost, "bytesReceived": data.bytesReceived, "jitter": data.jitter, "resolution": HMSDecoder.getHmsVideoResolution(data.resolution), "frameRate": data.frameRate]
     }
-    
+
     static func getHmsMessageRecipient(_ recipient: HMSMessageRecipient) -> [String: Any] {
         return ["recipientPeer": getHmsPeer(recipient.peerRecipient), "recipientRoles": getAllRoles(recipient.rolesRecipient), "recipientType": self.getRecipientType(from: recipient.type)]
     }
-    
+
     static func getHmsNetworkQuality(_ hmsNetworkQuality: HMSNetworkQuality?) -> [String: Any] {
         guard let networkQuality = hmsNetworkQuality else { return [:] }
-        
+
         return ["downlinkQuality": networkQuality.downlinkQuality]
     }
-    
+
     static private func getRecipientType(from recipientType: HMSMessageRecipientType) -> String {
         switch recipientType {
         case .broadcast:

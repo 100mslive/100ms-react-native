@@ -31,6 +31,7 @@ import {
   HMSRTMPConfig,
   HMSTrackSource,
   HMSTrackType,
+  HMSAudioFilePlayerNode,
 } from '@100mslive/react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -42,6 +43,7 @@ import Toast from 'react-native-simple-toast';
 import RNFetchBlob from 'rn-fetch-blob';
 import Video from 'react-native-video';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import DocumentPicker from 'react-native-document-picker';
 
 import {styles} from './styles';
 import type {AppStackParamList} from '../../navigator';
@@ -101,6 +103,7 @@ import {
   ChangeRoleAccepteModal,
   EndHlsModal,
   RealTime,
+  AudioShareSetVolumeModal,
 } from './Modals';
 
 type MeetingScreenProp = NativeStackNavigationProp<
@@ -178,6 +181,9 @@ const Meeting = () => {
     [layout, peerTrackNodes, orientation, sortingType, pinnedPeerTrackIds],
   );
   const parsedMetadata = parseMetadata(instance?.localPeer?.metadata);
+  const audioFilePlayerNode = new HMSAudioFilePlayerNode(
+    'audio_file_player_node',
+  );
 
   const reportIssue = async () => {
     try {
@@ -361,6 +367,80 @@ const Meeting = () => {
           },
         });
       }
+    } else {
+      buttons.push(
+        ...[
+          {
+            text: 'Play Audio Share',
+            onPress: () => {
+              setTimeout(() => {
+                DocumentPicker.pickSingle()
+                  .then(result => {
+                    console.log('Document Picker Success: ', result);
+                    audioFilePlayerNode
+                      .play(result?.uri, false, false)
+                      .then(d => {
+                        console.log('Start Audioshare Success: ', d);
+                      })
+                      .catch(e => console.log('Start Audioshare Error: ', e));
+                  })
+                  .catch(e => console.log('Document Picker Error: ', e));
+              }, 500);
+            },
+          },
+          {
+            text: 'Stop Audio Share',
+            onPress: () => {
+              audioFilePlayerNode.stop();
+            },
+          },
+          {
+            text: 'Set Audio Share Volume',
+            onPress: () => {
+              setModalVisible(ModalTypes.SET_AUDIO_SHARE_VOLUME);
+            },
+          },
+          {
+            text: 'Pause Audio Share',
+            onPress: () => {
+              audioFilePlayerNode.pause();
+            },
+          },
+          {
+            text: 'Resume Audio Share',
+            onPress: () => {
+              audioFilePlayerNode.resume();
+            },
+          },
+          {
+            text: 'Is Audio Share Playing',
+            onPress: () => {
+              audioFilePlayerNode
+                .isPlaying()
+                .then(d => console.log('Audioshare isPlaying: ', d))
+                .catch(e => console.log('Audioshare isPlaying: ', e));
+            },
+          },
+          {
+            text: 'Audio Share Duration',
+            onPress: () => {
+              audioFilePlayerNode
+                .duration()
+                .then(d => console.log('Audioshare duration: ', d))
+                .catch(e => console.log('Audioshare duration: ', e));
+            },
+          },
+          {
+            text: 'Audio Share Current Duration',
+            onPress: () => {
+              audioFilePlayerNode
+                .currentDuration()
+                .then(d => console.log('Audioshare currentDuration: ', d))
+                .catch(e => console.log('Audioshare currentDuration: ', e));
+            },
+          },
+        ],
+      );
     }
     buttons.push(
       ...[
@@ -393,6 +473,10 @@ const Meeting = () => {
     dispatch(clearPeerData());
     dispatch(clearHmsReference());
     navigate('QRCodeScreen');
+  };
+
+  const audioShareSetVolume = (volume: number) => {
+    audioFilePlayerNode.setVolume(volume);
   };
 
   const onLeavePress = async () => {
@@ -692,7 +776,7 @@ const Meeting = () => {
   const onError = (data: HMSException) => {
     console.log('data in onError: ', data);
     Toast.showWithGravity(
-      `${data?.code} ${data?.message}` || 'Something went wrong',
+      `${data?.code} ${data?.description}` || 'Something went wrong',
       Toast.LONG,
       Toast.TOP,
     );
@@ -1375,6 +1459,17 @@ const Meeting = () => {
         <EndHlsModal
           onSuccess={onEndLivePress}
           cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
+        />
+      </DefaultModal>
+      <DefaultModal
+        animationType="fade"
+        overlay={false}
+        modalPosiion="center"
+        modalVisible={modalVisible === ModalTypes.SET_AUDIO_SHARE_VOLUME}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        <AudioShareSetVolumeModal
+          success={audioShareSetVolume}
+          cancel={() => setModalVisible(ModalTypes.DEFAULT)}
         />
       </DefaultModal>
     </SafeAreaView>

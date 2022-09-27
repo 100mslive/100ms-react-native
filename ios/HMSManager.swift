@@ -30,11 +30,11 @@ class HMSManager: RCTEventEmitter {
     override init() {
         super.init()
     }
-    
+
     override class func requiresMainQueueSetup() -> Bool {
         true
     }
-    
+
     override func supportedEvents() -> [String]! {
         return [ON_JOIN, ON_PREVIEW, ON_ROOM_UPDATE, ON_PEER_UPDATE, ON_TRACK_UPDATE, ON_ERROR, ON_MESSAGE, ON_SPEAKER, RECONNECTING, RECONNECTED, ON_ROLE_CHANGE_REQUEST, ON_CHANGE_TRACK_STATE_REQUEST, ON_REMOVED_FROM_ROOM, ON_RTC_STATS, ON_LOCAL_AUDIO_STATS, ON_LOCAL_VIDEO_STATS, ON_REMOTE_AUDIO_STATS, ON_REMOTE_VIDEO_STATS, ON_AUDIO_DEVICE_CHANGED]
     }
@@ -67,18 +67,18 @@ class HMSManager: RCTEventEmitter {
         let hms = HMSHelper.getHms(credentials, hmsCollection)
         hms?.preview(credentials)
     }
-    
+
     @objc
     func previewForRole(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.previewForRole(data, resolve, reject)
     }
-    
+
     @objc
     func cancelPreview(_ data: NSDictionary) {
         let hms = HMSHelper.getHms(data, hmsCollection)
-        
+
         hms?.cancelPreview()
     }
 
@@ -224,7 +224,7 @@ class HMSManager: RCTEventEmitter {
 
         hms?.setPlaybackForAllAudio(data)
     }
-    
+
     @objc
     func remoteMuteAllAudio(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
@@ -273,25 +273,25 @@ class HMSManager: RCTEventEmitter {
 
         hms?.stopHLSStreaming(resolve, reject)
     }
-    
+
     @objc
     func changeName(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.changeName(data, resolve, reject)
     }
-    
+
     @objc
     func enableRTCStats(_ data: NSDictionary) {
         let hms = HMSHelper.getHms(data, hmsCollection)
-        
+
         hms?.enableRTCStats()
     }
-    
+
     @objc
     func disableRTCStats(_ data: NSDictionary) {
         let hms = HMSHelper.getHms(data, hmsCollection)
-        
+
         hms?.disableRTCStats()
     }
 
@@ -308,26 +308,74 @@ class HMSManager: RCTEventEmitter {
 
         hms?.startScreenshare(resolve, reject)
     }
-    
+
     @objc
     func stopScreenshare(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
-        
+
         hms?.stopScreenshare(resolve, reject)
     }
-    
+
     @objc
     func isScreenShared(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
-        
+
         hms?.isScreenShared(resolve, reject)
     }
 
-//    @objc
-//    func setLocalVideoSettings(_ data: NSDictionary) {
-//        let hms = HMSHelper.getHms(data, hmsCollection)
-//
-//        hms?.setLocalVideoSettings(data)
-//    }
-}
+    @objc
+    func playAudioShare(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
 
+        hms?.playAudioShare(data, resolve, reject)
+    }
+
+    @objc
+    func setAudioShareVolume(_ data: NSDictionary) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.setAudioShareVolume(data)
+    }
+
+    @objc
+    func stopAudioShare(_ data: NSDictionary) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.stopAudioShare(data)
+    }
+
+    @objc
+    func resumeAudioShare(_ data: NSDictionary) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.resumeAudioShare(data)
+    }
+
+    @objc
+    func pauseAudioShare(_ data: NSDictionary) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.pauseAudioShare(data)
+    }
+
+    @objc
+    func audioShareIsPlaying(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.audioShareIsPlaying(data, resolve, reject)
+    }
+
+    @objc
+    func audioShareCurrentTime(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.audioShareCurrentTime(data, resolve, reject)
+    }
+
+    @objc
+    func audioShareDuration(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.audioShareDuration(data, resolve, reject)
+    }
+}

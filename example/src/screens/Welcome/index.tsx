@@ -1,57 +1,50 @@
-import React, {useEffect, useState} from 'react';
 import {
-  Alert,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Text,
-  View,
-} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {useDispatch, useSelector} from 'react-redux';
-import {
+  HMSAudioCodec,
+  HMSAudioTrack,
+  HMSAudioTrackSettings,
+  HMSCameraFacing,
   HMSConfig,
-  HMSUpdateListenerActions,
+  HMSException,
+  HMSLocalPeer,
   HMSLogger,
   HMSLogLevel,
-  HMSSDK,
-  HMSLocalPeer,
-  HMSRoom,
-  HMSAudioTrack,
-  HMSVideoTrack,
-  HMSRemotePeer,
-  HMSPeerUpdate,
-  HMSException,
-  HMSRoomUpdate,
   HMSPeer,
+  HMSPeerUpdate,
+  HMSRemotePeer,
+  HMSRoom,
+  HMSRoomUpdate,
+  HMSSDK,
   HMSTrack,
+  HMSTrackSettings,
   HMSTrackUpdate,
-  // HMSAudioTrackSettings,
-  // HMSAudioCodec,
-  // HMSVideoTrackSettings,
-  // HMSVideoCodec,
-  // HMSTrackSettings,
-  // HMSCameraFacing,
-  // HMSVideoResolution,
+  HMSUpdateListenerActions,
+  HMSVideoCodec,
+  HMSVideoResolution,
+  HMSVideoTrack,
+  HMSVideoTrackSettings,
 } from '@100mslive/react-native-hms';
+import { useNavigation } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import { Alert, Image, KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
+import { getModel } from 'react-native-device-info';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-simple-toast';
+import { useDispatch, useSelector } from 'react-redux';
 
-import type {AppStackParamList} from '../../navigator';
-import {styles} from './styles';
-import {COLORS} from '../../utils/theme';
-import {CustomButton, CustomInput, PreviewModal} from '../../components';
-import type {RootState} from '../../redux';
+import { CustomButton, CustomInput, PreviewModal } from '../../components';
+import { saveUserData, setPeerState } from '../../redux/actions';
 import {
   callService,
   updatePeersTrackNodesOnPeerListener,
   updatePeersTrackNodesOnTrackListener,
 } from '../../utils/functions';
-import {saveUserData, setPeerState} from '../../redux/actions';
-import {ModalTypes, PeerTrackNode} from '../../utils/types';
+import { COLORS } from '../../utils/theme';
+import { ModalTypes, PeerTrackNode } from '../../utils/types';
+import { styles } from './styles';
 
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import type {AppStackParamList} from '../../navigator';
+import type {RootState} from '../../redux';
 type WelcomeScreenProp = NativeStackNavigationProp<
   AppStackParamList,
   'WelcomeScreen'
@@ -121,7 +114,7 @@ const Welcome = () => {
     setPreviewButtonLoading(false);
     setJoinButtonLoading(false);
     Toast.showWithGravity(
-      data?.message || 'Something went wrong',
+      `${data?.code} ${data?.description}` || 'Something went wrong',
       Toast.LONG,
       Toast.TOP,
     );
@@ -278,57 +271,69 @@ const Welcome = () => {
     }
   };
 
-  // const getTrackSettings = () => {
-  //   let audioSettings = new HMSAudioTrackSettings({
-  //     codec: HMSAudioCodec.opus,
-  //     maxBitrate: 32,
-  //     trackDescription: 'Simple Audio Track',
-  //   });
-  //   let videoSettings = new HMSVideoTrackSettings({
-  //     codec: HMSVideoCodec.VP8,
-  //     maxBitrate: 512,
-  //     maxFrameRate: 25,
-  //     cameraFacing: HMSCameraFacing.FRONT,
-  //     trackDescription: 'Simple Video Track',
-  //     resolution: new HMSVideoResolution({height: 180, width: 320}),
-  //   });
+  const getTrackSettings = () => {
+    let audioSettings = new HMSAudioTrackSettings({
+      codec: HMSAudioCodec.opus,
+      maxBitrate: 32,
+      trackDescription: 'Simple Audio Track',
+      audioSource: [
+        'mic_node',
+        'screen_broadcast_audio_receiver_node',
+        'audio_file_player_node',
+      ],
+    });
 
-  //   const listOfFaultyDevices = [
-  //     'Pixel',
-  //     'Pixel XL',
-  //     'Moto G5',
-  //     'Moto G (5S) Plus',
-  //     'Moto G4',
-  //     'TA-1053',
-  //     'Mi A1',
-  //     'Mi A2',
-  //     'E5823', // Sony z5 compact
-  //     'Redmi Note 5',
-  //     'FP2', // Fairphone FP2
-  //     'MI 5',
-  //   ];
-  //   const deviceModal = getModel();
+    let videoSettings = new HMSVideoTrackSettings({
+      codec: HMSVideoCodec.VP8,
+      maxBitrate: 512,
+      maxFrameRate: 25,
+      cameraFacing: HMSCameraFacing.FRONT,
+      trackDescription: 'Simple Video Track',
+      resolution: new HMSVideoResolution({height: 180, width: 320}),
+    });
 
-  //   return new HMSTrackSettings({
-  //     video: videoSettings,
-  //     audio: audioSettings,
-  //     useHardwareEchoCancellation: listOfFaultyDevices.includes(deviceModal)
-  //       ? true
-  //       : false,
-  //   });
-  // };
+    const listOfFaultyDevices = [
+      'Pixel',
+      'Pixel XL',
+      'Moto G5',
+      'Moto G (5S) Plus',
+      'Moto G4',
+      'TA-1053',
+      'Mi A1',
+      'Mi A2',
+      'E5823', // Sony z5 compact
+      'Redmi Note 5',
+      'FP2', // Fairphone FP2
+      'MI 5',
+    ];
+    const deviceModal = getModel();
+
+    return new HMSTrackSettings({
+      video: videoSettings,
+      audio: audioSettings,
+      useHardwareEchoCancellation: listOfFaultyDevices.includes(deviceModal)
+        ? true
+        : false,
+    });
+  };
 
   const getHmsInstance = async (): Promise<HMSSDK> => {
     /**
      * Regular Usage:
-     * const build = await HmsManager.build();
+     * const hmsInstance = await HMSSDK.build();
      *
-     * Advanced Usage: Pass custom track settings while building HmsManager instance
+     * Advanced Usage Example: Pass custom track settings while building HMSSDK instance
      * const trackSettings = getTrackSettings();
-     * const build = await HmsManager.build({ trackSettings });
+     * const hmsInstance = await HMSSDK.build({
+     *  trackSettings,
+     *  appGroup: 'group.reactnativehms', // required for iOS Screenshare, not required for Android
+     *  preferredExtension: 'RHHMSExampleBroadcastUpload', // required for iOS Screenshare, not required for Android
+     * });
      */
 
+    const trackSettings = getTrackSettings();
     const hmsInstance = await HMSSDK.build({
+      trackSettings,
       appGroup: 'group.reactnativehms',
       preferredExtension: 'RHHMSExampleBroadcastUpload',
     });

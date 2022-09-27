@@ -13,7 +13,7 @@ class SampleHandler: RPBroadcastSampleHandler {
 
     let screenRenderer = HMSScreenRenderer(appGroup: "group.reactnativehms")
 
-    override func broadcastStarted(withSetupInfo setupInfo: [String : NSObject]?) {
+    override func broadcastStarted(withSetupInfo setupInfo: [String: NSObject]?) {
         // User has requested to start the broadcast. Setup info from the UI extension can be supplied but optional.
     }
 
@@ -38,12 +38,12 @@ class SampleHandler: RPBroadcastSampleHandler {
                 if error.code == .noActiveMeeting {
                     finishBroadcastWithError(NSError(domain: "ScreenShare",
                                                      code: error.code.rawValue,
-                                                     userInfo: [NSLocalizedFailureReasonErrorKey : "You are not in a meeting."]))
+                                                     userInfo: [NSLocalizedFailureReasonErrorKey: "You are not in a meeting."]))
                 }
             }
             break
         case RPSampleBufferType.audioApp:
-            // Handle audio sample buffer for app audio
+            _ = self.screenRenderer.process(audioSampleBuffer: sampleBuffer)
             break
         case RPSampleBufferType.audioMic:
             // Handle audio sample buffer for mic audio

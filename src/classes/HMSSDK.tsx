@@ -1,27 +1,23 @@
 import React from 'react';
-import {
-  NativeEventEmitter,
-  NativeModules,
-  Platform,
-  ViewStyle,
-  AppState,
-} from 'react-native';
-import { HMSUpdateListenerActions } from './HMSUpdateListenerActions';
+import { AppState, NativeEventEmitter, NativeModules, Platform, ViewStyle } from 'react-native';
+
 import { HMSEncoder } from './HMSEncoder';
 import { HMSHelper } from './HMSHelper';
-import { HmsViewComponent } from './HmsView';
 import { HMSLocalAudioStats } from './HMSLocalAudioStats';
 import { HMSLocalVideoStats } from './HMSLocalVideoStats';
-import { HMSRemoteVideoStats } from './HMSRemoteVideoStats';
+import { getLogger, logger, setLogger } from './HMSLogger';
 import { HMSRemoteAudioStats } from './HMSRemoteAudioStats';
-import { logger, getLogger, setLogger } from './HMSLogger';
+import { HMSRemoteVideoStats } from './HMSRemoteVideoStats';
+import { HMSTrackType } from './HMSTrackType';
+import { HMSUpdateListenerActions } from './HMSUpdateListenerActions';
+import { HmsViewComponent } from './HmsView';
+
 import type { HMSConfig } from './HMSConfig';
 import type { HMSLocalPeer } from './HMSLocalPeer';
 import type { HMSRemotePeer } from './HMSRemotePeer';
 import type { HMSRoom } from './HMSRoom';
 import type { HMSRole } from './HMSRole';
 import type { HMSTrack } from './HMSTrack';
-import { HMSTrackType } from './HMSTrackType';
 import type { HMSLogger } from './HMSLogger';
 import type { HMSPeer } from './HMSPeer';
 import type { HMSVideoViewMode } from './HMSVideoViewMode';
@@ -58,29 +54,29 @@ export class HMSSDK {
   knownRoles?: HMSRole[];
   id: string;
   private muteStatus: boolean | undefined;
-  appStateSubscription?: any;
+  private appStateSubscription?: any;
 
-  onPreviewDelegate?: any;
-  onJoinDelegate?: any;
-  onRoomDelegate?: any;
-  onPeerDelegate?: any;
-  onTrackDelegate?: any;
-  onErrorDelegate?: any;
-  onMessageDelegate?: any;
-  onSpeakerDelegate?: any;
-  onReconnectingDelegate?: any;
-  onReconnectedDelegate?: any;
-  onRoleChangeRequestDelegate?: any;
-  onChangeTrackStateRequestDelegate?: any;
-  onRemovedFromRoomDelegate?: any;
-  onRtcStatsDelegate?: any;
-  onLocalAudioStatsDelegate?: any;
-  onLocalVideoStatsDelegate?: any;
-  onRemoteAudioStatsDelegate?: any;
-  onRemoteVideoStatsDelegate?: any;
-  onAudioDeviceChangedDelegate?: any;
+  private onPreviewDelegate?: any;
+  private onJoinDelegate?: any;
+  private onRoomDelegate?: any;
+  private onPeerDelegate?: any;
+  private onTrackDelegate?: any;
+  private onErrorDelegate?: any;
+  private onMessageDelegate?: any;
+  private onSpeakerDelegate?: any;
+  private onReconnectingDelegate?: any;
+  private onReconnectedDelegate?: any;
+  private onRoleChangeRequestDelegate?: any;
+  private onChangeTrackStateRequestDelegate?: any;
+  private onRemovedFromRoomDelegate?: any;
+  private onRtcStatsDelegate?: any;
+  private onLocalAudioStatsDelegate?: any;
+  private onLocalVideoStatsDelegate?: any;
+  private onRemoteAudioStatsDelegate?: any;
+  private onRemoteVideoStatsDelegate?: any;
+  private onAudioDeviceChangedDelegate?: any;
 
-  constructor(id: string) {
+  private constructor(id: string) {
     this.id = id;
   }
 
@@ -92,19 +88,15 @@ export class HMSSDK {
    * @returns
    * @memberof HMSSDK
    */
-  static async build({
-    trackSettings,
-    appGroup,
-    preferredExtension,
-  }: {
+  static async build(params?: {
     trackSettings?: HMSTrackSettings;
     appGroup?: String;
     preferredExtension?: String;
   }) {
     let id = await HMSManager.build({
-      trackSettings: trackSettings,
-      appGroup: appGroup,
-      preferredExtension: preferredExtension,
+      trackSettings: params?.trackSettings,
+      appGroup: params?.appGroup, // required for iOS Screenshare, not required for Android
+      preferredExtension: params?.preferredExtension, // required for iOS Screenshare, not required for Android
     });
     HmsSdk = new HMSSDK(id);
     HmsSdk.attachPreviewListener();
@@ -532,7 +524,7 @@ export class HMSSDK {
    *
    * - it is advised to use a json object in string format to store multiple dataPoints in metadata.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/change-metadata} for more info
+   * checkout {@link https://www.100ms.live/docs/react-native/v2/advanced-features/change-metadata} for more info
    *
    * @param {string}
    * @memberof HMSSDK
@@ -790,7 +782,7 @@ export class HMSSDK {
    * - getRoom is a wrapper function on an existing native function also known as getRoom the returns
    * current room object which is of type {@link HMSRoom}
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/room} for more info
+   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/join#get-room} for more info
    *
    * @memberof HMSSDK
    * @return HMSRoom
@@ -809,7 +801,7 @@ export class HMSSDK {
   /**
    * - This function sets the volume of any peer in the room
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/set-volume} for more info
+   * checkout {@link https://www.100ms.live/docs/react-native/v2/advanced-features/set-volume} for more info
    *
    * @memberof HMSSDK
    */

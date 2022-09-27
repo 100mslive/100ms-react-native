@@ -12,8 +12,9 @@
   },
   "dependencies": {
     "@miblanchard/react-native-slider": "^2.0.2",
-    "@react-native-community/cameraroll": "^4.1.2",
+    "@react-native-camera-roll/camera-roll": "^5.0.2",
     "@react-native-picker/picker": "^2.0.0",
+    "@react-native/normalize-color": "^2.0.0",
     "@react-navigation/native": "^6.0.8",
     "@react-navigation/native-stack": "^6.5.0",
     "axios": "^0.26.0",
@@ -21,6 +22,7 @@
     "react-native": "0.64.2",
     "react-native-camera": "^4.2.1",
     "react-native-device-info": "^9.0.2",
+    "react-native-document-picker": "^8.1.1",
     "react-native-fs": "^2.19.0",
     "react-native-gesture-handler": "^1.10.3",
     "react-native-keyboard-aware-scroll-view": "^0.9.4",

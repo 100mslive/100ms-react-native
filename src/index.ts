@@ -65,6 +65,11 @@ export * from './classes/HMSRtmpVideoResolution';
 export * from './classes/HMSAudioDevice';
 export * from './classes/HMSAudioMode';
 export * from './classes/HMSAudioMixingMode';
+export * from './classes/HMSAudioNode';
+export * from './classes/HMSMicNode';
+export * from './classes/HMSScreenBroadcastAudioReceiverNode';
+export * from './classes/HMSAudioFilePlayerNode';
+export * from './classes/HMSAudioMixerSource';
 
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
 export default HmsManager;
