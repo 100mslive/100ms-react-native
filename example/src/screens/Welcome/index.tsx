@@ -328,10 +328,7 @@ const Welcome = () => {
   const getHmsInstance = async (): Promise<HMSSDK> => {
     /**
      * Regular Usage:
-     * const hmsInstance = await HMSSDK.build({
-     *  appGroup: 'group.reactnativehms',
-     *  preferredExtension: 'RHHMSExampleBroadcastUpload',
-     * });
+     * const hmsInstance = await HMSSDK.build();
      *
      * Advanced Usage: Pass custom track settings while building HmsManager instance
      * const trackSettings = getTrackSettings();
