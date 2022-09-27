@@ -92,19 +92,15 @@ export class HMSSDK {
    * @returns
    * @memberof HMSSDK
    */
-  static async build({
-    trackSettings,
-    appGroup,
-    preferredExtension,
-  }: {
+  static async build(params?: {
     trackSettings?: HMSTrackSettings;
     appGroup?: String;
     preferredExtension?: String;
   }) {
     let id = await HMSManager.build({
-      trackSettings: trackSettings,
-      appGroup: appGroup,
-      preferredExtension: preferredExtension,
+      trackSettings: params?.trackSettings,
+      appGroup: params?.appGroup,
+      preferredExtension: params?.preferredExtension,
     });
     HmsSdk = new HMSSDK(id);
     HmsSdk.attachPreviewListener();
