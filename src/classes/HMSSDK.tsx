@@ -98,9 +98,9 @@ export class HMSSDK {
     preferredExtension?: String;
   }) {
     let id = await HMSManager.build({
-      trackSettings: params?.trackSettings,
-      appGroup: params?.appGroup,
-      preferredExtension: params?.preferredExtension,
+      trackSettings: params?.trackSettings, 
+      appGroup: params?.appGroup, // iOS only
+      preferredExtension: params?.preferredExtension, // iOS only
     });
     HmsSdk = new HMSSDK(id);
     HmsSdk.attachPreviewListener();
