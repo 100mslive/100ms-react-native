@@ -21,19 +21,17 @@ React native wrapper for 100ms SDK
 
 ## Run Example App
 
-To run the example app on your system, follow these steps -
+To run the Example app on your system, follow these steps -
 
 1. In the project root, run `npm install`
 2. Go to the example folder, `cd example`
 3. In the example folder, run `npm install`
 4. To run on Android, run `npx react-native run-android`
-5. To run on iOS, first install the pods in iOS folder, `cd ios; pod install`. Then, set the development team in Singning & Capabilities and exclude architectures in Build Settings as shown below. Then, in example folder, run `npx react-native run-ios`
+5. To run on iOS, first install the pods in iOS folder, `cd ios; pod install`. Then, set the development team in Signing & Capabilities and exclude architectures in Build Settings as shown below. Then, in example folder, run `npx react-native run-ios`
 
-![Development Team](https://user-images.githubusercontent.com/56931905/192695357-b48b093b-965a-4f02-8d9d-54bf25ac6ec3.png)
+To get a better understanding of how the example app is stuctured, what to do on onJoin, onTrack and onPeer listeners, when to use redux, and what type of layouts and sorting you can implement in your app, checkout [Example App's README](https://github.com/100mslive/react-native-hms/blob/develop/example/README.md)
 
-![Excluded Architectures](https://user-images.githubusercontent.com/56931905/192695425-71329dcd-c797-468b-866c-8be3fd86e8f4.png)
-
-To get a better understanding of how the example app is stuctured, what to do on onJoin, onTrack and onPeer listeners, when to use redux, and what type of layouts and sorting you can implement in your app, checkout example app's [README](https://github.com/100mslive/react-native-hms/blob/develop/example/README.md)
+We have also implemented multiple views which are commonly used. Checkout the [videos & relevant code in the Example app](https://github.com/100mslive/react-native-hms/tree/main/example#additional-features).
 
 ## ☝️ Minimum Configuration
 
@@ -476,3 +474,10 @@ const setupBuild = async () => {
   updateHms({ hmsInstance: build });
 };
 ```
+
+
+### [Example Implementations](https://github.com/100mslive/react-native-hms/tree/main/example)
+
+In the [100ms Example App](https://github.com/100mslive/react-native-hms/tree/main/example) we have shown how to setup the various listeners, what data to store in the redux and what all features you can implement.
+
+We have also implemented multiple views which are commonly used. Checkout the [videos & relevant code in the Example app](https://github.com/100mslive/react-native-hms/tree/main/example#additional-features).
