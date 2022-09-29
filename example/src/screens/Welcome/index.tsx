@@ -317,12 +317,33 @@ const Welcome = () => {
     });
   };
 
+  /**
+   * Regular Usage:
+   * const hmsInstance = await HMSSDK.build();
+   * @returns
+   */
   const getHmsInstance = async (): Promise<HMSSDK> => {
+
+    /**
+     * Only required for advanced use-case features like iOS Screen/Audio Share, Android Software Echo Cancellation, etc
+     * NOT required for any other features.
+     * @link https://www.100ms.live/docs/react-native/v2/advanced-features/track-settings
+     */
+    const trackSettings = getTrackSettings();
+
     /**
      * Regular Usage:
      * const hmsInstance = await HMSSDK.build();
      *
-     * Advanced Usage Example: Pass custom track settings while building HMSSDK instance
+     *
+     * Advanced Usage Example:
+     * @param {trackSettings} trackSettings is an optional value only required to enable features like iOS Screen/Audio Share, Android Software Echo Cancellation, etc
+     *
+     * @param {appGroup} appGroup is an optional value only required for implementing Screen & Audio Share on iOS. They are not required for Android. DO NOT USE if your app does not implements Screen or Audio Share on iOS.
+     *
+     * @param {preferredExtension} preferredExtension is an optional value only required for implementing Screen & Audio Share on iOS. They are not required for Android. DO NOT USE if your app does not implements Screen or Audio Share on iOS.
+     *
+     *
      * const trackSettings = getTrackSettings();
      * const hmsInstance = await HMSSDK.build({
      *  trackSettings,
@@ -330,8 +351,6 @@ const Welcome = () => {
      *  preferredExtension: 'RHHMSExampleBroadcastUpload', // required for iOS Screenshare, not required for Android
      * });
      */
-
-    const trackSettings = getTrackSettings();
     const hmsInstance = await HMSSDK.build({
       trackSettings,
       appGroup: 'group.reactnativehms',

@@ -81,8 +81,17 @@ export class HMSSDK {
   }
 
   /**
-   * - Returns an instance of [HMSSDK]{@link HMSSDK}
+   * - Returns an instance of [HMSSDK] {@link HMSSDK}
    * - This function must be called to get an instance of HMSSDK class and only then user can interact with its methods.
+   *
+   * Regular Usage:
+   *
+   * const hmsInstance = await HMSSDK.build();
+   *
+   * For Advanced Use-Cases:
+   * @param {trackSettings} trackSettings is an optional value only required to enable features like iOS Screen/Audio Share, Android Software Echo Cancellation, etc
+   * @param {appGroup} appGroup is an optional value only required for implementing Screen & Audio Share on iOS. They are not required for Android. DO NOT USE if your app does not implements Screen or Audio Share on iOS.
+   * @param {preferredExtension} preferredExtension is an optional value only required for implementing Screen & Audio Share on iOS. They are not required for Android. DO NOT USE if your app does not implements Screen or Audio Share on iOS.
    *
    * @static
    * @returns
