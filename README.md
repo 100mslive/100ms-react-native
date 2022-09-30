@@ -184,7 +184,7 @@ await hmsInstance?.leave();
 
 ## [Viewing the video of a peer](https://www.100ms.live/docs/react-native/v2/features/render-video)
 
-To display a video on screen the package provide a UI component named HmsView that takes the video track ID and displays the video in that component, this component requires on _width_ and _height_ in _style_ prop to set bounds of the tile that will show the video stream
+To display a video on screen the package provide a UI component named HmsView that takes the video track ID and displays the video in that component, this component requires on _width_ and _height_ in _style_ prop to set bounds of the tile that will show the video stream.
 
 ```js
 ...
@@ -230,6 +230,7 @@ const styles = StyleSheet.create({
 
 ...
 ```
+Note: One HmsView can only be connected with one video track. To display multiple videos you have to create multiple instances of HmsView and same HmsView can not be reused. A maximum of 2 to 4 HmsViews should be displayed on one screen as it avoids lagging and data consumption. 
 
 ## [Mute/Unmute others](https://www.100ms.live/docs/react-native/v2/features/change-track-state)
 
