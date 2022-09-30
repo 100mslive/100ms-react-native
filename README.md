@@ -29,7 +29,7 @@ To run the Example app on your system, follow these steps -
 4. To run on Android, run `npx react-native run-android`
 5. To run on iOS, first install the pods in iOS folder, `cd ios; pod install`. Then, set the development team in Signing & Capabilities and exclude architectures in Build Settings as shown below. Then, in example folder, run `npx react-native run-ios`
 
-To get a better understanding of how the example app is stuctured, what to do on onJoin, onTrack and onPeer listeners, when to use redux, and what type of layouts and sorting you can implement in your app, checkout [Example App's README](https://github.com/100mslive/react-native-hms/blob/develop/example/README.md)
+To get a better understanding of how the example app is stuctured, what to do on `onJoin`, `onTrack` and `onPeer` listeners, creating `PeerTrackNodes`, how to use Redux, and what type of layouts and sorting you can implement in your app, checkout [Example App's README](https://github.com/100mslive/react-native-hms/blob/develop/example/README.md)
 
 We have also implemented multiple views which are commonly used. Checkout the [videos & relevant code in the Example app](https://github.com/100mslive/react-native-hms/tree/main/example#additional-features).
 
@@ -148,7 +148,9 @@ hmsInstance.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
 
 ## [Join the room](https://www.100ms.live/docs/react-native/v2/features/join)
 
-Joining the room connects you to the remote peer and broadcasts your stream to other peers, we need instance of HMSConfig in order to pass the details of room and user to join function
+Joining the room connects you to the remote peer and broadcasts your stream to other peers, we need instance of `HMSConfig` in order to pass the details of room and user to join function.
+
+NOTE: `ON_JOIN` listener should be added before calling `join` function to receive the event callback.
 
 ```js
 import { HMSUpdateListenerActions, HMSConfig } from '@100mslive/react-native-hms';
@@ -163,8 +165,6 @@ hmsInstance.join(HmsConfig); // to join a room
 
 ...
 ```
-
-don't forget to add ON_JOIN listener before calling join to receive an event callback
 
 ## Calling various functions of HMS
 
@@ -184,7 +184,17 @@ await hmsInstance?.leave();
 
 ## [Viewing the video of a peer](https://www.100ms.live/docs/react-native/v2/features/render-video)
 
-To display a video on screen the package provide a UI component named HmsView that takes the video track ID and displays the video in that component, this component requires on _width_ and _height_ in _style_ prop to set bounds of the tile that will show the video stream
+To display a video on screen the 100ms package provides a UI component named `HmsView` that takes the video `trackId` and displays the video in that component. 
+
+- `HmsView` component requires  `width` and `height` in `style` prop to set bounds of the tile that will show the video stream.
+
+- One `HmsView` component can only be connected with one video `trackId`. To display multiple videos you have to create multiple instances of `HmsView` component.
+
+- Once the requirement of that `HmsView` is finshed it should be disposed.
+
+- Every `HmsView` should be unique, which should be done by passing a `key` property and value as video `trackId`.
+
+- Recommended practice is to show maximum of 3 to 4 `HmsView` on a single page/screen of the app. This avoids network data consumption & video decoding resources of the device.  
 
 ```js
 ...
@@ -223,7 +233,7 @@ const styles = StyleSheet.create({
   },
 });
 
-// trackId can be acquired from the method explained above
+// trackId should be acquired from the method explained above
 // scaleType can be selected from HMSVideoViewMode as required
 // mirror can be passed as true to flip videos horizontally
 <HmsView style={styles.hmsView} trackId={trackId} mirror={true} scaleType={HMSVideoViewMode.ASPECT_FIT} />
@@ -478,6 +488,6 @@ const setupBuild = async () => {
 
 ### [Example Implementations](https://github.com/100mslive/react-native-hms/tree/main/example)
 
-In the [100ms Example App](https://github.com/100mslive/react-native-hms/tree/main/example) we have shown how to setup the various listeners, what data to store in the redux and what all features you can implement.
+In the [100ms Example App](https://github.com/100mslive/react-native-hms/tree/main/example) we have shown how to setup the various listeners, what data to store in Redux and what all features you can implement.
 
 We have also implemented multiple views which are commonly used. Checkout the [videos & relevant code in the Example app](https://github.com/100mslive/react-native-hms/tree/main/example#additional-features).
