@@ -19,7 +19,7 @@
 
 React native wrapper for 100ms SDK
 
-## Run Example App
+## 🏃 Run Example App
 
 To run the Example app on your system, follow these steps -
 
@@ -65,9 +65,9 @@ npm install @100mslive/react-native-hms --save
 
 🤖 Download the Sample Android App here: https://appdistribution.firebase.dev/i/7b7ab3b30e627c35
 
-## Permissions
+## 🔐 Permissions
 
-### For iOS Permissions
+### 📱 For iOS Permissions
 
 Add following lines in `Info.plist` file
 
@@ -80,7 +80,7 @@ Add following lines in `Info.plist` file
 <string>Please allow access to network usage to enable video conferencing</string>
 ```
 
-### For Android Permissions
+### 🤖 For Android Permissions
 
 Add following permissions in `AndroidManifest.xml`
 
