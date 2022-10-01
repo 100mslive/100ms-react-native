@@ -48,4 +48,7 @@ RCT_EXTERN_METHOD(pauseAudioShare: (NSDictionary) data)
 RCT_EXTERN_METHOD(audioShareIsPlaying: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(audioShareCurrentTime: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(audioShareDuration: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(getLocalPeer: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(getRemotePeers: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(getRoles: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 @end
