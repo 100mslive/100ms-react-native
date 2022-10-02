@@ -33,9 +33,6 @@ import type { HMSHLSConfig } from './HMSHLSConfig';
 import type { HMSAudioDevice } from './HMSAudioDevice';
 import type { HMSAudioMode } from './HMSAudioMode';
 import type { HMSAudioMixingMode } from './HMSAudioMixingMode';
-import type { HMSPeerUpdate } from './HMSPeerUpdate';
-import type { HMSTrackUpdate } from './HMSTrackUpdate';
-import type { HMSRoomUpdate } from './HMSRoomUpdate';
 
 interface HmsViewProps {
   trackId: string;
@@ -1397,7 +1394,7 @@ export class HMSSDK {
       return;
     }
     const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room, this.id);
-    const type: HMSRoomUpdate = HMSEncoder.encodeHmsRoomUpdateType(data.type);
+    const type = data.type;
 
     if (this.onRoomDelegate) {
       logger?.verbose('#Listener ON_ROOM_LISTENER_CALL', {
@@ -1415,7 +1412,7 @@ export class HMSSDK {
       return;
     }
     const peer: HMSPeer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
-    const type: HMSPeerUpdate = HMSEncoder.encodeHmsPeerUpdateType(data.type);
+    const type = data.type;
 
     if (this.onPeerDelegate) {
       logger?.verbose('#Listener ON_PEER_LISTENER_CALL', {
@@ -1434,7 +1431,7 @@ export class HMSSDK {
     }
     const track: HMSTrack = HMSEncoder.encodeHmsTrack(data.track, this.id);
     const peer: HMSPeer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
-    const type: HMSTrackUpdate = HMSEncoder.encodeHmsTrackUpdateType(data.type);
+    const type = data.type;
 
     if (
       this.muteStatus &&
