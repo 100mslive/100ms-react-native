@@ -31,6 +31,8 @@ import {
   HMSHLSRecordingConfig,
   HMSHLSConfig,
   HMSRTMPConfig,
+  HMSLocalPeer,
+  HMSRemotePeer,
 } from '@100mslive/react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -61,6 +63,7 @@ import {COLORS} from '../../utils/theme';
 
 export const ParticipantsModal = ({
   instance,
+  localPeer,
   peerTrackNodes,
   pinnedPeerTrackIds,
   setUpdatePeerTrackNode,
@@ -68,6 +71,7 @@ export const ParticipantsModal = ({
   setPinnedPeerTrackIds,
 }: {
   instance?: HMSSDK;
+  localPeer?: HMSLocalPeer;
   peerTrackNodes: PeerTrackNode[];
   pinnedPeerTrackIds: String[];
   setUpdatePeerTrackNode: React.Dispatch<React.SetStateAction<PeerTrackNode>>;
@@ -80,7 +84,7 @@ export const ParticipantsModal = ({
     useState<PeerTrackNode[]>();
   const [filter, setFilter] = useState('everyone');
 
-  const peerTrackNodePermissions = instance?.localPeer?.role?.permissions;
+  const peerTrackNodePermissions = localPeer?.role?.permissions;
 
   const hideMenu = () => setVisible(-1);
   const showMenu = (index: number) => setVisible(index);
@@ -280,21 +284,25 @@ export const ParticipantsModal = ({
                 }
                 onRequestClose={hideMenu}
                 style={styles.participantsMenuContainer}>
-                {peerTrackNode.peer.isLocal === false && (
-                  <MenuItem onPress={() => removePeer(peerTrackNode)}>
-                    <View style={styles.participantMenuItem}>
-                      <MaterialCommunityIcons
-                        name="account-remove-outline"
-                        style={[styles.participantMenuItemIcon, styles.error]}
-                        size={24}
-                      />
-                      <Text
-                        style={[styles.participantMenuItemName, styles.error]}>
-                        Remove Peer
-                      </Text>
-                    </View>
-                  </MenuItem>
-                )}
+                {peerTrackNode.peer.isLocal === false &&
+                  peerTrackNodePermissions?.removeOthers && (
+                    <MenuItem onPress={() => removePeer(peerTrackNode)}>
+                      <View style={styles.participantMenuItem}>
+                        <MaterialCommunityIcons
+                          name="account-remove-outline"
+                          style={[styles.participantMenuItemIcon, styles.error]}
+                          size={24}
+                        />
+                        <Text
+                          style={[
+                            styles.participantMenuItemName,
+                            styles.error,
+                          ]}>
+                          Remove Peer
+                        </Text>
+                      </View>
+                    </MenuItem>
+                  )}
                 {peerTrackNode.peer.isLocal && type === TrackType.LOCAL && (
                   <MenuItem onPress={() => changeName(peerTrackNode)}>
                     <View style={styles.participantMenuItem}>
@@ -452,9 +460,18 @@ const ParticipantFilter = ({
   setFilter: React.Dispatch<React.SetStateAction<string>>;
 }) => {
   const [visible, setVisible] = useState<boolean>(false);
+  const [roles, setRoles] = useState<HMSRole[]>();
 
   const hideMenu = () => setVisible(false);
   const showMenu = () => setVisible(true);
+  const updateRoles = async () => {
+    setRoles(await instance?.getRoles());
+  };
+
+  useEffect(() => {
+    updateRoles();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [instance]);
 
   return (
     <Menu
@@ -504,7 +521,7 @@ const ParticipantFilter = ({
         </View>
       </MenuItem>
       <MenuDivider color={COLORS.BORDER.LIGHT} />
-      {instance?.knownRoles?.map(knownRole => {
+      {roles?.map(knownRole => {
         return (
           <MenuItem
             onPress={() => {
@@ -536,6 +553,7 @@ export const ChangeRoleModal = ({
   const [newRole, setNewRole] = useState<HMSRole>(peerTrackNode.peer?.role!);
   const [request, setRequest] = useState<boolean>(false);
   const [visible, setVisible] = useState<boolean>(false);
+  const [roles, setRoles] = useState<HMSRole[]>();
 
   const hideMenu = () => setVisible(false);
   const showMenu = () => setVisible(true);
@@ -543,6 +561,14 @@ export const ChangeRoleModal = ({
     await instance?.changeRole(peerTrackNode.peer, newRole, !request);
     cancelModal();
   };
+  const updateRoles = async () => {
+    setRoles(await instance?.getRoles());
+  };
+
+  useEffect(() => {
+    updateRoles();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [instance]);
 
   return (
     <View style={styles.roleChangeModal}>
@@ -568,7 +594,7 @@ export const ChangeRoleModal = ({
         }
         onRequestClose={hideMenu}
         style={styles.participantsMenuContainer}>
-        {instance?.knownRoles?.map(knownRole => {
+        {roles?.map(knownRole => {
           return (
             <MenuItem
               onPress={() => {
@@ -741,17 +767,24 @@ export const ChangeNameModal = ({
   );
 };
 
-export const RtcStatsModal = ({instance}: {instance?: HMSSDK}) => {
+export const RtcStatsModal = ({
+  instance,
+  localPeer,
+}: {
+  instance?: HMSSDK;
+  localPeer?: HMSLocalPeer;
+}) => {
   const rtcStatsRef = React.useRef<any>({});
   const [rtcStats, setRtcStats] = useState(Math.random());
   const [statsVisible, setStatsVisible] = useState<boolean>(false);
   const [visible, setVisible] = useState<boolean>(false);
+  const [remotePeers, setRemotePeers] = useState<HMSRemotePeer[]>();
   const [currentTrack, setCurrentTrack] = useState<{
     name: string;
     track?: HMSTrack;
   }>({
-    name: instance?.localPeer?.name + "'s audio",
-    track: instance?.localPeer?.audioTrack,
+    name: localPeer?.name + "'s audio",
+    track: localPeer?.audioTrack,
   });
   const [trackList, setTrackList] = useState<
     {
@@ -768,19 +801,19 @@ export const RtcStatsModal = ({instance}: {instance?: HMSSDK}) => {
       name: string;
       track?: HMSTrack;
     }[] = [];
-    if (instance?.localPeer?.audioTrack?.trackId) {
+    if (localPeer?.audioTrack?.trackId) {
       list.push({
-        name: instance?.localPeer?.name + "'s audio",
-        track: instance?.localPeer?.audioTrack,
+        name: localPeer?.name + "'s audio",
+        track: localPeer?.audioTrack,
       });
     }
-    if (instance?.localPeer?.videoTrack?.trackId) {
+    if (localPeer?.videoTrack?.trackId) {
       list.push({
-        name: instance?.localPeer?.name + "'s video",
-        track: instance?.localPeer?.videoTrack,
+        name: localPeer?.name + "'s video",
+        track: localPeer?.videoTrack,
       });
     }
-    instance?.remotePeers?.map(remotePeer => {
+    remotePeers?.map(remotePeer => {
       if (remotePeer?.audioTrack?.trackId) {
         list.push({
           name: remotePeer?.name + "'s audio",
@@ -855,10 +888,15 @@ export const RtcStatsModal = ({instance}: {instance?: HMSSDK}) => {
     rtcStatsRef.current = trackRtcStats;
   };
 
+  const updateRemotePeers = async () => {
+    setRemotePeers(await instance?.getRemotePeers());
+  };
+
   useEffect(() => {
     getStatsList();
+    updateRemotePeers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [instance?.remotePeers]);
+  }, [remotePeers]);
 
   useEffect(() => {
     instance?.addEventListener(
@@ -1380,12 +1418,15 @@ export const ChangeLayoutModal = ({
 
 export const ChangeTrackStateForRoleModal = ({
   instance,
+  localPeer,
   cancelModal,
 }: {
   instance?: HMSSDK;
+  localPeer?: HMSLocalPeer;
   cancelModal: Function;
 }) => {
-  const [role, setRole] = useState<HMSRole>(instance?.localPeer?.role!);
+  const [role, setRole] = useState<HMSRole>(localPeer?.role!);
+  const [roles, setRoles] = useState<HMSRole[]>();
   const [visible, setVisible] = useState<boolean>(false);
   const [trackType, setTrackType] = useState<HMSTrackType>(HMSTrackType.VIDEO);
   const [trackState, setTrackState] = useState<boolean>(false);
@@ -1400,6 +1441,14 @@ export const ChangeTrackStateForRoleModal = ({
       .catch(e => console.log('Change Track State For Role Error: ', e));
     cancelModal();
   };
+  const updateRoles = async () => {
+    setRoles(await instance?.getRoles());
+  };
+
+  useEffect(() => {
+    updateRoles();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [instance]);
 
   return (
     <View style={styles.roleChangeModal}>
@@ -1424,7 +1473,7 @@ export const ChangeTrackStateForRoleModal = ({
         }
         onRequestClose={hideMenu}
         style={styles.participantsMenuContainer}>
-        {instance?.knownRoles?.map(knownRole => {
+        {roles?.map(knownRole => {
           return (
             <MenuItem
               onPress={() => {
@@ -1445,7 +1494,7 @@ export const ChangeTrackStateForRoleModal = ({
         <Text style={styles.changeTrackStateRoleOptionHeading}>
           {'Track State: '}
         </Text>
-        {instance?.localPeer?.role?.permissions?.mute && (
+        {localPeer?.role?.permissions?.mute && (
           <TouchableOpacity
             style={styles.changeTrackStateRoleOption}
             onPress={() => setTrackState(true)}>
@@ -1461,7 +1510,7 @@ export const ChangeTrackStateForRoleModal = ({
             <Text style={styles.roleChangeModalPermission}>MUTE</Text>
           </TouchableOpacity>
         )}
-        {instance?.localPeer?.role?.permissions?.unmute && (
+        {localPeer?.role?.permissions?.unmute && (
           <TouchableOpacity
             style={styles.changeTrackStateRoleOption}
             onPress={() => setTrackState(false)}>
@@ -1534,11 +1583,11 @@ export const ChangeTrackStateForRoleModal = ({
 };
 
 export const ChangeTrackStateModal = ({
-  instance,
+  localPeer,
   roleChangeRequest,
   cancelModal,
 }: {
-  instance?: HMSSDK;
+  localPeer?: HMSLocalPeer;
   roleChangeRequest: {
     requestedBy?: string;
     suggestedRole?: string;
@@ -1547,9 +1596,9 @@ export const ChangeTrackStateModal = ({
 }) => {
   const changeLayout = () => {
     if (roleChangeRequest?.suggestedRole?.toLocaleLowerCase() === 'video') {
-      instance?.localPeer?.localVideoTrack()?.setMute(false);
+      localPeer?.localVideoTrack()?.setMute(false);
     } else {
-      instance?.localPeer?.localAudioTrack()?.setMute(false);
+      localPeer?.localAudioTrack()?.setMute(false);
     }
     cancelModal();
   };

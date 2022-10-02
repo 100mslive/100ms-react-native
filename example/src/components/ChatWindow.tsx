@@ -8,6 +8,7 @@ import {
   Platform,
 } from 'react-native';
 import {
+  HMSLocalPeer,
   HMSMessage,
   HMSMessageRecipient,
   HMSMessageRecipientType,
@@ -59,9 +60,23 @@ const ChatFilter = ({
   >;
 }) => {
   const [visible, setVisible] = useState<boolean>(false);
+  const [roles, setRoles] = useState<HMSRole[]>();
+  const [remotePeers, setRemotePeers] = useState<HMSRemotePeer[]>();
 
   const hideMenu = () => setVisible(false);
   const showMenu = () => setVisible(true);
+  const updateRemotePeers = async () => {
+    setRemotePeers(await instance?.getRemotePeers());
+  };
+  const updateRoles = async () => {
+    setRoles(await instance?.getRoles());
+  };
+
+  useEffect(() => {
+    updateRemotePeers();
+    updateRoles();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [instance]);
 
   return (
     <Menu
@@ -97,7 +112,7 @@ const ChatFilter = ({
         </View>
       </MenuItem>
       <MenuDivider color={COLORS.BORDER.LIGHT} />
-      {instance?.knownRoles?.map(knownRole => {
+      {roles?.map(knownRole => {
         return (
           <MenuItem
             onPress={() => {
@@ -114,7 +129,7 @@ const ChatFilter = ({
         );
       })}
       <MenuDivider color={COLORS.BORDER.LIGHT} />
-      {instance?.remotePeers?.map(remotePeer => {
+      {remotePeers?.map(remotePeer => {
         return (
           <MenuItem
             onPress={() => {
@@ -139,7 +154,7 @@ const ChatFilter = ({
   );
 };
 
-export const ChatWindow = () => {
+export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
   const {hmsInstance} = useSelector((state: RootState) => state.user);
   const {messages} = useSelector((state: RootState) => state.messages);
   const dispatch = useDispatch();
@@ -181,7 +196,7 @@ export const ChatWindow = () => {
             message: text,
             type: 'chat',
             time: new Date(),
-            sender: hmsInstance?.localPeer,
+            sender: localPeer,
             recipient: hmsMessageRecipient,
           }),
         ),

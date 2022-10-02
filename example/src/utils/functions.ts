@@ -379,11 +379,7 @@ export const updatePeersTrackNodesOnPeerListener = (
     if (alreadyPresent) {
       return updatePeerTrackNodes;
     } else {
-      const newPeerTrackNode: PeerTrackNode = {
-        id: peer.peerID + HMSTrackSource.REGULAR,
-        peer,
-        track: peer.videoTrack,
-      };
+      const newPeerTrackNode = createPeerTrackNode(peer);
       updatePeerTrackNodes?.push(newPeerTrackNode);
       return updatePeerTrackNodes;
     }
@@ -416,9 +412,10 @@ export const updatePeersTrackNodesOnTrackListener = (
   const oldPeerTrackNodes: PeerTrackNode[] = peerTrackNodes;
   const uniqueId =
     peer.peerID +
-    (track.source === HMSTrackSource.REGULAR
-      ? HMSTrackSource.REGULAR
-      : track.trackId);
+    (track.source === HMSTrackSource.SCREEN
+      ? HMSTrackSource.SCREEN
+      : HMSTrackSource.REGULAR);
+
   const isVideo = track.type === HMSTrackType.VIDEO;
   if (
     type === HMSTrackUpdate.TRACK_ADDED
@@ -446,11 +443,7 @@ export const updatePeersTrackNodesOnTrackListener = (
     if (alreadyPresent) {
       return updatePeerTrackNodes;
     } else if (!alreadyPresent && isVideo) {
-      const newPeerTrackNode: PeerTrackNode = {
-        id: uniqueId,
-        peer,
-        track,
-      };
+      const newPeerTrackNode = createPeerTrackNode(peer, track);
       // push screenshare track to 0th index
       if (track.source === HMSTrackSource.SCREEN) {
         return [newPeerTrackNode, ...updatePeerTrackNodes];
@@ -573,4 +566,24 @@ export const checkPermissions = async (
       console.log(error);
       return false;
     });
+};
+
+export const createPeerTrackNodes = (peers: HMSPeer[]): PeerTrackNode[] => {
+  return peers.map(peer => createPeerTrackNode(peer));
+};
+
+export const createPeerTrackNode = (
+  peer: HMSPeer,
+  track?: HMSTrack,
+): PeerTrackNode => {
+  const customTrack = track ? track : peer.videoTrack;
+  return {
+    peer,
+    id:
+      peer.peerID +
+      (customTrack?.source === HMSTrackSource.SCREEN
+        ? HMSTrackSource.SCREEN
+        : HMSTrackSource.REGULAR),
+    track: customTrack,
+  };
 };

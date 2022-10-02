@@ -5,12 +5,10 @@ import {
   HMSCameraFacing,
   HMSConfig,
   HMSException,
-  HMSLocalPeer,
   HMSLogger,
   HMSLogLevel,
   HMSPeer,
   HMSPeerUpdate,
-  HMSRemotePeer,
   HMSRoom,
   HMSRoomUpdate,
   HMSSDK,
@@ -23,24 +21,33 @@ import {
   HMSVideoTrack,
   HMSVideoTrackSettings,
 } from '@100mslive/react-native-hms';
-import { useNavigation } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react';
-import { Alert, Image, KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
-import { getModel } from 'react-native-device-info';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import {useNavigation} from '@react-navigation/native';
+import React, {useEffect, useState} from 'react';
+import {
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
+import {getModel} from 'react-native-device-info';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Toast from 'react-native-simple-toast';
-import { useDispatch, useSelector } from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 
-import { CustomButton, CustomInput, PreviewModal } from '../../components';
-import { saveUserData, setPeerState } from '../../redux/actions';
+import {CustomButton, CustomInput, PreviewModal} from '../../components';
+import {saveUserData, setPeerState} from '../../redux/actions';
 import {
   callService,
+  createPeerTrackNodes,
   updatePeersTrackNodesOnPeerListener,
   updatePeersTrackNodesOnTrackListener,
 } from '../../utils/functions';
-import { COLORS } from '../../utils/theme';
-import { ModalTypes, PeerTrackNode } from '../../utils/types';
-import { styles } from './styles';
+import {COLORS} from '../../utils/theme';
+import {ModalTypes, PeerTrackNode} from '../../utils/types';
+import {styles} from './styles';
 
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import type {AppStackParamList} from '../../navigator';
@@ -51,15 +58,16 @@ type WelcomeScreenProp = NativeStackNavigationProp<
 >;
 
 const Welcome = () => {
+  // hooks
   const navigate = useNavigation<WelcomeScreenProp>().navigate;
   const {roomID, userName} = useSelector((state: RootState) => state.user);
   const {top, bottom, left, right} = useSafeAreaInsets();
   const dispatch = useDispatch();
 
+  // useState hook
   const [peerTrackNodes, setPeerTrackNodes] = useState<Array<PeerTrackNode>>(
     [],
   );
-  const peerTrackNodesRef = React.useRef<Array<PeerTrackNode>>(peerTrackNodes);
   const [instance, setInstance] = useState<HMSSDK>();
   const [config, setConfig] = useState<HMSConfig>();
   const [nameDisabled, setNameDisabled] = useState<boolean>(true);
@@ -67,43 +75,34 @@ const Welcome = () => {
   const [previewButtonLoading, setPreviewButtonLoading] =
     useState<boolean>(false);
   const [joinButtonLoading, setJoinButtonLoading] = useState<boolean>(false);
-  const [previewTrackId, setPreviewTrackId] = useState<string>('');
+  const [previewTracks, setPreviewTracks] = useState<{
+    audioTrack: HMSAudioTrack;
+    videoTrack: HMSVideoTrack;
+  }>();
+  const [hmsRoom, setHmsRoom] = useState<HMSRoom>();
   const [modalType, setModalType] = useState<ModalTypes>(ModalTypes.DEFAULT);
-  const [videoAllowed, setVideoAllowed] = useState<boolean>(false);
-  const [audioAllowed, setAudioAllowed] = useState<boolean>(false);
 
+  // useRef hook
+  const peerTrackNodesRef = React.useRef<Array<PeerTrackNode>>(peerTrackNodes);
+
+  // listeners
   const onPreviewSuccess = (data: {
-    localPeer: HMSLocalPeer;
     room: HMSRoom;
     previewTracks: {audioTrack: HMSAudioTrack; videoTrack: HMSVideoTrack};
   }) => {
-    setVideoAllowed(
-      data?.localPeer?.role?.publishSettings?.allowed?.includes('video') ??
-        false,
-    );
-    setAudioAllowed(
-      data?.localPeer?.role?.publishSettings?.allowed?.includes('audio') ??
-        false,
-    );
-    setPreviewTrackId(data?.previewTracks?.videoTrack?.trackId);
+    console.log('data in onPreviewSuccess: ', data);
+    setHmsRoom(data.room);
+    setPreviewTracks(data?.previewTracks);
     setPreviewButtonLoading(false);
     setModalType(ModalTypes.PREVIEW);
   };
 
-  const onJoinListener = ({
-    localPeer,
-  }: {
-    room: HMSRoom;
-    localPeer: HMSLocalPeer;
-    remotePeers: Array<HMSRemotePeer>;
-  }) => {
-    const newPeerTrackNodes = updatePeersTrackNodesOnPeerListener(
-      peerTrackNodesRef?.current,
-      localPeer,
-      HMSPeerUpdate.PEER_JOINED,
-    );
-    dispatch(setPeerState({peerState: newPeerTrackNodes}));
-    peerTrackNodesRef.current = [];
+  const onJoinSuccess = (data: {room: HMSRoom}) => {
+    console.log('data in onJoinSuccess: ', data);
+    const latestPeerTrackNodes = createPeerTrackNodes(data.room.peers);
+    dispatch(setPeerState({peerState: latestPeerTrackNodes}));
+    setPeerTrackNodes(latestPeerTrackNodes);
+    setHmsRoom(data.room);
     setJoinButtonLoading(false);
     setModalType(ModalTypes.DEFAULT);
     navigate('MeetingScreen');
@@ -120,84 +119,39 @@ const Welcome = () => {
     );
   };
 
-  const onRoomListener = ({
-    room,
-    type,
-    localPeer,
-    remotePeers,
-  }: {
-    room?: HMSRoom;
-    type: HMSRoomUpdate;
-    localPeer: HMSLocalPeer;
-    remotePeers: HMSRemotePeer[];
-  }) => {
-    console.log('data in onRoomListener: ', type, room, localPeer, remotePeers);
+  const onRoomListener = (data: {room: HMSRoom; type: HMSRoomUpdate}) => {
+    console.log('data in onRoomListener: ', data);
+    setHmsRoom(data.room);
   };
 
-  const onPeerListener = ({
-    peer,
-    room,
-    type,
-    remotePeers,
-    localPeer,
-  }: {
-    room?: HMSRoom;
-    peer: HMSPeer;
-    type: HMSPeerUpdate;
-    localPeer: HMSLocalPeer;
-    remotePeers: HMSRemotePeer[];
-  }) => {
-    console.log(
-      'data in onPeerListener: ',
-      type,
-      peer,
-      room,
-      localPeer,
-      remotePeers,
-    );
+  const onPeerListener = (data: {peer: HMSPeer; type: HMSPeerUpdate}) => {
+    console.log('data in onPeerListener: ', data);
     const newPeerTrackNodes = updatePeersTrackNodesOnPeerListener(
       peerTrackNodesRef?.current,
-      peer,
-      type,
+      data.peer,
+      data.type,
     );
     peerTrackNodesRef.current = newPeerTrackNodes;
     setPeerTrackNodes(newPeerTrackNodes);
   };
 
-  const onTrackListener = ({
-    peer,
-    track,
-    room,
-    type,
-    remotePeers,
-    localPeer,
-  }: {
-    room?: HMSRoom;
+  const onTrackListener = (data: {
     peer: HMSPeer;
     track: HMSTrack;
     type: HMSTrackUpdate;
-    localPeer: HMSLocalPeer;
-    remotePeers: HMSRemotePeer[];
   }) => {
-    console.log(
-      'data in onTrackListener: ',
-      type,
-      peer,
-      track,
-      room,
-      localPeer,
-      remotePeers,
-    );
+    console.log('data in onTrackListener: ', data);
     const newPeerTrackNodes = updatePeersTrackNodesOnTrackListener(
       peerTrackNodesRef?.current,
-      track,
-      peer,
-      type,
+      data.track,
+      data.peer,
+      data.type,
     );
     peerTrackNodesRef.current = newPeerTrackNodes;
     setPeerTrackNodes(newPeerTrackNodes);
   };
 
+  // functions
   const onPreview = async (
     token: string,
     userID: string,
@@ -231,7 +185,7 @@ const Welcome = () => {
 
     hmsInstance?.addEventListener(
       HMSUpdateListenerActions.ON_JOIN,
-      onJoinListener,
+      onJoinSuccess,
     );
 
     hmsInstance?.addEventListener(
@@ -323,7 +277,6 @@ const Welcome = () => {
    * @returns
    */
   const getHmsInstance = async (): Promise<HMSSDK> => {
-
     /**
      * Only required for advanced use-case features like iOS Screen/Audio Share, Android Software Echo Cancellation, etc
      * NOT required for any other features.
@@ -379,6 +332,7 @@ const Welcome = () => {
     Alert.alert('Error', error || 'Something went wrong');
   };
 
+  // useEffect hook
   useEffect(() => {
     setNameDisabled(!validateName(peerName));
     return () => {
@@ -386,11 +340,10 @@ const Welcome = () => {
     };
   }, [peerName]);
 
-  return modalType === ModalTypes.PREVIEW && previewTrackId ? (
+  return modalType === ModalTypes.PREVIEW && previewTracks ? (
     <PreviewModal
-      videoAllowed={videoAllowed}
-      audioAllowed={audioAllowed}
-      trackId={previewTrackId}
+      room={hmsRoom}
+      previewTracks={previewTracks}
       join={onJoinRoom}
       setLoadingButtonState={setJoinButtonLoading}
       loadingButtonState={joinButtonLoading}

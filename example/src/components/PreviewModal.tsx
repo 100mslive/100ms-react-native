@@ -7,7 +7,13 @@ import {
   Image,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
-import {HMSVideoViewMode} from '@100mslive/react-native-hms';
+import {
+  HMSAudioTrack,
+  HMSLocalPeer,
+  HMSRoom,
+  HMSVideoTrack,
+  HMSVideoViewMode,
+} from '@100mslive/react-native-hms';
 import {useSelector} from 'react-redux';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
@@ -17,20 +23,14 @@ import {CustomButton} from './CustomButton';
 import {getInitials} from '../utils/functions';
 
 export const PreviewModal = ({
-  trackId,
-  audio,
-  video,
+  room,
+  previewTracks,
   join,
   setLoadingButtonState,
   loadingButtonState,
-  videoAllowed,
-  audioAllowed,
 }: {
-  videoAllowed: boolean;
-  audioAllowed: boolean;
-  trackId: string;
-  video?: boolean;
-  audio?: boolean;
+  room?: HMSRoom;
+  previewTracks: {audioTrack: HMSAudioTrack; videoTrack: HMSVideoTrack};
   join: Function;
   setLoadingButtonState: React.Dispatch<React.SetStateAction<boolean>>;
   loadingButtonState: boolean;
@@ -40,24 +40,32 @@ export const PreviewModal = ({
   );
   const {top, bottom, left, right} = useSafeAreaInsets();
 
-  const [isMute, setIsMute] = useState(audio);
-  const [muteVideo, setMuteVideo] = useState(video);
-  const [numberOfLines, setNumberOfLines] = useState(true);
-  const HmsView = hmsInstance?.HmsView;
-  const [peers, setPeers] = useState(
-    hmsInstance?.room?.peers ? hmsInstance?.room?.peers : [],
+  const [isAudioMute, setIsAudioMute] = useState(
+    previewTracks.audioTrack.isMute(),
   );
+  const [isVideoMute, setIsVideoMute] = useState(
+    previewTracks.videoTrack.isMute(),
+  );
+  const [previewPeer, setPreviewPeer] = useState<HMSLocalPeer>();
+  const [numberOfLines, setNumberOfLines] = useState(true);
 
-  const previewPeer = hmsInstance?.localPeer;
+  const HmsView = hmsInstance?.HmsView;
+  const audioAllowed =
+    previewPeer?.role?.publishSettings?.allowed?.includes('audio');
+  const videoAllowed =
+    previewPeer?.role?.publishSettings?.allowed?.includes('video');
 
   useEffect(() => {
-    setPeers(hmsInstance?.room?.peers ? hmsInstance?.room?.peers : []);
-  }, [hmsInstance?.room?.peers]);
+    const getLocalPeer = async () => {
+      setPreviewPeer(await hmsInstance?.getLocalPeer());
+    };
+    getLocalPeer();
+  }, [hmsInstance]);
 
   return (
     <View style={styles.container}>
       <View style={styles.modalContainer}>
-        {muteVideo || !HmsView ? (
+        {isVideoMute || !HmsView || !previewTracks.videoTrack.trackId ? (
           <View style={styles.avatarContainer}>
             <View style={styles.avatar}>
               <Text style={styles.avatarText}>
@@ -70,7 +78,7 @@ export const PreviewModal = ({
           <HmsView
             scaleType={HMSVideoViewMode.ASPECT_FILL}
             style={styles.hmsView}
-            trackId={trackId}
+            trackId={previewTracks.videoTrack.trackId}
             mirror={mirrorLocalVideo}
           />
         )}
@@ -85,7 +93,7 @@ export const PreviewModal = ({
             <Text
               style={styles.collapsibleText}
               numberOfLines={numberOfLines ? 1 : undefined}>
-              {peers.map((peer, index) => {
+              {room?.peers.map((peer, index) => {
                 return (index !== 0 ? ', ' : '') + peer.name;
               })}
             </Text>
@@ -98,14 +106,20 @@ export const PreviewModal = ({
             {audioAllowed && (
               <CustomButton
                 onPress={() => {
-                  setIsMute(!isMute);
-                  hmsInstance?.localPeer?.localAudioTrack()?.setMute(!isMute);
+                  setIsAudioMute(!isAudioMute);
+                  previewPeer?.localAudioTrack()?.setMute(!isAudioMute);
                 }}
-                viewStyle={[styles.singleIconContainer, isMute && styles.mute]}
+                viewStyle={[
+                  styles.singleIconContainer,
+                  isAudioMute && styles.mute,
+                ]}
                 LeftIcon={
                   <Feather
-                    name={isMute ? 'mic-off' : 'mic'}
-                    style={[styles.videoIcon, isMute && styles.muteVideoIcon]}
+                    name={isAudioMute ? 'mic-off' : 'mic'}
+                    style={[
+                      styles.videoIcon,
+                      isAudioMute && styles.muteVideoIcon,
+                    ]}
                     size={32}
                   />
                 }
@@ -114,21 +128,19 @@ export const PreviewModal = ({
             {videoAllowed && (
               <CustomButton
                 onPress={() => {
-                  setMuteVideo(!muteVideo);
-                  hmsInstance?.localPeer
-                    ?.localVideoTrack()
-                    ?.setMute(!muteVideo);
+                  setIsVideoMute(!isVideoMute);
+                  previewPeer?.localVideoTrack()?.setMute(!isVideoMute);
                 }}
                 viewStyle={[
                   styles.singleIconContainer,
-                  muteVideo && styles.mute,
+                  isVideoMute && styles.mute,
                 ]}
                 LeftIcon={
                   <Feather
-                    name={muteVideo ? 'video-off' : 'video'}
+                    name={isVideoMute ? 'video-off' : 'video'}
                     style={[
                       styles.videoIcon,
-                      muteVideo && styles.muteVideoIcon,
+                      isVideoMute && styles.muteVideoIcon,
                     ]}
                     size={32}
                   />
@@ -141,7 +153,10 @@ export const PreviewModal = ({
               <CustomButton
                 onPress={() => {}}
                 disabled={true}
-                viewStyle={[styles.singleIconContainer, isMute && styles.mute]}
+                viewStyle={[
+                  styles.singleIconContainer,
+                  isAudioMute && styles.mute,
+                ]}
                 LeftIcon={
                   <Image
                     resizeMode="contain"
