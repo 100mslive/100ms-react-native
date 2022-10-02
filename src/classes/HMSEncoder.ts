@@ -28,9 +28,6 @@ import { HMSServerRecordingState } from './HMSServerRecordingState';
 import { HMSMessage } from './HMSMessage';
 import { HMSMessageRecipient } from './HMSMessageRecipient';
 import { HMSException } from './HMSException';
-import { HMSPeerUpdate } from './HMSPeerUpdate';
-import { HMSTrackUpdate } from './HMSTrackUpdate';
-import { HMSRoomUpdate } from './HMSRoomUpdate';
 
 export class HMSEncoder {
   static encodeHmsRoom(room: HMSRoom, id: string) {
@@ -512,60 +509,5 @@ export class HMSEncoder {
       isTerminal: data?.error?.isTerminal,
       canRetry: data?.error?.canRetry,
     });
-  }
-
-  static encodeHmsPeerUpdateType(type: any): HMSPeerUpdate {
-    switch (type) {
-      case type === 'PEER_JOINED':
-        return HMSPeerUpdate.PEER_JOINED;
-      case type === 'PEER_LEFT':
-        return HMSPeerUpdate.PEER_LEFT;
-      case 'ROLE_CHANGED':
-        return HMSPeerUpdate.ROLE_CHANGED;
-      case 'METADATA_CHANGED':
-        return HMSPeerUpdate.METADATA_CHANGED;
-      case 'NETWORK_QUALITY_UPDATED':
-        return HMSPeerUpdate.NETWORK_QUALITY_UPDATED;
-      default:
-        return HMSPeerUpdate.NAME_CHANGED;
-    }
-  }
-
-  static encodeHmsTrackUpdateType(type: any): HMSTrackUpdate {
-    switch (type) {
-      case 'TRACK_ADDED':
-        return HMSTrackUpdate.TRACK_ADDED;
-      case 'TRACK_REMOVED':
-        return HMSTrackUpdate.TRACK_REMOVED;
-      case 'TRACK_MUTED':
-        return HMSTrackUpdate.TRACK_MUTED;
-      case 'TRACK_UNMUTED':
-        return HMSTrackUpdate.TRACK_UNMUTED;
-      case 'TRACK_RESTORED':
-        return HMSTrackUpdate.TRACK_RESTORED;
-      case 'TRACK_DEGRADED':
-        return HMSTrackUpdate.TRACK_DEGRADED;
-      default:
-        return HMSTrackUpdate.TRACK_DESCRIPTION_CHANGED;
-    }
-  }
-
-  static encodeHmsRoomUpdateType(type: any): HMSRoomUpdate {
-    switch (type) {
-      case type === 'ROOM_MUTED':
-        return HMSRoomUpdate.ROOM_MUTED;
-      case type === 'ROOM_UNMUTED':
-        return HMSRoomUpdate.ROOM_UNMUTED;
-      case 'RTMP_STREAMING_STATE_UPDATED':
-        return HMSRoomUpdate.RTMP_STREAMING_STATE_UPDATED;
-      case 'SERVER_RECORDING_STATE_UPDATED':
-        return HMSRoomUpdate.SERVER_RECORDING_STATE_UPDATED;
-      case 'BROWSER_RECORDING_STATE_UPDATED':
-        return HMSRoomUpdate.BROWSER_RECORDING_STATE_UPDATED;
-      case 'HLS_RECORDING_STATE_UPDATED':
-        return HMSRoomUpdate.HLS_RECORDING_STATE_UPDATED;
-      default:
-        return HMSRoomUpdate.HLS_STREAMING_STATE_UPDATED;
-    }
   }
 }
