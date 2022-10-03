@@ -66,6 +66,7 @@ export const ParticipantsModal = ({
   localPeer,
   peerTrackNodes,
   pinnedPeerTrackIds,
+  roles,
   setUpdatePeerTrackNode,
   setModalVisible,
   setPinnedPeerTrackIds,
@@ -74,6 +75,7 @@ export const ParticipantsModal = ({
   localPeer?: HMSLocalPeer;
   peerTrackNodes: PeerTrackNode[];
   pinnedPeerTrackIds: String[];
+  roles?: HMSRole[];
   setUpdatePeerTrackNode: React.Dispatch<React.SetStateAction<PeerTrackNode>>;
   setModalVisible: React.Dispatch<React.SetStateAction<ModalTypes>>;
   setPinnedPeerTrackIds: React.Dispatch<React.SetStateAction<String[]>>;
@@ -217,7 +219,7 @@ export const ParticipantsModal = ({
       <View style={styles.participantsHeaderContainer}>
         <Text style={styles.participantsHeading}>Participants</Text>
         <ParticipantFilter
-          instance={instance}
+          roles={roles}
           filter={filter}
           setFilter={setFilter}
         />
@@ -451,27 +453,18 @@ export const ParticipantsModal = ({
 };
 
 const ParticipantFilter = ({
-  instance,
+  roles,
   filter,
   setFilter,
 }: {
-  instance?: HMSSDK;
+  roles?: HMSRole[];
   filter?: string;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
 }) => {
   const [visible, setVisible] = useState<boolean>(false);
-  const [roles, setRoles] = useState<HMSRole[]>();
 
   const hideMenu = () => setVisible(false);
   const showMenu = () => setVisible(true);
-  const updateRoles = async () => {
-    setRoles(await instance?.getRoles());
-  };
-
-  useEffect(() => {
-    updateRoles();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [instance]);
 
   return (
     <Menu
@@ -545,15 +538,16 @@ export const ChangeRoleModal = ({
   instance,
   peerTrackNode,
   cancelModal,
+  roles,
 }: {
   instance?: HMSSDK;
   peerTrackNode: PeerTrackNode;
   cancelModal: Function;
+  roles?: HMSRole[];
 }) => {
   const [newRole, setNewRole] = useState<HMSRole>(peerTrackNode.peer?.role!);
   const [request, setRequest] = useState<boolean>(false);
   const [visible, setVisible] = useState<boolean>(false);
-  const [roles, setRoles] = useState<HMSRole[]>();
 
   const hideMenu = () => setVisible(false);
   const showMenu = () => setVisible(true);
@@ -561,14 +555,6 @@ export const ChangeRoleModal = ({
     await instance?.changeRole(peerTrackNode.peer, newRole, !request);
     cancelModal();
   };
-  const updateRoles = async () => {
-    setRoles(await instance?.getRoles());
-  };
-
-  useEffect(() => {
-    updateRoles();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [instance]);
 
   return (
     <View style={styles.roleChangeModal}>
@@ -1417,16 +1403,17 @@ export const ChangeLayoutModal = ({
 };
 
 export const ChangeTrackStateForRoleModal = ({
+  roles,
   instance,
   localPeer,
   cancelModal,
 }: {
+  roles?: HMSRole[];
   instance?: HMSSDK;
   localPeer?: HMSLocalPeer;
   cancelModal: Function;
 }) => {
   const [role, setRole] = useState<HMSRole>(localPeer?.role!);
-  const [roles, setRoles] = useState<HMSRole[]>();
   const [visible, setVisible] = useState<boolean>(false);
   const [trackType, setTrackType] = useState<HMSTrackType>(HMSTrackType.VIDEO);
   const [trackState, setTrackState] = useState<boolean>(false);
@@ -1441,14 +1428,6 @@ export const ChangeTrackStateForRoleModal = ({
       .catch(e => console.log('Change Track State For Role Error: ', e));
     cancelModal();
   };
-  const updateRoles = async () => {
-    setRoles(await instance?.getRoles());
-  };
-
-  useEffect(() => {
-    updateRoles();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [instance]);
 
   return (
     <View style={styles.roleChangeModal}>

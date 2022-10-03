@@ -50,9 +50,11 @@ const ChatFilter = ({
   setFilter,
   setType,
   setReceiverObject,
+  roles,
 }: {
   instance?: HMSSDK;
   filter?: string;
+  roles?: HMSRole[];
   setFilter: React.Dispatch<React.SetStateAction<string>>;
   setType: React.Dispatch<React.SetStateAction<'everyone' | 'direct' | 'role'>>;
   setReceiverObject: React.Dispatch<
@@ -60,7 +62,6 @@ const ChatFilter = ({
   >;
 }) => {
   const [visible, setVisible] = useState<boolean>(false);
-  const [roles, setRoles] = useState<HMSRole[]>();
   const [remotePeers, setRemotePeers] = useState<HMSRemotePeer[]>();
 
   const hideMenu = () => setVisible(false);
@@ -68,13 +69,9 @@ const ChatFilter = ({
   const updateRemotePeers = async () => {
     setRemotePeers(await instance?.getRemotePeers());
   };
-  const updateRoles = async () => {
-    setRoles(await instance?.getRoles());
-  };
 
   useEffect(() => {
     updateRemotePeers();
-    updateRoles();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [instance]);
 
@@ -154,7 +151,13 @@ const ChatFilter = ({
   );
 };
 
-export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
+export const ChatWindow = ({
+  localPeer,
+  roles,
+}: {
+  localPeer?: HMSLocalPeer;
+  roles?: HMSRole[];
+}) => {
   const {hmsInstance} = useSelector((state: RootState) => state.user);
   const {messages} = useSelector((state: RootState) => state.messages);
   const dispatch = useDispatch();
@@ -223,6 +226,7 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
           setFilter={setFilter}
           setType={setType}
           setReceiverObject={setReceiverObject}
+          roles={roles}
         />
       </View>
       <View style={styles.contentContainer}>

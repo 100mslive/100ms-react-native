@@ -1,7 +1,7 @@
 import React, {useMemo} from 'react';
-import type {HMSSDK, HMSSpeaker} from '@100mslive/react-native-hms';
+import {HMSSDK, HMSSpeaker, HMSTrackSource} from '@100mslive/react-native-hms';
 
-import {createPeerTrackNode, pairDataForFlatlist} from '../../utils/functions';
+import {pairDataForFlatlist} from '../../utils/functions';
 import type {LayoutParams, PeerTrackNode, SortingType} from '../../utils/types';
 import {GridView} from './Grid';
 
@@ -75,7 +75,11 @@ const getActiveSpeakers = (
 ): PeerTrackNode[] => {
   const currentActiveSpeakers: PeerTrackNode[] = speakers.map(speaker => {
     const {peer} = speaker;
-    return createPeerTrackNode(peer);
+    return {
+      id: peer.peerID + HMSTrackSource.REGULAR,
+      peer,
+      track: peer.videoTrack,
+    };
   });
 
   let speakersRequired = peers.length - currentActiveSpeakers.length;

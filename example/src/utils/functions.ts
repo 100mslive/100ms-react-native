@@ -379,7 +379,11 @@ export const updatePeersTrackNodesOnPeerListener = (
     if (alreadyPresent) {
       return updatePeerTrackNodes;
     } else {
-      const newPeerTrackNode = createPeerTrackNode(peer);
+      const newPeerTrackNode: PeerTrackNode = {
+        id: peer.peerID + HMSTrackSource.REGULAR,
+        peer,
+        track: peer.videoTrack,
+      };
       updatePeerTrackNodes?.push(newPeerTrackNode);
       return updatePeerTrackNodes;
     }
@@ -412,10 +416,9 @@ export const updatePeersTrackNodesOnTrackListener = (
   const oldPeerTrackNodes: PeerTrackNode[] = peerTrackNodes;
   const uniqueId =
     peer.peerID +
-    (track.source === HMSTrackSource.SCREEN
-      ? HMSTrackSource.SCREEN
-      : HMSTrackSource.REGULAR);
-
+    (track.source === undefined || track.source === HMSTrackSource.REGULAR
+      ? HMSTrackSource.REGULAR
+      : track.trackId);
   const isVideo = track.type === HMSTrackType.VIDEO;
   if (
     type === HMSTrackUpdate.TRACK_ADDED
@@ -443,7 +446,11 @@ export const updatePeersTrackNodesOnTrackListener = (
     if (alreadyPresent) {
       return updatePeerTrackNodes;
     } else if (!alreadyPresent && isVideo) {
-      const newPeerTrackNode = createPeerTrackNode(peer, track);
+      const newPeerTrackNode: PeerTrackNode = {
+        id: uniqueId,
+        peer,
+        track,
+      };
       // push screenshare track to 0th index
       if (track.source === HMSTrackSource.SCREEN) {
         return [newPeerTrackNode, ...updatePeerTrackNodes];
@@ -581,9 +588,10 @@ export const createPeerTrackNode = (
     peer,
     id:
       peer.peerID +
-      (customTrack?.source === HMSTrackSource.SCREEN
-        ? HMSTrackSource.SCREEN
-        : HMSTrackSource.REGULAR),
+      (customTrack?.source === undefined ||
+      customTrack?.source === HMSTrackSource.REGULAR
+        ? HMSTrackSource.REGULAR
+        : customTrack?.trackId),
     track: customTrack,
   };
 };

@@ -1,15 +1,15 @@
 import React, {useState, useEffect} from 'react';
 import {FlatList, View} from 'react-native';
-import type {
+import {
   HMSLocalPeer,
   HMSSDK,
   HMSSpeaker,
+  HMSTrackSource,
 } from '@100mslive/react-native-hms';
 
 import {LayoutParams, PeerTrackNode} from '../../utils/types';
 import {DisplayTrack} from './DisplayTrack';
 import {styles} from './styles';
-import {createPeerTrackNode} from '../../utils/functions';
 
 type HeroViewProps = {
   instance: HMSSDK | undefined;
@@ -48,14 +48,22 @@ const HeroView = ({
   useEffect(() => {
     if (speakers.length > 0) {
       const peer = speakers[0].peer;
-      setMainSpeaker(createPeerTrackNode(peer));
+      setMainSpeaker({
+        id: peer.peerID + HMSTrackSource.REGULAR,
+        peer,
+        track: peer.videoTrack,
+      });
     }
     if (speakers.length === 0 && !mainSpeaker && localPeer) {
       const peer = localPeer;
-      setMainSpeaker(createPeerTrackNode(peer));
+      setMainSpeaker({
+        id: peer.peerID + HMSTrackSource.REGULAR,
+        peer,
+        track: peer.videoTrack,
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [speakers, localPeer]);
+  }, [speakers, peerTrackNodes, localPeer]);
 
   useEffect(() => {
     const newPeerList = peerTrackNodes;
