@@ -968,6 +968,16 @@ export class HMSSDK {
     HMSManager.disableRTCStats({ id: this.id });
   };
 
+  enableNetworkQualityUpdates = () => {
+    logger?.verbose('#Function enableNetworkQualityUpdates', { id: this.id });
+    HMSManager.enableNetworkQualityUpdates({ id: this.id });
+  };
+
+  disableNetworkQualityUpdates = () => {
+    logger?.verbose('#Function disableNetworkQualityUpdates', { id: this.id });
+    HMSManager.disableNetworkQualityUpdates({ id: this.id });
+  };
+
   /**
    * - This wrapper function is used to start streaming device audio, currently available only for android.
    *
@@ -1367,8 +1377,6 @@ export class HMSSDK {
         previewTracks,
       });
       this.onPreviewDelegate({ room, previewTracks });
-    } else {
-      logger?.verbose('#Listener ON_PREVIEW', { room, previewTracks });
     }
   };
 
@@ -1384,8 +1392,6 @@ export class HMSSDK {
         room,
       });
       this.onJoinDelegate({ room });
-    } else {
-      logger?.verbose('#LISTENER ON_JOIN', { room });
     }
   };
 
@@ -1402,8 +1408,6 @@ export class HMSSDK {
         type,
       });
       this.onRoomDelegate({ room, type });
-    } else {
-      logger?.verbose('#Listener ON_ROOM', { room, type });
     }
   };
 
@@ -1420,8 +1424,6 @@ export class HMSSDK {
         type,
       });
       this.onPeerDelegate({ peer, type });
-    } else {
-      logger?.verbose('#Listener ON_PEER', { peer, type });
     }
   };
 
@@ -1452,8 +1454,6 @@ export class HMSSDK {
         track,
         type,
       });
-    } else {
-      logger?.verbose('#Listener ON_TRACK', { peer, track, type });
     }
   };
 
@@ -1465,8 +1465,6 @@ export class HMSSDK {
     if (this.onMessageDelegate) {
       logger?.verbose('#Listener ON_MESSAGE_LISTENER_CALL', message);
       this.onMessageDelegate(message);
-    } else {
-      logger?.verbose('#Listener ON_MESSAGE', data);
     }
   };
 
@@ -1479,8 +1477,6 @@ export class HMSSDK {
       this.onSpeakerDelegate(
         HMSEncoder.encodeHmsSpeakers(data?.speakers, this.id)
       );
-    } else {
-      logger?.verbose('#Listener ON_SPEAKER', data?.speakers);
     }
   };
 
@@ -1492,9 +1488,6 @@ export class HMSSDK {
       logger?.verbose('#Listener ON_ERROR_LISTENER_CALL', data);
       logger?.warn('#Listener ON_ERROR_LISTENER_CALL', data);
       this.onErrorDelegate(HMSEncoder.encodeHMSException(data));
-    } else {
-      logger?.warn('#Listener ON_ERROR', data);
-      logger?.verbose('#Listener ON_ERROR', data);
     }
   };
 
@@ -1512,8 +1505,6 @@ export class HMSSDK {
         encodedRoleChangeRequest
       );
       this.onRoleChangeRequestDelegate(encodedRoleChangeRequest);
-    } else {
-      logger?.verbose('#Listener ON_ROLE_CHANGE_REQUEST', data);
     }
   };
 
@@ -1529,8 +1520,6 @@ export class HMSSDK {
         encodedRoleChangeRequest
       );
       this.onChangeTrackStateRequestDelegate(encodedRoleChangeRequest);
-    } else {
-      logger?.verbose('#Listener ON_CHANGE_TRACK_STATE_REQUEST', data);
     }
   };
 
@@ -1553,8 +1542,6 @@ export class HMSSDK {
         id: this.id,
       });
       this.onRemovedFromRoomDelegate({ requestedBy, reason, roomEnded });
-    } else {
-      logger?.verbose('#Listener ON_REMOVED_FROM_ROOM', data);
     }
   };
 
@@ -1565,8 +1552,6 @@ export class HMSSDK {
     if (this.onReconnectingDelegate) {
       logger?.verbose('#Listener ON_RECONNECTING_CALL', data);
       this.onReconnectingDelegate(data);
-    } else {
-      logger?.verbose('#Listener ON_RECONNECTING', data);
     }
   };
 
@@ -1574,12 +1559,9 @@ export class HMSSDK {
     if (data.id !== this.id) {
       return;
     }
-    logger?.verbose('#Listener ON_RECONNECTED', data);
     if (this.onReconnectedDelegate) {
       logger?.verbose('#Listener ON_RECONNECTED_CALL', data);
       this.onReconnectedDelegate(data);
-    } else {
-      logger?.verbose('#Listener ON_RECONNECTED', data);
     }
   };
 
@@ -1593,8 +1575,6 @@ export class HMSSDK {
     if (this.onRtcStatsDelegate) {
       logger?.verbose('#Listener RTCStatsListener_CALL', { rtcStats });
       this.onRtcStatsDelegate({ rtcStats });
-    } else {
-      logger?.verbose('#Listener RTCStatsListener', data);
     }
   };
 
@@ -1615,8 +1595,6 @@ export class HMSSDK {
         track,
       });
       this.onLocalAudioStatsDelegate({ ...data, localAudioStats, peer, track });
-    } else {
-      logger?.verbose('#Listener onLocalAudioStatsListener', data);
     }
   };
 
@@ -1637,8 +1615,6 @@ export class HMSSDK {
         track,
       });
       this.onLocalVideoStatsDelegate({ ...data, localVideoStats, peer, track });
-    } else {
-      logger?.verbose('#Listener onLocalVideoStatsListener', data);
     }
   };
 
@@ -1664,8 +1640,6 @@ export class HMSSDK {
         peer,
         track,
       });
-    } else {
-      logger?.verbose('#Listener onRemoteAudioStatsListener', data);
     }
   };
 
@@ -1691,8 +1665,6 @@ export class HMSSDK {
         peer,
         track,
       });
-    } else {
-      logger?.verbose('#Listener onRemoteVideoStatsListener', data);
     }
   };
 
@@ -1709,8 +1681,6 @@ export class HMSSDK {
       this.onAudioDeviceChangedDelegate({
         ...data,
       });
-    } else {
-      logger?.verbose('#Listener onAudioDeviceChangedListener', data);
     }
   };
 }

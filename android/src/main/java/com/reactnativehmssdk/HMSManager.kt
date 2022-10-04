@@ -363,6 +363,20 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
+  fun enableNetworkQualityUpdates(data: ReadableMap) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.enableNetworkQualityUpdates()
+  }
+
+  @ReactMethod
+  fun disableNetworkQualityUpdates(data: ReadableMap) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.disableNetworkQualityUpdates()
+  }
+
+  @ReactMethod
   fun getAudioDevicesList(data: ReadableMap, callback: Promise?) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 

@@ -36,6 +36,7 @@ class HMSRNSDK(
   private var previewInProgress: Boolean = false
   private var reconnectingStage: Boolean = false
   private var rtcStatsAttached: Boolean = false
+  private var networkQualityUpdatesAttached: Boolean = false
   private var audioMixingMode: AudioMixingMode = AudioMixingMode.TALK_AND_MUSIC
   private var id: String = sdkId
   private var self = this
@@ -125,6 +126,9 @@ class HMSRNSDK(
                       type === HMSPeerUpdate.STARTED_SPEAKING ||
                       type === HMSPeerUpdate.STOPPED_SPEAKING
               ) {
+                return
+              }
+              if(!networkQualityUpdatesAttached && type === HMSPeerUpdate.NETWORK_QUALITY_UPDATED){
                 return
               }
               val updateType = type.name
@@ -237,6 +241,9 @@ class HMSRNSDK(
                           type === HMSPeerUpdate.STARTED_SPEAKING ||
                           type === HMSPeerUpdate.STOPPED_SPEAKING
                   ) {
+                    return
+                  }
+                  if(!networkQualityUpdatesAttached && type === HMSPeerUpdate.NETWORK_QUALITY_UPDATED){
                     return
                   }
                   val updateType = type.name
@@ -473,6 +480,8 @@ class HMSRNSDK(
               isAudioSharing = false
               screenshareCallback = null
               audioshareCallback = null
+              networkQualityUpdatesAttached = false
+              rtcStatsAttached = false
               callback?.resolve(emitHMSSuccess())
             }
 
@@ -1173,6 +1182,14 @@ class HMSRNSDK(
 
   fun disableRTCStats() {
     rtcStatsAttached = false
+  }
+
+  fun enableNetworkQualityUpdates() {
+    networkQualityUpdatesAttached = true
+  }
+
+  fun disableNetworkQualityUpdates() {
+    networkQualityUpdatesAttached = false
   }
 
   fun getAudioDevicesList(callback: Promise?) {
