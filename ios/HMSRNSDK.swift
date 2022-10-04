@@ -975,26 +975,26 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             reject?("AudioFilePlayerNode not found", "AudioFilePlayerNode not found", nil)
         }
     }
-    
+
     // MARK: - HMS SDK Get APIs
     func getRoom(_ resolve: RCTPromiseResolveBlock?) {
         let roomData = HMSDecoder.getHmsRoom(hms?.room)
 
         resolve?(roomData)
     }
-    
+
     func getLocalPeer(_ resolve: RCTPromiseResolveBlock?) {
         let localPeer = HMSDecoder.getHmsLocalPeer(hms?.localPeer)
 
         resolve?(localPeer)
     }
-    
+
     func getRemotePeers(_ resolve: RCTPromiseResolveBlock?) {
         let remotePeers = HMSDecoder.getHmsRemotePeers(hms?.remotePeers)
 
         resolve?(remotePeers)
     }
-    
+
     func getRoles(_ resolve: RCTPromiseResolveBlock?) {
         let roles = HMSDecoder.getAllRoles(hms?.roles)
 
