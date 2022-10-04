@@ -307,7 +307,7 @@ const Welcome = () => {
     const hmsInstance = await HMSSDK.build({
       trackSettings,
       appGroup: 'group.reactnativehms',
-      preferredExtension: 'RHHMSExampleBroadcastUpload',
+      preferredExtension: 'live.100ms.reactnative.RNHMSExampleBroadcastUpload',
     });
     const logger = new HMSLogger();
     logger.updateLogLevel(HMSLogLevel.VERBOSE, true);

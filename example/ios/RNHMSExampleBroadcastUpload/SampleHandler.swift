@@ -37,8 +37,8 @@ class SampleHandler: RPBroadcastSampleHandler {
             if let error = screenRenderer.process(sampleBuffer) {
                 if error.code == .noActiveMeeting {
                     finishBroadcastWithError(NSError(domain: "ScreenShare",
-                                                     code: error.code.rawValue,
-                                                     userInfo: [NSLocalizedFailureReasonErrorKey: "You are not in a meeting."]))
+                                                    code: error.code.rawValue,
+                                                    userInfo: [NSLocalizedFailureReasonErrorKey: "You are not in a meeting."]))
                 }
             }
             break

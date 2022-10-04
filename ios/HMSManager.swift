@@ -364,7 +364,7 @@ class HMSManager: RCTEventEmitter {
 
         hms?.audioShareDuration(data, resolve, reject)
     }
-    
+
     // MARK: - HMS SDK Get APIs
     @objc
     func getRoom(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
@@ -372,28 +372,28 @@ class HMSManager: RCTEventEmitter {
 
         hms?.getRoom(resolve)
     }
-    
+
     @objc
     func getLocalPeer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.getLocalPeer(resolve)
     }
-    
+
     @objc
     func getRemotePeers(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.getRemotePeers(resolve)
     }
-    
+
     @objc
     func getRoles(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.getRoles(resolve)
     }
-    
+
     // MARK: - HMS SDK Delegate Callbacks
     func emitEvent(_ name: String, _ data: [String: Any]) {
         self.sendEvent(withName: name, body: data)
