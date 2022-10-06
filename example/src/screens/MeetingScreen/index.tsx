@@ -46,20 +46,19 @@ type MeetingScreenProp = NativeStackNavigationProp<
 >;
 
 const Meeting = () => {
-  const [modalVisible, setModalVisible] = useState<ModalTypes>(
-    ModalTypes.DEFAULT,
-  );
-
   // useState hook
   const [room, setRoom] = useState<HMSRoom>();
   const [localPeer, setLocalPeer] = useState<HMSLocalPeer>();
+  const [modalVisible, setModalVisible] = useState<ModalTypes>(
+    ModalTypes.DEFAULT,
+  );
 
   return (
     <SafeAreaView style={styles.container}>
       <Header
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
-        // room={room}
+        room={room}
         localPeer={localPeer}
       />
       <DisplayView
@@ -70,11 +69,7 @@ const Meeting = () => {
         setRoom={setRoom}
         setLocalPeer={setLocalPeer}
       />
-      <Footer
-        // room={room}
-        localPeer={localPeer}
-        setModalVisible={setModalVisible}
-      />
+      <Footer localPeer={localPeer} />
     </SafeAreaView>
   );
 };
@@ -87,6 +82,7 @@ const DisplayView = (data: {
   setRoom: React.Dispatch<React.SetStateAction<HMSRoom | undefined>>;
   setLocalPeer: React.Dispatch<React.SetStateAction<HMSLocalPeer | undefined>>;
 }) => {
+  // hooks
   const {hmsInstance} = useSelector((state: RootState) => state.user);
   const {peerState} = useSelector((state: RootState) => state.app);
   const navigate = useNavigation<MeetingScreenProp>().navigate;
@@ -105,6 +101,7 @@ const DisplayView = (data: {
     [peerTrackNodes],
   );
 
+  // listeners
   const onErrorListener = (error: HMSException) => {
     if (Platform.OS === 'android') {
       if (error?.code === 4005 || error?.code === 1003) {
@@ -123,102 +120,111 @@ const DisplayView = (data: {
     );
   };
 
-  // const onRoomListener = ({
-  //   room,
-  //   type,
-  // }: {
-  //   room: HMSRoom;
-  //   type: HMSRoomUpdate;
-  // }) => {
-  //   data?.setRoom(room);
+  const onRoomListener = ({
+    room,
+    type,
+  }: {
+    room: HMSRoom;
+    type: HMSRoomUpdate;
+  }) => {
+    data?.setRoom(room);
 
-  //   if (type === HMSRoomUpdate.BROWSER_RECORDING_STATE_UPDATED) {
-  //     let streaming = room?.browserRecordingState?.running;
-  //     let hours = room?.browserRecordingState?.startedAt.getHours().toString();
-  //     let minutes = room?.browserRecordingState?.startedAt
-  //       .getMinutes()
-  //       ?.toString();
-  //     let time = hours + ':' + minutes;
+    if (type === HMSRoomUpdate.BROWSER_RECORDING_STATE_UPDATED) {
+      let streaming = room?.browserRecordingState?.running;
+      let hours = room?.browserRecordingState?.startedAt.getHours().toString();
+      let minutes = room?.browserRecordingState?.startedAt
+        .getMinutes()
+        ?.toString();
+      let time = hours + ':' + minutes;
 
-  //     Toast.showWithGravity(
-  //       `Browser Recording ${streaming ? 'Started At ' + time : 'Stopped'}`,
-  //       Toast.LONG,
-  //       Toast.TOP,
-  //     );
-  //   } else if (type === HMSRoomUpdate.HLS_STREAMING_STATE_UPDATED) {
-  //     let streaming = room?.hlsStreamingState?.running;
+      Toast.showWithGravity(
+        `Browser Recording ${streaming ? 'Started At ' + time : 'Stopped'}`,
+        Toast.LONG,
+        Toast.TOP,
+      );
+    } else if (type === HMSRoomUpdate.HLS_STREAMING_STATE_UPDATED) {
+      let streaming = room?.hlsStreamingState?.running;
 
-  //     Toast.showWithGravity(
-  //       `HLS Streaming ${streaming ? 'Started' : 'Stopped'}`,
-  //       Toast.LONG,
-  //       Toast.TOP,
-  //     );
-  //   } else if (type === HMSRoomUpdate.RTMP_STREAMING_STATE_UPDATED) {
-  //     let streaming = room?.rtmpHMSRtmpStreamingState?.running;
-  //     let hours = room?.rtmpHMSRtmpStreamingState?.startedAt
-  //       .getHours()
-  //       .toString();
-  //     let minutes = room?.rtmpHMSRtmpStreamingState?.startedAt
-  //       .getMinutes()
-  //       ?.toString();
-  //     let time = hours + ':' + minutes;
+      Toast.showWithGravity(
+        `HLS Streaming ${streaming ? 'Started' : 'Stopped'}`,
+        Toast.LONG,
+        Toast.TOP,
+      );
+    } else if (type === HMSRoomUpdate.RTMP_STREAMING_STATE_UPDATED) {
+      let streaming = room?.rtmpHMSRtmpStreamingState?.running;
+      let hours = room?.rtmpHMSRtmpStreamingState?.startedAt
+        .getHours()
+        .toString();
+      let minutes = room?.rtmpHMSRtmpStreamingState?.startedAt
+        .getMinutes()
+        ?.toString();
+      let time = hours + ':' + minutes;
 
-  //     Toast.showWithGravity(
-  //       `RTMP Streaming ${streaming ? 'Started At ' + time : 'Stopped'}`,
-  //       Toast.LONG,
-  //       Toast.TOP,
-  //     );
-  //   } else if (type === HMSRoomUpdate.SERVER_RECORDING_STATE_UPDATED) {
-  //     let streaming = room?.serverRecordingState?.running;
-  //     let hours = room?.serverRecordingState?.startedAt.getHours().toString();
-  //     let minutes = room?.serverRecordingState?.startedAt
-  //       .getMinutes()
-  //       ?.toString();
-  //     let time = hours + ':' + minutes;
+      Toast.showWithGravity(
+        `RTMP Streaming ${streaming ? 'Started At ' + time : 'Stopped'}`,
+        Toast.LONG,
+        Toast.TOP,
+      );
+    } else if (type === HMSRoomUpdate.SERVER_RECORDING_STATE_UPDATED) {
+      let streaming = room?.serverRecordingState?.running;
+      let hours = room?.serverRecordingState?.startedAt.getHours().toString();
+      let minutes = room?.serverRecordingState?.startedAt
+        .getMinutes()
+        ?.toString();
+      let time = hours + ':' + minutes;
 
-  //     Toast.showWithGravity(
-  //       `Server Recording ${streaming ? 'Started At ' + time : 'Stopped'}`,
-  //       Toast.LONG,
-  //       Toast.TOP,
-  //     );
-  //   }
-  // };
+      Toast.showWithGravity(
+        `Server Recording ${streaming ? 'Started At ' + time : 'Stopped'}`,
+        Toast.LONG,
+        Toast.TOP,
+      );
+    }
+  };
 
-  // const onPeerListener = ({
-  //   peer,
-  //   type,
-  // }: {
-  //   peer: HMSPeer;
-  //   type: HMSPeerUpdate;
-  // }) => {
-  //   const newPeerTrackNodes = updatePeersTrackNodesOnPeerListener(
-  //     peerTrackNodesRef?.current,
-  //     peer,
-  //     type,
-  //   );
-  //   setPeerTrackNodes(newPeerTrackNodes);
-  //   peerTrackNodesRef.current = newPeerTrackNodes;
+  const onPeerListener = ({
+    peer,
+    type,
+  }: {
+    peer: HMSPeer;
+    type: HMSPeerUpdate;
+  }) => {
+    const newPeerTrackNodes = updatePeersTrackNodesOnPeerListener(
+      peerTrackNodesRef?.current,
+      peer,
+      type,
+    );
+    setPeerTrackNodes(newPeerTrackNodes);
+    peerTrackNodesRef.current = newPeerTrackNodes;
+    if (peer?.isLocal) {
+      data?.setLocalPeer(
+        new HMSLocalPeer({
+          ...peer,
+          localAudioTrackData: peer.audioTrack,
+          localVideoTrackData: peer.videoTrack,
+        }),
+      );
+    }
 
-  //   if (type === HMSPeerUpdate.PEER_LEFT) {
-  //     Toast.showWithGravity(
-  //       `Peer Left: ${peer.name} left the Room`,
-  //       Toast.LONG,
-  //       Toast.TOP,
-  //     );
-  //   } else if (type === HMSPeerUpdate.PEER_JOINED) {
-  //     Toast.showWithGravity(
-  //       `Peer Joined: ${peer.name} joined the Room`,
-  //       Toast.LONG,
-  //       Toast.TOP,
-  //     );
-  //   } else if (type === HMSPeerUpdate.ROLE_CHANGED) {
-  //     Toast.showWithGravity(
-  //       `Role Changed: Role of ${peer?.name} changed to ${peer?.role?.name}`,
-  //       Toast.LONG,
-  //       Toast.TOP,
-  //     );
-  //   }
-  // };
+    if (type === HMSPeerUpdate.PEER_LEFT) {
+      Toast.showWithGravity(
+        `Peer Left: ${peer.name} left the Room`,
+        Toast.LONG,
+        Toast.TOP,
+      );
+    } else if (type === HMSPeerUpdate.PEER_JOINED) {
+      Toast.showWithGravity(
+        `Peer Joined: ${peer.name} joined the Room`,
+        Toast.LONG,
+        Toast.TOP,
+      );
+    } else if (type === HMSPeerUpdate.ROLE_CHANGED) {
+      Toast.showWithGravity(
+        `Role Changed: Role of ${peer?.name} changed to ${peer?.role?.name}`,
+        Toast.LONG,
+        Toast.TOP,
+      );
+    }
+  };
 
   const onTrackListener = ({
     peer,
@@ -236,6 +242,7 @@ const DisplayView = (data: {
       type,
     );
     setPeerTrackNodes(newPeerTrackNodes);
+    peerTrackNodesRef.current = newPeerTrackNodes;
     if (peer?.isLocal) {
       data?.setLocalPeer(
         new HMSLocalPeer({
@@ -245,22 +252,22 @@ const DisplayView = (data: {
         }),
       );
     }
-    peerTrackNodesRef.current = newPeerTrackNodes;
   };
 
   const onRemovedFromRoomListener = async () => {
     await destroy();
   };
 
+  // functions
   const updateHmsInstance = (hms?: HMSSDK) => {
-    // hms?.addEventListener(
-    //   HMSUpdateListenerActions.ON_ROOM_UPDATE,
-    //   onRoomListener,
-    // );
-    // hms?.addEventListener(
-    //   HMSUpdateListenerActions.ON_PEER_UPDATE,
-    //   onPeerListener,
-    // );
+    hms?.addEventListener(
+      HMSUpdateListenerActions.ON_ROOM_UPDATE,
+      onRoomListener,
+    );
+    hms?.addEventListener(
+      HMSUpdateListenerActions.ON_PEER_UPDATE,
+      onPeerListener,
+    );
     hms?.addEventListener(
       HMSUpdateListenerActions.ON_TRACK_UPDATE,
       onTrackListener,
@@ -327,9 +334,24 @@ const DisplayView = (data: {
       .catch(e => console.log('EndRoom Error: ', e));
   };
 
+  const updateLocalPeer = () => {
+    peerState.map(peerTrackNode => {
+      if (peerTrackNode?.peer?.isLocal) {
+        data?.setLocalPeer(
+          new HMSLocalPeer({
+            ...peerTrackNode?.peer,
+            localAudioTrackData: peerTrackNode?.peer?.audioTrack,
+            localVideoTrackData: peerTrackNode?.peer?.videoTrack,
+          }),
+        );
+      }
+    });
+  };
+
+  // useEffect hook
   useEffect(() => {
     updateHmsInstance(hmsInstance);
-
+    updateLocalPeer();
     return () => {
       onLeavePress();
     };
@@ -338,7 +360,6 @@ const DisplayView = (data: {
 
   return (
     <View style={styles.container}>
-      {/* <View style={{flex: 1, backgroundColor: 'red'}}></View> */}
       <GridView pairedPeers={pairedPeers} />
       <DefaultModal
         animationType="fade"
@@ -377,12 +398,32 @@ const Header = ({
   modalVisible: ModalTypes;
   setModalVisible: React.Dispatch<React.SetStateAction<ModalTypes>>;
 }) => {
-  const {roomCode} = useSelector((state: RootState) => state.user);
+  // hooks
+  const {roomCode, hmsInstance} = useSelector((state: RootState) => state.user);
 
+  // constants
   const iconSize = 20;
   const isScreenShared =
     localPeer?.auxiliaryTracks && localPeer?.auxiliaryTracks?.length > 0;
   const parsedMetadata = parseMetadata(localPeer?.metadata);
+
+  // functions
+  const onRaiseHandPress = async () => {
+    await hmsInstance
+      ?.changeMetadata(
+        JSON.stringify({
+          ...parsedMetadata,
+          isHandRaised: !parsedMetadata?.isHandRaised,
+          isBRBOn: false,
+        }),
+      )
+      .then(d => console.log('Change Metadata Success: ', d))
+      .catch(e => console.log('Change Metadata Error: ', e));
+  };
+
+  const onSwitchCameraPress = () => {
+    localPeer?.localVideoTrack()?.switchCamera();
+  };
 
   return (
     <View style={styles.iconTopWrapper}>
@@ -479,7 +520,7 @@ const Header = ({
           }
         />
         <CustomButton
-          onPress={() => console.log('onRaiseHandPress')}
+          onPress={onRaiseHandPress}
           viewStyle={[
             styles.iconContainer,
             parsedMetadata?.isHandRaised && styles.iconMuted,
@@ -514,7 +555,7 @@ const Header = ({
         />
         {localPeer?.role?.publishSettings?.allowed?.includes('video') && (
           <CustomButton
-            onPress={() => console.log('onSwitchCameraPress')}
+            onPress={onSwitchCameraPress}
             viewStyle={styles.iconContainer}
             LeftIcon={
               <Ionicons
@@ -530,33 +571,42 @@ const Header = ({
   );
 };
 
-const Footer = ({
-  room,
-  localPeer,
-  setModalVisible,
-}: {
-  room?: HMSRoom;
-  localPeer?: HMSLocalPeer;
-  setModalVisible: React.Dispatch<React.SetStateAction<ModalTypes>>;
-}) => {
-  const {bottom, left, right} = useSafeAreaInsets();
+const Footer = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
+  // hooks
+  const {hmsInstance} = useSelector((state: RootState) => state.user);
+  const {left, right} = useSafeAreaInsets();
 
+  // constants
   const iconSize = 20;
   const isScreenShared =
     localPeer?.auxiliaryTracks && localPeer?.auxiliaryTracks?.length > 0;
 
+  // functions
+  const onStartScreenSharePress = () => {
+    hmsInstance
+      ?.startScreenshare()
+      .then(d => console.log('Start Screenshare Success: ', d))
+      .catch(e => console.log('Start Screenshare Error: ', e));
+  };
+
+  const onEndScreenSharePress = () => {
+    hmsInstance
+      ?.stopScreenshare()
+      .then(d => console.log('Stop Screenshare Success: ', d))
+      .catch(e => console.log('Stop Screenshare Error: ', e));
+  };
+
   return (
     <View
       style={[
-        localPeer?.role?.permissions?.hlsStreaming
-          ? styles.iconBotttomWrapperHls
-          : styles.iconBotttomWrapper,
-        {bottom, left, right},
+        // localPeer?.role?.permissions?.hlsStreaming
+        //   ? styles.iconBotttomWrapperHls :
+        styles.iconBotttomWrapper,
+        {left, right},
       ]}>
       <View style={styles.iconBotttomButtonWrapper}>
         {localPeer?.role?.publishSettings?.allowed?.includes('audio') && (
           <CustomButton
-            // onPress={() => console.log('onMicStatusPress')}
             onPress={() =>
               localPeer
                 ?.localAudioTrack()
@@ -577,7 +627,6 @@ const Footer = ({
         )}
         {localPeer?.role?.publishSettings?.allowed?.includes('video') && (
           <CustomButton
-            // onPress={() => console.log('onVideoStatusPress')}
             onPress={() =>
               localPeer
                 ?.localVideoTrack()
@@ -596,7 +645,7 @@ const Footer = ({
             }
           />
         )}
-        {localPeer?.role?.permissions?.hlsStreaming &&
+        {/* {localPeer?.role?.permissions?.hlsStreaming &&
           (room?.hlsStreamingState?.running ? (
             <CustomButton
               onPress={() => setModalVisible(ModalTypes.END_HLS_STREAMING)}
@@ -621,12 +670,10 @@ const Footer = ({
                 />
               }
             />
-          ))}
+          ))} */}
         <CustomButton
           onPress={
-            isScreenShared
-              ? () => console.log('onEndScreenSharePress')
-              : () => console.log('onStartScreenSharePress')
+            isScreenShared ? onEndScreenSharePress : onStartScreenSharePress
           }
           viewStyle={[styles.iconContainer, isScreenShared && styles.iconMuted]}
           LeftIcon={
@@ -649,12 +696,12 @@ const Footer = ({
           }
         />
       </View>
-      {localPeer?.role?.permissions?.hlsStreaming &&
+      {/* {localPeer?.role?.permissions?.hlsStreaming &&
         (room?.hlsStreamingState?.running ? (
           <Text style={styles.liveText}>End stream</Text>
         ) : (
           <Text style={styles.liveText}>Go Live</Text>
-        ))}
+        ))} */}
     </View>
   );
 };

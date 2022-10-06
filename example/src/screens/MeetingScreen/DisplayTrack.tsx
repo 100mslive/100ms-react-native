@@ -78,7 +78,7 @@ const DisplayTrack = ({
             textStyle={styles.roleChangeModalButtonText}
           />
         </View>
-      ) : videoTrack?.isMute() ? (
+      ) : videoTrack?.isMute() || videoTrack?.trackId === undefined ? (
         // ) : isVideoMute || layout === LayoutParams.AUDIO ? (
         <View style={styles.avatarContainer}>
           <View style={styles.avatar}>

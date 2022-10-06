@@ -1,18 +1,19 @@
 import React, {useRef} from 'react';
-import {View, FlatList, Dimensions, Text} from 'react-native';
+import {View, FlatList, Dimensions} from 'react-native';
 import {HMSTrackSource} from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {getHmsViewHeight} from '../../utils/functions';
 import {styles} from './styles';
 import {DisplayTrack} from './DisplayTrack';
-import {LayoutParams, ModalTypes, PeerTrackNode} from '../../utils/types';
+import {LayoutParams, PeerTrackNode} from '../../utils/types';
 
 type GridViewProps = {
   pairedPeers: PeerTrackNode[][];
 };
 
 const GridView = ({pairedPeers}: GridViewProps) => {
+  // hooks
   const {left, right, top, bottom} = useSafeAreaInsets();
   const flatlistRef = useRef<FlatList>(null);
 
