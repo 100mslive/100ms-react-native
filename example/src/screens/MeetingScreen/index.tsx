@@ -236,6 +236,15 @@ const DisplayView = (data: {
       type,
     );
     setPeerTrackNodes(newPeerTrackNodes);
+    if (peer?.isLocal) {
+      data?.setLocalPeer(
+        new HMSLocalPeer({
+          ...peer,
+          localAudioTrackData: peer.audioTrack,
+          localVideoTrackData: peer.videoTrack,
+        }),
+      );
+    }
     peerTrackNodesRef.current = newPeerTrackNodes;
   };
 
@@ -547,7 +556,12 @@ const Footer = ({
       <View style={styles.iconBotttomButtonWrapper}>
         {localPeer?.role?.publishSettings?.allowed?.includes('audio') && (
           <CustomButton
-            onPress={() => console.log('onMicStatusPress')}
+            // onPress={() => console.log('onMicStatusPress')}
+            onPress={() =>
+              localPeer
+                ?.localAudioTrack()
+                ?.setMute(!localPeer?.audioTrack?.isMute())
+            }
             viewStyle={[
               styles.iconContainer,
               localPeer?.audioTrack?.isMute() && styles.iconMuted,
@@ -563,7 +577,12 @@ const Footer = ({
         )}
         {localPeer?.role?.publishSettings?.allowed?.includes('video') && (
           <CustomButton
-            onPress={() => console.log('onVideoStatusPress')}
+            // onPress={() => console.log('onVideoStatusPress')}
+            onPress={() =>
+              localPeer
+                ?.localVideoTrack()
+                ?.setMute(!localPeer?.videoTrack?.isMute())
+            }
             viewStyle={[
               styles.iconContainer,
               localPeer?.videoTrack?.isMute() && styles.iconMuted,
