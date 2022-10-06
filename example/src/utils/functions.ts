@@ -112,7 +112,7 @@ export const getHmsViewHeight = (
   const viewHeight =
     (Dimensions.get('window').height -
       (50 +
-        110 +
+        50 +
         (isTab ? 20 : top + bottom) +
         2 +
         (orientation || Platform.OS === 'ios' ? 0 : 20))) /
@@ -594,4 +594,37 @@ export const createPeerTrackNode = (
         : customTrack?.trackId),
     track: customTrack,
   };
+};
+
+export const pairData = (
+  unGroupedPeerTrackNodes: PeerTrackNode[],
+  batch: number,
+) => {
+  const pairedDataRegular: Array<Array<PeerTrackNode>> = [];
+  const pairedDataSource: Array<Array<PeerTrackNode>> = [];
+  let groupedPeerTrackNodes: Array<PeerTrackNode> = [];
+  let itemsPushed: number = 0;
+
+  unGroupedPeerTrackNodes.map((item: PeerTrackNode) => {
+    if (
+      item.track?.source !== HMSTrackSource.REGULAR &&
+      item.track?.source !== undefined
+    ) {
+      pairedDataSource.push([item]);
+    } else {
+      if (itemsPushed === batch) {
+        pairedDataRegular.push(groupedPeerTrackNodes);
+        groupedPeerTrackNodes = [];
+        itemsPushed = 0;
+      }
+      groupedPeerTrackNodes.push(item);
+      itemsPushed++;
+    }
+  });
+
+  if (groupedPeerTrackNodes.length) {
+    pairedDataRegular.push(groupedPeerTrackNodes);
+  }
+
+  return [...pairedDataSource, ...pairedDataRegular];
 };
