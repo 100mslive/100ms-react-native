@@ -365,6 +365,20 @@ class HMSManager: RCTEventEmitter {
         hms?.audioShareDuration(data, resolve, reject)
     }
 
+    @objc
+    func enableNetworkQualityUpdates(_ data: NSDictionary) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.enableNetworkQualityUpdates()
+    }
+
+    @objc
+    func disableNetworkQualityUpdates(_ data: NSDictionary) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.disableNetworkQualityUpdates()
+    }
+
     // MARK: - HMS SDK Get APIs
     @objc
     func getRoom(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {

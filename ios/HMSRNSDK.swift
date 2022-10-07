@@ -16,7 +16,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     var recentRoleChangeRequest: HMSRoleChangeRequest?
     var delegate: HMSManager?
     var id: String = "12345"
-    var rtcStatsAttached = false
     var recentPreviewTracks: [HMSTrack]? = []
     private var reconnectingStage: Bool = false
     private var preferredExtension: String?
@@ -25,6 +24,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     private var stopScreenshareResolve: RCTPromiseResolveBlock?
     private var isScreenShared: Bool? = false
     private var previewInProgress = false
+    private var rtcStatsAttached = false
+    private var networkQualityUpdatesAttached = false
 
     let ON_PREVIEW = "ON_PREVIEW"
     let ON_JOIN = "ON_JOIN"
@@ -205,6 +206,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 self?.stopScreenshareResolve = nil
                 self?.startScreenshareResolve = nil
                 self?.isScreenShared = false
+                self?.rtcStatsAttached = false
+                self?.networkQualityUpdatesAttached = false
                 self?.hms?.leave({ success, error in
                     if success {
                         resolve?(["success": success])
@@ -975,6 +978,14 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             reject?("AudioFilePlayerNode not found", "AudioFilePlayerNode not found", nil)
         }
     }
+    
+    func enableNetworkQualityUpdates() {
+        networkQualityUpdatesAttached = true
+    }
+
+    func disableNetworkQualityUpdates() {
+        networkQualityUpdatesAttached = false
+    }
 
     // MARK: - HMS SDK Get APIs
     func getRoom(_ resolve: RCTPromiseResolveBlock?) {
@@ -1027,6 +1038,10 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     func on(peer: HMSPeer, update: HMSPeerUpdate) {
         let type = getString(from: update)
         let hmsPeer = HMSDecoder.getHmsPeer(peer)
+        
+        if(!networkQualityUpdatesAttached && update == .networkQualityUpdated){
+            return
+        }
 
         self.delegate?.emitEvent(ON_PEER_UPDATE, ["event": ON_PEER_UPDATE, "id": self.id, "type": type, "peer": hmsPeer])
     }

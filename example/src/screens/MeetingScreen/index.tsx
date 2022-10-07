@@ -31,7 +31,7 @@ import {
   updatePeersTrackNodesOnTrackListener,
 } from '../../utils/functions';
 import {EndRoomModal, LeaveRoomModal, RealTime} from '../Meeting/Modals';
-import {RootState} from '../../redux';
+import type {RootState} from '../../redux';
 import type {AppStackParamList} from '../../navigator';
 import {
   clearHmsReference,
