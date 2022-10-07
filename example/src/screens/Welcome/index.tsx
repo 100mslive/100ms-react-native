@@ -1,6 +1,5 @@
 import {
   HMSAudioCodec,
-  HMSAudioTrack,
   HMSAudioTrackSettings,
   HMSCameraFacing,
   HMSConfig,
@@ -18,7 +17,6 @@ import {
   HMSUpdateListenerActions,
   HMSVideoCodec,
   HMSVideoResolution,
-  HMSVideoTrack,
   HMSVideoTrackSettings,
 } from '@100mslive/react-native-hms';
 import {useNavigation} from '@react-navigation/native';
@@ -75,10 +73,7 @@ const Welcome = () => {
   const [previewButtonLoading, setPreviewButtonLoading] =
     useState<boolean>(false);
   const [joinButtonLoading, setJoinButtonLoading] = useState<boolean>(false);
-  const [previewTracks, setPreviewTracks] = useState<{
-    audioTrack: HMSAudioTrack;
-    videoTrack: HMSVideoTrack;
-  }>();
+  const [previewTracks, setPreviewTracks] = useState<HMSTrack[]>();
   const [hmsRoom, setHmsRoom] = useState<HMSRoom>();
   const [modalType, setModalType] = useState<ModalTypes>(ModalTypes.DEFAULT);
 
@@ -88,7 +83,7 @@ const Welcome = () => {
   // listeners
   const onPreviewSuccess = (data: {
     room: HMSRoom;
-    previewTracks: {audioTrack: HMSAudioTrack; videoTrack: HMSVideoTrack};
+    previewTracks: HMSTrack[];
   }) => {
     console.log('data in onPreviewSuccess: ', data);
     setHmsRoom(data.room);

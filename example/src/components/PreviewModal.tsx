@@ -8,10 +8,11 @@ import {
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import {
-  HMSAudioTrack,
   HMSLocalPeer,
   HMSRoom,
-  HMSVideoTrack,
+  HMSTrack,
+  HMSTrackSource,
+  HMSTrackType,
   HMSVideoViewMode,
 } from '@100mslive/react-native-hms';
 import {useSelector} from 'react-redux';
@@ -30,7 +31,7 @@ export const PreviewModal = ({
   loadingButtonState,
 }: {
   room?: HMSRoom;
-  previewTracks: {audioTrack: HMSAudioTrack; videoTrack: HMSVideoTrack};
+  previewTracks: HMSTrack[];
   join: Function;
   setLoadingButtonState: React.Dispatch<React.SetStateAction<boolean>>;
   loadingButtonState: boolean;
@@ -40,12 +41,11 @@ export const PreviewModal = ({
   );
   const {top, bottom, left, right} = useSafeAreaInsets();
 
-  const [isAudioMute, setIsAudioMute] = useState(
-    previewTracks.audioTrack.isMute(),
-  );
-  const [isVideoMute, setIsVideoMute] = useState(
-    previewTracks.videoTrack.isMute(),
-  );
+  const [previewAudioTrack, setPreviewAudioTrack] = useState<HMSTrack>();
+  const [previewVideoTrack, setPreviewVideoTrack] = useState<HMSTrack>();
+
+  const [isAudioMute, setIsAudioMute] = useState(previewAudioTrack?.isMute());
+  const [isVideoMute, setIsVideoMute] = useState(previewVideoTrack?.isMute());
   const [previewPeer, setPreviewPeer] = useState<HMSLocalPeer>();
   const [numberOfLines, setNumberOfLines] = useState(true);
 
@@ -56,16 +56,30 @@ export const PreviewModal = ({
     previewPeer?.role?.publishSettings?.allowed?.includes('video');
 
   useEffect(() => {
-    const getLocalPeer = async () => {
-      setPreviewPeer(await hmsInstance?.getLocalPeer());
-    };
-    getLocalPeer();
+    hmsInstance?.getLocalPeer().then(localPeer => setPreviewPeer(localPeer));
   }, [hmsInstance]);
+
+  useEffect(() => {
+    previewTracks.map(track => {
+      if (
+        track?.type === HMSTrackType.VIDEO &&
+        track?.source === HMSTrackSource.REGULAR
+      ) {
+        setPreviewVideoTrack(track);
+      }
+      if (
+        track?.type === HMSTrackType.AUDIO &&
+        track?.source === HMSTrackSource.REGULAR
+      ) {
+        setPreviewAudioTrack(track);
+      }
+    });
+  }, [previewTracks]);
 
   return (
     <View style={styles.container}>
       <View style={styles.modalContainer}>
-        {isVideoMute || !HmsView || !previewTracks.videoTrack.trackId ? (
+        {isVideoMute || !HmsView || !previewVideoTrack?.trackId ? (
           <View style={styles.avatarContainer}>
             <View style={styles.avatar}>
               <Text style={styles.avatarText}>
@@ -78,7 +92,7 @@ export const PreviewModal = ({
           <HmsView
             scaleType={HMSVideoViewMode.ASPECT_FILL}
             style={styles.hmsView}
-            trackId={previewTracks.videoTrack.trackId}
+            trackId={previewVideoTrack?.trackId}
             mirror={mirrorLocalVideo}
           />
         )}

@@ -16,6 +16,7 @@ import {
   HMSRemotePeer,
   HMSRole,
   HMSSDK,
+  HMSUpdateListenerActions,
 } from '@100mslive/react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -63,16 +64,18 @@ const ChatFilter = ({
 }) => {
   const [visible, setVisible] = useState<boolean>(false);
   const [remotePeers, setRemotePeers] = useState<HMSRemotePeer[]>();
+  const [hmsRoles, setHmsRoles] = useState<HMSRole[] | undefined>(roles);
 
   const hideMenu = () => setVisible(false);
   const showMenu = () => setVisible(true);
-  const updateRemotePeers = async () => {
-    setRemotePeers(await instance?.getRemotePeers());
-  };
 
   useEffect(() => {
-    updateRemotePeers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    instance?.getRoles().then(currentRoles => {
+      setHmsRoles(currentRoles);
+    });
+    instance?.getRemotePeers().then(currentRemotePeers => {
+      setRemotePeers(currentRemotePeers);
+    });
   }, [instance]);
 
   return (
@@ -109,7 +112,7 @@ const ChatFilter = ({
         </View>
       </MenuItem>
       <MenuDivider color={COLORS.BORDER.LIGHT} />
-      {roles?.map(knownRole => {
+      {hmsRoles?.map(knownRole => {
         return (
           <MenuItem
             onPress={() => {
@@ -158,12 +161,14 @@ export const ChatWindow = ({
   localPeer?: HMSLocalPeer;
   roles?: HMSRole[];
 }) => {
+  // hooks
   const {hmsInstance} = useSelector((state: RootState) => state.user);
   const {messages} = useSelector((state: RootState) => state.messages);
   const dispatch = useDispatch();
   const {bottom} = useSafeAreaInsets();
   const scollviewRef = useRef<ScrollView>(null);
 
+  // useState hook
   const [filter, setFilter] = useState<string>('everyone');
   const [type, setType] = useState<'everyone' | 'role' | 'direct'>('everyone');
   const [receiverObject, setReceiverObject] = useState<
@@ -171,6 +176,24 @@ export const ChatWindow = ({
   >('everyone');
   const [showBanner, setShowBanner] = useState<boolean>(true);
   const [text, setText] = useState('');
+
+  // listeners
+  const onMessageListener = (data: HMSMessage) => {
+    dispatch(addMessage(data));
+    // setNotification(true);
+  };
+
+  // functions
+  const addListener = () => {
+    hmsInstance?.addEventListener(
+      HMSUpdateListenerActions.ON_MESSAGE,
+      onMessageListener,
+    );
+  };
+
+  const removeListener = () => {
+    hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_MESSAGE);
+  };
 
   const sendMessage = () => {
     let hmsMessageRecipient: HMSMessageRecipient;
@@ -215,6 +238,14 @@ export const ChatWindow = ({
   useEffect(() => {
     scollviewRef?.current?.scrollToEnd({animated: true});
   }, [messages]);
+
+  useEffect(() => {
+    addListener();
+    return () => {
+      removeListener();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hmsInstance]);
 
   return (
     <View style={styles.container}>

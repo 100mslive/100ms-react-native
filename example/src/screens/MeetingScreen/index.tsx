@@ -22,7 +22,13 @@ import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
 import {styles} from './styles';
-import {CustomButton, DefaultModal, Menu, MenuItem} from '../../components';
+import {
+  ChatWindow,
+  CustomButton,
+  DefaultModal,
+  Menu,
+  MenuItem,
+} from '../../components';
 import {ModalTypes, PeerTrackNode} from '../../utils/types';
 import {
   pairData,
@@ -382,6 +388,11 @@ const DisplayView = (data: {
           onSuccess={onEndRoomPress}
           cancelModal={() => data?.setModalVisible(ModalTypes.DEFAULT)}
         />
+      </DefaultModal>
+      <DefaultModal
+        modalVisible={data?.modalVisible === ModalTypes.CHAT}
+        setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}>
+        <ChatWindow localPeer={data?.localPeer} />
       </DefaultModal>
     </View>
   );

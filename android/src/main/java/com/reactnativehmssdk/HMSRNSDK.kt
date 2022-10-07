@@ -159,7 +159,7 @@ class HMSRNSDK(
               val hmsRoom = HMSDecoder.getHmsRoom(room)
               val data: WritableMap = Arguments.createMap()
 
-              data.putMap("previewTracks", previewTracks)
+              data.putArray("previewTracks", previewTracks)
               data.putMap("room", hmsRoom)
               data.putString("id", id)
               delegate.emitEvent("ON_PREVIEW", data)

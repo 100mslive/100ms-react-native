@@ -320,15 +320,15 @@ object HMSDecoder {
     return hmsTrack
   }
 
-  fun getPreviewTracks(tracks: Array<HMSTrack>?): WritableMap {
-    val hmsTracks: WritableMap = Arguments.createMap()
+  fun getPreviewTracks(tracks: Array<HMSTrack>?): WritableArray {
+    val hmsTracks: WritableArray = Arguments.createArray()
     if (tracks != null) {
       for (track: HMSTrack in tracks) {
         if (track is HMSLocalVideoTrack) {
-          hmsTracks.putMap("videoTrack", this.getHmsLocalVideoTrack(track))
+          hmsTracks.pushMap(this.getHmsLocalVideoTrack(track))
         }
         if (track is HMSLocalAudioTrack) {
-          hmsTracks.putMap("audioTrack", this.getHmsLocalAudioTrack(track))
+          hmsTracks.pushMap(this.getHmsLocalAudioTrack(track))
         }
       }
     }
