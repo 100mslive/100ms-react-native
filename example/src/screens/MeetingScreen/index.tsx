@@ -683,19 +683,24 @@ const Footer = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
               }
             />
           ))} */}
-        <CustomButton
-          onPress={
-            isScreenShared ? onEndScreenSharePress : onStartScreenSharePress
-          }
-          viewStyle={[styles.iconContainer, isScreenShared && styles.iconMuted]}
-          LeftIcon={
-            <MaterialCommunityIcons
-              name="monitor-share"
-              style={styles.icon}
-              size={iconSize}
-            />
-          }
-        />
+        {localPeer?.role?.publishSettings?.allowed?.includes('screen') && (
+          <CustomButton
+            onPress={
+              isScreenShared ? onEndScreenSharePress : onStartScreenSharePress
+            }
+            viewStyle={[
+              styles.iconContainer,
+              isScreenShared && styles.iconMuted,
+            ]}
+            LeftIcon={
+              <MaterialCommunityIcons
+                name="monitor-share"
+                style={styles.icon}
+                size={iconSize}
+              />
+            }
+          />
+        )}
         <CustomButton
           onPress={() => console.log('onSettingsPress')}
           viewStyle={styles.iconContainer}
