@@ -81,15 +81,28 @@ const Welcome = () => {
   const peerTrackNodesRef = React.useRef<Array<PeerTrackNode>>(peerTrackNodes);
 
   // listeners
-  const onPreviewSuccess = (data: {
-    room: HMSRoom;
-    previewTracks: HMSTrack[];
-  }) => {
+  const onPreviewSuccess = (
+    hmsInstance: HMSSDK,
+    hmsConfig: HMSConfig,
+    data: {
+      room: HMSRoom;
+      previewTracks: HMSTrack[];
+    },
+  ) => {
     console.log('data in onPreviewSuccess: ', data);
     setHmsRoom(data.room);
     setPreviewTracks(data?.previewTracks);
-    setPreviewButtonLoading(false);
-    setModalType(ModalTypes.PREVIEW);
+    if (data?.previewTracks?.length > 0) {
+      setModalType(ModalTypes.PREVIEW);
+    } else {
+      if (hmsConfig) {
+        hmsInstance?.join(hmsConfig);
+      } else {
+        setPreviewButtonLoading(false);
+        setJoinButtonLoading(false);
+        console.log('config: ', hmsConfig);
+      }
+    }
   };
 
   const onJoinSuccess = (data: {room: HMSRoom}) => {
@@ -99,6 +112,7 @@ const Welcome = () => {
     setPeerTrackNodes(latestPeerTrackNodes);
     setHmsRoom(data.room);
     setJoinButtonLoading(false);
+    setPreviewButtonLoading(false);
     setModalType(ModalTypes.DEFAULT);
     navigate('MeetingScreen');
   };
@@ -175,7 +189,7 @@ const Welcome = () => {
 
     hmsInstance?.addEventListener(
       HMSUpdateListenerActions.ON_PREVIEW,
-      onPreviewSuccess,
+      onPreviewSuccess.bind(this, hmsInstance, hmsConfig),
     );
 
     hmsInstance?.addEventListener(
