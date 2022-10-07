@@ -13,6 +13,8 @@
   "dependencies": {
     "@miblanchard/react-native-slider": "^2.0.2",
     "@react-native-camera-roll/camera-roll": "^5.0.2",
+    "@react-native-firebase/app": "^15.7.0",
+    "@react-native-firebase/crashlytics": "^15.7.0",
     "@react-native-picker/picker": "^2.0.0",
     "@react-native/normalize-color": "^2.0.0",
     "@react-navigation/native": "^6.0.8",
