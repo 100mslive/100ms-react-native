@@ -57,7 +57,7 @@ type WelcomeScreenProp = NativeStackNavigationProp<
 
 const Welcome = () => {
   // hooks
-  const navigate = useNavigation<WelcomeScreenProp>().navigate;
+  const replace = useNavigation<WelcomeScreenProp>().replace;
   const {roomID, userName} = useSelector((state: RootState) => state.user);
   const {top, bottom, left, right} = useSafeAreaInsets();
   const dispatch = useDispatch();
@@ -114,7 +114,7 @@ const Welcome = () => {
     setJoinButtonLoading(false);
     setPreviewButtonLoading(false);
     setModalType(ModalTypes.DEFAULT);
-    navigate('MeetingScreen');
+    replace('MeetingScreen');
   };
 
   const onError = (data: HMSException) => {
@@ -348,6 +348,17 @@ const Welcome = () => {
       setNameDisabled(!validateName(peerName));
     };
   }, [peerName]);
+
+  useEffect(() => {
+    return () => {
+      instance?.removeEventListener(HMSUpdateListenerActions.ON_PREVIEW);
+      instance?.removeEventListener(HMSUpdateListenerActions.ON_JOIN);
+      instance?.removeEventListener(HMSUpdateListenerActions.ON_ROOM_UPDATE);
+      instance?.removeEventListener(HMSUpdateListenerActions.ON_PEER_UPDATE);
+      instance?.removeEventListener(HMSUpdateListenerActions.ON_TRACK_UPDATE);
+      instance?.removeEventListener(HMSUpdateListenerActions.ON_ERROR);
+    };
+  }, [instance]);
 
   return modalType === ModalTypes.PREVIEW && previewTracks ? (
     <PreviewModal

@@ -389,6 +389,7 @@ const DisplayView = (data: {
           cancelModal={() => data?.setModalVisible(ModalTypes.DEFAULT)}
         />
       </DefaultModal>
+      {/* TODO: message notification */}
       <DefaultModal
         modalVisible={data?.modalVisible === ModalTypes.CHAT}
         setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}>
