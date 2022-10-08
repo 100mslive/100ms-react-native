@@ -110,7 +110,6 @@ export class HMSSDK {
       preferredExtension: params?.preferredExtension, // required for iOS Screenshare, not required for Android
     });
     HmsSdk = new HMSSDK(id);
-    HmsSdk.attachPreviewListener();
     HmsSdk.attachListeners();
     return HmsSdk;
   }
@@ -145,24 +144,16 @@ export class HMSSDK {
   };
 
   /**
-   * - Attaches preview listener for native callbacks.
-   * Note:this function connects sdk to native side and not app to sdk.
-   *
-   * @memberof HMSSDK
-   */
-  attachPreviewListener = () => {
-    HmsEventEmitter.addListener(
-      HMSUpdateListenerActions.ON_PREVIEW,
-      this.onPreviewListener
-    );
-  };
-
-  /**
    * - Attaches all the listeners to native callbacks.
    * Note: this function connects sdk to native side and not app to sdk.
    * @memberof HMSSDK
    */
   attachListeners = () => {
+    HmsEventEmitter.addListener(
+      HMSUpdateListenerActions.ON_PREVIEW,
+      this.onPreviewListener
+    );
+
     HmsEventEmitter.addListener(
       HMSUpdateListenerActions.ON_JOIN,
       this.onJoinListener
@@ -263,6 +254,11 @@ export class HMSSDK {
     HmsEventEmitter.removeListener(
       HMSUpdateListenerActions.ON_JOIN,
       this.onJoinListener
+    );
+
+    HmsEventEmitter.removeListener(
+      HMSUpdateListenerActions.ON_PREVIEW,
+      this.onPreviewListener
     );
 
     HmsEventEmitter.removeListener(
@@ -1369,7 +1365,10 @@ export class HMSSDK {
       return;
     }
     const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room, this.id);
-    const previewTracks = HMSEncoder.encodeHmsPreviewTracks(data.previewTracks);
+    const previewTracks = HMSEncoder.encodeHmsPreviewTracks(
+      data.previewTracks,
+      this.id
+    );
 
     if (this.onPreviewDelegate) {
       logger?.verbose('#Listener ON_PREVIEW_LISTENER_CALL', {
