@@ -316,17 +316,10 @@ export class HMSEncoder {
     return new HMSRemoteVideoTrack(encodedObj);
   }
 
-  static encodeHmsPreviewTracks(previewTracks: any) {
-    const encodedObj = {
-      audioTrack: previewTracks.audioTrack
-        ? new HMSLocalAudioTrack(previewTracks.audioTrack)
-        : null,
-      videoTrack: previewTracks.videoTrack
-        ? new HMSLocalVideoTrack(previewTracks.videoTrack)
-        : null,
-    };
-
-    return encodedObj;
+  static encodeHmsPreviewTracks(previewTracks: any[], id: string) {
+    return previewTracks?.map((track) => {
+      return this.encodeHmsTrack(track, id);
+    });
   }
 
   static encodeHmsRoles(roles: any[]) {

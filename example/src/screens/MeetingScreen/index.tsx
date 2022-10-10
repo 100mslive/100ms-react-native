@@ -22,7 +22,13 @@ import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
 import {styles} from './styles';
-import {CustomButton, DefaultModal, Menu, MenuItem} from '../../components';
+import {
+  ChatWindow,
+  CustomButton,
+  DefaultModal,
+  Menu,
+  MenuItem,
+} from '../../components';
 import {ModalTypes, PeerTrackNode} from '../../utils/types';
 import {
   pairData,
@@ -383,6 +389,12 @@ const DisplayView = (data: {
           cancelModal={() => data?.setModalVisible(ModalTypes.DEFAULT)}
         />
       </DefaultModal>
+      {/* TODO: message notification */}
+      <DefaultModal
+        modalVisible={data?.modalVisible === ModalTypes.CHAT}
+        setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}>
+        <ChatWindow localPeer={data?.localPeer} />
+      </DefaultModal>
     </View>
   );
 };
@@ -671,19 +683,24 @@ const Footer = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
               }
             />
           ))} */}
-        <CustomButton
-          onPress={
-            isScreenShared ? onEndScreenSharePress : onStartScreenSharePress
-          }
-          viewStyle={[styles.iconContainer, isScreenShared && styles.iconMuted]}
-          LeftIcon={
-            <MaterialCommunityIcons
-              name="monitor-share"
-              style={styles.icon}
-              size={iconSize}
-            />
-          }
-        />
+        {localPeer?.role?.publishSettings?.allowed?.includes('screen') && (
+          <CustomButton
+            onPress={
+              isScreenShared ? onEndScreenSharePress : onStartScreenSharePress
+            }
+            viewStyle={[
+              styles.iconContainer,
+              isScreenShared && styles.iconMuted,
+            ]}
+            LeftIcon={
+              <MaterialCommunityIcons
+                name="monitor-share"
+                style={styles.icon}
+                size={iconSize}
+              />
+            }
+          />
+        )}
         <CustomButton
           onPress={() => console.log('onSettingsPress')}
           viewStyle={styles.iconContainer}

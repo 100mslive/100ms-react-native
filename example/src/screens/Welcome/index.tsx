@@ -1,6 +1,5 @@
 import {
   HMSAudioCodec,
-  HMSAudioTrack,
   HMSAudioTrackSettings,
   HMSCameraFacing,
   HMSConfig,
@@ -18,7 +17,6 @@ import {
   HMSUpdateListenerActions,
   HMSVideoCodec,
   HMSVideoResolution,
-  HMSVideoTrack,
   HMSVideoTrackSettings,
 } from '@100mslive/react-native-hms';
 import {useNavigation} from '@react-navigation/native';
@@ -59,7 +57,7 @@ type WelcomeScreenProp = NativeStackNavigationProp<
 
 const Welcome = () => {
   // hooks
-  const navigate = useNavigation<WelcomeScreenProp>().navigate;
+  const replace = useNavigation<WelcomeScreenProp>().replace;
   const {roomID, userName} = useSelector((state: RootState) => state.user);
   const {top, bottom, left, right} = useSafeAreaInsets();
   const dispatch = useDispatch();
@@ -75,10 +73,7 @@ const Welcome = () => {
   const [previewButtonLoading, setPreviewButtonLoading] =
     useState<boolean>(false);
   const [joinButtonLoading, setJoinButtonLoading] = useState<boolean>(false);
-  const [previewTracks, setPreviewTracks] = useState<{
-    audioTrack: HMSAudioTrack;
-    videoTrack: HMSVideoTrack;
-  }>();
+  const [previewTracks, setPreviewTracks] = useState<HMSTrack[]>();
   const [hmsRoom, setHmsRoom] = useState<HMSRoom>();
   const [modalType, setModalType] = useState<ModalTypes>(ModalTypes.DEFAULT);
 
@@ -86,15 +81,28 @@ const Welcome = () => {
   const peerTrackNodesRef = React.useRef<Array<PeerTrackNode>>(peerTrackNodes);
 
   // listeners
-  const onPreviewSuccess = (data: {
-    room: HMSRoom;
-    previewTracks: {audioTrack: HMSAudioTrack; videoTrack: HMSVideoTrack};
-  }) => {
+  const onPreviewSuccess = (
+    hmsInstance: HMSSDK,
+    hmsConfig: HMSConfig,
+    data: {
+      room: HMSRoom;
+      previewTracks: HMSTrack[];
+    },
+  ) => {
     console.log('data in onPreviewSuccess: ', data);
     setHmsRoom(data.room);
     setPreviewTracks(data?.previewTracks);
-    setPreviewButtonLoading(false);
-    setModalType(ModalTypes.PREVIEW);
+    if (data?.previewTracks?.length > 0) {
+      setModalType(ModalTypes.PREVIEW);
+    } else {
+      if (hmsConfig) {
+        hmsInstance?.join(hmsConfig);
+      } else {
+        setPreviewButtonLoading(false);
+        setJoinButtonLoading(false);
+        console.log('config: ', hmsConfig);
+      }
+    }
   };
 
   const onJoinSuccess = (data: {room: HMSRoom}) => {
@@ -104,8 +112,9 @@ const Welcome = () => {
     setPeerTrackNodes(latestPeerTrackNodes);
     setHmsRoom(data.room);
     setJoinButtonLoading(false);
+    setPreviewButtonLoading(false);
     setModalType(ModalTypes.DEFAULT);
-    navigate('MeetingScreen');
+    replace('MeetingScreen');
   };
 
   const onError = (data: HMSException) => {
@@ -180,7 +189,7 @@ const Welcome = () => {
 
     hmsInstance?.addEventListener(
       HMSUpdateListenerActions.ON_PREVIEW,
-      onPreviewSuccess,
+      onPreviewSuccess.bind(this, hmsInstance, hmsConfig),
     );
 
     hmsInstance?.addEventListener(
@@ -339,6 +348,17 @@ const Welcome = () => {
       setNameDisabled(!validateName(peerName));
     };
   }, [peerName]);
+
+  useEffect(() => {
+    return () => {
+      instance?.removeEventListener(HMSUpdateListenerActions.ON_PREVIEW);
+      instance?.removeEventListener(HMSUpdateListenerActions.ON_JOIN);
+      instance?.removeEventListener(HMSUpdateListenerActions.ON_ROOM_UPDATE);
+      instance?.removeEventListener(HMSUpdateListenerActions.ON_PEER_UPDATE);
+      instance?.removeEventListener(HMSUpdateListenerActions.ON_TRACK_UPDATE);
+      instance?.removeEventListener(HMSUpdateListenerActions.ON_ERROR);
+    };
+  }, [instance]);
 
   return modalType === ModalTypes.PREVIEW && previewTracks ? (
     <PreviewModal

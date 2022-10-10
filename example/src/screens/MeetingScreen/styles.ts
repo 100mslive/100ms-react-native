@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
     alignItems: 'center',
   },
   iconBotttomWrapper: {
