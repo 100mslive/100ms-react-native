@@ -9,7 +9,6 @@ target 'RNHMSExampleBroadcastUpload' do
 end
 
 target 'RNHMSExample' do
-  use_modular_headers!
   config = use_native_modules!
   permissions_path = '../node_modules/react-native-permissions/ios'
 
