@@ -859,6 +859,28 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginTop: 48,
   },
+  welcomeContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  welcomeHeading: {
+    fontSize: 28,
+    lineHeight: 36,
+    letterSpacing: 0.1,
+    fontFamily: 'Inter-Bold',
+    textAlign: 'center',
+    color: COLORS.TEXT.HIGH_EMPHASIS,
+    paddingBottom: 32,
+  },
+  welcomeDescription: {
+    fontSize: 16,
+    lineHeight: 24,
+    letterSpacing: 0.15,
+    fontFamily: 'Inter-Medium',
+    textAlign: 'center',
+    color: COLORS.TEXT.MEDIUM_EMPHASIS,
+  },
 });
 
 export {styles};

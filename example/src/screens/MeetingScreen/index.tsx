@@ -75,7 +75,16 @@ const Meeting = () => {
         setRoom={setRoom}
         setLocalPeer={setLocalPeer}
       />
-      <Footer localPeer={localPeer} />
+      <Footer
+        isScreenShared={
+          localPeer?.auxiliaryTracks && localPeer?.auxiliaryTracks?.length > 0
+        }
+        publishSettingsAllowed={localPeer?.role?.publishSettings?.allowed}
+        audioSetMute={localPeer?.localAudioTrack()?.setMute}
+        audioIsMute={localPeer?.audioTrack?.isMute}
+        videoSetMute={localPeer?.localVideoTrack()?.setMute}
+        videoIsMute={localPeer?.videoTrack?.isMute}
+      />
     </SafeAreaView>
   );
 };
@@ -341,7 +350,7 @@ const DisplayView = (data: {
   };
 
   const updateLocalPeer = () => {
-    peerState.map(peerTrackNode => {
+    peerTrackNodes?.map(peerTrackNode => {
       if (peerTrackNode?.peer?.isLocal) {
         data?.setLocalPeer(
           new HMSLocalPeer({
@@ -366,7 +375,19 @@ const DisplayView = (data: {
 
   return (
     <View style={styles.container}>
-      <GridView pairedPeers={pairedPeers} />
+      {pairedPeers.length ? (
+        <GridView pairedPeers={pairedPeers} />
+      ) : (
+        <View style={styles.welcomeContainer}>
+          <Text style={styles.welcomeHeading}>Welcome!</Text>
+          <Text style={styles.welcomeDescription}>
+            You’re the first one here.
+          </Text>
+          <Text style={styles.welcomeDescription}>
+            Sit back and relax till the others join.
+          </Text>
+        </View>
+      )}
       <DefaultModal
         animationType="fade"
         overlay={false}
@@ -583,15 +604,27 @@ const Header = ({
   );
 };
 
-const Footer = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
+const Footer = ({
+  isScreenShared,
+  publishSettingsAllowed,
+  audioSetMute,
+  audioIsMute,
+  videoSetMute,
+  videoIsMute,
+}: {
+  isScreenShared?: boolean;
+  publishSettingsAllowed?: string[];
+  audioSetMute?: Function;
+  audioIsMute?: Function;
+  videoSetMute?: Function;
+  videoIsMute?: Function;
+}) => {
   // hooks
   const {hmsInstance} = useSelector((state: RootState) => state.user);
   const {left, right} = useSafeAreaInsets();
 
   // constants
   const iconSize = 20;
-  const isScreenShared =
-    localPeer?.auxiliaryTracks && localPeer?.auxiliaryTracks?.length > 0;
 
   // functions
   const onStartScreenSharePress = () => {
@@ -617,40 +650,36 @@ const Footer = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
         {left, right},
       ]}>
       <View style={styles.iconBotttomButtonWrapper}>
-        {localPeer?.role?.publishSettings?.allowed?.includes('audio') && (
+        {publishSettingsAllowed?.includes('audio') && (
           <CustomButton
             onPress={() =>
-              localPeer
-                ?.localAudioTrack()
-                ?.setMute(!localPeer?.audioTrack?.isMute())
+              audioSetMute && audioIsMute && audioSetMute(!audioIsMute())
             }
             viewStyle={[
               styles.iconContainer,
-              localPeer?.audioTrack?.isMute() && styles.iconMuted,
+              audioIsMute && audioIsMute() && styles.iconMuted,
             ]}
             LeftIcon={
               <Feather
-                name={localPeer?.audioTrack?.isMute() ? 'mic-off' : 'mic'}
+                name={audioIsMute && audioIsMute() ? 'mic-off' : 'mic'}
                 style={styles.icon}
                 size={iconSize}
               />
             }
           />
         )}
-        {localPeer?.role?.publishSettings?.allowed?.includes('video') && (
+        {publishSettingsAllowed?.includes('video') && (
           <CustomButton
             onPress={() =>
-              localPeer
-                ?.localVideoTrack()
-                ?.setMute(!localPeer?.videoTrack?.isMute())
+              videoSetMute && videoIsMute && videoSetMute(!videoIsMute())
             }
             viewStyle={[
               styles.iconContainer,
-              localPeer?.videoTrack?.isMute() && styles.iconMuted,
+              videoIsMute && videoIsMute() && styles.iconMuted,
             ]}
             LeftIcon={
               <Feather
-                name={localPeer?.videoTrack?.isMute() ? 'video-off' : 'video'}
+                name={videoIsMute && videoIsMute() ? 'video-off' : 'video'}
                 style={styles.icon}
                 size={iconSize}
               />
@@ -683,7 +712,7 @@ const Footer = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
               }
             />
           ))} */}
-        {localPeer?.role?.publishSettings?.allowed?.includes('screen') && (
+        {publishSettingsAllowed?.includes('screen') && (
           <CustomButton
             onPress={
               isScreenShared ? onEndScreenSharePress : onStartScreenSharePress

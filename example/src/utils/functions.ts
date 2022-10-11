@@ -363,31 +363,8 @@ export const updatePeersTrackNodesOnPeerListener = (
   peer: HMSPeer,
   type: HMSPeerUpdate,
 ): PeerTrackNode[] => {
-  const oldPeerTrackNodes: PeerTrackNode[] = peerTrackNodes;
-  if (type === HMSPeerUpdate.PEER_JOINED) {
-    let alreadyPresent = false;
-    const updatePeerTrackNodes = oldPeerTrackNodes?.map(peerTrackNode => {
-      if (peerTrackNode.peer.peerID === peer.peerID) {
-        alreadyPresent = true;
-        return {
-          ...peerTrackNode,
-          peer,
-        };
-      }
-      return peerTrackNode;
-    });
-    if (alreadyPresent) {
-      return updatePeerTrackNodes;
-    } else {
-      const newPeerTrackNode: PeerTrackNode = {
-        id: peer.peerID + HMSTrackSource.REGULAR,
-        peer,
-        track: peer.videoTrack,
-      };
-      updatePeerTrackNodes?.push(newPeerTrackNode);
-      return updatePeerTrackNodes;
-    }
-  } else if (type === HMSPeerUpdate.PEER_LEFT) {
+  const oldPeerTrackNodes = peerTrackNodes;
+  if (type === HMSPeerUpdate.PEER_LEFT) {
     return oldPeerTrackNodes?.filter(peerTrackNode => {
       if (peerTrackNode.peer.peerID === peer.peerID) {
         return false;
@@ -416,14 +393,10 @@ export const updatePeersTrackNodesOnTrackListener = (
   const oldPeerTrackNodes: PeerTrackNode[] = peerTrackNodes;
   const uniqueId =
     peer.peerID +
-    (track.source === undefined || track.source === HMSTrackSource.REGULAR
-      ? HMSTrackSource.REGULAR
-      : track.trackId);
+    (track.source === undefined ? HMSTrackSource.REGULAR : track.source);
   const isVideo = track.type === HMSTrackType.VIDEO;
-  if (
-    type === HMSTrackUpdate.TRACK_ADDED
-    // && !(track.source === HMSTrackSource.SCREEN && peer.isLocal) // add this condition to remove local screenshare
-  ) {
+
+  if (type === HMSTrackUpdate.TRACK_ADDED) {
     let alreadyPresent = false;
     const updatePeerTrackNodes = oldPeerTrackNodes?.map(peerTrackNode => {
       if (peerTrackNode.id === uniqueId) {
@@ -445,21 +418,23 @@ export const updatePeersTrackNodesOnTrackListener = (
     });
     if (alreadyPresent) {
       return updatePeerTrackNodes;
-    } else if (!alreadyPresent && isVideo) {
-      const newPeerTrackNode: PeerTrackNode = {
-        id: uniqueId,
-        peer,
-        track,
-      };
-      // push screenshare track to 0th index
-      if (track.source === HMSTrackSource.SCREEN) {
-        return [newPeerTrackNode, ...updatePeerTrackNodes];
+    } else {
+      let newPeerTrackNode: PeerTrackNode;
+      if (isVideo) {
+        newPeerTrackNode = {
+          id: uniqueId,
+          peer,
+          track,
+        };
       } else {
-        updatePeerTrackNodes.push(newPeerTrackNode);
-        return updatePeerTrackNodes;
+        newPeerTrackNode = {
+          id: uniqueId,
+          peer,
+        };
       }
+      updatePeerTrackNodes.push(newPeerTrackNode);
+      return updatePeerTrackNodes;
     }
-    return oldPeerTrackNodes;
   } else if (type === HMSTrackUpdate.TRACK_REMOVED) {
     if (
       track.source !== HMSTrackSource.REGULAR ||
@@ -573,27 +548,6 @@ export const checkPermissions = async (
       console.log(error);
       return false;
     });
-};
-
-export const createPeerTrackNodes = (peers: HMSPeer[]): PeerTrackNode[] => {
-  return peers.map(peer => createPeerTrackNode(peer));
-};
-
-export const createPeerTrackNode = (
-  peer: HMSPeer,
-  track?: HMSTrack,
-): PeerTrackNode => {
-  const customTrack = track ? track : peer.videoTrack;
-  return {
-    peer,
-    id:
-      peer.peerID +
-      (customTrack?.source === undefined ||
-      customTrack?.source === HMSTrackSource.REGULAR
-        ? HMSTrackSource.REGULAR
-        : customTrack?.trackId),
-    track: customTrack,
-  };
 };
 
 export const pairData = (

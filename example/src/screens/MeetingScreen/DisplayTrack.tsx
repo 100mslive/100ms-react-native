@@ -119,8 +119,9 @@ const DisplayTrack = ({
       )}
       <View style={styles.peerNameContainer}>
         <Text numberOfLines={2} style={styles.peerName}>
-          {videoTrack?.source === HMSTrackSource.SCREEN
-            ? `${peerName}'s Screen`
+          {videoTrack?.source !== undefined &&
+          videoTrack?.source !== HMSTrackSource.REGULAR
+            ? `${peerName}'s ${videoTrack.source}`
             : isLocal
             ? `You (${peerName})`
             : peerName}

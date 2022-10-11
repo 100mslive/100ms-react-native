@@ -39,7 +39,6 @@ import {CustomButton, CustomInput, PreviewModal} from '../../components';
 import {saveUserData, setPeerState} from '../../redux/actions';
 import {
   callService,
-  createPeerTrackNodes,
   updatePeersTrackNodesOnPeerListener,
   updatePeersTrackNodesOnTrackListener,
 } from '../../utils/functions';
@@ -89,7 +88,6 @@ const Welcome = () => {
       previewTracks: HMSTrack[];
     },
   ) => {
-    console.log('data in onPreviewSuccess: ', data);
     setHmsRoom(data.room);
     setPreviewTracks(data?.previewTracks);
     if (data?.previewTracks?.length > 0) {
@@ -106,10 +104,7 @@ const Welcome = () => {
   };
 
   const onJoinSuccess = (data: {room: HMSRoom}) => {
-    console.log('data in onJoinSuccess: ', data);
-    const latestPeerTrackNodes = createPeerTrackNodes(data.room.peers);
-    dispatch(setPeerState({peerState: latestPeerTrackNodes}));
-    setPeerTrackNodes(latestPeerTrackNodes);
+    dispatch(setPeerState({peerState: peerTrackNodesRef?.current}));
     setHmsRoom(data.room);
     setJoinButtonLoading(false);
     setPreviewButtonLoading(false);
@@ -118,7 +113,6 @@ const Welcome = () => {
   };
 
   const onError = (data: HMSException) => {
-    console.log('data in onError: ', data);
     setPreviewButtonLoading(false);
     setJoinButtonLoading(false);
     Toast.showWithGravity(
@@ -129,12 +123,10 @@ const Welcome = () => {
   };
 
   const onRoomListener = (data: {room: HMSRoom; type: HMSRoomUpdate}) => {
-    console.log('data in onRoomListener: ', data);
     setHmsRoom(data.room);
   };
 
   const onPeerListener = (data: {peer: HMSPeer; type: HMSPeerUpdate}) => {
-    console.log('data in onPeerListener: ', data);
     const newPeerTrackNodes = updatePeersTrackNodesOnPeerListener(
       peerTrackNodesRef?.current,
       data.peer,
@@ -149,7 +141,6 @@ const Welcome = () => {
     track: HMSTrack;
     type: HMSTrackUpdate;
   }) => {
-    console.log('data in onTrackListener: ', data);
     const newPeerTrackNodes = updatePeersTrackNodesOnTrackListener(
       peerTrackNodesRef?.current,
       data.track,

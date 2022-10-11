@@ -15,7 +15,13 @@ type GridViewProps = {
 const GridView = ({pairedPeers}: GridViewProps) => {
   // hooks
   const {left, right, top, bottom} = useSafeAreaInsets();
+
+  // useRef hook
   const flatlistRef = useRef<FlatList>(null);
+
+  if (pairedPeers.length) {
+    flatlistRef?.current?.scrollToEnd();
+  }
 
   return (
     <FlatList
@@ -43,7 +49,8 @@ const GridView = ({pairedPeers}: GridViewProps) => {
               return (
                 <View
                   style={[
-                    view?.track?.source === HMSTrackSource.SCREEN
+                    view?.track?.source !== undefined &&
+                    view?.track?.source !== HMSTrackSource.REGULAR
                       ? styles.flex
                       : {
                           ...getHmsViewHeight(
