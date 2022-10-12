@@ -19,10 +19,6 @@ const GridView = ({pairedPeers}: GridViewProps) => {
   // useRef hook
   const flatlistRef = useRef<FlatList>(null);
 
-  if (pairedPeers.length) {
-    flatlistRef?.current?.scrollToEnd();
-  }
-
   return (
     <FlatList
       ref={flatlistRef}
