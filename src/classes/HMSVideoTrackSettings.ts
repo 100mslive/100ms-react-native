@@ -11,6 +11,7 @@ export class HMSVideoTrackSettings {
   cameraFacing: HMSCameraFacing;
   trackDescription?: string;
   simulcastSettings?: HMSSimulcastLayerSettings[];
+  forceSoftwareDecoder?: boolean;
 
   constructor(params: {
     codec: HMSVideoCodec;
@@ -20,6 +21,7 @@ export class HMSVideoTrackSettings {
     cameraFacing: HMSCameraFacing;
     trackDescription?: string;
     simulcastSettings?: HMSSimulcastLayerSettings[];
+    forceSoftwareDecoder?: boolean;
   }) {
     this.codec = params.codec;
     this.resolution = params.resolution;
@@ -28,5 +30,6 @@ export class HMSVideoTrackSettings {
     this.cameraFacing = params.cameraFacing;
     this.trackDescription = params.trackDescription;
     this.simulcastSettings = params.simulcastSettings;
+    this.forceSoftwareDecoder = params.forceSoftwareDecoder;
   }
 }

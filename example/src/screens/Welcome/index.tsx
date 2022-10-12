@@ -244,6 +244,7 @@ const Welcome = () => {
       cameraFacing: HMSCameraFacing.FRONT,
       trackDescription: 'Simple Video Track',
       resolution: new HMSVideoResolution({height: 180, width: 320}),
+      forceSoftwareDecoder: true,
     });
 
     const listOfFaultyDevices = [
