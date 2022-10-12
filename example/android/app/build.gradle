@@ -1,6 +1,4 @@
 apply plugin: "com.android.application"
-apply plugin: 'com.google.gms.google-services' // apply after this line
-apply plugin: 'com.google.firebase.crashlytics'
 import com.android.build.OutputFile
 
 /**
@@ -167,11 +165,7 @@ android {
             shrinkResources true
             minifyEnabled true
             signingConfig signingConfigs.debug
-            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-	    firebaseCrashlytics {
-                nativeSymbolUploadEnabled true
-                unstrippedNativeLibsDir 'build/intermediates/merged_native_libs/release/out/lib'
-            }        
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"      
         }
     }
 
