@@ -75,16 +75,7 @@ const Meeting = () => {
         setRoom={setRoom}
         setLocalPeer={setLocalPeer}
       />
-      <Footer
-        isScreenShared={
-          localPeer?.auxiliaryTracks && localPeer?.auxiliaryTracks?.length > 0
-        }
-        publishSettingsAllowed={localPeer?.role?.publishSettings?.allowed}
-        audioSetMute={localPeer?.localAudioTrack()?.setMute}
-        audioIsMute={localPeer?.audioTrack?.isMute}
-        videoSetMute={localPeer?.localVideoTrack()?.setMute}
-        videoIsMute={localPeer?.videoTrack?.isMute}
-      />
+      <Footer localPeer={localPeer} />
     </SafeAreaView>
   );
 };
@@ -545,13 +536,13 @@ const Header = ({
         {isScreenShared && (
           <Feather name="copy" style={styles.roomStatus} size={iconSize} />
         )}
-        <CustomButton
+        {/* <CustomButton
           onPress={() => console.log('onParticipantsPress')}
           viewStyle={styles.iconContainer}
           LeftIcon={
             <Ionicons name="people" style={styles.icon} size={iconSize} />
           }
-        />
+        /> */}
         <CustomButton
           onPress={onRaiseHandPress}
           viewStyle={[
@@ -604,27 +595,15 @@ const Header = ({
   );
 };
 
-const Footer = ({
-  isScreenShared,
-  publishSettingsAllowed,
-  audioSetMute,
-  audioIsMute,
-  videoSetMute,
-  videoIsMute,
-}: {
-  isScreenShared?: boolean;
-  publishSettingsAllowed?: string[];
-  audioSetMute?: Function;
-  audioIsMute?: Function;
-  videoSetMute?: Function;
-  videoIsMute?: Function;
-}) => {
+const Footer = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
   // hooks
   const {hmsInstance} = useSelector((state: RootState) => state.user);
   const {left, right} = useSafeAreaInsets();
 
   // constants
   const iconSize = 20;
+  const isScreenShared =
+    localPeer?.auxiliaryTracks && localPeer?.auxiliaryTracks?.length > 0;
 
   // functions
   const onStartScreenSharePress = () => {
@@ -650,36 +629,40 @@ const Footer = ({
         {left, right},
       ]}>
       <View style={styles.iconBotttomButtonWrapper}>
-        {publishSettingsAllowed?.includes('audio') && (
+        {localPeer?.role?.publishSettings?.allowed?.includes('audio') && (
           <CustomButton
             onPress={() =>
-              audioSetMute && audioIsMute && audioSetMute(!audioIsMute())
+              localPeer
+                ?.localAudioTrack()
+                ?.setMute(!localPeer?.audioTrack?.isMute())
             }
             viewStyle={[
               styles.iconContainer,
-              audioIsMute && audioIsMute() && styles.iconMuted,
+              localPeer?.audioTrack?.isMute() && styles.iconMuted,
             ]}
             LeftIcon={
               <Feather
-                name={audioIsMute && audioIsMute() ? 'mic-off' : 'mic'}
+                name={localPeer?.audioTrack?.isMute() ? 'mic-off' : 'mic'}
                 style={styles.icon}
                 size={iconSize}
               />
             }
           />
         )}
-        {publishSettingsAllowed?.includes('video') && (
+        {localPeer?.role?.publishSettings?.allowed?.includes('video') && (
           <CustomButton
             onPress={() =>
-              videoSetMute && videoIsMute && videoSetMute(!videoIsMute())
+              localPeer
+                ?.localVideoTrack()
+                ?.setMute(!localPeer?.videoTrack?.isMute())
             }
             viewStyle={[
               styles.iconContainer,
-              videoIsMute && videoIsMute() && styles.iconMuted,
+              localPeer?.videoTrack?.isMute() && styles.iconMuted,
             ]}
             LeftIcon={
               <Feather
-                name={videoIsMute && videoIsMute() ? 'video-off' : 'video'}
+                name={localPeer?.videoTrack?.isMute() ? 'video-off' : 'video'}
                 style={styles.icon}
                 size={iconSize}
               />
@@ -712,7 +695,7 @@ const Footer = ({
               }
             />
           ))} */}
-        {publishSettingsAllowed?.includes('screen') && (
+        {localPeer?.role?.publishSettings?.allowed?.includes('screen') && (
           <CustomButton
             onPress={
               isScreenShared ? onEndScreenSharePress : onStartScreenSharePress

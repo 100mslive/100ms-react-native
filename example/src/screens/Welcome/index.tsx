@@ -34,8 +34,15 @@ import {getModel} from 'react-native-device-info';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Toast from 'react-native-simple-toast';
 import {useDispatch, useSelector} from 'react-redux';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-import {CustomButton, CustomInput, PreviewModal} from '../../components';
+import {
+  CustomButton,
+  CustomInput,
+  PreviewModal,
+  Menu,
+  MenuItem,
+} from '../../components';
 import {saveUserData, setPeerState} from '../../redux/actions';
 import {
   callService,
@@ -75,6 +82,8 @@ const Welcome = () => {
   const [previewTracks, setPreviewTracks] = useState<HMSTrack[]>();
   const [hmsRoom, setHmsRoom] = useState<HMSRoom>();
   const [modalType, setModalType] = useState<ModalTypes>(ModalTypes.DEFAULT);
+  const [forceSoftwareDecoder, setForceSoftwareDecoder] = useState(true);
+  const [mirrorLocalVideo, setMirrorLocalVideo] = useState(false);
 
   // useRef hook
   const peerTrackNodesRef = React.useRef<Array<PeerTrackNode>>(peerTrackNodes);
@@ -210,6 +219,7 @@ const Welcome = () => {
         userName: userID,
         roomCode,
         hmsInstance,
+        mirrorLocalVideo,
       }),
     );
 
@@ -244,7 +254,7 @@ const Welcome = () => {
       cameraFacing: HMSCameraFacing.FRONT,
       trackDescription: 'Simple Video Track',
       resolution: new HMSVideoResolution({height: 180, width: 320}),
-      forceSoftwareDecoder: true,
+      forceSoftwareDecoder,
     });
 
     const listOfFaultyDevices = [
@@ -365,6 +375,54 @@ const Welcome = () => {
       enabled={Platform.OS === 'ios'}
       behavior="padding"
       style={styles.container}>
+      <View style={styles.settingsContainer}>
+        <Menu
+          visible={modalType === ModalTypes.WELCOME_SETTINGS}
+          onRequestClose={() => setModalType(ModalTypes.DEFAULT)}
+          style={styles.settingsMenuContainer}>
+          <MenuItem
+            onPress={() => {
+              setModalType(ModalTypes.DEFAULT);
+              setMirrorLocalVideo(!mirrorLocalVideo);
+            }}>
+            {mirrorLocalVideo ? (
+              <Text style={styles.settingsMenuItemName}>
+                Don't mirror local video
+              </Text>
+            ) : (
+              <Text style={styles.settingsMenuItemName}>
+                Mirror local video
+              </Text>
+            )}
+          </MenuItem>
+          <MenuItem
+            onPress={() => {
+              setModalType(ModalTypes.DEFAULT);
+              setForceSoftwareDecoder(!forceSoftwareDecoder);
+            }}>
+            {forceSoftwareDecoder ? (
+              <Text style={styles.settingsMenuItemName}>
+                Disable software encoder
+              </Text>
+            ) : (
+              <Text style={styles.settingsMenuItemName}>
+                Enable software encoder
+              </Text>
+            )}
+          </MenuItem>
+        </Menu>
+        <CustomButton
+          onPress={() => setModalType(ModalTypes.WELCOME_SETTINGS)}
+          viewStyle={styles.settingsButton}
+          LeftIcon={
+            <MaterialCommunityIcons
+              name="dots-vertical"
+              style={styles.settingsIcon}
+              size={24}
+            />
+          }
+        />
+      </View>
       <ScrollView
         contentContainerStyle={[
           styles.contentContainerStyle,
