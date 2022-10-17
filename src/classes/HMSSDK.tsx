@@ -49,6 +49,8 @@ const {
   HMSManager,
 } = NativeModules;
 
+const ReactNativeVersion = require('react-native/Libraries/Core/ReactNativeVersion');
+
 const HmsEventEmitter = new NativeEventEmitter(HMSManager);
 
 let HmsSdk: HMSSDK | undefined;
@@ -104,10 +106,14 @@ export class HMSSDK {
     appGroup?: String;
     preferredExtension?: String;
   }) {
+    const { major, minor, patch } = ReactNativeVersion.version;
     let id = await HMSManager.build({
       trackSettings: params?.trackSettings,
       appGroup: params?.appGroup, // required for iOS Screenshare, not required for Android
       preferredExtension: params?.preferredExtension, // required for iOS Screenshare, not required for Android
+      frameworkInfo: {
+        version: major + '.' + minor + '.' + patch,
+      },
     });
     HmsSdk = new HMSSDK(id);
     HmsSdk.attachListeners();

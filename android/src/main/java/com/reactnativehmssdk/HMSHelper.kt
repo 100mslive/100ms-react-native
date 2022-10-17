@@ -17,6 +17,7 @@ import java.io.ByteArrayOutputStream
 import java.util.*
 import live.hms.video.audio.HMSAudioManager
 import live.hms.video.error.HMSException
+import live.hms.video.events.AgentType
 import live.hms.video.media.codec.HMSAudioCodec
 import live.hms.video.media.codec.HMSVideoCodec
 import live.hms.video.media.settings.*
@@ -159,6 +160,14 @@ object HMSHelper {
       return HmsUtilities.getTrack(trackId, room)
     }
     return null
+  }
+
+  fun getFrameworkInfo(data: ReadableMap?): FrameworkInfo {
+    var version = ""
+    if(this.areAllRequiredKeysAvailable(data, arrayOf(Pair("version", "String")))){
+      version = data?.getString("version") as String
+    }
+    return FrameworkInfo(AgentType.REACT_NATIVE, "2.5.0", version)
   }
 
   fun getTrackSettings(data: ReadableMap?): HMSTrackSettings? {

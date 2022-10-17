@@ -43,10 +43,12 @@ class HMSRNSDK(
 
   init {
     val trackSettings = HMSHelper.getTrackSettings(data?.getMap("trackSettings"))
+    val frameworkInfo = HMSHelper.getFrameworkInfo(data?.getMap("frameworkInfo"))
     if (trackSettings == null) {
       this.hmsSDK = HMSSDK.Builder(reactApplicationContext).build()
     } else {
       this.hmsSDK = HMSSDK.Builder(reactApplicationContext).setTrackSettings(trackSettings).build()
+      this.hmsSDK = HMSSDK.Builder(reactApplicationContext).setFrameworkInfo(frameworkInfo).build()
     }
   }
 
