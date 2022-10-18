@@ -3,6 +3,7 @@ import {
   Dimensions,
   PermissionsAndroid,
   Permission,
+  StatusBar,
 } from 'react-native';
 import RNFetchBlob from 'rn-fetch-blob';
 import Share from 'react-native-share';
@@ -581,4 +582,43 @@ export const pairData = (
   }
 
   return [...pairedDataSource, ...pairedDataRegular];
+};
+
+export const getDisplayTrackDimensions = (
+  peersInPage: number,
+  top: number,
+  bottom: number,
+  orientation: boolean,
+) => {
+  // window height - (header + footer + top + bottom + padding)
+  const viewHeight =
+    Dimensions.get('window').height - (50 + 50 + top + bottom + 2);
+
+  let height, width;
+
+  if (orientation) {
+    height =
+      peersInPage === 1
+        ? viewHeight / 1
+        : peersInPage === 2
+        ? viewHeight / 2
+        : peersInPage === 3
+        ? viewHeight / 3
+        : viewHeight / 2;
+
+    width =
+      peersInPage === 1
+        ? '100%'
+        : peersInPage === 2
+        ? '100%'
+        : peersInPage === 3
+        ? '100%'
+        : '50%';
+  } else {
+    height = viewHeight - (StatusBar.currentHeight || 0);
+
+    width = peersInPage === 1 ? '100%' : '50%';
+  }
+
+  return {height, width};
 };

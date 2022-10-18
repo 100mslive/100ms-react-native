@@ -11,11 +11,10 @@ import {
   HMSUpdateListenerActions,
 } from '@100mslive/react-native-hms';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {View, Text, SafeAreaView, Platform} from 'react-native';
+import {View, Text, SafeAreaView, Platform, Dimensions} from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useDispatch, useSelector} from 'react-redux';
 import Toast from 'react-native-simple-toast';
 import {useNavigation} from '@react-navigation/native';
@@ -31,6 +30,7 @@ import {
 } from '../../components';
 import {ModalTypes, PeerTrackNode} from '../../utils/types';
 import {
+  isPortrait,
   pairData,
   parseMetadata,
   updatePeersTrackNodesOnPeerListener,
@@ -97,14 +97,15 @@ const DisplayView = (data: {
   // useState hook
   const [peerTrackNodes, setPeerTrackNodes] =
     useState<Array<PeerTrackNode>>(peerState);
+  const [orientation, setOrientation] = useState(true);
 
   // useRef hook
   const peerTrackNodesRef = useRef(peerTrackNodes);
 
   // constants
   const pairedPeers = useMemo(
-    () => pairData(peerTrackNodes, 4),
-    [peerTrackNodes],
+    () => pairData(peerTrackNodes, orientation ? 4 : 2),
+    [orientation, peerTrackNodes],
   );
 
   // listeners
@@ -202,13 +203,9 @@ const DisplayView = (data: {
     setPeerTrackNodes(newPeerTrackNodes);
     peerTrackNodesRef.current = newPeerTrackNodes;
     if (peer?.isLocal) {
-      data?.setLocalPeer(
-        new HMSLocalPeer({
-          ...peer,
-          localAudioTrackData: peer.audioTrack,
-          localVideoTrackData: peer.videoTrack,
-        }),
-      );
+      hmsInstance?.getLocalPeer().then(localPeer => {
+        data?.setLocalPeer(localPeer);
+      });
     }
 
     if (type === HMSPeerUpdate.PEER_LEFT) {
@@ -250,13 +247,9 @@ const DisplayView = (data: {
     setPeerTrackNodes(newPeerTrackNodes);
     peerTrackNodesRef.current = newPeerTrackNodes;
     if (peer?.isLocal) {
-      data?.setLocalPeer(
-        new HMSLocalPeer({
-          ...peer,
-          localAudioTrackData: peer.audioTrack,
-          localVideoTrackData: peer.videoTrack,
-        }),
-      );
+      hmsInstance?.getLocalPeer().then(localPeer => {
+        data?.setLocalPeer(localPeer);
+      });
     }
   };
 
@@ -343,22 +336,24 @@ const DisplayView = (data: {
   const updateLocalPeer = () => {
     peerTrackNodes?.map(peerTrackNode => {
       if (peerTrackNode?.peer?.isLocal) {
-        data?.setLocalPeer(
-          new HMSLocalPeer({
-            ...peerTrackNode?.peer,
-            localAudioTrackData: peerTrackNode?.peer?.audioTrack,
-            localVideoTrackData: peerTrackNode?.peer?.videoTrack,
-          }),
-        );
+        hmsInstance?.getLocalPeer().then(localPeer => {
+          data?.setLocalPeer(localPeer);
+        });
       }
     });
   };
 
   // useEffect hook
   useEffect(() => {
+    const callback = () => {
+      setOrientation(isPortrait());
+    };
     updateHmsInstance(hmsInstance);
     updateLocalPeer();
+    callback();
+    Dimensions.addEventListener('change', callback);
     return () => {
+      Dimensions.removeEventListener('change', callback);
       onLeavePress();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -367,7 +362,7 @@ const DisplayView = (data: {
   return (
     <View style={styles.container}>
       {pairedPeers.length ? (
-        <GridView pairedPeers={pairedPeers} />
+        <GridView pairedPeers={pairedPeers} orientation={orientation} />
       ) : (
         <View style={styles.welcomeContainer}>
           <Text style={styles.welcomeHeading}>Welcome!</Text>
@@ -598,7 +593,6 @@ const Header = ({
 const Footer = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
   // hooks
   const {hmsInstance} = useSelector((state: RootState) => state.user);
-  const {left, right} = useSafeAreaInsets();
 
   // constants
   const iconSize = 20;
@@ -626,7 +620,6 @@ const Footer = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
         // localPeer?.role?.permissions?.hlsStreaming
         //   ? styles.iconBotttomWrapperHls :
         styles.iconBotttomWrapper,
-        {left, right},
       ]}>
       <View style={styles.iconBotttomButtonWrapper}>
         {localPeer?.role?.publishSettings?.allowed?.includes('audio') && (
