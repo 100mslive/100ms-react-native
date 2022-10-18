@@ -93,6 +93,7 @@ const styles = StyleSheet.create({
   },
   settingsButton: {
     marginRight: 16,
+    marginTop: 16,
     backgroundColor: COLORS.BACKGROUND.DEFAULT,
     borderColor: COLORS.BORDER.LIGHT,
     borderWidth: 1,
