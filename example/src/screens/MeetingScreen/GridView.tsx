@@ -3,16 +3,17 @@ import {View, FlatList, Dimensions} from 'react-native';
 import {HMSTrackSource} from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
-import {getHmsViewHeight} from '../../utils/functions';
+import {getDisplayTrackDimensions} from '../../utils/functions';
 import {styles} from './styles';
 import {DisplayTrack} from './DisplayTrack';
-import {LayoutParams, PeerTrackNode} from '../../utils/types';
+import type {PeerTrackNode} from '../../utils/types';
 
 type GridViewProps = {
   pairedPeers: PeerTrackNode[][];
+  orientation: boolean;
 };
 
-const GridView = ({pairedPeers}: GridViewProps) => {
+const GridView = ({pairedPeers, orientation}: GridViewProps) => {
   // hooks
   const {left, right, top, bottom} = useSafeAreaInsets();
 
@@ -49,12 +50,11 @@ const GridView = ({pairedPeers}: GridViewProps) => {
                     view?.track?.source !== HMSTrackSource.REGULAR
                       ? styles.flex
                       : {
-                          ...getHmsViewHeight(
-                            LayoutParams.GRID,
+                          ...getDisplayTrackDimensions(
                             item.length,
                             top,
                             bottom,
-                            true,
+                            orientation,
                           ),
                         },
                   ]}
