@@ -164,10 +164,16 @@ object HMSHelper {
 
   fun getFrameworkInfo(data: ReadableMap?): FrameworkInfo {
     var version = ""
-    if(this.areAllRequiredKeysAvailable(data, arrayOf(Pair("version", "String")))){
+    var sdkVersion = ""
+    if (this.areAllRequiredKeysAvailable(
+            data,
+            arrayOf(Pair("version", "String"), Pair("sdkVersion", "String"))
+        )
+    ) {
       version = data?.getString("version") as String
+      sdkVersion = data?.getString("sdkVersion") as String
     }
-    return FrameworkInfo(AgentType.REACT_NATIVE, "2.5.0", version)
+    return FrameworkInfo(AgentType.REACT_NATIVE, sdkVersion, version)
   }
 
   fun getTrackSettings(data: ReadableMap?): HMSTrackSettings? {

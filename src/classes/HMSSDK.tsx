@@ -106,6 +106,7 @@ export class HMSSDK {
     appGroup?: String;
     preferredExtension?: String;
   }) {
+    const { version } = require('../../package.json');
     const { major, minor, patch } = ReactNativeVersion.version;
     let id = await HMSManager.build({
       trackSettings: params?.trackSettings,
@@ -113,6 +114,7 @@ export class HMSSDK {
       preferredExtension: params?.preferredExtension, // required for iOS Screenshare, not required for Android
       frameworkInfo: {
         version: major + '.' + minor + '.' + patch,
+        sdkVersion: version,
       },
     });
     HmsSdk = new HMSSDK(id);
