@@ -52,6 +52,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         DispatchQueue.main.async { [weak self] in
             self?.hms = HMSSDK.build { sdk in
                 sdk.appGroup = data?.value(forKey: "appGroup") as? String
+                sdk.frameworkInfo = HMSHelper.getFrameworkInfo(data?.value(forKey: "frameworkInfo") as? NSDictionary)
                 let trackSettings = data?.value(forKey: "trackSettings") as? NSDictionary
                 let videoSettings = HMSHelper.getLocalVideoSettings(trackSettings?.value(forKey: "video") as? NSDictionary)
                 let audioSettings = HMSHelper.getLocalAudioSettings(trackSettings?.value(forKey: "audio") as? NSDictionary, sdk, self?.delegate, id)

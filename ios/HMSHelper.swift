@@ -136,6 +136,16 @@ class HMSHelper: NSObject {
         return hms
     }
 
+    static func getFrameworkInfo(_ frameworkInfo: NSDictionary?) -> HMSFrameworkInfo? {
+        guard let data = frameworkInfo,
+              let version = data.value(forKey: "version") as? String,
+              let sdkVersion = data.value(forKey: "sdkVersion") as? String
+        else {
+            return nil
+        }
+        return HMSFrameworkInfo(type: HMSFrameworkType.reactNative, version: version, sdkVersion: sdkVersion)
+    }
+
     static func getLocalVideoSettings(_ settings: NSDictionary?) -> HMSVideoTrackSettings? {
         guard let data = settings,
               let codec = data.value(forKey: "codec") as? String,
