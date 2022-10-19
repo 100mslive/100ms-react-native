@@ -1,14 +1,14 @@
 export class HMSSubscribeSettings {
-  subscribeToRoles?: [string];
+  subscribeTo?: [string];
   maxSubsBitRate: number;
   maxDisplayTiles?: number;
 
   constructor(params: {
-    subscribeToRoles?: [string];
+    subscribeTo?: [string];
     maxSubsBitRate: number;
     maxDisplayTiles?: number;
   }) {
-    this.subscribeToRoles = params.subscribeToRoles;
+    this.subscribeTo = params.subscribeTo;
     this.maxSubsBitRate = params.maxSubsBitRate;
     this.maxDisplayTiles = params.maxDisplayTiles;
   }

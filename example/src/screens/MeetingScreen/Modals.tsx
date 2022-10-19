@@ -59,7 +59,7 @@ import {
   SortingType,
 } from '../../utils/types';
 import {COLORS} from '../../utils/theme';
-import {RootState} from '../../redux';
+import type {RootState} from '../../redux';
 
 export const ParticipantsModal = ({
   instance,
@@ -196,6 +196,9 @@ export const ParticipantsModal = ({
       <View style={styles.participantsHeaderContainer}>
         <Text style={styles.participantsHeading}>Participants</Text>
         <ParticipantFilter filter={filter} setFilter={setFilter} />
+        <View style={styles.peerCountContainer}>
+          <Text style={styles.peerCount}>{peerTrackNodes?.length}</Text>
+        </View>
       </View>
       <View>
         <CustomInput
@@ -300,46 +303,52 @@ export const ParticipantsModal = ({
                     </View>
                   </MenuItem>
                 )}
-                {peerTrackNode.peer.isLocal === false && (
-                  <MenuItem onPress={() => toggleAudio(peerTrackNode.peer)}>
-                    <View style={styles.participantMenuItem}>
-                      <Feather
-                        name={
-                          peerTrackNode.peer?.audioTrack?.isMute() === false
-                            ? 'mic'
-                            : 'mic-off'
-                        }
-                        style={styles.participantMenuItemIcon}
-                        size={24}
-                      />
-                      <Text style={styles.participantMenuItemName}>
-                        {peerTrackNode.peer?.audioTrack?.isMute() === false
-                          ? 'Mute audio'
-                          : 'Unmute audio'}
-                      </Text>
-                    </View>
-                  </MenuItem>
-                )}
-                {peerTrackNode.peer.isLocal === false && (
-                  <MenuItem onPress={() => toggleVideo(peerTrackNode.peer)}>
-                    <View style={styles.participantMenuItem}>
-                      <Feather
-                        name={
-                          peerTrackNode.track?.isMute() === false
-                            ? 'video'
-                            : 'video-off'
-                        }
-                        style={styles.participantMenuItemIcon}
-                        size={24}
-                      />
-                      <Text style={styles.participantMenuItemName}>
-                        {peerTrackNode.track?.isMute() === false
-                          ? 'Mute video'
-                          : 'Unmute video'}
-                      </Text>
-                    </View>
-                  </MenuItem>
-                )}
+                {peerTrackNode.peer.isLocal === false &&
+                  peerTrackNode.peer.role?.publishSettings?.allowed?.includes(
+                    'audio',
+                  ) && (
+                    <MenuItem onPress={() => toggleAudio(peerTrackNode.peer)}>
+                      <View style={styles.participantMenuItem}>
+                        <Feather
+                          name={
+                            peerTrackNode.peer?.audioTrack?.isMute() === false
+                              ? 'mic'
+                              : 'mic-off'
+                          }
+                          style={styles.participantMenuItemIcon}
+                          size={24}
+                        />
+                        <Text style={styles.participantMenuItemName}>
+                          {peerTrackNode.peer?.audioTrack?.isMute() === false
+                            ? 'Mute audio'
+                            : 'Unmute audio'}
+                        </Text>
+                      </View>
+                    </MenuItem>
+                  )}
+                {peerTrackNode.peer.isLocal === false &&
+                  peerTrackNode.peer.role?.publishSettings?.allowed?.includes(
+                    'video',
+                  ) && (
+                    <MenuItem onPress={() => toggleVideo(peerTrackNode.peer)}>
+                      <View style={styles.participantMenuItem}>
+                        <Feather
+                          name={
+                            peerTrackNode.track?.isMute() === false
+                              ? 'video'
+                              : 'video-off'
+                          }
+                          style={styles.participantMenuItemIcon}
+                          size={24}
+                        />
+                        <Text style={styles.participantMenuItemName}>
+                          {peerTrackNode.track?.isMute() === false
+                            ? 'Mute video'
+                            : 'Unmute video'}
+                        </Text>
+                      </View>
+                    </MenuItem>
+                  )}
                 {/* {peerTrackNode.peer.isLocal === false &&
                     type === TrackType.REMOTE &&
                     peerTrackNode?.track?.source === HMSTrackSource.REGULAR && (

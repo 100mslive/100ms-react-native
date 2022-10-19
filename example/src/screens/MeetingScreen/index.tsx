@@ -135,8 +135,8 @@ const DisplayView = (data: {
 
   // constants
   const pairedPeers = useMemo(
-    () => pairData(peerTrackNodes, orientation ? 4 : 2),
-    [orientation, peerTrackNodes],
+    () => pairData(peerTrackNodes, orientation ? 4 : 2, data?.localPeer),
+    [data?.localPeer, orientation, peerTrackNodes],
   );
 
   // listeners
@@ -419,7 +419,7 @@ const DisplayView = (data: {
     Dimensions.addEventListener('change', callback);
     return () => {
       Dimensions.removeEventListener('change', callback);
-      onLeavePress();
+      // onLeavePress();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
