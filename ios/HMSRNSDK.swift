@@ -979,7 +979,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             reject?("AudioFilePlayerNode not found", "AudioFilePlayerNode not found", nil)
         }
     }
-    
+
     func enableNetworkQualityUpdates() {
         networkQualityUpdatesAttached = true
     }
@@ -1039,8 +1039,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     func on(peer: HMSPeer, update: HMSPeerUpdate) {
         let type = getString(from: update)
         let hmsPeer = HMSDecoder.getHmsPeer(peer)
-        
-        if(!networkQualityUpdatesAttached && update == .networkQualityUpdated){
+
+        if !networkQualityUpdatesAttached && update == .networkQualityUpdated {
             return
         }
 
