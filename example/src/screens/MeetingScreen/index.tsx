@@ -334,12 +334,8 @@ const DisplayView = (data: {
   };
 
   const updateLocalPeer = () => {
-    peerTrackNodes?.map(peerTrackNode => {
-      if (peerTrackNode?.peer?.isLocal) {
-        hmsInstance?.getLocalPeer().then(localPeer => {
-          data?.setLocalPeer(localPeer);
-        });
-      }
+    hmsInstance?.getLocalPeer().then(localPeer => {
+      data?.setLocalPeer(localPeer);
     });
   };
 
@@ -358,6 +354,11 @@ const DisplayView = (data: {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    setPeerTrackNodes(peerState);
+    peerTrackNodesRef.current = peerState;
+  }, [peerState]);
 
   return (
     <View style={styles.container}>

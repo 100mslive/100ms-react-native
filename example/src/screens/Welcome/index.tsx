@@ -13,6 +13,7 @@ import {
   HMSSDK,
   HMSTrack,
   HMSTrackSettings,
+  HMSTrackSource,
   HMSTrackUpdate,
   HMSUpdateListenerActions,
   HMSVideoCodec,
@@ -112,8 +113,28 @@ const Welcome = () => {
     }
   };
 
-  const onJoinSuccess = (data: {room: HMSRoom}) => {
-    dispatch(setPeerState({peerState: peerTrackNodesRef?.current}));
+  const onJoinSuccess = (
+    hmsInstance: HMSSDK,
+    data: {
+      room: HMSRoom;
+    },
+  ) => {
+    if (Platform.OS === 'ios') {
+      hmsInstance?.getLocalPeer().then(localPeer => {
+        const hmsLocalPeer = {
+          id: localPeer.peerID + HMSTrackSource.REGULAR,
+          peer: localPeer,
+          track: localPeer.videoTrack,
+        };
+        dispatch(
+          setPeerState({
+            peerState: [hmsLocalPeer, ...peerTrackNodesRef?.current],
+          }),
+        );
+      });
+    } else {
+      dispatch(setPeerState({peerState: peerTrackNodesRef?.current}));
+    }
     setHmsRoom(data.room);
     setJoinButtonLoading(false);
     setPreviewButtonLoading(false);
@@ -194,7 +215,7 @@ const Welcome = () => {
 
     hmsInstance?.addEventListener(
       HMSUpdateListenerActions.ON_JOIN,
-      onJoinSuccess,
+      onJoinSuccess.bind(this, hmsInstance),
     );
 
     hmsInstance?.addEventListener(
@@ -375,7 +396,7 @@ const Welcome = () => {
       enabled={Platform.OS === 'ios'}
       behavior="padding"
       style={styles.container}>
-      <View style={styles.settingsContainer}>
+      <View style={[styles.settingsContainer, {marginTop: top}]}>
         <Menu
           visible={modalType === ModalTypes.WELCOME_SETTINGS}
           onRequestClose={() => setModalType(ModalTypes.DEFAULT)}
@@ -395,21 +416,23 @@ const Welcome = () => {
               </Text>
             )}
           </MenuItem>
-          <MenuItem
-            onPress={() => {
-              setModalType(ModalTypes.DEFAULT);
-              setForceSoftwareDecoder(!forceSoftwareDecoder);
-            }}>
-            {forceSoftwareDecoder ? (
-              <Text style={styles.settingsMenuItemName}>
-                Disable software encoder
-              </Text>
-            ) : (
-              <Text style={styles.settingsMenuItemName}>
-                Enable software encoder
-              </Text>
-            )}
-          </MenuItem>
+          {Platform.OS === 'android' && (
+            <MenuItem
+              onPress={() => {
+                setModalType(ModalTypes.DEFAULT);
+                setForceSoftwareDecoder(!forceSoftwareDecoder);
+              }}>
+              {forceSoftwareDecoder ? (
+                <Text style={styles.settingsMenuItemName}>
+                  Disable software encoder
+                </Text>
+              ) : (
+                <Text style={styles.settingsMenuItemName}>
+                  Enable software encoder
+                </Text>
+              )}
+            </MenuItem>
+          )}
         </Menu>
         <CustomButton
           onPress={() => setModalType(ModalTypes.WELCOME_SETTINGS)}

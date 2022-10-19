@@ -433,6 +433,9 @@ export const updatePeersTrackNodesOnTrackListener = (
           peer,
         };
       }
+      if (peer?.isLocal) {
+        return [newPeerTrackNode, ...updatePeerTrackNodes];
+      }
       updatePeerTrackNodes.push(newPeerTrackNode);
       return updatePeerTrackNodes;
     }
