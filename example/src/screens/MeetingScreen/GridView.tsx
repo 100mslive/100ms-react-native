@@ -1,9 +1,10 @@
 import React, {useRef} from 'react';
-import {View, FlatList, Dimensions} from 'react-native';
+import {View, FlatList, Dimensions, Text} from 'react-native';
 import {HMSTrackSource} from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import Feather from 'react-native-vector-icons/Feather';
 
-import {getDisplayTrackDimensions} from '../../utils/functions';
+import {getDisplayTrackDimensions, parseMetadata} from '../../utils/functions';
 import {styles} from './styles';
 import {DisplayTrack} from './DisplayTrack';
 import type {PeerTrackNode} from '../../utils/types';
@@ -65,6 +66,18 @@ const GridView = ({pairedPeers, orientation}: GridViewProps) => {
                     videoTrack={view?.track}
                     videoStyles={styles.generalTile}
                   />
+                  {view?.peer?.audioTrack?.isMute() && (
+                    <View style={styles.micContainer}>
+                      <Feather name="mic-off" style={styles.mic} size={20} />
+                    </View>
+                  )}
+                  {parseMetadata(view?.peer?.metadata)?.isBRBOn && (
+                    <View style={styles.status}>
+                      <View style={styles.brbOnContainer}>
+                        <Text style={styles.brbOn}>BRB</Text>
+                      </View>
+                    </View>
+                  )}
                 </View>
               );
             })}

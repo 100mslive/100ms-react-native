@@ -1,4 +1,4 @@
-import type {HMSMessage, HMSSDK} from '@100mslive/react-native-hms';
+import type {HMSMessage, HMSRole, HMSSDK} from '@100mslive/react-native-hms';
 import type {PeerTrackNode} from '../../utils/types';
 import actionTypes from '../actionTypes';
 
@@ -27,6 +27,7 @@ export const saveUserData = (data: {
   roomCode?: String;
   hmsInstance?: HMSSDK;
   isHLSFlow?: boolean;
+  roles?: HMSRole[];
 }) => ({
   type: actionTypes.SAVE_USER_DATA.REQUEST,
   payload: data,

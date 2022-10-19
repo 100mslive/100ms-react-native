@@ -31,7 +31,6 @@ import {
   HMSTrackSource,
   HMSTrackType,
   HMSAudioFilePlayerNode,
-  HMSRole,
 } from '@100mslive/react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -133,7 +132,6 @@ const Meeting = () => {
     [],
   );
   const [hmsRoom, setHmsRoom] = useState<HMSRoom>();
-  const [hmsRoles, setHmsRoles] = useState<HMSRole[]>();
   const [speakers, setSpeakers] = useState<Array<HMSSpeaker>>([]);
   const [notification, setNotification] = useState(false);
   const [muteAllTracksAudio, setMuteAllTracksAudio] = useState(false);
@@ -419,10 +417,6 @@ const Meeting = () => {
 
   const updateRoom = async () => {
     setHmsRoom(await hmsInstance?.getRoom());
-  };
-
-  const updateRoles = async () => {
-    setHmsRoles(await hmsInstance?.getRoles());
   };
 
   const reportIssue = async () => {
@@ -851,7 +845,6 @@ const Meeting = () => {
     updateHmsInstance(hmsInstance);
     updateLocalPeer();
     updateRoom();
-    updateRoles();
 
     const callback = () => setOrientation(isPortrait());
     callback();
@@ -1238,7 +1231,7 @@ const Meeting = () => {
       <DefaultModal
         modalVisible={modalVisible === ModalTypes.CHAT}
         setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
-        <ChatWindow localPeer={localPeer} roles={hmsRoles} />
+        <ChatWindow localPeer={localPeer} />
       </DefaultModal>
       <DefaultModal
         modalVisible={modalVisible === ModalTypes.PARTICIPANTS}
@@ -1251,7 +1244,6 @@ const Meeting = () => {
           setModalVisible={setModalVisible}
           pinnedPeerTrackIds={pinnedPeerTrackIds}
           setPinnedPeerTrackIds={setPinnedPeerTrackIds}
-          roles={hmsRoles}
         />
       </DefaultModal>
       <DefaultModal
@@ -1267,7 +1259,6 @@ const Meeting = () => {
         setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
         <ChangeRoleModal
           instance={instance}
-          roles={hmsRoles}
           peerTrackNode={updatePeerTrackNode}
           cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
         />
@@ -1399,7 +1390,6 @@ const Meeting = () => {
         setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
         <ChangeTrackStateForRoleModal
           instance={instance}
-          roles={hmsRoles}
           localPeer={localPeer}
           cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
         />

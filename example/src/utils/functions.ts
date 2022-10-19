@@ -397,7 +397,20 @@ export const updatePeersTrackNodesOnTrackListener = (
     (track.source === undefined ? HMSTrackSource.REGULAR : track.source);
   const isVideo = track.type === HMSTrackType.VIDEO;
 
-  if (type === HMSTrackUpdate.TRACK_ADDED) {
+  if (type === HMSTrackUpdate.TRACK_REMOVED) {
+    if (
+      track.source !== HMSTrackSource.REGULAR ||
+      peer.role?.name?.includes('hls-')
+    ) {
+      return oldPeerTrackNodes?.filter(peerTrackNode => {
+        if (peerTrackNode.id === uniqueId) {
+          return false;
+        }
+        return true;
+      });
+    }
+    return oldPeerTrackNodes;
+  } else {
     let alreadyPresent = false;
     const updatePeerTrackNodes = oldPeerTrackNodes?.map(peerTrackNode => {
       if (peerTrackNode.id === uniqueId) {
@@ -439,36 +452,6 @@ export const updatePeersTrackNodesOnTrackListener = (
       updatePeerTrackNodes.push(newPeerTrackNode);
       return updatePeerTrackNodes;
     }
-  } else if (type === HMSTrackUpdate.TRACK_REMOVED) {
-    if (
-      track.source !== HMSTrackSource.REGULAR ||
-      peer.role?.name?.includes('hls-')
-    ) {
-      return oldPeerTrackNodes?.filter(peerTrackNode => {
-        if (peerTrackNode.id === uniqueId) {
-          return false;
-        }
-        return true;
-      });
-    }
-    return oldPeerTrackNodes;
-  } else {
-    return oldPeerTrackNodes?.map(peerTrackNode => {
-      if (isVideo && peerTrackNode.id === uniqueId) {
-        return {
-          ...peerTrackNode,
-          peer,
-          track,
-        };
-      }
-      if (!isVideo && peerTrackNode.id === uniqueId) {
-        return {
-          ...peerTrackNode,
-          peer,
-        };
-      }
-      return peerTrackNode;
-    });
   }
 };
 

@@ -98,6 +98,13 @@ const Welcome = () => {
       previewTracks: HMSTrack[];
     },
   ) => {
+    hmsInstance?.getRoles().then(roles => {
+      dispatch(
+        saveUserData({
+          roles,
+        }),
+      );
+    });
     setHmsRoom(data.room);
     setPreviewTracks(data?.previewTracks);
     if (data?.previewTracks?.length > 0) {
@@ -113,14 +120,14 @@ const Welcome = () => {
     }
   };
 
-  const onJoinSuccess = (
+  const onJoinSuccess = async (
     hmsInstance: HMSSDK,
     data: {
       room: HMSRoom;
     },
   ) => {
     if (Platform.OS === 'ios') {
-      hmsInstance?.getLocalPeer().then(localPeer => {
+      await hmsInstance?.getLocalPeer().then(localPeer => {
         const hmsLocalPeer = {
           id: localPeer.peerID + HMSTrackSource.REGULAR,
           peer: localPeer,
