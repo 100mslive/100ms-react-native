@@ -171,13 +171,7 @@ class HMSHelper: NSObject {
     }
 
     static func getLocalAudioSettings(_ settings: NSDictionary?, _ hms: HMSSDK?, _ delegate: HMSManager?, _ id: String) -> HMSAudioTrackSettings? {
-        guard let data = settings,
-              let maxBitrate = data.value(forKey: "maxBitrate") as? Int
-        else {
-            return nil
-        }
-        let trackDescription = data.value(forKey: "trackDescription") as? String
-        let hmsTrackSettings = HMSAudioTrackSettings(maxBitrate: maxBitrate, trackDescription: trackDescription)
+
         if #available(iOS 13.0, *) {
             var audioMixerSourceMap = [String: HMSAudioNode]()
             if let playerNode = settings?.value(forKey: "audioSource") as? [String] {
@@ -200,14 +194,13 @@ class HMSHelper: NSObject {
             do {
                 self.audioMixerSourceHashMap = audioMixerSourceMap
                 let audioMixerSource = try HMSAudioMixerSource(nodes: audioMixerSourceMap.values.map {$0})
-                return HMSAudioTrackSettings(maxBitrate: maxBitrate, trackDescription: trackDescription, audioSource: audioMixerSource)
+                return HMSAudioTrackSettings(maxBitrate: 32, trackDescription: "trackDescription", audioSource: audioMixerSource)
             } catch {
                 delegate?.emitEvent("ON_ERROR", ["error": ["code": 6002, "description": error.localizedDescription, "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
-                return hmsTrackSettings
+                return nil
             }
-        } else {
-            return hmsTrackSettings
         }
+        return nil
     }
 
     static func getAudioMixerSourceMap() -> [String: HMSAudioNode]? {
