@@ -58,7 +58,7 @@ PODS:
     - FlipperKit/FlipperKitNetworkPlugin
   - glog (0.3.5)
   - hermes-engine (0.7.2)
-  - HMSBroadcastExtensionSDK (0.0.3)
+  - HMSBroadcastExtensionSDK (0.0.4)
   - HMSSDK (0.4.5):
     - HMSWebRTC (= 1.0.4898)
   - HMSWebRTC (1.0.4898)
@@ -289,7 +289,7 @@ PODS:
   - react-native-document-picker (8.1.2):
     - React-Core
   - react-native-hms (0.9.94):
-    - HMSBroadcastExtensionSDK (= 0.0.3)
+    - HMSBroadcastExtensionSDK (= 0.0.4)
     - HMSSDK (= 0.4.5)
     - React-Core
   - react-native-safe-area-context (3.4.1):
@@ -592,7 +592,7 @@ SPEC CHECKSUMS:
   FlipperKit: 8a20b5c5fcf9436cac58551dc049867247f64b00
   glog: 73c2498ac6884b13ede40eda8228cb1eee9d9d62
   hermes-engine: 7d97ba46a1e29bacf3e3c61ecb2804a5ddd02d4f
-  HMSBroadcastExtensionSDK: a69a4503a1708b5d51e2890d70f574b9cdfea760
+  HMSBroadcastExtensionSDK: 9a8888c524db5582437d06e6087bc4be6d323412
   HMSSDK: 7a8f5503eedffc024b959988a5bd97427c5a4ede
   HMSWebRTC: d3a9b2866e4a36a1d3834728a548a4a46309bb86
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
