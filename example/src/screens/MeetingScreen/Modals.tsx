@@ -79,6 +79,7 @@ export const ParticipantsModal = ({
   // useEffect hook
   const [participantsSearchInput, setParticipantsSearchInput] = useState('');
   const [visible, setVisible] = useState<number>(-1);
+  const [peerCount, setPeerCount] = useState<number>(0);
   const [filteredPeerTrackNodes, setFilteredPeerTrackNodes] =
     useState<PeerTrackNode[]>();
   const [filter, setFilter] = useState('everyone');
@@ -163,6 +164,12 @@ export const ParticipantsModal = ({
   useEffect(() => {
     const newFilteredPeerTrackNodes = peerTrackNodes?.filter(peerTrackNode => {
       if (
+        peerTrackNode?.track?.source !== undefined &&
+        peerTrackNode?.track?.source !== HMSTrackSource.REGULAR
+      ) {
+        return false;
+      }
+      if (
         participantsSearchInput.length < 1 ||
         peerTrackNode.peer.name.includes(participantsSearchInput) ||
         peerTrackNode.peer.role?.name?.includes(participantsSearchInput)
@@ -191,13 +198,26 @@ export const ParticipantsModal = ({
     }
   }, [participantsSearchInput, filter, peerTrackNodes]);
 
+  useEffect(() => {
+    let newPeerCount = 0;
+    peerTrackNodes?.map(peerTrackNode => {
+      if (
+        peerTrackNode.track?.source === undefined ||
+        peerTrackNode.track?.source === HMSTrackSource.REGULAR
+      ) {
+        newPeerCount++;
+      }
+    });
+    setPeerCount(newPeerCount);
+  }, [peerTrackNodes]);
+
   return (
     <View style={styles.participantContainer}>
       <View style={styles.participantsHeaderContainer}>
         <Text style={styles.participantsHeading}>Participants</Text>
         <ParticipantFilter filter={filter} setFilter={setFilter} />
         <View style={styles.peerCountContainer}>
-          <Text style={styles.peerCount}>{peerTrackNodes?.length}</Text>
+          <Text style={styles.peerCount}>{peerCount}</Text>
         </View>
       </View>
       <View>

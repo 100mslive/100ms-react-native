@@ -98,13 +98,6 @@ const Welcome = () => {
       previewTracks: HMSTrack[];
     },
   ) => {
-    hmsInstance?.getRoles().then(roles => {
-      dispatch(
-        saveUserData({
-          roles,
-        }),
-      );
-    });
     setHmsRoom(data.room);
     setPreviewTracks(data?.previewTracks);
     if (data?.previewTracks?.length > 0) {
@@ -142,6 +135,13 @@ const Welcome = () => {
     } else {
       dispatch(setPeerState({peerState: peerTrackNodesRef?.current}));
     }
+    hmsInstance?.getRoles().then(roles => {
+      dispatch(
+        saveUserData({
+          roles,
+        }),
+      );
+    });
     setHmsRoom(data.room);
     setJoinButtonLoading(false);
     setPreviewButtonLoading(false);
