@@ -16,6 +16,7 @@ import {
   HMSTrackType,
   HMSTrackUpdate,
   HMSTrackSource,
+  HMSLocalPeer,
 } from '@100mslive/react-native-hms';
 
 import {LayoutParams, PeerTrackNode, SortingType} from './types';
@@ -373,8 +374,10 @@ export const updatePeersTrackNodesOnPeerListener = (
       return true;
     });
   } else {
-    return oldPeerTrackNodes?.map(peerTrackNode => {
+    let alreadyPresent = false;
+    const updatePeerTrackNodes = oldPeerTrackNodes?.map(peerTrackNode => {
       if (peerTrackNode.peer.peerID === peer.peerID) {
+        alreadyPresent = true;
         return {
           ...peerTrackNode,
           peer,
@@ -382,6 +385,20 @@ export const updatePeersTrackNodesOnPeerListener = (
       }
       return peerTrackNode;
     });
+    if (alreadyPresent) {
+      return updatePeerTrackNodes;
+    } else {
+      let newPeerTrackNode: PeerTrackNode;
+      newPeerTrackNode = {
+        id: peer.peerID + HMSTrackSource.REGULAR,
+        peer,
+      };
+      if (peer?.isLocal) {
+        return [newPeerTrackNode, ...updatePeerTrackNodes];
+      }
+      updatePeerTrackNodes.push(newPeerTrackNode);
+      return updatePeerTrackNodes;
+    }
   }
 };
 
@@ -397,7 +414,20 @@ export const updatePeersTrackNodesOnTrackListener = (
     (track.source === undefined ? HMSTrackSource.REGULAR : track.source);
   const isVideo = track.type === HMSTrackType.VIDEO;
 
-  if (type === HMSTrackUpdate.TRACK_ADDED) {
+  if (type === HMSTrackUpdate.TRACK_REMOVED) {
+    if (
+      track.source !== HMSTrackSource.REGULAR ||
+      peer.role?.name?.includes('hls-')
+    ) {
+      return oldPeerTrackNodes?.filter(peerTrackNode => {
+        if (peerTrackNode.id === uniqueId) {
+          return false;
+        }
+        return true;
+      });
+    }
+    return oldPeerTrackNodes;
+  } else {
     let alreadyPresent = false;
     const updatePeerTrackNodes = oldPeerTrackNodes?.map(peerTrackNode => {
       if (peerTrackNode.id === uniqueId) {
@@ -439,36 +469,6 @@ export const updatePeersTrackNodesOnTrackListener = (
       updatePeerTrackNodes.push(newPeerTrackNode);
       return updatePeerTrackNodes;
     }
-  } else if (type === HMSTrackUpdate.TRACK_REMOVED) {
-    if (
-      track.source !== HMSTrackSource.REGULAR ||
-      peer.role?.name?.includes('hls-')
-    ) {
-      return oldPeerTrackNodes?.filter(peerTrackNode => {
-        if (peerTrackNode.id === uniqueId) {
-          return false;
-        }
-        return true;
-      });
-    }
-    return oldPeerTrackNodes;
-  } else {
-    return oldPeerTrackNodes?.map(peerTrackNode => {
-      if (isVideo && peerTrackNode.id === uniqueId) {
-        return {
-          ...peerTrackNode,
-          peer,
-          track,
-        };
-      }
-      if (!isVideo && peerTrackNode.id === uniqueId) {
-        return {
-          ...peerTrackNode,
-          peer,
-        };
-      }
-      return peerTrackNode;
-    });
   }
 };
 
@@ -557,6 +557,7 @@ export const checkPermissions = async (
 export const pairData = (
   unGroupedPeerTrackNodes: PeerTrackNode[],
   batch: number,
+  localPeer?: HMSLocalPeer,
 ) => {
   const pairedDataRegular: Array<Array<PeerTrackNode>> = [];
   const pairedDataSource: Array<Array<PeerTrackNode>> = [];
@@ -565,18 +566,24 @@ export const pairData = (
 
   unGroupedPeerTrackNodes.map((item: PeerTrackNode) => {
     if (
-      item.track?.source !== HMSTrackSource.REGULAR &&
-      item.track?.source !== undefined
+      localPeer?.role?.subscribeSettings?.subscribeTo?.includes(
+        item.peer.role?.name || '',
+      )
     ) {
-      pairedDataSource.push([item]);
-    } else {
-      if (itemsPushed === batch) {
-        pairedDataRegular.push(groupedPeerTrackNodes);
-        groupedPeerTrackNodes = [];
-        itemsPushed = 0;
+      if (
+        item.track?.source !== HMSTrackSource.REGULAR &&
+        item.track?.source !== undefined
+      ) {
+        pairedDataSource.push([item]);
+      } else {
+        if (itemsPushed === batch) {
+          pairedDataRegular.push(groupedPeerTrackNodes);
+          groupedPeerTrackNodes = [];
+          itemsPushed = 0;
+        }
+        groupedPeerTrackNodes.push(item);
+        itemsPushed++;
       }
-      groupedPeerTrackNodes.push(item);
-      itemsPushed++;
     }
   });
 

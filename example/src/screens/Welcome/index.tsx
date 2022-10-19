@@ -113,14 +113,14 @@ const Welcome = () => {
     }
   };
 
-  const onJoinSuccess = (
+  const onJoinSuccess = async (
     hmsInstance: HMSSDK,
     data: {
       room: HMSRoom;
     },
   ) => {
     if (Platform.OS === 'ios') {
-      hmsInstance?.getLocalPeer().then(localPeer => {
+      await hmsInstance?.getLocalPeer().then(localPeer => {
         const hmsLocalPeer = {
           id: localPeer.peerID + HMSTrackSource.REGULAR,
           peer: localPeer,
@@ -135,6 +135,13 @@ const Welcome = () => {
     } else {
       dispatch(setPeerState({peerState: peerTrackNodesRef?.current}));
     }
+    hmsInstance?.getRoles().then(roles => {
+      dispatch(
+        saveUserData({
+          roles,
+        }),
+      );
+    });
     setHmsRoom(data.room);
     setJoinButtonLoading(false);
     setPreviewButtonLoading(false);

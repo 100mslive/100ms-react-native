@@ -1,8 +1,13 @@
 import {
+  HMSAudioFilePlayerNode,
+  HMSAudioMixingMode,
+  HMSAudioMode,
+  HMSChangeTrackStateRequest,
   HMSException,
   HMSLocalPeer,
   HMSPeer,
   HMSPeerUpdate,
+  HMSRoleChangeRequest,
   HMSRoom,
   HMSRoomUpdate,
   HMSSDK,
@@ -19,9 +24,11 @@ import {useDispatch, useSelector} from 'react-redux';
 import Toast from 'react-native-simple-toast';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import DocumentPicker from 'react-native-document-picker';
 
 import {styles} from './styles';
 import {
+  AlertModal,
   ChatWindow,
   CustomButton,
   DefaultModal,
@@ -36,7 +43,22 @@ import {
   updatePeersTrackNodesOnPeerListener,
   updatePeersTrackNodesOnTrackListener,
 } from '../../utils/functions';
-import {EndRoomModal, LeaveRoomModal, RealTime} from '../Meeting/Modals';
+import {
+  ChangeAudioMixingModeModal,
+  ChangeAudioModeModal,
+  ChangeAudioOutputModal,
+  ChangeNameModal,
+  ChangeRoleAccepteModal,
+  ChangeRoleModal,
+  ChangeTrackStateForRoleModal,
+  ChangeTrackStateModal,
+  ChangeVolumeModal,
+  EndRoomModal,
+  LeaveRoomModal,
+  ParticipantsModal,
+  RealTime,
+  RecordingModal,
+} from './Modals';
 import type {RootState} from '../../redux';
 import type {AppStackParamList} from '../../navigator';
 import {
@@ -75,7 +97,11 @@ const Meeting = () => {
         setRoom={setRoom}
         setLocalPeer={setLocalPeer}
       />
-      <Footer localPeer={localPeer} />
+      <Footer
+        localPeer={localPeer}
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+      />
     </SafeAreaView>
   );
 };
@@ -98,14 +124,19 @@ const DisplayView = (data: {
   const [peerTrackNodes, setPeerTrackNodes] =
     useState<Array<PeerTrackNode>>(peerState);
   const [orientation, setOrientation] = useState(true);
+  const [updatePeer, setUpdatePeer] = useState<HMSPeer>();
+  const [roleChangeRequest, setRoleChangeRequest] = useState<{
+    requestedBy?: string;
+    suggestedRole?: string;
+  }>({});
 
   // useRef hook
   const peerTrackNodesRef = useRef(peerTrackNodes);
 
   // constants
   const pairedPeers = useMemo(
-    () => pairData(peerTrackNodes, orientation ? 4 : 2),
-    [orientation, peerTrackNodes],
+    () => pairData(peerTrackNodes, orientation ? 4 : 2, data?.localPeer),
+    [data?.localPeer, orientation, peerTrackNodes],
   );
 
   // listeners
@@ -253,6 +284,33 @@ const DisplayView = (data: {
     }
   };
 
+  const onChangeTrackStateRequestListener = (
+    request: HMSChangeTrackStateRequest,
+  ) => {
+    if (!request?.mute) {
+      data?.setModalVisible(ModalTypes.CHANGE_TRACK);
+      setRoleChangeRequest({
+        requestedBy: request?.requestedBy?.name,
+        suggestedRole: request?.trackType,
+      });
+    } else {
+      Toast.showWithGravity(
+        `Track Muted: ${request?.requestedBy?.name} Muted Your ${request?.trackType}`,
+        Toast.LONG,
+        Toast.TOP,
+      );
+    }
+  };
+
+  const onRoleChangeRequestListener = (request: HMSRoleChangeRequest) => {
+    console.log('data in onRoleChangeRequestListener: ', data);
+    data?.setModalVisible(ModalTypes.CHANGE_ROLE_ACCEPT);
+    setRoleChangeRequest({
+      requestedBy: request?.requestedBy?.name,
+      suggestedRole: request?.suggestedRole?.name,
+    });
+  };
+
   const onRemovedFromRoomListener = async () => {
     await destroy();
   };
@@ -277,10 +335,6 @@ const DisplayView = (data: {
       onRemovedFromRoomListener,
     );
     // hms?.addEventListener(
-    //   HMSUpdateListenerActions.ON_MESSAGE,
-    //   onMessageListener,
-    // );
-    // hms?.addEventListener(
     //   HMSUpdateListenerActions.ON_SPEAKER,
     //   onSpeakerListener,
     // );
@@ -292,14 +346,14 @@ const DisplayView = (data: {
     //   HMSUpdateListenerActions.RECONNECTED,
     //   onReconnectedListener,
     // );
-    // hms?.addEventListener(
-    //   HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST,
-    //   onRoleChangeRequestListener,
-    // );
-    // hms?.addEventListener(
-    //   HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST,
-    //   onChangeTrackStateRequestListener,
-    // );
+    hms?.addEventListener(
+      HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST,
+      onRoleChangeRequestListener,
+    );
+    hms?.addEventListener(
+      HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST,
+      onChangeTrackStateRequestListener,
+    );
   };
 
   const destroy = async () => {
@@ -333,6 +387,21 @@ const DisplayView = (data: {
       .catch(e => console.log('EndRoom Error: ', e));
   };
 
+  const onChangeNamePress = (peer: HMSPeer) => {
+    setUpdatePeer(peer);
+    data?.setModalVisible(ModalTypes.CHANGE_NAME);
+  };
+
+  const onChangeRolePress = (peer: HMSPeer) => {
+    setUpdatePeer(peer);
+    data?.setModalVisible(ModalTypes.CHANGE_ROLE);
+  };
+
+  const onSetVolumePress = (peer: HMSPeer) => {
+    setUpdatePeer(peer);
+    data?.setModalVisible(ModalTypes.VOLUME);
+  };
+
   const updateLocalPeer = () => {
     hmsInstance?.getLocalPeer().then(localPeer => {
       data?.setLocalPeer(localPeer);
@@ -350,7 +419,7 @@ const DisplayView = (data: {
     Dimensions.addEventListener('change', callback);
     return () => {
       Dimensions.removeEventListener('change', callback);
-      onLeavePress();
+      // onLeavePress();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -403,6 +472,78 @@ const DisplayView = (data: {
         setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}>
         <ChatWindow localPeer={data?.localPeer} />
       </DefaultModal>
+      <DefaultModal
+        animationType="fade"
+        overlay={false}
+        modalPosiion="center"
+        modalVisible={data?.modalVisible === ModalTypes.CHANGE_TRACK}
+        setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}>
+        <ChangeTrackStateModal
+          localPeer={data?.localPeer}
+          roleChangeRequest={roleChangeRequest}
+          cancelModal={() => data?.setModalVisible(ModalTypes.DEFAULT)}
+        />
+      </DefaultModal>
+      <DefaultModal
+        animationType="fade"
+        overlay={false}
+        modalPosiion="center"
+        modalVisible={data?.modalVisible === ModalTypes.CHANGE_ROLE_ACCEPT}
+        setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}>
+        <ChangeRoleAccepteModal
+          instance={hmsInstance}
+          roleChangeRequest={roleChangeRequest}
+          cancelModal={() => data?.setModalVisible(ModalTypes.DEFAULT)}
+        />
+      </DefaultModal>
+      <DefaultModal
+        modalVisible={data?.modalVisible === ModalTypes.PARTICIPANTS}
+        setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}>
+        <ParticipantsModal
+          peerTrackNodes={peerTrackNodes}
+          instance={hmsInstance}
+          localPeer={data?.localPeer}
+          changeName={onChangeNamePress}
+          changeRole={onChangeRolePress}
+          setVolume={onSetVolumePress}
+        />
+      </DefaultModal>
+      <DefaultModal
+        animationType="fade"
+        overlay={false}
+        modalPosiion="center"
+        modalVisible={data?.modalVisible === ModalTypes.CHANGE_ROLE}
+        setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}>
+        <ChangeRoleModal
+          instance={hmsInstance}
+          peer={updatePeer}
+          cancelModal={() => data?.setModalVisible(ModalTypes.DEFAULT)}
+        />
+      </DefaultModal>
+      <DefaultModal
+        animationType="fade"
+        overlay={false}
+        modalPosiion="center"
+        modalVisible={data?.modalVisible === ModalTypes.VOLUME}
+        setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}>
+        <ChangeVolumeModal
+          instance={hmsInstance}
+          peer={updatePeer}
+          cancelModal={() => data?.setModalVisible(ModalTypes.DEFAULT)}
+        />
+      </DefaultModal>
+      <DefaultModal
+        animationType="fade"
+        overlay={false}
+        modalPosiion="center"
+        modalVisible={data?.modalVisible === ModalTypes.CHANGE_NAME}
+        setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}>
+        <ChangeNameModal
+          instance={hmsInstance}
+          peer={updatePeer}
+          cancelModal={() => data?.setModalVisible(ModalTypes.DEFAULT)}
+        />
+      </DefaultModal>
     </View>
   );
 };
@@ -443,6 +584,10 @@ const Header = ({
 
   const onSwitchCameraPress = () => {
     localPeer?.localVideoTrack()?.switchCamera();
+  };
+
+  const onParticipantsPress = () => {
+    setModalVisible(ModalTypes.PARTICIPANTS);
   };
 
   return (
@@ -532,13 +677,13 @@ const Header = ({
         {isScreenShared && (
           <Feather name="copy" style={styles.roomStatus} size={iconSize} />
         )}
-        {/* <CustomButton
-          onPress={() => console.log('onParticipantsPress')}
+        <CustomButton
+          onPress={onParticipantsPress}
           viewStyle={styles.iconContainer}
           LeftIcon={
             <Ionicons name="people" style={styles.icon} size={iconSize} />
           }
-        /> */}
+        />
         <CustomButton
           onPress={onRaiseHandPress}
           viewStyle={[
@@ -591,14 +736,47 @@ const Header = ({
   );
 };
 
-const Footer = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
+const Footer = ({
+  localPeer,
+  modalVisible,
+  setModalVisible,
+}: {
+  localPeer?: HMSLocalPeer;
+  modalVisible: ModalTypes;
+  setModalVisible: React.Dispatch<React.SetStateAction<ModalTypes>>;
+}) => {
   // hooks
-  const {hmsInstance} = useSelector((state: RootState) => state.user);
+  const {hmsInstance, roomID} = useSelector((state: RootState) => state.user);
+
+  // useState hook
+  const [muteAllTracksAudio, setMuteAllTracksAudio] = useState(false);
+  const [rtmpAndRecording, setRtmpAndRecording] = useState(false);
+  const [isAudioShared, setIsAudioShared] = useState(false);
+  const [audioDeviceChangeListener, setAudioDeviceChangeListener] =
+    useState<boolean>(false);
+  const [newAudioMixingMode, setNewAudioMixingMode] =
+    useState<HMSAudioMixingMode>(HMSAudioMixingMode.TALK_AND_MUSIC);
+  const [audioMode, setAudioMode] = useState<HMSAudioMode>(
+    HMSAudioMode.MODE_NORMAL,
+  );
 
   // constants
   const iconSize = 20;
   const isScreenShared =
     localPeer?.auxiliaryTracks && localPeer?.auxiliaryTracks?.length > 0;
+  const parsedMetadata = parseMetadata(localPeer?.metadata);
+  const audioFilePlayerNode = new HMSAudioFilePlayerNode(
+    'audio_file_player_node',
+  );
+
+  // listeners
+  const onAudioDeviceChangedListener = (data: any) => {
+    Toast.showWithGravity(
+      `Audio Device Output changed to ${data?.device}`,
+      Toast.LONG,
+      Toast.TOP,
+    );
+  };
 
   // functions
   const onStartScreenSharePress = () => {
@@ -613,6 +791,259 @@ const Footer = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
       ?.stopScreenshare()
       .then(d => console.log('Stop Screenshare Success: ', d))
       .catch(e => console.log('Stop Screenshare Error: ', e));
+  };
+
+  const onSettingsPress = () => {
+    setModalVisible(ModalTypes.SETTINGS);
+  };
+
+  const getSettingsButtons = (): Array<{
+    text: string;
+    type?: string;
+    onPress?: Function;
+  }> => {
+    let buttons: Array<{text: string; type?: string; onPress?: Function}> = [
+      {
+        text: 'Cancel',
+        type: 'cancel',
+      },
+      {
+        text: parsedMetadata?.isBRBOn ? 'Remove BRB' : 'Set BRB',
+        onPress: async () => {
+          await hmsInstance
+            ?.changeMetadata(
+              JSON.stringify({
+                ...parsedMetadata,
+                isBRBOn: !parsedMetadata?.isBRBOn,
+                isHandRaised: false,
+              }),
+            )
+            .then(d => console.log('Change Metadata Success: ', d))
+            .catch(e => console.log('Change Metadata Error: ', e));
+        },
+      },
+    ];
+    if (!localPeer?.role?.name?.includes('hls-')) {
+      buttons.push({
+        text: muteAllTracksAudio
+          ? 'Local unmute all audio tracks'
+          : 'Local mute all audio tracks',
+        onPress: () => {
+          hmsInstance?.setPlaybackForAllAudio(!muteAllTracksAudio);
+          setMuteAllTracksAudio(!muteAllTracksAudio);
+        },
+      });
+    }
+    if (localPeer?.role?.permissions?.mute) {
+      buttons.push({
+        text: 'Remote mute all audio tracks',
+        onPress: async () => {
+          await hmsInstance
+            ?.remoteMuteAllAudio()
+            .then(d => console.log('Remote Mute All Audio Success: ', d))
+            .catch(e => console.log('Remote Mute All Audio Error: ', e));
+        },
+      });
+    }
+    if (localPeer?.role?.permissions?.rtmpStreaming && rtmpAndRecording) {
+      buttons.push({
+        text: 'Stop RTMP And Recording',
+        onPress: () => {
+          hmsInstance
+            ?.stopRtmpAndRecording()
+            .then(d => {
+              setRtmpAndRecording(false);
+              console.log('Stop RTMP And Recording Success: ', d);
+            })
+            .catch(e => console.log('Stop RTMP And Recording Error: ', e));
+        },
+      });
+    }
+    if (localPeer?.role?.permissions?.rtmpStreaming && !rtmpAndRecording) {
+      buttons.push({
+        text: 'Start RTMP or Recording',
+        onPress: () => {
+          setModalVisible(ModalTypes.RECORDING);
+        },
+      });
+    }
+    if (
+      localPeer?.role?.permissions?.mute ||
+      localPeer?.role?.permissions?.unmute
+    ) {
+      buttons.push({
+        text: 'Change Track State For Role',
+        onPress: () => {
+          setModalVisible(ModalTypes.CHANGE_TRACK_ROLE);
+        },
+      });
+    }
+    if (Platform.OS === 'android') {
+      if (audioDeviceChangeListener) {
+        buttons.push({
+          text: 'Remove Audio Device Change Listener',
+          onPress: () => {
+            hmsInstance?.removeEventListener(
+              HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED,
+            );
+            setAudioDeviceChangeListener(false);
+          },
+        });
+      } else {
+        buttons.push({
+          text: 'Set Audio Device Change Listener',
+          onPress: () => {
+            hmsInstance?.setAudioDeviceChangeListener(
+              onAudioDeviceChangedListener,
+            );
+            setAudioDeviceChangeListener(true);
+          },
+        });
+      }
+      buttons.push(
+        ...[
+          {
+            text: 'Switch Audio Output',
+            onPress: () => {
+              setModalVisible(ModalTypes.SWITCH_AUDIO_OUTPUT);
+            },
+          },
+          {
+            text: 'Set Audio Mode',
+            onPress: () => {
+              setModalVisible(ModalTypes.CHANGE_AUDIO_MODE);
+            },
+          },
+          {
+            text: 'Set Audio Mixing Mode',
+            onPress: () => {
+              setModalVisible(ModalTypes.AUDIO_MIXING_MODE);
+            },
+          },
+        ],
+      );
+      if (isAudioShared) {
+        buttons.push({
+          text: 'Stop Audioshare',
+          onPress: () => {
+            hmsInstance
+              ?.stopAudioshare()
+              .then(d => {
+                setIsAudioShared(false);
+                console.log('Stop Audioshare Success: ', d);
+              })
+              .catch(e => console.log('Stop Audioshare Error: ', e));
+          },
+        });
+      } else {
+        buttons.push({
+          text: 'Start Audioshare',
+          onPress: () => {
+            hmsInstance
+              ?.startAudioshare(newAudioMixingMode)
+              .then(d => {
+                setIsAudioShared(true);
+                console.log('Start Audioshare Success: ', d);
+              })
+              .catch(e => console.log('Start Audioshare Error: ', e));
+          },
+        });
+      }
+    } else {
+      buttons.push(
+        ...[
+          {
+            text: 'Play Audio Share',
+            onPress: () => {
+              setTimeout(() => {
+                DocumentPicker.pickSingle()
+                  .then(result => {
+                    console.log('Document Picker Success: ', result);
+                    audioFilePlayerNode
+                      .play(result?.uri, false, false)
+                      .then(d => {
+                        console.log('Start Audioshare Success: ', d);
+                      })
+                      .catch(e => console.log('Start Audioshare Error: ', e));
+                  })
+                  .catch(e => console.log('Document Picker Error: ', e));
+              }, 500);
+            },
+          },
+          {
+            text: 'Stop Audio Share',
+            onPress: () => {
+              audioFilePlayerNode.stop();
+            },
+          },
+          {
+            text: 'Set Audio Share Volume',
+            onPress: () => {
+              setModalVisible(ModalTypes.SET_AUDIO_SHARE_VOLUME);
+            },
+          },
+          {
+            text: 'Pause Audio Share',
+            onPress: () => {
+              audioFilePlayerNode.pause();
+            },
+          },
+          {
+            text: 'Resume Audio Share',
+            onPress: () => {
+              audioFilePlayerNode.resume();
+            },
+          },
+          {
+            text: 'Is Audio Share Playing',
+            onPress: () => {
+              audioFilePlayerNode
+                .isPlaying()
+                .then(d => console.log('Audioshare isPlaying: ', d))
+                .catch(e => console.log('Audioshare isPlaying: ', e));
+            },
+          },
+          {
+            text: 'Audio Share Duration',
+            onPress: () => {
+              audioFilePlayerNode
+                .duration()
+                .then(d => console.log('Audioshare duration: ', d))
+                .catch(e => console.log('Audioshare duration: ', e));
+            },
+          },
+          {
+            text: 'Audio Share Current Duration',
+            onPress: () => {
+              audioFilePlayerNode
+                .currentDuration()
+                .then(d => console.log('Audioshare currentDuration: ', d))
+                .catch(e => console.log('Audioshare currentDuration: ', e));
+            },
+          },
+        ],
+      );
+    }
+    // buttons.push(
+    //   ...[
+    //     {
+    //       text: 'Stats For Nerds',
+    //       onPress: () => {
+    //         setModalVisible(ModalTypes.RTC_STATS);
+    //       },
+    //     },
+    //     {
+    //       text: 'Report issue and share logs',
+    //       onPress: async () => {
+    //         const permission = await requestExternalStoragePermission();
+    //         if (permission) {
+    //           await reportIssue();
+    //         }
+    //       },
+    //     },
+    //   ],
+    // );
+    return buttons;
   };
 
   return (
@@ -708,7 +1139,7 @@ const Footer = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
           />
         )}
         <CustomButton
-          onPress={() => console.log('onSettingsPress')}
+          onPress={onSettingsPress}
           viewStyle={styles.iconContainer}
           LeftIcon={
             <MaterialCommunityIcons
@@ -725,6 +1156,78 @@ const Footer = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
         ) : (
           <Text style={styles.liveText}>Go Live</Text>
         ))} */}
+      <AlertModal
+        modalVisible={modalVisible === ModalTypes.SETTINGS}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+        title="Settings"
+        buttons={getSettingsButtons()}
+      />
+      <DefaultModal
+        animationType="fade"
+        overlay={false}
+        modalPosiion="center"
+        modalVisible={
+          modalVisible === ModalTypes.RECORDING ||
+          modalVisible === ModalTypes.RESOLUTION
+        }
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        <RecordingModal
+          instance={hmsInstance}
+          roomID={roomID}
+          setModalVisible={setModalVisible}
+          setRtmpAndRecording={setRtmpAndRecording}
+          recordingModal={modalVisible === ModalTypes.RECORDING}
+        />
+      </DefaultModal>
+      <DefaultModal
+        animationType="fade"
+        overlay={false}
+        modalPosiion="center"
+        modalVisible={modalVisible === ModalTypes.CHANGE_TRACK_ROLE}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        <ChangeTrackStateForRoleModal
+          instance={hmsInstance}
+          localPeer={localPeer}
+          cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
+        />
+      </DefaultModal>
+      <DefaultModal
+        animationType="fade"
+        overlay={false}
+        modalPosiion="center"
+        modalVisible={modalVisible === ModalTypes.SWITCH_AUDIO_OUTPUT}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        <ChangeAudioOutputModal
+          instance={hmsInstance}
+          cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
+        />
+      </DefaultModal>
+      <DefaultModal
+        animationType="fade"
+        overlay={false}
+        modalPosiion="center"
+        modalVisible={modalVisible === ModalTypes.CHANGE_AUDIO_MODE}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        <ChangeAudioModeModal
+          instance={hmsInstance}
+          audioMode={audioMode}
+          setAudioMode={setAudioMode}
+          cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
+        />
+      </DefaultModal>
+      <DefaultModal
+        animationType="fade"
+        overlay={false}
+        modalPosiion="center"
+        modalVisible={modalVisible === ModalTypes.AUDIO_MIXING_MODE}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        <ChangeAudioMixingModeModal
+          instance={hmsInstance}
+          newAudioMixingMode={newAudioMixingMode}
+          setNewAudioMixingMode={setNewAudioMixingMode}
+          cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
+        />
+      </DefaultModal>
     </View>
   );
 };

@@ -483,6 +483,23 @@ const styles = StyleSheet.create({
     color: COLORS.TEXT.HIGH_EMPHASIS,
     paddingRight: 12,
   },
+  peerCountContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderColor: COLORS.BORDER.ACCENT,
+    borderWidth: 2,
+    borderRadius: 30,
+    marginLeft: 12,
+    height: 30,
+    paddingHorizontal: 6,
+  },
+  peerCount: {
+    fontFamily: 'Inter-Medium',
+    fontSize: 20,
+    lineHeight: 24,
+    letterSpacing: 0.15,
+    color: COLORS.TEXT.HIGH_EMPHASIS,
+  },
   participantItem: {
     height: 68,
     flexDirection: 'row',
