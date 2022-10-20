@@ -13,7 +13,6 @@ import {
   HMSSDK,
   HMSTrack,
   HMSTrackSettings,
-  HMSTrackSource,
   HMSTrackUpdate,
   HMSUpdateListenerActions,
   HMSVideoCodec,
@@ -119,22 +118,14 @@ const Welcome = () => {
       room: HMSRoom;
     },
   ) => {
-    if (Platform.OS === 'ios') {
-      await hmsInstance?.getLocalPeer().then(localPeer => {
-        const hmsLocalPeer = {
-          id: localPeer.peerID + HMSTrackSource.REGULAR,
-          peer: localPeer,
-          track: localPeer.videoTrack,
-        };
-        dispatch(
-          setPeerState({
-            peerState: [hmsLocalPeer, ...peerTrackNodesRef?.current],
-          }),
-        );
-      });
-    } else {
-      dispatch(setPeerState({peerState: peerTrackNodesRef?.current}));
-    }
+    await hmsInstance?.getLocalPeer().then(localPeer => {
+      const newPeerTrackNodes = updatePeersTrackNodesOnPeerListener(
+        peerTrackNodesRef?.current,
+        localPeer,
+        HMSPeerUpdate.PEER_JOINED,
+      );
+      dispatch(setPeerState({peerState: newPeerTrackNodes}));
+    });
     hmsInstance?.getRoles().then(roles => {
       dispatch(
         saveUserData({

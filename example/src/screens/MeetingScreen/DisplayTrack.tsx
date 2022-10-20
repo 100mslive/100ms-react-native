@@ -39,7 +39,7 @@ const DisplayTrack = ({
   );
 
   // useState hook
-  const [isDegraded, setIsDegraded] = useState(false);
+  const [isDegraded, setIsDegraded] = useState(videoTrack?.isDegraded);
 
   // constants
   const HmsView = hmsInstance?.HmsView;
@@ -54,7 +54,7 @@ const DisplayTrack = ({
 
   // useEffect hook
   useEffect(() => {
-    setIsDegraded(videoTrack?.isDegraded || false);
+    setIsDegraded(videoTrack?.isDegraded);
   }, [videoTrack?.isDegraded]);
 
   return HmsView ? (
@@ -78,7 +78,9 @@ const DisplayTrack = ({
             textStyle={styles.roleChangeModalButtonText}
           />
         </View>
-      ) : videoTrack?.isMute() || videoTrack?.trackId === undefined ? (
+      ) : videoTrack?.isMute() ||
+        videoTrack?.trackId === undefined ||
+        isDegraded ? (
         // ) : isVideoMute || layout === LayoutParams.AUDIO ? (
         <View style={styles.avatarContainer}>
           <View style={styles.avatar}>
@@ -108,13 +110,13 @@ const DisplayTrack = ({
                 : styles.hmsView
             }
           />
-          {isDegraded && (
+          {/* {isDegraded && (
             <View style={styles.degradedContainer}>
               <View style={styles.avatarContainer}>
                 <Text style={styles.degradedText}>Degraded</Text>
               </View>
             </View>
-          )}
+          )} */}
         </View>
       )}
       <View style={styles.peerNameContainer}>
