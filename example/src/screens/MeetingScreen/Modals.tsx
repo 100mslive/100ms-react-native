@@ -201,10 +201,7 @@ export const ParticipantsModal = ({
   useEffect(() => {
     let newPeerCount = 0;
     peerTrackNodes?.map(peerTrackNode => {
-      if (
-        peerTrackNode.track?.source === undefined ||
-        peerTrackNode.track?.source === HMSTrackSource.REGULAR
-      ) {
+      if (peerTrackNode.id.includes(HMSTrackSource.REGULAR)) {
         newPeerCount++;
       }
     });
