@@ -431,7 +431,7 @@ const Welcome = () => {
               }}>
               {forceSoftwareDecoder ? (
                 <Text style={styles.settingsMenuItemName}>
-                  Disable software encoder
+                  Disable Software Decoder
                 </Text>
               ) : (
                 <Text style={styles.settingsMenuItemName}>
