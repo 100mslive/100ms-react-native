@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import live.hms.video.audio.HMSAudioManager
 import live.hms.video.connection.stats.*
 import live.hms.video.error.HMSException
+import live.hms.video.media.settings.HMSLogSettings
 import live.hms.video.media.tracks.*
 import live.hms.video.sdk.*
 import live.hms.video.sdk.models.*
@@ -17,7 +18,9 @@ import live.hms.video.sdk.models.enums.HMSPeerUpdate
 import live.hms.video.sdk.models.enums.HMSRoomUpdate
 import live.hms.video.sdk.models.enums.HMSTrackUpdate
 import live.hms.video.sdk.models.trackchangerequest.HMSChangeTrackStateRequest
+import live.hms.video.services.LogAlarmManager
 import live.hms.video.utils.HMSCoroutineScope
+import live.hms.video.utils.HMSLogger
 import live.hms.video.utils.HmsUtilities
 
 class HMSRNSDK(
@@ -44,7 +47,7 @@ class HMSRNSDK(
   init {
     val trackSettings = HMSHelper.getTrackSettings(data?.getMap("trackSettings"))
     val frameworkInfo = HMSHelper.getFrameworkInfo(data?.getMap("frameworkInfo"))
-    val logSettings = HMSLogSettings(maxDirSizeInBytes: LogAlarmManager.DEFAULT_DIR_SIZE, isLogStorageEnabled: true, level: HMSLogger.LogLevel.VERBOSE)
+    val logSettings = HMSLogSettings(maxDirSizeInBytes = LogAlarmManager.DEFAULT_DIR_SIZE, isLogStorageEnabled = true, level = HMSLogger.LogLevel.VERBOSE)
     // TODO: Cleanup builders
     if (trackSettings == null) {
       this.hmsSDK = HMSSDK.Builder(reactApplicationContext).setLogSettings(logSettings).build()
