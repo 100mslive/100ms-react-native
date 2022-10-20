@@ -242,10 +242,12 @@ object HMSHelper {
       val maxBitrate = data.getInt("maxBitrate")
       val maxFrameRate = data.getInt("maxFrameRate")
       val cameraFacing = getCameraFacing(data.getString("cameraFacing"))
-      var forceSoftwareDecoder = false
-      if (areAllRequiredKeysAvailable(data, arrayOf(Pair("forceSoftwareDecoder", "Boolean")))) {
-        forceSoftwareDecoder = data.getBoolean("forceSoftwareDecoder")
-      }
+      val forceSoftwareDecoder = true
+      // TODO
+//      var forceSoftwareDecoder = false
+//      if (areAllRequiredKeysAvailable(data, arrayOf(Pair("forceSoftwareDecoder", "Boolean")))) {
+//        forceSoftwareDecoder = data.getBoolean("forceSoftwareDecoder")
+//      }
       builder.codec(codec)
       builder.cameraFacing(cameraFacing)
       builder.forceSoftwareDecoder(forceSoftwareDecoder)
