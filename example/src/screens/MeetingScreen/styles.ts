@@ -489,7 +489,7 @@ const styles = StyleSheet.create({
     borderColor: COLORS.BORDER.ACCENT,
     borderWidth: 2,
     borderRadius: 30,
-    marginLeft: 12,
+    marginLeft: 2,
     height: 30,
     paddingHorizontal: 6,
   },

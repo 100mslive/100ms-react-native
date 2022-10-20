@@ -39,7 +39,7 @@ const DisplayTrack = ({
   );
 
   // useState hook
-  const [isDegraded, setIsDegraded] = useState(false);
+  const [isDegraded, setIsDegraded] = useState(videoTrack?.isDegraded);
 
   // constants
   const HmsView = hmsInstance?.HmsView;
@@ -54,7 +54,7 @@ const DisplayTrack = ({
 
   // useEffect hook
   useEffect(() => {
-    setIsDegraded(videoTrack?.isDegraded || false);
+    setIsDegraded(videoTrack?.isDegraded);
   }, [videoTrack?.isDegraded]);
 
   return HmsView ? (
