@@ -78,9 +78,7 @@ const DisplayTrack = ({
             textStyle={styles.roleChangeModalButtonText}
           />
         </View>
-      ) : videoTrack?.isMute() ||
-        videoTrack?.trackId === undefined ||
-        isDegraded ? (
+      ) : videoTrack?.isMute() || videoTrack?.trackId === undefined ? (
         // ) : isVideoMute || layout === LayoutParams.AUDIO ? (
         <View style={styles.avatarContainer}>
           <View style={styles.avatar}>
@@ -110,13 +108,13 @@ const DisplayTrack = ({
                 : styles.hmsView
             }
           />
-          {/* {isDegraded && (
+          {isDegraded && (
             <View style={styles.degradedContainer}>
               <View style={styles.avatarContainer}>
                 <Text style={styles.degradedText}>Degraded</Text>
               </View>
             </View>
-          )} */}
+          )}
         </View>
       )}
       <View style={styles.peerNameContainer}>

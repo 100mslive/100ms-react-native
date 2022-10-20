@@ -422,11 +422,11 @@ const Welcome = () => {
               }}>
               {forceSoftwareDecoder ? (
                 <Text style={styles.settingsMenuItemName}>
-                  Disable Software Decoder
+                  Disable software decoder
                 </Text>
               ) : (
                 <Text style={styles.settingsMenuItemName}>
-                  Enable software encoder
+                  Enable software decoder
                 </Text>
               )}
             </MenuItem>

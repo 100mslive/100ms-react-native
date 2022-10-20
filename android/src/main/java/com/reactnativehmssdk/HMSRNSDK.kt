@@ -48,12 +48,10 @@ class HMSRNSDK(
     val trackSettings = HMSHelper.getTrackSettings(data?.getMap("trackSettings"))
     val frameworkInfo = HMSHelper.getFrameworkInfo(data?.getMap("frameworkInfo"))
     val logSettings = HMSLogSettings(maxDirSizeInBytes = LogAlarmManager.DEFAULT_DIR_SIZE, isLogStorageEnabled = true, level = HMSLogger.LogLevel.VERBOSE)
-    // TODO: Cleanup builders
     if (trackSettings == null) {
-      this.hmsSDK = HMSSDK.Builder(reactApplicationContext).setLogSettings(logSettings).build()
+      this.hmsSDK = HMSSDK.Builder(reactApplicationContext).setFrameworkInfo(frameworkInfo).setLogSettings(logSettings).build()
     } else {
-      this.hmsSDK = HMSSDK.Builder(reactApplicationContext).setTrackSettings(trackSettings).setLogSettings(logSettings).build()
-//      this.hmsSDK = HMSSDK.Builder(reactApplicationContext).setFrameworkInfo(frameworkInfo).setLogSettings(logSettings).build()
+      this.hmsSDK = HMSSDK.Builder(reactApplicationContext).setTrackSettings(trackSettings).setFrameworkInfo(frameworkInfo).setLogSettings(logSettings).build()
     }
   }
 
