@@ -31,7 +31,7 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
     val view = inflater.inflate(R.layout.hms_view, this)
 
     surfaceView = view.findViewById(R.id.surfaceView)
-    surfaceView.setEnableHardwareScaler(true)
+    surfaceView.setEnableHardwareScaler(false)
   }
 
   @RequiresApi(Build.VERSION_CODES.N)
