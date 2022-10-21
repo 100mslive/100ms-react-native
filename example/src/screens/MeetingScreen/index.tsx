@@ -5,6 +5,7 @@ import {
   HMSChangeTrackStateRequest,
   HMSException,
   HMSLocalPeer,
+  HMSMessage,
   HMSPeer,
   HMSPeerUpdate,
   HMSRoleChangeRequest,
@@ -62,6 +63,7 @@ import {
 import type {RootState} from '../../redux';
 import type {AppStackParamList} from '../../navigator';
 import {
+  addMessage,
   clearHmsReference,
   clearMessageData,
   clearPeerData,
@@ -74,12 +76,33 @@ type MeetingScreenProp = NativeStackNavigationProp<
 >;
 
 const Meeting = () => {
+  // hooks
+  const {hmsInstance} = useSelector((state: RootState) => state.user);
+
   // useState hook
   const [room, setRoom] = useState<HMSRoom>();
   const [localPeer, setLocalPeer] = useState<HMSLocalPeer>();
   const [modalVisible, setModalVisible] = useState<ModalTypes>(
     ModalTypes.DEFAULT,
   );
+
+  const updateLocalPeer = () => {
+    hmsInstance?.getLocalPeer().then(peer => {
+      setLocalPeer(peer);
+    });
+  };
+
+  const updateRoom = () => {
+    hmsInstance?.getRoom().then(hmsRoom => {
+      setRoom(hmsRoom);
+    });
+  };
+
+  useEffect(() => {
+    updateLocalPeer();
+    updateRoom();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -315,6 +338,16 @@ const DisplayView = (data: {
     await destroy();
   };
 
+  const onMessageListener = (message: HMSMessage) => {
+    dispatch(addMessage(message));
+    Toast.showWithGravity(
+      `${message.sender?.name}: ${message.message}`,
+      Toast.SHORT,
+      Toast.TOP,
+    );
+    // setNotification(true);
+  };
+
   // functions
   const updateHmsInstance = (hms?: HMSSDK) => {
     hms?.addEventListener(
@@ -333,6 +366,10 @@ const DisplayView = (data: {
     hms?.addEventListener(
       HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM,
       onRemovedFromRoomListener,
+    );
+    hmsInstance?.addEventListener(
+      HMSUpdateListenerActions.ON_MESSAGE,
+      onMessageListener,
     );
     // hms?.addEventListener(
     //   HMSUpdateListenerActions.ON_SPEAKER,
@@ -402,24 +439,17 @@ const DisplayView = (data: {
     data?.setModalVisible(ModalTypes.VOLUME);
   };
 
-  const updateLocalPeer = () => {
-    hmsInstance?.getLocalPeer().then(localPeer => {
-      data?.setLocalPeer(localPeer);
-    });
-  };
-
   // useEffect hook
   useEffect(() => {
     const callback = () => {
       setOrientation(isPortrait());
     };
     updateHmsInstance(hmsInstance);
-    updateLocalPeer();
     callback();
     Dimensions.addEventListener('change', callback);
     return () => {
       Dimensions.removeEventListener('change', callback);
-      // onLeavePress();
+      onLeavePress();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

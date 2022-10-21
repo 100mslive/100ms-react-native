@@ -16,7 +16,6 @@ import {
   HMSRemotePeer,
   HMSRole,
   HMSSDK,
-  HMSUpdateListenerActions,
 } from '@100mslive/react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -167,24 +166,6 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
   const [showBanner, setShowBanner] = useState<boolean>(true);
   const [text, setText] = useState('');
 
-  // listeners
-  const onMessageListener = (data: HMSMessage) => {
-    dispatch(addMessage(data));
-    // setNotification(true);
-  };
-
-  // functions
-  const addListener = () => {
-    hmsInstance?.addEventListener(
-      HMSUpdateListenerActions.ON_MESSAGE,
-      onMessageListener,
-    );
-  };
-
-  const removeListener = () => {
-    hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_MESSAGE);
-  };
-
   const sendMessage = () => {
     let hmsMessageRecipient: HMSMessageRecipient;
     if (text.length > 0) {
@@ -228,14 +209,6 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
   useEffect(() => {
     scollviewRef?.current?.scrollToEnd({animated: true});
   }, [messages]);
-
-  useEffect(() => {
-    addListener();
-    return () => {
-      removeListener();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hmsInstance]);
 
   return (
     <View style={styles.container}>
