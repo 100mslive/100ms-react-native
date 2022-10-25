@@ -1,11 +1,12 @@
 import {
-  HMSAudioCodec,
   HMSAudioTrackSettings,
   HMSCameraFacing,
   HMSConfig,
   HMSException,
+  HMSLogAlarmManager,
   HMSLogger,
   HMSLogLevel,
+  HMSLogSettings,
   HMSPeer,
   HMSPeerUpdate,
   HMSRoom,
@@ -13,10 +14,9 @@ import {
   HMSSDK,
   HMSTrack,
   HMSTrackSettings,
+  HMSTrackSettingsInitState,
   HMSTrackUpdate,
   HMSUpdateListenerActions,
-  HMSVideoCodec,
-  HMSVideoResolution,
   HMSVideoTrackSettings,
 } from '@100mslive/react-native-hms';
 import {useNavigation} from '@react-navigation/native';
@@ -83,6 +83,7 @@ const Welcome = () => {
   const [hmsRoom, setHmsRoom] = useState<HMSRoom>();
   const [modalType, setModalType] = useState<ModalTypes>(ModalTypes.DEFAULT);
   const [forceSoftwareDecoder, setForceSoftwareDecoder] = useState(true);
+  const [disableAutoResize, setDisableAutoResize] = useState(true);
   const [mirrorLocalVideo, setMirrorLocalVideo] = useState(false);
 
   // useRef hook
@@ -255,27 +256,6 @@ const Welcome = () => {
   };
 
   const getTrackSettings = () => {
-    let audioSettings = new HMSAudioTrackSettings({
-      codec: HMSAudioCodec.opus,
-      maxBitrate: 32,
-      trackDescription: 'Simple Audio Track',
-      audioSource: [
-        'mic_node',
-        'screen_broadcast_audio_receiver_node',
-        'audio_file_player_node',
-      ],
-    });
-
-    let videoSettings = new HMSVideoTrackSettings({
-      codec: HMSVideoCodec.VP8,
-      maxBitrate: 512,
-      maxFrameRate: 25,
-      cameraFacing: HMSCameraFacing.FRONT,
-      trackDescription: 'Simple Video Track',
-      resolution: new HMSVideoResolution({height: 180, width: 320}),
-      forceSoftwareDecoder,
-    });
-
     const listOfFaultyDevices = [
       'Pixel',
       'Pixel XL',
@@ -292,12 +272,36 @@ const Welcome = () => {
     ];
     const deviceModal = getModel();
 
-    return new HMSTrackSettings({
-      video: videoSettings,
-      audio: audioSettings,
+    let audioSettings = new HMSAudioTrackSettings({
+      initialState: HMSTrackSettingsInitState.MUTED,
       useHardwareEchoCancellation: listOfFaultyDevices.includes(deviceModal)
         ? true
         : false,
+      audioSource: [
+        'mic_node',
+        'screen_broadcast_audio_receiver_node',
+        'audio_file_player_node',
+      ],
+    });
+
+    let videoSettings = new HMSVideoTrackSettings({
+      initialState: HMSTrackSettingsInitState.MUTED,
+      cameraFacing: HMSCameraFacing.FRONT,
+      disableAutoResize,
+      forceSoftwareDecoder,
+    });
+
+    return new HMSTrackSettings({
+      video: videoSettings,
+      audio: audioSettings,
+    });
+  };
+
+  const getLogSettings = (): HMSLogSettings => {
+    return new HMSLogSettings({
+      level: HMSLogLevel.VERBOSE,
+      isLogStorageEnabled: true,
+      maxDirSizeInBytes: HMSLogAlarmManager.DEFAULT_DIR_SIZE,
     });
   };
 
@@ -334,7 +338,10 @@ const Welcome = () => {
      *  preferredExtension: 'RHHMSExampleBroadcastUpload', // required for iOS Screenshare, not required for Android
      * });
      */
+
+    const logSettings = getLogSettings();
     const hmsInstance = await HMSSDK.build({
+      logSettings,
       trackSettings,
       appGroup: 'group.reactnativehms',
       preferredExtension: 'live.100ms.reactnative.RNHMSExampleBroadcastUpload',
@@ -427,6 +434,23 @@ const Welcome = () => {
               ) : (
                 <Text style={styles.settingsMenuItemName}>
                   Enable software decoder
+                </Text>
+              )}
+            </MenuItem>
+          )}
+          {Platform.OS === 'android' && (
+            <MenuItem
+              onPress={() => {
+                setModalType(ModalTypes.DEFAULT);
+                setDisableAutoResize(!disableAutoResize);
+              }}>
+              {disableAutoResize ? (
+                <Text style={styles.settingsMenuItemName}>
+                  Enable auto resize
+                </Text>
+              ) : (
+                <Text style={styles.settingsMenuItemName}>
+                  Disable auto resize
                 </Text>
               )}
             </MenuItem>

@@ -147,31 +147,36 @@ class HMSHelper: NSObject {
     }
 
     static func getLocalVideoSettings(_ settings: NSDictionary?) -> HMSVideoTrackSettings? {
-        guard let data = settings,
-              let codec = data.value(forKey: "codec") as? String,
-              let resolution = data.value(forKey: "resolution") as? [String: Double]?,
-              let maxBitrate = data.value(forKey: "maxBitrate") as? Int,
-              let maxFrameRate = data.value(forKey: "maxFrameRate") as? Int,
-              let cameraFacing = data.value(forKey: "cameraFacing") as? String,
-              let trackDescription = data.value(forKey: "trackDescription") as? String?,
-              let resolutionObj = HMSHelper.getVideoResolution(resolution ?? [:])
-        else {
+        if (settings === nil) {
             return nil
         }
-        let codecEncoded = HMSHelper.getVideoCodec(codec)
+        let codec = HMSCodec.VP8
+        let resolution = HMSVideoResolution.init(width: 320, height: 180)
+        let maxBitrate = 512
+        let maxFrameRate = 25
+        let trackDescription = "video track description"
+        let cameraFacing = settings?.value(forKey: "cameraFacing") as? String
         let cameraFacingEncoded = HMSHelper.getCameraFacing(cameraFacing)
-        let hmsTrackSettings = HMSVideoTrackSettings(codec: codecEncoded,
-                                                     resolution: resolutionObj,
+        let initialState = settings?.value(forKey: "initialState") as? String
+        let initialStateEncoded = HMSHelper.getHMSTrackSettingsInitState(initialState)
+        let hmsTrackSettings = HMSVideoTrackSettings(codec: codec,
+                                                     resolution: resolution,
                                                      maxBitrate: maxBitrate,
                                                      maxFrameRate: maxFrameRate,
                                                      cameraFacing: cameraFacingEncoded,
+                                                     simulcastSettings: nil,
                                                      trackDescription: trackDescription,
+                                                     initialMuteState: initialStateEncoded,
                                                      videoPlugins: nil)
         return hmsTrackSettings
     }
 
     static func getLocalAudioSettings(_ settings: NSDictionary?, _ hms: HMSSDK?, _ delegate: HMSManager?, _ id: String) -> HMSAudioTrackSettings? {
-
+        if (settings === nil) {
+            return nil
+        }
+        let initialState = settings?.value(forKey: "initialState") as? String
+        let initialStateEncoded = HMSHelper.getHMSTrackSettingsInitState(initialState)
         if #available(iOS 13.0, *) {
             var audioMixerSourceMap = [String: HMSAudioNode]()
             if let playerNode = settings?.value(forKey: "audioSource") as? [String] {
@@ -194,13 +199,13 @@ class HMSHelper: NSObject {
             do {
                 self.audioMixerSourceHashMap = audioMixerSourceMap
                 let audioMixerSource = try HMSAudioMixerSource(nodes: audioMixerSourceMap.values.map {$0})
-                return HMSAudioTrackSettings(maxBitrate: 32, trackDescription: "trackDescription", audioSource: audioMixerSource)
+                return HMSAudioTrackSettings(maxBitrate: 32, trackDescription: "audio track description", initialMuteState: initialStateEncoded, audioSource: audioMixerSource)
             } catch {
                 delegate?.emitEvent("ON_ERROR", ["error": ["code": 6002, "description": error.localizedDescription, "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
                 return nil
             }
         }
-        return nil
+        return HMSAudioTrackSettings(maxBitrate: 32, trackDescription: "audio track description", initialMuteState: initialStateEncoded, audioSource: nil)
     }
 
     static func getAudioMixerSourceMap() -> [String: HMSAudioNode]? {
@@ -228,7 +233,7 @@ class HMSHelper: NSObject {
         }
     }
 
-    static func getCameraFacing(_ cameraFacing: String) -> HMSCameraFacing {
+    static func getCameraFacing(_ cameraFacing: String?) -> HMSCameraFacing {
         switch cameraFacing {
         case "FRONT":
             return HMSCameraFacing.front
@@ -236,6 +241,17 @@ class HMSHelper: NSObject {
             return HMSCameraFacing.back
         default:
             return HMSCameraFacing.front
+        }
+    }
+    
+    static func getHMSTrackSettingsInitState(_ initState: String?) -> HMSTrackMuteState {
+        switch initState {
+        case "MUTED":
+            return HMSTrackMuteState.mute
+        case "UNMUTED":
+            return HMSTrackMuteState.unmute
+        default:
+            return HMSTrackMuteState.unmute
         }
     }
 

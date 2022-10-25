@@ -4,12 +4,10 @@ import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import com.facebook.react.bridge.*
 import com.facebook.react.bridge.UiThreadUtil.runOnUiThread
-import java.util.*
 import kotlinx.coroutines.launch
 import live.hms.video.audio.HMSAudioManager
 import live.hms.video.connection.stats.*
 import live.hms.video.error.HMSException
-import live.hms.video.media.settings.HMSLogSettings
 import live.hms.video.media.tracks.*
 import live.hms.video.sdk.*
 import live.hms.video.sdk.models.*
@@ -18,9 +16,7 @@ import live.hms.video.sdk.models.enums.HMSPeerUpdate
 import live.hms.video.sdk.models.enums.HMSRoomUpdate
 import live.hms.video.sdk.models.enums.HMSTrackUpdate
 import live.hms.video.sdk.models.trackchangerequest.HMSChangeTrackStateRequest
-import live.hms.video.services.LogAlarmManager
 import live.hms.video.utils.HMSCoroutineScope
-import live.hms.video.utils.HMSLogger
 import live.hms.video.utils.HmsUtilities
 
 class HMSRNSDK(
@@ -45,14 +41,29 @@ class HMSRNSDK(
   private var self = this
 
   init {
-    val trackSettings = HMSHelper.getTrackSettings(data?.getMap("trackSettings"))
-    val frameworkInfo = HMSHelper.getFrameworkInfo(data?.getMap("frameworkInfo"))
-    val logSettings = HMSLogSettings(maxDirSizeInBytes = LogAlarmManager.DEFAULT_DIR_SIZE, isLogStorageEnabled = true, level = HMSLogger.LogLevel.VERBOSE)
-    if (trackSettings == null) {
-      this.hmsSDK = HMSSDK.Builder(reactApplicationContext).setFrameworkInfo(frameworkInfo).setLogSettings(logSettings).build()
-    } else {
-      this.hmsSDK = HMSSDK.Builder(reactApplicationContext).setTrackSettings(trackSettings).setFrameworkInfo(frameworkInfo).setLogSettings(logSettings).build()
+    val builder = HMSSDK.Builder(reactApplicationContext)
+    if (HMSHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("trackSettings", "Map")))) {
+      val trackSettings = HMSHelper.getTrackSettings(data?.getMap("trackSettings"))
+      if (trackSettings != null) {
+        builder.setTrackSettings(trackSettings)
+      }
     }
+
+    if (HMSHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("frameworkInfo", "Map")))) {
+      val frameworkInfo = HMSHelper.getFrameworkInfo(data?.getMap("frameworkInfo"))
+      if (frameworkInfo != null) {
+        builder.setFrameworkInfo(frameworkInfo)
+      }
+    }
+
+    if (HMSHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("logSettings", "Map")))) {
+      val logSettings = HMSHelper.getLogSettings(data?.getMap("logSettings"))
+      if (logSettings != null) {
+        builder.setLogSettings(logSettings)
+      }
+    }
+
+    this.hmsSDK = builder.build()
   }
 
   private fun emitCustomError(message: String) {
@@ -133,7 +144,8 @@ class HMSRNSDK(
               ) {
                 return
               }
-              if(!networkQualityUpdatesAttached && type === HMSPeerUpdate.NETWORK_QUALITY_UPDATED){
+              if (!networkQualityUpdatesAttached && type === HMSPeerUpdate.NETWORK_QUALITY_UPDATED
+              ) {
                 return
               }
               val updateType = type.name
@@ -248,7 +260,9 @@ class HMSRNSDK(
                   ) {
                     return
                   }
-                  if(!networkQualityUpdatesAttached && type === HMSPeerUpdate.NETWORK_QUALITY_UPDATED){
+                  if (!networkQualityUpdatesAttached &&
+                          type === HMSPeerUpdate.NETWORK_QUALITY_UPDATED
+                  ) {
                     return
                   }
                   val updateType = type.name
