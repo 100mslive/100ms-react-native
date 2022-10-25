@@ -254,6 +254,17 @@ class HMSHelper: NSObject {
             return HMSTrackMuteState.unmute
         }
     }
+    
+    static func getHMSTrackInitState(_ initState: HMSTrackMuteState?) -> String {
+        switch initState {
+        case .mute:
+            return "MUTED"
+        case .unmute:
+            return "UNMUTED"
+        default:
+            return "UNMUTED"
+        }
+    }
 
     static func getRtmpUrls(_ strings: [String]?) -> [URL]? {
         if let extractedStrings = strings {

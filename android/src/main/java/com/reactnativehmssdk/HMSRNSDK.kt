@@ -53,7 +53,11 @@ class HMSRNSDK(
       val frameworkInfo = HMSHelper.getFrameworkInfo(data?.getMap("frameworkInfo"))
       if (frameworkInfo != null) {
         builder.setFrameworkInfo(frameworkInfo)
+      } else {
+        emitCustomError("Unable to decode framework info")
       }
+    } else {
+      emitCustomError("Framework info not sent in build function")
     }
 
     if (HMSHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("logSettings", "Map")))) {

@@ -10,16 +10,12 @@ import android.view.PixelCopy
 import android.webkit.URLUtil
 import androidx.annotation.RequiresApi
 import com.facebook.react.bridge.*
-import com.facebook.react.bridge.ReadableArray
-import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.uimanager.events.RCTEventEmitter
 import java.io.ByteArrayOutputStream
 import java.util.*
 import live.hms.video.audio.HMSAudioManager
 import live.hms.video.error.HMSException
 import live.hms.video.events.AgentType
-import live.hms.video.media.codec.HMSAudioCodec
-import live.hms.video.media.codec.HMSVideoCodec
 import live.hms.video.media.settings.*
 import live.hms.video.media.tracks.HMSRemoteAudioTrack
 import live.hms.video.media.tracks.HMSRemoteVideoTrack
@@ -265,10 +261,6 @@ object HMSHelper {
       val initialState = getHMSTrackSettingsInitState(data.getString("initialState"))
       builder.initialState(initialState)
     }
-
-    builder.maxBitrate(32)
-    builder.codec(HMSAudioCodec.OPUS)
-
     return builder.build()
   }
 
@@ -297,12 +289,6 @@ object HMSHelper {
       val forceSoftwareDecoder = data.getBoolean("forceSoftwareDecoder")
       builder.forceSoftwareDecoder(forceSoftwareDecoder)
     }
-
-    builder.codec(HMSVideoCodec.VP8)
-    builder.resolution(HMSVideoResolution(width = 320, height = 180))
-    builder.maxBitrate(512)
-    builder.maxFrameRate(25)
-
     return builder.build()
   }
 
@@ -318,17 +304,6 @@ object HMSHelper {
     return HMSTrackSettings.InitState.UNMUTED
   }
 
-  //  private fun getVideoResolution(map: ReadableMap?): HMSVideoResolution? {
-  //    val width = map?.getDouble("width")
-  //    val height = map?.getDouble("height")
-  //
-  //    return if (width != null && height != null) {
-  //      HMSVideoResolution(width = width.toInt(), height = height.toInt())
-  //    } else {
-  //      null
-  //    }
-  //  }
-
   fun getAudioMixingMode(audioMixingMode: String?): AudioMixingMode {
     when (audioMixingMode) {
       "TALK_ONLY" -> {
@@ -343,30 +318,6 @@ object HMSHelper {
     }
     return AudioMixingMode.TALK_AND_MUSIC
   }
-
-  //  private fun getAudioCodec(codecString: String?): HMSAudioCodec {
-  //    when (codecString) {
-  //      "opus" -> {
-  //        return HMSAudioCodec.OPUS
-  //      }
-  //    }
-  //    return HMSAudioCodec.OPUS
-  //  }
-
-  //  private fun getVideoCodec(codecString: String?): HMSVideoCodec {
-  //    when (codecString) {
-  //      "H264" -> {
-  //        return HMSVideoCodec.H264
-  //      }
-  //      "VP8" -> {
-  //        return HMSVideoCodec.VP8
-  //      }
-  //      "VP9" -> {
-  //        return HMSVideoCodec.VP9
-  //      }
-  //    }
-  //    return HMSVideoCodec.H264
-  //  }
 
   private fun getCameraFacing(cameraFacing: String?): HMSVideoTrackSettings.CameraFacing {
     when (cameraFacing) {
