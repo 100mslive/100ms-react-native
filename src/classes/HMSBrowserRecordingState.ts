@@ -1,13 +1,13 @@
 import type { HMSException } from './HMSException';
 
 export class HMSBrowserRecordingState {
-  running: string;
+  running: boolean;
   error?: HMSException;
   startedAt: Date;
   stoppedAt: Date;
 
   constructor(params: {
-    running: string;
+    running: boolean;
     error?: HMSException;
     startedAt: Date;
     stoppedAt: Date;

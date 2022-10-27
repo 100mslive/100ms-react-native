@@ -55,6 +55,7 @@ import {
   ChangeTrackStateModal,
   ChangeVolumeModal,
   EndRoomModal,
+  HlsStreamingModal,
   LeaveRoomModal,
   ParticipantsModal,
   RealTime,
@@ -121,6 +122,10 @@ const Meeting = () => {
         setLocalPeer={setLocalPeer}
       />
       <Footer
+        isHlsStreaming={room?.hlsStreamingState?.running}
+        isBrowserRecording={room?.browserRecordingState?.running}
+        isHlsRecording={room?.hlsRecordingState?.running}
+        isRtmpStreaming={room?.rtmpHMSRtmpStreamingState?.running}
         localPeer={localPeer}
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
@@ -681,7 +686,9 @@ const Header = ({
               <View style={styles.liveStatus} />
               <Text style={styles.liveTimeText}>Live</Text>
             </View>
-            <RealTime />
+            <RealTime
+              startedAt={room?.hlsStreamingState?.variants[0]?.startedAt}
+            />
           </View>
         ) : (
           <Text style={styles.headerName}>{roomCode}</Text>
@@ -767,10 +774,16 @@ const Header = ({
 };
 
 const Footer = ({
+  isHlsStreaming,
+  isBrowserRecording,
   localPeer,
   modalVisible,
   setModalVisible,
 }: {
+  isHlsStreaming?: boolean;
+  isBrowserRecording?: boolean;
+  isHlsRecording?: boolean;
+  isRtmpStreaming?: boolean;
   localPeer?: HMSLocalPeer;
   modalVisible: ModalTypes;
   setModalVisible: React.Dispatch<React.SetStateAction<ModalTypes>>;
@@ -780,7 +793,8 @@ const Footer = ({
 
   // useState hook
   const [muteAllTracksAudio, setMuteAllTracksAudio] = useState(false);
-  const [rtmpAndRecording, setRtmpAndRecording] = useState(false);
+  const [rtmpAndRecording, setRtmpAndRecording] = useState(isBrowserRecording);
+  const [hlsStreaming, setHlsStreaming] = useState(isHlsStreaming);
   const [isAudioShared, setIsAudioShared] = useState(false);
   const [audioDeviceChangeListener, setAudioDeviceChangeListener] =
     useState<boolean>(false);
@@ -872,6 +886,28 @@ const Footer = ({
             ?.remoteMuteAllAudio()
             .then(d => console.log('Remote Mute All Audio Success: ', d))
             .catch(e => console.log('Remote Mute All Audio Error: ', e));
+        },
+      });
+    }
+    if (localPeer?.role?.permissions?.rtmpStreaming && hlsStreaming) {
+      buttons.push({
+        text: 'Stop Hls Streaming',
+        onPress: () => {
+          hmsInstance
+            ?.stopHLSStreaming()
+            .then(d => {
+              setHlsStreaming(false);
+              console.log('Stop HLS Streaming Success: ', d);
+            })
+            .catch(e => console.log('Stop HLS Streaming Error: ', e));
+        },
+      });
+    }
+    if (localPeer?.role?.permissions?.rtmpStreaming && !hlsStreaming) {
+      buttons.push({
+        text: 'Start Hls Streaming',
+        onPress: () => {
+          setModalVisible(ModalTypes.HLS_STREAMING);
         },
       });
     }
@@ -1076,6 +1112,15 @@ const Footer = ({
     return buttons;
   };
 
+  // useEffect hook
+  useEffect(() => {
+    setHlsStreaming(isHlsStreaming);
+  }, [isHlsStreaming]);
+
+  useEffect(() => {
+    setRtmpAndRecording(isBrowserRecording);
+  }, [isBrowserRecording]);
+
   return (
     <View
       style={[
@@ -1207,6 +1252,19 @@ const Footer = ({
           setModalVisible={setModalVisible}
           setRtmpAndRecording={setRtmpAndRecording}
           recordingModal={modalVisible === ModalTypes.RECORDING}
+        />
+      </DefaultModal>
+      <DefaultModal
+        animationType="fade"
+        overlay={false}
+        modalPosiion="center"
+        modalVisible={modalVisible === ModalTypes.HLS_STREAMING}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        <HlsStreamingModal
+          instance={hmsInstance}
+          setHlsStreaming={setHlsStreaming}
+          roomID={roomID}
+          cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
         />
       </DefaultModal>
       <DefaultModal

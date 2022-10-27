@@ -40,6 +40,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {Slider} from '@miblanchard/react-native-slider';
+import moment from 'moment';
 
 import {styles} from './styles';
 import {
@@ -1572,10 +1573,12 @@ export const HlsStreamingModal = ({
   instance,
   roomID,
   cancelModal,
+  setHlsStreaming,
 }: {
   instance?: HMSSDK;
   roomID: string;
   cancelModal: Function;
+  setHlsStreaming: React.Dispatch<React.SetStateAction<boolean | undefined>>;
 }) => {
   const [hlsStreamingDetails, setHLSStreamingDetails] =
     useState<HMSHLSMeetingURLVariant>({
@@ -1592,7 +1595,10 @@ export const HlsStreamingModal = ({
   const changeLayout = () => {
     instance
       ?.startHLSStreaming()
-      .then(d => console.log('Start HLS Streaming Success: ', d))
+      .then(d => {
+        setHlsStreaming(true);
+        console.log('Start HLS Streaming Success: ', d);
+      })
       .catch(err => {
         if (startHlsRetry) {
           setStartHlsRetry(false);
@@ -1602,7 +1608,10 @@ export const HlsStreamingModal = ({
           });
           instance
             ?.startHLSStreaming(hmsHLSConfig)
-            .then(d => console.log('Start HLS Streaming Success: ', d))
+            .then(d => {
+              setHlsStreaming(true);
+              console.log('Start HLS Streaming Success: ', d);
+            })
             .catch(e => console.log('Start HLS Streaming Error: ', e));
         } else {
           console.log('Start HLS Streaming Error: ', err);
@@ -1693,7 +1702,9 @@ export const RecordingModal = ({
   roomID: string;
   recordingModal: boolean;
   setModalVisible: React.Dispatch<React.SetStateAction<ModalTypes>>;
-  setRtmpAndRecording: React.Dispatch<React.SetStateAction<boolean>>;
+  setRtmpAndRecording: React.Dispatch<
+    React.SetStateAction<boolean | undefined>
+  >;
 }) => {
   const [resolutionDetails, setResolutionDetails] = useState<boolean>(false);
   const [recordingDetails, setRecordingDetails] = useState<HMSRTMPConfig>({
@@ -1960,10 +1971,23 @@ export const EndHlsModal = ({
   );
 };
 
-export const RealTime = () => {
+export const RealTime = ({startedAt}: {startedAt?: Date}) => {
   const [hour, setHour] = useState(0);
   const [minute, setMinute] = useState(0);
   const [second, setSecond] = useState(0);
+
+  useEffect(() => {
+    const time2 = moment(startedAt, 'hh:mm:ss');
+    const time1 = moment(new Date(), 'hh:mm:ss');
+    const subtract = time1.subtract({
+      hours: time2.hours(),
+      minutes: time2.minutes(),
+      seconds: time2.seconds(),
+    });
+    setHour(subtract.hours());
+    setMinute(subtract.minutes());
+    setSecond(subtract.seconds());
+  }, [startedAt]);
 
   useEffect(() => {
     const updatePostInfo = setInterval(() => {
@@ -1980,12 +2004,6 @@ export const RealTime = () => {
       setSecond(0);
       setMinute(min => min + 1);
     }
-    return () => {
-      if (second === 60) {
-        setSecond(0);
-        setMinute(min => min + 1);
-      }
-    };
   }, [second]);
 
   useEffect(() => {
@@ -1993,12 +2011,6 @@ export const RealTime = () => {
       setMinute(0);
       setHour(hr => hr + 1);
     }
-    return () => {
-      if (minute === 60) {
-        setMinute(0);
-        setHour(hr => hr + 1);
-      }
-    };
   }, [minute]);
 
   return (
