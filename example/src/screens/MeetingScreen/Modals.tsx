@@ -41,6 +41,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {Slider} from '@miblanchard/react-native-slider';
 import moment from 'moment';
+import Toast from 'react-native-simple-toast';
 
 import {styles} from './styles';
 import {
@@ -204,6 +205,12 @@ export const ParticipantsModal = ({
     peerTrackNodes?.map(peerTrackNode => {
       if (peerTrackNode.id.includes(HMSTrackSource.REGULAR)) {
         newPeerCount++;
+      } else {
+        Toast.showWithGravity(
+          `peerTrackNodeId ${peerTrackNode.id} peerName ${peerTrackNode.peer.name} track ${peerTrackNode.track?.source} ${peerTrackNode.track?.type}`,
+          Toast.LONG,
+          Toast.TOP,
+        );
       }
     });
     setPeerCount(newPeerCount);
