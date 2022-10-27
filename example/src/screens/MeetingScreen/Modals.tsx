@@ -41,7 +41,6 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {Slider} from '@miblanchard/react-native-slider';
 import moment from 'moment';
-import Toast from 'react-native-simple-toast';
 
 import {styles} from './styles';
 import {
@@ -54,36 +53,31 @@ import {
 } from '../../components';
 import {saveUserData} from '../../redux/actions';
 import {parseMetadata, getInitials} from '../../utils/functions';
-import {
-  LayoutParams,
-  ModalTypes,
-  PeerTrackNode,
-  SortingType,
-} from '../../utils/types';
+import {LayoutParams, ModalTypes, SortingType} from '../../utils/types';
 import {COLORS} from '../../utils/theme';
 import type {RootState} from '../../redux';
 
 export const ParticipantsModal = ({
   instance,
   localPeer,
-  peerTrackNodes,
   changeName,
   changeRole,
   setVolume,
 }: {
   instance?: HMSSDK;
   localPeer?: HMSLocalPeer;
-  peerTrackNodes?: PeerTrackNode[];
   changeName: (peer: HMSPeer) => void;
   changeRole: (peer: HMSPeer) => void;
   setVolume: (peer: HMSPeer) => void;
 }) => {
-  // useEffect hook
+  // useState hook
+  const [hmsPeers, setHmsPeers] = useState<(HMSLocalPeer | HMSRemotePeer)[]>(
+    [],
+  );
   const [participantsSearchInput, setParticipantsSearchInput] = useState('');
   const [visible, setVisible] = useState<number>(-1);
-  const [peerCount, setPeerCount] = useState<number>(0);
   const [filteredPeerTrackNodes, setFilteredPeerTrackNodes] =
-    useState<PeerTrackNode[]>();
+    useState<(HMSLocalPeer | HMSRemotePeer)[]>();
   const [filter, setFilter] = useState('everyone');
   // constants
   const peerTrackNodePermissions = localPeer?.role?.permissions;
@@ -164,17 +158,11 @@ export const ParticipantsModal = ({
   };
 
   useEffect(() => {
-    const newFilteredPeerTrackNodes = peerTrackNodes?.filter(peerTrackNode => {
-      if (
-        peerTrackNode?.track?.source !== undefined &&
-        peerTrackNode?.track?.source !== HMSTrackSource.REGULAR
-      ) {
-        return false;
-      }
+    const newFilteredPeerTrackNodes = hmsPeers?.filter(peer => {
       if (
         participantsSearchInput.length < 1 ||
-        peerTrackNode.peer.name.includes(participantsSearchInput) ||
-        peerTrackNode.peer.role?.name?.includes(participantsSearchInput)
+        peer.name.includes(participantsSearchInput) ||
+        peer.role?.name?.includes(participantsSearchInput)
       ) {
         return true;
       }
@@ -183,38 +171,28 @@ export const ParticipantsModal = ({
     if (filter === 'everyone') {
       setFilteredPeerTrackNodes(newFilteredPeerTrackNodes);
     } else if (filter === 'raised hand') {
-      const updatedPeerTrackNodes = newFilteredPeerTrackNodes?.filter(
-        peerTrackNode => {
-          const parsedMetaData = parseMetadata(peerTrackNode.peer?.metadata);
-          return parsedMetaData.isHandRaised === true;
-        },
-      );
+      const updatedPeerTrackNodes = newFilteredPeerTrackNodes?.filter(peer => {
+        const parsedMetaData = parseMetadata(peer?.metadata);
+        return parsedMetaData.isHandRaised === true;
+      });
       setFilteredPeerTrackNodes(updatedPeerTrackNodes);
     } else {
-      const updatedPeerTrackNodes = newFilteredPeerTrackNodes?.filter(
-        peerTrackNode => {
-          return peerTrackNode.peer?.role?.name === filter;
-        },
-      );
+      const updatedPeerTrackNodes = newFilteredPeerTrackNodes?.filter(peer => {
+        return peer?.role?.name === filter;
+      });
       setFilteredPeerTrackNodes(updatedPeerTrackNodes);
     }
-  }, [participantsSearchInput, filter, peerTrackNodes]);
+  }, [participantsSearchInput, filter, hmsPeers]);
 
   useEffect(() => {
-    let newPeerCount = 0;
-    peerTrackNodes?.map(peerTrackNode => {
-      if (peerTrackNode.id.includes(HMSTrackSource.REGULAR)) {
-        newPeerCount++;
+    instance?.getRemotePeers().then(peers => {
+      if (localPeer) {
+        setHmsPeers([localPeer, ...peers]);
       } else {
-        Toast.showWithGravity(
-          `peerTrackNodeId ${peerTrackNode.id} peerName ${peerTrackNode.peer.name} track ${peerTrackNode.track?.source} ${peerTrackNode.track?.type}`,
-          Toast.LONG,
-          Toast.TOP,
-        );
+        setHmsPeers(peers);
       }
     });
-    setPeerCount(newPeerCount);
-  }, [peerTrackNodes]);
+  }, [instance, localPeer]);
 
   return (
     <View style={styles.participantContainer}>
@@ -222,7 +200,7 @@ export const ParticipantsModal = ({
         <Text style={styles.participantsHeading}>Participants</Text>
         <ParticipantFilter filter={filter} setFilter={setFilter} />
         <View style={styles.peerCountContainer}>
-          <Text style={styles.peerCount}>{peerCount}</Text>
+          <Text style={styles.peerCount}>{hmsPeers.length}</Text>
         </View>
       </View>
       <View>
@@ -240,26 +218,21 @@ export const ParticipantsModal = ({
         />
       </View>
       <ScrollView keyboardShouldPersistTaps="always">
-        {filteredPeerTrackNodes?.map((peerTrackNode, index) => {
+        {filteredPeerTrackNodes?.map((peer, index) => {
           return (
-            <View style={styles.participantItem} key={peerTrackNode.id}>
+            <View style={styles.participantItem} key={peer.peerID}>
               <View style={styles.participantAvatar}>
                 <Text style={styles.participantAvatarText}>
-                  {getInitials(peerTrackNode.peer.name)}
+                  {getInitials(peer.name)}
                 </Text>
               </View>
               <View style={styles.participantDescription}>
                 <Text style={styles.participantName} numberOfLines={1}>
-                  {peerTrackNode.track?.source === HMSTrackSource.REGULAR ||
-                  peerTrackNode.track?.source === undefined
-                    ? peerTrackNode.peer.name
-                    : peerTrackNode.peer.name +
-                      "'s " +
-                      peerTrackNode.track?.source}
-                  {peerTrackNode.peer.isLocal && ' (You)'}
+                  {peer.name}
+                  {peer.isLocal && ' (You)'}
                 </Text>
                 <Text style={styles.participantRole} numberOfLines={1}>
-                  {peerTrackNode.peer.role?.name}
+                  {peer.role?.name}
                 </Text>
               </View>
               <Menu
@@ -279,9 +252,9 @@ export const ParticipantsModal = ({
                 }
                 onRequestClose={hideMenu}
                 style={styles.participantsMenuContainer}>
-                {peerTrackNode.peer?.isLocal === false &&
+                {peer.isLocal === false &&
                   peerTrackNodePermissions?.removeOthers && (
-                    <MenuItem onPress={() => removePeer(peerTrackNode.peer)}>
+                    <MenuItem onPress={() => removePeer(peer)}>
                       <View style={styles.participantMenuItem}>
                         <MaterialCommunityIcons
                           name="account-remove-outline"
@@ -298,9 +271,8 @@ export const ParticipantsModal = ({
                       </View>
                     </MenuItem>
                   )}
-                {peerTrackNode.peer.isLocal && (
-                  <MenuItem
-                    onPress={() => onChangeNamePress(peerTrackNode.peer)}>
+                {peer.isLocal && (
+                  <MenuItem onPress={() => onChangeNamePress(peer)}>
                     <View style={styles.participantMenuItem}>
                       <Ionicons
                         name="person-outline"
@@ -314,8 +286,7 @@ export const ParticipantsModal = ({
                   </MenuItem>
                 )}
                 {peerTrackNodePermissions?.changeRole && (
-                  <MenuItem
-                    onPress={() => onChangeRolePress(peerTrackNode.peer)}>
+                  <MenuItem onPress={() => onChangeRolePress(peer)}>
                     <View style={styles.participantMenuItem}>
                       <Ionicons
                         name="people-outline"
@@ -328,15 +299,13 @@ export const ParticipantsModal = ({
                     </View>
                   </MenuItem>
                 )}
-                {peerTrackNode.peer.isLocal === false &&
-                  peerTrackNode.peer.role?.publishSettings?.allowed?.includes(
-                    'audio',
-                  ) && (
-                    <MenuItem onPress={() => toggleAudio(peerTrackNode.peer)}>
+                {peer.isLocal === false &&
+                  peer.role?.publishSettings?.allowed?.includes('audio') && (
+                    <MenuItem onPress={() => toggleAudio(peer)}>
                       <View style={styles.participantMenuItem}>
                         <Feather
                           name={
-                            peerTrackNode.peer?.audioTrack?.isMute() === false
+                            peer.audioTrack?.isMute() === false
                               ? 'mic'
                               : 'mic-off'
                           }
@@ -344,22 +313,20 @@ export const ParticipantsModal = ({
                           size={24}
                         />
                         <Text style={styles.participantMenuItemName}>
-                          {peerTrackNode.peer?.audioTrack?.isMute() === false
+                          {peer.audioTrack?.isMute() === false
                             ? 'Mute audio'
                             : 'Unmute audio'}
                         </Text>
                       </View>
                     </MenuItem>
                   )}
-                {peerTrackNode.peer.isLocal === false &&
-                  peerTrackNode.peer.role?.publishSettings?.allowed?.includes(
-                    'video',
-                  ) && (
-                    <MenuItem onPress={() => toggleVideo(peerTrackNode.peer)}>
+                {peer.isLocal === false &&
+                  peer.role?.publishSettings?.allowed?.includes('video') && (
+                    <MenuItem onPress={() => toggleVideo(peer)}>
                       <View style={styles.participantMenuItem}>
                         <Feather
                           name={
-                            peerTrackNode.track?.isMute() === false
+                            peer.videoTrack?.isMute() === false
                               ? 'video'
                               : 'video-off'
                           }
@@ -367,14 +334,14 @@ export const ParticipantsModal = ({
                           size={24}
                         />
                         <Text style={styles.participantMenuItemName}>
-                          {peerTrackNode.track?.isMute() === false
+                          {peer.videoTrack?.isMute() === false
                             ? 'Mute video'
                             : 'Unmute video'}
                         </Text>
                       </View>
                     </MenuItem>
                   )}
-                {/* {peerTrackNode.peer.isLocal === false &&
+                {/* {peer.isLocal === false &&
                     type === TrackType.REMOTE &&
                     peerTrackNode?.track?.source === HMSTrackSource.REGULAR && (
                       <MenuItem
@@ -391,7 +358,7 @@ export const ParticipantsModal = ({
                         </View>
                       </MenuItem>
                     )}
-                  {peerTrackNode.peer.isLocal === false &&
+                  {peer.isLocal === false &&
                     type === TrackType.REMOTE &&
                     peerTrackNode?.track?.source === HMSTrackSource.REGULAR && (
                       <MenuItem
@@ -408,9 +375,8 @@ export const ParticipantsModal = ({
                         </View>
                       </MenuItem>
                     )} */}
-                {peerTrackNode.peer.isLocal === false && (
-                  <MenuItem
-                    onPress={() => onSetVolumePress(peerTrackNode.peer)}>
+                {peer.isLocal === false && (
+                  <MenuItem onPress={() => onSetVolumePress(peer)}>
                     <View style={styles.participantMenuItem}>
                       <Ionicons
                         name="volume-high-outline"
@@ -531,8 +497,8 @@ export const ChangeRoleModal = ({
 
   const hideMenu = () => setVisible(false);
   const showMenu = () => setVisible(true);
-  const changeRole = async () => {
-    await instance?.changeRole(peer!, newRole, !request);
+  const changeRole = () => {
+    instance?.changeRole(peer!, newRole, !request);
     cancelModal();
   };
 
