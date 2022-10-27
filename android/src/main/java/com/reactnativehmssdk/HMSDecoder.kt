@@ -229,14 +229,11 @@ object HMSDecoder {
   private fun getHmsAudioTrackSettings(hmsAudioTrackSettings: HMSAudioTrackSettings?): WritableMap {
     val settings: WritableMap = Arguments.createMap()
     if (hmsAudioTrackSettings != null) {
-      settings.putInt("maxBitrate", hmsAudioTrackSettings.maxBitrate)
-      settings.putDouble("volume", hmsAudioTrackSettings.volume)
       settings.putBoolean(
           "useHardwareAcousticEchoCanceler",
           hmsAudioTrackSettings.useHardwareAcousticEchoCanceler
       )
-      settings.putString("codec", hmsAudioTrackSettings.codec.name)
-      settings.putString("trackDescription", "")
+      settings.putString("initialState", hmsAudioTrackSettings.initialState.name)
     }
     return settings
   }
@@ -244,15 +241,10 @@ object HMSDecoder {
   private fun getHmsVideoTrackSettings(hmsVideoTrackSettings: HMSVideoTrackSettings?): WritableMap {
     val settings: WritableMap = Arguments.createMap()
     if (hmsVideoTrackSettings != null) {
-      settings.putString("codec", hmsVideoTrackSettings.codec.name)
-      settings.putInt("maxBitrate", hmsVideoTrackSettings.maxBitRate)
-      settings.putInt("maxFrameRate", hmsVideoTrackSettings.maxFrameRate)
       settings.putString("cameraFacing", hmsVideoTrackSettings.cameraFacing.name)
-      settings.putString("trackDescription", hmsVideoTrackSettings.codec.name)
-      settings.putMap(
-          "resolution",
-          this.getHmsVideoTrackResolution(hmsVideoTrackSettings.resolution)
-      )
+      settings.putBoolean("disableAutoResize", hmsVideoTrackSettings.disableAutoResize)
+      settings.putBoolean("forceSoftwareDecoder", hmsVideoTrackSettings.forceSoftwareDecoder)
+      settings.putString("initialState", hmsVideoTrackSettings.initialState.name)
     }
     return settings
   }
@@ -424,15 +416,6 @@ object HMSDecoder {
     }
     return input
   }
-
-  //  private fun getHMSHlsRecordingConfig(data: HMSHlsRecordingConfig?): ReadableMap {
-  //    val input = Arguments.createMap()
-  //    if (data !== null) {
-  //      input.putBoolean("singleFilePerLayer", data.singleFilePerLayer)
-  //      input.putBoolean("videoOnDemand", data.videoOnDemand)
-  //    }
-  //    return input
-  //  }
 
   private fun getHMSHLSVariant(data: ArrayList<HMSHLSVariant>?): ReadableArray {
     val variants = Arguments.createArray()

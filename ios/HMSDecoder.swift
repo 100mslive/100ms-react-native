@@ -154,22 +154,19 @@ class HMSDecoder: NSObject {
 
         guard let settings = hmsAudioTrackSettings else { return [:] }
 
-        let maxBitrate = settings.maxBitrate
-        let trackDescription = settings.trackDescription ?? ""
+        // TODO: parsing not done for audioSource
+        let audioSource = settings.audioSource
+        let initialState = HMSHelper.getHMSTrackInitState(settings.initialMuteState)
 
-        return ["maxBitrate": maxBitrate, "trackDescription": trackDescription]
+        return ["audioSource": audioSource, "initialState": initialState]
     }
 
     static func getHmsVideoTrackSettings(_ hmsVideoTrackSettings: HMSVideoTrackSettings?) -> [String: Any] {
 
         guard let settings = hmsVideoTrackSettings else { return [:] }
 
-        let codec = getHmsVideoTrackCodec(settings.codec)
-        let resolution = getHmsVideoResolution(settings.resolution)
-        let maxBitrate = settings.maxBitrate
-        let maxFrameRate = settings.maxFrameRate
         let cameraFacing = getHmsVideoTrackCameraFacing(settings.cameraFacing)
-        let trackDescription = settings.trackDescription ?? ""
+        let initialState = HMSHelper.getHMSTrackInitState(settings.initialMuteState)
 
         var simulcastSettingsData = [[String: Any]]()
         if let simulcastSettings = settings.simulcastSettings {
@@ -182,7 +179,7 @@ class HMSDecoder: NSObject {
             }
         }
 
-        return ["codec": codec, "resolution": resolution, "maxBitrate": maxBitrate, "maxFrameRate": maxFrameRate, "cameraFacing": cameraFacing, "trackDescription": trackDescription, "simulcastSettings": simulcastSettingsData]
+        return ["initialState": initialState, "cameraFacing": cameraFacing, "simulcastSettings": simulcastSettingsData]
     }
 
     static func getHmsVideoTrackCodec(_ codec: HMSCodec) -> String {

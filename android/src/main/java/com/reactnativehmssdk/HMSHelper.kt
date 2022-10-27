@@ -10,16 +10,12 @@ import android.view.PixelCopy
 import android.webkit.URLUtil
 import androidx.annotation.RequiresApi
 import com.facebook.react.bridge.*
-import com.facebook.react.bridge.ReadableArray
-import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.uimanager.events.RCTEventEmitter
 import java.io.ByteArrayOutputStream
 import java.util.*
 import live.hms.video.audio.HMSAudioManager
 import live.hms.video.error.HMSException
 import live.hms.video.events.AgentType
-import live.hms.video.media.codec.HMSAudioCodec
-import live.hms.video.media.codec.HMSVideoCodec
 import live.hms.video.media.settings.*
 import live.hms.video.media.tracks.HMSRemoteAudioTrack
 import live.hms.video.media.tracks.HMSRemoteVideoTrack
@@ -27,6 +23,8 @@ import live.hms.video.media.tracks.HMSTrack
 import live.hms.video.sdk.models.*
 import live.hms.video.sdk.models.enums.AudioMixingMode
 import live.hms.video.sdk.models.role.HMSRole
+import live.hms.video.services.LogAlarmManager
+import live.hms.video.utils.HMSLogger
 import live.hms.video.utils.HmsUtilities
 import org.webrtc.SurfaceViewRenderer
 
@@ -162,111 +160,148 @@ object HMSHelper {
     return null
   }
 
-  fun getFrameworkInfo(data: ReadableMap?): FrameworkInfo {
-    var version = ""
-    var sdkVersion = ""
-    if (this.areAllRequiredKeysAvailable(
-            data,
-            arrayOf(Pair("version", "String"), Pair("sdkVersion", "String"))
-        )
+  fun getFrameworkInfo(data: ReadableMap?): FrameworkInfo? {
+    if (data != null &&
+            this.areAllRequiredKeysAvailable(
+                data,
+                arrayOf(Pair("version", "String"), Pair("sdkVersion", "String"))
+            )
     ) {
-      version = data?.getString("version") as String
-      sdkVersion = data?.getString("sdkVersion") as String
+      val version = data.getString("version") as String
+      val sdkVersion = data.getString("sdkVersion") as String
+      return FrameworkInfo(AgentType.REACT_NATIVE, sdkVersion, version)
     }
-    return FrameworkInfo(AgentType.REACT_NATIVE, sdkVersion, version)
+    return null
+  }
+
+  fun getLogSettings(data: ReadableMap?): HMSLogSettings? {
+    if (data != null &&
+            this.areAllRequiredKeysAvailable(
+                data,
+                arrayOf(
+                    Pair("level", "String"),
+                    Pair("maxDirSizeInBytes", "String"),
+                    Pair("isLogStorageEnabled", "Boolean")
+                )
+            )
+    ) {
+      val level = getLogLevel(data.getString("level"))
+      val maxDirSizeInBytes = getLogAlarmManager(data.getString("maxDirSizeInBytes"))
+      val isLogStorageEnabled = data.getBoolean("isLogStorageEnabled")
+      return HMSLogSettings(maxDirSizeInBytes, isLogStorageEnabled, level)
+    }
+    return null
+  }
+
+  private fun getLogAlarmManager(logAlarmManager: String?): Long {
+    when (logAlarmManager) {
+      "DEFAULT_DIR_SIZE" -> {
+        return LogAlarmManager.DEFAULT_DIR_SIZE
+      }
+      "DEFAULT_LOGS_FILE_NAME" -> {
+        return LogAlarmManager.DEFAULT_LOGS_FILE_NAME.toLong()
+      }
+      "MAX_DIR_SIZE" -> {
+        return LogAlarmManager.MAX_DIR_SIZE.toLong()
+      }
+    }
+    return LogAlarmManager.DEFAULT_DIR_SIZE
+  }
+
+  private fun getLogLevel(logLevel: String?): HMSLogger.LogLevel {
+    when (logLevel) {
+      "VERBOSE" -> {
+        return HMSLogger.LogLevel.VERBOSE
+      }
+      "WARN" -> {
+        return HMSLogger.LogLevel.WARN
+      }
+      "ERROR" -> {
+        return HMSLogger.LogLevel.ERROR
+      }
+    }
+    return HMSLogger.LogLevel.VERBOSE
   }
 
   fun getTrackSettings(data: ReadableMap?): HMSTrackSettings? {
     if (data == null) {
       return null
     }
-
-    var useHardwareEchoCancellation = false
-    val requiredKeysUseHardwareEchoCancellation =
-        this.areAllRequiredKeysAvailable(
-            data,
-            arrayOf(Pair("useHardwareEchoCancellation", "Boolean"))
-        )
-    if (requiredKeysUseHardwareEchoCancellation) {
-      useHardwareEchoCancellation = data.getBoolean("useHardwareEchoCancellation")
+    val builder = HMSTrackSettings.Builder()
+    if (this.areAllRequiredKeysAvailable(data, arrayOf(Pair("video", "Map")))) {
+      val video = data.getMap("video")
+      val videoSettings = this.getVideoTrackSettings(video)
+      if (videoSettings != null) {
+        builder.video(videoSettings)
+      }
     }
 
-    var video: ReadableMap? = null
-    val requiredKeysVideo = this.areAllRequiredKeysAvailable(data, arrayOf(Pair("video", "Map")))
-    if (requiredKeysVideo) {
-      video = data.getMap("video")
+    if (this.areAllRequiredKeysAvailable(data, arrayOf(Pair("audio", "Map")))) {
+      val audio = data.getMap("audio")
+      val audioSettings = this.getAudioTrackSettings(audio)
+      if (audioSettings != null) {
+        builder.audio(audioSettings)
+      }
     }
+    return builder.build()
+  }
 
-    var audio: ReadableMap? = null
-    val requiredKeysAudio = this.areAllRequiredKeysAvailable(data, arrayOf(Pair("audio", "Map")))
-    if (requiredKeysAudio) {
-      audio = data.getMap("audio")
-    }
-
-    if (video == null && audio == null && !useHardwareEchoCancellation) {
+  private fun getAudioTrackSettings(data: ReadableMap?): HMSAudioTrackSettings? {
+    if (data == null) {
       return null
     }
-
-    val videoSettings = this.getVideoTrackSettings(video)
-    val audioSettings = this.getAudioTrackSettings(audio, useHardwareEchoCancellation)
-    val trackSettingsBuilder = HMSTrackSettings.Builder()
-    return trackSettingsBuilder.audio(audioSettings).video(videoSettings).build()
-  }
-
-  private fun getAudioTrackSettings(
-      data: ReadableMap?,
-      useHardwareEchoCancellation: Boolean
-  ): HMSAudioTrackSettings {
-    val builder =
-        HMSAudioTrackSettings.Builder()
-            .setUseHardwareAcousticEchoCanceler(useHardwareEchoCancellation)
-
-    if (data != null) {
-      val maxBitrate = data.getInt("maxBitrate")
-      val codec = getAudioCodec(data.getString("codec"))
-
-      builder.maxBitrate(maxBitrate)
-      builder.codec(codec)
+    val builder = HMSAudioTrackSettings.Builder()
+    if (areAllRequiredKeysAvailable(data, arrayOf(Pair("useHardwareEchoCancellation", "Boolean")))
+    ) {
+      val useHardwareEchoCancellation = data.getBoolean("useHardwareEchoCancellation")
+      builder.setUseHardwareAcousticEchoCanceler(useHardwareEchoCancellation)
     }
 
+    if (areAllRequiredKeysAvailable(data, arrayOf(Pair("initialState", "String")))) {
+      val initialState = getHMSTrackSettingsInitState(data.getString("initialState"))
+      builder.initialState(initialState)
+    }
     return builder.build()
   }
 
-  // TODO: find out a way to set settings required to create HMSVideoTrackSettings
-
-  private fun getVideoTrackSettings(data: ReadableMap?): HMSVideoTrackSettings {
+  private fun getVideoTrackSettings(data: ReadableMap?): HMSVideoTrackSettings? {
+    if (data == null) {
+      return null
+    }
     val builder = HMSVideoTrackSettings.Builder()
-    if (data != null) {
-      val codec = getVideoCodec(data.getString("codec"))
-      val resolution = getVideoResolution(data.getMap("resolution"))
-      val maxBitrate = data.getInt("maxBitrate")
-      val maxFrameRate = data.getInt("maxFrameRate")
+
+    if (areAllRequiredKeysAvailable(data, arrayOf(Pair("cameraFacing", "String")))) {
       val cameraFacing = getCameraFacing(data.getString("cameraFacing"))
-      var forceSoftwareDecoder = false
-      if (areAllRequiredKeysAvailable(data, arrayOf(Pair("forceSoftwareDecoder", "Boolean")))) {
-        forceSoftwareDecoder = data.getBoolean("forceSoftwareDecoder")
-      }
-      builder.codec(codec)
       builder.cameraFacing(cameraFacing)
+    }
+
+    if (areAllRequiredKeysAvailable(data, arrayOf(Pair("disableAutoResize", "Boolean")))) {
+      val disableAutoResize = data.getBoolean("disableAutoResize")
+      builder.disableAutoResize(disableAutoResize)
+    }
+
+    if (areAllRequiredKeysAvailable(data, arrayOf(Pair("initialState", "String")))) {
+      val initialState = getHMSTrackSettingsInitState(data.getString("initialState"))
+      builder.initialState(initialState)
+    }
+
+    if (areAllRequiredKeysAvailable(data, arrayOf(Pair("forceSoftwareDecoder", "Boolean")))) {
+      val forceSoftwareDecoder = data.getBoolean("forceSoftwareDecoder")
       builder.forceSoftwareDecoder(forceSoftwareDecoder)
-      if (resolution != null) {
-        builder.resolution(resolution)
-      }
-      builder.maxBitrate(maxBitrate)
-      builder.maxFrameRate(maxFrameRate)
     }
     return builder.build()
   }
 
-  private fun getVideoResolution(map: ReadableMap?): HMSVideoResolution? {
-    val width = map?.getDouble("width")
-    val height = map?.getDouble("height")
-
-    return if (width != null && height != null) {
-      HMSVideoResolution(width = width.toInt(), height = height.toInt())
-    } else {
-      null
+  private fun getHMSTrackSettingsInitState(initState: String?): HMSTrackSettings.InitState {
+    when (initState) {
+      "UNMUTED" -> {
+        return HMSTrackSettings.InitState.UNMUTED
+      }
+      "MUTED" -> {
+        return HMSTrackSettings.InitState.MUTED
+      }
     }
+    return HMSTrackSettings.InitState.UNMUTED
   }
 
   fun getAudioMixingMode(audioMixingMode: String?): AudioMixingMode {
@@ -282,30 +317,6 @@ object HMSHelper {
       }
     }
     return AudioMixingMode.TALK_AND_MUSIC
-  }
-
-  private fun getAudioCodec(codecString: String?): HMSAudioCodec {
-    when (codecString) {
-      "opus" -> {
-        return HMSAudioCodec.OPUS
-      }
-    }
-    return HMSAudioCodec.OPUS
-  }
-
-  private fun getVideoCodec(codecString: String?): HMSVideoCodec {
-    when (codecString) {
-      "H264" -> {
-        return HMSVideoCodec.H264
-      }
-      "VP8" -> {
-        return HMSVideoCodec.VP8
-      }
-      "VP9" -> {
-        return HMSVideoCodec.VP9
-      }
-    }
-    return HMSVideoCodec.H264
   }
 
   private fun getCameraFacing(cameraFacing: String?): HMSVideoTrackSettings.CameraFacing {

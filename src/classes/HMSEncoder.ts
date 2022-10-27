@@ -181,9 +181,8 @@ export class HMSEncoder {
 
   static encodeHmsAudioTrackSettings(settings: any) {
     const encodedObj = {
-      maxBitrate: settings?.maxBitrate,
-      trackDescription: settings?.trackDescription,
-      codec: settings?.codec,
+      useHardwareEchoCancellation: settings?.useHardwareAcousticEchoCanceler,
+      initialState: settings?.initialState,
     };
 
     return new HMSAudioTrackSettings(encodedObj);
@@ -191,12 +190,11 @@ export class HMSEncoder {
 
   static encodeHmsVideoTrackSettings(settings: any) {
     const encodedObj = {
-      codec: settings?.codec,
-      resolution: HMSEncoder.encodeHmsVideoResolution(settings?.resolution),
-      maxBitrate: settings?.maxBitrate,
-      maxFrameRate: settings?.maxFrameRate,
+      initialState: settings?.initialState,
+      forceSoftwareDecoder: settings?.forceSoftwareDecoder,
+      simulcastSettings: settings?.simulcastSettings,
       cameraFacing: settings?.cameraFacing,
-      trackDescription: settings?.trackDescription,
+      disableAutoResize: settings?.disableAutoResize,
     };
 
     return new HMSVideoTrackSettings(encodedObj);

@@ -41,11 +41,10 @@ export const PreviewModal = ({
   );
   const {top, bottom, left, right} = useSafeAreaInsets();
 
-  const [previewAudioTrack, setPreviewAudioTrack] = useState<HMSTrack>();
   const [previewVideoTrack, setPreviewVideoTrack] = useState<HMSTrack>();
 
-  const [isAudioMute, setIsAudioMute] = useState(previewAudioTrack?.isMute());
-  const [isVideoMute, setIsVideoMute] = useState(previewVideoTrack?.isMute());
+  const [isAudioMute, setIsAudioMute] = useState<boolean>();
+  const [isVideoMute, setIsVideoMute] = useState<boolean>();
   const [previewPeer, setPreviewPeer] = useState<HMSLocalPeer>();
   const [numberOfLines, setNumberOfLines] = useState(true);
 
@@ -66,12 +65,13 @@ export const PreviewModal = ({
         track?.source === HMSTrackSource.REGULAR
       ) {
         setPreviewVideoTrack(track);
+        setIsVideoMute(track?.isMute());
       }
       if (
         track?.type === HMSTrackType.AUDIO &&
         track?.source === HMSTrackSource.REGULAR
       ) {
-        setPreviewAudioTrack(track);
+        setIsAudioMute(track?.isMute());
       }
     });
   }, [previewTracks]);

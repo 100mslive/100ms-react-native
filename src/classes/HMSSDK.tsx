@@ -33,6 +33,7 @@ import type { HMSHLSConfig } from './HMSHLSConfig';
 import type { HMSAudioDevice } from './HMSAudioDevice';
 import type { HMSAudioMode } from './HMSAudioMode';
 import type { HMSAudioMixingMode } from './HMSAudioMixingMode';
+import type { HMSLogSettings } from './HMSLogSettings';
 
 interface HmsViewProps {
   trackId: string;
@@ -105,6 +106,7 @@ export class HMSSDK {
     trackSettings?: HMSTrackSettings;
     appGroup?: String;
     preferredExtension?: String;
+    logSettings?: HMSLogSettings;
   }) {
     const { version } = require('../../package.json');
     const { major, minor, patch } = ReactNativeVersion.version;
@@ -116,6 +118,7 @@ export class HMSSDK {
         version: major + '.' + minor + '.' + patch,
         sdkVersion: version,
       },
+      logSettings: params?.logSettings,
     });
     HmsSdk = new HMSSDK(id);
     HmsSdk.attachListeners();
