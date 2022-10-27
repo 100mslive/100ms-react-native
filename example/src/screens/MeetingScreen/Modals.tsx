@@ -2004,12 +2004,6 @@ export const RealTime = ({startedAt}: {startedAt?: Date}) => {
       setSecond(0);
       setMinute(min => min + 1);
     }
-    return () => {
-      if (second === 60) {
-        setSecond(0);
-        setMinute(min => min + 1);
-      }
-    };
   }, [second]);
 
   useEffect(() => {
@@ -2017,12 +2011,6 @@ export const RealTime = ({startedAt}: {startedAt?: Date}) => {
       setMinute(0);
       setHour(hr => hr + 1);
     }
-    return () => {
-      if (minute === 60) {
-        setMinute(0);
-        setHour(hr => hr + 1);
-      }
-    };
   }, [minute]);
 
   return (
