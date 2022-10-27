@@ -154,6 +154,7 @@ class HMSDecoder: NSObject {
 
         guard let settings = hmsAudioTrackSettings else { return [:] }
 
+        // TODO: parsing not done for audioSource
         let audioSource = settings.audioSource
         let initialState = HMSHelper.getHMSTrackInitState(settings.initialMuteState)
 
