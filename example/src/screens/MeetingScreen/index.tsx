@@ -535,7 +535,6 @@ const DisplayView = (data: {
         modalVisible={data?.modalVisible === ModalTypes.PARTICIPANTS}
         setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}>
         <ParticipantsModal
-          peerTrackNodes={peerTrackNodes}
           instance={hmsInstance}
           localPeer={data?.localPeer}
           changeName={onChangeNamePress}

@@ -385,7 +385,7 @@ export const updatePeersTrackNodesOnPeerListener = (
       }
       return peerTrackNode;
     });
-    if (alreadyPresent) {
+    if (alreadyPresent || !peer?.isLocal) {
       return updatePeerTrackNodes;
     } else {
       let newPeerTrackNode: PeerTrackNode;
