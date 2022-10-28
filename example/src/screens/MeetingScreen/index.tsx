@@ -36,7 +36,7 @@ import {
   Menu,
   MenuItem,
 } from '../../components';
-import {ModalTypes, PeerTrackNode} from '../../utils/types';
+import {LayoutParams, ModalTypes, PeerTrackNode} from '../../utils/types';
 import {
   isPortrait,
   pairData,
@@ -70,6 +70,7 @@ import {
   clearPeerData,
 } from '../../redux/actions';
 import {GridView} from './GridView';
+import {HLSView} from './HLSView';
 
 type MeetingScreenProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -152,6 +153,7 @@ const DisplayView = (data: {
   const [peerTrackNodes, setPeerTrackNodes] =
     useState<Array<PeerTrackNode>>(peerState);
   const [orientation, setOrientation] = useState(true);
+  const [layout, setLayout] = useState<LayoutParams>(LayoutParams.GRID);
   const [updatePeer, setUpdatePeer] = useState<HMSPeer>();
   const [roleChangeRequest, setRoleChangeRequest] = useState<{
     requestedBy?: string;
@@ -331,7 +333,6 @@ const DisplayView = (data: {
   };
 
   const onRoleChangeRequestListener = (request: HMSRoleChangeRequest) => {
-    console.log('data in onRoleChangeRequestListener: ', data);
     data?.setModalVisible(ModalTypes.CHANGE_ROLE_ACCEPT);
     setRoleChangeRequest({
       requestedBy: request?.requestedBy?.name,
@@ -464,10 +465,20 @@ const DisplayView = (data: {
     peerTrackNodesRef.current = peerState;
   }, [peerState]);
 
+  useEffect(() => {
+    if (data?.localPeer?.role?.name?.includes('hls-')) {
+      setLayout(LayoutParams.HLS);
+    } else {
+      setLayout(LayoutParams.GRID);
+    }
+  }, [data?.localPeer?.role?.name]);
+
   return (
     <View style={styles.container}>
-      {pairedPeers.length ? (
+      {pairedPeers.length && layout === LayoutParams.GRID ? (
         <GridView pairedPeers={pairedPeers} orientation={orientation} />
+      ) : layout === LayoutParams.HLS ? (
+        <HLSView room={data?.room} />
       ) : (
         <View style={styles.welcomeContainer}>
           <Text style={styles.welcomeHeading}>Welcome!</Text>
@@ -888,7 +899,7 @@ const Footer = ({
         },
       });
     }
-    if (localPeer?.role?.permissions?.rtmpStreaming && hlsStreaming) {
+    if (localPeer?.role?.permissions?.hlsStreaming && hlsStreaming) {
       buttons.push({
         text: 'Stop Hls Streaming',
         onPress: () => {
@@ -902,7 +913,7 @@ const Footer = ({
         },
       });
     }
-    if (localPeer?.role?.permissions?.rtmpStreaming && !hlsStreaming) {
+    if (localPeer?.role?.permissions?.hlsStreaming && !hlsStreaming) {
       buttons.push({
         text: 'Start Hls Streaming',
         onPress: () => {

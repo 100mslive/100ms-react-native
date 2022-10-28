@@ -12,6 +12,7 @@ export enum LayoutParams {
   ACTIVE_SPEAKER = 'active speaker',
   HERO = 'hero',
   MINI = 'mini',
+  HLS = 'hls',
   DEFAULT = '',
 }
 
