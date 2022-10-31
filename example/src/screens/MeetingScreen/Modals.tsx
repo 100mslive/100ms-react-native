@@ -6,7 +6,7 @@ import {
   ScrollView,
   TextInput,
 } from 'react-native';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {
   HMSTrack,
   HMSRole,
@@ -40,6 +40,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {Slider} from '@miblanchard/react-native-slider';
+import moment from 'moment';
 
 import {styles} from './styles';
 import {
@@ -52,85 +53,58 @@ import {
 } from '../../components';
 import {saveUserData} from '../../redux/actions';
 import {parseMetadata, getInitials} from '../../utils/functions';
-import {
-  LayoutParams,
-  ModalTypes,
-  PeerTrackNode,
-  SortingType,
-  TrackType,
-} from '../../utils/types';
+import {LayoutParams, ModalTypes, SortingType} from '../../utils/types';
 import {COLORS} from '../../utils/theme';
+import type {RootState} from '../../redux';
 
 export const ParticipantsModal = ({
   instance,
   localPeer,
-  peerTrackNodes,
-  pinnedPeerTrackIds,
-  roles,
-  setUpdatePeerTrackNode,
-  setModalVisible,
-  setPinnedPeerTrackIds,
+  changeName,
+  changeRole,
+  setVolume,
 }: {
   instance?: HMSSDK;
   localPeer?: HMSLocalPeer;
-  peerTrackNodes: PeerTrackNode[];
-  pinnedPeerTrackIds: String[];
-  roles?: HMSRole[];
-  setUpdatePeerTrackNode: React.Dispatch<React.SetStateAction<PeerTrackNode>>;
-  setModalVisible: React.Dispatch<React.SetStateAction<ModalTypes>>;
-  setPinnedPeerTrackIds: React.Dispatch<React.SetStateAction<String[]>>;
+  changeName: (peer: HMSPeer) => void;
+  changeRole: (peer: HMSPeer) => void;
+  setVolume: (peer: HMSPeer) => void;
 }) => {
+  // useState hook
+  const [hmsPeers, setHmsPeers] = useState<(HMSLocalPeer | HMSRemotePeer)[]>(
+    [],
+  );
   const [participantsSearchInput, setParticipantsSearchInput] = useState('');
   const [visible, setVisible] = useState<number>(-1);
   const [filteredPeerTrackNodes, setFilteredPeerTrackNodes] =
-    useState<PeerTrackNode[]>();
+    useState<(HMSLocalPeer | HMSRemotePeer)[]>();
   const [filter, setFilter] = useState('everyone');
-
+  // constants
   const peerTrackNodePermissions = localPeer?.role?.permissions;
 
+  // functions
   const hideMenu = () => setVisible(-1);
   const showMenu = (index: number) => setVisible(index);
-  const onItemPress = (peerTrackNode: PeerTrackNode) => {
+  const onChangeNamePress = (peer: HMSPeer) => {
     hideMenu();
-    setUpdatePeerTrackNode(peerTrackNode);
-  };
-  const changeName = (peerTrackNode: PeerTrackNode) => {
-    onItemPress(peerTrackNode);
     setTimeout(() => {
-      setModalVisible(ModalTypes.CHANGE_NAME);
+      changeName(peer);
     }, 500);
   };
-  const changeRole = (peerTrackNode: PeerTrackNode) => {
-    onItemPress(peerTrackNode);
+  const onChangeRolePress = (peer: HMSPeer) => {
+    hideMenu();
     setTimeout(() => {
-      setModalVisible(ModalTypes.CHANGE_ROLE);
+      changeRole(peer);
     }, 500);
   };
-  const setVolume = (peerTrackNode: PeerTrackNode) => {
-    onItemPress(peerTrackNode);
+  const onSetVolumePress = (peer: HMSPeer) => {
+    hideMenu();
     setTimeout(() => {
-      setModalVisible(ModalTypes.VOLUME);
+      setVolume(peer);
     }, 500);
   };
-  const setPin = (peerTrackNode: PeerTrackNode) => {
-    onItemPress(peerTrackNode);
-    if (pinnedPeerTrackIds?.includes(peerTrackNode.id)) {
-      const newPinnedPeerTrackIds = pinnedPeerTrackIds.filter(
-        pinnedPeerTrackId => {
-          if (pinnedPeerTrackId === peerTrackNode.id) {
-            return false;
-          }
-          return true;
-        },
-      );
-      setPinnedPeerTrackIds(newPinnedPeerTrackIds);
-    } else {
-      const newPinnedPeerTrackIds = [peerTrackNode.id, ...pinnedPeerTrackIds];
-      setPinnedPeerTrackIds(newPinnedPeerTrackIds);
-    }
-  };
-  // const toggleLocalAudioMute = async (peerTrackNode: PeerTrackNode) => {
-  //   onItemPress(peerTrackNode);
+  // const toggleLocalAudioMute = async () => {
+  //   hideMenu();
   //   let remotePeer = peerTrackNode.peer as HMSRemotePeer;
   //   instance?.remotePeers?.map(item => {
   //     if (item.peerID === remotePeer.peerID) {
@@ -142,8 +116,8 @@ export const ParticipantsModal = ({
   //     ?.isPlaybackAllowed();
   //   remotePeer?.remoteAudioTrack()?.setPlaybackAllowed(!playbackAllowed);
   // };
-  // const toggleLocalVideoMute = async (peerTrackNode: PeerTrackNode) => {
-  //   onItemPress(peerTrackNode);
+  // const toggleLocalVideoMute = async () => {
+  //   hideMenu();
   //   let remotePeer = peerTrackNode.peer as HMSRemotePeer;
   //   instance?.remotePeers?.map(item => {
   //     if (item.peerID === remotePeer.peerID) {
@@ -155,40 +129,40 @@ export const ParticipantsModal = ({
   //     ?.isPlaybackAllowed();
   //   remotePeer?.remoteVideoTrack()?.setPlaybackAllowed(!playbackAllowed);
   // };
-  const removePeer = (peerTrackNode: PeerTrackNode) => {
-    onItemPress(peerTrackNode);
+  const removePeer = (peer: HMSPeer) => {
+    hideMenu();
     instance
-      ?.removePeer(peerTrackNode.peer, 'removed from room')
+      ?.removePeer(peer, 'removed from room')
       .then(d => console.log('Remove Peer Success: ', d))
       .catch(e => console.log('Remove Peer Error: ', e));
   };
-  const toggleAudio = (peerTrackNode: PeerTrackNode) => {
-    onItemPress(peerTrackNode);
+  const toggleAudio = (peer: HMSPeer) => {
+    hideMenu();
     instance
       ?.changeTrackState(
-        peerTrackNode.peer?.audioTrack as HMSTrack,
-        !peerTrackNode.peer?.audioTrack?.isMute(),
+        peer?.audioTrack as HMSTrack,
+        !peer?.audioTrack?.isMute(),
       )
       .then(d => console.log('Remove Peer Success: ', d))
       .catch(e => console.log('Remove Peer Error: ', e));
   };
-  const toggleVideo = (peerTrackNode: PeerTrackNode) => {
-    onItemPress(peerTrackNode);
+  const toggleVideo = (peer: HMSPeer) => {
+    hideMenu();
     instance
       ?.changeTrackState(
-        peerTrackNode.peer?.videoTrack as HMSTrack,
-        !peerTrackNode.peer?.videoTrack?.isMute(),
+        peer?.videoTrack as HMSTrack,
+        !peer?.videoTrack?.isMute(),
       )
       .then(d => console.log('Remove Peer Success: ', d))
       .catch(e => console.log('Remove Peer Error: ', e));
   };
 
   useEffect(() => {
-    const newFilteredPeerTrackNodes = peerTrackNodes.filter(peerTrackNode => {
+    const newFilteredPeerTrackNodes = hmsPeers?.filter(peer => {
       if (
         participantsSearchInput.length < 1 ||
-        peerTrackNode.peer.name.includes(participantsSearchInput) ||
-        peerTrackNode.peer.role?.name?.includes(participantsSearchInput)
+        peer.name.includes(participantsSearchInput) ||
+        peer.role?.name?.includes(participantsSearchInput)
       ) {
         return true;
       }
@@ -197,32 +171,37 @@ export const ParticipantsModal = ({
     if (filter === 'everyone') {
       setFilteredPeerTrackNodes(newFilteredPeerTrackNodes);
     } else if (filter === 'raised hand') {
-      const updatedPeerTrackNodes = newFilteredPeerTrackNodes?.filter(
-        peerTrackNode => {
-          const parsedMetaData = parseMetadata(peerTrackNode?.peer?.metadata);
-          return parsedMetaData.isHandRaised === true;
-        },
-      );
+      const updatedPeerTrackNodes = newFilteredPeerTrackNodes?.filter(peer => {
+        const parsedMetaData = parseMetadata(peer?.metadata);
+        return parsedMetaData.isHandRaised === true;
+      });
       setFilteredPeerTrackNodes(updatedPeerTrackNodes);
     } else {
-      const updatedPeerTrackNodes = newFilteredPeerTrackNodes?.filter(
-        peerTrackNode => {
-          return peerTrackNode?.peer?.role?.name === filter;
-        },
-      );
+      const updatedPeerTrackNodes = newFilteredPeerTrackNodes?.filter(peer => {
+        return peer?.role?.name === filter;
+      });
       setFilteredPeerTrackNodes(updatedPeerTrackNodes);
     }
-  }, [peerTrackNodes, participantsSearchInput, filter]);
+  }, [participantsSearchInput, filter, hmsPeers]);
+
+  useEffect(() => {
+    instance?.getRemotePeers().then(peers => {
+      if (localPeer) {
+        setHmsPeers([localPeer, ...peers]);
+      } else {
+        setHmsPeers(peers);
+      }
+    });
+  }, [instance, localPeer]);
 
   return (
     <View style={styles.participantContainer}>
       <View style={styles.participantsHeaderContainer}>
         <Text style={styles.participantsHeading}>Participants</Text>
-        <ParticipantFilter
-          roles={roles}
-          filter={filter}
-          setFilter={setFilter}
-        />
+        <ParticipantFilter filter={filter} setFilter={setFilter} />
+        <View style={styles.peerCountContainer}>
+          <Text style={styles.peerCount}>{hmsPeers.length}</Text>
+        </View>
       </View>
       <View>
         <CustomInput
@@ -239,34 +218,21 @@ export const ParticipantsModal = ({
         />
       </View>
       <ScrollView keyboardShouldPersistTaps="always">
-        {filteredPeerTrackNodes?.map((peerTrackNode, index) => {
-          const type =
-            peerTrackNode.track?.source === HMSTrackSource.REGULAR ||
-            peerTrackNode.track?.source === undefined
-              ? peerTrackNode.peer.isLocal
-                ? TrackType.LOCAL
-                : TrackType.REMOTE
-              : TrackType.SCREEN;
-
+        {filteredPeerTrackNodes?.map((peer, index) => {
           return (
-            <View style={styles.participantItem} key={peerTrackNode.id}>
+            <View style={styles.participantItem} key={peer.peerID}>
               <View style={styles.participantAvatar}>
                 <Text style={styles.participantAvatarText}>
-                  {getInitials(peerTrackNode.peer.name)}
+                  {getInitials(peer.name)}
                 </Text>
               </View>
               <View style={styles.participantDescription}>
                 <Text style={styles.participantName} numberOfLines={1}>
-                  {peerTrackNode.track?.source === HMSTrackSource.REGULAR ||
-                  peerTrackNode.track?.source === undefined
-                    ? peerTrackNode.peer.name
-                    : peerTrackNode.peer.name +
-                      "'s " +
-                      peerTrackNode.track?.source}
-                  {peerTrackNode.peer.isLocal && ' (You)'}
+                  {peer.name}
+                  {peer.isLocal && ' (You)'}
                 </Text>
                 <Text style={styles.participantRole} numberOfLines={1}>
-                  {peerTrackNode.peer.role?.name}
+                  {peer.role?.name}
                 </Text>
               </View>
               <Menu
@@ -286,9 +252,9 @@ export const ParticipantsModal = ({
                 }
                 onRequestClose={hideMenu}
                 style={styles.participantsMenuContainer}>
-                {peerTrackNode.peer.isLocal === false &&
+                {peer.isLocal === false &&
                   peerTrackNodePermissions?.removeOthers && (
-                    <MenuItem onPress={() => removePeer(peerTrackNode)}>
+                    <MenuItem onPress={() => removePeer(peer)}>
                       <View style={styles.participantMenuItem}>
                         <MaterialCommunityIcons
                           name="account-remove-outline"
@@ -305,8 +271,8 @@ export const ParticipantsModal = ({
                       </View>
                     </MenuItem>
                   )}
-                {peerTrackNode.peer.isLocal && type === TrackType.LOCAL && (
-                  <MenuItem onPress={() => changeName(peerTrackNode)}>
+                {peer.isLocal && (
+                  <MenuItem onPress={() => onChangeNamePress(peer)}>
                     <View style={styles.participantMenuItem}>
                       <Ionicons
                         name="person-outline"
@@ -320,7 +286,7 @@ export const ParticipantsModal = ({
                   </MenuItem>
                 )}
                 {peerTrackNodePermissions?.changeRole && (
-                  <MenuItem onPress={() => changeRole(peerTrackNode)}>
+                  <MenuItem onPress={() => onChangeRolePress(peer)}>
                     <View style={styles.participantMenuItem}>
                       <Ionicons
                         name="people-outline"
@@ -333,13 +299,13 @@ export const ParticipantsModal = ({
                     </View>
                   </MenuItem>
                 )}
-                {peerTrackNode.peer.isLocal === false &&
-                  type === TrackType.REMOTE && (
-                    <MenuItem onPress={() => toggleAudio(peerTrackNode)}>
+                {peer.isLocal === false &&
+                  peer.role?.publishSettings?.allowed?.includes('audio') && (
+                    <MenuItem onPress={() => toggleAudio(peer)}>
                       <View style={styles.participantMenuItem}>
                         <Feather
                           name={
-                            peerTrackNode.peer?.audioTrack?.isMute() === false
+                            peer.audioTrack?.isMute() === false
                               ? 'mic'
                               : 'mic-off'
                           }
@@ -347,20 +313,20 @@ export const ParticipantsModal = ({
                           size={24}
                         />
                         <Text style={styles.participantMenuItemName}>
-                          {peerTrackNode.peer?.audioTrack?.isMute() === false
+                          {peer.audioTrack?.isMute() === false
                             ? 'Mute audio'
                             : 'Unmute audio'}
                         </Text>
                       </View>
                     </MenuItem>
                   )}
-                {peerTrackNode.peer.isLocal === false &&
-                  type === TrackType.REMOTE && (
-                    <MenuItem onPress={() => toggleVideo(peerTrackNode)}>
+                {peer.isLocal === false &&
+                  peer.role?.publishSettings?.allowed?.includes('video') && (
+                    <MenuItem onPress={() => toggleVideo(peer)}>
                       <View style={styles.participantMenuItem}>
                         <Feather
                           name={
-                            peerTrackNode?.track?.isMute() === false
+                            peer.videoTrack?.isMute() === false
                               ? 'video'
                               : 'video-off'
                           }
@@ -368,14 +334,14 @@ export const ParticipantsModal = ({
                           size={24}
                         />
                         <Text style={styles.participantMenuItemName}>
-                          {peerTrackNode?.track?.isMute() === false
+                          {peer.videoTrack?.isMute() === false
                             ? 'Mute video'
                             : 'Unmute video'}
                         </Text>
                       </View>
                     </MenuItem>
                   )}
-                {/* {peerTrackNode.peer.isLocal === false &&
+                {/* {peer.isLocal === false &&
                     type === TrackType.REMOTE &&
                     peerTrackNode?.track?.source === HMSTrackSource.REGULAR && (
                       <MenuItem
@@ -392,7 +358,7 @@ export const ParticipantsModal = ({
                         </View>
                       </MenuItem>
                     )}
-                  {peerTrackNode.peer.isLocal === false &&
+                  {peer.isLocal === false &&
                     type === TrackType.REMOTE &&
                     peerTrackNode?.track?.source === HMSTrackSource.REGULAR && (
                       <MenuItem
@@ -409,8 +375,8 @@ export const ParticipantsModal = ({
                         </View>
                       </MenuItem>
                     )} */}
-                {peerTrackNode.peer.isLocal === false && (
-                  <MenuItem onPress={() => setVolume(peerTrackNode)}>
+                {peer.isLocal === false && (
+                  <MenuItem onPress={() => onSetVolumePress(peer)}>
                     <View style={styles.participantMenuItem}>
                       <Ionicons
                         name="volume-high-outline"
@@ -419,26 +385,6 @@ export const ParticipantsModal = ({
                       />
                       <Text style={styles.participantMenuItemName}>
                         Set Volume
-                      </Text>
-                    </View>
-                  </MenuItem>
-                )}
-                {(type === TrackType.REMOTE || type === TrackType.LOCAL) && (
-                  <MenuItem onPress={() => setPin(peerTrackNode)}>
-                    <View style={styles.participantMenuItem}>
-                      <MaterialCommunityIcons
-                        name={
-                          pinnedPeerTrackIds?.includes(peerTrackNode.id)
-                            ? 'pin-off-outline'
-                            : 'pin-outline'
-                        }
-                        style={styles.participantMenuItemIcon}
-                        size={24}
-                      />
-                      <Text style={styles.participantMenuItemName}>
-                        {pinnedPeerTrackIds?.includes(peerTrackNode.id)
-                          ? 'Unpin'
-                          : 'Pin'}
                       </Text>
                     </View>
                   </MenuItem>
@@ -453,14 +399,14 @@ export const ParticipantsModal = ({
 };
 
 const ParticipantFilter = ({
-  roles,
   filter,
   setFilter,
 }: {
-  roles?: HMSRole[];
   filter?: string;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
 }) => {
+  const {roles} = useSelector((state: RootState) => state.user);
+
   const [visible, setVisible] = useState<boolean>(false);
 
   const hideMenu = () => setVisible(false);
@@ -536,23 +482,23 @@ const ParticipantFilter = ({
 
 export const ChangeRoleModal = ({
   instance,
-  peerTrackNode,
+  peer,
   cancelModal,
-  roles,
 }: {
   instance?: HMSSDK;
-  peerTrackNode: PeerTrackNode;
+  peer?: HMSPeer;
   cancelModal: Function;
-  roles?: HMSRole[];
 }) => {
-  const [newRole, setNewRole] = useState<HMSRole>(peerTrackNode.peer?.role!);
+  const {roles} = useSelector((state: RootState) => state.user);
+
+  const [newRole, setNewRole] = useState<HMSRole>(peer?.role!);
   const [request, setRequest] = useState<boolean>(false);
   const [visible, setVisible] = useState<boolean>(false);
 
   const hideMenu = () => setVisible(false);
   const showMenu = () => setVisible(true);
-  const changeRole = async () => {
-    await instance?.changeRole(peerTrackNode.peer, newRole, !request);
+  const changeRole = () => {
+    instance?.changeRole(peer!, newRole, !request);
     cancelModal();
   };
 
@@ -560,7 +506,7 @@ export const ChangeRoleModal = ({
     <View style={styles.roleChangeModal}>
       <Text style={styles.roleChangeModalHeading}>Change Role</Text>
       <Text style={styles.roleChangeModalDescription}>
-        Change the role of '{peerTrackNode.peer.name}' to
+        Change the role of '{peer?.name}' to
       </Text>
       <Menu
         visible={visible}
@@ -597,7 +543,7 @@ export const ChangeRoleModal = ({
           );
         })}
       </Menu>
-      {!peerTrackNode.peer.isLocal && (
+      {!peer?.isLocal && (
         <TouchableOpacity
           style={styles.roleChangeModalPermissionContainer}
           onPress={() => {
@@ -637,28 +583,17 @@ export const ChangeRoleModal = ({
 
 export const ChangeVolumeModal = ({
   instance,
-  peerTrackNode,
+  peer,
   cancelModal,
 }: {
   instance?: HMSSDK;
-  peerTrackNode: PeerTrackNode;
+  peer?: HMSPeer;
   cancelModal: Function;
 }) => {
   const [volume, setVolume] = useState<number>(0);
 
   const changeVolume = () => {
-    if (peerTrackNode?.track?.source === HMSTrackSource.REGULAR) {
-      instance?.setVolume(peerTrackNode.peer?.audioTrack as HMSTrack, volume);
-    } else {
-      peerTrackNode.peer?.auxiliaryTracks?.map(track => {
-        if (
-          track.source === HMSTrackSource.SCREEN &&
-          track.type === HMSTrackType.AUDIO
-        ) {
-          instance?.setVolume(track, volume);
-        }
-      });
-    }
+    instance?.setVolume(peer?.audioTrack as HMSTrack, volume);
     cancelModal();
   };
 
@@ -695,16 +630,16 @@ export const ChangeVolumeModal = ({
 
 export const ChangeNameModal = ({
   instance,
-  peerTrackNode,
+  peer,
   cancelModal,
 }: {
   instance?: HMSSDK;
-  peerTrackNode: PeerTrackNode;
+  peer?: HMSPeer;
   cancelModal: Function;
 }) => {
   const dispatch = useDispatch();
 
-  const [name, setName] = useState<string>(peerTrackNode.peer.name);
+  const [name, setName] = useState<string>(peer?.name!);
 
   const changeName = () => {
     if (name.length > 0) {
@@ -1170,14 +1105,13 @@ export const ChangeAudioOutputModal = ({
 
 export const ChangeAudioModeModal = ({
   instance,
+  cancelModal,
   audioMode,
   setAudioMode,
-  cancelModal,
 }: {
   instance?: HMSSDK;
   audioMode: HMSAudioMode;
   setAudioMode: React.Dispatch<React.SetStateAction<HMSAudioMode>>;
-
   cancelModal: Function;
 }) => {
   const [currentAudioMode, setCurrentAudioMode] =
@@ -1243,15 +1177,15 @@ export const ChangeAudioModeModal = ({
 export const ChangeAudioMixingModeModal = ({
   instance,
   newAudioMixingMode,
-  setNewAudioMixingMode,
   cancelModal,
+  setNewAudioMixingMode,
 }: {
   instance?: HMSSDK;
   newAudioMixingMode: HMSAudioMixingMode;
+  cancelModal: Function;
   setNewAudioMixingMode: React.Dispatch<
     React.SetStateAction<HMSAudioMixingMode>
   >;
-  cancelModal: Function;
 }) => {
   const changeAudioMixingMode = async () => {
     await instance?.setAudioMixingMode(newAudioMixingMode);
@@ -1403,16 +1337,16 @@ export const ChangeLayoutModal = ({
 };
 
 export const ChangeTrackStateForRoleModal = ({
-  roles,
   instance,
   localPeer,
   cancelModal,
 }: {
-  roles?: HMSRole[];
   instance?: HMSSDK;
   localPeer?: HMSLocalPeer;
   cancelModal: Function;
 }) => {
+  const {roles} = useSelector((state: RootState) => state.user);
+
   const [role, setRole] = useState<HMSRole>(localPeer?.role!);
   const [visible, setVisible] = useState<boolean>(false);
   const [trackType, setTrackType] = useState<HMSTrackType>(HMSTrackType.VIDEO);
@@ -1612,10 +1546,12 @@ export const HlsStreamingModal = ({
   instance,
   roomID,
   cancelModal,
+  setHlsStreaming,
 }: {
   instance?: HMSSDK;
   roomID: string;
   cancelModal: Function;
+  setHlsStreaming: React.Dispatch<React.SetStateAction<boolean | undefined>>;
 }) => {
   const [hlsStreamingDetails, setHLSStreamingDetails] =
     useState<HMSHLSMeetingURLVariant>({
@@ -1632,7 +1568,10 @@ export const HlsStreamingModal = ({
   const changeLayout = () => {
     instance
       ?.startHLSStreaming()
-      .then(d => console.log('Start HLS Streaming Success: ', d))
+      .then(d => {
+        setHlsStreaming(true);
+        console.log('Start HLS Streaming Success: ', d);
+      })
       .catch(err => {
         if (startHlsRetry) {
           setStartHlsRetry(false);
@@ -1642,7 +1581,10 @@ export const HlsStreamingModal = ({
           });
           instance
             ?.startHLSStreaming(hmsHLSConfig)
-            .then(d => console.log('Start HLS Streaming Success: ', d))
+            .then(d => {
+              setHlsStreaming(true);
+              console.log('Start HLS Streaming Success: ', d);
+            })
             .catch(e => console.log('Start HLS Streaming Error: ', e));
         } else {
           console.log('Start HLS Streaming Error: ', err);
@@ -1724,28 +1666,37 @@ export const HlsStreamingModal = ({
 
 export const RecordingModal = ({
   instance,
-  recordingDetails,
-  setRecordingDetails,
+  roomID,
+  recordingModal,
   setModalVisible,
-  cancelModal,
+  setRtmpAndRecording,
 }: {
   instance?: HMSSDK;
-  recordingDetails: HMSRTMPConfig;
-  setRecordingDetails: React.Dispatch<React.SetStateAction<HMSRTMPConfig>>;
+  roomID: string;
+  recordingModal: boolean;
   setModalVisible: React.Dispatch<React.SetStateAction<ModalTypes>>;
-  cancelModal: Function;
+  setRtmpAndRecording: React.Dispatch<
+    React.SetStateAction<boolean | undefined>
+  >;
 }) => {
   const [resolutionDetails, setResolutionDetails] = useState<boolean>(false);
+  const [recordingDetails, setRecordingDetails] = useState<HMSRTMPConfig>({
+    record: false,
+    meetingURL: roomID ? roomID + '?token=beam_recording' : '',
+  });
 
   const changeLayout = () => {
     instance
       ?.startRTMPOrRecording(recordingDetails)
-      .then(d => console.log('Start RTMP Or Recording Success: ', d))
+      .then(d => {
+        setRtmpAndRecording(true);
+        console.log('Start RTMP Or Recording Success: ', d);
+      })
       .catch(e => console.log('Start RTMP Or Recording Error: ', e));
-    cancelModal();
+    setModalVisible(ModalTypes.DEFAULT);
   };
 
-  return (
+  return recordingModal ? (
     <View style={styles.roleChangeModal}>
       <Text style={styles.roleChangeModalHeading}>Recording Details</Text>
       <TextInput
@@ -1831,7 +1782,7 @@ export const RecordingModal = ({
       <View style={styles.roleChangeModalPermissionContainer}>
         <CustomButton
           title="Cancel"
-          onPress={cancelModal}
+          onPress={() => setModalVisible(ModalTypes.DEFAULT)}
           viewStyle={styles.roleChangeModalCancelButton}
           textStyle={styles.roleChangeModalButtonText}
         />
@@ -1843,19 +1794,7 @@ export const RecordingModal = ({
         />
       </View>
     </View>
-  );
-};
-
-export const ResolutionModal = ({
-  recordingDetails,
-  setRecordingDetails,
-  cancelModal,
-}: {
-  recordingDetails: HMSRTMPConfig;
-  setRecordingDetails: React.Dispatch<React.SetStateAction<HMSRTMPConfig>>;
-  cancelModal: Function;
-}) => {
-  return (
+  ) : (
     <View style={styles.roleChangeModal}>
       <Text style={styles.roleChangeModalHeading}>Resolution Details</Text>
       <View style={styles.resolutionContainer}>
@@ -1905,7 +1844,7 @@ export const ResolutionModal = ({
       <View style={styles.sortingButtonContainer}>
         <CustomButton
           title="Back"
-          onPress={cancelModal}
+          onPress={() => setModalVisible(ModalTypes.RECORDING)}
           viewStyle={styles.backButton}
           textStyle={styles.roleChangeModalButtonText}
         />
@@ -2005,10 +1944,23 @@ export const EndHlsModal = ({
   );
 };
 
-export const RealTime = () => {
+export const RealTime = ({startedAt}: {startedAt?: Date}) => {
   const [hour, setHour] = useState(0);
   const [minute, setMinute] = useState(0);
   const [second, setSecond] = useState(0);
+
+  useEffect(() => {
+    const time2 = moment(startedAt, 'hh:mm:ss');
+    const time1 = moment(new Date(), 'hh:mm:ss');
+    const subtract = time1.subtract({
+      hours: time2.hours(),
+      minutes: time2.minutes(),
+      seconds: time2.seconds(),
+    });
+    setHour(subtract.hours());
+    setMinute(subtract.minutes());
+    setSecond(subtract.seconds());
+  }, [startedAt]);
 
   useEffect(() => {
     const updatePostInfo = setInterval(() => {
@@ -2025,12 +1977,6 @@ export const RealTime = () => {
       setSecond(0);
       setMinute(min => min + 1);
     }
-    return () => {
-      if (second === 60) {
-        setSecond(0);
-        setMinute(min => min + 1);
-      }
-    };
   }, [second]);
 
   useEffect(() => {
@@ -2038,12 +1984,6 @@ export const RealTime = () => {
       setMinute(0);
       setHour(hr => hr + 1);
     }
-    return () => {
-      if (minute === 60) {
-        setMinute(0);
-        setHour(hr => hr + 1);
-      }
-    };
   }, [minute]);
 
   return (

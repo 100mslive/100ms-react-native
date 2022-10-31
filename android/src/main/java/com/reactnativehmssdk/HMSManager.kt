@@ -160,6 +160,27 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
+  fun getLocalPeer(data: ReadableMap, callback: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.getLocalPeer(callback)
+  }
+
+  @ReactMethod
+  fun getRemotePeers(data: ReadableMap, callback: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.getRemotePeers(callback)
+  }
+
+  @ReactMethod
+  fun getRoles(data: ReadableMap, callback: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.getRoles(callback)
+  }
+
+  @ReactMethod
   fun setPlaybackAllowed(data: ReadableMap) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
@@ -339,6 +360,20 @@ class HMSManager(reactContext: ReactApplicationContext) :
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.disableRTCStats()
+  }
+
+  @ReactMethod
+  fun enableNetworkQualityUpdates(data: ReadableMap) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.enableNetworkQualityUpdates()
+  }
+
+  @ReactMethod
+  fun disableNetworkQualityUpdates(data: ReadableMap) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.disableNetworkQualityUpdates()
   }
 
   @ReactMethod

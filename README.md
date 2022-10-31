@@ -479,7 +479,7 @@ const getTrackSettings = () => {
 
 const setupBuild = async () => {
   const trackSettings = getTrackSettings();
-  const build = await HmsManager.build({ trackSettings });
+  const build = await HMSSDK.build({ trackSettings });
   setInstance(build);
   updateHms({ hmsInstance: build });
 };

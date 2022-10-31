@@ -1,6 +1,11 @@
 import React, {useRef} from 'react';
 import {View, FlatList, Dimensions} from 'react-native';
-import {HMSSDK, HMSSpeaker, HMSTrackSource} from '@100mslive/react-native-hms';
+import {
+  HMSPermissions,
+  HMSSDK,
+  HMSSpeaker,
+  HMSTrackSource,
+} from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {getHmsViewHeight} from '../../utils/functions';
@@ -22,6 +27,7 @@ type GridViewProps = {
   setPinnedPeerTrackIds?: React.Dispatch<React.SetStateAction<String[]>>;
   setUpdatePeerTrackNode?: React.Dispatch<React.SetStateAction<PeerTrackNode>>;
   onEndScreenSharePress: Function;
+  permissions?: HMSPermissions;
 };
 
 const GridView = ({
@@ -38,6 +44,7 @@ const GridView = ({
   orientation,
   setUpdatePeerTrackNode,
   onEndScreenSharePress,
+  permissions,
 }: GridViewProps) => {
   const {left, right, top, bottom} = useSafeAreaInsets();
   const flatlistRef = useRef<FlatList>(null);
@@ -117,6 +124,7 @@ const GridView = ({
                       isSpeaking={isSpeaking}
                       instance={instance}
                       layout={layout}
+                      permissions={permissions}
                     />
                   </View>
                 );
@@ -143,6 +151,7 @@ const GridView = ({
                       pinnedPeerTrackIds={pinnedPeerTrackIds}
                       setPinnedPeerTrackIds={setPinnedPeerTrackIds}
                       setUpdatePeerTrackNode={setUpdatePeerTrackNode}
+                      permissions={permissions}
                     />
                   </View>
                 );

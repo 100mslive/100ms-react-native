@@ -1,4 +1,4 @@
-import type {HMSSDK} from '@100mslive/react-native-hms';
+import type {HMSRole, HMSSDK} from '@100mslive/react-native-hms';
 import {getMeetingCode, getMeetingUrl} from '../../utils/functions';
 import ActionTypes from '../actionTypes';
 
@@ -14,6 +14,7 @@ type IntialStateType = {
   roomCode: string;
   mirrorLocalVideo: boolean;
   isHLSFlow: boolean;
+  roles: HMSRole[];
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -22,6 +23,7 @@ const INITIAL_STATE: IntialStateType = {
   roomCode: getMeetingCode(),
   mirrorLocalVideo: false,
   isHLSFlow: true,
+  roles: [],
 };
 
 const userReducer = (state = INITIAL_STATE, action: ActionType) => {

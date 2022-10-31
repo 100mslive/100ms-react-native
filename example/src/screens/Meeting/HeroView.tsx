@@ -1,6 +1,11 @@
 import React, {useState, useEffect} from 'react';
 import {FlatList, View} from 'react-native';
-import {HMSSDK, HMSSpeaker, HMSTrackSource} from '@100mslive/react-native-hms';
+import {
+  HMSLocalPeer,
+  HMSSDK,
+  HMSSpeaker,
+  HMSTrackSource,
+} from '@100mslive/react-native-hms';
 
 import {LayoutParams, PeerTrackNode} from '../../utils/types';
 import {DisplayTrack} from './DisplayTrack';
@@ -12,6 +17,7 @@ type HeroViewProps = {
   setModalVisible: Function;
   peerTrackNodes: PeerTrackNode[];
   orientation: boolean;
+  localPeer?: HMSLocalPeer;
 };
 
 const searchMainSpeaker = (
@@ -33,6 +39,7 @@ const HeroView = ({
   setModalVisible,
   orientation,
   peerTrackNodes,
+  localPeer,
 }: HeroViewProps) => {
   const [mainSpeaker, setMainSpeaker] = useState<PeerTrackNode>();
   const [peers, setPeers] = useState<PeerTrackNode[]>([]);
@@ -47,8 +54,8 @@ const HeroView = ({
         track: peer.videoTrack,
       });
     }
-    if (speakers.length === 0 && !mainSpeaker && instance?.localPeer) {
-      const peer = instance.localPeer;
+    if (speakers.length === 0 && !mainSpeaker && localPeer) {
+      const peer = localPeer;
       setMainSpeaker({
         id: peer.peerID + HMSTrackSource.REGULAR,
         peer,
@@ -56,7 +63,7 @@ const HeroView = ({
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [speakers, instance?.remotePeers, instance?.localPeer]);
+  }, [speakers, peerTrackNodes, localPeer]);
 
   useEffect(() => {
     const newPeerList = peerTrackNodes;
@@ -92,6 +99,7 @@ const HeroView = ({
             instance={instance}
             layout={LayoutParams.HERO}
             setModalVisible={setModalVisible}
+            permissions={localPeer?.role?.permissions}
           />
         )}
       </View>
@@ -122,6 +130,7 @@ const HeroView = ({
                   instance={instance}
                   layout={LayoutParams.HERO}
                   setModalVisible={setModalVisible}
+                  permissions={localPeer?.role?.permissions}
                 />
               </View>
             );

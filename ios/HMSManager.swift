@@ -205,20 +205,6 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func getRoom(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HMSHelper.getHms(data, hmsCollection)
-
-        hms?.getRoom(data, resolve, reject)
-    }
-
-    // MARK: - HMS SDK Delegate Callbacks
-    func emitEvent(_ name: String, _ data: [String: Any]) {
-        self.sendEvent(withName: name, body: data)
-    }
-
-    // MARK: Helper Functions
-
-    @objc
     func setPlaybackForAllAudio(_ data: NSDictionary) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
@@ -377,5 +363,53 @@ class HMSManager: RCTEventEmitter {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.audioShareDuration(data, resolve, reject)
+    }
+
+    @objc
+    func enableNetworkQualityUpdates(_ data: NSDictionary) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.enableNetworkQualityUpdates()
+    }
+
+    @objc
+    func disableNetworkQualityUpdates(_ data: NSDictionary) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.disableNetworkQualityUpdates()
+    }
+
+    // MARK: - HMS SDK Get APIs
+    @objc
+    func getRoom(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.getRoom(resolve)
+    }
+
+    @objc
+    func getLocalPeer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.getLocalPeer(resolve)
+    }
+
+    @objc
+    func getRemotePeers(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.getRemotePeers(resolve)
+    }
+
+    @objc
+    func getRoles(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.getRoles(resolve)
+    }
+
+    // MARK: - HMS SDK Delegate Callbacks
+    func emitEvent(_ name: String, _ data: [String: Any]) {
+        self.sendEvent(withName: name, body: data)
     }
 }

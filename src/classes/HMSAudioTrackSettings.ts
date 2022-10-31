@@ -1,19 +1,17 @@
-import type { HMSAudioCodec } from './HMSAudioCodec';
+import type { HMSTrackSettingsInitState } from './HMSTrackSettingsInitState';
 
 export class HMSAudioTrackSettings {
-  maxBitrate: number;
-  trackDescription?: string; // ios only
+  initialState?: HMSTrackSettingsInitState;
+  useHardwareEchoCancellation?: boolean; // android only
   audioSource?: string[]; // ios only
-  codec?: HMSAudioCodec; // android only
+
   constructor(params: {
-    maxBitrate: number;
-    trackDescription?: string;
+    initialState?: HMSTrackSettingsInitState;
+    useHardwareEchoCancellation?: boolean;
     audioSource?: string[];
-    codec?: HMSAudioCodec;
   }) {
-    this.maxBitrate = params.maxBitrate;
-    this.trackDescription = params.trackDescription;
+    this.useHardwareEchoCancellation = params.useHardwareEchoCancellation;
+    this.initialState = params.initialState;
     this.audioSource = params.audioSource;
-    this.codec = params.codec;
   }
 }

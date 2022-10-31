@@ -2,7 +2,8 @@ import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {NavigationContainer} from '@react-navigation/native';
 import {Welcome} from '../screens/Welcome';
-import {Meeting} from '../screens/Meeting';
+import {Meeting} from '../screens/MeetingScreen/index';
+// import {Meeting} from '../screens/Meeting';
 import {QRCode} from '../screens/QRCode';
 import {QRCodeScanner} from '../screens/QRCodeScanner';
 
