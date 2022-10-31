@@ -770,7 +770,7 @@ export class HMSSDK {
 
   /**
    * - setPlaybackForAllAudio is an extension of the abilities of setPlaybackAllowed in
-   * {@link HMSRemoteAudioTrack}, it sets mute status for all peers in the room
+   * HMSRemoteAudioTrack. It sets mute status for all peers in the room only for the local peer.
    *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/playback-allowed} for more info
    *
