@@ -3,8 +3,6 @@ import type { HMSTrackType } from './HMSTrackType';
 
 export class HMSVideoTrack extends HMSTrack {
   isDegraded?: boolean;
-  addSink?: Function;
-  removeSink?: Function;
 
   constructor(params: {
     trackId: string;

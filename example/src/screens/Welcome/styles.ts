@@ -86,6 +86,37 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
+  settingsContainer: {
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+  },
+  settingsButton: {
+    marginRight: 16,
+    marginTop: 16,
+    backgroundColor: COLORS.BACKGROUND.DEFAULT,
+    borderColor: COLORS.BORDER.LIGHT,
+    borderWidth: 1,
+    height: 32,
+    width: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 12,
+  },
+  settingsIcon: {
+    color: COLORS.TEXT.HIGH_EMPHASIS,
+  },
+  settingsMenuContainer: {
+    backgroundColor: COLORS.SURFACE.LIGHT,
+  },
+  settingsMenuItemName: {
+    color: COLORS.TEXT.HIGH_EMPHASIS,
+    fontSize: 14,
+    lineHeight: 20,
+    letterSpacing: 0.1,
+    fontFamily: 'Inter-Medium',
+    textTransform: 'capitalize',
+  },
 });
 
 export {styles};

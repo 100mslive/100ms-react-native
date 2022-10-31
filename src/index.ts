@@ -70,6 +70,9 @@ export * from './classes/HMSMicNode';
 export * from './classes/HMSScreenBroadcastAudioReceiverNode';
 export * from './classes/HMSAudioFilePlayerNode';
 export * from './classes/HMSAudioMixerSource';
+export * from './classes/HMSTrackSettingsInitState';
+export * from './classes/HMSLogSettings';
+export * from './classes/HMSLogAlarmManager';
 
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
 export default HmsManager;

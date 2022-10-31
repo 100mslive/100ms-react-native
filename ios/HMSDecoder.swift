@@ -154,22 +154,19 @@ class HMSDecoder: NSObject {
 
         guard let settings = hmsAudioTrackSettings else { return [:] }
 
-        let maxBitrate = settings.maxBitrate
-        let trackDescription = settings.trackDescription ?? ""
+        // TODO: parsing not done for audioSource
+        let audioSource = settings.audioSource
+        let initialState = HMSHelper.getHMSTrackInitState(settings.initialMuteState)
 
-        return ["maxBitrate": maxBitrate, "trackDescription": trackDescription]
+        return ["audioSource": audioSource, "initialState": initialState]
     }
 
     static func getHmsVideoTrackSettings(_ hmsVideoTrackSettings: HMSVideoTrackSettings?) -> [String: Any] {
 
         guard let settings = hmsVideoTrackSettings else { return [:] }
 
-        let codec = getHmsVideoTrackCodec(settings.codec)
-        let resolution = getHmsVideoResolution(settings.resolution)
-        let maxBitrate = settings.maxBitrate
-        let maxFrameRate = settings.maxFrameRate
         let cameraFacing = getHmsVideoTrackCameraFacing(settings.cameraFacing)
-        let trackDescription = settings.trackDescription ?? ""
+        let initialState = HMSHelper.getHMSTrackInitState(settings.initialMuteState)
 
         var simulcastSettingsData = [[String: Any]]()
         if let simulcastSettings = settings.simulcastSettings {
@@ -182,7 +179,7 @@ class HMSDecoder: NSObject {
             }
         }
 
-        return ["codec": codec, "resolution": resolution, "maxBitrate": maxBitrate, "maxFrameRate": maxFrameRate, "cameraFacing": cameraFacing, "trackDescription": trackDescription, "simulcastSettings": simulcastSettingsData]
+        return ["initialState": initialState, "cameraFacing": cameraFacing, "simulcastSettings": simulcastSettingsData]
     }
 
     static func getHmsVideoTrackCodec(_ codec: HMSCodec) -> String {
@@ -270,21 +267,21 @@ class HMSDecoder: NSObject {
         return ["trackId": remoteVideo.trackId, "source": remoteVideo.source, "trackDescription": remoteVideo.trackDescription, "layer": remoteVideo.layer.rawValue, "playbackAllowed": remoteVideo.isPlaybackAllowed(), "isMute": remoteVideo.isMute(), "isDegraded": remoteVideo.isDegraded(), "type": type, "kind": type]
     }
 
-    static func getPreviewTracks(_ tracks: [HMSTrack]) -> [String: Any] {
+    static func getPreviewTracks(_ tracks: [HMSTrack]) -> [[String: Any]] {
 
-        var hmsTracks = [String: Any]()
+        var hmsTracks = [[String: Any]]()
 
         for track in tracks {
             if let localVideo = track as? HMSLocalVideoTrack {
                 let type = HMSHelper.getHmsTrackType(localVideo.kind) ?? ""
                 let localVideoTrackData: [String: Any] = ["trackId": localVideo.trackId, "source": localVideo.source, "trackDescription": localVideo.trackDescription, "settings": getHmsVideoTrackSettings(localVideo.settings), "isMute": localVideo.isMute(), "kind": type, "type": type]
-                hmsTracks["videoTrack"] = localVideoTrackData
+                hmsTracks.append(localVideoTrackData)
             }
 
             if let localAudio = track as? HMSLocalAudioTrack {
                 let type = HMSHelper.getHmsTrackType(localAudio.kind) ?? ""
                 let localAudioTrackData: [String: Any]  = ["trackId": localAudio.trackId, "source": localAudio.source, "trackDescription": localAudio.trackDescription, "settings": getHmsAudioTrackSettings(localAudio.settings), "isMute": localAudio.isMute(), "kind": type, "type": type]
-                hmsTracks["audioTrack"] = localAudioTrackData
+                hmsTracks.append(localAudioTrackData)
             }
         }
         return hmsTracks

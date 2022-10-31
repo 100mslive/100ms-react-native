@@ -1,6 +1,11 @@
 import React, {useState, useEffect, useRef, useCallback} from 'react';
 import {View, Animated} from 'react-native';
-import {HMSSDK, HMSSpeaker, HMSTrackSource} from '@100mslive/react-native-hms';
+import {
+  HMSPermissions,
+  HMSSDK,
+  HMSSpeaker,
+  HMSTrackSource,
+} from '@100mslive/react-native-hms';
 import {
   GestureHandlerRootView,
   PanGestureHandler,
@@ -15,6 +20,7 @@ type MiniViewProps = {
   speakers: HMSSpeaker[];
   orientation: boolean;
   peerTrackNodes: PeerTrackNode[];
+  permissions?: HMSPermissions;
 };
 
 const MiniView = ({
@@ -22,6 +28,7 @@ const MiniView = ({
   speakers,
   orientation,
   peerTrackNodes,
+  permissions,
 }: MiniViewProps) => {
   const [mainSpeaker, setMainSpeaker] = useState<PeerTrackNode>();
   const [miniSpeaker, setMiniSpeaker] = useState<PeerTrackNode>();
@@ -79,6 +86,7 @@ const MiniView = ({
               peerTrackNode={mainSpeaker}
               instance={instance}
               videoStyles={styles.heroView}
+              permissions={permissions}
             />
           </View>
         )}
@@ -98,6 +106,7 @@ const MiniView = ({
                 peerTrackNode={miniSpeaker}
                 instance={instance}
                 videoStyles={styles.heroView}
+                permissions={permissions}
               />
             </Animated.View>
           </PanGestureHandler>

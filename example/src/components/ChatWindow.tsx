@@ -8,6 +8,7 @@ import {
   Platform,
 } from 'react-native';
 import {
+  HMSLocalPeer,
   HMSMessage,
   HMSMessageRecipient,
   HMSMessageRecipientType,
@@ -58,10 +59,19 @@ const ChatFilter = ({
     React.SetStateAction<'everyone' | HMSRole | HMSRemotePeer>
   >;
 }) => {
+  const {roles} = useSelector((state: RootState) => state.user);
+
   const [visible, setVisible] = useState<boolean>(false);
+  const [remotePeers, setRemotePeers] = useState<HMSRemotePeer[]>();
 
   const hideMenu = () => setVisible(false);
   const showMenu = () => setVisible(true);
+
+  useEffect(() => {
+    instance?.getRemotePeers().then(currentRemotePeers => {
+      setRemotePeers(currentRemotePeers);
+    });
+  }, [instance]);
 
   return (
     <Menu
@@ -97,7 +107,7 @@ const ChatFilter = ({
         </View>
       </MenuItem>
       <MenuDivider color={COLORS.BORDER.LIGHT} />
-      {instance?.knownRoles?.map(knownRole => {
+      {roles?.map(knownRole => {
         return (
           <MenuItem
             onPress={() => {
@@ -114,7 +124,7 @@ const ChatFilter = ({
         );
       })}
       <MenuDivider color={COLORS.BORDER.LIGHT} />
-      {instance?.remotePeers?.map(remotePeer => {
+      {remotePeers?.map(remotePeer => {
         return (
           <MenuItem
             onPress={() => {
@@ -139,13 +149,15 @@ const ChatFilter = ({
   );
 };
 
-export const ChatWindow = () => {
+export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
+  // hooks
   const {hmsInstance} = useSelector((state: RootState) => state.user);
   const {messages} = useSelector((state: RootState) => state.messages);
   const dispatch = useDispatch();
   const {bottom} = useSafeAreaInsets();
   const scollviewRef = useRef<ScrollView>(null);
 
+  // useState hook
   const [filter, setFilter] = useState<string>('everyone');
   const [type, setType] = useState<'everyone' | 'role' | 'direct'>('everyone');
   const [receiverObject, setReceiverObject] = useState<
@@ -181,7 +193,7 @@ export const ChatWindow = () => {
             message: text,
             type: 'chat',
             time: new Date(),
-            sender: hmsInstance?.localPeer,
+            sender: localPeer,
             recipient: hmsMessageRecipient,
           }),
         ),

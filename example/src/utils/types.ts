@@ -12,6 +12,7 @@ export enum LayoutParams {
   ACTIVE_SPEAKER = 'active speaker',
   HERO = 'hero',
   MINI = 'mini',
+  HLS = 'hls',
   DEFAULT = '',
 }
 
@@ -48,6 +49,7 @@ export enum ModalTypes {
   VOLUME = 'volume',
   AUDIO_MIXING_MODE = 'audioMixingMode',
   SET_AUDIO_SHARE_VOLUME = 'setAudioShareVolume',
+  WELCOME_SETTINGS = 'welcomeSettings',
   DEFAULT = '',
 }
 

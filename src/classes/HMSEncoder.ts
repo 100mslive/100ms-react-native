@@ -181,9 +181,8 @@ export class HMSEncoder {
 
   static encodeHmsAudioTrackSettings(settings: any) {
     const encodedObj = {
-      maxBitrate: settings?.maxBitrate,
-      trackDescription: settings?.trackDescription,
-      codec: settings?.codec,
+      useHardwareEchoCancellation: settings?.useHardwareAcousticEchoCanceler,
+      initialState: settings?.initialState,
     };
 
     return new HMSAudioTrackSettings(encodedObj);
@@ -191,12 +190,11 @@ export class HMSEncoder {
 
   static encodeHmsVideoTrackSettings(settings: any) {
     const encodedObj = {
-      codec: settings?.codec,
-      resolution: HMSEncoder.encodeHmsVideoResolution(settings?.resolution),
-      maxBitrate: settings?.maxBitrate,
-      maxFrameRate: settings?.maxFrameRate,
+      initialState: settings?.initialState,
+      forceSoftwareDecoder: settings?.forceSoftwareDecoder,
+      simulcastSettings: settings?.simulcastSettings,
       cameraFacing: settings?.cameraFacing,
-      trackDescription: settings?.trackDescription,
+      disableAutoResize: settings?.disableAutoResize,
     };
 
     return new HMSVideoTrackSettings(encodedObj);
@@ -240,7 +238,7 @@ export class HMSEncoder {
   }
 
   static encodeHmsRemotePeers(peers: any, id: string) {
-    const hmsPeers: any[] = [];
+    const hmsPeers: HMSRemotePeer[] = [];
 
     peers.map((peer: any) => {
       const encodedPeer = HMSEncoder.encodeHmsRemotePeer(peer, id);
@@ -316,17 +314,10 @@ export class HMSEncoder {
     return new HMSRemoteVideoTrack(encodedObj);
   }
 
-  static encodeHmsPreviewTracks(previewTracks: any) {
-    const encodedObj = {
-      audioTrack: previewTracks.audioTrack
-        ? new HMSLocalAudioTrack(previewTracks.audioTrack)
-        : null,
-      videoTrack: previewTracks.videoTrack
-        ? new HMSLocalVideoTrack(previewTracks.videoTrack)
-        : null,
-    };
-
-    return encodedObj;
+  static encodeHmsPreviewTracks(previewTracks: any[], id: string) {
+    return previewTracks?.map((track) => {
+      return this.encodeHmsTrack(track, id);
+    });
   }
 
   static encodeHmsRoles(roles: any[]) {

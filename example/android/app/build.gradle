@@ -1,5 +1,4 @@
 apply plugin: "com.android.application"
-
 import com.android.build.OutputFile
 
 /**
@@ -77,11 +76,10 @@ import com.android.build.OutputFile
  * ]
  */
 
-  project.ext.react = [
-    entryFile: "index.js",
-    // enableHermes: false,  // clean and rebuild if changing
-    enableHermes: true  // clean and rebuild if changing
-  ]
+    project.ext.react = [
+        entryFile: "index.js",
+        enableHermes: true  // clean and rebuild if changing
+    ]
 
 apply from: "../../node_modules/react-native/react.gradle"
 
@@ -136,8 +134,8 @@ android {
         applicationId "live.hms.rn"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 112
-        versionName "2.0.7"
+        versionCode 126
+        versionName "2.0.21"
         missingDimensionStrategy 'react-native-camera', 'general'
     }
     splits {
@@ -164,10 +162,14 @@ android {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
             shrinkResources true
+
             minifyEnabled true
+
+            debuggable false
+
             signingConfig signingConfigs.debug
+
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-            
         }
     }
 

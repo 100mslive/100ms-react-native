@@ -15,7 +15,6 @@ import {
   HMSPeerUpdate,
   HMSRoomUpdate,
   HMSTrackUpdate,
-  HMSRemotePeer,
   HMSVideoViewMode,
   HMSLocalPeer,
   HMSTrack,
@@ -112,6 +111,7 @@ type MeetingScreenProp = NativeStackNavigationProp<
 >;
 
 const Meeting = () => {
+  // hooks
   const {hmsInstance, roomID, roomCode} = useSelector(
     (state: RootState) => state.user,
   );
@@ -120,9 +120,11 @@ const Meeting = () => {
   const navigate = useNavigation<MeetingScreenProp>().navigate;
   const {bottom, left, right} = useSafeAreaInsets();
 
+  // useState hook
   const [instance, setInstance] = useState<HMSSDK | undefined>();
   const [peerTrackNodes, setPeerTrackNodes] =
     useState<Array<PeerTrackNode>>(peerState);
+  const [localPeer, setLocalPeer] = useState<HMSLocalPeer>();
   const [modalVisible, setModalVisible] = useState<ModalTypes>(
     ModalTypes.DEFAULT,
   );
@@ -130,20 +132,16 @@ const Meeting = () => {
     [],
   );
   const [hmsRoom, setHmsRoom] = useState<HMSRoom>();
-  const peerTrackNodesRef = useRef(peerTrackNodes);
-  const HmsViewComponent = instance?.HmsView;
   const [speakers, setSpeakers] = useState<Array<HMSSpeaker>>([]);
   const [notification, setNotification] = useState(false);
   const [muteAllTracksAudio, setMuteAllTracksAudio] = useState(false);
   const [layout, setLayout] = useState<LayoutParams>(LayoutParams.GRID);
   const [sortingType, setSortingType] = useState<SortingType>();
-  const hlsPlayerRef = useRef<Video>(null);
   const [page, setPage] = useState(0);
   const [zoomableTrackId, setZoomableTrackId] = useState('');
   const [orientation, setOrientation] = useState<boolean>(true);
   const [isScreenShared, setIsScreenShared] = useState(
-    instance?.localPeer?.auxiliaryTracks &&
-      instance?.localPeer?.auxiliaryTracks?.length > 0,
+    localPeer?.auxiliaryTracks && localPeer?.auxiliaryTracks?.length > 0,
   );
   const [updatePeerTrackNode, setUpdatePeerTrackNode] = useState<PeerTrackNode>(
     peerTrackNodes[0],
@@ -164,6 +162,16 @@ const Meeting = () => {
   const [isAudioShared, setIsAudioShared] = useState<boolean>(false);
   const [newAudioMixingMode, setNewAudioMixingMode] =
     useState<HMSAudioMixingMode>(HMSAudioMixingMode.TALK_AND_MUSIC);
+
+  // useRef hook
+  const peerTrackNodesRef = useRef(peerTrackNodes);
+  const hlsPlayerRef = useRef<Video>(null);
+
+  // constants
+  const audioFilePlayerNode = new HMSAudioFilePlayerNode(
+    'audio_file_player_node',
+  );
+  const HmsViewComponent = instance?.HmsView;
   const pairedPeers = useMemo(
     () =>
       pairDataForFlatlist(
@@ -180,10 +188,236 @@ const Meeting = () => {
       ),
     [layout, peerTrackNodes, orientation, sortingType, pinnedPeerTrackIds],
   );
-  const parsedMetadata = parseMetadata(instance?.localPeer?.metadata);
-  const audioFilePlayerNode = new HMSAudioFilePlayerNode(
-    'audio_file_player_node',
-  );
+  const parsedMetadata = parseMetadata(localPeer?.metadata);
+
+  // listeners
+  const onRoomListener = ({
+    room,
+    type,
+  }: {
+    room: HMSRoom;
+    type: HMSRoomUpdate;
+  }) => {
+    console.log('data in onRoomListener: ', type, room);
+    setHmsRoom(room);
+
+    if (type === HMSRoomUpdate.BROWSER_RECORDING_STATE_UPDATED) {
+      let streaming = room?.browserRecordingState?.running;
+      let hours = room?.browserRecordingState?.startedAt.getHours().toString();
+      let minutes = room?.browserRecordingState?.startedAt
+        .getMinutes()
+        ?.toString();
+
+      let time = hours + ':' + minutes;
+
+      Toast.showWithGravity(
+        `Browser Recording ${streaming ? 'Started At ' + time : 'Stopped'}`,
+        Toast.LONG,
+        Toast.TOP,
+      );
+    } else if (type === HMSRoomUpdate.HLS_STREAMING_STATE_UPDATED) {
+      let streaming = room?.hlsStreamingState?.running;
+      Toast.showWithGravity(
+        `HLS Streaming ${streaming ? 'Started' : 'Stopped'}`,
+        Toast.LONG,
+        Toast.TOP,
+      );
+    } else if (type === HMSRoomUpdate.RTMP_STREAMING_STATE_UPDATED) {
+      let streaming = room?.rtmpHMSRtmpStreamingState?.running;
+      let hours = room?.rtmpHMSRtmpStreamingState?.startedAt
+        .getHours()
+        .toString();
+      let minutes = room?.rtmpHMSRtmpStreamingState?.startedAt
+        .getMinutes()
+        ?.toString();
+
+      let time = hours + ':' + minutes;
+
+      Toast.showWithGravity(
+        `RTMP Streaming ${streaming ? 'Started At ' + time : 'Stopped'}`,
+        Toast.LONG,
+        Toast.TOP,
+      );
+    } else if (type === HMSRoomUpdate.SERVER_RECORDING_STATE_UPDATED) {
+      let streaming = room?.serverRecordingState?.running;
+
+      let hours = room?.serverRecordingState?.startedAt.getHours().toString();
+      let minutes = room?.serverRecordingState?.startedAt
+        .getMinutes()
+        ?.toString();
+
+      let time = hours + ':' + minutes;
+
+      Toast.showWithGravity(
+        `Server Recording ${streaming ? 'Started At ' + time : 'Stopped'}`,
+        Toast.LONG,
+        Toast.TOP,
+      );
+    }
+  };
+
+  const onPeerListener = ({
+    peer,
+    type,
+  }: {
+    peer: HMSPeer;
+    type: HMSPeerUpdate;
+  }) => {
+    console.log('data in onPeerListener: ', type, peer);
+    const newPeerTrackNodes = updatePeersTrackNodesOnPeerListener(
+      peerTrackNodesRef?.current,
+      peer,
+      type,
+    );
+    setPeerTrackNodes(newPeerTrackNodes);
+    peerTrackNodesRef.current = newPeerTrackNodes;
+    if (peer.isLocal) {
+      updateLocalPeer();
+    }
+
+    if (type === HMSPeerUpdate.PEER_LEFT) {
+      Toast.showWithGravity(
+        `Peer Left: ${peer.name} left the Room`,
+        Toast.LONG,
+        Toast.TOP,
+      );
+    } else if (type === HMSPeerUpdate.PEER_JOINED) {
+      Toast.showWithGravity(
+        `Peer Joined: ${peer.name} joined the Room`,
+        Toast.LONG,
+        Toast.TOP,
+      );
+    } else if (type === HMSPeerUpdate.ROLE_CHANGED) {
+      Toast.showWithGravity(
+        `Role Changed: Role of ${peer?.name} changed to ${peer?.role?.name}`,
+        Toast.LONG,
+        Toast.TOP,
+      );
+    }
+  };
+
+  const onTrackListener = ({
+    peer,
+    track,
+    type,
+  }: {
+    peer: HMSPeer;
+    track: HMSTrack;
+    type: HMSTrackUpdate;
+  }) => {
+    console.log('data in onTrackListener: ', type, peer, track);
+    const newPeerTrackNodes = updatePeersTrackNodesOnTrackListener(
+      peerTrackNodesRef?.current,
+      track,
+      peer,
+      type,
+    );
+    setPeerTrackNodes(newPeerTrackNodes);
+    peerTrackNodesRef.current = newPeerTrackNodes;
+    if (peer.isLocal) {
+      updateLocalPeer();
+    }
+
+    if (
+      peer?.isLocal &&
+      track.source === HMSTrackSource.SCREEN &&
+      track.type === HMSTrackType.VIDEO
+    ) {
+      hmsInstance?.isScreenShared().then(d => {
+        setIsScreenShared(d);
+      });
+    }
+  };
+
+  const onMessageListener = (data: HMSMessage) => {
+    console.log('data in onMessageListener: ', data);
+    dispatch(addMessage(data));
+    setNotification(true);
+  };
+
+  const onSpeakerListener = (data: HMSSpeaker[]) => {
+    console.log('data in onSpeakerListener: ', data);
+    setSpeakers(data || []);
+  };
+
+  const onReconnectingListener = (data: any) => {
+    console.log('data in onReconnectingListener: ', data);
+    Toast.showWithGravity('Reconnecting...', Toast.SHORT, Toast.TOP);
+  };
+
+  const onReconnectedListener = (data: any) => {
+    console.log('data in onReconnectedListener: ', data);
+    Toast.showWithGravity('Reconnected', Toast.SHORT, Toast.TOP);
+  };
+
+  const onRoleChangeRequestListener = (data: HMSRoleChangeRequest) => {
+    console.log('data in onRoleChangeRequestListener: ', data);
+    setModalVisible(ModalTypes.CHANGE_ROLE_ACCEPT);
+    setRoleChangeRequest({
+      requestedBy: data?.requestedBy?.name,
+      suggestedRole: data?.suggestedRole?.name,
+    });
+  };
+
+  const onChangeTrackStateRequestListener = (
+    data: HMSChangeTrackStateRequest,
+  ) => {
+    console.log('data in onChangeTrackStateRequestListener: ', data);
+    if (!data?.mute) {
+      setModalVisible(ModalTypes.CHANGE_TRACK);
+      setRoleChangeRequest({
+        requestedBy: data?.requestedBy?.name,
+        suggestedRole: data?.trackType,
+      });
+    } else {
+      Toast.showWithGravity(
+        `Track Muted: ${data?.requestedBy?.name} Muted Your ${data?.trackType}`,
+        Toast.LONG,
+        Toast.TOP,
+      );
+    }
+  };
+
+  const onRemovedFromRoomListener = async (data: any) => {
+    console.log('data in onRemovedFromRoomListener: ', data);
+    destroy();
+  };
+
+  const onErrorListener = (data: HMSException) => {
+    console.log('data in onErrorListener: ', data);
+    Toast.showWithGravity(
+      `${data?.code} ${data?.description}` || 'Something went wrong',
+      Toast.LONG,
+      Toast.TOP,
+    );
+    if (Platform.OS === 'android') {
+      if (data?.code === 4005 || data?.code === 1003) {
+        destroy();
+      }
+    } else {
+      if (data?.code === 2000) {
+        destroy();
+      }
+    }
+  };
+
+  const onAudioDeviceChangedListener = (data: any) => {
+    console.log('data in onAudioDeviceChangedListener: ', data);
+    Toast.showWithGravity(
+      `Audio Device Output changed to ${data?.device}`,
+      Toast.LONG,
+      Toast.TOP,
+    );
+  };
+
+  // functions
+  const updateLocalPeer = async () => {
+    setLocalPeer(await hmsInstance?.getLocalPeer());
+  };
+
+  const updateRoom = async () => {
+    setHmsRoom(await hmsInstance?.getRoom());
+  };
 
   const reportIssue = async () => {
     try {
@@ -244,7 +478,7 @@ const Meeting = () => {
         },
       },
     ];
-    if (!instance?.localPeer?.role?.name?.includes('hls-')) {
+    if (!localPeer?.role?.name?.includes('hls-')) {
       buttons.push({
         text: muteAllTracksAudio
           ? 'Local unmute all audio tracks'
@@ -255,7 +489,7 @@ const Meeting = () => {
         },
       });
     }
-    if (instance?.localPeer?.role?.permissions?.mute) {
+    if (localPeer?.role?.permissions?.mute) {
       buttons.push({
         text: 'Remote mute all audio tracks',
         onPress: async () => {
@@ -266,7 +500,7 @@ const Meeting = () => {
         },
       });
     }
-    if (instance?.localPeer?.role?.permissions?.rtmpStreaming) {
+    if (localPeer?.role?.permissions?.rtmpStreaming) {
       buttons.push(
         ...[
           {
@@ -288,8 +522,8 @@ const Meeting = () => {
       );
     }
     if (
-      instance?.localPeer?.role?.permissions?.mute ||
-      instance?.localPeer?.role?.permissions?.unmute
+      localPeer?.role?.permissions?.mute ||
+      localPeer?.role?.permissions?.unmute
     ) {
       buttons.push({
         text: 'Change Track State For Role',
@@ -313,7 +547,9 @@ const Meeting = () => {
         buttons.push({
           text: 'Set Audio Device Change Listener',
           onPress: () => {
-            instance?.setAudioDeviceChangeListener(onAudioDeviceChanged);
+            instance?.setAudioDeviceChangeListener(
+              onAudioDeviceChangedListener,
+            );
             setAudioDeviceChangeListener(true);
           },
         });
@@ -513,19 +749,15 @@ const Meeting = () => {
   };
 
   const onSwitchCameraPress = () => {
-    instance?.localPeer?.localVideoTrack()?.switchCamera();
+    localPeer?.localVideoTrack()?.switchCamera();
   };
 
   const onMicStatusPress = () => {
-    instance?.localPeer
-      ?.localAudioTrack()
-      ?.setMute(!instance?.localPeer?.audioTrack?.isMute());
+    localPeer?.localAudioTrack()?.setMute(!localPeer?.audioTrack?.isMute());
   };
 
   const onVideoStatusPress = () => {
-    instance?.localPeer
-      ?.localVideoTrack()
-      ?.setMute(!instance?.localPeer?.videoTrack?.isMute());
+    localPeer?.localVideoTrack()?.setMute(!localPeer?.videoTrack?.isMute());
   };
 
   const onStartScreenSharePress = () => {
@@ -561,245 +793,6 @@ const Meeting = () => {
     setModalVisible(ModalTypes.PARTICIPANTS);
   };
 
-  const onRoomListener = ({
-    room,
-    type,
-    localPeer,
-    remotePeers,
-  }: {
-    room?: HMSRoom;
-    type: HMSRoomUpdate;
-    localPeer: HMSLocalPeer;
-    remotePeers: HMSRemotePeer[];
-  }) => {
-    setHmsRoom(room);
-    if (type === HMSRoomUpdate.BROWSER_RECORDING_STATE_UPDATED) {
-      let streaming = room?.browserRecordingState?.running;
-      let hours = room?.browserRecordingState?.startedAt.getHours().toString();
-      let minutes = room?.browserRecordingState?.startedAt
-        .getMinutes()
-        ?.toString();
-
-      let time = hours + ':' + minutes;
-
-      Toast.showWithGravity(
-        `Browser Recording ${streaming ? 'Started At ' + time : 'Stopped'}`,
-        Toast.LONG,
-        Toast.TOP,
-      );
-    } else if (type === HMSRoomUpdate.HLS_STREAMING_STATE_UPDATED) {
-      let streaming = room?.hlsStreamingState?.running;
-      Toast.showWithGravity(
-        `HLS Streaming ${streaming ? 'Started' : 'Stopped'}`,
-        Toast.LONG,
-        Toast.TOP,
-      );
-    } else if (type === HMSRoomUpdate.RTMP_STREAMING_STATE_UPDATED) {
-      let streaming = room?.rtmpHMSRtmpStreamingState?.running;
-      let hours = room?.rtmpHMSRtmpStreamingState?.startedAt
-        .getHours()
-        .toString();
-      let minutes = room?.rtmpHMSRtmpStreamingState?.startedAt
-        .getMinutes()
-        ?.toString();
-
-      let time = hours + ':' + minutes;
-
-      Toast.showWithGravity(
-        `RTMP Streaming ${streaming ? 'Started At ' + time : 'Stopped'}`,
-        Toast.LONG,
-        Toast.TOP,
-      );
-    } else if (type === HMSRoomUpdate.SERVER_RECORDING_STATE_UPDATED) {
-      let streaming = room?.serverRecordingState?.running;
-
-      let hours = room?.serverRecordingState?.startedAt.getHours().toString();
-      let minutes = room?.serverRecordingState?.startedAt
-        .getMinutes()
-        ?.toString();
-
-      let time = hours + ':' + minutes;
-
-      Toast.showWithGravity(
-        `Server Recording ${streaming ? 'Started At ' + time : 'Stopped'}`,
-        Toast.LONG,
-        Toast.TOP,
-      );
-    }
-    console.log('data in onRoomListener: ', type, room, localPeer, remotePeers);
-  };
-
-  const onPeerListener = ({
-    peer,
-    room,
-    type,
-    remotePeers,
-    localPeer,
-  }: {
-    room?: HMSRoom;
-    peer: HMSPeer;
-    type: HMSPeerUpdate;
-    localPeer: HMSLocalPeer;
-    remotePeers: HMSRemotePeer[];
-  }) => {
-    const newPeerTrackNodes = updatePeersTrackNodesOnPeerListener(
-      peerTrackNodesRef?.current,
-      peer,
-      type,
-    );
-    setPeerTrackNodes(newPeerTrackNodes);
-    peerTrackNodesRef.current = newPeerTrackNodes;
-    if (type === HMSPeerUpdate.PEER_LEFT) {
-      Toast.showWithGravity(
-        `Peer Left: ${peer.name} left the Room`,
-        Toast.LONG,
-        Toast.TOP,
-      );
-    } else if (type === HMSPeerUpdate.PEER_JOINED) {
-      Toast.showWithGravity(
-        `Peer Joined: ${peer.name} joined the Room`,
-        Toast.LONG,
-        Toast.TOP,
-      );
-    } else if (type === HMSPeerUpdate.ROLE_CHANGED) {
-      Toast.showWithGravity(
-        `Role Changed: Role of ${peer?.name} changed to ${peer?.role?.name}`,
-        Toast.LONG,
-        Toast.TOP,
-      );
-    }
-    console.log(
-      'data in onPeerListener: ',
-      type,
-      peer,
-      room,
-      localPeer,
-      remotePeers,
-    );
-  };
-
-  const onTrackListener = ({
-    peer,
-    track,
-    room,
-    type,
-    remotePeers,
-    localPeer,
-  }: {
-    room?: HMSRoom;
-    peer: HMSPeer;
-    track: HMSTrack;
-    type: HMSTrackUpdate;
-    localPeer: HMSLocalPeer;
-    remotePeers: HMSRemotePeer[];
-  }) => {
-    const newPeerTrackNodes = updatePeersTrackNodesOnTrackListener(
-      peerTrackNodesRef?.current,
-      track,
-      peer,
-      type,
-    );
-    setPeerTrackNodes(newPeerTrackNodes);
-    peerTrackNodesRef.current = newPeerTrackNodes;
-    if (
-      peer?.isLocal &&
-      track.source === HMSTrackSource.SCREEN &&
-      track.type === HMSTrackType.VIDEO
-    ) {
-      hmsInstance?.isScreenShared().then(d => {
-        setIsScreenShared(d);
-      });
-    }
-    console.log(
-      'data in onTrackListener: ',
-      type,
-      peer,
-      track,
-      room,
-      localPeer,
-      remotePeers,
-    );
-  };
-
-  const onMessage = (data: HMSMessage) => {
-    dispatch(addMessage(data));
-    setNotification(true);
-    console.log('data in onMessage: ', data);
-  };
-
-  const onSpeaker = (data: HMSSpeaker[]) => {
-    setSpeakers(data || []);
-    console.log('data in onSpeaker: ', data);
-  };
-
-  const reconnecting = (data: any) => {
-    console.log('data in reconnecting: ', data);
-    Toast.showWithGravity('Reconnecting...', Toast.SHORT, Toast.TOP);
-  };
-
-  const reconnected = (data: any) => {
-    console.log('data in reconnected: ', data);
-    Toast.showWithGravity('Reconnected', Toast.SHORT, Toast.TOP);
-  };
-
-  const onRoleChangeRequest = (data: HMSRoleChangeRequest) => {
-    console.log('data in onRoleChangeRequest: ', data);
-    setModalVisible(ModalTypes.CHANGE_ROLE_ACCEPT);
-    setRoleChangeRequest({
-      requestedBy: data?.requestedBy?.name,
-      suggestedRole: data?.suggestedRole?.name,
-    });
-  };
-
-  const onChangeTrackStateRequest = (data: HMSChangeTrackStateRequest) => {
-    console.log('data in onChangeTrackStateRequest: ', data);
-    if (!data?.mute) {
-      setModalVisible(ModalTypes.CHANGE_TRACK);
-      setRoleChangeRequest({
-        requestedBy: data?.requestedBy?.name,
-        suggestedRole: data?.trackType,
-      });
-    } else {
-      Toast.showWithGravity(
-        `Track Muted: ${data?.requestedBy?.name} Muted Your ${data?.trackType}`,
-        Toast.LONG,
-        Toast.TOP,
-      );
-    }
-  };
-
-  const onRemovedFromRoom = async (data: any) => {
-    console.log('data in onRemovedFromRoom: ', data);
-    destroy();
-  };
-
-  const onError = (data: HMSException) => {
-    console.log('data in onError: ', data);
-    Toast.showWithGravity(
-      `${data?.code} ${data?.description}` || 'Something went wrong',
-      Toast.LONG,
-      Toast.TOP,
-    );
-    if (Platform.OS === 'android') {
-      if (data?.code === 4005 || data?.code === 1003) {
-        destroy();
-      }
-    } else {
-      if (data?.code === 2000) {
-        destroy();
-      }
-    }
-  };
-
-  const onAudioDeviceChanged = (data: any) => {
-    console.log('data in onAudioDeviceChanged: ', data);
-    Toast.showWithGravity(
-      `Audio Device Output changed to ${data?.device}`,
-      Toast.LONG,
-      Toast.TOP,
-    );
-  };
-
   const updateHmsInstance = (hms: HMSSDK | undefined) => {
     console.log('data in updateHmsInstance: ', hms);
     setInstance(hms);
@@ -816,28 +809,42 @@ const Meeting = () => {
       HMSUpdateListenerActions.ON_TRACK_UPDATE,
       onTrackListener,
     );
-    hms?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
-    hms?.addEventListener(HMSUpdateListenerActions.ON_MESSAGE, onMessage);
-    hms?.addEventListener(HMSUpdateListenerActions.ON_SPEAKER, onSpeaker);
-    hms?.addEventListener(HMSUpdateListenerActions.RECONNECTING, reconnecting);
-    hms?.addEventListener(HMSUpdateListenerActions.RECONNECTED, reconnected);
+    hms?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onErrorListener);
+    hms?.addEventListener(
+      HMSUpdateListenerActions.ON_MESSAGE,
+      onMessageListener,
+    );
+    hms?.addEventListener(
+      HMSUpdateListenerActions.ON_SPEAKER,
+      onSpeakerListener,
+    );
+    hms?.addEventListener(
+      HMSUpdateListenerActions.RECONNECTING,
+      onReconnectingListener,
+    );
+    hms?.addEventListener(
+      HMSUpdateListenerActions.RECONNECTED,
+      onReconnectedListener,
+    );
     hms?.addEventListener(
       HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST,
-      onRoleChangeRequest,
+      onRoleChangeRequestListener,
     );
     hms?.addEventListener(
       HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM,
-      onRemovedFromRoom,
+      onRemovedFromRoomListener,
     );
     hms?.addEventListener(
       HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST,
-      onChangeTrackStateRequest,
+      onChangeTrackStateRequestListener,
     );
   };
 
+  // useEffect hooks
   useEffect(() => {
     updateHmsInstance(hmsInstance);
-    setHmsRoom(hmsInstance?.room);
+    updateLocalPeer();
+    updateRoom();
 
     const callback = () => setOrientation(isPortrait());
     callback();
@@ -904,24 +911,26 @@ const Meeting = () => {
                 <Text style={styles.participantMenuItemName}>Leave Studio</Text>
               </View>
             </MenuItem>
-            <MenuItem
-              onPress={() => {
-                setModalVisible(ModalTypes.DEFAULT);
-                setTimeout(() => {
-                  setModalVisible(ModalTypes.END_ROOM);
-                }, 500);
-              }}>
-              <View style={styles.participantMenuItem}>
-                <Feather
-                  name="alert-triangle"
-                  style={[styles.participantMenuItemIcon, styles.error]}
-                  size={24}
-                />
-                <Text style={[styles.participantMenuItemName, styles.error]}>
-                  End Session
-                </Text>
-              </View>
-            </MenuItem>
+            {localPeer?.role?.permissions?.endRoom && (
+              <MenuItem
+                onPress={() => {
+                  setModalVisible(ModalTypes.DEFAULT);
+                  setTimeout(() => {
+                    setModalVisible(ModalTypes.END_ROOM);
+                  }, 500);
+                }}>
+                <View style={styles.participantMenuItem}>
+                  <Feather
+                    name="alert-triangle"
+                    style={[styles.participantMenuItemIcon, styles.error]}
+                    size={24}
+                  />
+                  <Text style={[styles.participantMenuItemName, styles.error]}>
+                    End Session
+                  </Text>
+                </View>
+              </MenuItem>
+            )}
           </Menu>
           {hmsRoom?.hlsStreamingState?.running ? (
             <View>
@@ -998,9 +1007,7 @@ const Meeting = () => {
               </View>
             }
           />
-          {instance?.localPeer?.role?.publishSettings?.allowed?.includes(
-            'video',
-          ) && (
+          {localPeer?.role?.publishSettings?.allowed?.includes('video') && (
             <CustomButton
               onPress={onSwitchCameraPress}
               viewStyle={styles.iconContainer}
@@ -1016,7 +1023,7 @@ const Meeting = () => {
         </View>
       </View>
       <View style={styles.wrapper}>
-        {instance?.localPeer?.role?.name?.includes('hls-') ? (
+        {localPeer?.role?.name?.includes('hls-') ? (
           hmsRoom?.hlsStreamingState?.running ? (
             hmsRoom?.hlsStreamingState?.variants
               ?.slice(0, 1)
@@ -1099,6 +1106,7 @@ const Meeting = () => {
             speakers={speakers}
             instance={instance}
             setModalVisible={setModalVisible}
+            localPeer={localPeer}
           />
         ) : layout === LayoutParams.MINI ? (
           <MiniView
@@ -1106,6 +1114,7 @@ const Meeting = () => {
             orientation={orientation}
             speakers={speakers}
             instance={instance}
+            permissions={localPeer?.role?.permissions}
           />
         ) : (
           <GridView
@@ -1122,6 +1131,7 @@ const Meeting = () => {
             pinnedPeerTrackIds={pinnedPeerTrackIds}
             setPinnedPeerTrackIds={setPinnedPeerTrackIds}
             setUpdatePeerTrackNode={setUpdatePeerTrackNode}
+            permissions={localPeer?.role?.permissions}
           />
         )}
       </View>
@@ -1131,13 +1141,11 @@ const Meeting = () => {
             onPress={onMicStatusPress}
             viewStyle={[
               styles.iconContainer,
-              instance?.localPeer?.audioTrack?.isMute() && styles.iconMuted,
+              localPeer?.audioTrack?.isMute() && styles.iconMuted,
             ]}
             LeftIcon={
               <Feather
-                name={
-                  instance?.localPeer?.audioTrack?.isMute() ? 'mic-off' : 'mic'
-                }
+                name={localPeer?.audioTrack?.isMute() ? 'mic-off' : 'mic'}
                 style={styles.icon}
                 size={24}
               />
@@ -1147,21 +1155,17 @@ const Meeting = () => {
             onPress={onVideoStatusPress}
             viewStyle={[
               styles.iconContainer,
-              instance?.localPeer?.videoTrack?.isMute() && styles.iconMuted,
+              localPeer?.videoTrack?.isMute() && styles.iconMuted,
             ]}
             LeftIcon={
               <Feather
-                name={
-                  instance?.localPeer?.videoTrack?.isMute()
-                    ? 'video-off'
-                    : 'video'
-                }
+                name={localPeer?.videoTrack?.isMute() ? 'video-off' : 'video'}
                 style={styles.icon}
                 size={24}
               />
             }
           />
-          {instance?.localPeer?.role?.permissions?.hlsStreaming &&
+          {localPeer?.role?.permissions?.hlsStreaming &&
             (hmsRoom?.hlsStreamingState?.running ? (
               <CustomButton
                 onPress={() => setModalVisible(ModalTypes.END_HLS_STREAMING)}
@@ -1211,7 +1215,7 @@ const Meeting = () => {
             }
           />
         </View>
-        {instance?.localPeer?.role?.permissions?.hlsStreaming &&
+        {localPeer?.role?.permissions?.hlsStreaming &&
           (hmsRoom?.hlsStreamingState?.running ? (
             <Text style={styles.liveText}>End stream</Text>
           ) : (
@@ -1227,7 +1231,7 @@ const Meeting = () => {
       <DefaultModal
         modalVisible={modalVisible === ModalTypes.CHAT}
         setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
-        <ChatWindow />
+        <ChatWindow localPeer={localPeer} />
       </DefaultModal>
       <DefaultModal
         modalVisible={modalVisible === ModalTypes.PARTICIPANTS}
@@ -1235,6 +1239,7 @@ const Meeting = () => {
         <ParticipantsModal
           peerTrackNodes={peerTrackNodes}
           instance={instance}
+          localPeer={localPeer}
           setUpdatePeerTrackNode={setUpdatePeerTrackNode}
           setModalVisible={setModalVisible}
           pinnedPeerTrackIds={pinnedPeerTrackIds}
@@ -1244,7 +1249,7 @@ const Meeting = () => {
       <DefaultModal
         modalVisible={modalVisible === ModalTypes.RTC_STATS}
         setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
-        <RtcStatsModal instance={instance} />
+        <RtcStatsModal instance={instance} localPeer={localPeer} />
       </DefaultModal>
       <DefaultModal
         animationType="fade"
@@ -1385,6 +1390,7 @@ const Meeting = () => {
         setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
         <ChangeTrackStateForRoleModal
           instance={instance}
+          localPeer={localPeer}
           cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
         />
       </DefaultModal>
@@ -1395,7 +1401,7 @@ const Meeting = () => {
         modalVisible={modalVisible === ModalTypes.CHANGE_TRACK}
         setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
         <ChangeTrackStateModal
-          instance={instance}
+          localPeer={localPeer}
           roleChangeRequest={roleChangeRequest}
           cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
         />

@@ -1,46 +1,57 @@
 import {
-  HMSAudioCodec,
-  HMSAudioTrack,
   HMSAudioTrackSettings,
   HMSCameraFacing,
   HMSConfig,
   HMSException,
-  HMSLocalPeer,
+  HMSLogAlarmManager,
   HMSLogger,
   HMSLogLevel,
+  HMSLogSettings,
   HMSPeer,
   HMSPeerUpdate,
-  HMSRemotePeer,
   HMSRoom,
   HMSRoomUpdate,
   HMSSDK,
   HMSTrack,
   HMSTrackSettings,
+  HMSTrackSettingsInitState,
   HMSTrackUpdate,
   HMSUpdateListenerActions,
-  HMSVideoCodec,
-  HMSVideoResolution,
-  HMSVideoTrack,
   HMSVideoTrackSettings,
 } from '@100mslive/react-native-hms';
-import { useNavigation } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react';
-import { Alert, Image, KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
-import { getModel } from 'react-native-device-info';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import {useNavigation} from '@react-navigation/native';
+import React, {useEffect, useState} from 'react';
+import {
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
+import {getModel} from 'react-native-device-info';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Toast from 'react-native-simple-toast';
-import { useDispatch, useSelector } from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-import { CustomButton, CustomInput, PreviewModal } from '../../components';
-import { saveUserData, setPeerState } from '../../redux/actions';
+import {
+  CustomButton,
+  CustomInput,
+  PreviewModal,
+  Menu,
+  MenuItem,
+} from '../../components';
+import {saveUserData, setPeerState} from '../../redux/actions';
 import {
   callService,
   updatePeersTrackNodesOnPeerListener,
   updatePeersTrackNodesOnTrackListener,
 } from '../../utils/functions';
-import { COLORS } from '../../utils/theme';
-import { ModalTypes, PeerTrackNode } from '../../utils/types';
-import { styles } from './styles';
+import {COLORS} from '../../utils/theme';
+import {ModalTypes, PeerTrackNode} from '../../utils/types';
+import {styles} from './styles';
 
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import type {AppStackParamList} from '../../navigator';
@@ -51,15 +62,16 @@ type WelcomeScreenProp = NativeStackNavigationProp<
 >;
 
 const Welcome = () => {
-  const navigate = useNavigation<WelcomeScreenProp>().navigate;
+  // hooks
+  const replace = useNavigation<WelcomeScreenProp>().replace;
   const {roomID, userName} = useSelector((state: RootState) => state.user);
   const {top, bottom, left, right} = useSafeAreaInsets();
   const dispatch = useDispatch();
 
+  // useState hook
   const [peerTrackNodes, setPeerTrackNodes] = useState<Array<PeerTrackNode>>(
     [],
   );
-  const peerTrackNodesRef = React.useRef<Array<PeerTrackNode>>(peerTrackNodes);
   const [instance, setInstance] = useState<HMSSDK>();
   const [config, setConfig] = useState<HMSConfig>();
   const [nameDisabled, setNameDisabled] = useState<boolean>(true);
@@ -67,50 +79,69 @@ const Welcome = () => {
   const [previewButtonLoading, setPreviewButtonLoading] =
     useState<boolean>(false);
   const [joinButtonLoading, setJoinButtonLoading] = useState<boolean>(false);
-  const [previewTrackId, setPreviewTrackId] = useState<string>('');
+  const [previewTracks, setPreviewTracks] = useState<HMSTrack[]>();
+  const [hmsRoom, setHmsRoom] = useState<HMSRoom>();
   const [modalType, setModalType] = useState<ModalTypes>(ModalTypes.DEFAULT);
-  const [videoAllowed, setVideoAllowed] = useState<boolean>(false);
-  const [audioAllowed, setAudioAllowed] = useState<boolean>(false);
+  const [forceSoftwareDecoder, setForceSoftwareDecoder] = useState(true);
+  const [disableAutoResize, setDisableAutoResize] = useState(true);
+  const [mirrorLocalVideo, setMirrorLocalVideo] = useState(false);
 
-  const onPreviewSuccess = (data: {
-    localPeer: HMSLocalPeer;
-    room: HMSRoom;
-    previewTracks: {audioTrack: HMSAudioTrack; videoTrack: HMSVideoTrack};
-  }) => {
-    setVideoAllowed(
-      data?.localPeer?.role?.publishSettings?.allowed?.includes('video') ??
-        false,
-    );
-    setAudioAllowed(
-      data?.localPeer?.role?.publishSettings?.allowed?.includes('audio') ??
-        false,
-    );
-    setPreviewTrackId(data?.previewTracks?.videoTrack?.trackId);
-    setPreviewButtonLoading(false);
-    setModalType(ModalTypes.PREVIEW);
+  // useRef hook
+  const peerTrackNodesRef = React.useRef<Array<PeerTrackNode>>(peerTrackNodes);
+
+  // listeners
+  const onPreviewSuccess = (
+    hmsInstance: HMSSDK,
+    hmsConfig: HMSConfig,
+    data: {
+      room: HMSRoom;
+      previewTracks: HMSTrack[];
+    },
+  ) => {
+    setHmsRoom(data.room);
+    setPreviewTracks(data?.previewTracks);
+    if (data?.previewTracks?.length > 0) {
+      setModalType(ModalTypes.PREVIEW);
+    } else {
+      if (hmsConfig) {
+        hmsInstance?.join(hmsConfig);
+      } else {
+        setPreviewButtonLoading(false);
+        setJoinButtonLoading(false);
+        console.log('config: ', hmsConfig);
+      }
+    }
   };
 
-  const onJoinListener = ({
-    localPeer,
-  }: {
-    room: HMSRoom;
-    localPeer: HMSLocalPeer;
-    remotePeers: Array<HMSRemotePeer>;
-  }) => {
-    const newPeerTrackNodes = updatePeersTrackNodesOnPeerListener(
-      peerTrackNodesRef?.current,
-      localPeer,
-      HMSPeerUpdate.PEER_JOINED,
-    );
-    dispatch(setPeerState({peerState: newPeerTrackNodes}));
-    peerTrackNodesRef.current = [];
+  const onJoinSuccess = async (
+    hmsInstance: HMSSDK,
+    data: {
+      room: HMSRoom;
+    },
+  ) => {
+    await hmsInstance?.getLocalPeer().then(localPeer => {
+      const newPeerTrackNodes = updatePeersTrackNodesOnPeerListener(
+        peerTrackNodesRef?.current,
+        localPeer,
+        HMSPeerUpdate.PEER_JOINED,
+      );
+      dispatch(setPeerState({peerState: newPeerTrackNodes}));
+    });
+    hmsInstance?.getRoles().then(roles => {
+      dispatch(
+        saveUserData({
+          roles,
+        }),
+      );
+    });
+    setHmsRoom(data.room);
     setJoinButtonLoading(false);
+    setPreviewButtonLoading(false);
     setModalType(ModalTypes.DEFAULT);
-    navigate('MeetingScreen');
+    replace('MeetingScreen');
   };
 
   const onError = (data: HMSException) => {
-    console.log('data in onError: ', data);
     setPreviewButtonLoading(false);
     setJoinButtonLoading(false);
     Toast.showWithGravity(
@@ -120,84 +151,36 @@ const Welcome = () => {
     );
   };
 
-  const onRoomListener = ({
-    room,
-    type,
-    localPeer,
-    remotePeers,
-  }: {
-    room?: HMSRoom;
-    type: HMSRoomUpdate;
-    localPeer: HMSLocalPeer;
-    remotePeers: HMSRemotePeer[];
-  }) => {
-    console.log('data in onRoomListener: ', type, room, localPeer, remotePeers);
+  const onRoomListener = (data: {room: HMSRoom; type: HMSRoomUpdate}) => {
+    setHmsRoom(data.room);
   };
 
-  const onPeerListener = ({
-    peer,
-    room,
-    type,
-    remotePeers,
-    localPeer,
-  }: {
-    room?: HMSRoom;
-    peer: HMSPeer;
-    type: HMSPeerUpdate;
-    localPeer: HMSLocalPeer;
-    remotePeers: HMSRemotePeer[];
-  }) => {
-    console.log(
-      'data in onPeerListener: ',
-      type,
-      peer,
-      room,
-      localPeer,
-      remotePeers,
-    );
+  const onPeerListener = (data: {peer: HMSPeer; type: HMSPeerUpdate}) => {
     const newPeerTrackNodes = updatePeersTrackNodesOnPeerListener(
       peerTrackNodesRef?.current,
-      peer,
-      type,
+      data.peer,
+      data.type,
     );
     peerTrackNodesRef.current = newPeerTrackNodes;
     setPeerTrackNodes(newPeerTrackNodes);
   };
 
-  const onTrackListener = ({
-    peer,
-    track,
-    room,
-    type,
-    remotePeers,
-    localPeer,
-  }: {
-    room?: HMSRoom;
+  const onTrackListener = (data: {
     peer: HMSPeer;
     track: HMSTrack;
     type: HMSTrackUpdate;
-    localPeer: HMSLocalPeer;
-    remotePeers: HMSRemotePeer[];
   }) => {
-    console.log(
-      'data in onTrackListener: ',
-      type,
-      peer,
-      track,
-      room,
-      localPeer,
-      remotePeers,
-    );
     const newPeerTrackNodes = updatePeersTrackNodesOnTrackListener(
       peerTrackNodesRef?.current,
-      track,
-      peer,
-      type,
+      data.track,
+      data.peer,
+      data.type,
     );
     peerTrackNodesRef.current = newPeerTrackNodes;
     setPeerTrackNodes(newPeerTrackNodes);
   };
 
+  // functions
   const onPreview = async (
     token: string,
     userID: string,
@@ -226,12 +209,12 @@ const Welcome = () => {
 
     hmsInstance?.addEventListener(
       HMSUpdateListenerActions.ON_PREVIEW,
-      onPreviewSuccess,
+      onPreviewSuccess.bind(this, hmsInstance, hmsConfig),
     );
 
     hmsInstance?.addEventListener(
       HMSUpdateListenerActions.ON_JOIN,
-      onJoinListener,
+      onJoinSuccess.bind(this, hmsInstance),
     );
 
     hmsInstance?.addEventListener(
@@ -256,6 +239,7 @@ const Welcome = () => {
         userName: userID,
         roomCode,
         hmsInstance,
+        mirrorLocalVideo,
       }),
     );
 
@@ -272,26 +256,6 @@ const Welcome = () => {
   };
 
   const getTrackSettings = () => {
-    let audioSettings = new HMSAudioTrackSettings({
-      codec: HMSAudioCodec.opus,
-      maxBitrate: 32,
-      trackDescription: 'Simple Audio Track',
-      audioSource: [
-        'mic_node',
-        'screen_broadcast_audio_receiver_node',
-        'audio_file_player_node',
-      ],
-    });
-
-    let videoSettings = new HMSVideoTrackSettings({
-      codec: HMSVideoCodec.VP8,
-      maxBitrate: 512,
-      maxFrameRate: 25,
-      cameraFacing: HMSCameraFacing.FRONT,
-      trackDescription: 'Simple Video Track',
-      resolution: new HMSVideoResolution({height: 180, width: 320}),
-    });
-
     const listOfFaultyDevices = [
       'Pixel',
       'Pixel XL',
@@ -308,12 +272,36 @@ const Welcome = () => {
     ];
     const deviceModal = getModel();
 
-    return new HMSTrackSettings({
-      video: videoSettings,
-      audio: audioSettings,
+    let audioSettings = new HMSAudioTrackSettings({
+      initialState: HMSTrackSettingsInitState.MUTED,
       useHardwareEchoCancellation: listOfFaultyDevices.includes(deviceModal)
         ? true
         : false,
+      audioSource: [
+        'mic_node',
+        'screen_broadcast_audio_receiver_node',
+        'audio_file_player_node',
+      ],
+    });
+
+    let videoSettings = new HMSVideoTrackSettings({
+      initialState: HMSTrackSettingsInitState.MUTED,
+      cameraFacing: HMSCameraFacing.FRONT,
+      disableAutoResize,
+      forceSoftwareDecoder,
+    });
+
+    return new HMSTrackSettings({
+      video: videoSettings,
+      audio: audioSettings,
+    });
+  };
+
+  const getLogSettings = (): HMSLogSettings => {
+    return new HMSLogSettings({
+      level: HMSLogLevel.VERBOSE,
+      isLogStorageEnabled: true,
+      maxDirSizeInBytes: HMSLogAlarmManager.DEFAULT_DIR_SIZE,
     });
   };
 
@@ -323,7 +311,6 @@ const Welcome = () => {
    * @returns
    */
   const getHmsInstance = async (): Promise<HMSSDK> => {
-
     /**
      * Only required for advanced use-case features like iOS Screen/Audio Share, Android Software Echo Cancellation, etc
      * NOT required for any other features.
@@ -351,10 +338,13 @@ const Welcome = () => {
      *  preferredExtension: 'RHHMSExampleBroadcastUpload', // required for iOS Screenshare, not required for Android
      * });
      */
+
+    const logSettings = getLogSettings();
     const hmsInstance = await HMSSDK.build({
+      logSettings,
       trackSettings,
       appGroup: 'group.reactnativehms',
-      preferredExtension: 'RHHMSExampleBroadcastUpload',
+      preferredExtension: 'live.100ms.reactnative.RNHMSExampleBroadcastUpload',
     });
     const logger = new HMSLogger();
     logger.updateLogLevel(HMSLogLevel.VERBOSE, true);
@@ -379,6 +369,7 @@ const Welcome = () => {
     Alert.alert('Error', error || 'Something went wrong');
   };
 
+  // useEffect hook
   useEffect(() => {
     setNameDisabled(!validateName(peerName));
     return () => {
@@ -386,11 +377,21 @@ const Welcome = () => {
     };
   }, [peerName]);
 
-  return modalType === ModalTypes.PREVIEW && previewTrackId ? (
+  useEffect(() => {
+    return () => {
+      instance?.removeEventListener(HMSUpdateListenerActions.ON_PREVIEW);
+      instance?.removeEventListener(HMSUpdateListenerActions.ON_JOIN);
+      instance?.removeEventListener(HMSUpdateListenerActions.ON_ROOM_UPDATE);
+      instance?.removeEventListener(HMSUpdateListenerActions.ON_PEER_UPDATE);
+      instance?.removeEventListener(HMSUpdateListenerActions.ON_TRACK_UPDATE);
+      instance?.removeEventListener(HMSUpdateListenerActions.ON_ERROR);
+    };
+  }, [instance]);
+
+  return modalType === ModalTypes.PREVIEW && previewTracks ? (
     <PreviewModal
-      videoAllowed={videoAllowed}
-      audioAllowed={audioAllowed}
-      trackId={previewTrackId}
+      room={hmsRoom}
+      previewTracks={previewTracks}
       join={onJoinRoom}
       setLoadingButtonState={setJoinButtonLoading}
       loadingButtonState={joinButtonLoading}
@@ -400,6 +401,73 @@ const Welcome = () => {
       enabled={Platform.OS === 'ios'}
       behavior="padding"
       style={styles.container}>
+      <View style={[styles.settingsContainer, {marginTop: top}]}>
+        <Menu
+          visible={modalType === ModalTypes.WELCOME_SETTINGS}
+          onRequestClose={() => setModalType(ModalTypes.DEFAULT)}
+          style={styles.settingsMenuContainer}>
+          <MenuItem
+            onPress={() => {
+              setModalType(ModalTypes.DEFAULT);
+              setMirrorLocalVideo(!mirrorLocalVideo);
+            }}>
+            {mirrorLocalVideo ? (
+              <Text style={styles.settingsMenuItemName}>
+                Don't mirror local video
+              </Text>
+            ) : (
+              <Text style={styles.settingsMenuItemName}>
+                Mirror local video
+              </Text>
+            )}
+          </MenuItem>
+          {Platform.OS === 'android' && (
+            <MenuItem
+              onPress={() => {
+                setModalType(ModalTypes.DEFAULT);
+                setForceSoftwareDecoder(!forceSoftwareDecoder);
+              }}>
+              {forceSoftwareDecoder ? (
+                <Text style={styles.settingsMenuItemName}>
+                  Disable software decoder
+                </Text>
+              ) : (
+                <Text style={styles.settingsMenuItemName}>
+                  Enable software decoder
+                </Text>
+              )}
+            </MenuItem>
+          )}
+          {Platform.OS === 'android' && (
+            <MenuItem
+              onPress={() => {
+                setModalType(ModalTypes.DEFAULT);
+                setDisableAutoResize(!disableAutoResize);
+              }}>
+              {disableAutoResize ? (
+                <Text style={styles.settingsMenuItemName}>
+                  Enable auto resize
+                </Text>
+              ) : (
+                <Text style={styles.settingsMenuItemName}>
+                  Disable auto resize
+                </Text>
+              )}
+            </MenuItem>
+          )}
+        </Menu>
+        <CustomButton
+          onPress={() => setModalType(ModalTypes.WELCOME_SETTINGS)}
+          viewStyle={styles.settingsButton}
+          LeftIcon={
+            <MaterialCommunityIcons
+              name="dots-vertical"
+              style={styles.settingsIcon}
+              size={24}
+            />
+          }
+        />
+      </View>
       <ScrollView
         contentContainerStyle={[
           styles.contentContainerStyle,
