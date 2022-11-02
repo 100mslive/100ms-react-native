@@ -2,7 +2,7 @@ import React, {useState, useEffect, useRef} from 'react';
 import {
   View,
   StyleSheet,
-  ScrollView,
+  FlatList,
   TouchableOpacity,
   Text,
   Platform,
@@ -155,7 +155,7 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
   const {messages} = useSelector((state: RootState) => state.messages);
   const dispatch = useDispatch();
   const {bottom} = useSafeAreaInsets();
-  const scollviewRef = useRef<ScrollView>(null);
+  const scollviewRef = useRef<FlatList>(null);
 
   // useState hook
   const [filter, setFilter] = useState<string>('everyone');
@@ -247,11 +247,14 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
             />
           </View>
         )}
-        <ScrollView
+        <FlatList
           ref={scollviewRef}
-          style={styles.contentContainer}
-          keyboardShouldPersistTaps="always">
-          {messages.map((data: HMSMessage) => {
+          data={messages}
+          initialNumToRender={2}
+          maxToRenderPerBatch={3}
+          keyboardShouldPersistTaps="always"
+          renderItem={({item, index}: {item: HMSMessage; index: number}) => {
+            const data = item;
             const isLocal = data.sender?.isLocal;
             return (
               <View
@@ -264,7 +267,7 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
                     styles.privateMessageBubble,
                   isLocal && styles.sendMessageBubble,
                 ]}
-                key={Math.random()}>
+                key={index}>
                 <View style={styles.headingContainer}>
                   <View style={styles.headingLeftContainer}>
                     <Text style={styles.senderName}>
@@ -300,8 +303,9 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
                 <Text style={styles.messageText}>{data.message}</Text>
               </View>
             );
-          })}
-        </ScrollView>
+          }}
+          keyExtractor={(item, index) => item.message + index}
+        />
       </View>
       <View
         style={bottom === 0 ? styles.inputContainer : {marginBottom: bottom}}>
