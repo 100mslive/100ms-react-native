@@ -288,7 +288,7 @@ PODS:
     - React-Core
   - react-native-document-picker (8.1.2):
     - React-Core
-  - react-native-hms (0.9.95):
+  - react-native-hms (1.0.0):
     - HMSBroadcastExtensionSDK (= 0.0.4)
     - HMSSDK (= 0.4.6)
     - React-Core
@@ -613,7 +613,7 @@ SPEC CHECKSUMS:
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
   react-native-cameraroll: 38b40d9033e4077b6c603f92f95c6d05fa7907df
   react-native-document-picker: f5ec1a712ca2a975c233117f044817bb8393cad4
-  react-native-hms: 6e2346b702a59770381f53656e82dfc452d0d0d8
+  react-native-hms: 16f2a7a0bc8ee2a1367f81308548e089973c42a0
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
   react-native-simple-toast: 8ee5d23f0b92b935ab7434cdb65159ce12dfb4b7
   react-native-video: c26780b224543c62d5e1b2a7244a5cd1b50e8253
