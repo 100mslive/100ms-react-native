@@ -360,6 +360,102 @@ export const getRoomIdDetails = (
   };
 };
 
+export const getPeerNodes = (
+  peerTrackNodes: PeerTrackNode[],
+  peerID: string,
+): PeerTrackNode[] => {
+  const nodes: PeerTrackNode[] = [];
+  peerTrackNodes?.map(peerTrackNode => {
+    if (peerTrackNode.peer.peerID === peerID) {
+      nodes.push(peerTrackNode);
+    }
+  });
+  return nodes;
+};
+
+export const getPeerTrackNodes = (
+  peerTrackNodes: PeerTrackNode[],
+  peer: HMSPeer,
+  track: HMSTrack,
+): PeerTrackNode[] => {
+  const uniqueId =
+    peer.peerID +
+    (track.source === undefined ? HMSTrackSource.REGULAR : track.source);
+  const nodes: PeerTrackNode[] = [];
+  peerTrackNodes?.map(peerTrackNode => {
+    if (peerTrackNode.id === uniqueId) {
+      nodes.push(peerTrackNode);
+    }
+  });
+  return nodes;
+};
+
+export const updatePeerTrackNodes = (
+  peerTrackNodes: PeerTrackNode[],
+  peer: HMSPeer,
+  track: HMSTrack,
+): PeerTrackNode[] => {
+  const uniqueId =
+    peer.peerID +
+    (track.source === undefined ? HMSTrackSource.REGULAR : track.source);
+  return peerTrackNodes?.map(peerTrackNode => {
+    if (peerTrackNode.id === uniqueId) {
+      return {
+        ...peerTrackNode,
+        peer,
+        track,
+      };
+    }
+    return peerTrackNode;
+  });
+};
+
+export const updatePeerNodes = (
+  peerTrackNodes: PeerTrackNode[],
+  peer: HMSPeer,
+): PeerTrackNode[] => {
+  return peerTrackNodes?.map(peerTrackNode => {
+    if (peerTrackNode.peer.peerID === peer.peerID) {
+      return {
+        ...peerTrackNode,
+        peer,
+      };
+    }
+    return peerTrackNode;
+  });
+};
+
+export const createPeerTrackNode = (
+  peer: HMSPeer,
+  track?: HMSTrack,
+): PeerTrackNode => {
+  const videoTrack = track ? track : peer.videoTrack;
+  return {
+    id:
+      peer.peerID +
+      (videoTrack?.source === undefined
+        ? HMSTrackSource.REGULAR
+        : videoTrack.source),
+    peer: peer,
+    track: videoTrack,
+  };
+};
+
+export const replacePeerTrackNodes = (
+  latestPeerTrackNodes: PeerTrackNode[],
+  updatedPeerTrackNodes: PeerTrackNode[],
+): PeerTrackNode[] => {
+  updatedPeerTrackNodes.map(updatedPeerTrackNode => {
+    latestPeerTrackNodes.map(latestPeerTrackNode => {
+      if (latestPeerTrackNode.id === updatedPeerTrackNode.id) {
+        return updatedPeerTrackNode;
+      }
+      return latestPeerTrackNode;
+    });
+  });
+  return latestPeerTrackNodes;
+};
+
 export const updatePeersTrackNodesOnPeerListener = (
   peerTrackNodes: PeerTrackNode[],
   peer: HMSPeer,
@@ -375,7 +471,7 @@ export const updatePeersTrackNodesOnPeerListener = (
     });
   } else {
     let alreadyPresent = false;
-    const updatePeerTrackNodes = oldPeerTrackNodes?.map(peerTrackNode => {
+    const updatedPeerTrackNodes = oldPeerTrackNodes?.map(peerTrackNode => {
       if (peerTrackNode.peer.peerID === peer.peerID) {
         alreadyPresent = true;
         return {
@@ -386,7 +482,7 @@ export const updatePeersTrackNodesOnPeerListener = (
       return peerTrackNode;
     });
     if (alreadyPresent || !peer?.isLocal) {
-      return updatePeerTrackNodes;
+      return updatedPeerTrackNodes;
     } else {
       let newPeerTrackNode: PeerTrackNode;
       newPeerTrackNode = {
@@ -395,10 +491,10 @@ export const updatePeersTrackNodesOnPeerListener = (
         track: peer?.videoTrack,
       };
       if (peer?.isLocal) {
-        return [newPeerTrackNode, ...updatePeerTrackNodes];
+        return [newPeerTrackNode, ...updatedPeerTrackNodes];
       }
-      updatePeerTrackNodes.push(newPeerTrackNode);
-      return updatePeerTrackNodes;
+      updatedPeerTrackNodes.push(newPeerTrackNode);
+      return updatedPeerTrackNodes;
     }
   }
 };
@@ -430,7 +526,7 @@ export const updatePeersTrackNodesOnTrackListener = (
     return oldPeerTrackNodes;
   } else {
     let alreadyPresent = false;
-    const updatePeerTrackNodes = oldPeerTrackNodes?.map(peerTrackNode => {
+    const updatedPeerTrackNodes = oldPeerTrackNodes?.map(peerTrackNode => {
       if (peerTrackNode.id === uniqueId) {
         alreadyPresent = true;
         if (isVideo) {
@@ -449,7 +545,7 @@ export const updatePeersTrackNodesOnTrackListener = (
       return peerTrackNode;
     });
     if (alreadyPresent) {
-      return updatePeerTrackNodes;
+      return updatedPeerTrackNodes;
     } else {
       let newPeerTrackNode: PeerTrackNode;
       if (isVideo) {
@@ -465,10 +561,10 @@ export const updatePeersTrackNodesOnTrackListener = (
         };
       }
       if (peer?.isLocal) {
-        return [newPeerTrackNode, ...updatePeerTrackNodes];
+        return [newPeerTrackNode, ...updatedPeerTrackNodes];
       }
-      updatePeerTrackNodes.push(newPeerTrackNode);
-      return updatePeerTrackNodes;
+      updatedPeerTrackNodes.push(newPeerTrackNode);
+      return updatedPeerTrackNodes;
     }
   }
 };

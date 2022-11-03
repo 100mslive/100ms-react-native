@@ -13,6 +13,8 @@ import {
   HMSRoomUpdate,
   HMSSDK,
   HMSTrack,
+  HMSTrackSource,
+  HMSTrackType,
   HMSTrackUpdate,
   HMSUpdateListenerActions,
 } from '@100mslive/react-native-hms';
@@ -38,11 +40,15 @@ import {
 } from '../../components';
 import {LayoutParams, ModalTypes, PeerTrackNode} from '../../utils/types';
 import {
+  createPeerTrackNode,
+  getPeerNodes,
+  getPeerTrackNodes,
   isPortrait,
   pairData,
   parseMetadata,
-  updatePeersTrackNodesOnPeerListener,
-  updatePeersTrackNodesOnTrackListener,
+  replacePeerTrackNodes,
+  updatePeerNodes,
+  updatePeerTrackNodes,
 } from '../../utils/functions';
 import {
   ChangeAudioMixingModeModal,
@@ -256,38 +262,79 @@ const DisplayView = (data: {
     peer: HMSPeer;
     type: HMSPeerUpdate;
   }) => {
-    const newPeerTrackNodes = updatePeersTrackNodesOnPeerListener(
-      peerTrackNodesRef?.current,
-      peer,
-      type,
-    );
-    setPeerTrackNodes(newPeerTrackNodes);
-    peerTrackNodesRef.current = newPeerTrackNodes;
-    if (peer?.isLocal) {
+    if (type === HMSPeerUpdate.PEER_LEFT) {
+      removePeerTrackNodes(peer);
+      return;
+    }
+    if (type === HMSPeerUpdate.ROLE_CHANGED) {
+      if (
+        peer.role?.publishSettings?.allowed === undefined ||
+        (peer.role?.publishSettings?.allowed &&
+          peer.role?.publishSettings?.allowed.length < 1)
+      ) {
+        removePeerTrackNodes(peer);
+        return;
+      }
+    }
+    if (peer.isLocal) {
+      const nodesPresent = getPeerNodes(
+        peerTrackNodesRef?.current,
+        peer.peerID,
+      );
+      if (nodesPresent.length === 0) {
+        const newPeerTrackNode = createPeerTrackNode(peer);
+        const newPeerTrackNodes = [
+          newPeerTrackNode,
+          ...peerTrackNodesRef.current,
+        ];
+        peerTrackNodesRef.current = newPeerTrackNodes;
+        setPeerTrackNodes(newPeerTrackNodes);
+      } else {
+        changePeerNodes(nodesPresent, peer);
+      }
       hmsInstance?.getLocalPeer().then(localPeer => {
         data?.setLocalPeer(localPeer);
       });
+      return;
     }
-
-    if (type === HMSPeerUpdate.PEER_LEFT) {
-      Toast.showWithGravity(
-        `Peer Left: ${peer.name} left the Room`,
-        Toast.LONG,
-        Toast.TOP,
+    if (type !== HMSPeerUpdate.PEER_JOINED) {
+      const nodesPresent = getPeerNodes(
+        peerTrackNodesRef?.current,
+        peer.peerID,
       );
-    } else if (type === HMSPeerUpdate.PEER_JOINED) {
-      Toast.showWithGravity(
-        `Peer Joined: ${peer.name} joined the Room`,
-        Toast.LONG,
-        Toast.TOP,
-      );
-    } else if (type === HMSPeerUpdate.ROLE_CHANGED) {
-      Toast.showWithGravity(
-        `Role Changed: Role of ${peer?.name} changed to ${peer?.role?.name}`,
-        Toast.LONG,
-        Toast.TOP,
-      );
+      if (nodesPresent.length) {
+        changePeerNodes(nodesPresent, peer);
+      }
     }
+    // switch (type) {
+    //   case HMSPeerUpdate.PEER_LEFT:
+    //     Toast.showWithGravity(
+    //       `${peer.name} left the room.`,
+    //       Toast.SHORT,
+    //       Toast.TOP,
+    //     );
+    //     break;
+    //   case HMSPeerUpdate.PEER_JOINED:
+    //     Toast.showWithGravity(
+    //       `${peer.name} joined the room.`,
+    //       Toast.SHORT,
+    //       Toast.TOP,
+    //     );
+    //     break;
+    //   case HMSPeerUpdate.ROLE_CHANGED:
+    //     Toast.showWithGravity(
+    //       `${peer?.name}'s role is changed to ${peer?.role?.name}`,
+    //       Toast.SHORT,
+    //       Toast.TOP,
+    //     );
+    //     break;
+    //   // case HMSPeerUpdate.NAME_CHANGED:
+    //   //   break;
+    //   // case HMSPeerUpdate.METADATA_CHANGED:
+    //   //   break;
+    //   // case HMSPeerUpdate.NETWORK_QUALITY_UPDATED:
+    //   //   break;
+    // }
   };
 
   const onTrackListener = ({
@@ -299,19 +346,62 @@ const DisplayView = (data: {
     track: HMSTrack;
     type: HMSTrackUpdate;
   }) => {
-    const newPeerTrackNodes = updatePeersTrackNodesOnTrackListener(
+    const nodesPresent = getPeerTrackNodes(
       peerTrackNodesRef?.current,
-      track,
       peer,
-      type,
+      track,
     );
-    setPeerTrackNodes(newPeerTrackNodes);
-    peerTrackNodesRef.current = newPeerTrackNodes;
-    if (peer?.isLocal) {
-      hmsInstance?.getLocalPeer().then(localPeer => {
-        data?.setLocalPeer(localPeer);
-      });
+    if (type === HMSTrackUpdate.TRACK_ADDED) {
+      if (nodesPresent.length === 0) {
+        if (track.type === HMSTrackType.VIDEO) {
+          const newPeerTrackNode = createPeerTrackNode(peer, track);
+          const newPeerTrackNodes = [
+            ...peerTrackNodesRef.current,
+            newPeerTrackNode,
+          ];
+          peerTrackNodesRef.current = newPeerTrackNodes;
+          setPeerTrackNodes(newPeerTrackNodes);
+        }
+      } else {
+        changePeerTrackNodes(nodesPresent, peer, track);
+      }
+    } else if (type === HMSTrackUpdate.TRACK_REMOVED) {
+      if (
+        track.source !== HMSTrackSource.REGULAR ||
+        (peer.audioTrack?.trackId === undefined &&
+          peer.videoTrack?.trackId === undefined)
+      ) {
+        const uniqueId =
+          peer.peerID +
+          (track.source === undefined ? HMSTrackSource.REGULAR : track.source);
+        const newPeerTrackNodes = peerTrackNodesRef.current?.filter(
+          peerTrackNode => {
+            if (peerTrackNode.id === uniqueId) {
+              return false;
+            }
+            return true;
+          },
+        );
+        peerTrackNodesRef.current = newPeerTrackNodes;
+        setPeerTrackNodes(newPeerTrackNodes);
+      }
+    } else if (
+      type === HMSTrackUpdate.TRACK_MUTED ||
+      type === HMSTrackUpdate.TRACK_UNMUTED
+    ) {
+      changePeerTrackNodes(nodesPresent, peer, track);
+    } else if (
+      type === HMSTrackUpdate.TRACK_RESTORED ||
+      type === HMSTrackUpdate.TRACK_DEGRADED
+    ) {
+      changePeerTrackNodes(nodesPresent, peer, track);
     }
+    // presesnt or not
+    // if not present && type is added then create and set state for peertracknodes
+    // if present && type is added then update and set state for peertracknodes
+    // if type is removed and present then check for track source(regular/screen) not regular then set state for peertracknodes
+    // if MUTED OR UNMUTED type and then set state for peertracknodes
+    // if DEGRADED OR RESTORED update isDegraded boolean type and then set state for peertracknodes
   };
 
   const onChangeTrackStateRequestListener = (
@@ -397,6 +487,47 @@ const DisplayView = (data: {
       HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST,
       onChangeTrackStateRequestListener,
     );
+  };
+
+  const changePeerTrackNodes = (
+    nodesPresent: PeerTrackNode[],
+    peer: HMSPeer,
+    track: HMSTrack,
+  ) => {
+    const updatedPeerTrackNodes = updatePeerTrackNodes(
+      nodesPresent,
+      peer,
+      track,
+    );
+    const newPeerTrackNodes = replacePeerTrackNodes(
+      peerTrackNodesRef?.current,
+      updatedPeerTrackNodes,
+    );
+    peerTrackNodesRef.current = newPeerTrackNodes;
+    setPeerTrackNodes(newPeerTrackNodes);
+  };
+
+  const changePeerNodes = (nodesPresent: PeerTrackNode[], peer: HMSPeer) => {
+    const updatedPeerTrackNodes = updatePeerNodes(nodesPresent, peer);
+    const newPeerTrackNodes = replacePeerTrackNodes(
+      peerTrackNodesRef?.current,
+      updatedPeerTrackNodes,
+    );
+    peerTrackNodesRef.current = newPeerTrackNodes;
+    setPeerTrackNodes(newPeerTrackNodes);
+  };
+
+  const removePeerTrackNodes = (peer: HMSPeer) => {
+    const newPeerTrackNodes = peerTrackNodesRef?.current?.filter(
+      peerTrackNode => {
+        if (peerTrackNode.peer.peerID === peer.peerID) {
+          return false;
+        }
+        return true;
+      },
+    );
+    setPeerTrackNodes(newPeerTrackNodes);
+    peerTrackNodesRef.current = newPeerTrackNodes;
   };
 
   const destroy = async () => {
