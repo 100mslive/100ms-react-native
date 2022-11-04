@@ -90,6 +90,12 @@ const Meeting = () => {
   // useState hook
   const [room, setRoom] = useState<HMSRoom>();
   const [localPeer, setLocalPeer] = useState<HMSLocalPeer>();
+  const [isAudioMute, setIsAudioMute] = useState<boolean | undefined>(
+    localPeer?.audioTrack?.isMute(),
+  );
+  const [isVideoMute, setIsVideoMute] = useState<boolean | undefined>(
+    localPeer?.videoTrack?.isMute(),
+  );
   const [modalVisible, setModalVisible] = useState<ModalTypes>(
     ModalTypes.DEFAULT,
   );
@@ -105,6 +111,11 @@ const Meeting = () => {
       setRoom(hmsRoom);
     });
   };
+
+  useEffect(() => {
+    setIsVideoMute(localPeer?.videoTrack?.isMute());
+    setIsAudioMute(localPeer?.audioTrack?.isMute());
+  }, [localPeer]);
 
   useEffect(() => {
     updateLocalPeer();
@@ -127,6 +138,8 @@ const Meeting = () => {
         setModalVisible={setModalVisible}
         setRoom={setRoom}
         setLocalPeer={setLocalPeer}
+        setIsAudioMute={setIsAudioMute}
+        setIsVideoMute={setIsVideoMute}
       />
       <Footer
         isHlsStreaming={room?.hlsStreamingState?.running}
@@ -135,7 +148,11 @@ const Meeting = () => {
         isRtmpStreaming={room?.rtmpHMSRtmpStreamingState?.running}
         localPeer={localPeer}
         modalVisible={modalVisible}
+        isAudioMute={isAudioMute}
+        isVideoMute={isVideoMute}
         setModalVisible={setModalVisible}
+        setIsAudioMute={setIsAudioMute}
+        setIsVideoMute={setIsVideoMute}
       />
     </SafeAreaView>
   );
@@ -148,6 +165,8 @@ const DisplayView = (data: {
   setModalVisible: React.Dispatch<React.SetStateAction<ModalTypes>>;
   setRoom: React.Dispatch<React.SetStateAction<HMSRoom | undefined>>;
   setLocalPeer: React.Dispatch<React.SetStateAction<HMSLocalPeer | undefined>>;
+  setIsAudioMute: React.Dispatch<React.SetStateAction<boolean | undefined>>;
+  setIsVideoMute: React.Dispatch<React.SetStateAction<boolean | undefined>>;
 }) => {
   // hooks
   const {hmsInstance} = useSelector((state: RootState) => state.user);
@@ -262,19 +281,12 @@ const DisplayView = (data: {
     peer: HMSPeer;
     type: HMSPeerUpdate;
   }) => {
+    if (type === HMSPeerUpdate.PEER_JOINED) {
+      return;
+    }
     if (type === HMSPeerUpdate.PEER_LEFT) {
       removePeerTrackNodes(peer);
       return;
-    }
-    if (type === HMSPeerUpdate.ROLE_CHANGED) {
-      if (
-        peer.role?.publishSettings?.allowed === undefined ||
-        (peer.role?.publishSettings?.allowed &&
-          peer.role?.publishSettings?.allowed.length < 1)
-      ) {
-        removePeerTrackNodes(peer);
-        return;
-      }
     }
     if (peer.isLocal) {
       const nodesPresent = getPeerNodes(
@@ -297,7 +309,21 @@ const DisplayView = (data: {
       });
       return;
     }
-    if (type !== HMSPeerUpdate.PEER_JOINED) {
+    if (type === HMSPeerUpdate.ROLE_CHANGED) {
+      if (
+        peer.role?.publishSettings?.allowed === undefined ||
+        (peer.role?.publishSettings?.allowed &&
+          peer.role?.publishSettings?.allowed.length < 1)
+      ) {
+        removePeerTrackNodes(peer);
+      }
+      return;
+    }
+    if (
+      type === HMSPeerUpdate.METADATA_CHANGED ||
+      type === HMSPeerUpdate.NAME_CHANGED ||
+      type === HMSPeerUpdate.NETWORK_QUALITY_UPDATED
+    ) {
       const nodesPresent = getPeerNodes(
         peerTrackNodesRef?.current,
         peer.peerID,
@@ -305,6 +331,7 @@ const DisplayView = (data: {
       if (nodesPresent.length) {
         changePeerNodes(nodesPresent, peer);
       }
+      return;
     }
     // switch (type) {
     //   case HMSPeerUpdate.PEER_LEFT:
@@ -346,26 +373,26 @@ const DisplayView = (data: {
     track: HMSTrack;
     type: HMSTrackUpdate;
   }) => {
-    const nodesPresent = getPeerTrackNodes(
-      peerTrackNodesRef?.current,
-      peer,
-      track,
-    );
     if (type === HMSTrackUpdate.TRACK_ADDED) {
+      const nodesPresent = getPeerTrackNodes(
+        peerTrackNodesRef?.current,
+        peer,
+        track,
+      );
       if (nodesPresent.length === 0) {
-        if (track.type === HMSTrackType.VIDEO) {
-          const newPeerTrackNode = createPeerTrackNode(peer, track);
-          const newPeerTrackNodes = [
-            ...peerTrackNodesRef.current,
-            newPeerTrackNode,
-          ];
-          peerTrackNodesRef.current = newPeerTrackNodes;
-          setPeerTrackNodes(newPeerTrackNodes);
-        }
+        const newPeerTrackNode = createPeerTrackNode(peer, track);
+        const newPeerTrackNodes = [
+          ...peerTrackNodesRef.current,
+          newPeerTrackNode,
+        ];
+        peerTrackNodesRef.current = newPeerTrackNodes;
+        setPeerTrackNodes(newPeerTrackNodes);
       } else {
         changePeerTrackNodes(nodesPresent, peer, track);
       }
-    } else if (type === HMSTrackUpdate.TRACK_REMOVED) {
+      return;
+    }
+    if (type === HMSTrackUpdate.TRACK_REMOVED) {
       if (
         track.source !== HMSTrackSource.REGULAR ||
         (peer.audioTrack?.trackId === undefined &&
@@ -385,23 +412,42 @@ const DisplayView = (data: {
         peerTrackNodesRef.current = newPeerTrackNodes;
         setPeerTrackNodes(newPeerTrackNodes);
       }
-    } else if (
+      return;
+    }
+    if (
       type === HMSTrackUpdate.TRACK_MUTED ||
       type === HMSTrackUpdate.TRACK_UNMUTED
     ) {
-      changePeerTrackNodes(nodesPresent, peer, track);
-    } else if (
+      if (peer.isLocal && track.type === HMSTrackType.AUDIO) {
+        data?.setIsAudioMute(track.isMute());
+      }
+      if (peer.isLocal && track.type === HMSTrackType.VIDEO) {
+        data?.setIsVideoMute(track.isMute());
+      }
+      const nodesPresent = getPeerTrackNodes(
+        peerTrackNodesRef?.current,
+        peer,
+        track,
+      );
+      if (track.type === HMSTrackType.VIDEO) {
+        changePeerTrackNodes(nodesPresent, peer, track);
+      } else {
+        changePeerNodes(nodesPresent, peer);
+      }
+      return;
+    }
+    if (
       type === HMSTrackUpdate.TRACK_RESTORED ||
       type === HMSTrackUpdate.TRACK_DEGRADED
     ) {
+      const nodesPresent = getPeerTrackNodes(
+        peerTrackNodesRef?.current,
+        peer,
+        track,
+      );
       changePeerTrackNodes(nodesPresent, peer, track);
+      return;
     }
-    // presesnt or not
-    // if not present && type is added then create and set state for peertracknodes
-    // if present && type is added then update and set state for peertracknodes
-    // if type is removed and present then check for track source(regular/screen) not regular then set state for peertracknodes
-    // if MUTED OR UNMUTED type and then set state for peertracknodes
-    // if DEGRADED OR RESTORED update isDegraded boolean type and then set state for peertracknodes
   };
 
   const onChangeTrackStateRequestListener = (
@@ -919,7 +965,11 @@ const Footer = ({
   isBrowserRecording,
   localPeer,
   modalVisible,
+  isAudioMute,
+  isVideoMute,
   setModalVisible,
+  setIsAudioMute,
+  setIsVideoMute,
 }: {
   isHlsStreaming?: boolean;
   isBrowserRecording?: boolean;
@@ -927,7 +977,11 @@ const Footer = ({
   isRtmpStreaming?: boolean;
   localPeer?: HMSLocalPeer;
   modalVisible: ModalTypes;
+  isAudioMute?: boolean;
+  isVideoMute?: boolean;
   setModalVisible: React.Dispatch<React.SetStateAction<ModalTypes>>;
+  setIsAudioMute: React.Dispatch<React.SetStateAction<boolean | undefined>>;
+  setIsVideoMute: React.Dispatch<React.SetStateAction<boolean | undefined>>;
 }) => {
   // hooks
   const {hmsInstance, roomID} = useSelector((state: RootState) => state.user);
@@ -1272,18 +1326,14 @@ const Footer = ({
       <View style={styles.iconBotttomButtonWrapper}>
         {localPeer?.role?.publishSettings?.allowed?.includes('audio') && (
           <CustomButton
-            onPress={() =>
-              localPeer
-                ?.localAudioTrack()
-                ?.setMute(!localPeer?.audioTrack?.isMute())
-            }
-            viewStyle={[
-              styles.iconContainer,
-              localPeer?.audioTrack?.isMute() && styles.iconMuted,
-            ]}
+            onPress={() => {
+              localPeer?.localAudioTrack()?.setMute(!isAudioMute);
+              setIsAudioMute(!isAudioMute);
+            }}
+            viewStyle={[styles.iconContainer, isAudioMute && styles.iconMuted]}
             LeftIcon={
               <Feather
-                name={localPeer?.audioTrack?.isMute() ? 'mic-off' : 'mic'}
+                name={isAudioMute ? 'mic-off' : 'mic'}
                 style={styles.icon}
                 size={iconSize}
               />
@@ -1292,18 +1342,14 @@ const Footer = ({
         )}
         {localPeer?.role?.publishSettings?.allowed?.includes('video') && (
           <CustomButton
-            onPress={() =>
-              localPeer
-                ?.localVideoTrack()
-                ?.setMute(!localPeer?.videoTrack?.isMute())
-            }
-            viewStyle={[
-              styles.iconContainer,
-              localPeer?.videoTrack?.isMute() && styles.iconMuted,
-            ]}
+            onPress={() => {
+              localPeer?.localVideoTrack()?.setMute(!isVideoMute);
+              setIsVideoMute(!isAudioMute);
+            }}
+            viewStyle={[styles.iconContainer, isVideoMute && styles.iconMuted]}
             LeftIcon={
               <Feather
-                name={localPeer?.videoTrack?.isMute() ? 'video-off' : 'video'}
+                name={isVideoMute ? 'video-off' : 'video'}
                 style={styles.icon}
                 size={iconSize}
               />

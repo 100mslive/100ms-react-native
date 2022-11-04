@@ -429,13 +429,14 @@ export const createPeerTrackNode = (
   peer: HMSPeer,
   track?: HMSTrack,
 ): PeerTrackNode => {
-  const videoTrack = track ? track : peer.videoTrack;
+  let isVideoTrack: boolean = false;
+  if (track && track?.type === HMSTrackType.VIDEO) {
+    isVideoTrack = true;
+  }
+  const videoTrack = isVideoTrack ? track : undefined;
+  const trackSource = track?.source ?? HMSTrackSource.REGULAR;
   return {
-    id:
-      peer.peerID +
-      (videoTrack?.source === undefined
-        ? HMSTrackSource.REGULAR
-        : videoTrack.source),
+    id: peer.peerID + trackSource,
     peer: peer,
     track: videoTrack,
   };
@@ -445,15 +446,16 @@ export const replacePeerTrackNodes = (
   latestPeerTrackNodes: PeerTrackNode[],
   updatedPeerTrackNodes: PeerTrackNode[],
 ): PeerTrackNode[] => {
+  let newPeerTrackNodes = latestPeerTrackNodes;
   updatedPeerTrackNodes.map(updatedPeerTrackNode => {
-    latestPeerTrackNodes.map(latestPeerTrackNode => {
+    newPeerTrackNodes = newPeerTrackNodes.map(latestPeerTrackNode => {
       if (latestPeerTrackNode.id === updatedPeerTrackNode.id) {
         return updatedPeerTrackNode;
       }
       return latestPeerTrackNode;
     });
   });
-  return latestPeerTrackNodes;
+  return newPeerTrackNodes;
 };
 
 export const updatePeersTrackNodesOnPeerListener = (
