@@ -388,7 +388,11 @@ const DisplayView = (data: {
         peerTrackNodesRef.current = newPeerTrackNodes;
         setPeerTrackNodes(newPeerTrackNodes);
       } else {
-        changePeerTrackNodes(nodesPresent, peer, track);
+        if (track.type === HMSTrackType.VIDEO) {
+          changePeerTrackNodes(nodesPresent, peer, track);
+        } else {
+          changePeerNodes(nodesPresent, peer);
+        }
       }
       return;
     }
@@ -445,7 +449,11 @@ const DisplayView = (data: {
         peer,
         track,
       );
-      changePeerTrackNodes(nodesPresent, peer, track);
+      if (track.type === HMSTrackType.VIDEO) {
+        changePeerTrackNodes(nodesPresent, peer, track);
+      } else {
+        changePeerNodes(nodesPresent, peer);
+      }
       return;
     }
   };
@@ -482,11 +490,11 @@ const DisplayView = (data: {
 
   const onMessageListener = (message: HMSMessage) => {
     dispatch(addMessage(message));
-    Toast.showWithGravity(
-      `${message.sender?.name}: ${message.message}`,
-      Toast.SHORT,
-      Toast.TOP,
-    );
+    // Toast.showWithGravity(
+    //   `${message.sender?.name}: ${message.message}`,
+    //   Toast.SHORT,
+    //   Toast.TOP,
+    // );
     // setNotification(true);
   };
 

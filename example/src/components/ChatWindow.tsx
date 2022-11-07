@@ -271,7 +271,11 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
                 <View style={styles.headingContainer}>
                   <View style={styles.headingLeftContainer}>
                     <Text style={styles.senderName}>
-                      {data.sender?.isLocal ? 'You' : data.sender?.name}
+                      {data.sender
+                        ? data.sender?.isLocal
+                          ? 'You'
+                          : data.sender?.name
+                        : 'Anonymous'}
                     </Text>
                     <Text style={styles.messageTime}>
                       {getTimeStringin12HourFormat(data.time)}
