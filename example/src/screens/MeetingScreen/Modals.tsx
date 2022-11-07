@@ -1,10 +1,11 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {
   View,
   TouchableOpacity,
   Text,
   ScrollView,
   TextInput,
+  FlatList,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {
@@ -157,7 +158,7 @@ export const ParticipantsModal = ({
       .catch(e => console.log('Remove Peer Error: ', e));
   };
 
-  useEffect(() => {
+  useMemo(() => {
     const newFilteredPeerTrackNodes = hmsPeers?.filter(peer => {
       if (
         participantsSearchInput.length < 1 ||
@@ -217,8 +218,13 @@ export const ParticipantsModal = ({
           size={24}
         />
       </View>
-      <ScrollView keyboardShouldPersistTaps="always">
-        {filteredPeerTrackNodes?.map((peer, index) => {
+      <FlatList
+        data={filteredPeerTrackNodes}
+        initialNumToRender={2}
+        maxToRenderPerBatch={3}
+        keyboardShouldPersistTaps="always"
+        renderItem={({item, index}) => {
+          const peer = item;
           return (
             <View style={styles.participantItem} key={peer.peerID}>
               <View style={styles.participantAvatar}>
@@ -342,39 +348,39 @@ export const ParticipantsModal = ({
                     </MenuItem>
                   )}
                 {/* {peer.isLocal === false &&
-                    type === TrackType.REMOTE &&
-                    peerTrackNode?.track?.source === HMSTrackSource.REGULAR && (
-                      <MenuItem
-                        onPress={() => toggleLocalAudioMute(peerTrackNode)}>
-                        <View style={styles.participantMenuItem}>
-                          <Feather
-                            name="mic"
-                            style={styles.participantMenuItemIcon}
-                            size={24}
-                          />
-                          <Text style={styles.participantMenuItemName}>
-                            Local mute audio
-                          </Text>
-                        </View>
-                      </MenuItem>
-                    )}
-                  {peer.isLocal === false &&
-                    type === TrackType.REMOTE &&
-                    peerTrackNode?.track?.source === HMSTrackSource.REGULAR && (
-                      <MenuItem
-                        onPress={() => toggleLocalVideoMute(peerTrackNode)}>
-                        <View style={styles.participantMenuItem}>
-                          <Feather
-                            name="video"
-                            style={styles.participantMenuItemIcon}
-                            size={24}
-                          />
-                          <Text style={styles.participantMenuItemName}>
-                            Local mute video
-                          </Text>
-                        </View>
-                      </MenuItem>
-                    )} */}
+                  type === TrackType.REMOTE &&
+                  peerTrackNode?.track?.source === HMSTrackSource.REGULAR && (
+                    <MenuItem
+                      onPress={() => toggleLocalAudioMute(peerTrackNode)}>
+                      <View style={styles.participantMenuItem}>
+                        <Feather
+                          name="mic"
+                          style={styles.participantMenuItemIcon}
+                          size={24}
+                        />
+                        <Text style={styles.participantMenuItemName}>
+                          Local mute audio
+                        </Text>
+                      </View>
+                    </MenuItem>
+                  )}
+                {peer.isLocal === false &&
+                  type === TrackType.REMOTE &&
+                  peerTrackNode?.track?.source === HMSTrackSource.REGULAR && (
+                    <MenuItem
+                      onPress={() => toggleLocalVideoMute(peerTrackNode)}>
+                      <View style={styles.participantMenuItem}>
+                        <Feather
+                          name="video"
+                          style={styles.participantMenuItemIcon}
+                          size={24}
+                        />
+                        <Text style={styles.participantMenuItemName}>
+                          Local mute video
+                        </Text>
+                      </View>
+                    </MenuItem>
+                  )} */}
                 {peer.isLocal === false && (
                   <MenuItem onPress={() => onSetVolumePress(peer)}>
                     <View style={styles.participantMenuItem}>
@@ -392,8 +398,9 @@ export const ParticipantsModal = ({
               </Menu>
             </View>
           );
-        })}
-      </ScrollView>
+        }}
+        keyExtractor={item => item.peerID}
+      />
     </View>
   );
 };
