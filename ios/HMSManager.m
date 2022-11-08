@@ -53,4 +53,6 @@ RCT_EXTERN_METHOD(getRemotePeers: (NSDictionary) data :(RCTPromiseResolveBlock) 
 RCT_EXTERN_METHOD(getRoles: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(enableNetworkQualityUpdates: (NSDictionary) data)
 RCT_EXTERN_METHOD(disableNetworkQualityUpdates: (NSDictionary) data)
+RCT_EXTERN_METHOD(setSessionMetaData: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(getSessionMetaData: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 @end

@@ -1188,6 +1188,24 @@ export class HMSSDK {
     }
   };
 
+  setSessionMetaData = async (sessionMetaData: string) => {
+    logger?.verbose('#Function setSessionMetaData', {
+      id: this.id,
+      sessionMetaData,
+    });
+    return await HMSManager.setSessionMetaData({
+      id: this.id,
+      sessionMetaData,
+    });
+  };
+
+  getSessionMetaData = async () => {
+    logger?.verbose('#Function getSessionMetaData', {
+      id: this.id,
+    });
+    return await HMSManager.getSessionMetaData({ id: this.id });
+  };
+
   /**
    * - This is a prototype event listener that takes action and listens for updates related to that particular action
    *
