@@ -5,7 +5,6 @@ import {
   Text,
   ScrollView,
   TextInput,
-  FlatList,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {
@@ -42,6 +41,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {Slider} from '@miblanchard/react-native-slider';
 import moment from 'moment';
+import {FlashList} from '@shopify/flash-list';
 
 import {styles} from './styles';
 import {
@@ -218,10 +218,11 @@ export const ParticipantsModal = ({
           size={24}
         />
       </View>
-      <FlatList
+      <FlashList
         data={filteredPeerTrackNodes}
-        initialNumToRender={2}
-        maxToRenderPerBatch={3}
+        // initialNumToRender={2}
+        // maxToRenderPerBatch={3}
+        estimatedItemSize={200}
         keyboardShouldPersistTaps="always"
         renderItem={({item, index}) => {
           const peer = item;

@@ -1,12 +1,5 @@
-import React, {useState, useEffect, useRef} from 'react';
-import {
-  View,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-  Text,
-  Platform,
-} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {View, StyleSheet, TouchableOpacity, Text, Platform} from 'react-native';
 import {
   HMSLocalPeer,
   HMSMessage,
@@ -23,6 +16,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useDispatch, useSelector} from 'react-redux';
+import {FlashList} from '@shopify/flash-list';
 
 import {Menu, MenuDivider, MenuItem} from './MenuModal';
 import {COLORS} from '../utils/theme';
@@ -155,7 +149,7 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
   const {messages} = useSelector((state: RootState) => state.messages);
   const dispatch = useDispatch();
   const {bottom} = useSafeAreaInsets();
-  const scollviewRef = useRef<FlatList>(null);
+  // const scollviewRef = useRef<FlashList>(null);
 
   // useState hook
   const [filter, setFilter] = useState<string>('everyone');
@@ -202,13 +196,13 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
     }
   };
 
-  useEffect(() => {
-    scollviewRef?.current?.scrollToEnd({animated: false});
-  }, []);
+  // useEffect(() => {
+  //   scollviewRef?.current?.scrollToEnd({animated: false});
+  // }, []);
 
-  useEffect(() => {
-    scollviewRef?.current?.scrollToEnd({animated: true});
-  }, [messages]);
+  // useEffect(() => {
+  //   scollviewRef?.current?.scrollToEnd({animated: true});
+  // }, [messages]);
 
   return (
     <View style={styles.container}>
@@ -247,11 +241,12 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
             />
           </View>
         )}
-        <FlatList
-          ref={scollviewRef}
+        <FlashList
+          // ref={scollviewRef}
           data={messages}
-          initialNumToRender={2}
-          maxToRenderPerBatch={3}
+          // initialNumToRender={2}
+          // maxToRenderPerBatch={3}
+          estimatedItemSize={200}
           keyboardShouldPersistTaps="always"
           renderItem={({item, index}: {item: HMSMessage; index: number}) => {
             const data = item;
