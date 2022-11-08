@@ -411,6 +411,20 @@ class HMSManager(reactContext: ReactApplicationContext) :
     hms?.setAudioDeviceChangeListener()
   }
 
+  @ReactMethod
+  fun setSessionMetaData(data: ReadableMap, callback: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.setSessionMetaData(data, callback)
+  }
+
+  @ReactMethod
+  fun getSessionMetaData(data: ReadableMap, callback: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.getSessionMetaData(callback)
+  }
+
   fun emitEvent(event: String, data: WritableMap) {
     reactApplicationContext
         .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)

@@ -988,6 +988,25 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         networkQualityUpdatesAttached = false
     }
 
+    func setSessionMetaData(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let metaData = data.value(forKey: "sessionMetaData") as? String
+        else {
+            let errorMessage = "setSessionMetaData: " + HMSHelper.getUnavailableRequiredKey(data, ["sessionMetaData"])
+            emitRequiredKeysError(errorMessage)
+            reject?(errorMessage, errorMessage, nil)
+            return
+        }
+
+        hms?.setSessionMetadata(metaData) { success, error in
+            if success {
+                resolve?(["success": success])
+            } else {
+                self.delegate?.emitEvent(self.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self.id])
+                reject?(error?.localizedDescription, error?.localizedDescription, nil)
+            }
+        }
+    }
+
     // MARK: - HMS SDK Get APIs
     func getRoom(_ resolve: RCTPromiseResolveBlock?) {
         let roomData = HMSDecoder.getHmsRoom(hms?.room)
@@ -1011,6 +1030,17 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         let roles = HMSDecoder.getAllRoles(hms?.roles)
 
         resolve?(roles)
+    }
+    
+    func getSessionMetaData(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        hms?.getSessionMetadata(){ result, error in
+            if (error != nil) {
+                self.delegate?.emitEvent(self.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self.id])
+                reject?(error?.localizedDescription, error?.localizedDescription, nil)
+            } else {
+                resolve?(result)
+            }
+        }
     }
 
     // MARK: - HMS SDK Delegate Callbacks
