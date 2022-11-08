@@ -1,8 +1,9 @@
-import React, {useRef} from 'react';
-import {View, FlatList, Dimensions, Text} from 'react-native';
+import React from 'react';
+import {View, Dimensions, Text} from 'react-native';
 import {HMSTrackSource} from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
+import {FlashList} from '@shopify/flash-list';
 
 import {getDisplayTrackDimensions, parseMetadata} from '../../utils/functions';
 import {styles} from './styles';
@@ -18,21 +19,18 @@ const GridView = ({pairedPeers, orientation}: GridViewProps) => {
   // hooks
   const {left, right, top, bottom} = useSafeAreaInsets();
 
-  // useRef hook
-  const flatlistRef = useRef<FlatList>(null);
-
   return (
-    <FlatList
-      ref={flatlistRef}
+    <FlashList
       horizontal
       data={pairedPeers}
-      initialNumToRender={2}
-      maxToRenderPerBatch={3}
+      // initialNumToRender={2}
+      // maxToRenderPerBatch={3}
       //   onScroll={({nativeEvent}) => {
       //     const {contentOffset, layoutMeasurement} = nativeEvent;
       //     setPage(contentOffset.x / layoutMeasurement.width);
       //   }}
       pagingEnabled
+      estimatedItemSize={200}
       showsHorizontalScrollIndicator={false}
       renderItem={(data: {item: Array<PeerTrackNode>; index: number}) => {
         const {item, index} = data;
