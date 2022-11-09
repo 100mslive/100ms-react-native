@@ -390,6 +390,18 @@ export const getPeerTrackNodes = (
   return nodes;
 };
 
+export const updatedDegradedFlag = (
+  peerTrackNodes: PeerTrackNode[],
+  isDegraded: boolean,
+): PeerTrackNode[] => {
+  return peerTrackNodes?.map(peerTrackNode => {
+    return {
+      ...peerTrackNode,
+      isDegraded,
+    };
+  });
+};
+
 export const updatePeerTrackNodes = (
   peerTrackNodes: PeerTrackNode[],
   peer: HMSPeer,
@@ -439,6 +451,7 @@ export const createPeerTrackNode = (
     id: peer.peerID + trackSource,
     peer: peer,
     track: videoTrack,
+    isDegraded: false,
   };
 };
 
@@ -491,6 +504,7 @@ export const updatePeersTrackNodesOnPeerListener = (
         id: peer.peerID + HMSTrackSource.REGULAR,
         peer,
         track: peer?.videoTrack,
+        isDegraded: false,
       };
       if (peer?.isLocal) {
         return [newPeerTrackNode, ...updatedPeerTrackNodes];
@@ -555,11 +569,13 @@ export const updatePeersTrackNodesOnTrackListener = (
           id: uniqueId,
           peer,
           track,
+          isDegraded: false,
         };
       } else {
         newPeerTrackNode = {
           id: uniqueId,
           peer,
+          isDegraded: false,
         };
       }
       if (peer?.isLocal) {
