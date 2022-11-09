@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   StyleSheet,
@@ -149,13 +149,86 @@ const ChatFilter = ({
   );
 };
 
+const ChatList = () => {
+  const {messages} = useSelector((state: RootState) => state.messages);
+
+  // const scollviewRef = useRef<FlatList>(null);
+
+  // useEffect(() => {
+  //   scollviewRef?.current?.scrollToEnd({animated: false});
+  // }, []);
+
+  // useEffect(() => {
+  //   scollviewRef?.current?.scrollToEnd({animated: true});
+  // }, [messages]);
+
+  return (
+    <FlatList
+      data={messages}
+      initialNumToRender={2}
+      maxToRenderPerBatch={3}
+      keyboardShouldPersistTaps="always"
+      renderItem={({item, index}: {item: HMSMessage; index: number}) => {
+        const data = item;
+        const isLocal = data.sender?.isLocal;
+        return (
+          <View
+            style={[
+              styles.messageBubble,
+              (data.recipient.recipientType === HMSMessageRecipientType.PEER ||
+                data.recipient.recipientType ===
+                  HMSMessageRecipientType.ROLES) &&
+                styles.privateMessageBubble,
+              isLocal && styles.sendMessageBubble,
+            ]}
+            key={index}>
+            <View style={styles.headingContainer}>
+              <View style={styles.headingLeftContainer}>
+                <Text style={styles.senderName}>
+                  {data.sender
+                    ? data.sender?.isLocal
+                      ? 'You'
+                      : data.sender?.name
+                    : 'Anonymous'}
+                </Text>
+                <Text style={styles.messageTime}>
+                  {getTimeStringin12HourFormat(data.time)}
+                </Text>
+              </View>
+              {(data.recipient.recipientType === HMSMessageRecipientType.PEER ||
+                data.recipient.recipientType ===
+                  HMSMessageRecipientType.ROLES) && (
+                <View style={styles.headingRightContainer}>
+                  <Text style={styles.private}>
+                    {data.recipient.recipientType ===
+                      HMSMessageRecipientType.PEER &&
+                      `${
+                        isLocal
+                          ? 'TO ' + data.recipient.recipientPeer?.name + ' | '
+                          : 'TO YOU | '
+                      }PRIVATE`}
+                    {data.recipient.recipientType ===
+                      HMSMessageRecipientType.ROLES &&
+                      data?.recipient?.recipientRoles &&
+                      data.recipient.recipientRoles[0].name}
+                  </Text>
+                </View>
+              )}
+            </View>
+            <Text style={styles.messageText}>{data.message}</Text>
+          </View>
+        );
+      }}
+      keyExtractor={(item, index) => item.message + index}
+    />
+  );
+};
+
 export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
   // hooks
   const {hmsInstance} = useSelector((state: RootState) => state.user);
-  const {messages} = useSelector((state: RootState) => state.messages);
   const dispatch = useDispatch();
   const {bottom} = useSafeAreaInsets();
-  const scollviewRef = useRef<FlatList>(null);
 
   // useState hook
   const [filter, setFilter] = useState<string>('everyone');
@@ -202,14 +275,6 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
     }
   };
 
-  useEffect(() => {
-    scollviewRef?.current?.scrollToEnd({animated: false});
-  }, []);
-
-  useEffect(() => {
-    scollviewRef?.current?.scrollToEnd({animated: true});
-  }, [messages]);
-
   return (
     <View style={styles.container}>
       <View style={styles.chatHeaderContainer}>
@@ -247,69 +312,7 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
             />
           </View>
         )}
-        <FlatList
-          ref={scollviewRef}
-          data={messages}
-          initialNumToRender={2}
-          maxToRenderPerBatch={3}
-          keyboardShouldPersistTaps="always"
-          renderItem={({item, index}: {item: HMSMessage; index: number}) => {
-            const data = item;
-            const isLocal = data.sender?.isLocal;
-            return (
-              <View
-                style={[
-                  styles.messageBubble,
-                  (data.recipient.recipientType ===
-                    HMSMessageRecipientType.PEER ||
-                    data.recipient.recipientType ===
-                      HMSMessageRecipientType.ROLES) &&
-                    styles.privateMessageBubble,
-                  isLocal && styles.sendMessageBubble,
-                ]}
-                key={index}>
-                <View style={styles.headingContainer}>
-                  <View style={styles.headingLeftContainer}>
-                    <Text style={styles.senderName}>
-                      {data.sender
-                        ? data.sender?.isLocal
-                          ? 'You'
-                          : data.sender?.name
-                        : 'Anonymous'}
-                    </Text>
-                    <Text style={styles.messageTime}>
-                      {getTimeStringin12HourFormat(data.time)}
-                    </Text>
-                  </View>
-                  {(data.recipient.recipientType ===
-                    HMSMessageRecipientType.PEER ||
-                    data.recipient.recipientType ===
-                      HMSMessageRecipientType.ROLES) && (
-                    <View style={styles.headingRightContainer}>
-                      <Text style={styles.private}>
-                        {data.recipient.recipientType ===
-                          HMSMessageRecipientType.PEER &&
-                          `${
-                            isLocal
-                              ? 'TO ' +
-                                data.recipient.recipientPeer?.name +
-                                ' | '
-                              : 'TO YOU | '
-                          }PRIVATE`}
-                        {data.recipient.recipientType ===
-                          HMSMessageRecipientType.ROLES &&
-                          data?.recipient?.recipientRoles &&
-                          data.recipient.recipientRoles[0].name}
-                      </Text>
-                    </View>
-                  )}
-                </View>
-                <Text style={styles.messageText}>{data.message}</Text>
-              </View>
-            );
-          }}
-          keyExtractor={(item, index) => item.message + index}
-        />
+        <ChatList />
       </View>
       <View
         style={bottom === 0 ? styles.inputContainer : {marginBottom: bottom}}>
