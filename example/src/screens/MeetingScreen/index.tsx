@@ -454,11 +454,7 @@ const DisplayView = (data: {
         nodesPresent,
         type === HMSTrackUpdate.TRACK_DEGRADED,
       );
-      if (track.type === HMSTrackType.VIDEO) {
-        changePeerTrackNodes(updatedNodesPresent, peer, track);
-      } else {
-        changePeerNodes(updatedNodesPresent, peer);
-      }
+      changePeerTrackNodes(updatedNodesPresent, peer, track); 
       return;
     }
   };
