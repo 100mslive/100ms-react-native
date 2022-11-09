@@ -72,9 +72,9 @@ export const ParticipantsModal = ({
   setVolume: (peer: HMSPeer) => void;
 }) => {
   // useState hook
-  const [hmsPeers, setHmsPeers] = useState<(HMSLocalPeer | HMSRemotePeer)[]>(
-    [],
-  );
+  const [hmsPeers, setHmsPeers] = useState<(HMSLocalPeer | HMSRemotePeer)[]>([
+    localPeer!,
+  ]);
   const [participantsSearchInput, setParticipantsSearchInput] = useState('');
   const [visible, setVisible] = useState<number>(-1);
   const [filteredPeerTrackNodes, setFilteredPeerTrackNodes] =
@@ -189,8 +189,6 @@ export const ParticipantsModal = ({
     instance?.getRemotePeers().then(peers => {
       if (localPeer) {
         setHmsPeers([localPeer, ...peers]);
-      } else {
-        setHmsPeers(peers);
       }
     });
   }, [instance, localPeer]);

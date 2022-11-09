@@ -74,6 +74,7 @@ import {
   clearHmsReference,
   clearMessageData,
   clearPeerData,
+  saveUserData,
 } from '../../redux/actions';
 import {GridView} from './GridView';
 import {HLSView} from './HLSView';
@@ -630,12 +631,23 @@ const DisplayView = (data: {
     data?.setModalVisible(ModalTypes.VOLUME);
   };
 
+  const getHmsRoles = () => {
+    hmsInstance?.getRoles().then(roles => {
+      dispatch(
+        saveUserData({
+          roles,
+        }),
+      );
+    });
+  };
+
   // useEffect hook
   useEffect(() => {
     const callback = () => {
       setOrientation(isPortrait());
     };
     updateHmsInstance(hmsInstance);
+    getHmsRoles();
     callback();
     Dimensions.addEventListener('change', callback);
     return () => {
@@ -644,11 +656,6 @@ const DisplayView = (data: {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    setPeerTrackNodes(peerState);
-    peerTrackNodesRef.current = peerState;
-  }, [peerState]);
 
   useEffect(() => {
     if (data?.localPeer?.role?.name?.includes('hls-')) {

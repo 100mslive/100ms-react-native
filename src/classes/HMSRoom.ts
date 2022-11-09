@@ -4,6 +4,7 @@ import type { HMSServerRecordingState } from './HMSServerRecordingState';
 import type { HMSBrowserRecordingState } from './HMSBrowserRecordingState';
 import type { HMSHLSStreamingState } from './HMSHLSStreamingState';
 import type { HMSHLSRecordingState } from './HMSHLSRecordingState';
+import type { HMSLocalPeer } from './HMSLocalPeer';
 
 export class HMSRoom {
   id: string;
@@ -17,6 +18,7 @@ export class HMSRoom {
   hlsStreamingState: HMSHLSStreamingState;
   hlsRecordingState?: HMSHLSRecordingState;
   peerCount: number;
+  localPeer: HMSLocalPeer;
 
   constructor(params: {
     id: string;
@@ -30,6 +32,7 @@ export class HMSRoom {
     hlsStreamingState: HMSHLSStreamingState;
     hlsRecordingState?: HMSHLSRecordingState;
     peerCount: number;
+    localPeer: HMSLocalPeer;
   }) {
     this.id = params.id;
     this.sessionId = params.sessionId;
@@ -42,5 +45,6 @@ export class HMSRoom {
     this.hlsStreamingState = params.hlsStreamingState;
     this.hlsRecordingState = params.hlsRecordingState;
     this.peerCount = params.peerCount;
+    this.localPeer = params.localPeer;
   }
 }

@@ -16,13 +16,18 @@ class HMSDecoder: NSObject {
         let serverRecordingState = HMSDecoder.getHMSServerRecordingState(hmsRoom?.serverRecordingState)
         let hlsStreamingState = HMSDecoder.getHlsStreamingState(hmsRoom?.hlsStreamingState)
         let hlsRecordingState = HMSDecoder.getHlsRecordingState(hmsRoom?.hlsRecordingState)
+        var localPeer = [String: Any]()
         var peers = [[String: Any]]()
 
         for peer in room.peers {
-            peers.append(getHmsPeer(peer))
+            let parsedPeer = getHmsPeer(peer)
+            peers.append(parsedPeer)
+            if(peer.isLocal){
+                localPeer = parsedPeer
+            }
         }
 
-        return ["id": id, "name": name, "metaData": metaData, "peers": peers, "browserRecordingState": browserRecordingState, "rtmpHMSRtmpStreamingState": rtmpStreamingState, "serverRecordingState": serverRecordingState, "hlsRecordingState": hlsRecordingState, "hlsStreamingState": hlsStreamingState, "peerCount": count, "sessionId": sessionId]
+        return ["id": id, "name": name, "metaData": metaData, "peers": peers, "browserRecordingState": browserRecordingState, "rtmpHMSRtmpStreamingState": rtmpStreamingState, "serverRecordingState": serverRecordingState, "hlsRecordingState": hlsRecordingState, "hlsStreamingState": hlsStreamingState, "peerCount": count, "sessionId": sessionId, "localPeer": localPeer]
     }
 
     static func getHmsPeer (_ hmsPeer: HMSPeer?) -> [String: Any] {
