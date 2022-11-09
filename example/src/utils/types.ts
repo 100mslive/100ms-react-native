@@ -5,6 +5,7 @@ export type PeerTrackNode = {
   peer: HMSPeer;
   track?: HMSVideoTrack;
   isDegraded?: boolean;
+  // TODO: isDegraded should not be optional
 };
 
 export enum LayoutParams {
