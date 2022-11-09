@@ -4,6 +4,7 @@ export type PeerTrackNode = {
   id: string;
   peer: HMSPeer;
   track?: HMSVideoTrack;
+  isDegraded?: boolean;
 };
 
 export enum LayoutParams {

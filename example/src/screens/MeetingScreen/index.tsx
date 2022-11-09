@@ -47,6 +47,7 @@ import {
   pairData,
   parseMetadata,
   replacePeerTrackNodes,
+  updatedDegradedFlag,
   updatePeerNodes,
   updatePeerTrackNodes,
 } from '../../utils/functions';
@@ -449,10 +450,14 @@ const DisplayView = (data: {
         peer,
         track,
       );
+      const updatedNodesPresent = updatedDegradedFlag(
+        nodesPresent,
+        type === HMSTrackUpdate.TRACK_DEGRADED,
+      );
       if (track.type === HMSTrackType.VIDEO) {
-        changePeerTrackNodes(nodesPresent, peer, track);
+        changePeerTrackNodes(updatedNodesPresent, peer, track);
       } else {
-        changePeerNodes(nodesPresent, peer);
+        changePeerNodes(updatedNodesPresent, peer);
       }
       return;
     }

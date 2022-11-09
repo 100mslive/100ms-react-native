@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {View, Text} from 'react-native';
 import {
   HMSVideoViewMode,
@@ -18,6 +18,7 @@ type DisplayTrackProps = {
   // layout?: LayoutParams;
   // miniView?: boolean;
   // peerTrackNode: PeerTrackNode;
+  isDegraded?: boolean;
   isLocal?: boolean;
   peerName: string;
   videoTrack?: HMSVideoTrack;
@@ -28,6 +29,7 @@ const DisplayTrack = ({
   // layout,
   // miniView,
   // peerTrackNode,
+  isDegraded,
   isLocal,
   peerName,
   videoTrack,
@@ -37,9 +39,6 @@ const DisplayTrack = ({
   const {mirrorLocalVideo, hmsInstance} = useSelector(
     (state: RootState) => state.user,
   );
-
-  // useState hook
-  const [isDegraded, setIsDegraded] = useState(videoTrack?.isDegraded);
 
   // constants
   const HmsView = hmsInstance?.HmsView;
@@ -51,12 +50,6 @@ const DisplayTrack = ({
       .then(d => console.log('Stop Screenshare Success: ', d))
       .catch(e => console.log('Stop Screenshare Error: ', e));
   };
-
-  // useEffect hook
-  useEffect(() => {
-    setIsDegraded(videoTrack?.isDegraded);
-  }, [videoTrack?.isDegraded]);
-
   return HmsView ? (
     <View style={[videoStyles]}>
       {isLocal &&
