@@ -53,6 +53,7 @@ export class HMSEncoder {
       hlsRecordingState: HMSEncoder.encodeHLSRecordingState(
         room?.hlsRecordingState
       ),
+      localPeer: HMSEncoder.encodeHmsLocalPeer(room?.localPeer, id),
     };
 
     return new HMSRoom(encodedObj);

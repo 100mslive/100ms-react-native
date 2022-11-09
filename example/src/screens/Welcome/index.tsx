@@ -16,6 +16,7 @@ import {
   HMSTrackSettings,
   HMSTrackSettingsInitState,
   HMSTrackSource,
+  HMSTrackType,
   HMSTrackUpdate,
   HMSUpdateListenerActions,
   HMSVideoTrackSettings,
@@ -52,7 +53,6 @@ import {
   getPeerTrackNodes,
   replacePeerTrackNodes,
   updatePeerNodes,
-  updatePeersTrackNodesOnPeerListener,
   updatePeerTrackNodes,
 } from '../../utils/functions';
 import {COLORS} from '../../utils/theme';
@@ -119,27 +119,9 @@ const Welcome = () => {
     }
   };
 
-  const onJoinSuccess = async (
-    hmsInstance: HMSSDK,
-    data: {
-      room: HMSRoom;
-    },
-  ) => {
-    await hmsInstance?.getLocalPeer().then(localPeer => {
-      const newPeerTrackNodes = updatePeersTrackNodesOnPeerListener(
-        peerTrackNodesRef?.current,
-        localPeer,
-        HMSPeerUpdate.PEER_JOINED,
-      );
-      dispatch(setPeerState({peerState: newPeerTrackNodes}));
-    });
-    hmsInstance?.getRoles().then(roles => {
-      dispatch(
-        saveUserData({
-          roles,
-        }),
-      );
-    });
+  const onJoinSuccess = (data: {room: HMSRoom}) => {
+    const hmsLocalPeer = createPeerTrackNode(data.room.localPeer);
+    dispatch(setPeerState({peerState: [hmsLocalPeer]}));
     setHmsRoom(data.room);
     setJoinButtonLoading(false);
     setPreviewButtonLoading(false);
@@ -243,7 +225,11 @@ const Welcome = () => {
         peerTrackNodesRef.current = newPeerTrackNodes;
         setPeerTrackNodes(newPeerTrackNodes);
       } else {
-        changePeerTrackNodes(nodesPresent, peer, track);
+        if (track.type === HMSTrackType.VIDEO) {
+          changePeerTrackNodes(nodesPresent, peer, track);
+        } else {
+          changePeerNodes(nodesPresent, peer);
+        }
       }
       return;
     }
@@ -278,7 +264,11 @@ const Welcome = () => {
         peer,
         track,
       );
-      changePeerTrackNodes(nodesPresent, peer, track);
+      if (track.type === HMSTrackType.VIDEO) {
+        changePeerTrackNodes(nodesPresent, peer, track);
+      } else {
+        changePeerNodes(nodesPresent, peer);
+      }
       return;
     }
     if (
@@ -290,7 +280,11 @@ const Welcome = () => {
         peer,
         track,
       );
-      changePeerTrackNodes(nodesPresent, peer, track);
+      if (track.type === HMSTrackType.VIDEO) {
+        changePeerTrackNodes(nodesPresent, peer, track);
+      } else {
+        changePeerNodes(nodesPresent, peer);
+      }
       return;
     }
   };
@@ -370,7 +364,7 @@ const Welcome = () => {
 
     hmsInstance?.addEventListener(
       HMSUpdateListenerActions.ON_JOIN,
-      onJoinSuccess.bind(this, hmsInstance),
+      onJoinSuccess,
     );
 
     hmsInstance?.addEventListener(
