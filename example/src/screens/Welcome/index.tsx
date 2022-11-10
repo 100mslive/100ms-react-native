@@ -15,8 +15,6 @@ import {
   HMSTrack,
   HMSTrackSettings,
   HMSTrackSettingsInitState,
-  HMSTrackSource,
-  HMSTrackType,
   HMSTrackUpdate,
   HMSUpdateListenerActions,
   HMSVideoTrackSettings,
@@ -48,12 +46,8 @@ import {
 import {saveUserData, setPeerState} from '../../redux/actions';
 import {
   callService,
-  createPeerTrackNode,
-  getPeerNodes,
-  getPeerTrackNodes,
-  replacePeerTrackNodes,
-  updatePeerNodes,
-  updatePeerTrackNodes,
+  updatePeersTrackNodesOnPeerListener,
+  updatePeersTrackNodesOnTrackListener,
 } from '../../utils/functions';
 import {COLORS} from '../../utils/theme';
 import {ModalTypes, PeerTrackNode} from '../../utils/types';
@@ -120,8 +114,12 @@ const Welcome = () => {
   };
 
   const onJoinSuccess = (data: {room: HMSRoom}) => {
-    const hmsLocalPeer = createPeerTrackNode(data.room.localPeer);
-    dispatch(setPeerState({peerState: [hmsLocalPeer]}));
+    const newPeerTrackNodes = updatePeersTrackNodesOnPeerListener(
+      peerTrackNodesRef?.current,
+      data.room.localPeer,
+      HMSPeerUpdate.PEER_JOINED,
+    );
+    dispatch(setPeerState({peerState: newPeerTrackNodes}));
     setHmsRoom(data.room);
     setJoinButtonLoading(false);
     setPreviewButtonLoading(false);
@@ -150,55 +148,16 @@ const Welcome = () => {
     peer: HMSPeer;
     type: HMSPeerUpdate;
   }) => {
-    if (type === HMSPeerUpdate.PEER_JOINED) {
+    if (type === HMSPeerUpdate.PEER_JOINED && peer.isLocal === false) {
       return;
     }
-    if (type === HMSPeerUpdate.PEER_LEFT) {
-      removePeerTrackNodes(peer);
-      return;
-    }
-    if (peer.isLocal) {
-      const nodesPresent = getPeerNodes(
-        peerTrackNodesRef?.current,
-        peer.peerID,
-      );
-      if (nodesPresent.length === 0) {
-        const newPeerTrackNode = createPeerTrackNode(peer);
-        const newPeerTrackNodes = [
-          newPeerTrackNode,
-          ...peerTrackNodesRef.current,
-        ];
-        peerTrackNodesRef.current = newPeerTrackNodes;
-        setPeerTrackNodes(newPeerTrackNodes);
-      } else {
-        changePeerNodes(nodesPresent, peer);
-      }
-      return;
-    }
-    if (type === HMSPeerUpdate.ROLE_CHANGED) {
-      if (
-        peer.role?.publishSettings?.allowed === undefined ||
-        (peer.role?.publishSettings?.allowed &&
-          peer.role?.publishSettings?.allowed.length < 1)
-      ) {
-        removePeerTrackNodes(peer);
-      }
-      return;
-    }
-    if (
-      type === HMSPeerUpdate.METADATA_CHANGED ||
-      type === HMSPeerUpdate.NAME_CHANGED ||
-      type === HMSPeerUpdate.NETWORK_QUALITY_UPDATED
-    ) {
-      const nodesPresent = getPeerNodes(
-        peerTrackNodesRef?.current,
-        peer.peerID,
-      );
-      if (nodesPresent.length) {
-        changePeerNodes(nodesPresent, peer);
-      }
-      return;
-    }
+    const newPeerTrackNodes = updatePeersTrackNodesOnPeerListener(
+      peerTrackNodesRef?.current,
+      peer,
+      type,
+    );
+    peerTrackNodesRef.current = newPeerTrackNodes;
+    setPeerTrackNodes(newPeerTrackNodes);
   };
 
   const onTrackListener = ({
@@ -210,127 +169,17 @@ const Welcome = () => {
     track: HMSTrack;
     type: HMSTrackUpdate;
   }) => {
-    if (type === HMSTrackUpdate.TRACK_ADDED) {
-      const nodesPresent = getPeerTrackNodes(
-        peerTrackNodesRef?.current,
-        peer,
-        track,
-      );
-      if (nodesPresent.length === 0) {
-        const newPeerTrackNode = createPeerTrackNode(peer, track);
-        const newPeerTrackNodes = [
-          ...peerTrackNodesRef.current,
-          newPeerTrackNode,
-        ];
-        peerTrackNodesRef.current = newPeerTrackNodes;
-        setPeerTrackNodes(newPeerTrackNodes);
-      } else {
-        if (track.type === HMSTrackType.VIDEO) {
-          changePeerTrackNodes(nodesPresent, peer, track);
-        } else {
-          changePeerNodes(nodesPresent, peer);
-        }
-      }
-      return;
-    }
-    if (type === HMSTrackUpdate.TRACK_REMOVED) {
-      if (
-        track.source !== HMSTrackSource.REGULAR ||
-        (peer.audioTrack?.trackId === undefined &&
-          peer.videoTrack?.trackId === undefined)
-      ) {
-        const uniqueId =
-          peer.peerID +
-          (track.source === undefined ? HMSTrackSource.REGULAR : track.source);
-        const newPeerTrackNodes = peerTrackNodesRef.current?.filter(
-          peerTrackNode => {
-            if (peerTrackNode.id === uniqueId) {
-              return false;
-            }
-            return true;
-          },
-        );
-        peerTrackNodesRef.current = newPeerTrackNodes;
-        setPeerTrackNodes(newPeerTrackNodes);
-      }
-      return;
-    }
-    if (
-      type === HMSTrackUpdate.TRACK_MUTED ||
-      type === HMSTrackUpdate.TRACK_UNMUTED
-    ) {
-      const nodesPresent = getPeerTrackNodes(
-        peerTrackNodesRef?.current,
-        peer,
-        track,
-      );
-      if (track.type === HMSTrackType.VIDEO) {
-        changePeerTrackNodes(nodesPresent, peer, track);
-      } else {
-        changePeerNodes(nodesPresent, peer);
-      }
-      return;
-    }
-    if (
-      type === HMSTrackUpdate.TRACK_RESTORED ||
-      type === HMSTrackUpdate.TRACK_DEGRADED
-    ) {
-      const nodesPresent = getPeerTrackNodes(
-        peerTrackNodesRef?.current,
-        peer,
-        track,
-      );
-      if (track.type === HMSTrackType.VIDEO) {
-        changePeerTrackNodes(nodesPresent, peer, track);
-      } else {
-        changePeerNodes(nodesPresent, peer);
-      }
-      return;
-    }
+    const newPeerTrackNodes = updatePeersTrackNodesOnTrackListener(
+      peerTrackNodesRef?.current,
+      track,
+      peer,
+      type,
+    );
+    peerTrackNodesRef.current = newPeerTrackNodes;
+    setPeerTrackNodes(newPeerTrackNodes);
   };
 
   // functions
-  const removePeerTrackNodes = (peer: HMSPeer) => {
-    const newPeerTrackNodes = peerTrackNodesRef?.current?.filter(
-      peerTrackNode => {
-        if (peerTrackNode.peer.peerID === peer.peerID) {
-          return false;
-        }
-        return true;
-      },
-    );
-    setPeerTrackNodes(newPeerTrackNodes);
-    peerTrackNodesRef.current = newPeerTrackNodes;
-  };
-
-  const changePeerNodes = (nodesPresent: PeerTrackNode[], peer: HMSPeer) => {
-    const updatedPeerTrackNodes = updatePeerNodes(nodesPresent, peer);
-    const newPeerTrackNodes = replacePeerTrackNodes(
-      peerTrackNodesRef?.current,
-      updatedPeerTrackNodes,
-    );
-    peerTrackNodesRef.current = newPeerTrackNodes;
-    setPeerTrackNodes(newPeerTrackNodes);
-  };
-
-  const changePeerTrackNodes = (
-    nodesPresent: PeerTrackNode[],
-    peer: HMSPeer,
-    track: HMSTrack,
-  ) => {
-    const updatedPeerTrackNodes = updatePeerTrackNodes(
-      nodesPresent,
-      peer,
-      track,
-    );
-    const newPeerTrackNodes = replacePeerTrackNodes(
-      peerTrackNodesRef?.current,
-      updatedPeerTrackNodes,
-    );
-    peerTrackNodesRef.current = newPeerTrackNodes;
-    setPeerTrackNodes(newPeerTrackNodes);
-  };
-
   const onPreview = async (
     token: string,
     userID: string,

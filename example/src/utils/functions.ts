@@ -544,12 +544,20 @@ export const updatePeersTrackNodesOnTrackListener = (
     let alreadyPresent = false;
     const updatedPeerTrackNodes = oldPeerTrackNodes?.map(peerTrackNode => {
       if (peerTrackNode.id === uniqueId) {
+        let isDegraded = peerTrackNode.isDegraded;
+        if (
+          type === HMSTrackUpdate.TRACK_RESTORED ||
+          type === HMSTrackUpdate.TRACK_DEGRADED
+        ) {
+          isDegraded = type === HMSTrackUpdate.TRACK_DEGRADED;
+        }
         alreadyPresent = true;
         if (isVideo) {
           return {
             ...peerTrackNode,
             peer,
             track,
+            isDegraded,
           };
         } else {
           return {
