@@ -120,7 +120,10 @@ const Welcome = () => {
   };
 
   const onJoinSuccess = (data: {room: HMSRoom}) => {
-    const hmsLocalPeer = createPeerTrackNode(data.room.localPeer);
+    const hmsLocalPeer = createPeerTrackNode(
+      data.room.localPeer,
+      data.room.localPeer.videoTrack,
+    );
     dispatch(setPeerState({peerState: [hmsLocalPeer]}));
     setHmsRoom(data.room);
     setJoinButtonLoading(false);

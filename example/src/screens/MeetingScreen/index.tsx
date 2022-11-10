@@ -455,7 +455,7 @@ const DisplayView = (data: {
         nodesPresent,
         type === HMSTrackUpdate.TRACK_DEGRADED,
       );
-      changePeerTrackNodes(updatedNodesPresent, peer, track); 
+      changePeerTrackNodes(updatedNodesPresent, peer, track);
       return;
     }
   };
