@@ -989,13 +989,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func setSessionMetaData(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        guard let metaData = data.value(forKey: "sessionMetaData") as? String
-        else {
-            let errorMessage = "setSessionMetaData: " + HMSHelper.getUnavailableRequiredKey(data, ["sessionMetaData"])
-            emitRequiredKeysError(errorMessage)
-            reject?(errorMessage, errorMessage, nil)
-            return
-        }
+        let metaData = data.value(forKey: "sessionMetaData") as? String ?? ""
 
         hms?.setSessionMetadata(metaData) { success, error in
             if success {

@@ -1327,9 +1327,7 @@ class HMSRNSDK(
   }
 
   fun setSessionMetaData(data: ReadableMap, callback: Promise?) {
-    val requiredKeys =
-        HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("sessionMetaData", "String")))
-    if (requiredKeys === null) {
+    if (data.hasKey("sessionMetaData")) {
       val sessionMetaData = data.getString("sessionMetaData")
       hmsSDK?.setSessionMetaData(
           sessionMetaData,
@@ -1345,7 +1343,7 @@ class HMSRNSDK(
           }
       )
     } else {
-      val errorMessage = "setSessionMetaData: $requiredKeys"
+      val errorMessage = "setSessionMetaData: sessionMetaData_Is_Required"
       self.emitRequiredKeysError(errorMessage)
       rejectCallback(callback, errorMessage)
     }

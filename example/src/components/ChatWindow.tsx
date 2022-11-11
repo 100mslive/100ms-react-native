@@ -12,6 +12,7 @@ import {
   HMSMessage,
   HMSMessageRecipient,
   HMSMessageRecipientType,
+  HMSMessageType,
   HMSPeer,
   HMSRemotePeer,
   HMSRole,
@@ -29,7 +30,7 @@ import {COLORS} from '../utils/theme';
 import type {RootState} from '../redux';
 import {CustomInput} from './CustomInput';
 import {CustomButton} from './CustomButton';
-import {addMessage} from '../redux/actions';
+import {addMessage, addPinnedMessage} from '../redux/actions';
 
 const getTimeStringin12HourFormat = (time: Date) => {
   let hours = time.getHours();
@@ -149,7 +150,11 @@ const ChatFilter = ({
   );
 };
 
-const ChatList = () => {
+const ChatList = ({
+  setSessionMetaData,
+}: {
+  setSessionMetaData: (value: string | null) => void;
+}) => {
   const {messages} = useSelector((state: RootState) => state.messages);
 
   // const scollviewRef = useRef<FlatList>(null);
@@ -214,6 +219,26 @@ const ChatList = () => {
                   </Text>
                 </View>
               )}
+              {data.recipient.recipientType ===
+                HMSMessageRecipientType.BROADCAST && (
+                <CustomButton
+                  onPress={() =>
+                    setSessionMetaData(
+                      `${data.sender ? data.sender?.name : 'Anonymous'}: ${
+                        data.message
+                      }`,
+                    )
+                  }
+                  viewStyle={styles.pinIconContainer}
+                  LeftIcon={
+                    <MaterialCommunityIcons
+                      style={styles.pinIcon}
+                      size={24}
+                      name="pin-outline"
+                    />
+                  }
+                />
+              )}
             </View>
             <Text style={styles.messageText}>{data.message}</Text>
           </View>
@@ -227,6 +252,7 @@ const ChatList = () => {
 export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
   // hooks
   const {hmsInstance} = useSelector((state: RootState) => state.user);
+  const {pinnedMessage} = useSelector((state: RootState) => state.messages);
   const dispatch = useDispatch();
   const {bottom} = useSafeAreaInsets();
 
@@ -236,8 +262,15 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
   const [receiverObject, setReceiverObject] = useState<
     'everyone' | HMSRole | HMSRemotePeer
   >('everyone');
-  const [showBanner, setShowBanner] = useState<boolean>(true);
+  const [showBanner, setShowBanner] = useState<boolean>(false);
   const [text, setText] = useState('');
+
+  const setSessionMetaData = (value: string | null) => {
+    hmsInstance?.setSessionMetaData(value).then(() => {
+      hmsInstance?.sendBroadcastMessage('refresh', HMSMessageType.METADATA);
+      dispatch(addPinnedMessage(value));
+    });
+  };
 
   const sendMessage = () => {
     let hmsMessageRecipient: HMSMessageRecipient;
@@ -264,7 +297,7 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
         addMessage(
           new HMSMessage({
             message: text,
-            type: 'chat',
+            type: HMSMessageType.CHAT,
             time: new Date(),
             sender: localPeer,
             recipient: hmsMessageRecipient,
@@ -312,7 +345,32 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
             />
           </View>
         )}
-        <ChatList />
+        {pinnedMessage && pinnedMessage?.length && (
+          <View style={styles.banner}>
+            <View style={styles.bannerIconContainer}>
+              <MaterialCommunityIcons
+                style={styles.bannerIcon}
+                size={16}
+                name="pin-outline"
+              />
+            </View>
+            <View style={styles.bannerTextContainer}>
+              <Text style={styles.bannerText}>{pinnedMessage}</Text>
+            </View>
+            <CustomButton
+              onPress={() => setSessionMetaData(null)}
+              viewStyle={styles.bannerIconContainer}
+              LeftIcon={
+                <MaterialCommunityIcons
+                  style={styles.bannerIcon}
+                  size={24}
+                  name="close"
+                />
+              }
+            />
+          </View>
+        )}
+        <ChatList setSessionMetaData={setSessionMetaData} />
       </View>
       <View
         style={bottom === 0 ? styles.inputContainer : {marginBottom: bottom}}>
@@ -532,5 +590,13 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     marginBottom: 16,
+  },
+  pinIcon: {
+    color: 'white',
+  },
+  pinIconContainer: {
+    flex: 1,
+    height: '100%',
+    justifyContent: 'flex-end',
   },
 });

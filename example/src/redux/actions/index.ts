@@ -7,6 +7,11 @@ export const addMessage = (data: HMSMessage) => ({
   payload: data,
 });
 
+export const addPinnedMessage = (data: string | null) => ({
+  type: actionTypes.ADD_PINNED_MESSAGE.REQUEST,
+  payload: data,
+});
+
 export const clearMessageData = () => ({
   type: actionTypes.CLEAR_MESSAGE_DATA.REQUEST,
 });
