@@ -201,11 +201,21 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
+  renderHLSVideo: {
+    height: '100%',
+    width: '100%',
+  },
   renderVideo: {
     height: '100%',
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  liveButton: {
+    position: 'absolute',
+    bottom: 0,
+    right: 12,
+    zIndex: 1,
   },
   // brbContainer: {
   //   flex: 1,
