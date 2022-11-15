@@ -73,6 +73,7 @@ export * from './classes/HMSAudioMixerSource';
 export * from './classes/HMSTrackSettingsInitState';
 export * from './classes/HMSLogSettings';
 export * from './classes/HMSLogAlarmManager';
+export * from './classes/HMSMessageType';
 
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
 export default HmsManager;

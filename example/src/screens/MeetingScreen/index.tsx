@@ -6,6 +6,7 @@ import {
   HMSException,
   HMSLocalPeer,
   HMSMessage,
+  HMSMessageType,
   HMSPeer,
   HMSPeerUpdate,
   HMSRoleChangeRequest,
@@ -72,6 +73,7 @@ import type {RootState} from '../../redux';
 import type {AppStackParamList} from '../../navigator';
 import {
   addMessage,
+  addPinnedMessage,
   clearHmsReference,
   clearMessageData,
   clearPeerData,
@@ -491,13 +493,16 @@ const DisplayView = (data: {
   };
 
   const onMessageListener = (message: HMSMessage) => {
-    dispatch(addMessage(message));
-    // Toast.showWithGravity(
-    //   `${message.sender?.name}: ${message.message}`,
-    //   Toast.SHORT,
-    //   Toast.TOP,
-    // );
-    // setNotification(true);
+    switch (message.type) {
+      case HMSMessageType.METADATA:
+        hmsInstance?.getSessionMetaData().then((value: string | null) => {
+          dispatch(addPinnedMessage(value));
+        });
+        break;
+      default:
+        dispatch(addMessage(message));
+        break;
+    }
   };
 
   // functions
@@ -642,6 +647,12 @@ const DisplayView = (data: {
     });
   };
 
+  const getSessionMetaData = () => {
+    hmsInstance?.getSessionMetaData().then((value: string | null) => {
+      dispatch(addPinnedMessage(value));
+    });
+  };
+
   // useEffect hook
   useEffect(() => {
     const callback = () => {
@@ -650,6 +661,7 @@ const DisplayView = (data: {
     updateHmsInstance(hmsInstance);
     getHmsRoles();
     callback();
+    getSessionMetaData();
     Dimensions.addEventListener('change', callback);
     return () => {
       Dimensions.removeEventListener('change', callback);

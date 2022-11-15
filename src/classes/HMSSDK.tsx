@@ -34,6 +34,7 @@ import type { HMSAudioDevice } from './HMSAudioDevice';
 import type { HMSAudioMode } from './HMSAudioMode';
 import type { HMSAudioMixingMode } from './HMSAudioMixingMode';
 import type { HMSLogSettings } from './HMSLogSettings';
+import { HMSMessageType } from './HMSMessageType';
 
 interface HmsViewProps {
   trackId: string;
@@ -464,7 +465,10 @@ export class HMSSDK {
    * @param {message: string} and @param {type: string}
    * @memberof HMSSDK
    */
-  sendBroadcastMessage = async (message: string, type: string = 'chat') => {
+  sendBroadcastMessage = async (
+    message: string,
+    type: HMSMessageType = HMSMessageType.CHAT
+  ) => {
     logger?.verbose('#Function sendBroadcastMessage', {
       message,
       type: type || null,
@@ -488,7 +492,7 @@ export class HMSSDK {
   sendGroupMessage = async (
     message: string,
     roles: HMSRole[],
-    type: string = 'chat'
+    type: HMSMessageType = HMSMessageType.CHAT
   ) => {
     logger?.verbose('#Function sendGroupMessage', {
       message,
@@ -515,7 +519,7 @@ export class HMSSDK {
   sendDirectMessage = async (
     message: string,
     peer: HMSPeer,
-    type: string = 'chat'
+    type: HMSMessageType = HMSMessageType.CHAT
   ) => {
     logger?.verbose('#Function sendDirectMessage', {
       message,
@@ -1188,7 +1192,7 @@ export class HMSSDK {
     }
   };
 
-  setSessionMetaData = async (sessionMetaData: string) => {
+  setSessionMetaData = async (sessionMetaData: string | null) => {
     logger?.verbose('#Function setSessionMetaData', {
       id: this.id,
       sessionMetaData,
