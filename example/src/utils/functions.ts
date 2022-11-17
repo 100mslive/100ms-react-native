@@ -390,6 +390,12 @@ export const getPeerTrackNodes = (
   return nodes;
 };
 
+export const getPeerTrackNodeFromPairedPeers = (pairedPeers: PeerTrackNode[][], peerToFind: HMSPeer) => {
+  const peerTracks = pairedPeers.flat();
+
+  return peerTracks.find(peer => peer.peer.peerID === peerToFind.peerID) || null;
+}
+
 export const updatedDegradedFlag = (
   peerTrackNodes: PeerTrackNode[],
   isDegraded: boolean,
@@ -747,3 +753,31 @@ export const getDisplayTrackDimensions = (
 
   return {height, width};
 };
+
+// getTrackForPIPView function
+// returns first remote peerTrack that it founds
+// otherwise returns first valid peerTrack
+export const getTrackForPIPView = (pairedPeers: PeerTrackNode[][]) => {
+  const peerTracks = pairedPeers.flat();
+
+  if (peerTracks.length <= 0) {
+    return null;
+  }
+
+  let firstValidTrack = null;
+
+  for (const peerTrack of peerTracks) {
+
+    // checking if peer object is valid and peer is remote (not local)
+    if (peerTrack.peer && peerTrack.peer.isLocal === false) {
+      return peerTrack;
+    }
+
+    // checking if we have first valid peerTrack
+    if (firstValidTrack === null && !!peerTrack.peer) {
+      firstValidTrack = peerTrack;
+    }
+  }
+
+  return firstValidTrack;
+}

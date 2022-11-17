@@ -66,3 +66,9 @@ export enum Theme {
   LIGHT = 'Light',
   DARK = 'Dark',
 }
+
+export enum PipModes {
+  NOT_AVAILABLE = -1,
+  ACTIVE = 0,
+  INACTIVE = 1,
+}
