@@ -44,6 +44,11 @@ interface HmsViewProps {
   setZOrderMediaOverlay?: boolean;
 }
 
+interface PIPConfig {
+  aspectRatio?: [number, number];
+  autoEnterEnabled?: boolean
+}
+
 const {
   /**
    * @ignore
@@ -133,6 +138,18 @@ export class HMSSDK {
    */
   static getLogger() {
     return getLogger();
+  }
+
+  async isPipModeSupported(): Promise<undefined | boolean> {
+    return HMSManager.handlePipActions('isPipModeSupported', null);
+  }
+
+  async enablePipMode(data?: PIPConfig): Promise<undefined | boolean> {
+    return HMSManager.handlePipActions('enablePipMode', data || null);
+  }
+
+  async setPipParams(data?: PIPConfig): Promise<undefined | boolean> {
+    return HMSManager.handlePipActions('setPictureInPictureParams', data || null);
   }
 
   /**

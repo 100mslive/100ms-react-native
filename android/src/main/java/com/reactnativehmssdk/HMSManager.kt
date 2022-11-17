@@ -2,7 +2,12 @@ package com.reactnativehmssdk
 
 import android.app.Activity
 import android.app.Application
+import android.app.PictureInPictureParams
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.util.Rational
+import androidx.annotation.RequiresApi
 import com.facebook.react.bridge.*
 import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.modules.core.DeviceEventManagerModule
@@ -44,6 +49,146 @@ class HMSManager(reactContext: ReactApplicationContext) :
       hmsCollection[randomUUIDString] = sdkInstance
 
       callback?.resolve(randomUUIDString)
+    }
+  }
+
+  data class PipParamConfig(val aspectRatio: Pair<Int, Int>?, val autoEnterEnabled: Boolean?)
+
+  @ReactMethod
+  fun handlePipActions(action: String, data: ReadableMap?, promise: Promise?) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+      promise?.reject(Throwable("PIP mode is not supported!"))
+      return
+    }
+
+    try {
+      when(action) {
+        "isPipModeSupported" -> {
+          val result = isPipModeSupported()
+          promise?.resolve(result)
+        }
+        "enablePipMode" -> {
+          val result = enablePipMode(data)
+          promise?.resolve(result)
+        }
+        "setPictureInPictureParams" -> {
+          val result = setPictureInPictureParams(data)
+          promise?.resolve(result)
+        }
+      }
+    } catch (e: Exception) {
+      promise?.reject(e)
+    }
+  }
+
+  /**
+   * Builds and returns PictureInPictureParams as per given config
+   * Currently we are supporting only "aspectRatio" and "autoEnterEnabled" in config
+   */
+  @RequiresApi(Build.VERSION_CODES.O)
+  private fun buildPipParams(config: PipParamConfig): PictureInPictureParams {
+    val pipParams = PictureInPictureParams.Builder().let {
+      if (config.aspectRatio !== null) {
+        it.setAspectRatio(Rational(
+          config.aspectRatio.first,
+          config.aspectRatio.second
+        ))
+      }
+
+//      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && config.autoEnterEnabled !== null)
+//        it.setAutoEnterEnabled(config.autoEnterEnabled)
+//      }
+
+      it.build()
+    }
+
+    return pipParams
+  }
+
+  @RequiresApi(Build.VERSION_CODES.O)
+  private fun readableMapToPipParamConfig(data: ReadableMap?): PipParamConfig {
+    var aspectRatio: Pair<Int, Int>? = null;
+    var autoEnterEnabled: Boolean? = null;
+
+    if (data !== null) {
+      if (data.hasKey("aspectRatio")) {
+        val aspectRatioArray = data.getArray("aspectRatio")
+
+        if (aspectRatioArray !== null) {
+          val firstItemType = aspectRatioArray.getType(0)
+          var firstItem: Int? = null
+          if (firstItemType === ReadableType.Number) {
+            firstItem = aspectRatioArray.getInt(0)
+          }
+
+          val secondItemType = aspectRatioArray.getType(1)
+          var secondItem: Int? = null
+          if (secondItemType === ReadableType.Number) {
+            secondItem = aspectRatioArray.getInt(1)
+          }
+
+          if (firstItem !== null && secondItem !== null) {
+            println("numerator: $firstItem, denominator: $secondItem")
+            aspectRatio = Pair(firstItem, secondItem)
+          }
+        }
+      }
+
+      if (data.hasKey("autoEnterEnabled")) {
+        val autoEnterEnabledType = data.getType("autoEnterEnabled")
+
+        if (autoEnterEnabledType === ReadableType.Boolean) {
+          autoEnterEnabled = data.getBoolean("autoEnterEnabled")
+        }
+      }
+    }
+
+    return PipParamConfig(aspectRatio, autoEnterEnabled)
+  }
+
+  @RequiresApi(Build.VERSION_CODES.O)
+  private fun setPictureInPictureParams(data: ReadableMap?): Boolean {
+    if (!isPipModeSupported()) {
+      throw Throwable(message = "PIP Mode is not supported!")
+    }
+
+    val activity = currentActivity;
+
+    if (activity !== null) {
+      val pipParamConfig = readableMapToPipParamConfig(data)
+      val pipParams = buildPipParams(pipParamConfig)
+
+      activity.setPictureInPictureParams(pipParams)
+      return true
+    }
+
+    return false
+  }
+
+  @RequiresApi(Build.VERSION_CODES.O)
+  private fun isPipModeSupported(): Boolean {
+    return reactApplicationContext.packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
+  }
+
+  @RequiresApi(Build.VERSION_CODES.O)
+  private fun enablePipMode(data: ReadableMap?): Boolean {
+    try {
+      if (!isPipModeSupported()) {
+        throw Throwable(message = "PIP Mode is not supported!")
+      }
+
+      val activity = currentActivity;
+
+      if (activity !== null) {
+        val pipParamConfig = readableMapToPipParamConfig(data)
+        val pipParams = buildPipParams(pipParamConfig)
+
+        return activity.enterPictureInPictureMode(pipParams)
+      }
+
+      return false;
+    } catch (e: Exception) {
+      throw e
     }
   }
 
