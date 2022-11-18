@@ -46,7 +46,6 @@ interface HmsViewProps {
 
 interface PIPConfig {
   aspectRatio?: [number, number];
-  autoEnterEnabled?: boolean
 }
 
 const {
@@ -1726,7 +1725,7 @@ export class HMSSDK {
   }
 
   async enablePipMode(data?: PIPConfig): Promise<undefined | boolean> {
-    const config = { aspectRatio: [16, 9], autoEnterEnabled: false, ...(data || {}) };
+    const config = { aspectRatio: [16, 9], ...(data || {}) };
 
     return HMSManager.handlePipActions('enablePipMode', config);
   }

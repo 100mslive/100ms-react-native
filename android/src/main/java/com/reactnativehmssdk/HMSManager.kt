@@ -430,7 +430,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
     hms?.getSessionMetaData(callback)
   }
 
-  data class PipParamConfig(val aspectRatio: Pair<Int, Int>?, val autoEnterEnabled: Boolean?)
+  data class PipParamConfig(val aspectRatio: Pair<Int, Int>?)
 
   @ReactMethod
   fun handlePipActions(action: String, data: ReadableMap?, promise: Promise?) {
@@ -461,7 +461,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
 
   /**
    * Builds and returns PictureInPictureParams as per given config
-   * Currently we are supporting only "aspectRatio" and "autoEnterEnabled" in config
+   * Currently we are supporting only "aspectRatio" in config
    */
   @RequiresApi(Build.VERSION_CODES.O)
   private fun buildPipParams(config: PipParamConfig): PictureInPictureParams {
@@ -473,6 +473,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
         ))
       }
 
+//      TODO:= We need compileSdkVersion >= 31 for autoEnterEnabled
 //      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && config.autoEnterEnabled !== null)
 //        it.setAutoEnterEnabled(config.autoEnterEnabled)
 //      }
@@ -486,7 +487,8 @@ class HMSManager(reactContext: ReactApplicationContext) :
   @RequiresApi(Build.VERSION_CODES.O)
   private fun readableMapToPipParamConfig(data: ReadableMap?): PipParamConfig {
     var aspectRatio: Pair<Int, Int>? = null;
-    var autoEnterEnabled: Boolean? = null;
+//    TODO:= We need compileSdkVersion >= 31 for autoEnterEnabled
+//    var autoEnterEnabled: Boolean? = null;
 
     if (data !== null) {
       if (data.hasKey("aspectRatio")) {
@@ -511,16 +513,17 @@ class HMSManager(reactContext: ReactApplicationContext) :
         }
       }
 
-      if (data.hasKey("autoEnterEnabled")) {
-        val autoEnterEnabledType = data.getType("autoEnterEnabled")
-
-        if (autoEnterEnabledType === ReadableType.Boolean) {
-          autoEnterEnabled = data.getBoolean("autoEnterEnabled")
-        }
-      }
+//      TODO:= We need compileSdkVersion >= 31 for autoEnterEnabled
+//      if (data.hasKey("autoEnterEnabled")) {
+//        val autoEnterEnabledType = data.getType("autoEnterEnabled")
+//
+//        if (autoEnterEnabledType === ReadableType.Boolean) {
+//          autoEnterEnabled = data.getBoolean("autoEnterEnabled")
+//        }
+//      }
     }
 
-    return PipParamConfig(aspectRatio, autoEnterEnabled)
+    return PipParamConfig(aspectRatio)
   }
 
   @RequiresApi(Build.VERSION_CODES.O)
