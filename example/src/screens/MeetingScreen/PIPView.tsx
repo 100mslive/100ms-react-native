@@ -3,12 +3,10 @@ import { useSelector } from 'react-redux';
 import type { HMSSpeaker } from '@100mslive/react-native-hms';
 import { HMSUpdateListenerActions } from '@100mslive/react-native-hms';
 
-import { styles } from './styles';
-
 import type { PeerTrackNode } from '../../utils/types';
 import type { RootState } from '../../redux';
 
-import { DisplayTrack } from './DisplayTrack';
+import PeerDisplayView from './PeerDisplayView';
 import { getPeerTrackNodeFromPairedPeers, getTrackForPIPView } from '../../utils/functions';
 
 const useFirstActiveSpeaker = (addListener = true) => {
@@ -46,11 +44,10 @@ const PIPView: React.FC<PIPViewProps> = ({ pairedPeers }) => {
   // Render remote screen share is it is available
   if (isPreferedPeerTrackScreenShare) {
     return (
-      <DisplayTrack
+      <PeerDisplayView
         isLocal={preferedPeerTrack?.peer?.isLocal}
         peerName={preferedPeerTrack?.peer?.name}
         videoTrack={preferedPeerTrack?.track}
-        videoStyles={styles.generalTile}
         isDegraded={preferedPeerTrack?.isDegraded}
       />
     )
@@ -87,11 +84,10 @@ const PIPActiveSpeakerPeerTrack: React.FC<PIPActiveSpeakerPeerTrackProps> = ({ p
   }
 
   return (
-    <DisplayTrack
+    <PeerDisplayView
       isLocal={peerTrackToUse?.peer?.isLocal}
       peerName={peerTrackToUse?.peer?.name}
       videoTrack={peerTrackToUse?.track}
-      videoStyles={styles.generalTile}
       isDegraded={peerTrackToUse?.isDegraded}
     />
   );
