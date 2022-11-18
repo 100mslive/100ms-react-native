@@ -24,8 +24,7 @@ import * as services from '../services/index';
 import {PERMISSIONS, requestMultiple, RESULTS} from 'react-native-permissions';
 
 export const getMeetingUrl = () =>
-  // 'https://jatinnagar-jatin.app.100ms.live/streaming/preview/zrx-mkc-kpw'; // hls-viewer
-  'https://jatinnagar-jatin.app.100ms.live/streaming/meeting/mki-scw-wnw'; // broadcaster
+  'https://yogi.app.100ms.live/preview/nih-bkn-vek';
 
 export const getMeetingCode = () => 'nih-bkn-vek';
 
