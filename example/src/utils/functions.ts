@@ -24,7 +24,8 @@ import * as services from '../services/index';
 import {PERMISSIONS, requestMultiple, RESULTS} from 'react-native-permissions';
 
 export const getMeetingUrl = () =>
-  'https://yogi.app.100ms.live/preview/nih-bkn-vek';
+  // 'https://jatinnagar-jatin.app.100ms.live/streaming/preview/zrx-mkc-kpw'; // hls-viewer
+  'https://jatinnagar-jatin.app.100ms.live/streaming/meeting/mki-scw-wnw'; // broadcaster
 
 export const getMeetingCode = () => 'nih-bkn-vek';
 
@@ -755,7 +756,7 @@ export const getDisplayTrackDimensions = (
 };
 
 // getTrackForPIPView function
-// returns first remote peerTrack that it founds
+// returns first remote peerTrack (regular or screenshare) that it founds
 // otherwise returns first valid peerTrack
 export const getTrackForPIPView = (pairedPeers: PeerTrackNode[][]) => {
   const peerTracks = pairedPeers.flat();
@@ -765,19 +766,29 @@ export const getTrackForPIPView = (pairedPeers: PeerTrackNode[][]) => {
   }
 
   let firstValidTrack = null;
+  let firstRemoteTrack = null;
 
   for (const peerTrack of peerTracks) {
+    // If peer is not valid, continue to next item
+    if (!peerTrack.peer) {
+      continue;
+    }
 
-    // checking if peer object is valid and peer is remote (not local)
-    if (peerTrack.peer && peerTrack.peer.isLocal === false) {
+    // Checking if we have "remote" screenshare track
+    if (peerTrack.peer.isLocal === false && peerTrack.track && peerTrack.track.source !== 'regular') {
       return peerTrack;
+    }
+    
+    // checking if we have first valid remote peerTrack
+    if (firstRemoteTrack === null && peerTrack.peer.isLocal === false) {
+      firstRemoteTrack = peerTrack;
     }
 
     // checking if we have first valid peerTrack
-    if (firstValidTrack === null && !!peerTrack.peer) {
+    if (firstValidTrack === null) {
       firstValidTrack = peerTrack;
     }
   }
 
-  return firstValidTrack;
+  return firstRemoteTrack || firstValidTrack;
 }

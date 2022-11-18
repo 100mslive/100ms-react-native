@@ -35,22 +35,43 @@ const useFirstActiveSpeaker = (addListener = true) => {
   return activeSpeaker;
 }
 
-const usePIPTrack = (pairedPeers: PeerTrackNode[][]): PeerTrackNode | null => {
+type PIPViewProps = {
+  pairedPeers: PeerTrackNode[][];
+};
+
+const PIPView: React.FC<PIPViewProps> = ({ pairedPeers }) => {
   const preferedPeerTrack = getTrackForPIPView(pairedPeers);
-  const isPreferedPeerTrackScreenShare = preferedPeerTrack?.track?.source !== 'regular'; // Screen Share Track
+  const isPreferedPeerTrackScreenShare = preferedPeerTrack && preferedPeerTrack.track && preferedPeerTrack.track.source !== 'regular'; // Screen Share Track
 
-  // we should track active speaker only when preferred track is not screen share
-  const trackActiveSpeaker = isPreferedPeerTrackScreenShare === false;
-  const activeSpeaker = useFirstActiveSpeaker(trackActiveSpeaker);
+  // Render remote screen share is it is available
+  if (isPreferedPeerTrackScreenShare) {
+    return (
+      <DisplayTrack
+        isLocal={preferedPeerTrack?.peer?.isLocal}
+        peerName={preferedPeerTrack?.peer?.name}
+        videoTrack={preferedPeerTrack?.track}
+        videoStyles={styles.generalTile}
+        isDegraded={preferedPeerTrack?.isDegraded}
+      />
+    )
+  }
 
-  let peerTrack = preferedPeerTrack;
+  // otherwise render active speaker or available peertrack
+  return <PIPActiveSpeakerPeerTrack pairedPeers={pairedPeers} nonActiveSpeaker={preferedPeerTrack}  />
+};
 
-  // Show activeSpeaker
-  // 1. when it exists and
-  // 2. it is remote and 
-  // 3. screen share is not happening
-  if (activeSpeaker && !activeSpeaker.peer.isLocal && !isPreferedPeerTrackScreenShare) {
+interface PIPActiveSpeakerPeerTrackProps {
+  pairedPeers: PeerTrackNode[][];
+  nonActiveSpeaker: PeerTrackNode | null
+}
 
+const PIPActiveSpeakerPeerTrack: React.FC<PIPActiveSpeakerPeerTrackProps> = ({ pairedPeers, nonActiveSpeaker }) => {
+  const activeSpeaker = useFirstActiveSpeaker();
+
+  let peerTrackToUse = nonActiveSpeaker;
+
+  // Active Speaker should be remote, Ignore local active speaker
+  if (activeSpeaker && !activeSpeaker.peer.isLocal) {
     // getting PeerTrack of active speaker from pairedPeers
     const activeSpeakerPeerTrack = getPeerTrackNodeFromPairedPeers(pairedPeers, activeSpeaker.peer);
 
@@ -58,33 +79,23 @@ const usePIPTrack = (pairedPeers: PeerTrackNode[][]): PeerTrackNode | null => {
       throw new Error('Active Speaker not found in pairedPeers!');
     }
 
-    // if active speaker not found in pairedPeers then create PeerTrack node for it.
-    peerTrack = activeSpeakerPeerTrack;
+    peerTrackToUse = activeSpeakerPeerTrack;
   }
 
-  return peerTrack;
-}
-
-type PIPViewProps = {
-  pairedPeers: PeerTrackNode[][];
-};
-
-const PIPView: React.FC<PIPViewProps> = ({ pairedPeers }) => {
-  const peerTrack = usePIPTrack(pairedPeers);
-    
-  if (!peerTrack) {
+  if (!peerTrackToUse) {
     return null;
   }
 
   return (
     <DisplayTrack
-      isLocal={peerTrack?.peer?.isLocal}
-      peerName={peerTrack?.peer?.name}
-      videoTrack={peerTrack?.track}
+      isLocal={peerTrackToUse?.peer?.isLocal}
+      peerName={peerTrackToUse?.peer?.name}
+      videoTrack={peerTrackToUse?.track}
       videoStyles={styles.generalTile}
-      isDegraded={peerTrack?.isDegraded}
+      isDegraded={peerTrackToUse?.isDegraded}
     />
   );
 };
+
 
 export default PIPView;
