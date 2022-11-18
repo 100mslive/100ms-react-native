@@ -46,6 +46,7 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
     } = props;
 
     const hmsViewRef: any = useRef();
+    const timerRef = useRef<null | NodeJS.Timeout>(null);
     const [tempVal, setTempVal] = useState(0);
     const data = {
       trackId,
@@ -53,10 +54,23 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
       mirror,
     };
 
+    useEffect(() => {
+      return () => {
+        if (timerRef.current) {
+          clearTimeout(timerRef.current);
+        }
+      };
+    }, []);
+
     const onChange = (values: any) => {
       console.log(values, 'values');
-      setTimeout(() => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+
+      timerRef.current = setTimeout(() => {
         setTempVal(1);
+        timerRef.current = null;
       }, 2000);
     };
 
