@@ -20,7 +20,7 @@ import {
   HMSUpdateListenerActions,
 } from '@100mslive/react-native-hms';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {View, Text, SafeAreaView, Platform, Dimensions, AppState, AppStateStatus} from 'react-native';
+import {View, Text, SafeAreaView, Platform, Dimensions, AppState, AppStateStatus, LayoutAnimation} from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -141,6 +141,7 @@ const Meeting = () => {
           appState.current.match(/inactive|background/) &&
           nextAppState === "active"
         ) {
+          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
           dispatch(changePipModeStatus(PipModes.INACTIVE));
         }
   
