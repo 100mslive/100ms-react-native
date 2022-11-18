@@ -1150,7 +1150,7 @@ const Footer = ({
           }
 
           try {
-            const isEnabled = await hmsInstance?.enablePipMode({ aspectRatio: [16, 9], autoEnterEnabled: false });
+            const isEnabled = await hmsInstance?.enablePipMode();
             if (isEnabled === true) {
               dispatch(changePipModeStatus(PipModes.ACTIVE));
             }

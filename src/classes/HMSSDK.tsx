@@ -140,18 +140,6 @@ export class HMSSDK {
     return getLogger();
   }
 
-  async isPipModeSupported(): Promise<undefined | boolean> {
-    return HMSManager.handlePipActions('isPipModeSupported', null);
-  }
-
-  async enablePipMode(data?: PIPConfig): Promise<undefined | boolean> {
-    return HMSManager.handlePipActions('enablePipMode', data || null);
-  }
-
-  async setPipParams(data?: PIPConfig): Promise<undefined | boolean> {
-    return HMSManager.handlePipActions('setPictureInPictureParams', data || null);
-  }
-
   /**
    * - Updates the logger for this instance of HMSSDK
    * @param {HMSLogger} hmsLogger
@@ -1732,4 +1720,18 @@ export class HMSSDK {
       });
     }
   };
+
+  async isPipModeSupported(): Promise<undefined | boolean> {
+    return HMSManager.handlePipActions('isPipModeSupported', null);
+  }
+
+  async enablePipMode(data?: PIPConfig): Promise<undefined | boolean> {
+    const config = { aspectRatio: [16, 9], autoEnterEnabled: false, ...(data || {}) };
+
+    return HMSManager.handlePipActions('enablePipMode', config);
+  }
+
+  async setPipParams(data?: PIPConfig): Promise<undefined | boolean> {
+    return HMSManager.handlePipActions('setPictureInPictureParams', data || null);
+  }
 }
