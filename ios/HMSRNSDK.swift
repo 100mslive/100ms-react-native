@@ -1025,10 +1025,10 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
         resolve?(roles)
     }
-    
+
     func getSessionMetaData(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        hms?.getSessionMetadata(){ result, error in
-            if (error != nil) {
+        hms?.getSessionMetadata { result, error in
+            if error != nil {
                 self.delegate?.emitEvent(self.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self.id])
                 reject?(error?.localizedDescription, error?.localizedDescription, nil)
             } else {

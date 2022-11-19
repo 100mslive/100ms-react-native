@@ -147,7 +147,7 @@ class HMSHelper: NSObject {
     }
 
     static func getLocalVideoSettings(_ settings: NSDictionary?) -> HMSVideoTrackSettings? {
-        if (settings === nil) {
+        if settings === nil {
             return nil
         }
         let codec = HMSCodec.VP8
@@ -172,7 +172,7 @@ class HMSHelper: NSObject {
     }
 
     static func getLocalAudioSettings(_ settings: NSDictionary?, _ hms: HMSSDK?, _ delegate: HMSManager?, _ id: String) -> HMSAudioTrackSettings? {
-        if (settings === nil) {
+        if settings === nil {
             return nil
         }
         let initialState = settings?.value(forKey: "initialState") as? String
@@ -243,7 +243,7 @@ class HMSHelper: NSObject {
             return HMSCameraFacing.front
         }
     }
-    
+
     static func getHMSTrackSettingsInitState(_ initState: String?) -> HMSTrackMuteState {
         switch initState {
         case "MUTED":
@@ -254,7 +254,7 @@ class HMSHelper: NSObject {
             return HMSTrackMuteState.unmute
         }
     }
-    
+
     static func getHMSTrackInitState(_ initState: HMSTrackMuteState?) -> String {
         switch initState {
         case .mute:

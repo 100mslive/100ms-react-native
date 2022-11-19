@@ -22,7 +22,7 @@ class HMSDecoder: NSObject {
         for peer in room.peers {
             let parsedPeer = getHmsPeer(peer)
             peers.append(parsedPeer)
-            if(peer.isLocal){
+            if peer.isLocal {
                 localPeer = parsedPeer
             }
         }
