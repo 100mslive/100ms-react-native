@@ -32,50 +32,46 @@ const PeerDisplayView = ({
     return null;
   }
 
-  if (videoTrack?.isMute() || videoTrack?.trackId === undefined) {
-    return (
-      <View style={peerDisplayViewStyles.container}>
+  return (
+    <View style={peerDisplayViewStyles.container}>
+      {videoTrack?.isMute() || videoTrack?.trackId === undefined ? (
         <View style={styles.avatarContainer}>
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>{getInitials(peerName)}</Text>
           </View>
         </View>
-      </View>
-    );
-  }
-
-  return (
-    <View style={peerDisplayViewStyles.container}>
-      <View style={styles.flex}>
-        <HmsView
-          // setZOrderMediaOverlay={miniView}
-          trackId={videoTrack?.trackId!}
-          mirror={
-            isLocal && mirrorLocalVideo !== undefined
-              ? mirrorLocalVideo
-              : false
-          }
-          scaleType={
-            videoTrack?.source !== undefined &&
-            videoTrack?.source !== HMSTrackSource.REGULAR
-              ? HMSVideoViewMode.ASPECT_FIT
-              : HMSVideoViewMode.ASPECT_FILL
-          }
-          style={
-            videoTrack?.source !== undefined &&
-            videoTrack?.source !== HMSTrackSource.REGULAR
-              ? styles.hmsViewScreen
-              : styles.hmsView
-          }
-        />
-        {isDegraded && (
-          <View style={styles.degradedContainer}>
-            <View style={styles.avatarContainer}>
-              <Text style={styles.degradedText}>Degraded</Text>
+      ) : (
+        <View style={styles.flex}>
+          <HmsView
+            // setZOrderMediaOverlay={miniView}
+            trackId={videoTrack?.trackId!}
+            mirror={
+              isLocal && mirrorLocalVideo !== undefined
+                ? mirrorLocalVideo
+                : false
+            }
+            scaleType={
+              videoTrack?.source !== undefined &&
+              videoTrack?.source !== HMSTrackSource.REGULAR
+                ? HMSVideoViewMode.ASPECT_FIT
+                : HMSVideoViewMode.ASPECT_FILL
+            }
+            style={
+              videoTrack?.source !== undefined &&
+              videoTrack?.source !== HMSTrackSource.REGULAR
+                ? styles.hmsViewScreen
+                : styles.hmsView
+            }
+          />
+          {isDegraded && (
+            <View style={styles.degradedContainer}>
+              <View style={styles.avatarContainer}>
+                <Text style={styles.degradedText}>Degraded</Text>
+              </View>
             </View>
-          </View>
-        )}
-      </View>
+          )}
+        </View>
+      )}
     </View>
   );
 };

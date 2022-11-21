@@ -760,34 +760,24 @@ export const getDisplayTrackDimensions = (
 export const getTrackForPIPView = (pairedPeers: PeerTrackNode[][]) => {
   const peerTracks = pairedPeers.flat();
 
-  if (peerTracks.length <= 0) {
-    return null;
-  }
-
-  let firstValidTrack = null;
-  let firstRemoteTrack = null;
+  // local
+  let videoPeerTrackNode = peerTracks[0]
 
   for (const peerTrack of peerTracks) {
-    // If peer is not valid, continue to next item
-    if (!peerTrack.peer) {
-      continue;
-    }
-
     // Checking if we have "remote" screenshare track
-    if (peerTrack.peer.isLocal === false && peerTrack.track && peerTrack.track.source !== 'regular') {
+    if (peerTrack.peer.isLocal === false
+        && peerTrack.track
+        && peerTrack.track.source !== HMSTrackSource.REGULAR
+        && peerTrack.track.type === HMSTrackType.VIDEO
+    ) {
       return peerTrack;
     }
-    
-    // checking if we have first valid remote peerTrack
-    if (firstRemoteTrack === null && peerTrack.peer.isLocal === false) {
-      firstRemoteTrack = peerTrack;
-    }
 
-    // checking if we have first valid peerTrack
-    if (firstValidTrack === null) {
-      firstValidTrack = peerTrack;
+    // remote
+    if (peerTrack.peer.isLocal === false) {
+      return peerTrack;
     }
   }
 
-  return firstRemoteTrack || firstValidTrack;
+  return videoPeerTrackNode;
 }
