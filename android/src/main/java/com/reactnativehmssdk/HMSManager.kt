@@ -2,10 +2,15 @@ package com.reactnativehmssdk
 
 import android.app.Activity
 import android.app.Application
+import android.app.PendingIntent
 import android.app.PictureInPictureParams
+import android.app.RemoteAction
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.util.Rational
 import androidx.annotation.RequiresApi
 import com.facebook.react.bridge.*
@@ -16,11 +21,19 @@ import java.util.UUID
 
 @ReactModule(name = REACT_CLASS)
 class HMSManager(reactContext: ReactApplicationContext) :
-    ReactContextBaseJavaModule(reactContext), Application.ActivityLifecycleCallbacks {
+    ReactContextBaseJavaModule(reactContext), Application.ActivityLifecycleCallbacks
+    ,
+    LifecycleEventListener
+    {
   companion object {
     const val REACT_CLASS = "HMSManager"
     var hmsCollection = mutableMapOf<String, HMSRNSDK>()
   }
+
+  // init {
+  //   reactContext.addLifecycleEventListener(this)
+  // }
+
   override fun getName(): String {
     return "HMSManager"
   }
@@ -432,6 +445,10 @@ class HMSManager(reactContext: ReactApplicationContext) :
 
   data class PipParamConfig(val aspectRatio: Pair<Int, Int>?)
 
+  private val pipReceiver by lazy {
+    PipActionReceiver()
+  }
+
   @ReactMethod
   fun handlePipActions(action: String, data: ReadableMap?, promise: Promise?) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
@@ -477,6 +494,42 @@ class HMSManager(reactContext: ReactApplicationContext) :
 //      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && config.autoEnterEnabled !== null)
 //        it.setAutoEnterEnabled(config.autoEnterEnabled)
 //      }
+
+       it.setActions(mutableListOf(
+         RemoteAction(
+           Icon.createWithResource(reactApplicationContext, R.drawable.ic_mic_24),
+           "Mic",
+           "Toggle Mic",
+           PendingIntent.getBroadcast(
+             reactApplicationContext,
+             344,
+             Intent(PipActionReceiver.PIP_INTENT_ACTION).putExtra("Mic", 344),
+             PendingIntent.FLAG_IMMUTABLE
+           )
+         ),
+         RemoteAction(
+           Icon.createWithResource(reactApplicationContext, R.drawable.ic_call_end_24),
+           "End",
+           "End Meeting",
+           PendingIntent.getBroadcast(
+             reactApplicationContext,
+             346,
+             Intent(PipActionReceiver.PIP_INTENT_ACTION).putExtra("End", 346),
+             PendingIntent.FLAG_IMMUTABLE
+           )
+         ),
+         RemoteAction(
+           Icon.createWithResource(reactApplicationContext, R.drawable.ic_camera_toggle_off),
+           "Camera",
+           "Toggle Camera",
+           PendingIntent.getBroadcast(
+             reactApplicationContext,
+             345,
+             Intent(PipActionReceiver.PIP_INTENT_ACTION).putExtra("Camera", 345),
+             PendingIntent.FLAG_IMMUTABLE
+           )
+         ),
+       ))
 
       it.build()
     }
@@ -563,7 +616,14 @@ class HMSManager(reactContext: ReactApplicationContext) :
         val pipParamConfig = readableMapToPipParamConfig(data)
         val pipParams = buildPipParams(pipParamConfig)
 
-        return activity.enterPictureInPictureMode(pipParams)
+        // check if main thread is calling
+        // looper
+        pipReceiver.register(activity)
+        val entered = activity.enterPictureInPictureMode(pipParams)
+        if (entered === false) {
+          pipReceiver.unregister(activity)
+        }
+        return entered
       }
 
       return false;
@@ -578,15 +638,33 @@ class HMSManager(reactContext: ReactApplicationContext) :
         .emit(event, data)
   }
 
+  override fun onHostResume() {
+    Log.i("HMSManager", "Host Resumed")
+  }
+
+  override fun onHostPause() {
+    Log.i("HMSManager", "Host Paused")
+  }
+
+  override fun onHostDestroy() {
+    Log.i("HMSManager", "Host Destroyed")
+  }
+
   override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
 
   override fun onActivityStarted(activity: Activity) {}
 
-  override fun onActivityResumed(activity: Activity) {}
+  override fun onActivityResumed(activity: Activity) {
+    Log.i("HMSManager", "Activity Resumed")
+  }
 
-  override fun onActivityPaused(activity: Activity) {}
+  override fun onActivityPaused(activity: Activity) {
+    Log.i("HMSManager", "Activity Paused")
+  }
 
-  override fun onActivityStopped(activity: Activity) {}
+  override fun onActivityStopped(activity: Activity) {
+    Log.i("HMSManager", "Activity Stopped")
+  }
 
   override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
 
@@ -601,6 +679,8 @@ class HMSManager(reactContext: ReactApplicationContext) :
         }
         currentActivity?.application?.unregisterActivityLifecycleCallbacks(this)
         hmsCollection = mutableMapOf()
+        // unregister here.
+        pipReceiver.unregister(activity)
       }
     } catch (e: Exception) {
       //      Log.d("error", e.message)
