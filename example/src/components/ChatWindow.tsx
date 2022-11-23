@@ -345,7 +345,7 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
             />
           </View>
         )}
-        {pinnedMessage && pinnedMessage?.length && (
+        {pinnedMessage && pinnedMessage.length > 0 ? (
           <View style={styles.banner}>
             <View style={styles.bannerIconContainer}>
               <MaterialCommunityIcons
@@ -369,7 +369,7 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
               }
             />
           </View>
-        )}
+        ) : null}
         <ChatList setSessionMetaData={setSessionMetaData} />
       </View>
       <View
