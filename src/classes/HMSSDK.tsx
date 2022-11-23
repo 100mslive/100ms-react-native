@@ -44,6 +44,10 @@ interface HmsViewProps {
   setZOrderMediaOverlay?: boolean;
 }
 
+interface PIPConfig {
+  aspectRatio?: [number, number];
+}
+
 const {
   /**
    * @ignore
@@ -1715,4 +1719,18 @@ export class HMSSDK {
       });
     }
   };
+
+  async isPipModeSupported(): Promise<undefined | boolean> {
+    return HMSManager.handlePipActions('isPipModeSupported', null);
+  }
+
+  async enablePipMode(data?: PIPConfig): Promise<undefined | boolean> {
+    const config = { aspectRatio: [16, 9], ...(data || {}) };
+
+    return HMSManager.handlePipActions('enablePipMode', config);
+  }
+
+  async setPipParams(data?: PIPConfig): Promise<undefined | boolean> {
+    return HMSManager.handlePipActions('setPictureInPictureParams', data || null);
+  }
 }

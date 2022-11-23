@@ -1,4 +1,5 @@
 import React, {useRef, useState, useEffect} from 'react';
+import { useSelector } from 'react-redux';
 import {View, Text, Platform, LayoutAnimation} from 'react-native';
 import VideoPlayer from 'react-native-video-controls';
 import type {HMSRoom} from '@100mslive/react-native-hms';
@@ -6,6 +7,8 @@ import type {HMSRoom} from '@100mslive/react-native-hms';
 import LiveButton, {LiveStates} from '../../components/LiveButton';
 
 import {styles} from './styles';
+import { RootState } from '../../redux';
+import { PipModes } from '../../utils/types';
 
 type HLSViewProps = {
   room?: HMSRoom;
@@ -16,6 +19,7 @@ const HLSView = ({room}: HLSViewProps) => {
   const hlsPlayerRef = useRef<VideoPlayer>(null);
   const [currentLiveState, setCurrentLiveState] = useState(LiveStates.LIVE);
   const liveLoadingTimerRef = useRef<NodeJS.Immediate | null>(null);
+  const isPipModeActive = useSelector((state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE);
 
   useEffect(() => {
     return () => {
@@ -67,13 +71,19 @@ const HLSView = ({room}: HLSViewProps) => {
                     disableSeekbar={true}
                     disableBack={true}
                     disableTimer={true}
+                    disableFullscreen={isPipModeActive}
+                    disableVolume={isPipModeActive}
+                    disablePlayPause={isPipModeActive}
                     onPause={handlePausePress}
+                    pictureInPicture={true}
+                    playInBackground={true}
                   />
 
                   <LiveButton
-                    containerStyle={styles.liveButton}
+                    containerStyle={[styles.liveButton, isPipModeActive ? { right: 0 } : null]}
                     isLive={currentLiveState === LiveStates.LIVE}
                     onPress={goLive}
+                    size={isPipModeActive ? 'small' : undefined}
                     disabled={currentLiveState !== LiveStates.BEHIND_LIVE}
                   />
                 </>
