@@ -132,10 +132,6 @@ const Welcome = () => {
       data.room.localPeer.videoTrack,
     );
     dispatch(setPeerState({peerState: [hmsLocalPeer]}));
-    setHmsRoom(data.room);
-    setJoinButtonLoading(false);
-    setPreviewButtonLoading(false);
-    setModalType(ModalTypes.DEFAULT);
     replace('MeetingScreen');
   }
 
