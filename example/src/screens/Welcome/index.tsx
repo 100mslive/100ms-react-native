@@ -91,6 +91,7 @@ const Welcome = () => {
   const [forceSoftwareDecoder, setForceSoftwareDecoder] = useState(true);
   const [disableAutoResize, setDisableAutoResize] = useState(true);
   const [mirrorLocalVideo, setMirrorLocalVideo] = useState(false);
+  const isHLSViewerRef = React.useRef(false);
 
   // useRef hook
   const peerTrackNodesRef = React.useRef<Array<PeerTrackNode>>(peerTrackNodes);
@@ -106,6 +107,12 @@ const Welcome = () => {
   ) => {
     setHmsRoom(data.room);
     setPreviewTracks(data?.previewTracks);
+
+    // Checking if User is joining as HLS-Viewer
+    if (data.room.localPeer.role?.name?.includes('hls-')) {
+      isHLSViewerRef.current = true;
+    }
+
     if (data?.previewTracks?.length > 0) {
       setModalType(ModalTypes.PREVIEW);
     } else {
@@ -119,17 +126,17 @@ const Welcome = () => {
     }
   };
 
-  const onJoinSuccess = (data: {room: HMSRoom}) => {
+  const handleJoin = (data: {room: HMSRoom}) => {
     const hmsLocalPeer = createPeerTrackNode(
       data.room.localPeer,
       data.room.localPeer.videoTrack,
     );
     dispatch(setPeerState({peerState: [hmsLocalPeer]}));
-    setHmsRoom(data.room);
-    setJoinButtonLoading(false);
-    setPreviewButtonLoading(false);
-    setModalType(ModalTypes.DEFAULT);
     replace('MeetingScreen');
+  }
+
+  const onJoinSuccess = (data: {room: HMSRoom}) => {
+    handleJoin(data);
   };
 
   const onError = (data: HMSException) => {
@@ -142,8 +149,15 @@ const Welcome = () => {
     );
   };
 
-  const onRoomListener = (data: {room: HMSRoom; type: HMSRoomUpdate}) => {
-    setHmsRoom(data.room);
+  const onRoomListener = (hmsInstance: HMSSDK, data: {room: HMSRoom; type: HMSRoomUpdate}) => {
+    if (isHLSViewerRef.current) {
+      // remove hms event listeners, so that we can take user to meeting screen, rather than handling events here
+      removeListeners(hmsInstance);
+
+      handleJoin(data);
+    } else {
+      setHmsRoom(data.room);
+    }
   };
 
   const onPeerListener = ({
@@ -372,7 +386,7 @@ const Welcome = () => {
 
     hmsInstance?.addEventListener(
       HMSUpdateListenerActions.ON_ROOM_UPDATE,
-      onRoomListener,
+      onRoomListener.bind(this, hmsInstance),
     );
 
     hmsInstance?.addEventListener(
@@ -522,6 +536,15 @@ const Welcome = () => {
     Alert.alert('Error', error || 'Something went wrong');
   };
 
+  const removeListeners = (hmsInstance?: HMSSDK) => {
+    hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_PREVIEW);
+    hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_JOIN);
+    hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_ROOM_UPDATE);
+    hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_PEER_UPDATE);
+    hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_TRACK_UPDATE);
+    hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_ERROR);
+  }
+
   // useEffect hook
   useEffect(() => {
     setNameDisabled(!validateName(peerName));
@@ -532,12 +555,7 @@ const Welcome = () => {
 
   useEffect(() => {
     return () => {
-      instance?.removeEventListener(HMSUpdateListenerActions.ON_PREVIEW);
-      instance?.removeEventListener(HMSUpdateListenerActions.ON_JOIN);
-      instance?.removeEventListener(HMSUpdateListenerActions.ON_ROOM_UPDATE);
-      instance?.removeEventListener(HMSUpdateListenerActions.ON_PEER_UPDATE);
-      instance?.removeEventListener(HMSUpdateListenerActions.ON_TRACK_UPDATE);
-      instance?.removeEventListener(HMSUpdateListenerActions.ON_ERROR);
+      removeListeners(instance);
     };
   }, [instance]);
 
