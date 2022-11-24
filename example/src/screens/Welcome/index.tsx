@@ -69,7 +69,6 @@ type WelcomeScreenProp = NativeStackNavigationProp<
 
 const Welcome = () => {
   // hooks
-  const isHLSViewerRef = React.useRef(false);
   const replace = useNavigation<WelcomeScreenProp>().replace;
   const {roomID, userName} = useSelector((state: RootState) => state.user);
   const {top, bottom, left, right} = useSafeAreaInsets();
@@ -92,6 +91,7 @@ const Welcome = () => {
   const [forceSoftwareDecoder, setForceSoftwareDecoder] = useState(true);
   const [disableAutoResize, setDisableAutoResize] = useState(true);
   const [mirrorLocalVideo, setMirrorLocalVideo] = useState(false);
+  const isHLSViewerRef = React.useRef(false);
 
   // useRef hook
   const peerTrackNodesRef = React.useRef<Array<PeerTrackNode>>(peerTrackNodes);
@@ -126,7 +126,7 @@ const Welcome = () => {
     }
   };
 
-  const onJoinSuccess = (data: {room: HMSRoom}) => {
+  const handleJoin = (data: {room: HMSRoom}) => {
     const hmsLocalPeer = createPeerTrackNode(
       data.room.localPeer,
       data.room.localPeer.videoTrack,
@@ -137,6 +137,10 @@ const Welcome = () => {
     setPreviewButtonLoading(false);
     setModalType(ModalTypes.DEFAULT);
     replace('MeetingScreen');
+  }
+
+  const onJoinSuccess = (data: {room: HMSRoom}) => {
+    handleJoin(data);
   };
 
   const onError = (data: HMSException) => {
@@ -152,9 +156,9 @@ const Welcome = () => {
   const onRoomListener = (hmsInstance: HMSSDK, data: {room: HMSRoom; type: HMSRoomUpdate}) => {
     if (isHLSViewerRef.current) {
       // remove hms event listeners, so that we can take user to meeting screen, rather than handling events here
-      removeHLSListeners(hmsInstance);
+      removeListeners(hmsInstance);
 
-      onJoinSuccess(data);
+      handleJoin(data);
     } else {
       setHmsRoom(data.room);
     }
@@ -536,7 +540,7 @@ const Welcome = () => {
     Alert.alert('Error', error || 'Something went wrong');
   };
 
-  const removeHLSListeners = (hmsInstance?: HMSSDK) => {
+  const removeListeners = (hmsInstance?: HMSSDK) => {
     hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_PREVIEW);
     hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_JOIN);
     hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_ROOM_UPDATE);
@@ -555,7 +559,7 @@ const Welcome = () => {
 
   useEffect(() => {
     return () => {
-      removeHLSListeners(instance);
+      removeListeners(instance);
     };
   }, [instance]);
 
