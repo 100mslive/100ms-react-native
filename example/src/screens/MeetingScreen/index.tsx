@@ -6,6 +6,7 @@ import {
   HMSException,
   HMSLocalPeer,
   HMSMessage,
+  HMSMessageType,
   HMSPeer,
   HMSPeerUpdate,
   HMSRoleChangeRequest,
@@ -13,11 +14,13 @@ import {
   HMSRoomUpdate,
   HMSSDK,
   HMSTrack,
+  HMSTrackSource,
+  HMSTrackType,
   HMSTrackUpdate,
   HMSUpdateListenerActions,
 } from '@100mslive/react-native-hms';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {View, Text, SafeAreaView, Platform, Dimensions} from 'react-native';
+import {View, Text, SafeAreaView, Platform, Dimensions, AppState, AppStateStatus, LayoutAnimation} from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -36,13 +39,18 @@ import {
   Menu,
   MenuItem,
 } from '../../components';
-import {LayoutParams, ModalTypes, PeerTrackNode} from '../../utils/types';
+import {LayoutParams, ModalTypes, PeerTrackNode, PipModes} from '../../utils/types';
 import {
+  createPeerTrackNode,
+  getPeerNodes,
+  getPeerTrackNodes,
   isPortrait,
   pairData,
   parseMetadata,
-  updatePeersTrackNodesOnPeerListener,
-  updatePeersTrackNodesOnTrackListener,
+  replacePeerTrackNodes,
+  updatedDegradedFlag,
+  updatePeerNodes,
+  updatePeerTrackNodes,
 } from '../../utils/functions';
 import {
   ChangeAudioMixingModeModal,
@@ -65,12 +73,16 @@ import type {RootState} from '../../redux';
 import type {AppStackParamList} from '../../navigator';
 import {
   addMessage,
+  addPinnedMessage,
+  changePipModeStatus,
   clearHmsReference,
   clearMessageData,
   clearPeerData,
+  saveUserData,
 } from '../../redux/actions';
 import {GridView} from './GridView';
 import {HLSView} from './HLSView';
+import PIPView from './PIPView';
 
 type MeetingScreenProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -79,11 +91,20 @@ type MeetingScreenProp = NativeStackNavigationProp<
 
 const Meeting = () => {
   // hooks
+  const dispatch = useDispatch();
+  const appState = useRef(AppState.currentState);
   const {hmsInstance} = useSelector((state: RootState) => state.user);
+  const isPipModeActive = useSelector((state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE);
 
   // useState hook
   const [room, setRoom] = useState<HMSRoom>();
   const [localPeer, setLocalPeer] = useState<HMSLocalPeer>();
+  const [isAudioMute, setIsAudioMute] = useState<boolean | undefined>(
+    localPeer?.audioTrack?.isMute(),
+  );
+  const [isVideoMute, setIsVideoMute] = useState<boolean | undefined>(
+    localPeer?.videoTrack?.isMute(),
+  );
   const [modalVisible, setModalVisible] = useState<ModalTypes>(
     ModalTypes.DEFAULT,
   );
@@ -101,19 +122,51 @@ const Meeting = () => {
   };
 
   useEffect(() => {
+    setIsVideoMute(localPeer?.videoTrack?.isMute());
+    setIsAudioMute(localPeer?.audioTrack?.isMute());
+  }, [localPeer]);
+
+  useEffect(() => {
     updateLocalPeer();
     updateRoom();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    if (isPipModeActive) {
+      appState.current = AppState.currentState;
+
+      const appStateListener = (nextAppState: AppStateStatus) => {
+        if (
+          appState.current.match(/inactive|background/) &&
+          nextAppState === "active"
+        ) {
+          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+          dispatch(changePipModeStatus(PipModes.INACTIVE));
+        }
+  
+        appState.current = nextAppState;
+      };
+  
+      AppState.addEventListener('change', appStateListener);
+  
+      return () => {
+        AppState.removeEventListener('change', appStateListener);
+        dispatch(changePipModeStatus(PipModes.INACTIVE));
+      }
+    }
+  }, [isPipModeActive]);
+
   return (
     <SafeAreaView style={styles.container}>
-      <Header
-        modalVisible={modalVisible}
-        setModalVisible={setModalVisible}
-        room={room}
-        localPeer={localPeer}
-      />
+      {isPipModeActive ? null : (
+        <Header
+          modalVisible={modalVisible}
+          setModalVisible={setModalVisible}
+          room={room}
+          localPeer={localPeer}
+        />
+      )}
       <DisplayView
         room={room}
         localPeer={localPeer}
@@ -121,16 +174,24 @@ const Meeting = () => {
         setModalVisible={setModalVisible}
         setRoom={setRoom}
         setLocalPeer={setLocalPeer}
+        setIsAudioMute={setIsAudioMute}
+        setIsVideoMute={setIsVideoMute}
       />
-      <Footer
-        isHlsStreaming={room?.hlsStreamingState?.running}
-        isBrowserRecording={room?.browserRecordingState?.running}
-        isHlsRecording={room?.hlsRecordingState?.running}
-        isRtmpStreaming={room?.rtmpHMSRtmpStreamingState?.running}
-        localPeer={localPeer}
-        modalVisible={modalVisible}
-        setModalVisible={setModalVisible}
-      />
+      {isPipModeActive ? null : (
+        <Footer
+          isHlsStreaming={room?.hlsStreamingState?.running}
+          isBrowserRecording={room?.browserRecordingState?.running}
+          isHlsRecording={room?.hlsRecordingState?.running}
+          isRtmpStreaming={room?.rtmpHMSRtmpStreamingState?.running}
+          localPeer={localPeer}
+          modalVisible={modalVisible}
+          isAudioMute={isAudioMute}
+          isVideoMute={isVideoMute}
+          setModalVisible={setModalVisible}
+          setIsAudioMute={setIsAudioMute}
+          setIsVideoMute={setIsVideoMute}
+        />
+      )}
     </SafeAreaView>
   );
 };
@@ -142,8 +203,11 @@ const DisplayView = (data: {
   setModalVisible: React.Dispatch<React.SetStateAction<ModalTypes>>;
   setRoom: React.Dispatch<React.SetStateAction<HMSRoom | undefined>>;
   setLocalPeer: React.Dispatch<React.SetStateAction<HMSLocalPeer | undefined>>;
+  setIsAudioMute: React.Dispatch<React.SetStateAction<boolean | undefined>>;
+  setIsVideoMute: React.Dispatch<React.SetStateAction<boolean | undefined>>;
 }) => {
   // hooks
+  const isPipModeActive = useSelector((state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE);
   const {hmsInstance} = useSelector((state: RootState) => state.user);
   const {peerState} = useSelector((state: RootState) => state.app);
   const navigate = useNavigation<MeetingScreenProp>().navigate;
@@ -256,38 +320,87 @@ const DisplayView = (data: {
     peer: HMSPeer;
     type: HMSPeerUpdate;
   }) => {
-    const newPeerTrackNodes = updatePeersTrackNodesOnPeerListener(
-      peerTrackNodesRef?.current,
-      peer,
-      type,
-    );
-    setPeerTrackNodes(newPeerTrackNodes);
-    peerTrackNodesRef.current = newPeerTrackNodes;
-    if (peer?.isLocal) {
+    if (type === HMSPeerUpdate.PEER_JOINED) {
+      return;
+    }
+    if (type === HMSPeerUpdate.PEER_LEFT) {
+      removePeerTrackNodes(peer);
+      return;
+    }
+    if (peer.isLocal) {
+      const nodesPresent = getPeerNodes(
+        peerTrackNodesRef?.current,
+        peer.peerID,
+      );
+      if (nodesPresent.length === 0) {
+        const newPeerTrackNode = createPeerTrackNode(peer);
+        const newPeerTrackNodes = [
+          newPeerTrackNode,
+          ...peerTrackNodesRef.current,
+        ];
+        peerTrackNodesRef.current = newPeerTrackNodes;
+        setPeerTrackNodes(newPeerTrackNodes);
+      } else {
+        changePeerNodes(nodesPresent, peer);
+      }
       hmsInstance?.getLocalPeer().then(localPeer => {
         data?.setLocalPeer(localPeer);
       });
+      return;
     }
-
-    if (type === HMSPeerUpdate.PEER_LEFT) {
-      Toast.showWithGravity(
-        `Peer Left: ${peer.name} left the Room`,
-        Toast.LONG,
-        Toast.TOP,
-      );
-    } else if (type === HMSPeerUpdate.PEER_JOINED) {
-      Toast.showWithGravity(
-        `Peer Joined: ${peer.name} joined the Room`,
-        Toast.LONG,
-        Toast.TOP,
-      );
-    } else if (type === HMSPeerUpdate.ROLE_CHANGED) {
-      Toast.showWithGravity(
-        `Role Changed: Role of ${peer?.name} changed to ${peer?.role?.name}`,
-        Toast.LONG,
-        Toast.TOP,
-      );
+    if (type === HMSPeerUpdate.ROLE_CHANGED) {
+      if (
+        peer.role?.publishSettings?.allowed === undefined ||
+        (peer.role?.publishSettings?.allowed &&
+          peer.role?.publishSettings?.allowed.length < 1)
+      ) {
+        removePeerTrackNodes(peer);
+      }
+      return;
     }
+    if (
+      type === HMSPeerUpdate.METADATA_CHANGED ||
+      type === HMSPeerUpdate.NAME_CHANGED ||
+      type === HMSPeerUpdate.NETWORK_QUALITY_UPDATED
+    ) {
+      const nodesPresent = getPeerNodes(
+        peerTrackNodesRef?.current,
+        peer.peerID,
+      );
+      if (nodesPresent.length) {
+        changePeerNodes(nodesPresent, peer);
+      }
+      return;
+    }
+    // switch (type) {
+    //   case HMSPeerUpdate.PEER_LEFT:
+    //     Toast.showWithGravity(
+    //       `${peer.name} left the room.`,
+    //       Toast.SHORT,
+    //       Toast.TOP,
+    //     );
+    //     break;
+    //   case HMSPeerUpdate.PEER_JOINED:
+    //     Toast.showWithGravity(
+    //       `${peer.name} joined the room.`,
+    //       Toast.SHORT,
+    //       Toast.TOP,
+    //     );
+    //     break;
+    //   case HMSPeerUpdate.ROLE_CHANGED:
+    //     Toast.showWithGravity(
+    //       `${peer?.name}'s role is changed to ${peer?.role?.name}`,
+    //       Toast.SHORT,
+    //       Toast.TOP,
+    //     );
+    //     break;
+    //   // case HMSPeerUpdate.NAME_CHANGED:
+    //   //   break;
+    //   // case HMSPeerUpdate.METADATA_CHANGED:
+    //   //   break;
+    //   // case HMSPeerUpdate.NETWORK_QUALITY_UPDATED:
+    //   //   break;
+    // }
   };
 
   const onTrackListener = ({
@@ -299,18 +412,88 @@ const DisplayView = (data: {
     track: HMSTrack;
     type: HMSTrackUpdate;
   }) => {
-    const newPeerTrackNodes = updatePeersTrackNodesOnTrackListener(
-      peerTrackNodesRef?.current,
-      track,
-      peer,
-      type,
-    );
-    setPeerTrackNodes(newPeerTrackNodes);
-    peerTrackNodesRef.current = newPeerTrackNodes;
-    if (peer?.isLocal) {
-      hmsInstance?.getLocalPeer().then(localPeer => {
-        data?.setLocalPeer(localPeer);
-      });
+    if (type === HMSTrackUpdate.TRACK_ADDED) {
+      const nodesPresent = getPeerTrackNodes(
+        peerTrackNodesRef?.current,
+        peer,
+        track,
+      );
+      if (nodesPresent.length === 0) {
+        const newPeerTrackNode = createPeerTrackNode(peer, track);
+        const newPeerTrackNodes = [
+          ...peerTrackNodesRef.current,
+          newPeerTrackNode,
+        ];
+        peerTrackNodesRef.current = newPeerTrackNodes;
+        setPeerTrackNodes(newPeerTrackNodes);
+      } else {
+        if (track.type === HMSTrackType.VIDEO) {
+          changePeerTrackNodes(nodesPresent, peer, track);
+        } else {
+          changePeerNodes(nodesPresent, peer);
+        }
+      }
+      return;
+    }
+    if (type === HMSTrackUpdate.TRACK_REMOVED) {
+      if (
+        track.source !== HMSTrackSource.REGULAR ||
+        (peer.audioTrack?.trackId === undefined &&
+          peer.videoTrack?.trackId === undefined)
+      ) {
+        const uniqueId =
+          peer.peerID +
+          (track.source === undefined ? HMSTrackSource.REGULAR : track.source);
+        const newPeerTrackNodes = peerTrackNodesRef.current?.filter(
+          peerTrackNode => {
+            if (peerTrackNode.id === uniqueId) {
+              return false;
+            }
+            return true;
+          },
+        );
+        peerTrackNodesRef.current = newPeerTrackNodes;
+        setPeerTrackNodes(newPeerTrackNodes);
+      }
+      return;
+    }
+    if (
+      type === HMSTrackUpdate.TRACK_MUTED ||
+      type === HMSTrackUpdate.TRACK_UNMUTED
+    ) {
+      if (peer.isLocal && track.type === HMSTrackType.AUDIO) {
+        data?.setIsAudioMute(track.isMute());
+      }
+      if (peer.isLocal && track.type === HMSTrackType.VIDEO) {
+        data?.setIsVideoMute(track.isMute());
+      }
+      const nodesPresent = getPeerTrackNodes(
+        peerTrackNodesRef?.current,
+        peer,
+        track,
+      );
+      if (track.type === HMSTrackType.VIDEO) {
+        changePeerTrackNodes(nodesPresent, peer, track);
+      } else {
+        changePeerNodes(nodesPresent, peer);
+      }
+      return;
+    }
+    if (
+      type === HMSTrackUpdate.TRACK_RESTORED ||
+      type === HMSTrackUpdate.TRACK_DEGRADED
+    ) {
+      const nodesPresent = getPeerTrackNodes(
+        peerTrackNodesRef?.current,
+        peer,
+        track,
+      );
+      const updatedNodesPresent = updatedDegradedFlag(
+        nodesPresent,
+        type === HMSTrackUpdate.TRACK_DEGRADED,
+      );
+      changePeerTrackNodes(updatedNodesPresent, peer, track);
+      return;
     }
   };
 
@@ -345,13 +528,16 @@ const DisplayView = (data: {
   };
 
   const onMessageListener = (message: HMSMessage) => {
-    dispatch(addMessage(message));
-    Toast.showWithGravity(
-      `${message.sender?.name}: ${message.message}`,
-      Toast.SHORT,
-      Toast.TOP,
-    );
-    // setNotification(true);
+    switch (message.type) {
+      case HMSMessageType.METADATA:
+        hmsInstance?.getSessionMetaData().then((value: string | null) => {
+          dispatch(addPinnedMessage(value));
+        });
+        break;
+      default:
+        dispatch(addMessage(message));
+        break;
+    }
   };
 
   // functions
@@ -397,6 +583,47 @@ const DisplayView = (data: {
       HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST,
       onChangeTrackStateRequestListener,
     );
+  };
+
+  const changePeerTrackNodes = (
+    nodesPresent: PeerTrackNode[],
+    peer: HMSPeer,
+    track: HMSTrack,
+  ) => {
+    const updatedPeerTrackNodes = updatePeerTrackNodes(
+      nodesPresent,
+      peer,
+      track,
+    );
+    const newPeerTrackNodes = replacePeerTrackNodes(
+      peerTrackNodesRef?.current,
+      updatedPeerTrackNodes,
+    );
+    peerTrackNodesRef.current = newPeerTrackNodes;
+    setPeerTrackNodes(newPeerTrackNodes);
+  };
+
+  const changePeerNodes = (nodesPresent: PeerTrackNode[], peer: HMSPeer) => {
+    const updatedPeerTrackNodes = updatePeerNodes(nodesPresent, peer);
+    const newPeerTrackNodes = replacePeerTrackNodes(
+      peerTrackNodesRef?.current,
+      updatedPeerTrackNodes,
+    );
+    peerTrackNodesRef.current = newPeerTrackNodes;
+    setPeerTrackNodes(newPeerTrackNodes);
+  };
+
+  const removePeerTrackNodes = (peer: HMSPeer) => {
+    const newPeerTrackNodes = peerTrackNodesRef?.current?.filter(
+      peerTrackNode => {
+        if (peerTrackNode.peer.peerID === peer.peerID) {
+          return false;
+        }
+        return true;
+      },
+    );
+    setPeerTrackNodes(newPeerTrackNodes);
+    peerTrackNodesRef.current = newPeerTrackNodes;
   };
 
   const destroy = async () => {
@@ -445,13 +672,31 @@ const DisplayView = (data: {
     data?.setModalVisible(ModalTypes.VOLUME);
   };
 
+  const getHmsRoles = () => {
+    hmsInstance?.getRoles().then(roles => {
+      dispatch(
+        saveUserData({
+          roles,
+        }),
+      );
+    });
+  };
+
+  const getSessionMetaData = () => {
+    hmsInstance?.getSessionMetaData().then((value: string | null) => {
+      dispatch(addPinnedMessage(value));
+    });
+  };
+
   // useEffect hook
   useEffect(() => {
     const callback = () => {
       setOrientation(isPortrait());
     };
     updateHmsInstance(hmsInstance);
+    getHmsRoles();
     callback();
+    getSessionMetaData();
     Dimensions.addEventListener('change', callback);
     return () => {
       Dimensions.removeEventListener('change', callback);
@@ -459,11 +704,6 @@ const DisplayView = (data: {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    setPeerTrackNodes(peerState);
-    peerTrackNodesRef.current = peerState;
-  }, [peerState]);
 
   useEffect(() => {
     if (data?.localPeer?.role?.name?.includes('hls-')) {
@@ -476,7 +716,13 @@ const DisplayView = (data: {
   return (
     <View style={styles.container}>
       {pairedPeers.length && layout === LayoutParams.GRID ? (
-        <GridView pairedPeers={pairedPeers} orientation={orientation} />
+        <>
+          {isPipModeActive ? (
+            <PIPView pairedPeers={pairedPeers} />
+          ) : (
+            <GridView pairedPeers={pairedPeers} orientation={orientation} />
+          )}
+        </>
       ) : layout === LayoutParams.HLS ? (
         <HLSView room={data?.room} />
       ) : (
@@ -490,105 +736,110 @@ const DisplayView = (data: {
           </Text>
         </View>
       )}
-      <DefaultModal
-        animationType="fade"
-        overlay={false}
-        modalPosiion="center"
-        modalVisible={data?.modalVisible === ModalTypes.LEAVE_ROOM}
-        setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}>
-        <LeaveRoomModal
-          onSuccess={onLeavePress}
-          cancelModal={() => data?.setModalVisible(ModalTypes.DEFAULT)}
-        />
-      </DefaultModal>
-      <DefaultModal
-        animationType="fade"
-        overlay={false}
-        modalPosiion="center"
-        modalVisible={data?.modalVisible === ModalTypes.END_ROOM}
-        setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}>
-        <EndRoomModal
-          onSuccess={onEndRoomPress}
-          cancelModal={() => data?.setModalVisible(ModalTypes.DEFAULT)}
-        />
-      </DefaultModal>
-      {/* TODO: message notification */}
-      <DefaultModal
-        modalVisible={data?.modalVisible === ModalTypes.CHAT}
-        setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}>
-        <ChatWindow localPeer={data?.localPeer} />
-      </DefaultModal>
-      <DefaultModal
-        animationType="fade"
-        overlay={false}
-        modalPosiion="center"
-        modalVisible={data?.modalVisible === ModalTypes.CHANGE_TRACK}
-        setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}>
-        <ChangeTrackStateModal
-          localPeer={data?.localPeer}
-          roleChangeRequest={roleChangeRequest}
-          cancelModal={() => data?.setModalVisible(ModalTypes.DEFAULT)}
-        />
-      </DefaultModal>
-      <DefaultModal
-        animationType="fade"
-        overlay={false}
-        modalPosiion="center"
-        modalVisible={data?.modalVisible === ModalTypes.CHANGE_ROLE_ACCEPT}
-        setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}>
-        <ChangeRoleAccepteModal
-          instance={hmsInstance}
-          roleChangeRequest={roleChangeRequest}
-          cancelModal={() => data?.setModalVisible(ModalTypes.DEFAULT)}
-        />
-      </DefaultModal>
-      <DefaultModal
-        modalVisible={data?.modalVisible === ModalTypes.PARTICIPANTS}
-        setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}>
-        <ParticipantsModal
-          instance={hmsInstance}
-          localPeer={data?.localPeer}
-          changeName={onChangeNamePress}
-          changeRole={onChangeRolePress}
-          setVolume={onSetVolumePress}
-        />
-      </DefaultModal>
-      <DefaultModal
-        animationType="fade"
-        overlay={false}
-        modalPosiion="center"
-        modalVisible={data?.modalVisible === ModalTypes.CHANGE_ROLE}
-        setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}>
-        <ChangeRoleModal
-          instance={hmsInstance}
-          peer={updatePeer}
-          cancelModal={() => data?.setModalVisible(ModalTypes.DEFAULT)}
-        />
-      </DefaultModal>
-      <DefaultModal
-        animationType="fade"
-        overlay={false}
-        modalPosiion="center"
-        modalVisible={data?.modalVisible === ModalTypes.VOLUME}
-        setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}>
-        <ChangeVolumeModal
-          instance={hmsInstance}
-          peer={updatePeer}
-          cancelModal={() => data?.setModalVisible(ModalTypes.DEFAULT)}
-        />
-      </DefaultModal>
-      <DefaultModal
-        animationType="fade"
-        overlay={false}
-        modalPosiion="center"
-        modalVisible={data?.modalVisible === ModalTypes.CHANGE_NAME}
-        setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}>
-        <ChangeNameModal
-          instance={hmsInstance}
-          peer={updatePeer}
-          cancelModal={() => data?.setModalVisible(ModalTypes.DEFAULT)}
-        />
-      </DefaultModal>
+
+      {isPipModeActive ? null : (
+        <>
+          <DefaultModal
+            animationType="fade"
+            overlay={false}
+            modalPosiion="center"
+            modalVisible={data?.modalVisible === ModalTypes.LEAVE_ROOM}
+            setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}>
+            <LeaveRoomModal
+              onSuccess={onLeavePress}
+              cancelModal={() => data?.setModalVisible(ModalTypes.DEFAULT)}
+            />
+          </DefaultModal>
+          <DefaultModal
+            animationType="fade"
+            overlay={false}
+            modalPosiion="center"
+            modalVisible={data?.modalVisible === ModalTypes.END_ROOM}
+            setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}>
+            <EndRoomModal
+              onSuccess={onEndRoomPress}
+              cancelModal={() => data?.setModalVisible(ModalTypes.DEFAULT)}
+            />
+          </DefaultModal>
+          {/* TODO: message notification */}
+          <DefaultModal
+            modalVisible={data?.modalVisible === ModalTypes.CHAT}
+            setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}>
+            <ChatWindow localPeer={data?.localPeer} />
+          </DefaultModal>
+          <DefaultModal
+            animationType="fade"
+            overlay={false}
+            modalPosiion="center"
+            modalVisible={data?.modalVisible === ModalTypes.CHANGE_TRACK}
+            setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}>
+            <ChangeTrackStateModal
+              localPeer={data?.localPeer}
+              roleChangeRequest={roleChangeRequest}
+              cancelModal={() => data?.setModalVisible(ModalTypes.DEFAULT)}
+            />
+          </DefaultModal>
+          <DefaultModal
+            animationType="fade"
+            overlay={false}
+            modalPosiion="center"
+            modalVisible={data?.modalVisible === ModalTypes.CHANGE_ROLE_ACCEPT}
+            setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}>
+            <ChangeRoleAccepteModal
+              instance={hmsInstance}
+              roleChangeRequest={roleChangeRequest}
+              cancelModal={() => data?.setModalVisible(ModalTypes.DEFAULT)}
+            />
+          </DefaultModal>
+          <DefaultModal
+            modalVisible={data?.modalVisible === ModalTypes.PARTICIPANTS}
+            setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}>
+            <ParticipantsModal
+              instance={hmsInstance}
+              localPeer={data?.localPeer}
+              changeName={onChangeNamePress}
+              changeRole={onChangeRolePress}
+              setVolume={onSetVolumePress}
+            />
+          </DefaultModal>
+          <DefaultModal
+            animationType="fade"
+            overlay={false}
+            modalPosiion="center"
+            modalVisible={data?.modalVisible === ModalTypes.CHANGE_ROLE}
+            setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}>
+            <ChangeRoleModal
+              instance={hmsInstance}
+              peer={updatePeer}
+              cancelModal={() => data?.setModalVisible(ModalTypes.DEFAULT)}
+            />
+          </DefaultModal>
+          <DefaultModal
+            animationType="fade"
+            overlay={false}
+            modalPosiion="center"
+            modalVisible={data?.modalVisible === ModalTypes.VOLUME}
+            setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}>
+            <ChangeVolumeModal
+              instance={hmsInstance}
+              peer={updatePeer}
+              cancelModal={() => data?.setModalVisible(ModalTypes.DEFAULT)}
+            />
+          </DefaultModal>
+          <DefaultModal
+            animationType="fade"
+            overlay={false}
+            modalPosiion="center"
+            modalVisible={data?.modalVisible === ModalTypes.CHANGE_NAME}
+            setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}>
+            <ChangeNameModal
+              instance={hmsInstance}
+              peer={updatePeer}
+              cancelModal={() => data?.setModalVisible(ModalTypes.DEFAULT)}
+            />
+          </DefaultModal>
+        </>
+      )}
     </View>
   );
 };
@@ -788,7 +1039,11 @@ const Footer = ({
   isBrowserRecording,
   localPeer,
   modalVisible,
+  isAudioMute,
+  isVideoMute,
   setModalVisible,
+  setIsAudioMute,
+  setIsVideoMute,
 }: {
   isHlsStreaming?: boolean;
   isBrowserRecording?: boolean;
@@ -796,10 +1051,19 @@ const Footer = ({
   isRtmpStreaming?: boolean;
   localPeer?: HMSLocalPeer;
   modalVisible: ModalTypes;
+  isAudioMute?: boolean;
+  isVideoMute?: boolean;
   setModalVisible: React.Dispatch<React.SetStateAction<ModalTypes>>;
+  setIsAudioMute: React.Dispatch<React.SetStateAction<boolean | undefined>>;
+  setIsVideoMute: React.Dispatch<React.SetStateAction<boolean | undefined>>;
 }) => {
   // hooks
+  const dispatch = useDispatch();
   const {hmsInstance, roomID} = useSelector((state: RootState) => state.user);
+  const pipModeStatus = useSelector((state: RootState) => state.app.pipModeStatus);
+
+  const isPipActive = pipModeStatus === PipModes.ACTIVE;
+  const isPipModeUnavailable = pipModeStatus === PipModes.NOT_AVAILABLE;
 
   // useState hook
   const [muteAllTracksAudio, setMuteAllTracksAudio] = useState(false);
@@ -877,6 +1141,25 @@ const Footer = ({
         },
       },
     ];
+    if (!isPipModeUnavailable) {
+      buttons.splice(1, 0, {
+        text: 'Enable PIP',
+        onPress: async () => {
+          if (isPipModeUnavailable) {
+            return console.log('PIP mode unavailable on Deice!');
+          }
+
+          try {
+            const isEnabled = await hmsInstance?.enablePipMode();
+            if (isEnabled === true) {
+              dispatch(changePipModeStatus(PipModes.ACTIVE));
+            }
+          } catch (error) {
+            console.log(error);
+          }
+        }
+      });
+    }
     if (!localPeer?.role?.name?.includes('hls-')) {
       buttons.push({
         text: muteAllTracksAudio
@@ -1122,6 +1405,26 @@ const Footer = ({
     return buttons;
   };
 
+  // Check if PIP is supported or not
+  useEffect(() => {
+    // Only check for PIP support if PIP is not active
+    if (hmsInstance && !isPipActive) {
+      const check = async () => {
+        try {
+          const isSupported = await hmsInstance.isPipModeSupported();
+
+          if (!isSupported) {
+            dispatch(changePipModeStatus(PipModes.NOT_AVAILABLE));
+          }
+        } catch (error) {
+          dispatch(changePipModeStatus(PipModes.NOT_AVAILABLE));
+        }
+      }
+
+      check();
+    }
+  }, [isPipActive, hmsInstance]);
+
   // useEffect hook
   useEffect(() => {
     setHlsStreaming(isHlsStreaming);
@@ -1141,18 +1444,14 @@ const Footer = ({
       <View style={styles.iconBotttomButtonWrapper}>
         {localPeer?.role?.publishSettings?.allowed?.includes('audio') && (
           <CustomButton
-            onPress={() =>
-              localPeer
-                ?.localAudioTrack()
-                ?.setMute(!localPeer?.audioTrack?.isMute())
-            }
-            viewStyle={[
-              styles.iconContainer,
-              localPeer?.audioTrack?.isMute() && styles.iconMuted,
-            ]}
+            onPress={() => {
+              localPeer?.localAudioTrack()?.setMute(!isAudioMute);
+              setIsAudioMute(!isAudioMute);
+            }}
+            viewStyle={[styles.iconContainer, isAudioMute && styles.iconMuted]}
             LeftIcon={
               <Feather
-                name={localPeer?.audioTrack?.isMute() ? 'mic-off' : 'mic'}
+                name={isAudioMute ? 'mic-off' : 'mic'}
                 style={styles.icon}
                 size={iconSize}
               />
@@ -1161,18 +1460,14 @@ const Footer = ({
         )}
         {localPeer?.role?.publishSettings?.allowed?.includes('video') && (
           <CustomButton
-            onPress={() =>
-              localPeer
-                ?.localVideoTrack()
-                ?.setMute(!localPeer?.videoTrack?.isMute())
-            }
-            viewStyle={[
-              styles.iconContainer,
-              localPeer?.videoTrack?.isMute() && styles.iconMuted,
-            ]}
+            onPress={() => {
+              localPeer?.localVideoTrack()?.setMute(!isVideoMute);
+              setIsVideoMute(!isAudioMute);
+            }}
+            viewStyle={[styles.iconContainer, isVideoMute && styles.iconMuted]}
             LeftIcon={
               <Feather
-                name={localPeer?.videoTrack?.isMute() ? 'video-off' : 'video'}
+                name={isVideoMute ? 'video-off' : 'video'}
                 style={styles.icon}
                 size={iconSize}
               />

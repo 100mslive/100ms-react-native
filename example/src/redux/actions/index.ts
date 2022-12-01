@@ -1,9 +1,14 @@
 import type {HMSMessage, HMSRole, HMSSDK} from '@100mslive/react-native-hms';
-import type {PeerTrackNode} from '../../utils/types';
+import type {PeerTrackNode, PipModes} from '../../utils/types';
 import actionTypes from '../actionTypes';
 
 export const addMessage = (data: HMSMessage) => ({
   type: actionTypes.ADD_MESSAGE.REQUEST,
+  payload: data,
+});
+
+export const addPinnedMessage = (data: string | null) => ({
+  type: actionTypes.ADD_PINNED_MESSAGE.REQUEST,
   payload: data,
 });
 
@@ -14,6 +19,11 @@ export const clearMessageData = () => ({
 export const setPeerState = (data: {peerState: PeerTrackNode[]}) => ({
   type: actionTypes.SET_PEER_STATE,
   payload: data,
+});
+
+export const changePipModeStatus = (pipModeStatus: PipModes) => ({
+  type: actionTypes.CHANGE_PIP_MODE_STATUS,
+  payload: { pipModeStatus },
 });
 
 export const clearPeerData = () => ({

@@ -34,6 +34,7 @@ import type { HMSAudioDevice } from './HMSAudioDevice';
 import type { HMSAudioMode } from './HMSAudioMode';
 import type { HMSAudioMixingMode } from './HMSAudioMixingMode';
 import type { HMSLogSettings } from './HMSLogSettings';
+import { HMSMessageType } from './HMSMessageType';
 
 interface HmsViewProps {
   trackId: string;
@@ -41,6 +42,10 @@ interface HmsViewProps {
   mirror?: boolean;
   scaleType?: HMSVideoViewMode;
   setZOrderMediaOverlay?: boolean;
+}
+
+interface PIPConfig {
+  aspectRatio?: [number, number];
 }
 
 const {
@@ -464,7 +469,10 @@ export class HMSSDK {
    * @param {message: string} and @param {type: string}
    * @memberof HMSSDK
    */
-  sendBroadcastMessage = async (message: string, type: string = 'chat') => {
+  sendBroadcastMessage = async (
+    message: string,
+    type: HMSMessageType = HMSMessageType.CHAT
+  ) => {
     logger?.verbose('#Function sendBroadcastMessage', {
       message,
       type: type || null,
@@ -488,7 +496,7 @@ export class HMSSDK {
   sendGroupMessage = async (
     message: string,
     roles: HMSRole[],
-    type: string = 'chat'
+    type: HMSMessageType = HMSMessageType.CHAT
   ) => {
     logger?.verbose('#Function sendGroupMessage', {
       message,
@@ -515,7 +523,7 @@ export class HMSSDK {
   sendDirectMessage = async (
     message: string,
     peer: HMSPeer,
-    type: string = 'chat'
+    type: HMSMessageType = HMSMessageType.CHAT
   ) => {
     logger?.verbose('#Function sendDirectMessage', {
       message,
@@ -1188,6 +1196,24 @@ export class HMSSDK {
     }
   };
 
+  setSessionMetaData = async (sessionMetaData: string | null) => {
+    logger?.verbose('#Function setSessionMetaData', {
+      id: this.id,
+      sessionMetaData,
+    });
+    return await HMSManager.setSessionMetaData({
+      id: this.id,
+      sessionMetaData,
+    });
+  };
+
+  getSessionMetaData = async () => {
+    logger?.verbose('#Function getSessionMetaData', {
+      id: this.id,
+    });
+    return await HMSManager.getSessionMetaData({ id: this.id });
+  };
+
   /**
    * - This is a prototype event listener that takes action and listens for updates related to that particular action
    *
@@ -1693,4 +1719,18 @@ export class HMSSDK {
       });
     }
   };
+
+  async isPipModeSupported(): Promise<undefined | boolean> {
+    return HMSManager.handlePipActions('isPipModeSupported', null);
+  }
+
+  async enablePipMode(data?: PIPConfig): Promise<undefined | boolean> {
+    const config = { aspectRatio: [16, 9], ...(data || {}) };
+
+    return HMSManager.handlePipActions('enablePipMode', config);
+  }
+
+  async setPipParams(data?: PIPConfig): Promise<undefined | boolean> {
+    return HMSManager.handlePipActions('setPictureInPictureParams', data || null);
+  }
 }

@@ -1,8 +1,8 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   StyleSheet,
-  ScrollView,
+  FlatList,
   TouchableOpacity,
   Text,
   Platform,
@@ -12,6 +12,7 @@ import {
   HMSMessage,
   HMSMessageRecipient,
   HMSMessageRecipientType,
+  HMSMessageType,
   HMSPeer,
   HMSRemotePeer,
   HMSRole,
@@ -29,7 +30,7 @@ import {COLORS} from '../utils/theme';
 import type {RootState} from '../redux';
 import {CustomInput} from './CustomInput';
 import {CustomButton} from './CustomButton';
-import {addMessage} from '../redux/actions';
+import {addMessage, addPinnedMessage} from '../redux/actions';
 
 const getTimeStringin12HourFormat = (time: Date) => {
   let hours = time.getHours();
@@ -149,13 +150,111 @@ const ChatFilter = ({
   );
 };
 
+const ChatList = ({
+  setSessionMetaData,
+}: {
+  setSessionMetaData: (value: string | null) => void;
+}) => {
+  const {messages} = useSelector((state: RootState) => state.messages);
+
+  // const scollviewRef = useRef<FlatList>(null);
+
+  // useEffect(() => {
+  //   scollviewRef?.current?.scrollToEnd({animated: false});
+  // }, []);
+
+  // useEffect(() => {
+  //   scollviewRef?.current?.scrollToEnd({animated: true});
+  // }, [messages]);
+
+  return (
+    <FlatList
+      data={messages}
+      initialNumToRender={2}
+      maxToRenderPerBatch={3}
+      keyboardShouldPersistTaps="always"
+      renderItem={({item, index}: {item: HMSMessage; index: number}) => {
+        const data = item;
+        const isLocal = data.sender?.isLocal;
+        return (
+          <View
+            style={[
+              styles.messageBubble,
+              (data.recipient.recipientType === HMSMessageRecipientType.PEER ||
+                data.recipient.recipientType ===
+                  HMSMessageRecipientType.ROLES) &&
+                styles.privateMessageBubble,
+              isLocal && styles.sendMessageBubble,
+            ]}
+            key={index}>
+            <View style={styles.headingContainer}>
+              <View style={styles.headingLeftContainer}>
+                <Text style={styles.senderName}>
+                  {data.sender
+                    ? data.sender?.isLocal
+                      ? 'You'
+                      : data.sender?.name
+                    : 'Anonymous'}
+                </Text>
+                <Text style={styles.messageTime}>
+                  {getTimeStringin12HourFormat(data.time)}
+                </Text>
+              </View>
+              {(data.recipient.recipientType === HMSMessageRecipientType.PEER ||
+                data.recipient.recipientType ===
+                  HMSMessageRecipientType.ROLES) && (
+                <View style={styles.headingRightContainer}>
+                  <Text style={styles.private}>
+                    {data.recipient.recipientType ===
+                      HMSMessageRecipientType.PEER &&
+                      `${
+                        isLocal
+                          ? 'TO ' + data.recipient.recipientPeer?.name + ' | '
+                          : 'TO YOU | '
+                      }PRIVATE`}
+                    {data.recipient.recipientType ===
+                      HMSMessageRecipientType.ROLES &&
+                      data?.recipient?.recipientRoles &&
+                      data.recipient.recipientRoles[0].name}
+                  </Text>
+                </View>
+              )}
+              {data.recipient.recipientType ===
+                HMSMessageRecipientType.BROADCAST && (
+                <CustomButton
+                  onPress={() =>
+                    setSessionMetaData(
+                      `${data.sender ? data.sender?.name : 'Anonymous'}: ${
+                        data.message
+                      }`,
+                    )
+                  }
+                  viewStyle={styles.pinIconContainer}
+                  LeftIcon={
+                    <MaterialCommunityIcons
+                      style={styles.pinIcon}
+                      size={24}
+                      name="pin-outline"
+                    />
+                  }
+                />
+              )}
+            </View>
+            <Text style={styles.messageText}>{data.message}</Text>
+          </View>
+        );
+      }}
+      keyExtractor={(item, index) => item.message + index}
+    />
+  );
+};
+
 export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
   // hooks
   const {hmsInstance} = useSelector((state: RootState) => state.user);
-  const {messages} = useSelector((state: RootState) => state.messages);
+  const {pinnedMessage} = useSelector((state: RootState) => state.messages);
   const dispatch = useDispatch();
   const {bottom} = useSafeAreaInsets();
-  const scollviewRef = useRef<ScrollView>(null);
 
   // useState hook
   const [filter, setFilter] = useState<string>('everyone');
@@ -163,8 +262,15 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
   const [receiverObject, setReceiverObject] = useState<
     'everyone' | HMSRole | HMSRemotePeer
   >('everyone');
-  const [showBanner, setShowBanner] = useState<boolean>(true);
+  const [showBanner, setShowBanner] = useState<boolean>(false);
   const [text, setText] = useState('');
+
+  const setSessionMetaData = (value: string | null) => {
+    hmsInstance?.setSessionMetaData(value).then(() => {
+      hmsInstance?.sendBroadcastMessage('refresh', HMSMessageType.METADATA);
+      dispatch(addPinnedMessage(value));
+    });
+  };
 
   const sendMessage = () => {
     let hmsMessageRecipient: HMSMessageRecipient;
@@ -191,7 +297,7 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
         addMessage(
           new HMSMessage({
             message: text,
-            type: 'chat',
+            type: HMSMessageType.CHAT,
             time: new Date(),
             sender: localPeer,
             recipient: hmsMessageRecipient,
@@ -201,14 +307,6 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
       setText('');
     }
   };
-
-  useEffect(() => {
-    scollviewRef?.current?.scrollToEnd({animated: false});
-  }, []);
-
-  useEffect(() => {
-    scollviewRef?.current?.scrollToEnd({animated: true});
-  }, [messages]);
 
   return (
     <View style={styles.container}>
@@ -247,61 +345,32 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
             />
           </View>
         )}
-        <ScrollView
-          ref={scollviewRef}
-          style={styles.contentContainer}
-          keyboardShouldPersistTaps="always">
-          {messages.map((data: HMSMessage) => {
-            const isLocal = data.sender?.isLocal;
-            return (
-              <View
-                style={[
-                  styles.messageBubble,
-                  (data.recipient.recipientType ===
-                    HMSMessageRecipientType.PEER ||
-                    data.recipient.recipientType ===
-                      HMSMessageRecipientType.ROLES) &&
-                    styles.privateMessageBubble,
-                  isLocal && styles.sendMessageBubble,
-                ]}
-                key={Math.random()}>
-                <View style={styles.headingContainer}>
-                  <View style={styles.headingLeftContainer}>
-                    <Text style={styles.senderName}>
-                      {data.sender?.isLocal ? 'You' : data.sender?.name}
-                    </Text>
-                    <Text style={styles.messageTime}>
-                      {getTimeStringin12HourFormat(data.time)}
-                    </Text>
-                  </View>
-                  {(data.recipient.recipientType ===
-                    HMSMessageRecipientType.PEER ||
-                    data.recipient.recipientType ===
-                      HMSMessageRecipientType.ROLES) && (
-                    <View style={styles.headingRightContainer}>
-                      <Text style={styles.private}>
-                        {data.recipient.recipientType ===
-                          HMSMessageRecipientType.PEER &&
-                          `${
-                            isLocal
-                              ? 'TO ' +
-                                data.recipient.recipientPeer?.name +
-                                ' | '
-                              : 'TO YOU | '
-                          }PRIVATE`}
-                        {data.recipient.recipientType ===
-                          HMSMessageRecipientType.ROLES &&
-                          data?.recipient?.recipientRoles &&
-                          data.recipient.recipientRoles[0].name}
-                      </Text>
-                    </View>
-                  )}
-                </View>
-                <Text style={styles.messageText}>{data.message}</Text>
-              </View>
-            );
-          })}
-        </ScrollView>
+        {pinnedMessage && pinnedMessage.length > 0 ? (
+          <View style={styles.banner}>
+            <View style={styles.bannerIconContainer}>
+              <MaterialCommunityIcons
+                style={styles.bannerIcon}
+                size={16}
+                name="pin-outline"
+              />
+            </View>
+            <View style={styles.bannerTextContainer}>
+              <Text style={styles.bannerText}>{pinnedMessage}</Text>
+            </View>
+            <CustomButton
+              onPress={() => setSessionMetaData(null)}
+              viewStyle={styles.bannerIconContainer}
+              LeftIcon={
+                <MaterialCommunityIcons
+                  style={styles.bannerIcon}
+                  size={24}
+                  name="close"
+                />
+              }
+            />
+          </View>
+        ) : null}
+        <ChatList setSessionMetaData={setSessionMetaData} />
       </View>
       <View
         style={bottom === 0 ? styles.inputContainer : {marginBottom: bottom}}>
@@ -521,5 +590,13 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     marginBottom: 16,
+  },
+  pinIcon: {
+    color: 'white',
+  },
+  pinIconContainer: {
+    flex: 1,
+    height: '100%',
+    justifyContent: 'flex-end',
   },
 });

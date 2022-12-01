@@ -65,6 +65,7 @@ const GridView = ({pairedPeers, orientation}: GridViewProps) => {
                     peerName={view?.peer?.name}
                     videoTrack={view?.track}
                     videoStyles={styles.generalTile}
+                    isDegraded={view?.isDegraded}
                   />
                   {view?.peer?.audioTrack?.isMute() && (
                     <View style={styles.micContainer}>

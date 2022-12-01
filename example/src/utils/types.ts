@@ -4,6 +4,8 @@ export type PeerTrackNode = {
   id: string;
   peer: HMSPeer;
   track?: HMSVideoTrack;
+  isDegraded?: boolean;
+  // TODO: isDegraded should not be optional
 };
 
 export enum LayoutParams {
@@ -63,4 +65,10 @@ export enum SortingType {
 export enum Theme {
   LIGHT = 'Light',
   DARK = 'Dark',
+}
+
+export enum PipModes {
+  NOT_AVAILABLE = -1,
+  ACTIVE = 0,
+  INACTIVE = 1,
 }

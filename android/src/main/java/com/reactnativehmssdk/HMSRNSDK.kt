@@ -1325,4 +1325,42 @@ class HMSRNSDK(
       rejectCallback(callback, errorMessage)
     }
   }
+
+  fun setSessionMetaData(data: ReadableMap, callback: Promise?) {
+    if (data.hasKey("sessionMetaData")) {
+      val sessionMetaData = data.getString("sessionMetaData")
+      hmsSDK?.setSessionMetaData(
+          sessionMetaData,
+          object : HMSActionResultListener {
+            override fun onSuccess() {
+              callback?.resolve(emitHMSSuccess())
+            }
+
+            override fun onError(error: HMSException) {
+              callback?.reject(error.code.toString(), error.message)
+              self.emitHMSError(error)
+            }
+          }
+      )
+    } else {
+      val errorMessage = "setSessionMetaData: sessionMetaData_Is_Required"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(callback, errorMessage)
+    }
+  }
+
+  fun getSessionMetaData(callback: Promise?) {
+    hmsSDK?.getSessionMetaData(
+        object : HMSSessionMetadataListener {
+          override fun onSuccess(sessionMetadata: String?) {
+            callback?.resolve(sessionMetadata)
+          }
+
+          override fun onError(error: HMSException) {
+            callback?.reject(error.code.toString(), error.message)
+            self.emitHMSError(error)
+          }
+        }
+    )
+  }
 }
