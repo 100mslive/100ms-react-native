@@ -88,8 +88,13 @@ https://user-images.githubusercontent.com/56931905/174608639-e489f4ba-57e2-463d-
 https://user-images.githubusercontent.com/56931905/174608678-28bc9386-3d6e-4a2c-a5dd-bf360e0a48f8.mov
 
 
+### PIP (Picture-In-Picture) Mode
 
+100ms React Native SDK provides support for creating Picture in Picture mode experience for video calls.
 
+PIP Mode lets the user watch the room video in a small window pinned to a corner of the screen while navigating between apps or browsing content on the main screen.
 
+Currently this functionality is only available on Android.
 
+https://user-images.githubusercontent.com/45194090/205296059-6b9b399d-9a51-4d35-99cf-4413f6368169.mp4
 
