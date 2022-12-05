@@ -14,6 +14,7 @@ import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useDispatch, useSelector} from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import type {AppStackParamList} from '../../navigator';
 import {styles} from './styles';
@@ -22,6 +23,7 @@ import {COLORS} from '../../utils/theme';
 import {CustomButton, CustomInput} from '../../components';
 import {saveUserData} from '../../redux/actions';
 import type {RootState} from '../../redux';
+import {Constants} from '../../utils/types';
 
 type QRCodeScreenProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -77,6 +79,14 @@ const QRCode = () => {
     return () => {
       Linking.removeEventListener('url', updateUrl);
     };
+  }, []);
+
+  useEffect(() => {
+    AsyncStorage.getItem(Constants.MEET_URL, (_error, url) => {
+      if (url) {
+        setJoiningLink(url);
+      }
+    });
   }, []);
 
   return (
