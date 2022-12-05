@@ -457,32 +457,34 @@ const newName: string = 'new name';
 await hmsInstance.changeName(newName);
 ```
 
-## [Join with specific Track Settings](https://www.100ms.live/docs/react-native/v2/advanced-features/track-settings)
+## [Join with specific Track Settings](https://www.100ms.live/docs/react-native/v2/features/join#joining-room-with-muted-audio-video)
 
+Following is an example to join a Room with Muted Audio & Video:
 ```js
+// First, create the Track Settings object
+const trackSettings = getTrackSettings();
+
+// Customize Audio & Video initial states as per user discretion
 const getTrackSettings = () => {
-  let audioSettings = new HMSAudioTrackSettings({
-    maxBitrate: 32,
-    trackDescription: 'Simple Audio Track',
-  });
-  let videoSettings = new HMSVideoTrackSettings({
-    codec: HMSVideoCodec.vp8,
-    maxBitrate: 512,
-    maxFrameRate: 25,
-    cameraFacing: HMSCameraFacing.FRONT,
-    trackDescription: 'Simple Video Track',
-    resolution: new HMSVideoResolution({ height: 180, width: 320 }),
-  });
 
-  return new HMSTrackSettings({ video: videoSettings, audio: audioSettings });
+    let audioSettings = new HMSAudioTrackSettings({
+        initialState: HMSTrackSettingsInitState.MUTED,
+    });
+
+    let videoSettings = new HMSVideoTrackSettings({
+        initialState: HMSTrackSettingsInitState.MUTED,
+    });
+
+    return new HMSTrackSettings({
+        video: videoSettings,
+        audio: audioSettings,
+    });
 };
 
-const setupBuild = async () => {
-  const trackSettings = getTrackSettings();
-  const build = await HMSSDK.build({ trackSettings });
-  setInstance(build);
-  updateHms({ hmsInstance: build });
-};
+// Pass the Track Settings object to the build function 
+const hmsInstance = await HMSSDK.build({
+    trackSettings
+});
 ```
 
 
