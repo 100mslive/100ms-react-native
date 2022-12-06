@@ -511,7 +511,7 @@ class HMSRNSDK(
               rtcStatsAttached = false
               callback?.resolve(emitHMSSuccess())
               if (fromPIP) {
-                currentActivity?.moveTaskToBack(false)
+                context.currentActivity?.moveTaskToBack(false)
 
                 val map: WritableMap = Arguments.createMap()
                 map.putString("id", id)
