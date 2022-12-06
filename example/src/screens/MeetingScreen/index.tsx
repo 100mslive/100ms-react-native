@@ -18,6 +18,7 @@ import {
   HMSTrackType,
   HMSTrackUpdate,
   HMSUpdateListenerActions,
+  PIPListenerActions,
 } from '@100mslive/react-native-hms';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {View, Text, SafeAreaView, Platform, Dimensions, AppState, AppStateStatus, LayoutAnimation} from 'react-native';
@@ -582,6 +583,10 @@ const DisplayView = (data: {
     hms?.addEventListener(
       HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST,
       onChangeTrackStateRequestListener,
+    );
+    hms?.addEventListener(
+      PIPListenerActions.ON_PIP_ROOM_LEAVE,
+      destroy,
     );
   };
 
@@ -1150,7 +1155,7 @@ const Footer = ({
           }
 
           try {
-            const isEnabled = await hmsInstance?.enablePipMode();
+            const isEnabled = await hmsInstance?.enablePipMode({ endButton: true, videoButton: true, audioButton: true });
             if (isEnabled === true) {
               dispatch(changePipModeStatus(PipModes.ACTIVE));
             }
