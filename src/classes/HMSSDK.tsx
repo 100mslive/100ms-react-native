@@ -35,6 +35,7 @@ import type { HMSAudioMode } from './HMSAudioMode';
 import type { HMSAudioMixingMode } from './HMSAudioMixingMode';
 import type { HMSLogSettings } from './HMSLogSettings';
 import { HMSMessageType } from './HMSMessageType';
+import { PIPListenerActions } from './PIPListenerActions';
 
 interface HmsViewProps {
   trackId: string;
@@ -46,6 +47,9 @@ interface HmsViewProps {
 
 interface PIPConfig {
   aspectRatio?: [number, number];
+  endButton?: boolean;
+  audioButton?: boolean;
+  videoButton?: boolean;
 }
 
 const {
@@ -85,6 +89,7 @@ export class HMSSDK {
   private onRemoteAudioStatsDelegate?: any;
   private onRemoteVideoStatsDelegate?: any;
   private onAudioDeviceChangedDelegate?: any;
+  private onPIPRoomLeaveDelegate?: any;
 
   private constructor(id: string) {
     this.id = id;
@@ -259,6 +264,13 @@ export class HMSSDK {
       HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED,
       this.onAudioDeviceChangedListener
     );
+
+    if (Platform.OS === 'android') {
+      HmsEventEmitter.addListener(
+        PIPListenerActions.ON_PIP_ROOM_LEAVE,
+        this.onPIPRoomLeaveListener
+      );
+    }
   };
 
   /**
@@ -361,6 +373,13 @@ export class HMSSDK {
       HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED,
       this.onAudioDeviceChangedListener
     );
+
+    if (Platform.OS === 'android') {
+      HmsEventEmitter.removeListener(
+        PIPListenerActions.ON_PIP_ROOM_LEAVE,
+        this.onPIPRoomLeaveListener
+      );
+    }
   };
 
   /**
@@ -1221,7 +1240,7 @@ export class HMSSDK {
    * @param {*} callback
    * @memberof HMSSDK
    */
-  addEventListener = (action: HMSUpdateListenerActions, callback: any) => {
+  addEventListener = (action: HMSUpdateListenerActions | PIPListenerActions, callback: any) => {
     logger?.verbose('#Function addEventListener', {
       action,
       id: this.id,
@@ -1284,6 +1303,9 @@ export class HMSSDK {
       case HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED:
         this.onAudioDeviceChangedDelegate = callback;
         break;
+      case PIPListenerActions.ON_PIP_ROOM_LEAVE:
+        this.onPIPRoomLeaveDelegate = callback;
+        break;
       default:
     }
   };
@@ -1295,7 +1317,7 @@ export class HMSSDK {
    * @param {*} callback
    * @memberof HMSSDK
    */
-  removeEventListener = (action: HMSUpdateListenerActions) => {
+  removeEventListener = (action: HMSUpdateListenerActions | PIPListenerActions) => {
     logger?.verbose('#Function removeEventListener', { action, id: this.id });
     switch (action) {
       case HMSUpdateListenerActions.ON_PREVIEW:
@@ -1355,6 +1377,9 @@ export class HMSSDK {
       case HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED:
         this.onAudioDeviceChangedDelegate = null;
         break;
+      case PIPListenerActions.ON_PIP_ROOM_LEAVE:
+        this.onPIPRoomLeaveDelegate = null;
+        break;
       default:
     }
   };
@@ -1378,6 +1403,7 @@ export class HMSSDK {
     this.onRoleChangeRequestDelegate = null;
     this.onChangeTrackStateRequestDelegate = null;
     this.onRemovedFromRoomDelegate = null;
+    this.onPIPRoomLeaveDelegate = null;
 
     logger?.verbose('#Function REMOVE_ALL_LISTENER', { id: this.id });
   };
@@ -1720,17 +1746,31 @@ export class HMSSDK {
     }
   };
 
+  onPIPRoomLeaveListener = (data: {id: string}) => {
+    if (data.id !== this.id) {
+      return;
+    }
+    this.muteStatus = undefined;
+    this?.appStateSubscription?.remove();
+
+    // DOUBT: should we add OS check here?
+    if (this.onPIPRoomLeaveDelegate) {
+      logger?.verbose('#Listener onPIPRoomLeave_CALL', data);
+      this.onPIPRoomLeaveDelegate({
+        ...data
+      });
+    }
+  }
+
   async isPipModeSupported(): Promise<undefined | boolean> {
-    return HMSManager.handlePipActions('isPipModeSupported', null);
+    return HMSManager.handlePipActions('isPipModeSupported', { id: this.id });
   }
 
   async enablePipMode(data?: PIPConfig): Promise<undefined | boolean> {
-    const config = { aspectRatio: [16, 9], ...(data || {}) };
-
-    return HMSManager.handlePipActions('enablePipMode', config);
+    return HMSManager.handlePipActions('enablePipMode', { ...data, id: this.id });
   }
 
   async setPipParams(data?: PIPConfig): Promise<undefined | boolean> {
-    return HMSManager.handlePipActions('setPictureInPictureParams', data || null);
+    return HMSManager.handlePipActions('setPictureInPictureParams', { ...data, id: this.id });
   }
 }

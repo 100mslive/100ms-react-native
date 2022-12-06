@@ -74,6 +74,7 @@ export * from './classes/HMSTrackSettingsInitState';
 export * from './classes/HMSLogSettings';
 export * from './classes/HMSLogAlarmManager';
 export * from './classes/HMSMessageType';
+export * from './classes/PIPListenerActions';
 
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
 export default HmsManager;

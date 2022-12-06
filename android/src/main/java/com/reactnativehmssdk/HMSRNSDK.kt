@@ -493,9 +493,13 @@ class HMSRNSDK(
     }
   }
 
-  fun leave(callback: Promise?) {
+  fun leave(callback: Promise?, fromPIP: Boolean = false) {
     if (reconnectingStage) {
-      callback?.reject("101", "Still in reconnecting stage")
+      val errorMessage = "Still in reconnecting stage"
+      if (fromPIP) {
+        self.emitHMSError(HMSException(101, errorMessage, errorMessage, errorMessage, errorMessage))
+      }
+      callback?.reject("101", errorMessage)
     } else {
       hmsSDK?.leave(
           object : HMSActionResultListener {
@@ -506,6 +510,13 @@ class HMSRNSDK(
               networkQualityUpdatesAttached = false
               rtcStatsAttached = false
               callback?.resolve(emitHMSSuccess())
+              if (fromPIP) {
+                currentActivity?.moveTaskToBack(false)
+
+                val map: WritableMap = Arguments.createMap()
+                map.putString("id", id)
+                delegate.emitEvent("ON_PIP_ROOM_LEAVE", map)
+              }
             }
 
             override fun onError(error: HMSException) {
