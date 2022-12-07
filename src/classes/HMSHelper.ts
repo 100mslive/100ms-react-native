@@ -1,3 +1,5 @@
+import { HMSEncoder } from './HMSEncoder';
+import type { HMSLayer } from './HMSLayer';
 import type { HMSRole } from './HMSRole';
 
 export class HMSHelper {
@@ -11,5 +13,12 @@ export class HMSHelper {
     });
 
     return names;
+  }
+
+  static getSimulcastLayersWithCurrentActive(data: any) {
+    return {
+      activeLayer: data.activeLayer as HMSLayer,
+      layerDefinition: HMSEncoder.encodeHMSSimulcastLayerDefinition(data.layerDefinition)
+    };
   }
 }

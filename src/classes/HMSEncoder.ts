@@ -28,6 +28,8 @@ import { HMSServerRecordingState } from './HMSServerRecordingState';
 import { HMSMessage } from './HMSMessage';
 import { HMSMessageRecipient } from './HMSMessageRecipient';
 import { HMSException } from './HMSException';
+import { HMSSimulcastLayerDefinition } from './HMSSimulcastLayerDefinition';
+import { HMSLayer } from './HMSLayer';
 
 export class HMSEncoder {
   static encodeHmsRoom(room: HMSRoom, id: string) {
@@ -501,5 +503,17 @@ export class HMSEncoder {
       isTerminal: data?.error?.isTerminal,
       canRetry: data?.error?.canRetry,
     });
+  }
+
+  static encodeHMSSimulcastLayerDefinition(data: any[]) {
+    return data.map(sld => {
+      return new HMSSimulcastLayerDefinition({
+        layer: HMSLayer[sld.layer as HMSLayer], // DOUBT: This can be invalid. Should we throw error?
+        resolution: new HMSVideoResolution({
+          height: sld.resolution.height,
+          width: sld.resolution.width
+        })
+      });
+    })
   }
 }

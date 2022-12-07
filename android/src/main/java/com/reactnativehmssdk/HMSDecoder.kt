@@ -4,9 +4,7 @@ import com.facebook.react.bridge.*
 import live.hms.video.connection.stats.*
 import live.hms.video.connection.stats.quality.HMSNetworkQuality
 import live.hms.video.error.HMSException
-import live.hms.video.media.settings.HMSAudioTrackSettings
-import live.hms.video.media.settings.HMSVideoResolution
-import live.hms.video.media.settings.HMSVideoTrackSettings
+import live.hms.video.media.settings.*
 import live.hms.video.media.tracks.*
 import live.hms.video.sdk.models.*
 import live.hms.video.sdk.models.role.*
@@ -575,5 +573,18 @@ object HMSDecoder {
       hmsRemoteVideoStats.packetsLost?.let { remoteVideoStats.putInt("packetsLost", it) }
     }
     return remoteVideoStats
+  }
+
+  fun getSimulcastLayerDefinition(hmsSimulcastLayerDefinition: HMSSimulcastLayerDefinition): WritableMap {
+    val simulcastLayerDefinition: WritableMap = Arguments.createMap()
+    simulcastLayerDefinition.putString("layer", hmsSimulcastLayerDefinition.layer.name)
+    simulcastLayerDefinition.putMap("resolution", getHmsVideoTrackResolution(hmsSimulcastLayerDefinition.resolution))
+    return simulcastLayerDefinition
+  }
+
+  fun getSimulcastLayerDefinitions(hmsSimulcastLayerDefinitions: List<HMSSimulcastLayerDefinition>): WritableArray {
+    val simulcastLayerDefinitions: WritableArray = Arguments.createArray()
+    hmsSimulcastLayerDefinitions.forEach { simulcastLayerDefinitions.pushMap(getSimulcastLayerDefinition(it)) }
+    return simulcastLayerDefinitions
   }
 }

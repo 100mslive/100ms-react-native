@@ -35,6 +35,8 @@ import type { HMSAudioMode } from './HMSAudioMode';
 import type { HMSAudioMixingMode } from './HMSAudioMixingMode';
 import type { HMSLogSettings } from './HMSLogSettings';
 import { HMSMessageType } from './HMSMessageType';
+import type { HMSRemoteVideoTrack } from './HMSRemoteVideoTrack';
+import type { HMSLayer } from './HMSLayer';
 
 interface HmsViewProps {
   trackId: string;
@@ -1213,6 +1215,47 @@ export class HMSSDK {
     });
     return await HMSManager.getSessionMetaData({ id: this.id });
   };
+
+  getVideoTrackLayerDefinition = async (remoteVideoTrack: HMSRemoteVideoTrack) => {
+    logger?.verbose('#Function getVideoTrackLayerDefinition', {
+      id: this.id,
+      remoteVideoTrack
+    });
+
+    if(Platform.OS === 'android') {
+      const layerDefinition = await HMSManager.getVideoTrackLayerDefinition({
+        id: this.id,
+        trackId: remoteVideoTrack.trackId
+      });
+
+      console.log(layerDefinition);
+
+      return HMSHelper.getSimulcastLayersWithCurrentActive(layerDefinition);
+    } else {
+      console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
+    }
+  }
+
+  setVideoTrackLayer = async (remoteVideoTrack: HMSRemoteVideoTrack, layer: HMSLayer) => {
+    logger?.verbose('#Function setVideoTrackLayer', {
+      id: this.id,
+      remoteVideoTrack,
+      layer
+    });
+
+    if(Platform.OS === 'android') {
+      return HMSManager.setVideoTrackLayer({
+        id: this.id,
+        trackId: remoteVideoTrack.trackId,
+        layer
+      });
+    } else {
+      console.log('API currently not available for iOS');
+      return 'API currently not available for iOS';
+    }
+  }
+
 
   /**
    * - This is a prototype event listener that takes action and listens for updates related to that particular action

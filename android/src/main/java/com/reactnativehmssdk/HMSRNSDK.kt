@@ -8,6 +8,7 @@ import kotlinx.coroutines.launch
 import live.hms.video.audio.HMSAudioManager
 import live.hms.video.connection.stats.*
 import live.hms.video.error.HMSException
+import live.hms.video.media.settings.HMSLayer
 import live.hms.video.media.tracks.*
 import live.hms.video.sdk.*
 import live.hms.video.sdk.models.*
@@ -1362,5 +1363,58 @@ class HMSRNSDK(
           }
         }
     )
+  }
+
+  fun getVideoTrackLayerDefinition(data: ReadableMap, promise: Promise) {
+    val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("trackId", "String")))
+    if (requiredKeys === null) {
+      val trackId = data.getString("trackId")
+      val remoteVideoTrack = HMSHelper.getRemoteVideoTrackFromTrackId(trackId, hmsSDK?.getRoom())
+      if (remoteVideoTrack === null) {
+        promise.reject("101", "TRACK_NOT_FOUND")
+      } else {
+        val layer = remoteVideoTrack.getLayer()
+        val layerDefinition = remoteVideoTrack.getLayerDefinition()
+
+        val map = Arguments.createMap()
+        map.putString("activeLayer", layer.name)
+        map.putArray("layerDefinition", HMSDecoder.getSimulcastLayerDefinitions(layerDefinition))
+
+        promise.resolve(map)
+      }
+    } else {
+      val errorMessage = "getVideoTrackLayerDefinition: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(promise, errorMessage)
+    }
+  }
+
+  fun setVideoTrackLayer(data: ReadableMap, promise: Promise?) {
+    val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("trackId", "String"), Pair("layer", "String")))
+    if (requiredKeys === null) {
+      val trackId = data.getString("trackId")
+      val layerString = data.getString("layer")
+
+      if (HMSLayer.values().find { it.name === layerString } === null) {
+        // DOUBT: which error to throw here?
+        // emitError or 101 or 6000?
+        promise?.reject("101", "INVALID_LAYER")
+        return
+      }
+
+      val remoteVideoTrack = HMSHelper.getRemoteVideoTrackFromTrackId(trackId, hmsSDK?.getRoom())
+
+      if (remoteVideoTrack === null) {
+        promise?.reject("101", "TRACK_NOT_FOUND")
+      } else {
+        val layer = HMSLayer.valueOf(layerString!!)
+        remoteVideoTrack.setLayer(layer)
+        promise?.resolve(true)
+      }
+    } else {
+      val errorMessage = "setVideoTrackLayer: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(promise, errorMessage)
+    }
   }
 }
