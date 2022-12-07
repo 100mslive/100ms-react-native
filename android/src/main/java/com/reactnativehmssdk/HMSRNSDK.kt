@@ -496,10 +496,12 @@ class HMSRNSDK(
   fun leave(callback: Promise?, fromPIP: Boolean = false) {
     if (reconnectingStage) {
       val errorMessage = "Still in reconnecting stage"
+
       if (fromPIP) {
-        self.emitHMSError(HMSException(101, errorMessage, errorMessage, errorMessage, errorMessage))
+        self.emitHMSError(HMSException(101, errorMessage, "PIP Action", "Leave called from PIP Window", "HMSRNSDK #Function leave"))
+      } else {
+        callback?.reject("101", errorMessage)
       }
-      callback?.reject("101", errorMessage)
     } else {
       hmsSDK?.leave(
           object : HMSActionResultListener {
@@ -509,18 +511,21 @@ class HMSRNSDK(
               audioshareCallback = null
               networkQualityUpdatesAttached = false
               rtcStatsAttached = false
-              callback?.resolve(emitHMSSuccess())
               if (fromPIP) {
                 context.currentActivity?.moveTaskToBack(false)
 
                 val map: WritableMap = Arguments.createMap()
                 map.putString("id", id)
                 delegate.emitEvent("ON_PIP_ROOM_LEAVE", map)
+              } else {
+                callback?.resolve(emitHMSSuccess())
               }
             }
 
             override fun onError(error: HMSException) {
-              callback?.reject(error.code.toString(), error.message)
+              if (!fromPIP) {
+                callback?.reject(error.code.toString(), error.message)
+              }
               self.emitHMSError(error)
             }
           }
