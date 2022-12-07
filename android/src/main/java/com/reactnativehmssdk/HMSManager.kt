@@ -662,11 +662,6 @@ class HMSManager(reactContext: ReactApplicationContext) :
           config.aspectRatio.first,
           config.aspectRatio.second
         ))
-      } else {
-        it.setAspectRatio(Rational(
-          16,
-          9
-        ))
       }
 
 //      TODO:= We need compileSdkVersion >= 31 for autoEnterEnabled
@@ -688,7 +683,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
 
   @RequiresApi(Build.VERSION_CODES.O)
   private fun readableMapToPipParamConfig(data: ReadableMap?): PipParamConfig {
-    var aspectRatio: Pair<Int, Int>? = null;
+    var aspectRatio: Pair<Int, Int> = Pair(16, 9);
     var showEndButton = false;
     var showAudioButton = false;
     var showVideoButton = false;
