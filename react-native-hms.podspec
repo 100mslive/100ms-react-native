@@ -16,6 +16,6 @@ Pod::Spec.new do |s|
   s.source_files = "ios/**/*.{h,m,mm,swift}"
 
   s.dependency "React-Core"
-  s.dependency "HMSSDK", "0.4.7"
+  s.dependency "HMSSDK", "0.5.1"
   s.dependency 'HMSBroadcastExtensionSDK', '0.0.5'
 end
