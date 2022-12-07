@@ -10,7 +10,6 @@ import android.content.pm.PackageManager
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.util.Rational
 import androidx.annotation.RequiresApi
 import com.facebook.react.bridge.*
@@ -21,18 +20,11 @@ import java.util.UUID
 
 @ReactModule(name = REACT_CLASS)
 class HMSManager(reactContext: ReactApplicationContext) :
-    ReactContextBaseJavaModule(reactContext), Application.ActivityLifecycleCallbacks
-    ,
-    LifecycleEventListener
-    {
+    ReactContextBaseJavaModule(reactContext), Application.ActivityLifecycleCallbacks {
   companion object {
     const val REACT_CLASS = "HMSManager"
     var hmsCollection = mutableMapOf<String, HMSRNSDK>()
   }
-
-  // init {
-  //   reactContext.addLifecycleEventListener(this)
-  // }
 
   override fun getName(): String {
     return "HMSManager"
@@ -818,33 +810,15 @@ class HMSManager(reactContext: ReactApplicationContext) :
         .emit(event, data)
   }
 
-  override fun onHostResume() {
-    Log.i("HMSManager", "Host Resumed")
-  }
-
-  override fun onHostPause() {
-    Log.i("HMSManager", "Host Paused")
-  }
-
-  override fun onHostDestroy() {
-    Log.i("HMSManager", "Host Destroyed")
-  }
-
   override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
 
   override fun onActivityStarted(activity: Activity) {}
 
-  override fun onActivityResumed(activity: Activity) {
-    Log.i("HMSManager", "Activity Resumed")
-  }
+  override fun onActivityResumed(activity: Activity) {}
 
-  override fun onActivityPaused(activity: Activity) {
-    Log.i("HMSManager", "Activity Paused")
-  }
+  override fun onActivityPaused(activity: Activity) {}
 
-  override fun onActivityStopped(activity: Activity) {
-    Log.i("HMSManager", "Activity Stopped")
-  }
+  override fun onActivityStopped(activity: Activity) {}
 
   override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
 
