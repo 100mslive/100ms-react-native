@@ -35,7 +35,7 @@ import type { HMSAudioMode } from './HMSAudioMode';
 import type { HMSAudioMixingMode } from './HMSAudioMixingMode';
 import type { HMSLogSettings } from './HMSLogSettings';
 import { HMSMessageType } from './HMSMessageType';
-import { PIPListenerActions } from './PIPListenerActions';
+import { HMSPIPListenerActions } from './HMSPIPListenerActions';
 
 interface HmsViewProps {
   trackId: string;
@@ -267,7 +267,7 @@ export class HMSSDK {
 
     if (Platform.OS === 'android') {
       HmsEventEmitter.addListener(
-        PIPListenerActions.ON_PIP_ROOM_LEAVE,
+        HMSPIPListenerActions.ON_PIP_ROOM_LEAVE,
         this.onPIPRoomLeaveListener
       );
     }
@@ -376,7 +376,7 @@ export class HMSSDK {
 
     if (Platform.OS === 'android') {
       HmsEventEmitter.removeListener(
-        PIPListenerActions.ON_PIP_ROOM_LEAVE,
+        HMSPIPListenerActions.ON_PIP_ROOM_LEAVE,
         this.onPIPRoomLeaveListener
       );
     }
@@ -1240,7 +1240,7 @@ export class HMSSDK {
    * @param {*} callback
    * @memberof HMSSDK
    */
-  addEventListener = (action: HMSUpdateListenerActions | PIPListenerActions, callback: any) => {
+  addEventListener = (action: HMSUpdateListenerActions | HMSPIPListenerActions, callback: any) => {
     logger?.verbose('#Function addEventListener', {
       action,
       id: this.id,
@@ -1303,7 +1303,7 @@ export class HMSSDK {
       case HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED:
         this.onAudioDeviceChangedDelegate = callback;
         break;
-      case PIPListenerActions.ON_PIP_ROOM_LEAVE:
+      case HMSPIPListenerActions.ON_PIP_ROOM_LEAVE:
         this.onPIPRoomLeaveDelegate = callback;
         break;
       default:
@@ -1317,7 +1317,7 @@ export class HMSSDK {
    * @param {*} callback
    * @memberof HMSSDK
    */
-  removeEventListener = (action: HMSUpdateListenerActions | PIPListenerActions) => {
+  removeEventListener = (action: HMSUpdateListenerActions | HMSPIPListenerActions) => {
     logger?.verbose('#Function removeEventListener', { action, id: this.id });
     switch (action) {
       case HMSUpdateListenerActions.ON_PREVIEW:
@@ -1377,7 +1377,7 @@ export class HMSSDK {
       case HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED:
         this.onAudioDeviceChangedDelegate = null;
         break;
-      case PIPListenerActions.ON_PIP_ROOM_LEAVE:
+      case HMSPIPListenerActions.ON_PIP_ROOM_LEAVE:
         this.onPIPRoomLeaveDelegate = null;
         break;
       default:

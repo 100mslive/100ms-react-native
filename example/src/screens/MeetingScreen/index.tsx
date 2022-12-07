@@ -18,7 +18,7 @@ import {
   HMSTrackType,
   HMSTrackUpdate,
   HMSUpdateListenerActions,
-  PIPListenerActions,
+  HMSPIPListenerActions,
 } from '@100mslive/react-native-hms';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {View, Text, SafeAreaView, Platform, Dimensions, AppState, AppStateStatus, LayoutAnimation} from 'react-native';
@@ -585,7 +585,7 @@ const DisplayView = (data: {
       onChangeTrackStateRequestListener,
     );
     hms?.addEventListener(
-      PIPListenerActions.ON_PIP_ROOM_LEAVE,
+      HMSPIPListenerActions.ON_PIP_ROOM_LEAVE,
       destroy,
     );
   };
