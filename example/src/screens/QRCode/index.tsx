@@ -13,13 +13,14 @@ import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import {useDispatch, useSelector} from 'react-redux';
 
 import type {AppStackParamList} from '../../navigator';
 import {styles} from './styles';
 import {getMeetingUrl, validateUrl} from '../../utils/functions';
 import {COLORS} from '../../utils/theme';
-import {CustomButton, CustomInput} from '../../components';
+import {CustomButton, CustomInput, DefaultModal, JoinSettingsModalContent} from '../../components';
 import {saveUserData} from '../../redux/actions';
 import type {RootState} from '../../redux';
 
@@ -37,6 +38,7 @@ const QRCode = () => {
   const [joinDisabled, setJoinDisabled] = useState<boolean>(true);
   const [joiningLink, setJoiningLink] = useState<string>(getMeetingUrl());
   const [isHLSFlowEnabled, setIsHLSFlowEnabled] = useState<boolean>(isHLSFlow);
+  const [moreModalVisible, setMoreModalVisible] = useState(false);
 
   const onJoinPress = () => {
     if (joiningLink.includes('app.100ms.live/')) {
@@ -51,6 +53,10 @@ const QRCode = () => {
       Alert.alert('Error', 'Invalid URL');
     }
   };
+
+  const handleMorePress = () => setMoreModalVisible(true);
+
+  const closeMoreModal = () => setMoreModalVisible(false);
 
   const onScanQRCodePress = () => {
     navigate('QRCodeScannerScreen');
@@ -139,16 +145,23 @@ const QRCode = () => {
           multiline
           blurOnSubmit
         />
-        <CustomButton
-          title="Join Now"
-          onPress={onJoinPress}
-          disabled={joinDisabled}
-          viewStyle={[styles.joinButton, joinDisabled && styles.disabled]}
-          textStyle={[
-            styles.joinButtonText,
-            joinDisabled && styles.disabledText,
-          ]}
-        />
+        <View style={{ flexDirection: 'row' }}>
+          <CustomButton
+            title="Join Now"
+            onPress={onJoinPress}
+            disabled={joinDisabled}
+            viewStyle={[styles.joinButton, joinDisabled && styles.disabled]}
+            textStyle={[
+              styles.joinButtonText,
+              joinDisabled && styles.disabledText,
+            ]}
+          />
+          <CustomButton
+            onPress={handleMorePress}
+            viewStyle={styles.moreButton}
+            RightIcon={<MaterialIcons name='more-vert' style={styles.moreButtonIcon} size={24} />}
+          />
+        </View>
         <View style={styles.horizontalSeparator} />
         <CustomButton
           title="Scan QR Code"
@@ -164,6 +177,14 @@ const QRCode = () => {
           }
         />
       </ScrollView>
+
+      <DefaultModal
+        modalVisible={moreModalVisible}
+        viewStyle={{ height: 260 }}
+        setModalVisible={closeMoreModal}
+      >
+        <JoinSettingsModalContent />
+      </DefaultModal>
     </KeyboardAvoidingView>
   );
 };
