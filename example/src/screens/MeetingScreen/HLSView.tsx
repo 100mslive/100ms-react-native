@@ -76,7 +76,6 @@ const HLSView = ({room}: HLSViewProps) => {
                     disablePlayPause={isPipModeActive}
                     onPause={handlePausePress}
                     pictureInPicture={true}
-                    playInBackground={true}
                     playWhenInactive={true}
                     ignoreSilentSwitch={'obey'}
                   />
