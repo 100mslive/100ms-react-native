@@ -1753,7 +1753,6 @@ export class HMSSDK {
     this.muteStatus = undefined;
     this?.appStateSubscription?.remove();
 
-    // DOUBT: should we add OS check here?
     if (this.onPIPRoomLeaveDelegate) {
       logger?.verbose('#Listener onPIPRoomLeave_CALL', data);
       this.onPIPRoomLeaveDelegate({
