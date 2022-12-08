@@ -1155,7 +1155,12 @@ const Footer = ({
           }
 
           try {
-            const isEnabled = await hmsInstance?.enablePipMode({ endButton: true, videoButton: true, audioButton: true });
+            const isEnabled = await hmsInstance?.enablePipMode({
+              aspectRatio: [16, 9], // for 16:9 aspect ratio
+              endButton: true,
+              videoButton: true,
+              audioButton: true
+            });
             if (isEnabled === true) {
               dispatch(changePipModeStatus(PipModes.ACTIVE));
             }
