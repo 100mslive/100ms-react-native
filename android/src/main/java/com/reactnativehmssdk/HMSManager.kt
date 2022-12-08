@@ -462,10 +462,11 @@ class HMSManager(reactContext: ReactApplicationContext) :
   private fun toggleLocalAudio() {
     val hmssdk = getHmsInstance()[PipActionReceiver.sdkIdForPIP!!]?.hmsSDK
 
-    val isMuted = hmssdk?.getLocalPeer()?.audioTrack?.isMute
+    val localAudioTrack = hmssdk?.getLocalPeer()?.audioTrack
+    val isMuted = localAudioTrack?.isMute
 
     if (isMuted !== null) {
-      hmssdk?.getLocalPeer()?.audioTrack?.setMute(!isMuted)
+      localAudioTrack?.setMute(!isMuted)
     }
   }
 
@@ -473,10 +474,11 @@ class HMSManager(reactContext: ReactApplicationContext) :
   private fun toggleLocalVideo() {
     val hmssdk = getHmsInstance()[PipActionReceiver.sdkIdForPIP!!]?.hmsSDK
 
-    val isMuted = hmssdk?.getLocalPeer()?.videoTrack?.isMute
+    val localVideoTrack = hmssdk?.getLocalPeer()?.videoTrack
+    val isMuted = localVideoTrack?.isMute
 
     if (isMuted !== null) {
-      hmssdk.getLocalPeer()?.videoTrack?.setMute(!isMuted)
+      localVideoTrack?.setMute(!isMuted)
     }
   }
 
@@ -592,11 +594,14 @@ class HMSManager(reactContext: ReactApplicationContext) :
 
     pipRemoteActionsList.clear()
 
-    if (audioAction && hmssdk?.getLocalPeer()?.hmsRole?.publishParams?.allowed?.contains("audio") === true) {
+    val localPeer = hmssdk?.getLocalPeer()
+    val allowedPublishing = localPeer?.hmsRole?.publishParams?.allowed
+
+    if (audioAction && allowedPublishing?.contains("audio") === true) {
       pipRemoteActionsList.add(RemoteAction(
         Icon.createWithResource(
           reactApplicationContext,
-          if (hmssdk?.getLocalPeer()?.audioTrack?.isMute === true) R.drawable.ic_mic_off_24 else R.drawable.ic_mic_24
+          if (localPeer?.audioTrack?.isMute === true) R.drawable.ic_mic_off_24 else R.drawable.ic_mic_24
         ),
         PipActionReceiver.PIPActions.localAudio.title,
         PipActionReceiver.PIPActions.localAudio.description,
@@ -628,12 +633,12 @@ class HMSManager(reactContext: ReactApplicationContext) :
       )
     }
 
-    if (videoAction && hmssdk?.getLocalPeer()?.hmsRole?.publishParams?.allowed?.contains("video") === true) {
+    if (videoAction && allowedPublishing?.contains("video") === true) {
       pipRemoteActionsList.add(
         RemoteAction(
           Icon.createWithResource(
             reactApplicationContext,
-            if (hmssdk?.getLocalPeer()?.videoTrack?.isMute === true) R.drawable.ic_camera_toggle_off else R.drawable.ic_camera_toggle_on
+            if (localPeer?.videoTrack?.isMute === true) R.drawable.ic_camera_toggle_off else R.drawable.ic_camera_toggle_on
           ),
           PipActionReceiver.PIPActions.localVideo.title,
           PipActionReceiver.PIPActions.localVideo.description,
