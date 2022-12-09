@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   Alert,
   Image,
@@ -9,11 +9,12 @@ import {
   Text,
   View,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useDispatch, useSelector} from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import type {AppStackParamList} from '../../navigator';
 import {styles} from './styles';
@@ -22,6 +23,7 @@ import {COLORS} from '../../utils/theme';
 import {CustomButton, CustomInput} from '../../components';
 import {saveUserData} from '../../redux/actions';
 import type {RootState} from '../../redux';
+import {Constants} from '../../utils/types';
 
 type QRCodeScreenProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -78,6 +80,16 @@ const QRCode = () => {
       Linking.removeEventListener('url', updateUrl);
     };
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      AsyncStorage.getItem(Constants.MEET_URL, (_error, url) => {
+        if (url) {
+          setJoiningLink(url);
+        }
+      });
+    }, [])
+  );
 
   return (
     <KeyboardAvoidingView

@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@miblanchard/react-native-slider": "^2.0.2",
+    "@react-native-async-storage/async-storage": "^1.17.11",
     "@react-native-camera-roll/camera-roll": "^5.0.2",
     "@react-native-picker/picker": "^2.0.0",
     "@react-native/normalize-color": "^2.0.0",
