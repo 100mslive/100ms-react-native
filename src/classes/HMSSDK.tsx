@@ -1731,6 +1731,9 @@ export class HMSSDK {
   }
 
   async setPipParams(data?: PIPConfig): Promise<undefined | boolean> {
-    return HMSManager.handlePipActions('setPictureInPictureParams', data || null);
+    return HMSManager.handlePipActions(
+      'setPictureInPictureParams',
+      data || null
+    );
   }
 }

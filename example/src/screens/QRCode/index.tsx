@@ -13,14 +13,19 @@ import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {useDispatch, useSelector} from 'react-redux';
 
 import type {AppStackParamList} from '../../navigator';
 import {styles} from './styles';
 import {getMeetingUrl, validateUrl} from '../../utils/functions';
 import {COLORS} from '../../utils/theme';
-import {CustomButton, CustomInput, DefaultModal, JoinSettingsModalContent} from '../../components';
+import {
+  CustomButton,
+  CustomInput,
+  DefaultModal,
+  JoinSettingsModalContent,
+} from '../../components';
 import {saveUserData} from '../../redux/actions';
 import type {RootState} from '../../redux';
 
@@ -89,7 +94,8 @@ const QRCode = () => {
     <KeyboardAvoidingView
       enabled={Platform.OS === 'ios'}
       behavior="padding"
-      style={styles.container}>
+      style={styles.container}
+    >
       <ScrollView
         contentContainerStyle={[
           styles.contentContainerStyle,
@@ -101,7 +107,8 @@ const QRCode = () => {
           },
         ]}
         style={styles.container}
-        keyboardShouldPersistTaps="always">
+        keyboardShouldPersistTaps="always"
+      >
         <Image
           style={styles.image}
           resizeMode="stretch"
@@ -145,7 +152,7 @@ const QRCode = () => {
           multiline
           blurOnSubmit
         />
-        <View style={{ flexDirection: 'row' }}>
+        <View style={{flexDirection: 'row'}}>
           <CustomButton
             title="Join Now"
             onPress={onJoinPress}
@@ -159,7 +166,13 @@ const QRCode = () => {
           <CustomButton
             onPress={handleMorePress}
             viewStyle={styles.moreButton}
-            RightIcon={<MaterialIcons name='more-vert' style={styles.moreButtonIcon} size={24} />}
+            RightIcon={
+              <MaterialIcons
+                name="more-vert"
+                style={styles.moreButtonIcon}
+                size={24}
+              />
+            }
           />
         </View>
         <View style={styles.horizontalSeparator} />
@@ -180,7 +193,7 @@ const QRCode = () => {
 
       <DefaultModal
         modalVisible={moreModalVisible}
-        viewStyle={{ height: 220 }}
+        viewStyle={{height: 220}}
         setModalVisible={closeMoreModal}
       >
         <JoinSettingsModalContent />
