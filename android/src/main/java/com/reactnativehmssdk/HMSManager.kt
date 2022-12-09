@@ -120,11 +120,26 @@ class HMSManager(reactContext: ReactApplicationContext) :
     hms?.sendDirectMessage(data, callback)
   }
 
+  @kotlin.Deprecated("Use #Function changeRoleOfPeer instead")
   @ReactMethod
   fun changeRole(data: ReadableMap, callback: Promise?) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.changeRole(data, callback)
+  }
+
+  @ReactMethod
+  fun changeRoleOfPeer(data: ReadableMap, promise: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.changeRoleOfPeer(data, promise)
+  }
+
+  @ReactMethod
+  fun changeRoleOfPeersWithRoles(data: ReadableMap, promise: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.changeRoleOfPeersWithRoles(data, promise)
   }
 
   @ReactMethod
