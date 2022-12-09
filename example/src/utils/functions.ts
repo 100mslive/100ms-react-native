@@ -390,11 +390,16 @@ export const getPeerTrackNodes = (
   return nodes;
 };
 
-export const getPeerTrackNodeFromPairedPeers = (pairedPeers: PeerTrackNode[][], peerToFind: HMSPeer) => {
+export const getPeerTrackNodeFromPairedPeers = (
+  pairedPeers: PeerTrackNode[][],
+  peerToFind: HMSPeer,
+) => {
   const peerTracks = pairedPeers.flat();
 
-  return peerTracks.find(peer => peer.peer.peerID === peerToFind.peerID) || null;
-}
+  return (
+    peerTracks.find(peer => peer.peer.peerID === peerToFind.peerID) || null
+  );
+};
 
 export const updatedDegradedFlag = (
   peerTrackNodes: PeerTrackNode[],
@@ -761,14 +766,15 @@ export const getTrackForPIPView = (pairedPeers: PeerTrackNode[][]) => {
   const peerTracks = pairedPeers.flat();
 
   // local
-  let videoPeerTrackNode = peerTracks[0]
+  let videoPeerTrackNode = peerTracks[0];
 
   for (const peerTrack of peerTracks) {
     // Checking if we have "remote" screenshare track
-    if (peerTrack.peer.isLocal === false
-        && peerTrack.track
-        && peerTrack.track.source !== HMSTrackSource.REGULAR
-        && peerTrack.track.type === HMSTrackType.VIDEO
+    if (
+      peerTrack.peer.isLocal === false &&
+      peerTrack.track &&
+      peerTrack.track.source !== HMSTrackSource.REGULAR &&
+      peerTrack.track.type === HMSTrackType.VIDEO
     ) {
       return peerTrack;
     }
@@ -780,4 +786,4 @@ export const getTrackForPIPView = (pairedPeers: PeerTrackNode[][]) => {
   }
 
   return videoPeerTrackNode;
-}
+};

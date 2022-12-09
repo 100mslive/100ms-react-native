@@ -94,15 +94,16 @@ const CustomInput = ({
           keyboardAppearance="dark"
           autoCapitalize={autoCapitalize}
           autoCorrect={true}
-          textContentType={"name"}
-          autoCompleteType={"name"}
+          textContentType={'name'}
+          autoCompleteType={'name'}
         />
         {showClear && (
           <TouchableOpacity
             onPress={() => {
               onChange('');
             }}
-            style={[styles.clearContainer, clearButtonStyle]}>
+            style={[styles.clearContainer, clearButtonStyle]}
+          >
             <MaterialIcons name="clear" style={styles.clearIcon} size={24} />
           </TouchableOpacity>
         )}
