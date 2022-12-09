@@ -6,6 +6,7 @@ import {
   ScrollView,
   TextInput,
   FlatList,
+  StyleSheet,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {
@@ -2052,3 +2053,259 @@ export const AudioShareSetVolumeModal = ({
     </View>
   );
 };
+
+interface ChangeBulkRoleModalProps {
+  cancelModal(): void;
+}
+
+enum RoleSelection {
+  TARGET = 'TARGET',
+  TO_CHANGE = 'TO_CHANGE',
+}
+
+export const ChangeBulkRoleModal: React.FC<ChangeBulkRoleModalProps> = ({ cancelModal }) => {
+  const roles = useSelector((state: RootState) => state.user.roles);
+  const [showRolesSelectionView, setShowRolesSelectionView] = useState<null | RoleSelection>(null);
+  const [changeAllRoles, setChangeAllRoles] = useState(true);
+  const [targetRole, setTargetRole] = useState<HMSRole | null>(null);
+  const [rolesToChange, setRolesToChange] = useState<HMSRole[]>([]);
+
+  const changeRole = () => {
+    // Use states to change role => changeAllRoles, targetRole and rolesToChange
+
+    console.log('Changing All or Specific Roles? = ', changeAllRoles ? 'All' : 'Specific');
+    console.log('Role to Change = ', rolesToChange.length > 0 ? rolesToChange.map(role => role.name).join(', ') : changeAllRoles ? 'All' : 'No Roles Selected');
+    console.log('Target Role = ', targetRole || 'Not Selected');
+  }
+
+  const handleRoleSelection = (roleSelected: HMSRole) => {
+    if (showRolesSelectionView === RoleSelection.TARGET) {
+      setTargetRole(roleSelected);
+    } else {
+      setRolesToChange(prevRolesToChange => {
+        if (prevRolesToChange.findIndex(role => role.name === roleSelected.name) >= 0) {
+          return prevRolesToChange.filter(role => role.name !== roleSelected.name);
+        }
+
+        return [...prevRolesToChange, roleSelected];
+      });
+    }
+  }
+
+  return (
+    <View style={bulkRoleStyles.container}>
+      <Text style={styles.roleChangeModalHeading}>Change All Roles to Role</Text>
+
+      <View style={bulkRoleStyles.contentContainer}>
+        <View style={bulkRoleStyles.row}>
+          <Text style={bulkRoleStyles.label}>Roles to change</Text>
+
+          <View style={bulkRoleStyles.toggleContainer}>
+            <TouchableOpacity
+              disabled={changeAllRoles}
+              style={changeAllRoles ? bulkRoleStyles.toggleActiveItem : bulkRoleStyles.toggleItem}
+              onPress={() => setChangeAllRoles(true)}
+            >
+              <Text style={bulkRoleStyles.label}>All</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              disabled={!changeAllRoles}
+              style={!changeAllRoles ? bulkRoleStyles.toggleActiveItem : bulkRoleStyles.toggleItem}
+              onPress={() => setChangeAllRoles(false)}
+            >
+              <Text style={bulkRoleStyles.label}>Specific</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={bulkRoleStyles.row}>
+          <Text style={bulkRoleStyles.label}>Select Roles to change</Text>
+
+          {changeAllRoles ? (
+            <Text style={bulkRoleStyles.value}>All Roles</Text>
+          ) : (
+            <TouchableOpacity style={bulkRoleStyles.btn} onPress={() => setShowRolesSelectionView(RoleSelection.TO_CHANGE)}>
+              <Text style={bulkRoleStyles.value} numberOfLines={1}>
+                {rolesToChange.map(role => role.name).join(", ") || "Select Roles"}
+              </Text>
+
+              <MaterialCommunityIcons name='chevron-right' size={16} style={bulkRoleStyles.chevronIcon} />
+            </TouchableOpacity>
+          )}
+        </View>
+
+        <View style={bulkRoleStyles.row}>
+          <Text style={bulkRoleStyles.label}>Target Role</Text>
+
+          <TouchableOpacity style={bulkRoleStyles.btn} onPress={() => setShowRolesSelectionView(RoleSelection.TARGET)}>
+            <Text style={bulkRoleStyles.value}>
+              {targetRole ? targetRole.name : 'Select Role'}
+            </Text>
+
+            <MaterialCommunityIcons name='chevron-right' size={16} style={bulkRoleStyles.chevronIcon} />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <View style={styles.roleChangeModalPermissionContainer}>
+        <CustomButton
+          title="Cancel"
+          onPress={cancelModal}
+          viewStyle={styles.roleChangeModalCancelButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+        <CustomButton
+          title="Change"
+          onPress={changeRole}
+          viewStyle={styles.roleChangeModalSuccessButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+      </View>
+
+      {showRolesSelectionView ? (
+        <View style={bulkRoleStyles.roleSelectionBackdrop}>
+          <View style={bulkRoleStyles.roleSelectionContainer}>
+            <Text style={bulkRoleStyles.heading}>{showRolesSelectionView === RoleSelection.TARGET ? "Select Target Role" : "Select Role to Change"}</Text>
+
+            <ScrollView centerContent={true} contentContainerStyle={bulkRoleStyles.scrollContainer}>
+              {roles.map(role => {
+                const selected = showRolesSelectionView === RoleSelection.TARGET
+                  ? (role.name === targetRole?.name)
+                  : rolesToChange.findIndex(roleToChange => roleToChange.name === role.name) >= 0;
+
+                return (
+                  <TouchableOpacity key={role.name} style={bulkRoleStyles.roleBtn} onPress={() => handleRoleSelection(role)}>
+                    <View style={bulkRoleStyles.checkboxContainer}>
+                      {showRolesSelectionView === RoleSelection.TARGET ? (
+                        <MaterialCommunityIcons name={selected ? 'radiobox-marked' : 'radiobox-blank'} style={styles.roleChangeModalCheck} size={20} />
+                      ) : (
+                        <MaterialCommunityIcons name={selected ? 'checkbox-outline' : 'checkbox-blank-outline'} style={styles.roleChangeModalCheck} size={24} />
+                      )}
+                    </View>
+
+                    <Text style={bulkRoleStyles.checkboxLabel}>{role.name}</Text>
+                  </TouchableOpacity>
+                )
+              })}
+            </ScrollView>
+
+            <TouchableOpacity style={bulkRoleStyles.roleSelectionDone} onPress={() => setShowRolesSelectionView(null)}>
+              <Text style={bulkRoleStyles.roleSelectionDoneText}>Done</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+const bulkRoleStyles = StyleSheet.create({
+  container: {
+    padding: 24,
+    position: 'relative'
+  },
+  contentContainer: {
+    marginTop: 24
+  },
+  row: {
+    flexGrow: 1,
+    marginVertical: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  label: {
+    color: COLORS.TEXT.HIGH_EMPHASIS
+  },
+  value: {
+    flex: 1,
+    color: COLORS.TEXT.MEDIUM_EMPHASIS,
+    textAlign: 'right'
+  },
+  toggleContainer: {
+    width: 160,
+    borderRadius: 6,
+    backgroundColor: COLORS.SECONDARY.DARK,
+    flexDirection: 'row',
+    paddingVertical: 2,
+    paddingHorizontal: 2
+  },
+  toggleItem: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 6,
+  },
+  toggleActiveItem: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 6,
+    borderRadius: 4,
+    backgroundColor: COLORS.SECONDARY.DEFAULT
+  },
+  btn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    marginLeft: 4
+  },
+  chevronIcon: {
+    color: COLORS.TEXT.MEDIUM_EMPHASIS
+  },
+  roleSelectionBackdrop: {
+    position: 'absolute',
+    top: 24,
+    left: 24,
+    width: '100%',
+    height: '100%',
+    shadowColor: COLORS.SURFACE.LIGHT,
+    shadowOpacity: 0.5,
+    shadowRadius: 24,
+    padding: 8,
+  },
+  roleSelectionContainer: {
+    flex: 1,
+    padding: 12,
+    backgroundColor: COLORS.SURFACE.LIGHT,
+    borderRadius: 8,
+    borderWidth: 0.5,
+    borderColor: COLORS.BORDER.LIGHT
+  },
+  heading: {
+    fontSize: 16,
+    lineHeight: 24,
+    color: COLORS.TEXT.HIGH_EMPHASIS,
+    marginVertical: 4,
+    marginLeft: 4
+  },
+  scrollContainer: {
+    paddingHorizontal: 12,
+  },
+  checkboxContainer: {
+    marginRight: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  checkboxLabel: {
+    color: COLORS.TEXT.MEDIUM_EMPHASIS
+  },
+  roleBtn: {
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  roleSelectionDone: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 4,
+    paddingVertical: 6
+  },
+  roleSelectionDoneText: {
+    fontSize: 14,
+    lineHeight: 22,
+    fontFamily: 'Inter-Medium',
+    color: COLORS.TEXT.HIGH_EMPHASIS
+  }
+});

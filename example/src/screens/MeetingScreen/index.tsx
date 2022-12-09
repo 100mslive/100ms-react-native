@@ -57,6 +57,7 @@ import {
   ChangeAudioMixingModeModal,
   ChangeAudioModeModal,
   ChangeAudioOutputModal,
+  ChangeBulkRoleModal,
   ChangeNameModal,
   ChangeRoleAccepteModal,
   ChangeRoleModal,
@@ -1170,6 +1171,14 @@ const Footer = ({
         }
       });
     }
+    if (localPeer?.role?.permissions?.changeRole) {
+      buttons.push({
+        text: 'Change All Roles to Role',
+        onPress: () => {
+          setModalVisible(ModalTypes.BULK_ROLE_CHANGE)
+        }
+      })
+    }
     if (!localPeer?.role?.name?.includes('hls-')) {
       buttons.push({
         text: muteAllTracksAudio
@@ -1628,6 +1637,16 @@ const Footer = ({
           instance={hmsInstance}
           newAudioMixingMode={newAudioMixingMode}
           setNewAudioMixingMode={setNewAudioMixingMode}
+          cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
+        />
+      </DefaultModal>
+      <DefaultModal
+        animationType="fade"
+        overlay={false}
+        modalPosiion="center"
+        modalVisible={modalVisible === ModalTypes.BULK_ROLE_CHANGE}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        <ChangeBulkRoleModal
           cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
         />
       </DefaultModal>
