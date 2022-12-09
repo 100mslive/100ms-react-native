@@ -99,7 +99,7 @@ const QRCode = () => {
           setJoiningLink(url);
         }
       });
-    }, [])
+    }, []),
   );
 
   return (

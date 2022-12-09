@@ -20,7 +20,7 @@ import java.util.UUID
 
 @ReactModule(name = REACT_CLASS)
 class HMSManager(reactContext: ReactApplicationContext) :
-    ReactContextBaseJavaModule(reactContext), Application.ActivityLifecycleCallbacks {
+  ReactContextBaseJavaModule(reactContext), Application.ActivityLifecycleCallbacks {
   companion object {
     const val REACT_CLASS = "HMSManager"
     var hmsCollection = mutableMapOf<String, HMSRNSDK>()
@@ -491,12 +491,12 @@ class HMSManager(reactContext: ReactApplicationContext) :
 
   @RequiresApi(Build.VERSION_CODES.O)
   private fun updatePIPRemoteActions(code: Int) {
-    val activity = currentActivity;
+    val activity = currentActivity
 
     if (activity !== null) {
       val hmssdk = getHmsInstance()[PipActionReceiver.sdkIdForPIP!!]?.hmsSDK
 
-      when(code) {
+      when (code) {
         PipActionReceiver.PIPActions.localAudio.requestCode -> {
           val audioActionIdx = pipRemoteActionsList.indexOfFirst { it.title == PipActionReceiver.PIPActions.localAudio.title }
           if (audioActionIdx >= 0) {
@@ -569,7 +569,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
     try {
       PipActionReceiver.sdkIdForPIP = data.getString("id")
 
-      when(action) {
+      when (action) {
         "isPipModeSupported" -> {
           val result = isPipModeSupported()
           promise?.resolve(result)
@@ -598,20 +598,22 @@ class HMSManager(reactContext: ReactApplicationContext) :
     val allowedPublishing = localPeer?.hmsRole?.publishParams?.allowed
 
     if (audioAction && allowedPublishing?.contains("audio") === true) {
-      pipRemoteActionsList.add(RemoteAction(
-        Icon.createWithResource(
-          reactApplicationContext,
-          if (localPeer?.audioTrack?.isMute === true) R.drawable.ic_mic_off_24 else R.drawable.ic_mic_24
-        ),
-        PipActionReceiver.PIPActions.localAudio.title,
-        PipActionReceiver.PIPActions.localAudio.description,
-        PendingIntent.getBroadcast(
-          reactApplicationContext,
-          PipActionReceiver.PIPActions.localAudio.requestCode,
-          Intent(PipActionReceiver.PIP_INTENT_ACTION).putExtra(PipActionReceiver.PIPActions.localAudio.title, PipActionReceiver.PIPActions.localAudio.requestCode),
-          PendingIntent.FLAG_IMMUTABLE
+      pipRemoteActionsList.add(
+        RemoteAction(
+          Icon.createWithResource(
+            reactApplicationContext,
+            if (localPeer?.audioTrack?.isMute === true) R.drawable.ic_mic_off_24 else R.drawable.ic_mic_24
+          ),
+          PipActionReceiver.PIPActions.localAudio.title,
+          PipActionReceiver.PIPActions.localAudio.description,
+          PendingIntent.getBroadcast(
+            reactApplicationContext,
+            PipActionReceiver.PIPActions.localAudio.requestCode,
+            Intent(PipActionReceiver.PIP_INTENT_ACTION).putExtra(PipActionReceiver.PIPActions.localAudio.title, PipActionReceiver.PIPActions.localAudio.requestCode),
+            PendingIntent.FLAG_IMMUTABLE
+          )
         )
-      ))
+      )
     }
 
     if (endAction) {
@@ -663,10 +665,12 @@ class HMSManager(reactContext: ReactApplicationContext) :
   private fun buildPipParams(config: PipParamConfig): PictureInPictureParams {
     val pipParams = PictureInPictureParams.Builder().let {
       if (config.aspectRatio !== null) {
-        it.setAspectRatio(Rational(
-          config.aspectRatio.first,
-          config.aspectRatio.second
-        ))
+        it.setAspectRatio(
+          Rational(
+            config.aspectRatio.first,
+            config.aspectRatio.second
+          )
+        )
       }
 
 //      TODO:= We need compileSdkVersion >= 31 for autoEnterEnabled
@@ -674,11 +678,13 @@ class HMSManager(reactContext: ReactApplicationContext) :
 //        it.setAutoEnterEnabled(config.autoEnterEnabled)
 //      }
 
-      it.setActions(getPIPRemoteActions(
-        endAction = config.showEndButton,
-        audioAction = config.showAudioButton,
-        videoAction = config.showVideoButton
-      ))
+      it.setActions(
+        getPIPRemoteActions(
+          endAction = config.showEndButton,
+          audioAction = config.showAudioButton,
+          videoAction = config.showVideoButton
+        )
+      )
 
       it.build()
     }
@@ -688,10 +694,10 @@ class HMSManager(reactContext: ReactApplicationContext) :
 
   @RequiresApi(Build.VERSION_CODES.O)
   private fun readableMapToPipParamConfig(data: ReadableMap?): PipParamConfig {
-    var aspectRatio: Pair<Int, Int> = Pair(16, 9);
-    var showEndButton = false;
-    var showAudioButton = false;
-    var showVideoButton = false;
+    var aspectRatio: Pair<Int, Int> = Pair(16, 9)
+    var showEndButton = false
+    var showAudioButton = false
+    var showVideoButton = false
 
 //    TODO:= We need compileSdkVersion >= 31 for autoEnterEnabled
 //    var autoEnterEnabled: Boolean? = null;
@@ -756,7 +762,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
         throw Throwable(message = "PIP Mode is not supported!")
       }
 
-      val activity = currentActivity;
+      val activity = currentActivity
 
       if (activity !== null) {
         val pipParamConfig = readableMapToPipParamConfig(data)
@@ -784,7 +790,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
         throw Throwable(message = "PIP Mode is not supported!")
       }
 
-      val activity = currentActivity;
+      val activity = currentActivity
 
       if (activity !== null) {
         val pipParamConfig = readableMapToPipParamConfig(data)
@@ -798,7 +804,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
         return entered
       }
 
-      return false;
+      return false
     } catch (e: Exception) {
       throw e
     }
@@ -806,8 +812,8 @@ class HMSManager(reactContext: ReactApplicationContext) :
 
   fun emitEvent(event: String, data: WritableMap) {
     reactApplicationContext
-        .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-        .emit(event, data)
+      .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+      .emit(event, data)
   }
 
   override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}

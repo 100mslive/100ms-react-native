@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 
 data class PIPAction(val title: String, val description: String, val requestCode: Int)
@@ -17,11 +16,11 @@ data class PIPActions(val endMeet: PIPAction, val localAudio: PIPAction, val loc
 class PipActionReceiver(
   val toggleLocalAudio: () -> Unit,
   val toggleLocalVideo: () -> Unit,
-  val endMeeting: () -> Unit,
-): BroadcastReceiver() {
+  val endMeeting: () -> Unit
+) : BroadcastReceiver() {
   companion object {
-    var sdkIdForPIP: String? = null;
-    private var registered = false;
+    var sdkIdForPIP: String? = null
+    private var registered = false
     const val PIP_INTENT_ACTION = "PIP_INTENT_ACTION"
     val PIPActions = PIPActions(
       endMeet = PIPAction(title = "End", description = "End Meeting", requestCode = 346),
@@ -46,7 +45,7 @@ class PipActionReceiver(
 
   fun register(activity: Activity) {
     if (registered) {
-      return;
+      return
     }
 
     IntentFilter().also {
@@ -58,7 +57,7 @@ class PipActionReceiver(
 
   fun unregister(activity: Activity) {
     if (!registered) {
-      return;
+      return
     }
 
     activity.unregisterReceiver(this)

@@ -1240,7 +1240,10 @@ export class HMSSDK {
    * @param {*} callback
    * @memberof HMSSDK
    */
-  addEventListener = (action: HMSUpdateListenerActions | HMSPIPListenerActions, callback: any) => {
+  addEventListener = (
+    action: HMSUpdateListenerActions | HMSPIPListenerActions,
+    callback: any
+  ) => {
     logger?.verbose('#Function addEventListener', {
       action,
       id: this.id,
@@ -1317,7 +1320,9 @@ export class HMSSDK {
    * @param {*} callback
    * @memberof HMSSDK
    */
-  removeEventListener = (action: HMSUpdateListenerActions | HMSPIPListenerActions) => {
+  removeEventListener = (
+    action: HMSUpdateListenerActions | HMSPIPListenerActions
+  ) => {
     logger?.verbose('#Function removeEventListener', { action, id: this.id });
     switch (action) {
       case HMSUpdateListenerActions.ON_PREVIEW:
@@ -1746,7 +1751,7 @@ export class HMSSDK {
     }
   };
 
-  onPIPRoomLeaveListener = (data: {id: string}) => {
+  onPIPRoomLeaveListener = (data: { id: string }) => {
     if (data.id !== this.id) {
       return;
     }
@@ -1756,20 +1761,26 @@ export class HMSSDK {
     if (this.onPIPRoomLeaveDelegate) {
       logger?.verbose('#Listener onPIPRoomLeave_CALL', data);
       this.onPIPRoomLeaveDelegate({
-        ...data
+        ...data,
       });
     }
-  }
+  };
 
   async isPipModeSupported(): Promise<undefined | boolean> {
     return HMSManager.handlePipActions('isPipModeSupported', { id: this.id });
   }
 
   async enablePipMode(data?: PIPConfig): Promise<undefined | boolean> {
-    return HMSManager.handlePipActions('enablePipMode', { ...data, id: this.id });
+    return HMSManager.handlePipActions('enablePipMode', {
+      ...data,
+      id: this.id,
+    });
   }
 
   async setPipParams(data?: PIPConfig): Promise<undefined | boolean> {
-    return HMSManager.handlePipActions('setPictureInPictureParams', { ...data, id: this.id });
+    return HMSManager.handlePipActions('setPictureInPictureParams', {
+      ...data,
+      id: this.id,
+    });
   }
 }

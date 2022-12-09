@@ -133,9 +133,12 @@ const Welcome = () => {
       data.room.localPeer.videoTrack,
     );
     dispatch(setPeerState({peerState: [hmsLocalPeer]}));
-    AsyncStorage.setItem(Constants.MEET_URL, roomID.replace('preview', 'meeting'));
+    AsyncStorage.setItem(
+      Constants.MEET_URL,
+      roomID.replace('preview', 'meeting'),
+    );
     replace('MeetingScreen');
-  }
+  };
 
   const onJoinSuccess = (data: {room: HMSRoom}) => {
     handleJoin(data);
@@ -151,7 +154,10 @@ const Welcome = () => {
     );
   };
 
-  const onRoomListener = (hmsInstance: HMSSDK, data: {room: HMSRoom; type: HMSRoomUpdate}) => {
+  const onRoomListener = (
+    hmsInstance: HMSSDK,
+    data: {room: HMSRoom; type: HMSRoomUpdate},
+  ) => {
     if (isHLSViewerRef.current) {
       // remove hms event listeners, so that we can take user to meeting screen, rather than handling events here
       removeListeners(hmsInstance);
@@ -545,7 +551,7 @@ const Welcome = () => {
     hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_PEER_UPDATE);
     hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_TRACK_UPDATE);
     hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_ERROR);
-  }
+  };
 
   // useEffect hook
   useEffect(() => {
@@ -573,17 +579,20 @@ const Welcome = () => {
     <KeyboardAvoidingView
       enabled={Platform.OS === 'ios'}
       behavior="padding"
-      style={styles.container}>
+      style={styles.container}
+    >
       <View style={[styles.settingsContainer, {marginTop: top}]}>
         <Menu
           visible={modalType === ModalTypes.WELCOME_SETTINGS}
           onRequestClose={() => setModalType(ModalTypes.DEFAULT)}
-          style={styles.settingsMenuContainer}>
+          style={styles.settingsMenuContainer}
+        >
           <MenuItem
             onPress={() => {
               setModalType(ModalTypes.DEFAULT);
               setMirrorLocalVideo(!mirrorLocalVideo);
-            }}>
+            }}
+          >
             {mirrorLocalVideo ? (
               <Text style={styles.settingsMenuItemName}>
                 Don't mirror local video
@@ -599,7 +608,8 @@ const Welcome = () => {
               onPress={() => {
                 setModalType(ModalTypes.DEFAULT);
                 setForceSoftwareDecoder(!forceSoftwareDecoder);
-              }}>
+              }}
+            >
               {forceSoftwareDecoder ? (
                 <Text style={styles.settingsMenuItemName}>
                   Disable software decoder
@@ -616,7 +626,8 @@ const Welcome = () => {
               onPress={() => {
                 setModalType(ModalTypes.DEFAULT);
                 setDisableAutoResize(!disableAutoResize);
-              }}>
+              }}
+            >
               {disableAutoResize ? (
                 <Text style={styles.settingsMenuItemName}>
                   Enable auto resize
@@ -652,7 +663,8 @@ const Welcome = () => {
           },
         ]}
         style={styles.container}
-        keyboardShouldPersistTaps="always">
+        keyboardShouldPersistTaps="always"
+      >
         <Image
           style={styles.image}
           resizeMode="stretch"
