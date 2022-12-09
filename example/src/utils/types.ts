@@ -72,3 +72,7 @@ export enum PipModes {
   ACTIVE = 0,
   INACTIVE = 1,
 }
+
+export enum Constants {
+  MEET_URL = 'MEET_URL',
+}

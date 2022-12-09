@@ -21,6 +21,7 @@ import {
   HMSUpdateListenerActions,
   HMSVideoTrackSettings,
 } from '@100mslive/react-native-hms';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
 import React, {useEffect, useState} from 'react';
 import {
@@ -56,7 +57,7 @@ import {
   updatePeerTrackNodes,
 } from '../../utils/functions';
 import {COLORS} from '../../utils/theme';
-import {ModalTypes, PeerTrackNode} from '../../utils/types';
+import {Constants, ModalTypes, PeerTrackNode} from '../../utils/types';
 import {styles} from './styles';
 
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -132,6 +133,7 @@ const Welcome = () => {
       data.room.localPeer.videoTrack,
     );
     dispatch(setPeerState({peerState: [hmsLocalPeer]}));
+    AsyncStorage.setItem(Constants.MEET_URL, roomID.replace('preview', 'meeting'));
     replace('MeetingScreen');
   }
 

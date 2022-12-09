@@ -93,8 +93,9 @@ const CustomInput = ({
           blurOnSubmit={blurOnSubmit}
           keyboardAppearance="dark"
           autoCapitalize={autoCapitalize}
-          autoCorrect={autoCorrect}
-          autoCompleteType={autoCompleteType}
+          autoCorrect={true}
+          textContentType={"name"}
+          autoCompleteType={"name"}
         />
         {showClear && (
           <TouchableOpacity
