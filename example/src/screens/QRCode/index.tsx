@@ -180,7 +180,7 @@ const QRCode = () => {
 
       <DefaultModal
         modalVisible={moreModalVisible}
-        viewStyle={{ height: 260 }}
+        viewStyle={{ height: 220 }}
         setModalVisible={closeMoreModal}
       >
         <JoinSettingsModalContent />
