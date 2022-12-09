@@ -5,6 +5,7 @@ import FontAwesomeIcons from 'react-native-vector-icons/FontAwesome';
 
 import { COLORS } from '../utils/theme';
 import { version as hmsRNSdkVersion } from '../../../package.json';
+import { ios as hmsIOSSdkVersion, android as hmsAndroidSdkVersion } from '../../../sdk-versions.json';
 
 interface JoinSettingsModalContentProps {}
 
@@ -15,19 +16,19 @@ export const JoinSettingsModalContent: React.FC<JoinSettingsModalContentProps> =
         <Text style={styles.versionText}>
           App {" "}
           <Text style={styles.versionNumber}>
-            v{DeviceInfo.getVersion()} ({DeviceInfo.getBuildNumber()})
+            {DeviceInfo.getVersion()} ({DeviceInfo.getBuildNumber()})
           </Text>
         </Text>
 
         <Text style={styles.versionText}>
           100ms React Native SDK {" "}
-          <Text style={styles.versionNumber}>v{hmsRNSdkVersion}</Text>
+          <Text style={styles.versionNumber}>{hmsRNSdkVersion}</Text>
         </Text>
 
         <Text style={styles.versionText}>
           100ms {Platform.select({ ios: 'iOS', android: 'Android', default: '-' })} SDK {" "}
           <Text style={styles.versionNumber}>
-            v ---
+            {Platform.select({ android: hmsAndroidSdkVersion, ios: hmsIOSSdkVersion, default: '-' })}
           </Text>
         </Text>
       </View>
@@ -55,7 +56,7 @@ const styles = StyleSheet.create({
     color: COLORS.TWIN.ORANGE,
   },
   footer: {
-    marginTop: 32,
+    marginTop: 48,
     marginBottom: 24,
     fontFamily: 'Inter-Medium',
     fontSize: 16,
