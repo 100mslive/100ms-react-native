@@ -2080,6 +2080,8 @@ export const ChangeBulkRoleModal: React.FC<ChangeBulkRoleModalProps> = ({ cancel
       ofRoles.filter(ofRole => ofRole.name !== targetRole.name),
       targetRole
     );
+
+    cancelModal();
   }
 
   const handleRoleSelection = (roleSelected: HMSRole) => {
