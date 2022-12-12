@@ -52,6 +52,7 @@ export enum ModalTypes {
   AUDIO_MIXING_MODE = 'audioMixingMode',
   SET_AUDIO_SHARE_VOLUME = 'setAudioShareVolume',
   WELCOME_SETTINGS = 'welcomeSettings',
+  BULK_ROLE_CHANGE = 'bulkRoleChange',
   DEFAULT = '',
 }
 
