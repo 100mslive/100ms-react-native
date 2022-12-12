@@ -2064,18 +2064,22 @@ enum RoleSelection {
 }
 
 export const ChangeBulkRoleModal: React.FC<ChangeBulkRoleModalProps> = ({ cancelModal }) => {
+  const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
   const roles = useSelector((state: RootState) => state.user.roles);
   const [showRolesSelectionView, setShowRolesSelectionView] = useState<null | RoleSelection>(null);
   const [changeAllRoles, setChangeAllRoles] = useState(true);
   const [targetRole, setTargetRole] = useState<HMSRole | null>(null);
   const [rolesToChange, setRolesToChange] = useState<HMSRole[]>([]);
 
-  const changeRole = () => {
-    // Use states to change role => changeAllRoles, targetRole and rolesToChange
+  const changeRole = async () => {
+    if (!hmsInstance || !targetRole) return;
 
-    console.log('Changing All or Specific Roles? = ', changeAllRoles ? 'All' : 'Specific');
-    console.log('Role to Change = ', rolesToChange.length > 0 ? rolesToChange.map(role => role.name).join(', ') : changeAllRoles ? 'All' : 'No Roles Selected');
-    console.log('Target Role = ', targetRole || 'Not Selected');
+    const ofRoles = changeAllRoles ? roles : rolesToChange;
+
+    hmsInstance.changeRoleOfPeersWithRoles(
+      ofRoles.filter(ofRole => ofRole.name !== targetRole.name),
+      targetRole
+    );
   }
 
   const handleRoleSelection = (roleSelected: HMSRole) => {
@@ -2091,6 +2095,10 @@ export const ChangeBulkRoleModal: React.FC<ChangeBulkRoleModalProps> = ({ cancel
       });
     }
   }
+
+  // if targetRole is not available, OR
+  // role or rolesToChange is not available. then "Change" button should be disabled
+  const changeSubmitDisabled = !targetRole || (changeAllRoles ? roles : rolesToChange).length === 0;
 
   return (
     <View style={bulkRoleStyles.container}>
@@ -2156,6 +2164,7 @@ export const ChangeBulkRoleModal: React.FC<ChangeBulkRoleModalProps> = ({ cancel
           textStyle={styles.roleChangeModalButtonText}
         />
         <CustomButton
+          disabled={changeSubmitDisabled}
           title="Change"
           onPress={changeRole}
           viewStyle={styles.roleChangeModalSuccessButton}
