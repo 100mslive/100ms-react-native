@@ -1,0 +1,7 @@
+- Added Bulk Role Change APIs & Example app UI
+
+- Added Leave, Mute/Unmute Audio/Video actions on PIP window
+
+- Added persisting of previously joined Room link
+
+- Added App, React Native SDK & Native SDK version info on Home Screen
