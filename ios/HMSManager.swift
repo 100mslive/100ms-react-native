@@ -151,14 +151,14 @@ class HMSManager: RCTEventEmitter {
 
         hms?.changeRole(data, resolve, reject)
     }
-    
+
     @objc
     func changeRoleOfPeer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.changeRole(data, resolve, reject)
     }
-    
+
     @objc
     func changeRoleOfPeersWithRoles(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)

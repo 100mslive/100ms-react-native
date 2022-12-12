@@ -351,9 +351,9 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             })
         }
     }
-    
+
     func changeRolesOfAllPeers(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        
+
         guard let toRoleString = data.object(forKey: "toRole") as? String
         else {
             let errorMessage = "changeRolesOfAllPeers: " + HMSHelper.getUnavailableRequiredKey(data, ["toRole"])
@@ -362,22 +362,21 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
 
-        
         DispatchQueue.main.async { [weak self] in
-            
+
             guard let toRole = HMSHelper.getRoleFromRoleName(toRoleString, roles: self?.hms?.roles) else {
                 let errorMessage = "changeRolesOfAllPeers: " + HMSHelper.getUnavailableRequiredKey(data, ["toRole"])
                 self?.emitRequiredKeysError(errorMessage)
                 reject?(errorMessage, errorMessage, nil)
                 return
             }
-            
-            var limitToRoles: [HMSRole]? = nil
-            
+
+            var limitToRoles: [HMSRole]?
+
             if let ofRoleNames = data.object(forKey: "ofRoles") as? [String] {
                 limitToRoles = self?.hms?.roles.filter { ofRoleNames.contains($0.name) }
             }
-            
+
             self?.hms?.changeRolesOfAllPeers(to: toRole, limitToRoles: limitToRoles) { success, error in
                 if success {
                     resolve?(["success": success])
