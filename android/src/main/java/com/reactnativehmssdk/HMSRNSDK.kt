@@ -355,11 +355,13 @@ class HMSRNSDK(
 
               val peers: WritableArray = Arguments.createArray()
               for (speaker in speakers) {
-                val speakerArray: WritableMap = Arguments.createMap()
-                speakerArray.putMap("peer", HMSDecoder.getHmsPeer(speaker.peer))
-                speakerArray.putInt("level", speaker.level)
-                speakerArray.putMap("track", HMSDecoder.getHmsTrack(speaker.hmsTrack))
-                peers.pushMap(speakerArray)
+                speaker.peer?.let {
+                  val speakerArray: WritableMap = Arguments.createMap()
+                  speakerArray.putMap("peer", HMSDecoder.getHmsPeer(it))
+                  speakerArray.putInt("level", speaker.level)
+                  speakerArray.putMap("track", HMSDecoder.getHmsTrack(speaker.hmsTrack))
+                  peers.pushMap(speakerArray)
+                }
               }
               data.putArray("speakers", peers)
               data.putString("id", id)
