@@ -144,11 +144,26 @@ class HMSManager: RCTEventEmitter {
         hms?.acceptRoleChange(resolve, reject)
     }
 
+    @available(*, deprecated, message: "Use changeRoleOfPeer function")
     @objc
     func changeRole(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.changeRole(data, resolve, reject)
+    }
+    
+    @objc
+    func changeRoleOfPeer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.changeRole(data, resolve, reject)
+    }
+    
+    @objc
+    func changeRoleOfPeersWithRoles(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.changeRolesOfAllPeers(data, resolve, reject)
     }
 
     @objc
