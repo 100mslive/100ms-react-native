@@ -79,7 +79,6 @@ const HLSView = ({room}: HLSViewProps) => {
                     onPause={handlePausePress}
                     pictureInPicture={true}
                     playWhenInactive={true}
-                    ignoreSilentSwitch={'obey'}
                   />
 
                   <LiveButton
