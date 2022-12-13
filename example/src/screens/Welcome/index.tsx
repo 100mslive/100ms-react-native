@@ -39,11 +39,7 @@ import Toast from 'react-native-simple-toast';
 import {useDispatch, useSelector} from 'react-redux';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-import {
-  CustomButton,
-  CustomInput,
-  PreviewModal,
-} from '../../components';
+import {CustomButton, CustomInput, PreviewModal} from '../../components';
 import {saveUserData, setPeerState} from '../../redux/actions';
 import {
   callService,
@@ -82,8 +78,7 @@ const Welcome = () => {
   const [config, setConfig] = useState<HMSConfig>();
   const [nameDisabled, setNameDisabled] = useState<boolean>(true);
   const [peerName, setPeerName] = useState<string>(userName);
-  const [startButtonLoading, setStartButtonLoading] =
-    useState<boolean>(false);
+  const [startButtonLoading, setStartButtonLoading] = useState<boolean>(false);
   const [joinButtonLoading, setJoinButtonLoading] = useState<boolean>(false);
   const [previewTracks, setPreviewTracks] = useState<HMSTrack[]>();
   const [hmsRoom, setHmsRoom] = useState<HMSRoom>();
@@ -447,19 +442,25 @@ const Welcome = () => {
     const deviceModal = getModel();
 
     let audioSettings = new HMSAudioTrackSettings({
-      initialState: joinConfig.mutedAudio ? HMSTrackSettingsInitState.MUTED : HMSTrackSettingsInitState.UNMUTED,
+      initialState: joinConfig.mutedAudio
+        ? HMSTrackSettingsInitState.MUTED
+        : HMSTrackSettingsInitState.UNMUTED,
       useHardwareEchoCancellation: listOfFaultyDevices.includes(deviceModal)
         ? true
         : false,
-      audioSource: joinConfig.audioMixer ? [
-        'mic_node',
-        'screen_broadcast_audio_receiver_node',
-        'audio_file_player_node',
-      ] : undefined,
+      audioSource: joinConfig.audioMixer
+        ? [
+            'mic_node',
+            'screen_broadcast_audio_receiver_node',
+            'audio_file_player_node',
+          ]
+        : undefined,
     });
 
     let videoSettings = new HMSVideoTrackSettings({
-      initialState: joinConfig.mutedVideo ? HMSTrackSettingsInitState.MUTED : HMSTrackSettingsInitState.UNMUTED,
+      initialState: joinConfig.mutedVideo
+        ? HMSTrackSettingsInitState.MUTED
+        : HMSTrackSettingsInitState.UNMUTED,
       cameraFacing: HMSCameraFacing.FRONT,
       disableAutoResize: !joinConfig.autoResize,
       forceSoftwareDecoder: joinConfig.softwareDecoder,

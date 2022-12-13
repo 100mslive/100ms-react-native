@@ -640,7 +640,7 @@ export class HMSSDK {
 
   /**
    * @deprecated This function has been deprecated in favor of #Function changeRoleOfPeer
-   * 
+   *
    * - This function can be used in a situation when we want to change role hence manipulate their
    * access and rights in the current room, it takes the peer {@link HMSPeer} whom role we want to change,
    * role {@link HMSRole} which will be the new role for that peer and weather to forcefully change
@@ -679,7 +679,11 @@ export class HMSSDK {
    *
    * @memberof HMSSDK
    */
-  changeRoleOfPeer = async (peer: HMSPeer, role: HMSRole, force: boolean = false) => {
+  changeRoleOfPeer = async (
+    peer: HMSPeer,
+    role: HMSRole,
+    force: boolean = false
+  ) => {
     const data = {
       peerId: peer.peerID,
       role: role.name,
@@ -705,7 +709,7 @@ export class HMSSDK {
    */
   changeRoleOfPeersWithRoles = async (ofRoles: HMSRole[], toRole: HMSRole) => {
     const data = {
-      ofRoles: ofRoles.map(ofRole => ofRole.name).filter(Boolean),
+      ofRoles: ofRoles.map((ofRole) => ofRole.name).filter(Boolean),
       toRole: toRole.name,
       id: this.id,
     };

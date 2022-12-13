@@ -36,11 +36,11 @@ export const PreviewModal = ({
   setLoadingButtonState: React.Dispatch<React.SetStateAction<boolean>>;
   loadingButtonState: boolean;
 }) => {
-  const {hmsInstance} = useSelector(
-    (state: RootState) => state.user,
-  );
+  const {hmsInstance} = useSelector((state: RootState) => state.user);
   const {top, bottom, left, right} = useSafeAreaInsets();
-  const mirrorCamera = useSelector((state: RootState) => state.app.joinConfig.mirrorCamera);
+  const mirrorCamera = useSelector(
+    (state: RootState) => state.app.joinConfig.mirrorCamera,
+  );
 
   const [previewVideoTrack, setPreviewVideoTrack] = useState<HMSTrack>();
 
@@ -104,10 +104,12 @@ export const PreviewModal = ({
           <TouchableWithoutFeedback
             onPress={() => {
               setNumberOfLines(!numberOfLines);
-            }}>
+            }}
+          >
             <Text
               style={styles.collapsibleText}
-              numberOfLines={numberOfLines ? 1 : undefined}>
+              numberOfLines={numberOfLines ? 1 : undefined}
+            >
               {room?.peers.map((peer, index) => {
                 return (index !== 0 ? ', ' : '') + peer.name;
               })}

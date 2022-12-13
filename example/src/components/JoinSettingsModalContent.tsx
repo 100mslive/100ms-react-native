@@ -1,7 +1,14 @@
 import React from 'react';
 import DeviceInfo from 'react-native-device-info';
-import { useDispatch, useSelector } from 'react-redux';
-import {View, Text, StyleSheet, Platform, ScrollView, TouchableOpacity} from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Platform,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
 import FontAwesomeIcons from 'react-native-vector-icons/FontAwesome';
 import IoniconsIcons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -13,8 +20,8 @@ import {
   ios as hmsIOSSdkVersion,
   android as hmsAndroidSdkVersion,
 } from '../../../sdk-versions.json';
-import { SwitchRow } from './SwitchRow';
-import { RootState } from '../redux';
+import {SwitchRow} from './SwitchRow';
+import {RootState} from '../redux';
 import {
   changeAudioMixer,
   changeShowStats,
@@ -24,7 +31,7 @@ import {
   changeMirrorCamera,
   changeSoftwareDecoder,
   changeAutoResize,
-  resetJoinConfig
+  resetJoinConfig,
 } from '../redux/actions';
 
 interface JoinSettingsModalContentProps {}
@@ -42,7 +49,7 @@ export const JoinSettingsModalContent: React.FC<
     showStats,
     audioMixer,
     softwareDecoder,
-    autoResize
+    autoResize,
   } = joinConfig;
 
   return (
@@ -53,79 +60,118 @@ export const JoinSettingsModalContent: React.FC<
 
       <ScrollView>
         <View>
-          <TouchableOpacity style={styles.resetBtn} onPress={() => dispatch(resetJoinConfig())}>
-            <FontAwesomeIcons name='rotate-left' size={16} style={styles.resetIcon} />
+          <TouchableOpacity
+            style={styles.resetBtn}
+            onPress={() => dispatch(resetJoinConfig())}
+          >
+            <FontAwesomeIcons
+              name="rotate-left"
+              size={16}
+              style={styles.resetIcon}
+            />
 
             <Text style={styles.resetText}>Reset to Default</Text>
           </TouchableOpacity>
 
           <SwitchRow
-            text='Join with muted audio'
+            text="Join with Muted Audio"
             value={mutedAudio}
             onChange={value => dispatch(changeJoinAudioMuted(value))}
-            LeftIcon={<IoniconsIcons name='mic-outline' size={24} style={styles.icon} />}
+            LeftIcon={
+              <IoniconsIcons name="mic-outline" size={24} style={styles.icon} />
+            }
             containerStyle={styles.switchContainer}
           />
 
           <SwitchRow
-            text='Join with muted video'
+            text="Join with Muted Video"
             value={mutedVideo}
             onChange={value => dispatch(changeJoinVideoMuted(value))}
-            LeftIcon={<MaterialCommunityIcons name='video-off-outline' size={24} style={styles.icon} />}
+            LeftIcon={
+              <MaterialCommunityIcons
+                name="video-off-outline"
+                size={24}
+                style={styles.icon}
+              />
+            }
             containerStyle={styles.switchContainer}
           />
 
           <SwitchRow
-            text='Mirror camera'
+            text="Mirror Camera"
             value={mirrorCamera}
             onChange={value => dispatch(changeMirrorCamera(value))}
-            LeftIcon={<IoniconsIcons name='camera-reverse-outline' size={24} style={styles.icon} />}
+            LeftIcon={
+              <IoniconsIcons
+                name="camera-reverse-outline"
+                size={24}
+                style={styles.icon}
+              />
+            }
             containerStyle={styles.switchContainer}
           />
 
           <SwitchRow
-            text='Skip Preview'
+            text="Skip Preview"
             value={skipPreview}
             onChange={value => dispatch(changeJoinSkipPreview(value))}
-            LeftIcon={<IoniconsIcons name='eye-outline' size={24} style={styles.icon} />}
+            LeftIcon={
+              <IoniconsIcons name="eye-outline" size={24} style={styles.icon} />
+            }
             containerStyle={styles.switchContainer}
           />
 
           {Platform.OS === 'ios' ? (
             <SwitchRow
-              text='Audio Mixer'
+              text="Audio Mixer"
               value={audioMixer}
               onChange={value => dispatch(changeAudioMixer(value))}
-              LeftIcon={<EntypoIcons name='sound-mix' size={24} style={styles.icon} />}
+              LeftIcon={
+                <EntypoIcons name="sound-mix" size={24} style={styles.icon} />
+              }
               containerStyle={styles.switchContainer}
             />
           ) : null}
 
           {Platform.OS === 'android' ? (
             <SwitchRow
-              text='Software Decoder'
+              text="Software Decoder"
               value={softwareDecoder}
               onChange={value => dispatch(changeSoftwareDecoder(value))}
-              LeftIcon={<IoniconsIcons name='settings-outline' size={24} style={styles.icon} />}
+              LeftIcon={
+                <IoniconsIcons
+                  name="settings-outline"
+                  size={24}
+                  style={styles.icon}
+                />
+              }
               containerStyle={styles.switchContainer}
             />
           ) : null}
 
           {Platform.OS === 'android' ? (
             <SwitchRow
-              text='Auto Resize'
+              text="Auto Resize"
               value={autoResize}
               onChange={value => dispatch(changeAutoResize(value))}
-              LeftIcon={<IoniconsIcons name='resize' size={24} style={styles.icon} />}
+              LeftIcon={
+                <IoniconsIcons name="resize" size={24} style={styles.icon} />
+              }
               containerStyle={styles.switchContainer}
             />
           ) : null}
 
           <SwitchRow
-            text='Show Stats'
+            text="Show Stats"
             value={showStats}
             onChange={value => dispatch(changeShowStats(value))}
-            LeftIcon={<MaterialCommunityIcons name='clipboard-pulse-outline' size={24} style={styles.icon} />}
+            LeftIcon={
+              <MaterialCommunityIcons
+                name="clipboard-pulse-outline"
+                size={24}
+                style={styles.icon}
+              />
+            }
             containerStyle={styles.switchContainer}
           />
         </View>
@@ -149,7 +195,8 @@ export const JoinSettingsModalContent: React.FC<
 
           <Text style={styles.versionText}>
             100ms{' '}
-            {Platform.select({ios: 'iOS', android: 'Android', default: '-'})} SDK{' '}
+            {Platform.select({ios: 'iOS', android: 'Android', default: '-'})}{' '}
+            SDK{' '}
             <Text style={styles.versionNumber}>
               {Platform.select({
                 android: hmsAndroidSdkVersion,
@@ -187,19 +234,19 @@ const styles = StyleSheet.create({
   },
   icon: {
     color: COLORS.WHITE,
-    marginRight: 16
+    marginRight: 16,
   },
   switchContainer: {
-    marginVertical: 12
+    marginVertical: 12,
   },
   flexSpace: {
-    flex: 1
+    flex: 1,
   },
   resetBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-end',
-    marginBottom: 12
+    marginBottom: 12,
   },
   resetText: {
     fontFamily: 'Inter-Medium',
@@ -209,7 +256,7 @@ const styles = StyleSheet.create({
   },
   resetIcon: {
     color: COLORS.INDICATORS.WARNING,
-    marginRight: 4
+    marginRight: 4,
   },
   versionText: {
     fontFamily: 'Inter-Regular',
