@@ -36,10 +36,11 @@ export const PreviewModal = ({
   setLoadingButtonState: React.Dispatch<React.SetStateAction<boolean>>;
   loadingButtonState: boolean;
 }) => {
-  const {mirrorLocalVideo, hmsInstance} = useSelector(
+  const {hmsInstance} = useSelector(
     (state: RootState) => state.user,
   );
   const {top, bottom, left, right} = useSafeAreaInsets();
+  const mirrorCamera = useSelector((state: RootState) => state.app.joinConfig.mirrorCamera);
 
   const [previewVideoTrack, setPreviewVideoTrack] = useState<HMSTrack>();
 
@@ -93,7 +94,7 @@ export const PreviewModal = ({
             scaleType={HMSVideoViewMode.ASPECT_FILL}
             style={styles.hmsView}
             trackId={previewVideoTrack?.trackId}
-            mirror={mirrorLocalVideo}
+            mirror={mirrorCamera}
           />
         )}
       </View>

@@ -26,7 +26,7 @@ const PeerDisplayView = ({
   videoTrack,
 }: PeerDisplayViewProps) => {
   const HmsView = useSelector((state: RootState) => state.user.hmsInstance?.HmsView || null);
-  const mirrorLocalVideo = useSelector((state: RootState) => state.user.mirrorLocalVideo);
+  const mirrorCamera = useSelector((state: RootState) => state.app.joinConfig.mirrorCamera);
 
   if (!HmsView) {
     return null;
@@ -46,8 +46,8 @@ const PeerDisplayView = ({
             // setZOrderMediaOverlay={miniView}
             trackId={videoTrack?.trackId!}
             mirror={
-              isLocal && mirrorLocalVideo !== undefined
-                ? mirrorLocalVideo
+              isLocal && mirrorCamera !== undefined
+                ? mirrorCamera
                 : false
             }
             scaleType={
