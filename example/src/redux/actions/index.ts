@@ -33,7 +33,6 @@ export const clearPeerData = () => ({
 export const saveUserData = (data: {
   userName?: String;
   roomID?: String;
-  mirrorLocalVideo?: boolean;
   roomCode?: String;
   hmsInstance?: HMSSDK;
   isHLSFlow?: boolean;

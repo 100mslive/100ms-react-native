@@ -92,7 +92,6 @@ const Welcome = () => {
   const [modalType, setModalType] = useState<ModalTypes>(ModalTypes.DEFAULT);
   const [forceSoftwareDecoder, setForceSoftwareDecoder] = useState(true);
   const [disableAutoResize, setDisableAutoResize] = useState(true);
-  const [mirrorLocalVideo, setMirrorLocalVideo] = useState(false);
   const isHLSViewerRef = React.useRef(false);
 
   // useRef hook
@@ -415,7 +414,6 @@ const Welcome = () => {
         userName: userID,
         roomCode,
         hmsInstance,
-        mirrorLocalVideo,
       }),
     );
 
@@ -592,22 +590,6 @@ const Welcome = () => {
           onRequestClose={() => setModalType(ModalTypes.DEFAULT)}
           style={styles.settingsMenuContainer}
         >
-          <MenuItem
-            onPress={() => {
-              setModalType(ModalTypes.DEFAULT);
-              setMirrorLocalVideo(!mirrorLocalVideo);
-            }}
-          >
-            {mirrorLocalVideo ? (
-              <Text style={styles.settingsMenuItemName}>
-                Don't mirror local video
-              </Text>
-            ) : (
-              <Text style={styles.settingsMenuItemName}>
-                Mirror local video
-              </Text>
-            )}
-          </MenuItem>
           {Platform.OS === 'android' && (
             <MenuItem
               onPress={() => {
