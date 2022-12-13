@@ -1111,6 +1111,7 @@ const Footer = ({
   const pipModeStatus = useSelector(
     (state: RootState) => state.app.pipModeStatus,
   );
+  const audioMixer = useSelector((state: RootState) => state.app.joinConfig.audioMixer);
 
   const isPipActive = pipModeStatus === PipModes.ACTIVE;
   const isPipModeUnavailable = pipModeStatus === PipModes.NOT_AVAILABLE;
@@ -1371,7 +1372,7 @@ const Footer = ({
           },
         });
       }
-    } else {
+    } else if (audioMixer === true) {
       buttons.push(
         ...[
           {
