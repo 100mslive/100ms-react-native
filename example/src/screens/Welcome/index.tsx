@@ -467,8 +467,8 @@ const Welcome = () => {
     let videoSettings = new HMSVideoTrackSettings({
       initialState: joinConfig.mutedVideo ? HMSTrackSettingsInitState.MUTED : HMSTrackSettingsInitState.UNMUTED,
       cameraFacing: HMSCameraFacing.FRONT,
-      disableAutoResize,
-      forceSoftwareDecoder,
+      disableAutoResize: !joinConfig.autoResize,
+      forceSoftwareDecoder: joinConfig.softwareDecoder,
     });
 
     return new HMSTrackSettings({
