@@ -72,6 +72,7 @@ const Welcome = () => {
   // hooks
   const replace = useNavigation<WelcomeScreenProp>().replace;
   const {roomID, userName} = useSelector((state: RootState) => state.user);
+  const joinConfig = useSelector((state: RootState) => state.app.joinConfig);
   const {top, bottom, left, right} = useSafeAreaInsets();
   const dispatch = useDispatch();
 
@@ -418,7 +419,11 @@ const Welcome = () => {
       }),
     );
 
-    hmsInstance?.preview(hmsConfig);
+    if (joinConfig.skipPreview) {
+      hmsInstance?.join(hmsConfig);
+    } else {
+      hmsInstance?.preview(hmsConfig);
+    }
   };
 
   const onJoinRoom = () => {
