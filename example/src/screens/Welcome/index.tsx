@@ -82,7 +82,7 @@ const Welcome = () => {
   const [config, setConfig] = useState<HMSConfig>();
   const [nameDisabled, setNameDisabled] = useState<boolean>(true);
   const [peerName, setPeerName] = useState<string>(userName);
-  const [previewButtonLoading, setPreviewButtonLoading] =
+  const [startButtonLoading, setStartButtonLoading] =
     useState<boolean>(false);
   const [joinButtonLoading, setJoinButtonLoading] = useState<boolean>(false);
   const [previewTracks, setPreviewTracks] = useState<HMSTrack[]>();
@@ -116,7 +116,7 @@ const Welcome = () => {
       if (hmsConfig) {
         hmsInstance?.join(hmsConfig);
       } else {
-        setPreviewButtonLoading(false);
+        setStartButtonLoading(false);
         setJoinButtonLoading(false);
         console.log('config: ', hmsConfig);
       }
@@ -141,7 +141,7 @@ const Welcome = () => {
   };
 
   const onError = (data: HMSException) => {
-    setPreviewButtonLoading(false);
+    setStartButtonLoading(false);
     setJoinButtonLoading(false);
     Toast.showWithGravity(
       `${data?.code} ${data?.description}` || 'Something went wrong',
@@ -352,7 +352,7 @@ const Welcome = () => {
     setPeerTrackNodes(newPeerTrackNodes);
   };
 
-  const onPreview = async (
+  const onStartSuccess = async (
     token: string,
     userID: string,
     roomCode: string,
@@ -533,13 +533,13 @@ const Welcome = () => {
     return false;
   };
 
-  const onPreviewPress = async () => {
-    setPreviewButtonLoading(true);
-    callService(peerName, roomID, onPreview, onFailure);
+  const onStartPress = async () => {
+    setStartButtonLoading(true);
+    callService(peerName, roomID, onStartSuccess, onFailure);
   };
 
   const onFailure = (error: string) => {
-    setPreviewButtonLoading(false);
+    setStartButtonLoading(false);
     Alert.alert('Error', error || 'Something went wrong');
   };
 
@@ -616,14 +616,14 @@ const Welcome = () => {
         />
         <CustomButton
           title="Get Started ->"
-          onPress={onPreviewPress}
+          onPress={onStartPress}
           disabled={nameDisabled}
           viewStyle={[styles.startButton, nameDisabled && styles.disabled]}
           textStyle={[
             styles.startButtonText,
             nameDisabled && styles.disabledText,
           ]}
-          loading={previewButtonLoading}
+          loading={startButtonLoading}
         />
       </ScrollView>
     </KeyboardAvoidingView>
