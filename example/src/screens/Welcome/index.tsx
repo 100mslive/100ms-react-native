@@ -91,7 +91,6 @@ const Welcome = () => {
   const [hmsRoom, setHmsRoom] = useState<HMSRoom>();
   const [modalType, setModalType] = useState<ModalTypes>(ModalTypes.DEFAULT);
   const [forceSoftwareDecoder, setForceSoftwareDecoder] = useState(true);
-  const [disableAutoResize, setDisableAutoResize] = useState(true);
   const isHLSViewerRef = React.useRef(false);
 
   // useRef hook
@@ -604,24 +603,6 @@ const Welcome = () => {
               ) : (
                 <Text style={styles.settingsMenuItemName}>
                   Enable software decoder
-                </Text>
-              )}
-            </MenuItem>
-          )}
-          {Platform.OS === 'android' && (
-            <MenuItem
-              onPress={() => {
-                setModalType(ModalTypes.DEFAULT);
-                setDisableAutoResize(!disableAutoResize);
-              }}
-            >
-              {disableAutoResize ? (
-                <Text style={styles.settingsMenuItemName}>
-                  Enable auto resize
-                </Text>
-              ) : (
-                <Text style={styles.settingsMenuItemName}>
-                  Disable auto resize
                 </Text>
               )}
             </MenuItem>
