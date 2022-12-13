@@ -90,7 +90,6 @@ const Welcome = () => {
   const [previewTracks, setPreviewTracks] = useState<HMSTrack[]>();
   const [hmsRoom, setHmsRoom] = useState<HMSRoom>();
   const [modalType, setModalType] = useState<ModalTypes>(ModalTypes.DEFAULT);
-  const [forceSoftwareDecoder, setForceSoftwareDecoder] = useState(true);
   const isHLSViewerRef = React.useRef(false);
 
   // useRef hook
@@ -589,24 +588,6 @@ const Welcome = () => {
           onRequestClose={() => setModalType(ModalTypes.DEFAULT)}
           style={styles.settingsMenuContainer}
         >
-          {Platform.OS === 'android' && (
-            <MenuItem
-              onPress={() => {
-                setModalType(ModalTypes.DEFAULT);
-                setForceSoftwareDecoder(!forceSoftwareDecoder);
-              }}
-            >
-              {forceSoftwareDecoder ? (
-                <Text style={styles.settingsMenuItemName}>
-                  Disable software decoder
-                </Text>
-              ) : (
-                <Text style={styles.settingsMenuItemName}>
-                  Enable software decoder
-                </Text>
-              )}
-            </MenuItem>
-          )}
         </Menu>
         <CustomButton
           onPress={() => setModalType(ModalTypes.WELCOME_SETTINGS)}
