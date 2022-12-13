@@ -453,7 +453,7 @@ const Welcome = () => {
     const deviceModal = getModel();
 
     let audioSettings = new HMSAudioTrackSettings({
-      initialState: HMSTrackSettingsInitState.MUTED,
+      initialState: joinConfig.mutedAudio ? HMSTrackSettingsInitState.MUTED : HMSTrackSettingsInitState.UNMUTED,
       useHardwareEchoCancellation: listOfFaultyDevices.includes(deviceModal)
         ? true
         : false,
@@ -465,7 +465,7 @@ const Welcome = () => {
     });
 
     let videoSettings = new HMSVideoTrackSettings({
-      initialState: HMSTrackSettingsInitState.MUTED,
+      initialState: joinConfig.mutedVideo ? HMSTrackSettingsInitState.MUTED : HMSTrackSettingsInitState.UNMUTED,
       cameraFacing: HMSCameraFacing.FRONT,
       disableAutoResize,
       forceSoftwareDecoder,
