@@ -43,8 +43,6 @@ import {
   CustomButton,
   CustomInput,
   PreviewModal,
-  Menu,
-  MenuItem,
 } from '../../components';
 import {saveUserData, setPeerState} from '../../redux/actions';
 import {
@@ -582,25 +580,6 @@ const Welcome = () => {
       behavior="padding"
       style={styles.container}
     >
-      <View style={[styles.settingsContainer, {marginTop: top}]}>
-        <Menu
-          visible={modalType === ModalTypes.WELCOME_SETTINGS}
-          onRequestClose={() => setModalType(ModalTypes.DEFAULT)}
-          style={styles.settingsMenuContainer}
-        >
-        </Menu>
-        <CustomButton
-          onPress={() => setModalType(ModalTypes.WELCOME_SETTINGS)}
-          viewStyle={styles.settingsButton}
-          LeftIcon={
-            <MaterialCommunityIcons
-              name="dots-vertical"
-              style={styles.settingsIcon}
-              size={24}
-            />
-          }
-        />
-      </View>
       <ScrollView
         contentContainerStyle={[
           styles.contentContainerStyle,
