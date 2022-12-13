@@ -629,6 +629,7 @@ class HMSRNSDK(
     }
   }
 
+  @kotlin.Deprecated("Use #Function changeRoleOfPeer instead")
   fun changeRole(data: ReadableMap, callback: Promise?) {
     val requiredKeys =
       HMSHelper.getUnavailableRequiredKey(
@@ -665,6 +666,86 @@ class HMSRNSDK(
       val errorMessage = "changeRole: $requiredKeys"
       self.emitRequiredKeysError(errorMessage)
       rejectCallback(callback, errorMessage)
+    }
+  }
+
+  fun changeRoleOfPeer(data: ReadableMap, promise: Promise?) {
+    val requiredKeys =
+      HMSHelper.getUnavailableRequiredKey(
+        data,
+        arrayOf(Pair("peerId", "String"), Pair("role", "String"), Pair("force", "Boolean"))
+      )
+    if (requiredKeys === null) {
+      val peerId = data.getString("peerId")
+      val role = data.getString("role")
+      val force = data.getBoolean("force")
+
+      if (peerId !== null && role !== null) {
+        val hmsPeer = HMSHelper.getPeerFromPeerId(peerId, hmsSDK?.getRoom())
+        val hmsRole = HMSHelper.getRoleFromRoleName(role, hmsSDK?.getRoles())
+
+        if (hmsRole != null && hmsPeer != null) {
+          hmsSDK?.changeRoleOfPeer(
+            hmsPeer,
+            hmsRole,
+            force,
+            object : HMSActionResultListener {
+              override fun onSuccess() {
+                promise?.resolve(emitHMSSuccess())
+              }
+              override fun onError(error: HMSException) {
+                self.emitHMSError(error)
+                promise?.reject(error.code.toString(), error.message)
+              }
+            }
+          )
+        }
+      }
+    } else {
+      val errorMessage = "changeRoleOfPeer: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(promise, errorMessage)
+    }
+  }
+
+  fun changeRoleOfPeersWithRoles(data: ReadableMap, promise: Promise?) {
+    val requiredKeys =
+      HMSHelper.getUnavailableRequiredKey(
+        data,
+        arrayOf(Pair("ofRoles", "Array"), Pair("toRole", "String"))
+      )
+    if (requiredKeys === null) {
+      val ofRoles = data.getArray("ofRoles")
+      val toRole = data.getString("toRole")
+
+      if (ofRoles !== null && toRole !== null) {
+        val hmsRoles = hmsSDK?.getRoles()
+
+        val ofRolesArrayList = ArrayList(ofRoles.toArrayList().map { it.toString() })
+
+        val ofHMSRoles = HMSHelper.getRolesFromRoleNames(ofRolesArrayList, hmsRoles)
+        val toHMSRole = HMSHelper.getRoleFromRoleName(toRole, hmsRoles)
+
+        if (toHMSRole !== null) {
+          hmsSDK?.changeRoleOfPeersWithRoles(
+            ofHMSRoles,
+            toHMSRole,
+            object : HMSActionResultListener {
+              override fun onSuccess() {
+                promise?.resolve(emitHMSSuccess())
+              }
+              override fun onError(error: HMSException) {
+                self.emitHMSError(error)
+                promise?.reject(error.code.toString(), error.message)
+              }
+            }
+          )
+        }
+      }
+    } else {
+      val errorMessage = "changeRoleOfPeersWithRoles: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(promise, errorMessage)
     }
   }
 

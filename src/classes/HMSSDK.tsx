@@ -639,6 +639,8 @@ export class HMSSDK {
   };
 
   /**
+   * @deprecated This function has been deprecated in favor of #Function changeRoleOfPeer
+   * 
    * - This function can be used in a situation when we want to change role hence manipulate their
    * access and rights in the current room, it takes the peer {@link HMSPeer} whom role we want to change,
    * role {@link HMSRole} which will be the new role for that peer and weather to forcefully change
@@ -661,6 +663,54 @@ export class HMSSDK {
     };
     logger?.verbose('#Function changeRole', data);
     return await HMSManager.changeRole(data);
+  };
+
+  /**
+   * - This function can be used in a situation when we want to change role hence manipulate their
+   * access and rights in the current room, it takes the peer {@link HMSPeer} whom role we want to change,
+   * role {@link HMSRole} which will be the new role for that peer and weather to forcefully change
+   * the role or ask the to accept the role change request using a boolean force.
+   *
+   * - if we change the role forcefully the peer's role will be updated without asking the peer
+   * otherwise the user will get the roleChangeRequest in roleChangeRequest listener.
+   * for more information on this checkout {@link onRoleChangeRequestListener}
+   *
+   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/change-role} for more info
+   *
+   * @memberof HMSSDK
+   */
+  changeRoleOfPeer = async (peer: HMSPeer, role: HMSRole, force: boolean = false) => {
+    const data = {
+      peerId: peer.peerID,
+      role: role.name,
+      force: force,
+      id: this.id,
+    };
+    logger?.verbose('#Function changeRoleOfPeer', data);
+    return HMSManager.changeRoleOfPeer(data);
+  };
+
+  /**
+   * - This function can be used in a situation when we want to change role of multiple peers by specifying their roles.
+   * Hence manipulate their access and rights in the current room.
+   * It takes the list of roles {@link HMSRole} whom role we want to change
+   * and role {@link HMSRole} which will be the new role for peers.
+   *
+   * - Note that role will be updated without asking the peers.
+   * Meaning, Peers will not get the roleChangeRequest in roleChangeRequest listener.
+   *
+   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/change-role} for more info
+   *
+   * @memberof HMSSDK
+   */
+  changeRoleOfPeersWithRoles = async (ofRoles: HMSRole[], toRole: HMSRole) => {
+    const data = {
+      ofRoles: ofRoles.map(ofRole => ofRole.name).filter(Boolean),
+      toRole: toRole.name,
+      id: this.id,
+    };
+    logger?.verbose('#Function changeRoleOfPeersWithRoles', data);
+    return HMSManager.changeRoleOfPeersWithRoles(data);
   };
 
   /**

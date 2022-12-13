@@ -71,6 +71,7 @@ import {
   ChangeAudioMixingModeModal,
   ChangeAudioModeModal,
   ChangeAudioOutputModal,
+  ChangeBulkRoleModal,
   ChangeNameModal,
   ChangeRoleAccepteModal,
   ChangeRoleModal,
@@ -460,19 +461,34 @@ const DisplayView = (data: {
         (peer.audioTrack?.trackId === undefined &&
           peer.videoTrack?.trackId === undefined)
       ) {
-        const uniqueId =
-          peer.peerID +
-          (track.source === undefined ? HMSTrackSource.REGULAR : track.source);
-        const newPeerTrackNodes = peerTrackNodesRef.current?.filter(
-          peerTrackNode => {
-            if (peerTrackNode.id === uniqueId) {
-              return false;
-            }
-            return true;
-          },
-        );
-        peerTrackNodesRef.current = newPeerTrackNodes;
-        setPeerTrackNodes(newPeerTrackNodes);
+        if (peer.isLocal) {
+          const localPeerTrackNodes = getPeerTrackNodes(peerTrackNodesRef.current, peer, track);
+
+          // removing `track` from original `localPeerTrackNodes` object
+          localPeerTrackNodes.forEach(localPeerTrackNode => {
+            localPeerTrackNode.track = undefined;
+          });
+
+          // hack: creating new array from existing to rerender views
+          const newPeerTrackNodes = [...peerTrackNodesRef.current];
+
+          peerTrackNodesRef.current = newPeerTrackNodes;
+          setPeerTrackNodes(newPeerTrackNodes);
+        } else {
+          const uniqueId =
+            peer.peerID +
+            (track.source === undefined ? HMSTrackSource.REGULAR : track.source);
+          const newPeerTrackNodes = peerTrackNodesRef.current?.filter(
+            peerTrackNode => {
+              if (peerTrackNode.id === uniqueId) {
+                return false;
+              }
+              return true;
+            },
+          );
+          peerTrackNodesRef.current = newPeerTrackNodes;
+          setPeerTrackNodes(newPeerTrackNodes);
+        }
       }
       return;
     }
@@ -1199,6 +1215,14 @@ const Footer = ({
         },
       });
     }
+    if (localPeer?.role?.permissions?.changeRole) {
+      buttons.push({
+        text: 'Change All Roles to Role',
+        onPress: () => {
+          setModalVisible(ModalTypes.BULK_ROLE_CHANGE)
+        }
+      })
+    }
     if (!localPeer?.role?.name?.includes('hls-')) {
       buttons.push({
         text: muteAllTracksAudio
@@ -1664,6 +1688,16 @@ const Footer = ({
           instance={hmsInstance}
           newAudioMixingMode={newAudioMixingMode}
           setNewAudioMixingMode={setNewAudioMixingMode}
+          cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
+        />
+      </DefaultModal>
+      <DefaultModal
+        animationType="fade"
+        overlay={false}
+        modalPosiion="center"
+        modalVisible={modalVisible === ModalTypes.BULK_ROLE_CHANGE}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        <ChangeBulkRoleModal
           cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
         />
       </DefaultModal>

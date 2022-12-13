@@ -5,3 +5,8 @@
 - Added persisting of previously joined Room link
 
 - Added App, React Native SDK & Native SDK version info on Home Screen
+
+
+React Native SDK: 1.1.0
+Native Android SDK: 2.5.3
+Native iOS SDK: 0.5.2
