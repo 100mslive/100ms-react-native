@@ -256,7 +256,8 @@ export const ParticipantsModal = ({
                   />
                 }
                 onRequestClose={hideMenu}
-                style={styles.participantsMenuContainer}>
+                style={styles.participantsMenuContainer}
+              >
                 {peer.isLocal === false &&
                   peerTrackNodePermissions?.removeOthers && (
                     <MenuItem onPress={() => removePeer(peer)}>
@@ -267,10 +268,8 @@ export const ParticipantsModal = ({
                           size={24}
                         />
                         <Text
-                          style={[
-                            styles.participantMenuItemName,
-                            styles.error,
-                          ]}>
+                          style={[styles.participantMenuItemName, styles.error]}
+                        >
                           Remove Peer
                         </Text>
                       </View>
@@ -424,7 +423,8 @@ const ParticipantFilter = ({
       anchor={
         <TouchableOpacity
           style={styles.participantFilterContainer}
-          onPress={showMenu}>
+          onPress={showMenu}
+        >
           <Text style={styles.participantFilterText} numberOfLines={1}>
             {filter}
           </Text>
@@ -436,12 +436,14 @@ const ParticipantFilter = ({
         </TouchableOpacity>
       }
       onRequestClose={hideMenu}
-      style={styles.participantsMenuContainer}>
+      style={styles.participantsMenuContainer}
+    >
       <MenuItem
         onPress={() => {
           hideMenu();
           setFilter('everyone');
-        }}>
+        }}
+      >
         <View style={styles.participantMenuItem}>
           <Ionicons
             name="people-outline"
@@ -455,7 +457,8 @@ const ParticipantFilter = ({
         onPress={() => {
           hideMenu();
           setFilter('raised hand');
-        }}>
+        }}
+      >
         <View style={styles.participantMenuItem}>
           <Ionicons
             name="hand-left-outline"
@@ -473,7 +476,8 @@ const ParticipantFilter = ({
               hideMenu();
               setFilter(knownRole?.name!);
             }}
-            key={knownRole.name}>
+            key={knownRole.name}
+          >
             <View style={styles.participantMenuItem}>
               <Text style={styles.participantMenuItemName}>
                 {knownRole?.name}
@@ -519,7 +523,8 @@ export const ChangeRoleModal = ({
         anchor={
           <TouchableOpacity
             style={styles.participantChangeRoleContainer}
-            onPress={showMenu}>
+            onPress={showMenu}
+          >
             <Text style={styles.participantFilterText} numberOfLines={1}>
               {newRole?.name}
             </Text>
@@ -531,7 +536,8 @@ export const ChangeRoleModal = ({
           </TouchableOpacity>
         }
         onRequestClose={hideMenu}
-        style={styles.participantsMenuContainer}>
+        style={styles.participantsMenuContainer}
+      >
         {roles?.map(knownRole => {
           return (
             <MenuItem
@@ -539,7 +545,8 @@ export const ChangeRoleModal = ({
                 hideMenu();
                 setNewRole(knownRole);
               }}
-              key={knownRole.name}>
+              key={knownRole.name}
+            >
               <View style={styles.participantMenuItem}>
                 <Text style={styles.participantMenuItemName}>
                   {knownRole?.name}
@@ -554,7 +561,8 @@ export const ChangeRoleModal = ({
           style={styles.roleChangeModalPermissionContainer}
           onPress={() => {
             setRequest(!request);
-          }}>
+          }}
+        >
           <View style={styles.roleChangeModalCheckBox}>
             {request && (
               <Entypo
@@ -872,7 +880,8 @@ export const RtcStatsModal = ({
       </View>
       <TouchableOpacity
         onPress={statsVisible ? disableRTCStats : enableRTCStats}
-        style={styles.statsModalContainer}>
+        style={styles.statsModalContainer}
+      >
         <Text style={styles.statsModalText}>Enable Stats for Nerds</Text>
         <View style={styles.statsModalCheckbox}>
           {statsVisible && (
@@ -895,7 +904,8 @@ export const RtcStatsModal = ({
           </TouchableOpacity>
         }
         onRequestClose={hideMenu}
-        style={styles.participantsMenuContainer}>
+        style={styles.participantsMenuContainer}
+      >
         {trackList?.map(trackObj => {
           return (
             <MenuItem
@@ -903,7 +913,8 @@ export const RtcStatsModal = ({
                 hideMenu();
                 setCurrentTrack(trackObj);
               }}
-              key={trackObj?.track?.trackId}>
+              key={trackObj?.track?.trackId}
+            >
               <View style={styles.participantMenuItem}>
                 <Text style={styles.participantMenuItemName}>
                   {trackObj?.name}
@@ -1076,7 +1087,8 @@ export const ChangeAudioOutputModal = ({
             style={styles.roleChangeModalPermissionContainer}
             onPress={() => {
               setCurrentOutputDevice(device);
-            }}>
+            }}
+          >
             <View style={styles.roleChangeModalCheckBox}>
               {currentOutputDevice === device && (
                 <Entypo
@@ -1147,7 +1159,8 @@ export const ChangeAudioModeModal = ({
             style={styles.roleChangeModalPermissionContainer}
             onPress={() => {
               setCurrentAudioMode(AudioModeList.indexOf(mode));
-            }}>
+            }}
+          >
             <View style={styles.roleChangeModalCheckBox}>
               {currentAudioMode === AudioModeList.indexOf(mode) && (
                 <Entypo
@@ -1216,7 +1229,8 @@ export const ChangeAudioMixingModeModal = ({
             style={styles.roleChangeModalPermissionContainer}
             onPress={() => {
               setNewAudioMixingMode(audioMixingMode as HMSAudioMixingMode);
-            }}>
+            }}
+          >
             <View style={styles.roleChangeModalCheckBox}>
               {newAudioMixingMode === audioMixingMode && (
                 <Entypo
@@ -1379,7 +1393,8 @@ export const ChangeTrackStateForRoleModal = ({
         anchor={
           <TouchableOpacity
             style={styles.participantChangeRoleContainer}
-            onPress={showMenu}>
+            onPress={showMenu}
+          >
             <Text style={styles.participantFilterText} numberOfLines={1}>
               {role?.name}
             </Text>
@@ -1391,7 +1406,8 @@ export const ChangeTrackStateForRoleModal = ({
           </TouchableOpacity>
         }
         onRequestClose={hideMenu}
-        style={styles.participantsMenuContainer}>
+        style={styles.participantsMenuContainer}
+      >
         {roles?.map(knownRole => {
           return (
             <MenuItem
@@ -1399,7 +1415,8 @@ export const ChangeTrackStateForRoleModal = ({
                 hideMenu();
                 setRole(knownRole);
               }}
-              key={knownRole.name}>
+              key={knownRole.name}
+            >
               <View style={styles.participantMenuItem}>
                 <Text style={styles.participantMenuItemName}>
                   {knownRole?.name}
@@ -1416,7 +1433,8 @@ export const ChangeTrackStateForRoleModal = ({
         {localPeer?.role?.permissions?.mute && (
           <TouchableOpacity
             style={styles.changeTrackStateRoleOption}
-            onPress={() => setTrackState(true)}>
+            onPress={() => setTrackState(true)}
+          >
             <View style={styles.roleChangeModalCheckBox}>
               {trackState && (
                 <Entypo
@@ -1432,7 +1450,8 @@ export const ChangeTrackStateForRoleModal = ({
         {localPeer?.role?.permissions?.unmute && (
           <TouchableOpacity
             style={styles.changeTrackStateRoleOption}
-            onPress={() => setTrackState(false)}>
+            onPress={() => setTrackState(false)}
+          >
             <View style={styles.roleChangeModalCheckBox}>
               {!trackState && (
                 <Entypo
@@ -1452,7 +1471,8 @@ export const ChangeTrackStateForRoleModal = ({
         </Text>
         <TouchableOpacity
           style={styles.changeTrackStateRoleOption}
-          onPress={() => setTrackType(HMSTrackType.AUDIO)}>
+          onPress={() => setTrackType(HMSTrackType.AUDIO)}
+        >
           <View style={styles.roleChangeModalCheckBox}>
             {trackType === HMSTrackType.AUDIO && (
               <Entypo
@@ -1468,7 +1488,8 @@ export const ChangeTrackStateForRoleModal = ({
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.changeTrackStateRoleOption}
-          onPress={() => setTrackType(HMSTrackType.VIDEO)}>
+          onPress={() => setTrackType(HMSTrackType.VIDEO)}
+        >
           <View style={styles.roleChangeModalCheckBox}>
             {trackType === HMSTrackType.VIDEO && (
               <Entypo
@@ -1621,7 +1642,8 @@ export const HlsStreamingModal = ({
             ...hlsRecordingDetails,
             singleFilePerLayer: !hlsRecordingDetails.singleFilePerLayer,
           });
-        }}>
+        }}
+      >
         <View style={styles.roleChangeModalCheckBox}>
           {hlsRecordingDetails.singleFilePerLayer && (
             <Entypo
@@ -1640,7 +1662,8 @@ export const HlsStreamingModal = ({
             ...hlsRecordingDetails,
             videoOnDemand: !hlsRecordingDetails.videoOnDemand,
           });
-        }}>
+        }}
+      >
         <View style={styles.roleChangeModalCheckBox}>
           {hlsRecordingDetails.videoOnDemand && (
             <Entypo
@@ -1742,7 +1765,8 @@ export const RecordingModal = ({
             ...recordingDetails,
             record: !recordingDetails.record,
           });
-        }}>
+        }}
+      >
         <View style={styles.roleChangeModalCheckBox}>
           {recordingDetails.record && (
             <Entypo
@@ -1773,7 +1797,8 @@ export const RecordingModal = ({
               resolution: undefined,
             });
           }
-        }}>
+        }}
+      >
         <View style={styles.roleChangeModalCheckBox}>
           {resolutionDetails && (
             <Entypo
@@ -2063,10 +2088,13 @@ enum RoleSelection {
   TO_CHANGE = 'TO_CHANGE',
 }
 
-export const ChangeBulkRoleModal: React.FC<ChangeBulkRoleModalProps> = ({ cancelModal }) => {
+export const ChangeBulkRoleModal: React.FC<ChangeBulkRoleModalProps> = ({
+  cancelModal,
+}) => {
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
   const roles = useSelector((state: RootState) => state.user.roles);
-  const [showRolesSelectionView, setShowRolesSelectionView] = useState<null | RoleSelection>(null);
+  const [showRolesSelectionView, setShowRolesSelectionView] =
+    useState<null | RoleSelection>(null);
   const [changeAllRoles, setChangeAllRoles] = useState(true);
   const [targetRole, setTargetRole] = useState<HMSRole | null>(null);
   const [rolesToChange, setRolesToChange] = useState<HMSRole[]>([]);
@@ -2078,33 +2106,42 @@ export const ChangeBulkRoleModal: React.FC<ChangeBulkRoleModalProps> = ({ cancel
 
     hmsInstance.changeRoleOfPeersWithRoles(
       ofRoles.filter(ofRole => ofRole.name !== targetRole.name),
-      targetRole
+      targetRole,
     );
 
     cancelModal();
-  }
+  };
 
   const handleRoleSelection = (roleSelected: HMSRole) => {
     if (showRolesSelectionView === RoleSelection.TARGET) {
       setTargetRole(roleSelected);
     } else {
       setRolesToChange(prevRolesToChange => {
-        if (prevRolesToChange.findIndex(role => role.name === roleSelected.name) >= 0) {
-          return prevRolesToChange.filter(role => role.name !== roleSelected.name);
+        if (
+          prevRolesToChange.findIndex(
+            role => role.name === roleSelected.name,
+          ) >= 0
+        ) {
+          return prevRolesToChange.filter(
+            role => role.name !== roleSelected.name,
+          );
         }
 
         return [...prevRolesToChange, roleSelected];
       });
     }
-  }
+  };
 
   // if targetRole is not available, OR
   // role or rolesToChange is not available. then "Change" button should be disabled
-  const changeSubmitDisabled = !targetRole || (changeAllRoles ? roles : rolesToChange).length === 0;
+  const changeSubmitDisabled =
+    !targetRole || (changeAllRoles ? roles : rolesToChange).length === 0;
 
   return (
     <View style={bulkRoleStyles.container}>
-      <Text style={styles.roleChangeModalHeading}>Change All Roles to Role</Text>
+      <Text style={styles.roleChangeModalHeading}>
+        Change All Roles to Role
+      </Text>
 
       <View style={bulkRoleStyles.contentContainer}>
         <View style={bulkRoleStyles.row}>
@@ -2113,7 +2150,11 @@ export const ChangeBulkRoleModal: React.FC<ChangeBulkRoleModalProps> = ({ cancel
           <View style={bulkRoleStyles.toggleContainer}>
             <TouchableOpacity
               disabled={changeAllRoles}
-              style={changeAllRoles ? bulkRoleStyles.toggleActiveItem : bulkRoleStyles.toggleItem}
+              style={
+                changeAllRoles
+                  ? bulkRoleStyles.toggleActiveItem
+                  : bulkRoleStyles.toggleItem
+              }
               onPress={() => setChangeAllRoles(true)}
             >
               <Text style={bulkRoleStyles.label}>All</Text>
@@ -2121,7 +2162,11 @@ export const ChangeBulkRoleModal: React.FC<ChangeBulkRoleModalProps> = ({ cancel
 
             <TouchableOpacity
               disabled={!changeAllRoles}
-              style={!changeAllRoles ? bulkRoleStyles.toggleActiveItem : bulkRoleStyles.toggleItem}
+              style={
+                !changeAllRoles
+                  ? bulkRoleStyles.toggleActiveItem
+                  : bulkRoleStyles.toggleItem
+              }
               onPress={() => setChangeAllRoles(false)}
             >
               <Text style={bulkRoleStyles.label}>Specific</Text>
@@ -2135,12 +2180,20 @@ export const ChangeBulkRoleModal: React.FC<ChangeBulkRoleModalProps> = ({ cancel
           {changeAllRoles ? (
             <Text style={bulkRoleStyles.value}>All Roles</Text>
           ) : (
-            <TouchableOpacity style={bulkRoleStyles.btn} onPress={() => setShowRolesSelectionView(RoleSelection.TO_CHANGE)}>
+            <TouchableOpacity
+              style={bulkRoleStyles.btn}
+              onPress={() => setShowRolesSelectionView(RoleSelection.TO_CHANGE)}
+            >
               <Text style={bulkRoleStyles.value} numberOfLines={1}>
-                {rolesToChange.map(role => role.name).join(", ") || "Select Roles"}
+                {rolesToChange.map(role => role.name).join(', ') ||
+                  'Select Roles'}
               </Text>
 
-              <MaterialCommunityIcons name='chevron-right' size={16} style={bulkRoleStyles.chevronIcon} />
+              <MaterialCommunityIcons
+                name="chevron-right"
+                size={16}
+                style={bulkRoleStyles.chevronIcon}
+              />
             </TouchableOpacity>
           )}
         </View>
@@ -2148,12 +2201,19 @@ export const ChangeBulkRoleModal: React.FC<ChangeBulkRoleModalProps> = ({ cancel
         <View style={bulkRoleStyles.row}>
           <Text style={bulkRoleStyles.label}>Target Role</Text>
 
-          <TouchableOpacity style={bulkRoleStyles.btn} onPress={() => setShowRolesSelectionView(RoleSelection.TARGET)}>
+          <TouchableOpacity
+            style={bulkRoleStyles.btn}
+            onPress={() => setShowRolesSelectionView(RoleSelection.TARGET)}
+          >
             <Text style={bulkRoleStyles.value}>
               {targetRole ? targetRole.name : 'Select Role'}
             </Text>
 
-            <MaterialCommunityIcons name='chevron-right' size={16} style={bulkRoleStyles.chevronIcon} />
+            <MaterialCommunityIcons
+              name="chevron-right"
+              size={16}
+              style={bulkRoleStyles.chevronIcon}
+            />
           </TouchableOpacity>
         </View>
       </View>
@@ -2177,31 +2237,62 @@ export const ChangeBulkRoleModal: React.FC<ChangeBulkRoleModalProps> = ({ cancel
       {showRolesSelectionView ? (
         <View style={bulkRoleStyles.roleSelectionBackdrop}>
           <View style={bulkRoleStyles.roleSelectionContainer}>
-            <Text style={bulkRoleStyles.heading}>{showRolesSelectionView === RoleSelection.TARGET ? "Select Target Role" : "Select Role to Change"}</Text>
+            <Text style={bulkRoleStyles.heading}>
+              {showRolesSelectionView === RoleSelection.TARGET
+                ? 'Select Target Role'
+                : 'Select Role to Change'}
+            </Text>
 
-            <ScrollView centerContent={true} contentContainerStyle={bulkRoleStyles.scrollContainer}>
+            <ScrollView
+              centerContent={true}
+              contentContainerStyle={bulkRoleStyles.scrollContainer}
+            >
               {roles.map(role => {
-                const selected = showRolesSelectionView === RoleSelection.TARGET
-                  ? (role.name === targetRole?.name)
-                  : rolesToChange.findIndex(roleToChange => roleToChange.name === role.name) >= 0;
+                const selected =
+                  showRolesSelectionView === RoleSelection.TARGET
+                    ? role.name === targetRole?.name
+                    : rolesToChange.findIndex(
+                        roleToChange => roleToChange.name === role.name,
+                      ) >= 0;
 
                 return (
-                  <TouchableOpacity key={role.name} style={bulkRoleStyles.roleBtn} onPress={() => handleRoleSelection(role)}>
+                  <TouchableOpacity
+                    key={role.name}
+                    style={bulkRoleStyles.roleBtn}
+                    onPress={() => handleRoleSelection(role)}
+                  >
                     <View style={bulkRoleStyles.checkboxContainer}>
                       {showRolesSelectionView === RoleSelection.TARGET ? (
-                        <MaterialCommunityIcons name={selected ? 'radiobox-marked' : 'radiobox-blank'} style={styles.roleChangeModalCheck} size={20} />
+                        <MaterialCommunityIcons
+                          name={selected ? 'radiobox-marked' : 'radiobox-blank'}
+                          style={styles.roleChangeModalCheck}
+                          size={20}
+                        />
                       ) : (
-                        <MaterialCommunityIcons name={selected ? 'checkbox-outline' : 'checkbox-blank-outline'} style={styles.roleChangeModalCheck} size={24} />
+                        <MaterialCommunityIcons
+                          name={
+                            selected
+                              ? 'checkbox-outline'
+                              : 'checkbox-blank-outline'
+                          }
+                          style={styles.roleChangeModalCheck}
+                          size={24}
+                        />
                       )}
                     </View>
 
-                    <Text style={bulkRoleStyles.checkboxLabel}>{role.name}</Text>
+                    <Text style={bulkRoleStyles.checkboxLabel}>
+                      {role.name}
+                    </Text>
                   </TouchableOpacity>
-                )
+                );
               })}
             </ScrollView>
 
-            <TouchableOpacity style={bulkRoleStyles.roleSelectionDone} onPress={() => setShowRolesSelectionView(null)}>
+            <TouchableOpacity
+              style={bulkRoleStyles.roleSelectionDone}
+              onPress={() => setShowRolesSelectionView(null)}
+            >
               <Text style={bulkRoleStyles.roleSelectionDoneText}>Done</Text>
             </TouchableOpacity>
           </View>
@@ -2209,15 +2300,15 @@ export const ChangeBulkRoleModal: React.FC<ChangeBulkRoleModalProps> = ({ cancel
       ) : null}
     </View>
   );
-}
+};
 
 const bulkRoleStyles = StyleSheet.create({
   container: {
     padding: 24,
-    position: 'relative'
+    position: 'relative',
   },
   contentContainer: {
-    marginTop: 24
+    marginTop: 24,
   },
   row: {
     flexGrow: 1,
@@ -2227,12 +2318,12 @@ const bulkRoleStyles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   label: {
-    color: COLORS.TEXT.HIGH_EMPHASIS
+    color: COLORS.TEXT.HIGH_EMPHASIS,
   },
   value: {
     flex: 1,
     color: COLORS.TEXT.MEDIUM_EMPHASIS,
-    textAlign: 'right'
+    textAlign: 'right',
   },
   toggleContainer: {
     width: 160,
@@ -2240,7 +2331,7 @@ const bulkRoleStyles = StyleSheet.create({
     backgroundColor: COLORS.SECONDARY.DARK,
     flexDirection: 'row',
     paddingVertical: 2,
-    paddingHorizontal: 2
+    paddingHorizontal: 2,
   },
   toggleItem: {
     flex: 1,
@@ -2252,17 +2343,17 @@ const bulkRoleStyles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 6,
     borderRadius: 4,
-    backgroundColor: COLORS.SECONDARY.DEFAULT
+    backgroundColor: COLORS.SECONDARY.DEFAULT,
   },
   btn: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
-    marginLeft: 4
+    marginLeft: 4,
   },
   chevronIcon: {
-    color: COLORS.TEXT.MEDIUM_EMPHASIS
+    color: COLORS.TEXT.MEDIUM_EMPHASIS,
   },
   roleSelectionBackdrop: {
     position: 'absolute',
@@ -2281,14 +2372,14 @@ const bulkRoleStyles = StyleSheet.create({
     backgroundColor: COLORS.SURFACE.LIGHT,
     borderRadius: 8,
     borderWidth: 0.5,
-    borderColor: COLORS.BORDER.LIGHT
+    borderColor: COLORS.BORDER.LIGHT,
   },
   heading: {
     fontSize: 16,
     lineHeight: 24,
     color: COLORS.TEXT.HIGH_EMPHASIS,
     marginVertical: 4,
-    marginLeft: 4
+    marginLeft: 4,
   },
   scrollContainer: {
     paddingHorizontal: 12,
@@ -2299,24 +2390,24 @@ const bulkRoleStyles = StyleSheet.create({
     alignItems: 'center',
   },
   checkboxLabel: {
-    color: COLORS.TEXT.MEDIUM_EMPHASIS
+    color: COLORS.TEXT.MEDIUM_EMPHASIS,
   },
   roleBtn: {
     paddingVertical: 12,
     flexDirection: 'row',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   roleSelectionDone: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 4,
-    paddingVertical: 6
+    paddingVertical: 6,
   },
   roleSelectionDoneText: {
     fontSize: 14,
     lineHeight: 22,
     fontFamily: 'Inter-Medium',
-    color: COLORS.TEXT.HIGH_EMPHASIS
-  }
+    color: COLORS.TEXT.HIGH_EMPHASIS,
+  },
 });

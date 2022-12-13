@@ -462,7 +462,11 @@ const DisplayView = (data: {
           peer.videoTrack?.trackId === undefined)
       ) {
         if (peer.isLocal) {
-          const localPeerTrackNodes = getPeerTrackNodes(peerTrackNodesRef.current, peer, track);
+          const localPeerTrackNodes = getPeerTrackNodes(
+            peerTrackNodesRef.current,
+            peer,
+            track,
+          );
 
           // removing `track` from original `localPeerTrackNodes` object
           localPeerTrackNodes.forEach(localPeerTrackNode => {
@@ -477,7 +481,9 @@ const DisplayView = (data: {
         } else {
           const uniqueId =
             peer.peerID +
-            (track.source === undefined ? HMSTrackSource.REGULAR : track.source);
+            (track.source === undefined
+              ? HMSTrackSource.REGULAR
+              : track.source);
           const newPeerTrackNodes = peerTrackNodesRef.current?.filter(
             peerTrackNode => {
               if (peerTrackNode.id === uniqueId) {
@@ -1111,6 +1117,9 @@ const Footer = ({
   const pipModeStatus = useSelector(
     (state: RootState) => state.app.pipModeStatus,
   );
+  const audioMixer = useSelector(
+    (state: RootState) => state.app.joinConfig.audioMixer,
+  );
 
   const isPipActive = pipModeStatus === PipModes.ACTIVE;
   const isPipModeUnavailable = pipModeStatus === PipModes.NOT_AVAILABLE;
@@ -1219,9 +1228,9 @@ const Footer = ({
       buttons.push({
         text: 'Change All Roles to Role',
         onPress: () => {
-          setModalVisible(ModalTypes.BULK_ROLE_CHANGE)
-        }
-      })
+          setModalVisible(ModalTypes.BULK_ROLE_CHANGE);
+        },
+      });
     }
     if (!localPeer?.role?.name?.includes('hls-')) {
       buttons.push({
@@ -1371,7 +1380,7 @@ const Footer = ({
           },
         });
       }
-    } else {
+    } else if (audioMixer === true) {
       buttons.push(
         ...[
           {
@@ -1696,7 +1705,8 @@ const Footer = ({
         overlay={false}
         modalPosiion="center"
         modalVisible={modalVisible === ModalTypes.BULK_ROLE_CHANGE}
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+      >
         <ChangeBulkRoleModal
           cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
         />

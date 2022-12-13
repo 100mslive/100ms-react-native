@@ -39,13 +39,7 @@ import Toast from 'react-native-simple-toast';
 import {useDispatch, useSelector} from 'react-redux';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-import {
-  CustomButton,
-  CustomInput,
-  PreviewModal,
-  Menu,
-  MenuItem,
-} from '../../components';
+import {CustomButton, CustomInput, PreviewModal} from '../../components';
 import {saveUserData, setPeerState} from '../../redux/actions';
 import {
   callService,
@@ -72,6 +66,7 @@ const Welcome = () => {
   // hooks
   const replace = useNavigation<WelcomeScreenProp>().replace;
   const {roomID, userName} = useSelector((state: RootState) => state.user);
+  const joinConfig = useSelector((state: RootState) => state.app.joinConfig);
   const {top, bottom, left, right} = useSafeAreaInsets();
   const dispatch = useDispatch();
 
@@ -83,15 +78,11 @@ const Welcome = () => {
   const [config, setConfig] = useState<HMSConfig>();
   const [nameDisabled, setNameDisabled] = useState<boolean>(true);
   const [peerName, setPeerName] = useState<string>(userName);
-  const [previewButtonLoading, setPreviewButtonLoading] =
-    useState<boolean>(false);
+  const [startButtonLoading, setStartButtonLoading] = useState<boolean>(false);
   const [joinButtonLoading, setJoinButtonLoading] = useState<boolean>(false);
   const [previewTracks, setPreviewTracks] = useState<HMSTrack[]>();
   const [hmsRoom, setHmsRoom] = useState<HMSRoom>();
   const [modalType, setModalType] = useState<ModalTypes>(ModalTypes.DEFAULT);
-  const [forceSoftwareDecoder, setForceSoftwareDecoder] = useState(true);
-  const [disableAutoResize, setDisableAutoResize] = useState(true);
-  const [mirrorLocalVideo, setMirrorLocalVideo] = useState(false);
   const isHLSViewerRef = React.useRef(false);
 
   // useRef hook
@@ -120,7 +111,7 @@ const Welcome = () => {
       if (hmsConfig) {
         hmsInstance?.join(hmsConfig);
       } else {
-        setPreviewButtonLoading(false);
+        setStartButtonLoading(false);
         setJoinButtonLoading(false);
         console.log('config: ', hmsConfig);
       }
@@ -145,7 +136,7 @@ const Welcome = () => {
   };
 
   const onError = (data: HMSException) => {
-    setPreviewButtonLoading(false);
+    setStartButtonLoading(false);
     setJoinButtonLoading(false);
     Toast.showWithGravity(
       `${data?.code} ${data?.description}` || 'Something went wrong',
@@ -356,7 +347,7 @@ const Welcome = () => {
     setPeerTrackNodes(newPeerTrackNodes);
   };
 
-  const onPreview = async (
+  const onStartSuccess = async (
     token: string,
     userID: string,
     roomCode: string,
@@ -414,11 +405,14 @@ const Welcome = () => {
         userName: userID,
         roomCode,
         hmsInstance,
-        mirrorLocalVideo,
       }),
     );
 
-    hmsInstance?.preview(hmsConfig);
+    if (joinConfig.skipPreview) {
+      hmsInstance?.join(hmsConfig);
+    } else {
+      hmsInstance?.preview(hmsConfig);
+    }
   };
 
   const onJoinRoom = () => {
@@ -448,22 +442,28 @@ const Welcome = () => {
     const deviceModal = getModel();
 
     let audioSettings = new HMSAudioTrackSettings({
-      initialState: HMSTrackSettingsInitState.MUTED,
+      initialState: joinConfig.mutedAudio
+        ? HMSTrackSettingsInitState.MUTED
+        : HMSTrackSettingsInitState.UNMUTED,
       useHardwareEchoCancellation: listOfFaultyDevices.includes(deviceModal)
         ? true
         : false,
-      audioSource: [
-        'mic_node',
-        'screen_broadcast_audio_receiver_node',
-        'audio_file_player_node',
-      ],
+      audioSource: joinConfig.audioMixer
+        ? [
+            'mic_node',
+            'screen_broadcast_audio_receiver_node',
+            'audio_file_player_node',
+          ]
+        : undefined,
     });
 
     let videoSettings = new HMSVideoTrackSettings({
-      initialState: HMSTrackSettingsInitState.MUTED,
+      initialState: joinConfig.mutedVideo
+        ? HMSTrackSettingsInitState.MUTED
+        : HMSTrackSettingsInitState.UNMUTED,
       cameraFacing: HMSCameraFacing.FRONT,
-      disableAutoResize,
-      forceSoftwareDecoder,
+      disableAutoResize: !joinConfig.autoResize,
+      forceSoftwareDecoder: joinConfig.softwareDecoder,
     });
 
     return new HMSTrackSettings({
@@ -534,13 +534,13 @@ const Welcome = () => {
     return false;
   };
 
-  const onPreviewPress = async () => {
-    setPreviewButtonLoading(true);
-    callService(peerName, roomID, onPreview, onFailure);
+  const onStartPress = async () => {
+    setStartButtonLoading(true);
+    callService(peerName, roomID, onStartSuccess, onFailure);
   };
 
   const onFailure = (error: string) => {
-    setPreviewButtonLoading(false);
+    setStartButtonLoading(false);
     Alert.alert('Error', error || 'Something went wrong');
   };
 
@@ -581,77 +581,6 @@ const Welcome = () => {
       behavior="padding"
       style={styles.container}
     >
-      <View style={[styles.settingsContainer, {marginTop: top}]}>
-        <Menu
-          visible={modalType === ModalTypes.WELCOME_SETTINGS}
-          onRequestClose={() => setModalType(ModalTypes.DEFAULT)}
-          style={styles.settingsMenuContainer}
-        >
-          <MenuItem
-            onPress={() => {
-              setModalType(ModalTypes.DEFAULT);
-              setMirrorLocalVideo(!mirrorLocalVideo);
-            }}
-          >
-            {mirrorLocalVideo ? (
-              <Text style={styles.settingsMenuItemName}>
-                Don't mirror local video
-              </Text>
-            ) : (
-              <Text style={styles.settingsMenuItemName}>
-                Mirror local video
-              </Text>
-            )}
-          </MenuItem>
-          {Platform.OS === 'android' && (
-            <MenuItem
-              onPress={() => {
-                setModalType(ModalTypes.DEFAULT);
-                setForceSoftwareDecoder(!forceSoftwareDecoder);
-              }}
-            >
-              {forceSoftwareDecoder ? (
-                <Text style={styles.settingsMenuItemName}>
-                  Disable software decoder
-                </Text>
-              ) : (
-                <Text style={styles.settingsMenuItemName}>
-                  Enable software decoder
-                </Text>
-              )}
-            </MenuItem>
-          )}
-          {Platform.OS === 'android' && (
-            <MenuItem
-              onPress={() => {
-                setModalType(ModalTypes.DEFAULT);
-                setDisableAutoResize(!disableAutoResize);
-              }}
-            >
-              {disableAutoResize ? (
-                <Text style={styles.settingsMenuItemName}>
-                  Enable auto resize
-                </Text>
-              ) : (
-                <Text style={styles.settingsMenuItemName}>
-                  Disable auto resize
-                </Text>
-              )}
-            </MenuItem>
-          )}
-        </Menu>
-        <CustomButton
-          onPress={() => setModalType(ModalTypes.WELCOME_SETTINGS)}
-          viewStyle={styles.settingsButton}
-          LeftIcon={
-            <MaterialCommunityIcons
-              name="dots-vertical"
-              style={styles.settingsIcon}
-              size={24}
-            />
-          }
-        />
-      </View>
       <ScrollView
         contentContainerStyle={[
           styles.contentContainerStyle,
@@ -688,14 +617,14 @@ const Welcome = () => {
         />
         <CustomButton
           title="Get Started ->"
-          onPress={onPreviewPress}
+          onPress={onStartPress}
           disabled={nameDisabled}
           viewStyle={[styles.startButton, nameDisabled && styles.disabled]}
           textStyle={[
             styles.startButtonText,
             nameDisabled && styles.disabledText,
           ]}
-          loading={previewButtonLoading}
+          loading={startButtonLoading}
         />
       </ScrollView>
     </KeyboardAvoidingView>

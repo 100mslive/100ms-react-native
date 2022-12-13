@@ -68,7 +68,7 @@ const HLSView = ({room}: HLSViewProps) => {
                     // Callback when video cannot be loaded
                     allowsExternalPlayback={false}
                     style={styles.renderHLSVideo}
-                    // hack to stop video from playig when VideoPlayer rerenders due to setting `currentLiveState` to `BEHIND_LIVE`.
+                    // hack to stop video from playing when VideoPlayer rerenders due to setting `currentLiveState` to `BEHIND_LIVE`.
                     paused={currentLiveState === LiveStates.BEHIND_LIVE}
                     disableSeekbar={true}
                     disableBack={true}
