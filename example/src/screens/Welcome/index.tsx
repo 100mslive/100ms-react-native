@@ -457,11 +457,11 @@ const Welcome = () => {
       useHardwareEchoCancellation: listOfFaultyDevices.includes(deviceModal)
         ? true
         : false,
-      audioSource: [
+      audioSource: joinConfig.audioMixer ? [
         'mic_node',
         'screen_broadcast_audio_receiver_node',
         'audio_file_player_node',
-      ],
+      ] : undefined,
     });
 
     let videoSettings = new HMSVideoTrackSettings({
