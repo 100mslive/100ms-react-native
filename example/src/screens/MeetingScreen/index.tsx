@@ -1380,7 +1380,7 @@ const Footer = ({
           },
         });
       }
-    } else if (audioMixer === true) {
+    } else if (localPeer?.role?.publishSettings?.allowed?.includes('audio') && audioMixer === true) {
       buttons.push(
         ...[
           {
