@@ -99,7 +99,7 @@ import {
 import {GridView} from './GridView';
 import {HLSView} from './HLSView';
 import PIPView from './PIPView';
-import { RoomSettingsModalContent } from '../../components/RoomSettingsModalContent';
+import {RoomSettingsModalContent} from '../../components/RoomSettingsModalContent';
 
 type MeetingScreenProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -1115,7 +1115,9 @@ const Footer = ({
   // hooks
   const dispatch = useDispatch();
   const {hmsInstance, roomID} = useSelector((state: RootState) => state.user);
-  const isPipActive = useSelector((state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE);
+  const isPipActive = useSelector(
+    (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE,
+  );
 
   // useState hook
   const [muteAllTracksAudio, setMuteAllTracksAudio] = useState(false);
@@ -1278,7 +1280,7 @@ const Footer = ({
       <DefaultModal
         modalVisible={modalVisible === ModalTypes.SETTINGS}
         setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
-        viewStyle={{ maxHeight: Platform.OS === 'ios' ? '70%' : '85%' }}
+        viewStyle={{maxHeight: Platform.OS === 'ios' ? '70%' : '85%'}}
       >
         <RoomSettingsModalContent
           localPeer={localPeer}

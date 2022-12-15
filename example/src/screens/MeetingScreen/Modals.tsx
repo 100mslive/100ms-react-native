@@ -2087,7 +2087,9 @@ export const ChangeBulkRoleModal: React.FC<ChangeBulkRoleModalProps> = ({
     if (!hmsInstance || !targetRole) return;
 
     hmsInstance.changeRoleOfPeersWithRoles(
-      rolesToChange.filter(roleToChange => roleToChange.name !== targetRole.name),
+      rolesToChange.filter(
+        roleToChange => roleToChange.name !== targetRole.name,
+      ),
       targetRole,
     );
 
@@ -2253,7 +2255,7 @@ const bulkRoleStyles = StyleSheet.create({
   container: {
     padding: 24,
     position: 'relative',
-    height: 320
+    height: 320,
   },
   contentContainer: {
     flex: 1,
