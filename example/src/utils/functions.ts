@@ -727,8 +727,10 @@ export const getDisplayTrackDimensions = (
   orientation: boolean,
 ) => {
   // window height - (header + footer + top + bottom + padding)
+
+  // Using "extra offset" (i.e. 32) for android as we are getting wrong window height
   const viewHeight =
-    Dimensions.get('window').height - (50 + 50 + top + bottom + 2);
+    Dimensions.get('window').height - (50 + 50 + top + bottom + (Platform.OS === 'android' ? 32 : 2));
 
   let height, width;
 

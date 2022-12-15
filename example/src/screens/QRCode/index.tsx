@@ -14,7 +14,7 @@ import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {useDispatch, useSelector} from 'react-redux';
+import {useDispatch} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import type {AppStackParamList} from '../../navigator';
@@ -28,7 +28,6 @@ import {
   JoinSettingsModalContent,
 } from '../../components';
 import {saveUserData} from '../../redux/actions';
-import type {RootState} from '../../redux';
 import {Constants} from '../../utils/types';
 
 type QRCodeScreenProp = NativeStackNavigationProp<
@@ -38,13 +37,11 @@ type QRCodeScreenProp = NativeStackNavigationProp<
 
 const QRCode = () => {
   const navigate = useNavigation<QRCodeScreenProp>().navigate;
-  const {isHLSFlow} = useSelector((state: RootState) => state.user);
   const {top, bottom, left, right} = useSafeAreaInsets();
   const dispatch = useDispatch();
 
   const [joinDisabled, setJoinDisabled] = useState<boolean>(true);
   const [joiningLink, setJoiningLink] = useState<string>(getMeetingUrl());
-  const [isHLSFlowEnabled, setIsHLSFlowEnabled] = useState<boolean>(isHLSFlow);
   const [moreModalVisible, setMoreModalVisible] = useState(false);
 
   const onJoinPress = () => {
@@ -52,7 +49,7 @@ const QRCode = () => {
       dispatch(
         saveUserData({
           roomID: joiningLink.replace('meeting', 'preview'),
-          isHLSFlow: isHLSFlowEnabled,
+          isHLSFlow: true,
         }),
       );
       navigate('WelcomeScreen');
@@ -134,26 +131,6 @@ const QRCode = () => {
         </View>
         <View style={styles.joiningLinkInputView}>
           <Text style={styles.joiningLinkInputText}>Joining Link</Text>
-          <View style={styles.joiningFlowContainer}>
-            <CustomButton
-              title="Meeting"
-              onPress={() => setIsHLSFlowEnabled(false)}
-              viewStyle={[
-                styles.joiningFlowLeft,
-                !isHLSFlowEnabled && styles.selectedFlow,
-              ]}
-              textStyle={[styles.joiningLinkInputText]}
-            />
-            <CustomButton
-              title="HLS"
-              onPress={() => setIsHLSFlowEnabled(true)}
-              viewStyle={[
-                styles.joiningFlowRight,
-                isHLSFlowEnabled && styles.selectedFlow,
-              ]}
-              textStyle={[styles.joiningLinkInputText]}
-            />
-          </View>
         </View>
         <CustomInput
           value={joiningLink}

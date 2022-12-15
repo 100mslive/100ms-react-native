@@ -123,7 +123,7 @@ const Welcome = () => {
       data.room.localPeer,
       data.room.localPeer.videoTrack,
     );
-    dispatch(setPeerState({peerState: [hmsLocalPeer]}));
+    dispatch(setPeerState({peerState: [hmsLocalPeer, ...peerTrackNodesRef.current]}));
     AsyncStorage.setItem(
       Constants.MEET_URL,
       roomID.replace('preview', 'meeting'),
