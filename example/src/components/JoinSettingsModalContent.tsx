@@ -60,7 +60,6 @@ export const JoinSettingsModalContent: React.FC<
 
       <ScrollView>
         <View>
-
           <SwitchRow
             text="Join with Muted Audio"
             value={mutedAudio}
@@ -167,7 +166,7 @@ export const JoinSettingsModalContent: React.FC<
 
           <TouchableOpacity
             style={styles.resetBtn}
-            onPress={() => dispatch( resetJoinConfig() )}
+            onPress={() => dispatch(resetJoinConfig())}
           >
             <FontAwesomeIcons
               name="rotate-left"
@@ -213,7 +212,8 @@ export const JoinSettingsModalContent: React.FC<
         <View style={styles.divider} />
 
         <Text style={styles.footer}>
-          Made with <FontAwesomeIcons name="heart" size={16} color="red" /> by 100ms
+          Made with <FontAwesomeIcons name="heart" size={16} color="red" /> by
+          100ms
         </Text>
       </ScrollView>
     </View>

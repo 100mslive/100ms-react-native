@@ -2122,13 +2122,11 @@ export const ChangeBulkRoleModal: React.FC<ChangeBulkRoleModalProps> = ({
 
   return (
     <View style={bulkRoleStyles.container}>
-      <Text style={styles.roleChangeModalHeading}>
-        Change All Roles to Role
-      </Text>
+      <Text style={styles.roleChangeModalHeading}>Bulk Role Change</Text>
 
       <View style={bulkRoleStyles.contentContainer}>
         <View style={bulkRoleStyles.row}>
-          <Text style={bulkRoleStyles.label}>Select Roles to change</Text>
+          <Text style={bulkRoleStyles.label}>Select Roles to Change</Text>
 
           <TouchableOpacity
             style={bulkRoleStyles.btn}

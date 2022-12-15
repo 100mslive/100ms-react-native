@@ -300,41 +300,21 @@ export const RoomSettingsModalContent: React.FC<
           </Text>
         </TouchableOpacity>
 
-        {!isPipModeUnavailable ? (
-          <SettingItem
-            onPress={enterPipMode}
-            text="Person in Person (PIP) Mode"
-            IconType={MaterialCommunityIcons}
-            iconName="picture-in-picture-bottom-right"
-          />
-        ) : null}
-
-        {localPeer?.role?.permissions?.changeRole ? (
-          <SettingItem
-            onPress={changeBulkRole}
-            text="Change All Role to Role"
-            IconType={Ionicons}
-            iconName="people-outline"
-          />
-        ) : null}
-
         {!localPeer?.role?.name?.includes('hls-') ? (
           <SettingItem
             onPress={handleLocalRemoteAudiosMute}
-            text={`Local ${
-              muteAllTracksAudio ? 'unmute' : 'mute'
-            } all audio tracks`}
+            text={`${muteAllTracksAudio ? 'Unmute' : 'Mute'} Room`}
             IconType={Ionicons}
             iconName={muteAllTracksAudio ? 'mic-off-outline' : 'mic-outline'}
           />
         ) : null}
 
-        {localPeer?.role?.permissions?.mute ? (
+        {!isPipModeUnavailable ? (
           <SettingItem
-            onPress={handleRemoteAudiosMute}
-            text="Remote mute all audio tracks"
-            IconType={Ionicons}
-            iconName="mic-off-outline"
+            onPress={enterPipMode}
+            text="Picture in Picture (PIP) Mode"
+            IconType={MaterialCommunityIcons}
+            iconName="picture-in-picture-bottom-right"
           />
         ) : null}
 
@@ -360,6 +340,24 @@ export const RoomSettingsModalContent: React.FC<
           />
         ) : null}
 
+        {localPeer?.role?.permissions?.changeRole ? (
+          <SettingItem
+            onPress={changeBulkRole}
+            text="Bulk Role Change"
+            IconType={Ionicons}
+            iconName="people-outline"
+          />
+        ) : null}
+
+        {localPeer?.role?.permissions?.mute ? (
+          <SettingItem
+            onPress={handleRemoteAudiosMute}
+            text="Remote Mute All Audio Tracks"
+            IconType={Ionicons}
+            iconName="mic-off-outline"
+          />
+        ) : null}
+
         {localPeer?.role?.permissions?.mute ||
         localPeer?.role?.permissions?.unmute ? (
           <SettingItem
@@ -370,22 +368,30 @@ export const RoomSettingsModalContent: React.FC<
           />
         ) : null}
 
-        {Platform.OS === 'android' ? (
+        {Platform.OS === 'android' &&
+        localPeer?.role?.publishSettings?.allowed?.includes('audio') ? (
           <>
-            <SettingItem
-              onPress={addRemoveAudioDeviceChangeListener}
-              text={`${
-                audioDeviceListenerAdded ? 'Remove' : 'Set'
-              } Audio Device Change Listener`}
-              IconType={MaterialCommunityIcons}
-              iconName="video-input-component"
-            />
-
             <SettingItem
               onPress={switchAudioOutput}
               text="Switch Audio Output"
               IconType={MaterialCommunityIcons}
               iconName="cast-audio"
+            />
+
+            <SettingItem
+              onPress={addRemoveAudioDeviceChangeListener}
+              text={`${
+                audioDeviceListenerAdded ? 'Remove' : 'Set'
+              } Audio Output Change Listener`}
+              IconType={MaterialCommunityIcons}
+              iconName="video-input-component"
+            />
+
+            <SettingItem
+              onPress={handleAudioShare}
+              text={`${isAudioShared ? 'Stop' : 'Start'} Audioshare`}
+              IconType={Ionicons}
+              iconName="share-social-outline"
             />
 
             <SettingItem
@@ -400,13 +406,6 @@ export const RoomSettingsModalContent: React.FC<
               text="Set Audio Mixing Mode"
               IconType={EntypoIcons}
               iconName="sound-mix"
-            />
-
-            <SettingItem
-              onPress={handleAudioShare}
-              text={`${isAudioShared ? 'Stop' : 'Start'} Audioshare`}
-              IconType={Ionicons}
-              iconName="share-social-outline"
             />
           </>
         ) : null}
@@ -539,9 +538,9 @@ const styles = StyleSheet.create({
   },
   text: {
     fontFamily: 'Inter-Medium',
-    fontSize: 16,
+    fontSize: 14,
     lineHeight: 24,
-    color: COLORS.WHITE,
+    color: COLORS.TEXT.HIGH_EMPHASIS,
   },
   icon: {
     color: COLORS.WHITE,
