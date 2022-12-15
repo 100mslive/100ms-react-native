@@ -1573,12 +1573,10 @@ export const HlsStreamingModal = ({
   instance,
   roomID,
   cancelModal,
-  setHlsStreaming,
 }: {
   instance?: HMSSDK;
   roomID: string;
   cancelModal: Function;
-  setHlsStreaming: React.Dispatch<React.SetStateAction<boolean | undefined>>;
 }) => {
   const [hlsStreamingDetails, setHLSStreamingDetails] =
     useState<HMSHLSMeetingURLVariant>({
@@ -1595,10 +1593,7 @@ export const HlsStreamingModal = ({
   const changeLayout = () => {
     instance
       ?.startHLSStreaming()
-      .then(d => {
-        setHlsStreaming(true);
-        console.log('Start HLS Streaming Success: ', d);
-      })
+      .then(d => console.log('Start HLS Streaming Success: ', d))
       .catch(err => {
         if (startHlsRetry) {
           setStartHlsRetry(false);
@@ -1608,10 +1603,7 @@ export const HlsStreamingModal = ({
           });
           instance
             ?.startHLSStreaming(hmsHLSConfig)
-            .then(d => {
-              setHlsStreaming(true);
-              console.log('Start HLS Streaming Success: ', d);
-            })
+            .then(d => console.log('Start HLS Streaming Success: ', d))
             .catch(e => console.log('Start HLS Streaming Error: ', e));
         } else {
           console.log('Start HLS Streaming Error: ', err);
@@ -1698,15 +1690,11 @@ export const RecordingModal = ({
   roomID,
   recordingModal,
   setModalVisible,
-  setRtmpAndRecording,
 }: {
   instance?: HMSSDK;
   roomID: string;
   recordingModal: boolean;
   setModalVisible: React.Dispatch<React.SetStateAction<ModalTypes>>;
-  setRtmpAndRecording: React.Dispatch<
-    React.SetStateAction<boolean | undefined>
-  >;
 }) => {
   const [resolutionDetails, setResolutionDetails] = useState<boolean>(false);
   const [recordingDetails, setRecordingDetails] = useState<HMSRTMPConfig>({
@@ -1717,10 +1705,7 @@ export const RecordingModal = ({
   const changeLayout = () => {
     instance
       ?.startRTMPOrRecording(recordingDetails)
-      .then(d => {
-        setRtmpAndRecording(true);
-        console.log('Start RTMP Or Recording Success: ', d);
-      })
+      .then(d => console.log('Start RTMP Or Recording Success: ', d))
       .catch(e => console.log('Start RTMP Or Recording Error: ', e));
     setModalVisible(ModalTypes.DEFAULT);
   };

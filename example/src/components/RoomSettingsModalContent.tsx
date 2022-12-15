@@ -127,11 +127,7 @@ export const RoomSettingsModalContent: React.FC<RoomSettingsModalContentProps> =
 			closeRoomSettingsModal();
 			hmsInstance
 				?.stopHLSStreaming()
-				.then(d => {
-					// DOUBT: here we are relying on state gotten from room, no local state
-					// setHlsStreaming(false);
-					console.log('Stop HLS Streaming Success: ', d);
-				})
+				.then(d => console.log('Stop HLS Streaming Success: ', d))
 				.catch(e => console.log('Stop HLS Streaming Error: ', e));
 		} else {
 			setModalVisible(ModalTypes.HLS_STREAMING);
@@ -143,10 +139,7 @@ export const RoomSettingsModalContent: React.FC<RoomSettingsModalContentProps> =
 			closeRoomSettingsModal();
 			hmsInstance
 				?.stopRtmpAndRecording()
-				.then(d => {
-					// setRtmpAndRecording(false);
-					console.log('Stop RTMP And Recording Success: ', d);
-				})
+				.then(d => console.log('Stop RTMP And Recording Success: ', d))
 				.catch(e => console.log('Stop RTMP And Recording Error: ', e));
 		} else {
 			setModalVisible(ModalTypes.RECORDING);
@@ -473,7 +466,7 @@ const styles = StyleSheet.create({
 	container: {
 		height: '100%',
 		width: '100%',
-		backgroundColor: 'violet',
+		backgroundColor: COLORS.SURFACE.DEFAULT,
 	},
 	chatHeaderContainer: {
 		height: 48,

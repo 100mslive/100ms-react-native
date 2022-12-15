@@ -1119,8 +1119,6 @@ const Footer = ({
 
   // useState hook
   const [muteAllTracksAudio, setMuteAllTracksAudio] = useState(false);
-  const [rtmpAndRecording, setRtmpAndRecording] = useState(isBrowserRecording); // DOUBT:= Do we need this state? or we can rely on isBrowserRecording?
-  const [hlsStreaming, setHlsStreaming] = useState(isHlsStreaming); // DOUBT:= Do we need this state? or we can rely on isHlsStreaming?
   const [isAudioShared, setIsAudioShared] = useState(false);
   const [audioDeviceChangeListener, setAudioDeviceChangeListener] =
     useState<boolean>(false);
@@ -1173,15 +1171,6 @@ const Footer = ({
       check();
     }
   }, [isPipActive, hmsInstance]);
-
-  // useEffect hook
-  useEffect(() => {
-    setHlsStreaming(isHlsStreaming);
-  }, [isHlsStreaming]);
-
-  useEffect(() => {
-    setRtmpAndRecording(isBrowserRecording);
-  }, [isBrowserRecording]);
 
   return (
     <View
@@ -1320,7 +1309,6 @@ const Footer = ({
           instance={hmsInstance}
           roomID={roomID}
           setModalVisible={setModalVisible}
-          setRtmpAndRecording={setRtmpAndRecording}
           recordingModal={modalVisible === ModalTypes.RECORDING}
         />
       </DefaultModal>
@@ -1333,7 +1321,6 @@ const Footer = ({
       >
         <HlsStreamingModal
           instance={hmsInstance}
-          setHlsStreaming={setHlsStreaming}
           roomID={roomID}
           cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
         />
