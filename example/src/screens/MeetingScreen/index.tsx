@@ -99,6 +99,7 @@ import {
 import {GridView} from './GridView';
 import {HLSView} from './HLSView';
 import PIPView from './PIPView';
+import {RoomSettingsModalContent} from '../../components/RoomSettingsModalContent';
 
 type MeetingScreenProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -1114,20 +1115,12 @@ const Footer = ({
   // hooks
   const dispatch = useDispatch();
   const {hmsInstance, roomID} = useSelector((state: RootState) => state.user);
-  const pipModeStatus = useSelector(
-    (state: RootState) => state.app.pipModeStatus,
+  const isPipActive = useSelector(
+    (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE,
   );
-  const audioMixer = useSelector(
-    (state: RootState) => state.app.joinConfig.audioMixer,
-  );
-
-  const isPipActive = pipModeStatus === PipModes.ACTIVE;
-  const isPipModeUnavailable = pipModeStatus === PipModes.NOT_AVAILABLE;
 
   // useState hook
   const [muteAllTracksAudio, setMuteAllTracksAudio] = useState(false);
-  const [rtmpAndRecording, setRtmpAndRecording] = useState(isBrowserRecording);
-  const [hlsStreaming, setHlsStreaming] = useState(isHlsStreaming);
   const [isAudioShared, setIsAudioShared] = useState(false);
   const [audioDeviceChangeListener, setAudioDeviceChangeListener] =
     useState<boolean>(false);
@@ -1141,19 +1134,6 @@ const Footer = ({
   const iconSize = 20;
   const isScreenShared =
     localPeer?.auxiliaryTracks && localPeer?.auxiliaryTracks?.length > 0;
-  const parsedMetadata = parseMetadata(localPeer?.metadata);
-  const audioFilePlayerNode = new HMSAudioFilePlayerNode(
-    'audio_file_player_node',
-  );
-
-  // listeners
-  const onAudioDeviceChangedListener = (data: any) => {
-    Toast.showWithGravity(
-      `Audio Device Output changed to ${data?.device}`,
-      Toast.LONG,
-      Toast.TOP,
-    );
-  };
 
   // functions
   const onStartScreenSharePress = () => {
@@ -1172,309 +1152,6 @@ const Footer = ({
 
   const onSettingsPress = () => {
     setModalVisible(ModalTypes.SETTINGS);
-  };
-
-  const getSettingsButtons = (): Array<{
-    text: string;
-    type?: string;
-    onPress?: Function;
-  }> => {
-    let buttons: Array<{text: string; type?: string; onPress?: Function}> = [
-      {
-        text: 'Cancel',
-        type: 'cancel',
-      },
-      {
-        text: parsedMetadata?.isBRBOn ? 'Remove BRB' : 'Set BRB',
-        onPress: async () => {
-          await hmsInstance
-            ?.changeMetadata(
-              JSON.stringify({
-                ...parsedMetadata,
-                isBRBOn: !parsedMetadata?.isBRBOn,
-                isHandRaised: false,
-              }),
-            )
-            .then(d => console.log('Change Metadata Success: ', d))
-            .catch(e => console.log('Change Metadata Error: ', e));
-        },
-      },
-    ];
-    if (!isPipModeUnavailable) {
-      buttons.splice(1, 0, {
-        text: 'Enable PIP',
-        onPress: async () => {
-          if (isPipModeUnavailable) {
-            return console.log('PIP mode unavailable on Deice!');
-          }
-
-          try {
-            const isEnabled = await hmsInstance?.enablePipMode({
-              aspectRatio: [16, 9], // for 16:9 aspect ratio
-              endButton: true,
-              videoButton: true,
-              audioButton: true,
-            });
-            if (isEnabled === true) {
-              dispatch(changePipModeStatus(PipModes.ACTIVE));
-            }
-          } catch (error) {
-            console.log(error);
-          }
-        },
-      });
-    }
-    if (localPeer?.role?.permissions?.changeRole) {
-      buttons.push({
-        text: 'Change All Roles to Role',
-        onPress: () => {
-          setModalVisible(ModalTypes.BULK_ROLE_CHANGE);
-        },
-      });
-    }
-    if (!localPeer?.role?.name?.includes('hls-')) {
-      buttons.push({
-        text: muteAllTracksAudio
-          ? 'Local unmute all audio tracks'
-          : 'Local mute all audio tracks',
-        onPress: () => {
-          hmsInstance?.setPlaybackForAllAudio(!muteAllTracksAudio);
-          setMuteAllTracksAudio(!muteAllTracksAudio);
-        },
-      });
-    }
-    if (localPeer?.role?.permissions?.mute) {
-      buttons.push({
-        text: 'Remote mute all audio tracks',
-        onPress: async () => {
-          await hmsInstance
-            ?.remoteMuteAllAudio()
-            .then(d => console.log('Remote Mute All Audio Success: ', d))
-            .catch(e => console.log('Remote Mute All Audio Error: ', e));
-        },
-      });
-    }
-    if (localPeer?.role?.permissions?.hlsStreaming && hlsStreaming) {
-      buttons.push({
-        text: 'Stop Hls Streaming',
-        onPress: () => {
-          hmsInstance
-            ?.stopHLSStreaming()
-            .then(d => {
-              setHlsStreaming(false);
-              console.log('Stop HLS Streaming Success: ', d);
-            })
-            .catch(e => console.log('Stop HLS Streaming Error: ', e));
-        },
-      });
-    }
-    if (localPeer?.role?.permissions?.hlsStreaming && !hlsStreaming) {
-      buttons.push({
-        text: 'Start Hls Streaming',
-        onPress: () => {
-          setModalVisible(ModalTypes.HLS_STREAMING);
-        },
-      });
-    }
-    if (localPeer?.role?.permissions?.rtmpStreaming && rtmpAndRecording) {
-      buttons.push({
-        text: 'Stop RTMP And Recording',
-        onPress: () => {
-          hmsInstance
-            ?.stopRtmpAndRecording()
-            .then(d => {
-              setRtmpAndRecording(false);
-              console.log('Stop RTMP And Recording Success: ', d);
-            })
-            .catch(e => console.log('Stop RTMP And Recording Error: ', e));
-        },
-      });
-    }
-    if (localPeer?.role?.permissions?.rtmpStreaming && !rtmpAndRecording) {
-      buttons.push({
-        text: 'Start RTMP or Recording',
-        onPress: () => {
-          setModalVisible(ModalTypes.RECORDING);
-        },
-      });
-    }
-    if (
-      localPeer?.role?.permissions?.mute ||
-      localPeer?.role?.permissions?.unmute
-    ) {
-      buttons.push({
-        text: 'Change Track State For Role',
-        onPress: () => {
-          setModalVisible(ModalTypes.CHANGE_TRACK_ROLE);
-        },
-      });
-    }
-    if (Platform.OS === 'android') {
-      if (audioDeviceChangeListener) {
-        buttons.push({
-          text: 'Remove Audio Device Change Listener',
-          onPress: () => {
-            hmsInstance?.removeEventListener(
-              HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED,
-            );
-            setAudioDeviceChangeListener(false);
-          },
-        });
-      } else {
-        buttons.push({
-          text: 'Set Audio Device Change Listener',
-          onPress: () => {
-            hmsInstance?.setAudioDeviceChangeListener(
-              onAudioDeviceChangedListener,
-            );
-            setAudioDeviceChangeListener(true);
-          },
-        });
-      }
-      buttons.push(
-        ...[
-          {
-            text: 'Switch Audio Output',
-            onPress: () => {
-              setModalVisible(ModalTypes.SWITCH_AUDIO_OUTPUT);
-            },
-          },
-          {
-            text: 'Set Audio Mode',
-            onPress: () => {
-              setModalVisible(ModalTypes.CHANGE_AUDIO_MODE);
-            },
-          },
-          {
-            text: 'Set Audio Mixing Mode',
-            onPress: () => {
-              setModalVisible(ModalTypes.AUDIO_MIXING_MODE);
-            },
-          },
-        ],
-      );
-      if (isAudioShared) {
-        buttons.push({
-          text: 'Stop Audioshare',
-          onPress: () => {
-            hmsInstance
-              ?.stopAudioshare()
-              .then(d => {
-                setIsAudioShared(false);
-                console.log('Stop Audioshare Success: ', d);
-              })
-              .catch(e => console.log('Stop Audioshare Error: ', e));
-          },
-        });
-      } else {
-        buttons.push({
-          text: 'Start Audioshare',
-          onPress: () => {
-            hmsInstance
-              ?.startAudioshare(newAudioMixingMode)
-              .then(d => {
-                setIsAudioShared(true);
-                console.log('Start Audioshare Success: ', d);
-              })
-              .catch(e => console.log('Start Audioshare Error: ', e));
-          },
-        });
-      }
-    } else if (localPeer?.role?.publishSettings?.allowed?.includes('audio') && audioMixer === true) {
-      buttons.push(
-        ...[
-          {
-            text: 'Play Audio Share',
-            onPress: () => {
-              setTimeout(() => {
-                DocumentPicker.pickSingle()
-                  .then(result => {
-                    console.log('Document Picker Success: ', result);
-                    audioFilePlayerNode
-                      .play(result?.uri, false, false)
-                      .then(d => {
-                        console.log('Start Audioshare Success: ', d);
-                      })
-                      .catch(e => console.log('Start Audioshare Error: ', e));
-                  })
-                  .catch(e => console.log('Document Picker Error: ', e));
-              }, 500);
-            },
-          },
-          {
-            text: 'Stop Audio Share',
-            onPress: () => {
-              audioFilePlayerNode.stop();
-            },
-          },
-          {
-            text: 'Set Audio Share Volume',
-            onPress: () => {
-              setModalVisible(ModalTypes.SET_AUDIO_SHARE_VOLUME);
-            },
-          },
-          {
-            text: 'Pause Audio Share',
-            onPress: () => {
-              audioFilePlayerNode.pause();
-            },
-          },
-          {
-            text: 'Resume Audio Share',
-            onPress: () => {
-              audioFilePlayerNode.resume();
-            },
-          },
-          {
-            text: 'Is Audio Share Playing',
-            onPress: () => {
-              audioFilePlayerNode
-                .isPlaying()
-                .then(d => console.log('Audioshare isPlaying: ', d))
-                .catch(e => console.log('Audioshare isPlaying: ', e));
-            },
-          },
-          {
-            text: 'Audio Share Duration',
-            onPress: () => {
-              audioFilePlayerNode
-                .duration()
-                .then(d => console.log('Audioshare duration: ', d))
-                .catch(e => console.log('Audioshare duration: ', e));
-            },
-          },
-          {
-            text: 'Audio Share Current Duration',
-            onPress: () => {
-              audioFilePlayerNode
-                .currentDuration()
-                .then(d => console.log('Audioshare currentDuration: ', d))
-                .catch(e => console.log('Audioshare currentDuration: ', e));
-            },
-          },
-        ],
-      );
-    }
-    // buttons.push(
-    //   ...[
-    //     {
-    //       text: 'Stats For Nerds',
-    //       onPress: () => {
-    //         setModalVisible(ModalTypes.RTC_STATS);
-    //       },
-    //     },
-    //     {
-    //       text: 'Report issue and share logs',
-    //       onPress: async () => {
-    //         const permission = await requestExternalStoragePermission();
-    //         if (permission) {
-    //           await reportIssue();
-    //         }
-    //       },
-    //     },
-    //   ],
-    // );
-    return buttons;
   };
 
   // Check if PIP is supported or not
@@ -1496,15 +1173,6 @@ const Footer = ({
       check();
     }
   }, [isPipActive, hmsInstance]);
-
-  // useEffect hook
-  useEffect(() => {
-    setHlsStreaming(isHlsStreaming);
-  }, [isHlsStreaming]);
-
-  useEffect(() => {
-    setRtmpAndRecording(isBrowserRecording);
-  }, [isBrowserRecording]);
 
   return (
     <View
@@ -1609,12 +1277,26 @@ const Footer = ({
         ) : (
           <Text style={styles.liveText}>Go Live</Text>
         ))} */}
-      <AlertModal
+      <DefaultModal
         modalVisible={modalVisible === ModalTypes.SETTINGS}
         setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
-        title="Settings"
-        buttons={getSettingsButtons()}
-      />
+        viewStyle={{maxHeight: Platform.OS === 'ios' ? '70%' : '85%'}}
+      >
+        <RoomSettingsModalContent
+          localPeer={localPeer}
+          isHLSStreaming={isHlsStreaming}
+          rtmpAndRecording={isBrowserRecording}
+          newAudioMixingMode={newAudioMixingMode}
+          audioDeviceListenerAdded={audioDeviceChangeListener}
+          isAudioShared={isAudioShared}
+          muteAllTracksAudio={muteAllTracksAudio}
+          closeRoomSettingsModal={() => setModalVisible(ModalTypes.DEFAULT)}
+          setModalVisible={setModalVisible}
+          setAudioDeviceListenerAdded={setAudioDeviceChangeListener}
+          setIsAudioShared={setIsAudioShared}
+          setMuteAllTracksAudio={setMuteAllTracksAudio}
+        />
+      </DefaultModal>
       <DefaultModal
         animationType="fade"
         overlay={false}
@@ -1629,7 +1311,6 @@ const Footer = ({
           instance={hmsInstance}
           roomID={roomID}
           setModalVisible={setModalVisible}
-          setRtmpAndRecording={setRtmpAndRecording}
           recordingModal={modalVisible === ModalTypes.RECORDING}
         />
       </DefaultModal>
@@ -1642,7 +1323,6 @@ const Footer = ({
       >
         <HlsStreamingModal
           instance={hmsInstance}
-          setHlsStreaming={setHlsStreaming}
           roomID={roomID}
           cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
         />

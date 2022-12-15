@@ -54,25 +54,12 @@ export const JoinSettingsModalContent: React.FC<
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>App Settings</Text>
+      <Text style={styles.header}>Room Settings</Text>
 
       <View style={styles.divider} />
 
       <ScrollView>
         <View>
-          <TouchableOpacity
-            style={styles.resetBtn}
-            onPress={() => dispatch(resetJoinConfig())}
-          >
-            <FontAwesomeIcons
-              name="rotate-left"
-              size={16}
-              style={styles.resetIcon}
-            />
-
-            <Text style={styles.resetText}>Reset to Default</Text>
-          </TouchableOpacity>
-
           <SwitchRow
             text="Join with Muted Audio"
             value={mutedAudio}
@@ -162,7 +149,7 @@ export const JoinSettingsModalContent: React.FC<
           ) : null}
 
           <SwitchRow
-            text="Show Stats"
+            text="Show RTC Stats"
             value={showStats}
             onChange={value => dispatch(changeShowStats(value))}
             LeftIcon={
@@ -174,9 +161,24 @@ export const JoinSettingsModalContent: React.FC<
             }
             containerStyle={styles.switchContainer}
           />
+
+          <View style={styles.divider} />
+
+          <TouchableOpacity
+            style={styles.resetBtn}
+            onPress={() => dispatch(resetJoinConfig())}
+          >
+            <FontAwesomeIcons
+              name="rotate-left"
+              size={16}
+              style={styles.resetIcon}
+            />
+
+            <Text style={styles.resetText}>Reset to Defaults</Text>
+          </TouchableOpacity>
         </View>
 
-        <View style={styles.flexSpace} />
+        {/* <View style={styles.flexSpace} /> */}
 
         <View style={styles.divider} />
 
@@ -207,8 +209,11 @@ export const JoinSettingsModalContent: React.FC<
           </Text>
         </View>
 
+        <View style={styles.divider} />
+
         <Text style={styles.footer}>
-          Made with <FontAwesomeIcons name="heart" size={16} /> by 100ms
+          Made with <FontAwesomeIcons name="heart" size={16} color="red" /> by
+          100ms
         </Text>
       </ScrollView>
     </View>
@@ -229,7 +234,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    marginVertical: 20,
+    marginVertical: 8,
     backgroundColor: COLORS.BACKGROUND.DEFAULT,
   },
   icon: {
@@ -245,13 +250,12 @@ const styles = StyleSheet.create({
   resetBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    alignSelf: 'flex-end',
-    marginBottom: 12,
+    alignSelf: 'flex-start',
+    // marginTop: 8,
   },
   resetText: {
     fontFamily: 'Inter-Medium',
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: 14,
     color: COLORS.INDICATORS.WARNING,
   },
   resetIcon: {
@@ -260,22 +264,19 @@ const styles = StyleSheet.create({
   },
   versionText: {
     fontFamily: 'Inter-Regular',
-    fontSize: 16,
-    lineHeight: 24,
-    color: COLORS.TEXT.HIGH_EMPHASIS,
+    fontSize: 14,
+    color: COLORS.TEXT.MEDIUM_EMPHASIS,
   },
   versionNumber: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 15,
-    lineHeight: 22,
-    color: COLORS.TWIN.ORANGE,
+    fontFamily: 'Inter-Bold',
+    fontSize: 14,
+    color: COLORS.TEXT.HIGH_EMPHASIS,
   },
   footer: {
-    marginTop: 48,
-    marginBottom: 24,
+    // marginTop: 8,
+    // marginBottom: 16,
     fontFamily: 'Inter-Medium',
     fontSize: 16,
-    lineHeight: 24,
     letterSpacing: 0.5,
     color: COLORS.TEXT.HIGH_EMPHASIS_ACCENT,
     textAlign: 'center',
