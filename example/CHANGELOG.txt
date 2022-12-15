@@ -12,6 +12,8 @@
 
 - Updated More Options Settings available when joined a room
 
+- Fixed a bug where video tiles were not rendered for peers who have joined the room earlier
+
 
 React Native SDK: 1.1.0
 Android SDK: 2.5.4
