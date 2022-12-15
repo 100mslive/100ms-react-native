@@ -2095,17 +2095,14 @@ export const ChangeBulkRoleModal: React.FC<ChangeBulkRoleModalProps> = ({
   const roles = useSelector((state: RootState) => state.user.roles);
   const [showRolesSelectionView, setShowRolesSelectionView] =
     useState<null | RoleSelection>(null);
-  const [changeAllRoles, setChangeAllRoles] = useState(true);
   const [targetRole, setTargetRole] = useState<HMSRole | null>(null);
   const [rolesToChange, setRolesToChange] = useState<HMSRole[]>([]);
 
   const changeRole = async () => {
     if (!hmsInstance || !targetRole) return;
 
-    const ofRoles = changeAllRoles ? roles : rolesToChange;
-
     hmsInstance.changeRoleOfPeersWithRoles(
-      ofRoles.filter(ofRole => ofRole.name !== targetRole.name),
+      rolesToChange.filter(roleToChange => roleToChange.name !== targetRole.name),
       targetRole,
     );
 
@@ -2134,8 +2131,7 @@ export const ChangeBulkRoleModal: React.FC<ChangeBulkRoleModalProps> = ({
 
   // if targetRole is not available, OR
   // role or rolesToChange is not available. then "Change" button should be disabled
-  const changeSubmitDisabled =
-    !targetRole || (changeAllRoles ? roles : rolesToChange).length === 0;
+  const changeSubmitDisabled = !targetRole || rolesToChange.length === 0;
 
   return (
     <View style={bulkRoleStyles.container}>
@@ -2145,57 +2141,23 @@ export const ChangeBulkRoleModal: React.FC<ChangeBulkRoleModalProps> = ({
 
       <View style={bulkRoleStyles.contentContainer}>
         <View style={bulkRoleStyles.row}>
-          <Text style={bulkRoleStyles.label}>Roles to change</Text>
-
-          <View style={bulkRoleStyles.toggleContainer}>
-            <TouchableOpacity
-              disabled={changeAllRoles}
-              style={
-                changeAllRoles
-                  ? bulkRoleStyles.toggleActiveItem
-                  : bulkRoleStyles.toggleItem
-              }
-              onPress={() => setChangeAllRoles(true)}
-            >
-              <Text style={bulkRoleStyles.label}>All</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              disabled={!changeAllRoles}
-              style={
-                !changeAllRoles
-                  ? bulkRoleStyles.toggleActiveItem
-                  : bulkRoleStyles.toggleItem
-              }
-              onPress={() => setChangeAllRoles(false)}
-            >
-              <Text style={bulkRoleStyles.label}>Specific</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        <View style={bulkRoleStyles.row}>
           <Text style={bulkRoleStyles.label}>Select Roles to change</Text>
 
-          {changeAllRoles ? (
-            <Text style={bulkRoleStyles.value}>All Roles</Text>
-          ) : (
-            <TouchableOpacity
-              style={bulkRoleStyles.btn}
-              onPress={() => setShowRolesSelectionView(RoleSelection.TO_CHANGE)}
-            >
-              <Text style={bulkRoleStyles.value} numberOfLines={1}>
-                {rolesToChange.map(role => role.name).join(', ') ||
-                  'Select Roles'}
-              </Text>
+          <TouchableOpacity
+            style={bulkRoleStyles.btn}
+            onPress={() => setShowRolesSelectionView(RoleSelection.TO_CHANGE)}
+          >
+            <Text style={bulkRoleStyles.value} numberOfLines={1}>
+              {rolesToChange.map(role => role.name).join(', ') ||
+                'Select Roles'}
+            </Text>
 
-              <MaterialCommunityIcons
-                name="chevron-right"
-                size={16}
-                style={bulkRoleStyles.chevronIcon}
-              />
-            </TouchableOpacity>
-          )}
+            <MaterialCommunityIcons
+              name="chevron-right"
+              size={16}
+              style={bulkRoleStyles.chevronIcon}
+            />
+          </TouchableOpacity>
         </View>
 
         <View style={bulkRoleStyles.row}>
@@ -2306,13 +2268,16 @@ const bulkRoleStyles = StyleSheet.create({
   container: {
     padding: 24,
     position: 'relative',
+    height: 320
   },
   contentContainer: {
+    flex: 1,
+    justifyContent: 'center',
     marginTop: 24,
   },
   row: {
-    flexGrow: 1,
-    marginVertical: 16,
+    // flexGrow: 1,
+    marginVertical: 20,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
