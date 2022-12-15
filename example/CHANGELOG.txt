@@ -10,6 +10,8 @@
 
 - Added settings like Join with Muted Audio/Video, Skip Preview, Mirror Camera, etc before joining a room
 
+- Updated More Options Settings available when joined a room
+
 
 React Native SDK: 1.1.0
 Android SDK: 2.5.4
