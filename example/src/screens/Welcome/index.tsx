@@ -123,7 +123,9 @@ const Welcome = () => {
       data.room.localPeer,
       data.room.localPeer.videoTrack,
     );
-    dispatch(setPeerState({peerState: [hmsLocalPeer, ...peerTrackNodesRef.current]}));
+    dispatch(
+      setPeerState({peerState: [hmsLocalPeer, ...peerTrackNodesRef.current]}),
+    );
     AsyncStorage.setItem(
       Constants.MEET_URL,
       roomID.replace('preview', 'meeting'),
@@ -171,6 +173,7 @@ const Welcome = () => {
     }
     if (type === HMSPeerUpdate.PEER_LEFT) {
       removePeerTrackNodes(peer);
+      dispatch(setPeerState({peerState: [...peerTrackNodesRef.current]}));
       return;
     }
     if (peer.isLocal) {
@@ -189,6 +192,7 @@ const Welcome = () => {
       } else {
         changePeerNodes(nodesPresent, peer);
       }
+      dispatch(setPeerState({peerState: [...peerTrackNodesRef.current]}));
       return;
     }
     if (type === HMSPeerUpdate.ROLE_CHANGED) {
@@ -198,6 +202,7 @@ const Welcome = () => {
           peer.role?.publishSettings?.allowed.length < 1)
       ) {
         removePeerTrackNodes(peer);
+        dispatch(setPeerState({peerState: [...peerTrackNodesRef.current]}));
       }
       return;
     }
@@ -212,6 +217,7 @@ const Welcome = () => {
       );
       if (nodesPresent.length) {
         changePeerNodes(nodesPresent, peer);
+        dispatch(setPeerState({peerState: [...peerTrackNodesRef.current]}));
       }
       return;
     }
@@ -247,6 +253,7 @@ const Welcome = () => {
           changePeerNodes(nodesPresent, peer);
         }
       }
+      dispatch(setPeerState({peerState: [...peerTrackNodesRef.current]}));
       return;
     }
     if (type === HMSTrackUpdate.TRACK_REMOVED) {
@@ -268,6 +275,7 @@ const Welcome = () => {
         );
         peerTrackNodesRef.current = newPeerTrackNodes;
         setPeerTrackNodes(newPeerTrackNodes);
+        dispatch(setPeerState({peerState: [...peerTrackNodesRef.current]}));
       }
       return;
     }
@@ -285,6 +293,7 @@ const Welcome = () => {
       } else {
         changePeerNodes(nodesPresent, peer);
       }
+      dispatch(setPeerState({peerState: [...peerTrackNodesRef.current]}));
       return;
     }
     if (
@@ -301,6 +310,7 @@ const Welcome = () => {
       } else {
         changePeerNodes(nodesPresent, peer);
       }
+      dispatch(setPeerState({peerState: [...peerTrackNodesRef.current]}));
       return;
     }
   };
