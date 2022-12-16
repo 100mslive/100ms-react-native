@@ -24,7 +24,7 @@ import * as services from '../services/index';
 import {PERMISSIONS, requestMultiple, RESULTS} from 'react-native-permissions';
 
 export const getMeetingUrl = () =>
-  'https://yogi.app.100ms.live/preview/nih-bkn-vek';
+  'https://yogi.app.100ms.live/streaming/meeting/nih-bkn-vek';
 
 export const getMeetingCode = () => 'nih-bkn-vek';
 
@@ -390,11 +390,16 @@ export const getPeerTrackNodes = (
   return nodes;
 };
 
-export const getPeerTrackNodeFromPairedPeers = (pairedPeers: PeerTrackNode[][], peerToFind: HMSPeer) => {
+export const getPeerTrackNodeFromPairedPeers = (
+  pairedPeers: PeerTrackNode[][],
+  peerToFind: HMSPeer,
+) => {
   const peerTracks = pairedPeers.flat();
 
-  return peerTracks.find(peer => peer.peer.peerID === peerToFind.peerID) || null;
-}
+  return (
+    peerTracks.find(peer => peer.peer.peerID === peerToFind.peerID) || null
+  );
+};
 
 export const updatedDegradedFlag = (
   peerTrackNodes: PeerTrackNode[],
@@ -722,8 +727,10 @@ export const getDisplayTrackDimensions = (
   orientation: boolean,
 ) => {
   // window height - (header + footer + top + bottom + padding)
+
+  // Using "extra offset" (i.e. 32) for android as we are getting wrong window height
   const viewHeight =
-    Dimensions.get('window').height - (50 + 50 + top + bottom + 2);
+    Dimensions.get('window').height - (50 + 50 + top + bottom + (Platform.OS === 'android' ? 32 : 2));
 
   let height, width;
 
@@ -761,14 +768,15 @@ export const getTrackForPIPView = (pairedPeers: PeerTrackNode[][]) => {
   const peerTracks = pairedPeers.flat();
 
   // local
-  let videoPeerTrackNode = peerTracks[0]
+  let videoPeerTrackNode = peerTracks[0];
 
   for (const peerTrack of peerTracks) {
     // Checking if we have "remote" screenshare track
-    if (peerTrack.peer.isLocal === false
-        && peerTrack.track
-        && peerTrack.track.source !== HMSTrackSource.REGULAR
-        && peerTrack.track.type === HMSTrackType.VIDEO
+    if (
+      peerTrack.peer.isLocal === false &&
+      peerTrack.track &&
+      peerTrack.track.source !== HMSTrackSource.REGULAR &&
+      peerTrack.track.type === HMSTrackType.VIDEO
     ) {
       return peerTrack;
     }
@@ -780,4 +788,4 @@ export const getTrackForPIPView = (pairedPeers: PeerTrackNode[][]) => {
   }
 
   return videoPeerTrackNode;
-}
+};

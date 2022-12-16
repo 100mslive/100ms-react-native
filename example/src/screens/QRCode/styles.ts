@@ -61,15 +61,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   joinButton: {
+    flex: 1,
     backgroundColor: COLORS.PRIMARY.DEFAULT,
-    paddingHorizontal: 16,
+    paddingRight: 16,
+    paddingLeft: 16 + (24 + 32), // 16 + (MORE BUTTON SIZE + MORE BUTTON PADDING)
     paddingVertical: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: COLORS.PRIMARY.DEFAULT,
     marginTop: 16,
-    borderRadius: 8,
+    borderTopLeftRadius: 8,
+    borderBottomLeftRadius: 8,
   },
   disabled: {
     backgroundColor: COLORS.SECONDARY.DISABLED,
@@ -84,6 +85,20 @@ const styles = StyleSheet.create({
   },
   disabledText: {
     color: COLORS.TEXT.DISABLED_ACCENT,
+  },
+  moreButton: {
+    width: undefined,
+    backgroundColor: COLORS.PRIMARY.DEFAULT,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 16,
+    borderTopRightRadius: 8,
+    borderBottomRightRadius: 8,
+  },
+  moreButtonIcon: {
+    color: COLORS.TEXT.HIGH_EMPHASIS_ACCENT,
   },
   horizontalSeparator: {
     height: 1,

@@ -12,7 +12,6 @@ type IntialStateType = {
   roomID: string;
   hmsInstance?: HMSSDK;
   roomCode: string;
-  mirrorLocalVideo: boolean;
   isHLSFlow: boolean;
   roles: HMSRole[];
 };
@@ -21,7 +20,6 @@ const INITIAL_STATE: IntialStateType = {
   userName: '',
   roomID: getMeetingUrl(),
   roomCode: getMeetingCode(),
-  mirrorLocalVideo: false,
   isHLSFlow: true,
   roles: [],
 };

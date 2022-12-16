@@ -37,6 +37,7 @@ import type { HMSLogSettings } from './HMSLogSettings';
 import { HMSMessageType } from './HMSMessageType';
 import type { HMSRemoteVideoTrack } from './HMSRemoteVideoTrack';
 import type { HMSLayer } from './HMSLayer';
+import { HMSPIPListenerActions } from './HMSPIPListenerActions';
 
 interface HmsViewProps {
   trackId: string;
@@ -48,6 +49,9 @@ interface HmsViewProps {
 
 interface PIPConfig {
   aspectRatio?: [number, number];
+  endButton?: boolean;
+  audioButton?: boolean;
+  videoButton?: boolean;
 }
 
 const {
@@ -87,6 +91,7 @@ export class HMSSDK {
   private onRemoteAudioStatsDelegate?: any;
   private onRemoteVideoStatsDelegate?: any;
   private onAudioDeviceChangedDelegate?: any;
+  private onPIPRoomLeaveDelegate?: any;
 
   private constructor(id: string) {
     this.id = id;
@@ -261,6 +266,13 @@ export class HMSSDK {
       HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED,
       this.onAudioDeviceChangedListener
     );
+
+    if (Platform.OS === 'android') {
+      HmsEventEmitter.addListener(
+        HMSPIPListenerActions.ON_PIP_ROOM_LEAVE,
+        this.onPIPRoomLeaveListener
+      );
+    }
   };
 
   /**
@@ -363,6 +375,13 @@ export class HMSSDK {
       HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED,
       this.onAudioDeviceChangedListener
     );
+
+    if (Platform.OS === 'android') {
+      HmsEventEmitter.removeListener(
+        HMSPIPListenerActions.ON_PIP_ROOM_LEAVE,
+        this.onPIPRoomLeaveListener
+      );
+    }
   };
 
   /**
@@ -622,6 +641,8 @@ export class HMSSDK {
   };
 
   /**
+   * @deprecated This function has been deprecated in favor of #Function changeRoleOfPeer
+   *
    * - This function can be used in a situation when we want to change role hence manipulate their
    * access and rights in the current room, it takes the peer {@link HMSPeer} whom role we want to change,
    * role {@link HMSRole} which will be the new role for that peer and weather to forcefully change
@@ -644,6 +665,58 @@ export class HMSSDK {
     };
     logger?.verbose('#Function changeRole', data);
     return await HMSManager.changeRole(data);
+  };
+
+  /**
+   * - This function can be used in a situation when we want to change role hence manipulate their
+   * access and rights in the current room, it takes the peer {@link HMSPeer} whom role we want to change,
+   * role {@link HMSRole} which will be the new role for that peer and weather to forcefully change
+   * the role or ask the to accept the role change request using a boolean force.
+   *
+   * - if we change the role forcefully the peer's role will be updated without asking the peer
+   * otherwise the user will get the roleChangeRequest in roleChangeRequest listener.
+   * for more information on this checkout {@link onRoleChangeRequestListener}
+   *
+   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/change-role} for more info
+   *
+   * @memberof HMSSDK
+   */
+  changeRoleOfPeer = async (
+    peer: HMSPeer,
+    role: HMSRole,
+    force: boolean = false
+  ) => {
+    const data = {
+      peerId: peer.peerID,
+      role: role.name,
+      force: force,
+      id: this.id,
+    };
+    logger?.verbose('#Function changeRoleOfPeer', data);
+    return HMSManager.changeRoleOfPeer(data);
+  };
+
+  /**
+   * - This function can be used in a situation when we want to change role of multiple peers by specifying their roles.
+   * Hence manipulate their access and rights in the current room.
+   * It takes the list of roles {@link HMSRole} whom role we want to change
+   * and role {@link HMSRole} which will be the new role for peers.
+   *
+   * - Note that role will be updated without asking the peers.
+   * Meaning, Peers will not get the roleChangeRequest in roleChangeRequest listener.
+   *
+   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/change-role} for more info
+   *
+   * @memberof HMSSDK
+   */
+  changeRoleOfPeersWithRoles = async (ofRoles: HMSRole[], toRole: HMSRole) => {
+    const data = {
+      ofRoles: ofRoles.map((ofRole) => ofRole.name).filter(Boolean),
+      toRole: toRole.name,
+      id: this.id,
+    };
+    logger?.verbose('#Function changeRoleOfPeersWithRoles', data);
+    return HMSManager.changeRoleOfPeersWithRoles(data);
   };
 
   /**
@@ -1264,7 +1337,10 @@ export class HMSSDK {
    * @param {*} callback
    * @memberof HMSSDK
    */
-  addEventListener = (action: HMSUpdateListenerActions, callback: any) => {
+  addEventListener = (
+    action: HMSUpdateListenerActions | HMSPIPListenerActions,
+    callback: any
+  ) => {
     logger?.verbose('#Function addEventListener', {
       action,
       id: this.id,
@@ -1327,6 +1403,9 @@ export class HMSSDK {
       case HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED:
         this.onAudioDeviceChangedDelegate = callback;
         break;
+      case HMSPIPListenerActions.ON_PIP_ROOM_LEAVE:
+        this.onPIPRoomLeaveDelegate = callback;
+        break;
       default:
     }
   };
@@ -1338,7 +1417,9 @@ export class HMSSDK {
    * @param {*} callback
    * @memberof HMSSDK
    */
-  removeEventListener = (action: HMSUpdateListenerActions) => {
+  removeEventListener = (
+    action: HMSUpdateListenerActions | HMSPIPListenerActions
+  ) => {
     logger?.verbose('#Function removeEventListener', { action, id: this.id });
     switch (action) {
       case HMSUpdateListenerActions.ON_PREVIEW:
@@ -1398,6 +1479,9 @@ export class HMSSDK {
       case HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED:
         this.onAudioDeviceChangedDelegate = null;
         break;
+      case HMSPIPListenerActions.ON_PIP_ROOM_LEAVE:
+        this.onPIPRoomLeaveDelegate = null;
+        break;
       default:
     }
   };
@@ -1421,6 +1505,7 @@ export class HMSSDK {
     this.onRoleChangeRequestDelegate = null;
     this.onChangeTrackStateRequestDelegate = null;
     this.onRemovedFromRoomDelegate = null;
+    this.onPIPRoomLeaveDelegate = null;
 
     logger?.verbose('#Function REMOVE_ALL_LISTENER', { id: this.id });
   };
@@ -1763,17 +1848,36 @@ export class HMSSDK {
     }
   };
 
+  onPIPRoomLeaveListener = (data: { id: string }) => {
+    if (data.id !== this.id) {
+      return;
+    }
+    this.muteStatus = undefined;
+    this?.appStateSubscription?.remove();
+
+    if (this.onPIPRoomLeaveDelegate) {
+      logger?.verbose('#Listener onPIPRoomLeave_CALL', data);
+      this.onPIPRoomLeaveDelegate({
+        ...data,
+      });
+    }
+  };
+
   async isPipModeSupported(): Promise<undefined | boolean> {
-    return HMSManager.handlePipActions('isPipModeSupported', null);
+    return HMSManager.handlePipActions('isPipModeSupported', { id: this.id });
   }
 
   async enablePipMode(data?: PIPConfig): Promise<undefined | boolean> {
-    const config = { aspectRatio: [16, 9], ...(data || {}) };
-
-    return HMSManager.handlePipActions('enablePipMode', config);
+    return HMSManager.handlePipActions('enablePipMode', {
+      ...data,
+      id: this.id,
+    });
   }
 
   async setPipParams(data?: PIPConfig): Promise<undefined | boolean> {
-    return HMSManager.handlePipActions('setPictureInPictureParams', data || null);
+    return HMSManager.handlePipActions('setPictureInPictureParams', {
+      ...data,
+      id: this.id,
+    });
   }
 }

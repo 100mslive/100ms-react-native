@@ -21,16 +21,16 @@ object HMSDecoder {
       room.putString("metaData", null)
       room.putString("startedAt", hmsRoom.startedAt.toString())
       room.putMap(
-          "browserRecordingState",
-          this.getHMSBrowserRecordingState(hmsRoom.browserRecordingState)
+        "browserRecordingState",
+        this.getHMSBrowserRecordingState(hmsRoom.browserRecordingState)
       )
       room.putMap(
-          "rtmpHMSRtmpStreamingState",
-          this.getHMSRtmpStreamingState(hmsRoom.rtmpHMSRtmpStreamingState)
+        "rtmpHMSRtmpStreamingState",
+        this.getHMSRtmpStreamingState(hmsRoom.rtmpHMSRtmpStreamingState)
       )
       room.putMap(
-          "serverRecordingState",
-          this.getHMSServerRecordingState(hmsRoom.serverRecordingState)
+        "serverRecordingState",
+        this.getHMSServerRecordingState(hmsRoom.serverRecordingState)
       )
       room.putMap("hlsStreamingState", this.getHMSHlsStreamingState(hmsRoom.hlsStreamingState))
       room.putMap("hlsRecordingState", this.getHMSHlsRecordingState(hmsRoom.hlsRecordingState))
@@ -228,8 +228,8 @@ object HMSDecoder {
     val settings: WritableMap = Arguments.createMap()
     if (hmsAudioTrackSettings != null) {
       settings.putBoolean(
-          "useHardwareAcousticEchoCanceler",
-          hmsAudioTrackSettings.useHardwareAcousticEchoCanceler
+        "useHardwareAcousticEchoCanceler",
+        hmsAudioTrackSettings.useHardwareAcousticEchoCanceler
       )
       settings.putString("initialState", hmsAudioTrackSettings.initialState.name)
     }
@@ -435,33 +435,33 @@ object HMSDecoder {
     if (hmsSubscribeSettings != null) {
       subscribeSettings.putInt("maxSubsBitRate", hmsSubscribeSettings.maxSubsBitRate)
       subscribeSettings.putMap(
-          "subscribeDegradationParam",
-          this.getHmsSubscribeDegradationSettings(hmsSubscribeSettings.subscribeDegradationParam)
+        "subscribeDegradationParam",
+        this.getHmsSubscribeDegradationSettings(hmsSubscribeSettings.subscribeDegradationParam)
       )
       subscribeSettings.putArray(
-          "subscribeTo",
-          this.getWriteableArray(hmsSubscribeSettings.subscribeTo)
+        "subscribeTo",
+        this.getWriteableArray(hmsSubscribeSettings.subscribeTo)
       )
     }
     return subscribeSettings
   }
 
   private fun getHmsSubscribeDegradationSettings(
-      hmsSubscribeDegradationParams: SubscribeDegradationParams?
+    hmsSubscribeDegradationParams: SubscribeDegradationParams?
   ): WritableMap {
     val subscribeDegradationParams: WritableMap = Arguments.createMap()
     if (hmsSubscribeDegradationParams != null) {
       subscribeDegradationParams.putString(
-          "degradeGracePeriodSeconds",
-          hmsSubscribeDegradationParams.degradeGracePeriodSeconds.toString()
+        "degradeGracePeriodSeconds",
+        hmsSubscribeDegradationParams.degradeGracePeriodSeconds.toString()
       )
       subscribeDegradationParams.putString(
-          "packetLossThreshold",
-          hmsSubscribeDegradationParams.packetLossThreshold.toString()
+        "packetLossThreshold",
+        hmsSubscribeDegradationParams.packetLossThreshold.toString()
       )
       subscribeDegradationParams.putString(
-          "recoverGracePeriodSeconds",
-          hmsSubscribeDegradationParams.recoverGracePeriodSeconds.toString()
+        "recoverGracePeriodSeconds",
+        hmsSubscribeDegradationParams.recoverGracePeriodSeconds.toString()
       )
     }
     return subscribeDegradationParams
@@ -536,8 +536,8 @@ object HMSDecoder {
     if (hmsLocalVideoStats != null) {
       localVideoStats.putString("bytesSent", hmsLocalVideoStats.bytesSent.toString())
       localVideoStats.putMap(
-          "resolution",
-          hmsLocalVideoStats.resolution?.let { this.getHmsVideoTrackResolution(it) }
+        "resolution",
+        hmsLocalVideoStats.resolution?.let { this.getHmsVideoTrackResolution(it) }
       )
       hmsLocalVideoStats.bitrate?.let { localVideoStats.putDouble("bitrate", it) }
       hmsLocalVideoStats.roundTripTime?.let { localVideoStats.putDouble("roundTripTime", it) }
@@ -565,8 +565,8 @@ object HMSDecoder {
       remoteVideoStats.putString("packetsReceived", hmsRemoteVideoStats.packetsReceived.toString())
       hmsRemoteVideoStats.bitrate?.let { remoteVideoStats.putDouble("bitrate", it) }
       remoteVideoStats.putMap(
-          "resolution",
-          hmsRemoteVideoStats.resolution?.let { this.getHmsVideoTrackResolution(it) }
+        "resolution",
+        hmsRemoteVideoStats.resolution?.let { this.getHmsVideoTrackResolution(it) }
       )
       hmsRemoteVideoStats.frameRate?.let { remoteVideoStats.putDouble("frameRate", it) }
       hmsRemoteVideoStats.jitter?.let { remoteVideoStats.putDouble("jitter", it) }

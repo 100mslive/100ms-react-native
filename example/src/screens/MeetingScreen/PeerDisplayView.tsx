@@ -7,7 +7,7 @@ import {
 } from '@100mslive/react-native-hms';
 import {useSelector} from 'react-redux';
 
-import { styles } from './styles';
+import {styles} from './styles';
 
 import {getInitials} from '../../utils/functions';
 import type {RootState} from '../../redux';
@@ -17,7 +17,7 @@ export interface PeerDisplayViewProps {
   isLocal?: boolean;
   peerName: string;
   videoTrack?: HMSVideoTrack;
-};
+}
 
 const PeerDisplayView = ({
   isDegraded,
@@ -25,8 +25,12 @@ const PeerDisplayView = ({
   peerName,
   videoTrack,
 }: PeerDisplayViewProps) => {
-  const HmsView = useSelector((state: RootState) => state.user.hmsInstance?.HmsView || null);
-  const mirrorLocalVideo = useSelector((state: RootState) => state.user.mirrorLocalVideo);
+  const HmsView = useSelector(
+    (state: RootState) => state.user.hmsInstance?.HmsView || null,
+  );
+  const mirrorCamera = useSelector(
+    (state: RootState) => state.app.joinConfig.mirrorCamera,
+  );
 
   if (!HmsView) {
     return null;
@@ -46,9 +50,7 @@ const PeerDisplayView = ({
             // setZOrderMediaOverlay={miniView}
             trackId={videoTrack?.trackId!}
             mirror={
-              isLocal && mirrorLocalVideo !== undefined
-                ? mirrorLocalVideo
-                : false
+              isLocal && mirrorCamera !== undefined ? mirrorCamera : false
             }
             scaleType={
               videoTrack?.source !== undefined &&
