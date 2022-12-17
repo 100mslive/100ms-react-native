@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   Alert,
   Image,
@@ -9,19 +9,26 @@ import {
   Text,
   View,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {useDispatch, useSelector} from 'react-redux';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {useDispatch} from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import type {AppStackParamList} from '../../navigator';
 import {styles} from './styles';
 import {getMeetingUrl, validateUrl} from '../../utils/functions';
 import {COLORS} from '../../utils/theme';
-import {CustomButton, CustomInput} from '../../components';
+import {
+  CustomButton,
+  CustomInput,
+  DefaultModal,
+  JoinSettingsModalContent,
+} from '../../components';
 import {saveUserData} from '../../redux/actions';
-import type {RootState} from '../../redux';
+import {Constants} from '../../utils/types';
 
 type QRCodeScreenProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -30,20 +37,19 @@ type QRCodeScreenProp = NativeStackNavigationProp<
 
 const QRCode = () => {
   const navigate = useNavigation<QRCodeScreenProp>().navigate;
-  const {isHLSFlow} = useSelector((state: RootState) => state.user);
   const {top, bottom, left, right} = useSafeAreaInsets();
   const dispatch = useDispatch();
 
   const [joinDisabled, setJoinDisabled] = useState<boolean>(true);
   const [joiningLink, setJoiningLink] = useState<string>(getMeetingUrl());
-  const [isHLSFlowEnabled, setIsHLSFlowEnabled] = useState<boolean>(isHLSFlow);
+  const [moreModalVisible, setMoreModalVisible] = useState(false);
 
   const onJoinPress = () => {
     if (joiningLink.includes('app.100ms.live/')) {
       dispatch(
         saveUserData({
           roomID: joiningLink.replace('meeting', 'preview'),
-          isHLSFlow: isHLSFlowEnabled,
+          isHLSFlow: true,
         }),
       );
       navigate('WelcomeScreen');
@@ -51,6 +57,10 @@ const QRCode = () => {
       Alert.alert('Error', 'Invalid URL');
     }
   };
+
+  const handleMorePress = () => setMoreModalVisible(true);
+
+  const closeMoreModal = () => setMoreModalVisible(false);
 
   const onScanQRCodePress = () => {
     navigate('QRCodeScannerScreen');
@@ -79,11 +89,22 @@ const QRCode = () => {
     };
   }, []);
 
+  useFocusEffect(
+    useCallback(() => {
+      AsyncStorage.getItem(Constants.MEET_URL, (_error, url) => {
+        if (url) {
+          setJoiningLink(url);
+        }
+      });
+    }, []),
+  );
+
   return (
     <KeyboardAvoidingView
       enabled={Platform.OS === 'ios'}
       behavior="padding"
-      style={styles.container}>
+      style={styles.container}
+    >
       <ScrollView
         contentContainerStyle={[
           styles.contentContainerStyle,
@@ -95,7 +116,8 @@ const QRCode = () => {
           },
         ]}
         style={styles.container}
-        keyboardShouldPersistTaps="always">
+        keyboardShouldPersistTaps="always"
+      >
         <Image
           style={styles.image}
           resizeMode="stretch"
@@ -109,26 +131,6 @@ const QRCode = () => {
         </View>
         <View style={styles.joiningLinkInputView}>
           <Text style={styles.joiningLinkInputText}>Joining Link</Text>
-          <View style={styles.joiningFlowContainer}>
-            <CustomButton
-              title="Meeting"
-              onPress={() => setIsHLSFlowEnabled(false)}
-              viewStyle={[
-                styles.joiningFlowLeft,
-                !isHLSFlowEnabled && styles.selectedFlow,
-              ]}
-              textStyle={[styles.joiningLinkInputText]}
-            />
-            <CustomButton
-              title="HLS"
-              onPress={() => setIsHLSFlowEnabled(true)}
-              viewStyle={[
-                styles.joiningFlowRight,
-                isHLSFlowEnabled && styles.selectedFlow,
-              ]}
-              textStyle={[styles.joiningLinkInputText]}
-            />
-          </View>
         </View>
         <CustomInput
           value={joiningLink}
@@ -139,16 +141,29 @@ const QRCode = () => {
           multiline
           blurOnSubmit
         />
-        <CustomButton
-          title="Join Now"
-          onPress={onJoinPress}
-          disabled={joinDisabled}
-          viewStyle={[styles.joinButton, joinDisabled && styles.disabled]}
-          textStyle={[
-            styles.joinButtonText,
-            joinDisabled && styles.disabledText,
-          ]}
-        />
+        <View style={{flexDirection: 'row'}}>
+          <CustomButton
+            title="Join Now"
+            onPress={onJoinPress}
+            disabled={joinDisabled}
+            viewStyle={[styles.joinButton, joinDisabled && styles.disabled]}
+            textStyle={[
+              styles.joinButtonText,
+              joinDisabled && styles.disabledText,
+            ]}
+          />
+          <CustomButton
+            onPress={handleMorePress}
+            viewStyle={styles.moreButton}
+            RightIcon={
+              <MaterialIcons
+                name="more-vert"
+                style={styles.moreButtonIcon}
+                size={24}
+              />
+            }
+          />
+        </View>
         <View style={styles.horizontalSeparator} />
         <CustomButton
           title="Scan QR Code"
@@ -164,6 +179,14 @@ const QRCode = () => {
           }
         />
       </ScrollView>
+
+      <DefaultModal
+        modalVisible={moreModalVisible}
+        viewStyle={{height: 700}}
+        setModalVisible={closeMoreModal}
+      >
+        <JoinSettingsModalContent />
+      </DefaultModal>
     </KeyboardAvoidingView>
   );
 };

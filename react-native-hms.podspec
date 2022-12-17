@@ -1,6 +1,7 @@
 require "json"
 
 package = JSON.parse(File.read(File.join(__dir__, "package.json")))
+sdkVersions = JSON.parse(File.read(File.join(__dir__, "sdk-versions.json")))
 
 Pod::Spec.new do |s|
   s.name         = "react-native-hms"
@@ -16,6 +17,6 @@ Pod::Spec.new do |s|
   s.source_files = "ios/**/*.{h,m,mm,swift}"
 
   s.dependency "React-Core"
-  s.dependency "HMSSDK", "0.4.7"
+  s.dependency "HMSSDK", sdkVersions["ios"]
   s.dependency 'HMSBroadcastExtensionSDK', '0.0.5'
 end

@@ -52,6 +52,7 @@ export enum ModalTypes {
   AUDIO_MIXING_MODE = 'audioMixingMode',
   SET_AUDIO_SHARE_VOLUME = 'setAudioShareVolume',
   WELCOME_SETTINGS = 'welcomeSettings',
+  BULK_ROLE_CHANGE = 'bulkRoleChange',
   DEFAULT = '',
 }
 
@@ -71,4 +72,8 @@ export enum PipModes {
   NOT_AVAILABLE = -1,
   ACTIVE = 0,
   INACTIVE = 1,
+}
+
+export enum Constants {
+  MEET_URL = 'MEET_URL',
 }

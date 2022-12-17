@@ -59,9 +59,9 @@ PODS:
   - glog (0.3.5)
   - hermes-engine (0.7.2)
   - HMSBroadcastExtensionSDK (0.0.5)
-  - HMSSDK (0.4.7):
-    - HMSWebRTC (= 1.0.4898)
-  - HMSWebRTC (1.0.4898)
+  - HMSSDK (0.5.3):
+    - HMSWebRTC (= 1.0.5113)
+  - HMSWebRTC (1.0.5113)
   - libevent (2.1.12)
   - OpenSSL-Universal (1.1.180)
   - Permission-Camera (3.4.0):
@@ -284,13 +284,13 @@ PODS:
     - React-Core
   - react-native-camera/RN (4.2.1):
     - React-Core
-  - react-native-cameraroll (5.1.0):
+  - react-native-cameraroll (5.2.0):
     - React-Core
   - react-native-document-picker (8.1.3):
     - React-Core
-  - react-native-hms (1.0.0):
+  - react-native-hms (1.1.0):
     - HMSBroadcastExtensionSDK (= 0.0.5)
-    - HMSSDK (= 0.4.7)
+    - HMSSDK (= 0.5.3)
     - React-Core
   - react-native-safe-area-context (3.4.1):
     - React-Core
@@ -367,6 +367,8 @@ PODS:
     - React-jsi (= 0.64.4)
     - React-perflogger (= 0.64.4)
   - rn-fetch-blob (0.12.0):
+    - React-Core
+  - RNCAsyncStorage (1.17.11):
     - React-Core
   - RNCPicker (2.4.8):
     - React-Core
@@ -453,6 +455,7 @@ DEPENDENCIES:
   - React-runtimeexecutor (from `../node_modules/react-native/ReactCommon/runtimeexecutor`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - rn-fetch-blob (from `../node_modules/rn-fetch-blob`)
+  - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCPicker (from `../node_modules/@react-native-picker/picker`)"
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - RNFS (from `../node_modules/react-native-fs`)
@@ -558,6 +561,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   rn-fetch-blob:
     :path: "../node_modules/rn-fetch-blob"
+  RNCAsyncStorage:
+    :path: "../node_modules/@react-native-async-storage/async-storage"
   RNCPicker:
     :path: "../node_modules/@react-native-picker/picker"
   RNDeviceInfo:
@@ -593,8 +598,8 @@ SPEC CHECKSUMS:
   glog: 73c2498ac6884b13ede40eda8228cb1eee9d9d62
   hermes-engine: 7d97ba46a1e29bacf3e3c61ecb2804a5ddd02d4f
   HMSBroadcastExtensionSDK: 5fa2ca7ce516c006b3d36f5145711f7a2634aaba
-  HMSSDK: e1a6cfea904c45e3e69ca22135a287d6923ff9de
-  HMSWebRTC: d3a9b2866e4a36a1d3834728a548a4a46309bb86
+  HMSSDK: 5dd09ec0438539722122e0970dce43e67471c6ab
+  HMSWebRTC: 6bd851709766bf4b28fd89046a65654e86741aed
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   OpenSSL-Universal: 1aa4f6a6ee7256b83db99ec1ccdaa80d10f9af9b
   Permission-Camera: 40f43388fa8a648dc6ced73f145ef329ab3ff3fe
@@ -611,9 +616,9 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 8c077bef1c64430b6034f27df1000d194551e2eb
   React-jsinspector: d4f6973dd474357dbaaf6f52f31ffc713bf3e766
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
-  react-native-cameraroll: a40b082318eb1ecd0336a2f29d9f74b7f2c8cae8
+  react-native-cameraroll: 0ff04cc4e0ff5f19a94ff4313e5c8bc4503cd86d
   react-native-document-picker: 958e2bc82e128be69055be261aeac8d872c8d34c
-  react-native-hms: 807ced9caf1a4defb521b2824bd32500871939d5
+  react-native-hms: 4350d246559f9b6f22e6ff9e8f31836ea7475978
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
   react-native-simple-toast: 8ee5d23f0b92b935ab7434cdb65159ce12dfb4b7
   react-native-video: c26780b224543c62d5e1b2a7244a5cd1b50e8253
@@ -630,6 +635,7 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: 5b441857030bb6c3abaa7517f333cb01875ae499
   ReactCommon: b4a65d2d6e9eeffd4b32dde1245962b3f43907d0
   rn-fetch-blob: f065bb7ab7fb48dd002629f8bdcb0336602d3cba
+  RNCAsyncStorage: 8616bd5a58af409453ea4e1b246521bb76578d60
   RNCPicker: 0bf8ef8f7800524f32d2bb2a8bcadd53eda0ecd1
   RNDeviceInfo: 1e3f62b9ec32f7754fac60bd06b8f8a27124e7f0
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688

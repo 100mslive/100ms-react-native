@@ -177,34 +177,40 @@ class HMSHelper: NSObject {
         }
         let initialState = settings?.value(forKey: "initialState") as? String
         let initialStateEncoded = HMSHelper.getHMSTrackSettingsInitState(initialState)
+
         if #available(iOS 13.0, *) {
-            var audioMixerSourceMap = [String: HMSAudioNode]()
+            var audioMixerSourceMap: [String: HMSAudioNode]?
             if let playerNode = settings?.value(forKey: "audioSource") as? [String] {
+                audioMixerSourceMap = [String: HMSAudioNode]()
                 for node in playerNode {
-                    if audioMixerSourceMap[node] == nil {
+                    if audioMixerSourceMap?[node] == nil {
                         if node == "mic_node" {
-                            audioMixerSourceMap["mic_node"] = HMSMicNode()
+                            audioMixerSourceMap?["mic_node"] = HMSMicNode()
                         } else if node == "screen_broadcast_audio_receiver_node" {
                             do {
-                                audioMixerSourceMap["screen_broadcast_audio_receiver_node"] = try hms?.screenBroadcastAudioReceiverNode()
+                                audioMixerSourceMap?["screen_broadcast_audio_receiver_node"] = try hms?.screenBroadcastAudioReceiverNode()
                             } catch {
                                 delegate?.emitEvent("ON_ERROR", ["error": ["code": 6002, "description": error.localizedDescription, "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
                             }
                         } else {
-                            audioMixerSourceMap[node] = HMSAudioFilePlayerNode()
+                            audioMixerSourceMap?[node] = HMSAudioFilePlayerNode()
                         }
                     }
                 }
             }
-            do {
-                self.audioMixerSourceHashMap = audioMixerSourceMap
-                let audioMixerSource = try HMSAudioMixerSource(nodes: audioMixerSourceMap.values.map {$0})
-                return HMSAudioTrackSettings(maxBitrate: 32, trackDescription: "audio track description", initialMuteState: initialStateEncoded, audioSource: audioMixerSource)
-            } catch {
-                delegate?.emitEvent("ON_ERROR", ["error": ["code": 6002, "description": error.localizedDescription, "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
-                return nil
+
+            if let audioMixerSourceMap = audioMixerSourceMap {
+                do {
+                    self.audioMixerSourceHashMap = audioMixerSourceMap
+                    let audioMixerSource = try HMSAudioMixerSource(nodes: audioMixerSourceMap.values.map {$0})
+                    return HMSAudioTrackSettings(maxBitrate: 32, trackDescription: "audio track description", initialMuteState: initialStateEncoded, audioSource: audioMixerSource)
+                } catch {
+                    delegate?.emitEvent("ON_ERROR", ["error": ["code": 6002, "description": error.localizedDescription, "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
+                    return nil
+                }
             }
         }
+
         return HMSAudioTrackSettings(maxBitrate: 32, trackDescription: "audio track description", initialMuteState: initialStateEncoded, audioSource: nil)
     }
 
