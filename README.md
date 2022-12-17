@@ -296,19 +296,32 @@ await hmsInstance?.sendDirectMessage(message, peer);
 
 ## [Role Change](https://www.100ms.live/docs/react-native/v2/features/change-role)
 
+Single Peer Role Change: Change the Role of a single peer to a specified one using the `changeRoleOfPeer` API
+
 ```js
-import { HMSRole, HMSRemotePeer } from '@100mslive/react-native-hms';
-// hms instance acquired by build method
-const roles: HMSRole[] = hmsInstance?.knownRoles;
-const newRole: HMSRole = roles[0];
+const force = false
 
-// can any remote peer
-const peer: HMSRemotePeer = hmsInstance?.remotePeers[0];
+// instance acquired from build() method
+await hmsInstance.changeRoleOfPeer(peer, newRole, force) // request role change, not forced
+    .then(d => console.log('Change Role Success: ', d))
+    .catch(e => console.log('Change Role Error: ', e));
+```
 
-const force = false;
 
-await hmsInstance.changeRole(peer, newRole, force); // request role change
-await hmsInstance.changeRole(peer, newRole, !force); // force role change
+Bulk Role Change: Change the role of all peers with a certain Role, to a specified one using the `changeRoleOfPeersWithRoles` API
+
+```js
+// fetch all available Roles in the room
+const roles = await hmsInstance.getRoles();
+
+// get the Host Role object
+const hostRole = roles.find(role => role.name === 'host');
+
+// get list of Roles to be updated - in this case "Waiting" and "Guest" Roles
+const rolesToChange = roles.filter(role => role.name === 'waiting' || role.name === 'guest');
+
+// now perform Role Change of all peers in "Waiting" and "Guest" Roles to the "Host" Role
+await hmsInstance.changeRoleOfPeersWithRoles(rolesToChange, hostRole);
 ```
 
 ## [Raise Hand & BRB](https://www.100ms.live/docs/react-native/v2/advanced-features/change-metadata)
