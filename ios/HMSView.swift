@@ -67,6 +67,7 @@ class HmssdkDisplayView: UIView {
 
             var videoTrack = HMSUtilities.getVideoTrack(for: trackID, in: hmsSDK.room!)
 
+            // TODO: verify this implementation for getting video tracks
             if videoTrack == nil {
                 for track in hmsCollection[sdkID]?.recentPreviewTracks ?? [] {
                     if track.trackId == trackID && track.kind == HMSTrackKind.video {
