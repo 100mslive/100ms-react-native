@@ -47,6 +47,7 @@ interface HmsViewProps {
   setZOrderMediaOverlay?: boolean;
 }
 
+// TODO: Rename to HMSPIPConfig & to be moved to a separate file
 interface PIPConfig {
   aspectRatio?: [number, number];
   endButton?: boolean;
