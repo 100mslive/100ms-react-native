@@ -1296,10 +1296,9 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     func emitRequiredKeysError(_ error: String) {
         delegate?.emitEvent(ON_ERROR, ["error": ["code": 6002, "description": error, "isTerminal": false, "canRetry": true], "id": id])
     }
-    
-    
+
     // MARK: - Simulcast
-    
+
     func getLayerDefinition(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let trackId = data.value(forKey: "trackId") as? String
         else {
@@ -1310,12 +1309,12 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
 
         DispatchQueue.main.async { [weak self] in
-            
+
         }
     }
-    
+
     func getLayer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        
+
         guard let trackId = data.value(forKey: "trackId") as? String
         else {
             let errorMessage = "\(#function) " + HMSHelper.getUnavailableRequiredKey(data, ["trackId"])
@@ -1325,12 +1324,14 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
 
         DispatchQueue.main.async { [weak self] in
-            
+
         }
     }
-    
+
     func setVideoTrackLayer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        guard let trackId = data.value(forKey: "trackId") as? String
+        guard let trackId = data.value(forKey: "trackId") as? String,
+              let layer = data.value(forKey: "layer") as? String
+
         else {
             let errorMessage = "\(#function) " + HMSHelper.getUnavailableRequiredKey(data, ["trackId"])
             emitRequiredKeysError(errorMessage)
@@ -1339,7 +1340,25 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
 
         DispatchQueue.main.async { [weak self] in
-            
+
+            guard let room = self?.hms?.room,
+                  let videoTrack = HMSUtilities.getVideoTrack(for: trackId, in: room),
+                  let remoteVideoTrack = videoTrack as? HMSRemoteVideoTrack
+            else {
+                reject?("101", "Could not find Remote Video Track with trackId: \(trackId)", nil)
+                return
+            }
+
+            switch layer.uppercased() {
+            case "LOW":
+                remoteVideoTrack.layer = .low
+            case "MEDIUM":
+                remoteVideoTrack.layer = .mid
+            default:
+                remoteVideoTrack.layer = .high
+            }
+
+            resolve?(true)
         }
     }
 }
