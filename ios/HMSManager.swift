@@ -493,10 +493,17 @@ class HMSManager: RCTEventEmitter {
     // MARK: - Simulcast
     
     @objc
-    func getVideoTrackLayerDefinition(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    func getLayerDefinition(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
-        hms?.getVideoTrackLayerDefinition(data, resolve, reject)
+        hms?.getLayerDefinition(data, resolve, reject)
+    }
+    
+    @objc
+    func getLayer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.getLayer(data, resolve, reject)
     }
     
     @objc

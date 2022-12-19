@@ -1296,4 +1296,19 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     func emitRequiredKeysError(_ error: String) {
         delegate?.emitEvent(ON_ERROR, ["error": ["code": 6002, "description": error, "isTerminal": false, "canRetry": true], "id": id])
     }
+    
+    
+    // MARK: - Simulcast
+    
+    func getLayerDefinition(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        
+    }
+    
+    func getLayer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        
+    }
+    
+    func setVideoTrackLayer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        
+    }
 }

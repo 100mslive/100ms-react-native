@@ -65,19 +65,14 @@ export class HMSRemoteVideoTrack extends HMSVideoTrack {
       trackId: this.trackId,
     });
 
-    if (Platform.OS === 'android') {
-      const layer: HMSLayer = await HMSManager.getVideoTrackLayer({
-        id: this.id,
-        trackId: this.trackId,
-      });
+    const layer: HMSLayer = await HMSManager.getVideoTrackLayer({
+      id: this.id,
+      trackId: this.trackId,
+    });
 
-      this.layer = layer;
+    this.layer = layer;
 
-      return layer;
-    } else {
-      console.log('API currently not available for iOS');
-      return 'API currently not available for iOS';
-    }
+    return layer;
   }
 
   async getLayerDefinition() {
@@ -87,20 +82,15 @@ export class HMSRemoteVideoTrack extends HMSVideoTrack {
       trackId: this.trackId,
     });
 
-    if (Platform.OS === 'android') {
-      const layerDefinition: HMSSimulcastLayerDefinition[] =
-        await HMSManager.getVideoTrackLayerDefinition({
-          id: this.id,
-          trackId: this.trackId,
-        });
+    const layerDefinition: HMSSimulcastLayerDefinition[] =
+      await HMSManager.getVideoTrackLayerDefinition({
+        id: this.id,
+        trackId: this.trackId,
+      });
 
-      console.log(layerDefinition);
+    console.log(layerDefinition);
 
-      return HMSEncoder.encodeHMSSimulcastLayerDefinition(layerDefinition);
-    } else {
-      console.log('API currently not available for iOS');
-      return 'API currently not available for iOS';
-    }
+    return HMSEncoder.encodeHMSSimulcastLayerDefinition(layerDefinition);
   }
 
   async setLayer(layer: HMSLayer) {
@@ -111,22 +101,17 @@ export class HMSRemoteVideoTrack extends HMSVideoTrack {
       layer,
     });
 
-    if (Platform.OS === 'android') {
-      const success = await HMSManager.setVideoTrackLayer({
-        id: this.id,
-        trackId: this.trackId,
-        layer,
-      });
+    const success = await HMSManager.setVideoTrackLayer({
+      id: this.id,
+      trackId: this.trackId,
+      layer,
+    });
 
-      if (success) {
-        this.layer = layer;
-      }
-
-      return success;
-    } else {
-      console.log('API currently not available for iOS');
-      return 'API currently not available for iOS';
+    if (success) {
+      this.layer = layer;
     }
+
+    return success;
   }
 
   constructor(params: {

@@ -57,7 +57,8 @@ RCT_EXTERN_METHOD(setSessionMetaData: (NSDictionary) data :(RCTPromiseResolveBlo
 RCT_EXTERN_METHOD(getSessionMetaData: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(changeRoleOfPeer: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(changeRoleOfPeersWithRoles: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
-RCT_EXTERN_METHOD(getVideoTrackLayerDefinition: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(getLayer: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(getLayerDefinition: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(setVideoTrackLayer: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 
 @end
