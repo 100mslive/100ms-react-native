@@ -62,13 +62,13 @@ export class HMSRemoteVideoTrack extends HMSVideoTrack {
     const logger = getLogger();
     logger?.verbose('#Function getLayer', {
       id: this.id,
-      trackId: this.trackId
+      trackId: this.trackId,
     });
 
-    if(Platform.OS === 'android') {
+    if (Platform.OS === 'android') {
       const layer: HMSLayer = await HMSManager.getVideoTrackLayer({
         id: this.id,
-        trackId: this.trackId
+        trackId: this.trackId,
       });
 
       this.layer = layer;
@@ -84,14 +84,15 @@ export class HMSRemoteVideoTrack extends HMSVideoTrack {
     const logger = getLogger();
     logger?.verbose('#Function getLayerDefinition', {
       id: this.id,
-      trackId: this.trackId
+      trackId: this.trackId,
     });
 
-    if(Platform.OS === 'android') {
-      const layerDefinition: HMSSimulcastLayerDefinition[] = await HMSManager.getVideoTrackLayerDefinition({
-        id: this.id,
-        trackId: this.trackId
-      });
+    if (Platform.OS === 'android') {
+      const layerDefinition: HMSSimulcastLayerDefinition[] =
+        await HMSManager.getVideoTrackLayerDefinition({
+          id: this.id,
+          trackId: this.trackId,
+        });
 
       console.log(layerDefinition);
 
@@ -107,14 +108,14 @@ export class HMSRemoteVideoTrack extends HMSVideoTrack {
     logger?.verbose('#Function setVideoTrackLayer', {
       id: this.id,
       trackId: this.trackId,
-      layer
+      layer,
     });
 
-    if(Platform.OS === 'android') {
+    if (Platform.OS === 'android') {
       const success = await HMSManager.setVideoTrackLayer({
         id: this.id,
         trackId: this.trackId,
-        layer
+        layer,
       });
 
       if (success) {

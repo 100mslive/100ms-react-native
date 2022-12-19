@@ -506,14 +506,14 @@ export class HMSEncoder {
   }
 
   static encodeHMSSimulcastLayerDefinition(data: any[]) {
-    return data.map(sld => {
+    return data.map((sld) => {
       return new HMSSimulcastLayerDefinition({
         layer: HMSLayer[sld.layer as HMSLayer], // DOUBT: This can be invalid. Should we throw error?
         resolution: new HMSVideoResolution({
           height: sld.resolution.height,
-          width: sld.resolution.width
-        })
+          width: sld.resolution.width,
+        }),
       });
-    })
+    });
   }
 }
