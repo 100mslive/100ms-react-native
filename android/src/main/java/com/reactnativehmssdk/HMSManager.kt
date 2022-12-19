@@ -826,6 +826,13 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
+  fun getVideoTrackLayer(data: ReadableMap, promise: Promise) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.getVideoTrackLayer(data, promise)
+  }
+
+  @ReactMethod
   fun getVideoTrackLayerDefinition(data: ReadableMap, promise: Promise) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 

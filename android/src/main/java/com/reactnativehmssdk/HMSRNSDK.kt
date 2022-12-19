@@ -1466,7 +1466,7 @@ class HMSRNSDK(
     )
   }
 
-  fun getVideoTrackLayerDefinition(data: ReadableMap, promise: Promise) {
+  fun getVideoTrackLayer(data: ReadableMap, promise: Promise) {
     val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("trackId", "String")))
     if (requiredKeys === null) {
       val trackId = data.getString("trackId")
@@ -1475,13 +1475,26 @@ class HMSRNSDK(
         promise.reject("101", "TRACK_NOT_FOUND")
       } else {
         val layer = remoteVideoTrack.getLayer()
+        promise.resolve(layer.name)
+      }
+    } else {
+      val errorMessage = "getVideoTrackLayer: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(promise, errorMessage)
+    }
+  }
+
+  fun getVideoTrackLayerDefinition(data: ReadableMap, promise: Promise) {
+    val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("trackId", "String")))
+    if (requiredKeys === null) {
+      val trackId = data.getString("trackId")
+      val remoteVideoTrack = HMSHelper.getRemoteVideoTrackFromTrackId(trackId, hmsSDK?.getRoom())
+      if (remoteVideoTrack === null) {
+        promise.reject("101", "TRACK_NOT_FOUND")
+      } else {
         val layerDefinition = remoteVideoTrack.getLayerDefinition()
 
-        val map = Arguments.createMap()
-        map.putString("activeLayer", layer.name)
-        map.putArray("layerDefinition", HMSDecoder.getSimulcastLayerDefinitions(layerDefinition))
-
-        promise.resolve(map)
+        promise.resolve(HMSDecoder.getSimulcastLayerDefinitions(layerDefinition))
       }
     } else {
       val errorMessage = "getVideoTrackLayerDefinition: $requiredKeys"
