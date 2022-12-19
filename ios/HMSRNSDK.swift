@@ -1301,14 +1301,45 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     // MARK: - Simulcast
     
     func getLayerDefinition(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        
+        guard let trackId = data.value(forKey: "trackId") as? String
+        else {
+            let errorMessage = "\(#function) " + HMSHelper.getUnavailableRequiredKey(data, ["trackId"])
+            emitRequiredKeysError(errorMessage)
+            reject?(errorMessage, errorMessage, nil)
+            return
+        }
+
+        DispatchQueue.main.async { [weak self] in
+            
+        }
     }
     
     func getLayer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         
+        guard let trackId = data.value(forKey: "trackId") as? String
+        else {
+            let errorMessage = "\(#function) " + HMSHelper.getUnavailableRequiredKey(data, ["trackId"])
+            emitRequiredKeysError(errorMessage)
+            reject?(errorMessage, errorMessage, nil)
+            return
+        }
+
+        DispatchQueue.main.async { [weak self] in
+            
+        }
     }
     
     func setVideoTrackLayer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        
+        guard let trackId = data.value(forKey: "trackId") as? String
+        else {
+            let errorMessage = "\(#function) " + HMSHelper.getUnavailableRequiredKey(data, ["trackId"])
+            emitRequiredKeysError(errorMessage)
+            reject?(errorMessage, errorMessage, nil)
+            return
+        }
+
+        DispatchQueue.main.async { [weak self] in
+            
+        }
     }
 }
