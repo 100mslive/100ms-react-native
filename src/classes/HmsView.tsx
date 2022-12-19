@@ -21,6 +21,8 @@ interface HmsViewProps {
   onDataReturned: Function;
 }
 
+// TODO: add disableAutoSimulcastLayerSelect for iOS
+
 const HmsView = requireNativeComponent<HmsViewProps>('HMSView');
 let _nextRequestId = 1;
 let _requestMap = new Map();
