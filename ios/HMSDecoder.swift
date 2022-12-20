@@ -610,24 +610,24 @@ class HMSDecoder: NSObject {
             return ""
         }
     }
-    
+
     static func getLayerDefinitions(for layerDefinitions: [HMSSimulcastLayerDefinition]) -> [[String: Any]] {
-        
+
         var parsedLayerDefinitions = [[String: Any]]()
-        
+
         for layer in layerDefinitions {
             parsedLayerDefinitions.append(getLayer(for: layer))
         }
-        
+
         return parsedLayerDefinitions
     }
-    
+
     static private func getLayer(for definition: HMSSimulcastLayerDefinition) -> [String: Any] {
-        
+
         var parsedLayer = [String: Any]()
-        
+
         let layerStr: String
-        
+
         switch definition.layer {
         case .low:
             layerStr = "LOW"
@@ -636,11 +636,11 @@ class HMSDecoder: NSObject {
         default:
             layerStr = "HIGH"
         }
-        
+
         parsedLayer["layer"] = layerStr
-        
+
         parsedLayer["resolution"] = getHmsVideoResolution(definition.resolution)
-        
+
         return parsedLayer
     }
 }

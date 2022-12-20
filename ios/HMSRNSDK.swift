@@ -1318,9 +1318,9 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 reject?("101", "Could not find Remote Video Track with trackId: \(trackId)", nil)
                 return
             }
-            
+
             let parsedLayerDefinitions = HMSDecoder.getLayerDefinitions(for: layerDefinitions)
-            
+
             resolve?(parsedLayerDefinitions)
         }
     }
@@ -1344,7 +1344,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 reject?("101", "Could not find Remote Video Track with trackId: \(trackId)", nil)
                 return
             }
-            
+
         }
     }
 
