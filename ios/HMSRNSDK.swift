@@ -1315,7 +1315,9 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                   let remoteVideoTrack = videoTrack as? HMSRemoteVideoTrack,
                   let layerDefinitions = remoteVideoTrack.layerDefinitions
             else {
-                reject?("101", "Could not find Remote Video Track with trackId: \(trackId)", nil)
+                let errorMessage = "\(#function) " + HMSHelper.getUnavailableRequiredKey(data, ["layerDefinitions"])
+                self?.emitRequiredKeysError(errorMessage)
+                reject?(errorMessage, errorMessage, nil)
                 return
             }
 
@@ -1341,10 +1343,15 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                   let videoTrack = HMSUtilities.getVideoTrack(for: trackId, in: room),
                   let remoteVideoTrack = videoTrack as? HMSRemoteVideoTrack
             else {
-                reject?("101", "Could not find Remote Video Track with trackId: \(trackId)", nil)
+                let errorMessage = "\(#function) " + HMSHelper.getUnavailableRequiredKey(data, ["trackId"])
+                self?.emitRequiredKeysError(errorMessage)
+                reject?(errorMessage, errorMessage, nil)
                 return
             }
 
+            let parsedLayer = HMSDecoder.getString(from: remoteVideoTrack.layer)
+            
+            resolve?(parsedLayer)
         }
     }
 
@@ -1365,7 +1372,9 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                   let videoTrack = HMSUtilities.getVideoTrack(for: trackId, in: room),
                   let remoteVideoTrack = videoTrack as? HMSRemoteVideoTrack
             else {
-                reject?("101", "Could not find Remote Video Track with trackId: \(trackId)", nil)
+                let errorMessage = "\(#function) " + HMSHelper.getUnavailableRequiredKey(data, ["trackId"])
+                self?.emitRequiredKeysError(errorMessage)
+                reject?(errorMessage, errorMessage, nil)
                 return
             }
 
