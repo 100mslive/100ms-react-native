@@ -189,6 +189,8 @@ export const RoomSettingsModalContent: React.FC<
   const setAudioMixingMode = () =>
     setModalVisible(ModalTypes.AUDIO_MIXING_MODE);
 
+  const showRTCStats = () => setModalVisible(ModalTypes.RTC_STATS);
+
   // Android Audioshare
   const handleAudioShare = () => {
     closeRoomSettingsModal();
@@ -299,6 +301,13 @@ export const RoomSettingsModalContent: React.FC<
             {parsedMetadata?.isBRBOn ? 'Remove BRB' : 'Set BRB'}
           </Text>
         </TouchableOpacity>
+
+        <SettingItem
+          onPress={showRTCStats}
+          text='Show RTC Stats'
+          IconType={MaterialCommunityIcons}
+          iconName={'clipboard-pulse-outline'}
+        />
 
         {!localPeer?.role?.name?.includes('hls-') ? (
           <SettingItem

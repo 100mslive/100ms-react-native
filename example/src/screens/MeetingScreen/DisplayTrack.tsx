@@ -22,7 +22,7 @@ const DisplayTrack = ({
   // peerTrackNode,
   isDegraded,
   isLocal,
-  peerName,
+  peer,
   videoTrack,
   videoStyles,
 }: DisplayTrackProps) => {
@@ -60,7 +60,7 @@ const DisplayTrack = ({
         </View>
       ) : (
         <PeerDisplayView 
-          peerName={peerName}
+          peer={peer}
           isDegraded={isDegraded}
           isLocal={isLocal}
           videoTrack={videoTrack}
@@ -70,10 +70,10 @@ const DisplayTrack = ({
         <Text numberOfLines={2} style={styles.peerName}>
           {videoTrack?.source !== undefined &&
           videoTrack?.source !== HMSTrackSource.REGULAR
-            ? `${peerName}'s ${videoTrack.source}`
+            ? `${peer.name}'s ${videoTrack.source}`
             : isLocal
-            ? `You (${peerName})`
-            : peerName}
+            ? `You (${peer.name})`
+            : peer.name}
         </Text>
       </View>
     </View>

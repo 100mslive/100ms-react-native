@@ -84,6 +84,7 @@ import {
   ParticipantsModal,
   RealTime,
   RecordingModal,
+  RtcStatsModal,
 } from './Modals';
 import type {RootState} from '../../redux';
 import type {AppStackParamList} from '../../navigator';
@@ -100,6 +101,7 @@ import {GridView} from './GridView';
 import {HLSView} from './HLSView';
 import PIPView from './PIPView';
 import {RoomSettingsModalContent} from '../../components/RoomSettingsModalContent';
+import { useRTCStatsListeners } from '../../utils/hooks';
 
 type MeetingScreenProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -175,6 +177,8 @@ const Meeting = () => {
       };
     }
   }, [isPipModeActive]);
+
+  useRTCStatsListeners(modalVisible === ModalTypes.RTC_STATS);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -1296,6 +1300,11 @@ const Footer = ({
           setIsAudioShared={setIsAudioShared}
           setMuteAllTracksAudio={setMuteAllTracksAudio}
         />
+      </DefaultModal>
+      <DefaultModal
+        modalVisible={modalVisible === ModalTypes.RTC_STATS}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        <RtcStatsModal />
       </DefaultModal>
       <DefaultModal
         animationType="fade"
