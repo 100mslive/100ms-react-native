@@ -311,11 +311,12 @@ class HMSDecoder: NSObject {
         let publishSettings = getHmsPublishSettings(role.publishSettings)
         let subscribeSettings = getHmsSubscribeSettings(role.subscribeSettings)
         let priority = role.priority
-        let generalPermissions = role.generalPermissions ?? [:]
-        let internalPlugins = role.internalPlugins ?? [:]
-        let externalPlugins = role.externalPlugins ?? [:]
-
-        return ["name": name, "permissions": permissions, "publishSettings": publishSettings, "subscribeSettings": subscribeSettings, "priority": priority, "generalPermissions": generalPermissions, "internalPlugins": internalPlugins, "externalPlugins": externalPlugins]
+        
+        return ["name": name,
+                "permissions": permissions,
+                "publishSettings": publishSettings,
+                "subscribeSettings": subscribeSettings,
+                "priority": priority]
     }
 
     static func getHmsPermissions (_ permissions: HMSPermissions) -> [String: Any] {
@@ -341,24 +342,92 @@ class HMSDecoder: NSObject {
 
     static func getHmsPublishSettings (_ publishSettings: HMSPublishSettings) -> [String: Any] {
 
-        let audio = getHmsAudioSettings(publishSettings.audio)
-        let video = getHmsVideoSettings(publishSettings.video)
-        let screen = getHmsVideoSettings(publishSettings.screen)
-        let videoSimulcastLayers = getHmsSimulcastLayers(publishSettings.simulcast?.video)
-        let screenSimulcastLayers = getHmsSimulcastLayers(publishSettings.simulcast?.screen)
-        var allowed = publishSettings.allowed ?? []
-        if (publishSettings.allowed) != nil {
-            allowed = getWriteableArray(publishSettings.allowed)
-        } else {
-            allowed = []
+        var settings = [String: Any]()
+        
+        settings["audio"] = getHmsAudioSettings(publishSettings.audio)
+        settings["video"] = getHmsVideoSettings(publishSettings.video)
+        settings["screen"] = getHmsVideoSettings(publishSettings.screen)
+        
+        if let allowed = publishSettings.allowed {
+            settings["allowed"] = getWriteableArray(allowed)
         }
-
-        return ["audio": audio,
-                "video": video,
-                "screen": screen,
-                "videoSimulcastLayers": videoSimulcastLayers,
-                "screenSimulcastLayers": screenSimulcastLayers,
-                "allowed": allowed]
+        
+        if let simulcast = publishSettings.simulcast,
+           let simulcastSettings = getSimulcastSettings(from: simulcast) {
+            settings["simulcast"] = simulcastSettings
+        }
+        
+        return settings
+    }
+    
+    static private func getSimulcastSettings(from simulcast: HMSSimulcastSettings) -> [String: Any]? {
+        
+        var videoSettings: [String: Any]?
+        
+        if let video = simulcast.video,
+           let settingsPolicy = getSimulcastSettingsPolicy(from: video) {
+            videoSettings = settingsPolicy
+        }
+        
+        var screenSettings: [String: Any]?
+        
+        if let screen = simulcast.screen,
+           let settingsPolicy = getSimulcastSettingsPolicy(from: screen) {
+            screenSettings = settingsPolicy
+        }
+        
+        if videoSettings != nil || screenSettings != nil {
+            var settings = [String: Any]()
+            
+            if let video = videoSettings {
+                settings["video"] = video
+            }
+            
+            if let screen = screenSettings {
+                settings["screen"] = screen
+            }
+            
+            return settings
+        }
+        
+        return nil
+    }
+    
+    static private func getSimulcastSettingsPolicy(from simulcastSettingsPolicy: HMSSimulcastSettingsPolicy) -> [String: Any]? {
+        
+        if let layers = simulcastSettingsPolicy.layers {
+           return getSimulcastLayerSettingsPolicy(from: layers)
+        }
+        
+        return nil
+    }
+    
+    static private func getSimulcastLayerSettingsPolicy(from simulcastLayerSettingsPolicy: [HMSSimulcastLayerSettingsPolicy]) -> [String: Any] {
+        
+        var layers = [[String: Any]]()
+        
+        for layer in simulcastLayerSettingsPolicy {
+        
+            var layerSettings = [String: Any]()
+            
+            layerSettings["rid"] = layer.rid
+            
+            if let scale = layer.scaleResolutionDownBy {
+                layerSettings["scaleResolutionDownBy"] = scale
+            }
+            
+            if let maxBitrate = layer.maxBitrate {
+                layerSettings["maxBitrate"] = maxBitrate
+            }
+            
+            if let maxFramerate = layer.maxFramerate {
+                layerSettings["maxFramerate"] = maxFramerate
+            }
+          
+            layers.append(layerSettings)
+        }
+        
+        return ["layers": layers]
     }
 
     static func getHmsSubscribeSettings (_ subscribeSettings: HMSSubscribeSettings?) -> [String: Any] {
