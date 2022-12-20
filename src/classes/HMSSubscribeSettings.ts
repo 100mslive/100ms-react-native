@@ -1,15 +1,16 @@
+import type { HMSSubscribeDegradationPolicy } from "./HMSSubscribeDegradationPolicy";
+
 export class HMSSubscribeSettings {
   subscribeTo?: [string];
   maxSubsBitRate: number;
-  maxDisplayTiles?: number;
-
+  subscribeDegradation?: HMSSubscribeDegradationPolicy;
   constructor(params: {
     subscribeTo?: [string];
     maxSubsBitRate: number;
-    maxDisplayTiles?: number;
+    subscribeDegradation?: HMSSubscribeDegradationPolicy;
   }) {
     this.subscribeTo = params.subscribeTo;
     this.maxSubsBitRate = params.maxSubsBitRate;
-    this.maxDisplayTiles = params.maxDisplayTiles;
+    this.subscribeDegradation = params.subscribeDegradation;
   }
 }
