@@ -306,41 +306,31 @@ class HMSDecoder: NSObject {
 
         guard let role = hmsRole else { return [:] }
 
-        let name = role.name
-        let permissions = getHmsPermissions(role.permissions)
-        let publishSettings = getHmsPublishSettings(role.publishSettings)
-        let subscribeSettings = getHmsSubscribeSettings(role.subscribeSettings)
-        let priority = role.priority
+        var parsedRole = [String: Any]()
         
-        return ["name": name,
-                "permissions": permissions,
-                "publishSettings": publishSettings,
-                "subscribeSettings": subscribeSettings,
-                "priority": priority]
+        parsedRole["name"] = role.name
+        parsedRole["priority"] = role.priority
+        parsedRole["permissions"] = getPermissions(role.permissions)
+        parsedRole["publishSettings"] = getPublishSettings(from: role.publishSettings)
+        parsedRole["subscribeSettings"] = getSubscribeSettings(from: role.subscribeSettings)
+        
+        return parsedRole
     }
 
-    static func getHmsPermissions (_ permissions: HMSPermissions) -> [String: Any] {
-
-        let endRoom = permissions.endRoom ?? false
-        let removeOthers = permissions.removeOthers ?? false
-        let browserRecording = permissions.browserRecording ?? false
-        let hlsStreaming = permissions.hlsStreaming ?? false
-        let rtmpStreaming = permissions.rtmpStreaming ?? false
-        let mute = permissions.mute ?? false
-        let unmute = permissions.unmute ?? false
-        let changeRole = permissions.changeRole ?? false
-
-        return ["endRoom": endRoom,
-                "removeOthers": removeOthers,
-                "browserRecording": browserRecording,
-                "hlsStreaming": hlsStreaming,
-                "rtmpStreaming": rtmpStreaming,
-                "mute": mute,
-                "unmute": unmute,
-                "changeRole": changeRole]
+    static private func getPermissions (_ permissions: HMSPermissions) -> [String: Any] {
+        [
+            "endRoom": permissions.endRoom ?? false,
+            "removeOthers": permissions.removeOthers ?? false,
+            "browserRecording": permissions.browserRecording ?? false,
+            "hlsStreaming": permissions.hlsStreaming ?? false,
+            "rtmpStreaming": permissions.rtmpStreaming ?? false,
+            "mute": permissions.mute ?? false,
+            "unmute": permissions.unmute ?? false,
+            "changeRole": permissions.changeRole ?? false
+        ]
     }
 
-    static func getHmsPublishSettings (_ publishSettings: HMSPublishSettings) -> [String: Any] {
+    static private func getPublishSettings(from publishSettings: HMSPublishSettings) -> [String: Any]? {
 
         var settings = [String: Any]()
         
@@ -403,14 +393,14 @@ class HMSDecoder: NSObject {
         return decodedArray
     }
 
-    static func getHmsAudioSettings(_ audioSettings: HMSAudioSettings) -> [String: Any] {
+    static private func getHmsAudioSettings(_ audioSettings: HMSAudioSettings) -> [String: Any] {
         let bitRate = audioSettings.bitRate
         let codec = audioSettings.codec
 
         return ["bitRate": bitRate, "codec": codec]
     }
 
-    static func getHmsVideoSettings(_ videoSettings: HMSVideoSettings) -> [String: Any] {
+    static private func getHmsVideoSettings(_ videoSettings: HMSVideoSettings) -> [String: Any] {
 
         let bitRate = videoSettings.bitRate
         let codec = videoSettings.codec
@@ -458,28 +448,48 @@ class HMSDecoder: NSObject {
         return ["layers": layers]
     }
 
-    static func getHmsSubscribeSettings (_ subscribeSettings: HMSSubscribeSettings?) -> [String: Any] {
-        guard let settings = subscribeSettings
-        else { return [:] }
+    static private func getSubscribeSettings(from subscribeSettings: HMSSubscribeSettings) -> [String: Any] {
 
-        let maxSubsBitRate = settings.maxSubsBitRate
-        let subscribeDegradationParam = getHmsSubscribeDegradationSettings(settings.subscribeDegradation)
-        let subscribeTo = settings.subscribeToRoles
-
-        return ["maxSubsBitRate": maxSubsBitRate, "subscribeDegradationParam": subscribeDegradationParam, "subscribeTo": subscribeTo ?? []]
+        var settings = [String: Any]()
+        
+        settings["maxSubsBitRate"] = subscribeSettings.maxSubsBitRate
+        
+        if let subscribeToRoles = subscribeSettings.subscribeToRoles {
+            settings["subscribeToRoles"] = subscribeToRoles
+        }
+        
+        if let subscribeDegradation = subscribeSettings.subscribeDegradation,
+           let parsedSubscribeDegradationPolicy = getSubscribeDegradationSettings(from: subscribeDegradation) {
+            settings["subscribeDegradation"] = parsedSubscribeDegradationPolicy
+        }
+        
+        return settings
     }
 
-    static func getHmsSubscribeDegradationSettings (_ hmsSubscribeDegradationParams: HMSSubscribeDegradationPolicy?) -> [String: Any] {
-        guard let params = hmsSubscribeDegradationParams
-        else {
-            return [:]
+    static func getSubscribeDegradationSettings(from subscribeDegradation: HMSSubscribeDegradationPolicy) -> [String: Any]? {
+
+        if subscribeDegradation.packetLossThreshold != nil ||
+            subscribeDegradation.degradeGracePeriodSeconds != nil ||
+            subscribeDegradation.recoverGracePeriodSeconds != nil {
+
+            var settings = [String: Any]()
+            
+            if let packetLossThreshold = subscribeDegradation.packetLossThreshold {
+                settings["packetLossThreshold"] = packetLossThreshold
+            }
+            
+            if let degradeGracePeriodSeconds = subscribeDegradation.degradeGracePeriodSeconds {
+                settings["degradeGracePeriodSeconds"] = degradeGracePeriodSeconds
+            }
+            
+            if let recoverGracePeriodSeconds = subscribeDegradation.recoverGracePeriodSeconds {
+                settings["recoverGracePeriodSeconds"] = recoverGracePeriodSeconds
+            }
+            
+            return settings
         }
-
-        let degradeGracePeriodSeconds = String(params.degradeGracePeriodSeconds ?? 0)
-        let packetLossThreshold = String(params.packetLossThreshold ?? 0)
-        let recoverGracePeriodSeconds = String(params.recoverGracePeriodSeconds ?? 0)
-
-        return ["degradeGracePeriodSeconds": degradeGracePeriodSeconds, "packetLossThreshold": packetLossThreshold, "recoverGracePeriodSeconds": recoverGracePeriodSeconds]
+        
+        return nil
     }
 
 

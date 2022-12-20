@@ -435,7 +435,7 @@ object HMSDecoder {
     if (hmsSubscribeSettings != null) {
       subscribeSettings.putInt("maxSubsBitRate", hmsSubscribeSettings.maxSubsBitRate)
       subscribeSettings.putMap(
-        "subscribeDegradationParam",
+        "subscribeDegradation",
         this.getHmsSubscribeDegradationSettings(hmsSubscribeSettings.subscribeDegradationParam)
       )
       subscribeSettings.putArray(
