@@ -112,7 +112,7 @@ const Meeting = () => {
   // hooks
   const dispatch = useDispatch();
   const appState = useRef(AppState.currentState);
-  const {hmsInstance} = useSelector((state: RootState) => state.user);
+  const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
   const isPipModeActive = useSelector(
     (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE,
   );
@@ -233,8 +233,8 @@ const DisplayView = (data: {
   const isPipModeActive = useSelector(
     (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE,
   );
-  const {hmsInstance} = useSelector((state: RootState) => state.user);
-  const {peerState} = useSelector((state: RootState) => state.app);
+  const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
+  const peerState = useSelector((state: RootState) => state.app.peerState);
   const navigate = useNavigation<MeetingScreenProp>().navigate;
   const dispatch = useDispatch();
 
@@ -912,7 +912,8 @@ const Header = ({
   setModalVisible: React.Dispatch<React.SetStateAction<ModalTypes>>;
 }) => {
   // hooks
-  const {roomCode, hmsInstance} = useSelector((state: RootState) => state.user);
+  const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
+  const roomCode = useSelector((state: RootState) => state.user.roomCode);
 
   // constants
   const iconSize = 20;
@@ -1118,7 +1119,8 @@ const Footer = ({
 }) => {
   // hooks
   const dispatch = useDispatch();
-  const {hmsInstance, roomID} = useSelector((state: RootState) => state.user);
+  const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
+  const roomID = useSelector((state: RootState) => state.user.roomID);
   const isPipActive = useSelector(
     (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE,
   );

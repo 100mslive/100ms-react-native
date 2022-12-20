@@ -411,7 +411,7 @@ const ParticipantFilter = ({
   filter?: string;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
 }) => {
-  const {roles} = useSelector((state: RootState) => state.user);
+  const roles = useSelector((state: RootState) => state.user.roles);
 
   const [visible, setVisible] = useState<boolean>(false);
 
@@ -500,7 +500,7 @@ export const ChangeRoleModal = ({
   peer?: HMSPeer;
   cancelModal: Function;
 }) => {
-  const {roles} = useSelector((state: RootState) => state.user);
+  const roles = useSelector((state: RootState) => state.user.roles);
 
   const [newRole, setNewRole] = useState<HMSRole>(peer?.role!);
   const [request, setRequest] = useState<boolean>(false);
@@ -1277,7 +1277,7 @@ export const ChangeTrackStateForRoleModal = ({
   localPeer?: HMSLocalPeer;
   cancelModal: Function;
 }) => {
-  const {roles} = useSelector((state: RootState) => state.user);
+  const roles = useSelector((state: RootState) => state.user.roles);
 
   const [role, setRole] = useState<HMSRole>(localPeer?.role!);
   const [visible, setVisible] = useState<boolean>(false);

@@ -60,7 +60,7 @@ const ChatFilter = ({
     React.SetStateAction<'everyone' | HMSRole | HMSRemotePeer>
   >;
 }) => {
-  const {roles} = useSelector((state: RootState) => state.user);
+  const roles = useSelector((state: RootState) => state.user.roles);
 
   const [visible, setVisible] = useState<boolean>(false);
   const [remotePeers, setRemotePeers] = useState<HMSRemotePeer[]>();
@@ -155,7 +155,7 @@ const ChatList = ({
 }: {
   setSessionMetaData: (value: string | null) => void;
 }) => {
-  const {messages} = useSelector((state: RootState) => state.messages);
+  const messages = useSelector((state: RootState) => state.messages.messages);
 
   // const scollviewRef = useRef<FlatList>(null);
 
@@ -251,8 +251,8 @@ const ChatList = ({
 
 export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
   // hooks
-  const {hmsInstance} = useSelector((state: RootState) => state.user);
-  const {pinnedMessage} = useSelector((state: RootState) => state.messages);
+  const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
+  const pinnedMessage = useSelector((state: RootState) => state.messages.pinnedMessage);
   const dispatch = useDispatch();
   const {bottom} = useSafeAreaInsets();
 
