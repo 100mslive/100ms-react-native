@@ -36,7 +36,7 @@ export const PreviewModal = ({
   setLoadingButtonState: React.Dispatch<React.SetStateAction<boolean>>;
   loadingButtonState: boolean;
 }) => {
-  const {hmsInstance} = useSelector((state: RootState) => state.user);
+  const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
   const {top, bottom, left, right} = useSafeAreaInsets();
   const mirrorCamera = useSelector(
     (state: RootState) => state.app.joinConfig.mirrorCamera,

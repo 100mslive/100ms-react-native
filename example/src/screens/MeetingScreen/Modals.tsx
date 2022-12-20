@@ -53,11 +53,12 @@ import {
   MenuDivider,
   CustomPicker,
 } from '../../components';
-import {saveUserData} from '../../redux/actions';
+import {changeShowStats, saveUserData} from '../../redux/actions';
 import {parseMetadata, getInitials} from '../../utils/functions';
 import {LayoutParams, ModalTypes, SortingType} from '../../utils/types';
 import {COLORS} from '../../utils/theme';
 import type {RootState} from '../../redux';
+import { SwitchRow } from '../../components/SwitchRow';
 
 export const ParticipantsModal = ({
   instance,
@@ -410,7 +411,7 @@ const ParticipantFilter = ({
   filter?: string;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
 }) => {
-  const {roles} = useSelector((state: RootState) => state.user);
+  const roles = useSelector((state: RootState) => state.user.roles);
 
   const [visible, setVisible] = useState<boolean>(false);
 
@@ -499,7 +500,7 @@ export const ChangeRoleModal = ({
   peer?: HMSPeer;
   cancelModal: Function;
 }) => {
-  const {roles} = useSelector((state: RootState) => state.user);
+  const roles = useSelector((state: RootState) => state.user.roles);
 
   const [newRole, setNewRole] = useState<HMSRole>(peer?.role!);
   const [request, setRequest] = useState<boolean>(false);
@@ -702,43 +703,32 @@ export const ChangeNameModal = ({
   );
 };
 
-export const RtcStatsModal = ({
-  instance,
-  localPeer,
-}: {
-  instance?: HMSSDK;
-  localPeer?: HMSLocalPeer;
-}) => {
-  const rtcStatsRef = React.useRef<any>({});
-  const [rtcStats, setRtcStats] = useState(Math.random());
-  const [statsVisible, setStatsVisible] = useState<boolean>(false);
-  const [visible, setVisible] = useState<boolean>(false);
-  const [remotePeers, setRemotePeers] = useState<HMSRemotePeer[]>();
-  const [currentTrack, setCurrentTrack] = useState<{
-    name: string;
-    track?: HMSTrack;
-  }>({
-    name: localPeer?.name + "'s audio",
-    track: localPeer?.audioTrack,
-  });
-  const [trackList, setTrackList] = useState<
-    {
-      name: string;
-      track?: HMSTrack;
-    }[]
-  >();
+interface RTCTrack {
+  name: string;
+  peerId?: string; // peerId is used to get audio track stats
+  track?: HMSTrack;
+}
 
-  const hideMenu = () => setVisible(false);
-  const showMenu = () => setVisible(true);
+export const RtcStatsModal = () => {
+  const dispatch = useDispatch();
+  const instance = useSelector((state: RootState) => state.user.hmsInstance);
+  const showStatsOnTiles = useSelector((state: RootState) => state.app.joinConfig.showStats);
+
+  const [localPeer, setLocalPeer] = useState<HMSLocalPeer | null>(null);
+  const [remotePeers, setRemotePeers] = useState<HMSRemotePeer[]>([]);
+  const [tracksListModalVisible, setTracksListModalVisible] = useState<boolean>(false);
+  const [currentTrack, setCurrentTrack] = useState<RTCTrack | null>(null);
+
+  const hideMenu = () => setTracksListModalVisible(false);
+  const showMenu = () => setTracksListModalVisible(true);
 
   const getStatsList = () => {
-    const list: {
-      name: string;
-      track?: HMSTrack;
-    }[] = [];
+    const list: RTCTrack[] = [];
+
     if (localPeer?.audioTrack?.trackId) {
       list.push({
         name: localPeer?.name + "'s audio",
+        peerId: localPeer?.peerID,
         track: localPeer?.audioTrack,
       });
     }
@@ -748,10 +738,11 @@ export const RtcStatsModal = ({
         track: localPeer?.videoTrack,
       });
     }
-    remotePeers?.map(remotePeer => {
+    remotePeers.forEach(remotePeer => {
       if (remotePeer?.audioTrack?.trackId) {
         list.push({
           name: remotePeer?.name + "'s audio",
+          peerId: remotePeer?.peerID,
           track: remotePeer?.audioTrack,
         });
       }
@@ -762,142 +753,71 @@ export const RtcStatsModal = ({
         });
       }
     });
-    setTrackList(list);
+
+    return list;
   };
 
-  const enableRTCStats = () => {
-    instance?.enableRTCStats();
-    setStatsVisible(true);
-  };
-
-  const disableRTCStats = () => {
-    instance?.disableRTCStats();
-    setStatsVisible(false);
-  };
-
-  const onChangeLocalAudioStats = (data: {
-    localAudioStats: HMSLocalAudioStats;
-    track: HMSLocalAudioTrack;
-    peer: HMSPeer;
-  }) => {
-    const trackRtcStats = rtcStatsRef?.current;
-    trackRtcStats[data.track.trackId] = data.localAudioStats;
-    setRtcStats(Math.random());
-    rtcStatsRef.current = trackRtcStats;
-  };
-
-  const onChangeLocalVideoStats = (data: {
-    localVideoStats: HMSLocalVideoStats;
-    track: HMSLocalVideoTrack;
-    peer: HMSPeer;
-  }) => {
-    const trackRtcStats = rtcStatsRef?.current;
-    trackRtcStats[data.track.trackId] = data.localVideoStats;
-    setRtcStats(Math.random());
-    rtcStatsRef.current = trackRtcStats;
-  };
-
-  const onChangeRtcStats = (data: {rtcStats: HMSRTCStatsReport}) => {
-    console.log(data.rtcStats);
-  };
-
-  const onChangeRemoteAudioStats = (data: {
-    remoteAudioStats: HMSRemoteAudioStats;
-    track: HMSRemoteAudioTrack;
-    peer: HMSPeer;
-  }) => {
-    const trackRtcStats = rtcStatsRef?.current;
-    trackRtcStats[data.track.trackId] = data.remoteAudioStats;
-    setRtcStats(Math.random());
-    rtcStatsRef.current = trackRtcStats;
-  };
-
-  const onChangeRemoteVideoStats = (data: {
-    remoteVideoStats: HMSRemoteVideoStats;
-    track: HMSRemoteVideoTrack;
-    peer: HMSPeer;
-  }) => {
-    const trackRtcStats = rtcStatsRef?.current;
-    trackRtcStats[data.track.trackId] = data.remoteVideoStats;
-    setRtcStats(Math.random());
-    rtcStatsRef.current = trackRtcStats;
-  };
-
-  const updateRemotePeers = async () => {
-    setRemotePeers(await instance?.getRemotePeers());
-  };
-
+  // Getting Local Peer from hms instance
   useEffect(() => {
-    getStatsList();
-    updateRemotePeers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [remotePeers]);
+    if (instance) {
+      const updateLocalPeer = async () => {
+        setLocalPeer(await instance.getLocalPeer());
+      };
 
+      updateLocalPeer();
+    }
+  }, [instance]);
+
+  // Getting Remote Peers from hms instance
   useEffect(() => {
-    instance?.addEventListener(
-      HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS,
-      onChangeLocalAudioStats,
-    );
-    instance?.addEventListener(
-      HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS,
-      onChangeLocalVideoStats,
-    );
-    instance?.addEventListener(
-      HMSUpdateListenerActions.ON_RTC_STATS,
-      onChangeRtcStats,
-    );
-    instance?.addEventListener(
-      HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS,
-      onChangeRemoteAudioStats,
-    );
-    instance?.addEventListener(
-      HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS,
-      onChangeRemoteVideoStats,
-    );
-    return () => {
-      instance?.removeEventListener(
-        HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS,
-      );
-      instance?.removeEventListener(
-        HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS,
-      );
-      instance?.removeEventListener(HMSUpdateListenerActions.ON_RTC_STATS);
-      instance?.removeEventListener(
-        HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS,
-      );
-      instance?.removeEventListener(
-        HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS,
-      );
-      disableRTCStats();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (instance) {
+      const updateRemotePeers = async () => {
+        setRemotePeers(await instance.getRemotePeers());
+      };
+
+      updateRemotePeers();
+    }
+  }, [instance]);
+
+  const isCurrentTrackSelected = currentTrack !== null;
+
+  const statsList = getStatsList();
+
+  const firstTrackInStatsList = statsList.length > 0 ? statsList[0] : null;
+
+  // If currentTrack is null and we have valid item in StatsList
+  // then showing stats for the first valid item in StatsList
+  useEffect(() => {
+    if (!isCurrentTrackSelected && firstTrackInStatsList) {
+      setCurrentTrack(firstTrackInStatsList);
+    }
+  }, [isCurrentTrackSelected, firstTrackInStatsList]);
+
+  const selectedTrackId = currentTrack ? (currentTrack.peerId || currentTrack.track?.trackId) : null;
+
+  const rtcStatsData = useSelector((state: RootState) => selectedTrackId ? state.app.rtcStats[selectedTrackId] : null);
 
   return (
     <View style={styles.participantContainer}>
       <View style={styles.participantsHeaderContainer}>
         <Text style={styles.participantsHeading}>Stats for Nerds</Text>
       </View>
-      <TouchableOpacity
-        onPress={statsVisible ? disableRTCStats : enableRTCStats}
-        style={styles.statsModalContainer}
-      >
-        <Text style={styles.statsModalText}>Enable Stats for Nerds</Text>
-        <View style={styles.statsModalCheckbox}>
-          {statsVisible && (
-            <Entypo name="check" style={styles.statsModalCheck} size={20} />
-          )}
-        </View>
-      </TouchableOpacity>
+
+      <SwitchRow
+        text='Show Stats on Tiles'
+        value={showStatsOnTiles}
+        onChange={(value) => dispatch(changeShowStats(value))}
+      />
+
       <Menu
-        visible={visible}
+        visible={tracksListModalVisible}
         anchor={
           <TouchableOpacity style={styles.statsModalMenu} onPress={showMenu}>
             <Text style={styles.participantFilterText} numberOfLines={1}>
               {currentTrack?.name ?? 'Choose'}
             </Text>
             <MaterialIcons
-              name={visible ? 'arrow-drop-up' : 'arrow-drop-down'}
+              name={tracksListModalVisible ? 'arrow-drop-up' : 'arrow-drop-down'}
               style={styles.participantFilterIcon}
               size={24}
             />
@@ -906,7 +826,7 @@ export const RtcStatsModal = ({
         onRequestClose={hideMenu}
         style={styles.participantsMenuContainer}
       >
-        {trackList?.map(trackObj => {
+        {statsList.map(trackObj => {
           return (
             <MenuItem
               onPress={() => {
@@ -924,31 +844,23 @@ export const RtcStatsModal = ({
           );
         })}
       </Menu>
+
       <ScrollView contentContainerStyle={styles.statsModalCardContainer}>
-        {rtcStats &&
-          rtcStatsRef?.current &&
-          currentTrack?.track?.trackId &&
-          rtcStatsRef?.current[currentTrack?.track?.trackId] &&
-          Object.keys(rtcStatsRef?.current[currentTrack?.track?.trackId]).map(
-            item => {
-              const value =
-                currentTrack?.track &&
-                rtcStatsRef?.current[currentTrack?.track?.trackId][item];
-              return (
-                <View style={styles.statsModalCard} key={item}>
-                  <Text style={styles.statsModalCardHeading}>{item}</Text>
-                  <Text style={styles.statsModalCardDescription}>
-                    {item === 'resolution'
-                      ? 'Height: ' +
-                        (value?.height ?? 0) +
-                        ' Width: ' +
-                        (value?.width ?? 0)
-                      : value}
-                  </Text>
-                </View>
-              );
-            },
-          )}
+        {rtcStatsData ? Object.entries(rtcStatsData).map(item => {
+          const [key, value] = item;
+
+          return (
+            <View style={styles.statsModalCard} key={key}>
+              <Text style={styles.statsModalCardHeading}>{key}</Text>
+
+              <Text style={styles.statsModalCardDescription}>
+                {key === 'resolution'
+                  ? `Height: ${value?.height ?? 0}, Width: ${value?.width ?? 0}`
+                  : value}
+              </Text>
+            </View>
+          );
+        }) : null}
       </ScrollView>
     </View>
   );
@@ -1365,7 +1277,7 @@ export const ChangeTrackStateForRoleModal = ({
   localPeer?: HMSLocalPeer;
   cancelModal: Function;
 }) => {
-  const {roles} = useSelector((state: RootState) => state.user);
+  const roles = useSelector((state: RootState) => state.user.roles);
 
   const [role, setRole] = useState<HMSRole>(localPeer?.role!);
   const [visible, setVisible] = useState<boolean>(false);
