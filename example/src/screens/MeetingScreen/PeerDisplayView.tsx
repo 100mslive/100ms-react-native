@@ -4,6 +4,7 @@ import {
   HMSVideoViewMode,
   HMSTrackSource,
   HMSVideoTrack,
+  HMSPeer,
 } from '@100mslive/react-native-hms';
 import {useSelector} from 'react-redux';
 
@@ -11,18 +12,19 @@ import {styles} from './styles';
 
 import {getInitials} from '../../utils/functions';
 import type {RootState} from '../../redux';
+import PeerRTCStatsView from '../../components/PeerRTCStatsView';
 
 export interface PeerDisplayViewProps {
   isDegraded?: boolean;
   isLocal?: boolean;
-  peerName: string;
+  peer: HMSPeer;
   videoTrack?: HMSVideoTrack;
 }
 
 const PeerDisplayView = ({
   isDegraded,
   isLocal,
-  peerName,
+  peer,
   videoTrack,
 }: PeerDisplayViewProps) => {
   const HmsView = useSelector(
@@ -30,6 +32,9 @@ const PeerDisplayView = ({
   );
   const mirrorCamera = useSelector(
     (state: RootState) => state.app.joinConfig.mirrorCamera,
+  );
+  const showStatsOnTiles = useSelector(
+    (state: RootState) => state.app.joinConfig.showStats
   );
 
   if (!HmsView) {
@@ -41,7 +46,7 @@ const PeerDisplayView = ({
       {videoTrack?.isMute() || videoTrack?.trackId === undefined ? (
         <View style={styles.avatarContainer}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{getInitials(peerName)}</Text>
+            <Text style={styles.avatarText}>{getInitials(peer.name)}</Text>
           </View>
         </View>
       ) : (
@@ -74,6 +79,13 @@ const PeerDisplayView = ({
           )}
         </View>
       )}
+
+      {showStatsOnTiles ? (
+        <PeerRTCStatsView
+          trackId={videoTrack?.trackId}
+          peerId={peer.peerID}
+        />
+      ) : null}
     </View>
   );
 };
