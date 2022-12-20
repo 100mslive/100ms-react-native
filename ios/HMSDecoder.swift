@@ -393,6 +393,34 @@ class HMSDecoder: NSObject {
         return nil
     }
     
+    static func getWriteableArray(_ array: [String]?) -> [String] {
+        var decodedArray = [String]()
+        if let extractedArray = array {
+            for value in extractedArray {
+                decodedArray.append(value)
+            }
+        }
+        return decodedArray
+    }
+
+    static func getHmsAudioSettings(_ audioSettings: HMSAudioSettings) -> [String: Any] {
+        let bitRate = audioSettings.bitRate
+        let codec = audioSettings.codec
+
+        return ["bitRate": bitRate, "codec": codec]
+    }
+
+    static func getHmsVideoSettings(_ videoSettings: HMSVideoSettings) -> [String: Any] {
+
+        let bitRate = videoSettings.bitRate
+        let codec = videoSettings.codec
+        let frameRate = videoSettings.frameRate
+        let width = videoSettings.width
+        let height = videoSettings.height
+
+        return ["bitRate": bitRate ?? 0, "codec": codec, "frameRate": frameRate, "width": width, "height": height]
+    }
+    
     static private func getSimulcastSettingsPolicy(from simulcastSettingsPolicy: HMSSimulcastSettingsPolicy) -> [String: Any]? {
         
         if let layers = simulcastSettingsPolicy.layers {
@@ -454,63 +482,6 @@ class HMSDecoder: NSObject {
         return ["degradeGracePeriodSeconds": degradeGracePeriodSeconds, "packetLossThreshold": packetLossThreshold, "recoverGracePeriodSeconds": recoverGracePeriodSeconds]
     }
 
-    static func getWriteableArray(_ array: [String]?) -> [String] {
-        var decodedArray = [String]()
-        if let extractedArray = array {
-            for value in extractedArray {
-                decodedArray.append(value)
-            }
-        }
-        return decodedArray
-    }
-
-    static func getHmsAudioSettings(_ audioSettings: HMSAudioSettings) -> [String: Any] {
-        let bitRate = audioSettings.bitRate
-        let codec = audioSettings.codec
-
-        return ["bitRate": bitRate, "codec": codec]
-    }
-
-    static func getHmsVideoSettings(_ videoSettings: HMSVideoSettings) -> [String: Any] {
-
-        let bitRate = videoSettings.bitRate
-        let codec = videoSettings.codec
-        let frameRate = videoSettings.frameRate
-        let width = videoSettings.width
-        let height = videoSettings.height
-
-        return ["bitRate": bitRate ?? 0, "codec": codec, "frameRate": frameRate, "width": width, "height": height]
-    }
-
-    static func getHmsSimulcastLayers(_ videoSimulcastLayers: HMSSimulcastSettingsPolicy?) -> [String: Any] {
-
-        guard let videoLayers = videoSimulcastLayers else { return [:] }
-
-        let layers = getHmsSimulcastLayerSettingsPolicy(videoLayers.layers)
-
-        return ["layers": layers]
-    }
-
-    static func getHmsSimulcastLayerSettingsPolicy(_ layers: [HMSSimulcastLayerSettingsPolicy]?) -> [[String: Any]] {
-        var layersSettingsPolicy = [[String: Any]]()
-        if let settingsPolicies = layers {
-            for settingsPolicy in settingsPolicies {
-                let rid = settingsPolicy.rid
-                let scaleResolutionDownBy = settingsPolicy.scaleResolutionDownBy ?? 0
-                let maxBitrate = settingsPolicy.maxBitrate ?? -1
-                let maxFramerate = settingsPolicy.maxFramerate ?? -1
-
-                let settingsPolicyObject = ["rid": rid,
-                                            "scaleResolutionDownBy": scaleResolutionDownBy,
-                                            "maxBitrate": maxBitrate,
-                                            "maxFramerate": maxFramerate] as [String: Any]
-
-                layersSettingsPolicy.append(settingsPolicyObject)
-            }
-        }
-
-        return layersSettingsPolicy
-    }
 
     static func getHmsRoleChangeRequest(_ roleChangeRequest: HMSRoleChangeRequest, _ id: String?) -> [String: Any] {
 
