@@ -1310,6 +1310,15 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
         DispatchQueue.main.async { [weak self] in
 
+            guard let room = self?.hms?.room,
+                  let videoTrack = HMSUtilities.getVideoTrack(for: trackId, in: room),
+                  let remoteVideoTrack = videoTrack as? HMSRemoteVideoTrack
+            else {
+                reject?("101", "Could not find Remote Video Track with trackId: \(trackId)", nil)
+                return
+            }
+            
+            remoteVideoTrack.layerDefinitions
         }
     }
 
@@ -1325,6 +1334,14 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
         DispatchQueue.main.async { [weak self] in
 
+            guard let room = self?.hms?.room,
+                  let videoTrack = HMSUtilities.getVideoTrack(for: trackId, in: room),
+                  let remoteVideoTrack = videoTrack as? HMSRemoteVideoTrack
+            else {
+                reject?("101", "Could not find Remote Video Track with trackId: \(trackId)", nil)
+                return
+            }
+            
         }
     }
 
