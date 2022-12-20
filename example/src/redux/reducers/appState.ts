@@ -1,6 +1,12 @@
 import ActionTypes from '../actionTypes';
 import type {PeerTrackNode} from '../../utils/types';
 import {PipModes} from '../../utils/types';
+import {
+  HMSLocalAudioStats,
+  HMSLocalVideoStats,
+  HMSRemoteAudioStats,
+  HMSRemoteVideoStats
+} from '@100mslive/react-native-hms';
 
 type ActionType = {
   payload: {[key: string]: any};
@@ -10,6 +16,7 @@ type ActionType = {
 type IntialStateType = {
   peerState: PeerTrackNode[];
   pipModeStatus: PipModes;
+  rtcStats: Record<string, undefined | HMSLocalAudioStats | HMSLocalVideoStats | HMSRemoteAudioStats | HMSRemoteVideoStats>;
   joinConfig: {
     mutedAudio: boolean;
     mutedVideo: boolean;
@@ -25,6 +32,7 @@ type IntialStateType = {
 const INITIAL_STATE: IntialStateType = {
   peerState: [],
   pipModeStatus: PipModes.INACTIVE,
+  rtcStats: {},
   joinConfig: {
     mutedAudio: true,
     mutedVideo: true,
@@ -113,6 +121,14 @@ const appReducer = (
           ...state.joinConfig,
           autoResize: action.payload.autoResize ?? false,
         },
+      };
+    case ActionTypes.SET_RTC_STATS:
+      return {
+        ...state,
+        rtcStats: {
+          ...state.rtcStats,
+          [action.payload.trackId]: action.payload.stats,
+        }
       };
     default:
       return state;

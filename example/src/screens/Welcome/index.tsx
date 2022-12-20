@@ -65,7 +65,8 @@ type WelcomeScreenProp = NativeStackNavigationProp<
 const Welcome = () => {
   // hooks
   const replace = useNavigation<WelcomeScreenProp>().replace;
-  const {roomID, userName} = useSelector((state: RootState) => state.user);
+  const roomID = useSelector((state: RootState) => state.user.roomID);
+  const userName = useSelector((state: RootState) => state.user.userName);
   const joinConfig = useSelector((state: RootState) => state.app.joinConfig);
   const {top, bottom, left, right} = useSafeAreaInsets();
   const dispatch = useDispatch();

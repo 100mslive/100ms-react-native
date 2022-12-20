@@ -62,7 +62,7 @@ const GridView = ({pairedPeers, orientation}: GridViewProps) => {
                   key={view.id}>
                   <DisplayTrack
                     isLocal={view?.peer?.isLocal}
-                    peerName={view?.peer?.name}
+                    peer={view?.peer}
                     videoTrack={view?.track}
                     videoStyles={styles.generalTile}
                     isDegraded={view?.isDegraded}

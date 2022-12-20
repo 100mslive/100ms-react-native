@@ -84,6 +84,7 @@ import {
   ParticipantsModal,
   RealTime,
   RecordingModal,
+  RtcStatsModal,
 } from './Modals';
 import type {RootState} from '../../redux';
 import type {AppStackParamList} from '../../navigator';
@@ -100,6 +101,7 @@ import {GridView} from './GridView';
 import {HLSView} from './HLSView';
 import PIPView from './PIPView';
 import {RoomSettingsModalContent} from '../../components/RoomSettingsModalContent';
+import { useRTCStatsListeners } from '../../utils/hooks';
 
 type MeetingScreenProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -110,7 +112,7 @@ const Meeting = () => {
   // hooks
   const dispatch = useDispatch();
   const appState = useRef(AppState.currentState);
-  const {hmsInstance} = useSelector((state: RootState) => state.user);
+  const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
   const isPipModeActive = useSelector(
     (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE,
   );
@@ -176,6 +178,8 @@ const Meeting = () => {
     }
   }, [isPipModeActive]);
 
+  useRTCStatsListeners(modalVisible === ModalTypes.RTC_STATS);
+
   return (
     <SafeAreaView style={styles.container}>
       {isPipModeActive ? null : (
@@ -229,8 +233,8 @@ const DisplayView = (data: {
   const isPipModeActive = useSelector(
     (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE,
   );
-  const {hmsInstance} = useSelector((state: RootState) => state.user);
-  const {peerState} = useSelector((state: RootState) => state.app);
+  const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
+  const peerState = useSelector((state: RootState) => state.app.peerState);
   const navigate = useNavigation<MeetingScreenProp>().navigate;
   const dispatch = useDispatch();
 
@@ -908,7 +912,8 @@ const Header = ({
   setModalVisible: React.Dispatch<React.SetStateAction<ModalTypes>>;
 }) => {
   // hooks
-  const {roomCode, hmsInstance} = useSelector((state: RootState) => state.user);
+  const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
+  const roomCode = useSelector((state: RootState) => state.user.roomCode);
 
   // constants
   const iconSize = 20;
@@ -1114,7 +1119,8 @@ const Footer = ({
 }) => {
   // hooks
   const dispatch = useDispatch();
-  const {hmsInstance, roomID} = useSelector((state: RootState) => state.user);
+  const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
+  const roomID = useSelector((state: RootState) => state.user.roomID);
   const isPipActive = useSelector(
     (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE,
   );
@@ -1296,6 +1302,11 @@ const Footer = ({
           setIsAudioShared={setIsAudioShared}
           setMuteAllTracksAudio={setMuteAllTracksAudio}
         />
+      </DefaultModal>
+      <DefaultModal
+        modalVisible={modalVisible === ModalTypes.RTC_STATS}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        <RtcStatsModal />
       </DefaultModal>
       <DefaultModal
         animationType="fade"
