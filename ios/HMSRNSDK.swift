@@ -1312,13 +1312,16 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
             guard let room = self?.hms?.room,
                   let videoTrack = HMSUtilities.getVideoTrack(for: trackId, in: room),
-                  let remoteVideoTrack = videoTrack as? HMSRemoteVideoTrack
+                  let remoteVideoTrack = videoTrack as? HMSRemoteVideoTrack,
+                  let layerDefinitions = remoteVideoTrack.layerDefinitions
             else {
                 reject?("101", "Could not find Remote Video Track with trackId: \(trackId)", nil)
                 return
             }
             
-            remoteVideoTrack.layerDefinitions
+            let parsedLayerDefinitions = HMSDecoder.getLayerDefinitions(for: layerDefinitions)
+            
+            resolve?(parsedLayerDefinitions)
         }
     }
 
