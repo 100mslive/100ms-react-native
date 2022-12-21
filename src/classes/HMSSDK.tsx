@@ -1290,6 +1290,32 @@ export class HMSSDK {
     return await HMSManager.getSessionMetaData({ id: this.id });
   };
 
+  getRemoteVideoTrackFromTrackId = async (trackId: string) => {
+    logger?.verbose('#Function getRemoteVideoTrackFromTrackId', {
+      id: this.id,
+      trackId,
+    });
+
+    const remoteVideoTrackData = await HMSManager.getRemoteVideoTrackFromTrackId({
+      id: this.id,
+      trackId
+    });
+    return HMSEncoder.encodeHmsRemoteVideoTrack(remoteVideoTrackData, this.id);
+  }
+
+  getRemoteAudioTrackFromTrackId = async (trackId: string) => {
+    logger?.verbose('#Function getRemoteAudioTrackFromTrackId', {
+      id: this.id,
+      trackId,
+    });
+
+    const remoteAudioTrackData = await HMSManager.getRemoteAudioTrackFromTrackId({
+      id: this.id,
+      trackId
+    });
+    return HMSEncoder.encodeHmsRemoteAudioTrack(remoteAudioTrackData, this.id);
+  }
+
   /**
    * - This is a prototype event listener that takes action and listens for updates related to that particular action
    *

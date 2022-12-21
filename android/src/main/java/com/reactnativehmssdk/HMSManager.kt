@@ -826,6 +826,20 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
+  fun getRemoteVideoTrackFromTrackId(data: ReadableMap, promise: Promise) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.getRemoteVideoTrackFromTrackId(data, promise)
+  }
+
+  @ReactMethod
+  fun getRemoteAudioTrackFromTrackId(data: ReadableMap, promise: Promise) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.getRemoteAudioTrackFromTrackId(data, promise)
+  }
+
+  @ReactMethod
   fun getVideoTrackLayer(data: ReadableMap, promise: Promise) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
