@@ -378,7 +378,7 @@ class HMSRNSDK(
               hmsTrack: HMSTrack?,
               hmsPeer: HMSPeer?
             ) {
-              if (!rtcStatsAttached) {
+              if (!rtcStatsAttached || hmsPeer == null || hmsTrack == null) {
                 return
               }
               val localAudioStats = HMSDecoder.getLocalAudioStats(audioStats)
@@ -398,7 +398,7 @@ class HMSRNSDK(
               hmsTrack: HMSTrack?,
               hmsPeer: HMSPeer?
             ) {
-              if (!rtcStatsAttached) {
+              if (!rtcStatsAttached || hmsPeer == null || hmsTrack == null) {
                 return
               }
 
@@ -435,7 +435,7 @@ class HMSRNSDK(
               hmsTrack: HMSTrack?,
               hmsPeer: HMSPeer?
             ) {
-              if (!rtcStatsAttached) {
+              if (!rtcStatsAttached || hmsPeer == null || hmsTrack == null) {
                 return
               }
 
@@ -456,7 +456,7 @@ class HMSRNSDK(
               hmsTrack: HMSTrack?,
               hmsPeer: HMSPeer?
             ) {
-              if (!rtcStatsAttached) {
+              if (!rtcStatsAttached || hmsPeer == null || hmsTrack == null) {
                 return
               }
 
