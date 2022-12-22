@@ -14,6 +14,7 @@
     "ios",
     "cpp",
     "react-native-hms.podspec",
+    "sdk-versions.json",
     "!lib/typescript/example",
     "!android/build",
     "!ios/build",
