@@ -53,6 +53,8 @@ export enum ModalTypes {
   SET_AUDIO_SHARE_VOLUME = 'setAudioShareVolume',
   WELCOME_SETTINGS = 'welcomeSettings',
   BULK_ROLE_CHANGE = 'bulkRoleChange',
+  PEER_SETTINGS = 'peerSettings',
+  STREAMING_QUALITY_SETTING = 'streamingQualitySetting',
   DEFAULT = '',
 }
 

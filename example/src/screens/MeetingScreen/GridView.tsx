@@ -10,11 +10,12 @@ import {DisplayTrack} from './DisplayTrack';
 import type {PeerTrackNode} from '../../utils/types';
 
 type GridViewProps = {
+  onPeerTileLongPress(peerTrackNode: PeerTrackNode): void;
   pairedPeers: PeerTrackNode[][];
   orientation: boolean;
 };
 
-const GridView = ({pairedPeers, orientation}: GridViewProps) => {
+const GridView = ({pairedPeers, orientation, onPeerTileLongPress}: GridViewProps) => {
   // hooks
   const {left, right, top, bottom} = useSafeAreaInsets();
 
@@ -49,7 +50,7 @@ const GridView = ({pairedPeers, orientation}: GridViewProps) => {
                   style={[
                     view?.track?.source !== undefined &&
                     view?.track?.source !== HMSTrackSource.REGULAR
-                      ? styles.flex
+                      ? styles.gridTile
                       : {
                           ...getDisplayTrackDimensions(
                             item.length,
@@ -66,6 +67,7 @@ const GridView = ({pairedPeers, orientation}: GridViewProps) => {
                     videoTrack={view?.track}
                     videoStyles={styles.generalTile}
                     isDegraded={view?.isDegraded}
+                    onPeerTileLongPress={() => onPeerTileLongPress(view)}
                   />
                   {view?.peer?.audioTrack?.isMute() && (
                     <View style={styles.micContainer}>

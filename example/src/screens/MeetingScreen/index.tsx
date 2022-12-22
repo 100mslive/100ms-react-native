@@ -102,6 +102,8 @@ import {HLSView} from './HLSView';
 import PIPView from './PIPView';
 import {RoomSettingsModalContent} from '../../components/RoomSettingsModalContent';
 import { useRTCStatsListeners } from '../../utils/hooks';
+import { PeerSettingsModalContent } from '../../components/PeerSettingsModalContent';
+import { StreamingQualityModalContent } from '../../components/StreamingQualityModalContent';
 
 type MeetingScreenProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -244,6 +246,7 @@ const DisplayView = (data: {
   const [orientation, setOrientation] = useState(true);
   const [layout, setLayout] = useState<LayoutParams>(LayoutParams.GRID);
   const [updatePeer, setUpdatePeer] = useState<HMSPeer>();
+  const [selectedPeerTrackNode, setSelectedPeerTrackNode] = useState<PeerTrackNode | null>(null);
   const [roleChangeRequest, setRoleChangeRequest] = useState<{
     requestedBy?: string;
     suggestedRole?: string;
@@ -251,6 +254,7 @@ const DisplayView = (data: {
 
   // useRef hook
   const peerTrackNodesRef = useRef(peerTrackNodes);
+  const trackToChangeRef = useRef<null | HMSTrack>(null);
 
   // constants
   const pairedPeers = useMemo(
@@ -709,6 +713,11 @@ const DisplayView = (data: {
     data?.setModalVisible(ModalTypes.CHANGE_NAME);
   };
 
+  const handlePeerTileLongPress = (peerTrackNode: PeerTrackNode) => {
+    setSelectedPeerTrackNode(peerTrackNode);
+    data?.setModalVisible(ModalTypes.PEER_SETTINGS);
+  };
+
   const onChangeRolePress = (peer: HMSPeer) => {
     setUpdatePeer(peer);
     data?.setModalVisible(ModalTypes.CHANGE_ROLE);
@@ -717,6 +726,11 @@ const DisplayView = (data: {
   const onSetVolumePress = (peer: HMSPeer) => {
     setUpdatePeer(peer);
     data?.setModalVisible(ModalTypes.VOLUME);
+  };
+
+  const handleStreamingQualityPress = (track: HMSTrack) => {
+    trackToChangeRef.current = track;
+    data?.setModalVisible(ModalTypes.STREAMING_QUALITY_SETTING);
   };
 
   const getHmsRoles = () => {
@@ -767,7 +781,7 @@ const DisplayView = (data: {
           {isPipModeActive ? (
             <PIPView pairedPeers={pairedPeers} />
           ) : (
-            <GridView pairedPeers={pairedPeers} orientation={orientation} />
+            <GridView onPeerTileLongPress={handlePeerTileLongPress} pairedPeers={pairedPeers} orientation={orientation} />
           )}
         </>
       ) : layout === LayoutParams.HLS ? (
@@ -786,6 +800,42 @@ const DisplayView = (data: {
 
       {isPipModeActive ? null : (
         <>
+          <DefaultModal
+            animationType="fade"
+            overlay={false}
+            modalPosiion="center"
+            viewStyle={{minWidth: '70%', width: undefined}}
+            modalVisible={data?.modalVisible === ModalTypes.PEER_SETTINGS}
+            setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}
+          >
+            {selectedPeerTrackNode && data?.localPeer ? (
+              <PeerSettingsModalContent
+                localPeer={data.localPeer}
+                peerTrackNode={selectedPeerTrackNode}
+                cancelModal={() => data?.setModalVisible(ModalTypes.DEFAULT)}
+                onChangeNamePress={onChangeNamePress}
+                onChangeRolePress={onChangeRolePress}
+                onSetVolumePress={onSetVolumePress}
+                onStreamingQualityPress={handleStreamingQualityPress}
+              />
+            ) : null}
+          </DefaultModal>
+          <DefaultModal
+            animationType="fade"
+            overlay={false}
+            modalPosiion="center"
+            modalVisible={data?.modalVisible === ModalTypes.STREAMING_QUALITY_SETTING}
+            setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}
+          >
+            {trackToChangeRef.current ? (
+              <StreamingQualityModalContent
+                track={trackToChangeRef.current}
+                cancelModal={() => {
+                  data?.setModalVisible(ModalTypes.DEFAULT);
+                }}
+              />
+            ) : null}
+          </DefaultModal>
           <DefaultModal
             animationType="fade"
             overlay={false}

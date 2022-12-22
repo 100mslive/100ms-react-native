@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, StyleProp, ViewStyle} from 'react-native';
+import {View, Text, StyleProp, ViewStyle, Pressable} from 'react-native';
 import { HMSTrackSource, HMSTrackType } from '@100mslive/react-native-hms';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useSelector} from 'react-redux';
@@ -14,6 +14,7 @@ interface DisplayTrackProps extends PeerDisplayViewProps  {
   // miniView?: boolean;
   // peerTrackNode: PeerTrackNode;
   videoStyles: StyleProp<ViewStyle>;
+  onPeerTileLongPress(): void;
 };
 
 const DisplayTrack = ({
@@ -25,6 +26,7 @@ const DisplayTrack = ({
   peer,
   videoTrack,
   videoStyles,
+  onPeerTileLongPress,
 }: DisplayTrackProps) => {
   // hooks
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
@@ -42,7 +44,7 @@ const DisplayTrack = ({
       {isLocal &&
       videoTrack?.source === HMSTrackSource.SCREEN &&
       videoTrack?.type === HMSTrackType.VIDEO ? (
-        <View style={styles.screenshareContainer}>
+        <Pressable onLongPress={onPeerTileLongPress} style={styles.screenshareContainer}>
           <MaterialCommunityIcons
             name="monitor-share"
             style={styles.icon}
@@ -57,14 +59,21 @@ const DisplayTrack = ({
             viewStyle={styles.screenshareButton}
             textStyle={styles.roleChangeModalButtonText}
           />
-        </View>
+        </Pressable>
       ) : (
-        <PeerDisplayView 
-          peer={peer}
-          isDegraded={isDegraded}
-          isLocal={isLocal}
-          videoTrack={videoTrack}
-        />
+        <>
+          <PeerDisplayView
+            peer={peer}
+            isDegraded={isDegraded}
+            isLocal={isLocal}
+            videoTrack={videoTrack}
+          />
+
+          <Pressable
+            onLongPress={onPeerTileLongPress}
+            style={styles.tilePressableView}
+          />
+        </>
       )}
       <View style={styles.peerNameContainer}>
         <Text numberOfLines={2} style={styles.peerName}>
