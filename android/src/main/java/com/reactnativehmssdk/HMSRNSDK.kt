@@ -1543,7 +1543,7 @@ class HMSRNSDK(
       val trackId = data.getString("trackId")
       val layerString = data.getString("layer")
 
-      if (HMSLayer.values().find { it.name === layerString } === null) {
+      if (HMSLayer.values().find { it.name == layerString } === null) {
         // DOUBT: which error to throw here?
         // emitError or 101 or 6000?
         promise?.reject("101", "INVALID_LAYER")
