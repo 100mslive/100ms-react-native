@@ -1,6 +1,6 @@
 import groovy.json.JsonSlurper
 
-def sdkVersionsJson = new JsonSlurper().parse file("$rootDir/../../sdk-versions.json")
+def sdkVersionsJson = new JsonSlurper().parse file("../sdk-versions.json")
 
 buildscript {
     ext.kotlin_version = '1.5.30-RC'
