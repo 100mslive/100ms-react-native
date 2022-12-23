@@ -31,6 +31,7 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
 
     hmsVideoView = view.findViewById(R.id.hmsVideoView)
     hmsVideoView.setEnableHardwareScaler(false)
+    // TODO: Set Default `autoSimulcast` on HMSVideoView to true
   }
 
   @RequiresApi(Build.VERSION_CODES.N)
@@ -109,6 +110,12 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
         hmsVideoView.setMirror(mirror)
       }
       videoTrack = hms.getRoom()?.let { HmsUtilities.getVideoTrack(trackId, it) }
+    }
+  }
+
+  fun updateAutoSimulcast(autoSimulcast: Boolean?) {
+    if (autoSimulcast !== null) {
+      // TODO: Set `autoSimulcast` on HMSVideoView to value passed from RN side
     }
   }
 }

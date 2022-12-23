@@ -35,6 +35,12 @@ class HmssdkDisplayView: UIView {
         hmsCollection = hmsInstance
     }
 
+    @objc var autoSimulcast: Boolean = true {
+        didSet {
+            videoView.disableAutoSimulcastLayerSelect = !autoSimulcast
+        }
+    }
+
     @objc var scaleType: String = "ASPECT_FILL" {
         didSet {
             switch scaleType {
