@@ -26,7 +26,7 @@ const HmsView = requireNativeComponent<HmsViewProps>('HMSView');
 let _nextRequestId = 1;
 let _requestMap = new Map();
 
-interface HmsComponentProps {
+export interface HmsComponentProps {
   trackId: string;
   style?: ViewStyle;
   mirror?: boolean;
