@@ -25,6 +25,7 @@ type IntialStateType = {
     audioMixer: boolean; // IOS only
     softwareDecoder: boolean; // Android only
     autoResize: boolean; // Android only
+    autoSimulcast: boolean;
     showStats: boolean;
   };
 };
@@ -41,6 +42,7 @@ const INITIAL_STATE: IntialStateType = {
     audioMixer: false, // IOS only
     softwareDecoder: true, // Android only
     autoResize: false, // Android only
+    autoSimulcast: true,
     showStats: false,
   },
 };
@@ -120,6 +122,14 @@ const appReducer = (
         joinConfig: {
           ...state.joinConfig,
           autoResize: action.payload.autoResize ?? false,
+        },
+      };
+    case ActionTypes.CHANGE_AUTO_SIMULCAST:
+      return {
+        ...state,
+        joinConfig: {
+          ...state.joinConfig,
+          autoSimulcast: action.payload.autoSimulcast ?? true,
         },
       };
     case ActionTypes.SET_RTC_STATS:
