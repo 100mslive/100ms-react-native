@@ -75,6 +75,8 @@ export * from './classes/HMSLogSettings';
 export * from './classes/HMSLogAlarmManager';
 export * from './classes/HMSMessageType';
 export * from './classes/HMSPIPListenerActions';
+export * from './classes/HMSLayer';
+export * from './classes/HMSSimulcastLayerDefinition';
 
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
 export default HmsManager;

@@ -1466,6 +1466,40 @@ class HMSRNSDK(
     )
   }
 
+  fun getRemoteVideoTrackFromTrackId(data: ReadableMap, promise: Promise) {
+    val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("trackId", "String")))
+    if (requiredKeys === null) {
+      val trackId = data.getString("trackId")
+      val remoteVideoTrack = HMSHelper.getRemoteVideoTrackFromTrackId(trackId, hmsSDK?.getRoom())
+      if (remoteVideoTrack === null) {
+        promise.reject("101", "TRACK_NOT_FOUND")
+      } else {
+        promise.resolve(HMSDecoder.getHmsRemoteVideoTrack(remoteVideoTrack))
+      }
+    } else {
+      val errorMessage = "getRemoteVideoTrackFromTrackId: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(promise, errorMessage)
+    }
+  }
+
+  fun getRemoteAudioTrackFromTrackId(data: ReadableMap, promise: Promise) {
+    val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("trackId", "String")))
+    if (requiredKeys === null) {
+      val trackId = data.getString("trackId")
+      val remoteAudioTrack = HMSHelper.getRemoteAudioTrackFromTrackId(trackId, hmsSDK?.getRoom())
+      if (remoteAudioTrack === null) {
+        promise.reject("101", "TRACK_NOT_FOUND")
+      } else {
+        promise.resolve(HMSDecoder.getHmsRemoteAudioTrack(remoteAudioTrack))
+      }
+    } else {
+      val errorMessage = "getRemoteAudioTrackFromTrackId: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(promise, errorMessage)
+    }
+  }
+
   fun getVideoTrackLayer(data: ReadableMap, promise: Promise) {
     val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("trackId", "String")))
     if (requiredKeys === null) {
@@ -1509,7 +1543,7 @@ class HMSRNSDK(
       val trackId = data.getString("trackId")
       val layerString = data.getString("layer")
 
-      if (HMSLayer.values().find { it.name === layerString } === null) {
+      if (HMSLayer.values().find { it.name == layerString } === null) {
         promise?.reject("101", "INVALID_LAYER")
         return
       }
