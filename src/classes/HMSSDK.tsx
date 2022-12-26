@@ -4,7 +4,6 @@ import {
   NativeEventEmitter,
   NativeModules,
   Platform,
-  ViewStyle,
 } from 'react-native';
 
 import { HMSEncoder } from './HMSEncoder';
@@ -16,7 +15,7 @@ import { HMSRemoteAudioStats } from './HMSRemoteAudioStats';
 import { HMSRemoteVideoStats } from './HMSRemoteVideoStats';
 import { HMSTrackType } from './HMSTrackType';
 import { HMSUpdateListenerActions } from './HMSUpdateListenerActions';
-import { HmsViewComponent } from './HmsView';
+import { HmsViewComponent, HmsComponentProps } from './HmsView';
 
 import type { HMSConfig } from './HMSConfig';
 import type { HMSLocalPeer } from './HMSLocalPeer';
@@ -39,13 +38,7 @@ import type { HMSRemoteVideoTrack } from './HMSRemoteVideoTrack';
 import type { HMSLayer } from './HMSLayer';
 import { HMSPIPListenerActions } from './HMSPIPListenerActions';
 
-interface HmsViewProps {
-  trackId: string;
-  style?: ViewStyle;
-  mirror?: boolean;
-  scaleType?: HMSVideoViewMode;
-  setZOrderMediaOverlay?: boolean;
-}
+type HmsViewProps = Omit<HmsComponentProps, "id">;
 
 // TODO: Rename to HMSPIPConfig & to be moved to a separate file
 interface PIPConfig {
@@ -443,6 +436,7 @@ export class HMSSDK {
    * - The appearance of tile is completely customizable with style prop.
    * - Scale type can determine how the incoming video will fit in the canvas check {@link HMSVideoViewMode} for more information.
    * - Mirror to flip the video vertically.
+   * - Auto Simulcast to automatically select the best Streaming Quality of track if feature is enabled in Room.
    *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/render-video} for more info
    *
@@ -450,12 +444,13 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   HmsView = React.forwardRef<any, HmsViewProps>((props, ref) => {
-    const { trackId, style, mirror, scaleType, setZOrderMediaOverlay } = props;
+    const { trackId, style, mirror, scaleType, setZOrderMediaOverlay, autoSimulcast } = props;
     return (
       <HmsViewComponent
         ref={ref}
         trackId={trackId}
         style={style}
+        autoSimulcast={autoSimulcast}
         setZOrderMediaOverlay={setZOrderMediaOverlay}
         mirror={mirror}
         scaleType={scaleType}

@@ -71,6 +71,8 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"  // From node_modules
     // implementation "live.100ms:android-sdk:${sdkVersions["android"]}"
     implementation "com.github.100mslive.android-sdk:lib:release-v2-SNAPSHOT"
+    //implementation "live.100ms:video-view:${sdkVersions["hmsAndroidVideoView"]}"
+    implementation 'com.github.100mslive.android-sdk:videoview:release-v2-SNAPSHOT'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
     implementation 'androidx.appcompat:appcompat:1.3.1'

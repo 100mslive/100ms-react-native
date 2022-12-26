@@ -88,6 +88,11 @@ export const changeAutoResize = (value: boolean) => ({
   payload: {autoResize: value},
 });
 
+export const changeAutoSimulcast = (value: boolean) => ({
+  type: actionTypes.CHANGE_AUTO_SIMULCAST,
+  payload: {autoSimulcast: value},
+});
+
 export const setRTCStats = (
   trackId: string,
   stats: HMSLocalAudioStats | HMSLocalVideoStats | HMSRemoteAudioStats | HMSRemoteVideoStats
