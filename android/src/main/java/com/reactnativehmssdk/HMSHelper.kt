@@ -545,6 +545,7 @@ object HMSHelper {
     return config
   }
 
+  // TODO: replace surfaceView with hmsVideoView
   @RequiresApi(Build.VERSION_CODES.N)
   fun captureSurfaceView(
       surfaceView: SurfaceViewRenderer,

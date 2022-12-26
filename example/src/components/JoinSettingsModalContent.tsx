@@ -12,6 +12,7 @@ import {
 import FontAwesomeIcons from 'react-native-vector-icons/FontAwesome';
 import IoniconsIcons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
 
 import {COLORS} from '../utils/theme';
@@ -31,6 +32,7 @@ import {
   changeMirrorCamera,
   changeSoftwareDecoder,
   changeAutoResize,
+  changeAutoSimulcast,
   resetJoinConfig,
 } from '../redux/actions';
 
@@ -50,6 +52,7 @@ export const JoinSettingsModalContent: React.FC<
     audioMixer,
     softwareDecoder,
     autoResize,
+    autoSimulcast,
   } = joinConfig;
 
   return (
@@ -147,6 +150,20 @@ export const JoinSettingsModalContent: React.FC<
               containerStyle={styles.switchContainer}
             />
           ) : null}
+
+          <SwitchRow
+            text="Auto Simulcast"
+            value={autoSimulcast}
+            onChange={value => dispatch(changeAutoSimulcast(value))}
+            LeftIcon={
+              <MaterialIcons
+                name="auto-awesome-motion"
+                size={24}
+                style={styles.icon}
+              />
+            }
+            containerStyle={styles.switchContainer}
+          />
 
           <SwitchRow
             text="Show RTC Stats"
