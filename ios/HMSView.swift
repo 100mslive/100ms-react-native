@@ -35,7 +35,7 @@ class HmssdkDisplayView: UIView {
         hmsCollection = hmsInstance
     }
 
-    @objc var autoSimulcast: Boolean = true {
+    @objc var autoSimulcast = true {
         didSet {
             videoView.disableAutoSimulcastLayerSelect = !autoSimulcast
         }

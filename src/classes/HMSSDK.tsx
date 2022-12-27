@@ -38,7 +38,7 @@ import type { HMSRemoteVideoTrack } from './HMSRemoteVideoTrack';
 import type { HMSLayer } from './HMSLayer';
 import { HMSPIPListenerActions } from './HMSPIPListenerActions';
 
-type HmsViewProps = Omit<HmsComponentProps, "id">;
+type HmsViewProps = Omit<HmsComponentProps, 'id'>;
 
 // TODO: Rename to HMSPIPConfig & to be moved to a separate file
 interface PIPConfig {
@@ -444,7 +444,14 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   HmsView = React.forwardRef<any, HmsViewProps>((props, ref) => {
-    const { trackId, style, mirror, scaleType, setZOrderMediaOverlay, autoSimulcast } = props;
+    const {
+      trackId,
+      style,
+      mirror,
+      scaleType,
+      setZOrderMediaOverlay,
+      autoSimulcast,
+    } = props;
     return (
       <HmsViewComponent
         ref={ref}
@@ -1291,12 +1298,13 @@ export class HMSSDK {
       trackId,
     });
 
-    const remoteVideoTrackData = await HMSManager.getRemoteVideoTrackFromTrackId({
-      id: this.id,
-      trackId
-    });
+    const remoteVideoTrackData =
+      await HMSManager.getRemoteVideoTrackFromTrackId({
+        id: this.id,
+        trackId,
+      });
     return HMSEncoder.encodeHmsRemoteVideoTrack(remoteVideoTrackData, this.id);
-  }
+  };
 
   getRemoteAudioTrackFromTrackId = async (trackId: string) => {
     logger?.verbose('#Function getRemoteAudioTrackFromTrackId', {
@@ -1304,12 +1312,13 @@ export class HMSSDK {
       trackId,
     });
 
-    const remoteAudioTrackData = await HMSManager.getRemoteAudioTrackFromTrackId({
-      id: this.id,
-      trackId
-    });
+    const remoteAudioTrackData =
+      await HMSManager.getRemoteAudioTrackFromTrackId({
+        id: this.id,
+        trackId,
+      });
     return HMSEncoder.encodeHmsRemoteAudioTrack(remoteAudioTrackData, this.id);
-  }
+  };
 
   /**
    * - This is a prototype event listener that takes action and listens for updates related to that particular action
@@ -1535,6 +1544,10 @@ export class HMSSDK {
     if (this.onJoinDelegate) {
       logger?.verbose('#Listener ON_JOIN_LISTENER_CALL', {
         room,
+      });
+      let jsonRoom = JSON.stringify(room);
+      logger?.verbose('#MYYYListener ON_JOIN_LISTENER_CALL', {
+        jsonRoom,
       });
       this.onJoinDelegate({ room });
     }

@@ -34,10 +34,10 @@ const PeerDisplayView = ({
     (state: RootState) => state.app.joinConfig.mirrorCamera,
   );
   const autoSimulcast = useSelector(
-    (state: RootState) => state.app.joinConfig.autoSimulcast
+    (state: RootState) => state.app.joinConfig.autoSimulcast,
   );
   const showStatsOnTiles = useSelector(
-    (state: RootState) => state.app.joinConfig.showStats
+    (state: RootState) => state.app.joinConfig.showStats,
   );
 
   if (!HmsView) {
@@ -85,10 +85,7 @@ const PeerDisplayView = ({
       )}
 
       {showStatsOnTiles ? (
-        <PeerRTCStatsView
-          trackId={videoTrack?.trackId}
-          peerId={peer.peerID}
-        />
+        <PeerRTCStatsView trackId={videoTrack?.trackId} peerId={peer.peerID} />
       ) : null}
     </View>
   );

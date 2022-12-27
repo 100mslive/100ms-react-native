@@ -15,7 +15,11 @@ type GridViewProps = {
   orientation: boolean;
 };
 
-const GridView = ({pairedPeers, orientation, onPeerTileLongPress}: GridViewProps) => {
+const GridView = ({
+  pairedPeers,
+  orientation,
+  onPeerTileLongPress,
+}: GridViewProps) => {
   // hooks
   const {left, right, top, bottom} = useSafeAreaInsets();
 
@@ -43,7 +47,8 @@ const GridView = ({pairedPeers, orientation, onPeerTileLongPress}: GridViewProps
             style={[
               styles.page,
               {width: Dimensions.get('window').width - left - right},
-            ]}>
+            ]}
+          >
             {item?.map(view => {
               return (
                 <View
@@ -60,7 +65,8 @@ const GridView = ({pairedPeers, orientation, onPeerTileLongPress}: GridViewProps
                           ),
                         },
                   ]}
-                  key={view.id}>
+                  key={view.id}
+                >
                   <DisplayTrack
                     isLocal={view?.peer?.isLocal}
                     peer={view?.peer}

@@ -304,7 +304,7 @@ export const RoomSettingsModalContent: React.FC<
 
         <SettingItem
           onPress={showRTCStats}
-          text='Show RTC Stats'
+          text="Show RTC Stats"
           IconType={MaterialCommunityIcons}
           iconName={'clipboard-pulse-outline'}
         />

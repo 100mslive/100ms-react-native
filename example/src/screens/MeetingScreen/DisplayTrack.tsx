@@ -1,21 +1,21 @@
 import React from 'react';
 import {View, Text, StyleProp, ViewStyle, Pressable} from 'react-native';
-import { HMSTrackSource, HMSTrackType } from '@100mslive/react-native-hms';
+import {HMSTrackSource, HMSTrackType} from '@100mslive/react-native-hms';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useSelector} from 'react-redux';
 
 import {CustomButton} from '../../components';
 import {styles} from './styles';
 import type {RootState} from '../../redux';
-import PeerDisplayView, { PeerDisplayViewProps } from './PeerDisplayView';
+import PeerDisplayView, {PeerDisplayViewProps} from './PeerDisplayView';
 
-interface DisplayTrackProps extends PeerDisplayViewProps  {
+interface DisplayTrackProps extends PeerDisplayViewProps {
   // layout?: LayoutParams;
   // miniView?: boolean;
   // peerTrackNode: PeerTrackNode;
   videoStyles: StyleProp<ViewStyle>;
   onPeerTileLongPress(): void;
-};
+}
 
 const DisplayTrack = ({
   // layout,
@@ -44,7 +44,10 @@ const DisplayTrack = ({
       {isLocal &&
       videoTrack?.source === HMSTrackSource.SCREEN &&
       videoTrack?.type === HMSTrackType.VIDEO ? (
-        <Pressable onLongPress={onPeerTileLongPress} style={styles.screenshareContainer}>
+        <Pressable
+          onLongPress={onPeerTileLongPress}
+          style={styles.screenshareContainer}
+        >
           <MaterialCommunityIcons
             name="monitor-share"
             style={styles.icon}

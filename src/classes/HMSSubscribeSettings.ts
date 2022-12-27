@@ -1,4 +1,4 @@
-import type { HMSSubscribeDegradationPolicy } from "./HMSSubscribeDegradationPolicy";
+import type { HMSSubscribeDegradationPolicy } from './HMSSubscribeDegradationPolicy';
 
 export class HMSSubscribeSettings {
   subscribeTo?: [string];

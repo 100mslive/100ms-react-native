@@ -24,7 +24,7 @@ import * as services from '../services/index';
 import {PERMISSIONS, requestMultiple, RESULTS} from 'react-native-permissions';
 
 export const getMeetingUrl = () =>
-  'https://yogi.app.100ms.live/streaming/meeting/nih-bkn-vek';
+  'https://yogi-live.app.100ms.live/streaming/preview/qii-tow-sjq';
 
 export const getMeetingCode = () => 'nih-bkn-vek';
 

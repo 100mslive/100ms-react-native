@@ -400,28 +400,63 @@ export class HMSEncoder {
   }
 
   static encodeBrowserRecordingState(data: any) {
+    var startedAt = undefined;
+    if (data?.startedAt != null) {
+      startedAt = new Date(parseInt(data?.startedAt));
+    }
+
+    var stoppedAt = undefined;
+    if (data?.stoppedAt != null) {
+      stoppedAt = new Date(parseInt(data?.stoppedAt));
+    }
+
     return new HMSBrowserRecordingState({
       running: data?.running,
-      startedAt: new Date(parseInt(data?.startedAt)),
-      stoppedAt: new Date(parseInt(data?.stoppedAt)),
+      startedAt: startedAt,
+      stoppedAt: stoppedAt,
       error: data?.error,
     });
   }
 
   static encodeServerRecordingState(data: any) {
+    var error = undefined;
+    if (data?.error != null) {
+      error = data?.error;
+    }
+
+    var startedAt = undefined;
+    if (data?.startedAt != null) {
+      startedAt = new Date(parseInt(data?.startedAt));
+    }
+
     return new HMSServerRecordingState({
       running: data?.running,
-      error: data?.error,
-      startedAt: new Date(parseInt(data?.startedAt)),
+      error: error,
+      startedAt: startedAt,
     });
   }
 
   static encodeRTMPStreamingState(data: any) {
+    var startedAt = undefined;
+    if (data?.startedAt != null) {
+      startedAt = new Date(parseInt(data?.startedAt));
+    }
+
+    var stoppedAt = undefined;
+    if (data?.stoppedAt != null) {
+      stoppedAt = new Date(parseInt(data?.stoppedAt));
+    }
+
+    var error = undefined;
+    if (data?.error != null) {
+      error = data?.error;
+    }
+
     return new HMSRtmpStreamingState({
       running: data?.running,
-      startedAt: new Date(parseInt(data?.startedAt)),
-      stoppedAt: new Date(parseInt(data?.stoppedAt)),
-      error: data?.error,
+      startedAt: startedAt,
+      stoppedAt: stoppedAt,
+      error: error,
     });
   }
 
@@ -434,9 +469,14 @@ export class HMSEncoder {
 
   static encodeHLSRecordingState(data: any) {
     if (data) {
+      var startedAt = undefined;
+      if (data?.startedAt != null) {
+        startedAt = new Date(parseInt(data?.startedAt));
+      }
+
       return new HMSHLSRecordingState({
         running: data?.running,
-        startedAt: new Date(parseInt(data?.startedAt)),
+        startedAt: startedAt,
         singleFilePerLayer: data?.singleFilePerLayer,
         videoOnDemand: data?.videoOnDemand,
       });
@@ -449,11 +489,15 @@ export class HMSEncoder {
     let variants: HMSHLSVariant[] = [];
 
     data?.map((item: any) => {
+      var startedAt = undefined;
+      if (data?.startedAt != null) {
+        startedAt = new Date(parseInt(data?.startedAt));
+      }
       let variant = new HMSHLSVariant({
         hlsStreamUrl: item.hlsStreamUrl,
         meetingUrl: item.meetingUrl,
         metadata: item?.metadata,
-        startedAt: new Date(parseInt(item?.startedAt)),
+        startedAt: startedAt,
       });
       variants.push(variant);
     });

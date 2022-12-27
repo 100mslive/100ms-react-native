@@ -37,8 +37,10 @@ const PeerRTCStatsView: React.FC<PeerRTCStatsViewProps> = ({
       </Text>
       <Text style={styles.statsText}>
         FPS{' '}
-        {(videoTrackStats && 'frameRate' in videoTrackStats && videoTrackStats.frameRate
-          ? parseInt(videoTrackStats.frameRate.toString() ?? "0")
+        {(videoTrackStats &&
+        'frameRate' in videoTrackStats &&
+        videoTrackStats.frameRate
+          ? parseInt(videoTrackStats.frameRate.toString() ?? '0')
           : 0) ?? 0}
       </Text>
       <Text style={styles.statsText}>

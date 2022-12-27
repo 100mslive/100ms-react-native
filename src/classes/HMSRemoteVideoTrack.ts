@@ -16,6 +16,21 @@ const {
 export class HMSRemoteVideoTrack extends HMSVideoTrack {
   layer?: HMSLayer;
 
+  constructor(params: {
+    trackId: string;
+    source?: number | string;
+    trackDescription?: string;
+    isMute?: boolean;
+    layer?: HMSLayer;
+    playbackAllowed?: boolean;
+    id: string;
+    isDegraded?: boolean;
+    type?: HMSTrackType;
+  }) {
+    super(params);
+    this.layer = params.layer;
+  }
+
   /**
    * Switches Video of remote user on/off depending upon the value of playbackAllowed
    *
@@ -87,11 +102,7 @@ export class HMSRemoteVideoTrack extends HMSVideoTrack {
         trackId: this.trackId,
       });
 
-      return HMSEncoder.encodeHMSSimulcastLayerDefinition(layerDefinition);
-    } else {
-      console.log('API currently not available for iOS');
-      return 'API currently not available for iOS';
-    }
+    return HMSEncoder.encodeHMSSimulcastLayerDefinition(layerDefinition);
   }
 
   async setLayer(layer: HMSLayer) {
@@ -113,20 +124,5 @@ export class HMSRemoteVideoTrack extends HMSVideoTrack {
     }
 
     return success;
-  }
-
-  constructor(params: {
-    trackId: string;
-    source?: number | string;
-    trackDescription?: string;
-    isMute?: boolean;
-    layer?: HMSLayer;
-    playbackAllowed?: boolean;
-    id: string;
-    isDegraded?: boolean;
-    type?: HMSTrackType;
-  }) {
-    super(params);
-    this.layer = params.layer;
   }
 }
