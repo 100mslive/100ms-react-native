@@ -101,9 +101,9 @@ import {GridView} from './GridView';
 import {HLSView} from './HLSView';
 import PIPView from './PIPView';
 import {RoomSettingsModalContent} from '../../components/RoomSettingsModalContent';
-import { useRTCStatsListeners } from '../../utils/hooks';
-import { PeerSettingsModalContent } from '../../components/PeerSettingsModalContent';
-import { StreamingQualityModalContent } from '../../components/StreamingQualityModalContent';
+import {useRTCStatsListeners} from '../../utils/hooks';
+import {PeerSettingsModalContent} from '../../components/PeerSettingsModalContent';
+import {StreamingQualityModalContent} from '../../components/StreamingQualityModalContent';
 
 type MeetingScreenProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -246,7 +246,8 @@ const DisplayView = (data: {
   const [orientation, setOrientation] = useState(true);
   const [layout, setLayout] = useState<LayoutParams>(LayoutParams.GRID);
   const [updatePeer, setUpdatePeer] = useState<HMSPeer>();
-  const [selectedPeerTrackNode, setSelectedPeerTrackNode] = useState<PeerTrackNode | null>(null);
+  const [selectedPeerTrackNode, setSelectedPeerTrackNode] =
+    useState<PeerTrackNode | null>(null);
   const [roleChangeRequest, setRoleChangeRequest] = useState<{
     requestedBy?: string;
     suggestedRole?: string;
@@ -781,7 +782,11 @@ const DisplayView = (data: {
           {isPipModeActive ? (
             <PIPView pairedPeers={pairedPeers} />
           ) : (
-            <GridView onPeerTileLongPress={handlePeerTileLongPress} pairedPeers={pairedPeers} orientation={orientation} />
+            <GridView
+              onPeerTileLongPress={handlePeerTileLongPress}
+              pairedPeers={pairedPeers}
+              orientation={orientation}
+            />
           )}
         </>
       ) : layout === LayoutParams.HLS ? (
@@ -824,7 +829,9 @@ const DisplayView = (data: {
             animationType="fade"
             overlay={false}
             modalPosiion="center"
-            modalVisible={data?.modalVisible === ModalTypes.STREAMING_QUALITY_SETTING}
+            modalVisible={
+              data?.modalVisible === ModalTypes.STREAMING_QUALITY_SETTING
+            }
             setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}
           >
             {trackToChangeRef.current ? (
@@ -1355,7 +1362,8 @@ const Footer = ({
       </DefaultModal>
       <DefaultModal
         modalVisible={modalVisible === ModalTypes.RTC_STATS}
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+      >
         <RtcStatsModal />
       </DefaultModal>
       <DefaultModal

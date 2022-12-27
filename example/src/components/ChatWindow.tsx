@@ -90,14 +90,16 @@ const ChatFilter = ({
         </TouchableOpacity>
       }
       onRequestClose={hideMenu}
-      style={styles.chatMenuContainer}>
+      style={styles.chatMenuContainer}
+    >
       <MenuItem
         onPress={() => {
           hideMenu();
           setType('everyone');
           setReceiverObject('everyone');
           setFilter('everyone');
-        }}>
+        }}
+      >
         <View style={styles.chatMenuItem}>
           <Ionicons
             name="people-outline"
@@ -117,7 +119,8 @@ const ChatFilter = ({
               setReceiverObject(knownRole);
               setFilter(knownRole?.name!);
             }}
-            key={knownRole.name}>
+            key={knownRole.name}
+          >
             <View style={styles.chatMenuItem}>
               <Text style={styles.chatMenuItemName}>{knownRole?.name}</Text>
             </View>
@@ -134,7 +137,8 @@ const ChatFilter = ({
               setReceiverObject(remotePeer);
               setFilter(remotePeer.name);
             }}
-            key={remotePeer.name}>
+            key={remotePeer.name}
+          >
             <View style={styles.chatMenuItem}>
               <Ionicons
                 name="person-outline"
@@ -186,7 +190,8 @@ const ChatList = ({
                 styles.privateMessageBubble,
               isLocal && styles.sendMessageBubble,
             ]}
-            key={index}>
+            key={index}
+          >
             <View style={styles.headingContainer}>
               <View style={styles.headingLeftContainer}>
                 <Text style={styles.senderName}>
@@ -252,7 +257,9 @@ const ChatList = ({
 export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
   // hooks
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
-  const pinnedMessage = useSelector((state: RootState) => state.messages.pinnedMessage);
+  const pinnedMessage = useSelector(
+    (state: RootState) => state.messages.pinnedMessage,
+  );
   const dispatch = useDispatch();
   const {bottom} = useSafeAreaInsets();
 
@@ -373,7 +380,8 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
         <ChatList setSessionMetaData={setSessionMetaData} />
       </View>
       <View
-        style={bottom === 0 ? styles.inputContainer : {marginBottom: bottom}}>
+        style={bottom === 0 ? styles.inputContainer : {marginBottom: bottom}}
+      >
         <CustomInput
           value={text}
           onChangeText={setText}
