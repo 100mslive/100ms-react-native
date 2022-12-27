@@ -1,6 +1,6 @@
 {
-  "ios": "0.5.3",
   "android": "2.5.5",
-  "hmsAndroidVideoView": "2.5.3",
+  "hmsAndroidVideoView": "2.5.5",
+  "ios": "0.5.4",
   "iOSBroadcastExtension": "0.0.7"
 }
