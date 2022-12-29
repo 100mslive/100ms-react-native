@@ -37,9 +37,7 @@ export const Content: React.FC<ContentProps> = (props) => {
 	const { peerTrackNodes, loading, activeSpeakers, leaveMeeting } = usePeerTrackNodes();
 
 	const _renderItem = ({ item }: { item: PeerTrackNode }) => {
-		// DOUBT: can two tiles have same source with same peer?
-
-    // checking if current PeerTrackNode is active speaker
+		// checking if current PeerTrackNode is active speaker
 		const isActiveSpeaker = activeSpeakers.some(activeSpeaker => {
 			return getPeerTrackNodeId(activeSpeaker.peer, activeSpeaker.track) === item.id
 		});

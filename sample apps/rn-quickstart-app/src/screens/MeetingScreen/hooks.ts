@@ -48,28 +48,10 @@ type MeetingScreenParams = RouteProp<AppStackParamList, 'MeetingScreen'>
  * For more info, checkout {@link https://www.100ms.live/docs/react-native/v2/advanced-features/track-settings | Track Settings}
  */
 const getTrackSettings = ({ mutedAudio, mutedVideo }: { mutedAudio: boolean, mutedVideo: boolean }) => {
-	const listOfFaultyDevices = [
-		'Pixel',
-		'Pixel XL',
-		'Moto G5',
-		'Moto G (5S) Plus',
-		'Moto G4',
-		'TA-1053',
-		'Mi A1',
-		'Mi A2',
-		'E5823', // Sony z5 compact
-		'Redmi Note 5',
-		'FP2', // Fairphone FP2
-		'MI 5',
-	];
-	// DOUBT: do we have to add device modal?
-	const deviceModal = '';
-
 	let audioSettings = new HMSAudioTrackSettings({
 		initialState: mutedAudio
 			? HMSTrackSettingsInitState.MUTED
 			: HMSTrackSettingsInitState.UNMUTED,
-		useHardwareEchoCancellation: listOfFaultyDevices.includes(deviceModal) // DOUBT: remove this?
 	});
 
 	let videoSettings = new HMSVideoTrackSettings({
@@ -77,8 +59,7 @@ const getTrackSettings = ({ mutedAudio, mutedVideo }: { mutedAudio: boolean, mut
 			? HMSTrackSettingsInitState.MUTED
 			: HMSTrackSettingsInitState.UNMUTED,
 		cameraFacing: HMSCameraFacing.FRONT,
-		disableAutoResize: true, // DOUBT: remove this?
-		forceSoftwareDecoder: true, // DOUBT: remove this?
+		forceSoftwareDecoder: true,
 	});
 
 	return new HMSTrackSettings({
@@ -347,8 +328,6 @@ export const usePeerTrackNodes = () => {
 			type === HMSTrackUpdate.TRACK_RESTORED ||
 			type === HMSTrackUpdate.TRACK_DEGRADED
 		) {
-			// DOUBT: does TRACK_RESTORED and TRACK_DEGRADED only emitted for video track?
-
 			// Updating the Tiles with Track, Peer and correct `isDegraded` value.
 			// `updateNode` function updates "Track object, Peer object and isDegraded value" in PeerTrackNodes and returns updated list.
 			// Note: We are not creating new PeerTrackNode object.
