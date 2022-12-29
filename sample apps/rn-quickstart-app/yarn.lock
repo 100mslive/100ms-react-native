@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-"@100mslive/react-native-hms@1.1.1":
+"@100mslive/react-native-hms@^1.1.1":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@100mslive/react-native-hms/-/react-native-hms-1.1.1.tgz#55ba95e1e6f7557a01c9b232cabf5a14400bdaf1"
   integrity sha512-i52P8uiezcFVUfubjfwrKGWiEd+EhJkycc5f/5n8hRh/TkMpEfx4Ar/6PsqOJsoAa/gSHsRJctguoEVwwHWNVQ==

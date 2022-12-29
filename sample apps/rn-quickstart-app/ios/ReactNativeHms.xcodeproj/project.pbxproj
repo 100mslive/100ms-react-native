@@ -8,11 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* ReactNativeHmsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* ReactNativeHmsTests.m */; };
-		0C80B921A6F3F58F76C31292 /* libPods-ReactNativeHms.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCACB8F33CDC322A6C60F78 /* libPods-ReactNativeHms.a */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		7699B88040F8A987B510C191 /* libPods-ReactNativeHms-ReactNativeHmsTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-ReactNativeHms-ReactNativeHmsTests.a */; };
+		3DF840AB9D424396B15F3382 /* libPods-ReactNativeHms-ReactNativeHmsTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C777A993E95ACD334EA2071F /* libPods-ReactNativeHms-ReactNativeHmsTests.a */; };
+		4A7FFC4294F81E55849608B9 /* libPods-ReactNativeHms.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E5971C0408F6492DDA1CACFA /* libPods-ReactNativeHms.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		99FC1662295C8A9800E9BF1B /* Inter-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 99FC165F295C8A9800E9BF1B /* Inter-Bold.ttf */; };
 		99FC1663295C8A9800E9BF1B /* Inter-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 99FC1660295C8A9800E9BF1B /* Inter-Medium.ttf */; };
@@ -39,13 +39,10 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = ReactNativeHms/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ReactNativeHms/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = ReactNativeHms/main.m; sourceTree = "<group>"; };
-		19F6CBCC0A4E27FBF8BF4A61 /* libPods-ReactNativeHms-ReactNativeHmsTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ReactNativeHms-ReactNativeHmsTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		3B4392A12AC88292D35C810B /* Pods-ReactNativeHms.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReactNativeHms.debug.xcconfig"; path = "Target Support Files/Pods-ReactNativeHms/Pods-ReactNativeHms.debug.xcconfig"; sourceTree = "<group>"; };
-		5709B34CF0A7D63546082F79 /* Pods-ReactNativeHms.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReactNativeHms.release.xcconfig"; path = "Target Support Files/Pods-ReactNativeHms/Pods-ReactNativeHms.release.xcconfig"; sourceTree = "<group>"; };
-		5B7EB9410499542E8C5724F5 /* Pods-ReactNativeHms-ReactNativeHmsTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReactNativeHms-ReactNativeHmsTests.debug.xcconfig"; path = "Target Support Files/Pods-ReactNativeHms-ReactNativeHmsTests/Pods-ReactNativeHms-ReactNativeHmsTests.debug.xcconfig"; sourceTree = "<group>"; };
-		5DCACB8F33CDC322A6C60F78 /* libPods-ReactNativeHms.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ReactNativeHms.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		37B9D8A3081667654B15E624 /* Pods-ReactNativeHms-ReactNativeHmsTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReactNativeHms-ReactNativeHmsTests.release.xcconfig"; path = "Target Support Files/Pods-ReactNativeHms-ReactNativeHmsTests/Pods-ReactNativeHms-ReactNativeHmsTests.release.xcconfig"; sourceTree = "<group>"; };
+		8113A7CFA3F455FDFDC89112 /* Pods-ReactNativeHms-ReactNativeHmsTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReactNativeHms-ReactNativeHmsTests.debug.xcconfig"; path = "Target Support Files/Pods-ReactNativeHms-ReactNativeHmsTests/Pods-ReactNativeHms-ReactNativeHmsTests.debug.xcconfig"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = ReactNativeHms/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		89C6BE57DB24E9ADA2F236DE /* Pods-ReactNativeHms-ReactNativeHmsTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReactNativeHms-ReactNativeHmsTests.release.xcconfig"; path = "Target Support Files/Pods-ReactNativeHms-ReactNativeHmsTests/Pods-ReactNativeHms-ReactNativeHmsTests.release.xcconfig"; sourceTree = "<group>"; };
+		91EA4498AA1B8ABC82006709 /* Pods-ReactNativeHms.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReactNativeHms.debug.xcconfig"; path = "Target Support Files/Pods-ReactNativeHms/Pods-ReactNativeHms.debug.xcconfig"; sourceTree = "<group>"; };
 		99583B6B2959B9AA00DDCFFA /* Fontisto.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Fontisto.ttf; sourceTree = "<group>"; };
 		99583B6C2959B9AA00DDCFFA /* Octicons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Octicons.ttf; sourceTree = "<group>"; };
 		99583B6D2959B9AA00DDCFFA /* Feather.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Feather.ttf; sourceTree = "<group>"; };
@@ -65,7 +62,10 @@
 		99FC165F295C8A9800E9BF1B /* Inter-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Bold.ttf"; sourceTree = SOURCE_ROOT; };
 		99FC1660295C8A9800E9BF1B /* Inter-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Medium.ttf"; sourceTree = SOURCE_ROOT; };
 		99FC1661295C8A9800E9BF1B /* Inter-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Regular.ttf"; sourceTree = SOURCE_ROOT; };
+		C777A993E95ACD334EA2071F /* libPods-ReactNativeHms-ReactNativeHmsTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ReactNativeHms-ReactNativeHmsTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		E5971C0408F6492DDA1CACFA /* libPods-ReactNativeHms.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ReactNativeHms.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		FD9F4C95332EBDB6776CEB4C /* Pods-ReactNativeHms.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReactNativeHms.release.xcconfig"; path = "Target Support Files/Pods-ReactNativeHms/Pods-ReactNativeHms.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -73,7 +73,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7699B88040F8A987B510C191 /* libPods-ReactNativeHms-ReactNativeHmsTests.a in Frameworks */,
+				3DF840AB9D424396B15F3382 /* libPods-ReactNativeHms-ReactNativeHmsTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -81,7 +81,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0C80B921A6F3F58F76C31292 /* libPods-ReactNativeHms.a in Frameworks */,
+				4A7FFC4294F81E55849608B9 /* libPods-ReactNativeHms.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -122,8 +122,8 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				5DCACB8F33CDC322A6C60F78 /* libPods-ReactNativeHms.a */,
-				19F6CBCC0A4E27FBF8BF4A61 /* libPods-ReactNativeHms-ReactNativeHmsTests.a */,
+				E5971C0408F6492DDA1CACFA /* libPods-ReactNativeHms.a */,
+				C777A993E95ACD334EA2071F /* libPods-ReactNativeHms-ReactNativeHmsTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -190,10 +190,10 @@
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				3B4392A12AC88292D35C810B /* Pods-ReactNativeHms.debug.xcconfig */,
-				5709B34CF0A7D63546082F79 /* Pods-ReactNativeHms.release.xcconfig */,
-				5B7EB9410499542E8C5724F5 /* Pods-ReactNativeHms-ReactNativeHmsTests.debug.xcconfig */,
-				89C6BE57DB24E9ADA2F236DE /* Pods-ReactNativeHms-ReactNativeHmsTests.release.xcconfig */,
+				91EA4498AA1B8ABC82006709 /* Pods-ReactNativeHms.debug.xcconfig */,
+				FD9F4C95332EBDB6776CEB4C /* Pods-ReactNativeHms.release.xcconfig */,
+				8113A7CFA3F455FDFDC89112 /* Pods-ReactNativeHms-ReactNativeHmsTests.debug.xcconfig */,
+				37B9D8A3081667654B15E624 /* Pods-ReactNativeHms-ReactNativeHmsTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -205,12 +205,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "ReactNativeHmsTests" */;
 			buildPhases = (
-				A55EABD7B0C7F3A422A6CC61 /* [CP] Check Pods Manifest.lock */,
+				01CD4716D00C7A685734CA50 /* [CP] Check Pods Manifest.lock */,
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
-				C59DA0FBD6956966B86A3779 /* [CP] Embed Pods Frameworks */,
-				F6A41C54EA430FDDC6A6ED99 /* [CP] Copy Pods Resources */,
+				F439ECA32E568680A861A56E /* [CP] Embed Pods Frameworks */,
+				5065EF3B2F27018006EFD845 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -226,14 +226,14 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "ReactNativeHms" */;
 			buildPhases = (
-				C38B50BA6285516D6DCD4F65 /* [CP] Check Pods Manifest.lock */,
+				8283A0403B7BC1EB93F8FFD6 /* [CP] Check Pods Manifest.lock */,
 				FD10A7F022414F080027D42C /* Start Packager */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				00EEFC60759A1932668264C0 /* [CP] Embed Pods Frameworks */,
-				E235C05ADACE081382539298 /* [CP] Copy Pods Resources */,
+				D35CE695CC47C909D56EF852 /* [CP] Embed Pods Frameworks */,
+				4539E880520335B6C43AED5A /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -317,24 +317,7 @@
 			shellPath = /bin/sh;
 			shellScript = "set -e\n\nexport NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
 		};
-		00EEFC60759A1932668264C0 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ReactNativeHms/Pods-ReactNativeHms-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ReactNativeHms/Pods-ReactNativeHms-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ReactNativeHms/Pods-ReactNativeHms-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		A55EABD7B0C7F3A422A6CC61 /* [CP] Check Pods Manifest.lock */ = {
+		01CD4716D00C7A685734CA50 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -356,7 +339,41 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		C38B50BA6285516D6DCD4F65 /* [CP] Check Pods Manifest.lock */ = {
+		4539E880520335B6C43AED5A /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ReactNativeHms/Pods-ReactNativeHms-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ReactNativeHms/Pods-ReactNativeHms-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ReactNativeHms/Pods-ReactNativeHms-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		5065EF3B2F27018006EFD845 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ReactNativeHms-ReactNativeHmsTests/Pods-ReactNativeHms-ReactNativeHmsTests-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ReactNativeHms-ReactNativeHmsTests/Pods-ReactNativeHms-ReactNativeHmsTests-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ReactNativeHms-ReactNativeHmsTests/Pods-ReactNativeHms-ReactNativeHmsTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		8283A0403B7BC1EB93F8FFD6 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -378,7 +395,24 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		C59DA0FBD6956966B86A3779 /* [CP] Embed Pods Frameworks */ = {
+		D35CE695CC47C909D56EF852 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ReactNativeHms/Pods-ReactNativeHms-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ReactNativeHms/Pods-ReactNativeHms-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ReactNativeHms/Pods-ReactNativeHms-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		F439ECA32E568680A861A56E /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -393,40 +427,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ReactNativeHms-ReactNativeHmsTests/Pods-ReactNativeHms-ReactNativeHmsTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		E235C05ADACE081382539298 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ReactNativeHms/Pods-ReactNativeHms-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ReactNativeHms/Pods-ReactNativeHms-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ReactNativeHms/Pods-ReactNativeHms-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		F6A41C54EA430FDDC6A6ED99 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ReactNativeHms-ReactNativeHmsTests/Pods-ReactNativeHms-ReactNativeHmsTests-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ReactNativeHms-ReactNativeHmsTests/Pods-ReactNativeHms-ReactNativeHmsTests-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ReactNativeHms-ReactNativeHmsTests/Pods-ReactNativeHms-ReactNativeHmsTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		FD10A7F022414F080027D42C /* Start Packager */ = {
@@ -481,7 +481,7 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5B7EB9410499542E8C5724F5 /* Pods-ReactNativeHms-ReactNativeHmsTests.debug.xcconfig */;
+			baseConfigurationReference = 8113A7CFA3F455FDFDC89112 /* Pods-ReactNativeHms-ReactNativeHmsTests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -509,7 +509,7 @@
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 89C6BE57DB24E9ADA2F236DE /* Pods-ReactNativeHms-ReactNativeHmsTests.release.xcconfig */;
+			baseConfigurationReference = 37B9D8A3081667654B15E624 /* Pods-ReactNativeHms-ReactNativeHmsTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -534,7 +534,7 @@
 		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3B4392A12AC88292D35C810B /* Pods-ReactNativeHms.debug.xcconfig */;
+			baseConfigurationReference = 91EA4498AA1B8ABC82006709 /* Pods-ReactNativeHms.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -561,7 +561,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5709B34CF0A7D63546082F79 /* Pods-ReactNativeHms.release.xcconfig */;
+			baseConfigurationReference = FD9F4C95332EBDB6776CEB4C /* Pods-ReactNativeHms.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
