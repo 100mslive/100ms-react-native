@@ -4,8 +4,7 @@ export type PeerTrackNode = {
   id: string;
   peer: HMSPeer;
   track?: HMSVideoTrack;
-  isDegraded?: boolean;
-  // TODO: isDegraded should not be optional
+  isDegraded: boolean;
 };
 
 export enum ModalTypes {
