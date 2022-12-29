@@ -69,6 +69,7 @@ export const callService = async (
   const permissions = await checkPermissions([
     PERMISSIONS.ANDROID.CAMERA,
     PERMISSIONS.ANDROID.RECORD_AUDIO,
+    PERMISSIONS.ANDROID.BLUETOOTH_CONNECT,
   ]);
 
   if (!permissions) {
