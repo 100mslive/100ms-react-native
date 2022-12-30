@@ -32,10 +32,21 @@ import { HMSSimulcastLayerDefinition } from './HMSSimulcastLayerDefinition';
 import { HMSLayer } from './HMSLayer';
 
 export class HMSEncoder {
-  static encodeHmsRoom(room: HMSRoom, id: string) {
+  static encodeHmsRoom(room: any, id: string) {
+
+    var sessionId = undefined;
+    if (room.sessionId != null) {
+      sessionId = room.sessionId;
+    }
+
+    var startedAt = undefined;
+    if (room.startedAt != null) {
+      startedAt = new Date(parseInt( room?.startedAt));
+    }
+
     const encodedObj = {
       id: room?.id,
-      sessionId: room?.sessionId,
+      sessionId: sessionId,
       metaData: room?.metaData,
       name: room?.name,
       peerCount: room?.peerCount,
@@ -56,6 +67,7 @@ export class HMSEncoder {
         room?.hlsRecordingState
       ),
       localPeer: HMSEncoder.encodeHmsLocalPeer(room?.localPeer, id),
+      startedAt: startedAt,
     };
 
     return new HMSRoom(encodedObj);
@@ -71,21 +83,48 @@ export class HMSEncoder {
   }
 
   static encodeHmsPeer(peer: any, id: string) {
+
+    var customerUserID = undefined;
+    if ( peer?.customerUserID != null) {
+      customerUserID = peer?.customerUserID;
+    }
+
+    var metadata = undefined;
+    if(peer?.metadata != null){
+      metadata = peer.metadata;
+    }
+
+    var audioTrack = undefined;
+    if ( peer?.audioTrack != null) {
+      audioTrack = HMSEncoder.encodeHmsAudioTrack( peer?.audioTrack, id );
+    }
+
+    var videoTrack = undefined;
+    if ( peer?.videoTrack != null) {
+      videoTrack = HMSEncoder.encodeHmsVideoTrack( peer?.videoTrack, id );
+    }
+
+    var auxiliaryTracks = undefined;
+    if ( peer?.auxiliaryTracks != null) {
+      auxiliaryTracks = HMSEncoder.encodeHmsAuxiliaryTracks(peer?.auxiliaryTracks, id);
+    }
+
+    var networkQuality = undefined;
+    if ( peer?.networkQuality != null) {
+      networkQuality = HMSEncoder.encodeHMSNetworkQuality( peer?.networkQuality );
+    }
+
     const encodedObj = {
       peerID: peer?.peerID,
       name: peer?.name,
       isLocal: peer?.isLocal,
-      customerUserID: peer?.customerUserID,
-      customerDescription: peer?.customerDescription,
-      metadata: peer?.metadata,
+      customerUserID: customerUserID,
+      metadata: metadata,
       role: HMSEncoder.encodeHmsRole(peer?.role),
-      networkQuality: HMSEncoder.encodeHMSNetworkQuality(peer?.networkQuality),
-      audioTrack: HMSEncoder.encodeHmsAudioTrack(peer?.audioTrack, id),
-      videoTrack: HMSEncoder.encodeHmsVideoTrack(peer?.videoTrack, id),
-      auxiliaryTracks: HMSEncoder.encodeHmsAuxiliaryTracks(
-        peer?.auxiliaryTracks,
-        id
-      ),
+      networkQuality: networkQuality,
+      audioTrack: audioTrack,
+      videoTrack: videoTrack,
+      auxiliaryTracks: auxiliaryTracks,
     };
 
     return new HMSPeer(encodedObj);

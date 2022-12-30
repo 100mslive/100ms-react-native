@@ -8,7 +8,7 @@ import type { HMSLocalPeer } from './HMSLocalPeer';
 
 export class HMSRoom {
   id: string;
-  sessionId: string;
+  sessionId?: string;
   name: string;
   metaData?: string;
   peers: HMSPeer[];
@@ -19,10 +19,11 @@ export class HMSRoom {
   hlsRecordingState?: HMSHLSRecordingState;
   peerCount: number;
   localPeer: HMSLocalPeer;
+  startedAt?: Date;
 
   constructor(params: {
     id: string;
-    sessionId: string;
+    sessionId?: string;
     name: string;
     metaData?: string;
     peers: HMSPeer[];
@@ -33,6 +34,7 @@ export class HMSRoom {
     hlsRecordingState?: HMSHLSRecordingState;
     peerCount: number;
     localPeer: HMSLocalPeer;
+    startedAt?: Date;
   }) {
     this.id = params.id;
     this.sessionId = params.sessionId;
@@ -46,5 +48,6 @@ export class HMSRoom {
     this.hlsRecordingState = params.hlsRecordingState;
     this.peerCount = params.peerCount;
     this.localPeer = params.localPeer;
+    this.startedAt = params.startedAt;
   }
 }

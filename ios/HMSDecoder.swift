@@ -5,59 +5,92 @@ class HMSDecoder: NSObject {
     static func getHmsRoom (_ hmsRoom: HMSRoom?) -> [String: Any] {
 
         guard let room = hmsRoom else { return [:] }
+        
+        var data = [String: Any]()
+        
+        data["id"] = room.roomID ?? ""
 
-        let id = room.roomID ?? ""
-        let sessionId = room.sessionID ?? ""
-        let name = room.name ?? ""
-        let metaData = room.metaData ?? ""
-        let count = room.peerCount ?? 0
-        let browserRecordingState = HMSDecoder.getHMSBrowserRecordingState(hmsRoom?.browserRecordingState)
-        let rtmpStreamingState = HMSDecoder.getHMSRtmpStreamingState(hmsRoom?.rtmpStreamingState)
-        let serverRecordingState = HMSDecoder.getHMSServerRecordingState(hmsRoom?.serverRecordingState)
-        let hlsStreamingState = HMSDecoder.getHlsStreamingState(hmsRoom?.hlsStreamingState)
-        let hlsRecordingState = HMSDecoder.getHlsRecordingState(hmsRoom?.hlsRecordingState)
-        var localPeer = [String: Any]()
+        data["name"] = room.name ?? ""
+
+        if let metaData = room.metaData {
+            data["metaData"] = metaData
+        }
+        
+        data["peerCount"] = room.peerCount ?? 0
+        
+        data["browserRecordingState"] = HMSDecoder.getHMSBrowserRecordingState(hmsRoom?.browserRecordingState)
+        
+        data["rtmpHMSRtmpStreamingState"] = HMSDecoder.getHMSRtmpStreamingState(hmsRoom?.rtmpStreamingState)
+        
+        data["serverRecordingState"] = HMSDecoder.getHMSServerRecordingState(hmsRoom?.serverRecordingState)
+        
+        data["hlsStreamingState"] = HMSDecoder.getHlsStreamingState(hmsRoom?.hlsStreamingState)
+        
+        data["hlsRecordingState"] = HMSDecoder.getHlsRecordingState(hmsRoom?.hlsRecordingState)
+        
+        
+        if let sessionId = room.sessionID {
+            data["sessionId"] = sessionId
+        }
+        
+        if let startedAt = room.sessionStartedAt?.timeIntervalSince1970 {
+            data["startedAt"] = startedAt * 1000
+        }
+        
         var peers = [[String: Any]]()
 
         for peer in room.peers {
             let parsedPeer = getHmsPeer(peer)
             peers.append(parsedPeer)
             if peer.isLocal {
-                localPeer = parsedPeer
+                data["localPeer"] = parsedPeer
             }
         }
-
-        return ["id": id, "name": name, "metaData": metaData, "peers": peers, "browserRecordingState": browserRecordingState, "rtmpHMSRtmpStreamingState": rtmpStreamingState, "serverRecordingState": serverRecordingState, "hlsRecordingState": hlsRecordingState, "hlsStreamingState": hlsStreamingState, "peerCount": count, "sessionId": sessionId, "localPeer": localPeer]
+        
+        data["peers"] = peers
+        
+        return data
     }
 
     static func getHmsPeer (_ hmsPeer: HMSPeer?) -> [String: Any] {
 
         guard let peer = hmsPeer else { return [:] }
+        
+        var data = [String: Any]()
+        
+        data["peerID"] = peer.peerID
 
-        let peerID = peer.peerID
-        let name = peer.name
-        let isLocal = peer.isLocal
-        let customerUserID = peer.customerUserID ?? ""
-        let customerDescription = peer.metadata ?? ""
-        let metadata = peer.metadata ?? ""
-        let audioTrack = getHmsAudioTrack(peer.audioTrack)
-        let videoTrack = getHmsVideoTrack(peer.videoTrack)
-        let role = getHmsRole(peer.role)
-        let networkQuality = getHmsNetworkQuality(peer.networkQuality)
-
-        let auxiliaryTracks = getAllTracks(peer.auxiliaryTracks ?? [] )
-
-        return ["peerID": peerID,
-                "name": name,
-                "isLocal": isLocal,
-                "customerUserID": customerUserID,
-                "customerDescription": customerDescription,
-                "metadata": metadata,
-                "audioTrack": audioTrack,
-                "videoTrack": videoTrack,
-                "auxiliaryTracks": auxiliaryTracks,
-                "networkQuality": networkQuality,
-                "role": role]
+        data["name"] = peer.name
+        
+        data["isLocal"] = peer.isLocal
+        
+        if let customerUserID = peer.customerUserID {
+            data["customerUserID"] = customerUserID
+        }
+        
+        if let metadata = peer.metadata {
+            data["metadata"] = metadata
+        }
+        
+        if let audioTrack = peer.audioTrack {
+            data["audioTrack"] = getHmsAudioTrack(audioTrack)
+        }
+        
+        if let videoTrack = peer.videoTrack {
+            data["videoTrack"] = getHmsVideoTrack(videoTrack)
+        }
+        
+        if let auxiliaryTracks = peer.auxiliaryTracks {
+            data["auxiliaryTracks"] = getAllTracks(auxiliaryTracks)
+        }
+        
+        if let networkQuality = peer.networkQuality {
+            data["networkQuality"] = getHmsNetworkQuality(networkQuality)
+        }
+        
+        data["role"] = getHmsRole(peer.role)
+        
+        return data
     }
 
     static func getAllTracks (_ tracks: [HMSTrack]) -> [[String: Any]] {

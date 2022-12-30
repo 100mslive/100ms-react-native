@@ -9,6 +9,10 @@ export class HMSPeer {
   name: string;
   isLocal?: boolean;
   customerUserID?: string;
+
+  /**
+   * @deprecated customerDescription property has been deprecated
+   */
   customerDescription?: string;
   metadata?: string;
   role?: HMSRole;

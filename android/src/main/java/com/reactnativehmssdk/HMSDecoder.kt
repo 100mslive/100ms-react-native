@@ -16,27 +16,56 @@ object HMSDecoder {
     val room: WritableMap = Arguments.createMap()
     if (hmsRoom != null) {
       room.putString("id", hmsRoom.roomId)
-      room.putString("sessionId", hmsRoom.sessionId)
       room.putString("name", hmsRoom.name)
       room.putString("metaData", null)
-      room.putString("startedAt", hmsRoom.startedAt.toString())
-      room.putMap(
-        "browserRecordingState",
-        this.getHMSBrowserRecordingState(hmsRoom.browserRecordingState)
-      )
-      room.putMap(
-        "rtmpHMSRtmpStreamingState",
-        this.getHMSRtmpStreamingState(hmsRoom.rtmpHMSRtmpStreamingState)
-      )
-      room.putMap(
-        "serverRecordingState",
-        this.getHMSServerRecordingState(hmsRoom.serverRecordingState)
-      )
-      room.putMap("hlsStreamingState", this.getHMSHlsStreamingState(hmsRoom.hlsStreamingState))
-      room.putMap("hlsRecordingState", this.getHMSHlsRecordingState(hmsRoom.hlsRecordingState))
-      room.putMap("localPeer", this.getHmsLocalPeer(hmsRoom.localPeer))
+
+      if (hmsRoom.browserRecordingState != null) {
+        room.putMap(
+          "browserRecordingState",
+          this.getHMSBrowserRecordingState(hmsRoom.browserRecordingState)
+        )
+      }
+
+      if (hmsRoom.rtmpHMSRtmpStreamingState != null) {
+        room.putMap(
+          "rtmpHMSRtmpStreamingState",
+          this.getHMSRtmpStreamingState(hmsRoom.rtmpHMSRtmpStreamingState)
+        )
+      }
+
+      if (hmsRoom.serverRecordingState != null) {
+        room.putMap(
+          "serverRecordingState",
+          this.getHMSServerRecordingState(hmsRoom.serverRecordingState)
+        )
+      }
+
+      if (hmsRoom.hlsStreamingState != null) {
+        room.putMap(
+          "hlsStreamingState",
+          this.getHMSHlsStreamingState(hmsRoom.hlsStreamingState)
+        )
+      }
+
+      if (hmsRoom.hlsRecordingState != null) {
+        room.putMap(
+          "hlsRecordingState",
+          this.getHMSHlsRecordingState(hmsRoom.hlsRecordingState)
+        )
+      }
+
       room.putArray("peers", this.getAllPeers(hmsRoom.peerList))
       room.putInt("peerCount", hmsRoom.peerCount)
+
+      if (hmsRoom.localPeer != null) {
+        room.putMap("localPeer", this.getHmsLocalPeer(hmsRoom.localPeer))
+      }
+      if (hmsRoom.sessionId != null) {
+        room.putString("sessionId", hmsRoom.sessionId)
+      }
+      if (hmsRoom.startedAt != null) {
+        room.putString("startedAt", hmsRoom.startedAt.toString())
+      }
     }
     return room
   }
@@ -47,13 +76,28 @@ object HMSDecoder {
       peer.putString("peerID", hmsPeer.peerID)
       peer.putString("name", hmsPeer.name)
       peer.putBoolean("isLocal", hmsPeer.isLocal)
-      peer.putString("customerUserID", hmsPeer.customerUserID)
+
       peer.putString("metadata", hmsPeer.metadata)
-      peer.putMap("networkQuality", this.getHmsNetworkQuality(hmsPeer.networkQuality))
-      peer.putMap("audioTrack", this.getHmsAudioTrack(hmsPeer.audioTrack))
-      peer.putMap("videoTrack", this.getHmsVideoTrack(hmsPeer.videoTrack))
+
       peer.putMap("role", this.getHmsRole(hmsPeer.hmsRole))
+
+      if (hmsPeer.customerUserID != null) {
+        peer.putString("customerUserID", hmsPeer.customerUserID)
+      }
+
+      if (hmsPeer.audioTrack != null) {
+        peer.putMap("audioTrack", this.getHmsAudioTrack(hmsPeer.audioTrack))
+      }
+
+      if (hmsPeer.videoTrack != null) {
+        peer.putMap("videoTrack", this.getHmsVideoTrack(hmsPeer.videoTrack))
+      }
+
       peer.putArray("auxiliaryTracks", this.getAllTracks(hmsPeer.auxiliaryTracks))
+
+      if (hmsPeer.networkQuality != null) {
+        peer.putMap("networkQuality", this.getHmsNetworkQuality(hmsPeer.networkQuality))
+      }
     }
     return peer
   }
