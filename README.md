@@ -17,9 +17,20 @@
 [![Activity](https://img.shields.io/github/commit-activity/m/100mslive/react-native-hms.svg)](https://github.com/100mslive/react-native-hms/projects/1)
 [![Register](https://img.shields.io/badge/Contact-Know%20More-blue)](https://dashboard.100ms.live/register)
 
-React native wrapper for 100ms SDK
+React Native Package for 100ms SDK
 
-## 🏃 Run Example App
+📖 Read the Complete Documentation here: https://www.100ms.live/docs/react-native/v2/foundation/basics
+
+## 🏃 Example App
+
+📲 Download the Example iOS app here: https://testflight.apple.com/join/v4bSIPad
+
+🤖 Download the Example Android app here: https://appdistribution.firebase.dev/i/7b7ab3b30e627c35
+
+To get a better understanding of how the example app is stuctured, what to do on `onJoin`, `onTrack` and `onPeer` listeners, creating `PeerTrackNodes`, how to use Redux, and what type of layouts and sorting you can implement in your app, checkout [Example App's README](https://github.com/100mslive/react-native-hms/blob/develop/example/README.md)
+
+
+
 
 To run the Example app on your system, follow these steps -
 
@@ -27,26 +38,24 @@ To run the Example app on your system, follow these steps -
 2. Go to the example folder, `cd example`
 3. In the example folder, run `npm install`
 4. To run on Android, run `npx react-native run-android`
-5. To run on iOS, first install the pods in iOS folder, `cd ios; pod install`. Then, set the development team in Signing & Capabilities and exclude architectures in Build Settings as shown below. Then, in example folder, run `npx react-native run-ios`
+5. To run on iOS, first install the pods in iOS folder, `cd ios; pod install`. Then, set the Correct Development Team in Xcode Signing & Capabilities section. Then, in example folder, run `npx react-native run-ios`
 
-To get a better understanding of how the example app is stuctured, what to do on `onJoin`, `onTrack` and `onPeer` listeners, creating `PeerTrackNodes`, how to use Redux, and what type of layouts and sorting you can implement in your app, checkout [Example App's README](https://github.com/100mslive/react-native-hms/blob/develop/example/README.md)
 
-We have also implemented multiple views which are commonly used. Checkout the [videos & relevant code in the Example app](https://github.com/100mslive/react-native-hms/tree/main/example#additional-features).
 
 ## ☝️ Minimum Configuration
 
 - Support for Android API level 21 or higher
 - Support for Java 8
 - Support for iOS 10 or higher
-- Support for React Native 0.63.3 or higher
+- Support for React Native 0.63.4 or higher
 - Xcode 12 or higher
 
 ## 🤝 Recommended Configuration
 
-- Android API level 29 or higher
+- Android API level 30 or higher
 - Java 11 or higher
 - iOS 15 or higher
-- React Native 0.64.2 or higher
+- React Native 0.68.0 or higher
 - Xcode 13 or higher
 
 ## 📱 Supported Devices
@@ -90,10 +99,13 @@ Add following permissions in `AndroidManifest.xml`
 <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
 <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
 <uses-permission android:name="android.permission.RECORD_AUDIO"/>
-<uses-permission android:name="android.permission.BLUETOOTH"/>
 <uses-permission android:name="android.permission.INTERNET"/>
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+<uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+<uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+<uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+<uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 ```
 
 You will also need to request Camera and Record Audio permissions at runtime before you join a call or display a preview. Please follow [Android Documentation](https://developer.android.com/training/permissions/requesting#request-permission) for runtime permissions.
@@ -506,3 +518,6 @@ const hmsInstance = await HMSSDK.build({
 In the [100ms Example App](https://github.com/100mslive/react-native-hms/tree/main/example) we have shown how to setup the various listeners, what data to store in Redux and what all features you can implement.
 
 We have also implemented multiple views which are commonly used. Checkout the [videos & relevant code in the Example app](https://github.com/100mslive/react-native-hms/tree/main/example#additional-features).
+
+
+📖 Read the Complete Documentation here: https://www.100ms.live/docs/react-native/v2/foundation/basics
