@@ -63,7 +63,7 @@ Troubleshooting Guide for resolving issues in running the Example app is [availa
 - The Android SDK supports Android API level 21 and higher. It is built for armeabi-v7a, arm64-v8a, x86, and x86_64 architectures.
 Devices running Android OS 11 or above is recommended.
 
-- iPhone & iPads with iOS version 12 or higher.
+- iPhone & iPads with iOS version 12 or above are supported.
 Devices running iOS 16 or above is recommended.
 
 ## Installation
