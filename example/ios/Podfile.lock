@@ -59,7 +59,7 @@ PODS:
   - glog (0.3.5)
   - hermes-engine (0.7.2)
   - HMSBroadcastExtensionSDK (0.0.7)
-  - HMSSDK (0.5.4):
+  - HMSSDK (0.5.5):
     - HMSWebRTC (= 1.0.5113)
   - HMSWebRTC (1.0.5113)
   - libevent (2.1.12)
@@ -290,7 +290,7 @@ PODS:
     - React-Core
   - react-native-hms (1.2.0):
     - HMSBroadcastExtensionSDK (= 0.0.7)
-    - HMSSDK (= 0.5.4)
+    - HMSSDK (= 0.5.5)
     - React-Core
   - react-native-safe-area-context (3.4.1):
     - React-Core
@@ -380,7 +380,7 @@ PODS:
     - React-Core
   - RNPermissions (3.4.0):
     - React-Core
-  - RNScreens (3.18.2):
+  - RNScreens (3.19.0):
     - React-Core
     - React-RCTImage
   - RNShare (7.9.1):
@@ -598,7 +598,7 @@ SPEC CHECKSUMS:
   glog: 73c2498ac6884b13ede40eda8228cb1eee9d9d62
   hermes-engine: 7d97ba46a1e29bacf3e3c61ecb2804a5ddd02d4f
   HMSBroadcastExtensionSDK: d22df4b2c22843efe4a1779478889076db8eaabd
-  HMSSDK: 2766e81eaa530ea74ddb46a64e89be2b53164c98
+  HMSSDK: 62863ccbaa0fd8ffc924a5d883c13e4bd6abea5c
   HMSWebRTC: 6bd851709766bf4b28fd89046a65654e86741aed
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   OpenSSL-Universal: 1aa4f6a6ee7256b83db99ec1ccdaa80d10f9af9b
@@ -618,7 +618,7 @@ SPEC CHECKSUMS:
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
   react-native-cameraroll: f94bf9f46c998963ecd2bb6e9a3f9cca59b6d9f1
   react-native-document-picker: 958e2bc82e128be69055be261aeac8d872c8d34c
-  react-native-hms: 90bcaa2d89b509c1f3e06ecd187ff3ee2394c515
+  react-native-hms: b776eac8b29837173ce00b25d8af18602893ce9f
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
   react-native-simple-toast: 8ee5d23f0b92b935ab7434cdb65159ce12dfb4b7
   react-native-video: c26780b224543c62d5e1b2a7244a5cd1b50e8253
@@ -641,13 +641,13 @@ SPEC CHECKSUMS:
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNPermissions: eac721f71748c4472d6e876038270b75397d6ee7
-  RNScreens: 34cc502acf1b916c582c60003dc3089fa01dc66d
+  RNScreens: ea4cd3a853063cda19a4e3c28d2e52180c80f4eb
   RNShare: a5dc3b9c53ddc73e155b8cd9a94c70c91913c43c
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
   Yoga: d1fc3575b8b68891ff5ef3c276daa855e841eb32
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: db15f06928575bca2fad282c3c329e4f0fd2a49d
+PODFILE CHECKSUM: 3f037449a7c447b915be27dfeeadd1e5915258c2
 
 COCOAPODS: 1.11.3

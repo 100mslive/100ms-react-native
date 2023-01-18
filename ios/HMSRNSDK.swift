@@ -16,7 +16,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     var recentRoleChangeRequest: HMSRoleChangeRequest?
     var delegate: HMSManager?
     var id: String = "12345"
-    var recentPreviewTracks: [HMSTrack]? = []
     private var reconnectingStage: Bool = false
     private var preferredExtension: String?
     private var systemBroadcastPicker: RPSystemBroadcastPickerView?
@@ -95,8 +94,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                     reject?(error?.localizedDescription, error?.localizedDescription, nil)
                     return
                 }
-                self.recentPreviewTracks = tracks
 
+                // set the video track to hmsView via recentPreviewTracks
                 let decodedTracks = HMSDecoder.getAllTracks(tracks ?? [])
 
                 resolve?(["success": true, "tracks": decodedTracks])
@@ -106,7 +105,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func cancelPreview() {
-        self.recentPreviewTracks = []
         hms?.cancelPreview()
     }
 
@@ -300,7 +298,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                     reject?(error?.localizedDescription, error?.localizedDescription, nil)
                 }
             })
-            self?.recentPreviewTracks = []
             self?.recentRoleChangeRequest = nil
         }
     }
@@ -1095,8 +1092,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     // MARK: - HMS SDK Delegate Callbacks
     func on(join room: HMSRoom) {
         let roomData = HMSDecoder.getHmsRoom(room)
-
-        self.recentPreviewTracks = []
         self.delegate?.emitEvent(HMSConstants.ON_JOIN, ["event": HMSConstants.ON_JOIN, "id": self.id, "room": roomData])
     }
 
@@ -1217,7 +1212,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         self.delegate?.emitEvent(HMSConstants.ON_LOCAL_AUDIO_STATS, ["localAudioStats": localStats, "track": localTrack, "peer": decodedPeer, "id": self.id])
     }
 
-    func on(localVideoStats: HMSLocalVideoStats, track: HMSLocalVideoTrack, peer: HMSPeer) {
+    func on(localVideoStats: [HMSLocalVideoStats], track: HMSLocalVideoTrack, peer: HMSPeer) {
         if !rtcStatsAttached {
             return
         }
@@ -1295,18 +1290,20 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
     func getString(from update: HMSRoomUpdate) -> String {
         switch update {
-        case .roomTypeChanged:
-            return "ROOM_TYPE_CHANGED"
-        case .metaDataUpdated:
-            return "META_DATA_CHANGED"
         case .browserRecordingStateUpdated:
             return "BROWSER_RECORDING_STATE_UPDATED"
         case .hlsStreamingStateUpdated:
             return "HLS_STREAMING_STATE_UPDATED"
         case .rtmpStreamingStateUpdated:
             return "RTMP_STREAMING_STATE_UPDATED"
-        case.serverRecordingStateUpdated:
+        case .serverRecordingStateUpdated:
             return "SERVER_RECORDING_STATE_UPDATED"
+        case .hlsRecordingStateUpdated:
+            return "HLS_RECORDING_STATE_UPDATED"
+        case .roomTypeChanged:
+            return "ROOM_PEER_COUNT_UPDATED"
+        case .metaDataUpdated:
+            return "ROOM_PEER_COUNT_UPDATED"
         default:
             return ""
         }

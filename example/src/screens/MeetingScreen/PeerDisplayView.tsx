@@ -57,7 +57,7 @@ const PeerDisplayView = ({
           <HmsView
             // setZOrderMediaOverlay={miniView}
             trackId={videoTrack?.trackId!}
-            autoSimulcast={autoSimulcast}
+            disableAutoSimulcastLayerSelect={autoSimulcast}
             mirror={
               isLocal && mirrorCamera !== undefined ? mirrorCamera : false
             }

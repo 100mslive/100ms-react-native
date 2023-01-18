@@ -80,9 +80,9 @@ class HMSSDKViewManager : SimpleViewManager<HMSView>() {
     view.updateZOrderMediaOverlay(data)
   }
 
-  @ReactProp(name = "autoSimulcast")
-  fun setAutoSimulcast(view: HMSView, data: Boolean?) {
-    view.updateAutoSimulcast(data)
+  @ReactProp(name = "disableAutoSimulcastLayerSelect")
+  fun disableAutoSimulcastLayerSelect(view: HMSView, data: Boolean?) {
+    data?.let { view.disableAutoSimulcastLayerSelect(it) }
   }
 
   private fun getHms(): MutableMap<String, HMSRNSDK>? {

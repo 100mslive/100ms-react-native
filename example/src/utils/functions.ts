@@ -692,24 +692,18 @@ export const pairData = (
 
   unGroupedPeerTrackNodes.map((item: PeerTrackNode) => {
     if (
-      localPeer?.role?.subscribeSettings?.subscribeTo?.includes(
-        item.peer.role?.name || '',
-      )
+      item.track?.source !== HMSTrackSource.REGULAR &&
+      item.track?.source !== undefined
     ) {
-      if (
-        item.track?.source !== HMSTrackSource.REGULAR &&
-        item.track?.source !== undefined
-      ) {
-        pairedDataSource.push([item]);
-      } else {
-        if (itemsPushed === batch) {
-          pairedDataRegular.push(groupedPeerTrackNodes);
-          groupedPeerTrackNodes = [];
-          itemsPushed = 0;
-        }
-        groupedPeerTrackNodes.push(item);
-        itemsPushed++;
+      pairedDataSource.push([item]);
+    } else {
+      if (itemsPushed === batch) {
+        pairedDataRegular.push(groupedPeerTrackNodes);
+        groupedPeerTrackNodes = [];
+        itemsPushed = 0;
       }
+      groupedPeerTrackNodes.push(item);
+      itemsPushed++;
     }
   });
 

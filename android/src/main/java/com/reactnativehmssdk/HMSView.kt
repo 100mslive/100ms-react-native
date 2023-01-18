@@ -24,6 +24,7 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
   private var sdkId: String = "12345"
   private var currentScaleType: RendererCommon.ScalingType =
     RendererCommon.ScalingType.SCALE_ASPECT_FILL
+  private var disableAutoSimulcastLayerSelect = false
 
   init {
     val inflater = getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -31,7 +32,9 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
 
     hmsVideoView = view.findViewById(R.id.hmsVideoView)
     hmsVideoView.setEnableHardwareScaler(false)
-    // TODO: Set Default `autoSimulcast` on HMSVideoView to true
+    hmsVideoView.setScalingType(currentScaleType)
+//    hmsVideoView.setMirror()
+    hmsVideoView.disableAutoSimulcastLayerSelect(disableAutoSimulcastLayerSelect)
   }
 
   @RequiresApi(Build.VERSION_CODES.N)
@@ -109,13 +112,12 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
       if (mirror != null) {
         hmsVideoView.setMirror(mirror)
       }
+      // TODO: can be optimized here
       videoTrack = hms.getRoom()?.let { HmsUtilities.getVideoTrack(trackId, it) }
     }
   }
 
-  fun updateAutoSimulcast(autoSimulcast: Boolean?) {
-    if (autoSimulcast !== null) {
-      // TODO: Set `autoSimulcast` on HMSVideoView to value passed from RN side
-    }
+  fun disableAutoSimulcastLayerSelect(disableSimulcast: Boolean?) {
+    disableSimulcast?.let { hmsVideoView.disableAutoSimulcastLayerSelect(it) }
   }
 }

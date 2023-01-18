@@ -5,9 +5,9 @@ class HMSDecoder: NSObject {
     static func getHmsRoom (_ hmsRoom: HMSRoom?) -> [String: Any] {
 
         guard let room = hmsRoom else { return [:] }
-        
+
         var data = [String: Any]()
-        
+
         data["id"] = room.roomID ?? ""
 
         data["name"] = room.name ?? ""
@@ -15,28 +15,27 @@ class HMSDecoder: NSObject {
         if let metaData = room.metaData {
             data["metaData"] = metaData
         }
-        
+
         data["peerCount"] = room.peerCount ?? 0
-        
+
         data["browserRecordingState"] = HMSDecoder.getHMSBrowserRecordingState(hmsRoom?.browserRecordingState)
-        
+
         data["rtmpHMSRtmpStreamingState"] = HMSDecoder.getHMSRtmpStreamingState(hmsRoom?.rtmpStreamingState)
-        
+
         data["serverRecordingState"] = HMSDecoder.getHMSServerRecordingState(hmsRoom?.serverRecordingState)
-        
+
         data["hlsStreamingState"] = HMSDecoder.getHlsStreamingState(hmsRoom?.hlsStreamingState)
-        
+
         data["hlsRecordingState"] = HMSDecoder.getHlsRecordingState(hmsRoom?.hlsRecordingState)
-        
-        
+
         if let sessionId = room.sessionID {
             data["sessionId"] = sessionId
         }
-        
+
         if let startedAt = room.sessionStartedAt?.timeIntervalSince1970 {
             data["startedAt"] = startedAt * 1000
         }
-        
+
         var peers = [[String: Any]]()
 
         for peer in room.peers {
@@ -46,50 +45,50 @@ class HMSDecoder: NSObject {
                 data["localPeer"] = parsedPeer
             }
         }
-        
+
         data["peers"] = peers
-        
+
         return data
     }
 
     static func getHmsPeer (_ hmsPeer: HMSPeer?) -> [String: Any] {
 
         guard let peer = hmsPeer else { return [:] }
-        
+
         var data = [String: Any]()
-        
+
         data["peerID"] = peer.peerID
 
         data["name"] = peer.name
-        
+
         data["isLocal"] = peer.isLocal
-        
+
         if let customerUserID = peer.customerUserID {
             data["customerUserID"] = customerUserID
         }
-        
+
         if let metadata = peer.metadata {
             data["metadata"] = metadata
         }
-        
+
         if let audioTrack = peer.audioTrack {
             data["audioTrack"] = getHmsAudioTrack(audioTrack)
         }
-        
+
         if let videoTrack = peer.videoTrack {
             data["videoTrack"] = getHmsVideoTrack(videoTrack)
         }
-        
+
         if let auxiliaryTracks = peer.auxiliaryTracks {
             data["auxiliaryTracks"] = getAllTracks(auxiliaryTracks)
         }
-        
+
         if let networkQuality = peer.networkQuality {
             data["networkQuality"] = getHmsNetworkQuality(networkQuality)
         }
-        
+
         data["role"] = getHmsRole(peer.role)
-        
+
         return data
     }
 
@@ -447,7 +446,7 @@ class HMSDecoder: NSObject {
     static private func getSimulcastSettingsPolicy(from simulcastSettingsPolicy: HMSSimulcastSettingsPolicy) -> [String: Any]? {
 
         if let layers = simulcastSettingsPolicy.layers {
-           return getSimulcastLayerSettingsPolicy(from: layers)
+            return getSimulcastLayerSettingsPolicy(from: layers)
         }
 
         return nil
@@ -702,8 +701,86 @@ class HMSDecoder: NSObject {
         return ["roundTripTime": data.roundTripTime, "bytesSent": data.bytesSent, "bitrate": data.bitrate]
     }
 
-    static func getLocalVideoStats(_ data: HMSLocalVideoStats) -> [String: Any] {
-        return ["roundTripTime": data.roundTripTime, "bytesSent": data.bytesSent, "bitrate": data.bitrate, "resolution": HMSDecoder.getHmsVideoResolution(data.resolution), "frameRate": data.frameRate]
+    static func getLocalVideoStats(_ localVideoStats: [HMSLocalVideoStats]) -> [[String: Any]] {
+
+        var statsArray = [[String: Any]]()
+
+        for stat in localVideoStats {
+            var dict = [String: Any]()
+
+            if let layerId = stat.simulcastLayerId {
+                dict["hms_layer"] = getStringFromLayer(layer: HMSSimulcastLayer(rawValue: layerId as! UInt))
+            }
+            dict["resolution"] = HMSDecoder.getHmsVideoResolution(stat.resolution)
+            dict["frame_rate"] = stat.frameRate
+            dict["quality_limitation_reason"] = getQualityLimitations(stat.qualityLimitations)
+            dict["bitrate"] =  stat.bitrate
+            dict["round_trip_time"] =  stat.roundTripTime
+            dict["bytes_sent"] =  stat.bytesSent
+            statsArray.append(dict)
+        }
+
+        return statsArray
+    }
+
+    static func toDictionary(_ layerDefinition: HMSSimulcastLayerDefinition) -> [String: Any] {
+        let dict = [
+            "simulcast_layer": getStringFromLayer(layer: layerDefinition.layer),
+            "resolution": HMSDecoder.getHmsVideoResolution(layerDefinition.resolution)
+        ] as [String: Any]
+
+        return dict
+    }
+    static func getStringFromLayer(layer: HMSSimulcastLayer?) -> String {
+        switch layer {
+        case .high:
+            return "high"
+        case .mid:
+            return "mid"
+        case .low:
+            return "low"
+        default:
+            return "high"
+        }
+    }
+
+    static func getLayerFromString(layer: String) -> HMSSimulcastLayer {
+        switch layer {
+        case "high":
+            return .high
+        case "mid":
+            return .mid
+        case "low":
+            return .low
+        default:
+            return .high
+        }
+    }
+
+    static private func getQualityLimitations(_ limitation: HMSQualityLimitationReasons) -> [String: Any] {
+        [
+            "bandwidth": limitation.bandwidth,
+            "cpu": limitation.cpu,
+            "none": limitation.none,
+            "other": limitation.other,
+            "quality_limitation_resolution_changes": Double(limitation.qualityLimitationResolutionChanges),
+            "reason": getStringFromLimitationReason(limitation.reason)
+        ]
+    }
+
+    static private func getStringFromLimitationReason(_ reason: HMSQualityLimitationReason) -> String {
+        switch reason {
+        case .CPU:
+            return "CPU"
+        case .bandwidth:
+            return "BANDWIDTH"
+        case .none:
+            return "NONE"
+        case .other:
+            return "OTHER"
+        default:
+            return "UNKNOWN"
+        }
     }
 
     static func getRemoteAudioStats(_ data: HMSRemoteAudioStats) -> [String: Any] {

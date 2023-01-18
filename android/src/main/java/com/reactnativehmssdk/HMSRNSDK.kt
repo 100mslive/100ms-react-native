@@ -394,7 +394,7 @@ class HMSRNSDK(
             }
 
             override fun onLocalVideoStats(
-              videoStats: HMSLocalVideoStats,
+              videoStats: List<HMSLocalVideoStats>,
               hmsTrack: HMSTrack?,
               hmsPeer: HMSPeer?
             ) {

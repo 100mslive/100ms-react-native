@@ -450,14 +450,14 @@ export class HMSSDK {
       mirror,
       scaleType,
       setZOrderMediaOverlay,
-      autoSimulcast,
+      disableAutoSimulcastLayerSelect,
     } = props;
     return (
       <HmsViewComponent
         ref={ref}
         trackId={trackId}
         style={style}
-        autoSimulcast={autoSimulcast}
+        disableAutoSimulcastLayerSelect={disableAutoSimulcastLayerSelect}
         setZOrderMediaOverlay={setZOrderMediaOverlay}
         mirror={mirror}
         scaleType={scaleType}
@@ -1544,10 +1544,6 @@ export class HMSSDK {
     if (this.onJoinDelegate) {
       logger?.verbose('#Listener ON_JOIN_LISTENER_CALL', {
         room,
-      });
-      let jsonRoom = JSON.stringify(room);
-      logger?.verbose('#MYYYListener ON_JOIN_LISTENER_CALL', {
-        jsonRoom,
       });
       this.onJoinDelegate({ room });
     }

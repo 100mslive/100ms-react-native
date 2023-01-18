@@ -95,7 +95,7 @@ export const PreviewModal = ({
         ) : (
           <HmsView
             scaleType={HMSVideoViewMode.ASPECT_FILL}
-            autoSimulcast={autoSimulcast}
+            disableAutoSimulcastLayerSelect={autoSimulcast}
             style={styles.hmsView}
             trackId={previewVideoTrack?.trackId}
             mirror={mirrorCamera}
