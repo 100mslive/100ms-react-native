@@ -171,11 +171,6 @@ export class HMSSDK {
    */
   attachListeners = () => {
     HmsEventEmitter.addListener(
-      HMSUpdateListenerActions.ON_ERROR,
-      this.onErrorListener
-    );
-
-    HmsEventEmitter.addListener(
       HMSUpdateListenerActions.ON_MESSAGE,
       this.onMessageListener
     );
@@ -254,11 +249,6 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   removeListeners = () => {
-    HmsEventEmitter.removeListener(
-      HMSUpdateListenerActions.ON_ERROR,
-      this.onErrorListener
-    );
-
     HmsEventEmitter.removeListener(
       HMSUpdateListenerActions.ON_MESSAGE,
       this.onMessageListener
@@ -1303,9 +1293,16 @@ export class HMSSDK {
         this.onTrackDelegate = callback;
         break;
       }
-      case HMSUpdateListenerActions.ON_ERROR:
+      case HMSUpdateListenerActions.ON_ERROR: {
+        // Adding ON_ERROR native listener
+        HmsEventEmitter.addListener(
+          HMSUpdateListenerActions.ON_ERROR,
+          this.onErrorListener
+        );
+        // Adding App Delegate listener
         this.onErrorDelegate = callback;
         break;
+      }
       case HMSUpdateListenerActions.ON_MESSAGE:
         this.onMessageDelegate = callback;
         break;
@@ -1414,9 +1411,16 @@ export class HMSSDK {
         this.onTrackDelegate = null;
         break;
       }
-      case HMSUpdateListenerActions.ON_ERROR:
+      case HMSUpdateListenerActions.ON_ERROR: {
+        // Removing ON_ERROR native listener
+        HmsEventEmitter.removeListener(
+          HMSUpdateListenerActions.ON_ERROR,
+          this.onErrorListener
+        );
+        // Removing App Delegate listener
         this.onErrorDelegate = null;
         break;
+      }
       case HMSUpdateListenerActions.ON_MESSAGE:
         this.onMessageDelegate = null;
         break;
