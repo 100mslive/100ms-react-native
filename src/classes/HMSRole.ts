@@ -8,9 +8,6 @@ export class HMSRole {
   subscribeSettings?: HMSSubscribeSettings;
   permissions?: HMSPermissions;
   priority?: number;
-  generalPermissions?: any;
-  internalPlugins?: any;
-  externalPlugins?: any;
 
   constructor(params?: {
     name?: string;
@@ -18,9 +15,6 @@ export class HMSRole {
     permissions?: HMSPermissions;
     publishSettings?: HMSPublishSettings;
     subscribeSettings?: HMSSubscribeSettings;
-    generalPermissions?: any;
-    internalPlugins?: any;
-    externalPlugins?: any;
   }) {
     if (params) {
       this.name = params.name;
@@ -28,9 +22,6 @@ export class HMSRole {
       this.permissions = params.permissions;
       this.publishSettings = params.publishSettings;
       this.subscribeSettings = params.subscribeSettings;
-      this.generalPermissions = params.generalPermissions;
-      this.internalPlugins = params.internalPlugins;
-      this.externalPlugins = params.externalPlugins;
     }
   }
 }
