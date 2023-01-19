@@ -171,11 +171,6 @@ export class HMSSDK {
    */
   attachListeners = () => {
     HmsEventEmitter.addListener(
-      HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST,
-      this.onRoleChangeRequestListener
-    );
-
-    HmsEventEmitter.addListener(
       HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST,
       this.onChangeTrackStateRequestListener
     );
@@ -229,11 +224,6 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   removeListeners = () => {
-    HmsEventEmitter.removeListener(
-      HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST,
-      this.onRoleChangeRequestListener
-    );
-
     HmsEventEmitter.removeListener(
       HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST,
       this.onChangeTrackStateRequestListener
@@ -1303,9 +1293,16 @@ export class HMSSDK {
         this.onReconnectedDelegate = callback;
         break;
       }
-      case HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST:
+      case HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST: {
+        // Adding ON_ROLE_CHANGE_REQUEST native listener
+        HmsEventEmitter.addListener(
+          HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST,
+          this.onRoleChangeRequestListener
+        );
+        // Adding App Delegate listener
         this.onRoleChangeRequestDelegate = callback;
         break;
+      }
       case HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST:
         this.onChangeTrackStateRequestDelegate = callback;
         break;
@@ -1449,9 +1446,15 @@ export class HMSSDK {
         this.onReconnectedDelegate = null;
         break;
       }
-      case HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST:
+      case HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST: {
+        // Removing ON_ROLE_CHANGE_REQUEST native listener
+        HmsEventEmitter.removeListener(
+          HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST,
+          this.onRoleChangeRequestListener
+        );
         this.onRoleChangeRequestDelegate = null;
         break;
+      }
       case HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST:
         this.onChangeTrackStateRequestDelegate = null;
         break;
