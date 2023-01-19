@@ -131,7 +131,6 @@ export class HMSSDK {
       logSettings: params?.logSettings,
     });
     HmsSdk = new HMSSDK(id);
-    HmsSdk.attachListeners();
     return HmsSdk;
   }
 
@@ -1529,6 +1528,8 @@ export class HMSSDK {
     this.onChangeTrackStateRequestDelegate = null;
     this.onRemovedFromRoomDelegate = null;
     this.onPIPRoomLeaveDelegate = null;
+
+    // TODO: also remove native listeners
 
     logger?.verbose('#Function REMOVE_ALL_LISTENER', { id: this.id });
   };
