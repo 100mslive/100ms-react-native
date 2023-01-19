@@ -171,11 +171,6 @@ export class HMSSDK {
    */
   attachListeners = () => {
     HmsEventEmitter.addListener(
-      HMSUpdateListenerActions.ON_PEER_UPDATE,
-      this.onPeerListener
-    );
-
-    HmsEventEmitter.addListener(
       HMSUpdateListenerActions.ON_TRACK_UPDATE,
       this.onTrackListener
     );
@@ -264,11 +259,6 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   removeListeners = () => {
-    HmsEventEmitter.removeListener(
-      HMSUpdateListenerActions.ON_PEER_UPDATE,
-      this.onPeerListener
-    );
-
     HmsEventEmitter.removeListener(
       HMSUpdateListenerActions.ON_TRACK_UPDATE,
       this.onTrackListener
@@ -1303,9 +1293,16 @@ export class HMSSDK {
         this.onRoomDelegate = callback;
         break;
       }
-      case HMSUpdateListenerActions.ON_PEER_UPDATE:
+      case HMSUpdateListenerActions.ON_PEER_UPDATE: {
+        // Adding ON_PEER_UPDATE native listener
+        HmsEventEmitter.addListener(
+          HMSUpdateListenerActions.ON_PEER_UPDATE,
+          this.onPeerListener
+        );
+        // Adding App Delegate listener
         this.onPeerDelegate = callback;
         break;
+      }
       case HMSUpdateListenerActions.ON_TRACK_UPDATE:
         this.onTrackDelegate = callback;
         break;
@@ -1400,9 +1397,16 @@ export class HMSSDK {
         this.onRoomDelegate = null;
         break;
       }
-      case HMSUpdateListenerActions.ON_PEER_UPDATE:
+      case HMSUpdateListenerActions.ON_PEER_UPDATE: {
+        // Removing ON_PEER_UPDATE native listener
+        HmsEventEmitter.removeListener(
+          HMSUpdateListenerActions.ON_PEER_UPDATE,
+          this.onPeerListener
+        );
+        // Removing App Delegate listener
         this.onPeerDelegate = null;
         break;
+      }
       case HMSUpdateListenerActions.ON_TRACK_UPDATE:
         this.onTrackDelegate = null;
         break;
