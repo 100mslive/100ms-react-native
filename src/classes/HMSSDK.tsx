@@ -171,11 +171,6 @@ export class HMSSDK {
    */
   attachListeners = () => {
     HmsEventEmitter.addListener(
-      HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST,
-      this.onChangeTrackStateRequestListener
-    );
-
-    HmsEventEmitter.addListener(
       HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM,
       this.onRemovedFromRoomListener
     );
@@ -224,11 +219,6 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   removeListeners = () => {
-    HmsEventEmitter.removeListener(
-      HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST,
-      this.onChangeTrackStateRequestListener
-    );
-
     HmsEventEmitter.removeListener(
       HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM,
       this.onRemovedFromRoomListener
@@ -1303,9 +1293,16 @@ export class HMSSDK {
         this.onRoleChangeRequestDelegate = callback;
         break;
       }
-      case HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST:
+      case HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST: {
+        // Adding ON_CHANGE_TRACK_STATE_REQUEST native listener
+        HmsEventEmitter.addListener(
+          HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST,
+          this.onChangeTrackStateRequestListener
+        );
+        // Adding App Delegate listener
         this.onChangeTrackStateRequestDelegate = callback;
         break;
+      }
       case HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM:
         this.onRemovedFromRoomDelegate = callback;
         break;
@@ -1442,7 +1439,7 @@ export class HMSSDK {
           HMSUpdateListenerActions.RECONNECTED,
           this.reconnectedListener
         );
-         // Removing App Delegate listener
+        // Removing App Delegate listener
         this.onReconnectedDelegate = null;
         break;
       }
@@ -1452,12 +1449,20 @@ export class HMSSDK {
           HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST,
           this.onRoleChangeRequestListener
         );
+        // Removing App Delegate listener
         this.onRoleChangeRequestDelegate = null;
         break;
       }
-      case HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST:
+      case HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST: {
+        // Removing ON_CHANGE_TRACK_STATE_REQUEST native listener
+        HmsEventEmitter.removeListener(
+          HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST,
+          this.onChangeTrackStateRequestListener
+        );
+        // Removing App Delegate listener
         this.onChangeTrackStateRequestDelegate = null;
         break;
+      }
       case HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM:
         this.onRemovedFromRoomDelegate = null;
         break;
