@@ -160,32 +160,8 @@ export class HMSSDK {
    */
   destroy = async () => {
     logger?.verbose('#Function destroy', { id: this.id });
-    this.removeListeners();
+    this.removeAllListeners();
     return await HMSManager.destroy({ id: this.id });
-  };
-
-  /**
-   * - Attaches all the listeners to native callbacks.
-   * Note: this function connects sdk to native side and not app to sdk.
-   * @memberof HMSSDK
-   */
-  attachListeners = () => {
-    HmsEventEmitter.addListener(
-      HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED,
-      this.onAudioDeviceChangedListener
-    );
-  };
-
-  /**
-   * Disconnects all the listeners of this sdk from native listeners.
-   * Note: this function is only called from destroy function and should only be called when the current instance of {@link HMSSDK} is not required anymore.
-   * @memberof HMSSDK
-   */
-  removeListeners = () => {
-    HmsEventEmitter.removeListener(
-      HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED,
-      this.onAudioDeviceChangedListener
-    );
   };
 
   /**
@@ -1289,9 +1265,16 @@ export class HMSSDK {
         this.onRemoteVideoStatsDelegate = callback;
         break;
       }
-      case HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED:
+      case HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED: {
+        // Adding ON_AUDIO_DEVICE_CHANGED native listener
+        HmsEventEmitter.addListener(
+          HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED,
+          this.onAudioDeviceChangedListener
+        );
+        // Adding App Delegate listener
         this.onAudioDeviceChangedDelegate = callback;
         break;
+      }
       case HMSPIPListenerActions.ON_PIP_ROOM_LEAVE: {
         if (Platform.OS === 'android') {
           // Adding ON_PIP_ROOM_LEAVE native listener
@@ -1500,9 +1483,16 @@ export class HMSSDK {
         this.onRemoteVideoStatsDelegate = null;
         break;
       }
-      case HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED:
+      case HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED: {
+        // Removing ON_AUDIO_DEVICE_CHANGED native listener
+        HmsEventEmitter.removeListener(
+          HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED,
+          this.onAudioDeviceChangedListener
+        );
+        // Removing App Delegate listener
         this.onAudioDeviceChangedDelegate = null;
         break;
+      }
       case HMSPIPListenerActions.ON_PIP_ROOM_LEAVE: {
         if (Platform.OS === 'android') {
           // Removing ON_PIP_ROOM_LEAVE native listener
