@@ -171,11 +171,6 @@ export class HMSSDK {
    */
   attachListeners = () => {
     HmsEventEmitter.addListener(
-      HMSUpdateListenerActions.ON_SPEAKER,
-      this.onSpeakerListener
-    );
-
-    HmsEventEmitter.addListener(
       HMSUpdateListenerActions.RECONNECTING,
       this.reconnectingListener
     );
@@ -244,11 +239,6 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   removeListeners = () => {
-    HmsEventEmitter.removeListener(
-      HMSUpdateListenerActions.ON_SPEAKER,
-      this.onSpeakerListener
-    );
-
     HmsEventEmitter.removeListener(
       HMSUpdateListenerActions.RECONNECTING,
       this.reconnectingListener
@@ -1303,9 +1293,16 @@ export class HMSSDK {
         this.onMessageDelegate = callback;
         break;
       }
-      case HMSUpdateListenerActions.ON_SPEAKER:
+      case HMSUpdateListenerActions.ON_SPEAKER: {
+        // Adding ON_SPEAKER native listener
+        HmsEventEmitter.addListener(
+          HMSUpdateListenerActions.ON_SPEAKER,
+          this.onSpeakerListener
+        );
+        // Adding App Delegate listener
         this.onSpeakerDelegate = callback;
         break;
+      }
       case HMSUpdateListenerActions.RECONNECTING:
         this.onReconnectingDelegate = callback;
         break;
@@ -1428,9 +1425,16 @@ export class HMSSDK {
         this.onMessageDelegate = null;
         break;
       }
-      case HMSUpdateListenerActions.ON_SPEAKER:
+      case HMSUpdateListenerActions.ON_SPEAKER: {
+        // Removing ON_SPEAKER native listener
+        HmsEventEmitter.removeListener(
+          HMSUpdateListenerActions.ON_SPEAKER,
+          this.onSpeakerListener
+        );
+        // Removing App Delegate listener
         this.onSpeakerDelegate = null;
         break;
+      }
       case HMSUpdateListenerActions.RECONNECTING:
         this.onReconnectingDelegate = null;
         break;
