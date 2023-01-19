@@ -171,11 +171,6 @@ export class HMSSDK {
    */
   attachListeners = () => {
     HmsEventEmitter.addListener(
-      HMSUpdateListenerActions.ON_RTC_STATS,
-      this.RTCStatsListener
-    );
-
-    HmsEventEmitter.addListener(
       HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS,
       this.onLocalAudioStatsListener
     );
@@ -214,11 +209,6 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   removeListeners = () => {
-    HmsEventEmitter.removeListener(
-      HMSUpdateListenerActions.ON_RTC_STATS,
-      this.RTCStatsListener
-    );
-
     HmsEventEmitter.removeListener(
       HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS,
       this.onLocalAudioStatsListener
@@ -1303,9 +1293,16 @@ export class HMSSDK {
         this.onRemovedFromRoomDelegate = callback;
         break;
       }
-      case HMSUpdateListenerActions.ON_RTC_STATS:
+      case HMSUpdateListenerActions.ON_RTC_STATS: {
+        // Adding ON_RTC_STATS native listener
+        HmsEventEmitter.addListener(
+          HMSUpdateListenerActions.ON_RTC_STATS,
+          this.RTCStatsListener
+        );
+        // Adding App Delegate listener
         this.onRtcStatsDelegate = callback;
         break;
+      }
       case HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS:
         this.onLocalAudioStatsDelegate = callback;
         break;
@@ -1470,9 +1467,16 @@ export class HMSSDK {
         this.onRemovedFromRoomDelegate = null;
         break;
       }
-      case HMSUpdateListenerActions.ON_RTC_STATS:
+      case HMSUpdateListenerActions.ON_RTC_STATS: {
+        // Removing ON_RTC_STATS native listener
+        HmsEventEmitter.removeListener(
+          HMSUpdateListenerActions.ON_RTC_STATS,
+          this.RTCStatsListener
+        );
+        // Removing App Delegate listener
         this.onRtcStatsDelegate = null;
         break;
+      }
       case HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS:
         this.onLocalAudioStatsDelegate = null;
         break;
