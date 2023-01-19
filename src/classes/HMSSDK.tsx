@@ -171,11 +171,6 @@ export class HMSSDK {
    */
   attachListeners = () => {
     HmsEventEmitter.addListener(
-      HMSUpdateListenerActions.ON_PREVIEW,
-      this.onPreviewListener
-    );
-
-    HmsEventEmitter.addListener(
       HMSUpdateListenerActions.ON_JOIN,
       this.onJoinListener
     );
@@ -282,11 +277,6 @@ export class HMSSDK {
     HmsEventEmitter.removeListener(
       HMSUpdateListenerActions.ON_JOIN,
       this.onJoinListener
-    );
-
-    HmsEventEmitter.removeListener(
-      HMSUpdateListenerActions.ON_PREVIEW,
-      this.onPreviewListener
     );
 
     HmsEventEmitter.removeListener(
@@ -1303,9 +1293,16 @@ export class HMSSDK {
       id: this.id,
     });
     switch (action) {
-      case HMSUpdateListenerActions.ON_PREVIEW:
+      case HMSUpdateListenerActions.ON_PREVIEW: {
+        // Adding ON_PREVIEW native listener
+        HmsEventEmitter.addListener(
+          HMSUpdateListenerActions.ON_PREVIEW,
+          this.onPreviewListener
+        );
+        // Adding App Delegate listener
         this.onPreviewDelegate = callback;
         break;
+      }
       case HMSUpdateListenerActions.ON_JOIN:
         this.onJoinDelegate = callback;
         break;
@@ -1379,9 +1376,16 @@ export class HMSSDK {
   ) => {
     logger?.verbose('#Function removeEventListener', { action, id: this.id });
     switch (action) {
-      case HMSUpdateListenerActions.ON_PREVIEW:
+      case HMSUpdateListenerActions.ON_PREVIEW: {
+        // Removing ON_PREVIEW native listener
+        HmsEventEmitter.removeListener(
+          HMSUpdateListenerActions.ON_PREVIEW,
+          this.onPreviewListener
+        );
+        // Removing App Delegate listener
         this.onPreviewDelegate = null;
         break;
+      }
       case HMSUpdateListenerActions.ON_JOIN:
         this.onJoinDelegate = null;
         break;
