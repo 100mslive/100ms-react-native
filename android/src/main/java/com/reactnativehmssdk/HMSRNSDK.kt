@@ -393,11 +393,11 @@ class HMSRNSDK(
             }
 
             override fun onLocalVideoStats(
-              videoStats: HMSLocalVideoStats,
+              videoStats: List<HMSLocalVideoStats>,
               hmsTrack: HMSTrack?,
               hmsPeer: HMSPeer?
             ) {
-              if (!rtcStatsAttached) {
+              if (!rtcStatsAttached && hmsPeer != null && hmsTrack != null) {
                 return
               }
 
@@ -406,7 +406,7 @@ class HMSRNSDK(
               val peer = HMSDecoder.getHmsPeer(hmsPeer)
 
               val data: WritableMap = Arguments.createMap()
-              data.putMap("localVideoStats", localVideoStats)
+              data.putArray("localVideoStats", localVideoStats)
               data.putMap("track", track)
               data.putMap("peer", peer)
               data.putString("id", id)

@@ -533,19 +533,25 @@ object HMSDecoder {
     return localAudioStats
   }
 
-  fun getLocalVideoStats(hmsLocalVideoStats: HMSLocalVideoStats?): WritableMap {
-    val localVideoStats: WritableMap = Arguments.createMap()
-    if (hmsLocalVideoStats != null) {
-      localVideoStats.putString("bytesSent", hmsLocalVideoStats.bytesSent.toString())
+  fun getLocalVideoStats(hmsLocalVideoStats: List<HMSLocalVideoStats>): WritableArray {
+
+    val stats: WritableArray = Arguments.createArray()
+
+    for (stat in hmsLocalVideoStats) {
+      val localVideoStats: WritableMap = Arguments.createMap()
+
+      localVideoStats.putString("bytesSent", stat.bytesSent.toString())
       localVideoStats.putMap(
         "resolution",
-        hmsLocalVideoStats.resolution?.let { this.getHmsVideoTrackResolution(it) }
+        stat.resolution?.let { this.getHmsVideoTrackResolution(it) }
       )
-      hmsLocalVideoStats.bitrate?.let { localVideoStats.putDouble("bitrate", it) }
-      hmsLocalVideoStats.roundTripTime?.let { localVideoStats.putDouble("roundTripTime", it) }
-      hmsLocalVideoStats.frameRate?.let { localVideoStats.putDouble("frameRate", it) }
+      stat.bitrate?.let { localVideoStats.putDouble("bitrate", it) }
+      stat.roundTripTime?.let { localVideoStats.putDouble("roundTripTime", it) }
+      stat.frameRate?.let { localVideoStats.putDouble("frameRate", it) }
+      stats.pushMap(localVideoStats)
     }
-    return localVideoStats
+
+    return stats
   }
 
   fun getRemoteAudioStats(hmsRemoteAudioStats: HMSRemoteAudioStats?): WritableMap {

@@ -576,8 +576,15 @@ class HMSDecoder: NSObject {
         return ["roundTripTime": data.roundTripTime, "bytesSent": data.bytesSent, "bitrate": data.bitrate]
     }
 
-    static func getLocalVideoStats(_ data: HMSLocalVideoStats) -> [String: Any] {
-        return ["roundTripTime": data.roundTripTime, "bytesSent": data.bytesSent, "bitrate": data.bitrate, "resolution": HMSDecoder.getHmsVideoResolution(data.resolution), "frameRate": data.frameRate]
+    static func getLocalVideoStats(_ data: [HMSLocalVideoStats]) -> [[String: Any]] {
+        var dict = [[String: Any]]()
+        for stat in data {
+            dict.append(["roundTripTime": stat.roundTripTime,
+                         "bytesSent": stat.bytesSent,
+                         "bitrate": stat.bitrate,
+                         "resolution": HMSDecoder.getHmsVideoResolution(stat.resolution), "frameRate": stat.frameRate])
+        }
+        return dict
     }
 
     static func getRemoteAudioStats(_ data: HMSRemoteAudioStats) -> [String: Any] {
