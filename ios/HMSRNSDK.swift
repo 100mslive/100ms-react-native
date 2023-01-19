@@ -1277,17 +1277,19 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     func getString(from update: HMSRoomUpdate) -> String {
         switch update {
         case .roomTypeChanged:
-            return "ROOM_TYPE_CHANGED"
+            return "ROOM_PEER_COUNT_UPDATED"
         case .metaDataUpdated:
-            return "META_DATA_CHANGED"
+            return "ROOM_PEER_COUNT_UPDATED"
         case .browserRecordingStateUpdated:
             return "BROWSER_RECORDING_STATE_UPDATED"
         case .hlsStreamingStateUpdated:
             return "HLS_STREAMING_STATE_UPDATED"
         case .rtmpStreamingStateUpdated:
             return "RTMP_STREAMING_STATE_UPDATED"
-        case.serverRecordingStateUpdated:
+        case .serverRecordingStateUpdated:
             return "SERVER_RECORDING_STATE_UPDATED"
+        case .hlsRecordingStateUpdated:
+            return "HLS_RECORDING_STATE_UPDATED"
         default:
             return ""
         }
