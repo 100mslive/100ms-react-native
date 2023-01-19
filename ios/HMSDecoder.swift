@@ -311,11 +311,8 @@ class HMSDecoder: NSObject {
         let publishSettings = getHmsPublishSettings(role.publishSettings)
         let subscribeSettings = getHmsSubscribeSettings(role.subscribeSettings)
         let priority = role.priority
-        let generalPermissions = role.generalPermissions ?? [:]
-        let internalPlugins = role.internalPlugins ?? [:]
-        let externalPlugins = role.externalPlugins ?? [:]
 
-        return ["name": name, "permissions": permissions, "publishSettings": publishSettings, "subscribeSettings": subscribeSettings, "priority": priority, "generalPermissions": generalPermissions, "internalPlugins": internalPlugins, "externalPlugins": externalPlugins]
+        return ["name": name, "permissions": permissions, "publishSettings": publishSettings, "subscribeSettings": subscribeSettings, "priority": priority]
     }
 
     static func getHmsPermissions (_ permissions: HMSPermissions) -> [String: Any] {
@@ -366,10 +363,9 @@ class HMSDecoder: NSObject {
         else { return [:] }
 
         let maxSubsBitRate = settings.maxSubsBitRate
-        let subscribeDegradationParam = getHmsSubscribeDegradationSettings(settings.subscribeDegradation)
         let subscribeTo = settings.subscribeToRoles
 
-        return ["maxSubsBitRate": maxSubsBitRate, "subscribeDegradationParam": subscribeDegradationParam, "subscribeTo": subscribeTo ?? []]
+        return ["maxSubsBitRate": maxSubsBitRate, "subscribeTo": subscribeTo ?? []]
     }
 
     static func getHmsSubscribeDegradationSettings (_ hmsSubscribeDegradationParams: HMSSubscribeDegradationPolicy?) -> [String: Any] {

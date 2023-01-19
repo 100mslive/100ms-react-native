@@ -1187,46 +1187,46 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         self.delegate?.emitEvent(ON_RTC_STATS, ["video": video, "audio": audio, "combined": combined, "id": self.id])
     }
 
-    func on(localAudioStats: HMSLocalAudioStats, track: HMSLocalAudioTrack, peer: HMSPeer) {
+    func on(localAudioStats: HMSLocalAudioStats, track: HMSAudioTrack, peer: HMSPeer) {
         if !rtcStatsAttached {
             return
         }
         let localStats = HMSDecoder.getLocalAudioStats(localAudioStats)
-        let localTrack = HMSDecoder.getHmsLocalAudioTrack(track)
+        let localTrack = HMSDecoder.getHmsAudioTrack(track)
         let decodedPeer = HMSDecoder.getHmsPeer(peer)
 
         self.delegate?.emitEvent(ON_LOCAL_AUDIO_STATS, ["localAudioStats": localStats, "track": localTrack, "peer": decodedPeer, "id": self.id])
     }
 
-    func on(localVideoStats: [HMSLocalVideoStats], track: HMSLocalVideoTrack, peer: HMSPeer) {
+    func on(localVideoStats: [HMSLocalVideoStats], track: HMSVideoTrack, peer: HMSPeer) {
         if !rtcStatsAttached {
             return
         }
         let localStats = HMSDecoder.getLocalVideoStats(localVideoStats)
         let decodedPeer = HMSDecoder.getHmsPeer(peer)
-        let localTrack = HMSDecoder.getHmsLocalVideoTrack(track)
+        let localTrack = HMSDecoder.getHmsVideoTrack(track)
 
         self.delegate?.emitEvent(ON_LOCAL_VIDEO_STATS, ["localVideoStats": localStats, "track": localTrack, "peer": decodedPeer, "id": self.id])
     }
 
-    func on(remoteAudioStats: HMSRemoteAudioStats, track: HMSRemoteAudioTrack, peer: HMSPeer) {
+    func on(remoteAudioStats: HMSRemoteAudioStats, track: HMSAudioTrack, peer: HMSPeer) {
         if !rtcStatsAttached {
             return
         }
         let remoteStats = HMSDecoder.getRemoteAudioStats(remoteAudioStats)
-        let remoteTrack = HMSDecoder.getHMSRemoteAudioTrack(track)
+        let remoteTrack = HMSDecoder.getHmsAudioTrack(track)
         let decodedPeer = HMSDecoder.getHmsPeer(peer)
 
         self.delegate?.emitEvent(ON_REMOTE_AUDIO_STATS, ["remoteAudioStats": remoteStats, "track": remoteTrack, "peer": decodedPeer, "id": self.id])
     }
 
-    func on(remoteVideoStats: HMSRemoteVideoStats, track: HMSRemoteVideoTrack, peer: HMSPeer) {
+    func on(remoteVideoStats: HMSRemoteVideoStats, track: HMSVideoTrack, peer: HMSPeer) {
         if !rtcStatsAttached {
             return
         }
         let remoteStats = HMSDecoder.getRemoteVideoStats(remoteVideoStats)
         let decodedPeer = HMSDecoder.getHmsPeer(peer)
-        let remoteTrack = HMSDecoder.getHMSRemoteVideoTrack(track)
+        let remoteTrack = HMSDecoder.getHmsVideoTrack(track)
 
         self.delegate?.emitEvent(ON_REMOTE_VIDEO_STATS, ["remoteVideoStats": remoteStats, "track": remoteTrack, "peer": decodedPeer, "id": self.id])
     }
