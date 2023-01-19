@@ -534,7 +534,6 @@ object HMSDecoder {
   }
 
   fun getLocalVideoStats(hmsLocalVideoStats: List<HMSLocalVideoStats>): WritableArray {
-
     val stats: WritableArray = Arguments.createArray()
 
     for (stat in hmsLocalVideoStats) {
