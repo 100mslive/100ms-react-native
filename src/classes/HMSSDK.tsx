@@ -171,11 +171,6 @@ export class HMSSDK {
    */
   attachListeners = () => {
     HmsEventEmitter.addListener(
-      HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM,
-      this.onRemovedFromRoomListener
-    );
-
-    HmsEventEmitter.addListener(
       HMSUpdateListenerActions.ON_RTC_STATS,
       this.RTCStatsListener
     );
@@ -219,11 +214,6 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   removeListeners = () => {
-    HmsEventEmitter.removeListener(
-      HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM,
-      this.onRemovedFromRoomListener
-    );
-
     HmsEventEmitter.removeListener(
       HMSUpdateListenerActions.ON_RTC_STATS,
       this.RTCStatsListener
@@ -1303,9 +1293,16 @@ export class HMSSDK {
         this.onChangeTrackStateRequestDelegate = callback;
         break;
       }
-      case HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM:
+      case HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM: {
+        // Adding ON_REMOVED_FROM_ROOM native listener
+        HmsEventEmitter.addListener(
+          HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM,
+          this.onRemovedFromRoomListener
+        );
+        // Adding App Delegate listener
         this.onRemovedFromRoomDelegate = callback;
         break;
+      }
       case HMSUpdateListenerActions.ON_RTC_STATS:
         this.onRtcStatsDelegate = callback;
         break;
@@ -1463,9 +1460,16 @@ export class HMSSDK {
         this.onChangeTrackStateRequestDelegate = null;
         break;
       }
-      case HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM:
+      case HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM: {
+        // Removing ON_REMOVED_FROM_ROOM native listener
+        HmsEventEmitter.removeListener(
+          HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM,
+          this.onRemovedFromRoomListener
+        );
+        // Removing App Delegate listener
         this.onRemovedFromRoomDelegate = null;
         break;
+      }
       case HMSUpdateListenerActions.ON_RTC_STATS:
         this.onRtcStatsDelegate = null;
         break;
