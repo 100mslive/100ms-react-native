@@ -171,11 +171,6 @@ export class HMSSDK {
    */
   attachListeners = () => {
     HmsEventEmitter.addListener(
-      HMSUpdateListenerActions.RECONNECTED,
-      this.reconnectedListener
-    );
-
-    HmsEventEmitter.addListener(
       HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST,
       this.onRoleChangeRequestListener
     );
@@ -234,11 +229,6 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   removeListeners = () => {
-    HmsEventEmitter.removeListener(
-      HMSUpdateListenerActions.RECONNECTED,
-      this.reconnectedListener
-    );
-
     HmsEventEmitter.removeListener(
       HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST,
       this.onRoleChangeRequestListener
@@ -1303,9 +1293,16 @@ export class HMSSDK {
         this.onReconnectingDelegate = callback;
         break;
       }
-      case HMSUpdateListenerActions.RECONNECTED:
+      case HMSUpdateListenerActions.RECONNECTED: {
+        // Adding RECONNECTED native listener
+        HmsEventEmitter.addListener(
+          HMSUpdateListenerActions.RECONNECTED,
+          this.reconnectedListener
+        );
+        // Adding App Delegate listener
         this.onReconnectedDelegate = callback;
         break;
+      }
       case HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST:
         this.onRoleChangeRequestDelegate = callback;
         break;
@@ -1442,9 +1439,16 @@ export class HMSSDK {
         this.onReconnectingDelegate = null;
         break;
       }
-      case HMSUpdateListenerActions.RECONNECTED:
+      case HMSUpdateListenerActions.RECONNECTED: {
+        // Removing RECONNECTED native listener
+        HmsEventEmitter.removeListener(
+          HMSUpdateListenerActions.RECONNECTED,
+          this.reconnectedListener
+        );
+         // Removing App Delegate listener
         this.onReconnectedDelegate = null;
         break;
+      }
       case HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST:
         this.onRoleChangeRequestDelegate = null;
         break;
