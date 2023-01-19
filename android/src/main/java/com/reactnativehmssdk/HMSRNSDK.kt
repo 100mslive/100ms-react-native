@@ -969,15 +969,6 @@ class HMSRNSDK(
           val peer = HMSHelper.getRemotePeerFromPeerId(peerId, hmsSDK?.getRoom())
           peer?.audioTrack?.isPlaybackAllowed = !mute
         }
-        val localPeerData = HMSDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
-        val remotePeerData = HMSDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
-
-        val map: WritableMap = Arguments.createMap()
-
-        map.putMap("localPeer", localPeerData)
-        map.putArray("remotePeers", remotePeerData)
-        map.putString("id", id)
-        delegate.emitEvent("ON_PEER_UPDATE", map)
       }
     } else {
       val errorMessage = "setPlaybackForAllAudio: $requiredKeys"

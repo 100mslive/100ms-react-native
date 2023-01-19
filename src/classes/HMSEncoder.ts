@@ -333,7 +333,6 @@ export class HMSEncoder {
 
   static encodeHmsRole(role: any) {
     const hmsRole = new HMSRole(role);
-
     return hmsRole;
   }
 
