@@ -22,20 +22,36 @@ object HMSDecoder {
       room.putString("name", hmsRoom.name)
       room.putString("metaData", null)
       room.putString("startedAt", hmsRoom.startedAt.toString())
-      room.putMap(
-        "browserRecordingState",
-        this.getHMSBrowserRecordingState(hmsRoom.browserRecordingState)
-      )
-      room.putMap(
-        "rtmpHMSRtmpStreamingState",
-        this.getHMSRtmpStreamingState(hmsRoom.rtmpHMSRtmpStreamingState)
-      )
-      room.putMap(
-        "serverRecordingState",
-        this.getHMSServerRecordingState(hmsRoom.serverRecordingState)
-      )
-      room.putMap("hlsStreamingState", this.getHMSHlsStreamingState(hmsRoom.hlsStreamingState))
-      room.putMap("hlsRecordingState", this.getHMSHlsRecordingState(hmsRoom.hlsRecordingState))
+
+      hmsRoom.browserRecordingState?.let {
+        room.putMap(
+          "browserRecordingState",
+          this.getHMSBrowserRecordingState(it)
+        )
+      }
+
+      hmsRoom.rtmpHMSRtmpStreamingState?.let {
+        room.putMap(
+          "rtmpHMSRtmpStreamingState",
+          this.getHMSRtmpStreamingState(it)
+        )
+      }
+
+      hmsRoom.serverRecordingState?.let {
+        room.putMap(
+          "serverRecordingState",
+          this.getHMSServerRecordingState(it)
+        )
+      }
+
+      hmsRoom.hlsStreamingState?.let {
+        room.putMap("hlsStreamingState", this.getHMSHlsStreamingState(hmsRoom.hlsStreamingState))
+      }
+
+      hmsRoom.hlsRecordingState?.let {
+        room.putMap("hlsRecordingState", this.getHMSHlsRecordingState(hmsRoom.hlsRecordingState))
+      }
+
       room.putMap("localPeer", this.getHmsLocalPeer(hmsRoom.localPeer))
       room.putArray("peers", this.getAllPeers(hmsRoom.peerList))
       room.putInt("peerCount", hmsRoom.peerCount)
@@ -49,13 +65,32 @@ object HMSDecoder {
       peer.putString("peerID", hmsPeer.peerID)
       peer.putString("name", hmsPeer.name)
       peer.putBoolean("isLocal", hmsPeer.isLocal)
-      peer.putString("customerUserID", hmsPeer.customerUserID)
+
+      hmsPeer.customerUserID?.let {
+        peer.putString("customerUserID", it)
+      }
+
+      peer.putString("joinedAt", hmsPeer.joinedAt.toString())
+
       peer.putString("metadata", hmsPeer.metadata)
-      peer.putMap("networkQuality", this.getHmsNetworkQuality(hmsPeer.networkQuality))
-      peer.putMap("audioTrack", this.getHmsAudioTrack(hmsPeer.audioTrack))
-      peer.putMap("videoTrack", this.getHmsVideoTrack(hmsPeer.videoTrack))
+
       peer.putMap("role", this.getHmsRole(hmsPeer.hmsRole))
-      peer.putArray("auxiliaryTracks", this.getAllTracks(hmsPeer.auxiliaryTracks))
+
+      hmsPeer.networkQuality?.let {
+        peer.putMap("networkQuality", this.getHmsNetworkQuality(it)
+      }
+
+      hmsPeer.audioTrack?.let {
+        peer.putMap("audioTrack", this.getHmsAudioTrack(it))
+      }
+
+      hmsPeer.videoTrack?.let {
+        peer.putMap("videoTrack", this.getHmsVideoTrack(it))
+      }
+
+      hmsPeer.auxiliaryTracks.let {
+          peer.putArray("auxiliaryTracks", this.getAllTracks(it))
+      }
     }
     return peer
   }
@@ -141,8 +176,6 @@ object HMSDecoder {
       publishSettings.putMap("audio", this.getHmsAudioSettings(hmsPublishSettings.audio))
       publishSettings.putMap("video", this.getHmsVideoSettings(hmsPublishSettings.video))
       publishSettings.putMap("screen", this.getHmsVideoSettings(hmsPublishSettings.screen))
-      publishSettings.putMap("videoSimulcastLayers", null)
-      publishSettings.putMap("screenSimulcastLayers", null)
       publishSettings.putArray("allowed", this.getWriteableArray(hmsPublishSettings.allowed))
     }
     return publishSettings
@@ -436,10 +469,6 @@ object HMSDecoder {
     val subscribeSettings: WritableMap = Arguments.createMap()
     if (hmsSubscribeSettings != null) {
       subscribeSettings.putInt("maxSubsBitRate", hmsSubscribeSettings.maxSubsBitRate)
-      subscribeSettings.putMap(
-        "subscribeDegradationParam",
-        this.getHmsSubscribeDegradationSettings(hmsSubscribeSettings.subscribeDegradationParam)
-      )
       subscribeSettings.putArray(
         "subscribeTo",
         this.getWriteableArray(hmsSubscribeSettings.subscribeTo)
