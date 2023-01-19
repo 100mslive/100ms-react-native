@@ -171,26 +171,6 @@ export class HMSSDK {
    */
   attachListeners = () => {
     HmsEventEmitter.addListener(
-      HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS,
-      this.onLocalAudioStatsListener
-    );
-
-    HmsEventEmitter.addListener(
-      HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS,
-      this.onLocalVideoStatsListener
-    );
-
-    HmsEventEmitter.addListener(
-      HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS,
-      this.onRemoteAudioStatsListener
-    );
-
-    HmsEventEmitter.addListener(
-      HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS,
-      this.onRemoteVideoStatsListener
-    );
-
-    HmsEventEmitter.addListener(
       HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED,
       this.onAudioDeviceChangedListener
     );
@@ -209,26 +189,6 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   removeListeners = () => {
-    HmsEventEmitter.removeListener(
-      HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS,
-      this.onLocalAudioStatsListener
-    );
-
-    HmsEventEmitter.removeListener(
-      HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS,
-      this.onLocalVideoStatsListener
-    );
-
-    HmsEventEmitter.removeListener(
-      HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS,
-      this.onRemoteAudioStatsListener
-    );
-
-    HmsEventEmitter.removeListener(
-      HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS,
-      this.onRemoteVideoStatsListener
-    );
-
     HmsEventEmitter.removeListener(
       HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED,
       this.onAudioDeviceChangedListener
@@ -1303,18 +1263,46 @@ export class HMSSDK {
         this.onRtcStatsDelegate = callback;
         break;
       }
-      case HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS:
+      case HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS: {
+        // Adding ON_LOCAL_AUDIO_STATS native listener
+        HmsEventEmitter.addListener(
+          HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS,
+          this.onLocalAudioStatsListener
+        );
+        // Adding App Delegate listener
         this.onLocalAudioStatsDelegate = callback;
         break;
-      case HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS:
+      }
+      case HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS: {
+        // Adding ON_LOCAL_VIDEO_STATS native listener
+        HmsEventEmitter.addListener(
+          HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS,
+          this.onLocalVideoStatsListener
+        );
+        // Adding App Delegate listener
         this.onLocalVideoStatsDelegate = callback;
         break;
-      case HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS:
+      }
+      case HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS: {
+        // Adding ON_REMOTE_AUDIO_STATS native listener
+        HmsEventEmitter.addListener(
+          HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS,
+          this.onRemoteAudioStatsListener
+        );
+        // Adding App Delegate listener
         this.onRemoteAudioStatsDelegate = callback;
         break;
-      case HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS:
+      }
+      case HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS: {
+        // Adding ON_REMOTE_VIDEO_STATS native listener
+        HmsEventEmitter.addListener(
+          HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS,
+          this.onRemoteVideoStatsListener
+        );
+        // Adding App Delegate listener
         this.onRemoteVideoStatsDelegate = callback;
         break;
+      }
       case HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED:
         this.onAudioDeviceChangedDelegate = callback;
         break;
@@ -1477,18 +1465,46 @@ export class HMSSDK {
         this.onRtcStatsDelegate = null;
         break;
       }
-      case HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS:
+      case HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS: {
+        // Removing ON_LOCAL_AUDIO_STATS native listener
+        HmsEventEmitter.removeListener(
+          HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS,
+          this.onLocalAudioStatsListener
+        );
+        // Removing App Delegate listener
         this.onLocalAudioStatsDelegate = null;
         break;
-      case HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS:
+      }
+      case HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS: {
+        // Removing ON_LOCAL_VIDEO_STATS native listener
+        HmsEventEmitter.removeListener(
+          HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS,
+          this.onLocalVideoStatsListener
+        );
+        // Removing App Delegate listener
         this.onLocalVideoStatsDelegate = null;
         break;
-      case HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS:
+      }
+      case HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS: {
+        // Removing ON_REMOTE_AUDIO_STATS native listener
+        HmsEventEmitter.removeListener(
+          HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS,
+          this.onRemoteAudioStatsListener
+        );
+        // Removing App Delegate listener
         this.onRemoteAudioStatsDelegate = null;
         break;
-      case HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS:
+      }
+      case HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS: {
+        // Removing ON_REMOTE_VIDEO_STATS native listener
+        HmsEventEmitter.removeListener(
+          HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS,
+          this.onRemoteVideoStatsListener
+        );
+        // Removing App Delegate listener
         this.onRemoteVideoStatsDelegate = null;
         break;
+      }
       case HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED:
         this.onAudioDeviceChangedDelegate = null;
         break;
