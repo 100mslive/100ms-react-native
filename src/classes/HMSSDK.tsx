@@ -174,13 +174,6 @@ export class HMSSDK {
       HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED,
       this.onAudioDeviceChangedListener
     );
-
-    if (Platform.OS === 'android') {
-      HmsEventEmitter.addListener(
-        HMSPIPListenerActions.ON_PIP_ROOM_LEAVE,
-        this.onPIPRoomLeaveListener
-      );
-    }
   };
 
   /**
@@ -193,13 +186,6 @@ export class HMSSDK {
       HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED,
       this.onAudioDeviceChangedListener
     );
-
-    if (Platform.OS === 'android') {
-      HmsEventEmitter.removeListener(
-        HMSPIPListenerActions.ON_PIP_ROOM_LEAVE,
-        this.onPIPRoomLeaveListener
-      );
-    }
   };
 
   /**
@@ -1306,9 +1292,18 @@ export class HMSSDK {
       case HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED:
         this.onAudioDeviceChangedDelegate = callback;
         break;
-      case HMSPIPListenerActions.ON_PIP_ROOM_LEAVE:
-        this.onPIPRoomLeaveDelegate = callback;
+      case HMSPIPListenerActions.ON_PIP_ROOM_LEAVE: {
+        if (Platform.OS === 'android') {
+          // Adding ON_PIP_ROOM_LEAVE native listener
+          HmsEventEmitter.addListener(
+            HMSPIPListenerActions.ON_PIP_ROOM_LEAVE,
+            this.onPIPRoomLeaveListener
+          );
+          // Adding App Delegate listener
+          this.onPIPRoomLeaveDelegate = callback;
+        }
         break;
+      }
       default:
     }
   };
@@ -1508,9 +1503,18 @@ export class HMSSDK {
       case HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED:
         this.onAudioDeviceChangedDelegate = null;
         break;
-      case HMSPIPListenerActions.ON_PIP_ROOM_LEAVE:
-        this.onPIPRoomLeaveDelegate = null;
+      case HMSPIPListenerActions.ON_PIP_ROOM_LEAVE: {
+        if (Platform.OS === 'android') {
+          // Removing ON_PIP_ROOM_LEAVE native listener
+          HmsEventEmitter.removeListener(
+            HMSPIPListenerActions.ON_PIP_ROOM_LEAVE,
+            this.onPIPRoomLeaveListener
+          );
+          // Removing App Delegate listener
+          this.onPIPRoomLeaveDelegate = null;
+        }
         break;
+      }
       default:
     }
   };
