@@ -477,6 +477,7 @@ export class HMSSDK {
     const op = await HMSManager.leave(data);
     this.muteStatus = undefined;
     this?.appStateSubscription?.remove();
+    HMSEncoder.clearData(); // Clearing cached data in encoder
     return op;
   };
 

@@ -29,7 +29,17 @@ import { HMSMessage } from './HMSMessage';
 import { HMSMessageRecipient } from './HMSMessageRecipient';
 import { HMSException } from './HMSException';
 
+interface InitialData {
+  roles: Record<string, HMSRole>;
+}
+
 export class HMSEncoder {
+  private static data: InitialData = { roles: {} };
+
+  static clearData() {
+    this.data = { roles: {} };
+  }
+
   static encodeHmsRoom(room: HMSRoom, id: string) {
     const encodedObj = {
       id: room?.id,
@@ -332,9 +342,13 @@ export class HMSEncoder {
   }
 
   static encodeHmsRole(role: any) {
-    const hmsRole = new HMSRole(role);
+    const rolesCache = this.data.roles;
 
-    return hmsRole;
+    if (!rolesCache[role.name]) {
+      rolesCache[role.name] = new HMSRole(role);
+    }
+
+    return rolesCache[role.name];
   }
 
   static encodeHmsRoleChangeRequest(data: any, id: string) {
