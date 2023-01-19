@@ -171,11 +171,6 @@ export class HMSSDK {
    */
   attachListeners = () => {
     HmsEventEmitter.addListener(
-      HMSUpdateListenerActions.ON_JOIN,
-      this.onJoinListener
-    );
-
-    HmsEventEmitter.addListener(
       HMSUpdateListenerActions.ON_ROOM_UPDATE,
       this.onRoomListener
     );
@@ -274,11 +269,6 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   removeListeners = () => {
-    HmsEventEmitter.removeListener(
-      HMSUpdateListenerActions.ON_JOIN,
-      this.onJoinListener
-    );
-
     HmsEventEmitter.removeListener(
       HMSUpdateListenerActions.ON_ROOM_UPDATE,
       this.onRoomListener
@@ -1303,9 +1293,16 @@ export class HMSSDK {
         this.onPreviewDelegate = callback;
         break;
       }
-      case HMSUpdateListenerActions.ON_JOIN:
+      case HMSUpdateListenerActions.ON_JOIN: {
+        // Adding ON_JOIN native listener
+        HmsEventEmitter.addListener(
+          HMSUpdateListenerActions.ON_JOIN,
+          this.onJoinListener
+        );
+        // Adding App Delegate listener
         this.onJoinDelegate = callback;
         break;
+      }
       case HMSUpdateListenerActions.ON_ROOM_UPDATE:
         this.onRoomDelegate = callback;
         break;
@@ -1386,9 +1383,16 @@ export class HMSSDK {
         this.onPreviewDelegate = null;
         break;
       }
-      case HMSUpdateListenerActions.ON_JOIN:
+      case HMSUpdateListenerActions.ON_JOIN: {
+        // Removing ON_JOIN native listener
+        HmsEventEmitter.removeListener(
+          HMSUpdateListenerActions.ON_JOIN,
+          this.onJoinListener
+        );
+        // Removing App Delegate listener
         this.onJoinDelegate = null;
         break;
+      }
       case HMSUpdateListenerActions.ON_ROOM_UPDATE:
         this.onRoomDelegate = null;
         break;
