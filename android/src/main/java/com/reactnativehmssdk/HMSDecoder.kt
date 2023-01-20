@@ -89,7 +89,7 @@ object HMSDecoder {
       }
 
       hmsPeer.auxiliaryTracks.let {
-          peer.putArray("auxiliaryTracks", this.getAllTracks(it))
+        peer.putArray("auxiliaryTracks", this.getAllTracks(it))
       }
     }
     return peer
@@ -242,7 +242,7 @@ object HMSDecoder {
       }
 
       hmsLocalPeer.auxiliaryTracks.let {
-          peer.putArray("auxiliaryTracks", this.getAllTracks(it))
+        peer.putArray("auxiliaryTracks", this.getAllTracks(it))
       }
     }
     return peer
@@ -581,7 +581,6 @@ object HMSDecoder {
   fun getHmsMessageRecipient(recipient: HMSMessageRecipient?): WritableMap {
     val hmsRecipient: WritableMap = Arguments.createMap()
     if (recipient != null) {
-
       recipient.recipientPeer?.let {
         hmsRecipient.putMap("recipientPeer", this.getHmsPeer(it))
       }

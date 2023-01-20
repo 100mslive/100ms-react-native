@@ -130,23 +130,19 @@ const Meeting = () => {
   );
 
   const updateLocalPeer = () => {
-    InteractionManager.runAfterInteractions( () =>
-    {
-      hmsInstance?.getLocalPeer().then( peer =>
-      {
-        setLocalPeer( peer )
-      } );
-    } );
+    InteractionManager.runAfterInteractions(() => {
+      hmsInstance?.getLocalPeer().then(peer => {
+        setLocalPeer(peer);
+      });
+    });
   };
 
   const updateRoom = () => {
-    InteractionManager.runAfterInteractions( () =>
-    {
-      hmsInstance?.getRoom().then( hmsRoom =>
-      {
-        setRoom( hmsRoom )
-      } );
-    } );
+    InteractionManager.runAfterInteractions(() => {
+      hmsInstance?.getRoom().then(hmsRoom => {
+        setRoom(hmsRoom);
+      });
+    });
   };
 
   useEffect(() => {
@@ -648,7 +644,9 @@ const DisplayView = (data: {
     // hms?.removeEventListener(HMSUpdateListenerActions.RECONNECTING);
     // hms?.removeEventListener(HMSUpdateListenerActions.RECONNECTED);
     hms?.removeEventListener(HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST);
-    hms?.removeEventListener(HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST);
+    hms?.removeEventListener(
+      HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST,
+    );
     hms?.removeEventListener(HMSPIPListenerActions.ON_PIP_ROOM_LEAVE);
   };
 
@@ -741,23 +739,19 @@ const DisplayView = (data: {
   };
 
   const getHmsRoles = () => {
-
-    InteractionManager.runAfterInteractions( () =>
-    {
-      hmsInstance?.getRoles().then( roles =>
-      {
+    InteractionManager.runAfterInteractions(() => {
+      hmsInstance?.getRoles().then(roles => {
         dispatch(
-          saveUserData( {
+          saveUserData({
             roles,
-          } ),
-        )
-      } );
-    } );
+          }),
+        );
+      });
+    });
   };
 
   const getSessionMetaData = () => {
-    InteractionManager.runAfterInteractions( () =>
-    {
+    InteractionManager.runAfterInteractions(() => {
       hmsInstance?.getSessionMetaData().then((value: string | null) => {
         dispatch(addPinnedMessage(value));
       });

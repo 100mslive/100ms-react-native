@@ -130,14 +130,15 @@ const Welcome = () => {
         data.room.localPeer,
         data.room.localPeer.videoTrack,
       );
-      const newPeerTrackNodes = [
-        hmsLocalPeer,
-        ...peerTrackNodesRef.current,
-      ];
+      const newPeerTrackNodes = [hmsLocalPeer, ...peerTrackNodesRef.current];
       peerTrackNodesRef.current = newPeerTrackNodes;
     } else {
       if (data.room.localPeer.videoTrack) {
-        changePeerTrackNodes(nodesPresent, data.room.localPeer, data.room.localPeer.videoTrack as HMSTrack);
+        changePeerTrackNodes(
+          nodesPresent,
+          data.room.localPeer,
+          data.room.localPeer.videoTrack as HMSTrack,
+        );
       } else {
         changePeerNodes(nodesPresent, data.room.localPeer);
       }

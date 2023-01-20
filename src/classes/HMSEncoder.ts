@@ -500,8 +500,12 @@ export class HMSEncoder {
   static encodeHMSMessageRecipient(data: any, id: string) {
     return new HMSMessageRecipient({
       recipientType: data?.recipientType,
-      recipientPeer: data?.recipientPeer ? this.encodeHmsPeer(data.recipientPeer, id) : undefined,
-      recipientRoles: Array.isArray(data?.recipientRoles) ? this.encodeHmsRoles(data.recipientRoles) : [],
+      recipientPeer: data?.recipientPeer
+        ? this.encodeHmsPeer(data.recipientPeer, id)
+        : undefined,
+      recipientRoles: Array.isArray(data?.recipientRoles)
+        ? this.encodeHmsRoles(data.recipientRoles)
+        : [],
     });
   }
 

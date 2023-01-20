@@ -21,7 +21,12 @@ import {
 
 import {LayoutParams, PeerTrackNode, SortingType} from './types';
 import * as services from '../services/index';
-import {PERMISSIONS, request, requestMultiple, RESULTS} from 'react-native-permissions';
+import {
+  PERMISSIONS,
+  request,
+  requestMultiple,
+  RESULTS,
+} from 'react-native-permissions';
 
 export const getMeetingUrl = () =>
   'https://yogi.app.100ms.live/streaming/meeting/nih-bkn-vek';
@@ -661,7 +666,10 @@ export const checkPermissions = async (
   }
 
   try {
-    const requiredPermissions = permissions.filter(permission => permission.toString() !== PERMISSIONS.ANDROID.BLUETOOTH_CONNECT);
+    const requiredPermissions = permissions.filter(
+      permission =>
+        permission.toString() !== PERMISSIONS.ANDROID.BLUETOOTH_CONNECT,
+    );
 
     const results = await requestMultiple(requiredPermissions);
 
@@ -679,14 +687,20 @@ export const checkPermissions = async (
 
     // Bluetooth Connect Permission handling
     if (
-      permissions.findIndex(permission => permission.toString() === PERMISSIONS.ANDROID.BLUETOOTH_CONNECT) >= 0
+      permissions.findIndex(
+        permission =>
+          permission.toString() === PERMISSIONS.ANDROID.BLUETOOTH_CONNECT,
+      ) >= 0
     ) {
-      const bleConnectResult = await request(PERMISSIONS.ANDROID.BLUETOOTH_CONNECT);
-      console.log(`${PERMISSIONS.ANDROID.BLUETOOTH_CONNECT} : ${bleConnectResult}`);
+      const bleConnectResult = await request(
+        PERMISSIONS.ANDROID.BLUETOOTH_CONNECT,
+      );
+      console.log(
+        `${PERMISSIONS.ANDROID.BLUETOOTH_CONNECT} : ${bleConnectResult}`,
+      );
     }
 
     return allPermissionsGranted;
-
   } catch (error) {
     console.log(error);
     return false;
@@ -704,20 +718,20 @@ export const pairData = (
   let itemsPushed: number = 0;
 
   unGroupedPeerTrackNodes.map((item: PeerTrackNode) => {
-      if (
-        item.track?.source !== HMSTrackSource.REGULAR &&
-        item.track?.source !== undefined
-      ) {
-        pairedDataSource.push([item]);
-      } else {
-        if (itemsPushed === batch) {
-          pairedDataRegular.push(groupedPeerTrackNodes);
-          groupedPeerTrackNodes = [];
-          itemsPushed = 0;
-        }
-        groupedPeerTrackNodes.push(item);
-        itemsPushed++;
+    if (
+      item.track?.source !== HMSTrackSource.REGULAR &&
+      item.track?.source !== undefined
+    ) {
+      pairedDataSource.push([item]);
+    } else {
+      if (itemsPushed === batch) {
+        pairedDataRegular.push(groupedPeerTrackNodes);
+        groupedPeerTrackNodes = [];
+        itemsPushed = 0;
       }
+      groupedPeerTrackNodes.push(item);
+      itemsPushed++;
+    }
   });
 
   if (groupedPeerTrackNodes.length) {
@@ -737,7 +751,8 @@ export const getDisplayTrackDimensions = (
 
   // Using "extra offset" (i.e. 32) for android as we are getting wrong window height
   const viewHeight =
-    Dimensions.get('window').height - (50 + 50 + top + bottom + (Platform.OS === 'android' ? 32 : 2));
+    Dimensions.get('window').height -
+    (50 + 50 + top + bottom + (Platform.OS === 'android' ? 32 : 2));
 
   let height, width;
 
