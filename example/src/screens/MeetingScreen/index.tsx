@@ -30,6 +30,7 @@ import {
   AppState,
   AppStateStatus,
   LayoutAnimation,
+  InteractionManager,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -129,15 +130,23 @@ const Meeting = () => {
   );
 
   const updateLocalPeer = () => {
-    hmsInstance?.getLocalPeer().then(peer => {
-      setLocalPeer(peer);
-    });
+    InteractionManager.runAfterInteractions( () =>
+    {
+      hmsInstance?.getLocalPeer().then( peer =>
+      {
+        setLocalPeer( peer )
+      } );
+    } );
   };
 
   const updateRoom = () => {
-    hmsInstance?.getRoom().then(hmsRoom => {
-      setRoom(hmsRoom);
-    });
+    InteractionManager.runAfterInteractions( () =>
+    {
+      hmsInstance?.getRoom().then( hmsRoom =>
+      {
+        setRoom( hmsRoom )
+      } );
+    } );
   };
 
   useEffect(() => {
@@ -716,18 +725,26 @@ const DisplayView = (data: {
   };
 
   const getHmsRoles = () => {
-    hmsInstance?.getRoles().then(roles => {
-      dispatch(
-        saveUserData({
-          roles,
-        }),
-      );
-    });
+
+    InteractionManager.runAfterInteractions( () =>
+    {
+      hmsInstance?.getRoles().then( roles =>
+      {
+        dispatch(
+          saveUserData( {
+            roles,
+          } ),
+        )
+      } );
+    } );
   };
 
   const getSessionMetaData = () => {
-    hmsInstance?.getSessionMetaData().then((value: string | null) => {
-      dispatch(addPinnedMessage(value));
+    InteractionManager.runAfterInteractions( () =>
+    {
+      hmsInstance?.getSessionMetaData().then((value: string | null) => {
+        dispatch(addPinnedMessage(value));
+      });
     });
   };
 
