@@ -381,11 +381,11 @@ export const getPeerNodes = (
 export const getPeerTrackNodes = (
   peerTrackNodes: PeerTrackNode[],
   peer: HMSPeer,
-  track: HMSTrack,
+  track?: HMSTrack,
 ): PeerTrackNode[] => {
   const uniqueId =
     peer.peerID +
-    (track.source === undefined ? HMSTrackSource.REGULAR : track.source);
+    (track?.source === undefined ? HMSTrackSource.REGULAR : track?.source);
   const nodes: PeerTrackNode[] = [];
   peerTrackNodes?.map(peerTrackNode => {
     if (peerTrackNode.id === uniqueId) {

@@ -81,19 +81,24 @@ export class HMSEncoder {
   static encodeHmsPeer(peer: any, id: string) {
     const encodedObj = {
       peerID: peer?.peerID,
-      name: peer?.name,
+      name: peer?.name || '',
       isLocal: peer?.isLocal,
       customerUserID: peer?.customerUserID,
-      customerDescription: peer?.customerDescription,
+      customerDescription: peer?.customerDescription || undefined,
       metadata: peer?.metadata,
       role: HMSEncoder.encodeHmsRole(peer?.role),
-      networkQuality: HMSEncoder.encodeHMSNetworkQuality(peer?.networkQuality),
-      audioTrack: HMSEncoder.encodeHmsAudioTrack(peer?.audioTrack, id),
-      videoTrack: HMSEncoder.encodeHmsVideoTrack(peer?.videoTrack, id),
-      auxiliaryTracks: HMSEncoder.encodeHmsAuxiliaryTracks(
-        peer?.auxiliaryTracks,
-        id
-      ),
+      networkQuality: peer?.networkQuality
+        ? HMSEncoder.encodeHMSNetworkQuality(peer?.networkQuality)
+        : undefined,
+      audioTrack: peer?.audioTrack
+        ? HMSEncoder.encodeHmsAudioTrack(peer?.audioTrack, id)
+        : undefined,
+      videoTrack: peer?.videoTrack
+        ? HMSEncoder.encodeHmsVideoTrack(peer?.videoTrack, id)
+        : undefined,
+      auxiliaryTracks: Array.isArray(peer?.auxiliaryTracks)
+        ? HMSEncoder.encodeHmsAuxiliaryTracks(peer?.auxiliaryTracks, id)
+        : undefined,
     };
 
     return new HMSPeer(encodedObj);
@@ -149,42 +154,55 @@ export class HMSEncoder {
 
   static encodeHmsLocalPeer(peer: any, id: string) {
     const encodedObj = {
-      peerID: peer.peerID,
-      name: peer.name,
-      isLocal: peer.isLocal,
-      customerUserID: peer.customerUserID,
-      customerDescription: peer.customerDescription,
-      metadata: peer.metadata,
+      peerID: peer?.peerID,
+      name: peer?.name,
+      isLocal: true,
+      customerUserID: peer?.customerUserID,
+      customerDescription: peer?.customerDescription || undefined,
+      metadata: peer?.metadata || undefined,
       role: HMSEncoder.encodeHmsRole(peer?.role),
-      networkQuality: HMSEncoder.encodeHMSNetworkQuality(peer?.networkQuality),
-      audioTrack: HMSEncoder.encodeHmsAudioTrack(peer.audioTrack, id),
-      videoTrack: HMSEncoder.encodeHmsVideoTrack(peer.videoTrack, id),
-      auxiliaryTracks: HMSEncoder.encodeHmsAuxiliaryTracks(
-        peer.auxiliaryTracks,
-        id
-      ),
-      localAudioTrackData: {
-        id: id,
-        trackId: peer?.localAudioTrackData?.trackId,
-        source: peer?.localAudioTrackData?.source,
-        trackDescription: peer?.localAudioTrackData?.trackDescription,
-        isMute: peer?.localAudioTrackData?.isMute,
-        settings: HMSEncoder.encodeHmsAudioTrackSettings(
-          peer?.localAudioTrackData?.settings
-        ),
-        type: peer?.localAudioTrackData?.type,
-      },
-      localVideoTrackData: {
-        id: id,
-        trackId: peer?.localVideoTrackData?.trackId,
-        source: peer?.localVideoTrackData?.source,
-        trackDescription: peer?.localVideoTrackData?.trackDescription,
-        isMute: peer?.localVideoTrackData?.isMute,
-        settings: HMSEncoder.encodeHmsVideoTrackSettings(
-          peer?.localVideoTrackData?.settings
-        ),
-        type: peer?.localVideoTrackData?.type,
-      },
+      networkQuality: peer?.networkQuality
+        ? HMSEncoder.encodeHMSNetworkQuality(peer?.networkQuality)
+        : undefined,
+      audioTrack: peer?.audioTrack
+        ? HMSEncoder.encodeHmsAudioTrack(peer?.audioTrack, id)
+        : undefined,
+      videoTrack: peer?.videoTrack
+        ? HMSEncoder.encodeHmsVideoTrack(peer?.videoTrack, id)
+        : undefined,
+      auxiliaryTracks: Array.isArray(peer?.auxiliaryTracks)
+        ? HMSEncoder.encodeHmsAuxiliaryTracks(peer?.auxiliaryTracks, id)
+        : undefined,
+      localAudioTrackData: peer?.localAudioTrackData?.trackId
+        ? {
+            id: id,
+            trackId: peer?.localAudioTrackData?.trackId,
+            source: peer?.localAudioTrackData?.source,
+            trackDescription: peer?.localAudioTrackData?.trackDescription,
+            isMute: peer?.localAudioTrackData?.isMute,
+            settings: peer?.localAudioTrackData?.settings
+              ? HMSEncoder.encodeHmsAudioTrackSettings(
+                  peer?.localAudioTrackData?.settings
+                )
+              : undefined,
+            type: peer?.localAudioTrackData?.type,
+          }
+        : undefined,
+      localVideoTrackData: peer?.localVideoTrackData?.trackId
+        ? {
+            id: id,
+            trackId: peer?.localVideoTrackData?.trackId,
+            source: peer?.localVideoTrackData?.source,
+            trackDescription: peer?.localVideoTrackData?.trackDescription,
+            isMute: peer?.localVideoTrackData?.isMute,
+            settings: peer?.localVideoTrackData?.settings
+              ? HMSEncoder.encodeHmsVideoTrackSettings(
+                  peer?.localVideoTrackData?.settings
+                )
+              : undefined,
+            type: peer?.localVideoTrackData?.type,
+          }
+        : undefined,
     };
 
     return new HMSLocalPeer(encodedObj);
@@ -227,7 +245,9 @@ export class HMSEncoder {
       source: track?.source,
       trackDescription: track?.trackDescription,
       isMute: track?.isMute,
-      settings: HMSEncoder.encodeHmsAudioTrackSettings(track?.settings),
+      settings: track?.settings
+        ? HMSEncoder.encodeHmsAudioTrackSettings(track?.settings)
+        : undefined,
       type: track?.type,
     };
 
@@ -241,7 +261,9 @@ export class HMSEncoder {
       source: track?.source,
       trackDescription: track?.trackDescription,
       isMute: track?.isMute,
-      settings: HMSEncoder.encodeHmsVideoTrackSettings(track?.settings),
+      settings: track?.settings
+        ? HMSEncoder.encodeHmsVideoTrackSettings(track?.settings)
+        : undefined,
       type: track?.type,
     };
 
@@ -262,37 +284,46 @@ export class HMSEncoder {
 
   static encodeHmsRemotePeer(peer: any, id: string) {
     const encodedObj = {
-      peerID: peer.peerID,
-      name: peer.name,
-      isLocal: peer.isLocal,
-      customerUserID: peer.customerUserID,
+      peerID: peer?.peerID,
+      name: peer?.name,
+      isLocal: false,
+      customerUserID: peer?.customerUserID,
       customerDescription: peer.customerDescription,
       metadata: peer.metadata,
       role: HMSEncoder.encodeHmsRole(peer?.role),
-      networkQuality: HMSEncoder.encodeHMSNetworkQuality(peer?.networkQuality),
-      audioTrack: HMSEncoder.encodeHmsAudioTrack(peer.audioTrack, id),
-      videoTrack: HMSEncoder.encodeHmsVideoTrack(peer.videoTrack, id),
-      auxiliaryTracks: HMSEncoder.encodeHmsAuxiliaryTracks(
-        peer.auxiliaryTracks,
-        id
-      ),
-      remoteAudioTrackData: {
-        id: id,
-        trackId: peer?.remoteAudioTrackData?.trackId,
-        source: peer?.remoteAudioTrackData?.source,
-        trackDescription: peer?.remoteAudioTrackData?.trackDescription,
-        isMute: peer?.remoteAudioTrackData?.isMute,
-        playbackAllowed: peer?.remoteAudioTrackData?.playbackAllowed,
-      },
-      remoteVideoTrackData: {
-        id: id,
-        trackId: peer?.remoteVideoTrackData?.trackId,
-        source: peer?.remoteVideoTrackData?.source,
-        trackDescription: peer?.remoteVideoTrackData?.trackDescription,
-        layer: peer?.remoteVideoTrackData?.layer,
-        isMute: peer?.remoteVideoTrackData?.isMute,
-        playbackAllowed: peer?.remoteVideoTrackData?.playbackAllowed,
-      },
+      networkQuality: peer?.networkQuality
+        ? HMSEncoder.encodeHMSNetworkQuality(peer?.networkQuality)
+        : undefined,
+      audioTrack: peer?.audioTrack
+        ? HMSEncoder.encodeHmsAudioTrack(peer?.audioTrack, id)
+        : undefined,
+      videoTrack: peer?.videoTrack
+        ? HMSEncoder.encodeHmsVideoTrack(peer.videoTrack, id)
+        : undefined,
+      auxiliaryTracks: Array.isArray(peer?.auxiliaryTracks)
+        ? HMSEncoder.encodeHmsAuxiliaryTracks(peer?.auxiliaryTracks, id)
+        : undefined,
+      remoteAudioTrackData: peer?.remoteAudioTrackData?.trackId
+        ? {
+            id: id,
+            trackId: peer?.remoteAudioTrackData?.trackId,
+            source: peer?.remoteAudioTrackData?.source,
+            trackDescription: peer?.remoteAudioTrackData?.trackDescription,
+            isMute: peer?.remoteAudioTrackData?.isMute,
+            playbackAllowed: peer?.remoteAudioTrackData?.playbackAllowed,
+          }
+        : undefined,
+      remoteVideoTrackData: peer?.remoteVideoTrackData?.trackId
+        ? {
+            id: id,
+            trackId: peer?.remoteVideoTrackData?.trackId,
+            source: peer?.remoteVideoTrackData?.source,
+            trackDescription: peer?.remoteVideoTrackData?.trackDescription,
+            layer: peer?.remoteVideoTrackData?.layer,
+            isMute: peer?.remoteVideoTrackData?.isMute,
+            playbackAllowed: peer?.remoteVideoTrackData?.playbackAllowed,
+          }
+        : undefined,
     };
 
     return new HMSRemotePeer(encodedObj);
@@ -365,7 +396,9 @@ export class HMSEncoder {
     id: string
   ) {
     const encodedChangeTrackStateRequest = {
-      requestedBy: HMSEncoder.encodeHmsPeer(data.requestedBy, id),
+      requestedBy: data?.requestedBy
+        ? HMSEncoder.encodeHmsPeer(data?.requestedBy, id)
+        : undefined,
       trackType: data.trackType,
       mute: data.mute,
     };
@@ -413,44 +446,58 @@ export class HMSEncoder {
 
   static encodeBrowserRecordingState(data: any) {
     return new HMSBrowserRecordingState({
-      running: data?.running,
-      startedAt: new Date(parseInt(data?.startedAt)),
-      stoppedAt: new Date(parseInt(data?.stoppedAt)),
-      error: data?.error,
+      running: data?.running || false,
+      startedAt: data?.startedAt
+        ? new Date(parseInt(data?.startedAt))
+        : undefined,
+      stoppedAt: data?.stoppedAt
+        ? new Date(parseInt(data?.stoppedAt))
+        : undefined,
+      error: data?.error || undefined,
     });
   }
 
   static encodeServerRecordingState(data: any) {
     return new HMSServerRecordingState({
-      running: data?.running,
-      error: data?.error,
-      startedAt: new Date(parseInt(data?.startedAt)),
+      running: data?.running || false,
+      error: data?.error || undefined,
+      startedAt: data?.startedAt
+        ? new Date(parseInt(data?.startedAt))
+        : undefined,
     });
   }
 
   static encodeRTMPStreamingState(data: any) {
     return new HMSRtmpStreamingState({
-      running: data?.running,
-      startedAt: new Date(parseInt(data?.startedAt)),
-      stoppedAt: new Date(parseInt(data?.stoppedAt)),
-      error: data?.error,
+      running: data?.running || false,
+      startedAt: data?.startedAt
+        ? new Date(parseInt(data?.startedAt))
+        : undefined,
+      stoppedAt: data?.stoppedAt
+        ? new Date(parseInt(data?.stoppedAt))
+        : undefined,
+      error: data?.error || undefined,
     });
   }
 
   static encodeHLSStreamingState(data: any) {
     return new HMSHLSStreamingState({
-      running: data?.running,
-      variants: this.encodeHLSVariants(data?.variants),
+      running: data?.running || false,
+      variants: data?.variants
+        ? this.encodeHLSVariants(data?.variants)
+        : undefined,
     });
   }
 
   static encodeHLSRecordingState(data: any) {
     if (data) {
       return new HMSHLSRecordingState({
-        running: data?.running,
-        startedAt: new Date(parseInt(data?.startedAt)),
-        singleFilePerLayer: data?.singleFilePerLayer,
-        videoOnDemand: data?.videoOnDemand,
+        running: data?.running || false,
+        startedAt: data?.startedAt
+          ? new Date(parseInt(data?.startedAt))
+          : undefined,
+        singleFilePerLayer: data?.singleFilePerLayer || false,
+        videoOnDemand: data?.videoOnDemand || false,
       });
     } else {
       return undefined;
@@ -464,8 +511,10 @@ export class HMSEncoder {
       let variant = new HMSHLSVariant({
         hlsStreamUrl: item.hlsStreamUrl,
         meetingUrl: item.meetingUrl,
-        metadata: item?.metadata,
-        startedAt: new Date(parseInt(item?.startedAt)),
+        metadata: item?.metaData ? item?.metadata : undefined,
+        startedAt: item?.startedAt
+          ? new Date(parseInt(item?.startedAt))
+          : undefined,
       });
       variants.push(variant);
     });
