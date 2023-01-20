@@ -1426,202 +1426,442 @@ export class HMSSDK {
     logger?.verbose('#Function removeEventListener', { action, id: this.id });
     switch (action) {
       case HMSUpdateListenerActions.ON_PREVIEW: {
+        const subscription = this.emitterSubscriptions[HMSUpdateListenerActions.ON_PREVIEW];
+
         // Removing ON_PREVIEW native listener
-        HmsEventEmitter.removeListener(
-          HMSUpdateListenerActions.ON_PREVIEW,
-          this.onPreviewListener
-        );
+        if (!!subscription) {
+          if (
+            Object.getOwnPropertyNames(subscription).includes("remove") &&
+            typeof subscription.remove === 'function'
+          ) {
+            subscription.remove();
+          } else {
+            HmsEventEmitter.removeListener(
+              HMSUpdateListenerActions.ON_PREVIEW,
+              this.onPreviewListener
+            );
+          }
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_PREVIEW] = undefined;
+        }
         // Removing App Delegate listener
         this.onPreviewDelegate = null;
         break;
       }
       case HMSUpdateListenerActions.ON_JOIN: {
+        const subscription = this.emitterSubscriptions[HMSUpdateListenerActions.ON_JOIN];
+
         // Removing ON_JOIN native listener
-        HmsEventEmitter.removeListener(
-          HMSUpdateListenerActions.ON_JOIN,
-          this.onJoinListener
-        );
+        if (!!subscription) {
+          if (
+            Object.getOwnPropertyNames(subscription).includes("remove") &&
+            typeof subscription.remove === 'function'
+          ) {
+            subscription.remove();
+          } else {
+            HmsEventEmitter.removeListener(
+              HMSUpdateListenerActions.ON_JOIN,
+              this.onJoinListener
+            );
+          }
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_JOIN] = undefined;
+        }
         // Removing App Delegate listener
         this.onJoinDelegate = null;
         break;
       }
       case HMSUpdateListenerActions.ON_ROOM_UPDATE: {
+        const subscription = this.emitterSubscriptions[HMSUpdateListenerActions.ON_ROOM_UPDATE];
+
         // Removing ON_ROOM_UPDATE native listener
-        HmsEventEmitter.removeListener(
-          HMSUpdateListenerActions.ON_ROOM_UPDATE,
-          this.onRoomListener
-        );
+        if (!!subscription) {
+          if (
+            Object.getOwnPropertyNames(subscription).includes("remove") &&
+            typeof subscription.remove === 'function'
+          ) {
+            subscription.remove();
+          } else {
+            HmsEventEmitter.removeListener(
+              HMSUpdateListenerActions.ON_ROOM_UPDATE,
+              this.onRoomListener
+            );
+          }
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_ROOM_UPDATE] = undefined;
+        }
         // Removing App Delegate listener
         this.onRoomDelegate = null;
         break;
       }
       case HMSUpdateListenerActions.ON_PEER_UPDATE: {
+        const subscription = this.emitterSubscriptions[HMSUpdateListenerActions.ON_PEER_UPDATE];
+
         // Removing ON_PEER_UPDATE native listener
-        HmsEventEmitter.removeListener(
-          HMSUpdateListenerActions.ON_PEER_UPDATE,
-          this.onPeerListener
-        );
+        if (!!subscription) {
+          if (
+            Object.getOwnPropertyNames(subscription).includes("remove") &&
+            typeof subscription.remove === 'function'
+          ) {
+            subscription.remove();
+          } else {
+            HmsEventEmitter.removeListener(
+              HMSUpdateListenerActions.ON_PEER_UPDATE,
+              this.onPeerListener
+            );
+          }
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_PEER_UPDATE] = undefined;
+        }
         // Removing App Delegate listener
         this.onPeerDelegate = null;
         break;
       }
       case HMSUpdateListenerActions.ON_TRACK_UPDATE: {
+        const subscription = this.emitterSubscriptions[HMSUpdateListenerActions.ON_TRACK_UPDATE];
+
         // Removing ON_TRACK_UPDATE native listener
-        HmsEventEmitter.removeListener(
-          HMSUpdateListenerActions.ON_TRACK_UPDATE,
-          this.onTrackListener
-        );
+        if (!!subscription) {
+          if (
+            Object.getOwnPropertyNames(subscription).includes("remove") &&
+            typeof subscription.remove === 'function'
+          ) {
+            subscription.remove();
+          } else {
+            HmsEventEmitter.removeListener(
+              HMSUpdateListenerActions.ON_TRACK_UPDATE,
+              this.onTrackListener
+            );
+          }
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_TRACK_UPDATE] = undefined;
+        }
         // Removing App Delegate listener
         this.onTrackDelegate = null;
         break;
       }
       case HMSUpdateListenerActions.ON_ERROR: {
+        const subscription = this.emitterSubscriptions[HMSUpdateListenerActions.ON_ERROR];
+
         // Removing ON_ERROR native listener
-        HmsEventEmitter.removeListener(
-          HMSUpdateListenerActions.ON_ERROR,
-          this.onErrorListener
-        );
+        if (!!subscription) {
+          if (
+            Object.getOwnPropertyNames(subscription).includes("remove") &&
+            typeof subscription.remove === 'function'
+          ) {
+            subscription.remove();
+          } else {
+            HmsEventEmitter.removeListener(
+              HMSUpdateListenerActions.ON_ERROR,
+              this.onErrorListener
+            );
+          }
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_ERROR] = undefined;
+        }
         // Removing App Delegate listener
         this.onErrorDelegate = null;
         break;
       }
       case HMSUpdateListenerActions.ON_MESSAGE: {
+        const subscription = this.emitterSubscriptions[HMSUpdateListenerActions.ON_MESSAGE];
+
         // Removing ON_MESSAGE native listener
-        HmsEventEmitter.removeListener(
-          HMSUpdateListenerActions.ON_MESSAGE,
-          this.onMessageListener
-        );
+        if (!!subscription) {
+          if (
+            Object.getOwnPropertyNames(subscription).includes("remove") &&
+            typeof subscription.remove === 'function'
+          ) {
+            subscription.remove();
+          } else {
+            HmsEventEmitter.removeListener(
+              HMSUpdateListenerActions.ON_MESSAGE,
+              this.onMessageListener
+            );
+          }
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_MESSAGE] = undefined;
+        }
         // Removing App Delegate listener
         this.onMessageDelegate = null;
         break;
       }
       case HMSUpdateListenerActions.ON_SPEAKER: {
+        const subscription = this.emitterSubscriptions[HMSUpdateListenerActions.ON_SPEAKER];
+
         // Removing ON_SPEAKER native listener
-        HmsEventEmitter.removeListener(
-          HMSUpdateListenerActions.ON_SPEAKER,
-          this.onSpeakerListener
-        );
+        if (!!subscription) {
+          if (
+            Object.getOwnPropertyNames(subscription).includes("remove") &&
+            typeof subscription.remove === 'function'
+          ) {
+            subscription.remove();
+          } else {
+            HmsEventEmitter.removeListener(
+              HMSUpdateListenerActions.ON_SPEAKER,
+              this.onSpeakerListener
+            );
+          }
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_SPEAKER] = undefined;
+        }
         // Removing App Delegate listener
         this.onSpeakerDelegate = null;
         break;
       }
       case HMSUpdateListenerActions.RECONNECTING: {
+        const subscription = this.emitterSubscriptions[HMSUpdateListenerActions.RECONNECTING];
+
         // Removing RECONNECTING native listener
-        HmsEventEmitter.removeListener(
-          HMSUpdateListenerActions.RECONNECTING,
-          this.reconnectingListener
-        );
+        if (!!subscription) {
+          if (
+            Object.getOwnPropertyNames(subscription).includes("remove") &&
+            typeof subscription.remove === 'function'
+          ) {
+            subscription.remove();
+          } else {
+            HmsEventEmitter.removeListener(
+              HMSUpdateListenerActions.RECONNECTING,
+              this.reconnectingListener
+            );
+          }
+          this.emitterSubscriptions[HMSUpdateListenerActions.RECONNECTING] = undefined;
+        }
         // Removing App Delegate listener
         this.onReconnectingDelegate = null;
         break;
       }
       case HMSUpdateListenerActions.RECONNECTED: {
+        const subscription = this.emitterSubscriptions[HMSUpdateListenerActions.RECONNECTED];
+
         // Removing RECONNECTED native listener
-        HmsEventEmitter.removeListener(
-          HMSUpdateListenerActions.RECONNECTED,
-          this.reconnectedListener
-        );
+        if (!!subscription) {
+          if (
+            Object.getOwnPropertyNames(subscription).includes("remove") &&
+            typeof subscription.remove === 'function'
+          ) {
+            subscription.remove();
+          } else {
+            HmsEventEmitter.removeListener(
+              HMSUpdateListenerActions.RECONNECTED,
+              this.reconnectedListener
+            );
+          }
+          this.emitterSubscriptions[HMSUpdateListenerActions.RECONNECTED] = undefined;
+        }
         // Removing App Delegate listener
         this.onReconnectedDelegate = null;
         break;
       }
       case HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST: {
+        const subscription = this.emitterSubscriptions[HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST];
+
         // Removing ON_ROLE_CHANGE_REQUEST native listener
-        HmsEventEmitter.removeListener(
-          HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST,
-          this.onRoleChangeRequestListener
-        );
+        if (!!subscription) {
+          if (
+            Object.getOwnPropertyNames(subscription).includes("remove") &&
+            typeof subscription.remove === 'function'
+          ) {
+            subscription.remove();
+          } else {
+            HmsEventEmitter.removeListener(
+              HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST,
+              this.onRoleChangeRequestListener
+            );
+          }
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST] = undefined;
+        }
         // Removing App Delegate listener
         this.onRoleChangeRequestDelegate = null;
         break;
       }
       case HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST: {
+        const subscription = this.emitterSubscriptions[HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST];
+
         // Removing ON_CHANGE_TRACK_STATE_REQUEST native listener
-        HmsEventEmitter.removeListener(
-          HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST,
-          this.onChangeTrackStateRequestListener
-        );
+        if (!!subscription) {
+          if (
+            Object.getOwnPropertyNames(subscription).includes("remove") &&
+            typeof subscription.remove === 'function'
+          ) {
+            subscription.remove();
+          } else {
+            HmsEventEmitter.removeListener(
+              HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST,
+              this.onChangeTrackStateRequestListener
+            );
+          }
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST] = undefined;
+        }
         // Removing App Delegate listener
         this.onChangeTrackStateRequestDelegate = null;
         break;
       }
       case HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM: {
+        const subscription = this.emitterSubscriptions[HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM];
+
         // Removing ON_REMOVED_FROM_ROOM native listener
-        HmsEventEmitter.removeListener(
-          HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM,
-          this.onRemovedFromRoomListener
-        );
+        if (!!subscription) {
+          if (
+            Object.getOwnPropertyNames(subscription).includes("remove") &&
+            typeof subscription.remove === 'function'
+          ) {
+            subscription.remove();
+          } else {
+            HmsEventEmitter.removeListener(
+              HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM,
+              this.onRemovedFromRoomListener
+            );
+          }
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM] = undefined;
+        }
         // Removing App Delegate listener
         this.onRemovedFromRoomDelegate = null;
         break;
       }
       case HMSUpdateListenerActions.ON_RTC_STATS: {
+        const subscription = this.emitterSubscriptions[HMSUpdateListenerActions.ON_RTC_STATS];
+
         // Removing ON_RTC_STATS native listener
-        HmsEventEmitter.removeListener(
-          HMSUpdateListenerActions.ON_RTC_STATS,
-          this.RTCStatsListener
-        );
+        if (!!subscription) {
+          if (
+            Object.getOwnPropertyNames(subscription).includes("remove") &&
+            typeof subscription.remove === 'function'
+          ) {
+            subscription.remove();
+          } else {
+            HmsEventEmitter.removeListener(
+              HMSUpdateListenerActions.ON_RTC_STATS,
+              this.RTCStatsListener
+            );
+          }
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_RTC_STATS] = undefined;
+        }
         // Removing App Delegate listener
         this.onRtcStatsDelegate = null;
         break;
       }
       case HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS: {
+        const subscription = this.emitterSubscriptions[HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS];
+
         // Removing ON_LOCAL_AUDIO_STATS native listener
-        HmsEventEmitter.removeListener(
-          HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS,
-          this.onLocalAudioStatsListener
-        );
+        if (!!subscription) {
+          if (
+            Object.getOwnPropertyNames(subscription).includes("remove") &&
+            typeof subscription.remove === 'function'
+          ) {
+            subscription.remove();
+          } else {
+            HmsEventEmitter.removeListener(
+              HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS,
+              this.onLocalAudioStatsListener
+            );
+          }
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS] = undefined;
+        }
         // Removing App Delegate listener
         this.onLocalAudioStatsDelegate = null;
         break;
       }
       case HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS: {
+        const subscription = this.emitterSubscriptions[HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS];
+
         // Removing ON_LOCAL_VIDEO_STATS native listener
-        HmsEventEmitter.removeListener(
-          HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS,
-          this.onLocalVideoStatsListener
-        );
+        if (!!subscription) {
+          if (
+            Object.getOwnPropertyNames(subscription).includes("remove") &&
+            typeof subscription.remove === 'function'
+          ) {
+            subscription.remove();
+          } else {
+            HmsEventEmitter.removeListener(
+              HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS,
+              this.onLocalVideoStatsListener
+            );
+          }
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS] = undefined;
+        }
         // Removing App Delegate listener
         this.onLocalVideoStatsDelegate = null;
         break;
       }
       case HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS: {
+        const subscription = this.emitterSubscriptions[HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS];
+
         // Removing ON_REMOTE_AUDIO_STATS native listener
-        HmsEventEmitter.removeListener(
-          HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS,
-          this.onRemoteAudioStatsListener
-        );
+        if (!!subscription) {
+          if (
+            Object.getOwnPropertyNames(subscription).includes("remove") &&
+            typeof subscription.remove === 'function'
+          ) {
+            subscription.remove();
+          } else {
+            HmsEventEmitter.removeListener(
+              HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS,
+              this.onRemoteAudioStatsListener
+            );
+          }
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS] = undefined;
+        }
         // Removing App Delegate listener
         this.onRemoteAudioStatsDelegate = null;
         break;
       }
       case HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS: {
+        const subscription = this.emitterSubscriptions[HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS];
+
         // Removing ON_REMOTE_VIDEO_STATS native listener
-        HmsEventEmitter.removeListener(
-          HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS,
-          this.onRemoteVideoStatsListener
-        );
+        if (!!subscription) {
+          if (
+            Object.getOwnPropertyNames(subscription).includes("remove") &&
+            typeof subscription.remove === 'function'
+          ) {
+            subscription.remove();
+          } else {
+            HmsEventEmitter.removeListener(
+              HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS,
+              this.onRemoteVideoStatsListener
+            );
+          }
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS] = undefined;
+        }
         // Removing App Delegate listener
         this.onRemoteVideoStatsDelegate = null;
         break;
       }
       case HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED: {
+        const subscription = this.emitterSubscriptions[HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED];
+
         // Removing ON_AUDIO_DEVICE_CHANGED native listener
-        HmsEventEmitter.removeListener(
-          HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED,
-          this.onAudioDeviceChangedListener
-        );
+        if (!!subscription) {
+          if (
+            Object.getOwnPropertyNames(subscription).includes("remove") &&
+            typeof subscription.remove === 'function'
+          ) {
+            subscription.remove();
+          } else {
+            HmsEventEmitter.removeListener(
+              HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED,
+              this.onAudioDeviceChangedListener
+            );
+          }
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED] = undefined;
+        }
         // Removing App Delegate listener
         this.onAudioDeviceChangedDelegate = null;
         break;
       }
       case HMSPIPListenerActions.ON_PIP_ROOM_LEAVE: {
         if (Platform.OS === 'android') {
+          const subscription = this.emitterSubscriptions[HMSPIPListenerActions.ON_PIP_ROOM_LEAVE];
+
           // Removing ON_PIP_ROOM_LEAVE native listener
-          HmsEventEmitter.removeListener(
-            HMSPIPListenerActions.ON_PIP_ROOM_LEAVE,
-            this.onPIPRoomLeaveListener
-          );
+          if (!!subscription) {
+            if (
+            Object.getOwnPropertyNames(subscription).includes("remove") &&
+            typeof subscription.remove === 'function'
+          ) {
+              subscription.remove();
+            } else {
+              HmsEventEmitter.removeListener(
+                HMSPIPListenerActions.ON_PIP_ROOM_LEAVE,
+                this.onPIPRoomLeaveListener
+              );
+            }
+            this.emitterSubscriptions[HMSPIPListenerActions.ON_PIP_ROOM_LEAVE] = undefined;
+          }
           // Removing App Delegate listener
           this.onPIPRoomLeaveDelegate = null;
         }
@@ -1637,9 +1877,6 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   removeAllListeners = () => {
-    console.log('Before ON_TRACK_UPDATE listenners > ', HmsEventEmitter.listeners?.(HMSUpdateListenerActions.ON_TRACK_UPDATE)?.length || -1);
-    console.log('Before ON_PEER_UPDATE listenners > ', HmsEventEmitter.listeners?.(HMSUpdateListenerActions.ON_PEER_UPDATE)?.length || -1);
-
     this.onPreviewDelegate = null;
     this.onJoinDelegate = null;
     this.onRoomDelegate = null;
@@ -1655,16 +1892,32 @@ export class HMSSDK {
     this.onRemovedFromRoomDelegate = null;
     this.onPIPRoomLeaveDelegate = null;
 
-    // Object.values(this.emitterSubscriptions).forEach(emitterSubscription => {
-    //   emitterSubscription.remove();
-    // });
+    // Getting list of all available `emitterSubscription` objects
+    Object.values(this.emitterSubscriptions).filter(Boolean).forEach(emitterSubscription => {
+      // for RN Versions >= 0.65.0
+      // `remove` method is available on `emitterSubscription` object to remove event subscription
+      if (
+        Object.getOwnPropertyNames(emitterSubscription).includes("remove") && // If `emitterSubscription` has own "remove" property AND
+        typeof emitterSubscription.remove === 'function'                      // it is a function, then we will call `remove` method to remove event subscription
+      ) {
+        emitterSubscription.remove();
+      } 
+      // for RN Versions < 0.65.0
+      // `remove` method is not available on `emitterSubscription` object
+      // so, we will remove event subscription using `EventEmitter.removeListener` call
+      else if (
+        emitterSubscription.eventType && 
+        typeof emitterSubscription.listener === 'function'
+      ) {
+        HmsEventEmitter.removeListener(
+          emitterSubscription.eventType,
+          emitterSubscription.listener
+        );
+      }
+    });
 
+    // clearing reference of all `emitterSubscription` objects
     this.emitterSubscriptions = {};
-
-    console.log(this.emitterSubscriptions[HMSUpdateListenerActions.ON_TRACK_UPDATE]);
-
-    console.log('After ON_TRACK_UPDATE listenners > ', HmsEventEmitter.listeners?.(HMSUpdateListenerActions.ON_TRACK_UPDATE)?.length || -1);
-    console.log('After ON_PEER_UPDATE listenners > ', HmsEventEmitter.listeners?.(HMSUpdateListenerActions.ON_PEER_UPDATE)?.length || -1);
 
     logger?.verbose('#Function REMOVE_ALL_LISTENER', { id: this.id });
   };
