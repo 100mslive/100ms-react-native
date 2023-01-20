@@ -6,6 +6,7 @@ import {
   Platform,
   ViewStyle,
 } from 'react-native';
+import type { EmitterSubscription } from 'react-native';
 
 import { HMSEncoder } from './HMSEncoder';
 import { HMSHelper } from './HMSHelper';
@@ -90,6 +91,8 @@ export class HMSSDK {
   private onRemoteVideoStatsDelegate?: any;
   private onAudioDeviceChangedDelegate?: any;
   private onPIPRoomLeaveDelegate?: any;
+
+  private emitterSubscriptions: Partial<Record<HMSUpdateListenerActions | HMSPIPListenerActions, EmitterSubscription>> = {};
 
   private constructor(id: string) {
     this.id = id;
@@ -1085,202 +1088,322 @@ export class HMSSDK {
     });
     switch (action) {
       case HMSUpdateListenerActions.ON_PREVIEW: {
-        // Adding ON_PREVIEW native listener
-        HmsEventEmitter.addListener(
-          HMSUpdateListenerActions.ON_PREVIEW,
-          this.onPreviewListener
-        );
+        // Checking if we already have ON_PREVIEW subscription
+        if (!this.emitterSubscriptions[HMSUpdateListenerActions.ON_PREVIEW]) {
+
+          // Adding ON_PREVIEW native listener
+          const previewSubscription = HmsEventEmitter.addListener(
+            HMSUpdateListenerActions.ON_PREVIEW,
+            this.onPreviewListener
+          );
+          console.log('> previewSubscription = ', previewSubscription);
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_PREVIEW] = previewSubscription;
+        }
         // Adding App Delegate listener
         this.onPreviewDelegate = callback;
         break;
       }
       case HMSUpdateListenerActions.ON_JOIN: {
-        // Adding ON_JOIN native listener
-        HmsEventEmitter.addListener(
-          HMSUpdateListenerActions.ON_JOIN,
-          this.onJoinListener
-        );
+        // Checking if we already have ON_JOIN subscription
+        if (!this.emitterSubscriptions[HMSUpdateListenerActions.ON_JOIN]) {
+
+          // Adding ON_JOIN native listener
+          const joinSubscription = HmsEventEmitter.addListener(
+            HMSUpdateListenerActions.ON_JOIN,
+            this.onJoinListener
+          );
+          console.log('> joinSubscription = ', joinSubscription);
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_JOIN] = joinSubscription;
+        }
         // Adding App Delegate listener
         this.onJoinDelegate = callback;
         break;
       }
       case HMSUpdateListenerActions.ON_ROOM_UPDATE: {
-        // Adding ON_ROOM_UPDATE native listener
-        HmsEventEmitter.addListener(
-          HMSUpdateListenerActions.ON_ROOM_UPDATE,
-          this.onRoomListener
-        );
+        // Checking if we already have ON_ROOM_UPDATE subscription
+        if (!this.emitterSubscriptions[HMSUpdateListenerActions.ON_ROOM_UPDATE]) {
+
+          // Adding ON_ROOM_UPDATE native listener
+          const roomSubscription = HmsEventEmitter.addListener(
+            HMSUpdateListenerActions.ON_ROOM_UPDATE,
+            this.onRoomListener
+          );
+          console.log('> roomSubscription = ', roomSubscription);
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_ROOM_UPDATE] = roomSubscription;
+        }
         // Adding App Delegate listener
         this.onRoomDelegate = callback;
         break;
       }
       case HMSUpdateListenerActions.ON_PEER_UPDATE: {
-        // Adding ON_PEER_UPDATE native listener
-        HmsEventEmitter.addListener(
-          HMSUpdateListenerActions.ON_PEER_UPDATE,
-          this.onPeerListener
-        );
+        // Checking if we already have ON_PEER_UPDATE subscription
+        if (!this.emitterSubscriptions[HMSUpdateListenerActions.ON_PEER_UPDATE]) {
+
+          // Adding ON_PEER_UPDATE native listener
+          const peerSubscription = HmsEventEmitter.addListener(
+            HMSUpdateListenerActions.ON_PEER_UPDATE,
+            this.onPeerListener
+          );
+          console.log('> peerSubscription = ', peerSubscription);
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_PEER_UPDATE] = peerSubscription;
+        }
         // Adding App Delegate listener
         this.onPeerDelegate = callback;
         break;
       }
       case HMSUpdateListenerActions.ON_TRACK_UPDATE: {
-        // Adding ON_TRACK_UPDATE native listener
-        HmsEventEmitter.addListener(
-          HMSUpdateListenerActions.ON_TRACK_UPDATE,
-          this.onTrackListener
-        );
+        // Checking if we already have ON_TRACK_UPDATE subscription
+        if (!this.emitterSubscriptions[HMSUpdateListenerActions.ON_TRACK_UPDATE]) {
+
+          // Adding ON_TRACK_UPDATE native listener
+          const trackSubscription = HmsEventEmitter.addListener(
+            HMSUpdateListenerActions.ON_TRACK_UPDATE,
+            this.onTrackListener
+          );
+          console.log('> trackSubscription = ', trackSubscription);
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_TRACK_UPDATE] = trackSubscription;
+        }
         // Adding App Delegate listener
         this.onTrackDelegate = callback;
         break;
       }
       case HMSUpdateListenerActions.ON_ERROR: {
-        // Adding ON_ERROR native listener
-        HmsEventEmitter.addListener(
-          HMSUpdateListenerActions.ON_ERROR,
-          this.onErrorListener
-        );
+        // Checking if we already have ON_ERROR subscription
+        if (!this.emitterSubscriptions[HMSUpdateListenerActions.ON_ERROR]) {
+
+          // Adding ON_ERROR native listener
+          const errorSubscription = HmsEventEmitter.addListener(
+            HMSUpdateListenerActions.ON_ERROR,
+            this.onErrorListener
+          );
+          console.log('> errorSubscription = ', errorSubscription);
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_ERROR] = errorSubscription;
+        }
         // Adding App Delegate listener
         this.onErrorDelegate = callback;
         break;
       }
       case HMSUpdateListenerActions.ON_MESSAGE: {
-        // Adding ON_MESSAGE native listener
-        HmsEventEmitter.addListener(
-          HMSUpdateListenerActions.ON_MESSAGE,
-          this.onMessageListener
-        );
+        // Checking if we already have ON_MESSAGE subscription
+        if (!this.emitterSubscriptions[HMSUpdateListenerActions.ON_MESSAGE]) {
+
+          // Adding ON_MESSAGE native listener
+          const messageSubscription = HmsEventEmitter.addListener(
+            HMSUpdateListenerActions.ON_MESSAGE,
+            this.onMessageListener
+          );
+          console.log('> messageSubscription = ', messageSubscription);
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_MESSAGE] = messageSubscription;
+        }
         // Adding App Delegate listener
         this.onMessageDelegate = callback;
         break;
       }
       case HMSUpdateListenerActions.ON_SPEAKER: {
-        // Adding ON_SPEAKER native listener
-        HmsEventEmitter.addListener(
-          HMSUpdateListenerActions.ON_SPEAKER,
-          this.onSpeakerListener
-        );
+        // Checking if we already have ON_SPEAKER subscription
+        if (!this.emitterSubscriptions[HMSUpdateListenerActions.ON_SPEAKER]) {
+
+          // Adding ON_SPEAKER native listener
+          const speakerSubscription = HmsEventEmitter.addListener(
+            HMSUpdateListenerActions.ON_SPEAKER,
+            this.onSpeakerListener
+          );
+          console.log('> speakerSubscription = ', speakerSubscription);
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_SPEAKER] = speakerSubscription;
+        }
         // Adding App Delegate listener
         this.onSpeakerDelegate = callback;
         break;
       }
       case HMSUpdateListenerActions.RECONNECTING: {
-        // Adding RECONNECTING native listener
-        HmsEventEmitter.addListener(
-          HMSUpdateListenerActions.RECONNECTING,
-          this.reconnectingListener
-        );
+        // Checking if we already have RECONNECTING subscription
+        if (!this.emitterSubscriptions[HMSUpdateListenerActions.RECONNECTING]) {
+
+          // Adding RECONNECTING native listener
+          const reconnectingSubscription = HmsEventEmitter.addListener(
+            HMSUpdateListenerActions.RECONNECTING,
+            this.reconnectingListener
+          );
+          console.log('> reconnectingSubscription = ', reconnectingSubscription);
+          this.emitterSubscriptions[HMSUpdateListenerActions.RECONNECTING] = reconnectingSubscription;
+        }
         // Adding App Delegate listener
         this.onReconnectingDelegate = callback;
         break;
       }
       case HMSUpdateListenerActions.RECONNECTED: {
-        // Adding RECONNECTED native listener
-        HmsEventEmitter.addListener(
-          HMSUpdateListenerActions.RECONNECTED,
-          this.reconnectedListener
-        );
+        // Checking if we already have RECONNECTED subscription
+        if (!this.emitterSubscriptions[HMSUpdateListenerActions.RECONNECTED]) {
+
+          // Adding RECONNECTED native listener
+          const reconnectedSubscription = HmsEventEmitter.addListener(
+            HMSUpdateListenerActions.RECONNECTED,
+            this.reconnectedListener
+          );
+          console.log('> reconnectedSubscription = ', reconnectedSubscription);
+          this.emitterSubscriptions[HMSUpdateListenerActions.RECONNECTED] = reconnectedSubscription;
+        }
         // Adding App Delegate listener
         this.onReconnectedDelegate = callback;
         break;
       }
       case HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST: {
-        // Adding ON_ROLE_CHANGE_REQUEST native listener
-        HmsEventEmitter.addListener(
-          HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST,
-          this.onRoleChangeRequestListener
-        );
+        // Checking if we already have ON_ROLE_CHANGE_REQUEST subscription
+        if (!this.emitterSubscriptions[HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST]) {
+
+          // Adding ON_ROLE_CHANGE_REQUEST native listener
+          const roleChangeReqSubscription = HmsEventEmitter.addListener(
+            HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST,
+            this.onRoleChangeRequestListener
+          );
+          console.log('> roleChangeReqSubscription = ', roleChangeReqSubscription);
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST] = roleChangeReqSubscription;
+        }
         // Adding App Delegate listener
         this.onRoleChangeRequestDelegate = callback;
         break;
       }
       case HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST: {
-        // Adding ON_CHANGE_TRACK_STATE_REQUEST native listener
-        HmsEventEmitter.addListener(
-          HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST,
-          this.onChangeTrackStateRequestListener
-        );
+        // Checking if we already have ON_CHANGE_TRACK_STATE_REQUEST subscription
+        if (!this.emitterSubscriptions[HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST]) {
+
+          // Adding ON_CHANGE_TRACK_STATE_REQUEST native listener
+          const changeTrackReqSubscription = HmsEventEmitter.addListener(
+            HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST,
+            this.onChangeTrackStateRequestListener
+          );
+          console.log('> changeTrackReqSubscription = ', changeTrackReqSubscription);
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST] = changeTrackReqSubscription;
+        }
         // Adding App Delegate listener
         this.onChangeTrackStateRequestDelegate = callback;
         break;
       }
       case HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM: {
-        // Adding ON_REMOVED_FROM_ROOM native listener
-        HmsEventEmitter.addListener(
-          HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM,
-          this.onRemovedFromRoomListener
-        );
+        // Checking if we already have ON_REMOVED_FROM_ROOM subscription
+        if (!this.emitterSubscriptions[HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM]) {
+
+          // Adding ON_REMOVED_FROM_ROOM native listener
+          const removedFromRoomSubscription = HmsEventEmitter.addListener(
+            HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM,
+            this.onRemovedFromRoomListener
+          );
+          console.log('> removedFromRoomSubscription = ', removedFromRoomSubscription);
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM] = removedFromRoomSubscription;
+        }
         // Adding App Delegate listener
         this.onRemovedFromRoomDelegate = callback;
         break;
       }
       case HMSUpdateListenerActions.ON_RTC_STATS: {
-        // Adding ON_RTC_STATS native listener
-        HmsEventEmitter.addListener(
-          HMSUpdateListenerActions.ON_RTC_STATS,
-          this.RTCStatsListener
-        );
+        // Checking if we already have ON_RTC_STATS subscription
+        if (!this.emitterSubscriptions[HMSUpdateListenerActions.ON_RTC_STATS]) {
+
+          // Adding ON_RTC_STATS native listener
+          const rtcStatsSubscription = HmsEventEmitter.addListener(
+            HMSUpdateListenerActions.ON_RTC_STATS,
+            this.RTCStatsListener
+          );
+          console.log('> rtcStatsSubscription = ', rtcStatsSubscription);
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_RTC_STATS] = rtcStatsSubscription;
+        }
         // Adding App Delegate listener
         this.onRtcStatsDelegate = callback;
         break;
       }
       case HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS: {
-        // Adding ON_LOCAL_AUDIO_STATS native listener
-        HmsEventEmitter.addListener(
-          HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS,
-          this.onLocalAudioStatsListener
-        );
+        // Checking if we already have ON_LOCAL_AUDIO_STATS subscription
+        if (!this.emitterSubscriptions[HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS]) {
+
+          // Adding ON_LOCAL_AUDIO_STATS native listener
+          const lclAudioStatsSubscription = HmsEventEmitter.addListener(
+            HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS,
+            this.onLocalAudioStatsListener
+          );
+          console.log('> lclAudioStatsSubscription = ', lclAudioStatsSubscription);
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS] = lclAudioStatsSubscription;
+        }
         // Adding App Delegate listener
         this.onLocalAudioStatsDelegate = callback;
         break;
       }
       case HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS: {
-        // Adding ON_LOCAL_VIDEO_STATS native listener
-        HmsEventEmitter.addListener(
-          HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS,
-          this.onLocalVideoStatsListener
-        );
+        // Checking if we already have ON_LOCAL_VIDEO_STATS subscription
+        if (!this.emitterSubscriptions[HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS]) {
+
+          // Adding ON_LOCAL_VIDEO_STATS native listener
+          const lclVideoStatsSubscription = HmsEventEmitter.addListener(
+            HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS,
+            this.onLocalVideoStatsListener
+          );
+          console.log('> lclVideoStatsSubscription = ', lclVideoStatsSubscription);
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS] = lclVideoStatsSubscription;
+        }
         // Adding App Delegate listener
         this.onLocalVideoStatsDelegate = callback;
         break;
       }
       case HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS: {
-        // Adding ON_REMOTE_AUDIO_STATS native listener
-        HmsEventEmitter.addListener(
-          HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS,
-          this.onRemoteAudioStatsListener
-        );
+        // Checking if we already have ON_REMOTE_AUDIO_STATS subscription
+        if (!this.emitterSubscriptions[HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS]) {
+
+          // Adding ON_REMOTE_AUDIO_STATS native listener
+          const rmAudioStatsSubscription = HmsEventEmitter.addListener(
+            HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS,
+            this.onRemoteAudioStatsListener
+          );
+          console.log('> rmAudioStatsSubscription = ', rmAudioStatsSubscription);
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS] = rmAudioStatsSubscription;
+        }
         // Adding App Delegate listener
         this.onRemoteAudioStatsDelegate = callback;
         break;
       }
       case HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS: {
-        // Adding ON_REMOTE_VIDEO_STATS native listener
-        HmsEventEmitter.addListener(
-          HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS,
-          this.onRemoteVideoStatsListener
-        );
+        // Checking if we already have ON_REMOTE_VIDEO_STATS subscription
+        if (!this.emitterSubscriptions[HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS]) {
+
+          // Adding ON_REMOTE_VIDEO_STATS native listener
+          const rmVideoStatsSubscription = HmsEventEmitter.addListener(
+            HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS,
+            this.onRemoteVideoStatsListener
+          );
+          console.log('> rmVideoStatsSubscription = ', rmVideoStatsSubscription);
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS] = rmVideoStatsSubscription;
+        }
         // Adding App Delegate listener
         this.onRemoteVideoStatsDelegate = callback;
         break;
       }
       case HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED: {
-        // Adding ON_AUDIO_DEVICE_CHANGED native listener
-        HmsEventEmitter.addListener(
-          HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED,
-          this.onAudioDeviceChangedListener
-        );
+        // Checking if we already have ON_AUDIO_DEVICE_CHANGED subscription
+        if (!this.emitterSubscriptions[HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED]) {
+
+          // Adding ON_AUDIO_DEVICE_CHANGED native listener
+          const audDeviceChgSubscription = HmsEventEmitter.addListener(
+            HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED,
+            this.onAudioDeviceChangedListener
+          );
+          console.log('> audDeviceChgSubscription = ', audDeviceChgSubscription);
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED] = audDeviceChgSubscription;
+        }
         // Adding App Delegate listener
         this.onAudioDeviceChangedDelegate = callback;
         break;
       }
       case HMSPIPListenerActions.ON_PIP_ROOM_LEAVE: {
         if (Platform.OS === 'android') {
-          // Adding ON_PIP_ROOM_LEAVE native listener
-          HmsEventEmitter.addListener(
-            HMSPIPListenerActions.ON_PIP_ROOM_LEAVE,
-            this.onPIPRoomLeaveListener
-          );
+          // Checking if we already have ON_PIP_ROOM_LEAVE subscription
+          if (!this.emitterSubscriptions[HMSPIPListenerActions.ON_PIP_ROOM_LEAVE]) {
+  
+            // Adding ON_PIP_ROOM_LEAVE native listener
+            const pipRoomLeaveSubscription = HmsEventEmitter.addListener(
+              HMSPIPListenerActions.ON_PIP_ROOM_LEAVE,
+              this.onPIPRoomLeaveListener
+            );
+            console.log('> pipRoomLeaveSubscription = ', pipRoomLeaveSubscription);
+            this.emitterSubscriptions[HMSPIPListenerActions.ON_PIP_ROOM_LEAVE] = pipRoomLeaveSubscription;
+          }
           // Adding App Delegate listener
           this.onPIPRoomLeaveDelegate = callback;
         }
@@ -1514,6 +1637,9 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   removeAllListeners = () => {
+    console.log('Before ON_TRACK_UPDATE listenners > ', HmsEventEmitter.listeners?.(HMSUpdateListenerActions.ON_TRACK_UPDATE)?.length || -1);
+    console.log('Before ON_PEER_UPDATE listenners > ', HmsEventEmitter.listeners?.(HMSUpdateListenerActions.ON_PEER_UPDATE)?.length || -1);
+
     this.onPreviewDelegate = null;
     this.onJoinDelegate = null;
     this.onRoomDelegate = null;
@@ -1529,7 +1655,16 @@ export class HMSSDK {
     this.onRemovedFromRoomDelegate = null;
     this.onPIPRoomLeaveDelegate = null;
 
-    // TODO: also remove native listeners
+    // Object.values(this.emitterSubscriptions).forEach(emitterSubscription => {
+    //   emitterSubscription.remove();
+    // });
+
+    this.emitterSubscriptions = {};
+
+    console.log(this.emitterSubscriptions[HMSUpdateListenerActions.ON_TRACK_UPDATE]);
+
+    console.log('After ON_TRACK_UPDATE listenners > ', HmsEventEmitter.listeners?.(HMSUpdateListenerActions.ON_TRACK_UPDATE)?.length || -1);
+    console.log('After ON_PEER_UPDATE listenners > ', HmsEventEmitter.listeners?.(HMSUpdateListenerActions.ON_PEER_UPDATE)?.length || -1);
 
     logger?.verbose('#Function REMOVE_ALL_LISTENER', { id: this.id });
   };
