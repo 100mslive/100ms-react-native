@@ -1,5 +1,4 @@
 import type { HMSAudioSettings } from './HMSAudioSettings';
-import type { HMSSimulcastSettings } from './HMSSimulcastSettings';
 import type { HMSVideoSettings } from './HMSVideoSettings';
 
 export class HMSPublishSettings {
