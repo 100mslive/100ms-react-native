@@ -461,6 +461,12 @@ export class HMSSDK {
     );
   });
 
+  roomLeaveCleanup = () => {
+    this.muteStatus = undefined;
+    this?.appStateSubscription?.remove();
+    HMSEncoder.clearData(); // Clearing cached data in encoder
+  }
+
   /**
    * Calls leave function of native sdk and session of current user is invalidated.
    *
@@ -475,9 +481,7 @@ export class HMSSDK {
     };
 
     const op = await HMSManager.leave(data);
-    this.muteStatus = undefined;
-    this?.appStateSubscription?.remove();
-    HMSEncoder.clearData(); // Clearing cached data in encoder
+    this.roomLeaveCleanup();
     return op;
   };
 
@@ -1649,6 +1653,8 @@ export class HMSSDK {
     if (data.id !== this.id) {
       return;
     }
+    this.roomLeaveCleanup();
+
     if (this.onRemovedFromRoomDelegate) {
       let requestedBy = null;
       if (data.requestedBy) {
@@ -1810,8 +1816,8 @@ export class HMSSDK {
     if (data.id !== this.id) {
       return;
     }
-    this.muteStatus = undefined;
-    this?.appStateSubscription?.remove();
+
+    this.roomLeaveCleanup();
 
     if (this.onPIPRoomLeaveDelegate) {
       logger?.verbose('#Listener onPIPRoomLeave_CALL', data);
