@@ -1096,7 +1096,6 @@ export class HMSSDK {
             HMSUpdateListenerActions.ON_PREVIEW,
             this.onPreviewListener
           );
-          console.log('> previewSubscription = ', previewSubscription);
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_PREVIEW] = previewSubscription;
         }
         // Adding App Delegate listener
@@ -1112,7 +1111,6 @@ export class HMSSDK {
             HMSUpdateListenerActions.ON_JOIN,
             this.onJoinListener
           );
-          console.log('> joinSubscription = ', joinSubscription);
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_JOIN] = joinSubscription;
         }
         // Adding App Delegate listener
@@ -1128,7 +1126,6 @@ export class HMSSDK {
             HMSUpdateListenerActions.ON_ROOM_UPDATE,
             this.onRoomListener
           );
-          console.log('> roomSubscription = ', roomSubscription);
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_ROOM_UPDATE] = roomSubscription;
         }
         // Adding App Delegate listener
@@ -1144,7 +1141,6 @@ export class HMSSDK {
             HMSUpdateListenerActions.ON_PEER_UPDATE,
             this.onPeerListener
           );
-          console.log('> peerSubscription = ', peerSubscription);
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_PEER_UPDATE] = peerSubscription;
         }
         // Adding App Delegate listener
@@ -1160,7 +1156,6 @@ export class HMSSDK {
             HMSUpdateListenerActions.ON_TRACK_UPDATE,
             this.onTrackListener
           );
-          console.log('> trackSubscription = ', trackSubscription);
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_TRACK_UPDATE] = trackSubscription;
         }
         // Adding App Delegate listener
@@ -1176,7 +1171,6 @@ export class HMSSDK {
             HMSUpdateListenerActions.ON_ERROR,
             this.onErrorListener
           );
-          console.log('> errorSubscription = ', errorSubscription);
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_ERROR] = errorSubscription;
         }
         // Adding App Delegate listener
@@ -1192,7 +1186,6 @@ export class HMSSDK {
             HMSUpdateListenerActions.ON_MESSAGE,
             this.onMessageListener
           );
-          console.log('> messageSubscription = ', messageSubscription);
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_MESSAGE] = messageSubscription;
         }
         // Adding App Delegate listener
@@ -1208,7 +1201,6 @@ export class HMSSDK {
             HMSUpdateListenerActions.ON_SPEAKER,
             this.onSpeakerListener
           );
-          console.log('> speakerSubscription = ', speakerSubscription);
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_SPEAKER] = speakerSubscription;
         }
         // Adding App Delegate listener
@@ -1224,7 +1216,6 @@ export class HMSSDK {
             HMSUpdateListenerActions.RECONNECTING,
             this.reconnectingListener
           );
-          console.log('> reconnectingSubscription = ', reconnectingSubscription);
           this.emitterSubscriptions[HMSUpdateListenerActions.RECONNECTING] = reconnectingSubscription;
         }
         // Adding App Delegate listener
@@ -1240,7 +1231,6 @@ export class HMSSDK {
             HMSUpdateListenerActions.RECONNECTED,
             this.reconnectedListener
           );
-          console.log('> reconnectedSubscription = ', reconnectedSubscription);
           this.emitterSubscriptions[HMSUpdateListenerActions.RECONNECTED] = reconnectedSubscription;
         }
         // Adding App Delegate listener
@@ -1256,7 +1246,6 @@ export class HMSSDK {
             HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST,
             this.onRoleChangeRequestListener
           );
-          console.log('> roleChangeReqSubscription = ', roleChangeReqSubscription);
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST] = roleChangeReqSubscription;
         }
         // Adding App Delegate listener
@@ -1272,7 +1261,6 @@ export class HMSSDK {
             HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST,
             this.onChangeTrackStateRequestListener
           );
-          console.log('> changeTrackReqSubscription = ', changeTrackReqSubscription);
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST] = changeTrackReqSubscription;
         }
         // Adding App Delegate listener
@@ -1288,7 +1276,6 @@ export class HMSSDK {
             HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM,
             this.onRemovedFromRoomListener
           );
-          console.log('> removedFromRoomSubscription = ', removedFromRoomSubscription);
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM] = removedFromRoomSubscription;
         }
         // Adding App Delegate listener
@@ -1304,7 +1291,6 @@ export class HMSSDK {
             HMSUpdateListenerActions.ON_RTC_STATS,
             this.RTCStatsListener
           );
-          console.log('> rtcStatsSubscription = ', rtcStatsSubscription);
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_RTC_STATS] = rtcStatsSubscription;
         }
         // Adding App Delegate listener
@@ -1320,7 +1306,6 @@ export class HMSSDK {
             HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS,
             this.onLocalAudioStatsListener
           );
-          console.log('> lclAudioStatsSubscription = ', lclAudioStatsSubscription);
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS] = lclAudioStatsSubscription;
         }
         // Adding App Delegate listener
@@ -1336,7 +1321,6 @@ export class HMSSDK {
             HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS,
             this.onLocalVideoStatsListener
           );
-          console.log('> lclVideoStatsSubscription = ', lclVideoStatsSubscription);
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS] = lclVideoStatsSubscription;
         }
         // Adding App Delegate listener
@@ -1352,7 +1336,6 @@ export class HMSSDK {
             HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS,
             this.onRemoteAudioStatsListener
           );
-          console.log('> rmAudioStatsSubscription = ', rmAudioStatsSubscription);
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS] = rmAudioStatsSubscription;
         }
         // Adding App Delegate listener
@@ -1368,7 +1351,6 @@ export class HMSSDK {
             HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS,
             this.onRemoteVideoStatsListener
           );
-          console.log('> rmVideoStatsSubscription = ', rmVideoStatsSubscription);
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS] = rmVideoStatsSubscription;
         }
         // Adding App Delegate listener
@@ -1384,7 +1366,6 @@ export class HMSSDK {
             HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED,
             this.onAudioDeviceChangedListener
           );
-          console.log('> audDeviceChgSubscription = ', audDeviceChgSubscription);
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED] = audDeviceChgSubscription;
         }
         // Adding App Delegate listener
@@ -1401,7 +1382,6 @@ export class HMSSDK {
               HMSPIPListenerActions.ON_PIP_ROOM_LEAVE,
               this.onPIPRoomLeaveListener
             );
-            console.log('> pipRoomLeaveSubscription = ', pipRoomLeaveSubscription);
             this.emitterSubscriptions[HMSPIPListenerActions.ON_PIP_ROOM_LEAVE] = pipRoomLeaveSubscription;
           }
           // Adding App Delegate listener
