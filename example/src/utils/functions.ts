@@ -691,11 +691,6 @@ export const pairData = (
   let itemsPushed: number = 0;
 
   unGroupedPeerTrackNodes.map((item: PeerTrackNode) => {
-    if (
-      localPeer?.role?.subscribeSettings?.subscribeTo?.includes(
-        item.peer.role?.name || '',
-      )
-    ) {
       if (
         item.track?.source !== HMSTrackSource.REGULAR &&
         item.track?.source !== undefined
@@ -710,7 +705,6 @@ export const pairData = (
         groupedPeerTrackNodes.push(item);
         itemsPushed++;
       }
-    }
   });
 
   if (groupedPeerTrackNodes.length) {
