@@ -628,6 +628,21 @@ const DisplayView = (data: {
     hms?.addEventListener(HMSPIPListenerActions.ON_PIP_ROOM_LEAVE, destroy);
   };
 
+  const removeHmsInstanceListeners = (hms?: HMSSDK) => {
+    hms?.removeEventListener(HMSUpdateListenerActions.ON_ROOM_UPDATE);
+    hms?.removeEventListener(HMSUpdateListenerActions.ON_PEER_UPDATE);
+    hms?.removeEventListener(HMSUpdateListenerActions.ON_TRACK_UPDATE);
+    hms?.removeEventListener(HMSUpdateListenerActions.ON_ERROR);
+    hms?.removeEventListener(HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM);
+    hms?.removeEventListener(HMSUpdateListenerActions.ON_MESSAGE);
+    // hms?.removeEventListener(HMSUpdateListenerActions.ON_SPEAKER);
+    // hms?.removeEventListener(HMSUpdateListenerActions.RECONNECTING);
+    // hms?.removeEventListener(HMSUpdateListenerActions.RECONNECTED);
+    hms?.removeEventListener(HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST);
+    hms?.removeEventListener(HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST);
+    hms?.removeEventListener(HMSPIPListenerActions.ON_PIP_ROOM_LEAVE);
+  };
+
   const changePeerTrackNodes = (
     nodesPresent: PeerTrackNode[],
     peer: HMSPeer,
@@ -685,6 +700,7 @@ const DisplayView = (data: {
       ?.leave()
       .then(async d => {
         console.log('Leave Success: ', d);
+        removeHmsInstanceListeners(hmsInstance);
         destroy();
       })
       .catch(e => console.log('Leave Error: ', e));
