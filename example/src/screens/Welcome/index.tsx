@@ -119,13 +119,31 @@ const Welcome = () => {
   };
 
   const handleJoin = (data: {room: HMSRoom}) => {
-    const hmsLocalPeer = createPeerTrackNode(
+    const nodesPresent = getPeerTrackNodes(
+      peerTrackNodesRef?.current,
       data.room.localPeer,
-      data.room.localPeer.videoTrack,
+      data.room.localPeer.videoTrack as HMSTrack,
     );
-    dispatch(
-      setPeerState({peerState: [hmsLocalPeer, ...peerTrackNodesRef.current]}),
-    );
+
+    if (nodesPresent.length === 0) {
+      const hmsLocalPeer = createPeerTrackNode(
+        data.room.localPeer,
+        data.room.localPeer.videoTrack,
+      );
+      const newPeerTrackNodes = [
+        hmsLocalPeer,
+        ...peerTrackNodesRef.current,
+      ];
+      peerTrackNodesRef.current = newPeerTrackNodes;
+    } else {
+      if (data.room.localPeer.videoTrack) {
+        changePeerTrackNodes(nodesPresent, data.room.localPeer, data.room.localPeer.videoTrack as HMSTrack);
+      } else {
+        changePeerNodes(nodesPresent, data.room.localPeer);
+      }
+    }
+
+    dispatch(setPeerState({peerState: peerTrackNodesRef.current}));
     AsyncStorage.setItem(
       Constants.MEET_URL,
       roomID.replace('preview', 'meeting'),
