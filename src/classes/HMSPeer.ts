@@ -11,8 +11,8 @@ export class HMSPeer {
   customerUserID?: string;
 
   /*
-  * @deprecated customerDescription has been deprecated in favor of metadata
-  */
+   * @deprecated customerDescription has been deprecated in favor of metadata
+   */
   customerDescription?: string;
   metadata?: string;
   role?: HMSRole;
