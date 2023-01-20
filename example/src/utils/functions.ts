@@ -21,7 +21,7 @@ import {
 
 import {LayoutParams, PeerTrackNode, SortingType} from './types';
 import * as services from '../services/index';
-import {PERMISSIONS, requestMultiple, RESULTS} from 'react-native-permissions';
+import {PERMISSIONS, request, requestMultiple, RESULTS} from 'react-native-permissions';
 
 export const getMeetingUrl = () =>
   'https://yogi.app.100ms.live/streaming/meeting/nih-bkn-vek';
@@ -659,25 +659,38 @@ export const checkPermissions = async (
   if (Platform.OS === 'ios') {
     return true;
   }
-  return await requestMultiple(permissions)
-    .then(results => {
-      let allPermissionsGranted = true;
-      for (let permission in permissions) {
-        if (!(results[permissions[permission]] === RESULTS.GRANTED)) {
-          allPermissionsGranted = false;
-        }
-        console.log(
-          permissions[permission],
-          ':',
-          results[permissions[permission]],
-        );
+
+  try {
+    const requiredPermissions = permissions.filter(permission => permission.toString() !== PERMISSIONS.ANDROID.BLUETOOTH_CONNECT);
+
+    const results = await requestMultiple(requiredPermissions);
+
+    let allPermissionsGranted = true;
+    for (let permission in requiredPermissions) {
+      if (!(results[requiredPermissions[permission]] === RESULTS.GRANTED)) {
+        allPermissionsGranted = false;
       }
-      return allPermissionsGranted;
-    })
-    .catch(error => {
-      console.log(error);
-      return false;
-    });
+      console.log(
+        requiredPermissions[permission],
+        ':',
+        results[requiredPermissions[permission]],
+      );
+    }
+
+    // Bluetooth Connect Permission handling
+    if (
+      permissions.findIndex(permission => permission.toString() === PERMISSIONS.ANDROID.BLUETOOTH_CONNECT) >= 0
+    ) {
+      const bleConnectResult = await request(PERMISSIONS.ANDROID.BLUETOOTH_CONNECT);
+      console.log(`${PERMISSIONS.ANDROID.BLUETOOTH_CONNECT} : ${bleConnectResult}`);
+    }
+
+    return allPermissionsGranted;
+
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
 };
 
 export const pairData = (
