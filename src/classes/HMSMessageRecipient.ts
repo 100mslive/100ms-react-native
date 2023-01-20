@@ -5,7 +5,7 @@ import type { HMSRole } from './HMSRole';
 export class HMSMessageRecipient {
   public recipientType: HMSMessageRecipientType;
   public recipientPeer?: HMSPeer;
-  public recipientRoles?: HMSRole[];
+  public recipientRoles: HMSRole[];
 
   constructor(params: {
     recipientType: HMSMessageRecipientType;
@@ -14,6 +14,6 @@ export class HMSMessageRecipient {
   }) {
     this.recipientType = params.recipientType;
     this.recipientPeer = params.recipientPeer;
-    this.recipientRoles = params.recipientRoles;
+    this.recipientRoles = params.recipientRoles || [];
   }
 }
