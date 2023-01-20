@@ -342,6 +342,10 @@ export class HMSEncoder {
   }
 
   static encodeHmsRole(role: any) {
+    if (!role) {
+      return new HMSRole(role);
+    }
+
     const rolesCache = this.data.roles;
 
     if (!rolesCache[role.name]) {
