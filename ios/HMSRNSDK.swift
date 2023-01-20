@@ -1077,6 +1077,11 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func on(room: HMSRoom, update: HMSRoomUpdate) {
+        
+        if update == .metaDataUpdated || update == .roomTypeChanged {
+            return
+        }
+        
         let roomData = HMSDecoder.getHmsRoom(room)
         let type = getString(from: update)
 
