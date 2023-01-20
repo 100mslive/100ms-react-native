@@ -894,14 +894,16 @@ const Meeting = () => {
               />
             }
             onRequestClose={() => setModalVisible(ModalTypes.DEFAULT)}
-            style={styles.participantsMenuContainer}>
+            style={styles.participantsMenuContainer}
+          >
             <MenuItem
               onPress={() => {
                 setModalVisible(ModalTypes.DEFAULT);
                 setTimeout(() => {
                   setModalVisible(ModalTypes.LEAVE_ROOM);
                 }, 500);
-              }}>
+              }}
+            >
               <View style={styles.participantMenuItem}>
                 <Feather
                   name="log-out"
@@ -918,7 +920,8 @@ const Meeting = () => {
                   setTimeout(() => {
                     setModalVisible(ModalTypes.END_ROOM);
                   }, 500);
-                }}>
+                }}
+              >
                 <View style={styles.participantMenuItem}>
                   <Feather
                     name="alert-triangle"
@@ -1069,7 +1072,8 @@ const Meeting = () => {
               style={styles.closeButton}
               onPress={() => {
                 setModalVisible(ModalTypes.DEFAULT);
-              }}>
+              }}
+            >
               <Entypo
                 name={'circle-with-cross'}
                 style={styles.videoIcon}
@@ -1230,12 +1234,14 @@ const Meeting = () => {
       />
       <DefaultModal
         modalVisible={modalVisible === ModalTypes.CHAT}
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+      >
         <ChatWindow localPeer={localPeer} />
       </DefaultModal>
       <DefaultModal
         modalVisible={modalVisible === ModalTypes.PARTICIPANTS}
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+      >
         <ParticipantsModal
           peerTrackNodes={peerTrackNodes}
           instance={instance}
@@ -1248,7 +1254,8 @@ const Meeting = () => {
       </DefaultModal>
       <DefaultModal
         modalVisible={modalVisible === ModalTypes.RTC_STATS}
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+      >
         <RtcStatsModal instance={instance} localPeer={localPeer} />
       </DefaultModal>
       <DefaultModal
@@ -1256,7 +1263,8 @@ const Meeting = () => {
         overlay={false}
         modalPosiion="center"
         modalVisible={modalVisible === ModalTypes.CHANGE_ROLE}
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+      >
         <ChangeRoleModal
           instance={instance}
           peerTrackNode={updatePeerTrackNode}
@@ -1268,7 +1276,8 @@ const Meeting = () => {
         overlay={false}
         modalPosiion="center"
         modalVisible={modalVisible === ModalTypes.VOLUME}
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+      >
         <ChangeVolumeModal
           instance={instance}
           peerTrackNode={updatePeerTrackNode}
@@ -1280,7 +1289,8 @@ const Meeting = () => {
         overlay={false}
         modalPosiion="center"
         modalVisible={modalVisible === ModalTypes.CHANGE_NAME}
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+      >
         <ChangeNameModal
           instance={instance}
           peerTrackNode={updatePeerTrackNode}
@@ -1292,7 +1302,8 @@ const Meeting = () => {
         overlay={false}
         modalPosiion="center"
         modalVisible={modalVisible === ModalTypes.LEAVE_ROOM}
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+      >
         <LeaveRoomModal
           onSuccess={onLeavePress}
           cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
@@ -1303,7 +1314,8 @@ const Meeting = () => {
         overlay={false}
         modalPosiion="center"
         modalVisible={modalVisible === ModalTypes.END_ROOM}
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+      >
         <EndRoomModal
           onSuccess={onEndRoomPress}
           cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
@@ -1314,7 +1326,8 @@ const Meeting = () => {
         overlay={false}
         modalPosiion="center"
         modalVisible={modalVisible === ModalTypes.SWITCH_AUDIO_OUTPUT}
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+      >
         <ChangeAudioOutputModal
           instance={instance}
           cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
@@ -1325,7 +1338,8 @@ const Meeting = () => {
         overlay={false}
         modalPosiion="center"
         modalVisible={modalVisible === ModalTypes.CHANGE_AUDIO_MODE}
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+      >
         <ChangeAudioModeModal
           instance={instance}
           audioMode={audioMode}
@@ -1338,7 +1352,8 @@ const Meeting = () => {
         overlay={false}
         modalPosiion="center"
         modalVisible={modalVisible === ModalTypes.AUDIO_MIXING_MODE}
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+      >
         <ChangeAudioMixingModeModal
           instance={instance}
           newAudioMixingMode={newAudioMixingMode}
@@ -1351,7 +1366,8 @@ const Meeting = () => {
         overlay={false}
         modalPosiion="center"
         modalVisible={modalVisible === ModalTypes.SORTING}
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+      >
         <ChangeSortingModal
           data={[
             SortingType.ALPHABETICAL,
@@ -1368,7 +1384,8 @@ const Meeting = () => {
         overlay={false}
         modalPosiion="center"
         modalVisible={modalVisible === ModalTypes.LAYOUT}
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+      >
         <ChangeLayoutModal
           data={[
             LayoutParams.GRID,
@@ -1387,7 +1404,8 @@ const Meeting = () => {
         overlay={false}
         modalPosiion="center"
         modalVisible={modalVisible === ModalTypes.CHANGE_TRACK_ROLE}
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+      >
         <ChangeTrackStateForRoleModal
           instance={instance}
           localPeer={localPeer}
@@ -1399,7 +1417,8 @@ const Meeting = () => {
         overlay={false}
         modalPosiion="center"
         modalVisible={modalVisible === ModalTypes.CHANGE_TRACK}
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+      >
         <ChangeTrackStateModal
           localPeer={localPeer}
           roleChangeRequest={roleChangeRequest}
@@ -1411,7 +1430,8 @@ const Meeting = () => {
         overlay={false}
         modalPosiion="center"
         modalVisible={modalVisible === ModalTypes.HLS_STREAMING}
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+      >
         <HlsStreamingModal
           instance={instance}
           roomID={roomID}
@@ -1423,7 +1443,8 @@ const Meeting = () => {
         overlay={false}
         modalPosiion="center"
         modalVisible={modalVisible === ModalTypes.RECORDING}
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+      >
         <RecordingModal
           instance={instance}
           recordingDetails={recordingDetails}
@@ -1437,7 +1458,8 @@ const Meeting = () => {
         overlay={false}
         modalPosiion="center"
         modalVisible={modalVisible === ModalTypes.RESOLUTION}
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+      >
         <ResolutionModal
           recordingDetails={recordingDetails}
           setRecordingDetails={setRecordingDetails}
@@ -1449,7 +1471,8 @@ const Meeting = () => {
         overlay={false}
         modalPosiion="center"
         modalVisible={modalVisible === ModalTypes.CHANGE_ROLE_ACCEPT}
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+      >
         <ChangeRoleAccepteModal
           instance={instance}
           roleChangeRequest={roleChangeRequest}
@@ -1461,7 +1484,8 @@ const Meeting = () => {
         overlay={false}
         modalPosiion="center"
         modalVisible={modalVisible === ModalTypes.END_HLS_STREAMING}
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+      >
         <EndHlsModal
           onSuccess={onEndLivePress}
           cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
@@ -1472,7 +1496,8 @@ const Meeting = () => {
         overlay={false}
         modalPosiion="center"
         modalVisible={modalVisible === ModalTypes.SET_AUDIO_SHARE_VOLUME}
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}>
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+      >
         <AudioShareSetVolumeModal
           success={audioShareSetVolume}
           cancel={() => setModalVisible(ModalTypes.DEFAULT)}

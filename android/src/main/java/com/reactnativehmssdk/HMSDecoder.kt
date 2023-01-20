@@ -22,20 +22,36 @@ object HMSDecoder {
       room.putString("name", hmsRoom.name)
       room.putString("metaData", null)
       room.putString("startedAt", hmsRoom.startedAt.toString())
-      room.putMap(
-        "browserRecordingState",
-        this.getHMSBrowserRecordingState(hmsRoom.browserRecordingState)
-      )
-      room.putMap(
-        "rtmpHMSRtmpStreamingState",
-        this.getHMSRtmpStreamingState(hmsRoom.rtmpHMSRtmpStreamingState)
-      )
-      room.putMap(
-        "serverRecordingState",
-        this.getHMSServerRecordingState(hmsRoom.serverRecordingState)
-      )
-      room.putMap("hlsStreamingState", this.getHMSHlsStreamingState(hmsRoom.hlsStreamingState))
-      room.putMap("hlsRecordingState", this.getHMSHlsRecordingState(hmsRoom.hlsRecordingState))
+
+      hmsRoom.browserRecordingState?.let {
+        room.putMap(
+          "browserRecordingState",
+          this.getHMSBrowserRecordingState(it)
+        )
+      }
+
+      hmsRoom.rtmpHMSRtmpStreamingState?.let {
+        room.putMap(
+          "rtmpHMSRtmpStreamingState",
+          this.getHMSRtmpStreamingState(it)
+        )
+      }
+
+      hmsRoom.serverRecordingState?.let {
+        room.putMap(
+          "serverRecordingState",
+          this.getHMSServerRecordingState(it)
+        )
+      }
+
+      hmsRoom.hlsStreamingState?.let {
+        room.putMap("hlsStreamingState", this.getHMSHlsStreamingState(hmsRoom.hlsStreamingState))
+      }
+
+      hmsRoom.hlsRecordingState?.let {
+        room.putMap("hlsRecordingState", this.getHMSHlsRecordingState(hmsRoom.hlsRecordingState))
+      }
+
       room.putMap("localPeer", this.getHmsLocalPeer(hmsRoom.localPeer))
       room.putArray("peers", this.getAllPeers(hmsRoom.peerList))
       room.putInt("peerCount", hmsRoom.peerCount)
@@ -49,13 +65,32 @@ object HMSDecoder {
       peer.putString("peerID", hmsPeer.peerID)
       peer.putString("name", hmsPeer.name)
       peer.putBoolean("isLocal", hmsPeer.isLocal)
-      peer.putString("customerUserID", hmsPeer.customerUserID)
+
+      hmsPeer.customerUserID?.let {
+        peer.putString("customerUserID", it)
+      }
+
+      peer.putString("joinedAt", hmsPeer.joinedAt.toString())
+
       peer.putString("metadata", hmsPeer.metadata)
-      peer.putMap("networkQuality", this.getHmsNetworkQuality(hmsPeer.networkQuality))
-      peer.putMap("audioTrack", this.getHmsAudioTrack(hmsPeer.audioTrack))
-      peer.putMap("videoTrack", this.getHmsVideoTrack(hmsPeer.videoTrack))
+
       peer.putMap("role", this.getHmsRole(hmsPeer.hmsRole))
-      peer.putArray("auxiliaryTracks", this.getAllTracks(hmsPeer.auxiliaryTracks))
+
+      hmsPeer.networkQuality?.let {
+        peer.putMap("networkQuality", this.getHmsNetworkQuality(it))
+      }
+
+      hmsPeer.audioTrack?.let {
+        peer.putMap("audioTrack", this.getHmsAudioTrack(it))
+      }
+
+      hmsPeer.videoTrack?.let {
+        peer.putMap("videoTrack", this.getHmsVideoTrack(it))
+      }
+
+      hmsPeer.auxiliaryTracks.let {
+          peer.putArray("auxiliaryTracks", this.getAllTracks(it))
+      }
     }
     return peer
   }
@@ -141,8 +176,6 @@ object HMSDecoder {
       publishSettings.putMap("audio", this.getHmsAudioSettings(hmsPublishSettings.audio))
       publishSettings.putMap("video", this.getHmsVideoSettings(hmsPublishSettings.video))
       publishSettings.putMap("screen", this.getHmsVideoSettings(hmsPublishSettings.screen))
-      publishSettings.putMap("videoSimulcastLayers", null)
-      publishSettings.putMap("screenSimulcastLayers", null)
       publishSettings.putArray("allowed", this.getWriteableArray(hmsPublishSettings.allowed))
     }
     return publishSettings
@@ -160,7 +193,7 @@ object HMSDecoder {
 
   private fun getHmsAudioSettings(hmsAudioSettings: AudioParams?): WritableMap {
     val audioSettings: WritableMap = Arguments.createMap()
-    if (hmsAudioSettings != null && hmsAudioSettings.codec != null) {
+    if (hmsAudioSettings != null) {
       audioSettings.putInt("bitRate", hmsAudioSettings.bitRate)
       audioSettings.putString("codec", hmsAudioSettings.codec.name)
     }
@@ -169,7 +202,7 @@ object HMSDecoder {
 
   private fun getHmsVideoSettings(hmsVideoSettings: VideoParams?): WritableMap {
     val videoSettings: WritableMap = Arguments.createMap()
-    if (hmsVideoSettings != null && hmsVideoSettings.codec != null) {
+    if (hmsVideoSettings != null) {
       videoSettings.putInt("bitRate", hmsVideoSettings.bitRate)
       videoSettings.putInt("frameRate", hmsVideoSettings.frameRate)
       videoSettings.putInt("width", hmsVideoSettings.width)
@@ -185,15 +218,32 @@ object HMSDecoder {
       peer.putString("peerID", hmsLocalPeer.peerID)
       peer.putString("name", hmsLocalPeer.name)
       peer.putBoolean("isLocal", hmsLocalPeer.isLocal)
-      peer.putString("customerUserID", hmsLocalPeer.customerUserID)
-      peer.putString("metadata", hmsLocalPeer.metadata)
-      peer.putMap("networkQuality", this.getHmsNetworkQuality(hmsLocalPeer.networkQuality))
-      peer.putMap("audioTrack", this.getHmsAudioTrack(hmsLocalPeer.audioTrack))
-      peer.putMap("videoTrack", this.getHmsVideoTrack(hmsLocalPeer.videoTrack))
+
       peer.putMap("role", this.getHmsRole(hmsLocalPeer.hmsRole))
-      peer.putArray("auxiliaryTracks", this.getAllTracks(hmsLocalPeer.auxiliaryTracks))
-      peer.putMap("localAudioTrackData", this.getHmsLocalAudioTrack(hmsLocalPeer.audioTrack))
-      peer.putMap("localVideoTrackData", this.getHmsLocalVideoTrack(hmsLocalPeer.videoTrack))
+
+      peer.putString("metadata", hmsLocalPeer.metadata)
+
+      hmsLocalPeer.customerUserID?.let {
+        peer.putString("customerUserID", it)
+      }
+
+      hmsLocalPeer.networkQuality?.let {
+        peer.putMap("networkQuality", this.getHmsNetworkQuality(it))
+      }
+
+      hmsLocalPeer.audioTrack?.let {
+        peer.putMap("audioTrack", this.getHmsAudioTrack(it))
+        peer.putMap("localAudioTrackData", this.getHmsLocalAudioTrack(it))
+      }
+
+      hmsLocalPeer.videoTrack?.let {
+        peer.putMap("videoTrack", this.getHmsVideoTrack(it))
+        peer.putMap("localVideoTrackData", this.getHmsLocalVideoTrack(it))
+      }
+
+      hmsLocalPeer.auxiliaryTracks.let {
+          peer.putArray("auxiliaryTracks", this.getAllTracks(it))
+      }
     }
     return peer
   }
@@ -272,15 +322,28 @@ object HMSDecoder {
       peer.putString("peerID", hmsRemotePeer.peerID)
       peer.putString("name", hmsRemotePeer.name)
       peer.putBoolean("isLocal", hmsRemotePeer.isLocal)
-      peer.putString("customerUserID", hmsRemotePeer.customerUserID)
       peer.putString("metadata", hmsRemotePeer.metadata)
-      peer.putMap("networkQuality", this.getHmsNetworkQuality(hmsRemotePeer.networkQuality))
-      peer.putMap("audioTrack", this.getHmsAudioTrack(hmsRemotePeer.audioTrack))
-      peer.putMap("videoTrack", this.getHmsVideoTrack(hmsRemotePeer.videoTrack))
       peer.putMap("role", this.getHmsRole(hmsRemotePeer.hmsRole))
+
+      hmsRemotePeer.customerUserID?.let {
+        peer.putString("customerUserID", it)
+      }
+
+      hmsRemotePeer.networkQuality?.let {
+        peer.putMap("networkQuality", this.getHmsNetworkQuality(it))
+      }
+
+      hmsRemotePeer.audioTrack?.let {
+        peer.putMap("audioTrack", this.getHmsAudioTrack(it))
+        peer.putMap("remoteAudioTrackData", this.getHmsRemoteAudioTrack(it))
+      }
+
+      hmsRemotePeer.videoTrack?.let {
+        peer.putMap("videoTrack", this.getHmsVideoTrack(hmsRemotePeer.videoTrack))
+        peer.putMap("remoteVideoTrackData", this.getHmsRemoteVideoTrack(hmsRemotePeer.videoTrack))
+      }
+
       peer.putArray("auxiliaryTracks", this.getAllTracks(hmsRemotePeer.auxiliaryTracks))
-      peer.putMap("remoteAudioTrackData", this.getHmsRemoteAudioTrack(hmsRemotePeer.audioTrack))
-      peer.putMap("remoteVideoTrackData", this.getHmsRemoteVideoTrack(hmsRemotePeer.videoTrack))
     }
     return peer
   }
@@ -367,10 +430,18 @@ object HMSDecoder {
     val input = Arguments.createMap()
     if (data !== null) {
       input.putBoolean("running", data.running)
-      input.putString("startedAt", data.startedAt.toString())
-      input.putString("stoppedAt", data.stoppedAt.toString())
-      input.putBoolean("running", data.running)
-      input.putMap("error", this.getError(data.error))
+
+      data.startedAt?.let {
+        input.putString("startedAt", it.toString())
+      }
+
+      data.stoppedAt?.let {
+        input.putString("stoppedAt", it.toString())
+      }
+
+      data.error?.let {
+        input.putMap("error", this.getError(it))
+      }
     }
     return input
   }
@@ -379,9 +450,18 @@ object HMSDecoder {
     val input = Arguments.createMap()
     if (data !== null) {
       input.putBoolean("running", data.running)
-      input.putString("startedAt", data.startedAt.toString())
-      input.putString("stoppedAt", data.stoppedAt.toString())
-      input.putMap("error", this.getError(data.error))
+
+      data.startedAt?.let {
+        input.putString("startedAt", it.toString())
+      }
+
+      data.stoppedAt?.let {
+        input.putString("stoppedAt", it.toString())
+      }
+
+      data.error?.let {
+        input.putMap("error", this.getError(it))
+      }
     }
     return input
   }
@@ -390,8 +470,14 @@ object HMSDecoder {
     val input = Arguments.createMap()
     if (data !== null) {
       input.putBoolean("running", data.running)
-      input.putString("startedAt", data.startedAt.toString())
-      input.putMap("error", this.getError(data.error))
+
+      data.startedAt?.let {
+        input.putString("startedAt", it.toString())
+      }
+
+      data.error?.let {
+        input.putMap("error", this.getError(it))
+      }
     }
     return input
   }
@@ -400,7 +486,9 @@ object HMSDecoder {
     val input = Arguments.createMap()
     if (data !== null) {
       input.putBoolean("running", data.running)
-      input.putArray("variants", this.getHMSHLSVariant(data.variants))
+      data.variants?.let {
+        input.putArray("variants", this.getHMSHLSVariant(it))
+      }
     }
     return input
   }
@@ -409,8 +497,11 @@ object HMSDecoder {
     val input = Arguments.createMap()
     if (data !== null) {
       data.running?.let { input.putBoolean("running", it) }
-      input.putString("startedAt", data.startedAt.toString())
-      // input.putMap("hlsRecordingConfig", this.getHMSHlsRecordingConfig(data.hlsRecordingConfig))
+
+      data.startedAt?.let {
+        input.putString("startedAt", it.toString())
+      }
+
       data.hlsRecordingConfig?.let { input.putBoolean("singleFilePerLayer", it.singleFilePerLayer) }
       data.hlsRecordingConfig?.let { input.putBoolean("videoOnDemand", it.videoOnDemand) }
     }
@@ -436,10 +527,6 @@ object HMSDecoder {
     val subscribeSettings: WritableMap = Arguments.createMap()
     if (hmsSubscribeSettings != null) {
       subscribeSettings.putInt("maxSubsBitRate", hmsSubscribeSettings.maxSubsBitRate)
-      subscribeSettings.putMap(
-        "subscribeDegradationParam",
-        this.getHmsSubscribeDegradationSettings(hmsSubscribeSettings.subscribeDegradationParam)
-      )
       subscribeSettings.putArray(
         "subscribeTo",
         this.getWriteableArray(hmsSubscribeSettings.subscribeTo)
@@ -494,7 +581,11 @@ object HMSDecoder {
   fun getHmsMessageRecipient(recipient: HMSMessageRecipient?): WritableMap {
     val hmsRecipient: WritableMap = Arguments.createMap()
     if (recipient != null) {
-      hmsRecipient.putMap("recipientPeer", this.getHmsPeer(recipient.recipientPeer))
+
+      recipient.recipientPeer?.let {
+        hmsRecipient.putMap("recipientPeer", this.getHmsPeer(it))
+      }
+
       hmsRecipient.putArray("recipientRoles", this.getAllRoles(recipient.recipientRoles))
       hmsRecipient.putString("recipientType", recipient.recipientType.name)
     }
@@ -534,7 +625,6 @@ object HMSDecoder {
   }
 
   fun getLocalVideoStats(hmsLocalVideoStats: List<HMSLocalVideoStats>): WritableArray {
-
     val stats: WritableArray = Arguments.createArray()
 
     for (stat in hmsLocalVideoStats) {

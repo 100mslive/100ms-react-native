@@ -3,7 +3,7 @@ import type { HMSPeer } from './HMSPeer';
 import type { HMSRole } from './HMSRole';
 
 export class HMSMessageRecipient {
-  public recipientType?: HMSMessageRecipientType;
+  public recipientType: HMSMessageRecipientType;
   public recipientPeer?: HMSPeer;
   public recipientRoles?: HMSRole[];
 
