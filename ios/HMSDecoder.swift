@@ -63,7 +63,7 @@ class HMSDecoder: NSObject {
             peerDict["videoTrack"] = getHmsVideoTrack(video)
         }
 
-        if let auxTracks = peer.auxiliaryTracks {
+        if let auxTracks = peer.auxiliaryTracks, auxTracks.count > 0 {
             peerDict["auxiliaryTracks"] = getAllTracks(auxTracks)
         }
 
@@ -158,7 +158,7 @@ class HMSDecoder: NSObject {
             peerDict["networkQuality"] = getHmsNetworkQuality(quality)
         }
 
-        if let auxTracks = peer.auxiliaryTracks {
+        if let auxTracks = peer.auxiliaryTracks, auxTracks.count > 0 {
             peerDict["auxiliaryTracks"] = getAllTracks(auxTracks)
         }
 
@@ -285,7 +285,7 @@ class HMSDecoder: NSObject {
             }
         }
 
-        if let auxTracks = peer.auxiliaryTracks {
+        if let auxTracks = peer.auxiliaryTracks, auxTracks.count > 0 {
             peerDict["auxiliaryTracks"] = getAllTracks(auxTracks)
         }
 

@@ -30,7 +30,6 @@ import {
   AppState,
   AppStateStatus,
   LayoutAnimation,
-  InteractionManager,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -130,18 +129,14 @@ const Meeting = () => {
   );
 
   const updateLocalPeer = () => {
-    InteractionManager.runAfterInteractions(() => {
-      hmsInstance?.getLocalPeer().then(peer => {
-        setLocalPeer(peer);
-      });
+    hmsInstance?.getLocalPeer().then(peer => {
+      setLocalPeer(peer);
     });
   };
 
   const updateRoom = () => {
-    InteractionManager.runAfterInteractions(() => {
-      hmsInstance?.getRoom().then(hmsRoom => {
-        setRoom(hmsRoom);
-      });
+    hmsInstance?.getRoom().then(hmsRoom => {
+      setRoom(hmsRoom);
     });
   };
 
@@ -289,14 +284,18 @@ const DisplayView = (data: {
 
     if (type === HMSRoomUpdate.BROWSER_RECORDING_STATE_UPDATED) {
       let streaming = room?.browserRecordingState?.running;
-      let hours = room?.browserRecordingState?.startedAt.getHours().toString();
-      let minutes = room?.browserRecordingState?.startedAt
-        .getMinutes()
-        ?.toString();
-      let time = hours + ':' + minutes;
+      const startAtDate = room?.browserRecordingState?.startedAt;
+
+      let startTime: null | string = null;
+
+      if (startAtDate) {
+        let hours = startAtDate.getHours().toString();
+        let minutes = startAtDate.getMinutes()?.toString();
+        startTime = hours + ':' + minutes;
+      }
 
       Toast.showWithGravity(
-        `Browser Recording ${streaming ? 'Started At ' + time : 'Stopped'}`,
+        `Browser Recording ${streaming ? `Started ${startTime ? 'At ' + startTime : ''}` : 'Stopped'}`,
         Toast.LONG,
         Toast.TOP,
       );
@@ -310,29 +309,35 @@ const DisplayView = (data: {
       );
     } else if (type === HMSRoomUpdate.RTMP_STREAMING_STATE_UPDATED) {
       let streaming = room?.rtmpHMSRtmpStreamingState?.running;
-      let hours = room?.rtmpHMSRtmpStreamingState?.startedAt
-        .getHours()
-        .toString();
-      let minutes = room?.rtmpHMSRtmpStreamingState?.startedAt
-        .getMinutes()
-        ?.toString();
-      let time = hours + ':' + minutes;
+      const startAtDate = room?.rtmpHMSRtmpStreamingState?.startedAt;
+
+      let startTime: null | string = null;
+
+      if (startAtDate) {
+        let hours = startAtDate.getHours().toString();
+        let minutes = startAtDate.getMinutes()?.toString();
+        startTime = hours + ':' + minutes;
+      }
 
       Toast.showWithGravity(
-        `RTMP Streaming ${streaming ? 'Started At ' + time : 'Stopped'}`,
+        `RTMP Streaming ${streaming ? `Started ${startTime ? 'At ' + startTime : ''}` : 'Stopped'}`,
         Toast.LONG,
         Toast.TOP,
       );
     } else if (type === HMSRoomUpdate.SERVER_RECORDING_STATE_UPDATED) {
       let streaming = room?.serverRecordingState?.running;
-      let hours = room?.serverRecordingState?.startedAt.getHours().toString();
-      let minutes = room?.serverRecordingState?.startedAt
-        .getMinutes()
-        ?.toString();
-      let time = hours + ':' + minutes;
+      const startAtDate = room?.serverRecordingState?.startedAt;
+
+      let startTime: null | string = null;
+
+      if (startAtDate) {
+        let hours = startAtDate.getHours().toString();
+        let minutes = startAtDate.getMinutes()?.toString();
+        startTime = hours + ':' + minutes;
+      }
 
       Toast.showWithGravity(
-        `Server Recording ${streaming ? 'Started At ' + time : 'Stopped'}`,
+        `Server Recording ${streaming ? `Started ${startTime ? 'At ' + startTime : ''}` : 'Stopped'}`,
         Toast.LONG,
         Toast.TOP,
       );
@@ -739,22 +744,18 @@ const DisplayView = (data: {
   };
 
   const getHmsRoles = () => {
-    InteractionManager.runAfterInteractions(() => {
-      hmsInstance?.getRoles().then(roles => {
-        dispatch(
-          saveUserData({
-            roles,
-          }),
-        );
-      });
+    hmsInstance?.getRoles().then(roles => {
+      dispatch(
+        saveUserData({
+          roles,
+        }),
+      );
     });
   };
 
   const getSessionMetaData = () => {
-    InteractionManager.runAfterInteractions(() => {
-      hmsInstance?.getSessionMetaData().then((value: string | null) => {
-        dispatch(addPinnedMessage(value));
-      });
+    hmsInstance?.getSessionMetaData().then((value: string | null) => {
+      dispatch(addPinnedMessage(value));
     });
   };
 
@@ -1029,9 +1030,11 @@ const Header = ({
               <View style={styles.liveStatus} />
               <Text style={styles.liveTimeText}>Live</Text>
             </View>
-            <RealTime
-              startedAt={room?.hlsStreamingState?.variants[0]?.startedAt}
-            />
+            {Array.isArray(room?.hlsStreamingState?.variants) ? (
+              <RealTime
+                startedAt={room?.hlsStreamingState?.variants[0]?.startedAt}
+              />
+            ) : null}
           </View>
         ) : (
           <Text style={styles.headerName}>{roomCode}</Text>

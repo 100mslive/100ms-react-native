@@ -21,7 +21,9 @@ object HMSDecoder {
       room.putString("sessionId", hmsRoom.sessionId)
       room.putString("name", hmsRoom.name)
       room.putString("metaData", null)
-      room.putString("startedAt", hmsRoom.startedAt.toString())
+      hmsRoom.startedAt?.let {
+        room.putString("startedAt", it.toString())
+      }
 
       hmsRoom.browserRecordingState?.let {
         room.putMap(
@@ -148,8 +150,13 @@ object HMSDecoder {
     if (hmsRole != null) {
       role.putString("name", hmsRole.name)
       role.putMap("permissions", this.getHmsPermissions(hmsRole.permission))
-      role.putMap("publishSettings", this.getHmsPublishSettings(hmsRole.publishParams))
-      role.putMap("subscribeSettings", this.getHmsSubscribeSettings(hmsRole.subscribeParams))
+      hmsRole.publishParams?.let {
+        role.putMap("publishSettings", this.getHmsPublishSettings(it))
+      }
+      hmsRole.subscribeParams?.let {
+        role.putMap("subscribeSettings", this.getHmsSubscribeSettings(it))
+      }
+
       role.putInt("priority", hmsRole.priority)
     }
     return role
@@ -173,9 +180,18 @@ object HMSDecoder {
   private fun getHmsPublishSettings(hmsPublishSettings: PublishParams?): WritableMap {
     val publishSettings: WritableMap = Arguments.createMap()
     if (hmsPublishSettings != null) {
-      publishSettings.putMap("audio", this.getHmsAudioSettings(hmsPublishSettings.audio))
-      publishSettings.putMap("video", this.getHmsVideoSettings(hmsPublishSettings.video))
-      publishSettings.putMap("screen", this.getHmsVideoSettings(hmsPublishSettings.screen))
+      hmsPublishSettings.audio?.let {
+        publishSettings.putMap("audio", this.getHmsAudioSettings(it))
+      }
+
+      hmsPublishSettings.video?.let {
+        publishSettings.putMap("video", this.getHmsVideoSettings(it))
+      }
+
+      hmsPublishSettings.screen?.let {
+        publishSettings.putMap("screen", this.getHmsVideoSettings(it))
+      }
+
       publishSettings.putArray("allowed", this.getWriteableArray(hmsPublishSettings.allowed))
     }
     return publishSettings
@@ -343,7 +359,9 @@ object HMSDecoder {
         peer.putMap("remoteVideoTrackData", this.getHmsRemoteVideoTrack(hmsRemotePeer.videoTrack))
       }
 
-      peer.putArray("auxiliaryTracks", this.getAllTracks(hmsRemotePeer.auxiliaryTracks))
+      hmsRemotePeer.auxiliaryTracks.let {
+        peer.putArray("auxiliaryTracks", this.getAllTracks(it))
+      }
     }
     return peer
   }
@@ -393,7 +411,9 @@ object HMSDecoder {
   fun getHmsRoleChangeRequest(request: HMSRoleChangeRequest, id: String?): WritableMap {
     val roleChangeRequest: WritableMap = Arguments.createMap()
     if (id != null) {
-      roleChangeRequest.putMap("requestedBy", this.getHmsPeer(request.requestedBy))
+      request.requestedBy?.let {
+        roleChangeRequest.putMap("requestedBy", this.getHmsPeer(it))
+      }
       roleChangeRequest.putMap("suggestedRole", this.getHmsRole(request.suggestedRole))
       roleChangeRequest.putString("id", id)
       return roleChangeRequest
@@ -404,7 +424,9 @@ object HMSDecoder {
   fun getHmsChangeTrackStateRequest(request: HMSChangeTrackStateRequest, id: String): WritableMap {
     val changeTrackStateRequest: WritableMap = Arguments.createMap()
 
-    changeTrackStateRequest.putMap("requestedBy", this.getHmsPeer(request.requestedBy))
+    request.requestedBy?.let {
+      changeTrackStateRequest.putMap("requestedBy", this.getHmsPeer(it))
+    }
     changeTrackStateRequest.putString("trackType", request.track.type.name)
     changeTrackStateRequest.putBoolean("mute", request.mute)
     changeTrackStateRequest.putString("id", id)
@@ -516,7 +538,9 @@ object HMSDecoder {
         input.putString("hlsStreamUrl", variant.hlsStreamUrl)
         input.putString("meetingUrl", variant.meetingUrl)
         input.putString("metadata", variant.metadata)
-        input.putString("startedAt", variant.startedAt.toString())
+        variant.startedAt?.let {
+          input.putString("startedAt", it.toString())
+        }
         variants.pushMap(input)
       }
     }
