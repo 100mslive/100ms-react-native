@@ -1,0 +1,10 @@
+- Changed Native Events Subsciption initializers APIs
+
+- Added caching of Roles to improve performance
+
+- Added checks for null types before sending events over JS Bridge
+
+
+React Native SDK: 1.2.0
+Android SDK: 2.5.7
+iOS SDK: 0.6.2
