@@ -21,7 +21,9 @@ object HMSDecoder {
       room.putString("sessionId", hmsRoom.sessionId)
       room.putString("name", hmsRoom.name)
       room.putString("metaData", null)
-      room.putString("startedAt", hmsRoom.startedAt.toString())
+      hmsRoom.startedAt?.let {
+        room.putString("startedAt", it.toString())
+      }
 
       hmsRoom.browserRecordingState?.let {
         room.putMap(
@@ -357,7 +359,9 @@ object HMSDecoder {
         peer.putMap("remoteVideoTrackData", this.getHmsRemoteVideoTrack(hmsRemotePeer.videoTrack))
       }
 
-      peer.putArray("auxiliaryTracks", this.getAllTracks(hmsRemotePeer.auxiliaryTracks))
+      hmsRemotePeer.auxiliaryTracks.let {
+        peer.putArray("auxiliaryTracks", this.getAllTracks(it))
+      }
     }
     return peer
   }
@@ -534,7 +538,9 @@ object HMSDecoder {
         input.putString("hlsStreamUrl", variant.hlsStreamUrl)
         input.putString("meetingUrl", variant.meetingUrl)
         input.putString("metadata", variant.metadata)
-        input.putString("startedAt", variant.startedAt.toString())
+        variant.startedAt?.let {
+          input.putString("startedAt", it.toString())
+        }
         variants.pushMap(input)
       }
     }

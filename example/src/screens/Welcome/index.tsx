@@ -122,7 +122,7 @@ const Welcome = () => {
     const nodesPresent = getPeerTrackNodes(
       peerTrackNodesRef?.current,
       data.room.localPeer,
-      data.room.localPeer.videoTrack as HMSTrack,
+      data.room.localPeer.videoTrack,
     );
 
     if (nodesPresent.length === 0) {
@@ -137,7 +137,7 @@ const Welcome = () => {
         changePeerTrackNodes(
           nodesPresent,
           data.room.localPeer,
-          data.room.localPeer.videoTrack as HMSTrack,
+          data.room.localPeer.videoTrack,
         );
       } else {
         changePeerNodes(nodesPresent, data.room.localPeer);

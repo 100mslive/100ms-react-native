@@ -140,23 +140,27 @@ export const ParticipantsModal = ({
   };
   const toggleAudio = (peer: HMSPeer) => {
     hideMenu();
-    instance
-      ?.changeTrackState(
-        peer?.audioTrack as HMSTrack,
-        !peer?.audioTrack?.isMute(),
-      )
-      .then(d => console.log('Remove Peer Success: ', d))
-      .catch(e => console.log('Remove Peer Error: ', e));
+    if (peer?.audioTrack) {
+      instance
+        ?.changeTrackState(
+          peer?.audioTrack,
+          !peer?.audioTrack?.isMute(),
+        )
+        .then(d => console.log('Remove Peer Success: ', d))
+        .catch(e => console.log('Remove Peer Error: ', e));
+    }
   };
   const toggleVideo = (peer: HMSPeer) => {
     hideMenu();
-    instance
-      ?.changeTrackState(
-        peer?.videoTrack as HMSTrack,
-        !peer?.videoTrack?.isMute(),
-      )
-      .then(d => console.log('Remove Peer Success: ', d))
-      .catch(e => console.log('Remove Peer Error: ', e));
+    if (peer?.videoTrack) {
+      instance
+        ?.changeTrackState(
+          peer?.videoTrack,
+          !peer?.videoTrack?.isMute(),
+        )
+        .then(d => console.log('Remove Peer Success: ', d))
+        .catch(e => console.log('Remove Peer Error: ', e));
+    }
   };
 
   useMemo(() => {
@@ -607,7 +611,9 @@ export const ChangeVolumeModal = ({
   const [volume, setVolume] = useState<number>(0);
 
   const changeVolume = () => {
-    instance?.setVolume(peer?.audioTrack as HMSTrack, volume);
+    if (peer?.audioTrack) {
+      instance?.setVolume(peer?.audioTrack, volume);      
+    }
     cancelModal();
   };
 
@@ -1966,16 +1972,18 @@ export const RealTime = ({startedAt}: {startedAt?: Date}) => {
   const [second, setSecond] = useState(0);
 
   useEffect(() => {
-    const time2 = moment(startedAt, 'hh:mm:ss');
-    const time1 = moment(new Date(), 'hh:mm:ss');
-    const subtract = time1.subtract({
-      hours: time2.hours(),
-      minutes: time2.minutes(),
-      seconds: time2.seconds(),
-    });
-    setHour(subtract.hours());
-    setMinute(subtract.minutes());
-    setSecond(subtract.seconds());
+    if (startedAt) {
+      const time2 = moment(startedAt, 'hh:mm:ss');
+      const time1 = moment(new Date(), 'hh:mm:ss');
+      const subtract = time1.subtract({
+        hours: time2.hours(),
+        minutes: time2.minutes(),
+        seconds: time2.seconds(),
+      });
+      setHour(subtract.hours());
+      setMinute(subtract.minutes());
+      setSecond(subtract.seconds());
+    }
   }, [startedAt]);
 
   useEffect(() => {

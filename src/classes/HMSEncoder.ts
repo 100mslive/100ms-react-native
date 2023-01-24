@@ -384,7 +384,9 @@ export class HMSEncoder {
 
   static encodeHmsRoleChangeRequest(data: any, id: string) {
     const encodedRoleChangeRequest = {
-      requestedBy: HMSEncoder.encodeHmsPeer(data.requestedBy, id),
+      requestedBy: data.requestedBy
+        ? HMSEncoder.encodeHmsPeer(data.requestedBy, id)
+        : undefined,
       suggestedRole: HMSEncoder.encodeHmsRole(data.suggestedRole),
     };
 
@@ -483,7 +485,7 @@ export class HMSEncoder {
   static encodeHLSStreamingState(data: any) {
     return new HMSHLSStreamingState({
       running: data?.running || false,
-      variants: data?.variants
+      variants: Array.isArray(data?.variants)
         ? this.encodeHLSVariants(data?.variants)
         : undefined,
     });
