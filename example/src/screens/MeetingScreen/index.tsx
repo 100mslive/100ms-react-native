@@ -295,7 +295,11 @@ const DisplayView = (data: {
       }
 
       Toast.showWithGravity(
-        `Browser Recording ${streaming ? `Started ${startTime ? 'At ' + startTime : ''}` : 'Stopped'}`,
+        `Browser Recording ${
+          streaming
+            ? `Started ${startTime ? 'At ' + startTime : ''}`
+            : 'Stopped'
+        }`,
         Toast.LONG,
         Toast.TOP,
       );
@@ -320,7 +324,11 @@ const DisplayView = (data: {
       }
 
       Toast.showWithGravity(
-        `RTMP Streaming ${streaming ? `Started ${startTime ? 'At ' + startTime : ''}` : 'Stopped'}`,
+        `RTMP Streaming ${
+          streaming
+            ? `Started ${startTime ? 'At ' + startTime : ''}`
+            : 'Stopped'
+        }`,
         Toast.LONG,
         Toast.TOP,
       );
@@ -337,7 +345,11 @@ const DisplayView = (data: {
       }
 
       Toast.showWithGravity(
-        `Server Recording ${streaming ? `Started ${startTime ? 'At ' + startTime : ''}` : 'Stopped'}`,
+        `Server Recording ${
+          streaming
+            ? `Started ${startTime ? 'At ' + startTime : ''}`
+            : 'Stopped'
+        }`,
         Toast.LONG,
         Toast.TOP,
       );

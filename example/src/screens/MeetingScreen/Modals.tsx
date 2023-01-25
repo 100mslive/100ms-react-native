@@ -142,10 +142,7 @@ export const ParticipantsModal = ({
     hideMenu();
     if (peer?.audioTrack) {
       instance
-        ?.changeTrackState(
-          peer?.audioTrack,
-          !peer?.audioTrack?.isMute(),
-        )
+        ?.changeTrackState(peer?.audioTrack, !peer?.audioTrack?.isMute())
         .then(d => console.log('Remove Peer Success: ', d))
         .catch(e => console.log('Remove Peer Error: ', e));
     }
@@ -154,10 +151,7 @@ export const ParticipantsModal = ({
     hideMenu();
     if (peer?.videoTrack) {
       instance
-        ?.changeTrackState(
-          peer?.videoTrack,
-          !peer?.videoTrack?.isMute(),
-        )
+        ?.changeTrackState(peer?.videoTrack, !peer?.videoTrack?.isMute())
         .then(d => console.log('Remove Peer Success: ', d))
         .catch(e => console.log('Remove Peer Error: ', e));
     }
@@ -612,7 +606,7 @@ export const ChangeVolumeModal = ({
 
   const changeVolume = () => {
     if (peer?.audioTrack) {
-      instance?.setVolume(peer?.audioTrack, volume);      
+      instance?.setVolume(peer?.audioTrack, volume);
     }
     cancelModal();
   };
