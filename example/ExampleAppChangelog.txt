@@ -1,4 +1,4 @@
-- Changed Native Events Subsciption initializers APIs
+- Changed Native Events Subscription initializers APIs
 
 - Added caching of Roles to improve performance
 
