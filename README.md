@@ -3,8 +3,6 @@
 <img src="https://github.com/100mslive/100ms-react-native/blob/main/100ms.svg" title="100ms logo" float=center height=256>
 </a>
 
-# react-native-hms
-
 [![npm](https://img.shields.io/npm/v/@100mslive/react-native-hms)](https://www.npmjs.com/package/@100mslive/react-native-hms)
 [![license](https://img.shields.io/npm/l/@100mslive/react-native-hms)](https://www.100ms.live/)
 [![quality](https://img.shields.io/npms-io/quality-score/@100mslive/react-native-hms)](https://www.npmjs.com/package/@100mslive/react-native-hms)
@@ -17,7 +15,7 @@
 [![Activity](https://img.shields.io/github/commit-activity/m/100mslive/react-native-hms.svg)](https://github.com/100mslive/react-native-hms/projects/1)
 [![Register](https://img.shields.io/badge/Contact-Know%20More-blue)](https://dashboard.100ms.live/register)
 
-React Native Package for 100ms SDK
+# 100ms React Native SDK
 
 📖 Read the Complete Documentation here: https://www.100ms.live/docs/react-native/v2/foundation/basics
 
