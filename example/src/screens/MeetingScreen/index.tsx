@@ -375,15 +375,7 @@ const DisplayView = (data: {
         peerTrackNodesRef?.current,
         peer.peerID,
       );
-      if (nodesPresent.length === 0) {
-        const newPeerTrackNode = createPeerTrackNode(peer);
-        const newPeerTrackNodes = [
-          newPeerTrackNode,
-          ...peerTrackNodesRef.current,
-        ];
-        peerTrackNodesRef.current = newPeerTrackNodes;
-        setPeerTrackNodes(newPeerTrackNodes);
-      } else {
+      if (nodesPresent.length) {
         changePeerNodes(nodesPresent, peer);
       }
       hmsInstance?.getLocalPeer().then(localPeer => {
