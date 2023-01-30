@@ -375,7 +375,10 @@ export class HMSEncoder {
   static encodeHmsRole(role: any) {
     const rolesCache = this.data.roles;
 
-    if (!rolesCache[role.name]) {
+    const cachedRole = rolesCache[role.name];
+
+    // create new HMSRole instance, if cached role does not exist OR `role.publishSettings?.allowed` does not exist
+    if (!cachedRole || !cachedRole.publishSettings?.allowed) {
       rolesCache[role.name] = new HMSRole(role);
     }
 
