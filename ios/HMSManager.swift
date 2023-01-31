@@ -3,7 +3,7 @@ import HMSSDK
 @objc(HMSManager)
 class HMSManager: RCTEventEmitter {
 
-    var hmsCollection: [String: HMSRNSDK] = [:]
+    var hmsCollection = [String: HMSRNSDK]()
 
     let ON_PREVIEW = "ON_PREVIEW"
     let ON_JOIN = "ON_JOIN"
