@@ -1,8 +1,9 @@
 import React from 'react';
-import {View, Text, StyleProp, ViewStyle} from 'react-native';
+import {View, Text, StyleProp, ViewStyle, Pressable} from 'react-native';
 import { HMSTrackSource, HMSTrackType } from '@100mslive/react-native-hms';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useSelector} from 'react-redux';
+import type { HMSView } from '@100mslive/react-native-hms';
 
 import {CustomButton} from '../../components';
 import {styles} from './styles';
@@ -14,9 +15,10 @@ interface DisplayTrackProps extends PeerDisplayViewProps  {
   // miniView?: boolean;
   // peerTrackNode: PeerTrackNode;
   videoStyles: StyleProp<ViewStyle>;
+  onPeerTileLongPress(): void;
 };
 
-const DisplayTrack = ({
+const DisplayTrack = React.forwardRef<typeof HMSView, DisplayTrackProps>(({
   // layout,
   // miniView,
   // peerTrackNode,
@@ -25,7 +27,8 @@ const DisplayTrack = ({
   peerName,
   videoTrack,
   videoStyles,
-}: DisplayTrackProps) => {
+  onPeerTileLongPress,
+}, hmsViewRef) => {
   // hooks
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
 
@@ -42,7 +45,7 @@ const DisplayTrack = ({
       {isLocal &&
       videoTrack?.source === HMSTrackSource.SCREEN &&
       videoTrack?.type === HMSTrackType.VIDEO ? (
-        <View style={styles.screenshareContainer}>
+        <Pressable onLongPress={onPeerTileLongPress} style={styles.screenshareContainer}>
           <MaterialCommunityIcons
             name="monitor-share"
             style={styles.icon}
@@ -57,14 +60,22 @@ const DisplayTrack = ({
             viewStyle={styles.screenshareButton}
             textStyle={styles.roleChangeModalButtonText}
           />
-        </View>
+        </Pressable>
       ) : (
-        <PeerDisplayView 
-          peerName={peerName}
-          isDegraded={isDegraded}
-          isLocal={isLocal}
-          videoTrack={videoTrack}
-        />
+        <>
+          <PeerDisplayView
+            ref={hmsViewRef}
+            peerName={peerName}
+            isDegraded={isDegraded}
+            isLocal={isLocal}
+            videoTrack={videoTrack}
+          />
+
+          <Pressable
+            onLongPress={onPeerTileLongPress}
+            style={styles.tilePressableView}
+          />
+        </>
       )}
       <View style={styles.peerNameContainer}>
         <Text numberOfLines={2} style={styles.peerName}>
@@ -78,6 +89,8 @@ const DisplayTrack = ({
       </View>
     </View>
   );
-};
+});
+
+DisplayTrack.displayName = 'DisplayTrack';
 
 export {DisplayTrack};

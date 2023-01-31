@@ -100,6 +100,7 @@ import {GridView} from './GridView';
 import {HLSView} from './HLSView';
 import PIPView from './PIPView';
 import {RoomSettingsModalContent} from '../../components/RoomSettingsModalContent';
+import {PeerSettingsModalContent} from '../../components/PeerSettingsModalContent';
 
 type MeetingScreenProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -240,12 +241,14 @@ const DisplayView = (data: {
   const [orientation, setOrientation] = useState(true);
   const [layout, setLayout] = useState<LayoutParams>(LayoutParams.GRID);
   const [updatePeer, setUpdatePeer] = useState<HMSPeer>();
+  const [selectedPeerTrackNode, setSelectedPeerTrackNode] = useState<PeerTrackNode | null>(null);
   const [roleChangeRequest, setRoleChangeRequest] = useState<{
     requestedBy?: string;
     suggestedRole?: string;
   }>({});
 
   // useRef hook
+  const gridViewRef = useRef<React.ElementRef<typeof GridView> | null>(null);
   const peerTrackNodesRef = useRef(peerTrackNodes);
 
   // constants
@@ -737,6 +740,11 @@ const DisplayView = (data: {
     data?.setModalVisible(ModalTypes.CHANGE_NAME);
   };
 
+  const handlePeerTileLongPress = (peerTrackNode: PeerTrackNode) => {
+    setSelectedPeerTrackNode(peerTrackNode);
+    data?.setModalVisible(ModalTypes.PEER_SETTINGS);
+  };
+
   const onChangeRolePress = (peer: HMSPeer) => {
     setUpdatePeer(peer);
     data?.setModalVisible(ModalTypes.CHANGE_ROLE);
@@ -746,6 +754,11 @@ const DisplayView = (data: {
     setUpdatePeer(peer);
     data?.setModalVisible(ModalTypes.VOLUME);
   };
+
+  const handleCaptureScreenShotPress = (node: PeerTrackNode) => {
+    gridViewRef.current?.captureViewScreenshot(node);
+    data?.setModalVisible(ModalTypes.DEFAULT);
+  }
 
   const getHmsRoles = () => {
     hmsInstance?.getRoles().then(roles => {
@@ -795,7 +808,7 @@ const DisplayView = (data: {
           {isPipModeActive ? (
             <PIPView pairedPeers={pairedPeers} />
           ) : (
-            <GridView pairedPeers={pairedPeers} orientation={orientation} />
+            <GridView ref={gridViewRef} onPeerTileLongPress={handlePeerTileLongPress} pairedPeers={pairedPeers} orientation={orientation} />
           )}
         </>
       ) : layout === LayoutParams.HLS ? (
@@ -814,6 +827,26 @@ const DisplayView = (data: {
 
       {isPipModeActive ? null : (
         <>
+          <DefaultModal
+            animationType="fade"
+            overlay={false}
+            modalPosiion="center"
+            viewStyle={{minWidth: '70%', width: undefined}}
+            modalVisible={data?.modalVisible === ModalTypes.PEER_SETTINGS}
+            setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}
+          >
+            {selectedPeerTrackNode && data?.localPeer ? (
+              <PeerSettingsModalContent
+                localPeer={data.localPeer}
+                peerTrackNode={selectedPeerTrackNode}
+                cancelModal={() => data?.setModalVisible(ModalTypes.DEFAULT)}
+                onChangeNamePress={onChangeNamePress}
+                onChangeRolePress={onChangeRolePress}
+                onSetVolumePress={onSetVolumePress}
+                onCaptureScreenShotPress={handleCaptureScreenShotPress}
+              />
+            ) : null}
+          </DefaultModal>
           <DefaultModal
             animationType="fade"
             overlay={false}

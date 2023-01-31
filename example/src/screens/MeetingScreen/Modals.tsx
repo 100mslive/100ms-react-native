@@ -7,7 +7,9 @@ import {
   TextInput,
   FlatList,
   StyleSheet,
+  Image,
 } from 'react-native';
+import Toast from 'react-native-simple-toast';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   HMSTrack,
@@ -43,6 +45,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {Slider} from '@miblanchard/react-native-slider';
 import moment from 'moment';
+import RNFetchBlob from 'rn-fetch-blob';
 
 import {styles} from './styles';
 import {
@@ -54,7 +57,7 @@ import {
   CustomPicker,
 } from '../../components';
 import {saveUserData} from '../../redux/actions';
-import {parseMetadata, getInitials} from '../../utils/functions';
+import {parseMetadata, getInitials, requestExternalStoragePermission} from '../../utils/functions';
 import {LayoutParams, ModalTypes, SortingType} from '../../utils/types';
 import {COLORS} from '../../utils/theme';
 import type {RootState} from '../../redux';
@@ -585,6 +588,69 @@ export const ChangeRoleModal = ({
         <CustomButton
           title="Change"
           onPress={changeRole}
+          viewStyle={styles.roleChangeModalSuccessButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+      </View>
+    </View>
+  );
+};
+
+export const SaveScreenshot = ({
+  screenshotData,
+  cancelModal,
+}: {
+  screenshotData:  {peer: HMSPeer; source: { uri: string }} | null;
+  cancelModal: Function;
+}) => {
+  const saveToDisk = async () => {
+    try {
+      const permission = await requestExternalStoragePermission();
+
+      cancelModal();
+
+      if (permission && screenshotData) {
+        // Save to Disk
+        const imageName = `${screenshotData.peer.name}-snapshot-${Date.now()}.png`;
+        await RNFetchBlob.fs.writeFile(
+          `${RNFetchBlob.fs.dirs.DCIMDir}/${imageName}`,
+          screenshotData.source.uri.replace('data:image/png;base64,', ''),
+          "base64"
+        );
+
+        Toast.showWithGravity(
+          'Snapshot has been saved successfully',
+          Toast.LONG,
+          Toast.TOP,
+        );
+      }
+    } catch (error) {
+      console.warn('Snapshot Save Error: ', error);
+    }
+  };
+
+  return (
+    <View style={[{flexGrow: 1}, styles.volumeModalContainer]}>
+      <Text style={styles.roleChangeModalHeading}>
+        {screenshotData ? `${screenshotData.peer.name}'s Snapshot` : 'Snapshot'}
+      </Text>
+      {screenshotData ? (
+        <Image
+          source={screenshotData.source}
+          style={styles.screenshotImage}
+          resizeMode='contain'
+        />
+      ) : null}
+      <View style={styles.roleChangeModalPermissionContainer}>
+        <CustomButton
+          title="Cancel"
+          onPress={cancelModal}
+          viewStyle={styles.roleChangeModalCancelButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+        <CustomButton
+          title="Save to Disk"
+          onPress={saveToDisk}
           viewStyle={styles.roleChangeModalSuccessButton}
           textStyle={styles.roleChangeModalButtonText}
         />

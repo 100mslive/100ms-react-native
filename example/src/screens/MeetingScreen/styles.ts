@@ -190,6 +190,10 @@ const styles = StyleSheet.create({
   checkbox: {
     color: COLORS.TEXT.MEDIUM_EMPHASIS,
   },
+  gridTile: {
+    flex: 1,
+    position: 'relative',
+  },
   closeButton: {
     zIndex: 2,
     position: 'absolute',
@@ -604,6 +608,13 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Medium',
     textTransform: 'capitalize',
   },
+  screenshotImage: {
+    flexGrow: 1,
+    width: '100%',
+    height: '70%',
+    marginTop: 24,
+    backgroundColor: COLORS.BACKGROUND.DARK
+  },
   roleChangeModalDescription: {
     color: COLORS.TEXT.MEDIUM_EMPHASIS,
     fontSize: 12,
@@ -907,6 +918,14 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Medium',
     textAlign: 'center',
     color: COLORS.TEXT.MEDIUM_EMPHASIS,
+  },
+  tilePressableView: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    zIndex: 10,
   },
 });
 
