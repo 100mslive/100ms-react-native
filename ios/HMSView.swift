@@ -14,7 +14,7 @@ class HMSView: RCTViewManager {
     }
 
     func getHmsFromBridge() -> [String: HMSRNSDK] {
-        let collection: [String: HMSRNSDK] = (bridge.module(for: HMSManager.classForCoder()) as? HMSManager)?.hmsCollection ?? [:]
+        let collection = (bridge.module(for: HMSManager.classForCoder()) as? HMSManager)?.hmsCollection ?? [String: HMSRNSDK]()
         return collection
     }
 
@@ -29,7 +29,7 @@ class HmssdkDisplayView: UIView {
         return HMSVideoView()
     }()
 
-    var hmsCollection: [String: HMSRNSDK] = [:]
+    var hmsCollection = [String: HMSRNSDK]()
 
     func setHms(_ hmsInstance: [String: HMSRNSDK]) {
         hmsCollection = hmsInstance
@@ -59,13 +59,14 @@ class HmssdkDisplayView: UIView {
             let sdkID = data.value(forKey: "id") as? String ?? "12345"
 
             guard let hmsSDK = hmsCollection[sdkID]?.hms,
+                  let room = hmsSDK.room,
                   let trackID = data.value(forKey: "trackId") as? String
             else {
                 print(#function, "Required data to setup video view not found")
                 return
             }
-
-            var videoTrack = HMSUtilities.getVideoTrack(for: trackID, in: hmsSDK.room!)
+            
+            var videoTrack = HMSUtilities.getVideoTrack(for: trackID, in: room)
 
             if videoTrack == nil {
                 for track in hmsCollection[sdkID]?.recentPreviewTracks ?? [] {
