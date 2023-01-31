@@ -75,6 +75,7 @@ export * from './classes/HMSLogSettings';
 export * from './classes/HMSLogAlarmManager';
 export * from './classes/HMSMessageType';
 export * from './classes/HMSPIPListenerActions';
+export type { HmsViewComponent as HMSView } from './classes/HmsView';
 
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
 export default HmsManager;
