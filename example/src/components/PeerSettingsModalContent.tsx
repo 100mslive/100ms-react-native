@@ -1,7 +1,11 @@
 import React from 'react';
 import {View, TouchableOpacity, Text, StyleSheet} from 'react-native';
 import {useSelector} from 'react-redux';
-import {HMSLocalPeer, HMSPeer} from '@100mslive/react-native-hms';
+import {
+  HMSLocalPeer,
+  HMSPeer,
+  HMSTrackSource,
+} from '@100mslive/react-native-hms';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -133,13 +137,18 @@ export const PeerSettingsModalContent: React.FC<
           />
         ) : null}
 
-        <SettingItem
-          text="Capture Screenshot"
-          IconType={MaterialCommunityIcons}
-          iconName={'cellphone-screenshot'}
-          onPress={() => onCaptureScreenShotPress(peerTrackNode)}
-          disabled={!peerTrackNode.track || peerTrackNode.track.isMute()}
-        />
+        {/* Don't show Capture Screenshot option, if track is screenshare of local peer */}
+        {peerTrackNode.peer.isLocal &&
+        peerTrackNode.track &&
+        peerTrackNode.track.source === HMSTrackSource.SCREEN ? null : (
+          <SettingItem
+            text="Capture Screenshot"
+            IconType={MaterialCommunityIcons}
+            iconName={'cellphone-screenshot'}
+            onPress={() => onCaptureScreenShotPress(peerTrackNode)}
+            disabled={!peerTrackNode.track || peerTrackNode.track.isMute()} // Capture Screenshot option should be disable, if track is muted or not available
+          />
+        )}
       </View>
     </View>
   );
@@ -161,7 +170,11 @@ const SettingItem: React.FC<SettingItemProps> = ({
   disabled = false,
 }) => {
   return (
-    <TouchableOpacity disabled={disabled} style={[styles.button, disabled ? {opacity: 0.6} : null]} onPress={onPress}>
+    <TouchableOpacity
+      disabled={disabled}
+      style={[styles.button, disabled ? {opacity: 0.6} : null]}
+      onPress={onPress}
+    >
       <IconType name={iconName} size={24} style={styles.icon} />
 
       <Text style={styles.text}>{text}</Text>

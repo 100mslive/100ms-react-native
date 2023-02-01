@@ -81,6 +81,12 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     backgroundColor: COLORS.BLACK,
   },
+  morePeerOptionsContainer: {
+    position: 'absolute',
+    bottom: 8,
+    right: 8,
+    zIndex: 10,
+  },
   mic: {
     color: COLORS.TEXT.HIGH_EMPHASIS,
   },
@@ -613,7 +619,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '70%',
     marginTop: 24,
-    backgroundColor: COLORS.BACKGROUND.DARK
+    backgroundColor: COLORS.BACKGROUND.DARK,
   },
   roleChangeModalDescription: {
     color: COLORS.TEXT.MEDIUM_EMPHASIS,

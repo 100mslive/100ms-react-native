@@ -8,6 +8,7 @@ import {
   FlatList,
   StyleSheet,
   Image,
+  Platform,
 } from 'react-native';
 import Toast from 'react-native-simple-toast';
 import {useDispatch, useSelector} from 'react-redux';
@@ -57,7 +58,11 @@ import {
   CustomPicker,
 } from '../../components';
 import {saveUserData} from '../../redux/actions';
-import {parseMetadata, getInitials, requestExternalStoragePermission} from '../../utils/functions';
+import {
+  parseMetadata,
+  getInitials,
+  requestExternalStoragePermission,
+} from '../../utils/functions';
 import {LayoutParams, ModalTypes, SortingType} from '../../utils/types';
 import {COLORS} from '../../utils/theme';
 import type {RootState} from '../../redux';
@@ -600,7 +605,7 @@ export const SaveScreenshot = ({
   screenshotData,
   cancelModal,
 }: {
-  screenshotData:  {peer: HMSPeer; source: { uri: string }} | null;
+  screenshotData: {peer: HMSPeer; source: {uri: string}} | null;
   cancelModal: Function;
 }) => {
   const saveToDisk = async () => {
@@ -611,11 +616,18 @@ export const SaveScreenshot = ({
 
       if (permission && screenshotData) {
         // Save to Disk
-        const imageName = `${screenshotData.peer.name}-snapshot-${Date.now()}.png`;
+        const imageName = `${
+          screenshotData.peer.name
+        }-snapshot-${Date.now()}.png`;
+        const saveDir =
+          Platform.OS === 'ios'
+            ? RNFetchBlob.fs.dirs.DocumentDir
+            : RNFetchBlob.fs.dirs.DCIMDir;
+
         await RNFetchBlob.fs.writeFile(
-          `${RNFetchBlob.fs.dirs.DCIMDir}/${imageName}`,
+          `${saveDir}/${imageName}`,
           screenshotData.source.uri.replace('data:image/png;base64,', ''),
-          "base64"
+          'base64',
         );
 
         Toast.showWithGravity(
@@ -638,7 +650,7 @@ export const SaveScreenshot = ({
         <Image
           source={screenshotData.source}
           style={styles.screenshotImage}
-          resizeMode='contain'
+          resizeMode="contain"
         />
       ) : null}
       <View style={styles.roleChangeModalPermissionContainer}>

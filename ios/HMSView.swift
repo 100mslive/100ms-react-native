@@ -90,7 +90,7 @@ class HmssdkDisplayView: UIView {
                 print(#function, "Required data to setup video view not found")
                 return
             }
-            
+
             var videoTrack = HMSUtilities.getVideoTrack(for: trackID, in: room)
 
             if videoTrack == nil {
