@@ -4,7 +4,7 @@ import Foundation
 class HMSDecoder: NSObject {
     static func getHmsRoom (_ hmsRoom: HMSRoom?) -> [String: Any] {
 
-        guard let room = hmsRoom else { return [:] }
+        guard let room = hmsRoom else { return [String: Any]() }
 
         let id = room.roomID ?? ""
         let sessionId = room.sessionID ?? ""
@@ -33,7 +33,7 @@ class HMSDecoder: NSObject {
 
     static func getHmsPeer (_ hmsPeer: HMSPeer?) -> [String: Any] {
 
-        guard let peer = hmsPeer else { return [:] }
+        guard let peer = hmsPeer else { return [String: Any]() }
 
         var peerDict = [String: Any]()
 
@@ -81,7 +81,7 @@ class HMSDecoder: NSObject {
 
     static func getHmsTrack (_ track: HMSTrack?) -> [String: Any] {
 
-        guard let hmsTrack = track else { return [:] }
+        guard let hmsTrack = track else { return [String: Any]() }
 
         let trackId = hmsTrack.trackId
         let source = hmsTrack.source
@@ -94,7 +94,7 @@ class HMSDecoder: NSObject {
 
     static func getHmsAudioTrack (_ hmsAudioTrack: HMSAudioTrack?) -> [String: Any] {
 
-        guard let hmsTrack = hmsAudioTrack else { return [:] }
+        guard let hmsTrack = hmsAudioTrack else { return [String: Any]() }
 
         let trackId: String = hmsTrack.trackId
         let source: String = hmsTrack.source
@@ -107,7 +107,7 @@ class HMSDecoder: NSObject {
 
     static func getHmsVideoTrack (_ hmsVideoTrack: HMSVideoTrack?) -> [String: Any] {
 
-        guard let hmsTrack = hmsVideoTrack else { return [:] }
+        guard let hmsTrack = hmsVideoTrack else { return [String: Any]() }
 
         let trackId = hmsTrack.trackId
         let source = hmsTrack.source
@@ -121,7 +121,7 @@ class HMSDecoder: NSObject {
 
     static func getHmsLocalPeer(_ hmsLocalPeer: HMSLocalPeer?) -> [String: Any] {
 
-        guard let peer = hmsLocalPeer else { return [:] }
+        guard let peer = hmsLocalPeer else { return [String: Any]() }
 
         var peerDict = [String: Any]()
 
@@ -177,7 +177,7 @@ class HMSDecoder: NSObject {
 
     static func getHmsAudioTrackSettings(_ hmsAudioTrackSettings: HMSAudioTrackSettings?) -> [String: Any] {
 
-        guard let settings = hmsAudioTrackSettings else { return [:] }
+        guard let settings = hmsAudioTrackSettings else { return [String: Any]() }
 
         // TODO: parsing not done for audioSource
         let audioSource = settings.audioSource
@@ -188,7 +188,7 @@ class HMSDecoder: NSObject {
 
     static func getHmsVideoTrackSettings(_ hmsVideoTrackSettings: HMSVideoTrackSettings?) -> [String: Any] {
 
-        guard let settings = hmsVideoTrackSettings else { return [:] }
+        guard let settings = hmsVideoTrackSettings else { return [String: Any]() }
 
         let cameraFacing = getHmsVideoTrackCameraFacing(settings.cameraFacing)
         let initialState = HMSHelper.getHMSTrackInitState(settings.initialMuteState)
@@ -230,13 +230,13 @@ class HMSDecoder: NSObject {
     }
 
     static func getHmsVideoResolution(_ hmsVideoResolution: HMSVideoResolution?) -> [String: Any] {
-        guard let resolution = hmsVideoResolution else { return [:] }
+        guard let resolution = hmsVideoResolution else { return [String: Any]() }
 
         return ["width": resolution.width, "height": resolution.height]
     }
 
     static func getHmsRemotePeers (_ remotePeers: [HMSRemotePeer]?) -> [[String: Any]] {
-        guard let remotePeers = remotePeers else { return [[:]] }
+        guard let remotePeers = remotePeers else { return [[String: Any]()] }
 
         var peers = [[String: Any]]()
 
@@ -334,7 +334,7 @@ class HMSDecoder: NSObject {
 
     static func getHmsRole(_ hmsRole: HMSRole?) -> [String: Any] {
 
-        guard let role = hmsRole else { return [:] }
+        guard let role = hmsRole else { return [String: Any]() }
 
         let name = role.name
         let permissions = getHmsPermissions(role.permissions)
@@ -386,7 +386,7 @@ class HMSDecoder: NSObject {
 
     static func getHmsSubscribeSettings (_ subscribeSettings: HMSSubscribeSettings?) -> [String: Any] {
         guard let settings = subscribeSettings
-        else { return [:] }
+        else { return [String: Any]() }
 
         let maxSubsBitRate = settings.maxSubsBitRate
         let subscribeTo = settings.subscribeToRoles
@@ -397,7 +397,7 @@ class HMSDecoder: NSObject {
     static func getHmsSubscribeDegradationSettings (_ hmsSubscribeDegradationParams: HMSSubscribeDegradationPolicy?) -> [String: Any] {
         guard let params = hmsSubscribeDegradationParams
         else {
-            return [:]
+            return [String: Any]()
         }
 
         let degradeGracePeriodSeconds = String(params.degradeGracePeriodSeconds ?? 0)
@@ -437,7 +437,7 @@ class HMSDecoder: NSObject {
 
     static func getHmsSimulcastLayers(_ videoSimulcastLayers: HMSSimulcastSettingsPolicy?) -> [String: Any] {
 
-        guard let videoLayers = videoSimulcastLayers else { return [:] }
+        guard let videoLayers = videoSimulcastLayers else { return [String: Any]() }
 
         let layers = getHmsSimulcastLayerSettingsPolicy(videoLayers.layers)
 
@@ -482,7 +482,7 @@ class HMSDecoder: NSObject {
             return request
         }
 
-        return [:]
+        return [String: Any]()
     }
 
     static func getHmsChangeTrackStateRequest(_ changeTrackStateRequest: HMSChangeTrackStateRequest, _ id: String) -> [String: Any] {
@@ -529,7 +529,7 @@ class HMSDecoder: NSObject {
 
             return state
         } else {
-            return  [:]
+            return  [String: Any]()
         }
     }
 
@@ -548,7 +548,7 @@ class HMSDecoder: NSObject {
 
             return state
         } else {
-            return [:]
+            return [String: Any]()
         }
     }
 
@@ -567,7 +567,7 @@ class HMSDecoder: NSObject {
 
             return state
         } else {
-            return [:]
+            return [String: Any]()
         }
     }
 
@@ -578,7 +578,7 @@ class HMSDecoder: NSObject {
 
             return ["running": running, "variants": variants]
         } else {
-            return [:]
+            return [String: Any]()
         }
     }
 
@@ -591,7 +591,7 @@ class HMSDecoder: NSObject {
 
             return ["running": running, "startedAt": startedAt * 1000, "singleFilePerLayer": singleFilePerLayer, "videoOnDemand": enableVOD]
         } else {
-            return [:]
+            return [String: Any]()
         }
     }
 
@@ -657,7 +657,7 @@ class HMSDecoder: NSObject {
     }
 
     static func getHmsNetworkQuality(_ hmsNetworkQuality: HMSNetworkQuality?) -> [String: Any] {
-        guard let networkQuality = hmsNetworkQuality else { return [:] }
+        guard let networkQuality = hmsNetworkQuality else { return [String: Any]() }
 
         return ["downlinkQuality": networkQuality.downlinkQuality]
     }
