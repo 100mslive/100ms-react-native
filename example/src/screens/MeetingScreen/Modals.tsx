@@ -8,6 +8,7 @@ import {
   FlatList,
   StyleSheet,
   Image,
+  Platform,
 } from 'react-native';
 import Toast from 'react-native-simple-toast';
 import {useDispatch, useSelector} from 'react-redux';
@@ -612,8 +613,10 @@ export const SaveScreenshot = ({
       if (permission && screenshotData) {
         // Save to Disk
         const imageName = `${screenshotData.peer.name}-snapshot-${Date.now()}.png`;
+        const saveDir = Platform.OS === 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DCIMDir;
+
         await RNFetchBlob.fs.writeFile(
-          `${RNFetchBlob.fs.dirs.DCIMDir}/${imageName}`,
+          `${saveDir}/${imageName}`,
           screenshotData.source.uri.replace('data:image/png;base64,', ''),
           "base64"
         );
