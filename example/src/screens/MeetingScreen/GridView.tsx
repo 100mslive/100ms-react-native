@@ -40,15 +40,17 @@ const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(({pairedPeers
         return;
       }
 
+      console.warn('captureViewScreenshot');
+
       hmsViewRef.capture?.()
         .then((imageBase64: string) => {
-          console.log('HmsView Cature Success');
+          console.log('HmsView Capture Success');
           setScreenshotData({
             peer: node.peer,
             source: { uri: `data:image/png;base64,${imageBase64}` }
           });
         })
-        .catch((error: any) => console.warn('HmsView Cature Error: ', error));
+        .catch((error: any) => console.warn('HmsView Capture Error: ', error));
     }
   }), []);
 

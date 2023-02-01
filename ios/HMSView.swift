@@ -3,11 +3,14 @@ import AVKit
 
 @objc(HMSView)
 class HMSView: RCTViewManager {
+    
+    var displayView: HmssdkDisplayView?
 
     override func view() -> (HmssdkDisplayView) {
         let view = HmssdkDisplayView()
+        displayView = view
+        
         let hms = getHmsFromBridge()
-
         view.setHms(hms)
 
         return view
@@ -20,6 +23,28 @@ class HMSView: RCTViewManager {
 
     override class func requiresMainQueueSetup() -> Bool {
         true
+    }
+    
+    @objc
+    func capture(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+
+        print("HMSView", #function)
+        
+        guard let image = displayView?.videoView.captureSnapshot()
+        else {
+            print(#function, "Could not capture snapshot of HMSVideoView")
+            reject?("6001", "Could not capture snapshot of HMSVideoView", nil)
+            return
+        }
+
+        guard let base64 = image.pngData()?.base64EncodedString() else {
+            print(#function, "Could not create base64 encoded string of captured snapshot")
+            reject?("6001", "Could not create base64 encoded string of captured snapshot", nil)
+            return
+        }
+
+        print("HMSView", #function, base64)
+//        resolve?(base64)
     }
 }
 
