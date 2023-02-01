@@ -740,7 +740,7 @@ const DisplayView = (data: {
     data?.setModalVisible(ModalTypes.CHANGE_NAME);
   };
 
-  const handlePeerTileLongPress = (peerTrackNode: PeerTrackNode) => {
+  const handlePeerTileMorePress = (peerTrackNode: PeerTrackNode) => {
     setSelectedPeerTrackNode(peerTrackNode);
     data?.setModalVisible(ModalTypes.PEER_SETTINGS);
   };
@@ -808,7 +808,7 @@ const DisplayView = (data: {
           {isPipModeActive ? (
             <PIPView pairedPeers={pairedPeers} />
           ) : (
-            <GridView ref={gridViewRef} onPeerTileLongPress={handlePeerTileLongPress} pairedPeers={pairedPeers} orientation={orientation} />
+            <GridView ref={gridViewRef} onPeerTileMorePress={handlePeerTileMorePress} pairedPeers={pairedPeers} orientation={orientation} />
           )}
         </>
       ) : layout === LayoutParams.HLS ? (

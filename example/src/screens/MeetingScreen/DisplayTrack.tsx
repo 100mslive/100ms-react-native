@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, StyleProp, ViewStyle, Pressable} from 'react-native';
+import {View, Text, StyleProp, ViewStyle} from 'react-native';
 import { HMSTrackSource, HMSTrackType } from '@100mslive/react-native-hms';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useSelector} from 'react-redux';
@@ -11,23 +11,17 @@ import type {RootState} from '../../redux';
 import PeerDisplayView, { PeerDisplayViewProps } from './PeerDisplayView';
 
 interface DisplayTrackProps extends PeerDisplayViewProps  {
-  // layout?: LayoutParams;
-  // miniView?: boolean;
-  // peerTrackNode: PeerTrackNode;
   videoStyles: StyleProp<ViewStyle>;
-  onPeerTileLongPress(): void;
 };
 
+// `ref` passed to DisplayTrack component will be passed to PeerDisplayView component
+// as HMSView component is being rendered inside PeerDisplayView component
 const DisplayTrack = React.forwardRef<typeof HMSView, DisplayTrackProps>(({
-  // layout,
-  // miniView,
-  // peerTrackNode,
   isDegraded,
   isLocal,
   peerName,
   videoTrack,
   videoStyles,
-  onPeerTileLongPress,
 }, hmsViewRef) => {
   // hooks
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
@@ -45,7 +39,7 @@ const DisplayTrack = React.forwardRef<typeof HMSView, DisplayTrackProps>(({
       {isLocal &&
       videoTrack?.source === HMSTrackSource.SCREEN &&
       videoTrack?.type === HMSTrackType.VIDEO ? (
-        <Pressable onLongPress={onPeerTileLongPress} style={styles.screenshareContainer}>
+        <View style={styles.screenshareContainer}>
           <MaterialCommunityIcons
             name="monitor-share"
             style={styles.icon}
@@ -60,22 +54,15 @@ const DisplayTrack = React.forwardRef<typeof HMSView, DisplayTrackProps>(({
             viewStyle={styles.screenshareButton}
             textStyle={styles.roleChangeModalButtonText}
           />
-        </Pressable>
+        </View>
       ) : (
-        <>
-          <PeerDisplayView
-            ref={hmsViewRef}
-            peerName={peerName}
-            isDegraded={isDegraded}
-            isLocal={isLocal}
-            videoTrack={videoTrack}
-          />
-
-          <Pressable
-            onLongPress={onPeerTileLongPress}
-            style={styles.tilePressableView}
-          />
-        </>
+        <PeerDisplayView
+          ref={hmsViewRef}
+          peerName={peerName}
+          isDegraded={isDegraded}
+          isLocal={isLocal}
+          videoTrack={videoTrack}
+        />
       )}
       <View style={styles.peerNameContainer}>
         <Text numberOfLines={2} style={styles.peerName}>

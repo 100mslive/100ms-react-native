@@ -1,5 +1,5 @@
 import React, {ElementRef, useRef, useState, useImperativeHandle} from 'react';
-import {View, FlatList, Dimensions, Text} from 'react-native';
+import {View, FlatList, Dimensions, Text, TouchableOpacity} from 'react-native';
 import {HMSPeer, HMSTrackSource} from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
@@ -11,9 +11,10 @@ import {DisplayTrack} from './DisplayTrack';
 import type {PeerTrackNode} from '../../utils/types';
 import { DefaultModal } from '../../components';
 import { SaveScreenshot } from './Modals';
+import { COLORS } from '../../utils/theme';
 
 type GridViewProps = {
-  onPeerTileLongPress(peerTrackNode: PeerTrackNode): void;
+  onPeerTileMorePress(peerTrackNode: PeerTrackNode): void;
   pairedPeers: PeerTrackNode[][];
   orientation: boolean;
 };
@@ -22,7 +23,7 @@ type GridViewRefAttrs = {
   captureViewScreenshot(node: PeerTrackNode): any;
 }
 
-const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(({pairedPeers, orientation, onPeerTileLongPress}, ref) => {
+const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(({pairedPeers, orientation, onPeerTileMorePress}, ref) => {
   // hooks
   const [screenshotData, setScreenshotData] = useState<{peer: HMSPeer; source: { uri: string }} | null>(null);
   const hmsViewRefs = useRef<Record<string, ElementRef<typeof HMSView>>>({});
@@ -99,8 +100,14 @@ const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(({pairedPeers
                       videoTrack={view?.track}
                       videoStyles={styles.generalTile}
                       isDegraded={view?.isDegraded}
-                      onPeerTileLongPress={() => onPeerTileLongPress(view)}
                     />
+
+                    <View style={styles.morePeerOptionsContainer}>
+                      <TouchableOpacity onPress={() => onPeerTileMorePress(view)} style={{ padding: 8, backgroundColor: COLORS.SECONDARY.DISABLED, borderRadius: 18 }}>
+                        <Feather name="more-horizontal" style={styles.mic} size={20} />
+                      </TouchableOpacity>
+                    </View>
+
                     {view?.peer?.audioTrack?.isMute() && (
                       <View style={styles.micContainer}>
                         <Feather name="mic-off" style={styles.mic} size={20} />
