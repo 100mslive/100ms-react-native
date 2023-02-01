@@ -619,7 +619,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '70%',
     marginTop: 24,
-    backgroundColor: COLORS.BACKGROUND.DARK
+    backgroundColor: COLORS.BACKGROUND.DARK,
   },
   roleChangeModalDescription: {
     color: COLORS.TEXT.MEDIUM_EMPHASIS,

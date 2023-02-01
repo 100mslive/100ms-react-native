@@ -241,7 +241,8 @@ const DisplayView = (data: {
   const [orientation, setOrientation] = useState(true);
   const [layout, setLayout] = useState<LayoutParams>(LayoutParams.GRID);
   const [updatePeer, setUpdatePeer] = useState<HMSPeer>();
-  const [selectedPeerTrackNode, setSelectedPeerTrackNode] = useState<PeerTrackNode | null>(null);
+  const [selectedPeerTrackNode, setSelectedPeerTrackNode] =
+    useState<PeerTrackNode | null>(null);
   const [roleChangeRequest, setRoleChangeRequest] = useState<{
     requestedBy?: string;
     suggestedRole?: string;
@@ -758,7 +759,7 @@ const DisplayView = (data: {
   const handleCaptureScreenShotPress = (node: PeerTrackNode) => {
     gridViewRef.current?.captureViewScreenshot(node);
     data?.setModalVisible(ModalTypes.DEFAULT);
-  }
+  };
 
   const getHmsRoles = () => {
     hmsInstance?.getRoles().then(roles => {
@@ -808,7 +809,12 @@ const DisplayView = (data: {
           {isPipModeActive ? (
             <PIPView pairedPeers={pairedPeers} />
           ) : (
-            <GridView ref={gridViewRef} onPeerTileMorePress={handlePeerTileMorePress} pairedPeers={pairedPeers} orientation={orientation} />
+            <GridView
+              ref={gridViewRef}
+              onPeerTileMorePress={handlePeerTileMorePress}
+              pairedPeers={pairedPeers}
+              orientation={orientation}
+            />
           )}
         </>
       ) : layout === LayoutParams.HLS ? (
