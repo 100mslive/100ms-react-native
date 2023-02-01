@@ -4,6 +4,7 @@ import {HMSPeer, HMSTrackSource} from '@100mslive/react-native-hms';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
 import type {HMSView} from '@100mslive/react-native-hms';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import {getDisplayTrackDimensions, parseMetadata} from '../../utils/functions';
 import {styles} from './styles';
@@ -32,18 +33,24 @@ const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(({pairedPeers
   // useRef hook
   const flatlistRef = useRef<FlatList>(null);
 
+  // We are setting `captureViewScreenshot` method on ref passed to GridView component
+  // `captureViewScreenshot` method can be called to with PeerTrackNode to capture the HmsView Snapshot
   useImperativeHandle(ref, () => ({
     captureViewScreenshot: (node: PeerTrackNode) => {
+      // getting HmsView ref for the passed PeerTrackNode
       const hmsViewRef = hmsViewRefs.current[node.id];
 
+      // If HmsView is not rendered on Tile, then HmsView ref will be `undefined`
       if (!hmsViewRef) {
         console.warn(`HmsViewRef for "${node.id}" is not available!`);
         return;
       }
 
+      // Calling `capture` method on HmsView ref
       hmsViewRef.capture?.()
         .then((imageBase64: string) => {
           console.log('HmsView Cature Success');
+          // Saving data needed to show captured snapshot in "Save Snapshot" Modal
           setScreenshotData({
             peer: node.peer,
             source: { uri: `data:image/png;base64,${imageBase64}` }
@@ -77,6 +84,7 @@ const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(({pairedPeers
                 {width: Dimensions.get('window').width - left - right},
               ]}>
               {item?.map(view => {
+                const parsedMetadata = parseMetadata(view?.peer?.metadata);
                 return (
                   <View
                     style={[
@@ -94,6 +102,7 @@ const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(({pairedPeers
                     ]}
                     key={view.id}>
                     <DisplayTrack
+                      // saving HmsView ref in collection with uniqueId as key
                       ref={(ref) => hmsViewRefs.current[view.id] = ref}
                       isLocal={view?.peer?.isLocal}
                       peerName={view?.peer?.name}
@@ -102,6 +111,7 @@ const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(({pairedPeers
                       isDegraded={view?.isDegraded}
                     />
 
+                    {/* More Options button for Peer */}
                     <View style={styles.morePeerOptionsContainer}>
                       <TouchableOpacity onPress={() => onPeerTileMorePress(view)} style={{ padding: 8, backgroundColor: COLORS.SECONDARY.DISABLED, borderRadius: 18 }}>
                         <Feather name="more-horizontal" style={styles.mic} size={20} />
@@ -113,14 +123,22 @@ const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(({pairedPeers
                         <Feather name="mic-off" style={styles.mic} size={20} />
                       </View>
                     )}
-                    {/* TODO: add hand raise icon */}
-                    {parseMetadata(view?.peer?.metadata)?.isBRBOn && (
+                    {parsedMetadata?.isBRBOn ? (
                       <View style={styles.status}>
                         <View style={styles.brbOnContainer}>
                           <Text style={styles.brbOn}>BRB</Text>
                         </View>
                       </View>
-                    )}
+                    ) : null}
+                    {parsedMetadata?.isHandRaised ? (
+                      <View style={styles.status}>
+                        <Ionicons
+                          name="hand-left"
+                          style={{ color: COLORS.TWIN.YELLOW }}
+                          size={20}
+                        />
+                      </View>
+                    ) : null}
                   </View>
                 );
               })}
@@ -131,6 +149,7 @@ const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(({pairedPeers
         keyExtractor={item => item[0]?.id}
       />
 
+      {/* Save Captured Screenshot of HMSView Modal */}
       <DefaultModal
         animationType="fade"
         overlay={false}
