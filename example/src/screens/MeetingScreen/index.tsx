@@ -480,40 +480,21 @@ const DisplayView = (data: {
         (peer.audioTrack?.trackId === undefined &&
           peer.videoTrack?.trackId === undefined)
       ) {
-        if (peer.isLocal) {
-          const localPeerTrackNodes = getPeerTrackNodes(
-            peerTrackNodesRef.current,
-            peer,
-            track,
-          );
-
-          // removing `track` from original `localPeerTrackNodes` object
-          localPeerTrackNodes.forEach(localPeerTrackNode => {
-            localPeerTrackNode.track = undefined;
-          });
-
-          // hack: creating new array from existing to rerender views
-          const newPeerTrackNodes = [...peerTrackNodesRef.current];
-
-          peerTrackNodesRef.current = newPeerTrackNodes;
-          setPeerTrackNodes(newPeerTrackNodes);
-        } else {
-          const uniqueId =
-            peer.peerID +
-            (track.source === undefined
-              ? HMSTrackSource.REGULAR
-              : track.source);
-          const newPeerTrackNodes = peerTrackNodesRef.current?.filter(
-            peerTrackNode => {
-              if (peerTrackNode.id === uniqueId) {
-                return false;
-              }
-              return true;
-            },
-          );
-          peerTrackNodesRef.current = newPeerTrackNodes;
-          setPeerTrackNodes(newPeerTrackNodes);
-        }
+        const uniqueId =
+          peer.peerID +
+          (track.source === undefined
+            ? HMSTrackSource.REGULAR
+            : track.source);
+        const newPeerTrackNodes = peerTrackNodesRef.current?.filter(
+          peerTrackNode => {
+            if (peerTrackNode.id === uniqueId) {
+              return false;
+            }
+            return true;
+          },
+        );
+        peerTrackNodesRef.current = newPeerTrackNodes;
+        setPeerTrackNodes(newPeerTrackNodes);
       }
       return;
     }
