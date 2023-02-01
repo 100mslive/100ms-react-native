@@ -368,20 +368,17 @@ class HMSDecoder: NSObject {
 
     static func getHmsPublishSettings (_ publishSettings: HMSPublishSettings) -> [String: Any] {
 
-        let audio = getHmsAudioSettings(publishSettings.audio)
-        let video = getHmsVideoSettings(publishSettings.video)
-        let screen = getHmsVideoSettings(publishSettings.screen)
-        var allowed = publishSettings.allowed ?? []
-        if (publishSettings.allowed) != nil {
-            allowed = getWriteableArray(publishSettings.allowed)
-        } else {
-            allowed = []
+        var dict = [String: Any]()
+
+        dict["audio"] = getHmsAudioSettings(publishSettings.audio)
+        dict["video"] = getHmsVideoSettings(publishSettings.video)
+        dict["screen"] = getHmsVideoSettings(publishSettings.screen)
+
+        if let allowed = publishSettings.allowed {
+            dict["allowed"] = getWriteableArray(allowed)
         }
 
-        return ["audio": audio,
-                "video": video,
-                "screen": screen,
-                "allowed": allowed]
+        return dict
     }
 
     static func getHmsSubscribeSettings (_ subscribeSettings: HMSSubscribeSettings?) -> [String: Any] {
