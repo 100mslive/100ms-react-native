@@ -154,7 +154,7 @@ class HMSHelper: NSObject {
         let resolution = HMSVideoResolution.init(width: 320, height: 180)
         let maxBitrate = 512
         let maxFrameRate = 25
-        let trackDescription = "video track description"
+        let trackDescription = ""
         let cameraFacing = settings?.value(forKey: "cameraFacing") as? String
         let cameraFacingEncoded = HMSHelper.getCameraFacing(cameraFacing)
         let initialState = settings?.value(forKey: "initialState") as? String
@@ -203,7 +203,7 @@ class HMSHelper: NSObject {
                 do {
                     self.audioMixerSourceHashMap = audioMixerSourceMap
                     let audioMixerSource = try HMSAudioMixerSource(nodes: audioMixerSourceMap.values.map {$0})
-                    return HMSAudioTrackSettings(maxBitrate: 32, trackDescription: "audio track description", initialMuteState: initialStateEncoded, audioSource: audioMixerSource)
+                    return HMSAudioTrackSettings(maxBitrate: 32, trackDescription: "", initialMuteState: initialStateEncoded, audioSource: audioMixerSource)
                 } catch {
                     delegate?.emitEvent("ON_ERROR", ["error": ["code": 6002, "description": error.localizedDescription, "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
                     return nil
@@ -211,7 +211,7 @@ class HMSHelper: NSObject {
             }
         }
 
-        return HMSAudioTrackSettings(maxBitrate: 32, trackDescription: "audio track description", initialMuteState: initialStateEncoded, audioSource: nil)
+        return HMSAudioTrackSettings(maxBitrate: 32, trackDescription: "", initialMuteState: initialStateEncoded, audioSource: nil)
     }
 
     static func getAudioMixerSourceMap() -> [String: HMSAudioNode]? {
