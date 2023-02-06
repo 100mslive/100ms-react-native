@@ -13,6 +13,15 @@ import live.hms.video.sdk.models.role.*
 import live.hms.video.sdk.models.trackchangerequest.HMSChangeTrackStateRequest
 
 object HMSDecoder {
+  private var restrictRoleData = mutableMapOf<String, Boolean>()
+
+  fun setRestrictRoleData(roleName: String, value: Boolean) {
+    this.restrictRoleData[roleName] = value
+  }
+
+  fun clearRestrictDataStates() {
+    this.restrictRoleData.clear()
+  }
 
   fun getHmsRoom(hmsRoom: HMSRoom?): WritableMap {
     val room: WritableMap = Arguments.createMap()
@@ -149,15 +158,17 @@ object HMSDecoder {
     val role: WritableMap = Arguments.createMap()
     if (hmsRole != null) {
       role.putString("name", hmsRole.name)
-      role.putMap("permissions", this.getHmsPermissions(hmsRole.permission))
-      hmsRole.publishParams?.let {
-        role.putMap("publishSettings", this.getHmsPublishSettings(it))
-      }
-      hmsRole.subscribeParams?.let {
-        role.putMap("subscribeSettings", this.getHmsSubscribeSettings(it))
-      }
+      if (this.restrictRoleData[hmsRole.name] != true) {
+        role.putMap("permissions", this.getHmsPermissions(hmsRole.permission))
+        hmsRole.publishParams?.let {
+          role.putMap("publishSettings", this.getHmsPublishSettings(it))
+        }
+        hmsRole.subscribeParams?.let {
+          role.putMap("subscribeSettings", this.getHmsSubscribeSettings(it))
+        }
 
-      role.putInt("priority", hmsRole.priority)
+        role.putInt("priority", hmsRole.priority)
+      }
     }
     return role
   }

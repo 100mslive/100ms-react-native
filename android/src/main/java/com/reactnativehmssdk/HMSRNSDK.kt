@@ -228,7 +228,7 @@ class HMSRNSDK(
 
               override fun onRemovedFromRoom(notification: HMSRemovedFromRoom) {
                 super.onRemovedFromRoom(notification)
-
+                HMSDecoder.clearRestrictDataStates()
                 val data: WritableMap = Arguments.createMap()
                 val requestedBy =
                   HMSDecoder.getHmsRemotePeer(notification.peerWhoRemoved as HMSRemotePeer?)
@@ -521,6 +521,7 @@ class HMSRNSDK(
             audioshareCallback = null
             networkQualityUpdatesAttached = false
             rtcStatsAttached = false
+            HMSDecoder.clearRestrictDataStates()
             if (fromPIP) {
               context.currentActivity?.moveTaskToBack(false)
 
@@ -1462,5 +1463,20 @@ class HMSRNSDK(
         }
       }
     )
+  }
+
+  fun restrictData(data: ReadableMap, promise: Promise?) {
+    val requiredKeys =
+      HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("roleName", "String")))
+    if (requiredKeys === null) {
+      val roleName = data.getString("roleName")
+      if (roleName != null) {
+        HMSDecoder.setRestrictRoleData(roleName, true)
+      }
+    } else {
+      val errorMessage = "t: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(promise, errorMessage)
+    }
   }
 }
