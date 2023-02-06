@@ -450,6 +450,20 @@ class HMSManager(reactContext: ReactApplicationContext) :
     hms?.getSessionMetaData(callback)
   }
 
+  @ReactMethod
+  fun enableEvent(data: ReadableMap, promise: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.enableEvent(data, promise)
+  }
+
+  @ReactMethod
+  fun disableEvent(data: ReadableMap, promise: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.disableEvent(data, promise)
+  }
+
   // region Person-In-Person Mode Action handing
   private val pipReceiver by lazy {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
