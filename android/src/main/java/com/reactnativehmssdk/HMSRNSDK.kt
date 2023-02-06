@@ -1579,7 +1579,7 @@ class HMSRNSDK(
         HMSDecoder.setRestrictRoleData(roleName, true)
       }
     } else {
-      val errorMessage = "t: $requiredKeys"
+      val errorMessage = "restrictData: $requiredKeys"
       self.emitRequiredKeysError(errorMessage)
       rejectCallback(promise, errorMessage)
     }
