@@ -1577,6 +1577,7 @@ class HMSRNSDK(
       val roleName = data.getString("roleName")
       if (roleName != null) {
         HMSDecoder.setRestrictRoleData(roleName, true)
+        promise?.resolve(emitHMSSuccess())
       }
     } else {
       val errorMessage = "restrictData: $requiredKeys"

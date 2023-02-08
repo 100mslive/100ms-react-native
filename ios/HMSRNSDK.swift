@@ -212,6 +212,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 self?.networkQualityUpdatesAttached = false
                 self?.hms?.leave({ success, error in
                     if success {
+                        HMSDecoder.clearRestrictDataStates()
                         resolve?(["success": success])
                     } else {
                         strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["error": HMSDecoder.getError(error), "id": strongSelf.id])
@@ -1057,6 +1058,18 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         resolve?(["success": true, "message": "function call executed successfully"])
     }
 
+    func restrictData(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let roleName = data.value(forKey: "roleName") as? String else {
+            let errorMessage = "restrictData: " + HMSHelper.getUnavailableRequiredKey(data, ["roleName"])
+            emitRequiredKeysError(errorMessage)
+            reject?(errorMessage, errorMessage, nil)
+            return
+        }
+
+        HMSDecoder.setRestrictRoleData(roleName, true)
+        resolve?(["success": true, "message": "function call executed successfully"])
+    }
+
     // MARK: - HMS SDK Get APIs
     func getRoom(_ resolve: RCTPromiseResolveBlock?) {
         let roomData = HMSDecoder.getHmsRoom(hms?.room)
@@ -1226,6 +1239,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func on(removedFromRoom notification: HMSRemovedFromRoomNotification) {
+        HMSDecoder.clearRestrictDataStates()
         if eventsEnableStatus[ON_REMOVED_FROM_ROOM] != true {
             return
         }
