@@ -134,11 +134,11 @@ class HMSRNSDK(
         config,
         object : HMSPreviewListener {
           override fun onError(error: HMSException) {
+            previewInProgress = false
             if (eventsEnableStatus["ON_ERROR"] != true) {
               return
             }
             self.emitHMSError(error)
-            previewInProgress = false
           }
 
           override fun onPeerUpdate(type: HMSPeerUpdate, peer: HMSPeer) {
@@ -190,6 +190,7 @@ class HMSRNSDK(
           }
 
           override fun onPreview(room: HMSRoom, localTracks: Array<HMSTrack>) {
+            previewInProgress = false
             if (eventsEnableStatus["ON_PREVIEW"] != true) {
               return
             }
@@ -201,7 +202,6 @@ class HMSRNSDK(
             data.putMap("room", hmsRoom)
             data.putString("id", id)
             delegate.emitEvent("ON_PREVIEW", data)
-            previewInProgress = false
           }
         }
       )
@@ -389,12 +389,12 @@ class HMSRNSDK(
               }
 
               override fun onRoleChangeRequest(request: HMSRoleChangeRequest) {
+                recentRoleChangeRequest = request
                 if (eventsEnableStatus["ON_ROLE_CHANGE_REQUEST"] != true) {
                   return
                 }
                 val decodedChangeRoleRequest = HMSDecoder.getHmsRoleChangeRequest(request, id)
                 delegate.emitEvent("ON_ROLE_CHANGE_REQUEST", decodedChangeRoleRequest)
-                recentRoleChangeRequest = request
               }
             }
           )
