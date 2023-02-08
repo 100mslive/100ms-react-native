@@ -7,6 +7,7 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import {
   HMSAudioFilePlayerNode,
@@ -21,6 +22,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
 import DocumentPicker from 'react-native-document-picker';
+import { openSettings, requestNotifications } from 'react-native-permissions';
 
 import {COLORS} from '../utils/theme';
 import type {RootState} from '../redux';
@@ -190,7 +192,7 @@ export const RoomSettingsModalContent: React.FC<
     setModalVisible(ModalTypes.AUDIO_MIXING_MODE);
 
   // Android Audioshare
-  const handleAudioShare = () => {
+  const handleAudioShare = async () => {
     closeRoomSettingsModal();
     if (isAudioShared) {
       hmsInstance
@@ -201,6 +203,27 @@ export const RoomSettingsModalContent: React.FC<
         })
         .catch(e => console.log('Stop Audioshare Error: ', e));
     } else {
+      // check notification permission on android platform
+      // Audio share feature needs foreground service running. for Foreground service to keep running, we need active notification.
+      if (Platform.OS === 'android') {
+        const result = await requestNotifications(['alert', 'sound']);
+
+        console.log('Notification Permission Result: ', result);
+
+        if (result.status === 'blocked') {
+          Alert.alert(
+            'Notification Permission is Blocked!',
+            '100ms SDK needs notification permission to start audio share. Please allow notification from settings and try again!',
+            [
+              { text: 'cancel' },
+              { text: 'Go to Settings', onPress: () => openSettings()}
+            ],
+            { cancelable: true }
+          )
+          return;
+        }
+      }
+
       hmsInstance
         ?.startAudioshare(newAudioMixingMode)
         .then(d => {
