@@ -2,6 +2,16 @@ import HMSSDK
 import Foundation
 
 class HMSDecoder: NSObject {
+    static private var restrictRoleData: [String: Bool] = [:]
+
+    static func setRestrictRoleData (_ roleName: String, _ value: Bool) {
+        restrictRoleData[roleName] = value
+    }
+
+    static func clearRestrictDataStates () {
+        restrictRoleData.removeAll()
+    }
+
     static func getHmsRoom (_ hmsRoom: HMSRoom?) -> [String: Any] {
 
         guard let room = hmsRoom else { return [String: Any]() }
@@ -337,6 +347,11 @@ class HMSDecoder: NSObject {
         guard let role = hmsRole else { return [String: Any]() }
 
         let name = role.name
+
+        if restrictRoleData[role.name] == true {
+            return ["name": name]
+        }
+
         let permissions = getHmsPermissions(role.permissions)
         let publishSettings = getHmsPublishSettings(role.publishSettings)
         let subscribeSettings = getHmsSubscribeSettings(role.subscribeSettings)
