@@ -7,4 +7,4 @@
 
 React Native SDK: 1.2.0
 Android SDK: 2.5.7
-iOS SDK: 0.6.2
+iOS SDK: 0.6.3

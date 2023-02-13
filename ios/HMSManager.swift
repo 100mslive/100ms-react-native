@@ -415,10 +415,11 @@ class HMSManager: RCTEventEmitter {
         hms?.disableEvent(data, resolve, reject)
     }
 
-    func restrictData(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    @objc
+    func restrictData(_ data: NSDictionary) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
-        hms?.restrictData(data, resolve, reject)
+        hms?.restrictData(data)
     }
 
     // MARK: - HMS SDK Get APIs

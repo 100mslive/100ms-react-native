@@ -59,7 +59,7 @@ PODS:
   - glog (0.3.5)
   - hermes-engine (0.7.2)
   - HMSBroadcastExtensionSDK (0.0.7)
-  - HMSSDK (0.6.2):
+  - HMSSDK (0.6.3):
     - HMSWebRTC (= 1.0.5113)
   - HMSWebRTC (1.0.5113)
   - libevent (2.1.12)
@@ -290,7 +290,7 @@ PODS:
     - React-Core
   - react-native-hms (1.2.0):
     - HMSBroadcastExtensionSDK (= 0.0.7)
-    - HMSSDK (= 0.6.2)
+    - HMSSDK (= 0.6.3)
     - React-Core
   - react-native-safe-area-context (3.4.1):
     - React-Core
@@ -380,7 +380,7 @@ PODS:
     - React-Core
   - RNPermissions (3.4.0):
     - React-Core
-  - RNScreens (3.19.0):
+  - RNScreens (3.20.0):
     - React-Core
     - React-RCTImage
   - RNShare (7.9.1):
@@ -598,7 +598,7 @@ SPEC CHECKSUMS:
   glog: 73c2498ac6884b13ede40eda8228cb1eee9d9d62
   hermes-engine: 7d97ba46a1e29bacf3e3c61ecb2804a5ddd02d4f
   HMSBroadcastExtensionSDK: d22df4b2c22843efe4a1779478889076db8eaabd
-  HMSSDK: c995b000287512ae30cba17605f5dd0cec7cd994
+  HMSSDK: bf4375d20b228caf3bd261e04d2807793b2d1d00
   HMSWebRTC: 6bd851709766bf4b28fd89046a65654e86741aed
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   OpenSSL-Universal: 1aa4f6a6ee7256b83db99ec1ccdaa80d10f9af9b
@@ -618,7 +618,7 @@ SPEC CHECKSUMS:
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
   react-native-cameraroll: 5b25d0be40185d02e522bf2abf8a1ba4e8faa107
   react-native-document-picker: 958e2bc82e128be69055be261aeac8d872c8d34c
-  react-native-hms: 96eef64d139d57feea89dd10f486f14de5121ff8
+  react-native-hms: 5404299f079189a4b29d4012d6202e163067ef36
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
   react-native-simple-toast: 8ee5d23f0b92b935ab7434cdb65159ce12dfb4b7
   react-native-video: c26780b224543c62d5e1b2a7244a5cd1b50e8253
@@ -641,7 +641,7 @@ SPEC CHECKSUMS:
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNPermissions: eac721f71748c4472d6e876038270b75397d6ee7
-  RNScreens: ea4cd3a853063cda19a4e3c28d2e52180c80f4eb
+  RNScreens: 218801c16a2782546d30bd2026bb625c0302d70f
   RNShare: a5dc3b9c53ddc73e155b8cd9a94c70c91913c43c
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196

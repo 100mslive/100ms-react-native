@@ -16,7 +16,9 @@ export class HMSNativeEventEmitter {
 
   listenerCount(eventType: string): number {
     // For RN version < v0.64, listenerCount method is not available
+    // @ts-ignore - typescript is giving error because we are running it with RN types version >= 0.64
     if (typeof this._nativeEventEmitter.listeners === 'function') {
+      // @ts-ignore - typescript is giving error because we are running it with RN types version >= 0.64
       const count = this._nativeEventEmitter.listeners(eventType).length;
 
       logger?.verbose('#Function HMSNativeEventEmitter.listenerCount', { eventType, count });

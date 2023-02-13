@@ -385,13 +385,6 @@ export class HMSEncoder {
 
     const cachedRole = rolesCache[role.name];
 
-    // Throw Error, If cached role does not exist AND name is the only property on role
-    // Native side should have sent the whole object
-    // DOUBT: should we remove this code?
-    if (!cachedRole && !role.priority) {
-      throw new Error(`Role object with name "${role.name}" does not exist in roles cache!`);
-    }
-
     // create new HMSRole instance, if cached role does not exist OR `role.publishSettings?.allowed` does not exist
     if (!cachedRole || !cachedRole.publishSettings?.allowed) {
       // Creating HMSRole object with data
@@ -401,9 +394,9 @@ export class HMSEncoder {
       rolesCache[role.name] = hmsRole;
 
       // If the created HMSRole object is complete,
-      // sendng notification to Native Side to stop sending data for this role
+      // sending notification to Native Side to stop sending data for this role
       if (hmsRole.publishSettings?.allowed) {
-        HMSManager.restrictData({ id: "12345", roleName: hmsRole.name }); // DOUBT: How to handle sdkId here?
+        HMSManager.restrictData({ id: "12345", roleName: hmsRole.name });
       }
     }
 

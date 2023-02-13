@@ -1122,16 +1122,14 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         resolve?(["success": true, "message": "function call executed successfully"])
     }
 
-    func restrictData(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    func restrictData(_ data: NSDictionary) {
         guard let roleName = data.value(forKey: "roleName") as? String else {
             let errorMessage = "restrictData: " + HMSHelper.getUnavailableRequiredKey(data, ["roleName"])
             emitRequiredKeysError(errorMessage)
-            reject?(errorMessage, errorMessage, nil)
             return
         }
 
         HMSDecoder.setRestrictRoleData(roleName, true)
-        resolve?(["success": true, "message": "function call executed successfully"])
     }
 
     // MARK: - HMS SDK Get APIs
