@@ -1477,8 +1477,7 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   removeEventListener = (
-    action: HMSUpdateListenerActions | HMSPIPListenerActions,
-    disableNativeEvent = true
+    action: HMSUpdateListenerActions | HMSPIPListenerActions
   ) => {
     logger?.verbose('#Function removeEventListener', { action, id: this.id });
     switch (action) {
@@ -1487,7 +1486,7 @@ export class HMSSDK {
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_PREVIEW];
         // Removing ON_PREVIEW native listener
         if (subscription) {
-          subscription.remove(disableNativeEvent);
+          subscription.remove();
 
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_PREVIEW] =
             undefined;
@@ -1501,7 +1500,7 @@ export class HMSSDK {
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_JOIN];
         // Removing ON_JOIN native listener
         if (subscription) {
-          subscription.remove(disableNativeEvent);
+          subscription.remove();
 
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_JOIN] =
             undefined;
@@ -1515,7 +1514,7 @@ export class HMSSDK {
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_ROOM_UPDATE];
         // Removing ON_ROOM_UPDATE native listener
         if (subscription) {
-          subscription.remove(disableNativeEvent);
+          subscription.remove();
 
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_ROOM_UPDATE] =
             undefined;
@@ -1529,7 +1528,7 @@ export class HMSSDK {
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_PEER_UPDATE];
         // Removing ON_PEER_UPDATE native listener
         if (subscription) {
-          subscription.remove(disableNativeEvent);
+          subscription.remove();
 
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_PEER_UPDATE] =
             undefined;
@@ -1543,7 +1542,7 @@ export class HMSSDK {
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_TRACK_UPDATE];
         // Removing ON_TRACK_UPDATE native listener
         if (subscription) {
-          subscription.remove(disableNativeEvent);
+          subscription.remove();
 
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_TRACK_UPDATE] =
             undefined;
@@ -1557,7 +1556,7 @@ export class HMSSDK {
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_ERROR];
         // Removing ON_ERROR native listener
         if (subscription) {
-          subscription.remove(disableNativeEvent);
+          subscription.remove();
 
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_ERROR] =
             undefined;
@@ -1571,7 +1570,7 @@ export class HMSSDK {
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_MESSAGE];
         // Removing ON_MESSAGE native listener
         if (subscription) {
-          subscription.remove(disableNativeEvent);
+          subscription.remove();
 
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_MESSAGE] =
             undefined;
@@ -1585,7 +1584,7 @@ export class HMSSDK {
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_SPEAKER];
         // Removing ON_SPEAKER native listener
         if (subscription) {
-          subscription.remove(disableNativeEvent);
+          subscription.remove();
 
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_SPEAKER] =
             undefined;
@@ -1599,7 +1598,7 @@ export class HMSSDK {
           this.emitterSubscriptions[HMSUpdateListenerActions.RECONNECTING];
         // Removing RECONNECTING native listener
         if (subscription) {
-          subscription.remove(disableNativeEvent);
+          subscription.remove();
 
           this.emitterSubscriptions[HMSUpdateListenerActions.RECONNECTING] =
             undefined;
@@ -1613,7 +1612,7 @@ export class HMSSDK {
           this.emitterSubscriptions[HMSUpdateListenerActions.RECONNECTED];
         // Removing RECONNECTED native listener
         if (subscription) {
-          subscription.remove(disableNativeEvent);
+          subscription.remove();
 
           this.emitterSubscriptions[HMSUpdateListenerActions.RECONNECTED] =
             undefined;
@@ -1629,7 +1628,7 @@ export class HMSSDK {
           ];
         // Removing ON_ROLE_CHANGE_REQUEST native listener
         if (subscription) {
-          subscription.remove(disableNativeEvent);
+          subscription.remove();
 
           this.emitterSubscriptions[
             HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST
@@ -1646,7 +1645,7 @@ export class HMSSDK {
           ];
         // Removing ON_CHANGE_TRACK_STATE_REQUEST native listener
         if (subscription) {
-          subscription.remove(disableNativeEvent);
+          subscription.remove();
 
           this.emitterSubscriptions[
             HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST
@@ -1663,7 +1662,7 @@ export class HMSSDK {
           ];
         // Removing ON_REMOVED_FROM_ROOM native listener
         if (subscription) {
-          subscription.remove(disableNativeEvent);
+          subscription.remove();
 
           this.emitterSubscriptions[
             HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM
@@ -1678,7 +1677,7 @@ export class HMSSDK {
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_RTC_STATS];
         // Removing ON_RTC_STATS native listener
         if (subscription) {
-          subscription.remove(disableNativeEvent);
+          subscription.remove();
 
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_RTC_STATS] =
             undefined;
@@ -1694,7 +1693,7 @@ export class HMSSDK {
           ];
         // Removing ON_LOCAL_AUDIO_STATS native listener
         if (subscription) {
-          subscription.remove(disableNativeEvent);
+          subscription.remove();
 
           this.emitterSubscriptions[
             HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS
@@ -1711,7 +1710,7 @@ export class HMSSDK {
           ];
         // Removing ON_LOCAL_VIDEO_STATS native listener
         if (subscription) {
-          subscription.remove(disableNativeEvent);
+          subscription.remove();
 
           this.emitterSubscriptions[
             HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS
@@ -1728,7 +1727,7 @@ export class HMSSDK {
           ];
         // Removing ON_REMOTE_AUDIO_STATS native listener
         if (subscription) {
-          subscription.remove(disableNativeEvent);
+          subscription.remove();
 
           this.emitterSubscriptions[
             HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS
@@ -1745,7 +1744,7 @@ export class HMSSDK {
           ];
         // Removing ON_REMOTE_VIDEO_STATS native listener
         if (subscription) {
-          subscription.remove(disableNativeEvent);
+          subscription.remove();
 
           this.emitterSubscriptions[
             HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS
@@ -1762,7 +1761,7 @@ export class HMSSDK {
           ];
         // Removing ON_AUDIO_DEVICE_CHANGED native listener
         if (subscription) {
-          subscription.remove(disableNativeEvent);
+          subscription.remove();
 
           this.emitterSubscriptions[
             HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED
@@ -1778,7 +1777,7 @@ export class HMSSDK {
             this.emitterSubscriptions[HMSPIPListenerActions.ON_PIP_ROOM_LEAVE];
           // Removing ON_PIP_ROOM_LEAVE native listener
           if (subscription) {
-            subscription.remove(disableNativeEvent);
+            subscription.remove();
 
             this.emitterSubscriptions[HMSPIPListenerActions.ON_PIP_ROOM_LEAVE] =
               undefined;
@@ -1797,7 +1796,7 @@ export class HMSSDK {
    *
    * @memberof HMSSDK
    */
-  removeAllListeners = (disableNativeEvents = true) => {
+  removeAllListeners = () => {
     this.onPreviewDelegate = null;
     this.onJoinDelegate = null;
     this.onRoomDelegate = null;
@@ -1817,7 +1816,7 @@ export class HMSSDK {
     Object.values(this.emitterSubscriptions)
       .filter(Boolean)
       .forEach((emitterSubscription) => {
-        emitterSubscription.remove(disableNativeEvents);
+        emitterSubscription.remove();
       });
 
     // clearing reference of all `emitterSubscription` objects

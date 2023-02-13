@@ -2,7 +2,7 @@ import { EventSubscription, NativeEventEmitter } from "react-native";
 import { logger } from './HMSLogger';
 
 export type HMSEventSubscription = {
-  remove(disableNativeEvent?: boolean): void;
+  remove(): void;
 };
 
 export class HMSNativeEventEmitter {
@@ -42,8 +42,8 @@ export class HMSNativeEventEmitter {
     let subscription: EventSubscription | null = this._nativeEventEmitter.addListener(eventType, listener);
 
     return {
-      remove: (disableNativeEvent = true) => {
-        console.log('#Function EventSubscription.remove', { id, eventType, listener, disableNativeEvent });
+      remove: () => {
+        console.log('#Function EventSubscription.remove', { id, eventType, listener });
         if (
           subscription &&
           Object.getOwnPropertyNames(subscription).includes('remove') &&
@@ -56,7 +56,7 @@ export class HMSNativeEventEmitter {
         }
 
         // disable `eventType` on `HMSSDK`, if all listeners has been removed
-        if (disableNativeEvent && this.listenerCount(eventType) <= 0) {
+        if (this.listenerCount(eventType) <= 0) {
           this.disableHMSEventType(id, eventType);
         }
       }
