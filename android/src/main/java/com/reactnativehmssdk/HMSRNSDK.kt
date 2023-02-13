@@ -72,6 +72,9 @@ class HMSRNSDK(
   }
 
   private fun emitCustomError(message: String) {
+    if (eventsEnableStatus["ON_ERROR"] != true) {
+      return
+    }
     val data: WritableMap = Arguments.createMap()
     val hmsError = HMSException(6002, message, message, message, message, null, false)
     data.putString("id", id)
@@ -80,6 +83,9 @@ class HMSRNSDK(
   }
 
   private fun emitRequiredKeysError(message: String) {
+    if (eventsEnableStatus["ON_ERROR"] != true) {
+      return
+    }
     val data: WritableMap = Arguments.createMap()
     val hmsError =
       HMSException(
@@ -101,6 +107,9 @@ class HMSRNSDK(
   }
 
   fun emitHMSError(error: HMSException) {
+    if (eventsEnableStatus["ON_ERROR"] != true) {
+      return
+    }
     val data: WritableMap = Arguments.createMap()
     data.putString("id", id)
     data.putMap("error", HMSDecoder.getError(error))
