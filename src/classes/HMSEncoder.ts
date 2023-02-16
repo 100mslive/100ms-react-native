@@ -1,3 +1,5 @@
+import { NativeModules } from 'react-native';
+
 import { HMSTrack } from './HMSTrack';
 import { HMSAudioTrack } from './HMSAudioTrack';
 import { HMSVideoTrack } from './HMSVideoTrack';
@@ -28,6 +30,8 @@ import { HMSServerRecordingState } from './HMSServerRecordingState';
 import { HMSMessage } from './HMSMessage';
 import { HMSMessageRecipient } from './HMSMessageRecipient';
 import { HMSException } from './HMSException';
+
+const { HMSManager } = NativeModules;
 
 interface InitialData {
   roles: Record<string, HMSRole>;
@@ -383,7 +387,17 @@ export class HMSEncoder {
 
     // create new HMSRole instance, if cached role does not exist OR `role.publishSettings?.allowed` does not exist
     if (!cachedRole || !cachedRole.publishSettings?.allowed) {
-      rolesCache[role.name] = new HMSRole(role);
+      // Creating HMSRole object with data
+      const hmsRole = new HMSRole(role);
+
+      // saving the created HMSRole object into cache
+      rolesCache[role.name] = hmsRole;
+
+      // If the created HMSRole object is complete,
+      // sending notification to Native Side to stop sending data for this role
+      if (hmsRole.publishSettings?.allowed) {
+        HMSManager.restrictData({ id: "12345", roleName: hmsRole.name });
+      }
     }
 
     return rolesCache[role.name];
@@ -456,12 +470,8 @@ export class HMSEncoder {
   static encodeBrowserRecordingState(data: any) {
     return new HMSBrowserRecordingState({
       running: data?.running || false,
-      startedAt: data?.startedAt
-        ? new Date(parseInt(data?.startedAt))
-        : undefined,
-      stoppedAt: data?.stoppedAt
-        ? new Date(parseInt(data?.stoppedAt))
-        : undefined,
+      startedAt: HMSEncoder.encodeDate(data?.startedAt),
+      stoppedAt: HMSEncoder.encodeDate(data?.stoppedAt),
       error: data?.error || undefined,
     });
   }
@@ -470,23 +480,28 @@ export class HMSEncoder {
     return new HMSServerRecordingState({
       running: data?.running || false,
       error: data?.error || undefined,
-      startedAt: data?.startedAt
-        ? new Date(parseInt(data?.startedAt))
-        : undefined,
+      startedAt: HMSEncoder.encodeDate(data?.startedAt),
     });
   }
 
   static encodeRTMPStreamingState(data: any) {
     return new HMSRtmpStreamingState({
       running: data?.running || false,
-      startedAt: data?.startedAt
-        ? new Date(parseInt(data?.startedAt))
-        : undefined,
-      stoppedAt: data?.stoppedAt
-        ? new Date(parseInt(data?.stoppedAt))
-        : undefined,
+      startedAt: HMSEncoder.encodeDate(data?.startedAt),
+      stoppedAt: HMSEncoder.encodeDate(data?.stoppedAt),
       error: data?.error || undefined,
     });
+  }
+
+  static encodeDate(dateData: any) {
+    if (!dateData) {
+      return undefined;
+    }
+    const dateNum = parseInt(dateData);
+    if (isNaN(dateNum)) {
+      return undefined;
+    }
+    return new Date(dateNum);
   }
 
   static encodeHLSStreamingState(data: any) {
@@ -502,9 +517,7 @@ export class HMSEncoder {
     if (data) {
       return new HMSHLSRecordingState({
         running: data?.running || false,
-        startedAt: data?.startedAt
-          ? new Date(parseInt(data?.startedAt))
-          : undefined,
+        startedAt: HMSEncoder.encodeDate(data?.startedAt),
         singleFilePerLayer: data?.singleFilePerLayer || false,
         videoOnDemand: data?.videoOnDemand || false,
       });
@@ -521,9 +534,7 @@ export class HMSEncoder {
         hlsStreamUrl: item.hlsStreamUrl,
         meetingUrl: item.meetingUrl,
         metadata: item?.metaData ? item?.metadata : undefined,
-        startedAt: item?.startedAt
-          ? new Date(parseInt(item?.startedAt))
-          : undefined,
+        startedAt: HMSEncoder.encodeDate(item?.startedAt),
       });
       variants.push(variant);
     });

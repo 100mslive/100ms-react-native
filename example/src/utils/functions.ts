@@ -811,3 +811,13 @@ export const getTrackForPIPView = (pairedPeers: PeerTrackNode[][]) => {
 
   return videoPeerTrackNode;
 };
+
+export const getTime = (millisecs: number) => {
+  const sec = Math.round((millisecs / 1000) % 60);
+
+  const min = Math.round((millisecs / (1000 * 60)) % 60);
+
+  const h = Math.round((millisecs / (1000 * 60 * 60)) % 24);
+
+  return [h, min, sec];
+};

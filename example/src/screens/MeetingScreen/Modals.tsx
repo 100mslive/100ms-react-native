@@ -45,7 +45,6 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {Slider} from '@miblanchard/react-native-slider';
-import moment from 'moment';
 import RNFetchBlob from 'rn-fetch-blob';
 
 import {styles} from './styles';
@@ -62,6 +61,7 @@ import {
   parseMetadata,
   getInitials,
   requestExternalStoragePermission,
+  getTime,
 } from '../../utils/functions';
 import {LayoutParams, ModalTypes, SortingType} from '../../utils/types';
 import {COLORS} from '../../utils/theme';
@@ -2052,16 +2052,17 @@ export const RealTime = ({startedAt}: {startedAt?: Date}) => {
 
   useEffect(() => {
     if (startedAt) {
-      const time2 = moment(startedAt, 'hh:mm:ss');
-      const time1 = moment(new Date(), 'hh:mm:ss');
-      const subtract = time1.subtract({
-        hours: time2.hours(),
-        minutes: time2.minutes(),
-        seconds: time2.seconds(),
-      });
-      setHour(subtract.hours());
-      setMinute(subtract.minutes());
-      setSecond(subtract.seconds());
+      const millisecs = Date.now() - startedAt.getTime();
+      const [h, min, sec] = getTime(Math.abs(millisecs));
+      if (h > 0) {
+        setHour(h);
+      }
+      if (min > 0) {
+        setMinute(min);
+      }
+      if (sec > 0) {
+        setSecond(sec);
+      }
     }
   }, [startedAt]);
 
