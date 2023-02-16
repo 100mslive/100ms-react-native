@@ -619,16 +619,23 @@ export const SaveScreenshot = ({
         const imageName = `${
           screenshotData.peer.name
         }-snapshot-${Date.now()}.png`;
+
         const saveDir =
           Platform.OS === 'ios'
             ? RNFetchBlob.fs.dirs.DocumentDir
             : RNFetchBlob.fs.dirs.DCIMDir;
 
+        const fileLocation = `${saveDir}/${imageName}`;
+
         await RNFetchBlob.fs.writeFile(
-          `${saveDir}/${imageName}`,
+          fileLocation,
           screenshotData.source.uri.replace('data:image/png;base64,', ''),
           'base64',
         );
+
+        if (Platform.OS === 'ios') {
+          RNFetchBlob.ios.previewDocument(fileLocation);
+        }
 
         Toast.showWithGravity(
           'Snapshot has been saved successfully',
