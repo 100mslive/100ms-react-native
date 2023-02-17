@@ -751,12 +751,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
         hms?.startHLSStreaming(config: config, completion: { success, error in
             if success {
-                let roomData = HMSDecoder.getHmsRoom(self.hms?.room)
-                let type = self.getString(from: HMSRoomUpdate.hlsStreamingStateUpdated)
-
-                if self.eventsEnableStatus[self.ON_ROOM_UPDATE] == true {
-                  self.delegate?.emitEvent(self.ON_ROOM_UPDATE, ["event": self.ON_ROOM_UPDATE, "id": self.id, "type": type, "room": roomData])
-                }
                 resolve?(["success": success])
                 return
             } else {
@@ -772,12 +766,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     func stopHLSStreaming(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         hms?.stopHLSStreaming(config: nil, completion: { success, error in
             if success {
-                let roomData = HMSDecoder.getHmsRoom(self.hms?.room)
-                let type = self.getString(from: HMSRoomUpdate.browserRecordingStateUpdated)
-
-                if self.eventsEnableStatus[self.ON_ROOM_UPDATE] == true {
-                  self.delegate?.emitEvent(self.ON_ROOM_UPDATE, ["event": self.ON_ROOM_UPDATE, "id": self.id, "type": type, "room": roomData])
-                }
                 resolve?(["success": success])
                 return
             } else {
