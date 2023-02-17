@@ -568,10 +568,10 @@ const Welcome = () => {
   const removeListeners = (hmsInstance?: HMSSDK) => {
     hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_PREVIEW);
     hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_JOIN);
-    hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_ROOM_UPDATE, false);
-    hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_PEER_UPDATE, false);
-    hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_TRACK_UPDATE, false);
-    hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_ERROR, false);
+    hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_ROOM_UPDATE);
+    hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_PEER_UPDATE);
+    hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_TRACK_UPDATE);
+    hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_ERROR);
   };
 
   // useEffect hook
