@@ -56,7 +56,7 @@ const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
           hmsViewRef
             .capture?.()
             .then((imageBase64: string) => {
-              console.log('HmsView Cature Success');
+              console.log('HmsView Capture Success');
               // Saving data needed to show captured snapshot in "Save Snapshot" Modal
               setScreenshotData({
                 peer: node.peer,
@@ -64,7 +64,7 @@ const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
               });
             })
             .catch((error: any) =>
-              console.warn('HmsView Cature Error: ', error),
+              console.warn('HmsView Capture Error: ', error),
             );
         },
       }),

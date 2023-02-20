@@ -57,4 +57,7 @@ RCT_EXTERN_METHOD(setSessionMetaData: (NSDictionary) data :(RCTPromiseResolveBlo
 RCT_EXTERN_METHOD(getSessionMetaData: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(changeRoleOfPeer: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(changeRoleOfPeersWithRoles: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(enableEvent: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(disableEvent: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(restrictData: (NSDictionary) data)
 @end

@@ -21,6 +21,14 @@ class HMSView: RCTViewManager {
     override class func requiresMainQueueSetup() -> Bool {
         true
     }
+
+    @objc func capture(_ node: NSNumber, requestId: NSNumber) {
+        DispatchQueue.main.async {
+            if let component = self.bridge.uiManager.view(forReactTag: node) as? HmssdkDisplayView {
+                component.captureHmsView(requestId)
+            }
+        }
+    }
 }
 
 class HmssdkDisplayView: UIView {
@@ -34,6 +42,8 @@ class HmssdkDisplayView: UIView {
     func setHms(_ hmsInstance: [String: HMSRNSDK]) {
         hmsCollection = hmsInstance
     }
+
+    @objc var onDataReturned: RCTDirectEventBlock? = nil
 
     @objc var scaleType: String = "ASPECT_FILL" {
         didSet {
@@ -87,6 +97,27 @@ class HmssdkDisplayView: UIView {
                 return
             }
         }
+    }
+
+    @objc func captureHmsView( _ requestId: NSNumber) {
+        guard let onDataReturnedUnwrapped = onDataReturned else {
+            print(#function, "Can't send any data to JS side, `onDataReturned` is nil!")
+            return
+        }
+
+        guard let image = videoView.captureSnapshot() else {
+            print(#function, "Could not capture snapshot of HMSVideoView")
+            onDataReturnedUnwrapped([ "requestId": requestId, "error": ["6001", "Could not capture snapshot of HMSVideoView"] ])
+            return
+        }
+
+        guard let base64 = image.pngData()?.base64EncodedString() else {
+            print(#function, "Could not create base64 encoded string of captured snapshot")
+            onDataReturnedUnwrapped([ "requestId": requestId, "error": ["6001", "Could not create base64 encoded string of captured snapshot"] ])
+            return
+        }
+
+        onDataReturnedUnwrapped([ "requestId": requestId, "result": base64 ])
     }
 
     override init(frame: CGRect) {

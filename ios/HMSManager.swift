@@ -401,6 +401,27 @@ class HMSManager: RCTEventEmitter {
         hms?.setSessionMetaData(data, resolve, reject)
     }
 
+    @objc
+    func enableEvent(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.enableEvent(data, resolve, reject)
+    }
+
+    @objc
+    func disableEvent(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.disableEvent(data, resolve, reject)
+    }
+
+    @objc
+    func restrictData(_ data: NSDictionary) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.restrictData(data)
+    }
+
     // MARK: - HMS SDK Get APIs
     @objc
     func getRoom(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {

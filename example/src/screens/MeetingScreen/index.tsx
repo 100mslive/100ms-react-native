@@ -28,7 +28,6 @@ import {
   Platform,
   Dimensions,
   AppState,
-  AppStateStatus,
   LayoutAnimation,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
@@ -110,7 +109,6 @@ type MeetingScreenProp = NativeStackNavigationProp<
 const Meeting = () => {
   // hooks
   const dispatch = useDispatch();
-  const appState = useRef(AppState.currentState);
   const {hmsInstance} = useSelector((state: RootState) => state.user);
   const isPipModeActive = useSelector(
     (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE,
@@ -154,24 +152,15 @@ const Meeting = () => {
 
   useEffect(() => {
     if (isPipModeActive) {
-      appState.current = AppState.currentState;
-
-      const appStateListener = (nextAppState: AppStateStatus) => {
-        if (
-          appState.current.match(/inactive|background/) &&
-          nextAppState === 'active'
-        ) {
-          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-          dispatch(changePipModeStatus(PipModes.INACTIVE));
-        }
-
-        appState.current = nextAppState;
+      const appStateListener = () => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        dispatch(changePipModeStatus(PipModes.INACTIVE));
       };
 
-      AppState.addEventListener('change', appStateListener);
+      AppState.addEventListener('focus', appStateListener);
 
       return () => {
-        AppState.removeEventListener('change', appStateListener);
+        AppState.removeEventListener('focus', appStateListener);
         dispatch(changePipModeStatus(PipModes.INACTIVE));
       };
     }

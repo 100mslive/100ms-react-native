@@ -1,13 +1,10 @@
 import React from 'react';
 import {
   AppState,
-  NativeEventEmitter,
   NativeModules,
   Platform,
   ViewStyle,
 } from 'react-native';
-import type { EmitterSubscription } from 'react-native';
-
 import { HMSEncoder } from './HMSEncoder';
 import { HMSHelper } from './HMSHelper';
 import { HMSLocalAudioStats } from './HMSLocalAudioStats';
@@ -37,6 +34,7 @@ import type { HMSAudioMixingMode } from './HMSAudioMixingMode';
 import type { HMSLogSettings } from './HMSLogSettings';
 import { HMSMessageType } from './HMSMessageType';
 import { HMSPIPListenerActions } from './HMSPIPListenerActions';
+import { type HMSEventSubscription, HMSNativeEventEmitter } from './HMSNativeEventEmitter';
 
 interface HmsViewProps {
   trackId: string;
@@ -62,7 +60,7 @@ const {
 
 const ReactNativeVersion = require('react-native/Libraries/Core/ReactNativeVersion');
 
-const HmsEventEmitter = new NativeEventEmitter(HMSManager);
+const HmsEventEmitter = new HMSNativeEventEmitter(HMSManager);
 
 let HmsSdk: HMSSDK | undefined;
 
@@ -95,7 +93,7 @@ export class HMSSDK {
   private emitterSubscriptions: Partial<
     Record<
       HMSUpdateListenerActions | HMSPIPListenerActions,
-      EmitterSubscription
+      HMSEventSubscription
     >
   > = {};
 
@@ -1102,6 +1100,7 @@ export class HMSSDK {
         if (!this.emitterSubscriptions[HMSUpdateListenerActions.ON_PREVIEW]) {
           // Adding ON_PREVIEW native listener
           const previewSubscription = HmsEventEmitter.addListener(
+            this.id,
             HMSUpdateListenerActions.ON_PREVIEW,
             this.onPreviewListener
           );
@@ -1117,6 +1116,7 @@ export class HMSSDK {
         if (!this.emitterSubscriptions[HMSUpdateListenerActions.ON_JOIN]) {
           // Adding ON_JOIN native listener
           const joinSubscription = HmsEventEmitter.addListener(
+            this.id,
             HMSUpdateListenerActions.ON_JOIN,
             this.onJoinListener
           );
@@ -1134,6 +1134,7 @@ export class HMSSDK {
         ) {
           // Adding ON_ROOM_UPDATE native listener
           const roomSubscription = HmsEventEmitter.addListener(
+            this.id,
             HMSUpdateListenerActions.ON_ROOM_UPDATE,
             this.onRoomListener
           );
@@ -1151,6 +1152,7 @@ export class HMSSDK {
         ) {
           // Adding ON_PEER_UPDATE native listener
           const peerSubscription = HmsEventEmitter.addListener(
+            this.id,
             HMSUpdateListenerActions.ON_PEER_UPDATE,
             this.onPeerListener
           );
@@ -1168,6 +1170,7 @@ export class HMSSDK {
         ) {
           // Adding ON_TRACK_UPDATE native listener
           const trackSubscription = HmsEventEmitter.addListener(
+            this.id,
             HMSUpdateListenerActions.ON_TRACK_UPDATE,
             this.onTrackListener
           );
@@ -1183,6 +1186,7 @@ export class HMSSDK {
         if (!this.emitterSubscriptions[HMSUpdateListenerActions.ON_ERROR]) {
           // Adding ON_ERROR native listener
           const errorSubscription = HmsEventEmitter.addListener(
+            this.id,
             HMSUpdateListenerActions.ON_ERROR,
             this.onErrorListener
           );
@@ -1198,6 +1202,7 @@ export class HMSSDK {
         if (!this.emitterSubscriptions[HMSUpdateListenerActions.ON_MESSAGE]) {
           // Adding ON_MESSAGE native listener
           const messageSubscription = HmsEventEmitter.addListener(
+            this.id,
             HMSUpdateListenerActions.ON_MESSAGE,
             this.onMessageListener
           );
@@ -1213,6 +1218,7 @@ export class HMSSDK {
         if (!this.emitterSubscriptions[HMSUpdateListenerActions.ON_SPEAKER]) {
           // Adding ON_SPEAKER native listener
           const speakerSubscription = HmsEventEmitter.addListener(
+            this.id,
             HMSUpdateListenerActions.ON_SPEAKER,
             this.onSpeakerListener
           );
@@ -1228,6 +1234,7 @@ export class HMSSDK {
         if (!this.emitterSubscriptions[HMSUpdateListenerActions.RECONNECTING]) {
           // Adding RECONNECTING native listener
           const reconnectingSubscription = HmsEventEmitter.addListener(
+            this.id,
             HMSUpdateListenerActions.RECONNECTING,
             this.reconnectingListener
           );
@@ -1243,6 +1250,7 @@ export class HMSSDK {
         if (!this.emitterSubscriptions[HMSUpdateListenerActions.RECONNECTED]) {
           // Adding RECONNECTED native listener
           const reconnectedSubscription = HmsEventEmitter.addListener(
+            this.id,
             HMSUpdateListenerActions.RECONNECTED,
             this.reconnectedListener
           );
@@ -1262,6 +1270,7 @@ export class HMSSDK {
         ) {
           // Adding ON_ROLE_CHANGE_REQUEST native listener
           const roleChangeReqSubscription = HmsEventEmitter.addListener(
+            this.id,
             HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST,
             this.onRoleChangeRequestListener
           );
@@ -1282,6 +1291,7 @@ export class HMSSDK {
         ) {
           // Adding ON_CHANGE_TRACK_STATE_REQUEST native listener
           const changeTrackReqSubscription = HmsEventEmitter.addListener(
+            this.id,
             HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST,
             this.onChangeTrackStateRequestListener
           );
@@ -1302,6 +1312,7 @@ export class HMSSDK {
         ) {
           // Adding ON_REMOVED_FROM_ROOM native listener
           const removedFromRoomSubscription = HmsEventEmitter.addListener(
+            this.id,
             HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM,
             this.onRemovedFromRoomListener
           );
@@ -1318,6 +1329,7 @@ export class HMSSDK {
         if (!this.emitterSubscriptions[HMSUpdateListenerActions.ON_RTC_STATS]) {
           // Adding ON_RTC_STATS native listener
           const rtcStatsSubscription = HmsEventEmitter.addListener(
+            this.id,
             HMSUpdateListenerActions.ON_RTC_STATS,
             this.RTCStatsListener
           );
@@ -1337,6 +1349,7 @@ export class HMSSDK {
         ) {
           // Adding ON_LOCAL_AUDIO_STATS native listener
           const lclAudioStatsSubscription = HmsEventEmitter.addListener(
+            this.id,
             HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS,
             this.onLocalAudioStatsListener
           );
@@ -1357,6 +1370,7 @@ export class HMSSDK {
         ) {
           // Adding ON_LOCAL_VIDEO_STATS native listener
           const lclVideoStatsSubscription = HmsEventEmitter.addListener(
+            this.id,
             HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS,
             this.onLocalVideoStatsListener
           );
@@ -1377,6 +1391,7 @@ export class HMSSDK {
         ) {
           // Adding ON_REMOTE_AUDIO_STATS native listener
           const rmAudioStatsSubscription = HmsEventEmitter.addListener(
+            this.id,
             HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS,
             this.onRemoteAudioStatsListener
           );
@@ -1397,6 +1412,7 @@ export class HMSSDK {
         ) {
           // Adding ON_REMOTE_VIDEO_STATS native listener
           const rmVideoStatsSubscription = HmsEventEmitter.addListener(
+            this.id,
             HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS,
             this.onRemoteVideoStatsListener
           );
@@ -1417,6 +1433,7 @@ export class HMSSDK {
         ) {
           // Adding ON_AUDIO_DEVICE_CHANGED native listener
           const audDeviceChgSubscription = HmsEventEmitter.addListener(
+            this.id,
             HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED,
             this.onAudioDeviceChangedListener
           );
@@ -1436,6 +1453,7 @@ export class HMSSDK {
           ) {
             // Adding ON_PIP_ROOM_LEAVE native listener
             const pipRoomLeaveSubscription = HmsEventEmitter.addListener(
+              this.id,
               HMSPIPListenerActions.ON_PIP_ROOM_LEAVE,
               this.onPIPRoomLeaveListener
             );
@@ -1466,20 +1484,10 @@ export class HMSSDK {
       case HMSUpdateListenerActions.ON_PREVIEW: {
         const subscription =
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_PREVIEW];
-
         // Removing ON_PREVIEW native listener
-        if (!!subscription) {
-          if (
-            Object.getOwnPropertyNames(subscription).includes('remove') &&
-            typeof subscription.remove === 'function'
-          ) {
-            subscription.remove();
-          } else {
-            HmsEventEmitter.removeListener(
-              HMSUpdateListenerActions.ON_PREVIEW,
-              this.onPreviewListener
-            );
-          }
+        if (subscription) {
+          subscription.remove();
+
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_PREVIEW] =
             undefined;
         }
@@ -1490,20 +1498,10 @@ export class HMSSDK {
       case HMSUpdateListenerActions.ON_JOIN: {
         const subscription =
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_JOIN];
-
         // Removing ON_JOIN native listener
-        if (!!subscription) {
-          if (
-            Object.getOwnPropertyNames(subscription).includes('remove') &&
-            typeof subscription.remove === 'function'
-          ) {
-            subscription.remove();
-          } else {
-            HmsEventEmitter.removeListener(
-              HMSUpdateListenerActions.ON_JOIN,
-              this.onJoinListener
-            );
-          }
+        if (subscription) {
+          subscription.remove();
+
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_JOIN] =
             undefined;
         }
@@ -1514,20 +1512,10 @@ export class HMSSDK {
       case HMSUpdateListenerActions.ON_ROOM_UPDATE: {
         const subscription =
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_ROOM_UPDATE];
-
         // Removing ON_ROOM_UPDATE native listener
-        if (!!subscription) {
-          if (
-            Object.getOwnPropertyNames(subscription).includes('remove') &&
-            typeof subscription.remove === 'function'
-          ) {
-            subscription.remove();
-          } else {
-            HmsEventEmitter.removeListener(
-              HMSUpdateListenerActions.ON_ROOM_UPDATE,
-              this.onRoomListener
-            );
-          }
+        if (subscription) {
+          subscription.remove();
+
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_ROOM_UPDATE] =
             undefined;
         }
@@ -1538,20 +1526,10 @@ export class HMSSDK {
       case HMSUpdateListenerActions.ON_PEER_UPDATE: {
         const subscription =
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_PEER_UPDATE];
-
         // Removing ON_PEER_UPDATE native listener
-        if (!!subscription) {
-          if (
-            Object.getOwnPropertyNames(subscription).includes('remove') &&
-            typeof subscription.remove === 'function'
-          ) {
-            subscription.remove();
-          } else {
-            HmsEventEmitter.removeListener(
-              HMSUpdateListenerActions.ON_PEER_UPDATE,
-              this.onPeerListener
-            );
-          }
+        if (subscription) {
+          subscription.remove();
+
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_PEER_UPDATE] =
             undefined;
         }
@@ -1562,20 +1540,10 @@ export class HMSSDK {
       case HMSUpdateListenerActions.ON_TRACK_UPDATE: {
         const subscription =
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_TRACK_UPDATE];
-
         // Removing ON_TRACK_UPDATE native listener
-        if (!!subscription) {
-          if (
-            Object.getOwnPropertyNames(subscription).includes('remove') &&
-            typeof subscription.remove === 'function'
-          ) {
-            subscription.remove();
-          } else {
-            HmsEventEmitter.removeListener(
-              HMSUpdateListenerActions.ON_TRACK_UPDATE,
-              this.onTrackListener
-            );
-          }
+        if (subscription) {
+          subscription.remove();
+
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_TRACK_UPDATE] =
             undefined;
         }
@@ -1586,20 +1554,10 @@ export class HMSSDK {
       case HMSUpdateListenerActions.ON_ERROR: {
         const subscription =
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_ERROR];
-
         // Removing ON_ERROR native listener
-        if (!!subscription) {
-          if (
-            Object.getOwnPropertyNames(subscription).includes('remove') &&
-            typeof subscription.remove === 'function'
-          ) {
-            subscription.remove();
-          } else {
-            HmsEventEmitter.removeListener(
-              HMSUpdateListenerActions.ON_ERROR,
-              this.onErrorListener
-            );
-          }
+        if (subscription) {
+          subscription.remove();
+
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_ERROR] =
             undefined;
         }
@@ -1610,20 +1568,10 @@ export class HMSSDK {
       case HMSUpdateListenerActions.ON_MESSAGE: {
         const subscription =
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_MESSAGE];
-
         // Removing ON_MESSAGE native listener
-        if (!!subscription) {
-          if (
-            Object.getOwnPropertyNames(subscription).includes('remove') &&
-            typeof subscription.remove === 'function'
-          ) {
-            subscription.remove();
-          } else {
-            HmsEventEmitter.removeListener(
-              HMSUpdateListenerActions.ON_MESSAGE,
-              this.onMessageListener
-            );
-          }
+        if (subscription) {
+          subscription.remove();
+
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_MESSAGE] =
             undefined;
         }
@@ -1634,20 +1582,10 @@ export class HMSSDK {
       case HMSUpdateListenerActions.ON_SPEAKER: {
         const subscription =
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_SPEAKER];
-
         // Removing ON_SPEAKER native listener
-        if (!!subscription) {
-          if (
-            Object.getOwnPropertyNames(subscription).includes('remove') &&
-            typeof subscription.remove === 'function'
-          ) {
-            subscription.remove();
-          } else {
-            HmsEventEmitter.removeListener(
-              HMSUpdateListenerActions.ON_SPEAKER,
-              this.onSpeakerListener
-            );
-          }
+        if (subscription) {
+          subscription.remove();
+
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_SPEAKER] =
             undefined;
         }
@@ -1658,20 +1596,10 @@ export class HMSSDK {
       case HMSUpdateListenerActions.RECONNECTING: {
         const subscription =
           this.emitterSubscriptions[HMSUpdateListenerActions.RECONNECTING];
-
         // Removing RECONNECTING native listener
-        if (!!subscription) {
-          if (
-            Object.getOwnPropertyNames(subscription).includes('remove') &&
-            typeof subscription.remove === 'function'
-          ) {
-            subscription.remove();
-          } else {
-            HmsEventEmitter.removeListener(
-              HMSUpdateListenerActions.RECONNECTING,
-              this.reconnectingListener
-            );
-          }
+        if (subscription) {
+          subscription.remove();
+
           this.emitterSubscriptions[HMSUpdateListenerActions.RECONNECTING] =
             undefined;
         }
@@ -1682,20 +1610,10 @@ export class HMSSDK {
       case HMSUpdateListenerActions.RECONNECTED: {
         const subscription =
           this.emitterSubscriptions[HMSUpdateListenerActions.RECONNECTED];
-
         // Removing RECONNECTED native listener
-        if (!!subscription) {
-          if (
-            Object.getOwnPropertyNames(subscription).includes('remove') &&
-            typeof subscription.remove === 'function'
-          ) {
-            subscription.remove();
-          } else {
-            HmsEventEmitter.removeListener(
-              HMSUpdateListenerActions.RECONNECTED,
-              this.reconnectedListener
-            );
-          }
+        if (subscription) {
+          subscription.remove();
+
           this.emitterSubscriptions[HMSUpdateListenerActions.RECONNECTED] =
             undefined;
         }
@@ -1708,20 +1626,10 @@ export class HMSSDK {
           this.emitterSubscriptions[
             HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST
           ];
-
         // Removing ON_ROLE_CHANGE_REQUEST native listener
-        if (!!subscription) {
-          if (
-            Object.getOwnPropertyNames(subscription).includes('remove') &&
-            typeof subscription.remove === 'function'
-          ) {
-            subscription.remove();
-          } else {
-            HmsEventEmitter.removeListener(
-              HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST,
-              this.onRoleChangeRequestListener
-            );
-          }
+        if (subscription) {
+          subscription.remove();
+
           this.emitterSubscriptions[
             HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST
           ] = undefined;
@@ -1735,20 +1643,10 @@ export class HMSSDK {
           this.emitterSubscriptions[
             HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST
           ];
-
         // Removing ON_CHANGE_TRACK_STATE_REQUEST native listener
-        if (!!subscription) {
-          if (
-            Object.getOwnPropertyNames(subscription).includes('remove') &&
-            typeof subscription.remove === 'function'
-          ) {
-            subscription.remove();
-          } else {
-            HmsEventEmitter.removeListener(
-              HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST,
-              this.onChangeTrackStateRequestListener
-            );
-          }
+        if (subscription) {
+          subscription.remove();
+
           this.emitterSubscriptions[
             HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST
           ] = undefined;
@@ -1762,20 +1660,10 @@ export class HMSSDK {
           this.emitterSubscriptions[
             HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM
           ];
-
         // Removing ON_REMOVED_FROM_ROOM native listener
-        if (!!subscription) {
-          if (
-            Object.getOwnPropertyNames(subscription).includes('remove') &&
-            typeof subscription.remove === 'function'
-          ) {
-            subscription.remove();
-          } else {
-            HmsEventEmitter.removeListener(
-              HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM,
-              this.onRemovedFromRoomListener
-            );
-          }
+        if (subscription) {
+          subscription.remove();
+
           this.emitterSubscriptions[
             HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM
           ] = undefined;
@@ -1787,20 +1675,10 @@ export class HMSSDK {
       case HMSUpdateListenerActions.ON_RTC_STATS: {
         const subscription =
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_RTC_STATS];
-
         // Removing ON_RTC_STATS native listener
-        if (!!subscription) {
-          if (
-            Object.getOwnPropertyNames(subscription).includes('remove') &&
-            typeof subscription.remove === 'function'
-          ) {
-            subscription.remove();
-          } else {
-            HmsEventEmitter.removeListener(
-              HMSUpdateListenerActions.ON_RTC_STATS,
-              this.RTCStatsListener
-            );
-          }
+        if (subscription) {
+          subscription.remove();
+
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_RTC_STATS] =
             undefined;
         }
@@ -1813,20 +1691,10 @@ export class HMSSDK {
           this.emitterSubscriptions[
             HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS
           ];
-
         // Removing ON_LOCAL_AUDIO_STATS native listener
-        if (!!subscription) {
-          if (
-            Object.getOwnPropertyNames(subscription).includes('remove') &&
-            typeof subscription.remove === 'function'
-          ) {
-            subscription.remove();
-          } else {
-            HmsEventEmitter.removeListener(
-              HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS,
-              this.onLocalAudioStatsListener
-            );
-          }
+        if (subscription) {
+          subscription.remove();
+
           this.emitterSubscriptions[
             HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS
           ] = undefined;
@@ -1840,20 +1708,10 @@ export class HMSSDK {
           this.emitterSubscriptions[
             HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS
           ];
-
         // Removing ON_LOCAL_VIDEO_STATS native listener
-        if (!!subscription) {
-          if (
-            Object.getOwnPropertyNames(subscription).includes('remove') &&
-            typeof subscription.remove === 'function'
-          ) {
-            subscription.remove();
-          } else {
-            HmsEventEmitter.removeListener(
-              HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS,
-              this.onLocalVideoStatsListener
-            );
-          }
+        if (subscription) {
+          subscription.remove();
+
           this.emitterSubscriptions[
             HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS
           ] = undefined;
@@ -1867,20 +1725,10 @@ export class HMSSDK {
           this.emitterSubscriptions[
             HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS
           ];
-
         // Removing ON_REMOTE_AUDIO_STATS native listener
-        if (!!subscription) {
-          if (
-            Object.getOwnPropertyNames(subscription).includes('remove') &&
-            typeof subscription.remove === 'function'
-          ) {
-            subscription.remove();
-          } else {
-            HmsEventEmitter.removeListener(
-              HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS,
-              this.onRemoteAudioStatsListener
-            );
-          }
+        if (subscription) {
+          subscription.remove();
+
           this.emitterSubscriptions[
             HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS
           ] = undefined;
@@ -1894,20 +1742,10 @@ export class HMSSDK {
           this.emitterSubscriptions[
             HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS
           ];
-
         // Removing ON_REMOTE_VIDEO_STATS native listener
-        if (!!subscription) {
-          if (
-            Object.getOwnPropertyNames(subscription).includes('remove') &&
-            typeof subscription.remove === 'function'
-          ) {
-            subscription.remove();
-          } else {
-            HmsEventEmitter.removeListener(
-              HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS,
-              this.onRemoteVideoStatsListener
-            );
-          }
+        if (subscription) {
+          subscription.remove();
+
           this.emitterSubscriptions[
             HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS
           ] = undefined;
@@ -1921,20 +1759,10 @@ export class HMSSDK {
           this.emitterSubscriptions[
             HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED
           ];
-
         // Removing ON_AUDIO_DEVICE_CHANGED native listener
-        if (!!subscription) {
-          if (
-            Object.getOwnPropertyNames(subscription).includes('remove') &&
-            typeof subscription.remove === 'function'
-          ) {
-            subscription.remove();
-          } else {
-            HmsEventEmitter.removeListener(
-              HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED,
-              this.onAudioDeviceChangedListener
-            );
-          }
+        if (subscription) {
+          subscription.remove();
+
           this.emitterSubscriptions[
             HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED
           ] = undefined;
@@ -1947,20 +1775,10 @@ export class HMSSDK {
         if (Platform.OS === 'android') {
           const subscription =
             this.emitterSubscriptions[HMSPIPListenerActions.ON_PIP_ROOM_LEAVE];
-
           // Removing ON_PIP_ROOM_LEAVE native listener
-          if (!!subscription) {
-            if (
-              Object.getOwnPropertyNames(subscription).includes('remove') &&
-              typeof subscription.remove === 'function'
-            ) {
-              subscription.remove();
-            } else {
-              HmsEventEmitter.removeListener(
-                HMSPIPListenerActions.ON_PIP_ROOM_LEAVE,
-                this.onPIPRoomLeaveListener
-              );
-            }
+          if (subscription) {
+            subscription.remove();
+
             this.emitterSubscriptions[HMSPIPListenerActions.ON_PIP_ROOM_LEAVE] =
               undefined;
           }
@@ -1998,26 +1816,7 @@ export class HMSSDK {
     Object.values(this.emitterSubscriptions)
       .filter(Boolean)
       .forEach((emitterSubscription) => {
-        // for RN Versions >= 0.65.0
-        // `remove` method is available on `emitterSubscription` object to remove event subscription
-        if (
-          Object.getOwnPropertyNames(emitterSubscription).includes('remove') && // If `emitterSubscription` has own "remove" property AND
-          typeof emitterSubscription.remove === 'function' // it is a function, then we will call `remove` method to remove event subscription
-        ) {
-          emitterSubscription.remove();
-        }
-        // for RN Versions < 0.65.0
-        // `remove` method is not available on `emitterSubscription` object
-        // so, we will remove event subscription using `EventEmitter.removeListener` call
-        else if (
-          emitterSubscription.eventType &&
-          typeof emitterSubscription.listener === 'function'
-        ) {
-          HmsEventEmitter.removeListener(
-            emitterSubscription.eventType,
-            emitterSubscription.listener
-          );
-        }
+        emitterSubscription.remove();
       });
 
     // clearing reference of all `emitterSubscription` objects
