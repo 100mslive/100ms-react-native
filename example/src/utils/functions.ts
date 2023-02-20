@@ -2,7 +2,6 @@ import {
   Platform,
   Dimensions,
   PermissionsAndroid,
-  Permission,
   StatusBar,
 } from 'react-native';
 import RNFetchBlob from 'rn-fetch-blob';
@@ -268,6 +267,7 @@ export const callService = async (
     const permissions = await checkPermissions([
       PERMISSIONS.ANDROID.CAMERA,
       PERMISSIONS.ANDROID.RECORD_AUDIO,
+      PERMISSIONS.ANDROID.BLUETOOTH_CONNECT,
     ]);
     if (permissions) {
       success(
@@ -659,7 +659,7 @@ export const validateUrl = (url?: string): boolean => {
 };
 
 export const checkPermissions = async (
-  permissions: Array<Permission>,
+  permissions: Array<typeof PERMISSIONS.ANDROID[keyof typeof PERMISSIONS.ANDROID]>,
 ): Promise<boolean> => {
   if (Platform.OS === 'ios') {
     return true;
