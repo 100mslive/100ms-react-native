@@ -4,6 +4,11 @@
 
 - Added checks for null types before sending events over JS Bridge
 
+- Corrected crash due to PIP Remote Action buttons on Android 7 or lower
+
+- Requesting for Bluetooth Permission before Joining the Room on Android 11 & above
+
+- Added ability to capture Snapshot of Video Views on iOS
 
 React Native SDK: 1.2.0
 Android SDK: 2.5.7
