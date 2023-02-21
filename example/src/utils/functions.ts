@@ -457,6 +457,9 @@ export const createPeerTrackNode = (
   peer: HMSPeer,
   track?: HMSTrack,
 ): PeerTrackNode => {
+  if (!track || track.type === HMSTrackType.AUDIO) {
+    track = peer.videoTrack;
+  }
   let isVideoTrack: boolean = false;
   if (track && track?.type === HMSTrackType.VIDEO) {
     isVideoTrack = true;
