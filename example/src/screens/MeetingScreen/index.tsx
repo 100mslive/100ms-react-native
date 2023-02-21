@@ -219,8 +219,8 @@ const DisplayView = (data: {
   const isPipModeActive = useSelector(
     (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE,
   );
-  const {hmsInstance} = useSelector((state: RootState) => state.user);
-  const {peerState} = useSelector((state: RootState) => state.app);
+  const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
+  const peerState = useSelector((state: RootState) => state.app.peerState);
   const navigate = useNavigation<MeetingScreenProp>().navigate;
   const dispatch = useDispatch();
 
@@ -246,6 +246,40 @@ const DisplayView = (data: {
     () => pairData(peerTrackNodes, orientation ? 4 : 2, data?.localPeer),
     [data?.localPeer, orientation, peerTrackNodes],
   );
+
+  // Sync local peerTrackNodes list with peerTrackNodes list stored in redux
+  useEffect(() => {
+    const reduxPeerNodes = peerState;
+
+    setPeerTrackNodes((prevPeerTrackNodes) => {
+      let newPeerTrackNodes = prevPeerTrackNodes;
+
+      for (const reduxPeerNode of reduxPeerNodes) {
+
+        // checking if current reduxPeerNode is available in local state
+        const node = prevPeerTrackNodes.find(prevPeerTrackNode => prevPeerTrackNode.id === reduxPeerNode.id);
+
+        // save it to list if not available
+        if(!node) {
+          newPeerTrackNodes = [...newPeerTrackNodes, reduxPeerNode];
+        }
+        // if local state node does not has track but reduxPeerNode do have it
+        // add track from reduxPeerNode to local state node
+        else if (!node.track && reduxPeerNode.track) {
+          newPeerTrackNodes = newPeerTrackNodes.map(peerTrackNode => {
+            if (peerTrackNode.id === reduxPeerNode.id) {
+              return { ...peerTrackNode, track: reduxPeerNode.track }
+            }
+
+            return peerTrackNode;
+          })
+        }
+      }
+
+      peerTrackNodesRef.current = newPeerTrackNodes;
+      return newPeerTrackNodes;
+    });
+  }, [peerState]);
 
   // listeners
   const onErrorListener = (error: HMSException) => {
