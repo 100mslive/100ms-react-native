@@ -1,3 +1,5 @@
+import { NativeModules } from 'react-native';
+
 import { HMSTrack } from './HMSTrack';
 import { HMSAudioTrack } from './HMSAudioTrack';
 import { HMSVideoTrack } from './HMSVideoTrack';
@@ -29,7 +31,19 @@ import { HMSMessage } from './HMSMessage';
 import { HMSMessageRecipient } from './HMSMessageRecipient';
 import { HMSException } from './HMSException';
 
+const { HMSManager } = NativeModules;
+
+interface InitialData {
+  roles: Record<string, HMSRole>;
+}
+
 export class HMSEncoder {
+  private static data: InitialData = { roles: {} };
+
+  static clearData() {
+    this.data = { roles: {} };
+  }
+
   static encodeHmsRoom(room: HMSRoom, id: string) {
     const encodedObj = {
       id: room?.id,
@@ -71,19 +85,24 @@ export class HMSEncoder {
   static encodeHmsPeer(peer: any, id: string) {
     const encodedObj = {
       peerID: peer?.peerID,
-      name: peer?.name,
+      name: peer?.name || '',
       isLocal: peer?.isLocal,
       customerUserID: peer?.customerUserID,
-      customerDescription: peer?.customerDescription,
+      customerDescription: peer?.customerDescription || undefined,
       metadata: peer?.metadata,
       role: HMSEncoder.encodeHmsRole(peer?.role),
-      networkQuality: HMSEncoder.encodeHMSNetworkQuality(peer?.networkQuality),
-      audioTrack: HMSEncoder.encodeHmsAudioTrack(peer?.audioTrack, id),
-      videoTrack: HMSEncoder.encodeHmsVideoTrack(peer?.videoTrack, id),
-      auxiliaryTracks: HMSEncoder.encodeHmsAuxiliaryTracks(
-        peer?.auxiliaryTracks,
-        id
-      ),
+      networkQuality: peer?.networkQuality
+        ? HMSEncoder.encodeHMSNetworkQuality(peer?.networkQuality)
+        : undefined,
+      audioTrack: peer?.audioTrack
+        ? HMSEncoder.encodeHmsAudioTrack(peer?.audioTrack, id)
+        : undefined,
+      videoTrack: peer?.videoTrack
+        ? HMSEncoder.encodeHmsVideoTrack(peer?.videoTrack, id)
+        : undefined,
+      auxiliaryTracks: Array.isArray(peer?.auxiliaryTracks)
+        ? HMSEncoder.encodeHmsAuxiliaryTracks(peer?.auxiliaryTracks, id)
+        : undefined,
     };
 
     return new HMSPeer(encodedObj);
@@ -139,42 +158,55 @@ export class HMSEncoder {
 
   static encodeHmsLocalPeer(peer: any, id: string) {
     const encodedObj = {
-      peerID: peer.peerID,
-      name: peer.name,
-      isLocal: peer.isLocal,
-      customerUserID: peer.customerUserID,
-      customerDescription: peer.customerDescription,
-      metadata: peer.metadata,
+      peerID: peer?.peerID,
+      name: peer?.name,
+      isLocal: true,
+      customerUserID: peer?.customerUserID,
+      customerDescription: peer?.customerDescription || undefined,
+      metadata: peer?.metadata || undefined,
       role: HMSEncoder.encodeHmsRole(peer?.role),
-      networkQuality: HMSEncoder.encodeHMSNetworkQuality(peer?.networkQuality),
-      audioTrack: HMSEncoder.encodeHmsAudioTrack(peer.audioTrack, id),
-      videoTrack: HMSEncoder.encodeHmsVideoTrack(peer.videoTrack, id),
-      auxiliaryTracks: HMSEncoder.encodeHmsAuxiliaryTracks(
-        peer.auxiliaryTracks,
-        id
-      ),
-      localAudioTrackData: {
-        id: id,
-        trackId: peer?.localAudioTrackData?.trackId,
-        source: peer?.localAudioTrackData?.source,
-        trackDescription: peer?.localAudioTrackData?.trackDescription,
-        isMute: peer?.localAudioTrackData?.isMute,
-        settings: HMSEncoder.encodeHmsAudioTrackSettings(
-          peer?.localAudioTrackData?.settings
-        ),
-        type: peer?.localAudioTrackData?.type,
-      },
-      localVideoTrackData: {
-        id: id,
-        trackId: peer?.localVideoTrackData?.trackId,
-        source: peer?.localVideoTrackData?.source,
-        trackDescription: peer?.localVideoTrackData?.trackDescription,
-        isMute: peer?.localVideoTrackData?.isMute,
-        settings: HMSEncoder.encodeHmsVideoTrackSettings(
-          peer?.localVideoTrackData?.settings
-        ),
-        type: peer?.localVideoTrackData?.type,
-      },
+      networkQuality: peer?.networkQuality
+        ? HMSEncoder.encodeHMSNetworkQuality(peer?.networkQuality)
+        : undefined,
+      audioTrack: peer?.audioTrack
+        ? HMSEncoder.encodeHmsAudioTrack(peer?.audioTrack, id)
+        : undefined,
+      videoTrack: peer?.videoTrack
+        ? HMSEncoder.encodeHmsVideoTrack(peer?.videoTrack, id)
+        : undefined,
+      auxiliaryTracks: Array.isArray(peer?.auxiliaryTracks)
+        ? HMSEncoder.encodeHmsAuxiliaryTracks(peer?.auxiliaryTracks, id)
+        : undefined,
+      localAudioTrackData: peer?.localAudioTrackData?.trackId
+        ? {
+            id: id,
+            trackId: peer?.localAudioTrackData?.trackId,
+            source: peer?.localAudioTrackData?.source,
+            trackDescription: peer?.localAudioTrackData?.trackDescription,
+            isMute: peer?.localAudioTrackData?.isMute,
+            settings: peer?.localAudioTrackData?.settings
+              ? HMSEncoder.encodeHmsAudioTrackSettings(
+                  peer?.localAudioTrackData?.settings
+                )
+              : undefined,
+            type: peer?.localAudioTrackData?.type,
+          }
+        : undefined,
+      localVideoTrackData: peer?.localVideoTrackData?.trackId
+        ? {
+            id: id,
+            trackId: peer?.localVideoTrackData?.trackId,
+            source: peer?.localVideoTrackData?.source,
+            trackDescription: peer?.localVideoTrackData?.trackDescription,
+            isMute: peer?.localVideoTrackData?.isMute,
+            settings: peer?.localVideoTrackData?.settings
+              ? HMSEncoder.encodeHmsVideoTrackSettings(
+                  peer?.localVideoTrackData?.settings
+                )
+              : undefined,
+            type: peer?.localVideoTrackData?.type,
+          }
+        : undefined,
     };
 
     return new HMSLocalPeer(encodedObj);
@@ -217,7 +249,9 @@ export class HMSEncoder {
       source: track?.source,
       trackDescription: track?.trackDescription,
       isMute: track?.isMute,
-      settings: HMSEncoder.encodeHmsAudioTrackSettings(track?.settings),
+      settings: track?.settings
+        ? HMSEncoder.encodeHmsAudioTrackSettings(track?.settings)
+        : undefined,
       type: track?.type,
     };
 
@@ -231,7 +265,9 @@ export class HMSEncoder {
       source: track?.source,
       trackDescription: track?.trackDescription,
       isMute: track?.isMute,
-      settings: HMSEncoder.encodeHmsVideoTrackSettings(track?.settings),
+      settings: track?.settings
+        ? HMSEncoder.encodeHmsVideoTrackSettings(track?.settings)
+        : undefined,
       type: track?.type,
     };
 
@@ -252,37 +288,46 @@ export class HMSEncoder {
 
   static encodeHmsRemotePeer(peer: any, id: string) {
     const encodedObj = {
-      peerID: peer.peerID,
-      name: peer.name,
-      isLocal: peer.isLocal,
-      customerUserID: peer.customerUserID,
+      peerID: peer?.peerID,
+      name: peer?.name,
+      isLocal: false,
+      customerUserID: peer?.customerUserID,
       customerDescription: peer.customerDescription,
       metadata: peer.metadata,
       role: HMSEncoder.encodeHmsRole(peer?.role),
-      networkQuality: HMSEncoder.encodeHMSNetworkQuality(peer?.networkQuality),
-      audioTrack: HMSEncoder.encodeHmsAudioTrack(peer.audioTrack, id),
-      videoTrack: HMSEncoder.encodeHmsVideoTrack(peer.videoTrack, id),
-      auxiliaryTracks: HMSEncoder.encodeHmsAuxiliaryTracks(
-        peer.auxiliaryTracks,
-        id
-      ),
-      remoteAudioTrackData: {
-        id: id,
-        trackId: peer?.remoteAudioTrackData?.trackId,
-        source: peer?.remoteAudioTrackData?.source,
-        trackDescription: peer?.remoteAudioTrackData?.trackDescription,
-        isMute: peer?.remoteAudioTrackData?.isMute,
-        playbackAllowed: peer?.remoteAudioTrackData?.playbackAllowed,
-      },
-      remoteVideoTrackData: {
-        id: id,
-        trackId: peer?.remoteVideoTrackData?.trackId,
-        source: peer?.remoteVideoTrackData?.source,
-        trackDescription: peer?.remoteVideoTrackData?.trackDescription,
-        layer: peer?.remoteVideoTrackData?.layer,
-        isMute: peer?.remoteVideoTrackData?.isMute,
-        playbackAllowed: peer?.remoteVideoTrackData?.playbackAllowed,
-      },
+      networkQuality: peer?.networkQuality
+        ? HMSEncoder.encodeHMSNetworkQuality(peer?.networkQuality)
+        : undefined,
+      audioTrack: peer?.audioTrack
+        ? HMSEncoder.encodeHmsAudioTrack(peer?.audioTrack, id)
+        : undefined,
+      videoTrack: peer?.videoTrack
+        ? HMSEncoder.encodeHmsVideoTrack(peer.videoTrack, id)
+        : undefined,
+      auxiliaryTracks: Array.isArray(peer?.auxiliaryTracks)
+        ? HMSEncoder.encodeHmsAuxiliaryTracks(peer?.auxiliaryTracks, id)
+        : undefined,
+      remoteAudioTrackData: peer?.remoteAudioTrackData?.trackId
+        ? {
+            id: id,
+            trackId: peer?.remoteAudioTrackData?.trackId,
+            source: peer?.remoteAudioTrackData?.source,
+            trackDescription: peer?.remoteAudioTrackData?.trackDescription,
+            isMute: peer?.remoteAudioTrackData?.isMute,
+            playbackAllowed: peer?.remoteAudioTrackData?.playbackAllowed,
+          }
+        : undefined,
+      remoteVideoTrackData: peer?.remoteVideoTrackData?.trackId
+        ? {
+            id: id,
+            trackId: peer?.remoteVideoTrackData?.trackId,
+            source: peer?.remoteVideoTrackData?.source,
+            trackDescription: peer?.remoteVideoTrackData?.trackDescription,
+            layer: peer?.remoteVideoTrackData?.layer,
+            isMute: peer?.remoteVideoTrackData?.isMute,
+            playbackAllowed: peer?.remoteVideoTrackData?.playbackAllowed,
+          }
+        : undefined,
     };
 
     return new HMSRemotePeer(encodedObj);
@@ -332,14 +377,37 @@ export class HMSEncoder {
   }
 
   static encodeHmsRole(role: any) {
-    const hmsRole = new HMSRole(role);
+    if (!role) {
+      return new HMSRole(role);
+    }
 
-    return hmsRole;
+    const rolesCache = this.data.roles;
+
+    const cachedRole = rolesCache[role.name];
+
+    // create new HMSRole instance, if cached role does not exist OR `role.publishSettings?.allowed` does not exist
+    if (!cachedRole || !cachedRole.publishSettings?.allowed) {
+      // Creating HMSRole object with data
+      const hmsRole = new HMSRole(role);
+
+      // saving the created HMSRole object into cache
+      rolesCache[role.name] = hmsRole;
+
+      // If the created HMSRole object is complete,
+      // sending notification to Native Side to stop sending data for this role
+      if (hmsRole.publishSettings?.allowed) {
+        HMSManager.restrictData({ id: "12345", roleName: hmsRole.name });
+      }
+    }
+
+    return rolesCache[role.name];
   }
 
   static encodeHmsRoleChangeRequest(data: any, id: string) {
     const encodedRoleChangeRequest = {
-      requestedBy: HMSEncoder.encodeHmsPeer(data.requestedBy, id),
+      requestedBy: data.requestedBy
+        ? HMSEncoder.encodeHmsPeer(data.requestedBy, id)
+        : undefined,
       suggestedRole: HMSEncoder.encodeHmsRole(data.suggestedRole),
     };
 
@@ -351,7 +419,9 @@ export class HMSEncoder {
     id: string
   ) {
     const encodedChangeTrackStateRequest = {
-      requestedBy: HMSEncoder.encodeHmsPeer(data.requestedBy, id),
+      requestedBy: data?.requestedBy
+        ? HMSEncoder.encodeHmsPeer(data?.requestedBy, id)
+        : undefined,
       trackType: data.trackType,
       mute: data.mute,
     };
@@ -399,44 +469,57 @@ export class HMSEncoder {
 
   static encodeBrowserRecordingState(data: any) {
     return new HMSBrowserRecordingState({
-      running: data?.running,
-      startedAt: new Date(parseInt(data?.startedAt)),
-      stoppedAt: new Date(parseInt(data?.stoppedAt)),
-      error: data?.error,
+      running: data?.running || false,
+      startedAt: HMSEncoder.encodeDate(data?.startedAt),
+      stoppedAt: HMSEncoder.encodeDate(data?.stoppedAt),
+      error: data?.error || undefined,
     });
   }
 
   static encodeServerRecordingState(data: any) {
     return new HMSServerRecordingState({
-      running: data?.running,
-      error: data?.error,
-      startedAt: new Date(parseInt(data?.startedAt)),
+      running: data?.running || false,
+      error: data?.error || undefined,
+      startedAt: HMSEncoder.encodeDate(data?.startedAt),
     });
   }
 
   static encodeRTMPStreamingState(data: any) {
     return new HMSRtmpStreamingState({
-      running: data?.running,
-      startedAt: new Date(parseInt(data?.startedAt)),
-      stoppedAt: new Date(parseInt(data?.stoppedAt)),
-      error: data?.error,
+      running: data?.running || false,
+      startedAt: HMSEncoder.encodeDate(data?.startedAt),
+      stoppedAt: HMSEncoder.encodeDate(data?.stoppedAt),
+      error: data?.error || undefined,
     });
+  }
+
+  static encodeDate(dateData: any) {
+    if (!dateData) {
+      return undefined;
+    }
+    const dateNum = parseInt(dateData);
+    if (isNaN(dateNum)) {
+      return undefined;
+    }
+    return new Date(dateNum);
   }
 
   static encodeHLSStreamingState(data: any) {
     return new HMSHLSStreamingState({
-      running: data?.running,
-      variants: this.encodeHLSVariants(data?.variants),
+      running: data?.running || false,
+      variants: Array.isArray(data?.variants)
+        ? this.encodeHLSVariants(data?.variants)
+        : undefined,
     });
   }
 
   static encodeHLSRecordingState(data: any) {
     if (data) {
       return new HMSHLSRecordingState({
-        running: data?.running,
-        startedAt: new Date(parseInt(data?.startedAt)),
-        singleFilePerLayer: data?.singleFilePerLayer,
-        videoOnDemand: data?.videoOnDemand,
+        running: data?.running || false,
+        startedAt: HMSEncoder.encodeDate(data?.startedAt),
+        singleFilePerLayer: data?.singleFilePerLayer || false,
+        videoOnDemand: data?.videoOnDemand || false,
       });
     } else {
       return undefined;
@@ -450,8 +533,8 @@ export class HMSEncoder {
       let variant = new HMSHLSVariant({
         hlsStreamUrl: item.hlsStreamUrl,
         meetingUrl: item.meetingUrl,
-        metadata: item?.metadata,
-        startedAt: new Date(parseInt(item?.startedAt)),
+        metadata: item?.metaData ? item?.metadata : undefined,
+        startedAt: HMSEncoder.encodeDate(item?.startedAt),
       });
       variants.push(variant);
     });
@@ -486,8 +569,12 @@ export class HMSEncoder {
   static encodeHMSMessageRecipient(data: any, id: string) {
     return new HMSMessageRecipient({
       recipientType: data?.recipientType,
-      recipientPeer: this.encodeHmsPeer(data?.recipientPeer, id),
-      recipientRoles: this.encodeHmsRoles(data?.recipientRoles),
+      recipientPeer: data?.recipientPeer
+        ? this.encodeHmsPeer(data.recipientPeer, id)
+        : undefined,
+      recipientRoles: Array.isArray(data?.recipientRoles)
+        ? this.encodeHmsRoles(data.recipientRoles)
+        : [],
     });
   }
 

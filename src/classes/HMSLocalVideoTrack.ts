@@ -13,8 +13,6 @@ const {
 
 export class HMSLocalVideoTrack extends HMSVideoTrack {
   settings?: HMSVideoTrackSettings;
-  startCapturing?: Function;
-  stopCapturing?: Function;
   id: string;
 
   /**

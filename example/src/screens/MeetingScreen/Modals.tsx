@@ -7,7 +7,10 @@ import {
   TextInput,
   FlatList,
   StyleSheet,
+  Image,
+  Platform,
 } from 'react-native';
+import Toast from 'react-native-simple-toast';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   HMSTrack,
@@ -42,7 +45,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {Slider} from '@miblanchard/react-native-slider';
-import moment from 'moment';
+import RNFetchBlob from 'rn-fetch-blob';
 
 import {styles} from './styles';
 import {
@@ -54,7 +57,12 @@ import {
   CustomPicker,
 } from '../../components';
 import {saveUserData} from '../../redux/actions';
-import {parseMetadata, getInitials} from '../../utils/functions';
+import {
+  parseMetadata,
+  getInitials,
+  requestExternalStoragePermission,
+  getTime,
+} from '../../utils/functions';
 import {LayoutParams, ModalTypes, SortingType} from '../../utils/types';
 import {COLORS} from '../../utils/theme';
 import type {RootState} from '../../redux';
@@ -140,23 +148,21 @@ export const ParticipantsModal = ({
   };
   const toggleAudio = (peer: HMSPeer) => {
     hideMenu();
-    instance
-      ?.changeTrackState(
-        peer?.audioTrack as HMSTrack,
-        !peer?.audioTrack?.isMute(),
-      )
-      .then(d => console.log('Remove Peer Success: ', d))
-      .catch(e => console.log('Remove Peer Error: ', e));
+    if (peer?.audioTrack) {
+      instance
+        ?.changeTrackState(peer?.audioTrack, !peer?.audioTrack?.isMute())
+        .then(d => console.log('Remove Peer Success: ', d))
+        .catch(e => console.log('Remove Peer Error: ', e));
+    }
   };
   const toggleVideo = (peer: HMSPeer) => {
     hideMenu();
-    instance
-      ?.changeTrackState(
-        peer?.videoTrack as HMSTrack,
-        !peer?.videoTrack?.isMute(),
-      )
-      .then(d => console.log('Remove Peer Success: ', d))
-      .catch(e => console.log('Remove Peer Error: ', e));
+    if (peer?.videoTrack) {
+      instance
+        ?.changeTrackState(peer?.videoTrack, !peer?.videoTrack?.isMute())
+        .then(d => console.log('Remove Peer Success: ', d))
+        .catch(e => console.log('Remove Peer Error: ', e));
+    }
   };
 
   useMemo(() => {
@@ -595,6 +601,83 @@ export const ChangeRoleModal = ({
   );
 };
 
+export const SaveScreenshot = ({
+  screenshotData,
+  cancelModal,
+}: {
+  screenshotData: {peer: HMSPeer; source: {uri: string}} | null;
+  cancelModal: Function;
+}) => {
+  const saveToDisk = async () => {
+    try {
+      const permission = await requestExternalStoragePermission();
+
+      cancelModal();
+
+      if (permission && screenshotData) {
+        // Save to Disk
+        const imageName = `${
+          screenshotData.peer.name
+        }-snapshot-${Date.now()}.png`;
+
+        const saveDir =
+          Platform.OS === 'ios'
+            ? RNFetchBlob.fs.dirs.DocumentDir
+            : RNFetchBlob.fs.dirs.DCIMDir;
+
+        const fileLocation = `${saveDir}/${imageName}`;
+
+        await RNFetchBlob.fs.writeFile(
+          fileLocation,
+          screenshotData.source.uri.replace('data:image/png;base64,', ''),
+          'base64',
+        );
+
+        if (Platform.OS === 'ios') {
+          RNFetchBlob.ios.previewDocument(fileLocation);
+        }
+
+        Toast.showWithGravity(
+          'Snapshot has been saved successfully',
+          Toast.LONG,
+          Toast.TOP,
+        );
+      }
+    } catch (error) {
+      console.warn('Snapshot Save Error: ', error);
+    }
+  };
+
+  return (
+    <View style={[{flexGrow: 1}, styles.volumeModalContainer]}>
+      <Text style={styles.roleChangeModalHeading}>
+        {screenshotData ? `${screenshotData.peer.name}'s Snapshot` : 'Snapshot'}
+      </Text>
+      {screenshotData ? (
+        <Image
+          source={screenshotData.source}
+          style={styles.screenshotImage}
+          resizeMode="contain"
+        />
+      ) : null}
+      <View style={styles.roleChangeModalPermissionContainer}>
+        <CustomButton
+          title="Cancel"
+          onPress={cancelModal}
+          viewStyle={styles.roleChangeModalCancelButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+        <CustomButton
+          title="Save to Disk"
+          onPress={saveToDisk}
+          viewStyle={styles.roleChangeModalSuccessButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+      </View>
+    </View>
+  );
+};
+
 export const ChangeVolumeModal = ({
   instance,
   peer,
@@ -607,7 +690,9 @@ export const ChangeVolumeModal = ({
   const [volume, setVolume] = useState<number>(0);
 
   const changeVolume = () => {
-    instance?.setVolume(peer?.audioTrack as HMSTrack, volume);
+    if (peer?.audioTrack) {
+      instance?.setVolume(peer?.audioTrack, volume);
+    }
     cancelModal();
   };
 
@@ -1966,16 +2051,19 @@ export const RealTime = ({startedAt}: {startedAt?: Date}) => {
   const [second, setSecond] = useState(0);
 
   useEffect(() => {
-    const time2 = moment(startedAt, 'hh:mm:ss');
-    const time1 = moment(new Date(), 'hh:mm:ss');
-    const subtract = time1.subtract({
-      hours: time2.hours(),
-      minutes: time2.minutes(),
-      seconds: time2.seconds(),
-    });
-    setHour(subtract.hours());
-    setMinute(subtract.minutes());
-    setSecond(subtract.seconds());
+    if (startedAt) {
+      const millisecs = Date.now() - startedAt.getTime();
+      const [h, min, sec] = getTime(Math.abs(millisecs));
+      if (h > 0) {
+        setHour(h);
+      }
+      if (min > 0) {
+        setMinute(min);
+      }
+      if (sec > 0) {
+        setSecond(sec);
+      }
+    }
   }, [startedAt]);
 
   useEffect(() => {

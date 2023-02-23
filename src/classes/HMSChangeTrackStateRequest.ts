@@ -1,12 +1,12 @@
 import type { HMSPeer } from './HMSPeer';
 
 export class HMSChangeTrackStateRequest {
-  requestedBy: HMSPeer;
+  requestedBy?: HMSPeer;
   trackType: string;
   mute: boolean;
 
   constructor(params: {
-    requestedBy: HMSPeer;
+    requestedBy?: HMSPeer;
     trackType: string;
     mute: boolean;
   }) {

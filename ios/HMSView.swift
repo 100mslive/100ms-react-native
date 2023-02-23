@@ -14,12 +14,20 @@ class HMSView: RCTViewManager {
     }
 
     func getHmsFromBridge() -> [String: HMSRNSDK] {
-        let collection: [String: HMSRNSDK] = (bridge.module(for: HMSManager.classForCoder()) as? HMSManager)?.hmsCollection ?? [:]
+        let collection = (bridge.module(for: HMSManager.classForCoder()) as? HMSManager)?.hmsCollection ?? [String: HMSRNSDK]()
         return collection
     }
 
     override class func requiresMainQueueSetup() -> Bool {
         true
+    }
+
+    @objc func capture(_ node: NSNumber, requestId: NSNumber) {
+        DispatchQueue.main.async {
+            if let component = self.bridge.uiManager.view(forReactTag: node) as? HmssdkDisplayView {
+                component.captureHmsView(requestId)
+            }
+        }
     }
 }
 
@@ -29,11 +37,13 @@ class HmssdkDisplayView: UIView {
         return HMSVideoView()
     }()
 
-    var hmsCollection: [String: HMSRNSDK] = [:]
+    var hmsCollection = [String: HMSRNSDK]()
 
     func setHms(_ hmsInstance: [String: HMSRNSDK]) {
         hmsCollection = hmsInstance
     }
+
+    @objc var onDataReturned: RCTDirectEventBlock? = nil
 
     @objc var scaleType: String = "ASPECT_FILL" {
         didSet {
@@ -59,13 +69,14 @@ class HmssdkDisplayView: UIView {
             let sdkID = data.value(forKey: "id") as? String ?? "12345"
 
             guard let hmsSDK = hmsCollection[sdkID]?.hms,
+                  let room = hmsSDK.room,
                   let trackID = data.value(forKey: "trackId") as? String
             else {
                 print(#function, "Required data to setup video view not found")
                 return
             }
 
-            var videoTrack = HMSUtilities.getVideoTrack(for: trackID, in: hmsSDK.room!)
+            var videoTrack = HMSUtilities.getVideoTrack(for: trackID, in: room)
 
             if videoTrack == nil {
                 for track in hmsCollection[sdkID]?.recentPreviewTracks ?? [] {
@@ -86,6 +97,27 @@ class HmssdkDisplayView: UIView {
                 return
             }
         }
+    }
+
+    @objc func captureHmsView( _ requestId: NSNumber) {
+        guard let onDataReturnedUnwrapped = onDataReturned else {
+            print(#function, "Can't send any data to JS side, `onDataReturned` is nil!")
+            return
+        }
+
+        guard let image = videoView.captureSnapshot() else {
+            print(#function, "Could not capture snapshot of HMSVideoView")
+            onDataReturnedUnwrapped([ "requestId": requestId, "error": ["6001", "Could not capture snapshot of HMSVideoView"] ])
+            return
+        }
+
+        guard let base64 = image.pngData()?.base64EncodedString() else {
+            print(#function, "Could not create base64 encoded string of captured snapshot")
+            onDataReturnedUnwrapped([ "requestId": requestId, "error": ["6001", "Could not create base64 encoded string of captured snapshot"] ])
+            return
+        }
+
+        onDataReturnedUnwrapped([ "requestId": requestId, "result": base64 ])
     }
 
     override init(frame: CGRect) {

@@ -18,5 +18,5 @@ Pod::Spec.new do |s|
 
   s.dependency "React-Core"
   s.dependency "HMSSDK", sdkVersions["ios"]
-  s.dependency 'HMSBroadcastExtensionSDK', '0.0.5'
+  s.dependency 'HMSBroadcastExtensionSDK', sdkVersions["iOSBroadcastExtension"]
 end

@@ -39,6 +39,7 @@ class HMSRNSDK(
   private var audioMixingMode: AudioMixingMode = AudioMixingMode.TALK_AND_MUSIC
   private var id: String = sdkId
   private var self = this
+  private var eventsEnableStatus = mutableMapOf<String, Boolean>()
 
   init {
     val builder = HMSSDK.Builder(reactApplicationContext)
@@ -71,6 +72,9 @@ class HMSRNSDK(
   }
 
   private fun emitCustomError(message: String) {
+    if (eventsEnableStatus["ON_ERROR"] != true) {
+      return
+    }
     val data: WritableMap = Arguments.createMap()
     val hmsError = HMSException(6002, message, message, message, message, null, false)
     data.putString("id", id)
@@ -79,6 +83,9 @@ class HMSRNSDK(
   }
 
   private fun emitRequiredKeysError(message: String) {
+    if (eventsEnableStatus["ON_ERROR"] != true) {
+      return
+    }
     val data: WritableMap = Arguments.createMap()
     val hmsError =
       HMSException(
@@ -100,6 +107,9 @@ class HMSRNSDK(
   }
 
   fun emitHMSError(error: HMSException) {
+    if (eventsEnableStatus["ON_ERROR"] != true) {
+      return
+    }
     val data: WritableMap = Arguments.createMap()
     data.putString("id", id)
     data.putMap("error", HMSDecoder.getError(error))
@@ -133,11 +143,17 @@ class HMSRNSDK(
         config,
         object : HMSPreviewListener {
           override fun onError(error: HMSException) {
-            self.emitHMSError(error)
             previewInProgress = false
+            if (eventsEnableStatus["ON_ERROR"] != true) {
+              return
+            }
+            self.emitHMSError(error)
           }
 
           override fun onPeerUpdate(type: HMSPeerUpdate, peer: HMSPeer) {
+            if (eventsEnableStatus["ON_PEER_UPDATE"] != true) {
+              return
+            }
             if (type === HMSPeerUpdate.AUDIO_TOGGLED ||
               type === HMSPeerUpdate.VIDEO_TOGGLED ||
               type === HMSPeerUpdate.BECAME_DOMINANT_SPEAKER ||
@@ -164,6 +180,13 @@ class HMSRNSDK(
           }
 
           override fun onRoomUpdate(type: HMSRoomUpdate, hmsRoom: HMSRoom) {
+            if (eventsEnableStatus["ON_ROOM_UPDATE"] != true) {
+              return
+            }
+            if (type == HMSRoomUpdate.ROOM_PEER_COUNT_UPDATED) {
+              return
+            }
+
             val updateType = type.name
             val roomData = HMSDecoder.getHmsRoom(hmsRoom)
 
@@ -176,6 +199,10 @@ class HMSRNSDK(
           }
 
           override fun onPreview(room: HMSRoom, localTracks: Array<HMSTrack>) {
+            previewInProgress = false
+            if (eventsEnableStatus["ON_PREVIEW"] != true) {
+              return
+            }
             val previewTracks = HMSDecoder.getPreviewTracks(localTracks)
             val hmsRoom = HMSDecoder.getHmsRoom(room)
             val data: WritableMap = Arguments.createMap()
@@ -184,7 +211,6 @@ class HMSRNSDK(
             data.putMap("room", hmsRoom)
             data.putString("id", id)
             delegate.emitEvent("ON_PREVIEW", data)
-            previewInProgress = false
           }
         }
       )
@@ -214,6 +240,9 @@ class HMSRNSDK(
             config,
             object : HMSUpdateListener {
               override fun onChangeTrackStateRequest(details: HMSChangeTrackStateRequest) {
+                if (eventsEnableStatus["ON_CHANGE_TRACK_STATE_REQUEST"] != true) {
+                  return
+                }
                 val decodedChangeTrackStateRequest =
                   HMSDecoder.getHmsChangeTrackStateRequest(details, id)
                 delegate.emitEvent(
@@ -225,6 +254,10 @@ class HMSRNSDK(
               override fun onRemovedFromRoom(notification: HMSRemovedFromRoom) {
                 super.onRemovedFromRoom(notification)
 
+                HMSDecoder.clearRestrictDataStates()
+                if (eventsEnableStatus["ON_REMOVED_FROM_ROOM"] != true) {
+                  return
+                }
                 val data: WritableMap = Arguments.createMap()
                 val requestedBy =
                   HMSDecoder.getHmsRemotePeer(notification.peerWhoRemoved as HMSRemotePeer?)
@@ -240,10 +273,16 @@ class HMSRNSDK(
               }
 
               override fun onError(error: HMSException) {
+                if (eventsEnableStatus["ON_ERROR"] != true) {
+                  return
+                }
                 self.emitHMSError(error)
               }
 
               override fun onJoin(room: HMSRoom) {
+                if (eventsEnableStatus["ON_JOIN"] != true) {
+                  return
+                }
                 val roomData = HMSDecoder.getHmsRoom(room)
 
                 val data: WritableMap = Arguments.createMap()
@@ -254,6 +293,9 @@ class HMSRNSDK(
               }
 
               override fun onPeerUpdate(type: HMSPeerUpdate, peer: HMSPeer) {
+                if (eventsEnableStatus["ON_PEER_UPDATE"] != true) {
+                  return
+                }
                 if (type === HMSPeerUpdate.AUDIO_TOGGLED ||
                   type === HMSPeerUpdate.VIDEO_TOGGLED ||
                   type === HMSPeerUpdate.BECAME_DOMINANT_SPEAKER ||
@@ -281,6 +323,13 @@ class HMSRNSDK(
               }
 
               override fun onRoomUpdate(type: HMSRoomUpdate, hmsRoom: HMSRoom) {
+                if (eventsEnableStatus["ON_ROOM_UPDATE"] != true) {
+                  return
+                }
+                if (type == HMSRoomUpdate.ROOM_PEER_COUNT_UPDATED) {
+                  return
+                }
+
                 val updateType = type.name
                 val roomData = HMSDecoder.getHmsRoom(hmsRoom)
 
@@ -293,6 +342,9 @@ class HMSRNSDK(
               }
 
               override fun onTrackUpdate(type: HMSTrackUpdate, track: HMSTrack, peer: HMSPeer) {
+                if (eventsEnableStatus["ON_TRACK_UPDATE"] != true) {
+                  return
+                }
                 val updateType = type.name
                 val hmsPeer = HMSDecoder.getHmsPeer(peer)
                 val hmsTrack = HMSDecoder.getHmsTrack(track)
@@ -307,6 +359,9 @@ class HMSRNSDK(
               }
 
               override fun onMessageReceived(message: HMSMessage) {
+                if (eventsEnableStatus["ON_MESSAGE"] != true) {
+                  return
+                }
                 val data: WritableMap = Arguments.createMap()
 
                 data.putMap("sender", HMSDecoder.getHmsPeer(message.sender))
@@ -321,6 +376,9 @@ class HMSRNSDK(
 
               override fun onReconnected() {
                 reconnectingStage = false
+                if (eventsEnableStatus["RECONNECTED"] != true) {
+                  return
+                }
                 val data: WritableMap = Arguments.createMap()
                 data.putString("event", "RECONNECTED")
                 data.putString("id", id)
@@ -329,6 +387,9 @@ class HMSRNSDK(
 
               override fun onReconnecting(error: HMSException) {
                 reconnectingStage = true
+                if (eventsEnableStatus["RECONNECTING"] != true) {
+                  return
+                }
                 val data: WritableMap = Arguments.createMap()
                 data.putMap("error", HMSDecoder.getError(error))
                 data.putString("event", "RECONNECTING")
@@ -337,9 +398,12 @@ class HMSRNSDK(
               }
 
               override fun onRoleChangeRequest(request: HMSRoleChangeRequest) {
+                recentRoleChangeRequest = request
+                if (eventsEnableStatus["ON_ROLE_CHANGE_REQUEST"] != true) {
+                  return
+                }
                 val decodedChangeRoleRequest = HMSDecoder.getHmsRoleChangeRequest(request, id)
                 delegate.emitEvent("ON_ROLE_CHANGE_REQUEST", decodedChangeRoleRequest)
-                recentRoleChangeRequest = request
               }
             }
           )
@@ -350,15 +414,18 @@ class HMSRNSDK(
         hmsSDK?.addAudioObserver(
           object : HMSAudioListener {
             override fun onAudioLevelUpdate(speakers: Array<HMSSpeaker>) {
+              if (eventsEnableStatus["ON_SPEAKER"] != true) {
+                return
+              }
               val data: WritableMap = Arguments.createMap()
               data.putString("event", "ON_SPEAKER")
 
               val peers: WritableArray = Arguments.createArray()
               for (speaker in speakers) {
-                speaker.peer?.let {
+                if (speaker.peer != null && speaker.hmsTrack != null) {
                   val speakerArray: WritableMap = Arguments.createMap()
-                  speakerArray.putMap("peer", HMSDecoder.getHmsPeer(it))
                   speakerArray.putInt("level", speaker.level)
+                  speakerArray.putMap("peer", HMSDecoder.getHmsPeer(speaker.peer))
                   speakerArray.putMap("track", HMSDecoder.getHmsTrack(speaker.hmsTrack))
                   peers.pushMap(speakerArray)
                 }
@@ -377,6 +444,9 @@ class HMSRNSDK(
               hmsTrack: HMSTrack?,
               hmsPeer: HMSPeer?
             ) {
+              if (eventsEnableStatus["ON_LOCAL_AUDIO_STATS"] != true) {
+                return
+              }
               if (!rtcStatsAttached) {
                 return
               }
@@ -393,11 +463,14 @@ class HMSRNSDK(
             }
 
             override fun onLocalVideoStats(
-              videoStats: HMSLocalVideoStats,
+              videoStats: List<HMSLocalVideoStats>,
               hmsTrack: HMSTrack?,
               hmsPeer: HMSPeer?
             ) {
-              if (!rtcStatsAttached) {
+              if (eventsEnableStatus["ON_LOCAL_VIDEO_STATS"] != true) {
+                return
+              }
+              if (!rtcStatsAttached && hmsPeer != null && hmsTrack != null) {
                 return
               }
 
@@ -406,7 +479,7 @@ class HMSRNSDK(
               val peer = HMSDecoder.getHmsPeer(hmsPeer)
 
               val data: WritableMap = Arguments.createMap()
-              data.putMap("localVideoStats", localVideoStats)
+              data.putArray("localVideoStats", localVideoStats)
               data.putMap("track", track)
               data.putMap("peer", peer)
               data.putString("id", id)
@@ -414,6 +487,9 @@ class HMSRNSDK(
             }
 
             override fun onRTCStats(rtcStats: HMSRTCStatsReport) {
+              if (eventsEnableStatus["ON_RTC_STATS"] != true) {
+                return
+              }
               if (!rtcStatsAttached) {
                 return
               }
@@ -434,6 +510,9 @@ class HMSRNSDK(
               hmsTrack: HMSTrack?,
               hmsPeer: HMSPeer?
             ) {
+              if (eventsEnableStatus["ON_REMOTE_AUDIO_STATS"] != true) {
+                return
+              }
               if (!rtcStatsAttached) {
                 return
               }
@@ -455,6 +534,9 @@ class HMSRNSDK(
               hmsTrack: HMSTrack?,
               hmsPeer: HMSPeer?
             ) {
+              if (eventsEnableStatus["ON_REMOTE_VIDEO_STATS"] != true) {
+                return
+              }
               if (!rtcStatsAttached) {
                 return
               }
@@ -513,9 +595,13 @@ class HMSRNSDK(
             audioshareCallback = null
             networkQualityUpdatesAttached = false
             rtcStatsAttached = false
+            HMSDecoder.clearRestrictDataStates()
             if (fromPIP) {
               context.currentActivity?.moveTaskToBack(false)
 
+              if (eventsEnableStatus["ON_PIP_ROOM_LEAVE"] != true) {
+                return
+              }
               val map: WritableMap = Arguments.createMap()
               map.putString("id", id)
               delegate.emitEvent("ON_PIP_ROOM_LEAVE", map)
@@ -969,15 +1055,6 @@ class HMSRNSDK(
           val peer = HMSHelper.getRemotePeerFromPeerId(peerId, hmsSDK?.getRoom())
           peer?.audioTrack?.isPlaybackAllowed = !mute
         }
-        val localPeerData = HMSDecoder.getHmsLocalPeer(hmsSDK?.getLocalPeer())
-        val remotePeerData = HMSDecoder.getHmsRemotePeers(hmsSDK?.getRemotePeers())
-
-        val map: WritableMap = Arguments.createMap()
-
-        map.putMap("localPeer", localPeerData)
-        map.putArray("remotePeers", remotePeerData)
-        map.putString("id", id)
-        delegate.emitEvent("ON_PEER_UPDATE", map)
       }
     } else {
       val errorMessage = "setPlaybackForAllAudio: $requiredKeys"
@@ -1354,6 +1431,9 @@ class HMSRNSDK(
           device: HMSAudioManager.AudioDevice?,
           audioDevicesList: Set<HMSAudioManager.AudioDevice>?
         ) {
+          if (eventsEnableStatus["ON_AUDIO_DEVICE_CHANGED"] != true) {
+            return
+          }
           val data: WritableMap = Arguments.createMap()
           data.putString("device", device?.name)
           data.putArray("audioDevicesList", HMSHelper.getAudioDevicesSet(audioDevicesList))
@@ -1463,5 +1543,55 @@ class HMSRNSDK(
         }
       }
     )
+  }
+
+  fun enableEvent(data: ReadableMap, promise: Promise?) {
+    val requiredKeys =
+      HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("eventType", "String")))
+    if (requiredKeys === null) {
+      val eventType = data.getString("eventType")
+
+      if (eventType != null) {
+        eventsEnableStatus[eventType] = true
+        promise?.resolve(emitHMSSuccess())
+      }
+    } else {
+      val errorMessage = "enableEvent: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(promise, errorMessage)
+    }
+  }
+
+  fun disableEvent(data: ReadableMap, promise: Promise?) {
+    val requiredKeys =
+      HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("eventType", "String")))
+    if (requiredKeys === null) {
+      val eventType = data.getString("eventType")
+
+      if (eventType != null) {
+        eventsEnableStatus[eventType] = false
+        promise?.resolve(emitHMSSuccess())
+      }
+    } else {
+      val errorMessage = "disableEvent: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(promise, errorMessage)
+    }
+  }
+
+  fun restrictData(data: ReadableMap, promise: Promise?) {
+    val requiredKeys =
+      HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("roleName", "String")))
+    if (requiredKeys === null) {
+      val roleName = data.getString("roleName")
+      if (roleName != null) {
+        HMSDecoder.setRestrictRoleData(roleName, true)
+        promise?.resolve(emitHMSSuccess())
+      }
+    } else {
+      val errorMessage = "restrictData: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(promise, errorMessage)
+    }
   }
 }

@@ -3,7 +3,7 @@ import HMSSDK
 @objc(HMSManager)
 class HMSManager: RCTEventEmitter {
 
-    var hmsCollection: [String: HMSRNSDK] = [:]
+    var hmsCollection = [String: HMSRNSDK]()
 
     let ON_PREVIEW = "ON_PREVIEW"
     let ON_JOIN = "ON_JOIN"
@@ -399,6 +399,27 @@ class HMSManager: RCTEventEmitter {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.setSessionMetaData(data, resolve, reject)
+    }
+
+    @objc
+    func enableEvent(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.enableEvent(data, resolve, reject)
+    }
+
+    @objc
+    func disableEvent(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.disableEvent(data, resolve, reject)
+    }
+
+    @objc
+    func restrictData(_ data: NSDictionary) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.restrictData(data)
     }
 
     // MARK: - HMS SDK Get APIs

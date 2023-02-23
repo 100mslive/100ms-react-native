@@ -28,7 +28,6 @@ import {
   Platform,
   Dimensions,
   AppState,
-  AppStateStatus,
   LayoutAnimation,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
@@ -100,6 +99,7 @@ import {GridView} from './GridView';
 import {HLSView} from './HLSView';
 import PIPView from './PIPView';
 import {RoomSettingsModalContent} from '../../components/RoomSettingsModalContent';
+import {PeerSettingsModalContent} from '../../components/PeerSettingsModalContent';
 
 type MeetingScreenProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -109,7 +109,6 @@ type MeetingScreenProp = NativeStackNavigationProp<
 const Meeting = () => {
   // hooks
   const dispatch = useDispatch();
-  const appState = useRef(AppState.currentState);
   const {hmsInstance} = useSelector((state: RootState) => state.user);
   const isPipModeActive = useSelector(
     (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE,
@@ -153,24 +152,15 @@ const Meeting = () => {
 
   useEffect(() => {
     if (isPipModeActive) {
-      appState.current = AppState.currentState;
-
-      const appStateListener = (nextAppState: AppStateStatus) => {
-        if (
-          appState.current.match(/inactive|background/) &&
-          nextAppState === 'active'
-        ) {
-          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-          dispatch(changePipModeStatus(PipModes.INACTIVE));
-        }
-
-        appState.current = nextAppState;
+      const appStateListener = () => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        dispatch(changePipModeStatus(PipModes.INACTIVE));
       };
 
-      AppState.addEventListener('change', appStateListener);
+      AppState.addEventListener('focus', appStateListener);
 
       return () => {
-        AppState.removeEventListener('change', appStateListener);
+        AppState.removeEventListener('focus', appStateListener);
         dispatch(changePipModeStatus(PipModes.INACTIVE));
       };
     }
@@ -229,8 +219,8 @@ const DisplayView = (data: {
   const isPipModeActive = useSelector(
     (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE,
   );
-  const {hmsInstance} = useSelector((state: RootState) => state.user);
-  const {peerState} = useSelector((state: RootState) => state.app);
+  const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
+  const peerState = useSelector((state: RootState) => state.app.peerState);
   const navigate = useNavigation<MeetingScreenProp>().navigate;
   const dispatch = useDispatch();
 
@@ -240,12 +230,15 @@ const DisplayView = (data: {
   const [orientation, setOrientation] = useState(true);
   const [layout, setLayout] = useState<LayoutParams>(LayoutParams.GRID);
   const [updatePeer, setUpdatePeer] = useState<HMSPeer>();
+  const [selectedPeerTrackNode, setSelectedPeerTrackNode] =
+    useState<PeerTrackNode | null>(null);
   const [roleChangeRequest, setRoleChangeRequest] = useState<{
     requestedBy?: string;
     suggestedRole?: string;
   }>({});
 
   // useRef hook
+  const gridViewRef = useRef<React.ElementRef<typeof GridView> | null>(null);
   const peerTrackNodesRef = useRef(peerTrackNodes);
 
   // constants
@@ -253,6 +246,40 @@ const DisplayView = (data: {
     () => pairData(peerTrackNodes, orientation ? 4 : 2, data?.localPeer),
     [data?.localPeer, orientation, peerTrackNodes],
   );
+
+  // Sync local peerTrackNodes list with peerTrackNodes list stored in redux
+  useEffect(() => {
+    const reduxPeerNodes = peerState;
+
+    setPeerTrackNodes((prevPeerTrackNodes) => {
+      let newPeerTrackNodes = prevPeerTrackNodes;
+
+      for (const reduxPeerNode of reduxPeerNodes) {
+
+        // checking if current reduxPeerNode is available in local state
+        const node = prevPeerTrackNodes.find(prevPeerTrackNode => prevPeerTrackNode.id === reduxPeerNode.id);
+
+        // save it to list if not available
+        if(!node) {
+          newPeerTrackNodes = [...newPeerTrackNodes, reduxPeerNode];
+        }
+        // if local state node does not has track but reduxPeerNode do have it
+        // add track from reduxPeerNode to local state node
+        else if (!node.track && reduxPeerNode.track) {
+          newPeerTrackNodes = newPeerTrackNodes.map(peerTrackNode => {
+            if (peerTrackNode.id === reduxPeerNode.id) {
+              return { ...peerTrackNode, track: reduxPeerNode.track }
+            }
+
+            return peerTrackNode;
+          })
+        }
+      }
+
+      peerTrackNodesRef.current = newPeerTrackNodes;
+      return newPeerTrackNodes;
+    });
+  }, [peerState]);
 
   // listeners
   const onErrorListener = (error: HMSException) => {
@@ -284,14 +311,22 @@ const DisplayView = (data: {
 
     if (type === HMSRoomUpdate.BROWSER_RECORDING_STATE_UPDATED) {
       let streaming = room?.browserRecordingState?.running;
-      let hours = room?.browserRecordingState?.startedAt.getHours().toString();
-      let minutes = room?.browserRecordingState?.startedAt
-        .getMinutes()
-        ?.toString();
-      let time = hours + ':' + minutes;
+      const startAtDate = room?.browserRecordingState?.startedAt;
+
+      let startTime: null | string = null;
+
+      if (startAtDate) {
+        let hours = startAtDate.getHours().toString();
+        let minutes = startAtDate.getMinutes()?.toString();
+        startTime = hours + ':' + minutes;
+      }
 
       Toast.showWithGravity(
-        `Browser Recording ${streaming ? 'Started At ' + time : 'Stopped'}`,
+        `Browser Recording ${
+          streaming
+            ? `Started ${startTime ? 'At ' + startTime : ''}`
+            : 'Stopped'
+        }`,
         Toast.LONG,
         Toast.TOP,
       );
@@ -305,29 +340,43 @@ const DisplayView = (data: {
       );
     } else if (type === HMSRoomUpdate.RTMP_STREAMING_STATE_UPDATED) {
       let streaming = room?.rtmpHMSRtmpStreamingState?.running;
-      let hours = room?.rtmpHMSRtmpStreamingState?.startedAt
-        .getHours()
-        .toString();
-      let minutes = room?.rtmpHMSRtmpStreamingState?.startedAt
-        .getMinutes()
-        ?.toString();
-      let time = hours + ':' + minutes;
+      const startAtDate = room?.rtmpHMSRtmpStreamingState?.startedAt;
+
+      let startTime: null | string = null;
+
+      if (startAtDate) {
+        let hours = startAtDate.getHours().toString();
+        let minutes = startAtDate.getMinutes()?.toString();
+        startTime = hours + ':' + minutes;
+      }
 
       Toast.showWithGravity(
-        `RTMP Streaming ${streaming ? 'Started At ' + time : 'Stopped'}`,
+        `RTMP Streaming ${
+          streaming
+            ? `Started ${startTime ? 'At ' + startTime : ''}`
+            : 'Stopped'
+        }`,
         Toast.LONG,
         Toast.TOP,
       );
     } else if (type === HMSRoomUpdate.SERVER_RECORDING_STATE_UPDATED) {
       let streaming = room?.serverRecordingState?.running;
-      let hours = room?.serverRecordingState?.startedAt.getHours().toString();
-      let minutes = room?.serverRecordingState?.startedAt
-        .getMinutes()
-        ?.toString();
-      let time = hours + ':' + minutes;
+      const startAtDate = room?.serverRecordingState?.startedAt;
+
+      let startTime: null | string = null;
+
+      if (startAtDate) {
+        let hours = startAtDate.getHours().toString();
+        let minutes = startAtDate.getMinutes()?.toString();
+        startTime = hours + ':' + minutes;
+      }
 
       Toast.showWithGravity(
-        `Server Recording ${streaming ? 'Started At ' + time : 'Stopped'}`,
+        `Server Recording ${
+          streaming
+            ? `Started ${startTime ? 'At ' + startTime : ''}`
+            : 'Stopped'
+        }`,
         Toast.LONG,
         Toast.TOP,
       );
@@ -353,15 +402,7 @@ const DisplayView = (data: {
         peerTrackNodesRef?.current,
         peer.peerID,
       );
-      if (nodesPresent.length === 0) {
-        const newPeerTrackNode = createPeerTrackNode(peer);
-        const newPeerTrackNodes = [
-          newPeerTrackNode,
-          ...peerTrackNodesRef.current,
-        ];
-        peerTrackNodesRef.current = newPeerTrackNodes;
-        setPeerTrackNodes(newPeerTrackNodes);
-      } else {
+      if (nodesPresent.length) {
         changePeerNodes(nodesPresent, peer);
       }
       hmsInstance?.getLocalPeer().then(localPeer => {
@@ -462,40 +503,21 @@ const DisplayView = (data: {
         (peer.audioTrack?.trackId === undefined &&
           peer.videoTrack?.trackId === undefined)
       ) {
-        if (peer.isLocal) {
-          const localPeerTrackNodes = getPeerTrackNodes(
-            peerTrackNodesRef.current,
-            peer,
-            track,
-          );
-
-          // removing `track` from original `localPeerTrackNodes` object
-          localPeerTrackNodes.forEach(localPeerTrackNode => {
-            localPeerTrackNode.track = undefined;
-          });
-
-          // hack: creating new array from existing to rerender views
-          const newPeerTrackNodes = [...peerTrackNodesRef.current];
-
-          peerTrackNodesRef.current = newPeerTrackNodes;
-          setPeerTrackNodes(newPeerTrackNodes);
-        } else {
-          const uniqueId =
-            peer.peerID +
-            (track.source === undefined
-              ? HMSTrackSource.REGULAR
-              : track.source);
-          const newPeerTrackNodes = peerTrackNodesRef.current?.filter(
-            peerTrackNode => {
-              if (peerTrackNode.id === uniqueId) {
-                return false;
-              }
-              return true;
-            },
-          );
-          peerTrackNodesRef.current = newPeerTrackNodes;
-          setPeerTrackNodes(newPeerTrackNodes);
-        }
+        const uniqueId =
+          peer.peerID +
+          (track.source === undefined
+            ? HMSTrackSource.REGULAR
+            : track.source);
+        const newPeerTrackNodes = peerTrackNodesRef.current?.filter(
+          peerTrackNode => {
+            if (peerTrackNode.id === uniqueId) {
+              return false;
+            }
+            return true;
+          },
+        );
+        peerTrackNodesRef.current = newPeerTrackNodes;
+        setPeerTrackNodes(newPeerTrackNodes);
       }
       return;
     }
@@ -628,6 +650,23 @@ const DisplayView = (data: {
     hms?.addEventListener(HMSPIPListenerActions.ON_PIP_ROOM_LEAVE, destroy);
   };
 
+  const removeHmsInstanceListeners = (hms?: HMSSDK) => {
+    hms?.removeEventListener(HMSUpdateListenerActions.ON_ROOM_UPDATE);
+    hms?.removeEventListener(HMSUpdateListenerActions.ON_PEER_UPDATE);
+    hms?.removeEventListener(HMSUpdateListenerActions.ON_TRACK_UPDATE);
+    hms?.removeEventListener(HMSUpdateListenerActions.ON_ERROR);
+    hms?.removeEventListener(HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM);
+    hms?.removeEventListener(HMSUpdateListenerActions.ON_MESSAGE);
+    // hms?.removeEventListener(HMSUpdateListenerActions.ON_SPEAKER);
+    // hms?.removeEventListener(HMSUpdateListenerActions.RECONNECTING);
+    // hms?.removeEventListener(HMSUpdateListenerActions.RECONNECTED);
+    hms?.removeEventListener(HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST);
+    hms?.removeEventListener(
+      HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST,
+    );
+    hms?.removeEventListener(HMSPIPListenerActions.ON_PIP_ROOM_LEAVE);
+  };
+
   const changePeerTrackNodes = (
     nodesPresent: PeerTrackNode[],
     peer: HMSPeer,
@@ -685,6 +724,7 @@ const DisplayView = (data: {
       ?.leave()
       .then(async d => {
         console.log('Leave Success: ', d);
+        removeHmsInstanceListeners(hmsInstance);
         destroy();
       })
       .catch(e => console.log('Leave Error: ', e));
@@ -705,6 +745,11 @@ const DisplayView = (data: {
     data?.setModalVisible(ModalTypes.CHANGE_NAME);
   };
 
+  const handlePeerTileMorePress = (peerTrackNode: PeerTrackNode) => {
+    setSelectedPeerTrackNode(peerTrackNode);
+    data?.setModalVisible(ModalTypes.PEER_SETTINGS);
+  };
+
   const onChangeRolePress = (peer: HMSPeer) => {
     setUpdatePeer(peer);
     data?.setModalVisible(ModalTypes.CHANGE_ROLE);
@@ -713,6 +758,11 @@ const DisplayView = (data: {
   const onSetVolumePress = (peer: HMSPeer) => {
     setUpdatePeer(peer);
     data?.setModalVisible(ModalTypes.VOLUME);
+  };
+
+  const handleCaptureScreenShotPress = (node: PeerTrackNode) => {
+    gridViewRef.current?.captureViewScreenshot(node);
+    data?.setModalVisible(ModalTypes.DEFAULT);
   };
 
   const getHmsRoles = () => {
@@ -763,7 +813,12 @@ const DisplayView = (data: {
           {isPipModeActive ? (
             <PIPView pairedPeers={pairedPeers} />
           ) : (
-            <GridView pairedPeers={pairedPeers} orientation={orientation} />
+            <GridView
+              ref={gridViewRef}
+              onPeerTileMorePress={handlePeerTileMorePress}
+              pairedPeers={pairedPeers}
+              orientation={orientation}
+            />
           )}
         </>
       ) : layout === LayoutParams.HLS ? (
@@ -782,6 +837,26 @@ const DisplayView = (data: {
 
       {isPipModeActive ? null : (
         <>
+          <DefaultModal
+            animationType="fade"
+            overlay={false}
+            modalPosiion="center"
+            viewStyle={{minWidth: '70%', width: undefined}}
+            modalVisible={data?.modalVisible === ModalTypes.PEER_SETTINGS}
+            setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}
+          >
+            {selectedPeerTrackNode && data?.localPeer ? (
+              <PeerSettingsModalContent
+                localPeer={data.localPeer}
+                peerTrackNode={selectedPeerTrackNode}
+                cancelModal={() => data?.setModalVisible(ModalTypes.DEFAULT)}
+                onChangeNamePress={onChangeNamePress}
+                onChangeRolePress={onChangeRolePress}
+                onSetVolumePress={onSetVolumePress}
+                onCaptureScreenShotPress={handleCaptureScreenShotPress}
+              />
+            ) : null}
+          </DefaultModal>
           <DefaultModal
             animationType="fade"
             overlay={false}
@@ -1002,9 +1077,11 @@ const Header = ({
               <View style={styles.liveStatus} />
               <Text style={styles.liveTimeText}>Live</Text>
             </View>
-            <RealTime
-              startedAt={room?.hlsStreamingState?.variants[0]?.startedAt}
-            />
+            {Array.isArray(room?.hlsStreamingState?.variants) ? (
+              <RealTime
+                startedAt={room?.hlsStreamingState?.variants[0]?.startedAt}
+              />
+            ) : null}
           </View>
         ) : (
           <Text style={styles.headerName}>{roomCode}</Text>
