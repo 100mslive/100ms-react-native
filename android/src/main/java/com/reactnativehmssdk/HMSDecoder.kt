@@ -9,6 +9,7 @@ import live.hms.video.media.settings.HMSVideoResolution
 import live.hms.video.media.settings.HMSVideoTrackSettings
 import live.hms.video.media.tracks.*
 import live.hms.video.sdk.models.*
+import live.hms.video.sdk.models.enums.HMSPeerUpdate
 import live.hms.video.sdk.models.role.*
 import live.hms.video.sdk.models.trackchangerequest.HMSChangeTrackStateRequest
 
@@ -68,6 +69,26 @@ object HMSDecoder {
       room.putInt("peerCount", hmsRoom.peerCount)
     }
     return room
+  }
+
+  fun getRestrictedHmsPeer(hmsPeer: HMSPeer?, type: HMSPeerUpdate?): WritableMap {
+    val peer: WritableMap = Arguments.createMap()
+    if (hmsPeer != null) {
+      peer.putString("peerID", hmsPeer.peerID)
+
+      when(type) {
+        HMSPeerUpdate.NAME_CHANGED -> {
+          peer.putString("name", hmsPeer.name)
+        }
+        HMSPeerUpdate.METADATA_CHANGED -> {
+          peer.putString("metadata", hmsPeer.metadata)
+        }
+        HMSPeerUpdate.ROLE_CHANGED -> {
+          peer.putMap("role", this.getHmsRole(hmsPeer.hmsRole))
+        }
+      }
+    }
+    return peer
   }
 
   fun getHmsPeer(hmsPeer: HMSPeer?): WritableMap {

@@ -1894,7 +1894,7 @@ export class HMSSDK {
     if (data.id !== this.id) {
       return;
     }
-    const peer: HMSPeer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
+    const peer: HMSPeer = HMSEncoder.encodeHmsPeer(data.peer, this.id, data.type);
     const type = data.type;
 
     if (this.onPeerDelegate) {
@@ -1911,7 +1911,7 @@ export class HMSSDK {
       return;
     }
     const track: HMSTrack = HMSEncoder.encodeHmsTrack(data.track, this.id);
-    const peer: HMSPeer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
+    const peer: HMSPeer = HMSEncoder.encodeHmsPeer(data.peer, this.id, data.type, data.track);
     const type = data.type;
 
     if (

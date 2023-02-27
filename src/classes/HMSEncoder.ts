@@ -30,18 +30,26 @@ import { HMSServerRecordingState } from './HMSServerRecordingState';
 import { HMSMessage } from './HMSMessage';
 import { HMSMessageRecipient } from './HMSMessageRecipient';
 import { HMSException } from './HMSException';
+import { HMSPeerUpdate } from './HMSPeerUpdate';
+import { HMSTrackUpdate } from './HMSTrackUpdate';
+import { HMSTrackSource } from './HMSTrackSource';
+import { HMSTrackType } from './HMSTrackType';
+import { logger } from './HMSLogger';
 
 const { HMSManager } = NativeModules;
 
+type PartialHMSPeer = { peerID: string; } & { [P in keyof HMSPeer]?: HMSPeer[P] | undefined; }
+
 interface InitialData {
   roles: Record<string, HMSRole>;
+  peers: Record<string, HMSPeer | null | undefined>;
 }
 
 export class HMSEncoder {
-  private static data: InitialData = { roles: {} };
+  private static data: InitialData = { roles: {}, peers: {} };
 
   static clearData() {
-    this.data = { roles: {} };
+    this.data = { roles: {}, peers: {} };
   }
 
   static encodeHmsRoom(room: HMSRoom, id: string) {
@@ -67,6 +75,7 @@ export class HMSEncoder {
       hlsRecordingState: HMSEncoder.encodeHLSRecordingState(
         room?.hlsRecordingState
       ),
+      // We should get whole object here
       localPeer: HMSEncoder.encodeHmsLocalPeer(room?.localPeer, id),
     };
 
@@ -82,7 +91,22 @@ export class HMSEncoder {
     return encodedPeers;
   }
 
-  static encodeHmsPeer(peer: any, id: string) {
+  static encodeHmsPeer(peer: any, id: string, updateType?: HMSPeerUpdate | HMSTrackUpdate, track?: any): HMSPeer {
+    const peersCache = this.data.peers;
+
+    const prevCachedPeer = peersCache[peer?.peerID];
+
+    if (prevCachedPeer) {
+      const updatedCachedPeer = HMSEncoder.updatePeerCache(peer, id, updateType, track);
+
+      if (updatedCachedPeer) {
+        logger?.verbose('#Function encodeHmsPeer returning updated cached peer', updatedCachedPeer);
+        return updatedCachedPeer;
+      }
+      logger?.verbose('#Function encodeHmsPeer returning previous cached peer', prevCachedPeer);
+      return prevCachedPeer;
+    }
+
     const encodedObj = {
       peerID: peer?.peerID,
       name: peer?.name || '',
@@ -91,9 +115,7 @@ export class HMSEncoder {
       customerDescription: peer?.customerDescription || undefined,
       metadata: peer?.metadata,
       role: HMSEncoder.encodeHmsRole(peer?.role),
-      networkQuality: peer?.networkQuality
-        ? HMSEncoder.encodeHMSNetworkQuality(peer?.networkQuality)
-        : undefined,
+      networkQuality: HMSEncoder.encodeHMSNetworkQuality(peer?.networkQuality || { downlinkQuality: -1 }),
       audioTrack: peer?.audioTrack
         ? HMSEncoder.encodeHmsAudioTrack(peer?.audioTrack, id)
         : undefined,
@@ -105,7 +127,153 @@ export class HMSEncoder {
         : undefined,
     };
 
-    return new HMSPeer(encodedObj);
+    const peerObj = new HMSPeer(encodedObj);
+
+    // If created peer object (`peerObj`) has valid `peerID`
+    // Cache the peer object and inform native side about restricting peer data for the peer with `peerID`
+    if (peerObj.peerID) {
+
+      // caching the peer object
+      peersCache[peerObj.peerID] = peerObj;
+
+      // restricting peer data with peer id `peerID` from native side
+      HMSManager.restrictPeerData({ id: "12345", peerID: peerObj.peerID });
+    }
+
+    logger?.verbose('#Function encodeHmsPeer returned peer: ', peerObj);
+
+    return peerObj;
+  }
+
+  /**
+   * It returns updated cached peer object
+   *
+   * cached peer can be complete `HMSPeer` object or `null`
+   *
+   * `null` is returned when cached `peer` is not available or `peer` has been removed
+   */
+  private static updatePeerCache(peer: PartialHMSPeer, id: string, updateType?: HMSPeerUpdate | HMSTrackUpdate, track?: any): HMSPeer | null | undefined {
+    const peersCache = this.data.peers;
+
+    // cached `peer` object
+    const oldCachedPeer = peersCache[peer.peerID];
+
+    if (!oldCachedPeer) return oldCachedPeer;
+
+    // Remove cached `peer` object on `PEER_LEFT` event
+    if (updateType === HMSPeerUpdate.PEER_LEFT) {
+      // No updates required when peer leaves
+      // DOUBT: should we remove cache?
+      peersCache[peer.peerID] = null;
+      // TODO: remove peer data from native object as well
+    }
+    // Update cached `peer` object with new `role` on `ROLE_CHANGED` event
+    else if (updateType === HMSPeerUpdate.ROLE_CHANGED) {
+      peersCache[peer.peerID] = {
+        ...oldCachedPeer,
+        role: HMSEncoder.encodeHmsRole(peer.role)
+      };
+    }
+    // Update cached `peer` object with new `metadata` on `METADATA_CHANGED` event
+    else if (updateType === HMSPeerUpdate.METADATA_CHANGED) {
+      peersCache[peer.peerID] = {
+        ...oldCachedPeer,
+        metadata: peer.metadata
+      };
+    }
+    // Update cached `peer` object with new `name` on `NAME_CHANGED` event
+    else if (updateType === HMSPeerUpdate.NAME_CHANGED) {
+      peersCache[peer.peerID] = {
+        ...oldCachedPeer,
+        name: peer.name || ''
+      };
+    }
+    // Update cached `peer` object with new `networkQuality` on `NETWORK_QUALITY_UPDATED` event
+    else if (updateType === HMSPeerUpdate.NETWORK_QUALITY_UPDATED) {
+      peersCache[peer.peerID] = {
+        ...oldCachedPeer,
+        networkQuality: peer.networkQuality
+      };
+    }
+    // Update cached `peer` object with new/updated `track` on `TRACK_ADDED`, `TRACK_UNMUTED` or `TRACK_MUTED` event
+    // Assumption: TRACK_ADDED will be the first event that is events like TRACK_UNMUTED or TRACK_DEGRADED will not come before TRACK_ADDED event
+    // DOUBT: what should be the degraded status of unmuted track when degraded track was muted?
+    else if (track && (updateType === HMSTrackUpdate.TRACK_ADDED || updateType === HMSTrackUpdate.TRACK_UNMUTED || updateType === HMSTrackUpdate.TRACK_MUTED)) {
+      peersCache[peer.peerID] = {
+        ...oldCachedPeer,
+        audioTrack: track.source === HMSTrackSource.REGULAR && track.type === HMSTrackType.AUDIO
+          ? HMSEncoder.encodeHmsAudioTrack(track, id)
+          : oldCachedPeer.audioTrack,
+        videoTrack: track.source === HMSTrackSource.REGULAR && track.type === HMSTrackType.VIDEO
+          ? HMSEncoder.encodeHmsVideoTrack(track, id)
+          : oldCachedPeer.videoTrack,
+        auxiliaryTracks: track.source === HMSTrackSource.REGULAR
+          ? oldCachedPeer.auxiliaryTracks
+          : Array.isArray(oldCachedPeer.auxiliaryTracks)
+            ? oldCachedPeer.auxiliaryTracks.findIndex(auxiliaryTrack => auxiliaryTrack.trackId === track.trackId) >= 0
+              ? oldCachedPeer.auxiliaryTracks.map(auxiliaryTrack => auxiliaryTrack.trackId === track.trackId ? track : auxiliaryTrack)
+              : [...oldCachedPeer.auxiliaryTracks, HMSEncoder.encodeHmsTrack(track, id)]
+            : [HMSEncoder.encodeHmsTrack(track, id)],
+      };
+    }
+    // Update cached `peer` object with updated `isDegraded` status on `TRACK_DEGRADED` or `TRACK_RESTORED` event
+    // Assumption: TRACK_DEGRADED will always come after TRACK_ADDED event
+    // DOUBT: should we use cached degraded status in other event handlings, if we don't then default value might override correct status
+    else if (track && (updateType === HMSTrackUpdate.TRACK_DEGRADED || updateType === HMSTrackUpdate.TRACK_RESTORED)) {
+      peersCache[peer.peerID] = {
+        ...oldCachedPeer,
+        audioTrack: track.source === HMSTrackSource.REGULAR && track.type === HMSTrackType.AUDIO
+          ? HMSEncoder.encodeHmsAudioTrack(track, id)
+          : oldCachedPeer.audioTrack,
+        videoTrack: track.source === HMSTrackSource.REGULAR && track.type === HMSTrackType.VIDEO
+          ? HMSEncoder.encodeHmsVideoTrack({...track, isDegraded: updateType === HMSTrackUpdate.TRACK_DEGRADED}, id)
+          : oldCachedPeer.videoTrack,
+        auxiliaryTracks: track.source === HMSTrackSource.REGULAR
+          ? oldCachedPeer.auxiliaryTracks
+          : Array.isArray(oldCachedPeer.auxiliaryTracks)
+            ? oldCachedPeer.auxiliaryTracks.map(auxiliaryTrack => auxiliaryTrack.trackId === track.trackId ? {...track, isDegraded: updateType === HMSTrackUpdate.TRACK_DEGRADED} : auxiliaryTrack) // Based on our assumptions, track will always be there
+            : [HMSEncoder.encodeHmsTrack({...track, isDegraded: updateType === HMSTrackUpdate.TRACK_DEGRADED}, id)],
+      };
+    }
+    // Update cached `peer` object by removing `track` on `TRACK_REMOVED` event
+    // Assumption: TRACK_REMOVED will always come after other events
+    else if (track && updateType === HMSTrackUpdate.TRACK_REMOVED) {
+      peersCache[peer.peerID] = {
+        ...oldCachedPeer,
+        audioTrack: track.source === HMSTrackSource.REGULAR && track.type === HMSTrackType.AUDIO
+          ? undefined
+          : oldCachedPeer.audioTrack,
+        videoTrack: track.source === HMSTrackSource.REGULAR && track.type === HMSTrackType.VIDEO
+          ? undefined
+          : oldCachedPeer.videoTrack,
+        auxiliaryTracks: track.source === HMSTrackSource.REGULAR
+          ? oldCachedPeer.auxiliaryTracks
+          : Array.isArray(oldCachedPeer.auxiliaryTracks)
+            ? oldCachedPeer.auxiliaryTracks.filter(auxiliaryTrack => auxiliaryTrack.trackId !== track.trackId)
+            : oldCachedPeer.auxiliaryTracks,
+      };
+    }
+    // Update cached `peer` object with for any other event
+    else {
+      peersCache[peer.peerID] = {
+        ...oldCachedPeer,
+        ...peer,
+        role: peer.role
+          ? HMSEncoder.encodeHmsRole(peer.role)
+          : oldCachedPeer.role,
+        audioTrack: peer.audioTrack
+          ? HMSEncoder.encodeHmsAudioTrack(peer.audioTrack, id)
+          : oldCachedPeer.audioTrack,
+        videoTrack: peer.videoTrack
+          ? HMSEncoder.encodeHmsVideoTrack(peer.videoTrack, id)
+          : oldCachedPeer.videoTrack,
+        auxiliaryTracks: peer.auxiliaryTracks
+          ? HMSEncoder.encodeHmsAuxiliaryTracks(peer.auxiliaryTracks, id)
+          : oldCachedPeer.auxiliaryTracks,
+      }
+    }
+
+    return peersCache[peer.peerID];
   }
 
   static encodeHmsAudioTrack(track: any, id: string) {
@@ -128,7 +296,7 @@ export class HMSEncoder {
       source: track?.source,
       trackDescription: track?.trackDescription,
       isMute: track?.isMute,
-      isDegraded: track?.isDegraded,
+      isDegraded: track?.isDegraded || false,
       type: track?.type,
     };
 
@@ -157,26 +325,11 @@ export class HMSEncoder {
   }
 
   static encodeHmsLocalPeer(peer: any, id: string) {
-    const encodedObj = {
-      peerID: peer?.peerID,
-      name: peer?.name,
-      isLocal: true,
-      customerUserID: peer?.customerUserID,
-      customerDescription: peer?.customerDescription || undefined,
-      metadata: peer?.metadata || undefined,
-      role: HMSEncoder.encodeHmsRole(peer?.role),
-      networkQuality: peer?.networkQuality
-        ? HMSEncoder.encodeHMSNetworkQuality(peer?.networkQuality)
-        : undefined,
-      audioTrack: peer?.audioTrack
-        ? HMSEncoder.encodeHmsAudioTrack(peer?.audioTrack, id)
-        : undefined,
-      videoTrack: peer?.videoTrack
-        ? HMSEncoder.encodeHmsVideoTrack(peer?.videoTrack, id)
-        : undefined,
-      auxiliaryTracks: Array.isArray(peer?.auxiliaryTracks)
-        ? HMSEncoder.encodeHmsAuxiliaryTracks(peer?.auxiliaryTracks, id)
-        : undefined,
+    // We should get whole peer object here
+    const peerObj = HMSEncoder.encodeHmsPeer(peer, id);
+
+    const localPeerObj = {
+      ...peerObj,
       localAudioTrackData: peer?.localAudioTrackData?.trackId
         ? {
             id: id,
@@ -209,7 +362,7 @@ export class HMSEncoder {
         : undefined,
     };
 
-    return new HMSLocalPeer(encodedObj);
+    return new HMSLocalPeer(localPeerObj);
   }
 
   static encodeHmsAudioTrackSettings(settings: any) {
@@ -287,26 +440,11 @@ export class HMSEncoder {
   }
 
   static encodeHmsRemotePeer(peer: any, id: string) {
-    const encodedObj = {
-      peerID: peer?.peerID,
-      name: peer?.name,
-      isLocal: false,
-      customerUserID: peer?.customerUserID,
-      customerDescription: peer.customerDescription,
-      metadata: peer.metadata,
-      role: HMSEncoder.encodeHmsRole(peer?.role),
-      networkQuality: peer?.networkQuality
-        ? HMSEncoder.encodeHMSNetworkQuality(peer?.networkQuality)
-        : undefined,
-      audioTrack: peer?.audioTrack
-        ? HMSEncoder.encodeHmsAudioTrack(peer?.audioTrack, id)
-        : undefined,
-      videoTrack: peer?.videoTrack
-        ? HMSEncoder.encodeHmsVideoTrack(peer.videoTrack, id)
-        : undefined,
-      auxiliaryTracks: Array.isArray(peer?.auxiliaryTracks)
-        ? HMSEncoder.encodeHmsAuxiliaryTracks(peer?.auxiliaryTracks, id)
-        : undefined,
+    // We should get whole remote peer object here
+    const peerObj = HMSEncoder.encodeHmsPeer(peer, id);
+
+    const remotePeerObj = {
+      ...peerObj,
       remoteAudioTrackData: peer?.remoteAudioTrackData?.trackId
         ? {
             id: id,
@@ -330,7 +468,7 @@ export class HMSEncoder {
         : undefined,
     };
 
-    return new HMSRemotePeer(encodedObj);
+    return new HMSRemotePeer(remotePeerObj);
   }
 
   static encodeHmsRemoteAudioTrack(track: any, id: string) {

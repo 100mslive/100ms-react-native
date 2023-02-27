@@ -468,6 +468,13 @@ class HMSManager(reactContext: ReactApplicationContext) :
     hms?.restrictData(data, promise)
   }
 
+  @ReactMethod()
+  fun restrictPeerData(data: ReadableMap, promise: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.restrictPeerData(data, promise)
+  }
+
   // region Person-In-Person Mode Action handing
   private val pipReceiver by lazy {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
