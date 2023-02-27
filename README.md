@@ -41,9 +41,9 @@ Troubleshooting Guide for resolving issues in running the Example app is [availa
 
 ## ☝️ Minimum Configuration
 
-- Support for React Native 0.63.4 or above
+- Support for React Native 0.64.4 or above
 - Support for Java 8 or above
-- Support for Android API level 21 or above
+- Support for Android API level 24 or above
 - Xcode 13 or above
 - Support for iOS 12 or above
 
