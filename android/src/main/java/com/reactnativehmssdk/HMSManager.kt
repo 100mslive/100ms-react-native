@@ -52,6 +52,10 @@ class HMSManager(reactContext: ReactApplicationContext) :
 
       callback?.resolve(randomUUIDString)
     }
+
+    // setup HMSEventDelayer class
+    // which function should `HMSEventDelayer` class call to emit event
+    HMSEventDelayer.setEmitterFunction { event, data -> this.emit(event, data) }
   }
 
   @ReactMethod
@@ -863,10 +867,14 @@ class HMSManager(reactContext: ReactApplicationContext) :
     }
   }
 
-  fun emitEvent(event: String, data: WritableMap) {
+  private fun emit(event: String, data: WritableMap) {
     reactApplicationContext
       .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
       .emit(event, data)
+  }
+
+  fun emitEvent(event: String, data: WritableMap) {
+    HMSEventDelayer.emitWithDelay(event, data)
   }
 
   override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
