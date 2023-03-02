@@ -1,18 +1,11 @@
 import React, {ElementRef, useRef, useState, useImperativeHandle} from 'react';
-import {View, FlatList, Dimensions, Text, TouchableOpacity} from 'react-native';
-import {HMSPeer, HMSTrackSource} from '@100mslive/react-native-hms';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import Feather from 'react-native-vector-icons/Feather';
-import type {HMSView} from '@100mslive/react-native-hms';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import {View, FlatList} from 'react-native';
+import type {HMSView, HMSPeer} from '@100mslive/react-native-hms';
 
-import {getDisplayTrackDimensions, parseMetadata} from '../../utils/functions';
-import {styles} from './styles';
-import {DisplayTrack} from './DisplayTrack';
-import type {PeerTrackNode} from '../../utils/types';
 import {DefaultModal} from '../../components';
 import {SaveScreenshot} from './Modals';
-import {COLORS} from '../../utils/theme';
+import {TilesContainer} from './TilesContainer';
+import type {PeerTrackNode} from '../../utils/types';
 
 type GridViewProps = {
   onPeerTileMorePress(peerTrackNode: PeerTrackNode): void;
@@ -32,9 +25,6 @@ const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
       source: {uri: string};
     } | null>(null);
     const hmsViewRefs = useRef<Record<string, ElementRef<typeof HMSView>>>({});
-    const {left, right, top, bottom} = useSafeAreaInsets();
-
-    // useRef hook
     const flatlistRef = useRef<FlatList>(null);
 
     // We are setting `captureViewScreenshot` method on ref passed to GridView component
@@ -71,6 +61,26 @@ const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
       [],
     );
 
+    const setHmsViewRefs = React.useCallback(
+      (viewId: string, ref: typeof HMSView | null) => {
+        hmsViewRefs.current[viewId] = ref;
+      },
+      [],
+    );
+
+    const _renderItem = React.useCallback(({item}) => {
+      return (
+        <TilesContainer
+          onPeerTileMorePress={onPeerTileMorePress}
+          orientation={orientation}
+          peerTrackNodes={item}
+          setHmsViewRefs={setHmsViewRefs}
+        />
+      );
+    }, [onPeerTileMorePress, orientation, setHmsViewRefs]);
+
+    const _keyExtractor = React.useCallback(item => item[0]?.id, []);
+
     return (
       <View>
         <FlatList
@@ -82,96 +92,9 @@ const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
           windowSize={2}
           pagingEnabled
           showsHorizontalScrollIndicator={false}
-          renderItem={(data: {item: Array<PeerTrackNode>; index: number}) => {
-            const {item, index} = data;
-            return (
-              <View
-                key={index}
-                style={[
-                  styles.page,
-                  {width: Dimensions.get('window').width - left - right},
-                ]}
-              >
-                {item?.map(view => {
-                  const parsedMetadata = parseMetadata(view?.peer?.metadata);
-                  return (
-                    <View
-                      style={[
-                        view?.track?.source !== undefined &&
-                        view?.track?.source !== HMSTrackSource.REGULAR
-                          ? styles.gridTile
-                          : {
-                              ...getDisplayTrackDimensions(
-                                item.length,
-                                top,
-                                bottom,
-                                orientation,
-                              ),
-                            },
-                      ]}
-                      key={view.id}
-                    >
-                      <DisplayTrack
-                        // saving HmsView ref in collection with uniqueId as key
-                        ref={ref => (hmsViewRefs.current[view.id] = ref)}
-                        isLocal={view?.peer?.isLocal}
-                        peerName={view?.peer?.name}
-                        videoTrack={view?.track}
-                        videoStyles={styles.generalTile}
-                        isDegraded={view?.isDegraded}
-                      />
-
-                      {/* More Options button for Peer */}
-                      <View style={styles.morePeerOptionsContainer}>
-                        <TouchableOpacity
-                          onPress={() => onPeerTileMorePress(view)}
-                          style={{
-                            padding: 8,
-                            backgroundColor: COLORS.SECONDARY.DISABLED,
-                            borderRadius: 18,
-                          }}
-                        >
-                          <Feather
-                            name="more-horizontal"
-                            style={styles.mic}
-                            size={20}
-                          />
-                        </TouchableOpacity>
-                      </View>
-
-                      {view?.peer?.audioTrack?.isMute() && (
-                        <View style={styles.micContainer}>
-                          <Feather
-                            name="mic-off"
-                            style={styles.mic}
-                            size={20}
-                          />
-                        </View>
-                      )}
-                      {parsedMetadata?.isBRBOn ? (
-                        <View style={styles.status}>
-                          <View style={styles.brbOnContainer}>
-                            <Text style={styles.brbOn}>BRB</Text>
-                          </View>
-                        </View>
-                      ) : null}
-                      {parsedMetadata?.isHandRaised ? (
-                        <View style={styles.status}>
-                          <Ionicons
-                            name="hand-left"
-                            style={{color: COLORS.TWIN.YELLOW}}
-                            size={20}
-                          />
-                        </View>
-                      ) : null}
-                    </View>
-                  );
-                })}
-              </View>
-            );
-          }}
+          renderItem={_renderItem}
           numColumns={1}
-          keyExtractor={item => item[0]?.id}
+          keyExtractor={_keyExtractor}
         />
 
         {/* Save Captured Screenshot of HMSView Modal */}
