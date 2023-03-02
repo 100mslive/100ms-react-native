@@ -77,12 +77,9 @@ const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
           ref={flatlistRef}
           horizontal
           data={pairedPeers}
-          initialNumToRender={2}
-          maxToRenderPerBatch={3}
-          //   onScroll={({nativeEvent}) => {
-          //     const {contentOffset, layoutMeasurement} = nativeEvent;
-          //     setPage(contentOffset.x / layoutMeasurement.width);
-          //   }}
+          initialNumToRender={1}
+          maxToRenderPerBatch={1}
+          windowSize={2}
           pagingEnabled
           showsHorizontalScrollIndicator={false}
           renderItem={(data: {item: Array<PeerTrackNode>; index: number}) => {
