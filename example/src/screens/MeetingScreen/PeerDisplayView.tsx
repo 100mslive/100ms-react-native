@@ -20,7 +20,7 @@ export interface PeerDisplayViewProps {
   videoTrack?: HMSVideoTrack;
 }
 
-const PeerDisplayView = React.forwardRef<typeof HMSView, PeerDisplayViewProps>(
+const PeerDisplayViewUnmemoized = React.forwardRef<typeof HMSView, PeerDisplayViewProps>(
   ({isDegraded, isLocal, peerName, videoTrack}, hmsViewRef) => {
     const HmsView = useSelector(
       (state: RootState) => state.user.hmsInstance?.HmsView || null,
@@ -76,6 +76,10 @@ const PeerDisplayView = React.forwardRef<typeof HMSView, PeerDisplayViewProps>(
     );
   },
 );
+
+PeerDisplayViewUnmemoized.displayName = 'PeerDisplayViewUnmemoized';
+
+const PeerDisplayView = React.memo(PeerDisplayViewUnmemoized);
 
 PeerDisplayView.displayName = 'PeerDisplayView';
 

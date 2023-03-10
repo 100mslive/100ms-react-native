@@ -745,10 +745,13 @@ const DisplayView = (data: {
     data?.setModalVisible(ModalTypes.CHANGE_NAME);
   };
 
-  const handlePeerTileMorePress = (peerTrackNode: PeerTrackNode) => {
+  const handlePeerTileMorePress = React.useCallback(
+    (peerTrackNode: PeerTrackNode) => {
     setSelectedPeerTrackNode(peerTrackNode);
     data?.setModalVisible(ModalTypes.PEER_SETTINGS);
-  };
+    },
+    [data?.setModalVisible]
+  );
 
   const onChangeRolePress = (peer: HMSPeer) => {
     setUpdatePeer(peer);
