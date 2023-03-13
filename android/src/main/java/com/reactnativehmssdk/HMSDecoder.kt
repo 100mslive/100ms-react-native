@@ -92,11 +92,12 @@ object HMSDecoder {
           HMSPeerUpdate.ROLE_CHANGED -> {
             peer.putMap("role", this.getHmsRole(hmsPeer.hmsRole))
           }
+          HMSPeerUpdate.NETWORK_QUALITY_UPDATED -> {
+            hmsPeer.networkQuality?.let {
+              peer.putMap("networkQuality", this.getHmsNetworkQuality(it))
+            }
+          }
         }
-      }
-
-      hmsPeer.networkQuality?.let {
-        peer.putMap("networkQuality", this.getHmsNetworkQuality(it))
       }
 
 //      hmsPeer.audioTrack?.let {
