@@ -43,7 +43,7 @@ class HmssdkDisplayView: UIView {
         hmsCollection = hmsInstance
     }
 
-    @objc var onDataReturned: RCTDirectEventBlock? = nil
+    @objc var onDataReturned: RCTDirectEventBlock?
 
     @objc var scaleType: String = "ASPECT_FILL" {
         didSet {
