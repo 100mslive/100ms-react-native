@@ -64,7 +64,15 @@ object HMSDecoder {
       }
 
       room.putMap("localPeer", this.getHmsLocalPeer(hmsRoom.localPeer))
-      room.putArray("peers", this.getAllPeers(hmsRoom.peerList))
+
+      if (onJoin) {
+        hmsRoom.localPeer?.let {
+          room.putArray("peers", this.getAllPeers(listOf<HMSPeer>(it)))
+        }
+      } else {
+        room.putArray("peers", this.getAllPeers(hmsRoom.peerList))
+      }
+
       room.putInt("peerCount", hmsRoom.peerCount)
     }
     return room
