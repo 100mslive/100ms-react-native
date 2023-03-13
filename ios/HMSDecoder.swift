@@ -12,7 +12,7 @@ class HMSDecoder: NSObject {
         restrictRoleData.removeAll()
     }
 
-    static func getHmsRoom (_ hmsRoom: HMSRoom?) -> [String: Any] {
+    static func getHmsRoom (_ hmsRoom: HMSRoom?, onJoin: Bool = false) -> [String: Any] {
 
         guard let room = hmsRoom else { return [String: Any]() }
 
@@ -29,12 +29,12 @@ class HMSDecoder: NSObject {
         let hlsRecordingState = HMSDecoder.getHlsRecordingState(hmsRoom?.hlsRecordingState)
         var localPeer = [String: Any]()
         var peers = [[String: Any]]()
-
+        
         for peer in room.peers {
-            let parsedPeer = getHmsPeer(peer)
-            peers.append(parsedPeer)
             if peer.isLocal {
+                let parsedPeer = getHmsPeer(peer)
                 localPeer = parsedPeer
+                peers.append(parsedPeer)
             }
         }
 
