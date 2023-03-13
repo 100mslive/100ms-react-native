@@ -35,6 +35,7 @@ import type { HMSLogSettings } from './HMSLogSettings';
 import { HMSMessageType } from './HMSMessageType';
 import { HMSPIPListenerActions } from './HMSPIPListenerActions';
 import { type HMSEventSubscription, HMSNativeEventEmitter } from './HMSNativeEventEmitter';
+import { getHmsPeersCache, HMSPeersCache, setHmsPeersCache } from './HMSCache';
 
 interface HmsViewProps {
   trackId: string;
@@ -137,6 +138,9 @@ export class HMSSDK {
       logSettings: params?.logSettings,
     });
     HmsSdk = new HMSSDK(id);
+
+    setHmsPeersCache(new HMSPeersCache(id));
+
     return HmsSdk;
   }
 
@@ -1897,6 +1901,8 @@ export class HMSSDK {
     const peer: HMSPeer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
     const type = data.type;
 
+    getHmsPeersCache()?.updatePeerCache(data.peer.peerID, data.peer, data.type);
+
     if (this.onPeerDelegate) {
       logger?.verbose('#Listener ON_PEER_LISTENER_CALL', {
         peer,
@@ -1913,6 +1919,8 @@ export class HMSSDK {
     const track: HMSTrack = HMSEncoder.encodeHmsTrack(data.track, this.id);
     const peer: HMSPeer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
     const type = data.type;
+
+    getHmsPeersCache()?.updatePeerCache(data.peer.peerID, { track }, data.type);
 
     if (
       this.muteStatus &&
