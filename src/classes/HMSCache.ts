@@ -45,7 +45,7 @@ export class HMSPeersCache {
   ): [HMSPeerCacheProps[T], boolean] {
     const peerObj = this._data.get(peerId);
 
-    if (peerObj && peerObj[property]) {
+    if (peerObj && property in peerObj) {
       return [peerObj[property], true];
     }
 
