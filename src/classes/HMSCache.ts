@@ -152,7 +152,7 @@ export class HMSPeersCache {
 
       if (track.source === HMSTrackSource.REGULAR) {
         if (track.type === HMSTrackType.VIDEO) {
-          updatedObj.videoTrack = { ...track, isDegraded: false };
+          updatedObj.videoTrack = { ...track, isDegraded: updatedObj.videoTrack?.isDegraded || false };
         } else if (track.type === HMSTrackType.AUDIO) {
           updatedObj.audioTrack = track;
         }
