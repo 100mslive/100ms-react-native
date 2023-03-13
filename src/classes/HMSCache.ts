@@ -19,6 +19,13 @@ export const setHmsPeersCache = (_hmsPeersCache: HMSPeersCache) => {
   hmsPeersCache = _hmsPeersCache;
 };
 
+export const clearHmsPeersCache = () => {
+  if (hmsPeersCache) {
+    hmsPeersCache.cleanup();
+  }
+  hmsPeersCache = undefined;
+};
+
 export type HMSPeerCacheProps = Partial<
   Pick<
     HMSPeer,
@@ -190,11 +197,15 @@ export class HMSPeersCache {
       }
     }
     else {
-      updatedObj = { ...peerObj, ...data };
+      updatedObj = { ...data };
     }
 
-    if (Object.values(updatedObj).length > 0) {
+    if (Object.keys(updatedObj).length > 0) {
       this._data.set(peerId, updatedObj);
     }
+  }
+
+  cleanup() {
+    this._data.clear();
   }
 }
