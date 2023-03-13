@@ -2,6 +2,8 @@ package com.reactnativehmssdk
 
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.os.Handler
+import android.os.Looper
 import com.facebook.react.bridge.*
 import com.facebook.react.bridge.UiThreadUtil.runOnUiThread
 import kotlinx.coroutines.launch
@@ -41,6 +43,7 @@ class HMSRNSDK(
   private var id: String = sdkId
   private var self = this
   private var eventsEnableStatus = mutableMapOf<String, Boolean>()
+  private var mockedPeer: HMSPeer? = null
 
   init {
     val builder = HMSSDK.Builder(reactApplicationContext)
@@ -321,6 +324,37 @@ class HMSRNSDK(
                 data.putString("type", updateType)
                 data.putString("id", id)
                 delegate.emitEvent("ON_PEER_UPDATE", data)
+
+                mockedPeer = peer
+
+                var index = 1
+
+                val loopHandler = Handler(Looper.getMainLooper())
+
+                loopHandler.postDelayed(
+                  object : Runnable {
+                    override fun run() {
+                      val data: WritableMap = Arguments.createMap()
+
+                      val peerMap: WritableMap = Arguments.createMap()
+                      peerMap.putString("peerID", peer.peerID + "-$index")
+                      peerMap.putString("name", peer.name + "-$index")
+                      peerMap.putBoolean("isLocal", peer.isLocal)
+
+                      data.putMap("peer", peerMap)
+                      data.putString("type", updateType)
+                      data.putString("id", id)
+
+                      delegate.emitEvent("ON_PEER_UPDATE", data)
+
+                      if (index < 1000) {
+                        index += 1
+                        loopHandler.postDelayed(this, 15)
+                      }
+                    }
+                  },
+                  15
+                )
               }
 
               override fun onRoomUpdate(type: HMSRoomUpdate, hmsRoom: HMSRoom) {
@@ -1604,7 +1638,9 @@ class HMSRNSDK(
     val peerId = data.getString("peerId")!!
     val property = data.getString("property")!!
 
-    val peer = HMSHelper.getPeerFromPeerId(peerId, nativeHmsSDK.getRoom())
+//    val peer = HMSHelper.getPeerFromPeerId(peerId, nativeHmsSDK.getRoom())
+
+    val peer = getPeerFromPeerId(peerId)
 
     if (peer != null) {
       return when(property) {
@@ -1619,6 +1655,10 @@ class HMSRNSDK(
     }
 
     return null
+  }
+
+  private fun getPeerFromPeerId(peerId: String): HMSPeer? {
+    return mockedPeer
   }
 
   fun enableEvent(data: ReadableMap, promise: Promise?) {
