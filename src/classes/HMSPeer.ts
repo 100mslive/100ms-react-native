@@ -3,7 +3,7 @@ import type { HMSNetworkQuality } from './HMSNetworkQuality';
 import type { HMSRole } from './HMSRole';
 import type { HMSTrack } from './HMSTrack';
 import type { HMSVideoTrack } from './HMSVideoTrack';
-import { getHmsPeersCache } from './HMSCache';
+import { getHmsPeersCache, getPeerPropertyFromNative } from './HMSCache';
 
 let totalTimeFromNativeSide = 0;
 let totalTimeFromCache = 0;
@@ -34,7 +34,19 @@ export class HMSPeer {
 
   get customerUserID(): string | undefined {
     const startTimestamp = Date.now();
-    const [data, fromCache] = getHmsPeersCache()?.getProperty(this.peerID, "customerUserID") || [undefined, false];
+
+    const hmsPeersCache = getHmsPeersCache();
+
+    let data = undefined;
+    let fromCache = false;
+
+    if (hmsPeersCache) {
+      const _data = hmsPeersCache.getProperty(this.peerID, "customerUserID") || [undefined, false];
+      data = _data[0];
+      fromCache = _data[1];
+    } else {
+      data = getPeerPropertyFromNative("12345", this.peerID, "customerUserID");
+    }
     const endTimestamp = Date.now();
 
     const timeElapsed = endTimestamp - startTimestamp;
@@ -52,7 +64,19 @@ export class HMSPeer {
 
   get metadata(): string | undefined {
     const startTimestamp = Date.now();
-    const [data, fromCache] = getHmsPeersCache()?.getProperty(this.peerID, "metadata") || [undefined, false];
+
+    const hmsPeersCache = getHmsPeersCache();
+
+    let data = undefined;
+    let fromCache = false;
+
+    if (hmsPeersCache) {
+      const _data = hmsPeersCache.getProperty(this.peerID, "metadata") || [undefined, false];
+      data = _data[0];
+      fromCache = _data[1];
+    } else {
+      data = getPeerPropertyFromNative("12345", this.peerID, "metadata");
+    }
     const endTimestamp = Date.now();
 
     const timeElapsed = endTimestamp - startTimestamp;
@@ -70,7 +94,19 @@ export class HMSPeer {
 
   get role(): HMSRole | undefined {
     const startTimestamp = Date.now();
-    const [data, fromCache] = getHmsPeersCache()?.getProperty(this.peerID, "role") || [undefined, false];
+
+    const hmsPeersCache = getHmsPeersCache();
+
+    let data = undefined;
+    let fromCache = false;
+
+    if (hmsPeersCache) {
+      const _data = hmsPeersCache.getProperty(this.peerID, "role") || [undefined, false];
+      data = _data[0];
+      fromCache = _data[1];
+    } else {
+      data = getPeerPropertyFromNative("12345", this.peerID, "role");
+    }
     const endTimestamp = Date.now();
 
     const timeElapsed = endTimestamp - startTimestamp;
@@ -88,7 +124,19 @@ export class HMSPeer {
 
   get audioTrack(): HMSAudioTrack | undefined {
     const startTimestamp = Date.now();
-    const [data, fromCache] = getHmsPeersCache()?.getProperty(this.peerID, "audioTrack") || [undefined, false];
+
+    const hmsPeersCache = getHmsPeersCache();
+
+    let data = undefined;
+    let fromCache = false;
+
+    if (hmsPeersCache) {
+      const _data = hmsPeersCache.getProperty(this.peerID, "audioTrack") || [undefined, false];
+      data = _data[0];
+      fromCache = _data[1];
+    } else {
+      data = getPeerPropertyFromNative("12345", this.peerID, "audioTrack");
+    }
     const endTimestamp = Date.now();
 
     const timeElapsed = endTimestamp - startTimestamp;
@@ -106,7 +154,19 @@ export class HMSPeer {
 
   get videoTrack(): HMSVideoTrack | undefined {
     const startTimestamp = Date.now();
-    const [data, fromCache] = getHmsPeersCache()?.getProperty(this.peerID, "videoTrack") || [undefined, false];
+
+    const hmsPeersCache = getHmsPeersCache();
+
+    let data = undefined;
+    let fromCache = false;
+
+    if (hmsPeersCache) {
+      const _data = hmsPeersCache.getProperty(this.peerID, "videoTrack") || [undefined, false];
+      data = _data[0];
+      fromCache = _data[1];
+    } else {
+      data = getPeerPropertyFromNative("12345", this.peerID, "videoTrack");
+    }
     const endTimestamp = Date.now();
 
     const timeElapsed = endTimestamp - startTimestamp;
@@ -124,7 +184,19 @@ export class HMSPeer {
 
   get auxiliaryTracks(): HMSTrack[] | undefined {
     const startTimestamp = Date.now();
-    const [data, fromCache] = getHmsPeersCache()?.getProperty(this.peerID, "auxiliaryTracks") || [undefined, false];
+
+    const hmsPeersCache = getHmsPeersCache();
+
+    let data = undefined;
+    let fromCache = false;
+
+    if (hmsPeersCache) {
+      const _data = hmsPeersCache.getProperty(this.peerID, "auxiliaryTracks") || [undefined, false];
+      data = _data[0];
+      fromCache = _data[1];
+    } else {
+      data = getPeerPropertyFromNative("12345", this.peerID, "auxiliaryTracks");
+    }
     const endTimestamp = Date.now();
 
     const timeElapsed = endTimestamp - startTimestamp;

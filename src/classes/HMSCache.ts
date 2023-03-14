@@ -56,36 +56,7 @@ export class HMSPeersCache {
       return [peerObj[property], true];
     }
 
-    const data: undefined | Record<string, any> = HMSManager.getPeerProperty({
-      id: this.id,
-      peerId,
-      property,
-    });
-
-    let value;
-
-    if (property === 'role') {
-      value = data ? HMSEncoder.encodeHmsRole(data.role) : undefined;
-    }
-    else if (property === 'audioTrack') {
-      value = data
-        ? HMSEncoder.encodeHmsAudioTrack(data.audioTrack, this.id)
-        : undefined;
-    }
-    else if (property === 'videoTrack') {
-      value = data
-        ? HMSEncoder.encodeHmsVideoTrack(data.videoTrack, this.id)
-        : undefined;
-    }
-    else if (property === 'auxiliaryTracks') {
-      value =
-        data && Array.isArray(data.auxiliaryTracks)
-          ? HMSEncoder.encodeHmsAuxiliaryTracks(data.auxiliaryTracks, this.id)
-          : undefined;
-    }
-    else {
-      value = data ? data[property] : undefined;
-    }
+    const value = getPeerPropertyFromNative(this.id, peerId, property);
 
     if (!peerObj) {
       this._data.set(peerId, { [property]: value });
@@ -208,4 +179,39 @@ export class HMSPeersCache {
   cleanup() {
     this._data.clear();
   }
+}
+
+export function getPeerPropertyFromNative<T extends keyof HMSPeerCacheProps>(id: string, peerId: string, property: T) {
+  const data: undefined | Record<string, any> = HMSManager.getPeerProperty({
+    id,
+    peerId,
+    property,
+  });
+
+  let value;
+
+  if (property === 'role') {
+    value = data ? HMSEncoder.encodeHmsRole(data.role) : undefined;
+  }
+  else if (property === 'audioTrack') {
+    value = data
+      ? HMSEncoder.encodeHmsAudioTrack(data.audioTrack, id)
+      : undefined;
+  }
+  else if (property === 'videoTrack') {
+    value = data
+      ? HMSEncoder.encodeHmsVideoTrack(data.videoTrack, id)
+      : undefined;
+  }
+  else if (property === 'auxiliaryTracks') {
+    value =
+      data && Array.isArray(data.auxiliaryTracks)
+        ? HMSEncoder.encodeHmsAuxiliaryTracks(data.auxiliaryTracks, id)
+        : undefined;
+  }
+  else {
+    value = data ? data[property] : undefined;
+  }
+
+  return value;
 }

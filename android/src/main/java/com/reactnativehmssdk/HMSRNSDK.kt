@@ -1638,9 +1638,13 @@ class HMSRNSDK(
     val peerId = data.getString("peerId")!!
     val property = data.getString("property")!!
 
-//    val peer = HMSHelper.getPeerFromPeerId(peerId, nativeHmsSDK.getRoom())
-
-    val peer = getPeerFromPeerId(peerId)
+    val peer = mockedPeer.let {
+      if (mockedPeer !== null) {
+        getPeerFromPeerId(peerId)
+      } else {
+        HMSHelper.getPeerFromPeerId(peerId, nativeHmsSDK.getRoom())
+      }
+    }
 
     if (peer != null) {
       return when(property) {
