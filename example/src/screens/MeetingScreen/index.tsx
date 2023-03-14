@@ -123,6 +123,9 @@ const Meeting = () => {
   const [isVideoMute, setIsVideoMute] = useState<boolean | undefined>(
     localPeer?.videoTrack?.isMute(),
   );
+  const [isScreenShared, setIsScreenShared] = useState<boolean | undefined>(
+    localPeer?.auxiliaryTracks && localPeer?.auxiliaryTracks?.length > 0
+  );
   const [modalVisible, setModalVisible] = useState<ModalTypes>(
     ModalTypes.DEFAULT,
   );
@@ -174,6 +177,7 @@ const Meeting = () => {
           setModalVisible={setModalVisible}
           room={room}
           localPeer={localPeer}
+          isScreenShared={isScreenShared}
         />
       )}
       <DisplayView
@@ -196,9 +200,11 @@ const Meeting = () => {
           modalVisible={modalVisible}
           isAudioMute={isAudioMute}
           isVideoMute={isVideoMute}
+          isScreenShared={isScreenShared}
           setModalVisible={setModalVisible}
           setIsAudioMute={setIsAudioMute}
           setIsVideoMute={setIsVideoMute}
+          setIsScreenShared={setIsScreenShared}
         />
       )}
     </SafeAreaView>
@@ -976,11 +982,13 @@ const DisplayView = (data: {
 const Header = ({
   room,
   localPeer,
+  isScreenShared,
   modalVisible,
   setModalVisible,
 }: {
   room?: HMSRoom;
   localPeer?: HMSLocalPeer;
+  isScreenShared?: boolean;
   modalVisible: ModalTypes;
   setModalVisible: React.Dispatch<React.SetStateAction<ModalTypes>>;
 }) => {
@@ -989,8 +997,6 @@ const Header = ({
 
   // constants
   const iconSize = 20;
-  const isScreenShared =
-    localPeer?.auxiliaryTracks && localPeer?.auxiliaryTracks?.length > 0;
   const parsedMetadata = parseMetadata(localPeer?.metadata);
 
   // functions
@@ -1175,9 +1181,11 @@ const Footer = ({
   modalVisible,
   isAudioMute,
   isVideoMute,
+  isScreenShared,
   setModalVisible,
   setIsAudioMute,
   setIsVideoMute,
+  setIsScreenShared,
 }: {
   isHlsStreaming?: boolean;
   isBrowserRecording?: boolean;
@@ -1187,9 +1195,11 @@ const Footer = ({
   modalVisible: ModalTypes;
   isAudioMute?: boolean;
   isVideoMute?: boolean;
+  isScreenShared?: boolean;
   setModalVisible: React.Dispatch<React.SetStateAction<ModalTypes>>;
   setIsAudioMute: React.Dispatch<React.SetStateAction<boolean | undefined>>;
   setIsVideoMute: React.Dispatch<React.SetStateAction<boolean | undefined>>;
+  setIsScreenShared: React.Dispatch<React.SetStateAction<boolean | undefined>>;
 }) => {
   // hooks
   const dispatch = useDispatch();
@@ -1211,21 +1221,25 @@ const Footer = ({
 
   // constants
   const iconSize = 20;
-  const isScreenShared =
-    localPeer?.auxiliaryTracks && localPeer?.auxiliaryTracks?.length > 0;
 
   // functions
   const onStartScreenSharePress = () => {
     hmsInstance
       ?.startScreenshare()
-      .then(d => console.log('Start Screenshare Success: ', d))
+      .then(d => {
+        console.log('Start Screenshare Success: ', d);
+        setIsScreenShared(true);
+      })
       .catch(e => console.log('Start Screenshare Error: ', e));
   };
 
   const onEndScreenSharePress = () => {
     hmsInstance
       ?.stopScreenshare()
-      .then(d => console.log('Stop Screenshare Success: ', d))
+      .then(d => {
+        console.log('Stop Screenshare Success: ', d);
+        setIsScreenShared(false);
+      })
       .catch(e => console.log('Stop Screenshare Error: ', e));
   };
 
