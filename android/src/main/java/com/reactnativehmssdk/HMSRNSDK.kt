@@ -283,7 +283,7 @@ class HMSRNSDK(
                 if (eventsEnableStatus["ON_JOIN"] != true) {
                   return
                 }
-                val roomData = HMSDecoder.getHmsRoom(room)
+                val roomData = HMSDecoder.getHmsRoom(room, onJoin = true)
 
                 val data: WritableMap = Arguments.createMap()
 

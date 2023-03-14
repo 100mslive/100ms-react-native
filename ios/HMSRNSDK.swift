@@ -1164,7 +1164,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         if eventsEnableStatus[ON_JOIN] != true {
             return
         }
-        let roomData = HMSDecoder.getHmsRoom(room)
+        let roomData = HMSDecoder.getHmsRoom(room, onJoin: true)
         self.delegate?.emitEvent(ON_JOIN, ["event": ON_JOIN, "id": self.id, "room": roomData])
     }
 
