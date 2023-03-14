@@ -1,4 +1,4 @@
-- Added JS Peer Store to minimize Native calls to fetch Peer data
+- Added Peer Store to reduce initial data sent across the JS Bridge
 
 - Improve Join Time by minimizing the peers sent in room.peers payload of onJoin event
 
