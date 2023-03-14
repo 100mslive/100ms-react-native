@@ -35,6 +35,7 @@ import type { HMSLogSettings } from './HMSLogSettings';
 import { HMSMessageType } from './HMSMessageType';
 import { HMSPIPListenerActions } from './HMSPIPListenerActions';
 import { type HMSEventSubscription, HMSNativeEventEmitter } from './HMSNativeEventEmitter';
+import { clearHmsPeersCache, getHmsPeersCache, HMSPeersCache, setHmsPeersCache } from './HMSCache';
 
 interface HmsViewProps {
   trackId: string;
@@ -165,6 +166,7 @@ export class HMSSDK {
    */
   destroy = async () => {
     logger?.verbose('#Function destroy', { id: this.id });
+    clearHmsPeersCache();
     this.removeAllListeners();
     return await HMSManager.destroy({ id: this.id });
   };
@@ -181,6 +183,7 @@ export class HMSSDK {
   join = async (config: HMSConfig) => {
     logger?.verbose('#Function join', { config, id: this.id });
     this.addAppStateListener();
+    setHmsPeersCache(new HMSPeersCache(this.id));
     await HMSManager.join({ ...config, id: this.id });
   };
 
@@ -251,6 +254,7 @@ export class HMSSDK {
   roomLeaveCleanup = () => {
     this.muteStatus = undefined;
     this?.appStateSubscription?.remove();
+    clearHmsPeersCache();
     HMSEncoder.clearData(); // Clearing cached data in encoder
   };
 
@@ -1897,6 +1901,8 @@ export class HMSSDK {
     const peer: HMSPeer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
     const type = data.type;
 
+    getHmsPeersCache()?.updatePeerCache(data.peer.peerID, data.peer, data.type);
+
     if (this.onPeerDelegate) {
       logger?.verbose('#Listener ON_PEER_LISTENER_CALL', {
         peer,
@@ -1913,6 +1919,8 @@ export class HMSSDK {
     const track: HMSTrack = HMSEncoder.encodeHmsTrack(data.track, this.id);
     const peer: HMSPeer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
     const type = data.type;
+
+    getHmsPeersCache()?.updatePeerCache(data.peer.peerID, { track }, data.type);
 
     if (
       this.muteStatus &&

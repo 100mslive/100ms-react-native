@@ -447,6 +447,13 @@ class HMSManager(reactContext: ReactApplicationContext) :
     hms?.getSessionMetaData(callback)
   }
 
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  fun getPeerProperty(data: ReadableMap): WritableMap? {
+    val hms = HMSHelper.getHms(data, hmsCollection) ?: return null
+
+    return hms.getPeerProperty(data)
+  }
+
   @ReactMethod
   fun enableEvent(data: ReadableMap, promise: Promise?) {
     val hms = HMSHelper.getHms(data, hmsCollection)

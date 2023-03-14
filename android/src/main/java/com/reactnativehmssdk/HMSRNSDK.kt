@@ -2,6 +2,8 @@ package com.reactnativehmssdk
 
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.os.Handler
+import android.os.Looper
 import com.facebook.react.bridge.*
 import com.facebook.react.bridge.UiThreadUtil.runOnUiThread
 import kotlinx.coroutines.launch
@@ -15,6 +17,7 @@ import live.hms.video.sdk.models.enums.AudioMixingMode
 import live.hms.video.sdk.models.enums.HMSPeerUpdate
 import live.hms.video.sdk.models.enums.HMSRoomUpdate
 import live.hms.video.sdk.models.enums.HMSTrackUpdate
+import live.hms.video.sdk.models.role.HMSRole
 import live.hms.video.sdk.models.trackchangerequest.HMSChangeTrackStateRequest
 import live.hms.video.utils.HMSCoroutineScope
 import live.hms.video.utils.HmsUtilities
@@ -40,6 +43,7 @@ class HMSRNSDK(
   private var id: String = sdkId
   private var self = this
   private var eventsEnableStatus = mutableMapOf<String, Boolean>()
+  private var mockedPeer: HMSPeer? = null
 
   init {
     val builder = HMSSDK.Builder(reactApplicationContext)
@@ -169,7 +173,7 @@ class HMSRNSDK(
               return
             }
             val updateType = type.name
-            val hmsPeer = HMSDecoder.getHmsPeer(peer)
+            val hmsPeer = HMSDecoder.getHmsPeer(peer, type)
 
             val data: WritableMap = Arguments.createMap()
 
@@ -312,7 +316,7 @@ class HMSRNSDK(
                   return
                 }
                 val updateType = type.name
-                val hmsPeer = HMSDecoder.getHmsPeer(peer)
+                val hmsPeer = HMSDecoder.getHmsPeer(peer, type)
 
                 val data: WritableMap = Arguments.createMap()
 
@@ -320,6 +324,37 @@ class HMSRNSDK(
                 data.putString("type", updateType)
                 data.putString("id", id)
                 delegate.emitEvent("ON_PEER_UPDATE", data)
+
+                mockedPeer = peer
+
+                var index = 1
+
+                val loopHandler = Handler(Looper.getMainLooper())
+
+                loopHandler.postDelayed(
+                  object : Runnable {
+                    override fun run() {
+                      val data: WritableMap = Arguments.createMap()
+
+                      val peerMap: WritableMap = Arguments.createMap()
+                      peerMap.putString("peerID", peer.peerID + "-$index")
+                      peerMap.putString("name", peer.name + "-$index")
+                      peerMap.putBoolean("isLocal", peer.isLocal)
+
+                      data.putMap("peer", peerMap)
+                      data.putString("type", updateType)
+                      data.putString("id", id)
+
+                      delegate.emitEvent("ON_PEER_UPDATE", data)
+
+                      if (index < 1000) {
+                        index += 1
+                        loopHandler.postDelayed(this, 15)
+                      }
+                    }
+                  },
+                  15
+                )
               }
 
               override fun onRoomUpdate(type: HMSRoomUpdate, hmsRoom: HMSRoom) {
@@ -1543,6 +1578,91 @@ class HMSRNSDK(
         }
       }
     )
+  }
+
+  private fun getPeerMetadata(peer: HMSPeer): WritableMap {
+    val data: WritableMap = Arguments.createMap()
+    data.putString("metadata", peer.metadata)
+    return data
+  }
+
+  private fun getPeerRole(peer: HMSPeer): WritableMap {
+    val data: WritableMap = Arguments.createMap()
+    data.putMap("role", HMSDecoder.getHmsRole(peer.hmsRole))
+    return data
+  }
+
+  private fun getPeerCustomerUserID(peer: HMSPeer): WritableMap? {
+    if (peer.customerUserID !== null) {
+      val data: WritableMap = Arguments.createMap()
+      data.putString("customerUserID", peer.customerUserID)
+      return data
+    }
+    return null
+  }
+
+  private fun getPeerAudioTrack(peer: HMSPeer): WritableMap? {
+    if (peer.audioTrack !== null) {
+      val data: WritableMap = Arguments.createMap()
+      data.putMap("audioTrack", HMSDecoder.getHmsAudioTrack(peer.audioTrack))
+      return data
+    }
+    return null
+  }
+
+  private fun getPeerVideoTrack(peer: HMSPeer): WritableMap? {
+    if (peer.videoTrack !== null) {
+      val data: WritableMap = Arguments.createMap()
+      data.putMap("videoTrack", HMSDecoder.getHmsVideoTrack(peer.videoTrack))
+      return data
+    }
+    return null
+  }
+
+  private fun getPeerAuxiliaryTracks(peer: HMSPeer): WritableMap? {
+    val data: WritableMap = Arguments.createMap()
+    data.putArray("auxiliaryTracks", HMSDecoder.getAllTracks(peer.auxiliaryTracks))
+    return data
+  }
+
+  fun getPeerProperty(data: ReadableMap): WritableMap? {
+    val requiredKeys =
+      HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("peerId", "String"), Pair("property", "String")))
+
+    val nativeHmsSDK = hmsSDK
+
+    if (requiredKeys !== null || nativeHmsSDK === null) {
+      return null
+    }
+
+    val peerId = data.getString("peerId")!!
+    val property = data.getString("property")!!
+
+    val peer = mockedPeer.let {
+      if (mockedPeer !== null) {
+        getPeerFromPeerId(peerId)
+      } else {
+        HMSHelper.getPeerFromPeerId(peerId, nativeHmsSDK.getRoom())
+      }
+    }
+
+    if (peer != null) {
+      return when(property) {
+        "metadata" -> getPeerMetadata(peer)
+        "role" -> getPeerRole(peer)
+        "customerUserID" -> getPeerCustomerUserID(peer)
+        "audioTrack" -> getPeerAudioTrack(peer)
+        "videoTrack" -> getPeerVideoTrack(peer)
+        "auxiliaryTracks" -> getPeerAuxiliaryTracks(peer)
+        else -> null
+      }
+    }
+
+    return null
+  }
+
+  private fun getPeerFromPeerId(peerId: String): HMSPeer? {
+    return mockedPeer
   }
 
   fun enableEvent(data: ReadableMap, promise: Promise?) {
