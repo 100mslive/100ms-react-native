@@ -29,6 +29,7 @@ class HMSRNSDK(
   reactApplicationContext: ReactApplicationContext
 ) {
   var hmsSDK: HMSSDK? = null
+  var currentRoom: HMSRoom? = null
   var screenshareCallback: Promise? = null
   var audioshareCallback: Promise? = null
   var isAudioSharing: Boolean = false
@@ -184,6 +185,9 @@ class HMSRNSDK(
           }
 
           override fun onRoomUpdate(type: HMSRoomUpdate, hmsRoom: HMSRoom) {
+
+            currentRoom = room
+
             if (eventsEnableStatus["ON_ROOM_UPDATE"] != true) {
               return
             }
@@ -203,6 +207,7 @@ class HMSRNSDK(
           }
 
           override fun onPreview(room: HMSRoom, localTracks: Array<HMSTrack>) {
+            currentRoom = room
             previewInProgress = false
             if (eventsEnableStatus["ON_PREVIEW"] != true) {
               return
@@ -258,6 +263,8 @@ class HMSRNSDK(
               override fun onRemovedFromRoom(notification: HMSRemovedFromRoom) {
                 super.onRemovedFromRoom(notification)
 
+                currentRoom = null
+
                 HMSDecoder.clearRestrictDataStates()
                 if (eventsEnableStatus["ON_REMOVED_FROM_ROOM"] != true) {
                   return
@@ -284,9 +291,12 @@ class HMSRNSDK(
               }
 
               override fun onJoin(room: HMSRoom) {
+                currentRoom = room
+
                 if (eventsEnableStatus["ON_JOIN"] != true) {
                   return
                 }
+
                 val roomData = HMSDecoder.getHmsRoom(room, onJoin = true)
 
                 val data: WritableMap = Arguments.createMap()
@@ -327,6 +337,9 @@ class HMSRNSDK(
               }
 
               override fun onRoomUpdate(type: HMSRoomUpdate, hmsRoom: HMSRoom) {
+
+                currentRoom = room
+
                 if (eventsEnableStatus["ON_ROOM_UPDATE"] != true) {
                   return
                 }
@@ -594,6 +607,7 @@ class HMSRNSDK(
       hmsSDK?.leave(
         object : HMSActionResultListener {
           override fun onSuccess() {
+            currentRoom = null
             isAudioSharing = false
             screenshareCallback = null
             audioshareCallback = null
