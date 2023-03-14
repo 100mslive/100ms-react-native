@@ -251,16 +251,17 @@ const DisplayView = (data: {
   useEffect(() => {
     const reduxPeerNodes = peerState;
 
-    setPeerTrackNodes((prevPeerTrackNodes) => {
+    setPeerTrackNodes(prevPeerTrackNodes => {
       let newPeerTrackNodes = prevPeerTrackNodes;
 
       for (const reduxPeerNode of reduxPeerNodes) {
-
         // checking if current reduxPeerNode is available in local state
-        const node = prevPeerTrackNodes.find(prevPeerTrackNode => prevPeerTrackNode.id === reduxPeerNode.id);
+        const node = prevPeerTrackNodes.find(
+          prevPeerTrackNode => prevPeerTrackNode.id === reduxPeerNode.id,
+        );
 
         // save it to list if not available
-        if(!node) {
+        if (!node) {
           newPeerTrackNodes = [...newPeerTrackNodes, reduxPeerNode];
         }
         // if local state node does not has track but reduxPeerNode do have it
@@ -268,11 +269,11 @@ const DisplayView = (data: {
         else if (!node.track && reduxPeerNode.track) {
           newPeerTrackNodes = newPeerTrackNodes.map(peerTrackNode => {
             if (peerTrackNode.id === reduxPeerNode.id) {
-              return { ...peerTrackNode, track: reduxPeerNode.track }
+              return {...peerTrackNode, track: reduxPeerNode.track};
             }
 
             return peerTrackNode;
-          })
+          });
         }
       }
 
@@ -505,9 +506,7 @@ const DisplayView = (data: {
       ) {
         const uniqueId =
           peer.peerID +
-          (track.source === undefined
-            ? HMSTrackSource.REGULAR
-            : track.source);
+          (track.source === undefined ? HMSTrackSource.REGULAR : track.source);
         const newPeerTrackNodes = peerTrackNodesRef.current?.filter(
           peerTrackNode => {
             if (peerTrackNode.id === uniqueId) {
@@ -747,10 +746,10 @@ const DisplayView = (data: {
 
   const handlePeerTileMorePress = React.useCallback(
     (peerTrackNode: PeerTrackNode) => {
-    setSelectedPeerTrackNode(peerTrackNode);
-    data?.setModalVisible(ModalTypes.PEER_SETTINGS);
+      setSelectedPeerTrackNode(peerTrackNode);
+      data?.setModalVisible(ModalTypes.PEER_SETTINGS);
     },
-    [data?.setModalVisible]
+    [data?.setModalVisible],
   );
 
   const onChangeRolePress = (peer: HMSPeer) => {

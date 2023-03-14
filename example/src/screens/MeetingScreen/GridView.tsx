@@ -68,16 +68,19 @@ const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
       [],
     );
 
-    const _renderItem = React.useCallback(({item}) => {
-      return (
-        <TilesContainer
-          onPeerTileMorePress={onPeerTileMorePress}
-          orientation={orientation}
-          peerTrackNodes={item}
-          setHmsViewRefs={setHmsViewRefs}
-        />
-      );
-    }, [onPeerTileMorePress, orientation, setHmsViewRefs]);
+    const _renderItem = React.useCallback(
+      ({item}) => {
+        return (
+          <TilesContainer
+            onPeerTileMorePress={onPeerTileMorePress}
+            orientation={orientation}
+            peerTrackNodes={item}
+            setHmsViewRefs={setHmsViewRefs}
+          />
+        );
+      },
+      [onPeerTileMorePress, orientation, setHmsViewRefs],
+    );
 
     const _keyExtractor = React.useCallback(item => item[0]?.id, []);
 
