@@ -324,37 +324,6 @@ class HMSRNSDK(
                 data.putString("type", updateType)
                 data.putString("id", id)
                 delegate.emitEvent("ON_PEER_UPDATE", data)
-
-                mockedPeer = peer
-
-                var index = 1
-
-                val loopHandler = Handler(Looper.getMainLooper())
-
-                loopHandler.postDelayed(
-                  object : Runnable {
-                    override fun run() {
-                      val data: WritableMap = Arguments.createMap()
-
-                      val peerMap: WritableMap = Arguments.createMap()
-                      peerMap.putString("peerID", peer.peerID + "-$index")
-                      peerMap.putString("name", peer.name + "-$index")
-                      peerMap.putBoolean("isLocal", peer.isLocal)
-
-                      data.putMap("peer", peerMap)
-                      data.putString("type", updateType)
-                      data.putString("id", id)
-
-                      delegate.emitEvent("ON_PEER_UPDATE", data)
-
-                      if (index < 1000) {
-                        index += 1
-                        loopHandler.postDelayed(this, 15)
-                      }
-                    }
-                  },
-                  15
-                )
               }
 
               override fun onRoomUpdate(type: HMSRoomUpdate, hmsRoom: HMSRoom) {
