@@ -225,8 +225,9 @@ export const ParticipantsModal = ({
       </View>
       <FlatList
         data={filteredPeerTrackNodes}
-        initialNumToRender={2}
-        maxToRenderPerBatch={3}
+        initialNumToRender={1}
+        maxToRenderPerBatch={1}
+        windowSize={2}
         keyboardShouldPersistTaps="always"
         renderItem={({item, index}) => {
           const peer = item;

@@ -172,8 +172,9 @@ const ChatList = ({
   return (
     <FlatList
       data={messages}
-      initialNumToRender={2}
-      maxToRenderPerBatch={3}
+      initialNumToRender={1}
+      maxToRenderPerBatch={1}
+      windowSize={2}
       keyboardShouldPersistTaps="always"
       renderItem={({item, index}: {item: HMSMessage; index: number}) => {
         const data = item;
