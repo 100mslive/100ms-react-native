@@ -4,6 +4,7 @@ import type { HMSRole } from './HMSRole';
 import type { HMSTrack } from './HMSTrack';
 import type { HMSVideoTrack } from './HMSVideoTrack';
 import { getHmsPeersCache, getPeerPropertyFromNative } from './HMSCache';
+import { HMSConstants } from './HMSConstants';
 
 let totalTimeFromNativeSide = 0;
 let totalTimeFromCache = 0;
@@ -45,7 +46,7 @@ export class HMSPeer {
       data = _data[0];
       fromCache = _data[1];
     } else {
-      data = getPeerPropertyFromNative("12345", this.peerID, "customerUserID");
+      data = getPeerPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, this.peerID, "customerUserID");
     }
     const endTimestamp = Date.now();
 
@@ -75,7 +76,7 @@ export class HMSPeer {
       data = _data[0];
       fromCache = _data[1];
     } else {
-      data = getPeerPropertyFromNative("12345", this.peerID, "metadata");
+      data = getPeerPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, this.peerID, "metadata");
     }
     const endTimestamp = Date.now();
 
@@ -105,7 +106,7 @@ export class HMSPeer {
       data = _data[0];
       fromCache = _data[1];
     } else {
-      data = getPeerPropertyFromNative("12345", this.peerID, "role");
+      data = getPeerPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, this.peerID, "role");
     }
     const endTimestamp = Date.now();
 
@@ -135,7 +136,7 @@ export class HMSPeer {
       data = _data[0];
       fromCache = _data[1];
     } else {
-      data = getPeerPropertyFromNative("12345", this.peerID, "audioTrack");
+      data = getPeerPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, this.peerID, "audioTrack");
     }
     const endTimestamp = Date.now();
 
@@ -165,7 +166,7 @@ export class HMSPeer {
       data = _data[0];
       fromCache = _data[1];
     } else {
-      data = getPeerPropertyFromNative("12345", this.peerID, "videoTrack");
+      data = getPeerPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, this.peerID, "videoTrack");
     }
     const endTimestamp = Date.now();
 
@@ -195,7 +196,7 @@ export class HMSPeer {
       data = _data[0];
       fromCache = _data[1];
     } else {
-      data = getPeerPropertyFromNative("12345", this.peerID, "auxiliaryTracks");
+      data = getPeerPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, this.peerID, "auxiliaryTracks");
     }
     const endTimestamp = Date.now();
 

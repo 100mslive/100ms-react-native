@@ -6,6 +6,7 @@ import {
   UIManager,
   ViewStyle,
 } from 'react-native';
+import { HMSConstants } from './HMSConstants';
 import { HMSVideoViewMode } from './HMSVideoViewMode';
 
 interface HmsViewProps {
@@ -39,7 +40,7 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
     const {
       trackId,
       style = temporaryStyles.customStyle,
-      id = '12345',
+      id = HMSConstants.DEFAULT_SDK_ID,
       mirror = false,
       setZOrderMediaOverlay = false,
       scaleType = HMSVideoViewMode.ASPECT_FILL,

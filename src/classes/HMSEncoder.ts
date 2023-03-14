@@ -30,6 +30,7 @@ import { HMSServerRecordingState } from './HMSServerRecordingState';
 import { HMSMessage } from './HMSMessage';
 import { HMSMessageRecipient } from './HMSMessageRecipient';
 import { HMSException } from './HMSException';
+import { HMSConstants } from './HMSConstants';
 
 const { HMSManager } = NativeModules;
 
@@ -396,7 +397,7 @@ export class HMSEncoder {
       // If the created HMSRole object is complete,
       // sending notification to Native Side to stop sending data for this role
       if (hmsRole.publishSettings?.allowed) {
-        HMSManager.restrictData({ id: "12345", roleName: hmsRole.name });
+        HMSManager.restrictData({ id: HMSConstants.DEFAULT_SDK_ID, roleName: hmsRole.name });
       }
     }
 
