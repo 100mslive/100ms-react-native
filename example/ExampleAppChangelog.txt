@@ -1,15 +1,15 @@
-- Changed Native Events Subscription initializers APIs
+- Added JS Peer Store to minimize Native calls to fetch Peer data
 
-- Added caching of Roles to improve performance
+- Improve Join Time by minimizing the peers sent in room.peers payload of onJoin event
 
-- Added checks for null types before sending events over JS Bridge
 
-- Corrected crash due to PIP Remote Action buttons on Android 7 or lower
+📝 Tickets
 
-- Requesting for Bluetooth Permission before Joining the Room on Android 11 & above
+1. https://github.com/100mslive/react-native-hms/issues/938
 
-- Added ability to capture Snapshot of Video Views on iOS
+2. https://github.com/100mslive/react-native-hms/issues/940
 
-React Native SDK: 1.2.0
-Android SDK: 2.5.7
-iOS SDK: 0.6.4
+
+React Native SDK: 1.3.0
+Android SDK: 2.5.8
+iOS SDK: 0.6.5
