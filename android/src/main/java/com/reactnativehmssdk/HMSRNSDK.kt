@@ -338,7 +338,7 @@ class HMSRNSDK(
 
               override fun onRoomUpdate(type: HMSRoomUpdate, hmsRoom: HMSRoom) {
 
-                currentRoom = room
+                currentRoom = hmsRoom
 
                 if (eventsEnableStatus["ON_ROOM_UPDATE"] != true) {
                   return
