@@ -1895,13 +1895,10 @@ export class HMSSDK {
   };
 
   onPeerListener = (data: any) => {
-    if (data.id !== this.id) {
-      return;
-    }
-    const peer: HMSPeer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
-    const type = data.type;
+    const peer: HMSPeer = HMSEncoder.encodeHmsPeer(data.peer);
+    const type = HMSEncoder.encodeHmsPeerUpdate(data.type);
 
-    getHmsPeersCache()?.updatePeerCache(data.peer.peerID, data.peer, data.type);
+    getHmsPeersCache()?.updatePeerCache(data.peer.peerID, data.peer, type);
 
     if (this.onPeerDelegate) {
       logger?.verbose('#Listener ON_PEER_LISTENER_CALL', {
@@ -1917,7 +1914,7 @@ export class HMSSDK {
       return;
     }
     const track: HMSTrack = HMSEncoder.encodeHmsTrack(data.track, this.id);
-    const peer: HMSPeer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
+    const peer: HMSPeer = HMSEncoder.encodeHmsPeer(data.peer);
     const type = data.type;
 
     getHmsPeersCache()?.updatePeerCache(data.peer.peerID, { track }, data.type);
@@ -1948,7 +1945,7 @@ export class HMSSDK {
     if (data.id !== this.id) {
       return;
     }
-    const message = HMSEncoder.encodeHMSMessage(data, this.id);
+    const message = HMSEncoder.encodeHMSMessage(data);
     if (this.onMessageDelegate) {
       logger?.verbose('#Listener ON_MESSAGE_LISTENER_CALL', message);
       this.onMessageDelegate(message);
@@ -1985,7 +1982,6 @@ export class HMSSDK {
     if (this.onRoleChangeRequestDelegate) {
       const encodedRoleChangeRequest = HMSEncoder.encodeHmsRoleChangeRequest(
         data,
-        this.id
       );
       logger?.verbose(
         '#Listener ON_ROLE_CHANGE_LISTENER_CALL',
@@ -2001,7 +1997,7 @@ export class HMSSDK {
     }
     if (this.onChangeTrackStateRequestDelegate) {
       const encodedRoleChangeRequest =
-        HMSEncoder.encodeHmsChangeTrackStateRequest(data, this.id);
+        HMSEncoder.encodeHmsChangeTrackStateRequest(data);
       logger?.verbose(
         '#Listener ON_CHANGE_TRACK_STATE_REQUEST_LISTENER_CALL',
         encodedRoleChangeRequest
@@ -2019,7 +2015,7 @@ export class HMSSDK {
     if (this.onRemovedFromRoomDelegate) {
       let requestedBy = null;
       if (data.requestedBy) {
-        requestedBy = HMSEncoder.encodeHmsPeer(data.requestedBy, this.id);
+        requestedBy = HMSEncoder.encodeHmsPeer(data.requestedBy);
       }
       const reason = data.reason;
       const roomEnded = data.roomEnded;
@@ -2073,7 +2069,7 @@ export class HMSSDK {
     }
 
     let localAudioStats = new HMSLocalAudioStats(data.localAudioStats);
-    let peer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
+    let peer = HMSEncoder.encodeHmsPeer(data.peer);
     let track = HMSEncoder.encodeHmsLocalAudioTrack(data.track, this.id);
 
     if (this.onLocalAudioStatsDelegate) {
@@ -2093,7 +2089,7 @@ export class HMSSDK {
     }
 
     let localVideoStats = new HMSLocalVideoStats(data.localVideoStats);
-    let peer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
+    let peer = HMSEncoder.encodeHmsPeer(data.peer);
     let track = HMSEncoder.encodeHmsLocalVideoTrack(data.track, this.id);
 
     if (this.onLocalVideoStatsDelegate) {
@@ -2113,7 +2109,7 @@ export class HMSSDK {
     }
 
     let remoteAudioStats = new HMSRemoteAudioStats(data.remoteAudioStats);
-    let peer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
+    let peer = HMSEncoder.encodeHmsPeer(data.peer);
     let track = HMSEncoder.encodeHmsRemoteAudioTrack(data.track, this.id);
 
     if (this.onRemoteAudioStatsDelegate) {
@@ -2138,7 +2134,7 @@ export class HMSSDK {
     }
 
     let remoteVideoStats = new HMSRemoteVideoStats(data.remoteVideoStats);
-    let peer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
+    let peer = HMSEncoder.encodeHmsPeer(data.peer);
     let track = HMSEncoder.encodeHmsRemoteVideoTrack(data.track, this.id);
 
     if (this.onRemoteVideoStatsDelegate) {

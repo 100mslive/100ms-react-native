@@ -27,15 +27,7 @@ export const clearHmsPeersCache = () => {
 };
 
 export type HMSPeerCacheProps = Partial<
-  Pick<
-    HMSPeer,
-    | 'customerUserID'
-    | 'metadata'
-    | 'role'
-    | 'audioTrack'
-    | 'videoTrack'
-    | 'auxiliaryTracks'
-  >
+  Omit<HMSPeer, 'peerID' | 'customerDescription'>
 >;
 
 export class HMSPeersCache {
@@ -56,15 +48,15 @@ export class HMSPeersCache {
       return [peerObj[property], true];
     }
 
-    const value = getPeerPropertyFromNative(this.id, peerId, property);
+    const encodedValue = getPeerPropertyFromNative(this.id, peerId, property);
 
     if (!peerObj) {
-      this._data.set(peerId, { [property]: value });
+      this._data.set(peerId, { [property]: encodedValue });
     } else {
-      peerObj[property] = value;
+      peerObj[property] = encodedValue;
     }
 
-    return [value, false];
+    return [encodedValue, false];
   }
 
   updatePeerCache(
@@ -168,7 +160,7 @@ export class HMSPeersCache {
       }
     }
     else {
-      updatedObj = { ...data };
+      updatedObj = { ...updatedObj, ...data };
     }
 
     if (Object.keys(updatedObj).length > 0) {
@@ -192,6 +184,9 @@ export function getPeerPropertyFromNative<T extends keyof HMSPeerCacheProps>(id:
 
   if (property === 'role') {
     value = data ? HMSEncoder.encodeHmsRole(data.role) : undefined;
+  }
+  else if (property === 'networkQuality') {
+    value = data ? HMSEncoder.encodeHMSNetworkQuality(data.networkQuality) : undefined;
   }
   else if (property === 'audioTrack') {
     value = data

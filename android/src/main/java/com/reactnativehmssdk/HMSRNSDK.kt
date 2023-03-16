@@ -172,14 +172,14 @@ class HMSRNSDK(
             ) {
               return
             }
-            val updateType = type.name
+            val updateType = type.ordinal
             val hmsPeer = HMSDecoder.getHmsPeer(peer, type)
 
             val data: WritableMap = Arguments.createMap()
 
             data.putMap("peer", hmsPeer)
-            data.putString("type", updateType)
-            data.putString("id", id)
+            data.putInt("type", updateType)
+//            data.putString("id", id)
             delegate.emitEvent("ON_PEER_UPDATE", data)
           }
 
@@ -315,14 +315,14 @@ class HMSRNSDK(
                 ) {
                   return
                 }
-                val updateType = type.name
+                val updateType = type.ordinal
                 val hmsPeer = HMSDecoder.getHmsPeer(peer, type)
 
                 val data: WritableMap = Arguments.createMap()
 
                 data.putMap("peer", hmsPeer)
-                data.putString("type", updateType)
-                data.putString("id", id)
+                data.putInt("type", updateType)
+//                data.putString("id", id)
                 delegate.emitEvent("ON_PEER_UPDATE", data)
               }
 
@@ -1549,6 +1549,27 @@ class HMSRNSDK(
     )
   }
 
+  private fun getPeerName(peer: HMSPeer, idx: String? = null): WritableMap {
+    val data: WritableMap = Arguments.createMap()
+    data.putString("name", peer.name + if (idx === null || idx.isEmpty()) "" else "-$idx")
+    return data
+  }
+
+  private fun getIsPeerLocal(peer: HMSPeer): WritableMap {
+    val data: WritableMap = Arguments.createMap()
+    data.putBoolean("isLocal", peer.isLocal)
+    return data
+  }
+
+  private fun getPeerNetworkQuality(peer: HMSPeer): WritableMap? {
+    if (peer.networkQuality !== null) {
+      val data: WritableMap = Arguments.createMap()
+      data.putMap("networkQuality", HMSDecoder.getHmsNetworkQuality(peer.networkQuality))
+      return data
+    }
+    return null
+  }
+
   private fun getPeerMetadata(peer: HMSPeer): WritableMap {
     val data: WritableMap = Arguments.createMap()
     data.putString("metadata", peer.metadata)
@@ -1616,7 +1637,18 @@ class HMSRNSDK(
     }
 
     if (peer != null) {
+      var idx = peer.name.split('-').let {
+        if (it.size > 1) {
+          it[1]
+        } else {
+          null
+        }
+      }
+
       return when(property) {
+        "name" -> getPeerName(peer, idx)
+        "isLocal" -> getIsPeerLocal(peer)
+        "networkQuality" -> getPeerNetworkQuality(peer)
         "metadata" -> getPeerMetadata(peer)
         "role" -> getPeerRole(peer)
         "customerUserID" -> getPeerCustomerUserID(peer)

@@ -50,8 +50,6 @@ export class HMSRemotePeer extends HMSPeer {
     };
   }) {
     super(params);
-    this.isLocal = false;
-
     if (params.remoteAudioTrackData) {
       this.remoteAudio = new HMSRemoteAudioTrack(params.remoteAudioTrackData);
     }

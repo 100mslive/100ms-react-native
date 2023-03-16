@@ -83,8 +83,8 @@ object HMSDecoder {
     val peer: WritableMap = Arguments.createMap()
     if (hmsPeer != null) {
       peer.putString("peerID", hmsPeer.peerID)
-      peer.putString("name", hmsPeer.name)
-      peer.putBoolean("isLocal", hmsPeer.isLocal)
+
+//      peer.putBoolean("isLocal", hmsPeer.isLocal)
 
 //      hmsPeer.customerUserID?.let {
 //        peer.putString("customerUserID", it)
@@ -94,6 +94,9 @@ object HMSDecoder {
 
       if (peerUpdateType !== null) {
         when (peerUpdateType) {
+          HMSPeerUpdate.NAME_CHANGED -> {
+            peer.putString("name", hmsPeer.name)
+          }
           HMSPeerUpdate.METADATA_CHANGED -> {
             peer.putString("metadata", hmsPeer.metadata)
           }
@@ -643,7 +646,7 @@ object HMSDecoder {
     return hmsRecipient
   }
 
-  private fun getHmsNetworkQuality(networkQuality: HMSNetworkQuality?): WritableMap {
+  fun getHmsNetworkQuality(networkQuality: HMSNetworkQuality?): WritableMap {
     val hmsNetworkQuality: WritableMap = Arguments.createMap()
     if (networkQuality != null) {
       hmsNetworkQuality.putInt("downlinkQuality", networkQuality.downlinkQuality)

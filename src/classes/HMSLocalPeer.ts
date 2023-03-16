@@ -53,7 +53,6 @@ export class HMSLocalPeer extends HMSPeer {
     };
   }) {
     super(params);
-    this.isLocal = true;
     if (params.localAudioTrackData) {
       this.localAudio = new HMSLocalAudioTrack(params.localAudioTrackData);
     }
