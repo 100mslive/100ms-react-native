@@ -59,7 +59,7 @@ PODS:
   - glog (0.3.5)
   - hermes-engine (0.7.2)
   - HMSAnalyticsSDK (0.0.2)
-  - HMSBroadcastExtensionSDK (0.0.7)
+  - HMSBroadcastExtensionSDK (0.0.8)
   - HMSSDK (0.7.1):
     - HMSAnalyticsSDK (= 0.0.2)
     - HMSWebRTC (= 1.0.5115)
@@ -291,7 +291,7 @@ PODS:
   - react-native-document-picker (8.1.4):
     - React-Core
   - react-native-hms (1.3.0):
-    - HMSBroadcastExtensionSDK (= 0.0.7)
+    - HMSBroadcastExtensionSDK (= 0.0.8)
     - HMSSDK (= 0.7.1)
     - React-Core
   - react-native-safe-area-context (3.4.1):
@@ -601,7 +601,7 @@ SPEC CHECKSUMS:
   glog: 73c2498ac6884b13ede40eda8228cb1eee9d9d62
   hermes-engine: 7d97ba46a1e29bacf3e3c61ecb2804a5ddd02d4f
   HMSAnalyticsSDK: 4d2a88a729b1eb42f3d25f217c28937ec318a5b7
-  HMSBroadcastExtensionSDK: d22df4b2c22843efe4a1779478889076db8eaabd
+  HMSBroadcastExtensionSDK: 4393faac38999d01bae8e411d0564a577ad9d89a
   HMSSDK: f69f495c57eddf3a53acd9fa6817347ecc971345
   HMSWebRTC: d74cd5e5ecfe701219dd4042ec67fed02ea5d6db
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
@@ -622,7 +622,7 @@ SPEC CHECKSUMS:
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
   react-native-cameraroll: f3050460fe1708378698c16686bfaa5f34099be2
   react-native-document-picker: a9bd26996d1b2e4f412dd186041714c79af381d0
-  react-native-hms: faeabd2cc6babfd4bd1f856b9e66a8965cdec508
+  react-native-hms: 6c180868a5cd1c5b8a8731799cdafbbd4406f887
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
   react-native-simple-toast: 8ee5d23f0b92b935ab7434cdb65159ce12dfb4b7
   react-native-video: c26780b224543c62d5e1b2a7244a5cd1b50e8253
