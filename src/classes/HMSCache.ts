@@ -73,94 +73,115 @@ export class HMSPeersCache {
 
     let updatedObj = { ...peerObj };
 
-    if (updateType === HMSTrackUpdate.TRACK_ADDED) {
-      const track = data.track as HMSTrack;
+    switch (updateType) {
+      case HMSTrackUpdate.TRACK_ADDED: {
+        const track = data.track as HMSTrack;
 
-      if (track.source === HMSTrackSource.REGULAR) {
-        if (track.type === HMSTrackType.VIDEO) {
-          updatedObj.videoTrack = { ...track, isDegraded: false };
-        } else if (track.type === HMSTrackType.AUDIO) {
-          updatedObj.audioTrack = track;
+        if (track.source === HMSTrackSource.REGULAR) {
+          if (track.type === HMSTrackType.VIDEO) {
+            updatedObj.videoTrack = { ...track, isDegraded: false };
+          } else if (track.type === HMSTrackType.AUDIO) {
+            updatedObj.audioTrack = track;
+          }
         }
-      }
-      else {
-        if (Array.isArray(updatedObj.auxiliaryTracks)) {
-          updatedObj.auxiliaryTracks.push(track);
-        } else {
-          updatedObj.auxiliaryTracks = [track];
+        else {
+          if (Array.isArray(updatedObj.auxiliaryTracks)) {
+            updatedObj.auxiliaryTracks.push(track);
+          } else {
+            updatedObj.auxiliaryTracks = [track];
+          }
         }
+        break;
       }
-    }
-    else if (updateType === HMSTrackUpdate.TRACK_REMOVED) {
+      case HMSTrackUpdate.TRACK_REMOVED: {
+        const track = data.track as HMSTrack;
 
-      const track = data.track as HMSTrack;
-
-      if (track.source === HMSTrackSource.REGULAR) {
-        if (track.type === HMSTrackType.VIDEO) {
-          updatedObj.videoTrack = undefined;
-        } else if (track.type === HMSTrackType.AUDIO) {
-          updatedObj.audioTrack = undefined;
+        if (track.source === HMSTrackSource.REGULAR) {
+          if (track.type === HMSTrackType.VIDEO) {
+            updatedObj.videoTrack = undefined;
+          } else if (track.type === HMSTrackType.AUDIO) {
+            updatedObj.audioTrack = undefined;
+          }
         }
-      }
-      else if (Array.isArray(updatedObj.auxiliaryTracks)) {
-        updatedObj = {
-          ...updatedObj,
-          auxiliaryTracks: updatedObj.auxiliaryTracks.filter(auxiliaryTrack => auxiliaryTrack.trackId !== track.trackId)
-        };
-      }
-    }
-    else if (updateType === HMSTrackUpdate.TRACK_MUTED || updateType === HMSTrackUpdate.TRACK_UNMUTED) {
-
-      const track = data.track as HMSTrack;
-
-      if (track.source === HMSTrackSource.REGULAR) {
-        if (track.type === HMSTrackType.VIDEO) {
-          updatedObj.videoTrack = { ...track, isDegraded: updatedObj.videoTrack?.isDegraded || false };
-        } else if (track.type === HMSTrackType.AUDIO) {
-          updatedObj.audioTrack = track;
-        }
-      }
-      else {
-        if (Array.isArray(updatedObj.auxiliaryTracks)) {
+        else if (Array.isArray(updatedObj.auxiliaryTracks)) {
           updatedObj = {
             ...updatedObj,
-            auxiliaryTracks: updatedObj.auxiliaryTracks.map(auxiliaryTrack => auxiliaryTrack.trackId === track.trackId ? track : auxiliaryTrack),
+            auxiliaryTracks: updatedObj.auxiliaryTracks.filter(auxiliaryTrack => auxiliaryTrack.trackId !== track.trackId)
           };
-        } else {
-          updatedObj.auxiliaryTracks = [track];
         }
+        break;
       }
-    }
-    else if (updateType === HMSTrackUpdate.TRACK_DEGRADED || updateType === HMSTrackUpdate.TRACK_RESTORED) {
+      case HMSTrackUpdate.TRACK_MUTED:
+      case HMSTrackUpdate.TRACK_UNMUTED: {
+        const track = data.track as HMSTrack;
 
-      const track = data.track as HMSTrack;
-
-      if (track.source === HMSTrackSource.REGULAR) {
-        if (track.type === HMSTrackType.VIDEO) {
-          updatedObj.videoTrack = { ...track, isDegraded: updateType === HMSTrackUpdate.TRACK_DEGRADED };
-        } else if (track.type === HMSTrackType.AUDIO) {
-          updatedObj.audioTrack = track;
+        if (track.source === HMSTrackSource.REGULAR) {
+          if (track.type === HMSTrackType.VIDEO) {
+            updatedObj.videoTrack = { ...track, isDegraded: updatedObj.videoTrack?.isDegraded || false };
+          } else if (track.type === HMSTrackType.AUDIO) {
+            updatedObj.audioTrack = track;
+          }
         }
-      }
-      else {
-        if (Array.isArray(updatedObj.auxiliaryTracks)) {
-          updatedObj = {
-            ...updatedObj,
-            auxiliaryTracks: updatedObj.auxiliaryTracks.map(auxiliaryTrack => {
-              if (auxiliaryTrack.trackId === track.trackId) {
-                return { ...auxiliaryTrack, isDegraded: updateType === HMSTrackUpdate.TRACK_DEGRADED }
-              }
-
-              return auxiliaryTrack;
-            }),
-          };
-        } else {
-          updatedObj.auxiliaryTracks = [track];
+        else {
+          if (Array.isArray(updatedObj.auxiliaryTracks)) {
+            updatedObj = {
+              ...updatedObj,
+              auxiliaryTracks: updatedObj.auxiliaryTracks.map(auxiliaryTrack => auxiliaryTrack.trackId === track.trackId ? track : auxiliaryTrack),
+            };
+          } else {
+            updatedObj.auxiliaryTracks = [track];
+          }
         }
+        break;
       }
-    }
-    else {
-      updatedObj = { ...updatedObj, ...data };
+      case HMSTrackUpdate.TRACK_DEGRADED:
+      case HMSTrackUpdate.TRACK_RESTORED: {
+        const track = data.track as HMSTrack;
+
+        if (track.source === HMSTrackSource.REGULAR) {
+          if (track.type === HMSTrackType.VIDEO) {
+            updatedObj.videoTrack = { ...track, isDegraded: updateType === HMSTrackUpdate.TRACK_DEGRADED };
+          } else if (track.type === HMSTrackType.AUDIO) {
+            updatedObj.audioTrack = track;
+          }
+        }
+        else {
+          if (Array.isArray(updatedObj.auxiliaryTracks)) {
+            updatedObj = {
+              ...updatedObj,
+              auxiliaryTracks: updatedObj.auxiliaryTracks.map(auxiliaryTrack => {
+                if (auxiliaryTrack.trackId === track.trackId) {
+                  return { ...auxiliaryTrack, isDegraded: updateType === HMSTrackUpdate.TRACK_DEGRADED }
+                }
+
+                return auxiliaryTrack;
+              }),
+            };
+          } else {
+            updatedObj.auxiliaryTracks = [track];
+          }
+        }
+        break;
+      }
+      case HMSPeerUpdate.ROLE_CHANGED: {
+        updatedObj.role = HMSEncoder.encodeHmsRole(data.role);
+        break;
+      }
+      case HMSPeerUpdate.NETWORK_QUALITY_UPDATED: {
+        updatedObj.networkQuality = HMSEncoder.encodeHMSNetworkQuality(data.networkQuality);
+        break;
+      }
+      case HMSPeerUpdate.METADATA_CHANGED:
+      case HMSPeerUpdate.NAME_CHANGED:
+      case HMSPeerUpdate.PEER_JOINED:
+      case HMSPeerUpdate.ROLE_CHANGED: {
+        updatedObj = { ...updatedObj, ...data };
+        break;
+      }
+      default: {
+        updatedObj = { ...updatedObj, ...data };
+        break;
+      }
     }
 
     if (Object.keys(updatedObj).length > 0) {
