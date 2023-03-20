@@ -502,6 +502,11 @@ const DisplayView = (data: {
           changePeerNodes(nodesPresent, peer);
         }
       }
+      if (peer.isLocal) {
+        hmsInstance?.getLocalPeer().then(localPeer => {
+          data?.setLocalPeer(localPeer);
+        });
+      }
       return;
     }
     if (type === HMSTrackUpdate.TRACK_REMOVED) {
@@ -524,6 +529,11 @@ const DisplayView = (data: {
         peerTrackNodesRef.current = newPeerTrackNodes;
         setPeerTrackNodes(newPeerTrackNodes);
       }
+      if (peer.isLocal) {
+        hmsInstance?.getLocalPeer().then(localPeer => {
+          data?.setLocalPeer(localPeer);
+        });
+      }
       return;
     }
     if (
@@ -545,6 +555,11 @@ const DisplayView = (data: {
         changePeerTrackNodes(nodesPresent, peer, track);
       } else {
         changePeerNodes(nodesPresent, peer);
+      }
+      if (peer.isLocal) {
+        hmsInstance?.getLocalPeer().then(localPeer => {
+          data?.setLocalPeer(localPeer);
+        });
       }
       return;
     }
@@ -1296,7 +1311,7 @@ const Footer = ({
           <CustomButton
             onPress={() => {
               localPeer?.localVideoTrack()?.setMute(!isVideoMute);
-              setIsVideoMute(!isAudioMute);
+              setIsVideoMute(!isVideoMute);
             }}
             viewStyle={[styles.iconContainer, isVideoMute && styles.iconMuted]}
             LeftIcon={
