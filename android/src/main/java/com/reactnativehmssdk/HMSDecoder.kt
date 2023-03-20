@@ -79,6 +79,53 @@ object HMSDecoder {
     return room
   }
 
+  fun getHmsPeer2(hmsPeer: HMSPeer?, peerUpdateType: HMSPeerUpdate): WritableMap {
+    val peer: WritableMap = Arguments.createMap()
+    if (hmsPeer != null) {
+      peer.putString(peerUpdateType.ordinal.toString(), hmsPeer.peerID)
+
+//      peer.putBoolean("isLocal", hmsPeer.isLocal)
+
+//      hmsPeer.customerUserID?.let {
+//        peer.putString("customerUserID", it)
+//      }
+
+//      peer.putString("joinedAt", hmsPeer.joinedAt.toString())
+
+      if (peerUpdateType !== null) {
+        when (peerUpdateType) {
+          HMSPeerUpdate.NAME_CHANGED -> {
+            peer.putString("name", hmsPeer.name)
+          }
+          HMSPeerUpdate.METADATA_CHANGED -> {
+            peer.putString("metadata", hmsPeer.metadata)
+          }
+          HMSPeerUpdate.ROLE_CHANGED -> {
+            peer.putMap("role", this.getHmsRole(hmsPeer.hmsRole))
+          }
+          HMSPeerUpdate.NETWORK_QUALITY_UPDATED -> {
+            hmsPeer.networkQuality?.let {
+              peer.putMap("networkQuality", this.getHmsNetworkQuality(it))
+            }
+          }
+        }
+      }
+
+//      hmsPeer.audioTrack?.let {
+//        peer.putMap("audioTrack", this.getHmsAudioTrack(it))
+//      }
+//
+//      hmsPeer.videoTrack?.let {
+//        peer.putMap("videoTrack", this.getHmsVideoTrack(it))
+//      }
+//
+//      hmsPeer.auxiliaryTracks.let {
+//        peer.putArray("auxiliaryTracks", this.getAllTracks(it))
+//      }
+    }
+    return peer
+  }
+
   fun getHmsPeer(hmsPeer: HMSPeer?, peerUpdateType: HMSPeerUpdate? = null): WritableMap {
     val peer: WritableMap = Arguments.createMap()
     if (hmsPeer != null) {

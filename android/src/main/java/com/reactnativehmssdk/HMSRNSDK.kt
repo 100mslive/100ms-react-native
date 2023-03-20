@@ -17,7 +17,6 @@ import live.hms.video.sdk.models.enums.AudioMixingMode
 import live.hms.video.sdk.models.enums.HMSPeerUpdate
 import live.hms.video.sdk.models.enums.HMSRoomUpdate
 import live.hms.video.sdk.models.enums.HMSTrackUpdate
-import live.hms.video.sdk.models.role.HMSRole
 import live.hms.video.sdk.models.trackchangerequest.HMSChangeTrackStateRequest
 import live.hms.video.utils.HMSCoroutineScope
 import live.hms.video.utils.HmsUtilities
@@ -155,7 +154,7 @@ class HMSRNSDK(
           }
 
           override fun onPeerUpdate(type: HMSPeerUpdate, peer: HMSPeer) {
-            if (eventsEnableStatus["ON_PEER_UPDATE"] != true) {
+            if (eventsEnableStatus["3"] != true) {
               return
             }
             if (type === HMSPeerUpdate.AUDIO_TOGGLED ||
@@ -172,15 +171,14 @@ class HMSRNSDK(
             ) {
               return
             }
-            val updateType = type.ordinal
-            val hmsPeer = HMSDecoder.getHmsPeer(peer, type)
+            val hmsPeer = HMSDecoder.getHmsPeer2(peer, type)
 
-            val data: WritableMap = Arguments.createMap()
+//            val data: WritableMap = Arguments.createMap()
 
-            data.putMap("peer", hmsPeer)
-            data.putInt("type", updateType)
+//            data.putMap("peer", hmsPeer)
+//            data.putInt("type", updateType)
 //            data.putString("id", id)
-            delegate.emitEvent("ON_PEER_UPDATE", data)
+            delegate.emitEvent("3", hmsPeer)
           }
 
           override fun onRoomUpdate(type: HMSRoomUpdate, hmsRoom: HMSRoom) {
@@ -297,7 +295,7 @@ class HMSRNSDK(
               }
 
               override fun onPeerUpdate(type: HMSPeerUpdate, peer: HMSPeer) {
-                if (eventsEnableStatus["ON_PEER_UPDATE"] != true) {
+                if (eventsEnableStatus["3"] != true) {
                   return
                 }
                 if (type === HMSPeerUpdate.AUDIO_TOGGLED ||
@@ -315,15 +313,15 @@ class HMSRNSDK(
                 ) {
                   return
                 }
-                val updateType = type.ordinal
-                val hmsPeer = HMSDecoder.getHmsPeer(peer, type)
+                val hmsPeer = HMSDecoder.getHmsPeer2(peer, type)
 
-                val data: WritableMap = Arguments.createMap()
+//                val data: WritableMap = Arguments.createMap()
 
-                data.putMap("peer", hmsPeer)
-                data.putInt("type", updateType)
+//                data.putMap("peer", hmsPeer)
+//                data.putInt("type", updateType)
 //                data.putString("id", id)
-                delegate.emitEvent("ON_PEER_UPDATE", data)
+
+                delegate.emitEvent("3", hmsPeer)
               }
 
               override fun onRoomUpdate(type: HMSRoomUpdate, hmsRoom: HMSRoom) {

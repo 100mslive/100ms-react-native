@@ -1894,7 +1894,21 @@ export class HMSSDK {
     }
   };
 
-  onPeerListener = (data: any) => {
+  onPeerListener = (peerData: any) => {
+    const data: {peer: any; type: any} = {
+      peer: peerData,
+      type: null
+    };
+
+    ["0", "1", "9", "10", "11", "12"].some((ordinal) => {
+      if (ordinal in peerData) {
+        data.peer.peerID = peerData[ordinal]
+        data.type = parseInt(ordinal);
+        return true;
+      }
+      return false;
+    });
+
     const peer: HMSPeer = HMSEncoder.encodeHmsPeer(data.peer);
     const type = HMSEncoder.encodeHmsPeerUpdate(data.type);
 
