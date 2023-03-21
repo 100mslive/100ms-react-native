@@ -29,6 +29,7 @@ import {
   Dimensions,
   AppState,
   LayoutAnimation,
+  InteractionManager,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -908,6 +909,7 @@ const DisplayView = (data: {
           <DefaultModal
             modalVisible={data?.modalVisible === ModalTypes.CHAT}
             setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}
+            viewStyle={{minHeight: '100%'}}
           >
             <ChatWindow localPeer={data?.localPeer} />
           </DefaultModal>
@@ -940,6 +942,7 @@ const DisplayView = (data: {
           <DefaultModal
             modalVisible={data?.modalVisible === ModalTypes.PARTICIPANTS}
             setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}
+            viewStyle={{ minHeight: '100%' }}
           >
             <ParticipantsModal
               instance={hmsInstance}
@@ -1033,7 +1036,9 @@ const Header = ({
   };
 
   const onParticipantsPress = () => {
-    setModalVisible(ModalTypes.PARTICIPANTS);
+    InteractionManager.runAfterInteractions(() => {
+      setModalVisible(ModalTypes.PARTICIPANTS);
+    });
   };
 
   return (
@@ -1156,7 +1161,9 @@ const Header = ({
         />
         <CustomButton
           onPress={() => {
-            setModalVisible(ModalTypes.CHAT);
+            InteractionManager.runAfterInteractions(() => {
+              setModalVisible(ModalTypes.CHAT);
+            });
             // setNotification(false);
           }}
           viewStyle={styles.iconContainer}
@@ -1259,7 +1266,9 @@ const Footer = ({
   };
 
   const onSettingsPress = () => {
-    setModalVisible(ModalTypes.SETTINGS);
+    InteractionManager.runAfterInteractions(() => {
+      setModalVisible(ModalTypes.SETTINGS);
+    });
   };
 
   // Check if PIP is supported or not
@@ -1388,7 +1397,7 @@ const Footer = ({
       <DefaultModal
         modalVisible={modalVisible === ModalTypes.SETTINGS}
         setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
-        viewStyle={{maxHeight: Platform.OS === 'ios' ? '70%' : '85%'}}
+        viewStyle={{maxHeight: '100%'}}
       >
         <RoomSettingsModalContent
           localPeer={localPeer}

@@ -1,13 +1,11 @@
 import React, {ReactNode} from 'react';
 import {
-  Modal,
   StyleSheet,
   View,
   StyleProp,
   ViewStyle,
-  KeyboardAvoidingView,
-  Platform,
 } from 'react-native';
+import Modal from 'react-native-modal';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
@@ -38,46 +36,39 @@ export const DefaultModal = ({
   const {left, right} = useSafeAreaInsets();
   return (
     <Modal
-      animationType={animationType}
-      transparent={transparent}
-      visible={modalVisible}
+      useNativeDriver={true}
+      useNativeDriverForBackdrop={true}
+      hideModalContentWhileAnimating={true}
+      animationIn='slideInUp'
+      animationOut='slideOutDown'
+      avoidKeyboard={true}
+      isVisible={modalVisible}
       supportedOrientations={['portrait', 'landscape']}
-      onRequestClose={setModalVisible}
-      style={modalStyle}>
+      onBackdropPress={setModalVisible}
+      onDismiss={setModalVisible}
+      onBackButtonPress={setModalVisible}
+      style={[modalStyle, { margin: 0 }]}>
       <View
         style={[
-          styles.container,
-          {
-            justifyContent: modalPosiion,
-          },
-          !overlay && styles.overlay,
-        ]}
-        onTouchEnd={setModalVisible}>
-        <KeyboardAvoidingView
-          enabled={Platform.OS === 'ios'}
-          behavior="padding"
-          style={[
-            styles.contentContainer,
-            modalPosiion === 'flex-end' ? styles.end : styles.center,
-            viewStyle,
-            {marginLeft: left, marginRight: right},
-          ]}
-          onTouchEnd={e => e.stopPropagation()}>
-          {modalPosiion === 'flex-end' && (
-            <CustomButton
-              onPress={setModalVisible}
-              viewStyle={styles.crossButton}
-              LeftIcon={
-                <MaterialCommunityIcons
-                  name="close"
-                  style={styles.crossButtonIcon}
-                  size={24}
-                />
-              }
-            />
-          )}
-          {children}
-        </KeyboardAvoidingView>
+          styles.contentContainer,
+          styles.end,
+          viewStyle,
+          {marginLeft: left, marginRight: right},
+        ]}>
+        {modalPosiion === 'flex-end' && (
+          <CustomButton
+            onPress={setModalVisible}
+            viewStyle={styles.crossButton}
+            LeftIcon={
+              <MaterialCommunityIcons
+                name="close"
+                style={styles.crossButtonIcon}
+                size={24}
+              />
+            }
+          />
+        )}
+        {children}
       </View>
     </Modal>
   );
