@@ -15,13 +15,6 @@ export class HMSLogger {
   private _verbose: boolean = false;
   private _warning: boolean = false;
   private _error: boolean = false;
-  private logs: {
-    type: 'verbose' | 'warn' | 'error';
-    timestamp: string;
-    message: string;
-    data: any;
-    id: string;
-  }[] = [];
   private onLog?: Function;
 
   constructor(params?: { verbose: boolean; warning: boolean; error: boolean }) {
@@ -39,7 +32,6 @@ export class HMSLogger {
       if (this.onLog) {
         this?.onLog({ timestamp, message, data });
       }
-      this.logs.push({ type: 'verbose', timestamp, message, data, id: data?.id });
     }
   }
 
@@ -50,7 +42,6 @@ export class HMSLogger {
       if (this.onLog) {
         this?.onLog({ timestamp, message, data });
       }
-      this.logs.push({ type: 'warn', timestamp, message, data, id: data?.id });
     }
   }
 
@@ -61,12 +52,7 @@ export class HMSLogger {
       if (this.onLog) {
         this?.onLog({ timestamp, message, data });
       }
-      this.logs.push({ type: 'error', timestamp, message, data, id: data?.id });
     }
-  }
-
-  getLogs() {
-    return this.logs;
   }
 
   setLogListener(callback: Function) {
