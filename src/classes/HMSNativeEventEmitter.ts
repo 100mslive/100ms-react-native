@@ -45,7 +45,6 @@ export class HMSNativeEventEmitter {
 
     return {
       remove: () => {
-        console.log('#Function EventSubscription.remove', { id, eventType, listener });
         if (
           subscription &&
           Object.getOwnPropertyNames(subscription).includes('remove') &&
