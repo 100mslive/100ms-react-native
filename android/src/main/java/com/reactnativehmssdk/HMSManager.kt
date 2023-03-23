@@ -454,6 +454,13 @@ class HMSManager(reactContext: ReactApplicationContext) :
     return hms.getPeerProperty(data)
   }
 
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  fun getRoomProperty(data: ReadableMap): WritableMap? {
+    val hms = HMSHelper.getHms(data, hmsCollection) ?: return null
+
+    return hms.getRoomProperty(data)
+  }
+
   @ReactMethod
   fun enableEvent(data: ReadableMap, promise: Promise?) {
     val hms = HMSHelper.getHms(data, hmsCollection)

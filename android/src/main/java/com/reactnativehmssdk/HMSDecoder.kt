@@ -10,6 +10,7 @@ import live.hms.video.media.settings.HMSVideoTrackSettings
 import live.hms.video.media.tracks.*
 import live.hms.video.sdk.models.*
 import live.hms.video.sdk.models.enums.HMSPeerUpdate
+import live.hms.video.sdk.models.enums.HMSRoomUpdate
 import live.hms.video.sdk.models.role.*
 import live.hms.video.sdk.models.trackchangerequest.HMSChangeTrackStateRequest
 
@@ -24,7 +25,55 @@ object HMSDecoder {
     this.restrictRoleData.clear()
   }
 
-  fun getHmsRoom(hmsRoom: HMSRoom?, onJoin: Boolean = false): WritableMap {
+  fun getHmsRoom2(hmsRoom: HMSRoom?, hmsRoomUpdateType: HMSRoomUpdate? = null): WritableMap {
+    val room: WritableMap = Arguments.createMap()
+    if (hmsRoom != null) {
+      room.putString("id", hmsRoom.roomId)
+
+      when(hmsRoomUpdateType) {
+        HMSRoomUpdate.ROOM_PEER_COUNT_UPDATED -> {
+          room.putInt("peerCount", hmsRoom.peerCount)
+        }
+        HMSRoomUpdate.HLS_RECORDING_STATE_UPDATED -> {
+          hmsRoom.hlsRecordingState?.let {
+            room.putMap("hlsRecordingState", this.getHMSHlsRecordingState(it))
+          }
+        }
+        HMSRoomUpdate.BROWSER_RECORDING_STATE_UPDATED -> {
+          hmsRoom.browserRecordingState?.let {
+            room.putMap(
+              "browserRecordingState",
+              this.getHMSBrowserRecordingState(it),
+            )
+          }
+        }
+        HMSRoomUpdate.HLS_STREAMING_STATE_UPDATED -> {
+          hmsRoom.hlsStreamingState?.let {
+            room.putMap("hlsStreamingState", this.getHMSHlsStreamingState(it))
+          }
+        }
+        HMSRoomUpdate.RTMP_STREAMING_STATE_UPDATED -> {
+          hmsRoom.rtmpHMSRtmpStreamingState?.let {
+            room.putMap(
+              "rtmpHMSRtmpStreamingState",
+              this.getHMSRtmpStreamingState(it),
+            )
+          }
+        }
+        HMSRoomUpdate.SERVER_RECORDING_STATE_UPDATED -> {
+          hmsRoom.serverRecordingState?.let {
+            room.putMap(
+              "serverRecordingState",
+              this.getHMSServerRecordingState(it),
+            )
+          }
+        }
+      }
+    }
+    return room
+  }
+
+  fun getHmsRoom(hmsRoom: HMSRoom?): WritableMap {
     val room: WritableMap = Arguments.createMap()
     if (hmsRoom != null) {
       room.putString("id", hmsRoom.roomId)
@@ -66,14 +115,7 @@ object HMSDecoder {
 
       room.putMap("localPeer", this.getHmsLocalPeer(hmsRoom.localPeer))
 
-      // TODO: To be cached
-//      if (onJoin) {
-        hmsRoom.localPeer?.let {
-          room.putArray("peers", this.getAllPeers(listOf<HMSPeer>(it)))
-        }
-//      } else {
-//        room.putArray("peers", this.getAllPeers(hmsRoom.peerList))
-//      }
+      room.putArray("peers", this.getAllPeers(hmsRoom.peerList))
 
       room.putInt("peerCount", hmsRoom.peerCount)
     }
@@ -527,7 +569,7 @@ object HMSDecoder {
     return null
   }
 
-  private fun getHMSBrowserRecordingState(data: HMSBrowserRecordingState?): ReadableMap {
+  fun getHMSBrowserRecordingState(data: HMSBrowserRecordingState?): ReadableMap {
     val input = Arguments.createMap()
     if (data !== null) {
       input.putBoolean("running", data.running)
@@ -547,7 +589,7 @@ object HMSDecoder {
     return input
   }
 
-  private fun getHMSRtmpStreamingState(data: HMSRtmpStreamingState?): ReadableMap {
+  fun getHMSRtmpStreamingState(data: HMSRtmpStreamingState?): ReadableMap {
     val input = Arguments.createMap()
     if (data !== null) {
       input.putBoolean("running", data.running)
@@ -567,7 +609,7 @@ object HMSDecoder {
     return input
   }
 
-  private fun getHMSServerRecordingState(data: HMSServerRecordingState?): ReadableMap {
+  fun getHMSServerRecordingState(data: HMSServerRecordingState?): ReadableMap {
     val input = Arguments.createMap()
     if (data !== null) {
       input.putBoolean("running", data.running)
@@ -583,7 +625,7 @@ object HMSDecoder {
     return input
   }
 
-  private fun getHMSHlsStreamingState(data: HMSHLSStreamingState?): ReadableMap {
+  fun getHMSHlsStreamingState(data: HMSHLSStreamingState?): ReadableMap {
     val input = Arguments.createMap()
     if (data !== null) {
       input.putBoolean("running", data.running)
@@ -594,7 +636,7 @@ object HMSDecoder {
     return input
   }
 
-  private fun getHMSHlsRecordingState(data: HmsHlsRecordingState?): ReadableMap {
+  fun getHMSHlsRecordingState(data: HmsHlsRecordingState?): ReadableMap {
     val input = Arguments.createMap()
     if (data !== null) {
       data.running?.let { input.putBoolean("running", it) }
@@ -659,7 +701,7 @@ object HMSDecoder {
     return subscribeDegradationParams
   }
 
-  private fun getAllPeers(peers: List<HMSPeer>?): WritableArray {
+  fun getAllPeers(peers: List<HMSPeer>?): WritableArray {
     val decodedPeers: WritableArray = Arguments.createArray()
     if (peers != null) {
       for (peer in peers) {

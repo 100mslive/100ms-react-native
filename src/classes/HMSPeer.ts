@@ -3,7 +3,7 @@ import type { HMSNetworkQuality } from './HMSNetworkQuality';
 import type { HMSRole } from './HMSRole';
 import type { HMSTrack } from './HMSTrack';
 import type { HMSVideoTrack } from './HMSVideoTrack';
-import { getHmsPeersCache, getPeerPropertyFromNative } from './HMSCache';
+import { getHmsPeersCache, getPeerPropertyFromNative } from './HMSPeersCache';
 import { HMSConstants } from './HMSConstants';
 
 // let totalTimeFromNativeSide = 0;

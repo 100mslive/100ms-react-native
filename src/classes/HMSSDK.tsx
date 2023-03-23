@@ -35,7 +35,8 @@ import type { HMSLogSettings } from './HMSLogSettings';
 import { HMSMessageType } from './HMSMessageType';
 import { HMSPIPListenerActions } from './HMSPIPListenerActions';
 import { type HMSEventSubscription, HMSNativeEventEmitter } from './HMSNativeEventEmitter';
-import { clearHmsPeersCache, getHmsPeersCache, HMSPeersCache, setHmsPeersCache } from './HMSCache';
+import { clearHmsPeersCache, getHmsPeersCache, HMSPeersCache, setHmsPeersCache } from './HMSPeersCache';
+import { clearHmsRoomCache, getHmsRoomCache, HMSRoomCache, setHmsRoomCache } from './HMSRoomCache';
 
 interface HmsViewProps {
   trackId: string;
@@ -167,6 +168,7 @@ export class HMSSDK {
   destroy = async () => {
     logger?.verbose('#Function destroy', { id: this.id });
     clearHmsPeersCache();
+    clearHmsRoomCache();
     this.removeAllListeners();
     return await HMSManager.destroy({ id: this.id });
   };
@@ -184,6 +186,7 @@ export class HMSSDK {
     logger?.verbose('#Function join', { config, id: this.id });
     this.addAppStateListener();
     setHmsPeersCache(new HMSPeersCache(this.id));
+    setHmsRoomCache(new HMSRoomCache(this.id));
     await HMSManager.join({ ...config, id: this.id });
   };
 
@@ -255,6 +258,7 @@ export class HMSSDK {
     this.muteStatus = undefined;
     this?.appStateSubscription?.remove();
     clearHmsPeersCache();
+    clearHmsRoomCache();
     HMSEncoder.clearData(); // Clearing cached data in encoder
   };
 
@@ -683,6 +687,8 @@ export class HMSSDK {
       id: this.id,
     });
     const hmsRoom = await HMSManager.getRoom({ id: this.id });
+
+    getHmsRoomCache()?.updateRoomCache(hmsRoom);
 
     const encodedHmsRoom = HMSEncoder.encodeHmsRoom(hmsRoom, this.id);
     return encodedHmsRoom;
@@ -1884,6 +1890,8 @@ export class HMSSDK {
     }
     const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room, this.id);
     const type = data.type;
+
+    getHmsRoomCache()?.updateRoomCache(data.room, data.type);
 
     if (this.onRoomDelegate) {
       logger?.verbose('#Listener ON_ROOM_LISTENER_CALL', {

@@ -190,7 +190,7 @@ class HMSRNSDK(
             }
 
             val updateType = type.name
-            val roomData = HMSDecoder.getHmsRoom(hmsRoom)
+            val roomData = HMSDecoder.getHmsRoom2(hmsRoom, type)
 
             val data: WritableMap = Arguments.createMap()
 
@@ -206,7 +206,7 @@ class HMSRNSDK(
               return
             }
             val previewTracks = HMSDecoder.getPreviewTracks(localTracks)
-            val hmsRoom = HMSDecoder.getHmsRoom(room)
+            val hmsRoom = HMSDecoder.getHmsRoom2(room)
             val data: WritableMap = Arguments.createMap()
 
             data.putArray("previewTracks", previewTracks)
@@ -285,7 +285,7 @@ class HMSRNSDK(
                 if (eventsEnableStatus["ON_JOIN"] != true) {
                   return
                 }
-                val roomData = HMSDecoder.getHmsRoom(room, onJoin = true)
+                val roomData = HMSDecoder.getHmsRoom2(room)
 
                 val data: WritableMap = Arguments.createMap()
 
@@ -333,7 +333,7 @@ class HMSRNSDK(
                 }
 
                 val updateType = type.name
-                val roomData = HMSDecoder.getHmsRoom(hmsRoom)
+                val roomData = HMSDecoder.getHmsRoom2(hmsRoom, type)
 
                 val data: WritableMap = Arguments.createMap()
 
@@ -1655,6 +1655,65 @@ class HMSRNSDK(
         "auxiliaryTracks" -> getPeerAuxiliaryTracks(peer)
         else -> null
       }
+    }
+
+    return null
+  }
+
+  fun getRoomProperty(data: ReadableMap): WritableMap? {
+    val requiredKeys =
+      HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("property", "String")))
+
+    val nativeHmsSDK = hmsSDK
+
+    if (requiredKeys !== null || nativeHmsSDK === null) {
+      return null
+    }
+
+    val property = data.getString("property")!!
+
+    val hmsRoom = nativeHmsSDK.getRoom()
+
+    if (hmsRoom !== null) {
+      val data: WritableMap = Arguments.createMap();
+
+      when(property) {
+        "sessionId" -> {
+          data.putString("sessionId", hmsRoom.sessionId)
+        }
+        "name" -> {
+          data.putString("name", hmsRoom.name)
+        }
+        "metaData" -> {
+          data.putString("metaData", null)
+        }
+        "peerCount" -> {
+          data.putInt("peerCount", hmsRoom.peerCount)
+        }
+        "peers" -> {
+          data.putArray("peers", HMSDecoder.getAllPeers(hmsRoom.peerList))
+        }
+        "localPeer" -> {
+          data.putMap("localPeer", HMSDecoder.getHmsLocalPeer(hmsRoom.localPeer))
+        }
+        "browserRecordingState" -> {
+          data.putMap("browserRecordingState", HMSDecoder.getHMSBrowserRecordingState(hmsRoom.browserRecordingState))
+        }
+        "rtmpHMSRtmpStreamingState" -> {
+          data.putMap("rtmpHMSRtmpStreamingState", HMSDecoder.getHMSRtmpStreamingState(hmsRoom.rtmpHMSRtmpStreamingState))
+        }
+        "serverRecordingState" -> {
+          data.putMap("serverRecordingState", HMSDecoder.getHMSServerRecordingState(hmsRoom.serverRecordingState))
+        }
+        "hlsStreamingState" -> {
+          data.putMap("hlsStreamingState", HMSDecoder.getHMSHlsStreamingState(hmsRoom.hlsStreamingState))
+        }
+        "hlsRecordingState" -> {
+          data.putMap("hlsRecordingState", HMSDecoder.getHMSHlsRecordingState(hmsRoom.hlsRecordingState))
+        }
+      }
+
+      return data
     }
 
     return null
