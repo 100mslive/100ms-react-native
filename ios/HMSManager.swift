@@ -8,7 +8,7 @@ class HMSManager: RCTEventEmitter {
     let ON_PREVIEW = "ON_PREVIEW"
     let ON_JOIN = "ON_JOIN"
     let ON_ROOM_UPDATE = "ON_ROOM_UPDATE"
-    let ON_PEER_UPDATE = "ON_PEER_UPDATE"
+    let ON_PEER_UPDATE = "3"
     let ON_TRACK_UPDATE = "ON_TRACK_UPDATE"
     let ON_ROLE_CHANGE_REQUEST = "ON_ROLE_CHANGE_REQUEST"
     let ON_CHANGE_TRACK_STATE_REQUEST = "ON_CHANGE_TRACK_STATE_REQUEST"
@@ -399,6 +399,20 @@ class HMSManager: RCTEventEmitter {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.setSessionMetaData(data, resolve, reject)
+    }
+
+    @objc
+    func getPeerProperty(_ data: NSDictionary) -> [AnyHashable:Any]? {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        return hms?.getPeerProperty(data)
+    }
+
+    @objc
+    func getRoomProperty(_ data: NSDictionary) -> [AnyHashable:Any]? {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        return hms?.getRoomProperty(data)
     }
 
     @objc

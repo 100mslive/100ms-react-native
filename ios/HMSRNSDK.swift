@@ -31,7 +31,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     let ON_PREVIEW = "ON_PREVIEW"
     let ON_JOIN = "ON_JOIN"
     let ON_ROOM_UPDATE = "ON_ROOM_UPDATE"
-    let ON_PEER_UPDATE = "ON_PEER_UPDATE"
+    let ON_PEER_UPDATE = "3"
     let ON_TRACK_UPDATE = "ON_TRACK_UPDATE"
     let ON_ROLE_CHANGE_REQUEST = "ON_ROLE_CHANGE_REQUEST"
     let ON_REMOVED_FROM_ROOM = "ON_REMOVED_FROM_ROOM"
@@ -1158,13 +1158,118 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
 
+    func getPeerProperty(_ data: NSDictionary) -> [AnyHashable:Any]? {
+        guard let property = data.value(forKey: "property") as? String else {
+            return nil
+        }
+
+        guard let peerId = data.value(forKey: "peerId") as? String else {
+            return nil
+        }
+
+        guard let room = hms?.room, let peer = HMSUtilities.getPeer(for: peerId, in: room) else {
+            return nil
+        }
+
+        switch property {
+            case "name":
+                return ["name": peer.name]
+            case "isLocal":
+                return ["isLocal": peer.isLocal]
+            case "networkQuality":
+                if peer.networkQuality != nil {
+                    return ["networkQuality": HMSDecoder.getHmsNetworkQuality(peer.networkQuality)]
+                } else {
+                    return nil
+                }
+            case "metadata":
+                return ["metadata": peer.metadata ?? ""]
+            case "role":
+                return ["role": HMSDecoder.getHmsRole(peer.role)]
+            case "customerUserID":
+                return ["customerUserID": peer.customerUserID ?? ""]
+            case "audioTrack":
+                if peer.audioTrack != nil {
+                    return ["audioTrack": HMSDecoder.getHmsAudioTrack(peer.audioTrack)]
+                } else {
+                    return nil
+                }
+            case "videoTrack":
+                if peer.videoTrack != nil {
+                    return ["videoTrack": HMSDecoder.getHmsVideoTrack(peer.videoTrack)]
+                } else {
+                    return nil
+                }
+            case "auxiliaryTracks":
+                if let auxTracks = peer.auxiliaryTracks, auxTracks.count > 0 {
+                    return ["auxiliaryTracks": HMSDecoder.getAllTracks(auxTracks)]
+                } else {
+                    return nil
+                }
+            default:
+                return nil
+        }
+    }
+
+    func getRoomProperty(_ data: NSDictionary) -> [AnyHashable:Any]? {
+        guard let property = data.value(forKey: "property") as? String else {
+            return nil
+        }
+
+        guard let hmsRoom = hms?.room else {
+            return nil
+        }
+
+        switch property {
+            case "sessionId":
+                return ["sessionId": hmsRoom.sessionID ?? ""]
+            case "name":
+                return ["name": hmsRoom.name ?? ""]
+
+            case "metaData":
+                return ["metaData": hmsRoom.metaData ?? ""]
+
+            case "peerCount":
+                return ["peerCount": hmsRoom.peerCount ?? 0]
+
+            case "peers":
+                var peers = [[String: Any]]()
+                for peer in hmsRoom.peers {
+                    let parsedPeer = HMSDecoder.getHmsPeer(peer)
+                    peers.append(parsedPeer)
+                }
+                return ["peers": peers]
+
+            case "localPeer":
+                return ["localPeer": HMSDecoder.getHmsLocalPeer(hms?.localPeer)]
+
+            case "browserRecordingState":
+                return ["browserRecordingState": HMSDecoder.getHMSBrowserRecordingState(hmsRoom.browserRecordingState)]
+
+            case "rtmpHMSRtmpStreamingState":
+                return ["rtmpHMSRtmpStreamingState": HMSDecoder.getHMSRtmpStreamingState(hmsRoom.rtmpStreamingState)]
+
+            case "serverRecordingState":
+                return ["serverRecordingState": HMSDecoder.getHMSServerRecordingState(hmsRoom.serverRecordingState)]
+
+            case "hlsStreamingState":
+                return ["hlsStreamingState": HMSDecoder.getHlsStreamingState(hmsRoom.hlsStreamingState)]
+
+            case "hlsRecordingState":
+                return ["hlsRecordingState": HMSDecoder.getHlsRecordingState(hmsRoom.hlsRecordingState)]
+
+            default:
+                return nil
+        }
+    }
+
     // MARK: - HMS SDK Delegate Callbacks
     func on(join room: HMSRoom) {
         self.recentPreviewTracks = []
         if eventsEnableStatus[ON_JOIN] != true {
             return
         }
-        let roomData = HMSDecoder.getHmsRoom(room, onJoin: true)
+        let roomData = HMSDecoder.getHmsRoom2(room)
         self.delegate?.emitEvent(ON_JOIN, ["event": ON_JOIN, "id": self.id, "room": roomData])
     }
 
@@ -1174,7 +1279,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
         let previewTracks = HMSDecoder.getPreviewTracks(localTracks)
-        let hmsRoom = HMSDecoder.getHmsRoom(room)
+        let hmsRoom = HMSDecoder.getHmsRoom2(room)
 
         self.delegate?.emitEvent(ON_PREVIEW, ["event": ON_PREVIEW, "id": self.id, "room": hmsRoom, "previewTracks": previewTracks])
     }
@@ -1187,7 +1292,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
 
-        let roomData = HMSDecoder.getHmsRoom(room)
+        let roomData = HMSDecoder.getHmsRoom2(room, update)
         let type = getString(from: update)
 
         self.delegate?.emitEvent(ON_ROOM_UPDATE, ["event": ON_ROOM_UPDATE, "id": self.id, "type": type, "room": roomData])
@@ -1198,13 +1303,13 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
         let type = getString(from: update)
-        let hmsPeer = HMSDecoder.getHmsPeer(peer)
+        let hmsPeer = HMSDecoder.getHmsPeer2(peer, update)
 
         if !networkQualityUpdatesAttached && update == .networkQualityUpdated {
             return
         }
 
-        self.delegate?.emitEvent(ON_PEER_UPDATE, ["event": ON_PEER_UPDATE, "id": self.id, "type": type, "peer": hmsPeer])
+        self.delegate?.emitEvent(ON_PEER_UPDATE, hmsPeer)
     }
 
     func on(track: HMSTrack, update: HMSTrackUpdate, for peer: HMSPeer) {
