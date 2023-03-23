@@ -620,7 +620,22 @@ const DisplayView = (data: {
         });
         break;
       default:
-        dispatch(addMessage(message));
+        // dispatch(addMessage(message));
+        dispatch(addMessage({
+          ...message,
+          sender: message.sender ? {
+            peerID: message.sender.peerID,
+            name: message.sender.name,
+            isLocal: message.sender.isLocal,
+            role: message.sender.role,
+            audioTrack: undefined,
+            auxiliaryTracks: undefined,
+            customerUserID: undefined,
+            metadata: undefined,
+            networkQuality: undefined,
+            videoTrack: undefined
+           } : undefined
+        }));
         break;
     }
   };
@@ -817,7 +832,7 @@ const DisplayView = (data: {
     Dimensions.addEventListener('change', callback);
     return () => {
       Dimensions.removeEventListener('change', callback);
-      onLeavePress();
+      // onLeavePress();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
