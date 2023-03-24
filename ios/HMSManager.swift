@@ -402,14 +402,14 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func getPeerProperty(_ data: NSDictionary) -> [AnyHashable:Any]? {
+    func getPeerProperty(_ data: NSDictionary) -> [AnyHashable: Any]? {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         return hms?.getPeerProperty(data)
     }
 
     @objc
-    func getRoomProperty(_ data: NSDictionary) -> [AnyHashable:Any]? {
+    func getRoomProperty(_ data: NSDictionary) -> [AnyHashable: Any]? {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         return hms?.getRoomProperty(data)

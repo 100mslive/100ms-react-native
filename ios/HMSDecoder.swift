@@ -67,7 +67,7 @@ class HMSDecoder: NSObject {
         let hlsRecordingState = HMSDecoder.getHlsRecordingState(hmsRoom?.hlsRecordingState)
         var localPeer = [String: Any]()
         var peers = [[String: Any]]()
-        
+
         if onJoin {
             if let fetchedLocalPeer = room.peers.first(where: { $0.isLocal }) {
                 let parsedPeer = getHmsPeer(fetchedLocalPeer)

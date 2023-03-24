@@ -1158,7 +1158,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
 
-    func getPeerProperty(_ data: NSDictionary) -> [AnyHashable:Any]? {
+    func getPeerProperty(_ data: NSDictionary) -> [AnyHashable: Any]? {
         guard let property = data.value(forKey: "property") as? String else {
             return nil
         }
@@ -1211,7 +1211,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
 
-    func getRoomProperty(_ data: NSDictionary) -> [AnyHashable:Any]? {
+    func getRoomProperty(_ data: NSDictionary) -> [AnyHashable: Any]? {
         guard let property = data.value(forKey: "property") as? String else {
             return nil
         }
