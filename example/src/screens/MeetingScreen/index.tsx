@@ -35,7 +35,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useDispatch, useSelector} from 'react-redux';
 import Toast from 'react-native-simple-toast';
-import {useNavigation} from '@react-navigation/native';
+import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import DocumentPicker from 'react-native-document-picker';
 
@@ -105,6 +105,8 @@ type MeetingScreenProp = NativeStackNavigationProp<
   AppStackParamList,
   'MeetingScreen'
 >;
+
+type MeetingScreenRouteProp = RouteProp<AppStackParamList>;
 
 const Meeting = () => {
   // hooks
@@ -216,6 +218,7 @@ const DisplayView = (data: {
   setIsVideoMute: React.Dispatch<React.SetStateAction<boolean | undefined>>;
 }) => {
   // hooks
+  const { params } = useRoute<MeetingScreenRouteProp>();
   const isPipModeActive = useSelector(
     (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE,
   );
@@ -228,7 +231,7 @@ const DisplayView = (data: {
   const [peerTrackNodes, setPeerTrackNodes] =
     useState<Array<PeerTrackNode>>(peerState);
   const [orientation, setOrientation] = useState(true);
-  const [layout, setLayout] = useState<LayoutParams>(LayoutParams.GRID);
+  const [layout, setLayout] = useState<LayoutParams>(params?.isHLSViewer ? LayoutParams.HLS : LayoutParams.GRID);
   const [updatePeer, setUpdatePeer] = useState<HMSPeer>();
   const [selectedPeerTrackNode, setSelectedPeerTrackNode] =
     useState<PeerTrackNode | null>(null);
@@ -801,10 +804,14 @@ const DisplayView = (data: {
   }, []);
 
   useEffect(() => {
-    if (data?.localPeer?.role?.name?.includes('hls-')) {
-      setLayout(LayoutParams.HLS);
-    } else {
-      setLayout(LayoutParams.GRID);
+    const localPeer = data?.localPeer;
+
+    if (localPeer) {
+      if (localPeer.role?.name?.includes('hls-')) {
+        setLayout(LayoutParams.HLS);
+      } else {
+        setLayout(LayoutParams.GRID);
+      }
     }
   }, [data?.localPeer?.role?.name]);
 
