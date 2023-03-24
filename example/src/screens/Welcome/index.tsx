@@ -119,6 +119,13 @@ const Welcome = () => {
   };
 
   const handleJoin = (data: {room: HMSRoom}) => {
+    // Checking if User is joining as HLS-Viewer
+    if (
+      !isHLSViewerRef.current && data.room.localPeer.role?.name?.includes('hls-')
+    ) {
+      isHLSViewerRef.current = true;
+    }
+
     const nodesPresent = getPeerTrackNodes(
       peerTrackNodesRef?.current,
       data.room.localPeer,
@@ -149,7 +156,7 @@ const Welcome = () => {
       Constants.MEET_URL,
       roomID.replace('preview', 'meeting'),
     );
-    replace('MeetingScreen');
+    replace('MeetingScreen', { isHLSViewer: isHLSViewerRef.current });
   };
 
   const onJoinSuccess = (data: {room: HMSRoom}) => {
