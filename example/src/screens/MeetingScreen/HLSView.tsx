@@ -2,7 +2,8 @@ import React, {useRef, useState, useEffect} from 'react';
 import {useSelector} from 'react-redux';
 import {View, Text, Platform, LayoutAnimation} from 'react-native';
 import VideoPlayer from 'react-native-video-controls';
-import type {HMSRoom} from '@100mslive/react-native-hms';
+import Toast from 'react-native-simple-toast';
+import {type HMSRoom, HMSUpdateListenerActions} from '@100mslive/react-native-hms';
 
 import LiveButton, {LiveStates} from '../../components/LiveButton';
 
@@ -16,9 +17,11 @@ type HLSViewProps = {
 
 const HLSView = ({room}: HLSViewProps) => {
   // useRef hook
+  const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
   const hlsPlayerRef = useRef<VideoPlayer>(null);
   const [currentLiveState, setCurrentLiveState] = useState(LiveStates.LIVE);
   const liveLoadingTimerRef = useRef<NodeJS.Immediate | null>(null);
+  const reconnectedGoLiveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isPipModeActive = useSelector(
     (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE,
   );
@@ -28,10 +31,23 @@ const HLSView = ({room}: HLSViewProps) => {
       if (liveLoadingTimerRef.current) {
         clearImmediate(liveLoadingTimerRef.current);
       }
+
+      if (reconnectedGoLiveTimerRef.current) {
+        clearTimeout(reconnectedGoLiveTimerRef.current);
+      }
     };
   }, []);
 
-  const goLive = () => {
+  const goLive = React.useCallback(() => {
+    if (liveLoadingTimerRef.current) {
+      clearImmediate(liveLoadingTimerRef.current);
+    }
+
+    if (reconnectedGoLiveTimerRef.current) {
+      clearTimeout(reconnectedGoLiveTimerRef.current);
+      reconnectedGoLiveTimerRef.current = null;
+    }
+
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setCurrentLiveState(LiveStates.LOADING_LIVE);
 
@@ -40,9 +56,40 @@ const HLSView = ({room}: HLSViewProps) => {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       setCurrentLiveState(LiveStates.LIVE);
     });
-  };
+  }, []);
+
+  useEffect(() => {
+    if (hmsInstance) {
+      hmsInstance.addEventListener(
+        HMSUpdateListenerActions.RECONNECTED,
+        () => {
+          if (reconnectedGoLiveTimerRef.current) {
+            clearTimeout(reconnectedGoLiveTimerRef.current);
+          }
+
+          reconnectedGoLiveTimerRef.current = setTimeout(() => {
+            reconnectedGoLiveTimerRef.current = null;
+            goLive();
+          }, 1000);
+        },
+      );
+
+      return () => {
+        hmsInstance.removeEventListener(HMSUpdateListenerActions.RECONNECTED);
+      }
+    }
+  }, [hmsInstance, goLive]);
 
   const handlePausePress = () => setCurrentLiveState(LiveStates.BEHIND_LIVE);
+
+  const handleError = () => {
+    Toast.showWithGravity(
+      'HLS Stream player error! Try pressing "LIVE" button',
+      Toast.LONG,
+      Toast.TOP
+    );
+    setCurrentLiveState(LiveStates.BEHIND_LIVE);
+  }
 
   return (
     <View style={{flex: 1}}>
@@ -64,8 +111,7 @@ const HLSView = ({room}: HLSViewProps) => {
                     }}
                     ref={hlsPlayerRef}
                     resizeMode="contain"
-                    // onError={() => console.log('hls video streaming error')}
-                    // Callback when video cannot be loaded
+                    onError={handleError} // Callback when video cannot be loaded
                     allowsExternalPlayback={false}
                     style={styles.renderHLSVideo}
                     // hack to stop video from playing when VideoPlayer rerenders due to setting `currentLiveState` to `BEHIND_LIVE`.
@@ -89,7 +135,7 @@ const HLSView = ({room}: HLSViewProps) => {
                     isLive={currentLiveState === LiveStates.LIVE}
                     onPress={goLive}
                     size={isPipModeActive ? 'small' : undefined}
-                    disabled={currentLiveState !== LiveStates.BEHIND_LIVE}
+                    // disabled={currentLiveState !== LiveStates.BEHIND_LIVE}
                   />
                 </>
               ) : null}
