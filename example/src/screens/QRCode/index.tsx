@@ -181,6 +181,8 @@ const QRCode = () => {
       </ScrollView>
 
       <DefaultModal
+        animationIn={'slideInUp'}
+        animationOut={'slideOutDown'}
         modalVisible={moreModalVisible}
         viewStyle={{height: 700}}
         setModalVisible={closeMoreModal}

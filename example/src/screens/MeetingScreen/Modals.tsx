@@ -1779,7 +1779,7 @@ export const RecordingModal = ({
   instance?: HMSSDK;
   roomID: string;
   recordingModal: boolean;
-  setModalVisible: React.Dispatch<React.SetStateAction<ModalTypes>>;
+  setModalVisible(modalType: ModalTypes, delay?: any): void;
 }) => {
   const [resolutionDetails, setResolutionDetails] = useState<boolean>(false);
   const [recordingDetails, setRecordingDetails] = useState<HMSRTMPConfig>({
@@ -1853,7 +1853,7 @@ export const RecordingModal = ({
         onPress={() => {
           setResolutionDetails(!resolutionDetails);
           if (!resolutionDetails) {
-            setModalVisible(ModalTypes.RESOLUTION);
+            setModalVisible(ModalTypes.RESOLUTION, true);
             setRecordingDetails({
               ...recordingDetails,
               resolution: {
@@ -1945,7 +1945,7 @@ export const RecordingModal = ({
       <View style={styles.sortingButtonContainer}>
         <CustomButton
           title="Back"
-          onPress={() => setModalVisible(ModalTypes.RECORDING)}
+          onPress={() => setModalVisible(ModalTypes.RECORDING, true)}
           viewStyle={styles.backButton}
           textStyle={styles.roleChangeModalButtonText}
         />

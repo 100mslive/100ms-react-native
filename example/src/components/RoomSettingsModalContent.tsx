@@ -39,7 +39,7 @@ interface RoomSettingsModalContentProps {
   audioDeviceListenerAdded: boolean;
   muteAllTracksAudio: boolean;
   closeRoomSettingsModal(): void;
-  setModalVisible(modalType: ModalTypes): void;
+  setModalVisible(modalType: ModalTypes, delay?: boolean): void;
   setIsAudioShared(state: boolean): void;
   setAudioDeviceListenerAdded(state: boolean): void;
   setMuteAllTracksAudio(state: boolean): void;
@@ -140,7 +140,7 @@ export const RoomSettingsModalContent: React.FC<
         .then(d => console.log('Stop HLS Streaming Success: ', d))
         .catch(e => console.log('Stop HLS Streaming Error: ', e));
     } else {
-      setModalVisible(ModalTypes.HLS_STREAMING);
+      setModalVisible(ModalTypes.HLS_STREAMING, true);
     }
   };
 
@@ -152,7 +152,7 @@ export const RoomSettingsModalContent: React.FC<
         .then(d => console.log('Stop RTMP And Recording Success: ', d))
         .catch(e => console.log('Stop RTMP And Recording Error: ', e));
     } else {
-      setModalVisible(ModalTypes.RECORDING);
+      setModalVisible(ModalTypes.RECORDING, true);
     }
   };
 
@@ -179,17 +179,17 @@ export const RoomSettingsModalContent: React.FC<
     }
   };
 
-  const changeBulkRole = () => setModalVisible(ModalTypes.BULK_ROLE_CHANGE);
+  const changeBulkRole = () => setModalVisible(ModalTypes.BULK_ROLE_CHANGE, true);
 
-  const changeTrackState = () => setModalVisible(ModalTypes.CHANGE_TRACK_ROLE);
+  const changeTrackState = () => setModalVisible(ModalTypes.CHANGE_TRACK_ROLE, true);
 
   const switchAudioOutput = () =>
-    setModalVisible(ModalTypes.SWITCH_AUDIO_OUTPUT);
+    setModalVisible(ModalTypes.SWITCH_AUDIO_OUTPUT, true);
 
-  const changeAudioMode = () => setModalVisible(ModalTypes.CHANGE_AUDIO_MODE);
+  const changeAudioMode = () => setModalVisible(ModalTypes.CHANGE_AUDIO_MODE, true);
 
   const setAudioMixingMode = () =>
-    setModalVisible(ModalTypes.AUDIO_MIXING_MODE);
+    setModalVisible(ModalTypes.AUDIO_MIXING_MODE, true);
 
   // Android Audioshare
   const handleAudioShare = async () => {
@@ -236,7 +236,7 @@ export const RoomSettingsModalContent: React.FC<
 
   // iOS Audioshare
   const setAudioShareVolume = () =>
-    setModalVisible(ModalTypes.SET_AUDIO_SHARE_VOLUME);
+    setModalVisible(ModalTypes.SET_AUDIO_SHARE_VOLUME, true);
 
   // iOS Audioshare
   const playAudioShare = () => {

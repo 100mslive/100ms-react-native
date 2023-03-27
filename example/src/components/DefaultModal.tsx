@@ -1,37 +1,38 @@
-import React, {ReactNode} from 'react';
+import React from 'react';
 import {
   StyleSheet,
   View,
   StyleProp,
   ViewStyle,
 } from 'react-native';
-import Modal from 'react-native-modal';
+import Modal, { SupportedAnimation } from 'react-native-modal';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {COLORS} from '../utils/theme';
 import {CustomButton} from './CustomButton';
 
-export const DefaultModal = ({
-  modalVisible,
-  setModalVisible,
-  children,
-  animationType = 'slide',
-  transparent = true,
-  overlay = true,
-  modalPosiion = 'flex-end',
-  viewStyle,
-  modalStyle,
-}: {
+export interface DefaultModalProps {
   modalVisible: boolean;
   setModalVisible: any;
-  children: ReactNode;
-  animationType?: 'none' | 'slide' | 'fade';
-  transparent?: boolean;
-  overlay?: boolean;
+  animationIn?: SupportedAnimation;
+  animationOut?: SupportedAnimation;
   modalPosiion?: 'flex-end' | 'center';
   viewStyle?: StyleProp<ViewStyle>;
   modalStyle?: StyleProp<ViewStyle>;
+  backdrop?: boolean;
+}
+
+export const DefaultModal: React.FC<DefaultModalProps> = ({
+  modalVisible,
+  setModalVisible,
+  children,
+  animationIn='fadeIn',
+  animationOut='fadeOut',
+  modalPosiion = 'flex-end',
+  backdrop = false,
+  viewStyle,
+  modalStyle,
 }) => {
   const {left, right} = useSafeAreaInsets();
   return (
@@ -39,19 +40,21 @@ export const DefaultModal = ({
       useNativeDriver={true}
       useNativeDriverForBackdrop={true}
       hideModalContentWhileAnimating={true}
-      animationIn='slideInUp'
-      animationOut='slideOutDown'
+      animationIn={animationIn}
+      animationOut={animationOut}
       avoidKeyboard={true}
       isVisible={modalVisible}
+      coverScreen={true}
+      hasBackdrop={backdrop}
       supportedOrientations={['portrait', 'landscape']}
       onBackdropPress={setModalVisible}
       onDismiss={setModalVisible}
       onBackButtonPress={setModalVisible}
-      style={[modalStyle, { margin: 0 }]}>
+      style={[modalStyle, { margin: 0, justifyContent: modalPosiion }]}>
       <View
         style={[
           styles.contentContainer,
-          styles.end,
+          modalPosiion === 'flex-end' ? styles.end : styles.center,
           viewStyle,
           {marginLeft: left, marginRight: right},
         ]}>
@@ -75,19 +78,13 @@ export const DefaultModal = ({
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.OVERLAY,
-  },
-  overlay: {
-    backgroundColor: 'transparent',
-  },
   contentContainer: {
     maxHeight: '80%',
     // minHeight: '20%',
     backgroundColor: COLORS.SURFACE.DEFAULT,
   },
   end: {
+    flex: 1,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     padding: 16,
