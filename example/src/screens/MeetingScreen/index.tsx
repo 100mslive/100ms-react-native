@@ -832,8 +832,10 @@ const DisplayView = (data: {
   };
 
   const handleCaptureScreenShotPress = (node: PeerTrackNode) => {
-    gridViewRef.current?.captureViewScreenshot(node);
     data?.setModalVisible(ModalTypes.DEFAULT);
+    InteractionManager.runAfterInteractions(() => {
+      gridViewRef.current?.captureViewScreenshot(node);
+    });
   };
 
   const getHmsRoles = () => {

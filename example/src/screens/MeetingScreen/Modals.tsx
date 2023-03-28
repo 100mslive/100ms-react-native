@@ -9,6 +9,7 @@ import {
   StyleSheet,
   Image,
   Platform,
+  InteractionManager,
 } from 'react-native';
 import Toast from 'react-native-simple-toast';
 import {useDispatch, useSelector} from 'react-redux';
@@ -615,33 +616,35 @@ export const SaveScreenshot = ({
       cancelModal();
 
       if (permission && screenshotData) {
-        // Save to Disk
-        const imageName = `${
-          screenshotData.peer.name
-        }-snapshot-${Date.now()}.png`;
+        InteractionManager.runAfterInteractions(async () => {
+          // Save to Disk
+          const imageName = `${
+            screenshotData.peer.name
+          }-snapshot-${Date.now()}.png`;
 
-        const saveDir =
-          Platform.OS === 'ios'
-            ? RNFetchBlob.fs.dirs.DocumentDir
-            : RNFetchBlob.fs.dirs.DCIMDir;
+          const saveDir =
+            Platform.OS === 'ios'
+              ? RNFetchBlob.fs.dirs.DocumentDir
+              : RNFetchBlob.fs.dirs.DCIMDir;
 
-        const fileLocation = `${saveDir}/${imageName}`;
+          const fileLocation = `${saveDir}/${imageName}`;
 
-        await RNFetchBlob.fs.writeFile(
-          fileLocation,
-          screenshotData.source.uri.replace('data:image/png;base64,', ''),
-          'base64',
-        );
+          await RNFetchBlob.fs.writeFile(
+            fileLocation,
+            screenshotData.source.uri.replace('data:image/png;base64,', ''),
+            'base64',
+          );
 
-        if (Platform.OS === 'ios') {
-          RNFetchBlob.ios.previewDocument(fileLocation);
-        }
+          if (Platform.OS === 'ios') {
+            RNFetchBlob.ios.previewDocument(fileLocation);
+          }
 
-        Toast.showWithGravity(
-          'Snapshot has been saved successfully',
-          Toast.LONG,
-          Toast.TOP,
-        );
+          Toast.showWithGravity(
+            'Snapshot has been saved successfully',
+            Toast.LONG,
+            Toast.TOP,
+          );
+        });
       }
     } catch (error) {
       console.warn('Snapshot Save Error: ', error);
