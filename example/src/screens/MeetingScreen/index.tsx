@@ -657,6 +657,8 @@ const DisplayView = (data: {
         // dispatch(addMessage(message));
         dispatch(addMessage({
           ...message,
+          // We are extracting HMSPeer properties into new object
+          // so that when this peer leaves room, we still have its data in chat window
           sender: message.sender ? {
             peerID: message.sender.peerID,
             name: message.sender.name,

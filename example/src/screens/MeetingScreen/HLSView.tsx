@@ -2,6 +2,7 @@ import React, {useRef, useState, useEffect} from 'react';
 import {useSelector} from 'react-redux';
 import {View, Text, Platform, LayoutAnimation} from 'react-native';
 import VideoPlayer from 'react-native-video-controls';
+import type { LoadError } from 'react-native-video';
 import Toast from 'react-native-simple-toast';
 import {type HMSRoom, HMSUpdateListenerActions} from '@100mslive/react-native-hms';
 
@@ -82,12 +83,14 @@ const HLSView = ({room}: HLSViewProps) => {
 
   const handlePausePress = () => setCurrentLiveState(LiveStates.BEHIND_LIVE);
 
-  const handleError = () => {
-    Toast.showWithGravity(
-      'HLS Stream player error! Try pressing "LIVE" button',
-      Toast.LONG,
-      Toast.TOP
-    );
+  const handleError = (err: LoadError) => {
+    if (err?.error?.errorString) {
+      Toast.showWithGravity(
+        err.error.errorString,
+        Toast.LONG,
+        Toast.TOP
+      );
+    }
     setCurrentLiveState(LiveStates.BEHIND_LIVE);
   }
 
@@ -111,7 +114,7 @@ const HLSView = ({room}: HLSViewProps) => {
                     }}
                     ref={hlsPlayerRef}
                     resizeMode="contain"
-                    onError={handleError} // Callback when video cannot be loaded
+                    catchError={handleError} // Callback when video cannot be loaded
                     allowsExternalPlayback={false}
                     style={styles.renderHLSVideo}
                     // hack to stop video from playing when VideoPlayer rerenders due to setting `currentLiveState` to `BEHIND_LIVE`.
@@ -126,6 +129,7 @@ const HLSView = ({room}: HLSViewProps) => {
                     pictureInPicture={true}
                     playWhenInactive={true}
                     playInBackground={true}
+                    errorMessage='Video player encountered some error! You may try pressing "LIVE" button to retry playing stream'
                   />
 
                   <LiveButton
