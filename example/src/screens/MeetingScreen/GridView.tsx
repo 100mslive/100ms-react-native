@@ -102,8 +102,6 @@ const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
 
         {/* Save Captured Screenshot of HMSView Modal */}
         <DefaultModal
-          animationType="fade"
-          overlay={false}
           modalPosiion="center"
           modalVisible={!!screenshotData}
           setModalVisible={() => setScreenshotData(null)}

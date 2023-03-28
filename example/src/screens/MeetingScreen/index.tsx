@@ -1099,12 +1099,7 @@ const Header = ({
           style={styles.participantsMenuContainer}
         >
           <MenuItem
-            onPress={() => {
-              setModalVisible(ModalTypes.DEFAULT);
-              setTimeout(() => {
-                setModalVisible(ModalTypes.LEAVE_ROOM);
-              }, 500);
-            }}
+            onPress={() => setModalVisible(ModalTypes.LEAVE_ROOM, true)}
           >
             <View style={styles.participantMenuItem}>
               <Feather
@@ -1117,12 +1112,7 @@ const Header = ({
           </MenuItem>
           {localPeer?.role?.permissions?.endRoom && (
             <MenuItem
-              onPress={() => {
-                setModalVisible(ModalTypes.DEFAULT);
-                setTimeout(() => {
-                  setModalVisible(ModalTypes.END_ROOM);
-                }, 500);
-              }}
+              onPress={() => setModalVisible(ModalTypes.END_ROOM, true)}
             >
               <View style={styles.participantMenuItem}>
                 <Feather
