@@ -221,6 +221,7 @@ const Meeting = () => {
         setLocalPeer={setLocalPeer}
         setIsAudioMute={setIsAudioMute}
         setIsVideoMute={setIsVideoMute}
+        setIsScreenShared={setIsScreenShared}
       />
       {isPipModeActive ? null : (
         <Footer
@@ -252,6 +253,7 @@ const DisplayView = (data: {
   setLocalPeer: React.Dispatch<React.SetStateAction<HMSLocalPeer | undefined>>;
   setIsAudioMute: React.Dispatch<React.SetStateAction<boolean | undefined>>;
   setIsVideoMute: React.Dispatch<React.SetStateAction<boolean | undefined>>;
+  setIsScreenShared: React.Dispatch<React.SetStateAction<boolean | undefined>>;
 }) => {
   // hooks
   const { params } = useRoute<MeetingScreenRouteProp>();
@@ -895,6 +897,7 @@ const DisplayView = (data: {
               onPeerTileMorePress={handlePeerTileMorePress}
               pairedPeers={pairedPeers}
               orientation={orientation}
+              setIsScreenShared={data.setIsScreenShared}
             />
           )}
         </>

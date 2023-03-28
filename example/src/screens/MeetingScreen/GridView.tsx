@@ -11,6 +11,7 @@ type GridViewProps = {
   onPeerTileMorePress(peerTrackNode: PeerTrackNode): void;
   pairedPeers: PeerTrackNode[][];
   orientation: boolean;
+  setIsScreenShared: React.Dispatch<React.SetStateAction<boolean | undefined>>;
 };
 
 type GridViewRefAttrs = {
@@ -18,7 +19,7 @@ type GridViewRefAttrs = {
 };
 
 const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
-  ({pairedPeers, orientation, onPeerTileMorePress}, ref) => {
+  ({pairedPeers, orientation, onPeerTileMorePress, setIsScreenShared}, ref) => {
     // hooks
     const [screenshotData, setScreenshotData] = useState<{
       peer: HMSPeer;
@@ -76,6 +77,7 @@ const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
             orientation={orientation}
             peerTrackNodes={item}
             setHmsViewRefs={setHmsViewRefs}
+            setIsScreenShared={setIsScreenShared}
           />
         );
       },

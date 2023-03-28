@@ -19,6 +19,7 @@ interface TileProps {
   peerTrackNode: PeerTrackNode;
   onPeerTileMorePress(peerTrackNode: PeerTrackNode): void;
   setHmsViewRefs(viewId: string, ref: typeof HMSView | null): void;
+  setIsScreenShared: React.Dispatch<React.SetStateAction<boolean | undefined>>;
 }
 
 const TileUnmemoized: React.FC<TileProps> = ({
@@ -27,6 +28,7 @@ const TileUnmemoized: React.FC<TileProps> = ({
   orientation,
   totalTilesInContainer,
   setHmsViewRefs,
+  setIsScreenShared
 }) => {
   const {top, bottom} = useSafeAreaInsets();
   const parsedMetadata = parseMetadata(peerTrackNode?.peer?.metadata);
@@ -55,6 +57,7 @@ const TileUnmemoized: React.FC<TileProps> = ({
         videoTrack={peerTrackNode?.track}
         videoStyles={styles.generalTile}
         isDegraded={peerTrackNode?.isDegraded}
+        setIsScreenShared={setIsScreenShared}
       />
 
       {/* More Options button for Peer */}
