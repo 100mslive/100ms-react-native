@@ -30,6 +30,7 @@ import {
   AppState,
   LayoutAnimation,
   InteractionManager,
+  BackHandler,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -873,6 +874,25 @@ const DisplayView = (data: {
       // onLeavePress();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // On Android, when back button is pressed,
+  // user should leave current meeting and go back to previous screen
+  useEffect(() => {
+    const backButtonHandler = () => {
+      // Leave current meeting
+      onLeavePress();
+
+      // When true is returned the event will not be bubbled up
+      // & no other back action will execute
+      return true;
+    };
+
+    BackHandler.addEventListener('hardwareBackPress', backButtonHandler);
+
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', backButtonHandler);
+    }
   }, []);
 
   useEffect(() => {
