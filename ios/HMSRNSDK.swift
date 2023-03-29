@@ -702,12 +702,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         let config = HMSRTMPConfig(meetingURL: meetingUrl, rtmpURLs: URLs, record: record)
         hms?.startRTMPOrRecording(config: config, completion: { success, error in
             if success {
-                let roomData = HMSDecoder.getHmsRoom(self.hms?.room)
-                let type = self.getString(from: HMSRoomUpdate.browserRecordingStateUpdated)
-
-                if self.eventsEnableStatus[self.ON_ROOM_UPDATE] == true {
-                  self.delegate?.emitEvent(self.ON_ROOM_UPDATE, ["event": self.ON_ROOM_UPDATE, "id": self.id, "type": type, "room": roomData])
-                }
                 resolve?(["success": success])
                 return
             } else {
@@ -723,12 +717,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     func stopRtmpAndRecording(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         hms?.stopRTMPAndRecording(completion: { success, error in
             if success {
-                let roomData = HMSDecoder.getHmsRoom(self.hms?.room)
-                let type = self.getString(from: HMSRoomUpdate.browserRecordingStateUpdated)
-
-                if self.eventsEnableStatus[self.ON_ROOM_UPDATE] == true {
-                  self.delegate?.emitEvent(self.ON_ROOM_UPDATE, ["event": self.ON_ROOM_UPDATE, "id": self.id, "type": type, "room": roomData])
-                }
                 resolve?(["success": success])
                 return
             } else {
@@ -1235,7 +1223,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             case "peers":
                 var peers = [[String: Any]]()
                 for peer in hmsRoom.peers {
-                    let parsedPeer = HMSDecoder.getHmsPeer(peer)
+                    let parsedPeer = HMSDecoder.getHmsPeerSubset(peer)
                     peers.append(parsedPeer)
                 }
                 return ["peers": peers]
@@ -1269,7 +1257,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         if eventsEnableStatus[ON_JOIN] != true {
             return
         }
-        let roomData = HMSDecoder.getHmsRoom2(room)
+        let roomData = HMSDecoder.getHmsRoomSubset(room)
         self.delegate?.emitEvent(ON_JOIN, ["event": ON_JOIN, "id": self.id, "room": roomData])
     }
 
@@ -1279,7 +1267,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
         let previewTracks = HMSDecoder.getPreviewTracks(localTracks)
-        let hmsRoom = HMSDecoder.getHmsRoom2(room)
+        let hmsRoom = HMSDecoder.getHmsRoomSubset(room)
 
         self.delegate?.emitEvent(ON_PREVIEW, ["event": ON_PREVIEW, "id": self.id, "room": hmsRoom, "previewTracks": previewTracks])
     }
@@ -1292,7 +1280,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
 
-        let roomData = HMSDecoder.getHmsRoom2(room, update)
+        let roomData = HMSDecoder.getHmsRoomSubset(room, update)
         let type = getString(from: update)
 
         self.delegate?.emitEvent(ON_ROOM_UPDATE, ["event": ON_ROOM_UPDATE, "id": self.id, "type": type, "room": roomData])
@@ -1303,7 +1291,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
         let type = getString(from: update)
-        let hmsPeer = HMSDecoder.getHmsPeer2(peer, update)
+        let hmsPeer = HMSDecoder.getHmsPeerSubsetForPeerUpdateEvent(peer, update)
 
         if !networkQualityUpdatesAttached && update == .networkQualityUpdated {
             return
@@ -1330,7 +1318,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
 
         let type = getString(from: update)
-        let hmsPeer = HMSDecoder.getHmsPeer(peer)
+        let hmsPeer = HMSDecoder.getHmsPeerSubset(peer)
         let hmsTrack = HMSDecoder.getHmsTrack(track)
 
         self.delegate?.emitEvent(ON_TRACK_UPDATE, ["event": ON_TRACK_UPDATE, "id": self.id, "type": type, "peer": hmsPeer, "track": hmsTrack])
@@ -1348,7 +1336,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         if eventsEnableStatus[ON_MESSAGE] != true {
             return
         }
-        self.delegate?.emitEvent(ON_MESSAGE, ["event": ON_MESSAGE, "id": self.id, "sender": HMSDecoder.getHmsPeer(message.sender), "recipient": HMSDecoder.getHmsMessageRecipient(message.recipient), "time": message.time.timeIntervalSince1970 * 1000, "message": message.message, "type": message.type])
+        self.delegate?.emitEvent(ON_MESSAGE, ["event": ON_MESSAGE, "id": self.id, "sender": HMSDecoder.getHmsPeerSubset(message.sender), "recipient": HMSDecoder.getHmsMessageRecipient(message.recipient), "time": message.time.timeIntervalSince1970 * 1000, "message": message.message, "type": message.type])
     }
 
     func on(updated speakers: [HMSSpeaker]) {
@@ -1357,7 +1345,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
         var speakerPeerIds: [[String: Any]] = []
         for speaker in speakers {
-            speakerPeerIds.append(["peer": HMSDecoder.getHmsPeer(speaker.peer), "level": speaker.level, "track": HMSDecoder.getHmsTrack(speaker.track)])
+            speakerPeerIds.append(["peer": HMSDecoder.getHmsPeerSubset(speaker.peer), "level": speaker.level, "track": HMSDecoder.getHmsTrack(speaker.track)])
         }
         self.delegate?.emitEvent(ON_SPEAKER, ["event": ON_SPEAKER, "id": self.id, "speakers": speakerPeerIds])
     }
@@ -1403,7 +1391,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         let requestedBy = notification.requestedBy as HMSPeer?
         var decodedRequestedBy: [String: Any]?
         if let requested = requestedBy {
-            decodedRequestedBy = HMSDecoder.getHmsPeer(requested)
+            decodedRequestedBy = HMSDecoder.getHmsPeerSubset(requested)
         }
         let reason = notification.reason
         let roomEnded = notification.roomEnded
@@ -1433,7 +1421,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
         let localStats = HMSDecoder.getLocalAudioStats(localAudioStats)
         let localTrack = HMSDecoder.getHmsAudioTrack(track)
-        let decodedPeer = HMSDecoder.getHmsPeer(peer)
+        let decodedPeer = HMSDecoder.getHmsPeerSubset(peer)
 
         self.delegate?.emitEvent(ON_LOCAL_AUDIO_STATS, ["localAudioStats": localStats, "track": localTrack, "peer": decodedPeer, "id": self.id])
     }
@@ -1446,7 +1434,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
         let localStats = HMSDecoder.getLocalVideoStats(localVideoStats)
-        let decodedPeer = HMSDecoder.getHmsPeer(peer)
+        let decodedPeer = HMSDecoder.getHmsPeerSubset(peer)
         let localTrack = HMSDecoder.getHmsVideoTrack(track)
 
         self.delegate?.emitEvent(ON_LOCAL_VIDEO_STATS, ["localVideoStats": localStats, "track": localTrack, "peer": decodedPeer, "id": self.id])
@@ -1461,7 +1449,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
         let remoteStats = HMSDecoder.getRemoteAudioStats(remoteAudioStats)
         let remoteTrack = HMSDecoder.getHmsAudioTrack(track)
-        let decodedPeer = HMSDecoder.getHmsPeer(peer)
+        let decodedPeer = HMSDecoder.getHmsPeerSubset(peer)
 
         self.delegate?.emitEvent(ON_REMOTE_AUDIO_STATS, ["remoteAudioStats": remoteStats, "track": remoteTrack, "peer": decodedPeer, "id": self.id])
     }
@@ -1474,7 +1462,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
         let remoteStats = HMSDecoder.getRemoteVideoStats(remoteVideoStats)
-        let decodedPeer = HMSDecoder.getHmsPeer(peer)
+        let decodedPeer = HMSDecoder.getHmsPeerSubset(peer)
         let remoteTrack = HMSDecoder.getHmsVideoTrack(track)
 
         self.delegate?.emitEvent(ON_REMOTE_VIDEO_STATS, ["remoteVideoStats": remoteStats, "track": remoteTrack, "peer": decodedPeer, "id": self.id])
