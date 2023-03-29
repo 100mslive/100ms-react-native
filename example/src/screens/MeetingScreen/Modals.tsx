@@ -91,7 +91,7 @@ export const ParticipantsModal = ({
     useState<(HMSLocalPeer | HMSRemotePeer)[]>();
   const [filter, setFilter] = useState('everyone');
   // constants
-  const peerTrackNodePermissions = localPeer?.role?.permissions;
+  const localPeerPermissions = localPeer?.role?.permissions;
 
   // functions
   const hideMenu = () => setVisible(-1);
@@ -196,7 +196,16 @@ export const ParticipantsModal = ({
   useEffect(() => {
     instance?.getRemotePeers().then(peers => {
       if (localPeer) {
-        setHmsPeers([localPeer, ...peers]);
+        setHmsPeers([
+          localPeer,
+          ...peers.map(peer => {
+            // Extracting name and role out of peer object,
+            // so that we still have these value even after peer leaves the meeting
+            const partialCachedPeer: any = { name: peer.name, role: peer.role };
+            Object.setPrototypeOf(partialCachedPeer, peer);
+            return partialCachedPeer;
+          })
+        ]);
       }
     });
   }, [instance, localPeer]);
@@ -266,7 +275,7 @@ export const ParticipantsModal = ({
                 style={styles.participantsMenuContainer}
               >
                 {peer.isLocal === false &&
-                  peerTrackNodePermissions?.removeOthers && (
+                  localPeerPermissions?.removeOthers && (
                     <MenuItem onPress={() => removePeer(peer)}>
                       <View style={styles.participantMenuItem}>
                         <MaterialCommunityIcons
@@ -296,7 +305,7 @@ export const ParticipantsModal = ({
                     </View>
                   </MenuItem>
                 )}
-                {peerTrackNodePermissions?.changeRole && (
+                {localPeerPermissions?.changeRole && (
                   <MenuItem onPress={() => onChangeRolePress(peer)}>
                     <View style={styles.participantMenuItem}>
                       <Ionicons
