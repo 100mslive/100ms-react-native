@@ -41,11 +41,11 @@ export class HMSPeersCache {
   getProperty<T extends keyof HMSPeerCacheProps>(
     peerId: string,
     property: T
-  ): [HMSPeerCacheProps[T], boolean] {
+  ): HMSPeerCacheProps[T] | undefined {
     const peerObj = this._data.get(peerId);
 
     if (peerObj && property in peerObj) {
-      return [peerObj[property], true];
+      return peerObj[property];
     }
 
     const encodedValue = getPeerPropertyFromNative(this.id, peerId, property);
@@ -56,12 +56,12 @@ export class HMSPeersCache {
       peerObj[property] = encodedValue;
     }
 
-    return [encodedValue, false];
+    return encodedValue;
   }
 
   updatePeerCache(
     peerId: string,
-    data: Record<string, any>,
+    data: Partial<Record<keyof HMSPeerCacheProps | 'track', any>>,
     updateType?: HMSPeerUpdate | HMSTrackUpdate,
   ) {
     const peerObj = this._data.get(peerId);
@@ -194,8 +194,8 @@ export class HMSPeersCache {
   }
 }
 
-export function getPeerPropertyFromNative<T extends keyof HMSPeerCacheProps>(id: string, peerId: string, property: T) {
-  const data: undefined | Record<string, any> = HMSManager.getPeerProperty({
+export function getPeerPropertyFromNative<T extends keyof HMSPeerCacheProps>(id: string, peerId: string, property: T): HMSPeerCacheProps[T] {
+  const data: any = HMSManager.getPeerProperty({
     id,
     peerId,
     property,
@@ -224,6 +224,9 @@ export function getPeerPropertyFromNative<T extends keyof HMSPeerCacheProps>(id:
       data && Array.isArray(data.auxiliaryTracks)
         ? HMSEncoder.encodeHmsAuxiliaryTracks(data.auxiliaryTracks, id)
         : undefined;
+  }
+  else if (property === 'name') {
+    value = data?.[property] || '';
   }
   else {
     value = data ? data[property] : undefined;

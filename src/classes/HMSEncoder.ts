@@ -93,7 +93,7 @@ export class HMSEncoder {
     return new HMSPeer(encodedObj);
   }
 
-  static encodeHmsPeerUpdate(hmsPeerUpdateOrdinal: number) {
+  static encodeHmsPeerUpdate(hmsPeerUpdateOrdinal: string) {
     return HMSPeerUpdateOrdinals.get(hmsPeerUpdateOrdinal);
   }
 
@@ -148,24 +148,7 @@ export class HMSEncoder {
   static encodeHmsLocalPeer(peer: any, id: string) {
     const encodedObj = {
       peerID: peer?.peerID,
-      name: peer?.name,
-      isLocal: true,
-      customerUserID: peer?.customerUserID,
       customerDescription: peer?.customerDescription || undefined,
-      metadata: peer?.metadata || undefined,
-      role: HMSEncoder.encodeHmsRole(peer?.role),
-      networkQuality: peer?.networkQuality
-        ? HMSEncoder.encodeHMSNetworkQuality(peer?.networkQuality)
-        : undefined,
-      audioTrack: peer?.audioTrack
-        ? HMSEncoder.encodeHmsAudioTrack(peer?.audioTrack, id)
-        : undefined,
-      videoTrack: peer?.videoTrack
-        ? HMSEncoder.encodeHmsVideoTrack(peer?.videoTrack, id)
-        : undefined,
-      auxiliaryTracks: Array.isArray(peer?.auxiliaryTracks)
-        ? HMSEncoder.encodeHmsAuxiliaryTracks(peer?.auxiliaryTracks, id)
-        : undefined,
       localAudioTrackData: peer?.localAudioTrackData?.trackId
         ? {
             id: id,
@@ -278,24 +261,7 @@ export class HMSEncoder {
   static encodeHmsRemotePeer(peer: any, id: string) {
     const encodedObj = {
       peerID: peer?.peerID,
-      name: peer?.name,
-      isLocal: false,
-      customerUserID: peer?.customerUserID,
       customerDescription: peer.customerDescription,
-      metadata: peer.metadata,
-      role: HMSEncoder.encodeHmsRole(peer?.role),
-      networkQuality: peer?.networkQuality
-        ? HMSEncoder.encodeHMSNetworkQuality(peer?.networkQuality)
-        : undefined,
-      audioTrack: peer?.audioTrack
-        ? HMSEncoder.encodeHmsAudioTrack(peer?.audioTrack, id)
-        : undefined,
-      videoTrack: peer?.videoTrack
-        ? HMSEncoder.encodeHmsVideoTrack(peer.videoTrack, id)
-        : undefined,
-      auxiliaryTracks: Array.isArray(peer?.auxiliaryTracks)
-        ? HMSEncoder.encodeHmsAuxiliaryTracks(peer?.auxiliaryTracks, id)
-        : undefined,
       remoteAudioTrackData: peer?.remoteAudioTrackData?.trackId
         ? {
             id: id,

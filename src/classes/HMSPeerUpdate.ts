@@ -8,10 +8,10 @@ export enum HMSPeerUpdate {
 }
 
 export const HMSPeerUpdateOrdinals = new Map([
-  [0, HMSPeerUpdate.PEER_JOINED],
-  [1, HMSPeerUpdate.PEER_LEFT],
-  [9, HMSPeerUpdate.ROLE_CHANGED],
-  [10, HMSPeerUpdate.NAME_CHANGED],
-  [11, HMSPeerUpdate.METADATA_CHANGED],
-  [12, HMSPeerUpdate.NETWORK_QUALITY_UPDATED],
+  ['0', HMSPeerUpdate.PEER_JOINED],
+  ['1', HMSPeerUpdate.PEER_LEFT],
+  ['9', HMSPeerUpdate.ROLE_CHANGED],
+  ['10', HMSPeerUpdate.NAME_CHANGED],
+  ['11', HMSPeerUpdate.METADATA_CHANGED],
+  ['12', HMSPeerUpdate.NETWORK_QUALITY_UPDATED],
 ]);

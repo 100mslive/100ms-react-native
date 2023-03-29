@@ -18,154 +18,110 @@ export class HMSRoom {
   get sessionId() : string {
     const hmsRoomCache = getHmsRoomCache();
 
-    let data: string;
-
     if (hmsRoomCache) {
-      data = hmsRoomCache.getProperty("sessionId");
-    } else {
-      data = getHMSRoomPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, "sessionId");
+      return hmsRoomCache.getProperty("sessionId");
     }
 
-    return data;
+    return getHMSRoomPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, "sessionId");
   }
 
   get name() : string {
     const hmsRoomCache = getHmsRoomCache();
 
-    let data: string;
-
     if (hmsRoomCache) {
-      data = hmsRoomCache.getProperty("name");
-    } else {
-      data = getHMSRoomPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, "name");
+      return hmsRoomCache.getProperty("name");
     }
 
-    return data;
+    return getHMSRoomPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, "name");
   }
 
   get metaData(): string | undefined {
     const hmsRoomCache = getHmsRoomCache();
 
-    let data: string | undefined;
-
     if (hmsRoomCache) {
-      data = hmsRoomCache.getProperty("metaData");
-    } else {
-      data = getHMSRoomPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, "metaData");
+      return hmsRoomCache.getProperty("metaData");
     }
 
-    return data;
+    return getHMSRoomPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, "metaData");
   }
 
   get peers(): HMSPeer[] {
     const hmsRoomCache = getHmsRoomCache();
 
-    let data: HMSPeer[];
-
     if (hmsRoomCache) {
-      data = hmsRoomCache.getProperty("peers");
-    } else {
-      data = getHMSRoomPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, "peers");
+      return hmsRoomCache.getProperty("peers");
     }
 
-    return data;
+    return getHMSRoomPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, "peers");
   }
 
   get browserRecordingState(): HMSBrowserRecordingState {
     const hmsRoomCache = getHmsRoomCache();
 
-    let data: HMSBrowserRecordingState;
-
     if (hmsRoomCache) {
-      data = hmsRoomCache.getProperty("browserRecordingState");
-    } else {
-      data = getHMSRoomPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, "browserRecordingState");
+      return hmsRoomCache.getProperty("browserRecordingState");
     }
 
-    return data;
+    return getHMSRoomPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, "browserRecordingState");
   }
 
   get rtmpHMSRtmpStreamingState(): HMSRtmpStreamingState {
     const hmsRoomCache = getHmsRoomCache();
 
-    let data: HMSRtmpStreamingState;
-
     if (hmsRoomCache) {
-      data = hmsRoomCache.getProperty("rtmpHMSRtmpStreamingState");
-    } else {
-      data = getHMSRoomPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, "rtmpHMSRtmpStreamingState");
+      return hmsRoomCache.getProperty("rtmpHMSRtmpStreamingState");
     }
 
-    return data;
+    return getHMSRoomPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, "rtmpHMSRtmpStreamingState");
   }
 
   get serverRecordingState(): HMSServerRecordingState {
     const hmsRoomCache = getHmsRoomCache();
 
-    let data: HMSServerRecordingState;
-
     if (hmsRoomCache) {
-      data = hmsRoomCache.getProperty("serverRecordingState");
-    } else {
-      data = getHMSRoomPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, "serverRecordingState");
+      return hmsRoomCache.getProperty("serverRecordingState");
     }
 
-    return data;
+    return getHMSRoomPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, "serverRecordingState");
   }
 
   get hlsStreamingState(): HMSHLSStreamingState {
     const hmsRoomCache = getHmsRoomCache();
 
-    let data: HMSHLSStreamingState;
-
     if (hmsRoomCache) {
-      data = hmsRoomCache.getProperty("hlsStreamingState");
-    } else {
-      data = getHMSRoomPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, "hlsStreamingState");
+      return hmsRoomCache.getProperty("hlsStreamingState");
     }
 
-    return data;
+    return getHMSRoomPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, "hlsStreamingState");
   }
 
   get hlsRecordingState(): HMSHLSRecordingState | undefined {
     const hmsRoomCache = getHmsRoomCache();
 
-    let data: HMSHLSRecordingState | undefined;
-
     if (hmsRoomCache) {
-      data = hmsRoomCache.getProperty("hlsRecordingState");
-    } else {
-      data = getHMSRoomPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, "hlsRecordingState");
+      return hmsRoomCache.getProperty("hlsRecordingState");
     }
 
-    return data;
+    return getHMSRoomPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, "hlsRecordingState");
   }
 
   get peerCount(): number {
     const hmsRoomCache = getHmsRoomCache();
 
-    let data: number;
-
     if (hmsRoomCache) {
-      data = hmsRoomCache.getProperty("peerCount");
-    } else {
-      data = getHMSRoomPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, "peerCount");
+      return hmsRoomCache.getProperty("peerCount");
     }
 
-    return data;
+    return getHMSRoomPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, "peerCount");
   }
 
   get localPeer(): HMSLocalPeer {
     const hmsRoomCache = getHmsRoomCache();
 
-    let data: HMSLocalPeer;
-
     if (hmsRoomCache) {
-      data = hmsRoomCache.getProperty("localPeer");
-    } else {
-      data = getHMSRoomPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, "localPeer");
+      return hmsRoomCache.getProperty("localPeer");
     }
 
-    return data;
+    return getHMSRoomPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, "localPeer");
   }
 }

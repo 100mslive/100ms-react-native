@@ -36,7 +36,7 @@ export class HMSRoomCache {
     const value: any = this._data.get(property);
 
     if (value) {
-      return value
+      return value;
     }
 
     const encodedValue = getHMSRoomPropertyFromNative(this.id, property);

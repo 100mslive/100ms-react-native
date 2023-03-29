@@ -37,6 +37,7 @@ import { HMSPIPListenerActions } from './HMSPIPListenerActions';
 import { type HMSEventSubscription, HMSNativeEventEmitter } from './HMSNativeEventEmitter';
 import { clearHmsPeersCache, getHmsPeersCache, HMSPeersCache, setHmsPeersCache } from './HMSPeersCache';
 import { clearHmsRoomCache, getHmsRoomCache, HMSRoomCache, setHmsRoomCache } from './HMSRoomCache';
+import { HMSPeerUpdateOrdinals } from './HMSPeerUpdate';
 
 interface HmsViewProps {
   trackId: string;
@@ -1908,17 +1909,16 @@ export class HMSSDK {
       type: null
     };
 
-    ["0", "1", "9", "10", "11", "12"].some((ordinal) => {
+    for (const ordinal of HMSPeerUpdateOrdinals.keys()) {
       if (ordinal in peerData) {
-        data.peer.peerID = peerData[ordinal]
-        data.type = parseInt(ordinal);
-        return true;
+        data.peer.peerID = peerData[ordinal];
+        data.type = ordinal;
+        break;
       }
-      return false;
-    });
+    }
 
     const peer: HMSPeer = HMSEncoder.encodeHmsPeer(data.peer);
-    const type = HMSEncoder.encodeHmsPeerUpdate(data.type);
+    const type = HMSEncoder.encodeHmsPeerUpdate(data.type) || data.type;
 
     getHmsPeersCache()?.updatePeerCache(data.peer.peerID, data.peer, type);
 
