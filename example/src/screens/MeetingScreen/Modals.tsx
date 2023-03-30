@@ -196,16 +196,18 @@ export const ParticipantsModal = ({
   useEffect(() => {
     instance?.getRemotePeers().then(peers => {
       if (localPeer) {
-        setHmsPeers([
-          localPeer,
-          ...peers.map(peer => {
-            // Extracting name and role out of peer object,
-            // so that we still have these value even after peer leaves the meeting
-            const partialCachedPeer: any = { name: peer.name, role: peer.role };
-            Object.setPrototypeOf(partialCachedPeer, peer);
-            return partialCachedPeer;
-          })
-        ]);
+        InteractionManager.runAfterInteractions(() => {
+          setHmsPeers([
+            localPeer,
+            ...peers.map(peer => {
+              // Extracting name and role out of peer object,
+              // so that we still have these value even after peer leaves the meeting
+              const partialCachedPeer: any = { name: peer.name, role: peer.role };
+              Object.setPrototypeOf(partialCachedPeer, peer);
+              return partialCachedPeer;
+            })
+          ]);
+        });
       }
     });
   }, [instance, localPeer]);
