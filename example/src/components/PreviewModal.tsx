@@ -110,7 +110,7 @@ export const PreviewModal = ({
               style={styles.collapsibleText}
               numberOfLines={numberOfLines ? 1 : undefined}
             >
-              {room?.peers.map((peer, index) => {
+              {room?.peers?.map((peer, index) => {
                 return (index !== 0 ? ', ' : '') + peer.name;
               })}
             </Text>

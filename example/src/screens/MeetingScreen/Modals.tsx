@@ -238,6 +238,7 @@ export const ParticipantsModal = ({
         initialNumToRender={2}
         maxToRenderPerBatch={3}
         keyboardShouldPersistTaps="always"
+        windowSize={11}
         renderItem={({item, index}) => {
           const peer = item;
           return (
