@@ -1,6 +1,6 @@
 import { NativeModules, Platform } from 'react-native';
 import { HMSAudioTrack } from './HMSAudioTrack';
-import { HMSSDK } from './HMSSDK';
+import { getLogger } from './HMSLogger';
 import type { HMSAudioTrackSettings } from './HMSAudioTrackSettings';
 import type { HMSTrackType } from './HMSTrackType';
 
@@ -8,7 +8,7 @@ const {
   /**
    * @ignore
    */
-  HmsManager,
+  HMSManager,
 } = NativeModules;
 
 export class HMSLocalAudioTrack extends HMSAudioTrack {
@@ -22,7 +22,7 @@ export class HMSLocalAudioTrack extends HMSAudioTrack {
    * @memberof HMSLocalAudioTrack
    */
   setMute(isMute: boolean) {
-    const logger = HMSSDK.getLogger();
+    const logger = getLogger();
     logger?.verbose('#Function setMute', {
       trackId: this.trackId,
       id: this.id,
@@ -30,11 +30,11 @@ export class HMSLocalAudioTrack extends HMSAudioTrack {
       type: this.type,
       isMute,
     });
-    HmsManager.setLocalMute({ isMute, id: this.id });
+    HMSManager.setLocalMute({ isMute, id: this.id });
   }
 
   getVolume = async () => {
-    const logger = HMSSDK.getLogger();
+    const logger = getLogger();
     logger?.verbose('#Function getVolume', {
       trackId: this.trackId,
       id: this.id,
@@ -44,7 +44,7 @@ export class HMSLocalAudioTrack extends HMSAudioTrack {
     if (Platform.OS === 'ios') {
       return 'This API not available for IOS';
     }
-    const volume = await HmsManager.getVolume({
+    const volume = await HMSManager.getVolume({
       trackId: this.trackId,
       id: this.id,
     });

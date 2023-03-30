@@ -1,17 +1,26 @@
 import React from 'react';
-import {Modal, StyleSheet, Text, View, TouchableOpacity} from 'react-native';
+import {
+  Modal,
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  ScrollView,
+} from 'react-native';
+import {getVersion} from 'react-native-device-info';
+import {COLORS} from '../utils/theme';
 
 export const AlertModal = ({
   modalVisible,
   setModalVisible,
   title,
-  message,
   buttons,
+  screen,
 }: {
+  screen?: String;
   modalVisible: boolean;
   setModalVisible: any;
   title: String;
-  message: String;
   buttons: Array<{text: String; type?: String; onPress?: Function}>;
 }) => {
   const onRequestClose: any = () => {
@@ -24,27 +33,43 @@ export const AlertModal = ({
       visible={modalVisible}
       supportedOrientations={['portrait', 'landscape']}
       onRequestClose={onRequestClose}>
-      <View style={styles.centeredView}>
-        <View style={styles.modalView}>
-          <Text style={styles.title}>{title}</Text>
-          {message.length > 0 && <Text>{message}</Text>}
-          {buttons.map((button, index) => (
-            <TouchableOpacity
-              key={index}
-              onPress={() => {
-                onRequestClose();
-                button.onPress && button.onPress();
-              }}
-              style={styles.buttonItem}>
-              <Text
+      <View
+        style={styles.centeredView}
+        onTouchEnd={() => {
+          onRequestClose();
+        }}>
+        <View
+          style={styles.modalView}
+          onTouchEnd={e => {
+            e.stopPropagation();
+          }}>
+          <ScrollView showsVerticalScrollIndicator indicatorStyle="white">
+            <Text style={styles.title}>{title}</Text>
+            {buttons.map((button, index) => (
+              <TouchableOpacity
+                key={index}
+                onPress={() => {
+                  onRequestClose();
+                  button.onPress && button.onPress();
+                }}
                 style={[
-                  styles.buttonItemText,
-                  button.type === 'cancel' && {color: 'red'},
+                  styles.buttonItem,
+                  index === buttons.length - 1 && styles.buttonItemLast,
                 ]}>
-                {button.text}
-              </Text>
-            </TouchableOpacity>
-          ))}
+                <Text
+                  style={[
+                    styles.buttonItemText,
+                    button.type === 'cancel' && styles.cancel,
+                  ]}>
+                  {button.text}
+                </Text>
+              </TouchableOpacity>
+            ))}
+            {screen !== undefined && screen === 'welcome' && (
+              <Text
+                style={styles.title}>{`App Version :    ${getVersion()}`}</Text>
+            )}
+          </ScrollView>
         </View>
       </View>
     </Modal>
@@ -56,11 +81,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#25313780',
+    backgroundColor: COLORS.OVERLAY,
   },
   modalView: {
     width: '80%',
-    backgroundColor: 'white',
+    maxHeight: '80%',
+    backgroundColor: COLORS.SURFACE.DEFAULT,
+    borderWidth: 1,
+    borderColor: COLORS.BORDER.LIGHT,
     borderRadius: 10,
     shadowColor: '#000',
     shadowOffset: {
@@ -71,38 +99,30 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  button: {
-    borderRadius: 20,
-    padding: 10,
-    elevation: 2,
-  },
-  buttonOpen: {
-    backgroundColor: '#F194FF',
-  },
-  buttonClose: {
-    backgroundColor: '#2196F3',
-  },
-  textStyle: {
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  modalText: {
-    marginBottom: 15,
-    textAlign: 'center',
-  },
   title: {
     alignSelf: 'center',
-    padding: 16,
-    fontWeight: 'bold',
+    padding: 14,
+    fontSize: 16,
+    fontFamily: 'Inter-Bold',
+    textTransform: 'capitalize',
+    color: COLORS.TEXT.HIGH_EMPHASIS,
   },
   buttonItem: {
     borderTopWidth: 1,
-    borderTopColor: 'lightgrey',
-    padding: 12,
+    borderTopColor: COLORS.BORDER.DEFAULT,
+    padding: 10,
+  },
+  buttonItemLast: {
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.BORDER.DEFAULT,
   },
   buttonItemText: {
     alignSelf: 'center',
-    color: 'blue',
+    color: COLORS.PRIMARY.DEFAULT,
+    fontFamily: 'Inter-Bold',
+    textTransform: 'capitalize',
+  },
+  cancel: {
+    color: COLORS.INDICATORS.ERROR,
   },
 });

@@ -6,21 +6,26 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
+import {COLORS, FONTS} from '../utils/theme';
 
 export const UserIdModal = ({
   cancel,
   join,
-  user,
+  userName,
+  screen,
 }: {
   cancel: Function;
   join: Function;
-  user: any;
+  userName: any;
+  screen: 'Welcome' | 'Meeting';
 }) => {
-  const [text, setText] = useState(user?.userName ? user.userName : '');
+  const [text, setText] = useState(userName || '');
   return (
     <View style={styles.container}>
       <View style={styles.modalContainer}>
-        <Text style={styles.heading}>Join a Meeting</Text>
+        <Text style={styles.heading}>
+          {screen === 'Welcome' ? 'Join a Meeting' : 'Change Name'}
+        </Text>
         <View style={styles.inputContainer}>
           <TextInput
             onChangeText={value => {
@@ -47,7 +52,9 @@ export const UserIdModal = ({
                   join(text);
                 }
               }}>
-              <Text style={styles.joinButtonText}>Join</Text>
+              <Text style={styles.joinButtonText}>
+                {screen === 'Welcome' ? 'Join' : 'Set'}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -63,14 +70,13 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(34, 34, 34, 0.3)',
+    backgroundColor: COLORS.OVERLAY,
     justifyContent: 'center',
+    alignItems: 'center',
   },
   modalContainer: {
-    backgroundColor: 'white',
-    marginBottom: 185,
-    marginLeft: 42,
-    marginRight: 42,
+    backgroundColor: COLORS.WHITE,
+    width: '80%',
     borderRadius: 40,
     paddingVertical: 10,
   },
@@ -79,18 +85,18 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     paddingBottom: 10,
     marginBottom: 10,
-    fontSize: 20,
-    fontWeight: '500',
-    color: '#4578e0',
+    ...FONTS.H6,
+    color: COLORS.PRIMARY.DEFAULT,
   },
   input: {
     borderWidth: 1,
-    borderColor: 'black',
+    borderColor: COLORS.BLACK,
     paddingLeft: 10,
     minHeight: 42,
     width: '80%',
     marginBottom: 16,
-    color: '#4578e0',
+    fontFamily: 'Inter-Regular',
+    color: COLORS.PRIMARY.DEFAULT,
   },
   inputContainer: {
     alignItems: 'center',
@@ -103,12 +109,12 @@ const styles = StyleSheet.create({
   },
   joinButtonText: {
     textAlign: 'center',
-    color: 'white',
-    fontSize: 20,
+    color: COLORS.WHITE,
+    ...FONTS.H6,
     paddingHorizontal: 8,
   },
   buttonTextContainer: {
-    backgroundColor: '#4578e0',
+    backgroundColor: COLORS.PRIMARY.DEFAULT,
     padding: 10,
     borderRadius: 5,
     width: '48%',

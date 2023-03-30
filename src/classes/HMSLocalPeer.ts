@@ -8,6 +8,7 @@ import { HMSLocalAudioTrack } from './HMSLocalAudioTrack';
 import { HMSLocalVideoTrack } from './HMSLocalVideoTrack';
 import type { HMSRole } from './HMSRole';
 import type { HMSTrackType } from './HMSTrackType';
+import type { HMSNetworkQuality } from './HMSNetworkQuality';
 
 export class HMSLocalPeer extends HMSPeer {
   private localAudio?: HMSLocalAudioTrack;
@@ -29,6 +30,7 @@ export class HMSLocalPeer extends HMSPeer {
     metadata?: string;
     audioTrack?: HMSAudioTrack;
     videoTrack?: HMSVideoTrack;
+    networkQuality?: HMSNetworkQuality;
     role?: HMSRole;
     auxiliaryTracks?: HMSTrack[];
     localAudioTrackData?: {

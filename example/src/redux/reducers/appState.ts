@@ -1,19 +1,119 @@
 import ActionTypes from '../actionTypes';
+import type {PeerTrackNode} from '../../utils/types';
+import {PipModes} from '../../utils/types';
 
 type ActionType = {
-  payload: Object;
+  payload: {[key: string]: any};
   type: String;
 };
 
-const INITIAL_STATE = {
-  audioState: true,
-  videoState: true,
+type IntialStateType = {
+  peerState: PeerTrackNode[];
+  pipModeStatus: PipModes;
+  joinConfig: {
+    mutedAudio: boolean;
+    mutedVideo: boolean;
+    mirrorCamera: boolean;
+    skipPreview: boolean;
+    audioMixer: boolean; // IOS only
+    softwareDecoder: boolean; // Android only
+    autoResize: boolean; // Android only
+    showStats: boolean;
+  };
 };
 
-const appReducer = (state = INITIAL_STATE, action: ActionType) => {
+const INITIAL_STATE: IntialStateType = {
+  peerState: [],
+  pipModeStatus: PipModes.INACTIVE,
+  joinConfig: {
+    mutedAudio: true,
+    mutedVideo: true,
+    mirrorCamera: true,
+    skipPreview: false,
+    audioMixer: false, // IOS only
+    softwareDecoder: true, // Android only
+    autoResize: false, // Android only
+    showStats: false,
+  },
+};
+
+const appReducer = (
+  state = INITIAL_STATE,
+  action: ActionType,
+): IntialStateType => {
   switch (action.type) {
-    case ActionTypes.SET_AUDIO_VIDEO_STATE:
+    case ActionTypes.CHANGE_PIP_MODE_STATUS:
+      return {...state, pipModeStatus: action.payload.pipModeStatus};
+    case ActionTypes.SET_PEER_STATE:
       return {...state, ...action.payload};
+    case ActionTypes.CLEAR_PEER_DATA.REQUEST:
+      return {...state, peerState: []};
+    case ActionTypes.RESET_JOIN_CONFIG:
+      return {...state, joinConfig: INITIAL_STATE.joinConfig};
+    case ActionTypes.CHANGE_JOIN_AUDIO_MUTED:
+      return {
+        ...state,
+        joinConfig: {
+          ...state.joinConfig,
+          mutedAudio: action.payload.mutedAudio ?? true,
+        },
+      };
+    case ActionTypes.CHANGE_JOIN_VIDEO_MUTED:
+      return {
+        ...state,
+        joinConfig: {
+          ...state.joinConfig,
+          mutedVideo: action.payload.mutedVideo ?? true,
+        },
+      };
+    case ActionTypes.CHANGE_MIRROR_CAMERA:
+      return {
+        ...state,
+        joinConfig: {
+          ...state.joinConfig,
+          mirrorCamera: action.payload.mirrorCamera ?? true,
+        },
+      };
+    case ActionTypes.CHANGE_JOIN_SKIP_PREVIEW:
+      return {
+        ...state,
+        joinConfig: {
+          ...state.joinConfig,
+          skipPreview: action.payload.skipPreview ?? false,
+        },
+      };
+    case ActionTypes.CHANGE_AUDIO_MIXER:
+      return {
+        ...state,
+        joinConfig: {
+          ...state.joinConfig,
+          audioMixer: action.payload.audioMixer ?? false,
+        },
+      };
+    case ActionTypes.CHANGE_SHOW_STATS:
+      return {
+        ...state,
+        joinConfig: {
+          ...state.joinConfig,
+          showStats: action.payload.showStats ?? false,
+        },
+      };
+    case ActionTypes.CHANGE_SOFTWARE_DECODER:
+      return {
+        ...state,
+        joinConfig: {
+          ...state.joinConfig,
+          softwareDecoder: action.payload.softwareDecoder ?? true,
+        },
+      };
+    case ActionTypes.CHANGE_AUTO_RESIZE:
+      return {
+        ...state,
+        joinConfig: {
+          ...state.joinConfig,
+          autoResize: action.payload.autoResize ?? false,
+        },
+      };
     default:
       return state;
   }

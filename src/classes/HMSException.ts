@@ -1,33 +1,27 @@
 export class HMSException {
-  public error: {
-    code: number;
-    description: string;
-    localizedDescription: string;
-    message: string;
-    name: string;
-    action: string;
-  };
-  public event: string;
+  code: number;
+  description: string;
+  message?: string; // `message` is available only on Android
+  name?: string; // `name` is available only on Android
+  action?: string; // `action` is available only on Android
+  isTerminal: boolean;
+  canRetry?: boolean; // `canRetry` is available only on Android
 
   constructor(params: {
-    error: {
-      code: number;
-      description: string;
-      localizedDescription: string;
-      message: string;
-      name: string;
-      action: string;
-    };
-    event: string;
+    code: number;
+    description: string;
+    message?: string;
+    name?: string;
+    action?: string;
+    isTerminal: boolean;
+    canRetry?: boolean;
   }) {
-    this.error = {
-      code: params.error.code,
-      description: params.error.description,
-      localizedDescription: params.error.localizedDescription,
-      message: params.error.message,
-      name: params.error.name,
-      action: params.error.action,
-    };
-    this.event = params.event;
+    this.code = params.code;
+    this.description = params.description;
+    this.message = params.message;
+    this.name = params.name;
+    this.action = params.action;
+    this.isTerminal = params.isTerminal;
+    this.canRetry = params.canRetry;
   }
 }

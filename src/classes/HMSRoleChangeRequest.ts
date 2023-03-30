@@ -2,11 +2,13 @@ import type { HMSRole } from './HMSRole';
 import type { HMSPeer } from './HMSPeer';
 
 export class HMSRoleChangeRequest {
-  requestedBy: HMSPeer;
+  requestedBy?: HMSPeer;
   suggestedRole: HMSRole;
 
-  constructor(params: { requestedBy: HMSPeer; suggestedRole: HMSRole }) {
-    this.requestedBy = params.requestedBy;
+  constructor(params: { requestedBy?: HMSPeer; suggestedRole: HMSRole }) {
+    if (params.requestedBy) {
+      this.requestedBy = params.requestedBy;
+    }
     this.suggestedRole = params.suggestedRole;
   }
 }
