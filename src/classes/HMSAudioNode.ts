@@ -1,4 +1,4 @@
-import { HMSConstants } from "./HMSConstants";
+import { HMSConstants } from './HMSConstants';
 
 export class HMSAudioNode {
   name: string;

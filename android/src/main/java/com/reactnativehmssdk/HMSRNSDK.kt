@@ -1547,9 +1547,9 @@ class HMSRNSDK(
     val peer = HMSHelper.getPeerFromPeerId(peerId, nativeHmsSDK.getRoom())
 
     if (peer !== null) {
-      val result: WritableMap = Arguments.createMap();
+      val result: WritableMap = Arguments.createMap()
 
-      when(property) {
+      when (property) {
         "name" -> {
           result.putString("name", peer.name)
         }
@@ -1609,9 +1609,9 @@ class HMSRNSDK(
     val hmsRoom = nativeHmsSDK.getRoom()
 
     if (hmsRoom !== null) {
-      val data: WritableMap = Arguments.createMap();
+      val data: WritableMap = Arguments.createMap()
 
-      when(property) {
+      when (property) {
         "sessionId" -> {
           data.putString("sessionId", hmsRoom.sessionId)
         }

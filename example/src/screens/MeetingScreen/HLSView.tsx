@@ -2,9 +2,12 @@ import React, {useRef, useState, useEffect} from 'react';
 import {useSelector} from 'react-redux';
 import {View, Text, Platform, LayoutAnimation} from 'react-native';
 import VideoPlayer from 'react-native-video-controls';
-import type { LoadError } from 'react-native-video';
+import type {LoadError} from 'react-native-video';
 import Toast from 'react-native-simple-toast';
-import {type HMSRoom, HMSUpdateListenerActions} from '@100mslive/react-native-hms';
+import {
+  type HMSRoom,
+  HMSUpdateListenerActions,
+} from '@100mslive/react-native-hms';
 
 import LiveButton, {LiveStates} from '../../components/LiveButton';
 
@@ -61,23 +64,20 @@ const HLSView = ({room}: HLSViewProps) => {
 
   useEffect(() => {
     if (hmsInstance) {
-      hmsInstance.addEventListener(
-        HMSUpdateListenerActions.RECONNECTED,
-        () => {
-          if (reconnectedGoLiveTimerRef.current) {
-            clearTimeout(reconnectedGoLiveTimerRef.current);
-          }
+      hmsInstance.addEventListener(HMSUpdateListenerActions.RECONNECTED, () => {
+        if (reconnectedGoLiveTimerRef.current) {
+          clearTimeout(reconnectedGoLiveTimerRef.current);
+        }
 
-          reconnectedGoLiveTimerRef.current = setTimeout(() => {
-            reconnectedGoLiveTimerRef.current = null;
-            goLive();
-          }, 1000);
-        },
-      );
+        reconnectedGoLiveTimerRef.current = setTimeout(() => {
+          reconnectedGoLiveTimerRef.current = null;
+          goLive();
+        }, 1000);
+      });
 
       return () => {
         hmsInstance.removeEventListener(HMSUpdateListenerActions.RECONNECTED);
-      }
+      };
     }
   }, [hmsInstance, goLive]);
 
@@ -85,14 +85,10 @@ const HLSView = ({room}: HLSViewProps) => {
 
   const handleError = (err: LoadError) => {
     if (err?.error?.errorString) {
-      Toast.showWithGravity(
-        err.error.errorString,
-        Toast.LONG,
-        Toast.TOP
-      );
+      Toast.showWithGravity(err.error.errorString, Toast.LONG, Toast.TOP);
     }
     setCurrentLiveState(LiveStates.BEHIND_LIVE);
-  }
+  };
 
   return (
     <View style={{flex: 1}}>

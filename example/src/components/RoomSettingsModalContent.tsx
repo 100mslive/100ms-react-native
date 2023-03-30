@@ -22,7 +22,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
 import DocumentPicker from 'react-native-document-picker';
-import { openSettings, requestNotifications } from 'react-native-permissions';
+import {openSettings, requestNotifications} from 'react-native-permissions';
 
 import {COLORS} from '../utils/theme';
 import type {RootState} from '../redux';
@@ -179,14 +179,17 @@ export const RoomSettingsModalContent: React.FC<
     }
   };
 
-  const changeBulkRole = () => setModalVisible(ModalTypes.BULK_ROLE_CHANGE, true);
+  const changeBulkRole = () =>
+    setModalVisible(ModalTypes.BULK_ROLE_CHANGE, true);
 
-  const changeTrackState = () => setModalVisible(ModalTypes.CHANGE_TRACK_ROLE, true);
+  const changeTrackState = () =>
+    setModalVisible(ModalTypes.CHANGE_TRACK_ROLE, true);
 
   const switchAudioOutput = () =>
     setModalVisible(ModalTypes.SWITCH_AUDIO_OUTPUT, true);
 
-  const changeAudioMode = () => setModalVisible(ModalTypes.CHANGE_AUDIO_MODE, true);
+  const changeAudioMode = () =>
+    setModalVisible(ModalTypes.CHANGE_AUDIO_MODE, true);
 
   const setAudioMixingMode = () =>
     setModalVisible(ModalTypes.AUDIO_MIXING_MODE, true);
@@ -215,11 +218,11 @@ export const RoomSettingsModalContent: React.FC<
             'Notification Permission is Blocked!',
             '100ms SDK needs notification permission to start audio share. Please allow notification from settings and try again!',
             [
-              { text: 'cancel' },
-              { text: 'Go to Settings', onPress: () => openSettings()}
+              {text: 'cancel'},
+              {text: 'Go to Settings', onPress: () => openSettings()},
             ],
-            { cancelable: true }
-          )
+            {cancelable: true},
+          );
           return;
         }
       }

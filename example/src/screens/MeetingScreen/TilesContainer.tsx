@@ -21,7 +21,7 @@ const TilesContainerUnmemoized: React.FC<TilesContainerProps> = ({
   orientation,
   setHmsViewRefs,
   onPeerTileMorePress,
-  setIsScreenShared
+  setIsScreenShared,
 }) => {
   const {left, right} = useSafeAreaInsets();
 

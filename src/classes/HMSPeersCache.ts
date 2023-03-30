@@ -62,7 +62,7 @@ export class HMSPeersCache {
   updatePeerCache(
     peerId: string,
     data: Partial<Record<keyof HMSPeerCacheProps | 'track', any>>,
-    updateType?: HMSPeerUpdate | HMSTrackUpdate,
+    updateType?: HMSPeerUpdate | HMSTrackUpdate
   ) {
     const peerObj = this._data.get(peerId);
 
@@ -83,8 +83,7 @@ export class HMSPeersCache {
           } else if (track.type === HMSTrackType.AUDIO) {
             updatedObj.audioTrack = track;
           }
-        }
-        else {
+        } else {
           if (Array.isArray(updatedObj.auxiliaryTracks)) {
             updatedObj.auxiliaryTracks.push(track);
           } else {
@@ -102,11 +101,12 @@ export class HMSPeersCache {
           } else if (track.type === HMSTrackType.AUDIO) {
             updatedObj.audioTrack = undefined;
           }
-        }
-        else if (Array.isArray(updatedObj.auxiliaryTracks)) {
+        } else if (Array.isArray(updatedObj.auxiliaryTracks)) {
           updatedObj = {
             ...updatedObj,
-            auxiliaryTracks: updatedObj.auxiliaryTracks.filter(auxiliaryTrack => auxiliaryTrack.trackId !== track.trackId)
+            auxiliaryTracks: updatedObj.auxiliaryTracks.filter(
+              (auxiliaryTrack) => auxiliaryTrack.trackId !== track.trackId
+            ),
           };
         }
         break;
@@ -117,16 +117,23 @@ export class HMSPeersCache {
 
         if (track.source === HMSTrackSource.REGULAR) {
           if (track.type === HMSTrackType.VIDEO) {
-            updatedObj.videoTrack = { ...track, isDegraded: updatedObj.videoTrack?.isDegraded || false };
+            updatedObj.videoTrack = {
+              ...track,
+              isDegraded: updatedObj.videoTrack?.isDegraded || false,
+            };
           } else if (track.type === HMSTrackType.AUDIO) {
             updatedObj.audioTrack = track;
           }
-        }
-        else {
+        } else {
           if (Array.isArray(updatedObj.auxiliaryTracks)) {
             updatedObj = {
               ...updatedObj,
-              auxiliaryTracks: updatedObj.auxiliaryTracks.map(auxiliaryTrack => auxiliaryTrack.trackId === track.trackId ? track : auxiliaryTrack),
+              auxiliaryTracks: updatedObj.auxiliaryTracks.map(
+                (auxiliaryTrack) =>
+                  auxiliaryTrack.trackId === track.trackId
+                    ? track
+                    : auxiliaryTrack
+              ),
             };
           } else {
             updatedObj.auxiliaryTracks = [track];
@@ -140,22 +147,29 @@ export class HMSPeersCache {
 
         if (track.source === HMSTrackSource.REGULAR) {
           if (track.type === HMSTrackType.VIDEO) {
-            updatedObj.videoTrack = { ...track, isDegraded: updateType === HMSTrackUpdate.TRACK_DEGRADED };
+            updatedObj.videoTrack = {
+              ...track,
+              isDegraded: updateType === HMSTrackUpdate.TRACK_DEGRADED,
+            };
           } else if (track.type === HMSTrackType.AUDIO) {
             updatedObj.audioTrack = track;
           }
-        }
-        else {
+        } else {
           if (Array.isArray(updatedObj.auxiliaryTracks)) {
             updatedObj = {
               ...updatedObj,
-              auxiliaryTracks: updatedObj.auxiliaryTracks.map(auxiliaryTrack => {
-                if (auxiliaryTrack.trackId === track.trackId) {
-                  return { ...auxiliaryTrack, isDegraded: updateType === HMSTrackUpdate.TRACK_DEGRADED }
-                }
+              auxiliaryTracks: updatedObj.auxiliaryTracks.map(
+                (auxiliaryTrack) => {
+                  if (auxiliaryTrack.trackId === track.trackId) {
+                    return {
+                      ...auxiliaryTrack,
+                      isDegraded: updateType === HMSTrackUpdate.TRACK_DEGRADED,
+                    };
+                  }
 
-                return auxiliaryTrack;
-              }),
+                  return auxiliaryTrack;
+                }
+              ),
             };
           } else {
             updatedObj.auxiliaryTracks = [track];
@@ -168,7 +182,9 @@ export class HMSPeersCache {
         break;
       }
       case HMSPeerUpdate.NETWORK_QUALITY_UPDATED: {
-        updatedObj.networkQuality = HMSEncoder.encodeHMSNetworkQuality(data.networkQuality);
+        updatedObj.networkQuality = HMSEncoder.encodeHMSNetworkQuality(
+          data.networkQuality
+        );
         break;
       }
       case HMSPeerUpdate.METADATA_CHANGED:
@@ -194,7 +210,11 @@ export class HMSPeersCache {
   }
 }
 
-export function getPeerPropertyFromNative<T extends keyof HMSPeerCacheProps>(id: string, peerId: string, property: T): HMSPeerCacheProps[T] {
+export function getPeerPropertyFromNative<T extends keyof HMSPeerCacheProps>(
+  id: string,
+  peerId: string,
+  property: T
+): HMSPeerCacheProps[T] {
   const data: any = HMSManager.getPeerProperty({
     id,
     peerId,
@@ -205,30 +225,26 @@ export function getPeerPropertyFromNative<T extends keyof HMSPeerCacheProps>(id:
 
   if (property === 'role') {
     value = data ? HMSEncoder.encodeHmsRole(data.role) : undefined;
-  }
-  else if (property === 'networkQuality') {
-    value = data ? HMSEncoder.encodeHMSNetworkQuality(data.networkQuality) : undefined;
-  }
-  else if (property === 'audioTrack') {
+  } else if (property === 'networkQuality') {
+    value = data
+      ? HMSEncoder.encodeHMSNetworkQuality(data.networkQuality)
+      : undefined;
+  } else if (property === 'audioTrack') {
     value = data
       ? HMSEncoder.encodeHmsAudioTrack(data.audioTrack, id)
       : undefined;
-  }
-  else if (property === 'videoTrack') {
+  } else if (property === 'videoTrack') {
     value = data
       ? HMSEncoder.encodeHmsVideoTrack(data.videoTrack, id)
       : undefined;
-  }
-  else if (property === 'auxiliaryTracks') {
+  } else if (property === 'auxiliaryTracks') {
     value =
       data && Array.isArray(data.auxiliaryTracks)
         ? HMSEncoder.encodeHmsAuxiliaryTracks(data.auxiliaryTracks, id)
         : undefined;
-  }
-  else if (property === 'name') {
+  } else if (property === 'name') {
     value = data?.[property] || '';
-  }
-  else {
+  } else {
     value = data ? data[property] : undefined;
   }
 

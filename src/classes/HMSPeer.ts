@@ -13,10 +13,7 @@ export class HMSPeer {
    */
   customerDescription?: string;
 
-  constructor(params: {
-    peerID: string;
-    customerDescription?: string;
-  }) {
+  constructor(params: { peerID: string; customerDescription?: string }) {
     this.peerID = params.peerID;
     this.customerDescription = params.customerDescription;
   }
@@ -25,89 +22,127 @@ export class HMSPeer {
     const hmsPeersCache = getHmsPeersCache();
 
     if (hmsPeersCache) {
-      return hmsPeersCache.getProperty(this.peerID, "name") || '';
+      return hmsPeersCache.getProperty(this.peerID, 'name') || '';
     }
 
-    return getPeerPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, this.peerID, "name") || '';
+    return (
+      getPeerPropertyFromNative(
+        HMSConstants.DEFAULT_SDK_ID,
+        this.peerID,
+        'name'
+      ) || ''
+    );
   }
 
   get isLocal(): boolean | undefined {
     const hmsPeersCache = getHmsPeersCache();
 
     if (hmsPeersCache) {
-      return hmsPeersCache.getProperty(this.peerID, "isLocal");
+      return hmsPeersCache.getProperty(this.peerID, 'isLocal');
     }
 
-    return getPeerPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, this.peerID, "isLocal");
+    return getPeerPropertyFromNative(
+      HMSConstants.DEFAULT_SDK_ID,
+      this.peerID,
+      'isLocal'
+    );
   }
 
-  get networkQuality(): HMSNetworkQuality| undefined {
+  get networkQuality(): HMSNetworkQuality | undefined {
     const hmsPeersCache = getHmsPeersCache();
 
     if (hmsPeersCache) {
-      return hmsPeersCache.getProperty(this.peerID, "networkQuality");
+      return hmsPeersCache.getProperty(this.peerID, 'networkQuality');
     }
 
-    return getPeerPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, this.peerID, "networkQuality");
+    return getPeerPropertyFromNative(
+      HMSConstants.DEFAULT_SDK_ID,
+      this.peerID,
+      'networkQuality'
+    );
   }
 
   get customerUserID(): string | undefined {
     const hmsPeersCache = getHmsPeersCache();
 
     if (hmsPeersCache) {
-      return hmsPeersCache.getProperty(this.peerID, "customerUserID");
+      return hmsPeersCache.getProperty(this.peerID, 'customerUserID');
     }
 
-    return getPeerPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, this.peerID, "customerUserID");
+    return getPeerPropertyFromNative(
+      HMSConstants.DEFAULT_SDK_ID,
+      this.peerID,
+      'customerUserID'
+    );
   }
 
   get metadata(): string | undefined {
     const hmsPeersCache = getHmsPeersCache();
 
     if (hmsPeersCache) {
-      return hmsPeersCache.getProperty(this.peerID, "metadata");
+      return hmsPeersCache.getProperty(this.peerID, 'metadata');
     }
 
-    return getPeerPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, this.peerID, "metadata");
+    return getPeerPropertyFromNative(
+      HMSConstants.DEFAULT_SDK_ID,
+      this.peerID,
+      'metadata'
+    );
   }
 
   get role(): HMSRole | undefined {
     const hmsPeersCache = getHmsPeersCache();
 
     if (hmsPeersCache) {
-      return hmsPeersCache.getProperty(this.peerID, "role");
+      return hmsPeersCache.getProperty(this.peerID, 'role');
     }
 
-    return getPeerPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, this.peerID, "role");
+    return getPeerPropertyFromNative(
+      HMSConstants.DEFAULT_SDK_ID,
+      this.peerID,
+      'role'
+    );
   }
 
   get audioTrack(): HMSAudioTrack | undefined {
     const hmsPeersCache = getHmsPeersCache();
 
     if (hmsPeersCache) {
-      return hmsPeersCache.getProperty(this.peerID, "audioTrack");
+      return hmsPeersCache.getProperty(this.peerID, 'audioTrack');
     }
 
-    return getPeerPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, this.peerID, "audioTrack");
+    return getPeerPropertyFromNative(
+      HMSConstants.DEFAULT_SDK_ID,
+      this.peerID,
+      'audioTrack'
+    );
   }
 
   get videoTrack(): HMSVideoTrack | undefined {
     const hmsPeersCache = getHmsPeersCache();
 
     if (hmsPeersCache) {
-      return hmsPeersCache.getProperty(this.peerID, "videoTrack");
+      return hmsPeersCache.getProperty(this.peerID, 'videoTrack');
     }
 
-    return getPeerPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, this.peerID, "videoTrack");
+    return getPeerPropertyFromNative(
+      HMSConstants.DEFAULT_SDK_ID,
+      this.peerID,
+      'videoTrack'
+    );
   }
 
   get auxiliaryTracks(): HMSTrack[] | undefined {
     const hmsPeersCache = getHmsPeersCache();
 
     if (hmsPeersCache) {
-      return hmsPeersCache.getProperty(this.peerID, "auxiliaryTracks");
+      return hmsPeersCache.getProperty(this.peerID, 'auxiliaryTracks');
     }
 
-    return getPeerPropertyFromNative(HMSConstants.DEFAULT_SDK_ID, this.peerID, "auxiliaryTracks");
+    return getPeerPropertyFromNative(
+      HMSConstants.DEFAULT_SDK_ID,
+      this.peerID,
+      'auxiliaryTracks'
+    );
   }
 }

@@ -202,10 +202,10 @@ export const ParticipantsModal = ({
             ...peers.map(peer => {
               // Extracting name and role out of peer object,
               // so that we still have these value even after peer leaves the meeting
-              const partialCachedPeer: any = { name: peer.name, role: peer.role };
+              const partialCachedPeer: any = {name: peer.name, role: peer.role};
               Object.setPrototypeOf(partialCachedPeer, peer);
               return partialCachedPeer;
-            })
+            }),
           ]);
         });
       }

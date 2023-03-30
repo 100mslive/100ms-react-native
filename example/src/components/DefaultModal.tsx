@@ -1,11 +1,6 @@
 import React from 'react';
-import {
-  StyleSheet,
-  View,
-  StyleProp,
-  ViewStyle,
-} from 'react-native';
-import Modal, { SupportedAnimation } from 'react-native-modal';
+import {StyleSheet, View, StyleProp, ViewStyle} from 'react-native';
+import Modal, {SupportedAnimation} from 'react-native-modal';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
@@ -27,8 +22,8 @@ export const DefaultModal: React.FC<DefaultModalProps> = ({
   modalVisible,
   setModalVisible,
   children,
-  animationIn='fadeIn',
-  animationOut='fadeOut',
+  animationIn = 'fadeIn',
+  animationOut = 'fadeOut',
   modalPosiion = 'flex-end',
   backdrop = false,
   viewStyle,
@@ -50,14 +45,16 @@ export const DefaultModal: React.FC<DefaultModalProps> = ({
       onBackdropPress={setModalVisible}
       onDismiss={setModalVisible}
       onBackButtonPress={setModalVisible}
-      style={[modalStyle, { margin: 0, justifyContent: modalPosiion }]}>
+      style={[modalStyle, {margin: 0, justifyContent: modalPosiion}]}
+    >
       <View
         style={[
           styles.contentContainer,
           modalPosiion === 'flex-end' ? styles.end : styles.center,
           viewStyle,
           {marginLeft: left, marginRight: right},
-        ]}>
+        ]}
+      >
         {modalPosiion === 'flex-end' && (
           <CustomButton
             onPress={setModalVisible}

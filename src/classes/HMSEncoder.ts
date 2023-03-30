@@ -351,7 +351,10 @@ export class HMSEncoder {
       // If the created HMSRole object is complete,
       // sending notification to Native Side to stop sending data for this role
       if (hmsRole.publishSettings?.allowed) {
-        HMSManager.restrictData({ id: HMSConstants.DEFAULT_SDK_ID, roleName: hmsRole.name });
+        HMSManager.restrictData({
+          id: HMSConstants.DEFAULT_SDK_ID,
+          roleName: hmsRole.name,
+        });
       }
     }
 
@@ -369,9 +372,7 @@ export class HMSEncoder {
     return new HMSRoleChangeRequest(encodedRoleChangeRequest);
   }
 
-  static encodeHmsChangeTrackStateRequest(
-    data: HMSChangeTrackStateRequest
-  ) {
+  static encodeHmsChangeTrackStateRequest(data: HMSChangeTrackStateRequest) {
     const encodedChangeTrackStateRequest = {
       requestedBy: data?.requestedBy
         ? HMSEncoder.encodeHmsPeer(data?.requestedBy)
