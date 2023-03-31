@@ -24,13 +24,11 @@ import {CustomButton} from './CustomButton';
 import {getInitials} from '../utils/functions';
 
 export const PreviewModal = ({
-  room,
   previewTracks,
   join,
   setLoadingButtonState,
   loadingButtonState,
 }: {
-  room?: HMSRoom;
   previewTracks: HMSTrack[];
   join: Function;
   setLoadingButtonState: React.Dispatch<React.SetStateAction<boolean>>;
@@ -100,22 +98,6 @@ export const PreviewModal = ({
       </View>
       <View style={[styles.textContainer, {top: 48 + top}]}>
         <Text style={styles.heading}>Configure Video and Audio</Text>
-        <View style={styles.peerList}>
-          <TouchableWithoutFeedback
-            onPress={() => {
-              setNumberOfLines(!numberOfLines);
-            }}
-          >
-            <Text
-              style={styles.collapsibleText}
-              numberOfLines={numberOfLines ? 1 : undefined}
-            >
-              {room?.peers.map((peer, index) => {
-                return (index !== 0 ? ', ' : '') + peer.name;
-              })}
-            </Text>
-          </TouchableWithoutFeedback>
-        </View>
       </View>
       <View style={[styles.buttonRow, {bottom: 24 + bottom, left, right}]}>
         <View style={styles.iconContainer}>

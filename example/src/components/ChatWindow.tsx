@@ -174,6 +174,7 @@ const ChatList = ({
       data={messages}
       initialNumToRender={2}
       maxToRenderPerBatch={3}
+      windowSize={11}
       keyboardShouldPersistTaps="always"
       renderItem={({item, index}: {item: HMSMessage; index: number}) => {
         const data = item;

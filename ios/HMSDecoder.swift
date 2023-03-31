@@ -12,7 +12,45 @@ class HMSDecoder: NSObject {
         restrictRoleData.removeAll()
     }
 
-    static func getHmsRoom(_ hmsRoom: HMSRoom?, onJoin: Bool = false) -> [String: Any] {
+    static func getHmsRoomSubset(_ hmsRoom: HMSRoom?, _ hmsRoomUpdateType: HMSRoomUpdate? = nil) -> [String: Any] {
+
+        guard let room = hmsRoom else { return [String: Any]() }
+
+        var data: [String: Any] = ["id": room.roomID ?? ""]
+
+        switch hmsRoomUpdateType {
+            case .none:
+                return data
+            case .metaDataUpdated:
+                let count = room.peerCount ?? 0
+                data["peerCount"] = count
+                return data
+            case .hlsRecordingStateUpdated:
+                let hlsRecordingState = HMSDecoder.getHlsRecordingState(hmsRoom?.hlsRecordingState)
+                data["hlsRecordingState"] = hlsRecordingState
+                return data
+            case .browserRecordingStateUpdated:
+                let browserRecordingState = HMSDecoder.getHMSBrowserRecordingState(hmsRoom?.browserRecordingState)
+                data["browserRecordingState"] = browserRecordingState
+                return data
+            case .hlsStreamingStateUpdated:
+                let hlsStreamingState = HMSDecoder.getHlsStreamingState(hmsRoom?.hlsStreamingState)
+                data["hlsStreamingState"] = hlsStreamingState
+                return data
+            case .rtmpStreamingStateUpdated:
+                let rtmpStreamingState = HMSDecoder.getHMSRtmpStreamingState(hmsRoom?.rtmpStreamingState)
+                data["rtmpHMSRtmpStreamingState"] = rtmpStreamingState
+                return data
+            case .serverRecordingStateUpdated:
+                let serverRecordingState = HMSDecoder.getHMSServerRecordingState(hmsRoom?.serverRecordingState)
+                data["serverRecordingState"] = serverRecordingState
+                return data
+            default:
+                return data
+        }
+    }
+
+    static func getHmsRoom(_ hmsRoom: HMSRoom?) -> [String: Any] {
 
         guard let room = hmsRoom else { return [String: Any]() }
 
@@ -29,24 +67,86 @@ class HMSDecoder: NSObject {
         let hlsRecordingState = HMSDecoder.getHlsRecordingState(hmsRoom?.hlsRecordingState)
         var localPeer = [String: Any]()
         var peers = [[String: Any]]()
-        
-        if onJoin {
-            if let fetchedLocalPeer = room.peers.first(where: { $0.isLocal }) {
-                let parsedPeer = getHmsPeer(fetchedLocalPeer)
-                peers.append(parsedPeer)
+
+        for peer in room.peers {
+            let parsedPeer = getHmsPeerSubset(peer)
+            peers.append(parsedPeer)
+            if peer.isLocal {
                 localPeer = parsedPeer
-            }
-        } else {
-            for peer in room.peers {
-                let parsedPeer = getHmsPeer(peer)
-                peers.append(parsedPeer)
-                if peer.isLocal {
-                    localPeer = parsedPeer
-                }
             }
         }
 
         return ["id": id, "name": name, "metaData": metaData, "peers": peers, "browserRecordingState": browserRecordingState, "rtmpHMSRtmpStreamingState": rtmpStreamingState, "serverRecordingState": serverRecordingState, "hlsRecordingState": hlsRecordingState, "hlsStreamingState": hlsStreamingState, "peerCount": count, "sessionId": sessionId, "localPeer": localPeer]
+    }
+
+    static func getPeerUpdateTypeOrdinals(_ peerUpdateType: HMSPeerUpdate) -> String? {
+        switch peerUpdateType {
+            case .peerJoined: return "0"
+            case .peerLeft: return "1"
+            case .roleUpdated: return "9"
+            case .nameUpdated: return "10"
+            case .metadataUpdated: return "11"
+            case .networkQualityUpdated: return "12"
+            default: return nil
+        }
+    }
+
+    static func getHmsPeerSubsetForPeerUpdateEvent (_ hmsPeer: HMSPeer?, _ peerUpdateType: HMSPeerUpdate) -> [String: Any] {
+
+        guard let peer = hmsPeer else { return [String: Any]() }
+
+        var peerDict = [String: Any]()
+
+        guard let updateType = getPeerUpdateTypeOrdinals(peerUpdateType) else { return peerDict }
+
+        peerDict[updateType] = peer.peerID
+
+        switch peerUpdateType {
+            case .nameUpdated:
+                peerDict["name"] = peer.name
+                return peerDict
+            case .metadataUpdated:
+                peerDict["metadata"] = peer.metadata ?? ""
+                return peerDict
+            case .roleUpdated:
+                peerDict["role"] = getHmsRole(peer.role)
+                return peerDict
+            case .networkQualityUpdated:
+                if let quality = peer.networkQuality {
+                    peerDict["networkQuality"] = getHmsNetworkQuality(quality)
+                }
+                return peerDict
+            default:
+                return peerDict
+        }
+    }
+
+    static func getHmsPeerSubset (_ hmsPeer: HMSPeer?, _ peerUpdateType: HMSPeerUpdate? = nil) -> [String: Any] {
+
+        guard let peer = hmsPeer else { return [String: Any]() }
+
+        var peerDict = [String: Any]()
+
+        peerDict["peerID"] = peer.peerID
+
+        switch peerUpdateType {
+            case .nameUpdated:
+                peerDict["name"] = peer.name
+                return peerDict
+            case .metadataUpdated:
+                peerDict["metadata"] = peer.metadata ?? ""
+                return peerDict
+            case .roleUpdated:
+                peerDict["role"] = getHmsRole(peer.role)
+                return peerDict
+            case .networkQualityUpdated:
+                if let quality = peer.networkQuality {
+                    peerDict["networkQuality"] = getHmsNetworkQuality(quality)
+                }
+                return peerDict
+            default:
+                return peerDict
+        }
     }
 
     static func getHmsPeer (_ hmsPeer: HMSPeer?) -> [String: Any] {
@@ -145,39 +245,16 @@ class HMSDecoder: NSObject {
 
         peerDict["peerID"] = peer.peerID
 
-        peerDict["name"] = peer.name
-        peerDict["isLocal"] = peer.isLocal
-
-        if let userID = peer.customerUserID {
-            peerDict["customerUserID"] = userID
-        }
-
-        peerDict["metadata"] = peer.metadata ?? ""
-
-        peerDict["role"] = getHmsRole(peer.role)
-
         if let audio = peer.audioTrack {
-            peerDict["audioTrack"] = getHmsAudioTrack(audio)
-
             if let localAudio = audio as? HMSLocalAudioTrack {
                 peerDict["localAudioTrackData"] = getHmsLocalAudioTrack(localAudio)
             }
         }
 
         if let video = peer.videoTrack {
-            peerDict["videoTrack"] = getHmsVideoTrack(video)
-
             if let localVideo = video as? HMSLocalVideoTrack {
                 peerDict["localVideoTrackData"] = getHmsLocalVideoTrack(localVideo)
             }
-        }
-
-        if let quality = peer.networkQuality {
-            peerDict["networkQuality"] = getHmsNetworkQuality(quality)
-        }
-
-        if let auxTracks = peer.auxiliaryTracks, auxTracks.count > 0 {
-            peerDict["auxiliaryTracks"] = getAllTracks(auxTracks)
         }
 
         return peerDict
@@ -270,41 +347,19 @@ class HMSDecoder: NSObject {
         var peerDict = [String: Any]()
 
         peerDict["peerID"] = peer.peerID
-        peerDict["name"] = peer.name
-        peerDict["isLocal"] = peer.isLocal
-
-        if let userID = peer.customerUserID {
-            peerDict["customerUserID"] = userID
-        }
-
-        peerDict["metadata"] = peer.metadata ?? ""
 
         // joinedAt
 
-        peerDict["role"] = getHmsRole(peer.role)
-
-        if let quality = peer.networkQuality {
-            peerDict["networkQuality"] = getHmsNetworkQuality(quality)
-        }
-
         if let audio = peer.audioTrack {
-            peerDict["audioTrack"] = getHmsAudioTrack(audio)
-
             if let remoteAudio = audio as? HMSRemoteAudioTrack {
                 peerDict["remoteAudioTrackData"] = getHMSRemoteAudioTrack(remoteAudio)
             }
         }
 
         if let video = peer.videoTrack {
-            peerDict["videoTrack"] = getHmsVideoTrack(video)
-
             if let remoteVideo = video as? HMSRemoteVideoTrack {
                 peerDict["remoteVideoTrackData"] = getHMSRemoteVideoTrack(remoteVideo)
             }
-        }
-
-        if let auxTracks = peer.auxiliaryTracks, auxTracks.count > 0 {
-            peerDict["auxiliaryTracks"] = getAllTracks(auxTracks)
         }
 
         return peerDict
@@ -490,7 +545,7 @@ class HMSDecoder: NSObject {
         if let sdkId = id {
             var requestedBy: [String: Any]?
             if let peer = roleChangeRequest.requestedBy {
-                requestedBy = getHmsPeer(peer)
+                requestedBy = getHmsPeerSubset(peer)
             }
 
             let suggestedRole = getHmsRole(roleChangeRequest.suggestedRole)
@@ -508,7 +563,7 @@ class HMSDecoder: NSObject {
     static func getHmsChangeTrackStateRequest(_ changeTrackStateRequest: HMSChangeTrackStateRequest, _ id: String) -> [String: Any] {
         var requestedBy: [String: Any]?
         if let peer = changeTrackStateRequest.requestedBy {
-            requestedBy = getHmsPeer(peer)
+            requestedBy = getHmsPeerSubset(peer)
         }
         let trackType = changeTrackStateRequest.track.kind == .video ? "video" : "audio"
 
@@ -664,7 +719,7 @@ class HMSDecoder: NSObject {
         var data = [String: Any]()
 
         if let peer = recipient.peerRecipient {
-            data["recipientPeer"] = getHmsPeer(peer)
+            data["recipientPeer"] = getHmsPeerSubset(peer)
         }
 
         data["recipientType"] = getRecipientType(from: recipient.type)

@@ -12,12 +12,16 @@ import PeerDisplayView, {PeerDisplayViewProps} from './PeerDisplayView';
 
 interface DisplayTrackProps extends PeerDisplayViewProps {
   videoStyles: StyleProp<ViewStyle>;
+  setIsScreenShared: React.Dispatch<React.SetStateAction<boolean | undefined>>;
 }
 
 // `ref` passed to DisplayTrack component will be passed to PeerDisplayView component
 // as HMSView component is being rendered inside PeerDisplayView component
 const DisplayTrack = React.forwardRef<typeof HMSView, DisplayTrackProps>(
-  ({isDegraded, isLocal, peerName, videoTrack, videoStyles}, hmsViewRef) => {
+  (
+    {isDegraded, isLocal, peerName, videoTrack, videoStyles, setIsScreenShared},
+    hmsViewRef,
+  ) => {
     // hooks
     const hmsInstance = useSelector(
       (state: RootState) => state.user.hmsInstance,
@@ -27,7 +31,10 @@ const DisplayTrack = React.forwardRef<typeof HMSView, DisplayTrackProps>(
     const onEndScreenSharePress = () => {
       hmsInstance
         ?.stopScreenshare()
-        .then(d => console.log('Stop Screenshare Success: ', d))
+        .then(d => {
+          console.log('Stop Screenshare Success: ', d);
+          setIsScreenShared(false);
+        })
         .catch(e => console.log('Stop Screenshare Error: ', e));
     };
 

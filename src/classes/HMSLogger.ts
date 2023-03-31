@@ -15,12 +15,6 @@ export class HMSLogger {
   private _verbose: boolean = false;
   private _warning: boolean = false;
   private _error: boolean = false;
-  private logs: {
-    type: 'verbose' | 'warn' | 'error';
-    message: string;
-    data: any;
-    id: string;
-  }[] = [];
   private onLog?: Function;
 
   constructor(params?: { verbose: boolean; warning: boolean; error: boolean }) {
@@ -33,36 +27,32 @@ export class HMSLogger {
 
   verbose(message: string, data: any) {
     if (this._verbose) {
-      console.log(message, data);
+      const timestamp = this.getTimestamp();
+      console.log(timestamp, message, data);
       if (this.onLog) {
-        this?.onLog({ message, data });
+        this?.onLog({ timestamp, message, data });
       }
-      this.logs.push({ type: 'verbose', message, data, id: data?.id });
     }
   }
 
   warn(message: string, data: any) {
     if (this._warning) {
-      console.warn(message, data);
+      const timestamp = this.getTimestamp();
+      console.warn(timestamp, message, data);
       if (this.onLog) {
-        this?.onLog({ message, data });
+        this?.onLog({ timestamp, message, data });
       }
-      this.logs.push({ type: 'warn', message, data, id: data?.id });
     }
   }
 
   error(message: string, data: any) {
     if (this._error) {
-      console.error(message, data);
+      const timestamp = this.getTimestamp();
+      console.error(timestamp, message, data);
       if (this.onLog) {
-        this?.onLog({ message, data });
+        this?.onLog({ timestamp, message, data });
       }
-      this.logs.push({ type: 'error', message, data, id: data?.id });
     }
-  }
-
-  getLogs() {
-    return this.logs;
   }
 
   setLogListener(callback: Function) {
@@ -87,5 +77,16 @@ export class HMSLogger {
         return;
       }
     }
+  }
+
+  getTimestamp(): string {
+    const d = new Date();
+
+    const hh = d.getHours().toString().padStart(2, '0');
+    const mm = d.getMinutes().toString().padStart(2, '0');
+    const ss = d.getSeconds().toString().padStart(2, '0');
+    const millis = d.getMilliseconds().toString().padStart(3, '0');
+
+    return `${hh}:${mm}:${ss}:${millis}`;
   }
 }

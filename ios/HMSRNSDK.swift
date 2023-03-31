@@ -31,7 +31,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     let ON_PREVIEW = "ON_PREVIEW"
     let ON_JOIN = "ON_JOIN"
     let ON_ROOM_UPDATE = "ON_ROOM_UPDATE"
-    let ON_PEER_UPDATE = "ON_PEER_UPDATE"
+    let ON_PEER_UPDATE = "3"
     let ON_TRACK_UPDATE = "ON_TRACK_UPDATE"
     let ON_ROLE_CHANGE_REQUEST = "ON_ROLE_CHANGE_REQUEST"
     let ON_REMOVED_FROM_ROOM = "ON_REMOVED_FROM_ROOM"
@@ -702,12 +702,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         let config = HMSRTMPConfig(meetingURL: meetingUrl, rtmpURLs: URLs, record: record)
         hms?.startRTMPOrRecording(config: config, completion: { success, error in
             if success {
-                let roomData = HMSDecoder.getHmsRoom(self.hms?.room)
-                let type = self.getString(from: HMSRoomUpdate.browserRecordingStateUpdated)
-
-                if self.eventsEnableStatus[self.ON_ROOM_UPDATE] == true {
-                  self.delegate?.emitEvent(self.ON_ROOM_UPDATE, ["event": self.ON_ROOM_UPDATE, "id": self.id, "type": type, "room": roomData])
-                }
                 resolve?(["success": success])
                 return
             } else {
@@ -723,12 +717,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     func stopRtmpAndRecording(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         hms?.stopRTMPAndRecording(completion: { success, error in
             if success {
-                let roomData = HMSDecoder.getHmsRoom(self.hms?.room)
-                let type = self.getString(from: HMSRoomUpdate.browserRecordingStateUpdated)
-
-                if self.eventsEnableStatus[self.ON_ROOM_UPDATE] == true {
-                  self.delegate?.emitEvent(self.ON_ROOM_UPDATE, ["event": self.ON_ROOM_UPDATE, "id": self.id, "type": type, "room": roomData])
-                }
                 resolve?(["success": success])
                 return
             } else {
@@ -1158,13 +1146,118 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
 
+    func getPeerProperty(_ data: NSDictionary) -> [AnyHashable: Any]? {
+        guard let property = data.value(forKey: "property") as? String else {
+            return nil
+        }
+
+        guard let peerId = data.value(forKey: "peerId") as? String else {
+            return nil
+        }
+
+        guard let room = hms?.room, let peer = HMSUtilities.getPeer(for: peerId, in: room) else {
+            return nil
+        }
+
+        switch property {
+            case "name":
+                return ["name": peer.name]
+            case "isLocal":
+                return ["isLocal": peer.isLocal]
+            case "networkQuality":
+                if peer.networkQuality != nil {
+                    return ["networkQuality": HMSDecoder.getHmsNetworkQuality(peer.networkQuality)]
+                } else {
+                    return nil
+                }
+            case "metadata":
+                return ["metadata": peer.metadata ?? ""]
+            case "role":
+                return ["role": HMSDecoder.getHmsRole(peer.role)]
+            case "customerUserID":
+                return ["customerUserID": peer.customerUserID ?? ""]
+            case "audioTrack":
+                if peer.audioTrack != nil {
+                    return ["audioTrack": HMSDecoder.getHmsAudioTrack(peer.audioTrack)]
+                } else {
+                    return nil
+                }
+            case "videoTrack":
+                if peer.videoTrack != nil {
+                    return ["videoTrack": HMSDecoder.getHmsVideoTrack(peer.videoTrack)]
+                } else {
+                    return nil
+                }
+            case "auxiliaryTracks":
+                if let auxTracks = peer.auxiliaryTracks, auxTracks.count > 0 {
+                    return ["auxiliaryTracks": HMSDecoder.getAllTracks(auxTracks)]
+                } else {
+                    return nil
+                }
+            default:
+                return nil
+        }
+    }
+
+    func getRoomProperty(_ data: NSDictionary) -> [AnyHashable: Any]? {
+        guard let property = data.value(forKey: "property") as? String else {
+            return nil
+        }
+
+        guard let hmsRoom = hms?.room else {
+            return nil
+        }
+
+        switch property {
+            case "sessionId":
+                return ["sessionId": hmsRoom.sessionID ?? ""]
+            case "name":
+                return ["name": hmsRoom.name ?? ""]
+
+            case "metaData":
+                return ["metaData": hmsRoom.metaData ?? ""]
+
+            case "peerCount":
+                return ["peerCount": hmsRoom.peerCount ?? 0]
+
+            case "peers":
+                var peers = [[String: Any]]()
+                for peer in hmsRoom.peers {
+                    let parsedPeer = HMSDecoder.getHmsPeerSubset(peer)
+                    peers.append(parsedPeer)
+                }
+                return ["peers": peers]
+
+            case "localPeer":
+                return ["localPeer": HMSDecoder.getHmsLocalPeer(hms?.localPeer)]
+
+            case "browserRecordingState":
+                return ["browserRecordingState": HMSDecoder.getHMSBrowserRecordingState(hmsRoom.browserRecordingState)]
+
+            case "rtmpHMSRtmpStreamingState":
+                return ["rtmpHMSRtmpStreamingState": HMSDecoder.getHMSRtmpStreamingState(hmsRoom.rtmpStreamingState)]
+
+            case "serverRecordingState":
+                return ["serverRecordingState": HMSDecoder.getHMSServerRecordingState(hmsRoom.serverRecordingState)]
+
+            case "hlsStreamingState":
+                return ["hlsStreamingState": HMSDecoder.getHlsStreamingState(hmsRoom.hlsStreamingState)]
+
+            case "hlsRecordingState":
+                return ["hlsRecordingState": HMSDecoder.getHlsRecordingState(hmsRoom.hlsRecordingState)]
+
+            default:
+                return nil
+        }
+    }
+
     // MARK: - HMS SDK Delegate Callbacks
     func on(join room: HMSRoom) {
         self.recentPreviewTracks = []
         if eventsEnableStatus[ON_JOIN] != true {
             return
         }
-        let roomData = HMSDecoder.getHmsRoom(room, onJoin: true)
+        let roomData = HMSDecoder.getHmsRoomSubset(room)
         self.delegate?.emitEvent(ON_JOIN, ["event": ON_JOIN, "id": self.id, "room": roomData])
     }
 
@@ -1174,7 +1267,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
         let previewTracks = HMSDecoder.getPreviewTracks(localTracks)
-        let hmsRoom = HMSDecoder.getHmsRoom(room)
+        let hmsRoom = HMSDecoder.getHmsRoomSubset(room)
 
         self.delegate?.emitEvent(ON_PREVIEW, ["event": ON_PREVIEW, "id": self.id, "room": hmsRoom, "previewTracks": previewTracks])
     }
@@ -1187,7 +1280,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
 
-        let roomData = HMSDecoder.getHmsRoom(room)
+        let roomData = HMSDecoder.getHmsRoomSubset(room, update)
         let type = getString(from: update)
 
         self.delegate?.emitEvent(ON_ROOM_UPDATE, ["event": ON_ROOM_UPDATE, "id": self.id, "type": type, "room": roomData])
@@ -1198,13 +1291,13 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
         let type = getString(from: update)
-        let hmsPeer = HMSDecoder.getHmsPeer(peer)
+        let hmsPeer = HMSDecoder.getHmsPeerSubsetForPeerUpdateEvent(peer, update)
 
         if !networkQualityUpdatesAttached && update == .networkQualityUpdated {
             return
         }
 
-        self.delegate?.emitEvent(ON_PEER_UPDATE, ["event": ON_PEER_UPDATE, "id": self.id, "type": type, "peer": hmsPeer])
+        self.delegate?.emitEvent(ON_PEER_UPDATE, hmsPeer)
     }
 
     func on(track: HMSTrack, update: HMSTrackUpdate, for peer: HMSPeer) {
@@ -1225,7 +1318,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
 
         let type = getString(from: update)
-        let hmsPeer = HMSDecoder.getHmsPeer(peer)
+        let hmsPeer = HMSDecoder.getHmsPeerSubset(peer)
         let hmsTrack = HMSDecoder.getHmsTrack(track)
 
         self.delegate?.emitEvent(ON_TRACK_UPDATE, ["event": ON_TRACK_UPDATE, "id": self.id, "type": type, "peer": hmsPeer, "track": hmsTrack])
@@ -1243,7 +1336,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         if eventsEnableStatus[ON_MESSAGE] != true {
             return
         }
-        self.delegate?.emitEvent(ON_MESSAGE, ["event": ON_MESSAGE, "id": self.id, "sender": HMSDecoder.getHmsPeer(message.sender), "recipient": HMSDecoder.getHmsMessageRecipient(message.recipient), "time": message.time.timeIntervalSince1970 * 1000, "message": message.message, "type": message.type])
+        self.delegate?.emitEvent(ON_MESSAGE, ["event": ON_MESSAGE, "id": self.id, "sender": HMSDecoder.getHmsPeerSubset(message.sender), "recipient": HMSDecoder.getHmsMessageRecipient(message.recipient), "time": message.time.timeIntervalSince1970 * 1000, "message": message.message, "type": message.type])
     }
 
     func on(updated speakers: [HMSSpeaker]) {
@@ -1252,7 +1345,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
         var speakerPeerIds: [[String: Any]] = []
         for speaker in speakers {
-            speakerPeerIds.append(["peer": HMSDecoder.getHmsPeer(speaker.peer), "level": speaker.level, "track": HMSDecoder.getHmsTrack(speaker.track)])
+            speakerPeerIds.append(["peer": HMSDecoder.getHmsPeerSubset(speaker.peer), "level": speaker.level, "track": HMSDecoder.getHmsTrack(speaker.track)])
         }
         self.delegate?.emitEvent(ON_SPEAKER, ["event": ON_SPEAKER, "id": self.id, "speakers": speakerPeerIds])
     }
@@ -1298,7 +1391,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         let requestedBy = notification.requestedBy as HMSPeer?
         var decodedRequestedBy: [String: Any]?
         if let requested = requestedBy {
-            decodedRequestedBy = HMSDecoder.getHmsPeer(requested)
+            decodedRequestedBy = HMSDecoder.getHmsPeerSubset(requested)
         }
         let reason = notification.reason
         let roomEnded = notification.roomEnded
@@ -1328,7 +1421,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
         let localStats = HMSDecoder.getLocalAudioStats(localAudioStats)
         let localTrack = HMSDecoder.getHmsAudioTrack(track)
-        let decodedPeer = HMSDecoder.getHmsPeer(peer)
+        let decodedPeer = HMSDecoder.getHmsPeerSubset(peer)
 
         self.delegate?.emitEvent(ON_LOCAL_AUDIO_STATS, ["localAudioStats": localStats, "track": localTrack, "peer": decodedPeer, "id": self.id])
     }
@@ -1341,7 +1434,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
         let localStats = HMSDecoder.getLocalVideoStats(localVideoStats)
-        let decodedPeer = HMSDecoder.getHmsPeer(peer)
+        let decodedPeer = HMSDecoder.getHmsPeerSubset(peer)
         let localTrack = HMSDecoder.getHmsVideoTrack(track)
 
         self.delegate?.emitEvent(ON_LOCAL_VIDEO_STATS, ["localVideoStats": localStats, "track": localTrack, "peer": decodedPeer, "id": self.id])
@@ -1356,7 +1449,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
         let remoteStats = HMSDecoder.getRemoteAudioStats(remoteAudioStats)
         let remoteTrack = HMSDecoder.getHmsAudioTrack(track)
-        let decodedPeer = HMSDecoder.getHmsPeer(peer)
+        let decodedPeer = HMSDecoder.getHmsPeerSubset(peer)
 
         self.delegate?.emitEvent(ON_REMOTE_AUDIO_STATS, ["remoteAudioStats": remoteStats, "track": remoteTrack, "peer": decodedPeer, "id": self.id])
     }
@@ -1369,7 +1462,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
         let remoteStats = HMSDecoder.getRemoteVideoStats(remoteVideoStats)
-        let decodedPeer = HMSDecoder.getHmsPeer(peer)
+        let decodedPeer = HMSDecoder.getHmsPeerSubset(peer)
         let remoteTrack = HMSDecoder.getHmsVideoTrack(track)
 
         self.delegate?.emitEvent(ON_REMOTE_VIDEO_STATS, ["remoteVideoStats": remoteStats, "track": remoteTrack, "peer": decodedPeer, "id": self.id])

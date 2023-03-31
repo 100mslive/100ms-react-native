@@ -13,6 +13,7 @@ interface TilesContainerProps {
   onPeerTileMorePress(peerTrackNode: PeerTrackNode): void;
   orientation: boolean;
   setHmsViewRefs(viewId: string, ref: typeof HMSView | null): void;
+  setIsScreenShared: React.Dispatch<React.SetStateAction<boolean | undefined>>;
 }
 
 const TilesContainerUnmemoized: React.FC<TilesContainerProps> = ({
@@ -20,6 +21,7 @@ const TilesContainerUnmemoized: React.FC<TilesContainerProps> = ({
   orientation,
   setHmsViewRefs,
   onPeerTileMorePress,
+  setIsScreenShared,
 }) => {
   const {left, right} = useSafeAreaInsets();
 
@@ -38,6 +40,7 @@ const TilesContainerUnmemoized: React.FC<TilesContainerProps> = ({
           orientation={orientation}
           peerTrackNode={peerTrackNode}
           totalTilesInContainer={arr.length}
+          setIsScreenShared={setIsScreenShared}
         />
       ))}
     </View>
