@@ -662,7 +662,9 @@ export const validateUrl = (url?: string): boolean => {
 };
 
 export const checkPermissions = async (
-  permissions: Array<typeof PERMISSIONS.ANDROID[keyof typeof PERMISSIONS.ANDROID]>,
+  permissions: Array<
+    typeof PERMISSIONS.ANDROID[keyof typeof PERMISSIONS.ANDROID]
+  >,
 ): Promise<boolean> => {
   if (Platform.OS === 'ios') {
     return true;

@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  AppState,
-  NativeModules,
-  Platform,
-  ViewStyle,
-} from 'react-native';
+import { AppState, NativeModules, Platform, ViewStyle } from 'react-native';
 import { HMSEncoder } from './HMSEncoder';
 import { HMSHelper } from './HMSHelper';
 import { HMSLocalAudioStats } from './HMSLocalAudioStats';
@@ -34,9 +29,22 @@ import type { HMSAudioMixingMode } from './HMSAudioMixingMode';
 import type { HMSLogSettings } from './HMSLogSettings';
 import { HMSMessageType } from './HMSMessageType';
 import { HMSPIPListenerActions } from './HMSPIPListenerActions';
-import { type HMSEventSubscription, HMSNativeEventEmitter } from './HMSNativeEventEmitter';
-import { clearHmsPeersCache, getHmsPeersCache, HMSPeersCache, setHmsPeersCache } from './HMSPeersCache';
-import { clearHmsRoomCache, getHmsRoomCache, HMSRoomCache, setHmsRoomCache } from './HMSRoomCache';
+import {
+  type HMSEventSubscription,
+  HMSNativeEventEmitter,
+} from './HMSNativeEventEmitter';
+import {
+  clearHmsPeersCache,
+  getHmsPeersCache,
+  HMSPeersCache,
+  setHmsPeersCache,
+} from './HMSPeersCache';
+import {
+  clearHmsRoomCache,
+  getHmsRoomCache,
+  HMSRoomCache,
+  setHmsRoomCache,
+} from './HMSRoomCache';
 import { HMSPeerUpdateOrdinals } from './HMSPeerUpdate';
 
 interface HmsViewProps {
@@ -1904,9 +1912,9 @@ export class HMSSDK {
   };
 
   onPeerListener = (peerData: any) => {
-    const data: {peer: any; type: any} = {
+    const data: { peer: any; type: any } = {
       peer: peerData,
-      type: null
+      type: null,
     };
 
     for (const ordinal of HMSPeerUpdateOrdinals.keys()) {
@@ -2002,9 +2010,8 @@ export class HMSSDK {
       return;
     }
     if (this.onRoleChangeRequestDelegate) {
-      const encodedRoleChangeRequest = HMSEncoder.encodeHmsRoleChangeRequest(
-        data,
-      );
+      const encodedRoleChangeRequest =
+        HMSEncoder.encodeHmsRoleChangeRequest(data);
       logger?.verbose(
         '#Listener ON_ROLE_CHANGE_LISTENER_CALL',
         encodedRoleChangeRequest

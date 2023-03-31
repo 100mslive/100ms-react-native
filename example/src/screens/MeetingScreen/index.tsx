@@ -129,30 +129,33 @@ const Meeting = () => {
     localPeer?.videoTrack?.isMute(),
   );
   const [isScreenShared, setIsScreenShared] = useState<boolean | undefined>(
-    localPeer?.auxiliaryTracks && localPeer?.auxiliaryTracks?.length > 0
+    localPeer?.auxiliaryTracks && localPeer?.auxiliaryTracks?.length > 0,
   );
   const [modalVisible, setModalVisible] = useState<ModalTypes>(
     ModalTypes.DEFAULT,
   );
 
-  const handleModalVisible = React.useCallback((modalType: ModalTypes, delay = false) => {
-    if (delay) {
-      setModalVisible(ModalTypes.DEFAULT);
+  const handleModalVisible = React.useCallback(
+    (modalType: ModalTypes, delay = false) => {
+      if (delay) {
+        setModalVisible(ModalTypes.DEFAULT);
 
-      const task = () => {
-        setModalVisible(modalType);
-        modalTaskRef.current = null;
-      }
+        const task = () => {
+          setModalVisible(modalType);
+          modalTaskRef.current = null;
+        };
 
-      if (Platform.OS === 'android') {
-        modalTaskRef.current = InteractionManager.runAfterInteractions(task);
+        if (Platform.OS === 'android') {
+          modalTaskRef.current = InteractionManager.runAfterInteractions(task);
+        } else {
+          modalTaskRef.current = setTimeout(task, 500);
+        }
       } else {
-        modalTaskRef.current = setTimeout(task, 500);
+        setModalVisible(modalType);
       }
-    } else {
-      setModalVisible(modalType);
-    }
-  }, []);
+    },
+    [],
+  );
 
   const updateLocalPeer = () => {
     hmsInstance?.getLocalPeer().then(peer => {
@@ -181,7 +184,7 @@ const Meeting = () => {
       } else {
         clearTimeout(modalTaskRef.current);
       }
-    }
+    };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -257,7 +260,7 @@ const DisplayView = (data: {
   setIsScreenShared: React.Dispatch<React.SetStateAction<boolean | undefined>>;
 }) => {
   // hooks
-  const { params } = useRoute<MeetingScreenRouteProp>();
+  const {params} = useRoute<MeetingScreenRouteProp>();
   const isPipModeActive = useSelector(
     (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE,
   );
@@ -270,7 +273,9 @@ const DisplayView = (data: {
   const [peerTrackNodes, setPeerTrackNodes] =
     useState<Array<PeerTrackNode>>(peerState);
   const [orientation, setOrientation] = useState(true);
-  const [layout, setLayout] = useState<LayoutParams>(params?.isHLSViewer ? LayoutParams.HLS : LayoutParams.GRID);
+  const [layout, setLayout] = useState<LayoutParams>(
+    params?.isHLSViewer ? LayoutParams.HLS : LayoutParams.GRID,
+  );
   const [updatePeer, setUpdatePeer] = useState<HMSPeer>();
   const [selectedPeerTrackNode, setSelectedPeerTrackNode] =
     useState<PeerTrackNode | null>(null);
@@ -656,23 +661,27 @@ const DisplayView = (data: {
         break;
       default:
         // dispatch(addMessage(message));
-        dispatch(addMessage({
-          ...message,
-          // We are extracting HMSPeer properties into new object
-          // so that when this peer leaves room, we still have its data in chat window
-          sender: message.sender ? {
-            peerID: message.sender.peerID,
-            name: message.sender.name,
-            isLocal: message.sender.isLocal,
-            role: message.sender.role,
-            audioTrack: undefined,
-            auxiliaryTracks: undefined,
-            customerUserID: undefined,
-            metadata: undefined,
-            networkQuality: undefined,
-            videoTrack: undefined
-           } : undefined
-        }));
+        dispatch(
+          addMessage({
+            ...message,
+            // We are extracting HMSPeer properties into new object
+            // so that when this peer leaves room, we still have its data in chat window
+            sender: message.sender
+              ? {
+                  peerID: message.sender.peerID,
+                  name: message.sender.name,
+                  isLocal: message.sender.isLocal,
+                  role: message.sender.role,
+                  audioTrack: undefined,
+                  auxiliaryTracks: undefined,
+                  customerUserID: undefined,
+                  metadata: undefined,
+                  networkQuality: undefined,
+                  videoTrack: undefined,
+                }
+              : undefined,
+          }),
+        );
         break;
     }
   };
@@ -892,7 +901,7 @@ const DisplayView = (data: {
 
     return () => {
       BackHandler.removeEventListener('hardwareBackPress', backButtonHandler);
-    }
+    };
   }, []);
 
   useEffect(() => {

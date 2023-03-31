@@ -28,7 +28,7 @@ const TileUnmemoized: React.FC<TileProps> = ({
   orientation,
   totalTilesInContainer,
   setHmsViewRefs,
-  setIsScreenShared
+  setIsScreenShared,
 }) => {
   const {top, bottom} = useSafeAreaInsets();
   const parsedMetadata = parseMetadata(peerTrackNode?.peer?.metadata);

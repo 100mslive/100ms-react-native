@@ -41,7 +41,11 @@ import {useDispatch, useSelector} from 'react-redux';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import {CustomButton, CustomInput, PreviewModal} from '../../components';
-import {clearHmsReference, saveUserData, setPeerState} from '../../redux/actions';
+import {
+  clearHmsReference,
+  saveUserData,
+  setPeerState,
+} from '../../redux/actions';
 import {
   callService,
   createPeerTrackNode,
@@ -65,7 +69,7 @@ type WelcomeScreenProp = NativeStackNavigationProp<
 
 const Welcome = () => {
   // hooks
-  const { replace, navigate } = useNavigation<WelcomeScreenProp>();
+  const {replace, navigate} = useNavigation<WelcomeScreenProp>();
   const {roomID, userName} = useSelector((state: RootState) => state.user);
   const joinConfig = useSelector((state: RootState) => state.app.joinConfig);
   const {top, bottom, left, right} = useSafeAreaInsets();
@@ -122,7 +126,8 @@ const Welcome = () => {
   const handleJoin = (data: {room: HMSRoom}) => {
     // Checking if User is joining as HLS-Viewer
     if (
-      !isHLSViewerRef.current && data.room.localPeer.role?.name?.includes('hls-')
+      !isHLSViewerRef.current &&
+      data.room.localPeer.role?.name?.includes('hls-')
     ) {
       isHLSViewerRef.current = true;
     }
@@ -157,7 +162,7 @@ const Welcome = () => {
       Constants.MEET_URL,
       roomID.replace('preview', 'meeting'),
     );
-    replace('MeetingScreen', { isHLSViewer: isHLSViewerRef.current });
+    replace('MeetingScreen', {isHLSViewer: isHLSViewerRef.current});
   };
 
   const onJoinSuccess = (data: {room: HMSRoom}) => {
@@ -628,7 +633,7 @@ const Welcome = () => {
 
       return () => {
         BackHandler.removeEventListener('hardwareBackPress', backButtonHandler);
-      }
+      };
     }
   }, [instance]);
 

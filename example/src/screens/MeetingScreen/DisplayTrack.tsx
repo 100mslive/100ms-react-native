@@ -18,7 +18,10 @@ interface DisplayTrackProps extends PeerDisplayViewProps {
 // `ref` passed to DisplayTrack component will be passed to PeerDisplayView component
 // as HMSView component is being rendered inside PeerDisplayView component
 const DisplayTrack = React.forwardRef<typeof HMSView, DisplayTrackProps>(
-  ({isDegraded, isLocal, peerName, videoTrack, videoStyles, setIsScreenShared}, hmsViewRef) => {
+  (
+    {isDegraded, isLocal, peerName, videoTrack, videoStyles, setIsScreenShared},
+    hmsViewRef,
+  ) => {
     // hooks
     const hmsInstance = useSelector(
       (state: RootState) => state.user.hmsInstance,

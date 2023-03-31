@@ -1,4 +1,4 @@
-import { EventSubscription, NativeEventEmitter } from "react-native";
+import { EventSubscription, NativeEventEmitter } from 'react-native';
 import { logger } from './HMSLogger';
 
 export type HMSEventSubscription = {
@@ -21,27 +21,42 @@ export class HMSNativeEventEmitter {
       // @ts-ignore - typescript is giving error because we are running it with RN types version >= 0.64
       const count = this._nativeEventEmitter.listeners(eventType).length;
 
-      logger?.verbose('#Function HMSNativeEventEmitter.listenerCount', { eventType, count });
+      logger?.verbose('#Function HMSNativeEventEmitter.listenerCount', {
+        eventType,
+        count,
+      });
       return count;
     }
 
     // For RN version >= v0.64
     const count = this._nativeEventEmitter.listenerCount(eventType);
 
-    logger?.verbose('#Function HMSNativeEventEmitter.listenerCount', { eventType, count });
+    logger?.verbose('#Function HMSNativeEventEmitter.listenerCount', {
+      eventType,
+      count,
+    });
     return count;
   }
 
-  addListener(id: string, eventType: string, listener: (...args: any[]) => any): HMSEventSubscription {
-    logger?.verbose('#Function HMSNativeEventEmitter.addListener', { id, eventType, listener });
+  addListener(
+    id: string,
+    eventType: string,
+    listener: (...args: any[]) => any
+  ): HMSEventSubscription {
+    logger?.verbose('#Function HMSNativeEventEmitter.addListener', {
+      id,
+      eventType,
+      listener,
+    });
 
     // enable `eventType` on `HMSSDK`, if no listeners were added before
     // if some listeners were added before, then `eventType` on `HMSSDK` should already be enabled
     if (this.listenerCount(eventType) <= 0) {
       this.enableHMSEventType(id, eventType);
     }
-    
-    let subscription: EventSubscription | null = this._nativeEventEmitter.addListener(eventType, listener);
+
+    let subscription: EventSubscription | null =
+      this._nativeEventEmitter.addListener(eventType, listener);
 
     return {
       remove: () => {
@@ -60,12 +75,15 @@ export class HMSNativeEventEmitter {
         if (this.listenerCount(eventType) <= 0) {
           this.disableHMSEventType(id, eventType);
         }
-      }
+      },
     };
   }
 
   removeAllListeners(id: string, eventType: string) {
-    logger?.verbose('#Function HMSNativeEventEmitter.removeAllListeners', { id, eventType });
+    logger?.verbose('#Function HMSNativeEventEmitter.removeAllListeners', {
+      id,
+      eventType,
+    });
 
     // disable `eventType` on `HMSSDK`
     this.disableHMSEventType(id, eventType);
@@ -74,12 +92,18 @@ export class HMSNativeEventEmitter {
   }
 
   private enableHMSEventType(id: string, eventType: string) {
-    logger?.verbose('#Function HMSNativeEventEmitter.enableHMSEventType', { id, eventType });
+    logger?.verbose('#Function HMSNativeEventEmitter.enableHMSEventType', {
+      id,
+      eventType,
+    });
     this._nativeModule.enableEvent({ id, eventType });
   }
 
   private disableHMSEventType(id: string, eventType: string) {
-    logger?.verbose('#Function HMSNativeEventEmitter.disableHMSEventType', { id, eventType });
+    logger?.verbose('#Function HMSNativeEventEmitter.disableHMSEventType', {
+      id,
+      eventType,
+    });
     this._nativeModule.disableEvent({ id, eventType });
   }
 }
