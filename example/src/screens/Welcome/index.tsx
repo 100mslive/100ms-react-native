@@ -634,7 +634,6 @@ const Welcome = () => {
 
   return modalType === ModalTypes.PREVIEW && previewTracks ? (
     <PreviewModal
-      room={hmsRoom}
       previewTracks={previewTracks}
       join={onJoinRoom}
       setLoadingButtonState={setJoinButtonLoading}
