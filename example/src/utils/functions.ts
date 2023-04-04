@@ -235,32 +235,18 @@ export const callService = async (
 ) => {
   let roomCode;
   let subdomain;
-  let response;
   try {
     if (validateUrl(roomID)) {
       const {code, domain} = getRoomIdDetails(roomID);
       roomCode = code;
       subdomain = domain;
 
-      if (code && domain) {
-        response = await services.fetchTokenFromLink({
-          code,
-          subdomain,
-          userID,
-        });
-      } else {
+      if (!code || !domain) {
         failure('code, domain not found');
         return;
       }
     } else {
-      response = await services.fetchToken({
-        userID,
-        roomID,
-      });
-    }
-
-    if (response?.error || !response?.token) {
-      failure(response?.msg);
+      failure('Invalid room join link');
       return;
     }
 
@@ -269,13 +255,13 @@ export const callService = async (
       PERMISSIONS.ANDROID.RECORD_AUDIO,
       PERMISSIONS.ANDROID.BLUETOOTH_CONNECT,
     ]);
+
     if (permissions) {
       success(
-        response?.token,
         userID,
         roomCode,
         subdomain && subdomain.search('.qa-') >= 0
-          ? 'https://qa-init.100ms.live/init'
+          ? 'https://auth.100ms.live' // old - 'https://qa-init.100ms.live/init'
           : undefined,
       );
       return;

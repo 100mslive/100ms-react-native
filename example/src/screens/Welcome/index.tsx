@@ -382,70 +382,68 @@ const Welcome = () => {
   };
 
   const onStartSuccess = async (
-    token: string,
-    userID: string,
+    userId: string,
     roomCode: string,
     endpoint?: string,
   ) => {
-    const hmsInstance = await getHmsInstance();
-    let hmsConfig: HMSConfig;
-    if (endpoint) {
-      hmsConfig = new HMSConfig({
+    try {
+      const hmsInstance = await getHmsInstance();
+
+      const token = await hmsInstance.getAuthTokenByRoomCode(roomCode, userId, endpoint);
+
+      const hmsConfig = new HMSConfig({
         authToken: token,
-        username: userID,
-        captureNetworkQualityInPreview: true,
-        endpoint,
-      });
-    } else {
-      hmsConfig = new HMSConfig({
-        authToken: token,
-        username: userID,
+        username: userId,
         captureNetworkQualityInPreview: true,
         // metadata: JSON.stringify({isHandRaised: true}), // To join with hand raised
       });
-    }
-    setInstance(hmsInstance);
-    setConfig(hmsConfig);
 
-    hmsInstance?.addEventListener(
-      HMSUpdateListenerActions.ON_PREVIEW,
-      onPreviewSuccess.bind(this, hmsInstance, hmsConfig),
-    );
+      setInstance(hmsInstance);
+      setConfig(hmsConfig);
 
-    hmsInstance?.addEventListener(
-      HMSUpdateListenerActions.ON_JOIN,
-      onJoinSuccess,
-    );
+      hmsInstance?.addEventListener(
+        HMSUpdateListenerActions.ON_PREVIEW,
+        onPreviewSuccess.bind(this, hmsInstance, hmsConfig),
+      );
 
-    hmsInstance?.addEventListener(
-      HMSUpdateListenerActions.ON_ROOM_UPDATE,
-      onRoomListener.bind(this, hmsInstance),
-    );
+      hmsInstance?.addEventListener(
+        HMSUpdateListenerActions.ON_JOIN,
+        onJoinSuccess,
+      );
 
-    hmsInstance?.addEventListener(
-      HMSUpdateListenerActions.ON_PEER_UPDATE,
-      onPeerListener,
-    );
+      hmsInstance?.addEventListener(
+        HMSUpdateListenerActions.ON_ROOM_UPDATE,
+        onRoomListener.bind(this, hmsInstance),
+      );
 
-    hmsInstance?.addEventListener(
-      HMSUpdateListenerActions.ON_TRACK_UPDATE,
-      onTrackListener,
-    );
+      hmsInstance?.addEventListener(
+        HMSUpdateListenerActions.ON_PEER_UPDATE,
+        onPeerListener,
+      );
 
-    hmsInstance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
+      hmsInstance?.addEventListener(
+        HMSUpdateListenerActions.ON_TRACK_UPDATE,
+        onTrackListener,
+      );
 
-    dispatch(
-      saveUserData({
-        userName: userID,
-        roomCode,
-        hmsInstance,
-      }),
-    );
+      hmsInstance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
 
-    if (joinConfig.skipPreview) {
-      hmsInstance?.join(hmsConfig);
-    } else {
-      hmsInstance?.preview(hmsConfig);
+      dispatch(
+        saveUserData({
+          userName: userId,
+          roomCode,
+          hmsInstance,
+        }),
+      );
+
+      if (joinConfig.skipPreview) {
+        hmsInstance?.join(hmsConfig);
+      } else {
+        hmsInstance?.preview(hmsConfig);
+      }
+    } catch (error) {
+      console.log(error);
+      onFailure(error instanceof Error ? error.message : 'error in onStartSuccess');
     }
   };
 
