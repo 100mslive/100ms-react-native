@@ -134,12 +134,12 @@ export const callService = async (
     ]);
 
     if (permissions) {
+      const isQARoom = subdomain && subdomain.search('.qa-') >= 0;
       success(
         userID,
         roomCode,
-        subdomain && subdomain.search('.qa-') >= 0
-          ? 'https://auth.100ms.live' // old - 'https://qa-init.100ms.live/init'
-          : undefined,
+        isQARoom ? `https://auth-nonprod.100ms.live${Platform.OS === 'ios' ? '/' : ''}` : undefined, // Auth Endpoint
+        isQARoom ? 'https://qa-init.100ms.live/init' : undefined, // HMSConfig Endpoint
       );
       return;
     } else {

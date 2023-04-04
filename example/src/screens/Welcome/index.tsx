@@ -384,17 +384,19 @@ const Welcome = () => {
   const onStartSuccess = async (
     userId: string,
     roomCode: string,
-    endpoint?: string,
+    tokenEndpoint?: string,
+    initEndpoint?: string,
   ) => {
     try {
       const hmsInstance = await getHmsInstance();
 
-      const token = await hmsInstance.getAuthTokenByRoomCode(roomCode, userId, endpoint);
+      const token = await hmsInstance.getAuthTokenByRoomCode(roomCode, userId, tokenEndpoint);
 
       const hmsConfig = new HMSConfig({
         authToken: token,
         username: userId,
         captureNetworkQualityInPreview: true,
+        endpoint: initEndpoint,
         // metadata: JSON.stringify({isHandRaised: true}), // To join with hand raised
       });
 
