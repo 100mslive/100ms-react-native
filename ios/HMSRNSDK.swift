@@ -176,9 +176,19 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             reject?("40000", errorMessage, nil);
             return
         }
+        let userId = data.value(forKey: "userId") as? String? ?? nil
+        let endpoint = data.value(forKey: "endpoint") as? String? ?? nil
+
+        //This is to make the QA links work
+        if (endpoint != nil && endpoint!.contains("nonprod")){
+            UserDefaults.standard.set(endpoint, forKey: "HMSAuthTokenEndpointOverride")
+        }
+        else {
+            UserDefaults.standard.removeObject(forKey: "HMSAuthTokenEndpointOverride")
+        }
 
         DispatchQueue.main.async { [weak self] in
-            self?.hms?.getAuthTokenByRoomCode(roomCode) { token, error in
+            self?.hms?.getAuthTokenByRoomCode(roomCode, userID: userId) { token, error in
                 // error occurred
                 if error != nil {
                     reject?(error?.localizedDescription, error?.localizedDescription, nil)
