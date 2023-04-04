@@ -214,6 +214,19 @@ export class HMSSDK {
   };
 
   /**
+   * - getAuthTokenByRoomCode function is used to get the Auth Token by Room Code
+   *
+   * checkout {@link https://www.100ms.live/docs/react-native/v2/get-started/token#get-room-code-from-100ms-dashboard} for more info
+   *
+   * @memberof HMSSDK
+   */
+  getAuthTokenByRoomCode = async (roomCode: string, userId?: string, endpoint?: string): Promise<string> => {
+    logger?.verbose('#Function getAuthTokenByRoomCode', { id: this.id, roomCode, userId, endpoint });
+
+    return HMSManager.getAuthTokenByRoomCode({ id: this.id, roomCode, userId, endpoint });
+  }
+
+  /**
    * - previewForRole can be used when there is role change request for current localPeer and we want
    * to show the localPeer how the tracks look before publishing them to room.
    *
