@@ -64,4 +64,5 @@ RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(getRoomProperty: (NSDictionary) data)
 RCT_EXTERN_METHOD(enableEvent: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(disableEvent: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(restrictData: (NSDictionary) data)
+RCT_EXTERN_METHOD(getAuthTokenByRoomCode: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 @end
