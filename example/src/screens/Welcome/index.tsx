@@ -381,9 +381,15 @@ const Welcome = () => {
     setPeerTrackNodes(newPeerTrackNodes);
   };
 
+  /**
+   * @param roomCode Room Code of the 100ms Room
+   * @param userId [Optional] - Unique Id for the user to get 100ms Auth Token
+   * @param tokenEndpoint [Optional] - This is only required by 100ms Team for internal QA testing. Client developers should not use `tokenEndpoint` argument
+   * @param initEndpoint [Optional] - This is only required by 100ms Team for internal QA testing. Client developers should not use `initEndpoint` argument
+   */
   const onStartSuccess = async (
-    userId: string,
     roomCode: string,
+    userId?: string,
     tokenEndpoint?: string,
     initEndpoint?: string,
   ) => {
@@ -394,7 +400,7 @@ const Welcome = () => {
 
       const hmsConfig = new HMSConfig({
         authToken: token,
-        username: userId,
+        username: peerName,
         captureNetworkQualityInPreview: true,
         endpoint: initEndpoint,
         // metadata: JSON.stringify({isHandRaised: true}), // To join with hand raised
@@ -432,7 +438,7 @@ const Welcome = () => {
 
       dispatch(
         saveUserData({
-          userName: userId,
+          userName: peerName,
           roomCode,
           hmsInstance,
         }),
@@ -570,7 +576,7 @@ const Welcome = () => {
 
   const onStartPress = async () => {
     setStartButtonLoading(true);
-    callService(peerName, roomID, onStartSuccess, onFailure);
+    callService(roomID, onStartSuccess, onFailure);
   };
 
   const onFailure = (error: string) => {

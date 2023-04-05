@@ -105,7 +105,6 @@ export const requestExternalStoragePermission = async (): Promise<boolean> => {
 };
 
 export const callService = async (
-  userID: string,
   roomID: string,
   success: Function,
   failure: Function,
@@ -134,10 +133,11 @@ export const callService = async (
     ]);
 
     if (permissions) {
+      const userId = getRandomUserId(6);
       const isQARoom = subdomain && subdomain.search('.qa-') >= 0;
       success(
-        userID,
         roomCode,
+        userId,
         isQARoom ? `https://auth-nonprod.100ms.live${Platform.OS === 'ios' ? '/' : ''}` : undefined, // Auth Endpoint
         isQARoom ? 'https://qa-init.100ms.live/init' : undefined, // HMSConfig Endpoint
       );
@@ -152,6 +152,26 @@ export const callService = async (
     return;
   }
 };
+
+/**
+ * @param min minimum range value
+ * @param max maximum range value
+ * @returns value between min and max, min is inclusive and max is exclusive
+ */
+export const getRandomNumberInRange = (min: number, max: number) => {
+  return Math.floor(Math.random() * (max - min) + min);
+}
+
+export const getRandomUserId = (length: number) => {
+  return Array.from(
+    { length },
+    () => {
+      const randomAlphaAsciiCode = getRandomNumberInRange(97, 123); // 97 - 122 is the ascii code range for a-z chars
+      const alphaCharacter = String.fromCharCode(randomAlphaAsciiCode);
+      return alphaCharacter;
+    }
+  ).join('');
+}
 
 export const getRoomIdDetails = (
   roomID: string,
