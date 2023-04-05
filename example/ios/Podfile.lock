@@ -60,7 +60,7 @@ PODS:
   - hermes-engine (0.7.2)
   - HMSAnalyticsSDK (0.0.2)
   - HMSBroadcastExtensionSDK (0.0.8)
-  - HMSSDK (0.8.1):
+  - HMSSDK (0.9.1):
     - HMSAnalyticsSDK (= 0.0.2)
     - HMSWebRTC (= 1.0.5115)
   - HMSWebRTC (1.0.5115)
@@ -292,7 +292,7 @@ PODS:
     - React-Core
   - react-native-hms (1.3.0):
     - HMSBroadcastExtensionSDK (= 0.0.8)
-    - HMSSDK (= 0.8.1)
+    - HMSSDK (= 0.9.1)
     - React-Core
   - react-native-safe-area-context (3.4.1):
     - React-Core
@@ -385,8 +385,6 @@ PODS:
   - RNScreens (3.20.0):
     - React-Core
     - React-RCTImage
-  - RNShare (7.9.1):
-    - React-Core
   - RNVectorIcons (9.2.0):
     - React-Core
   - Toast (4.0.0)
@@ -464,7 +462,6 @@ DEPENDENCIES:
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNScreens (from `../node_modules/react-native-screens`)
-  - RNShare (from `../node_modules/react-native-share`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -578,8 +575,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-permissions"
   RNScreens:
     :path: "../node_modules/react-native-screens"
-  RNShare:
-    :path: "../node_modules/react-native-share"
   RNVectorIcons:
     :path: "../node_modules/react-native-vector-icons"
   Yoga:
@@ -602,7 +597,7 @@ SPEC CHECKSUMS:
   hermes-engine: 7d97ba46a1e29bacf3e3c61ecb2804a5ddd02d4f
   HMSAnalyticsSDK: 4d2a88a729b1eb42f3d25f217c28937ec318a5b7
   HMSBroadcastExtensionSDK: 4393faac38999d01bae8e411d0564a577ad9d89a
-  HMSSDK: 919db6a109e4e386125cac2d067feb5b95c75a32
+  HMSSDK: e1a2d6dc4f4881b7e6a854de61a06e2cc0afc848
   HMSWebRTC: d74cd5e5ecfe701219dd4042ec67fed02ea5d6db
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   OpenSSL-Universal: 1aa4f6a6ee7256b83db99ec1ccdaa80d10f9af9b
@@ -622,7 +617,7 @@ SPEC CHECKSUMS:
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
   react-native-cameraroll: f3050460fe1708378698c16686bfaa5f34099be2
   react-native-document-picker: 495c444c0c773c6e83a5d91165890ecb1c0a399a
-  react-native-hms: 38d23e56660eedc7325f94636db2ac8298444bf9
+  react-native-hms: d799f2a5404467a2298a9ec6fd364a93c90d3b11
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
   react-native-simple-toast: 8ee5d23f0b92b935ab7434cdb65159ce12dfb4b7
   react-native-video: c26780b224543c62d5e1b2a7244a5cd1b50e8253
@@ -646,7 +641,6 @@ SPEC CHECKSUMS:
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNPermissions: eac721f71748c4472d6e876038270b75397d6ee7
   RNScreens: 218801c16a2782546d30bd2026bb625c0302d70f
-  RNShare: a5dc3b9c53ddc73e155b8cd9a94c70c91913c43c
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
   Yoga: d1fc3575b8b68891ff5ef3c276daa855e841eb32
