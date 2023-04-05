@@ -23,7 +23,7 @@ import {
 } from '@100mslive/react-native-hms';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   Alert,
   BackHandler,
@@ -79,7 +79,7 @@ const Welcome = () => {
   const [peerTrackNodes, setPeerTrackNodes] = useState<Array<PeerTrackNode>>(
     [],
   );
-  const [instance, setInstance] = useState<HMSSDK>();
+  const hmsInstanceRef = useRef<HMSSDK | null>(null);
   const [config, setConfig] = useState<HMSConfig>();
   const [nameDisabled, setNameDisabled] = useState<boolean>(true);
   const [peerName, setPeerName] = useState<string>(userName);
@@ -396,6 +396,8 @@ const Welcome = () => {
     try {
       const hmsInstance = await getHmsInstance();
 
+      hmsInstanceRef.current = hmsInstance;
+
       const token = await hmsInstance.getAuthTokenByRoomCode(roomCode, userId, tokenEndpoint);
 
       const hmsConfig = new HMSConfig({
@@ -406,7 +408,6 @@ const Welcome = () => {
         // metadata: JSON.stringify({isHandRaised: true}), // To join with hand raised
       });
 
-      setInstance(hmsInstance);
       setConfig(hmsConfig);
 
       hmsInstance?.addEventListener(
@@ -457,7 +458,7 @@ const Welcome = () => {
 
   const onJoinRoom = () => {
     if (config) {
-      instance?.join(config);
+      hmsInstanceRef.current?.join(config);
     } else {
       setJoinButtonLoading(false);
       console.log('config: ', config);
@@ -581,10 +582,14 @@ const Welcome = () => {
 
   const onFailure = (error: string) => {
     setStartButtonLoading(false);
-    Alert.alert('Error', error || 'Something went wrong');
+    Alert.alert(
+      'Error',
+      error || 'Something went wrong',
+      [{ text: 'OK', style: 'cancel', onPress: handlePreviewLeave }],
+    );
   };
 
-  const removeListeners = (hmsInstance?: HMSSDK) => {
+  const removeListeners = (hmsInstance?: HMSSDK | null) => {
     hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_PREVIEW);
     hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_JOIN);
     hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_ROOM_UPDATE);
@@ -603,45 +608,49 @@ const Welcome = () => {
 
   useEffect(() => {
     return () => {
-      removeListeners(instance);
+      removeListeners(hmsInstanceRef.current);
     };
-  }, [instance]);
+  }, []);
+
+  const handlePreviewLeave = useCallback(async () => {
+    const hmsInstance = hmsInstanceRef.current;
+
+    if (!hmsInstance) {
+      return navigate('QRCodeScreen');
+    }
+
+    await hmsInstance
+      .leave()
+      .then(async d => {
+        console.log('Leave Success: ', d);
+        await hmsInstance
+          ?.destroy()
+          .then(s => console.log('Destroy Success: ', s))
+          .catch(e => console.log('Destroy Error: ', e));
+        dispatch(clearHmsReference());
+        navigate('QRCodeScreen');
+      })
+      .catch(e => console.log('Leave Error: ', e));
+  }, []);
 
   // On Android, when back button is pressed,
   // user should leave current preview and go back to previous screen
   useEffect(() => {
-    if (instance) {
-      const handlePreviewLeave = async () => {
-        await instance
-          ?.leave()
-          .then(async d => {
-            console.log('Leave Success: ', d);
-            await instance
-              ?.destroy()
-              .then(s => console.log('Destroy Success: ', s))
-              .catch(e => console.log('Destroy Error: ', e));
-            dispatch(clearHmsReference());
-            navigate('QRCodeScreen');
-          })
-          .catch(e => console.log('Leave Error: ', e));
-      };
+    const backButtonHandler = () => {
+      // Leave current preview
+      handlePreviewLeave();
 
-      const backButtonHandler = () => {
-        // Leave current preview
-        handlePreviewLeave();
+      // When true is returned the event will not be bubbled up
+      // & no other back action will execute
+      return true;
+    };
 
-        // When true is returned the event will not be bubbled up
-        // & no other back action will execute
-        return true;
-      };
+    BackHandler.addEventListener('hardwareBackPress', backButtonHandler);
 
-      BackHandler.addEventListener('hardwareBackPress', backButtonHandler);
-
-      return () => {
-        BackHandler.removeEventListener('hardwareBackPress', backButtonHandler);
-      };
-    }
-  }, [instance]);
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', backButtonHandler);
+    };
+  }, [handlePreviewLeave]);
 
   return modalType === ModalTypes.PREVIEW && previewTracks ? (
     <PreviewModal
