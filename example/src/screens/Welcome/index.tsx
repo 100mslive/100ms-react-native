@@ -26,6 +26,7 @@ import {useNavigation} from '@react-navigation/native';
 import React, {useEffect, useState} from 'react';
 import {
   Alert,
+  BackHandler,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -40,7 +41,11 @@ import {useDispatch, useSelector} from 'react-redux';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import {CustomButton, CustomInput, PreviewModal} from '../../components';
-import {saveUserData, setPeerState} from '../../redux/actions';
+import {
+  clearHmsReference,
+  saveUserData,
+  setPeerState,
+} from '../../redux/actions';
 import {
   callService,
   createPeerTrackNode,
@@ -64,7 +69,7 @@ type WelcomeScreenProp = NativeStackNavigationProp<
 
 const Welcome = () => {
   // hooks
-  const replace = useNavigation<WelcomeScreenProp>().replace;
+  const {replace, navigate} = useNavigation<WelcomeScreenProp>();
   const roomID = useSelector((state: RootState) => state.user.roomID);
   const userName = useSelector((state: RootState) => state.user.userName);
   const joinConfig = useSelector((state: RootState) => state.app.joinConfig);
@@ -120,18 +125,45 @@ const Welcome = () => {
   };
 
   const handleJoin = (data: {room: HMSRoom}) => {
-    const hmsLocalPeer = createPeerTrackNode(
+    // Checking if User is joining as HLS-Viewer
+    if (
+      !isHLSViewerRef.current &&
+      data.room.localPeer.role?.name?.includes('hls-')
+    ) {
+      isHLSViewerRef.current = true;
+    }
+
+    const nodesPresent = getPeerTrackNodes(
+      peerTrackNodesRef?.current,
       data.room.localPeer,
       data.room.localPeer.videoTrack,
     );
-    dispatch(
-      setPeerState({peerState: [hmsLocalPeer, ...peerTrackNodesRef.current]}),
-    );
+
+    if (nodesPresent.length === 0) {
+      const hmsLocalPeer = createPeerTrackNode(
+        data.room.localPeer,
+        data.room.localPeer.videoTrack,
+      );
+      const newPeerTrackNodes = [hmsLocalPeer, ...peerTrackNodesRef.current];
+      peerTrackNodesRef.current = newPeerTrackNodes;
+    } else {
+      if (data.room.localPeer.videoTrack) {
+        changePeerTrackNodes(
+          nodesPresent,
+          data.room.localPeer,
+          data.room.localPeer.videoTrack,
+        );
+      } else {
+        changePeerNodes(nodesPresent, data.room.localPeer);
+      }
+    }
+
+    dispatch(setPeerState({peerState: peerTrackNodesRef.current}));
     AsyncStorage.setItem(
       Constants.MEET_URL,
       roomID.replace('preview', 'meeting'),
     );
-    replace('MeetingScreen');
+    replace('MeetingScreen', {isHLSViewer: isHLSViewerRef.current});
   };
 
   const onJoinSuccess = (data: {room: HMSRoom}) => {
@@ -182,15 +214,7 @@ const Welcome = () => {
         peerTrackNodesRef?.current,
         peer.peerID,
       );
-      if (nodesPresent.length === 0) {
-        const newPeerTrackNode = createPeerTrackNode(peer);
-        const newPeerTrackNodes = [
-          newPeerTrackNode,
-          ...peerTrackNodesRef.current,
-        ];
-        peerTrackNodesRef.current = newPeerTrackNodes;
-        setPeerTrackNodes(newPeerTrackNodes);
-      } else {
+      if (nodesPresent.length) {
         changePeerNodes(nodesPresent, peer);
       }
       dispatch(setPeerState({peerState: [...peerTrackNodesRef.current]}));
@@ -578,9 +602,44 @@ const Welcome = () => {
     };
   }, [instance]);
 
+  // On Android, when back button is pressed,
+  // user should leave current preview and go back to previous screen
+  useEffect(() => {
+    if (instance) {
+      const handlePreviewLeave = async () => {
+        await instance
+          ?.leave()
+          .then(async d => {
+            console.log('Leave Success: ', d);
+            await instance
+              ?.destroy()
+              .then(s => console.log('Destroy Success: ', s))
+              .catch(e => console.log('Destroy Error: ', e));
+            dispatch(clearHmsReference());
+            navigate('QRCodeScreen');
+          })
+          .catch(e => console.log('Leave Error: ', e));
+      };
+
+      const backButtonHandler = () => {
+        // Leave current preview
+        handlePreviewLeave();
+
+        // When true is returned the event will not be bubbled up
+        // & no other back action will execute
+        return true;
+      };
+
+      BackHandler.addEventListener('hardwareBackPress', backButtonHandler);
+
+      return () => {
+        BackHandler.removeEventListener('hardwareBackPress', backButtonHandler);
+      };
+    }
+  }, [instance]);
+
   return modalType === ModalTypes.PREVIEW && previewTracks ? (
     <PreviewModal
-      room={hmsRoom}
       previewTracks={previewTracks}
       join={onJoinRoom}
       setLoadingButtonState={setJoinButtonLoading}

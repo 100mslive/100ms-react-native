@@ -2,7 +2,6 @@ import {
   Platform,
   Dimensions,
   PermissionsAndroid,
-  Permission,
   StatusBar,
 } from 'react-native';
 import RNFetchBlob from 'rn-fetch-blob';
@@ -21,7 +20,12 @@ import {
 
 import {LayoutParams, PeerTrackNode, SortingType} from './types';
 import * as services from '../services/index';
-import {PERMISSIONS, requestMultiple, RESULTS} from 'react-native-permissions';
+import {
+  PERMISSIONS,
+  request,
+  requestMultiple,
+  RESULTS,
+} from 'react-native-permissions';
 
 export const getMeetingUrl = () =>
   'https://yogi.app.100ms.live/streaming/meeting/nih-bkn-vek';
@@ -263,6 +267,7 @@ export const callService = async (
     const permissions = await checkPermissions([
       PERMISSIONS.ANDROID.CAMERA,
       PERMISSIONS.ANDROID.RECORD_AUDIO,
+      PERMISSIONS.ANDROID.BLUETOOTH_CONNECT,
     ]);
     if (permissions) {
       success(
@@ -376,11 +381,11 @@ export const getPeerNodes = (
 export const getPeerTrackNodes = (
   peerTrackNodes: PeerTrackNode[],
   peer: HMSPeer,
-  track: HMSTrack,
+  track?: HMSTrack,
 ): PeerTrackNode[] => {
   const uniqueId =
     peer.peerID +
-    (track.source === undefined ? HMSTrackSource.REGULAR : track.source);
+    (track?.source === undefined ? HMSTrackSource.REGULAR : track?.source);
   const nodes: PeerTrackNode[] = [];
   peerTrackNodes?.map(peerTrackNode => {
     if (peerTrackNode.id === uniqueId) {
@@ -452,6 +457,9 @@ export const createPeerTrackNode = (
   peer: HMSPeer,
   track?: HMSTrack,
 ): PeerTrackNode => {
+  if (!track || track.type === HMSTrackType.AUDIO) {
+    track = peer.videoTrack;
+  }
   let isVideoTrack: boolean = false;
   if (track && track?.type === HMSTrackType.VIDEO) {
     isVideoTrack = true;
@@ -654,30 +662,54 @@ export const validateUrl = (url?: string): boolean => {
 };
 
 export const checkPermissions = async (
-  permissions: Array<Permission>,
+  permissions: Array<
+    typeof PERMISSIONS.ANDROID[keyof typeof PERMISSIONS.ANDROID]
+  >,
 ): Promise<boolean> => {
   if (Platform.OS === 'ios') {
     return true;
   }
-  return await requestMultiple(permissions)
-    .then(results => {
-      let allPermissionsGranted = true;
-      for (let permission in permissions) {
-        if (!(results[permissions[permission]] === RESULTS.GRANTED)) {
-          allPermissionsGranted = false;
-        }
-        console.log(
-          permissions[permission],
-          ':',
-          results[permissions[permission]],
-        );
+
+  try {
+    const requiredPermissions = permissions.filter(
+      permission =>
+        permission.toString() !== PERMISSIONS.ANDROID.BLUETOOTH_CONNECT,
+    );
+
+    const results = await requestMultiple(requiredPermissions);
+
+    let allPermissionsGranted = true;
+    for (let permission in requiredPermissions) {
+      if (!(results[requiredPermissions[permission]] === RESULTS.GRANTED)) {
+        allPermissionsGranted = false;
       }
-      return allPermissionsGranted;
-    })
-    .catch(error => {
-      console.log(error);
-      return false;
-    });
+      console.log(
+        requiredPermissions[permission],
+        ':',
+        results[requiredPermissions[permission]],
+      );
+    }
+
+    // Bluetooth Connect Permission handling
+    if (
+      permissions.findIndex(
+        permission =>
+          permission.toString() === PERMISSIONS.ANDROID.BLUETOOTH_CONNECT,
+      ) >= 0
+    ) {
+      const bleConnectResult = await request(
+        PERMISSIONS.ANDROID.BLUETOOTH_CONNECT,
+      );
+      console.log(
+        `${PERMISSIONS.ANDROID.BLUETOOTH_CONNECT} : ${bleConnectResult}`,
+      );
+    }
+
+    return allPermissionsGranted;
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
 };
 
 export const pairData = (
@@ -692,24 +724,18 @@ export const pairData = (
 
   unGroupedPeerTrackNodes.map((item: PeerTrackNode) => {
     if (
-      localPeer?.role?.subscribeSettings?.subscribeTo?.includes(
-        item.peer.role?.name || '',
-      )
+      item.track?.source !== HMSTrackSource.REGULAR &&
+      item.track?.source !== undefined
     ) {
-      if (
-        item.track?.source !== HMSTrackSource.REGULAR &&
-        item.track?.source !== undefined
-      ) {
-        pairedDataSource.push([item]);
-      } else {
-        if (itemsPushed === batch) {
-          pairedDataRegular.push(groupedPeerTrackNodes);
-          groupedPeerTrackNodes = [];
-          itemsPushed = 0;
-        }
-        groupedPeerTrackNodes.push(item);
-        itemsPushed++;
+      pairedDataSource.push([item]);
+    } else {
+      if (itemsPushed === batch) {
+        pairedDataRegular.push(groupedPeerTrackNodes);
+        groupedPeerTrackNodes = [];
+        itemsPushed = 0;
       }
+      groupedPeerTrackNodes.push(item);
+      itemsPushed++;
     }
   });
 
@@ -789,4 +815,14 @@ export const getTrackForPIPView = (pairedPeers: PeerTrackNode[][]) => {
   }
 
   return videoPeerTrackNode;
+};
+
+export const getTime = (millisecs: number) => {
+  const sec = Math.floor((millisecs / 1000) % 60);
+
+  const min = Math.floor((millisecs / (1000 * 60)) % 60);
+
+  const h = Math.floor((millisecs / (1000 * 60 * 60)) % 24);
+
+  return [h, min, sec];
 };

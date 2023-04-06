@@ -7,6 +7,7 @@ import {
   HMSPeer,
 } from '@100mslive/react-native-hms';
 import {useSelector} from 'react-redux';
+import type {HMSView} from '@100mslive/react-native-hms';
 
 import {styles} from './styles';
 
@@ -21,12 +22,10 @@ export interface PeerDisplayViewProps {
   videoTrack?: HMSVideoTrack;
 }
 
-const PeerDisplayView = ({
-  isDegraded,
-  isLocal,
-  peer,
-  videoTrack,
-}: PeerDisplayViewProps) => {
+const PeerDisplayViewUnmemoized = React.forwardRef<
+  typeof HMSView,
+  PeerDisplayViewProps
+>(({isDegraded, isLocal, peer, videoTrack}, hmsViewRef) => {
   const HmsView = useSelector(
     (state: RootState) => state.user.hmsInstance?.HmsView || null,
   );
@@ -52,6 +51,7 @@ const PeerDisplayView = ({
       ) : (
         <View style={styles.flex}>
           <HmsView
+            ref={hmsViewRef}
             // setZOrderMediaOverlay={miniView}
             trackId={videoTrack?.trackId!}
             mirror={
@@ -88,7 +88,13 @@ const PeerDisplayView = ({
       ) : null}
     </View>
   );
-};
+});
+
+PeerDisplayViewUnmemoized.displayName = 'PeerDisplayViewUnmemoized';
+
+const PeerDisplayView = React.memo(PeerDisplayViewUnmemoized);
+
+PeerDisplayView.displayName = 'PeerDisplayView';
 
 const peerDisplayViewStyles = StyleSheet.create({
   container: {

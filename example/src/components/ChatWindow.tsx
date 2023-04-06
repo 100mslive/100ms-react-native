@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, memo} from 'react';
 import {
   View,
   StyleSheet,
@@ -45,7 +45,7 @@ const getTimeStringin12HourFormat = (time: Date) => {
   );
 };
 
-const ChatFilter = ({
+const ChatFilter = memo(({
   instance,
   filter,
   setFilter,
@@ -148,7 +148,9 @@ const ChatFilter = ({
       })}
     </Menu>
   );
-};
+});
+
+ChatFilter.displayName = 'ChatFilter';
 
 const ChatList = ({
   setSessionMetaData,
@@ -172,6 +174,7 @@ const ChatList = ({
       data={messages}
       initialNumToRender={2}
       maxToRenderPerBatch={3}
+      windowSize={11}
       keyboardShouldPersistTaps="always"
       renderItem={({item, index}: {item: HMSMessage; index: number}) => {
         const data = item;

@@ -3,11 +3,8 @@ package com.reactnativehmssdk
 import android.app.Activity
 import android.app.Application
 import android.app.PendingIntent
-import android.app.PictureInPictureParams
-import android.app.RemoteAction
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.Bundle
 import android.util.Rational
@@ -450,6 +447,41 @@ class HMSManager(reactContext: ReactApplicationContext) :
     hms?.getSessionMetaData(callback)
   }
 
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  fun getPeerProperty(data: ReadableMap): WritableMap? {
+    val hms = HMSHelper.getHms(data, hmsCollection) ?: return null
+
+    return hms.getPeerProperty(data)
+  }
+
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  fun getRoomProperty(data: ReadableMap): WritableMap? {
+    val hms = HMSHelper.getHms(data, hmsCollection) ?: return null
+
+    return hms.getRoomProperty(data)
+  }
+
+  @ReactMethod
+  fun enableEvent(data: ReadableMap, promise: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.enableEvent(data, promise)
+  }
+
+  @ReactMethod
+  fun disableEvent(data: ReadableMap, promise: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.disableEvent(data, promise)
+  }
+
+  @ReactMethod()
+  fun restrictData(data: ReadableMap, promise: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.restrictData(data, promise)
+  }
+
   // region Person-In-Person Mode Action handing
   private val pipReceiver by lazy {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -471,10 +503,13 @@ class HMSManager(reactContext: ReactApplicationContext) :
     }
   }
 
-  private var pipRemoteActionsList: MutableList<RemoteAction> = mutableListOf()
+  private var pipRemoteActionsList: MutableList<Any> = mutableListOf()
 
   @RequiresApi(Build.VERSION_CODES.O)
   private fun toggleLocalAudio() {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+      return
+    }
     val hmssdk = getHmsInstance()[PipActionReceiver.sdkIdForPIP!!]?.hmsSDK
 
     val localAudioTrack = hmssdk?.getLocalPeer()?.audioTrack
@@ -487,6 +522,9 @@ class HMSManager(reactContext: ReactApplicationContext) :
 
   @RequiresApi(Build.VERSION_CODES.O)
   private fun toggleLocalVideo() {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+      return
+    }
     val hmssdk = getHmsInstance()[PipActionReceiver.sdkIdForPIP!!]?.hmsSDK
 
     val localVideoTrack = hmssdk?.getLocalPeer()?.videoTrack
@@ -499,6 +537,9 @@ class HMSManager(reactContext: ReactApplicationContext) :
 
   @RequiresApi(Build.VERSION_CODES.O)
   private fun endMeeting() {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+      return
+    }
     val hms = getHmsInstance()[PipActionReceiver.sdkIdForPIP!!]
 
     hms?.leave(callback = null, fromPIP = true)
@@ -506,6 +547,10 @@ class HMSManager(reactContext: ReactApplicationContext) :
 
   @RequiresApi(Build.VERSION_CODES.O)
   private fun updatePIPRemoteActions(code: Int) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+      return
+    }
+
     val activity = currentActivity
 
     if (activity !== null) {
@@ -513,10 +558,10 @@ class HMSManager(reactContext: ReactApplicationContext) :
 
       when (code) {
         PipActionReceiver.PIPActions.localAudio.requestCode -> {
-          val audioActionIdx = pipRemoteActionsList.indexOfFirst { it.title == PipActionReceiver.PIPActions.localAudio.title }
+          val audioActionIdx = pipRemoteActionsList.indexOfFirst { it is android.app.RemoteAction && it.title == PipActionReceiver.PIPActions.localAudio.title }
           if (audioActionIdx >= 0) {
-            pipRemoteActionsList[audioActionIdx] = RemoteAction(
-              Icon.createWithResource(
+            pipRemoteActionsList[audioActionIdx] = android.app.RemoteAction(
+              android.graphics.drawable.Icon.createWithResource(
                 reactApplicationContext,
                 if (hmssdk?.getLocalPeer()?.audioTrack?.isMute === true) R.drawable.ic_mic_off_24 else R.drawable.ic_mic_24
               ),
@@ -532,12 +577,14 @@ class HMSManager(reactContext: ReactApplicationContext) :
           }
         }
         PipActionReceiver.PIPActions.localVideo.requestCode -> {
-          val videoActionIdx = pipRemoteActionsList.indexOfFirst { it.title == PipActionReceiver.PIPActions.localVideo.title }
+          val videoActionIdx = pipRemoteActionsList.indexOfFirst { it is android.app.RemoteAction && it.title == PipActionReceiver.PIPActions.localVideo.title }
           if (videoActionIdx >= 0) {
-            pipRemoteActionsList[videoActionIdx] = RemoteAction(
-              Icon.createWithResource(
+            val isVideoMute = hmssdk?.getLocalPeer()?.videoTrack?.isMute
+            val updatedIcon = if (isVideoMute === true) R.drawable.ic_camera_toggle_off else R.drawable.ic_camera_toggle_on
+            pipRemoteActionsList[videoActionIdx] = android.app.RemoteAction(
+              android.graphics.drawable.Icon.createWithResource(
                 reactApplicationContext,
-                if (hmssdk?.getLocalPeer()?.videoTrack?.isMute === true) R.drawable.ic_camera_toggle_off else R.drawable.ic_camera_toggle_on
+                updatedIcon
               ),
               PipActionReceiver.PIPActions.localVideo.title,
               PipActionReceiver.PIPActions.localVideo.description,
@@ -552,8 +599,8 @@ class HMSManager(reactContext: ReactApplicationContext) :
         }
       }
 
-      val pipParams = PictureInPictureParams.Builder().let {
-        it.setActions(pipRemoteActionsList)
+      val pipParams = android.app.PictureInPictureParams.Builder().let {
+        it.setActions(pipRemoteActionsList.filterIsInstance<android.app.RemoteAction>())
         it.build()
       }
 
@@ -603,82 +650,15 @@ class HMSManager(reactContext: ReactApplicationContext) :
     }
   }
 
-  @RequiresApi(Build.VERSION_CODES.O)
-  private fun getPIPRemoteActions(endAction: Boolean = false, audioAction: Boolean = false, videoAction: Boolean = false): MutableList<RemoteAction> {
-    val hmssdk = getHmsInstance()[PipActionReceiver.sdkIdForPIP!!]?.hmsSDK
-
-    pipRemoteActionsList.clear()
-
-    val localPeer = hmssdk?.getLocalPeer()
-    val allowedPublishing = localPeer?.hmsRole?.publishParams?.allowed
-
-    if (audioAction && allowedPublishing?.contains("audio") === true) {
-      pipRemoteActionsList.add(
-        RemoteAction(
-          Icon.createWithResource(
-            reactApplicationContext,
-            if (localPeer?.audioTrack?.isMute === true) R.drawable.ic_mic_off_24 else R.drawable.ic_mic_24
-          ),
-          PipActionReceiver.PIPActions.localAudio.title,
-          PipActionReceiver.PIPActions.localAudio.description,
-          PendingIntent.getBroadcast(
-            reactApplicationContext,
-            PipActionReceiver.PIPActions.localAudio.requestCode,
-            Intent(PipActionReceiver.PIP_INTENT_ACTION).putExtra(PipActionReceiver.PIPActions.localAudio.title, PipActionReceiver.PIPActions.localAudio.requestCode),
-            PendingIntent.FLAG_IMMUTABLE
-          )
-        )
-      )
-    }
-
-    if (endAction) {
-      pipRemoteActionsList.add(
-        RemoteAction(
-          Icon.createWithResource(reactApplicationContext, R.drawable.ic_call_end_24),
-          PipActionReceiver.PIPActions.endMeet.title,
-          PipActionReceiver.PIPActions.endMeet.description,
-          PendingIntent.getBroadcast(
-            reactApplicationContext,
-            PipActionReceiver.PIPActions.endMeet.requestCode,
-            Intent(PipActionReceiver.PIP_INTENT_ACTION).putExtra(
-              PipActionReceiver.PIPActions.endMeet.title,
-              PipActionReceiver.PIPActions.endMeet.requestCode
-            ),
-            PendingIntent.FLAG_IMMUTABLE
-          )
-        )
-      )
-    }
-
-    if (videoAction && allowedPublishing?.contains("video") === true) {
-      pipRemoteActionsList.add(
-        RemoteAction(
-          Icon.createWithResource(
-            reactApplicationContext,
-            if (localPeer?.videoTrack?.isMute === true) R.drawable.ic_camera_toggle_off else R.drawable.ic_camera_toggle_on
-          ),
-          PipActionReceiver.PIPActions.localVideo.title,
-          PipActionReceiver.PIPActions.localVideo.description,
-          PendingIntent.getBroadcast(
-            reactApplicationContext,
-            PipActionReceiver.PIPActions.localVideo.requestCode,
-            Intent(PipActionReceiver.PIP_INTENT_ACTION).putExtra(
-              PipActionReceiver.PIPActions.localVideo.title,
-              PipActionReceiver.PIPActions.localVideo.requestCode
-            ),
-            PendingIntent.FLAG_IMMUTABLE
-          )
-        )
-      )
-    }
-
-    return pipRemoteActionsList
-  }
-
   // Builds and returns PictureInPictureParams as per given config
+  // `Any` type is used here to prevent crashes on "SDK < API level 26"
   @RequiresApi(Build.VERSION_CODES.O)
-  private fun buildPipParams(config: PipParamConfig): PictureInPictureParams {
-    val pipParams = PictureInPictureParams.Builder().let {
+  private fun buildPipParams(config: PipParamConfig): Any? {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+      return null
+    }
+
+    val pipParams = android.app.PictureInPictureParams.Builder().let {
       if (config.aspectRatio !== null) {
         it.setAspectRatio(
           Rational(
@@ -693,13 +673,76 @@ class HMSManager(reactContext: ReactApplicationContext) :
 //        it.setAutoEnterEnabled(config.autoEnterEnabled)
 //      }
 
-      it.setActions(
-        getPIPRemoteActions(
-          endAction = config.showEndButton,
-          audioAction = config.showAudioButton,
-          videoAction = config.showVideoButton
+      // region Setting RemoteActions on PictureInPictureParams
+      val hmssdk = getHmsInstance()[PipActionReceiver.sdkIdForPIP!!]?.hmsSDK
+
+      pipRemoteActionsList.clear()
+
+      val localPeer = hmssdk?.getLocalPeer()
+      val allowedPublishing = localPeer?.hmsRole?.publishParams?.allowed
+
+      if (config.showAudioButton && allowedPublishing?.contains("audio") === true) {
+        pipRemoteActionsList.add(
+          android.app.RemoteAction(
+            android.graphics.drawable.Icon.createWithResource(
+              reactApplicationContext,
+              if (localPeer?.audioTrack?.isMute === true) R.drawable.ic_mic_off_24 else R.drawable.ic_mic_24
+            ),
+            PipActionReceiver.PIPActions.localAudio.title,
+            PipActionReceiver.PIPActions.localAudio.description,
+            PendingIntent.getBroadcast(
+              reactApplicationContext,
+              PipActionReceiver.PIPActions.localAudio.requestCode,
+              Intent(PipActionReceiver.PIP_INTENT_ACTION).putExtra(PipActionReceiver.PIPActions.localAudio.title, PipActionReceiver.PIPActions.localAudio.requestCode),
+              PendingIntent.FLAG_IMMUTABLE
+            )
+          )
         )
-      )
+      }
+
+      if (config.showEndButton) {
+        pipRemoteActionsList.add(
+          android.app.RemoteAction(
+            android.graphics.drawable.Icon.createWithResource(reactApplicationContext, R.drawable.ic_call_end_24),
+            PipActionReceiver.PIPActions.endMeet.title,
+            PipActionReceiver.PIPActions.endMeet.description,
+            PendingIntent.getBroadcast(
+              reactApplicationContext,
+              PipActionReceiver.PIPActions.endMeet.requestCode,
+              Intent(PipActionReceiver.PIP_INTENT_ACTION).putExtra(
+                PipActionReceiver.PIPActions.endMeet.title,
+                PipActionReceiver.PIPActions.endMeet.requestCode
+              ),
+              PendingIntent.FLAG_IMMUTABLE
+            )
+          )
+        )
+      }
+
+      if (config.showVideoButton && allowedPublishing?.contains("video") === true) {
+        pipRemoteActionsList.add(
+          android.app.RemoteAction(
+            android.graphics.drawable.Icon.createWithResource(
+              reactApplicationContext,
+              if (localPeer?.videoTrack?.isMute === true) R.drawable.ic_camera_toggle_off else R.drawable.ic_camera_toggle_on
+            ),
+            PipActionReceiver.PIPActions.localVideo.title,
+            PipActionReceiver.PIPActions.localVideo.description,
+            PendingIntent.getBroadcast(
+              reactApplicationContext,
+              PipActionReceiver.PIPActions.localVideo.requestCode,
+              Intent(PipActionReceiver.PIP_INTENT_ACTION).putExtra(
+                PipActionReceiver.PIPActions.localVideo.title,
+                PipActionReceiver.PIPActions.localVideo.requestCode
+              ),
+              PendingIntent.FLAG_IMMUTABLE
+            )
+          )
+        )
+      }
+
+      it.setActions(pipRemoteActionsList.filterIsInstance<android.app.RemoteAction>())
+      // endregion
 
       it.build()
     }
@@ -708,7 +751,11 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @RequiresApi(Build.VERSION_CODES.O)
-  private fun readableMapToPipParamConfig(data: ReadableMap?): PipParamConfig {
+  private fun readableMapToPipParamConfig(data: ReadableMap?): PipParamConfig? {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+      return null
+    }
+
     var aspectRatio: Pair<Int, Int> = Pair(16, 9)
     var showEndButton = false
     var showAudioButton = false
@@ -772,22 +819,23 @@ class HMSManager(reactContext: ReactApplicationContext) :
 
   @RequiresApi(Build.VERSION_CODES.O)
   private fun setPictureInPictureParams(data: ReadableMap): Boolean {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+      return false
+    }
     try {
       if (!isPipModeSupported()) {
         throw Throwable(message = "PIP Mode is not supported!")
       }
 
-      val activity = currentActivity
+      val activity = currentActivity ?: return false
+      val pipParamConfig = readableMapToPipParamConfig(data) ?: return false
+      val pipParams = buildPipParams(pipParamConfig) ?: return false
 
-      if (activity !== null) {
-        val pipParamConfig = readableMapToPipParamConfig(data)
-        val pipParams = buildPipParams(pipParamConfig)
-
-        activity.setPictureInPictureParams(pipParams)
-        return true
+      if (pipParams !is android.app.PictureInPictureParams) {
+        return false
       }
-
-      return false
+      activity.setPictureInPictureParams(pipParams)
+      return true
     } catch (e: Exception) {
       throw e
     }
@@ -795,31 +843,35 @@ class HMSManager(reactContext: ReactApplicationContext) :
 
   @RequiresApi(Build.VERSION_CODES.O)
   private fun isPipModeSupported(): Boolean {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+      return false
+    }
     return reactApplicationContext.packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
   }
 
   @RequiresApi(Build.VERSION_CODES.O)
   private fun enablePipMode(data: ReadableMap): Boolean {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+      return false
+    }
     try {
       if (!isPipModeSupported()) {
         throw Throwable(message = "PIP Mode is not supported!")
       }
 
-      val activity = currentActivity
+      val activity = currentActivity ?: return false
+      val pipParamConfig = readableMapToPipParamConfig(data) ?: return false
+      val pipParams = buildPipParams(pipParamConfig) ?: return false
 
-      if (activity !== null) {
-        val pipParamConfig = readableMapToPipParamConfig(data)
-        val pipParams = buildPipParams(pipParamConfig)
-
-        pipReceiver?.register(activity)
-        val entered = activity.enterPictureInPictureMode(pipParams)
-        if (entered === false) {
-          pipReceiver?.unregister(activity)
-        }
-        return entered
+      if (pipParams !is android.app.PictureInPictureParams) {
+        return false
       }
-
-      return false
+      pipReceiver?.register(activity)
+      val entered = activity.enterPictureInPictureMode(pipParams)
+      if (entered === false) {
+        pipReceiver?.unregister(activity)
+      }
+      return entered
     } catch (e: Exception) {
       throw e
     }

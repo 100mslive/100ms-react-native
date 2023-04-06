@@ -7,6 +7,7 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import {
   HMSAudioFilePlayerNode,
@@ -21,6 +22,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
 import DocumentPicker from 'react-native-document-picker';
+import {openSettings, requestNotifications} from 'react-native-permissions';
 
 import {COLORS} from '../utils/theme';
 import type {RootState} from '../redux';
@@ -37,7 +39,7 @@ interface RoomSettingsModalContentProps {
   audioDeviceListenerAdded: boolean;
   muteAllTracksAudio: boolean;
   closeRoomSettingsModal(): void;
-  setModalVisible(modalType: ModalTypes): void;
+  setModalVisible(modalType: ModalTypes, delay?: boolean): void;
   setIsAudioShared(state: boolean): void;
   setAudioDeviceListenerAdded(state: boolean): void;
   setMuteAllTracksAudio(state: boolean): void;
@@ -138,7 +140,7 @@ export const RoomSettingsModalContent: React.FC<
         .then(d => console.log('Stop HLS Streaming Success: ', d))
         .catch(e => console.log('Stop HLS Streaming Error: ', e));
     } else {
-      setModalVisible(ModalTypes.HLS_STREAMING);
+      setModalVisible(ModalTypes.HLS_STREAMING, true);
     }
   };
 
@@ -150,7 +152,7 @@ export const RoomSettingsModalContent: React.FC<
         .then(d => console.log('Stop RTMP And Recording Success: ', d))
         .catch(e => console.log('Stop RTMP And Recording Error: ', e));
     } else {
-      setModalVisible(ModalTypes.RECORDING);
+      setModalVisible(ModalTypes.RECORDING, true);
     }
   };
 
@@ -177,22 +179,25 @@ export const RoomSettingsModalContent: React.FC<
     }
   };
 
-  const changeBulkRole = () => setModalVisible(ModalTypes.BULK_ROLE_CHANGE);
+  const changeBulkRole = () =>
+    setModalVisible(ModalTypes.BULK_ROLE_CHANGE, true);
 
-  const changeTrackState = () => setModalVisible(ModalTypes.CHANGE_TRACK_ROLE);
+  const changeTrackState = () =>
+    setModalVisible(ModalTypes.CHANGE_TRACK_ROLE, true);
 
   const switchAudioOutput = () =>
-    setModalVisible(ModalTypes.SWITCH_AUDIO_OUTPUT);
+    setModalVisible(ModalTypes.SWITCH_AUDIO_OUTPUT, true);
 
-  const changeAudioMode = () => setModalVisible(ModalTypes.CHANGE_AUDIO_MODE);
+  const changeAudioMode = () =>
+    setModalVisible(ModalTypes.CHANGE_AUDIO_MODE, true);
 
   const setAudioMixingMode = () =>
-    setModalVisible(ModalTypes.AUDIO_MIXING_MODE);
+    setModalVisible(ModalTypes.AUDIO_MIXING_MODE, true);
 
   const showRTCStats = () => setModalVisible(ModalTypes.RTC_STATS);
 
   // Android Audioshare
-  const handleAudioShare = () => {
+  const handleAudioShare = async () => {
     closeRoomSettingsModal();
     if (isAudioShared) {
       hmsInstance
@@ -203,6 +208,27 @@ export const RoomSettingsModalContent: React.FC<
         })
         .catch(e => console.log('Stop Audioshare Error: ', e));
     } else {
+      // check notification permission on android platform
+      // Audio share feature needs foreground service running. for Foreground service to keep running, we need active notification.
+      if (Platform.OS === 'android') {
+        const result = await requestNotifications(['alert', 'sound']);
+
+        console.log('Notification Permission Result: ', result);
+
+        if (result.status === 'blocked') {
+          Alert.alert(
+            'Notification Permission is Blocked!',
+            '100ms SDK needs notification permission to start audio share. Please allow notification from settings and try again!',
+            [
+              {text: 'cancel'},
+              {text: 'Go to Settings', onPress: () => openSettings()},
+            ],
+            {cancelable: true},
+          );
+          return;
+        }
+      }
+
       hmsInstance
         ?.startAudioshare(newAudioMixingMode)
         .then(d => {
@@ -215,7 +241,7 @@ export const RoomSettingsModalContent: React.FC<
 
   // iOS Audioshare
   const setAudioShareVolume = () =>
-    setModalVisible(ModalTypes.SET_AUDIO_SHARE_VOLUME);
+    setModalVisible(ModalTypes.SET_AUDIO_SHARE_VOLUME, true);
 
   // iOS Audioshare
   const playAudioShare = () => {

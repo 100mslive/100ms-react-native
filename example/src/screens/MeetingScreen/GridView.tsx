@@ -1,93 +1,123 @@
-import React, {useRef} from 'react';
-import {View, FlatList, Dimensions, Text} from 'react-native';
-import {HMSTrackSource} from '@100mslive/react-native-hms';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import Feather from 'react-native-vector-icons/Feather';
+import React, {ElementRef, useRef, useState, useImperativeHandle} from 'react';
+import {View, FlatList} from 'react-native';
+import type {HMSView, HMSPeer} from '@100mslive/react-native-hms';
 
-import {getDisplayTrackDimensions, parseMetadata} from '../../utils/functions';
-import {styles} from './styles';
-import {DisplayTrack} from './DisplayTrack';
+import {DefaultModal} from '../../components';
+import {SaveScreenshot} from './Modals';
+import {TilesContainer} from './TilesContainer';
 import type {PeerTrackNode} from '../../utils/types';
 
 type GridViewProps = {
+  onPeerTileMorePress(peerTrackNode: PeerTrackNode): void;
   pairedPeers: PeerTrackNode[][];
   orientation: boolean;
+  setIsScreenShared: React.Dispatch<React.SetStateAction<boolean | undefined>>;
 };
 
-const GridView = ({pairedPeers, orientation}: GridViewProps) => {
-  // hooks
-  const {left, right, top, bottom} = useSafeAreaInsets();
+type GridViewRefAttrs = {
+  captureViewScreenshot(node: PeerTrackNode): any;
+};
 
-  // useRef hook
-  const flatlistRef = useRef<FlatList>(null);
+const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
+  ({pairedPeers, orientation, onPeerTileMorePress, setIsScreenShared}, ref) => {
+    // hooks
+    const [screenshotData, setScreenshotData] = useState<{
+      peer: HMSPeer;
+      source: {uri: string};
+    } | null>(null);
+    const hmsViewRefs = useRef<Record<string, ElementRef<typeof HMSView>>>({});
+    const flatlistRef = useRef<FlatList>(null);
 
-  return (
-    <FlatList
-      ref={flatlistRef}
-      horizontal
-      data={pairedPeers}
-      initialNumToRender={2}
-      maxToRenderPerBatch={3}
-      //   onScroll={({nativeEvent}) => {
-      //     const {contentOffset, layoutMeasurement} = nativeEvent;
-      //     setPage(contentOffset.x / layoutMeasurement.width);
-      //   }}
-      pagingEnabled
-      showsHorizontalScrollIndicator={false}
-      renderItem={(data: {item: Array<PeerTrackNode>; index: number}) => {
-        const {item, index} = data;
+    // We are setting `captureViewScreenshot` method on ref passed to GridView component
+    // `captureViewScreenshot` method can be called to with PeerTrackNode to capture the HmsView Snapshot
+    useImperativeHandle(
+      ref,
+      () => ({
+        captureViewScreenshot: (node: PeerTrackNode) => {
+          // getting HmsView ref for the passed PeerTrackNode
+          const hmsViewRef = hmsViewRefs.current[node.id];
+
+          // If HmsView is not rendered on Tile, then HmsView ref will be `undefined`
+          if (!hmsViewRef) {
+            console.warn(`HmsViewRef for "${node.id}" is not available!`);
+            return;
+          }
+
+          // Calling `capture` method on HmsView ref
+          hmsViewRef
+            .capture?.()
+            .then((imageBase64: string) => {
+              console.log('HmsView Capture Success');
+              // Saving data needed to show captured snapshot in "Save Snapshot" Modal
+              setScreenshotData({
+                peer: node.peer,
+                source: {uri: `data:image/png;base64,${imageBase64}`},
+              });
+            })
+            .catch((error: any) =>
+              console.warn('HmsView Capture Error: ', error),
+            );
+        },
+      }),
+      [],
+    );
+
+    const setHmsViewRefs = React.useCallback(
+      (viewId: string, ref: typeof HMSView | null) => {
+        hmsViewRefs.current[viewId] = ref;
+      },
+      [],
+    );
+
+    const _renderItem = React.useCallback(
+      ({item}) => {
         return (
-          <View
-            key={index}
-            style={[
-              styles.page,
-              {width: Dimensions.get('window').width - left - right},
-            ]}>
-            {item?.map(view => {
-              return (
-                <View
-                  style={[
-                    view?.track?.source !== undefined &&
-                    view?.track?.source !== HMSTrackSource.REGULAR
-                      ? styles.flex
-                      : {
-                          ...getDisplayTrackDimensions(
-                            item.length,
-                            top,
-                            bottom,
-                            orientation,
-                          ),
-                        },
-                  ]}
-                  key={view.id}>
-                  <DisplayTrack
-                    isLocal={view?.peer?.isLocal}
-                    peer={view?.peer}
-                    videoTrack={view?.track}
-                    videoStyles={styles.generalTile}
-                    isDegraded={view?.isDegraded}
-                  />
-                  {view?.peer?.audioTrack?.isMute() && (
-                    <View style={styles.micContainer}>
-                      <Feather name="mic-off" style={styles.mic} size={20} />
-                    </View>
-                  )}
-                  {parseMetadata(view?.peer?.metadata)?.isBRBOn && (
-                    <View style={styles.status}>
-                      <View style={styles.brbOnContainer}>
-                        <Text style={styles.brbOn}>BRB</Text>
-                      </View>
-                    </View>
-                  )}
-                </View>
-              );
-            })}
-          </View>
+          <TilesContainer
+            onPeerTileMorePress={onPeerTileMorePress}
+            orientation={orientation}
+            peerTrackNodes={item}
+            setHmsViewRefs={setHmsViewRefs}
+            setIsScreenShared={setIsScreenShared}
+          />
         );
-      }}
-      numColumns={1}
-      keyExtractor={item => item[0]?.id}
-    />
-  );
-};
+      },
+      [onPeerTileMorePress, orientation, setHmsViewRefs],
+    );
+
+    const _keyExtractor = React.useCallback(item => item[0]?.id, []);
+
+    return (
+      <View>
+        <FlatList
+          ref={flatlistRef}
+          horizontal
+          data={pairedPeers}
+          initialNumToRender={1}
+          maxToRenderPerBatch={1}
+          windowSize={2}
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          renderItem={_renderItem}
+          numColumns={1}
+          keyExtractor={_keyExtractor}
+        />
+
+        {/* Save Captured Screenshot of HMSView Modal */}
+        <DefaultModal
+          modalPosiion="center"
+          modalVisible={!!screenshotData}
+          setModalVisible={() => setScreenshotData(null)}
+        >
+          <SaveScreenshot
+            screenshotData={screenshotData}
+            cancelModal={() => setScreenshotData(null)}
+          />
+        </DefaultModal>
+      </View>
+    );
+  },
+);
+
+GridView.displayName = 'GridView';
+
 export {GridView};
