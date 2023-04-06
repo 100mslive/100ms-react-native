@@ -11,6 +11,7 @@ import { HMSTrackType } from './HMSTrackType';
 import { HMSUpdateListenerActions } from './HMSUpdateListenerActions';
 import { HmsViewComponent } from './HmsView';
 
+import type { HMSUpdateListenerCallbacks } from './HMSUpdateListenerCallbacks';
 import type { HMSConfig } from './HMSConfig';
 import type { HMSLocalPeer } from './HMSLocalPeer';
 import type { HMSRemotePeer } from './HMSRemotePeer';
@@ -1064,7 +1065,9 @@ export class HMSSDK {
    * @param {Function}
    * @memberof HMSSDK
    */
-  setAudioDeviceChangeListener = (callback: Function) => {
+  setAudioDeviceChangeListener = (
+    callback: HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED]
+  ) => {
     logger?.verbose('#Function setAudioDeviceChangeListener', {
       id: this.id,
     });
@@ -1105,10 +1108,10 @@ export class HMSSDK {
    * @param {*} callback
    * @memberof HMSSDK
    */
-  addEventListener = (
-    action: HMSUpdateListenerActions | HMSPIPListenerActions,
-    callback: any
-  ) => {
+  addEventListener<T extends HMSUpdateListenerActions>(
+    action: T | HMSPIPListenerActions,
+    callback: HMSUpdateListenerCallbacks[T]
+  ) {
     logger?.verbose('#Function addEventListener', {
       action,
       id: this.id,
@@ -1486,7 +1489,7 @@ export class HMSSDK {
       }
       default:
     }
-  };
+  }
 
   /**
    * - This is a prototype event listener that takes action and listens for updates related to that particular action
