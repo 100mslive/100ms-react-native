@@ -9,6 +9,8 @@ import live.hms.video.media.settings.HMSVideoResolution
 import live.hms.video.media.settings.HMSVideoTrackSettings
 import live.hms.video.media.tracks.*
 import live.hms.video.sdk.models.*
+import live.hms.video.sdk.models.enums.HMSPeerUpdate
+import live.hms.video.sdk.models.enums.HMSRoomUpdate
 import live.hms.video.sdk.models.role.*
 import live.hms.video.sdk.models.trackchangerequest.HMSChangeTrackStateRequest
 
@@ -21,6 +23,54 @@ object HMSDecoder {
 
   fun clearRestrictDataStates() {
     this.restrictRoleData.clear()
+  }
+
+  fun getHmsRoomSubset(hmsRoom: HMSRoom?, hmsRoomUpdateType: HMSRoomUpdate? = null): WritableMap {
+    val room: WritableMap = Arguments.createMap()
+    if (hmsRoom != null) {
+      room.putString("id", hmsRoom.roomId)
+
+      when (hmsRoomUpdateType) {
+        HMSRoomUpdate.ROOM_PEER_COUNT_UPDATED -> {
+          room.putInt("peerCount", hmsRoom.peerCount)
+        }
+        HMSRoomUpdate.HLS_RECORDING_STATE_UPDATED -> {
+          hmsRoom.hlsRecordingState?.let {
+            room.putMap("hlsRecordingState", this.getHMSHlsRecordingState(it))
+          }
+        }
+        HMSRoomUpdate.BROWSER_RECORDING_STATE_UPDATED -> {
+          hmsRoom.browserRecordingState?.let {
+            room.putMap(
+              "browserRecordingState",
+              this.getHMSBrowserRecordingState(it)
+            )
+          }
+        }
+        HMSRoomUpdate.HLS_STREAMING_STATE_UPDATED -> {
+          hmsRoom.hlsStreamingState?.let {
+            room.putMap("hlsStreamingState", this.getHMSHlsStreamingState(it))
+          }
+        }
+        HMSRoomUpdate.RTMP_STREAMING_STATE_UPDATED -> {
+          hmsRoom.rtmpHMSRtmpStreamingState?.let {
+            room.putMap(
+              "rtmpHMSRtmpStreamingState",
+              this.getHMSRtmpStreamingState(it)
+            )
+          }
+        }
+        HMSRoomUpdate.SERVER_RECORDING_STATE_UPDATED -> {
+          hmsRoom.serverRecordingState?.let {
+            room.putMap(
+              "serverRecordingState",
+              this.getHMSServerRecordingState(it)
+            )
+          }
+        }
+      }
+    }
+    return room
   }
 
   fun getHmsRoom(hmsRoom: HMSRoom?): WritableMap {
@@ -64,10 +114,66 @@ object HMSDecoder {
       }
 
       room.putMap("localPeer", this.getHmsLocalPeer(hmsRoom.localPeer))
+
       room.putArray("peers", this.getAllPeers(hmsRoom.peerList))
+
       room.putInt("peerCount", hmsRoom.peerCount)
     }
     return room
+  }
+
+  fun getHmsPeerSubsetForPeerUpdateEvent(hmsPeer: HMSPeer?, peerUpdateType: HMSPeerUpdate): WritableMap {
+    val peer: WritableMap = Arguments.createMap()
+    if (hmsPeer != null) {
+      peer.putString(peerUpdateType.ordinal.toString(), hmsPeer.peerID)
+
+      if (peerUpdateType !== null) {
+        when (peerUpdateType) {
+          HMSPeerUpdate.NAME_CHANGED -> {
+            peer.putString("name", hmsPeer.name)
+          }
+          HMSPeerUpdate.METADATA_CHANGED -> {
+            peer.putString("metadata", hmsPeer.metadata)
+          }
+          HMSPeerUpdate.ROLE_CHANGED -> {
+            peer.putMap("role", this.getHmsRole(hmsPeer.hmsRole))
+          }
+          HMSPeerUpdate.NETWORK_QUALITY_UPDATED -> {
+            hmsPeer.networkQuality?.let {
+              peer.putMap("networkQuality", this.getHmsNetworkQuality(it))
+            }
+          }
+        }
+      }
+    }
+    return peer
+  }
+
+  fun getHmsPeerSubset(hmsPeer: HMSPeer?, peerUpdateType: HMSPeerUpdate? = null): WritableMap {
+    val peer: WritableMap = Arguments.createMap()
+    if (hmsPeer != null) {
+      peer.putString("peerID", hmsPeer.peerID)
+
+      if (peerUpdateType !== null) {
+        when (peerUpdateType) {
+          HMSPeerUpdate.NAME_CHANGED -> {
+            peer.putString("name", hmsPeer.name)
+          }
+          HMSPeerUpdate.METADATA_CHANGED -> {
+            peer.putString("metadata", hmsPeer.metadata)
+          }
+          HMSPeerUpdate.ROLE_CHANGED -> {
+            peer.putMap("role", this.getHmsRole(hmsPeer.hmsRole))
+          }
+          HMSPeerUpdate.NETWORK_QUALITY_UPDATED -> {
+            hmsPeer.networkQuality?.let {
+              peer.putMap("networkQuality", this.getHmsNetworkQuality(it))
+            }
+          }
+        }
+      }
+    }
+    return peer
   }
 
   fun getHmsPeer(hmsPeer: HMSPeer?): WritableMap {
@@ -106,7 +212,7 @@ object HMSDecoder {
     return peer
   }
 
-  private fun getHmsAudioTrack(hmsAudioTrack: HMSAudioTrack?): WritableMap {
+  fun getHmsAudioTrack(hmsAudioTrack: HMSAudioTrack?): WritableMap {
     val hmsTrack: WritableMap = Arguments.createMap()
     if (hmsAudioTrack != null) {
       hmsTrack.putString("type", hmsAudioTrack.type.name)
@@ -118,7 +224,7 @@ object HMSDecoder {
     return hmsTrack
   }
 
-  private fun getHmsVideoTrack(hmsVideoTrack: HMSVideoTrack?): WritableMap {
+  fun getHmsVideoTrack(hmsVideoTrack: HMSVideoTrack?): WritableMap {
     val hmsTrack: WritableMap = Arguments.createMap()
     if (hmsVideoTrack != null) {
       hmsTrack.putString("type", hmsVideoTrack.type.name)
@@ -154,7 +260,7 @@ object HMSDecoder {
     return decodedRoles
   }
 
-  private fun getHmsRole(hmsRole: HMSRole?): WritableMap {
+  fun getHmsRole(hmsRole: HMSRole?): WritableMap {
     val role: WritableMap = Arguments.createMap()
     if (hmsRole != null) {
       role.putString("name", hmsRole.name)
@@ -243,33 +349,13 @@ object HMSDecoder {
     val peer: WritableMap = Arguments.createMap()
     if (hmsLocalPeer != null) {
       peer.putString("peerID", hmsLocalPeer.peerID)
-      peer.putString("name", hmsLocalPeer.name)
-      peer.putBoolean("isLocal", hmsLocalPeer.isLocal)
-
-      peer.putMap("role", this.getHmsRole(hmsLocalPeer.hmsRole))
-
-      peer.putString("metadata", hmsLocalPeer.metadata)
-
-      hmsLocalPeer.customerUserID?.let {
-        peer.putString("customerUserID", it)
-      }
-
-      hmsLocalPeer.networkQuality?.let {
-        peer.putMap("networkQuality", this.getHmsNetworkQuality(it))
-      }
 
       hmsLocalPeer.audioTrack?.let {
-        peer.putMap("audioTrack", this.getHmsAudioTrack(it))
         peer.putMap("localAudioTrackData", this.getHmsLocalAudioTrack(it))
       }
 
       hmsLocalPeer.videoTrack?.let {
-        peer.putMap("videoTrack", this.getHmsVideoTrack(it))
         peer.putMap("localVideoTrackData", this.getHmsLocalVideoTrack(it))
-      }
-
-      hmsLocalPeer.auxiliaryTracks.let {
-        peer.putArray("auxiliaryTracks", this.getAllTracks(it))
       }
     }
     return peer
@@ -347,31 +433,13 @@ object HMSDecoder {
     val peer: WritableMap = Arguments.createMap()
     if (hmsRemotePeer != null) {
       peer.putString("peerID", hmsRemotePeer.peerID)
-      peer.putString("name", hmsRemotePeer.name)
-      peer.putBoolean("isLocal", hmsRemotePeer.isLocal)
-      peer.putString("metadata", hmsRemotePeer.metadata)
-      peer.putMap("role", this.getHmsRole(hmsRemotePeer.hmsRole))
-
-      hmsRemotePeer.customerUserID?.let {
-        peer.putString("customerUserID", it)
-      }
-
-      hmsRemotePeer.networkQuality?.let {
-        peer.putMap("networkQuality", this.getHmsNetworkQuality(it))
-      }
 
       hmsRemotePeer.audioTrack?.let {
-        peer.putMap("audioTrack", this.getHmsAudioTrack(it))
         peer.putMap("remoteAudioTrackData", this.getHmsRemoteAudioTrack(it))
       }
 
       hmsRemotePeer.videoTrack?.let {
-        peer.putMap("videoTrack", this.getHmsVideoTrack(hmsRemotePeer.videoTrack))
         peer.putMap("remoteVideoTrackData", this.getHmsRemoteVideoTrack(hmsRemotePeer.videoTrack))
-      }
-
-      hmsRemotePeer.auxiliaryTracks.let {
-        peer.putArray("auxiliaryTracks", this.getAllTracks(it))
       }
     }
     return peer
@@ -423,7 +491,7 @@ object HMSDecoder {
     val roleChangeRequest: WritableMap = Arguments.createMap()
     if (id != null) {
       request.requestedBy?.let {
-        roleChangeRequest.putMap("requestedBy", this.getHmsPeer(it))
+        roleChangeRequest.putMap("requestedBy", this.getHmsPeerSubset(it))
       }
       roleChangeRequest.putMap("suggestedRole", this.getHmsRole(request.suggestedRole))
       roleChangeRequest.putString("id", id)
@@ -436,7 +504,7 @@ object HMSDecoder {
     val changeTrackStateRequest: WritableMap = Arguments.createMap()
 
     request.requestedBy?.let {
-      changeTrackStateRequest.putMap("requestedBy", this.getHmsPeer(it))
+      changeTrackStateRequest.putMap("requestedBy", this.getHmsPeerSubset(it))
     }
     changeTrackStateRequest.putString("trackType", request.track.type.name)
     changeTrackStateRequest.putBoolean("mute", request.mute)
@@ -459,7 +527,7 @@ object HMSDecoder {
     return null
   }
 
-  private fun getHMSBrowserRecordingState(data: HMSBrowserRecordingState?): ReadableMap {
+  fun getHMSBrowserRecordingState(data: HMSBrowserRecordingState?): ReadableMap {
     val input = Arguments.createMap()
     if (data !== null) {
       input.putBoolean("running", data.running)
@@ -479,7 +547,7 @@ object HMSDecoder {
     return input
   }
 
-  private fun getHMSRtmpStreamingState(data: HMSRtmpStreamingState?): ReadableMap {
+  fun getHMSRtmpStreamingState(data: HMSRtmpStreamingState?): ReadableMap {
     val input = Arguments.createMap()
     if (data !== null) {
       input.putBoolean("running", data.running)
@@ -499,7 +567,7 @@ object HMSDecoder {
     return input
   }
 
-  private fun getHMSServerRecordingState(data: HMSServerRecordingState?): ReadableMap {
+  fun getHMSServerRecordingState(data: HMSServerRecordingState?): ReadableMap {
     val input = Arguments.createMap()
     if (data !== null) {
       input.putBoolean("running", data.running)
@@ -515,7 +583,7 @@ object HMSDecoder {
     return input
   }
 
-  private fun getHMSHlsStreamingState(data: HMSHLSStreamingState?): ReadableMap {
+  fun getHMSHlsStreamingState(data: HMSHLSStreamingState?): ReadableMap {
     val input = Arguments.createMap()
     if (data !== null) {
       input.putBoolean("running", data.running)
@@ -526,7 +594,7 @@ object HMSDecoder {
     return input
   }
 
-  private fun getHMSHlsRecordingState(data: HmsHlsRecordingState?): ReadableMap {
+  fun getHMSHlsRecordingState(data: HmsHlsRecordingState?): ReadableMap {
     val input = Arguments.createMap()
     if (data !== null) {
       data.running?.let { input.putBoolean("running", it) }
@@ -591,18 +659,18 @@ object HMSDecoder {
     return subscribeDegradationParams
   }
 
-  private fun getAllPeers(peers: List<HMSPeer>?): WritableArray {
+  fun getAllPeers(peers: List<HMSPeer>?): WritableArray {
     val decodedPeers: WritableArray = Arguments.createArray()
     if (peers != null) {
       for (peer in peers) {
-        val decodedPeer = this.getHmsPeer(peer)
+        val decodedPeer = this.getHmsPeerSubset(peer)
         decodedPeers.pushMap(decodedPeer)
       }
     }
     return decodedPeers
   }
 
-  private fun getAllTracks(tracks: MutableList<HMSTrack>?): WritableArray {
+  fun getAllTracks(tracks: MutableList<HMSTrack>?): WritableArray {
     val decodedTracks: WritableArray = Arguments.createArray()
     if (tracks != null) {
       for (track in tracks) {
@@ -617,7 +685,7 @@ object HMSDecoder {
     val hmsRecipient: WritableMap = Arguments.createMap()
     if (recipient != null) {
       recipient.recipientPeer?.let {
-        hmsRecipient.putMap("recipientPeer", this.getHmsPeer(it))
+        hmsRecipient.putMap("recipientPeer", this.getHmsPeerSubset(it))
       }
 
       hmsRecipient.putArray("recipientRoles", this.getAllRoles(recipient.recipientRoles))
@@ -626,7 +694,7 @@ object HMSDecoder {
     return hmsRecipient
   }
 
-  private fun getHmsNetworkQuality(networkQuality: HMSNetworkQuality?): WritableMap {
+  fun getHmsNetworkQuality(networkQuality: HMSNetworkQuality?): WritableMap {
     val hmsNetworkQuality: WritableMap = Arguments.createMap()
     if (networkQuality != null) {
       hmsNetworkQuality.putInt("downlinkQuality", networkQuality.downlinkQuality)

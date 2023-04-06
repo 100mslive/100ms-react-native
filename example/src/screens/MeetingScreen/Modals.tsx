@@ -9,6 +9,7 @@ import {
   StyleSheet,
   Image,
   Platform,
+  InteractionManager,
 } from 'react-native';
 import Toast from 'react-native-simple-toast';
 import {useDispatch, useSelector} from 'react-redux';
@@ -90,7 +91,7 @@ export const ParticipantsModal = ({
     useState<(HMSLocalPeer | HMSRemotePeer)[]>();
   const [filter, setFilter] = useState('everyone');
   // constants
-  const peerTrackNodePermissions = localPeer?.role?.permissions;
+  const localPeerPermissions = localPeer?.role?.permissions;
 
   // functions
   const hideMenu = () => setVisible(-1);
@@ -195,7 +196,18 @@ export const ParticipantsModal = ({
   useEffect(() => {
     instance?.getRemotePeers().then(peers => {
       if (localPeer) {
-        setHmsPeers([localPeer, ...peers]);
+        InteractionManager.runAfterInteractions(() => {
+          setHmsPeers([
+            localPeer,
+            ...peers.map(peer => {
+              // Extracting name and role out of peer object,
+              // so that we still have these value even after peer leaves the meeting
+              const partialCachedPeer: any = {name: peer.name, role: peer.role};
+              Object.setPrototypeOf(partialCachedPeer, peer);
+              return partialCachedPeer;
+            }),
+          ]);
+        });
       }
     });
   }, [instance, localPeer]);
@@ -228,6 +240,7 @@ export const ParticipantsModal = ({
         initialNumToRender={2}
         maxToRenderPerBatch={3}
         keyboardShouldPersistTaps="always"
+        windowSize={11}
         renderItem={({item, index}) => {
           const peer = item;
           return (
@@ -265,7 +278,7 @@ export const ParticipantsModal = ({
                 style={styles.participantsMenuContainer}
               >
                 {peer.isLocal === false &&
-                  peerTrackNodePermissions?.removeOthers && (
+                  localPeerPermissions?.removeOthers && (
                     <MenuItem onPress={() => removePeer(peer)}>
                       <View style={styles.participantMenuItem}>
                         <MaterialCommunityIcons
@@ -295,7 +308,7 @@ export const ParticipantsModal = ({
                     </View>
                   </MenuItem>
                 )}
-                {peerTrackNodePermissions?.changeRole && (
+                {localPeerPermissions?.changeRole && (
                   <MenuItem onPress={() => onChangeRolePress(peer)}>
                     <View style={styles.participantMenuItem}>
                       <Ionicons
@@ -615,33 +628,35 @@ export const SaveScreenshot = ({
       cancelModal();
 
       if (permission && screenshotData) {
-        // Save to Disk
-        const imageName = `${
-          screenshotData.peer.name
-        }-snapshot-${Date.now()}.png`;
+        InteractionManager.runAfterInteractions(async () => {
+          // Save to Disk
+          const imageName = `${
+            screenshotData.peer.name
+          }-snapshot-${Date.now()}.png`;
 
-        const saveDir =
-          Platform.OS === 'ios'
-            ? RNFetchBlob.fs.dirs.DocumentDir
-            : RNFetchBlob.fs.dirs.DCIMDir;
+          const saveDir =
+            Platform.OS === 'ios'
+              ? RNFetchBlob.fs.dirs.DocumentDir
+              : RNFetchBlob.fs.dirs.DCIMDir;
 
-        const fileLocation = `${saveDir}/${imageName}`;
+          const fileLocation = `${saveDir}/${imageName}`;
 
-        await RNFetchBlob.fs.writeFile(
-          fileLocation,
-          screenshotData.source.uri.replace('data:image/png;base64,', ''),
-          'base64',
-        );
+          await RNFetchBlob.fs.writeFile(
+            fileLocation,
+            screenshotData.source.uri.replace('data:image/png;base64,', ''),
+            'base64',
+          );
 
-        if (Platform.OS === 'ios') {
-          RNFetchBlob.ios.previewDocument(fileLocation);
-        }
+          if (Platform.OS === 'ios') {
+            RNFetchBlob.ios.previewDocument(fileLocation);
+          }
 
-        Toast.showWithGravity(
-          'Snapshot has been saved successfully',
-          Toast.LONG,
-          Toast.TOP,
-        );
+          Toast.showWithGravity(
+            'Snapshot has been saved successfully',
+            Toast.LONG,
+            Toast.TOP,
+          );
+        });
       }
     } catch (error) {
       console.warn('Snapshot Save Error: ', error);
@@ -1779,7 +1794,7 @@ export const RecordingModal = ({
   instance?: HMSSDK;
   roomID: string;
   recordingModal: boolean;
-  setModalVisible: React.Dispatch<React.SetStateAction<ModalTypes>>;
+  setModalVisible(modalType: ModalTypes, delay?: any): void;
 }) => {
   const [resolutionDetails, setResolutionDetails] = useState<boolean>(false);
   const [recordingDetails, setRecordingDetails] = useState<HMSRTMPConfig>({
@@ -1853,7 +1868,7 @@ export const RecordingModal = ({
         onPress={() => {
           setResolutionDetails(!resolutionDetails);
           if (!resolutionDetails) {
-            setModalVisible(ModalTypes.RESOLUTION);
+            setModalVisible(ModalTypes.RESOLUTION, true);
             setRecordingDetails({
               ...recordingDetails,
               resolution: {
@@ -1945,7 +1960,7 @@ export const RecordingModal = ({
       <View style={styles.sortingButtonContainer}>
         <CustomButton
           title="Back"
-          onPress={() => setModalVisible(ModalTypes.RECORDING)}
+          onPress={() => setModalVisible(ModalTypes.RECORDING, true)}
           viewStyle={styles.backButton}
           textStyle={styles.roleChangeModalButtonText}
         />

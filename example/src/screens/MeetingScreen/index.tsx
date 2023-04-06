@@ -29,13 +29,15 @@ import {
   Dimensions,
   AppState,
   LayoutAnimation,
+  InteractionManager,
+  BackHandler,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useDispatch, useSelector} from 'react-redux';
 import Toast from 'react-native-simple-toast';
-import {useNavigation} from '@react-navigation/native';
+import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import DocumentPicker from 'react-native-document-picker';
 
@@ -106,9 +108,12 @@ type MeetingScreenProp = NativeStackNavigationProp<
   'MeetingScreen'
 >;
 
+type MeetingScreenRouteProp = RouteProp<AppStackParamList>;
+
 const Meeting = () => {
   // hooks
   const dispatch = useDispatch();
+  const modalTaskRef = useRef<any>(null);
   const {hmsInstance} = useSelector((state: RootState) => state.user);
   const isPipModeActive = useSelector(
     (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE,
@@ -123,8 +128,33 @@ const Meeting = () => {
   const [isVideoMute, setIsVideoMute] = useState<boolean | undefined>(
     localPeer?.videoTrack?.isMute(),
   );
+  const [isScreenShared, setIsScreenShared] = useState<boolean | undefined>(
+    localPeer?.auxiliaryTracks && localPeer?.auxiliaryTracks?.length > 0,
+  );
   const [modalVisible, setModalVisible] = useState<ModalTypes>(
     ModalTypes.DEFAULT,
+  );
+
+  const handleModalVisible = React.useCallback(
+    (modalType: ModalTypes, delay = false) => {
+      if (delay) {
+        setModalVisible(ModalTypes.DEFAULT);
+
+        const task = () => {
+          setModalVisible(modalType);
+          modalTaskRef.current = null;
+        };
+
+        if (Platform.OS === 'android') {
+          modalTaskRef.current = InteractionManager.runAfterInteractions(task);
+        } else {
+          modalTaskRef.current = setTimeout(task, 500);
+        }
+      } else {
+        setModalVisible(modalType);
+      }
+    },
+    [],
   );
 
   const updateLocalPeer = () => {
@@ -147,6 +177,15 @@ const Meeting = () => {
   useEffect(() => {
     updateLocalPeer();
     updateRoom();
+
+    return () => {
+      if (Platform.OS === 'android') {
+        modalTaskRef.current?.cancel();
+      } else {
+        clearTimeout(modalTaskRef.current);
+      }
+    };
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -171,20 +210,22 @@ const Meeting = () => {
       {isPipModeActive ? null : (
         <Header
           modalVisible={modalVisible}
-          setModalVisible={setModalVisible}
+          setModalVisible={handleModalVisible}
           room={room}
           localPeer={localPeer}
+          isScreenShared={isScreenShared}
         />
       )}
       <DisplayView
         room={room}
         localPeer={localPeer}
         modalVisible={modalVisible}
-        setModalVisible={setModalVisible}
+        setModalVisible={handleModalVisible}
         setRoom={setRoom}
         setLocalPeer={setLocalPeer}
         setIsAudioMute={setIsAudioMute}
         setIsVideoMute={setIsVideoMute}
+        setIsScreenShared={setIsScreenShared}
       />
       {isPipModeActive ? null : (
         <Footer
@@ -196,9 +237,11 @@ const Meeting = () => {
           modalVisible={modalVisible}
           isAudioMute={isAudioMute}
           isVideoMute={isVideoMute}
-          setModalVisible={setModalVisible}
+          isScreenShared={isScreenShared}
+          setModalVisible={handleModalVisible}
           setIsAudioMute={setIsAudioMute}
           setIsVideoMute={setIsVideoMute}
+          setIsScreenShared={setIsScreenShared}
         />
       )}
     </SafeAreaView>
@@ -209,13 +252,15 @@ const DisplayView = (data: {
   room?: HMSRoom;
   localPeer?: HMSLocalPeer;
   modalVisible: ModalTypes;
-  setModalVisible: React.Dispatch<React.SetStateAction<ModalTypes>>;
+  setModalVisible(modalType: ModalTypes, delay?: any): void;
   setRoom: React.Dispatch<React.SetStateAction<HMSRoom | undefined>>;
   setLocalPeer: React.Dispatch<React.SetStateAction<HMSLocalPeer | undefined>>;
   setIsAudioMute: React.Dispatch<React.SetStateAction<boolean | undefined>>;
   setIsVideoMute: React.Dispatch<React.SetStateAction<boolean | undefined>>;
+  setIsScreenShared: React.Dispatch<React.SetStateAction<boolean | undefined>>;
 }) => {
   // hooks
+  const {params} = useRoute<MeetingScreenRouteProp>();
   const isPipModeActive = useSelector(
     (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE,
   );
@@ -228,7 +273,9 @@ const DisplayView = (data: {
   const [peerTrackNodes, setPeerTrackNodes] =
     useState<Array<PeerTrackNode>>(peerState);
   const [orientation, setOrientation] = useState(true);
-  const [layout, setLayout] = useState<LayoutParams>(LayoutParams.GRID);
+  const [layout, setLayout] = useState<LayoutParams>(
+    params?.isHLSViewer ? LayoutParams.HLS : LayoutParams.GRID,
+  );
   const [updatePeer, setUpdatePeer] = useState<HMSPeer>();
   const [selectedPeerTrackNode, setSelectedPeerTrackNode] =
     useState<PeerTrackNode | null>(null);
@@ -251,16 +298,17 @@ const DisplayView = (data: {
   useEffect(() => {
     const reduxPeerNodes = peerState;
 
-    setPeerTrackNodes((prevPeerTrackNodes) => {
+    setPeerTrackNodes(prevPeerTrackNodes => {
       let newPeerTrackNodes = prevPeerTrackNodes;
 
       for (const reduxPeerNode of reduxPeerNodes) {
-
         // checking if current reduxPeerNode is available in local state
-        const node = prevPeerTrackNodes.find(prevPeerTrackNode => prevPeerTrackNode.id === reduxPeerNode.id);
+        const node = prevPeerTrackNodes.find(
+          prevPeerTrackNode => prevPeerTrackNode.id === reduxPeerNode.id,
+        );
 
         // save it to list if not available
-        if(!node) {
+        if (!node) {
           newPeerTrackNodes = [...newPeerTrackNodes, reduxPeerNode];
         }
         // if local state node does not has track but reduxPeerNode do have it
@@ -268,11 +316,11 @@ const DisplayView = (data: {
         else if (!node.track && reduxPeerNode.track) {
           newPeerTrackNodes = newPeerTrackNodes.map(peerTrackNode => {
             if (peerTrackNode.id === reduxPeerNode.id) {
-              return { ...peerTrackNode, track: reduxPeerNode.track }
+              return {...peerTrackNode, track: reduxPeerNode.track};
             }
 
             return peerTrackNode;
-          })
+          });
         }
       }
 
@@ -495,6 +543,11 @@ const DisplayView = (data: {
           changePeerNodes(nodesPresent, peer);
         }
       }
+      if (peer.isLocal) {
+        hmsInstance?.getLocalPeer().then(localPeer => {
+          data?.setLocalPeer(localPeer);
+        });
+      }
       return;
     }
     if (type === HMSTrackUpdate.TRACK_REMOVED) {
@@ -505,9 +558,7 @@ const DisplayView = (data: {
       ) {
         const uniqueId =
           peer.peerID +
-          (track.source === undefined
-            ? HMSTrackSource.REGULAR
-            : track.source);
+          (track.source === undefined ? HMSTrackSource.REGULAR : track.source);
         const newPeerTrackNodes = peerTrackNodesRef.current?.filter(
           peerTrackNode => {
             if (peerTrackNode.id === uniqueId) {
@@ -518,6 +569,11 @@ const DisplayView = (data: {
         );
         peerTrackNodesRef.current = newPeerTrackNodes;
         setPeerTrackNodes(newPeerTrackNodes);
+      }
+      if (peer.isLocal) {
+        hmsInstance?.getLocalPeer().then(localPeer => {
+          data?.setLocalPeer(localPeer);
+        });
       }
       return;
     }
@@ -540,6 +596,11 @@ const DisplayView = (data: {
         changePeerTrackNodes(nodesPresent, peer, track);
       } else {
         changePeerNodes(nodesPresent, peer);
+      }
+      if (peer.isLocal) {
+        hmsInstance?.getLocalPeer().then(localPeer => {
+          data?.setLocalPeer(localPeer);
+        });
       }
       return;
     }
@@ -565,7 +626,7 @@ const DisplayView = (data: {
     request: HMSChangeTrackStateRequest,
   ) => {
     if (!request?.mute) {
-      data?.setModalVisible(ModalTypes.CHANGE_TRACK);
+      data?.setModalVisible(ModalTypes.CHANGE_TRACK, true);
       setRoleChangeRequest({
         requestedBy: request?.requestedBy?.name,
         suggestedRole: request?.trackType,
@@ -580,7 +641,7 @@ const DisplayView = (data: {
   };
 
   const onRoleChangeRequestListener = (request: HMSRoleChangeRequest) => {
-    data?.setModalVisible(ModalTypes.CHANGE_ROLE_ACCEPT);
+    data?.setModalVisible(ModalTypes.CHANGE_ROLE_ACCEPT, true);
     setRoleChangeRequest({
       requestedBy: request?.requestedBy?.name,
       suggestedRole: request?.suggestedRole?.name,
@@ -599,7 +660,28 @@ const DisplayView = (data: {
         });
         break;
       default:
-        dispatch(addMessage(message));
+        // dispatch(addMessage(message));
+        dispatch(
+          addMessage({
+            ...message,
+            // We are extracting HMSPeer properties into new object
+            // so that when this peer leaves room, we still have its data in chat window
+            sender: message.sender
+              ? {
+                  peerID: message.sender.peerID,
+                  name: message.sender.name,
+                  isLocal: message.sender.isLocal,
+                  role: message.sender.role,
+                  audioTrack: undefined,
+                  auxiliaryTracks: undefined,
+                  customerUserID: undefined,
+                  metadata: undefined,
+                  networkQuality: undefined,
+                  videoTrack: undefined,
+                }
+              : undefined,
+          }),
+        );
         break;
     }
   };
@@ -742,27 +824,32 @@ const DisplayView = (data: {
 
   const onChangeNamePress = (peer: HMSPeer) => {
     setUpdatePeer(peer);
-    data?.setModalVisible(ModalTypes.CHANGE_NAME);
+    data?.setModalVisible(ModalTypes.CHANGE_NAME, true);
   };
 
-  const handlePeerTileMorePress = (peerTrackNode: PeerTrackNode) => {
-    setSelectedPeerTrackNode(peerTrackNode);
-    data?.setModalVisible(ModalTypes.PEER_SETTINGS);
-  };
+  const handlePeerTileMorePress = React.useCallback(
+    (peerTrackNode: PeerTrackNode) => {
+      setSelectedPeerTrackNode(peerTrackNode);
+      data?.setModalVisible(ModalTypes.PEER_SETTINGS);
+    },
+    [data?.setModalVisible],
+  );
 
   const onChangeRolePress = (peer: HMSPeer) => {
     setUpdatePeer(peer);
-    data?.setModalVisible(ModalTypes.CHANGE_ROLE);
+    data?.setModalVisible(ModalTypes.CHANGE_ROLE, true);
   };
 
   const onSetVolumePress = (peer: HMSPeer) => {
     setUpdatePeer(peer);
-    data?.setModalVisible(ModalTypes.VOLUME);
+    data?.setModalVisible(ModalTypes.VOLUME, true);
   };
 
   const handleCaptureScreenShotPress = (node: PeerTrackNode) => {
-    gridViewRef.current?.captureViewScreenshot(node);
     data?.setModalVisible(ModalTypes.DEFAULT);
+    InteractionManager.runAfterInteractions(() => {
+      gridViewRef.current?.captureViewScreenshot(node);
+    });
   };
 
   const getHmsRoles = () => {
@@ -793,16 +880,39 @@ const DisplayView = (data: {
     Dimensions.addEventListener('change', callback);
     return () => {
       Dimensions.removeEventListener('change', callback);
-      onLeavePress();
+      // onLeavePress();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // On Android, when back button is pressed,
+  // user should leave current meeting and go back to previous screen
   useEffect(() => {
-    if (data?.localPeer?.role?.name?.includes('hls-')) {
-      setLayout(LayoutParams.HLS);
-    } else {
-      setLayout(LayoutParams.GRID);
+    const backButtonHandler = () => {
+      // Leave current meeting
+      onLeavePress();
+
+      // When true is returned the event will not be bubbled up
+      // & no other back action will execute
+      return true;
+    };
+
+    BackHandler.addEventListener('hardwareBackPress', backButtonHandler);
+
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', backButtonHandler);
+    };
+  }, []);
+
+  useEffect(() => {
+    const localPeer = data?.localPeer;
+
+    if (localPeer) {
+      if (localPeer.role?.name?.includes('hls-')) {
+        setLayout(LayoutParams.HLS);
+      } else {
+        setLayout(LayoutParams.GRID);
+      }
     }
   }, [data?.localPeer?.role?.name]);
 
@@ -818,6 +928,7 @@ const DisplayView = (data: {
               onPeerTileMorePress={handlePeerTileMorePress}
               pairedPeers={pairedPeers}
               orientation={orientation}
+              setIsScreenShared={data.setIsScreenShared}
             />
           )}
         </>
@@ -838,8 +949,7 @@ const DisplayView = (data: {
       {isPipModeActive ? null : (
         <>
           <DefaultModal
-            animationType="fade"
-            overlay={false}
+            backdrop={true}
             modalPosiion="center"
             viewStyle={{minWidth: '70%', width: undefined}}
             modalVisible={data?.modalVisible === ModalTypes.PEER_SETTINGS}
@@ -858,8 +968,6 @@ const DisplayView = (data: {
             ) : null}
           </DefaultModal>
           <DefaultModal
-            animationType="fade"
-            overlay={false}
             modalPosiion="center"
             modalVisible={data?.modalVisible === ModalTypes.LEAVE_ROOM}
             setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}
@@ -870,8 +978,6 @@ const DisplayView = (data: {
             />
           </DefaultModal>
           <DefaultModal
-            animationType="fade"
-            overlay={false}
             modalPosiion="center"
             modalVisible={data?.modalVisible === ModalTypes.END_ROOM}
             setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}
@@ -883,14 +989,14 @@ const DisplayView = (data: {
           </DefaultModal>
           {/* TODO: message notification */}
           <DefaultModal
+            animationIn={'slideInUp'}
+            animationOut={'slideOutDown'}
             modalVisible={data?.modalVisible === ModalTypes.CHAT}
             setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}
           >
             <ChatWindow localPeer={data?.localPeer} />
           </DefaultModal>
           <DefaultModal
-            animationType="fade"
-            overlay={false}
             modalPosiion="center"
             modalVisible={data?.modalVisible === ModalTypes.CHANGE_TRACK}
             setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}
@@ -902,8 +1008,6 @@ const DisplayView = (data: {
             />
           </DefaultModal>
           <DefaultModal
-            animationType="fade"
-            overlay={false}
             modalPosiion="center"
             modalVisible={data?.modalVisible === ModalTypes.CHANGE_ROLE_ACCEPT}
             setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}
@@ -915,6 +1019,8 @@ const DisplayView = (data: {
             />
           </DefaultModal>
           <DefaultModal
+            animationIn={'slideInUp'}
+            animationOut={'slideOutDown'}
             modalVisible={data?.modalVisible === ModalTypes.PARTICIPANTS}
             setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}
           >
@@ -927,8 +1033,6 @@ const DisplayView = (data: {
             />
           </DefaultModal>
           <DefaultModal
-            animationType="fade"
-            overlay={false}
             modalPosiion="center"
             modalVisible={data?.modalVisible === ModalTypes.CHANGE_ROLE}
             setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}
@@ -940,8 +1044,6 @@ const DisplayView = (data: {
             />
           </DefaultModal>
           <DefaultModal
-            animationType="fade"
-            overlay={false}
             modalPosiion="center"
             modalVisible={data?.modalVisible === ModalTypes.VOLUME}
             setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}
@@ -953,8 +1055,6 @@ const DisplayView = (data: {
             />
           </DefaultModal>
           <DefaultModal
-            animationType="fade"
-            overlay={false}
             modalPosiion="center"
             modalVisible={data?.modalVisible === ModalTypes.CHANGE_NAME}
             setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}
@@ -974,21 +1074,21 @@ const DisplayView = (data: {
 const Header = ({
   room,
   localPeer,
+  isScreenShared,
   modalVisible,
   setModalVisible,
 }: {
   room?: HMSRoom;
   localPeer?: HMSLocalPeer;
+  isScreenShared?: boolean;
   modalVisible: ModalTypes;
-  setModalVisible: React.Dispatch<React.SetStateAction<ModalTypes>>;
+  setModalVisible(modalType: ModalTypes, delay?: any): void;
 }) => {
   // hooks
   const {roomCode, hmsInstance} = useSelector((state: RootState) => state.user);
 
   // constants
   const iconSize = 20;
-  const isScreenShared =
-    localPeer?.auxiliaryTracks && localPeer?.auxiliaryTracks?.length > 0;
   const parsedMetadata = parseMetadata(localPeer?.metadata);
 
   // functions
@@ -1010,7 +1110,9 @@ const Header = ({
   };
 
   const onParticipantsPress = () => {
-    setModalVisible(ModalTypes.PARTICIPANTS);
+    InteractionManager.runAfterInteractions(() => {
+      setModalVisible(ModalTypes.PARTICIPANTS);
+    });
   };
 
   return (
@@ -1033,12 +1135,7 @@ const Header = ({
           style={styles.participantsMenuContainer}
         >
           <MenuItem
-            onPress={() => {
-              setModalVisible(ModalTypes.DEFAULT);
-              setTimeout(() => {
-                setModalVisible(ModalTypes.LEAVE_ROOM);
-              }, 500);
-            }}
+            onPress={() => setModalVisible(ModalTypes.LEAVE_ROOM, true)}
           >
             <View style={styles.participantMenuItem}>
               <Feather
@@ -1051,12 +1148,7 @@ const Header = ({
           </MenuItem>
           {localPeer?.role?.permissions?.endRoom && (
             <MenuItem
-              onPress={() => {
-                setModalVisible(ModalTypes.DEFAULT);
-                setTimeout(() => {
-                  setModalVisible(ModalTypes.END_ROOM);
-                }, 500);
-              }}
+              onPress={() => setModalVisible(ModalTypes.END_ROOM, true)}
             >
               <View style={styles.participantMenuItem}>
                 <Feather
@@ -1133,7 +1225,9 @@ const Header = ({
         />
         <CustomButton
           onPress={() => {
-            setModalVisible(ModalTypes.CHAT);
+            InteractionManager.runAfterInteractions(() => {
+              setModalVisible(ModalTypes.CHAT);
+            });
             // setNotification(false);
           }}
           viewStyle={styles.iconContainer}
@@ -1173,9 +1267,11 @@ const Footer = ({
   modalVisible,
   isAudioMute,
   isVideoMute,
+  isScreenShared,
   setModalVisible,
   setIsAudioMute,
   setIsVideoMute,
+  setIsScreenShared,
 }: {
   isHlsStreaming?: boolean;
   isBrowserRecording?: boolean;
@@ -1185,9 +1281,11 @@ const Footer = ({
   modalVisible: ModalTypes;
   isAudioMute?: boolean;
   isVideoMute?: boolean;
-  setModalVisible: React.Dispatch<React.SetStateAction<ModalTypes>>;
+  isScreenShared?: boolean;
+  setModalVisible(modalType: ModalTypes, delay?: any): void;
   setIsAudioMute: React.Dispatch<React.SetStateAction<boolean | undefined>>;
   setIsVideoMute: React.Dispatch<React.SetStateAction<boolean | undefined>>;
+  setIsScreenShared: React.Dispatch<React.SetStateAction<boolean | undefined>>;
 }) => {
   // hooks
   const dispatch = useDispatch();
@@ -1209,26 +1307,32 @@ const Footer = ({
 
   // constants
   const iconSize = 20;
-  const isScreenShared =
-    localPeer?.auxiliaryTracks && localPeer?.auxiliaryTracks?.length > 0;
 
   // functions
   const onStartScreenSharePress = () => {
     hmsInstance
       ?.startScreenshare()
-      .then(d => console.log('Start Screenshare Success: ', d))
+      .then(d => {
+        console.log('Start Screenshare Success: ', d);
+        setIsScreenShared(true);
+      })
       .catch(e => console.log('Start Screenshare Error: ', e));
   };
 
   const onEndScreenSharePress = () => {
     hmsInstance
       ?.stopScreenshare()
-      .then(d => console.log('Stop Screenshare Success: ', d))
+      .then(d => {
+        console.log('Stop Screenshare Success: ', d);
+        setIsScreenShared(false);
+      })
       .catch(e => console.log('Stop Screenshare Error: ', e));
   };
 
   const onSettingsPress = () => {
-    setModalVisible(ModalTypes.SETTINGS);
+    InteractionManager.runAfterInteractions(() => {
+      setModalVisible(ModalTypes.SETTINGS);
+    });
   };
 
   // Check if PIP is supported or not
@@ -1280,7 +1384,7 @@ const Footer = ({
           <CustomButton
             onPress={() => {
               localPeer?.localVideoTrack()?.setMute(!isVideoMute);
-              setIsVideoMute(!isAudioMute);
+              setIsVideoMute(!isVideoMute);
             }}
             viewStyle={[styles.iconContainer, isVideoMute && styles.iconMuted]}
             LeftIcon={
@@ -1355,9 +1459,10 @@ const Footer = ({
           <Text style={styles.liveText}>Go Live</Text>
         ))} */}
       <DefaultModal
+        animationIn={'slideInUp'}
+        animationOut={'slideOutDown'}
         modalVisible={modalVisible === ModalTypes.SETTINGS}
         setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
-        viewStyle={{maxHeight: Platform.OS === 'ios' ? '70%' : '85%'}}
       >
         <RoomSettingsModalContent
           localPeer={localPeer}
@@ -1375,8 +1480,6 @@ const Footer = ({
         />
       </DefaultModal>
       <DefaultModal
-        animationType="fade"
-        overlay={false}
         modalPosiion="center"
         modalVisible={
           modalVisible === ModalTypes.RECORDING ||
@@ -1392,8 +1495,6 @@ const Footer = ({
         />
       </DefaultModal>
       <DefaultModal
-        animationType="fade"
-        overlay={false}
         modalPosiion="center"
         modalVisible={modalVisible === ModalTypes.HLS_STREAMING}
         setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
@@ -1405,8 +1506,6 @@ const Footer = ({
         />
       </DefaultModal>
       <DefaultModal
-        animationType="fade"
-        overlay={false}
         modalPosiion="center"
         modalVisible={modalVisible === ModalTypes.CHANGE_TRACK_ROLE}
         setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
@@ -1418,8 +1517,6 @@ const Footer = ({
         />
       </DefaultModal>
       <DefaultModal
-        animationType="fade"
-        overlay={false}
         modalPosiion="center"
         modalVisible={modalVisible === ModalTypes.SWITCH_AUDIO_OUTPUT}
         setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
@@ -1430,8 +1527,6 @@ const Footer = ({
         />
       </DefaultModal>
       <DefaultModal
-        animationType="fade"
-        overlay={false}
         modalPosiion="center"
         modalVisible={modalVisible === ModalTypes.CHANGE_AUDIO_MODE}
         setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
@@ -1444,8 +1539,6 @@ const Footer = ({
         />
       </DefaultModal>
       <DefaultModal
-        animationType="fade"
-        overlay={false}
         modalPosiion="center"
         modalVisible={modalVisible === ModalTypes.AUDIO_MIXING_MODE}
         setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
@@ -1458,8 +1551,6 @@ const Footer = ({
         />
       </DefaultModal>
       <DefaultModal
-        animationType="fade"
-        overlay={false}
         modalPosiion="center"
         modalVisible={modalVisible === ModalTypes.BULK_ROLE_CHANGE}
         setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
