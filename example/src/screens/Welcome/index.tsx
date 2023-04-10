@@ -386,6 +386,11 @@ const Welcome = () => {
   };
 
   /**
+   * This function handles the logic for starting a video call session using the HMSSDK.
+   * It retrieves an auth token for the given room code and initializes the HMSSDK with the necessary settings and event listeners.
+   * It also saves user data to state and either previews the video or joins the room, depending on the skipPreview setting.
+   * If any errors occur during the process, it logs the error and calls the onFailure callback with an error message.
+   *
    * @param roomCode Room Code of the 100ms Room
    * @param userId [Optional] - Unique Id for the user to get 100ms Auth Token
    * @param tokenEndpoint [Optional] - This is only required by 100ms Team for internal QA testing. Client developers should not use `tokenEndpoint` argument
@@ -396,69 +401,75 @@ const Welcome = () => {
     userId?: string,
     tokenEndpoint?: string,
     initEndpoint?: string,
+    joinConfig?: any,
   ) => {
+    // Validate the roomCode parameter
+    if (!roomCode) {
+      throw new Error('roomCode is required');
+    }
+
     try {
+      // Get the HMS instance
       const hmsInstance = await getHmsInstance();
 
+      // Destructure the skipPreview property from the joinConfig object, or default to an empty object if joinConfig is undefined
+      const {skipPreview} = joinConfig ?? {};
+
+      // Set the hmsInstanceRef.current value to the hmsInstance object
       hmsInstanceRef.current = hmsInstance;
 
-      const token = await hmsInstance.getAuthTokenByRoomCode(
+      // Get an auth token for the given roomCode and user ID (if provided)
+      const token = await hmsInstance?.getAuthTokenByRoomCode(
         roomCode,
         userId,
-        tokenEndpoint,
+        tokenEndpoint, // endpoint is only used by 100ms internal team
       );
 
+      // Create an HMSConfig object with the auth token, peer name, and other settings
       const hmsConfig = new HMSConfig({
         authToken: token,
         username: peerName,
         captureNetworkQualityInPreview: true,
-        endpoint: initEndpoint,
-        // metadata: JSON.stringify({isHandRaised: true}), // To join with hand raised
+        endpoint: initEndpoint, // endpoint is only used by 100ms internal team
       });
 
+      // Save the HMSConfig object to state using the setConfig function
       setConfig(hmsConfig);
 
+      // Register event listeners for various HMS update events
       hmsInstance?.addEventListener(
         HMSUpdateListenerActions.ON_PREVIEW,
         onPreviewSuccess.bind(this, hmsInstance, hmsConfig),
       );
-
       hmsInstance?.addEventListener(
         HMSUpdateListenerActions.ON_JOIN,
         onJoinSuccess,
       );
-
       hmsInstance?.addEventListener(
         HMSUpdateListenerActions.ON_ROOM_UPDATE,
         onRoomListener.bind(this, hmsInstance),
       );
-
       hmsInstance?.addEventListener(
         HMSUpdateListenerActions.ON_PEER_UPDATE,
         onPeerListener,
       );
-
       hmsInstance?.addEventListener(
         HMSUpdateListenerActions.ON_TRACK_UPDATE,
         onTrackListener,
       );
-
       hmsInstance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
 
-      dispatch(
-        saveUserData({
-          userName: peerName,
-          roomCode,
-          hmsInstance,
-        }),
-      );
+      // Save user data to state using the saveUserData function from Redux
+      dispatch(saveUserData({userName: peerName, roomCode, hmsInstance}));
 
-      if (joinConfig.skipPreview) {
-        hmsInstance?.join(hmsConfig);
+      // Join the room or preview the video, depending on the skipPreview setting
+      if (skipPreview) {
+        await hmsInstance?.join(hmsConfig);
       } else {
-        hmsInstance?.preview(hmsConfig);
+        await hmsInstance?.preview(hmsConfig);
       }
     } catch (error) {
+      // Log any errors and call the onFailure callback with an error message
       console.log(error);
       onFailure(
         error instanceof Error ? error.message : 'error in onStartSuccess',
@@ -466,12 +477,25 @@ const Welcome = () => {
     }
   };
 
-  const onJoinRoom = () => {
-    if (config) {
-      hmsInstanceRef.current?.join(config);
-    } else {
-      setJoinButtonLoading(false);
-      console.log('config: ', config);
+
+  /**
+ * onJoinRoom function is called when the user clicks the "Join Room" button.
+ * If a valid configuration object is available, it calls the `join` method of the HMS instance.
+ * Otherwise, it logs an error message to the console and stops the loading spinner.
+ */
+  const onJoinRoom = () =>
+  {
+    // Check if a valid configuration object is available
+    if ( config )
+    {
+      // Call the `join` method of the HMS instance using the `useRef` hook
+      hmsInstanceRef.current?.join( config )
+    } else
+    {
+      // Stop the loading spinner
+      setJoinButtonLoading( false )
+      // Log an error message to the console
+      console.error( 'Error: Configuration object is missing.' )
     }
   };
 
