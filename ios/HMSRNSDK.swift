@@ -173,17 +173,16 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         guard let roomCode = data.value(forKey: "roomCode") as? String
         else {
             let errorMessage = "getAuthTokenByRoomCode: " + HMSHelper.getUnavailableRequiredKey(data, ["roomCode"])
-            reject?("40000", errorMessage, nil);
+            reject?("40000", errorMessage, nil)
             return
         }
         let userId = data.value(forKey: "userId") as? String? ?? nil
         let endpoint = data.value(forKey: "endpoint") as? String? ?? nil
 
-        //This is to make the QA links work
-        if (endpoint != nil && endpoint!.contains("nonprod")){
+        // This is to make the QA links work
+        if endpoint != nil && endpoint!.contains("nonprod") {
             UserDefaults.standard.set(endpoint, forKey: "HMSAuthTokenEndpointOverride")
-        }
-        else {
+        } else {
             UserDefaults.standard.removeObject(forKey: "HMSAuthTokenEndpointOverride")
         }
 
