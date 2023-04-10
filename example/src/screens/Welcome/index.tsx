@@ -170,13 +170,17 @@ const Welcome = () => {
   };
 
   const onError = (data: HMSException) => {
-    setStartButtonLoading(false);
     setJoinButtonLoading(false);
-    Toast.showWithGravity(
-      `${data?.code} ${data?.description}` || 'Something went wrong',
-      Toast.LONG,
-      Toast.TOP,
-    );
+    if (data.code === 424) {
+      onFailure(data.description);
+    } else {
+      setStartButtonLoading(false);
+      Toast.showWithGravity(
+        `${data?.code} ${data?.description}` || 'Something went wrong',
+        Toast.LONG,
+        Toast.TOP,
+      );
+    }
   };
 
   const onRoomListener = (
