@@ -114,7 +114,7 @@ export const callService = async (
   let subdomain;
   try {
     if (validateUrl(roomID)) {
-      const {code, domain} = getRoomLinkDetails(roomID);
+      const {roomCode: code, roomDomain: domain} = getRoomLinkDetails(roomID);
       roomCode = code;
       subdomain = domain;
 
