@@ -79,7 +79,6 @@ export class HMSSDK {
   id: string;
   private muteStatus: boolean | undefined;
   private appStateSubscription?: any;
-
   private onPreviewDelegate?: any;
   private onJoinDelegate?: any;
   private onRoomDelegate?: any;
@@ -152,24 +151,6 @@ export class HMSSDK {
   }
 
   /**
-   * - Returns the instance of logger which can be used to manipulate log levels.
-   * @returns @instance HMSLogger
-   * @memberof HMSSDK
-   */
-  static getLogger() {
-    return getLogger();
-  }
-
-  /**
-   * - Updates the logger for this instance of HMSSDK
-   * @param {HMSLogger} hmsLogger
-   * @memberof HMSSDK
-   */
-  setLogger = (hmsLogger?: HMSLogger) => {
-    setLogger(this.id, hmsLogger);
-  };
-
-  /**
    * - Calls removeListeners that in turn breaks all connections with native listeners.
    *
    * @memberof HMSSDK
@@ -180,6 +161,33 @@ export class HMSSDK {
     clearHmsRoomCache();
     this.removeAllListeners();
     return await HMSManager.destroy({ id: this.id });
+  };
+
+  /**
+   * - getAuthTokenByRoomCode function is used to get the Auth Token by Room Code
+   *
+   * checkout {@link https://www.100ms.live/docs/concepts/v2/concepts/rooms/room-codes/room-codes} for more info
+   *
+   * @memberof HMSSDK
+   */
+  getAuthTokenByRoomCode = async (
+    roomCode: string,
+    userId?: string,
+    endpoint?: string
+  ): Promise<string> => {
+    logger?.verbose('#Function getAuthTokenByRoomCode', {
+      id: this.id,
+      roomCode,
+      userId,
+      endpoint,
+    });
+
+    return HMSManager.getAuthTokenByRoomCode({
+      id: this.id,
+      roomCode,
+      userId,
+      endpoint,
+    });
   };
 
   /**
@@ -211,33 +219,6 @@ export class HMSSDK {
   preview = (config: HMSConfig) => {
     logger?.verbose('#Function preview', { config, id: this.id });
     HMSManager.preview({ ...config, id: this.id });
-  };
-
-  /**
-   * - getAuthTokenByRoomCode function is used to get the Auth Token by Room Code
-   *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/get-started/token#get-room-code-from-100ms-dashboard} for more info
-   *
-   * @memberof HMSSDK
-   */
-  getAuthTokenByRoomCode = async (
-    roomCode: string,
-    userId?: string,
-    endpoint?: string
-  ): Promise<string> => {
-    logger?.verbose('#Function getAuthTokenByRoomCode', {
-      id: this.id,
-      roomCode,
-      userId,
-      endpoint,
-    });
-
-    return HMSManager.getAuthTokenByRoomCode({
-      id: this.id,
-      roomCode,
-      userId,
-      endpoint,
-    });
   };
 
   /**
@@ -2257,4 +2238,22 @@ export class HMSSDK {
       id: this.id,
     });
   }
+
+  /**
+   * - Returns the instance of logger which can be used to manipulate log levels.
+   * @returns @instance HMSLogger
+   * @memberof HMSSDK
+   */
+  static getLogger() {
+    return getLogger();
+  }
+
+  /**
+   * - Updates the logger for this instance of HMSSDK
+   * @param {HMSLogger} hmsLogger
+   * @memberof HMSSDK
+   */
+  setLogger = (hmsLogger?: HMSLogger) => {
+    setLogger(this.id, hmsLogger);
+  };
 }
