@@ -482,6 +482,13 @@ class HMSManager(reactContext: ReactApplicationContext) :
     hms?.restrictData(data, promise)
   }
 
+  @ReactMethod()
+  fun getAuthTokenByRoomCode(data: ReadableMap, promise: Promise) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.getAuthTokenByRoomCode(data, promise)
+  }
+
   // region Person-In-Person Mode Action handing
   private val pipReceiver by lazy {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

@@ -4,22 +4,16 @@ import {
   PermissionsAndroid,
   StatusBar,
 } from 'react-native';
-import RNFetchBlob from 'rn-fetch-blob';
-import Share from 'react-native-share';
-import {getDeviceType} from 'react-native-device-info';
 import Toast from 'react-native-simple-toast';
 import {
   HMSPeer,
-  HMSPeerUpdate,
   HMSTrack,
   HMSTrackType,
-  HMSTrackUpdate,
   HMSTrackSource,
   HMSLocalPeer,
 } from '@100mslive/react-native-hms';
 
-import {LayoutParams, PeerTrackNode, SortingType} from './types';
-import * as services from '../services/index';
+import {PeerTrackNode} from './types';
 import {
   PERMISSIONS,
   request,
@@ -31,15 +25,6 @@ export const getMeetingUrl = () =>
   'https://yogi.app.100ms.live/streaming/meeting/nih-bkn-vek';
 
 export const getMeetingCode = () => 'nih-bkn-vek';
-
-export const getRandomColor = () => {
-  var letters = '0123456789ABCDEF';
-  var color = '#';
-  for (var i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)];
-  }
-  return color;
-};
 
 export const getInitials = (name?: String): String => {
   let initials = '';
@@ -64,114 +49,6 @@ export const getInitials = (name?: String): String => {
     }
   }
   return initials.toUpperCase();
-};
-
-export const pairDataForFlatlist = (
-  data: Array<PeerTrackNode>,
-  batch: number,
-  sortingType?: SortingType,
-  pinnedPeerTrackIds?: String[],
-) => {
-  let sortedData = data;
-  if (sortingType) {
-    sortedData = sortPeerTrackNodes(sortedData, sortingType);
-  }
-  const pairedDataRegular: Array<Array<PeerTrackNode>> = [];
-  const pairedDataSource: Array<Array<PeerTrackNode>> = [];
-  const pairedDataPinned: Array<Array<PeerTrackNode>> = [];
-  let groupData: Array<PeerTrackNode> = [];
-  let itemsPushed: number = 0;
-  sortedData.map((item: PeerTrackNode) => {
-    if (pinnedPeerTrackIds?.includes(item.id)) {
-      pairedDataPinned.push([item]);
-    } else if (
-      item.track?.source !== HMSTrackSource.REGULAR &&
-      item.track?.source !== undefined
-    ) {
-      pairedDataSource.push([item]);
-    } else {
-      if (itemsPushed === batch) {
-        pairedDataRegular.push(groupData);
-        groupData = [];
-        itemsPushed = 0;
-      }
-      groupData.push(item);
-      itemsPushed++;
-    }
-  });
-  if (groupData.length) {
-    pairedDataRegular.push(groupData);
-  }
-  return [...pairedDataPinned, ...pairedDataSource, ...pairedDataRegular];
-};
-
-export const getHmsViewHeight = (
-  layout: LayoutParams,
-  peersInPage: number,
-  top: number,
-  bottom: number,
-  orientation: boolean,
-) => {
-  const isTab = getDeviceType() === 'Tablet';
-
-  // window height - (header + top + bottom + padding) / views in one screen
-  const viewHeight =
-    (Dimensions.get('window').height -
-      (50 +
-        50 +
-        (isTab ? 20 : top + bottom) +
-        2 +
-        (orientation || Platform.OS === 'ios' ? 0 : 20))) /
-    2;
-
-  let height, width;
-  if (orientation) {
-    height =
-      peersInPage === 1
-        ? viewHeight * 2
-        : peersInPage === 2
-        ? viewHeight
-        : peersInPage === 3
-        ? (viewHeight * 2) / 3
-        : viewHeight;
-    width =
-      peersInPage === 1
-        ? '100%'
-        : peersInPage === 2
-        ? '100%'
-        : peersInPage === 3
-        ? '100%'
-        : '50%';
-  } else {
-    height = viewHeight * 2;
-    width = peersInPage === 1 ? '100%' : '50%';
-  }
-
-  if (layout === 'audio' && peersInPage > 4 && orientation) {
-    height = (height * 2) / 3;
-  } else if (layout === 'audio' && peersInPage > 2 && !orientation) {
-    width = '33.33%';
-  }
-
-  return {height, width};
-};
-
-export const writeFile = async (content: any, fileUrl: string) => {
-  await RNFetchBlob.fs
-    .writeFile(fileUrl, JSON.stringify(content), 'utf8')
-    .then(() => {
-      shareFile(fileUrl);
-    })
-    .catch(e => console.log(e));
-};
-
-export const shareFile = async (fileUrl: string) => {
-  await Share.open({
-    url: Platform.OS === 'android' ? 'file://' + fileUrl : fileUrl,
-    type: 'application/json',
-  })
-    .then(success => console.log(success))
-    .catch(e => console.log(e));
 };
 
 export const parseMetadata = (
@@ -228,39 +105,24 @@ export const requestExternalStoragePermission = async (): Promise<boolean> => {
 };
 
 export const callService = async (
-  userID: string,
   roomID: string,
   success: Function,
   failure: Function,
 ) => {
   let roomCode;
   let subdomain;
-  let response;
   try {
     if (validateUrl(roomID)) {
       const {code, domain} = getRoomIdDetails(roomID);
       roomCode = code;
       subdomain = domain;
 
-      if (code && domain) {
-        response = await services.fetchTokenFromLink({
-          code,
-          subdomain,
-          userID,
-        });
-      } else {
+      if (!code || !domain) {
         failure('code, domain not found');
         return;
       }
     } else {
-      response = await services.fetchToken({
-        userID,
-        roomID,
-      });
-    }
-
-    if (response?.error || !response?.token) {
-      failure(response?.msg);
+      failure('Invalid room join link');
       return;
     }
 
@@ -269,14 +131,17 @@ export const callService = async (
       PERMISSIONS.ANDROID.RECORD_AUDIO,
       PERMISSIONS.ANDROID.BLUETOOTH_CONNECT,
     ]);
+
     if (permissions) {
+      const userId = getRandomUserId(6);
+      const isQARoom = subdomain && subdomain.search('.qa-') >= 0;
       success(
-        response?.token,
-        userID,
         roomCode,
-        subdomain && subdomain.search('.qa-') >= 0
-          ? 'https://qa-init.100ms.live/init'
-          : undefined,
+        userId,
+        isQARoom
+          ? `https://auth-nonprod.100ms.live${Platform.OS === 'ios' ? '/' : ''}`
+          : undefined, // Auth Endpoint
+        isQARoom ? 'https://qa-init.100ms.live/init' : undefined, // HMSConfig Endpoint
       );
       return;
     } else {
@@ -290,55 +155,21 @@ export const callService = async (
   }
 };
 
-export const callIdService = async (
-  userID: string,
-  roomID: string,
-  joinRoom: Function,
-  apiFailed: Function,
-) => {
-  const response = await services.fetchToken({
-    userID,
-    roomID,
-  });
-
-  if (response.error || !response?.token) {
-    apiFailed(response);
-  } else {
-    joinRoom(response.token, userID);
-  }
-  return response;
+/**
+ * @param min minimum range value
+ * @param max maximum range value
+ * @returns value between min and max, min is inclusive and max is exclusive
+ */
+export const getRandomNumberInRange = (min: number, max: number) => {
+  return Math.floor(Math.random() * (max - min) + min);
 };
 
-export const callLinkService = async (
-  code: string,
-  subdomain: string,
-  userID: string,
-  fetchTokenFromLinkSuccess: Function,
-  apiFailed: Function,
-) => {
-  try {
-    const response = await services.fetchTokenFromLink({
-      code,
-      subdomain,
-      userID,
-    });
-
-    if (response.error || !response?.token) {
-      apiFailed(response);
-    } else {
-      if (subdomain.search('.qa-') >= 0) {
-        fetchTokenFromLinkSuccess(
-          response.token,
-          userID,
-          'https://qa-init.100ms.live/init',
-        );
-      } else {
-        fetchTokenFromLinkSuccess(response.token, userID);
-      }
-    }
-  } catch (error) {
-    console.log(error, 'error in getToken');
-  }
+export const getRandomUserId = (length: number) => {
+  return Array.from({length}, () => {
+    const randomAlphaAsciiCode = getRandomNumberInRange(97, 123); // 97 - 122 is the ascii code range for a-z chars
+    const alphaCharacter = String.fromCharCode(randomAlphaAsciiCode);
+    return alphaCharacter;
+  }).join('');
 };
 
 export const getRoomIdDetails = (
@@ -393,17 +224,6 @@ export const getPeerTrackNodes = (
     }
   });
   return nodes;
-};
-
-export const getPeerTrackNodeFromPairedPeers = (
-  pairedPeers: PeerTrackNode[][],
-  peerToFind: HMSPeer,
-) => {
-  const peerTracks = pairedPeers.flat();
-
-  return (
-    peerTracks.find(peer => peer.peer.peerID === peerToFind.peerID) || null
-  );
 };
 
 export const updatedDegradedFlag = (
@@ -488,156 +308,6 @@ export const replacePeerTrackNodes = (
     });
   });
   return newPeerTrackNodes;
-};
-
-export const updatePeersTrackNodesOnPeerListener = (
-  peerTrackNodes: PeerTrackNode[],
-  peer: HMSPeer,
-  type: HMSPeerUpdate,
-): PeerTrackNode[] => {
-  const oldPeerTrackNodes = peerTrackNodes;
-  if (type === HMSPeerUpdate.PEER_LEFT) {
-    return oldPeerTrackNodes?.filter(peerTrackNode => {
-      if (peerTrackNode.peer.peerID === peer.peerID) {
-        return false;
-      }
-      return true;
-    });
-  } else {
-    let alreadyPresent = false;
-    const updatedPeerTrackNodes = oldPeerTrackNodes?.map(peerTrackNode => {
-      if (peerTrackNode.peer.peerID === peer.peerID) {
-        alreadyPresent = true;
-        return {
-          ...peerTrackNode,
-          peer,
-        };
-      }
-      return peerTrackNode;
-    });
-    if (alreadyPresent || !peer?.isLocal) {
-      return updatedPeerTrackNodes;
-    } else {
-      let newPeerTrackNode: PeerTrackNode;
-      newPeerTrackNode = {
-        id: peer.peerID + HMSTrackSource.REGULAR,
-        peer,
-        track: peer?.videoTrack,
-        isDegraded: false,
-      };
-      if (peer?.isLocal) {
-        return [newPeerTrackNode, ...updatedPeerTrackNodes];
-      }
-      updatedPeerTrackNodes.push(newPeerTrackNode);
-      return updatedPeerTrackNodes;
-    }
-  }
-};
-
-export const updatePeersTrackNodesOnTrackListener = (
-  peerTrackNodes: PeerTrackNode[],
-  track: HMSTrack,
-  peer: HMSPeer,
-  type: HMSTrackUpdate,
-): PeerTrackNode[] => {
-  const oldPeerTrackNodes: PeerTrackNode[] = peerTrackNodes;
-  const uniqueId =
-    peer.peerID +
-    (track.source === undefined ? HMSTrackSource.REGULAR : track.source);
-  const isVideo = track.type === HMSTrackType.VIDEO;
-
-  if (type === HMSTrackUpdate.TRACK_REMOVED) {
-    if (
-      track.source !== HMSTrackSource.REGULAR ||
-      peer.role?.name?.includes('hls-')
-    ) {
-      return oldPeerTrackNodes?.filter(peerTrackNode => {
-        if (peerTrackNode.id === uniqueId) {
-          return false;
-        }
-        return true;
-      });
-    }
-    return oldPeerTrackNodes;
-  } else {
-    let alreadyPresent = false;
-    const updatedPeerTrackNodes = oldPeerTrackNodes?.map(peerTrackNode => {
-      if (peerTrackNode.id === uniqueId) {
-        alreadyPresent = true;
-        if (isVideo) {
-          return {
-            ...peerTrackNode,
-            peer,
-            track,
-          };
-        } else {
-          return {
-            ...peerTrackNode,
-            peer,
-          };
-        }
-      }
-      return peerTrackNode;
-    });
-    if (alreadyPresent) {
-      return updatedPeerTrackNodes;
-    } else {
-      let newPeerTrackNode: PeerTrackNode;
-      if (isVideo) {
-        newPeerTrackNode = {
-          id: uniqueId,
-          peer,
-          track,
-          isDegraded: false,
-        };
-      } else {
-        newPeerTrackNode = {
-          id: uniqueId,
-          peer,
-          isDegraded: false,
-        };
-      }
-      if (peer?.isLocal) {
-        return [newPeerTrackNode, ...updatedPeerTrackNodes];
-      }
-      updatedPeerTrackNodes.push(newPeerTrackNode);
-      return updatedPeerTrackNodes;
-    }
-  }
-};
-
-const sortPeerTrackNodes = (
-  peerTrackNodes: Array<PeerTrackNode>,
-  type: SortingType,
-): Array<PeerTrackNode> => {
-  switch (type) {
-    case SortingType.ALPHABETICAL:
-      return peerTrackNodes.sort((a, b) =>
-        a.peer.name.localeCompare(b.peer.name),
-      );
-    case SortingType.VIDEO_ON:
-      return peerTrackNodes.sort((a, b) => {
-        if (a.track?.isMute() === true) {
-          return 1;
-        }
-        if (b.track?.isMute() === true) {
-          return -1;
-        }
-        return 0;
-      });
-    case SortingType.ROLE_PRIORITY:
-      return peerTrackNodes.sort((a, b) => {
-        if ((a.peer.role?.priority ?? 0) >= (b.peer.role?.priority ?? 0)) {
-          return 1;
-        }
-        if ((b.peer.role?.priority ?? 0) >= (a.peer.role?.priority ?? 0)) {
-          return -1;
-        }
-        return 0;
-      });
-    default:
-      return peerTrackNodes;
-  }
 };
 
 export const isPortrait = () => {
