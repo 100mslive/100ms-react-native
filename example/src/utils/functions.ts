@@ -20,6 +20,7 @@ import {
   requestMultiple,
   RESULTS,
 } from 'react-native-permissions';
+import { getRoomLinkDetails } from './getRoomLinkDetails';
 
 export const getMeetingUrl = () =>
   'https://yogi.app.100ms.live/streaming/meeting/nih-bkn-vek';
@@ -113,7 +114,7 @@ export const callService = async (
   let subdomain;
   try {
     if (validateUrl(roomID)) {
-      const {code, domain} = getRoomIdDetails(roomID);
+      const {code, domain} = getRoomLinkDetails(roomID);
       roomCode = code;
       subdomain = domain;
 
@@ -172,30 +173,6 @@ export const getRandomUserId = (length: number) => {
     }
   ).join('');
 }
-
-export const getRoomIdDetails = (
-  roomID: string,
-): {code: string; domain: string} => {
-  const codeObject = RegExp(/(?!\/)[a-zA-Z\-0-9]*$/g).exec(roomID);
-
-  const domainObject = RegExp(/(https:\/\/)?(?:[a-zA-Z0-9.-])+(?!\\)/).exec(
-    roomID,
-  );
-
-  let code = '';
-  let domain = '';
-
-  if (codeObject && domainObject) {
-    code = codeObject[0];
-    domain = domainObject[0];
-    domain = domain.replace('https://', '');
-  }
-
-  return {
-    code,
-    domain,
-  };
-};
 
 export const getPeerNodes = (
   peerTrackNodes: PeerTrackNode[],
