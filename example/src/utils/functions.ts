@@ -139,7 +139,9 @@ export const callService = async (
       success(
         roomCode,
         userId,
-        isQARoom ? `https://auth-nonprod.100ms.live${Platform.OS === 'ios' ? '/' : ''}` : undefined, // Auth Endpoint
+        isQARoom
+          ? `https://auth-nonprod.100ms.live${Platform.OS === 'ios' ? '/' : ''}`
+          : undefined, // Auth Endpoint
         isQARoom ? 'https://qa-init.100ms.live/init' : undefined, // HMSConfig Endpoint
       );
       return;
@@ -161,18 +163,15 @@ export const callService = async (
  */
 export const getRandomNumberInRange = (min: number, max: number) => {
   return Math.floor(Math.random() * (max - min) + min);
-}
+};
 
 export const getRandomUserId = (length: number) => {
-  return Array.from(
-    { length },
-    () => {
-      const randomAlphaAsciiCode = getRandomNumberInRange(97, 123); // 97 - 122 is the ascii code range for a-z chars
-      const alphaCharacter = String.fromCharCode(randomAlphaAsciiCode);
-      return alphaCharacter;
-    }
-  ).join('');
-}
+  return Array.from({length}, () => {
+    const randomAlphaAsciiCode = getRandomNumberInRange(97, 123); // 97 - 122 is the ascii code range for a-z chars
+    const alphaCharacter = String.fromCharCode(randomAlphaAsciiCode);
+    return alphaCharacter;
+  }).join('');
+};
 
 export const getPeerNodes = (
   peerTrackNodes: PeerTrackNode[],

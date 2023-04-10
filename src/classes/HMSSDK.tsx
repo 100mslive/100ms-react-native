@@ -220,11 +220,25 @@ export class HMSSDK {
    *
    * @memberof HMSSDK
    */
-  getAuthTokenByRoomCode = async (roomCode: string, userId?: string, endpoint?: string): Promise<string> => {
-    logger?.verbose('#Function getAuthTokenByRoomCode', { id: this.id, roomCode, userId, endpoint });
+  getAuthTokenByRoomCode = async (
+    roomCode: string,
+    userId?: string,
+    endpoint?: string
+  ): Promise<string> => {
+    logger?.verbose('#Function getAuthTokenByRoomCode', {
+      id: this.id,
+      roomCode,
+      userId,
+      endpoint,
+    });
 
-    return HMSManager.getAuthTokenByRoomCode({ id: this.id, roomCode, userId, endpoint });
-  }
+    return HMSManager.getAuthTokenByRoomCode({
+      id: this.id,
+      roomCode,
+      userId,
+      endpoint,
+    });
+  };
 
   /**
    * - previewForRole can be used when there is role change request for current localPeer and we want

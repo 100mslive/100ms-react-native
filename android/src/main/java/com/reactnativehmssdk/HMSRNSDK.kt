@@ -563,12 +563,12 @@ class HMSRNSDK(
       val endpoint = data.getString("endpoint")
 
       val tokenRequest = TokenRequest(roomCode, userId)
-      val tokenRequestOptions: TokenRequestOptions? = endpoint?.let { TokenRequestOptions(endpoint=it) }
+      val tokenRequestOptions: TokenRequestOptions? = endpoint?.let { TokenRequestOptions(endpoint = it) }
 
       hmsSDK?.getAuthTokenByRoomCode(
         tokenRequest,
         tokenRequestOptions,
-        object: HMSTokenListener {
+        object : HMSTokenListener {
           override fun onError(error: HMSException) {
             promise.reject(error.code.toString(), "${error.message}: ${error.description}")
           }
