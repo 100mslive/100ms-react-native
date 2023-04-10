@@ -20,7 +20,7 @@ import {
   requestMultiple,
   RESULTS,
 } from 'react-native-permissions';
-import { getRoomLinkDetails } from './getRoomLinkDetails';
+import {getRoomLinkDetails} from './getRoomLinkDetails';
 
 export const getMeetingUrl = () =>
   'https://yogi.app.100ms.live/streaming/meeting/nih-bkn-vek';

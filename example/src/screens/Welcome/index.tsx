@@ -93,29 +93,41 @@ const Welcome = () => {
   // useRef hook
   const peerTrackNodesRef = React.useRef<Array<PeerTrackNode>>(peerTrackNodes);
 
-  // listeners
+  /**
+   * onPreviewSuccess is a function named onPreviewSuccess which takes three parameters -
+   * @param hmsInstance of type HMSSDK
+   * @param hmsConfig of type HMSConfig
+   * @param data object of type {room: HMSRoom, previewTracks: HMSTrack[]}
+   */
   const onPreviewSuccess = (
-    hmsInstance: HMSSDK,
-    hmsConfig: HMSConfig,
-    data: {
-      room: HMSRoom;
-      previewTracks: HMSTrack[];
-    },
+    hmsInstance: HMSSDK, // Parameter hmsInstance of type HMSSDK
+    hmsConfig: HMSConfig, // Parameter hmsConfig of type HMSConfig
+    data: {room: HMSRoom; previewTracks: HMSTrack[]}, // Parameter data object of shape {room: HMSRoom, previewTracks: HMSTrack[]}
   ) => {
+    // Set the value of the hmsRoom state variable to the value of data.room
     setHmsRoom(data.room);
+
+    // Set the value of the previewTracks state variable to the value of data.previewTracks
     setPreviewTracks(data?.previewTracks);
 
-    // Checking if User is joining as HLS-Viewer
+    // Check if the local peer role name includes the string 'hls-'
+    // This is done so that peers joining with hls-viewer role segue to the HLS Player Screen
     if (data.room.localPeer.role?.name?.includes('hls-')) {
+      // If it does, set the value of isHLSViewerRef.current to true
       isHLSViewerRef.current = true;
     }
 
+    // Check if the previewTracks array has any elements
     if (data?.previewTracks?.length > 0) {
+      // If it does, set the modal type to ModalTypes.PREVIEW
       setModalType(ModalTypes.PREVIEW);
     } else {
+      // If it doesn't, check if hmsConfig is defined
       if (hmsConfig) {
+        // If it is, call the join method on hmsInstance with hmsConfig as the argument
         hmsInstance?.join(hmsConfig);
       } else {
+        // If it isn't, set the values of the start and join button loading state variables to false, and log a message to the console with the value of hmsConfig
         setStartButtonLoading(false);
         setJoinButtonLoading(false);
         console.log('config: ', hmsConfig);
@@ -123,8 +135,15 @@ const Welcome = () => {
     }
   };
 
+  /**
+   * The handleJoin function updates the list of peer track nodes for a given room's local peer based on the presence of the local peer's video track,
+   * and navigates to the MeetingScreen with the isHLSViewerRef.current value.
+   *
+   * @param data is an object with a room property of type HMSRoom as a parameter
+   */
   const handleJoin = (data: {room: HMSRoom}) => {
     // Checking if User is joining as HLS-Viewer
+    // If the current user is not a HLSViewer and the role name of the local peer includes 'hls-', set the isHLSViewerRef to true
     if (
       !isHLSViewerRef.current &&
       data.room.localPeer.role?.name?.includes('hls-')
@@ -132,40 +151,56 @@ const Welcome = () => {
       isHLSViewerRef.current = true;
     }
 
+    // Get the list of peer track nodes from the peerTrackNodesRef (a reference to an array of peer track nodes)
+    // for the local peer and its video track
     const nodesPresent = getPeerTrackNodes(
-      peerTrackNodesRef?.current,
-      data.room.localPeer,
-      data.room.localPeer.videoTrack,
+      peerTrackNodesRef?.current, // Current value of the peerTrackNodesRef
+      data.room.localPeer, // Current local peer
+      data.room.localPeer.videoTrack, // Current local peer's video track
     );
 
+    // If no nodes are present, create a new peer track node for the local peer and its video track and add it to the peerTrackNodesRef
     if (nodesPresent.length === 0) {
       const hmsLocalPeer = createPeerTrackNode(
-        data.room.localPeer,
-        data.room.localPeer.videoTrack,
+        data.room.localPeer, // Current local peer
+        data.room.localPeer.videoTrack, // Current local peer's video track
       );
       const newPeerTrackNodes = [hmsLocalPeer, ...peerTrackNodesRef.current];
-      peerTrackNodesRef.current = newPeerTrackNodes;
+      peerTrackNodesRef.current = newPeerTrackNodes; // Set the peerTrackNodesRef to the new list of peer track nodes
     } else {
+      // If nodes are present, update the existing nodes based on the presence of the local peer's video track
       if (data.room.localPeer.videoTrack) {
         changePeerTrackNodes(
-          nodesPresent,
-          data.room.localPeer,
-          data.room.localPeer.videoTrack,
+          nodesPresent, // List of existing peer track nodes for the local peer and its video track
+          data.room.localPeer, // Current local peer
+          data.room.localPeer.videoTrack, // Current local peer's video track
         );
       } else {
-        changePeerNodes(nodesPresent, data.room.localPeer);
+        // If the local peer doesn't have a video track, update the existing nodes based on the presence of the local peer
+        changePeerNodes(nodesPresent, data.room.localPeer); // Update the peer track nodes for the local peer
       }
     }
 
+    // Dispatch an action to set the peer state to the updated list of peer track nodes
     dispatch(setPeerState({peerState: peerTrackNodesRef.current}));
+
+    // Save the meeting URL in AsyncStorage with the 'preview' replaced by 'meeting'
     AsyncStorage.setItem(
       Constants.MEET_URL,
       roomID.replace('preview', 'meeting'),
     );
+
+    // Navigate to the MeetingScreen with the isHLSViewerRef.current value
     replace('MeetingScreen', {isHLSViewer: isHLSViewerRef.current});
   };
 
+  /**
+   * The onJoinSuccess function simply calls the handleJoin function with the data parameter passed as an argument.
+   * The handleJoin function handles the logic to update the list of peer track nodes for the local peer of the given room, based on the presence of the local peer's video track, and navigate to the MeetingScreen with the isHLSViewerRef.current value.
+   * @param data is an object with a room property of type HMSRoom as a parameter
+   */
   const onJoinSuccess = (data: {room: HMSRoom}) => {
+    // Call the handleJoin function with the data parameter
     handleJoin(data);
   };
 
@@ -477,30 +512,33 @@ const Welcome = () => {
     }
   };
 
-
   /**
- * onJoinRoom function is called when the user clicks the "Join Room" button.
- * If a valid configuration object is available, it calls the `join` method of the HMS instance.
- * Otherwise, it logs an error message to the console and stops the loading spinner.
- */
-  const onJoinRoom = () =>
-  {
+   * onJoinRoom function is called when the user clicks the "Join Room" button.
+   * If a valid configuration object is available, it calls the `join` method of the HMS instance.
+   * Otherwise, it logs an error message to the console and stops the loading spinner.
+   */
+  const onJoinRoom = () => {
     // Check if a valid configuration object is available
-    if ( config )
-    {
+    if (config) {
       // Call the `join` method of the HMS instance using the `useRef` hook
-      hmsInstanceRef.current?.join( config )
-    } else
-    {
+      hmsInstanceRef.current?.join(config);
+    } else {
       // Stop the loading spinner
-      setJoinButtonLoading( false )
+      setJoinButtonLoading(false);
       // Log an error message to the console
-      console.error( 'Error: Configuration object is missing.' )
+      console.error('Error: Configuration object is missing.');
     }
   };
 
-  const getTrackSettings = () => {
-    const listOfFaultyDevices = [
+  /**
+   * This function creates and returns a track settings object for video conferencing
+   * that includes audio and video settings.
+   * @link https://www.100ms.live/docs/react-native/v2/how--to-guides/interact-with-room/track/track-settings
+   * @returns A `HMSTrackSettings` object that includes the audio and video settings.
+   */
+  const getTrackSettings = (): HMSTrackSettings => {
+    // An array of known faulty devices
+    const listOfFaultyDevices: string[] = [
       'Pixel',
       'Pixel XL',
       'Moto G5',
@@ -509,20 +547,29 @@ const Welcome = () => {
       'TA-1053',
       'Mi A1',
       'Mi A2',
-      'E5823', // Sony z5 compact
+      'E5823',
       'Redmi Note 5',
-      'FP2', // Fairphone FP2
+      'FP2',
       'MI 5',
     ];
+
+    // Get the model of the current device
     const deviceModal = getModel();
 
+    /**
+     * Create an audio settings object
+     * @link https://www.100ms.live/docs/react-native/v2/how--to-guides/interact-with-room/track/track-settings#set-audio-track-settings
+     */
     let audioSettings = new HMSAudioTrackSettings({
+      // Set the initial state of the audio track (muted or unmuted)
       initialState: joinConfig.mutedAudio
         ? HMSTrackSettingsInitState.MUTED
         : HMSTrackSettingsInitState.UNMUTED,
+      // Use hardware echo cancellation for known faulty devices, or disable it otherwise
       useHardwareEchoCancellation: listOfFaultyDevices.includes(deviceModal)
         ? true
         : false,
+      // Set the audio source if an audio mixer for playing local Audio files is being used, or leave it undefined otherwise
       audioSource: joinConfig.audioMixer
         ? [
             'mic_node',
@@ -532,15 +579,23 @@ const Welcome = () => {
         : undefined,
     });
 
+    /** Create a video settings object
+     * @link https://www.100ms.live/docs/react-native/v2/how--to-guides/interact-with-room/track/track-settings#set-video-track-settings
+     */
     let videoSettings = new HMSVideoTrackSettings({
+      // Set the initial state of the video track (muted or unmuted)
       initialState: joinConfig.mutedVideo
         ? HMSTrackSettingsInitState.MUTED
         : HMSTrackSettingsInitState.UNMUTED,
+      // Set the camera facing to front-facing
       cameraFacing: HMSCameraFacing.FRONT,
+      // Disable auto-resize if it is not enabled
       disableAutoResize: !joinConfig.autoResize,
+      // Use software decoder if it is enabled
       forceSoftwareDecoder: joinConfig.softwareDecoder,
     });
 
+    // Create a track settings object that includes the audio and video settings
     return new HMSTrackSettings({
       video: videoSettings,
       audio: audioSettings,
@@ -589,16 +644,26 @@ const Welcome = () => {
      * });
      */
 
+    // Retrieve log settings
     const logSettings = getLogSettings();
+
+    // Build an instance of the HMSSDK using specified log and track settings
     const hmsInstance = await HMSSDK.build({
       logSettings,
       trackSettings,
-      appGroup: 'group.reactnativehms',
-      preferredExtension: 'live.100ms.reactnative.RNHMSExampleBroadcastUpload',
+      appGroup: 'group.reactnativehms', // Required for starting Screenshare from iOS devices
+      preferredExtension: 'live.100ms.reactnative.RNHMSExampleBroadcastUpload', // Required for starting Screenshare from iOS devices
     });
+
+    // Create a new instance of HMSLogger and initialize it
     const logger = new HMSLogger();
+
+    // Set log level of logger to VERBOSE and enable logging
     logger.updateLogLevel(HMSLogLevel.VERBOSE, true);
+
+    // Set logger of the hmsInstance to logger instance
     hmsInstance.setLogger(logger);
+
     return hmsInstance;
   };
 

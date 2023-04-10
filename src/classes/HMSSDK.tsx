@@ -47,11 +47,23 @@ import {
 } from './HMSRoomCache';
 import { HMSPeerUpdateOrdinals } from './HMSPeerUpdate';
 
+/**
+ * The HmsViewProps interface defines a set of optional and required properties that can be used to configure and customize the appearance and behavior of a video view component.
+ */
 interface HmsViewProps {
+  // A unique identifier for the video track that will be displayed in the view
   trackId: string;
+
+  // An optional style object that can be used to customize the appearance of the view
   style?: ViewStyle;
+
+  // A boolean value indicating whether the video should be mirrored horizontally
   mirror?: boolean;
+
+  // The scaling mode to be used for the video within the view
   scaleType?: HMSVideoViewMode;
+
+  // A boolean value indicating whether the view should be rendered as a media overlay
   setZOrderMediaOverlay?: boolean;
 }
 

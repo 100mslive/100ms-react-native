@@ -35,11 +35,21 @@ import { HMSPeerUpdateOrdinals } from './HMSPeerUpdate';
 
 const { HMSManager } = NativeModules;
 
+/**
+ * Defines an interface for the initial data passed into the HMSEncoder class
+ */
 interface InitialData {
+  /**
+   * The roles property is a record of string keys to HMSRole values
+   */
   roles: Record<string, HMSRole>;
 }
 
 export class HMSEncoder {
+  /**
+   * Declare a private static property called data of type InitialData.
+   * This property will be shared by all instances of the HMSEncoder class
+   */
   private static data: InitialData = { roles: {} };
 
   static clearData() {
