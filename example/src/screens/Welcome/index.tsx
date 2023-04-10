@@ -170,13 +170,17 @@ const Welcome = () => {
   };
 
   const onError = (data: HMSException) => {
-    setStartButtonLoading(false);
     setJoinButtonLoading(false);
-    Toast.showWithGravity(
-      `${data?.code} ${data?.description}` || 'Something went wrong',
-      Toast.LONG,
-      Toast.TOP,
-    );
+    if (data.code === 424) {
+      onFailure(data.description);
+    } else {
+      setStartButtonLoading(false);
+      Toast.showWithGravity(
+        `${data?.code} ${data?.description}` || 'Something went wrong',
+        Toast.LONG,
+        Toast.TOP,
+      );
+    }
   };
 
   const onRoomListener = (
@@ -398,7 +402,11 @@ const Welcome = () => {
 
       hmsInstanceRef.current = hmsInstance;
 
-      const token = await hmsInstance.getAuthTokenByRoomCode(roomCode, userId, tokenEndpoint);
+      const token = await hmsInstance.getAuthTokenByRoomCode(
+        roomCode,
+        userId,
+        tokenEndpoint,
+      );
 
       const hmsConfig = new HMSConfig({
         authToken: token,
@@ -452,7 +460,9 @@ const Welcome = () => {
       }
     } catch (error) {
       console.log(error);
-      onFailure(error instanceof Error ? error.message : 'error in onStartSuccess');
+      onFailure(
+        error instanceof Error ? error.message : 'error in onStartSuccess',
+      );
     }
   };
 
@@ -582,11 +592,9 @@ const Welcome = () => {
 
   const onFailure = (error: string) => {
     setStartButtonLoading(false);
-    Alert.alert(
-      'Error',
-      error || 'Something went wrong',
-      [{ text: 'OK', style: 'cancel', onPress: handlePreviewLeave }],
-    );
+    Alert.alert('Error', error || 'Something went wrong', [
+      {text: 'OK', style: 'cancel', onPress: handlePreviewLeave},
+    ]);
   };
 
   const removeListeners = (hmsInstance?: HMSSDK | null) => {

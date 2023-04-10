@@ -20,6 +20,7 @@ import {
   requestMultiple,
   RESULTS,
 } from 'react-native-permissions';
+import { getRoomLinkDetails } from './getRoomLinkDetails';
 
 export const getMeetingUrl = () =>
   'https://yogi.app.100ms.live/streaming/meeting/nih-bkn-vek';
@@ -113,7 +114,7 @@ export const callService = async (
   let subdomain;
   try {
     if (validateUrl(roomID)) {
-      const {code, domain} = getRoomIdDetails(roomID);
+      const {roomCode: code, roomDomain: domain} = getRoomLinkDetails(roomID);
       roomCode = code;
       subdomain = domain;
 
@@ -138,7 +139,9 @@ export const callService = async (
       success(
         roomCode,
         userId,
-        isQARoom ? `https://auth-nonprod.100ms.live${Platform.OS === 'ios' ? '/' : ''}` : undefined, // Auth Endpoint
+        isQARoom
+          ? `https://auth-nonprod.100ms.live${Platform.OS === 'ios' ? '/' : ''}`
+          : undefined, // Auth Endpoint
         isQARoom ? 'https://qa-init.100ms.live/init' : undefined, // HMSConfig Endpoint
       );
       return;
@@ -160,41 +163,14 @@ export const callService = async (
  */
 export const getRandomNumberInRange = (min: number, max: number) => {
   return Math.floor(Math.random() * (max - min) + min);
-}
+};
 
 export const getRandomUserId = (length: number) => {
-  return Array.from(
-    { length },
-    () => {
-      const randomAlphaAsciiCode = getRandomNumberInRange(97, 123); // 97 - 122 is the ascii code range for a-z chars
-      const alphaCharacter = String.fromCharCode(randomAlphaAsciiCode);
-      return alphaCharacter;
-    }
-  ).join('');
-}
-
-export const getRoomIdDetails = (
-  roomID: string,
-): {code: string; domain: string} => {
-  const codeObject = RegExp(/(?!\/)[a-zA-Z\-0-9]*$/g).exec(roomID);
-
-  const domainObject = RegExp(/(https:\/\/)?(?:[a-zA-Z0-9.-])+(?!\\)/).exec(
-    roomID,
-  );
-
-  let code = '';
-  let domain = '';
-
-  if (codeObject && domainObject) {
-    code = codeObject[0];
-    domain = domainObject[0];
-    domain = domain.replace('https://', '');
-  }
-
-  return {
-    code,
-    domain,
-  };
+  return Array.from({length}, () => {
+    const randomAlphaAsciiCode = getRandomNumberInRange(97, 123); // 97 - 122 is the ascii code range for a-z chars
+    const alphaCharacter = String.fromCharCode(randomAlphaAsciiCode);
+    return alphaCharacter;
+  }).join('');
 };
 
 export const getPeerNodes = (
