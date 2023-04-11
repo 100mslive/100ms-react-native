@@ -16,6 +16,9 @@ import live.hms.video.sdk.models.enums.HMSPeerUpdate
 import live.hms.video.sdk.models.enums.HMSRoomUpdate
 import live.hms.video.sdk.models.enums.HMSTrackUpdate
 import live.hms.video.sdk.models.trackchangerequest.HMSChangeTrackStateRequest
+import live.hms.video.signal.init.HMSTokenListener
+import live.hms.video.signal.init.TokenRequest
+import live.hms.video.signal.init.TokenRequestOptions
 import live.hms.video.utils.HMSCoroutineScope
 import live.hms.video.utils.HmsUtilities
 
@@ -544,6 +547,41 @@ class HMSRNSDK(
     } else {
       val errorMessage = "join: $requiredKeys"
       self.emitRequiredKeysError(errorMessage)
+    }
+  }
+
+  fun getAuthTokenByRoomCode(data: ReadableMap, promise: Promise) {
+    val requiredKeys =
+      HMSHelper.getUnavailableRequiredKey(
+        data,
+        arrayOf(Pair("roomCode", "String"))
+      )
+
+    if (requiredKeys === null) {
+      val roomCode = data.getString("roomCode")!!
+      val userId = data.getString("userId")
+      val endpoint = data.getString("endpoint")
+
+      val tokenRequest = TokenRequest(roomCode, userId)
+      val tokenRequestOptions: TokenRequestOptions? = endpoint?.let { TokenRequestOptions(endpoint = it) }
+
+      hmsSDK?.getAuthTokenByRoomCode(
+        tokenRequest,
+        tokenRequestOptions,
+        object : HMSTokenListener {
+          override fun onError(error: HMSException) {
+            promise.reject(error.code.toString(), "${error.message}: ${error.description}")
+          }
+
+          override fun onTokenSuccess(string: String) {
+            promise.resolve(string)
+          }
+        }
+      )
+    } else {
+      val errorMessage = "getAuthTokenByRoomCode: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(promise, errorMessage)
     }
   }
 

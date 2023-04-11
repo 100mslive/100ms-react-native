@@ -169,6 +169,44 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
 
+    func getAuthTokenByRoomCode(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let roomCode = data.value(forKey: "roomCode") as? String
+        else {
+            let errorMessage = "getAuthTokenByRoomCode: " + HMSHelper.getUnavailableRequiredKey(data, ["roomCode"])
+            reject?("40000", errorMessage, nil)
+            return
+        }
+        let userId = data.value(forKey: "userId") as? String? ?? nil
+        let endpoint = data.value(forKey: "endpoint") as? String? ?? nil
+
+        // This is to make the QA links work
+        if endpoint != nil && endpoint!.contains("nonprod") {
+            UserDefaults.standard.set(endpoint, forKey: "HMSAuthTokenEndpointOverride")
+        } else {
+            UserDefaults.standard.removeObject(forKey: "HMSAuthTokenEndpointOverride")
+        }
+
+        DispatchQueue.main.async { [weak self] in
+            self?.hms?.getAuthTokenByRoomCode(roomCode, userID: userId) { token, error in
+                // error occurred
+                if error != nil {
+                    reject?(error?.localizedDescription, error?.localizedDescription, nil)
+                    return
+                }
+                // no error and token is valid
+                else if token != nil {
+                    resolve?(token)
+                    return
+                }
+                // no error but token is null
+                else {
+                    reject?("50000", "token is null", nil)
+                    return
+                }
+            }
+        }
+    }
+
     func setLocalMute(_ data: NSDictionary) {
         guard let isMute = data.value(forKey: "isMute") as? Bool
         else {
