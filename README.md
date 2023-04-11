@@ -16,6 +16,11 @@
 
 # 100ms React Native SDK
 
+Integrate Real Time Audio and Video conferencing, Interactive Live Streaming, and Chat in your apps with 100ms React Native SDK.
+
+With support for HLS and RTMP Live Streaming and Recording, Picture-in-Picture (PiP), one-to-one Video Call Modes, Audio Rooms, Video Player and much more, add immersive real-time communications to your apps.
+
+
 📖 Read the Complete Documentation here: https://www.100ms.live/docs/react-native/v2/foundation/basics
 
 ## 🏃 Example App
