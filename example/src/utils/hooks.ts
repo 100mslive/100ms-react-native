@@ -48,12 +48,12 @@ export const useRTCStatsListeners = (force?: boolean) => {
       hmsInstance.addEventListener(
         HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS,
         (data: {
-          localVideoStats: HMSLocalVideoStats;
+          localVideoStats: HMSLocalVideoStats[];
           track: HMSLocalVideoTrack;
           peer: HMSPeer;
         }) => {
           if (data.track.source === HMSTrackSource.REGULAR) {
-            dispatch(setRTCStats(data.track.trackId, data.localVideoStats));
+            dispatch(setRTCStats(data.track.trackId, data.localVideoStats[0]));
           }
         },
       );

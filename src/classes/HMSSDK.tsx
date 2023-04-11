@@ -2,11 +2,7 @@ import React from 'react';
 import { AppState, NativeModules, Platform, ViewStyle } from 'react-native';
 import { HMSEncoder } from './HMSEncoder';
 import { HMSHelper } from './HMSHelper';
-import { HMSLocalAudioStats } from './HMSLocalAudioStats';
-import { HMSLocalVideoStats } from './HMSLocalVideoStats';
 import { getLogger, logger, setLogger } from './HMSLogger';
-import { HMSRemoteAudioStats } from './HMSRemoteAudioStats';
-import { HMSRemoteVideoStats } from './HMSRemoteVideoStats';
 import { HMSTrackType } from './HMSTrackType';
 import { HMSUpdateListenerActions } from './HMSUpdateListenerActions';
 import { HmsViewComponent } from './HmsView';
@@ -2098,7 +2094,7 @@ export class HMSSDK {
       return;
     }
 
-    let localAudioStats = new HMSLocalAudioStats(data.localAudioStats);
+    let localAudioStats = HMSEncoder.encodeHMSLocalAudioStats(data.localAudioStats);
     let peer = HMSEncoder.encodeHmsPeer(data.peer);
     let track = HMSEncoder.encodeHmsLocalAudioTrack(data.track, this.id);
 
@@ -2118,7 +2114,7 @@ export class HMSSDK {
       return;
     }
 
-    let localVideoStats = new HMSLocalVideoStats(data.localVideoStats);
+    let localVideoStats = HMSEncoder.encodeHMSLocalVideoStats(data.localVideoStats);
     let peer = HMSEncoder.encodeHmsPeer(data.peer);
     let track = HMSEncoder.encodeHmsLocalVideoTrack(data.track, this.id);
 
@@ -2138,7 +2134,7 @@ export class HMSSDK {
       return;
     }
 
-    let remoteAudioStats = new HMSRemoteAudioStats(data.remoteAudioStats);
+    let remoteAudioStats = HMSEncoder.encodeHMSRemoteAudioStats(data.remoteAudioStats);
     let peer = HMSEncoder.encodeHmsPeer(data.peer);
     let track = HMSEncoder.encodeHmsRemoteAudioTrack(data.track, this.id);
 
@@ -2163,7 +2159,7 @@ export class HMSSDK {
       return;
     }
 
-    let remoteVideoStats = new HMSRemoteVideoStats(data.remoteVideoStats);
+    let remoteVideoStats = HMSEncoder.encodeHMSRemoteVideoStats(data.remoteVideoStats);
     let peer = HMSEncoder.encodeHmsPeer(data.peer);
     let track = HMSEncoder.encodeHmsRemoteVideoTrack(data.track, this.id);
 

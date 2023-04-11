@@ -436,12 +436,12 @@ class HMSRNSDK(
               if (!rtcStatsAttached) {
                 return
               }
-              val localAudioStats = HMSDecoder.getLocalAudioStats(audioStats)
+              val localAudioStats = HMSDecoder.getLocalAudioStats(audioStats) // [bitrate, bytesSent, roundTripTime]
               val track = HMSDecoder.getHmsLocalAudioTrack(hmsTrack as HMSLocalAudioTrack)
               val peer = HMSDecoder.getHmsPeerSubset(hmsPeer)
 
               val data: WritableMap = Arguments.createMap()
-              data.putMap("localAudioStats", localAudioStats)
+              data.putArray("localAudioStats", localAudioStats)
               data.putMap("track", track)
               data.putMap("peer", peer)
               data.putString("id", id)
@@ -460,7 +460,7 @@ class HMSRNSDK(
                 return
               }
 
-              val localVideoStats = HMSDecoder.getLocalVideoStats(videoStats)
+              val localVideoStats = HMSDecoder.getLocalVideoStats(videoStats) // List<[bitrate, bytesSent, roundTripTime, frameRate, resolution]>
               val track = HMSDecoder.getHmsLocalVideoTrack(hmsTrack as HMSLocalVideoTrack)
               val peer = HMSDecoder.getHmsPeerSubset(hmsPeer)
 
@@ -479,14 +479,14 @@ class HMSRNSDK(
               if (!rtcStatsAttached) {
                 return
               }
-              val video = HMSDecoder.getHMSRTCStats(rtcStats.video)
-              val audio = HMSDecoder.getHMSRTCStats(rtcStats.audio)
-              val combined = HMSDecoder.getHMSRTCStats(rtcStats.combined)
+              val video = HMSDecoder.getHMSRTCStats(rtcStats.video) // [bitrateReceived, bitrateSent, bytesReceived, bytesSent, packetsLost, packetsReceived, roundTripTime]
+              val audio = HMSDecoder.getHMSRTCStats(rtcStats.audio) // [bitrateReceived, bitrateSent, bytesReceived, bytesSent, packetsLost, packetsReceived, roundTripTime]
+              val combined = HMSDecoder.getHMSRTCStats(rtcStats.combined) // [bitrateReceived, bitrateSent, bytesReceived, bytesSent, packetsLost, packetsReceived, roundTripTime]
 
               val data: WritableMap = Arguments.createMap()
-              data.putMap("video", video)
-              data.putMap("audio", audio)
-              data.putMap("combined", combined)
+              data.putArray("video", video)
+              data.putArray("audio", audio)
+              data.putArray("combined", combined)
               data.putString("id", id)
               delegate.emitEvent("ON_RTC_STATS", data)
             }
@@ -503,12 +503,12 @@ class HMSRNSDK(
                 return
               }
 
-              val remoteAudioStats = HMSDecoder.getRemoteAudioStats(audioStats)
+              val remoteAudioStats = HMSDecoder.getRemoteAudioStats(audioStats) // [bitrate, bytesReceived, jitter, packetsLost, packetsReceived]
               val track = HMSDecoder.getHmsRemoteAudioTrack(hmsTrack as HMSRemoteAudioTrack)
               val peer = HMSDecoder.getHmsPeerSubset(hmsPeer)
 
               val data: WritableMap = Arguments.createMap()
-              data.putMap("remoteAudioStats", remoteAudioStats)
+              data.putArray("remoteAudioStats", remoteAudioStats)
               data.putMap("track", track)
               data.putMap("peer", peer)
               data.putString("id", id)
@@ -527,12 +527,12 @@ class HMSRNSDK(
                 return
               }
 
-              val remoteVideoStats = HMSDecoder.getRemoteVideoStats(videoStats)
+              val remoteVideoStats = HMSDecoder.getRemoteVideoStats(videoStats) // [bitrate, bytesReceived, frameRate, jitter, packetsLost, packetsReceived, resolution]
               val track = HMSDecoder.getHmsRemoteVideoTrack(hmsTrack as HMSRemoteVideoTrack)
               val peer = HMSDecoder.getHmsPeerSubset(hmsPeer)
 
               val data: WritableMap = Arguments.createMap()
-              data.putMap("remoteVideoStats", remoteVideoStats)
+              data.putArray("remoteVideoStats", remoteVideoStats)
               data.putMap("track", track)
               data.putMap("peer", peer)
               data.putString("id", id)
