@@ -1486,7 +1486,8 @@ const Footer = ({
         />
       </DefaultModal>
       <DefaultModal
-        modalPosiion="center"
+        animationIn={'slideInUp'}
+        animationOut={'slideOutDown'}
         modalVisible={modalVisible === ModalTypes.RTC_STATS}
         setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
       >
