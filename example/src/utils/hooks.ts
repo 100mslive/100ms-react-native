@@ -28,8 +28,6 @@ export const useRTCStatsListeners = (force?: boolean) => {
 
   useEffect(() => {
     if (hmsInstance && addListeners) {
-      hmsInstance.enableRTCStats();
-
       hmsInstance.addEventListener(
         HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS,
         (data: {
@@ -86,8 +84,6 @@ export const useRTCStatsListeners = (force?: boolean) => {
       );
 
       return () => {
-        hmsInstance.disableRTCStats();
-
         hmsInstance.removeEventListener(
           HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS,
         );

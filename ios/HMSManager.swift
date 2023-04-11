@@ -283,20 +283,6 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func enableRTCStats(_ data: NSDictionary) {
-        let hms = HMSHelper.getHms(data, hmsCollection)
-
-        hms?.enableRTCStats()
-    }
-
-    @objc
-    func disableRTCStats(_ data: NSDictionary) {
-        let hms = HMSHelper.getHms(data, hmsCollection)
-
-        hms?.disableRTCStats()
-    }
-
-    @objc
     func destroy(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let id = data.value(forKey: "id") as? String ?? "12345"
         hmsCollection.removeValue(forKey: id)

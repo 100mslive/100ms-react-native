@@ -834,36 +834,6 @@ export class HMSSDK {
     return await HMSManager.stopScreenshare({ id: this.id });
   };
 
-  /**
-   * - enableRTCStats sets a boolean in native side which in turn allows several events to be passed
-   * through the bridge these events are {@link RTCStatsListener}, {@link onRemoteVideoStatsListener},
-   * {@link onRemoteAudioStatsListener}, {@link onLocalAudioStatsListener} and {@link onLocalVideoStatsListener}
-   *
-   * - These listeners get various dataPoints for current peers and their connectivity to the room
-   * such as jitter, latency etc.
-   *
-   * - currently available for iOS only
-   *
-   * @memberof HMSSDK
-   */
-  enableRTCStats = () => {
-    logger?.verbose('#Function enableRTCStats', { id: this.id });
-    HMSManager.enableRTCStats({ id: this.id });
-  };
-
-  /**
-   * - disable RTCStats sets the same boolean to false that was set true by enableRTCStats.
-   * that activates a check which filters out the events acquired in native listeners and don't
-   * let them pass through bridge
-   *
-   * - currently available for iOS only.
-   * @memberof HMSSDK
-   */
-  disableRTCStats = () => {
-    logger?.verbose('#Function disableRTCStats', { id: this.id });
-    HMSManager.disableRTCStats({ id: this.id });
-  };
-
   enableNetworkQualityUpdates = () => {
     logger?.verbose('#Function enableNetworkQualityUpdates', { id: this.id });
     HMSManager.enableNetworkQualityUpdates({ id: this.id });

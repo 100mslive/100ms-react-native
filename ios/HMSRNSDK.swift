@@ -24,7 +24,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     private var stopScreenshareResolve: RCTPromiseResolveBlock?
     private var isScreenShared: Bool? = false
     private var previewInProgress = false
-    private var rtcStatsAttached = false
     private var networkQualityUpdatesAttached = false
     private var eventsEnableStatus: [String: Bool] = [:]
 
@@ -214,7 +213,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 self?.stopScreenshareResolve = nil
                 self?.startScreenshareResolve = nil
                 self?.isScreenShared = false
-                self?.rtcStatsAttached = false
                 self?.networkQualityUpdatesAttached = false
                 self?.hms?.leave({ success, error in
                     if success {
@@ -821,14 +819,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
 
-    func enableRTCStats() {
-        rtcStatsAttached = true
-    }
-
-    func disableRTCStats() {
-        rtcStatsAttached = false
-    }
-
     func startScreenshare(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let preferredExtension = preferredExtension else {
             if eventsEnableStatus[ON_ERROR] == true {
@@ -1402,9 +1392,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         if eventsEnableStatus[ON_RTC_STATS] != true {
             return
         }
-        if !rtcStatsAttached {
-            return
-        }
         let video = HMSDecoder.getHMSRTCStats(rtcStats.video)
         let audio = HMSDecoder.getHMSRTCStats(rtcStats.audio)
         let combined = HMSDecoder.getHMSRTCStats(rtcStats.combined)
@@ -1414,9 +1401,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
     func on(localAudioStats: HMSLocalAudioStats, track: HMSAudioTrack, peer: HMSPeer) {
         if eventsEnableStatus[ON_LOCAL_AUDIO_STATS] != true {
-            return
-        }
-        if !rtcStatsAttached {
             return
         }
         let localStats = HMSDecoder.getLocalAudioStats(localAudioStats)
@@ -1430,9 +1414,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         if eventsEnableStatus[ON_LOCAL_VIDEO_STATS] != true {
             return
         }
-        if !rtcStatsAttached {
-            return
-        }
         let localStats = HMSDecoder.getLocalVideoStats(localVideoStats)
         let decodedPeer = HMSDecoder.getHmsPeerSubset(peer)
         let localTrack = HMSDecoder.getHmsVideoTrack(track)
@@ -1444,9 +1425,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         if eventsEnableStatus[ON_REMOTE_AUDIO_STATS] != true {
             return
         }
-        if !rtcStatsAttached {
-            return
-        }
         let remoteStats = HMSDecoder.getRemoteAudioStats(remoteAudioStats)
         let remoteTrack = HMSDecoder.getHmsAudioTrack(track)
         let decodedPeer = HMSDecoder.getHmsPeerSubset(peer)
@@ -1456,9 +1434,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
     func on(remoteVideoStats: HMSRemoteVideoStats, track: HMSVideoTrack, peer: HMSPeer) {
         if eventsEnableStatus[ON_REMOTE_VIDEO_STATS] != true {
-            return
-        }
-        if !rtcStatsAttached {
             return
         }
         let remoteStats = HMSDecoder.getRemoteVideoStats(remoteVideoStats)

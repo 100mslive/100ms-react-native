@@ -371,20 +371,6 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun enableRTCStats(data: ReadableMap) {
-    val hms = HMSHelper.getHms(data, hmsCollection)
-
-    hms?.enableRTCStats()
-  }
-
-  @ReactMethod
-  fun disableRTCStats(data: ReadableMap) {
-    val hms = HMSHelper.getHms(data, hmsCollection)
-
-    hms?.disableRTCStats()
-  }
-
-  @ReactMethod
   fun enableNetworkQualityUpdates(data: ReadableMap) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 

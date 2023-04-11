@@ -34,7 +34,6 @@ class HMSRNSDK(
   private var context: ReactApplicationContext = reactApplicationContext
   private var previewInProgress: Boolean = false
   private var reconnectingStage: Boolean = false
-  private var rtcStatsAttached: Boolean = false
   private var networkQualityUpdatesAttached: Boolean = false
   private var audioMixingMode: AudioMixingMode = AudioMixingMode.TALK_AND_MUSIC
   private var id: String = sdkId
@@ -433,9 +432,6 @@ class HMSRNSDK(
               if (eventsEnableStatus["ON_LOCAL_AUDIO_STATS"] != true) {
                 return
               }
-              if (!rtcStatsAttached) {
-                return
-              }
               val localAudioStats = HMSDecoder.getLocalAudioStats(audioStats) // [bitrate, bytesSent, roundTripTime]
               val track = HMSDecoder.getHmsLocalAudioTrack(hmsTrack as HMSLocalAudioTrack)
               val peer = HMSDecoder.getHmsPeerSubset(hmsPeer)
@@ -456,7 +452,7 @@ class HMSRNSDK(
               if (eventsEnableStatus["ON_LOCAL_VIDEO_STATS"] != true) {
                 return
               }
-              if (!rtcStatsAttached && hmsPeer != null && hmsTrack != null) {
+              if (hmsPeer != null && hmsTrack != null) {
                 return
               }
 
@@ -474,9 +470,6 @@ class HMSRNSDK(
 
             override fun onRTCStats(rtcStats: HMSRTCStatsReport) {
               if (eventsEnableStatus["ON_RTC_STATS"] != true) {
-                return
-              }
-              if (!rtcStatsAttached) {
                 return
               }
               val video = HMSDecoder.getHMSRTCStats(rtcStats.video) // [bitrateReceived, bitrateSent, bytesReceived, bytesSent, packetsLost, packetsReceived, roundTripTime]
@@ -499,10 +492,6 @@ class HMSRNSDK(
               if (eventsEnableStatus["ON_REMOTE_AUDIO_STATS"] != true) {
                 return
               }
-              if (!rtcStatsAttached) {
-                return
-              }
-
               val remoteAudioStats = HMSDecoder.getRemoteAudioStats(audioStats) // [bitrate, bytesReceived, jitter, packetsLost, packetsReceived]
               val track = HMSDecoder.getHmsRemoteAudioTrack(hmsTrack as HMSRemoteAudioTrack)
               val peer = HMSDecoder.getHmsPeerSubset(hmsPeer)
@@ -523,10 +512,6 @@ class HMSRNSDK(
               if (eventsEnableStatus["ON_REMOTE_VIDEO_STATS"] != true) {
                 return
               }
-              if (!rtcStatsAttached) {
-                return
-              }
-
               val remoteVideoStats = HMSDecoder.getRemoteVideoStats(videoStats) // [bitrate, bytesReceived, frameRate, jitter, packetsLost, packetsReceived, resolution]
               val track = HMSDecoder.getHmsRemoteVideoTrack(hmsTrack as HMSRemoteVideoTrack)
               val peer = HMSDecoder.getHmsPeerSubset(hmsPeer)
@@ -580,7 +565,6 @@ class HMSRNSDK(
             screenshareCallback = null
             audioshareCallback = null
             networkQualityUpdatesAttached = false
-            rtcStatsAttached = false
             HMSDecoder.clearRestrictDataStates()
             if (fromPIP) {
               context.currentActivity?.moveTaskToBack(false)
@@ -1363,14 +1347,6 @@ class HMSRNSDK(
     }
   }
 
-  fun enableRTCStats() {
-    rtcStatsAttached = true
-  }
-
-  fun disableRTCStats() {
-    rtcStatsAttached = false
-  }
-
   fun enableNetworkQualityUpdates() {
     networkQualityUpdatesAttached = true
   }
@@ -1544,7 +1520,9 @@ class HMSRNSDK(
     val peerId = data.getString("peerId")!!
     val property = data.getString("property")!!
 
-    val peer = HMSHelper.getPeerFromPeerId(peerId, nativeHmsSDK.getRoom())
+    val hmsRoom = nativeHmsSDK.getRoom()
+
+    val peer = HMSHelper.getPeerFromPeerId(peerId, hmsRoom)
 
     if (peer !== null) {
       val result: WritableMap = Arguments.createMap()
