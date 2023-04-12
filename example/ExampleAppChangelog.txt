@@ -1,5 +1,5 @@
 - Updated Modal showing RTC Stats on Tiles
 
-React Native SDK: 1.3.0
-Android SDK: 2.5.9
-iOS SDK: 0.8.1
+React Native SDK: 1.5.0
+Android SDK: 2.6.0
+iOS SDK: 0.9.1

@@ -422,6 +422,13 @@ class HMSManager: RCTEventEmitter {
         hms?.restrictData(data)
     }
 
+    @objc
+    func getAuthTokenByRoomCode(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.getAuthTokenByRoomCode(data, resolve, reject)
+    }
+
     // MARK: - HMS SDK Get APIs
     @objc
     func getRoom(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
