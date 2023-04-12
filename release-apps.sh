@@ -5,10 +5,6 @@ set -e
 # set -x
 
 perform_npm_actions() {
-  echo "testScript- 🌳🍀 git branch: $(git rev-parse --abbrev-ref HEAD)"
-
-  echo "testScript- perform_npm_actions $PWD"
-
   git pull --verbose
 
   npm install
@@ -16,16 +12,10 @@ perform_npm_actions() {
   cd ./example
 
   npm install
-
-  echo "testScript- perform_npm_actions $PWD"
 }
 
 release_android() {
   cd ./android
-
-  # echo "release_android Android Android Android "
-  echo "testScript- release_android $PWD"
-  # echo "release_android Android Android Android "
 
   bundle install --verbose
 
@@ -35,9 +25,7 @@ release_android() {
 release_iOS() {
   cd ./ios
 
-  # echo "release_iOS iOS iOS iOS "
   echo "testScript- release_iOS $PWD"
-  # echo "release_iOS iOS iOS iOS "
 
   pod install --verbose
 
@@ -47,8 +35,6 @@ release_iOS() {
 }
 
 perform_git_actions() {
-  echo "testScript- perform_git_actions $PWD"
-
   cd ..
 
   while read line; do
@@ -64,7 +50,6 @@ perform_git_actions() {
   git add example/ios/RNHMSExample/Info.plist
   git add example/ios/RNHMSExample.xcodeproj/project.pbxproj
 
-  echo "testScript- perform_git_actions $PWD"
   git commit -m "released sample app version $versionCode ($buildNumber) ⚛️" --no-verify
 
   git push --verbose
