@@ -1,7 +1,7 @@
 {
   "name": "@100mslive/react-native-hms",
-  "version": "1.4.0",
-  "description": "The React Native package for 100ms SDK",
+  "version": "1.5.0",
+  "description": "Integrate Real Time Audio and Video conferencing, Interactive Live Streaming, and Chat in your apps with 100ms React Native SDK. With support for HLS and RTMP Live Streaming and Recording, Picture-in-Picture (PiP), one-to-one Video Call Modes, Audio Rooms, Video Player and much more, add immersive real-time communications to your apps.",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
   "types": "lib/typescript/index.d.ts",
