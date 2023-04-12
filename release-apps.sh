@@ -2,7 +2,7 @@
 #alias rel='sh -x release-apps.sh'
 
 set -e
-# set -x
+set -x
 
 perform_npm_actions() {
   git pull --verbose
