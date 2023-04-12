@@ -31,7 +31,7 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
 
     hmsVideoView = view.findViewById(R.id.hmsVideoView)
     hmsVideoView.setEnableHardwareScaler(false)
-    // TODO: Set Default `autoSimulcast` on HMSVideoView to true
+    hmsVideoView.disableAutoSimulcastLayerSelect(false)
   }
 
   @RequiresApi(Build.VERSION_CODES.N)
@@ -53,7 +53,7 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
 
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
-    hmsVideoView.addTrack(videoTrack!!) // DOUBT: videoTrack can be null, will `!!` throw error?
+    hmsVideoView.addTrack(videoTrack!!) // DOUBT: Handle case when videoTrack is null
     if (!scaleTypeApplied) {
       if (currentScaleType != RendererCommon.ScalingType.SCALE_ASPECT_FILL) {
         onReceiveNativeEvent()
@@ -114,8 +114,8 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
   }
 
   fun updateAutoSimulcast(autoSimulcast: Boolean?) {
-    if (autoSimulcast !== null) {
-      // TODO: Set `autoSimulcast` on HMSVideoView to value passed from RN side
+    autoSimulcast?.let {
+      hmsVideoView.disableAutoSimulcastLayerSelect(!it)
     }
   }
 }
