@@ -13,7 +13,7 @@ import {styles} from './styles';
 
 import {getInitials} from '../../utils/functions';
 import type {RootState} from '../../redux';
-import PeerRTCStatsView from '../../components/PeerRTCStatsView';
+import PeerRTCStatsContainer from '../../components/PeerRTCStatsContainer';
 
 export interface PeerDisplayViewProps {
   isDegraded?: boolean;
@@ -85,7 +85,7 @@ const PeerDisplayViewUnmemoized = React.forwardRef<
       )}
 
       {showStatsOnTiles ? (
-        <PeerRTCStatsView
+        <PeerRTCStatsContainer
           trackId={videoTrack?.trackId}
           peerId={peer.peerID}
         />

@@ -51,7 +51,7 @@ export const useRTCStatsListeners = (force?: boolean) => {
           peer: HMSPeer;
         }) => {
           if (data.track.source === HMSTrackSource.REGULAR) {
-            dispatch(setRTCStats(data.track.trackId, data.localVideoStats[0]));
+            dispatch(setRTCStats(data.track.trackId, data.localVideoStats));
           }
         },
       );

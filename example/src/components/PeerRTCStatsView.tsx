@@ -1,28 +1,26 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import {useSelector} from 'react-redux';
+import {HMSLocalAudioStats, HMSRemoteAudioStats, HMSRemoteVideoStats, HMSLocalVideoStats} from '@100mslive/react-native-hms';
 
 import {COLORS} from '../utils/theme';
-import {RootState} from '../redux';
+
+type TrackStats = HMSLocalAudioStats | HMSRemoteAudioStats | HMSRemoteVideoStats | HMSLocalVideoStats[] | null | undefined;
 
 interface PeerRTCStatsViewProps {
-  peerId?: string;
-  trackId?: string;
+  audioTrackStats: TrackStats;
+  videoTrackStats: TrackStats;
 }
 
 const PeerRTCStatsView: React.FC<PeerRTCStatsViewProps> = ({
-  peerId,
-  trackId,
+  audioTrackStats,
+  videoTrackStats
 }) => {
-  const audioTrackStats = useSelector((state: RootState) =>
-    peerId ? state.app.rtcStats[peerId] : null,
-  );
-  const videoTrackStats = useSelector((state: RootState) =>
-    trackId ? state.app.rtcStats[trackId] : null,
-  );
-
   return (
-    <View style={styles.statsContainer}>
+    <View>
+      {videoTrackStats && 'layer' in videoTrackStats
+          ? <Text style={styles.statsTitle}>{videoTrackStats.layer}</Text>
+          : null}
+
       <Text style={styles.statsText}>
         Width{' '}
         {(videoTrackStats && 'resolution' in videoTrackStats
@@ -70,13 +68,12 @@ const PeerRTCStatsView: React.FC<PeerRTCStatsViewProps> = ({
 };
 
 const styles = StyleSheet.create({
-  statsContainer: {
-    position: 'absolute',
-    top: 8,
-    left: 8,
-    padding: 4,
-    backgroundColor: COLORS.OVERLAY,
-    borderRadius: 8,
+  statsTitle: {
+    fontWeight: 'bold',
+    fontSize: 15,
+    lineHeight: 15 * 1.3,
+    color: COLORS.TEXT.HIGH_EMPHASIS,
+    marginBottom: 4,
   },
   statsText: {
     fontSize: 14,

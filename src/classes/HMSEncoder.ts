@@ -563,7 +563,7 @@ export class HMSEncoder {
 
   static encodeHMSLocalVideoStats(data: any[]) {
     return data.map((item: any) => {
-      const [bitrate, bytesSent, roundTripTime, frameRate, resolution] = item;
+      const [bitrate, bytesSent, roundTripTime, frameRate, resolution, layer] = item;
 
       return new HMSLocalVideoStats({
         bitrate: bitrate >= 0 ? bitrate : undefined,
@@ -571,6 +571,7 @@ export class HMSEncoder {
         roundTripTime: roundTripTime >= 0 ? roundTripTime : undefined,
         frameRate: frameRate >= 0 ? frameRate : undefined,
         resolution: resolution ? { width: resolution[0], height: resolution[1] } : undefined, // resolution: [width, height]
+        layer: layer ? layer : undefined,
       });
     });
   }

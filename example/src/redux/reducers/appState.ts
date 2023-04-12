@@ -16,7 +16,7 @@ type ActionType = {
 type IntialStateType = {
   peerState: PeerTrackNode[];
   pipModeStatus: PipModes;
-  rtcStats: Record<string, undefined | HMSLocalAudioStats | HMSLocalVideoStats | HMSRemoteAudioStats | HMSRemoteVideoStats>;
+  rtcStats: Record<string, undefined | HMSLocalAudioStats | HMSLocalVideoStats[] | HMSRemoteAudioStats | HMSRemoteVideoStats>;
   joinConfig: {
     mutedAudio: boolean;
     mutedVideo: boolean;

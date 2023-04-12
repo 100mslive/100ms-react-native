@@ -734,11 +734,11 @@ object HMSDecoder {
   fun getLocalVideoStats(hmsLocalVideoStats: List<HMSLocalVideoStats>): WritableArray {
     val stats: WritableArray = Arguments.createArray()
 
-//    hmsLayer: live.hms.video.media.settings.HMSLayer?
+//    DOUBT: Should we add `qualityLimitationReason` property?
 //    qualityLimitationReason: live.hms.video.connection.degredation.QualityLimitationReasons
 
     for (stat in hmsLocalVideoStats) {
-      val localVideoStats: WritableArray = Arguments.createArray() // [bitrate, bytesSent, roundTripTime, frameRate, resolution]
+      val localVideoStats: WritableArray = Arguments.createArray() // [bitrate, bytesSent, roundTripTime, frameRate, resolution, layer]
 
       val bitrate = stat.bitrate ?: -1.0
       localVideoStats.pushDouble(bitrate)
@@ -759,6 +759,9 @@ object HMSDecoder {
           localVideoStats.pushArray(getHmsVideoTrackResolution(it)) // [width, height]
         }
       }
+
+      val layer = stat.hmsLayer.let { if (it === null) "" else it.name }
+      localVideoStats.pushString(layer)
 
       stats.pushArray(localVideoStats)
     }

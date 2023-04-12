@@ -95,7 +95,7 @@ export const changeAutoSimulcast = (value: boolean) => ({
 
 export const setRTCStats = (
   trackId: string,
-  stats: HMSLocalAudioStats | HMSLocalVideoStats | HMSRemoteAudioStats | HMSRemoteVideoStats
+  stats: HMSLocalAudioStats | HMSLocalVideoStats[] | HMSRemoteAudioStats | HMSRemoteVideoStats
 ) => ({
   type: actionTypes.SET_RTC_STATS,
   payload: { trackId, stats },
