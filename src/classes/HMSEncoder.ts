@@ -284,7 +284,6 @@ export class HMSEncoder {
             trackId: peer?.remoteVideoTrackData?.trackId,
             source: peer?.remoteVideoTrackData?.source,
             trackDescription: peer?.remoteVideoTrackData?.trackDescription,
-            layer: peer?.remoteVideoTrackData?.layer,
             isMute: peer?.remoteVideoTrackData?.isMute,
             playbackAllowed: peer?.remoteVideoTrackData?.playbackAllowed,
           }
@@ -313,7 +312,6 @@ export class HMSEncoder {
       trackId: track?.trackId,
       source: track?.source,
       trackDescription: track?.trackDescription,
-      layer: track?.layer,
       isMute: track?.isMute,
       playbackAllowed: track?.playbackAllowed,
     };

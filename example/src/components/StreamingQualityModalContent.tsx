@@ -26,6 +26,7 @@ export const StreamingQualityModalContent: React.FC<
   const [remoteVideoTrack, setRemoteVideoTrack] =
     useState<HMSRemoteVideoTrack | null>(null);
   const [showQualityOptions, setShowQualityOptions] = useState(false);
+  const [originalLayer, setOriginalLayer] = useState<HMSLayer | null>(null);
   const [selectedLayer, setSelectedLayer] = useState<HMSLayer | null>(null);
   const [layerDefinitions, setLayerDefinitions] = useState<
     HMSSimulcastLayerDefinition[]
@@ -36,6 +37,7 @@ export const StreamingQualityModalContent: React.FC<
       const getSelectedLayer = async () => {
         const layer = await remoteVideoTrack.getLayer();
         if (layer !== 'API currently not available for iOS') {
+          setOriginalLayer(layer);
           setSelectedLayer(layer);
         }
       };
@@ -70,7 +72,7 @@ export const StreamingQualityModalContent: React.FC<
     if (
       !selectedLayer ||
       !remoteVideoTrack ||
-      selectedLayer === remoteVideoTrack.layer
+      selectedLayer === originalLayer
     )
       return;
 
@@ -83,14 +85,14 @@ export const StreamingQualityModalContent: React.FC<
   };
 
   const changeSubmitDisabled =
-    !remoteVideoTrack || selectedLayer === remoteVideoTrack.layer;
+    !remoteVideoTrack || selectedLayer === originalLayer;
   return (
     <View style={styles.container}>
       <Text style={styles.roleChangeModalHeading}>
         Change Streaming Quality
       </Text>
       <Text style={styles.participantRole}>
-        Current Layer: {remoteVideoTrack?.layer || '-'}
+        Current Layer: {originalLayer || '-'}
       </Text>
 
       <View style={styles.contentContainer}>

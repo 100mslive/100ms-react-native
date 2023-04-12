@@ -14,8 +14,6 @@ const {
 } = NativeModules;
 
 export class HMSRemoteVideoTrack extends HMSVideoTrack {
-  layer?: HMSLayer;
-
   /**
    * Switches Video of remote user on/off depending upon the value of playbackAllowed
    *
@@ -70,8 +68,6 @@ export class HMSRemoteVideoTrack extends HMSVideoTrack {
         trackId: this.trackId,
       });
 
-      this.layer = layer;
-
       return layer;
     } else {
       console.log('API currently not available for iOS');
@@ -115,10 +111,6 @@ export class HMSRemoteVideoTrack extends HMSVideoTrack {
         layer,
       });
 
-      if (success) {
-        this.layer = layer;
-      }
-
       return success;
     } else {
       console.log('API currently not available for iOS');
@@ -131,13 +123,11 @@ export class HMSRemoteVideoTrack extends HMSVideoTrack {
     source?: number | string;
     trackDescription?: string;
     isMute?: boolean;
-    layer?: HMSLayer;
     playbackAllowed?: boolean;
     id: string;
     isDegraded?: boolean;
     type?: HMSTrackType;
   }) {
     super(params);
-    this.layer = params.layer;
   }
 }
