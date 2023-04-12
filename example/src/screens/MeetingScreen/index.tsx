@@ -104,6 +104,7 @@ import PIPView from './PIPView';
 import {useRTCStatsListeners} from '../../utils/hooks';
 import {RoomSettingsModalContent} from '../../components/RoomSettingsModalContent';
 import {PeerSettingsModalContent} from '../../components/PeerSettingsModalContent';
+import {StreamingQualityModalContent} from '../../components/StreamingQualityModalContent';
 
 type MeetingScreenProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -291,6 +292,7 @@ const DisplayView = (data: {
   // useRef hook
   const gridViewRef = useRef<React.ElementRef<typeof GridView> | null>(null);
   const peerTrackNodesRef = useRef(peerTrackNodes);
+  const trackToChangeRef = useRef<null | HMSTrack>(null);
 
   // constants
   const pairedPeers = useMemo(
@@ -856,6 +858,13 @@ const DisplayView = (data: {
     });
   };
 
+  const handleStreamingQualityPress = (track: HMSTrack) => {
+    trackToChangeRef.current = track;
+    InteractionManager.runAfterInteractions(() => {
+      data?.setModalVisible(ModalTypes.STREAMING_QUALITY_SETTING);
+    });
+  };
+
   const getHmsRoles = () => {
     hmsInstance?.getRoles().then(roles => {
       dispatch(
@@ -968,6 +977,21 @@ const DisplayView = (data: {
                 onChangeRolePress={onChangeRolePress}
                 onSetVolumePress={onSetVolumePress}
                 onCaptureScreenShotPress={handleCaptureScreenShotPress}
+                onStreamingQualityPress={handleStreamingQualityPress}
+              />
+            ) : null}
+          </DefaultModal>
+          <DefaultModal
+            modalPosiion="center"
+            modalVisible={data?.modalVisible === ModalTypes.STREAMING_QUALITY_SETTING}
+            setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}
+          >
+            {trackToChangeRef.current ? (
+              <StreamingQualityModalContent
+                track={trackToChangeRef.current}
+                cancelModal={() => {
+                  data?.setModalVisible(ModalTypes.DEFAULT);
+                }}
               />
             ) : null}
           </DefaultModal>

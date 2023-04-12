@@ -39,6 +39,9 @@ export const PreviewModal = ({
   const mirrorCamera = useSelector(
     (state: RootState) => state.app.joinConfig.mirrorCamera,
   );
+  const autoSimulcast = useSelector(
+    (state: RootState) => state.app.joinConfig.autoSimulcast,
+  );
 
   const [previewVideoTrack, setPreviewVideoTrack] = useState<HMSTrack>();
 
@@ -90,6 +93,7 @@ export const PreviewModal = ({
         ) : (
           <HmsView
             scaleType={HMSVideoViewMode.ASPECT_FILL}
+            autoSimulcast={autoSimulcast}
             style={styles.hmsView}
             trackId={previewVideoTrack?.trackId}
             mirror={mirrorCamera}

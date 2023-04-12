@@ -45,6 +45,12 @@ class HmssdkDisplayView: UIView {
 
     @objc var onDataReturned: RCTDirectEventBlock?
 
+    @objc var autoSimulcast: Boolean = true {
+        didSet {
+            videoView.disableAutoSimulcastLayerSelect = !autoSimulcast
+        }
+    }
+
     @objc var scaleType: String = "ASPECT_FILL" {
         didSet {
             switch scaleType {
@@ -78,6 +84,7 @@ class HmssdkDisplayView: UIView {
 
             var videoTrack = HMSUtilities.getVideoTrack(for: trackID, in: room)
 
+            // TODO: verify this implementation for getting video tracks
             if videoTrack == nil {
                 for track in hmsCollection[sdkID]?.recentPreviewTracks ?? [] {
                     if track.trackId == trackID && track.kind == HMSTrackKind.video {

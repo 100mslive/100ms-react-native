@@ -80,6 +80,11 @@ class HMSSDKViewManager : SimpleViewManager<HMSView>() {
     view.updateZOrderMediaOverlay(data)
   }
 
+  @ReactProp(name = "autoSimulcast")
+  fun setAutoSimulcast(view: HMSView, data: Boolean?) {
+    view.updateAutoSimulcast(data)
+  }
+
   private fun getHms(): MutableMap<String, HMSRNSDK>? {
     return reactContext?.getNativeModule(HMSManager::class.java)?.getHmsInstance()
   }

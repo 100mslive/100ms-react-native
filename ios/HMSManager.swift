@@ -39,7 +39,13 @@ class HMSManager: RCTEventEmitter {
         return [ON_JOIN, ON_PREVIEW, ON_ROOM_UPDATE, ON_PEER_UPDATE, ON_TRACK_UPDATE, ON_ERROR, ON_MESSAGE, ON_SPEAKER, RECONNECTING, RECONNECTED, ON_ROLE_CHANGE_REQUEST, ON_CHANGE_TRACK_STATE_REQUEST, ON_REMOVED_FROM_ROOM, ON_RTC_STATS, ON_LOCAL_AUDIO_STATS, ON_LOCAL_VIDEO_STATS, ON_REMOTE_AUDIO_STATS, ON_REMOTE_VIDEO_STATS, ON_AUDIO_DEVICE_CHANGED]
     }
 
-    // MARK: - HMS SDK Actions
+    // MARK: - HMS SDK Delegate Callbacks
+    func emitEvent(_ name: String, _ data: [String: Any]) {
+        self.sendEvent(withName: name, body: data)
+    }
+
+
+    // MARK: - Setup HMSSDK
 
     @objc
     func build(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
@@ -63,6 +69,16 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
+    func destroy(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let id = data.value(forKey: "id") as? String ?? "12345"
+        hmsCollection.removeValue(forKey: id)
+        resolve?(["success": id + " removed"])
+    }
+
+
+    // MARK: - Preview
+
+    @objc
     func preview(_ credentials: NSDictionary) {
         let hms = HMSHelper.getHms(credentials, hmsCollection)
         hms?.preview(credentials)
@@ -82,11 +98,56 @@ class HMSManager: RCTEventEmitter {
         hms?.cancelPreview()
     }
 
+    // MARK: - Join Room
+
     @objc
     func join(_ credentials: NSDictionary) {
         let hms = HMSHelper.getHms(credentials, hmsCollection)
         hms?.join(credentials)
     }
+
+    // MARK: - Leave Room Actions
+
+    @objc
+    func leave(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.leave(resolve, reject)
+    }
+
+
+    // MARK: - HMS SDK Get APIs
+
+    @objc
+    func getRoom(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.getRoom(resolve)
+    }
+
+    @objc
+    func getLocalPeer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.getLocalPeer(resolve)
+    }
+
+    @objc
+    func getRemotePeers(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.getRemotePeers(resolve)
+    }
+
+    @objc
+    func getRoles(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.getRoles(resolve)
+    }
+
+
+    // MARK: - Audio & Video Actions
 
     @objc
     func setLocalMute(_ data: NSDictionary) {
@@ -110,77 +171,6 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func leave(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HMSHelper.getHms(data, hmsCollection)
-
-        hms?.leave(resolve, reject)
-    }
-
-    @objc
-    func sendBroadcastMessage(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HMSHelper.getHms(data, hmsCollection)
-
-        hms?.sendBroadcastMessage(data, resolve, reject)
-    }
-
-    @objc
-    func sendGroupMessage(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HMSHelper.getHms(data, hmsCollection)
-
-        hms?.sendGroupMessage(data, resolve, reject)
-    }
-
-    @objc
-    func sendDirectMessage(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HMSHelper.getHms(data, hmsCollection)
-
-        hms?.sendDirectMessage(data, resolve, reject)
-    }
-
-    @objc
-    func acceptRoleChange(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HMSHelper.getHms(data, hmsCollection)
-
-        hms?.acceptRoleChange(resolve, reject)
-    }
-
-    @available(*, deprecated, message: "Use changeRoleOfPeer function")
-    @objc
-    func changeRole(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HMSHelper.getHms(data, hmsCollection)
-
-        hms?.changeRole(data, resolve, reject)
-    }
-
-    @objc
-    func changeRoleOfPeer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HMSHelper.getHms(data, hmsCollection)
-
-        hms?.changeRole(data, resolve, reject)
-    }
-
-    @objc
-    func changeRoleOfPeersWithRoles(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HMSHelper.getHms(data, hmsCollection)
-
-        hms?.changeRolesOfAllPeers(data, resolve, reject)
-    }
-
-    @objc
-    func changeTrackState(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HMSHelper.getHms(data, hmsCollection)
-
-        hms?.changeTrackState(data, resolve, reject)
-    }
-
-    @objc
-    func changeTrackStateForRoles(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HMSHelper.getHms(data, hmsCollection)
-
-        hms?.changeTrackStateForRoles(data, resolve, reject)
-    }
-
-    @objc
     func isMute(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
         if let hmsInstance = hms {
@@ -189,20 +179,6 @@ class HMSManager: RCTEventEmitter {
             reject?(nil, "NO_INSTANCE", nil)
             return
         }
-    }
-
-    @objc
-    func removePeer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HMSHelper.getHms(data, hmsCollection)
-
-        hms?.removePeer(data, resolve, reject)
-    }
-
-    @objc
-    func endRoom(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HMSHelper.getHms(data, hmsCollection)
-
-        hms?.endRoom(data, resolve, reject)
     }
 
     @objc
@@ -234,6 +210,102 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
+    func setVolume(_ data: NSDictionary) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.setVolume(data)
+    }
+
+    // MARK: - Messaging
+
+    @objc
+    func sendBroadcastMessage(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.sendBroadcastMessage(data, resolve, reject)
+    }
+
+    @objc
+    func sendGroupMessage(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.sendGroupMessage(data, resolve, reject)
+    }
+
+    @objc
+    func sendDirectMessage(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.sendDirectMessage(data, resolve, reject)
+    }
+
+
+    // MARK: - Change Role
+
+    @available(*, deprecated, message: "Use changeRoleOfPeer function")
+    @objc
+    func changeRole(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.changeRole(data, resolve, reject)
+    }
+
+    @objc
+    func changeRoleOfPeer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.changeRole(data, resolve, reject)
+    }
+
+    @objc
+    func changeRoleOfPeersWithRoles(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.changeRolesOfAllPeers(data, resolve, reject)
+    }
+
+    @objc
+    func acceptRoleChange(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.acceptRoleChange(resolve, reject)
+    }
+
+    // MARK: - Role Based Actions
+
+    @objc
+    func changeTrackState(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.changeTrackState(data, resolve, reject)
+    }
+
+    @objc
+    func changeTrackStateForRoles(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.changeTrackStateForRoles(data, resolve, reject)
+    }
+
+
+    @objc
+    func removePeer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.removePeer(data, resolve, reject)
+    }
+
+    @objc
+    func endRoom(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.endRoom(data, resolve, reject)
+    }
+
+
+    // MARK: - Peer Actions
+
+    @objc
     func changeMetadata(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
@@ -241,11 +313,14 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func setVolume(_ data: NSDictionary) {
+    func changeName(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
-        hms?.setVolume(data)
+        hms?.changeName(data, resolve, reject)
     }
+
+
+    // MARK: - RTMP Streaming & Recording
 
     @objc
     func startRTMPOrRecording(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
@@ -261,6 +336,9 @@ class HMSManager: RCTEventEmitter {
         hms?.stopRtmpAndRecording(resolve, reject)
     }
 
+
+    // MARK: - HLS Streaming & Recording
+
     @objc
     func startHLSStreaming(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
@@ -275,19 +353,7 @@ class HMSManager: RCTEventEmitter {
         hms?.stopHLSStreaming(resolve, reject)
     }
 
-    @objc
-    func changeName(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HMSHelper.getHms(data, hmsCollection)
-
-        hms?.changeName(data, resolve, reject)
-    }
-
-    @objc
-    func destroy(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let id = data.value(forKey: "id") as? String ?? "12345"
-        hmsCollection.removeValue(forKey: id)
-        resolve?(["success": id + " removed"])
-    }
+    // MARK: - Screen Share
 
     @objc
     func startScreenshare(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
@@ -309,6 +375,8 @@ class HMSManager: RCTEventEmitter {
 
         hms?.isScreenShared(resolve, reject)
     }
+
+    // MARK: - Audio Playback
 
     @objc
     func playAudioShare(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
@@ -366,6 +434,8 @@ class HMSManager: RCTEventEmitter {
         hms?.audioShareDuration(data, resolve, reject)
     }
 
+    // MARK: - Network Quality Updates
+
     @objc
     func enableNetworkQualityUpdates(_ data: NSDictionary) {
         let hms = HMSHelper.getHms(data, hmsCollection)
@@ -380,12 +450,16 @@ class HMSManager: RCTEventEmitter {
         hms?.disableNetworkQualityUpdates()
     }
 
+    // MARK: - Session Metadata
+
     @objc
     func setSessionMetaData(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.setSessionMetaData(data, resolve, reject)
     }
+
+    // MARK: - Peer & Room Property Getter Functions
 
     @objc
     func getPeerProperty(_ data: NSDictionary) -> [AnyHashable: Any]? {
@@ -401,6 +475,8 @@ class HMSManager: RCTEventEmitter {
         return hms?.getRoomProperty(data)
     }
 
+    // MARK: - Enable/Disable HMS Events Emitting to JS
+
     @objc
     func enableEvent(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
@@ -415,12 +491,16 @@ class HMSManager: RCTEventEmitter {
         hms?.disableEvent(data, resolve, reject)
     }
 
+    // MARK: - Restrict sending whole HMSRole object
+
     @objc
     func restrictData(_ data: NSDictionary) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.restrictData(data)
     }
+
+    // MARK: - Room Code Auth Token API
 
     @objc
     func getAuthTokenByRoomCode(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
@@ -465,8 +545,19 @@ class HMSManager: RCTEventEmitter {
         hms?.getSessionMetaData(resolve, reject)
     }
 
-    // MARK: - HMS SDK Delegate Callbacks
-    func emitEvent(_ name: String, _ data: [String: Any]) {
-        self.sendEvent(withName: name, body: data)
+    // MARK: - Simulcast
+
+    @objc
+    func getVideoTrackLayerDefinition(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.getVideoTrackLayerDefinition(data, resolve, reject)
+    }
+
+    @objc
+    func setVideoTrackLayer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.setVideoTrackLayer(data, resolve, reject)
     }
 }

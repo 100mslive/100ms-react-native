@@ -32,6 +32,9 @@ const PeerDisplayViewUnmemoized = React.forwardRef<
   const mirrorCamera = useSelector(
     (state: RootState) => state.app.joinConfig.mirrorCamera,
   );
+  const autoSimulcast = useSelector(
+    (state: RootState) => state.app.joinConfig.autoSimulcast
+  );
   const showStatsOnTiles = useSelector(
     (state: RootState) => state.app.joinConfig.showStats
   );
@@ -54,6 +57,7 @@ const PeerDisplayViewUnmemoized = React.forwardRef<
             ref={hmsViewRef}
             // setZOrderMediaOverlay={miniView}
             trackId={videoTrack?.trackId!}
+            autoSimulcast={autoSimulcast}
             mirror={
               isLocal && mirrorCamera !== undefined ? mirrorCamera : false
             }

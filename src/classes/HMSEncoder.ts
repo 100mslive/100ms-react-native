@@ -36,6 +36,8 @@ import { HMSLocalAudioStats } from './HMSLocalAudioStats';
 import { HMSLocalVideoStats } from './HMSLocalVideoStats';
 import { HMSRemoteAudioStats } from './HMSRemoteAudioStats';
 import { HMSRemoteVideoStats } from './HMSRemoteVideoStats';
+import { HMSLayer } from './HMSLayer';
+import { HMSSimulcastLayerDefinition } from './HMSSimulcastLayerDefinition';
 
 const { HMSManager } = NativeModules;
 
@@ -598,6 +600,18 @@ export class HMSEncoder {
       packetsLost: packetsLost >= 0 ? packetsLost : undefined,
       packetsReceived: packetsReceived ? packetsReceived : undefined, // string, TODO: parse to number ?
       resolution: resolution ? { width: resolution[0], height: resolution[1] } : undefined, // resolution: [width, height]
+    });
+  }
+
+  static encodeHMSSimulcastLayerDefinition(data: any[]) {
+    return data.map((sld) => {
+      return new HMSSimulcastLayerDefinition({
+        layer: HMSLayer[sld.layer as HMSLayer], // DOUBT: This can be invalid. Should we throw error?
+        resolution: this.encodeHmsVideoResolution({
+          width: sld.resolution[0],
+          height: sld.resolution[1],
+        })
+      });
     });
   }
 }
