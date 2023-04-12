@@ -65,9 +65,9 @@ perform_git_actions() {
   git add example/ios/RNHMSExample.xcodeproj/project.pbxproj
 
   echo "testScript- perform_git_actions $PWD"
-  # git commit -m "released sample app version $versionCode ($buildNumber) ⚛️" --no-verify
+  git commit -m "released sample app version $versionCode ($buildNumber) ⚛️" --no-verify
 
-  # git push --verbose
+  git push --verbose
 }
 
 perform_npm_actions
@@ -84,8 +84,5 @@ P3=$!
 wait $P2 $P3
 
 perform_git_actions
-P4=$!
-
-wait $P4
 
 say done
