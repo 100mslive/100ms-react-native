@@ -16,7 +16,6 @@
 		A987F9182848F8790078014C /* Inter-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A987F9162848F6A80078014C /* Inter-Bold.ttf */; };
 		A987F9192848F8790078014C /* Inter-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A987F9152848F6A80078014C /* Inter-Medium.ttf */; };
 		A987F91A2848F8790078014C /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A987F9172848F6A80078014C /* Inter-Regular.ttf */; };
-		C7FE391A6EAC0B7942FA85ED /* libPods-RNHMSExample-RNHMSExampleTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DACAD29EF3E1331792A2A6D4 /* libPods-RNHMSExample-RNHMSExampleTests.a */; };
 		CB0E5AEE35E310D8B0F98AEB /* libPods-RNHMSExampleBroadcastUpload.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 54CC37EB010A825DE92012B6 /* libPods-RNHMSExampleBroadcastUpload.a */; };
 		ECD6520728B3BADE007B5AF8 /* ReplayKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ECD6520628B3BADE007B5AF8 /* ReplayKit.framework */; };
 		ECD6520A28B3BADE007B5AF8 /* SampleHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD6520928B3BADE007B5AF8 /* SampleHandler.swift */; };
@@ -64,10 +63,8 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = RNHMSExample/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = RNHMSExample/main.m; sourceTree = "<group>"; };
 		306A859805197F7F55871874 /* Pods-RNHMSExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNHMSExample.release.xcconfig"; path = "Target Support Files/Pods-RNHMSExample/Pods-RNHMSExample.release.xcconfig"; sourceTree = "<group>"; };
-		33D0EBB5A77D124502F666EE /* Pods-RNHMSExample-RNHMSExampleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNHMSExample-RNHMSExampleTests.release.xcconfig"; path = "Target Support Files/Pods-RNHMSExample-RNHMSExampleTests/Pods-RNHMSExample-RNHMSExampleTests.release.xcconfig"; sourceTree = "<group>"; };
 		54CC37EB010A825DE92012B6 /* libPods-RNHMSExampleBroadcastUpload.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RNHMSExampleBroadcastUpload.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B373D9F26B9112700DFE478 /* libswiftWebKit.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libswiftWebKit.tbd; path = usr/lib/swift/libswiftWebKit.tbd; sourceTree = SDKROOT; };
-		6CA804C6E51BBD570B65C764 /* Pods-RNHMSExample-RNHMSExampleTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNHMSExample-RNHMSExampleTests.debug.xcconfig"; path = "Target Support Files/Pods-RNHMSExample-RNHMSExampleTests/Pods-RNHMSExample-RNHMSExampleTests.debug.xcconfig"; sourceTree = "<group>"; };
 		78E106D6D531C7025A48F40B /* Pods-RNHMSExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNHMSExample.debug.xcconfig"; path = "Target Support Files/Pods-RNHMSExample/Pods-RNHMSExample.debug.xcconfig"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = RNHMSExample/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		9E257935BA9B15E19C3CC421 /* Pods-RNHMSExampleBroadcastUpload.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNHMSExampleBroadcastUpload.debug.xcconfig"; path = "Target Support Files/Pods-RNHMSExampleBroadcastUpload/Pods-RNHMSExampleBroadcastUpload.debug.xcconfig"; sourceTree = "<group>"; };
@@ -75,7 +72,6 @@
 		A987F9162848F6A80078014C /* Inter-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Bold.ttf"; sourceTree = "<group>"; };
 		A987F9172848F6A80078014C /* Inter-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Regular.ttf"; sourceTree = "<group>"; };
 		D0BEB2D493E8A5BBFF46F92B /* libPods-RNHMSExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RNHMSExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		DACAD29EF3E1331792A2A6D4 /* libPods-RNHMSExample-RNHMSExampleTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RNHMSExample-RNHMSExampleTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ECA3437726C3E17E007CB7C3 /* RNHMSExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = RNHMSExample.entitlements; path = RNHMSExample/RNHMSExample.entitlements; sourceTree = "<group>"; };
 		ECD6520528B3BADE007B5AF8 /* RNHMSExampleBroadcastUpload.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = RNHMSExampleBroadcastUpload.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		ECD6520628B3BADE007B5AF8 /* ReplayKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReplayKit.framework; path = System/Library/Frameworks/ReplayKit.framework; sourceTree = SDKROOT; };
@@ -90,7 +86,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C7FE391A6EAC0B7942FA85ED /* libPods-RNHMSExample-RNHMSExampleTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -136,7 +131,6 @@
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				ECD6520628B3BADE007B5AF8 /* ReplayKit.framework */,
 				D0BEB2D493E8A5BBFF46F92B /* libPods-RNHMSExample.a */,
-				DACAD29EF3E1331792A2A6D4 /* libPods-RNHMSExample-RNHMSExampleTests.a */,
 				54CC37EB010A825DE92012B6 /* libPods-RNHMSExampleBroadcastUpload.a */,
 			);
 			name = Frameworks;
@@ -190,8 +184,6 @@
 			children = (
 				78E106D6D531C7025A48F40B /* Pods-RNHMSExample.debug.xcconfig */,
 				306A859805197F7F55871874 /* Pods-RNHMSExample.release.xcconfig */,
-				6CA804C6E51BBD570B65C764 /* Pods-RNHMSExample-RNHMSExampleTests.debug.xcconfig */,
-				33D0EBB5A77D124502F666EE /* Pods-RNHMSExample-RNHMSExampleTests.release.xcconfig */,
 				9E257935BA9B15E19C3CC421 /* Pods-RNHMSExampleBroadcastUpload.debug.xcconfig */,
 				129B28F26CD2E60FDD31F60A /* Pods-RNHMSExampleBroadcastUpload.release.xcconfig */,
 			);
@@ -215,12 +207,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "RNHMSExampleTests" */;
 			buildPhases = (
-				489A01A163AD4D628643C1FE /* [CP] Check Pods Manifest.lock */,
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
-				D69A5E9D6F58B3126781A68F /* [CP] Embed Pods Frameworks */,
-				72048CAEF744BC97EDCB1D7A /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -360,28 +349,6 @@
 			shellPath = /bin/sh;
 			shellScript = "set -e\n\nexport NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
 		};
-		489A01A163AD4D628643C1FE /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-RNHMSExample-RNHMSExampleTests-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
 		54489A7BC7C4D39285DBD18C /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -424,40 +391,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		72048CAEF744BC97EDCB1D7A /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-RNHMSExample-RNHMSExampleTests/Pods-RNHMSExample-RNHMSExampleTests-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-RNHMSExample-RNHMSExampleTests/Pods-RNHMSExample-RNHMSExampleTests-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-RNHMSExample-RNHMSExampleTests/Pods-RNHMSExample-RNHMSExampleTests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		D69A5E9D6F58B3126781A68F /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-RNHMSExample-RNHMSExampleTests/Pods-RNHMSExample-RNHMSExampleTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-RNHMSExample-RNHMSExampleTests/Pods-RNHMSExample-RNHMSExampleTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-RNHMSExample-RNHMSExampleTests/Pods-RNHMSExample-RNHMSExampleTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		DDF0F48D1FB1854DCCE6567F /* [CP] Embed Pods Frameworks */ = {
@@ -558,7 +491,6 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 6CA804C6E51BBD570B65C764 /* Pods-RNHMSExample-RNHMSExampleTests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -587,7 +519,6 @@
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 33D0EBB5A77D124502F666EE /* Pods-RNHMSExample-RNHMSExampleTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
