@@ -372,7 +372,7 @@ PODS:
     - React-Core
   - RNCAsyncStorage (1.18.1):
     - React-Core
-  - RNCPicker (2.4.9):
+  - RNCPicker (2.4.10):
     - React-Core
   - RNDeviceInfo (9.0.2):
     - React-Core
@@ -635,7 +635,7 @@ SPEC CHECKSUMS:
   ReactCommon: b4a65d2d6e9eeffd4b32dde1245962b3f43907d0
   rn-fetch-blob: f065bb7ab7fb48dd002629f8bdcb0336602d3cba
   RNCAsyncStorage: b90b71f45b8b97be43bc4284e71a6af48ac9f547
-  RNCPicker: 567de6dc0c6735cf249700d940c80b90b090e4db
+  RNCPicker: 0bc2f0a29abcca7b7ed44a2d036aac9ab6d25700
   RNDeviceInfo: 1e3f62b9ec32f7754fac60bd06b8f8a27124e7f0
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
