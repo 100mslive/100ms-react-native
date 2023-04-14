@@ -33,10 +33,10 @@ const PeerDisplayViewUnmemoized = React.forwardRef<
     (state: RootState) => state.app.joinConfig.mirrorCamera,
   );
   const autoSimulcast = useSelector(
-    (state: RootState) => state.app.joinConfig.autoSimulcast
+    (state: RootState) => state.app.joinConfig.autoSimulcast,
   );
   const showStatsOnTiles = useSelector(
-    (state: RootState) => state.app.joinConfig.showStats
+    (state: RootState) => state.app.joinConfig.showStats,
   );
 
   if (!HmsView) {

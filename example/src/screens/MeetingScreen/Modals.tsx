@@ -67,7 +67,7 @@ import {
 import {LayoutParams, ModalTypes, SortingType} from '../../utils/types';
 import {COLORS} from '../../utils/theme';
 import type {RootState} from '../../redux';
-import { SwitchRow } from '../../components/SwitchRow';
+import {SwitchRow} from '../../components/SwitchRow';
 
 export const ParticipantsModal = ({
   instance,
@@ -812,11 +812,14 @@ interface RTCTrack {
 export const RtcStatsModal = () => {
   const dispatch = useDispatch();
   const instance = useSelector((state: RootState) => state.user.hmsInstance);
-  const showStatsOnTiles = useSelector((state: RootState) => state.app.joinConfig.showStats);
+  const showStatsOnTiles = useSelector(
+    (state: RootState) => state.app.joinConfig.showStats,
+  );
 
   const [localPeer, setLocalPeer] = useState<HMSLocalPeer | null>(null);
   const [remotePeers, setRemotePeers] = useState<HMSRemotePeer[]>([]);
-  const [tracksListModalVisible, setTracksListModalVisible] = useState<boolean>(false);
+  const [tracksListModalVisible, setTracksListModalVisible] =
+    useState<boolean>(false);
   const [currentTrack, setCurrentTrack] = useState<RTCTrack | null>(null);
 
   const hideMenu = () => setTracksListModalVisible(false);
@@ -893,9 +896,13 @@ export const RtcStatsModal = () => {
     }
   }, [isCurrentTrackSelected, firstTrackInStatsList]);
 
-  const selectedTrackId = currentTrack ? (currentTrack.peerId || currentTrack.track?.trackId) : null;
+  const selectedTrackId = currentTrack
+    ? currentTrack.peerId || currentTrack.track?.trackId
+    : null;
 
-  const rtcStatsData = useSelector((state: RootState) => selectedTrackId ? state.app.rtcStats[selectedTrackId] : null);
+  const rtcStatsData = useSelector((state: RootState) =>
+    selectedTrackId ? state.app.rtcStats[selectedTrackId] : null,
+  );
 
   return (
     <View style={styles.participantContainer}>
@@ -904,9 +911,9 @@ export const RtcStatsModal = () => {
       </View>
 
       <SwitchRow
-        text='Show Stats on Tiles'
+        text="Show Stats on Tiles"
         value={showStatsOnTiles}
-        onChange={(value) => dispatch(changeShowStats(value))}
+        onChange={value => dispatch(changeShowStats(value))}
       />
 
       <Menu
@@ -917,7 +924,9 @@ export const RtcStatsModal = () => {
               {currentTrack?.name ?? 'Choose'}
             </Text>
             <MaterialIcons
-              name={tracksListModalVisible ? 'arrow-drop-up' : 'arrow-drop-down'}
+              name={
+                tracksListModalVisible ? 'arrow-drop-up' : 'arrow-drop-down'
+              }
               style={styles.participantFilterIcon}
               size={24}
             />
@@ -946,21 +955,25 @@ export const RtcStatsModal = () => {
       </Menu>
 
       <ScrollView contentContainerStyle={styles.statsModalCardContainer}>
-        {rtcStatsData ? Object.entries(rtcStatsData).map(item => {
-          const [key, value] = item;
+        {rtcStatsData
+          ? Object.entries(rtcStatsData).map(item => {
+              const [key, value] = item;
 
-          return (
-            <View style={styles.statsModalCard} key={key}>
-              <Text style={styles.statsModalCardHeading}>{key}</Text>
+              return (
+                <View style={styles.statsModalCard} key={key}>
+                  <Text style={styles.statsModalCardHeading}>{key}</Text>
 
-              <Text style={styles.statsModalCardDescription}>
-                {key === 'resolution'
-                  ? `Height: ${value?.height ?? 0}, Width: ${value?.width ?? 0}`
-                  : value}
-              </Text>
-            </View>
-          );
-        }) : null}
+                  <Text style={styles.statsModalCardDescription}>
+                    {key === 'resolution'
+                      ? `Height: ${value?.height ?? 0}, Width: ${
+                          value?.width ?? 0
+                        }`
+                      : value}
+                  </Text>
+                </View>
+              );
+            })
+          : null}
       </ScrollView>
     </View>
   );

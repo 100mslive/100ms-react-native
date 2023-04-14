@@ -5,7 +5,7 @@ import {
   HMSLocalAudioStats,
   HMSLocalVideoStats,
   HMSRemoteAudioStats,
-  HMSRemoteVideoStats
+  HMSRemoteVideoStats,
 } from '@100mslive/react-native-hms';
 
 type ActionType = {
@@ -16,7 +16,14 @@ type ActionType = {
 type IntialStateType = {
   peerState: PeerTrackNode[];
   pipModeStatus: PipModes;
-  rtcStats: Record<string, undefined | HMSLocalAudioStats | HMSLocalVideoStats[] | HMSRemoteAudioStats | HMSRemoteVideoStats>;
+  rtcStats: Record<
+    string,
+    | undefined
+    | HMSLocalAudioStats
+    | HMSLocalVideoStats[]
+    | HMSRemoteAudioStats
+    | HMSRemoteVideoStats
+  >;
   joinConfig: {
     mutedAudio: boolean;
     mutedVideo: boolean;
@@ -138,7 +145,7 @@ const appReducer = (
         rtcStats: {
           ...state.rtcStats,
           [action.payload.trackId]: action.payload.stats,
-        }
+        },
       };
     default:
       return state;

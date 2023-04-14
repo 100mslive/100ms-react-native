@@ -52,10 +52,10 @@ export class HMSEncoder {
     this.data = { roles: {} };
   }
 
-  static encodeHmsRoom(room: HMSRoom, id: string) {
+  static encodeHmsRoom(room: any, id: string) {
     const encodedObj = {
       id: room?.id,
-      sessionId: room?.sessionId,
+      sessionId: room?.sessionId || undefined,
       metaData: room?.metaData,
       name: room?.name,
       peerCount: room?.peerCount,
@@ -76,6 +76,7 @@ export class HMSEncoder {
         room?.hlsRecordingState
       ),
       localPeer: HMSEncoder.encodeHmsLocalPeer(room?.localPeer, id),
+      // startedAt: HMSEncoder.encodeDate(room?.startedAt),
     };
 
     return new HMSRoom(encodedObj);

@@ -983,7 +983,9 @@ const DisplayView = (data: {
           </DefaultModal>
           <DefaultModal
             modalPosiion="center"
-            modalVisible={data?.modalVisible === ModalTypes.STREAMING_QUALITY_SETTING}
+            modalVisible={
+              data?.modalVisible === ModalTypes.STREAMING_QUALITY_SETTING
+            }
             setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}
           >
             {trackToChangeRef.current ? (

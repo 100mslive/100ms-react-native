@@ -1,4 +1,4 @@
-import { NativeModules, Platform } from 'react-native';
+import { NativeModules } from 'react-native';
 import { getLogger } from './HMSLogger';
 import { HMSVideoTrack } from './HMSVideoTrack';
 import type { HMSTrackType } from './HMSTrackType';
@@ -62,17 +62,12 @@ export class HMSRemoteVideoTrack extends HMSVideoTrack {
       trackId: this.trackId,
     });
 
-    if (Platform.OS === 'android') {
-      const layer: HMSLayer = await HMSManager.getVideoTrackLayer({
-        id: this.id,
-        trackId: this.trackId,
-      });
+    const layer: HMSLayer = await HMSManager.getVideoTrackLayer({
+      id: this.id,
+      trackId: this.trackId,
+    });
 
-      return layer;
-    } else {
-      console.log('API currently not available for iOS');
-      return 'API currently not available for iOS';
-    }
+    return layer;
   }
 
   async getLayerDefinition() {
@@ -82,18 +77,13 @@ export class HMSRemoteVideoTrack extends HMSVideoTrack {
       trackId: this.trackId,
     });
 
-    if (Platform.OS === 'android') {
-      const layerDefinition: HMSSimulcastLayerDefinition[] =
-        await HMSManager.getVideoTrackLayerDefinition({
-          id: this.id,
-          trackId: this.trackId,
-        });
+    const layerDefinition: HMSSimulcastLayerDefinition[] =
+      await HMSManager.getVideoTrackLayerDefinition({
+        id: this.id,
+        trackId: this.trackId,
+      });
 
-      return HMSEncoder.encodeHMSSimulcastLayerDefinition(layerDefinition);
-    } else {
-      console.log('API currently not available for iOS');
-      return 'API currently not available for iOS';
-    }
+    return HMSEncoder.encodeHMSSimulcastLayerDefinition(layerDefinition);
   }
 
   async setLayer(layer: HMSLayer) {
@@ -104,18 +94,13 @@ export class HMSRemoteVideoTrack extends HMSVideoTrack {
       layer,
     });
 
-    if (Platform.OS === 'android') {
-      const success = await HMSManager.setVideoTrackLayer({
-        id: this.id,
-        trackId: this.trackId,
-        layer,
-      });
+    const success = await HMSManager.setVideoTrackLayer({
+      id: this.id,
+      trackId: this.trackId,
+      layer,
+    });
 
-      return success;
-    } else {
-      console.log('API currently not available for iOS');
-      return 'API currently not available for iOS';
-    }
+    return success;
   }
 
   constructor(params: {

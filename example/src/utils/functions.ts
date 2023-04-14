@@ -24,6 +24,7 @@ import { getRoomLinkDetails } from './getRoomLinkDetails';
 
 export const getMeetingUrl = () =>
   'https://yogi.app.100ms.live/streaming/meeting/nih-bkn-vek';
+  // 'https://yogi-live.app.100ms.live/streaming/preview/qii-tow-sjq'; // DOUBT: use this URL instead of "nih" one?
 
 export const getMeetingCode = () => 'nih-bkn-vek';
 

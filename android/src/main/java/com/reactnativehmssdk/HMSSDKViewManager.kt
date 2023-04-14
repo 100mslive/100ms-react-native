@@ -82,7 +82,7 @@ class HMSSDKViewManager : SimpleViewManager<HMSView>() {
 
   @ReactProp(name = "autoSimulcast")
   fun setAutoSimulcast(view: HMSView, data: Boolean?) {
-    view.updateAutoSimulcast(data)
+    data?.let { view.updateAutoSimulcast(it) }
   }
 
   private fun getHms(): MutableMap<String, HMSRNSDK>? {

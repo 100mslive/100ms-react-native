@@ -75,12 +75,14 @@ object HMSDecoder {
     val room: WritableMap = Arguments.createMap()
     if (hmsRoom != null) {
       room.putString("id", hmsRoom.roomId)
-      room.putString("sessionId", hmsRoom.sessionId)
+      hmsRoom.sessionId?.let {
+        room.putString("sessionId", it)
+      }
       room.putString("name", hmsRoom.name)
       room.putString("metaData", null)
-      hmsRoom.startedAt?.let {
-        room.putString("startedAt", it.toString())
-      }
+      // hmsRoom.startedAt?.let {
+      //   room.putString("startedAt", it.toString())
+      // }
 
       hmsRoom.browserRecordingState?.let {
         room.putMap(
@@ -111,7 +113,9 @@ object HMSDecoder {
         room.putMap("hlsRecordingState", this.getHMSHlsRecordingState(hmsRoom.hlsRecordingState))
       }
 
-      room.putMap("localPeer", this.getHmsLocalPeer(hmsRoom.localPeer))
+      hmsRoom.localPeer?.let {
+        room.putMap("localPeer", this.getHmsLocalPeer(it))
+      }
 
       room.putArray("peers", this.getAllPeers(hmsRoom.peerList))
 
@@ -629,6 +633,10 @@ object HMSDecoder {
     val subscribeSettings: WritableMap = Arguments.createMap()
     if (hmsSubscribeSettings != null) {
       subscribeSettings.putInt("maxSubsBitRate", hmsSubscribeSettings.maxSubsBitRate)
+      // subscribeSettings.putMap(
+      //   "subscribeDegradation",
+      //   this.getHmsSubscribeDegradationSettings(hmsSubscribeSettings.subscribeDegradationParam)
+      // )
       subscribeSettings.putArray(
         "subscribeTo",
         this.getWriteableArray(hmsSubscribeSettings.subscribeTo)

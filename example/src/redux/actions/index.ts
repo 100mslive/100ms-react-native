@@ -1,4 +1,12 @@
-import type {HMSLocalAudioStats, HMSLocalVideoStats, HMSMessage, HMSRemoteAudioStats, HMSRemoteVideoStats, HMSRole, HMSSDK} from '@100mslive/react-native-hms';
+import type {
+  HMSLocalAudioStats,
+  HMSLocalVideoStats,
+  HMSMessage,
+  HMSRemoteAudioStats,
+  HMSRemoteVideoStats,
+  HMSRole,
+  HMSSDK,
+} from '@100mslive/react-native-hms';
 import type {PeerTrackNode, PipModes} from '../../utils/types';
 import actionTypes from '../actionTypes';
 
@@ -95,8 +103,12 @@ export const changeAutoSimulcast = (value: boolean) => ({
 
 export const setRTCStats = (
   trackId: string,
-  stats: HMSLocalAudioStats | HMSLocalVideoStats[] | HMSRemoteAudioStats | HMSRemoteVideoStats
+  stats:
+    | HMSLocalAudioStats
+    | HMSLocalVideoStats[]
+    | HMSRemoteAudioStats
+    | HMSRemoteVideoStats,
 ) => ({
   type: actionTypes.SET_RTC_STATS,
-  payload: { trackId, stats },
+  payload: {trackId, stats},
 });

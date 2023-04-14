@@ -116,37 +116,6 @@ class HMSManager: RCTEventEmitter {
     }
 
 
-    // MARK: - HMS SDK Get APIs
-
-    @objc
-    func getRoom(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HMSHelper.getHms(data, hmsCollection)
-
-        hms?.getRoom(resolve)
-    }
-
-    @objc
-    func getLocalPeer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HMSHelper.getHms(data, hmsCollection)
-
-        hms?.getLocalPeer(resolve)
-    }
-
-    @objc
-    func getRemotePeers(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HMSHelper.getHms(data, hmsCollection)
-
-        hms?.getRemotePeers(resolve)
-    }
-
-    @objc
-    func getRoles(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HMSHelper.getHms(data, hmsCollection)
-
-        hms?.getRoles(resolve)
-    }
-
-
     // MARK: - Audio & Video Actions
 
     @objc
@@ -548,10 +517,17 @@ class HMSManager: RCTEventEmitter {
     // MARK: - Simulcast
 
     @objc
-    func getVideoTrackLayerDefinition(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    func getLayerDefinition(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
-        hms?.getVideoTrackLayerDefinition(data, resolve, reject)
+        hms?.getLayerDefinition(data, resolve, reject)
+    }
+
+    @objc
+    func getLayer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.getLayer(data, resolve, reject)
     }
 
     @objc

@@ -43,7 +43,7 @@ import {
 } from './HMSRoomCache';
 import { HMSPeerUpdateOrdinals } from './HMSPeerUpdate';
 
-type HmsViewProps = Omit<HmsComponentProps, "id">;
+type HmsViewProps = Omit<HmsComponentProps, 'id'>;
 
 // TODO: Rename to HMSPIPConfig & to be moved to a separate file
 interface PIPConfig {

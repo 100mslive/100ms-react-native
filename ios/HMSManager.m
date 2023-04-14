@@ -64,5 +64,7 @@ RCT_EXTERN_METHOD(disableEvent: (NSDictionary) data :(RCTPromiseResolveBlock) re
 RCT_EXTERN_METHOD(restrictData: (NSDictionary) data)
 RCT_EXTERN_METHOD(getAuthTokenByRoomCode: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(getVideoTrackLayerDefinition: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(getLayer: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(getLayerDefinition: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(setVideoTrackLayer: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 @end
