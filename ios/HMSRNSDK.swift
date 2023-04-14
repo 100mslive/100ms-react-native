@@ -1292,6 +1292,57 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
 
+    func getRemoteVideoTrackFromTrackId(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+
+        guard let trackId = data.value(forKey: "trackId") as? String
+        else {
+            let errorMessage = "\(#function) " + HMSHelper.getUnavailableRequiredKey(data, ["trackId"])
+            emitRequiredKeysError(errorMessage)
+            reject?(errorMessage, errorMessage, nil)
+            return
+        }
+
+        DispatchQueue.main.async { [weak self] in
+
+            guard let self = self,
+                  let remotePeers = self.hms?.remotePeers,
+                  let remoteVideoTrack = HMSHelper.getRemoteVideoTrackFromTrackId(trackId, remotePeers)
+            else {
+                let errorMessage = "\(#function) " + "TRACK_NOT_FOUND"
+                self?.emitRequiredKeysError(errorMessage)
+                reject?(errorMessage, errorMessage, nil)
+                return
+            }
+
+            resolve?(HMSDecoder.getHMSRemoteVideoTrack(remoteVideoTrack))
+        }
+    }
+
+    func getRemoteAudioTrackFromTrackId(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let trackId = data.value(forKey: "trackId") as? String
+        else {
+            let errorMessage = "\(#function) " + HMSHelper.getUnavailableRequiredKey(data, ["trackId"])
+            emitRequiredKeysError(errorMessage)
+            reject?(errorMessage, errorMessage, nil)
+            return
+        }
+
+        DispatchQueue.main.async { [weak self] in
+
+            guard let self = self,
+                  let remotePeers = self.hms?.remotePeers,
+                  let remoteAudioTrack = HMSHelper.getRemoteAudioTrackFromTrackId(trackId, remotePeers)
+            else {
+                let errorMessage = "\(#function) " + "TRACK_NOT_FOUND"
+                self?.emitRequiredKeysError(errorMessage)
+                reject?(errorMessage, errorMessage, nil)
+                return
+            }
+
+            resolve?(HMSDecoder.getHMSRemoteAudioTrack(remoteAudioTrack))
+        }
+    }
+
     // MARK: - HMS SDK Delegate Callbacks
     func on(join room: HMSRoom) {
         if eventsEnableStatus[HMSConstants.ON_JOIN] != true {
@@ -1313,7 +1364,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func on(room: HMSRoom, update: HMSRoomUpdate) {
-        if eventsEnableStatus[ON_ROOM_UPDATE] != true {
+        if eventsEnableStatus[HMSConstants.ON_ROOM_UPDATE] != true {
             return
         }
         if update == .metaDataUpdated || update == .roomTypeChanged {
@@ -1327,7 +1378,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func on(peer: HMSPeer, update: HMSPeerUpdate) {
-        if eventsEnableStatus[ON_PEER_UPDATE] != true {
+        if eventsEnableStatus[HMSConstants.ON_PEER_UPDATE] != true {
             return
         }
         let type = getString(from: update)
@@ -1380,7 +1431,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func on(updated speakers: [HMSSpeaker]) {
-        if eventsEnableStatus[ON_SPEAKER] != true {
+        if eventsEnableStatus[HMSConstants.ON_SPEAKER] != true {
             return
         }
         var speakerPeerIds: [[String: Any]] = []
@@ -1425,7 +1476,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
     func on(removedFromRoom notification: HMSRemovedFromRoomNotification) {
         HMSDecoder.clearRestrictDataStates()
-        if eventsEnableStatus[ON_REMOVED_FROM_ROOM] != true {
+        if eventsEnableStatus[HMSConstants.ON_REMOVED_FROM_ROOM] != true {
             return
         }
         let requestedBy = notification.requestedBy as HMSPeer?
@@ -1439,21 +1490,21 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func on(rtcStats: HMSRTCStatsReport) {
-        if eventsEnableStatus[ON_RTC_STATS] != true {
+        if eventsEnableStatus[HMSConstants.ON_RTC_STATS] != true {
             return
         }
-        let video = HMSDecoder.getHMSRTCStats(rtcStats.video)
-        let audio = HMSDecoder.getHMSRTCStats(rtcStats.audio)
-        let combined = HMSDecoder.getHMSRTCStats(rtcStats.combined)
+        let video = HMSDecoder.getHMSRTCStats(rtcStats.video) // [bitrateReceived, bitrateSent, bytesReceived, bytesSent, packetsLost, packetsReceived, roundTripTime]
+        let audio = HMSDecoder.getHMSRTCStats(rtcStats.audio) // [bitrateReceived, bitrateSent, bytesReceived, bytesSent, packetsLost, packetsReceived, roundTripTime]
+        let combined = HMSDecoder.getHMSRTCStats(rtcStats.combined) // [bitrateReceived, bitrateSent, bytesReceived, bytesSent, packetsLost, packetsReceived, roundTripTime]
 
         self.delegate?.emitEvent(HMSConstants.ON_RTC_STATS, ["video": video, "audio": audio, "combined": combined, "id": self.id])
     }
 
     func on(localAudioStats: HMSLocalAudioStats, track: HMSAudioTrack, peer: HMSPeer) {
-        if eventsEnableStatus[ON_LOCAL_AUDIO_STATS] != true {
+        if eventsEnableStatus[HMSConstants.ON_LOCAL_AUDIO_STATS] != true {
             return
         }
-        let localStats = HMSDecoder.getLocalAudioStats(localAudioStats)
+        let localStats = HMSDecoder.getLocalAudioStats(localAudioStats) // [bitrate, bytesSent, roundTripTime]
         let localTrack = HMSDecoder.getHmsAudioTrack(track)
         let decodedPeer = HMSDecoder.getHmsPeerSubset(peer)
 
@@ -1464,7 +1515,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         if eventsEnableStatus[HMSConstants.ON_LOCAL_VIDEO_STATS] != true {
             return
         }
-        let localStats = HMSDecoder.getLocalVideoStats(localVideoStats)
+        let localStats = HMSDecoder.getLocalVideoStats(localVideoStats) // List<[bitrate, bytesSent, roundTripTime, frameRate, resolution, layer]>
         let decodedPeer = HMSDecoder.getHmsPeerSubset(peer)
         let localTrack = HMSDecoder.getHmsVideoTrack(track)
 
@@ -1472,10 +1523,10 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func on(remoteAudioStats: HMSRemoteAudioStats, track: HMSAudioTrack, peer: HMSPeer) {
-        if eventsEnableStatus[ON_REMOTE_AUDIO_STATS] != true {
+        if eventsEnableStatus[HMSConstants.ON_REMOTE_AUDIO_STATS] != true {
             return
         }
-        let remoteStats = HMSDecoder.getRemoteAudioStats(remoteAudioStats)
+        let remoteStats = HMSDecoder.getRemoteAudioStats(remoteAudioStats) // [bitrate, bytesReceived, jitter, packetsLost, packetsReceived]
         let remoteTrack = HMSDecoder.getHmsAudioTrack(track)
         let decodedPeer = HMSDecoder.getHmsPeerSubset(peer)
 
@@ -1483,10 +1534,10 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func on(remoteVideoStats: HMSRemoteVideoStats, track: HMSVideoTrack, peer: HMSPeer) {
-        if eventsEnableStatus[ON_REMOTE_VIDEO_STATS] != true {
+        if eventsEnableStatus[HMSConstants.ON_REMOTE_VIDEO_STATS] != true {
             return
         }
-        let remoteStats = HMSDecoder.getRemoteVideoStats(remoteVideoStats)
+        let remoteStats = HMSDecoder.getRemoteVideoStats(remoteVideoStats) // [bitrate, bytesReceived, frameRate, jitter, packetsLost, packetsReceived, resolution]
         let decodedPeer = HMSDecoder.getHmsPeerSubset(peer)
         let remoteTrack = HMSDecoder.getHmsVideoTrack(track)
 
@@ -1496,7 +1547,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
     // MARK: - Simulcast
 
-    func getLayerDefinition(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    func getVideoTrackLayerDefinition(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let trackId = data.value(forKey: "trackId") as? String
         else {
             let errorMessage = "\(#function) " + HMSHelper.getUnavailableRequiredKey(data, ["trackId"])
@@ -1508,24 +1559,30 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         DispatchQueue.main.async { [weak self] in
 
             guard let self = self,
-                  let room = self.hms?.room,
-                  let videoTrack = HMSUtilities.getVideoTrack(for: trackId, in: room),
-                  let remoteVideoTrack = videoTrack as? HMSRemoteVideoTrack,
-                  let layerDefinitions = remoteVideoTrack.layerDefinitions
+                  let remotePeers = self.hms?.remotePeers,
+                  let remoteVideoTrack = HMSHelper.getRemoteVideoTrackFromTrackId(trackId, remotePeers)
             else {
-                let errorMessage = "\(#function) " + HMSHelper.getUnavailableRequiredKey(data, ["layerDefinitions"])
+                let errorMessage = "\(#function) " + "TRACK_NOT_FOUND"
                 self?.emitRequiredKeysError(errorMessage)
                 reject?(errorMessage, errorMessage, nil)
                 return
             }
 
-            let parsedLayerDefinitions = HMSDecoder.getLayerDefinitions(for: layerDefinitions)
+            guard let layerDefinitions = remoteVideoTrack.layerDefinitions
+            else {
+                let errorMessage = "\(#function) " + "layer definitions not available for track: '\(trackId)' !"
+                self.emitRequiredKeysError(errorMessage)
+                reject?(errorMessage, errorMessage, nil)
+                return
+            }
+
+            let parsedLayerDefinitions = HMSDecoder.getSimulcastLayerDefinitions(for: layerDefinitions)
 
             resolve?(parsedLayerDefinitions)
         }
     }
 
-    func getLayer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    func getVideoTrackLayer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
 
         guard let trackId = data.value(forKey: "trackId") as? String
         else {
@@ -1538,11 +1595,10 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         DispatchQueue.main.async { [weak self] in
 
             guard let self = self,
-                  let room = self.hms?.room,
-                  let videoTrack = HMSUtilities.getVideoTrack(for: trackId, in: room),
-                  let remoteVideoTrack = videoTrack as? HMSRemoteVideoTrack
+                  let remotePeers = self.hms?.remotePeers,
+                  let remoteVideoTrack = HMSHelper.getRemoteVideoTrackFromTrackId(trackId, remotePeers)
             else {
-                let errorMessage = "\(#function) " + HMSHelper.getUnavailableRequiredKey(data, ["trackId"])
+                let errorMessage = "\(#function) " + "TRACK_NOT_FOUND"
                 self?.emitRequiredKeysError(errorMessage)
                 reject?(errorMessage, errorMessage, nil)
                 return
@@ -1557,9 +1613,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     func setVideoTrackLayer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let trackId = data.value(forKey: "trackId") as? String,
               let layer = data.value(forKey: "layer") as? String
-
         else {
-            let errorMessage = "\(#function) " + HMSHelper.getUnavailableRequiredKey(data, ["trackId"])
+            let errorMessage = "\(#function) " + HMSHelper.getUnavailableRequiredKey(data, ["trackId", "layer"])
             emitRequiredKeysError(errorMessage)
             reject?(errorMessage, errorMessage, nil)
             return
@@ -1568,11 +1623,10 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         DispatchQueue.main.async { [weak self] in
 
             guard let self = self,
-                  let room = self.hms?.room,
-                  let videoTrack = HMSUtilities.getVideoTrack(for: trackId, in: room),
-                  let remoteVideoTrack = videoTrack as? HMSRemoteVideoTrack
+                  let remotePeers = self.hms?.remotePeers,
+                  let remoteVideoTrack = HMSHelper.getRemoteVideoTrackFromTrackId(trackId, remotePeers)
             else {
-                let errorMessage = "\(#function) " + HMSHelper.getUnavailableRequiredKey(data, ["trackId"])
+                let errorMessage = "\(#function) " + "TRACK_NOT_FOUND"
                 self?.emitRequiredKeysError(errorMessage)
                 reject?(errorMessage, errorMessage, nil)
                 return

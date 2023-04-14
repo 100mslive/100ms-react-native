@@ -514,20 +514,35 @@ class HMSManager: RCTEventEmitter {
         hms?.getSessionMetaData(resolve, reject)
     }
 
-    // MARK: - Simulcast
-
     @objc
-    func getLayerDefinition(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    func getRemoteVideoTrackFromTrackId(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
-        hms?.getLayerDefinition(data, resolve, reject)
+        hms?.getRemoteVideoTrackFromTrackId(data, resolve, reject)
     }
 
     @objc
-    func getLayer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    func getRemoteAudioTrackFromTrackId(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
-        hms?.getLayer(data, resolve, reject)
+        hms?.getRemoteAudioTrackFromTrackId(data, resolve, reject)
+    }
+
+
+    // MARK: - Simulcast
+
+    @objc
+    func getVideoTrackLayerDefinition(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.getVideoTrackLayerDefinition(data, resolve, reject)
+    }
+
+    @objc
+    func getVideoTrackLayer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.getVideoTrackLayer(data, resolve, reject)
     }
 
     @objc

@@ -332,10 +332,10 @@ class HMSDecoder: NSObject {
         }
     }
 
-    static func getHmsVideoResolution(_ hmsVideoResolution: HMSVideoResolution?) -> [String: Any] {
-        guard let resolution = hmsVideoResolution else { return [String: Any]() }
+    static func getHmsVideoResolution(_ hmsVideoResolution: HMSVideoResolution?) -> [Double] {
+        guard let resolution = hmsVideoResolution else { return [] }
 
-        return ["width": resolution.width, "height": resolution.height]
+        return [resolution.width, resolution.height]
     }
 
     static func getHmsRemotePeers (_ remotePeers: [HMSRemotePeer]?) -> [[String: Any]] {
@@ -472,13 +472,13 @@ class HMSDecoder: NSObject {
         settings["maxSubsBitRate"] = subscribeSettings.maxSubsBitRate
 
         if let subscribeToRoles = subscribeSettings.subscribeToRoles {
-            settings["subscribeToRoles"] = subscribeToRoles
+            settings["subscribeTo"] = subscribeToRoles
         }
 
-        if let subscribeDegradation = subscribeSettings.subscribeDegradation,
-           let parsedSubscribeDegradationPolicy = getSubscribeDegradationSettings(from: subscribeDegradation) {
-            settings["subscribeDegradation"] = parsedSubscribeDegradationPolicy
-        }
+//        if let subscribeDegradation = subscribeSettings.subscribeDegradation,
+//           let parsedSubscribeDegradationPolicy = getSubscribeDegradationSettings(from: subscribeDegradation) {
+//            settings["subscribeDegradation"] = parsedSubscribeDegradationPolicy
+//        }
 
         return settings
     }
@@ -507,16 +507,6 @@ class HMSDecoder: NSObject {
         }
 
         return nil
-    }
-
-    static func getHmsSubscribeSettings (_ subscribeSettings: HMSSubscribeSettings?) -> [String: Any] {
-        guard let settings = subscribeSettings
-        else { return [String: Any]() }
-
-        let maxSubsBitRate = settings.maxSubsBitRate
-        let subscribeTo = settings.subscribeToRoles
-
-        return ["maxSubsBitRate": maxSubsBitRate, "subscribeTo": subscribeTo ?? []]
     }
 
     static func getHmsSubscribeDegradationSettings (_ hmsSubscribeDegradationParams: HMSSubscribeDegradationPolicy?) -> [String: Any] {
@@ -815,31 +805,46 @@ class HMSDecoder: NSObject {
         return variants
     }
 
-    static func getHMSRTCStats(_ data: HMSRTCStats) -> [String: Any] {
-        return ["bitrateReceived": data.bitrateReceived, "bitrateSent": data.bitrateSent, "bytesReceived": data.bytesReceived, "bytesSent": data.bytesSent, "packetsLost": data.packetsLost, "packetsReceived": data.packetsReceived, "roundTripTime": data.roundTripTime]
+    static func getHMSRTCStats(_ data: HMSRTCStats) -> [Any] {
+        // [bitrateReceived, bitrateSent, bytesReceived, bytesSent, packetsLost, packetsReceived, roundTripTime]
+        return [
+            data.bitrateReceived,
+            data.bitrateSent,
+            String(data.bytesReceived),
+            String(data.bytesSent),
+            String(data.packetsLost),
+            String(data.packetsReceived),
+            data.roundTripTime
+        ]
     }
 
-    static func getLocalAudioStats(_ data: HMSLocalAudioStats) -> [String: Any] {
-        return ["roundTripTime": data.roundTripTime, "bytesSent": data.bytesSent, "bitrate": data.bitrate]
+    static func getLocalAudioStats(_ data: HMSLocalAudioStats) -> [Any] {
+        // [bitrate, bytesSent, roundTripTime]
+        return [
+            data.bitrate,
+            String(data.bytesSent),
+            data.roundTripTime,
+        ]
     }
 
-    static func getLocalVideoStats(_ localVideoStats: [HMSLocalVideoStats]) -> [[String: Any]] {
+    static func getLocalVideoStats(_ localVideoStats: [HMSLocalVideoStats]) -> [[Any]] {
 
-        var statsArray = [[String: Any]]()
+        var statsArray = [[Any]]()
 
         for stat in localVideoStats {
-            var dict = [String: Any]()
+//            [bitrate, bytesSent, roundTripTime, frameRate, resolution, layer]
 
-            if let layerId = stat.simulcastLayerId {
-                dict["hms_layer"] = getStringFromLayer(layer: HMSSimulcastLayer(rawValue: layerId as! UInt))
-            }
-            dict["resolution"] = HMSDecoder.getHmsVideoResolution(stat.resolution)
-            dict["frame_rate"] = stat.frameRate
-            dict["quality_limitation_reason"] = getQualityLimitations(stat.qualityLimitations)
-            dict["bitrate"] =  stat.bitrate
-            dict["round_trip_time"] =  stat.roundTripTime
-            dict["bytes_sent"] =  stat.bytesSent
-            statsArray.append(dict)
+//            TODO: add `qualityLimitationReason` property
+//            dict["quality_limitation_reason"] = getQualityLimitations(stat.qualityLimitations)
+            let data: [Any] = [
+                stat.bitrate,
+                String(stat.bytesSent),
+                stat.roundTripTime,
+                stat.frameRate,
+                HMSDecoder.getHmsVideoResolution(stat.resolution),
+                getStringFromLayer(layer: HMSSimulcastLayer(rawValue: stat.simulcastLayerId as! UInt))
+            ]
+            statsArray.append(data)
         }
 
         return statsArray
@@ -906,12 +911,28 @@ class HMSDecoder: NSObject {
         }
     }
 
-    static func getRemoteAudioStats(_ data: HMSRemoteAudioStats) -> [String: Any] {
-        return ["bitrate": data.bitrate, "packetsReceived": data.packetsReceived, "packetsLost": data.packetsLost, "bytesReceived": data.bytesReceived, "jitter": data.jitter]
+    static func getRemoteAudioStats(_ data: HMSRemoteAudioStats) -> [Any] {
+        // [bitrate, bytesReceived, jitter, packetsLost, packetsReceived]
+        return [
+            data.bitrate,
+            String(data.bytesReceived),
+            data.jitter,
+            Int(data.packetsLost),
+            String(data.packetsReceived),
+        ]
     }
 
-    static func getRemoteVideoStats(_ data: HMSRemoteVideoStats) -> [String: Any] {
-        return ["bitrate": data.bitrate, "packetsReceived": data.packetsReceived, "packetsLost": data.packetsLost, "bytesReceived": data.bytesReceived, "jitter": data.jitter, "resolution": HMSDecoder.getHmsVideoResolution(data.resolution), "frameRate": data.frameRate]
+    static func getRemoteVideoStats(_ data: HMSRemoteVideoStats) -> [Any] {
+        // [bitrate, bytesReceived, frameRate, jitter, packetsLost, packetsReceived, resolution]
+        return [
+            data.bitrate,
+            String(data.bytesReceived),
+            data.frameRate,
+            data.jitter,
+            Int(data.packetsLost),
+            String(data.packetsReceived),
+            HMSDecoder.getHmsVideoResolution(data.resolution),
+        ]
     }
 
     static func getHmsMessageRecipient(_ recipient: HMSMessageRecipient) -> [String: Any] {
@@ -950,18 +971,18 @@ class HMSDecoder: NSObject {
         }
     }
 
-    static func getLayerDefinitions(for layerDefinitions: [HMSSimulcastLayerDefinition]) -> [[String: Any]] {
+    static func getSimulcastLayerDefinitions(for layerDefinitions: [HMSSimulcastLayerDefinition]) -> [[String: Any]] {
 
         var parsedLayerDefinitions = [[String: Any]]()
 
         for layer in layerDefinitions {
-            parsedLayerDefinitions.append(getLayerDefinition(for: layer))
+            parsedLayerDefinitions.append(getSimulcastLayerDefinition(for: layer))
         }
 
         return parsedLayerDefinitions
     }
 
-    static private func getLayerDefinition(for definition: HMSSimulcastLayerDefinition) -> [String: Any] {
+    static private func getSimulcastLayerDefinition(for definition: HMSSimulcastLayerDefinition) -> [String: Any] {
 
         var parsedLayer = [String: Any]()
 
