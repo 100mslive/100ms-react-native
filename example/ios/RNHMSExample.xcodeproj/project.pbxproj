@@ -55,10 +55,8 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = RNHMSExample/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = RNHMSExample/main.m; sourceTree = "<group>"; };
 		306A859805197F7F55871874 /* Pods-RNHMSExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNHMSExample.release.xcconfig"; path = "Target Support Files/Pods-RNHMSExample/Pods-RNHMSExample.release.xcconfig"; sourceTree = "<group>"; };
-		33D0EBB5A77D124502F666EE /* Pods-RNHMSExample-RNHMSExampleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNHMSExample-RNHMSExampleTests.release.xcconfig"; path = "Target Support Files/Pods-RNHMSExample-RNHMSExampleTests/Pods-RNHMSExample-RNHMSExampleTests.release.xcconfig"; sourceTree = "<group>"; };
 		54CC37EB010A825DE92012B6 /* libPods-RNHMSExampleBroadcastUpload.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RNHMSExampleBroadcastUpload.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B373D9F26B9112700DFE478 /* libswiftWebKit.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libswiftWebKit.tbd; path = usr/lib/swift/libswiftWebKit.tbd; sourceTree = SDKROOT; };
-		6CA804C6E51BBD570B65C764 /* Pods-RNHMSExample-RNHMSExampleTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNHMSExample-RNHMSExampleTests.debug.xcconfig"; path = "Target Support Files/Pods-RNHMSExample-RNHMSExampleTests/Pods-RNHMSExample-RNHMSExampleTests.debug.xcconfig"; sourceTree = "<group>"; };
 		78E106D6D531C7025A48F40B /* Pods-RNHMSExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNHMSExample.debug.xcconfig"; path = "Target Support Files/Pods-RNHMSExample/Pods-RNHMSExample.debug.xcconfig"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = RNHMSExample/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		9E257935BA9B15E19C3CC421 /* Pods-RNHMSExampleBroadcastUpload.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNHMSExampleBroadcastUpload.debug.xcconfig"; path = "Target Support Files/Pods-RNHMSExampleBroadcastUpload/Pods-RNHMSExampleBroadcastUpload.debug.xcconfig"; sourceTree = "<group>"; };
@@ -66,7 +64,6 @@
 		A987F9162848F6A80078014C /* Inter-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Bold.ttf"; sourceTree = "<group>"; };
 		A987F9172848F6A80078014C /* Inter-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Regular.ttf"; sourceTree = "<group>"; };
 		D0BEB2D493E8A5BBFF46F92B /* libPods-RNHMSExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RNHMSExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		DACAD29EF3E1331792A2A6D4 /* libPods-RNHMSExample-RNHMSExampleTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RNHMSExample-RNHMSExampleTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ECA3437726C3E17E007CB7C3 /* RNHMSExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = RNHMSExample.entitlements; path = RNHMSExample/RNHMSExample.entitlements; sourceTree = "<group>"; };
 		ECD6520528B3BADE007B5AF8 /* RNHMSExampleBroadcastUpload.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = RNHMSExampleBroadcastUpload.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		ECD6520628B3BADE007B5AF8 /* ReplayKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReplayKit.framework; path = System/Library/Frameworks/ReplayKit.framework; sourceTree = SDKROOT; };
@@ -77,6 +74,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		00E356EB1AD99517003FC87E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		13B07F8C1A680F5B00A75B9A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -119,7 +123,6 @@
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				ECD6520628B3BADE007B5AF8 /* ReplayKit.framework */,
 				D0BEB2D493E8A5BBFF46F92B /* libPods-RNHMSExample.a */,
-				DACAD29EF3E1331792A2A6D4 /* libPods-RNHMSExample-RNHMSExampleTests.a */,
 				54CC37EB010A825DE92012B6 /* libPods-RNHMSExampleBroadcastUpload.a */,
 			);
 			name = Frameworks;
@@ -172,8 +175,6 @@
 			children = (
 				78E106D6D531C7025A48F40B /* Pods-RNHMSExample.debug.xcconfig */,
 				306A859805197F7F55871874 /* Pods-RNHMSExample.release.xcconfig */,
-				6CA804C6E51BBD570B65C764 /* Pods-RNHMSExample-RNHMSExampleTests.debug.xcconfig */,
-				33D0EBB5A77D124502F666EE /* Pods-RNHMSExample-RNHMSExampleTests.release.xcconfig */,
 				9E257935BA9B15E19C3CC421 /* Pods-RNHMSExampleBroadcastUpload.debug.xcconfig */,
 				129B28F26CD2E60FDD31F60A /* Pods-RNHMSExampleBroadcastUpload.release.xcconfig */,
 			);
@@ -193,6 +194,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		00E356ED1AD99517003FC87E /* RNHMSExampleTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "RNHMSExampleTests" */;
+			buildPhases = (
+				00E356EA1AD99517003FC87E /* Sources */,
+				00E356EB1AD99517003FC87E /* Frameworks */,
+				00E356EC1AD99517003FC87E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				00E356F51AD99517003FC87E /* PBXTargetDependency */,
+			);
+			name = RNHMSExampleTests;
+			productName = RNHMSExampleTests;
+			productReference = 00E356EE1AD99517003FC87E /* RNHMSExampleTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		13B07F861A680F5B00A75B9A /* RNHMSExample */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "RNHMSExample" */;
@@ -437,6 +456,59 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		00E356F61AD99517003FC87E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				ENABLE_BITCODE = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = RNHMSExampleTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lc++",
+					"$(inherited)",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.RNHMSExample.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RNHMSExample.app/RNHMSExample";
+			};
+			name = Debug;
+		};
+		00E356F71AD99517003FC87E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_BITCODE = NO;
+				INFOPLIST_FILE = RNHMSExampleTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lc++",
+					"$(inherited)",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.RNHMSExample.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RNHMSExample.app/RNHMSExample";
+			};
+			name = Release;
+		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 78E106D6D531C7025A48F40B /* Pods-RNHMSExample.debug.xcconfig */;
@@ -448,7 +520,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 171;
+				CURRENT_PROJECT_VERSION = 173;
 				DEVELOPMENT_TEAM = 5N85PP82A9;
 				ENABLE_BITCODE = NO;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
@@ -489,7 +561,7 @@
 				CODE_SIGN_ENTITLEMENTS = RNHMSExample/RNHMSExample.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 171;
+				CURRENT_PROJECT_VERSION = 173;
 				DEVELOPMENT_TEAM = 5N85PP82A9;
 				ENABLE_BITCODE = NO;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
@@ -658,7 +730,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 171;
+				CURRENT_PROJECT_VERSION = 173;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 5N85PP82A9;
 				ENABLE_BITCODE = NO;
@@ -703,7 +775,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 171;
+				CURRENT_PROJECT_VERSION = 173;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 5N85PP82A9;
 				ENABLE_BITCODE = NO;
