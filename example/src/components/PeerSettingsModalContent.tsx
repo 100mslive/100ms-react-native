@@ -164,6 +164,7 @@ export const PeerSettingsModalContent: React.FC<
                 ? onStreamingQualityPress(peerTrackNode.track)
                 : null
             }
+            disabled={!peerTrackNode.track || peerTrackNode.track.isMute()} // Streaming Quality option should be disable, if track is muted or not available
           />
         ) : null}
       </View>

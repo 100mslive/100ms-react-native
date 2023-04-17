@@ -860,9 +860,7 @@ const DisplayView = (data: {
 
   const handleStreamingQualityPress = (track: HMSTrack) => {
     trackToChangeRef.current = track;
-    InteractionManager.runAfterInteractions(() => {
-      data?.setModalVisible(ModalTypes.STREAMING_QUALITY_SETTING);
-    });
+    data?.setModalVisible(ModalTypes.STREAMING_QUALITY_SETTING, true);
   };
 
   const getHmsRoles = () => {

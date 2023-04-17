@@ -36,17 +36,13 @@ export const StreamingQualityModalContent: React.FC<
     if (remoteVideoTrack) {
       const getSelectedLayer = async () => {
         const layer = await remoteVideoTrack.getLayer();
-        if (layer !== 'API currently not available for iOS') {
-          setOriginalLayer(layer);
-          setSelectedLayer(layer);
-        }
+        setOriginalLayer(layer);
+        setSelectedLayer(layer);
       };
 
       const getLayerDefinitions = async () => {
         const layerDefinitions = await remoteVideoTrack.getLayerDefinition();
-        if (layerDefinitions !== 'API currently not available for iOS') {
-          setLayerDefinitions(layerDefinitions);
-        }
+        setLayerDefinitions(layerDefinitions);
       };
 
       getSelectedLayer();
