@@ -1,11 +1,11 @@
 export class HMSSimulcastLayerSettingsPolicy {
-  rid: string;
+  rid?: string;
   scaleResolutionDownBy?: number;
   maxBitrate?: number;
   maxFramerate?: number;
 
   constructor(params: {
-    rid: string;
+    rid?: string;
     scaleResolutionDownBy?: number;
     maxBitrate?: number;
     maxFramerate?: number;

@@ -1,12 +1,12 @@
 import type { HMSSubscribeDegradationPolicy } from './HMSSubscribeDegradationPolicy';
 
 export class HMSSubscribeSettings {
-  subscribeTo?: [string];
+  subscribeTo?: string[];
   maxSubsBitRate: number;
   subscribeDegradation?: HMSSubscribeDegradationPolicy;
 
   constructor(params: {
-    subscribeTo?: [string];
+    subscribeTo?: string[];
     maxSubsBitRate: number;
     subscribeDegradation?: HMSSubscribeDegradationPolicy;
   }) {

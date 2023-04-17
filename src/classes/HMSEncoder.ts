@@ -38,6 +38,7 @@ import { HMSRemoteAudioStats } from './HMSRemoteAudioStats';
 import { HMSRemoteVideoStats } from './HMSRemoteVideoStats';
 import { HMSLayer } from './HMSLayer';
 import { HMSSimulcastLayerDefinition } from './HMSSimulcastLayerDefinition';
+import { HMSQualityLimitationReasons } from './HMSQualityLimitationReasons';
 
 const { HMSManager } = NativeModules;
 
@@ -564,7 +565,7 @@ export class HMSEncoder {
 
   static encodeHMSLocalVideoStats(data: any[]) {
     return data.map((item: any) => {
-      const [bitrate, bytesSent, roundTripTime, frameRate, resolution, layer] = item;
+      const [bitrate, bytesSent, roundTripTime, frameRate, resolution, layer, qualityLimitationReasons] = item;
 
       return new HMSLocalVideoStats({
         bitrate: bitrate >= 0 ? bitrate : undefined,
@@ -573,6 +574,7 @@ export class HMSEncoder {
         frameRate: frameRate >= 0 ? frameRate : undefined,
         resolution: resolution ? { width: resolution[0], height: resolution[1] } : undefined, // resolution: [width, height]
         layer: layer ? layer : undefined,
+        qualityLimitationReasons: qualityLimitationReasons ? this.encodeHMSQualityLimitationReasons(qualityLimitationReasons) : undefined
       });
     });
   }
@@ -612,6 +614,17 @@ export class HMSEncoder {
           height: sld.resolution[1],
         })
       });
+    });
+  }
+
+  static encodeHMSQualityLimitationReasons(data: any) {
+    return new HMSQualityLimitationReasons({
+      reason: data.reason,
+      bandwidth: data.bandwidth,
+      cpu: data.cpu,
+      none: data.none,
+      other: data.other,
+      qualityLimitationResolutionChanges: data.qualityLimitationResolutionChanges
     });
   }
 }

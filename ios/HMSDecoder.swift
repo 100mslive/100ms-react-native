@@ -445,6 +445,7 @@ class HMSDecoder: NSObject {
         ]
     }
 
+    // MARK: - HMSRole Publish Settings and Utility functions
     static private func getPublishSettings(from publishSettings: HMSPublishSettings) -> [String: Any]? {
 
         var settings = [String: Any]()
@@ -463,63 +464,6 @@ class HMSDecoder: NSObject {
         }
 
         return settings
-    }
-
-    static private func getSubscribeSettings(from subscribeSettings: HMSSubscribeSettings) -> [String: Any] {
-
-        var settings = [String: Any]()
-
-        settings["maxSubsBitRate"] = subscribeSettings.maxSubsBitRate
-
-        if let subscribeToRoles = subscribeSettings.subscribeToRoles {
-            settings["subscribeTo"] = subscribeToRoles
-        }
-
-//        if let subscribeDegradation = subscribeSettings.subscribeDegradation,
-//           let parsedSubscribeDegradationPolicy = getSubscribeDegradationSettings(from: subscribeDegradation) {
-//            settings["subscribeDegradation"] = parsedSubscribeDegradationPolicy
-//        }
-
-        return settings
-    }
-
-    static func getSubscribeDegradationSettings(from subscribeDegradation: HMSSubscribeDegradationPolicy) -> [String: Any]? {
-
-        if subscribeDegradation.packetLossThreshold != nil ||
-            subscribeDegradation.degradeGracePeriodSeconds != nil ||
-            subscribeDegradation.recoverGracePeriodSeconds != nil {
-
-            var settings = [String: Any]()
-
-            if let packetLossThreshold = subscribeDegradation.packetLossThreshold {
-                settings["packetLossThreshold"] = packetLossThreshold
-            }
-
-            if let degradeGracePeriodSeconds = subscribeDegradation.degradeGracePeriodSeconds {
-                settings["degradeGracePeriodSeconds"] = degradeGracePeriodSeconds
-            }
-
-            if let recoverGracePeriodSeconds = subscribeDegradation.recoverGracePeriodSeconds {
-                settings["recoverGracePeriodSeconds"] = recoverGracePeriodSeconds
-            }
-
-            return settings
-        }
-
-        return nil
-    }
-
-    static func getHmsSubscribeDegradationSettings (_ hmsSubscribeDegradationParams: HMSSubscribeDegradationPolicy?) -> [String: Any] {
-        guard let params = hmsSubscribeDegradationParams
-        else {
-            return [String: Any]()
-        }
-
-        let degradeGracePeriodSeconds = String(params.degradeGracePeriodSeconds ?? 0)
-        let packetLossThreshold = String(params.packetLossThreshold ?? 0)
-        let recoverGracePeriodSeconds = String(params.recoverGracePeriodSeconds ?? 0)
-
-        return ["degradeGracePeriodSeconds": degradeGracePeriodSeconds, "packetLossThreshold": packetLossThreshold, "recoverGracePeriodSeconds": recoverGracePeriodSeconds]
     }
 
     static func getWriteableArray(_ array: [String]?) -> [String] {
@@ -586,69 +530,89 @@ class HMSDecoder: NSObject {
     static private func getSimulcastSettingsPolicy(from simulcastSettingsPolicy: HMSSimulcastSettingsPolicy) -> [String: Any]? {
 
         if let layers = simulcastSettingsPolicy.layers {
-            return getSimulcastLayerSettingsPolicy(from: layers)
+            var simulcastSettingsPolicy = [String: Any]()
+
+            var layersData = [[String: Any]]()
+
+            for layer in layers {
+              layersData.append(getSimulcastLayerSettingsPolicy(from: layer))
+            }
+
+            simulcastSettingsPolicy["layers"] = layersData
+
+            return simulcastSettingsPolicy;
         }
 
         return nil
     }
 
-    static private func getSimulcastLayerSettingsPolicy(from simulcastLayerSettingsPolicy: [HMSSimulcastLayerSettingsPolicy]) -> [String: Any] {
+    static private func getSimulcastLayerSettingsPolicy(from layerPolicy: HMSSimulcastLayerSettingsPolicy) -> [String: Any] {
 
-        var layers = [[String: Any]]()
+        var layerSettings = [String: Any]()
 
-        for layer in simulcastLayerSettingsPolicy {
+        layerSettings["rid"] = layerPolicy.rid
 
-            var layerSettings = [String: Any]()
-
-            layerSettings["rid"] = layer.rid
-
-            if let scale = layer.scaleResolutionDownBy {
-                layerSettings["scaleResolutionDownBy"] = scale
-            }
-
-            if let maxBitrate = layer.maxBitrate {
-                layerSettings["maxBitrate"] = maxBitrate
-            }
-
-            if let maxFramerate = layer.maxFramerate {
-                layerSettings["maxFramerate"] = maxFramerate
-            }
-
-            layers.append(layerSettings)
+        if let scale = layerPolicy.scaleResolutionDownBy {
+            layerSettings["scaleResolutionDownBy"] = scale
         }
 
-        return ["layers": layers]
-    }
-
-    static func getHmsSimulcastLayers(_ videoSimulcastLayers: HMSSimulcastSettingsPolicy?) -> [String: Any] {
-
-        guard let videoLayers = videoSimulcastLayers else { return [String: Any]() }
-
-        let layers = getHmsSimulcastLayerSettingsPolicy(videoLayers.layers)
-
-        return ["layers": layers]
-    }
-
-    static func getHmsSimulcastLayerSettingsPolicy(_ layers: [HMSSimulcastLayerSettingsPolicy]?) -> [[String: Any]] {
-        var layersSettingsPolicy = [[String: Any]]()
-        if let settingsPolicies = layers {
-            for settingsPolicy in settingsPolicies {
-                let rid = settingsPolicy.rid
-                let scaleResolutionDownBy = settingsPolicy.scaleResolutionDownBy ?? 0
-                let maxBitrate = settingsPolicy.maxBitrate ?? -1
-                let maxFramerate = settingsPolicy.maxFramerate ?? -1
-
-                let settingsPolicyObject = ["rid": rid,
-                                            "scaleResolutionDownBy": scaleResolutionDownBy,
-                                            "maxBitrate": maxBitrate,
-                                            "maxFramerate": maxFramerate] as [String: Any]
-
-                layersSettingsPolicy.append(settingsPolicyObject)
-            }
+        if let maxBitrate = layerPolicy.maxBitrate {
+            layerSettings["maxBitrate"] = maxBitrate
         }
 
-        return layersSettingsPolicy
+        if let maxFramerate = layerPolicy.maxFramerate {
+            layerSettings["maxFramerate"] = maxFramerate
+        }
+
+        return layerSettings
     }
+    // MARK END: - HMSRole Publish Settings and Utility functions
+
+    // MARK: - HMSRole Subscribe Settings and Utility functions
+    static private func getSubscribeSettings(from subscribeSettings: HMSSubscribeSettings) -> [String: Any] {
+
+        var settings = [String: Any]()
+
+        settings["maxSubsBitRate"] = subscribeSettings.maxSubsBitRate
+
+        if let subscribeToRoles = subscribeSettings.subscribeToRoles {
+            settings["subscribeTo"] = subscribeToRoles
+        }
+
+       if let subscribeDegradation = subscribeSettings.subscribeDegradation,
+          let parsedSubscribeDegradationPolicy = getSubscribeDegradationSettings(from: subscribeDegradation) {
+           settings["subscribeDegradation"] = parsedSubscribeDegradationPolicy
+       }
+
+        return settings
+    }
+
+    static func getSubscribeDegradationSettings(from subscribeDegradation: HMSSubscribeDegradationPolicy) -> [String: Any]? {
+
+        if subscribeDegradation.packetLossThreshold != nil ||
+            subscribeDegradation.degradeGracePeriodSeconds != nil ||
+            subscribeDegradation.recoverGracePeriodSeconds != nil {
+
+            var settings = [String: Any]()
+
+            if let packetLossThreshold = subscribeDegradation.packetLossThreshold {
+                settings["packetLossThreshold"] = packetLossThreshold
+            }
+
+            if let degradeGracePeriodSeconds = subscribeDegradation.degradeGracePeriodSeconds {
+                settings["degradeGracePeriodSeconds"] = degradeGracePeriodSeconds
+            }
+
+            if let recoverGracePeriodSeconds = subscribeDegradation.recoverGracePeriodSeconds {
+                settings["recoverGracePeriodSeconds"] = recoverGracePeriodSeconds
+            }
+
+            return settings
+        }
+
+        return nil
+    }
+    // MARK END: - HMSRole Subscribe Settings and Utility functions
 
     static func getHmsRoleChangeRequest(_ roleChangeRequest: HMSRoleChangeRequest, _ id: String?) -> [String: Any] {
 
@@ -832,17 +796,15 @@ class HMSDecoder: NSObject {
         var statsArray = [[Any]]()
 
         for stat in localVideoStats {
-//            [bitrate, bytesSent, roundTripTime, frameRate, resolution, layer]
-
-//            TODO: add `qualityLimitationReason` property
-//            dict["quality_limitation_reason"] = getQualityLimitations(stat.qualityLimitations)
+//          [bitrate, bytesSent, roundTripTime, frameRate, resolution, layer, qualityLimitationReasons]
             let data: [Any] = [
                 stat.bitrate,
                 String(stat.bytesSent),
                 stat.roundTripTime,
                 stat.frameRate,
                 HMSDecoder.getHmsVideoResolution(stat.resolution),
-                getStringFromLayer(layer: HMSSimulcastLayer(rawValue: stat.simulcastLayerId as! UInt))
+                getStringFromLayer(layer: HMSSimulcastLayer(rawValue: stat.simulcastLayerId as! UInt)),
+                getQualityLimitations(stat.qualityLimitations)
             ]
             statsArray.append(data)
         }
@@ -850,35 +812,26 @@ class HMSDecoder: NSObject {
         return statsArray
     }
 
-    // static func toDictionary(_ layerDefinition: HMSSimulcastLayerDefinition) -> [String: Any] {
-    //     let dict = [
-    //         "simulcast_layer": getStringFromLayer(layer: layerDefinition.layer),
-    //         "resolution": HMSDecoder.getHmsVideoResolution(layerDefinition.resolution)
-    //     ] as [String: Any]
-
-    //     return dict
-    // }
-
     static func getStringFromLayer(layer: HMSSimulcastLayer?) -> String {
         switch layer {
         case .high:
-            return "high"
+            return "HIGH"
         case .mid:
-            return "mid"
+            return "MEDIUM"
         case .low:
-            return "low"
+            return "LOW"
         default:
-            return "high"
+            return "HIGH"
         }
     }
 
     static func getLayerFromString(layer: String) -> HMSSimulcastLayer {
         switch layer {
-        case "high":
+        case "HIGH":
             return .high
-        case "mid":
+        case "MEDIUM":
             return .mid
-        case "low":
+        case "LOW":
             return .low
         default:
             return .high
@@ -891,7 +844,7 @@ class HMSDecoder: NSObject {
             "cpu": limitation.cpu,
             "none": limitation.none,
             "other": limitation.other,
-            "quality_limitation_resolution_changes": Double(limitation.qualityLimitationResolutionChanges),
+            "qualityLimitationResolutionChanges": limitation.qualityLimitationResolutionChanges,
             "reason": getStringFromLimitationReason(limitation.reason)
         ]
     }

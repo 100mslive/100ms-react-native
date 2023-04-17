@@ -1,4 +1,5 @@
 import type { HMSLayer } from './HMSLayer';
+import type { HMSQualityLimitationReasons } from './HMSQualityLimitationReasons';
 import type { HMSVideoResolution } from './HMSVideoResolution';
 
 export class HMSLocalVideoStats {
@@ -17,9 +18,8 @@ export class HMSLocalVideoStats {
   // Resolution of video frames being sent
   resolution?: HMSVideoResolution;
 
-  // TODO: parse quality limitations reason
   // Reason for quality limitations
-  // qualityLimitationReasons?: HMSQualityLimitationReasons;
+  qualityLimitationReasons?: HMSQualityLimitationReasons;
 
   /// Simulcast Layer
   layer?: HMSLayer;
@@ -30,7 +30,7 @@ export class HMSLocalVideoStats {
     roundTripTime?: number;
     frameRate?: number;
     resolution?: HMSVideoResolution;
-    // qualityLimitationReasons?: HMSQualityLimitationReasons;
+    qualityLimitationReasons?: HMSQualityLimitationReasons;
     layer?: HMSLayer;
   }) {
     this.bitrate = params.bitrate;
@@ -38,7 +38,7 @@ export class HMSLocalVideoStats {
     this.roundTripTime = params.roundTripTime;
     this.frameRate = params.frameRate;
     this.resolution = params.resolution;
-    // this.qualityLimitationReasons = params.qualityLimitationReasons;
+    this.qualityLimitationReasons = params.qualityLimitationReasons;
     this.layer = params.layer;
   }
 }

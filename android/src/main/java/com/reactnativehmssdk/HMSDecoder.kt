@@ -1,6 +1,7 @@
 package com.reactnativehmssdk
 
 import com.facebook.react.bridge.*
+import live.hms.video.connection.degredation.QualityLimitationReasons
 import live.hms.video.connection.stats.*
 import live.hms.video.connection.stats.quality.HMSNetworkQuality
 import live.hms.video.error.HMSException
@@ -311,6 +312,10 @@ object HMSDecoder {
         publishSettings.putMap("screen", this.getHmsVideoSettings(it))
       }
 
+      hmsPublishSettings.simulcast?.let {
+        publishSettings.putMap("simulcast", this.getHmsSimulcastSettings(it))
+      }
+
       publishSettings.putArray("allowed", this.getWriteableArray(hmsPublishSettings.allowed))
     }
     return publishSettings
@@ -345,6 +350,50 @@ object HMSDecoder {
       videoSettings.putString("codec", hmsVideoSettings.codec.name)
     }
     return videoSettings
+  }
+
+  private fun getHmsSimulcastSettings(hmsSimulcastSettings: Simulcast?): WritableMap {
+    val simulcastSettings: WritableMap = Arguments.createMap()
+    if (hmsSimulcastSettings != null) {
+      hmsSimulcastSettings.video?.let {
+        simulcastSettings.putMap("video", getHmsVideoSimulcastLayersParams(it))
+      }
+      hmsSimulcastSettings.screen?.let {
+        simulcastSettings.putMap("screen", getHmsVideoSimulcastLayersParams(it))
+      }
+    }
+    return simulcastSettings
+  }
+
+  private fun getHmsVideoSimulcastLayersParams(hmsVideoSimulcastLayersParams: VideoSimulcastLayersParams?): WritableMap {
+    val videoSimulcastLayersParams: WritableMap = Arguments.createMap()
+    if (hmsVideoSimulcastLayersParams != null) {
+      hmsVideoSimulcastLayersParams.layers?.let {
+        val layersParams = Arguments.createArray()
+        it.forEach { layer -> layersParams.pushMap(getHmsLayerParams(layer)) }
+        videoSimulcastLayersParams.putArray("layers", layersParams)
+      }
+    }
+    return videoSimulcastLayersParams
+  }
+
+  private fun getHmsLayerParams(hmsLayerParams: LayerParams?): WritableMap {
+    val layerParams: WritableMap = Arguments.createMap()
+    if (hmsLayerParams != null) {
+      hmsLayerParams.rid?.let {
+        layerParams.putString("rid", it)
+      }
+      hmsLayerParams.maxBitrate?.let {
+        layerParams.putInt("maxBitrate", it)
+      }
+      hmsLayerParams.scaleResolutionDownBy?.let {
+        layerParams.putDouble("scaleResolutionDownBy", it.toDouble())
+      }
+      hmsLayerParams.maxFramerate?.let {
+        layerParams.putInt("maxFramerate", it)
+      }
+    }
+    return layerParams
   }
 
   fun getHmsLocalPeer(hmsLocalPeer: HMSLocalPeer?): WritableMap {
@@ -633,10 +682,11 @@ object HMSDecoder {
     val subscribeSettings: WritableMap = Arguments.createMap()
     if (hmsSubscribeSettings != null) {
       subscribeSettings.putInt("maxSubsBitRate", hmsSubscribeSettings.maxSubsBitRate)
-      // subscribeSettings.putMap(
-      //   "subscribeDegradation",
-      //   this.getHmsSubscribeDegradationSettings(hmsSubscribeSettings.subscribeDegradationParam)
-      // )
+
+      hmsSubscribeSettings.subscribeDegradationParam?.let {
+        subscribeSettings.putMap("subscribeDegradation", this.getHmsSubscribeDegradationSettings(it))
+      }
+
       subscribeSettings.putArray(
         "subscribeTo",
         this.getWriteableArray(hmsSubscribeSettings.subscribeTo)
@@ -742,11 +792,8 @@ object HMSDecoder {
   fun getLocalVideoStats(hmsLocalVideoStats: List<HMSLocalVideoStats>): WritableArray {
     val stats: WritableArray = Arguments.createArray()
 
-//    DOUBT: Should we add `qualityLimitationReason` property?
-//    qualityLimitationReason: live.hms.video.connection.degredation.QualityLimitationReasons
-
     for (stat in hmsLocalVideoStats) {
-      val localVideoStats: WritableArray = Arguments.createArray() // [bitrate, bytesSent, roundTripTime, frameRate, resolution, layer]
+      val localVideoStats: WritableArray = Arguments.createArray() // [bitrate, bytesSent, roundTripTime, frameRate, resolution, layer, qualityLimitationReasons]
 
       val bitrate = stat.bitrate ?: -1.0
       localVideoStats.pushDouble(bitrate)
@@ -768,13 +815,30 @@ object HMSDecoder {
         }
       }
 
-      val layer = stat.hmsLayer.let { if (it === null) "" else it.name }
+      val layer = stat.hmsLayer.let { if (it === null) HMSLayer.HIGH.name else it.name }
       localVideoStats.pushString(layer)
+
+      val qualityLimitationReasons = getHmsQualityLimitationReasons(stat.qualityLimitationReason)
+      localVideoStats.pushMap(qualityLimitationReasons)
 
       stats.pushArray(localVideoStats)
     }
 
     return stats
+  }
+
+  private fun getHmsQualityLimitationReasons(hmsQualityLimitationReasons: QualityLimitationReasons?): WritableMap {
+    val qualityLimitationReasons: WritableMap = Arguments.createMap()
+
+    if (hmsQualityLimitationReasons != null) {
+      hmsQualityLimitationReasons.bandWidth?.let { qualityLimitationReasons.putDouble("bandwidth", it) }
+      hmsQualityLimitationReasons.cpu?.let { qualityLimitationReasons.putDouble("cpu", it) }
+      hmsQualityLimitationReasons.none?.let { qualityLimitationReasons.putDouble("none", it) }
+      hmsQualityLimitationReasons.other?.let { qualityLimitationReasons.putDouble("other", it) }
+      hmsQualityLimitationReasons.qualityLimitationResolutionChanges?.let { qualityLimitationReasons.putInt("qualityLimitationResolutionChanges", it.toInt()) }
+      qualityLimitationReasons.putString("reason", hmsQualityLimitationReasons.reason.name)
+    }
+    return qualityLimitationReasons
   }
 
   fun getRemoteAudioStats(hmsRemoteAudioStats: HMSRemoteAudioStats?): WritableArray {
