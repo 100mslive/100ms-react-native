@@ -1,10 +1,22 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import {HMSLocalAudioStats, HMSRemoteAudioStats, HMSRemoteVideoStats, HMSLocalVideoStats} from '@100mslive/react-native-hms';
+import {
+  HMSLocalAudioStats,
+  HMSRemoteAudioStats,
+  HMSRemoteVideoStats,
+  HMSLocalVideoStats,
+  HMSQualityLimitationReasons,
+} from '@100mslive/react-native-hms';
 
 import {COLORS} from '../utils/theme';
 
-type TrackStats = HMSLocalAudioStats | HMSRemoteAudioStats | HMSRemoteVideoStats | HMSLocalVideoStats[] | null | undefined;
+type TrackStats =
+  | HMSLocalAudioStats
+  | HMSRemoteAudioStats
+  | HMSRemoteVideoStats
+  | HMSLocalVideoStats[]
+  | null
+  | undefined;
 
 interface PeerRTCStatsViewProps {
   audioTrackStats: TrackStats;
@@ -15,11 +27,23 @@ const PeerRTCStatsView: React.FC<PeerRTCStatsViewProps> = ({
   audioTrackStats,
   videoTrackStats
 }) => {
+
+  const qualityLimitationReasons =
+    videoTrackStats && 'qualityLimitationReasons' in videoTrackStats
+      ? (videoTrackStats.qualityLimitationReasons as HMSQualityLimitationReasons)
+      : null;
+
   return (
     <View>
       {videoTrackStats && 'layer' in videoTrackStats
           ? <Text style={styles.statsTitle}>{videoTrackStats.layer}</Text>
           : null}
+
+      {qualityLimitationReasons ? (
+        <Text style={styles.statsText}>
+          Reason {qualityLimitationReasons.reason}
+        </Text>
+      ) : null}
 
       <Text style={styles.statsText}>
         Width{' '}

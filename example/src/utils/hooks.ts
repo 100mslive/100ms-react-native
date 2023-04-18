@@ -35,11 +35,13 @@ export const useRTCStatsListeners = (force?: boolean) => {
           track: HMSLocalAudioTrack;
           peer: HMSPeer;
         }) => {
-          // Only considering REGULAR tracks
-          if (data.track.source === HMSTrackSource.REGULAR) {
-            // Saving Audio Track Stats by peerId
-            dispatch(setRTCStats(data.peer.peerID, data.localAudioStats));
-          }
+          const audioStatId =
+            data.track.source && data.track.source !== HMSTrackSource.REGULAR
+              ? data.peer.peerID + data.track.source
+              : data.peer.peerID;
+
+          // Saving Audio Track Stats by "peerId" plus "track source" if source is not regular
+          dispatch(setRTCStats(audioStatId, data.localAudioStats));
         },
       );
 
@@ -50,9 +52,7 @@ export const useRTCStatsListeners = (force?: boolean) => {
           track: HMSLocalVideoTrack;
           peer: HMSPeer;
         }) => {
-          if (data.track.source === HMSTrackSource.REGULAR) {
-            dispatch(setRTCStats(data.track.trackId, data.localVideoStats));
-          }
+          dispatch(setRTCStats(data.track.trackId, data.localVideoStats));
         },
       );
 
@@ -63,10 +63,13 @@ export const useRTCStatsListeners = (force?: boolean) => {
           track: HMSRemoteAudioTrack;
           peer: HMSPeer;
         }) => {
-          if (data.track.source === HMSTrackSource.REGULAR) {
-            // Saving Audio Track Stats by peerId
-            dispatch(setRTCStats(data.peer.peerID, data.remoteAudioStats));
-          }
+          const audioStatId =
+            data.track.source && data.track.source !== HMSTrackSource.REGULAR
+              ? data.peer.peerID + data.track.source
+              : data.peer.peerID;
+
+          // Saving Audio Track Stats by "peerId" plus "track source" if source is not regular
+          dispatch(setRTCStats(audioStatId, data.remoteAudioStats));
         },
       );
 
@@ -77,9 +80,7 @@ export const useRTCStatsListeners = (force?: boolean) => {
           track: HMSRemoteVideoTrack;
           peer: HMSPeer;
         }) => {
-          if (data.track.source === HMSTrackSource.REGULAR) {
-            dispatch(setRTCStats(data.track.trackId, data.remoteVideoStats));
-          }
+          dispatch(setRTCStats(data.track.trackId, data.remoteVideoStats));
         },
       );
 

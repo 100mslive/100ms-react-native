@@ -13,7 +13,6 @@ import {styles} from './styles';
 
 import {getInitials} from '../../utils/functions';
 import type {RootState} from '../../redux';
-import PeerRTCStatsContainer from '../../components/PeerRTCStatsContainer';
 
 export interface PeerDisplayViewProps {
   isDegraded?: boolean;
@@ -34,9 +33,6 @@ const PeerDisplayViewUnmemoized = React.forwardRef<
   );
   const autoSimulcast = useSelector(
     (state: RootState) => state.app.joinConfig.autoSimulcast,
-  );
-  const showStatsOnTiles = useSelector(
-    (state: RootState) => state.app.joinConfig.showStats,
   );
 
   if (!HmsView) {
@@ -83,13 +79,6 @@ const PeerDisplayViewUnmemoized = React.forwardRef<
           )}
         </View>
       )}
-
-      {showStatsOnTiles ? (
-        <PeerRTCStatsContainer
-          trackId={videoTrack?.trackId}
-          peerId={peer.peerID}
-        />
-      ) : null}
     </View>
   );
 });

@@ -1,26 +1,35 @@
-import React, { memo } from 'react';
+import React, {memo} from 'react';
 import {View, StyleSheet, ScrollView} from 'react-native';
 import {useSelector} from 'react-redux';
+import {HMSTrackSource} from '@100mslive/react-native-hms';
 
 import {COLORS} from '../utils/theme';
 import {RootState} from '../redux';
 import PeerRTCStatsView from './PeerRTCStatsView';
 
 interface PeerRTCStatsContainerProps {
-  peerId?: string;
+  peerId: string;
   trackId?: string;
+  trackSource?: string | number;
 }
 
 const PeerRTCStatsContainerUnmemo: React.FC<PeerRTCStatsContainerProps> = ({
   peerId,
   trackId,
+  trackSource,
 }) => {
-  const audioTrackStats = useSelector((state: RootState) =>
-    peerId ? state.app.rtcStats[peerId] : null,
-  );
-  const videoTrackStats = useSelector((state: RootState) =>
-    trackId ? state.app.rtcStats[trackId] : null,
-  );
+  const audioTrackStats = useSelector((state: RootState) => {
+    const audioStatsId =  (!trackSource || trackSource === HMSTrackSource.REGULAR) ? peerId : (peerId + trackSource);
+    return audioStatsId ? state.app.rtcStats[audioStatsId] : null;
+  });
+  const videoTrackStats = useSelector((state: RootState) =>{
+    const videoStats = trackId ? state.app.rtcStats[trackId] : null;
+
+    if (Array.isArray(videoStats) && videoStats.length === 1) {
+      return videoStats[0];
+    }
+    return videoStats;
+  });
 
   if (!Array.isArray(videoTrackStats)) {
     return (
@@ -36,9 +45,8 @@ const PeerRTCStatsContainerUnmemo: React.FC<PeerRTCStatsContainerProps> = ({
   return (
     <ScrollView style={styles.statsContainer}>
       {videoTrackStats.map(videoTrackStat => (
-        <View style={styles.statsViewWrapper}>
+        <View style={styles.statsViewWrapper} key={videoTrackStat.layer}>
           <PeerRTCStatsView
-            key={videoTrackStat.layer}
             audioTrackStats={audioTrackStats}
             videoTrackStats={videoTrackStat}
           />

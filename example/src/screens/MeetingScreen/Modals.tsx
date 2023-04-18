@@ -954,9 +954,46 @@ export const RtcStatsModal = () => {
         })}
       </Menu>
 
-      <ScrollView contentContainerStyle={styles.statsModalCardContainer}>
-        {rtcStatsData
-          ? Object.entries(rtcStatsData).map(item => {
+      <ScrollView contentContainerStyle={Array.isArray(rtcStatsData) ? null : styles.statsModalCardContainer}>
+        {rtcStatsData ? (
+          Array.isArray(rtcStatsData) ? (
+            <View>
+              {rtcStatsData.map(rtcStatsItem => {
+                return (
+                  <View style={{ marginBottom: 12 }}>
+                    <Text style={styles.statsModalCardDescription}>
+                      {rtcStatsItem.layer}
+                    </Text>
+
+                    <View style={styles.statsModalCardContainer}>
+                    {Object.entries(rtcStatsItem).filter(item => item[0] !== 'layer').map(item => {
+                      const [key, value] = item;
+
+                      return (
+                        <View style={styles.statsModalCard} key={key}>
+                          <Text style={styles.statsModalCardHeading}>
+                            {key}
+                          </Text>
+
+                          <Text style={styles.statsModalCardDescription}>
+                            {key === 'resolution'
+                              ? `Height: ${value?.height ?? 0}, Width: ${
+                                  value?.width ?? 0
+                                }`
+                              : key === 'qualityLimitationReasons'
+                                ? value.reason
+                                : value}
+                          </Text>
+                        </View>
+                      );
+                    })}
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          ) : (
+            Object.entries(rtcStatsData).map(item => {
               const [key, value] = item;
 
               return (
@@ -973,7 +1010,8 @@ export const RtcStatsModal = () => {
                 </View>
               );
             })
-          : null}
+          )
+        ) : null}
       </ScrollView>
     </View>
   );

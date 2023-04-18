@@ -9,6 +9,7 @@ import {CustomButton} from '../../components';
 import {styles} from './styles';
 import type {RootState} from '../../redux';
 import PeerDisplayView, {PeerDisplayViewProps} from './PeerDisplayView';
+import PeerRTCStatsContainer from '../../components/PeerRTCStatsContainer';
 
 interface DisplayTrackProps extends PeerDisplayViewProps {
   videoStyles: StyleProp<ViewStyle>;
@@ -25,6 +26,9 @@ const DisplayTrack = React.forwardRef<typeof HMSView, DisplayTrackProps>(
     // hooks
     const hmsInstance = useSelector(
       (state: RootState) => state.user.hmsInstance,
+    );
+    const showStatsOnTiles = useSelector(
+      (state: RootState) => state.app.joinConfig.showStats,
     );
 
     // functions
@@ -68,6 +72,13 @@ const DisplayTrack = React.forwardRef<typeof HMSView, DisplayTrackProps>(
             videoTrack={videoTrack}
           />
         )}
+        {showStatsOnTiles ? (
+          <PeerRTCStatsContainer
+            trackId={videoTrack?.trackId}
+            peerId={peer.peerID}
+            trackSource={videoTrack?.source}
+          />
+      ) : null}
         <View style={styles.peerNameContainer}>
           <Text numberOfLines={2} style={styles.peerName}>
             {videoTrack?.source !== undefined &&
