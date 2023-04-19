@@ -905,6 +905,13 @@ class HMSManager(reactContext: ReactApplicationContext) :
     hms?.setVideoTrackLayer(data, promise)
   }
 
+  @ReactMethod
+  fun captureImageAtMaxSupportedResolution(data: ReadableMap, promise: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.captureImageAtMaxSupportedResolution(data, promise)
+  }
+
   fun emitEvent(event: String, data: WritableMap) {
     reactApplicationContext
       .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)

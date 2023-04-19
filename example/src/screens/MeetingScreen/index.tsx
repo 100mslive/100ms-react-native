@@ -19,6 +19,7 @@ import {
   HMSTrackUpdate,
   HMSUpdateListenerActions,
   HMSPIPListenerActions,
+  HMSCameraControl,
 } from '@100mslive/react-native-hms';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {
@@ -64,6 +65,7 @@ import {
   pairData,
   parseMetadata,
   replacePeerTrackNodes,
+  requestExternalStoragePermission,
   updatedDegradedFlag,
   updatePeerNodes,
   updatePeerTrackNodes,
@@ -858,6 +860,19 @@ const DisplayView = (data: {
     });
   };
 
+  const handleCaptureImagePress = (_node: PeerTrackNode) => {
+    data?.setModalVisible(ModalTypes.DEFAULT);
+    InteractionManager.runAfterInteractions(async () => {
+      const permission = await requestExternalStoragePermission();
+
+      if (hmsInstance && permission) {
+        HMSCameraControl.captureImageAtMaxSupportedResolution(hmsInstance?.id, true)
+          .then((imagePath: string) => console.log("captureImageAtMaxSupportedResolution result -> ", imagePath))
+          .catch((error: any) => console.warn("captureImageAtMaxSupportedResolution error -> ", error));
+      }
+    });
+  };
+
   const handleStreamingQualityPress = (track: HMSTrack) => {
     trackToChangeRef.current = track;
     data?.setModalVisible(ModalTypes.STREAMING_QUALITY_SETTING, true);
@@ -975,6 +990,7 @@ const DisplayView = (data: {
                 onChangeRolePress={onChangeRolePress}
                 onSetVolumePress={onSetVolumePress}
                 onCaptureScreenShotPress={handleCaptureScreenShotPress}
+                onCaptureImagePress={handleCaptureImagePress}
                 onStreamingQualityPress={handleStreamingQualityPress}
               />
             ) : null}
