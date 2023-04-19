@@ -68,4 +68,8 @@ RCT_EXTERN_METHOD(getRemoteAudioTrackFromTrackId: (NSDictionary) data :(RCTPromi
 RCT_EXTERN_METHOD(getVideoTrackLayerDefinition: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(getVideoTrackLayer: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(setVideoTrackLayer: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+
+#pragma mark - Advanced Camera Controls
+
+RCT_EXTERN_METHOD(captureImageAtMaxSupportedResolution: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 @end

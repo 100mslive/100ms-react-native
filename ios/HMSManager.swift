@@ -551,4 +551,14 @@ class HMSManager: RCTEventEmitter {
 
         hms?.setVideoTrackLayer(data, resolve, reject)
     }
+
+    // MARK: - Advanced Camera Controls
+
+    func captureImageAtMaxSupportedResolution(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.captureImageAtMaxSupportedResolution(data, resolve, reject)
+    }
+
 }

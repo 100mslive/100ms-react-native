@@ -1645,7 +1645,59 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
 
-    // MARK: Helper Functions
+    // MARK: - Advanced Camera Controls
+
+    func captureImageAtMaxSupportedResolution(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+
+        let withFlash = data["with_flash"] as? Bool ?? false
+
+        DispatchQueue.main.async { [weak self] in
+
+            guard let localPeer = self?.hms?.localPeer else {
+                let errorMessage = "\(#function) An instance of Local Peer could not be found. Please check if a Room is joined."
+                reject?("6004", errorMessage, nil)
+                return
+            }
+
+            guard let localVideoTrack = localPeer.localVideoTrack()
+            else {
+                let errorMessage = "\(#function) Video Track of Local Peer could not be found. Please check if the Local Peer has permission to publish video & video is unmuted currently."
+                reject?("6004", errorMessage, nil)
+                return
+            }
+
+            localVideoTrack.captureImageAtMaxSupportedResolution(withFlash: withFlash) { image in
+
+                guard let capturedImage = image else {
+                    let errorMessage = "\(#function) Could not capture image of the Local Peer's Video Track."
+                    reject?("6004", errorMessage, nil)
+                    return
+                }
+
+                guard let data = capturedImage.jpegData(compressionQuality: 1.0) else {
+                    let errorMessage = "\(#function) Could not compress image of the Local Peer's Video Track to jpeg data."
+                    reject?("6004", errorMessage, nil)
+                    return
+                }
+
+                let filePath = HMSRNSDK.getDocumentsDirectory().appendingPathComponent("hms_\(HMSRNSDK.getTimeStamp()).jpg")
+
+                do {
+                    try data.write(to: filePath)
+                } catch let error {
+                    let errorMessage = "\(#function) Could not write to disk the image data  of the Local Peer's Video Track. \(error.localizedDescription)"
+                    reject?("6004", errorMessage, nil)
+                    return
+                }
+
+//                result(HMSResultExtension.toDictionary(true, filePath.relativePath))
+            }
+
+        }
+    }
+
+    // MARK: - Helper Functions
+
     private func getString(from update: HMSPeerUpdate) -> String {
         switch update {
         case .peerJoined:
@@ -1714,5 +1766,16 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
         delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": ["code": 7000, "description": error, "isTerminal": false, "canRetry": true], "id": id]) // DOUBT: Error code 6002 or 7000?
+    }
+
+    static private func getDocumentsDirectory() -> URL {
+        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+        return paths[0]
+    }
+
+    static private func getTimeStamp() -> String {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .medium
+        return formatter.string(from: Date())
     }
 }
