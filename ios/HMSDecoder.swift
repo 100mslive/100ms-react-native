@@ -797,10 +797,12 @@ class HMSDecoder: NSObject {
 
         for stat in localVideoStats {
 //          [bitrate, bytesSent, roundTripTime, frameRate, resolution, layer, qualityLimitationReasons]
-            var layer: String? = nil;
+            var layer = "HIGH"
 
-            if let simulcastLayerId = stat.simulcastLayerId {
-                layer = getStringFromLayer(layer: HMSSimulcastLayer(rawValue: simulcastLayerId as! UInt))
+            if let simulcastLayerId = stat.simulcastLayerId as? UInt {
+                layer = getStringFromLayer(layer: HMSSimulcastLayer(rawValue: simulcastLayerId))
+            } else {
+                print(#function, "Error: Failed to cast to correct simulcastLayerId")
             }
 
             let data: [Any] = [
