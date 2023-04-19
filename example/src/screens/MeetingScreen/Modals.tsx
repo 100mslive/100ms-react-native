@@ -10,6 +10,7 @@ import {
   Image,
   Platform,
   InteractionManager,
+  ImageURISource,
 } from 'react-native';
 import Toast from 'react-native-simple-toast';
 import {useDispatch, useSelector} from 'react-redux';
@@ -19,17 +20,7 @@ import {
   HMSSDK,
   HMSTrackType,
   HMSTrackSource,
-  HMSRTCStatsReport,
-  HMSUpdateListenerActions,
-  HMSLocalAudioStats,
-  HMSLocalAudioTrack,
   HMSPeer,
-  HMSLocalVideoStats,
-  HMSLocalVideoTrack,
-  HMSRemoteAudioStats,
-  HMSRemoteAudioTrack,
-  HMSRemoteVideoStats,
-  HMSRemoteVideoTrack,
   HMSAudioDevice,
   HMSAudioMode,
   HMSAudioMixingMode,
@@ -615,11 +606,18 @@ export const ChangeRoleModal = ({
   );
 };
 
+enum FileSaveMethod {
+  WRITE,
+  COPY,
+}
+
 export const SaveScreenshot = ({
-  screenshotData,
+  imageSource,
+  peer,
   cancelModal,
 }: {
-  screenshotData: {peer: HMSPeer; source: {uri: string}} | null;
+  peer?: HMSPeer;
+  imageSource?: Required<Pick<ImageURISource, "uri">> | null;
   cancelModal: Function;
 }) => {
   const saveToDisk = async () => {
@@ -628,12 +626,11 @@ export const SaveScreenshot = ({
 
       cancelModal();
 
-      if (permission && screenshotData) {
+      if (permission && peer && imageSource) {
         InteractionManager.runAfterInteractions(async () => {
+          const imageExtension = 'png';
           // Save to Disk
-          const imageName = `${
-            screenshotData.peer.name
-          }-snapshot-${Date.now()}.png`;
+          const imageName = `${peer.name.replace(/ /g, '-').toLowerCase()}-snapshot-${Date.now()}.${imageExtension}`;
 
           const saveDir =
             Platform.OS === 'ios'
@@ -642,14 +639,25 @@ export const SaveScreenshot = ({
 
           const fileLocation = `${saveDir}/${imageName}`;
 
-          await RNFetchBlob.fs.writeFile(
-            fileLocation,
-            screenshotData.source.uri.replace('data:image/png;base64,', ''),
-            'base64',
-          );
+          const fileSaveMethod = imageSource.uri.startsWith('file://') ? FileSaveMethod.COPY : FileSaveMethod.WRITE;
+
+          if (fileSaveMethod === FileSaveMethod.WRITE) {
+            await RNFetchBlob.fs.writeFile(
+              fileLocation, // Target Dir
+              imageSource.uri.replace('data:image/png;base64,', ''), // Data to write to "Target Dir"
+              'base64',
+            );
+          } else {
+            await RNFetchBlob.fs.cp(
+              imageSource.uri, // Source Dir
+              fileLocation, // Target Dir
+            );
+          }
 
           if (Platform.OS === 'ios') {
             RNFetchBlob.ios.previewDocument(fileLocation);
+          } else {
+            RNFetchBlob.android.actionViewIntent(fileLocation, `image/${imageExtension}`);
           }
 
           Toast.showWithGravity(
@@ -667,11 +675,11 @@ export const SaveScreenshot = ({
   return (
     <View style={[{flexGrow: 1}, styles.volumeModalContainer]}>
       <Text style={styles.roleChangeModalHeading}>
-        {screenshotData ? `${screenshotData.peer.name}'s Snapshot` : 'Snapshot'}
+        {peer ? `${peer.name}'s Snapshot` : 'Snapshot'}
       </Text>
-      {screenshotData ? (
+      {imageSource ? (
         <Image
-          source={screenshotData.source}
+          source={imageSource}
           style={styles.screenshotImage}
           resizeMode="contain"
         />
@@ -680,13 +688,13 @@ export const SaveScreenshot = ({
         <CustomButton
           title="Cancel"
           onPress={cancelModal}
-          viewStyle={styles.roleChangeModalCancelButton}
+          viewStyle={[styles.roleChangeModalCancelButton, { width: '40%' }]}
           textStyle={styles.roleChangeModalButtonText}
         />
         <CustomButton
           title="Save to Disk"
           onPress={saveToDisk}
-          viewStyle={styles.roleChangeModalSuccessButton}
+          viewStyle={[styles.roleChangeModalSuccessButton, { width: '56%' }]}
           textStyle={styles.roleChangeModalButtonText}
         />
       </View>
