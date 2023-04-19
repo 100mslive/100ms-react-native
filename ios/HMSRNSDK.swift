@@ -1544,7 +1544,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         self.delegate?.emitEvent(HMSConstants.ON_REMOTE_VIDEO_STATS, ["remoteVideoStats": remoteStats, "track": remoteTrack, "peer": decodedPeer, "id": self.id])
     }
 
-
     // MARK: - Simulcast
 
     func getVideoTrackLayerDefinition(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {

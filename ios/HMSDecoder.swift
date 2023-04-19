@@ -540,7 +540,7 @@ class HMSDecoder: NSObject {
 
             simulcastSettingsPolicy["layers"] = layersData
 
-            return simulcastSettingsPolicy;
+            return simulcastSettingsPolicy
         }
 
         return nil
@@ -566,7 +566,7 @@ class HMSDecoder: NSObject {
 
         return layerSettings
     }
-    // MARK END: - HMSRole Publish Settings and Utility functions
+    // MARK: END: - HMSRole Publish Settings and Utility functions
 
     // MARK: - HMSRole Subscribe Settings and Utility functions
     static private func getSubscribeSettings(from subscribeSettings: HMSSubscribeSettings) -> [String: Any] {
@@ -612,7 +612,7 @@ class HMSDecoder: NSObject {
 
         return nil
     }
-    // MARK END: - HMSRole Subscribe Settings and Utility functions
+    // MARK: END: - HMSRole Subscribe Settings and Utility functions
 
     static func getHmsRoleChangeRequest(_ roleChangeRequest: HMSRoleChangeRequest, _ id: String?) -> [String: Any] {
 
@@ -787,7 +787,7 @@ class HMSDecoder: NSObject {
         return [
             data.bitrate,
             String(data.bytesSent),
-            data.roundTripTime,
+            data.roundTripTime
         ]
     }
 
@@ -879,7 +879,7 @@ class HMSDecoder: NSObject {
             String(data.bytesReceived),
             data.jitter,
             Int(data.packetsLost),
-            String(data.packetsReceived),
+            String(data.packetsReceived)
         ]
     }
 
@@ -892,7 +892,7 @@ class HMSDecoder: NSObject {
             data.jitter,
             Int(data.packetsLost),
             String(data.packetsReceived),
-            HMSDecoder.getHmsVideoResolution(data.resolution),
+            HMSDecoder.getHmsVideoResolution(data.resolution)
         ]
     }
 
