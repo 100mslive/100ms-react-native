@@ -88,6 +88,7 @@ import {
   RealTime,
   RecordingModal,
   RtcStatsModal,
+  SaveScreenshot,
 } from './Modals';
 import type {RootState} from '../../redux';
 import type {AppStackParamList} from '../../navigator';
@@ -290,6 +291,7 @@ const DisplayView = (data: {
     requestedBy?: string;
     suggestedRole?: string;
   }>({});
+  const [capturedImagePath, setCapturedImagePath] = useState<null | { uri: string }>(null);
 
   // useRef hook
   const gridViewRef = useRef<React.ElementRef<typeof GridView> | null>(null);
@@ -867,8 +869,14 @@ const DisplayView = (data: {
 
       if (hmsInstance && permission) {
         HMSCameraControl.captureImageAtMaxSupportedResolution(hmsInstance?.id, true)
-          .then((imagePath: string) => console.log("captureImageAtMaxSupportedResolution result -> ", imagePath))
-          .catch((error: any) => console.warn("captureImageAtMaxSupportedResolution error -> ", error));
+          .then((imagePath: string) => {
+            console.log("captureImageAtMaxSupportedResolution result -> ", imagePath);
+            data?.setModalVisible(ModalTypes.DEFAULT);
+            setCapturedImagePath({ uri: `file://${imagePath}` });
+          })
+          .catch((error: any) => {
+            console.warn("captureImageAtMaxSupportedResolution error -> ", error);
+          });
       }
     });
   };
@@ -992,6 +1000,21 @@ const DisplayView = (data: {
                 onCaptureScreenShotPress={handleCaptureScreenShotPress}
                 onCaptureImagePress={handleCaptureImagePress}
                 onStreamingQualityPress={handleStreamingQualityPress}
+              />
+            ) : null}
+          </DefaultModal>
+
+          {/* Save Image Captured from Local Camera */}
+          <DefaultModal
+            modalPosiion="center"
+            modalVisible={!!capturedImagePath}
+            setModalVisible={() => setCapturedImagePath(null)}
+          >
+            {capturedImagePath && data.localPeer ? (
+              <SaveScreenshot
+                peer={data.localPeer}
+                imageSource={capturedImagePath}
+                cancelModal={() => setCapturedImagePath(null)}
               />
             ) : null}
           </DefaultModal>

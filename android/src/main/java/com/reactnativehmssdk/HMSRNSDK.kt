@@ -1873,7 +1873,7 @@ class HMSRNSDK(
         // -> do nothing now and on success
       }
 
-      val imagePath = "${context.getExternalFilesDir("images")}/hms.jpg"
+      val imagePath = "${context.getExternalFilesDir("images")}/hms-image-captured.jpg"
       val savePath = File(imagePath)
 
       cameraControl.captureImageAtMaxSupportedResolution(
