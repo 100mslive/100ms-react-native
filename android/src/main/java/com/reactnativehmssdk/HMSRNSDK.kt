@@ -23,6 +23,7 @@ import live.hms.video.signal.init.TokenRequestOptions
 import live.hms.video.utils.HMSCoroutineScope
 import live.hms.video.utils.HmsUtilities
 import java.io.File
+import java.util.Date
 
 class HMSRNSDK(
   data: ReadableMap?,
@@ -1822,7 +1823,7 @@ class HMSRNSDK(
     if (requiredKeys === null) {
       val localPeer = hmsSDK?.getLocalPeer().let {
         if (it == null) {
-          promise?.reject("50000", "Local Peer Not Available!")
+          promise?.reject("6004", "An instance of Local Peer could not be found! Please check if a Room is joined.")
           return
         } else {
           it
@@ -1830,7 +1831,7 @@ class HMSRNSDK(
       }
       val localVideoTrack = localPeer.videoTrack.let {
         if (it == null) {
-          promise?.reject("40000", "Local Video Track Not Available! Please check if you have allowed Camera Permissions or if you are joining from HMSRole which has Video Publishing permissions.")
+          promise?.reject("6004", "Video Track of Local Peer could not be found! Please check if the Local Peer has permission to publish video & video is unmuted currently.")
           return
         } else {
           it
@@ -1838,7 +1839,7 @@ class HMSRNSDK(
       }
       val cameraControl = localVideoTrack.getCameraControl().let {
         if (it == null) {
-          promise?.reject("50000", "Camera Control Not Available!")
+          promise?.reject("6004", "Camera Controls not available!")
           return
         } else {
           it
@@ -1873,7 +1874,8 @@ class HMSRNSDK(
         // -> do nothing now and on success
       }
 
-      val imagePath = "${context.getExternalFilesDir("images")}/hms-image-captured.jpg"
+      val dir = context.getExternalFilesDir("images")
+      val imagePath = "${dir}/hms_${Date().time}.jpg"
       val savePath = File(imagePath)
 
       cameraControl.captureImageAtMaxSupportedResolution(
@@ -1885,7 +1887,7 @@ class HMSRNSDK(
         if (success) {
           promise?.resolve(imagePath)
         } else {
-          promise?.reject("50000", "Could Not Capture Image!")
+          promise?.reject("6004", "Could Not Capture Image!")
         }
       }
     } else {

@@ -22,7 +22,7 @@ interface PeerSettingsModalContentProps {
   onChangeRolePress(peer: HMSPeer): void;
   onSetVolumePress(peer: HMSPeer): void;
   onCaptureScreenShotPress(node: PeerTrackNode): void;
-  onCaptureImagePress(node: PeerTrackNode): void;
+  onCaptureImageAtMaxSupportedResolutionPress(node: PeerTrackNode): void;
   onStreamingQualityPress(track: HMSTrack): void;
 }
 
@@ -36,7 +36,7 @@ export const PeerSettingsModalContent: React.FC<
   onChangeRolePress,
   onSetVolumePress,
   onCaptureScreenShotPress,
-  onCaptureImagePress,
+  onCaptureImageAtMaxSupportedResolutionPress,
   onStreamingQualityPress,
 }) => {
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
@@ -161,7 +161,7 @@ export const PeerSettingsModalContent: React.FC<
             text="Capture Image (Max Quality)"
             IconType={MaterialCommunityIcons}
             iconName={'cellphone-screenshot'}
-            onPress={() => onCaptureImagePress(peerTrackNode)}
+            onPress={() => onCaptureImageAtMaxSupportedResolutionPress(peerTrackNode)}
             disabled={!peerTrackNode.track || peerTrackNode.track.isMute()} // Capture Image (Max Quality) option should be disable, if track is muted or not available
           />
         ) : null}

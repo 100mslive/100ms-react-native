@@ -1648,7 +1648,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
     func captureImageAtMaxSupportedResolution(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
 
-        let withFlash = data["with_flash"] as? Bool ?? false
+        let withFlash = data["flash"] as? Bool ?? false
 
         DispatchQueue.main.async { [weak self] in
 
@@ -1683,15 +1683,14 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
                 do {
                     try data.write(to: filePath)
+
+                    resolve?(filePath.relativePath)
                 } catch let error {
                     let errorMessage = "\(#function) Could not write to disk the image data  of the Local Peer's Video Track. \(error.localizedDescription)"
                     reject?("6004", errorMessage, nil)
                     return
                 }
-
-//                result(HMSResultExtension.toDictionary(true, filePath.relativePath))
             }
-
         }
     }
 

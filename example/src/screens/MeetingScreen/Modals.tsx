@@ -38,6 +38,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {Slider} from '@miblanchard/react-native-slider';
 import RNFetchBlob from 'rn-fetch-blob';
+import RNFS from 'react-native-fs';
 
 import {styles} from './styles';
 import {
@@ -606,11 +607,6 @@ export const ChangeRoleModal = ({
   );
 };
 
-enum FileSaveMethod {
-  WRITE,
-  COPY,
-}
-
 export const SaveScreenshot = ({
   imageSource,
   peer,
@@ -620,44 +616,75 @@ export const SaveScreenshot = ({
   imageSource?: Required<Pick<ImageURISource, "uri">> | null;
   cancelModal: Function;
 }) => {
+  /**
+   * Get target path on external storage to save image
+   * @param {string} imageExtension file extension to use for image
+   * @param {string} peerName name of peer to use in image name
+   * @returns string - path on external storage to save image
+   */
+  const getTargetPath = (imageExtension: string, peerName?: string) => {
+    // formatting peer name
+    const formattedPeerName = peerName ? peerName.replace(/ /g, '-').toLowerCase() : '';
+
+    // name to use for image
+    const imageName = `${formattedPeerName}-snapshot-${Date.now()}.${imageExtension}`;
+
+    // directory for saving image
+    const targetDir = Platform.OS === 'ios'? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DCIMDir;
+
+    const targetLocation = `${targetDir}/${imageName}`;
+
+    return targetLocation;
+  }
+
   const saveToDisk = async () => {
     try {
+      // Requesting External Storage permission to save image to disk
       const permission = await requestExternalStoragePermission();
 
+      // closing current Modal
       cancelModal();
 
+      // checking External Storage permission and availability of image source that we have to save to disk
       if (permission && peer && imageSource) {
+
+        // Waiting for Interactions (Modal Close Animation) to finish
         InteractionManager.runAfterInteractions(async () => {
+          // image extension to use
           const imageExtension = 'png';
-          // Save to Disk
-          const imageName = `${peer.name.replace(/ /g, '-').toLowerCase()}-snapshot-${Date.now()}.${imageExtension}`;
 
-          const saveDir =
-            Platform.OS === 'ios'
-              ? RNFetchBlob.fs.dirs.DocumentDir
-              : RNFetchBlob.fs.dirs.DCIMDir;
+          const source = imageSource.uri;
 
-          const fileLocation = `${saveDir}/${imageName}`;
+          // Checking if source is the local file on device
+          const isLocalFile = source.startsWith('file://');
 
-          const fileSaveMethod = imageSource.uri.startsWith('file://') ? FileSaveMethod.COPY : FileSaveMethod.WRITE;
+          // if source is local file on ios device then we don't need to do any file system operation
+          // We can use that local file to show preview window to user on ios
+          const targetLocation =
+            isLocalFile && Platform.OS === 'ios'
+              ? source
+              : getTargetPath(peer.name, imageExtension);
 
-          if (fileSaveMethod === FileSaveMethod.WRITE) {
-            await RNFetchBlob.fs.writeFile(
-              fileLocation, // Target Dir
-              imageSource.uri.replace('data:image/png;base64,', ''), // Data to write to "Target Dir"
-              'base64',
-            );
-          } else {
-            await RNFetchBlob.fs.cp(
+          // if source is local file on android device, then we copy source file to target path
+          if (isLocalFile) {
+            if (Platform.OS === 'android') await RNFS.copyFile(
               imageSource.uri, // Source Dir
-              fileLocation, // Target Dir
+              targetLocation, // Target Dir
+            );
+          }
+          // if source is not local file, then we write to target path
+          else {
+            await RNFetchBlob.fs.writeFile(
+              targetLocation, // Target Dir
+              source.replace('data:image/png;base64,', ''), // Data to write to "Target Dir"
+              'base64',
             );
           }
 
           if (Platform.OS === 'ios') {
-            RNFetchBlob.ios.previewDocument(fileLocation);
+            RNFetchBlob.ios.previewDocument(targetLocation);
           } else {
-            RNFetchBlob.android.actionViewIntent(fileLocation, `image/${imageExtension}`);
+            RNFetchBlob.android.actionViewIntent(targetLocation, `image/${imageExtension}`);
           }
 
           Toast.showWithGravity(

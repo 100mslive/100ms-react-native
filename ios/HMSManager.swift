@@ -545,11 +545,10 @@ class HMSManager: RCTEventEmitter {
 
     // MARK: - Advanced Camera Controls
 
+    @objc
     func captureImageAtMaxSupportedResolution(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.captureImageAtMaxSupportedResolution(data, resolve, reject)
     }
-
 }

@@ -862,13 +862,13 @@ const DisplayView = (data: {
     });
   };
 
-  const handleCaptureImagePress = (_node: PeerTrackNode) => {
+  const handleCaptureImageAtMaxSupportedResolutionPress = (_node: PeerTrackNode) => {
     data?.setModalVisible(ModalTypes.DEFAULT);
     InteractionManager.runAfterInteractions(async () => {
       const permission = await requestExternalStoragePermission();
 
       if (hmsInstance && permission) {
-        HMSCameraControl.captureImageAtMaxSupportedResolution(hmsInstance?.id, true)
+        HMSCameraControl.captureImageAtMaxSupportedResolution(true)
           .then((imagePath: string) => {
             console.log("captureImageAtMaxSupportedResolution result -> ", imagePath);
             data?.setModalVisible(ModalTypes.DEFAULT);
@@ -998,7 +998,7 @@ const DisplayView = (data: {
                 onChangeRolePress={onChangeRolePress}
                 onSetVolumePress={onSetVolumePress}
                 onCaptureScreenShotPress={handleCaptureScreenShotPress}
-                onCaptureImagePress={handleCaptureImagePress}
+                onCaptureImageAtMaxSupportedResolutionPress={handleCaptureImageAtMaxSupportedResolutionPress}
                 onStreamingQualityPress={handleStreamingQualityPress}
               />
             ) : null}
