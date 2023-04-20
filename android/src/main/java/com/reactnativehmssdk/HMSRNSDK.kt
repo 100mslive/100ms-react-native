@@ -1818,6 +1818,8 @@ class HMSRNSDK(
   }
 
   fun captureImageAtMaxSupportedResolution(data: ReadableMap, promise: Promise?) {
+    // TODO: Ensure that the default value passed for flash is false
+    // TODO: all error codes will be 6004 in this function
     val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("flash", "Boolean")))
     if (requiredKeys === null) {
       val localPeer = hmsSDK?.getLocalPeer().let {
