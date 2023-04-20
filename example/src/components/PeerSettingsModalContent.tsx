@@ -155,14 +155,14 @@ export const PeerSettingsModalContent: React.FC<
           />
         )}
 
-        {/* Capture Image (Max Quality) is only available for local peer */}
+        {/* Local Image Capture is only available for local peer */}
         {peerTrackNode.peer.isLocal ? (
           <SettingItem
-            text="Capture Image (Max Quality)"
+            text="Local Image Capture"
             IconType={MaterialCommunityIcons}
             iconName={'cellphone-screenshot'}
             onPress={() => onCaptureImagePress(peerTrackNode)}
-            disabled={!peerTrackNode.track || peerTrackNode.track.isMute()} // Capture Image (Max Quality) option should be disable, if track is muted or not available
+            disabled={!peerTrackNode.track || peerTrackNode.track.isMute()} // Local Image Capture option should be disable, if track is muted or not available
           />
         ) : null}
 
