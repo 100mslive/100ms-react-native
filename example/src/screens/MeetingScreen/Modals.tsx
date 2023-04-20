@@ -663,7 +663,7 @@ export const SaveScreenshot = ({
           const targetLocation =
             isLocalFile && Platform.OS === 'ios'
               ? source
-              : getTargetPath(peer.name, imageExtension);
+              : getTargetPath(imageExtension, peer.name);
 
           // if source is local file on android device, then we copy source file to target path
           if (isLocalFile) {
