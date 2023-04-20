@@ -613,7 +613,7 @@ export const SaveScreenshot = ({
   cancelModal,
 }: {
   peer?: HMSPeer;
-  imageSource?: Required<Pick<ImageURISource, "uri">> | null;
+  imageSource?: Required<Pick<ImageURISource, 'uri'>> | null;
   cancelModal: Function;
 }) => {
   /**
@@ -624,18 +624,23 @@ export const SaveScreenshot = ({
    */
   const getTargetPath = (imageExtension: string, peerName?: string) => {
     // formatting peer name
-    const formattedPeerName = peerName ? peerName.replace(/ /g, '-').toLowerCase() : '';
+    const formattedPeerName = peerName
+      ? peerName.replace(/ /g, '-').toLowerCase()
+      : '';
 
     // name to use for image
     const imageName = `${formattedPeerName}-snapshot-${Date.now()}.${imageExtension}`;
 
     // directory for saving image
-    const targetDir = Platform.OS === 'ios'? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DCIMDir;
+    const targetDir =
+      Platform.OS === 'ios'
+        ? RNFetchBlob.fs.dirs.DocumentDir
+        : RNFetchBlob.fs.dirs.DCIMDir;
 
     const targetLocation = `${targetDir}/${imageName}`;
 
     return targetLocation;
-  }
+  };
 
   const saveToDisk = async () => {
     try {
@@ -647,7 +652,6 @@ export const SaveScreenshot = ({
 
       // checking External Storage permission and availability of image source that we have to save to disk
       if (permission && peer && imageSource) {
-
         // Waiting for Interactions (Modal Close Animation) to finish
         InteractionManager.runAfterInteractions(async () => {
           // image extension to use
@@ -667,10 +671,11 @@ export const SaveScreenshot = ({
 
           // if source is local file on android device, then we copy source file to target path
           if (isLocalFile) {
-            if (Platform.OS === 'android') await RNFS.copyFile(
-              imageSource.uri, // Source Dir
-              targetLocation, // Target Dir
-            );
+            if (Platform.OS === 'android')
+              await RNFS.copyFile(
+                imageSource.uri, // Source Dir
+                targetLocation, // Target Dir
+              );
           }
           // if source is not local file, then we write to target path
           else {
@@ -684,7 +689,10 @@ export const SaveScreenshot = ({
           if (Platform.OS === 'ios') {
             RNFetchBlob.ios.previewDocument(targetLocation);
           } else {
-            RNFetchBlob.android.actionViewIntent(targetLocation, `image/${imageExtension}`);
+            RNFetchBlob.android.actionViewIntent(
+              targetLocation,
+              `image/${imageExtension}`,
+            );
           }
 
           Toast.showWithGravity(
@@ -715,13 +723,13 @@ export const SaveScreenshot = ({
         <CustomButton
           title="Cancel"
           onPress={cancelModal}
-          viewStyle={[styles.roleChangeModalCancelButton, { width: '40%' }]}
+          viewStyle={[styles.roleChangeModalCancelButton, {width: '40%'}]}
           textStyle={styles.roleChangeModalButtonText}
         />
         <CustomButton
           title="Save to Disk"
           onPress={saveToDisk}
-          viewStyle={[styles.roleChangeModalSuccessButton, { width: '56%' }]}
+          viewStyle={[styles.roleChangeModalSuccessButton, {width: '56%'}]}
           textStyle={styles.roleChangeModalButtonText}
         />
       </View>
@@ -989,39 +997,45 @@ export const RtcStatsModal = () => {
         })}
       </Menu>
 
-      <ScrollView contentContainerStyle={Array.isArray(rtcStatsData) ? null : styles.statsModalCardContainer}>
+      <ScrollView
+        contentContainerStyle={
+          Array.isArray(rtcStatsData) ? null : styles.statsModalCardContainer
+        }
+      >
         {rtcStatsData ? (
           Array.isArray(rtcStatsData) ? (
             <View>
               {rtcStatsData.map(rtcStatsItem => {
                 return (
-                  <View style={{ marginBottom: 12 }}>
+                  <View style={{marginBottom: 12}}>
                     <Text style={styles.statsModalCardDescription}>
                       {rtcStatsItem.layer}
                     </Text>
 
                     <View style={styles.statsModalCardContainer}>
-                    {Object.entries(rtcStatsItem).filter(item => item[0] !== 'layer').map(item => {
-                      const [key, value] = item;
+                      {Object.entries(rtcStatsItem)
+                        .filter(item => item[0] !== 'layer')
+                        .map(item => {
+                          const [key, value] = item;
 
-                      return (
-                        <View style={styles.statsModalCard} key={key}>
-                          <Text style={styles.statsModalCardHeading}>
-                            {key}
-                          </Text>
+                          return (
+                            <View style={styles.statsModalCard} key={key}>
+                              <Text style={styles.statsModalCardHeading}>
+                                {key}
+                              </Text>
 
-                          <Text style={styles.statsModalCardDescription}>
-                            {key === 'resolution'
-                              ? `Height: ${value?.height ?? 0}, Width: ${
-                                  value?.width ?? 0
-                                }`
-                              : key === 'qualityLimitationReasons'
-                                ? value.reason
-                                : value}
-                          </Text>
-                        </View>
-                      );
-                    })}
+                              <Text style={styles.statsModalCardDescription}>
+                                {key === 'resolution'
+                                  ? `Height: ${value?.height ?? 0}, Width: ${
+                                      value?.width ?? 0
+                                    }`
+                                  : key === 'qualityLimitationReasons'
+                                  ? value.reason
+                                  : value}
+                              </Text>
+                            </View>
+                          );
+                        })}
                     </View>
                   </View>
                 );

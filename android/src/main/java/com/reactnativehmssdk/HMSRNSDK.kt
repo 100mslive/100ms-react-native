@@ -1875,7 +1875,7 @@ class HMSRNSDK(
       }
 
       val dir = context.getExternalFilesDir("images")
-      val imagePath = "${dir}/hms_${Date().time}.jpg"
+      val imagePath = "$dir/hms_${Date().time}.jpg"
       val savePath = File(imagePath)
 
       cameraControl.captureImageAtMaxSupportedResolution(

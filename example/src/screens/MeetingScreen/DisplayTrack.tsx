@@ -78,7 +78,7 @@ const DisplayTrack = React.forwardRef<typeof HMSView, DisplayTrackProps>(
             peerId={peer.peerID}
             trackSource={videoTrack?.source}
           />
-      ) : null}
+        ) : null}
         <View style={styles.peerNameContainer}>
           <Text numberOfLines={2} style={styles.peerName}>
             {videoTrack?.source !== undefined &&

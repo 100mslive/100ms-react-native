@@ -19,10 +19,13 @@ const PeerRTCStatsContainerUnmemo: React.FC<PeerRTCStatsContainerProps> = ({
   trackSource,
 }) => {
   const audioTrackStats = useSelector((state: RootState) => {
-    const audioStatsId =  (!trackSource || trackSource === HMSTrackSource.REGULAR) ? peerId : (peerId + trackSource);
+    const audioStatsId =
+      !trackSource || trackSource === HMSTrackSource.REGULAR
+        ? peerId
+        : peerId + trackSource;
     return audioStatsId ? state.app.rtcStats[audioStatsId] : null;
   });
-  const videoTrackStats = useSelector((state: RootState) =>{
+  const videoTrackStats = useSelector((state: RootState) => {
     const videoStats = trackId ? state.app.rtcStats[trackId] : null;
 
     if (Array.isArray(videoStats) && videoStats.length === 1) {
@@ -65,11 +68,11 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.OVERLAY,
     borderRadius: 8,
     minWidth: 124,
-    maxHeight: 170
+    maxHeight: 170,
   },
   statsViewWrapper: {
-    marginBottom: 12
-  }
+    marginBottom: 12,
+  },
 });
 
 const PeerRTCStatsContainer = memo(PeerRTCStatsContainerUnmemo);

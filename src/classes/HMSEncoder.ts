@@ -399,7 +399,15 @@ export class HMSEncoder {
   }
 
   static encodeRTCStatsUnit(data: any) {
-    const [bitrateReceived, bitrateSent, bytesReceived, bytesSent, packetsLost, packetsReceived, roundTripTime] = data;
+    const [
+      bitrateReceived,
+      bitrateSent,
+      bytesReceived,
+      bytesSent,
+      packetsLost,
+      packetsReceived,
+      roundTripTime,
+    ] = data;
 
     return new HMSRTCStats({
       bitrateReceived,
@@ -565,16 +573,28 @@ export class HMSEncoder {
 
   static encodeHMSLocalVideoStats(data: any[]) {
     return data.map((item: any) => {
-      const [bitrate, bytesSent, roundTripTime, frameRate, resolution, layer, qualityLimitationReasons] = item;
+      const [
+        bitrate,
+        bytesSent,
+        roundTripTime,
+        frameRate,
+        resolution,
+        layer,
+        qualityLimitationReasons,
+      ] = item;
 
       return new HMSLocalVideoStats({
         bitrate: bitrate >= 0 ? bitrate : undefined,
         bytesSent: bytesSent ? bytesSent : undefined, // string, TODO: parse to number ?
         roundTripTime: roundTripTime >= 0 ? roundTripTime : undefined,
         frameRate: frameRate >= 0 ? frameRate : undefined,
-        resolution: resolution ? { width: resolution[0], height: resolution[1] } : undefined, // resolution: [width, height]
+        resolution: resolution
+          ? { width: resolution[0], height: resolution[1] }
+          : undefined, // resolution: [width, height]
         layer: layer ? layer : undefined,
-        qualityLimitationReasons: qualityLimitationReasons ? this.encodeHMSQualityLimitationReasons(qualityLimitationReasons) : undefined
+        qualityLimitationReasons: qualityLimitationReasons
+          ? this.encodeHMSQualityLimitationReasons(qualityLimitationReasons)
+          : undefined,
       });
     });
   }
@@ -592,7 +612,15 @@ export class HMSEncoder {
   }
 
   static encodeHMSRemoteVideoStats(data: any) {
-    const [bitrate, bytesReceived, frameRate, jitter, packetsLost, packetsReceived, resolution] = data;
+    const [
+      bitrate,
+      bytesReceived,
+      frameRate,
+      jitter,
+      packetsLost,
+      packetsReceived,
+      resolution,
+    ] = data;
 
     return new HMSRemoteVideoStats({
       bitrate: bitrate >= 0 ? bitrate : undefined,
@@ -601,7 +629,9 @@ export class HMSEncoder {
       jitter: jitter >= 0 ? jitter : undefined,
       packetsLost: packetsLost >= 0 ? packetsLost : undefined,
       packetsReceived: packetsReceived ? packetsReceived : undefined, // string, TODO: parse to number ?
-      resolution: resolution ? { width: resolution[0], height: resolution[1] } : undefined, // resolution: [width, height]
+      resolution: resolution
+        ? { width: resolution[0], height: resolution[1] }
+        : undefined, // resolution: [width, height]
     });
   }
 
@@ -612,7 +642,7 @@ export class HMSEncoder {
         resolution: this.encodeHmsVideoResolution({
           width: sld.resolution[0],
           height: sld.resolution[1],
-        })
+        }),
       });
     });
   }
@@ -624,7 +654,8 @@ export class HMSEncoder {
       cpu: data.cpu,
       none: data.none,
       other: data.other,
-      qualityLimitationResolutionChanges: data.qualityLimitationResolutionChanges
+      qualityLimitationResolutionChanges:
+        data.qualityLimitationResolutionChanges,
     });
   }
 }

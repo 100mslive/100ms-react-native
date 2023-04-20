@@ -291,7 +291,9 @@ const DisplayView = (data: {
     requestedBy?: string;
     suggestedRole?: string;
   }>({});
-  const [capturedImagePath, setCapturedImagePath] = useState<null | { uri: string }>(null);
+  const [capturedImagePath, setCapturedImagePath] = useState<null | {
+    uri: string;
+  }>(null);
 
   // useRef hook
   const gridViewRef = useRef<React.ElementRef<typeof GridView> | null>(null);
@@ -862,7 +864,9 @@ const DisplayView = (data: {
     });
   };
 
-  const handleCaptureImageAtMaxSupportedResolutionPress = (_node: PeerTrackNode) => {
+  const handleCaptureImageAtMaxSupportedResolutionPress = (
+    _node: PeerTrackNode,
+  ) => {
     data?.setModalVisible(ModalTypes.DEFAULT);
     InteractionManager.runAfterInteractions(async () => {
       const permission = await requestExternalStoragePermission();
@@ -870,12 +874,18 @@ const DisplayView = (data: {
       if (hmsInstance && permission) {
         HMSCameraControl.captureImageAtMaxSupportedResolution(true)
           .then((imagePath: string) => {
-            console.log("captureImageAtMaxSupportedResolution result -> ", imagePath);
+            console.log(
+              'captureImageAtMaxSupportedResolution result -> ',
+              imagePath,
+            );
             data?.setModalVisible(ModalTypes.DEFAULT);
-            setCapturedImagePath({ uri: `file://${imagePath}` });
+            setCapturedImagePath({uri: `file://${imagePath}`});
           })
           .catch((error: any) => {
-            console.warn("captureImageAtMaxSupportedResolution error -> ", error);
+            console.warn(
+              'captureImageAtMaxSupportedResolution error -> ',
+              error,
+            );
           });
       }
     });
@@ -998,7 +1008,9 @@ const DisplayView = (data: {
                 onChangeRolePress={onChangeRolePress}
                 onSetVolumePress={onSetVolumePress}
                 onCaptureScreenShotPress={handleCaptureScreenShotPress}
-                onCaptureImageAtMaxSupportedResolutionPress={handleCaptureImageAtMaxSupportedResolutionPress}
+                onCaptureImageAtMaxSupportedResolutionPress={
+                  handleCaptureImageAtMaxSupportedResolutionPress
+                }
                 onStreamingQualityPress={handleStreamingQualityPress}
               />
             ) : null}

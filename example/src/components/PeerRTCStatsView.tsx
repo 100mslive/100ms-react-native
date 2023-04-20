@@ -25,9 +25,8 @@ interface PeerRTCStatsViewProps {
 
 const PeerRTCStatsView: React.FC<PeerRTCStatsViewProps> = ({
   audioTrackStats,
-  videoTrackStats
+  videoTrackStats,
 }) => {
-
   const qualityLimitationReasons =
     videoTrackStats && 'qualityLimitationReasons' in videoTrackStats
       ? (videoTrackStats.qualityLimitationReasons as HMSQualityLimitationReasons)
@@ -35,14 +34,8 @@ const PeerRTCStatsView: React.FC<PeerRTCStatsViewProps> = ({
 
   return (
     <View>
-      {videoTrackStats && 'layer' in videoTrackStats
-          ? <Text style={styles.statsTitle}>{videoTrackStats.layer}</Text>
-          : null}
-
-      {qualityLimitationReasons ? (
-        <Text style={styles.statsText}>
-          Reason {qualityLimitationReasons.reason}
-        </Text>
+      {videoTrackStats && 'layer' in videoTrackStats ? (
+        <Text style={styles.statsTitle}>{videoTrackStats.layer}</Text>
       ) : null}
 
       <Text style={styles.statsText}>
@@ -89,6 +82,12 @@ const PeerRTCStatsView: React.FC<PeerRTCStatsViewProps> = ({
           ? audioTrackStats?.jitter?.toFixed?.(2)
           : 0) ?? 0}
       </Text>
+
+      {qualityLimitationReasons ? (
+        <Text style={styles.statsText}>
+          Reason {qualityLimitationReasons.reason}
+        </Text>
+      ) : null}
     </View>
   );
 };

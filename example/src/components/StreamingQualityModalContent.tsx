@@ -65,11 +65,7 @@ export const StreamingQualityModalContent: React.FC<
 
   const changeStreamingQuality = async () => {
     cancelModal();
-    if (
-      !selectedLayer ||
-      !remoteVideoTrack ||
-      selectedLayer === originalLayer
-    )
+    if (!selectedLayer || !remoteVideoTrack || selectedLayer === originalLayer)
       return;
 
     remoteVideoTrack

@@ -161,7 +161,9 @@ export const PeerSettingsModalContent: React.FC<
             text="Local Image Capture"
             IconType={MaterialCommunityIcons}
             iconName={'cellphone-screenshot'}
-            onPress={() => onCaptureImageAtMaxSupportedResolutionPress(peerTrackNode)}
+            onPress={() =>
+              onCaptureImageAtMaxSupportedResolutionPress(peerTrackNode)
+            }
             disabled={!peerTrackNode.track || peerTrackNode.track.isMute()} // Local Image Capture option should be disable, if track is muted or not available
           />
         ) : null}
