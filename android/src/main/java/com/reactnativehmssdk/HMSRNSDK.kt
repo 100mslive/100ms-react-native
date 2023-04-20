@@ -1876,6 +1876,7 @@ class HMSRNSDK(
       }
 
       val imagePath = "${context.getExternalFilesDir("images")}/hms-image-captured.jpg"
+      // TODO: use the current time in the image path
       val savePath = File(imagePath)
 
       cameraControl.captureImageAtMaxSupportedResolution(
