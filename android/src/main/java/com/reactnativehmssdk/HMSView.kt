@@ -13,8 +13,8 @@ import com.facebook.react.bridge.WritableMap
 import com.facebook.react.uimanager.events.RCTEventEmitter
 import live.hms.video.media.tracks.HMSVideoTrack
 import live.hms.video.utils.HmsUtilities
-import org.webrtc.RendererCommon
 import live.hms.videoview.HMSVideoView
+import org.webrtc.RendererCommon
 
 @SuppressLint("ViewConstructor")
 class HMSView(context: ReactContext) : FrameLayout(context) {
@@ -23,7 +23,7 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
   private var scaleTypeApplied: Boolean = false
   private var sdkId: String = "12345"
   private var currentScaleType: RendererCommon.ScalingType =
-      RendererCommon.ScalingType.SCALE_ASPECT_FILL
+    RendererCommon.ScalingType.SCALE_ASPECT_FILL
   private var disableAutoSimulcastLayerSelect = false
 
   init {

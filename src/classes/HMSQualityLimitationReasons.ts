@@ -1,4 +1,4 @@
-import type { HMSQualityLimitationReason } from "./HMSQualityLimitationReason";
+import type { HMSQualityLimitationReason } from './HMSQualityLimitationReason';
 
 export class HMSQualityLimitationReasons {
   bandwidth?: number;
@@ -20,7 +20,8 @@ export class HMSQualityLimitationReasons {
     this.cpu = params.cpu;
     this.none = params.none;
     this.other = params.other;
-    this.qualityLimitationResolutionChanges = params.qualityLimitationResolutionChanges;
+    this.qualityLimitationResolutionChanges =
+      params.qualityLimitationResolutionChanges;
     this.reason = params.reason;
   }
 }

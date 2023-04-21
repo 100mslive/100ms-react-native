@@ -194,7 +194,9 @@ export const getPeerTrackNodes = (
 ): PeerTrackNode[] => {
   const uniqueId =
     peer.peerID +
-    (track?.type === HMSTrackType.VIDEO ? (track?.source || HMSTrackSource.REGULAR) : HMSTrackSource.REGULAR);
+    (track?.type === HMSTrackType.VIDEO
+      ? track?.source || HMSTrackSource.REGULAR
+      : HMSTrackSource.REGULAR);
   const nodes: PeerTrackNode[] = [];
   peerTrackNodes?.map(peerTrackNode => {
     if (peerTrackNode.id === uniqueId) {
