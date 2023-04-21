@@ -1667,19 +1667,19 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
             localVideoTrack.captureImageAtMaxSupportedResolution(withFlash: withFlash) { image in
 
-                guard let capturedImage = image else {
+                guard let rawImage = image, let capturedImage = rawImage.fixOrientation() else {
                     let errorMessage = "\(#function) Could not capture image of the Local Peer's Video Track."
                     reject?("6004", errorMessage, nil)
                     return
                 }
 
-                guard let data = capturedImage.jpegData(compressionQuality: 1.0) else {
-                    let errorMessage = "\(#function) Could not compress image of the Local Peer's Video Track to jpeg data."
+                guard let data = capturedImage.pngData() else {
+                    let errorMessage = "\(#function) Could not compress image of the Local Peer's Video Track to png data."
                     reject?("6004", errorMessage, nil)
                     return
                 }
 
-                let filePath = HMSRNSDK.getDocumentsDirectory().appendingPathComponent("hms_\(HMSRNSDK.getTimeStamp().replacingOccurrences(of: " ", with: "_")).jpg")
+                let filePath = HMSRNSDK.getDocumentsDirectory().appendingPathComponent("hms_\(HMSRNSDK.getTimeStamp()).png")
 
                 do {
                     try data.write(to: filePath)
@@ -1772,8 +1772,20 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     static private func getTimeStamp() -> String {
-        let formatter = DateFormatter()
-        formatter.timeStyle = .medium
-        return formatter.string(from: Date())
+        "\(Date().timeIntervalSince1970)"
+    }
+}
+
+extension UIImage {
+    func fixOrientation() -> UIImage? {
+        if self.imageOrientation == UIImage.Orientation.up {
+            return self
+        }
+
+        UIGraphicsBeginImageContext(self.size)
+        self.draw(in: CGRect(origin: .zero, size: self.size))
+        let normalizedImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return normalizedImage
     }
 }
