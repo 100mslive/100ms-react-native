@@ -1679,7 +1679,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                     return
                 }
 
-                let filePath = HMSRNSDK.getDocumentsDirectory().appendingPathComponent("hms_\(HMSRNSDK.getTimeStamp()).jpg")
+                let filePath = HMSRNSDK.getDocumentsDirectory().appendingPathComponent("hms_\(HMSRNSDK.getTimeStamp().replacingOccurrences(of: " ", with: "_")).jpg")
 
                 do {
                     try data.write(to: filePath)
