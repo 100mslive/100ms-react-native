@@ -774,10 +774,10 @@ class HMSDecoder: NSObject {
         return [
             data.bitrateReceived,
             data.bitrateSent,
-            String(data.bytesReceived),
-            String(data.bytesSent),
-            String(data.packetsLost),
-            String(data.packetsReceived),
+            data.bytesReceived,
+            data.bytesSent,
+            data.packetsLost,
+            data.packetsReceived,
             data.roundTripTime
         ]
     }
@@ -786,7 +786,7 @@ class HMSDecoder: NSObject {
         // [bitrate, bytesSent, roundTripTime]
         return [
             data.bitrate,
-            String(data.bytesSent),
+            data.bytesSent,
             data.roundTripTime
         ]
     }
@@ -807,7 +807,7 @@ class HMSDecoder: NSObject {
 
             let data: [Any] = [
                 stat.bitrate,
-                String(stat.bytesSent),
+                stat.bytesSent,
                 stat.roundTripTime,
                 stat.frameRate,
                 HMSDecoder.getHmsVideoResolution(stat.resolution),
@@ -876,10 +876,10 @@ class HMSDecoder: NSObject {
         // [bitrate, bytesReceived, jitter, packetsLost, packetsReceived]
         return [
             data.bitrate,
-            String(data.bytesReceived),
+            data.bytesReceived,
             data.jitter,
-            Int(data.packetsLost),
-            String(data.packetsReceived)
+            data.packetsLost,
+            data.packetsReceived
         ]
     }
 
@@ -887,11 +887,11 @@ class HMSDecoder: NSObject {
         // [bitrate, bytesReceived, frameRate, jitter, packetsLost, packetsReceived, resolution]
         return [
             data.bitrate,
-            String(data.bytesReceived),
+            data.bytesReceived,
             data.frameRate,
             data.jitter,
-            Int(data.packetsLost),
-            String(data.packetsReceived),
+            data.packetsLost,
+            data.packetsReceived,
             HMSDecoder.getHmsVideoResolution(data.resolution)
         ]
     }
