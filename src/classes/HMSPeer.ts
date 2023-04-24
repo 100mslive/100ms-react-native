@@ -9,7 +9,7 @@ import { HMSConstants } from './HMSConstants';
 export class HMSPeer {
   peerID: string;
   /**
-   * @deprecated customerDescription has been deprecated in favor of metadata
+   * @deprecated customerDescription property has been deprecated in favor of metadata property
    */
   customerDescription?: string;
 

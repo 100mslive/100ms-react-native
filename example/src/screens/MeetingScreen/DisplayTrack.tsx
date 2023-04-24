@@ -9,6 +9,7 @@ import {CustomButton} from '../../components';
 import {styles} from './styles';
 import type {RootState} from '../../redux';
 import PeerDisplayView, {PeerDisplayViewProps} from './PeerDisplayView';
+import PeerRTCStatsContainer from '../../components/PeerRTCStatsContainer';
 
 interface DisplayTrackProps extends PeerDisplayViewProps {
   videoStyles: StyleProp<ViewStyle>;
@@ -19,12 +20,15 @@ interface DisplayTrackProps extends PeerDisplayViewProps {
 // as HMSView component is being rendered inside PeerDisplayView component
 const DisplayTrack = React.forwardRef<typeof HMSView, DisplayTrackProps>(
   (
-    {isDegraded, isLocal, peerName, videoTrack, videoStyles, setIsScreenShared},
+    {isDegraded, isLocal, peer, videoTrack, videoStyles, setIsScreenShared},
     hmsViewRef,
   ) => {
     // hooks
     const hmsInstance = useSelector(
       (state: RootState) => state.user.hmsInstance,
+    );
+    const showStatsOnTiles = useSelector(
+      (state: RootState) => state.app.joinConfig.showStats,
     );
 
     // functions
@@ -62,20 +66,27 @@ const DisplayTrack = React.forwardRef<typeof HMSView, DisplayTrackProps>(
         ) : (
           <PeerDisplayView
             ref={hmsViewRef}
-            peerName={peerName}
+            peer={peer}
             isDegraded={isDegraded}
             isLocal={isLocal}
             videoTrack={videoTrack}
           />
         )}
+        {showStatsOnTiles ? (
+          <PeerRTCStatsContainer
+            trackId={videoTrack?.trackId}
+            peerId={peer.peerID}
+            trackSource={videoTrack?.source}
+          />
+      ) : null}
         <View style={styles.peerNameContainer}>
           <Text numberOfLines={2} style={styles.peerName}>
             {videoTrack?.source !== undefined &&
             videoTrack?.source !== HMSTrackSource.REGULAR
-              ? `${peerName}'s ${videoTrack.source}`
+              ? `${peer.name}'s ${videoTrack.source}`
               : isLocal
-              ? `You (${peerName})`
-              : peerName}
+              ? `You (${peer.name})`
+              : peer.name}
           </Text>
         </View>
       </View>

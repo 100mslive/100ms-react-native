@@ -1,6 +1,12 @@
 import ActionTypes from '../actionTypes';
 import type {PeerTrackNode} from '../../utils/types';
 import {PipModes} from '../../utils/types';
+import {
+  HMSLocalAudioStats,
+  HMSLocalVideoStats,
+  HMSRemoteAudioStats,
+  HMSRemoteVideoStats,
+} from '@100mslive/react-native-hms';
 
 type ActionType = {
   payload: {[key: string]: any};
@@ -10,6 +16,14 @@ type ActionType = {
 type IntialStateType = {
   peerState: PeerTrackNode[];
   pipModeStatus: PipModes;
+  rtcStats: Record<
+    string,
+    | undefined
+    | HMSLocalAudioStats
+    | HMSLocalVideoStats[]
+    | HMSRemoteAudioStats
+    | HMSRemoteVideoStats
+  >;
   joinConfig: {
     mutedAudio: boolean;
     mutedVideo: boolean;
@@ -18,6 +32,7 @@ type IntialStateType = {
     audioMixer: boolean; // IOS only
     softwareDecoder: boolean; // Android only
     autoResize: boolean; // Android only
+    autoSimulcast: boolean;
     showStats: boolean;
   };
 };
@@ -25,6 +40,7 @@ type IntialStateType = {
 const INITIAL_STATE: IntialStateType = {
   peerState: [],
   pipModeStatus: PipModes.INACTIVE,
+  rtcStats: {},
   joinConfig: {
     mutedAudio: true,
     mutedVideo: true,
@@ -33,6 +49,7 @@ const INITIAL_STATE: IntialStateType = {
     audioMixer: false, // IOS only
     softwareDecoder: true, // Android only
     autoResize: false, // Android only
+    autoSimulcast: true,
     showStats: false,
   },
 };
@@ -112,6 +129,22 @@ const appReducer = (
         joinConfig: {
           ...state.joinConfig,
           autoResize: action.payload.autoResize ?? false,
+        },
+      };
+    case ActionTypes.CHANGE_AUTO_SIMULCAST:
+      return {
+        ...state,
+        joinConfig: {
+          ...state.joinConfig,
+          autoSimulcast: action.payload.autoSimulcast ?? true,
+        },
+      };
+    case ActionTypes.SET_RTC_STATS:
+      return {
+        ...state,
+        rtcStats: {
+          ...state.rtcStats,
+          [action.payload.trackId]: action.payload.stats,
         },
       };
     default:

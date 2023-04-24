@@ -54,6 +54,7 @@ export enum ModalTypes {
   WELCOME_SETTINGS = 'welcomeSettings',
   BULK_ROLE_CHANGE = 'bulkRoleChange',
   PEER_SETTINGS = 'peerSettings',
+  STREAMING_QUALITY_SETTING = 'streamingQualitySetting',
   DEFAULT = '',
 }
 

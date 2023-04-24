@@ -4,6 +4,7 @@ import {useSelector} from 'react-redux';
 import {
   HMSLocalPeer,
   HMSPeer,
+  HMSTrack,
   HMSTrackSource,
 } from '@100mslive/react-native-hms';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -21,6 +22,7 @@ interface PeerSettingsModalContentProps {
   onChangeRolePress(peer: HMSPeer): void;
   onSetVolumePress(peer: HMSPeer): void;
   onCaptureScreenShotPress(node: PeerTrackNode): void;
+  onStreamingQualityPress(track: HMSTrack): void;
 }
 
 export const PeerSettingsModalContent: React.FC<
@@ -33,6 +35,7 @@ export const PeerSettingsModalContent: React.FC<
   onChangeRolePress,
   onSetVolumePress,
   onCaptureScreenShotPress,
+  onStreamingQualityPress,
 }) => {
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
 
@@ -149,6 +152,21 @@ export const PeerSettingsModalContent: React.FC<
             disabled={!peerTrackNode.track || peerTrackNode.track.isMute()} // Capture Screenshot option should be disable, if track is muted or not available
           />
         )}
+
+        {/* Don't show Streaming Quality option for local peer */}
+        {!peer.isLocal ? (
+          <SettingItem
+            text="Streaming Quality"
+            IconType={Ionicons}
+            iconName={'layers-outline'}
+            onPress={() =>
+              peerTrackNode.track
+                ? onStreamingQualityPress(peerTrackNode.track)
+                : null
+            }
+            disabled={!peerTrackNode.track || peerTrackNode.track.isMute()} // Streaming Quality option should be disable, if track is muted or not available
+          />
+        ) : null}
       </View>
     </View>
   );

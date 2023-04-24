@@ -34,7 +34,11 @@ class HMSView: RCTViewManager {
 class HmssdkDisplayView: UIView {
 
     lazy var videoView: HMSVideoView = {
-        return HMSVideoView()
+        let videoView = HMSVideoView()
+        videoView.videoContentMode = .scaleAspectFill
+        videoView.mirror = false
+        videoView.disableAutoSimulcastLayerSelect = false
+        return videoView
     }()
 
     var hmsCollection = [String: HMSRNSDK]()
@@ -44,6 +48,12 @@ class HmssdkDisplayView: UIView {
     }
 
     @objc var onDataReturned: RCTDirectEventBlock?
+
+    @objc var autoSimulcast: Bool = true {
+        didSet {
+            videoView.disableAutoSimulcastLayerSelect = !autoSimulcast
+        }
+    }
 
     @objc var scaleType: String = "ASPECT_FILL" {
         didSet {
@@ -58,6 +68,7 @@ class HmssdkDisplayView: UIView {
                     videoView.videoContentMode = .center
                     return
                 default:
+                    videoView.videoContentMode = .scaleAspectFill
                     return
             }
         }
@@ -65,6 +76,10 @@ class HmssdkDisplayView: UIView {
 
     @objc var data: NSDictionary = [:] {
         didSet {
+
+            if let mirror = data.value(forKey: "mirror") as? Bool {
+                videoView.mirror = mirror
+            }
 
             let sdkID = data.value(forKey: "id") as? String ?? "12345"
 
@@ -76,26 +91,13 @@ class HmssdkDisplayView: UIView {
                 return
             }
 
-            var videoTrack = HMSUtilities.getVideoTrack(for: trackID, in: room)
-
-            if videoTrack == nil {
-                for track in hmsCollection[sdkID]?.recentPreviewTracks ?? [] {
-                    if track.trackId == trackID && track.kind == HMSTrackKind.video {
-                        videoTrack = track as? HMSVideoTrack
-                    }
-                }
-            }
-
-            if videoTrack != nil {
-                let mirror = data.value(forKey: "mirror") as? Bool
-                if mirror != nil {
-                    videoView.mirror = mirror!
-                }
-                videoView.setVideoTrack(videoTrack)
-            } else {
-                print(#function, "Required data to setup video view not found")
+            guard let videoTrack = HMSUtilities.getVideoTrack(for: trackID, in: room)
+            else {
+                print(#function, "Could not find video track in room with trackID: \(trackID)")
                 return
             }
+
+            videoView.setVideoTrack(videoTrack)
         }
     }
 

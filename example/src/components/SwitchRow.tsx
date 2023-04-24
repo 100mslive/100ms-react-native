@@ -13,7 +13,7 @@ import {COLORS} from '../utils/theme';
 interface SwitchRow {
   value: boolean;
   onChange(value: boolean): void;
-  text?: string;
+  text: string;
   containerStyle?: StyleProp<ViewStyle>;
   LeftIcon?: React.ReactNode;
 }

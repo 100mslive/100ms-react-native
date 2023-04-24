@@ -60,7 +60,7 @@ const ChatFilter = memo(({
     React.SetStateAction<'everyone' | HMSRole | HMSRemotePeer>
   >;
 }) => {
-  const {roles} = useSelector((state: RootState) => state.user);
+  const roles = useSelector((state: RootState) => state.user.roles);
 
   const [visible, setVisible] = useState<boolean>(false);
   const [remotePeers, setRemotePeers] = useState<HMSRemotePeer[]>();
@@ -90,14 +90,16 @@ const ChatFilter = memo(({
         </TouchableOpacity>
       }
       onRequestClose={hideMenu}
-      style={styles.chatMenuContainer}>
+      style={styles.chatMenuContainer}
+    >
       <MenuItem
         onPress={() => {
           hideMenu();
           setType('everyone');
           setReceiverObject('everyone');
           setFilter('everyone');
-        }}>
+        }}
+      >
         <View style={styles.chatMenuItem}>
           <Ionicons
             name="people-outline"
@@ -117,7 +119,8 @@ const ChatFilter = memo(({
               setReceiverObject(knownRole);
               setFilter(knownRole?.name!);
             }}
-            key={knownRole.name}>
+            key={knownRole.name}
+          >
             <View style={styles.chatMenuItem}>
               <Text style={styles.chatMenuItemName}>{knownRole?.name}</Text>
             </View>
@@ -134,7 +137,8 @@ const ChatFilter = memo(({
               setReceiverObject(remotePeer);
               setFilter(remotePeer.name);
             }}
-            key={remotePeer.name}>
+            key={remotePeer.name}
+          >
             <View style={styles.chatMenuItem}>
               <Ionicons
                 name="person-outline"
@@ -157,7 +161,7 @@ const ChatList = ({
 }: {
   setSessionMetaData: (value: string | null) => void;
 }) => {
-  const {messages} = useSelector((state: RootState) => state.messages);
+  const messages = useSelector((state: RootState) => state.messages.messages);
 
   // const scollviewRef = useRef<FlatList>(null);
 
@@ -189,7 +193,8 @@ const ChatList = ({
                 styles.privateMessageBubble,
               isLocal && styles.sendMessageBubble,
             ]}
-            key={index}>
+            key={index}
+          >
             <View style={styles.headingContainer}>
               <View style={styles.headingLeftContainer}>
                 <Text style={styles.senderName}>
@@ -254,8 +259,10 @@ const ChatList = ({
 
 export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
   // hooks
-  const {hmsInstance} = useSelector((state: RootState) => state.user);
-  const {pinnedMessage} = useSelector((state: RootState) => state.messages);
+  const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
+  const pinnedMessage = useSelector(
+    (state: RootState) => state.messages.pinnedMessage,
+  );
   const dispatch = useDispatch();
   const {bottom} = useSafeAreaInsets();
 
@@ -376,7 +383,8 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
         <ChatList setSessionMetaData={setSessionMetaData} />
       </View>
       <View
-        style={bottom === 0 ? styles.inputContainer : {marginBottom: bottom}}>
+        style={bottom === 0 ? styles.inputContainer : {marginBottom: bottom}}
+      >
         <CustomInput
           value={text}
           onChangeText={setText}
