@@ -44,7 +44,6 @@ class HMSManager: RCTEventEmitter {
         self.sendEvent(withName: name, body: data)
     }
 
-
     // MARK: - Setup HMSSDK
 
     @objc
@@ -74,7 +73,6 @@ class HMSManager: RCTEventEmitter {
         hmsCollection.removeValue(forKey: id)
         resolve?(["success": id + " removed"])
     }
-
 
     // MARK: - Preview
 
@@ -114,7 +112,6 @@ class HMSManager: RCTEventEmitter {
 
         hms?.leave(resolve, reject)
     }
-
 
     // MARK: - Audio & Video Actions
 
@@ -208,7 +205,6 @@ class HMSManager: RCTEventEmitter {
         hms?.sendDirectMessage(data, resolve, reject)
     }
 
-
     // MARK: - Change Role
 
     @available(*, deprecated, message: "Use changeRoleOfPeer function")
@@ -256,7 +252,6 @@ class HMSManager: RCTEventEmitter {
         hms?.changeTrackStateForRoles(data, resolve, reject)
     }
 
-
     @objc
     func removePeer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
@@ -270,7 +265,6 @@ class HMSManager: RCTEventEmitter {
 
         hms?.endRoom(data, resolve, reject)
     }
-
 
     // MARK: - Peer Actions
 
@@ -288,7 +282,6 @@ class HMSManager: RCTEventEmitter {
         hms?.changeName(data, resolve, reject)
     }
 
-
     // MARK: - RTMP Streaming & Recording
 
     @objc
@@ -304,7 +297,6 @@ class HMSManager: RCTEventEmitter {
 
         hms?.stopRtmpAndRecording(resolve, reject)
     }
-
 
     // MARK: - HLS Streaming & Recording
 
@@ -528,7 +520,6 @@ class HMSManager: RCTEventEmitter {
         hms?.getRemoteAudioTrackFromTrackId(data, resolve, reject)
     }
 
-
     // MARK: - Simulcast
 
     @objc
@@ -550,5 +541,14 @@ class HMSManager: RCTEventEmitter {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.setVideoTrackLayer(data, resolve, reject)
+    }
+
+    // MARK: - Advanced Camera Controls
+
+    @objc
+    func captureImageAtMaxSupportedResolution(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.captureImageAtMaxSupportedResolution(data, resolve, reject)
     }
 }

@@ -22,6 +22,8 @@ import live.hms.video.signal.init.TokenRequest
 import live.hms.video.signal.init.TokenRequestOptions
 import live.hms.video.utils.HMSCoroutineScope
 import live.hms.video.utils.HmsUtilities
+import java.io.File
+import java.util.Date
 
 class HMSRNSDK(
   data: ReadableMap?,
@@ -1811,6 +1813,85 @@ class HMSRNSDK(
       }
     } else {
       val errorMessage = "setVideoTrackLayer: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(promise, errorMessage)
+    }
+  }
+
+  fun captureImageAtMaxSupportedResolution(data: ReadableMap, promise: Promise?) {
+    val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("flash", "Boolean")))
+    if (requiredKeys === null) {
+      val localPeer = hmsSDK?.getLocalPeer().let {
+        if (it == null) {
+          promise?.reject("6004", "An instance of Local Peer could not be found! Please check if a Room is joined.")
+          return
+        } else {
+          it
+        }
+      }
+      val localVideoTrack = localPeer.videoTrack.let {
+        if (it == null) {
+          promise?.reject("6004", "Video Track of Local Peer could not be found! Please check if the Local Peer has permission to publish video & video is unmuted currently.")
+          return
+        } else {
+          it
+        }
+      }
+      val cameraControl = localVideoTrack.getCameraControl().let {
+        if (it == null) {
+          promise?.reject("6004", "Camera Controls not available!")
+          return
+        } else {
+          it
+        }
+      }
+
+      val flashSupported = cameraControl.isFlashSupported()
+      var flashActionOnSuccess = 0 // 0 - Do nothing on success, 1 - set flash on, 2 - set flash off
+      if (flashSupported) {
+        val useFlash = data.getBoolean("flash")
+
+        val flashEnabled = cameraControl.isFlashEnabled()
+
+        // if flash option is true, and flash is already on
+        // -> do nothing now and on success
+
+        // if flash option is true, and flash is off
+        // -> turn it on and later turn it off
+        if (useFlash && !flashEnabled) {
+          cameraControl.setFlash(true)
+          flashActionOnSuccess = 2
+        }
+
+        // if flash option is false, and flash is on
+        // -> turn it off and later turn it on
+        if (!useFlash && flashEnabled) {
+          cameraControl.setFlash(false)
+          flashActionOnSuccess = 1
+        }
+
+        // if flash option is false, and flash is off
+        // -> do nothing now and on success
+      }
+
+      val dir = context.getExternalFilesDir("images")
+      val imagePath = "$dir/hms_${Date().time}.jpg"
+      val savePath = File(imagePath)
+
+      cameraControl.captureImageAtMaxSupportedResolution(
+        savePath
+      ) { success ->
+        if (flashActionOnSuccess > 0) {
+          cameraControl.setFlash(flashActionOnSuccess === 1)
+        }
+        if (success) {
+          promise?.resolve(imagePath)
+        } else {
+          promise?.reject("6004", "Could Not Capture Image!")
+        }
+      }
+    } else {
+      val errorMessage = "captureImageAtMaxSupportedResolution: $requiredKeys"
       self.emitRequiredKeysError(errorMessage)
       rejectCallback(promise, errorMessage)
     }

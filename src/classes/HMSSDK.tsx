@@ -249,7 +249,14 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   HmsView = React.forwardRef<any, HmsViewProps>((props, ref) => {
-    const { trackId, style, mirror, scaleType, setZOrderMediaOverlay, autoSimulcast } = props;
+    const {
+      trackId,
+      style,
+      mirror,
+      scaleType,
+      setZOrderMediaOverlay,
+      autoSimulcast,
+    } = props;
     return (
       <HmsViewComponent
         ref={ref}
@@ -1075,12 +1082,13 @@ export class HMSSDK {
       trackId,
     });
 
-    const remoteVideoTrackData = await HMSManager.getRemoteVideoTrackFromTrackId({
-      id: this.id,
-      trackId
-    });
+    const remoteVideoTrackData =
+      await HMSManager.getRemoteVideoTrackFromTrackId({
+        id: this.id,
+        trackId,
+      });
     return HMSEncoder.encodeHmsRemoteVideoTrack(remoteVideoTrackData, this.id);
-  }
+  };
 
   getRemoteAudioTrackFromTrackId = async (trackId: string) => {
     logger?.verbose('#Function getRemoteAudioTrackFromTrackId', {
@@ -1088,12 +1096,13 @@ export class HMSSDK {
       trackId,
     });
 
-    const remoteAudioTrackData = await HMSManager.getRemoteAudioTrackFromTrackId({
-      id: this.id,
-      trackId
-    });
+    const remoteAudioTrackData =
+      await HMSManager.getRemoteAudioTrackFromTrackId({
+        id: this.id,
+        trackId,
+      });
     return HMSEncoder.encodeHmsRemoteAudioTrack(remoteAudioTrackData, this.id);
-  }
+  };
 
   /**
    * - This is a prototype event listener that takes action and listens for updates related to that particular action
@@ -2094,7 +2103,9 @@ export class HMSSDK {
       return;
     }
 
-    let localAudioStats = HMSEncoder.encodeHMSLocalAudioStats(data.localAudioStats);
+    let localAudioStats = HMSEncoder.encodeHMSLocalAudioStats(
+      data.localAudioStats
+    );
     let peer = HMSEncoder.encodeHmsPeer(data.peer);
     let track = HMSEncoder.encodeHmsLocalAudioTrack(data.track, this.id);
 
@@ -2114,7 +2125,9 @@ export class HMSSDK {
       return;
     }
 
-    let localVideoStats = HMSEncoder.encodeHMSLocalVideoStats(data.localVideoStats);
+    let localVideoStats = HMSEncoder.encodeHMSLocalVideoStats(
+      data.localVideoStats
+    );
     let peer = HMSEncoder.encodeHmsPeer(data.peer);
     let track = HMSEncoder.encodeHmsLocalVideoTrack(data.track, this.id);
 
@@ -2134,7 +2147,9 @@ export class HMSSDK {
       return;
     }
 
-    let remoteAudioStats = HMSEncoder.encodeHMSRemoteAudioStats(data.remoteAudioStats);
+    let remoteAudioStats = HMSEncoder.encodeHMSRemoteAudioStats(
+      data.remoteAudioStats
+    );
     let peer = HMSEncoder.encodeHmsPeer(data.peer);
     let track = HMSEncoder.encodeHmsRemoteAudioTrack(data.track, this.id);
 
@@ -2159,7 +2174,9 @@ export class HMSSDK {
       return;
     }
 
-    let remoteVideoStats = HMSEncoder.encodeHMSRemoteVideoStats(data.remoteVideoStats);
+    let remoteVideoStats = HMSEncoder.encodeHMSRemoteVideoStats(
+      data.remoteVideoStats
+    );
     let peer = HMSEncoder.encodeHmsPeer(data.peer);
     let track = HMSEncoder.encodeHmsRemoteVideoTrack(data.track, this.id);
 

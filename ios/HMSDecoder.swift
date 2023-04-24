@@ -540,7 +540,7 @@ class HMSDecoder: NSObject {
 
             simulcastSettingsPolicy["layers"] = layersData
 
-            return simulcastSettingsPolicy;
+            return simulcastSettingsPolicy
         }
 
         return nil
@@ -566,7 +566,7 @@ class HMSDecoder: NSObject {
 
         return layerSettings
     }
-    // MARK END: - HMSRole Publish Settings and Utility functions
+    // MARK: END: - HMSRole Publish Settings and Utility functions
 
     // MARK: - HMSRole Subscribe Settings and Utility functions
     static private func getSubscribeSettings(from subscribeSettings: HMSSubscribeSettings) -> [String: Any] {
@@ -612,7 +612,7 @@ class HMSDecoder: NSObject {
 
         return nil
     }
-    // MARK END: - HMSRole Subscribe Settings and Utility functions
+    // MARK: END: - HMSRole Subscribe Settings and Utility functions
 
     static func getHmsRoleChangeRequest(_ roleChangeRequest: HMSRoleChangeRequest, _ id: String?) -> [String: Any] {
 
@@ -774,10 +774,10 @@ class HMSDecoder: NSObject {
         return [
             data.bitrateReceived,
             data.bitrateSent,
-            String(data.bytesReceived),
-            String(data.bytesSent),
-            String(data.packetsLost),
-            String(data.packetsReceived),
+            data.bytesReceived,
+            data.bytesSent,
+            data.packetsLost,
+            data.packetsReceived,
             data.roundTripTime
         ]
     }
@@ -786,8 +786,8 @@ class HMSDecoder: NSObject {
         // [bitrate, bytesSent, roundTripTime]
         return [
             data.bitrate,
-            String(data.bytesSent),
-            data.roundTripTime,
+            data.bytesSent,
+            data.roundTripTime
         ]
     }
 
@@ -797,15 +797,17 @@ class HMSDecoder: NSObject {
 
         for stat in localVideoStats {
 //          [bitrate, bytesSent, roundTripTime, frameRate, resolution, layer, qualityLimitationReasons]
-            var layer: String? = nil;
+            var layer = "HIGH"
 
-            if let simulcastLayerId = stat.simulcastLayerId {
-                layer = getStringFromLayer(layer: HMSSimulcastLayer(rawValue: simulcastLayerId as! UInt))
+            if let simulcastLayerId = stat.simulcastLayerId as? UInt {
+                layer = getStringFromLayer(layer: HMSSimulcastLayer(rawValue: simulcastLayerId))
+            } else {
+                print(#function, "Error: Failed to cast to correct simulcastLayerId")
             }
 
             let data: [Any] = [
                 stat.bitrate,
-                String(stat.bytesSent),
+                stat.bytesSent,
                 stat.roundTripTime,
                 stat.frameRate,
                 HMSDecoder.getHmsVideoResolution(stat.resolution),
@@ -874,10 +876,10 @@ class HMSDecoder: NSObject {
         // [bitrate, bytesReceived, jitter, packetsLost, packetsReceived]
         return [
             data.bitrate,
-            String(data.bytesReceived),
+            data.bytesReceived,
             data.jitter,
-            Int(data.packetsLost),
-            String(data.packetsReceived),
+            data.packetsLost,
+            data.packetsReceived
         ]
     }
 
@@ -885,12 +887,12 @@ class HMSDecoder: NSObject {
         // [bitrate, bytesReceived, frameRate, jitter, packetsLost, packetsReceived, resolution]
         return [
             data.bitrate,
-            String(data.bytesReceived),
+            data.bytesReceived,
             data.frameRate,
             data.jitter,
-            Int(data.packetsLost),
-            String(data.packetsReceived),
-            HMSDecoder.getHmsVideoResolution(data.resolution),
+            data.packetsLost,
+            data.packetsReceived,
+            HMSDecoder.getHmsVideoResolution(data.resolution)
         ]
     }
 

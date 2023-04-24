@@ -10,6 +10,7 @@ import {
   Image,
   Platform,
   InteractionManager,
+  ImageURISource,
 } from 'react-native';
 import Toast from 'react-native-simple-toast';
 import {useDispatch, useSelector} from 'react-redux';
@@ -19,17 +20,7 @@ import {
   HMSSDK,
   HMSTrackType,
   HMSTrackSource,
-  HMSRTCStatsReport,
-  HMSUpdateListenerActions,
-  HMSLocalAudioStats,
-  HMSLocalAudioTrack,
   HMSPeer,
-  HMSLocalVideoStats,
-  HMSLocalVideoTrack,
-  HMSRemoteAudioStats,
-  HMSRemoteAudioTrack,
-  HMSRemoteVideoStats,
-  HMSRemoteVideoTrack,
   HMSAudioDevice,
   HMSAudioMode,
   HMSAudioMixingMode,
@@ -47,6 +38,8 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {Slider} from '@miblanchard/react-native-slider';
 import RNFetchBlob from 'rn-fetch-blob';
+import RNFS from 'react-native-fs';
+import Share from 'react-native-share';
 
 import {styles} from './styles';
 import {
@@ -616,47 +609,106 @@ export const ChangeRoleModal = ({
 };
 
 export const SaveScreenshot = ({
-  screenshotData,
+  imageSource,
+  peer,
   cancelModal,
 }: {
-  screenshotData: {peer: HMSPeer; source: {uri: string}} | null;
+  peer?: HMSPeer;
+  imageSource?: Required<Pick<ImageURISource, 'uri'>> | null;
   cancelModal: Function;
 }) => {
+  /**
+   * Get target path on external storage to save image
+   * @param {string} imageExtension file extension to use for image
+   * @param {string} peerName name of peer to use in image name
+   * @returns string - path on external storage to save image
+   */
+  const getTargetPath = (imageExtension: string, peerName?: string) => {
+    // formatting peer name
+    const formattedPeerName = peerName
+      ? peerName.replace(/ /g, '-').toLowerCase()
+      : '';
+
+    // name to use for image
+    const imageName = `${formattedPeerName}-snapshot-${Date.now()}.${imageExtension}`;
+
+    // directory for saving image
+    const targetDir =
+      Platform.OS === 'ios'
+        ? RNFetchBlob.fs.dirs.DocumentDir
+        : RNFetchBlob.fs.dirs.DCIMDir;
+
+    const targetLocation = `${targetDir}/${imageName}`;
+
+    return targetLocation;
+  };
+
   const saveToDisk = async () => {
     try {
+      // Requesting External Storage permission to save image to disk
       const permission = await requestExternalStoragePermission();
 
-      cancelModal();
-
-      if (permission && screenshotData) {
+      // checking External Storage permission and availability of image source that we have to save to disk
+      if (permission && peer && imageSource) {
+        // Waiting for Interactions (Modal Close Animation) to finish
         InteractionManager.runAfterInteractions(async () => {
-          // Save to Disk
-          const imageName = `${
-            screenshotData.peer.name
-          }-snapshot-${Date.now()}.png`;
+          // image extension to use
+          const imageExtension = 'png';
 
-          const saveDir =
-            Platform.OS === 'ios'
-              ? RNFetchBlob.fs.dirs.DocumentDir
-              : RNFetchBlob.fs.dirs.DCIMDir;
+          // Removing `file://` from URI if it exists, to keep it consistent with `base64` image case
+          const source = imageSource.uri.replace('file://', '');
 
-          const fileLocation = `${saveDir}/${imageName}`;
+          // Checking if source is the local file on device
+          const isSourceLocalFile = imageSource.uri.startsWith('file://');
 
-          await RNFetchBlob.fs.writeFile(
-            fileLocation,
-            screenshotData.source.uri.replace('data:image/png;base64,', ''),
-            'base64',
-          );
+          // if source is local file on ios device then we don't need to do any file system operation
+          // We can use that local file to show preview window to user on ios
+          const targetLocation =
+            isSourceLocalFile && Platform.OS === 'ios'
+              ? source
+              : getTargetPath(imageExtension, peer.name);
 
-          if (Platform.OS === 'ios') {
-            RNFetchBlob.ios.previewDocument(fileLocation);
+          // if source is local file on android device, then we copy source file to target path
+          if (isSourceLocalFile) {
+            if (Platform.OS === 'android')
+              await RNFS.copyFile(
+                source, // Source Dir
+                targetLocation, // Target Dir
+              );
+          }
+          // if source is not local file, then we write to target path
+          else {
+            await RNFetchBlob.fs.writeFile(
+              targetLocation, // Target Dir
+              source.replace('data:image/png;base64,', ''), // Data to write to "Target Dir"
+              'base64',
+            );
           }
 
-          Toast.showWithGravity(
-            'Snapshot has been saved successfully',
-            Toast.LONG,
-            Toast.TOP,
-          );
+          Share.open({url: 'file://' + targetLocation})
+            .then(({message}) => {
+              if (message.includes('SaveToCameraRoll')) {
+                Toast.showWithGravity(
+                  'Snapshot has been saved successfully',
+                  Toast.LONG,
+                  Toast.TOP,
+                );
+              }
+              cancelModal();
+            })
+            .catch(error => console.log('share error -> ', error))
+            .finally(() => {
+              // On Android, We have already saved image into DCIM dir
+              // Therefore, we can notify user about "save success" and close modal
+              if (Platform.OS === 'android') {
+                Toast.showWithGravity(
+                  'Snapshot has been saved successfully',
+                  Toast.LONG,
+                  Toast.TOP,
+                );
+                cancelModal();
+              }
+            });
         });
       }
     } catch (error) {
@@ -667,11 +719,11 @@ export const SaveScreenshot = ({
   return (
     <View style={[{flexGrow: 1}, styles.volumeModalContainer]}>
       <Text style={styles.roleChangeModalHeading}>
-        {screenshotData ? `${screenshotData.peer.name}'s Snapshot` : 'Snapshot'}
+        {peer ? `${peer.name}'s Snapshot` : 'Snapshot'}
       </Text>
-      {screenshotData ? (
+      {imageSource ? (
         <Image
-          source={screenshotData.source}
+          source={imageSource}
           style={styles.screenshotImage}
           resizeMode="contain"
         />
@@ -680,13 +732,13 @@ export const SaveScreenshot = ({
         <CustomButton
           title="Cancel"
           onPress={cancelModal}
-          viewStyle={styles.roleChangeModalCancelButton}
+          viewStyle={[styles.roleChangeModalCancelButton, {width: '40%'}]}
           textStyle={styles.roleChangeModalButtonText}
         />
         <CustomButton
           title="Save to Disk"
           onPress={saveToDisk}
-          viewStyle={styles.roleChangeModalSuccessButton}
+          viewStyle={[styles.roleChangeModalSuccessButton, {width: '56%'}]}
           textStyle={styles.roleChangeModalButtonText}
         />
       </View>
@@ -954,39 +1006,45 @@ export const RtcStatsModal = () => {
         })}
       </Menu>
 
-      <ScrollView contentContainerStyle={Array.isArray(rtcStatsData) ? null : styles.statsModalCardContainer}>
+      <ScrollView
+        contentContainerStyle={
+          Array.isArray(rtcStatsData) ? null : styles.statsModalCardContainer
+        }
+      >
         {rtcStatsData ? (
           Array.isArray(rtcStatsData) ? (
             <View>
               {rtcStatsData.map(rtcStatsItem => {
                 return (
-                  <View style={{ marginBottom: 12 }}>
+                  <View style={{marginBottom: 12}}>
                     <Text style={styles.statsModalCardDescription}>
                       {rtcStatsItem.layer}
                     </Text>
 
                     <View style={styles.statsModalCardContainer}>
-                    {Object.entries(rtcStatsItem).filter(item => item[0] !== 'layer').map(item => {
-                      const [key, value] = item;
+                      {Object.entries(rtcStatsItem)
+                        .filter(item => item[0] !== 'layer')
+                        .map(item => {
+                          const [key, value] = item;
 
-                      return (
-                        <View style={styles.statsModalCard} key={key}>
-                          <Text style={styles.statsModalCardHeading}>
-                            {key}
-                          </Text>
+                          return (
+                            <View style={styles.statsModalCard} key={key}>
+                              <Text style={styles.statsModalCardHeading}>
+                                {key}
+                              </Text>
 
-                          <Text style={styles.statsModalCardDescription}>
-                            {key === 'resolution'
-                              ? `Height: ${value?.height ?? 0}, Width: ${
-                                  value?.width ?? 0
-                                }`
-                              : key === 'qualityLimitationReasons'
-                                ? value.reason
-                                : value}
-                          </Text>
-                        </View>
-                      );
-                    })}
+                              <Text style={styles.statsModalCardDescription}>
+                                {key === 'resolution'
+                                  ? `Height: ${value?.height ?? 0}, Width: ${
+                                      value?.width ?? 0
+                                    }`
+                                  : key === 'qualityLimitationReasons'
+                                  ? value.reason
+                                  : value}
+                              </Text>
+                            </View>
+                          );
+                        })}
                     </View>
                   </View>
                 );
