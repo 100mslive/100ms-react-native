@@ -585,7 +585,7 @@ export class HMSEncoder {
 
       return new HMSLocalVideoStats({
         bitrate: bitrate >= 0 ? bitrate : undefined,
-        bytesSent: bytesSent ? bytesSent : undefined, // string, TODO: parse to number ?
+        bytesSent: bytesSent ? bytesSent : undefined,
         roundTripTime: roundTripTime >= 0 ? roundTripTime : undefined,
         frameRate: frameRate >= 0 ? frameRate : undefined,
         resolution: resolution
@@ -604,10 +604,10 @@ export class HMSEncoder {
 
     return new HMSRemoteAudioStats({
       bitrate: bitrate >= 0 ? bitrate : undefined,
-      bytesReceived: bytesReceived ? bytesReceived : undefined, // string, TODO: parse to number ?
+      bytesReceived: bytesReceived ? bytesReceived : undefined,
       jitter: jitter >= 0 ? jitter : undefined,
       packetsLost: packetsLost >= 0 ? packetsLost : undefined,
-      packetsReceived: packetsReceived ? packetsReceived : undefined, // string, TODO: parse to number ?
+      packetsReceived: packetsReceived ? packetsReceived : undefined,
     });
   }
 
@@ -624,11 +624,11 @@ export class HMSEncoder {
 
     return new HMSRemoteVideoStats({
       bitrate: bitrate >= 0 ? bitrate : undefined,
-      bytesReceived: bytesReceived ? bytesReceived : undefined, // string, TODO: parse to number ?
+      bytesReceived: bytesReceived ? bytesReceived : undefined,
       frameRate: frameRate >= 0 ? frameRate : undefined,
       jitter: jitter >= 0 ? jitter : undefined,
       packetsLost: packetsLost >= 0 ? packetsLost : undefined,
-      packetsReceived: packetsReceived ? packetsReceived : undefined, // string, TODO: parse to number ?
+      packetsReceived: packetsReceived ? packetsReceived : undefined,
       resolution: resolution
         ? { width: resolution[0], height: resolution[1] }
         : undefined, // resolution: [width, height]
