@@ -685,8 +685,8 @@ export const SaveScreenshot = ({
             );
           }
 
-          Share.open({ url: 'file://' + targetLocation })
-            .then(({ message }) => {
+          Share.open({url: 'file://' + targetLocation})
+            .then(({message}) => {
               if (message.includes('SaveToCameraRoll')) {
                 Toast.showWithGravity(
                   'Snapshot has been saved successfully',
