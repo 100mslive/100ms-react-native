@@ -10,9 +10,11 @@ import { HMSConstants } from './HMSConstants';
 
 export class HMSRoom {
   id: string;
+  // startedAt?: Date;
 
   constructor(params: { id: string }) {
     this.id = params.id;
+    // this.startedAt = params.startedAt;
   }
 
   get sessionId(): string {

@@ -109,7 +109,8 @@ const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
           setModalVisible={() => setScreenshotData(null)}
         >
           <SaveScreenshot
-            screenshotData={screenshotData}
+            imageSource={screenshotData?.source}
+            peer={screenshotData?.peer}
             cancelModal={() => setScreenshotData(null)}
           />
         </DefaultModal>

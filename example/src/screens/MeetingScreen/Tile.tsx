@@ -53,7 +53,7 @@ const TileUnmemoized: React.FC<TileProps> = ({
         // saving HmsView ref in collection with uniqueId as key
         ref={ref => setHmsViewRefs(peerTrackNode.id, ref)}
         isLocal={peerTrackNode?.peer?.isLocal}
-        peerName={peerTrackNode?.peer?.name}
+        peer={peerTrackNode?.peer}
         videoTrack={peerTrackNode?.track}
         videoStyles={styles.generalTile}
         isDegraded={peerTrackNode?.isDegraded}

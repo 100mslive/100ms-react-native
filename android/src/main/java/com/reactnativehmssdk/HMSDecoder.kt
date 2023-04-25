@@ -1,12 +1,11 @@
 package com.reactnativehmssdk
 
 import com.facebook.react.bridge.*
+import live.hms.video.connection.degredation.QualityLimitationReasons
 import live.hms.video.connection.stats.*
 import live.hms.video.connection.stats.quality.HMSNetworkQuality
 import live.hms.video.error.HMSException
-import live.hms.video.media.settings.HMSAudioTrackSettings
-import live.hms.video.media.settings.HMSVideoResolution
-import live.hms.video.media.settings.HMSVideoTrackSettings
+import live.hms.video.media.settings.*
 import live.hms.video.media.tracks.*
 import live.hms.video.sdk.models.*
 import live.hms.video.sdk.models.enums.HMSPeerUpdate
@@ -77,12 +76,14 @@ object HMSDecoder {
     val room: WritableMap = Arguments.createMap()
     if (hmsRoom != null) {
       room.putString("id", hmsRoom.roomId)
-      room.putString("sessionId", hmsRoom.sessionId)
+      hmsRoom.sessionId?.let {
+        room.putString("sessionId", it)
+      }
       room.putString("name", hmsRoom.name)
       room.putString("metaData", null)
-      hmsRoom.startedAt?.let {
-        room.putString("startedAt", it.toString())
-      }
+      // hmsRoom.startedAt?.let {
+      //   room.putString("startedAt", it.toString())
+      // }
 
       hmsRoom.browserRecordingState?.let {
         room.putMap(
@@ -113,7 +114,9 @@ object HMSDecoder {
         room.putMap("hlsRecordingState", this.getHMSHlsRecordingState(hmsRoom.hlsRecordingState))
       }
 
-      room.putMap("localPeer", this.getHmsLocalPeer(hmsRoom.localPeer))
+      hmsRoom.localPeer?.let {
+        room.putMap("localPeer", this.getHmsLocalPeer(it))
+      }
 
       room.putArray("peers", this.getAllPeers(hmsRoom.peerList))
 
@@ -309,6 +312,10 @@ object HMSDecoder {
         publishSettings.putMap("screen", this.getHmsVideoSettings(it))
       }
 
+      hmsPublishSettings.simulcast?.let {
+        publishSettings.putMap("simulcast", this.getHmsSimulcastSettings(it))
+      }
+
       publishSettings.putArray("allowed", this.getWriteableArray(hmsPublishSettings.allowed))
     }
     return publishSettings
@@ -343,6 +350,50 @@ object HMSDecoder {
       videoSettings.putString("codec", hmsVideoSettings.codec.name)
     }
     return videoSettings
+  }
+
+  private fun getHmsSimulcastSettings(hmsSimulcastSettings: Simulcast?): WritableMap {
+    val simulcastSettings: WritableMap = Arguments.createMap()
+    if (hmsSimulcastSettings != null) {
+      hmsSimulcastSettings.video?.let {
+        simulcastSettings.putMap("video", getHmsVideoSimulcastLayersParams(it))
+      }
+      hmsSimulcastSettings.screen?.let {
+        simulcastSettings.putMap("screen", getHmsVideoSimulcastLayersParams(it))
+      }
+    }
+    return simulcastSettings
+  }
+
+  private fun getHmsVideoSimulcastLayersParams(hmsVideoSimulcastLayersParams: VideoSimulcastLayersParams?): WritableMap {
+    val videoSimulcastLayersParams: WritableMap = Arguments.createMap()
+    if (hmsVideoSimulcastLayersParams != null) {
+      hmsVideoSimulcastLayersParams.layers?.let {
+        val layersParams = Arguments.createArray()
+        it.forEach { layer -> layersParams.pushMap(getHmsLayerParams(layer)) }
+        videoSimulcastLayersParams.putArray("layers", layersParams)
+      }
+    }
+    return videoSimulcastLayersParams
+  }
+
+  private fun getHmsLayerParams(hmsLayerParams: LayerParams?): WritableMap {
+    val layerParams: WritableMap = Arguments.createMap()
+    if (hmsLayerParams != null) {
+      hmsLayerParams.rid?.let {
+        layerParams.putString("rid", it)
+      }
+      hmsLayerParams.maxBitrate?.let {
+        layerParams.putInt("maxBitrate", it)
+      }
+      hmsLayerParams.scaleResolutionDownBy?.let {
+        layerParams.putDouble("scaleResolutionDownBy", it.toDouble())
+      }
+      hmsLayerParams.maxFramerate?.let {
+        layerParams.putInt("maxFramerate", it)
+      }
+    }
+    return layerParams
   }
 
   fun getHmsLocalPeer(hmsLocalPeer: HMSLocalPeer?): WritableMap {
@@ -412,10 +463,11 @@ object HMSDecoder {
     return settings
   }
 
-  private fun getHmsVideoTrackResolution(hmsResolution: HMSVideoResolution): WritableMap {
-    val resolution: WritableMap = Arguments.createMap()
-    resolution.putInt("height", hmsResolution.height)
-    resolution.putInt("width", hmsResolution.width)
+  private fun getHmsVideoTrackResolution(hmsResolution: HMSVideoResolution): WritableArray {
+    val resolution: WritableArray = Arguments.createArray() // [width, height]
+    resolution.pushInt(hmsResolution.width)
+    resolution.pushInt(hmsResolution.height)
+
     return resolution
   }
 
@@ -630,6 +682,11 @@ object HMSDecoder {
     val subscribeSettings: WritableMap = Arguments.createMap()
     if (hmsSubscribeSettings != null) {
       subscribeSettings.putInt("maxSubsBitRate", hmsSubscribeSettings.maxSubsBitRate)
+
+      hmsSubscribeSettings.subscribeDegradationParam?.let {
+        subscribeSettings.putMap("subscribeDegradation", this.getHmsSubscribeDegradationSettings(it))
+      }
+
       subscribeSettings.putArray(
         "subscribeTo",
         this.getWriteableArray(hmsSubscribeSettings.subscribeTo)
@@ -702,26 +759,32 @@ object HMSDecoder {
     return hmsNetworkQuality
   }
 
-  fun getHMSRTCStats(hmsRtcStats: HMSRTCStats?): WritableMap {
-    val rtcStats: WritableMap = Arguments.createMap()
+  fun getHMSRTCStats(hmsRtcStats: HMSRTCStats?): WritableArray {
+    val rtcStats: WritableArray = Arguments.createArray() // [bitrateReceived, bitrateSent, bytesReceived, bytesSent, packetsLost, packetsReceived, roundTripTime]
     if (hmsRtcStats != null) {
-      rtcStats.putDouble("bitrateReceived", hmsRtcStats.bitrateReceived)
-      rtcStats.putDouble("bitrateSent", hmsRtcStats.bitrateSent)
-      rtcStats.putString("bytesSent", hmsRtcStats.bytesSent.toString())
-      rtcStats.putString("bytesReceived", hmsRtcStats.bytesReceived.toString())
-      rtcStats.putString("packetsLost", hmsRtcStats.packetsLost.toString())
-      rtcStats.putString("packetsReceived", hmsRtcStats.packetsReceived.toString())
-      rtcStats.putDouble("roundTripTime", hmsRtcStats.roundTripTime)
+      rtcStats.pushDouble(hmsRtcStats.bitrateReceived)
+      rtcStats.pushDouble(hmsRtcStats.bitrateSent)
+      rtcStats.pushString(hmsRtcStats.bytesReceived.toString())
+      rtcStats.pushString(hmsRtcStats.bytesSent.toString())
+      rtcStats.pushString(hmsRtcStats.packetsLost.toString())
+      rtcStats.pushString(hmsRtcStats.packetsReceived.toString())
+      rtcStats.pushDouble(hmsRtcStats.roundTripTime)
     }
     return rtcStats
   }
 
-  fun getLocalAudioStats(hmsLocalAudioStats: HMSLocalAudioStats?): WritableMap {
-    val localAudioStats: WritableMap = Arguments.createMap()
+  fun getLocalAudioStats(hmsLocalAudioStats: HMSLocalAudioStats?): WritableArray {
+    val localAudioStats: WritableArray = Arguments.createArray()
+
     if (hmsLocalAudioStats != null) {
-      hmsLocalAudioStats.bitrate?.let { localAudioStats.putDouble("bitrate", it) }
-      localAudioStats.putString("bytesSent", hmsLocalAudioStats.bytesSent.toString())
-      hmsLocalAudioStats.roundTripTime?.let { localAudioStats.putDouble("roundTripTime", it) }
+      val bitrate = hmsLocalAudioStats.bitrate ?: -1.0
+      localAudioStats.pushDouble(bitrate)
+
+      val bytesSent = hmsLocalAudioStats.bytesSent.let { if (it === null) "" else it.toString() }
+      localAudioStats.pushString(bytesSent)
+
+      val roundTripTime = hmsLocalAudioStats.roundTripTime ?: -1.0
+      localAudioStats.pushDouble(roundTripTime)
     }
     return localAudioStats
   }
@@ -730,48 +793,119 @@ object HMSDecoder {
     val stats: WritableArray = Arguments.createArray()
 
     for (stat in hmsLocalVideoStats) {
-      val localVideoStats: WritableMap = Arguments.createMap()
+      val localVideoStats: WritableArray = Arguments.createArray() // [bitrate, bytesSent, roundTripTime, frameRate, resolution, layer, qualityLimitationReasons]
 
-      localVideoStats.putString("bytesSent", stat.bytesSent.toString())
-      localVideoStats.putMap(
-        "resolution",
-        stat.resolution?.let { this.getHmsVideoTrackResolution(it) }
-      )
-      stat.bitrate?.let { localVideoStats.putDouble("bitrate", it) }
-      stat.roundTripTime?.let { localVideoStats.putDouble("roundTripTime", it) }
-      stat.frameRate?.let { localVideoStats.putDouble("frameRate", it) }
-      stats.pushMap(localVideoStats)
+      val bitrate = stat.bitrate ?: -1.0
+      localVideoStats.pushDouble(bitrate)
+
+      val bytesSent = stat.bytesSent.let { if (it === null) "" else it.toString() }
+      localVideoStats.pushString(bytesSent)
+
+      val roundTripTime = stat.roundTripTime ?: -1.0
+      localVideoStats.pushDouble(roundTripTime)
+
+      val frameRate = stat.frameRate ?: -1.0
+      localVideoStats.pushDouble(frameRate)
+
+      stat.resolution.let {
+        if (it === null) {
+          localVideoStats.pushNull()
+        } else {
+          localVideoStats.pushArray(getHmsVideoTrackResolution(it)) // [width, height]
+        }
+      }
+
+      val layer = stat.hmsLayer.let { if (it === null) HMSLayer.HIGH.name else it.name }
+      localVideoStats.pushString(layer)
+
+      val qualityLimitationReasons = getHmsQualityLimitationReasons(stat.qualityLimitationReason)
+      localVideoStats.pushMap(qualityLimitationReasons)
+
+      stats.pushArray(localVideoStats)
     }
 
     return stats
   }
 
-  fun getRemoteAudioStats(hmsRemoteAudioStats: HMSRemoteAudioStats?): WritableMap {
-    val remoteAudioStats: WritableMap = Arguments.createMap()
+  private fun getHmsQualityLimitationReasons(hmsQualityLimitationReasons: QualityLimitationReasons?): WritableMap {
+    val qualityLimitationReasons: WritableMap = Arguments.createMap()
+
+    if (hmsQualityLimitationReasons != null) {
+      hmsQualityLimitationReasons.bandWidth?.let { qualityLimitationReasons.putDouble("bandwidth", it) }
+      hmsQualityLimitationReasons.cpu?.let { qualityLimitationReasons.putDouble("cpu", it) }
+      hmsQualityLimitationReasons.none?.let { qualityLimitationReasons.putDouble("none", it) }
+      hmsQualityLimitationReasons.other?.let { qualityLimitationReasons.putDouble("other", it) }
+      hmsQualityLimitationReasons.qualityLimitationResolutionChanges?.let { qualityLimitationReasons.putInt("qualityLimitationResolutionChanges", it.toInt()) }
+      qualityLimitationReasons.putString("reason", hmsQualityLimitationReasons.reason.name)
+    }
+    return qualityLimitationReasons
+  }
+
+  fun getRemoteAudioStats(hmsRemoteAudioStats: HMSRemoteAudioStats?): WritableArray {
+    val remoteAudioStats: WritableArray = Arguments.createArray()
+
     if (hmsRemoteAudioStats != null) {
-      hmsRemoteAudioStats.bitrate?.let { remoteAudioStats.putDouble("bitrate", it) }
-      remoteAudioStats.putString("bytesReceived", hmsRemoteAudioStats.bytesReceived.toString())
-      hmsRemoteAudioStats.jitter?.let { remoteAudioStats.putDouble("jitter", it) }
-      hmsRemoteAudioStats.packetsLost?.let { remoteAudioStats.putInt("packetsLost", it) }
-      remoteAudioStats.putString("packetsReceived", hmsRemoteAudioStats.packetsReceived.toString())
+      val bitrate = hmsRemoteAudioStats.bitrate ?: -1.0
+      remoteAudioStats.pushDouble(bitrate)
+
+      val bytesReceived = hmsRemoteAudioStats.bytesReceived.let { if (it === null) "" else it.toString() }
+      remoteAudioStats.pushString(bytesReceived)
+
+      val jitter = hmsRemoteAudioStats.jitter ?: -1.0
+      remoteAudioStats.pushDouble(jitter)
+
+      val packetsLost = hmsRemoteAudioStats.packetsLost ?: -1
+      remoteAudioStats.pushInt(packetsLost)
+
+      val packetsReceived = hmsRemoteAudioStats.packetsReceived.let { if (it === null) "" else it.toString() }
+      remoteAudioStats.pushString(packetsReceived)
     }
     return remoteAudioStats
   }
 
-  fun getRemoteVideoStats(hmsRemoteVideoStats: HMSRemoteVideoStats?): WritableMap {
-    val remoteVideoStats: WritableMap = Arguments.createMap()
+  fun getRemoteVideoStats(hmsRemoteVideoStats: HMSRemoteVideoStats?): WritableArray {
+    val remoteVideoStats: WritableArray = Arguments.createArray() // [bitrate, bytesReceived, frameRate, jitter, packetsLost, packetsReceived, resolution]
+
     if (hmsRemoteVideoStats != null) {
-      remoteVideoStats.putString("bytesReceived", hmsRemoteVideoStats.bytesReceived.toString())
-      remoteVideoStats.putString("packetsReceived", hmsRemoteVideoStats.packetsReceived.toString())
-      hmsRemoteVideoStats.bitrate?.let { remoteVideoStats.putDouble("bitrate", it) }
-      remoteVideoStats.putMap(
-        "resolution",
-        hmsRemoteVideoStats.resolution?.let { this.getHmsVideoTrackResolution(it) }
-      )
-      hmsRemoteVideoStats.frameRate?.let { remoteVideoStats.putDouble("frameRate", it) }
-      hmsRemoteVideoStats.jitter?.let { remoteVideoStats.putDouble("jitter", it) }
-      hmsRemoteVideoStats.packetsLost?.let { remoteVideoStats.putInt("packetsLost", it) }
+      val bitrate = hmsRemoteVideoStats.bitrate ?: -1.0
+      remoteVideoStats.pushDouble(bitrate)
+
+      val bytesReceived = hmsRemoteVideoStats.bytesReceived.let { if (it === null) "" else it.toString() }
+      remoteVideoStats.pushString(bytesReceived)
+
+      val frameRate = hmsRemoteVideoStats.frameRate ?: -1.0
+      remoteVideoStats.pushDouble(frameRate)
+
+      val jitter = hmsRemoteVideoStats.jitter ?: -1.0
+      remoteVideoStats.pushDouble(jitter)
+
+      val packetsLost = hmsRemoteVideoStats.packetsLost ?: -1
+      remoteVideoStats.pushInt(packetsLost)
+
+      val packetsReceived = hmsRemoteVideoStats.packetsReceived.let { if (it === null) "" else it.toString() }
+      remoteVideoStats.pushString(packetsReceived)
+
+      hmsRemoteVideoStats.resolution.let {
+        if (it === null) {
+          remoteVideoStats.pushNull()
+        } else {
+          remoteVideoStats.pushArray(getHmsVideoTrackResolution(it)) // [width, height]
+        }
+      }
     }
     return remoteVideoStats
+  }
+
+  private fun getSimulcastLayerDefinition(hmsSimulcastLayerDefinition: HMSSimulcastLayerDefinition): WritableMap {
+    val simulcastLayerDefinition: WritableMap = Arguments.createMap()
+    simulcastLayerDefinition.putString("layer", hmsSimulcastLayerDefinition.layer.name)
+    simulcastLayerDefinition.putArray("resolution", getHmsVideoTrackResolution(hmsSimulcastLayerDefinition.resolution)) // [width, height]
+    return simulcastLayerDefinition
+  }
+
+  fun getSimulcastLayerDefinitions(hmsSimulcastLayerDefinitions: List<HMSSimulcastLayerDefinition>): WritableArray {
+    val simulcastLayerDefinitions: WritableArray = Arguments.createArray()
+    hmsSimulcastLayerDefinitions.forEach { simulcastLayerDefinitions.pushMap(getSimulcastLayerDefinition(it)) }
+    return simulcastLayerDefinitions
   }
 }
