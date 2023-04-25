@@ -10,6 +10,7 @@ import {
   Image,
   Platform,
   InteractionManager,
+  ImageURISource,
 } from 'react-native';
 import Toast from 'react-native-simple-toast';
 import {useDispatch, useSelector} from 'react-redux';
@@ -19,17 +20,7 @@ import {
   HMSSDK,
   HMSTrackType,
   HMSTrackSource,
-  HMSRTCStatsReport,
-  HMSUpdateListenerActions,
-  HMSLocalAudioStats,
-  HMSLocalAudioTrack,
   HMSPeer,
-  HMSLocalVideoStats,
-  HMSLocalVideoTrack,
-  HMSRemoteAudioStats,
-  HMSRemoteAudioTrack,
-  HMSRemoteVideoStats,
-  HMSRemoteVideoTrack,
   HMSAudioDevice,
   HMSAudioMode,
   HMSAudioMixingMode,
@@ -47,6 +38,8 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {Slider} from '@miblanchard/react-native-slider';
 import RNFetchBlob from 'rn-fetch-blob';
+import RNFS from 'react-native-fs';
+import Share from 'react-native-share';
 
 import {styles} from './styles';
 import {
@@ -57,7 +50,7 @@ import {
   MenuDivider,
   CustomPicker,
 } from '../../components';
-import {saveUserData} from '../../redux/actions';
+import {changeShowStats, saveUserData} from '../../redux/actions';
 import {
   parseMetadata,
   getInitials,
@@ -67,6 +60,7 @@ import {
 import {LayoutParams, ModalTypes, SortingType} from '../../utils/types';
 import {COLORS} from '../../utils/theme';
 import type {RootState} from '../../redux';
+import {SwitchRow} from '../../components/SwitchRow';
 
 export const ParticipantsModal = ({
   instance,
@@ -429,7 +423,7 @@ const ParticipantFilter = ({
   filter?: string;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
 }) => {
-  const {roles} = useSelector((state: RootState) => state.user);
+  const roles = useSelector((state: RootState) => state.user.roles);
 
   const [visible, setVisible] = useState<boolean>(false);
 
@@ -518,7 +512,7 @@ export const ChangeRoleModal = ({
   peer?: HMSPeer;
   cancelModal: Function;
 }) => {
-  const {roles} = useSelector((state: RootState) => state.user);
+  const roles = useSelector((state: RootState) => state.user.roles);
 
   const [newRole, setNewRole] = useState<HMSRole>(peer?.role!);
   const [request, setRequest] = useState<boolean>(false);
@@ -615,47 +609,106 @@ export const ChangeRoleModal = ({
 };
 
 export const SaveScreenshot = ({
-  screenshotData,
+  imageSource,
+  peer,
   cancelModal,
 }: {
-  screenshotData: {peer: HMSPeer; source: {uri: string}} | null;
+  peer?: HMSPeer;
+  imageSource?: Required<Pick<ImageURISource, 'uri'>> | null;
   cancelModal: Function;
 }) => {
+  /**
+   * Get target path on external storage to save image
+   * @param {string} imageExtension file extension to use for image
+   * @param {string} peerName name of peer to use in image name
+   * @returns string - path on external storage to save image
+   */
+  const getTargetPath = (imageExtension: string, peerName?: string) => {
+    // formatting peer name
+    const formattedPeerName = peerName
+      ? peerName.replace(/ /g, '-').toLowerCase()
+      : '';
+
+    // name to use for image
+    const imageName = `${formattedPeerName}-snapshot-${Date.now()}.${imageExtension}`;
+
+    // directory for saving image
+    const targetDir =
+      Platform.OS === 'ios'
+        ? RNFetchBlob.fs.dirs.DocumentDir
+        : RNFetchBlob.fs.dirs.DCIMDir;
+
+    const targetLocation = `${targetDir}/${imageName}`;
+
+    return targetLocation;
+  };
+
   const saveToDisk = async () => {
     try {
+      // Requesting External Storage permission to save image to disk
       const permission = await requestExternalStoragePermission();
 
-      cancelModal();
-
-      if (permission && screenshotData) {
+      // checking External Storage permission and availability of image source that we have to save to disk
+      if (permission && peer && imageSource) {
+        // Waiting for Interactions (Modal Close Animation) to finish
         InteractionManager.runAfterInteractions(async () => {
-          // Save to Disk
-          const imageName = `${
-            screenshotData.peer.name
-          }-snapshot-${Date.now()}.png`;
+          // image extension to use
+          const imageExtension = 'png';
 
-          const saveDir =
-            Platform.OS === 'ios'
-              ? RNFetchBlob.fs.dirs.DocumentDir
-              : RNFetchBlob.fs.dirs.DCIMDir;
+          // Removing `file://` from URI if it exists, to keep it consistent with `base64` image case
+          const source = imageSource.uri.replace('file://', '');
 
-          const fileLocation = `${saveDir}/${imageName}`;
+          // Checking if source is the local file on device
+          const isSourceLocalFile = imageSource.uri.startsWith('file://');
 
-          await RNFetchBlob.fs.writeFile(
-            fileLocation,
-            screenshotData.source.uri.replace('data:image/png;base64,', ''),
-            'base64',
-          );
+          // if source is local file on ios device then we don't need to do any file system operation
+          // We can use that local file to show preview window to user on ios
+          const targetLocation =
+            isSourceLocalFile && Platform.OS === 'ios'
+              ? source
+              : getTargetPath(imageExtension, peer.name);
 
-          if (Platform.OS === 'ios') {
-            RNFetchBlob.ios.previewDocument(fileLocation);
+          // if source is local file on android device, then we copy source file to target path
+          if (isSourceLocalFile) {
+            if (Platform.OS === 'android')
+              await RNFS.copyFile(
+                source, // Source Dir
+                targetLocation, // Target Dir
+              );
+          }
+          // if source is not local file, then we write to target path
+          else {
+            await RNFetchBlob.fs.writeFile(
+              targetLocation, // Target Dir
+              source.replace('data:image/png;base64,', ''), // Data to write to "Target Dir"
+              'base64',
+            );
           }
 
-          Toast.showWithGravity(
-            'Snapshot has been saved successfully',
-            Toast.LONG,
-            Toast.TOP,
-          );
+          Share.open({url: 'file://' + targetLocation})
+            .then(({message}) => {
+              if (message.includes('SaveToCameraRoll')) {
+                Toast.showWithGravity(
+                  'Snapshot has been saved successfully',
+                  Toast.LONG,
+                  Toast.TOP,
+                );
+              }
+              cancelModal();
+            })
+            .catch(error => console.log('share error -> ', error))
+            .finally(() => {
+              // On Android, We have already saved image into DCIM dir
+              // Therefore, we can notify user about "save success" and close modal
+              if (Platform.OS === 'android') {
+                Toast.showWithGravity(
+                  'Snapshot has been saved successfully',
+                  Toast.LONG,
+                  Toast.TOP,
+                );
+                cancelModal();
+              }
+            });
         });
       }
     } catch (error) {
@@ -666,11 +719,11 @@ export const SaveScreenshot = ({
   return (
     <View style={[{flexGrow: 1}, styles.volumeModalContainer]}>
       <Text style={styles.roleChangeModalHeading}>
-        {screenshotData ? `${screenshotData.peer.name}'s Snapshot` : 'Snapshot'}
+        {peer ? `${peer.name}'s Snapshot` : 'Snapshot'}
       </Text>
-      {screenshotData ? (
+      {imageSource ? (
         <Image
-          source={screenshotData.source}
+          source={imageSource}
           style={styles.screenshotImage}
           resizeMode="contain"
         />
@@ -679,13 +732,13 @@ export const SaveScreenshot = ({
         <CustomButton
           title="Cancel"
           onPress={cancelModal}
-          viewStyle={styles.roleChangeModalCancelButton}
+          viewStyle={[styles.roleChangeModalCancelButton, {width: '40%'}]}
           textStyle={styles.roleChangeModalButtonText}
         />
         <CustomButton
           title="Save to Disk"
           onPress={saveToDisk}
-          viewStyle={styles.roleChangeModalSuccessButton}
+          viewStyle={[styles.roleChangeModalSuccessButton, {width: '56%'}]}
           textStyle={styles.roleChangeModalButtonText}
         />
       </View>
@@ -802,43 +855,35 @@ export const ChangeNameModal = ({
   );
 };
 
-export const RtcStatsModal = ({
-  instance,
-  localPeer,
-}: {
-  instance?: HMSSDK;
-  localPeer?: HMSLocalPeer;
-}) => {
-  const rtcStatsRef = React.useRef<any>({});
-  const [rtcStats, setRtcStats] = useState(Math.random());
-  const [statsVisible, setStatsVisible] = useState<boolean>(false);
-  const [visible, setVisible] = useState<boolean>(false);
-  const [remotePeers, setRemotePeers] = useState<HMSRemotePeer[]>();
-  const [currentTrack, setCurrentTrack] = useState<{
-    name: string;
-    track?: HMSTrack;
-  }>({
-    name: localPeer?.name + "'s audio",
-    track: localPeer?.audioTrack,
-  });
-  const [trackList, setTrackList] = useState<
-    {
-      name: string;
-      track?: HMSTrack;
-    }[]
-  >();
+interface RTCTrack {
+  name: string;
+  peerId?: string; // peerId is used to get audio track stats
+  track?: HMSTrack;
+}
 
-  const hideMenu = () => setVisible(false);
-  const showMenu = () => setVisible(true);
+export const RtcStatsModal = () => {
+  const dispatch = useDispatch();
+  const instance = useSelector((state: RootState) => state.user.hmsInstance);
+  const showStatsOnTiles = useSelector(
+    (state: RootState) => state.app.joinConfig.showStats,
+  );
+
+  const [localPeer, setLocalPeer] = useState<HMSLocalPeer | null>(null);
+  const [remotePeers, setRemotePeers] = useState<HMSRemotePeer[]>([]);
+  const [tracksListModalVisible, setTracksListModalVisible] =
+    useState<boolean>(false);
+  const [currentTrack, setCurrentTrack] = useState<RTCTrack | null>(null);
+
+  const hideMenu = () => setTracksListModalVisible(false);
+  const showMenu = () => setTracksListModalVisible(true);
 
   const getStatsList = () => {
-    const list: {
-      name: string;
-      track?: HMSTrack;
-    }[] = [];
+    const list: RTCTrack[] = [];
+
     if (localPeer?.audioTrack?.trackId) {
       list.push({
         name: localPeer?.name + "'s audio",
+        peerId: localPeer?.peerID,
         track: localPeer?.audioTrack,
       });
     }
@@ -848,10 +893,11 @@ export const RtcStatsModal = ({
         track: localPeer?.videoTrack,
       });
     }
-    remotePeers?.map(remotePeer => {
+    remotePeers.forEach(remotePeer => {
       if (remotePeer?.audioTrack?.trackId) {
         list.push({
           name: remotePeer?.name + "'s audio",
+          peerId: remotePeer?.peerID,
           track: remotePeer?.audioTrack,
         });
       }
@@ -862,142 +908,77 @@ export const RtcStatsModal = ({
         });
       }
     });
-    setTrackList(list);
+
+    return list;
   };
 
-  const enableRTCStats = () => {
-    instance?.enableRTCStats();
-    setStatsVisible(true);
-  };
-
-  const disableRTCStats = () => {
-    instance?.disableRTCStats();
-    setStatsVisible(false);
-  };
-
-  const onChangeLocalAudioStats = (data: {
-    localAudioStats: HMSLocalAudioStats;
-    track: HMSLocalAudioTrack;
-    peer: HMSPeer;
-  }) => {
-    const trackRtcStats = rtcStatsRef?.current;
-    trackRtcStats[data.track.trackId] = data.localAudioStats;
-    setRtcStats(Math.random());
-    rtcStatsRef.current = trackRtcStats;
-  };
-
-  const onChangeLocalVideoStats = (data: {
-    localVideoStats: HMSLocalVideoStats;
-    track: HMSLocalVideoTrack;
-    peer: HMSPeer;
-  }) => {
-    const trackRtcStats = rtcStatsRef?.current;
-    trackRtcStats[data.track.trackId] = data.localVideoStats;
-    setRtcStats(Math.random());
-    rtcStatsRef.current = trackRtcStats;
-  };
-
-  const onChangeRtcStats = (data: {rtcStats: HMSRTCStatsReport}) => {
-    console.log(data.rtcStats);
-  };
-
-  const onChangeRemoteAudioStats = (data: {
-    remoteAudioStats: HMSRemoteAudioStats;
-    track: HMSRemoteAudioTrack;
-    peer: HMSPeer;
-  }) => {
-    const trackRtcStats = rtcStatsRef?.current;
-    trackRtcStats[data.track.trackId] = data.remoteAudioStats;
-    setRtcStats(Math.random());
-    rtcStatsRef.current = trackRtcStats;
-  };
-
-  const onChangeRemoteVideoStats = (data: {
-    remoteVideoStats: HMSRemoteVideoStats;
-    track: HMSRemoteVideoTrack;
-    peer: HMSPeer;
-  }) => {
-    const trackRtcStats = rtcStatsRef?.current;
-    trackRtcStats[data.track.trackId] = data.remoteVideoStats;
-    setRtcStats(Math.random());
-    rtcStatsRef.current = trackRtcStats;
-  };
-
-  const updateRemotePeers = async () => {
-    setRemotePeers(await instance?.getRemotePeers());
-  };
-
+  // Getting Local Peer from hms instance
   useEffect(() => {
-    getStatsList();
-    updateRemotePeers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [remotePeers]);
+    if (instance) {
+      const updateLocalPeer = async () => {
+        setLocalPeer(await instance.getLocalPeer());
+      };
 
+      updateLocalPeer();
+    }
+  }, [instance]);
+
+  // Getting Remote Peers from hms instance
   useEffect(() => {
-    instance?.addEventListener(
-      HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS,
-      onChangeLocalAudioStats,
-    );
-    instance?.addEventListener(
-      HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS,
-      onChangeLocalVideoStats,
-    );
-    instance?.addEventListener(
-      HMSUpdateListenerActions.ON_RTC_STATS,
-      onChangeRtcStats,
-    );
-    instance?.addEventListener(
-      HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS,
-      onChangeRemoteAudioStats,
-    );
-    instance?.addEventListener(
-      HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS,
-      onChangeRemoteVideoStats,
-    );
-    return () => {
-      instance?.removeEventListener(
-        HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS,
-      );
-      instance?.removeEventListener(
-        HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS,
-      );
-      instance?.removeEventListener(HMSUpdateListenerActions.ON_RTC_STATS);
-      instance?.removeEventListener(
-        HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS,
-      );
-      instance?.removeEventListener(
-        HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS,
-      );
-      disableRTCStats();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (instance) {
+      const updateRemotePeers = async () => {
+        setRemotePeers(await instance.getRemotePeers());
+      };
+
+      updateRemotePeers();
+    }
+  }, [instance]);
+
+  const isCurrentTrackSelected = currentTrack !== null;
+
+  const statsList = getStatsList();
+
+  const firstTrackInStatsList = statsList.length > 0 ? statsList[0] : null;
+
+  // If currentTrack is null and we have valid item in StatsList
+  // then showing stats for the first valid item in StatsList
+  useEffect(() => {
+    if (!isCurrentTrackSelected && firstTrackInStatsList) {
+      setCurrentTrack(firstTrackInStatsList);
+    }
+  }, [isCurrentTrackSelected, firstTrackInStatsList]);
+
+  const selectedTrackId = currentTrack
+    ? currentTrack.peerId || currentTrack.track?.trackId
+    : null;
+
+  const rtcStatsData = useSelector((state: RootState) =>
+    selectedTrackId ? state.app.rtcStats[selectedTrackId] : null,
+  );
 
   return (
     <View style={styles.participantContainer}>
       <View style={styles.participantsHeaderContainer}>
         <Text style={styles.participantsHeading}>Stats for Nerds</Text>
       </View>
-      <TouchableOpacity
-        onPress={statsVisible ? disableRTCStats : enableRTCStats}
-        style={styles.statsModalContainer}
-      >
-        <Text style={styles.statsModalText}>Enable Stats for Nerds</Text>
-        <View style={styles.statsModalCheckbox}>
-          {statsVisible && (
-            <Entypo name="check" style={styles.statsModalCheck} size={20} />
-          )}
-        </View>
-      </TouchableOpacity>
+
+      <SwitchRow
+        text="Show Stats on Tiles"
+        value={showStatsOnTiles}
+        onChange={value => dispatch(changeShowStats(value))}
+      />
+
       <Menu
-        visible={visible}
+        visible={tracksListModalVisible}
         anchor={
           <TouchableOpacity style={styles.statsModalMenu} onPress={showMenu}>
             <Text style={styles.participantFilterText} numberOfLines={1}>
               {currentTrack?.name ?? 'Choose'}
             </Text>
             <MaterialIcons
-              name={visible ? 'arrow-drop-up' : 'arrow-drop-down'}
+              name={
+                tracksListModalVisible ? 'arrow-drop-up' : 'arrow-drop-down'
+              }
               style={styles.participantFilterIcon}
               size={24}
             />
@@ -1006,7 +987,7 @@ export const RtcStatsModal = ({
         onRequestClose={hideMenu}
         style={styles.participantsMenuContainer}
       >
-        {trackList?.map(trackObj => {
+        {statsList.map(trackObj => {
           return (
             <MenuItem
               onPress={() => {
@@ -1024,31 +1005,71 @@ export const RtcStatsModal = ({
           );
         })}
       </Menu>
-      <ScrollView contentContainerStyle={styles.statsModalCardContainer}>
-        {rtcStats &&
-          rtcStatsRef?.current &&
-          currentTrack?.track?.trackId &&
-          rtcStatsRef?.current[currentTrack?.track?.trackId] &&
-          Object.keys(rtcStatsRef?.current[currentTrack?.track?.trackId]).map(
-            item => {
-              const value =
-                currentTrack?.track &&
-                rtcStatsRef?.current[currentTrack?.track?.trackId][item];
+
+      <ScrollView
+        contentContainerStyle={
+          Array.isArray(rtcStatsData) ? null : styles.statsModalCardContainer
+        }
+      >
+        {rtcStatsData ? (
+          Array.isArray(rtcStatsData) ? (
+            <View>
+              {rtcStatsData.map(rtcStatsItem => {
+                return (
+                  <View style={{marginBottom: 12}}>
+                    <Text style={styles.statsModalCardDescription}>
+                      {rtcStatsItem.layer}
+                    </Text>
+
+                    <View style={styles.statsModalCardContainer}>
+                      {Object.entries(rtcStatsItem)
+                        .filter(item => item[0] !== 'layer')
+                        .map(item => {
+                          const [key, value] = item;
+
+                          return (
+                            <View style={styles.statsModalCard} key={key}>
+                              <Text style={styles.statsModalCardHeading}>
+                                {key}
+                              </Text>
+
+                              <Text style={styles.statsModalCardDescription}>
+                                {key === 'resolution'
+                                  ? `Height: ${value?.height ?? 0}, Width: ${
+                                      value?.width ?? 0
+                                    }`
+                                  : key === 'qualityLimitationReasons'
+                                  ? value.reason
+                                  : value}
+                              </Text>
+                            </View>
+                          );
+                        })}
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          ) : (
+            Object.entries(rtcStatsData).map(item => {
+              const [key, value] = item;
+
               return (
-                <View style={styles.statsModalCard} key={item}>
-                  <Text style={styles.statsModalCardHeading}>{item}</Text>
+                <View style={styles.statsModalCard} key={key}>
+                  <Text style={styles.statsModalCardHeading}>{key}</Text>
+
                   <Text style={styles.statsModalCardDescription}>
-                    {item === 'resolution'
-                      ? 'Height: ' +
-                        (value?.height ?? 0) +
-                        ' Width: ' +
-                        (value?.width ?? 0)
+                    {key === 'resolution'
+                      ? `Height: ${value?.height ?? 0}, Width: ${
+                          value?.width ?? 0
+                        }`
                       : value}
                   </Text>
                 </View>
               );
-            },
-          )}
+            })
+          )
+        ) : null}
       </ScrollView>
     </View>
   );
@@ -1465,7 +1486,7 @@ export const ChangeTrackStateForRoleModal = ({
   localPeer?: HMSLocalPeer;
   cancelModal: Function;
 }) => {
-  const {roles} = useSelector((state: RootState) => state.user);
+  const roles = useSelector((state: RootState) => state.user.roles);
 
   const [role, setRole] = useState<HMSRole>(localPeer?.role!);
   const [visible, setVisible] = useState<boolean>(false);

@@ -1,15 +1,11 @@
 import React from 'react';
-import { AppState, NativeModules, Platform, ViewStyle } from 'react-native';
+import { AppState, NativeModules, Platform } from 'react-native';
 import { HMSEncoder } from './HMSEncoder';
 import { HMSHelper } from './HMSHelper';
-import { HMSLocalAudioStats } from './HMSLocalAudioStats';
-import { HMSLocalVideoStats } from './HMSLocalVideoStats';
 import { getLogger, logger, setLogger } from './HMSLogger';
-import { HMSRemoteAudioStats } from './HMSRemoteAudioStats';
-import { HMSRemoteVideoStats } from './HMSRemoteVideoStats';
 import { HMSTrackType } from './HMSTrackType';
 import { HMSUpdateListenerActions } from './HMSUpdateListenerActions';
-import { HmsViewComponent } from './HmsView';
+import { HmsViewComponent, HmsComponentProps } from './HmsView';
 
 import type { HMSConfig } from './HMSConfig';
 import type { HMSLocalPeer } from './HMSLocalPeer';
@@ -47,14 +43,9 @@ import {
 } from './HMSRoomCache';
 import { HMSPeerUpdateOrdinals } from './HMSPeerUpdate';
 
-interface HmsViewProps {
-  trackId: string;
-  style?: ViewStyle;
-  mirror?: boolean;
-  scaleType?: HMSVideoViewMode;
-  setZOrderMediaOverlay?: boolean;
-}
+type HmsViewProps = Omit<HmsComponentProps, 'id'>;
 
+// TODO: Rename to HMSPIPConfig & to be moved to a separate file
 interface PIPConfig {
   aspectRatio?: [number, number];
   endButton?: boolean;
@@ -250,6 +241,7 @@ export class HMSSDK {
    * - The appearance of tile is completely customizable with style prop.
    * - Scale type can determine how the incoming video will fit in the canvas check {@link HMSVideoViewMode} for more information.
    * - Mirror to flip the video vertically.
+   * - Auto Simulcast to automatically select the best Streaming Quality of track if feature is enabled in Room.
    *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/render-video} for more info
    *
@@ -257,12 +249,20 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   HmsView = React.forwardRef<any, HmsViewProps>((props, ref) => {
-    const { trackId, style, mirror, scaleType, setZOrderMediaOverlay } = props;
+    const {
+      trackId,
+      style,
+      mirror,
+      scaleType,
+      setZOrderMediaOverlay,
+      autoSimulcast,
+    } = props;
     return (
       <HmsViewComponent
         ref={ref}
         trackId={trackId}
         style={style}
+        autoSimulcast={autoSimulcast}
         setZOrderMediaOverlay={setZOrderMediaOverlay}
         mirror={mirror}
         scaleType={scaleType}
@@ -845,36 +845,6 @@ export class HMSSDK {
     return await HMSManager.stopScreenshare({ id: this.id });
   };
 
-  /**
-   * - enableRTCStats sets a boolean in native side which in turn allows several events to be passed
-   * through the bridge these events are {@link RTCStatsListener}, {@link onRemoteVideoStatsListener},
-   * {@link onRemoteAudioStatsListener}, {@link onLocalAudioStatsListener} and {@link onLocalVideoStatsListener}
-   *
-   * - These listeners get various dataPoints for current peers and their connectivity to the room
-   * such as jitter, latency etc.
-   *
-   * - currently available for iOS only
-   *
-   * @memberof HMSSDK
-   */
-  enableRTCStats = () => {
-    logger?.verbose('#Function enableRTCStats', { id: this.id });
-    HMSManager.enableRTCStats({ id: this.id });
-  };
-
-  /**
-   * - disable RTCStats sets the same boolean to false that was set true by enableRTCStats.
-   * that activates a check which filters out the events acquired in native listeners and don't
-   * let them pass through bridge
-   *
-   * - currently available for iOS only.
-   * @memberof HMSSDK
-   */
-  disableRTCStats = () => {
-    logger?.verbose('#Function disableRTCStats', { id: this.id });
-    HMSManager.disableRTCStats({ id: this.id });
-  };
-
   enableNetworkQualityUpdates = () => {
     logger?.verbose('#Function enableNetworkQualityUpdates', { id: this.id });
     HMSManager.enableNetworkQualityUpdates({ id: this.id });
@@ -1104,6 +1074,34 @@ export class HMSSDK {
       id: this.id,
     });
     return await HMSManager.getSessionMetaData({ id: this.id });
+  };
+
+  getRemoteVideoTrackFromTrackId = async (trackId: string) => {
+    logger?.verbose('#Function getRemoteVideoTrackFromTrackId', {
+      id: this.id,
+      trackId,
+    });
+
+    const remoteVideoTrackData =
+      await HMSManager.getRemoteVideoTrackFromTrackId({
+        id: this.id,
+        trackId,
+      });
+    return HMSEncoder.encodeHmsRemoteVideoTrack(remoteVideoTrackData, this.id);
+  };
+
+  getRemoteAudioTrackFromTrackId = async (trackId: string) => {
+    logger?.verbose('#Function getRemoteAudioTrackFromTrackId', {
+      id: this.id,
+      trackId,
+    });
+
+    const remoteAudioTrackData =
+      await HMSManager.getRemoteAudioTrackFromTrackId({
+        id: this.id,
+        trackId,
+      });
+    return HMSEncoder.encodeHmsRemoteAudioTrack(remoteAudioTrackData, this.id);
   };
 
   /**
@@ -2105,7 +2103,9 @@ export class HMSSDK {
       return;
     }
 
-    let localAudioStats = new HMSLocalAudioStats(data.localAudioStats);
+    let localAudioStats = HMSEncoder.encodeHMSLocalAudioStats(
+      data.localAudioStats
+    );
     let peer = HMSEncoder.encodeHmsPeer(data.peer);
     let track = HMSEncoder.encodeHmsLocalAudioTrack(data.track, this.id);
 
@@ -2125,7 +2125,9 @@ export class HMSSDK {
       return;
     }
 
-    let localVideoStats = new HMSLocalVideoStats(data.localVideoStats);
+    let localVideoStats = HMSEncoder.encodeHMSLocalVideoStats(
+      data.localVideoStats
+    );
     let peer = HMSEncoder.encodeHmsPeer(data.peer);
     let track = HMSEncoder.encodeHmsLocalVideoTrack(data.track, this.id);
 
@@ -2145,7 +2147,9 @@ export class HMSSDK {
       return;
     }
 
-    let remoteAudioStats = new HMSRemoteAudioStats(data.remoteAudioStats);
+    let remoteAudioStats = HMSEncoder.encodeHMSRemoteAudioStats(
+      data.remoteAudioStats
+    );
     let peer = HMSEncoder.encodeHmsPeer(data.peer);
     let track = HMSEncoder.encodeHmsRemoteAudioTrack(data.track, this.id);
 
@@ -2170,7 +2174,9 @@ export class HMSSDK {
       return;
     }
 
-    let remoteVideoStats = new HMSRemoteVideoStats(data.remoteVideoStats);
+    let remoteVideoStats = HMSEncoder.encodeHMSRemoteVideoStats(
+      data.remoteVideoStats
+    );
     let peer = HMSEncoder.encodeHmsPeer(data.peer);
     let track = HMSEncoder.encodeHmsRemoteVideoTrack(data.track, this.id);
 

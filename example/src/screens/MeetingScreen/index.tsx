@@ -19,6 +19,7 @@ import {
   HMSTrackUpdate,
   HMSUpdateListenerActions,
   HMSPIPListenerActions,
+  HMSCameraControl,
 } from '@100mslive/react-native-hms';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {
@@ -64,6 +65,7 @@ import {
   pairData,
   parseMetadata,
   replacePeerTrackNodes,
+  requestExternalStoragePermission,
   updatedDegradedFlag,
   updatePeerNodes,
   updatePeerTrackNodes,
@@ -85,6 +87,8 @@ import {
   ParticipantsModal,
   RealTime,
   RecordingModal,
+  RtcStatsModal,
+  SaveScreenshot,
 } from './Modals';
 import type {RootState} from '../../redux';
 import type {AppStackParamList} from '../../navigator';
@@ -100,8 +104,10 @@ import {
 import {GridView} from './GridView';
 import {HLSView} from './HLSView';
 import PIPView from './PIPView';
+import {useRTCStatsListeners} from '../../utils/hooks';
 import {RoomSettingsModalContent} from '../../components/RoomSettingsModalContent';
 import {PeerSettingsModalContent} from '../../components/PeerSettingsModalContent';
+import {StreamingQualityModalContent} from '../../components/StreamingQualityModalContent';
 
 type MeetingScreenProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -114,7 +120,7 @@ const Meeting = () => {
   // hooks
   const dispatch = useDispatch();
   const modalTaskRef = useRef<any>(null);
-  const {hmsInstance} = useSelector((state: RootState) => state.user);
+  const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
   const isPipModeActive = useSelector(
     (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE,
   );
@@ -205,6 +211,8 @@ const Meeting = () => {
     }
   }, [isPipModeActive]);
 
+  useRTCStatsListeners(modalVisible === ModalTypes.RTC_STATS);
+
   return (
     <SafeAreaView style={styles.container}>
       {isPipModeActive ? null : (
@@ -283,10 +291,14 @@ const DisplayView = (data: {
     requestedBy?: string;
     suggestedRole?: string;
   }>({});
+  const [capturedImagePath, setCapturedImagePath] = useState<null | {
+    uri: string;
+  }>(null);
 
   // useRef hook
   const gridViewRef = useRef<React.ElementRef<typeof GridView> | null>(null);
   const peerTrackNodesRef = useRef(peerTrackNodes);
+  const trackToChangeRef = useRef<null | HMSTrack>(null);
 
   // constants
   const pairedPeers = useMemo(
@@ -852,6 +864,38 @@ const DisplayView = (data: {
     });
   };
 
+  const handleCaptureImageAtMaxSupportedResolutionPress = (
+    _node: PeerTrackNode,
+  ) => {
+    data?.setModalVisible(ModalTypes.DEFAULT);
+    InteractionManager.runAfterInteractions(async () => {
+      const permission = await requestExternalStoragePermission();
+
+      if (hmsInstance && permission) {
+        HMSCameraControl.captureImageAtMaxSupportedResolution(true)
+          .then((imagePath: string) => {
+            console.log(
+              'captureImageAtMaxSupportedResolution result -> ',
+              imagePath,
+            );
+            data?.setModalVisible(ModalTypes.DEFAULT);
+            setCapturedImagePath({uri: `file://${imagePath}`});
+          })
+          .catch((error: any) => {
+            console.warn(
+              'captureImageAtMaxSupportedResolution error -> ',
+              error,
+            );
+          });
+      }
+    });
+  };
+
+  const handleStreamingQualityPress = (track: HMSTrack) => {
+    trackToChangeRef.current = track;
+    data?.setModalVisible(ModalTypes.STREAMING_QUALITY_SETTING, true);
+  };
+
   const getHmsRoles = () => {
     hmsInstance?.getRoles().then(roles => {
       dispatch(
@@ -964,6 +1008,41 @@ const DisplayView = (data: {
                 onChangeRolePress={onChangeRolePress}
                 onSetVolumePress={onSetVolumePress}
                 onCaptureScreenShotPress={handleCaptureScreenShotPress}
+                onCaptureImageAtMaxSupportedResolutionPress={
+                  handleCaptureImageAtMaxSupportedResolutionPress
+                }
+                onStreamingQualityPress={handleStreamingQualityPress}
+              />
+            ) : null}
+          </DefaultModal>
+
+          {/* Save Image Captured from Local Camera */}
+          <DefaultModal
+            modalPosiion="center"
+            modalVisible={!!capturedImagePath}
+            setModalVisible={() => setCapturedImagePath(null)}
+          >
+            {capturedImagePath && data.localPeer ? (
+              <SaveScreenshot
+                peer={data.localPeer}
+                imageSource={capturedImagePath}
+                cancelModal={() => setCapturedImagePath(null)}
+              />
+            ) : null}
+          </DefaultModal>
+          <DefaultModal
+            modalPosiion="center"
+            modalVisible={
+              data?.modalVisible === ModalTypes.STREAMING_QUALITY_SETTING
+            }
+            setModalVisible={() => data?.setModalVisible(ModalTypes.DEFAULT)}
+          >
+            {trackToChangeRef.current ? (
+              <StreamingQualityModalContent
+                track={trackToChangeRef.current}
+                cancelModal={() => {
+                  data?.setModalVisible(ModalTypes.DEFAULT);
+                }}
               />
             ) : null}
           </DefaultModal>
@@ -1085,7 +1164,8 @@ const Header = ({
   setModalVisible(modalType: ModalTypes, delay?: any): void;
 }) => {
   // hooks
-  const {roomCode, hmsInstance} = useSelector((state: RootState) => state.user);
+  const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
+  const roomCode = useSelector((state: RootState) => state.user.roomCode);
 
   // constants
   const iconSize = 20;
@@ -1289,7 +1369,8 @@ const Footer = ({
 }) => {
   // hooks
   const dispatch = useDispatch();
-  const {hmsInstance, roomID} = useSelector((state: RootState) => state.user);
+  const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
+  const roomID = useSelector((state: RootState) => state.user.roomID);
   const isPipActive = useSelector(
     (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE,
   );
@@ -1478,6 +1559,14 @@ const Footer = ({
           setIsAudioShared={setIsAudioShared}
           setMuteAllTracksAudio={setMuteAllTracksAudio}
         />
+      </DefaultModal>
+      <DefaultModal
+        animationIn={'slideInUp'}
+        animationOut={'slideOutDown'}
+        modalVisible={modalVisible === ModalTypes.RTC_STATS}
+        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+      >
+        <RtcStatsModal />
       </DefaultModal>
       <DefaultModal
         modalPosiion="center"

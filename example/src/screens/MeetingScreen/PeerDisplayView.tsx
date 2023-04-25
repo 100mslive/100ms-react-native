@@ -4,6 +4,7 @@ import {
   HMSVideoViewMode,
   HMSTrackSource,
   HMSVideoTrack,
+  HMSPeer,
 } from '@100mslive/react-native-hms';
 import {useSelector} from 'react-redux';
 import type {HMSView} from '@100mslive/react-native-hms';
@@ -16,19 +17,22 @@ import type {RootState} from '../../redux';
 export interface PeerDisplayViewProps {
   isDegraded?: boolean;
   isLocal?: boolean;
-  peerName: string;
+  peer: HMSPeer;
   videoTrack?: HMSVideoTrack;
 }
 
 const PeerDisplayViewUnmemoized = React.forwardRef<
   typeof HMSView,
   PeerDisplayViewProps
->(({isDegraded, isLocal, peerName, videoTrack}, hmsViewRef) => {
+>(({isDegraded, isLocal, peer, videoTrack}, hmsViewRef) => {
   const HmsView = useSelector(
     (state: RootState) => state.user.hmsInstance?.HmsView || null,
   );
   const mirrorCamera = useSelector(
     (state: RootState) => state.app.joinConfig.mirrorCamera,
+  );
+  const autoSimulcast = useSelector(
+    (state: RootState) => state.app.joinConfig.autoSimulcast,
   );
 
   if (!HmsView) {
@@ -40,7 +44,7 @@ const PeerDisplayViewUnmemoized = React.forwardRef<
       {videoTrack?.isMute() || videoTrack?.trackId === undefined ? (
         <View style={styles.avatarContainer}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{getInitials(peerName)}</Text>
+            <Text style={styles.avatarText}>{getInitials(peer.name)}</Text>
           </View>
         </View>
       ) : (
@@ -49,6 +53,7 @@ const PeerDisplayViewUnmemoized = React.forwardRef<
             ref={hmsViewRef}
             // setZOrderMediaOverlay={miniView}
             trackId={videoTrack?.trackId!}
+            autoSimulcast={autoSimulcast}
             mirror={
               isLocal && mirrorCamera !== undefined ? mirrorCamera : false
             }

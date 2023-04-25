@@ -30,7 +30,6 @@ export class HMSRemotePeer extends HMSPeer {
       source?: number | string;
       trackDescription?: string;
       isMute?: boolean;
-      layer?: any;
       playbackAllowed?: boolean;
       id: string;
     };
