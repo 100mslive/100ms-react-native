@@ -71,26 +71,27 @@ export class HMSSDK {
   id: string;
   private muteStatus: boolean | undefined;
   private appStateSubscription?: any;
-  private onPreviewDelegate?: any;
-  private onJoinDelegate?: any;
-  private onRoomDelegate?: any;
-  private onPeerDelegate?: any;
-  private onTrackDelegate?: any;
-  private onErrorDelegate?: any;
-  private onMessageDelegate?: any;
-  private onSpeakerDelegate?: any;
-  private onReconnectingDelegate?: any;
-  private onReconnectedDelegate?: any;
-  private onRoleChangeRequestDelegate?: any;
-  private onChangeTrackStateRequestDelegate?: any;
-  private onRemovedFromRoomDelegate?: any;
-  private onRtcStatsDelegate?: any;
-  private onLocalAudioStatsDelegate?: any;
-  private onLocalVideoStatsDelegate?: any;
-  private onRemoteAudioStatsDelegate?: any;
-  private onRemoteVideoStatsDelegate?: any;
-  private onAudioDeviceChangedDelegate?: any;
-  private onPIPRoomLeaveDelegate?: any;
+
+  private onPreviewDelegate?: HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_PREVIEW];
+  private onJoinDelegate?: HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_JOIN];
+  private onRoomDelegate?: HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_ROOM_UPDATE];
+  private onPeerDelegate?: HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_PEER_UPDATE];
+  private onTrackDelegate?: HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_TRACK_UPDATE];
+  private onErrorDelegate?: HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_ERROR];
+  private onMessageDelegate?: HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_MESSAGE];
+  private onSpeakerDelegate?: HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_SPEAKER];
+  private onReconnectingDelegate?: HMSUpdateListenerCallbacks[HMSUpdateListenerActions.RECONNECTING];
+  private onReconnectedDelegate?: HMSUpdateListenerCallbacks[HMSUpdateListenerActions.RECONNECTED];
+  private onRoleChangeRequestDelegate?: HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST];
+  private onChangeTrackStateRequestDelegate?: HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST];
+  private onRemovedFromRoomDelegate?: HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM];
+  private onRtcStatsDelegate?: HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_RTC_STATS];
+  private onLocalAudioStatsDelegate?: HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS];
+  private onLocalVideoStatsDelegate?: HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS];
+  private onRemoteAudioStatsDelegate?: HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS];
+  private onRemoteVideoStatsDelegate?: HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS];
+  private onAudioDeviceChangedDelegate?: HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED];
+  private onPIPRoomLeaveDelegate?: HMSUpdateListenerCallbacks[HMSPIPListenerActions.ON_PIP_ROOM_LEAVE];
 
   private emitterSubscriptions: Partial<
     Record<
@@ -1114,7 +1115,9 @@ export class HMSSDK {
    * @param {*} callback
    * @memberof HMSSDK
    */
-  addEventListener = <T extends HMSUpdateListenerActions | HMSPIPListenerActions>(
+  addEventListener = <
+    T extends HMSUpdateListenerActions | HMSPIPListenerActions
+  >(
     action: T,
     callback: HMSUpdateListenerCallbacks[T]
   ) => {
@@ -1136,7 +1139,7 @@ export class HMSSDK {
             previewSubscription;
         }
         // Adding App Delegate listener
-        this.onPreviewDelegate = callback;
+        this.onPreviewDelegate = callback as HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_PREVIEW];
         break;
       }
       case HMSUpdateListenerActions.ON_JOIN: {
@@ -1152,7 +1155,7 @@ export class HMSSDK {
             joinSubscription;
         }
         // Adding App Delegate listener
-        this.onJoinDelegate = callback;
+        this.onJoinDelegate = callback as HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_JOIN];
         break;
       }
       case HMSUpdateListenerActions.ON_ROOM_UPDATE: {
@@ -1170,7 +1173,7 @@ export class HMSSDK {
             roomSubscription;
         }
         // Adding App Delegate listener
-        this.onRoomDelegate = callback;
+        this.onRoomDelegate = callback as HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_ROOM_UPDATE];
         break;
       }
       case HMSUpdateListenerActions.ON_PEER_UPDATE: {
@@ -1188,7 +1191,7 @@ export class HMSSDK {
             peerSubscription;
         }
         // Adding App Delegate listener
-        this.onPeerDelegate = callback;
+        this.onPeerDelegate = callback as HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_PEER_UPDATE];
         break;
       }
       case HMSUpdateListenerActions.ON_TRACK_UPDATE: {
@@ -1206,7 +1209,7 @@ export class HMSSDK {
             trackSubscription;
         }
         // Adding App Delegate listener
-        this.onTrackDelegate = callback;
+        this.onTrackDelegate = callback as HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_TRACK_UPDATE];
         break;
       }
       case HMSUpdateListenerActions.ON_ERROR: {
@@ -1222,7 +1225,7 @@ export class HMSSDK {
             errorSubscription;
         }
         // Adding App Delegate listener
-        this.onErrorDelegate = callback;
+        this.onErrorDelegate = callback as HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_ERROR];
         break;
       }
       case HMSUpdateListenerActions.ON_MESSAGE: {
@@ -1238,7 +1241,7 @@ export class HMSSDK {
             messageSubscription;
         }
         // Adding App Delegate listener
-        this.onMessageDelegate = callback;
+        this.onMessageDelegate = callback as HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_MESSAGE];
         break;
       }
       case HMSUpdateListenerActions.ON_SPEAKER: {
@@ -1254,7 +1257,7 @@ export class HMSSDK {
             speakerSubscription;
         }
         // Adding App Delegate listener
-        this.onSpeakerDelegate = callback;
+        this.onSpeakerDelegate = callback as HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_SPEAKER];
         break;
       }
       case HMSUpdateListenerActions.RECONNECTING: {
@@ -1270,7 +1273,7 @@ export class HMSSDK {
             reconnectingSubscription;
         }
         // Adding App Delegate listener
-        this.onReconnectingDelegate = callback;
+        this.onReconnectingDelegate = callback as HMSUpdateListenerCallbacks[HMSUpdateListenerActions.RECONNECTING];
         break;
       }
       case HMSUpdateListenerActions.RECONNECTED: {
@@ -1286,7 +1289,7 @@ export class HMSSDK {
             reconnectedSubscription;
         }
         // Adding App Delegate listener
-        this.onReconnectedDelegate = callback;
+        this.onReconnectedDelegate = callback as HMSUpdateListenerCallbacks[HMSUpdateListenerActions.RECONNECTED];
         break;
       }
       case HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST: {
@@ -1307,7 +1310,7 @@ export class HMSSDK {
           ] = roleChangeReqSubscription;
         }
         // Adding App Delegate listener
-        this.onRoleChangeRequestDelegate = callback;
+        this.onRoleChangeRequestDelegate = callback as HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST];
         break;
       }
       case HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST: {
@@ -1328,7 +1331,7 @@ export class HMSSDK {
           ] = changeTrackReqSubscription;
         }
         // Adding App Delegate listener
-        this.onChangeTrackStateRequestDelegate = callback;
+        this.onChangeTrackStateRequestDelegate = callback as HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST];
         break;
       }
       case HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM: {
@@ -1349,7 +1352,7 @@ export class HMSSDK {
           ] = removedFromRoomSubscription;
         }
         // Adding App Delegate listener
-        this.onRemovedFromRoomDelegate = callback;
+        this.onRemovedFromRoomDelegate = callback as HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM];
         break;
       }
       case HMSUpdateListenerActions.ON_RTC_STATS: {
@@ -1365,7 +1368,7 @@ export class HMSSDK {
             rtcStatsSubscription;
         }
         // Adding App Delegate listener
-        this.onRtcStatsDelegate = callback;
+        this.onRtcStatsDelegate = callback as HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_RTC_STATS];
         break;
       }
       case HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS: {
@@ -1386,7 +1389,7 @@ export class HMSSDK {
           ] = lclAudioStatsSubscription;
         }
         // Adding App Delegate listener
-        this.onLocalAudioStatsDelegate = callback;
+        this.onLocalAudioStatsDelegate = callback as HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS];
         break;
       }
       case HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS: {
@@ -1407,7 +1410,7 @@ export class HMSSDK {
           ] = lclVideoStatsSubscription;
         }
         // Adding App Delegate listener
-        this.onLocalVideoStatsDelegate = callback;
+        this.onLocalVideoStatsDelegate = callback as HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS];
         break;
       }
       case HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS: {
@@ -1428,7 +1431,7 @@ export class HMSSDK {
           ] = rmAudioStatsSubscription;
         }
         // Adding App Delegate listener
-        this.onRemoteAudioStatsDelegate = callback;
+        this.onRemoteAudioStatsDelegate = callback as HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS];
         break;
       }
       case HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS: {
@@ -1449,7 +1452,7 @@ export class HMSSDK {
           ] = rmVideoStatsSubscription;
         }
         // Adding App Delegate listener
-        this.onRemoteVideoStatsDelegate = callback;
+        this.onRemoteVideoStatsDelegate = callback as HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS];
         break;
       }
       case HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED: {
@@ -1470,7 +1473,7 @@ export class HMSSDK {
           ] = audDeviceChgSubscription;
         }
         // Adding App Delegate listener
-        this.onAudioDeviceChangedDelegate = callback;
+        this.onAudioDeviceChangedDelegate = callback as HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED];
         break;
       }
       case HMSPIPListenerActions.ON_PIP_ROOM_LEAVE: {
@@ -1489,13 +1492,14 @@ export class HMSSDK {
               pipRoomLeaveSubscription;
           }
           // Adding App Delegate listener
-          this.onPIPRoomLeaveDelegate = callback;
+          this.onPIPRoomLeaveDelegate =
+            callback as HMSUpdateListenerCallbacks[HMSPIPListenerActions.ON_PIP_ROOM_LEAVE];
         }
         break;
       }
       default:
     }
-  }
+  };
 
   /**
    * - This is a prototype event listener that takes action and listens for updates related to that particular action
@@ -1520,7 +1524,7 @@ export class HMSSDK {
             undefined;
         }
         // Removing App Delegate listener
-        this.onPreviewDelegate = null;
+        this.onPreviewDelegate = undefined;
         break;
       }
       case HMSUpdateListenerActions.ON_JOIN: {
@@ -1534,7 +1538,7 @@ export class HMSSDK {
             undefined;
         }
         // Removing App Delegate listener
-        this.onJoinDelegate = null;
+        this.onJoinDelegate = undefined;
         break;
       }
       case HMSUpdateListenerActions.ON_ROOM_UPDATE: {
@@ -1548,7 +1552,7 @@ export class HMSSDK {
             undefined;
         }
         // Removing App Delegate listener
-        this.onRoomDelegate = null;
+        this.onRoomDelegate = undefined;
         break;
       }
       case HMSUpdateListenerActions.ON_PEER_UPDATE: {
@@ -1562,7 +1566,7 @@ export class HMSSDK {
             undefined;
         }
         // Removing App Delegate listener
-        this.onPeerDelegate = null;
+        this.onPeerDelegate = undefined;
         break;
       }
       case HMSUpdateListenerActions.ON_TRACK_UPDATE: {
@@ -1576,7 +1580,7 @@ export class HMSSDK {
             undefined;
         }
         // Removing App Delegate listener
-        this.onTrackDelegate = null;
+        this.onTrackDelegate = undefined;
         break;
       }
       case HMSUpdateListenerActions.ON_ERROR: {
@@ -1590,7 +1594,7 @@ export class HMSSDK {
             undefined;
         }
         // Removing App Delegate listener
-        this.onErrorDelegate = null;
+        this.onErrorDelegate = undefined;
         break;
       }
       case HMSUpdateListenerActions.ON_MESSAGE: {
@@ -1604,7 +1608,7 @@ export class HMSSDK {
             undefined;
         }
         // Removing App Delegate listener
-        this.onMessageDelegate = null;
+        this.onMessageDelegate = undefined;
         break;
       }
       case HMSUpdateListenerActions.ON_SPEAKER: {
@@ -1618,7 +1622,7 @@ export class HMSSDK {
             undefined;
         }
         // Removing App Delegate listener
-        this.onSpeakerDelegate = null;
+        this.onSpeakerDelegate = undefined;
         break;
       }
       case HMSUpdateListenerActions.RECONNECTING: {
@@ -1632,7 +1636,7 @@ export class HMSSDK {
             undefined;
         }
         // Removing App Delegate listener
-        this.onReconnectingDelegate = null;
+        this.onReconnectingDelegate = undefined;
         break;
       }
       case HMSUpdateListenerActions.RECONNECTED: {
@@ -1646,7 +1650,7 @@ export class HMSSDK {
             undefined;
         }
         // Removing App Delegate listener
-        this.onReconnectedDelegate = null;
+        this.onReconnectedDelegate = undefined;
         break;
       }
       case HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST: {
@@ -1663,7 +1667,7 @@ export class HMSSDK {
           ] = undefined;
         }
         // Removing App Delegate listener
-        this.onRoleChangeRequestDelegate = null;
+        this.onRoleChangeRequestDelegate = undefined;
         break;
       }
       case HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST: {
@@ -1680,7 +1684,7 @@ export class HMSSDK {
           ] = undefined;
         }
         // Removing App Delegate listener
-        this.onChangeTrackStateRequestDelegate = null;
+        this.onChangeTrackStateRequestDelegate = undefined;
         break;
       }
       case HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM: {
@@ -1697,7 +1701,7 @@ export class HMSSDK {
           ] = undefined;
         }
         // Removing App Delegate listener
-        this.onRemovedFromRoomDelegate = null;
+        this.onRemovedFromRoomDelegate = undefined;
         break;
       }
       case HMSUpdateListenerActions.ON_RTC_STATS: {
@@ -1711,7 +1715,7 @@ export class HMSSDK {
             undefined;
         }
         // Removing App Delegate listener
-        this.onRtcStatsDelegate = null;
+        this.onRtcStatsDelegate = undefined;
         break;
       }
       case HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS: {
@@ -1728,7 +1732,7 @@ export class HMSSDK {
           ] = undefined;
         }
         // Removing App Delegate listener
-        this.onLocalAudioStatsDelegate = null;
+        this.onLocalAudioStatsDelegate = undefined;
         break;
       }
       case HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS: {
@@ -1745,7 +1749,7 @@ export class HMSSDK {
           ] = undefined;
         }
         // Removing App Delegate listener
-        this.onLocalVideoStatsDelegate = null;
+        this.onLocalVideoStatsDelegate = undefined;
         break;
       }
       case HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS: {
@@ -1762,7 +1766,7 @@ export class HMSSDK {
           ] = undefined;
         }
         // Removing App Delegate listener
-        this.onRemoteAudioStatsDelegate = null;
+        this.onRemoteAudioStatsDelegate = undefined;
         break;
       }
       case HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS: {
@@ -1779,7 +1783,7 @@ export class HMSSDK {
           ] = undefined;
         }
         // Removing App Delegate listener
-        this.onRemoteVideoStatsDelegate = null;
+        this.onRemoteVideoStatsDelegate = undefined;
         break;
       }
       case HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED: {
@@ -1796,7 +1800,7 @@ export class HMSSDK {
           ] = undefined;
         }
         // Removing App Delegate listener
-        this.onAudioDeviceChangedDelegate = null;
+        this.onAudioDeviceChangedDelegate = undefined;
         break;
       }
       case HMSPIPListenerActions.ON_PIP_ROOM_LEAVE: {
@@ -1811,7 +1815,7 @@ export class HMSSDK {
               undefined;
           }
           // Removing App Delegate listener
-          this.onPIPRoomLeaveDelegate = null;
+          this.onPIPRoomLeaveDelegate = undefined;
         }
         break;
       }
@@ -1825,20 +1829,20 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   removeAllListeners = () => {
-    this.onPreviewDelegate = null;
-    this.onJoinDelegate = null;
-    this.onRoomDelegate = null;
-    this.onPeerDelegate = null;
-    this.onTrackDelegate = null;
-    this.onErrorDelegate = null;
-    this.onMessageDelegate = null;
-    this.onSpeakerDelegate = null;
-    this.onReconnectingDelegate = null;
-    this.onReconnectedDelegate = null;
-    this.onRoleChangeRequestDelegate = null;
-    this.onChangeTrackStateRequestDelegate = null;
-    this.onRemovedFromRoomDelegate = null;
-    this.onPIPRoomLeaveDelegate = null;
+    this.onPreviewDelegate = undefined;
+    this.onJoinDelegate = undefined;
+    this.onRoomDelegate = undefined;
+    this.onPeerDelegate = undefined;
+    this.onTrackDelegate = undefined;
+    this.onErrorDelegate = undefined;
+    this.onMessageDelegate = undefined;
+    this.onSpeakerDelegate = undefined;
+    this.onReconnectingDelegate = undefined;
+    this.onReconnectedDelegate = undefined;
+    this.onRoleChangeRequestDelegate = undefined;
+    this.onChangeTrackStateRequestDelegate = undefined;
+    this.onRemovedFromRoomDelegate = undefined;
+    this.onPIPRoomLeaveDelegate = undefined;
 
     // Getting list of all available `emitterSubscription` objects
     Object.values(this.emitterSubscriptions)
@@ -1987,6 +1991,7 @@ export class HMSSDK {
     const message = HMSEncoder.encodeHMSMessage(data);
     if (this.onMessageDelegate) {
       logger?.verbose('#Listener ON_MESSAGE_LISTENER_CALL', message);
+      // @ts-ignore
       this.onMessageDelegate(message);
     }
   };
@@ -2209,6 +2214,7 @@ export class HMSSDK {
     }
     if (this.onAudioDeviceChangedDelegate) {
       logger?.verbose('#Listener onAudioDeviceChangedListener_CALL', data);
+      // @ts-ignore
       this.onAudioDeviceChangedDelegate({
         ...data,
       });
