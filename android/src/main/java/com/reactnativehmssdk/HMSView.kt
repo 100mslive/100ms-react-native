@@ -13,30 +13,33 @@ import com.facebook.react.bridge.WritableMap
 import com.facebook.react.uimanager.events.RCTEventEmitter
 import live.hms.video.media.tracks.HMSVideoTrack
 import live.hms.video.utils.HmsUtilities
-import live.hms.video.utils.SharedEglContext
+import live.hms.videoview.HMSVideoView
 import org.webrtc.RendererCommon
-import org.webrtc.SurfaceViewRenderer
 
 @SuppressLint("ViewConstructor")
 class HMSView(context: ReactContext) : FrameLayout(context) {
-  private var surfaceView: SurfaceViewRenderer = SurfaceViewRenderer(context)
+  private var hmsVideoView: HMSVideoView = HMSVideoView(context)
   private var videoTrack: HMSVideoTrack? = null
   private var scaleTypeApplied: Boolean = false
   private var sdkId: String = "12345"
   private var currentScaleType: RendererCommon.ScalingType =
-      RendererCommon.ScalingType.SCALE_ASPECT_FILL
+    RendererCommon.ScalingType.SCALE_ASPECT_FILL
+  private var disableAutoSimulcastLayerSelect = false
 
   init {
     val inflater = getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     val view = inflater.inflate(R.layout.hms_view, this)
 
-    surfaceView = view.findViewById(R.id.surfaceView)
-    surfaceView.setEnableHardwareScaler(false)
+    hmsVideoView = view.findViewById(R.id.hmsVideoView)
+    hmsVideoView.setEnableHardwareScaler(false)
+    hmsVideoView.setScalingType(currentScaleType)
+    hmsVideoView.setMirror(false)
+    hmsVideoView.disableAutoSimulcastLayerSelect(disableAutoSimulcastLayerSelect)
   }
 
   @RequiresApi(Build.VERSION_CODES.N)
   fun captureHmsView(args: ReadableArray?) {
-    HMSHelper.captureSurfaceView(surfaceView, sdkId, args, context, id)
+    HMSHelper.captureSurfaceView(hmsVideoView, sdkId, args, context, id)
   }
 
   private fun onReceiveNativeEvent() {
@@ -48,14 +51,12 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
 
   override fun onDetachedFromWindow() {
     super.onDetachedFromWindow()
-    videoTrack?.removeSink(surfaceView)
-    surfaceView.release()
+    hmsVideoView.removeTrack()
   }
 
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
-    surfaceView.init(SharedEglContext.context, null)
-    videoTrack?.addSink(surfaceView)
+    hmsVideoView.addTrack(videoTrack!!) // DOUBT: Handle case when videoTrack is null
     if (!scaleTypeApplied) {
       if (currentScaleType != RendererCommon.ScalingType.SCALE_ASPECT_FILL) {
         onReceiveNativeEvent()
@@ -66,8 +67,8 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
 
   fun updateZOrderMediaOverlay(setZOrderMediaOverlay: Boolean?) {
     if (setZOrderMediaOverlay != null && setZOrderMediaOverlay) {
-      // surfaceView.setZOrderOnTop(true);
-      surfaceView.setZOrderMediaOverlay(setZOrderMediaOverlay)
+      // hmsVideoView.setZOrderOnTop(true);
+      hmsVideoView.setZOrderMediaOverlay(setZOrderMediaOverlay)
     }
   }
 
@@ -75,17 +76,17 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
     if (scaleType != null) {
       when (scaleType) {
         "ASPECT_FIT" -> {
-          surfaceView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
+          hmsVideoView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
           currentScaleType = RendererCommon.ScalingType.SCALE_ASPECT_FIT
           return
         }
         "ASPECT_FILL" -> {
-          surfaceView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL)
+          hmsVideoView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL)
           currentScaleType = RendererCommon.ScalingType.SCALE_ASPECT_FILL
           return
         }
         "ASPECT_BALANCED" -> {
-          surfaceView.setScalingType((RendererCommon.ScalingType.SCALE_ASPECT_BALANCED))
+          hmsVideoView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_BALANCED)
           currentScaleType = RendererCommon.ScalingType.SCALE_ASPECT_BALANCED
           return
         }
@@ -97,10 +98,10 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
   }
 
   fun setData(
-      id: String?,
-      trackId: String?,
-      hmsCollection: MutableMap<String, HMSRNSDK>,
-      mirror: Boolean?
+    id: String?,
+    trackId: String?,
+    hmsCollection: MutableMap<String, HMSRNSDK>,
+    mirror: Boolean?
   ) {
     if (id != null) {
       sdkId = id
@@ -109,9 +110,16 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
 
     if (trackId != null && hms != null) {
       if (mirror != null) {
-        surfaceView.setMirror(mirror)
+        hmsVideoView.setMirror(mirror)
       }
+      // TODO: can be optimized here
       videoTrack = hms.getRoom()?.let { HmsUtilities.getVideoTrack(trackId, it) }
+    }
+  }
+
+  fun updateAutoSimulcast(autoSimulcast: Boolean?) {
+    autoSimulcast?.let {
+      hmsVideoView.disableAutoSimulcastLayerSelect(!it)
     }
   }
 }

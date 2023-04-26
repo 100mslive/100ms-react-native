@@ -45,110 +45,121 @@ const getTimeStringin12HourFormat = (time: Date) => {
   );
 };
 
-const ChatFilter = memo(({
-  instance,
-  filter,
-  setFilter,
-  setType,
-  setReceiverObject,
-}: {
-  instance?: HMSSDK;
-  filter?: string;
-  setFilter: React.Dispatch<React.SetStateAction<string>>;
-  setType: React.Dispatch<React.SetStateAction<'everyone' | 'direct' | 'role'>>;
-  setReceiverObject: React.Dispatch<
-    React.SetStateAction<'everyone' | HMSRole | HMSRemotePeer>
-  >;
-}) => {
-  const {roles} = useSelector((state: RootState) => state.user);
+const ChatFilter = memo(
+  ({
+    instance,
+    filter,
+    setFilter,
+    setType,
+    setReceiverObject,
+  }: {
+    instance?: HMSSDK;
+    filter?: string;
+    setFilter: React.Dispatch<React.SetStateAction<string>>;
+    setType: React.Dispatch<
+      React.SetStateAction<'everyone' | 'direct' | 'role'>
+    >;
+    setReceiverObject: React.Dispatch<
+      React.SetStateAction<'everyone' | HMSRole | HMSRemotePeer>
+    >;
+  }) => {
+    const roles = useSelector((state: RootState) => state.user.roles);
 
-  const [visible, setVisible] = useState<boolean>(false);
-  const [remotePeers, setRemotePeers] = useState<HMSRemotePeer[]>();
+    const [visible, setVisible] = useState<boolean>(false);
+    const [remotePeers, setRemotePeers] = useState<HMSRemotePeer[]>();
 
-  const hideMenu = () => setVisible(false);
-  const showMenu = () => setVisible(true);
+    const hideMenu = () => setVisible(false);
+    const showMenu = () => setVisible(true);
 
-  useEffect(() => {
-    instance?.getRemotePeers().then(currentRemotePeers => {
-      setRemotePeers(currentRemotePeers);
-    });
-  }, [instance]);
+    useEffect(() => {
+      instance?.getRemotePeers().then(currentRemotePeers => {
+        setRemotePeers(currentRemotePeers);
+      });
+    }, [instance]);
 
-  return (
-    <Menu
-      visible={visible}
-      anchor={
-        <TouchableOpacity style={styles.chatFilterContainer} onPress={showMenu}>
-          <Text style={styles.chatFilterText} numberOfLines={1}>
-            {filter}
-          </Text>
-          <MaterialIcons
-            name={visible ? 'arrow-drop-up' : 'arrow-drop-down'}
-            style={styles.chatFilterIcon}
-            size={24}
-          />
-        </TouchableOpacity>
-      }
-      onRequestClose={hideMenu}
-      style={styles.chatMenuContainer}>
-      <MenuItem
-        onPress={() => {
-          hideMenu();
-          setType('everyone');
-          setReceiverObject('everyone');
-          setFilter('everyone');
-        }}>
-        <View style={styles.chatMenuItem}>
-          <Ionicons
-            name="people-outline"
-            style={styles.chatMenuItemIcon}
-            size={20}
-          />
-          <Text style={styles.chatMenuItemName}>Everyone</Text>
-        </View>
-      </MenuItem>
-      <MenuDivider color={COLORS.BORDER.LIGHT} />
-      {roles?.map(knownRole => {
-        return (
-          <MenuItem
-            onPress={() => {
-              hideMenu();
-              setType('role');
-              setReceiverObject(knownRole);
-              setFilter(knownRole?.name!);
-            }}
-            key={knownRole.name}>
-            <View style={styles.chatMenuItem}>
-              <Text style={styles.chatMenuItemName}>{knownRole?.name}</Text>
-            </View>
-          </MenuItem>
-        );
-      })}
-      <MenuDivider color={COLORS.BORDER.LIGHT} />
-      {remotePeers?.map(remotePeer => {
-        return (
-          <MenuItem
-            onPress={() => {
-              hideMenu();
-              setType('direct');
-              setReceiverObject(remotePeer);
-              setFilter(remotePeer.name);
-            }}
-            key={remotePeer.name}>
-            <View style={styles.chatMenuItem}>
-              <Ionicons
-                name="person-outline"
-                style={styles.chatMenuItemIcon}
-                size={20}
-              />
-              <Text style={styles.chatMenuItemName}>{remotePeer.name}</Text>
-            </View>
-          </MenuItem>
-        );
-      })}
-    </Menu>
-  );
-});
+    return (
+      <Menu
+        visible={visible}
+        anchor={
+          <TouchableOpacity
+            style={styles.chatFilterContainer}
+            onPress={showMenu}
+          >
+            <Text style={styles.chatFilterText} numberOfLines={1}>
+              {filter}
+            </Text>
+            <MaterialIcons
+              name={visible ? 'arrow-drop-up' : 'arrow-drop-down'}
+              style={styles.chatFilterIcon}
+              size={24}
+            />
+          </TouchableOpacity>
+        }
+        onRequestClose={hideMenu}
+        style={styles.chatMenuContainer}
+      >
+        <MenuItem
+          onPress={() => {
+            hideMenu();
+            setType('everyone');
+            setReceiverObject('everyone');
+            setFilter('everyone');
+          }}
+        >
+          <View style={styles.chatMenuItem}>
+            <Ionicons
+              name="people-outline"
+              style={styles.chatMenuItemIcon}
+              size={20}
+            />
+            <Text style={styles.chatMenuItemName}>Everyone</Text>
+          </View>
+        </MenuItem>
+        <MenuDivider color={COLORS.BORDER.LIGHT} />
+        {roles?.map(knownRole => {
+          return (
+            <MenuItem
+              onPress={() => {
+                hideMenu();
+                setType('role');
+                setReceiverObject(knownRole);
+                setFilter(knownRole?.name!);
+              }}
+              key={knownRole.name}
+            >
+              <View style={styles.chatMenuItem}>
+                <Text style={styles.chatMenuItemName}>{knownRole?.name}</Text>
+              </View>
+            </MenuItem>
+          );
+        })}
+        <MenuDivider color={COLORS.BORDER.LIGHT} />
+        {remotePeers?.map(remotePeer => {
+          return (
+            <MenuItem
+              onPress={() => {
+                hideMenu();
+                setType('direct');
+                setReceiverObject(remotePeer);
+                setFilter(remotePeer.name);
+              }}
+              key={remotePeer.name}
+            >
+              <View style={styles.chatMenuItem}>
+                <Ionicons
+                  name="person-outline"
+                  style={styles.chatMenuItemIcon}
+                  size={20}
+                />
+                <Text style={styles.chatMenuItemName}>{remotePeer.name}</Text>
+              </View>
+            </MenuItem>
+          );
+        })}
+      </Menu>
+    );
+  },
+);
 
 ChatFilter.displayName = 'ChatFilter';
 
@@ -157,7 +168,7 @@ const ChatList = ({
 }: {
   setSessionMetaData: (value: string | null) => void;
 }) => {
-  const {messages} = useSelector((state: RootState) => state.messages);
+  const messages = useSelector((state: RootState) => state.messages.messages);
 
   // const scollviewRef = useRef<FlatList>(null);
 
@@ -189,7 +200,8 @@ const ChatList = ({
                 styles.privateMessageBubble,
               isLocal && styles.sendMessageBubble,
             ]}
-            key={index}>
+            key={index}
+          >
             <View style={styles.headingContainer}>
               <View style={styles.headingLeftContainer}>
                 <Text style={styles.senderName}>
@@ -254,8 +266,10 @@ const ChatList = ({
 
 export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
   // hooks
-  const {hmsInstance} = useSelector((state: RootState) => state.user);
-  const {pinnedMessage} = useSelector((state: RootState) => state.messages);
+  const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
+  const pinnedMessage = useSelector(
+    (state: RootState) => state.messages.pinnedMessage,
+  );
   const dispatch = useDispatch();
   const {bottom} = useSafeAreaInsets();
 
@@ -376,7 +390,8 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
         <ChatList setSessionMetaData={setSessionMetaData} />
       </View>
       <View
-        style={bottom === 0 ? styles.inputContainer : {marginBottom: bottom}}>
+        style={bottom === 0 ? styles.inputContainer : {marginBottom: bottom}}
+      >
         <CustomInput
           value={text}
           onChangeText={setText}
