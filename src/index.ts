@@ -80,6 +80,7 @@ export * from './classes/HMSSimulcastLayerDefinition';
 export * from './classes/HMSQualityLimitationReasons';
 export * from './classes/HMSQualityLimitationReason';
 export * from './classes/HMSCameraControl';
+export type * from './classes/HMSSessionStore';
 export type { HmsViewComponent as HMSView } from './classes/HmsView';
 
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
