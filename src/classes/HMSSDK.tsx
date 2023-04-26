@@ -1108,7 +1108,7 @@ export class HMSSDK {
    * @param {*} callback
    * @memberof HMSSDK
    */
-  addEventListener<T extends HMSUpdateListenerActions>(
+  addEventListener = <T extends HMSUpdateListenerActions | HMSPIPListenerActions>(
     action: T | HMSPIPListenerActions,
     callback: HMSUpdateListenerCallbacks[T]
   ) {
