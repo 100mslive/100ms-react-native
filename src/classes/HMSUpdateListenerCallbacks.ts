@@ -6,6 +6,7 @@ import type { HMSLocalAudioTrack } from './HMSLocalAudioTrack';
 import type { HMSLocalVideoStats } from './HMSLocalVideoStats';
 import type { HMSLocalVideoTrack } from './HMSLocalVideoTrack';
 import type { HMSMessage } from './HMSMessage';
+import type { HMSPIPListenerActions } from './HMSPIPListenerActions';
 import type { HMSPeer } from './HMSPeer';
 import type { HMSPeerUpdate } from './HMSPeerUpdate';
 import type { HMSRTCStatsReport } from './HMSRTCStatsReport';
@@ -31,7 +32,7 @@ export interface HMSUpdateListenerCallbacks {
   [HMSUpdateListenerActions.ON_MESSAGE]: (message: HMSMessage) => void;
   [HMSUpdateListenerActions.ON_SPEAKER]: (speakers: HMSSpeaker[]) => void;
   [HMSUpdateListenerActions.RECONNECTING]: (data: { error: HMSException }) => void;
-  [HMSUpdateListenerActions.RECONNECTED]: () => void;
+  [HMSUpdateListenerActions.RECONNECTED]: (data: { id: string }) => void;
   [HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST]: (request: HMSRoleChangeRequest) => void;
   [HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST]: (request: HMSChangeTrackStateRequest) => void;
   [HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM]: (data: { requestedBy: HMSPeer | null, reason: string, roomEnded: boolean }) => void;
@@ -41,4 +42,5 @@ export interface HMSUpdateListenerCallbacks {
   [HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS]: (data: { remoteAudioStats: HMSRemoteAudioStats; track: HMSRemoteAudioTrack; peer: HMSPeer; }) => void;
   [HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS]: (data: { remoteVideoStats: HMSRemoteVideoStats; track: HMSRemoteVideoTrack; peer: HMSPeer; }) => void;
   [HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED]: (data: { device: HMSAudioDevice; audioDevicesList: HMSAudioDevice[]; }) => void;
+  [HMSPIPListenerActions.ON_PIP_ROOM_LEAVE]: (data: { id: string }) => void;
 }
