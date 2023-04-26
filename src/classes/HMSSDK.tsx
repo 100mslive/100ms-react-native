@@ -1115,7 +1115,7 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   addEventListener = <T extends HMSUpdateListenerActions | HMSPIPListenerActions>(
-    action: T | HMSPIPListenerActions,
+    action: T,
     callback: HMSUpdateListenerCallbacks[T]
   ) => {
     logger?.verbose('#Function addEventListener', {
