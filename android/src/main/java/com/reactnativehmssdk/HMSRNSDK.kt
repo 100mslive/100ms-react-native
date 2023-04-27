@@ -17,6 +17,8 @@ import live.hms.video.sdk.models.enums.HMSPeerUpdate
 import live.hms.video.sdk.models.enums.HMSRoomUpdate
 import live.hms.video.sdk.models.enums.HMSTrackUpdate
 import live.hms.video.sdk.models.trackchangerequest.HMSChangeTrackStateRequest
+import live.hms.video.sessionstore.HMSKeyChangeListener
+import live.hms.video.sessionstore.HmsSessionStore
 import live.hms.video.signal.init.HMSTokenListener
 import live.hms.video.signal.init.TokenRequest
 import live.hms.video.signal.init.TokenRequestOptions
@@ -45,6 +47,8 @@ class HMSRNSDK(
   private var id: String = sdkId
   private var self = this
   private var eventsEnableStatus = mutableMapOf<String, Boolean>()
+  private lateinit var sessionStore: HmsSessionStore
+  private val keyChangeObservers = mutableMapOf<String, HMSKeyChangeListener?>()
 
   init {
     val builder = HMSSDK.Builder(reactApplicationContext)
@@ -395,6 +399,16 @@ class HMSRNSDK(
                 }
                 val decodedChangeRoleRequest = HMSDecoder.getHmsRoleChangeRequest(request, id)
                 delegate.emitEvent("ON_ROLE_CHANGE_REQUEST", decodedChangeRoleRequest)
+              }
+
+              override fun onSessionStoreAvailable(sessionStore: HmsSessionStore) {
+                if (eventsEnableStatus["ON_SESSION_STORE_AVAILABLE"] != true) {
+                  return
+                }
+                self.sessionStore = sessionStore
+                val data: WritableMap = Arguments.createMap()
+                data.putString("id", id)
+                delegate.emitEvent("ON_SESSION_STORE_AVAILABLE", data)
               }
             }
           )
@@ -1893,6 +1907,110 @@ class HMSRNSDK(
     } else {
       val errorMessage = "captureImageAtMaxSupportedResolution: $requiredKeys"
       self.emitRequiredKeysError(errorMessage)
+      rejectCallback(promise, errorMessage)
+    }
+  }
+
+  // Mark: Session Store
+
+  fun setKVOnSessionStore(data: ReadableMap, promise: Promise?) {
+    val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("key", "String")))
+    if (requiredKeys === null) {
+      val key = data.getString("key")!!
+      val value = data.getString("value")
+
+      sessionStore.set(
+        value, // data/value
+        key, // key
+        object : HMSActionResultListener {
+          override fun onError(error: HMSException) {
+            promise?.reject(error.code.toString(), error.message)
+          }
+          override fun onSuccess() {
+            val result: WritableMap = Arguments.createMap()
+            result.putBoolean("success", true)
+            result.putString("finalValue", value)
+            promise?.resolve(result)
+          }
+        }
+      )
+    } else {
+      val errorMessage = "setKVOnSessionStore: $requiredKeys"
+      rejectCallback(promise, errorMessage)
+    }
+  }
+
+  fun getVFromSessionStore(data: ReadableMap, promise: Promise?) {
+    val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("key", "String")))
+    if (requiredKeys === null) {
+      val key = data.getString("key")!!
+
+      sessionStore.get(key, object : HMSSessionMetadataListener {
+        override fun onError(error: HMSException) {
+          promise?.reject(error.code.toString(), error.message)
+        }
+        override fun onSuccess(sessionMetadata: String?) {
+          promise?.resolve(sessionMetadata)
+        }
+      })
+    } else {
+      val errorMessage = "getVFromSessionStore: $requiredKeys"
+      rejectCallback(promise, errorMessage)
+    }
+  }
+
+  fun observeChangesInSessionStore(data: ReadableMap, promise: Promise?) {
+    val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("keys", "Array"), Pair("uniqueId", "String")))
+    if (requiredKeys === null) {
+      val keys = ArrayList(data.getArray("keys")!!.toArrayList().map { it.toString() })
+      val uniqueId = data.getString("uniqueId")!!
+
+      val keyChangeListener = object : HMSKeyChangeListener {
+        override fun onKeyChanged(key: String, value: String?) {
+          val map = Arguments.createMap()
+          map.putString("id", id)
+          map.putString("key", key)
+          map.putString("value", value)
+          delegate.emitEvent(uniqueId, map)
+        }
+      }
+
+      val actionResultListener = object : HMSActionResultListener {
+        override fun onError(error: HMSException) {
+          promise?.reject(error.code.toString(), error.message)
+        }
+        override fun onSuccess() {
+          keyChangeObservers[uniqueId] = keyChangeListener
+          promise?.resolve(true)
+        }
+      }
+
+      sessionStore.addKeyChangeListener(
+        keys,
+        keyChangeListener,
+        actionResultListener
+      )
+    } else {
+      val errorMessage = "observeChangesInSessionStore: $requiredKeys"
+      rejectCallback(promise, errorMessage)
+    }
+  }
+
+  fun removeSessionStoreObserver(data: ReadableMap, promise: Promise?) {
+    val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("uniqueId", "String")))
+    if (requiredKeys === null) {
+      val uniqueId = data.getString("uniqueId")!!
+
+      keyChangeObservers[uniqueId].let {
+        if (it == null) {
+          promise?.resolve(false)
+        } else {
+          sessionStore.removeKeyChangeListener(it)
+          promise?.resolve(true)
+        }
+      }
+    } else {
+      val errorMessage = "removeSessionStoreObserver: $requiredKeys"
       rejectCallback(promise, errorMessage)
     }
   }

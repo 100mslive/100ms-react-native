@@ -20,25 +20,61 @@ export class HMSSessionStore {
    * @param {string} key 
    * @returns {Promise}
    */
-  async object(key: string) {
+  async get(key: string) {
     const data = await HMSManager.getVFromSessionStore({ id: HMSConstants.DEFAULT_SDK_ID, key });
     return data;
   }
 
-  observeChanges(keys: string[], callback: (data: { id: string; data: [key: string, value: any]; error: string | null }) => void) {
-    let t: null | EmitterSubscription = DeviceEventEmitter.addListener('xyz', () => {});
+  addListener<T extends string[]>(
+    forKeys: T,
+    callback: (error: string | null, data: { key: T[number], value: any } | null) => void
+  ) {
+    // Unique Identifier for adding native event listener
+    const uniqueId = forKeys.join('') + '_' +  Date.now().toString();
+
+    const listener = (data: any) => {
+
+      if (data.id !== HMSConstants.DEFAULT_SDK_ID) {
+        return;
+      }
+      callback(null, data);
+    }
+
+    // Adding native event listener for the unique identifier
+    let subscription: EmitterSubscription | null = DeviceEventEmitter.addListener(uniqueId, listener);
+
+    let handleRemove: (() => void) | null = () => {
+      if (
+        subscription &&
+        Object.getOwnPropertyNames(subscription).includes('remove') &&
+        typeof subscription.remove === 'function'
+      ) {
+        subscription.remove();
+        subscription = null;
+      } else {
+        DeviceEventEmitter.removeListener(uniqueId, listener);
+      }
+
+      HMSManager.removeSessionStoreObserver({ id: HMSConstants.DEFAULT_SDK_ID, uniqueId });
+    }
+
+    HMSManager.observeChangesInSessionStore({ id: HMSConstants.DEFAULT_SDK_ID, keys: forKeys, uniqueId })
+      .catch((err) => {
+        console.log('observeChangesInSessionStore error -> ', err);
+        if (typeof handleRemove === 'function') {
+          callback(err, null);
+          handleRemove();
+          handleRemove = null;
+        }
+      });
 
     return {
       remove: () => {
-        console.log(t, t?.key);
-        // call remove on t;
-        t?.remove();
-        
-        // remove observer from native side
-        HMSManager.removeSessionStoreObserver(t?.key);
-
-        t = null;
-      }
-    }
+        if (typeof handleRemove === 'function') {
+          handleRemove();
+          handleRemove = null;
+        }
+      },
+    };
   }
 }
