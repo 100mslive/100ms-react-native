@@ -1546,8 +1546,12 @@ class HMSRNSDK(
   fun getSessionMetaData(callback: Promise?) {
     hmsSDK?.getSessionMetaData(
       object : HMSSessionMetadataListener {
-        override fun onSuccess(sessionMetadata: String?) {
-          callback?.resolve(sessionMetadata)
+        override fun onSuccess(sessionMetadata: Any?) {
+          if (sessionMetadata is String) {
+            callback?.resolve(sessionMetadata)
+          } else {
+            callback?.reject("6002", "Session Store: Unsupported type received, only String type is supported")
+          }
         }
 
         override fun onError(error: HMSException) {
@@ -1949,8 +1953,12 @@ class HMSRNSDK(
         override fun onError(error: HMSException) {
           promise?.reject(error.code.toString(), error.message)
         }
-        override fun onSuccess(sessionMetadata: String?) {
-          promise?.resolve(sessionMetadata)
+        override fun onSuccess(sessionMetadata: Any?) {
+          if (sessionMetadata is String) {
+            promise?.resolve(sessionMetadata)
+          } else {
+            promise?.reject("6002", "Session Store: Unsupported type received for '$key' key, only String type is supported")
+          }
         }
       })
     } else {
@@ -1966,12 +1974,16 @@ class HMSRNSDK(
       val uniqueId = data.getString("uniqueId")!!
 
       val keyChangeListener = object : HMSKeyChangeListener {
-        override fun onKeyChanged(key: String, value: String?) {
-          val map = Arguments.createMap()
-          map.putString("id", id)
-          map.putString("key", key)
-          map.putString("value", value)
-          delegate.emitEvent(uniqueId, map)
+        override fun onKeyChanged(key: String, value: Any?) {
+          if (value is String) {
+            val map = Arguments.createMap()
+            map.putString("id", id)
+            map.putString("key", key)
+            map.putString("value", value)
+            delegate.emitEvent(uniqueId, map)
+          } else {
+            emitCustomError("Session Store: Unsupported type received for '$key' key, only String type is supported")
+          }
         }
       }
 
