@@ -699,37 +699,28 @@ const DisplayView = (data: {
   };
 
   const onMessageListener = (message: HMSMessage) => {
-    switch (message.type) {
-      case HMSMessageType.METADATA:
-        hmsInstance?.getSessionMetaData().then((value: string | null) => {
-          dispatch(addPinnedMessage(value));
-        });
-        break;
-      default:
-        // dispatch(addMessage(message));
-        dispatch(
-          addMessage({
-            ...message,
-            // We are extracting HMSPeer properties into new object
-            // so that when this peer leaves room, we still have its data in chat window
-            sender: message.sender
-              ? {
-                  peerID: message.sender.peerID,
-                  name: message.sender.name,
-                  isLocal: message.sender.isLocal,
-                  role: message.sender.role,
-                  audioTrack: undefined,
-                  auxiliaryTracks: undefined,
-                  customerUserID: undefined,
-                  metadata: undefined,
-                  networkQuality: undefined,
-                  videoTrack: undefined,
-                }
-              : undefined,
-          }),
-        );
-        break;
-    }
+    // dispatch(addMessage(message));
+    dispatch(
+      addMessage({
+        ...message,
+        // We are extracting HMSPeer properties into new object
+        // so that when this peer leaves room, we still have its data in chat window
+        sender: message.sender
+          ? {
+              peerID: message.sender.peerID,
+              name: message.sender.name,
+              isLocal: message.sender.isLocal,
+              role: message.sender.role,
+              audioTrack: undefined,
+              auxiliaryTracks: undefined,
+              customerUserID: undefined,
+              metadata: undefined,
+              networkQuality: undefined,
+              videoTrack: undefined,
+            }
+          : undefined,
+      }),
+    );
   };
 
   // functions
@@ -943,12 +934,6 @@ const DisplayView = (data: {
     });
   };
 
-  const getSessionMetaData = () => {
-    hmsInstance?.getSessionMetaData().then((value: string | null) => {
-      dispatch(addPinnedMessage(value));
-    });
-  };
-
   // useEffect hook
   useEffect(() => {
     const callback = () => {
@@ -960,7 +945,6 @@ const DisplayView = (data: {
     addSessionStoreListeners();
     getHmsRoles();
     callback();
-    getSessionMetaData();
     Dimensions.addEventListener('change', callback);
     return () => {
       Dimensions.removeEventListener('change', callback);
