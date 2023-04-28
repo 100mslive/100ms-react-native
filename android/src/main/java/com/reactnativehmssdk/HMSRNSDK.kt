@@ -1935,7 +1935,7 @@ class HMSRNSDK(
         }
       )
     } else {
-      val errorMessage = "setKVOnSessionStore: $requiredKeys"
+      val errorMessage = "setSessionMetadataForKey: $requiredKeys"
       rejectCallback(promise, errorMessage)
     }
   }
@@ -1954,7 +1954,7 @@ class HMSRNSDK(
         }
       })
     } else {
-      val errorMessage = "getVFromSessionStore: $requiredKeys"
+      val errorMessage = "getSessionMetadataForKey: $requiredKeys"
       rejectCallback(promise, errorMessage)
     }
   }
@@ -1991,7 +1991,7 @@ class HMSRNSDK(
         actionResultListener
       )
     } else {
-      val errorMessage = "observeChangesInSessionStore: $requiredKeys"
+      val errorMessage = "addKeyChangeListener: $requiredKeys"
       rejectCallback(promise, errorMessage)
     }
   }
@@ -2010,7 +2010,7 @@ class HMSRNSDK(
         }
       }
     } else {
-      val errorMessage = "removeSessionStoreObserver: $requiredKeys"
+      val errorMessage = "removeKeyChangeListener: $requiredKeys"
       rejectCallback(promise, errorMessage)
     }
   }
