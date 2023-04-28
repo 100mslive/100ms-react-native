@@ -25,7 +25,7 @@ export class HMSSessionStore {
     return data;
   }
 
-  addListener<T extends string[]>(
+  addKeyChangeListener<T extends string[]>(
     forKeys: T,
     callback: (error: string | null, data: { key: T[number], value: any } | null) => void
   ) {
