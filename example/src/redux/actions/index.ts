@@ -6,6 +6,7 @@ import type {
   HMSRemoteVideoStats,
   HMSRole,
   HMSSDK,
+  HMSSessionStore,
 } from '@100mslive/react-native-hms';
 import type {PeerTrackNode, PipModes} from '../../utils/types';
 import actionTypes from '../actionTypes';
@@ -43,6 +44,7 @@ export const saveUserData = (data: {
   roomID?: String;
   roomCode?: String;
   hmsInstance?: HMSSDK;
+  hmsSessionStore?: HMSSessionStore;
   isHLSFlow?: boolean;
   roles?: HMSRole[];
 }) => ({

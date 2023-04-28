@@ -267,6 +267,7 @@ const ChatList = ({
 export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
   // hooks
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
+  const hmsSessionStore = useSelector((state: RootState) => state.user.hmsSessionStore);
   const pinnedMessage = useSelector(
     (state: RootState) => state.messages.pinnedMessage,
   );
@@ -282,11 +283,43 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
   const [showBanner, setShowBanner] = useState<boolean>(false);
   const [text, setText] = useState('');
 
-  const setSessionMetaData = (value: string | null) => {
-    hmsInstance?.setSessionMetaData(value).then(() => {
-      hmsInstance?.sendBroadcastMessage('refresh', HMSMessageType.METADATA);
-      dispatch(addPinnedMessage(value));
-    });
+  // Subscribe to Session Store for Pinned Message updates
+  useEffect(() => {
+    // If instance of HMSSessionStore is available
+    if (hmsSessionStore) {
+      // Add listener on Session Store for `pinnedMessage` key
+      const subscription = hmsSessionStore.addListener<["pinnedMessage"]>(
+        ["pinnedMessage"],
+        (error, data) => {
+          // If encounter error, handle error and return early
+          if (error) {
+            console.log("`pinnedMessage` key listener Error -> ", error);
+            return;
+          }
+
+          // If no error, handle data and dispatch action
+          if (data?.key === 'pinnedMessage') {
+            dispatch(addPinnedMessage(data.value));
+          }
+        }
+      );
+
+      // Remove listener on effect cleanup
+      return () => subscription.remove();
+    }
+  }, [hmsSessionStore]);
+
+  const setSessionMetaData = async (value: string | null) => {
+    // If instance of HMSSessionStore is available
+    if (hmsSessionStore) {
+      try {
+        // set `value` on `session` with key 'pinnedMessage'
+        const response = await hmsSessionStore.set(value, 'pinnedMessage');
+        console.log('setSessionMetaData Response -> ', response);
+      } catch(error) {
+        console.log('setSessionMetaData Error -> ', error);
+      }
+    }
   };
 
   const sendMessage = () => {

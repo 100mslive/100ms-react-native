@@ -1,4 +1,4 @@
-import type {HMSRole, HMSSDK} from '@100mslive/react-native-hms';
+import type {HMSRole, HMSSDK, HMSSessionStore} from '@100mslive/react-native-hms';
 import {getMeetingCode, getMeetingUrl} from '../../utils/functions';
 import ActionTypes from '../actionTypes';
 
@@ -11,6 +11,7 @@ type IntialStateType = {
   userName: string;
   roomID: string;
   hmsInstance?: HMSSDK;
+  hmsSessionStore?: HMSSessionStore | null;
   roomCode: string;
   isHLSFlow: boolean;
   roles: HMSRole[];
@@ -22,6 +23,7 @@ const INITIAL_STATE: IntialStateType = {
   roomCode: getMeetingCode(),
   isHLSFlow: true,
   roles: [],
+  hmsSessionStore: null,
 };
 
 const userReducer = (state = INITIAL_STATE, action: ActionType) => {
@@ -35,6 +37,7 @@ const userReducer = (state = INITIAL_STATE, action: ActionType) => {
       return {
         ...state,
         hmsInstance: undefined,
+        hmsSessionStore: null,
       };
     default:
       return state;
