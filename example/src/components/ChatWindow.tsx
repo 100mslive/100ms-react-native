@@ -288,7 +288,7 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
     // If instance of HMSSessionStore is available
     if (hmsSessionStore) {
       // Add listener on Session Store for `pinnedMessage` key
-      const subscription = hmsSessionStore.addListener<["pinnedMessage"]>(
+      const subscription = hmsSessionStore.addKeyChangeListener<["pinnedMessage"]>(
         ["pinnedMessage"],
         (error, data) => {
           // If encounter error, handle error and return early

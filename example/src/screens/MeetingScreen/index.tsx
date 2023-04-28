@@ -670,7 +670,7 @@ const DisplayView = (data: {
     // Check if instance of HMSSessionStore is available
     if (hmsSessionStore) {
       // Add subscription for `spotlight` key updates on Session Store
-      const subscription = hmsSessionStore.addListener<['spotlight']>(
+      const subscription = hmsSessionStore.addKeyChangeListener<['spotlight']>(
         ['spotlight'],
         (error, data) => {
           // If error occurs, handle error and return early
