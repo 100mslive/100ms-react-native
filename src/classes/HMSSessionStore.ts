@@ -33,7 +33,6 @@ export class HMSSessionStore {
     const uniqueId = forKeys.join('') + '_' +  Date.now().toString();
 
     const listener = (data: any) => {
-
       if (data.id !== HMSConstants.DEFAULT_SDK_ID) {
         return;
       }
