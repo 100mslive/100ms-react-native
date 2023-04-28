@@ -12,6 +12,7 @@ type IntialStateType = {
   roomID: string;
   hmsInstance?: HMSSDK;
   hmsSessionStore?: HMSSessionStore | null;
+  spotlightTrackId?: string | null;
   roomCode: string;
   isHLSFlow: boolean;
   roles: HMSRole[];
@@ -24,6 +25,7 @@ const INITIAL_STATE: IntialStateType = {
   isHLSFlow: true,
   roles: [],
   hmsSessionStore: null,
+  spotlightTrackId: null,
 };
 
 const userReducer = (state = INITIAL_STATE, action: ActionType) => {
@@ -38,6 +40,7 @@ const userReducer = (state = INITIAL_STATE, action: ActionType) => {
         ...state,
         hmsInstance: undefined,
         hmsSessionStore: null,
+        spotlightTrackId: null,
       };
     default:
       return state;

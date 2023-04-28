@@ -45,6 +45,7 @@ export const saveUserData = (data: {
   roomCode?: String;
   hmsInstance?: HMSSDK;
   hmsSessionStore?: HMSSessionStore;
+  spotlightTrackId?: string | null;
   isHLSFlow?: boolean;
   roles?: HMSRole[];
 }) => ({

@@ -40,6 +40,8 @@ export const PeerSettingsModalContent: React.FC<
   onStreamingQualityPress,
 }) => {
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
+  const hmsSessionStore = useSelector((state: RootState) => state.user.hmsSessionStore);
+  const spotlightTrackId = useSelector((state: RootState) => state.user.spotlightTrackId);
 
   const removePeer = () => {
     hmsInstance
@@ -72,6 +74,23 @@ export const PeerSettingsModalContent: React.FC<
     );
   };
 
+  // Check if selected tile is "On Spotlight"
+  const onSpotlight = spotlightTrackId === peerTrackNode.track?.trackId;
+
+  const handleSpotlightPress = async () => {
+    try {
+      // Close Modal
+      cancelModal();
+
+      // Toggle `spotlight` key value on Session Store
+      if (peerTrackNode.track?.trackId) {
+        await hmsSessionStore?.set(onSpotlight ? null : peerTrackNode.track?.trackId, 'spotlight');
+      }
+    } catch (error) {
+      console.log('Add to spotlight error -> ', error);
+    }
+  };
+
   const {peer} = peerTrackNode;
 
   const localPeerPermissions = localPeer.role?.permissions;
@@ -88,6 +107,14 @@ export const PeerSettingsModalContent: React.FC<
       <Text style={styles.participantRole}>{peer.role?.name}</Text>
 
       <View style={styles.contentContainer}>
+        <SettingItem
+          text={onSpotlight ? 'Remove from Spotlight' : 'Add to Spotlight'}
+          IconType={Ionicons}
+          iconName={onSpotlight ? 'ios-star' : 'ios-star-outline'}
+          onPress={handleSpotlightPress}
+          disabled={!peerTrackNode.track?.trackId}
+        />
+
         {!peer.isLocal ? (
           <SettingItem
             text={isPeerAudioMute ? 'Request Audio Unmute' : 'Mute Audio'}

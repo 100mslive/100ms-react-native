@@ -274,6 +274,9 @@ const DisplayView = (data: {
   );
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
   const hmsSessionStore = useSelector((state: RootState) => state.user.hmsSessionStore);
+
+  // State to track active spotlight trackId
+  const spotlightTrackId = useSelector((state: RootState) => state.user.spotlightTrackId);
   const peerState = useSelector((state: RootState) => state.app.peerState);
   const navigate = useNavigation<MeetingScreenProp>().navigate;
   const dispatch = useDispatch();
@@ -295,8 +298,6 @@ const DisplayView = (data: {
   const [capturedImagePath, setCapturedImagePath] = useState<null | {
     uri: string;
   }>(null);
-  // State to track active spotlight trackId
-  const [spotlightVideoTrackId, setSpotlightVideoTrackId] = useState<string | null>(null);
 
   // useRef hook
   const sessionStoreListeners = useRef<Array<{ remove: () => void }>>([]);
@@ -306,8 +307,8 @@ const DisplayView = (data: {
 
   // constants
   const pairedPeers = useMemo(
-    () => pairData(peerTrackNodes, orientation ? 4 : 2, data?.localPeer, spotlightVideoTrackId),
-    [data?.localPeer, orientation, spotlightVideoTrackId, peerTrackNodes],
+    () => pairData(peerTrackNodes, orientation ? 4 : 2, data?.localPeer, spotlightTrackId),
+    [data?.localPeer, orientation, spotlightTrackId, peerTrackNodes],
   );
 
   // Sync local peerTrackNodes list with peerTrackNodes list stored in redux
@@ -683,7 +684,7 @@ const DisplayView = (data: {
             // Scroll to start of the list
             gridViewRef.current?.getFlatlistRef().current?.scrollToOffset({animated: true, offset: 0});
             // set value to the state to rerender the component to reflect changes
-            setSpotlightVideoTrackId(data.value);
+            dispatch(saveUserData({ spotlightTrackId: data.value }));
           }
         }
       );
