@@ -11,17 +11,17 @@ export class HMSSessionStore {
    * @returns {Promise}
    */
   async set(value: any, key: string) {
-    const data: { success: true, finalValue: any } = await HMSManager.setKVOnSessionStore({ id: HMSConstants.DEFAULT_SDK_ID, key, value });
+    const data: { success: true, finalValue: any } = await HMSManager.setSessionMetadataForKey({ id: HMSConstants.DEFAULT_SDK_ID, key, value });
     return data;
   }
 
   /**
    * Retrieve the current value for a specific key once
-   * @param {string} key 
+   * @param {string} key
    * @returns {Promise}
    */
   async get(key: string) {
-    const data = await HMSManager.getVFromSessionStore({ id: HMSConstants.DEFAULT_SDK_ID, key });
+    const data = await HMSManager.getSessionMetadataForKey({ id: HMSConstants.DEFAULT_SDK_ID, key });
     return data;
   }
 
@@ -55,12 +55,11 @@ export class HMSSessionStore {
         DeviceEventEmitter.removeListener(uniqueId, listener);
       }
 
-      HMSManager.removeSessionStoreObserver({ id: HMSConstants.DEFAULT_SDK_ID, uniqueId });
+      HMSManager.removeKeyChangeListener({ id: HMSConstants.DEFAULT_SDK_ID, uniqueId });
     }
 
-    HMSManager.observeChangesInSessionStore({ id: HMSConstants.DEFAULT_SDK_ID, keys: forKeys, uniqueId })
+    HMSManager.addKeyChangeListener({ id: HMSConstants.DEFAULT_SDK_ID, keys: forKeys, uniqueId })
       .catch((err) => {
-        console.log('observeChangesInSessionStore error -> ', err);
         if (typeof handleRemove === 'function') {
           callback(err, null);
           handleRemove();

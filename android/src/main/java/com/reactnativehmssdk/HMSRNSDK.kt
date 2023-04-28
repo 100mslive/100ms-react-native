@@ -1913,7 +1913,7 @@ class HMSRNSDK(
 
   // Mark: Session Store
 
-  fun setKVOnSessionStore(data: ReadableMap, promise: Promise?) {
+  fun setSessionMetadataForKey(data: ReadableMap, promise: Promise?) {
     val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("key", "String")))
     if (requiredKeys === null) {
       val key = data.getString("key")!!
@@ -1940,7 +1940,7 @@ class HMSRNSDK(
     }
   }
 
-  fun getVFromSessionStore(data: ReadableMap, promise: Promise?) {
+  fun getSessionMetadataForKey(data: ReadableMap, promise: Promise?) {
     val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("key", "String")))
     if (requiredKeys === null) {
       val key = data.getString("key")!!
@@ -1959,7 +1959,7 @@ class HMSRNSDK(
     }
   }
 
-  fun observeChangesInSessionStore(data: ReadableMap, promise: Promise?) {
+  fun addKeyChangeListener(data: ReadableMap, promise: Promise?) {
     val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("keys", "Array"), Pair("uniqueId", "String")))
     if (requiredKeys === null) {
       val keys = ArrayList(data.getArray("keys")!!.toArrayList().map { it.toString() })
@@ -1996,7 +1996,7 @@ class HMSRNSDK(
     }
   }
 
-  fun removeSessionStoreObserver(data: ReadableMap, promise: Promise?) {
+  fun removeKeyChangeListener(data: ReadableMap, promise: Promise?) {
     val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("uniqueId", "String")))
     if (requiredKeys === null) {
       val uniqueId = data.getString("uniqueId")!!

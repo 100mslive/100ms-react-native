@@ -913,31 +913,31 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun setKVOnSessionStore(data: ReadableMap, promise: Promise?) {
+  fun setSessionMetadataForKey(data: ReadableMap, promise: Promise?) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
-    hms?.setKVOnSessionStore(data, promise)
+    hms?.setSessionMetadataForKey(data, promise)
   }
 
   @ReactMethod
-  fun getVFromSessionStore(data: ReadableMap, promise: Promise?) {
+  fun getSessionMetadataForKey(data: ReadableMap, promise: Promise?) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
-    hms?.getVFromSessionStore(data, promise)
+    hms?.getSessionMetadataForKey(data, promise)
   }
 
   @ReactMethod
-  fun observeChangesInSessionStore(data: ReadableMap, promise: Promise?) {
+  fun addKeyChangeListener(data: ReadableMap, promise: Promise?) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
-    hms?.observeChangesInSessionStore(data, promise)
+    hms?.addKeyChangeListener(data, promise)
   }
 
   @ReactMethod
-  fun removeSessionStoreObserver(data: ReadableMap, promise: Promise?) {
+  fun removeKeyChangeListener(data: ReadableMap, promise: Promise?) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
-    hms?.removeSessionStoreObserver(data, promise)
+    hms?.removeKeyChangeListener(data, promise)
   }
 
   fun emitEvent(event: String, data: WritableMap) {
