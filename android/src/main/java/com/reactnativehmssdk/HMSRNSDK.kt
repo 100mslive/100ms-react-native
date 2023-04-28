@@ -1520,6 +1520,7 @@ class HMSRNSDK(
     }
   }
 
+  @Deprecated("SessionMetaData APIs has been deprecated in favour of Session Store APIs", ReplaceWith("setSessionMetadataForKey"), DeprecationLevel.WARNING)
   fun setSessionMetaData(data: ReadableMap, callback: Promise?) {
     if (data.hasKey("sessionMetaData")) {
       val sessionMetaData = data.getString("sessionMetaData")
@@ -1543,6 +1544,7 @@ class HMSRNSDK(
     }
   }
 
+  @Deprecated("SessionMetaData APIs has been deprecated in favour of Session Store APIs", ReplaceWith("getSessionMetadataForKey"), DeprecationLevel.WARNING)
   fun getSessionMetaData(callback: Promise?) {
     hmsSDK?.getSessionMetaData(
       object : HMSSessionMetadataListener {
