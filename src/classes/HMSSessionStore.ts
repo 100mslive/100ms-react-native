@@ -59,7 +59,7 @@ export class HMSSessionStore {
     }
 
     HMSManager.addKeyChangeListener({ id: HMSConstants.DEFAULT_SDK_ID, keys: forKeys, uniqueId })
-      .catch((err) => {
+      .catch((err: any) => {
         if (typeof handleRemove === 'function') {
           callback(err, null);
           handleRemove();
