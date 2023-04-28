@@ -366,7 +366,9 @@ export const pairData = (
   unGroupedPeerTrackNodes: PeerTrackNode[],
   batch: number,
   localPeer?: HMSLocalPeer,
+  spotlightVideoTrackId?: string | null,
 ) => {
+  const spotlightNode: Array<Array<PeerTrackNode>> = [];
   const pairedDataRegular: Array<Array<PeerTrackNode>> = [];
   const pairedDataSource: Array<Array<PeerTrackNode>> = [];
   let groupedPeerTrackNodes: Array<PeerTrackNode> = [];
@@ -374,6 +376,11 @@ export const pairData = (
 
   unGroupedPeerTrackNodes.map((item: PeerTrackNode) => {
     if (
+      spotlightVideoTrackId &&
+      item.track?.trackId === spotlightVideoTrackId
+    ) {
+      spotlightNode.push([item]);
+    } else if (
       item.track?.source !== HMSTrackSource.REGULAR &&
       item.track?.source !== undefined
     ) {
@@ -393,7 +400,7 @@ export const pairData = (
     pairedDataRegular.push(groupedPeerTrackNodes);
   }
 
-  return [...pairedDataSource, ...pairedDataRegular];
+  return [...spotlightNode, ...pairedDataSource, ...pairedDataRegular];
 };
 
 export const getDisplayTrackDimensions = (

@@ -17,6 +17,8 @@ import live.hms.video.sdk.models.enums.HMSPeerUpdate
 import live.hms.video.sdk.models.enums.HMSRoomUpdate
 import live.hms.video.sdk.models.enums.HMSTrackUpdate
 import live.hms.video.sdk.models.trackchangerequest.HMSChangeTrackStateRequest
+import live.hms.video.sessionstore.HMSKeyChangeListener
+import live.hms.video.sessionstore.HmsSessionStore
 import live.hms.video.signal.init.HMSTokenListener
 import live.hms.video.signal.init.TokenRequest
 import live.hms.video.signal.init.TokenRequestOptions
@@ -45,6 +47,8 @@ class HMSRNSDK(
   private var id: String = sdkId
   private var self = this
   private var eventsEnableStatus = mutableMapOf<String, Boolean>()
+  private lateinit var sessionStore: HmsSessionStore
+  private val keyChangeObservers = mutableMapOf<String, HMSKeyChangeListener?>()
 
   init {
     val builder = HMSSDK.Builder(reactApplicationContext)
@@ -395,6 +399,16 @@ class HMSRNSDK(
                 }
                 val decodedChangeRoleRequest = HMSDecoder.getHmsRoleChangeRequest(request, id)
                 delegate.emitEvent("ON_ROLE_CHANGE_REQUEST", decodedChangeRoleRequest)
+              }
+
+              override fun onSessionStoreAvailable(sessionStore: HmsSessionStore) {
+                if (eventsEnableStatus["ON_SESSION_STORE_AVAILABLE"] != true) {
+                  return
+                }
+                self.sessionStore = sessionStore
+                val data: WritableMap = Arguments.createMap()
+                data.putString("id", id)
+                delegate.emitEvent("ON_SESSION_STORE_AVAILABLE", data)
               }
             }
           )
@@ -1506,6 +1520,7 @@ class HMSRNSDK(
     }
   }
 
+  @Deprecated("SessionMetaData APIs has been deprecated in favour of Session Store APIs", ReplaceWith("setSessionMetadataForKey"), DeprecationLevel.WARNING)
   fun setSessionMetaData(data: ReadableMap, callback: Promise?) {
     if (data.hasKey("sessionMetaData")) {
       val sessionMetaData = data.getString("sessionMetaData")
@@ -1529,11 +1544,16 @@ class HMSRNSDK(
     }
   }
 
+  @Deprecated("SessionMetaData APIs has been deprecated in favour of Session Store APIs", ReplaceWith("getSessionMetadataForKey"), DeprecationLevel.WARNING)
   fun getSessionMetaData(callback: Promise?) {
     hmsSDK?.getSessionMetaData(
       object : HMSSessionMetadataListener {
-        override fun onSuccess(sessionMetadata: String?) {
-          callback?.resolve(sessionMetadata)
+        override fun onSuccess(sessionMetadata: Any?) {
+          if (sessionMetadata is String) {
+            callback?.resolve(sessionMetadata)
+          } else {
+            callback?.reject("6002", "Session Store: Unsupported type received, only String type is supported")
+          }
         }
 
         override fun onError(error: HMSException) {
@@ -1893,6 +1913,118 @@ class HMSRNSDK(
     } else {
       val errorMessage = "captureImageAtMaxSupportedResolution: $requiredKeys"
       self.emitRequiredKeysError(errorMessage)
+      rejectCallback(promise, errorMessage)
+    }
+  }
+
+  // Mark: Session Store
+
+  fun setSessionMetadataForKey(data: ReadableMap, promise: Promise?) {
+    val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("key", "String")))
+    if (requiredKeys === null) {
+      val key = data.getString("key")!!
+      val value = data.getString("value")
+
+      sessionStore.set(
+        value, // data/value
+        key, // key
+        object : HMSActionResultListener {
+          override fun onError(error: HMSException) {
+            promise?.reject(error.code.toString(), error.message)
+          }
+          override fun onSuccess() {
+            val result: WritableMap = Arguments.createMap()
+            result.putBoolean("success", true)
+            result.putString("finalValue", value)
+            promise?.resolve(result)
+          }
+        }
+      )
+    } else {
+      val errorMessage = "setSessionMetadataForKey: $requiredKeys"
+      rejectCallback(promise, errorMessage)
+    }
+  }
+
+  fun getSessionMetadataForKey(data: ReadableMap, promise: Promise?) {
+    val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("key", "String")))
+    if (requiredKeys === null) {
+      val key = data.getString("key")!!
+
+      sessionStore.get(key, object : HMSSessionMetadataListener {
+        override fun onError(error: HMSException) {
+          promise?.reject(error.code.toString(), error.message)
+        }
+        override fun onSuccess(sessionMetadata: Any?) {
+          if (sessionMetadata is String) {
+            promise?.resolve(sessionMetadata)
+          } else {
+            promise?.reject("6002", "Session Store: Unsupported type received for '$key' key, only String type is supported")
+          }
+        }
+      })
+    } else {
+      val errorMessage = "getSessionMetadataForKey: $requiredKeys"
+      rejectCallback(promise, errorMessage)
+    }
+  }
+
+  fun addKeyChangeListener(data: ReadableMap, promise: Promise?) {
+    val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("keys", "Array"), Pair("uniqueId", "String")))
+    if (requiredKeys === null) {
+      val keys = ArrayList(data.getArray("keys")!!.toArrayList().map { it.toString() })
+      val uniqueId = data.getString("uniqueId")!!
+
+      val keyChangeListener = object : HMSKeyChangeListener {
+        override fun onKeyChanged(key: String, value: Any?) {
+          if (value is String) {
+            val map = Arguments.createMap()
+            map.putString("id", id)
+            map.putString("key", key)
+            map.putString("value", value)
+            delegate.emitEvent(uniqueId, map)
+          } else {
+            emitCustomError("Session Store: Unsupported type received for '$key' key, only String type is supported")
+          }
+        }
+      }
+
+      val actionResultListener = object : HMSActionResultListener {
+        override fun onError(error: HMSException) {
+          promise?.reject(error.code.toString(), error.message)
+        }
+        override fun onSuccess() {
+          keyChangeObservers[uniqueId] = keyChangeListener
+          promise?.resolve(true)
+        }
+      }
+
+      sessionStore.addKeyChangeListener(
+        keys,
+        keyChangeListener,
+        actionResultListener
+      )
+    } else {
+      val errorMessage = "addKeyChangeListener: $requiredKeys"
+      rejectCallback(promise, errorMessage)
+    }
+  }
+
+  fun removeKeyChangeListener(data: ReadableMap, promise: Promise?) {
+    val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("uniqueId", "String")))
+    if (requiredKeys === null) {
+      val uniqueId = data.getString("uniqueId")!!
+
+      keyChangeObservers[uniqueId].let {
+        if (it == null) {
+          promise?.resolve(false)
+        } else {
+          sessionStore.removeKeyChangeListener(it)
+          promise?.resolve(true)
+        }
+      }
+    } else {
+      val errorMessage = "removeKeyChangeListener: $requiredKeys"
       rejectCallback(promise, errorMessage)
     }
   }
