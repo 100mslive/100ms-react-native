@@ -551,4 +551,26 @@ class HMSManager: RCTEventEmitter {
 
         hms?.captureImageAtMaxSupportedResolution(data, resolve, reject)
     }
+
+    // MARK: - Session Store
+
+    @objc
+    func getSessionMetadataForKey(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+
+    }
+
+    @objc
+    func setSessionMetadataForKey(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+
+    }
+
+    @objc
+    func addKeyChangeListener(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+
+    }
+
+    @objc
+    func removeKeyChangeListener(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+
+    }
 }

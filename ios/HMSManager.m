@@ -72,4 +72,12 @@ RCT_EXTERN_METHOD(setVideoTrackLayer: (NSDictionary) data :(RCTPromiseResolveBlo
 #pragma mark - Advanced Camera Controls
 
 RCT_EXTERN_METHOD(captureImageAtMaxSupportedResolution: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+
+#pragma mark - Session Store
+
+RCT_EXTERN_METHOD(getSessionMetadataForKey: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(setSessionMetadataForKey: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(addKeyChangeListener: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(removeKeyChangeListener: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+
 @end
