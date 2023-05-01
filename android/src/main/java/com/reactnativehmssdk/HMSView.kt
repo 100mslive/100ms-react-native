@@ -21,6 +21,7 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
   private var hmsVideoView: HMSVideoView = HMSVideoView(context)
   private var videoTrack: HMSVideoTrack? = null
   private var scaleTypeApplied: Boolean = false
+  private var attachedToWindow = false
   private var sdkId: String = "12345"
   private var currentScaleType: RendererCommon.ScalingType =
     RendererCommon.ScalingType.SCALE_ASPECT_FILL
@@ -51,18 +52,14 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
 
   override fun onDetachedFromWindow() {
     super.onDetachedFromWindow()
+    attachedToWindow = false
     hmsVideoView.removeTrack()
   }
 
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
-    hmsVideoView.addTrack(videoTrack!!) // DOUBT: Handle case when videoTrack is null
-    if (!scaleTypeApplied) {
-      if (currentScaleType != RendererCommon.ScalingType.SCALE_ASPECT_FILL) {
-        onReceiveNativeEvent()
-      }
-      scaleTypeApplied = true
-    }
+    attachedToWindow = true
+    handleVideoTrack()
   }
 
   fun updateZOrderMediaOverlay(setZOrderMediaOverlay: Boolean?) {
@@ -114,12 +111,25 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
       }
       // TODO: can be optimized here
       videoTrack = hms.getRoom()?.let { HmsUtilities.getVideoTrack(trackId, it) }
+      handleVideoTrack()
     }
   }
 
   fun updateAutoSimulcast(autoSimulcast: Boolean?) {
     autoSimulcast?.let {
       hmsVideoView.disableAutoSimulcastLayerSelect(!it)
+    }
+  }
+
+  private fun handleVideoTrack() {
+    if (attachedToWindow) {
+      hmsVideoView.addTrack(videoTrack!!) // DOUBT: Handle case when videoTrack is null
+      if (!scaleTypeApplied) {
+        if (currentScaleType != RendererCommon.ScalingType.SCALE_ASPECT_FILL) {
+          onReceiveNativeEvent()
+        }
+        scaleTypeApplied = true
+      }
     }
   }
 }
