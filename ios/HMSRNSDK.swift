@@ -1748,6 +1748,36 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
     func setSessionMetadataForKey(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
 
+        DispatchQueue.main.async { [weak self] in
+
+            guard let store = self?.sessionStore
+            else {
+                let errorMessage = "\(#function) Session Store is null"
+                reject?("6004", errorMessage, nil)
+                return
+            }
+
+            guard let data = data as? [AnyHashable: Any],
+                let key = data["key"] as? String
+            else {
+                let errorMessage = "\(#function) Key for the object to be set in Session Store is null." + HMSHelper.getUnavailableRequiredKey(data, ["key"])
+                reject?("6004", errorMessage, nil)
+                return
+            }
+
+            // TODO: Resolve warning - Expression implicitly coerced from 'Any?' to 'Any'. How to set nil values on iOS Session Store?
+            let valueToBeSet = data["value"]
+
+            store.set(valueToBeSet, forKey: key) { value, error in
+
+                if let error = error {
+                    let errorMessage = "\(#function) Error in setting value: \(valueToBeSet ?? "nil") for key: \(key) to the Session Store. Error: \(error.localizedDescription)"
+                    reject?("6004", errorMessage, nil)
+                    return
+                }
+                resolve?(["success": true, "finalValue": value])
+            }
+        }
     }
 
     func addKeyChangeListener(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
@@ -1774,25 +1804,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 //                return
 //            } else {
 //                resolve?(["success": true, "finalValue": finalValue])
-//                return
-//            }
-//        }
-//    }
-
-//    func getVFromSessionStore(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-//        guard let key = data.value(forKey: "key") as? String else {
-//            let errorMessage = "getVFromSessionStore: " + HMSHelper.getUnavailableRequiredKey(data, ["key"])
-//            reject?(errorMessage, errorMessage, nil)
-//            return
-//        }
-//
-//        sessionStore?.object(forKey: key) { value, error in
-//            if let err = error {
-//                let errorMessage = "\(#function) Could not write to disk the image data  of the Local Peer's Video Track. \(err.localizedDescription)"
-//                reject?("6004", errorMessage, nil)
-//                return
-//            } else {
-//                resolve?(value)
 //                return
 //            }
 //        }
