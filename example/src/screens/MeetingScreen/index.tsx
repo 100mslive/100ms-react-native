@@ -108,6 +108,7 @@ import {useRTCStatsListeners} from '../../utils/hooks';
 import {RoomSettingsModalContent} from '../../components/RoomSettingsModalContent';
 import {PeerSettingsModalContent} from '../../components/PeerSettingsModalContent';
 import {StreamingQualityModalContent} from '../../components/StreamingQualityModalContent';
+import { Tile } from './Tile';
 
 type MeetingScreenProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -960,6 +961,8 @@ const DisplayView = (data: {
     }
   }, [data?.localPeer?.role?.name]);
 
+  const nodeForTile = peerTrackNodes.length > 0 ? peerTrackNodes[peerTrackNodes.length - 1] : null;
+
   return (
     <View style={styles.container}>
       {pairedPeers.length && layout === LayoutParams.GRID ? (
@@ -967,13 +970,23 @@ const DisplayView = (data: {
           {isPipModeActive ? (
             <PIPView pairedPeers={pairedPeers} />
           ) : (
-            <GridView
+            <>
+            <Tile
+            setHmsViewRefs={(d: any) => null}
+            onPeerTileMorePress={handlePeerTileMorePress}
+            orientation={orientation}
+            peerTrackNode={nodeForTile as PeerTrackNode}
+            totalTilesInContainer={1}
+            setIsScreenShared={data.setIsScreenShared}
+          />
+            {/* <GridView
               ref={gridViewRef}
               onPeerTileMorePress={handlePeerTileMorePress}
               pairedPeers={pairedPeers}
               orientation={orientation}
               setIsScreenShared={data.setIsScreenShared}
-            />
+            /> */}
+            </>
           )}
         </>
       ) : layout === LayoutParams.HLS ? (
