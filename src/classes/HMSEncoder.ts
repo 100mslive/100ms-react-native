@@ -196,6 +196,7 @@ export class HMSEncoder {
     const encodedObj = {
       useHardwareEchoCancellation: settings?.useHardwareAcousticEchoCanceler,
       initialState: settings?.initialState,
+      audioMode: settings?.audioMode,
     };
 
     return new HMSAudioTrackSettings(encodedObj);
