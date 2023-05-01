@@ -1549,7 +1549,7 @@ class HMSRNSDK(
     hmsSDK?.getSessionMetaData(
       object : HMSSessionMetadataListener {
         override fun onSuccess(sessionMetadata: Any?) {
-          if (sessionMetadata is String) {
+          if (sessionMetadata is String?) {
             callback?.resolve(sessionMetadata)
           } else {
             callback?.reject("6002", "Session Store: Unsupported type received, only String type is supported")
@@ -1956,7 +1956,7 @@ class HMSRNSDK(
           promise?.reject(error.code.toString(), error.message)
         }
         override fun onSuccess(sessionMetadata: Any?) {
-          if (sessionMetadata is String) {
+          if (sessionMetadata is String?) {
             promise?.resolve(sessionMetadata)
           } else {
             promise?.reject("6002", "Session Store: Unsupported type received for '$key' key, only String type is supported")
@@ -1977,7 +1977,7 @@ class HMSRNSDK(
 
       val keyChangeListener = object : HMSKeyChangeListener {
         override fun onKeyChanged(key: String, value: Any?) {
-          if (value is String) {
+          if (value is String?) {
             val map = Arguments.createMap()
             map.putString("id", id)
             map.putString("key", key)
@@ -2020,6 +2020,7 @@ class HMSRNSDK(
           promise?.resolve(false)
         } else {
           sessionStore.removeKeyChangeListener(it)
+          keyChangeObservers.remove(uniqueId)
           promise?.resolve(true)
         }
       }
