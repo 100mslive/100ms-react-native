@@ -2,6 +2,7 @@ package com.reactnativehmssdk
 
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.util.Log
 import com.facebook.react.bridge.*
 import com.facebook.react.bridge.UiThreadUtil.runOnUiThread
 import kotlinx.coroutines.launch
@@ -1977,15 +1978,16 @@ class HMSRNSDK(
 
       val keyChangeListener = object : HMSKeyChangeListener {
         override fun onKeyChanged(key: String, value: Any?) {
+          val map = Arguments.createMap()
+          map.putString("id", id)
+          map.putString("key", key)
           if (value is String?) {
-            val map = Arguments.createMap()
-            map.putString("id", id)
-            map.putString("key", key)
             map.putString("value", value)
-            delegate.emitEvent(uniqueId, map)
           } else {
-            emitCustomError("Session Store: Unsupported type received for '$key' key, only String type is supported")
+            Log.i("HMSRNSDK", "Session Store: '$value' value received for '$key' key, expected only NullableString type for value")
+            map.putString("value", null) // resetting value to `null`, as the current type is not supported
           }
+          delegate.emitEvent(uniqueId, map)
         }
       }
 
