@@ -30,6 +30,7 @@ type IntialStateType = {
     mirrorCamera: boolean;
     skipPreview: boolean;
     audioMixer: boolean; // IOS only
+    musicMode: boolean; // IOS only
     softwareDecoder: boolean; // Android only
     autoResize: boolean; // Android only
     autoSimulcast: boolean;
@@ -47,6 +48,7 @@ const INITIAL_STATE: IntialStateType = {
     mirrorCamera: true,
     skipPreview: false,
     audioMixer: false, // IOS only
+    musicMode: false, // IOS only
     softwareDecoder: true, // Android only
     autoResize: false, // Android only
     autoSimulcast: true,
@@ -105,6 +107,14 @@ const appReducer = (
         joinConfig: {
           ...state.joinConfig,
           audioMixer: action.payload.audioMixer ?? false,
+        },
+      };
+    case ActionTypes.CHANGE_MUSIC_MODE:
+      return {
+        ...state,
+        joinConfig: {
+          ...state.joinConfig,
+          musicMode: action.payload.musicMode ?? false,
         },
       };
     case ActionTypes.CHANGE_SHOW_STATS:

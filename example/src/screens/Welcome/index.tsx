@@ -3,6 +3,7 @@ import {
   HMSCameraFacing,
   HMSConfig,
   HMSException,
+  HMSIOSAudioMode,
   HMSLogAlarmManager,
   HMSLogger,
   HMSLogLevel,
@@ -518,6 +519,7 @@ const Welcome = () => {
             'audio_file_player_node',
           ]
         : undefined,
+      audioMode: joinConfig.musicMode ? HMSIOSAudioMode.MUSIC : undefined,
     });
 
     let videoSettings = new HMSVideoTrackSettings({
