@@ -1765,13 +1765,12 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 return
             }
 
-            // TODO: Resolve warning - Expression implicitly coerced from 'Any?' to 'Any'. How to set nil values on iOS Session Store?
-            let valueToBeSet = data["value"]
+            let valueToBeSet = data["value"] as Any
 
             store.set(valueToBeSet, forKey: key) { value, error in
 
                 if let error = error {
-                    let errorMessage = "\(#function) Error in setting value: \(valueToBeSet ?? "nil") for key: \(key) to the Session Store. Error: \(error.localizedDescription)"
+                    let errorMessage = "\(#function) Error in setting value: \(valueToBeSet) for key: \(key) to the Session Store. Error: \(error.localizedDescription)"
                     reject?("6004", errorMessage, nil)
                     return
                 }
