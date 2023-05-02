@@ -25,10 +25,8 @@ import type { HMSAudioMixingMode } from './HMSAudioMixingMode';
 import type { HMSLogSettings } from './HMSLogSettings';
 import { HMSMessageType } from './HMSMessageType';
 import { HMSPIPListenerActions } from './HMSPIPListenerActions';
-import {
-  type HMSEventSubscription,
-  HMSNativeEventEmitter,
-} from './HMSNativeEventEmitter';
+import type { HMSEventSubscription } from './HMSNativeEventEmitter';
+import { HMSNativeEventEmitter } from './HMSNativeEventEmitter';
 import {
   clearHmsPeersCache,
   getHmsPeersCache,
