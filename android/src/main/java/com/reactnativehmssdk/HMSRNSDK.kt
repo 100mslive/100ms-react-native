@@ -1984,7 +1984,7 @@ class HMSRNSDK(
           if (value is String?) {
             map.putString("value", value)
           } else {
-            Log.i("HMSRNSDK", "Session Store: '$value' value received for '$key' key, expected only NullableString type for value")
+            Log.e("HMSRNSDK", "Session Store: '$value' value received for '$key' key, expected only NullableString type for value")
             map.putString("value", null) // resetting value to `null`, as the current type is not supported
           }
           delegate.emitEvent(uniqueId, map)
