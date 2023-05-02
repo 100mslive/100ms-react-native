@@ -557,20 +557,32 @@ class HMSManager: RCTEventEmitter {
     @objc
     func getSessionMetadataForKey(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
 
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.getSessionMetadataForKey(data, resolve, reject)
     }
 
     @objc
     func setSessionMetadataForKey(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
 
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.setSessionMetadataForKey(data, resolve, reject)
     }
 
     @objc
     func addKeyChangeListener(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
 
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.addKeyChangeListener(data, resolve, reject)
     }
 
     @objc
     func removeKeyChangeListener(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        
+        let hms = HMSHelper.getHms(data, hmsCollection)
 
+        hms?.removeKeyChangeListener(data, resolve, reject)
     }
 }
