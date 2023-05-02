@@ -670,9 +670,9 @@ const DisplayView = (data: {
     // Check if instance of HMSSessionStore is available
     if (hmsSessionStore) {
       // Add subscription for `spotlight` key updates on Session Store
-      const subscription = hmsSessionStore.addKeyChangeListener<['spotlight']>(
+      const subscription = hmsSessionStore.addKeyChangeListener(
         ['spotlight'],
-        (error, data) => {
+        (error: null, data: { key: string; value: any }) => {
           // If error occurs, handle error and return early
           if (error !== null) {
             console.log("`spotlight` key listener Error -> ", error);
@@ -682,7 +682,9 @@ const DisplayView = (data: {
           // If no error, handle data
           if (data?.key === 'spotlight') {
             // Scroll to start of the list
-            gridViewRef.current?.getFlatlistRef().current?.scrollToOffset({animated: true, offset: 0});
+            if (!!data?.value) {
+              gridViewRef.current?.getFlatlistRef().current?.scrollToOffset({animated: true, offset: 0});
+            }
             // set value to the state to rerender the component to reflect changes
             dispatch(saveUserData({ spotlightTrackId: data.value }));
           }
