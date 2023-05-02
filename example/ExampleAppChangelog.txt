@@ -3,9 +3,12 @@ Board: https://github.com/100mslive/react-native-hms/projects/15
 - Added support for Session Store APIs
 https://github.com/100mslive/react-native-hms/issues/990
 
+- Added support for Music Mode on iOS
+https://github.com/100mslive/react-native-hms/issues/1001
+
 - chore(deps): bump json5 and babel-plugin-module-resolver in /example
 https://github.com/100mslive/react-native-hms/pull/997
 
 React Native SDK: 1.6.0
-Android SDK: 2.6.1
+Android SDK: 2.6.2
 iOS SDK: 0.9.3
