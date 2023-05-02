@@ -13,6 +13,7 @@ import {
   HMSRoom,
   HMSRoomUpdate,
   HMSSDK,
+  HMSSessionStore,
   HMSTrack,
   HMSTrackSettings,
   HMSTrackSettingsInitState,
@@ -345,6 +346,11 @@ const Welcome = () => {
     }
   };
 
+  const onSessionStoreAvailableListener = ({ sessionStore }: { sessionStore: HMSSessionStore }) => {
+    // Saving `sessionStore` refernce in `redux`
+    dispatch(saveUserData({ hmsSessionStore: sessionStore }));
+  }
+
   // functions
   const removePeerTrackNodes = (peer: HMSPeer) => {
     const newPeerTrackNodes = peerTrackNodesRef?.current?.filter(
@@ -443,6 +449,11 @@ const Welcome = () => {
       hmsInstance?.addEventListener(
         HMSUpdateListenerActions.ON_TRACK_UPDATE,
         onTrackListener,
+      );
+
+      hmsInstance?.addEventListener(
+        HMSUpdateListenerActions.ON_SESSION_STORE_AVAILABLE,
+        onSessionStoreAvailableListener,
       );
 
       hmsInstance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
@@ -606,6 +617,7 @@ const Welcome = () => {
     hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_ROOM_UPDATE);
     hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_PEER_UPDATE);
     hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_TRACK_UPDATE);
+    hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_SESSION_STORE_AVAILABLE);
     hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_ERROR);
   };
 

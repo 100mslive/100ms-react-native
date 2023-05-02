@@ -912,6 +912,34 @@ class HMSManager(reactContext: ReactApplicationContext) :
     hms?.captureImageAtMaxSupportedResolution(data, promise)
   }
 
+  @ReactMethod
+  fun setSessionMetadataForKey(data: ReadableMap, promise: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.setSessionMetadataForKey(data, promise)
+  }
+
+  @ReactMethod
+  fun getSessionMetadataForKey(data: ReadableMap, promise: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.getSessionMetadataForKey(data, promise)
+  }
+
+  @ReactMethod
+  fun addKeyChangeListener(data: ReadableMap, promise: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.addKeyChangeListener(data, promise)
+  }
+
+  @ReactMethod
+  fun removeKeyChangeListener(data: ReadableMap, promise: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.removeKeyChangeListener(data, promise)
+  }
+
   fun emitEvent(event: String, data: WritableMap) {
     reactApplicationContext
       .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)

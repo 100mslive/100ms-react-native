@@ -25,6 +25,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     private var previewInProgress = false
     private var networkQualityUpdatesAttached = false
     private var eventsEnableStatus: [String: Bool] = [:]
+    private var sessionStore: HMSSessionStore? = nil
 
     // MARK: - Setup
     init(data: NSDictionary?, delegate manager: HMSManager?, uid id: String) {
@@ -1489,6 +1490,14 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         self.delegate?.emitEvent(HMSConstants.ON_REMOVED_FROM_ROOM, ["event": HMSConstants.ON_REMOVED_FROM_ROOM, "id": self.id, "requestedBy": decodedRequestedBy as Any, "reason": reason, "roomEnded": roomEnded ])
     }
 
+    func on(sessionStoreAvailable store: HMSSessionStore) {
+        if eventsEnableStatus[HMSConstants.ON_SESSION_STORE_AVAILABLE] != true {
+            return
+        }
+        self.sessionStore = store
+        self.delegate?.emitEvent(HMSConstants.ON_SESSION_STORE_AVAILABLE, [:])
+    }
+
     func on(rtcStats: HMSRTCStatsReport) {
         if eventsEnableStatus[HMSConstants.ON_RTC_STATS] != true {
             return
@@ -1692,6 +1701,79 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 }
             }
         }
+    }
+
+    // MARK: - Session Store
+
+    func setKVOnSessionStore(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let key = data.value(forKey: "key") as? String else {
+            let errorMessage = "setKVOnSessionStore: " + HMSHelper.getUnavailableRequiredKey(data, ["key"])
+            reject?(errorMessage, errorMessage, nil)
+            return
+        }
+
+        let value = data.value(forKey: "value")
+
+        sessionStore?.set(value ?? nil, forKey: key) { finalValue, error in
+            if let err = error {
+                let errorMessage = "\(#function) Could not write to disk the image data  of the Local Peer's Video Track. \(err.localizedDescription)"
+                reject?("6004", errorMessage, nil)
+                return
+            } else {
+                resolve?(["success": true, "finalValue": finalValue])
+                return
+            }
+        }
+    }
+
+    func getVFromSessionStore(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let key = data.value(forKey: "key") as? String else {
+            let errorMessage = "getVFromSessionStore: " + HMSHelper.getUnavailableRequiredKey(data, ["key"])
+            reject?(errorMessage, errorMessage, nil)
+            return
+        }
+
+        sessionStore?.object(forKey: key) { value, error in
+            if let err = error {
+                let errorMessage = "\(#function) Could not write to disk the image data  of the Local Peer's Video Track. \(err.localizedDescription)"
+                reject?("6004", errorMessage, nil)
+                return
+            } else {
+                resolve?(value)
+                return
+            }
+        }
+    }
+
+    func observeChangesInSessionStore(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let keys = data.value(forKey: "keys") as? [String] else {
+            let errorMessage = "observeChangesInSessionStore: " + HMSHelper.getUnavailableRequiredKey(data, ["keys"])
+            reject?(errorMessage, errorMessage, nil)
+            return
+        }
+
+        let successUniqueKey = "ss_change_\(keys.joined())"
+        let errorUniqueKey = "ss_error_\(keys.joined())"
+
+        sessionStore?.observeChanges(
+            forKeys: keys,
+            changeObserver: { [weak self] key, value in
+                self?.delegate?.emitEvent(successUniqueKey, ["id": self?.id, "data": [key, value]])
+            }
+        ) { [weak self] observer, error in
+            if let err = error {
+                self?.delegate?.emitEvent(errorUniqueKey, ["id": self?.id, "error": err.localizedDescription])
+                return
+            } else if let obs = observer {
+                // store this observer by `successUniqueKey`
+            } else {
+                // no error and observer
+            }
+        }
+    }
+
+    func removeSessionStoreObserver(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        sessionStore?.removeObserver(<#T##observer: NSObjectProtocol##NSObjectProtocol#>)
     }
 
     // MARK: - Helper Functions
