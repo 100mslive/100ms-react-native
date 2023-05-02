@@ -172,15 +172,21 @@ class HMSHelper: NSObject {
     }
 
     static func getLocalAudioSettings(_ settings: NSDictionary?, _ hms: HMSSDK?, _ delegate: HMSManager?, _ id: String) -> HMSAudioTrackSettings? {
-        if settings === nil {
+
+        guard let settings = settings
+        else {
+            print(#function, "No Local Audio Settings passed.")
             return nil
         }
-        let initialState = settings?.value(forKey: "initialState") as? String
+
+        let initialState = settings.value(forKey: "initialState") as? String
         let initialStateEncoded = HMSHelper.getHMSTrackSettingsInitState(initialState)
+
+        let audioMode = getAudioMode(from: settings["audioMode"] as? String)
 
         if #available(iOS 13.0, *) {
             var audioMixerSourceMap: [String: HMSAudioNode]?
-            if let playerNode = settings?.value(forKey: "audioSource") as? [String] {
+            if let playerNode = settings.value(forKey: "audioSource") as? [String] {
                 audioMixerSourceMap = [String: HMSAudioNode]()
                 for node in playerNode {
                     if audioMixerSourceMap?[node] == nil {
@@ -190,7 +196,7 @@ class HMSHelper: NSObject {
                             do {
                                 audioMixerSourceMap?["screen_broadcast_audio_receiver_node"] = try hms?.screenBroadcastAudioReceiverNode()
                             } catch {
-                                delegate?.emitEvent("ON_ERROR", ["error": ["code": 6002, "description": error.localizedDescription, "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
+                                delegate?.emitEvent("ON_ERROR", ["error": ["code": 6002, "description": error.localizedDescription, "isTerminal": false, "canRetry": true, "params": ["function": #function]] as [String: Any], "id": id])
                             }
                         } else {
                             audioMixerSourceMap?[node] = HMSAudioFilePlayerNode()
@@ -203,15 +209,33 @@ class HMSHelper: NSObject {
                 do {
                     self.audioMixerSourceHashMap = audioMixerSourceMap
                     let audioMixerSource = try HMSAudioMixerSource(nodes: audioMixerSourceMap.values.map {$0})
-                    return HMSAudioTrackSettings(maxBitrate: 32, trackDescription: "", initialMuteState: initialStateEncoded, audioSource: audioMixerSource)
+
+                    return HMSAudioTrackSettings.build { builder in
+
+                        builder.initialMuteState = initialStateEncoded
+
+                        builder.audioSource = audioMixerSource
+
+                        if let audioMode = audioMode {
+                            builder.audioMode = audioMode
+                        }
+                    }
+
                 } catch {
-                    delegate?.emitEvent("ON_ERROR", ["error": ["code": 6002, "description": error.localizedDescription, "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
+                    delegate?.emitEvent("ON_ERROR", ["error": ["code": 6002, "description": error.localizedDescription, "isTerminal": false, "canRetry": true, "params": ["function": #function]] as [String: Any], "id": id])
                     return nil
                 }
             }
         }
 
-        return HMSAudioTrackSettings(maxBitrate: 32, trackDescription: "", initialMuteState: initialStateEncoded, audioSource: nil)
+        return HMSAudioTrackSettings.build { builder in
+
+            builder.initialMuteState = initialStateEncoded
+
+            if let audioMode = audioMode {
+                builder.audioMode = audioMode
+            }
+        }
     }
 
     static func getAudioMixerSourceMap() -> [String: HMSAudioNode]? {
@@ -317,5 +341,18 @@ class HMSHelper: NSObject {
             return HMSHLSMeetingURLVariant(meetingURL: url, metadata: metadata ?? "")
         }
         return nil
+    }
+
+    private static func getAudioMode(from mode: String?) -> HMSAudioMode? {
+        switch mode {
+        case "voice":
+            return .voice
+
+        case "music":
+            return .music
+
+        default:
+            return nil
+        }
     }
 }
