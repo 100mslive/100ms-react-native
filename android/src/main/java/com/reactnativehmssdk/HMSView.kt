@@ -3,6 +3,7 @@ package com.reactnativehmssdk
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import android.view.LayoutInflater
 import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
@@ -56,12 +57,17 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
 
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
-    hmsVideoView.addTrack(videoTrack!!) // DOUBT: Handle case when videoTrack is null
-    if (!scaleTypeApplied) {
-      if (currentScaleType != RendererCommon.ScalingType.SCALE_ASPECT_FILL) {
-        onReceiveNativeEvent()
+
+    videoTrack?.let { // Safe Call Operator to check if videoTrack is not null
+      hmsVideoView.addTrack(it) // add the videoTrack to the hmsVideoView
+      if (!scaleTypeApplied) { // check if the scaleTypeApplied flag is false
+        if (currentScaleType != RendererCommon.ScalingType.SCALE_ASPECT_FILL) { // check if the currentScaleType is not SCALE_ASPECT_FILL
+          onReceiveNativeEvent() // call the onReceiveNativeEvent function
+        }
+        scaleTypeApplied = true // set the scaleTypeApplied flag to true
       }
-      scaleTypeApplied = true
+    } ?: { // Elvis Operator to handle the case when videoTrack is null
+      Log.e("HMSView", "HMSView attached to window, but it's videoTrack is null") // log an error message
     }
   }
 

@@ -48,7 +48,7 @@ class HMSRNSDK(
   private var id: String = sdkId
   private var self = this
   private var eventsEnableStatus = mutableMapOf<String, Boolean>()
-  private lateinit var sessionStore: HmsSessionStore
+  private var sessionStore: HmsSessionStore? = null
   private val keyChangeObservers = mutableMapOf<String, HMSKeyChangeListener?>()
 
   init {
@@ -258,6 +258,9 @@ class HMSRNSDK(
                 super.onRemovedFromRoom(notification)
 
                 HMSDecoder.clearRestrictDataStates()
+                eventsEnableStatus.clear()
+                sessionStore = null
+                keyChangeObservers.clear()
                 if (eventsEnableStatus["ON_REMOVED_FROM_ROOM"] != true) {
                   return
                 }
@@ -618,6 +621,9 @@ class HMSRNSDK(
             audioshareCallback = null
             networkQualityUpdatesAttached = false
             HMSDecoder.clearRestrictDataStates()
+            eventsEnableStatus.clear()
+            sessionStore = null
+            keyChangeObservers.clear()
             if (fromPIP) {
               context.currentActivity?.moveTaskToBack(false)
 
@@ -1926,21 +1932,29 @@ class HMSRNSDK(
       val key = data.getString("key")!!
       val value = data.getString("value")
 
-      sessionStore.set(
-        value, // data/value
-        key, // key
-        object : HMSActionResultListener {
-          override fun onError(error: HMSException) {
-            promise?.reject(error.code.toString(), error.message)
-          }
-          override fun onSuccess() {
-            val result: WritableMap = Arguments.createMap()
-            result.putBoolean("success", true)
-            result.putString("finalValue", value)
-            promise?.resolve(result)
-          }
+      sessionStore.let {
+        if (it === null) {
+          val errorMessage = "setSessionMetadataForKey: HmsSessionStore instance is not available!"
+          rejectCallback(promise, errorMessage)
+          return
         }
-      )
+
+        it.set(
+          value, // data/value
+          key, // key
+          object : HMSActionResultListener {
+            override fun onError(error: HMSException) {
+              promise?.reject(error.code.toString(), error.message)
+            }
+            override fun onSuccess() {
+              val result: WritableMap = Arguments.createMap()
+              result.putBoolean("success", true)
+              result.putString("finalValue", value)
+              promise?.resolve(result)
+            }
+          }
+        )
+      }
     } else {
       val errorMessage = "setSessionMetadataForKey: $requiredKeys"
       rejectCallback(promise, errorMessage)
@@ -1952,18 +1966,26 @@ class HMSRNSDK(
     if (requiredKeys === null) {
       val key = data.getString("key")!!
 
-      sessionStore.get(key, object : HMSSessionMetadataListener {
-        override fun onError(error: HMSException) {
-          promise?.reject(error.code.toString(), error.message)
+      sessionStore.let {
+        if (it === null) {
+          val errorMessage = "setSessionMetadataForKey: HmsSessionStore instance is not available!"
+          rejectCallback(promise, errorMessage)
+          return
         }
-        override fun onSuccess(sessionMetadata: Any?) {
-          if (sessionMetadata is String?) {
-            promise?.resolve(sessionMetadata)
-          } else {
-            promise?.reject("6002", "Session Store: Unsupported type received for '$key' key, only String type is supported")
+
+        it.get(key, object : HMSSessionMetadataListener {
+          override fun onError(error: HMSException) {
+            promise?.reject(error.code.toString(), error.message)
           }
-        }
-      })
+          override fun onSuccess(sessionMetadata: Any?) {
+            if (sessionMetadata is String?) {
+              promise?.resolve(sessionMetadata)
+            } else {
+              promise?.reject("6002", "Session Store: Unsupported type received for '$key' key, only String type is supported")
+            }
+          }
+        })
+      }
     } else {
       val errorMessage = "getSessionMetadataForKey: $requiredKeys"
       rejectCallback(promise, errorMessage)
@@ -1976,36 +1998,44 @@ class HMSRNSDK(
       val keys = ArrayList(data.getArray("keys")!!.toArrayList().map { it.toString() })
       val uniqueId = data.getString("uniqueId")!!
 
-      val keyChangeListener = object : HMSKeyChangeListener {
-        override fun onKeyChanged(key: String, value: Any?) {
-          val map = Arguments.createMap()
-          map.putString("id", id)
-          map.putString("key", key)
-          if (value is String?) {
-            map.putString("value", value)
-          } else {
-            Log.e("HMSRNSDK", "Session Store: '$value' value received for '$key' key, expected only NullableString type for value")
-            map.putString("value", null) // resetting value to `null`, as the current type is not supported
+      sessionStore.let {
+        if (it === null) {
+          val errorMessage = "setSessionMetadataForKey: HmsSessionStore instance is not available!"
+          rejectCallback(promise, errorMessage)
+          return
+        }
+
+        val keyChangeListener = object : HMSKeyChangeListener {
+          override fun onKeyChanged(key: String, value: Any?) {
+            val map = Arguments.createMap()
+            map.putString("id", id)
+            map.putString("key", key)
+            if (value is String?) {
+              map.putString("value", value)
+            } else {
+              Log.e("HMSRNSDK", "Session Store: '$value' value received for '$key' key, expected only NullableString type for value")
+              map.putString("value", null) // resetting value to `null`, as the current type is not supported
+            }
+            delegate.emitEvent(uniqueId, map)
           }
-          delegate.emitEvent(uniqueId, map)
         }
-      }
 
-      val actionResultListener = object : HMSActionResultListener {
-        override fun onError(error: HMSException) {
-          promise?.reject(error.code.toString(), error.message)
+        val actionResultListener = object : HMSActionResultListener {
+          override fun onError(error: HMSException) {
+            promise?.reject(error.code.toString(), error.message)
+          }
+          override fun onSuccess() {
+            keyChangeObservers[uniqueId] = keyChangeListener
+            promise?.resolve(true)
+          }
         }
-        override fun onSuccess() {
-          keyChangeObservers[uniqueId] = keyChangeListener
-          promise?.resolve(true)
-        }
-      }
 
-      sessionStore.addKeyChangeListener(
-        keys,
-        keyChangeListener,
-        actionResultListener
-      )
+        it.addKeyChangeListener(
+          keys,
+          keyChangeListener,
+          actionResultListener
+        )
+      }
     } else {
       val errorMessage = "addKeyChangeListener: $requiredKeys"
       rejectCallback(promise, errorMessage)
@@ -2017,13 +2047,21 @@ class HMSRNSDK(
     if (requiredKeys === null) {
       val uniqueId = data.getString("uniqueId")!!
 
-      keyChangeObservers[uniqueId].let {
-        if (it == null) {
-          promise?.resolve(false)
-        } else {
-          sessionStore.removeKeyChangeListener(it)
-          keyChangeObservers.remove(uniqueId)
-          promise?.resolve(true)
+      sessionStore.let { localSessionStore ->
+        if (localSessionStore === null) {
+          val errorMessage = "setSessionMetadataForKey: HmsSessionStore instance is not available!"
+          rejectCallback(promise, errorMessage)
+          return
+        }
+
+        keyChangeObservers[uniqueId].let {
+          if (it == null) {
+            promise?.resolve(false)
+          } else {
+            localSessionStore.removeKeyChangeListener(it)
+            keyChangeObservers.remove(uniqueId)
+            promise?.resolve(true)
+          }
         }
       }
     } else {
