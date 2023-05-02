@@ -57,18 +57,17 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
 
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
-    videoTrack.let {
-      if (it !== null) {
-        hmsVideoView.addTrack(it)
-      } else {
-        Log.e("HMSView", "HMSView attached to window, but it's videoTrack is null")
+
+    videoTrack?.let { // Safe Call Operator to check if videoTrack is not null
+      hmsVideoView.addTrack(it) // add the videoTrack to the hmsVideoView
+      if (!scaleTypeApplied) { // check if the scaleTypeApplied flag is false
+        if (currentScaleType != RendererCommon.ScalingType.SCALE_ASPECT_FILL) { // check if the currentScaleType is not SCALE_ASPECT_FILL
+          onReceiveNativeEvent() // call the onReceiveNativeEvent function
+        }
+        scaleTypeApplied = true // set the scaleTypeApplied flag to true
       }
-    }
-    if (!scaleTypeApplied) {
-      if (currentScaleType != RendererCommon.ScalingType.SCALE_ASPECT_FILL) {
-        onReceiveNativeEvent()
-      }
-      scaleTypeApplied = true
+    } ?: { // Elvis Operator to handle the case when videoTrack is null
+      Log.e("HMSView", "HMSView attached to window, but it's videoTrack is null") // log an error message
     }
   }
 
