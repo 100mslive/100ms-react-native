@@ -26,6 +26,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     private var networkQualityUpdatesAttached = false
     private var eventsEnableStatus: [String: Bool] = [:]
     private var sessionStore: HMSSessionStore?
+    private var sessionStoreChangeObservers = [String: NSObjectProtocol]()
 
     // MARK: - Setup
     init(data: NSDictionary?, delegate manager: HMSManager?, uid id: String) {
@@ -1736,7 +1737,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                     if let stringValue = value as? String {
                         resolve?(stringValue)
                     } else {
-                        let errorMessage = "\(#function) Session Store value for the key: \(key) is not of String Type."
+                        let errorMessage = "\(#function) Session Store value for the key: \(key) is not of String Type. Value: \(value)"
                         reject?("6004", errorMessage, nil)
                     }
                 } else {
@@ -1781,32 +1782,86 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
     func addKeyChangeListener(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
 
+        DispatchQueue.main.async { [weak self] in
+
+            guard let store = self?.sessionStore
+            else {
+                let errorMessage = "\(#function) Session Store is null"
+                reject?("6004", errorMessage, nil)
+                return
+            }
+
+            guard let data = data as? [AnyHashable: Any]
+            else {
+                let errorMessage = "\(#function) No arguments passed which can be attached to Key Change Listener on the Session Store."
+                reject?("6004", errorMessage, nil)
+                return
+            }
+
+            guard let keys = data["keys"] as? [String]
+            else {
+                let errorMessage = "\(#function) No keys passed which can be attached to Key Change Listener on the Session Store. Available arguments: \(data)"
+                reject?("6004", errorMessage, nil)
+                return
+            }
+
+            guard let uniqueId = data["uniqueId"] as? String
+            else {
+                let errorMessage = "\(#function) No uniqueId passed which can be used to attach Key Change Listener on the Session Store. Available arguments: \(data)"
+                reject?("6004", errorMessage, nil)
+                return
+            }
+
+            store.observeChanges(forKeys: keys, changeObserver: { [weak self] key, value in
+
+                var data = [String: Any]()
+
+                data["id"] = self?.id
+
+                data["key"] = key
+
+                if let value = value {
+                    if let stringValue = value as? String {
+                        data["value"] = stringValue
+                    } else {
+                        let errorMessage = "\(#function) Session Store value for the key: \(key) is not of String Type. Value: \(value)"
+                        print(errorMessage)
+                    }
+                }
+                self?.delegate?.emitEvent(uniqueId, data)
+
+            }) { [weak self] observer, error in
+
+                    if let error = error {
+                        let errorMessage = "\(#function) Error in observing changes for key: \(keys) in the Session Store. Error: \(error.localizedDescription)"
+                        reject?("6004", errorMessage, nil)
+                        return
+                    }
+
+                    guard let observer = observer
+                    else {
+                        let errorMessage = "\(#function) Unknown Error in observing changes for key: \(keys) in the Session Store."
+                        reject?("6004", errorMessage, nil)
+                        return
+                    }
+
+                    guard let self = self
+                    else {
+                        let errorMessage = "\(#function) Could not find self instance while observing changes for key: \(keys) in the Session Store."
+                        reject?("6004", errorMessage, nil)
+                        return
+                    }
+
+                    self.sessionStoreChangeObservers[uniqueId] = observer
+
+                    resolve?(true)
+                }
+        }
     }
 
     func removeKeyChangeListener(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
 
     }
-
-//    func setSessionMetadataForKey(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-//        guard let key = data.value(forKey: "key") as? String else {
-//            let errorMessage = "setKVOnSessionStore: " + HMSHelper.getUnavailableRequiredKey(data, ["key"])
-//            reject?(errorMessage, errorMessage, nil)
-//            return
-//        }
-//
-//        let value = data.value(forKey: "value")
-//
-//        sessionStore?.set(value ?? nil, forKey: key) { finalValue, error in
-//            if let err = error {
-//                let errorMessage = "\(#function) Could not write to disk the image data  of the Local Peer's Video Track. \(err.localizedDescription)"
-//                reject?("6004", errorMessage, nil)
-//                return
-//            } else {
-//                resolve?(["success": true, "finalValue": finalValue])
-//                return
-//            }
-//        }
-//    }
 
 //    func observeChangesInSessionStore(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
 //        guard let keys = data.value(forKey: "keys") as? [String] else {
@@ -1833,10 +1888,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 //                // no error and observer
 //            }
 //        }
-//    }
-
-//    func removeSessionStoreObserver(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-//        sessionStore?.removeObserver(<#T##observer: NSObjectProtocol##NSObjectProtocol#>)
 //    }
 
     // MARK: - Helper Functions
