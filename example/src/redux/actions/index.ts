@@ -84,6 +84,11 @@ export const changeAudioMixer = (value: boolean) => ({
   payload: {audioMixer: value},
 });
 
+export const changeMusicMode = (value: boolean) => ({
+  type: actionTypes.CHANGE_MUSIC_MODE,
+  payload: {musicMode: value},
+});
+
 export const changeShowStats = (value: boolean) => ({
   type: actionTypes.CHANGE_SHOW_STATS,
   payload: {showStats: value},
