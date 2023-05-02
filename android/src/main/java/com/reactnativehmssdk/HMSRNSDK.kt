@@ -258,6 +258,9 @@ class HMSRNSDK(
                 super.onRemovedFromRoom(notification)
 
                 HMSDecoder.clearRestrictDataStates()
+                eventsEnableStatus.clear()
+                sessionStore = null
+                keyChangeObservers.clear()
                 if (eventsEnableStatus["ON_REMOVED_FROM_ROOM"] != true) {
                   return
                 }
@@ -618,6 +621,9 @@ class HMSRNSDK(
             audioshareCallback = null
             networkQualityUpdatesAttached = false
             HMSDecoder.clearRestrictDataStates()
+            eventsEnableStatus.clear()
+            sessionStore = null
+            keyChangeObservers.clear()
             if (fromPIP) {
               context.currentActivity?.moveTaskToBack(false)
 
