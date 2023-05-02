@@ -1861,34 +1861,43 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
     func removeKeyChangeListener(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
 
-    }
+        DispatchQueue.main.async { [weak self] in
 
-//    func observeChangesInSessionStore(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-//        guard let keys = data.value(forKey: "keys") as? [String] else {
-//            let errorMessage = "observeChangesInSessionStore: " + HMSHelper.getUnavailableRequiredKey(data, ["keys"])
-//            reject?(errorMessage, errorMessage, nil)
-//            return
-//        }
-//
-//        let successUniqueKey = "ss_change_\(keys.joined())"
-//        let errorUniqueKey = "ss_error_\(keys.joined())"
-//
-//        sessionStore?.observeChanges(
-//            forKeys: keys,
-//            changeObserver: { [weak self] key, value in
-//                self?.delegate?.emitEvent(successUniqueKey, ["id": self?.id, "data": [key, value]])
-//            }
-//        ) { [weak self] observer, error in
-//            if let err = error {
-//                self?.delegate?.emitEvent(errorUniqueKey, ["id": self?.id, "error": err.localizedDescription])
-//                return
-//            } else if let obs = observer {
-//                // store this observer by `successUniqueKey`
-//            } else {
-//                // no error and observer
-//            }
-//        }
-//    }
+            guard let store = self?.sessionStore
+            else {
+                let errorMessage = "\(#function) Session Store is null"
+                reject?("6004", errorMessage, nil)
+                return
+            }
+
+            guard let data = data as? [AnyHashable: Any]
+            else {
+                let errorMessage = "\(#function) No arguments passed which can be used to remove Key Change Listener from the Session Store."
+                reject?("6004", errorMessage, nil)
+                return
+            }
+
+            guard let uniqueId = data["uniqueId"] as? String
+            else {
+                let errorMessage = "\(#function) No uniqueId passed which can be used to remove Key Change Listener from the Session Store. Available arguments: \(data)"
+                reject?("6004", errorMessage, nil)
+                return
+            }
+
+            guard let observerToBeRemoved = self?.sessionStoreChangeObservers[uniqueId]
+            else {
+                let errorMessage = "\(#function) No listener found to remove for the uniqueId passed. Available arguments: \(data)"
+                reject?("6004", errorMessage, nil)
+                return
+            }
+
+            self?.sessionStoreChangeObservers.removeValue(forKey: uniqueId)
+
+            store.removeObserver(observerToBeRemoved)
+
+            resolve?(true)
+        }
+    }
 
     // MARK: - Helper Functions
 
