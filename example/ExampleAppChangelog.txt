@@ -6,6 +6,15 @@ https://github.com/100mslive/react-native-hms/issues/990
 - Added support for Music Mode on iOS
 https://github.com/100mslive/react-native-hms/issues/1001
 
+- Fixed import type compile error
+https://github.com/100mslive/react-native-hms/pull/1014
+
+- Fixed app crash when videoTrack is null in HMSView
+https://github.com/100mslive/react-native-hms/pull/1015
+
+- Added Basic Sample Apps directory with room-code changes
+https://github.com/100mslive/react-native-hms/pull/1013
+
 - chore(deps): bump json5 and babel-plugin-module-resolver in /example
 https://github.com/100mslive/react-native-hms/pull/997
 
