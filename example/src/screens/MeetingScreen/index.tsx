@@ -273,10 +273,14 @@ const DisplayView = (data: {
     (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE,
   );
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
-  const hmsSessionStore = useSelector((state: RootState) => state.user.hmsSessionStore);
+  const hmsSessionStore = useSelector(
+    (state: RootState) => state.user.hmsSessionStore,
+  );
 
   // State to track active spotlight trackId
-  const spotlightTrackId = useSelector((state: RootState) => state.user.spotlightTrackId);
+  const spotlightTrackId = useSelector(
+    (state: RootState) => state.user.spotlightTrackId,
+  );
   const peerState = useSelector((state: RootState) => state.app.peerState);
   const navigate = useNavigation<MeetingScreenProp>().navigate;
   const dispatch = useDispatch();
@@ -300,14 +304,20 @@ const DisplayView = (data: {
   }>(null);
 
   // useRef hook
-  const sessionStoreListeners = useRef<Array<{ remove: () => void }>>([]);
+  const sessionStoreListeners = useRef<Array<{remove: () => void}>>([]);
   const gridViewRef = useRef<React.ElementRef<typeof GridView> | null>(null);
   const peerTrackNodesRef = useRef(peerTrackNodes);
   const trackToChangeRef = useRef<null | HMSTrack>(null);
 
   // constants
   const pairedPeers = useMemo(
-    () => pairData(peerTrackNodes, orientation ? 4 : 2, data?.localPeer, spotlightTrackId),
+    () =>
+      pairData(
+        peerTrackNodes,
+        orientation ? 4 : 2,
+        data?.localPeer,
+        spotlightTrackId,
+      ),
     [data?.localPeer, orientation, spotlightTrackId, peerTrackNodes],
   );
 
@@ -675,24 +685,28 @@ const DisplayView = (data: {
         (error, data) => {
           // If error occurs, handle error and return early
           if (error !== null) {
-            console.log("`spotlight` key listener Error -> ", error);
+            console.log('`spotlight` key listener Error -> ', error);
             return;
           }
 
           // If no error, handle data
           if (data?.key === 'spotlight') {
             // Scroll to start of the list
-            gridViewRef.current?.getFlatlistRef().current?.scrollToOffset({animated: true, offset: 0});
+            if (!!data?.value) {
+              gridViewRef.current
+                ?.getFlatlistRef()
+                .current?.scrollToOffset({animated: true, offset: 0});
+            }
             // set value to the state to rerender the component to reflect changes
-            dispatch(saveUserData({ spotlightTrackId: data.value }));
+            dispatch(saveUserData({spotlightTrackId: data.value}));
           }
-        }
+        },
       );
 
       // Save reference of `subscription` in a ref
       sessionStoreListeners.current.push(subscription);
     }
-  }
+  };
 
   const onRemovedFromRoomListener = async () => {
     await destroy();

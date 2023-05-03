@@ -107,7 +107,7 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
     id: String?,
     trackId: String?,
     hmsCollection: MutableMap<String, HMSRNSDK>,
-    mirror: Boolean?
+    mirror: Boolean?,
   ) {
     if (id != null) {
       sdkId = id

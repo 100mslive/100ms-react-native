@@ -2262,15 +2262,18 @@ export class HMSSDK {
     }
   };
 
-  onSessionStoreAvailableListener = (data: { id: string; }) => {
+  onSessionStoreAvailableListener = (data: { id: string }) => {
     if (data.id !== this.id) {
       return;
     }
     if (this.onSessionStoreAvailableDelegate) {
-      logger?.verbose('#Listener ON_SESSION_STORE_AVAILABLE_LISTENER_CALL', data);
+      logger?.verbose(
+        '#Listener ON_SESSION_STORE_AVAILABLE_LISTENER_CALL',
+        data
+      );
       this.onSessionStoreAvailableDelegate({
         ...data,
-        sessionStore: new HMSSessionStore()
+        sessionStore: new HMSSessionStore(),
       });
     }
   };
