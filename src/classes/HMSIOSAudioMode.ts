@@ -1,4 +1,4 @@
 export enum HMSIOSAudioMode {
-  VOICE = "voice",
-  MUSIC = "music",
+  VOICE = 'voice',
+  MUSIC = 'music',
 }

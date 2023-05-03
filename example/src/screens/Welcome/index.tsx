@@ -346,10 +346,14 @@ const Welcome = () => {
     }
   };
 
-  const onSessionStoreAvailableListener = ({ sessionStore }: { sessionStore: HMSSessionStore }) => {
+  const onSessionStoreAvailableListener = ({
+    sessionStore,
+  }: {
+    sessionStore: HMSSessionStore;
+  }) => {
     // Saving `sessionStore` refernce in `redux`
-    dispatch(saveUserData({ hmsSessionStore: sessionStore }));
-  }
+    dispatch(saveUserData({hmsSessionStore: sessionStore}));
+  };
 
   // functions
   const removePeerTrackNodes = (peer: HMSPeer) => {
@@ -617,7 +621,9 @@ const Welcome = () => {
     hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_ROOM_UPDATE);
     hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_PEER_UPDATE);
     hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_TRACK_UPDATE);
-    hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_SESSION_STORE_AVAILABLE);
+    hmsInstance?.removeEventListener(
+      HMSUpdateListenerActions.ON_SESSION_STORE_AVAILABLE,
+    );
     hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_ERROR);
   };
 

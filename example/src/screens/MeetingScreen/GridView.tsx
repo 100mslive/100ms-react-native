@@ -61,7 +61,7 @@ const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
         },
         getFlatlistRef: () => {
           return flatlistRef;
-        }
+        },
       }),
       [],
     );

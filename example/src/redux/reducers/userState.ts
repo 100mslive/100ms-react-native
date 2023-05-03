@@ -1,4 +1,8 @@
-import type {HMSRole, HMSSDK, HMSSessionStore} from '@100mslive/react-native-hms';
+import type {
+  HMSRole,
+  HMSSDK,
+  HMSSessionStore,
+} from '@100mslive/react-native-hms';
 import {getMeetingCode, getMeetingUrl} from '../../utils/functions';
 import ActionTypes from '../actionTypes';
 
