@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   Image,
   KeyboardAvoidingView,
@@ -8,28 +8,28 @@ import {
   Text,
   View,
 } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import {useDispatch, useSelector} from 'react-redux';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { styles } from './styles';
+import {styles} from './styles';
 
-import type { AppStackParamList } from '../../navigator';
-import { getMeetingUrl, validateUrl } from '../../utils/functions';
-import { COLORS } from '../../utils/theme';
+import type {AppStackParamList} from '../../navigator';
+import {getMeetingUrl, validateUrl} from '../../utils/functions';
+import {COLORS} from '../../utils/theme';
 import {
   CustomButton,
   CustomInput,
   DefaultModal,
   JoinSettingsModalContent,
 } from '../../components';
-import { saveUserData } from '../../redux/actions';
-import { Constants } from '../../utils/types';
-import { RootState } from '../../redux';
+import {saveUserData} from '../../redux/actions';
+import {Constants} from '../../utils/types';
+import {RootState} from '../../redux';
 
 type WelcomeScreenProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -38,7 +38,7 @@ type WelcomeScreenProp = NativeStackNavigationProp<
 
 export const Welcome = () => {
   const dispatch = useDispatch();
-  const { top, bottom, left, right } = useSafeAreaInsets();
+  const {top, bottom, left, right} = useSafeAreaInsets();
   const navigation = useNavigation<WelcomeScreenProp>();
   const roomLink = useSelector((state: RootState) => state.user.roomLink);
 
@@ -61,7 +61,8 @@ export const Welcome = () => {
 
   const closeJoinConfigModal = () => setMoreModalVisible(false);
 
-  const goToQRCodeScannerScreen = () => navigation.navigate('QRCodeScannerScreen');
+  const goToQRCodeScannerScreen = () =>
+    navigation.navigate('QRCodeScannerScreen');
 
   // Validate entered "Joining Link" on change
   useEffect(() => {
@@ -86,9 +87,8 @@ export const Welcome = () => {
     <KeyboardAvoidingView
       enabled={Platform.OS === 'ios'}
       behavior="padding"
-      style={styles.container}
-    >
-      <StatusBar barStyle={"light-content"} />
+      style={styles.container}>
+      <StatusBar barStyle={'light-content'} />
       <ScrollView
         contentContainerStyle={[
           styles.contentContainerStyle,
@@ -100,8 +100,7 @@ export const Welcome = () => {
           },
         ]}
         style={styles.container}
-        keyboardShouldPersistTaps="always"
-      >
+        keyboardShouldPersistTaps="always">
         <Image
           style={styles.image}
           resizeMode="stretch"
@@ -125,7 +124,7 @@ export const Welcome = () => {
           multiline
           blurOnSubmit
         />
-        <View style={{ flexDirection: 'row' }}>
+        <View style={{flexDirection: 'row'}}>
           <CustomButton
             title="Join Now"
             onPress={handleJoinPress}
@@ -166,9 +165,8 @@ export const Welcome = () => {
 
       <DefaultModal
         modalVisible={moreModalVisible}
-        viewStyle={{ height: 500 }}
-        setModalVisible={closeJoinConfigModal}
-      >
+        viewStyle={{height: 500}}
+        setModalVisible={closeJoinConfigModal}>
         <JoinSettingsModalContent />
       </DefaultModal>
     </KeyboardAvoidingView>

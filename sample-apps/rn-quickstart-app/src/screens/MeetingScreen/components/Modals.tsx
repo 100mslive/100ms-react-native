@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import {View, Text} from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 
 import {styles} from '../styles';
-import { CustomButton } from '../../../components';
+import {CustomButton} from '../../../components';
 
 export const LeaveRoomModal = ({
   onSuccess,

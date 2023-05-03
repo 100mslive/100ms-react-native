@@ -13,8 +13,8 @@ export type AppStackParamList = {
   QRCodeScannerScreen: undefined;
   MeetingSetupScreen: undefined;
   MeetingScreen: {
-    roomCode: string, // Room Code of the 100ms Room
-    userId?: string, // [Optional] - Unique Id for the user to get 100ms Auth Token
+    roomCode: string; // Room Code of the 100ms Room
+    userId?: string; // [Optional] - Unique Id for the user to get 100ms Auth Token
   };
 };
 

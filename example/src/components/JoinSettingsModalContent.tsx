@@ -119,7 +119,11 @@ export const JoinSettingsModalContent: React.FC<
               value={musicMode}
               onChange={value => dispatch(changeMusicMode(value))}
               LeftIcon={
-                <IoniconsIcons name="ios-musical-notes-outline" size={24} style={styles.icon} />
+                <IoniconsIcons
+                  name="ios-musical-notes-outline"
+                  size={24}
+                  style={styles.icon}
+                />
               }
               containerStyle={styles.switchContainer}
             />

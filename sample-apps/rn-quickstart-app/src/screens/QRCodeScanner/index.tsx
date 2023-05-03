@@ -58,7 +58,9 @@ const QRCodeScanner = () => {
         },
       ]}>
       <View style={styles.headerContainer}>
-        <TouchableOpacity style={styles.headerIconContainer} onPress={navigation.goBack}>
+        <TouchableOpacity
+          style={styles.headerIconContainer}
+          onPress={navigation.goBack}>
           <Ionicons size={24} style={styles.headerIcon} name="chevron-back" />
         </TouchableOpacity>
         <Text style={styles.headerText}>Scan QR Code</Text>

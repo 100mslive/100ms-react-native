@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {
   View,
   Text,
@@ -11,9 +11,9 @@ import FontAwesomeIcons from 'react-native-vector-icons/FontAwesome';
 import IoniconsIcons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-import { COLORS } from '../utils/theme';
-import { SwitchRow } from './SwitchRow';
-import { RootState } from '../redux';
+import {COLORS} from '../utils/theme';
+import {SwitchRow} from './SwitchRow';
+import {RootState} from '../redux';
 import {
   changeJoinAudioMuted,
   changeJoinVideoMuted,
@@ -21,18 +21,14 @@ import {
   resetJoinConfig,
 } from '../redux/actions';
 
-interface JoinSettingsModalContentProps { }
+interface JoinSettingsModalContentProps {}
 
 export const JoinSettingsModalContent: React.FC<
   JoinSettingsModalContentProps
 > = () => {
   const dispatch = useDispatch();
   const joinConfig = useSelector((state: RootState) => state.app.joinConfig);
-  const {
-    mutedAudio,
-    mutedVideo,
-    mirrorCamera,
-  } = joinConfig;
+  const {mutedAudio, mutedVideo, mirrorCamera} = joinConfig;
 
   return (
     <View style={styles.container}>
@@ -81,8 +77,7 @@ export const JoinSettingsModalContent: React.FC<
 
         <TouchableOpacity
           style={styles.resetBtn}
-          onPress={() => dispatch(resetJoinConfig())}
-        >
+          onPress={() => dispatch(resetJoinConfig())}>
           <FontAwesomeIcons
             name="rotate-left"
             size={16}

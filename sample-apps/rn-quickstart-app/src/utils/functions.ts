@@ -1,5 +1,10 @@
-import { Platform } from 'react-native';
-import {PERMISSIONS, request, requestMultiple, RESULTS} from 'react-native-permissions';
+import {Platform} from 'react-native';
+import {
+  PERMISSIONS,
+  request,
+  requestMultiple,
+  RESULTS,
+} from 'react-native-permissions';
 
 export const getMeetingUrl = () =>
   'https://yogi.app.100ms.live/streaming/meeting/nih-bkn-vek';
@@ -31,7 +36,7 @@ export const getInitials = (name?: String): String => {
   return initials.toUpperCase();
 };
 
-export const callService = async (roomLink: string ) => {
+export const callService = async (roomLink: string) => {
   let roomCode;
   let subdomain;
 
@@ -44,7 +49,7 @@ export const callService = async (roomLink: string ) => {
       return Promise.reject('code, domain not found');
     }
   } else {
-    return Promise.reject('Invalid room join link')
+    return Promise.reject('Invalid room join link');
   }
 
   const permissions = await checkPermissions([
@@ -84,7 +89,7 @@ export const getRandomUserId = (length: number) => {
 
 export const checkPermissions = async (
   permissions: Array<
-    typeof PERMISSIONS.ANDROID[keyof typeof PERMISSIONS.ANDROID]
+    (typeof PERMISSIONS.ANDROID)[keyof typeof PERMISSIONS.ANDROID]
   >,
 ): Promise<boolean> => {
   if (Platform.OS === 'ios') {
