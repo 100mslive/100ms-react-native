@@ -32,7 +32,7 @@ class HMSRNSDK(
   data: ReadableMap?,
   HmsDelegate: HMSManager,
   sdkId: String,
-  reactApplicationContext: ReactApplicationContext
+  reactApplicationContext: ReactApplicationContext,
 ) {
   var hmsSDK: HMSSDK? = null
   var screenshareCallback: Promise? = null
@@ -105,7 +105,7 @@ class HMSRNSDK(
         message,
         message,
         null,
-        false
+        false,
       )
     data.putString("id", id)
     data.putMap("error", HMSDecoder.getError(hmsError))
@@ -143,7 +143,7 @@ class HMSRNSDK(
     val requiredKeys =
       HMSHelper.getUnavailableRequiredKey(
         credentials,
-        arrayOf(Pair("username", "String"), Pair("authToken", "String"))
+        arrayOf(Pair("username", "String"), Pair("authToken", "String")),
       )
     if (requiredKeys === null) {
       previewInProgress = true
@@ -215,7 +215,7 @@ class HMSRNSDK(
             data.putString("id", id)
             delegate.emitEvent("ON_PREVIEW", data)
           }
-        }
+        },
       )
     } else {
       val errorMessage = "preview: $requiredKeys"
@@ -231,7 +231,7 @@ class HMSRNSDK(
     val requiredKeys =
       HMSHelper.getUnavailableRequiredKey(
         credentials,
-        arrayOf(Pair("username", "String"), Pair("authToken", "String"))
+        arrayOf(Pair("username", "String"), Pair("authToken", "String")),
       )
     if (requiredKeys === null) {
       reconnectingStage = false
@@ -250,7 +250,7 @@ class HMSRNSDK(
                   HMSDecoder.getHmsChangeTrackStateRequest(details, id)
                 delegate.emitEvent(
                   "ON_CHANGE_TRACK_STATE_REQUEST",
-                  decodedChangeTrackStateRequest
+                  decodedChangeTrackStateRequest,
                 )
               }
 
@@ -414,7 +414,7 @@ class HMSRNSDK(
                 data.putString("id", id)
                 delegate.emitEvent("ON_SESSION_STORE_AVAILABLE", data)
               }
-            }
+            },
           )
         } catch (e: HMSException) {
           self.emitHMSError(e)
@@ -443,7 +443,7 @@ class HMSRNSDK(
               data.putString("id", id)
               delegate.emitEvent("ON_SPEAKER", data)
             }
-          }
+          },
         )
 
         hmsSDK?.addRtcStatsObserver(
@@ -451,7 +451,7 @@ class HMSRNSDK(
             override fun onLocalAudioStats(
               audioStats: HMSLocalAudioStats,
               hmsTrack: HMSTrack?,
-              hmsPeer: HMSPeer?
+              hmsPeer: HMSPeer?,
             ) {
               if (eventsEnableStatus["ON_LOCAL_AUDIO_STATS"] != true || hmsPeer == null || hmsTrack == null) {
                 return
@@ -471,7 +471,7 @@ class HMSRNSDK(
             override fun onLocalVideoStats(
               videoStats: List<HMSLocalVideoStats>,
               hmsTrack: HMSTrack?,
-              hmsPeer: HMSPeer?
+              hmsPeer: HMSPeer?,
             ) {
               if (eventsEnableStatus["ON_LOCAL_VIDEO_STATS"] != true || hmsPeer == null || hmsTrack == null) {
                 return
@@ -507,7 +507,7 @@ class HMSRNSDK(
             override fun onRemoteAudioStats(
               audioStats: HMSRemoteAudioStats,
               hmsTrack: HMSTrack?,
-              hmsPeer: HMSPeer?
+              hmsPeer: HMSPeer?,
             ) {
               if (eventsEnableStatus["ON_REMOTE_AUDIO_STATS"] != true || hmsPeer == null || hmsTrack == null) {
                 return
@@ -527,7 +527,7 @@ class HMSRNSDK(
             override fun onRemoteVideoStats(
               videoStats: HMSRemoteVideoStats,
               hmsTrack: HMSTrack?,
-              hmsPeer: HMSPeer?
+              hmsPeer: HMSPeer?,
             ) {
               if (eventsEnableStatus["ON_REMOTE_VIDEO_STATS"] != true || hmsPeer == null || hmsTrack == null) {
                 return
@@ -543,7 +543,7 @@ class HMSRNSDK(
               data.putString("id", id)
               delegate.emitEvent("ON_REMOTE_VIDEO_STATS", data)
             }
-          }
+          },
         )
       }
     } else {
@@ -556,7 +556,7 @@ class HMSRNSDK(
     val requiredKeys =
       HMSHelper.getUnavailableRequiredKey(
         data,
-        arrayOf(Pair("roomCode", "String"))
+        arrayOf(Pair("roomCode", "String")),
       )
 
     if (requiredKeys === null) {
@@ -578,7 +578,7 @@ class HMSRNSDK(
           override fun onTokenSuccess(string: String) {
             promise.resolve(string)
           }
-        }
+        },
       )
     } else {
       val errorMessage = "getAuthTokenByRoomCode: $requiredKeys"
@@ -644,7 +644,7 @@ class HMSRNSDK(
             }
             self.emitHMSError(error)
           }
-        }
+        },
       )
     }
   }
@@ -653,7 +653,7 @@ class HMSRNSDK(
     val requiredKeys =
       HMSHelper.getUnavailableRequiredKey(
         data,
-        arrayOf(Pair("message", "String"), Pair("type", "String"))
+        arrayOf(Pair("message", "String"), Pair("type", "String")),
       )
     if (requiredKeys === null) {
       hmsSDK?.sendBroadcastMessage(
@@ -667,7 +667,7 @@ class HMSRNSDK(
           override fun onSuccess(hmsMessage: HMSMessage) {
             callback?.resolve(emitHMSSuccess(hmsMessage))
           }
-        }
+        },
       )
     } else {
       val errorMessage = "sendBroadcastMessage: $requiredKeys"
@@ -680,7 +680,7 @@ class HMSRNSDK(
     val requiredKeys =
       HMSHelper.getUnavailableRequiredKey(
         data,
-        arrayOf(Pair("message", "String"), Pair("roles", "Array"), Pair("type", "String"))
+        arrayOf(Pair("message", "String"), Pair("roles", "Array"), Pair("type", "String")),
       )
     if (requiredKeys === null) {
       val targetedRoles = data.getArray("roles")?.toArrayList() as? ArrayList<String>
@@ -699,7 +699,7 @@ class HMSRNSDK(
           override fun onSuccess(hmsMessage: HMSMessage) {
             callback?.resolve(emitHMSSuccess(hmsMessage))
           }
-        }
+        },
       )
     } else {
       val errorMessage = "sendGroupMessage: $requiredKeys"
@@ -712,7 +712,7 @@ class HMSRNSDK(
     val requiredKeys =
       HMSHelper.getUnavailableRequiredKey(
         data,
-        arrayOf(Pair("message", "String"), Pair("peerId", "String"), Pair("type", "String"))
+        arrayOf(Pair("message", "String"), Pair("peerId", "String"), Pair("type", "String")),
       )
     if (requiredKeys === null) {
       val peerId = data.getString("peerId")
@@ -730,7 +730,7 @@ class HMSRNSDK(
             override fun onSuccess(hmsMessage: HMSMessage) {
               callback?.resolve(emitHMSSuccess(hmsMessage))
             }
-          }
+          },
         )
       } else {
         self.emitCustomError("PEER_NOT_FOUND")
@@ -748,7 +748,7 @@ class HMSRNSDK(
     val requiredKeys =
       HMSHelper.getUnavailableRequiredKey(
         data,
-        arrayOf(Pair("peerId", "String"), Pair("role", "String"), Pair("force", "Boolean"))
+        arrayOf(Pair("peerId", "String"), Pair("role", "String"), Pair("force", "Boolean")),
       )
     if (requiredKeys === null) {
       val peerId = data.getString("peerId")
@@ -772,7 +772,7 @@ class HMSRNSDK(
                 self.emitHMSError(error)
                 callback?.reject(error.code.toString(), error.message)
               }
-            }
+            },
           )
         }
       }
@@ -787,7 +787,7 @@ class HMSRNSDK(
     val requiredKeys =
       HMSHelper.getUnavailableRequiredKey(
         data,
-        arrayOf(Pair("peerId", "String"), Pair("role", "String"), Pair("force", "Boolean"))
+        arrayOf(Pair("peerId", "String"), Pair("role", "String"), Pair("force", "Boolean")),
       )
     if (requiredKeys === null) {
       val peerId = data.getString("peerId")
@@ -811,7 +811,7 @@ class HMSRNSDK(
                 self.emitHMSError(error)
                 promise?.reject(error.code.toString(), error.message)
               }
-            }
+            },
           )
         }
       }
@@ -826,7 +826,7 @@ class HMSRNSDK(
     val requiredKeys =
       HMSHelper.getUnavailableRequiredKey(
         data,
-        arrayOf(Pair("ofRoles", "Array"), Pair("toRole", "String"))
+        arrayOf(Pair("ofRoles", "Array"), Pair("toRole", "String")),
       )
     if (requiredKeys === null) {
       val ofRoles = data.getArray("ofRoles")
@@ -852,7 +852,7 @@ class HMSRNSDK(
                 self.emitHMSError(error)
                 promise?.reject(error.code.toString(), error.message)
               }
-            }
+            },
           )
         }
       }
@@ -867,7 +867,7 @@ class HMSRNSDK(
     val requiredKeys =
       HMSHelper.getUnavailableRequiredKey(
         data,
-        arrayOf(Pair("trackId", "String"), Pair("mute", "Boolean"))
+        arrayOf(Pair("trackId", "String"), Pair("mute", "Boolean")),
       )
     if (requiredKeys === null) {
       val trackId = data.getString("trackId")
@@ -885,7 +885,7 @@ class HMSRNSDK(
               self.emitHMSError(error)
               callback?.reject(error.code.toString(), error.message)
             }
-          }
+          },
         )
       }
     } else {
@@ -936,7 +936,7 @@ class HMSRNSDK(
             self.emitHMSError(error)
             callback?.reject(error.code.toString(), error.message)
           }
-        }
+        },
       )
     } else {
       val errorMessage = "changeTrackStateForRoles: $requiredKeys"
@@ -967,7 +967,7 @@ class HMSRNSDK(
     val requiredKeys =
       HMSHelper.getUnavailableRequiredKey(
         data,
-        arrayOf(Pair("peerId", "String"), Pair("reason", "String"))
+        arrayOf(Pair("peerId", "String"), Pair("reason", "String")),
       )
     if (requiredKeys === null) {
       val peerId = data.getString("peerId")
@@ -985,7 +985,7 @@ class HMSRNSDK(
               self.emitHMSError(error)
               callback?.reject(error.code.toString(), error.message)
             }
-          }
+          },
         )
       } else {
         self.emitCustomError("PEER_NOT_FOUND")
@@ -1002,7 +1002,7 @@ class HMSRNSDK(
     val requiredKeys =
       HMSHelper.getUnavailableRequiredKey(
         data,
-        arrayOf(Pair("lock", "Boolean"), Pair("reason", "String"))
+        arrayOf(Pair("lock", "Boolean"), Pair("reason", "String")),
       )
     if (requiredKeys === null) {
       hmsSDK?.endRoom(
@@ -1010,13 +1010,15 @@ class HMSRNSDK(
         data.getBoolean("lock"),
         object : HMSActionResultListener {
           override fun onSuccess() {
+            // TODO: create a func to perform cleanup when Room is left
+            keyChangeObservers.clear()
             callback?.resolve(emitHMSSuccess())
           }
           override fun onError(error: HMSException) {
             self.emitHMSError(error)
             callback?.reject(error.code.toString(), error.message)
           }
-        }
+        },
       )
     } else {
       val errorMessage = "endRoom: $requiredKeys"
@@ -1037,7 +1039,7 @@ class HMSRNSDK(
             self.emitHMSError(error)
             callback?.reject(error.code.toString(), error.message)
           }
-        }
+        },
       )
       recentRoleChangeRequest = null
     } else {
@@ -1060,7 +1062,7 @@ class HMSRNSDK(
             override fun onError(error: HMSException) {
               customError = error
             }
-          }
+          },
         )
       }
       if (customError === null) {
@@ -1094,7 +1096,7 @@ class HMSRNSDK(
     val requiredKeys =
       HMSHelper.getUnavailableRequiredKey(
         data,
-        arrayOf(Pair("trackId", "String"), Pair("playbackAllowed", "Boolean"))
+        arrayOf(Pair("trackId", "String"), Pair("playbackAllowed", "Boolean")),
       )
     if (requiredKeys === null) {
       val trackId = data.getString("trackId")
@@ -1162,7 +1164,7 @@ class HMSRNSDK(
     val requiredKeys =
       HMSHelper.getUnavailableRequiredKey(
         data,
-        arrayOf(Pair("trackId", "String"), Pair("volume", "Float"))
+        arrayOf(Pair("trackId", "String"), Pair("volume", "Float")),
       )
 
     if (requiredKeys === null) {
@@ -1238,7 +1240,7 @@ class HMSRNSDK(
               callback?.reject(error.code.toString(), error.message)
               self.emitHMSError(error)
             }
-          }
+          },
         )
       }
     } else {
@@ -1252,7 +1254,7 @@ class HMSRNSDK(
     val requiredKeys =
       HMSHelper.getUnavailableRequiredKey(
         data,
-        arrayOf(Pair("record", "Boolean"), Pair("meetingURL", "String"))
+        arrayOf(Pair("record", "Boolean"), Pair("meetingURL", "String")),
       )
     if (requiredKeys === null) {
       val config = HMSHelper.getRtmpConfig(data)
@@ -1271,7 +1273,7 @@ class HMSRNSDK(
               callback?.reject(error.code.toString(), error.message)
               self.emitHMSError(error)
             }
-          }
+          },
         )
       }
     } else {
@@ -1291,7 +1293,7 @@ class HMSRNSDK(
           callback?.reject(error.code.toString(), error.message)
           self.emitHMSError(error)
         }
-      }
+      },
     )
   }
 
@@ -1321,7 +1323,7 @@ class HMSRNSDK(
           screenshareCallback = null
           callback?.resolve(emitHMSSuccess())
         }
-      }
+      },
     )
   }
 
@@ -1337,7 +1339,7 @@ class HMSRNSDK(
           callback?.reject(error.code.toString(), error.message)
           self.emitHMSError(error)
         }
-      }
+      },
     )
   }
 
@@ -1352,7 +1354,7 @@ class HMSRNSDK(
           callback?.reject(error.code.toString(), error.message)
           self.emitHMSError(error)
         }
-      }
+      },
     )
   }
 
@@ -1392,7 +1394,7 @@ class HMSRNSDK(
               callback?.reject(error.code.toString(), error.message)
               self.emitHMSError(error)
             }
-          }
+          },
         )
       } else {
         self.emitCustomError("NAME_UNDEFINED")
@@ -1449,7 +1451,7 @@ class HMSRNSDK(
       object : HMSAudioManager.AudioManagerDeviceChangeListener {
         override fun onAudioDeviceChanged(
           device: HMSAudioManager.AudioDevice?,
-          audioDevicesList: Set<HMSAudioManager.AudioDevice>?
+          audioDevicesList: Set<HMSAudioManager.AudioDevice>?,
         ) {
           if (eventsEnableStatus["ON_AUDIO_DEVICE_CHANGED"] != true) {
             return
@@ -1464,7 +1466,7 @@ class HMSRNSDK(
         override fun onError(error: HMSException) {
           self.emitHMSError(error)
         }
-      }
+      },
     )
   }
 
@@ -1504,7 +1506,7 @@ class HMSRNSDK(
           audioshareCallback = null
           callback?.resolve(emitHMSSuccess())
         }
-      }
+      },
     )
   }
 
@@ -1542,7 +1544,7 @@ class HMSRNSDK(
             callback?.reject(error.code.toString(), error.message)
             self.emitHMSError(error)
           }
-        }
+        },
       )
     } else {
       val errorMessage = "setSessionMetaData: sessionMetaData_Is_Required"
@@ -1567,7 +1569,7 @@ class HMSRNSDK(
           callback?.reject(error.code.toString(), error.message)
           self.emitHMSError(error)
         }
-      }
+      },
     )
   }
 
@@ -1906,7 +1908,7 @@ class HMSRNSDK(
       val savePath = File(imagePath)
 
       cameraControl.captureImageAtMaxSupportedResolution(
-        savePath
+        savePath,
       ) { success ->
         if (flashActionOnSuccess > 0) {
           cameraControl.setFlash(flashActionOnSuccess === 1)
@@ -1952,7 +1954,7 @@ class HMSRNSDK(
               result.putString("finalValue", value)
               promise?.resolve(result)
             }
-          }
+          },
         )
       }
     } else {
@@ -1973,18 +1975,21 @@ class HMSRNSDK(
           return
         }
 
-        it.get(key, object : HMSSessionMetadataListener {
-          override fun onError(error: HMSException) {
-            promise?.reject(error.code.toString(), error.message)
-          }
-          override fun onSuccess(sessionMetadata: Any?) {
-            if (sessionMetadata is String?) {
-              promise?.resolve(sessionMetadata)
-            } else {
-              promise?.reject("6002", "Session Store: Unsupported type received for '$key' key, only String type is supported")
+        it.get(
+          key,
+          object : HMSSessionMetadataListener {
+            override fun onError(error: HMSException) {
+              promise?.reject(error.code.toString(), error.message)
             }
-          }
-        })
+            override fun onSuccess(sessionMetadata: Any?) {
+              if (sessionMetadata is String?) {
+                promise?.resolve(sessionMetadata)
+              } else {
+                promise?.reject("6002", "Session Store: Unsupported type received for '$key' key, only String type is supported")
+              }
+            }
+          },
+        )
       }
     } else {
       val errorMessage = "getSessionMetadataForKey: $requiredKeys"
@@ -2033,7 +2038,7 @@ class HMSRNSDK(
         it.addKeyChangeListener(
           keys,
           keyChangeListener,
-          actionResultListener
+          actionResultListener,
         )
       }
     } else {
