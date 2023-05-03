@@ -267,7 +267,9 @@ const ChatList = ({
 export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
   // hooks
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
-  const hmsSessionStore = useSelector((state: RootState) => state.user.hmsSessionStore);
+  const hmsSessionStore = useSelector(
+    (state: RootState) => state.user.hmsSessionStore,
+  );
   const pinnedMessage = useSelector(
     (state: RootState) => state.messages.pinnedMessage,
   );
@@ -288,21 +290,20 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
     // If instance of HMSSessionStore is available
     if (hmsSessionStore) {
       // Add listener on Session Store for `pinnedMessage` key
-      const subscription = hmsSessionStore.addKeyChangeListener<["pinnedMessage"]>(
-        ["pinnedMessage"],
-        (error, data) => {
-          // If encounter error, handle error and return early
-          if (error) {
-            console.log("`pinnedMessage` key listener Error -> ", error);
-            return;
-          }
-
-          // If no error, handle data and dispatch action
-          if (data?.key === 'pinnedMessage') {
-            dispatch(addPinnedMessage(data.value));
-          }
+      const subscription = hmsSessionStore.addKeyChangeListener<
+        ['pinnedMessage']
+      >(['pinnedMessage'], (error, data) => {
+        // If encounter error, handle error and return early
+        if (error) {
+          console.log('`pinnedMessage` key listener Error -> ', error);
+          return;
         }
-      );
+
+        // If no error, handle data and dispatch action
+        if (data?.key === 'pinnedMessage') {
+          dispatch(addPinnedMessage(data.value));
+        }
+      });
 
       // Remove listener on effect cleanup
       return () => subscription.remove();
@@ -316,7 +317,7 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
         // set `value` on `session` with key 'pinnedMessage'
         const response = await hmsSessionStore.set(value, 'pinnedMessage');
         console.log('setSessionMetaData Response -> ', response);
-      } catch(error) {
+      } catch (error) {
         console.log('setSessionMetaData Error -> ', error);
       }
     }

@@ -40,8 +40,12 @@ export const PeerSettingsModalContent: React.FC<
   onStreamingQualityPress,
 }) => {
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
-  const hmsSessionStore = useSelector((state: RootState) => state.user.hmsSessionStore);
-  const spotlightTrackId = useSelector((state: RootState) => state.user.spotlightTrackId);
+  const hmsSessionStore = useSelector(
+    (state: RootState) => state.user.hmsSessionStore,
+  );
+  const spotlightTrackId = useSelector(
+    (state: RootState) => state.user.spotlightTrackId,
+  );
 
   const removePeer = () => {
     hmsInstance
@@ -84,7 +88,10 @@ export const PeerSettingsModalContent: React.FC<
 
       // Toggle `spotlight` key value on Session Store
       if (peerTrackNode.track?.trackId) {
-        await hmsSessionStore?.set(onSpotlight ? null : peerTrackNode.track?.trackId, 'spotlight');
+        await hmsSessionStore?.set(
+          onSpotlight ? null : peerTrackNode.track?.trackId,
+          'spotlight',
+        );
       }
     } catch (error) {
       console.log('Add to spotlight error -> ', error);

@@ -224,8 +224,18 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             reject?("Still in reconnecting stage", "Still in reconnecting stage", nil)
         } else {
             DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else { return }
-                self?.hms?.leave({ success, error in
+                guard let strongSelf = self else {
+                    print(#function, "Could not find reference to self while executing Room leave")
+                    return
+                }
+
+                strongSelf.hms?.leave { [weak self] success, error in
+
+                    guard let strongSelf = self else {
+                        print(#function, "Could not find reference to self when callback is received while executing Room leave")
+                        return
+                    }
+
                     if success {
                         strongSelf.cleanup() // resetting states and doing data cleanup
                         resolve?(["success": success])
@@ -235,7 +245,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                         }
                         reject?("error in leave", "error in leave", nil)
                     }
-                })
+                }
             }
         }
     }
@@ -1470,10 +1480,12 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func on(removedFromRoom notification: HMSRemovedFromRoomNotification) {
-        self.cleanup() // resetting states and doing data cleanup
+
         if eventsEnableStatus[HMSConstants.ON_REMOVED_FROM_ROOM] != true {
+            self.cleanup() // resetting states and doing data cleanup
             return
         }
+
         let requestedBy = notification.requestedBy as HMSPeer?
         var decodedRequestedBy: [String: Any]?
         if let requested = requestedBy {
@@ -1482,6 +1494,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         let reason = notification.reason
         let roomEnded = notification.roomEnded
         self.delegate?.emitEvent(HMSConstants.ON_REMOVED_FROM_ROOM, ["event": HMSConstants.ON_REMOVED_FROM_ROOM, "id": self.id, "requestedBy": decodedRequestedBy as Any, "reason": reason, "roomEnded": roomEnded ])
+
+        self.cleanup() // resetting states and doing data cleanup
     }
 
     func on(sessionStoreAvailable store: HMSSessionStore) {
