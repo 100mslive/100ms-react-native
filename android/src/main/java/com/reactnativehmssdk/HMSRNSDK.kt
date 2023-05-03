@@ -116,6 +116,21 @@ class HMSRNSDK(
     callback?.reject("6002", message)
   }
 
+  // Handle resetting states and data cleanup
+  private fun cleanup() {
+    screenshareCallback = null
+    audioshareCallback = null
+    isAudioSharing = false
+    recentRoleChangeRequest = null
+    previewInProgress = false
+    reconnectingStage = false
+    networkQualityUpdatesAttached = false
+    eventsEnableStatus.clear()
+    sessionStore = null
+    keyChangeObservers.clear()
+    HMSDecoder.clearRestrictDataStates()
+  }
+
   fun emitHMSError(error: HMSException) {
     if (eventsEnableStatus["ON_ERROR"] != true) {
       return
@@ -256,11 +271,7 @@ class HMSRNSDK(
 
               override fun onRemovedFromRoom(notification: HMSRemovedFromRoom) {
                 super.onRemovedFromRoom(notification)
-
-                HMSDecoder.clearRestrictDataStates()
-                eventsEnableStatus.clear()
-                sessionStore = null
-                keyChangeObservers.clear()
+                cleanup() // resetting states and doing data cleanup
                 if (eventsEnableStatus["ON_REMOVED_FROM_ROOM"] != true) {
                   return
                 }
@@ -616,14 +627,7 @@ class HMSRNSDK(
       hmsSDK?.leave(
         object : HMSActionResultListener {
           override fun onSuccess() {
-            isAudioSharing = false
-            screenshareCallback = null
-            audioshareCallback = null
-            networkQualityUpdatesAttached = false
-            HMSDecoder.clearRestrictDataStates()
-            eventsEnableStatus.clear()
-            sessionStore = null
-            keyChangeObservers.clear()
+            cleanup() // resetting states and doing data cleanup
             if (fromPIP) {
               context.currentActivity?.moveTaskToBack(false)
 
@@ -1010,8 +1014,7 @@ class HMSRNSDK(
         data.getBoolean("lock"),
         object : HMSActionResultListener {
           override fun onSuccess() {
-            // TODO: create a func to perform cleanup when Room is left
-            keyChangeObservers.clear()
+            cleanup() // resetting states and doing data cleanup
             callback?.resolve(emitHMSSuccess())
           }
           override fun onError(error: HMSException) {

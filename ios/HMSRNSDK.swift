@@ -225,17 +225,9 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         } else {
             DispatchQueue.main.async { [weak self] in
                 guard let strongSelf = self else { return }
-                self?.config = nil
-                self?.recentRoleChangeRequest = nil
-                self?.systemBroadcastPicker = nil
-                self?.preferredExtension = nil
-                self?.stopScreenshareResolve = nil
-                self?.startScreenshareResolve = nil
-                self?.isScreenShared = false
-                self?.networkQualityUpdatesAttached = false
                 self?.hms?.leave({ success, error in
                     if success {
-                        HMSDecoder.clearRestrictDataStates()
+                        strongSelf.cleanup() // resetting states and doing data cleanup
                         resolve?(["success": success])
                     } else {
                         if strongSelf.eventsEnableStatus[HMSConstants.ON_ERROR] == true {
@@ -576,6 +568,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         DispatchQueue.main.async { [weak self] in
             self?.hms?.endRoom(lock: lock, reason: reason, completion: { success, error in
                 if success {
+                    self?.cleanup() // resetting states and doing data cleanup
                     resolve?(["success": success])
                 } else {
                     if self?.eventsEnableStatus[HMSConstants.ON_ERROR] == true {
@@ -1477,7 +1470,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func on(removedFromRoom notification: HMSRemovedFromRoomNotification) {
-        HMSDecoder.clearRestrictDataStates()
+        self.cleanup() // resetting states and doing data cleanup
         if eventsEnableStatus[HMSConstants.ON_REMOVED_FROM_ROOM] != true {
             return
         }
@@ -1900,6 +1893,24 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     // MARK: - Helper Functions
+
+    // Handle resetting states and data cleanup
+    private func cleanup() {
+        self.config = nil
+        self.recentRoleChangeRequest = nil
+        self.reconnectingStage = false
+        self.preferredExtension = nil
+        self.systemBroadcastPicker = nil
+        self.startScreenshareResolve = nil
+        self.stopScreenshareResolve = nil
+        self.isScreenShared = false
+        self.previewInProgress = false
+        self.networkQualityUpdatesAttached = false
+        self.eventsEnableStatus.removeAll()
+        self.sessionStore = nil
+        self.sessionStoreChangeObservers.removeAll()
+        HMSDecoder.clearRestrictDataStates()
+    }
 
     private func getString(from update: HMSPeerUpdate) -> String {
         switch update {
