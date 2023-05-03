@@ -4,18 +4,21 @@ import {
   EmitterSubscription,
 } from 'react-native';
 import { HMSConstants } from './HMSConstants';
+import { getLogger } from './HMSLogger';
 
 const { HMSManager } = NativeModules;
+
+type Nullable<T> = T | null | undefined;
 
 export class HMSSessionStore {
   /**
    * Set a value for a specific key
-   * @param {any} value
+   * @param {Nullable<string>} value
    * @param {string} key
    * @returns {Promise}
    */
-  async set(value: any, key: string) {
-    const data: { success: true; finalValue: any } =
+  async set(value: Nullable<string>, key: string) {
+    const data: { success: true; finalValue: Nullable<string> } =
       await HMSManager.setSessionMetadataForKey({
         id: HMSConstants.DEFAULT_SDK_ID,
         key,
@@ -30,7 +33,7 @@ export class HMSSessionStore {
    * @returns {Promise}
    */
   async get(key: string) {
-    const data = await HMSManager.getSessionMetadataForKey({
+    const data: Nullable<string> = await HMSManager.getSessionMetadataForKey({
       id: HMSConstants.DEFAULT_SDK_ID,
       key,
     });
@@ -41,7 +44,7 @@ export class HMSSessionStore {
     forKeys: T,
     callback: (
       error: string | null,
-      data: { key: T[number]; value: any } | null
+      data: { key: T[number]; value: Nullable<string> } | null
     ) => void
   ) {
     // Unique Identifier for adding native event listener
