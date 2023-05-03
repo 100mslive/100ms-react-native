@@ -679,6 +679,26 @@ const DisplayView = (data: {
   const addSessionStoreListeners = () => {
     // Check if instance of HMSSessionStore is available
     if (hmsSessionStore) {
+      // Handle 'spotlight' key values
+      const handleSpotlightIdChange = (id: string | null | undefined) => {
+        // Scroll to start of the list
+        if (!!id) {
+          gridViewRef.current
+            ?.getFlatlistRef()
+            .current?.scrollToOffset({animated: true, offset: 0});
+        }
+        // set value to the state to rerender the component to reflect changes
+        dispatch(saveUserData({spotlightTrackId: id}));
+      };
+
+      // Getting value for 'spotlight' key by using `get` method on HMSSessionStore instance
+      hmsSessionStore
+        .get('spotlight')
+        .then(data => handleSpotlightIdChange(data))
+        .catch(error =>
+          console.log('Session Store get `spotlight` key value error: ', error),
+        );
+
       // Add subscription for `spotlight` key updates on Session Store
       const subscription = hmsSessionStore.addKeyChangeListener<['spotlight']>(
         ['spotlight'],
@@ -691,14 +711,7 @@ const DisplayView = (data: {
 
           // If no error, handle data
           if (data?.key === 'spotlight') {
-            // Scroll to start of the list
-            if (!!data?.value) {
-              gridViewRef.current
-                ?.getFlatlistRef()
-                .current?.scrollToOffset({animated: true, offset: 0});
-            }
-            // set value to the state to rerender the component to reflect changes
-            dispatch(saveUserData({spotlightTrackId: data.value}));
+            handleSpotlightIdChange(data.value);
           }
         },
       );
