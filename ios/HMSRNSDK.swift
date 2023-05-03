@@ -1503,7 +1503,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
         self.sessionStore = store
-        self.delegate?.emitEvent(HMSConstants.ON_SESSION_STORE_AVAILABLE, [:])
+        self.delegate?.emitEvent(HMSConstants.ON_SESSION_STORE_AVAILABLE, ["id": self.id])
     }
 
     func on(rtcStats: HMSRTCStatsReport) {
