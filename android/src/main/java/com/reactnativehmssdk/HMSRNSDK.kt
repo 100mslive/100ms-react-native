@@ -2057,14 +2057,15 @@ class HMSRNSDK(
 
       sessionStore.let { localSessionStore ->
         if (localSessionStore === null) {
-          val errorMessage = "setSessionMetadataForKey: HmsSessionStore instance is not available!"
+          val errorMessage = "removeKeyChangeListener: HmsSessionStore instance is not available!"
           rejectCallback(promise, errorMessage)
           return
         }
 
         keyChangeObservers[uniqueId].let {
           if (it == null) {
-            promise?.resolve(false)
+            val errorMessage = "removeKeyChangeListener: No listener found to remove for the '$uniqueId' uniqueId passed."
+            rejectCallback(promise, errorMessage)
           } else {
             localSessionStore.removeKeyChangeListener(it)
             keyChangeObservers.remove(uniqueId)
