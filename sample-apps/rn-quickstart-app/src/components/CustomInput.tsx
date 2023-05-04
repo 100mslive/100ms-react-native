@@ -102,8 +102,7 @@ const CustomInput = ({
             onPress={() => {
               onChange('');
             }}
-            style={[styles.clearContainer, clearButtonStyle]}
-          >
+            style={[styles.clearContainer, clearButtonStyle]}>
             <MaterialIcons name="clear" style={styles.clearIcon} size={24} />
           </TouchableOpacity>
         )}
