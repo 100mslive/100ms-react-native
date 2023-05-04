@@ -417,10 +417,10 @@ class HMSRNSDK(
               }
 
               override fun onSessionStoreAvailable(sessionStore: HmsSessionStore) {
+                self.sessionStore = sessionStore
                 if (eventsEnableStatus["ON_SESSION_STORE_AVAILABLE"] != true) {
                   return
                 }
-                self.sessionStore = sessionStore
                 val data: WritableMap = Arguments.createMap()
                 data.putString("id", id)
                 delegate.emitEvent("ON_SESSION_STORE_AVAILABLE", data)
@@ -2024,7 +2024,7 @@ class HMSRNSDK(
               Log.e("HMSRNSDK", "Session Store: '$value' value received for '$key' key, expected only NullableString type for value")
               map.putString("value", null) // resetting value to `null`, as the current type is not supported
             }
-            delegate.emitEvent(uniqueId, map)
+            delegate.emitEvent("ON_SESSION_STORE_CHANGED", map)
           }
         }
 

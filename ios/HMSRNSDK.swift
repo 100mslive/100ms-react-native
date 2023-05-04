@@ -1499,10 +1499,10 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func on(sessionStoreAvailable store: HMSSessionStore) {
+        self.sessionStore = store
         if eventsEnableStatus[HMSConstants.ON_SESSION_STORE_AVAILABLE] != true {
             return
         }
-        self.sessionStore = store
         self.delegate?.emitEvent(HMSConstants.ON_SESSION_STORE_AVAILABLE, ["id": self.id])
     }
 
@@ -1835,7 +1835,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                         print(errorMessage)
                     }
                 }
-                self?.delegate?.emitEvent(uniqueId, data)
+                self?.delegate?.emitEvent(HMSConstants.ON_SESSION_STORE_CHANGED, data)
 
             }) { [weak self] observer, error in
 
