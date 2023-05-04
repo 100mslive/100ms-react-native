@@ -675,52 +675,6 @@ const DisplayView = (data: {
     });
   };
 
-  // Handle Session store key listener
-  const addSessionStoreListeners = () => {
-    // Check if instance of HMSSessionStore is available
-    if (hmsSessionStore) {
-      // Handle 'spotlight' key values
-      const handleSpotlightIdChange = (id: string | null | undefined) => {
-        // Scroll to start of the list
-        if (!!id) {
-          gridViewRef.current
-            ?.getFlatlistRef()
-            .current?.scrollToOffset({animated: true, offset: 0});
-        }
-        // set value to the state to rerender the component to reflect changes
-        dispatch(saveUserData({spotlightTrackId: id}));
-      };
-
-      // Getting value for 'spotlight' key by using `get` method on HMSSessionStore instance
-      hmsSessionStore
-        .get('spotlight')
-        .then(data => handleSpotlightIdChange(data))
-        .catch(error =>
-          console.log('Session Store get `spotlight` key value error: ', error),
-        );
-
-      // Add subscription for `spotlight` key updates on Session Store
-      const subscription = hmsSessionStore.addKeyChangeListener<['spotlight']>(
-        ['spotlight'],
-        (error, data) => {
-          // If error occurs, handle error and return early
-          if (error !== null) {
-            console.log('`spotlight` key listener Error -> ', error);
-            return;
-          }
-
-          // If no error, handle data
-          if (data?.key === 'spotlight') {
-            handleSpotlightIdChange(data.value);
-          }
-        },
-      );
-
-      // Save reference of `subscription` in a ref
-      sessionStoreListeners.current.push(subscription);
-    }
-  };
-
   const onRemovedFromRoomListener = async () => {
     await destroy();
   };
@@ -961,15 +915,82 @@ const DisplayView = (data: {
     });
   };
 
+  useEffect(() => {
+    if (hmsSessionStore) {
+      // Handle Session store key listener
+      const addSessionStoreListeners = () => {
+        console.log('HMSSessionStore Instance -> ', hmsSessionStore);
+        // Check if instance of HMSSessionStore is available
+
+        // Handle 'spotlight' key values
+        const handleSpotlightIdChange = (id: string | null | undefined) => {
+          // Scroll to start of the list
+          if (!!id) {
+            gridViewRef.current
+              ?.getFlatlistRef()
+              .current?.scrollToOffset({animated: true, offset: 0});
+          }
+          // set value to the state to rerender the component to reflect changes
+          dispatch(saveUserData({spotlightTrackId: id}));
+        };
+
+        // Getting value for 'spotlight' key by using `get` method on HMSSessionStore instance
+        hmsSessionStore
+          .get('spotlight')
+          .then(data => {
+            console.log(
+              'Session Store get `spotlight` key value success: ',
+              data,
+            );
+            handleSpotlightIdChange(data);
+          })
+          .catch(error =>
+            console.log(
+              'Session Store get `spotlight` key value error: ',
+              error,
+            ),
+          );
+
+        // Add subscription for `spotlight` key updates on Session Store
+        const subscription = hmsSessionStore.addKeyChangeListener<
+          ['spotlight']
+        >(['spotlight'], (error, data) => {
+          console.log(
+            'Meeting Screen: listener called for `spotlight` key with error & data -> ',
+            error,
+            data,
+          );
+          // If error occurs, handle error and return early
+          if (error !== null) {
+            console.log('`spotlight` key listener Error -> ', error);
+            return;
+          }
+
+          // If no error, handle data
+          if (data?.key === 'spotlight') {
+            handleSpotlightIdChange(data.value);
+          }
+        });
+
+        // Save reference of `subscription` in a ref
+        sessionStoreListeners.current.push(subscription);
+      };
+
+      addSessionStoreListeners();
+
+      return () => {
+        // remove Session Store key update listener on cleanup
+        sessionStoreListeners.current.forEach(listener => listener.remove());
+      };
+    }
+  }, [hmsSessionStore]);
+
   // useEffect hook
   useEffect(() => {
     const callback = () => {
       setOrientation(isPortrait());
     };
     updateHmsInstance(hmsInstance);
-
-    // Handle Session Store Key Listeners when component is visible
-    addSessionStoreListeners();
     getHmsRoles();
     callback();
     Dimensions.addEventListener('change', callback);

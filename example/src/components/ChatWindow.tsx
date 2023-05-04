@@ -301,6 +301,7 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
 
         // If no error, handle data and dispatch action
         if (data?.key === 'pinnedMessage') {
+          // @ts-ignore TODO: fix type, ignored for release
           dispatch(addPinnedMessage(data.value));
         }
       });
