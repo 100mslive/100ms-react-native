@@ -916,12 +916,9 @@ const DisplayView = (data: {
   };
 
   useEffect(() => {
+    // Check if instance of HMSSessionStore is available
     if (hmsSessionStore) {
-      // Handle Session store key listener
       const addSessionStoreListeners = () => {
-        console.log('HMSSessionStore Instance -> ', hmsSessionStore);
-        // Check if instance of HMSSessionStore is available
-
         // Handle 'spotlight' key values
         const handleSpotlightIdChange = (id: string | null | undefined) => {
           // Scroll to start of the list
@@ -932,6 +929,12 @@ const DisplayView = (data: {
           }
           // set value to the state to rerender the component to reflect changes
           dispatch(saveUserData({spotlightTrackId: id}));
+        };
+
+        // Handle 'pinnedMessage' key values
+        const handlePinnedMessageChange = (data: string | null | undefined) => {
+          // @ts-ignore TODO: fix type, ignored for release
+          dispatch(addPinnedMessage(data));
         };
 
         // Getting value for 'spotlight' key by using `get` method on HMSSessionStore instance
@@ -951,24 +954,48 @@ const DisplayView = (data: {
             ),
           );
 
-        // Add subscription for `spotlight` key updates on Session Store
-        const subscription = hmsSessionStore.addKeyChangeListener<
-          ['spotlight']
-        >(['spotlight'], (error, data) => {
-          console.log(
-            'Meeting Screen: listener called for `spotlight` key with error & data -> ',
-            error,
-            data,
+        // Getting value for 'pinnedMessage' key by using `get` method on HMSSessionStore instance
+        hmsSessionStore
+          .get('pinnedMessage')
+          .then(data => {
+            console.log(
+              'Session Store get `pinnedMessage` key value success: ',
+              data,
+            );
+            handlePinnedMessageChange(data);
+          })
+          .catch(error =>
+            console.log(
+              'Session Store get `pinnedMessage` key value error: ',
+              error,
+            ),
           );
+
+        // Add subscription for `spotlight` & `pinnedMessage` keys updates on Session Store
+        const subscription = hmsSessionStore.addKeyChangeListener<
+          ['spotlight', 'pinnedMessage']
+        >(['spotlight', 'pinnedMessage'], (error, data) => {
           // If error occurs, handle error and return early
           if (error !== null) {
-            console.log('`spotlight` key listener Error -> ', error);
+            console.log(
+              '`spotlight` & `pinnedMessage` key listener Error -> ',
+              error,
+            );
             return;
           }
 
           // If no error, handle data
-          if (data?.key === 'spotlight') {
-            handleSpotlightIdChange(data.value);
+          if (data !== null) {
+            switch (data.key) {
+              case 'spotlight': {
+                handleSpotlightIdChange(data.value);
+                break;
+              }
+              case 'pinnedMessage': {
+                handlePinnedMessageChange(data.value);
+                break;
+              }
+            }
           }
         });
 
