@@ -41,7 +41,7 @@ export default class EventEmitter {
    * @param {EventSubscriptionVendor} subscriber - Optional subscriber instance
    *   to use. If omitted, a new subscriber will be created for the emitter.
    */
-  constructor(subscriber: EventSubscriptionVendor | null | undefined) {
+  constructor(subscriber?: EventSubscriptionVendor | null) {
     this._subscriber = subscriber || new EventSubscriptionVendor();
   }
 
@@ -125,8 +125,7 @@ export default class EventEmitter {
    *
    *   emitter.emit('someEvent', 'abc'); // logs 'abc'
    */
-  emit(eventType: string) {
-    console.log('# emit called with data -> ', eventType, ...arguments);
+  emit(eventType: string, ...args: any[]) {
     const subscriptions = this._subscriber.getSubscriptionsForType(eventType);
     if (subscriptions) {
       for (let i = 0, l = subscriptions.length; i < l; i++) {
@@ -134,10 +133,7 @@ export default class EventEmitter {
 
         // The subscription may have been removed during this event loop.
         if (subscription && subscription.listener) {
-          subscription.listener.apply(
-            subscription.context,
-            Array.prototype.slice.call(arguments, 1)
-          );
+          subscription.listener.apply(subscription.context, args);
         }
       }
     }

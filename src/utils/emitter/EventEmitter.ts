@@ -14,6 +14,7 @@
 import EventEmitter from './_EventEmitter';
 
 export default EventEmitter;
+export { default as EmitterSubscription } from './_EmitterSubscription';
 
 export interface EventSubscription {
   remove(): void;

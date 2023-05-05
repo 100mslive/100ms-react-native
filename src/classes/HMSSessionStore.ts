@@ -1,30 +1,33 @@
 import {
   NativeModules,
   DeviceEventEmitter,
-  EmitterSubscription,
+  EmitterSubscription as RNEmitterSubscription,
 } from 'react-native';
 import { HMSConstants } from './HMSConstants';
 import { getLogger } from './HMSLogger';
 import { HMSUpdateListenerActions } from './HMSUpdateListenerActions';
 import { EventEmitter } from '../utils';
+import type { EmitterSubscription } from '../utils';
 
 const { HMSManager } = NativeModules;
 
 type Nullable<T> = T | null | undefined;
 
+export type HMSSessionStoreValue = Nullable<string>;
+
 export class HMSSessionStore {
-  private _deviceEventEmitterSubscription?: EmitterSubscription;
+  private _deviceEventEmitterSubscription?: RNEmitterSubscription;
   private _eventEmitter?: EventEmitter;
   private _addedKeyChangeListenerCount = 0;
 
   /**
    * Set a value for a specific key
-   * @param {Nullable<string>} value
+   * @param {HMSSessionStoreValue} value
    * @param {string} key
    * @returns {Promise}
    */
-  async set(value: Nullable<string>, key: string) {
-    const data: { success: true; finalValue: Nullable<string> } =
+  async set(value: HMSSessionStoreValue, key: string) {
+    const data: { success: true; finalValue: HMSSessionStoreValue } =
       await HMSManager.setSessionMetadataForKey({
         id: HMSConstants.DEFAULT_SDK_ID,
         key,
@@ -39,10 +42,11 @@ export class HMSSessionStore {
    * @returns {Promise}
    */
   async get(key: string) {
-    const data: Nullable<string> = await HMSManager.getSessionMetadataForKey({
-      id: HMSConstants.DEFAULT_SDK_ID,
-      key,
-    });
+    const data: HMSSessionStoreValue =
+      await HMSManager.getSessionMetadataForKey({
+        id: HMSConstants.DEFAULT_SDK_ID,
+        key,
+      });
     return data;
   }
 
@@ -55,7 +59,6 @@ export class HMSSessionStore {
         : null;
 
     // Removing required subscriptions from 'eventEmitter'
-    // TODO: check if `subscription.remove()` can be called in all RN versions
     subscriptionsToRemove.forEach((subscription) => subscription.remove());
 
     // Removing 'KeyChangeListener' from native side
@@ -98,7 +101,7 @@ export class HMSSessionStore {
   private _deviceEventEmitterListener(data: {
     id: string;
     key: string;
-    value: Nullable<string>;
+    value: HMSSessionStoreValue;
   }) {
     // if id is different from default sdk_id, return early
     if (data.id !== HMSConstants.DEFAULT_SDK_ID) {
@@ -108,7 +111,6 @@ export class HMSSessionStore {
     // emit event for the key
     getLogger()?.verbose('#Listener ON_SESSION_STORE_CHANGED event: ', data);
 
-    // @ts-ignore TODO: fix type, ignored for release
     this._eventEmitter?.emit(data.key, null, data);
   }
 
@@ -116,7 +118,7 @@ export class HMSSessionStore {
     forKeys: T,
     callback: (
       error: string | null,
-      data: { key: T[number]; value: Nullable<string> } | null
+      data: { key: T[number]; value: HMSSessionStoreValue } | null
     ) => void
   ) {
     // Add Native Device Event Emitter if it is not already added
@@ -129,7 +131,7 @@ export class HMSSessionStore {
 
     // Create JS side EventEmitter
     if (!this._eventEmitter) {
-      this._eventEmitter = new EventEmitter(null); // TODO: fix type
+      this._eventEmitter = new EventEmitter();
     }
 
     // Unique Identifier for adding native event listener
@@ -144,7 +146,6 @@ export class HMSSessionStore {
 
     //
     let cleanupHandler: (() => void) | null = () => {
-      // @ts-ignore TODO: fix type, ignored for release
       this._cleanup(subscriptions);
     };
 

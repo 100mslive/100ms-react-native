@@ -81,7 +81,10 @@ export * from './classes/HMSQualityLimitationReasons';
 export * from './classes/HMSQualityLimitationReason';
 export * from './classes/HMSCameraControl';
 export * from './classes/HMSIOSAudioMode';
-export type { HMSSessionStore } from './classes/HMSSessionStore';
+export type {
+  HMSSessionStore,
+  HMSSessionStoreValue,
+} from './classes/HMSSessionStore';
 export type { HmsViewComponent as HMSView } from './classes/HmsView';
 
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
