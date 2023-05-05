@@ -20,6 +20,7 @@ import {
   HMSUpdateListenerActions,
   HMSPIPListenerActions,
   HMSCameraControl,
+  HMSSessionStoreValue,
 } from '@100mslive/react-native-hms';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {
@@ -920,7 +921,7 @@ const DisplayView = (data: {
     if (hmsSessionStore) {
       const addSessionStoreListeners = () => {
         // Handle 'spotlight' key values
-        const handleSpotlightIdChange = (id: string | null | undefined) => {
+        const handleSpotlightIdChange = (id: HMSSessionStoreValue) => {
           // Scroll to start of the list
           if (!!id) {
             gridViewRef.current
@@ -932,8 +933,7 @@ const DisplayView = (data: {
         };
 
         // Handle 'pinnedMessage' key values
-        const handlePinnedMessageChange = (data: string | null | undefined) => {
-          // @ts-ignore TODO: fix type, ignored for release
+        const handlePinnedMessageChange = (data: HMSSessionStoreValue) => {
           dispatch(addPinnedMessage(data));
         };
 

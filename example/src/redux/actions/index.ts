@@ -16,7 +16,7 @@ export const addMessage = (data: HMSMessage) => ({
   payload: data,
 });
 
-export const addPinnedMessage = (data: string | null) => ({
+export const addPinnedMessage = (data: string | null | undefined) => ({
   type: actionTypes.ADD_PINNED_MESSAGE.REQUEST,
   payload: data,
 });
