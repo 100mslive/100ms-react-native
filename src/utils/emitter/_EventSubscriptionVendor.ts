@@ -1,25 +1,11 @@
-/**
- * Copyright (c) Facebook, Inc. and its affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- * @format
- * @flow
- */
-// @ts-nocheck TODO: fix type, ignored for release
-'use strict';
-
-const invariant = require('invariant');
-
-import type EventSubscription from './_EventSubscription';
+import type { EventSubscription } from './_EventSubscription';
 
 /**
  * EventSubscriptionVendor stores a set of EventSubscriptions that are
  * subscribed to a particular event type.
  */
-export default class EventSubscriptionVendor {
-  _subscriptionsForType: Object;
+export class EventSubscriptionVendor {
+  _subscriptionsForType: Record<string, EventSubscription[] | null | undefined>;
   _currentSubscription: EventSubscription | null | undefined;
 
   constructor() {
@@ -37,15 +23,17 @@ export default class EventSubscriptionVendor {
     eventType: string,
     subscription: EventSubscription
   ): EventSubscription {
-    invariant(
-      subscription.subscriber === this,
-      'The subscriber of the subscription is incorrectly set.'
-    );
+    if (subscription.subscriber === this) {
+      console.warn('The subscriber of the subscription is incorrectly set.'); // TODO: throw error or use logger?
+    }
     if (!this._subscriptionsForType[eventType]) {
       this._subscriptionsForType[eventType] = [];
     }
-    const key = this._subscriptionsForType[eventType].length;
-    this._subscriptionsForType[eventType].push(subscription);
+    const eventSubscriptions = this._subscriptionsForType[
+      eventType
+    ] as EventSubscription[];
+    const key = eventSubscriptions.length;
+    eventSubscriptions.push(subscription);
     subscription.eventType = eventType;
     subscription.key = key;
     return subscription;
@@ -55,10 +43,10 @@ export default class EventSubscriptionVendor {
    * Removes a bulk set of the subscriptions.
    *
    * @param {?string} eventType - Optional name of the event type whose
-   *   registered supscriptions to remove, if null remove all subscriptions.
+   *   registered supscriptions to remove, if null or undefined remove all subscriptions.
    */
   removeAllSubscriptions(eventType: string | undefined | null) {
-    if (eventType === undefined) {
+    if (eventType === undefined || eventType === null) {
       this._subscriptionsForType = {};
     } else {
       delete this._subscriptionsForType[eventType];
@@ -71,7 +59,7 @@ export default class EventSubscriptionVendor {
    *
    * @param {object} subscription
    */
-  removeSubscription(subscription: Object) {
+  removeSubscription(subscription: EventSubscription) {
     const eventType = subscription.eventType;
     const key = subscription.key;
 
@@ -95,7 +83,7 @@ export default class EventSubscriptionVendor {
    */
   getSubscriptionsForType(
     eventType: string
-  ): [EventSubscription] | null | undefined {
+  ): EventSubscription[] | null | undefined {
     return this._subscriptionsForType[eventType];
   }
 }

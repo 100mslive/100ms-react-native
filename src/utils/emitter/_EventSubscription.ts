@@ -1,24 +1,13 @@
-/**
- * Copyright (c) Facebook, Inc. and its affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- * @format
- * @flow strict-local
- */
-// @ts-nocheck TODO: fix type, ignored for release
-
-'use strict';
-
-import type EventSubscriptionVendor from './_EventSubscriptionVendor';
+import type { EventSubscriptionVendor } from './_EventSubscriptionVendor';
 
 /**
  * EventSubscription represents a subscription to a particular event. It can
  * remove its own subscription.
  */
-export default class EventSubscription {
+export class EventSubscription {
+  // @ts-ignore this value is assigned after creating instance of class
   eventType: string;
+  // @ts-ignore this value is assigned after creating instance of class
   key: number;
   subscriber: EventSubscriptionVendor;
 
