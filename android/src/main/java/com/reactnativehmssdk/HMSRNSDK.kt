@@ -271,8 +271,8 @@ class HMSRNSDK(
 
               override fun onRemovedFromRoom(notification: HMSRemovedFromRoom) {
                 super.onRemovedFromRoom(notification)
-                cleanup() // resetting states and doing data cleanup
                 if (eventsEnableStatus["ON_REMOVED_FROM_ROOM"] != true) {
+                  cleanup() // resetting states and doing data cleanup
                   return
                 }
                 val data: WritableMap = Arguments.createMap()
@@ -287,6 +287,7 @@ class HMSRNSDK(
                 data.putString("id", id)
 
                 delegate.emitEvent("ON_REMOVED_FROM_ROOM", data)
+                cleanup() // resetting states and doing data cleanup
               }
 
               override fun onError(error: HMSException) {
@@ -417,10 +418,10 @@ class HMSRNSDK(
               }
 
               override fun onSessionStoreAvailable(sessionStore: HmsSessionStore) {
+                self.sessionStore = sessionStore
                 if (eventsEnableStatus["ON_SESSION_STORE_AVAILABLE"] != true) {
                   return
                 }
-                self.sessionStore = sessionStore
                 val data: WritableMap = Arguments.createMap()
                 data.putString("id", id)
                 delegate.emitEvent("ON_SESSION_STORE_AVAILABLE", data)
@@ -627,7 +628,6 @@ class HMSRNSDK(
       hmsSDK?.leave(
         object : HMSActionResultListener {
           override fun onSuccess() {
-            cleanup() // resetting states and doing data cleanup
             if (fromPIP) {
               context.currentActivity?.moveTaskToBack(false)
 
@@ -640,6 +640,7 @@ class HMSRNSDK(
             } else {
               callback?.resolve(emitHMSSuccess())
             }
+            cleanup() // resetting states and doing data cleanup
           }
 
           override fun onError(error: HMSException) {
@@ -1014,8 +1015,8 @@ class HMSRNSDK(
         data.getBoolean("lock"),
         object : HMSActionResultListener {
           override fun onSuccess() {
-            cleanup() // resetting states and doing data cleanup
             callback?.resolve(emitHMSSuccess())
+            cleanup() // resetting states and doing data cleanup
           }
           override fun onError(error: HMSException) {
             self.emitHMSError(error)
@@ -2024,7 +2025,7 @@ class HMSRNSDK(
               Log.e("HMSRNSDK", "Session Store: '$value' value received for '$key' key, expected only NullableString type for value")
               map.putString("value", null) // resetting value to `null`, as the current type is not supported
             }
-            delegate.emitEvent(uniqueId, map)
+            delegate.emitEvent("ON_SESSION_STORE_CHANGED", map)
           }
         }
 

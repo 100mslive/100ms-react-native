@@ -285,31 +285,6 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
   const [showBanner, setShowBanner] = useState<boolean>(false);
   const [text, setText] = useState('');
 
-  // Subscribe to Session Store for Pinned Message updates
-  useEffect(() => {
-    // If instance of HMSSessionStore is available
-    if (hmsSessionStore) {
-      // Add listener on Session Store for `pinnedMessage` key
-      const subscription = hmsSessionStore.addKeyChangeListener<
-        ['pinnedMessage']
-      >(['pinnedMessage'], (error, data) => {
-        // If encounter error, handle error and return early
-        if (error) {
-          console.log('`pinnedMessage` key listener Error -> ', error);
-          return;
-        }
-
-        // If no error, handle data and dispatch action
-        if (data?.key === 'pinnedMessage') {
-          dispatch(addPinnedMessage(data.value));
-        }
-      });
-
-      // Remove listener on effect cleanup
-      return () => subscription.remove();
-    }
-  }, [hmsSessionStore]);
-
   const setSessionMetaData = async (value: string | null) => {
     // If instance of HMSSessionStore is available
     if (hmsSessionStore) {

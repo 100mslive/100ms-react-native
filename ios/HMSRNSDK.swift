@@ -237,8 +237,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                     }
 
                     if success {
-                        strongSelf.cleanup() // resetting states and doing data cleanup
                         resolve?(["success": success])
+                        strongSelf.cleanup() // resetting states and doing data cleanup
                     } else {
                         if strongSelf.eventsEnableStatus[HMSConstants.ON_ERROR] == true {
                             strongSelf.delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": HMSDecoder.getError(error), "id": strongSelf.id])
@@ -578,8 +578,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         DispatchQueue.main.async { [weak self] in
             self?.hms?.endRoom(lock: lock, reason: reason, completion: { success, error in
                 if success {
-                    self?.cleanup() // resetting states and doing data cleanup
                     resolve?(["success": success])
+                    self?.cleanup() // resetting states and doing data cleanup
                 } else {
                     if self?.eventsEnableStatus[HMSConstants.ON_ERROR] == true {
                         self?.delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
@@ -1499,11 +1499,11 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func on(sessionStoreAvailable store: HMSSessionStore) {
+        self.sessionStore = store
         if eventsEnableStatus[HMSConstants.ON_SESSION_STORE_AVAILABLE] != true {
             return
         }
-        self.sessionStore = store
-        self.delegate?.emitEvent(HMSConstants.ON_SESSION_STORE_AVAILABLE, [:])
+        self.delegate?.emitEvent(HMSConstants.ON_SESSION_STORE_AVAILABLE, ["id": self.id])
     }
 
     func on(rtcStats: HMSRTCStatsReport) {
@@ -1835,7 +1835,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                         print(errorMessage)
                     }
                 }
-                self?.delegate?.emitEvent(uniqueId, data)
+                self?.delegate?.emitEvent(HMSConstants.ON_SESSION_STORE_CHANGED, data)
 
             }) { [weak self] observer, error in
 

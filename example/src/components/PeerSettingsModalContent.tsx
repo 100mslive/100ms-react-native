@@ -13,6 +13,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import type {RootState} from '../redux';
 import {COLORS} from '../utils/theme';
 import {PeerTrackNode} from '../utils/types';
+import {isTileOnSpotlight} from '../utils/functions';
 
 interface PeerSettingsModalContentProps {
   localPeer: HMSLocalPeer;
@@ -79,17 +80,28 @@ export const PeerSettingsModalContent: React.FC<
   };
 
   // Check if selected tile is "On Spotlight"
-  const onSpotlight = spotlightTrackId === peerTrackNode.track?.trackId;
+  const {onSpotlight, tileVideoTrackId, tileAudioTrackId} = isTileOnSpotlight(
+    spotlightTrackId,
+    {
+      tileVideoTrack: peerTrackNode.track,
+      peerRegularAudioTrack: peerTrackNode.peer.audioTrack,
+      peerAuxTracks: peerTrackNode.peer.auxiliaryTracks,
+    },
+  );
 
   const handleSpotlightPress = async () => {
     try {
       // Close Modal
       cancelModal();
 
-      // Toggle `spotlight` key value on Session Store
-      if (peerTrackNode.track?.trackId) {
-        await hmsSessionStore?.set(
-          onSpotlight ? null : peerTrackNode.track?.trackId,
+      if (!hmsSessionStore) {
+        return null;
+      }
+
+      if (tileAudioTrackId || tileVideoTrackId) {
+        // Toggle `spotlight` key value on Session Store
+        await hmsSessionStore.set(
+          onSpotlight ? null : tileAudioTrackId || tileVideoTrackId,
           'spotlight',
         );
       }
