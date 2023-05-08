@@ -24,22 +24,23 @@ import {CustomButton} from './CustomButton';
 import {getInitials} from '../utils/functions';
 
 export const PreviewModal = ({
-  room,
   previewTracks,
   join,
   setLoadingButtonState,
   loadingButtonState,
 }: {
-  room?: HMSRoom;
   previewTracks: HMSTrack[];
   join: Function;
   setLoadingButtonState: React.Dispatch<React.SetStateAction<boolean>>;
   loadingButtonState: boolean;
 }) => {
-  const {hmsInstance} = useSelector((state: RootState) => state.user);
+  const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
   const {top, bottom, left, right} = useSafeAreaInsets();
   const mirrorCamera = useSelector(
     (state: RootState) => state.app.joinConfig.mirrorCamera,
+  );
+  const autoSimulcast = useSelector(
+    (state: RootState) => state.app.joinConfig.autoSimulcast,
   );
 
   const [previewVideoTrack, setPreviewVideoTrack] = useState<HMSTrack>();
@@ -92,6 +93,7 @@ export const PreviewModal = ({
         ) : (
           <HmsView
             scaleType={HMSVideoViewMode.ASPECT_FILL}
+            autoSimulcast={autoSimulcast}
             style={styles.hmsView}
             trackId={previewVideoTrack?.trackId}
             mirror={mirrorCamera}
@@ -100,22 +102,6 @@ export const PreviewModal = ({
       </View>
       <View style={[styles.textContainer, {top: 48 + top}]}>
         <Text style={styles.heading}>Configure Video and Audio</Text>
-        <View style={styles.peerList}>
-          <TouchableWithoutFeedback
-            onPress={() => {
-              setNumberOfLines(!numberOfLines);
-            }}
-          >
-            <Text
-              style={styles.collapsibleText}
-              numberOfLines={numberOfLines ? 1 : undefined}
-            >
-              {room?.peers.map((peer, index) => {
-                return (index !== 0 ? ', ' : '') + peer.name;
-              })}
-            </Text>
-          </TouchableWithoutFeedback>
-        </View>
       </View>
       <View style={[styles.buttonRow, {bottom: 24 + bottom, left, right}]}>
         <View style={styles.iconContainer}>

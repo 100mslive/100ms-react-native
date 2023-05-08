@@ -23,9 +23,10 @@ import {
 } from '@100mslive/react-native-hms';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   Alert,
+  BackHandler,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -40,7 +41,11 @@ import {useDispatch, useSelector} from 'react-redux';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import {CustomButton, CustomInput, PreviewModal} from '../../components';
-import {saveUserData, setPeerState} from '../../redux/actions';
+import {
+  clearHmsReference,
+  saveUserData,
+  setPeerState,
+} from '../../redux/actions';
 import {
   callService,
   createPeerTrackNode,
@@ -64,8 +69,9 @@ type WelcomeScreenProp = NativeStackNavigationProp<
 
 const Welcome = () => {
   // hooks
-  const replace = useNavigation<WelcomeScreenProp>().replace;
-  const {roomID, userName} = useSelector((state: RootState) => state.user);
+  const {replace, navigate} = useNavigation<WelcomeScreenProp>();
+  const roomID = useSelector((state: RootState) => state.user.roomID);
+  const userName = useSelector((state: RootState) => state.user.userName);
   const joinConfig = useSelector((state: RootState) => state.app.joinConfig);
   const {top, bottom, left, right} = useSafeAreaInsets();
   const dispatch = useDispatch();
@@ -74,7 +80,7 @@ const Welcome = () => {
   const [peerTrackNodes, setPeerTrackNodes] = useState<Array<PeerTrackNode>>(
     [],
   );
-  const [instance, setInstance] = useState<HMSSDK>();
+  const hmsInstanceRef = useRef<HMSSDK | null>(null);
   const [config, setConfig] = useState<HMSConfig>();
   const [nameDisabled, setNameDisabled] = useState<boolean>(true);
   const [peerName, setPeerName] = useState<string>(userName);
@@ -119,6 +125,14 @@ const Welcome = () => {
   };
 
   const handleJoin = (data: {room: HMSRoom}) => {
+    // Checking if User is joining as HLS-Viewer
+    if (
+      !isHLSViewerRef.current &&
+      data.room.localPeer.role?.name?.includes('hls-')
+    ) {
+      isHLSViewerRef.current = true;
+    }
+
     const nodesPresent = getPeerTrackNodes(
       peerTrackNodesRef?.current,
       data.room.localPeer,
@@ -149,7 +163,7 @@ const Welcome = () => {
       Constants.MEET_URL,
       roomID.replace('preview', 'meeting'),
     );
-    replace('MeetingScreen');
+    replace('MeetingScreen', {isHLSViewer: isHLSViewerRef.current});
   };
 
   const onJoinSuccess = (data: {room: HMSRoom}) => {
@@ -157,13 +171,17 @@ const Welcome = () => {
   };
 
   const onError = (data: HMSException) => {
-    setStartButtonLoading(false);
     setJoinButtonLoading(false);
-    Toast.showWithGravity(
-      `${data?.code} ${data?.description}` || 'Something went wrong',
-      Toast.LONG,
-      Toast.TOP,
-    );
+    if (data.code === 424) {
+      onFailure(data.description);
+    } else {
+      setStartButtonLoading(false);
+      Toast.showWithGravity(
+        `${data?.code} ${data?.description}` || 'Something went wrong',
+        Toast.LONG,
+        Toast.TOP,
+      );
+    }
   };
 
   const onRoomListener = (
@@ -368,77 +386,90 @@ const Welcome = () => {
     setPeerTrackNodes(newPeerTrackNodes);
   };
 
+  /**
+   * @param roomCode Room Code of the 100ms Room
+   * @param userId [Optional] - Unique Id for the user to get 100ms Auth Token
+   * @param tokenEndpoint [Optional] - This is only required by 100ms Team for internal QA testing. Client developers should not use `tokenEndpoint` argument
+   * @param initEndpoint [Optional] - This is only required by 100ms Team for internal QA testing. Client developers should not use `initEndpoint` argument
+   */
   const onStartSuccess = async (
-    token: string,
-    userID: string,
     roomCode: string,
-    endpoint?: string,
+    userId?: string,
+    tokenEndpoint?: string,
+    initEndpoint?: string,
   ) => {
-    const hmsInstance = await getHmsInstance();
-    let hmsConfig: HMSConfig;
-    if (endpoint) {
-      hmsConfig = new HMSConfig({
+    try {
+      const hmsInstance = await getHmsInstance();
+
+      hmsInstanceRef.current = hmsInstance;
+
+      const token = await hmsInstance.getAuthTokenByRoomCode(
+        roomCode,
+        userId,
+        tokenEndpoint,
+      );
+
+      const hmsConfig = new HMSConfig({
         authToken: token,
-        username: userID,
+        username: peerName,
         captureNetworkQualityInPreview: true,
-        endpoint,
-      });
-    } else {
-      hmsConfig = new HMSConfig({
-        authToken: token,
-        username: userID,
-        captureNetworkQualityInPreview: true,
+        endpoint: initEndpoint,
         // metadata: JSON.stringify({isHandRaised: true}), // To join with hand raised
       });
-    }
-    setInstance(hmsInstance);
-    setConfig(hmsConfig);
 
-    hmsInstance?.addEventListener(
-      HMSUpdateListenerActions.ON_PREVIEW,
-      onPreviewSuccess.bind(this, hmsInstance, hmsConfig),
-    );
+      setConfig(hmsConfig);
 
-    hmsInstance?.addEventListener(
-      HMSUpdateListenerActions.ON_JOIN,
-      onJoinSuccess,
-    );
+      hmsInstance?.addEventListener(
+        HMSUpdateListenerActions.ON_PREVIEW,
+        onPreviewSuccess.bind(this, hmsInstance, hmsConfig),
+      );
 
-    hmsInstance?.addEventListener(
-      HMSUpdateListenerActions.ON_ROOM_UPDATE,
-      onRoomListener.bind(this, hmsInstance),
-    );
+      hmsInstance?.addEventListener(
+        HMSUpdateListenerActions.ON_JOIN,
+        onJoinSuccess,
+      );
 
-    hmsInstance?.addEventListener(
-      HMSUpdateListenerActions.ON_PEER_UPDATE,
-      onPeerListener,
-    );
+      hmsInstance?.addEventListener(
+        HMSUpdateListenerActions.ON_ROOM_UPDATE,
+        onRoomListener.bind(this, hmsInstance),
+      );
 
-    hmsInstance?.addEventListener(
-      HMSUpdateListenerActions.ON_TRACK_UPDATE,
-      onTrackListener,
-    );
+      hmsInstance?.addEventListener(
+        HMSUpdateListenerActions.ON_PEER_UPDATE,
+        onPeerListener,
+      );
 
-    hmsInstance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
+      hmsInstance?.addEventListener(
+        HMSUpdateListenerActions.ON_TRACK_UPDATE,
+        onTrackListener,
+      );
 
-    dispatch(
-      saveUserData({
-        userName: userID,
-        roomCode,
-        hmsInstance,
-      }),
-    );
+      hmsInstance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
 
-    if (joinConfig.skipPreview) {
-      hmsInstance?.join(hmsConfig);
-    } else {
-      hmsInstance?.preview(hmsConfig);
+      dispatch(
+        saveUserData({
+          userName: peerName,
+          roomCode,
+          hmsInstance,
+        }),
+      );
+
+      if (joinConfig.skipPreview) {
+        hmsInstance?.join(hmsConfig);
+      } else {
+        hmsInstance?.preview(hmsConfig);
+      }
+    } catch (error) {
+      console.log(error);
+      onFailure(
+        error instanceof Error ? error.message : 'error in onStartSuccess',
+      );
     }
   };
 
   const onJoinRoom = () => {
     if (config) {
-      instance?.join(config);
+      hmsInstanceRef.current?.join(config);
     } else {
       setJoinButtonLoading(false);
       console.log('config: ', config);
@@ -557,15 +588,17 @@ const Welcome = () => {
 
   const onStartPress = async () => {
     setStartButtonLoading(true);
-    callService(peerName, roomID, onStartSuccess, onFailure);
+    callService(roomID, onStartSuccess, onFailure);
   };
 
   const onFailure = (error: string) => {
     setStartButtonLoading(false);
-    Alert.alert('Error', error || 'Something went wrong');
+    Alert.alert('Error', error || 'Something went wrong', [
+      {text: 'OK', style: 'cancel', onPress: handlePreviewLeave},
+    ]);
   };
 
-  const removeListeners = (hmsInstance?: HMSSDK) => {
+  const removeListeners = (hmsInstance?: HMSSDK | null) => {
     hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_PREVIEW);
     hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_JOIN);
     hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_ROOM_UPDATE);
@@ -584,13 +617,52 @@ const Welcome = () => {
 
   useEffect(() => {
     return () => {
-      removeListeners(instance);
+      removeListeners(hmsInstanceRef.current);
     };
-  }, [instance]);
+  }, []);
+
+  const handlePreviewLeave = useCallback(async () => {
+    const hmsInstance = hmsInstanceRef.current;
+
+    if (!hmsInstance) {
+      return navigate('QRCodeScreen');
+    }
+
+    await hmsInstance
+      .leave()
+      .then(async d => {
+        console.log('Leave Success: ', d);
+        await hmsInstance
+          ?.destroy()
+          .then(s => console.log('Destroy Success: ', s))
+          .catch(e => console.log('Destroy Error: ', e));
+        dispatch(clearHmsReference());
+        navigate('QRCodeScreen');
+      })
+      .catch(e => console.log('Leave Error: ', e));
+  }, []);
+
+  // On Android, when back button is pressed,
+  // user should leave current preview and go back to previous screen
+  useEffect(() => {
+    const backButtonHandler = () => {
+      // Leave current preview
+      handlePreviewLeave();
+
+      // When true is returned the event will not be bubbled up
+      // & no other back action will execute
+      return true;
+    };
+
+    BackHandler.addEventListener('hardwareBackPress', backButtonHandler);
+
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', backButtonHandler);
+    };
+  }, [handlePreviewLeave]);
 
   return modalType === ModalTypes.PREVIEW && previewTracks ? (
     <PreviewModal
-      room={hmsRoom}
       previewTracks={previewTracks}
       join={onJoinRoom}
       setLoadingButtonState={setJoinButtonLoading}

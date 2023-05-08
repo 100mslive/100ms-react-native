@@ -30,6 +30,15 @@ import { HMSServerRecordingState } from './HMSServerRecordingState';
 import { HMSMessage } from './HMSMessage';
 import { HMSMessageRecipient } from './HMSMessageRecipient';
 import { HMSException } from './HMSException';
+import { HMSConstants } from './HMSConstants';
+import { HMSPeerUpdateOrdinals } from './HMSPeerUpdate';
+import { HMSLocalAudioStats } from './HMSLocalAudioStats';
+import { HMSLocalVideoStats } from './HMSLocalVideoStats';
+import { HMSRemoteAudioStats } from './HMSRemoteAudioStats';
+import { HMSRemoteVideoStats } from './HMSRemoteVideoStats';
+import { HMSLayer } from './HMSLayer';
+import { HMSSimulcastLayerDefinition } from './HMSSimulcastLayerDefinition';
+import { HMSQualityLimitationReasons } from './HMSQualityLimitationReasons';
 
 const { HMSManager } = NativeModules;
 
@@ -44,14 +53,14 @@ export class HMSEncoder {
     this.data = { roles: {} };
   }
 
-  static encodeHmsRoom(room: HMSRoom, id: string) {
+  static encodeHmsRoom(room: any, id: string) {
     const encodedObj = {
       id: room?.id,
-      sessionId: room?.sessionId,
+      sessionId: room?.sessionId || undefined,
       metaData: room?.metaData,
       name: room?.name,
       peerCount: room?.peerCount,
-      peers: HMSEncoder.encodeHmsPeers(room?.peers, id),
+      peers: HMSEncoder.encodeHmsPeers(room?.peers),
       browserRecordingState: HMSEncoder.encodeBrowserRecordingState(
         room?.browserRecordingState
       ),
@@ -68,44 +77,32 @@ export class HMSEncoder {
         room?.hlsRecordingState
       ),
       localPeer: HMSEncoder.encodeHmsLocalPeer(room?.localPeer, id),
+      // startedAt: HMSEncoder.encodeDate(room?.startedAt),
     };
 
     return new HMSRoom(encodedObj);
   }
 
-  static encodeHmsPeers(peers: any, id: string) {
+  static encodeHmsPeers(peers: any) {
     const encodedPeers: HMSPeer[] = [];
     peers?.map((peer: any) => {
-      encodedPeers.push(HMSEncoder.encodeHmsPeer(peer, id));
+      encodedPeers.push(HMSEncoder.encodeHmsPeer(peer));
     });
 
     return encodedPeers;
   }
 
-  static encodeHmsPeer(peer: any, id: string) {
+  static encodeHmsPeer(peer: any) {
     const encodedObj = {
       peerID: peer?.peerID,
-      name: peer?.name || '',
-      isLocal: peer?.isLocal,
-      customerUserID: peer?.customerUserID,
       customerDescription: peer?.customerDescription || undefined,
-      metadata: peer?.metadata,
-      role: HMSEncoder.encodeHmsRole(peer?.role),
-      networkQuality: peer?.networkQuality
-        ? HMSEncoder.encodeHMSNetworkQuality(peer?.networkQuality)
-        : undefined,
-      audioTrack: peer?.audioTrack
-        ? HMSEncoder.encodeHmsAudioTrack(peer?.audioTrack, id)
-        : undefined,
-      videoTrack: peer?.videoTrack
-        ? HMSEncoder.encodeHmsVideoTrack(peer?.videoTrack, id)
-        : undefined,
-      auxiliaryTracks: Array.isArray(peer?.auxiliaryTracks)
-        ? HMSEncoder.encodeHmsAuxiliaryTracks(peer?.auxiliaryTracks, id)
-        : undefined,
     };
 
     return new HMSPeer(encodedObj);
+  }
+
+  static encodeHmsPeerUpdate(hmsPeerUpdateOrdinal: string) {
+    return HMSPeerUpdateOrdinals.get(hmsPeerUpdateOrdinal);
   }
 
   static encodeHmsAudioTrack(track: any, id: string) {
@@ -159,24 +156,7 @@ export class HMSEncoder {
   static encodeHmsLocalPeer(peer: any, id: string) {
     const encodedObj = {
       peerID: peer?.peerID,
-      name: peer?.name,
-      isLocal: true,
-      customerUserID: peer?.customerUserID,
       customerDescription: peer?.customerDescription || undefined,
-      metadata: peer?.metadata || undefined,
-      role: HMSEncoder.encodeHmsRole(peer?.role),
-      networkQuality: peer?.networkQuality
-        ? HMSEncoder.encodeHMSNetworkQuality(peer?.networkQuality)
-        : undefined,
-      audioTrack: peer?.audioTrack
-        ? HMSEncoder.encodeHmsAudioTrack(peer?.audioTrack, id)
-        : undefined,
-      videoTrack: peer?.videoTrack
-        ? HMSEncoder.encodeHmsVideoTrack(peer?.videoTrack, id)
-        : undefined,
-      auxiliaryTracks: Array.isArray(peer?.auxiliaryTracks)
-        ? HMSEncoder.encodeHmsAuxiliaryTracks(peer?.auxiliaryTracks, id)
-        : undefined,
       localAudioTrackData: peer?.localAudioTrackData?.trackId
         ? {
             id: id,
@@ -289,24 +269,7 @@ export class HMSEncoder {
   static encodeHmsRemotePeer(peer: any, id: string) {
     const encodedObj = {
       peerID: peer?.peerID,
-      name: peer?.name,
-      isLocal: false,
-      customerUserID: peer?.customerUserID,
       customerDescription: peer.customerDescription,
-      metadata: peer.metadata,
-      role: HMSEncoder.encodeHmsRole(peer?.role),
-      networkQuality: peer?.networkQuality
-        ? HMSEncoder.encodeHMSNetworkQuality(peer?.networkQuality)
-        : undefined,
-      audioTrack: peer?.audioTrack
-        ? HMSEncoder.encodeHmsAudioTrack(peer?.audioTrack, id)
-        : undefined,
-      videoTrack: peer?.videoTrack
-        ? HMSEncoder.encodeHmsVideoTrack(peer.videoTrack, id)
-        : undefined,
-      auxiliaryTracks: Array.isArray(peer?.auxiliaryTracks)
-        ? HMSEncoder.encodeHmsAuxiliaryTracks(peer?.auxiliaryTracks, id)
-        : undefined,
       remoteAudioTrackData: peer?.remoteAudioTrackData?.trackId
         ? {
             id: id,
@@ -323,7 +286,6 @@ export class HMSEncoder {
             trackId: peer?.remoteVideoTrackData?.trackId,
             source: peer?.remoteVideoTrackData?.source,
             trackDescription: peer?.remoteVideoTrackData?.trackDescription,
-            layer: peer?.remoteVideoTrackData?.layer,
             isMute: peer?.remoteVideoTrackData?.isMute,
             playbackAllowed: peer?.remoteVideoTrackData?.playbackAllowed,
           }
@@ -352,7 +314,6 @@ export class HMSEncoder {
       trackId: track?.trackId,
       source: track?.source,
       trackDescription: track?.trackDescription,
-      layer: track?.layer,
       isMute: track?.isMute,
       playbackAllowed: track?.playbackAllowed,
     };
@@ -396,17 +357,20 @@ export class HMSEncoder {
       // If the created HMSRole object is complete,
       // sending notification to Native Side to stop sending data for this role
       if (hmsRole.publishSettings?.allowed) {
-        HMSManager.restrictData({ id: "12345", roleName: hmsRole.name });
+        HMSManager.restrictData({
+          id: HMSConstants.DEFAULT_SDK_ID,
+          roleName: hmsRole.name,
+        });
       }
     }
 
     return rolesCache[role.name];
   }
 
-  static encodeHmsRoleChangeRequest(data: any, id: string) {
+  static encodeHmsRoleChangeRequest(data: any) {
     const encodedRoleChangeRequest = {
       requestedBy: data.requestedBy
-        ? HMSEncoder.encodeHmsPeer(data.requestedBy, id)
+        ? HMSEncoder.encodeHmsPeer(data.requestedBy)
         : undefined,
       suggestedRole: HMSEncoder.encodeHmsRole(data.suggestedRole),
     };
@@ -414,13 +378,10 @@ export class HMSEncoder {
     return new HMSRoleChangeRequest(encodedRoleChangeRequest);
   }
 
-  static encodeHmsChangeTrackStateRequest(
-    data: HMSChangeTrackStateRequest,
-    id: string
-  ) {
+  static encodeHmsChangeTrackStateRequest(data: HMSChangeTrackStateRequest) {
     const encodedChangeTrackStateRequest = {
       requestedBy: data?.requestedBy
-        ? HMSEncoder.encodeHmsPeer(data?.requestedBy, id)
+        ? HMSEncoder.encodeHmsPeer(data?.requestedBy)
         : undefined,
       trackType: data.trackType,
       mute: data.mute,
@@ -438,14 +399,24 @@ export class HMSEncoder {
   }
 
   static encodeRTCStatsUnit(data: any) {
+    const [
+      bitrateReceived,
+      bitrateSent,
+      bytesReceived,
+      bytesSent,
+      packetsLost,
+      packetsReceived,
+      roundTripTime,
+    ] = data;
+
     return new HMSRTCStats({
-      bitrateReceived: data?.bitrateReceived,
-      bitrateSent: data?.bitrateSent,
-      bytesReceived: data?.bytesReceived,
-      bytesSent: data?.bytesSent,
-      packetsLost: data?.packetsLost,
-      packetsReceived: data?.packetsReceived,
-      roundTripTime: data?.roundTripTime,
+      bitrateReceived,
+      bitrateSent,
+      bytesReceived,
+      bytesSent,
+      packetsLost,
+      packetsReceived,
+      roundTripTime,
     });
   }
 
@@ -462,7 +433,7 @@ export class HMSEncoder {
   static encodeHmsSpeaker(data: any, id: string) {
     return new HMSSpeaker({
       level: data?.level,
-      peer: HMSEncoder.encodeHmsPeer(data?.peer, id),
+      peer: HMSEncoder.encodeHmsPeer(data?.peer),
       track: HMSEncoder.encodeHmsTrack(data?.track, id),
     });
   }
@@ -552,25 +523,25 @@ export class HMSEncoder {
     }
   }
 
-  static encodeHMSMessage(data: any, id: string) {
+  static encodeHMSMessage(data: any) {
     if (data) {
       return new HMSMessage({
         message: data?.message,
         type: data?.type,
         time: new Date(parseInt(data?.time)),
-        sender: this.encodeHmsPeer(data?.sender, id),
-        recipient: this.encodeHMSMessageRecipient(data?.recipient, id),
+        sender: this.encodeHmsPeer(data?.sender),
+        recipient: this.encodeHMSMessageRecipient(data?.recipient),
       });
     } else {
       return undefined;
     }
   }
 
-  static encodeHMSMessageRecipient(data: any, id: string) {
+  static encodeHMSMessageRecipient(data: any) {
     return new HMSMessageRecipient({
       recipientType: data?.recipientType,
       recipientPeer: data?.recipientPeer
-        ? this.encodeHmsPeer(data.recipientPeer, id)
+        ? this.encodeHmsPeer(data.recipientPeer)
         : undefined,
       recipientRoles: Array.isArray(data?.recipientRoles)
         ? this.encodeHmsRoles(data.recipientRoles)
@@ -587,6 +558,104 @@ export class HMSEncoder {
       action: data?.error?.action,
       isTerminal: data?.error?.isTerminal,
       canRetry: data?.error?.canRetry,
+    });
+  }
+
+  static encodeHMSLocalAudioStats(data: any) {
+    const [bitrate, bytesSent, roundTripTime] = data;
+
+    return new HMSLocalAudioStats({
+      bitrate: bitrate >= 0 ? bitrate : undefined,
+      bytesSent: bytesSent ? bytesSent : undefined,
+      roundTripTime: roundTripTime >= 0 ? roundTripTime : undefined,
+    });
+  }
+
+  static encodeHMSLocalVideoStats(data: any[]) {
+    return data.map((item: any) => {
+      const [
+        bitrate,
+        bytesSent,
+        roundTripTime,
+        frameRate,
+        resolution,
+        layer,
+        qualityLimitationReasons,
+      ] = item;
+
+      return new HMSLocalVideoStats({
+        bitrate: bitrate >= 0 ? bitrate : undefined,
+        bytesSent: bytesSent ? bytesSent : undefined,
+        roundTripTime: roundTripTime >= 0 ? roundTripTime : undefined,
+        frameRate: frameRate >= 0 ? frameRate : undefined,
+        resolution: resolution
+          ? { width: resolution[0], height: resolution[1] }
+          : undefined, // resolution: [width, height]
+        layer: layer ? layer : undefined,
+        qualityLimitationReasons: qualityLimitationReasons
+          ? this.encodeHMSQualityLimitationReasons(qualityLimitationReasons)
+          : undefined,
+      });
+    });
+  }
+
+  static encodeHMSRemoteAudioStats(data: any) {
+    const [bitrate, bytesReceived, jitter, packetsLost, packetsReceived] = data;
+
+    return new HMSRemoteAudioStats({
+      bitrate: bitrate >= 0 ? bitrate : undefined,
+      bytesReceived: bytesReceived ? bytesReceived : undefined,
+      jitter: jitter >= 0 ? jitter : undefined,
+      packetsLost: packetsLost >= 0 ? packetsLost : undefined,
+      packetsReceived: packetsReceived ? packetsReceived : undefined,
+    });
+  }
+
+  static encodeHMSRemoteVideoStats(data: any) {
+    const [
+      bitrate,
+      bytesReceived,
+      frameRate,
+      jitter,
+      packetsLost,
+      packetsReceived,
+      resolution,
+    ] = data;
+
+    return new HMSRemoteVideoStats({
+      bitrate: bitrate >= 0 ? bitrate : undefined,
+      bytesReceived: bytesReceived ? bytesReceived : undefined,
+      frameRate: frameRate >= 0 ? frameRate : undefined,
+      jitter: jitter >= 0 ? jitter : undefined,
+      packetsLost: packetsLost >= 0 ? packetsLost : undefined,
+      packetsReceived: packetsReceived ? packetsReceived : undefined,
+      resolution: resolution
+        ? { width: resolution[0], height: resolution[1] }
+        : undefined, // resolution: [width, height]
+    });
+  }
+
+  static encodeHMSSimulcastLayerDefinition(data: any[]) {
+    return data.map((sld) => {
+      return new HMSSimulcastLayerDefinition({
+        layer: HMSLayer[sld.layer as HMSLayer], // DOUBT: This can be invalid. Should we throw error?
+        resolution: this.encodeHmsVideoResolution({
+          width: sld.resolution[0],
+          height: sld.resolution[1],
+        }),
+      });
+    });
+  }
+
+  static encodeHMSQualityLimitationReasons(data: any) {
+    return new HMSQualityLimitationReasons({
+      reason: data.reason,
+      bandwidth: data.bandwidth,
+      cpu: data.cpu,
+      none: data.none,
+      other: data.other,
+      qualityLimitationResolutionChanges:
+        data.qualityLimitationResolutionChanges,
     });
   }
 }

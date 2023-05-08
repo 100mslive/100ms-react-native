@@ -6,6 +6,7 @@ import {
   UIManager,
   ViewStyle,
 } from 'react-native';
+import { HMSConstants } from './HMSConstants';
 import { HMSVideoViewMode } from './HMSVideoViewMode';
 
 interface HmsViewProps {
@@ -14,6 +15,7 @@ interface HmsViewProps {
     id: string;
     mirror: boolean;
   };
+  autoSimulcast: boolean;
   setZOrderMediaOverlay: boolean;
   scaleType: HMSVideoViewMode;
   style: ViewStyle;
@@ -25,10 +27,11 @@ const HmsView = requireNativeComponent<HmsViewProps>('HMSView');
 let _nextRequestId = 1;
 let _requestMap = new Map();
 
-interface HmsComponentProps {
+export interface HmsComponentProps {
   trackId: string;
   style?: ViewStyle;
   mirror?: boolean;
+  autoSimulcast?: boolean;
   scaleType?: HMSVideoViewMode;
   setZOrderMediaOverlay?: boolean;
   id: string;
@@ -39,9 +42,10 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
     const {
       trackId,
       style = temporaryStyles.customStyle,
-      id = '12345',
+      id = HMSConstants.DEFAULT_SDK_ID,
       mirror = false,
       setZOrderMediaOverlay = false,
+      autoSimulcast = true,
       scaleType = HMSVideoViewMode.ASPECT_FILL,
     } = props;
 
@@ -126,6 +130,7 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
         onChange={onChange}
         data={data}
         style={tempVal === 0 ? style : temporaryStyles.customStyle}
+        autoSimulcast={autoSimulcast}
         scaleType={scaleType}
         setZOrderMediaOverlay={setZOrderMediaOverlay}
         onDataReturned={_onDataReturned}

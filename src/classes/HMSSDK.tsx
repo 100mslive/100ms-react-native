@@ -1,20 +1,11 @@
 import React from 'react';
-import {
-  AppState,
-  NativeModules,
-  Platform,
-  ViewStyle,
-} from 'react-native';
+import { AppState, NativeModules, Platform } from 'react-native';
 import { HMSEncoder } from './HMSEncoder';
 import { HMSHelper } from './HMSHelper';
-import { HMSLocalAudioStats } from './HMSLocalAudioStats';
-import { HMSLocalVideoStats } from './HMSLocalVideoStats';
 import { getLogger, logger, setLogger } from './HMSLogger';
-import { HMSRemoteAudioStats } from './HMSRemoteAudioStats';
-import { HMSRemoteVideoStats } from './HMSRemoteVideoStats';
 import { HMSTrackType } from './HMSTrackType';
 import { HMSUpdateListenerActions } from './HMSUpdateListenerActions';
-import { HmsViewComponent } from './HmsView';
+import { HmsViewComponent, HmsComponentProps } from './HmsView';
 
 import type { HMSConfig } from './HMSConfig';
 import type { HMSLocalPeer } from './HMSLocalPeer';
@@ -34,16 +25,27 @@ import type { HMSAudioMixingMode } from './HMSAudioMixingMode';
 import type { HMSLogSettings } from './HMSLogSettings';
 import { HMSMessageType } from './HMSMessageType';
 import { HMSPIPListenerActions } from './HMSPIPListenerActions';
-import { type HMSEventSubscription, HMSNativeEventEmitter } from './HMSNativeEventEmitter';
+import {
+  type HMSEventSubscription,
+  HMSNativeEventEmitter,
+} from './HMSNativeEventEmitter';
+import {
+  clearHmsPeersCache,
+  getHmsPeersCache,
+  HMSPeersCache,
+  setHmsPeersCache,
+} from './HMSPeersCache';
+import {
+  clearHmsRoomCache,
+  getHmsRoomCache,
+  HMSRoomCache,
+  setHmsRoomCache,
+} from './HMSRoomCache';
+import { HMSPeerUpdateOrdinals } from './HMSPeerUpdate';
 
-interface HmsViewProps {
-  trackId: string;
-  style?: ViewStyle;
-  mirror?: boolean;
-  scaleType?: HMSVideoViewMode;
-  setZOrderMediaOverlay?: boolean;
-}
+type HmsViewProps = Omit<HmsComponentProps, 'id'>;
 
+// TODO: Rename to HMSPIPConfig & to be moved to a separate file
 interface PIPConfig {
   aspectRatio?: [number, number];
   endButton?: boolean;
@@ -68,7 +70,6 @@ export class HMSSDK {
   id: string;
   private muteStatus: boolean | undefined;
   private appStateSubscription?: any;
-
   private onPreviewDelegate?: any;
   private onJoinDelegate?: any;
   private onRoomDelegate?: any;
@@ -141,32 +142,43 @@ export class HMSSDK {
   }
 
   /**
-   * - Returns the instance of logger which can be used to manipulate log levels.
-   * @returns @instance HMSLogger
-   * @memberof HMSSDK
-   */
-  static getLogger() {
-    return getLogger();
-  }
-
-  /**
-   * - Updates the logger for this instance of HMSSDK
-   * @param {HMSLogger} hmsLogger
-   * @memberof HMSSDK
-   */
-  setLogger = (hmsLogger?: HMSLogger) => {
-    setLogger(this.id, hmsLogger);
-  };
-
-  /**
    * - Calls removeListeners that in turn breaks all connections with native listeners.
    *
    * @memberof HMSSDK
    */
   destroy = async () => {
     logger?.verbose('#Function destroy', { id: this.id });
+    clearHmsPeersCache();
+    clearHmsRoomCache();
     this.removeAllListeners();
     return await HMSManager.destroy({ id: this.id });
+  };
+
+  /**
+   * - getAuthTokenByRoomCode function is used to get the Auth Token by Room Code
+   *
+   * checkout {@link https://www.100ms.live/docs/concepts/v2/concepts/rooms/room-codes/room-codes} for more info
+   *
+   * @memberof HMSSDK
+   */
+  getAuthTokenByRoomCode = async (
+    roomCode: string,
+    userId?: string,
+    endpoint?: string
+  ): Promise<string> => {
+    logger?.verbose('#Function getAuthTokenByRoomCode', {
+      id: this.id,
+      roomCode,
+      userId,
+      endpoint,
+    });
+
+    return HMSManager.getAuthTokenByRoomCode({
+      id: this.id,
+      roomCode,
+      userId,
+      endpoint,
+    });
   };
 
   /**
@@ -181,6 +193,8 @@ export class HMSSDK {
   join = async (config: HMSConfig) => {
     logger?.verbose('#Function join', { config, id: this.id });
     this.addAppStateListener();
+    setHmsPeersCache(new HMSPeersCache(this.id));
+    setHmsRoomCache(new HMSRoomCache(this.id));
     await HMSManager.join({ ...config, id: this.id });
   };
 
@@ -227,6 +241,7 @@ export class HMSSDK {
    * - The appearance of tile is completely customizable with style prop.
    * - Scale type can determine how the incoming video will fit in the canvas check {@link HMSVideoViewMode} for more information.
    * - Mirror to flip the video vertically.
+   * - Auto Simulcast to automatically select the best Streaming Quality of track if feature is enabled in Room.
    *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/render-video} for more info
    *
@@ -234,12 +249,20 @@ export class HMSSDK {
    * @memberof HMSSDK
    */
   HmsView = React.forwardRef<any, HmsViewProps>((props, ref) => {
-    const { trackId, style, mirror, scaleType, setZOrderMediaOverlay } = props;
+    const {
+      trackId,
+      style,
+      mirror,
+      scaleType,
+      setZOrderMediaOverlay,
+      autoSimulcast,
+    } = props;
     return (
       <HmsViewComponent
         ref={ref}
         trackId={trackId}
         style={style}
+        autoSimulcast={autoSimulcast}
         setZOrderMediaOverlay={setZOrderMediaOverlay}
         mirror={mirror}
         scaleType={scaleType}
@@ -251,6 +274,8 @@ export class HMSSDK {
   roomLeaveCleanup = () => {
     this.muteStatus = undefined;
     this?.appStateSubscription?.remove();
+    clearHmsPeersCache();
+    clearHmsRoomCache();
     HMSEncoder.clearData(); // Clearing cached data in encoder
   };
 
@@ -680,6 +705,8 @@ export class HMSSDK {
     });
     const hmsRoom = await HMSManager.getRoom({ id: this.id });
 
+    getHmsRoomCache()?.updateRoomCache(hmsRoom);
+
     const encodedHmsRoom = HMSEncoder.encodeHmsRoom(hmsRoom, this.id);
     return encodedHmsRoom;
   };
@@ -816,36 +843,6 @@ export class HMSSDK {
   stopScreenshare = async () => {
     logger?.verbose('#Function stopScreenshare', { id: this.id });
     return await HMSManager.stopScreenshare({ id: this.id });
-  };
-
-  /**
-   * - enableRTCStats sets a boolean in native side which in turn allows several events to be passed
-   * through the bridge these events are {@link RTCStatsListener}, {@link onRemoteVideoStatsListener},
-   * {@link onRemoteAudioStatsListener}, {@link onLocalAudioStatsListener} and {@link onLocalVideoStatsListener}
-   *
-   * - These listeners get various dataPoints for current peers and their connectivity to the room
-   * such as jitter, latency etc.
-   *
-   * - currently available for iOS only
-   *
-   * @memberof HMSSDK
-   */
-  enableRTCStats = () => {
-    logger?.verbose('#Function enableRTCStats', { id: this.id });
-    HMSManager.enableRTCStats({ id: this.id });
-  };
-
-  /**
-   * - disable RTCStats sets the same boolean to false that was set true by enableRTCStats.
-   * that activates a check which filters out the events acquired in native listeners and don't
-   * let them pass through bridge
-   *
-   * - currently available for iOS only.
-   * @memberof HMSSDK
-   */
-  disableRTCStats = () => {
-    logger?.verbose('#Function disableRTCStats', { id: this.id });
-    HMSManager.disableRTCStats({ id: this.id });
   };
 
   enableNetworkQualityUpdates = () => {
@@ -1077,6 +1074,34 @@ export class HMSSDK {
       id: this.id,
     });
     return await HMSManager.getSessionMetaData({ id: this.id });
+  };
+
+  getRemoteVideoTrackFromTrackId = async (trackId: string) => {
+    logger?.verbose('#Function getRemoteVideoTrackFromTrackId', {
+      id: this.id,
+      trackId,
+    });
+
+    const remoteVideoTrackData =
+      await HMSManager.getRemoteVideoTrackFromTrackId({
+        id: this.id,
+        trackId,
+      });
+    return HMSEncoder.encodeHmsRemoteVideoTrack(remoteVideoTrackData, this.id);
+  };
+
+  getRemoteAudioTrackFromTrackId = async (trackId: string) => {
+    logger?.verbose('#Function getRemoteAudioTrackFromTrackId', {
+      id: this.id,
+      trackId,
+    });
+
+    const remoteAudioTrackData =
+      await HMSManager.getRemoteAudioTrackFromTrackId({
+        id: this.id,
+        trackId,
+      });
+    return HMSEncoder.encodeHmsRemoteAudioTrack(remoteAudioTrackData, this.id);
   };
 
   /**
@@ -1881,6 +1906,8 @@ export class HMSSDK {
     const room: HMSRoom = HMSEncoder.encodeHmsRoom(data.room, this.id);
     const type = data.type;
 
+    getHmsRoomCache()?.updateRoomCache(data.room, data.type);
+
     if (this.onRoomDelegate) {
       logger?.verbose('#Listener ON_ROOM_LISTENER_CALL', {
         room,
@@ -1890,12 +1917,24 @@ export class HMSSDK {
     }
   };
 
-  onPeerListener = (data: any) => {
-    if (data.id !== this.id) {
-      return;
+  onPeerListener = (peerData: any) => {
+    const data: { peer: any; type: any } = {
+      peer: peerData,
+      type: null,
+    };
+
+    for (const ordinal of HMSPeerUpdateOrdinals.keys()) {
+      if (ordinal in peerData) {
+        data.peer.peerID = peerData[ordinal];
+        data.type = ordinal;
+        break;
+      }
     }
-    const peer: HMSPeer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
-    const type = data.type;
+
+    const peer: HMSPeer = HMSEncoder.encodeHmsPeer(data.peer);
+    const type = HMSEncoder.encodeHmsPeerUpdate(data.type) || data.type;
+
+    getHmsPeersCache()?.updatePeerCache(data.peer.peerID, data.peer, type);
 
     if (this.onPeerDelegate) {
       logger?.verbose('#Listener ON_PEER_LISTENER_CALL', {
@@ -1911,8 +1950,10 @@ export class HMSSDK {
       return;
     }
     const track: HMSTrack = HMSEncoder.encodeHmsTrack(data.track, this.id);
-    const peer: HMSPeer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
+    const peer: HMSPeer = HMSEncoder.encodeHmsPeer(data.peer);
     const type = data.type;
+
+    getHmsPeersCache()?.updatePeerCache(data.peer.peerID, { track }, data.type);
 
     if (
       this.muteStatus &&
@@ -1940,7 +1981,7 @@ export class HMSSDK {
     if (data.id !== this.id) {
       return;
     }
-    const message = HMSEncoder.encodeHMSMessage(data, this.id);
+    const message = HMSEncoder.encodeHMSMessage(data);
     if (this.onMessageDelegate) {
       logger?.verbose('#Listener ON_MESSAGE_LISTENER_CALL', message);
       this.onMessageDelegate(message);
@@ -1975,10 +2016,8 @@ export class HMSSDK {
       return;
     }
     if (this.onRoleChangeRequestDelegate) {
-      const encodedRoleChangeRequest = HMSEncoder.encodeHmsRoleChangeRequest(
-        data,
-        this.id
-      );
+      const encodedRoleChangeRequest =
+        HMSEncoder.encodeHmsRoleChangeRequest(data);
       logger?.verbose(
         '#Listener ON_ROLE_CHANGE_LISTENER_CALL',
         encodedRoleChangeRequest
@@ -1993,7 +2032,7 @@ export class HMSSDK {
     }
     if (this.onChangeTrackStateRequestDelegate) {
       const encodedRoleChangeRequest =
-        HMSEncoder.encodeHmsChangeTrackStateRequest(data, this.id);
+        HMSEncoder.encodeHmsChangeTrackStateRequest(data);
       logger?.verbose(
         '#Listener ON_CHANGE_TRACK_STATE_REQUEST_LISTENER_CALL',
         encodedRoleChangeRequest
@@ -2011,7 +2050,7 @@ export class HMSSDK {
     if (this.onRemovedFromRoomDelegate) {
       let requestedBy = null;
       if (data.requestedBy) {
-        requestedBy = HMSEncoder.encodeHmsPeer(data.requestedBy, this.id);
+        requestedBy = HMSEncoder.encodeHmsPeer(data.requestedBy);
       }
       const reason = data.reason;
       const roomEnded = data.roomEnded;
@@ -2064,8 +2103,10 @@ export class HMSSDK {
       return;
     }
 
-    let localAudioStats = new HMSLocalAudioStats(data.localAudioStats);
-    let peer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
+    let localAudioStats = HMSEncoder.encodeHMSLocalAudioStats(
+      data.localAudioStats
+    );
+    let peer = HMSEncoder.encodeHmsPeer(data.peer);
     let track = HMSEncoder.encodeHmsLocalAudioTrack(data.track, this.id);
 
     if (this.onLocalAudioStatsDelegate) {
@@ -2084,8 +2125,10 @@ export class HMSSDK {
       return;
     }
 
-    let localVideoStats = new HMSLocalVideoStats(data.localVideoStats);
-    let peer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
+    let localVideoStats = HMSEncoder.encodeHMSLocalVideoStats(
+      data.localVideoStats
+    );
+    let peer = HMSEncoder.encodeHmsPeer(data.peer);
     let track = HMSEncoder.encodeHmsLocalVideoTrack(data.track, this.id);
 
     if (this.onLocalVideoStatsDelegate) {
@@ -2104,8 +2147,10 @@ export class HMSSDK {
       return;
     }
 
-    let remoteAudioStats = new HMSRemoteAudioStats(data.remoteAudioStats);
-    let peer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
+    let remoteAudioStats = HMSEncoder.encodeHMSRemoteAudioStats(
+      data.remoteAudioStats
+    );
+    let peer = HMSEncoder.encodeHmsPeer(data.peer);
     let track = HMSEncoder.encodeHmsRemoteAudioTrack(data.track, this.id);
 
     if (this.onRemoteAudioStatsDelegate) {
@@ -2129,8 +2174,10 @@ export class HMSSDK {
       return;
     }
 
-    let remoteVideoStats = new HMSRemoteVideoStats(data.remoteVideoStats);
-    let peer = HMSEncoder.encodeHmsPeer(data.peer, this.id);
+    let remoteVideoStats = HMSEncoder.encodeHMSRemoteVideoStats(
+      data.remoteVideoStats
+    );
+    let peer = HMSEncoder.encodeHmsPeer(data.peer);
     let track = HMSEncoder.encodeHmsRemoteVideoTrack(data.track, this.id);
 
     if (this.onRemoteVideoStatsDelegate) {
@@ -2197,4 +2244,22 @@ export class HMSSDK {
       id: this.id,
     });
   }
+
+  /**
+   * - Returns the instance of logger which can be used to manipulate log levels.
+   * @returns @instance HMSLogger
+   * @memberof HMSSDK
+   */
+  static getLogger() {
+    return getLogger();
+  }
+
+  /**
+   * - Updates the logger for this instance of HMSSDK
+   * @param {HMSLogger} hmsLogger
+   * @memberof HMSSDK
+   */
+  setLogger = (hmsLogger?: HMSLogger) => {
+    setLogger(this.id, hmsLogger);
+  };
 }

@@ -1,8 +1,8 @@
 //
 //  Hmssdk.swift
-//  Hmssdk
+//  HMSSDK
 //
-//  Copyright © 2021 Facebook. All rights reserved.
+//  Copyright © 2023 100ms. All rights reserved.
 //
 
 import Foundation
@@ -16,7 +16,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     var recentRoleChangeRequest: HMSRoleChangeRequest?
     var delegate: HMSManager?
     var id: String = "12345"
-    var recentPreviewTracks: [HMSTrack]? = []
     private var reconnectingStage: Bool = false
     private var preferredExtension: String?
     private var systemBroadcastPicker: RPSystemBroadcastPickerView?
@@ -24,27 +23,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     private var stopScreenshareResolve: RCTPromiseResolveBlock?
     private var isScreenShared: Bool? = false
     private var previewInProgress = false
-    private var rtcStatsAttached = false
     private var networkQualityUpdatesAttached = false
     private var eventsEnableStatus: [String: Bool] = [:]
-
-    let ON_PREVIEW = "ON_PREVIEW"
-    let ON_JOIN = "ON_JOIN"
-    let ON_ROOM_UPDATE = "ON_ROOM_UPDATE"
-    let ON_PEER_UPDATE = "ON_PEER_UPDATE"
-    let ON_TRACK_UPDATE = "ON_TRACK_UPDATE"
-    let ON_ROLE_CHANGE_REQUEST = "ON_ROLE_CHANGE_REQUEST"
-    let ON_REMOVED_FROM_ROOM = "ON_REMOVED_FROM_ROOM"
-    let ON_ERROR = "ON_ERROR"
-    let ON_MESSAGE = "ON_MESSAGE"
-    let ON_SPEAKER = "ON_SPEAKER"
-    let RECONNECTING = "RECONNECTING"
-    let RECONNECTED = "RECONNECTED"
-    let ON_RTC_STATS = "ON_RTC_STATS"
-    let ON_LOCAL_AUDIO_STATS = "ON_LOCAL_AUDIO_STATS"
-    let ON_LOCAL_VIDEO_STATS = "ON_LOCAL_VIDEO_STATS"
-    let ON_REMOTE_AUDIO_STATS = "ON_REMOTE_AUDIO_STATS"
-    let ON_REMOTE_VIDEO_STATS = "ON_REMOTE_VIDEO_STATS"
 
     // MARK: - Setup
     init(data: NSDictionary?, delegate manager: HMSManager?, uid id: String) {
@@ -68,8 +48,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     func preview(_ credentials: NSDictionary) {
 
         guard !previewInProgress else {
-            if eventsEnableStatus[ON_ERROR] == true {
-                delegate?.emitEvent(ON_ERROR, ["error": ["code": 5000, "description": "Preview is in progress", "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
+            if eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": ["code": 5000, "description": "Preview is in progress", "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
             }
             return
         }
@@ -112,13 +92,12 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         if let extractedRole = roleObj {
             hms?.preview(role: extractedRole, completion: { tracks, error in
                 if error != nil {
-                    if eventsEnableStatus[ON_ERROR] == true {
-                        delegate?.emitEvent(ON_ERROR, ["error": HMSDecoder.getError(error), "id": id])
+                    if eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                        delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": HMSDecoder.getError(error), "id": id])
                     }
                     reject?(error?.localizedDescription, error?.localizedDescription, nil)
                     return
                 }
-                self.recentPreviewTracks = tracks
 
                 let decodedTracks = HMSDecoder.getAllTracks(tracks ?? [])
 
@@ -129,15 +108,14 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func cancelPreview() {
-        self.recentPreviewTracks = []
         hms?.cancelPreview()
     }
 
     func join(_ credentials: NSDictionary) {
 
         guard !previewInProgress else {
-            if eventsEnableStatus[ON_ERROR] == true {
-                delegate?.emitEvent("ON_ERROR", ["error": ["code": 5000, "description": "Preview is in progress", "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
+            if eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": ["code": 5000, "description": "Preview is in progress", "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
             }
             return
         }
@@ -164,6 +142,44 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 } else {
                     strongSelf.config = HMSConfig(userName: user, authToken: authToken, metadata: metadata, captureNetworkQualityInPreview: captureNetworkQualityInPreview)
                     strongSelf.hms?.join(config: strongSelf.config!, delegate: strongSelf)
+                }
+            }
+        }
+    }
+
+    func getAuthTokenByRoomCode(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let roomCode = data.value(forKey: "roomCode") as? String
+        else {
+            let errorMessage = "getAuthTokenByRoomCode: " + HMSHelper.getUnavailableRequiredKey(data, ["roomCode"])
+            reject?("40000", errorMessage, nil)
+            return
+        }
+        let userId = data.value(forKey: "userId") as? String? ?? nil
+        let endpoint = data.value(forKey: "endpoint") as? String? ?? nil
+
+        // This is to make the QA links work
+        if endpoint != nil && endpoint!.contains("nonprod") {
+            UserDefaults.standard.set(endpoint, forKey: "HMSAuthTokenEndpointOverride")
+        } else {
+            UserDefaults.standard.removeObject(forKey: "HMSAuthTokenEndpointOverride")
+        }
+
+        DispatchQueue.main.async { [weak self] in
+            self?.hms?.getAuthTokenByRoomCode(roomCode, userID: userId) { token, error in
+                // error occurred
+                if error != nil {
+                    reject?(error?.localizedDescription, error?.localizedDescription, nil)
+                    return
+                }
+                // no error and token is valid
+                else if token != nil {
+                    resolve?(token)
+                    return
+                }
+                // no error but token is null
+                else {
+                    reject?("50000", "token is null", nil)
+                    return
                 }
             }
         }
@@ -214,15 +230,14 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 self?.stopScreenshareResolve = nil
                 self?.startScreenshareResolve = nil
                 self?.isScreenShared = false
-                self?.rtcStatsAttached = false
                 self?.networkQualityUpdatesAttached = false
                 self?.hms?.leave({ success, error in
                     if success {
                         HMSDecoder.clearRestrictDataStates()
                         resolve?(["success": success])
                     } else {
-                        if strongSelf.eventsEnableStatus[strongSelf.ON_ERROR] == true {
-                            strongSelf.delegate?.emitEvent(strongSelf.ON_ERROR, ["error": HMSDecoder.getError(error), "id": strongSelf.id])
+                        if strongSelf.eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                            strongSelf.delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": HMSDecoder.getError(error), "id": strongSelf.id])
                         }
                         reject?("error in leave", "error in leave", nil)
                     }
@@ -248,8 +263,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                     resolve?(["success": true, "data": ["sender": message?.sender?.name ?? "", "message": message?.message ?? "", "type": message?.type]])
                     return
                 } else {
-                    if self?.eventsEnableStatus["ON_ERROR"] == true {
-                        self?.delegate?.emitEvent("ON_ERROR", ["error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
+                    if self?.eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                        self?.delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
                     }
                     reject?(error?.localizedDescription, error?.localizedDescription, nil)
                     return
@@ -276,8 +291,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                     resolve?(["success": true, "data": ["sender": message?.sender?.name ?? "", "message": message?.message ?? "", "type": message?.type]])
                     return
                 } else {
-                    if self?.eventsEnableStatus["ON_ERROR"] == true {
-                        self?.delegate?.emitEvent("ON_ERROR", ["error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
+                    if self?.eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                        self?.delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
                     }
                     reject?(error?.localizedDescription, error?.localizedDescription, nil)
                     return
@@ -304,8 +319,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                     resolve?(["success": true, "data": ["sender": message?.sender?.name ?? "", "message": message?.message ?? "", "type": message?.type]])
                     return
                 } else {
-                    if self?.eventsEnableStatus["ON_ERROR"] == true {
-                        self?.delegate?.emitEvent("ON_ERROR", ["error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
+                    if self?.eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                        self?.delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
                     }
                     reject?(error?.localizedDescription, error?.localizedDescription, nil)
                     return
@@ -330,13 +345,12 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 if success {
                     resolve?(["success": success])
                 } else {
-                    if self?.eventsEnableStatus["ON_ERROR"] == true {
-                        self?.delegate?.emitEvent("ON_ERROR", ["error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
+                    if self?.eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                        self?.delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
                     }
                     reject?(error?.localizedDescription, error?.localizedDescription, nil)
                 }
             })
-            self?.recentPreviewTracks = []
             self?.recentRoleChangeRequest = nil
         }
     }
@@ -363,8 +377,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 if success {
                     resolve?(["success": success])
                 } else {
-                    if self?.eventsEnableStatus["ON_ERROR"] == true {
-                        self?.delegate?.emitEvent("ON_ERROR", ["error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
+                    if self?.eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                        self?.delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
                     }
                     reject?(error?.localizedDescription, error?.localizedDescription, nil)
                 }
@@ -401,8 +415,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 if success {
                     resolve?(["success": success])
                 } else {
-                    if self?.eventsEnableStatus["ON_ERROR"] == true {
-                        self?.delegate?.emitEvent("ON_ERROR", ["error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
+                    if self?.eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                        self?.delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
                     }
                     reject?(error?.localizedDescription, error?.localizedDescription, nil)
                 }
@@ -434,8 +448,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 if success {
                     resolve?(["success": success])
                 } else {
-                    if self?.eventsEnableStatus["ON_ERROR"] == true {
-                        self?.delegate?.emitEvent("ON_ERROR", ["error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
+                    if self?.eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                        self?.delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
                     }
                     reject?(error?.localizedDescription, error?.localizedDescription, nil)
                 }
@@ -471,8 +485,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 if success {
                     resolve?(["success": success])
                 } else {
-                    if self?.eventsEnableStatus["ON_ERROR"] == true {
-                        self?.delegate?.emitEvent("ON_ERROR", ["error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
+                    if self?.eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                        self?.delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
                     }
                     reject?(error?.localizedDescription, error?.localizedDescription, nil)
                 }
@@ -497,8 +511,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 guard let remotePeers = self?.hms?.remotePeers,
                     let track = HMSHelper.getTrackFromTrackId(trackId, remotePeers)
                 else {
-                    if strongSelf.eventsEnableStatus["ON_ERROR"] == true {
-                        strongSelf.delegate?.emitEvent("ON_ERROR", ["error": ["code": 6002, "description": "Track not found", "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": strongSelf.id])
+                    if strongSelf.eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                        strongSelf.delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": ["code": 6002, "description": "Track not found", "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": strongSelf.id])
                     }
                     reject?("Track not found", "Track not found", nil)
                     return
@@ -537,8 +551,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 if success {
                     resolve?(["success": success])
                 } else {
-                    if self?.eventsEnableStatus["ON_ERROR"] == true {
-                        self?.delegate?.emitEvent("ON_ERROR", ["error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
+                    if self?.eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                        self?.delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
                     }
                     reject?(error?.localizedDescription, error?.localizedDescription, nil)
                 }
@@ -562,8 +576,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 if success {
                     resolve?(["success": success])
                 } else {
-                    if self?.eventsEnableStatus["ON_ERROR"] == true {
-                        self?.delegate?.emitEvent("ON_ERROR", ["error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
+                    if self?.eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                        self?.delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self?.id ?? "12345"])
                     }
                     reject?(error?.localizedDescription, error?.localizedDescription, nil)
                 }
@@ -643,8 +657,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 resolve?(["success": success])
                 return
             } else {
-                if self.eventsEnableStatus["ON_ERROR"] == true {
-                    self.delegate?.emitEvent(self.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self.id])
+                if self.eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                    self.delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self.id])
                 }
                 reject?(error?.localizedDescription, error?.localizedDescription, nil)
                 return
@@ -669,8 +683,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
             if remoteAudioTrack != nil {
                 remoteAudioTrack?.setVolume(volume)
-            } else if strongSelf.eventsEnableStatus["ON_ERROR"] == true {
-                strongSelf.delegate?.emitEvent("ON_ERROR", ["error": ["code": 6002, "description": "Track not found", "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": strongSelf.id])
+            } else if strongSelf.eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                strongSelf.delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": ["code": 6002, "description": "Track not found", "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": strongSelf.id])
             }
         }
     }
@@ -691,8 +705,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         if let meetLink = URL(string: meetingString) {
             meetingUrl = meetLink
         } else {
-            if eventsEnableStatus[ON_ERROR] == true {
-                delegate?.emitEvent(ON_ERROR, ["error": ["code": 6002, "description": "Invalid meeting url passed", "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
+            if eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": ["code": 6002, "description": "Invalid meeting url passed", "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
             }
             reject?("Invalid meeting url passed", "Invalid meeting url passed", nil)
         }
@@ -702,17 +716,11 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         let config = HMSRTMPConfig(meetingURL: meetingUrl, rtmpURLs: URLs, record: record)
         hms?.startRTMPOrRecording(config: config, completion: { success, error in
             if success {
-                let roomData = HMSDecoder.getHmsRoom(self.hms?.room)
-                let type = self.getString(from: HMSRoomUpdate.browserRecordingStateUpdated)
-
-                if self.eventsEnableStatus[self.ON_ROOM_UPDATE] == true {
-                  self.delegate?.emitEvent(self.ON_ROOM_UPDATE, ["event": self.ON_ROOM_UPDATE, "id": self.id, "type": type, "room": roomData])
-                }
                 resolve?(["success": success])
                 return
             } else {
-                if self.eventsEnableStatus[self.ON_ERROR] == true {
-                    self.delegate?.emitEvent(self.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self.id])
+                if self.eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                    self.delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self.id])
                 }
                 reject?(error?.localizedDescription, error?.localizedDescription, nil)
                 return
@@ -723,17 +731,11 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     func stopRtmpAndRecording(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         hms?.stopRTMPAndRecording(completion: { success, error in
             if success {
-                let roomData = HMSDecoder.getHmsRoom(self.hms?.room)
-                let type = self.getString(from: HMSRoomUpdate.browserRecordingStateUpdated)
-
-                if self.eventsEnableStatus[self.ON_ROOM_UPDATE] == true {
-                  self.delegate?.emitEvent(self.ON_ROOM_UPDATE, ["event": self.ON_ROOM_UPDATE, "id": self.id, "type": type, "room": roomData])
-                }
                 resolve?(["success": success])
                 return
             } else {
-                if self.eventsEnableStatus[self.ON_ERROR] == true {
-                    self.delegate?.emitEvent(self.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self.id])
+                if self.eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                    self.delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self.id])
                 }
                 reject?(error?.localizedDescription, error?.localizedDescription, nil)
                 return
@@ -754,8 +756,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 resolve?(["success": success])
                 return
             } else {
-                if self.eventsEnableStatus[self.ON_ERROR] == true {
-                    self.delegate?.emitEvent(self.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self.id])
+                if self.eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                    self.delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self.id])
                 }
                 reject?(error?.localizedDescription, error?.localizedDescription, nil)
                 return
@@ -769,8 +771,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 resolve?(["success": success])
                 return
             } else {
-                if self.eventsEnableStatus[self.ON_ERROR] == true {
-                    self.delegate?.emitEvent(self.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self.id])
+                if self.eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                    self.delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self.id])
                 }
                 reject?(error?.localizedDescription, error?.localizedDescription, nil)
                 return
@@ -791,8 +793,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             if success {
                 resolve?(["success": success])
             } else {
-                if self.eventsEnableStatus[self.ON_ERROR] == true {
-                    self.delegate?.emitEvent(self.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self.id])
+                if self.eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                    self.delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self.id])
                 }
                 reject?(error?.localizedDescription, error?.localizedDescription, nil)
             }
@@ -833,18 +835,10 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
 
-    func enableRTCStats() {
-        rtcStatsAttached = true
-    }
-
-    func disableRTCStats() {
-        rtcStatsAttached = false
-    }
-
     func startScreenshare(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let preferredExtension = preferredExtension else {
-            if eventsEnableStatus[ON_ERROR] == true {
-                delegate?.emitEvent(ON_ERROR, ["error": ["code": 6002, "description": "Could not start screen share, preferredExtension not passed in Build method", "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
+            if eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": ["code": 6002, "description": "Could not start screen share, preferredExtension not passed in Build method", "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
             }
             reject?("Could not start screen share, preferredExtension not passed in Build method", "Could not start screen share, preferredExtension not passed in Build method", nil)
             return
@@ -867,8 +861,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
     func stopScreenshare(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let preferredExtension = preferredExtension else {
-            if eventsEnableStatus[ON_ERROR] == true {
-                delegate?.emitEvent(ON_ERROR, ["error": ["code": 6002, "description": "Could not start screen share, preferredExtension not passed in Build method", "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
+            if eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": ["code": 6002, "description": "Could not start screen share, preferredExtension not passed in Build method", "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
             }
             reject?("Could not start screen share, preferredExtension not passed in Build method", "Could not start screen share, preferredExtension not passed in Build method", nil)
             return
@@ -912,20 +906,20 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                     try audioFilePlayerNode.play(fileUrl: url, loops: loops, interrupts: interrupts)
                     resolve?(["success": true])
                 } catch {
-                    if eventsEnableStatus[ON_ERROR] == true {
-                        delegate?.emitEvent(ON_ERROR, ["error": ["code": 6002, "description": error.localizedDescription, "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
+                    if eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                        delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": ["code": 6002, "description": error.localizedDescription, "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
                     }
                     reject?(error.localizedDescription, error.localizedDescription, nil)
                 }
             } else {
-                if eventsEnableStatus[ON_ERROR] == true {
-                    delegate?.emitEvent(ON_ERROR, ["error": ["code": 6002, "description": "Incorrect url", "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
+                if eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                    delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": ["code": 6002, "description": "Incorrect url", "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
                 }
                 reject?("Incorrect URL", "Incorrect URL", nil)
             }
         } else {
-            if eventsEnableStatus[ON_ERROR] == true {
-                delegate?.emitEvent(ON_ERROR, ["error": ["code": 6002, "description": "AudioFilePlayerNode not found", "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
+            if eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": ["code": 6002, "description": "AudioFilePlayerNode not found", "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
             }
             reject?("AudioFilePlayerNode not found", "AudioFilePlayerNode not found", nil)
         }
@@ -960,8 +954,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
         if let audioFilePlayerNode = playerNode as? HMSAudioFilePlayerNode {
             audioFilePlayerNode.stop()
-        } else if eventsEnableStatus[ON_ERROR] == true {
-            delegate?.emitEvent(ON_ERROR, ["error": ["code": 6002, "description": "AudioFilePlayerNode not found", "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
+        } else if eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+            delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": ["code": 6002, "description": "AudioFilePlayerNode not found", "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
         }
     }
 
@@ -978,12 +972,12 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             do {
                 try audioFilePlayerNode.resume()
             } catch {
-                if eventsEnableStatus[ON_ERROR] == true {
-                    delegate?.emitEvent(ON_ERROR, ["error": ["code": 6002, "description": error.localizedDescription, "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
+                if eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                    delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": ["code": 6002, "description": error.localizedDescription, "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
                 }
             }
-        } else if eventsEnableStatus[ON_ERROR] == true {
-            delegate?.emitEvent(ON_ERROR, ["error": ["code": 6002, "description": "AudioFilePlayerNode not found", "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
+        } else if eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+            delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": ["code": 6002, "description": "AudioFilePlayerNode not found", "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
         }
     }
 
@@ -998,8 +992,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
         if let audioFilePlayerNode = playerNode as? HMSAudioFilePlayerNode {
             audioFilePlayerNode.pause()
-        } else if eventsEnableStatus[ON_ERROR] == true {
-            delegate?.emitEvent(ON_ERROR, ["error": ["code": 6002, "description": "AudioFilePlayerNode not found", "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
+        } else if eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+            delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": ["code": 6002, "description": "AudioFilePlayerNode not found", "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
         }
     }
 
@@ -1016,8 +1010,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         if let audioFilePlayerNode = playerNode as? HMSAudioFilePlayerNode {
             resolve?(audioFilePlayerNode.isPlaying)
         } else {
-            if eventsEnableStatus[ON_ERROR] == true {
-                delegate?.emitEvent(ON_ERROR, ["error": ["code": 6002, "description": "AudioFilePlayerNode not found", "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
+            if eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": ["code": 6002, "description": "AudioFilePlayerNode not found", "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
             }
             reject?("AudioFilePlayerNode not found", "AudioFilePlayerNode not found", nil)
         }
@@ -1036,8 +1030,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         if let audioFilePlayerNode = playerNode as? HMSAudioFilePlayerNode {
             resolve?(audioFilePlayerNode.currentTime)
         } else {
-            if eventsEnableStatus[ON_ERROR] == true {
-                delegate?.emitEvent(ON_ERROR, ["error": ["code": 6002, "description": "AudioFilePlayerNode not found", "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
+            if eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": ["code": 6002, "description": "AudioFilePlayerNode not found", "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
             }
             reject?("AudioFilePlayerNode not found", "AudioFilePlayerNode not found", nil)
         }
@@ -1056,8 +1050,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         if let audioFilePlayerNode = playerNode as? HMSAudioFilePlayerNode {
             resolve?(audioFilePlayerNode.duration)
         } else {
-            if eventsEnableStatus[ON_ERROR] == true {
-                delegate?.emitEvent(ON_ERROR, ["error": ["code": 6002, "description": "AudioFilePlayerNode not found", "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
+            if eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": ["code": 6002, "description": "AudioFilePlayerNode not found", "isTerminal": false, "canRetry": true, "params": ["function": #function]], "id": id])
             }
             reject?("AudioFilePlayerNode not found", "AudioFilePlayerNode not found", nil)
         }
@@ -1074,14 +1068,32 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     func setSessionMetaData(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let metaData = data.value(forKey: "sessionMetaData") as? String ?? ""
 
-        hms?.setSessionMetadata(metaData) { success, error in
-            if success {
-                resolve?(["success": success])
-            } else {
-                if self.eventsEnableStatus[self.ON_ERROR] == true {
-                    self.delegate?.emitEvent(self.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self.id])
+        DispatchQueue.main.async { [weak self] in
+
+            guard let self = self else {
+                let errorMessage = "\(#function) Unexpectedly encountered self as null"
+                self?.emitRequiredKeysError(errorMessage)
+                reject?(errorMessage, errorMessage, nil)
+                return
+            }
+
+            self.hms?.setSessionMetadata(metaData) { [weak self] success, error in
+
+                guard let self = self else {
+                    let errorMessage = "\(#function) Unexpectedly encountered self as null"
+                    self?.emitRequiredKeysError(errorMessage)
+                    reject?(errorMessage, errorMessage, nil)
+                    return
                 }
-                reject?(error?.localizedDescription, error?.localizedDescription, nil)
+
+                if success {
+                    resolve?(["success": success])
+                } else {
+                    if self.eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                      self.delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self.id])
+                    }
+                    reject?(error?.localizedDescription, error?.localizedDescription, nil)
+                }
             }
         }
     }
@@ -1146,65 +1158,237 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func getSessionMetaData(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        hms?.getSessionMetadata { result, error in
-            if error != nil {
-                if self.eventsEnableStatus[self.ON_ERROR] == true {
-                    self.delegate?.emitEvent(self.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self.id])
-                }
-                reject?(error?.localizedDescription, error?.localizedDescription, nil)
-            } else {
-                resolve?(result)
+
+        DispatchQueue.main.async { [weak self] in
+
+            guard let self = self else {
+                let errorMessage = "\(#function) Unexpectedly encountered self as null"
+                self?.emitRequiredKeysError(errorMessage)
+                reject?(errorMessage, errorMessage, nil)
+                return
             }
+
+            self.hms?.getSessionMetadata { [weak self] result, error in
+
+                guard let self = self else {
+                    let errorMessage = "\(#function) Unexpectedly encountered self as null"
+                    self?.emitRequiredKeysError(errorMessage)
+                    reject?(errorMessage, errorMessage, nil)
+                    return
+                }
+
+                if error != nil {
+                    self.delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self.id])
+                    reject?(error?.localizedDescription, error?.localizedDescription, nil)
+                } else {
+                    resolve?(result)
+                }
+            }
+        }
+    }
+
+    func getPeerProperty(_ data: NSDictionary) -> [AnyHashable: Any]? {
+        guard let property = data.value(forKey: "property") as? String else {
+            return nil
+        }
+
+        guard let peerId = data.value(forKey: "peerId") as? String else {
+            return nil
+        }
+
+        guard let room = hms?.room, let peer = HMSUtilities.getPeer(for: peerId, in: room) else {
+            return nil
+        }
+
+        switch property {
+            case "name":
+                return ["name": peer.name]
+            case "isLocal":
+                return ["isLocal": peer.isLocal]
+            case "networkQuality":
+                if peer.networkQuality != nil {
+                    return ["networkQuality": HMSDecoder.getHmsNetworkQuality(peer.networkQuality)]
+                } else {
+                    return nil
+                }
+            case "metadata":
+                return ["metadata": peer.metadata ?? ""]
+            case "role":
+                return ["role": HMSDecoder.getHmsRole(peer.role)]
+            case "customerUserID":
+                return ["customerUserID": peer.customerUserID ?? ""]
+            case "audioTrack":
+                if peer.audioTrack != nil {
+                    return ["audioTrack": HMSDecoder.getHmsAudioTrack(peer.audioTrack)]
+                } else {
+                    return nil
+                }
+            case "videoTrack":
+                if peer.videoTrack != nil {
+                    return ["videoTrack": HMSDecoder.getHmsVideoTrack(peer.videoTrack)]
+                } else {
+                    return nil
+                }
+            case "auxiliaryTracks":
+                if let auxTracks = peer.auxiliaryTracks, auxTracks.count > 0 {
+                    return ["auxiliaryTracks": HMSDecoder.getAllTracks(auxTracks)]
+                } else {
+                    return nil
+                }
+            default:
+                return nil
+        }
+    }
+
+    func getRoomProperty(_ data: NSDictionary) -> [AnyHashable: Any]? {
+        guard let property = data.value(forKey: "property") as? String else {
+            return nil
+        }
+
+        guard let hmsRoom = hms?.room else {
+            return nil
+        }
+
+        switch property {
+            case "sessionId":
+                return ["sessionId": hmsRoom.sessionID ?? ""]
+            case "name":
+                return ["name": hmsRoom.name ?? ""]
+
+            case "metaData":
+                return ["metaData": hmsRoom.metaData ?? ""]
+
+            case "peerCount":
+                return ["peerCount": hmsRoom.peerCount ?? 0]
+
+            case "peers":
+                var peers = [[String: Any]]()
+                for peer in hmsRoom.peers {
+                    let parsedPeer = HMSDecoder.getHmsPeerSubset(peer)
+                    peers.append(parsedPeer)
+                }
+                return ["peers": peers]
+
+            case "localPeer":
+                return ["localPeer": HMSDecoder.getHmsLocalPeer(hms?.localPeer)]
+
+            case "browserRecordingState":
+                return ["browserRecordingState": HMSDecoder.getHMSBrowserRecordingState(hmsRoom.browserRecordingState)]
+
+            case "rtmpHMSRtmpStreamingState":
+                return ["rtmpHMSRtmpStreamingState": HMSDecoder.getHMSRtmpStreamingState(hmsRoom.rtmpStreamingState)]
+
+            case "serverRecordingState":
+                return ["serverRecordingState": HMSDecoder.getHMSServerRecordingState(hmsRoom.serverRecordingState)]
+
+            case "hlsStreamingState":
+                return ["hlsStreamingState": HMSDecoder.getHlsStreamingState(hmsRoom.hlsStreamingState)]
+
+            case "hlsRecordingState":
+                return ["hlsRecordingState": HMSDecoder.getHlsRecordingState(hmsRoom.hlsRecordingState)]
+
+            default:
+                return nil
+        }
+    }
+
+    func getRemoteVideoTrackFromTrackId(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+
+        guard let trackId = data.value(forKey: "trackId") as? String
+        else {
+            let errorMessage = "\(#function) " + HMSHelper.getUnavailableRequiredKey(data, ["trackId"])
+            emitRequiredKeysError(errorMessage)
+            reject?(errorMessage, errorMessage, nil)
+            return
+        }
+
+        DispatchQueue.main.async { [weak self] in
+
+            guard let self = self,
+                  let remotePeers = self.hms?.remotePeers,
+                  let remoteVideoTrack = HMSHelper.getRemoteVideoTrackFromTrackId(trackId, remotePeers)
+            else {
+                let errorMessage = "\(#function) " + "TRACK_NOT_FOUND"
+                self?.emitRequiredKeysError(errorMessage)
+                reject?(errorMessage, errorMessage, nil)
+                return
+            }
+
+            resolve?(HMSDecoder.getHMSRemoteVideoTrack(remoteVideoTrack))
+        }
+    }
+
+    func getRemoteAudioTrackFromTrackId(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let trackId = data.value(forKey: "trackId") as? String
+        else {
+            let errorMessage = "\(#function) " + HMSHelper.getUnavailableRequiredKey(data, ["trackId"])
+            emitRequiredKeysError(errorMessage)
+            reject?(errorMessage, errorMessage, nil)
+            return
+        }
+
+        DispatchQueue.main.async { [weak self] in
+
+            guard let self = self,
+                  let remotePeers = self.hms?.remotePeers,
+                  let remoteAudioTrack = HMSHelper.getRemoteAudioTrackFromTrackId(trackId, remotePeers)
+            else {
+                let errorMessage = "\(#function) " + "TRACK_NOT_FOUND"
+                self?.emitRequiredKeysError(errorMessage)
+                reject?(errorMessage, errorMessage, nil)
+                return
+            }
+
+            resolve?(HMSDecoder.getHMSRemoteAudioTrack(remoteAudioTrack))
         }
     }
 
     // MARK: - HMS SDK Delegate Callbacks
     func on(join room: HMSRoom) {
-        self.recentPreviewTracks = []
-        if eventsEnableStatus[ON_JOIN] != true {
+        if eventsEnableStatus[HMSConstants.ON_JOIN] != true {
             return
         }
-        let roomData = HMSDecoder.getHmsRoom(room)
-        self.delegate?.emitEvent(ON_JOIN, ["event": ON_JOIN, "id": self.id, "room": roomData])
+        let roomData = HMSDecoder.getHmsRoomSubset(room)
+        self.delegate?.emitEvent(HMSConstants.ON_JOIN, ["event": HMSConstants.ON_JOIN, "id": self.id, "room": roomData])
     }
 
     func onPreview(room: HMSRoom, localTracks: [HMSTrack]) {
         previewInProgress = false
-        if eventsEnableStatus[ON_PREVIEW] != true {
+        if eventsEnableStatus[HMSConstants.ON_PREVIEW] != true {
             return
         }
         let previewTracks = HMSDecoder.getPreviewTracks(localTracks)
-        let hmsRoom = HMSDecoder.getHmsRoom(room)
+        let hmsRoom = HMSDecoder.getHmsRoomSubset(room)
 
-        self.delegate?.emitEvent(ON_PREVIEW, ["event": ON_PREVIEW, "id": self.id, "room": hmsRoom, "previewTracks": previewTracks])
+        self.delegate?.emitEvent(HMSConstants.ON_PREVIEW, ["event": HMSConstants.ON_PREVIEW, "id": self.id, "room": hmsRoom, "previewTracks": previewTracks])
     }
 
     func on(room: HMSRoom, update: HMSRoomUpdate) {
-        if eventsEnableStatus[ON_ROOM_UPDATE] != true {
+        if eventsEnableStatus[HMSConstants.ON_ROOM_UPDATE] != true {
             return
         }
         if update == .metaDataUpdated || update == .roomTypeChanged {
             return
         }
 
-        let roomData = HMSDecoder.getHmsRoom(room)
+        let roomData = HMSDecoder.getHmsRoomSubset(room, update)
         let type = getString(from: update)
 
-        self.delegate?.emitEvent(ON_ROOM_UPDATE, ["event": ON_ROOM_UPDATE, "id": self.id, "type": type, "room": roomData])
+        self.delegate?.emitEvent(HMSConstants.ON_ROOM_UPDATE, ["event": HMSConstants.ON_ROOM_UPDATE, "id": self.id, "type": type, "room": roomData])
     }
 
     func on(peer: HMSPeer, update: HMSPeerUpdate) {
-        if eventsEnableStatus[ON_PEER_UPDATE] != true {
+        if eventsEnableStatus[HMSConstants.ON_PEER_UPDATE] != true {
             return
         }
         let type = getString(from: update)
-        let hmsPeer = HMSDecoder.getHmsPeer(peer)
+        let hmsPeer = HMSDecoder.getHmsPeerSubsetForPeerUpdateEvent(peer, update)
 
         if !networkQualityUpdatesAttached && update == .networkQualityUpdated {
             return
         }
 
-        self.delegate?.emitEvent(ON_PEER_UPDATE, ["event": ON_PEER_UPDATE, "id": self.id, "type": type, "peer": hmsPeer])
+        self.delegate?.emitEvent(HMSConstants.ON_PEER_UPDATE, hmsPeer)
     }
 
     func on(track: HMSTrack, update: HMSTrackUpdate, for peer: HMSPeer) {
@@ -1220,162 +1404,298 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             }
         }
 
-        if eventsEnableStatus[ON_TRACK_UPDATE] != true {
+        if eventsEnableStatus[HMSConstants.ON_TRACK_UPDATE] != true {
             return
         }
 
         let type = getString(from: update)
-        let hmsPeer = HMSDecoder.getHmsPeer(peer)
+        let hmsPeer = HMSDecoder.getHmsPeerSubset(peer)
         let hmsTrack = HMSDecoder.getHmsTrack(track)
 
-        self.delegate?.emitEvent(ON_TRACK_UPDATE, ["event": ON_TRACK_UPDATE, "id": self.id, "type": type, "peer": hmsPeer, "track": hmsTrack])
+        self.delegate?.emitEvent(HMSConstants.ON_TRACK_UPDATE, ["event": HMSConstants.ON_TRACK_UPDATE, "id": self.id, "type": type, "peer": hmsPeer, "track": hmsTrack])
     }
 
     func on(error: Error) {
         if previewInProgress { previewInProgress = false }
-        if eventsEnableStatus[ON_ERROR] != true {
+        if eventsEnableStatus[HMSConstants.ON_ERROR] != true {
             return
         }
-        self.delegate?.emitEvent(ON_ERROR, ["error": HMSDecoder.getError(error), "id": id])
+        self.delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": HMSDecoder.getError(error), "id": id])
     }
 
     func on(message: HMSMessage) {
-        if eventsEnableStatus[ON_MESSAGE] != true {
+        if eventsEnableStatus[HMSConstants.ON_MESSAGE] != true {
             return
         }
-        self.delegate?.emitEvent(ON_MESSAGE, ["event": ON_MESSAGE, "id": self.id, "sender": HMSDecoder.getHmsPeer(message.sender), "recipient": HMSDecoder.getHmsMessageRecipient(message.recipient), "time": message.time.timeIntervalSince1970 * 1000, "message": message.message, "type": message.type])
+        self.delegate?.emitEvent(HMSConstants.ON_MESSAGE, ["event": HMSConstants.ON_MESSAGE, "id": self.id, "sender": HMSDecoder.getHmsPeerSubset(message.sender), "recipient": HMSDecoder.getHmsMessageRecipient(message.recipient), "time": message.time.timeIntervalSince1970 * 1000, "message": message.message, "type": message.type])
     }
 
     func on(updated speakers: [HMSSpeaker]) {
-        if eventsEnableStatus[ON_SPEAKER] != true {
+        if eventsEnableStatus[HMSConstants.ON_SPEAKER] != true {
             return
         }
         var speakerPeerIds: [[String: Any]] = []
         for speaker in speakers {
-            speakerPeerIds.append(["peer": HMSDecoder.getHmsPeer(speaker.peer), "level": speaker.level, "track": HMSDecoder.getHmsTrack(speaker.track)])
+            speakerPeerIds.append(["peer": HMSDecoder.getHmsPeerSubset(speaker.peer), "level": speaker.level, "track": HMSDecoder.getHmsTrack(speaker.track)])
         }
-        self.delegate?.emitEvent(ON_SPEAKER, ["event": ON_SPEAKER, "id": self.id, "speakers": speakerPeerIds])
+        self.delegate?.emitEvent(HMSConstants.ON_SPEAKER, ["event": HMSConstants.ON_SPEAKER, "id": self.id, "speakers": speakerPeerIds])
     }
 
     func onReconnecting() {
         reconnectingStage = true
-        if eventsEnableStatus[RECONNECTING] != true {
+        if eventsEnableStatus[HMSConstants.RECONNECTING] != true {
             return
         }
-        self.delegate?.emitEvent(RECONNECTING, ["event": RECONNECTING, "error": ["code": 1003, "description": "Network connection lost ", "isTerminal": false, "canRetry": true], "id": self.id ])
+        self.delegate?.emitEvent(HMSConstants.RECONNECTING, ["event": HMSConstants.RECONNECTING, "error": ["code": 1003, "description": "Network connection lost ", "isTerminal": false, "canRetry": true], "id": self.id ])
     }
 
     func onReconnected() {
         reconnectingStage = false
-        if eventsEnableStatus[RECONNECTED] != true {
+        if eventsEnableStatus[HMSConstants.RECONNECTED] != true {
             return
         }
-        self.delegate?.emitEvent(RECONNECTED, ["event": RECONNECTED, "id": self.id ])
+        self.delegate?.emitEvent(HMSConstants.RECONNECTED, ["event": HMSConstants.RECONNECTED, "id": self.id ])
     }
 
     func on(roleChangeRequest: HMSRoleChangeRequest) {
         recentRoleChangeRequest = roleChangeRequest
-        if eventsEnableStatus[ON_ROLE_CHANGE_REQUEST] != true {
+        if eventsEnableStatus[HMSConstants.ON_ROLE_CHANGE_REQUEST] != true {
             return
         }
         let decodedRoleChangeRequest = HMSDecoder.getHmsRoleChangeRequest(roleChangeRequest, self.id)
-        self.delegate?.emitEvent(ON_ROLE_CHANGE_REQUEST, decodedRoleChangeRequest)
+        self.delegate?.emitEvent(HMSConstants.ON_ROLE_CHANGE_REQUEST, decodedRoleChangeRequest)
     }
 
     func on(changeTrackStateRequest: HMSChangeTrackStateRequest) {
-        if eventsEnableStatus["ON_CHANGE_TRACK_STATE_REQUEST"] != true {
+        if eventsEnableStatus[HMSConstants.ON_CHANGE_TRACK_STATE_REQUEST] != true {
             return
         }
         let decodedChangeTrackStateRequest = HMSDecoder.getHmsChangeTrackStateRequest(changeTrackStateRequest, id)
-        delegate?.emitEvent("ON_CHANGE_TRACK_STATE_REQUEST", decodedChangeTrackStateRequest)
+        delegate?.emitEvent(HMSConstants.ON_CHANGE_TRACK_STATE_REQUEST, decodedChangeTrackStateRequest)
     }
 
     func on(removedFromRoom notification: HMSRemovedFromRoomNotification) {
         HMSDecoder.clearRestrictDataStates()
-        if eventsEnableStatus[ON_REMOVED_FROM_ROOM] != true {
+        if eventsEnableStatus[HMSConstants.ON_REMOVED_FROM_ROOM] != true {
             return
         }
         let requestedBy = notification.requestedBy as HMSPeer?
         var decodedRequestedBy: [String: Any]?
         if let requested = requestedBy {
-            decodedRequestedBy = HMSDecoder.getHmsPeer(requested)
+            decodedRequestedBy = HMSDecoder.getHmsPeerSubset(requested)
         }
         let reason = notification.reason
         let roomEnded = notification.roomEnded
-        self.delegate?.emitEvent(ON_REMOVED_FROM_ROOM, ["event": ON_REMOVED_FROM_ROOM, "id": self.id, "requestedBy": decodedRequestedBy as Any, "reason": reason, "roomEnded": roomEnded ])
+        self.delegate?.emitEvent(HMSConstants.ON_REMOVED_FROM_ROOM, ["event": HMSConstants.ON_REMOVED_FROM_ROOM, "id": self.id, "requestedBy": decodedRequestedBy as Any, "reason": reason, "roomEnded": roomEnded ])
     }
 
     func on(rtcStats: HMSRTCStatsReport) {
-        if eventsEnableStatus[ON_RTC_STATS] != true {
+        if eventsEnableStatus[HMSConstants.ON_RTC_STATS] != true {
             return
         }
-        if !rtcStatsAttached {
-            return
-        }
-        let video = HMSDecoder.getHMSRTCStats(rtcStats.video)
-        let audio = HMSDecoder.getHMSRTCStats(rtcStats.audio)
-        let combined = HMSDecoder.getHMSRTCStats(rtcStats.combined)
+        let video = HMSDecoder.getHMSRTCStats(rtcStats.video) // [bitrateReceived, bitrateSent, bytesReceived, bytesSent, packetsLost, packetsReceived, roundTripTime]
+        let audio = HMSDecoder.getHMSRTCStats(rtcStats.audio) // [bitrateReceived, bitrateSent, bytesReceived, bytesSent, packetsLost, packetsReceived, roundTripTime]
+        let combined = HMSDecoder.getHMSRTCStats(rtcStats.combined) // [bitrateReceived, bitrateSent, bytesReceived, bytesSent, packetsLost, packetsReceived, roundTripTime]
 
-        self.delegate?.emitEvent(ON_RTC_STATS, ["video": video, "audio": audio, "combined": combined, "id": self.id])
+        self.delegate?.emitEvent(HMSConstants.ON_RTC_STATS, ["video": video, "audio": audio, "combined": combined, "id": self.id])
     }
 
     func on(localAudioStats: HMSLocalAudioStats, track: HMSAudioTrack, peer: HMSPeer) {
-        if eventsEnableStatus[ON_LOCAL_AUDIO_STATS] != true {
+        if eventsEnableStatus[HMSConstants.ON_LOCAL_AUDIO_STATS] != true {
             return
         }
-        if !rtcStatsAttached {
-            return
-        }
-        let localStats = HMSDecoder.getLocalAudioStats(localAudioStats)
+        let localStats = HMSDecoder.getLocalAudioStats(localAudioStats) // [bitrate, bytesSent, roundTripTime]
         let localTrack = HMSDecoder.getHmsAudioTrack(track)
-        let decodedPeer = HMSDecoder.getHmsPeer(peer)
+        let decodedPeer = HMSDecoder.getHmsPeerSubset(peer)
 
-        self.delegate?.emitEvent(ON_LOCAL_AUDIO_STATS, ["localAudioStats": localStats, "track": localTrack, "peer": decodedPeer, "id": self.id])
+        self.delegate?.emitEvent(HMSConstants.ON_LOCAL_AUDIO_STATS, ["localAudioStats": localStats, "track": localTrack, "peer": decodedPeer, "id": self.id])
     }
 
-    func on(localVideoStats: [HMSLocalVideoStats], track: HMSVideoTrack, peer: HMSPeer) {
-        if eventsEnableStatus[ON_LOCAL_VIDEO_STATS] != true {
+    func on(localVideoStats: [HMSLocalVideoStats], track: HMSVideoTrack, peer: HMSPeer) { // DOUBT: HMSLocalVideoTrack instead of HMSVideoTrack?
+        if eventsEnableStatus[HMSConstants.ON_LOCAL_VIDEO_STATS] != true {
             return
         }
-        if !rtcStatsAttached {
-            return
-        }
-        let localStats = HMSDecoder.getLocalVideoStats(localVideoStats)
-        let decodedPeer = HMSDecoder.getHmsPeer(peer)
+        let localStats = HMSDecoder.getLocalVideoStats(localVideoStats) // List<[bitrate, bytesSent, roundTripTime, frameRate, resolution, layer]>
+        let decodedPeer = HMSDecoder.getHmsPeerSubset(peer)
         let localTrack = HMSDecoder.getHmsVideoTrack(track)
 
-        self.delegate?.emitEvent(ON_LOCAL_VIDEO_STATS, ["localVideoStats": localStats, "track": localTrack, "peer": decodedPeer, "id": self.id])
+        self.delegate?.emitEvent(HMSConstants.ON_LOCAL_VIDEO_STATS, ["localVideoStats": localStats, "track": localTrack, "peer": decodedPeer, "id": self.id])
     }
 
     func on(remoteAudioStats: HMSRemoteAudioStats, track: HMSAudioTrack, peer: HMSPeer) {
-        if eventsEnableStatus[ON_REMOTE_AUDIO_STATS] != true {
+        if eventsEnableStatus[HMSConstants.ON_REMOTE_AUDIO_STATS] != true {
             return
         }
-        if !rtcStatsAttached {
-            return
-        }
-        let remoteStats = HMSDecoder.getRemoteAudioStats(remoteAudioStats)
+        let remoteStats = HMSDecoder.getRemoteAudioStats(remoteAudioStats) // [bitrate, bytesReceived, jitter, packetsLost, packetsReceived]
         let remoteTrack = HMSDecoder.getHmsAudioTrack(track)
-        let decodedPeer = HMSDecoder.getHmsPeer(peer)
+        let decodedPeer = HMSDecoder.getHmsPeerSubset(peer)
 
-        self.delegate?.emitEvent(ON_REMOTE_AUDIO_STATS, ["remoteAudioStats": remoteStats, "track": remoteTrack, "peer": decodedPeer, "id": self.id])
+        self.delegate?.emitEvent(HMSConstants.ON_REMOTE_AUDIO_STATS, ["remoteAudioStats": remoteStats, "track": remoteTrack, "peer": decodedPeer, "id": self.id])
     }
 
     func on(remoteVideoStats: HMSRemoteVideoStats, track: HMSVideoTrack, peer: HMSPeer) {
-        if eventsEnableStatus[ON_REMOTE_VIDEO_STATS] != true {
+        if eventsEnableStatus[HMSConstants.ON_REMOTE_VIDEO_STATS] != true {
             return
         }
-        if !rtcStatsAttached {
-            return
-        }
-        let remoteStats = HMSDecoder.getRemoteVideoStats(remoteVideoStats)
-        let decodedPeer = HMSDecoder.getHmsPeer(peer)
+        let remoteStats = HMSDecoder.getRemoteVideoStats(remoteVideoStats) // [bitrate, bytesReceived, frameRate, jitter, packetsLost, packetsReceived, resolution]
+        let decodedPeer = HMSDecoder.getHmsPeerSubset(peer)
         let remoteTrack = HMSDecoder.getHmsVideoTrack(track)
 
-        self.delegate?.emitEvent(ON_REMOTE_VIDEO_STATS, ["remoteVideoStats": remoteStats, "track": remoteTrack, "peer": decodedPeer, "id": self.id])
+        self.delegate?.emitEvent(HMSConstants.ON_REMOTE_VIDEO_STATS, ["remoteVideoStats": remoteStats, "track": remoteTrack, "peer": decodedPeer, "id": self.id])
     }
 
-    // MARK: Helper Functions
+    // MARK: - Simulcast
+
+    func getVideoTrackLayerDefinition(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let trackId = data.value(forKey: "trackId") as? String
+        else {
+            let errorMessage = "\(#function) " + HMSHelper.getUnavailableRequiredKey(data, ["trackId"])
+            emitRequiredKeysError(errorMessage)
+            reject?(errorMessage, errorMessage, nil)
+            return
+        }
+
+        DispatchQueue.main.async { [weak self] in
+
+            guard let self = self,
+                  let remotePeers = self.hms?.remotePeers,
+                  let remoteVideoTrack = HMSHelper.getRemoteVideoTrackFromTrackId(trackId, remotePeers)
+            else {
+                let errorMessage = "\(#function) " + "TRACK_NOT_FOUND"
+                self?.emitRequiredKeysError(errorMessage)
+                reject?(errorMessage, errorMessage, nil)
+                return
+            }
+
+            guard let layerDefinitions = remoteVideoTrack.layerDefinitions
+            else {
+                let errorMessage = "\(#function) " + "layer definitions not available for track: '\(trackId)' !"
+                self.emitRequiredKeysError(errorMessage)
+                reject?(errorMessage, errorMessage, nil)
+                return
+            }
+
+            let parsedLayerDefinitions = HMSDecoder.getSimulcastLayerDefinitions(for: layerDefinitions)
+
+            resolve?(parsedLayerDefinitions)
+        }
+    }
+
+    func getVideoTrackLayer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+
+        guard let trackId = data.value(forKey: "trackId") as? String
+        else {
+            let errorMessage = "\(#function) " + HMSHelper.getUnavailableRequiredKey(data, ["trackId"])
+            emitRequiredKeysError(errorMessage)
+            reject?(errorMessage, errorMessage, nil)
+            return
+        }
+
+        DispatchQueue.main.async { [weak self] in
+
+            guard let self = self,
+                  let remotePeers = self.hms?.remotePeers,
+                  let remoteVideoTrack = HMSHelper.getRemoteVideoTrackFromTrackId(trackId, remotePeers)
+            else {
+                let errorMessage = "\(#function) " + "TRACK_NOT_FOUND"
+                self?.emitRequiredKeysError(errorMessage)
+                reject?(errorMessage, errorMessage, nil)
+                return
+            }
+
+            let parsedLayer = HMSDecoder.getString(from: remoteVideoTrack.layer)
+
+            resolve?(parsedLayer)
+        }
+    }
+
+    func setVideoTrackLayer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let trackId = data.value(forKey: "trackId") as? String,
+              let layer = data.value(forKey: "layer") as? String
+        else {
+            let errorMessage = "\(#function) " + HMSHelper.getUnavailableRequiredKey(data, ["trackId", "layer"])
+            emitRequiredKeysError(errorMessage)
+            reject?(errorMessage, errorMessage, nil)
+            return
+        }
+
+        DispatchQueue.main.async { [weak self] in
+
+            guard let self = self,
+                  let remotePeers = self.hms?.remotePeers,
+                  let remoteVideoTrack = HMSHelper.getRemoteVideoTrackFromTrackId(trackId, remotePeers)
+            else {
+                let errorMessage = "\(#function) " + "TRACK_NOT_FOUND"
+                self?.emitRequiredKeysError(errorMessage)
+                reject?(errorMessage, errorMessage, nil)
+                return
+            }
+
+            switch layer.uppercased() {
+            case "LOW":
+                remoteVideoTrack.layer = .low
+            case "MEDIUM":
+                remoteVideoTrack.layer = .mid
+            default:
+                remoteVideoTrack.layer = .high
+            }
+
+            resolve?(true)
+        }
+    }
+
+    // MARK: - Advanced Camera Controls
+
+    func captureImageAtMaxSupportedResolution(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+
+        let withFlash = data["flash"] as? Bool ?? false
+
+        DispatchQueue.main.async { [weak self] in
+
+            guard let localPeer = self?.hms?.localPeer else {
+                let errorMessage = "\(#function) An instance of Local Peer could not be found. Please check if a Room is joined."
+                reject?("6004", errorMessage, nil)
+                return
+            }
+
+            guard let localVideoTrack = localPeer.localVideoTrack()
+            else {
+                let errorMessage = "\(#function) Video Track of Local Peer could not be found. Please check if the Local Peer has permission to publish video & video is unmuted currently."
+                reject?("6004", errorMessage, nil)
+                return
+            }
+
+            localVideoTrack.captureImageAtMaxSupportedResolution(withFlash: withFlash) { image in
+
+                guard let rawImage = image, let capturedImage = rawImage.fixOrientation() else {
+                    let errorMessage = "\(#function) Could not capture image of the Local Peer's Video Track."
+                    reject?("6004", errorMessage, nil)
+                    return
+                }
+
+                guard let data = capturedImage.pngData() else {
+                    let errorMessage = "\(#function) Could not compress image of the Local Peer's Video Track to png data."
+                    reject?("6004", errorMessage, nil)
+                    return
+                }
+
+                let filePath = HMSRNSDK.getDocumentsDirectory().appendingPathComponent("hms_\(HMSRNSDK.getTimeStamp()).png")
+
+                do {
+                    try data.write(to: filePath)
+
+                    resolve?(filePath.relativePath)
+                } catch let error {
+                    let errorMessage = "\(#function) Could not write to disk the image data  of the Local Peer's Video Track. \(error.localizedDescription)"
+                    reject?("6004", errorMessage, nil)
+                    return
+                }
+            }
+        }
+    }
+
+    // MARK: - Helper Functions
+
     private func getString(from update: HMSPeerUpdate) -> String {
         switch update {
         case .peerJoined:
@@ -1440,9 +1760,32 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func emitRequiredKeysError(_ error: String) {
-        if eventsEnableStatus[ON_ERROR] != true {
+        if eventsEnableStatus[HMSConstants.ON_ERROR] != true {
             return
         }
-        delegate?.emitEvent(ON_ERROR, ["error": ["code": 6002, "description": error, "isTerminal": false, "canRetry": true], "id": id])
+        delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": ["code": 7000, "description": error, "isTerminal": false, "canRetry": true], "id": id]) // DOUBT: Error code 6002 or 7000?
+    }
+
+    static private func getDocumentsDirectory() -> URL {
+        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+        return paths[0]
+    }
+
+    static private func getTimeStamp() -> String {
+        "\(Date().timeIntervalSince1970)"
+    }
+}
+
+extension UIImage {
+    func fixOrientation() -> UIImage? {
+        if self.imageOrientation == UIImage.Orientation.up {
+            return self
+        }
+
+        UIGraphicsBeginImageContext(self.size)
+        self.draw(in: CGRect(origin: .zero, size: self.size))
+        let normalizedImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return normalizedImage
     }
 }

@@ -1,102 +1,87 @@
-import React, {ReactNode} from 'react';
-import {
-  Modal,
-  StyleSheet,
-  View,
-  StyleProp,
-  ViewStyle,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native';
+import React from 'react';
+import {StyleSheet, View, StyleProp, ViewStyle} from 'react-native';
+import Modal, {SupportedAnimation} from 'react-native-modal';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {COLORS} from '../utils/theme';
 import {CustomButton} from './CustomButton';
 
-export const DefaultModal = ({
-  modalVisible,
-  setModalVisible,
-  children,
-  animationType = 'slide',
-  transparent = true,
-  overlay = true,
-  modalPosiion = 'flex-end',
-  viewStyle,
-  modalStyle,
-}: {
+export interface DefaultModalProps {
   modalVisible: boolean;
   setModalVisible: any;
-  children: ReactNode;
-  animationType?: 'none' | 'slide' | 'fade';
-  transparent?: boolean;
-  overlay?: boolean;
+  animationIn?: SupportedAnimation;
+  animationOut?: SupportedAnimation;
   modalPosiion?: 'flex-end' | 'center';
   viewStyle?: StyleProp<ViewStyle>;
   modalStyle?: StyleProp<ViewStyle>;
+  backdrop?: boolean;
+}
+
+export const DefaultModal: React.FC<DefaultModalProps> = ({
+  modalVisible,
+  setModalVisible,
+  children,
+  animationIn = 'fadeIn',
+  animationOut = 'fadeOut',
+  modalPosiion = 'flex-end',
+  backdrop = false,
+  viewStyle,
+  modalStyle,
 }) => {
   const {left, right} = useSafeAreaInsets();
   return (
     <Modal
-      animationType={animationType}
-      transparent={transparent}
-      visible={modalVisible}
+      useNativeDriver={true}
+      useNativeDriverForBackdrop={true}
+      hideModalContentWhileAnimating={true}
+      animationIn={animationIn}
+      animationOut={animationOut}
+      avoidKeyboard={true}
+      isVisible={modalVisible}
+      coverScreen={true}
+      hasBackdrop={backdrop}
       supportedOrientations={['portrait', 'landscape']}
-      onRequestClose={setModalVisible}
-      style={modalStyle}>
+      onBackdropPress={setModalVisible}
+      onDismiss={setModalVisible}
+      onBackButtonPress={setModalVisible}
+      style={[modalStyle, {margin: 0, justifyContent: modalPosiion}]}
+    >
       <View
         style={[
-          styles.container,
-          {
-            justifyContent: modalPosiion,
-          },
-          !overlay && styles.overlay,
+          styles.contentContainer,
+          modalPosiion === 'flex-end' ? styles.end : styles.center,
+          viewStyle,
+          {marginLeft: left, marginRight: right},
         ]}
-        onTouchEnd={setModalVisible}>
-        <KeyboardAvoidingView
-          enabled={Platform.OS === 'ios'}
-          behavior="padding"
-          style={[
-            styles.contentContainer,
-            modalPosiion === 'flex-end' ? styles.end : styles.center,
-            viewStyle,
-            {marginLeft: left, marginRight: right},
-          ]}
-          onTouchEnd={e => e.stopPropagation()}>
-          {modalPosiion === 'flex-end' && (
-            <CustomButton
-              onPress={setModalVisible}
-              viewStyle={styles.crossButton}
-              LeftIcon={
-                <MaterialCommunityIcons
-                  name="close"
-                  style={styles.crossButtonIcon}
-                  size={24}
-                />
-              }
-            />
-          )}
-          {children}
-        </KeyboardAvoidingView>
+      >
+        {modalPosiion === 'flex-end' && (
+          <CustomButton
+            onPress={setModalVisible}
+            viewStyle={styles.crossButton}
+            LeftIcon={
+              <MaterialCommunityIcons
+                name="close"
+                style={styles.crossButtonIcon}
+                size={24}
+              />
+            }
+          />
+        )}
+        {children}
       </View>
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.OVERLAY,
-  },
-  overlay: {
-    backgroundColor: 'transparent',
-  },
   contentContainer: {
     maxHeight: '80%',
     // minHeight: '20%',
     backgroundColor: COLORS.SURFACE.DEFAULT,
   },
   end: {
+    flex: 1,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     padding: 16,

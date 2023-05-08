@@ -3,11 +3,14 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 
 platform :ios, '12.0'
 
+# ENSURE TO SET THE CORRECT iOS SCREENSHARE EXTENSION TARGET NAME BELOW.
+# Not required if starting Screenshare from iOS devices is not a feature of the app. Then Remove this Target snippet
 target 'RNHMSExampleBroadcastUpload' do
   use_modular_headers!
   pod 'HMSBroadcastExtensionSDK'
 end
 
+# ENSURE TO SET THE CORRECT MAIN APP TARGET NAME BELOW
 target 'RNHMSExample' do
   config = use_native_modules!
   permissions_path = '../node_modules/react-native-permissions/ios'
@@ -23,17 +26,12 @@ target 'RNHMSExample' do
   pod 'Permission-Camera', :path => "#{permissions_path}/Camera"
   pod 'Permission-Microphone', :path => "#{permissions_path}/Microphone"
 
-  target 'RNHMSExampleTests' do
-    inherit! :complete
-    # Pods for testing
-  end
-
   # Enables Flipper.
-  #
   # Note that if you have use_frameworks! enabled, Flipper will not work and
   # you should disable the next line.
   use_flipper!()
 
+  # POST INSTALL SCRIPT TO DISABLE BITCODE FROM ALL PODS & EXCLUDE arm64 FROM SIMULATORS
   post_install do |installer|
     react_native_post_install(installer)
     installer.pods_project.build_configurations.each do |config|

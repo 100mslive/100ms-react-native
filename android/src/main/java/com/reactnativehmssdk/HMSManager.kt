@@ -371,20 +371,6 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun enableRTCStats(data: ReadableMap) {
-    val hms = HMSHelper.getHms(data, hmsCollection)
-
-    hms?.enableRTCStats()
-  }
-
-  @ReactMethod
-  fun disableRTCStats(data: ReadableMap) {
-    val hms = HMSHelper.getHms(data, hmsCollection)
-
-    hms?.disableRTCStats()
-  }
-
-  @ReactMethod
   fun enableNetworkQualityUpdates(data: ReadableMap) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
@@ -447,6 +433,20 @@ class HMSManager(reactContext: ReactApplicationContext) :
     hms?.getSessionMetaData(callback)
   }
 
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  fun getPeerProperty(data: ReadableMap): WritableMap? {
+    val hms = HMSHelper.getHms(data, hmsCollection) ?: return null
+
+    return hms.getPeerProperty(data)
+  }
+
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  fun getRoomProperty(data: ReadableMap): WritableMap? {
+    val hms = HMSHelper.getHms(data, hmsCollection) ?: return null
+
+    return hms.getRoomProperty(data)
+  }
+
   @ReactMethod
   fun enableEvent(data: ReadableMap, promise: Promise?) {
     val hms = HMSHelper.getHms(data, hmsCollection)
@@ -466,6 +466,13 @@ class HMSManager(reactContext: ReactApplicationContext) :
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.restrictData(data, promise)
+  }
+
+  @ReactMethod()
+  fun getAuthTokenByRoomCode(data: ReadableMap, promise: Promise) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.getAuthTokenByRoomCode(data, promise)
   }
 
   // region Person-In-Person Mode Action handing
@@ -861,6 +868,48 @@ class HMSManager(reactContext: ReactApplicationContext) :
     } catch (e: Exception) {
       throw e
     }
+  }
+
+  @ReactMethod
+  fun getRemoteVideoTrackFromTrackId(data: ReadableMap, promise: Promise) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.getRemoteVideoTrackFromTrackId(data, promise)
+  }
+
+  @ReactMethod
+  fun getRemoteAudioTrackFromTrackId(data: ReadableMap, promise: Promise) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.getRemoteAudioTrackFromTrackId(data, promise)
+  }
+
+  @ReactMethod
+  fun getVideoTrackLayer(data: ReadableMap, promise: Promise) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.getVideoTrackLayer(data, promise)
+  }
+
+  @ReactMethod
+  fun getVideoTrackLayerDefinition(data: ReadableMap, promise: Promise) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.getVideoTrackLayerDefinition(data, promise)
+  }
+
+  @ReactMethod
+  fun setVideoTrackLayer(data: ReadableMap, promise: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.setVideoTrackLayer(data, promise)
+  }
+
+  @ReactMethod
+  fun captureImageAtMaxSupportedResolution(data: ReadableMap, promise: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.captureImageAtMaxSupportedResolution(data, promise)
   }
 
   fun emitEvent(event: String, data: WritableMap) {
