@@ -14,6 +14,7 @@ interface HmsViewProps {
     trackId: string;
     id: string;
     mirror: boolean;
+    scaleType: HMSVideoViewMode;
   };
   autoSimulcast: boolean;
   setZOrderMediaOverlay: boolean;
@@ -56,6 +57,7 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
       trackId,
       id,
       mirror,
+      scaleType,
     };
 
     useEffect(() => {

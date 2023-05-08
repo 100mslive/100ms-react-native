@@ -107,7 +107,8 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
     id: String?,
     trackId: String?,
     hmsCollection: MutableMap<String, HMSRNSDK>,
-    mirror: Boolean?
+    mirror: Boolean?,
+    scaleType: String
   ) {
     if (id != null) {
       sdkId = id
@@ -118,6 +119,8 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
       if (mirror != null) {
         hmsVideoView.setMirror(mirror)
       }
+
+      updateScaleType(scaleType)
       // TODO: can be optimized here
       videoTrack = hms.getRoom()?.let { HmsUtilities.getVideoTrack(trackId, it) }
     }
