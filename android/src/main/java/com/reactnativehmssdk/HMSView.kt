@@ -66,8 +66,11 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
         }
         scaleTypeApplied = true // set the scaleTypeApplied flag to true
       }
-    } ?: { // Elvis Operator to handle the case when videoTrack is null
-      Log.e("HMSView", "HMSView attached to window, but it's videoTrack is null") // log an error message
+    } ?: run { // Elvis Operator to handle the case when videoTrack is null
+      Log.e(
+        "HMSView",
+        "HMSView attached to window, but it's videoTrack is null",
+      ) // log an error message
     }
   }
 
