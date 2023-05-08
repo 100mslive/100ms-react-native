@@ -23,7 +23,7 @@ export class EventSubscriptionVendor {
     eventType: string,
     subscription: EventSubscription
   ): EventSubscription {
-    if (subscription.subscriber === this) {
+    if (subscription.subscriber !== this) {
       console.warn('The subscriber of the subscription is incorrectly set.'); // TODO: throw error or use logger?
     }
     if (!this._subscriptionsForType[eventType]) {
