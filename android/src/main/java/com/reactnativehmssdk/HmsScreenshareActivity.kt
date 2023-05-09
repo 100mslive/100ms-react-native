@@ -13,41 +13,41 @@ import live.hms.video.sdk.HMSActionResultListener
 
 class HmsScreenshareActivity : ComponentActivity() {
   private var resultLauncher: ActivityResultLauncher<Intent> =
-      this.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-          val mediaProjectionPermissionResultData: Intent? = result.data
-          val id = intent.getStringExtra("id")
-          HMSManager.hmsCollection[id]?.hmsSDK?.startScreenshare(
-              object : HMSActionResultListener {
-                override fun onError(error: HMSException) {
-                  finish()
-                  HMSManager.hmsCollection[id]?.screenshareCallback?.reject(error)
-                  HMSManager.hmsCollection[id]?.emitHMSError(error)
-                }
-                override fun onSuccess() {
-                  HMSManager.hmsCollection[id]?.screenshareCallback?.resolve(
-                      HMSManager.hmsCollection[id]?.emitHMSSuccess()
-                  )
-                  finish()
-                }
-              },
-              mediaProjectionPermissionResultData
-          )
-        } else {
-          val id = intent.getStringExtra("id")
-          val error =
-              HMSException(
-                  103,
-                  "RESULT_CANCELED",
-                  "RESULT_CANCELED",
-                  "RESULT_CANCELED",
-                  "RESULT_CANCELED"
+    this.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+      if (result.resultCode == Activity.RESULT_OK) {
+        val mediaProjectionPermissionResultData: Intent? = result.data
+        val id = intent.getStringExtra("id")
+        HMSManager.hmsCollection[id]?.hmsSDK?.startScreenshare(
+          object : HMSActionResultListener {
+            override fun onError(error: HMSException) {
+              finish()
+              HMSManager.hmsCollection[id]?.screenshareCallback?.reject(error)
+              HMSManager.hmsCollection[id]?.emitHMSError(error)
+            }
+            override fun onSuccess() {
+              HMSManager.hmsCollection[id]?.screenshareCallback?.resolve(
+                HMSManager.hmsCollection[id]?.emitHMSSuccess(),
               )
-          HMSManager.hmsCollection[id]?.screenshareCallback?.reject(error)
-          HMSManager.hmsCollection[id]?.emitHMSError(error)
-          finish()
-        }
+              finish()
+            }
+          },
+          mediaProjectionPermissionResultData,
+        )
+      } else {
+        val id = intent.getStringExtra("id")
+        val error =
+          HMSException(
+            103,
+            "RESULT_CANCELED",
+            "RESULT_CANCELED",
+            "RESULT_CANCELED",
+            "RESULT_CANCELED",
+          )
+        HMSManager.hmsCollection[id]?.screenshareCallback?.reject(error)
+        HMSManager.hmsCollection[id]?.emitHMSError(error)
+        finish()
       }
+    }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -60,20 +60,20 @@ class HmsScreenshareActivity : ComponentActivity() {
     if (isScreenShared !== null && !isScreenShared) {
       try {
         val mediaProjectionManager =
-            getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+          getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         resultLauncher.launch(mediaProjectionManager.createScreenCaptureIntent())
       } catch (e: Exception) {
         println(e)
       }
     } else {
       HMSManager.hmsCollection[id]?.emitHMSError(
-          HMSException(
-              103,
-              "SCREENSHARE_IS_ALREADY_RUNNING",
-              "SCREENSHARE_IS_ALREADY_RUNNING",
-              "SCREENSHARE_IS_ALREADY_RUNNING",
-              "SCREENSHARE_IS_ALREADY_RUNNING"
-          )
+        HMSException(
+          103,
+          "SCREENSHARE_IS_ALREADY_RUNNING",
+          "SCREENSHARE_IS_ALREADY_RUNNING",
+          "SCREENSHARE_IS_ALREADY_RUNNING",
+          "SCREENSHARE_IS_ALREADY_RUNNING",
+        ),
       )
       finish()
     }

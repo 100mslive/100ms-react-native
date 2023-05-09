@@ -28,7 +28,7 @@ class HMSSDKViewManager : SimpleViewManager<HMSView>() {
     return MapBuilder.builder<String, Any>()
       .put(
         "topChange",
-        MapBuilder.of("phasedRegistrationNames", MapBuilder.of("bubbled", "onChange"))
+        MapBuilder.of("phasedRegistrationNames", MapBuilder.of("bubbled", "onChange")),
       )
       .build()
   }
@@ -36,7 +36,7 @@ class HMSSDKViewManager : SimpleViewManager<HMSView>() {
   override fun getExportedCustomDirectEventTypeConstants(): MutableMap<String, Any>? {
     return MapBuilder.of(
       "captureFrame",
-      MapBuilder.of("registrationName", "onDataReturned")
+      MapBuilder.of("registrationName", "onDataReturned"),
     )
   }
 
