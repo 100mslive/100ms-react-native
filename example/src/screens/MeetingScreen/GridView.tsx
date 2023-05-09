@@ -16,6 +16,7 @@ type GridViewProps = {
 
 type GridViewRefAttrs = {
   captureViewScreenshot(node: PeerTrackNode): any;
+  getFlatlistRef(): React.RefObject<FlatList<any>>;
 };
 
 const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
@@ -57,6 +58,9 @@ const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
             .catch((error: any) =>
               console.warn('HmsView Capture Error: ', error),
             );
+        },
+        getFlatlistRef: () => {
+          return flatlistRef;
         },
       }),
       [],

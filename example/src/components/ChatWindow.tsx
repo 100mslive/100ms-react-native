@@ -267,6 +267,9 @@ const ChatList = ({
 export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
   // hooks
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
+  const hmsSessionStore = useSelector(
+    (state: RootState) => state.user.hmsSessionStore,
+  );
   const pinnedMessage = useSelector(
     (state: RootState) => state.messages.pinnedMessage,
   );
@@ -282,11 +285,17 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
   const [showBanner, setShowBanner] = useState<boolean>(false);
   const [text, setText] = useState('');
 
-  const setSessionMetaData = (value: string | null) => {
-    hmsInstance?.setSessionMetaData(value).then(() => {
-      hmsInstance?.sendBroadcastMessage('refresh', HMSMessageType.METADATA);
-      dispatch(addPinnedMessage(value));
-    });
+  const setSessionMetaData = async (value: string | null) => {
+    // If instance of HMSSessionStore is available
+    if (hmsSessionStore) {
+      try {
+        // set `value` on `session` with key 'pinnedMessage'
+        const response = await hmsSessionStore.set(value, 'pinnedMessage');
+        console.log('setSessionMetaData Response -> ', response);
+      } catch (error) {
+        console.log('setSessionMetaData Error -> ', error);
+      }
+    }
   };
 
   const sendMessage = () => {

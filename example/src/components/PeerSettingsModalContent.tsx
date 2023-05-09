@@ -13,6 +13,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import type {RootState} from '../redux';
 import {COLORS} from '../utils/theme';
 import {PeerTrackNode} from '../utils/types';
+import {isTileOnSpotlight} from '../utils/functions';
 
 interface PeerSettingsModalContentProps {
   localPeer: HMSLocalPeer;
@@ -40,6 +41,12 @@ export const PeerSettingsModalContent: React.FC<
   onStreamingQualityPress,
 }) => {
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
+  const hmsSessionStore = useSelector(
+    (state: RootState) => state.user.hmsSessionStore,
+  );
+  const spotlightTrackId = useSelector(
+    (state: RootState) => state.user.spotlightTrackId,
+  );
 
   const removePeer = () => {
     hmsInstance
@@ -72,6 +79,37 @@ export const PeerSettingsModalContent: React.FC<
     );
   };
 
+  // Check if selected tile is "On Spotlight"
+  const {onSpotlight, tileVideoTrackId, tileAudioTrackId} = isTileOnSpotlight(
+    spotlightTrackId,
+    {
+      tileVideoTrack: peerTrackNode.track,
+      peerRegularAudioTrack: peerTrackNode.peer.audioTrack,
+      peerAuxTracks: peerTrackNode.peer.auxiliaryTracks,
+    },
+  );
+
+  const handleSpotlightPress = async () => {
+    try {
+      // Close Modal
+      cancelModal();
+
+      if (!hmsSessionStore) {
+        return null;
+      }
+
+      if (tileAudioTrackId || tileVideoTrackId) {
+        // Toggle `spotlight` key value on Session Store
+        await hmsSessionStore.set(
+          onSpotlight ? null : tileAudioTrackId || tileVideoTrackId,
+          'spotlight',
+        );
+      }
+    } catch (error) {
+      console.log('Add to spotlight error -> ', error);
+    }
+  };
+
   const {peer} = peerTrackNode;
 
   const localPeerPermissions = localPeer.role?.permissions;
@@ -88,6 +126,14 @@ export const PeerSettingsModalContent: React.FC<
       <Text style={styles.participantRole}>{peer.role?.name}</Text>
 
       <View style={styles.contentContainer}>
+        <SettingItem
+          text={onSpotlight ? 'Remove from Spotlight' : 'Add to Spotlight'}
+          IconType={Ionicons}
+          iconName={onSpotlight ? 'ios-star' : 'ios-star-outline'}
+          onPress={handleSpotlightPress}
+          disabled={!peerTrackNode.track?.trackId}
+        />
+
         {!peer.isLocal ? (
           <SettingItem
             text={isPeerAudioMute ? 'Request Audio Unmute' : 'Mute Audio'}

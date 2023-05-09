@@ -11,6 +11,7 @@ import {
   HMSTrackType,
   HMSTrackSource,
   HMSLocalPeer,
+  HMSVideoTrack,
 } from '@100mslive/react-native-hms';
 
 import {PeerTrackNode} from './types';
@@ -313,7 +314,7 @@ export const validateUrl = (url?: string): boolean => {
 
 export const checkPermissions = async (
   permissions: Array<
-    typeof PERMISSIONS.ANDROID[keyof typeof PERMISSIONS.ANDROID]
+    (typeof PERMISSIONS.ANDROID)[keyof typeof PERMISSIONS.ANDROID]
   >,
 ): Promise<boolean> => {
   if (Platform.OS === 'ios') {
@@ -366,14 +367,24 @@ export const pairData = (
   unGroupedPeerTrackNodes: PeerTrackNode[],
   batch: number,
   localPeer?: HMSLocalPeer,
+  spotlightVideoTrackId?: string | null,
 ) => {
+  const spotlightNode: Array<Array<PeerTrackNode>> = [];
   const pairedDataRegular: Array<Array<PeerTrackNode>> = [];
   const pairedDataSource: Array<Array<PeerTrackNode>> = [];
   let groupedPeerTrackNodes: Array<PeerTrackNode> = [];
   let itemsPushed: number = 0;
 
   unGroupedPeerTrackNodes.map((item: PeerTrackNode) => {
-    if (
+    const {onSpotlight} = isTileOnSpotlight(spotlightVideoTrackId, {
+      tileVideoTrack: item.track,
+      peerRegularAudioTrack: item.peer.audioTrack,
+      peerAuxTracks: item.peer.auxiliaryTracks,
+    });
+
+    if (onSpotlight) {
+      spotlightNode.push([item]);
+    } else if (
       item.track?.source !== HMSTrackSource.REGULAR &&
       item.track?.source !== undefined
     ) {
@@ -393,7 +404,38 @@ export const pairData = (
     pairedDataRegular.push(groupedPeerTrackNodes);
   }
 
-  return [...pairedDataSource, ...pairedDataRegular];
+  return [...spotlightNode, ...pairedDataSource, ...pairedDataRegular];
+};
+
+export const isTileOnSpotlight = (
+  spotlightTrackId: string | undefined | null,
+  peerTracks: {
+    tileVideoTrack?: HMSVideoTrack;
+    peerRegularAudioTrack?: HMSTrack;
+    peerAuxTracks?: HMSTrack[];
+  },
+) => {
+  const trackSource =
+    peerTracks.tileVideoTrack?.source || HMSTrackSource.REGULAR;
+
+  const videoTrackId = peerTracks.tileVideoTrack?.trackId;
+
+  const audioTrackId =
+    trackSource === HMSTrackSource.REGULAR
+      ? peerTracks.peerRegularAudioTrack?.trackId
+      : peerTracks.peerAuxTracks?.find(
+          auxiliaryTrack =>
+            auxiliaryTrack.source === trackSource &&
+            auxiliaryTrack.type === HMSTrackType.AUDIO,
+        )?.trackId;
+
+  return {
+    onSpotlight: spotlightTrackId
+      ? spotlightTrackId === audioTrackId || spotlightTrackId === videoTrackId
+      : false,
+    tileVideoTrackId: videoTrackId,
+    tileAudioTrackId: audioTrackId,
+  };
 };
 
 export const getDisplayTrackDimensions = (
