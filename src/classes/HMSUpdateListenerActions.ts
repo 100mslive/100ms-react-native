@@ -1,3 +1,9 @@
+/**
+ * These are the available events emitted by the `HMSSDK`
+ *
+ * For more info about these events, checkout Event Listener docs
+ * {@link https://www.100ms.live/docs/react-native/v2/how-to-guides/listen-to-room-updates/event-listeners}
+ */
 export enum HMSUpdateListenerActions {
   ON_PREVIEW = 'ON_PREVIEW',
   ON_JOIN = 'ON_JOIN',
