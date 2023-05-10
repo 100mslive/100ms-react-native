@@ -14,11 +14,12 @@ interface HmsViewProps {
     trackId: string;
     id: string;
     mirror: boolean;
+    scaleType: HMSVideoViewMode;
   };
   autoSimulcast: boolean;
   setZOrderMediaOverlay: boolean;
-  scaleType: HMSVideoViewMode;
-  style: ViewStyle;
+  // scaleType: HMSVideoViewMode;
+  // style: ViewStyle;
   onChange: Function;
   onDataReturned: Function;
 }
@@ -41,7 +42,8 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
   (props, ref) => {
     const {
       trackId,
-      style = temporaryStyles.customStyle,
+      // style = temporaryStyles.customStyle,
+      style,
       id = HMSConstants.DEFAULT_SDK_ID,
       mirror = false,
       setZOrderMediaOverlay = false,
@@ -52,10 +54,12 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
     const hmsViewRef: any = useRef();
     const timerRef = useRef<null | NodeJS.Timeout>(null);
     const [tempVal, setTempVal] = useState(0);
+    const [t, setT] = useState(false);
     const data = {
       trackId,
       id,
       mirror,
+      scaleType,
     };
 
     useEffect(() => {
@@ -67,15 +71,17 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
     }, []);
 
     const onChange = (values: any) => {
-      console.log(values, 'values');
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
+      // console.log(values, 'values');
+      // if (timerRef.current) {
+      //   clearTimeout(timerRef.current);
+      // }
 
-      timerRef.current = setTimeout(() => {
-        setTempVal(1);
-        timerRef.current = null;
-      }, 2000);
+      // timerRef.current = setTimeout(() => {
+      //   setTempVal(1);
+      //   timerRef.current = null;
+      // }, 2000);
+
+      setT(true);
     };
 
     const _onDataReturned = (event: {
@@ -124,16 +130,18 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
       setTempVal(0);
     }, [tempVal]);
 
+    console.log('$$$ tempVal in HMSView -> ', tempVal);
     return (
       <HmsView
         ref={hmsViewRef}
         onChange={onChange}
         data={data}
-        style={tempVal === 0 ? style : temporaryStyles.customStyle}
+        // style={tempVal === 0 ? style : temporaryStyles.customStyle}
+        style={t ? style || temporaryStyles : {}}
         autoSimulcast={autoSimulcast}
-        scaleType={scaleType}
+        // scaleType={scaleType}
         setZOrderMediaOverlay={setZOrderMediaOverlay}
-        onDataReturned={_onDataReturned}
+        onDataReturned={() => null}
       />
     );
   }
@@ -141,7 +149,6 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
 
 const temporaryStyles = StyleSheet.create({
   customStyle: {
-    width: '100%',
-    height: '50%',
+    flex: 1,
   },
 });

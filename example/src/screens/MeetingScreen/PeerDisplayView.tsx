@@ -40,7 +40,7 @@ const PeerDisplayViewUnmemoized = React.forwardRef<
   }
 
   return (
-    <View style={peerDisplayViewStyles.container}>
+    <View style={[peerDisplayViewStyles.container, {justifyContent: 'center'}]}>
       {videoTrack?.isMute() || videoTrack?.trackId === undefined ? (
         <View style={styles.avatarContainer}>
           <View style={styles.avatar}>
@@ -48,36 +48,58 @@ const PeerDisplayViewUnmemoized = React.forwardRef<
           </View>
         </View>
       ) : (
-        <View style={styles.flex}>
-          <HmsView
-            ref={hmsViewRef}
-            // setZOrderMediaOverlay={miniView}
-            trackId={videoTrack?.trackId!}
-            autoSimulcast={autoSimulcast}
-            mirror={
-              isLocal && mirrorCamera !== undefined ? mirrorCamera : false
-            }
-            scaleType={
-              videoTrack?.source !== undefined &&
-              videoTrack?.source !== HMSTrackSource.REGULAR
-                ? HMSVideoViewMode.ASPECT_FIT
-                : HMSVideoViewMode.ASPECT_FILL
-            }
-            style={
-              videoTrack?.source !== undefined &&
-              videoTrack?.source !== HMSTrackSource.REGULAR
-                ? styles.hmsViewScreen
-                : styles.hmsView
-            }
-          />
-          {isDegraded && (
-            <View style={styles.degradedContainer}>
-              <View style={styles.avatarContainer}>
-                <Text style={styles.degradedText}>Degraded</Text>
-              </View>
-            </View>
-          )}
-        </View>
+        <HmsView
+          ref={hmsViewRef}
+          // setZOrderMediaOverlay={miniView}
+          trackId={videoTrack?.trackId!}
+          autoSimulcast={autoSimulcast}
+          mirror={isLocal && mirrorCamera !== undefined ? mirrorCamera : false}
+          // scaleType={
+          //   HMSVideoViewMode.ASPECT_FIT
+          // }
+          // style={{
+          //   // flex: 1,
+
+          //   // width: 35,
+          //   // height: 65,
+          //   // maxHeight: '50%',
+          //   // flexShrink: 1,
+          //   // width: '100%',
+          //   // height: '100%',
+          //   // height: '1%',
+          //   // maxHeight: '100%'
+          //   // flex: 1,
+          //   // // 864, 540 = 1.65
+
+          //   // // width: 360,
+          //   // height: 225,
+          //   // maxHeight: 225,
+
+          //   // borderColor: 'pink',
+          //   // borderWidth: 10,
+          //   // borderStyle: 'dashed',
+
+          //   // height: 480,
+          //   // maxHeight: 480,
+
+          //   // height: 131,
+          //   // maxHeight: 131,
+          //   // flex: 1,
+          //   // width: 300,
+          //   // height: '51%',
+          //   // width: '90%',
+          //   // width: 350,
+          //   // width: '100%',
+          //   // height: '100%',
+          //   // minHeight: '50%',
+          //   // minWidth: '50%',
+          //   // flex: 1,
+          //   // width: 348,
+          //   // height: 500,
+          //   // alignSelf: 'center'
+          //   // maxHeight: 169,
+          // }}
+        />
       )}
     </View>
   );
