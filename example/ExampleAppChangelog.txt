@@ -1,23 +1,5 @@
-Board: https://github.com/100mslive/react-native-hms/projects/15
+Board: https://github.com/100mslive/react-native-hms/projects/20
 
-- Added support for Session Store APIs
-https://github.com/100mslive/react-native-hms/issues/990
-
-- Added support for Music Mode on iOS
-https://github.com/100mslive/react-native-hms/issues/1001
-
-- Fixed import type compile error
-https://github.com/100mslive/react-native-hms/pull/1014
-
-- Fixed app crash when videoTrack is null in HMSView
-https://github.com/100mslive/react-native-hms/pull/1015
-
-- Added Basic Sample Apps directory with room-code changes
-https://github.com/100mslive/react-native-hms/pull/1013
-
-- chore(deps): bump json5 and babel-plugin-module-resolver in /example
-https://github.com/100mslive/react-native-hms/pull/997
-
-React Native SDK: 1.6.0
-Android SDK: 2.6.2
+React Native SDK: 1.6.1
+Android SDK: 2.6.3
 iOS SDK: 0.9.3

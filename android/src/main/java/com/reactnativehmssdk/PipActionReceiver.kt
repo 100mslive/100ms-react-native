@@ -16,7 +16,7 @@ data class PIPActions(val endMeet: PIPAction, val localAudio: PIPAction, val loc
 class PipActionReceiver(
   val toggleLocalAudio: () -> Unit,
   val toggleLocalVideo: () -> Unit,
-  val endMeeting: () -> Unit
+  val endMeeting: () -> Unit,
 ) : BroadcastReceiver() {
   companion object {
     var sdkIdForPIP: String? = null
@@ -25,7 +25,7 @@ class PipActionReceiver(
     val PIPActions = PIPActions(
       endMeet = PIPAction(title = "End", description = "End Meeting", requestCode = 346),
       localAudio = PIPAction(title = "Mic", description = "Toggle Mic", requestCode = 344),
-      localVideo = PIPAction(title = "Camera", description = "Toggle Camera", requestCode = 345)
+      localVideo = PIPAction(title = "Camera", description = "Toggle Camera", requestCode = 345),
     )
   }
 
