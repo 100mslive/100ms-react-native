@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useImperativeHandle, useRef } from 'react';
+import React, { useState, useImperativeHandle, useRef } from 'react';
 import {
   findNodeHandle,
   requireNativeComponent,
@@ -18,8 +18,7 @@ interface HmsViewProps {
   };
   autoSimulcast: boolean;
   setZOrderMediaOverlay: boolean;
-  // scaleType: HMSVideoViewMode;
-  // style: ViewStyle;
+  style: ViewStyle;
   onChange: Function;
   onDataReturned: Function;
 }
@@ -42,8 +41,7 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
   (props, ref) => {
     const {
       trackId,
-      // style = temporaryStyles.customStyle,
-      style,
+      style = temporaryStyles.customStyle,
       id = HMSConstants.DEFAULT_SDK_ID,
       mirror = false,
       setZOrderMediaOverlay = false,
@@ -52,8 +50,6 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
     } = props;
 
     const hmsViewRef: any = useRef();
-    const timerRef = useRef<null | NodeJS.Timeout>(null);
-    const [tempVal, setTempVal] = useState(0);
     const [t, setT] = useState(false);
     const data = {
       trackId,
@@ -62,44 +58,8 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
       scaleType,
     };
 
-    useEffect(() => {
-      return () => {
-        if (timerRef.current) {
-          clearTimeout(timerRef.current);
-        }
-      };
-    }, []);
-
-    const onChange = (values: any) => {
-      // console.log(values, 'values');
-      // if (timerRef.current) {
-      //   clearTimeout(timerRef.current);
-      // }
-
-      // timerRef.current = setTimeout(() => {
-      //   setTempVal(1);
-      //   timerRef.current = null;
-      // }, 2000);
-
+    const onChange = () => {
       setT(true);
-    };
-
-    const _onDataReturned = (event: {
-      nativeEvent: { requestId: any; result: any; error: any };
-    }) => {
-      // We grab the relevant data out of our event.
-      let { requestId, result, error } = event.nativeEvent;
-      // Then we get the promise we saved earlier for the given request ID.
-      let promise = _requestMap.get(requestId);
-      if (result) {
-        // If it was successful, we resolve the promise.
-        promise.resolve(result);
-      } else {
-        // Otherwise, we reject it.
-        promise.reject(error);
-      }
-      // Finally, we clean up our request map.
-      _requestMap.delete(requestId);
     };
 
     const capture = async () => {
@@ -126,11 +86,6 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
       };
     });
 
-    useEffect(() => {
-      setTempVal(0);
-    }, [tempVal]);
-
-    console.log('$$$ tempVal in HMSView -> ', tempVal);
     return (
       <HmsView
         ref={hmsViewRef}
@@ -139,7 +94,6 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
         // style={tempVal === 0 ? style : temporaryStyles.customStyle}
         style={t ? style || temporaryStyles : {}}
         autoSimulcast={autoSimulcast}
-        // scaleType={scaleType}
         setZOrderMediaOverlay={setZOrderMediaOverlay}
         onDataReturned={() => null}
       />

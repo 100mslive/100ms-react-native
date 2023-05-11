@@ -5,7 +5,6 @@ import android.content.Context
 import android.os.Build
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import com.facebook.react.bridge.Arguments
@@ -27,13 +26,12 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
   private var scaleTypeApplied: Boolean = false
   private var sdkId: String = "12345"
   private var disableAutoSimulcastLayerSelect = false
-  var view: View? = null
 
   init {
     val inflater = getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-    view = inflater.inflate(R.layout.hms_view, this)
+    val view = inflater.inflate(R.layout.hms_view, this)
 
-    hmsVideoView = view!!.findViewById(R.id.hmsVideoView)
+    hmsVideoView = view.findViewById(R.id.hmsVideoView)
     hmsVideoView?.setEnableHardwareScaler(false)
 
     hmsVideoView?.setMirror(false)
@@ -106,6 +104,28 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
   }
 
   fun updateScaleType(scaleType: String?) {
+    if (scaleType != null) {
+      when (scaleType) {
+        "ASPECT_FIT" -> {
+          hmsVideoView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
+          currentScaleType = RendererCommon.ScalingType.SCALE_ASPECT_FIT
+          return
+        }
+        "ASPECT_FILL" -> {
+          hmsVideoView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL)
+          currentScaleType = RendererCommon.ScalingType.SCALE_ASPECT_FILL
+          return
+        }
+        "ASPECT_BALANCED" -> {
+          hmsVideoView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_BALANCED)
+          currentScaleType = RendererCommon.ScalingType.SCALE_ASPECT_BALANCED
+          return
+        }
+        else -> {
+          return
+        }
+      }
+    }
   }
 
   fun setData(
@@ -130,7 +150,9 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
       val videoTrack = hms.getRoom()?.let { HmsUtilities.getVideoTrack(trackId, it) }
 
       videoTrack?.let {
-        hmsVideoView?.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
+        // hmsVideoView?.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
+        // hmsVideoView.setScalingType(currentScaleType)
+        updateScaleType(scaleType)
         hmsVideoView?.addTrack(it)
 
 //        hmsVideoView.layoutParams.width = 300 * 3
