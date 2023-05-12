@@ -12,7 +12,6 @@ import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.uimanager.events.RCTEventEmitter
-import kotlinx.coroutines.*
 import live.hms.video.media.tracks.HMSVideoTrack
 import live.hms.video.utils.HmsUtilities
 import live.hms.videoview.HMSVideoView
@@ -23,9 +22,9 @@ import org.webrtc.RendererCommon
 class HMSView(context: ReactContext) : FrameLayout(context) {
   private var hmsVideoView: HMSVideoView? = null
   private var videoTrack: HMSVideoTrack? = null
-  private var scaleTypeApplied: Boolean = false
   private var sdkId: String = "12345"
   private var disableAutoSimulcastLayerSelect = false
+  private var jsCanApplyStyles = false
 
   init {
     val inflater = getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -40,85 +39,60 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
     hmsVideoView?.addVideoViewStateChangeListener(object : VideoViewStateChangeListener {
       override fun onResolutionChange(newWidth: Int, newHeight: Int) {
         super.onResolutionChange(newWidth, newHeight)
-        Log.i("HMSView", "hmsVideoView resolution changed, newWidth = $newWidth, newHeight = $newHeight")
-        Log.i("HMSView", "old width -> ${hmsVideoView?.width}")
-        Log.i("HMSView", "old height -> ${hmsVideoView?.height}")
-
-        val event: WritableMap = Arguments.createMap()
-        context.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "topChange", event)
-
-//        val width = hmsVideoView.width
-//        val height = hmsVideoView.height
-//        val aspectRatio = newWidth / newHeight
-//        if (width >= height) {
-//          hmsVideoView.layoutParams.width = height * aspectRatio
-//        } else {
-//          hmsVideoView.layoutParams.height = width / aspectRatio
-//        }
-//        Log.i("HMSView", "new width -> ${hmsVideoView.width}")
-//        Log.i("HMSView", "new height -> ${hmsVideoView.height}")
-      }
-
-      override fun onFirstFrameRendered() {
-        super.onFirstFrameRendered()
-        Log.i("HMSView", "hmsVideoView First Frame Rendered")
+        if (!jsCanApplyStyles) {
+          val event: WritableMap = Arguments.createMap()
+          context.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "topChange", event)
+          jsCanApplyStyles = true
+        }
       }
     })
   }
 
   @RequiresApi(Build.VERSION_CODES.N)
   fun captureHmsView(args: ReadableArray?) {
-//    hmsVideoView?.let {
-//      HMSHelper.captureSurfaceView(it, sdkId, args, context, id)
-//    }
-//
-  }
-
-  private fun onReceiveNativeEvent() {
-    val event: WritableMap = Arguments.createMap()
-    event.putString("message", "MyMessage")
-    val reactContext = context as ReactContext
-    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "topChange", event)
+    hmsVideoView?.let {
+      HMSHelper.captureSurfaceView(it, sdkId, args, context, id)
+    }
   }
 
   override fun onDetachedFromWindow() {
     super.onDetachedFromWindow()
+    hmsVideoView?.removeTrack()
   }
 
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
-    Log.i("HMSView", "width -> ${hmsVideoView?.width}")
-    Log.i("HMSView", "height -> ${hmsVideoView?.height}")
 
-//    view!!.layoutParams.width = FrameLayout.LayoutParams.WRAP_CONTENT
-//    view!!.layoutParams.height = FrameLayout.LayoutParams.WRAP_CONTENT
-
-//    hmsVideoView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL)
+    videoTrack?.let { // Safe Call Operator to check if videoTrack is not null
+      hmsVideoView?.addTrack(it) // add the videoTrack to the hmsVideoView
+    } ?: run { // Elvis Operator to handle the case when videoTrack is null
+      Log.e(
+        "HMSView",
+        "HMSView attached to window, but it's videoTrack is null",
+      ) // log an error message
+    }
   }
 
   fun updateZOrderMediaOverlay(setZOrderMediaOverlay: Boolean?) {
-//    if (setZOrderMediaOverlay != null && setZOrderMediaOverlay) {
-//      // hmsVideoView.setZOrderOnTop(true);
-//      hmsVideoView.setZOrderMediaOverlay(setZOrderMediaOverlay)
-//    }
+    if (setZOrderMediaOverlay != null && setZOrderMediaOverlay) {
+      // hmsVideoView.setZOrderOnTop(true);
+      hmsVideoView?.setZOrderMediaOverlay(setZOrderMediaOverlay)
+    }
   }
 
   fun updateScaleType(scaleType: String?) {
     if (scaleType != null) {
       when (scaleType) {
         "ASPECT_FIT" -> {
-          hmsVideoView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
-          currentScaleType = RendererCommon.ScalingType.SCALE_ASPECT_FIT
+          hmsVideoView?.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
           return
         }
         "ASPECT_FILL" -> {
-          hmsVideoView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL)
-          currentScaleType = RendererCommon.ScalingType.SCALE_ASPECT_FILL
+          hmsVideoView?.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL)
           return
         }
         "ASPECT_BALANCED" -> {
-          hmsVideoView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_BALANCED)
-          currentScaleType = RendererCommon.ScalingType.SCALE_ASPECT_BALANCED
+          hmsVideoView?.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_BALANCED)
           return
         }
         else -> {
@@ -144,28 +118,9 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
       if (mirror != null) {
         hmsVideoView?.setMirror(mirror)
       }
-      Log.i("HMSView", "width inside setData fn before adding track -> ${hmsVideoView?.width}")
-      Log.i("HMSView", "height inside setData fn before adding track -> ${hmsVideoView?.height}")
-
-      val videoTrack = hms.getRoom()?.let { HmsUtilities.getVideoTrack(trackId, it) }
-
-      videoTrack?.let {
-        // hmsVideoView?.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
-        // hmsVideoView.setScalingType(currentScaleType)
-        updateScaleType(scaleType)
-        hmsVideoView?.addTrack(it)
-
-//        hmsVideoView.layoutParams.width = 300 * 3
-//        hmsVideoView.layoutParams.height = 169 * 3
-      } ?: run {
-        Log.e(
-          "HMSView",
-          "HMSView attached to window, but it's videoTrack is null",
-        )
-      }
-
-      Log.i("HMSView", "width inside setData fn after adding track -> ${hmsVideoView?.width}")
-      Log.i("HMSView", "height inside setData fn after adding track -> ${hmsVideoView?.height}")
+      updateScaleType(scaleType)
+      // TODO: can be optimized here
+      videoTrack = hms.getRoom()?.let { HmsUtilities.getVideoTrack(trackId, it) }
     }
   }
 

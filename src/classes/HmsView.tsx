@@ -5,6 +5,7 @@ import {
   StyleSheet,
   UIManager,
   ViewStyle,
+  Platform,
 } from 'react-native';
 import { HMSConstants } from './HMSConstants';
 import { HMSVideoViewMode } from './HMSVideoViewMode';
@@ -18,6 +19,7 @@ interface HmsViewProps {
   };
   autoSimulcast: boolean;
   setZOrderMediaOverlay: boolean;
+  scaleType: HMSVideoViewMode;
   style: ViewStyle;
   onChange: Function;
   onDataReturned: Function;
@@ -41,7 +43,7 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
   (props, ref) => {
     const {
       trackId,
-      style = temporaryStyles.customStyle,
+      style = styles.hmsView,
       id = HMSConstants.DEFAULT_SDK_ID,
       mirror = false,
       setZOrderMediaOverlay = false,
@@ -50,7 +52,7 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
     } = props;
 
     const hmsViewRef: any = useRef();
-    const [t, setT] = useState(false);
+    const [applyStyles_ANDROID, setApplyStyles_ANDROID] = useState(false);
     const data = {
       trackId,
       id,
@@ -58,8 +60,32 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
       scaleType,
     };
 
-    const onChange = () => {
-      setT(true);
+    /**
+     * This method is passed to `onChange` prop of `HmsView` Native Component.
+     * It is invoked when `HmsView` emits 'topChange' event.
+     */
+    const onChange = () => setApplyStyles_ANDROID(true);
+
+    /**
+     * This method is passed to `onDataReturned` prop of `HmsView` Native Component.
+     * It is invoked when `HmsView` emits 'captureFrame' event.
+     */
+    const _onDataReturned = (event: {
+      nativeEvent: { requestId: any; result: any; error: any };
+    }) => {
+      // We grab the relevant data out of our event.
+      let { requestId, result, error } = event.nativeEvent;
+      // Then we get the promise we saved earlier for the given request ID.
+      let promise = _requestMap.get(requestId);
+      if (result) {
+        // If it was successful, we resolve the promise.
+        promise.resolve(result);
+      } else {
+        // Otherwise, we reject it.
+        promise.reject(error);
+      }
+      // Finally, we clean up our request map.
+      _requestMap.delete(requestId);
     };
 
     const capture = async () => {
@@ -91,18 +117,20 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
         ref={hmsViewRef}
         onChange={onChange}
         data={data}
-        // style={tempVal === 0 ? style : temporaryStyles.customStyle}
-        style={t ? style || temporaryStyles : {}}
+        style={
+          Platform.OS === 'android' ? (applyStyles_ANDROID ? style : {}) : style
+        }
         autoSimulcast={autoSimulcast}
+        scaleType={scaleType}
         setZOrderMediaOverlay={setZOrderMediaOverlay}
-        onDataReturned={() => null}
+        onDataReturned={_onDataReturned}
       />
     );
   }
 );
 
-const temporaryStyles = StyleSheet.create({
-  customStyle: {
+const styles = StyleSheet.create({
+  hmsView: {
     flex: 1,
   },
 });
