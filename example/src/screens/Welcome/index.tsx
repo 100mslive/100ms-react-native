@@ -606,7 +606,7 @@ const Welcome = () => {
      * const hmsInstance = await HMSSDK.build({
      *  trackSettings,
      *  appGroup: 'group.reactnativehms', // required for iOS Screenshare, not required for Android
-     *  preferredExtension: 'RHHMSExampleBroadcastUpload', // required for iOS Screenshare, not required for Android
+     *  preferredExtension: 'RNHMSExampleBroadcastUpload', // required for iOS Screenshare, not required for Android
      * });
      */
 

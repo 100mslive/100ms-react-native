@@ -40,7 +40,7 @@ const PeerDisplayViewUnmemoized = React.forwardRef<
   }
 
   return (
-    <View style={[peerDisplayViewStyles.container, {justifyContent: 'center'}]}>
+    <View style={peerDisplayViewStyles.container}>
       {videoTrack?.isMute() || videoTrack?.trackId === undefined ? (
         <View style={styles.avatarContainer}>
           <View style={styles.avatar}>
@@ -62,6 +62,12 @@ const PeerDisplayViewUnmemoized = React.forwardRef<
               videoTrack?.source !== HMSTrackSource.REGULAR
                 ? HMSVideoViewMode.ASPECT_FIT
                 : HMSVideoViewMode.ASPECT_FILL
+            }
+            style={
+              videoTrack?.source !== undefined &&
+              videoTrack?.source !== HMSTrackSource.REGULAR
+                ? styles.hmsViewScreen
+                : styles.hmsView
             }
           />
           {isDegraded && (
