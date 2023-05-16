@@ -2,4 +2,4 @@ Board: https://github.com/100mslive/react-native-hms/projects/20
 
 React Native SDK: 1.6.1
 Android SDK: 2.6.3
-iOS SDK: 0.9.3
+iOS SDK: 0.9.4
