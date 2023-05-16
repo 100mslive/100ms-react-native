@@ -1,27 +1,33 @@
 version: 0.1
 cli:
-  version: 1.1.0
+  version: 1.9.1
 plugins:
   sources:
     - id: trunk
-      ref: v0.0.6
+      ref: v0.0.17
       uri: https://github.com/trunk-io/plugins
 lint:
   enabled:
-    - ktlint@0.47.1
+    - oxipng@8.0.0
+    - yamllint@1.31.0
+    - ktlint@0.49.0
     - svgo@3.0.2
-    - prettier@2.8.1
+    - prettier@2.8.8
     - shfmt@3.5.0
-    - gitleaks@8.15.2
-    - shellcheck@0.8.0
+    - gitleaks@8.16.3
+    - shellcheck@0.9.0
     - git-diff-check
-    - markdownlint@0.32.2
-    - buildifier@5.1.0
+    - markdownlint@0.34.0
+    - buildifier@6.1.2
 runtimes:
   enabled:
-    - go@1.18.3
+    - python@3.10.8
+    - go@1.19.5
     - java@11.0.13
-    - node@16.14.2
+    - node@18.12.1
 actions:
   enabled:
+    - trunk-announce
+    - trunk-check-pre-push
+    - trunk-fmt-pre-commit
     - trunk-upgrade-available
