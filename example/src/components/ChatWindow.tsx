@@ -30,7 +30,7 @@ import {COLORS} from '../utils/theme';
 import type {RootState} from '../redux';
 import {CustomInput} from './CustomInput';
 import {CustomButton} from './CustomButton';
-import {addMessage, addPinnedMessage} from '../redux/actions';
+import {addMessage, addMessageId, addPinnedMessage} from '../redux/actions';
 
 const getTimeStringin12HourFormat = (time: Date) => {
   let hours = time.getHours();
@@ -255,6 +255,12 @@ const ChatList = ({
                 />
               )}
             </View>
+            <Text
+              style={[styles.messageText, {color: 'gray'}]}
+              ellipsizeMode="middle"
+            >
+              {data.messageId}
+            </Text>
             <Text style={styles.messageText}>{data.message}</Text>
           </View>
         );
@@ -299,38 +305,58 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
   };
 
   const sendMessage = () => {
-    let hmsMessageRecipient: HMSMessageRecipient;
-    if (text.length > 0) {
+    if (text.length > 0 && hmsInstance) {
+      let hmsMessageRecipient: HMSMessageRecipient;
+
       if (type === 'role') {
         hmsMessageRecipient = new HMSMessageRecipient({
           recipientType: HMSMessageRecipientType.ROLES,
           recipientRoles: [receiverObject as HMSRole],
         });
-        hmsInstance?.sendGroupMessage(text, [receiverObject as HMSRole]);
       } else if (type === 'direct') {
         hmsMessageRecipient = new HMSMessageRecipient({
           recipientType: HMSMessageRecipientType.PEER,
           recipientPeer: receiverObject as HMSPeer,
         });
-        hmsInstance?.sendDirectMessage(text, receiverObject as HMSPeer);
       } else {
         hmsMessageRecipient = new HMSMessageRecipient({
           recipientType: HMSMessageRecipientType.BROADCAST,
         });
-        hmsInstance?.sendBroadcastMessage(text);
       }
-      dispatch(
-        addMessage(
-          new HMSMessage({
-            message: text,
-            type: HMSMessageType.CHAT,
-            time: new Date(),
-            sender: localPeer,
-            recipient: hmsMessageRecipient,
-          }),
-        ),
-      );
+
+      const localMessage = new HMSMessage({
+        message: text,
+        type: HMSMessageType.CHAT,
+        time: new Date(),
+        sender: localPeer,
+        recipient: hmsMessageRecipient,
+      });
+
+      dispatch(addMessage(localMessage));
+
       setText('');
+
+      const handleMessageID = ({
+        messageId,
+      }: {
+        messageId: string | undefined;
+      }) => {
+        if (messageId) {
+          dispatch(addMessageId({message: localMessage, messageId}));
+        }
+      };
+
+      if (type === 'role') {
+        hmsInstance
+          .sendGroupMessage(text, [receiverObject as HMSRole])
+          .then(handleMessageID);
+      } else if (type === 'direct') {
+        hmsInstance
+          .sendDirectMessage(text, receiverObject as HMSPeer)
+          .then(handleMessageID);
+      } else {
+        hmsInstance.sendBroadcastMessage(text).then(handleMessageID);
+      }
     }
   };
 

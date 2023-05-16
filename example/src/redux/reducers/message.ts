@@ -2,7 +2,10 @@ import type {HMSMessage} from '@100mslive/react-native-hms';
 import ActionTypes from '../actionTypes';
 
 type ActionType = {
-  payload: HMSMessage | (string | null | undefined);
+  payload:
+    | HMSMessage
+    | (string | null | undefined)
+    | {message: HMSMessage; messageId: string};
   type: String;
 };
 
@@ -24,6 +27,21 @@ const messageReducer = (state = INITIAL_STATE, action: ActionType) => {
     case ActionTypes.ADD_MESSAGE.REQUEST:
       const message = action.payload as HMSMessage;
       return {...state, messages: [...state.messages, message]};
+    case ActionTypes.ADD_MESSAGE_ID:
+      return {
+        ...state,
+        messages: state.messages.map(message =>
+          message ===
+          (action.payload as {message: HMSMessage; messageId: string})?.message
+            ? {
+                ...message,
+                messageId: (
+                  action.payload as {message: HMSMessage; messageId: string}
+                )?.messageId,
+              }
+            : message,
+        ),
+      };
     case ActionTypes.CLEAR_MESSAGE_DATA.REQUEST:
       return {...state, messages: []};
     default:
