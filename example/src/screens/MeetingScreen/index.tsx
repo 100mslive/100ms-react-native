@@ -988,10 +988,20 @@ const DisplayView = (data: {
           if (data !== null) {
             switch (data.key) {
               case 'spotlight': {
+                Toast.showWithGravity(
+                  `SessionStore: \`spotlight\` key value changed`,
+                  Toast.LONG,
+                  Toast.TOP,
+                );
                 handleSpotlightIdChange(data.value);
                 break;
               }
               case 'pinnedMessage': {
+                Toast.showWithGravity(
+                  `SessionStore: \`pinnedMessage\` key value changed`,
+                  Toast.LONG,
+                  Toast.TOP,
+                );
                 handlePinnedMessageChange(data.value);
                 break;
               }
