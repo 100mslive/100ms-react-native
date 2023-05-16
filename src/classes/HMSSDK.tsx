@@ -314,11 +314,14 @@ export class HMSSDK {
       type: type || null,
       id: this.id,
     });
-    return await HMSManager.sendBroadcastMessage({
-      message,
-      type: type || null,
-      id: this.id,
-    });
+    const data: { messageId: string | undefined } =
+      await HMSManager.sendBroadcastMessage({
+        message,
+        type: type || null,
+        id: this.id,
+      });
+
+    return data;
   };
 
   /**
@@ -340,12 +343,15 @@ export class HMSSDK {
       id: this.id,
       type: type || null,
     });
-    return await HMSManager.sendGroupMessage({
-      message,
-      roles: HMSHelper.getRoleNames(roles),
-      id: this.id,
-      type: type || null,
-    });
+    const data: { messageId: string | undefined } =
+      await HMSManager.sendGroupMessage({
+        message,
+        roles: HMSHelper.getRoleNames(roles),
+        id: this.id,
+        type: type || null,
+      });
+
+    return data;
   };
 
   /**
@@ -367,12 +373,15 @@ export class HMSSDK {
       id: this.id,
       type: type || null,
     });
-    return await HMSManager.sendDirectMessage({
-      message,
-      peerId: peer.peerID,
-      id: this.id,
-      type: type || null,
-    });
+    const data: { messageId: string | undefined } =
+      await HMSManager.sendDirectMessage({
+        message,
+        peerId: peer.peerID,
+        id: this.id,
+        type: type || null,
+      });
+
+    return data;
   };
 
   /**
