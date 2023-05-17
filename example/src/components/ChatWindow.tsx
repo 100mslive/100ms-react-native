@@ -323,6 +323,9 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
           recipientType: HMSMessageRecipientType.BROADCAST,
         });
       }
+
+      // Saving reference of `text` state to local variable
+      // to use the typed message after clearing state
       const messageText = text;
 
       setText('');
@@ -347,14 +350,14 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
 
       if (type === 'role') {
         hmsInstance
-          .sendGroupMessage(text, [receiverObject as HMSRole])
+          .sendGroupMessage(messageText, [receiverObject as HMSRole])
           .then(handleMessageID);
       } else if (type === 'direct') {
         hmsInstance
-          .sendDirectMessage(text, receiverObject as HMSPeer)
+          .sendDirectMessage(messageText, receiverObject as HMSPeer)
           .then(handleMessageID);
       } else {
-        hmsInstance.sendBroadcastMessage(text).then(handleMessageID);
+        hmsInstance.sendBroadcastMessage(messageText).then(handleMessageID);
       }
     }
   };
