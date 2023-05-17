@@ -323,16 +323,7 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
           recipientType: HMSMessageRecipientType.BROADCAST,
         });
       }
-
-      const localMessage = new HMSMessage({
-        message: text,
-        type: HMSMessageType.CHAT,
-        time: new Date(),
-        sender: localPeer,
-        recipient: hmsMessageRecipient,
-      });
-
-      dispatch(addMessage(localMessage));
+      const messageText = text;
 
       setText('');
 
@@ -342,7 +333,15 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
         messageId: string | undefined;
       }) => {
         if (messageId) {
-          dispatch(addMessageId({message: localMessage, messageId}));
+          const localMessage = new HMSMessage({
+            messageId: messageId,
+            message: messageText,
+            type: HMSMessageType.CHAT,
+            time: new Date(),
+            sender: localPeer,
+            recipient: hmsMessageRecipient,
+          });
+          dispatch(addMessage(localMessage));
         }
       };
 

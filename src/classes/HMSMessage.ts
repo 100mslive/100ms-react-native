@@ -3,9 +3,8 @@ import type { HMSMessageType } from './HMSMessageType';
 import type { HMSPeer } from './HMSPeer';
 
 export class HMSMessage {
-  // endpoint: string;
   public message: string;
-  public messageId?: string;
+  public messageId: string;
   public type: HMSMessageType;
   public time: Date;
   public sender?: HMSPeer;
@@ -13,7 +12,7 @@ export class HMSMessage {
 
   constructor(params: {
     message: string;
-    messageId?: string;
+    messageId: string;
     type: HMSMessageType;
     time: Date;
     sender?: HMSPeer;
