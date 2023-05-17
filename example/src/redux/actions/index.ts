@@ -16,14 +16,6 @@ export const addMessage = (data: HMSMessage) => ({
   payload: data,
 });
 
-export const addMessageId = (data: {
-  message: HMSMessage;
-  messageId: string;
-}) => ({
-  type: actionTypes.ADD_MESSAGE_ID,
-  payload: data,
-});
-
 export const addPinnedMessage = (data: string | null | undefined) => ({
   type: actionTypes.ADD_PINNED_MESSAGE.REQUEST,
   payload: data,

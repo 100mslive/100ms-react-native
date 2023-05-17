@@ -9,8 +9,6 @@ const createRequests = (base: String) => {
 
 const ADD_MESSAGE = createRequests('ADD_MESSAGE');
 
-const ADD_MESSAGE_ID = 'ADD_MESSAGE_ID';
-
 const ADD_PINNED_MESSAGE = createRequests('ADD_PINNED_MESSAGE');
 
 const CLEAR_MESSAGE_DATA = createRequests('CLEAR_MESSAGE_DATA');
@@ -52,7 +50,6 @@ const SET_RTC_STATS = 'SET_RTC_STATS';
 export default {
   ADD_PINNED_MESSAGE,
   ADD_MESSAGE,
-  ADD_MESSAGE_ID,
   CLEAR_MESSAGE_DATA,
   CLEAR_PEER_DATA,
   SET_PEER_STATE,
