@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useImperativeHandle, useRef } from 'react';
+import React, { useState, useImperativeHandle, useRef } from 'react';
 import {
   findNodeHandle,
   requireNativeComponent,
   StyleSheet,
   UIManager,
   ViewStyle,
+  Platform,
 } from 'react-native';
 import { HMSConstants } from './HMSConstants';
 import { HMSVideoViewMode } from './HMSVideoViewMode';
@@ -14,6 +15,7 @@ interface HmsViewProps {
     trackId: string;
     id: string;
     mirror: boolean;
+    scaleType: HMSVideoViewMode;
   };
   autoSimulcast: boolean;
   setZOrderMediaOverlay: boolean;
@@ -41,7 +43,7 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
   (props, ref) => {
     const {
       trackId,
-      style = temporaryStyles.customStyle,
+      style = styles.hmsView,
       id = HMSConstants.DEFAULT_SDK_ID,
       mirror = false,
       setZOrderMediaOverlay = false,
@@ -50,34 +52,24 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
     } = props;
 
     const hmsViewRef: any = useRef();
-    const timerRef = useRef<null | NodeJS.Timeout>(null);
-    const [tempVal, setTempVal] = useState(0);
+    const [applyStyles_ANDROID, setApplyStyles_ANDROID] = useState(false);
     const data = {
       trackId,
       id,
       mirror,
+      scaleType,
     };
 
-    useEffect(() => {
-      return () => {
-        if (timerRef.current) {
-          clearTimeout(timerRef.current);
-        }
-      };
-    }, []);
+    /**
+     * This method is passed to `onChange` prop of `HmsView` Native Component.
+     * It is invoked when `HmsView` emits 'topChange' event.
+     */
+    const onChange = () => setApplyStyles_ANDROID(true);
 
-    const onChange = (values: any) => {
-      console.log(values, 'values');
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-
-      timerRef.current = setTimeout(() => {
-        setTempVal(1);
-        timerRef.current = null;
-      }, 2000);
-    };
-
+    /**
+     * This method is passed to `onDataReturned` prop of `HmsView` Native Component.
+     * It is invoked when `HmsView` emits 'captureFrame' event.
+     */
     const _onDataReturned = (event: {
       nativeEvent: { requestId: any; result: any; error: any };
     }) => {
@@ -120,16 +112,14 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
       };
     });
 
-    useEffect(() => {
-      setTempVal(0);
-    }, [tempVal]);
-
     return (
       <HmsView
         ref={hmsViewRef}
         onChange={onChange}
         data={data}
-        style={tempVal === 0 ? style : temporaryStyles.customStyle}
+        style={
+          Platform.OS === 'android' ? (applyStyles_ANDROID ? style : {}) : style
+        }
         autoSimulcast={autoSimulcast}
         scaleType={scaleType}
         setZOrderMediaOverlay={setZOrderMediaOverlay}
@@ -139,9 +129,8 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
   }
 );
 
-const temporaryStyles = StyleSheet.create({
-  customStyle: {
-    width: '100%',
-    height: '50%',
+const styles = StyleSheet.create({
+  hmsView: {
+    flex: 1,
   },
 });
