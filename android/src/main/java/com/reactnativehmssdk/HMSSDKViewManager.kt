@@ -64,9 +64,10 @@ class HMSSDKViewManager : SimpleViewManager<HMSView>() {
     val trackId = data.getString("trackId")
     val id = data.getString("id")
     val mirror = data.getBoolean("mirror")
+    val scaleType = data.getString("scaleType")
     val hmsCollection = getHms()
     if (hmsCollection != null) {
-      view.setData(id, trackId, hmsCollection, mirror)
+      view.setData(id, trackId, hmsCollection, mirror, scaleType)
     }
   }
 
