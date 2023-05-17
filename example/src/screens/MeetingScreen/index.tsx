@@ -973,6 +973,9 @@ const DisplayView = (data: {
             ),
           );
 
+        let lastSpotlightValue: HMSSessionStoreValue = null;
+        let lastPinnedMessageValue: HMSSessionStoreValue = null;
+
         // Add subscription for `spotlight` & `pinnedMessage` keys updates on Session Store
         const subscription = hmsSessionStore.addKeyChangeListener<
           ['spotlight', 'pinnedMessage']
@@ -990,27 +993,44 @@ const DisplayView = (data: {
           if (data !== null) {
             switch (data.key) {
               case 'spotlight': {
-                Toast.showWithGravity(
-                  `SessionStore: \`spotlight\` key's value changed to ${data.value}`,
-                  Toast.LONG,
-                  Toast.TOP,
-                );
                 handleSpotlightIdChange(data.value);
+
+                // Showing Toast message if value has actually changed
+                if (
+                  data.value !== lastSpotlightValue &&
+                  (data.value || lastSpotlightValue)
+                ) {
+                  Toast.showWithGravity(
+                    `SessionStore: \`spotlight\` key's value changed to ${data.value}`,
+                    Toast.LONG,
+                    Toast.TOP,
+                  );
+                }
+
+                lastSpotlightValue = data.value;
                 break;
               }
               case 'pinnedMessage': {
                 handlePinnedMessageChange(data.value);
 
-                if (toastTimeoutId !== null) {
-                  clearTimeout(toastTimeoutId);
+                // Showing Toast message if value has actually changed
+                if (
+                  data.value !== lastPinnedMessageValue &&
+                  (data.value || lastPinnedMessageValue)
+                ) {
+                  if (toastTimeoutId !== null) {
+                    clearTimeout(toastTimeoutId);
+                  }
+                  toastTimeoutId = setTimeout(() => {
+                    Toast.showWithGravity(
+                      `SessionStore: \`pinnedMessage\` key's value changed to ${data.value}`,
+                      Toast.LONG,
+                      Toast.TOP,
+                    );
+                  }, 1500);
                 }
-                toastTimeoutId = setTimeout(() => {
-                  Toast.showWithGravity(
-                    `SessionStore: \`pinnedMessage\` key's value changed to ${data.value}`,
-                    Toast.LONG,
-                    Toast.TOP,
-                  );
-                }, 1500);
+
+                lastPinnedMessageValue = data.value;
                 break;
               }
             }
