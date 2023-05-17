@@ -919,6 +919,8 @@ const DisplayView = (data: {
   useEffect(() => {
     // Check if instance of HMSSessionStore is available
     if (hmsSessionStore) {
+      let toastTimeoutId: NodeJS.Timeout | null = null;
+
       const addSessionStoreListeners = () => {
         // Handle 'spotlight' key values
         const handleSpotlightIdChange = (id: HMSSessionStoreValue) => {
@@ -989,7 +991,7 @@ const DisplayView = (data: {
             switch (data.key) {
               case 'spotlight': {
                 Toast.showWithGravity(
-                  `SessionStore: \`spotlight\` key value changed`,
+                  `SessionStore: \`spotlight\` key's value changed to ${data.value}`,
                   Toast.LONG,
                   Toast.TOP,
                 );
@@ -997,12 +999,18 @@ const DisplayView = (data: {
                 break;
               }
               case 'pinnedMessage': {
-                Toast.showWithGravity(
-                  `SessionStore: \`pinnedMessage\` key value changed`,
-                  Toast.LONG,
-                  Toast.TOP,
-                );
                 handlePinnedMessageChange(data.value);
+
+                if (toastTimeoutId !== null) {
+                  clearTimeout(toastTimeoutId);
+                }
+                toastTimeoutId = setTimeout(() => {
+                  Toast.showWithGravity(
+                    `SessionStore: \`pinnedMessage\` key's value changed to ${data.value}`,
+                    Toast.LONG,
+                    Toast.TOP,
+                  );
+                }, 1500);
                 break;
               }
             }
@@ -1018,6 +1026,8 @@ const DisplayView = (data: {
       return () => {
         // remove Session Store key update listener on cleanup
         sessionStoreListeners.current.forEach(listener => listener.remove());
+
+        if (toastTimeoutId !== null) clearTimeout(toastTimeoutId);
       };
     }
   }, [hmsSessionStore]);
