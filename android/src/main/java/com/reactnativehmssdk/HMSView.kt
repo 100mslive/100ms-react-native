@@ -25,7 +25,6 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
   private var sdkId: String = "12345"
   private var disableAutoSimulcastLayerSelect = false
   private var jsCanApplyStyles = false
-  private var videoViewStateChangeListenerObject: VideoViewStateChangeListener? = null
 
   init {
     val inflater = getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -37,21 +36,16 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
     hmsVideoView?.setMirror(false)
     hmsVideoView?.disableAutoSimulcastLayerSelect(disableAutoSimulcastLayerSelect)
 
-    videoViewStateChangeListenerObject = object : VideoViewStateChangeListener {
+    hmsVideoView?.addVideoViewStateChangeListener(object : VideoViewStateChangeListener {
       override fun onResolutionChange(newWidth: Int, newHeight: Int) {
         super.onResolutionChange(newWidth, newHeight)
         if (!jsCanApplyStyles) {
           val event: WritableMap = Arguments.createMap()
           context.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "topChange", event)
           jsCanApplyStyles = true
-          this@HMSView.videoViewStateChangeListenerObject = null
         }
       }
-    }
-
-    videoViewStateChangeListenerObject?.let {
-      hmsVideoView?.addVideoViewStateChangeListener(it)
-    }
+    })
   }
 
   @RequiresApi(Build.VERSION_CODES.N)
