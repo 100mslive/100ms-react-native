@@ -187,7 +187,9 @@ export const usePeerTrackNodes = () => {
 
     // We will create Tile for the Joined Peer when we receive HMSUpdateListenerActions.ON_TRACK_UPDATE.
     // We are chosing to not create Tiles for Peers which does not have any tracks
-    if (type === HMSPeerUpdate.PEER_JOINED) return;
+    if (type === HMSPeerUpdate.PEER_JOINED) {
+      return;
+    }
 
     if (type === HMSPeerUpdate.PEER_LEFT) {
       // Remove all Tiles which has peer same as the peer which just left the call/meeting.
@@ -454,7 +456,9 @@ export const usePeerTrackNodes = () => {
      * Returning early if we don't have Room Code, as it is required to create Auth Token
      * For more info, Check out {@link https://www.100ms.live/docs/react-native/v2/quickstart/token#get-room-code-from-100ms-dashboard | Auth Token from Room Code concept}
      */
-    if (!params.roomCode) return;
+    if (!params.roomCode) {
+      return;
+    }
 
     const joinMeeting = async () => {
       try {

@@ -20,7 +20,7 @@ export interface LiveButtonProps {
   isLive: boolean;
   onPress(): void;
   disabled?: boolean;
-  size?: 'normal' | 'small'
+  size?: 'normal' | 'small';
 }
 
 const LiveButton: React.FC<LiveButtonProps> = ({
@@ -28,18 +28,22 @@ const LiveButton: React.FC<LiveButtonProps> = ({
   isLive,
   onPress,
   disabled,
-  size = 'normal'
+  size = 'normal',
 }) => {
-  const textStyle: StyleProp<TextStyle> = size !== 'normal' ? { fontSize: 10 } : null;
-  const indicatorStyle: StyleProp<ViewStyle> = size !== 'normal' ? { width: 4, height: 4, borderRadius: 2 } : null;
-  const pressableStyle: StyleProp<ViewStyle> = size !== 'normal' ? { padding: 4 } : null;
+  const textStyle: StyleProp<TextStyle> =
+    size !== 'normal' ? {fontSize: 10} : null;
+  const indicatorStyle: StyleProp<ViewStyle> =
+    size !== 'normal' ? {width: 4, height: 4, borderRadius: 2} : null;
+  const pressableStyle: StyleProp<ViewStyle> =
+    size !== 'normal' ? {padding: 4} : null;
 
   return (
     <View style={containerStyle}>
       <TouchableOpacity
         onPress={onPress}
         style={[styles.touchable, pressableStyle]}
-        disabled={disabled}>
+        disabled={disabled}
+      >
         <View
           style={[
             styles.liveIndicator,
