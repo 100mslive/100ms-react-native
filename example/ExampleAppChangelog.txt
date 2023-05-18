@@ -1,7 +1,8 @@
 Board: https://github.com/100mslive/react-native-hms/projects/21
 
-
+- Add messageId to HMSMessage
+https://github.com/100mslive/react-native-hms/pull/1044/
 
 React Native SDK: 1.6.2
-Android SDK: 2.6.3
+Android SDK: 2.6.4
 iOS SDK: 0.9.4
