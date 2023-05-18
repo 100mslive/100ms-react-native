@@ -65,13 +65,20 @@ export const StreamingQualityModalContent: React.FC<
 
   const changeStreamingQuality = async () => {
     cancelModal();
-    if (!selectedLayer || !remoteVideoTrack || selectedLayer === originalLayer)
+    if (
+      !selectedLayer ||
+      !remoteVideoTrack ||
+      selectedLayer === originalLayer
+    ) {
       return;
+    }
 
     remoteVideoTrack
       .setLayer(selectedLayer)
       .then(value => {
-        if (value) console.log('Set Layer Success: ', value);
+        if (value) {
+          console.log('Set Layer Success: ', value);
+        }
       })
       .catch(e => console.log('Set Layer Error: ', e));
   };

@@ -60,7 +60,9 @@ export const PeerSettingsModalContent: React.FC<
   const toggleMuteAudio = () => {
     cancelModal();
 
-    if (peerTrackNode.peer.isLocal) return;
+    if (peerTrackNode.peer.isLocal) {
+      return;
+    }
 
     hmsInstance?.changeTrackState(
       peerTrackNode.peer.audioTrack!!,
@@ -71,7 +73,9 @@ export const PeerSettingsModalContent: React.FC<
   const toggleMuteVideo = () => {
     cancelModal();
 
-    if (peerTrackNode.peer.isLocal) return;
+    if (peerTrackNode.peer.isLocal) {
+      return;
+    }
 
     hmsInstance?.changeTrackState(
       peerTrackNode.peer.videoTrack!!,
