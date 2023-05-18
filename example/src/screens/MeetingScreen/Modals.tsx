@@ -670,11 +670,12 @@ export const SaveScreenshot = ({
 
           // if source is local file on android device, then we copy source file to target path
           if (isSourceLocalFile) {
-            if (Platform.OS === 'android')
+            if (Platform.OS === 'android') {
               await RNFS.copyFile(
                 source, // Source Dir
                 targetLocation, // Target Dir
               );
+            }
           }
           // if source is not local file, then we write to target path
           else {
@@ -2208,7 +2209,9 @@ export const ChangeBulkRoleModal: React.FC<ChangeBulkRoleModalProps> = ({
   const [rolesToChange, setRolesToChange] = useState<HMSRole[]>([]);
 
   const changeRole = async () => {
-    if (!hmsInstance || !targetRole) return;
+    if (!hmsInstance || !targetRole) {
+      return;
+    }
 
     hmsInstance.changeRoleOfPeersWithRoles(
       rolesToChange.filter(

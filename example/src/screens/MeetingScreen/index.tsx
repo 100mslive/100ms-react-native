@@ -923,7 +923,7 @@ const DisplayView = (data: {
         // Handle 'spotlight' key values
         const handleSpotlightIdChange = (id: HMSSessionStoreValue) => {
           // Scroll to start of the list
-          if (!!id) {
+          if (id) {
             gridViewRef.current
               ?.getFlatlistRef()
               .current?.scrollToOffset({animated: true, offset: 0});
