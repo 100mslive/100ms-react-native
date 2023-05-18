@@ -1,8 +1,7 @@
-Board: https://github.com/100mslive/react-native-hms/projects/20
+Board: https://github.com/100mslive/react-native-hms/projects/21
 
-- Corrected applying HMSView scaletype
-https://github.com/100mslive/react-native-hms/pull/1034
 
-React Native SDK: 1.6.1
+
+React Native SDK: 1.6.2
 Android SDK: 2.6.3
 iOS SDK: 0.9.4
