@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@100mslive/react-native-hms@^1.5.0":
-  "integrity" "sha512-PTsY2sVqOkpk5BlOdlW+aDmSUl5TFhxYHHDgAjKU0gOGhxCvMgJoHAe//8XVz4mu4DZ5y456iPvAOEKTJEcNwg=="
-  "resolved" "https://registry.npmjs.org/@100mslive/react-native-hms/-/react-native-hms-1.5.0.tgz"
-  "version" "1.5.0"
+"@100mslive/react-native-hms@^1.6.1":
+  "integrity" "sha512-Id2n/PrFH2GMognGXxH6jR7ZSTpF+HNVAi/UqAQFR8jLJgB+/GSsVlhv+JnzSo1plgtcmyY13+wx6bdUiNqDtA=="
+  "resolved" "https://registry.npmjs.org/@100mslive/react-native-hms/-/react-native-hms-1.6.1.tgz"
+  "version" "1.6.1"
 
 "@ampproject/remapping@^2.1.0":
   "integrity" "sha512-qRmjj8nj9qmLTQXXmaR1cck3UXSRMPrbsLJAasZpF+t3riI71BXed5ebIOYwQntykeZuhjsdweEc9BxH5Jc26w=="
