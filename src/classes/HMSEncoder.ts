@@ -528,6 +528,7 @@ export class HMSEncoder {
     if (data) {
       return new HMSMessage({
         message: data?.message,
+        messageId: data?.messageId,
         type: data?.type,
         time: new Date(parseInt(data?.time)),
         sender: this.encodeHmsPeer(data?.sender),

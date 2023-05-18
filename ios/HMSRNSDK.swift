@@ -264,7 +264,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         DispatchQueue.main.async { [weak self] in
             self?.hms?.sendBroadcastMessage(type: type, message: message, completion: { message, error in
                 if error == nil {
-                    resolve?(["success": true, "data": ["sender": message?.sender?.name ?? "", "message": message?.message ?? "", "type": message?.type]] as [String: Any])
+                    resolve?(["messageId": message?.messageID ?? "", "data": ["sender": message?.sender?.name ?? "", "message": message?.message ?? "", "type": message?.type]] as [String: Any])
                     return
                 } else {
                     if self?.eventsEnableStatus[HMSConstants.ON_ERROR] == true {
@@ -292,7 +292,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             let encodedTargetedRoles = HMSHelper.getRolesFromRoleNames(targetedRoles, roles: self?.hms?.roles)
             self?.hms?.sendGroupMessage(type: type, message: message, roles: encodedTargetedRoles, completion: { message, error in
                 if error == nil {
-                    resolve?(["success": true, "data": ["sender": message?.sender?.name ?? "", "message": message?.message ?? "", "type": message?.type]] as [String: Any])
+                    resolve?(["messageId": message?.messageID ?? "", "data": ["sender": message?.sender?.name ?? "", "message": message?.message ?? "", "type": message?.type]] as [String: Any])
                     return
                 } else {
                     if self?.eventsEnableStatus[HMSConstants.ON_ERROR] == true {
@@ -320,7 +320,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             guard let peer = HMSHelper.getRemotePeerFromPeerId(peerId, remotePeers: self?.hms?.remotePeers) else { return }
             self?.hms?.sendDirectMessage(type: type, message: message, peer: peer, completion: { message, error in
                 if error == nil {
-                    resolve?(["success": true, "data": ["sender": message?.sender?.name ?? "", "message": message?.message ?? "", "type": message?.type]] as [String: Any])
+                    resolve?(["messageId": message?.messageID ?? "", "data": ["sender": message?.sender?.name ?? "", "message": message?.message ?? "", "type": message?.type]] as [String: Any])
                     return
                 } else {
                     if self?.eventsEnableStatus[HMSConstants.ON_ERROR] == true {
@@ -1432,7 +1432,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         if eventsEnableStatus[HMSConstants.ON_MESSAGE] != true {
             return
         }
-        self.delegate?.emitEvent(HMSConstants.ON_MESSAGE, ["event": HMSConstants.ON_MESSAGE, "id": self.id, "sender": HMSDecoder.getHmsPeerSubset(message.sender), "recipient": HMSDecoder.getHmsMessageRecipient(message.recipient), "time": message.time.timeIntervalSince1970 * 1000, "message": message.message, "type": message.type])
+        self.delegate?.emitEvent(HMSConstants.ON_MESSAGE, ["event": HMSConstants.ON_MESSAGE, "id": self.id, "sender": HMSDecoder.getHmsPeerSubset(message.sender), "recipient": HMSDecoder.getHmsMessageRecipient(message.recipient), "time": message.time.timeIntervalSince1970 * 1000, "message": message.message, "messageId": message.messageID, "type": message.type])
     }
 
     func on(updated speakers: [HMSSpeaker]) {

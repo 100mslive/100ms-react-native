@@ -150,6 +150,13 @@ class HMSRNSDK(
     return data
   }
 
+  fun emitHMSMessageSuccess(hmsMessage: HMSMessage): ReadableMap {
+    val data: WritableMap = Arguments.createMap()
+    data.putString("message", hmsMessage.message)
+    data.putString("messageId", hmsMessage.messageId)
+    return data
+  }
+
   fun preview(credentials: ReadableMap) {
     if (previewInProgress) {
       self.emitCustomError("PREVIEW_IS_IN_PROGRESS")
@@ -377,6 +384,7 @@ class HMSRNSDK(
 
                 data.putMap("sender", HMSDecoder.getHmsPeerSubset(message.sender))
                 data.putString("message", message.message)
+                data.putString("messageId", message.messageId)
                 data.putString("type", message.type)
                 data.putString("time", message.serverReceiveTime.toString())
                 data.putString("id", id)
@@ -670,7 +678,7 @@ class HMSRNSDK(
             callback?.reject(error.code.toString(), error.message)
           }
           override fun onSuccess(hmsMessage: HMSMessage) {
-            callback?.resolve(emitHMSSuccess(hmsMessage))
+            callback?.resolve(emitHMSMessageSuccess(hmsMessage))
           }
         },
       )
@@ -702,7 +710,7 @@ class HMSRNSDK(
             callback?.reject(error.code.toString(), error.message)
           }
           override fun onSuccess(hmsMessage: HMSMessage) {
-            callback?.resolve(emitHMSSuccess(hmsMessage))
+            callback?.resolve(emitHMSMessageSuccess(hmsMessage))
           }
         },
       )
@@ -733,7 +741,7 @@ class HMSRNSDK(
               callback?.reject(error.code.toString(), error.message)
             }
             override fun onSuccess(hmsMessage: HMSMessage) {
-              callback?.resolve(emitHMSSuccess(hmsMessage))
+              callback?.resolve(emitHMSMessageSuccess(hmsMessage))
             }
           },
         )
