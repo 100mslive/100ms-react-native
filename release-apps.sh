@@ -14,13 +14,15 @@ perform_npm_actions() {
   npm install
 }
 
-release_android() {
-  cd ./android
+# release_android() {
+#   export NODE_OPTIONS=--openssl-legacy-provider
 
-  bundle install --verbose
+#   cd ./android
 
-  bundle exec fastlane release_on_firebase
-}
+#   bundle install --verbose
+
+#   bundle exec fastlane release_on_firebase
+# }
 
 release_iOS() {
   cd ./ios
@@ -60,13 +62,14 @@ P1=$!
 
 wait $P1
 
-release_android &
-P2=$!
+# release_android &
+# P2=$!
 
 release_iOS &
 P3=$!
 
-wait $P2 $P3
+# wait $P2 $P3
+wait $P3
 
 perform_git_actions
 
