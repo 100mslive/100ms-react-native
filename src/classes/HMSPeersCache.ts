@@ -1,11 +1,14 @@
 import { NativeModules } from 'react-native';
-import type { HMSPeer } from './HMSPeer';
 import { HMSEncoder } from './HMSEncoder';
 import { HMSPeerUpdate } from './HMSPeerUpdate';
 import { HMSTrackUpdate } from './HMSTrackUpdate';
 import type { HMSTrack } from './HMSTrack';
 import { HMSTrackType } from './HMSTrackType';
 import { HMSTrackSource } from './HMSTrackSource';
+import type { HMSNetworkQuality } from './HMSNetworkQuality';
+import type { HMSRole } from './HMSRole';
+import type { HMSAudioTrack } from './HMSAudioTrack';
+import type { HMSVideoTrack } from './HMSVideoTrack';
 
 const { HMSManager } = NativeModules;
 
@@ -26,9 +29,18 @@ export const clearHmsPeersCache = () => {
   hmsPeersCache = undefined;
 };
 
-export type HMSPeerCacheProps = Partial<
-  Omit<HMSPeer, 'peerID' | 'customerDescription'>
->;
+export type HMSPeerCacheProps = {
+  peerID?: string | undefined;
+  name?: string | undefined;
+  isLocal?: boolean | undefined;
+  networkQuality?: HMSNetworkQuality | undefined;
+  customerUserID?: string | undefined;
+  metadata?: string | undefined;
+  role?: HMSRole | undefined;
+  audioTrack?: HMSAudioTrack | undefined;
+  videoTrack?: HMSVideoTrack | undefined;
+  auxiliaryTracks?: HMSTrack[] | undefined;
+};
 
 export class HMSPeersCache {
   private _data = new Map<string, HMSPeerCacheProps>();
@@ -66,12 +78,19 @@ export class HMSPeersCache {
   ) {
     const peerObj = this._data.get(peerId);
 
+    if (updateType === HMSPeerUpdate.PEER_JOINED) {
+      if (!peerObj) {
+        this._data.set(peerId, data);
+      }
+      return;
+    }
+
     if (updateType === HMSPeerUpdate.PEER_LEFT) {
       this._data.delete(peerId);
       return;
     }
 
-    let updatedObj = { ...peerObj };
+    let updatedObj = peerObj || {};
 
     switch (updateType) {
       case HMSTrackUpdate.TRACK_ADDED: {
@@ -79,7 +98,8 @@ export class HMSPeersCache {
 
         if (track.source === HMSTrackSource.REGULAR) {
           if (track.type === HMSTrackType.VIDEO) {
-            updatedObj.videoTrack = { ...track, isDegraded: false };
+            updatedObj.videoTrack = track;
+            updatedObj.videoTrack.isDegraded = false;
           } else if (track.type === HMSTrackType.AUDIO) {
             updatedObj.audioTrack = track;
           }
@@ -102,12 +122,9 @@ export class HMSPeersCache {
             updatedObj.audioTrack = undefined;
           }
         } else if (Array.isArray(updatedObj.auxiliaryTracks)) {
-          updatedObj = {
-            ...updatedObj,
-            auxiliaryTracks: updatedObj.auxiliaryTracks.filter(
-              (auxiliaryTrack) => auxiliaryTrack.trackId !== track.trackId
-            ),
-          };
+          updatedObj.auxiliaryTracks = updatedObj.auxiliaryTracks.filter(
+            (auxiliaryTrack) => auxiliaryTrack.trackId !== track.trackId
+          );
         }
         break;
       }
@@ -117,10 +134,9 @@ export class HMSPeersCache {
 
         if (track.source === HMSTrackSource.REGULAR) {
           if (track.type === HMSTrackType.VIDEO) {
-            updatedObj.videoTrack = {
-              ...track,
-              isDegraded: updatedObj.videoTrack?.isDegraded || false,
-            };
+            const oldIsDegraded = updatedObj.videoTrack?.isDegraded || false;
+            updatedObj.videoTrack = track;
+            updatedObj.videoTrack.isDegraded = oldIsDegraded;
           } else if (track.type === HMSTrackType.AUDIO) {
             updatedObj.audioTrack = track;
           }
@@ -147,30 +163,26 @@ export class HMSPeersCache {
 
         if (track.source === HMSTrackSource.REGULAR) {
           if (track.type === HMSTrackType.VIDEO) {
-            updatedObj.videoTrack = {
-              ...track,
-              isDegraded: updateType === HMSTrackUpdate.TRACK_DEGRADED,
-            };
+            updatedObj.videoTrack = track;
+            updatedObj.videoTrack.isDegraded =
+              updateType === HMSTrackUpdate.TRACK_DEGRADED;
           } else if (track.type === HMSTrackType.AUDIO) {
             updatedObj.audioTrack = track;
           }
         } else {
           if (Array.isArray(updatedObj.auxiliaryTracks)) {
-            updatedObj = {
-              ...updatedObj,
-              auxiliaryTracks: updatedObj.auxiliaryTracks.map(
-                (auxiliaryTrack) => {
-                  if (auxiliaryTrack.trackId === track.trackId) {
-                    return {
-                      ...auxiliaryTrack,
-                      isDegraded: updateType === HMSTrackUpdate.TRACK_DEGRADED,
-                    };
-                  }
-
-                  return auxiliaryTrack;
+            updatedObj.auxiliaryTracks = updatedObj.auxiliaryTracks.map(
+              (auxiliaryTrack) => {
+                if (auxiliaryTrack.trackId === track.trackId) {
+                  return {
+                    ...auxiliaryTrack,
+                    isDegraded: updateType === HMSTrackUpdate.TRACK_DEGRADED,
+                  };
                 }
-              ),
-            };
+
+                return auxiliaryTrack;
+              }
+            );
           } else {
             updatedObj.auxiliaryTracks = [track];
           }
@@ -187,11 +199,12 @@ export class HMSPeersCache {
         );
         break;
       }
-      case HMSPeerUpdate.METADATA_CHANGED:
-      case HMSPeerUpdate.NAME_CHANGED:
-      case HMSPeerUpdate.PEER_JOINED:
-      case HMSPeerUpdate.ROLE_CHANGED: {
-        updatedObj = { ...updatedObj, ...data };
+      case HMSPeerUpdate.METADATA_CHANGED: {
+        updatedObj.metadata = data.metadata;
+        break;
+      }
+      case HMSPeerUpdate.NAME_CHANGED: {
+        updatedObj.name = data.name;
         break;
       }
       default: {
