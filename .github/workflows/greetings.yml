@@ -1,0 +1,16 @@
+name: Greetings
+
+on: [pull_request_target, issues]
+
+jobs:
+  greeting:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+    - uses: actions/first-interaction@v1
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        issue-message: "👋 Hi there! Thanks for opening the issue, appreciate it. Do read the 100ms Docs: https://www.100ms.live/docs. You can ask questions or request for features on 100ms Discord as well: https://100ms.live/discord"
+        pr-message: "👋 Hi there! Thanks for opening the issue, appreciate it. Do read the 100ms Docs: https://www.100ms.live/docs. You can ask questions or request for features on 100ms Discord as well: https://100ms.live/discord"
