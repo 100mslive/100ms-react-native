@@ -3,6 +3,7 @@ import {
   HMSCameraFacing,
   HMSConfig,
   HMSException,
+  HMSIOSAudioMode,
   HMSLogAlarmManager,
   HMSLogger,
   HMSLogLevel,
@@ -12,6 +13,7 @@ import {
   HMSRoom,
   HMSRoomUpdate,
   HMSSDK,
+  HMSSessionStore,
   HMSTrack,
   HMSTrackSettings,
   HMSTrackSettingsInitState,
@@ -344,6 +346,15 @@ const Welcome = () => {
     }
   };
 
+  const onSessionStoreAvailableListener = ({
+    sessionStore,
+  }: {
+    sessionStore: HMSSessionStore;
+  }) => {
+    // Saving `sessionStore` reference in `redux`
+    dispatch(saveUserData({hmsSessionStore: sessionStore}));
+  };
+
   // functions
   const removePeerTrackNodes = (peer: HMSPeer) => {
     const newPeerTrackNodes = peerTrackNodesRef?.current?.filter(
@@ -444,6 +455,22 @@ const Welcome = () => {
         onTrackListener,
       );
 
+      /**
+       * Session store is a shared realtime key-value store that is accessible by everyone in the room.
+       * It can be utilized to implement features such as pinned text, spotlight (which brings a particular
+       * peer to the center stage for everyone in the room) and more.
+       *
+       * On adding this event listener, Inside `onSessionStoreAvailableListener` function you will get an
+       * instance of `HMSSessionStore` class, then you can use this instance to "set" or "get" the value
+       * for a specific key on session store and listen for value change updates.
+       *
+       * Checkout Session Store docs fore more details ${@link https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/room/session-store}
+       */
+      hmsInstance?.addEventListener(
+        HMSUpdateListenerActions.ON_SESSION_STORE_AVAILABLE,
+        onSessionStoreAvailableListener,
+      );
+
       hmsInstance?.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
 
       dispatch(
@@ -493,6 +520,11 @@ const Welcome = () => {
     ];
     const deviceModal = getModel();
 
+    /**
+     * Customize local peer's Audio track settings before Joining the Room.
+     *
+     * Checkout Track Settings docs for more details {@link https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/track/track-settings}
+     */
     let audioSettings = new HMSAudioTrackSettings({
       initialState: joinConfig.mutedAudio
         ? HMSTrackSettingsInitState.MUTED
@@ -507,8 +539,20 @@ const Welcome = () => {
             'audio_file_player_node',
           ]
         : undefined,
+      /**
+       * `audioMode` param allows you to capture audio in its highest quality
+       * by disabling voice processing and increasing the maximum bandwidth limit
+       *
+       * Checkout Music Mode docs for more details {@link https://www.100ms.live/docs/react-native/v2/how-to-guides/configure-your-device/microphone/music-mode}
+       */
+      audioMode: joinConfig.musicMode ? HMSIOSAudioMode.MUSIC : undefined,
     });
 
+    /**
+     * Customize local peer's Video track settings before Joining the Room.
+     *
+     * Checkout Track Settings docs for more details {@link https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/track/track-settings}
+     */
     let videoSettings = new HMSVideoTrackSettings({
       initialState: joinConfig.mutedVideo
         ? HMSTrackSettingsInitState.MUTED
@@ -562,7 +606,7 @@ const Welcome = () => {
      * const hmsInstance = await HMSSDK.build({
      *  trackSettings,
      *  appGroup: 'group.reactnativehms', // required for iOS Screenshare, not required for Android
-     *  preferredExtension: 'RHHMSExampleBroadcastUpload', // required for iOS Screenshare, not required for Android
+     *  preferredExtension: 'RNHMSExampleBroadcastUpload', // required for iOS Screenshare, not required for Android
      * });
      */
 
@@ -604,6 +648,9 @@ const Welcome = () => {
     hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_ROOM_UPDATE);
     hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_PEER_UPDATE);
     hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_TRACK_UPDATE);
+    hmsInstance?.removeEventListener(
+      HMSUpdateListenerActions.ON_SESSION_STORE_AVAILABLE,
+    );
     hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_ERROR);
   };
 

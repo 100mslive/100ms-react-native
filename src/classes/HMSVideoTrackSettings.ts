@@ -2,6 +2,11 @@ import type { HMSSimulcastLayerSettings } from './HMSSimulcastLayerSettings';
 import type { HMSCameraFacing } from './HMSCameraFacing';
 import type { HMSTrackSettingsInitState } from './HMSTrackSettingsInitState';
 
+/**
+ * Customize local peer's Video track settings before Joining the Room.
+ *
+ * Checkout Track Settings docs for more details {@link https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/track/track-settings}
+ */
 export class HMSVideoTrackSettings {
   readonly simulcastSettings?: HMSSimulcastLayerSettings[];
   initialState?: HMSTrackSettingsInitState;

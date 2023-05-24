@@ -34,6 +34,7 @@ import {
   changeAutoResize,
   changeAutoSimulcast,
   resetJoinConfig,
+  changeMusicMode,
 } from '../redux/actions';
 
 interface JoinSettingsModalContentProps {}
@@ -50,6 +51,7 @@ export const JoinSettingsModalContent: React.FC<
     mirrorCamera,
     showStats,
     audioMixer,
+    musicMode,
     softwareDecoder,
     autoResize,
     autoSimulcast,
@@ -110,6 +112,22 @@ export const JoinSettingsModalContent: React.FC<
             }
             containerStyle={styles.switchContainer}
           />
+
+          {Platform.OS === 'ios' ? (
+            <SwitchRow
+              text="Music Mode"
+              value={musicMode}
+              onChange={value => dispatch(changeMusicMode(value))}
+              LeftIcon={
+                <IoniconsIcons
+                  name="ios-musical-notes-outline"
+                  size={24}
+                  style={styles.icon}
+                />
+              }
+              containerStyle={styles.switchContainer}
+            />
+          ) : null}
 
           {Platform.OS === 'ios' ? (
             <SwitchRow

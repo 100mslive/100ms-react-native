@@ -25,10 +25,8 @@ import type { HMSAudioMixingMode } from './HMSAudioMixingMode';
 import type { HMSLogSettings } from './HMSLogSettings';
 import { HMSMessageType } from './HMSMessageType';
 import { HMSPIPListenerActions } from './HMSPIPListenerActions';
-import {
-  type HMSEventSubscription,
-  HMSNativeEventEmitter,
-} from './HMSNativeEventEmitter';
+import type { HMSEventSubscription } from './HMSNativeEventEmitter';
+import { HMSNativeEventEmitter } from './HMSNativeEventEmitter';
 import {
   clearHmsPeersCache,
   getHmsPeersCache,
@@ -42,6 +40,7 @@ import {
   setHmsRoomCache,
 } from './HMSRoomCache';
 import { HMSPeerUpdateOrdinals } from './HMSPeerUpdate';
+import { HMSSessionStore } from './HMSSessionStore';
 
 type HmsViewProps = Omit<HmsComponentProps, 'id'>;
 
@@ -89,6 +88,7 @@ export class HMSSDK {
   private onRemoteAudioStatsDelegate?: any;
   private onRemoteVideoStatsDelegate?: any;
   private onAudioDeviceChangedDelegate?: any;
+  private onSessionStoreAvailableDelegate?: any;
   private onPIPRoomLeaveDelegate?: any;
 
   private emitterSubscriptions: Partial<
@@ -314,11 +314,14 @@ export class HMSSDK {
       type: type || null,
       id: this.id,
     });
-    return await HMSManager.sendBroadcastMessage({
-      message,
-      type: type || null,
-      id: this.id,
-    });
+    const data: { messageId: string | undefined } =
+      await HMSManager.sendBroadcastMessage({
+        message,
+        type: type || null,
+        id: this.id,
+      });
+
+    return data;
   };
 
   /**
@@ -340,12 +343,15 @@ export class HMSSDK {
       id: this.id,
       type: type || null,
     });
-    return await HMSManager.sendGroupMessage({
-      message,
-      roles: HMSHelper.getRoleNames(roles),
-      id: this.id,
-      type: type || null,
-    });
+    const data: { messageId: string | undefined } =
+      await HMSManager.sendGroupMessage({
+        message,
+        roles: HMSHelper.getRoleNames(roles),
+        id: this.id,
+        type: type || null,
+      });
+
+    return data;
   };
 
   /**
@@ -367,12 +373,15 @@ export class HMSSDK {
       id: this.id,
       type: type || null,
     });
-    return await HMSManager.sendDirectMessage({
-      message,
-      peerId: peer.peerID,
-      id: this.id,
-      type: type || null,
-    });
+    const data: { messageId: string | undefined } =
+      await HMSManager.sendDirectMessage({
+        message,
+        peerId: peer.peerID,
+        id: this.id,
+        type: type || null,
+      });
+
+    return data;
   };
 
   /**
@@ -1058,6 +1067,12 @@ export class HMSSDK {
     }
   };
 
+  /**
+   * @deprecated Older SessionMetaData APIs has been deprecated in favour of newer Session Store APIs.
+   * You can subscribe to `ON_SESSION_STORE_AVAILABLE` event to get notified when the `HMSSessionStore`
+   * is available and use `set` method on `HMSSessionStore` instance
+   * checkout {@link https://www.100ms.live/docs/react-native/v2/how-to-guides/}
+   */
   setSessionMetaData = async (sessionMetaData: string | null) => {
     logger?.verbose('#Function setSessionMetaData', {
       id: this.id,
@@ -1069,6 +1084,12 @@ export class HMSSDK {
     });
   };
 
+  /**
+   * @deprecated Older SessionMetaData APIs has been deprecated in favour of newer Session Store APIs.
+   * You can subscribe to `ON_SESSION_STORE_AVAILABLE` event to get notified when the `HMSSessionStore`
+   * is available and use `get` or `addKeyChangeListener` method on `HMSSessionStore` instance
+   * checkout {@link https://www.100ms.live/docs/react-native/v2/how-to-guides/}
+   */
   getSessionMetaData = async () => {
     logger?.verbose('#Function getSessionMetaData', {
       id: this.id,
@@ -1470,6 +1491,27 @@ export class HMSSDK {
         this.onAudioDeviceChangedDelegate = callback;
         break;
       }
+      case HMSUpdateListenerActions.ON_SESSION_STORE_AVAILABLE: {
+        // Checking if we already have ON_SESSION_STORE_AVAILABLE subscription
+        if (
+          !this.emitterSubscriptions[
+            HMSUpdateListenerActions.ON_SESSION_STORE_AVAILABLE
+          ]
+        ) {
+          // Adding ON_SESSION_STORE_AVAILABLE native listener
+          const sessionStoreAvailableSubscription = HmsEventEmitter.addListener(
+            this.id,
+            HMSUpdateListenerActions.ON_SESSION_STORE_AVAILABLE,
+            this.onSessionStoreAvailableListener
+          );
+          this.emitterSubscriptions[
+            HMSUpdateListenerActions.ON_SESSION_STORE_AVAILABLE
+          ] = sessionStoreAvailableSubscription;
+        }
+        // Adding Session Store Available App Delegate listener
+        this.onSessionStoreAvailableDelegate = callback;
+        break;
+      }
       case HMSPIPListenerActions.ON_PIP_ROOM_LEAVE: {
         if (Platform.OS === 'android') {
           // Checking if we already have ON_PIP_ROOM_LEAVE subscription
@@ -1794,6 +1836,23 @@ export class HMSSDK {
         }
         // Removing App Delegate listener
         this.onAudioDeviceChangedDelegate = null;
+        break;
+      }
+      case HMSUpdateListenerActions.ON_SESSION_STORE_AVAILABLE: {
+        const subscription =
+          this.emitterSubscriptions[
+            HMSUpdateListenerActions.ON_SESSION_STORE_AVAILABLE
+          ];
+        // Removing ON_SESSION_STORE_AVAILABLE native listener
+        if (subscription) {
+          subscription.remove();
+
+          this.emitterSubscriptions[
+            HMSUpdateListenerActions.ON_SESSION_STORE_AVAILABLE
+          ] = undefined;
+        }
+        // Removing App Delegate listener
+        this.onSessionStoreAvailableDelegate = null;
         break;
       }
       case HMSPIPListenerActions.ON_PIP_ROOM_LEAVE: {
@@ -2208,6 +2267,22 @@ export class HMSSDK {
       logger?.verbose('#Listener onAudioDeviceChangedListener_CALL', data);
       this.onAudioDeviceChangedDelegate({
         ...data,
+      });
+    }
+  };
+
+  onSessionStoreAvailableListener = (data: { id: string }) => {
+    if (data.id !== this.id) {
+      return;
+    }
+    if (this.onSessionStoreAvailableDelegate) {
+      logger?.verbose(
+        '#Listener ON_SESSION_STORE_AVAILABLE_LISTENER_CALL',
+        data
+      );
+      this.onSessionStoreAvailableDelegate({
+        ...data,
+        sessionStore: new HMSSessionStore(),
       });
     }
   };

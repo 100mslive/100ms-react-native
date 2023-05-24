@@ -255,6 +255,12 @@ const ChatList = ({
                 />
               )}
             </View>
+            <Text
+              style={[styles.messageText, {color: 'gray'}]}
+              ellipsizeMode="middle"
+            >
+              {data.messageId}
+            </Text>
             <Text style={styles.messageText}>{data.message}</Text>
           </View>
         );
@@ -267,6 +273,9 @@ const ChatList = ({
 export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
   // hooks
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
+  const hmsSessionStore = useSelector(
+    (state: RootState) => state.user.hmsSessionStore,
+  );
   const pinnedMessage = useSelector(
     (state: RootState) => state.messages.pinnedMessage,
   );
@@ -282,46 +291,74 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
   const [showBanner, setShowBanner] = useState<boolean>(false);
   const [text, setText] = useState('');
 
-  const setSessionMetaData = (value: string | null) => {
-    hmsInstance?.setSessionMetaData(value).then(() => {
-      hmsInstance?.sendBroadcastMessage('refresh', HMSMessageType.METADATA);
-      dispatch(addPinnedMessage(value));
-    });
+  const setSessionMetaData = async (value: string | null) => {
+    // If instance of HMSSessionStore is available
+    if (hmsSessionStore) {
+      try {
+        // set `value` on `session` with key 'pinnedMessage'
+        const response = await hmsSessionStore.set(value, 'pinnedMessage');
+        console.log('setSessionMetaData Response -> ', response);
+      } catch (error) {
+        console.log('setSessionMetaData Error -> ', error);
+      }
+    }
   };
 
   const sendMessage = () => {
-    let hmsMessageRecipient: HMSMessageRecipient;
-    if (text.length > 0) {
+    if (text.length > 0 && hmsInstance) {
+      let hmsMessageRecipient: HMSMessageRecipient;
+
       if (type === 'role') {
         hmsMessageRecipient = new HMSMessageRecipient({
           recipientType: HMSMessageRecipientType.ROLES,
           recipientRoles: [receiverObject as HMSRole],
         });
-        hmsInstance?.sendGroupMessage(text, [receiverObject as HMSRole]);
       } else if (type === 'direct') {
         hmsMessageRecipient = new HMSMessageRecipient({
           recipientType: HMSMessageRecipientType.PEER,
           recipientPeer: receiverObject as HMSPeer,
         });
-        hmsInstance?.sendDirectMessage(text, receiverObject as HMSPeer);
       } else {
         hmsMessageRecipient = new HMSMessageRecipient({
           recipientType: HMSMessageRecipientType.BROADCAST,
         });
-        hmsInstance?.sendBroadcastMessage(text);
       }
-      dispatch(
-        addMessage(
-          new HMSMessage({
-            message: text,
+
+      // Saving reference of `text` state to local variable
+      // to use the typed message after clearing state
+      const messageText = text;
+
+      setText('');
+
+      const handleMessageID = ({
+        messageId,
+      }: {
+        messageId: string | undefined;
+      }) => {
+        if (messageId) {
+          const localMessage = new HMSMessage({
+            messageId: messageId,
+            message: messageText,
             type: HMSMessageType.CHAT,
             time: new Date(),
             sender: localPeer,
             recipient: hmsMessageRecipient,
-          }),
-        ),
-      );
-      setText('');
+          });
+          dispatch(addMessage(localMessage));
+        }
+      };
+
+      if (type === 'role') {
+        hmsInstance
+          .sendGroupMessage(messageText, [receiverObject as HMSRole])
+          .then(handleMessageID);
+      } else if (type === 'direct') {
+        hmsInstance
+          .sendDirectMessage(messageText, receiverObject as HMSPeer)
+          .then(handleMessageID);
+      } else {
+        hmsInstance.sendBroadcastMessage(messageText).then(handleMessageID);
+      }
     }
   };
 

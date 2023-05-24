@@ -1,6 +1,6 @@
 {
   "name": "@100mslive/react-native-hms",
-  "version": "1.5.0",
+  "version": "1.6.2",
   "description": "Integrate Real Time Audio and Video conferencing, Interactive Live Streaming, and Chat in your apps with 100ms React Native SDK. With support for HLS and RTMP Live Streaming and Recording, Picture-in-Picture (PiP), one-to-one Video Call Modes, Audio Rooms, Video Player and much more, add immersive real-time communications to your apps.",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -30,7 +30,8 @@
     "release": "release-it",
     "example": "yarn --cwd example",
     "pods": "cd example && pod-install --quiet",
-    "bootstrap": "yarn example && yarn && yarn pods"
+    "bootstrap": "yarn example && yarn && yarn pods",
+    "typedoc": "npx typedoc src/index.ts --excludePrivate --excludeProtected --excludeInternal"
   },
   "keywords": [
     "react-native",
@@ -68,7 +69,26 @@
     "ios",
     "android",
     "web",
-    "interactive"
+    "interactive",
+    "hls",
+    "rtmp",
+    "pip",
+    "voip",
+    "player",
+    "webrtc",
+    "stream",
+    "communication",
+    "conference",
+    "whiteboard",
+    "session",
+    "polls",
+    "quiz",
+    "call",
+    "callkit",
+    "connection",
+    "service",
+    "telecom",
+    "reaction"
   ],
   "repository": "https://github.com/100mslive/100ms-react-native",
   "author": "Yogesh <yogesh@100ms.live> (https://www.100ms.live/)",
@@ -93,10 +113,11 @@
     "husky": "^4.2.5",
     "jest": "^26.0.1",
     "prettier": "^2.0.5",
-    "react-native-builder-bob": "^0.18.0",
-    "typescript": "^4.6.3",
     "react": "17.0.1",
-    "react-native": "0.64.4"
+    "react-native": "0.64.4",
+    "react-native-builder-bob": "^0.18.0",
+    "typedoc": "^0.24.7",
+    "typescript": "^4.6.3"
   },
   "peerDependencies": {
     "react": "*",

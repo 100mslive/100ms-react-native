@@ -15,7 +15,7 @@ const PIPView: React.FC<PIPViewProps> = ({pairedPeers}) => {
   return (
     <PeerDisplayView
       isLocal={preferedPeerTrack?.peer?.isLocal}
-      peerName={preferedPeerTrack?.peer?.name}
+      peer={preferedPeerTrack?.peer}
       videoTrack={preferedPeerTrack?.track}
       isDegraded={preferedPeerTrack?.isDegraded}
     />
