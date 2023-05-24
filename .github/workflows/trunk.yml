@@ -1,0 +1,2 @@
+- name: Trunk Check
+  uses: trunk-io/trunk-action@v1.1.0
