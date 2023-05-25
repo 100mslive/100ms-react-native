@@ -130,23 +130,22 @@ object HMSDecoder {
     if (hmsPeer != null) {
       peer.putString(peerUpdateType.ordinal.toString(), hmsPeer.peerID)
 
-      if (peerUpdateType !== null) {
-        when (peerUpdateType) {
-          HMSPeerUpdate.NAME_CHANGED -> {
-            peer.putString("name", hmsPeer.name)
-          }
-          HMSPeerUpdate.METADATA_CHANGED -> {
-            peer.putString("metadata", hmsPeer.metadata)
-          }
-          HMSPeerUpdate.ROLE_CHANGED -> {
-            peer.putMap("role", this.getHmsRole(hmsPeer.hmsRole))
-          }
-          HMSPeerUpdate.NETWORK_QUALITY_UPDATED -> {
-            hmsPeer.networkQuality?.let {
-              peer.putMap("networkQuality", this.getHmsNetworkQuality(it))
-            }
+      when (peerUpdateType) {
+        HMSPeerUpdate.NAME_CHANGED -> {
+          peer.putString("name", hmsPeer.name)
+        }
+        HMSPeerUpdate.METADATA_CHANGED -> {
+          peer.putString("metadata", hmsPeer.metadata)
+        }
+        HMSPeerUpdate.ROLE_CHANGED -> {
+          peer.putMap("role", this.getHmsRole(hmsPeer.hmsRole))
+        }
+        HMSPeerUpdate.NETWORK_QUALITY_UPDATED -> {
+          hmsPeer.networkQuality?.let {
+            peer.putMap("networkQuality", this.getHmsNetworkQuality(it))
           }
         }
+        else -> {}
       }
     }
     return peer
