@@ -31,6 +31,7 @@
     "react-native-modal-dropdown": "^1.0.1",
     "react-native-permissions": "3.4.0",
     "react-native-qrcode-scanner": "^1.5.5",
+    "react-native-reanimated": "^2.x.x",
     "react-native-safe-area-context": "^3.3.0",
     "react-native-screens": "^3.5.0",
     "react-native-share": "^8.2.2",
