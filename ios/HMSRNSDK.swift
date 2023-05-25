@@ -1392,7 +1392,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
 
-        let type = getString(from: update)
         let hmsPeer = HMSDecoder.getHmsPeerSubsetForPeerUpdateEvent(peer, update)
 
         self.delegate?.emitEvent(HMSConstants.ON_PEER_UPDATE, hmsPeer)
