@@ -1112,7 +1112,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
 
         eventsEnableStatus[eventType] = true
-        resolve?(["success": true, "message": "function call executed successfully"] as [String: Any])
+        resolve?(["success": true] as [String: Any])
     }
 
     func disableEvent(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
