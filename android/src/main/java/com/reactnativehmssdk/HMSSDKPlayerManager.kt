@@ -27,6 +27,8 @@ class HMSSDKPlayerManager : SimpleViewManager<HMSPlayer>() {
     return MapBuilder.of(
       HMSPlayerConstants.HMS_HLS_PLAYBACK_EVENT,
       MapBuilder.of("registrationName", "onHmsHlsPlaybackEvent"),
+      HMSPlayerConstants.HMS_HLS_STATS_EVENT,
+      MapBuilder.of("registrationName", "onHmsHlsStatsEvent"),
     )
   }
 
