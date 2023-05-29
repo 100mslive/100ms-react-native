@@ -16,6 +16,8 @@ import {
   type HMSRoom,
   HMSUpdateListenerActions,
   HMSPlayer,
+  HMSPeer,
+  useHLSPlayerStats,
 } from '@100mslive/react-native-hms';
 import Animated, {
   interpolate,
@@ -37,6 +39,7 @@ import {styles} from './styles';
 import {RootState} from '../../redux';
 import {PipModes} from '../../utils/types';
 import {runOnJS} from 'react-native-reanimated';
+import {COLORS} from '../../utils/theme';
 
 type HLSViewProps = {
   room?: HMSRoom;
@@ -49,8 +52,26 @@ const HLSView = ({room}: HLSViewProps) => {
         room?.hlsStreamingState?.variants?.slice(0, 1)?.map((variant, index) =>
           variant?.hlsStreamUrl ? (
             <View key={index} style={{flex: 1, position: 'relative'}}>
-              <HMSPlayer style={styles.renderHLSVideo}>
+              <HMSPlayer
+                style={styles.renderHLSVideo}
+                onPlaybackCue={d =>
+                  console.log('$$$ HMSView onPlaybackCue -> ', d)
+                }
+                onPlaybackFailure={d =>
+                  console.log('$$$ HMSView onPlaybackFailure -> ', d)
+                }
+                onPlaybackStateChange={d =>
+                  console.log('$$$ HMSView onPlaybackStateChange -> ', d)
+                }
+                onPlaybackStats={d =>
+                  console.log('$$$ HMSView onPlaybackStats -> ', d)
+                }
+                onPlaybackStatsError={d =>
+                  console.log('$$$ HMSView onPlaybackStatsError -> ', d)
+                }
+              >
                 <HLSPlayerEmoticons />
+                <HLSPlayerStatsView />
               </HMSPlayer>
             </View>
           ) : (
@@ -73,10 +94,40 @@ const HLSView = ({room}: HLSViewProps) => {
 };
 export {HLSView};
 
+const HLSPlayerStatsView = () => {
+  const stats = useHLSPlayerStats();
+
+  return (
+    <View
+      style={{
+        position: 'absolute',
+        top: 8,
+        left: 8,
+        backgroundColor: 'gray',
+        borderRadius: 12,
+        padding: 8,
+        minWidth: '50%',
+      }}
+    >
+      <Text>Bandwidth Estimate: {stats?.bandWidthEstimate ?? 0}</Text>
+      <Text>Total Bytes Loaded: {stats?.totalBytesLoaded ?? 0}</Text>
+      <Text>Buffered Duration: {stats?.bufferedDuration ?? 0}</Text>
+      <Text>Distance From Live: {stats?.distanceFromLive ?? 0}</Text>
+      <Text>Dropped Frame Count: {stats?.droppedFrameCount ?? 0}</Text>
+      <Text>Total Frame Count: {stats?.totalFrameCount ?? 0}</Text>
+      <Text>Average Bitrate: {stats?.averageBitrate ?? 0}</Text>
+      <Text>FrameRate: {stats?.frameRate ?? 0}</Text>
+      <Text>Video Height: {stats?.videoHeight ?? 0}</Text>
+      <Text>Video Width: {stats?.videoWidth ?? 0}</Text>
+    </View>
+  );
+};
+
 interface EmoticonsData {
   type: 'EMOJI_REACTION';
   emojiId: string;
   senderId: string;
+  sender: HMSPeer;
 }
 
 interface PlaybackCueEventPayload {
@@ -84,21 +135,26 @@ interface PlaybackCueEventPayload {
   payloadval: string;
 }
 
-export const HLSPlayerEmoticonsWithoutRef: React.ForwardRefRenderFunction<{
-  handlePlaybackCue(data: any): void;
-}> = (props, ref) => {
+export const HLSPlayerEmoticonsWithoutRef: React.ForwardRefRenderFunction<
+  {
+    handlePlaybackCue(data: any): void;
+  },
+  {addListener?: any}
+> = ({addListener}, ref) => {
   const [messages, setMessages] = React.useState<any[]>([]);
 
-  useImperativeHandle(
-    ref,
-    () => ({
-      handlePlaybackCue: (event: PlaybackCueEventPayload) => {
+  useEffect(() => {
+    const subscription = addListener(
+      'ON_PLAYBACK_CUE_EVENT',
+      (event: PlaybackCueEventPayload) => {
         const parsedPlayload: EmoticonsData = JSON.parse(event.payloadval);
+        parsedPlayload.sender = new HMSPeer({peerID: parsedPlayload.senderId});
         setMessages(prev => [...prev, {...event, payloadval: parsedPlayload}]);
       },
-    }),
-    [],
-  );
+    );
+
+    return () => subscription.remove();
+  }, []);
 
   const handleAnimationComplete = React.useCallback((data: any) => {
     setMessages(prev => prev.filter(message => message !== data));
@@ -113,7 +169,7 @@ export const HLSPlayerEmoticonsWithoutRef: React.ForwardRefRenderFunction<{
             key={message.startDate + message.payloadval.senderId}
             id={message.startDate + message.payloadval.senderId}
             emoji={getEmojiByString(message.payloadval.emojiId)}
-            text={message.payloadval.senderId.slice(0, 6)}
+            text={message.payloadval.sender?.name || ''}
             bottom={0}
             left={left}
             onAnimationComplete={handleAnimationComplete}
