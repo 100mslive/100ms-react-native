@@ -71,7 +71,7 @@ const HLSView = ({room}: HLSViewProps) => {
                 }
               >
                 <HLSPlayerEmoticons />
-                <HLSPlayerStatsView />
+                {/* <HLSPlayerStatsView /> */}
               </HMSPlayer>
             </View>
           ) : (

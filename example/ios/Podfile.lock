@@ -60,6 +60,8 @@ PODS:
   - hermes-engine (0.7.2)
   - HMSAnalyticsSDK (0.0.2)
   - HMSBroadcastExtensionSDK (0.0.9)
+  - HMSHLSPlayerSDK (0.0.2):
+    - HMSAnalyticsSDK (= 0.0.2)
   - HMSSDK (0.9.4):
     - HMSAnalyticsSDK (= 0.0.2)
     - HMSWebRTC (= 1.0.5116)
@@ -292,6 +294,7 @@ PODS:
     - React-Core
   - react-native-hms (1.7.0):
     - HMSBroadcastExtensionSDK (= 0.0.9)
+    - HMSHLSPlayerSDK (= 0.0.2)
     - HMSSDK (= 0.9.4)
     - React-Core
   - react-native-safe-area-context (3.4.1):
@@ -382,6 +385,33 @@ PODS:
     - React-Core
   - RNPermissions (3.4.0):
     - React-Core
+  - RNReanimated (2.17.0):
+    - DoubleConversion
+    - FBLazyVector
+    - FBReactNativeSpec
+    - glog
+    - RCT-Folly
+    - RCTRequired
+    - RCTTypeSafety
+    - React-callinvoker
+    - React-Core
+    - React-Core/DevSupport
+    - React-Core/RCTWebSocket
+    - React-CoreModules
+    - React-cxxreact
+    - React-jsi
+    - React-jsiexecutor
+    - React-jsinspector
+    - React-RCTActionSheet
+    - React-RCTAnimation
+    - React-RCTBlob
+    - React-RCTImage
+    - React-RCTLinking
+    - React-RCTNetwork
+    - React-RCTSettings
+    - React-RCTText
+    - ReactCommon/turbomodule/core
+    - Yoga
   - RNScreens (3.20.0):
     - React-Core
     - React-RCTImage
@@ -463,6 +493,7 @@ DEPENDENCIES:
   - RNFS (from `../node_modules/react-native-fs`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNPermissions (from `../node_modules/react-native-permissions`)
+  - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNShare (from `../node_modules/react-native-share`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
@@ -482,6 +513,7 @@ SPEC REPOS:
     - hermes-engine
     - HMSAnalyticsSDK
     - HMSBroadcastExtensionSDK
+    - HMSHLSPlayerSDK
     - HMSSDK
     - HMSWebRTC
     - libevent
@@ -576,6 +608,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-gesture-handler"
   RNPermissions:
     :path: "../node_modules/react-native-permissions"
+  RNReanimated:
+    :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
   RNShare:
@@ -590,7 +624,7 @@ SPEC CHECKSUMS:
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: cf9b38bf0b2d048436d9a82ad2abe1404f11e7de
   FBLazyVector: fa8275d5086566e22a26ddc385ab5772e7f9b1bd
-  FBReactNativeSpec: f00d050e8719afc35d256eed5c4245863cb51bce
+  FBReactNativeSpec: 33bb10099ae89d4181e029c8f59b09e5bb80727f
   Flipper: d3da1aa199aad94455ae725e9f3aa43f3ec17021
   Flipper-DoubleConversion: 38631e41ef4f9b12861c67d17cb5518d06badc41
   Flipper-Folly: 755929a4f851b2fb2c347d533a23f191b008554c
@@ -602,6 +636,7 @@ SPEC CHECKSUMS:
   hermes-engine: 7d97ba46a1e29bacf3e3c61ecb2804a5ddd02d4f
   HMSAnalyticsSDK: 4d2a88a729b1eb42f3d25f217c28937ec318a5b7
   HMSBroadcastExtensionSDK: d80fe325f6c928bd8e5176290b5a4b7ae15d6fbb
+  HMSHLSPlayerSDK: 6a54ad4d12f3dc2270d1ecd24019d71282a4f6a3
   HMSSDK: fc0bc12a4d44fd3104a3447639e7967ba6451167
   HMSWebRTC: ae54e9dd91b869051b283b43b14f57d43b7bf8e1
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
@@ -622,7 +657,7 @@ SPEC CHECKSUMS:
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
   react-native-cameraroll: 8ffb0af7a5e5de225fd667610e2979fc1f0c2151
   react-native-document-picker: 69ca2094d8780cfc1e7e613894d15290fdc54bba
-  react-native-hms: 6e0ecc0e0020e4f29ee9f9adf1d5db2b8fd11ba3
+  react-native-hms: fb82bff9c693100458b80ba2f638c0590d816190
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
   react-native-simple-toast: 8ee5d23f0b92b935ab7434cdb65159ce12dfb4b7
   react-native-video: c26780b224543c62d5e1b2a7244a5cd1b50e8253
@@ -645,6 +680,7 @@ SPEC CHECKSUMS:
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNPermissions: eac721f71748c4472d6e876038270b75397d6ee7
+  RNReanimated: 39e61976e5b5c8a891ea8916fb264ae176e8765d
   RNScreens: 218801c16a2782546d30bd2026bb625c0302d70f
   RNShare: d82e10f6b7677f4b0048c23709bd04098d5aee6c
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
