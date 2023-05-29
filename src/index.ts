@@ -86,6 +86,7 @@ export type {
   HMSSessionStore,
   HMSSessionStoreValue,
 } from './classes/HMSSessionStore';
+export * from './stores';
 export type { HmsViewComponent as HMSView } from './classes/HmsView';
 
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
