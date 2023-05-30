@@ -78,7 +78,8 @@ import com.android.build.OutputFile
 
     project.ext.react = [
         entryFile: "index.js",
-        enableHermes: true  // clean and rebuild if changing
+        enableHermes: true,  // clean and rebuild if changing
+        nodeExecutableAndArgs: ["/usr/local/bin/node", "--openssl-legacy-provider"]
     ]
 
 apply from: "../../node_modules/react-native/react.gradle"
@@ -134,8 +135,8 @@ android {
         applicationId "live.hms.rn"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 207
-        versionName "2.1.71"
+        versionCode 208
+        versionName "2.1.72"
         missingDimensionStrategy 'react-native-camera', 'general'
     }
     splits {
