@@ -7,7 +7,7 @@ import {
   ViewStyle,
 } from 'react-native';
 import { EventEmitter } from '../utils';
-import { setHLSPlayerStats } from '..';
+import { useHLSPlayerChangeStats } from '../stores/hls-player-stats-store';
 
 type HMSPlayerEvent<T extends string, U> = {
   event: T;
@@ -200,7 +200,7 @@ export const HMSPlayer: React.FC<HMSPlayerProps> = ({
   onPlaybackStatsError,
 }) => {
   const [value, dispatch] = useReducer(reducer, defaultValue); // This will be readonly for children components
-
+  const setHLSPlayerStats = useHLSPlayerChangeStats();
   const eventEmitter = useMemo(() => new EventEmitter(), []);
 
   const handleHLSPlaybackEvent: HmsHlsPlaybackEventHandler = ({

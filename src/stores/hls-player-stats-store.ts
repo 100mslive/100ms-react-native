@@ -55,5 +55,5 @@ const useHLSPlayerStatsStore = create<HLSPlayerStatsStore>((set) => ({
 export const useHLSPlayerStats = () =>
   useHLSPlayerStatsStore((state) => state.stats);
 
-export const setHLSPlayerStats: HLSPlayerStatsStore['changeStats'] = () =>
+export const useHLSPlayerChangeStats = () =>
   useHLSPlayerStatsStore((state) => state.changeStats);
