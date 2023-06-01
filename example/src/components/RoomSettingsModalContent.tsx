@@ -26,7 +26,7 @@ import {openSettings, requestNotifications} from 'react-native-permissions';
 
 import {COLORS} from '../utils/theme';
 import type {RootState} from '../redux';
-import {changePipModeStatus} from '../redux/actions';
+import {changePipModeStatus, changeShowHLSStats} from '../redux/actions';
 import {ModalTypes, PipModes} from '../utils/types';
 import {parseMetadata} from '../utils/functions';
 
@@ -196,6 +196,11 @@ export const RoomSettingsModalContent: React.FC<
 
   const showRTCStats = () => setModalVisible(ModalTypes.RTC_STATS, true);
 
+  const showHLSStats = () => {
+    dispatch(changeShowHLSStats(true));
+    setModalVisible(ModalTypes.DEFAULT);
+  };
+
   // Android Audioshare
   const handleAudioShare = async () => {
     closeRoomSettingsModal();
@@ -328,12 +333,23 @@ export const RoomSettingsModalContent: React.FC<
           </Text>
         </TouchableOpacity>
 
-        <SettingItem
-          onPress={showRTCStats}
-          text="Show RTC Stats"
-          IconType={MaterialCommunityIcons}
-          iconName={'clipboard-pulse-outline'}
-        />
+        {!localPeer?.role?.name?.includes('hls-') ? (
+          <SettingItem
+            onPress={showRTCStats}
+            text="Show RTC Stats"
+            IconType={MaterialCommunityIcons}
+            iconName={'clipboard-pulse-outline'}
+          />
+        ) : null}
+
+        {localPeer?.role?.name?.includes('hls-') ? (
+          <SettingItem
+            onPress={showHLSStats}
+            text="Show HLS Stats"
+            IconType={MaterialCommunityIcons}
+            iconName={'clipboard-pulse-outline'}
+          />
+        ) : null}
 
         {!localPeer?.role?.name?.includes('hls-') ? (
           <SettingItem
