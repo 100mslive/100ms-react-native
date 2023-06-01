@@ -288,7 +288,7 @@ PODS:
     - React-Core
   - react-native-camera/RN (4.2.1):
     - React-Core
-  - react-native-cameraroll (5.4.0):
+  - react-native-cameraroll (5.5.0):
     - React-Core
   - react-native-document-picker (8.2.1):
     - React-Core
@@ -655,7 +655,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 8c077bef1c64430b6034f27df1000d194551e2eb
   React-jsinspector: d4f6973dd474357dbaaf6f52f31ffc713bf3e766
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
-  react-native-cameraroll: 8ffb0af7a5e5de225fd667610e2979fc1f0c2151
+  react-native-cameraroll: 900722c56fde9bc5cf3bc8447acdcfeb290ab853
   react-native-document-picker: 69ca2094d8780cfc1e7e613894d15290fdc54bba
   react-native-hms: fb82bff9c693100458b80ba2f638c0590d816190
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
