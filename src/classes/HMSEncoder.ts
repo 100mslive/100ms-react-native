@@ -660,4 +660,18 @@ export class HMSEncoder {
         data.qualityLimitationResolutionChanges,
     });
   }
+
+  static transformHMSHLSCueEventData<C extends object, T>(data: C): T {
+    if ('startDate' in data) {
+      data.startDate = this.encodeDate(data.startDate);
+    }
+
+    if ('endDate' in data && data.endDate) {
+      data.endDate = this.encodeDate(data.endDate);
+    }
+
+    const transformed = data as unknown as T;
+
+    return transformed;
+  }
 }
