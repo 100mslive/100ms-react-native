@@ -12,13 +12,14 @@ class HMSSDKPlayerManager : SimpleViewManager<HMSPlayer>() {
     return REACT_CLASS
   }
 
-  public override fun createViewInstance(reactContext: ThemedReactContext): HMSPlayer {
+  override fun createViewInstance(reactContext: ThemedReactContext): HMSPlayer {
     this.reactContext = reactContext
     return HMSPlayer(reactContext)
   }
 
-  private fun getHms(): MutableMap<String, HMSRNSDK>? {
-    return reactContext?.getNativeModule(HMSManager::class.java)?.getHmsInstance()
+  override fun onDropViewInstance(view: HMSPlayer) {
+    super.onDropViewInstance(view)
+    view.cleanup()
   }
 
   override fun getExportedCustomDirectEventTypeConstants(): MutableMap<String, Any>? {
@@ -32,18 +33,14 @@ class HMSSDKPlayerManager : SimpleViewManager<HMSPlayer>() {
     )
   }
 
-  override fun getExportedCustomBubblingEventTypeConstants(): MutableMap<String, Any>? {
-    return super.getExportedCustomBubblingEventTypeConstants()
-  }
-
-  override fun onDropViewInstance(view: HMSPlayer) {
-    super.onDropViewInstance(view)
-    view.cleanup()
-  }
-
   @ReactProp(name = "url")
   fun setStreamURL(view: HMSPlayer, data: String?) {
     view.play(data)
+  }
+
+  @ReactProp(name = "enableStats", defaultBoolean = false)
+  fun setEnableStats(view: HMSPlayer, data: Boolean) {
+    view.enableStats(data)
   }
 
   companion object {

@@ -21,6 +21,7 @@ class HMSPlayer(context: ReactContext) : FrameLayout(context) {
   private var playerView: PlayerView? = null // Exoplayer View
   private var hlsPlayer: HmsHlsPlayer? = null // 100ms HLS Player
   private var hmssdkInstance: HMSSDK? = null
+  private var statsMonitorAttached = false
   private val hmsHlsPlaybackEventsObject = object : HmsHlsPlaybackEvents {
     override fun onCue(cue: HmsHlsCue) {
       super.onCue(cue)
@@ -101,24 +102,6 @@ class HMSPlayer(context: ReactContext) : FrameLayout(context) {
     }
   }
 
-  private fun sendHLSPlaybackEventToJS(eventName: String, data: WritableMap) {
-    val event: WritableMap = Arguments.createMap()
-    event.putString("event", eventName)
-    event.putMap("data", data)
-
-    val reactContext = context as ReactContext
-    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, HMSPlayerConstants.HMS_HLS_PLAYBACK_EVENT, event)
-  }
-
-  private fun sendHLSStatsEventToJS(eventName: String, data: WritableMap) {
-    val event: WritableMap = Arguments.createMap()
-    event.putString("event", eventName)
-    event.putMap("data", data)
-
-    val reactContext = context as ReactContext
-    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, HMSPlayerConstants.HMS_HLS_STATS_EVENT, event)
-  }
-
   init {
     val inflater = getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
@@ -136,20 +119,17 @@ class HMSPlayer(context: ReactContext) : FrameLayout(context) {
     val localHlsPlayer = HmsHlsPlayer(context, hmssdkInstance)
     hlsPlayer = localHlsPlayer
 
+    // Attaching HLS Player Playback State Events listener
+    localHlsPlayer.addPlayerEventListener(hmsHlsPlaybackEventsObject)
+
     // setting 100ms HLS Player on Exoplayer
     localPlayerView.player = localHlsPlayer.getNativePlayer()
 
+    // TODO: handle the case when HMSPlayer is mounted before stream start
+    // TODO: Make controls hidden able
+
+    // setting default Aspect Ratio; TODO: Make it as prop
     localPlayerView.findViewById<AspectRatioFrameLayout>(R.id.exo_content_frame).setAspectRatio(16f / 9f)
-
-    attachHmsHlsPlayerListeners()
-  }
-
-  private fun attachHmsHlsPlayerListeners() {
-    hlsPlayer?.addPlayerEventListener(
-      hmsHlsPlaybackEventsObject,
-    )
-
-    hlsPlayer?.setStatsMonitor(hmsHlsPlayerStatsListenerObject)
   }
 
   fun cleanup() {
@@ -176,6 +156,48 @@ class HMSPlayer(context: ReactContext) : FrameLayout(context) {
     if (defaultURL !== null) {
       hlsPlayer?.play(defaultURL)
     }
+  }
+
+  fun enableStats(enable: Boolean) {
+    if (enable) {
+      attachStatsMonitor()
+    } else {
+      removeStatsMonitor()
+    }
+  }
+
+  private fun attachStatsMonitor() {
+    if (statsMonitorAttached) return
+
+    hlsPlayer?.let {
+      it.setStatsMonitor(hmsHlsPlayerStatsListenerObject)
+      statsMonitorAttached = true
+    }
+  }
+
+  private fun removeStatsMonitor() {
+    if (!statsMonitorAttached) return
+
+    hlsPlayer?.setStatsMonitor(null)
+    statsMonitorAttached = false
+  }
+
+  private fun sendHLSPlaybackEventToJS(eventName: String, data: WritableMap) {
+    val event: WritableMap = Arguments.createMap()
+    event.putString("event", eventName)
+    event.putMap("data", data)
+
+    val reactContext = context as ReactContext
+    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, HMSPlayerConstants.HMS_HLS_PLAYBACK_EVENT, event)
+  }
+
+  private fun sendHLSStatsEventToJS(eventName: String, data: WritableMap) {
+    val event: WritableMap = Arguments.createMap()
+    event.putString("event", eventName)
+    event.putMap("data", data)
+
+    val reactContext = context as ReactContext
+    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, HMSPlayerConstants.HMS_HLS_STATS_EVENT, event)
   }
 }
 
