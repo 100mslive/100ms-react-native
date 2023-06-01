@@ -35,6 +35,7 @@ type IntialStateType = {
     autoResize: boolean; // Android only
     autoSimulcast: boolean;
     showStats: boolean;
+    showHLSStats: boolean;
   };
 };
 
@@ -53,6 +54,7 @@ const INITIAL_STATE: IntialStateType = {
     autoResize: false, // Android only
     autoSimulcast: true,
     showStats: false,
+    showHLSStats: false,
   },
 };
 
@@ -123,6 +125,14 @@ const appReducer = (
         joinConfig: {
           ...state.joinConfig,
           showStats: action.payload.showStats ?? false,
+        },
+      };
+    case ActionTypes.CHANGE_SHOW_HLS_STATS:
+      return {
+        ...state,
+        joinConfig: {
+          ...state.joinConfig,
+          showHLSStats: action.payload.showHLSStats ?? false,
         },
       };
     case ActionTypes.CHANGE_SOFTWARE_DECODER:

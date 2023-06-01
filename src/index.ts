@@ -81,13 +81,19 @@ export * from './classes/HMSQualityLimitationReasons';
 export * from './classes/HMSQualityLimitationReason';
 export * from './classes/HMSCameraControl';
 export * from './classes/HMSIOSAudioMode';
-export * from './classes/HMSPlayer';
 export type {
   HMSSessionStore,
   HMSSessionStoreValue,
 } from './classes/HMSSessionStore';
-export { useHLSPlayerStats } from './stores/hls-player-stats-store';
 export type { HmsViewComponent as HMSView } from './classes/HmsView';
 
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
+
+// 100ms Components
+export * from './components/HMSHLSPlayer';
+
+// 100ms types
+export * from './types';
+export * from './stores/types';
+
 export default HmsManager;

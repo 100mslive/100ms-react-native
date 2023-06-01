@@ -94,6 +94,11 @@ export const changeShowStats = (value: boolean) => ({
   payload: {showStats: value},
 });
 
+export const changeShowHLSStats = (value: boolean) => ({
+  type: actionTypes.CHANGE_SHOW_HLS_STATS,
+  payload: {showHLSStats: value},
+});
+
 export const changeSoftwareDecoder = (value: boolean) => ({
   type: actionTypes.CHANGE_SOFTWARE_DECODER,
   payload: {softwareDecoder: value},

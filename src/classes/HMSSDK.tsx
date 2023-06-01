@@ -1125,6 +1125,25 @@ export class HMSSDK {
     return HMSEncoder.encodeHmsRemoteAudioTrack(remoteAudioTrackData, this.id);
   };
 
+  getPeerFromPeerId = (peerId: string) => {
+    logger?.verbose('#Function getPeerFromPeerId', {
+      id: this.id,
+      peerId,
+    });
+    // Getting Peer Cache
+    const peersCache = getHmsPeersCache();
+
+    // If Peer Cache doesn't exist, return `undefined` as we don't have Peer
+    if (!peersCache) return;
+
+    const peerRole = peersCache.getProperty(peerId, 'role');
+
+    // If Peer doesn't have valid Role, return `undefined` as we don't have Peer
+    if (!peerRole) return;
+
+    return HMSEncoder.encodeHmsPeer({ peerID: peerId });
+  };
+
   /**
    * - This is a prototype event listener that takes action and listens for updates related to that particular action
    *
