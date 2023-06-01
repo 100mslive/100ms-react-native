@@ -57,7 +57,7 @@ class HMSPlayer(context: ReactContext) : FrameLayout(context) {
       super.onPlaybackStateChanged(state)
 
       val data = Arguments.createMap()
-      data.putInt("state", state.ordinal)
+      data.putString("state", state.name)
       sendHLSPlaybackEventToJS(HMSPlayerConstants.ON_PLAYBACK_STATE_CHANGE_EVENT, data)
     }
   }
@@ -133,6 +133,7 @@ class HMSPlayer(context: ReactContext) : FrameLayout(context) {
   }
 
   fun cleanup() {
+    hlsPlayer?.stop()
     hlsPlayer?.addPlayerEventListener(null)
     hlsPlayer?.setStatsMonitor(null)
   }
