@@ -288,7 +288,7 @@ PODS:
     - React-Core
   - react-native-camera/RN (4.2.1):
     - React-Core
-  - react-native-cameraroll (5.5.0):
+  - react-native-cameraroll (5.6.0):
     - React-Core
   - react-native-document-picker (8.2.1):
     - React-Core
@@ -624,7 +624,7 @@ SPEC CHECKSUMS:
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: cf9b38bf0b2d048436d9a82ad2abe1404f11e7de
   FBLazyVector: fa8275d5086566e22a26ddc385ab5772e7f9b1bd
-  FBReactNativeSpec: 33bb10099ae89d4181e029c8f59b09e5bb80727f
+  FBReactNativeSpec: f00d050e8719afc35d256eed5c4245863cb51bce
   Flipper: d3da1aa199aad94455ae725e9f3aa43f3ec17021
   Flipper-DoubleConversion: 38631e41ef4f9b12861c67d17cb5518d06badc41
   Flipper-Folly: 755929a4f851b2fb2c347d533a23f191b008554c
@@ -655,7 +655,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 8c077bef1c64430b6034f27df1000d194551e2eb
   React-jsinspector: d4f6973dd474357dbaaf6f52f31ffc713bf3e766
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
-  react-native-cameraroll: 900722c56fde9bc5cf3bc8447acdcfeb290ab853
+  react-native-cameraroll: 755bcc628148a90a7c9cf3f817a252be3a601bc5
   react-native-document-picker: 69ca2094d8780cfc1e7e613894d15290fdc54bba
   react-native-hms: fb82bff9c693100458b80ba2f638c0590d816190
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
