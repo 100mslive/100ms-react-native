@@ -1112,7 +1112,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
 
         eventsEnableStatus[eventType] = true
-        resolve?(["success": true, "message": "function call executed successfully"] as [String: Any])
+        resolve?(["success": true] as [String: Any])
     }
 
     func disableEvent(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
@@ -1383,15 +1383,16 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func on(peer: HMSPeer, update: HMSPeerUpdate) {
-        if eventsEnableStatus[HMSConstants.ON_PEER_UPDATE] != true {
-            return
-        }
-        let type = getString(from: update)
-        let hmsPeer = HMSDecoder.getHmsPeerSubsetForPeerUpdateEvent(peer, update)
+
+        guard let isPeerUpdateEnabled = eventsEnableStatus[HMSConstants.ON_PEER_UPDATE],
+                isPeerUpdateEnabled
+        else { return }
 
         if !networkQualityUpdatesAttached && update == .networkQualityUpdated {
             return
         }
+
+        let hmsPeer = HMSDecoder.getHmsPeerSubsetForPeerUpdateEvent(peer, update)
 
         self.delegate?.emitEvent(HMSConstants.ON_PEER_UPDATE, hmsPeer)
     }
