@@ -20,6 +20,9 @@ const HLSView = ({room}: HLSViewProps) => {
   const showHLSStats = useSelector(
     (state: RootState) => state.app.joinConfig.showHLSStats,
   );
+  const enableHLSPlayerControls = useSelector(
+    (state: RootState) => state.app.joinConfig.enableHLSPlayerControls,
+  );
 
   const handleClosePress = () => {
     dispatch(changeShowHLSStats(false));
@@ -32,8 +35,13 @@ const HLSView = ({room}: HLSViewProps) => {
           variant?.hlsStreamUrl ? (
             <View key={index} style={{flex: 1, position: 'relative'}}>
               <HMSPlayer
-                style={styles.renderHLSVideo}
+                aspectRatio={16 / 9}
+                // aspectRatio={9/16}
+                // aspectRatio={1}
+                // aspectRatio={4/3}
+                // aspectRatio={3/4}
                 enableStats={showHLSStats}
+                enableControls={enableHLSPlayerControls}
               />
               <HLSPlayerEmoticons />
               {showHLSStats ? (
