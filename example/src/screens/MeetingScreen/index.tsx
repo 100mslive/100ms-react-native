@@ -72,6 +72,7 @@ import {
   updatePeerTrackNodes,
 } from '../../utils/functions';
 import {
+  ChangeAspectRatio,
   ChangeAudioMixingModeModal,
   ChangeAudioModeModal,
   ChangeAudioOutputModal,
@@ -1157,6 +1158,18 @@ const DisplayView = (data: {
             ) : null}
           </DefaultModal>
 
+          <DefaultModal
+            modalPosiion="center"
+            modalVisible={
+              data.modalVisible === ModalTypes.HLS_PLAYER_ASPECT_RATIO
+            }
+            setModalVisible={() => data.setModalVisible(ModalTypes.DEFAULT)}
+          >
+            <ChangeAspectRatio
+              instance={hmsInstance}
+              cancelModal={() => data.setModalVisible(ModalTypes.DEFAULT)}
+            />
+          </DefaultModal>
           {/* Save Image Captured from Local Camera */}
           <DefaultModal
             modalPosiion="center"

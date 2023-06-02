@@ -1,5 +1,5 @@
 import ActionTypes from '../actionTypes';
-import type {PeerTrackNode} from '../../utils/types';
+import {PeerTrackNode, SUPPORTED_ASPECT_RATIOS} from '../../utils/types';
 import {PipModes} from '../../utils/types';
 import {
   HMSLocalAudioStats,
@@ -24,6 +24,7 @@ type IntialStateType = {
     | HMSRemoteAudioStats
     | HMSRemoteVideoStats
   >;
+  hlsAspectRatio: {value: number; id: string};
   joinConfig: {
     mutedAudio: boolean;
     mutedVideo: boolean;
@@ -44,6 +45,7 @@ const INITIAL_STATE: IntialStateType = {
   peerState: [],
   pipModeStatus: PipModes.INACTIVE,
   rtcStats: {},
+  hlsAspectRatio: SUPPORTED_ASPECT_RATIOS[0],
   joinConfig: {
     mutedAudio: true,
     mutedVideo: true,
@@ -71,6 +73,8 @@ const appReducer = (
       return {...state, ...action.payload};
     case ActionTypes.CLEAR_PEER_DATA.REQUEST:
       return {...state, peerState: []};
+    case ActionTypes.CHANGE_HLS_ASPECT_RATIO:
+      return {...state, hlsAspectRatio: action.payload.hlsAspectRatio};
     case ActionTypes.RESET_JOIN_CONFIG:
       return {...state, joinConfig: INITIAL_STATE.joinConfig};
     case ActionTypes.CHANGE_JOIN_AUDIO_MUTED:

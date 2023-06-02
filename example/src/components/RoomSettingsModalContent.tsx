@@ -204,6 +204,10 @@ export const RoomSettingsModalContent: React.FC<
   const setAudioMixingMode = () =>
     setModalVisible(ModalTypes.AUDIO_MIXING_MODE, true);
 
+  const handleHLSPlayerAspectRatio = () => {
+    setModalVisible(ModalTypes.HLS_PLAYER_ASPECT_RATIO, true);
+  };
+
   const showRTCStats = () => setModalVisible(ModalTypes.RTC_STATS, true);
 
   const toggleShowHLSStats = () => {
@@ -354,6 +358,15 @@ export const RoomSettingsModalContent: React.FC<
             text="Show RTC Stats"
             IconType={MaterialCommunityIcons}
             iconName={'clipboard-pulse-outline'}
+          />
+        ) : null}
+
+        {localPeer?.role?.name?.includes('hls-') ? (
+          <SettingItem
+            onPress={handleHLSPlayerAspectRatio}
+            text={'Change Aspect Ratio'}
+            IconType={MaterialCommunityIcons}
+            iconName={'aspect-ratio'}
           />
         ) : null}
 

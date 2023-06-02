@@ -130,3 +130,8 @@ export const setRTCStats = (
   type: actionTypes.SET_RTC_STATS,
   payload: {trackId, stats},
 });
+
+export const changeHLSAspectRatio = (value: {value: number; id: string}) => ({
+  type: actionTypes.CHANGE_HLS_ASPECT_RATIO,
+  payload: {hlsAspectRatio: value},
+});
