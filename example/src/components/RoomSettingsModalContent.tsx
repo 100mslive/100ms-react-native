@@ -26,7 +26,11 @@ import {openSettings, requestNotifications} from 'react-native-permissions';
 
 import {COLORS} from '../utils/theme';
 import type {RootState} from '../redux';
-import {changePipModeStatus, changeShowHLSStats} from '../redux/actions';
+import {
+  changePipModeStatus,
+  changeEnableHLSPlayerControls,
+  changeShowHLSStats,
+} from '../redux/actions';
 import {ModalTypes, PipModes} from '../utils/types';
 import {parseMetadata} from '../utils/functions';
 
@@ -74,6 +78,12 @@ export const RoomSettingsModalContent: React.FC<
   );
   const audioMixer = useSelector(
     (state: RootState) => state.app.joinConfig.audioMixer,
+  );
+  const showHLSStats = useSelector(
+    (state: RootState) => state.app.joinConfig.showHLSStats,
+  );
+  const enableHLSPlayerControls = useSelector(
+    (state: RootState) => state.app.joinConfig.enableHLSPlayerControls,
   );
 
   // CONSTANTS
@@ -196,8 +206,13 @@ export const RoomSettingsModalContent: React.FC<
 
   const showRTCStats = () => setModalVisible(ModalTypes.RTC_STATS, true);
 
-  const showHLSStats = () => {
-    dispatch(changeShowHLSStats(true));
+  const toggleShowHLSStats = () => {
+    dispatch(changeShowHLSStats(!showHLSStats));
+    setModalVisible(ModalTypes.DEFAULT);
+  };
+
+  const toggleEnableHLSPlayerControls = () => {
+    dispatch(changeEnableHLSPlayerControls(!enableHLSPlayerControls));
     setModalVisible(ModalTypes.DEFAULT);
   };
 
@@ -344,10 +359,23 @@ export const RoomSettingsModalContent: React.FC<
 
         {localPeer?.role?.name?.includes('hls-') ? (
           <SettingItem
-            onPress={showHLSStats}
-            text="Show HLS Stats"
+            onPress={toggleShowHLSStats}
+            text={showHLSStats ? 'Hide HLS Stats' : 'Show HLS Stats'}
             IconType={MaterialCommunityIcons}
             iconName={'clipboard-pulse-outline'}
+          />
+        ) : null}
+
+        {localPeer?.role?.name?.includes('hls-') ? (
+          <SettingItem
+            onPress={toggleEnableHLSPlayerControls}
+            text={
+              enableHLSPlayerControls
+                ? 'Disable HLS Player Controls'
+                : 'Enable HLS Player Controls'
+            }
+            IconType={Ionicons}
+            iconName={'ios-settings-outline'}
           />
         ) : null}
 

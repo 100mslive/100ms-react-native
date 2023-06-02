@@ -1,5 +1,6 @@
 import HMSSDK
 import HMSHLSPlayerSDK
+import AVKit.AVPlayerViewController
 
 @objc(HMSPlayerManager)
 class HMSPlayerManager: RCTViewManager {
@@ -26,6 +27,7 @@ class HMSPlayer: UIView {
     // MARK: class instance properties
     var hlsStatsTimerRef: Timer? = nil
     var eventController: HLSPlaybackEventController? = nil
+    var hmsHLSPlayerViewController: AVPlayerViewController? = nil
     lazy var hmsHLSPlayer = HMSHLSPlayer()
 
     // MARK: Handle HMSRNSDK Instance in HLSPlayer instance
@@ -75,6 +77,12 @@ class HMSPlayer: UIView {
         }
     }
 
+    @objc var enableControls: Bool = true {
+        didSet {
+            hmsHLSPlayerViewController?.showsPlaybackControls = enableControls
+        }
+    }
+
     // MARK: Constructor & Deconstructor
 
     override init(frame: CGRect) {
@@ -84,15 +92,13 @@ class HMSPlayer: UIView {
         self.frame = frame
         self.backgroundColor = UIColor(displayP3Red: 0, green: 0, blue: 0, alpha: 1)
 
-        // creating 100ms HLS Player
-        let playerViewController = hmsHLSPlayer.videoPlayerViewController(showsPlayerControls: true)
+        // creating 100ms HLS Player and getting player view controller
+        let playerViewController = hmsHLSPlayer.videoPlayerViewController(showsPlayerControls: false)
+        hmsHLSPlayerViewController = playerViewController
         playerViewController.view.frame = self.bounds
 
         // Setting 100ms HLS Player as subview of current UIView
         self.addSubview(playerViewController.view)
-        
-        // TODO: Set Default Aspect Ratio
-//        playerViewController.player.
 
         attachPlayerPlaybackListeners()
     }

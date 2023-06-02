@@ -18,6 +18,7 @@ export type RCTHMSPlayerProps = {
   url?: string;
   style?: StyleProp<ViewStyle>;
   enableStats?: boolean;
+  enableControls?: boolean;
   onHmsHlsPlaybackEvent?: HmsHlsPlaybackEventHandler;
   onHmsHlsStatsEvent?: HmsHlsStatsEventHandler;
 };
