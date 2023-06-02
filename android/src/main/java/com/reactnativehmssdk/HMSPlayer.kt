@@ -167,6 +167,18 @@ class HMSPlayer(context: ReactContext) : FrameLayout(context) {
     }
   }
 
+  fun enableControls(show: Boolean) {
+    playerView?.let {
+      if (show) {
+        it.useController = true
+        it.showController()
+      } else {
+        it.hideController()
+        it.useController = false
+      }
+    }
+  }
+
   private fun attachStatsMonitor() {
     if (statsMonitorAttached) return
 

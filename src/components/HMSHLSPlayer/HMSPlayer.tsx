@@ -25,12 +25,14 @@ export interface HMSPlayerProps {
   url?: string;
   style?: StyleProp<ViewStyle>;
   enableStats?: boolean;
+  enableControls?: boolean;
 }
 
 export const HMSPlayer: React.FC<HMSPlayerProps> = ({
   url = '',
   style,
   enableStats,
+  enableControls = true,
 }) => {
   // Handle HLS Playback events
   const handleHLSPlaybackEvent: HmsHlsPlaybackEventHandler = ({
@@ -69,6 +71,7 @@ export const HMSPlayer: React.FC<HMSPlayerProps> = ({
       url={url}
       style={style}
       enableStats={enableStats}
+      enableControls={enableControls}
       onHmsHlsPlaybackEvent={handleHLSPlaybackEvent}
       onHmsHlsStatsEvent={handleHLSStatsEvent}
     />

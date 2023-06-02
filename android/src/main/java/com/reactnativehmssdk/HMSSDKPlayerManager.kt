@@ -43,6 +43,11 @@ class HMSSDKPlayerManager : SimpleViewManager<HMSPlayer>() {
     view.enableStats(data)
   }
 
+  @ReactProp(name = "enableControls", defaultBoolean = false)
+  fun setEnableControls(view: HMSPlayer, data: Boolean) {
+    view.enableControls(data)
+  }
+
   companion object {
     const val REACT_CLASS = "HMSPlayer"
   }
