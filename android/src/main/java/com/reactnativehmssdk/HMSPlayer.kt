@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.widget.FrameLayout
-import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactContext
@@ -126,10 +125,6 @@ class HMSPlayer(context: ReactContext) : FrameLayout(context) {
     localPlayerView.player = localHlsPlayer.getNativePlayer()
 
     // TODO: handle the case when HMSPlayer is mounted before stream start
-    // TODO: Make controls hidden able
-
-    // setting default Aspect Ratio; TODO: Make it as prop
-    localPlayerView.findViewById<AspectRatioFrameLayout>(R.id.exo_content_frame).setAspectRatio(16f / 9f)
   }
 
   fun cleanup() {

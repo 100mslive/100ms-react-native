@@ -1,4 +1,5 @@
 import React from 'react';
+import { View, StyleSheet } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 
 import {
@@ -24,6 +25,8 @@ import type { HLSPlayerPlaybackCue } from '../../stores/types';
 export interface HMSPlayerProps {
   url?: string;
   style?: StyleProp<ViewStyle>;
+  containerStyle?: StyleProp<ViewStyle>;
+  aspectRatio?: number;
   enableStats?: boolean;
   enableControls?: boolean;
 }
@@ -31,6 +34,8 @@ export interface HMSPlayerProps {
 export const HMSPlayer: React.FC<HMSPlayerProps> = ({
   url = '',
   style,
+  containerStyle,
+  aspectRatio = 9 / 16,
   enableStats,
   enableControls = true,
 }) => {
@@ -67,19 +72,36 @@ export const HMSPlayer: React.FC<HMSPlayerProps> = ({
   };
 
   return (
-    <RCTHMSPlayer
-      url={url}
-      style={style}
-      enableStats={enableStats}
-      enableControls={enableControls}
-      onHmsHlsPlaybackEvent={handleHLSPlaybackEvent}
-      onHmsHlsStatsEvent={handleHLSStatsEvent}
-    />
+    <View style={[styles.container, containerStyle]}>
+      <View style={[styles.playerWrapper, style]}>
+        <RCTHMSPlayer
+          url={url}
+          style={[styles.player, { aspectRatio }]}
+          enableStats={enableStats}
+          enableControls={enableControls}
+          onHmsHlsPlaybackEvent={handleHLSPlaybackEvent}
+          onHmsHlsStatsEvent={handleHLSStatsEvent}
+        />
+      </View>
+    </View>
   );
 };
 
-/**
- * 1. Wrap native ui component in View
- * 2. pass styles passed via props to this wrapper view
- * 3. apply `Stylesheet.absoluteFill` to native ui component
- */
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  playerWrapper: {
+    backgroundColor: '#000000',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  player: {
+    width: '100%',
+    maxHeight: '100%',
+    maxWidth: '100%',
+    aspectRatio: 9 / 16,
+  },
+});

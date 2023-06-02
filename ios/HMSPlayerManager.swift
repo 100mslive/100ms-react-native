@@ -99,9 +99,6 @@ class HMSPlayer: UIView {
 
         // Setting 100ms HLS Player as subview of current UIView
         self.addSubview(playerViewController.view)
-        
-        // TODO: Set Default Aspect Ratio
-//        playerViewController.player.
 
         attachPlayerPlaybackListeners()
     }
