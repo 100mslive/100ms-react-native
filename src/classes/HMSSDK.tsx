@@ -1002,6 +1002,7 @@ export class HMSSDK {
   };
 
   /**
+   * Android Only
    * - This wrapper function used to switch output to device other than the default, currently available only for android.
    *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/audio-output-routing#switch-audio-focus-to-another-device} for more info
@@ -1020,6 +1021,19 @@ export class HMSSDK {
       console.log('API currently not available for iOS');
       return 'API currently not available for iOS';
     }
+  };
+
+  switchAudioOutputUsingIOSUI = () => {
+    logger?.verbose('#Function switchAudioOutputUsingIOSUI', {
+      id: this.id,
+    });
+    if (Platform.OS !== 'ios') {
+      throw new Error(
+        '#Function `switchAudioOutputUsingIOSUI` is only available on iOS, use `switchAudioOutput` method instead!'
+      );
+    }
+
+    return HMSManager.switchAudioOutputUsingIOSUI({ id: this.id });
   };
 
   /**
