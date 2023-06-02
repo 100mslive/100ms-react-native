@@ -50,14 +50,23 @@ import {
   MenuDivider,
   CustomPicker,
 } from '../../components';
-import {changeShowStats, saveUserData} from '../../redux/actions';
+import {
+  changeHLSAspectRatio,
+  changeShowStats,
+  saveUserData,
+} from '../../redux/actions';
 import {
   parseMetadata,
   getInitials,
   requestExternalStoragePermission,
   getTime,
 } from '../../utils/functions';
-import {LayoutParams, ModalTypes, SortingType} from '../../utils/types';
+import {
+  LayoutParams,
+  ModalTypes,
+  SUPPORTED_ASPECT_RATIOS,
+  SortingType,
+} from '../../utils/types';
 import {COLORS} from '../../utils/theme';
 import type {RootState} from '../../redux';
 import {SwitchRow} from '../../components/SwitchRow';
@@ -1235,6 +1244,72 @@ export const ChangeAudioOutputModal = ({
         <CustomButton
           title="Change"
           onPress={switchAudioOutput}
+          viewStyle={styles.roleChangeModalSuccessButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+      </View>
+    </View>
+  );
+};
+
+export const ChangeAspectRatio = ({
+  instance,
+  cancelModal,
+}: {
+  instance?: HMSSDK;
+  cancelModal: Function;
+}) => {
+  const dispatch = useDispatch();
+  const hlsPlayerAspectRatio = useSelector(
+    (state: RootState) => state.app.hlsAspectRatio,
+  );
+  const [selectedRatio, setSelectedRatio] = useState(hlsPlayerAspectRatio);
+
+  const handleChangePress = () => {
+    cancelModal();
+    if (hlsPlayerAspectRatio.id !== selectedRatio.id) {
+      dispatch(changeHLSAspectRatio(selectedRatio));
+    }
+  };
+
+  return (
+    <View style={styles.roleChangeModal}>
+      <Text style={styles.roleChangeModalHeading}>Change Aspect Ratio</Text>
+      <Text style={styles.roleChangeModalDescription}>
+        Current: {hlsPlayerAspectRatio.id}
+      </Text>
+
+      {SUPPORTED_ASPECT_RATIOS.map(ratio => {
+        return (
+          <TouchableOpacity
+            key={ratio.id}
+            style={styles.roleChangeModalPermissionContainer}
+            onPress={() => setSelectedRatio(ratio)}
+          >
+            <View style={styles.roleChangeModalCheckBox}>
+              {selectedRatio.id === ratio.id ? (
+                <Entypo
+                  name="check"
+                  style={styles.roleChangeModalCheck}
+                  size={10}
+                />
+              ) : null}
+            </View>
+            <Text style={styles.roleChangeModalPermission}>{ratio.id}</Text>
+          </TouchableOpacity>
+        );
+      })}
+
+      <View style={styles.roleChangeModalPermissionContainer}>
+        <CustomButton
+          title="Cancel"
+          onPress={cancelModal}
+          viewStyle={styles.roleChangeModalCancelButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+        <CustomButton
+          title="Change"
+          onPress={handleChangePress}
           viewStyle={styles.roleChangeModalSuccessButton}
           textStyle={styles.roleChangeModalButtonText}
         />

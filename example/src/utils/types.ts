@@ -55,6 +55,7 @@ export enum ModalTypes {
   BULK_ROLE_CHANGE = 'bulkRoleChange',
   PEER_SETTINGS = 'peerSettings',
   STREAMING_QUALITY_SETTING = 'streamingQualitySetting',
+  HLS_PLAYER_ASPECT_RATIO = 'hlsPlayerAspectRatio',
   DEFAULT = '',
 }
 
@@ -79,3 +80,11 @@ export enum PipModes {
 export enum Constants {
   MEET_URL = 'MEET_URL',
 }
+
+export const SUPPORTED_ASPECT_RATIOS = [
+  {value: 16 / 9, id: '16:9'},
+  {value: 9 / 16, id: '9:16'},
+  {value: 1, id: '1:1'},
+  {value: 4 / 3, id: '4:3'},
+  {value: 3 / 4, id: '3:4'},
+];
