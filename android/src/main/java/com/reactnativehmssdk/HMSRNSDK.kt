@@ -1531,50 +1531,6 @@ class HMSRNSDK(
     }
   }
 
-  @Deprecated("SessionMetaData APIs has been deprecated in favour of Session Store APIs", ReplaceWith("setSessionMetadataForKey"), DeprecationLevel.WARNING)
-  fun setSessionMetaData(data: ReadableMap, callback: Promise?) {
-    if (data.hasKey("sessionMetaData")) {
-      val sessionMetaData = data.getString("sessionMetaData")
-      hmsSDK?.setSessionMetaData(
-        sessionMetaData,
-        object : HMSActionResultListener {
-          override fun onSuccess() {
-            callback?.resolve(emitHMSSuccess())
-          }
-
-          override fun onError(error: HMSException) {
-            callback?.reject(error.code.toString(), error.message)
-            self.emitHMSError(error)
-          }
-        },
-      )
-    } else {
-      val errorMessage = "setSessionMetaData: sessionMetaData_Is_Required"
-      self.emitRequiredKeysError(errorMessage)
-      rejectCallback(callback, errorMessage)
-    }
-  }
-
-  @Deprecated("SessionMetaData APIs has been deprecated in favour of Session Store APIs", ReplaceWith("getSessionMetadataForKey"), DeprecationLevel.WARNING)
-  fun getSessionMetaData(callback: Promise?) {
-    hmsSDK?.getSessionMetaData(
-      object : HMSSessionMetadataListener {
-        override fun onSuccess(sessionMetadata: Any?) {
-          if (sessionMetadata is String?) {
-            callback?.resolve(sessionMetadata)
-          } else {
-            callback?.reject("6002", "Session Store: Unsupported type received, only String type is supported")
-          }
-        }
-
-        override fun onError(error: HMSException) {
-          callback?.reject(error.code.toString(), error.message)
-          self.emitHMSError(error)
-        }
-      },
-    )
-  }
-
   fun getPeerProperty(data: ReadableMap): WritableMap? {
     val requiredKeys =
       HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("peerId", "String"), Pair("property", "String")))
