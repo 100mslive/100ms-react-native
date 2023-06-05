@@ -25,9 +25,9 @@ class HMSPlayerManager: RCTViewManager {
 
 class HMSPlayer: UIView {
     // MARK: class instance properties
-    var hlsStatsTimerRef: Timer? = nil
-    var eventController: HLSPlaybackEventController? = nil
-    var hmsHLSPlayerViewController: AVPlayerViewController? = nil
+    var hlsStatsTimerRef: Timer?
+    var eventController: HLSPlaybackEventController?
+    var hmsHLSPlayerViewController: AVPlayerViewController?
     lazy var hmsHLSPlayer = HMSHLSPlayer()
 
     // MARK: Handle HMSRNSDK Instance in HLSPlayer instance
@@ -44,7 +44,7 @@ class HMSPlayer: UIView {
     @objc var onHmsHlsStatsEvent: RCTDirectEventBlock?
 
     // TODO: Handle the case when Stream is started after HLSPlayer has mounted
-    @objc var url: String? = nil {
+    @objc var url: String? {
         didSet {
             if let validURLString = url, !validURLString.isEmpty {
                 if let urlInstance = URL(string: validURLString) {
@@ -52,7 +52,7 @@ class HMSPlayer: UIView {
                 }
                 return
             }
-            
+
             guard let hlsStreamingState = hmsCollection["12345"]?.hms?.room?.hlsStreamingState else {
                 return
             }
@@ -201,7 +201,7 @@ class HMSPlayer: UIView {
         data["error"] = [
             "errorCode": error.localizedDescription,
             "errorCodeName": error.localizedDescription,
-            "message": error.localizedDescription,
+            "message": error.localizedDescription
         ]
 
         sendHLSPlaybackEventToJS(HMSPlayerConstants.ON_PLAYBACK_FAILURE_EVENT, data)
@@ -219,7 +219,7 @@ class HMSPlayer: UIView {
 }
 
 class HLSPlaybackEventController: HMSHLSPlayerDelegate {
-    weak var hmsPlayerDelegate: HMSPlayer? = nil
+    weak var hmsPlayerDelegate: HMSPlayer?
 
     init(_ hmsPlayerDelegate: HMSPlayer) {
         self.hmsPlayerDelegate = hmsPlayerDelegate
