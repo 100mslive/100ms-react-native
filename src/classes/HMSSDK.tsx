@@ -1081,36 +1081,6 @@ export class HMSSDK {
     }
   };
 
-  /**
-   * @deprecated Older SessionMetaData APIs has been deprecated in favour of newer Session Store APIs.
-   * You can subscribe to `ON_SESSION_STORE_AVAILABLE` event to get notified when the `HMSSessionStore`
-   * is available and use `set` method on `HMSSessionStore` instance
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/how-to-guides/}
-   */
-  setSessionMetaData = async (sessionMetaData: string | null) => {
-    logger?.verbose('#Function setSessionMetaData', {
-      id: this.id,
-      sessionMetaData,
-    });
-    return await HMSManager.setSessionMetaData({
-      id: this.id,
-      sessionMetaData,
-    });
-  };
-
-  /**
-   * @deprecated Older SessionMetaData APIs has been deprecated in favour of newer Session Store APIs.
-   * You can subscribe to `ON_SESSION_STORE_AVAILABLE` event to get notified when the `HMSSessionStore`
-   * is available and use `get` or `addKeyChangeListener` method on `HMSSessionStore` instance
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/how-to-guides/}
-   */
-  getSessionMetaData = async () => {
-    logger?.verbose('#Function getSessionMetaData', {
-      id: this.id,
-    });
-    return await HMSManager.getSessionMetaData({ id: this.id });
-  };
-
   getRemoteVideoTrackFromTrackId = async (trackId: string) => {
     logger?.verbose('#Function getRemoteVideoTrackFromTrackId', {
       id: this.id,
