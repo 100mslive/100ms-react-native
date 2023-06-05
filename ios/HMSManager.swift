@@ -433,15 +433,6 @@ class HMSManager: RCTEventEmitter {
         hms?.disableNetworkQualityUpdates()
     }
 
-    // MARK: - Session Metadata
-
-    @objc
-    func setSessionMetaData(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HMSHelper.getHms(data, hmsCollection)
-
-        hms?.setSessionMetaData(data, resolve, reject)
-    }
-
     // MARK: - Peer & Room Property Getter Functions
 
     @objc
@@ -519,13 +510,6 @@ class HMSManager: RCTEventEmitter {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.getRoles(resolve)
-    }
-
-    @objc
-    func getSessionMetaData(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HMSHelper.getHms(data, hmsCollection)
-
-        hms?.getSessionMetaData(resolve, reject)
     }
 
     @objc
