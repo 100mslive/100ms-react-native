@@ -2,9 +2,9 @@ package com.reactnativehmssdk
 
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
-import android.util.Log
 import com.facebook.react.bridge.*
 import com.facebook.react.bridge.UiThreadUtil.runOnUiThread
+import com.google.gson.JsonElement
 import kotlinx.coroutines.launch
 import live.hms.video.audio.HMSAudioManager
 import live.hms.video.connection.stats.*
@@ -1939,11 +1939,20 @@ class HMSRNSDK(
             override fun onError(error: HMSException) {
               promise?.reject(error.code.toString(), error.message)
             }
-            override fun onSuccess(sessionMetadata: Any?) {
-              if (sessionMetadata is String?) {
-                promise?.resolve(sessionMetadata)
-              } else {
-                promise?.reject("6002", "Session Store: Unsupported type received for '$key' key, only String type is supported")
+
+            override fun onSuccess(sessionMetadata: JsonElement?) {
+              sessionMetadata.let { sm ->
+                if (sm == null) {
+                  promise?.resolve(null)
+                } else {
+                  if (sm.isJsonPrimitive) {
+                    promise?.resolve(sm.asString)
+                  } else if (sm.isJsonNull) {
+                    promise?.resolve(null)
+                  } else {
+                    promise?.resolve(sm.toString())
+                  }
+                }
               }
             }
           },
@@ -1969,16 +1978,25 @@ class HMSRNSDK(
         }
 
         val keyChangeListener = object : HMSKeyChangeListener {
-          override fun onKeyChanged(key: String, value: Any?) {
+          override fun onKeyChanged(key: String, value: JsonElement?) {
             val map = Arguments.createMap()
             map.putString("id", id)
             map.putString("key", key)
-            if (value is String?) {
-              map.putString("value", value)
-            } else {
-              Log.e("HMSRNSDK", "Session Store: '$value' value received for '$key' key, expected only NullableString type for value")
-              map.putString("value", null) // resetting value to `null`, as the current type is not supported
+
+            value.let { sm ->
+              if (sm == null) {
+                map.putString("value", null)
+              } else {
+                if (sm.isJsonPrimitive) {
+                  map.putString("value", sm.asString)
+                } else if (sm.isJsonNull) {
+                  map.putString("value", null)
+                } else {
+                  map.putString("value", sm.toString())
+                }
+              }
             }
+
             delegate.emitEvent("ON_SESSION_STORE_CHANGED", map)
           }
         }

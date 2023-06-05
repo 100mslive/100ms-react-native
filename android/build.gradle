@@ -68,6 +68,7 @@ repositories {
 dependencies {
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"
+    implementation "com.google.code.gson:gson:2.8.9"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"  // From node_modules
     implementation "live.100ms:android-sdk:${sdkVersions["android"]}"
     implementation "live.100ms:video-view:${sdkVersions["android"]}"
