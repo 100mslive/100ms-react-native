@@ -186,13 +186,8 @@ class HMSRNSDK(
             if (eventsEnableStatus["3"] != true) {
               return
             }
-            if (type === HMSPeerUpdate.AUDIO_TOGGLED ||
-              type === HMSPeerUpdate.VIDEO_TOGGLED ||
-              type === HMSPeerUpdate.BECAME_DOMINANT_SPEAKER ||
-              type === HMSPeerUpdate.NO_DOMINANT_SPEAKER ||
-              type === HMSPeerUpdate.RESIGNED_DOMINANT_SPEAKER ||
-              type === HMSPeerUpdate.STARTED_SPEAKING ||
-              type === HMSPeerUpdate.STOPPED_SPEAKING
+            if (type === HMSPeerUpdate.BECAME_DOMINANT_SPEAKER ||
+              type === HMSPeerUpdate.NO_DOMINANT_SPEAKER
             ) {
               return
             }
@@ -321,13 +316,8 @@ class HMSRNSDK(
                 if (eventsEnableStatus["3"] != true) {
                   return
                 }
-                if (type === HMSPeerUpdate.AUDIO_TOGGLED ||
-                  type === HMSPeerUpdate.VIDEO_TOGGLED ||
-                  type === HMSPeerUpdate.BECAME_DOMINANT_SPEAKER ||
-                  type === HMSPeerUpdate.NO_DOMINANT_SPEAKER ||
-                  type === HMSPeerUpdate.RESIGNED_DOMINANT_SPEAKER ||
-                  type === HMSPeerUpdate.STARTED_SPEAKING ||
-                  type === HMSPeerUpdate.STOPPED_SPEAKING
+                if (type === HMSPeerUpdate.BECAME_DOMINANT_SPEAKER ||
+                  type === HMSPeerUpdate.NO_DOMINANT_SPEAKER
                 ) {
                   return
                 }
