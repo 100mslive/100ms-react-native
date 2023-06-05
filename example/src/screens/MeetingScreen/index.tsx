@@ -813,12 +813,14 @@ const DisplayView = (data: {
   const destroy = async () => {
     await hmsInstance
       ?.destroy()
-      .then(s => console.log('Destroy Success: ', s))
+      .then(s => {
+        dispatch(clearMessageData());
+        dispatch(clearPeerData());
+        dispatch(clearHmsReference());
+        navigate('QRCodeScreen');
+        console.log('Destroy Success: ', s);
+      })
       .catch(e => console.log('Destroy Error: ', e));
-    dispatch(clearMessageData());
-    dispatch(clearPeerData());
-    dispatch(clearHmsReference());
-    navigate('QRCodeScreen');
   };
 
   const onLeavePress = async () => {

@@ -95,7 +95,6 @@ export class HMSEncoder {
   static encodeHmsPeer(peer: any) {
     const encodedObj = {
       peerID: peer?.peerID,
-      customerDescription: peer?.customerDescription || undefined,
     };
 
     return new HMSPeer(encodedObj);
@@ -156,7 +155,6 @@ export class HMSEncoder {
   static encodeHmsLocalPeer(peer: any, id: string) {
     const encodedObj = {
       peerID: peer?.peerID,
-      customerDescription: peer?.customerDescription || undefined,
       localAudioTrackData: peer?.localAudioTrackData?.trackId
         ? {
             id: id,
@@ -270,7 +268,6 @@ export class HMSEncoder {
   static encodeHmsRemotePeer(peer: any, id: string) {
     const encodedObj = {
       peerID: peer?.peerID,
-      customerDescription: peer.customerDescription,
       remoteAudioTrackData: peer?.remoteAudioTrackData?.trackId
         ? {
             id: id,

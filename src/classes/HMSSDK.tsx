@@ -1002,6 +1002,7 @@ export class HMSSDK {
   };
 
   /**
+   * Android Only
    * - This wrapper function used to switch output to device other than the default, currently available only for android.
    *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/audio-output-routing#switch-audio-focus-to-another-device} for more info
@@ -1020,6 +1021,19 @@ export class HMSSDK {
       console.log('API currently not available for iOS');
       return 'API currently not available for iOS';
     }
+  };
+
+  switchAudioOutputUsingIOSUI = () => {
+    logger?.verbose('#Function switchAudioOutputUsingIOSUI', {
+      id: this.id,
+    });
+    if (Platform.OS !== 'ios') {
+      throw new Error(
+        '#Function `switchAudioOutputUsingIOSUI` is only available on iOS, use `switchAudioOutput` method instead!'
+      );
+    }
+
+    return HMSManager.switchAudioOutputUsingIOSUI({ id: this.id });
   };
 
   /**
@@ -1065,36 +1079,6 @@ export class HMSSDK {
       console.log('API currently not available for iOS');
       return 'API currently not available for iOS';
     }
-  };
-
-  /**
-   * @deprecated Older SessionMetaData APIs has been deprecated in favour of newer Session Store APIs.
-   * You can subscribe to `ON_SESSION_STORE_AVAILABLE` event to get notified when the `HMSSessionStore`
-   * is available and use `set` method on `HMSSessionStore` instance
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/how-to-guides/}
-   */
-  setSessionMetaData = async (sessionMetaData: string | null) => {
-    logger?.verbose('#Function setSessionMetaData', {
-      id: this.id,
-      sessionMetaData,
-    });
-    return await HMSManager.setSessionMetaData({
-      id: this.id,
-      sessionMetaData,
-    });
-  };
-
-  /**
-   * @deprecated Older SessionMetaData APIs has been deprecated in favour of newer Session Store APIs.
-   * You can subscribe to `ON_SESSION_STORE_AVAILABLE` event to get notified when the `HMSSessionStore`
-   * is available and use `get` or `addKeyChangeListener` method on `HMSSessionStore` instance
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/how-to-guides/}
-   */
-  getSessionMetaData = async () => {
-    logger?.verbose('#Function getSessionMetaData', {
-      id: this.id,
-    });
-    return await HMSManager.getSessionMetaData({ id: this.id });
   };
 
   getRemoteVideoTrackFromTrackId = async (trackId: string) => {

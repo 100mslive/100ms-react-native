@@ -1,6 +1,9 @@
 Board: https://github.com/100mslive/react-native-hms/projects/16
 
+- Fixed crash in RN iOS app on rejoining in Large Rooms
+https://github.com/100mslive/react-native-hms/issues/1056
+
 
 React Native SDK: 1.7.0
-Android SDK: 2.6.4
+Android SDK: 2.6.5
 iOS SDK: 0.9.4

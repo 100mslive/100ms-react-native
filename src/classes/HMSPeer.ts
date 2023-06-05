@@ -8,14 +8,9 @@ import { HMSConstants } from './HMSConstants';
 
 export class HMSPeer {
   peerID: string;
-  /**
-   * @deprecated customerDescription property has been deprecated in favor of metadata property
-   */
-  customerDescription?: string;
 
-  constructor(params: { peerID: string; customerDescription?: string }) {
+  constructor(params: { peerID: string }) {
     this.peerID = params.peerID;
-    this.customerDescription = params.customerDescription;
   }
 
   get name(): string {

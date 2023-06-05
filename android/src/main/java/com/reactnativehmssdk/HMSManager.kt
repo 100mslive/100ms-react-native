@@ -419,20 +419,6 @@ class HMSManager(reactContext: ReactApplicationContext) :
     hms?.setAudioDeviceChangeListener()
   }
 
-  @ReactMethod
-  fun setSessionMetaData(data: ReadableMap, callback: Promise?) {
-    val hms = HMSHelper.getHms(data, hmsCollection)
-
-    hms?.setSessionMetaData(data, callback)
-  }
-
-  @ReactMethod
-  fun getSessionMetaData(data: ReadableMap, callback: Promise?) {
-    val hms = HMSHelper.getHms(data, hmsCollection)
-
-    hms?.getSessionMetaData(callback)
-  }
-
   @ReactMethod(isBlockingSynchronousMethod = true)
   fun getPeerProperty(data: ReadableMap): WritableMap? {
     val hms = HMSHelper.getHms(data, hmsCollection) ?: return null
