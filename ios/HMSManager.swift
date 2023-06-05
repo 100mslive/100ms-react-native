@@ -190,10 +190,6 @@ class HMSManager: RCTEventEmitter {
             // Note:- We will trigger tap event on it without rendering this view in UI.
             let routePickerView = AVRoutePickerView()
 
-            if #available(iOS 13.0, *) {
-                routePickerView.prioritizesVideoDevices = false
-            }
-
             // Iterating over subviews of AVRoutePickerView
             for view in routePickerView.subviews {
                 // Checking if the current subview is UIButton
