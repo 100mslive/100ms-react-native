@@ -1,9 +1,18 @@
 Board: https://github.com/100mslive/react-native-hms/projects/16
 
+- Added 100ms HLS Player support
+https://github.com/100mslive/react-native-hms/issues/878
+
 - Fixed crash in RN iOS app on rejoining in Large Rooms
 https://github.com/100mslive/react-native-hms/issues/1056
 
+- Added API to open iOS Control Centre' Switch Audio Output UI
+https://github.com/100mslive/react-native-hms/issues/816
+
+- Add support for Client Publish Stats
+https://github.com/100mslive/react-native-hms/issues/1000
+
 
 React Native SDK: 1.7.0
-Android SDK: 2.6.5
-iOS SDK: 0.9.4
+Android SDK: 2.6.7
+iOS SDK: 0.9.5
