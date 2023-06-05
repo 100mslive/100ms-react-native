@@ -38,6 +38,7 @@ RCT_EXTERN_METHOD(destroy: (NSDictionary) data :(RCTPromiseResolveBlock) resolve
 RCT_EXTERN_METHOD(startScreenshare: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(stopScreenshare: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(isScreenShared: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(switchAudioOutputUsingIOSUI: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(playAudioShare: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(setAudioShareVolume: (NSDictionary) data)
 RCT_EXTERN_METHOD(stopAudioShare: (NSDictionary) data)
