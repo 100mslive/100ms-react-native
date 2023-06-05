@@ -1070,39 +1070,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         networkQualityUpdatesAttached = false
     }
 
-    func setSessionMetaData(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let metaData = data.value(forKey: "sessionMetaData") as? String ?? ""
-
-        DispatchQueue.main.async { [weak self] in
-
-            guard let self = self else {
-                let errorMessage = "\(#function) Unexpectedly encountered self as null"
-                self?.emitRequiredKeysError(errorMessage)
-                reject?(errorMessage, errorMessage, nil)
-                return
-            }
-
-            self.hms?.setSessionMetadata(metaData) { [weak self] success, error in
-
-                guard let self = self else {
-                    let errorMessage = "\(#function) Unexpectedly encountered self as null"
-                    self?.emitRequiredKeysError(errorMessage)
-                    reject?(errorMessage, errorMessage, nil)
-                    return
-                }
-
-                if success {
-                    resolve?(["success": success])
-                } else {
-                    if self.eventsEnableStatus[HMSConstants.ON_ERROR] == true {
-                      self.delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self.id])
-                    }
-                    reject?(error?.localizedDescription, error?.localizedDescription, nil)
-                }
-            }
-        }
-    }
-
     func enableEvent(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let eventType = data.value(forKey: "eventType") as? String else {
             let errorMessage = "enableEvent: " + HMSHelper.getUnavailableRequiredKey(data, ["eventType"])
@@ -1160,36 +1127,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         let roles = HMSDecoder.getAllRoles(hms?.roles)
 
         resolve?(roles)
-    }
-
-    func getSessionMetaData(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-
-        DispatchQueue.main.async { [weak self] in
-
-            guard let self = self else {
-                let errorMessage = "\(#function) Unexpectedly encountered self as null"
-                self?.emitRequiredKeysError(errorMessage)
-                reject?(errorMessage, errorMessage, nil)
-                return
-            }
-
-            self.hms?.getSessionMetadata { [weak self] result, error in
-
-                guard let self = self else {
-                    let errorMessage = "\(#function) Unexpectedly encountered self as null"
-                    self?.emitRequiredKeysError(errorMessage)
-                    reject?(errorMessage, errorMessage, nil)
-                    return
-                }
-
-                if error != nil {
-                    self.delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self.id])
-                    reject?(error?.localizedDescription, error?.localizedDescription, nil)
-                } else {
-                    resolve?(result)
-                }
-            }
-        }
     }
 
     func getPeerProperty(_ data: NSDictionary) -> [AnyHashable: Any]? {
