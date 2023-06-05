@@ -1256,7 +1256,7 @@ class HMSRNSDK(
     val requiredKeys =
       HMSHelper.getUnavailableRequiredKey(
         data,
-        arrayOf(Pair("record", "Boolean"), Pair("meetingURL", "String")),
+        arrayOf(Pair("record", "Boolean")),
       )
     if (requiredKeys === null) {
       val config = HMSHelper.getRtmpConfig(data)

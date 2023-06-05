@@ -695,25 +695,28 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func startRTMPOrRecording(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        guard let record = data.value(forKey: "record") as? Bool,
-              let meetingString = data.value(forKey: "meetingURL") as? String
+        guard let record = data.value(forKey: "record") as? Bool
         else {
-            let errorMessage = "startRTMPOrRecording: " + HMSHelper.getUnavailableRequiredKey(data, ["record", "meetingURL"])
+            let errorMessage = "startRTMPOrRecording: " + HMSHelper.getUnavailableRequiredKey(data, ["record"])
             emitRequiredKeysError(errorMessage)
             reject?(errorMessage, errorMessage, nil)
             return
         }
 
+        let meetingNullableString = data.value(forKey: "meetingURL") as? String
+
         let rtmpStrings = data.value(forKey: "rtmpURLs") as? [String]
 
         var meetingUrl: URL?
-        if let meetLink = URL(string: meetingString) {
-            meetingUrl = meetLink
-        } else {
-            if eventsEnableStatus[HMSConstants.ON_ERROR] == true {
-                delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": ["code": 6002, "description": "Invalid meeting url passed", "isTerminal": false, "canRetry": true, "params": ["function": #function]] as [String: Any], "id": id])
+        if let meetingString = meetingNullableString, !meetingString.isEmpty {
+            if let meetLink = URL(string: meetingString) {
+                meetingUrl = meetLink
+            } else {
+                if eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                    delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": ["code": 6002, "description": "Invalid meeting url passed", "isTerminal": false, "canRetry": true, "params": ["function": #function]] as [String: Any], "id": id])
+                }
+                reject?("Invalid meeting url passed", "Invalid meeting url passed", nil)
             }
-            reject?("Invalid meeting url passed", "Invalid meeting url passed", nil)
         }
 
         let URLs = HMSHelper.getRtmpUrls(rtmpStrings)
