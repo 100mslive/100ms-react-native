@@ -256,7 +256,7 @@ export function getPeerPropertyFromNative<T extends keyof HMSPeerCacheProps>(
         ? HMSEncoder.encodeHmsAuxiliaryTracks(data.auxiliaryTracks, id)
         : undefined;
   } else if (property === 'name') {
-    value = data?.[property] || '';
+    value = data?.[property];
   } else {
     value = data ? data[property] : undefined;
   }

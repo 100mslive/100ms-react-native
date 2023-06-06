@@ -373,9 +373,17 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         let force = data.value(forKey: "force") as? Bool ?? false
 
         DispatchQueue.main.async { [weak self] in
-            guard let peer = HMSHelper.getPeerFromPeerId(peerId, remotePeers: self?.hms?.remotePeers, localPeer: self?.hms?.localPeer),
-            let role = HMSHelper.getRoleFromRoleName(role, roles: self?.hms?.roles)
-            else { return }
+            guard let peer = HMSHelper.getPeerFromPeerId(peerId, remotePeers: self?.hms?.remotePeers, localPeer: self?.hms?.localPeer)
+            else {
+                reject?("PEER_NOT_FOUND", "PEER_NOT_FOUND", nil)
+                return
+            }
+
+            guard let role = HMSHelper.getRoleFromRoleName(role, roles: self?.hms?.roles)
+            else {
+                reject?("ROLE_NOT_FOUND", "ROLE_NOT_FOUND", nil)
+                return
+            }
 
             self?.hms?.changeRole(for: peer, to: role, force: force, completion: { success, error in
                 if success {
