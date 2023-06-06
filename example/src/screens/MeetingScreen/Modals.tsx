@@ -1896,7 +1896,7 @@ export const RecordingModal = ({
   const [resolutionDetails, setResolutionDetails] = useState<boolean>(false);
   const [recordingDetails, setRecordingDetails] = useState<HMSRTMPConfig>({
     record: false,
-    meetingURL: roomID ? roomID + '?token=beam_recording' : '',
+    meetingURL: roomID ? roomID + '?token=beam_recording' : undefined,
   });
 
   const changeLayout = () => {
@@ -1917,7 +1917,7 @@ export const RecordingModal = ({
         placeholderTextColor="#454545"
         placeholder="Enter meeting url"
         style={styles.input}
-        defaultValue={recordingDetails.meetingURL}
+        defaultValue={recordingDetails.meetingURL || ''}
         returnKeyType="done"
         multiline
         blurOnSubmit
