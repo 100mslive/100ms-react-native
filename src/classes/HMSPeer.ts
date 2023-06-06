@@ -8,6 +8,24 @@ import { HMSConstants } from './HMSConstants';
 
 export class HMSPeer {
   peerID: string;
+  private _name: string = '';
+  private _isLocal: boolean | undefined = undefined;
+
+  private _updateName(value: string) {
+    // If given value is something valid, and `_name` is outdated
+    // Update `_name`
+    if (value && this._name !== value) {
+      this._name = value;
+    }
+  }
+
+  private _updateIsLocal(value: boolean) {
+    // If given value is valid, and `_isLocal` is outdated
+    // Update `_isLocal`
+    if (this._isLocal !== value) {
+      this._isLocal = value;
+    }
+  }
 
   constructor(params: { peerID: string }) {
     this.peerID = params.peerID;
@@ -17,30 +35,47 @@ export class HMSPeer {
     const hmsPeersCache = getHmsPeersCache();
 
     if (hmsPeersCache) {
-      return hmsPeersCache.getProperty(this.peerID, 'name') || '';
+      const nameValue = hmsPeersCache.getProperty(this.peerID, 'name') || '';
+
+      this._updateName(nameValue);
+
+      return nameValue ?? this._name;
     }
 
-    return (
+    const value =
       getPeerPropertyFromNative(
         HMSConstants.DEFAULT_SDK_ID,
         this.peerID,
         'name'
-      ) || ''
-    );
+      ) || '';
+
+    this._updateName(value);
+
+    return value ?? this._name;
   }
 
   get isLocal(): boolean | undefined {
     const hmsPeersCache = getHmsPeersCache();
 
     if (hmsPeersCache) {
-      return hmsPeersCache.getProperty(this.peerID, 'isLocal');
+      const value = hmsPeersCache.getProperty(this.peerID, 'isLocal');
+
+      if (typeof value === 'boolean') {
+        this._updateIsLocal(value);
+      }
+      return value ?? this._isLocal;
     }
 
-    return getPeerPropertyFromNative(
+    const value = getPeerPropertyFromNative(
       HMSConstants.DEFAULT_SDK_ID,
       this.peerID,
       'isLocal'
     );
+
+    if (typeof value === 'boolean') {
+      this._updateIsLocal(value);
+    }
+    return value || this._isLocal;
   }
 
   get networkQuality(): HMSNetworkQuality | undefined {
