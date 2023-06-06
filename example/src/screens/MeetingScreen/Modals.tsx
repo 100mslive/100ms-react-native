@@ -311,47 +311,49 @@ export const ParticipantsModal = ({
                   </MenuItem>
                 )}
                 {peer.isLocal === false &&
-                  peer.role?.publishSettings?.allowed?.includes('audio') && (
-                    <MenuItem onPress={() => toggleAudio(peer)}>
-                      <View style={styles.participantMenuItem}>
-                        <Feather
-                          name={
-                            peer.audioTrack?.isMute() === false
-                              ? 'mic'
-                              : 'mic-off'
-                          }
-                          style={styles.participantMenuItemIcon}
-                          size={24}
-                        />
-                        <Text style={styles.participantMenuItemName}>
-                          {peer.audioTrack?.isMute() === false
-                            ? 'Mute audio'
-                            : 'Unmute audio'}
-                        </Text>
-                      </View>
-                    </MenuItem>
-                  )}
+                !!peer.audioTrack &&
+                peer.role?.publishSettings?.allowed?.includes('audio') ? (
+                  <MenuItem onPress={() => toggleAudio(peer)}>
+                    <View style={styles.participantMenuItem}>
+                      <Feather
+                        name={
+                          peer.audioTrack?.isMute() === false
+                            ? 'mic'
+                            : 'mic-off'
+                        }
+                        style={styles.participantMenuItemIcon}
+                        size={24}
+                      />
+                      <Text style={styles.participantMenuItemName}>
+                        {peer.audioTrack?.isMute() === false
+                          ? 'Mute audio'
+                          : 'Unmute audio'}
+                      </Text>
+                    </View>
+                  </MenuItem>
+                ) : null}
                 {peer.isLocal === false &&
-                  peer.role?.publishSettings?.allowed?.includes('video') && (
-                    <MenuItem onPress={() => toggleVideo(peer)}>
-                      <View style={styles.participantMenuItem}>
-                        <Feather
-                          name={
-                            peer.videoTrack?.isMute() === false
-                              ? 'video'
-                              : 'video-off'
-                          }
-                          style={styles.participantMenuItemIcon}
-                          size={24}
-                        />
-                        <Text style={styles.participantMenuItemName}>
-                          {peer.videoTrack?.isMute() === false
-                            ? 'Mute video'
-                            : 'Unmute video'}
-                        </Text>
-                      </View>
-                    </MenuItem>
-                  )}
+                !!peer.videoTrack &&
+                peer.role?.publishSettings?.allowed?.includes('video') ? (
+                  <MenuItem onPress={() => toggleVideo(peer)}>
+                    <View style={styles.participantMenuItem}>
+                      <Feather
+                        name={
+                          peer.videoTrack?.isMute() === false
+                            ? 'video'
+                            : 'video-off'
+                        }
+                        style={styles.participantMenuItemIcon}
+                        size={24}
+                      />
+                      <Text style={styles.participantMenuItemName}>
+                        {peer.videoTrack?.isMute() === false
+                          ? 'Mute video'
+                          : 'Unmute video'}
+                      </Text>
+                    </View>
+                  </MenuItem>
+                ) : null}
                 {/* {peer.isLocal === false &&
                   type === TrackType.REMOTE &&
                   peerTrackNode?.track?.source === HMSTrackSource.REGULAR && (
