@@ -26,14 +26,15 @@ import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {
   View,
   Text,
-  SafeAreaView,
   Platform,
   Dimensions,
   AppState,
   LayoutAnimation,
   InteractionManager,
   BackHandler,
+  StatusBar,
 } from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -106,7 +107,7 @@ import {
 import {GridView} from './GridView';
 import {HLSView} from './HLSView';
 import PIPView from './PIPView';
-import {useRTCStatsListeners} from '../../utils/hooks';
+import {useOrientation, useRTCStatsListeners} from '../../utils/hooks';
 import {RoomSettingsModalContent} from '../../components/RoomSettingsModalContent';
 import {PeerSettingsModalContent} from '../../components/PeerSettingsModalContent';
 import {StreamingQualityModalContent} from '../../components/StreamingQualityModalContent';
@@ -122,6 +123,7 @@ const Meeting = () => {
   // hooks
   const dispatch = useDispatch();
   const modalTaskRef = useRef<any>(null);
+  const orientation = useOrientation();
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
   const isPipModeActive = useSelector(
     (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE,
@@ -215,8 +217,20 @@ const Meeting = () => {
 
   useRTCStatsListeners(modalVisible === ModalTypes.RTC_STATS);
 
+  const showLandscapeLayout =
+    orientation === 'LANDSCAPE' &&
+    !!localPeer?.role?.name &&
+    localPeer.role.name.includes('hls-');
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      edges={showLandscapeLayout ? ['left', 'right'] : undefined}
+      style={[
+        styles.container,
+        showLandscapeLayout ? {flexDirection: 'row'} : null,
+      ]}
+    >
+      {showLandscapeLayout ? <StatusBar hidden={true} /> : null}
       {isPipModeActive ? null : (
         <Header
           modalVisible={modalVisible}
@@ -224,6 +238,7 @@ const Meeting = () => {
           room={room}
           localPeer={localPeer}
           isScreenShared={isScreenShared}
+          landscapeLayout={showLandscapeLayout}
         />
       )}
       <DisplayView
@@ -248,6 +263,7 @@ const Meeting = () => {
           isAudioMute={isAudioMute}
           isVideoMute={isVideoMute}
           isScreenShared={isScreenShared}
+          landscapeLayout={showLandscapeLayout}
           setModalVisible={handleModalVisible}
           setIsAudioMute={setIsAudioMute}
           setIsVideoMute={setIsVideoMute}
@@ -1288,12 +1304,14 @@ const Header = ({
   localPeer,
   isScreenShared,
   modalVisible,
+  landscapeLayout,
   setModalVisible,
 }: {
   room?: HMSRoom;
   localPeer?: HMSLocalPeer;
   isScreenShared?: boolean;
   modalVisible: ModalTypes;
+  landscapeLayout: boolean;
   setModalVisible(modalType: ModalTypes, delay?: any): void;
 }) => {
   // hooks
@@ -1329,8 +1347,18 @@ const Header = ({
   };
 
   return (
-    <View style={styles.iconTopWrapper}>
-      <View style={styles.iconTopSubWrapper}>
+    <View
+      style={[
+        styles.iconTopWrapper,
+        landscapeLayout ? styles.iconTopWrapperLandscape : null,
+      ]}
+    >
+      <View
+        style={[
+          styles.iconTopSubWrapper,
+          landscapeLayout ? styles.iconTopSubWrapperLandscape : null,
+        ]}
+      >
         <Menu
           visible={modalVisible === ModalTypes.LEAVE_MENU}
           anchor={
@@ -1338,7 +1366,11 @@ const Header = ({
               onPress={() => {
                 setModalVisible(ModalTypes.LEAVE_MENU);
               }}
-              viewStyle={[styles.iconContainer, styles.leaveIcon]}
+              viewStyle={[
+                styles.iconContainer,
+                styles.leaveIcon,
+                landscapeLayout ? styles.iconContainerLandscape : null,
+              ]}
               LeftIcon={
                 <Feather name="log-out" style={styles.icon} size={iconSize} />
               }
@@ -1392,12 +1424,19 @@ const Header = ({
           <Text style={styles.headerName}>{roomCode}</Text>
         )}
       </View>
-      <View style={styles.iconTopSubWrapper}>
+      <View
+        style={[
+          styles.iconTopSubWrapper,
+          landscapeLayout ? styles.iconTopSubWrapperLandscape : null,
+        ]}
+      >
         {(room?.browserRecordingState?.running ||
           room?.hlsRecordingState?.running) && (
           <MaterialCommunityIcons
             name="record-circle-outline"
-            style={styles.roomStatus}
+            style={
+              landscapeLayout ? styles.roomStatusLandscape : styles.roomStatus
+            }
             size={iconSize}
           />
         )}
@@ -1405,16 +1444,27 @@ const Header = ({
           room?.rtmpHMSRtmpStreamingState?.running) && (
           <Ionicons
             name="globe-outline"
-            style={styles.roomStatus}
+            style={
+              landscapeLayout ? styles.roomStatusLandscape : styles.roomStatus
+            }
             size={iconSize}
           />
         )}
         {isScreenShared && (
-          <Feather name="copy" style={styles.roomStatus} size={iconSize} />
+          <Feather
+            name="copy"
+            style={
+              landscapeLayout ? styles.roomStatusLandscape : styles.roomStatus
+            }
+            size={iconSize}
+          />
         )}
         <CustomButton
           onPress={onParticipantsPress}
-          viewStyle={styles.iconContainer}
+          viewStyle={[
+            styles.iconContainer,
+            landscapeLayout ? styles.iconContainerLandscape : null,
+          ]}
           LeftIcon={
             <Ionicons name="people" style={styles.icon} size={iconSize} />
           }
@@ -1423,6 +1473,7 @@ const Header = ({
           onPress={onRaiseHandPress}
           viewStyle={[
             styles.iconContainer,
+            landscapeLayout ? styles.iconContainerLandscape : null,
             parsedMetadata?.isHandRaised && styles.iconMuted,
           ]}
           LeftIcon={
@@ -1443,7 +1494,10 @@ const Header = ({
             });
             // setNotification(false);
           }}
-          viewStyle={styles.iconContainer}
+          viewStyle={[
+            styles.iconContainer,
+            landscapeLayout ? styles.iconContainerLandscape : null,
+          ]}
           LeftIcon={
             <View>
               {/* {notification && <View style={styles.messageDot} />} */}
@@ -1481,6 +1535,7 @@ const Footer = ({
   isAudioMute,
   isVideoMute,
   isScreenShared,
+  landscapeLayout,
   setModalVisible,
   setIsAudioMute,
   setIsVideoMute,
@@ -1495,6 +1550,7 @@ const Footer = ({
   isAudioMute?: boolean;
   isVideoMute?: boolean;
   isScreenShared?: boolean;
+  landscapeLayout: boolean;
   setModalVisible(modalType: ModalTypes, delay?: any): void;
   setIsAudioMute: React.Dispatch<React.SetStateAction<boolean | undefined>>;
   setIsVideoMute: React.Dispatch<React.SetStateAction<boolean | undefined>>;
@@ -1572,12 +1628,16 @@ const Footer = ({
   return (
     <View
       style={[
-        // localPeer?.role?.permissions?.hlsStreaming
-        //   ? styles.iconBotttomWrapperHls :
         styles.iconBotttomWrapper,
+        landscapeLayout ? styles.iconBotttomWrapperLandscape : null,
       ]}
     >
-      <View style={styles.iconBotttomButtonWrapper}>
+      <View
+        style={[
+          styles.iconBotttomButtonWrapper,
+          landscapeLayout ? styles.iconBotttomButtonWrapperLandscape : null,
+        ]}
+      >
         {localPeer?.role?.publishSettings?.allowed?.includes('audio') && (
           <CustomButton
             onPress={() => {
