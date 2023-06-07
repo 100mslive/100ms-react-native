@@ -90,10 +90,10 @@ class HMSDecoder: NSObject {
         switch peerUpdateType {
             case .peerJoined: return "0"
             case .peerLeft: return "1"
-            case .roleUpdated: return "9"
-            case .nameUpdated: return "10"
-            case .metadataUpdated: return "11"
-            case .networkQualityUpdated: return "12"
+            case .roleUpdated: return "4"
+            case .nameUpdated: return "5"
+            case .metadataUpdated: return "6"
+            case .networkQualityUpdated: return "7"
             default: return nil
         }
     }
