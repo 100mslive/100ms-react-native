@@ -11,6 +11,7 @@ import {
   Platform,
   InteractionManager,
   ImageURISource,
+  useWindowDimensions,
 } from 'react-native';
 import Toast from 'react-native-simple-toast';
 import {useDispatch, useSelector} from 'react-redux';
@@ -1258,6 +1259,7 @@ export const ChangeAspectRatio = ({
   instance?: HMSSDK;
   cancelModal: Function;
 }) => {
+  const {height} = useWindowDimensions();
   const dispatch = useDispatch();
   const hlsPlayerAspectRatio = useSelector(
     (state: RootState) => state.app.hlsAspectRatio,
@@ -1278,26 +1280,28 @@ export const ChangeAspectRatio = ({
         Current: {hlsPlayerAspectRatio.id}
       </Text>
 
-      {SUPPORTED_ASPECT_RATIOS.map(ratio => {
-        return (
-          <TouchableOpacity
-            key={ratio.id}
-            style={styles.roleChangeModalPermissionContainer}
-            onPress={() => setSelectedRatio(ratio)}
-          >
-            <View style={styles.roleChangeModalCheckBox}>
-              {selectedRatio.id === ratio.id ? (
-                <Entypo
-                  name="check"
-                  style={styles.roleChangeModalCheck}
-                  size={10}
-                />
-              ) : null}
-            </View>
-            <Text style={styles.roleChangeModalPermission}>{ratio.id}</Text>
-          </TouchableOpacity>
-        );
-      })}
+      <ScrollView style={{maxHeight: height * 0.4}}>
+        {SUPPORTED_ASPECT_RATIOS.map(ratio => {
+          return (
+            <TouchableOpacity
+              key={ratio.id}
+              style={styles.roleChangeModalPermissionContainer}
+              onPress={() => setSelectedRatio(ratio)}
+            >
+              <View style={styles.roleChangeModalCheckBox}>
+                {selectedRatio.id === ratio.id ? (
+                  <Entypo
+                    name="check"
+                    style={styles.roleChangeModalCheck}
+                    size={10}
+                  />
+                ) : null}
+              </View>
+              <Text style={styles.roleChangeModalPermission}>{ratio.id}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
 
       <View style={styles.roleChangeModalPermissionContainer}>
         <CustomButton
