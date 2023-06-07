@@ -760,24 +760,30 @@ class HMSRNSDK(
 
       if (peerId !== null && role !== null) {
         val hmsPeer = HMSHelper.getPeerFromPeerId(peerId, hmsSDK?.getRoom())
-        val hmsRole = HMSHelper.getRoleFromRoleName(role, hmsSDK?.getRoles())
-
-        if (hmsRole != null && hmsPeer != null) {
-          hmsSDK?.changeRole(
-            hmsPeer,
-            hmsRole,
-            force,
-            object : HMSActionResultListener {
-              override fun onSuccess() {
-                callback?.resolve(emitHMSSuccess())
-              }
-              override fun onError(error: HMSException) {
-                self.emitHMSError(error)
-                callback?.reject(error.code.toString(), error.message)
-              }
-            },
-          )
+        if (hmsPeer == null) {
+          callback?.reject("4000", "PEER_NOT_FOUND")
+          return
         }
+        val hmsRole = HMSHelper.getRoleFromRoleName(role, hmsSDK?.getRoles())
+        if (hmsRole == null) {
+          callback?.reject("4000", "ROLE_NOT_FOUND")
+          return
+        }
+
+        hmsSDK?.changeRole(
+          hmsPeer,
+          hmsRole,
+          force,
+          object : HMSActionResultListener {
+            override fun onSuccess() {
+              callback?.resolve(emitHMSSuccess())
+            }
+            override fun onError(error: HMSException) {
+              self.emitHMSError(error)
+              callback?.reject(error.code.toString(), error.message)
+            }
+          },
+        )
       }
     } else {
       val errorMessage = "changeRole: $requiredKeys"
@@ -799,24 +805,30 @@ class HMSRNSDK(
 
       if (peerId !== null && role !== null) {
         val hmsPeer = HMSHelper.getPeerFromPeerId(peerId, hmsSDK?.getRoom())
-        val hmsRole = HMSHelper.getRoleFromRoleName(role, hmsSDK?.getRoles())
-
-        if (hmsRole != null && hmsPeer != null) {
-          hmsSDK?.changeRoleOfPeer(
-            hmsPeer,
-            hmsRole,
-            force,
-            object : HMSActionResultListener {
-              override fun onSuccess() {
-                promise?.resolve(emitHMSSuccess())
-              }
-              override fun onError(error: HMSException) {
-                self.emitHMSError(error)
-                promise?.reject(error.code.toString(), error.message)
-              }
-            },
-          )
+        if (hmsPeer == null) {
+          promise?.reject("4000", "PEER_NOT_FOUND")
+          return
         }
+        val hmsRole = HMSHelper.getRoleFromRoleName(role, hmsSDK?.getRoles())
+        if (hmsRole == null) {
+          promise?.reject("4000", "ROLE_NOT_FOUND")
+          return
+        }
+
+        hmsSDK?.changeRoleOfPeer(
+          hmsPeer,
+          hmsRole,
+          force,
+          object : HMSActionResultListener {
+            override fun onSuccess() {
+              promise?.resolve(emitHMSSuccess())
+            }
+            override fun onError(error: HMSException) {
+              self.emitHMSError(error)
+              promise?.reject(error.code.toString(), error.message)
+            }
+          },
+        )
       }
     } else {
       val errorMessage = "changeRoleOfPeer: $requiredKeys"
