@@ -9,7 +9,7 @@ export interface HLSPlayerStatsViewProps {
 export const HLSPlayerStatsView: React.FC<HLSPlayerStatsViewProps> = ({
   onClosePress,
 }) => {
-  const stats = useHMSHLSPlayerStats();
+  const {stats, error} = useHMSHLSPlayerStats();
 
   return (
     <View style={styles.container}>
