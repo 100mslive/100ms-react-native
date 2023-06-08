@@ -1,5 +1,5 @@
 import ActionTypes from '../actionTypes';
-import type {PeerTrackNode} from '../../utils/types';
+import {PeerTrackNode, SUPPORTED_ASPECT_RATIOS} from '../../utils/types';
 import {PipModes} from '../../utils/types';
 import {
   HMSLocalAudioStats,
@@ -24,6 +24,7 @@ type IntialStateType = {
     | HMSRemoteAudioStats
     | HMSRemoteVideoStats
   >;
+  hlsAspectRatio: {value: number; id: string};
   joinConfig: {
     mutedAudio: boolean;
     mutedVideo: boolean;
@@ -35,6 +36,8 @@ type IntialStateType = {
     autoResize: boolean; // Android only
     autoSimulcast: boolean;
     showStats: boolean;
+    showHLSStats: boolean;
+    enableHLSPlayerControls: boolean;
   };
 };
 
@@ -42,6 +45,7 @@ const INITIAL_STATE: IntialStateType = {
   peerState: [],
   pipModeStatus: PipModes.INACTIVE,
   rtcStats: {},
+  hlsAspectRatio: SUPPORTED_ASPECT_RATIOS[0],
   joinConfig: {
     mutedAudio: true,
     mutedVideo: true,
@@ -53,6 +57,8 @@ const INITIAL_STATE: IntialStateType = {
     autoResize: false, // Android only
     autoSimulcast: true,
     showStats: false,
+    showHLSStats: false,
+    enableHLSPlayerControls: true,
   },
 };
 
@@ -67,6 +73,8 @@ const appReducer = (
       return {...state, ...action.payload};
     case ActionTypes.CLEAR_PEER_DATA.REQUEST:
       return {...state, peerState: []};
+    case ActionTypes.CHANGE_HLS_ASPECT_RATIO:
+      return {...state, hlsAspectRatio: action.payload.hlsAspectRatio};
     case ActionTypes.RESET_JOIN_CONFIG:
       return {...state, joinConfig: INITIAL_STATE.joinConfig};
     case ActionTypes.CHANGE_JOIN_AUDIO_MUTED:
@@ -123,6 +131,23 @@ const appReducer = (
         joinConfig: {
           ...state.joinConfig,
           showStats: action.payload.showStats ?? false,
+        },
+      };
+    case ActionTypes.CHANGE_SHOW_HLS_STATS:
+      return {
+        ...state,
+        joinConfig: {
+          ...state.joinConfig,
+          showHLSStats: action.payload.showHLSStats ?? false,
+        },
+      };
+    case ActionTypes.CHANGE_ENABLE_HLS_PLAYER_CONTROLS:
+      return {
+        ...state,
+        joinConfig: {
+          ...state.joinConfig,
+          enableHLSPlayerControls:
+            action.payload.enableHLSPlayerControls ?? true,
         },
       };
     case ActionTypes.CHANGE_SOFTWARE_DECODER:
