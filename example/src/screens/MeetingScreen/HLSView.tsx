@@ -1,7 +1,7 @@
 import React from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {View, Text} from 'react-native';
-import {HMSPlayer} from '@100mslive/react-native-hms';
+import {HMSHLSPlayer} from '@100mslive/react-native-hms';
 import type {HMSRoom} from '@100mslive/react-native-hms';
 
 import {styles} from './styles';
@@ -37,7 +37,7 @@ const HLSView = ({room}: HLSViewProps) => {
         room?.hlsStreamingState?.variants?.slice(0, 1)?.map((variant, index) =>
           variant?.hlsStreamUrl ? (
             <View key={index} style={{flex: 1, position: 'relative'}}>
-              <HMSPlayer
+              <HMSHLSPlayer
                 aspectRatio={hlsAspectRatio.value}
                 enableStats={showHLSStats}
                 enableControls={enableHLSPlayerControls}

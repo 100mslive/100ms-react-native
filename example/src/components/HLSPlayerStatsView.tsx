@@ -1,6 +1,6 @@
 import React from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
-import {useHLSPlayerStats} from '@100mslive/react-native-hms';
+import {useHMSHLSPlayerStats} from '@100mslive/react-native-hms';
 
 export interface HLSPlayerStatsViewProps {
   onClosePress?: () => void;
@@ -9,7 +9,7 @@ export interface HLSPlayerStatsViewProps {
 export const HLSPlayerStatsView: React.FC<HLSPlayerStatsViewProps> = ({
   onClosePress,
 }) => {
-  const stats = useHLSPlayerStats();
+  const stats = useHMSHLSPlayerStats();
 
   return (
     <View style={styles.container}>
