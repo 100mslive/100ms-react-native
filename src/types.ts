@@ -1,11 +1,10 @@
-// Base HMS HLSPlayer Event
-// TODO: rename HMSPlayerEvent to HMSHLSPlayerEvent
-type HMSPlayerEvent<T extends string, U> = {
+// Base HMSHLSPlayer Event
+type HMSHLSPlayerEvent<T extends string, U> = {
   event: T;
   data: U;
 };
 
-// #region HMS HLSPlayer Playback Events
+// #region HMSHLSPlayer Playback Events
 
 export enum HMSHLSPlayerPlaybackEventTypes {
   ON_PLAYBACK_CUE_EVENT = 'ON_PLAYBACK_CUE_EVENT',
@@ -13,14 +12,14 @@ export enum HMSHLSPlayerPlaybackEventTypes {
   ON_PLAYBACK_STATE_CHANGE_EVENT = 'ON_PLAYBACK_STATE_CHANGE_EVENT',
 }
 
-export type HMSPlayerPlaybackCueEventData = {
+export type HMSHLSPlayerPlaybackCueEventData = {
   id?: string;
   endDate?: string;
   payloadval?: string;
   startDate: string;
 };
 
-export type HMSPlayerPlaybackFailureEventData = {
+export type HMSHLSPlayerPlaybackFailureEventData = {
   error: {
     errorCode: number;
     errorCodeName: string;
@@ -28,7 +27,7 @@ export type HMSPlayerPlaybackFailureEventData = {
   };
 };
 
-export enum HLSPlayerPlaybackState {
+export enum HMSHLSPlayerPlaybackState {
   BUFFERING = 'buffering',
   FAILED = 'failed',
   PAUSED = 'paused',
@@ -37,29 +36,29 @@ export enum HLSPlayerPlaybackState {
   UNKNOWN = 'unknown',
 }
 
-export type HMSPlayerPlaybackStateChangeEventData = {
-  state: HLSPlayerPlaybackState;
+export type HMSHLSPlayerPlaybackStateChangeEventData = {
+  state: HMSHLSPlayerPlaybackState;
 };
 
-type HMSPlayerPlaybackCueEvent = HMSPlayerEvent<
+type HMSHLSPlayerPlaybackCueEvent = HMSHLSPlayerEvent<
   HMSHLSPlayerPlaybackEventTypes.ON_PLAYBACK_CUE_EVENT,
-  HMSPlayerPlaybackCueEventData
+  HMSHLSPlayerPlaybackCueEventData
 >;
 
-type HMSPlayerPlaybackFailureEvent = HMSPlayerEvent<
+type HMSHLSPlayerPlaybackFailureEvent = HMSHLSPlayerEvent<
   HMSHLSPlayerPlaybackEventTypes.ON_PLAYBACK_FAILURE_EVENT,
-  HMSPlayerPlaybackFailureEventData
+  HMSHLSPlayerPlaybackFailureEventData
 >;
 
-type HMSPlayerPlaybackStateChangeEvent = HMSPlayerEvent<
+type HMSHLSPlayerPlaybackStateChangeEvent = HMSHLSPlayerEvent<
   HMSHLSPlayerPlaybackEventTypes.ON_PLAYBACK_STATE_CHANGE_EVENT,
-  HMSPlayerPlaybackStateChangeEventData
+  HMSHLSPlayerPlaybackStateChangeEventData
 >;
 
-export type HMSPlayerPlaybackEvent =
-  | HMSPlayerPlaybackCueEvent
-  | HMSPlayerPlaybackFailureEvent
-  | HMSPlayerPlaybackStateChangeEvent;
+export type HMSHLSPlayerPlaybackEvent =
+  | HMSHLSPlayerPlaybackCueEvent
+  | HMSHLSPlayerPlaybackFailureEvent
+  | HMSHLSPlayerPlaybackStateChangeEvent;
 
 // #endregion HMS HLSPlayer Playback Events
 
@@ -70,7 +69,7 @@ export enum HMSHLSPlayerStatsEventTypes {
   ON_STATS_EVENT_UPDATE = 'ON_STATS_EVENT_UPDATE',
 }
 
-export type HMSPlayerStatsErrorEventData = {
+export type HMSHLSPlayerStatsErrorEventData = {
   action: string;
   code: number;
   description: string;
@@ -79,7 +78,7 @@ export type HMSPlayerStatsErrorEventData = {
   name: string;
 };
 
-export type HMSPlayerStatsUpdateEventData = {
+export type HMSHLSPlayerStatsUpdateEventData = {
   // bandwidth
   bandWidthEstimate: number;
   totalBytesLoaded: number;
@@ -114,19 +113,19 @@ export type HMSPlayerStatsUpdateEventData = {
   videoWidth: number;
 };
 
-type HMSPlayerStatsErrorEvent = HMSPlayerEvent<
+type HMSHLSPlayerStatsErrorEvent = HMSHLSPlayerEvent<
   HMSHLSPlayerStatsEventTypes.ON_STATS_EVENT_ERROR,
-  HMSPlayerStatsErrorEventData
+  HMSHLSPlayerStatsErrorEventData
 >;
 
-type HMSPlayerStatsUpdateEvent = HMSPlayerEvent<
+type HMSHLSPlayerStatsUpdateEvent = HMSHLSPlayerEvent<
   HMSHLSPlayerStatsEventTypes.ON_STATS_EVENT_UPDATE,
-  HMSPlayerStatsUpdateEventData
+  HMSHLSPlayerStatsUpdateEventData
 >;
 
-export type HMSPlayerStatsEvent =
-  | HMSPlayerStatsErrorEvent
-  | HMSPlayerStatsUpdateEvent;
+export type HMSHLSPlayerStatsEvent =
+  | HMSHLSPlayerStatsErrorEvent
+  | HMSHLSPlayerStatsUpdateEvent;
 
 // #endregion HMS HLSPlayer Stats Events
 

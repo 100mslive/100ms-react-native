@@ -11,6 +11,6 @@ class HmssdkPackage : ReactPackage {
   }
 
   override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager<*, *>> {
-    return listOf<ViewManager<*, *>>(HMSSDKViewManager(), HMSSDKPlayerManager())
+    return listOf<ViewManager<*, *>>(HMSSDKViewManager(), HMSHLSPlayerManager())
   }
 }

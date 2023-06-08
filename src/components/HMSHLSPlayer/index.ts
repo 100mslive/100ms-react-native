@@ -1,9 +1,9 @@
-export * from './HMSPlayer';
+export * from './HMSHLSPlayer';
 export {
-  useHLSPlayerPlaybackState,
-  useHLSPlayerCue,
-  useHLSPlayerPlaybackError,
-  useHLSPlayerStats,
-  useHLSPlayerStat,
-  useHLSPlayerStatsError,
+  useHMSHLSPlayerPlaybackState,
+  useHMSHLSPlayerCue,
+  useHMSHLSPlayerPlaybackError,
+  useHMSHLSPlayerStats,
+  useHMSHLSPlayerStat,
+  useHMSHLSPlayerStatsError,
 } from './hooks';

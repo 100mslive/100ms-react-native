@@ -2,10 +2,12 @@ import HMSSDK
 import HMSHLSPlayerSDK
 import AVKit.AVPlayerViewController
 
-@objc(HMSPlayerManager)
-class HMSPlayerManager: RCTViewManager {
-    override func view() -> (HMSPlayer) {
-        let view = HMSPlayer()
+typealias HmsHlsPlayer = HMSHLSPlayerSDK.HMSHLSPlayer
+
+@objc(HMSHLSPlayerManager)
+class HMSHLSPlayerManager: RCTViewManager {
+    override func view() -> (HMSHLSPlayer) {
+        let view = HMSHLSPlayer()
         let hms = getHmsFromBridge()
 
         view.setHms(hms)
@@ -23,27 +25,27 @@ class HMSPlayerManager: RCTViewManager {
     }
 }
 
-class HMSPlayer: UIView {
+class HMSHLSPlayer: UIView {
     // MARK: class instance properties
     var hlsStatsTimerRef: Timer?
     var eventController: HLSPlaybackEventController?
     var hmsHLSPlayerViewController: AVPlayerViewController?
-    lazy var hmsHLSPlayer = HMSHLSPlayer()
+    lazy var hmsHLSPlayer = HmsHlsPlayer()
 
-    // MARK: Handle HMSRNSDK Instance in HLSPlayer instance
+    // MARK: Handle HMSRNSDK Instance in HMSHLSPlayer instance
     var hmsCollection = [String: HMSRNSDK]()
 
     func setHms(_ hmsInstance: [String: HMSRNSDK]) {
         hmsCollection = hmsInstance
     }
 
-    // MARK: Handle HMSPlayer RN Component props
+    // MARK: Handle HMSHLSPlayer RN Component props
 
     @objc var onHmsHlsPlaybackEvent: RCTDirectEventBlock?
 
     @objc var onHmsHlsStatsEvent: RCTDirectEventBlock?
 
-    // TODO: Handle the case when Stream is started after HLSPlayer has mounted
+    // TODO: Handle the case when Stream is started after HMSHLSPlayer has mounted
     @objc var url: String? {
         didSet {
             if let validURLString = url, !validURLString.isEmpty {
@@ -171,7 +173,7 @@ class HMSPlayer: UIView {
                 data["videoHeight"] = statsMonitor.videoSize.height
                 data["videoWidth"] = statsMonitor.videoSize.width
 
-                self.sendHLSStatsEventToJS(HMSPlayerConstants.ON_STATS_EVENT_UPDATE, data)
+                self.sendHLSStatsEventToJS(HMSHLSPlayerConstants.ON_STATS_EVENT_UPDATE, data)
             }
         }
     }
@@ -190,7 +192,7 @@ class HMSPlayer: UIView {
             data["payloadval"] = payload
         }
 
-        sendHLSPlaybackEventToJS(HMSPlayerConstants.ON_PLAYBACK_CUE_EVENT, data)
+        sendHLSPlaybackEventToJS(HMSHLSPlayerConstants.ON_PLAYBACK_CUE_EVENT, data)
     }
 
     fileprivate func onPlaybackFailure(error: Error) {
@@ -204,7 +206,7 @@ class HMSPlayer: UIView {
             "message": error.localizedDescription
         ]
 
-        sendHLSPlaybackEventToJS(HMSPlayerConstants.ON_PLAYBACK_FAILURE_EVENT, data)
+        sendHLSPlaybackEventToJS(HMSHLSPlayerConstants.ON_PLAYBACK_FAILURE_EVENT, data)
     }
 
     fileprivate func onPlaybackStateChanged(state: HMSHLSPlaybackState) {
@@ -214,31 +216,31 @@ class HMSPlayer: UIView {
 
         data["state"] = state.description
 
-        sendHLSPlaybackEventToJS(HMSPlayerConstants.ON_PLAYBACK_STATE_CHANGE_EVENT, data)
+        sendHLSPlaybackEventToJS(HMSHLSPlayerConstants.ON_PLAYBACK_STATE_CHANGE_EVENT, data)
     }
 }
 
 class HLSPlaybackEventController: HMSHLSPlayerDelegate {
-    weak var hmsPlayerDelegate: HMSPlayer?
+    weak var hmsHlsPlayerDelegate: HMSHLSPlayer?
 
-    init(_ hmsPlayerDelegate: HMSPlayer) {
-        self.hmsPlayerDelegate = hmsPlayerDelegate
+    init(_ hmsPlayerDelegate: HMSHLSPlayer) {
+        self.hmsHlsPlayerDelegate = hmsPlayerDelegate
     }
 
     func onPlaybackStateChanged(state: HMSHLSPlaybackState) {
-        hmsPlayerDelegate?.onPlaybackStateChanged(state: state)
+        hmsHlsPlayerDelegate?.onPlaybackStateChanged(state: state)
     }
 
     func onCue(cue: HMSHLSCue) {
-        hmsPlayerDelegate?.onCue(cue: cue)
+        hmsHlsPlayerDelegate?.onCue(cue: cue)
     }
 
     func onPlaybackFailure(error: Error) {
-        hmsPlayerDelegate?.onPlaybackFailure(error: error)
+        hmsHlsPlayerDelegate?.onPlaybackFailure(error: error)
     }
 }
 
-enum HMSPlayerConstants {
+enum HMSHLSPlayerConstants {
     // HLS Playback Events
     static let ON_PLAYBACK_CUE_EVENT = "ON_PLAYBACK_CUE_EVENT"
     static let ON_PLAYBACK_FAILURE_EVENT = "ON_PLAYBACK_FAILURE_EVENT"

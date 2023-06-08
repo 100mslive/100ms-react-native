@@ -19,5 +19,5 @@ Pod::Spec.new do |s|
   s.dependency "React-Core"
   s.dependency "HMSSDK", sdkVersions["ios"]
   s.dependency 'HMSBroadcastExtensionSDK', sdkVersions["iOSBroadcastExtension"]
-  s.dependency 'HMSHLSPlayerSDK', sdkVersions["iOSHLSPlayer"]
+  s.dependency 'HMSHLSPlayerSDK', sdkVersions["iOSHMSHLSPlayer"]
 end

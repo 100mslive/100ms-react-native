@@ -3,26 +3,26 @@ import { View, StyleSheet } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 
 import {
-  setHLSPlayerCue,
-  setHLSPlayerPlaybackError,
-  setHLSPlayerPlaybackState,
-  setHLSPlayerStats,
-  setHLSPlayerStatsError,
+  setHMSHLSPlayerCue,
+  setHMSHLSPlayerPlaybackError,
+  setHMSHLSPlayerPlaybackState,
+  setHMSHLSPlayerStats,
+  setHMSHLSPlayerStatsError,
 } from './hooks';
 import {
   HmsHlsPlaybackEventHandler,
   HmsHlsStatsEventHandler,
-  RCTHMSPlayer,
-} from './RCTHMSPlayer';
+  RCTHMSHLSPlayer,
+} from './RCTHMSHLSPlayer';
 import {
   HMSHLSPlayerPlaybackEventTypes,
   HMSHLSPlayerStatsEventTypes,
 } from '../../types';
-import type { HMSPlayerPlaybackCueEventData } from '../../types';
+import type { HMSHLSPlayerPlaybackCueEventData } from '../../types';
 import { HMSEncoder } from '../../classes/HMSEncoder';
-import type { HLSPlayerPlaybackCue } from '../../stores/types';
+import type { HMSHLSPlayerPlaybackCue } from '../../stores/types';
 
-export interface HMSPlayerProps {
+export interface HMSHLSPlayerProps {
   url?: string;
   style?: StyleProp<ViewStyle>;
   containerStyle?: StyleProp<ViewStyle>;
@@ -31,7 +31,7 @@ export interface HMSPlayerProps {
   enableControls?: boolean;
 }
 
-export const HMSPlayer: React.FC<HMSPlayerProps> = ({
+export const HMSHLSPlayer: React.FC<HMSHLSPlayerProps> = ({
   url = '',
   style,
   containerStyle,
@@ -47,16 +47,16 @@ export const HMSPlayer: React.FC<HMSPlayerProps> = ({
 
     if (event === HMSHLSPlayerPlaybackEventTypes.ON_PLAYBACK_CUE_EVENT) {
       const transformedData = HMSEncoder.transformHMSHLSCueEventData<
-        HMSPlayerPlaybackCueEventData,
-        HLSPlayerPlaybackCue
+        HMSHLSPlayerPlaybackCueEventData,
+        HMSHLSPlayerPlaybackCue
       >(data);
-      setHLSPlayerCue(transformedData);
+      setHMSHLSPlayerCue(transformedData);
     } else if (
       event === HMSHLSPlayerPlaybackEventTypes.ON_PLAYBACK_FAILURE_EVENT
     ) {
-      setHLSPlayerPlaybackError(data.error);
+      setHMSHLSPlayerPlaybackError(data.error);
     } else {
-      setHLSPlayerPlaybackState(data.state);
+      setHMSHLSPlayerPlaybackState(data.state);
     }
   };
 
@@ -65,16 +65,16 @@ export const HMSPlayer: React.FC<HMSPlayerProps> = ({
     const { event, data } = nativeEvent;
 
     if (event === HMSHLSPlayerStatsEventTypes.ON_STATS_EVENT_ERROR) {
-      setHLSPlayerStatsError(data);
+      setHMSHLSPlayerStatsError(data);
     } else {
-      setHLSPlayerStats(data);
+      setHMSHLSPlayerStats(data);
     }
   };
 
   return (
     <View style={[styles.container, containerStyle]}>
       <View style={[styles.playerWrapper, style]}>
-        <RCTHMSPlayer
+        <RCTHMSHLSPlayer
           url={url}
           style={[styles.player, { aspectRatio }]}
           enableStats={enableStats}
