@@ -1,4 +1,5 @@
 import { DependencyList, useEffect } from 'react';
+import { shallow } from 'zustand/shallow';
 
 import { useHMSHLSPlayerStatsStore } from '../../stores/hls-player-stats-store';
 import { useHMSStore } from '../../stores/hms-store';
@@ -16,7 +17,13 @@ export const useHMSHLSPlayerPlaybackState = () => {
 };
 
 export const useHMSHLSPlayerStats = () => {
-  return useHMSHLSPlayerStatsStore((state) => state.stats);
+  return useHMSHLSPlayerStatsStore(
+    (state) => ({
+      stats: state.stats,
+      error: state.error,
+    }),
+    shallow
+  );
 };
 
 export const useHMSHLSPlayerStat = <
