@@ -45,7 +45,6 @@ class HMSHLSPlayer: UIView {
 
     @objc var onHmsHlsStatsEvent: RCTDirectEventBlock?
 
-    // TODO: Handle the case when Stream is started after HMSHLSPlayer has mounted
     @objc var url: String? {
         didSet {
             if let validURLString = url, !validURLString.isEmpty {

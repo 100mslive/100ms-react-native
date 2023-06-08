@@ -123,8 +123,6 @@ class HMSHLSPlayer(context: ReactContext) : FrameLayout(context) {
 
     // setting 100ms HLS Player on Exoplayer
     localPlayerView.player = localHmsHlsPlayer.getNativePlayer()
-
-    // TODO: handle the case when HMSHLSPlayer is mounted before stream start
   }
 
   fun cleanup() {
