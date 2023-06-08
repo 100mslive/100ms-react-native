@@ -1,43 +1,45 @@
 import { DependencyList, useEffect } from 'react';
 
-import { useHLSPlayerStatsStore } from '../../stores/hls-player-stats-store';
+import { useHMSHLSPlayerStatsStore } from '../../stores/hls-player-stats-store';
 import { useHMSStore } from '../../stores/hms-store';
-import type { HMSPlayerStatsUpdateEventData } from '../../types';
+import type { HMSHLSPlayerStatsUpdateEventData } from '../../types';
 import type {
-  HLSPlayerCue,
-  HLSPlayerPlaybackError,
-  HLSPlayerStatsError,
+  HMSHLSPlayerCue,
+  HMSHLSPlayerPlaybackError,
+  HMSHLSPlayerStatsError,
 } from '../../stores/types';
 
 // use latest state (with component rerender)
 
-export const useHLSPlayerPlaybackState = () => {
+export const useHMSHLSPlayerPlaybackState = () => {
   return useHMSStore((state) => state.playbackState);
 };
 
-export const useHLSPlayerStats = () => {
-  return useHLSPlayerStatsStore((state) => state.stats);
+export const useHMSHLSPlayerStats = () => {
+  return useHMSHLSPlayerStatsStore((state) => state.stats);
 };
 
-export const useHLSPlayerStat = <T extends keyof HMSPlayerStatsUpdateEventData>(
+export const useHMSHLSPlayerStat = <
+  T extends keyof HMSHLSPlayerStatsUpdateEventData
+>(
   stat: T
 ) => {
-  return useHLSPlayerStatsStore((state) => state.stats[stat]);
+  return useHMSHLSPlayerStatsStore((state) => state.stats[stat]);
 };
 
 // // The distance of current playback position from the live edge of HLS stream
 // export const useIsHLSStreamLive = (liveOffsetMillis: number = 1000) => {
-//   return useHLSPlayerStatsStore((state) => state.stats.distanceFromLive < liveOffsetMillis);
+//   return useHMSHLSPlayerStatsStore((state) => state.stats.distanceFromLive < liveOffsetMillis);
 // }
 
 // get latest state (without component rerender)
 
-export const useHLSPlayerStatsError = (
-  callback: (error: NonNullable<HLSPlayerStatsError>) => void,
+export const useHMSHLSPlayerStatsError = (
+  callback: (error: NonNullable<HMSHLSPlayerStatsError>) => void,
   deps: DependencyList
 ) => {
   useEffect(() => {
-    return useHLSPlayerStatsStore.subscribe(
+    return useHMSHLSPlayerStatsStore.subscribe(
       (state) => state.error,
       (data) => {
         if (data) callback(data);
@@ -46,8 +48,8 @@ export const useHLSPlayerStatsError = (
   }, deps);
 };
 
-export const useHLSPlayerPlaybackError = (
-  callback: (error: NonNullable<HLSPlayerPlaybackError>) => void,
+export const useHMSHLSPlayerPlaybackError = (
+  callback: (error: NonNullable<HMSHLSPlayerPlaybackError>) => void,
   deps: DependencyList
 ) => {
   useEffect(() => {
@@ -60,8 +62,8 @@ export const useHLSPlayerPlaybackError = (
   }, deps);
 };
 
-export const useHLSPlayerCue = (
-  callback: (error: NonNullable<HLSPlayerCue>) => void,
+export const useHMSHLSPlayerCue = (
+  callback: (error: NonNullable<HMSHLSPlayerCue>) => void,
   deps: DependencyList
 ) => {
   useEffect(() => {
@@ -76,15 +78,16 @@ export const useHLSPlayerCue = (
 
 // state setters
 
-export const setHLSPlayerPlaybackState =
+export const setHMSHLSPlayerPlaybackState =
   useHMSStore.getState().setPlaybackState;
 
-export const setHLSPlayerCue = useHMSStore.getState().setCue;
+export const setHMSHLSPlayerCue = useHMSStore.getState().setCue;
 
-export const setHLSPlayerPlaybackError =
+export const setHMSHLSPlayerPlaybackError =
   useHMSStore.getState().setPlaybackError;
 
-export const setHLSPlayerStats = useHLSPlayerStatsStore.getState().changeStats;
+export const setHMSHLSPlayerStats =
+  useHMSHLSPlayerStatsStore.getState().changeStats;
 
-export const setHLSPlayerStatsError =
-  useHLSPlayerStatsStore.getState().setError;
+export const setHMSHLSPlayerStatsError =
+  useHMSHLSPlayerStatsStore.getState().setError;

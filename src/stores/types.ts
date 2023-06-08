@@ -1,47 +1,49 @@
 // Stores
 
 import type {
-  HLSPlayerPlaybackState,
-  HMSPlayerPlaybackCueEventData,
-  HMSPlayerPlaybackFailureEventData,
-  HMSPlayerStatsErrorEventData,
-  HMSPlayerStatsUpdateEventData,
+  HMSHLSPlayerPlaybackState,
+  HMSHLSPlayerPlaybackCueEventData,
+  HMSHLSPlayerPlaybackFailureEventData,
+  HMSHLSPlayerStatsErrorEventData,
+  HMSHLSPlayerStatsUpdateEventData,
 } from '../types';
 
-export type HMSStore = HLSPlayerPlaybackSlice;
-export type HLSPlayerStatsStore = HLSPlayerStatsSlice;
+export type HMSStore = HMSHLSPlayerPlaybackSlice;
+export type HMSHLSPlayerStatsStore = HMSHLSPlayerStatsSlice;
 
 // HLS Player Playback Slice
 
-export interface HLSPlayerPlaybackCue
-  extends Omit<HMSPlayerPlaybackCueEventData, 'endDate' | 'startDate'> {
+export interface HMSHLSPlayerPlaybackCue
+  extends Omit<HMSHLSPlayerPlaybackCueEventData, 'endDate' | 'startDate'> {
   endDate?: Date;
   startDate: Date;
 }
 
-export type HLSPlayerCue = HLSPlayerPlaybackCue | undefined;
+export type HMSHLSPlayerCue = HMSHLSPlayerPlaybackCue | undefined;
 
-export type HLSPlayerPlaybackError =
-  | HMSPlayerPlaybackFailureEventData['error']
+export type HMSHLSPlayerPlaybackError =
+  | HMSHLSPlayerPlaybackFailureEventData['error']
   | undefined;
 
-export interface HLSPlayerPlaybackSlice {
-  cue: HLSPlayerCue;
-  playbackState: HLSPlayerPlaybackState;
-  error: HLSPlayerPlaybackError;
-  setCue(cue: HLSPlayerPlaybackCue): void;
-  setPlaybackState(playbackState: HLSPlayerPlaybackState): void;
-  setPlaybackError(error: HLSPlayerPlaybackError): void;
+export interface HMSHLSPlayerPlaybackSlice {
+  cue: HMSHLSPlayerCue;
+  playbackState: HMSHLSPlayerPlaybackState;
+  error: HMSHLSPlayerPlaybackError;
+  setCue(cue: HMSHLSPlayerPlaybackCue): void;
+  setPlaybackState(playbackState: HMSHLSPlayerPlaybackState): void;
+  setPlaybackError(error: HMSHLSPlayerPlaybackError): void;
 }
 
 // HLS Player Stats Slice
 
-export type HLSPlayerStats = HMSPlayerStatsUpdateEventData;
-export type HLSPlayerStatsError = HMSPlayerStatsErrorEventData | undefined;
+export type HMSHLSPlayerStats = HMSHLSPlayerStatsUpdateEventData;
+export type HMSHLSPlayerStatsError =
+  | HMSHLSPlayerStatsErrorEventData
+  | undefined;
 
-export interface HLSPlayerStatsSlice {
-  stats: HLSPlayerStats;
-  error: HLSPlayerStatsError | undefined;
-  changeStats(stats: HLSPlayerStats): void;
-  setError(error: HLSPlayerStatsError): void;
+export interface HMSHLSPlayerStatsSlice {
+  stats: HMSHLSPlayerStats;
+  error: HMSHLSPlayerStatsError | undefined;
+  changeStats(stats: HMSHLSPlayerStats): void;
+  setError(error: HMSHLSPlayerStatsError): void;
 }

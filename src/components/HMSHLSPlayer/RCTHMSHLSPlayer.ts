@@ -4,17 +4,20 @@ import {
   NativeSyntheticEvent,
   ViewStyle,
 } from 'react-native';
-import type { HMSPlayerPlaybackEvent, HMSPlayerStatsEvent } from '../../types';
+import type {
+  HMSHLSPlayerPlaybackEvent,
+  HMSHLSPlayerStatsEvent,
+} from '../../types';
 
 export type HmsHlsPlaybackEventHandler = (
-  event: NativeSyntheticEvent<HMSPlayerPlaybackEvent>
+  event: NativeSyntheticEvent<HMSHLSPlayerPlaybackEvent>
 ) => void;
 
 export type HmsHlsStatsEventHandler = (
-  event: NativeSyntheticEvent<HMSPlayerStatsEvent>
+  event: NativeSyntheticEvent<HMSHLSPlayerStatsEvent>
 ) => void;
 
-export type RCTHMSPlayerProps = {
+export type RCTHMSHLSPlayerProps = {
   url?: string;
   style?: StyleProp<ViewStyle>;
   enableStats?: boolean;
@@ -23,5 +26,5 @@ export type RCTHMSPlayerProps = {
   onHmsHlsStatsEvent?: HmsHlsStatsEventHandler;
 };
 
-export const RCTHMSPlayer =
-  requireNativeComponent<RCTHMSPlayerProps>('HMSPlayer');
+export const RCTHMSHLSPlayer =
+  requireNativeComponent<RCTHMSHLSPlayerProps>('HMSHLSPlayer');

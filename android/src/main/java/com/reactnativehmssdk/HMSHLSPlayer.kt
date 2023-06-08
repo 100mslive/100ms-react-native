@@ -16,9 +16,9 @@ import live.hms.video.error.HMSException
 import live.hms.video.sdk.HMSSDK
 
 @SuppressLint("ViewConstructor")
-class HMSPlayer(context: ReactContext) : FrameLayout(context) {
+class HMSHLSPlayer(context: ReactContext) : FrameLayout(context) {
   private var playerView: PlayerView? = null // Exoplayer View
-  private var hlsPlayer: HmsHlsPlayer? = null // 100ms HLS Player
+  private var hmsHlsPlayer: HmsHlsPlayer? = null // 100ms HLS Player
   private var hmssdkInstance: HMSSDK? = null
   private var statsMonitorAttached = false
   private val hmsHlsPlaybackEventsObject = object : HmsHlsPlaybackEvents {
@@ -31,7 +31,7 @@ class HMSPlayer(context: ReactContext) : FrameLayout(context) {
       cue.payloadval?.let { data.putString("payloadval", it) }
       data.putString("startDate", cue.startDate.time.toString())
 
-      sendHLSPlaybackEventToJS(HMSPlayerConstants.ON_PLAYBACK_CUE_EVENT, data)
+      sendHLSPlaybackEventToJS(HMSHLSPlayerConstants.ON_PLAYBACK_CUE_EVENT, data)
     }
 
     override fun onPlaybackFailure(error: HmsHlsException) {
@@ -49,7 +49,7 @@ class HMSPlayer(context: ReactContext) : FrameLayout(context) {
 
       data.putMap("error", errorData)
 
-      sendHLSPlaybackEventToJS(HMSPlayerConstants.ON_PLAYBACK_FAILURE_EVENT, data)
+      sendHLSPlaybackEventToJS(HMSHLSPlayerConstants.ON_PLAYBACK_FAILURE_EVENT, data)
     }
 
     override fun onPlaybackStateChanged(state: HmsHlsPlaybackState) {
@@ -57,7 +57,7 @@ class HMSPlayer(context: ReactContext) : FrameLayout(context) {
 
       val data = Arguments.createMap()
       data.putString("state", state.name)
-      sendHLSPlaybackEventToJS(HMSPlayerConstants.ON_PLAYBACK_STATE_CHANGE_EVENT, data)
+      sendHLSPlaybackEventToJS(HMSHLSPlayerConstants.ON_PLAYBACK_STATE_CHANGE_EVENT, data)
     }
   }
   private val hmsHlsPlayerStatsListenerObject = object : PlayerStatsListener {
@@ -71,7 +71,7 @@ class HMSPlayer(context: ReactContext) : FrameLayout(context) {
       data.putString("message", error.message)
       data.putString("name", error.name)
 
-      sendHLSStatsEventToJS(HMSPlayerConstants.ON_STATS_EVENT_ERROR, data)
+      sendHLSStatsEventToJS(HMSHLSPlayerConstants.ON_STATS_EVENT_ERROR, data)
     }
 
     override fun onEventUpdate(playerStatsModel: PlayerStatsModel) {
@@ -97,15 +97,15 @@ class HMSPlayer(context: ReactContext) : FrameLayout(context) {
       data.putInt("videoHeight", playerStatsModel.videoInfo.videoHeight)
       data.putInt("videoWidth", playerStatsModel.videoInfo.videoWidth)
 
-      sendHLSStatsEventToJS(HMSPlayerConstants.ON_STATS_EVENT_UPDATE, data)
+      sendHLSStatsEventToJS(HMSHLSPlayerConstants.ON_STATS_EVENT_UPDATE, data)
     }
   }
 
   init {
     val inflater = getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
-    // Inflating hms_player xml
-    val view = inflater.inflate(R.layout.hms_player, this)
+    // Inflating player_view xml
+    val view = inflater.inflate(R.layout.player_view, this)
 
     // getting Exoplayer View from above xml
     val localPlayerView = view.findViewById<PlayerView>(R.id.hls_view)
@@ -115,27 +115,27 @@ class HMSPlayer(context: ReactContext) : FrameLayout(context) {
     hmssdkInstance = hmssdkCollection?.get("12345")?.hmsSDK
 
     // creating 100ms HLS Player
-    val localHlsPlayer = HmsHlsPlayer(context, hmssdkInstance)
-    hlsPlayer = localHlsPlayer
+    val localHmsHlsPlayer = HmsHlsPlayer(context, hmssdkInstance)
+    hmsHlsPlayer = localHmsHlsPlayer
 
     // Attaching HLS Player Playback State Events listener
-    localHlsPlayer.addPlayerEventListener(hmsHlsPlaybackEventsObject)
+    localHmsHlsPlayer.addPlayerEventListener(hmsHlsPlaybackEventsObject)
 
     // setting 100ms HLS Player on Exoplayer
-    localPlayerView.player = localHlsPlayer.getNativePlayer()
+    localPlayerView.player = localHmsHlsPlayer.getNativePlayer()
 
-    // TODO: handle the case when HMSPlayer is mounted before stream start
+    // TODO: handle the case when HMSHLSPlayer is mounted before stream start
   }
 
   fun cleanup() {
-    hlsPlayer?.stop()
-    hlsPlayer?.addPlayerEventListener(null)
-    hlsPlayer?.setStatsMonitor(null)
+    hmsHlsPlayer?.stop()
+    hmsHlsPlayer?.addPlayerEventListener(null)
+    hmsHlsPlayer?.setStatsMonitor(null)
   }
 
   fun play(url: String?) {
     if (url !== null && url.isNotEmpty()) {
-      hlsPlayer?.play(url)
+      hmsHlsPlayer?.play(url)
       return
     }
 
@@ -150,7 +150,7 @@ class HMSPlayer(context: ReactContext) : FrameLayout(context) {
     }
 
     if (defaultURL !== null) {
-      hlsPlayer?.play(defaultURL)
+      hmsHlsPlayer?.play(defaultURL)
     }
   }
 
@@ -177,7 +177,7 @@ class HMSPlayer(context: ReactContext) : FrameLayout(context) {
   private fun attachStatsMonitor() {
     if (statsMonitorAttached) return
 
-    hlsPlayer?.let {
+    hmsHlsPlayer?.let {
       it.setStatsMonitor(hmsHlsPlayerStatsListenerObject)
       statsMonitorAttached = true
     }
@@ -186,7 +186,7 @@ class HMSPlayer(context: ReactContext) : FrameLayout(context) {
   private fun removeStatsMonitor() {
     if (!statsMonitorAttached) return
 
-    hlsPlayer?.setStatsMonitor(null)
+    hmsHlsPlayer?.setStatsMonitor(null)
     statsMonitorAttached = false
   }
 
@@ -196,7 +196,7 @@ class HMSPlayer(context: ReactContext) : FrameLayout(context) {
     event.putMap("data", data)
 
     val reactContext = context as ReactContext
-    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, HMSPlayerConstants.HMS_HLS_PLAYBACK_EVENT, event)
+    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, HMSHLSPlayerConstants.HMS_HLS_PLAYBACK_EVENT, event)
   }
 
   private fun sendHLSStatsEventToJS(eventName: String, data: WritableMap) {
@@ -205,11 +205,11 @@ class HMSPlayer(context: ReactContext) : FrameLayout(context) {
     event.putMap("data", data)
 
     val reactContext = context as ReactContext
-    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, HMSPlayerConstants.HMS_HLS_STATS_EVENT, event)
+    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, HMSHLSPlayerConstants.HMS_HLS_STATS_EVENT, event)
   }
 }
 
-object HMSPlayerConstants {
+object HMSHLSPlayerConstants {
   // HLS Playback Events
   const val HMS_HLS_PLAYBACK_EVENT = "hmsHlsPlaybackEvent"
   const val ON_PLAYBACK_CUE_EVENT = "ON_PLAYBACK_CUE_EVENT"

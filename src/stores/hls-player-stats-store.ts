@@ -1,12 +1,12 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import type {
-  HLSPlayerStats,
-  HLSPlayerStatsError,
-  HLSPlayerStatsStore,
+  HMSHLSPlayerStats,
+  HMSHLSPlayerStatsError,
+  HMSHLSPlayerStatsStore,
 } from './types';
 
-export const useHLSPlayerStatsStore = create<HLSPlayerStatsStore>()(
+export const useHMSHLSPlayerStatsStore = create<HMSHLSPlayerStatsStore>()(
   subscribeWithSelector((set) => ({
     // Handle Stats
     stats: {
@@ -28,10 +28,10 @@ export const useHLSPlayerStatsStore = create<HLSPlayerStatsStore>()(
       videoHeight: 0,
       videoWidth: 0,
     },
-    changeStats: (stats: HLSPlayerStats) => set({ stats }),
+    changeStats: (stats: HMSHLSPlayerStats) => set({ stats }),
 
     // Handle Stats Error
     error: undefined,
-    setError: (error: HLSPlayerStatsError) => set({ error }),
+    setError: (error: HMSHLSPlayerStatsError) => set({ error }),
   }))
 );

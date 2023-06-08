@@ -1,15 +1,15 @@
 import React from 'react';
 import {useSelector} from 'react-redux';
 import {
-  HLSPlayerPlaybackCue,
+  HMSHLSPlayerPlaybackCue,
   HMSPeer,
-  useHLSPlayerCue,
+  useHMSHLSPlayerCue,
 } from '@100mslive/react-native-hms';
 
 import {Emoticons} from './Emoticon';
 import {RootState} from '../redux';
 
-interface EmoticonMessage extends HLSPlayerPlaybackCue {
+interface EmoticonMessage extends HMSHLSPlayerPlaybackCue {
   payload: {
     type: 'EMOJI_REACTION';
     senderId: string;
@@ -22,7 +22,7 @@ export const HLSPlayerEmoticons = () => {
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
   const [messages, setMessages] = React.useState<EmoticonMessage[]>([]);
 
-  useHLSPlayerCue(cue => {
+  useHMSHLSPlayerCue(cue => {
     if (!hmsInstance) return;
 
     const payloadStr = cue.payloadval;

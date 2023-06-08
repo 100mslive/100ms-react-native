@@ -1,25 +1,25 @@
 import type { StateCreator } from 'zustand';
-import { HLSPlayerPlaybackState } from '../types';
+import { HMSHLSPlayerPlaybackState } from '../types';
 import type {
-  HLSPlayerPlaybackCue,
-  HLSPlayerPlaybackError,
-  HLSPlayerPlaybackSlice,
+  HMSHLSPlayerPlaybackCue,
+  HMSHLSPlayerPlaybackError,
+  HMSHLSPlayerPlaybackSlice,
   HMSStore,
 } from './types';
 
-export const createHLSPlayerPlaybackSlice: StateCreator<
+export const createHMSHLSPlayerPlaybackSlice: StateCreator<
   HMSStore,
   [],
   [],
-  HLSPlayerPlaybackSlice
+  HMSHLSPlayerPlaybackSlice
 > = (set) => ({
   cue: undefined,
-  setCue: (cue: HLSPlayerPlaybackCue) => set({ cue }),
+  setCue: (cue: HMSHLSPlayerPlaybackCue) => set({ cue }),
 
-  playbackState: HLSPlayerPlaybackState.UNKNOWN,
-  setPlaybackState: (playbackState: HLSPlayerPlaybackState) =>
+  playbackState: HMSHLSPlayerPlaybackState.UNKNOWN,
+  setPlaybackState: (playbackState: HMSHLSPlayerPlaybackState) =>
     set({ playbackState }),
 
   error: undefined,
-  setPlaybackError: (error: HLSPlayerPlaybackError) => set({ error }),
+  setPlaybackError: (error: HMSHLSPlayerPlaybackError) => set({ error }),
 });
