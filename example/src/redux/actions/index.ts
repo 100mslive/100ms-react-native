@@ -109,6 +109,11 @@ export const changeAutoSimulcast = (value: boolean) => ({
   payload: {autoSimulcast: value},
 });
 
+export const changeUsePrebuilt = (value: boolean) => ({
+  type: actionTypes.CHANGE_USE_PREBUILT,
+  payload: {usePrebuilt: value},
+});
+
 export const setRTCStats = (
   trackId: string,
   stats:

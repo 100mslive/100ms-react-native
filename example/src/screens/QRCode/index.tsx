@@ -7,6 +7,7 @@ import {
   Platform,
   ScrollView,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
@@ -14,8 +15,9 @@ import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Toast from 'react-native-simple-toast';
 
 import type {AppStackParamList} from '../../navigator';
 import {styles} from './styles';
@@ -29,6 +31,8 @@ import {
 } from '../../components';
 import {saveUserData} from '../../redux/actions';
 import {Constants} from '../../utils/types';
+import {RootState} from '../../redux';
+import {callService} from '../../utils/functions';
 
 type QRCodeScreenProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -40,9 +44,17 @@ const QRCode = () => {
   const {top, bottom, left, right} = useSafeAreaInsets();
   const dispatch = useDispatch();
 
+  const roomLink = useSelector(
+    (state: RootState) => state.user.roomID || getMeetingUrl(),
+  );
+  const [peerName, setPeerName] = useState<string>('');
   const [joinDisabled, setJoinDisabled] = useState<boolean>(true);
-  const [joiningLink, setJoiningLink] = useState<string>(getMeetingUrl());
+  const [joiningLink, setJoiningLink] = useState<string>('');
   const [moreModalVisible, setMoreModalVisible] = useState(false);
+
+  const usePrebuilt = useSelector(
+    (state: RootState) => state.app.joinConfig.usePrebuilt,
+  );
 
   const onJoinPress = () => {
     if (joiningLink.includes('app.100ms.live/')) {
@@ -52,7 +64,34 @@ const QRCode = () => {
           isHLSFlow: true,
         }),
       );
-      navigate('WelcomeScreen');
+
+      if (usePrebuilt) {
+        callService(
+          joiningLink,
+          (
+            roomCode: string,
+            userId: string,
+            tokenEndpoint: string | undefined,
+            initEndpoint: string | undefined,
+          ) => {
+            navigate('HMSPrebuiltScreen', {
+              roomCode,
+              userName: peerName,
+              userId,
+              endPoints:
+                tokenEndpoint && initEndpoint
+                  ? {init: initEndpoint, token: tokenEndpoint}
+                  : undefined,
+              debugInfo: undefined, // default is false, will deal with this later
+            });
+          },
+          (errorMsg: string) => {
+            Toast.showWithGravity(errorMsg, Toast.LONG, Toast.TOP);
+          },
+        );
+      } else {
+        navigate('WelcomeScreen');
+      }
     } else {
       Alert.alert('Error', 'Invalid URL');
     }
@@ -99,6 +138,12 @@ const QRCode = () => {
     }, []),
   );
 
+  useEffect(() => {
+    if (roomLink) {
+      setJoiningLink(roomLink);
+    }
+  }, [roomLink]);
+
   return (
     <KeyboardAvoidingView
       enabled={Platform.OS === 'ios'}
@@ -132,15 +177,61 @@ const QRCode = () => {
         <View style={styles.joiningLinkInputView}>
           <Text style={styles.joiningLinkInputText}>Joining Link</Text>
         </View>
-        <CustomInput
-          value={joiningLink}
-          onChangeText={setJoiningLink}
-          inputStyle={styles.joiningLinkInput}
-          placeholderTextColor={COLORS.TEXT.DISABLED}
-          placeholder="Paste the link here"
-          multiline
-          blurOnSubmit
-        />
+
+        {usePrebuilt ? (
+          <>
+            <View style={{width: '100%', flexDirection: 'row'}}>
+              <CustomInput
+                value={joiningLink}
+                onChangeText={setJoiningLink}
+                inputStyle={styles.joiningLinkInput}
+                viewStyle={{width: '86%'}}
+                placeholderTextColor={COLORS.TEXT.DISABLED}
+                placeholder="Paste the link here"
+                multiline
+                blurOnSubmit
+              />
+              <TouchableOpacity
+                onPress={onScanQRCodePress}
+                style={{
+                  width: '14%',
+                  marginTop: 8,
+                  backgroundColor: COLORS.PRIMARY.DEFAULT,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 8,
+                }}
+              >
+                <MaterialCommunityIcons
+                  name="qrcode"
+                  style={{color: COLORS.TEXT.HIGH_EMPHASIS_ACCENT}}
+                  size={24}
+                />
+              </TouchableOpacity>
+            </View>
+
+            <CustomInput
+              value={peerName}
+              onChangeText={setPeerName}
+              textStyle={styles.userNameInputText}
+              viewStyle={styles.userNameInputView}
+              inputStyle={styles.userNameInput}
+              placeholderTextColor={COLORS.TEXT.DISABLED}
+              placeholder="Enter your name"
+              title="Name"
+            />
+          </>
+        ) : (
+          <CustomInput
+            value={joiningLink}
+            onChangeText={setJoiningLink}
+            inputStyle={styles.joiningLinkInput}
+            placeholderTextColor={COLORS.TEXT.DISABLED}
+            placeholder="Paste the link here"
+            multiline
+            blurOnSubmit
+          />
+        )}
         <View style={{flexDirection: 'row'}}>
           <CustomButton
             title="Join Now"
@@ -164,20 +255,24 @@ const QRCode = () => {
             }
           />
         </View>
-        <View style={styles.horizontalSeparator} />
-        <CustomButton
-          title="Scan QR Code"
-          onPress={onScanQRCodePress}
-          viewStyle={styles.scanQRButton}
-          textStyle={styles.joinButtonText}
-          LeftIcon={
-            <MaterialCommunityIcons
-              name="qrcode"
-              style={styles.scanQRButtonIcon}
-              size={24}
+        {!usePrebuilt ? (
+          <>
+            <View style={styles.horizontalSeparator} />
+            <CustomButton
+              title="Scan QR Code"
+              onPress={onScanQRCodePress}
+              viewStyle={styles.scanQRButton}
+              textStyle={styles.joinButtonText}
+              LeftIcon={
+                <MaterialCommunityIcons
+                  name="qrcode"
+                  style={styles.scanQRButtonIcon}
+                  size={24}
+                />
+              }
             />
-          }
-        />
+          </>
+        ) : null}
       </ScrollView>
 
       <DefaultModal

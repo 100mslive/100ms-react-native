@@ -25,6 +25,7 @@ type IntialStateType = {
     | HMSRemoteVideoStats
   >;
   joinConfig: {
+    usePrebuilt: boolean;
     mutedAudio: boolean;
     mutedVideo: boolean;
     mirrorCamera: boolean;
@@ -43,6 +44,7 @@ const INITIAL_STATE: IntialStateType = {
   pipModeStatus: PipModes.INACTIVE,
   rtcStats: {},
   joinConfig: {
+    usePrebuilt: true,
     mutedAudio: true,
     mutedVideo: true,
     mirrorCamera: true,
@@ -147,6 +149,14 @@ const appReducer = (
         joinConfig: {
           ...state.joinConfig,
           autoSimulcast: action.payload.autoSimulcast ?? true,
+        },
+      };
+    case ActionTypes.CHANGE_USE_PREBUILT:
+      return {
+        ...state,
+        joinConfig: {
+          ...state.joinConfig,
+          usePrebuilt: action.payload.usePrebuilt ?? true,
         },
       };
     case ActionTypes.SET_RTC_STATS:

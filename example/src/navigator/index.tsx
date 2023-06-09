@@ -7,17 +7,25 @@ import {Meeting} from '../screens/MeetingScreen/index';
 // import {Meeting} from '../screens/Meeting';
 import {QRCode} from '../screens/QRCode';
 import {QRCodeScanner} from '../screens/QRCodeScanner';
+import {HMSPrebuiltScreen} from '../screens/HMSPrebuiltScreen';
 
 export type AppStackParamList = {
   WelcomeScreen: undefined;
   MeetingScreen: {isHLSViewer: boolean};
   QRCodeScreen: undefined;
   QRCodeScannerScreen: undefined;
+  HMSPrebuiltScreen: {
+    roomCode: string;
+    userName?: string;
+    userId?: string;
+    endPoints?: {init: string; token: string};
+    debugInfo?: boolean;
+  };
 };
 
 const AppStack = createNativeStackNavigator<AppStackParamList>();
 const navigationOptions = {
-  gestureEnabled: false,
+  gestureEnabled: true,
   headerShown: false,
 };
 
@@ -52,6 +60,11 @@ const AppStackNavigator = () => {
           name="QRCodeScannerScreen"
           component={QRCodeScanner}
           options={navigationOptions}
+        />
+        <AppStack.Screen
+          name="HMSPrebuiltScreen"
+          component={HMSPrebuiltScreen}
+          options={{headerShown: false}}
         />
       </AppStack.Navigator>
     </NavigationContainer>

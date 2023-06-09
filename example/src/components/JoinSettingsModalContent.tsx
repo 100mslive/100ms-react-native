@@ -35,6 +35,7 @@ import {
   changeAutoSimulcast,
   resetJoinConfig,
   changeMusicMode,
+  changeUsePrebuilt,
 } from '../redux/actions';
 
 interface JoinSettingsModalContentProps {}
@@ -55,6 +56,7 @@ export const JoinSettingsModalContent: React.FC<
     softwareDecoder,
     autoResize,
     autoSimulcast,
+    usePrebuilt,
   } = joinConfig;
 
   return (
@@ -65,6 +67,20 @@ export const JoinSettingsModalContent: React.FC<
 
       <ScrollView>
         <View>
+          <SwitchRow
+            text="Use Prebuilt"
+            value={usePrebuilt}
+            onChange={value => dispatch(changeUsePrebuilt(value))}
+            LeftIcon={
+              <MaterialCommunityIcons
+                name="package-variant-closed"
+                size={24}
+                style={styles.icon}
+              />
+            }
+            containerStyle={styles.switchContainer}
+          />
+
           <SwitchRow
             text="Join with Muted Audio"
             value={mutedAudio}

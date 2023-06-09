@@ -6,9 +6,11 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {BarCodeReadEvent, RNCamera} from 'react-native-camera';
 import QRScanner from 'react-native-qrcode-scanner';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
+import Toast from 'react-native-simple-toast';
 
 import type {AppStackParamList} from '../../navigator';
+import type {RootState} from '../../redux';
 import {styles} from './styles';
 import {CustomButton} from '../../components';
 import {saveUserData} from '../../redux/actions';
@@ -23,6 +25,9 @@ const QRCodeScanner = () => {
   const navigate = useNavigation<WelcomeScreenProp>().navigate;
   const goBack = useNavigation<WelcomeScreenProp>().goBack;
   const dispatch = useDispatch();
+  const usePrebuilt = useSelector(
+    (state: RootState) => state.app.joinConfig.usePrebuilt,
+  );
   const {top, bottom, left, right} = useSafeAreaInsets();
 
   const onScanSuccess = (e: BarCodeReadEvent) => {
@@ -39,7 +44,13 @@ const QRCodeScanner = () => {
         roomID: joiningLink,
       }),
     );
-    navigate('WelcomeScreen');
+
+    if (usePrebuilt) {
+      goBack();
+      Toast.showWithGravity('Joining Link Updated!', Toast.LONG, Toast.TOP);
+    } else {
+      navigate('WelcomeScreen');
+    }
   };
 
   return (
@@ -52,7 +63,8 @@ const QRCodeScanner = () => {
           paddingRight: 24 + right,
           paddingBottom: 24 + bottom,
         },
-      ]}>
+      ]}
+    >
       <View style={styles.headerContainer}>
         <TouchableOpacity style={styles.headerIconContainer} onPress={goBack}>
           <Ionicons size={24} style={styles.headerIcon} name="chevron-back" />
