@@ -5,11 +5,11 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import {useSelector} from 'react-redux';
 import type {HMSView} from '@100mslive/react-native-hms';
 
-import {CustomButton} from '../../components';
+import {CustomButton} from '.';
 import {styles} from './styles';
-import type {RootState} from '../../redux';
+import type {RootState} from '../redux';
 import PeerDisplayView, {PeerDisplayViewProps} from './PeerDisplayView';
-import PeerRTCStatsContainer from '../../components/PeerRTCStatsContainer';
+import PeerRTCStatsContainer from './PeerRTCStatsContainer';
 
 interface DisplayTrackProps extends PeerDisplayViewProps {
   videoStyles: StyleProp<ViewStyle>;

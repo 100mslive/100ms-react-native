@@ -1,9 +1,9 @@
 import * as React from 'react';
 
-import type {PeerTrackNode} from '../../utils/types';
+import type {PeerTrackNode} from '../utils/types';
 
 import PeerDisplayView from './PeerDisplayView';
-import {getTrackForPIPView} from '../../utils/functions';
+import {getTrackForPIPView} from '../utils/functions';
 
 type PIPViewProps = {
   pairedPeers: PeerTrackNode[][];

@@ -8,10 +8,10 @@ import type {HMSView} from '@100mslive/react-native-hms';
 
 import {styles} from './styles';
 
-import {getDisplayTrackDimensions, parseMetadata} from '../../utils/functions';
+import {getDisplayTrackDimensions, parseMetadata} from '../utils/functions';
 import {DisplayTrack} from './DisplayTrack';
-import {COLORS} from '../../utils/theme';
-import type {PeerTrackNode} from '../../utils/types';
+import {COLORS} from '../utils/theme';
+import type {PeerTrackNode} from '../utils/types';
 
 interface TileProps {
   totalTilesInContainer: number;

@@ -42,25 +42,23 @@ import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
 
 import {styles} from './styles';
-import {
-  CustomButton,
-  CustomInput,
-  Menu,
-  MenuItem,
-  MenuDivider,
-  CustomPicker,
-} from '../../components';
-import {changeShowStats, saveUserData} from '../../redux/actions';
+
+import {CustomButton} from './CustomButton';
+import {CustomInput} from './CustomInput';
+import {Menu, MenuItem, MenuDivider} from './MenuModal';
+
+import {CustomPicker} from './Picker';
+import {changeShowStats, saveUserData} from '../redux/actions';
 import {
   parseMetadata,
   getInitials,
   requestExternalStoragePermission,
   getTime,
-} from '../../utils/functions';
-import {LayoutParams, ModalTypes, SortingType} from '../../utils/types';
-import {COLORS} from '../../utils/theme';
-import type {RootState} from '../../redux';
-import {SwitchRow} from '../../components/SwitchRow';
+} from '../utils/functions';
+import {LayoutParams, ModalTypes, SortingType} from '../utils/types';
+import {COLORS} from '../utils/theme';
+import type {RootState} from '../redux';
+import {SwitchRow} from './SwitchRow';
 
 export const ParticipantsModal = ({
   instance,

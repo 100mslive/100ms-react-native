@@ -2,9 +2,7 @@ import React, {useEffect} from 'react';
 import {Platform, UIManager} from 'react-native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {NavigationContainer} from '@react-navigation/native';
-import {Welcome} from '../screens/Welcome';
-import {Meeting} from '../screens/MeetingScreen/index';
-// import {Meeting} from '../screens/Meeting';
+
 import {QRCode} from '../screens/QRCode';
 import {QRCodeScanner} from '../screens/QRCodeScanner';
 import {HMSPrebuiltScreen} from '../screens/HMSPrebuiltScreen';
@@ -41,16 +39,6 @@ const AppStackNavigator = () => {
   return (
     <NavigationContainer>
       <AppStack.Navigator initialRouteName="QRCodeScreen">
-        <AppStack.Screen
-          name="WelcomeScreen"
-          component={Welcome}
-          options={navigationOptions}
-        />
-        <AppStack.Screen
-          name="MeetingScreen"
-          component={Meeting}
-          options={navigationOptions}
-        />
         <AppStack.Screen
           name="QRCodeScreen"
           component={QRCode}

@@ -2,10 +2,10 @@ import React, {ElementRef, useRef, useState, useImperativeHandle} from 'react';
 import {View, FlatList} from 'react-native';
 import type {HMSView, HMSPeer} from '@100mslive/react-native-hms';
 
-import {DefaultModal} from '../../components';
+import {DefaultModal} from './DefaultModal';
 import {SaveScreenshot} from './Modals';
 import {TilesContainer} from './TilesContainer';
-import type {PeerTrackNode} from '../../utils/types';
+import type {PeerTrackNode} from '../utils/types';
 
 type GridViewProps = {
   onPeerTileMorePress(peerTrackNode: PeerTrackNode): void;

@@ -9,11 +9,11 @@ import {
   HMSUpdateListenerActions,
 } from '@100mslive/react-native-hms';
 
-import LiveButton, {LiveStates} from '../../components/LiveButton';
+import LiveButton, {LiveStates} from './LiveButton';
 
 import {styles} from './styles';
-import {RootState} from '../../redux';
-import {PipModes} from '../../utils/types';
+import {RootState} from '../redux';
+import {PipModes} from '../utils/types';
 
 type HLSViewProps = {
   room?: HMSRoom;

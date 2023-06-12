@@ -1,12 +1,8 @@
 import {
-  HMSAudioFilePlayerNode,
-  HMSAudioMixingMode,
-  HMSAudioMode,
   HMSChangeTrackStateRequest,
   HMSException,
   HMSLocalPeer,
   HMSMessage,
-  HMSMessageType,
   HMSPeer,
   HMSPeerUpdate,
   HMSRoleChangeRequest,
@@ -26,238 +22,64 @@ import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {
   View,
   Text,
-  SafeAreaView,
   Platform,
   Dimensions,
-  AppState,
-  LayoutAnimation,
   InteractionManager,
   BackHandler,
 } from 'react-native';
-import Feather from 'react-native-vector-icons/Feather';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useDispatch, useSelector} from 'react-redux';
 import Toast from 'react-native-simple-toast';
-import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
-import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import DocumentPicker from 'react-native-document-picker';
 
 import {styles} from './styles';
-import {
-  AlertModal,
-  ChatWindow,
-  CustomButton,
-  DefaultModal,
-  Menu,
-  MenuItem,
-} from '../../components';
+import {ChatWindow} from './ChatWindow';
+import {DefaultModal} from './DefaultModal';
 import {
   LayoutParams,
   ModalTypes,
   PeerTrackNode,
   PipModes,
-} from '../../utils/types';
+} from '../utils/types';
 import {
   createPeerTrackNode,
   getPeerNodes,
   getPeerTrackNodes,
   isPortrait,
   pairData,
-  parseMetadata,
   replacePeerTrackNodes,
   requestExternalStoragePermission,
   updatedDegradedFlag,
   updatePeerNodes,
   updatePeerTrackNodes,
-} from '../../utils/functions';
+} from '../utils/functions';
 import {
-  ChangeAudioMixingModeModal,
-  ChangeAudioModeModal,
-  ChangeAudioOutputModal,
-  ChangeBulkRoleModal,
   ChangeNameModal,
   ChangeRoleAccepteModal,
   ChangeRoleModal,
-  ChangeTrackStateForRoleModal,
   ChangeTrackStateModal,
   ChangeVolumeModal,
   EndRoomModal,
-  HlsStreamingModal,
   LeaveRoomModal,
   ParticipantsModal,
-  RealTime,
-  RecordingModal,
-  RtcStatsModal,
   SaveScreenshot,
 } from './Modals';
-import type {RootState} from '../../redux';
-import type {AppStackParamList} from '../../navigator';
+import type {RootState} from '../redux';
 import {
   addMessage,
   addPinnedMessage,
-  changePipModeStatus,
   clearHmsReference,
   clearMessageData,
   clearPeerData,
   saveUserData,
-} from '../../redux/actions';
+} from '../redux/actions';
 import {GridView} from './GridView';
 import {HLSView} from './HLSView';
 import PIPView from './PIPView';
-import {useRTCStatsListeners} from '../../utils/hooks';
-import {RoomSettingsModalContent} from '../../components/RoomSettingsModalContent';
-import {PeerSettingsModalContent} from '../../components/PeerSettingsModalContent';
-import {StreamingQualityModalContent} from '../../components/StreamingQualityModalContent';
+import {PeerSettingsModalContent} from '../components/PeerSettingsModalContent';
+import {StreamingQualityModalContent} from '../components/StreamingQualityModalContent';
 
-type MeetingScreenProp = NativeStackNavigationProp<
-  AppStackParamList,
-  'MeetingScreen'
->;
+const navigate = (...args: any[]) => {};
 
-type MeetingScreenRouteProp = RouteProp<AppStackParamList>;
-
-const Meeting = () => {
-  // hooks
-  const dispatch = useDispatch();
-  const modalTaskRef = useRef<any>(null);
-  const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
-  const isPipModeActive = useSelector(
-    (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE,
-  );
-
-  // useState hook
-  const [room, setRoom] = useState<HMSRoom>();
-  const [localPeer, setLocalPeer] = useState<HMSLocalPeer>();
-  const [isAudioMute, setIsAudioMute] = useState<boolean | undefined>(
-    localPeer?.audioTrack?.isMute(),
-  );
-  const [isVideoMute, setIsVideoMute] = useState<boolean | undefined>(
-    localPeer?.videoTrack?.isMute(),
-  );
-  const [isScreenShared, setIsScreenShared] = useState<boolean | undefined>(
-    localPeer?.auxiliaryTracks && localPeer?.auxiliaryTracks?.length > 0,
-  );
-  const [modalVisible, setModalVisible] = useState<ModalTypes>(
-    ModalTypes.DEFAULT,
-  );
-
-  const handleModalVisible = React.useCallback(
-    (modalType: ModalTypes, delay = false) => {
-      if (delay) {
-        setModalVisible(ModalTypes.DEFAULT);
-
-        const task = () => {
-          setModalVisible(modalType);
-          modalTaskRef.current = null;
-        };
-
-        if (Platform.OS === 'android') {
-          modalTaskRef.current = InteractionManager.runAfterInteractions(task);
-        } else {
-          modalTaskRef.current = setTimeout(task, 500);
-        }
-      } else {
-        setModalVisible(modalType);
-      }
-    },
-    [],
-  );
-
-  const updateLocalPeer = () => {
-    hmsInstance?.getLocalPeer().then(peer => {
-      setLocalPeer(peer);
-    });
-  };
-
-  const updateRoom = () => {
-    hmsInstance?.getRoom().then(hmsRoom => {
-      setRoom(hmsRoom);
-    });
-  };
-
-  useEffect(() => {
-    setIsVideoMute(localPeer?.videoTrack?.isMute());
-    setIsAudioMute(localPeer?.audioTrack?.isMute());
-  }, [localPeer]);
-
-  useEffect(() => {
-    updateLocalPeer();
-    updateRoom();
-
-    return () => {
-      if (Platform.OS === 'android') {
-        modalTaskRef.current?.cancel();
-      } else {
-        clearTimeout(modalTaskRef.current);
-      }
-    };
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    if (isPipModeActive) {
-      const appStateListener = () => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-        dispatch(changePipModeStatus(PipModes.INACTIVE));
-      };
-
-      AppState.addEventListener('focus', appStateListener);
-
-      return () => {
-        AppState.removeEventListener('focus', appStateListener);
-        dispatch(changePipModeStatus(PipModes.INACTIVE));
-      };
-    }
-  }, [isPipModeActive]);
-
-  useRTCStatsListeners(modalVisible === ModalTypes.RTC_STATS);
-
-  return (
-    <SafeAreaView style={styles.container}>
-      {isPipModeActive ? null : (
-        <Header
-          modalVisible={modalVisible}
-          setModalVisible={handleModalVisible}
-          room={room}
-          localPeer={localPeer}
-          isScreenShared={isScreenShared}
-        />
-      )}
-      <DisplayView
-        room={room}
-        localPeer={localPeer}
-        modalVisible={modalVisible}
-        setModalVisible={handleModalVisible}
-        setRoom={setRoom}
-        setLocalPeer={setLocalPeer}
-        setIsAudioMute={setIsAudioMute}
-        setIsVideoMute={setIsVideoMute}
-        setIsScreenShared={setIsScreenShared}
-      />
-      {isPipModeActive ? null : (
-        <Footer
-          isHlsStreaming={room?.hlsStreamingState?.running}
-          isBrowserRecording={room?.browserRecordingState?.running}
-          isHlsRecording={room?.hlsRecordingState?.running}
-          isRtmpStreaming={room?.rtmpHMSRtmpStreamingState?.running}
-          localPeer={localPeer}
-          modalVisible={modalVisible}
-          isAudioMute={isAudioMute}
-          isVideoMute={isVideoMute}
-          isScreenShared={isScreenShared}
-          setModalVisible={handleModalVisible}
-          setIsAudioMute={setIsAudioMute}
-          setIsVideoMute={setIsVideoMute}
-          setIsScreenShared={setIsScreenShared}
-        />
-      )}
-    </SafeAreaView>
-  );
-};
-
-const DisplayView = (data: {
+export const DisplayView = (data: {
   room?: HMSRoom;
   localPeer?: HMSLocalPeer;
   modalVisible: ModalTypes;
@@ -269,7 +91,6 @@ const DisplayView = (data: {
   setIsScreenShared: React.Dispatch<React.SetStateAction<boolean | undefined>>;
 }) => {
   // hooks
-  const {params} = useRoute<MeetingScreenRouteProp>();
   const isPipModeActive = useSelector(
     (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE,
   );
@@ -283,16 +104,13 @@ const DisplayView = (data: {
     (state: RootState) => state.user.spotlightTrackId,
   );
   const peerState = useSelector((state: RootState) => state.app.peerState);
-  const navigate = useNavigation<MeetingScreenProp>().navigate;
   const dispatch = useDispatch();
 
   // useState hook
   const [peerTrackNodes, setPeerTrackNodes] =
     useState<Array<PeerTrackNode>>(peerState);
   const [orientation, setOrientation] = useState(true);
-  const [layout, setLayout] = useState<LayoutParams>(
-    params?.isHLSViewer ? LayoutParams.HLS : LayoutParams.GRID,
-  );
+  const [layout, setLayout] = useState<LayoutParams>(LayoutParams.GRID);
   const [updatePeer, setUpdatePeer] = useState<HMSPeer>();
   const [selectedPeerTrackNode, setSelectedPeerTrackNode] =
     useState<PeerTrackNode | null>(null);
@@ -1288,507 +1106,3 @@ const DisplayView = (data: {
     </View>
   );
 };
-
-const Header = ({
-  room,
-  localPeer,
-  isScreenShared,
-  modalVisible,
-  setModalVisible,
-}: {
-  room?: HMSRoom;
-  localPeer?: HMSLocalPeer;
-  isScreenShared?: boolean;
-  modalVisible: ModalTypes;
-  setModalVisible(modalType: ModalTypes, delay?: any): void;
-}) => {
-  // hooks
-  const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
-  const roomCode = useSelector((state: RootState) => state.user.roomCode);
-
-  // constants
-  const iconSize = 20;
-  const parsedMetadata = parseMetadata(localPeer?.metadata);
-
-  // functions
-  const onRaiseHandPress = async () => {
-    await hmsInstance
-      ?.changeMetadata(
-        JSON.stringify({
-          ...parsedMetadata,
-          isHandRaised: !parsedMetadata?.isHandRaised,
-          isBRBOn: false,
-        }),
-      )
-      .then(d => console.log('Change Metadata Success: ', d))
-      .catch(e => console.log('Change Metadata Error: ', e));
-  };
-
-  const onSwitchCameraPress = () => {
-    localPeer?.localVideoTrack()?.switchCamera();
-  };
-
-  const onParticipantsPress = () => {
-    InteractionManager.runAfterInteractions(() => {
-      setModalVisible(ModalTypes.PARTICIPANTS);
-    });
-  };
-
-  return (
-    <View style={styles.iconTopWrapper}>
-      <View style={styles.iconTopSubWrapper}>
-        <Menu
-          visible={modalVisible === ModalTypes.LEAVE_MENU}
-          anchor={
-            <CustomButton
-              onPress={() => {
-                setModalVisible(ModalTypes.LEAVE_MENU);
-              }}
-              viewStyle={[styles.iconContainer, styles.leaveIcon]}
-              LeftIcon={
-                <Feather name="log-out" style={styles.icon} size={iconSize} />
-              }
-            />
-          }
-          onRequestClose={() => setModalVisible(ModalTypes.DEFAULT)}
-          style={styles.participantsMenuContainer}
-        >
-          <MenuItem
-            onPress={() => setModalVisible(ModalTypes.LEAVE_ROOM, true)}
-          >
-            <View style={styles.participantMenuItem}>
-              <Feather
-                name="log-out"
-                style={styles.participantMenuItemIcon}
-                size={iconSize}
-              />
-              <Text style={styles.participantMenuItemName}>Leave Studio</Text>
-            </View>
-          </MenuItem>
-          {localPeer?.role?.permissions?.endRoom && (
-            <MenuItem
-              onPress={() => setModalVisible(ModalTypes.END_ROOM, true)}
-            >
-              <View style={styles.participantMenuItem}>
-                <Feather
-                  name="alert-triangle"
-                  style={[styles.participantMenuItemIcon, styles.error]}
-                  size={iconSize}
-                />
-                <Text style={[styles.participantMenuItemName, styles.error]}>
-                  End Session
-                </Text>
-              </View>
-            </MenuItem>
-          )}
-        </Menu>
-        {room?.hlsStreamingState?.running ? (
-          <View>
-            <View style={styles.liveTextContainer}>
-              <View style={styles.liveStatus} />
-              <Text style={styles.liveTimeText}>Live</Text>
-            </View>
-            {Array.isArray(room?.hlsStreamingState?.variants) ? (
-              <RealTime
-                startedAt={room?.hlsStreamingState?.variants[0]?.startedAt}
-              />
-            ) : null}
-          </View>
-        ) : (
-          <Text style={styles.headerName}>{roomCode}</Text>
-        )}
-      </View>
-      <View style={styles.iconTopSubWrapper}>
-        {(room?.browserRecordingState?.running ||
-          room?.hlsRecordingState?.running) && (
-          <MaterialCommunityIcons
-            name="record-circle-outline"
-            style={styles.roomStatus}
-            size={iconSize}
-          />
-        )}
-        {(room?.hlsStreamingState?.running ||
-          room?.rtmpHMSRtmpStreamingState?.running) && (
-          <Ionicons
-            name="globe-outline"
-            style={styles.roomStatus}
-            size={iconSize}
-          />
-        )}
-        {isScreenShared && (
-          <Feather name="copy" style={styles.roomStatus} size={iconSize} />
-        )}
-        <CustomButton
-          onPress={onParticipantsPress}
-          viewStyle={styles.iconContainer}
-          LeftIcon={
-            <Ionicons name="people" style={styles.icon} size={iconSize} />
-          }
-        />
-        <CustomButton
-          onPress={onRaiseHandPress}
-          viewStyle={[
-            styles.iconContainer,
-            parsedMetadata?.isHandRaised && styles.iconMuted,
-          ]}
-          LeftIcon={
-            <Ionicons
-              name="hand-left-outline"
-              style={[
-                styles.icon,
-                parsedMetadata?.isHandRaised && styles.handRaised,
-              ]}
-              size={iconSize}
-            />
-          }
-        />
-        <CustomButton
-          onPress={() => {
-            InteractionManager.runAfterInteractions(() => {
-              setModalVisible(ModalTypes.CHAT);
-            });
-            // setNotification(false);
-          }}
-          viewStyle={styles.iconContainer}
-          LeftIcon={
-            <View>
-              {/* {notification && <View style={styles.messageDot} />} */}
-              <MaterialCommunityIcons
-                name="message-outline"
-                style={styles.icon}
-                size={iconSize}
-              />
-            </View>
-          }
-        />
-        {localPeer?.role?.publishSettings?.allowed?.includes('video') && (
-          <CustomButton
-            onPress={onSwitchCameraPress}
-            viewStyle={styles.iconContainer}
-            LeftIcon={
-              <Ionicons
-                name="camera-reverse-outline"
-                style={styles.icon}
-                size={iconSize}
-              />
-            }
-          />
-        )}
-      </View>
-    </View>
-  );
-};
-
-const Footer = ({
-  isHlsStreaming,
-  isBrowserRecording,
-  localPeer,
-  modalVisible,
-  isAudioMute,
-  isVideoMute,
-  isScreenShared,
-  setModalVisible,
-  setIsAudioMute,
-  setIsVideoMute,
-  setIsScreenShared,
-}: {
-  isHlsStreaming?: boolean;
-  isBrowserRecording?: boolean;
-  isHlsRecording?: boolean;
-  isRtmpStreaming?: boolean;
-  localPeer?: HMSLocalPeer;
-  modalVisible: ModalTypes;
-  isAudioMute?: boolean;
-  isVideoMute?: boolean;
-  isScreenShared?: boolean;
-  setModalVisible(modalType: ModalTypes, delay?: any): void;
-  setIsAudioMute: React.Dispatch<React.SetStateAction<boolean | undefined>>;
-  setIsVideoMute: React.Dispatch<React.SetStateAction<boolean | undefined>>;
-  setIsScreenShared: React.Dispatch<React.SetStateAction<boolean | undefined>>;
-}) => {
-  // hooks
-  const dispatch = useDispatch();
-  const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
-  const roomID = useSelector((state: RootState) => state.user.roomID);
-  const isPipActive = useSelector(
-    (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE,
-  );
-
-  // useState hook
-  const [muteAllTracksAudio, setMuteAllTracksAudio] = useState(false);
-  const [isAudioShared, setIsAudioShared] = useState(false);
-  const [audioDeviceChangeListener, setAudioDeviceChangeListener] =
-    useState<boolean>(false);
-  const [newAudioMixingMode, setNewAudioMixingMode] =
-    useState<HMSAudioMixingMode>(HMSAudioMixingMode.TALK_AND_MUSIC);
-  const [audioMode, setAudioMode] = useState<HMSAudioMode>(
-    HMSAudioMode.MODE_NORMAL,
-  );
-
-  // constants
-  const iconSize = 20;
-
-  // functions
-  const onStartScreenSharePress = () => {
-    hmsInstance
-      ?.startScreenshare()
-      .then(d => {
-        console.log('Start Screenshare Success: ', d);
-        setIsScreenShared(true);
-      })
-      .catch(e => console.log('Start Screenshare Error: ', e));
-  };
-
-  const onEndScreenSharePress = () => {
-    hmsInstance
-      ?.stopScreenshare()
-      .then(d => {
-        console.log('Stop Screenshare Success: ', d);
-        setIsScreenShared(false);
-      })
-      .catch(e => console.log('Stop Screenshare Error: ', e));
-  };
-
-  const onSettingsPress = () => {
-    InteractionManager.runAfterInteractions(() => {
-      setModalVisible(ModalTypes.SETTINGS);
-    });
-  };
-
-  // Check if PIP is supported or not
-  useEffect(() => {
-    // Only check for PIP support if PIP is not active
-    if (hmsInstance && !isPipActive) {
-      const check = async () => {
-        try {
-          const isSupported = await hmsInstance.isPipModeSupported();
-
-          if (!isSupported) {
-            dispatch(changePipModeStatus(PipModes.NOT_AVAILABLE));
-          }
-        } catch (error) {
-          dispatch(changePipModeStatus(PipModes.NOT_AVAILABLE));
-        }
-      };
-
-      check();
-    }
-  }, [isPipActive, hmsInstance]);
-
-  return (
-    <View
-      style={[
-        // localPeer?.role?.permissions?.hlsStreaming
-        //   ? styles.iconBotttomWrapperHls :
-        styles.iconBotttomWrapper,
-      ]}
-    >
-      <View style={styles.iconBotttomButtonWrapper}>
-        {localPeer?.role?.publishSettings?.allowed?.includes('audio') && (
-          <CustomButton
-            onPress={() => {
-              localPeer?.localAudioTrack()?.setMute(!isAudioMute);
-              setIsAudioMute(!isAudioMute);
-            }}
-            viewStyle={[styles.iconContainer, isAudioMute && styles.iconMuted]}
-            LeftIcon={
-              <Feather
-                name={isAudioMute ? 'mic-off' : 'mic'}
-                style={styles.icon}
-                size={iconSize}
-              />
-            }
-          />
-        )}
-        {localPeer?.role?.publishSettings?.allowed?.includes('video') && (
-          <CustomButton
-            onPress={() => {
-              localPeer?.localVideoTrack()?.setMute(!isVideoMute);
-              setIsVideoMute(!isVideoMute);
-            }}
-            viewStyle={[styles.iconContainer, isVideoMute && styles.iconMuted]}
-            LeftIcon={
-              <Feather
-                name={isVideoMute ? 'video-off' : 'video'}
-                style={styles.icon}
-                size={iconSize}
-              />
-            }
-          />
-        )}
-        {/* {localPeer?.role?.permissions?.hlsStreaming &&
-          (room?.hlsStreamingState?.running ? (
-            <CustomButton
-              onPress={() => setModalVisible(ModalTypes.END_HLS_STREAMING)}
-              viewStyle={styles.endLiveIconContainer}
-              LeftIcon={
-                <Feather
-                  name="stop-circle"
-                  style={styles.icon}
-                  size={iconSize}
-                />
-              }
-            />
-          ) : (
-            <CustomButton
-              onPress={() => console.log('onGoLivePress')}
-              viewStyle={styles.goLiveIconContainer}
-              LeftIcon={
-                <Ionicons
-                  name="radio-outline"
-                  style={styles.icon}
-                  size={iconSize * 2}
-                />
-              }
-            />
-          ))} */}
-        {localPeer?.role?.publishSettings?.allowed?.includes('screen') && (
-          <CustomButton
-            onPress={
-              isScreenShared ? onEndScreenSharePress : onStartScreenSharePress
-            }
-            viewStyle={[
-              styles.iconContainer,
-              isScreenShared && styles.iconMuted,
-            ]}
-            LeftIcon={
-              <MaterialCommunityIcons
-                name="monitor-share"
-                style={styles.icon}
-                size={iconSize}
-              />
-            }
-          />
-        )}
-        <CustomButton
-          onPress={onSettingsPress}
-          viewStyle={styles.iconContainer}
-          LeftIcon={
-            <MaterialCommunityIcons
-              name="dots-vertical"
-              style={styles.icon}
-              size={iconSize}
-            />
-          }
-        />
-      </View>
-      {/* {localPeer?.role?.permissions?.hlsStreaming &&
-        (room?.hlsStreamingState?.running ? (
-          <Text style={styles.liveText}>End stream</Text>
-        ) : (
-          <Text style={styles.liveText}>Go Live</Text>
-        ))} */}
-      <DefaultModal
-        animationIn={'slideInUp'}
-        animationOut={'slideOutDown'}
-        modalVisible={modalVisible === ModalTypes.SETTINGS}
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
-      >
-        <RoomSettingsModalContent
-          localPeer={localPeer}
-          isHLSStreaming={isHlsStreaming}
-          rtmpAndRecording={isBrowserRecording}
-          newAudioMixingMode={newAudioMixingMode}
-          audioDeviceListenerAdded={audioDeviceChangeListener}
-          isAudioShared={isAudioShared}
-          muteAllTracksAudio={muteAllTracksAudio}
-          closeRoomSettingsModal={() => setModalVisible(ModalTypes.DEFAULT)}
-          setModalVisible={setModalVisible}
-          setAudioDeviceListenerAdded={setAudioDeviceChangeListener}
-          setIsAudioShared={setIsAudioShared}
-          setMuteAllTracksAudio={setMuteAllTracksAudio}
-        />
-      </DefaultModal>
-      <DefaultModal
-        animationIn={'slideInUp'}
-        animationOut={'slideOutDown'}
-        modalVisible={modalVisible === ModalTypes.RTC_STATS}
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
-      >
-        <RtcStatsModal />
-      </DefaultModal>
-      <DefaultModal
-        modalPosiion="center"
-        modalVisible={
-          modalVisible === ModalTypes.RECORDING ||
-          modalVisible === ModalTypes.RESOLUTION
-        }
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
-      >
-        <RecordingModal
-          instance={hmsInstance}
-          roomID={roomID}
-          setModalVisible={setModalVisible}
-          recordingModal={modalVisible === ModalTypes.RECORDING}
-        />
-      </DefaultModal>
-      <DefaultModal
-        modalPosiion="center"
-        modalVisible={modalVisible === ModalTypes.HLS_STREAMING}
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
-      >
-        <HlsStreamingModal
-          instance={hmsInstance}
-          roomID={roomID}
-          cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
-        />
-      </DefaultModal>
-      <DefaultModal
-        modalPosiion="center"
-        modalVisible={modalVisible === ModalTypes.CHANGE_TRACK_ROLE}
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
-      >
-        <ChangeTrackStateForRoleModal
-          instance={hmsInstance}
-          localPeer={localPeer}
-          cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
-        />
-      </DefaultModal>
-      <DefaultModal
-        modalPosiion="center"
-        modalVisible={modalVisible === ModalTypes.SWITCH_AUDIO_OUTPUT}
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
-      >
-        <ChangeAudioOutputModal
-          instance={hmsInstance}
-          cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
-        />
-      </DefaultModal>
-      <DefaultModal
-        modalPosiion="center"
-        modalVisible={modalVisible === ModalTypes.CHANGE_AUDIO_MODE}
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
-      >
-        <ChangeAudioModeModal
-          instance={hmsInstance}
-          audioMode={audioMode}
-          setAudioMode={setAudioMode}
-          cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
-        />
-      </DefaultModal>
-      <DefaultModal
-        modalPosiion="center"
-        modalVisible={modalVisible === ModalTypes.AUDIO_MIXING_MODE}
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
-      >
-        <ChangeAudioMixingModeModal
-          instance={hmsInstance}
-          newAudioMixingMode={newAudioMixingMode}
-          setNewAudioMixingMode={setNewAudioMixingMode}
-          cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
-        />
-      </DefaultModal>
-      <DefaultModal
-        modalPosiion="center"
-        modalVisible={modalVisible === ModalTypes.BULK_ROLE_CHANGE}
-        setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
-      >
-        <ChangeBulkRoleModal
-          cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
-        />
-      </DefaultModal>
-    </View>
-  );
-};
-
-export {Meeting};

@@ -24,30 +24,22 @@ import {
   HMSVideoTrackSettings,
 } from '@100mslive/react-native-hms';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useNavigation} from '@react-navigation/native';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
+  ActivityIndicator,
   Alert,
   BackHandler,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import {getModel} from 'react-native-device-info';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Toast from 'react-native-simple-toast';
 import {useDispatch, useSelector} from 'react-redux';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-import {CustomButton, CustomInput, PreviewModal} from '../../components';
-import {
-  clearHmsReference,
-  saveUserData,
-  setPeerState,
-} from '../../redux/actions';
+import {Preview} from './components';
+import {clearHmsReference, saveUserData, setPeerState} from './redux/actions';
 import {
   callService,
   createPeerTrackNode,
@@ -56,27 +48,24 @@ import {
   replacePeerTrackNodes,
   updatePeerNodes,
   updatePeerTrackNodes,
-} from '../../utils/functions';
-import {COLORS} from '../../utils/theme';
-import {Constants, ModalTypes, PeerTrackNode} from '../../utils/types';
-import {styles} from './styles';
+} from './utils/functions';
+import {Constants, ModalTypes, PeerTrackNode} from './utils/types';
+import type {RootState} from './redux';
+import {Meeting} from './components/Meeting';
 
-import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import type {AppStackParamList} from '../../navigator';
-import type {RootState} from '../../redux';
-type WelcomeScreenProp = NativeStackNavigationProp<
-  AppStackParamList,
-  'WelcomeScreen'
->;
+const navigate = (...args: any[]) => {};
+const replace = (...args: any[]) => {};
 
-const Welcome = () => {
+export const HMSRoomSetup = () => {
   // hooks
-  const {replace, navigate} = useNavigation<WelcomeScreenProp>();
   const roomID = useSelector((state: RootState) => state.user.roomID);
   const userName = useSelector((state: RootState) => state.user.userName);
   const joinConfig = useSelector((state: RootState) => state.app.joinConfig);
   const {top, bottom, left, right} = useSafeAreaInsets();
   const dispatch = useDispatch();
+  const [contentType, setContentType] = useState<
+    null | 'LOADING' | 'PREVIEW' | 'JOINED' | 'MEETING_ENDED'
+  >(null);
 
   // useState hook
   const [peerTrackNodes, setPeerTrackNodes] = useState<Array<PeerTrackNode>>(
@@ -84,9 +73,7 @@ const Welcome = () => {
   );
   const hmsInstanceRef = useRef<HMSSDK | null>(null);
   const [config, setConfig] = useState<HMSConfig>();
-  const [nameDisabled, setNameDisabled] = useState<boolean>(true);
-  const [peerName, setPeerName] = useState<string>(userName);
-  const [startButtonLoading, setStartButtonLoading] = useState<boolean>(false);
+  const [_, setStartButtonLoading] = useState<boolean>(false);
   const [joinButtonLoading, setJoinButtonLoading] = useState<boolean>(false);
   const [previewTracks, setPreviewTracks] = useState<HMSTrack[]>();
   const [hmsRoom, setHmsRoom] = useState<HMSRoom>();
@@ -422,7 +409,7 @@ const Welcome = () => {
 
       const hmsConfig = new HMSConfig({
         authToken: token,
-        username: peerName,
+        username: '',
         captureNetworkQualityInPreview: true,
         endpoint: initEndpoint,
         // metadata: JSON.stringify({isHandRaised: true}), // To join with hand raised
@@ -475,7 +462,7 @@ const Welcome = () => {
 
       dispatch(
         saveUserData({
-          userName: peerName,
+          userName: 'peerName',
           roomCode,
           hmsInstance,
         }),
@@ -623,13 +610,7 @@ const Welcome = () => {
     return hmsInstance;
   };
 
-  const validateName = (value: string) => {
-    if (value?.length > 0) {
-      return true;
-    }
-    return false;
-  };
-
+  // STARTS_HERE
   const onStartPress = async () => {
     setStartButtonLoading(true);
     callService(roomID, onStartSuccess, onFailure);
@@ -653,14 +634,6 @@ const Welcome = () => {
     );
     hmsInstance?.removeEventListener(HMSUpdateListenerActions.ON_ERROR);
   };
-
-  // useEffect hook
-  useEffect(() => {
-    setNameDisabled(!validateName(peerName));
-    return () => {
-      setNameDisabled(!validateName(peerName));
-    };
-  }, [peerName]);
 
   useEffect(() => {
     return () => {
@@ -708,67 +681,36 @@ const Welcome = () => {
     };
   }, [handlePreviewLeave]);
 
-  return modalType === ModalTypes.PREVIEW && previewTracks ? (
-    <PreviewModal
-      previewTracks={previewTracks}
-      join={onJoinRoom}
-      setLoadingButtonState={setJoinButtonLoading}
-      loadingButtonState={joinButtonLoading}
-    />
-  ) : (
-    <KeyboardAvoidingView
-      enabled={Platform.OS === 'ios'}
-      behavior="padding"
-      style={styles.container}
-    >
-      <ScrollView
-        contentContainerStyle={[
-          styles.contentContainerStyle,
-          {
-            paddingTop: 24 + top,
-            paddingLeft: 24 + left,
-            paddingRight: 24 + right,
-            paddingBottom: 24 + bottom,
-          },
-        ]}
-        style={styles.container}
-        keyboardShouldPersistTaps="always"
-      >
-        <Image
-          style={styles.image}
-          resizeMode="stretch"
-          source={require('../../../assets/user_music.png')}
-        />
-        <View>
-          <Text style={styles.heading}>Go live in five!</Text>
-          <Text style={styles.description}>
-            Let’s get your studio setup ready in less than 5 minutes!
-          </Text>
-        </View>
-        <CustomInput
-          value={peerName}
-          onChangeText={setPeerName}
-          textStyle={styles.userNameInputText}
-          viewStyle={styles.userNameInputView}
-          inputStyle={styles.userNameInput}
-          placeholderTextColor={COLORS.TEXT.DISABLED}
-          placeholder="Enter your name"
-          title="Name"
-        />
-        <CustomButton
-          title="Get Started ->"
-          onPress={onStartPress}
-          disabled={nameDisabled}
-          viewStyle={[styles.startButton, nameDisabled && styles.disabled]}
-          textStyle={[
-            styles.startButtonText,
-            nameDisabled && styles.disabledText,
-          ]}
-          loading={startButtonLoading}
-        />
-      </ScrollView>
-    </KeyboardAvoidingView>
-  );
-};
+  if (contentType === 'LOADING') {
+    return <ActivityIndicator size={'large'} />;
+  }
 
-export {Welcome};
+  if (contentType === 'PREVIEW' && previewTracks) {
+    return (
+      <Preview
+        previewTracks={previewTracks}
+        join={onJoinRoom}
+        setLoadingButtonState={setJoinButtonLoading}
+        loadingButtonState={joinButtonLoading}
+      />
+    );
+  }
+
+  if (contentType === 'JOINED') {
+    return <Meeting />;
+  }
+
+  if (contentType === 'MEETING_ENDED') {
+    return (
+      <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+        <Text>Meeting has ended</Text>
+
+        <TouchableOpacity>
+          <Text>Leave Room</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  return null;
+};

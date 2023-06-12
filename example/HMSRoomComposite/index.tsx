@@ -1,5 +1,10 @@
 import React from 'react';
 import {View, Text} from 'react-native';
+import {Provider} from 'react-redux';
+
+import {store} from './redux/index';
+import {Meeting} from './components/Meeting';
+import {HMSRoomSetup} from './HMSRoomSetup';
 
 export interface HMSRoomCompositeProps {
   roomCode: string;
@@ -19,28 +24,14 @@ export const HMSRoomComposite: React.FC<HMSRoomCompositeProps> = props => {
 
   const debugInfo = options?.debugInfo || false;
 
+  // Username: options.userName
+  // UserId: options.userId
+  // Token EndPoint: options.endPoints?.token
+  // Init EndPoint: options.endPoints?.init
+
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: 'pink',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <Text>HMS Room Composite</Text>
-
-      <Text>Room Code: {roomCode}</Text>
-
-      {options ? (
-        <View style={{marginTop: 8}}>
-          <Text>Username: {options.userName}</Text>
-          <Text>UserId: {options.userId}</Text>
-          <Text>Token EndPoint: {options.endPoints?.token}</Text>
-          <Text>Init EndPoint: {options.endPoints?.init}</Text>
-          <Text>Debug Info: {debugInfo.toString()}</Text>
-        </View>
-      ) : null}
-    </View>
+    <Provider store={store}>
+      <HMSRoomSetup />
+    </Provider>
   );
 };

@@ -11,8 +11,8 @@ import type {HMSView} from '@100mslive/react-native-hms';
 
 import {styles} from './styles';
 
-import {getInitials, isTileOnSpotlight} from '../../utils/functions';
-import type {RootState} from '../../redux';
+import {getInitials, isTileOnSpotlight} from '../utils/functions';
+import type {RootState} from '../redux';
 
 export interface PeerDisplayViewProps {
   isDegraded?: boolean;

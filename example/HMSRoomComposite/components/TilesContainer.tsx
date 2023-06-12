@@ -6,7 +6,7 @@ import type {HMSView} from '@100mslive/react-native-hms';
 import {styles} from './styles';
 
 import {Tile} from './Tile';
-import type {PeerTrackNode} from '../../utils/types';
+import type {PeerTrackNode} from '../utils/types';
 
 interface TilesContainerProps {
   peerTrackNodes: PeerTrackNode[];
