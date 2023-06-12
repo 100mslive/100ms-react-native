@@ -99,6 +99,11 @@ export const changeShowHLSStats = (value: boolean) => ({
   payload: {showHLSStats: value},
 });
 
+export const changeShowCustomHLSPlayerControls = (value: boolean) => ({
+  type: actionTypes.CHANGE_SHOW_CUSTOM_HLS_PLAYER_CONTROLS,
+  payload: {showCustomHLSPlayerControls: value},
+});
+
 export const changeEnableHLSPlayerControls = (value: boolean) => ({
   type: actionTypes.CHANGE_ENABLE_HLS_PLAYER_CONTROLS,
   payload: {enableHLSPlayerControls: value},

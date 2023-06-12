@@ -30,6 +30,7 @@ import {
   changePipModeStatus,
   changeEnableHLSPlayerControls,
   changeShowHLSStats,
+  changeShowCustomHLSPlayerControls,
 } from '../redux/actions';
 import {ModalTypes, PipModes} from '../utils/types';
 import {parseMetadata} from '../utils/functions';
@@ -84,6 +85,9 @@ export const RoomSettingsModalContent: React.FC<
   );
   const enableHLSPlayerControls = useSelector(
     (state: RootState) => state.app.joinConfig.enableHLSPlayerControls,
+  );
+  const showCustomHLSPlayerControls = useSelector(
+    (state: RootState) => state.app.joinConfig.showCustomHLSPlayerControls,
   );
 
   // CONSTANTS
@@ -223,6 +227,11 @@ export const RoomSettingsModalContent: React.FC<
 
   const toggleEnableHLSPlayerControls = () => {
     dispatch(changeEnableHLSPlayerControls(!enableHLSPlayerControls));
+    setModalVisible(ModalTypes.DEFAULT);
+  };
+
+  const toggleShowCustomHLSPlayerControls = () => {
+    dispatch(changeShowCustomHLSPlayerControls(!showCustomHLSPlayerControls));
     setModalVisible(ModalTypes.DEFAULT);
   };
 
@@ -392,6 +401,19 @@ export const RoomSettingsModalContent: React.FC<
               enableHLSPlayerControls
                 ? 'Disable HLS Player Controls'
                 : 'Enable HLS Player Controls'
+            }
+            IconType={Ionicons}
+            iconName={'ios-settings-outline'}
+          />
+        ) : null}
+
+        {localPeer?.role?.name?.includes('hls-') ? (
+          <SettingItem
+            onPress={toggleShowCustomHLSPlayerControls}
+            text={
+              showCustomHLSPlayerControls
+                ? 'Hide Custom HLS Player Controls'
+                : 'Show Custom HLS Player Controls'
             }
             IconType={Ionicons}
             iconName={'ios-settings-outline'}
