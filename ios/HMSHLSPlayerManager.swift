@@ -23,6 +23,70 @@ class HMSHLSPlayerManager: RCTViewManager {
     override class func requiresMainQueueSetup() -> Bool {
         true
     }
+
+    @objc func play(_ node: NSNumber, url: String? = nil) {
+        DispatchQueue.main.async {
+            if let component = self.bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
+                component.play(url)
+            }
+        }
+    }
+
+    @objc func stop(_ node: NSNumber) {
+        DispatchQueue.main.async {
+            if let component = self.bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
+                component.stop()
+            }
+        }
+    }
+
+    @objc func pause(_ node: NSNumber) {
+        DispatchQueue.main.async {
+            if let component = self.bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
+                component.pause()
+            }
+        }
+    }
+
+    @objc func resume(_ node: NSNumber) {
+        DispatchQueue.main.async {
+            if let component = self.bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
+                component.resume()
+            }
+        }
+    }
+
+    @objc func seekToLivePosition(_ node: NSNumber) {
+        DispatchQueue.main.async {
+            if let component = self.bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
+                component.seekToLivePosition()
+            }
+        }
+    }
+
+    @objc func seekForward(_ node: NSNumber, seconds: NSNumber) {
+        DispatchQueue.main.async {
+            if let component = self.bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
+                component.seekForward(Double(truncating: seconds))
+            }
+        }
+    }
+
+    @objc func seekBackward(_ node: NSNumber, seconds: NSNumber) {
+        DispatchQueue.main.async {
+            if let component = self.bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
+                component.seekBackward(Double(truncating: seconds))
+            }
+        }
+    }
+
+    @objc func setVolume(_ node: NSNumber, level: NSNumber) {
+        DispatchQueue.main.async {
+            if let component = self.bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
+                component.setVolume(Int(truncating: level))
+            }
+        }
+    }
 }
 
 class HMSHLSPlayer: UIView {
@@ -47,20 +111,7 @@ class HMSHLSPlayer: UIView {
 
     @objc var url: String? {
         didSet {
-            if let validURLString = url, !validURLString.isEmpty {
-                if let urlInstance = URL(string: validURLString) {
-                    hmsHLSPlayer.play(urlInstance)
-                }
-                return
-            }
-
-            guard let hlsStreamingState = hmsCollection["12345"]?.hms?.room?.hlsStreamingState else {
-                return
-            }
-
-            if hlsStreamingState.running && !hlsStreamingState.variants.isEmpty {
-                hmsHLSPlayer.play(hlsStreamingState.variants[0].meetingURL)
-            }
+            play(url)
         }
     }
 
@@ -82,6 +133,53 @@ class HMSHLSPlayer: UIView {
         didSet {
             hmsHLSPlayerViewController?.showsPlaybackControls = enableControls
         }
+    }
+
+    // MARK: Handle HMSHLSPlayer RN Component methods
+
+    @objc func play(_ url: String?) {
+        if let validURLString = url, !validURLString.isEmpty {
+            if let urlInstance = URL(string: validURLString) {
+                hmsHLSPlayer.play(urlInstance)
+            }
+            return
+        }
+
+        guard let hlsStreamingState = hmsCollection["12345"]?.hms?.room?.hlsStreamingState else {
+            return
+        }
+
+        if hlsStreamingState.running && !hlsStreamingState.variants.isEmpty {
+            hmsHLSPlayer.play(hlsStreamingState.variants[0].meetingURL)
+        }
+    }
+
+    @objc func stop() {
+        hmsHLSPlayer.stop()
+    }
+
+    @objc func pause() {
+        hmsHLSPlayer.pause()
+    }
+
+    @objc func resume() {
+        hmsHLSPlayer.resume()
+    }
+
+    @objc func seekForward(_ seconds: Double) {
+        hmsHLSPlayer.seekForward(seconds: seconds)
+    }
+
+    @objc func seekBackward(_ seconds: Double) {
+        hmsHLSPlayer.seekBackward(seconds: seconds)
+    }
+
+    @objc func seekToLivePosition() {
+        hmsHLSPlayer.seekToLivePosition()
+    }
+
+    @objc func setVolume(_ level: Int) {
+        hmsHLSPlayer.volume = level
     }
 
     // MARK: Constructor & Deconstructor

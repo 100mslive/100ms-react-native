@@ -3,6 +3,8 @@ import {
   StyleProp,
   NativeSyntheticEvent,
   ViewStyle,
+  UIManager,
+  NativeMethods,
 } from 'react-native';
 import type {
   HMSHLSPlayerPlaybackEvent,
@@ -28,3 +30,9 @@ export type RCTHMSHLSPlayerProps = {
 
 export const RCTHMSHLSPlayer =
   requireNativeComponent<RCTHMSHLSPlayerProps>('HMSHLSPlayer');
+
+export type RCTHMSHLSPlayerRef = React.Component<RCTHMSHLSPlayerProps> &
+  Readonly<NativeMethods>;
+
+export const RCTHMSHLSPlayerViewManagerConfig =
+  UIManager.getViewManagerConfig('HMSHLSPlayer');
