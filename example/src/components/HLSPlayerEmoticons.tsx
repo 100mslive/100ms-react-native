@@ -1,4 +1,3 @@
-import React from 'react';
 import {useSelector} from 'react-redux';
 import {
   HMSHLSPlayerPlaybackCue,
@@ -6,71 +5,46 @@ import {
   useHMSHLSPlayerCue,
 } from '@100mslive/react-native-hms';
 
-import {Emoticons} from './Emoticon';
 import {RootState} from '../redux';
+import Toast from 'react-native-simple-toast';
 
 interface EmoticonMessage extends HMSHLSPlayerPlaybackCue {
-  payload: {
-    type: 'EMOJI_REACTION';
-    senderId: string;
-    emojiId: string;
-    sender: HMSPeer | undefined;
-  };
+  type: string;
+  senderId: string;
+  emojiId: string;
+  sender: HMSPeer | undefined;
 }
 
 export const HLSPlayerEmoticons = () => {
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
-  const [messages, setMessages] = React.useState<EmoticonMessage[]>([]);
 
   useHMSHLSPlayerCue(cue => {
-    if (!hmsInstance) return;
+    if (!hmsInstance) {
+      return;
+    }
 
     const payloadStr = cue.payloadval;
 
     if (typeof payloadStr === 'string') {
       try {
-        const payload: Omit<EmoticonMessage['payload'], 'sender'> =
-          JSON.parse(payloadStr);
-        if (payload.type === 'EMOJI_REACTION') {
-          const emojiCue = {
-            ...cue,
-            payload: {
-              ...payload,
-              sender: hmsInstance.getPeerFromPeerId(payload.senderId),
-            },
-          };
-          setMessages(prevMessages => [...prevMessages, emojiCue]);
+        const emoticonMessage: EmoticonMessage = JSON.parse(payloadStr);
+        if (emoticonMessage.type === 'EMOJI_REACTION') {
+          const peer = hmsInstance.getPeerFromPeerId(emoticonMessage.senderId);
+          Toast.showWithGravity(
+            `${peer?.name} ${getEmojiByString(emoticonMessage.emojiId)}`,
+            Toast.LONG,
+            Toast.TOP,
+          );
         }
       } catch (error) {
-        console.warn('payload is not JSON');
+        const message = `HLS Cue Payload is not JSON: ${error}`;
+        console.warn(message);
+        Toast.showWithGravity(message, Toast.LONG, Toast.TOP);
       }
     }
   }, []);
 
-  const handleAnimationComplete = React.useCallback((data: any) => {
-    setMessages(prev => prev.filter(message => message !== data));
-  }, []);
-
-  return (
-    <>
-      {messages.map((message, index) => {
-        const left = (index % 5) * 60 + 30;
-        const uniqueId =
-          message.id || message.startDate.getTime() + index.toString();
-        return (
-          <Emoticons
-            key={uniqueId}
-            id={uniqueId}
-            emoji={getEmojiByString(message.payload.emojiId)}
-            text={message.payload.sender?.name || ''}
-            bottom={0}
-            left={left}
-            onAnimationComplete={handleAnimationComplete}
-          />
-        );
-      })}
-    </>
-  );
+  return null;
 };
 
 const emojiMap: Record<string, string> = {
