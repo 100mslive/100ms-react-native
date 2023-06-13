@@ -14,6 +14,7 @@ import live.hms.stats.PlayerStatsListener
 import live.hms.stats.model.PlayerStatsModel
 import live.hms.video.error.HMSException
 import live.hms.video.sdk.HMSSDK
+import java.util.concurrent.TimeUnit
 
 @SuppressLint("ViewConstructor")
 class HMSHLSPlayer(context: ReactContext) : FrameLayout(context) {
@@ -150,6 +151,34 @@ class HMSHLSPlayer(context: ReactContext) : FrameLayout(context) {
     if (defaultURL !== null) {
       hmsHlsPlayer?.play(defaultURL)
     }
+  }
+
+  fun stop() {
+    hmsHlsPlayer?.stop()
+  }
+
+  fun pause() {
+    hmsHlsPlayer?.pause()
+  }
+
+  fun resume() {
+    hmsHlsPlayer?.resume()
+  }
+
+  fun seekForward(seconds: Double) {
+    hmsHlsPlayer?.seekForward(seconds.toLong(), TimeUnit.SECONDS)
+  }
+
+  fun seekBackward(seconds: Double) {
+    hmsHlsPlayer?.seekBackward(seconds.toLong(), TimeUnit.SECONDS)
+  }
+
+  fun seekToLivePosition() {
+    hmsHlsPlayer?.seekToLivePosition()
+  }
+
+  fun setVolume(level: Int) {
+    hmsHlsPlayer?.volume = level
   }
 
   fun enableStats(enable: Boolean) {

@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, { useImperativeHandle, useRef } from 'react';
+import { View, StyleSheet, UIManager, findNodeHandle } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 
 import {
@@ -13,6 +13,8 @@ import {
   HmsHlsPlaybackEventHandler,
   HmsHlsStatsEventHandler,
   RCTHMSHLSPlayer,
+  RCTHMSHLSPlayerRef,
+  RCTHMSHLSPlayerViewManagerConfig,
 } from './RCTHMSHLSPlayer';
 import {
   HMSHLSPlayerPlaybackEventTypes,
@@ -31,14 +33,134 @@ export interface HMSHLSPlayerProps {
   enableControls?: boolean;
 }
 
-export const HMSHLSPlayer: React.FC<HMSHLSPlayerProps> = ({
-  url = '',
-  style,
-  containerStyle,
-  aspectRatio = 9 / 16,
-  enableStats,
-  enableControls = true,
-}) => {
+export interface HMSHLSPlayerRefProperties {
+  play: (url?: string) => void;
+  stop: () => void;
+  pause: () => void;
+  resume: () => void;
+  seekForward: (seconds: number) => void;
+  seekBackward: (seconds: number) => void;
+  seekToLivePosition: () => void;
+  setVolume: (level: number) => void;
+}
+
+const _HMSHLSPlayer: React.ForwardRefRenderFunction<
+  HMSHLSPlayerRefProperties,
+  HMSHLSPlayerProps
+> = (
+  {
+    url = '',
+    style,
+    containerStyle,
+    aspectRatio = 9 / 16,
+    enableStats,
+    enableControls = true,
+  },
+  ref
+) => {
+  const hmsHlsPlayerRef = useRef<RCTHMSHLSPlayerRef | null>(null);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      play: (url?: string) => {
+        if (hmsHlsPlayerRef.current) {
+          UIManager.dispatchViewManagerCommand(
+            findNodeHandle(hmsHlsPlayerRef.current),
+            RCTHMSHLSPlayerViewManagerConfig.Commands.play,
+            url ? [url] : ['']
+          );
+        }
+      },
+      stop: () => {
+        if (hmsHlsPlayerRef.current) {
+          UIManager.dispatchViewManagerCommand(
+            findNodeHandle(hmsHlsPlayerRef.current),
+            RCTHMSHLSPlayerViewManagerConfig.Commands.stop,
+            undefined
+          );
+        }
+      },
+      pause: () => {
+        if (hmsHlsPlayerRef.current) {
+          UIManager.dispatchViewManagerCommand(
+            findNodeHandle(hmsHlsPlayerRef.current),
+            RCTHMSHLSPlayerViewManagerConfig.Commands.pause,
+            undefined
+          );
+        }
+      },
+      resume: () => {
+        if (hmsHlsPlayerRef.current) {
+          UIManager.dispatchViewManagerCommand(
+            findNodeHandle(hmsHlsPlayerRef.current),
+            RCTHMSHLSPlayerViewManagerConfig.Commands.resume,
+            undefined
+          );
+        }
+      },
+      seekForward: (seconds: number) => {
+        if (typeof seconds !== 'number') {
+          throw new Error(
+            seconds
+              ? 'seconds must be a `number` type'
+              : 'seconds was not provided'
+          );
+        }
+
+        if (hmsHlsPlayerRef.current) {
+          UIManager.dispatchViewManagerCommand(
+            findNodeHandle(hmsHlsPlayerRef.current),
+            RCTHMSHLSPlayerViewManagerConfig.Commands.seekForward,
+            [seconds]
+          );
+        }
+      },
+      seekBackward: (seconds: number) => {
+        if (typeof seconds !== 'number') {
+          throw new Error(
+            seconds
+              ? 'seconds must be a `number` type'
+              : 'seconds was not provided'
+          );
+        }
+
+        if (hmsHlsPlayerRef.current) {
+          UIManager.dispatchViewManagerCommand(
+            findNodeHandle(hmsHlsPlayerRef.current),
+            RCTHMSHLSPlayerViewManagerConfig.Commands.seekBackward,
+            [seconds]
+          );
+        }
+      },
+      seekToLivePosition: () => {
+        if (hmsHlsPlayerRef.current) {
+          UIManager.dispatchViewManagerCommand(
+            findNodeHandle(hmsHlsPlayerRef.current),
+            RCTHMSHLSPlayerViewManagerConfig.Commands.seekToLivePosition,
+            undefined
+          );
+        }
+      },
+      setVolume: (level: number) => {
+        if (typeof level !== 'number') {
+          throw new Error(
+            level ? 'level must be a `number` type' : 'level was not provided'
+          );
+        }
+
+        if (hmsHlsPlayerRef.current) {
+          UIManager.dispatchViewManagerCommand(
+            findNodeHandle(hmsHlsPlayerRef.current),
+            RCTHMSHLSPlayerViewManagerConfig.Commands.setVolume,
+            [level]
+          );
+        }
+      },
+    }),
+    []
+  );
+
   // Handle HLS Playback events
   const handleHLSPlaybackEvent: HmsHlsPlaybackEventHandler = ({
     nativeEvent,
@@ -75,6 +197,7 @@ export const HMSHLSPlayer: React.FC<HMSHLSPlayerProps> = ({
     <View style={[styles.container, containerStyle]}>
       <View style={[styles.playerWrapper, style]}>
         <RCTHMSHLSPlayer
+          ref={hmsHlsPlayerRef}
           url={url}
           style={[styles.player, { aspectRatio }]}
           enableStats={enableStats}
@@ -86,6 +209,11 @@ export const HMSHLSPlayer: React.FC<HMSHLSPlayerProps> = ({
     </View>
   );
 };
+
+export const HMSHLSPlayer = React.forwardRef<
+  HMSHLSPlayerRefProperties,
+  HMSHLSPlayerProps
+>(_HMSHLSPlayer);
 
 const styles = StyleSheet.create({
   container: {

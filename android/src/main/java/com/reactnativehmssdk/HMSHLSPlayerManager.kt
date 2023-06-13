@@ -1,5 +1,6 @@
 package com.reactnativehmssdk
 
+import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.common.MapBuilder
 import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
@@ -31,6 +32,52 @@ class HMSHLSPlayerManager : SimpleViewManager<HMSHLSPlayer>() {
       HMSHLSPlayerConstants.HMS_HLS_STATS_EVENT,
       MapBuilder.of("registrationName", "onHmsHlsStatsEvent"),
     )
+  }
+
+  override fun receiveCommand(root: HMSHLSPlayer, commandId: Int, args: ReadableArray?) {
+    super.receiveCommand(root, commandId, args)
+
+    when (commandId) {
+      10 -> root.play(args?.getString(0))
+      20 -> root.stop()
+      30 -> root.pause()
+      40 -> root.resume()
+      50 -> root.seekToLivePosition()
+      60 -> {
+        args.let {
+          if (it != null) {
+            root.seekForward(it.getDouble(0))
+          }
+        }
+      }
+      70 -> {
+        args.let {
+          if (it != null) {
+            root.seekBackward(it.getDouble(0))
+          }
+        }
+      }
+      80 -> {
+        args.let {
+          if (it != null) {
+            root.setVolume(it.getInt(0))
+          }
+        }
+      }
+    }
+  }
+
+  override fun getCommandsMap(): MutableMap<String, Int>? {
+    return MapBuilder.builder<String, Int>()
+      .put("play", 10)
+      .put("stop", 20)
+      .put("pause", 30)
+      .put("resume", 40)
+      .put("seekToLivePosition", 50)
+      .put("seekForward", 60)
+      .put("seekBackward", 70)
+      .put("setVolume", 80)
+      .build()
   }
 
   @ReactProp(name = "url")

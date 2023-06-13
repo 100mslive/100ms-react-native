@@ -38,6 +38,7 @@ type IntialStateType = {
     showStats: boolean;
     showHLSStats: boolean;
     enableHLSPlayerControls: boolean;
+    showCustomHLSPlayerControls: boolean;
   };
 };
 
@@ -59,6 +60,7 @@ const INITIAL_STATE: IntialStateType = {
     showStats: false,
     showHLSStats: false,
     enableHLSPlayerControls: true,
+    showCustomHLSPlayerControls: false,
   },
 };
 
@@ -148,6 +150,15 @@ const appReducer = (
           ...state.joinConfig,
           enableHLSPlayerControls:
             action.payload.enableHLSPlayerControls ?? true,
+        },
+      };
+    case ActionTypes.CHANGE_SHOW_CUSTOM_HLS_PLAYER_CONTROLS:
+      return {
+        ...state,
+        joinConfig: {
+          ...state.joinConfig,
+          showCustomHLSPlayerControls:
+            action.payload.showCustomHLSPlayerControls ?? false,
         },
       };
     case ActionTypes.CHANGE_SOFTWARE_DECODER:
