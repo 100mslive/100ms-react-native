@@ -815,7 +815,14 @@ const DisplayView = (data: {
         navigate('QRCodeScreen');
         console.log('Destroy Success: ', s);
       })
-      .catch(e => console.log('Destroy Error: ', e));
+      .catch(e => {
+        console.log(`Destroy HMS instance Error: ${e}`);
+        Toast.showWithGravity(
+          `Destroy HMS instance Error: ${e}`,
+          Toast.LONG,
+          Toast.TOP,
+        );
+      });
   };
 
   const onLeavePress = async () => {
@@ -829,7 +836,10 @@ const DisplayView = (data: {
         sessionStoreListeners.current.forEach(listener => listener.remove());
         destroy();
       })
-      .catch(e => console.log('Leave Error: ', e));
+      .catch(e => {
+        console.log(`Leave Room Error: ${e}`);
+        Toast.showWithGravity(`Leave Room Error: ${e}`, Toast.LONG, Toast.TOP);
+      });
   };
 
   const onEndRoomPress = async () => {
