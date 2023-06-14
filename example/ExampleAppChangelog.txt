@@ -15,6 +15,9 @@ https://github.com/100mslive/react-native-hms/issues/1000
 - Enabled S/W echo cancellation by default
 https://github.com/100mslive/react-native-hms/issues/1068
 
+- Add key as videoTrackId for all HMSView components
+https://github.com/100mslive/react-native-hms/issues/1029
+
 React Native SDK: 1.7.0
 Android SDK: 2.6.7
 iOS SDK: 0.9.5
