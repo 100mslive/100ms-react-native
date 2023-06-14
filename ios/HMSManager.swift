@@ -1,4 +1,5 @@
 import HMSSDK
+import AVKit.AVRoutePickerView
 
 @objc(HMSManager)
 class HMSManager: RCTEventEmitter {
@@ -180,6 +181,27 @@ class HMSManager: RCTEventEmitter {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.setVolume(data)
+    }
+
+    @objc
+    func switchAudioOutputUsingIOSUI(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        DispatchQueue.main.async {
+            // Creating RoutePickerView
+            // Note:- We will trigger tap event on it without rendering this view in UI.
+            let routePickerView = AVRoutePickerView()
+
+            // Iterating over subviews of AVRoutePickerView
+            for view in routePickerView.subviews {
+                // Checking if the current subview is UIButton
+                if let button = view as? UIButton {
+                    // Trigger tap event on the button
+                    // so, that Picker View is shown
+                    button.sendActions(for: .touchUpInside)
+                    break
+                }
+            }
+            resolve?(true)
+        }
     }
 
     // MARK: - Messaging
@@ -411,15 +433,6 @@ class HMSManager: RCTEventEmitter {
         hms?.disableNetworkQualityUpdates()
     }
 
-    // MARK: - Session Metadata
-
-    @objc
-    func setSessionMetaData(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HMSHelper.getHms(data, hmsCollection)
-
-        hms?.setSessionMetaData(data, resolve, reject)
-    }
-
     // MARK: - Peer & Room Property Getter Functions
 
     @objc
@@ -497,13 +510,6 @@ class HMSManager: RCTEventEmitter {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.getRoles(resolve)
-    }
-
-    @objc
-    func getSessionMetaData(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HMSHelper.getHms(data, hmsCollection)
-
-        hms?.getSessionMetaData(resolve, reject)
     }
 
     @objc

@@ -425,15 +425,18 @@ object HMSHelper {
 
   fun getRtmpConfig(data: ReadableMap): HMSRecordingConfig? {
     val record = data.getBoolean("record")
-    var meetingURL = ""
+    var meetingURL: String? = null
     var rtmpURLs = listOf<String>()
     var resolution: HMSRtmpVideoResolution? = null
     if (areAllRequiredKeysAvailable(data, arrayOf(Pair("meetingURL", "String")))) {
       val meetingURLValid = data.getString("meetingURL") as String
-      if (URLUtil.isValidUrl(meetingURLValid)) {
-        meetingURL = meetingURLValid
-      } else {
-        return null
+
+      if (meetingURLValid.isNotEmpty()) {
+        if (URLUtil.isValidUrl(meetingURLValid)) {
+          meetingURL = meetingURLValid
+        } else {
+          return null
+        }
       }
     }
 

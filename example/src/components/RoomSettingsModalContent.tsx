@@ -185,8 +185,14 @@ export const RoomSettingsModalContent: React.FC<
   const changeTrackState = () =>
     setModalVisible(ModalTypes.CHANGE_TRACK_ROLE, true);
 
-  const switchAudioOutput = () =>
-    setModalVisible(ModalTypes.SWITCH_AUDIO_OUTPUT, true);
+  const switchAudioOutput = () => {
+    if (Platform.OS === 'android') {
+      setModalVisible(ModalTypes.SWITCH_AUDIO_OUTPUT, true);
+    } else {
+      closeRoomSettingsModal();
+      hmsInstance?.switchAudioOutputUsingIOSUI();
+    }
+  };
 
   const changeAudioMode = () =>
     setModalVisible(ModalTypes.CHANGE_AUDIO_MODE, true);
@@ -403,16 +409,18 @@ export const RoomSettingsModalContent: React.FC<
           />
         ) : null}
 
+        {localPeer?.role?.publishSettings?.allowed?.includes('audio') ? (
+          <SettingItem
+            onPress={switchAudioOutput}
+            text="Switch Audio Output"
+            IconType={MaterialCommunityIcons}
+            iconName="cast-audio"
+          />
+        ) : null}
+
         {Platform.OS === 'android' &&
         localPeer?.role?.publishSettings?.allowed?.includes('audio') ? (
           <>
-            <SettingItem
-              onPress={switchAudioOutput}
-              text="Switch Audio Output"
-              IconType={MaterialCommunityIcons}
-              iconName="cast-audio"
-            />
-
             <SettingItem
               onPress={addRemoveAudioDeviceChangeListener}
               text={`${

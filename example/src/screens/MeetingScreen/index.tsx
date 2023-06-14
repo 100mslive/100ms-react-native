@@ -681,28 +681,7 @@ const DisplayView = (data: {
   };
 
   const onMessageListener = (message: HMSMessage) => {
-    // dispatch(addMessage(message));
-    dispatch(
-      addMessage({
-        ...message,
-        // We are extracting HMSPeer properties into new object
-        // so that when this peer leaves room, we still have its data in chat window
-        sender: message.sender
-          ? {
-              peerID: message.sender.peerID,
-              name: message.sender.name,
-              isLocal: message.sender.isLocal,
-              role: message.sender.role,
-              audioTrack: undefined,
-              auxiliaryTracks: undefined,
-              customerUserID: undefined,
-              metadata: undefined,
-              networkQuality: undefined,
-              videoTrack: undefined,
-            }
-          : undefined,
-      }),
-    );
+    dispatch(addMessage(message));
   };
 
   // functions
@@ -812,12 +791,14 @@ const DisplayView = (data: {
   const destroy = async () => {
     await hmsInstance
       ?.destroy()
-      .then(s => console.log('Destroy Success: ', s))
+      .then(s => {
+        dispatch(clearMessageData());
+        dispatch(clearPeerData());
+        dispatch(clearHmsReference());
+        navigate('QRCodeScreen');
+        console.log('Destroy Success: ', s);
+      })
       .catch(e => console.log('Destroy Error: ', e));
-    dispatch(clearMessageData());
-    dispatch(clearPeerData());
-    dispatch(clearHmsReference());
-    navigate('QRCodeScreen');
   };
 
   const onLeavePress = async () => {

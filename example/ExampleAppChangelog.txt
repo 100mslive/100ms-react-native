@@ -1,8 +1,9 @@
-Board: https://github.com/100mslive/react-native-hms/projects/21
+Board: https://github.com/100mslive/react-native-hms/projects/16
 
-- Add messageId to HMSMessage
-https://github.com/100mslive/react-native-hms/pull/1044/
+- Fixed crash in RN iOS app on rejoining in Large Rooms
+https://github.com/100mslive/react-native-hms/issues/1056
 
-React Native SDK: 1.6.2
-Android SDK: 2.6.4
+
+React Native SDK: 1.7.0
+Android SDK: 2.6.5
 iOS SDK: 0.9.4
