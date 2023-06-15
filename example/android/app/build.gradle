@@ -121,8 +121,6 @@ def jscFlavor = 'org.webkit:android-jsc:+'
 def enableHermes = project.ext.react.get("enableHermes", true)
 
 android {
-    ndkVersion rootProject.ext.ndkVersion
-
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     compileOptions {
@@ -134,8 +132,8 @@ android {
         applicationId "live.hms.rn"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 208
-        versionName "2.1.72"
+        versionCode 217
+        versionName "2.1.81"
         missingDimensionStrategy 'react-native-camera', 'general'
     }
     splits {
@@ -156,6 +154,8 @@ android {
     }
     buildTypes {
         debug {
+            minifyEnabled false
+
             signingConfig signingConfigs.debug
         }
         release {

@@ -53,6 +53,7 @@ const PeerDisplayView = ({
            */}
           <HmsView
             trackId={videoTrack?.trackId!}
+            key={videoTrack?.trackId!}
             mirror={
               isLocal && mirrorCamera !== undefined ? mirrorCamera : false
             }
