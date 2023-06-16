@@ -270,9 +270,12 @@ const ChatList = ({
   );
 };
 
-export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
+export const ChatWindow: React.FC = () => {
   // hooks
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
+  const localPeer = useSelector(
+    (state: RootState) => state.hmsStates.localPeer,
+  );
   const hmsSessionStore = useSelector(
     (state: RootState) => state.user.hmsSessionStore,
   );
@@ -341,7 +344,7 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
             message: messageText,
             type: HMSMessageType.CHAT,
             time: new Date(),
-            sender: localPeer,
+            sender: localPeer || undefined,
             recipient: hmsMessageRecipient,
           });
           dispatch(addMessage(localMessage));

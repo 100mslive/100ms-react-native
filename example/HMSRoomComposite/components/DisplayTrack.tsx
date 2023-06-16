@@ -2,7 +2,7 @@ import React from 'react';
 import {View, Text, StyleProp, ViewStyle} from 'react-native';
 import {HMSTrackSource, HMSTrackType} from '@100mslive/react-native-hms';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import type {HMSView} from '@100mslive/react-native-hms';
 
 import {CustomButton} from '.';
@@ -10,20 +10,18 @@ import {styles} from './styles';
 import type {RootState} from '../redux';
 import PeerDisplayView, {PeerDisplayViewProps} from './PeerDisplayView';
 import PeerRTCStatsContainer from './PeerRTCStatsContainer';
+import {setIsLocalScreenSharedState} from '../redux/actions';
 
 interface DisplayTrackProps extends PeerDisplayViewProps {
   videoStyles: StyleProp<ViewStyle>;
-  setIsScreenShared: React.Dispatch<React.SetStateAction<boolean | undefined>>;
 }
 
 // `ref` passed to DisplayTrack component will be passed to PeerDisplayView component
 // as HMSView component is being rendered inside PeerDisplayView component
 const DisplayTrack = React.forwardRef<typeof HMSView, DisplayTrackProps>(
-  (
-    {isDegraded, isLocal, peer, videoTrack, videoStyles, setIsScreenShared},
-    hmsViewRef,
-  ) => {
+  ({isDegraded, isLocal, peer, videoTrack, videoStyles}, hmsViewRef) => {
     // hooks
+    const dispatch = useDispatch();
     const hmsInstance = useSelector(
       (state: RootState) => state.user.hmsInstance,
     );
@@ -37,7 +35,7 @@ const DisplayTrack = React.forwardRef<typeof HMSView, DisplayTrackProps>(
         ?.stopScreenshare()
         .then(d => {
           console.log('Stop Screenshare Success: ', d);
-          setIsScreenShared(false);
+          dispatch(setIsLocalScreenSharedState(false));
         })
         .catch(e => console.log('Stop Screenshare Error: ', e));
     };

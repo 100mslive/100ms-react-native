@@ -1,5 +1,5 @@
 import type {HMSMessage} from '@100mslive/react-native-hms';
-import ActionTypes from '../actionTypes';
+import ActionTypes, {HmsStateActionTypes} from '../actionTypes';
 
 type ActionType = {
   payload: HMSMessage | (string | null | undefined);
@@ -26,6 +26,8 @@ const messageReducer = (state = INITIAL_STATE, action: ActionType) => {
       return {...state, messages: [...state.messages, message]};
     case ActionTypes.CLEAR_MESSAGE_DATA.REQUEST:
       return {...state, messages: []};
+    case HmsStateActionTypes.CLEAR_STATES:
+      return INITIAL_STATE;
     default:
       return state;
   }

@@ -10,8 +10,6 @@ import type {PeerTrackNode} from '../utils/types';
 type GridViewProps = {
   onPeerTileMorePress(peerTrackNode: PeerTrackNode): void;
   pairedPeers: PeerTrackNode[][];
-  orientation: boolean;
-  setIsScreenShared: React.Dispatch<React.SetStateAction<boolean | undefined>>;
 };
 
 type GridViewRefAttrs = {
@@ -20,7 +18,7 @@ type GridViewRefAttrs = {
 };
 
 const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
-  ({pairedPeers, orientation, onPeerTileMorePress, setIsScreenShared}, ref) => {
+  ({pairedPeers, onPeerTileMorePress}, ref) => {
     // hooks
     const [screenshotData, setScreenshotData] = useState<{
       peer: HMSPeer;
@@ -78,14 +76,12 @@ const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
         return (
           <TilesContainer
             onPeerTileMorePress={onPeerTileMorePress}
-            orientation={orientation}
             peerTrackNodes={item}
             setHmsViewRefs={setHmsViewRefs}
-            setIsScreenShared={setIsScreenShared}
           />
         );
       },
-      [onPeerTileMorePress, orientation, setHmsViewRefs],
+      [onPeerTileMorePress, setHmsViewRefs],
     );
 
     const _keyExtractor = React.useCallback(item => item[0]?.id, []);
@@ -114,7 +110,6 @@ const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
         >
           <SaveScreenshot
             imageSource={screenshotData?.source}
-            peer={screenshotData?.peer}
             cancelModal={() => setScreenshotData(null)}
           />
         </DefaultModal>

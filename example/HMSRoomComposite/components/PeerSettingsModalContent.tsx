@@ -16,7 +16,6 @@ import {PeerTrackNode} from '../utils/types';
 import {isTileOnSpotlight} from '../utils/functions';
 
 interface PeerSettingsModalContentProps {
-  localPeer: HMSLocalPeer;
   peerTrackNode: PeerTrackNode;
   cancelModal(): void;
   onChangeNamePress(peer: HMSPeer): void;
@@ -30,7 +29,6 @@ interface PeerSettingsModalContentProps {
 export const PeerSettingsModalContent: React.FC<
   PeerSettingsModalContentProps
 > = ({
-  localPeer,
   peerTrackNode,
   cancelModal,
   onChangeNamePress,
@@ -41,6 +39,9 @@ export const PeerSettingsModalContent: React.FC<
   onStreamingQualityPress,
 }) => {
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
+  const localPeer = useSelector(
+    (state: RootState) => state.hmsStates.localPeer,
+  );
   const hmsSessionStore = useSelector(
     (state: RootState) => state.user.hmsSessionStore,
   );
@@ -116,7 +117,7 @@ export const PeerSettingsModalContent: React.FC<
 
   const {peer} = peerTrackNode;
 
-  const localPeerPermissions = localPeer.role?.permissions;
+  const localPeerPermissions = localPeer?.role?.permissions;
 
   const isPeerAudioMute = peer.isLocal ? null : peer.audioTrack?.isMute();
   const isPeerVideoMute = peer.isLocal ? null : peer.videoTrack?.isMute();

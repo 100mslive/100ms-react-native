@@ -25,7 +25,6 @@ import {SwitchRow} from './SwitchRow';
 import {RootState} from '../redux';
 import {
   changeAudioMixer,
-  changeShowStats,
   changeJoinAudioMuted,
   changeJoinSkipPreview,
   changeJoinVideoMuted,
@@ -35,7 +34,6 @@ import {
   changeAutoSimulcast,
   resetJoinConfig,
   changeMusicMode,
-  changeUsePrebuilt,
 } from '../redux/actions';
 
 interface JoinSettingsModalContentProps {}
@@ -50,13 +48,11 @@ export const JoinSettingsModalContent: React.FC<
     mutedVideo,
     skipPreview,
     mirrorCamera,
-    showStats,
     audioMixer,
     musicMode,
     softwareDecoder,
     autoResize,
     autoSimulcast,
-    usePrebuilt,
   } = joinConfig;
 
   return (
@@ -67,20 +63,6 @@ export const JoinSettingsModalContent: React.FC<
 
       <ScrollView>
         <View>
-          <SwitchRow
-            text="Use Prebuilt"
-            value={usePrebuilt}
-            onChange={value => dispatch(changeUsePrebuilt(value))}
-            LeftIcon={
-              <MaterialCommunityIcons
-                name="package-variant-closed"
-                size={24}
-                style={styles.icon}
-              />
-            }
-            containerStyle={styles.switchContainer}
-          />
-
           <SwitchRow
             text="Join with Muted Audio"
             value={mutedAudio}
@@ -192,20 +174,6 @@ export const JoinSettingsModalContent: React.FC<
             LeftIcon={
               <MaterialIcons
                 name="auto-awesome-motion"
-                size={24}
-                style={styles.icon}
-              />
-            }
-            containerStyle={styles.switchContainer}
-          />
-
-          <SwitchRow
-            text="Show RTC Stats"
-            value={showStats}
-            onChange={value => dispatch(changeShowStats(value))}
-            LeftIcon={
-              <MaterialCommunityIcons
-                name="clipboard-pulse-outline"
                 size={24}
                 style={styles.icon}
               />

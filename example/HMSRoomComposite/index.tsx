@@ -1,10 +1,9 @@
-import React from 'react';
-import {View, Text} from 'react-native';
+import React, {memo} from 'react';
 import {Provider} from 'react-redux';
 
 import {store} from './redux/index';
-import {Meeting} from './components/Meeting';
-import {HMSRoomSetup} from './HMSRoomSetup';
+import {HMSContainer} from './HMSContainer';
+import {setPrebuiltData} from './redux/actions';
 
 export interface HMSRoomCompositeProps {
   roomCode: string;
@@ -19,19 +18,16 @@ export interface HMSRoomCompositeProps {
   };
 }
 
-export const HMSRoomComposite: React.FC<HMSRoomCompositeProps> = props => {
+export const _HMSRoomComposite: React.FC<HMSRoomCompositeProps> = props => {
   const {roomCode, options} = props;
 
-  const debugInfo = options?.debugInfo || false;
-
-  // Username: options.userName
-  // UserId: options.userId
-  // Token EndPoint: options.endPoints?.token
-  // Init EndPoint: options.endPoints?.init
+  store.dispatch(setPrebuiltData({roomCode, options}));
 
   return (
     <Provider store={store}>
-      <HMSRoomSetup />
+      <HMSContainer />
     </Provider>
   );
 };
+
+export const HMSRoomComposite = memo(_HMSRoomComposite);

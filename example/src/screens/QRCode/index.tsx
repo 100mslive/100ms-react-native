@@ -29,7 +29,7 @@ import {
   DefaultModal,
   JoinSettingsModalContent,
 } from '../../components';
-import {saveUserData} from '../../redux/actions';
+import {setRoomID} from '../../redux/actions';
 import {Constants} from '../../utils/types';
 import {RootState} from '../../redux';
 import {callService} from '../../utils/functions';
@@ -45,53 +45,45 @@ const QRCode = () => {
   const dispatch = useDispatch();
 
   const roomLink = useSelector(
-    (state: RootState) => state.user.roomID || getMeetingUrl(),
+    (state: RootState) => state.app.roomID || getMeetingUrl(),
   );
   const [peerName, setPeerName] = useState<string>('');
   const [joinDisabled, setJoinDisabled] = useState<boolean>(true);
   const [joiningLink, setJoiningLink] = useState<string>('');
   const [moreModalVisible, setMoreModalVisible] = useState(false);
 
-  const usePrebuilt = useSelector(
-    (state: RootState) => state.app.joinConfig.usePrebuilt,
-  );
-
   const onJoinPress = () => {
     if (joiningLink.includes('app.100ms.live/')) {
-      dispatch(
-        saveUserData({
-          roomID: joiningLink.replace('meeting', 'preview'),
-          isHLSFlow: true,
-        }),
-      );
+      dispatch(setRoomID(joiningLink.replace('meeting', 'preview')));
 
-      if (usePrebuilt) {
-        callService(
-          joiningLink,
-          (
-            roomCode: string,
-            userId: string,
-            tokenEndpoint: string | undefined,
-            initEndpoint: string | undefined,
-          ) => {
-            navigate('HMSPrebuiltScreen', {
-              roomCode,
-              userName: peerName,
-              userId,
-              endPoints:
-                tokenEndpoint && initEndpoint
-                  ? {init: initEndpoint, token: tokenEndpoint}
-                  : undefined,
-              debugInfo: undefined, // default is false, will deal with this later
-            });
-          },
-          (errorMsg: string) => {
-            Toast.showWithGravity(errorMsg, Toast.LONG, Toast.TOP);
-          },
-        );
-      } else {
-        navigate('WelcomeScreen');
-      }
+      callService(
+        joiningLink,
+        (
+          roomCode: string,
+          userId: string,
+          tokenEndpoint: string | undefined,
+          initEndpoint: string | undefined,
+        ) => {
+          // Saving Meeting Link to Async Storage for persisting it between app starts.
+          AsyncStorage.setItem(
+            Constants.MEET_URL,
+            joiningLink.replace('preview', 'meeting'),
+          );
+          navigate('HMSPrebuiltScreen', {
+            roomCode,
+            userName: peerName,
+            userId,
+            endPoints:
+              tokenEndpoint && initEndpoint
+                ? {init: initEndpoint, token: tokenEndpoint}
+                : undefined,
+            debugInfo: undefined, // default is false, will deal with this later
+          });
+        },
+        (errorMsg: string) => {
+          Toast.showWithGravity(errorMsg, Toast.LONG, Toast.TOP);
+        },
+      );
     } else {
       Alert.alert('Error', 'Invalid URL');
     }
@@ -131,15 +123,17 @@ const QRCode = () => {
   useFocusEffect(
     useCallback(() => {
       AsyncStorage.getItem(Constants.MEET_URL, (_error, url) => {
-        if (url) {
+        if (url && url === roomLink) {
+          console.log('setting from AsyncStorage -> ', url);
           setJoiningLink(url);
         }
       });
-    }, []),
+    }, [roomLink]),
   );
 
   useEffect(() => {
     if (roomLink) {
+      console.log('setting from roomLink -> ', roomLink);
       setJoiningLink(roomLink);
     }
   }, [roomLink]);
@@ -178,60 +172,47 @@ const QRCode = () => {
           <Text style={styles.joiningLinkInputText}>Joining Link</Text>
         </View>
 
-        {usePrebuilt ? (
-          <>
-            <View style={{width: '100%', flexDirection: 'row'}}>
-              <CustomInput
-                value={joiningLink}
-                onChangeText={setJoiningLink}
-                inputStyle={styles.joiningLinkInput}
-                viewStyle={{width: '86%'}}
-                placeholderTextColor={COLORS.TEXT.DISABLED}
-                placeholder="Paste the link here"
-                multiline
-                blurOnSubmit
-              />
-              <TouchableOpacity
-                onPress={onScanQRCodePress}
-                style={{
-                  width: '14%',
-                  marginTop: 8,
-                  backgroundColor: COLORS.PRIMARY.DEFAULT,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  borderRadius: 8,
-                }}
-              >
-                <MaterialCommunityIcons
-                  name="qrcode"
-                  style={{color: COLORS.TEXT.HIGH_EMPHASIS_ACCENT}}
-                  size={24}
-                />
-              </TouchableOpacity>
-            </View>
-
-            <CustomInput
-              value={peerName}
-              onChangeText={setPeerName}
-              textStyle={styles.userNameInputText}
-              viewStyle={styles.userNameInputView}
-              inputStyle={styles.userNameInput}
-              placeholderTextColor={COLORS.TEXT.DISABLED}
-              placeholder="Enter your name"
-              title="Name"
-            />
-          </>
-        ) : (
+        <View style={{width: '100%', flexDirection: 'row'}}>
           <CustomInput
             value={joiningLink}
             onChangeText={setJoiningLink}
             inputStyle={styles.joiningLinkInput}
+            viewStyle={{width: '86%'}}
             placeholderTextColor={COLORS.TEXT.DISABLED}
             placeholder="Paste the link here"
             multiline
             blurOnSubmit
           />
-        )}
+          <TouchableOpacity
+            onPress={onScanQRCodePress}
+            style={{
+              width: '14%',
+              marginTop: 8,
+              backgroundColor: COLORS.PRIMARY.DEFAULT,
+              justifyContent: 'center',
+              alignItems: 'center',
+              borderRadius: 8,
+            }}
+          >
+            <MaterialCommunityIcons
+              name="qrcode"
+              style={{color: COLORS.TEXT.HIGH_EMPHASIS_ACCENT}}
+              size={24}
+            />
+          </TouchableOpacity>
+        </View>
+
+        <CustomInput
+          value={peerName}
+          onChangeText={setPeerName}
+          textStyle={styles.userNameInputText}
+          viewStyle={styles.userNameInputView}
+          inputStyle={styles.userNameInput}
+          placeholderTextColor={COLORS.TEXT.DISABLED}
+          placeholder="Enter your name"
+          title="Name"
+        />
+
         <View style={{flexDirection: 'row'}}>
           <CustomButton
             title="Join Now"
@@ -255,24 +236,6 @@ const QRCode = () => {
             }
           />
         </View>
-        {!usePrebuilt ? (
-          <>
-            <View style={styles.horizontalSeparator} />
-            <CustomButton
-              title="Scan QR Code"
-              onPress={onScanQRCodePress}
-              viewStyle={styles.scanQRButton}
-              textStyle={styles.joinButtonText}
-              LeftIcon={
-                <MaterialCommunityIcons
-                  name="qrcode"
-                  style={styles.scanQRButtonIcon}
-                  size={24}
-                />
-              }
-            />
-          </>
-        ) : null}
       </ScrollView>
 
       <DefaultModal

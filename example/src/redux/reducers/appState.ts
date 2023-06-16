@@ -1,12 +1,5 @@
+import {getMeetingUrl} from '../../utils/functions';
 import ActionTypes from '../actionTypes';
-import type {PeerTrackNode} from '../../utils/types';
-import {PipModes} from '../../utils/types';
-import {
-  HMSLocalAudioStats,
-  HMSLocalVideoStats,
-  HMSRemoteAudioStats,
-  HMSRemoteVideoStats,
-} from '@100mslive/react-native-hms';
 
 type ActionType = {
   payload: {[key: string]: any};
@@ -14,18 +7,8 @@ type ActionType = {
 };
 
 type IntialStateType = {
-  peerState: PeerTrackNode[];
-  pipModeStatus: PipModes;
-  rtcStats: Record<
-    string,
-    | undefined
-    | HMSLocalAudioStats
-    | HMSLocalVideoStats[]
-    | HMSRemoteAudioStats
-    | HMSRemoteVideoStats
-  >;
+  roomID: string;
   joinConfig: {
-    usePrebuilt: boolean;
     mutedAudio: boolean;
     mutedVideo: boolean;
     mirrorCamera: boolean;
@@ -35,16 +18,12 @@ type IntialStateType = {
     softwareDecoder: boolean; // Android only
     autoResize: boolean; // Android only
     autoSimulcast: boolean;
-    showStats: boolean;
   };
 };
 
 const INITIAL_STATE: IntialStateType = {
-  peerState: [],
-  pipModeStatus: PipModes.INACTIVE,
-  rtcStats: {},
+  roomID: getMeetingUrl(),
   joinConfig: {
-    usePrebuilt: true,
     mutedAudio: true,
     mutedVideo: true,
     mirrorCamera: true,
@@ -54,7 +33,6 @@ const INITIAL_STATE: IntialStateType = {
     softwareDecoder: true, // Android only
     autoResize: false, // Android only
     autoSimulcast: true,
-    showStats: false,
   },
 };
 
@@ -63,12 +41,11 @@ const appReducer = (
   action: ActionType,
 ): IntialStateType => {
   switch (action.type) {
-    case ActionTypes.CHANGE_PIP_MODE_STATUS:
-      return {...state, pipModeStatus: action.payload.pipModeStatus};
-    case ActionTypes.SET_PEER_STATE:
-      return {...state, ...action.payload};
-    case ActionTypes.CLEAR_PEER_DATA.REQUEST:
-      return {...state, peerState: []};
+    case ActionTypes.SET_ROOM_ID:
+      return {
+        ...state,
+        roomID: action.payload.roomID || '',
+      };
     case ActionTypes.RESET_JOIN_CONFIG:
       return {...state, joinConfig: INITIAL_STATE.joinConfig};
     case ActionTypes.CHANGE_JOIN_AUDIO_MUTED:
@@ -119,14 +96,6 @@ const appReducer = (
           musicMode: action.payload.musicMode ?? false,
         },
       };
-    case ActionTypes.CHANGE_SHOW_STATS:
-      return {
-        ...state,
-        joinConfig: {
-          ...state.joinConfig,
-          showStats: action.payload.showStats ?? false,
-        },
-      };
     case ActionTypes.CHANGE_SOFTWARE_DECODER:
       return {
         ...state,
@@ -149,22 +118,6 @@ const appReducer = (
         joinConfig: {
           ...state.joinConfig,
           autoSimulcast: action.payload.autoSimulcast ?? true,
-        },
-      };
-    case ActionTypes.CHANGE_USE_PREBUILT:
-      return {
-        ...state,
-        joinConfig: {
-          ...state.joinConfig,
-          usePrebuilt: action.payload.usePrebuilt ?? true,
-        },
-      };
-    case ActionTypes.SET_RTC_STATS:
-      return {
-        ...state,
-        rtcStats: {
-          ...state.rtcStats,
-          [action.payload.trackId]: action.payload.stats,
         },
       };
     default:

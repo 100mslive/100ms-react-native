@@ -12,25 +12,23 @@ import {getDisplayTrackDimensions, parseMetadata} from '../utils/functions';
 import {DisplayTrack} from './DisplayTrack';
 import {COLORS} from '../utils/theme';
 import type {PeerTrackNode} from '../utils/types';
+import {useIsPortraitOrientation} from '../utils/dimension';
 
 interface TileProps {
   totalTilesInContainer: number;
-  orientation: boolean;
   peerTrackNode: PeerTrackNode;
   onPeerTileMorePress(peerTrackNode: PeerTrackNode): void;
   setHmsViewRefs(viewId: string, ref: typeof HMSView | null): void;
-  setIsScreenShared: React.Dispatch<React.SetStateAction<boolean | undefined>>;
 }
 
 const TileUnmemoized: React.FC<TileProps> = ({
   onPeerTileMorePress,
   peerTrackNode,
-  orientation,
   totalTilesInContainer,
   setHmsViewRefs,
-  setIsScreenShared,
 }) => {
   const {top, bottom} = useSafeAreaInsets();
+  const isPortraitOrientation = useIsPortraitOrientation();
   const parsedMetadata = parseMetadata(peerTrackNode?.peer?.metadata);
 
   return (
@@ -44,7 +42,7 @@ const TileUnmemoized: React.FC<TileProps> = ({
                 totalTilesInContainer,
                 top,
                 bottom,
-                orientation,
+                isPortraitOrientation,
               ),
             },
       ]}
@@ -57,7 +55,6 @@ const TileUnmemoized: React.FC<TileProps> = ({
         videoTrack={peerTrackNode?.track}
         videoStyles={styles.generalTile}
         isDegraded={peerTrackNode?.isDegraded}
-        setIsScreenShared={setIsScreenShared}
       />
 
       {/* More Options button for Peer */}

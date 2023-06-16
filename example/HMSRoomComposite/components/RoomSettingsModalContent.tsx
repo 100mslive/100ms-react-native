@@ -31,9 +31,6 @@ import {ModalTypes, PipModes} from '../utils/types';
 import {parseMetadata} from '../utils/functions';
 
 interface RoomSettingsModalContentProps {
-  localPeer?: HMSLocalPeer;
-  isHLSStreaming?: boolean;
-  rtmpAndRecording?: boolean;
   newAudioMixingMode: HMSAudioMixingMode;
   isAudioShared: boolean;
   audioDeviceListenerAdded: boolean;
@@ -48,9 +45,6 @@ interface RoomSettingsModalContentProps {
 export const RoomSettingsModalContent: React.FC<
   RoomSettingsModalContentProps
 > = ({
-  localPeer,
-  isHLSStreaming,
-  rtmpAndRecording,
   newAudioMixingMode,
   isAudioShared, //
   audioDeviceListenerAdded,
@@ -69,6 +63,21 @@ export const RoomSettingsModalContent: React.FC<
   // REDUX STATES & DISPATCH
   const dispatch = useDispatch();
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
+  const localPeerRole = useSelector(
+    (state: RootState) => state.hmsStates.localPeer?.role,
+  );
+  const localPeerMetadata = useSelector(
+    (state: RootState) => state.hmsStates.localPeer?.metadata,
+  );
+  const isHLSStreaming = useSelector(
+    (state: RootState) =>
+      state.hmsStates.room?.hlsStreamingState?.running ?? false,
+  );
+  const rtmpAndRecording = useSelector(
+    (state: RootState) =>
+      state.hmsStates.room?.browserRecordingState?.running ?? false,
+  );
+
   const pipModeStatus = useSelector(
     (state: RootState) => state.app.pipModeStatus,
   );
@@ -77,7 +86,7 @@ export const RoomSettingsModalContent: React.FC<
   );
 
   // CONSTANTS
-  const parsedMetadata = parseMetadata(localPeer?.metadata);
+  const parsedMetadata = parseMetadata(localPeerMetadata);
   const isPipModeUnavailable = pipModeStatus === PipModes.NOT_AVAILABLE;
 
   //#region FUNCTIONS
@@ -335,7 +344,7 @@ export const RoomSettingsModalContent: React.FC<
           iconName={'clipboard-pulse-outline'}
         />
 
-        {!localPeer?.role?.name?.includes('hls-') ? (
+        {!localPeerRole?.name?.includes('hls-') ? (
           <SettingItem
             onPress={handleLocalRemoteAudiosMute}
             text={`${muteAllTracksAudio ? 'Unmute' : 'Mute'} Room`}
@@ -353,7 +362,7 @@ export const RoomSettingsModalContent: React.FC<
           />
         ) : null}
 
-        {localPeer?.role?.permissions?.hlsStreaming ? (
+        {localPeerRole?.permissions?.hlsStreaming ? (
           <SettingItem
             onPress={handleHLSStreaming}
             text={`${isHLSStreaming === true ? 'Stop' : 'Start'} HLS Streaming`}
@@ -362,7 +371,7 @@ export const RoomSettingsModalContent: React.FC<
           />
         ) : null}
 
-        {localPeer?.role?.permissions?.rtmpStreaming ? (
+        {localPeerRole?.permissions?.rtmpStreaming ? (
           <SettingItem
             onPress={handleRTMPAndRecording}
             text={
@@ -375,7 +384,7 @@ export const RoomSettingsModalContent: React.FC<
           />
         ) : null}
 
-        {localPeer?.role?.permissions?.changeRole ? (
+        {localPeerRole?.permissions?.changeRole ? (
           <SettingItem
             onPress={changeBulkRole}
             text="Bulk Role Change"
@@ -384,7 +393,7 @@ export const RoomSettingsModalContent: React.FC<
           />
         ) : null}
 
-        {localPeer?.role?.permissions?.mute ? (
+        {localPeerRole?.permissions?.mute ? (
           <SettingItem
             onPress={handleRemoteAudiosMute}
             text="Remote Mute All Audio Tracks"
@@ -393,8 +402,8 @@ export const RoomSettingsModalContent: React.FC<
           />
         ) : null}
 
-        {localPeer?.role?.permissions?.mute ||
-        localPeer?.role?.permissions?.unmute ? (
+        {localPeerRole?.permissions?.mute ||
+        localPeerRole?.permissions?.unmute ? (
           <SettingItem
             onPress={changeTrackState}
             text="Change Track State For Role"
@@ -404,7 +413,7 @@ export const RoomSettingsModalContent: React.FC<
         ) : null}
 
         {Platform.OS === 'android' &&
-        localPeer?.role?.publishSettings?.allowed?.includes('audio') ? (
+        localPeerRole?.publishSettings?.allowed?.includes('audio') ? (
           <>
             <SettingItem
               onPress={switchAudioOutput}
@@ -447,7 +456,7 @@ export const RoomSettingsModalContent: React.FC<
 
         {Platform.OS === 'ios' &&
         audioMixer &&
-        localPeer?.role?.publishSettings?.allowed?.includes('audio') ? (
+        localPeerRole?.publishSettings?.allowed?.includes('audio') ? (
           <>
             <SettingItem
               onPress={playAudioShare}

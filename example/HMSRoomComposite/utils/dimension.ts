@@ -1,4 +1,4 @@
-import {Dimensions, PixelRatio} from 'react-native';
+import {Dimensions, PixelRatio, useWindowDimensions} from 'react-native';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -28,6 +28,25 @@ const viewHeight = (height: number) => {
 
   // size (dp) to the nearest one that correspons to an integer number of pixels.
   return PixelRatio.roundToNearestPixel((screenHeight * elemHeight) / 100);
+};
+
+export enum Orientation {
+  PORTRAIT,
+  LANDSCAPE,
+}
+
+export const useOrientation = () => {
+  const {height, width} = useWindowDimensions();
+
+  return width < height ? Orientation.PORTRAIT : Orientation.LANDSCAPE;
+};
+
+export const useIsLandscapeOrientation = () => {
+  return useOrientation() === Orientation.LANDSCAPE;
+};
+
+export const useIsPortraitOrientation = () => {
+  return useOrientation() === Orientation.PORTRAIT;
 };
 
 export default {

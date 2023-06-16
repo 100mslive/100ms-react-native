@@ -1,5 +1,4 @@
-import {HMSLocalPeer, HMSRoom} from '@100mslive/react-native-hms';
-import React from 'react';
+import React, {memo} from 'react';
 import {View, Text, InteractionManager} from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -14,22 +13,23 @@ import {parseMetadata} from '../utils/functions';
 import {RealTime} from './Modals';
 import type {RootState} from '../redux';
 
-export const Header = ({
-  room,
-  localPeer,
-  isScreenShared,
-  modalVisible,
+export const _Header = ({
+  isLeaveMenuOpen,
   setModalVisible,
 }: {
-  room?: HMSRoom;
-  localPeer?: HMSLocalPeer;
-  isScreenShared?: boolean;
-  modalVisible: ModalTypes;
+  isLeaveMenuOpen: boolean;
   setModalVisible(modalType: ModalTypes, delay?: any): void;
 }) => {
   // hooks
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
+  const room = useSelector((state: RootState) => state.hmsStates.room);
+  const localPeer = useSelector(
+    (state: RootState) => state.hmsStates.localPeer,
+  );
   const roomCode = useSelector((state: RootState) => state.user.roomCode);
+  const isScreenShared = useSelector(
+    (state: RootState) => state.hmsStates.isLocalScreenShared,
+  );
 
   // constants
   const iconSize = 20;
@@ -63,7 +63,7 @@ export const Header = ({
     <View style={styles.iconTopWrapper}>
       <View style={styles.iconTopSubWrapper}>
         <Menu
-          visible={modalVisible === ModalTypes.LEAVE_MENU}
+          visible={isLeaveMenuOpen}
           anchor={
             <CustomButton
               onPress={() => {
@@ -203,3 +203,5 @@ export const Header = ({
     </View>
   );
 };
+
+export const Header = memo(_Header);

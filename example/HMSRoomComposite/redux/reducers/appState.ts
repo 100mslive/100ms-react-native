@@ -1,4 +1,4 @@
-import ActionTypes from '../actionTypes';
+import ActionTypes, {HmsStateActionTypes} from '../actionTypes';
 import type {PeerTrackNode} from '../../utils/types';
 import {PipModes} from '../../utils/types';
 import {
@@ -167,6 +167,8 @@ const appReducer = (
           [action.payload.trackId]: action.payload.stats,
         },
       };
+    case HmsStateActionTypes.CLEAR_STATES:
+      return INITIAL_STATE;
     default:
       return state;
   }

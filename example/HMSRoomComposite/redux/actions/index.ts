@@ -1,3 +1,4 @@
+import {HMSRoom, HMSLocalPeer} from '@100mslive/react-native-hms';
 import type {
   HMSLocalAudioStats,
   HMSLocalVideoStats,
@@ -9,7 +10,68 @@ import type {
   HMSSessionStore,
 } from '@100mslive/react-native-hms';
 import type {PeerTrackNode, PipModes} from '../../utils/types';
-import actionTypes from '../actionTypes';
+import actionTypes, {HmsStateActionTypes} from '../actionTypes';
+
+export const setPrebuiltData = (data: {
+  roomCode: string;
+  options?: {
+    userName?: string;
+    userId?: string;
+    debugInfo?: boolean;
+    endPoints?: {
+      init: string;
+      token: string;
+    };
+  };
+}) => ({
+  type: HmsStateActionTypes.SET_PREBUILT_DATA,
+  payload: data,
+});
+
+export const clearStore = () => ({
+  type: HmsStateActionTypes.CLEAR_STATES,
+});
+
+export const setIsLocalVideoMutedState = (
+  isLocalVideoMuted: boolean | undefined,
+) => ({
+  type: HmsStateActionTypes.SET_IS_LOCAL_VIDEO_MUTED_STATE,
+  isLocalVideoMuted,
+});
+
+export const setIsLocalAudioMutedState = (
+  isLocalAudioMuted: boolean | undefined,
+) => ({
+  type: HmsStateActionTypes.SET_IS_LOCAL_AUDIO_MUTED_STATE,
+  isLocalAudioMuted,
+});
+
+export const setIsLocalScreenSharedState = (
+  isLocalScreenShared: boolean | undefined,
+) => ({
+  type: HmsStateActionTypes.SET_IS_LOCAL_SCREEN_SHARED_STATE,
+  isLocalScreenShared,
+});
+
+export const setHMSRoleState = (roles: HMSRole[]) => ({
+  type: HmsStateActionTypes.SET_ROLES_STATE,
+  roles,
+});
+
+export const setHMSRoomState = (room: HMSRoom | null) => ({
+  type: HmsStateActionTypes.SET_ROOM_STATE,
+  room,
+});
+
+export const setHMSLocalPeerState = (localPeer: HMSLocalPeer | null) => ({
+  type: HmsStateActionTypes.SET_LOCAL_PEER_STATE,
+  localPeer,
+});
+
+export const setHMSInstance = (hmsInstance: HMSSDK) => ({
+  type: actionTypes.SET_HMS_INSTANCE,
+  payload: {hmsInstance},
+});
 
 export const addMessage = (data: HMSMessage) => ({
   type: actionTypes.ADD_MESSAGE.REQUEST,

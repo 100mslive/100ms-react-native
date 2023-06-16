@@ -26,12 +26,10 @@ import {getInitials} from '../utils/functions';
 export const Preview = ({
   previewTracks,
   join,
-  setLoadingButtonState,
   loadingButtonState,
 }: {
   previewTracks: HMSTrack[];
   join: Function;
-  setLoadingButtonState: React.Dispatch<React.SetStateAction<boolean>>;
   loadingButtonState: boolean;
 }) => {
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
@@ -192,7 +190,6 @@ export const Preview = ({
           title="Enter Studio ->"
           onPress={() => {
             join();
-            setLoadingButtonState(true);
           }}
           loading={loadingButtonState}
           viewStyle={styles.joinButton}

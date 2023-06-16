@@ -1,9 +1,5 @@
-import {
-  HMSAudioMixingMode,
-  HMSAudioMode,
-  HMSLocalPeer,
-} from '@100mslive/react-native-hms';
-import React, {useEffect, useState} from 'react';
+import {HMSAudioMixingMode, HMSAudioMode} from '@100mslive/react-native-hms';
+import React, {memo, useEffect, useState} from 'react';
 import {View, InteractionManager} from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -16,7 +12,12 @@ import {DefaultModal} from './DefaultModal';
 import {ModalTypes, PipModes} from '../utils/types';
 
 import type {RootState} from '../redux';
-import {changePipModeStatus} from '../redux/actions';
+import {
+  changePipModeStatus,
+  setIsLocalAudioMutedState,
+  setIsLocalScreenSharedState,
+  setIsLocalVideoMutedState,
+} from '../redux/actions';
 import {
   ChangeAudioMixingModeModal,
   ChangeAudioModeModal,
@@ -29,36 +30,28 @@ import {
 } from './Modals';
 import {RoomSettingsModalContent} from './RoomSettingsModalContent';
 
-export const Footer = ({
-  isHlsStreaming,
-  isBrowserRecording,
-  localPeer,
+export const _Footer = ({
   modalVisible,
-  isAudioMute,
-  isVideoMute,
-  isScreenShared,
   setModalVisible,
-  setIsAudioMute,
-  setIsVideoMute,
-  setIsScreenShared,
 }: {
-  isHlsStreaming?: boolean;
-  isBrowserRecording?: boolean;
-  isHlsRecording?: boolean;
-  isRtmpStreaming?: boolean;
-  localPeer?: HMSLocalPeer;
   modalVisible: ModalTypes;
-  isAudioMute?: boolean;
-  isVideoMute?: boolean;
-  isScreenShared?: boolean;
   setModalVisible(modalType: ModalTypes, delay?: any): void;
-  setIsAudioMute: React.Dispatch<React.SetStateAction<boolean | undefined>>;
-  setIsVideoMute: React.Dispatch<React.SetStateAction<boolean | undefined>>;
-  setIsScreenShared: React.Dispatch<React.SetStateAction<boolean | undefined>>;
 }) => {
   // hooks
   const dispatch = useDispatch();
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
+  const localPeer = useSelector(
+    (state: RootState) => state.hmsStates.localPeer || undefined,
+  );
+  const isAudioMute = useSelector(
+    (state: RootState) => state.hmsStates.isLocalAudioMuted,
+  );
+  const isVideoMute = useSelector(
+    (state: RootState) => state.hmsStates.isLocalVideoMuted,
+  );
+  const isScreenShared = useSelector(
+    (state: RootState) => state.hmsStates.isLocalScreenShared,
+  );
   const roomID = useSelector((state: RootState) => state.user.roomID);
   const isPipActive = useSelector(
     (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE,
@@ -84,7 +77,7 @@ export const Footer = ({
       ?.startScreenshare()
       .then(d => {
         console.log('Start Screenshare Success: ', d);
-        setIsScreenShared(true);
+        dispatch(setIsLocalScreenSharedState(true));
       })
       .catch(e => console.log('Start Screenshare Error: ', e));
   };
@@ -94,7 +87,7 @@ export const Footer = ({
       ?.stopScreenshare()
       .then(d => {
         console.log('Stop Screenshare Success: ', d);
-        setIsScreenShared(false);
+        dispatch(setIsLocalScreenSharedState(false));
       })
       .catch(e => console.log('Stop Screenshare Error: ', e));
   };
@@ -126,19 +119,13 @@ export const Footer = ({
   }, [isPipActive, hmsInstance]);
 
   return (
-    <View
-      style={[
-        // localPeer?.role?.permissions?.hlsStreaming
-        //   ? styles.iconBotttomWrapperHls :
-        styles.iconBotttomWrapper,
-      ]}
-    >
+    <View style={styles.iconBotttomWrapper}>
       <View style={styles.iconBotttomButtonWrapper}>
         {localPeer?.role?.publishSettings?.allowed?.includes('audio') && (
           <CustomButton
             onPress={() => {
               localPeer?.localAudioTrack()?.setMute(!isAudioMute);
-              setIsAudioMute(!isAudioMute);
+              dispatch(setIsLocalAudioMutedState(!isAudioMute));
             }}
             viewStyle={[styles.iconContainer, isAudioMute && styles.iconMuted]}
             LeftIcon={
@@ -154,7 +141,7 @@ export const Footer = ({
           <CustomButton
             onPress={() => {
               localPeer?.localVideoTrack()?.setMute(!isVideoMute);
-              setIsVideoMute(!isVideoMute);
+              dispatch(setIsLocalVideoMutedState(!isVideoMute));
             }}
             viewStyle={[styles.iconContainer, isVideoMute && styles.iconMuted]}
             LeftIcon={
@@ -166,32 +153,6 @@ export const Footer = ({
             }
           />
         )}
-        {/* {localPeer?.role?.permissions?.hlsStreaming &&
-          (room?.hlsStreamingState?.running ? (
-            <CustomButton
-              onPress={() => setModalVisible(ModalTypes.END_HLS_STREAMING)}
-              viewStyle={styles.endLiveIconContainer}
-              LeftIcon={
-                <Feather
-                  name="stop-circle"
-                  style={styles.icon}
-                  size={iconSize}
-                />
-              }
-            />
-          ) : (
-            <CustomButton
-              onPress={() => console.log('onGoLivePress')}
-              viewStyle={styles.goLiveIconContainer}
-              LeftIcon={
-                <Ionicons
-                  name="radio-outline"
-                  style={styles.icon}
-                  size={iconSize * 2}
-                />
-              }
-            />
-          ))} */}
         {localPeer?.role?.publishSettings?.allowed?.includes('screen') && (
           <CustomButton
             onPress={
@@ -222,12 +183,7 @@ export const Footer = ({
           }
         />
       </View>
-      {/* {localPeer?.role?.permissions?.hlsStreaming &&
-        (room?.hlsStreamingState?.running ? (
-          <Text style={styles.liveText}>End stream</Text>
-        ) : (
-          <Text style={styles.liveText}>Go Live</Text>
-        ))} */}
+
       <DefaultModal
         animationIn={'slideInUp'}
         animationOut={'slideOutDown'}
@@ -235,9 +191,6 @@ export const Footer = ({
         setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
       >
         <RoomSettingsModalContent
-          localPeer={localPeer}
-          isHLSStreaming={isHlsStreaming}
-          rtmpAndRecording={isBrowserRecording}
           newAudioMixingMode={newAudioMixingMode}
           audioDeviceListenerAdded={audioDeviceChangeListener}
           isAudioShared={isAudioShared}
@@ -340,3 +293,5 @@ export const Footer = ({
     </View>
   );
 };
+
+export const Footer = memo(_Footer);

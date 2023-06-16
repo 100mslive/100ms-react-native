@@ -366,7 +366,6 @@ export const checkPermissions = async (
 export const pairData = (
   unGroupedPeerTrackNodes: PeerTrackNode[],
   batch: number,
-  localPeer?: HMSLocalPeer,
   spotlightVideoTrackId?: string | null,
 ) => {
   const spotlightNode: Array<Array<PeerTrackNode>> = [];
@@ -442,7 +441,7 @@ export const getDisplayTrackDimensions = (
   peersInPage: number,
   top: number,
   bottom: number,
-  orientation: boolean,
+  isPortraitOrientation: boolean,
 ) => {
   // window height - (header + footer + top + bottom + padding)
 
@@ -453,7 +452,7 @@ export const getDisplayTrackDimensions = (
 
   let height, width;
 
-  if (orientation) {
+  if (isPortraitOrientation) {
     height =
       peersInPage === 1
         ? viewHeight / 1

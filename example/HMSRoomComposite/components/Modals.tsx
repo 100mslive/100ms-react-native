@@ -62,18 +62,19 @@ import {SwitchRow} from './SwitchRow';
 
 export const ParticipantsModal = ({
   instance,
-  localPeer,
   changeName,
   changeRole,
   setVolume,
 }: {
   instance?: HMSSDK;
-  localPeer?: HMSLocalPeer;
   changeName: (peer: HMSPeer) => void;
   changeRole: (peer: HMSPeer) => void;
   setVolume: (peer: HMSPeer) => void;
 }) => {
   // useState hook
+  const localPeer = useSelector(
+    (state: RootState) => state.hmsStates.localPeer || undefined,
+  );
   const [hmsPeers, setHmsPeers] = useState<(HMSLocalPeer | HMSRemotePeer)[]>([
     localPeer!,
   ]);
@@ -608,13 +609,15 @@ export const ChangeRoleModal = ({
 
 export const SaveScreenshot = ({
   imageSource,
-  peer,
   cancelModal,
 }: {
-  peer?: HMSPeer;
   imageSource?: Required<Pick<ImageURISource, 'uri'>> | null;
   cancelModal: Function;
 }) => {
+  const peer = useSelector(
+    (state: RootState) => state.hmsStates.localPeer || undefined,
+  );
+
   /**
    * Get target path on external storage to save image
    * @param {string} imageExtension file extension to use for image
@@ -1643,17 +1646,19 @@ export const ChangeTrackStateForRoleModal = ({
 };
 
 export const ChangeTrackStateModal = ({
-  localPeer,
   roleChangeRequest,
   cancelModal,
 }: {
-  localPeer?: HMSLocalPeer;
   roleChangeRequest: {
     requestedBy?: string;
     suggestedRole?: string;
   };
   cancelModal: Function;
 }) => {
+  const localPeer = useSelector(
+    (state: RootState) => state.hmsStates.localPeer,
+  );
+
   const changeLayout = () => {
     if (roleChangeRequest?.suggestedRole?.toLocaleLowerCase() === 'video') {
       localPeer?.localVideoTrack()?.setMute(false);

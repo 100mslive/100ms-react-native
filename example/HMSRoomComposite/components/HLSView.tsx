@@ -15,12 +15,9 @@ import {styles} from './styles';
 import {RootState} from '../redux';
 import {PipModes} from '../utils/types';
 
-type HLSViewProps = {
-  room?: HMSRoom;
-};
-
-const HLSView = ({room}: HLSViewProps) => {
+const HLSView: React.FC = () => {
   // useRef hook
+  const room = useSelector((state: RootState) => state.hmsStates.room);
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
   const hlsPlayerRef = useRef<VideoPlayer>(null);
   const [currentLiveState, setCurrentLiveState] = useState(LiveStates.LIVE);

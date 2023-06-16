@@ -23,7 +23,6 @@ export type AppStackParamList = {
 
 const AppStack = createNativeStackNavigator<AppStackParamList>();
 const navigationOptions = {
-  gestureEnabled: true,
   headerShown: false,
 };
 
@@ -52,7 +51,7 @@ const AppStackNavigator = () => {
         <AppStack.Screen
           name="HMSPrebuiltScreen"
           component={HMSPrebuiltScreen}
-          options={{headerShown: false}}
+          options={navigationOptions}
         />
       </AppStack.Navigator>
     </NavigationContainer>
