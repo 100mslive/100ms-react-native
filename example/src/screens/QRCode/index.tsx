@@ -124,7 +124,6 @@ const QRCode = () => {
     useCallback(() => {
       AsyncStorage.getItem(Constants.MEET_URL, (_error, url) => {
         if (url && url === roomLink) {
-          console.log('setting from AsyncStorage -> ', url);
           setJoiningLink(url);
         }
       });
@@ -133,7 +132,6 @@ const QRCode = () => {
 
   useEffect(() => {
     if (roomLink) {
-      console.log('setting from roomLink -> ', roomLink);
       setJoiningLink(roomLink);
     }
   }, [roomLink]);
