@@ -24,20 +24,10 @@ export const HLSPlayerStatsView: React.FC<HLSPlayerStatsViewProps> = ({
       <Text>Total Bytes Loaded: {stats.totalBytesLoaded}</Text>
       <Text>Buffered Duration: {stats.bufferedDuration}</Text>
 
-      {stats.watchDuration ? (
-        <Text>Watch Duration: {stats.watchDuration}</Text>
-      ) : null}
-
       <Text>Distance From Live: {stats.distanceFromLive}</Text>
       <Text>Dropped Frame Count: {stats.droppedFrameCount}</Text>
 
-      {stats.totalFrameCount ? (
-        <Text>Total Frame Count: {stats.totalFrameCount}</Text>
-      ) : null}
-
       <Text>Average Bitrate: {stats.averageBitrate}</Text>
-
-      {stats.frameRate ? <Text>FrameRate: {stats.frameRate}</Text> : null}
 
       <Text>Video Height: {stats.videoHeight}</Text>
       <Text>Video Width: {stats.videoWidth}</Text>
