@@ -54,7 +54,7 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
     containerStyle,
     aspectRatio = 9 / 16,
     enableStats,
-    enableControls = true,
+    enableControls = false,
   },
   ref
 ) => {
