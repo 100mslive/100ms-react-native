@@ -90,11 +90,9 @@ class HMSHLSPlayer(context: ReactContext) : FrameLayout(context) {
 
       // frameInfo
       data.putInt("droppedFrameCount", playerStatsModel.frameInfo.droppedFrameCount)
-      data.putInt("totalFrameCount", playerStatsModel.frameInfo.totalFrameCount)
 
       // videoInfo
       data.putInt("averageBitrate", playerStatsModel.videoInfo.averageBitrate)
-      data.putDouble("frameRate", playerStatsModel.videoInfo.frameRate.toDouble())
       data.putInt("videoHeight", playerStatsModel.videoInfo.videoHeight)
       data.putInt("videoWidth", playerStatsModel.videoInfo.videoWidth)
 

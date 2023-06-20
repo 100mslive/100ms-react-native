@@ -257,7 +257,6 @@ class HMSHLSPlayer: UIView {
 
                 // bufferedDuration
                 data["bufferedDuration"] = statsMonitor.bufferedDuration
-                data["watchDuration"] = statsMonitor.watchDuration
 
                 // distanceFromLive
                 data["distanceFromLive"] = statsMonitor.distanceFromLiveEdge

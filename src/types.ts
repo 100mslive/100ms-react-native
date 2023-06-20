@@ -86,29 +86,15 @@ export type HMSHLSPlayerStatsUpdateEventData = {
   // bufferedDuration
   bufferedDuration: number;
 
-  /**
-   * iOS only
-   */
-  watchDuration?: number;
-
   // distanceFromLive
   distanceFromLive: number;
 
   // frameInfo
   droppedFrameCount: number;
 
-  /**
-   * Android only
-   */
-  totalFrameCount?: number;
-
   // videoInfo
   averageBitrate: number;
 
-  /**
-   * Android only
-   */
-  frameRate?: number;
   videoHeight: number;
   videoWidth: number;
 };
