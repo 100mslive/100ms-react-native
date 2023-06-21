@@ -1,13 +1,13 @@
 import type { HMSRtmpVideoResolution } from './HMSRtmpVideoResolution';
 
 export class HMSRTMPConfig {
-  meetingURL: string;
+  meetingURL?: string;
   rtmpURLs?: Array<string>;
   record: boolean;
   resolution?: HMSRtmpVideoResolution;
 
   constructor(params: {
-    meetingURL: string;
+    meetingURL?: string;
     rtmpURLs?: Array<string>;
     record: boolean;
     resolution?: HMSRtmpVideoResolution;

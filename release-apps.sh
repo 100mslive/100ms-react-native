@@ -25,8 +25,6 @@ release_android() {
 release_iOS() {
   cd ./ios
 
-  echo "testScript- release_iOS $PWD"
-
   pod install --verbose
 
   bundle install --verbose

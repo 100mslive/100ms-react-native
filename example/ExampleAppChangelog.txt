@@ -1,8 +1,23 @@
-Board: https://github.com/100mslive/react-native-hms/projects/21
+Board: https://github.com/100mslive/react-native-hms/projects/16
 
-- Add messageId to HMSMessage
-https://github.com/100mslive/react-native-hms/pull/1044/
+- Added 100ms HLS Player support
+https://github.com/100mslive/react-native-hms/issues/878
 
-React Native SDK: 1.6.2
-Android SDK: 2.6.4
-iOS SDK: 0.9.4
+- Fixed crash in RN iOS app on rejoining in Large Rooms
+https://github.com/100mslive/react-native-hms/issues/1056
+
+- Added API to open iOS Control Centre' Switch Audio Output UI
+https://github.com/100mslive/react-native-hms/issues/816
+
+- Add support for Client Publish Stats
+https://github.com/100mslive/react-native-hms/issues/1000
+
+- Enabled S/W echo cancellation by default
+https://github.com/100mslive/react-native-hms/issues/1068
+
+- Add key as videoTrackId for all HMSView components
+https://github.com/100mslive/react-native-hms/issues/1029
+
+React Native SDK: 1.7.0
+Android SDK: 2.6.7
+iOS SDK: 0.9.5

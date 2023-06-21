@@ -35,6 +35,7 @@ import {
   changeAutoSimulcast,
   resetJoinConfig,
   changeMusicMode,
+  changeShowHLSStats,
 } from '../redux/actions';
 
 interface JoinSettingsModalContentProps {}
@@ -50,6 +51,7 @@ export const JoinSettingsModalContent: React.FC<
     skipPreview,
     mirrorCamera,
     showStats,
+    showHLSStats,
     audioMixer,
     musicMode,
     softwareDecoder,
@@ -187,6 +189,20 @@ export const JoinSettingsModalContent: React.FC<
             text="Show RTC Stats"
             value={showStats}
             onChange={value => dispatch(changeShowStats(value))}
+            LeftIcon={
+              <MaterialCommunityIcons
+                name="clipboard-pulse-outline"
+                size={24}
+                style={styles.icon}
+              />
+            }
+            containerStyle={styles.switchContainer}
+          />
+
+          <SwitchRow
+            text="Show HLS Stats"
+            value={showHLSStats}
+            onChange={value => dispatch(changeShowHLSStats(value))}
             LeftIcon={
               <MaterialCommunityIcons
                 name="clipboard-pulse-outline"
