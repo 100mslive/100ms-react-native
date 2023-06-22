@@ -62,7 +62,7 @@ export const _Header = ({
   };
 
   return (
-    <View 
+    <View
       style={[
         styles.iconTopWrapper,
         showLandscapeLayout ? styles.iconTopWrapperLandscape : null,
@@ -139,7 +139,7 @@ export const _Header = ({
           <Text style={styles.headerName}>{roomCode}</Text>
         )}
       </View>
-      <View 
+      <View
         style={[
           styles.iconTopSubWrapper,
           showLandscapeLayout ? styles.iconTopSubWrapperLandscape : null,
@@ -150,7 +150,9 @@ export const _Header = ({
           <MaterialCommunityIcons
             name="record-circle-outline"
             style={
-              showLandscapeLayout ? styles.roomStatusLandscape : styles.roomStatus
+              showLandscapeLayout
+                ? styles.roomStatusLandscape
+                : styles.roomStatus
             }
             size={iconSize}
           />
@@ -160,16 +162,20 @@ export const _Header = ({
           <Ionicons
             name="globe-outline"
             style={
-              showLandscapeLayout ? styles.roomStatusLandscape : styles.roomStatus
+              showLandscapeLayout
+                ? styles.roomStatusLandscape
+                : styles.roomStatus
             }
             size={iconSize}
           />
         )}
         {isScreenShared && (
-          <Feather 
+          <Feather
             name="copy"
             style={
-              showLandscapeLayout ? styles.roomStatusLandscape : styles.roomStatus
+              showLandscapeLayout
+                ? styles.roomStatusLandscape
+                : styles.roomStatus
             }
             size={iconSize}
           />

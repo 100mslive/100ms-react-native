@@ -52,7 +52,7 @@ import {
   Platform,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import { useIsLandscapeOrientation } from './utils/dimension';
+import {useIsLandscapeOrientation} from './utils/dimension';
 
 export const useHMSListeners = (
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>,
@@ -901,9 +901,13 @@ export const useFetchHMSRoles = () => {
 
 export const useShowLandscapeLayout = () => {
   const isLandscapeOrientation = useIsLandscapeOrientation();
-  const localPeerRoleName = useSelector((state: RootState) => state.hmsStates.localPeer?.role?.name);
+  const localPeerRoleName = useSelector(
+    (state: RootState) => state.hmsStates.localPeer?.role?.name,
+  );
 
-  return isLandscapeOrientation &&
+  return (
+    isLandscapeOrientation &&
     !!localPeerRoleName &&
-    localPeerRoleName.includes('hls-');
+    localPeerRoleName.includes('hls-')
+  );
 };

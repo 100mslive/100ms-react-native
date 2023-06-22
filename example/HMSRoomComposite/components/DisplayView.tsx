@@ -291,9 +291,7 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
 
           <DefaultModal
             modalPosiion="center"
-            modalVisible={
-              modalVisible === ModalTypes.HLS_PLAYER_ASPECT_RATIO
-            }
+            modalVisible={modalVisible === ModalTypes.HLS_PLAYER_ASPECT_RATIO}
             setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
           >
             <ChangeAspectRatio

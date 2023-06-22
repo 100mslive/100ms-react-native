@@ -49,7 +49,11 @@ import {CustomInput} from './CustomInput';
 import {Menu, MenuItem, MenuDivider} from './MenuModal';
 
 import {CustomPicker} from './Picker';
-import {changeHLSAspectRatio, changeShowStats, saveUserData} from '../redux/actions';
+import {
+  changeHLSAspectRatio,
+  changeShowStats,
+  saveUserData,
+} from '../redux/actions';
 import {
   parseMetadata,
   getInitials,
@@ -1249,11 +1253,7 @@ export const ChangeAudioOutputModal = ({
   );
 };
 
-export const ChangeAspectRatio = ({
-  cancelModal,
-}: {
-  cancelModal: Function;
-}) => {
+export const ChangeAspectRatio = ({cancelModal}: {cancelModal: Function}) => {
   const {height} = useWindowDimensions();
   const dispatch = useDispatch();
   const hlsPlayerAspectRatio = useSelector(
