@@ -1,5 +1,3 @@
-import type {HMSPeer, HMSVideoTrack} from '@100mslive/react-native-hms';
-
 export enum Theme {
   LIGHT = 'Light',
   DARK = 'Dark',

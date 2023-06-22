@@ -52,6 +52,7 @@ import {
   Platform,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import { useIsLandscapeOrientation } from './utils/dimension';
 
 export const useHMSListeners = (
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>,
@@ -677,28 +678,7 @@ export const useHMSMessages = () => {
 
   useEffect(() => {
     const onMessageListener = (message: HMSMessage) => {
-      // dispatch(addMessage(message));
-      dispatch(
-        addMessage({
-          ...message,
-          // We are extracting HMSPeer properties into new object
-          // so that when this peer leaves room, we still have its data in chat window
-          sender: message.sender
-            ? {
-                peerID: message.sender.peerID,
-                name: message.sender.name,
-                isLocal: message.sender.isLocal,
-                role: message.sender.role,
-                audioTrack: undefined,
-                auxiliaryTracks: undefined,
-                customerUserID: undefined,
-                metadata: undefined,
-                networkQuality: undefined,
-                videoTrack: undefined,
-              }
-            : undefined,
-        }),
-      );
+      dispatch(addMessage(message));
     };
 
     hmsInstance.addEventListener(
@@ -753,7 +733,14 @@ export const useHMSPIPRoomLeave = () => {
           dispatch(clearStore());
           // }
         })
-        .catch(e => console.log('Destroy Error: ', e));
+        .catch(e => {
+          console.log(`Destroy HMS instance Error: ${e}`);
+          Toast.showWithGravity(
+            `Destroy HMS instance Error: ${e}`,
+            Toast.LONG,
+            Toast.TOP,
+          );
+        });
     };
 
     hmsInstance.addEventListener(
@@ -807,7 +794,14 @@ export const useHMSRemovedFromRoomUpdate = () => {
           dispatch(clearStore());
           // }
         })
-        .catch(e => console.log('Destroy Error: ', e));
+        .catch(e => {
+          console.log(`Destroy HMS instance Error: ${e}`);
+          Toast.showWithGravity(
+            `Destroy HMS instance Error: ${e}`,
+            Toast.LONG,
+            Toast.TOP,
+          );
+        });
     };
 
     hmsInstance.addEventListener(
@@ -903,4 +897,13 @@ export const useFetchHMSRoles = () => {
       ignore = true;
     };
   }, [hmsInstance]);
+};
+
+export const useShowLandscapeLayout = () => {
+  const isLandscapeOrientation = useIsLandscapeOrientation();
+  const localPeerRoleName = useSelector((state: RootState) => state.hmsStates.localPeer?.role?.name);
+
+  return isLandscapeOrientation &&
+    !!localPeerRoleName &&
+    localPeerRoleName.includes('hls-');
 };

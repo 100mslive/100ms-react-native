@@ -156,6 +156,21 @@ export const changeShowStats = (value: boolean) => ({
   payload: {showStats: value},
 });
 
+export const changeShowHLSStats = (value: boolean) => ({
+  type: actionTypes.CHANGE_SHOW_HLS_STATS,
+  payload: {showHLSStats: value},
+});
+
+export const changeShowCustomHLSPlayerControls = (value: boolean) => ({
+  type: actionTypes.CHANGE_SHOW_CUSTOM_HLS_PLAYER_CONTROLS,
+  payload: {showCustomHLSPlayerControls: value},
+});
+
+export const changeEnableHLSPlayerControls = (value: boolean) => ({
+  type: actionTypes.CHANGE_ENABLE_HLS_PLAYER_CONTROLS,
+  payload: {enableHLSPlayerControls: value},
+});
+
 export const changeSoftwareDecoder = (value: boolean) => ({
   type: actionTypes.CHANGE_SOFTWARE_DECODER,
   payload: {softwareDecoder: value},
@@ -186,4 +201,9 @@ export const setRTCStats = (
 ) => ({
   type: actionTypes.SET_RTC_STATS,
   payload: {trackId, stats},
+});
+
+export const changeHLSAspectRatio = (value: {value: number; id: string}) => ({
+  type: actionTypes.CHANGE_HLS_ASPECT_RATIO,
+  payload: {hlsAspectRatio: value},
 });

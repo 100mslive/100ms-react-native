@@ -1,6 +1,7 @@
 import React from 'react';
-import {SafeAreaView, StyleSheet} from 'react-native';
+import {StyleSheet, StatusBar} from 'react-native';
 import {useSelector} from 'react-redux';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 import {ModalTypes, PeerTrackNode, PipModes} from '../utils/types';
 import type {RootState} from '../redux';
@@ -16,6 +17,7 @@ import {
   useHMSRemovedFromRoomUpdate,
   useModalType,
   usePIPListener,
+  useShowLandscapeLayout,
 } from '../hooks-util';
 
 interface MeetingProps {
@@ -27,6 +29,7 @@ export const Meeting: React.FC<MeetingProps> = ({peerTrackNodes}) => {
   const isPipModeActive = useSelector(
     (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE,
   );
+  const showLandscapeLayout = useShowLandscapeLayout();
 
   // TODO: Fetch latest Room and localPeer on mount of this component?
 
@@ -46,7 +49,16 @@ export const Meeting: React.FC<MeetingProps> = ({peerTrackNodes}) => {
   useRTCStatsListeners(modalVisible === ModalTypes.RTC_STATS);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      edges={showLandscapeLayout ? ['left', 'right'] : undefined}
+      style={[
+        styles.container,
+        showLandscapeLayout ? {flexDirection: 'row'} : null,
+      ]}
+    >
+      {showLandscapeLayout ? (
+        <StatusBar hidden={true} />
+      ) : null}
       {isPipModeActive ? null : (
         <Header
           isLeaveMenuOpen={modalVisible === ModalTypes.LEAVE_MENU}

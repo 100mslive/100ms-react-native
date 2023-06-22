@@ -3,6 +3,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {useNavigation} from '@react-navigation/native';
 import {View, Text, InteractionManager} from 'react-native';
 import {HMSPeer, HMSTrack, HMSCameraControl} from '@100mslive/react-native-hms';
+import Toast from 'react-native-simple-toast';
 
 import {styles} from './styles';
 import {ChatWindow} from './ChatWindow';
@@ -10,6 +11,7 @@ import {DefaultModal} from './DefaultModal';
 import {ModalTypes, PeerTrackNode, PipModes} from '../utils/types';
 import {pairData, requestExternalStoragePermission} from '../utils/functions';
 import {
+  ChangeAspectRatio,
   ChangeNameModal,
   ChangeRoleAccepteModal,
   ChangeRoleModal,
@@ -139,7 +141,14 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
         dispatch(clearStore());
         // }
       })
-      .catch(e => console.log('Destroy Error: ', e));
+      .catch(e => {
+        console.log(`Destroy HMS instance Error: ${e}`);
+        Toast.showWithGravity(
+          `Destroy HMS instance Error: ${e}`,
+          Toast.LONG,
+          Toast.TOP,
+        );
+      });
   };
 
   const onLeavePress = () => {
@@ -149,7 +158,10 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
         console.log('Leave Success: ', d);
         destroy();
       })
-      .catch(e => console.log('Leave Error: ', e));
+      .catch(e => {
+        console.log(`Leave Room Error: ${e}`);
+        Toast.showWithGravity(`Leave Room Error: ${e}`, Toast.LONG, Toast.TOP);
+      });
   };
 
   const onEndRoomPress = () => {
@@ -277,6 +289,17 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
             ) : null}
           </DefaultModal>
 
+          <DefaultModal
+            modalPosiion="center"
+            modalVisible={
+              modalVisible === ModalTypes.HLS_PLAYER_ASPECT_RATIO
+            }
+            setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+          >
+            <ChangeAspectRatio
+              cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
+            />
+          </DefaultModal>
           {/* Save Image Captured from Local Camera */}
           <DefaultModal
             modalPosiion="center"

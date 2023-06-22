@@ -373,9 +373,17 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         let force = data.value(forKey: "force") as? Bool ?? false
 
         DispatchQueue.main.async { [weak self] in
-            guard let peer = HMSHelper.getPeerFromPeerId(peerId, remotePeers: self?.hms?.remotePeers, localPeer: self?.hms?.localPeer),
-            let role = HMSHelper.getRoleFromRoleName(role, roles: self?.hms?.roles)
-            else { return }
+            guard let peer = HMSHelper.getPeerFromPeerId(peerId, remotePeers: self?.hms?.remotePeers, localPeer: self?.hms?.localPeer)
+            else {
+                reject?("PEER_NOT_FOUND", "PEER_NOT_FOUND", nil)
+                return
+            }
+
+            guard let role = HMSHelper.getRoleFromRoleName(role, roles: self?.hms?.roles)
+            else {
+                reject?("ROLE_NOT_FOUND", "ROLE_NOT_FOUND", nil)
+                return
+            }
 
             self?.hms?.changeRole(for: peer, to: role, force: force, completion: { success, error in
                 if success {
@@ -695,25 +703,28 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func startRTMPOrRecording(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        guard let record = data.value(forKey: "record") as? Bool,
-              let meetingString = data.value(forKey: "meetingURL") as? String
+        guard let record = data.value(forKey: "record") as? Bool
         else {
-            let errorMessage = "startRTMPOrRecording: " + HMSHelper.getUnavailableRequiredKey(data, ["record", "meetingURL"])
+            let errorMessage = "startRTMPOrRecording: " + HMSHelper.getUnavailableRequiredKey(data, ["record"])
             emitRequiredKeysError(errorMessage)
             reject?(errorMessage, errorMessage, nil)
             return
         }
 
+        let meetingNullableString = data.value(forKey: "meetingURL") as? String
+
         let rtmpStrings = data.value(forKey: "rtmpURLs") as? [String]
 
         var meetingUrl: URL?
-        if let meetLink = URL(string: meetingString) {
-            meetingUrl = meetLink
-        } else {
-            if eventsEnableStatus[HMSConstants.ON_ERROR] == true {
-                delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": ["code": 6002, "description": "Invalid meeting url passed", "isTerminal": false, "canRetry": true, "params": ["function": #function]] as [String: Any], "id": id])
+        if let meetingString = meetingNullableString, !meetingString.isEmpty {
+            if let meetLink = URL(string: meetingString) {
+                meetingUrl = meetLink
+            } else {
+                if eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                    delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": ["code": 6002, "description": "Invalid meeting url passed", "isTerminal": false, "canRetry": true, "params": ["function": #function]] as [String: Any], "id": id])
+                }
+                reject?("Invalid meeting url passed", "Invalid meeting url passed", nil)
             }
-            reject?("Invalid meeting url passed", "Invalid meeting url passed", nil)
         }
 
         let URLs = HMSHelper.getRtmpUrls(rtmpStrings)
@@ -1070,39 +1081,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         networkQualityUpdatesAttached = false
     }
 
-    func setSessionMetaData(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let metaData = data.value(forKey: "sessionMetaData") as? String ?? ""
-
-        DispatchQueue.main.async { [weak self] in
-
-            guard let self = self else {
-                let errorMessage = "\(#function) Unexpectedly encountered self as null"
-                self?.emitRequiredKeysError(errorMessage)
-                reject?(errorMessage, errorMessage, nil)
-                return
-            }
-
-            self.hms?.setSessionMetadata(metaData) { [weak self] success, error in
-
-                guard let self = self else {
-                    let errorMessage = "\(#function) Unexpectedly encountered self as null"
-                    self?.emitRequiredKeysError(errorMessage)
-                    reject?(errorMessage, errorMessage, nil)
-                    return
-                }
-
-                if success {
-                    resolve?(["success": success])
-                } else {
-                    if self.eventsEnableStatus[HMSConstants.ON_ERROR] == true {
-                      self.delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self.id])
-                    }
-                    reject?(error?.localizedDescription, error?.localizedDescription, nil)
-                }
-            }
-        }
-    }
-
     func enableEvent(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let eventType = data.value(forKey: "eventType") as? String else {
             let errorMessage = "enableEvent: " + HMSHelper.getUnavailableRequiredKey(data, ["eventType"])
@@ -1112,7 +1090,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
 
         eventsEnableStatus[eventType] = true
-        resolve?(["success": true, "message": "function call executed successfully"] as [String: Any])
+        resolve?(["success": true] as [String: Any])
     }
 
     func disableEvent(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
@@ -1160,36 +1138,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         let roles = HMSDecoder.getAllRoles(hms?.roles)
 
         resolve?(roles)
-    }
-
-    func getSessionMetaData(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-
-        DispatchQueue.main.async { [weak self] in
-
-            guard let self = self else {
-                let errorMessage = "\(#function) Unexpectedly encountered self as null"
-                self?.emitRequiredKeysError(errorMessage)
-                reject?(errorMessage, errorMessage, nil)
-                return
-            }
-
-            self.hms?.getSessionMetadata { [weak self] result, error in
-
-                guard let self = self else {
-                    let errorMessage = "\(#function) Unexpectedly encountered self as null"
-                    self?.emitRequiredKeysError(errorMessage)
-                    reject?(errorMessage, errorMessage, nil)
-                    return
-                }
-
-                if error != nil {
-                    self.delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": HMSDecoder.getError(error), "id": self.id])
-                    reject?(error?.localizedDescription, error?.localizedDescription, nil)
-                } else {
-                    resolve?(result)
-                }
-            }
-        }
     }
 
     func getPeerProperty(_ data: NSDictionary) -> [AnyHashable: Any]? {
@@ -1383,15 +1331,16 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func on(peer: HMSPeer, update: HMSPeerUpdate) {
-        if eventsEnableStatus[HMSConstants.ON_PEER_UPDATE] != true {
-            return
-        }
-        let type = getString(from: update)
-        let hmsPeer = HMSDecoder.getHmsPeerSubsetForPeerUpdateEvent(peer, update)
+
+        guard let isPeerUpdateEnabled = eventsEnableStatus[HMSConstants.ON_PEER_UPDATE],
+                isPeerUpdateEnabled
+        else { return }
 
         if !networkQualityUpdatesAttached && update == .networkQualityUpdated {
             return
         }
+
+        let hmsPeer = HMSDecoder.getHmsPeerSubsetForPeerUpdateEvent(peer, update)
 
         self.delegate?.emitEvent(HMSConstants.ON_PEER_UPDATE, hmsPeer)
     }

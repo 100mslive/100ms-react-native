@@ -2,9 +2,9 @@ package com.reactnativehmssdk
 
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
-import android.util.Log
 import com.facebook.react.bridge.*
 import com.facebook.react.bridge.UiThreadUtil.runOnUiThread
+import com.google.gson.JsonElement
 import kotlinx.coroutines.launch
 import live.hms.video.audio.HMSAudioManager
 import live.hms.video.connection.stats.*
@@ -186,13 +186,8 @@ class HMSRNSDK(
             if (eventsEnableStatus["3"] != true) {
               return
             }
-            if (type === HMSPeerUpdate.AUDIO_TOGGLED ||
-              type === HMSPeerUpdate.VIDEO_TOGGLED ||
-              type === HMSPeerUpdate.BECAME_DOMINANT_SPEAKER ||
-              type === HMSPeerUpdate.NO_DOMINANT_SPEAKER ||
-              type === HMSPeerUpdate.RESIGNED_DOMINANT_SPEAKER ||
-              type === HMSPeerUpdate.STARTED_SPEAKING ||
-              type === HMSPeerUpdate.STOPPED_SPEAKING
+            if (type === HMSPeerUpdate.BECAME_DOMINANT_SPEAKER ||
+              type === HMSPeerUpdate.NO_DOMINANT_SPEAKER
             ) {
               return
             }
@@ -321,13 +316,8 @@ class HMSRNSDK(
                 if (eventsEnableStatus["3"] != true) {
                   return
                 }
-                if (type === HMSPeerUpdate.AUDIO_TOGGLED ||
-                  type === HMSPeerUpdate.VIDEO_TOGGLED ||
-                  type === HMSPeerUpdate.BECAME_DOMINANT_SPEAKER ||
-                  type === HMSPeerUpdate.NO_DOMINANT_SPEAKER ||
-                  type === HMSPeerUpdate.RESIGNED_DOMINANT_SPEAKER ||
-                  type === HMSPeerUpdate.STARTED_SPEAKING ||
-                  type === HMSPeerUpdate.STOPPED_SPEAKING
+                if (type === HMSPeerUpdate.BECAME_DOMINANT_SPEAKER ||
+                  type === HMSPeerUpdate.NO_DOMINANT_SPEAKER
                 ) {
                   return
                 }
@@ -770,24 +760,30 @@ class HMSRNSDK(
 
       if (peerId !== null && role !== null) {
         val hmsPeer = HMSHelper.getPeerFromPeerId(peerId, hmsSDK?.getRoom())
-        val hmsRole = HMSHelper.getRoleFromRoleName(role, hmsSDK?.getRoles())
-
-        if (hmsRole != null && hmsPeer != null) {
-          hmsSDK?.changeRole(
-            hmsPeer,
-            hmsRole,
-            force,
-            object : HMSActionResultListener {
-              override fun onSuccess() {
-                callback?.resolve(emitHMSSuccess())
-              }
-              override fun onError(error: HMSException) {
-                self.emitHMSError(error)
-                callback?.reject(error.code.toString(), error.message)
-              }
-            },
-          )
+        if (hmsPeer == null) {
+          callback?.reject("4000", "PEER_NOT_FOUND")
+          return
         }
+        val hmsRole = HMSHelper.getRoleFromRoleName(role, hmsSDK?.getRoles())
+        if (hmsRole == null) {
+          callback?.reject("4000", "ROLE_NOT_FOUND")
+          return
+        }
+
+        hmsSDK?.changeRole(
+          hmsPeer,
+          hmsRole,
+          force,
+          object : HMSActionResultListener {
+            override fun onSuccess() {
+              callback?.resolve(emitHMSSuccess())
+            }
+            override fun onError(error: HMSException) {
+              self.emitHMSError(error)
+              callback?.reject(error.code.toString(), error.message)
+            }
+          },
+        )
       }
     } else {
       val errorMessage = "changeRole: $requiredKeys"
@@ -809,24 +805,30 @@ class HMSRNSDK(
 
       if (peerId !== null && role !== null) {
         val hmsPeer = HMSHelper.getPeerFromPeerId(peerId, hmsSDK?.getRoom())
-        val hmsRole = HMSHelper.getRoleFromRoleName(role, hmsSDK?.getRoles())
-
-        if (hmsRole != null && hmsPeer != null) {
-          hmsSDK?.changeRoleOfPeer(
-            hmsPeer,
-            hmsRole,
-            force,
-            object : HMSActionResultListener {
-              override fun onSuccess() {
-                promise?.resolve(emitHMSSuccess())
-              }
-              override fun onError(error: HMSException) {
-                self.emitHMSError(error)
-                promise?.reject(error.code.toString(), error.message)
-              }
-            },
-          )
+        if (hmsPeer == null) {
+          promise?.reject("4000", "PEER_NOT_FOUND")
+          return
         }
+        val hmsRole = HMSHelper.getRoleFromRoleName(role, hmsSDK?.getRoles())
+        if (hmsRole == null) {
+          promise?.reject("4000", "ROLE_NOT_FOUND")
+          return
+        }
+
+        hmsSDK?.changeRoleOfPeer(
+          hmsPeer,
+          hmsRole,
+          force,
+          object : HMSActionResultListener {
+            override fun onSuccess() {
+              promise?.resolve(emitHMSSuccess())
+            }
+            override fun onError(error: HMSException) {
+              self.emitHMSError(error)
+              promise?.reject(error.code.toString(), error.message)
+            }
+          },
+        )
       }
     } else {
       val errorMessage = "changeRoleOfPeer: $requiredKeys"
@@ -1266,7 +1268,7 @@ class HMSRNSDK(
     val requiredKeys =
       HMSHelper.getUnavailableRequiredKey(
         data,
-        arrayOf(Pair("record", "Boolean"), Pair("meetingURL", "String")),
+        arrayOf(Pair("record", "Boolean")),
       )
     if (requiredKeys === null) {
       val config = HMSHelper.getRtmpConfig(data)
@@ -1539,50 +1541,6 @@ class HMSRNSDK(
       self.emitRequiredKeysError(errorMessage)
       rejectCallback(callback, errorMessage)
     }
-  }
-
-  @Deprecated("SessionMetaData APIs has been deprecated in favour of Session Store APIs", ReplaceWith("setSessionMetadataForKey"), DeprecationLevel.WARNING)
-  fun setSessionMetaData(data: ReadableMap, callback: Promise?) {
-    if (data.hasKey("sessionMetaData")) {
-      val sessionMetaData = data.getString("sessionMetaData")
-      hmsSDK?.setSessionMetaData(
-        sessionMetaData,
-        object : HMSActionResultListener {
-          override fun onSuccess() {
-            callback?.resolve(emitHMSSuccess())
-          }
-
-          override fun onError(error: HMSException) {
-            callback?.reject(error.code.toString(), error.message)
-            self.emitHMSError(error)
-          }
-        },
-      )
-    } else {
-      val errorMessage = "setSessionMetaData: sessionMetaData_Is_Required"
-      self.emitRequiredKeysError(errorMessage)
-      rejectCallback(callback, errorMessage)
-    }
-  }
-
-  @Deprecated("SessionMetaData APIs has been deprecated in favour of Session Store APIs", ReplaceWith("getSessionMetadataForKey"), DeprecationLevel.WARNING)
-  fun getSessionMetaData(callback: Promise?) {
-    hmsSDK?.getSessionMetaData(
-      object : HMSSessionMetadataListener {
-        override fun onSuccess(sessionMetadata: Any?) {
-          if (sessionMetadata is String?) {
-            callback?.resolve(sessionMetadata)
-          } else {
-            callback?.reject("6002", "Session Store: Unsupported type received, only String type is supported")
-          }
-        }
-
-        override fun onError(error: HMSException) {
-          callback?.reject(error.code.toString(), error.message)
-          self.emitHMSError(error)
-        }
-      },
-    )
   }
 
   fun getPeerProperty(data: ReadableMap): WritableMap? {
@@ -1993,11 +1951,20 @@ class HMSRNSDK(
             override fun onError(error: HMSException) {
               promise?.reject(error.code.toString(), error.message)
             }
-            override fun onSuccess(sessionMetadata: Any?) {
-              if (sessionMetadata is String?) {
-                promise?.resolve(sessionMetadata)
-              } else {
-                promise?.reject("6002", "Session Store: Unsupported type received for '$key' key, only String type is supported")
+
+            override fun onSuccess(sessionMetadata: JsonElement?) {
+              sessionMetadata.let { sm ->
+                if (sm == null) {
+                  promise?.resolve(null)
+                } else {
+                  if (sm.isJsonPrimitive) {
+                    promise?.resolve(sm.asString)
+                  } else if (sm.isJsonNull) {
+                    promise?.resolve(null)
+                  } else {
+                    promise?.resolve(sm.toString())
+                  }
+                }
               }
             }
           },
@@ -2023,16 +1990,25 @@ class HMSRNSDK(
         }
 
         val keyChangeListener = object : HMSKeyChangeListener {
-          override fun onKeyChanged(key: String, value: Any?) {
+          override fun onKeyChanged(key: String, value: JsonElement?) {
             val map = Arguments.createMap()
             map.putString("id", id)
             map.putString("key", key)
-            if (value is String?) {
-              map.putString("value", value)
-            } else {
-              Log.e("HMSRNSDK", "Session Store: '$value' value received for '$key' key, expected only NullableString type for value")
-              map.putString("value", null) // resetting value to `null`, as the current type is not supported
+
+            value.let { sm ->
+              if (sm == null) {
+                map.putString("value", null)
+              } else {
+                if (sm.isJsonPrimitive) {
+                  map.putString("value", sm.asString)
+                } else if (sm.isJsonNull) {
+                  map.putString("value", null)
+                } else {
+                  map.putString("value", sm.toString())
+                }
+              }
             }
+
             delegate.emitEvent("ON_SESSION_STORE_CHANGED", map)
           }
         }

@@ -12,6 +12,7 @@ import {ModalTypes} from '../utils/types';
 import {parseMetadata} from '../utils/functions';
 import {RealTime} from './Modals';
 import type {RootState} from '../redux';
+import {useShowLandscapeLayout} from '../hooks-util';
 
 export const _Header = ({
   isLeaveMenuOpen,
@@ -30,6 +31,7 @@ export const _Header = ({
   const isScreenShared = useSelector(
     (state: RootState) => state.hmsStates.isLocalScreenShared,
   );
+  const showLandscapeLayout = useShowLandscapeLayout();
 
   // constants
   const iconSize = 20;
@@ -60,8 +62,18 @@ export const _Header = ({
   };
 
   return (
-    <View style={styles.iconTopWrapper}>
-      <View style={styles.iconTopSubWrapper}>
+    <View 
+      style={[
+        styles.iconTopWrapper,
+        showLandscapeLayout ? styles.iconTopWrapperLandscape : null,
+      ]}
+    >
+      <View
+        style={[
+          styles.iconTopSubWrapper,
+          showLandscapeLayout ? styles.iconTopSubWrapperLandscape : null,
+        ]}
+      >
         <Menu
           visible={isLeaveMenuOpen}
           anchor={
@@ -69,7 +81,11 @@ export const _Header = ({
               onPress={() => {
                 setModalVisible(ModalTypes.LEAVE_MENU);
               }}
-              viewStyle={[styles.iconContainer, styles.leaveIcon]}
+              viewStyle={[
+                styles.iconContainer,
+                styles.leaveIcon,
+                showLandscapeLayout ? styles.iconContainerLandscape : null,
+              ]}
               LeftIcon={
                 <Feather name="log-out" style={styles.icon} size={iconSize} />
               }
@@ -123,12 +139,19 @@ export const _Header = ({
           <Text style={styles.headerName}>{roomCode}</Text>
         )}
       </View>
-      <View style={styles.iconTopSubWrapper}>
+      <View 
+        style={[
+          styles.iconTopSubWrapper,
+          showLandscapeLayout ? styles.iconTopSubWrapperLandscape : null,
+        ]}
+      >
         {(room?.browserRecordingState?.running ||
           room?.hlsRecordingState?.running) && (
           <MaterialCommunityIcons
             name="record-circle-outline"
-            style={styles.roomStatus}
+            style={
+              showLandscapeLayout ? styles.roomStatusLandscape : styles.roomStatus
+            }
             size={iconSize}
           />
         )}
@@ -136,16 +159,27 @@ export const _Header = ({
           room?.rtmpHMSRtmpStreamingState?.running) && (
           <Ionicons
             name="globe-outline"
-            style={styles.roomStatus}
+            style={
+              showLandscapeLayout ? styles.roomStatusLandscape : styles.roomStatus
+            }
             size={iconSize}
           />
         )}
         {isScreenShared && (
-          <Feather name="copy" style={styles.roomStatus} size={iconSize} />
+          <Feather 
+            name="copy"
+            style={
+              showLandscapeLayout ? styles.roomStatusLandscape : styles.roomStatus
+            }
+            size={iconSize}
+          />
         )}
         <CustomButton
           onPress={onParticipantsPress}
-          viewStyle={styles.iconContainer}
+          viewStyle={[
+            styles.iconContainer,
+            showLandscapeLayout ? styles.iconContainerLandscape : null,
+          ]}
           LeftIcon={
             <Ionicons name="people" style={styles.icon} size={iconSize} />
           }
@@ -154,6 +188,7 @@ export const _Header = ({
           onPress={onRaiseHandPress}
           viewStyle={[
             styles.iconContainer,
+            showLandscapeLayout ? styles.iconContainerLandscape : null,
             parsedMetadata?.isHandRaised && styles.iconMuted,
           ]}
           LeftIcon={
@@ -174,7 +209,10 @@ export const _Header = ({
             });
             // setNotification(false);
           }}
-          viewStyle={styles.iconContainer}
+          viewStyle={[
+            styles.iconContainer,
+            showLandscapeLayout ? styles.iconContainerLandscape : null,
+          ]}
           LeftIcon={
             <View>
               {/* {notification && <View style={styles.messageDot} />} */}

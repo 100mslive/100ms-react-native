@@ -11,6 +11,7 @@ import {
   Platform,
   InteractionManager,
   ImageURISource,
+  useWindowDimensions,
 } from 'react-native';
 import Toast from 'react-native-simple-toast';
 import {useDispatch, useSelector} from 'react-redux';
@@ -48,14 +49,19 @@ import {CustomInput} from './CustomInput';
 import {Menu, MenuItem, MenuDivider} from './MenuModal';
 
 import {CustomPicker} from './Picker';
-import {changeShowStats, saveUserData} from '../redux/actions';
+import {changeHLSAspectRatio, changeShowStats, saveUserData} from '../redux/actions';
 import {
   parseMetadata,
   getInitials,
   requestExternalStoragePermission,
   getTime,
 } from '../utils/functions';
-import {LayoutParams, ModalTypes, SortingType} from '../utils/types';
+import {
+  LayoutParams,
+  ModalTypes,
+  SUPPORTED_ASPECT_RATIOS,
+  SortingType,
+} from '../utils/types';
 import {COLORS} from '../utils/theme';
 import type {RootState} from '../redux';
 import {SwitchRow} from './SwitchRow';
@@ -138,15 +144,18 @@ export const ParticipantsModal = ({
     instance
       ?.removePeer(peer, 'removed from room')
       .then(d => console.log('Remove Peer Success: ', d))
-      .catch(e => console.log('Remove Peer Error: ', e));
+      .catch(e => {
+        console.log('Remove Peer Error: ', e);
+        Toast.showWithGravity((e as Error).message, Toast.LONG, Toast.TOP);
+      });
   };
   const toggleAudio = (peer: HMSPeer) => {
     hideMenu();
     if (peer?.audioTrack) {
       instance
         ?.changeTrackState(peer?.audioTrack, !peer?.audioTrack?.isMute())
-        .then(d => console.log('Remove Peer Success: ', d))
-        .catch(e => console.log('Remove Peer Error: ', e));
+        .then(d => console.log('Toggle Audio Success: ', d))
+        .catch(e => console.log('Toggle Audio Error: ', e));
     }
   };
   const toggleVideo = (peer: HMSPeer) => {
@@ -154,8 +163,8 @@ export const ParticipantsModal = ({
     if (peer?.videoTrack) {
       instance
         ?.changeTrackState(peer?.videoTrack, !peer?.videoTrack?.isMute())
-        .then(d => console.log('Remove Peer Success: ', d))
-        .catch(e => console.log('Remove Peer Error: ', e));
+        .then(d => console.log('Toggle Video Success: ', d))
+        .catch(e => console.log('Toggle Video Error: ', e));
     }
   };
 
@@ -190,16 +199,7 @@ export const ParticipantsModal = ({
     instance?.getRemotePeers().then(peers => {
       if (localPeer) {
         InteractionManager.runAfterInteractions(() => {
-          setHmsPeers([
-            localPeer,
-            ...peers.map(peer => {
-              // Extracting name and role out of peer object,
-              // so that we still have these value even after peer leaves the meeting
-              const partialCachedPeer: any = {name: peer.name, role: peer.role};
-              Object.setPrototypeOf(partialCachedPeer, peer);
-              return partialCachedPeer;
-            }),
-          ]);
+          setHmsPeers([localPeer, ...peers]);
         });
       }
     });
@@ -316,47 +316,49 @@ export const ParticipantsModal = ({
                   </MenuItem>
                 )}
                 {peer.isLocal === false &&
-                  peer.role?.publishSettings?.allowed?.includes('audio') && (
-                    <MenuItem onPress={() => toggleAudio(peer)}>
-                      <View style={styles.participantMenuItem}>
-                        <Feather
-                          name={
-                            peer.audioTrack?.isMute() === false
-                              ? 'mic'
-                              : 'mic-off'
-                          }
-                          style={styles.participantMenuItemIcon}
-                          size={24}
-                        />
-                        <Text style={styles.participantMenuItemName}>
-                          {peer.audioTrack?.isMute() === false
-                            ? 'Mute audio'
-                            : 'Unmute audio'}
-                        </Text>
-                      </View>
-                    </MenuItem>
-                  )}
+                !!peer.audioTrack &&
+                peer.role?.publishSettings?.allowed?.includes('audio') ? (
+                  <MenuItem onPress={() => toggleAudio(peer)}>
+                    <View style={styles.participantMenuItem}>
+                      <Feather
+                        name={
+                          peer.audioTrack?.isMute() === false
+                            ? 'mic'
+                            : 'mic-off'
+                        }
+                        style={styles.participantMenuItemIcon}
+                        size={24}
+                      />
+                      <Text style={styles.participantMenuItemName}>
+                        {peer.audioTrack?.isMute() === false
+                          ? 'Mute audio'
+                          : 'Unmute audio'}
+                      </Text>
+                    </View>
+                  </MenuItem>
+                ) : null}
                 {peer.isLocal === false &&
-                  peer.role?.publishSettings?.allowed?.includes('video') && (
-                    <MenuItem onPress={() => toggleVideo(peer)}>
-                      <View style={styles.participantMenuItem}>
-                        <Feather
-                          name={
-                            peer.videoTrack?.isMute() === false
-                              ? 'video'
-                              : 'video-off'
-                          }
-                          style={styles.participantMenuItemIcon}
-                          size={24}
-                        />
-                        <Text style={styles.participantMenuItemName}>
-                          {peer.videoTrack?.isMute() === false
-                            ? 'Mute video'
-                            : 'Unmute video'}
-                        </Text>
-                      </View>
-                    </MenuItem>
-                  )}
+                !!peer.videoTrack &&
+                peer.role?.publishSettings?.allowed?.includes('video') ? (
+                  <MenuItem onPress={() => toggleVideo(peer)}>
+                    <View style={styles.participantMenuItem}>
+                      <Feather
+                        name={
+                          peer.videoTrack?.isMute() === false
+                            ? 'video'
+                            : 'video-off'
+                        }
+                        style={styles.participantMenuItemIcon}
+                        size={24}
+                      />
+                      <Text style={styles.participantMenuItemName}>
+                        {peer.videoTrack?.isMute() === false
+                          ? 'Mute video'
+                          : 'Unmute video'}
+                      </Text>
+                    </View>
+                  </MenuItem>
+                ) : null}
                 {/* {peer.isLocal === false &&
                   type === TrackType.REMOTE &&
                   peerTrackNode?.track?.source === HMSTrackSource.REGULAR && (
@@ -391,7 +393,7 @@ export const ParticipantsModal = ({
                       </View>
                     </MenuItem>
                   )} */}
-                {peer.isLocal === false && (
+                {peer.isLocal === false && !!peer.audioTrack ? (
                   <MenuItem onPress={() => onSetVolumePress(peer)}>
                     <View style={styles.participantMenuItem}>
                       <Ionicons
@@ -404,7 +406,7 @@ export const ParticipantsModal = ({
                       </Text>
                     </View>
                   </MenuItem>
-                )}
+                ) : null}
               </Menu>
             </View>
           );
@@ -520,7 +522,10 @@ export const ChangeRoleModal = ({
   const hideMenu = () => setVisible(false);
   const showMenu = () => setVisible(true);
   const changeRole = () => {
-    instance?.changeRole(peer!, newRole, !request);
+    instance?.changeRoleOfPeer(peer!, newRole, !request).catch(e => {
+      console.log('Change Role of Peer Error: ', e);
+      Toast.showWithGravity((e as Error).message, Toast.LONG, Toast.TOP);
+    });
     cancelModal();
   };
 
@@ -1244,6 +1249,73 @@ export const ChangeAudioOutputModal = ({
   );
 };
 
+export const ChangeAspectRatio = ({
+  cancelModal,
+}: {
+  cancelModal: Function;
+}) => {
+  const {height} = useWindowDimensions();
+  const dispatch = useDispatch();
+  const hlsPlayerAspectRatio = useSelector(
+    (state: RootState) => state.app.hlsAspectRatio,
+  );
+  const [selectedRatio, setSelectedRatio] = useState(hlsPlayerAspectRatio);
+
+  const handleChangePress = () => {
+    cancelModal();
+    if (hlsPlayerAspectRatio.id !== selectedRatio.id) {
+      dispatch(changeHLSAspectRatio(selectedRatio));
+    }
+  };
+
+  return (
+    <View style={styles.roleChangeModal}>
+      <Text style={styles.roleChangeModalHeading}>Change Aspect Ratio</Text>
+      <Text style={styles.roleChangeModalDescription}>
+        Current: {hlsPlayerAspectRatio.id}
+      </Text>
+
+      <ScrollView style={{maxHeight: height * 0.4}}>
+        {SUPPORTED_ASPECT_RATIOS.map(ratio => {
+          return (
+            <TouchableOpacity
+              key={ratio.id}
+              style={styles.roleChangeModalPermissionContainer}
+              onPress={() => setSelectedRatio(ratio)}
+            >
+              <View style={styles.roleChangeModalCheckBox}>
+                {selectedRatio.id === ratio.id ? (
+                  <Entypo
+                    name="check"
+                    style={styles.roleChangeModalCheck}
+                    size={10}
+                  />
+                ) : null}
+              </View>
+              <Text style={styles.roleChangeModalPermission}>{ratio.id}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
+
+      <View style={styles.roleChangeModalPermissionContainer}>
+        <CustomButton
+          title="Cancel"
+          onPress={cancelModal}
+          viewStyle={styles.roleChangeModalCancelButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+        <CustomButton
+          title="Change"
+          onPress={handleChangePress}
+          viewStyle={styles.roleChangeModalSuccessButton}
+          textStyle={styles.roleChangeModalButtonText}
+        />
+      </View>
+    </View>
+  );
+};
+
 export const ChangeAudioModeModal = ({
   instance,
   cancelModal,
@@ -1824,7 +1896,7 @@ export const RecordingModal = ({
   const [resolutionDetails, setResolutionDetails] = useState<boolean>(false);
   const [recordingDetails, setRecordingDetails] = useState<HMSRTMPConfig>({
     record: false,
-    meetingURL: roomID ? roomID + '?token=beam_recording' : '',
+    meetingURL: roomID ? roomID + '?token=beam_recording' : undefined,
   });
 
   const changeLayout = () => {
@@ -1845,7 +1917,7 @@ export const RecordingModal = ({
         placeholderTextColor="#454545"
         placeholder="Enter meeting url"
         style={styles.input}
-        defaultValue={recordingDetails.meetingURL}
+        defaultValue={recordingDetails.meetingURL || ''}
         returnKeyType="done"
         multiline
         blurOnSubmit

@@ -29,6 +29,7 @@ import {
   RtcStatsModal,
 } from './Modals';
 import {RoomSettingsModalContent} from './RoomSettingsModalContent';
+import {useShowLandscapeLayout} from '../hooks-util';
 
 export const _Footer = ({
   modalVisible,
@@ -39,6 +40,7 @@ export const _Footer = ({
 }) => {
   // hooks
   const dispatch = useDispatch();
+  const showLandscapeLayout = useShowLandscapeLayout();
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
   const localPeer = useSelector(
     (state: RootState) => state.hmsStates.localPeer || undefined,
@@ -119,8 +121,18 @@ export const _Footer = ({
   }, [isPipActive, hmsInstance]);
 
   return (
-    <View style={styles.iconBotttomWrapper}>
-      <View style={styles.iconBotttomButtonWrapper}>
+    <View
+      style={[
+        styles.iconBotttomWrapper,
+        showLandscapeLayout ? styles.iconBotttomWrapperLandscape : null,
+      ]}
+    >
+      <View
+        style={[
+          styles.iconBotttomButtonWrapper,
+          showLandscapeLayout ? styles.iconBotttomButtonWrapperLandscape : null,
+        ]}
+      >
         {localPeer?.role?.publishSettings?.allowed?.includes('audio') && (
           <CustomButton
             onPress={() => {

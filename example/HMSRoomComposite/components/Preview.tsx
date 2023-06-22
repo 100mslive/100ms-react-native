@@ -90,11 +90,12 @@ export const Preview = ({
           </View>
         ) : (
           <HmsView
-            scaleType={HMSVideoViewMode.ASPECT_FILL}
-            autoSimulcast={autoSimulcast}
-            style={styles.hmsView}
             trackId={previewVideoTrack?.trackId}
+            key={previewVideoTrack?.trackId}
             mirror={mirrorCamera}
+            autoSimulcast={autoSimulcast}
+            scaleType={HMSVideoViewMode.ASPECT_FILL}
+            style={styles.hmsView}
           />
         )}
       </View>

@@ -26,7 +26,12 @@ import {openSettings, requestNotifications} from 'react-native-permissions';
 
 import {COLORS} from '../utils/theme';
 import type {RootState} from '../redux';
-import {changePipModeStatus} from '../redux/actions';
+import {
+  changePipModeStatus,
+  changeEnableHLSPlayerControls,
+  changeShowHLSStats,
+  changeShowCustomHLSPlayerControls,
+} from '../redux/actions';
 import {ModalTypes, PipModes} from '../utils/types';
 import {parseMetadata} from '../utils/functions';
 
@@ -83,6 +88,15 @@ export const RoomSettingsModalContent: React.FC<
   );
   const audioMixer = useSelector(
     (state: RootState) => state.app.joinConfig.audioMixer,
+  );
+  const showHLSStats = useSelector(
+    (state: RootState) => state.app.joinConfig.showHLSStats,
+  );
+  const enableHLSPlayerControls = useSelector(
+    (state: RootState) => state.app.joinConfig.enableHLSPlayerControls,
+  );
+  const showCustomHLSPlayerControls = useSelector(
+    (state: RootState) => state.app.joinConfig.showCustomHLSPlayerControls,
   );
 
   // CONSTANTS
@@ -194,8 +208,14 @@ export const RoomSettingsModalContent: React.FC<
   const changeTrackState = () =>
     setModalVisible(ModalTypes.CHANGE_TRACK_ROLE, true);
 
-  const switchAudioOutput = () =>
-    setModalVisible(ModalTypes.SWITCH_AUDIO_OUTPUT, true);
+  const switchAudioOutput = () => {
+    if (Platform.OS === 'android') {
+      setModalVisible(ModalTypes.SWITCH_AUDIO_OUTPUT, true);
+    } else {
+      closeRoomSettingsModal();
+      hmsInstance?.switchAudioOutputUsingIOSUI();
+    }
+  };
 
   const changeAudioMode = () =>
     setModalVisible(ModalTypes.CHANGE_AUDIO_MODE, true);
@@ -203,7 +223,26 @@ export const RoomSettingsModalContent: React.FC<
   const setAudioMixingMode = () =>
     setModalVisible(ModalTypes.AUDIO_MIXING_MODE, true);
 
+  const handleHLSPlayerAspectRatio = () => {
+    setModalVisible(ModalTypes.HLS_PLAYER_ASPECT_RATIO, true);
+  };
+
   const showRTCStats = () => setModalVisible(ModalTypes.RTC_STATS, true);
+
+  const toggleShowHLSStats = () => {
+    dispatch(changeShowHLSStats(!showHLSStats));
+    setModalVisible(ModalTypes.DEFAULT);
+  };
+
+  const toggleEnableHLSPlayerControls = () => {
+    dispatch(changeEnableHLSPlayerControls(!enableHLSPlayerControls));
+    setModalVisible(ModalTypes.DEFAULT);
+  };
+
+  const toggleShowCustomHLSPlayerControls = () => {
+    dispatch(changeShowCustomHLSPlayerControls(!showCustomHLSPlayerControls));
+    setModalVisible(ModalTypes.DEFAULT);
+  };
 
   // Android Audioshare
   const handleAudioShare = async () => {
@@ -337,12 +376,58 @@ export const RoomSettingsModalContent: React.FC<
           </Text>
         </TouchableOpacity>
 
-        <SettingItem
-          onPress={showRTCStats}
-          text="Show RTC Stats"
-          IconType={MaterialCommunityIcons}
-          iconName={'clipboard-pulse-outline'}
-        />
+        {!localPeer?.role?.name?.includes('hls-') ? (
+          <SettingItem
+            onPress={showRTCStats}
+            text="Show RTC Stats"
+            IconType={MaterialCommunityIcons}
+            iconName={'clipboard-pulse-outline'}
+          />
+        ) : null}
+
+        {localPeer?.role?.name?.includes('hls-') ? (
+          <SettingItem
+            onPress={handleHLSPlayerAspectRatio}
+            text={'Change Aspect Ratio'}
+            IconType={MaterialCommunityIcons}
+            iconName={'aspect-ratio'}
+          />
+        ) : null}
+
+        {localPeer?.role?.name?.includes('hls-') ? (
+          <SettingItem
+            onPress={toggleShowHLSStats}
+            text={showHLSStats ? 'Hide HLS Stats' : 'Show HLS Stats'}
+            IconType={MaterialCommunityIcons}
+            iconName={'clipboard-pulse-outline'}
+          />
+        ) : null}
+
+        {localPeer?.role?.name?.includes('hls-') ? (
+          <SettingItem
+            onPress={toggleEnableHLSPlayerControls}
+            text={
+              enableHLSPlayerControls
+                ? 'Disable HLS Player Controls'
+                : 'Enable HLS Player Controls'
+            }
+            IconType={Ionicons}
+            iconName={'ios-settings-outline'}
+          />
+        ) : null}
+
+        {localPeer?.role?.name?.includes('hls-') ? (
+          <SettingItem
+            onPress={toggleShowCustomHLSPlayerControls}
+            text={
+              showCustomHLSPlayerControls
+                ? 'Hide Custom HLS Player Controls'
+                : 'Show Custom HLS Player Controls'
+            }
+            IconType={Ionicons}
+            iconName={'ios-settings-outline'}
+          />
+        ) : null}
 
         {!localPeerRole?.name?.includes('hls-') ? (
           <SettingItem
@@ -412,16 +497,18 @@ export const RoomSettingsModalContent: React.FC<
           />
         ) : null}
 
+        {localPeer?.role?.publishSettings?.allowed?.includes('audio') ? (
+          <SettingItem
+            onPress={switchAudioOutput}
+            text="Switch Audio Output"
+            IconType={MaterialCommunityIcons}
+            iconName="cast-audio"
+          />
+        ) : null}
+
         {Platform.OS === 'android' &&
         localPeerRole?.publishSettings?.allowed?.includes('audio') ? (
           <>
-            <SettingItem
-              onPress={switchAudioOutput}
-              text="Switch Audio Output"
-              IconType={MaterialCommunityIcons}
-              iconName="cast-audio"
-            />
-
             <SettingItem
               onPress={addRemoveAudioDeviceChangeListener}
               text={`${

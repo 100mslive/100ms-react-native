@@ -380,6 +380,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginHorizontal: 6,
   },
+  iconContainerLandscape: {
+    marginVertical: 6,
+  },
   leaveIcon: {
     backgroundColor: COLORS.INDICATORS.ERROR,
     borderColor: COLORS.INDICATORS.ERROR,
@@ -387,6 +390,10 @@ const styles = StyleSheet.create({
   roomStatus: {
     color: COLORS.INDICATORS.ERROR,
     marginHorizontal: 6,
+  },
+  roomStatusLandscape: {
+    color: COLORS.INDICATORS.ERROR,
+    marginVertical: 6,
   },
   iconTopWrapper: {
     height: 50,
@@ -398,9 +405,17 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.OVERLAY,
     zIndex: 1,
   },
+  iconTopWrapperLandscape: {
+    height: '100%',
+    width: 70,
+    flexDirection: 'column',
+  },
   iconTopSubWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  iconTopSubWrapperLandscape: {
+    flexDirection: 'column',
   },
   iconMuted: {
     backgroundColor: COLORS.BORDER.LIGHT,
@@ -418,6 +433,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
   },
+  iconBotttomButtonWrapperLandscape: {
+    flexDirection: 'column',
+  },
   iconBotttomWrapper: {
     height: 50,
     // position: 'absolute',
@@ -426,6 +444,10 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.OVERLAY,
     zIndex: 2,
     borderRadius: 16,
+  },
+  iconBotttomWrapperLandscape: {
+    width: 50,
+    height: '100%',
   },
   iconBotttomWrapperHls: {
     height: 110,

@@ -63,6 +63,7 @@ const PeerDisplayViewUnmemoized = React.forwardRef<
             ref={hmsViewRef}
             // setZOrderMediaOverlay={miniView}
             trackId={videoTrack?.trackId!}
+            key={videoTrack?.trackId!}
             autoSimulcast={autoSimulcast}
             mirror={
               isLocal && mirrorCamera !== undefined ? mirrorCamera : false
