@@ -74,12 +74,12 @@ const appReducer = (
   switch (action.type) {
     case ActionTypes.CHANGE_PIP_MODE_STATUS:
       return {...state, pipModeStatus: action.payload.pipModeStatus};
-    case ActionTypes.CHANGE_HLS_ASPECT_RATIO:
-      return {...state, hlsAspectRatio: action.payload.hlsAspectRatio};
     case ActionTypes.SET_PEER_STATE:
       return {...state, ...action.payload};
     case ActionTypes.CLEAR_PEER_DATA.REQUEST:
       return {...state, peerState: []};
+    case ActionTypes.CHANGE_HLS_ASPECT_RATIO:
+      return {...state, hlsAspectRatio: action.payload.hlsAspectRatio};
     case ActionTypes.RESET_JOIN_CONFIG:
       return {...state, joinConfig: INITIAL_STATE.joinConfig};
     case ActionTypes.CHANGE_JOIN_AUDIO_MUTED:
@@ -138,32 +138,32 @@ const appReducer = (
           showStats: action.payload.showStats ?? false,
         },
       };
-      case ActionTypes.CHANGE_SHOW_HLS_STATS:
-        return {
-          ...state,
-          joinConfig: {
-            ...state.joinConfig,
-            showHLSStats: action.payload.showHLSStats ?? false,
-          },
-        };
-      case ActionTypes.CHANGE_ENABLE_HLS_PLAYER_CONTROLS:
-        return {
-          ...state,
-          joinConfig: {
-            ...state.joinConfig,
-            enableHLSPlayerControls:
-              action.payload.enableHLSPlayerControls ?? true,
-          },
-        };
-      case ActionTypes.CHANGE_SHOW_CUSTOM_HLS_PLAYER_CONTROLS:
-        return {
-          ...state,
-          joinConfig: {
-            ...state.joinConfig,
-            showCustomHLSPlayerControls:
-              action.payload.showCustomHLSPlayerControls ?? false,
-          },
-        };
+    case ActionTypes.CHANGE_SHOW_HLS_STATS:
+      return {
+        ...state,
+        joinConfig: {
+          ...state.joinConfig,
+          showHLSStats: action.payload.showHLSStats ?? false,
+        },
+      };
+    case ActionTypes.CHANGE_ENABLE_HLS_PLAYER_CONTROLS:
+      return {
+        ...state,
+        joinConfig: {
+          ...state.joinConfig,
+          enableHLSPlayerControls:
+            action.payload.enableHLSPlayerControls ?? true,
+        },
+      };
+    case ActionTypes.CHANGE_SHOW_CUSTOM_HLS_PLAYER_CONTROLS:
+      return {
+        ...state,
+        joinConfig: {
+          ...state.joinConfig,
+          showCustomHLSPlayerControls:
+            action.payload.showCustomHLSPlayerControls ?? false,
+        },
+      };
     case ActionTypes.CHANGE_SOFTWARE_DECODER:
       return {
         ...state,

@@ -18,38 +18,6 @@ import {
 import {RootState} from '../redux';
 import {setRTCStats} from '../redux/actions';
 
-/**
- * Returns true if the screen is in portrait mode
- */
-const isPortrait = () => {
-  const dim = Dimensions.get('screen');
-  return dim.height >= dim.width;
-};
-
-/**
- * A React Hook which updates when the orientation changes
- * @returns whether the user is in 'PORTRAIT' or 'LANDSCAPE'
- */
-export const useOrientation = (): 'PORTRAIT' | 'LANDSCAPE' => {
-  // State to hold the connection status
-  const [orientation, setOrientation] = useState<'PORTRAIT' | 'LANDSCAPE'>(
-    isPortrait() ? 'PORTRAIT' : 'LANDSCAPE',
-  );
-
-  useEffect(() => {
-    const callback = () =>
-      setOrientation(isPortrait() ? 'PORTRAIT' : 'LANDSCAPE');
-
-    Dimensions.addEventListener('change', callback);
-
-    return () => {
-      Dimensions.removeEventListener('change', callback);
-    };
-  }, []);
-
-  return orientation;
-};
-
 export const useRTCStatsListeners = (force?: boolean) => {
   const dispatch = useDispatch();
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);

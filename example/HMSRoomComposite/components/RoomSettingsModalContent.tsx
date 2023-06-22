@@ -376,7 +376,7 @@ export const RoomSettingsModalContent: React.FC<
           </Text>
         </TouchableOpacity>
 
-        {!localPeer?.role?.name?.includes('hls-') ? (
+        {!localPeerRole?.name?.includes('hls-') ? (
           <SettingItem
             onPress={showRTCStats}
             text="Show RTC Stats"
@@ -385,7 +385,7 @@ export const RoomSettingsModalContent: React.FC<
           />
         ) : null}
 
-        {localPeer?.role?.name?.includes('hls-') ? (
+        {localPeerRole?.name?.includes('hls-') ? (
           <SettingItem
             onPress={handleHLSPlayerAspectRatio}
             text={'Change Aspect Ratio'}
@@ -394,7 +394,7 @@ export const RoomSettingsModalContent: React.FC<
           />
         ) : null}
 
-        {localPeer?.role?.name?.includes('hls-') ? (
+        {localPeerRole?.name?.includes('hls-') ? (
           <SettingItem
             onPress={toggleShowHLSStats}
             text={showHLSStats ? 'Hide HLS Stats' : 'Show HLS Stats'}
@@ -403,7 +403,7 @@ export const RoomSettingsModalContent: React.FC<
           />
         ) : null}
 
-        {localPeer?.role?.name?.includes('hls-') ? (
+        {localPeerRole?.name?.includes('hls-') ? (
           <SettingItem
             onPress={toggleEnableHLSPlayerControls}
             text={
@@ -416,7 +416,7 @@ export const RoomSettingsModalContent: React.FC<
           />
         ) : null}
 
-        {localPeer?.role?.name?.includes('hls-') ? (
+        {localPeerRole?.name?.includes('hls-') ? (
           <SettingItem
             onPress={toggleShowCustomHLSPlayerControls}
             text={
@@ -497,7 +497,7 @@ export const RoomSettingsModalContent: React.FC<
           />
         ) : null}
 
-        {localPeer?.role?.publishSettings?.allowed?.includes('audio') ? (
+        {localPeerRole?.publishSettings?.allowed?.includes('audio') ? (
           <SettingItem
             onPress={switchAudioOutput}
             text="Switch Audio Output"
