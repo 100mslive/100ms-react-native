@@ -56,7 +56,7 @@ Troubleshooting Guide for resolving issues in running the Example app is [availa
 
 - React Native 0.68.0 or above
 - Java 11 or above
-- Android API level 32 or above
+- Android API level 33 or above
 - Xcode 14 or above
 - iOS 16 or above
 
