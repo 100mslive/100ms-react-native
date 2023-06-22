@@ -34,6 +34,7 @@ import {
   peerTrackNodeExistForPeerAndTrack,
   replacePeerTrackNodesWithTrack,
   replacePeerTrackNodes,
+  peerTrackNodeExistForPeer,
 } from './peerTrackNodeUtils';
 import {MeetingState} from './types';
 import {getJoinConfig} from './utils';
@@ -195,23 +196,20 @@ export const HMSRoomSetup = () => {
       const localPeer = data.room.localPeer;
 
       const peer = localPeer;
-      const track = localPeer.videoTrack;
+      const track = localPeer.videoTrack as HMSTrack | undefined;
 
       setPeerTrackNodes(prevPeerTrackNodes => {
         if (
-          peerTrackNodeExistForPeerAndTrack(
+          track &&
+          peerTrackNodeExistForPeerAndTrack(prevPeerTrackNodes, peer, track)
+        ) {
+          return replacePeerTrackNodesWithTrack(
             prevPeerTrackNodes,
             peer,
-            track as HMSTrack,
-          )
-        ) {
-          if (track) {
-            return replacePeerTrackNodesWithTrack(
-              prevPeerTrackNodes,
-              peer,
-              track,
-            );
-          }
+            track,
+          );
+        }
+        if (peerTrackNodeExistForPeer(prevPeerTrackNodes, peer)) {
           return replacePeerTrackNodes(prevPeerTrackNodes, peer);
         }
         const hmsLocalPeer = createPeerTrackNode(peer, track);
