@@ -7,6 +7,11 @@ export const setRoomID = (roomID: string) => ({
 
 export const resetJoinConfig = () => ({type: actionTypes.RESET_JOIN_CONFIG});
 
+export const changeDebugInfo = (value: boolean) => ({
+  type: actionTypes.CHANGE_DEBUG_INFO,
+  payload: {debugInfo: value},
+});
+
 export const changeJoinAudioMuted = (value: boolean) => ({
   type: actionTypes.CHANGE_JOIN_AUDIO_MUTED,
   payload: {mutedAudio: value},

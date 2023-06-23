@@ -34,6 +34,7 @@ import {
   changeAutoSimulcast,
   resetJoinConfig,
   changeMusicMode,
+  changeDebugInfo,
 } from '../redux/actions';
 
 interface JoinSettingsModalContentProps {}
@@ -44,6 +45,7 @@ export const JoinSettingsModalContent: React.FC<
   const dispatch = useDispatch();
   const joinConfig = useSelector((state: RootState) => state.app.joinConfig);
   const {
+    debugInfo,
     mutedAudio,
     mutedVideo,
     skipPreview,
@@ -63,6 +65,20 @@ export const JoinSettingsModalContent: React.FC<
 
       <ScrollView>
         <View>
+          <SwitchRow
+            text="Debug Info"
+            value={debugInfo}
+            onChange={value => dispatch(changeDebugInfo(value))}
+            LeftIcon={
+              <IoniconsIcons
+                name="ios-bug-outline"
+                size={24}
+                style={styles.icon}
+              />
+            }
+            containerStyle={styles.switchContainer}
+          />
+
           <SwitchRow
             text="Join with Muted Audio"
             value={mutedAudio}

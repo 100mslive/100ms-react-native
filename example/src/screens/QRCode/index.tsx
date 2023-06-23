@@ -47,6 +47,9 @@ const QRCode = () => {
   const roomLink = useSelector(
     (state: RootState) => state.app.roomID || getMeetingUrl(),
   );
+  const debugInfo = useSelector(
+    (state: RootState) => state.app.joinConfig.debugInfo,
+  );
   const [peerName, setPeerName] = useState<string>('');
   const [joinDisabled, setJoinDisabled] = useState<boolean>(true);
   const [joiningLink, setJoiningLink] = useState<string>('');
@@ -77,7 +80,7 @@ const QRCode = () => {
               tokenEndpoint && initEndpoint
                 ? {init: initEndpoint, token: tokenEndpoint}
                 : undefined,
-            debugInfo: undefined, // default is false, will deal with this later
+            debugInfo, // default is false, will deal with this later
           });
         },
         (errorMsg: string) => {

@@ -9,6 +9,7 @@ type ActionType = {
 type IntialStateType = {
   roomID: string;
   joinConfig: {
+    debugInfo: boolean;
     mutedAudio: boolean;
     mutedVideo: boolean;
     mirrorCamera: boolean;
@@ -24,6 +25,7 @@ type IntialStateType = {
 const INITIAL_STATE: IntialStateType = {
   roomID: getMeetingUrl(),
   joinConfig: {
+    debugInfo: false,
     mutedAudio: true,
     mutedVideo: true,
     mirrorCamera: true,
@@ -48,6 +50,14 @@ const appReducer = (
       };
     case ActionTypes.RESET_JOIN_CONFIG:
       return {...state, joinConfig: INITIAL_STATE.joinConfig};
+    case ActionTypes.CHANGE_DEBUG_INFO:
+      return {
+        ...state,
+        joinConfig: {
+          ...state.joinConfig,
+          debugInfo: action.payload.debugInfo ?? false,
+        },
+      };
     case ActionTypes.CHANGE_JOIN_AUDIO_MUTED:
       return {
         ...state,
