@@ -56,9 +56,7 @@ export const Meeting: React.FC<MeetingProps> = ({peerTrackNodes}) => {
         showLandscapeLayout ? {flexDirection: 'row'} : null,
       ]}
     >
-      {showLandscapeLayout ? (
-        <StatusBar hidden={true} />
-      ) : null}
+      {showLandscapeLayout ? <StatusBar hidden={true} /> : null}
       {isPipModeActive ? null : (
         <Header
           isLeaveMenuOpen={modalVisible === ModalTypes.LEAVE_MENU}
