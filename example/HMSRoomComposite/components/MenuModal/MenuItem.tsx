@@ -11,6 +11,8 @@ import {
   ViewStyle,
 } from 'react-native';
 
+import {COLORS} from '../../utils/theme';
+
 export type MenuItemProps = {
   children: React.ReactNode;
   disabled?: boolean;
@@ -23,9 +25,9 @@ export type MenuItemProps = {
 export function MenuItem({
   children,
   disabled = false,
-  disabledTextColor = '#bdbdbd',
+  disabledTextColor = COLORS.TEXT.DISABLED,
   onPress,
-  pressColor = '#e0e0e0',
+  pressColor = COLORS.TEXT.MEDIUM_EMPHASIS,
   style,
   textStyle,
   ...props

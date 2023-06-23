@@ -256,7 +256,7 @@ const ChatList = ({
               )}
             </View>
             <Text
-              style={[styles.messageText, {color: 'gray'}]}
+              style={[styles.messageText, {color: COLORS.TEXT.DISABLED}]}
               ellipsizeMode="middle"
             >
               {data.messageId}
@@ -549,10 +549,6 @@ const styles = StyleSheet.create({
     right: 48,
     width: 40,
   },
-  messageContainer: {
-    flex: 1,
-    backgroundColor: 'blue',
-  },
   banner: {
     height: 80,
     flexDirection: 'row',
@@ -650,7 +646,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   pinIcon: {
-    color: 'white',
+    color: COLORS.WHITE,
   },
   pinIconContainer: {
     flex: 1,

@@ -9,6 +9,8 @@ import {
   TextStyle,
 } from 'react-native';
 
+import {COLORS} from '../utils/theme';
+
 export enum LiveStates {
   LIVE = 10,
   BEHIND_LIVE = 20,
@@ -48,7 +50,11 @@ const LiveButton: React.FC<LiveButtonProps> = ({
           style={[
             styles.liveIndicator,
             indicatorStyle,
-            {backgroundColor: isLive ? 'red' : 'gray'},
+            {
+              backgroundColor: isLive
+                ? COLORS.TWIN.RED
+                : COLORS.SECONDARY.DEFAULT,
+            },
           ]}
         />
         <Text style={[styles.liveText, textStyle]}>LIVE</Text>
@@ -66,12 +72,12 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   liveText: {
-    color: '#fff',
+    color: COLORS.TEXT.HIGH_EMPHASIS,
   },
   liveIndicator: {
     width: 8,
     height: 8,
-    backgroundColor: 'red',
+    backgroundColor: COLORS.TWIN.RED,
     borderRadius: 4,
     marginRight: 4,
   },

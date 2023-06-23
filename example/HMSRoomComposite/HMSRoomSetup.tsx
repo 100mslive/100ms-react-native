@@ -292,7 +292,7 @@ export const HMSRoomSetup = () => {
     return (
       <ActivityIndicator
         size={'large'}
-        color={'violet'}
+        color={COLORS.TWIN.PURPLE}
         style={{flex: 1, backgroundColor: COLORS.SURFACE.DEFAULT}}
       />
     );

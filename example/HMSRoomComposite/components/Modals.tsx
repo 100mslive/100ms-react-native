@@ -1816,7 +1816,7 @@ export const HlsStreamingModal = ({
         onChangeText={value => {
           setHLSStreamingDetails({...hlsStreamingDetails, meetingUrl: value});
         }}
-        placeholderTextColor="#454545"
+        placeholderTextColor={COLORS.SECONDARY.DEFAULT}
         placeholder="Enter meeting url"
         style={styles.input}
         defaultValue={hlsStreamingDetails.meetingUrl}
@@ -1914,7 +1914,7 @@ export const RecordingModal = ({
         onChangeText={value => {
           setRecordingDetails({...recordingDetails, meetingURL: value});
         }}
-        placeholderTextColor="#454545"
+        placeholderTextColor={COLORS.SECONDARY.DEFAULT}
         placeholder="Enter meeting url"
         style={styles.input}
         defaultValue={recordingDetails.meetingURL || ''}
@@ -1930,7 +1930,7 @@ export const RecordingModal = ({
             setRecordingDetails({...recordingDetails, rtmpURLs: [value]});
           }
         }}
-        placeholderTextColor="#454545"
+        placeholderTextColor={COLORS.SECONDARY.DEFAULT}
         placeholder="Enter rtmp url"
         style={styles.input}
         defaultValue={

@@ -9,6 +9,8 @@ import {
   PinchGestureHandlerEventPayload,
 } from 'react-native-gesture-handler';
 
+import {COLORS} from '../utils/theme';
+
 const ZoomableView = ({children}: {children?: React.ReactNode}) => {
   const baseScale = useRef(new Animated.Value(1)).current;
   const pinchScale = useRef(new Animated.Value(1)).current;
@@ -71,7 +73,7 @@ export {ZoomableView};
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'black',
+    backgroundColor: COLORS.BLACK,
   },
   zoomableView: {
     width: '100%',

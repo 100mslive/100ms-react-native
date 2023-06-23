@@ -16,6 +16,8 @@ import {
 } from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 
+import {COLORS} from '../../utils/theme';
+
 export interface MenuProps {
   children?: React.ReactNode;
   anchor?: React.ReactNode;
@@ -278,14 +280,14 @@ export class Menu extends React.Component<MenuProps, State> {
 const styles = StyleSheet.create({
   shadowMenuContainer: {
     position: 'absolute',
-    backgroundColor: 'white',
+    backgroundColor: COLORS.WHITE,
     borderRadius: 4,
     opacity: 0,
 
     // Shadow
     ...Platform.select({
       ios: {
-        shadowColor: 'black',
+        shadowColor: COLORS.BLACK,
         shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.14,
         shadowRadius: 2,

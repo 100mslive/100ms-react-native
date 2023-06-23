@@ -184,7 +184,7 @@ export const HMSInstanceSetup = () => {
   return (
     <ActivityIndicator
       size={'large'}
-      color={'pink'}
+      color={COLORS.TWIN.PURPLE}
       style={{flex: 1, backgroundColor: COLORS.SURFACE.DEFAULT}}
     />
   );

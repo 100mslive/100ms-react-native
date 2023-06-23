@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
   modalContainer: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#000',
+    backgroundColor: COLORS.BLACK,
   },
   hmsView: {
     height: '100%',

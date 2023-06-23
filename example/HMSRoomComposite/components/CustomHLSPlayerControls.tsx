@@ -1,6 +1,8 @@
 import React from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 
+import {COLORS} from '../utils/theme';
+
 export type ControlType =
   | 'play'
   | 'stop'
@@ -86,5 +88,5 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   button: {padding: 12},
-  text: {color: 'lightblue'},
+  text: {color: COLORS.PRIMARY.LIGHT},
 });

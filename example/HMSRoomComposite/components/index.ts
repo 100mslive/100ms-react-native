@@ -1,7 +1,5 @@
-export * from './AlertModal';
 export * from './ChatWindow';
 export * from './Preview';
-export * from './UserIdModal';
 export * from './Picker';
 export * from './ZoomableView';
 export * from './CustomInput';

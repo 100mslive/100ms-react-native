@@ -263,7 +263,8 @@ export const JoinSettingsModalContent: React.FC<
         <View style={styles.divider} />
 
         <Text style={styles.footer}>
-          Made with <FontAwesomeIcons name="heart" size={16} color="red" /> by
+          Made with{' '}
+          <FontAwesomeIcons name="heart" size={16} color={COLORS.TWIN.RED} /> by
           100ms
         </Text>
       </ScrollView>

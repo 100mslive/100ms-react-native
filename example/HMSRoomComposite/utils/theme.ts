@@ -97,6 +97,7 @@ export const COLORS =
           SUCCESS: '#36B37E',
         },
         TWIN: {
+          RED: '#fa1919',
           YELLOW: '#FAC919',
           GREEN: '#00AE63',
           PURPLE: '#6554C0',
@@ -150,6 +151,7 @@ export const COLORS =
           SUCCESS: '#36B37E',
         },
         TWIN: {
+          RED: '#fa1919',
           YELLOW: '#FAC919',
           GREEN: '#00AE63',
           PURPLE: '#6554C0',
