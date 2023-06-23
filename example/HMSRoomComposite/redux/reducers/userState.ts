@@ -15,7 +15,7 @@ type IntialStateType = {
   userName: string;
   userId: string | undefined;
   endPoints: {init: string; token: string} | undefined;
-  debugInfo: boolean;
+  debugMode: boolean;
   roomID: string;
   hmsInstance?: HMSSDK;
   hmsSessionStore?: HMSSessionStore | null;
@@ -29,7 +29,7 @@ const INITIAL_STATE: IntialStateType = {
   userName: '',
   userId: undefined,
   endPoints: undefined,
-  debugInfo: false,
+  debugMode: false,
   hmsInstance: undefined,
   roomID: getMeetingUrl(),
   roomCode: getMeetingCode(),
@@ -69,7 +69,7 @@ const userReducer = (
       //     userName: action.payload.options.userName ?? '',
       //     userId: action.payload.options.userId,
       //     endPoints: action.payload.options.endPoints,
-      //     debugInfo: action.payload.options.debugInfo ?? false,
+      //     debugMode: action.payload.options.debugMode ?? false,
       //   };
       // }
       // return {
@@ -81,7 +81,7 @@ const userReducer = (
       state.userName = action.payload.options.userName ?? '';
       state.userId = action.payload.options.userId;
       state.endPoints = action.payload.options.endPoints;
-      state.debugInfo = action.payload.options.debugInfo ?? false;
+      state.debugMode = action.payload.options.debugMode ?? false;
 
       return state;
     case HmsStateActionTypes.CLEAR_STATES:

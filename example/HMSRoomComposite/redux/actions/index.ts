@@ -17,7 +17,7 @@ export const setPrebuiltData = (data: {
   options?: {
     userName?: string;
     userId?: string;
-    debugInfo?: boolean;
+    debugMode?: boolean;
     endPoints?: {
       init: string;
       token: string;

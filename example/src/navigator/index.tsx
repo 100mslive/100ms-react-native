@@ -17,7 +17,7 @@ export type AppStackParamList = {
     userName?: string;
     userId?: string;
     endPoints?: {init: string; token: string};
-    debugInfo?: boolean;
+    debugMode?: boolean;
   };
 };
 
