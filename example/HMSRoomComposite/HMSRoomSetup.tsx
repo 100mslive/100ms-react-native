@@ -60,7 +60,6 @@ export const HMSRoomSetup = () => {
     }),
   );
   const hmsConfigRef = useRef<HMSConfig | null>(null);
-  const [previewTracks, setPreviewTracks] = useState<HMSTrack[]>([]);
   const [meetingState, setMeetingState] = useState(MeetingState.NOT_JOINED);
   const [peerTrackNodes, setPeerTrackNodes] = useState<PeerTrackNode[]>([]);
   const [loading, setLoading] = useState(false);
@@ -162,14 +161,12 @@ export const HMSRoomSetup = () => {
   // HMS Preview Listener
   useEffect(() => {
     const onPreviewHandler = (data: PreviewData) => {
-      setLoading(false);
-
       batch(() => {
         dispatch(setHMSRoomState(data.room));
         dispatch(setHMSLocalPeerState(data.room.localPeer));
       });
-      setPreviewTracks(data.previewTracks);
 
+      setLoading(false);
       setMeetingState(MeetingState.IN_PREVIEW);
     };
 
@@ -284,13 +281,7 @@ export const HMSRoomSetup = () => {
   }, [hmsInstance]);
 
   if (meetingState === MeetingState.IN_PREVIEW) {
-    return (
-      <Preview
-        previewTracks={previewTracks}
-        join={joinMeeting}
-        loadingButtonState={loading}
-      />
-    );
+    return <Preview join={joinMeeting} loadingButtonState={loading} />;
   }
 
   if (meetingState === MeetingState.IN_MEETING) {
