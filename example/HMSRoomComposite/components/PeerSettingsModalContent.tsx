@@ -139,22 +139,54 @@ export const PeerSettingsModalContent: React.FC<
           disabled={!peerTrackNode.track?.trackId}
         />
 
-        {!peer.isLocal ? (
-          <SettingItem
-            text={isPeerAudioMute ? 'Request Audio Unmute' : 'Mute Audio'}
-            IconType={Ionicons}
-            iconName={isPeerAudioMute ? 'mic-off-outline' : 'mic-outline'}
-            onPress={toggleMuteAudio}
-          />
+        {!peer.isLocal &&
+        (localPeerPermissions?.mute || localPeerPermissions?.unmute) ? (
+          <>
+            {/* If Peer's Audio is Muted and Local Peer has unmute Permissions */}
+            {isPeerAudioMute && localPeerPermissions?.unmute ? (
+              <SettingItem
+                text={'Request Audio Unmute'}
+                IconType={Ionicons}
+                iconName={'mic-off-outline'}
+                onPress={toggleMuteAudio}
+              />
+            ) : null}
+
+            {/* If Peer's Audio is Unmuted and Local Peer has mute Permissions */}
+            {!isPeerAudioMute && localPeerPermissions?.mute ? (
+              <SettingItem
+                text={'Mute Audio'}
+                IconType={Ionicons}
+                iconName={'mic-outline'}
+                onPress={toggleMuteAudio}
+              />
+            ) : null}
+          </>
         ) : null}
 
-        {!peer.isLocal ? (
-          <SettingItem
-            text={isPeerVideoMute ? 'Request Video Unmute' : 'Mute Video'}
-            IconType={MaterialCommunityIcons}
-            iconName={isPeerVideoMute ? 'video-off-outline' : 'video-outline'}
-            onPress={toggleMuteVideo}
-          />
+        {!peer.isLocal &&
+        (localPeerPermissions?.mute || localPeerPermissions?.unmute) ? (
+          <>
+            {/* If Peer's Video is Muted and Local Peer has unmute Permissions */}
+            {isPeerVideoMute && localPeerPermissions?.unmute ? (
+              <SettingItem
+                text={'Request Video Unmute'}
+                IconType={MaterialCommunityIcons}
+                iconName={'video-off-outline'}
+                onPress={toggleMuteVideo}
+              />
+            ) : null}
+
+            {/* If Peer's Video is Unmuted and Local Peer has mute Permissions */}
+            {!isPeerVideoMute && localPeerPermissions?.mute ? (
+              <SettingItem
+                text={'Mute Video'}
+                IconType={MaterialCommunityIcons}
+                iconName={'video-outline'}
+                onPress={toggleMuteVideo}
+              />
+            ) : null}
+          </>
         ) : null}
 
         {!peer.isLocal && localPeerPermissions?.removeOthers ? (

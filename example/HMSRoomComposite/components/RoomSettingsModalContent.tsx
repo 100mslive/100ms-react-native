@@ -68,6 +68,7 @@ export const RoomSettingsModalContent: React.FC<
   // REDUX STATES & DISPATCH
   const dispatch = useDispatch();
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
+  const debugInfo = useSelector((state: RootState) => state.user.debugInfo);
   const localPeerRole = useSelector(
     (state: RootState) => state.hmsStates.localPeer?.role,
   );
@@ -376,15 +377,6 @@ export const RoomSettingsModalContent: React.FC<
           </Text>
         </TouchableOpacity>
 
-        {!localPeerRole?.name?.includes('hls-') ? (
-          <SettingItem
-            onPress={showRTCStats}
-            text="Show RTC Stats"
-            IconType={MaterialCommunityIcons}
-            iconName={'clipboard-pulse-outline'}
-          />
-        ) : null}
-
         {localPeerRole?.name?.includes('hls-') ? (
           <SettingItem
             onPress={handleHLSPlayerAspectRatio}
@@ -394,56 +386,12 @@ export const RoomSettingsModalContent: React.FC<
           />
         ) : null}
 
-        {localPeerRole?.name?.includes('hls-') ? (
-          <SettingItem
-            onPress={toggleShowHLSStats}
-            text={showHLSStats ? 'Hide HLS Stats' : 'Show HLS Stats'}
-            IconType={MaterialCommunityIcons}
-            iconName={'clipboard-pulse-outline'}
-          />
-        ) : null}
-
-        {localPeerRole?.name?.includes('hls-') ? (
-          <SettingItem
-            onPress={toggleEnableHLSPlayerControls}
-            text={
-              enableHLSPlayerControls
-                ? 'Disable HLS Player Controls'
-                : 'Enable HLS Player Controls'
-            }
-            IconType={Ionicons}
-            iconName={'ios-settings-outline'}
-          />
-        ) : null}
-
-        {localPeerRole?.name?.includes('hls-') ? (
-          <SettingItem
-            onPress={toggleShowCustomHLSPlayerControls}
-            text={
-              showCustomHLSPlayerControls
-                ? 'Hide Custom HLS Player Controls'
-                : 'Show Custom HLS Player Controls'
-            }
-            IconType={Ionicons}
-            iconName={'ios-settings-outline'}
-          />
-        ) : null}
-
         {!localPeerRole?.name?.includes('hls-') ? (
           <SettingItem
             onPress={handleLocalRemoteAudiosMute}
             text={`${muteAllTracksAudio ? 'Unmute' : 'Mute'} Room`}
             IconType={Ionicons}
             iconName={muteAllTracksAudio ? 'mic-off-outline' : 'mic-outline'}
-          />
-        ) : null}
-
-        {!isPipModeUnavailable ? (
-          <SettingItem
-            onPress={enterPipMode}
-            text="Picture in Picture (PIP) Mode"
-            IconType={MaterialCommunityIcons}
-            iconName="picture-in-picture-bottom-right"
           />
         ) : null}
 
@@ -506,100 +454,146 @@ export const RoomSettingsModalContent: React.FC<
           />
         ) : null}
 
-        {Platform.OS === 'android' &&
-        localPeerRole?.publishSettings?.allowed?.includes('audio') ? (
+        {debugInfo ? (
           <>
-            <SettingItem
-              onPress={addRemoveAudioDeviceChangeListener}
-              text={`${
-                audioDeviceListenerAdded ? 'Remove' : 'Set'
-              } Audio Output Change Listener`}
-              IconType={MaterialCommunityIcons}
-              iconName="video-input-component"
-            />
+            {localPeerRole?.name?.includes('hls-') ? (
+              <>
+                <SettingItem
+                  onPress={toggleShowHLSStats}
+                  text={showHLSStats ? 'Hide HLS Stats' : 'Show HLS Stats'}
+                  IconType={MaterialCommunityIcons}
+                  iconName={'clipboard-pulse-outline'}
+                />
 
-            <SettingItem
-              onPress={handleAudioShare}
-              text={`${isAudioShared ? 'Stop' : 'Start'} Audioshare`}
-              IconType={Ionicons}
-              iconName="share-social-outline"
-            />
+                <SettingItem
+                  onPress={toggleEnableHLSPlayerControls}
+                  text={
+                    enableHLSPlayerControls
+                      ? 'Disable HLS Player Controls'
+                      : 'Enable HLS Player Controls'
+                  }
+                  IconType={Ionicons}
+                  iconName={'ios-settings-outline'}
+                />
 
-            <SettingItem
-              onPress={changeAudioMode}
-              text="Set Audio Mode"
-              IconType={MaterialCommunityIcons}
-              iconName="call-split"
-            />
+                <SettingItem
+                  onPress={toggleShowCustomHLSPlayerControls}
+                  text={
+                    showCustomHLSPlayerControls
+                      ? 'Hide Custom HLS Player Controls'
+                      : 'Show Custom HLS Player Controls'
+                  }
+                  IconType={Ionicons}
+                  iconName={'ios-settings-outline'}
+                />
+              </>
+            ) : (
+              <>
+                <SettingItem
+                  onPress={showRTCStats}
+                  text="Show RTC Stats"
+                  IconType={MaterialCommunityIcons}
+                  iconName={'clipboard-pulse-outline'}
+                />
+              </>
+            )}
 
-            <SettingItem
-              onPress={setAudioMixingMode}
-              text="Set Audio Mixing Mode"
-              IconType={EntypoIcons}
-              iconName="sound-mix"
-            />
-          </>
-        ) : null}
+            {Platform.OS === 'android' &&
+            localPeerRole?.publishSettings?.allowed?.includes('audio') ? (
+              <>
+                <SettingItem
+                  onPress={addRemoveAudioDeviceChangeListener}
+                  text={`${
+                    audioDeviceListenerAdded ? 'Remove' : 'Set'
+                  } Audio Output Change Listener`}
+                  IconType={MaterialCommunityIcons}
+                  iconName="video-input-component"
+                />
 
-        {Platform.OS === 'ios' &&
-        audioMixer &&
-        localPeerRole?.publishSettings?.allowed?.includes('audio') ? (
-          <>
-            <SettingItem
-              onPress={playAudioShare}
-              text="Play Audio Share"
-              IconType={Ionicons}
-              iconName="play-outline"
-            />
+                <SettingItem
+                  onPress={handleAudioShare}
+                  text={`${isAudioShared ? 'Stop' : 'Start'} Audioshare`}
+                  IconType={Ionicons}
+                  iconName="share-social-outline"
+                />
 
-            <SettingItem
-              onPress={stopAudioShare}
-              text="Stop Audio Share"
-              IconType={Ionicons}
-              iconName="stop-outline"
-            />
+                <SettingItem
+                  onPress={changeAudioMode}
+                  text="Set Audio Mode"
+                  IconType={MaterialCommunityIcons}
+                  iconName="call-split"
+                />
 
-            <SettingItem
-              onPress={setAudioShareVolume}
-              text="Set Audio Share Volume"
-              IconType={Ionicons}
-              iconName="volume-high-outline"
-            />
+                <SettingItem
+                  onPress={setAudioMixingMode}
+                  text="Set Audio Mixing Mode"
+                  IconType={EntypoIcons}
+                  iconName="sound-mix"
+                />
+              </>
+            ) : null}
 
-            <SettingItem
-              onPress={pauseAudioShare}
-              text="Pause Audio Share"
-              IconType={Ionicons}
-              iconName="pause-outline"
-            />
+            {Platform.OS === 'ios' &&
+            audioMixer &&
+            localPeerRole?.publishSettings?.allowed?.includes('audio') ? (
+              <>
+                <SettingItem
+                  onPress={playAudioShare}
+                  text="Play Audio Share"
+                  IconType={Ionicons}
+                  iconName="play-outline"
+                />
 
-            <SettingItem
-              onPress={resumeAudioShare}
-              text="Resume Audio Share"
-              IconType={Ionicons}
-              iconName="play-skip-forward-outline"
-            />
+                <SettingItem
+                  onPress={stopAudioShare}
+                  text="Stop Audio Share"
+                  IconType={Ionicons}
+                  iconName="stop-outline"
+                />
 
-            <SettingItem
-              onPress={isAudioSharePlaying}
-              text="Is Audio Share Playing"
-              IconType={MaterialCommunityIcons}
-              iconName="file-question-outline"
-            />
+                <SettingItem
+                  onPress={setAudioShareVolume}
+                  text="Set Audio Share Volume"
+                  IconType={Ionicons}
+                  iconName="volume-high-outline"
+                />
 
-            <SettingItem
-              onPress={getAudioShareDuration}
-              text="Audio Share Duration"
-              IconType={Ionicons}
-              iconName="timer-outline"
-            />
+                <SettingItem
+                  onPress={pauseAudioShare}
+                  text="Pause Audio Share"
+                  IconType={Ionicons}
+                  iconName="pause-outline"
+                />
 
-            <SettingItem
-              onPress={getAudioShareCurrentDuration}
-              text="Audio Share Current Duration"
-              IconType={Ionicons}
-              iconName="timer-outline"
-            />
+                <SettingItem
+                  onPress={resumeAudioShare}
+                  text="Resume Audio Share"
+                  IconType={Ionicons}
+                  iconName="play-skip-forward-outline"
+                />
+
+                <SettingItem
+                  onPress={isAudioSharePlaying}
+                  text="Is Audio Share Playing"
+                  IconType={MaterialCommunityIcons}
+                  iconName="file-question-outline"
+                />
+
+                <SettingItem
+                  onPress={getAudioShareDuration}
+                  text="Audio Share Duration"
+                  IconType={Ionicons}
+                  iconName="timer-outline"
+                />
+
+                <SettingItem
+                  onPress={getAudioShareCurrentDuration}
+                  text="Audio Share Current Duration"
+                  IconType={Ionicons}
+                  iconName="timer-outline"
+                />
+              </>
+            ) : null}
           </>
         ) : null}
       </ScrollView>

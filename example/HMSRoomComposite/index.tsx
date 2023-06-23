@@ -30,4 +30,5 @@ export const _HMSRoomComposite: React.FC<HMSRoomCompositeProps> = props => {
   );
 };
 
+// TODO: handle props change
 export const HMSRoomComposite = memo(_HMSRoomComposite);
