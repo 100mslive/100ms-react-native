@@ -428,7 +428,7 @@ const ParticipantFilter = ({
   filter?: string;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
 }) => {
-  const roles = useSelector((state: RootState) => state.user.roles);
+  const roles = useSelector((state: RootState) => state.hmsStates.roles);
 
   const [visible, setVisible] = useState<boolean>(false);
 
@@ -517,7 +517,7 @@ export const ChangeRoleModal = ({
   peer?: HMSPeer;
   cancelModal: Function;
 }) => {
-  const roles = useSelector((state: RootState) => state.user.roles);
+  const roles = useSelector((state: RootState) => state.hmsStates.roles);
 
   const [newRole, setNewRole] = useState<HMSRole>(peer?.role!);
   const [request, setRequest] = useState<boolean>(false);
@@ -1560,7 +1560,7 @@ export const ChangeTrackStateForRoleModal = ({
   localPeer?: HMSLocalPeer;
   cancelModal: Function;
 }) => {
-  const roles = useSelector((state: RootState) => state.user.roles);
+  const roles = useSelector((state: RootState) => state.hmsStates.roles);
 
   const [role, setRole] = useState<HMSRole>(localPeer?.role!);
   const [visible, setVisible] = useState<boolean>(false);
@@ -2277,7 +2277,7 @@ export const ChangeBulkRoleModal: React.FC<ChangeBulkRoleModalProps> = ({
   cancelModal,
 }) => {
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
-  const roles = useSelector((state: RootState) => state.user.roles);
+  const roles = useSelector((state: RootState) => state.hmsStates.roles);
   const [showRolesSelectionView, setShowRolesSelectionView] =
     useState<null | RoleSelection>(null);
   const [targetRole, setTargetRole] = useState<HMSRole | null>(null);

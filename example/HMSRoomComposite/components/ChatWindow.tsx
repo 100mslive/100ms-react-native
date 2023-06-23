@@ -63,7 +63,7 @@ const ChatFilter = memo(
       React.SetStateAction<'everyone' | HMSRole | HMSRemotePeer>
     >;
   }) => {
-    const roles = useSelector((state: RootState) => state.user.roles);
+    const roles = useSelector((state: RootState) => state.hmsStates.roles);
 
     const [visible, setVisible] = useState<boolean>(false);
     const [remotePeers, setRemotePeers] = useState<HMSRemotePeer[]>();
