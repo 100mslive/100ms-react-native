@@ -15,7 +15,7 @@ import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {useDispatch, useSelector} from 'react-redux';
+import {useDispatch, useSelector, useStore} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-simple-toast';
 
@@ -43,6 +43,7 @@ const QRCode = () => {
   const navigate = useNavigation<QRCodeScreenProp>().navigate;
   const {top, bottom, left, right} = useSafeAreaInsets();
   const dispatch = useDispatch();
+  const store = useStore();
 
   const roomLink = useSelector(
     (state: RootState) => state.app.roomID || getMeetingUrl(),
@@ -72,6 +73,8 @@ const QRCode = () => {
             Constants.MEET_URL,
             joiningLink.replace('preview', 'meeting'),
           );
+          // @ts-ignore
+          global.joinConfig = (store.getState() as RootState).app.joinConfig;
           navigate('HMSPrebuiltScreen', {
             roomCode,
             userName: peerName,

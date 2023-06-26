@@ -104,20 +104,6 @@ export const JoinSettingsModalContent: React.FC<
           />
 
           <SwitchRow
-            text="Mirror Camera"
-            value={mirrorCamera}
-            onChange={value => dispatch(changeMirrorCamera(value))}
-            LeftIcon={
-              <IoniconsIcons
-                name="camera-reverse-outline"
-                size={24}
-                style={styles.icon}
-              />
-            }
-            containerStyle={styles.switchContainer}
-          />
-
-          <SwitchRow
             text="Skip Preview"
             value={skipPreview}
             onChange={value => dispatch(changeJoinSkipPreview(value))}
@@ -182,20 +168,6 @@ export const JoinSettingsModalContent: React.FC<
               containerStyle={styles.switchContainer}
             />
           ) : null}
-
-          <SwitchRow
-            text="Auto Simulcast"
-            value={autoSimulcast}
-            onChange={value => dispatch(changeAutoSimulcast(value))}
-            LeftIcon={
-              <MaterialIcons
-                name="auto-awesome-motion"
-                size={24}
-                style={styles.icon}
-              />
-            }
-            containerStyle={styles.switchContainer}
-          />
 
           <View style={styles.divider} />
 
