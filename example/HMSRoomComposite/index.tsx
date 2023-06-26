@@ -14,7 +14,7 @@ export interface HMSRoomCompositeProps {
       init: string;
       token: string;
     };
-    debugInfo?: boolean;
+    debugMode?: boolean;
   };
 }
 

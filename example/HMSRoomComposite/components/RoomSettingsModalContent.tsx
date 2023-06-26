@@ -69,7 +69,7 @@ export const RoomSettingsModalContent: React.FC<
   // REDUX STATES & DISPATCH
   const dispatch = useDispatch();
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
-  const debugInfo = useSelector((state: RootState) => state.user.debugInfo);
+  const debugMode = useSelector((state: RootState) => state.user.debugMode);
   const localPeerRole = useSelector(
     (state: RootState) => state.hmsStates.localPeer?.role,
   );
@@ -452,7 +452,7 @@ export const RoomSettingsModalContent: React.FC<
           />
         ) : null}
 
-        {debugInfo ? (
+        {debugMode ? (
           <>
             {localPeerRole?.name?.includes('hls-') ? (
               <>
