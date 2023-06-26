@@ -34,6 +34,7 @@ import {
 } from '../redux/actions';
 import {ModalTypes, PipModes} from '../utils/types';
 import {parseMetadata} from '../utils/functions';
+import {getJoinConfig} from '../utils';
 
 interface RoomSettingsModalContentProps {
   newAudioMixingMode: HMSAudioMixingMode;
@@ -86,9 +87,6 @@ export const RoomSettingsModalContent: React.FC<
 
   const pipModeStatus = useSelector(
     (state: RootState) => state.app.pipModeStatus,
-  );
-  const audioMixer = useSelector(
-    (state: RootState) => state.app.joinConfig.audioMixer,
   );
   const showHLSStats = useSelector(
     (state: RootState) => state.app.joinConfig.showHLSStats,
@@ -534,7 +532,7 @@ export const RoomSettingsModalContent: React.FC<
             ) : null}
 
             {Platform.OS === 'ios' &&
-            audioMixer &&
+            getJoinConfig().audioMixer &&
             localPeerRole?.publishSettings?.allowed?.includes('audio') ? (
               <>
                 <SettingItem
