@@ -27,8 +27,8 @@ import type { HMSAudioMixingMode } from './HMSAudioMixingMode';
 import type { HMSLogSettings } from './HMSLogSettings';
 import { HMSMessageType } from './HMSMessageType';
 import { HMSPIPListenerActions } from './HMSPIPListenerActions';
-import type { HMSEventSubscription } from './HMSNativeEventEmitter';
-import { HMSNativeEventEmitter } from './HMSNativeEventEmitter';
+import HMSNativeEventListener from './HMSNativeEventListener';
+import type { HMSNativeEventSubscription } from './HMSNativeEventListener';
 import {
   clearHmsPeersCache,
   getHmsPeersCache,
@@ -55,8 +55,6 @@ interface PIPConfig {
 }
 
 const ReactNativeVersion = require('react-native/Libraries/Core/ReactNativeVersion');
-
-const HmsEventEmitter = new HMSNativeEventEmitter(HMSManager);
 
 let HmsSdk: HMSSDK | undefined;
 
@@ -89,7 +87,7 @@ export class HMSSDK {
   private emitterSubscriptions: Partial<
     Record<
       HMSUpdateListenerActions | HMSPIPListenerActions,
-      HMSEventSubscription
+      HMSNativeEventSubscription
     >
   > = {};
 
@@ -1143,7 +1141,7 @@ export class HMSSDK {
         // Checking if we already have ON_PREVIEW subscription
         if (!this.emitterSubscriptions[HMSUpdateListenerActions.ON_PREVIEW]) {
           // Adding ON_PREVIEW native listener
-          const previewSubscription = HmsEventEmitter.addListener(
+          const previewSubscription = HMSNativeEventListener.addListener(
             this.id,
             HMSUpdateListenerActions.ON_PREVIEW,
             this.onPreviewListener
@@ -1159,7 +1157,7 @@ export class HMSSDK {
         // Checking if we already have ON_JOIN subscription
         if (!this.emitterSubscriptions[HMSUpdateListenerActions.ON_JOIN]) {
           // Adding ON_JOIN native listener
-          const joinSubscription = HmsEventEmitter.addListener(
+          const joinSubscription = HMSNativeEventListener.addListener(
             this.id,
             HMSUpdateListenerActions.ON_JOIN,
             this.onJoinListener
@@ -1177,7 +1175,7 @@ export class HMSSDK {
           !this.emitterSubscriptions[HMSUpdateListenerActions.ON_ROOM_UPDATE]
         ) {
           // Adding ON_ROOM_UPDATE native listener
-          const roomSubscription = HmsEventEmitter.addListener(
+          const roomSubscription = HMSNativeEventListener.addListener(
             this.id,
             HMSUpdateListenerActions.ON_ROOM_UPDATE,
             this.onRoomListener
@@ -1195,7 +1193,7 @@ export class HMSSDK {
           !this.emitterSubscriptions[HMSUpdateListenerActions.ON_PEER_UPDATE]
         ) {
           // Adding ON_PEER_UPDATE native listener
-          const peerSubscription = HmsEventEmitter.addListener(
+          const peerSubscription = HMSNativeEventListener.addListener(
             this.id,
             HMSUpdateListenerActions.ON_PEER_UPDATE,
             this.onPeerListener
@@ -1213,7 +1211,7 @@ export class HMSSDK {
           !this.emitterSubscriptions[HMSUpdateListenerActions.ON_TRACK_UPDATE]
         ) {
           // Adding ON_TRACK_UPDATE native listener
-          const trackSubscription = HmsEventEmitter.addListener(
+          const trackSubscription = HMSNativeEventListener.addListener(
             this.id,
             HMSUpdateListenerActions.ON_TRACK_UPDATE,
             this.onTrackListener
@@ -1229,7 +1227,7 @@ export class HMSSDK {
         // Checking if we already have ON_ERROR subscription
         if (!this.emitterSubscriptions[HMSUpdateListenerActions.ON_ERROR]) {
           // Adding ON_ERROR native listener
-          const errorSubscription = HmsEventEmitter.addListener(
+          const errorSubscription = HMSNativeEventListener.addListener(
             this.id,
             HMSUpdateListenerActions.ON_ERROR,
             this.onErrorListener
@@ -1245,7 +1243,7 @@ export class HMSSDK {
         // Checking if we already have ON_MESSAGE subscription
         if (!this.emitterSubscriptions[HMSUpdateListenerActions.ON_MESSAGE]) {
           // Adding ON_MESSAGE native listener
-          const messageSubscription = HmsEventEmitter.addListener(
+          const messageSubscription = HMSNativeEventListener.addListener(
             this.id,
             HMSUpdateListenerActions.ON_MESSAGE,
             this.onMessageListener
@@ -1261,7 +1259,7 @@ export class HMSSDK {
         // Checking if we already have ON_SPEAKER subscription
         if (!this.emitterSubscriptions[HMSUpdateListenerActions.ON_SPEAKER]) {
           // Adding ON_SPEAKER native listener
-          const speakerSubscription = HmsEventEmitter.addListener(
+          const speakerSubscription = HMSNativeEventListener.addListener(
             this.id,
             HMSUpdateListenerActions.ON_SPEAKER,
             this.onSpeakerListener
@@ -1277,7 +1275,7 @@ export class HMSSDK {
         // Checking if we already have RECONNECTING subscription
         if (!this.emitterSubscriptions[HMSUpdateListenerActions.RECONNECTING]) {
           // Adding RECONNECTING native listener
-          const reconnectingSubscription = HmsEventEmitter.addListener(
+          const reconnectingSubscription = HMSNativeEventListener.addListener(
             this.id,
             HMSUpdateListenerActions.RECONNECTING,
             this.reconnectingListener
@@ -1293,7 +1291,7 @@ export class HMSSDK {
         // Checking if we already have RECONNECTED subscription
         if (!this.emitterSubscriptions[HMSUpdateListenerActions.RECONNECTED]) {
           // Adding RECONNECTED native listener
-          const reconnectedSubscription = HmsEventEmitter.addListener(
+          const reconnectedSubscription = HMSNativeEventListener.addListener(
             this.id,
             HMSUpdateListenerActions.RECONNECTED,
             this.reconnectedListener
@@ -1313,7 +1311,7 @@ export class HMSSDK {
           ]
         ) {
           // Adding ON_ROLE_CHANGE_REQUEST native listener
-          const roleChangeReqSubscription = HmsEventEmitter.addListener(
+          const roleChangeReqSubscription = HMSNativeEventListener.addListener(
             this.id,
             HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST,
             this.onRoleChangeRequestListener
@@ -1334,7 +1332,7 @@ export class HMSSDK {
           ]
         ) {
           // Adding ON_CHANGE_TRACK_STATE_REQUEST native listener
-          const changeTrackReqSubscription = HmsEventEmitter.addListener(
+          const changeTrackReqSubscription = HMSNativeEventListener.addListener(
             this.id,
             HMSUpdateListenerActions.ON_CHANGE_TRACK_STATE_REQUEST,
             this.onChangeTrackStateRequestListener
@@ -1355,11 +1353,12 @@ export class HMSSDK {
           ]
         ) {
           // Adding ON_REMOVED_FROM_ROOM native listener
-          const removedFromRoomSubscription = HmsEventEmitter.addListener(
-            this.id,
-            HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM,
-            this.onRemovedFromRoomListener
-          );
+          const removedFromRoomSubscription =
+            HMSNativeEventListener.addListener(
+              this.id,
+              HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM,
+              this.onRemovedFromRoomListener
+            );
           this.emitterSubscriptions[
             HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM
           ] = removedFromRoomSubscription;
@@ -1372,7 +1371,7 @@ export class HMSSDK {
         // Checking if we already have ON_RTC_STATS subscription
         if (!this.emitterSubscriptions[HMSUpdateListenerActions.ON_RTC_STATS]) {
           // Adding ON_RTC_STATS native listener
-          const rtcStatsSubscription = HmsEventEmitter.addListener(
+          const rtcStatsSubscription = HMSNativeEventListener.addListener(
             this.id,
             HMSUpdateListenerActions.ON_RTC_STATS,
             this.RTCStatsListener
@@ -1392,7 +1391,7 @@ export class HMSSDK {
           ]
         ) {
           // Adding ON_LOCAL_AUDIO_STATS native listener
-          const lclAudioStatsSubscription = HmsEventEmitter.addListener(
+          const lclAudioStatsSubscription = HMSNativeEventListener.addListener(
             this.id,
             HMSUpdateListenerActions.ON_LOCAL_AUDIO_STATS,
             this.onLocalAudioStatsListener
@@ -1413,7 +1412,7 @@ export class HMSSDK {
           ]
         ) {
           // Adding ON_LOCAL_VIDEO_STATS native listener
-          const lclVideoStatsSubscription = HmsEventEmitter.addListener(
+          const lclVideoStatsSubscription = HMSNativeEventListener.addListener(
             this.id,
             HMSUpdateListenerActions.ON_LOCAL_VIDEO_STATS,
             this.onLocalVideoStatsListener
@@ -1434,7 +1433,7 @@ export class HMSSDK {
           ]
         ) {
           // Adding ON_REMOTE_AUDIO_STATS native listener
-          const rmAudioStatsSubscription = HmsEventEmitter.addListener(
+          const rmAudioStatsSubscription = HMSNativeEventListener.addListener(
             this.id,
             HMSUpdateListenerActions.ON_REMOTE_AUDIO_STATS,
             this.onRemoteAudioStatsListener
@@ -1455,7 +1454,7 @@ export class HMSSDK {
           ]
         ) {
           // Adding ON_REMOTE_VIDEO_STATS native listener
-          const rmVideoStatsSubscription = HmsEventEmitter.addListener(
+          const rmVideoStatsSubscription = HMSNativeEventListener.addListener(
             this.id,
             HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS,
             this.onRemoteVideoStatsListener
@@ -1476,7 +1475,7 @@ export class HMSSDK {
           ]
         ) {
           // Adding ON_AUDIO_DEVICE_CHANGED native listener
-          const audDeviceChgSubscription = HmsEventEmitter.addListener(
+          const audDeviceChgSubscription = HMSNativeEventListener.addListener(
             this.id,
             HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED,
             this.onAudioDeviceChangedListener
@@ -1497,11 +1496,12 @@ export class HMSSDK {
           ]
         ) {
           // Adding ON_SESSION_STORE_AVAILABLE native listener
-          const sessionStoreAvailableSubscription = HmsEventEmitter.addListener(
-            this.id,
-            HMSUpdateListenerActions.ON_SESSION_STORE_AVAILABLE,
-            this.onSessionStoreAvailableListener
-          );
+          const sessionStoreAvailableSubscription =
+            HMSNativeEventListener.addListener(
+              this.id,
+              HMSUpdateListenerActions.ON_SESSION_STORE_AVAILABLE,
+              this.onSessionStoreAvailableListener
+            );
           this.emitterSubscriptions[
             HMSUpdateListenerActions.ON_SESSION_STORE_AVAILABLE
           ] = sessionStoreAvailableSubscription;
@@ -1517,7 +1517,7 @@ export class HMSSDK {
             !this.emitterSubscriptions[HMSPIPListenerActions.ON_PIP_ROOM_LEAVE]
           ) {
             // Adding ON_PIP_ROOM_LEAVE native listener
-            const pipRoomLeaveSubscription = HmsEventEmitter.addListener(
+            const pipRoomLeaveSubscription = HMSNativeEventListener.addListener(
               this.id,
               HMSPIPListenerActions.ON_PIP_ROOM_LEAVE,
               this.onPIPRoomLeaveListener
