@@ -61,22 +61,12 @@ const userReducer = (
         hmsSessionStore: null,
         spotlightTrackId: null,
       };
+    case HmsStateActionTypes.SET_USER_NAME:
+      return {
+        ...state,
+        userName: action.payload.userName,
+      };
     case HmsStateActionTypes.SET_PREBUILT_DATA:
-      // if (action.payload.options) {
-      //   return {
-      //     ...state,
-      //     roomCode: action.payload.roomCode,
-      //     userName: action.payload.options.userName ?? '',
-      //     userId: action.payload.options.userId,
-      //     endPoints: action.payload.options.endPoints,
-      //     debugMode: action.payload.options.debugMode ?? false,
-      //   };
-      // }
-      // return {
-      //   ...state,
-      //   roomCode: action.payload.roomCode,
-      // };
-
       state.roomCode = action.payload.roomCode;
       state.userName = action.payload.options.userName ?? '';
       state.userId = action.payload.options.userId;
