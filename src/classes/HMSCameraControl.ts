@@ -1,7 +1,6 @@
-import { NativeModules } from 'react-native';
 import { HMSConstants } from './HMSConstants';
 
-const { HMSManager } = NativeModules;
+import HMSManager from './HMSManagerModule';
 
 export class HMSCameraControl {
   /**

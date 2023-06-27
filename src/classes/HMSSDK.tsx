@@ -1,11 +1,13 @@
 import React from 'react';
-import { AppState, NativeModules, Platform } from 'react-native';
+import { AppState, Platform } from 'react-native';
 import { HMSEncoder } from './HMSEncoder';
 import { HMSHelper } from './HMSHelper';
 import { getLogger, logger, setLogger } from './HMSLogger';
 import { HMSTrackType } from './HMSTrackType';
 import { HMSUpdateListenerActions } from './HMSUpdateListenerActions';
 import { HmsViewComponent, HmsComponentProps } from './HmsView';
+
+import HMSManager from './HMSManagerModule';
 
 import type { HMSConfig } from './HMSConfig';
 import type { HMSLocalPeer } from './HMSLocalPeer';
@@ -51,13 +53,6 @@ interface PIPConfig {
   audioButton?: boolean;
   videoButton?: boolean;
 }
-
-const {
-  /**
-   * @ignore
-   */
-  HMSManager,
-} = NativeModules;
 
 const ReactNativeVersion = require('react-native/Libraries/Core/ReactNativeVersion');
 

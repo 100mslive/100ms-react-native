@@ -1,9 +1,8 @@
-import { NativeModules } from 'react-native';
+import HMSManager from './HMSManagerModule';
+
 import type { HMSRoom } from './HMSRoom';
 import { HMSEncoder } from './HMSEncoder';
 import { HMSRoomUpdate } from './HMSRoomUpdate';
-
-const { HMSManager } = NativeModules;
 
 export let hmsRoomCache: HMSRoomCache | undefined;
 

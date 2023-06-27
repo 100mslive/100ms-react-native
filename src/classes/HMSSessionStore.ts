@@ -1,15 +1,15 @@
 import {
-  NativeModules,
   DeviceEventEmitter,
   EmitterSubscription as RNEmitterSubscription,
 } from 'react-native';
+
+import HMSManager from './HMSManagerModule';
+
 import { HMSConstants } from './HMSConstants';
 import { getLogger } from './HMSLogger';
 import { HMSUpdateListenerActions } from './HMSUpdateListenerActions';
 import { EventEmitter } from '../utils';
 import type { EmitterSubscription } from '../utils';
-
-const { HMSManager } = NativeModules;
 
 type Nullable<T> = T | null | undefined;
 

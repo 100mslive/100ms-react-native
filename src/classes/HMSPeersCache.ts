@@ -1,4 +1,5 @@
-import { NativeModules } from 'react-native';
+import HMSManager from './HMSManagerModule';
+
 import { HMSEncoder } from './HMSEncoder';
 import { HMSPeerUpdate } from './HMSPeerUpdate';
 import { HMSTrackUpdate } from './HMSTrackUpdate';
@@ -9,8 +10,6 @@ import type { HMSNetworkQuality } from './HMSNetworkQuality';
 import type { HMSRole } from './HMSRole';
 import type { HMSAudioTrack } from './HMSAudioTrack';
 import type { HMSVideoTrack } from './HMSVideoTrack';
-
-const { HMSManager } = NativeModules;
 
 export let hmsPeersCache: HMSPeersCache | undefined;
 
