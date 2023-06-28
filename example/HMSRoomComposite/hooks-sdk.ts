@@ -81,8 +81,26 @@ export const useHMSActions = () => {
     }
   }, []);
 
+  const switchCamera = useCallback(async () => {
+    const state: RootState = store.getState();
+    const localPeer = state.hmsStates.localPeer;
+
+    if (!localPeer) {
+      return Promise.reject('Local Peer Instance is not available!');
+    }
+    const localVideoTrack = localPeer.localVideoTrack();
+    if (!localVideoTrack) {
+      return Promise.reject(
+        'Local Peer Video Track Instance is not available!',
+      );
+    }
+
+    localVideoTrack.switchCamera();
+  }, []);
+
   return {
     setLocalAudioEnabled,
     setLocalVideoEnabled,
+    switchCamera,
   };
 };

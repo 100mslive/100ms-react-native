@@ -1,108 +1,114 @@
-import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import React, {useEffect} from 'react';
+import {ScrollView, StyleSheet, View} from 'react-native';
+import {AvoidSoftInput} from 'react-native-avoid-softinput';
+import Toast from 'react-native-simple-toast';
+import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {COLORS} from '../utils/theme';
-import {CustomButton} from './CustomButton';
+
+import {BackButton} from './BackButton';
+import {HMSManageCameraRotation} from './HMSManageCameraRotation';
 import {HMSManageLocalAudio} from './HMSManageLocalAudio';
 import {HMSManageLocalVideo} from './HMSManageLocalVideo';
-import {HMSShowNetworkQuality} from './HMSShowNetworkQuality';
+import {HMSPreviewEditName} from './HMSPreviewEditName';
+import {HMSPreviewJoinButton} from './HMSPreviewJoinButton';
+import {HMSPreviewPeersList} from './HMSPreviewPeersList';
+import {HMSPreviewSubtitle} from './HMSPreviewSubtitle';
 import {HMSPreviewTile} from './HMSPreviewTile';
+import {HMSPreviewTitle} from './HMSPreviewTitle';
+import {SettingsIcon} from '../Icons';
+import {PressableIcon} from './PressableIcon';
 
 export const Preview = ({
   join,
   loadingButtonState,
 }: {
-  join: Function;
+  join(): void;
   loadingButtonState: boolean;
 }) => {
-  const {top, bottom, left, right} = useSafeAreaInsets();
+  const {bottom} = useSafeAreaInsets();
+
+  useEffect(() => {
+    AvoidSoftInput.setAdjustNothing();
+    AvoidSoftInput.setEnabled(true);
+
+    return () => AvoidSoftInput.setEnabled(false);
+  }, []);
 
   return (
-    <View style={styles.container}>
-      <HMSPreviewTile />
+    <SafeAreaView style={styles.container}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        bounces={false}
+      >
+        <BackButton />
 
-      <View style={[styles.textContainer, {top: 48 + top}]}>
-        <Text style={styles.heading}>Configure Video and Audio</Text>
-      </View>
+        <HMSPreviewTitle />
 
-      <View style={[styles.buttonRow, {bottom: 24 + bottom, left, right}]}>
-        <View style={styles.iconContainer}>
-          <View style={styles.iconSubContainer}>
+        <HMSPreviewSubtitle />
+
+        <HMSPreviewPeersList />
+
+        <HMSPreviewTile />
+
+        <View style={styles.controlsContainer}>
+          <View style={styles.micAndCameraControls}>
             <HMSManageLocalAudio />
-            <HMSManageLocalVideo />
+
+            <View style={styles.manageLocalVideoWrapper}>
+              <HMSManageLocalVideo />
+            </View>
+
+            <HMSManageCameraRotation />
           </View>
-          <View style={styles.iconSubContainer}>
-            <HMSShowNetworkQuality />
-          </View>
+
+          <PressableIcon
+            onPress={() =>
+              Toast.showWithGravity(
+                'Not Implemented Yet!',
+                Toast.LONG,
+                Toast.CENTER,
+              )
+            }
+          >
+            <SettingsIcon />
+          </PressableIcon>
         </View>
-        <CustomButton
-          title="Enter Studio ->"
-          onPress={() => {
-            join();
-          }}
-          loading={loadingButtonState}
-          viewStyle={styles.joinButton}
-          textStyle={styles.joinButtonText}
-        />
-      </View>
-    </View>
+
+        <View style={[styles.joinButtonRow, {marginBottom: 34 - bottom + 12}]}>
+          <HMSPreviewEditName />
+
+          <HMSPreviewJoinButton onJoin={join} loading={loadingButtonState} />
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    flex: 1,
+    backgroundColor: COLORS.BACKGROUND.DIM,
   },
-  buttonRow: {
-    position: 'absolute',
-    maxWidth: '100%',
-    zIndex: 99,
+  scrollContainer: {
+    flexGrow: 1,
   },
-  textContainer: {
-    position: 'absolute',
-    width: '80%',
-    zIndex: 99,
-    alignItems: 'center',
-  },
-  iconContainer: {
-    width: '100%',
+  controlsContainer: {
+    marginHorizontal: 24,
+    marginTop: 24,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    justifyContent: 'space-between',
   },
-  iconSubContainer: {
+  micAndCameraControls: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
   },
-  joinButton: {
-    backgroundColor: COLORS.PRIMARY.DEFAULT,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: COLORS.PRIMARY.DEFAULT,
-    borderRadius: 8,
-    width: '50%',
-    alignSelf: 'center',
+  manageLocalVideoWrapper: {
+    marginHorizontal: 16,
   },
-  joinButtonText: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 16,
-    lineHeight: 24,
-    letterSpacing: 0.5,
-    color: COLORS.TEXT.HIGH_EMPHASIS_ACCENT,
-  },
-  heading: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 20,
-    lineHeight: 24,
-    textAlign: 'center',
-    letterSpacing: 0.15,
-    color: COLORS.TEXT.HIGH_EMPHASIS,
+  joinButtonRow: {
+    marginHorizontal: 24,
+    marginTop: 16,
+    flexDirection: 'row',
   },
 });

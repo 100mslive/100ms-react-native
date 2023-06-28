@@ -1,20 +1,13 @@
 import {
-  HMSConfig,
   HMSException,
   HMSRoom,
   HMSTrack,
   HMSUpdateListenerActions,
 } from '@100mslive/react-native-hms';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  LayoutAnimation,
-  Platform,
-  View,
-} from 'react-native';
+import {Alert, Platform, StatusBar, StyleSheet, View} from 'react-native';
 import Toast from 'react-native-simple-toast';
-import {batch, useDispatch, useSelector} from 'react-redux';
+import {batch, useDispatch} from 'react-redux';
 
 import {Preview} from './components';
 import {
@@ -26,6 +19,7 @@ import {createPeerTrackNode} from './utils/functions';
 import {PeerTrackNode} from './utils/types';
 import {Meeting} from './components/Meeting';
 import {
+  useHMSConfig,
   useHMSInstance,
   useHMSListeners,
   useHMSSessionStore,
@@ -38,8 +32,8 @@ import {
 } from './peerTrackNodeUtils';
 import {MeetingState} from './types';
 import {getJoinConfig} from './utils';
-import {RootState} from './redux';
 import {COLORS} from './utils/theme';
+import {FullScreenIndicator} from './components/FullScreenIndicator';
 
 type PreviewData = {
   room: HMSRoom;
@@ -50,57 +44,25 @@ export const HMSRoomSetup = () => {
   const didInitMeetingAction = useRef(false);
   const hmsInstance = useHMSInstance();
   const dispatch = useDispatch();
-  const roomCode = useSelector((state: RootState) => state.user.roomCode);
-  const {userName, userId, tokenEndpoint, initEndpoint} = useSelector(
-    (state: RootState) => ({
-      userName: state.user.userName,
-      userId: state.user.userId,
-      tokenEndpoint: state.user.endPoints?.token,
-      initEndpoint: state.user.endPoints?.init,
-    }),
-  );
-  const hmsConfigRef = useRef<HMSConfig | null>(null);
+
+  const {getConfig, clearConfig} = useHMSConfig();
   const [meetingState, setMeetingState] = useState(MeetingState.NOT_JOINED);
   const [peerTrackNodes, setPeerTrackNodes] = useState<PeerTrackNode[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const generateConfig = useCallback(async () => {
-    const token = await hmsInstance.getAuthTokenByRoomCode(
-      roomCode,
-      userId,
-      tokenEndpoint,
-    );
-
-    const hmsConfig = new HMSConfig({
-      authToken: token,
-      username: userName,
-      captureNetworkQualityInPreview: true,
-      endpoint: initEndpoint,
-      // metadata: JSON.stringify({isHandRaised: true}), // To join with hand raised
-    });
-
-    hmsConfigRef.current = hmsConfig;
-
-    return hmsConfig;
-  }, [hmsInstance]);
-
   const joinMeeting = useCallback(async () => {
     setLoading(true);
-    let hmsConfig = hmsConfigRef.current;
-    if (!hmsConfig) {
-      hmsConfig = await generateConfig();
-    }
+    const hmsConfig = await getConfig();
+    // TODO: handle case when promise returned from `getConfig()` is resolved when Root component has been unmounted
     hmsInstance.join(hmsConfig);
-  }, [hmsInstance]);
+  }, [getConfig, hmsInstance]);
 
   const previewMeeting = useCallback(async () => {
     setLoading(true);
-    let hmsConfig = hmsConfigRef.current;
-    if (!hmsConfig) {
-      hmsConfig = await generateConfig();
-    }
+    const hmsConfig = await getConfig();
+    // TODO: handle case when promise returned from `getConfig()` is resolved when Root component has been unmounted
     hmsInstance.preview(hmsConfig);
-  }, [hmsInstance]);
+  }, [getConfig, hmsInstance]);
 
   // HMS Room, Peers, Track Listeners
   useHMSListeners(setPeerTrackNodes, setMeetingState);
@@ -183,6 +145,8 @@ export const HMSRoomSetup = () => {
   // HMS Join Listener
   useEffect(() => {
     const onJoinHandler = (data: {room: HMSRoom}) => {
+      clearConfig();
+
       setLoading(false);
 
       batch(() => {
@@ -280,23 +244,29 @@ export const HMSRoomSetup = () => {
     };
   }, [hmsInstance]);
 
-  if (meetingState === MeetingState.IN_PREVIEW) {
-    return <Preview join={joinMeeting} loadingButtonState={loading} />;
-  }
-
-  if (meetingState === MeetingState.IN_MEETING) {
-    return <Meeting peerTrackNodes={peerTrackNodes} />;
-  }
-
-  if (loading) {
-    return (
-      <ActivityIndicator
-        size={'large'}
-        color={COLORS.TWIN.PURPLE}
-        style={{flex: 1, backgroundColor: COLORS.SURFACE.DEFAULT}}
+  return (
+    <>
+      <StatusBar
+        backgroundColor={COLORS.BACKGROUND.DIM}
+        barStyle={'light-content'}
       />
-    );
-  }
 
-  return <View style={{flex: 1, backgroundColor: COLORS.SURFACE.DEFAULT}} />;
+      {meetingState === MeetingState.IN_PREVIEW ? (
+        <Preview join={joinMeeting} loadingButtonState={loading} />
+      ) : meetingState === MeetingState.IN_MEETING ? (
+        <Meeting peerTrackNodes={peerTrackNodes} />
+      ) : loading ? (
+        <FullScreenIndicator />
+      ) : (
+        <View style={styles.container} />
+      )}
+    </>
+  );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.BACKGROUND.DIM,
+  },
+});

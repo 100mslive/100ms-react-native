@@ -11,14 +11,14 @@ import {
   HMSTrackSettingsInitState,
   HMSVideoTrackSettings,
 } from '@100mslive/react-native-hms';
-import React, {useEffect, useRef} from 'react';
-import {ActivityIndicator} from 'react-native';
+import React, {useEffect} from 'react';
 import {getModel} from 'react-native-device-info';
 import {batch, useDispatch} from 'react-redux';
 
-import {saveUserData, setHMSInstance} from './redux/actions';
 import {getJoinConfig} from './utils';
-import {COLORS} from './utils/theme';
+import {saveUserData, setHMSInstance} from './redux/actions';
+import {FullScreenIndicator} from './components/FullScreenIndicator';
+import {clearConfig} from './hooks-util';
 
 const getTrackSettings = () => {
   const joinConfig = getJoinConfig();
@@ -152,6 +152,7 @@ export const HMSInstanceSetup = () => {
     let ignore = false;
 
     const setupHMSInstance = async () => {
+      clearConfig();
       getHmsInstance()
         .then(hmssdkInstance => {
           if (!ignore) {
@@ -181,11 +182,5 @@ export const HMSInstanceSetup = () => {
     };
   }, []);
 
-  return (
-    <ActivityIndicator
-      size={'large'}
-      color={COLORS.TWIN.PURPLE}
-      style={{flex: 1, backgroundColor: COLORS.SURFACE.DEFAULT}}
-    />
-  );
+  return <FullScreenIndicator />;
 };

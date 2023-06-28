@@ -1,4 +1,4 @@
-import { NativeModules } from 'react-native';
+import HMSManager from './HMSManagerModule';
 
 import { HMSTrack } from './HMSTrack';
 import { HMSAudioTrack } from './HMSAudioTrack';
@@ -39,8 +39,6 @@ import { HMSRemoteVideoStats } from './HMSRemoteVideoStats';
 import { HMSLayer } from './HMSLayer';
 import { HMSSimulcastLayerDefinition } from './HMSSimulcastLayerDefinition';
 import { HMSQualityLimitationReasons } from './HMSQualityLimitationReasons';
-
-const { HMSManager } = NativeModules;
 
 interface InitialData {
   roles: Record<string, HMSRole>;

@@ -92,6 +92,9 @@ import { HMSSDK as HmsManager } from './classes/HMSSDK';
 // 100ms Components
 export * from './components/HMSHLSPlayer';
 
+// 100ms Hooks
+export * from './hooks/useHMSPeerUpdates';
+
 // 100ms types
 export * from './types';
 export * from './stores/types';

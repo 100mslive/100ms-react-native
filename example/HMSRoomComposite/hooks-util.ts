@@ -1,5 +1,6 @@
 import {
   HMSChangeTrackStateRequest,
+  HMSConfig,
   HMSMessage,
   HMSPIPListenerActions,
   HMSPeer,
@@ -15,13 +16,14 @@ import {
   HMSTrackType,
   HMSTrackUpdate,
   HMSUpdateListenerActions,
+  useHMSPeerUpdates,
 } from '@100mslive/react-native-hms';
 import Toast from 'react-native-simple-toast';
 import {useRef, useCallback, useEffect, useState} from 'react';
 
 import {ModalTypes, PeerTrackNode, PipModes} from './utils/types';
 import {createPeerTrackNode} from './utils/functions';
-import {batch, useDispatch, useSelector} from 'react-redux';
+import {useDispatch, useSelector, useStore} from 'react-redux';
 import {RootState} from './redux';
 import {
   addMessage,
@@ -189,8 +191,8 @@ const useHMSPeersUpdate = (
   updateLocalPeer: () => void,
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>,
 ) => {
-  useEffect(() => {
-    const peerUpdateHandler = ({peer, type}: PeerUpdate) => {
+  useHMSPeerUpdates(
+    ({peer, type}: PeerUpdate) => {
       if (type === HMSPeerUpdate.PEER_JOINED) {
         return;
       }
@@ -241,17 +243,9 @@ const useHMSPeersUpdate = (
         });
         return;
       }
-    };
-
-    hmsInstance.addEventListener(
-      HMSUpdateListenerActions.ON_PEER_UPDATE,
-      peerUpdateHandler,
-    );
-
-    return () => {
-      hmsInstance.removeEventListener(HMSUpdateListenerActions.ON_PEER_UPDATE);
-    };
-  }, [hmsInstance]);
+    },
+    [hmsInstance],
+  );
 };
 
 type TrackUpdate = {
@@ -910,4 +904,39 @@ export const useShowLandscapeLayout = () => {
     !!localPeerRoleName &&
     localPeerRoleName.includes('hls-')
   );
+};
+
+let hmsConfig: HMSConfig | null = null;
+
+export const clearConfig = () => {
+  hmsConfig = null;
+};
+
+export const useHMSConfig = () => {
+  const hmsInstance = useHMSInstance();
+  const store = useStore();
+
+  const getConfig = useCallback(async () => {
+    if (hmsConfig) return hmsConfig;
+
+    const storeState = store.getState() as RootState;
+
+    const token = await hmsInstance.getAuthTokenByRoomCode(
+      storeState.user.roomCode,
+      storeState.user.userId,
+      storeState.user.endPoints?.token,
+    );
+
+    hmsConfig = new HMSConfig({
+      authToken: token,
+      username: storeState.user.userName,
+      captureNetworkQualityInPreview: true,
+      endpoint: storeState.user.endPoints?.init,
+      // metadata: JSON.stringify({isHandRaised: true}), // To join with hand raised
+    });
+
+    return hmsConfig;
+  }, [hmsInstance]);
+
+  return {clearConfig, getConfig};
 };

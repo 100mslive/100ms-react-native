@@ -167,3 +167,8 @@ export const changeHLSAspectRatio = (value: {value: number; id: string}) => ({
   type: actionTypes.CHANGE_HLS_ASPECT_RATIO,
   payload: {hlsAspectRatio: value},
 });
+
+export const changeUsername = (userName: string) => ({
+  type: HmsStateActionTypes.SET_USER_NAME,
+  payload: {userName},
+});
