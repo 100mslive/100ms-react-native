@@ -8,6 +8,7 @@ type ActionType =
   | SetIsLocalAudioMutedAction
   | SetIsLocalVideoMutedAction
   | SetIsLocalScreenSharedAction
+  | SetRoomLocallyMutedAction
   | ResetAction;
 
 type SetRoomAction = {
@@ -44,10 +45,16 @@ type ResetAction = {
   type: HmsStateActionTypes.CLEAR_STATES;
 };
 
+type SetRoomLocallyMutedAction = {
+  type: HmsStateActionTypes.SET_ROOM_LOCALLY_MUTED;
+  roomLocallyMuted: boolean;
+};
+
 type IntialStateType = {
   isLocalAudioMuted: boolean | undefined;
   isLocalVideoMuted: boolean | undefined;
   isLocalScreenShared: boolean | undefined;
+  roomLocallyMuted: boolean;
   room: HMSRoom | null;
   localPeer: HMSLocalPeer | null;
   roles: HMSRole[];
@@ -57,6 +64,7 @@ const INITIAL_STATE: IntialStateType = {
   isLocalAudioMuted: undefined,
   isLocalVideoMuted: undefined,
   isLocalScreenShared: undefined,
+  roomLocallyMuted: false,
   room: null,
   localPeer: null,
   roles: [],
@@ -98,6 +106,11 @@ const hmsStatesReducer = (
       return {
         ...state,
         isLocalScreenShared: action.isLocalScreenShared,
+      };
+    case HmsStateActionTypes.SET_ROOM_LOCALLY_MUTED:
+      return {
+        ...state,
+        roomLocallyMuted: action.roomLocallyMuted,
       };
     case HmsStateActionTypes.CLEAR_STATES:
       return INITIAL_STATE;

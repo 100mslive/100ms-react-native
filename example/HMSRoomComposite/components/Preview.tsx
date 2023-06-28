@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import {ScrollView, StyleSheet, View} from 'react-native';
 import {AvoidSoftInput} from 'react-native-avoid-softinput';
-import Toast from 'react-native-simple-toast';
+
 import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {COLORS} from '../utils/theme';
@@ -16,8 +16,7 @@ import {HMSPreviewPeersList} from './HMSPreviewPeersList';
 import {HMSPreviewSubtitle} from './HMSPreviewSubtitle';
 import {HMSPreviewTile} from './HMSPreviewTile';
 import {HMSPreviewTitle} from './HMSPreviewTitle';
-import {SettingsIcon} from '../Icons';
-import {PressableIcon} from './PressableIcon';
+import {HMSPreviewDeviceSettings} from './HMSPreviewDeviceSettings';
 
 export const Preview = ({
   join,
@@ -62,17 +61,7 @@ export const Preview = ({
             <HMSManageCameraRotation />
           </View>
 
-          <PressableIcon
-            onPress={() =>
-              Toast.showWithGravity(
-                'Not Implemented Yet!',
-                Toast.LONG,
-                Toast.CENTER,
-              )
-            }
-          >
-            <SettingsIcon />
-          </PressableIcon>
+          <HMSPreviewDeviceSettings />
         </View>
 
         <View style={[styles.joinButtonRow, {marginBottom: 34 - bottom + 12}]}>
