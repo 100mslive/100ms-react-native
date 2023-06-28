@@ -1,15 +1,22 @@
 import React from 'react';
 import {Image, ImageProps, StyleSheet} from 'react-native';
 
-interface SpeakerIconProps extends Omit<ImageProps, 'source'> {}
+interface SpeakerIconProps extends Omit<ImageProps, 'source'> {
+  muted: boolean;
+}
 
 export const SpeakerIcon: React.FC<SpeakerIconProps> = ({
+  muted,
   style,
   ...restProps
 }) => {
   return (
     <Image
-      source={require('./assets/speaker.png')}
+      source={
+        muted
+          ? require('./assets/speaker-muted.png')
+          : require('./assets/speaker.png')
+      }
       style={[styles.icon, style]}
       {...restProps}
     />

@@ -201,7 +201,7 @@ export const HMSPreviewDeviceSettings: React.FC = () => {
             >
               <>
                 <View style={styles.itemTextContainer}>
-                  <SpeakerIcon />
+                  <SpeakerIcon muted={false} />
 
                   <Text style={styles.itemText} numberOfLines={1}>
                     {currentAudioOutputDevice
@@ -263,7 +263,7 @@ export const HMSPreviewDeviceSettings: React.FC = () => {
             activeOpacity={0.7}
           >
             <View style={styles.itemTextContainer}>
-              <SpeakerIcon />
+              <SpeakerIcon muted={roomLocallyMuted} />
 
               <Text style={styles.itemText} numberOfLines={1}>
                 Mute Room
