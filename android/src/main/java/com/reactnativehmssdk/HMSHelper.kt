@@ -236,6 +236,7 @@ object HMSHelper {
       }
     }
 
+    // TODO: check if audio & video track settings get applied even if client apps do not pass any values?
     if (this.areAllRequiredKeysAvailable(data, arrayOf(Pair("audio", "Map")))) {
       val audio = data.getMap("audio")
       val audioSettings = this.getAudioTrackSettings(audio)
@@ -251,6 +252,7 @@ object HMSHelper {
       return null
     }
     val builder = HMSAudioTrackSettings.Builder()
+
     if (areAllRequiredKeysAvailable(data, arrayOf(Pair("useHardwareEchoCancellation", "Boolean")))
     ) {
       val useHardwareEchoCancellation = data.getBoolean("useHardwareEchoCancellation")
@@ -263,6 +265,9 @@ object HMSHelper {
       val initialState = getHMSTrackSettingsInitState(data.getString("initialState"))
       builder.initialState(initialState)
     }
+
+    builder.setPhoneCallMuteState(PhoneCallState.DISABLE_MUTE_ON_VOIP_PHONE_CALL_RING)
+
     return builder.build()
   }
 
