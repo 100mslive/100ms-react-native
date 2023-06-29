@@ -81,6 +81,8 @@ export const COLORS = {
     DISABLED_ACCENT: 'rgba(255, 255, 255, 0.48)', // '#FFFFFF'
   },
   SURFACE: {
+    BRIGHT: '#272A31',
+    DIM: '#11131A',
     DEFAULT: '#191B23',
     LIGHT: '#1D2229',
     LIGHTER: '#272E38',

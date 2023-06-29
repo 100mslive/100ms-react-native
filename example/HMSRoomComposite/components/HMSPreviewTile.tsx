@@ -43,8 +43,15 @@ export const HMSPreviewTile: React.FC = () => {
     <View style={styles.modalContainer}>
       {isLocalVideoMuted || !localVideoTrackId ? (
         <View style={styles.avatarContainer}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{getInitials(userName)}</Text>
+          <View
+            style={[
+              styles.avatar,
+              userName.length === 0 ? styles.emptyAvatar : null,
+            ]}
+          >
+            <Text style={styles.avatarText}>
+              {userName.length === 0 ? '👤' : getInitials(userName)}
+            </Text>
           </View>
         </View>
       ) : (
@@ -82,6 +89,8 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignSelf: 'center',
     overflow: 'hidden',
+    minWidth: '50%',
+    // minHeight: '50%',
     aspectRatio: 377 / 482, // TODO: DO WE NEED THIS?
   },
   hmsView: {
@@ -110,6 +119,9 @@ const styles = StyleSheet.create({
     borderRadius: 44,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  emptyAvatar: {
+    backgroundColor: '#C3D0E5', // TODO: use it from variable
   },
   avatarText: {
     color: COLORS.SURFACE.ON_SURFACE.HIGH,

@@ -32,6 +32,11 @@ export const clearStore = () => ({
   type: HmsStateActionTypes.CLEAR_STATES,
 });
 
+export const setRoomLocallyMuted = (roomLocallyMuted: boolean) => ({
+  type: HmsStateActionTypes.SET_ROOM_LOCALLY_MUTED,
+  roomLocallyMuted,
+});
+
 export const setIsLocalVideoMutedState = (
   isLocalVideoMuted: boolean | undefined,
 ) => ({

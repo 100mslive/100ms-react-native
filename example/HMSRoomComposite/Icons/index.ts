@@ -5,3 +5,5 @@ export * from './Participants';
 export * from './RotateCamera';
 export * from './Settings';
 export * from './NetworkQuality';
+export * from './Close';
+export * from './Speaker';
