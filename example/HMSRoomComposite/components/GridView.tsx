@@ -87,7 +87,7 @@ const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
     const _keyExtractor = React.useCallback(item => item[0]?.id, []);
 
     return (
-      <View>
+      <View style={{flex: 1}}>
         <FlatList
           ref={flatlistRef}
           horizontal

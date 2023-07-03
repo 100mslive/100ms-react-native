@@ -3,6 +3,7 @@ import {RootState} from './redux';
 
 import {
   setIsLocalAudioMutedState,
+  setIsLocalScreenSharedState,
   setIsLocalVideoMutedState,
 } from './redux/actions';
 import {
@@ -98,9 +99,38 @@ export const useHMSActions = () => {
     localVideoTrack.switchCamera();
   }, []);
 
+  const setScreenShareEnabled = useCallback(async (enable: boolean) => {
+    const state: RootState = store.getState();
+    const hmsInstance = state.user.hmsInstance;
+
+    if (!hmsInstance) {
+      return Promise.reject('HMSSDK Instance is not available!');
+    }
+
+    try {
+      if (enable) {
+        const result = await hmsInstance.startScreenshare();
+        console.log('Start Screenshare Success: ', result);
+      } else {
+        const result = await hmsInstance.stopScreenshare();
+        console.log('Stop Screenshare Success: ', result);
+      }
+
+      dispatch(setIsLocalScreenSharedState(enable));
+    } catch (error) {
+      if (enable) {
+        console.log('Start Screenshare Error: ', error);
+      } else {
+        console.log('Stop Screenshare Error: ', error);
+      }
+      return Promise.reject(error);
+    }
+  }, []);
+
   return {
     setLocalAudioEnabled,
     setLocalVideoEnabled,
     switchCamera,
+    setScreenShareEnabled,
   };
 };

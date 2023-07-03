@@ -81,6 +81,6 @@ export const Meeting: React.FC<MeetingProps> = ({peerTrackNodes}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.BACKGROUND.DEFAULT,
+    backgroundColor: COLORS.BACKGROUND.DIM,
   },
 });

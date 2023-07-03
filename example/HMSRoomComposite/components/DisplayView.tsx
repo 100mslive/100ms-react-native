@@ -1,12 +1,9 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {useNavigation} from '@react-navigation/native';
 import {View, Text, InteractionManager} from 'react-native';
 import {HMSPeer, HMSTrack, HMSCameraControl} from '@100mslive/react-native-hms';
-import Toast from 'react-native-simple-toast';
 
 import {styles} from './styles';
-import {ChatWindow} from './ChatWindow';
 import {DefaultModal} from './DefaultModal';
 import {ModalTypes, PeerTrackNode, PipModes} from '../utils/types';
 import {pairData, requestExternalStoragePermission} from '../utils/functions';
@@ -17,8 +14,6 @@ import {
   ChangeRoleModal,
   ChangeTrackStateModal,
   ChangeVolumeModal,
-  EndRoomModal,
-  LeaveRoomModal,
   ParticipantsModal,
   SaveScreenshot,
 } from './Modals';
@@ -36,7 +31,6 @@ import {
   useIsHLSViewer,
 } from '../hooks-util';
 import {useIsPortraitOrientation} from '../utils/dimension';
-import {clearStore} from '../redux/actions';
 
 type CapturedImagePath = {uri: string} | null;
 
@@ -51,9 +45,6 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
   peerTrackNodes,
   setModalVisible,
 }) => {
-  // TODO: What if this is undefined?
-  const navigation = useNavigation();
-
   // --- 100ms SDK Instance ---
   const hmsInstance = useHMSInstance();
 
@@ -108,71 +99,6 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
   }, [spotlightTrackId]);
 
   // functions
-  const destroy = () => {
-    hmsInstance
-      .destroy()
-      .then(s => {
-        console.log('Destroy Success: ', s);
-        // TODOS:
-        // - If show `Meeting_Ended` is true, show Meeting screen by setting state to MEETING_ENDED
-        //    - Reset Redux States
-        //    - HMSInstance will not be available now
-        //    - When your presses "Re Join" Action button, restart process from root component
-        //    - When your presses "Done" Action button
-        //        - If we have callback fn, call it
-        //        - Otherwise try our best to navigate away from current screen
-        //
-        // - No screen to show
-        //    - No need to reset redux state?
-        //    - HMSInstance will be available till this point
-        //    - If we have callback fn, call it
-        //    - Otherwise try our best to navigate away from current screen
-        //    - When we are navigated away from screen, HMSInstance will be not available
-
-        // dispatch(clearMessageData());
-        // dispatch(clearPeerData());
-        // dispatch(clearHmsReference());
-
-        // if (navigation.canGoBack()) {
-        //   navigation.goBack();
-        // } else {
-        // TODO: remove this later
-        navigation.navigate('QRCodeScreen' as never);
-        dispatch(clearStore());
-        // }
-      })
-      .catch(e => {
-        console.log(`Destroy HMS instance Error: ${e}`);
-        Toast.showWithGravity(
-          `Destroy HMS instance Error: ${e}`,
-          Toast.LONG,
-          Toast.TOP,
-        );
-      });
-  };
-
-  const onLeavePress = () => {
-    hmsInstance
-      .leave()
-      .then(d => {
-        console.log('Leave Success: ', d);
-        destroy();
-      })
-      .catch(e => {
-        console.log(`Leave Room Error: ${e}`);
-        Toast.showWithGravity(`Leave Room Error: ${e}`, Toast.LONG, Toast.TOP);
-      });
-  };
-
-  const onEndRoomPress = () => {
-    hmsInstance
-      .endRoom('Host ended the room')
-      .then(d => {
-        console.log('EndRoom Success: ', d);
-        destroy();
-      })
-      .catch(e => console.log('EndRoom Error: ', e));
-  };
 
   const onChangeNamePress = (peer: HMSPeer) => {
     setUpdatePeer(peer);
@@ -324,34 +250,6 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
                 }}
               />
             ) : null}
-          </DefaultModal>
-          <DefaultModal
-            modalPosiion="center"
-            modalVisible={modalVisible === ModalTypes.LEAVE_ROOM}
-            setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
-          >
-            <LeaveRoomModal
-              onSuccess={onLeavePress}
-              cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
-            />
-          </DefaultModal>
-          <DefaultModal
-            modalPosiion="center"
-            modalVisible={modalVisible === ModalTypes.END_ROOM}
-            setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
-          >
-            <EndRoomModal
-              onSuccess={onEndRoomPress}
-              cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
-            />
-          </DefaultModal>
-          <DefaultModal
-            animationIn={'slideInUp'}
-            animationOut={'slideOutDown'}
-            modalVisible={modalVisible === ModalTypes.CHAT}
-            setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
-          >
-            <ChatWindow />
           </DefaultModal>
           <DefaultModal
             modalPosiion="center"
