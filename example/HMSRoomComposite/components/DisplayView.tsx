@@ -2,6 +2,11 @@ import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {View, Text, InteractionManager} from 'react-native';
 import {HMSPeer, HMSTrack, HMSCameraControl} from '@100mslive/react-native-hms';
+import Animated, {
+  SharedValue,
+  interpolate,
+  useAnimatedStyle,
+} from 'react-native-reanimated';
 
 import {styles} from './styles';
 import {DefaultModal} from './DefaultModal';
@@ -35,12 +40,14 @@ import {useIsPortraitOrientation} from '../utils/dimension';
 type CapturedImagePath = {uri: string} | null;
 
 interface DisplayViewProps {
+  offset: SharedValue<number>;
   modalVisible: ModalTypes;
   peerTrackNodes: Array<PeerTrackNode>;
   setModalVisible(modalType: ModalTypes, delay?: any): void;
 }
 
 export const DisplayView: React.FC<DisplayViewProps> = ({
+  offset,
   modalVisible,
   peerTrackNodes,
   setModalVisible,
@@ -162,8 +169,14 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
     setModalVisible(ModalTypes.STREAMING_QUALITY_SETTING, true);
   };
 
+  const animatedStyles = useAnimatedStyle(() => {
+    return {
+      transform: [{translateY: interpolate(offset.value, [0, 1], [4, 0])}],
+    };
+  }, []);
+
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, animatedStyles]}>
       {isHLSViewer ? (
         <HLSView />
       ) : pairedPeers.length > 0 ? (
@@ -324,6 +337,6 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
           </DefaultModal>
         </>
       )}
-    </View>
+    </Animated.View>
   );
 };

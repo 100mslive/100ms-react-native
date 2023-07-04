@@ -1,7 +1,14 @@
-import React from 'react';
-import {StyleSheet, StatusBar} from 'react-native';
+import React, {useCallback, useState} from 'react';
+import {StyleSheet, StatusBar, Pressable} from 'react-native';
 import {useSelector} from 'react-redux';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import {
+  Easing,
+  cancelAnimation,
+  runOnJS,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
 import {ModalTypes, PeerTrackNode, PipModes} from '../utils/types';
 import type {RootState} from '../redux';
@@ -25,11 +32,27 @@ interface MeetingProps {
 }
 
 export const Meeting: React.FC<MeetingProps> = ({peerTrackNodes}) => {
+  const offset = useSharedValue(1);
+  const [controlsHidden, setControlsHidden] = useState(false);
   const [modalVisible, handleModalVisible] = useModalType();
   const isPipModeActive = useSelector(
     (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE,
   );
   const showLandscapeLayout = useShowLandscapeLayout();
+
+  const toggleControls = useCallback(() => {
+    'worklet';
+    cancelAnimation(offset);
+    offset.value = withTiming(
+      offset.value === 1 ? 0 : 1,
+      {duration: 200, easing: Easing.ease},
+      (finished, current) => {
+        if (finished) {
+          runOnJS(setControlsHidden)(current === 0);
+        }
+      },
+    );
+  }, []);
 
   // TODO: Fetch latest Room and localPeer on mount of this component?
 
@@ -56,24 +79,24 @@ export const Meeting: React.FC<MeetingProps> = ({peerTrackNodes}) => {
         showLandscapeLayout ? {flexDirection: 'row'} : null,
       ]}
     >
-      {showLandscapeLayout ? <StatusBar hidden={true} /> : null}
-      {isPipModeActive ? null : (
-        <Header
-          isLeaveMenuOpen={modalVisible === ModalTypes.LEAVE_MENU}
-          setModalVisible={handleModalVisible}
-        />
-      )}
-      <DisplayView
-        peerTrackNodes={peerTrackNodes}
-        modalVisible={modalVisible}
-        setModalVisible={handleModalVisible}
-      />
-      {isPipModeActive ? null : (
-        <Footer
+      <Pressable onPress={toggleControls} style={styles.pressableContainer}>
+        <StatusBar hidden={controlsHidden || showLandscapeLayout} />
+
+        {isPipModeActive ? null : <Header offset={offset} />}
+        <DisplayView
+          offset={offset}
+          peerTrackNodes={peerTrackNodes}
           modalVisible={modalVisible}
           setModalVisible={handleModalVisible}
         />
-      )}
+        {isPipModeActive ? null : (
+          <Footer
+            offset={offset}
+            modalVisible={modalVisible}
+            setModalVisible={handleModalVisible}
+          />
+        )}
+      </Pressable>
     </SafeAreaView>
   );
 };
@@ -82,5 +105,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.BACKGROUND.DIM,
+  },
+  pressableContainer: {
+    flex: 1,
   },
 });

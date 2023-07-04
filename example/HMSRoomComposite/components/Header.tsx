@@ -1,16 +1,42 @@
 import React, {memo} from 'react';
 import {View, StyleSheet} from 'react-native';
+import Animated, {
+  SharedValue,
+  useAnimatedProps,
+  useAnimatedStyle,
+} from 'react-native-reanimated';
 
 import {COLORS} from '../utils/theme';
 import {HMSManageLeave} from './HMSManageLeave';
 import {HMSManageCameraRotation} from './HMSManageCameraRotation';
 
-export const _Header = () => {
+interface HeaderProps {
+  offset: SharedValue<number>;
+}
+
+export const _Header: React.FC<HeaderProps> = ({offset}) => {
+  const animatedStyles = useAnimatedStyle(() => {
+    return {
+      opacity: offset.value,
+      // transform: [{ translateY: interpolate(offset.value, [0, 1], [-10, 0]) }]
+    };
+  }, []);
+
+  const animatedProps = useAnimatedProps((): {
+    pointerEvents: 'none' | 'auto';
+  } => {
+    return {
+      pointerEvents: offset.value === 0 ? 'none' : 'auto',
+    };
+  }, []);
+
   return (
-    <View style={styles.container}>
-      <HMSManageLeave />
-      <HMSManageCameraRotation />
-    </View>
+    <Animated.View style={animatedStyles} animatedProps={animatedProps}>
+      <View style={styles.container}>
+        <HMSManageLeave />
+        <HMSManageCameraRotation />
+      </View>
+    </Animated.View>
   );
 };
 
@@ -22,7 +48,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    zIndex: 1,
   },
 });
 

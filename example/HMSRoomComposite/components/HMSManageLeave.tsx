@@ -181,7 +181,8 @@ const LeaveButton = () => {
   );
 };
 
-const HEADER_HEIGHT = 24 + 8 + 8 + 2; // ICON_SIZE + TOP_PADDING + BOTTOM_PADDINg + TOP&BOTTOM_BORDER_WIDTH
+const HEADER_CONTENT_HEIGHT = 24 + 8 + 8 + 2; // ICON_SIZE + TOP_PADDING + BOTTOM_PADDING + TOP&BOTTOM_BORDER_WIDTH
+const HEADER_HEIGHT = 8 + HEADER_CONTENT_HEIGHT + 8; // TOP_HEADER_PADDING + HEADER_CONTENT_HEIGHT + BOTTOM_HEADER_PADDING
 
 const styles = StyleSheet.create({
   button: {
@@ -229,7 +230,7 @@ const LeavePopup: React.FC<LeavePopupProps> = ({
         style={[
           leavePopupStyles.leavePopupContent,
           {
-            marginTop: safeAreaInsets.top + 8 + HEADER_HEIGHT + 8, // TOP_HEADER_PADDING + HEADER_HEIGHT + EXTRA_OFFSET,
+            marginTop: safeAreaInsets.top + HEADER_HEIGHT,
             marginLeft: safeAreaInsets.left + 16 - 1, // LEFT_HEADER_PADDING - HEADER_BORDER_WIDTH,
             marginRight: safeAreaInsets.right,
             marginBottom: safeAreaInsets.bottom,

@@ -1,5 +1,11 @@
 import React, {memo, useMemo} from 'react';
 import {View, StyleSheet} from 'react-native';
+import Animated, {
+  SharedValue,
+  interpolate,
+  useAnimatedProps,
+  useAnimatedStyle,
+} from 'react-native-reanimated';
 
 import {ModalTypes} from '../utils/types';
 import {COLORS} from '../utils/theme';
@@ -10,11 +16,13 @@ import {HMSRoomOptions} from './HMSRoomOptions';
 import {useCanPublishAudio, useCanPublishVideo} from '../hooks-sdk';
 
 interface FooterProps {
+  offset: SharedValue<number>;
   modalVisible: ModalTypes;
   setModalVisible(modalType: ModalTypes, delay?: any): void;
 }
 
 export const _Footer: React.FC<FooterProps> = ({
+  offset,
   modalVisible,
   setModalVisible,
 }) => {
@@ -35,30 +43,47 @@ export const _Footer: React.FC<FooterProps> = ({
     return actions;
   }, [canPublishAudio, canPublishVideo]);
 
+  const animatedStyles = useAnimatedStyle(() => {
+    return {
+      opacity: interpolate(offset.value, [0, 0.7, 1], [0, 0.5, 1]),
+      transform: [{translateY: interpolate(offset.value, [0, 1], [10, 0])}],
+    };
+  }, []);
+
+  const animatedProps = useAnimatedProps((): {
+    pointerEvents: 'none' | 'auto';
+  } => {
+    return {
+      pointerEvents: offset.value === 0 ? 'none' : 'auto',
+    };
+  }, []);
+
   return (
-    <View style={styles.container}>
-      {footerActionButtons.map((actionType, index) => {
-        return (
-          <View
-            key={actionType}
-            style={index === 0 ? null : styles.iconWrapper}
-          >
-            {actionType === 'audio' ? (
-              <HMSManageLocalAudio />
-            ) : actionType === 'video' ? (
-              <HMSManageLocalVideo />
-            ) : actionType === 'chat' ? (
-              <HMSChat />
-            ) : actionType === 'options' ? (
-              <HMSRoomOptions
-                modalVisible={modalVisible}
-                setModalVisible={setModalVisible}
-              />
-            ) : null}
-          </View>
-        );
-      })}
-    </View>
+    <Animated.View style={animatedStyles} animatedProps={animatedProps}>
+      <View style={styles.container}>
+        {footerActionButtons.map((actionType, index) => {
+          return (
+            <View
+              key={actionType}
+              style={index === 0 ? null : styles.iconWrapper}
+            >
+              {actionType === 'audio' ? (
+                <HMSManageLocalAudio />
+              ) : actionType === 'video' ? (
+                <HMSManageLocalVideo />
+              ) : actionType === 'chat' ? (
+                <HMSChat />
+              ) : actionType === 'options' ? (
+                <HMSRoomOptions
+                  modalVisible={modalVisible}
+                  setModalVisible={setModalVisible}
+                />
+              ) : null}
+            </View>
+          );
+        })}
+      </View>
+    </Animated.View>
   );
 };
 
