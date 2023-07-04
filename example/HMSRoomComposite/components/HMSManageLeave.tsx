@@ -1,17 +1,13 @@
 import {useNavigation} from '@react-navigation/native';
 import * as React from 'react';
-import {
-  Pressable,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import Modal from 'react-native-modal';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Toast from 'react-native-simple-toast';
 import {useDispatch, useSelector} from 'react-redux';
 
 import {AlertIcon, LeaveIcon} from '../Icons';
-import {useHMSInstance, useSafeDimensions} from '../hooks-util';
+import {useHMSInstance} from '../hooks-util';
 import {RootState} from '../redux';
 import {clearStore} from '../redux/actions';
 import {COLORS} from '../utils/theme';
@@ -36,28 +32,53 @@ const LeaveButton = () => {
   const navigation = useNavigation();
   const hmsInstance = useHMSInstance();
   const dispatch = useDispatch();
-  const {safeWidth, safeHeight} = useSafeDimensions();
+  const leavePopCloseAction = React.useRef(ModalTypes.DEFAULT);
+
   const [leavePopVisible, setLeavePopVisible] = React.useState(false);
   const [leaveModalType, setLeaveModalType] = React.useState(
     ModalTypes.DEFAULT,
   );
-  const canEndRoom = useSelector(
-    (state: RootState) => state.hmsStates.localPeer?.role?.permissions?.endRoom,
-  );
 
-  const handleLeaveButtonPress = () => setLeavePopVisible(true);
+  /**
+   * Opens the Leave Popup Menu
+   */
+  const handleLeaveButtonPress = () => {
+    setLeavePopVisible(true);
+  };
 
+  /**
+   * Closes the Leave Popup Menu
+   * Leave Modal will open after the popup is hidden
+   */
   const handleLeavePress = () => {
+    leavePopCloseAction.current = ModalTypes.LEAVE_ROOM;
     setLeavePopVisible(false);
-    setLeaveModalType(ModalTypes.LEAVE_ROOM);
   };
 
+  /**
+   * Closes the Leave Popup Menu
+   * End Session Modal will open after the popup is hidden
+   */
   const handleEndSessionPress = async () => {
+    leavePopCloseAction.current = ModalTypes.END_ROOM;
     setLeavePopVisible(false);
-    setLeaveModalType(ModalTypes.END_ROOM);
   };
 
-  const dismissPopup = () => setLeavePopVisible(false);
+  /**
+   * Closes the Leave Popup Menu
+   * No action is taken when the popup is hidden
+   */
+  const dismissPopup = () => {
+    leavePopCloseAction.current = ModalTypes.DEFAULT;
+    setLeavePopVisible(false);
+  };
+
+  /**
+   * Handles action to take when the leave popup is hidden
+   */
+  const handlePopupHide = () => {
+    setLeaveModalType(leavePopCloseAction.current);
+  };
 
   const dismissModal = () => setLeaveModalType(ModalTypes.DEFAULT);
 
@@ -128,47 +149,18 @@ const LeaveButton = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View>
       <PressableIcon onPress={handleLeaveButtonPress} style={styles.button}>
         <LeaveIcon />
       </PressableIcon>
 
-      {leavePopVisible ? (
-        <Pressable
-          style={[
-            styles.leavePopupBackdrop,
-            {
-              width: safeWidth,
-              height: safeHeight,
-            },
-          ]}
-          onPress={dismissPopup}
-        >
-          <View style={styles.leavePopupContent}>
-            <TouchableOpacity
-              style={styles.leaveButton}
-              onPress={handleLeavePress}
-            >
-              <LeaveIcon style={styles.leaveButtonIcon} />
-              <Text style={styles.leaveButtonText}>Leave</Text>
-            </TouchableOpacity>
-
-            {canEndRoom ? (
-              <>
-                <View style={styles.divider} />
-
-                <TouchableOpacity
-                  style={styles.endRoomButton}
-                  onPress={handleEndSessionPress}
-                >
-                  <AlertIcon style={styles.endRoomIcon} />
-                  <Text style={styles.endRoomText}>End Session</Text>
-                </TouchableOpacity>
-              </>
-            ) : null}
-          </View>
-        </Pressable>
-      ) : null}
+      <LeavePopup
+        isVisible={leavePopVisible}
+        onEndSessionPress={handleEndSessionPress}
+        onLeavePress={handleLeavePress}
+        onPopupDismiss={dismissPopup}
+        onPopupHide={handlePopupHide}
+      />
 
       <DefaultModal
         modalPosiion="center"
@@ -192,23 +184,90 @@ const LeaveButton = () => {
 const HEADER_HEIGHT = 24 + 8 + 8 + 2; // ICON_SIZE + TOP_PADDING + BOTTOM_PADDINg + TOP&BOTTOM_BORDER_WIDTH
 
 const styles = StyleSheet.create({
-  container: {
-    position: 'relative',
-    zIndex: 2,
-  },
   button: {
     backgroundColor: COLORS.ALERT.ERROR.DEFAULT,
     borderColor: COLORS.ALERT.ERROR.DEFAULT,
   },
-  leavePopupBackdrop: {
-    position: 'absolute',
-    top: -8, // TOP_HEADER_PADDING
-    left: -16, // LEFT_HEADER_PADDING
+});
+
+interface LeavePopupProps {
+  isVisible: boolean;
+  onPopupDismiss(): void;
+  onLeavePress(): void;
+  onEndSessionPress(): void;
+  onPopupHide(): void;
+}
+
+const LeavePopup: React.FC<LeavePopupProps> = ({
+  isVisible,
+  onPopupDismiss,
+  onLeavePress,
+  onEndSessionPress,
+  onPopupHide,
+}) => {
+  const safeAreaInsets = useSafeAreaInsets();
+  const canEndRoom = useSelector(
+    (state: RootState) => state.hmsStates.localPeer?.role?.permissions?.endRoom,
+  );
+
+  return (
+    <Modal
+      isVisible={isVisible}
+      animationIn={'fadeIn'}
+      animationOut={'fadeOut'}
+      backdropColor={COLORS.BACKGROUND.DIM}
+      backdropOpacity={0}
+      onBackButtonPress={onPopupDismiss}
+      onBackdropPress={onPopupDismiss}
+      useNativeDriver={true}
+      onModalHide={onPopupHide}
+      useNativeDriverForBackdrop={true}
+      hideModalContentWhileAnimating={true}
+      style={leavePopupStyles.modal}
+    >
+      <View
+        style={[
+          leavePopupStyles.leavePopupContent,
+          {
+            marginTop: safeAreaInsets.top + 8 + HEADER_HEIGHT + 8, // TOP_HEADER_PADDING + HEADER_HEIGHT + EXTRA_OFFSET,
+            marginLeft: safeAreaInsets.left + 16 - 1, // LEFT_HEADER_PADDING - HEADER_BORDER_WIDTH,
+            marginRight: safeAreaInsets.right,
+            marginBottom: safeAreaInsets.bottom,
+          },
+        ]}
+      >
+        <TouchableOpacity
+          style={leavePopupStyles.leaveButton}
+          onPress={onLeavePress}
+        >
+          <LeaveIcon style={leavePopupStyles.leaveButtonIcon} />
+          <Text style={leavePopupStyles.leaveButtonText}>Leave</Text>
+        </TouchableOpacity>
+
+        {canEndRoom ? (
+          <>
+            <View style={leavePopupStyles.divider} />
+
+            <TouchableOpacity
+              style={leavePopupStyles.endRoomButton}
+              onPress={onEndSessionPress}
+            >
+              <AlertIcon style={leavePopupStyles.endRoomIcon} />
+              <Text style={leavePopupStyles.endRoomText}>End Session</Text>
+            </TouchableOpacity>
+          </>
+        ) : null}
+      </View>
+    </Modal>
+  );
+};
+
+const leavePopupStyles = StyleSheet.create({
+  modal: {
+    margin: 0,
+    justifyContent: 'flex-start',
   },
   leavePopupContent: {
-    position: 'absolute',
-    top: 8 + HEADER_HEIGHT + 8, // TOP_HEADER_PADDING + HEADER_HEIGHT + EXTRA_OFFSET
-    left: 16 - 1, // LEFT_HEADER_PADDING - HEADER_BORDER_WIDTH
     overflow: 'hidden',
     width: 243,
     backgroundColor: COLORS.SURFACE.DIM,
