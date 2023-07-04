@@ -132,8 +132,8 @@ android {
         applicationId "live.hms.rn"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 222
-        versionName "2.1.86"
+        versionCode 223
+        versionName "2.1.87"
         missingDimensionStrategy 'react-native-camera', 'general'
     }
     splits {
@@ -161,7 +161,7 @@ android {
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
-            shrinkResources true
+            // shrinkResources true
 
             minifyEnabled true
 
