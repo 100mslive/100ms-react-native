@@ -1,5 +1,5 @@
-import React, {useCallback, useState} from 'react';
-import {StyleSheet, StatusBar, Pressable} from 'react-native';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {StyleSheet, StatusBar, Pressable, Platform} from 'react-native';
 import {useSelector} from 'react-redux';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {
@@ -33,6 +33,7 @@ interface MeetingProps {
 
 export const Meeting: React.FC<MeetingProps> = ({peerTrackNodes}) => {
   const offset = useSharedValue(1);
+  const timerIdRef = useRef<NodeJS.Timeout | null>(null);
   const [controlsHidden, setControlsHidden] = useState(false);
   const [modalVisible, handleModalVisible] = useModalType();
   const isPipModeActive = useSelector(
@@ -42,16 +43,38 @@ export const Meeting: React.FC<MeetingProps> = ({peerTrackNodes}) => {
 
   const toggleControls = useCallback(() => {
     'worklet';
+    if (timerIdRef.current) {
+      clearTimeout(timerIdRef.current);
+      timerIdRef.current = null;
+    }
     cancelAnimation(offset);
     offset.value = withTiming(
       offset.value === 1 ? 0 : 1,
       {duration: 200, easing: Easing.ease},
-      (finished, current) => {
+      finished => {
         if (finished) {
-          runOnJS(setControlsHidden)(current === 0);
+          runOnJS(setControlsHidden)(offset.value === 0);
         }
       },
     );
+  }, []);
+
+  // Handles Auto hiding the controls for the first time
+  // to make this feature discoverable
+  useEffect(() => {
+    if (timerIdRef.current) {
+      clearTimeout(timerIdRef.current);
+    }
+    timerIdRef.current = setTimeout(() => {
+      timerIdRef.current = null;
+      toggleControls();
+    }, 3000);
+
+    return () => {
+      if (timerIdRef.current) {
+        clearTimeout(timerIdRef.current);
+      }
+    };
   }, []);
 
   // TODO: Fetch latest Room and localPeer on mount of this component?
@@ -80,7 +103,17 @@ export const Meeting: React.FC<MeetingProps> = ({peerTrackNodes}) => {
       ]}
     >
       <Pressable onPress={toggleControls} style={styles.pressableContainer}>
-        <StatusBar hidden={controlsHidden || showLandscapeLayout} />
+        <StatusBar
+          hidden={
+            (Platform.OS === 'ios' && controlsHidden) || showLandscapeLayout
+          } // use `hidden` prop to hide Status bar on iOS
+          barStyle={
+            Platform.OS === 'android' && controlsHidden
+              ? 'dark-content'
+              : 'default'
+          } // hack: use `dark-content` value to make StatusBar look like it's hidden
+          animated={true}
+        />
 
         {isPipModeActive ? null : <Header offset={offset} />}
         <DisplayView
