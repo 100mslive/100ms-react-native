@@ -55,6 +55,10 @@ import {
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {useIsLandscapeOrientation} from './utils/dimension';
+import {
+  useSafeAreaFrame,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 
 export const useHMSListeners = (
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>,
@@ -812,6 +816,7 @@ export const useHMSRemovedFromRoomUpdate = () => {
 };
 
 export const usePIPListener = () => {
+  const hmsInstance = useHMSInstance();
   const dispatch = useDispatch();
   const isPipModeActive = useSelector(
     (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE,
@@ -832,6 +837,26 @@ export const usePIPListener = () => {
       };
     }
   }, [isPipModeActive]);
+
+  // Check if PIP is supported or not
+  useEffect(() => {
+    // Only check for PIP support if PIP is not active
+    if (hmsInstance && !isPipModeActive) {
+      const check = async () => {
+        try {
+          const isSupported = await hmsInstance.isPipModeSupported();
+
+          if (!isSupported) {
+            dispatch(changePipModeStatus(PipModes.NOT_AVAILABLE));
+          }
+        } catch (error) {
+          dispatch(changePipModeStatus(PipModes.NOT_AVAILABLE));
+        }
+      };
+
+      check();
+    }
+  }, [isPipModeActive, hmsInstance]);
 };
 
 export const useModalType = (): [
@@ -939,4 +964,14 @@ export const useHMSConfig = () => {
   }, [hmsInstance]);
 
   return {clearConfig, getConfig};
+};
+
+export const useSafeDimensions = () => {
+  const {height, width} = useSafeAreaFrame();
+  const safeAreaInsets = useSafeAreaInsets();
+
+  return {
+    safeWidth: width - safeAreaInsets.left - safeAreaInsets.right,
+    safeHeight: height - safeAreaInsets.top - safeAreaInsets.bottom,
+  };
 };

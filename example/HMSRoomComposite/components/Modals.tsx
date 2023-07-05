@@ -69,6 +69,7 @@ import {
 import {COLORS} from '../utils/theme';
 import type {RootState} from '../redux';
 import {SwitchRow} from './SwitchRow';
+import {useHMSInstance} from '../hooks-util';
 
 export const ParticipantsModal = ({
   instance,
@@ -1184,12 +1185,11 @@ export const EndRoomModal = ({
 };
 
 export const ChangeAudioOutputModal = ({
-  instance,
   cancelModal,
 }: {
-  instance?: HMSSDK;
   cancelModal: Function;
 }) => {
+  const instance = useHMSInstance();
   const [currentOutputDevice, setCurrentOutputDevice] =
     useState<HMSAudioDevice>(HMSAudioDevice.SPEAKER_PHONE);
   const [audioOutputDevicesList, setAudioOutputDevicesList] = useState<
@@ -1317,16 +1317,15 @@ export const ChangeAspectRatio = ({cancelModal}: {cancelModal: Function}) => {
 };
 
 export const ChangeAudioModeModal = ({
-  instance,
   cancelModal,
   audioMode,
   setAudioMode,
 }: {
-  instance?: HMSSDK;
   audioMode: HMSAudioMode;
   setAudioMode: React.Dispatch<React.SetStateAction<HMSAudioMode>>;
   cancelModal: Function;
 }) => {
+  const instance = useHMSInstance();
   const [currentAudioMode, setCurrentAudioMode] =
     useState<HMSAudioMode>(audioMode);
 
@@ -1389,18 +1388,17 @@ export const ChangeAudioModeModal = ({
 };
 
 export const ChangeAudioMixingModeModal = ({
-  instance,
   newAudioMixingMode,
   cancelModal,
   setNewAudioMixingMode,
 }: {
-  instance?: HMSSDK;
   newAudioMixingMode: HMSAudioMixingMode;
   cancelModal: Function;
   setNewAudioMixingMode: React.Dispatch<
     React.SetStateAction<HMSAudioMixingMode>
   >;
 }) => {
+  const instance = useHMSInstance();
   const changeAudioMixingMode = async () => {
     await instance?.setAudioMixingMode(newAudioMixingMode);
     cancelModal();
@@ -1552,17 +1550,17 @@ export const ChangeLayoutModal = ({
 };
 
 export const ChangeTrackStateForRoleModal = ({
-  instance,
-  localPeer,
   cancelModal,
 }: {
-  instance?: HMSSDK;
-  localPeer?: HMSLocalPeer;
   cancelModal: Function;
 }) => {
+  const instance = useHMSInstance();
   const roles = useSelector((state: RootState) => state.hmsStates.roles);
+  const localPeerRole = useSelector(
+    (state: RootState) => state.hmsStates.localPeer?.role,
+  );
 
-  const [role, setRole] = useState<HMSRole>(localPeer?.role!);
+  const [role, setRole] = useState<HMSRole>(localPeerRole!);
   const [visible, setVisible] = useState<boolean>(false);
   const [trackType, setTrackType] = useState<HMSTrackType>(HMSTrackType.VIDEO);
   const [trackState, setTrackState] = useState<boolean>(false);
@@ -1625,7 +1623,7 @@ export const ChangeTrackStateForRoleModal = ({
         <Text style={styles.changeTrackStateRoleOptionHeading}>
           {'Track State: '}
         </Text>
-        {localPeer?.role?.permissions?.mute && (
+        {localPeerRole?.permissions?.mute && (
           <TouchableOpacity
             style={styles.changeTrackStateRoleOption}
             onPress={() => setTrackState(true)}
@@ -1642,7 +1640,7 @@ export const ChangeTrackStateForRoleModal = ({
             <Text style={styles.roleChangeModalPermission}>MUTE</Text>
           </TouchableOpacity>
         )}
-        {localPeer?.role?.permissions?.unmute && (
+        {localPeerRole?.permissions?.unmute && (
           <TouchableOpacity
             style={styles.changeTrackStateRoleOption}
             onPress={() => setTrackState(false)}
@@ -1766,15 +1764,9 @@ export const ChangeTrackStateModal = ({
   );
 };
 
-export const HlsStreamingModal = ({
-  instance,
-  roomID,
-  cancelModal,
-}: {
-  instance?: HMSSDK;
-  roomID: string;
-  cancelModal: Function;
-}) => {
+export const HlsStreamingModal = ({cancelModal}: {cancelModal: Function}) => {
+  const instance = useHMSInstance();
+  const roomID = useSelector((state: RootState) => state.user.roomID);
   const [hlsStreamingDetails, setHLSStreamingDetails] =
     useState<HMSHLSMeetingURLVariant>({
       meetingUrl: roomID ? roomID + '?skip_preview=true' : '',
@@ -1883,16 +1875,14 @@ export const HlsStreamingModal = ({
 };
 
 export const RecordingModal = ({
-  instance,
-  roomID,
   recordingModal,
   setModalVisible,
 }: {
-  instance?: HMSSDK;
-  roomID: string;
   recordingModal: boolean;
   setModalVisible(modalType: ModalTypes, delay?: any): void;
 }) => {
+  const instance = useHMSInstance();
+  const roomID = useSelector((state: RootState) => state.user.roomID);
   const [resolutionDetails, setResolutionDetails] = useState<boolean>(false);
   const [recordingDetails, setRecordingDetails] = useState<HMSRTMPConfig>({
     record: false,

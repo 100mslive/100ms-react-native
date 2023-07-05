@@ -121,7 +121,9 @@ export const COLORS = {
   },
   ALERT: {
     ERROR: {
+      DIM: '#270005',
       DEFAULT: '#C74E5B',
+      BRIGHT: '#FFB2B6',
       BRIGHTER: '#FFEDEC',
     },
   },

@@ -8,6 +8,7 @@ import {
   Image,
   TouchableOpacity,
   Alert,
+  InteractionManager,
 } from 'react-native';
 import {
   HMSAudioFilePlayerNode,
@@ -35,6 +36,8 @@ import {
 import {ModalTypes, PipModes} from '../utils/types';
 import {parseMetadata} from '../utils/functions';
 import {getJoinConfig} from '../utils';
+import {HMSShareScreen} from './HMSShareScreen';
+import {ScreenShareIcon} from '../Icons';
 
 interface RoomSettingsModalContentProps {
   newAudioMixingMode: HMSAudioMixingMode;
@@ -116,6 +119,27 @@ export const RoomSettingsModalContent: React.FC<
       )
       .then(d => console.log('Change Metadata Success: ', d))
       .catch(e => console.log('Change Metadata Error: ', e));
+  };
+
+  const onRaiseHandPress = async () => {
+    closeRoomSettingsModal();
+
+    await hmsInstance
+      ?.changeMetadata(
+        JSON.stringify({
+          ...parsedMetadata,
+          isHandRaised: !parsedMetadata?.isHandRaised,
+          isBRBOn: false,
+        }),
+      )
+      .then(d => console.log('Change Metadata Success: ', d))
+      .catch(e => console.log('Change Metadata Error: ', e));
+  };
+
+  const onParticipantsPress = () => {
+    InteractionManager.runAfterInteractions(() => {
+      setModalVisible(ModalTypes.PARTICIPANTS, true);
+    });
   };
 
   const enterPipMode = async () => {
@@ -364,6 +388,14 @@ export const RoomSettingsModalContent: React.FC<
         style={styles.contentContainer}
         contentContainerStyle={styles.scrollContentContainer}
       >
+        <HMSShareScreen
+          screenShareDelegate={
+            <ScreenShareDelegate
+              closeRoomSettingsModal={closeRoomSettingsModal}
+            />
+          }
+        />
+
         <TouchableOpacity onPress={handleBRB} style={styles.button}>
           <Image
             source={require('../../assets/brb.png')}
@@ -374,6 +406,20 @@ export const RoomSettingsModalContent: React.FC<
             {parsedMetadata?.isBRBOn ? 'Remove BRB' : 'Set BRB'}
           </Text>
         </TouchableOpacity>
+
+        <SettingItem
+          onPress={onRaiseHandPress}
+          text={parsedMetadata?.isHandRaised ? 'Low Your Hand' : 'Raise Hand'}
+          IconType={Ionicons}
+          iconName={'hand-left-outline'}
+        />
+
+        <SettingItem
+          onPress={onParticipantsPress}
+          text={'Participants'}
+          IconType={Ionicons}
+          iconName={'people'}
+        />
 
         {localPeerRole?.name?.includes('hls-') ? (
           <SettingItem
@@ -449,6 +495,15 @@ export const RoomSettingsModalContent: React.FC<
             text="Switch Audio Output"
             IconType={MaterialCommunityIcons}
             iconName="cast-audio"
+          />
+        ) : null}
+
+        {!isPipModeUnavailable ? (
+          <SettingItem
+            onPress={enterPipMode}
+            text="Picture in Picture (PIP) Mode"
+            IconType={MaterialCommunityIcons}
+            iconName="picture-in-picture-bottom-right"
           />
         ) : null}
 
@@ -617,6 +672,26 @@ const SettingItem: React.FC<SettingItemProps> = ({
       <IconType name={iconName} size={24} style={styles.icon} />
 
       <Text style={styles.text}>{text}</Text>
+    </TouchableOpacity>
+  );
+};
+
+const ScreenShareDelegate = ({
+  isLocalScreenShared,
+  onPress,
+  closeRoomSettingsModal,
+}: any) => {
+  const handleScreenSharePress = () => {
+    closeRoomSettingsModal();
+    onPress?.();
+  };
+
+  return (
+    <TouchableOpacity onPress={handleScreenSharePress} style={styles.button}>
+      <ScreenShareIcon style={styles.icon} />
+      <Text style={styles.text}>
+        {isLocalScreenShared ? 'Stop Screen Share' : 'Screen Share'}
+      </Text>
     </TouchableOpacity>
   );
 };

@@ -5,7 +5,7 @@ import {COLORS, FONTS} from '../utils/theme';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.BACKGROUND.DEFAULT,
+    backgroundColor: COLORS.BACKGROUND.DIM,
   },
   videoIcon: {
     color: COLORS.PRIMARY.DEFAULT,
@@ -24,12 +24,12 @@ const styles = StyleSheet.create({
     color: COLORS.INDICATORS.ERROR,
   },
   generalTile: {
-    height: '100%',
-    width: '100%',
-    marginVertical: 1,
-    padding: '0.25%',
+    // height: '100%',
+    // width: '100%',
+    // marginVertical: 1,
+    // padding: '0.25%',
     overflow: 'hidden',
-    borderRadius: 20,
+    borderRadius: 16,
   },
   hmsView: {
     height: '100%',
@@ -167,8 +167,8 @@ const styles = StyleSheet.create({
   },
   page: {
     flexDirection: 'row',
-    width: 414,
     flexWrap: 'wrap',
+    alignContent: 'center',
   },
   input: {
     borderWidth: 1,
@@ -197,8 +197,8 @@ const styles = StyleSheet.create({
     color: COLORS.TEXT.MEDIUM_EMPHASIS,
   },
   gridTile: {
-    flex: 1,
-    position: 'relative',
+    width: '100%',
+    height: '100%',
   },
   closeButton: {
     zIndex: 2,
@@ -442,7 +442,7 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingVertical: 4,
     backgroundColor: COLORS.OVERLAY,
-    zIndex: 2,
+    // zIndex: 2,
     borderRadius: 16,
   },
   iconBotttomWrapperLandscape: {
@@ -901,8 +901,9 @@ const styles = StyleSheet.create({
     letterSpacing: 0.4,
   },
   screenshareContainer: {
+    width: '100%',
+    height: '100%',
     backgroundColor: COLORS.SURFACE.DEFAULT,
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },

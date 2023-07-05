@@ -7,3 +7,8 @@ export * from './Settings';
 export * from './NetworkQuality';
 export * from './Close';
 export * from './Speaker';
+export * from './Leave';
+export * from './Chat';
+export * from './ThreeDots';
+export * from './ScreenShare';
+export * from './Alert';
