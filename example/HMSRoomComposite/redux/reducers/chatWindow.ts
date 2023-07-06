@@ -1,7 +1,7 @@
 import {HmsStateActionTypes} from '../actionTypes';
 
 const INITIAL_STATE = {
-  showChatView: true,
+  showChatView: false,
   typedMessage: '',
   sendTo: {name: 'everyone'},
   sendToType: 'everyone', // 'everyone' | 'role' | 'direct'

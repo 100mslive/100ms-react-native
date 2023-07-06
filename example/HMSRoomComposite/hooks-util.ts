@@ -59,6 +59,7 @@ import {
   useSafeAreaFrame,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
+import {selectIsHLSViewer} from './hooks-util-selectors';
 
 export const useHMSListeners = (
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>,
@@ -414,9 +415,8 @@ export const useHMSInstance = () => {
 };
 
 export const useIsHLSViewer = () => {
-  return useSelector(
-    (state: RootState) =>
-      state.hmsStates.localPeer?.role?.name?.includes('hls') ?? false,
+  return useSelector((state: RootState) =>
+    selectIsHLSViewer(state.hmsStates.localPeer),
   );
 };
 
@@ -981,6 +981,7 @@ export const useShowChat = (): [
   (show: boolean) => void,
 ] => {
   const dispatch = useDispatch();
+  const isHLSViewer = useIsHLSViewer();
   const showChatView = useSelector(
     (state: RootState) => state.chatWindow.showChatView,
   );
@@ -990,16 +991,24 @@ export const useShowChat = (): [
   const chatVisible: 'none' | 'inset' | 'modal' = useMemo(() => {
     if (!showChatView) return 'none';
 
-    if (['16:9', '4:3'].includes(hlsAspectRatio.id)) return 'inset';
+    if (isHLSViewer && ['16:9', '4:3'].includes(hlsAspectRatio.id))
+      return 'inset';
 
     // TODO: handle case when type modal is selected, but chat modal is not shown because aspect ration modal was just closed
     return 'modal';
-  }, [showChatView, hlsAspectRatio.id]);
+  }, [showChatView, hlsAspectRatio.id, isHLSViewer]);
 
-  const showChat = useCallback((show: boolean) => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    dispatch({type: 'SET_SHOW_CHAT_VIEW', showChatView: show});
-  }, []);
+  const isChatVisibleInsetType = chatVisible === 'inset';
+
+  const showChat = useCallback(
+    (show: boolean) => {
+      if (isChatVisibleInsetType) {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      }
+      dispatch({type: 'SET_SHOW_CHAT_VIEW', showChatView: show});
+    },
+    [isChatVisibleInsetType],
+  );
 
   return [chatVisible, showChat];
 };
