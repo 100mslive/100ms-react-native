@@ -581,7 +581,7 @@ const PinnedMessage = () => {
   }
 
   return (
-    <View style={[styles.banner, {transform: undefined}]}>
+    <View style={styles.pinnedMessage}>
       <View style={styles.bannerIconContainer}>
         <MaterialCommunityIcons
           style={styles.bannerIcon}
@@ -781,6 +781,13 @@ const styles = StyleSheet.create({
   clearButtonStyle: {
     right: 48,
     width: 40,
+  },
+  pinnedMessage: {
+    height: 80,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.SURFACE.LIGHT,
+    borderRadius: 8,
   },
   banner: {
     height: 80,
