@@ -406,7 +406,7 @@ const _ChatList = () => {
       <FlashList
         data={messages.reverse()}
         inverted={true}
-        estimatedItemSize={88}
+        estimatedItemSize={84}
         contentContainerStyle={{paddingRight: 12}}
         stickyHeaderIndices={pinnedMessageAvailable ? [0] : undefined}
         keyboardShouldPersistTaps="always"

@@ -992,6 +992,7 @@ export const useShowChat = (): [
 
     if (['16:9', '4:3'].includes(hlsAspectRatio.id)) return 'inset';
 
+    // TODO: handle case when type modal is selected, but chat modal is not shown because aspect ration modal was just closed
     return 'modal';
   }, [showChatView, hlsAspectRatio.id]);
 
