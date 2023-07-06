@@ -5,24 +5,28 @@ import {ChatIcon} from '../Icons';
 import {PressableIcon} from './PressableIcon';
 import {ChatWindow} from './ChatWindow';
 import {DefaultModal} from './DefaultModal';
+import {useShowChat} from '../hooks-util';
 
 export const HMSChat = () => {
-  const [chatOpen, setChatOpen] = React.useState(false);
+  const [chatVisibleType, setChatVisible] = useShowChat();
 
-  const openChatWindow = () => setChatOpen(true);
+  const toggleChatWindow = () => setChatVisible(chatVisibleType === 'none');
 
-  const closeChatWindow = () => setChatOpen(false);
+  const closeChatWindow = () => setChatVisible(false);
 
   return (
     <View>
-      <PressableIcon onPress={openChatWindow}>
+      <PressableIcon
+        onPress={toggleChatWindow}
+        active={chatVisibleType === 'inset'}
+      >
         <ChatIcon />
       </PressableIcon>
 
       <DefaultModal
         animationIn={'slideInUp'}
         animationOut={'slideOutDown'}
-        modalVisible={chatOpen}
+        modalVisible={chatVisibleType === 'modal'}
         setModalVisible={closeChatWindow}
       >
         <ChatWindow />

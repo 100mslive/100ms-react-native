@@ -19,7 +19,7 @@ import {
   useHMSPeerUpdates,
 } from '@100mslive/react-native-hms';
 import Toast from 'react-native-simple-toast';
-import {useRef, useCallback, useEffect, useState} from 'react';
+import {useRef, useCallback, useEffect, useState, useMemo} from 'react';
 
 import {ModalTypes, PeerTrackNode, PipModes} from './utils/types';
 import {createPeerTrackNode} from './utils/functions';
@@ -974,4 +974,31 @@ export const useSafeDimensions = () => {
     safeWidth: width - safeAreaInsets.left - safeAreaInsets.right,
     safeHeight: height - safeAreaInsets.top - safeAreaInsets.bottom,
   };
+};
+
+export const useShowChat = (): [
+  'none' | 'inset' | 'modal',
+  (show: boolean) => void,
+] => {
+  const dispatch = useDispatch();
+  const showChatView = useSelector(
+    (state: RootState) => state.chatWindow.showChatView,
+  );
+  const hlsAspectRatio = useSelector(
+    (state: RootState) => state.app.hlsAspectRatio,
+  );
+  const chatVisible: 'none' | 'inset' | 'modal' = useMemo(() => {
+    if (!showChatView) return 'none';
+
+    if (['16:9', '4:3'].includes(hlsAspectRatio.id)) return 'inset';
+
+    return 'modal';
+  }, [showChatView, hlsAspectRatio.id]);
+
+  const showChat = useCallback((show: boolean) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    dispatch({type: 'SET_SHOW_CHAT_VIEW', showChatView: show});
+  }, []);
+
+  return [chatVisible, showChat];
 };

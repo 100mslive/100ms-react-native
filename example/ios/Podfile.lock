@@ -372,6 +372,8 @@ PODS:
     - React-Core
   - RNDeviceInfo (9.0.2):
     - React-Core
+  - RNFlashList (1.4.3):
+    - React-Core
   - RNFS (2.20.0):
     - React-Core
   - RNGestureHandler (1.10.3):
@@ -481,6 +483,7 @@ DEPENDENCIES:
   - rn-fetch-blob (from `../node_modules/rn-fetch-blob`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
+  - "RNFlashList (from `../node_modules/@shopify/flash-list`)"
   - RNFS (from `../node_modules/react-native-fs`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNPermissions (from `../node_modules/react-native-permissions`)
@@ -589,6 +592,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNDeviceInfo:
     :path: "../node_modules/react-native-device-info"
+  RNFlashList:
+    :path: "../node_modules/@shopify/flash-list"
   RNFS:
     :path: "../node_modules/react-native-fs"
   RNGestureHandler:
@@ -662,6 +667,7 @@ SPEC CHECKSUMS:
   rn-fetch-blob: f065bb7ab7fb48dd002629f8bdcb0336602d3cba
   RNCAsyncStorage: ddc4ee162bfd41b0d2c68bf2d95acd81dd7f1f93
   RNDeviceInfo: 1e3f62b9ec32f7754fac60bd06b8f8a27124e7f0
+  RNFlashList: ade81b4e928ebd585dd492014d40fb8d0e848aab
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNPermissions: eac721f71748c4472d6e876038270b75397d6ee7

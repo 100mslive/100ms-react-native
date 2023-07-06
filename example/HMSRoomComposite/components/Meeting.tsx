@@ -22,6 +22,7 @@ import {
   useHMSMessages,
   useHMSPIPRoomLeave,
   useHMSRemovedFromRoomUpdate,
+  useIsHLSViewer,
   useModalType,
   usePIPListener,
   useShowLandscapeLayout,
@@ -33,6 +34,7 @@ interface MeetingProps {
 
 export const Meeting: React.FC<MeetingProps> = ({peerTrackNodes}) => {
   const offset = useSharedValue(1);
+  const isHLSViewer = useIsHLSViewer();
   const timerIdRef = useRef<NodeJS.Timeout | null>(null);
   const [controlsHidden, setControlsHidden] = useState(false);
   const [modalVisible, handleModalVisible] = useModalType();
@@ -62,20 +64,22 @@ export const Meeting: React.FC<MeetingProps> = ({peerTrackNodes}) => {
   // Handles Auto hiding the controls for the first time
   // to make this feature discoverable
   useEffect(() => {
-    if (timerIdRef.current) {
-      clearTimeout(timerIdRef.current);
-    }
-    timerIdRef.current = setTimeout(() => {
-      timerIdRef.current = null;
-      toggleControls();
-    }, 3000);
-
-    return () => {
+    if (!isHLSViewer) {
       if (timerIdRef.current) {
         clearTimeout(timerIdRef.current);
       }
-    };
-  }, []);
+      timerIdRef.current = setTimeout(() => {
+        timerIdRef.current = null;
+        toggleControls();
+      }, 3000);
+
+      return () => {
+        if (timerIdRef.current) {
+          clearTimeout(timerIdRef.current);
+        }
+      };
+    }
+  }, [isHLSViewer]);
 
   // TODO: Fetch latest Room and localPeer on mount of this component?
 
@@ -102,7 +106,11 @@ export const Meeting: React.FC<MeetingProps> = ({peerTrackNodes}) => {
         showLandscapeLayout ? {flexDirection: 'row'} : null,
       ]}
     >
-      <Pressable onPress={toggleControls} style={styles.pressableContainer}>
+      <Pressable
+        onPress={toggleControls}
+        style={styles.pressableContainer}
+        disabled={isHLSViewer}
+      >
         <StatusBar
           hidden={
             (Platform.OS === 'ios' && controlsHidden) || showLandscapeLayout

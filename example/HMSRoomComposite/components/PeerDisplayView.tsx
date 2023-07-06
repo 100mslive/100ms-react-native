@@ -13,6 +13,7 @@ import {styles} from './styles';
 
 import {getInitials, isTileOnSpotlight} from '../utils/functions';
 import type {RootState} from '../redux';
+import {AvatarView} from './AvatarView';
 
 export interface PeerDisplayViewProps {
   isDegraded?: boolean;
@@ -53,9 +54,7 @@ const PeerDisplayViewUnmemoized = React.forwardRef<
     <View style={peerDisplayViewStyles.container}>
       {videoTrack?.isMute() || videoTrack?.trackId === undefined ? (
         <View style={styles.avatarContainer}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{getInitials(peer.name)}</Text>
-          </View>
+          <AvatarView userName={peer.name} />
         </View>
       ) : (
         <View style={styles.flex}>
