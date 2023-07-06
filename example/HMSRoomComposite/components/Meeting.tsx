@@ -64,7 +64,7 @@ export const Meeting: React.FC<MeetingProps> = ({peerTrackNodes}) => {
   // Handles Auto hiding the controls for the first time
   // to make this feature discoverable
   useEffect(() => {
-    if (!isHLSViewer) {
+    if (false && !isHLSViewer) {
       if (timerIdRef.current) {
         clearTimeout(timerIdRef.current);
       }
@@ -98,6 +98,12 @@ export const Meeting: React.FC<MeetingProps> = ({peerTrackNodes}) => {
   // Handle rendering RTC stats on Tiles and inside RTC stats modal
   useRTCStatsListeners(modalVisible === ModalTypes.RTC_STATS);
 
+  /**
+   * TODO: disbaled Expended View animation in Webrtc flow
+   *
+   * Problem: Tiles Flatlist was not scrollable because Root Pressable was registering screen taps.
+   * Solution: Try using Tab Gesture detector instead on Pressable component
+   */
   return (
     <SafeAreaView
       edges={showLandscapeLayout ? ['left', 'right'] : undefined}
@@ -109,7 +115,7 @@ export const Meeting: React.FC<MeetingProps> = ({peerTrackNodes}) => {
       <Pressable
         onPress={toggleControls}
         style={styles.pressableContainer}
-        disabled={isHLSViewer}
+        disabled={isHLSViewer || true}
       >
         <StatusBar
           hidden={
