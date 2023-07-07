@@ -1,8 +1,14 @@
 Board: https://github.com/100mslive/react-native-hms/projects/17
 
+- Initial style & layout changes for HLS-Viewer
+
 - App built using the Prebuilt UI Kit
+    - Meeting screen style updates
+    - Added Header & Footer show & hide animation
+
 https://github.com/100mslive/react-native-hms/issues/1058
 
+Branch: `prebuilt-hls-viewer-ui-changes` (commit hash: 0487aa87...)
 
 React Native SDK: 1.8.0
 Android SDK: 2.6.7

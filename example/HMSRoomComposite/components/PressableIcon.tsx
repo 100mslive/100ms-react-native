@@ -9,6 +9,7 @@ import {COLORS} from '../utils/theme';
 
 interface PressableIconProps extends Omit<TouchableOpacityProps, 'children'> {
   children: Pick<TouchableOpacityProps, 'children'>;
+  active?: boolean;
   rounded?: boolean;
   border?: boolean;
 }
@@ -16,6 +17,7 @@ interface PressableIconProps extends Omit<TouchableOpacityProps, 'children'> {
 export const PressableIcon: React.FC<PressableIconProps> = ({
   children,
   style,
+  active = false,
   rounded = false,
   border = true,
   ...restProps
@@ -27,6 +29,7 @@ export const PressableIcon: React.FC<PressableIconProps> = ({
         {
           borderRadius: rounded ? 20 : undefined,
           ...(border ? styles.withBorder : undefined),
+          ...(active ? styles.active : undefined),
         },
         style,
       ]}
@@ -46,5 +49,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderColor: COLORS.BORDER.BRIGHT,
     borderWidth: 1,
+  },
+  active: {
+    backgroundColor: COLORS.SECONDARY.DIM,
+    borderColor: COLORS.SECONDARY.DIM,
   },
 });

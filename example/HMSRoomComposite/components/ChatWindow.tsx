@@ -1,12 +1,21 @@
-import React, {useState, useEffect, memo} from 'react';
+import React, {useState, useEffect, memo, useCallback} from 'react';
 import {
   View,
   StyleSheet,
-  FlatList,
   TouchableOpacity,
   Text,
   Platform,
+  TextInput,
+  StyleProp,
+  ViewStyle,
 } from 'react-native';
+import Animated, {
+  SlideInDown,
+  SlideInUp,
+  SlideOutDown,
+  SlideOutRight,
+  SlideOutUp,
+} from 'react-native-reanimated';
 import {
   HMSLocalPeer,
   HMSMessage,
@@ -18,6 +27,7 @@ import {
   HMSRole,
   HMSSDK,
 } from '@100mslive/react-native-hms';
+import {FlashList} from '@shopify/flash-list';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -28,9 +38,12 @@ import {useDispatch, useSelector} from 'react-redux';
 import {Menu, MenuDivider, MenuItem} from './MenuModal';
 import {COLORS} from '../utils/theme';
 import type {RootState} from '../redux';
-import {CustomInput} from './CustomInput';
 import {CustomButton} from './CustomButton';
-import {addMessage, addPinnedMessage} from '../redux/actions';
+import {addMessage} from '../redux/actions';
+import {PressableIcon} from './PressableIcon';
+import {CloseIcon, SendIcon} from '../Icons';
+import {useHMSInstance, useShowChat} from '../hooks-util';
+import {AvatarView} from './AvatarView';
 
 const getTimeStringin12HourFormat = (time: Date) => {
   let hours = time.getHours();
@@ -45,281 +58,104 @@ const getTimeStringin12HourFormat = (time: Date) => {
   );
 };
 
-const ChatFilter = memo(
-  ({
-    instance,
-    filter,
-    setFilter,
-    setType,
-    setReceiverObject,
-  }: {
-    instance?: HMSSDK;
-    filter?: string;
-    setFilter: React.Dispatch<React.SetStateAction<string>>;
-    setType: React.Dispatch<
-      React.SetStateAction<'everyone' | 'direct' | 'role'>
-    >;
-    setReceiverObject: React.Dispatch<
-      React.SetStateAction<'everyone' | HMSRole | HMSRemotePeer>
-    >;
-  }) => {
-    const roles = useSelector((state: RootState) => state.hmsStates.roles);
+interface ChatHeaderProps {
+  filters: boolean;
+  onClosePress?: () => void;
+}
 
-    const [visible, setVisible] = useState<boolean>(false);
-    const [remotePeers, setRemotePeers] = useState<HMSRemotePeer[]>();
-
-    const hideMenu = () => setVisible(false);
-    const showMenu = () => setVisible(true);
-
-    useEffect(() => {
-      instance?.getRemotePeers().then(currentRemotePeers => {
-        setRemotePeers(currentRemotePeers);
-      });
-    }, [instance]);
-
-    return (
-      <Menu
-        visible={visible}
-        anchor={
-          <TouchableOpacity
-            style={styles.chatFilterContainer}
-            onPress={showMenu}
-          >
-            <Text style={styles.chatFilterText} numberOfLines={1}>
-              {filter}
-            </Text>
-            <MaterialIcons
-              name={visible ? 'arrow-drop-up' : 'arrow-drop-down'}
-              style={styles.chatFilterIcon}
-              size={24}
-            />
-          </TouchableOpacity>
-        }
-        onRequestClose={hideMenu}
-        style={styles.chatMenuContainer}
-      >
-        <MenuItem
-          onPress={() => {
-            hideMenu();
-            setType('everyone');
-            setReceiverObject('everyone');
-            setFilter('everyone');
-          }}
-        >
-          <View style={styles.chatMenuItem}>
-            <Ionicons
-              name="people-outline"
-              style={styles.chatMenuItemIcon}
-              size={20}
-            />
-            <Text style={styles.chatMenuItemName}>Everyone</Text>
-          </View>
-        </MenuItem>
-        <MenuDivider color={COLORS.BORDER.LIGHT} />
-        {roles?.map(knownRole => {
-          return (
-            <MenuItem
-              onPress={() => {
-                hideMenu();
-                setType('role');
-                setReceiverObject(knownRole);
-                setFilter(knownRole?.name!);
-              }}
-              key={knownRole.name}
-            >
-              <View style={styles.chatMenuItem}>
-                <Text style={styles.chatMenuItemName}>{knownRole?.name}</Text>
-              </View>
-            </MenuItem>
-          );
-        })}
-        <MenuDivider color={COLORS.BORDER.LIGHT} />
-        {remotePeers?.map(remotePeer => {
-          return (
-            <MenuItem
-              onPress={() => {
-                hideMenu();
-                setType('direct');
-                setReceiverObject(remotePeer);
-                setFilter(remotePeer.name);
-              }}
-              key={remotePeer.name}
-            >
-              <View style={styles.chatMenuItem}>
-                <Ionicons
-                  name="person-outline"
-                  style={styles.chatMenuItemIcon}
-                  size={20}
-                />
-                <Text style={styles.chatMenuItemName}>{remotePeer.name}</Text>
-              </View>
-            </MenuItem>
-          );
-        })}
-      </Menu>
-    );
-  },
-);
-
-ChatFilter.displayName = 'ChatFilter';
-
-const ChatList = ({
-  setSessionMetaData,
-}: {
-  setSessionMetaData: (value: string | null) => void;
+export const ChatHeader: React.FC<ChatHeaderProps> = ({
+  filters,
+  onClosePress,
 }) => {
-  const messages = useSelector((state: RootState) => state.messages.messages);
-
-  // const scollviewRef = useRef<FlatList>(null);
-
-  // useEffect(() => {
-  //   scollviewRef?.current?.scrollToEnd({animated: false});
-  // }, []);
-
-  // useEffect(() => {
-  //   scollviewRef?.current?.scrollToEnd({animated: true});
-  // }, [messages]);
-
   return (
-    <FlatList
-      data={messages}
-      initialNumToRender={2}
-      maxToRenderPerBatch={3}
-      windowSize={11}
-      keyboardShouldPersistTaps="always"
-      renderItem={({item, index}: {item: HMSMessage; index: number}) => {
-        const data = item;
-        const isLocal = data.sender?.isLocal;
-        return (
-          <View
-            style={[
-              styles.messageBubble,
-              (data.recipient.recipientType === HMSMessageRecipientType.PEER ||
-                data.recipient.recipientType ===
-                  HMSMessageRecipientType.ROLES) &&
-                styles.privateMessageBubble,
-              isLocal && styles.sendMessageBubble,
-            ]}
-            key={index}
-          >
-            <View style={styles.headingContainer}>
-              <View style={styles.headingLeftContainer}>
-                <Text style={styles.senderName}>
-                  {data.sender
-                    ? data.sender?.isLocal
-                      ? 'You'
-                      : data.sender?.name
-                    : 'Anonymous'}
-                </Text>
-                <Text style={styles.messageTime}>
-                  {getTimeStringin12HourFormat(data.time)}
-                </Text>
-              </View>
-              {(data.recipient.recipientType === HMSMessageRecipientType.PEER ||
-                data.recipient.recipientType ===
-                  HMSMessageRecipientType.ROLES) && (
-                <View style={styles.headingRightContainer}>
-                  <Text style={styles.private}>
-                    {data.recipient.recipientType ===
-                      HMSMessageRecipientType.PEER &&
-                      `${
-                        isLocal
-                          ? 'TO ' + data.recipient.recipientPeer?.name + ' | '
-                          : 'TO YOU | '
-                      }PRIVATE`}
-                    {data.recipient.recipientType ===
-                      HMSMessageRecipientType.ROLES &&
-                      data?.recipient?.recipientRoles &&
-                      data.recipient.recipientRoles[0].name}
-                  </Text>
-                </View>
-              )}
-              {data.recipient.recipientType ===
-                HMSMessageRecipientType.BROADCAST && (
-                <CustomButton
-                  onPress={() =>
-                    setSessionMetaData(
-                      `${data.sender ? data.sender?.name : 'Anonymous'}: ${
-                        data.message
-                      }`,
-                    )
-                  }
-                  viewStyle={styles.pinIconContainer}
-                  LeftIcon={
-                    <MaterialCommunityIcons
-                      style={styles.pinIcon}
-                      size={24}
-                      name="pin-outline"
-                    />
-                  }
-                />
-              )}
-            </View>
-            <Text
-              style={[styles.messageText, {color: COLORS.TEXT.DISABLED}]}
-              ellipsizeMode="middle"
-            >
-              {data.messageId}
-            </Text>
-            <Text style={styles.messageText}>{data.message}</Text>
-          </View>
-        );
-      }}
-      keyExtractor={(item, index) => item.message + index}
-    />
+    <View style={chatHeaderStyles.header}>
+      <View style={chatHeaderStyles.headerTitleWrapper}>
+        <Text style={chatHeaderStyles.headerTitle}>Chat</Text>
+
+        {filters ? <ChatFilter /> : null}
+      </View>
+
+      <PressableIcon style={chatHeaderStyles.closeIcon} onPress={onClosePress}>
+        <CloseIcon />
+      </PressableIcon>
+    </View>
   );
 };
 
-export const ChatWindow: React.FC = () => {
-  // hooks
-  const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
+const chatHeaderStyles = StyleSheet.create({
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  headerTitleWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerTitle: {
+    color: COLORS.SURFACE.ON_SURFACE.HIGH,
+    fontSize: 20,
+    fontFamily: 'Inter',
+    fontWeight: '600',
+    lineHeight: 24,
+    letterSpacing: 0.15,
+  },
+  closeIcon: {
+    borderWidth: 0,
+  },
+});
+
+interface ChatTextInputProps {
+  containerStyle?: StyleProp<ViewStyle>;
+  clearButton?: boolean;
+}
+
+export const ChatTextInput: React.FC<ChatTextInputProps> = ({
+  containerStyle,
+  clearButton = false,
+}) => {
+  const hmsInstance = useHMSInstance();
+  const dispatch = useDispatch();
   const localPeer = useSelector(
     (state: RootState) => state.hmsStates.localPeer,
   );
-  const hmsSessionStore = useSelector(
-    (state: RootState) => state.user.hmsSessionStore,
+  const [inputFocused, setInputFocused] = React.useState(false);
+  const typedMessage = useSelector(
+    (state: RootState) => state.chatWindow.typedMessage,
   );
-  const pinnedMessage = useSelector(
-    (state: RootState) => state.messages.pinnedMessage,
+  const sendingTo = useSelector(
+    (state: RootState) =>
+      state.chatWindow.sendTo as HMSRole | HMSRemotePeer | {name: string},
   );
-  const dispatch = useDispatch();
-  const {bottom} = useSafeAreaInsets();
+  const sendingToType = useSelector(
+    (state: RootState) => state.chatWindow.sendToType,
+  );
 
-  // useState hook
-  const [filter, setFilter] = useState<string>('everyone');
-  const [type, setType] = useState<'everyone' | 'role' | 'direct'>('everyone');
-  const [receiverObject, setReceiverObject] = useState<
-    'everyone' | HMSRole | HMSRemotePeer
-  >('everyone');
-  const [showBanner, setShowBanner] = useState<boolean>(false);
-  const [text, setText] = useState('');
+  const handleInputFocus = () => setInputFocused(true);
 
-  const setSessionMetaData = async (value: string | null) => {
-    // If instance of HMSSessionStore is available
-    if (hmsSessionStore) {
-      try {
-        // set `value` on `session` with key 'pinnedMessage'
-        const response = await hmsSessionStore.set(value, 'pinnedMessage');
-        console.log('setSessionMetaData Response -> ', response);
-      } catch (error) {
-        console.log('setSessionMetaData Error -> ', error);
-      }
-    }
+  const handleInputBlur = () => setInputFocused(false);
+
+  const handleMessageTyping = (text: string) => {
+    dispatch({type: 'SET_TYPED_MESSAGE', typedMessage: text});
+  };
+
+  const clearTypedMessage = () => {
+    dispatch({type: 'SET_TYPED_MESSAGE', typedMessage: ''});
   };
 
   const sendMessage = () => {
-    if (text.length > 0 && hmsInstance) {
+    if (typedMessage.length > 0 && hmsInstance) {
       let hmsMessageRecipient: HMSMessageRecipient;
 
-      if (type === 'role') {
+      if (sendingToType === 'role') {
         hmsMessageRecipient = new HMSMessageRecipient({
           recipientType: HMSMessageRecipientType.ROLES,
-          recipientRoles: [receiverObject as HMSRole],
+          recipientRoles: [sendingTo as HMSRole],
         });
-      } else if (type === 'direct') {
+      } else if (sendingToType === 'direct') {
         hmsMessageRecipient = new HMSMessageRecipient({
           recipientType: HMSMessageRecipientType.PEER,
-          recipientPeer: receiverObject as HMSPeer,
+          recipientPeer: sendingTo as HMSPeer,
         });
       } else {
         hmsMessageRecipient = new HMSMessageRecipient({
@@ -327,11 +163,11 @@ export const ChatWindow: React.FC = () => {
         });
       }
 
-      // Saving reference of `text` state to local variable
+      // Saving reference of `typedMessage` state to local variable
       // to use the typed message after clearing state
-      const messageText = text;
+      const messageText = typedMessage;
 
-      setText('');
+      clearTypedMessage();
 
       const handleMessageID = ({
         messageId,
@@ -351,13 +187,13 @@ export const ChatWindow: React.FC = () => {
         }
       };
 
-      if (type === 'role') {
+      if (sendingToType === 'role') {
         hmsInstance
-          .sendGroupMessage(messageText, [receiverObject as HMSRole])
+          .sendGroupMessage(messageText, [sendingTo as HMSRole])
           .then(handleMessageID);
-      } else if (type === 'direct') {
+      } else if (sendingToType === 'direct') {
         hmsInstance
-          .sendDirectMessage(messageText, receiverObject as HMSPeer)
+          .sendDirectMessage(messageText, sendingTo as HMSPeer)
           .then(handleMessageID);
       } else {
         hmsInstance.sendBroadcastMessage(messageText).then(handleMessageID);
@@ -366,93 +202,489 @@ export const ChatWindow: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.chatHeaderContainer}>
-        <Text style={styles.chatHeading}>Chat</Text>
-        <ChatFilter
-          instance={hmsInstance}
-          filter={filter}
-          setFilter={setFilter}
-          setType={setType}
-          setReceiverObject={setReceiverObject}
-        />
-      </View>
-      <View style={styles.contentContainer}>
-        {showBanner && (
-          <View style={styles.banner}>
-            <View style={styles.bannerIconContainer}>
-              <Feather style={styles.bannerIcon} size={16} name="info" />
+    <View
+      style={[
+        chatTextInputStyles.inputContainer,
+        {
+          borderColor: inputFocused
+            ? COLORS.PRIMARY.DEFAULT
+            : COLORS.SURFACE.DEFAULT,
+        },
+        containerStyle,
+      ]}
+    >
+      <TextInput
+        style={chatTextInputStyles.input}
+        value={typedMessage}
+        onChangeText={handleMessageTyping}
+        placeholder={`Send a message to ${sendingTo.name}`}
+        autoCapitalize="sentences"
+        autoCompleteType="off"
+        placeholderTextColor={COLORS.SURFACE.ON_SURFACE.LOW}
+        selectionColor={COLORS.SURFACE.ON_SURFACE.HIGH}
+        onFocus={handleInputFocus}
+        onBlur={handleInputBlur}
+        blurOnSubmit={true}
+        onSubmitEditing={sendMessage}
+        returnKeyType="send"
+      />
+      {clearButton && typedMessage.length > 0 ? (
+        <PressableIcon
+          onPress={clearTypedMessage}
+          border={false}
+          rounded={false}
+          style={chatTextInputStyles.sendIconWrapper}
+        >
+          <CloseIcon style={chatTextInputStyles.sendIcon} />
+        </PressableIcon>
+      ) : null}
+      <PressableIcon
+        onPress={sendMessage}
+        border={false}
+        rounded={false}
+        style={chatTextInputStyles.sendIconWrapper}
+      >
+        <SendIcon style={chatTextInputStyles.sendIcon} />
+      </PressableIcon>
+    </View>
+  );
+};
+
+const chatTextInputStyles = StyleSheet.create({
+  inputContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    backgroundColor: COLORS.SURFACE.DEFAULT,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: COLORS.SURFACE.DEFAULT,
+    borderRadius: 8,
+  },
+  input: {
+    flex: 1,
+    textAlignVertical: 'center',
+    paddingHorizontal: 16,
+    paddingRight: 0,
+    paddingVertical: 12,
+    color: COLORS.SURFACE.ON_SURFACE.HIGH,
+    fontSize: 16,
+    fontFamily: 'Inter',
+    fontWeight: '400',
+    letterSpacing: 0.5,
+  },
+  sendIconWrapper: {
+    alignSelf: 'stretch',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sendIcon: {
+    tintColor: COLORS.SURFACE.ON_SURFACE.LOW,
+  },
+});
+
+const ChatFilter = memo(() => {
+  const instance = useHMSInstance();
+  const dispatch = useDispatch();
+  const roles = useSelector((state: RootState) => state.hmsStates.roles);
+  const filter = useSelector(
+    (state: RootState) => state.chatWindow.sendTo.name as string | undefined,
+  );
+
+  const [visible, setVisible] = useState<boolean>(false);
+  const [remotePeers, setRemotePeers] = useState<HMSRemotePeer[]>();
+
+  const hideMenu = () => setVisible(false);
+  const showMenu = () => setVisible(true);
+
+  useEffect(() => {
+    instance?.getRemotePeers().then(currentRemotePeers => {
+      setRemotePeers(currentRemotePeers);
+    });
+  }, [instance]);
+
+  return (
+    <Menu
+      visible={visible}
+      anchor={
+        <TouchableOpacity style={styles.chatFilterContainer} onPress={showMenu}>
+          <Text style={styles.chatFilterText} numberOfLines={1}>
+            {filter}
+          </Text>
+          <MaterialIcons
+            name={visible ? 'arrow-drop-up' : 'arrow-drop-down'}
+            style={styles.chatFilterIcon}
+            size={24}
+          />
+        </TouchableOpacity>
+      }
+      onRequestClose={hideMenu}
+      style={styles.chatMenuContainer}
+    >
+      <MenuItem
+        onPress={() => {
+          hideMenu();
+          dispatch({
+            type: 'SET_SENDTO',
+            sendTo: {name: 'everyone'},
+            sendToType: 'everyone',
+          });
+        }}
+      >
+        <View style={styles.chatMenuItem}>
+          <Ionicons
+            name="people-outline"
+            style={styles.chatMenuItemIcon}
+            size={20}
+          />
+          <Text style={styles.chatMenuItemName}>Everyone</Text>
+        </View>
+      </MenuItem>
+      <MenuDivider color={COLORS.BORDER.LIGHT} />
+      {roles?.map(knownRole => {
+        return (
+          <MenuItem
+            onPress={() => {
+              hideMenu();
+              dispatch({
+                type: 'SET_SENDTO',
+                sendTo: knownRole,
+                sendToType: 'role',
+              });
+            }}
+            key={knownRole.name}
+          >
+            <View style={styles.chatMenuItem}>
+              <Text style={styles.chatMenuItemName}>{knownRole?.name}</Text>
             </View>
-            <View style={styles.bannerTextContainer}>
-              <Text style={styles.bannerText}>
-                Messages can only be seen by people in the call and are deleted
-                when the call ends.
-              </Text>
+          </MenuItem>
+        );
+      })}
+      <MenuDivider color={COLORS.BORDER.LIGHT} />
+      {remotePeers?.map(remotePeer => {
+        return (
+          <MenuItem
+            onPress={() => {
+              hideMenu();
+              dispatch({
+                type: 'SET_SENDTO',
+                sendTo: remotePeer,
+                sendToType: 'direct',
+              });
+            }}
+            key={remotePeer.name}
+          >
+            <View style={styles.chatMenuItem}>
+              <Ionicons
+                name="person-outline"
+                style={styles.chatMenuItemIcon}
+                size={20}
+              />
+              <Text style={styles.chatMenuItemName}>{remotePeer.name}</Text>
             </View>
-            <CustomButton
-              onPress={() => setShowBanner(false)}
-              viewStyle={styles.bannerIconContainer}
-              LeftIcon={
-                <MaterialCommunityIcons
-                  style={styles.bannerIcon}
-                  size={24}
-                  name="close"
-                />
-              }
-            />
-          </View>
-        )}
-        {pinnedMessage && pinnedMessage.length > 0 ? (
-          <View style={styles.banner}>
-            <View style={styles.bannerIconContainer}>
+          </MenuItem>
+        );
+      })}
+    </Menu>
+  );
+});
+
+ChatFilter.displayName = 'ChatFilter';
+
+const _ChatList = () => {
+  const messages = useSelector((state: RootState) => state.messages.messages);
+  const pinnedMessageAvailable = useSelector(
+    (state: RootState) => !!state.messages.pinnedMessage,
+  );
+
+  const _keyExtractor = useCallback(item => item.messageId, []);
+  const _renderItem = useCallback((data: {item: HMSMessage}) => {
+    return <ChatMessage message={data.item} />;
+  }, []);
+
+  return (
+    <View style={chatListStyle.list}>
+      <FlashList
+        data={messages.reverse()}
+        inverted={true}
+        estimatedItemSize={84}
+        contentContainerStyle={{paddingRight: 12}}
+        stickyHeaderIndices={pinnedMessageAvailable ? [0] : undefined}
+        keyboardShouldPersistTaps="always"
+        ListHeaderComponent={PinnedMessage}
+        ListEmptyComponent={ChatBanner}
+        // ItemSeparatorComponent={() => <View style={{ height: 16 }} />} // TODO: There is a bug related to this: https://github.com/Shopify/flash-list/issues/638
+        renderItem={_renderItem}
+        keyExtractor={_keyExtractor}
+      />
+    </View>
+  );
+};
+
+const chatListStyle = StyleSheet.create({
+  list: {
+    flex: 1,
+    marginVertical: 8,
+  },
+});
+
+export const ChatList = React.memo(_ChatList);
+
+interface ChatMessageProps {
+  message: HMSMessage;
+}
+
+const _ChatMessage: React.FC<ChatMessageProps> = ({message}) => {
+  const hmsSessionStore = useSelector(
+    (state: RootState) => state.user.hmsSessionStore,
+  );
+
+  const setSessionMetaData = React.useCallback(
+    async (value: string | null) => {
+      // If instance of HMSSessionStore is available
+      if (hmsSessionStore) {
+        try {
+          // set `value` on `session` with key 'pinnedMessage'
+          const response = await hmsSessionStore.set(value, 'pinnedMessage');
+          console.log('setSessionMetaData Response -> ', response);
+        } catch (error) {
+          console.log('setSessionMetaData Error -> ', error);
+        }
+      }
+    },
+    [hmsSessionStore],
+  );
+
+  const isLocal = message.sender?.isLocal;
+
+  return (
+    <View
+      style={[
+        styles.messageBubble,
+        (message.recipient.recipientType === HMSMessageRecipientType.PEER ||
+          message.recipient.recipientType === HMSMessageRecipientType.ROLES) &&
+          styles.privateMessageBubble,
+        isLocal && styles.sendMessageBubble,
+      ]}
+    >
+      <View
+        style={[
+          styles.headingContainer,
+          isLocal ? {flexDirection: 'row-reverse'} : null,
+        ]}
+      >
+        <View style={styles.headingLeftContainer}>
+          <AvatarView
+            userName={message.sender?.name || ''}
+            style={{width: 24, height: 24, borderRadius: 12}}
+            initialsStyle={{fontSize: 10, lineHeight: undefined}}
+          />
+
+          <Text
+            style={styles.senderName}
+            numberOfLines={1}
+            ellipsizeMode="middle"
+          >
+            {message.sender
+              ? message.sender?.isLocal
+                ? 'You'
+                : message.sender?.name
+              : 'Anonymous'}
+          </Text>
+
+          <Text style={styles.messageTime}>
+            {getTimeStringin12HourFormat(message.time)}
+          </Text>
+        </View>
+
+        {message.recipient.recipientType ===
+        HMSMessageRecipientType.BROADCAST ? (
+          <CustomButton
+            onPress={() =>
+              setSessionMetaData(
+                `${message.sender ? message.sender?.name : 'Anonymous'}: ${
+                  message.message
+                }`,
+              )
+            }
+            viewStyle={[
+              styles.pinIconContainer,
+              isLocal ? {justifyContent: 'flex-start'} : null,
+            ]}
+            LeftIcon={
               <MaterialCommunityIcons
-                style={styles.bannerIcon}
-                size={16}
+                style={styles.pinIcon}
+                size={24}
                 name="pin-outline"
               />
-            </View>
-            <View style={styles.bannerTextContainer}>
-              <Text style={styles.bannerText}>{pinnedMessage}</Text>
-            </View>
-            <CustomButton
-              onPress={() => setSessionMetaData(null)}
-              viewStyle={styles.bannerIconContainer}
-              LeftIcon={
-                <MaterialCommunityIcons
-                  style={styles.bannerIcon}
-                  size={24}
-                  name="close"
-                />
-              }
-            />
+            }
+          />
+        ) : message.recipient.recipientType === HMSMessageRecipientType.PEER ||
+          message.recipient.recipientType === HMSMessageRecipientType.ROLES ? (
+          <View
+            style={[
+              styles.headingRightContainer,
+              {flexShrink: 1, marginLeft: 8},
+            ]}
+          >
+            <Text
+              style={styles.private}
+              numberOfLines={1}
+              ellipsizeMode="middle"
+            >
+              {message.recipient.recipientType ===
+                HMSMessageRecipientType.PEER &&
+                `${
+                  isLocal
+                    ? 'TO ' + message.recipient.recipientPeer?.name + ' | '
+                    : 'TO YOU | '
+                }PRIVATE`}
+              {message.recipient.recipientType ===
+                HMSMessageRecipientType.ROLES &&
+                message?.recipient?.recipientRoles &&
+                message.recipient.recipientRoles[0].name}
+            </Text>
           </View>
         ) : null}
-        <ChatList setSessionMetaData={setSessionMetaData} />
       </View>
+      <Text style={[styles.messageText, isLocal ? {textAlign: 'right'} : null]}>
+        {message.message}
+      </Text>
+    </View>
+  );
+};
+
+const ChatMessage = React.memo(_ChatMessage);
+
+const PinnedMessage = () => {
+  const pinnedMessage = useSelector(
+    (state: RootState) => state.messages.pinnedMessage,
+  );
+  const hmsSessionStore = useSelector(
+    (state: RootState) => state.user.hmsSessionStore,
+  );
+
+  const removePinnedMessage = React.useCallback(async () => {
+    // If instance of HMSSessionStore is available
+    if (hmsSessionStore) {
+      try {
+        // set `value` on `session` with key 'pinnedMessage'
+        const response = await hmsSessionStore.set(null, 'pinnedMessage');
+        console.log('setSessionMetaData Response -> ', response);
+      } catch (error) {
+        console.log('setSessionMetaData Error -> ', error);
+      }
+    }
+  }, [hmsSessionStore]);
+
+  if (!pinnedMessage || pinnedMessage.length <= 0) {
+    return null;
+  }
+
+  return (
+    <View style={styles.pinnedMessage}>
+      <View style={styles.bannerIconContainer}>
+        <MaterialCommunityIcons
+          style={styles.bannerIcon}
+          size={16}
+          name="pin-outline"
+        />
+      </View>
+      <View style={styles.bannerTextContainer}>
+        <Text style={styles.bannerText}>{pinnedMessage}</Text>
+      </View>
+      <CustomButton
+        onPress={removePinnedMessage}
+        viewStyle={styles.bannerIconContainer}
+        LeftIcon={
+          <MaterialCommunityIcons
+            style={styles.bannerIcon}
+            size={24}
+            name="close"
+          />
+        }
+      />
+    </View>
+  );
+};
+
+const ChatBanner = () => {
+  const [showBanner, setShowBanner] = useState<boolean>(true);
+
+  if (!showBanner) {
+    return null;
+  }
+
+  return (
+    <View style={styles.banner}>
+      <View style={styles.bannerIconContainer}>
+        <Feather style={styles.bannerIcon} size={16} name="info" />
+      </View>
+      <View style={styles.bannerTextContainer}>
+        <Text style={styles.bannerText}>
+          Messages can only be seen by people in the call and are deleted when
+          the call ends.
+        </Text>
+      </View>
+      <CustomButton
+        onPress={() => setShowBanner(false)}
+        viewStyle={styles.bannerIconContainer}
+        LeftIcon={
+          <MaterialCommunityIcons
+            style={styles.bannerIcon}
+            size={24}
+            name="close"
+          />
+        }
+      />
+    </View>
+  );
+};
+
+export const ChatView = () => {
+  const [_, setChatVisible] = useShowChat();
+
+  const hideInsetChatView = () => setChatVisible(false);
+
+  return (
+    // <Animated.View
+    //   style={chatViewStyles.container}
+    //   entering={SlideInDown}
+    //   exiting={SlideOutDown}
+    // >
+    <View style={chatViewStyles.container}>
+      <ChatHeader filters={false} onClosePress={hideInsetChatView} />
+
+      <ChatList />
+
+      <ChatTextInput clearButton={true} />
+    </View>
+    // </Animated.View>
+  );
+};
+
+const chatViewStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.SURFACE.DIM,
+    padding: 16,
+    borderTopRightRadius: 16,
+    borderTopLeftRadius: 16,
+  },
+});
+
+export const ChatWindow: React.FC = () => {
+  const {bottom} = useSafeAreaInsets();
+
+  return (
+    <View style={styles.container}>
+      <ChatHeader filters={true} />
+
+      <ChatList />
+
       <View
         style={bottom === 0 ? styles.inputContainer : {marginBottom: bottom}}
       >
-        <CustomInput
-          value={text}
-          onChangeText={setText}
-          inputStyle={styles.chatInput}
-          clearButtonStyle={styles.clearButtonStyle}
-          placeholderTextColor={COLORS.TEXT.DISABLED}
-          placeholder={`Send a message to ${
-            receiverObject === 'everyone' ? receiverObject : receiverObject.name
-          }`}
-        />
-        <CustomButton
-          onPress={sendMessage}
-          viewStyle={styles.sendMessageButton}
-          LeftIcon={
-            <MaterialCommunityIcons
-              style={styles.sendMessageIcon}
-              size={24}
-              name="send"
-            />
-          }
-        />
+        <ChatTextInput clearButton={true} containerStyle={styles.input} />
       </View>
     </View>
   );
@@ -479,6 +711,7 @@ const styles = StyleSheet.create({
     paddingRight: 12,
   },
   chatFilterContainer: {
+    marginLeft: 16,
     padding: 8,
     flexDirection: 'row',
     alignItems: 'center',
@@ -549,12 +782,20 @@ const styles = StyleSheet.create({
     right: 48,
     width: 40,
   },
+  pinnedMessage: {
+    height: 80,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.SURFACE.LIGHT,
+    borderRadius: 8,
+  },
   banner: {
     height: 80,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: COLORS.SURFACE.LIGHT,
     borderRadius: 8,
+    transform: [{scaleY: -1}],
   },
   bannerIcon: {
     color: COLORS.TEXT.DISABLED,
@@ -582,14 +823,14 @@ const styles = StyleSheet.create({
   messageBubble: {
     padding: 8,
     borderRadius: 8,
-    marginBottom: 12,
-    width: '90%',
+    marginTop: 16,
+    width: '100%',
   },
   privateMessageBubble: {
     backgroundColor: COLORS.SURFACE.LIGHT,
   },
   sendMessageBubble: {
-    alignSelf: 'flex-end',
+    // alignSelf: 'flex-end',
   },
   headingContainer: {
     flexDirection: 'row',
@@ -619,31 +860,38 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   senderName: {
-    fontFamily: 'Inter-Medium',
+    fontFamily: 'Inter',
+    fontWeight: '600',
     fontSize: 14,
     lineHeight: 20,
     letterSpacing: 0.1,
-    color: COLORS.TEXT.HIGH_EMPHASIS,
+    color: COLORS.SURFACE.ON_SURFACE.HIGH,
     textTransform: 'capitalize',
-    marginRight: 8,
+    marginHorizontal: 8,
   },
   messageTime: {
-    fontFamily: 'Inter-Regular',
+    fontFamily: 'Inter',
+    fontWeight: '400',
     fontSize: 12,
     lineHeight: 16,
     letterSpacing: 0.4,
-    color: COLORS.TEXT.MEDIUM_EMPHASIS,
+    color: COLORS.SURFACE.ON_SURFACE.LOW,
   },
   messageText: {
-    fontFamily: 'Inter-Regular',
+    color: COLORS.SURFACE.ON_SURFACE.HIGH,
     fontSize: 14,
+    fontFamily: 'Inter',
+    fontWeight: '400',
     lineHeight: 20,
     letterSpacing: 0.25,
-    color: COLORS.TEXT.MEDIUM_EMPHASIS,
-    flexWrap: 'wrap',
   },
   inputContainer: {
     marginBottom: 16,
+  },
+  input: {
+    backgroundColor: COLORS.SURFACE.LIGHT,
+    borderWidth: 1,
+    borderColor: COLORS.BORDER.LIGHT,
   },
   pinIcon: {
     color: COLORS.WHITE,

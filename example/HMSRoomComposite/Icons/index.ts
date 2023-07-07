@@ -12,3 +12,4 @@ export * from './Chat';
 export * from './ThreeDots';
 export * from './ScreenShare';
 export * from './Alert';
+export * from './Send';

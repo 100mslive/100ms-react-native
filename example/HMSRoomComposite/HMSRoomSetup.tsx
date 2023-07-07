@@ -34,6 +34,7 @@ import {MeetingState} from './types';
 import {getJoinConfig} from './utils';
 import {COLORS} from './utils/theme';
 import {FullScreenIndicator} from './components/FullScreenIndicator';
+import {selectIsHLSViewer} from './hooks-util-selectors';
 
 type PreviewData = {
   room: HMSRoom;
@@ -149,15 +150,18 @@ export const HMSRoomSetup = () => {
 
       setLoading(false);
 
-      batch(() => {
-        dispatch(setHMSRoomState(data.room));
-        dispatch(setHMSLocalPeerState(data.room.localPeer));
-      });
-
       const localPeer = data.room.localPeer;
 
       const peer = localPeer;
       const track = localPeer.videoTrack as HMSTrack | undefined;
+
+      batch(() => {
+        if (selectIsHLSViewer(localPeer)) {
+          dispatch({type: 'SET_SHOW_CHAT_VIEW', showChatView: true});
+        }
+        dispatch(setHMSRoomState(data.room));
+        dispatch(setHMSLocalPeerState(data.room.localPeer));
+      });
 
       setPeerTrackNodes(prevPeerTrackNodes => {
         if (
