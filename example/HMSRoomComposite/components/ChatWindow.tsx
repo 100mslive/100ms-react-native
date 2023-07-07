@@ -1,4 +1,4 @@
-import React, {useState, useEffect, memo, useCallback} from 'react';
+import React, {useState, useEffect, memo} from 'react';
 import {
   View,
   StyleSheet,
@@ -9,15 +9,7 @@ import {
   StyleProp,
   ViewStyle,
 } from 'react-native';
-import Animated, {
-  SlideInDown,
-  SlideInUp,
-  SlideOutDown,
-  SlideOutRight,
-  SlideOutUp,
-} from 'react-native-reanimated';
 import {
-  HMSLocalPeer,
   HMSMessage,
   HMSMessageRecipient,
   HMSMessageRecipientType,
@@ -25,11 +17,7 @@ import {
   HMSPeer,
   HMSRemotePeer,
   HMSRole,
-  HMSSDK,
 } from '@100mslive/react-native-hms';
-import {FlashList} from '@shopify/flash-list';
-import Feather from 'react-native-vector-icons/Feather';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -38,25 +26,15 @@ import {useDispatch, useSelector} from 'react-redux';
 import {Menu, MenuDivider, MenuItem} from './MenuModal';
 import {COLORS} from '../utils/theme';
 import type {RootState} from '../redux';
-import {CustomButton} from './CustomButton';
 import {addMessage} from '../redux/actions';
 import {PressableIcon} from './PressableIcon';
-import {CloseIcon, SendIcon} from '../Icons';
+import {ChatIcon, CloseIcon, ParticipantsIcon, SendIcon} from '../Icons';
 import {useHMSInstance, useShowChat} from '../hooks-util';
-import {AvatarView} from './AvatarView';
-
-const getTimeStringin12HourFormat = (time: Date) => {
-  let hours = time.getHours();
-  const minutes = time.getMinutes();
-  const notation = hours / 12 > 1 ? ' PM' : ' AM';
-  hours = hours % 12;
-  return (
-    (hours < 10 ? '0' + hours : hours) +
-    ':' +
-    (minutes < 10 ? '0' + minutes : minutes) +
-    notation
-  );
-};
+import {ChatList} from './Chat';
+import {
+  SearchableParticipantsView,
+  SearchableParticipantsViewProps,
+} from './Participants';
 
 interface ChatHeaderProps {
   filters: boolean;
@@ -75,7 +53,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
         {filters ? <ChatFilter /> : null}
       </View>
 
-      <PressableIcon style={chatHeaderStyles.closeIcon} onPress={onClosePress}>
+      <PressableIcon border={false} onPress={onClosePress}>
         <CloseIcon />
       </PressableIcon>
     </View>
@@ -94,14 +72,108 @@ const chatHeaderStyles = StyleSheet.create({
   },
   headerTitle: {
     color: COLORS.SURFACE.ON_SURFACE.HIGH,
-    fontSize: 20,
+    fontSize: 14,
     fontFamily: 'Inter',
     fontWeight: '600',
-    lineHeight: 24,
-    letterSpacing: 0.15,
+    lineHeight: 20,
+    letterSpacing: 0.25,
   },
   closeIcon: {
-    borderWidth: 0,
+    width: 20,
+    height: 20,
+  },
+});
+
+interface ChatAndParticipantsHeaderProps {
+  activeTab: string;
+  setActiveTab(tab: string): void;
+  onClosePress?: () => void;
+}
+
+const tabs = ['Chat', 'Participants'];
+
+export const ChatAndParticipantsHeader: React.FC<
+  ChatAndParticipantsHeaderProps
+> = ({activeTab, setActiveTab, onClosePress}) => {
+  return (
+    <View style={chatAndParticipantsHeaderStyles.container}>
+      <View style={chatAndParticipantsHeaderStyles.grayBar} />
+
+      <View style={chatAndParticipantsHeaderStyles.header}>
+        <View style={chatAndParticipantsHeaderStyles.headerTitleWrapper}>
+          {tabs.map(tab => {
+            const isActive = activeTab === tab;
+            const TabIcon = tab === 'Chat' ? ChatIcon : ParticipantsIcon;
+
+            return (
+              <TouchableOpacity
+                key={tab}
+                style={[
+                  chatAndParticipantsHeaderStyles.tab,
+                  isActive ? {borderColor: COLORS.PRIMARY.DEFAULT} : null,
+                ]}
+                onPress={() => setActiveTab(tab)}
+              >
+                <TabIcon
+                  style={[
+                    chatAndParticipantsHeaderStyles.tabIcon,
+                    isActive ? {tintColor: COLORS.PRIMARY.DEFAULT} : null,
+                  ]}
+                />
+
+                <Text
+                  style={[
+                    chatHeaderStyles.headerTitle,
+                    isActive ? null : {color: COLORS.SURFACE.ON_SURFACE.LOW},
+                  ]}
+                >
+                  {tab}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        <PressableIcon border={false} onPress={onClosePress}>
+          <CloseIcon style={chatHeaderStyles.closeIcon} />
+        </PressableIcon>
+      </View>
+    </View>
+  );
+};
+
+const chatAndParticipantsHeaderStyles = StyleSheet.create({
+  container: {
+    position: 'relative',
+  },
+  grayBar: {
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    height: 2,
+    backgroundColor: COLORS.BORDER.LIGHT,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+  },
+  headerTitleWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  tab: {
+    flexDirection: 'row',
+    paddingVertical: 8,
+    borderBottomWidth: 2,
+    marginRight: 16,
+    borderColor: COLORS.BORDER.LIGHT,
+  },
+  tabIcon: {
+    width: 20,
+    height: 20,
+    marginRight: 8,
+    tintColor: COLORS.SURFACE.ON_SURFACE.LOW,
   },
 });
 
@@ -390,260 +462,18 @@ const ChatFilter = memo(() => {
 
 ChatFilter.displayName = 'ChatFilter';
 
-const _ChatList = () => {
-  const messages = useSelector((state: RootState) => state.messages.messages);
-  const pinnedMessageAvailable = useSelector(
-    (state: RootState) => !!state.messages.pinnedMessage,
-  );
+export type ChatViewProps = SearchableParticipantsViewProps;
 
-  const _keyExtractor = useCallback(item => item.messageId, []);
-  const _renderItem = useCallback((data: {item: HMSMessage}) => {
-    return <ChatMessage message={data.item} />;
-  }, []);
-
-  return (
-    <View style={chatListStyle.list}>
-      <FlashList
-        data={messages.reverse()}
-        inverted={true}
-        estimatedItemSize={84}
-        contentContainerStyle={{paddingRight: 12}}
-        stickyHeaderIndices={pinnedMessageAvailable ? [0] : undefined}
-        keyboardShouldPersistTaps="always"
-        ListHeaderComponent={PinnedMessage}
-        ListEmptyComponent={ChatBanner}
-        // ItemSeparatorComponent={() => <View style={{ height: 16 }} />} // TODO: There is a bug related to this: https://github.com/Shopify/flash-list/issues/638
-        renderItem={_renderItem}
-        keyExtractor={_keyExtractor}
-      />
-    </View>
-  );
-};
-
-const chatListStyle = StyleSheet.create({
-  list: {
-    flex: 1,
-    marginVertical: 8,
-  },
-});
-
-export const ChatList = React.memo(_ChatList);
-
-interface ChatMessageProps {
-  message: HMSMessage;
-}
-
-const _ChatMessage: React.FC<ChatMessageProps> = ({message}) => {
-  const hmsSessionStore = useSelector(
-    (state: RootState) => state.user.hmsSessionStore,
-  );
-
-  const setSessionMetaData = React.useCallback(
-    async (value: string | null) => {
-      // If instance of HMSSessionStore is available
-      if (hmsSessionStore) {
-        try {
-          // set `value` on `session` with key 'pinnedMessage'
-          const response = await hmsSessionStore.set(value, 'pinnedMessage');
-          console.log('setSessionMetaData Response -> ', response);
-        } catch (error) {
-          console.log('setSessionMetaData Error -> ', error);
-        }
-      }
-    },
-    [hmsSessionStore],
-  );
-
-  const isLocal = message.sender?.isLocal;
-
-  return (
-    <View
-      style={[
-        styles.messageBubble,
-        (message.recipient.recipientType === HMSMessageRecipientType.PEER ||
-          message.recipient.recipientType === HMSMessageRecipientType.ROLES) &&
-          styles.privateMessageBubble,
-        isLocal && styles.sendMessageBubble,
-      ]}
-    >
-      <View
-        style={[
-          styles.headingContainer,
-          isLocal ? {flexDirection: 'row-reverse'} : null,
-        ]}
-      >
-        <View style={styles.headingLeftContainer}>
-          <AvatarView
-            userName={message.sender?.name || ''}
-            style={{width: 24, height: 24, borderRadius: 12}}
-            initialsStyle={{fontSize: 10, lineHeight: undefined}}
-          />
-
-          <Text
-            style={styles.senderName}
-            numberOfLines={1}
-            ellipsizeMode="middle"
-          >
-            {message.sender
-              ? message.sender?.isLocal
-                ? 'You'
-                : message.sender?.name
-              : 'Anonymous'}
-          </Text>
-
-          <Text style={styles.messageTime}>
-            {getTimeStringin12HourFormat(message.time)}
-          </Text>
-        </View>
-
-        {message.recipient.recipientType ===
-        HMSMessageRecipientType.BROADCAST ? (
-          <CustomButton
-            onPress={() =>
-              setSessionMetaData(
-                `${message.sender ? message.sender?.name : 'Anonymous'}: ${
-                  message.message
-                }`,
-              )
-            }
-            viewStyle={[
-              styles.pinIconContainer,
-              isLocal ? {justifyContent: 'flex-start'} : null,
-            ]}
-            LeftIcon={
-              <MaterialCommunityIcons
-                style={styles.pinIcon}
-                size={24}
-                name="pin-outline"
-              />
-            }
-          />
-        ) : message.recipient.recipientType === HMSMessageRecipientType.PEER ||
-          message.recipient.recipientType === HMSMessageRecipientType.ROLES ? (
-          <View
-            style={[
-              styles.headingRightContainer,
-              {flexShrink: 1, marginLeft: 8},
-            ]}
-          >
-            <Text
-              style={styles.private}
-              numberOfLines={1}
-              ellipsizeMode="middle"
-            >
-              {message.recipient.recipientType ===
-                HMSMessageRecipientType.PEER &&
-                `${
-                  isLocal
-                    ? 'TO ' + message.recipient.recipientPeer?.name + ' | '
-                    : 'TO YOU | '
-                }PRIVATE`}
-              {message.recipient.recipientType ===
-                HMSMessageRecipientType.ROLES &&
-                message?.recipient?.recipientRoles &&
-                message.recipient.recipientRoles[0].name}
-            </Text>
-          </View>
-        ) : null}
-      </View>
-      <Text style={[styles.messageText, isLocal ? {textAlign: 'right'} : null]}>
-        {message.message}
-      </Text>
-    </View>
-  );
-};
-
-const ChatMessage = React.memo(_ChatMessage);
-
-const PinnedMessage = () => {
-  const pinnedMessage = useSelector(
-    (state: RootState) => state.messages.pinnedMessage,
-  );
-  const hmsSessionStore = useSelector(
-    (state: RootState) => state.user.hmsSessionStore,
-  );
-
-  const removePinnedMessage = React.useCallback(async () => {
-    // If instance of HMSSessionStore is available
-    if (hmsSessionStore) {
-      try {
-        // set `value` on `session` with key 'pinnedMessage'
-        const response = await hmsSessionStore.set(null, 'pinnedMessage');
-        console.log('setSessionMetaData Response -> ', response);
-      } catch (error) {
-        console.log('setSessionMetaData Error -> ', error);
-      }
-    }
-  }, [hmsSessionStore]);
-
-  if (!pinnedMessage || pinnedMessage.length <= 0) {
-    return null;
-  }
-
-  return (
-    <View style={styles.pinnedMessage}>
-      <View style={styles.bannerIconContainer}>
-        <MaterialCommunityIcons
-          style={styles.bannerIcon}
-          size={16}
-          name="pin-outline"
-        />
-      </View>
-      <View style={styles.bannerTextContainer}>
-        <Text style={styles.bannerText}>{pinnedMessage}</Text>
-      </View>
-      <CustomButton
-        onPress={removePinnedMessage}
-        viewStyle={styles.bannerIconContainer}
-        LeftIcon={
-          <MaterialCommunityIcons
-            style={styles.bannerIcon}
-            size={24}
-            name="close"
-          />
-        }
-      />
-    </View>
-  );
-};
-
-const ChatBanner = () => {
-  const [showBanner, setShowBanner] = useState<boolean>(true);
-
-  if (!showBanner) {
-    return null;
-  }
-
-  return (
-    <View style={styles.banner}>
-      <View style={styles.bannerIconContainer}>
-        <Feather style={styles.bannerIcon} size={16} name="info" />
-      </View>
-      <View style={styles.bannerTextContainer}>
-        <Text style={styles.bannerText}>
-          Messages can only be seen by people in the call and are deleted when
-          the call ends.
-        </Text>
-      </View>
-      <CustomButton
-        onPress={() => setShowBanner(false)}
-        viewStyle={styles.bannerIconContainer}
-        LeftIcon={
-          <MaterialCommunityIcons
-            style={styles.bannerIcon}
-            size={24}
-            name="close"
-          />
-        }
-      />
-    </View>
-  );
-};
-
-export const ChatView = () => {
+export const ChatView: React.FC<ChatViewProps> = props => {
+  const [activeTab, setActiveTab] = useState(tabs[0]);
   const [_, setChatVisible] = useShowChat();
 
   const hideInsetChatView = () => setChatVisible(false);
+
+  // const estimatedListSize = useMemo(() => ({
+  //   height: Dimensions.get('window').height * 0.45,
+  //   width: Dimensions.get('window').width - 32,
+  // }), []);
 
   return (
     // <Animated.View
@@ -652,11 +482,23 @@ export const ChatView = () => {
     //   exiting={SlideOutDown}
     // >
     <View style={chatViewStyles.container}>
-      <ChatHeader filters={false} onClosePress={hideInsetChatView} />
+      <ChatAndParticipantsHeader
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        onClosePress={hideInsetChatView}
+      />
 
-      <ChatList />
+      {activeTab === 'Chat' ? (
+        <>
+          <ChatList />
 
-      <ChatTextInput clearButton={true} />
+          <ChatTextInput clearButton={true} />
+        </>
+      ) : activeTab === 'Participants' ? (
+        <View style={chatViewStyles.participantsWrapper}>
+          <SearchableParticipantsView {...props} />
+        </View>
+      ) : null}
     </View>
     // </Animated.View>
   );
@@ -669,6 +511,9 @@ const chatViewStyles = StyleSheet.create({
     padding: 16,
     borderTopRightRadius: 16,
     borderTopLeftRadius: 16,
+  },
+  participantsWrapper: {
+    marginTop: 16,
   },
 });
 
@@ -782,40 +627,6 @@ const styles = StyleSheet.create({
     right: 48,
     width: 40,
   },
-  pinnedMessage: {
-    height: 80,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.SURFACE.LIGHT,
-    borderRadius: 8,
-  },
-  banner: {
-    height: 80,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.SURFACE.LIGHT,
-    borderRadius: 8,
-    transform: [{scaleY: -1}],
-  },
-  bannerIcon: {
-    color: COLORS.TEXT.DISABLED,
-  },
-  bannerIconContainer: {
-    width: 52,
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  bannerTextContainer: {
-    flex: 1,
-  },
-  bannerText: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 12,
-    lineHeight: 16,
-    letterSpacing: 0.4,
-    color: COLORS.TEXT.MEDIUM_EMPHASIS,
-  },
   contentContainer: {
     flex: 1,
     marginVertical: 4,
@@ -828,9 +639,6 @@ const styles = StyleSheet.create({
   },
   privateMessageBubble: {
     backgroundColor: COLORS.SURFACE.LIGHT,
-  },
-  sendMessageBubble: {
-    // alignSelf: 'flex-end',
   },
   headingContainer: {
     flexDirection: 'row',

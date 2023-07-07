@@ -9,11 +9,13 @@ import {changeShowHLSStats} from '../redux/actions';
 import {HLSPlayerStatsView} from './HLSPlayerStatsView';
 import {HLSPlayerEmoticons} from './HLSPlayerEmoticons';
 import {CustomControls} from './CustomHLSPlayerControls';
-import {ChatView} from './ChatWindow';
+import {ChatView, ChatViewProps} from './ChatWindow';
 import {COLORS} from '../utils/theme';
 import {useShowChat} from '../hooks-util';
 
-export const HLSView: React.FC = () => {
+type HLSViewProps = ChatViewProps;
+
+export const HLSView: React.FC<HLSViewProps> = props => {
   const dispatch = useDispatch();
   const room = useSelector((state: RootState) => state.hmsStates.room);
   const hmsHlsPlayerRef = useRef<ComponentRef<typeof HMSHLSPlayer>>(null);
@@ -150,7 +152,7 @@ export const HLSView: React.FC = () => {
           </Text>
         </View>
       )}
-      {chatVisibleType === 'inset' ? <ChatView /> : null}
+      {chatVisibleType === 'inset' ? <ChatView {...props} /> : null}
     </View>
   );
 };

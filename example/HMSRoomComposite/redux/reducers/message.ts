@@ -23,7 +23,7 @@ const messageReducer = (state = INITIAL_STATE, action: ActionType) => {
       return {...state, pinnedMessage};
     case ActionTypes.ADD_MESSAGE.REQUEST:
       const message = action.payload as HMSMessage;
-      return {...state, messages: [...state.messages, message]};
+      return {...state, messages: [message, ...state.messages]};
     case ActionTypes.CLEAR_MESSAGE_DATA.REQUEST:
       return {...state, messages: []};
     case HmsStateActionTypes.CLEAR_STATES:

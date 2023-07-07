@@ -19,7 +19,6 @@ import {
   ChangeRoleModal,
   ChangeTrackStateModal,
   ChangeVolumeModal,
-  ParticipantsModal,
   SaveScreenshot,
 } from './Modals';
 import type {RootState} from '../redux';
@@ -36,6 +35,7 @@ import {
   useIsHLSViewer,
 } from '../hooks-util';
 import {useIsPortraitOrientation} from '../utils/dimension';
+import {ParticipantsModal} from './ParticipantsModal';
 
 type CapturedImagePath = {uri: string} | null;
 
@@ -178,7 +178,11 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
   return (
     <Animated.View style={[styles.container, animatedStyles]}>
       {isHLSViewer ? (
-        <HLSView />
+        <HLSView
+          changeName={onChangeNamePress}
+          changeRole={onChangeRolePress}
+          setVolume={onSetVolumePress}
+        />
       ) : pairedPeers.length > 0 ? (
         <>
           {isPipModeActive ? (
@@ -296,7 +300,6 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
             setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
           >
             <ParticipantsModal
-              instance={hmsInstance}
               changeName={onChangeNamePress}
               changeRole={onChangeRolePress}
               setVolume={onSetVolumePress}

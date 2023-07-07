@@ -1,10 +1,12 @@
 import {
   HMSChangeTrackStateRequest,
   HMSConfig,
+  HMSLocalPeer,
   HMSMessage,
   HMSPIPListenerActions,
   HMSPeer,
   HMSPeerUpdate,
+  HMSRemotePeer,
   HMSRoleChangeRequest,
   HMSRoom,
   HMSRoomUpdate,
@@ -22,7 +24,7 @@ import Toast from 'react-native-simple-toast';
 import {useRef, useCallback, useEffect, useState, useMemo} from 'react';
 
 import {ModalTypes, PeerTrackNode, PipModes} from './utils/types';
-import {createPeerTrackNode} from './utils/functions';
+import {createPeerTrackNode, parseMetadata} from './utils/functions';
 import {useDispatch, useSelector, useStore} from 'react-redux';
 import {RootState} from './redux';
 import {
@@ -1011,4 +1013,69 @@ export const useShowChat = (): [
   );
 
   return [chatVisible, showChat];
+};
+
+export const useFilteredParticipants = () => {
+  const hmsInstance = useHMSInstance();
+  const localPeer = useSelector(
+    (state: RootState) => state.hmsStates.localPeer,
+  );
+  const [filter, setFilter] = useState('everyone');
+  const [participantsSearchInput, setParticipantsSearchInput] = useState('');
+  const [hmsPeers, setHmsPeers] = useState<(HMSLocalPeer | HMSRemotePeer)[]>(
+    localPeer ? [localPeer] : [],
+  );
+
+  const filteredPeerTrackNodes = useMemo(() => {
+    const newFilteredPeerTrackNodes = hmsPeers?.filter(peer => {
+      if (
+        participantsSearchInput.length < 1 ||
+        peer.name.includes(participantsSearchInput) ||
+        peer.role?.name?.includes(participantsSearchInput)
+      ) {
+        return true;
+      }
+      return false;
+    });
+
+    if (filter === 'everyone') {
+      return newFilteredPeerTrackNodes;
+    }
+
+    if (filter === 'raised hand') {
+      return newFilteredPeerTrackNodes.filter(peer => {
+        const parsedMetaData = parseMetadata(peer.metadata);
+        return parsedMetaData.isHandRaised === true;
+      });
+    }
+
+    return newFilteredPeerTrackNodes.filter(peer => peer.role?.name === filter);
+  }, [participantsSearchInput, filter, hmsPeers]);
+
+  useEffect(() => {
+    let ignore = false;
+
+    hmsInstance.getRemotePeers().then(peers => {
+      if (localPeer) {
+        InteractionManager.runAfterInteractions(() => {
+          if (!ignore) {
+            setHmsPeers([localPeer, ...peers]);
+          }
+        });
+      }
+    });
+
+    return () => {
+      ignore = true;
+    };
+  }, [localPeer, hmsInstance]);
+
+  return {
+    allParticipants: hmsPeers,
+    filteredParticipants: filteredPeerTrackNodes,
+    selectedFilter: filter,
+    changeFilter: setFilter,
+    searchText: participantsSearchInput,
+    setSearchText: setParticipantsSearchInput,
+  };
 };
