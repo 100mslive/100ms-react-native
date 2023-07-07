@@ -127,10 +127,30 @@ export const useHMSActions = () => {
     }
   }, []);
 
+  const changeMetadata = useCallback(async (metadata: string | object) => {
+    const state: RootState = store.getState();
+    const hmsInstance = state.user.hmsInstance;
+
+    if (!hmsInstance) {
+      return Promise.reject('HMSSDK Instance is not available!');
+    }
+
+    try {
+      const parsedMetadata =
+        typeof metadata === 'string' ? metadata : JSON.stringify(metadata);
+      const result = await hmsInstance.changeMetadata(parsedMetadata);
+      console.log('Change Metadata Success: ', result);
+    } catch (error) {
+      console.log('Change Metadata Error: ', error);
+      return Promise.reject(error);
+    }
+  }, []);
+
   return {
     setLocalAudioEnabled,
     setLocalVideoEnabled,
     switchCamera,
     setScreenShareEnabled,
+    changeMetadata,
   };
 };

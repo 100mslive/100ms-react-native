@@ -12,6 +12,7 @@ import {CustomControls} from './CustomHLSPlayerControls';
 import {ChatView, ChatViewProps} from './ChatWindow';
 import {COLORS} from '../utils/theme';
 import {useShowChat} from '../hooks-util';
+import {ClockIcon} from '../Icons';
 
 type HLSViewProps = ChatViewProps;
 
@@ -146,6 +147,7 @@ export const HLSView: React.FC<HLSViewProps> = props => {
               : null,
           ]}
         >
+          <ClockIcon />
           <Text style={styles.title}>Class hasn't started yet</Text>
           <Text style={styles.description}>
             Please wait for the teacher to start the class.

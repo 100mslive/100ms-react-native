@@ -16,7 +16,7 @@ import {DefaultModal} from './DefaultModal';
 import {EndRoomModal, LeaveRoomModal} from './Modals';
 import {PressableIcon} from './PressableIcon';
 
-export const HMSManageLeave = () => {
+export const HMSManageLeave: React.FC<LeaveButtonProps> = props => {
   // TODO: read current meeting joined state
   const isMeetingJoined = true;
 
@@ -24,10 +24,18 @@ export const HMSManageLeave = () => {
     return null;
   }
 
-  return <LeaveButton />;
+  return <LeaveButton {...props} />;
 };
 
-const LeaveButton = () => {
+type LeaveButtonProps =
+  | {
+      leaveIconDelegate?: React.ReactComponentElement<any>;
+    }
+  | {
+      leaveButtonDelegate?: React.ReactComponentElement<any>;
+    };
+
+const LeaveButton: React.FC<LeaveButtonProps> = props => {
   // TODO: What if useNavigation context is undefined?
   const navigation = useNavigation();
   const hmsInstance = useHMSInstance();
@@ -38,12 +46,19 @@ const LeaveButton = () => {
   const [leaveModalType, setLeaveModalType] = React.useState(
     ModalTypes.DEFAULT,
   );
+  const canEndRoom = useSelector(
+    (state: RootState) => state.hmsStates.localPeer?.role?.permissions?.endRoom,
+  );
 
   /**
    * Opens the Leave Popup Menu
    */
   const handleLeaveButtonPress = () => {
-    setLeavePopVisible(true);
+    if (canEndRoom) {
+      setLeavePopVisible(true);
+    } else {
+      setLeaveModalType(ModalTypes.LEAVE_ROOM);
+    }
   };
 
   /**
@@ -148,11 +163,26 @@ const LeaveButton = () => {
       .catch(e => console.log('EndRoom Error: ', e));
   };
 
+  const leaveIconDelegate =
+    'leaveIconDelegate' in props && props.leaveIconDelegate ? (
+      props.leaveIconDelegate
+    ) : (
+      <LeaveIcon />
+    );
+
+  const leaveButtonDelegate =
+    'leaveButtonDelegate' in props && props.leaveButtonDelegate ? (
+      props.leaveButtonDelegate
+    ) : (
+      <PressableIcon>{React.cloneElement(leaveIconDelegate)}</PressableIcon>
+    );
+
   return (
     <View>
-      <PressableIcon onPress={handleLeaveButtonPress} style={styles.button}>
-        <LeaveIcon />
-      </PressableIcon>
+      {React.cloneElement(leaveButtonDelegate, {
+        onPress: handleLeaveButtonPress,
+        style: styles.button,
+      })}
 
       <LeavePopup
         isVisible={leavePopVisible}

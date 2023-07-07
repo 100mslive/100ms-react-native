@@ -1,5 +1,5 @@
 import React, {memo} from 'react';
-import {View, StyleSheet} from 'react-native';
+import {View, StyleSheet, Text} from 'react-native';
 import Animated, {
   SharedValue,
   useAnimatedProps,
@@ -9,12 +9,20 @@ import Animated, {
 import {COLORS} from '../utils/theme';
 import {HMSManageLeave} from './HMSManageLeave';
 import {HMSManageCameraRotation} from './HMSManageCameraRotation';
+import {useIsHLSViewer} from '../hooks-util';
+import {HmsLogoIcon} from '../Icons';
+import {useSelector} from 'react-redux';
+import {RootState} from '../redux';
 
 interface HeaderProps {
   offset: SharedValue<number>;
 }
 
 export const _Header: React.FC<HeaderProps> = ({offset}) => {
+  const isHLSViewer = useIsHLSViewer();
+  const roomName = useSelector(
+    (state: RootState) => state.hmsStates.room?.name,
+  );
   const animatedStyles = useAnimatedStyle(() => {
     return {
       opacity: offset.value,
@@ -32,10 +40,18 @@ export const _Header: React.FC<HeaderProps> = ({offset}) => {
 
   return (
     <Animated.View style={animatedStyles} animatedProps={animatedProps}>
-      <View style={styles.container}>
-        <HMSManageLeave />
-        <HMSManageCameraRotation />
-      </View>
+      {isHLSViewer ? (
+        <View style={styles.hlsContainer}>
+          <HmsLogoIcon />
+
+          {roomName ? <Text style={styles.roomName}>{roomName}</Text> : null}
+        </View>
+      ) : (
+        <View style={styles.container}>
+          <HMSManageLeave />
+          <HMSManageCameraRotation />
+        </View>
+      )}
     </Animated.View>
   );
 };
@@ -48,6 +64,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  hlsContainer: {
+    padding: 16,
+    paddingTop: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  roomName: {
+    flex: 1,
+    fontFamily: 'Inter',
+    fontSize: 15,
+    fontWeight: '500',
+    color: COLORS.SURFACE.ON_SURFACE.HIGH,
+    lineHeight: 20,
+    letterSpacing: 0.1,
+    marginLeft: 24,
   },
 });
 

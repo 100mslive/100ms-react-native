@@ -13,3 +13,7 @@ export * from './ThreeDots';
 export * from './ScreenShare';
 export * from './Alert';
 export * from './Send';
+export * from './Clock';
+export * from './End';
+export * from './100ms';
+export * from './Hand';

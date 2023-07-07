@@ -9,6 +9,10 @@ import Animated, {
 
 import {ModalTypes} from '../utils/types';
 import {COLORS} from '../utils/theme';
+import {useIsHLSViewer} from '../hooks-util';
+import {EndIcon} from '../Icons';
+import {HMSManageLeave} from './HMSManageLeave';
+import {HMSManageRaiseHand} from './HMSManageRaiseHand';
 import {HMSManageLocalAudio} from './HMSManageLocalAudio';
 import {HMSManageLocalVideo} from './HMSManageLocalVideo';
 import {HMSChat} from './HMSChat';
@@ -26,11 +30,16 @@ export const _Footer: React.FC<FooterProps> = ({
   modalVisible,
   setModalVisible,
 }) => {
+  const isHLSViewer = useIsHLSViewer();
   const canPublishAudio = useCanPublishAudio();
   const canPublishVideo = useCanPublishVideo();
 
   const footerActionButtons = useMemo(() => {
-    const actions = ['chat', 'options'];
+    const actions = ['chat'];
+
+    if (isHLSViewer) {
+      actions.unshift('leave');
+    }
 
     if (canPublishVideo) {
       actions.unshift('video');
@@ -40,8 +49,10 @@ export const _Footer: React.FC<FooterProps> = ({
       actions.unshift('audio');
     }
 
+    actions.push(isHLSViewer ? 'hand-raise' : 'options');
+
     return actions;
-  }, [canPublishAudio, canPublishVideo]);
+  }, [isHLSViewer, canPublishAudio, canPublishVideo]);
 
   const animatedStyles = useAnimatedStyle(() => {
     return {
@@ -67,7 +78,9 @@ export const _Footer: React.FC<FooterProps> = ({
               key={actionType}
               style={index === 0 ? null : styles.iconWrapper}
             >
-              {actionType === 'audio' ? (
+              {actionType === 'leave' ? (
+                <HMSManageLeave leaveIconDelegate={<EndIcon />} />
+              ) : actionType === 'audio' ? (
                 <HMSManageLocalAudio />
               ) : actionType === 'video' ? (
                 <HMSManageLocalVideo />
@@ -78,6 +91,8 @@ export const _Footer: React.FC<FooterProps> = ({
                   modalVisible={modalVisible}
                   setModalVisible={setModalVisible}
                 />
+              ) : actionType === 'hand-raise' ? (
+                <HMSManageRaiseHand />
               ) : null}
             </View>
           );
