@@ -53,11 +53,9 @@ class HMSRNSDK(
 
   init {
     val builder = HMSSDK.Builder(reactApplicationContext)
-    if (HMSHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("trackSettings", "Map")))) {
-      val trackSettings = HMSHelper.getTrackSettings(data?.getMap("trackSettings"))
-      if (trackSettings != null) {
-        builder.setTrackSettings(trackSettings)
-      }
+
+    HMSHelper.getTrackSettings(data?.getMap("trackSettings"))?.let {
+      builder.setTrackSettings(it)
     }
 
     if (HMSHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("frameworkInfo", "Map")))) {

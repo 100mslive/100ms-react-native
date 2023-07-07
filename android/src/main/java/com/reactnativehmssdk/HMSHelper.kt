@@ -11,6 +11,7 @@ import android.webkit.URLUtil
 import androidx.annotation.RequiresApi
 import com.facebook.react.bridge.*
 import com.facebook.react.uimanager.events.RCTEventEmitter
+import com.reactnativehmssdk.HMSHelper.areAllRequiredKeysAvailable
 import live.hms.video.audio.HMSAudioManager
 import live.hms.video.error.HMSException
 import live.hms.video.events.AgentType
@@ -223,35 +224,32 @@ object HMSHelper {
     return HMSLogger.LogLevel.VERBOSE
   }
 
-  fun getTrackSettings(data: ReadableMap?): HMSTrackSettings? {
-    if (data == null) {
-      return null
-    }
+  fun getTrackSettings(data: ReadableMap?): HMSTrackSettings {
     val builder = HMSTrackSettings.Builder()
-    if (this.areAllRequiredKeysAvailable(data, arrayOf(Pair("video", "Map")))) {
-      val video = data.getMap("video")
-      val videoSettings = this.getVideoTrackSettings(video)
-      if (videoSettings != null) {
-        builder.video(videoSettings)
-      }
-    }
 
-    // TODO: check if audio & video track settings get applied even if client apps do not pass any values?
-    if (this.areAllRequiredKeysAvailable(data, arrayOf(Pair("audio", "Map")))) {
-      val audio = data.getMap("audio")
-      val audioSettings = this.getAudioTrackSettings(audio)
-      if (audioSettings != null) {
-        builder.audio(audioSettings)
+    data?.let {
+      if (areAllRequiredKeysAvailable(data, arrayOf(Pair("video", "Map")))) {
+        getVideoTrackSettings(data.getMap("video"))?.let {
+          builder.video(it)
+        }
+      }
+
+//      if (this.areAllRequiredKeysAvailable(data, arrayOf(Pair("audio", "Map")))) {
+      this.getAudioTrackSettings(data.getMap("audio")).let {
+        builder.audio(it)
       }
     }
     return builder.build()
   }
 
-  private fun getAudioTrackSettings(data: ReadableMap?): HMSAudioTrackSettings? {
-    if (data == null) {
-      return null
-    }
+  private fun getAudioTrackSettings(data: ReadableMap?): HMSAudioTrackSettings {
     val builder = HMSAudioTrackSettings.Builder()
+
+    builder.setUseHardwareAcousticEchoCanceler(false)
+    builder.enableEchoCancellation(true)
+    builder.enableNoiseSupression(true)
+    builder.enableAutomaticGainControl(true)
+    builder.setPhoneCallMuteState(PhoneCallState.DISABLE_MUTE_ON_VOIP_PHONE_CALL_RING)
 
     if (areAllRequiredKeysAvailable(data, arrayOf(Pair("useHardwareEchoCancellation", "Boolean")))
     ) {
