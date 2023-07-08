@@ -11,7 +11,7 @@ import type {HMSView} from '@100mslive/react-native-hms';
 
 import {styles} from './styles';
 
-import {getInitials} from '../../utils/functions';
+import {getInitials, isTileOnSpotlight} from '../../utils/functions';
 import type {RootState} from '../../redux';
 
 export interface PeerDisplayViewProps {
@@ -34,10 +34,20 @@ const PeerDisplayViewUnmemoized = React.forwardRef<
   const autoSimulcast = useSelector(
     (state: RootState) => state.app.joinConfig.autoSimulcast,
   );
+  const spotlightTrackId = useSelector(
+    (state: RootState) => state.user.spotlightTrackId,
+  );
 
   if (!HmsView) {
     return null;
   }
+
+  // Check if selected tile is "On Spotlight"
+  const {onSpotlight} = isTileOnSpotlight(spotlightTrackId, {
+    tileVideoTrack: videoTrack,
+    peerRegularAudioTrack: peer.audioTrack,
+    peerAuxTracks: peer.auxiliaryTracks,
+  });
 
   return (
     <View style={peerDisplayViewStyles.container}>
@@ -53,13 +63,15 @@ const PeerDisplayViewUnmemoized = React.forwardRef<
             ref={hmsViewRef}
             // setZOrderMediaOverlay={miniView}
             trackId={videoTrack?.trackId!}
+            key={videoTrack?.trackId!}
             autoSimulcast={autoSimulcast}
             mirror={
               isLocal && mirrorCamera !== undefined ? mirrorCamera : false
             }
             scaleType={
-              videoTrack?.source !== undefined &&
-              videoTrack?.source !== HMSTrackSource.REGULAR
+              onSpotlight ||
+              (videoTrack?.source !== undefined &&
+                videoTrack?.source !== HMSTrackSource.REGULAR)
                 ? HMSVideoViewMode.ASPECT_FIT
                 : HMSVideoViewMode.ASPECT_FILL
             }

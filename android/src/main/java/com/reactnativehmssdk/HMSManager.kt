@@ -419,20 +419,6 @@ class HMSManager(reactContext: ReactApplicationContext) :
     hms?.setAudioDeviceChangeListener()
   }
 
-  @ReactMethod
-  fun setSessionMetaData(data: ReadableMap, callback: Promise?) {
-    val hms = HMSHelper.getHms(data, hmsCollection)
-
-    hms?.setSessionMetaData(data, callback)
-  }
-
-  @ReactMethod
-  fun getSessionMetaData(data: ReadableMap, callback: Promise?) {
-    val hms = HMSHelper.getHms(data, hmsCollection)
-
-    hms?.getSessionMetaData(callback)
-  }
-
   @ReactMethod(isBlockingSynchronousMethod = true)
   fun getPeerProperty(data: ReadableMap): WritableMap? {
     val hms = HMSHelper.getHms(data, hmsCollection) ?: return null
@@ -489,7 +475,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
         },
         endMeeting = {
           endMeeting()
-        }
+        },
       )
     } else {
       null
@@ -556,7 +542,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
             pipRemoteActionsList[audioActionIdx] = android.app.RemoteAction(
               android.graphics.drawable.Icon.createWithResource(
                 reactApplicationContext,
-                if (hmssdk?.getLocalPeer()?.audioTrack?.isMute === true) R.drawable.ic_mic_off_24 else R.drawable.ic_mic_24
+                if (hmssdk?.getLocalPeer()?.audioTrack?.isMute === true) R.drawable.ic_mic_off_24 else R.drawable.ic_mic_24,
               ),
               PipActionReceiver.PIPActions.localAudio.title,
               PipActionReceiver.PIPActions.localAudio.description,
@@ -564,8 +550,8 @@ class HMSManager(reactContext: ReactApplicationContext) :
                 reactApplicationContext,
                 PipActionReceiver.PIPActions.localAudio.requestCode,
                 Intent(PipActionReceiver.PIP_INTENT_ACTION).putExtra(PipActionReceiver.PIPActions.localAudio.title, PipActionReceiver.PIPActions.localAudio.requestCode),
-                PendingIntent.FLAG_IMMUTABLE
-              )
+                PendingIntent.FLAG_IMMUTABLE,
+              ),
             )
           }
         }
@@ -577,7 +563,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
             pipRemoteActionsList[videoActionIdx] = android.app.RemoteAction(
               android.graphics.drawable.Icon.createWithResource(
                 reactApplicationContext,
-                updatedIcon
+                updatedIcon,
               ),
               PipActionReceiver.PIPActions.localVideo.title,
               PipActionReceiver.PIPActions.localVideo.description,
@@ -585,8 +571,8 @@ class HMSManager(reactContext: ReactApplicationContext) :
                 reactApplicationContext,
                 PipActionReceiver.PIPActions.localVideo.requestCode,
                 Intent(PipActionReceiver.PIP_INTENT_ACTION).putExtra(PipActionReceiver.PIPActions.localVideo.title, PipActionReceiver.PIPActions.localVideo.requestCode),
-                PendingIntent.FLAG_IMMUTABLE
-              )
+                PendingIntent.FLAG_IMMUTABLE,
+              ),
             )
           }
         }
@@ -606,7 +592,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
     val aspectRatio: Pair<Int, Int>?,
     val showEndButton: Boolean,
     val showVideoButton: Boolean,
-    val showAudioButton: Boolean
+    val showAudioButton: Boolean,
   )
 
   @ReactMethod
@@ -656,8 +642,8 @@ class HMSManager(reactContext: ReactApplicationContext) :
         it.setAspectRatio(
           Rational(
             config.aspectRatio.first,
-            config.aspectRatio.second
-          )
+            config.aspectRatio.second,
+          ),
         )
       }
 
@@ -679,7 +665,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
           android.app.RemoteAction(
             android.graphics.drawable.Icon.createWithResource(
               reactApplicationContext,
-              if (localPeer?.audioTrack?.isMute === true) R.drawable.ic_mic_off_24 else R.drawable.ic_mic_24
+              if (localPeer?.audioTrack?.isMute === true) R.drawable.ic_mic_off_24 else R.drawable.ic_mic_24,
             ),
             PipActionReceiver.PIPActions.localAudio.title,
             PipActionReceiver.PIPActions.localAudio.description,
@@ -687,9 +673,9 @@ class HMSManager(reactContext: ReactApplicationContext) :
               reactApplicationContext,
               PipActionReceiver.PIPActions.localAudio.requestCode,
               Intent(PipActionReceiver.PIP_INTENT_ACTION).putExtra(PipActionReceiver.PIPActions.localAudio.title, PipActionReceiver.PIPActions.localAudio.requestCode),
-              PendingIntent.FLAG_IMMUTABLE
-            )
-          )
+              PendingIntent.FLAG_IMMUTABLE,
+            ),
+          ),
         )
       }
 
@@ -704,11 +690,11 @@ class HMSManager(reactContext: ReactApplicationContext) :
               PipActionReceiver.PIPActions.endMeet.requestCode,
               Intent(PipActionReceiver.PIP_INTENT_ACTION).putExtra(
                 PipActionReceiver.PIPActions.endMeet.title,
-                PipActionReceiver.PIPActions.endMeet.requestCode
+                PipActionReceiver.PIPActions.endMeet.requestCode,
               ),
-              PendingIntent.FLAG_IMMUTABLE
-            )
-          )
+              PendingIntent.FLAG_IMMUTABLE,
+            ),
+          ),
         )
       }
 
@@ -717,7 +703,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
           android.app.RemoteAction(
             android.graphics.drawable.Icon.createWithResource(
               reactApplicationContext,
-              if (localPeer?.videoTrack?.isMute === true) R.drawable.ic_camera_toggle_off else R.drawable.ic_camera_toggle_on
+              if (localPeer?.videoTrack?.isMute === true) R.drawable.ic_camera_toggle_off else R.drawable.ic_camera_toggle_on,
             ),
             PipActionReceiver.PIPActions.localVideo.title,
             PipActionReceiver.PIPActions.localVideo.description,
@@ -726,11 +712,11 @@ class HMSManager(reactContext: ReactApplicationContext) :
               PipActionReceiver.PIPActions.localVideo.requestCode,
               Intent(PipActionReceiver.PIP_INTENT_ACTION).putExtra(
                 PipActionReceiver.PIPActions.localVideo.title,
-                PipActionReceiver.PIPActions.localVideo.requestCode
+                PipActionReceiver.PIPActions.localVideo.requestCode,
               ),
-              PendingIntent.FLAG_IMMUTABLE
-            )
-          )
+              PendingIntent.FLAG_IMMUTABLE,
+            ),
+          ),
         )
       }
 
@@ -806,7 +792,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
       aspectRatio = aspectRatio,
       showEndButton = showEndButton,
       showAudioButton = showAudioButton,
-      showVideoButton = showVideoButton
+      showVideoButton = showVideoButton,
     )
   }
 
@@ -910,6 +896,34 @@ class HMSManager(reactContext: ReactApplicationContext) :
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.captureImageAtMaxSupportedResolution(data, promise)
+  }
+
+  @ReactMethod
+  fun setSessionMetadataForKey(data: ReadableMap, promise: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.setSessionMetadataForKey(data, promise)
+  }
+
+  @ReactMethod
+  fun getSessionMetadataForKey(data: ReadableMap, promise: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.getSessionMetadataForKey(data, promise)
+  }
+
+  @ReactMethod
+  fun addKeyChangeListener(data: ReadableMap, promise: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.addKeyChangeListener(data, promise)
+  }
+
+  @ReactMethod
+  fun removeKeyChangeListener(data: ReadableMap, promise: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.removeKeyChangeListener(data, promise)
   }
 
   fun emitEvent(event: String, data: WritableMap) {

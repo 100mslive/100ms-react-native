@@ -32,7 +32,7 @@ object HMSHelper {
 
   fun areAllRequiredKeysAvailable(
     map: ReadableMap?,
-    requiredKeys: Array<Pair<String, String>>
+    requiredKeys: Array<Pair<String, String>>,
   ): Boolean {
     if (map == null) {
       return false
@@ -65,7 +65,7 @@ object HMSHelper {
 
   fun getUnavailableRequiredKey(
     map: ReadableMap?,
-    requiredKeys: Array<Pair<String, String>>
+    requiredKeys: Array<Pair<String, String>>,
   ): String? {
     if (map == null) {
       return "Object_Is_Null"
@@ -112,7 +112,7 @@ object HMSHelper {
 
   fun getRolesFromRoleNames(
     targetedRoles: ArrayList<String>?,
-    roles: List<HMSRole>?
+    roles: List<HMSRole>?,
   ): List<HMSRole> {
     val encodedRoles: MutableList<HMSRole> = mutableListOf()
 
@@ -163,9 +163,9 @@ object HMSHelper {
   fun getFrameworkInfo(data: ReadableMap?): FrameworkInfo? {
     if (data != null &&
       this.areAllRequiredKeysAvailable(
-          data,
-          arrayOf(Pair("version", "String"), Pair("sdkVersion", "String"))
-        )
+        data,
+        arrayOf(Pair("version", "String"), Pair("sdkVersion", "String")),
+      )
     ) {
       val version = data.getString("version") as String
       val sdkVersion = data.getString("sdkVersion") as String
@@ -177,13 +177,13 @@ object HMSHelper {
   fun getLogSettings(data: ReadableMap?): HMSLogSettings? {
     if (data != null &&
       this.areAllRequiredKeysAvailable(
-          data,
-          arrayOf(
-              Pair("level", "String"),
-              Pair("maxDirSizeInBytes", "String"),
-              Pair("isLogStorageEnabled", "Boolean")
-            )
-        )
+        data,
+        arrayOf(
+          Pair("level", "String"),
+          Pair("maxDirSizeInBytes", "String"),
+          Pair("isLogStorageEnabled", "Boolean"),
+        ),
+      )
     ) {
       val level = getLogLevel(data.getString("level"))
       val maxDirSizeInBytes = getLogAlarmManager(data.getString("maxDirSizeInBytes"))
@@ -255,6 +255,8 @@ object HMSHelper {
     ) {
       val useHardwareEchoCancellation = data.getBoolean("useHardwareEchoCancellation")
       builder.setUseHardwareAcousticEchoCanceler(useHardwareEchoCancellation)
+    } else {
+      builder.setUseHardwareAcousticEchoCanceler(false)
     }
 
     if (areAllRequiredKeysAvailable(data, arrayOf(Pair("initialState", "String")))) {
@@ -370,7 +372,7 @@ object HMSHelper {
   }
 
   private fun getHMSHLSMeetingURLVariants(
-    hmsMeetingURLVariants: ArrayList<HashMap<String, String>>?
+    hmsMeetingURLVariants: ArrayList<HashMap<String, String>>?,
   ): List<HMSHLSMeetingURLVariant> {
     val meetingURLVariants = mutableListOf<HMSHLSMeetingURLVariant>()
     if (hmsMeetingURLVariants !== null) {
@@ -388,14 +390,14 @@ object HMSHelper {
       var videoOnDemand = false
       if (areAllRequiredKeysAvailable(
           hmsHlsRecordingConfig,
-          arrayOf(Pair("singleFilePerLayer", "Boolean"))
+          arrayOf(Pair("singleFilePerLayer", "Boolean")),
         )
       ) {
         singleFilePerLayer = hmsHlsRecordingConfig.getBoolean("singleFilePerLayer")
       }
       if (areAllRequiredKeysAvailable(
           hmsHlsRecordingConfig,
-          arrayOf(Pair("videoOnDemand", "Boolean"))
+          arrayOf(Pair("videoOnDemand", "Boolean")),
         )
       ) {
         videoOnDemand = hmsHlsRecordingConfig.getBoolean("videoOnDemand")
@@ -406,7 +408,7 @@ object HMSHelper {
   }
 
   private fun getHMSHLSMeetingURLVariant(
-    hmsMeetingURLVariant: HashMap<String, String>?
+    hmsMeetingURLVariant: HashMap<String, String>?,
   ): HMSHLSMeetingURLVariant {
     var meetingURLVariant = HMSHLSMeetingURLVariant("", "")
     if (hmsMeetingURLVariant !== null) {
@@ -425,15 +427,18 @@ object HMSHelper {
 
   fun getRtmpConfig(data: ReadableMap): HMSRecordingConfig? {
     val record = data.getBoolean("record")
-    var meetingURL = ""
+    var meetingURL: String? = null
     var rtmpURLs = listOf<String>()
     var resolution: HMSRtmpVideoResolution? = null
     if (areAllRequiredKeysAvailable(data, arrayOf(Pair("meetingURL", "String")))) {
       val meetingURLValid = data.getString("meetingURL") as String
-      if (URLUtil.isValidUrl(meetingURLValid)) {
-        meetingURL = meetingURLValid
-      } else {
-        return null
+
+      if (meetingURLValid.isNotEmpty()) {
+        if (URLUtil.isValidUrl(meetingURLValid)) {
+          meetingURL = meetingURLValid
+        } else {
+          return null
+        }
       }
     }
 
@@ -453,7 +458,7 @@ object HMSHelper {
     var config =
       HMSConfig(
         credentials.getString("username") as String,
-        credentials.getString("authToken") as String
+        credentials.getString("authToken") as String,
       )
 
     when {
@@ -462,8 +467,8 @@ object HMSHelper {
         arrayOf(
           Pair("endpoint", "String"),
           Pair("metadata", "String"),
-          Pair("captureNetworkQualityInPreview", "Boolean")
-        )
+          Pair("captureNetworkQualityInPreview", "Boolean"),
+        ),
       ) -> {
         config =
           HMSConfig(
@@ -472,24 +477,24 @@ object HMSHelper {
             initEndpoint = credentials.getString("endpoint") as String,
             metadata = credentials.getString("metadata") as String,
             captureNetworkQualityInPreview =
-            credentials.getBoolean("captureNetworkQualityInPreview")
+            credentials.getBoolean("captureNetworkQualityInPreview"),
           )
       }
       areAllRequiredKeysAvailable(
         credentials,
-        arrayOf(Pair("endpoint", "String"), Pair("metadata", "String"))
+        arrayOf(Pair("endpoint", "String"), Pair("metadata", "String")),
       ) -> {
         config =
           HMSConfig(
             credentials.getString("username") as String,
             credentials.getString("authToken") as String,
             initEndpoint = credentials.getString("endpoint") as String,
-            metadata = credentials.getString("metadata") as String
+            metadata = credentials.getString("metadata") as String,
           )
       }
       areAllRequiredKeysAvailable(
         credentials,
-        arrayOf(Pair("endpoint", "String"), Pair("captureNetworkQualityInPreview", "Boolean"))
+        arrayOf(Pair("endpoint", "String"), Pair("captureNetworkQualityInPreview", "Boolean")),
       ) -> {
         config =
           HMSConfig(
@@ -497,12 +502,12 @@ object HMSHelper {
             credentials.getString("authToken") as String,
             initEndpoint = credentials.getString("endpoint") as String,
             captureNetworkQualityInPreview =
-            credentials.getBoolean("captureNetworkQualityInPreview")
+            credentials.getBoolean("captureNetworkQualityInPreview"),
           )
       }
       areAllRequiredKeysAvailable(
         credentials,
-        arrayOf(Pair("metadata", "String"), Pair("captureNetworkQualityInPreview", "Boolean"))
+        arrayOf(Pair("metadata", "String"), Pair("captureNetworkQualityInPreview", "Boolean")),
       ) -> {
         config =
           HMSConfig(
@@ -510,7 +515,7 @@ object HMSHelper {
             credentials.getString("authToken") as String,
             metadata = credentials.getString("metadata") as String,
             captureNetworkQualityInPreview =
-            credentials.getBoolean("captureNetworkQualityInPreview")
+            credentials.getBoolean("captureNetworkQualityInPreview"),
           )
       }
       areAllRequiredKeysAvailable(credentials, arrayOf(Pair("endpoint", "String"))) -> {
@@ -518,7 +523,7 @@ object HMSHelper {
           HMSConfig(
             credentials.getString("username") as String,
             credentials.getString("authToken") as String,
-            initEndpoint = credentials.getString("endpoint") as String
+            initEndpoint = credentials.getString("endpoint") as String,
           )
       }
       areAllRequiredKeysAvailable(credentials, arrayOf(Pair("metadata", "String"))) -> {
@@ -526,19 +531,19 @@ object HMSHelper {
           HMSConfig(
             credentials.getString("username") as String,
             credentials.getString("authToken") as String,
-            metadata = credentials.getString("metadata") as String
+            metadata = credentials.getString("metadata") as String,
           )
       }
       areAllRequiredKeysAvailable(
         credentials,
-        arrayOf(Pair("captureNetworkQualityInPreview", "Boolean"))
+        arrayOf(Pair("captureNetworkQualityInPreview", "Boolean")),
       ) -> {
         config =
           HMSConfig(
             credentials.getString("username") as String,
             credentials.getString("authToken") as String,
             captureNetworkQualityInPreview =
-            credentials.getBoolean("captureNetworkQualityInPreview")
+            credentials.getBoolean("captureNetworkQualityInPreview"),
           )
       }
     }
@@ -552,7 +557,7 @@ object HMSHelper {
     sdkId: String,
     args: ReadableArray?,
     context: Context,
-    id: Int
+    id: Int,
   ) {
     val output = Arguments.createMap()
     if (args != null) {
@@ -587,8 +592,8 @@ object HMSHelper {
                 copyResult.toString(),
                 copyResult.toString(),
                 copyResult.toString(),
-                copyResult.toString()
-              )
+                copyResult.toString(),
+              ),
             )
             output.putString("error", copyResult.toString())
             reactContext
@@ -596,7 +601,7 @@ object HMSHelper {
               .receiveEvent(id, "captureFrame", output)
           }
         },
-        Handler()
+        Handler(),
       )
     } catch (e: Exception) {
       Log.e("captureSurfaceView", "error: $e")

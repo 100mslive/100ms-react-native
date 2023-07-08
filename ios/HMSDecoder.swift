@@ -90,10 +90,10 @@ class HMSDecoder: NSObject {
         switch peerUpdateType {
             case .peerJoined: return "0"
             case .peerLeft: return "1"
-            case .roleUpdated: return "9"
-            case .nameUpdated: return "10"
-            case .metadataUpdated: return "11"
-            case .networkQualityUpdated: return "12"
+            case .roleUpdated: return "4"
+            case .nameUpdated: return "5"
+            case .metadataUpdated: return "6"
+            case .networkQualityUpdated: return "7"
             default: return nil
         }
     }
@@ -278,7 +278,7 @@ class HMSDecoder: NSObject {
         return ["trackId": localVideo.trackId, "source": localVideo.source, "trackDescription": localVideo.trackDescription, "settings": getHmsVideoTrackSettings(localVideo.settings), "isMute": localVideo.isMute(), "type": type, "kind": type]
     }
 
-    static func getHmsAudioTrackSettings(_ hmsAudioTrackSettings: HMSAudioTrackSettings?) -> [String: Any] {
+    static func getHmsAudioTrackSettings(_ hmsAudioTrackSettings: HMSAudioTrackSettings?) -> [String: Any?] {
 
         guard let settings = hmsAudioTrackSettings else { return [String: Any]() }
 

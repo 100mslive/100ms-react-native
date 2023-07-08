@@ -34,6 +34,8 @@ import {
   changeAutoResize,
   changeAutoSimulcast,
   resetJoinConfig,
+  changeMusicMode,
+  changeShowHLSStats,
 } from '../redux/actions';
 
 interface JoinSettingsModalContentProps {}
@@ -49,7 +51,9 @@ export const JoinSettingsModalContent: React.FC<
     skipPreview,
     mirrorCamera,
     showStats,
+    showHLSStats,
     audioMixer,
+    musicMode,
     softwareDecoder,
     autoResize,
     autoSimulcast,
@@ -113,6 +117,22 @@ export const JoinSettingsModalContent: React.FC<
 
           {Platform.OS === 'ios' ? (
             <SwitchRow
+              text="Music Mode"
+              value={musicMode}
+              onChange={value => dispatch(changeMusicMode(value))}
+              LeftIcon={
+                <IoniconsIcons
+                  name="ios-musical-notes-outline"
+                  size={24}
+                  style={styles.icon}
+                />
+              }
+              containerStyle={styles.switchContainer}
+            />
+          ) : null}
+
+          {Platform.OS === 'ios' ? (
+            <SwitchRow
               text="Audio Mixer"
               value={audioMixer}
               onChange={value => dispatch(changeAudioMixer(value))}
@@ -169,6 +189,20 @@ export const JoinSettingsModalContent: React.FC<
             text="Show RTC Stats"
             value={showStats}
             onChange={value => dispatch(changeShowStats(value))}
+            LeftIcon={
+              <MaterialCommunityIcons
+                name="clipboard-pulse-outline"
+                size={24}
+                style={styles.icon}
+              />
+            }
+            containerStyle={styles.switchContainer}
+          />
+
+          <SwitchRow
+            text="Show HLS Stats"
+            value={showHLSStats}
+            onChange={value => dispatch(changeShowHLSStats(value))}
             LeftIcon={
               <MaterialCommunityIcons
                 name="clipboard-pulse-outline"

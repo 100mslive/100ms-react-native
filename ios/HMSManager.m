@@ -38,6 +38,7 @@ RCT_EXTERN_METHOD(destroy: (NSDictionary) data :(RCTPromiseResolveBlock) resolve
 RCT_EXTERN_METHOD(startScreenshare: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(stopScreenshare: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(isScreenShared: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(switchAudioOutputUsingIOSUI: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(playAudioShare: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(setAudioShareVolume: (NSDictionary) data)
 RCT_EXTERN_METHOD(stopAudioShare: (NSDictionary) data)
@@ -51,8 +52,6 @@ RCT_EXTERN_METHOD(getRemotePeers: (NSDictionary) data :(RCTPromiseResolveBlock) 
 RCT_EXTERN_METHOD(getRoles: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(enableNetworkQualityUpdates: (NSDictionary) data)
 RCT_EXTERN_METHOD(disableNetworkQualityUpdates: (NSDictionary) data)
-RCT_EXTERN_METHOD(setSessionMetaData: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
-RCT_EXTERN_METHOD(getSessionMetaData: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(changeRoleOfPeer: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(changeRoleOfPeersWithRoles: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 
@@ -72,4 +71,12 @@ RCT_EXTERN_METHOD(setVideoTrackLayer: (NSDictionary) data :(RCTPromiseResolveBlo
 #pragma mark - Advanced Camera Controls
 
 RCT_EXTERN_METHOD(captureImageAtMaxSupportedResolution: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+
+#pragma mark - Session Store
+
+RCT_EXTERN_METHOD(getSessionMetadataForKey: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(setSessionMetadataForKey: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(addKeyChangeListener: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(removeKeyChangeListener: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+
 @end

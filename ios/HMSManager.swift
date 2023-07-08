@@ -1,4 +1,5 @@
 import HMSSDK
+import AVKit.AVRoutePickerView
 
 @objc(HMSManager)
 class HMSManager: RCTEventEmitter {
@@ -36,7 +37,7 @@ class HMSManager: RCTEventEmitter {
     }
 
     override func supportedEvents() -> [String]! {
-        return [ON_JOIN, ON_PREVIEW, ON_ROOM_UPDATE, ON_PEER_UPDATE, ON_TRACK_UPDATE, ON_ERROR, ON_MESSAGE, ON_SPEAKER, RECONNECTING, RECONNECTED, ON_ROLE_CHANGE_REQUEST, ON_CHANGE_TRACK_STATE_REQUEST, ON_REMOVED_FROM_ROOM, ON_RTC_STATS, ON_LOCAL_AUDIO_STATS, ON_LOCAL_VIDEO_STATS, ON_REMOTE_AUDIO_STATS, ON_REMOTE_VIDEO_STATS, ON_AUDIO_DEVICE_CHANGED]
+        return [ON_JOIN, ON_PREVIEW, ON_ROOM_UPDATE, ON_PEER_UPDATE, ON_TRACK_UPDATE, ON_ERROR, ON_MESSAGE, ON_SPEAKER, RECONNECTING, RECONNECTED, ON_ROLE_CHANGE_REQUEST, ON_CHANGE_TRACK_STATE_REQUEST, ON_REMOVED_FROM_ROOM, ON_RTC_STATS, ON_LOCAL_AUDIO_STATS, ON_LOCAL_VIDEO_STATS, ON_REMOTE_AUDIO_STATS, ON_REMOTE_VIDEO_STATS, ON_AUDIO_DEVICE_CHANGED, HMSConstants.ON_SESSION_STORE_AVAILABLE, HMSConstants.ON_SESSION_STORE_CHANGED]
     }
 
     // MARK: - HMS SDK Delegate Callbacks
@@ -180,6 +181,27 @@ class HMSManager: RCTEventEmitter {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.setVolume(data)
+    }
+
+    @objc
+    func switchAudioOutputUsingIOSUI(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        DispatchQueue.main.async {
+            // Creating RoutePickerView
+            // Note:- We will trigger tap event on it without rendering this view in UI.
+            let routePickerView = AVRoutePickerView()
+
+            // Iterating over subviews of AVRoutePickerView
+            for view in routePickerView.subviews {
+                // Checking if the current subview is UIButton
+                if let button = view as? UIButton {
+                    // Trigger tap event on the button
+                    // so, that Picker View is shown
+                    button.sendActions(for: .touchUpInside)
+                    break
+                }
+            }
+            resolve?(true)
+        }
     }
 
     // MARK: - Messaging
@@ -411,15 +433,6 @@ class HMSManager: RCTEventEmitter {
         hms?.disableNetworkQualityUpdates()
     }
 
-    // MARK: - Session Metadata
-
-    @objc
-    func setSessionMetaData(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HMSHelper.getHms(data, hmsCollection)
-
-        hms?.setSessionMetaData(data, resolve, reject)
-    }
-
     // MARK: - Peer & Room Property Getter Functions
 
     @objc
@@ -500,13 +513,6 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func getSessionMetaData(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HMSHelper.getHms(data, hmsCollection)
-
-        hms?.getSessionMetaData(resolve, reject)
-    }
-
-    @objc
     func getRemoteVideoTrackFromTrackId(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
@@ -550,5 +556,39 @@ class HMSManager: RCTEventEmitter {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.captureImageAtMaxSupportedResolution(data, resolve, reject)
+    }
+
+    // MARK: - Session Store
+
+    @objc
+    func getSessionMetadataForKey(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.getSessionMetadataForKey(data, resolve, reject)
+    }
+
+    @objc
+    func setSessionMetadataForKey(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.setSessionMetadataForKey(data, resolve, reject)
+    }
+
+    @objc
+    func addKeyChangeListener(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.addKeyChangeListener(data, resolve, reject)
+    }
+
+    @objc
+    func removeKeyChangeListener(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.removeKeyChangeListener(data, resolve, reject)
     }
 }

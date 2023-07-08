@@ -42,7 +42,7 @@ object HMSDecoder {
           hmsRoom.browserRecordingState?.let {
             room.putMap(
               "browserRecordingState",
-              this.getHMSBrowserRecordingState(it)
+              this.getHMSBrowserRecordingState(it),
             )
           }
         }
@@ -55,7 +55,7 @@ object HMSDecoder {
           hmsRoom.rtmpHMSRtmpStreamingState?.let {
             room.putMap(
               "rtmpHMSRtmpStreamingState",
-              this.getHMSRtmpStreamingState(it)
+              this.getHMSRtmpStreamingState(it),
             )
           }
         }
@@ -63,7 +63,7 @@ object HMSDecoder {
           hmsRoom.serverRecordingState?.let {
             room.putMap(
               "serverRecordingState",
-              this.getHMSServerRecordingState(it)
+              this.getHMSServerRecordingState(it),
             )
           }
         }
@@ -88,21 +88,21 @@ object HMSDecoder {
       hmsRoom.browserRecordingState?.let {
         room.putMap(
           "browserRecordingState",
-          this.getHMSBrowserRecordingState(it)
+          this.getHMSBrowserRecordingState(it),
         )
       }
 
       hmsRoom.rtmpHMSRtmpStreamingState?.let {
         room.putMap(
           "rtmpHMSRtmpStreamingState",
-          this.getHMSRtmpStreamingState(it)
+          this.getHMSRtmpStreamingState(it),
         )
       }
 
       hmsRoom.serverRecordingState?.let {
         room.putMap(
           "serverRecordingState",
-          this.getHMSServerRecordingState(it)
+          this.getHMSServerRecordingState(it),
         )
       }
 
@@ -130,23 +130,22 @@ object HMSDecoder {
     if (hmsPeer != null) {
       peer.putString(peerUpdateType.ordinal.toString(), hmsPeer.peerID)
 
-      if (peerUpdateType !== null) {
-        when (peerUpdateType) {
-          HMSPeerUpdate.NAME_CHANGED -> {
-            peer.putString("name", hmsPeer.name)
-          }
-          HMSPeerUpdate.METADATA_CHANGED -> {
-            peer.putString("metadata", hmsPeer.metadata)
-          }
-          HMSPeerUpdate.ROLE_CHANGED -> {
-            peer.putMap("role", this.getHmsRole(hmsPeer.hmsRole))
-          }
-          HMSPeerUpdate.NETWORK_QUALITY_UPDATED -> {
-            hmsPeer.networkQuality?.let {
-              peer.putMap("networkQuality", this.getHmsNetworkQuality(it))
-            }
+      when (peerUpdateType) {
+        HMSPeerUpdate.NAME_CHANGED -> {
+          peer.putString("name", hmsPeer.name)
+        }
+        HMSPeerUpdate.METADATA_CHANGED -> {
+          peer.putString("metadata", hmsPeer.metadata)
+        }
+        HMSPeerUpdate.ROLE_CHANGED -> {
+          peer.putMap("role", this.getHmsRole(hmsPeer.hmsRole))
+        }
+        HMSPeerUpdate.NETWORK_QUALITY_UPDATED -> {
+          hmsPeer.networkQuality?.let {
+            peer.putMap("networkQuality", this.getHmsNetworkQuality(it))
           }
         }
+        else -> {}
       }
     }
     return peer
@@ -445,7 +444,7 @@ object HMSDecoder {
     if (hmsAudioTrackSettings != null) {
       settings.putBoolean(
         "useHardwareAcousticEchoCanceler",
-        hmsAudioTrackSettings.useHardwareAcousticEchoCanceler
+        hmsAudioTrackSettings.useHardwareAcousticEchoCanceler,
       )
       settings.putString("initialState", hmsAudioTrackSettings.initialState.name)
     }
@@ -689,28 +688,28 @@ object HMSDecoder {
 
       subscribeSettings.putArray(
         "subscribeTo",
-        this.getWriteableArray(hmsSubscribeSettings.subscribeTo)
+        this.getWriteableArray(hmsSubscribeSettings.subscribeTo),
       )
     }
     return subscribeSettings
   }
 
   private fun getHmsSubscribeDegradationSettings(
-    hmsSubscribeDegradationParams: SubscribeDegradationParams?
+    hmsSubscribeDegradationParams: SubscribeDegradationParams?,
   ): WritableMap {
     val subscribeDegradationParams: WritableMap = Arguments.createMap()
     if (hmsSubscribeDegradationParams != null) {
       subscribeDegradationParams.putString(
         "degradeGracePeriodSeconds",
-        hmsSubscribeDegradationParams.degradeGracePeriodSeconds.toString()
+        hmsSubscribeDegradationParams.degradeGracePeriodSeconds.toString(),
       )
       subscribeDegradationParams.putString(
         "packetLossThreshold",
-        hmsSubscribeDegradationParams.packetLossThreshold.toString()
+        hmsSubscribeDegradationParams.packetLossThreshold.toString(),
       )
       subscribeDegradationParams.putString(
         "recoverGracePeriodSeconds",
-        hmsSubscribeDegradationParams.recoverGracePeriodSeconds.toString()
+        hmsSubscribeDegradationParams.recoverGracePeriodSeconds.toString(),
       )
     }
     return subscribeDegradationParams

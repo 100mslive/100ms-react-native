@@ -26,10 +26,8 @@ import type { HMSAudioMixingMode } from './HMSAudioMixingMode';
 import type { HMSLogSettings } from './HMSLogSettings';
 import { HMSMessageType } from './HMSMessageType';
 import { HMSPIPListenerActions } from './HMSPIPListenerActions';
-import {
-  type HMSEventSubscription,
-  HMSNativeEventEmitter,
-} from './HMSNativeEventEmitter';
+import type { HMSEventSubscription } from './HMSNativeEventEmitter';
+import { HMSNativeEventEmitter } from './HMSNativeEventEmitter';
 import {
   clearHmsPeersCache,
   getHmsPeersCache,
@@ -43,6 +41,7 @@ import {
   setHmsRoomCache,
 } from './HMSRoomCache';
 import { HMSPeerUpdateOrdinals } from './HMSPeerUpdate';
+import { HMSSessionStore } from './HMSSessionStore';
 
 type HmsViewProps = Omit<HmsComponentProps, 'id'>;
 
@@ -92,6 +91,7 @@ export class HMSSDK {
   private onRemoteVideoStatsDelegate?: HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_REMOTE_VIDEO_STATS];
   private onAudioDeviceChangedDelegate?: HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED];
   private onPIPRoomLeaveDelegate?: HMSUpdateListenerCallbacks[HMSPIPListenerActions.ON_PIP_ROOM_LEAVE];
+  private onSessionStoreAvailableDelegate?: HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_SESSION_STORE_CHANGED];
 
   private emitterSubscriptions: Partial<
     Record<
@@ -316,11 +316,14 @@ export class HMSSDK {
       type: type || null,
       id: this.id,
     });
-    return await HMSManager.sendBroadcastMessage({
-      message,
-      type: type || null,
-      id: this.id,
-    });
+    const data: { messageId: string | undefined } =
+      await HMSManager.sendBroadcastMessage({
+        message,
+        type: type || null,
+        id: this.id,
+      });
+
+    return data;
   };
 
   /**
@@ -342,12 +345,15 @@ export class HMSSDK {
       id: this.id,
       type: type || null,
     });
-    return await HMSManager.sendGroupMessage({
-      message,
-      roles: HMSHelper.getRoleNames(roles),
-      id: this.id,
-      type: type || null,
-    });
+    const data: { messageId: string | undefined } =
+      await HMSManager.sendGroupMessage({
+        message,
+        roles: HMSHelper.getRoleNames(roles),
+        id: this.id,
+        type: type || null,
+      });
+
+    return data;
   };
 
   /**
@@ -369,12 +375,15 @@ export class HMSSDK {
       id: this.id,
       type: type || null,
     });
-    return await HMSManager.sendDirectMessage({
-      message,
-      peerId: peer.peerID,
-      id: this.id,
-      type: type || null,
-    });
+    const data: { messageId: string | undefined } =
+      await HMSManager.sendDirectMessage({
+        message,
+        peerId: peer.peerID,
+        id: this.id,
+        type: type || null,
+      });
+
+    return data;
   };
 
   /**
@@ -995,6 +1004,7 @@ export class HMSSDK {
   };
 
   /**
+   * Android Only
    * - This wrapper function used to switch output to device other than the default, currently available only for android.
    *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/audio-output-routing#switch-audio-focus-to-another-device} for more info
@@ -1013,6 +1023,19 @@ export class HMSSDK {
       console.log('API currently not available for iOS');
       return 'API currently not available for iOS';
     }
+  };
+
+  switchAudioOutputUsingIOSUI = () => {
+    logger?.verbose('#Function switchAudioOutputUsingIOSUI', {
+      id: this.id,
+    });
+    if (Platform.OS !== 'ios') {
+      throw new Error(
+        '#Function `switchAudioOutputUsingIOSUI` is only available on iOS, use `switchAudioOutput` method instead!'
+      );
+    }
+
+    return HMSManager.switchAudioOutputUsingIOSUI({ id: this.id });
   };
 
   /**
@@ -1062,24 +1085,6 @@ export class HMSSDK {
     }
   };
 
-  setSessionMetaData = async (sessionMetaData: string | null) => {
-    logger?.verbose('#Function setSessionMetaData', {
-      id: this.id,
-      sessionMetaData,
-    });
-    return await HMSManager.setSessionMetaData({
-      id: this.id,
-      sessionMetaData,
-    });
-  };
-
-  getSessionMetaData = async () => {
-    logger?.verbose('#Function getSessionMetaData', {
-      id: this.id,
-    });
-    return await HMSManager.getSessionMetaData({ id: this.id });
-  };
-
   getRemoteVideoTrackFromTrackId = async (trackId: string) => {
     logger?.verbose('#Function getRemoteVideoTrackFromTrackId', {
       id: this.id,
@@ -1106,6 +1111,25 @@ export class HMSSDK {
         trackId,
       });
     return HMSEncoder.encodeHmsRemoteAudioTrack(remoteAudioTrackData, this.id);
+  };
+
+  getPeerFromPeerId = (peerId: string) => {
+    logger?.verbose('#Function getPeerFromPeerId', {
+      id: this.id,
+      peerId,
+    });
+    // Getting Peer Cache
+    const peersCache = getHmsPeersCache();
+
+    // If Peer Cache doesn't exist, return `undefined` as we don't have Peer
+    if (!peersCache) return;
+
+    const peerRole = peersCache.getProperty(peerId, 'role');
+
+    // If Peer doesn't have valid Role, return `undefined` as we don't have Peer
+    if (!peerRole) return;
+
+    return HMSEncoder.encodeHmsPeer({ peerID: peerId });
   };
 
   /**
@@ -1476,6 +1500,27 @@ export class HMSSDK {
         this.onAudioDeviceChangedDelegate = callback as HMSUpdateListenerCallbacks[HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED];
         break;
       }
+      case HMSUpdateListenerActions.ON_SESSION_STORE_AVAILABLE: {
+        // Checking if we already have ON_SESSION_STORE_AVAILABLE subscription
+        if (
+          !this.emitterSubscriptions[
+            HMSUpdateListenerActions.ON_SESSION_STORE_AVAILABLE
+          ]
+        ) {
+          // Adding ON_SESSION_STORE_AVAILABLE native listener
+          const sessionStoreAvailableSubscription = HmsEventEmitter.addListener(
+            this.id,
+            HMSUpdateListenerActions.ON_SESSION_STORE_AVAILABLE,
+            this.onSessionStoreAvailableListener
+          );
+          this.emitterSubscriptions[
+            HMSUpdateListenerActions.ON_SESSION_STORE_AVAILABLE
+          ] = sessionStoreAvailableSubscription;
+        }
+        // Adding Session Store Available App Delegate listener
+        this.onSessionStoreAvailableDelegate = callback;
+        break;
+      }
       case HMSPIPListenerActions.ON_PIP_ROOM_LEAVE: {
         if (Platform.OS === 'android') {
           // Checking if we already have ON_PIP_ROOM_LEAVE subscription
@@ -1801,6 +1846,23 @@ export class HMSSDK {
         }
         // Removing App Delegate listener
         this.onAudioDeviceChangedDelegate = undefined;
+        break;
+      }
+      case HMSUpdateListenerActions.ON_SESSION_STORE_AVAILABLE: {
+        const subscription =
+          this.emitterSubscriptions[
+            HMSUpdateListenerActions.ON_SESSION_STORE_AVAILABLE
+          ];
+        // Removing ON_SESSION_STORE_AVAILABLE native listener
+        if (subscription) {
+          subscription.remove();
+
+          this.emitterSubscriptions[
+            HMSUpdateListenerActions.ON_SESSION_STORE_AVAILABLE
+          ] = undefined;
+        }
+        // Removing App Delegate listener
+        this.onSessionStoreAvailableDelegate = null;
         break;
       }
       case HMSPIPListenerActions.ON_PIP_ROOM_LEAVE: {
@@ -2217,6 +2279,22 @@ export class HMSSDK {
       // @ts-ignore
       this.onAudioDeviceChangedDelegate({
         ...data,
+      });
+    }
+  };
+
+  onSessionStoreAvailableListener = (data: { id: string }) => {
+    if (data.id !== this.id) {
+      return;
+    }
+    if (this.onSessionStoreAvailableDelegate) {
+      logger?.verbose(
+        '#Listener ON_SESSION_STORE_AVAILABLE_LISTENER_CALL',
+        data
+      );
+      this.onSessionStoreAvailableDelegate({
+        ...data,
+        sessionStore: new HMSSessionStore(),
       });
     }
   };

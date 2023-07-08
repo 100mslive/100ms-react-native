@@ -80,7 +80,20 @@ export * from './classes/HMSSimulcastLayerDefinition';
 export * from './classes/HMSQualityLimitationReasons';
 export * from './classes/HMSQualityLimitationReason';
 export * from './classes/HMSCameraControl';
+export * from './classes/HMSIOSAudioMode';
+export type {
+  HMSSessionStore,
+  HMSSessionStoreValue,
+} from './classes/HMSSessionStore';
 export type { HmsViewComponent as HMSView } from './classes/HmsView';
 
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
+
+// 100ms Components
+export * from './components/HMSHLSPlayer';
+
+// 100ms types
+export * from './types';
+export * from './stores/types';
+
 export default HmsManager;
