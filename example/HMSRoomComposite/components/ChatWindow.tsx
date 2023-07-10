@@ -31,10 +31,7 @@ import {PressableIcon} from './PressableIcon';
 import {ChatIcon, CloseIcon, ParticipantsIcon, SendIcon} from '../Icons';
 import {useHMSInstance, useShowChat} from '../hooks-util';
 import {ChatList} from './Chat';
-import {
-  SearchableParticipantsView,
-  SearchableParticipantsViewProps,
-} from './Participants';
+import {SearchableParticipantsView} from './Participants';
 
 interface ChatHeaderProps {
   filters: boolean;
@@ -462,9 +459,7 @@ const ChatFilter = memo(() => {
 
 ChatFilter.displayName = 'ChatFilter';
 
-export type ChatViewProps = SearchableParticipantsViewProps;
-
-export const ChatView: React.FC<ChatViewProps> = props => {
+export const ChatView: React.FC = () => {
   const [activeTab, setActiveTab] = useState(tabs[0]);
   const [_, setChatVisible] = useShowChat();
 
@@ -496,7 +491,7 @@ export const ChatView: React.FC<ChatViewProps> = props => {
         </>
       ) : activeTab === 'Participants' ? (
         <View style={chatViewStyles.participantsWrapper}>
-          <SearchableParticipantsView {...props} />
+          <SearchableParticipantsView />
         </View>
       ) : null}
     </View>

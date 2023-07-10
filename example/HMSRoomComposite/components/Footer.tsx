@@ -7,7 +7,6 @@ import Animated, {
   useAnimatedStyle,
 } from 'react-native-reanimated';
 
-import {ModalTypes} from '../utils/types';
 import {COLORS} from '../utils/theme';
 import {useIsHLSViewer} from '../hooks-util';
 import {EndIcon} from '../Icons';
@@ -21,15 +20,9 @@ import {useCanPublishAudio, useCanPublishVideo} from '../hooks-sdk';
 
 interface FooterProps {
   offset: SharedValue<number>;
-  modalVisible: ModalTypes;
-  setModalVisible(modalType: ModalTypes, delay?: any): void;
 }
 
-export const _Footer: React.FC<FooterProps> = ({
-  offset,
-  modalVisible,
-  setModalVisible,
-}) => {
+export const _Footer: React.FC<FooterProps> = ({offset}) => {
   const isHLSViewer = useIsHLSViewer();
   const canPublishAudio = useCanPublishAudio();
   const canPublishVideo = useCanPublishVideo();
@@ -87,10 +80,7 @@ export const _Footer: React.FC<FooterProps> = ({
               ) : actionType === 'chat' ? (
                 <HMSChat />
               ) : actionType === 'options' ? (
-                <HMSRoomOptions
-                  modalVisible={modalVisible}
-                  setModalVisible={setModalVisible}
-                />
+                <HMSRoomOptions />
               ) : actionType === 'hand-raise' ? (
                 <HMSManageRaiseHand />
               ) : null}

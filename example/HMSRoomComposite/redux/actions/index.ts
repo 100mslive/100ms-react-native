@@ -3,13 +3,14 @@ import type {
   HMSLocalAudioStats,
   HMSLocalVideoStats,
   HMSMessage,
+  HMSPeer,
   HMSRemoteAudioStats,
   HMSRemoteVideoStats,
   HMSRole,
   HMSSDK,
   HMSSessionStore,
 } from '@100mslive/react-native-hms';
-import type {PeerTrackNode, PipModes} from '../../utils/types';
+import type {ModalTypes, PeerTrackNode, PipModes} from '../../utils/types';
 import actionTypes, {HmsStateActionTypes} from '../actionTypes';
 
 export const setPrebuiltData = (data: {
@@ -176,4 +177,14 @@ export const changeHLSAspectRatio = (value: {value: number; id: string}) => ({
 export const changeUsername = (userName: string) => ({
   type: HmsStateActionTypes.SET_USER_NAME,
   payload: {userName},
+});
+
+export const setModalType = (modalType: ModalTypes) => ({
+  type: actionTypes.SET_MODAL_TYPE,
+  payload: {modalType},
+});
+
+export const setPeerToUpdate = (peerToUpdate: HMSPeer) => ({
+  type: actionTypes.SET_PEER_TO_UPDATE,
+  payload: {peerToUpdate},
 });

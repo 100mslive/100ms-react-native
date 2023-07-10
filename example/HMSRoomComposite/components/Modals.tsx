@@ -64,15 +64,9 @@ import type {RootState} from '../redux';
 import {SwitchRow} from './SwitchRow';
 import {useHMSInstance} from '../hooks-util';
 
-export const ChangeRoleModal = ({
-  instance,
-  peer,
-  cancelModal,
-}: {
-  instance?: HMSSDK;
-  peer?: HMSPeer;
-  cancelModal: Function;
-}) => {
+export const ChangeRoleModal = ({cancelModal}: {cancelModal: Function}) => {
+  const instance = useHMSInstance();
+  const peer = useSelector((state: RootState) => state.app.peerToUpdate);
   const roles = useSelector((state: RootState) => state.hmsStates.roles);
 
   const [newRole, setNewRole] = useState<HMSRole>(peer?.role!);
@@ -313,15 +307,9 @@ export const SaveScreenshot = ({
   );
 };
 
-export const ChangeVolumeModal = ({
-  instance,
-  peer,
-  cancelModal,
-}: {
-  instance?: HMSSDK;
-  peer?: HMSPeer;
-  cancelModal: Function;
-}) => {
+export const ChangeVolumeModal = ({cancelModal}: {cancelModal: Function}) => {
+  const instance = useHMSInstance();
+  const peer = useSelector((state: RootState) => state.app.peerToUpdate);
   const [volume, setVolume] = useState<number>(0);
 
   const changeVolume = () => {
@@ -362,15 +350,9 @@ export const ChangeVolumeModal = ({
   );
 };
 
-export const ChangeNameModal = ({
-  instance,
-  peer,
-  cancelModal,
-}: {
-  instance?: HMSSDK;
-  peer?: HMSPeer;
-  cancelModal: Function;
-}) => {
+export const ChangeNameModal = ({cancelModal}: {cancelModal: Function}) => {
+  const instance = useHMSInstance();
+  const peer = useSelector((state: RootState) => state.app.peerToUpdate);
   const dispatch = useDispatch();
 
   const [name, setName] = useState<string>(peer?.name!);

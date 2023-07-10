@@ -1,6 +1,5 @@
 import * as React from 'react';
 import {View, StyleSheet} from 'react-native';
-import type {HMSPeer} from '@100mslive/react-native-hms';
 
 import {useFilteredParticipants} from '../hooks-util';
 import {
@@ -9,17 +8,9 @@ import {
   ParticipantsSearchInput,
 } from './Participants';
 
-type ParticipantsModalProps = {
-  changeName(peer: HMSPeer): void;
-  changeRole(peer: HMSPeer): void;
-  setVolume(peer: HMSPeer): void;
-};
+type ParticipantsModalProps = {};
 
-export const ParticipantsModal: React.FC<ParticipantsModalProps> = ({
-  changeName,
-  changeRole,
-  setVolume,
-}) => {
+export const ParticipantsModal: React.FC<ParticipantsModalProps> = ({}) => {
   const {
     selectedFilter,
     changeFilter,
@@ -42,12 +33,7 @@ export const ParticipantsModal: React.FC<ParticipantsModalProps> = ({
         setSearchText={setSearchText}
       />
 
-      <ParticipantsList
-        data={filteredParticipants}
-        changeName={changeName}
-        changeRole={changeRole}
-        setVolume={setVolume}
-      />
+      <ParticipantsList data={filteredParticipants} />
     </View>
   );
 };

@@ -1,6 +1,6 @@
 import React, {ComponentRef, useRef, useEffect} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {View, Text, StyleSheet, Pressable} from 'react-native';
+import {View, Text, StyleSheet} from 'react-native';
 import {HMSHLSPlayer} from '@100mslive/react-native-hms';
 import {AvoidSoftInput} from 'react-native-avoid-softinput';
 
@@ -9,14 +9,12 @@ import {changeShowHLSStats} from '../redux/actions';
 import {HLSPlayerStatsView} from './HLSPlayerStatsView';
 import {HLSPlayerEmoticons} from './HLSPlayerEmoticons';
 import {CustomControls} from './CustomHLSPlayerControls';
-import {ChatView, ChatViewProps} from './ChatWindow';
+import {ChatView} from './ChatWindow';
 import {COLORS} from '../utils/theme';
-import {useShowChat} from '../hooks-util';
-import {ClockIcon} from '../Icons';
+import {usePortraitChatViewVisible} from '../hooks-util';
+import {HMSHLSNotStarted} from './HMSHLSNotStarted';
 
-type HLSViewProps = ChatViewProps;
-
-export const HLSView: React.FC<HLSViewProps> = props => {
+export const HLSView: React.FC = () => {
   const dispatch = useDispatch();
   const room = useSelector((state: RootState) => state.hmsStates.room);
   const hmsHlsPlayerRef = useRef<ComponentRef<typeof HMSHLSPlayer>>(null);
@@ -32,7 +30,7 @@ export const HLSView: React.FC<HLSViewProps> = props => {
   const hlsAspectRatio = useSelector(
     (state: RootState) => state.app.hlsAspectRatio,
   );
-  const [chatVisibleType] = useShowChat();
+  const portraitChatViewVisible = usePortraitChatViewVisible();
 
   const handleClosePress = () => {
     dispatch(changeShowHLSStats(false));
@@ -104,9 +102,7 @@ export const HLSView: React.FC<HLSViewProps> = props => {
               key={index}
               style={[
                 styles.hlsPlayerContainer,
-                chatVisibleType === 'inset'
-                  ? styles.taleLessSpaceAsYouCan
-                  : null,
+                portraitChatViewVisible ? styles.taleLessSpaceAsYouCan : null,
               ]}
             >
               {/* <View>
@@ -114,9 +110,7 @@ export const HLSView: React.FC<HLSViewProps> = props => {
               <HMSHLSPlayer
                 ref={hmsHlsPlayerRef}
                 containerStyle={
-                  chatVisibleType === 'inset'
-                    ? styles.taleLessSpaceAsYouCan
-                    : null
+                  portraitChatViewVisible ? styles.taleLessSpaceAsYouCan : null
                 }
                 aspectRatio={hlsAspectRatio.value}
                 enableStats={showHLSStats}
@@ -139,22 +133,10 @@ export const HLSView: React.FC<HLSViewProps> = props => {
           ),
         )
       ) : (
-        <View
-          style={[
-            styles.textContainer,
-            chatVisibleType === 'inset'
-              ? {flex: 0, aspectRatio: hlsAspectRatio.value}
-              : null,
-          ]}
-        >
-          <ClockIcon />
-          <Text style={styles.title}>Class hasn't started yet</Text>
-          <Text style={styles.description}>
-            Please wait for the teacher to start the class.
-          </Text>
-        </View>
+        <HMSHLSNotStarted />
       )}
-      {chatVisibleType === 'inset' ? <ChatView {...props} /> : null}
+
+      {portraitChatViewVisible ? <ChatView /> : null}
     </View>
   );
 };
@@ -173,23 +155,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  title: {
-    color: COLORS.SURFACE.ON_SURFACE.HIGH,
-    fontFamily: 'Inter',
-    fontSize: 28,
-    fontWeight: '600',
-    lineHeight: 32,
-    letterSpacing: 0.25,
-    textAlign: 'center',
-  },
-  subtitle: {
-    color: COLORS.SURFACE.ON_SURFACE.HIGH,
-    fontFamily: 'Inter',
-    fontSize: 20,
-    fontWeight: '600',
-    letterSpacing: 0.25,
-    textAlign: 'center',
-  },
   warningSubtitle: {
     color: COLORS.INDICATORS.WARNING,
     fontFamily: 'Inter',
@@ -197,16 +162,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     letterSpacing: 0.25,
     textAlign: 'center',
-  },
-  description: {
-    color: COLORS.SURFACE.ON_SURFACE.LOW,
-    fontSize: 14,
-    fontFamily: 'Inter',
-    fontWeight: '400',
-    lineHeight: 20,
-    letterSpacing: 0.25,
-    textAlign: 'center',
-    marginTop: 8,
   },
   taleLessSpaceAsYouCan: {
     flex: 0,

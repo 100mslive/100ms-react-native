@@ -38,6 +38,7 @@ import {
   setHMSRoomState,
   setIsLocalAudioMutedState,
   setIsLocalVideoMutedState,
+  setModalType,
 } from './redux/actions';
 import {
   degradeOrRestorePeerTrackNodes,
@@ -56,7 +57,10 @@ import {
   Platform,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import {useIsLandscapeOrientation} from './utils/dimension';
+import {
+  useIsLandscapeOrientation,
+  useIsPortraitOrientation,
+} from './utils/dimension';
 import {
   useSafeAreaFrame,
   useSafeAreaInsets,
@@ -861,12 +865,33 @@ export const usePIPListener = () => {
   }, [isPipModeActive, hmsInstance]);
 };
 
-export const useModalType = (): [
-  ModalTypes,
-  (modalType: ModalTypes, delay?: any) => void,
-] => {
-  const modalTaskRef = useRef<any>(null);
-  const [modalVisible, setModalVisible] = useState(ModalTypes.DEFAULT);
+let modalTaskRef: {current: any} = {current: null};
+
+export const clearPendingModalTasks = () => {
+  if (Platform.OS === 'android') {
+    modalTaskRef.current?.cancel();
+  } else {
+    clearTimeout(modalTaskRef.current);
+  }
+};
+
+const addModalTask = (task: () => void) => {
+  clearPendingModalTasks();
+
+  if (Platform.OS === 'android') {
+    modalTaskRef.current = InteractionManager.runAfterInteractions(task);
+  } else {
+    modalTaskRef.current = setTimeout(task, 500);
+  }
+};
+
+export const useModalType = () => {
+  const dispatch = useDispatch();
+  const modalType = useSelector((state: RootState) => state.app.modalType);
+
+  const setModalVisible = (modalType: ModalTypes) => {
+    dispatch(setModalType(modalType));
+  };
 
   const handleModalVisible = useCallback(
     (modalType: ModalTypes, delay = false) => {
@@ -875,14 +900,9 @@ export const useModalType = (): [
 
         const task = () => {
           setModalVisible(modalType);
-          modalTaskRef.current = null;
         };
 
-        if (Platform.OS === 'android') {
-          modalTaskRef.current = InteractionManager.runAfterInteractions(task);
-        } else {
-          modalTaskRef.current = setTimeout(task, 500);
-        }
+        addModalTask(task);
       } else {
         setModalVisible(modalType);
       }
@@ -890,17 +910,10 @@ export const useModalType = (): [
     [],
   );
 
-  useEffect(() => {
-    return () => {
-      if (Platform.OS === 'android') {
-        modalTaskRef.current?.cancel();
-      } else {
-        clearTimeout(modalTaskRef.current);
-      }
-    };
-  }, []);
-
-  return [modalVisible, handleModalVisible];
+  return {
+    modalVisibleType: modalType,
+    handleModalVisibleType: handleModalVisible,
+  };
 };
 
 export const useFetchHMSRoles = () => {
@@ -1013,6 +1026,26 @@ export const useShowChat = (): [
   );
 
   return [chatVisible, showChat];
+};
+
+export const usePortraitChatViewVisible = () => {
+  const [chatVisible] = useShowChat();
+  const pipModeNotActive = useSelector(
+    (state: RootState) => state.app.pipModeStatus !== PipModes.ACTIVE,
+  );
+  const isPortraitOrientation = useIsPortraitOrientation();
+
+  return pipModeNotActive && isPortraitOrientation && chatVisible === 'inset';
+};
+
+export const useLandscapeChatViewVisible = () => {
+  const [chatVisible] = useShowChat();
+  const pipModeNotActive = useSelector(
+    (state: RootState) => state.app.pipModeStatus !== PipModes.ACTIVE,
+  );
+  const isLandscapeOrientation = useIsLandscapeOrientation();
+
+  return pipModeNotActive && isLandscapeOrientation && chatVisible === 'inset';
 };
 
 export const useFilteredParticipants = () => {

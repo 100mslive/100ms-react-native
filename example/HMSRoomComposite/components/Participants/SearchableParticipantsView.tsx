@@ -1,17 +1,10 @@
 import * as React from 'react';
 
 import {useFilteredParticipants} from '../../hooks-util';
-import {ParticipantsList, ParticipantsListProps} from './ParticipantsList';
+import {ParticipantsList} from './ParticipantsList';
 import {ParticipantsSearchInput} from './ParticipantsSeachInput';
 
-export type SearchableParticipantsViewProps = Omit<
-  ParticipantsListProps,
-  'data'
->;
-
-export const SearchableParticipantsView: React.FC<
-  SearchableParticipantsViewProps
-> = ({changeName, changeRole, setVolume}) => {
+export const SearchableParticipantsView: React.FC = () => {
   const {filteredParticipants, searchText, setSearchText} =
     useFilteredParticipants();
 
@@ -22,12 +15,7 @@ export const SearchableParticipantsView: React.FC<
         setSearchText={setSearchText}
       />
 
-      <ParticipantsList
-        data={filteredParticipants}
-        changeName={changeName}
-        changeRole={changeRole}
-        setVolume={setVolume}
-      />
+      <ParticipantsList data={filteredParticipants} />
     </>
   );
 };

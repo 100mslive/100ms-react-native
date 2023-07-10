@@ -1,10 +1,11 @@
 import ActionTypes, {HmsStateActionTypes} from '../actionTypes';
 import type {PeerTrackNode} from '../../utils/types';
-import {SUPPORTED_ASPECT_RATIOS} from '../../utils/types';
+import {SUPPORTED_ASPECT_RATIOS, ModalTypes} from '../../utils/types';
 import {PipModes} from '../../utils/types';
 import {
   HMSLocalAudioStats,
   HMSLocalVideoStats,
+  HMSPeer,
   HMSRemoteAudioStats,
   HMSRemoteVideoStats,
 } from '@100mslive/react-native-hms';
@@ -34,6 +35,8 @@ type IntialStateType = {
     enableHLSPlayerControls: boolean;
     showCustomHLSPlayerControls: boolean;
   };
+  modalType: ModalTypes;
+  peerToUpdate: HMSPeer | null;
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -49,6 +52,8 @@ const INITIAL_STATE: IntialStateType = {
     enableHLSPlayerControls: true,
     showCustomHLSPlayerControls: false,
   },
+  modalType: ModalTypes.DEFAULT,
+  peerToUpdate: null,
 };
 
 const appReducer = (
@@ -64,6 +69,10 @@ const appReducer = (
       return {...state, peerState: []};
     case ActionTypes.CHANGE_HLS_ASPECT_RATIO:
       return {...state, hlsAspectRatio: action.payload.hlsAspectRatio};
+    case ActionTypes.SET_MODAL_TYPE:
+      return {...state, modalType: action.payload.modalType};
+    case ActionTypes.SET_PEER_TO_UPDATE:
+      return {...state, peerToUpdate: action.payload.peerToUpdate};
     case ActionTypes.RESET_JOIN_CONFIG:
       return {...state, joinConfig: INITIAL_STATE.joinConfig};
     case ActionTypes.CHANGE_MIRROR_CAMERA:

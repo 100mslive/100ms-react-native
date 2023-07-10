@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
+import {useSelector} from 'react-redux';
 import {View, Text, InteractionManager} from 'react-native';
-import {HMSPeer, HMSTrack, HMSCameraControl} from '@100mslive/react-native-hms';
+import {HMSTrack, HMSCameraControl} from '@100mslive/react-native-hms';
 import Animated, {
   SharedValue,
   interpolate,
@@ -33,6 +33,7 @@ import {
   useHMSRoleChangeRequest,
   useHMSSessionStoreListeners,
   useIsHLSViewer,
+  useModalType,
 } from '../hooks-util';
 import {useIsPortraitOrientation} from '../utils/dimension';
 import {ParticipantsModal} from './ParticipantsModal';
@@ -41,23 +42,23 @@ type CapturedImagePath = {uri: string} | null;
 
 interface DisplayViewProps {
   offset: SharedValue<number>;
-  modalVisible: ModalTypes;
   peerTrackNodes: Array<PeerTrackNode>;
-  setModalVisible(modalType: ModalTypes, delay?: any): void;
 }
 
 export const DisplayView: React.FC<DisplayViewProps> = ({
   offset,
-  modalVisible,
   peerTrackNodes,
-  setModalVisible,
 }) => {
   // --- 100ms SDK Instance ---
   const hmsInstance = useHMSInstance();
 
-  const dispatch = useDispatch();
   const isPortrait = useIsPortraitOrientation();
   const isHLSViewer = useIsHLSViewer();
+
+  const {
+    modalVisibleType: modalVisible,
+    handleModalVisibleType: setModalVisible,
+  } = useModalType();
 
   // --- Refs ---
   const gridViewRef = useRef<React.ElementRef<typeof GridView> | null>(null);
@@ -72,7 +73,6 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
   ); // State to track active spotlight trackId
 
   // --- Component Local States ---
-  const [updatePeer, setUpdatePeer] = useState<HMSPeer>();
   const [selectedPeerTrackNode, setSelectedPeerTrackNode] =
     useState<PeerTrackNode | null>(null);
   const [capturedImagePath, setCapturedImagePath] =
@@ -107,11 +107,6 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
 
   // functions
 
-  const onChangeNamePress = (peer: HMSPeer) => {
-    setUpdatePeer(peer);
-    setModalVisible(ModalTypes.CHANGE_NAME, true);
-  };
-
   const handlePeerTileMorePress = React.useCallback(
     (peerTrackNode: PeerTrackNode) => {
       setSelectedPeerTrackNode(peerTrackNode);
@@ -119,16 +114,6 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
     },
     [setModalVisible],
   );
-
-  const onChangeRolePress = (peer: HMSPeer) => {
-    setUpdatePeer(peer);
-    setModalVisible(ModalTypes.CHANGE_ROLE, true);
-  };
-
-  const onSetVolumePress = (peer: HMSPeer) => {
-    setUpdatePeer(peer);
-    setModalVisible(ModalTypes.VOLUME, true);
-  };
 
   const handleCaptureScreenShotPress = (node: PeerTrackNode) => {
     setModalVisible(ModalTypes.DEFAULT);
@@ -178,11 +163,7 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
   return (
     <Animated.View style={[styles.container, animatedStyles]}>
       {isHLSViewer ? (
-        <HLSView
-          changeName={onChangeNamePress}
-          changeRole={onChangeRolePress}
-          setVolume={onSetVolumePress}
-        />
+        <HLSView />
       ) : pairedPeers.length > 0 ? (
         <>
           {isPipModeActive ? (
@@ -220,9 +201,6 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
               <PeerSettingsModalContent
                 peerTrackNode={selectedPeerTrackNode}
                 cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
-                onChangeNamePress={onChangeNamePress}
-                onChangeRolePress={onChangeRolePress}
-                onSetVolumePress={onSetVolumePress}
                 onCaptureScreenShotPress={handleCaptureScreenShotPress}
                 onCaptureImageAtMaxSupportedResolutionPress={
                   handleCaptureImageAtMaxSupportedResolutionPress
@@ -299,11 +277,7 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
             modalVisible={modalVisible === ModalTypes.PARTICIPANTS}
             setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
           >
-            <ParticipantsModal
-              changeName={onChangeNamePress}
-              changeRole={onChangeRolePress}
-              setVolume={onSetVolumePress}
-            />
+            <ParticipantsModal />
           </DefaultModal>
           <DefaultModal
             modalPosiion="center"
@@ -311,8 +285,6 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
             setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
           >
             <ChangeRoleModal
-              instance={hmsInstance}
-              peer={updatePeer}
               cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
             />
           </DefaultModal>
@@ -322,8 +294,6 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
             setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
           >
             <ChangeVolumeModal
-              instance={hmsInstance}
-              peer={updatePeer}
               cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
             />
           </DefaultModal>
@@ -333,8 +303,6 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
             setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
           >
             <ChangeNameModal
-              instance={hmsInstance}
-              peer={updatePeer}
               cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
             />
           </DefaultModal>

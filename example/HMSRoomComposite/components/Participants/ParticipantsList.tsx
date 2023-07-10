@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {View, Text, FlatList, StyleSheet, Platform} from 'react-native';
-import {useSelector} from 'react-redux';
+import {batch, useDispatch, useSelector} from 'react-redux';
 import Toast from 'react-native-simple-toast';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -16,25 +16,21 @@ import {Menu, MenuItem} from '../MenuModal';
 import {getInitials} from '../../utils/functions';
 import {COLORS} from '../../utils/theme';
 import {RootState} from '../../redux';
-import {useHMSInstance} from '../../hooks-util';
+import {useHMSInstance, useModalType} from '../../hooks-util';
+import {setPeerToUpdate} from '../../redux/actions';
+import {ModalTypes} from '../../utils/types';
 
 export type ParticipantsListProps = {
   data: (HMSLocalPeer | HMSRemotePeer)[];
-  changeName(peer: HMSPeer): void;
-  changeRole(peer: HMSPeer): void;
-  setVolume(peer: HMSPeer): void;
 };
 
-export const ParticipantsList: React.FC<ParticipantsListProps> = ({
-  data,
-  changeName,
-  changeRole,
-  setVolume,
-}) => {
+export const ParticipantsList: React.FC<ParticipantsListProps> = ({data}) => {
   const hmsInstance = useHMSInstance();
+  const dispatch = useDispatch();
   const localPeerPermissions = useSelector(
     (state: RootState) => state.hmsStates.localPeer?.role?.permissions,
   );
+  const {handleModalVisibleType: setModalVisible} = useModalType();
 
   const [visible, setVisible] = React.useState(-1);
 
@@ -55,14 +51,20 @@ export const ParticipantsList: React.FC<ParticipantsListProps> = ({
   const onChangeNamePress = (peer: HMSPeer) => {
     hideMenu();
     setTimeout(() => {
-      changeName(peer);
+      batch(() => {
+        dispatch(setPeerToUpdate(peer));
+        setModalVisible(ModalTypes.CHANGE_NAME, true);
+      });
     }, 500);
   };
 
   const onChangeRolePress = (peer: HMSPeer) => {
     hideMenu();
     setTimeout(() => {
-      changeRole(peer);
+      batch(() => {
+        dispatch(setPeerToUpdate(peer));
+        setModalVisible(ModalTypes.CHANGE_ROLE, true);
+      });
     }, 500);
   };
 
@@ -89,7 +91,10 @@ export const ParticipantsList: React.FC<ParticipantsListProps> = ({
   const onSetVolumePress = (peer: HMSPeer) => {
     hideMenu();
     setTimeout(() => {
-      setVolume(peer);
+      batch(() => {
+        dispatch(setPeerToUpdate(peer));
+        setModalVisible(ModalTypes.VOLUME, true);
+      });
     }, 500);
   };
 

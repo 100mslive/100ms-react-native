@@ -17,15 +17,16 @@ import {
 
 import {RootState} from '../redux';
 import {setRTCStats} from '../redux/actions';
+import {ModalTypes} from './types';
 
-export const useRTCStatsListeners = (force?: boolean) => {
+export const useRTCStatsListeners = () => {
   const dispatch = useDispatch();
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
-  const showStatsOnTiles = useSelector(
-    (state: RootState) => state.app.joinConfig.showStats,
+  const addListeners = useSelector(
+    (state: RootState) =>
+      state.app.joinConfig.showStats ||
+      state.app.modalType === ModalTypes.RTC_STATS,
   );
-
-  const addListeners = Boolean(showStatsOnTiles || force);
 
   useEffect(() => {
     if (hmsInstance && addListeners) {

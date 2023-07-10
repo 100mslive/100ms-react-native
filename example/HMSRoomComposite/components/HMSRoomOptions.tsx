@@ -17,16 +17,15 @@ import {
   RtcStatsModal,
 } from './Modals';
 import {ModalTypes} from '../utils/types';
+import {useModalType} from '../hooks-util';
 
-interface HMSRoomOptionsProps {
-  modalVisible: ModalTypes;
-  setModalVisible(modalType: ModalTypes, delay?: any): void;
-}
+interface HMSRoomOptionsProps {}
 
-export const HMSRoomOptions: React.FC<HMSRoomOptionsProps> = ({
-  modalVisible,
-  setModalVisible,
-}) => {
+export const HMSRoomOptions: React.FC<HMSRoomOptionsProps> = () => {
+  const {
+    modalVisibleType: modalVisible,
+    handleModalVisibleType: setModalVisible,
+  } = useModalType();
   const [isAudioShared, setIsAudioShared] = React.useState(false);
   const [audioMode, setAudioMode] = React.useState<HMSAudioMode>(
     HMSAudioMode.MODE_NORMAL,
@@ -38,11 +37,7 @@ export const HMSRoomOptions: React.FC<HMSRoomOptionsProps> = ({
     HMSAudioMixingMode.TALK_AND_MUSIC,
   );
 
-  const onSettingsPress = () => {
-    InteractionManager.runAfterInteractions(() => {
-      setModalVisible(ModalTypes.SETTINGS);
-    });
-  };
+  const onSettingsPress = () => setModalVisible(ModalTypes.SETTINGS);
 
   const dismissModal = () => setModalVisible(ModalTypes.DEFAULT);
 

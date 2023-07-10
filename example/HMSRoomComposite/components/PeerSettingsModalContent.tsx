@@ -1,26 +1,20 @@
 import React from 'react';
 import {View, TouchableOpacity, Text, StyleSheet} from 'react-native';
-import {useSelector} from 'react-redux';
-import {
-  HMSLocalPeer,
-  HMSPeer,
-  HMSTrack,
-  HMSTrackSource,
-} from '@100mslive/react-native-hms';
+import {batch, useDispatch, useSelector} from 'react-redux';
+import {HMSTrack, HMSTrackSource} from '@100mslive/react-native-hms';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import type {RootState} from '../redux';
 import {COLORS} from '../utils/theme';
-import {PeerTrackNode} from '../utils/types';
+import {ModalTypes, PeerTrackNode} from '../utils/types';
 import {isTileOnSpotlight} from '../utils/functions';
+import {setPeerToUpdate} from '../redux/actions';
+import {useModalType} from '../hooks-util';
 
 interface PeerSettingsModalContentProps {
   peerTrackNode: PeerTrackNode;
   cancelModal(): void;
-  onChangeNamePress(peer: HMSPeer): void;
-  onChangeRolePress(peer: HMSPeer): void;
-  onSetVolumePress(peer: HMSPeer): void;
   onCaptureScreenShotPress(node: PeerTrackNode): void;
   onCaptureImageAtMaxSupportedResolutionPress(node: PeerTrackNode): void;
   onStreamingQualityPress(track: HMSTrack): void;
@@ -31,13 +25,11 @@ export const PeerSettingsModalContent: React.FC<
 > = ({
   peerTrackNode,
   cancelModal,
-  onChangeNamePress,
-  onChangeRolePress,
-  onSetVolumePress,
   onCaptureScreenShotPress,
   onCaptureImageAtMaxSupportedResolutionPress,
   onStreamingQualityPress,
 }) => {
+  const dispatch = useDispatch();
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
   const localPeer = useSelector(
     (state: RootState) => state.hmsStates.localPeer,
@@ -48,6 +40,7 @@ export const PeerSettingsModalContent: React.FC<
   const spotlightTrackId = useSelector(
     (state: RootState) => state.user.spotlightTrackId,
   );
+  const {handleModalVisibleType: setModalVisible} = useModalType();
 
   const removePeer = () => {
     hmsInstance
@@ -82,6 +75,27 @@ export const PeerSettingsModalContent: React.FC<
       peerTrackNode.peer.videoTrack!!,
       !peerTrackNode.peer.videoTrack!!.isMute(),
     );
+  };
+
+  const changeName = () => {
+    batch(() => {
+      dispatch(setPeerToUpdate(peerTrackNode.peer));
+      setModalVisible(ModalTypes.CHANGE_NAME, true);
+    });
+  };
+
+  const changeRole = () => {
+    batch(() => {
+      dispatch(setPeerToUpdate(peerTrackNode.peer));
+      setModalVisible(ModalTypes.CHANGE_ROLE, true);
+    });
+  };
+
+  const changeVolumeLevelOfPeer = () => {
+    batch(() => {
+      dispatch(setPeerToUpdate(peerTrackNode.peer));
+      setModalVisible(ModalTypes.VOLUME, true);
+    });
   };
 
   // Check if selected tile is "On Spotlight"
@@ -203,7 +217,7 @@ export const PeerSettingsModalContent: React.FC<
             text="Change Name"
             IconType={MaterialCommunityIcons}
             iconName={'account-edit-outline'}
-            onPress={() => onChangeNamePress(peer)}
+            onPress={() => changeName()}
           />
         ) : null}
 
@@ -212,7 +226,7 @@ export const PeerSettingsModalContent: React.FC<
             text="Change Role"
             IconType={Ionicons}
             iconName={'people-outline'}
-            onPress={() => onChangeRolePress(peer)}
+            onPress={() => changeRole()}
           />
         ) : null}
 
@@ -221,7 +235,7 @@ export const PeerSettingsModalContent: React.FC<
             text="Set Volume"
             IconType={Ionicons}
             iconName={'volume-high-outline'}
-            onPress={() => onSetVolumePress(peer)}
+            onPress={() => changeVolumeLevelOfPeer()}
           />
         ) : null}
 
