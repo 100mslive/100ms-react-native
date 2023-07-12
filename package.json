@@ -1,95 +1,20 @@
 {
-  "name": "@100mslive/react-native-hms",
-  "version": "1.8.0",
+  "name": "@100mslive/react-native-monorepo",
+  "private": true,
+  "version": "1000.0.0",
   "description": "Integrate Real Time Audio and Video conferencing, Interactive Live Streaming, and Chat in your apps with 100ms React Native SDK. With support for HLS and RTMP Live Streaming and Recording, Picture-in-Picture (PiP), one-to-one Video Call Modes, Audio Rooms, Video Player and much more, add immersive real-time communications to your apps.",
-  "main": "lib/commonjs/index",
-  "module": "lib/module/index",
-  "types": "lib/typescript/index.d.ts",
-  "react-native": "src/index",
-  "source": "src/index",
-  "files": [
-    "src",
-    "lib",
-    "android",
-    "ios",
-    "cpp",
-    "react-native-hms.podspec",
-    "sdk-versions.json",
-    "!lib/typescript/example",
-    "!android/build",
-    "!ios/build",
-    "!**/__tests__",
-    "!**/__fixtures__",
-    "!**/__mocks__"
-  ],
   "scripts": {
     "test": "jest",
     "typescript": "tsc --noEmit",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
-    "prepare": "bob build",
     "release": "release-it",
     "example": "yarn --cwd example",
     "pods": "cd example && pod-install --quiet",
     "bootstrap": "yarn example && yarn && yarn pods",
-    "typedoc": "npx typedoc src/index.ts --excludePrivate --excludeProtected --excludeInternal"
+    "typedoc": "npx typedoc src/index.ts --excludePrivate --excludeProtected --excludeInternal",
+    "start-metro-sdk-example": "cd packages/react-native-hms/example && NODE_OPTIONS=--openssl-legacy-provider npx react-native start",
+    "install": "cd packages/react-native-hms/example && npm install"
   },
-  "keywords": [
-    "react-native",
-    "ios",
-    "android",
-    "video",
-    "live",
-    "stream",
-    "100ms",
-    "audio",
-    "webinar",
-    "classroom",
-    "event",
-    "virtual",
-    "yoga",
-    "studio",
-    "room",
-    "telehealth",
-    "meetup",
-    "game",
-    "recording",
-    "waiting",
-    "music",
-    "rtmp",
-    "broadcast",
-    "chat",
-    "native",
-    "screen",
-    "share",
-    "track",
-    "camera",
-    "microphone",
-    "speaker",
-    "enterprise",
-    "ios",
-    "android",
-    "web",
-    "interactive",
-    "hls",
-    "rtmp",
-    "pip",
-    "voip",
-    "player",
-    "webrtc",
-    "stream",
-    "communication",
-    "conference",
-    "whiteboard",
-    "session",
-    "polls",
-    "quiz",
-    "call",
-    "callkit",
-    "connection",
-    "service",
-    "telecom",
-    "reaction"
-  ],
   "repository": "https://github.com/100mslive/100ms-react-native",
   "author": "Yogesh <yogesh@100ms.live> (https://www.100ms.live/)",
   "license": "MIT",
@@ -97,39 +22,6 @@
     "url": "https://github.com/100mslive/100ms-react-native/issues"
   },
   "homepage": "https://www.100ms.live/",
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
-  },
-  "devDependencies": {
-    "@commitlint/config-conventional": "^11.0.0",
-    "@react-native-community/eslint-config": "^2.0.0",
-    "@types/jest": "^26.0.0",
-    "@types/react": "^16.9.19",
-    "@types/react-native": "^0.64.5",
-    "commitlint": "^11.0.0",
-    "eslint": "^7.2.0",
-    "eslint-config-prettier": "^7.0.0",
-    "eslint-plugin-prettier": "^3.1.3",
-    "husky": "^4.2.5",
-    "jest": "^26.0.1",
-    "prettier": "^2.0.5",
-    "react": "17.0.1",
-    "react-native": "0.64.4",
-    "react-native-builder-bob": "^0.18.0",
-    "typedoc": "^0.24.7",
-    "typescript": "^4.6.3"
-  },
-  "peerDependencies": {
-    "react": "*",
-    "react-native": "*"
-  },
-  "jest": {
-    "preset": "react-native",
-    "modulePathIgnorePatterns": [
-      "<rootDir>/example/node_modules",
-      "<rootDir>/lib/"
-    ]
-  },
   "husky": {
     "hooks": {
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
@@ -140,52 +32,5 @@
     "extends": [
       "@commitlint/config-conventional"
     ]
-  },
-  "eslintConfig": {
-    "root": true,
-    "extends": [
-      "@react-native-community",
-      "prettier"
-    ],
-    "rules": {
-      "prettier/prettier": [
-        "error",
-        {
-          "quoteProps": "consistent",
-          "singleQuote": true,
-          "tabWidth": 2,
-          "trailingComma": "es5",
-          "useTabs": false
-        }
-      ]
-    }
-  },
-  "eslintIgnore": [
-    "node_modules/",
-    "lib/"
-  ],
-  "prettier": {
-    "quoteProps": "consistent",
-    "singleQuote": true,
-    "tabWidth": 2,
-    "trailingComma": "es5",
-    "useTabs": false
-  },
-  "react-native-builder-bob": {
-    "source": "src",
-    "output": "lib",
-    "targets": [
-      "commonjs",
-      "module",
-      [
-        "typescript",
-        {
-          "project": "tsconfig.build.json"
-        }
-      ]
-    ]
-  },
-  "dependencies": {
-    "zustand": "^4.3.8"
   }
 }

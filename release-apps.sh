@@ -5,6 +5,8 @@ set -e
 set -x
 
 perform_npm_actions() {
+  cd ./packages/react-native-hms
+
   git pull --verbose
 
   npm install
@@ -15,7 +17,7 @@ perform_npm_actions() {
 }
 
 release_android() {
-  cd ./android
+  cd ./packages/react-native-hms/android
 
   bundle install --verbose
 
@@ -23,7 +25,7 @@ release_android() {
 }
 
 release_iOS() {
-  cd ./ios
+  cd ./packages/react-native-hms/ios
 
   pod install --verbose
 
@@ -43,10 +45,10 @@ perform_git_actions() {
     fi
   done <example/android/app/build.gradle
 
-  git add example/android/app/build.gradle
-  git add example/ios/Podfile.lock
-  git add example/ios/RNHMSExample/Info.plist
-  git add example/ios/RNHMSExample.xcodeproj/project.pbxproj
+  git add ./example/android/app/build.gradle
+  git add ./example/ios/Podfile.lock
+  git add ./example/ios/RNHMSExample/Info.plist
+  git add ./example/ios/RNHMSExample.xcodeproj/project.pbxproj
 
   git commit -m "released sample app version $versionCode ($buildNumber) ⚛️" --no-verify
 
