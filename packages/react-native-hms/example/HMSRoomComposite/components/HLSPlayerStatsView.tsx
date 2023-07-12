@@ -1,6 +1,6 @@
 import React from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
-import {useHMSHLSPlayerStats} from '@100mslive/react-native-hmslive';
+import {useHMSHLSPlayerStats} from '@100mslive/react-native-hms';
 
 import {COLORS} from '../utils/theme';
 

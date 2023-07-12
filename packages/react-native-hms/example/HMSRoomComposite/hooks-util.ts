@@ -19,7 +19,7 @@ import {
   HMSTrackUpdate,
   HMSUpdateListenerActions,
   useHMSPeerUpdates,
-} from '@100mslive/react-native-hmslive';
+} from '@100mslive/react-native-hms';
 import Toast from 'react-native-simple-toast';
 import {useRef, useCallback, useEffect, useState, useMemo} from 'react';
 

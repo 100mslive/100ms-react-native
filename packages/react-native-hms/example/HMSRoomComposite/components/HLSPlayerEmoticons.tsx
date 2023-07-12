@@ -3,7 +3,7 @@ import {
   HMSHLSPlayerPlaybackCue,
   HMSPeer,
   useHMSHLSPlayerCue,
-} from '@100mslive/react-native-hmslive';
+} from '@100mslive/react-native-hms';
 import Toast from 'react-native-simple-toast';
 
 import {RootState} from '../redux';

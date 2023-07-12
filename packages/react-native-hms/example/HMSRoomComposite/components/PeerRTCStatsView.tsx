@@ -6,7 +6,7 @@ import {
   HMSRemoteVideoStats,
   HMSLocalVideoStats,
   HMSQualityLimitationReasons,
-} from '@100mslive/react-native-hmslive';
+} from '@100mslive/react-native-hms';
 
 import {COLORS} from '../utils/theme';
 

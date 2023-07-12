@@ -2,11 +2,11 @@
 <img src="https://raw.githubusercontent.com/100mslive/react-native-hms/main/100ms.svg" title="100ms logo" float=center height=256>
 </a>
 
-[![npm](https://img.shields.io/npm/v/@100mslive/react-native-hmslive)](https://www.npmjs.com/package/@100mslive/react-native-hmslive)
-[![license](https://img.shields.io/npm/l/@100mslive/react-native-hmslive)](https://www.100ms.live/)
-[![quality](https://img.shields.io/npms-io/quality-score/@100mslive/react-native-hmslive)](https://www.npmjs.com/package/@100mslive/react-native-hmslive)
-[![vulnerabilities](https://img.shields.io/snyk/vulnerabilities/npm/@100mslive/react-native-hmslive)](https://www.npmjs.com/package/@100mslive/react-native-hmslive)
-[![collaborators](https://img.shields.io/npm/collaborators/@100mslive/react-native-hmslive)](https://www.npmjs.com/package/@100mslive/react-native-hmslive)
+[![npm](https://img.shields.io/npm/v/@100mslive/react-native-hms)](https://www.npmjs.com/package/@100mslive/react-native-hms)
+[![license](https://img.shields.io/npm/l/@100mslive/react-native-hms)](https://www.100ms.live/)
+[![quality](https://img.shields.io/npms-io/quality-score/@100mslive/react-native-hms)](https://www.npmjs.com/package/@100mslive/react-native-hms)
+[![vulnerabilities](https://img.shields.io/snyk/vulnerabilities/npm/@100mslive/react-native-hms)](https://www.npmjs.com/package/@100mslive/react-native-hms)
+[![collaborators](https://img.shields.io/npm/collaborators/@100mslive/react-native-hms)](https://www.npmjs.com/package/@100mslive/react-native-hms)
 [![Documentation](https://img.shields.io/badge/Read-Documentation-blue)](https://docs.100ms.live/react-native/v2/foundation/basics)
 [![Discord](https://img.shields.io/discord/843749923060711464?label=Join%20on%20Discord)](https://100ms.live/discord)
 [![Firebase](https://img.shields.io/badge/Download%20Android-Firebase-green)](https://appdistribution.firebase.dev/i/7b7ab3b30e627c35)
@@ -67,7 +67,7 @@ Troubleshooting Guide for resolving issues in running the Example app is [availa
 ## Installation
 
 ```bash
-npm install @100mslive/react-native-hmslive --save
+npm install @100mslive/react-native-hms --save
 ```
 
 📲 Download the Sample iOS App here: https://testflight.apple.com/join/v4bSIPad
@@ -123,7 +123,7 @@ The package exports all the classes and a HMSSDK class that manages everything.
 First invoke the `build` method which returns an instance of `HMSSDK`. Save this instance to perform all actions related to 100ms.
 
 ```ts
-import { HMSSDK } from '@100mslive/react-native-hmslive';
+import { HMSSDK } from '@100mslive/react-native-hms';
 
 /**
  * create HMSSDK instance using the build method & save it for further usage

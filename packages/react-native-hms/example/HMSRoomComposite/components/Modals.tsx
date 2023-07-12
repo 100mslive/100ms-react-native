@@ -30,7 +30,7 @@ import {
   HMSRTMPConfig,
   HMSLocalPeer,
   HMSRemotePeer,
-} from '@100mslive/react-native-hmslive';
+} from '@100mslive/react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';

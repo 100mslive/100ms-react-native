@@ -6,7 +6,7 @@ import {
   HMSTrack,
   HMSLayer,
   HMSSimulcastLayerDefinition,
-} from '@100mslive/react-native-hmslive';
+} from '@100mslive/react-native-hms';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import {CustomButton} from './CustomButton';

@@ -3,7 +3,7 @@ import {
   HMSRoom,
   HMSTrack,
   HMSUpdateListenerActions,
-} from '@100mslive/react-native-hmslive';
+} from '@100mslive/react-native-hms';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {Alert, Platform, StatusBar, StyleSheet, View} from 'react-native';
 import Toast from 'react-native-simple-toast';

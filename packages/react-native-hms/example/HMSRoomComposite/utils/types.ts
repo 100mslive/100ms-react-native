@@ -1,4 +1,4 @@
-import type {HMSPeer, HMSVideoTrack} from '@100mslive/react-native-hmslive';
+import type {HMSPeer, HMSVideoTrack} from '@100mslive/react-native-hms';
 
 export type PeerTrackNode = {
   id: string;

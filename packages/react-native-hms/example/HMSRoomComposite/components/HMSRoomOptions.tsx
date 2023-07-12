@@ -1,9 +1,6 @@
 import * as React from 'react';
 import {InteractionManager, View} from 'react-native';
-import {
-  HMSAudioMixingMode,
-  HMSAudioMode,
-} from '@100mslive/react-native-hmslive';
+import {HMSAudioMixingMode, HMSAudioMode} from '@100mslive/react-native-hms';
 
 import {PressableIcon} from './PressableIcon';
 import {ThreeDotsIcon} from '../Icons';

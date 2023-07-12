@@ -8,7 +8,7 @@ import {
   HMSPeer,
   HMSRemoteAudioStats,
   HMSRemoteVideoStats,
-} from '@100mslive/react-native-hmslive';
+} from '@100mslive/react-native-hms';
 
 type ActionType = {
   payload: {[key: string]: any};

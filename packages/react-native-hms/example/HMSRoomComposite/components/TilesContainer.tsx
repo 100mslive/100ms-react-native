@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, Dimensions} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import type {HMSView} from '@100mslive/react-native-hmslive';
+import type {HMSView} from '@100mslive/react-native-hms';
 
 import {styles} from './styles';
 

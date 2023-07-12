@@ -17,7 +17,7 @@ import {
   HMSPeer,
   HMSRemotePeer,
   HMSRole,
-} from '@100mslive/react-native-hmslive';
+} from '@100mslive/react-native-hms';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';

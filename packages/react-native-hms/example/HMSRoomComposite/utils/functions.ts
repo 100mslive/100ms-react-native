@@ -12,7 +12,7 @@ import {
   HMSTrackSource,
   HMSLocalPeer,
   HMSVideoTrack,
-} from '@100mslive/react-native-hmslive';
+} from '@100mslive/react-native-hms';
 
 import {PeerTrackNode} from './types';
 import {

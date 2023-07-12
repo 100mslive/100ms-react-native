@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {useSelector} from 'react-redux';
 import {View, Text, InteractionManager} from 'react-native';
-import {HMSTrack, HMSCameraControl} from '@100mslive/react-native-hmslive';
+import {HMSTrack, HMSCameraControl} from '@100mslive/react-native-hms';
 import Animated, {
   SharedValue,
   interpolate,

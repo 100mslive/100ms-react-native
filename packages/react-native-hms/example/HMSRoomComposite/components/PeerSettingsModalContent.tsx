@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, TouchableOpacity, Text, StyleSheet} from 'react-native';
 import {batch, useDispatch, useSelector} from 'react-redux';
-import {HMSTrack, HMSTrackSource} from '@100mslive/react-native-hmslive';
+import {HMSTrack, HMSTrackSource} from '@100mslive/react-native-hms';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 

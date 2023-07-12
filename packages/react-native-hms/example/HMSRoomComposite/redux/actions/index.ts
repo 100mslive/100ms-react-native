@@ -1,4 +1,4 @@
-import {HMSRoom, HMSLocalPeer} from '@100mslive/react-native-hmslive';
+import {HMSRoom, HMSLocalPeer} from '@100mslive/react-native-hms';
 import type {
   HMSLocalAudioStats,
   HMSLocalVideoStats,
@@ -9,7 +9,7 @@ import type {
   HMSRole,
   HMSSDK,
   HMSSessionStore,
-} from '@100mslive/react-native-hmslive';
+} from '@100mslive/react-native-hms';
 import type {ModalTypes, PeerTrackNode, PipModes} from '../../utils/types';
 import actionTypes, {HmsStateActionTypes} from '../actionTypes';
 

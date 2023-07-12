@@ -10,7 +10,7 @@ import {
   HMSTrackSettings,
   HMSTrackSettingsInitState,
   HMSVideoTrackSettings,
-} from '@100mslive/react-native-hmslive';
+} from '@100mslive/react-native-hms';
 import {useEffect, useState} from 'react';
 import {getModel} from 'react-native-device-info';
 

@@ -1,4 +1,4 @@
-import type {HMSMessage} from '@100mslive/react-native-hmslive';
+import type {HMSMessage} from '@100mslive/react-native-hms';
 import ActionTypes, {HmsStateActionTypes} from '../actionTypes';
 
 type ActionType = {

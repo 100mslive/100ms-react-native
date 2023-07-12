@@ -1,9 +1,9 @@
 import React from 'react';
 import {View, Text, TouchableOpacity} from 'react-native';
-import {HMSTrackSource} from '@100mslive/react-native-hmslive';
+import {HMSTrackSource} from '@100mslive/react-native-hms';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import type {HMSView} from '@100mslive/react-native-hmslive';
+import type {HMSView} from '@100mslive/react-native-hms';
 
 import {styles} from './styles';
 

@@ -1,6 +1,6 @@
 import React, {ElementRef, useRef, useState, useImperativeHandle} from 'react';
 import {View, FlatList} from 'react-native';
-import type {HMSView, HMSPeer} from '@100mslive/react-native-hmslive';
+import type {HMSView, HMSPeer} from '@100mslive/react-native-hms';
 
 import {DefaultModal} from './DefaultModal';
 import {SaveScreenshot} from './Modals';

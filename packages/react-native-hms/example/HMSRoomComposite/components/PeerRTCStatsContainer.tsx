@@ -1,7 +1,7 @@
 import React, {memo} from 'react';
 import {View, StyleSheet, ScrollView} from 'react-native';
 import {useSelector} from 'react-redux';
-import {HMSTrackSource} from '@100mslive/react-native-hmslive';
+import {HMSTrackSource} from '@100mslive/react-native-hms';
 
 import {COLORS} from '../utils/theme';
 import {RootState} from '../redux';

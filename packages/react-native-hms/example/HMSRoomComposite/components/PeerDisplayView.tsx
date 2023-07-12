@@ -5,9 +5,9 @@ import {
   HMSTrackSource,
   HMSVideoTrack,
   HMSPeer,
-} from '@100mslive/react-native-hmslive';
+} from '@100mslive/react-native-hms';
 import {useSelector} from 'react-redux';
-import type {HMSView} from '@100mslive/react-native-hmslive';
+import type {HMSView} from '@100mslive/react-native-hms';
 
 import {styles} from './styles';
 

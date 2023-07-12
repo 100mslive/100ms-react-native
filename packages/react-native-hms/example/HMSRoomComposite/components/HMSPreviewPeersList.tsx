@@ -4,7 +4,7 @@ import {
   HMSPeer,
   HMSPeerUpdate,
   useHMSPeerUpdates,
-} from '@100mslive/react-native-hmslive';
+} from '@100mslive/react-native-hms';
 
 import {COLORS} from '../utils/theme';
 import {ParticipantsIcon} from '../Icons';

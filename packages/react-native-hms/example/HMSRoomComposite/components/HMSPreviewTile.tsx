@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {useSelector} from 'react-redux';
-import {HMSVideoViewMode} from '@100mslive/react-native-hmslive';
+import {HMSVideoViewMode} from '@100mslive/react-native-hms';
 import {StyleSheet, Text, View} from 'react-native';
 
 import {MicIcon, NetworkQualityIcon} from '../Icons';

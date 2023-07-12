@@ -9,7 +9,7 @@ import type {
   HMSLocalPeer,
   HMSPeer,
   HMSRemotePeer,
-} from '@100mslive/react-native-hmslive';
+} from '@100mslive/react-native-hms';
 
 import {CustomButton} from '../CustomButton';
 import {Menu, MenuItem} from '../MenuModal';

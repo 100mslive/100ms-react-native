@@ -1,7 +1,7 @@
 import React, {ComponentRef, useRef, useEffect} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {View, Text, StyleSheet} from 'react-native';
-import {HMSHLSPlayer} from '@100mslive/react-native-hmslive';
+import {HMSHLSPlayer} from '@100mslive/react-native-hms';
 import {AvoidSoftInput} from 'react-native-avoid-softinput';
 
 import {RootState} from '../redux';

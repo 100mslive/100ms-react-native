@@ -18,7 +18,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {
   HMSUpdateListenerActions,
   HMSAudioDevice,
-} from '@100mslive/react-native-hmslive';
+} from '@100mslive/react-native-hms';
 
 import {ChevronIcon, SettingsIcon, SpeakerIcon} from '../Icons';
 import {PressableIcon} from './PressableIcon';

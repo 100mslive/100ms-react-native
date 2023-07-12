@@ -2,7 +2,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@100mslive/react-native-hmslive": ["./src/index"]
+      "@100mslive/react-native-hms": ["./src/index"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,

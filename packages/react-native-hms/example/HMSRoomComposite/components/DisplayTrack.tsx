@@ -1,9 +1,9 @@
 import React from 'react';
 import {View, Text, StyleProp, ViewStyle} from 'react-native';
-import {HMSTrackSource, HMSTrackType} from '@100mslive/react-native-hmslive';
+import {HMSTrackSource, HMSTrackType} from '@100mslive/react-native-hms';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useSelector} from 'react-redux';
-import type {HMSView} from '@100mslive/react-native-hmslive';
+import type {HMSView} from '@100mslive/react-native-hms';
 
 import {CustomButton} from '.';
 import {styles} from './styles';

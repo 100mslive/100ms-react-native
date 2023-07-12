@@ -13,7 +13,7 @@ import {
   HMSRemoteVideoTrack,
   HMSTrackSource,
   HMSUpdateListenerActions,
-} from '@100mslive/react-native-hmslive';
+} from '@100mslive/react-native-hms';
 
 import {RootState} from '../redux';
 import {setRTCStats} from '../redux/actions';

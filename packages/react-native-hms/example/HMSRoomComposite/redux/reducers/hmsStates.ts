@@ -1,8 +1,4 @@
-import type {
-  HMSLocalPeer,
-  HMSRole,
-  HMSRoom,
-} from '@100mslive/react-native-hmslive';
+import type {HMSLocalPeer, HMSRole, HMSRoom} from '@100mslive/react-native-hms';
 import {HmsStateActionTypes} from '../actionTypes';
 
 type ActionType =

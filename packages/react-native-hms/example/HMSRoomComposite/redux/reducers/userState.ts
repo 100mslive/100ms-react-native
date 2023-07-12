@@ -2,7 +2,7 @@ import type {
   HMSRole,
   HMSSDK,
   HMSSessionStore,
-} from '@100mslive/react-native-hmslive';
+} from '@100mslive/react-native-hms';
 import {getMeetingCode, getMeetingUrl} from '../../utils/functions';
 import ActionTypes, {HmsStateActionTypes} from '../actionTypes';
 

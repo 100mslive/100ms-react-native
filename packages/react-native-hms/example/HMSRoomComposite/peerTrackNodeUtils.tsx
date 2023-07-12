@@ -3,7 +3,7 @@ import {
   HMSTrack,
   HMSTrackSource,
   HMSTrackType,
-} from '@100mslive/react-native-hmslive';
+} from '@100mslive/react-native-hms';
 
 import {PeerTrackNode} from './utils/types';
 

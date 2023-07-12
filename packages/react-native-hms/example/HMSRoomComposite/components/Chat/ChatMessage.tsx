@@ -1,9 +1,6 @@
 import * as React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import {
-  HMSMessage,
-  HMSMessageRecipientType,
-} from '@100mslive/react-native-hmslive';
+import {HMSMessage, HMSMessageRecipientType} from '@100mslive/react-native-hms';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useSelector} from 'react-redux';
 

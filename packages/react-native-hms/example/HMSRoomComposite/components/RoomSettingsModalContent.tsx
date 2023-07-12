@@ -15,7 +15,7 @@ import {
   HMSAudioMixingMode,
   HMSLocalPeer,
   HMSUpdateListenerActions,
-} from '@100mslive/react-native-hmslive';
+} from '@100mslive/react-native-hms';
 import {useDispatch, useSelector} from 'react-redux';
 import Toast from 'react-native-simple-toast';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
