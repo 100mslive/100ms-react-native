@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "preinstall": "cd ../ && npm install && cd ./example",
-    "android": "react-native run-android",
-    "ios": "react-native run-ios",
-    "start": "react-native start",
+    "android": "NODE_OPTIONS=--openssl-legacy-provider react-native run-android",
+    "ios": "NODE_OPTIONS=--openssl-legacy-provider react-native run-ios",
+    "start": "NODE_OPTIONS=--openssl-legacy-provider react-native start",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "setup-firebase": "node setupFirebase.js"
