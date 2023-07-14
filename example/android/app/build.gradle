@@ -78,7 +78,8 @@ import com.android.build.OutputFile
 
     project.ext.react = [
         entryFile: "index.js",
-        enableHermes: true  // clean and rebuild if changing
+        enableHermes: true,  // clean and rebuild if changing
+        nodeExecutableAndArgs: ["/usr/local/bin/node", "--openssl-legacy-provider"],
     ]
 
 apply from: "../../node_modules/react-native/react.gradle"
