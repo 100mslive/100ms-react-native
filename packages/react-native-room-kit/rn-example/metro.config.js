@@ -9,6 +9,7 @@ const root = path.resolve(__dirname, '..');
 const rnhms_root = path.resolve(__dirname, '../../react-native-hms');
 
 const modules = Object.keys({
+  '@100mslive/react-native-hms': '*',
   ...root_pak.peerDependencies,
   ...rnhms_root_pak.peerDependencies,
 });

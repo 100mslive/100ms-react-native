@@ -264,8 +264,6 @@ PODS:
     - React-jsi (= 0.64.4)
     - React-perflogger (= 0.64.4)
   - React-jsinspector (0.64.4)
-  - react-native-avoid-softinput (2.4.8):
-    - React-Core
   - react-native-camera (4.2.1):
     - React-Core
     - react-native-camera/RCT (= 4.2.1)
@@ -273,8 +271,6 @@ PODS:
   - react-native-camera/RCT (4.2.1):
     - React-Core
   - react-native-camera/RN (4.2.1):
-    - React-Core
-  - react-native-document-picker (8.2.1):
     - React-Core
   - react-native-hms (2.0.0):
     - HMSBroadcastExtensionSDK (= 0.0.9)
@@ -350,15 +346,9 @@ PODS:
     - React-cxxreact (= 0.64.4)
     - React-jsi (= 0.64.4)
     - React-perflogger (= 0.64.4)
-  - rn-fetch-blob (0.12.0):
-    - React-Core
   - RNCAsyncStorage (1.19.0):
     - React-Core
   - RNDeviceInfo (9.0.2):
-    - React-Core
-  - RNFlashList (1.4.3):
-    - React-Core
-  - RNFS (2.20.0):
     - React-Core
   - RNGestureHandler (1.10.3):
     - React-Core
@@ -394,8 +384,6 @@ PODS:
   - RNScreens (3.22.1):
     - React-Core
     - React-RCTImage
-  - RNShare (8.2.2):
-    - React-Core
   - RNVectorIcons (9.2.0):
     - React-Core
   - Toast (4.0.0)
@@ -442,9 +430,7 @@ DEPENDENCIES:
   - React-jsi (from `../node_modules/react-native/ReactCommon/jsi`)
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
-  - react-native-avoid-softinput (from `../node_modules/react-native-avoid-softinput`)
   - react-native-camera (from `../node_modules/react-native-camera`)
-  - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - react-native-hms (from `../../../react-native-hms`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-simple-toast (from `../node_modules/react-native-simple-toast`)
@@ -460,16 +446,12 @@ DEPENDENCIES:
   - React-RCTVibration (from `../node_modules/react-native/Libraries/Vibration`)
   - React-runtimeexecutor (from `../node_modules/react-native/ReactCommon/runtimeexecutor`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
-  - rn-fetch-blob (from `../node_modules/rn-fetch-blob`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
-  - "RNFlashList (from `../node_modules/@shopify/flash-list`)"
-  - RNFS (from `../node_modules/react-native-fs`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
-  - RNShare (from `../node_modules/react-native-share`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -529,12 +511,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsiexecutor"
   React-jsinspector:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
-  react-native-avoid-softinput:
-    :path: "../node_modules/react-native-avoid-softinput"
   react-native-camera:
     :path: "../node_modules/react-native-camera"
-  react-native-document-picker:
-    :path: "../node_modules/react-native-document-picker"
   react-native-hms:
     :path: "../../../react-native-hms"
   react-native-safe-area-context:
@@ -565,16 +543,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/runtimeexecutor"
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
-  rn-fetch-blob:
-    :path: "../node_modules/rn-fetch-blob"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNDeviceInfo:
     :path: "../node_modules/react-native-device-info"
-  RNFlashList:
-    :path: "../node_modules/@shopify/flash-list"
-  RNFS:
-    :path: "../node_modules/react-native-fs"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
   RNPermissions:
@@ -583,8 +555,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
-  RNShare:
-    :path: "../node_modules/react-native-share"
   RNVectorIcons:
     :path: "../node_modules/react-native-vector-icons"
   Yoga:
@@ -624,9 +594,7 @@ SPEC CHECKSUMS:
   React-jsi: 64f80675a66899bf0f4a58b8e3908966fa516234
   React-jsiexecutor: 8c077bef1c64430b6034f27df1000d194551e2eb
   React-jsinspector: d4f6973dd474357dbaaf6f52f31ffc713bf3e766
-  react-native-avoid-softinput: 71a692888f0c1d426ad9045dc8325773583962cd
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
-  react-native-document-picker: 69ca2094d8780cfc1e7e613894d15290fdc54bba
   react-native-hms: e944cc03e1939f2c9d4a107cf08be333bd02841f
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
   react-native-simple-toast: 8ee5d23f0b92b935ab7434cdb65159ce12dfb4b7
@@ -642,16 +610,12 @@ SPEC CHECKSUMS:
   React-RCTVibration: 761849eea2a1abc99d5e4171bae17ab3da3143ac
   React-runtimeexecutor: 5b441857030bb6c3abaa7517f333cb01875ae499
   ReactCommon: b4a65d2d6e9eeffd4b32dde1245962b3f43907d0
-  rn-fetch-blob: f065bb7ab7fb48dd002629f8bdcb0336602d3cba
   RNCAsyncStorage: 4b98ac3c64efa4e35c1197cb0c5ca5e9f5d4c666
   RNDeviceInfo: 1e3f62b9ec32f7754fac60bd06b8f8a27124e7f0
-  RNFlashList: ade81b4e928ebd585dd492014d40fb8d0e848aab
-  RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNPermissions: eac721f71748c4472d6e876038270b75397d6ee7
   RNReanimated: 39e61976e5b5c8a891ea8916fb264ae176e8765d
   RNScreens: 50ffe2fa2342eabb2d0afbe19f7c1af286bc7fb3
-  RNShare: d82e10f6b7677f4b0048c23709bd04098d5aee6c
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
   Yoga: d1fc3575b8b68891ff5ef3c276daa855e841eb32
