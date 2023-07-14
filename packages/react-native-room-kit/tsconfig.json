@@ -2,7 +2,8 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "@100mslive/react-native-room-kit": ["./src/index"]
+      "@100mslive/react-native-room-kit": ["./src/index"],
+      "@100mslive/react-native-hms": ["../react-native-hms/src"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
