@@ -7,12 +7,11 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {BarCodeReadEvent, RNCamera} from 'react-native-camera';
 import QRScanner from 'react-native-qrcode-scanner';
 import {useDispatch} from 'react-redux';
-import Toast from 'react-native-simple-toast';
 
 import type {AppStackParamList} from '../../navigator';
 import {styles} from './styles';
 import {CustomButton} from '../../components';
-import {setRoomID} from '../../redux/actions';
+import {saveUserData} from '../../redux/actions';
 import {validateUrl} from '../../utils/functions';
 
 type WelcomeScreenProp = NativeStackNavigationProp<
@@ -21,21 +20,26 @@ type WelcomeScreenProp = NativeStackNavigationProp<
 >;
 
 const QRCodeScanner = () => {
+  const navigate = useNavigation<WelcomeScreenProp>().navigate;
   const goBack = useNavigation<WelcomeScreenProp>().goBack;
   const dispatch = useDispatch();
   const {top, bottom, left, right} = useSafeAreaInsets();
 
   const onScanSuccess = (e: BarCodeReadEvent) => {
     const joiningLink = e.data.replace('meeting', 'preview');
-
-    if (validateUrl(joiningLink) && joiningLink.includes('app.100ms.live/')) {
-      dispatch(setRoomID(joiningLink));
-      Toast.showWithGravity('Joining Link Updated!', Toast.LONG, Toast.TOP);
-    } else {
-      Alert.alert('Error', 'Invalid URL');
+    if (validateUrl(joiningLink)) {
+      if (!joiningLink.includes('app.100ms.live/')) {
+        goBack();
+        Alert.alert('Error', 'Invalid URL');
+        return;
+      }
     }
-
-    goBack();
+    dispatch(
+      saveUserData({
+        roomID: joiningLink,
+      }),
+    );
+    navigate('WelcomeScreen');
   };
 
   return (

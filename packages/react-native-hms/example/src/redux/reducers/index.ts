@@ -1,7 +1,10 @@
+import messages from './message';
+import app from './appState';
+import user from './userState';
 import {combineReducers} from 'redux';
 
-import app from './appState';
-
 export default combineReducers({
+  messages,
   app,
+  user,
 });

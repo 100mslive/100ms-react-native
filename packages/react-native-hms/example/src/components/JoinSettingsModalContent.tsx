@@ -25,6 +25,7 @@ import {SwitchRow} from './SwitchRow';
 import {RootState} from '../redux';
 import {
   changeAudioMixer,
+  changeShowStats,
   changeJoinAudioMuted,
   changeJoinSkipPreview,
   changeJoinVideoMuted,
@@ -34,7 +35,7 @@ import {
   changeAutoSimulcast,
   resetJoinConfig,
   changeMusicMode,
-  changeDebugMode,
+  changeShowHLSStats,
 } from '../redux/actions';
 
 interface JoinSettingsModalContentProps {}
@@ -45,11 +46,12 @@ export const JoinSettingsModalContent: React.FC<
   const dispatch = useDispatch();
   const joinConfig = useSelector((state: RootState) => state.app.joinConfig);
   const {
-    debugMode,
     mutedAudio,
     mutedVideo,
     skipPreview,
     mirrorCamera,
+    showStats,
+    showHLSStats,
     audioMixer,
     musicMode,
     softwareDecoder,
@@ -65,20 +67,6 @@ export const JoinSettingsModalContent: React.FC<
 
       <ScrollView>
         <View>
-          <SwitchRow
-            text="Debug Info"
-            value={debugMode}
-            onChange={value => dispatch(changeDebugMode(value))}
-            LeftIcon={
-              <IoniconsIcons
-                name="ios-bug-outline"
-                size={24}
-                style={styles.icon}
-              />
-            }
-            containerStyle={styles.switchContainer}
-          />
-
           <SwitchRow
             text="Join with Muted Audio"
             value={mutedAudio}
@@ -96,6 +84,20 @@ export const JoinSettingsModalContent: React.FC<
             LeftIcon={
               <MaterialCommunityIcons
                 name="video-off-outline"
+                size={24}
+                style={styles.icon}
+              />
+            }
+            containerStyle={styles.switchContainer}
+          />
+
+          <SwitchRow
+            text="Mirror Camera"
+            value={mirrorCamera}
+            onChange={value => dispatch(changeMirrorCamera(value))}
+            LeftIcon={
+              <IoniconsIcons
+                name="camera-reverse-outline"
                 size={24}
                 style={styles.icon}
               />
@@ -168,6 +170,48 @@ export const JoinSettingsModalContent: React.FC<
               containerStyle={styles.switchContainer}
             />
           ) : null}
+
+          <SwitchRow
+            text="Auto Simulcast"
+            value={autoSimulcast}
+            onChange={value => dispatch(changeAutoSimulcast(value))}
+            LeftIcon={
+              <MaterialIcons
+                name="auto-awesome-motion"
+                size={24}
+                style={styles.icon}
+              />
+            }
+            containerStyle={styles.switchContainer}
+          />
+
+          <SwitchRow
+            text="Show RTC Stats"
+            value={showStats}
+            onChange={value => dispatch(changeShowStats(value))}
+            LeftIcon={
+              <MaterialCommunityIcons
+                name="clipboard-pulse-outline"
+                size={24}
+                style={styles.icon}
+              />
+            }
+            containerStyle={styles.switchContainer}
+          />
+
+          <SwitchRow
+            text="Show HLS Stats"
+            value={showHLSStats}
+            onChange={value => dispatch(changeShowHLSStats(value))}
+            LeftIcon={
+              <MaterialCommunityIcons
+                name="clipboard-pulse-outline"
+                size={24}
+                style={styles.icon}
+              />
+            }
+            containerStyle={styles.switchContainer}
+          />
 
           <View style={styles.divider} />
 

@@ -7,7 +7,6 @@ import {
   Platform,
   ScrollView,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
@@ -15,9 +14,8 @@ import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {useDispatch, useSelector, useStore} from 'react-redux';
+import {useDispatch} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Toast from 'react-native-simple-toast';
 
 import type {AppStackParamList} from '../../navigator';
 import {styles} from './styles';
@@ -29,10 +27,8 @@ import {
   DefaultModal,
   JoinSettingsModalContent,
 } from '../../components';
-import {setRoomID} from '../../redux/actions';
+import {saveUserData} from '../../redux/actions';
 import {Constants} from '../../utils/types';
-import {RootState} from '../../redux';
-import {callService} from '../../utils/functions';
 
 type QRCodeScreenProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -43,53 +39,20 @@ const QRCode = () => {
   const navigate = useNavigation<QRCodeScreenProp>().navigate;
   const {top, bottom, left, right} = useSafeAreaInsets();
   const dispatch = useDispatch();
-  const store = useStore();
 
-  const roomLink = useSelector(
-    (state: RootState) => state.app.roomID || getMeetingUrl(),
-  );
-  const debugMode = useSelector(
-    (state: RootState) => state.app.joinConfig.debugMode,
-  );
-  const [peerName, setPeerName] = useState<string>('');
   const [joinDisabled, setJoinDisabled] = useState<boolean>(true);
-  const [joiningLink, setJoiningLink] = useState<string>('');
+  const [joiningLink, setJoiningLink] = useState<string>(getMeetingUrl());
   const [moreModalVisible, setMoreModalVisible] = useState(false);
 
   const onJoinPress = () => {
     if (joiningLink.includes('app.100ms.live/')) {
-      dispatch(setRoomID(joiningLink.replace('meeting', 'preview')));
-
-      callService(
-        joiningLink,
-        (
-          roomCode: string,
-          userId: string,
-          tokenEndpoint: string | undefined,
-          initEndpoint: string | undefined,
-        ) => {
-          // Saving Meeting Link to Async Storage for persisting it between app starts.
-          AsyncStorage.setItem(
-            Constants.MEET_URL,
-            joiningLink.replace('preview', 'meeting'),
-          );
-          // @ts-ignore
-          global.joinConfig = (store.getState() as RootState).app.joinConfig;
-          navigate('HMSPrebuiltScreen', {
-            roomCode,
-            userName: peerName,
-            userId,
-            endPoints:
-              tokenEndpoint && initEndpoint
-                ? {init: initEndpoint, token: tokenEndpoint}
-                : undefined,
-            debugMode, // default is false, will deal with this later
-          });
-        },
-        (errorMsg: string) => {
-          Toast.showWithGravity(errorMsg, Toast.LONG, Toast.TOP);
-        },
+      dispatch(
+        saveUserData({
+          roomID: joiningLink.replace('meeting', 'preview'),
+          isHLSFlow: true,
+        }),
       );
+      navigate('WelcomeScreen');
     } else {
       Alert.alert('Error', 'Invalid URL');
     }
@@ -129,18 +92,12 @@ const QRCode = () => {
   useFocusEffect(
     useCallback(() => {
       AsyncStorage.getItem(Constants.MEET_URL, (_error, url) => {
-        if (url && url === roomLink) {
+        if (url) {
           setJoiningLink(url);
         }
       });
-    }, [roomLink]),
+    }, []),
   );
-
-  useEffect(() => {
-    if (roomLink) {
-      setJoiningLink(roomLink);
-    }
-  }, [roomLink]);
 
   return (
     <KeyboardAvoidingView
@@ -175,48 +132,15 @@ const QRCode = () => {
         <View style={styles.joiningLinkInputView}>
           <Text style={styles.joiningLinkInputText}>Joining Link</Text>
         </View>
-
-        <View style={{width: '100%', flexDirection: 'row'}}>
-          <CustomInput
-            value={joiningLink}
-            onChangeText={setJoiningLink}
-            inputStyle={styles.joiningLinkInput}
-            viewStyle={{width: '86%'}}
-            placeholderTextColor={COLORS.TEXT.DISABLED}
-            placeholder="Paste the link here"
-            multiline
-            blurOnSubmit
-          />
-          <TouchableOpacity
-            onPress={onScanQRCodePress}
-            style={{
-              width: '14%',
-              marginTop: 8,
-              backgroundColor: COLORS.PRIMARY.DEFAULT,
-              justifyContent: 'center',
-              alignItems: 'center',
-              borderRadius: 8,
-            }}
-          >
-            <MaterialCommunityIcons
-              name="qrcode"
-              style={{color: COLORS.TEXT.HIGH_EMPHASIS_ACCENT}}
-              size={24}
-            />
-          </TouchableOpacity>
-        </View>
-
         <CustomInput
-          value={peerName}
-          onChangeText={setPeerName}
-          textStyle={styles.userNameInputText}
-          viewStyle={styles.userNameInputView}
-          inputStyle={styles.userNameInput}
+          value={joiningLink}
+          onChangeText={setJoiningLink}
+          inputStyle={styles.joiningLinkInput}
           placeholderTextColor={COLORS.TEXT.DISABLED}
-          placeholder="Enter your name"
-          title="Name"
+          placeholder="Paste the link here"
+          multiline
+          blurOnSubmit
         />
-
         <View style={{flexDirection: 'row'}}>
           <CustomButton
             title="Join Now"
@@ -240,6 +164,20 @@ const QRCode = () => {
             }
           />
         </View>
+        <View style={styles.horizontalSeparator} />
+        <CustomButton
+          title="Scan QR Code"
+          onPress={onScanQRCodePress}
+          viewStyle={styles.scanQRButton}
+          textStyle={styles.joinButtonText}
+          LeftIcon={
+            <MaterialCommunityIcons
+              name="qrcode"
+              style={styles.scanQRButtonIcon}
+              size={24}
+            />
+          }
+        />
       </ScrollView>
 
       <DefaultModal

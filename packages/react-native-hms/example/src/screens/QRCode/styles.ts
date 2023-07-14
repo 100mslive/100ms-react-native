@@ -46,28 +46,6 @@ const styles = StyleSheet.create({
     color: COLORS.TEXT.HIGH_EMPHASIS,
     fontFamily: 'Inter-Medium',
   },
-  userNameInput: {
-    backgroundColor: COLORS.SURFACE.LIGHT,
-    borderColor: COLORS.BORDER.LIGHT,
-    borderWidth: 1,
-    width: '100%',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingLeft: 16,
-    marginTop: 8,
-    color: COLORS.TEXT.HIGH_EMPHASIS,
-    fontFamily: 'Inter-Medium',
-  },
-  userNameInputText: {
-    color: COLORS.TEXT.HIGH_EMPHASIS,
-    fontFamily: 'Inter-Regular',
-    fontSize: 14,
-    lineHeight: 20,
-    letterSpacing: 0.25,
-  },
-  userNameInputView: {
-    marginTop: 16,
-  },
   joiningLinkInputText: {
     color: COLORS.TEXT.HIGH_EMPHASIS,
     fontFamily: 'Inter-Regular',
