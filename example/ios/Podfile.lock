@@ -290,7 +290,7 @@ PODS:
     - React-Core
   - react-native-document-picker (8.2.1):
     - React-Core
-  - react-native-hms (1.7.0):
+  - react-native-hms (1.7.1):
     - HMSBroadcastExtensionSDK (= 0.0.9)
     - HMSHLSPlayerSDK (= 0.0.2)
     - HMSSDK (= 0.9.5)
@@ -366,7 +366,7 @@ PODS:
     - React-perflogger (= 0.64.4)
   - rn-fetch-blob (0.12.0):
     - React-Core
-  - RNCAsyncStorage (1.18.2):
+  - RNCAsyncStorage (1.19.0):
     - React-Core
   - RNDeviceInfo (9.0.2):
     - React-Core
@@ -376,7 +376,7 @@ PODS:
     - React-Core
   - RNPermissions (3.4.0):
     - React-Core
-  - RNScreens (3.21.0):
+  - RNScreens (3.22.1):
     - React-Core
     - React-RCTImage
   - RNShare (8.2.2):
@@ -608,7 +608,7 @@ SPEC CHECKSUMS:
   React-jsinspector: d4f6973dd474357dbaaf6f52f31ffc713bf3e766
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
   react-native-document-picker: 69ca2094d8780cfc1e7e613894d15290fdc54bba
-  react-native-hms: 11cdcbdf17424584f0409484567ecc9c7c4a66d5
+  react-native-hms: 5727f27f8b112168394ba75b13e18137f6235d17
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
   react-native-simple-toast: 8ee5d23f0b92b935ab7434cdb65159ce12dfb4b7
   React-perflogger: 5a890ca0911669421b7611661e9b58f91c805f5c
@@ -624,12 +624,12 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: 5b441857030bb6c3abaa7517f333cb01875ae499
   ReactCommon: b4a65d2d6e9eeffd4b32dde1245962b3f43907d0
   rn-fetch-blob: f065bb7ab7fb48dd002629f8bdcb0336602d3cba
-  RNCAsyncStorage: ddc4ee162bfd41b0d2c68bf2d95acd81dd7f1f93
+  RNCAsyncStorage: 4b98ac3c64efa4e35c1197cb0c5ca5e9f5d4c666
   RNDeviceInfo: 1e3f62b9ec32f7754fac60bd06b8f8a27124e7f0
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNPermissions: eac721f71748c4472d6e876038270b75397d6ee7
-  RNScreens: d037903436160a4b039d32606668350d2a808806
+  RNScreens: 50ffe2fa2342eabb2d0afbe19f7c1af286bc7fb3
   RNShare: d82e10f6b7677f4b0048c23709bd04098d5aee6c
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
