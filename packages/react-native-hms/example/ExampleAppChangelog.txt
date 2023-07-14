@@ -1,10 +1,10 @@
 Board: https://github.com/100mslive/react-native-hms/projects/17
 
-- monorepo initial changes
+- Restored original example app of `@100mslive/react-native-hms` package
 
 https://github.com/100mslive/react-native-hms/issues/1058
 
-Branch: `prebuilt-hls-viewer-role-layout-changes` (commit hash: 48f522c3...)
+Branch: `prebuilt-hls-viewer-role-layout-changes` (commit hash: 9e1e1e97...)
 
 React Native SDK: 2.0.0
 Android SDK: 2.6.7
