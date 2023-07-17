@@ -5,7 +5,7 @@ import { store } from './redux/index';
 import { HMSContainer } from './HMSContainer';
 import { setPrebuiltData } from './redux/actions';
 
-export interface HMSRoomCompositeProps {
+export interface HMSPrebuiltProps {
   roomCode: string;
   options?: {
     userName?: string;
@@ -18,7 +18,7 @@ export interface HMSRoomCompositeProps {
   };
 }
 
-export const _HMSRoomComposite: React.FC<HMSRoomCompositeProps> = (props) => {
+export const _HMSPrebuilt: React.FC<HMSPrebuiltProps> = (props) => {
   const { roomCode, options } = props;
 
   store.dispatch(setPrebuiltData({ roomCode, options }));
@@ -31,4 +31,4 @@ export const _HMSRoomComposite: React.FC<HMSRoomCompositeProps> = (props) => {
 };
 
 // TODO: handle props change
-export const HMSRoomComposite = memo(_HMSRoomComposite);
+export const HMSPrebuilt = memo(_HMSPrebuilt);
