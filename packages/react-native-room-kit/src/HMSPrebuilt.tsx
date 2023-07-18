@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import { store } from './redux/index';
 import { HMSContainer } from './HMSContainer';
 import { setPrebuiltData } from './redux/actions';
+import type { IOSBuildConfig } from './utils/types';
 
 export interface HMSPrebuiltProps {
   roomCode: string;
@@ -15,6 +16,7 @@ export interface HMSPrebuiltProps {
       token: string;
     };
     debugMode?: boolean;
+    ios?: IOSBuildConfig;
   };
 }
 

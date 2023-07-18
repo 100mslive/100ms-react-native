@@ -10,7 +10,12 @@ import type {
   HMSSDK,
   HMSSessionStore,
 } from '@100mslive/react-native-hms';
-import type { ModalTypes, PeerTrackNode, PipModes } from '../../utils/types';
+import type {
+  IOSBuildConfig,
+  ModalTypes,
+  PeerTrackNode,
+  PipModes,
+} from '../../utils/types';
 import actionTypes, { HmsStateActionTypes } from '../actionTypes';
 
 export const setPrebuiltData = (data: {
@@ -23,6 +28,7 @@ export const setPrebuiltData = (data: {
       init: string;
       token: string;
     };
+    ios?: IOSBuildConfig;
   };
 }) => ({
   type: HmsStateActionTypes.SET_PREBUILT_DATA,

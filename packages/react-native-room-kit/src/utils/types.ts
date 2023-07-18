@@ -81,6 +81,11 @@ export enum Constants {
   MEET_URL = 'MEET_URL',
 }
 
+export type IOSBuildConfig = {
+  appGroup?: string;
+  preferredExtension?: string;
+};
+
 export const SUPPORTED_ASPECT_RATIOS = [
   { value: 16 / 9, id: '16:9' },
   { value: 9 / 16, id: '9:16' },

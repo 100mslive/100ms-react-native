@@ -19,6 +19,7 @@ import { getJoinConfig } from './utils';
 import { saveUserData, setHMSInstance } from './redux/actions';
 import { FullScreenIndicator } from './components/FullScreenIndicator';
 import { clearConfig } from './hooks-util';
+import { store } from './redux';
 
 const getTrackSettings = () => {
   const joinConfig = getJoinConfig();
@@ -95,6 +96,8 @@ const getLogSettings = (): HMSLogSettings => {
   });
 };
 
+const getIOSBuildConfig = () => store.getState().user.iosBuildConfig || {};
+
 /**
  * Regular Usage:
  * const hmsInstance = await HMSSDK.build();
@@ -131,11 +134,13 @@ const getHmsInstance = async (): Promise<HMSSDK> => {
 
   const logSettings = getLogSettings();
 
+  const { appGroup, preferredExtension } = getIOSBuildConfig();
+
   const hmsInstance = await HMSSDK.build({
     logSettings,
     trackSettings,
-    appGroup: 'group.reactnativehms',
-    preferredExtension: 'live.100ms.reactnative.RNHMSExampleBroadcastUpload',
+    appGroup,
+    preferredExtension,
   });
 
   const logger = new HMSLogger();

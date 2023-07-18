@@ -5,6 +5,7 @@ import type {
 } from '@100mslive/react-native-hms';
 import { getMeetingCode, getMeetingUrl } from '../../utils/functions';
 import ActionTypes, { HmsStateActionTypes } from '../actionTypes';
+import type { IOSBuildConfig } from '../../utils/types';
 
 type ActionType = {
   payload: any;
@@ -23,6 +24,7 @@ type IntialStateType = {
   roomCode: string;
   isHLSFlow: boolean;
   roles: HMSRole[];
+  iosBuildConfig: IOSBuildConfig | null;
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -37,6 +39,7 @@ const INITIAL_STATE: IntialStateType = {
   roles: [],
   hmsSessionStore: null,
   spotlightTrackId: null,
+  iosBuildConfig: null,
 };
 
 const userReducer = (
@@ -72,6 +75,7 @@ const userReducer = (
       state.userId = action.payload.options.userId;
       state.endPoints = action.payload.options.endPoints;
       state.debugMode = action.payload.options.debugMode ?? false;
+      state.iosBuildConfig = action.payload.options.iosBuildConfig ?? null;
 
       return state;
     case HmsStateActionTypes.CLEAR_STATES:
