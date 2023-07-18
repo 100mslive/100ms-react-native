@@ -2,8 +2,8 @@ import * as React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import {
   HMSPeer,
-  HMSPeerUpdate,
-  useHMSPeerUpdates,
+  // HMSPeerUpdate,
+  // useHMSPeerUpdates,
 } from '@100mslive/react-native-hms';
 
 import { COLORS } from '../utils/theme';
@@ -12,30 +12,30 @@ import { ParticipantsIcon } from '../Icons';
 export interface HMSPreviewPeersListProps {}
 
 export const HMSPreviewPeersList: React.FC<HMSPreviewPeersListProps> = () => {
-  const [peerList, setPeerList] = React.useState<HMSPeer[]>([]);
+  const [peerList, _setPeerList] = React.useState<HMSPeer[]>([]);
 
   // TODO: Handle case when peer updates are received before this hook mounts
   // It leads to some already joined peer missing in list
-  useHMSPeerUpdates(
-    ({ peer, type }: { peer: HMSPeer; type: HMSPeerUpdate }) => {
-      switch (type) {
-        case HMSPeerUpdate.PEER_JOINED:
-          setPeerList((prevPeerList) => [...prevPeerList, peer]);
-          break;
-        case HMSPeerUpdate.PEER_LEFT:
-          setPeerList((prevPeerList) =>
-            prevPeerList.filter(
-              (peerFromList) => peerFromList.peerID !== peer.peerID
-            )
-          );
-          break;
+  // useHMSPeerUpdates(
+  //   ({ peer, type }: { peer: HMSPeer; type: HMSPeerUpdate }) => {
+  //     switch (type) {
+  //       case HMSPeerUpdate.PEER_JOINED:
+  //         setPeerList((prevPeerList) => [...prevPeerList, peer]);
+  //         break;
+  //       case HMSPeerUpdate.PEER_LEFT:
+  //         setPeerList((prevPeerList) =>
+  //           prevPeerList.filter(
+  //             (peerFromList) => peerFromList.peerID !== peer.peerID
+  //           )
+  //         );
+  //         break;
 
-        default:
-          break;
-      }
-    },
-    []
-  );
+  //       default:
+  //         break;
+  //     }
+  //   },
+  //   []
+  // );
 
   return (
     <View style={styles.container}>
