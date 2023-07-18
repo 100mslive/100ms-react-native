@@ -1,5 +1,6 @@
 import React from 'react';
-import { Image, ImageProps, StyleSheet } from 'react-native';
+import { Image, StyleSheet } from 'react-native';
+import type { ImageProps } from 'react-native';
 
 interface NetworkQualityIconProps extends Omit<ImageProps, 'source'> {
   quality: number | undefined;

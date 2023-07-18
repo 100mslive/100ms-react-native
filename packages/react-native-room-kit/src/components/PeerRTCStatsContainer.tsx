@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { HMSTrackSource } from '@100mslive/react-native-hms';
 
 import { COLORS } from '../utils/theme';
-import { RootState } from '../redux';
+import type { RootState } from '../redux';
 import PeerRTCStatsView from './PeerRTCStatsView';
 
 interface PeerRTCStatsContainerProps {

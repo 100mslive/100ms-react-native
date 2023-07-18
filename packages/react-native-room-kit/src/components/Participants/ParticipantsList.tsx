@@ -15,7 +15,7 @@ import { CustomButton } from '../CustomButton';
 import { Menu, MenuItem } from '../MenuModal';
 import { getInitials } from '../../utils/functions';
 import { COLORS } from '../../utils/theme';
-import { RootState } from '../../redux';
+import type { RootState } from '../../redux';
 import { useHMSInstance, useModalType } from '../../hooks-util';
 import { setPeerToUpdate } from '../../redux/actions';
 import { ModalTypes } from '../../utils/types';

@@ -203,7 +203,7 @@ export const HMSRoomSetup = () => {
     if (!didInitMeetingAction.current) {
       didInitMeetingAction.current = true;
 
-      let ignore = false;
+      // let ignore = false;
 
       const handleMeetingPreviewOrJoin = async () => {
         try {
@@ -224,7 +224,7 @@ export const HMSRoomSetup = () => {
       handleMeetingPreviewOrJoin();
 
       return () => {
-        ignore = true;
+        // ignore = true;
       };
     }
   }, []);

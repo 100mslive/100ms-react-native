@@ -3,7 +3,7 @@ import { StyleSheet, TextInput } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { COLORS } from '../utils/theme';
-import { RootState } from '../redux';
+import type { RootState } from '../redux';
 import { changeUsername } from '../redux/actions';
 import { useHMSConfig } from '../hooks-util';
 

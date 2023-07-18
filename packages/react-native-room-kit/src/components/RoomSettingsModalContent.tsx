@@ -13,7 +13,6 @@ import {
 import {
   HMSAudioFilePlayerNode,
   HMSAudioMixingMode,
-  HMSLocalPeer,
   HMSUpdateListenerActions,
 } from '@100mslive/react-native-hms';
 import { useDispatch, useSelector } from 'react-redux';

@@ -10,11 +10,10 @@ import {
   HMSTrack,
   HMSTrackType,
   HMSTrackSource,
-  HMSLocalPeer,
   HMSVideoTrack,
 } from '@100mslive/react-native-hms';
 
-import { PeerTrackNode } from './types';
+import type { PeerTrackNode } from './types';
 import {
   PERMISSIONS,
   request,
@@ -30,27 +29,22 @@ export const getMeetingUrl = () =>
 export const getMeetingCode = () => 'nih-bkn-vek';
 
 export const getInitials = (name?: String): String => {
+  name = name?.trim();
+
   let initials = '';
-  if (name) {
-    if (name.includes(' ')) {
-      const nameArray = name.split(' ');
-      if (nameArray[1].length > 0) {
-        initials = nameArray[0].substring(0, 1) + nameArray[1].substring(0, 1);
-      } else {
-        if (nameArray[0].length > 1) {
-          initials = nameArray[0].substring(0, 2);
-        } else {
-          initials = nameArray[0].substring(0, 1);
-        }
-      }
-    } else {
-      if (name.length > 1) {
-        initials = name.substring(0, 2);
-      } else {
-        initials = name.substring(0, 1);
-      }
+
+  if (name && name.length > 0) {
+    const nameArray = name.split(' ');
+    const firstName = nameArray.length > 0 ? nameArray[0] : null;
+    const secondName = nameArray.length > 1 ? nameArray[1] : null;
+
+    if (firstName && secondName) {
+      initials = firstName.substring(0, 1) + secondName.substring(0, 1);
+    } else if (firstName) {
+      initials = firstName.substring(0, firstName.length > 1 ? 2 : 1);
     }
   }
+
   return initials.toUpperCase();
 };
 
@@ -79,7 +73,7 @@ export const requestExternalStoragePermission = async (): Promise<boolean> => {
   } else {
     try {
       const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        'android.permission.WRITE_EXTERNAL_STORAGE',
         {
           title: 'Storage Permission Required',
           message: 'Application needs access to your storage to download File',
@@ -330,16 +324,12 @@ export const checkPermissions = async (
     const results = await requestMultiple(requiredPermissions);
 
     let allPermissionsGranted = true;
-    for (let permission in requiredPermissions) {
-      if (!(results[requiredPermissions[permission]] === RESULTS.GRANTED)) {
+    requiredPermissions.forEach((permission) => {
+      if (!(results[permission] === RESULTS.GRANTED)) {
         allPermissionsGranted = false;
       }
-      console.log(
-        requiredPermissions[permission],
-        ':',
-        results[requiredPermissions[permission]]
-      );
-    }
+      console.log(permission, ':', results[permission]);
+    });
 
     // Bluetooth Connect Permission handling
     if (
@@ -508,7 +498,7 @@ export const getTrackForPIPView = (pairedPeers: PeerTrackNode[][]) => {
   return videoPeerTrackNode;
 };
 
-export const getTime = (millisecs: number) => {
+export const getTime = (millisecs: number): [number, number, number] => {
   const sec = Math.floor((millisecs / 1000) % 60);
 
   const min = Math.floor((millisecs / (1000 * 60)) % 60);

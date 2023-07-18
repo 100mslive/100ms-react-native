@@ -7,7 +7,8 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 import type { RootState } from '../redux';
 import { COLORS } from '../utils/theme';
-import { ModalTypes, PeerTrackNode } from '../utils/types';
+import { ModalTypes } from '../utils/types';
+import type { PeerTrackNode } from '../utils/types';
 import { isTileOnSpotlight } from '../utils/functions';
 import { setPeerToUpdate } from '../redux/actions';
 import { useModalType } from '../hooks-util';

@@ -5,7 +5,7 @@ import {
   HMSTrackType,
 } from '@100mslive/react-native-hms';
 
-import { PeerTrackNode } from './utils/types';
+import type { PeerTrackNode } from './utils/types';
 
 export const degradeOrRestorePeerTrackNodes = (
   peerTrackNodes: PeerTrackNode[],

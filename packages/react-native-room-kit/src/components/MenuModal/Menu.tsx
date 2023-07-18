@@ -5,15 +5,14 @@ import {
   Dimensions,
   Easing,
   I18nManager,
-  LayoutChangeEvent,
   Modal,
   Platform,
   StatusBar,
   StyleSheet,
   TouchableWithoutFeedback,
   View,
-  ViewStyle,
 } from 'react-native';
+import type { LayoutChangeEvent, ViewStyle } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import { COLORS } from '../../utils/theme';

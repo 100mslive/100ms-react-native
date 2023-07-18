@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 
 import { RotateCameraIcon } from '../Icons';
 import { useCanPublishVideo, useHMSActions } from '../hooks-sdk';
-import { RootState } from '../redux';
+import type { RootState } from '../redux';
 import { COLORS } from '../utils/theme';
 import { PressableIcon } from './PressableIcon';
 

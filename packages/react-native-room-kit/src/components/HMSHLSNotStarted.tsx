@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { View, Text, StyleSheet } from 'react-native';
 
-import { RootState } from '../redux';
+import type { RootState } from '../redux';
 import { COLORS } from '../utils/theme';
 import { usePortraitChatViewVisible } from '../hooks-util';
 import { ClockIcon } from '../Icons';

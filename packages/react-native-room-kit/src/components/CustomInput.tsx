@@ -1,13 +1,15 @@
 import React from 'react';
 import {
-  ReturnKeyTypeOptions,
-  StyleProp,
   StyleSheet,
   Text,
   TextInput,
-  TextStyle,
   TouchableOpacity,
   View,
+} from 'react-native';
+import type {
+  ReturnKeyTypeOptions,
+  StyleProp,
+  TextStyle,
   ViewStyle,
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -30,10 +32,9 @@ const CustomInput = ({
   blurOnSubmit,
   disableFullscreenUI = true,
   clear = true,
-  autoCapitalize = 'none',
-  autoCorrect = false,
-  autoCompleteType = 'off',
-}: {
+  autoCapitalize = 'none', // autoCorrect = false,
+} // autoCompleteType = 'off',
+: {
   value?: string;
   title?: string;
   onChangeText: Function;

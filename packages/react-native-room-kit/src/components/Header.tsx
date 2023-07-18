@@ -1,10 +1,10 @@
 import React, { memo } from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import Animated, {
-  SharedValue,
   useAnimatedProps,
   useAnimatedStyle,
 } from 'react-native-reanimated';
+import type { SharedValue } from 'react-native-reanimated';
 
 import { COLORS } from '../utils/theme';
 import { HMSManageLeave } from './HMSManageLeave';
@@ -12,7 +12,7 @@ import { HMSManageCameraRotation } from './HMSManageCameraRotation';
 import { useIsHLSViewer } from '../hooks-util';
 import { HmsLogoIcon } from '../Icons';
 import { useSelector } from 'react-redux';
-import { RootState } from '../redux';
+import type { RootState } from '../redux';
 
 interface HeaderProps {
   offset: SharedValue<number>;

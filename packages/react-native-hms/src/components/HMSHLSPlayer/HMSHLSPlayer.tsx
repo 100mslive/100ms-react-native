@@ -10,11 +10,13 @@ import {
   setHMSHLSPlayerStatsError,
 } from './hooks';
 import {
+  RCTHMSHLSPlayer,
+  RCTHMSHLSPlayerViewManagerConfig,
+} from './RCTHMSHLSPlayer';
+import type {
   HmsHlsPlaybackEventHandler,
   HmsHlsStatsEventHandler,
-  RCTHMSHLSPlayer,
   RCTHMSHLSPlayerRef,
-  RCTHMSHLSPlayerViewManagerConfig,
 } from './RCTHMSHLSPlayer';
 import {
   HMSHLSPlayerPlaybackEventTypes,
@@ -64,7 +66,10 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
     ref,
     () => ({
       play: (url?: string) => {
-        if (hmsHlsPlayerRef.current) {
+        if (
+          hmsHlsPlayerRef.current &&
+          RCTHMSHLSPlayerViewManagerConfig.Commands.play
+        ) {
           UIManager.dispatchViewManagerCommand(
             findNodeHandle(hmsHlsPlayerRef.current),
             RCTHMSHLSPlayerViewManagerConfig.Commands.play,
@@ -73,7 +78,10 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
         }
       },
       stop: () => {
-        if (hmsHlsPlayerRef.current) {
+        if (
+          hmsHlsPlayerRef.current &&
+          RCTHMSHLSPlayerViewManagerConfig.Commands.stop
+        ) {
           UIManager.dispatchViewManagerCommand(
             findNodeHandle(hmsHlsPlayerRef.current),
             RCTHMSHLSPlayerViewManagerConfig.Commands.stop,
@@ -82,7 +90,10 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
         }
       },
       pause: () => {
-        if (hmsHlsPlayerRef.current) {
+        if (
+          hmsHlsPlayerRef.current &&
+          RCTHMSHLSPlayerViewManagerConfig.Commands.pause
+        ) {
           UIManager.dispatchViewManagerCommand(
             findNodeHandle(hmsHlsPlayerRef.current),
             RCTHMSHLSPlayerViewManagerConfig.Commands.pause,
@@ -91,7 +102,10 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
         }
       },
       resume: () => {
-        if (hmsHlsPlayerRef.current) {
+        if (
+          hmsHlsPlayerRef.current &&
+          RCTHMSHLSPlayerViewManagerConfig.Commands.resume
+        ) {
           UIManager.dispatchViewManagerCommand(
             findNodeHandle(hmsHlsPlayerRef.current),
             RCTHMSHLSPlayerViewManagerConfig.Commands.resume,
@@ -108,7 +122,10 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
           );
         }
 
-        if (hmsHlsPlayerRef.current) {
+        if (
+          hmsHlsPlayerRef.current &&
+          RCTHMSHLSPlayerViewManagerConfig.Commands.seekForward
+        ) {
           UIManager.dispatchViewManagerCommand(
             findNodeHandle(hmsHlsPlayerRef.current),
             RCTHMSHLSPlayerViewManagerConfig.Commands.seekForward,
@@ -125,7 +142,10 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
           );
         }
 
-        if (hmsHlsPlayerRef.current) {
+        if (
+          hmsHlsPlayerRef.current &&
+          RCTHMSHLSPlayerViewManagerConfig.Commands.seekBackward
+        ) {
           UIManager.dispatchViewManagerCommand(
             findNodeHandle(hmsHlsPlayerRef.current),
             RCTHMSHLSPlayerViewManagerConfig.Commands.seekBackward,
@@ -134,7 +154,10 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
         }
       },
       seekToLivePosition: () => {
-        if (hmsHlsPlayerRef.current) {
+        if (
+          hmsHlsPlayerRef.current &&
+          RCTHMSHLSPlayerViewManagerConfig.Commands.seekToLivePosition
+        ) {
           UIManager.dispatchViewManagerCommand(
             findNodeHandle(hmsHlsPlayerRef.current),
             RCTHMSHLSPlayerViewManagerConfig.Commands.seekToLivePosition,
@@ -149,7 +172,10 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
           );
         }
 
-        if (hmsHlsPlayerRef.current) {
+        if (
+          hmsHlsPlayerRef.current &&
+          RCTHMSHLSPlayerViewManagerConfig.Commands.setVolume
+        ) {
           UIManager.dispatchViewManagerCommand(
             findNodeHandle(hmsHlsPlayerRef.current),
             RCTHMSHLSPlayerViewManagerConfig.Commands.setVolume,

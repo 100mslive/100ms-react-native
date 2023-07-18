@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react';
-import { Dimensions } from 'react-native';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   HMSLocalAudioStats,
@@ -15,7 +14,7 @@ import {
   HMSUpdateListenerActions,
 } from '@100mslive/react-native-hms';
 
-import { RootState } from '../redux';
+import type { RootState } from '../redux';
 import { setRTCStats } from '../redux/actions';
 import { ModalTypes } from './types';
 

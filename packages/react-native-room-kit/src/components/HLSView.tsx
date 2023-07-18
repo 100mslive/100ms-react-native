@@ -1,10 +1,11 @@
-import React, { ComponentRef, useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
+import type { ComponentRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { View, Text, StyleSheet } from 'react-native';
 import { HMSHLSPlayer } from '@100mslive/react-native-hms';
 import { AvoidSoftInput } from 'react-native-avoid-softinput';
 
-import { RootState } from '../redux';
+import type { RootState } from '../redux';
 import { changeShowHLSStats } from '../redux/actions';
 import { HLSPlayerStatsView } from './HLSPlayerStatsView';
 import { HLSPlayerEmoticons } from './HLSPlayerEmoticons';

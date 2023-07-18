@@ -1,5 +1,7 @@
 import React from 'react';
-import { Image, ImageProps, StyleSheet } from 'react-native';
+import { Image, StyleSheet } from 'react-native';
+import type { ImageProps } from 'react-native';
+
 import { COLORS } from '../../utils/theme';
 
 interface HandIconProps extends Omit<ImageProps, 'source'> {}

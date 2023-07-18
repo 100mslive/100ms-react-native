@@ -6,9 +6,8 @@ import {
   Text,
   Platform,
   TextInput,
-  StyleProp,
-  ViewStyle,
 } from 'react-native';
+import type { StyleProp, ViewStyle } from 'react-native';
 import {
   HMSMessage,
   HMSMessageRecipient,
@@ -87,7 +86,7 @@ interface ChatAndParticipantsHeaderProps {
   onClosePress?: () => void;
 }
 
-const tabs = ['Chat', 'Participants'];
+const tabs: [string, string] = ['Chat', 'Participants'];
 
 export const ChatAndParticipantsHeader: React.FC<
   ChatAndParticipantsHeaderProps

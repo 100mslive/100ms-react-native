@@ -1,12 +1,6 @@
 import * as React from 'react';
-import {
-  StyleProp,
-  Text,
-  TextStyle,
-  ViewStyle,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { Text, StyleSheet, View } from 'react-native';
+import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 
 import { getInitials } from '../utils/functions';
 import { COLORS } from '../utils/theme';

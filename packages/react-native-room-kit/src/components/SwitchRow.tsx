@@ -1,12 +1,6 @@
 import React from 'react';
-import {
-  Switch,
-  View,
-  Text,
-  StyleSheet,
-  StyleProp,
-  ViewStyle,
-} from 'react-native';
+import { Switch, View, Text, StyleSheet } from 'react-native';
+import type { StyleProp, ViewStyle } from 'react-native';
 
 import { COLORS } from '../utils/theme';
 

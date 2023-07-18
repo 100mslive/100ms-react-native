@@ -5,7 +5,8 @@ import { HMSHelper } from './HMSHelper';
 import { getLogger, logger, setLogger } from './HMSLogger';
 import { HMSTrackType } from './HMSTrackType';
 import { HMSUpdateListenerActions } from './HMSUpdateListenerActions';
-import { HmsViewComponent, HmsComponentProps } from './HmsView';
+import { HmsViewComponent } from './HmsView';
+import type { HmsComponentProps } from './HmsView';
 
 import HMSManager from './HMSManagerModule';
 

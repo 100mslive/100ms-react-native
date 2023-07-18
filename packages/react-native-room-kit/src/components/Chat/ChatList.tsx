@@ -1,6 +1,9 @@
 import * as React from 'react';
 import type { HMSMessage } from '@100mslive/react-native-hms';
-import { FlashList, FlashListProps } from '@shopify/flash-list';
+import {
+  FlashList,
+  // FlashListProps
+} from '@shopify/flash-list';
 import { StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
 

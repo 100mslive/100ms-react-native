@@ -1,11 +1,11 @@
 import React, { memo, useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import Animated, {
-  SharedValue,
   interpolate,
   useAnimatedProps,
   useAnimatedStyle,
 } from 'react-native-reanimated';
+import type { SharedValue } from 'react-native-reanimated';
 
 import { COLORS } from '../utils/theme';
 import { useIsHLSViewer } from '../hooks-util';

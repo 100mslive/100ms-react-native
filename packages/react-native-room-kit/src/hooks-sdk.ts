@@ -1,5 +1,5 @@
 import { useDispatch, useSelector, useStore } from 'react-redux';
-import { RootState } from './redux';
+import type { RootState } from './redux';
 
 import {
   setIsLocalAudioMutedState,

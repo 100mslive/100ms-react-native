@@ -5,6 +5,8 @@ import {
   GestureHandlerRootView,
   PanGestureHandler,
   State,
+} from 'react-native-gesture-handler';
+import type {
   HandlerStateChangeEvent,
   PinchGestureHandlerEventPayload,
 } from 'react-native-gesture-handler';

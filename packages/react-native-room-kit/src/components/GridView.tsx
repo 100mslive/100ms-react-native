@@ -1,9 +1,5 @@
-import React, {
-  ElementRef,
-  useRef,
-  useState,
-  useImperativeHandle,
-} from 'react';
+import React, { useRef, useState, useImperativeHandle } from 'react';
+import type { ElementRef } from 'react';
 import { View, FlatList } from 'react-native';
 import type { HMSView, HMSPeer } from '@100mslive/react-native-hms';
 

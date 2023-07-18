@@ -1,4 +1,5 @@
-import { DependencyList, useEffect } from 'react';
+import { useEffect } from 'react';
+import type { DependencyList } from 'react';
 import { shallow } from 'zustand/shallow';
 
 import { useHMSHLSPlayerStatsStore } from '../../stores/hls-player-stats-store';

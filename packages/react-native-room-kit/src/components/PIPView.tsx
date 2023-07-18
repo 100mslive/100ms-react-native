@@ -12,6 +12,11 @@ type PIPViewProps = {
 const PIPView: React.FC<PIPViewProps> = ({ pairedPeers }) => {
   const preferedPeerTrack = getTrackForPIPView(pairedPeers);
 
+  // If no Peer is available
+  if (!preferedPeerTrack?.peer) {
+    return null;
+  }
+
   return (
     <PeerDisplayView
       isLocal={preferedPeerTrack?.peer?.isLocal}

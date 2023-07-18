@@ -1,9 +1,6 @@
 import * as React from 'react';
-import {
-  StyleSheet,
-  TouchableOpacity,
-  TouchableOpacityProps,
-} from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
+import type { TouchableOpacityProps } from 'react-native';
 
 import { COLORS } from '../utils/theme';
 

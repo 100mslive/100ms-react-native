@@ -1,13 +1,11 @@
 import React from 'react';
 import {
-  StyleProp,
   StyleSheet,
   Text,
-  TextStyle,
   TouchableOpacity,
-  ViewStyle,
   ActivityIndicator,
 } from 'react-native';
+import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import { COLORS } from '../utils/theme';
 
 const CustomButton = ({

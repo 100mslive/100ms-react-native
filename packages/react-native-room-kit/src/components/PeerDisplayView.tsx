@@ -1,4 +1,5 @@
 import React from 'react';
+import type { ElementRef } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import {
   HMSVideoViewMode,
@@ -11,7 +12,7 @@ import type { HMSView } from '@100mslive/react-native-hms';
 
 import { styles } from './styles';
 
-import { getInitials, isTileOnSpotlight } from '../utils/functions';
+import { isTileOnSpotlight } from '../utils/functions';
 import type { RootState } from '../redux';
 import { AvatarView } from './AvatarView';
 
@@ -23,7 +24,7 @@ export interface PeerDisplayViewProps {
 }
 
 const PeerDisplayViewUnmemoized = React.forwardRef<
-  typeof HMSView,
+  ElementRef<typeof HMSView>,
   PeerDisplayViewProps
 >(({ isDegraded, isLocal, peer, videoTrack }, hmsViewRef) => {
   const HmsView = useSelector(

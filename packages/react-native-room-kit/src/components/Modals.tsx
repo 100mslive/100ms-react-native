@@ -9,9 +9,9 @@ import {
   Image,
   Platform,
   InteractionManager,
-  ImageURISource,
   useWindowDimensions,
 } from 'react-native';
+import type { ImageURISource } from 'react-native';
 import Toast from 'react-native-simple-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -20,7 +20,6 @@ import {
   HMSSDK,
   HMSTrackType,
   HMSTrackSource,
-  HMSPeer,
   HMSAudioDevice,
   HMSAudioMode,
   HMSAudioMixingMode,

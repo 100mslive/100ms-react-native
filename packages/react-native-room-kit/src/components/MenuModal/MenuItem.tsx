@@ -1,15 +1,7 @@
 import React from 'react';
 
-import {
-  Platform,
-  Pressable,
-  PressableProps,
-  StyleSheet,
-  Text,
-  TextStyle,
-  View,
-  ViewStyle,
-} from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import type { PressableProps, TextStyle, ViewStyle } from 'react-native';
 
 import { COLORS } from '../../utils/theme';
 

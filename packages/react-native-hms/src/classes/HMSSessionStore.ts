@@ -1,7 +1,5 @@
-import {
-  DeviceEventEmitter,
-  EmitterSubscription as RNEmitterSubscription,
-} from 'react-native';
+import { DeviceEventEmitter } from 'react-native';
+import type { EmitterSubscription as RNEmitterSubscription } from 'react-native';
 
 import HMSManager from './HMSManagerModule';
 
@@ -148,7 +146,7 @@ export class HMSSessionStore {
     // this `uniqueId` will be used to remove 'KeyChangeListener' from native side
     const uniqueId =
       subscriptionsToRemove.length > 0
-        ? (subscriptionsToRemove[0].context as { uniqueId: string }).uniqueId
+        ? (subscriptionsToRemove[0]!.context as { uniqueId: string }).uniqueId
         : null;
 
     // Removing required subscriptions from 'eventEmitter'

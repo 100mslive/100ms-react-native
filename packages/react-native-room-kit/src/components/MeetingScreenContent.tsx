@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { StyleSheet, Pressable } from 'react-native';
 import { useSelector } from 'react-redux';
 import {
@@ -9,7 +9,8 @@ import {
   withTiming,
 } from 'react-native-reanimated';
 
-import { PeerTrackNode, PipModes } from '../utils/types';
+import { PipModes } from '../utils/types';
+import type { PeerTrackNode } from '../utils/types';
 import type { RootState } from '../redux';
 import { Footer } from './Footer';
 import { DisplayView } from './DisplayView';
@@ -52,23 +53,23 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
 
   // Handles Auto hiding the controls for the first time
   // to make this feature discoverable
-  useEffect(() => {
-    if (false && !isHLSViewer) {
-      if (timerIdRef.current) {
-        clearTimeout(timerIdRef.current);
-      }
-      timerIdRef.current = setTimeout(() => {
-        timerIdRef.current = null;
-        toggleControls();
-      }, 3000);
+  // useEffect(() => {
+  //   if (false && !isHLSViewer) {
+  //     if (timerIdRef.current) {
+  //       clearTimeout(timerIdRef.current);
+  //     }
+  //     timerIdRef.current = setTimeout(() => {
+  //       timerIdRef.current = null;
+  //       toggleControls();
+  //     }, 3000); d
 
-      return () => {
-        if (timerIdRef.current) {
-          clearTimeout(timerIdRef.current);
-        }
-      };
-    }
-  }, [isHLSViewer]);
+  //     return () => {
+  //       if (timerIdRef.current) {
+  //         clearTimeout(timerIdRef.current);
+  //       }
+  //     };
+  //   }
+  // }, [isHLSViewer]);
 
   const landscapeChatViewVisible = useLandscapeChatViewVisible();
 

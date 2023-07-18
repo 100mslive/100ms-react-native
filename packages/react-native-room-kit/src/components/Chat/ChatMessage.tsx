@@ -121,7 +121,7 @@ const _ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                 : null}
               {isPrivateRoleMessage &&
               messageRecipient.recipientRoles.length > 0
-                ? messageRecipient.recipientRoles[0].name
+                ? messageRecipient.recipientRoles[0]!.name
                 : null}
             </Text>
           </View>

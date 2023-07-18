@@ -4,9 +4,9 @@ import {
   requireNativeComponent,
   StyleSheet,
   UIManager,
-  ViewStyle,
   Platform,
 } from 'react-native';
+import type { ViewStyle } from 'react-native';
 import { HMSConstants } from './HMSConstants';
 import { HMSVideoViewMode } from './HMSVideoViewMode';
 
@@ -89,6 +89,12 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
     };
 
     const capture = async () => {
+      const viewManagerConfig = UIManager.getViewManagerConfig('HMSView');
+
+      if (!viewManagerConfig.Commands.capture) {
+        return Promise.reject('Capture command not available on HMSView');
+      }
+
       let requestId = _nextRequestId++;
       let requestMap = _requestMap;
 
@@ -97,7 +103,7 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
       let promise = new Promise(function (resolve, reject) {
         requestMap.set(requestId, { resolve, reject });
       });
-      const viewManagerConfig = UIManager.getViewManagerConfig('HMSView');
+
       UIManager.dispatchViewManagerCommand(
         findNodeHandle(hmsViewRef.current),
         viewManagerConfig.Commands.capture,

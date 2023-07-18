@@ -5,28 +5,31 @@ import {
   HMSMessage,
   HMSPIPListenerActions,
   HMSPeer,
-  HMSPeerUpdate,
+  // HMSPeerUpdate,
   HMSRemotePeer,
   HMSRoleChangeRequest,
   HMSRoom,
   HMSRoomUpdate,
   HMSSDK,
-  HMSSessionStore,
-  HMSSessionStoreValue,
   HMSTrack,
   HMSTrackSource,
   HMSTrackType,
   HMSTrackUpdate,
   HMSUpdateListenerActions,
-  useHMSPeerUpdates,
+  // useHMSPeerUpdates,
+} from '@100mslive/react-native-hms';
+import type {
+  HMSSessionStore,
+  HMSSessionStoreValue,
 } from '@100mslive/react-native-hms';
 import Toast from 'react-native-simple-toast';
 import { useRef, useCallback, useEffect, useState, useMemo } from 'react';
 
-import { ModalTypes, PeerTrackNode, PipModes } from './utils/types';
+import { ModalTypes, PipModes } from './utils/types';
+import type { PeerTrackNode } from './utils/types';
 import { createPeerTrackNode, parseMetadata } from './utils/functions';
 import { useDispatch, useSelector, useStore } from 'react-redux';
-import { RootState } from './redux';
+import type { RootState } from './redux';
 import {
   addMessage,
   addPinnedMessage,
@@ -42,9 +45,9 @@ import {
 } from './redux/actions';
 import {
   degradeOrRestorePeerTrackNodes,
-  peerTrackNodeExistForPeer,
+  // peerTrackNodeExistForPeer,
   peerTrackNodeExistForPeerAndTrack,
-  removePeerTrackNodes,
+  // removePeerTrackNodes,
   removePeerTrackNodesWithTrack,
   replacePeerTrackNodes,
   replacePeerTrackNodesWithTrack,
@@ -195,72 +198,72 @@ const useHMSRoomUpdate = (
   }, [hmsInstance]);
 };
 
-type PeerUpdate = {
-  peer: HMSPeer;
-  type: HMSPeerUpdate;
-};
+// type PeerUpdate = {
+//   peer: HMSPeer;
+//   type: HMSPeerUpdate;
+// };
 
-const useHMSPeersUpdate = (
-  hmsInstance: HMSSDK,
-  updateLocalPeer: () => void,
-  setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>
-) => {
-  useHMSPeerUpdates(
-    ({ peer, type }: PeerUpdate) => {
-      if (type === HMSPeerUpdate.PEER_JOINED) {
-        return;
-      }
-      if (type === HMSPeerUpdate.PEER_LEFT) {
-        setPeerTrackNodes((prevPeerTrackNodes) =>
-          removePeerTrackNodes(prevPeerTrackNodes, peer)
-        );
-        return;
-      }
-      if (peer.isLocal) {
-        setPeerTrackNodes((prevPeerTrackNodes) => {
-          if (peerTrackNodeExistForPeer(prevPeerTrackNodes, peer)) {
-            return replacePeerTrackNodes(prevPeerTrackNodes, peer);
-          }
-          return prevPeerTrackNodes;
-        });
+// const useHMSPeersUpdate = (
+//   hmsInstance: HMSSDK,
+//   updateLocalPeer: () => void,
+//   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>
+// ) => {
+//   useHMSPeerUpdates(
+//     ({ peer, type }: PeerUpdate) => {
+//       if (type === HMSPeerUpdate.PEER_JOINED) {
+//         return;
+//       }
+//       if (type === HMSPeerUpdate.PEER_LEFT) {
+//         setPeerTrackNodes((prevPeerTrackNodes) =>
+//           removePeerTrackNodes(prevPeerTrackNodes, peer)
+//         );
+//         return;
+//       }
+//       if (peer.isLocal) {
+//         setPeerTrackNodes((prevPeerTrackNodes) => {
+//           if (peerTrackNodeExistForPeer(prevPeerTrackNodes, peer)) {
+//             return replacePeerTrackNodes(prevPeerTrackNodes, peer);
+//           }
+//           return prevPeerTrackNodes;
+//         });
 
-        // - TODO: update local localPeer state
-        // - Pass this updated data to Meeting component -> DisplayView component
-        updateLocalPeer();
-        return;
-      }
-      if (type === HMSPeerUpdate.ROLE_CHANGED) {
-        if (
-          peer.role?.publishSettings?.allowed === undefined ||
-          (peer.role?.publishSettings?.allowed &&
-            peer.role?.publishSettings?.allowed.length < 1)
-        ) {
-          setPeerTrackNodes((prevPeerTrackNodes) => {
-            if (peerTrackNodeExistForPeer(prevPeerTrackNodes, peer)) {
-              return removePeerTrackNodes(prevPeerTrackNodes, peer);
-            }
-            return prevPeerTrackNodes;
-          });
-        }
-        return;
-      }
-      if (
-        type === HMSPeerUpdate.METADATA_CHANGED ||
-        type === HMSPeerUpdate.NAME_CHANGED ||
-        type === HMSPeerUpdate.NETWORK_QUALITY_UPDATED
-      ) {
-        setPeerTrackNodes((prevPeerTrackNodes) => {
-          if (peerTrackNodeExistForPeer(prevPeerTrackNodes, peer)) {
-            return replacePeerTrackNodes(prevPeerTrackNodes, peer);
-          }
-          return prevPeerTrackNodes;
-        });
-        return;
-      }
-    },
-    [hmsInstance]
-  );
-};
+//         // - TODO: update local localPeer state
+//         // - Pass this updated data to Meeting component -> DisplayView component
+//         updateLocalPeer();
+//         return;
+//       }
+//       if (type === HMSPeerUpdate.ROLE_CHANGED) {
+//         if (
+//           peer.role?.publishSettings?.allowed === undefined ||
+//           (peer.role?.publishSettings?.allowed &&
+//             peer.role?.publishSettings?.allowed.length < 1)
+//         ) {
+//           setPeerTrackNodes((prevPeerTrackNodes) => {
+//             if (peerTrackNodeExistForPeer(prevPeerTrackNodes, peer)) {
+//               return removePeerTrackNodes(prevPeerTrackNodes, peer);
+//             }
+//             return prevPeerTrackNodes;
+//           });
+//         }
+//         return;
+//       }
+//       if (
+//         type === HMSPeerUpdate.METADATA_CHANGED ||
+//         type === HMSPeerUpdate.NAME_CHANGED ||
+//         type === HMSPeerUpdate.NETWORK_QUALITY_UPDATED
+//       ) {
+//         setPeerTrackNodes((prevPeerTrackNodes) => {
+//           if (peerTrackNodeExistForPeer(prevPeerTrackNodes, peer)) {
+//             return replacePeerTrackNodes(prevPeerTrackNodes, peer);
+//           }
+//           return prevPeerTrackNodes;
+//         });
+//         return;
+//       }
+//     },
+//     [hmsInstance]
+//   );
+// };
 
 type TrackUpdate = {
   peer: HMSPeer;

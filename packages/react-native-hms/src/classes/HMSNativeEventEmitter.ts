@@ -1,4 +1,5 @@
-import { EventSubscription, NativeEventEmitter } from 'react-native';
+import { NativeEventEmitter } from 'react-native';
+import type { EventSubscription } from 'react-native';
 import { logger } from './HMSLogger';
 
 export type HMSEventSubscription = {

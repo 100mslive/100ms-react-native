@@ -3,14 +3,15 @@ import { useSelector } from 'react-redux';
 import { View, Text, InteractionManager } from 'react-native';
 import { HMSTrack, HMSCameraControl } from '@100mslive/react-native-hms';
 import Animated, {
-  SharedValue,
   interpolate,
   useAnimatedStyle,
 } from 'react-native-reanimated';
+import type { SharedValue } from 'react-native-reanimated';
 
 import { styles } from './styles';
 import { DefaultModal } from './DefaultModal';
-import { ModalTypes, PeerTrackNode, PipModes } from '../utils/types';
+import { ModalTypes, PipModes } from '../utils/types';
+import type { PeerTrackNode } from '../utils/types';
 import { pairData, requestExternalStoragePermission } from '../utils/functions';
 import {
   ChangeAspectRatio,

@@ -1,9 +1,8 @@
-import {
-  requireNativeComponent,
+import { requireNativeComponent, UIManager } from 'react-native';
+import type {
   StyleProp,
   NativeSyntheticEvent,
   ViewStyle,
-  UIManager,
   NativeMethods,
 } from 'react-native';
 import type {

@@ -16,23 +16,26 @@ export const HMSPreviewPeersList: React.FC<HMSPreviewPeersListProps> = () => {
 
   // TODO: Handle case when peer updates are received before this hook mounts
   // It leads to some already joined peer missing in list
-  useHMSPeerUpdates(({ peer, type }) => {
-    switch (type) {
-      case HMSPeerUpdate.PEER_JOINED:
-        setPeerList((prevPeerList) => [...prevPeerList, peer]);
-        break;
-      case HMSPeerUpdate.PEER_LEFT:
-        setPeerList((prevPeerList) =>
-          prevPeerList.filter(
-            (peerFromList) => peerFromList.peerID !== peer.peerID
-          )
-        );
-        break;
+  useHMSPeerUpdates(
+    ({ peer, type }: { peer: HMSPeer; type: HMSPeerUpdate }) => {
+      switch (type) {
+        case HMSPeerUpdate.PEER_JOINED:
+          setPeerList((prevPeerList) => [...prevPeerList, peer]);
+          break;
+        case HMSPeerUpdate.PEER_LEFT:
+          setPeerList((prevPeerList) =>
+            prevPeerList.filter(
+              (peerFromList) => peerFromList.peerID !== peer.peerID
+            )
+          );
+          break;
 
-      default:
-        break;
-    }
-  }, []);
+        default:
+          break;
+      }
+    },
+    []
+  );
 
   return (
     <View style={styles.container}>
@@ -44,7 +47,7 @@ export const HMSPreviewPeersList: React.FC<HMSPreviewPeersListProps> = () => {
         </Text>
       ) : peerList.length === 1 ? (
         <Text style={[styles.text, styles.textSpacer]}>
-          {peerList[0].name} has joined
+          {peerList[0]!.name} has joined
         </Text>
       ) : (
         <View style={styles.multiTextContainer}>

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { InteractionManager, View } from 'react-native';
+import { View } from 'react-native';
 import { HMSAudioMixingMode, HMSAudioMode } from '@100mslive/react-native-hms';
 
 import { PressableIcon } from './PressableIcon';

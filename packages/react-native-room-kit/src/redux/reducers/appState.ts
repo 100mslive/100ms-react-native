@@ -43,7 +43,7 @@ const INITIAL_STATE: IntialStateType = {
   peerState: [],
   pipModeStatus: PipModes.INACTIVE,
   rtcStats: {},
-  hlsAspectRatio: SUPPORTED_ASPECT_RATIOS[0],
+  hlsAspectRatio: SUPPORTED_ASPECT_RATIOS[0]!, // This is static array, and should always have 0th item
   joinConfig: {
     mirrorCamera: true,
     autoSimulcast: true,

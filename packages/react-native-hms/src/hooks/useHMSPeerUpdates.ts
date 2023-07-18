@@ -4,9 +4,8 @@ import { HMSConstants } from '../classes/HMSConstants';
 import { HMSEncoder } from '../classes/HMSEncoder';
 import { HMSEventEmitter } from '../classes/HMSEventEmitter';
 import { getLogger } from '../classes/HMSLogger';
-import HMSNativeEventListener, {
-  HMSNativeEventSubscription,
-} from '../classes/HMSNativeEventListener';
+import HMSNativeEventListener from '../classes/HMSNativeEventListener';
+import type { HMSNativeEventSubscription } from '../classes/HMSNativeEventListener';
 import type { HMSPeer } from '../classes/HMSPeer';
 import { HMSPeerUpdate, HMSPeerUpdateOrdinals } from '../classes/HMSPeerUpdate';
 import { getHmsPeersCache } from '../classes/HMSPeersCache';

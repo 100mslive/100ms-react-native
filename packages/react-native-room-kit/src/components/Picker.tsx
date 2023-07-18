@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import {
   Platform,
-  StyleProp,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  ViewStyle,
 } from 'react-native';
+import type { StyleProp, ViewStyle } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import { Menu, MenuItem } from './MenuModal';

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { PeerTrackNode } from '../utils/types';
+import type { PeerTrackNode } from '../utils/types';
 import { useRTCStatsListeners } from '../utils/hooks';
 import { COLORS } from '../utils/theme';
 import {

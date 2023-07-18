@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { AlertIcon, LeaveIcon } from '../Icons';
 import { useHMSInstance } from '../hooks-util';
-import { RootState } from '../redux';
+import type { RootState } from '../redux';
 import { clearStore } from '../redux/actions';
 import { COLORS } from '../utils/theme';
 import { ModalTypes } from '../utils/types';

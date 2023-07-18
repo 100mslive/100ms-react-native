@@ -1,7 +1,6 @@
 import * as React from 'react';
 import Modal from 'react-native-modal';
 import {
-  Button,
   LayoutAnimation,
   Platform,
   ScrollView,
@@ -25,7 +24,7 @@ import { PressableIcon } from './PressableIcon';
 import { COLORS } from '../utils/theme';
 import { CloseIcon } from '../Icons';
 import { useHMSInstance } from '../hooks-util';
-import { RootState } from '../redux';
+import type { RootState } from '../redux';
 import { setRoomLocallyMuted } from '../redux/actions';
 
 enum PreviewModalCloseActions {

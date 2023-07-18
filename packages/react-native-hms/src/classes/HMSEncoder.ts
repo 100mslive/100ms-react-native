@@ -333,7 +333,7 @@ export class HMSEncoder {
     return encodedRoles;
   }
 
-  static encodeHmsRole(role: any) {
+  static encodeHmsRole(role: any): HMSRole {
     if (!role) {
       return new HMSRole(role);
     }
@@ -360,7 +360,7 @@ export class HMSEncoder {
       }
     }
 
-    return rolesCache[role.name];
+    return rolesCache[role.name]!;
   }
 
   static encodeHmsRoleChangeRequest(data: any) {

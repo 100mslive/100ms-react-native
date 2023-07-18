@@ -1,4 +1,4 @@
-import { RootState } from './redux';
+import type { RootState } from './redux';
 
 export const selectAllowedTracksToPublish = (state: RootState) =>
   state.hmsStates.localPeer?.role?.publishSettings?.allowed;

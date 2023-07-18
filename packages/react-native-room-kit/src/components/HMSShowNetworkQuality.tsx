@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { StyleSheet, Image } from 'react-native';
 
-import { RootState } from '../redux';
+import type { RootState } from '../redux';
 import { COLORS } from '../utils/theme';
 import { CustomButton } from './CustomButton';
 import { useHMSInstance } from '../hooks-util';

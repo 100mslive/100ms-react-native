@@ -2,7 +2,7 @@ import * as React from 'react';
 import { StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 
-import { RootState } from '../redux';
+import type { RootState } from '../redux';
 import { COLORS } from '../utils/theme';
 import { useCanPublishScreen, useHMSActions } from '../hooks-sdk';
 import { PressableIcon } from './PressableIcon';
