@@ -66,3 +66,10 @@ packages/react-native-hms/example/setupFirebase.js
 *.p8
 *.keystore
 *.zip
+packages/react-native-room-kit/example/.buckconfig
+packages/react-native-room-kit/example/.editorconfig
+packages/react-native-room-kit/example/.eslintrc.js
+packages/react-native-room-kit/example/.gitattributes
+packages/react-native-room-kit/example/.gitignore
+packages/react-native-room-kit/example/.prettierrc.js
+packages/react-native-room-kit/example/.watchmanconfig

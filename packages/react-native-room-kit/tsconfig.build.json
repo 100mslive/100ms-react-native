@@ -5,5 +5,5 @@
       "@100mslive/react-native-room-kit": ["./src/index"]
     }
   },
-  "exclude": ["example", "rn-example"]
+  "exclude": ["example"]
 }

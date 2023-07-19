@@ -1,6 +1,6 @@
 # @100mslive/react-native-room-kit
 
-dummy description
+100ms Room Kit provides simple & easy to use UI components to build Live Streaming & Video Conferencing experiences in your apps.
 
 ## Installation
 
@@ -11,11 +11,7 @@ npm install @100mslive/react-native-room-kit
 ## Usage
 
 ```js
-import { multiply } from '@100mslive/react-native-room-kit';
-
-// ...
-
-const result = await multiply(3, 7);
+import { HMSPrebuilt } from '@100mslive/react-native-room-kit';
 ```
 
 ## Contributing
@@ -27,5 +23,3 @@ See the [contributing guide](CONTRIBUTING.md) to learn how to contribute to the 
 MIT
 
 ---
-
-Made with [create-react-native-library](https://github.com/callstack/react-native-builder-bob)
