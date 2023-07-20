@@ -23,6 +23,7 @@ export const _Header: React.FC<HeaderProps> = ({ offset }) => {
   const roomName = useSelector(
     (state: RootState) => state.hmsStates.room?.name
   );
+  const debugMode = useSelector((state: RootState) => state.user.debugMode);
   const animatedStyles = useAnimatedStyle(() => {
     return {
       opacity: offset.value,
@@ -44,7 +45,9 @@ export const _Header: React.FC<HeaderProps> = ({ offset }) => {
         <View style={styles.hlsContainer}>
           <HmsLogoIcon />
 
-          {roomName ? <Text style={styles.roomName}>{roomName}</Text> : null}
+          {debugMode && roomName ? (
+            <Text style={styles.roomName}>{roomName}</Text>
+          ) : null}
         </View>
       ) : (
         <View style={styles.container}>
