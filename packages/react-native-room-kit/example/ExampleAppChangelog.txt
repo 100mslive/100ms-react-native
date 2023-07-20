@@ -1,11 +1,16 @@
 Board: https://github.com/100mslive/react-native-hms/projects/17
 
-- monorepo initial changes
+229
+- Changed App name to "RN 100ms"
 
-https://github.com/100mslive/react-native-hms/issues/1058
+228
+- formatted local peer name in Tile and Participants list
+- Hide Room Name if `debugMode` flag is not set
+- Hide local peer camera screenshot options if `debugMode` flag is not set
+- disabled Toasts on Session Metadata changes
 
-Branch: `prebuilt-hls-viewer-role-layout-changes` (commit hash: 48f522c3...)
+Branch: `feature/prebuilt`
 
-React Native SDK: 2.0.0
+React Native SDK: 1.7.0
 Android SDK: 2.6.7
 iOS SDK: 0.9.5

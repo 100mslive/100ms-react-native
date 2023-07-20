@@ -18,6 +18,10 @@ export type AppStackParamList = {
     userId?: string;
     endPoints?: {init: string; token: string};
     debugMode?: boolean;
+    ios?: {
+      appGroup?: string;
+      preferredExtension?: string;
+    };
   };
 };
 

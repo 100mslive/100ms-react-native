@@ -49,12 +49,18 @@ const appReducer = (
         roomID: action.payload.roomID || '',
       };
     case ActionTypes.RESET_JOIN_CONFIG:
-      return {...state, joinConfig: INITIAL_STATE.joinConfig};
+      return {
+        ...state,
+        joinConfig: {
+          ...INITIAL_STATE.joinConfig,
+          debugMode: state.joinConfig.debugMode,
+        },
+      };
     case ActionTypes.CHANGE_DEBUG_INFO:
       return {
         ...state,
         joinConfig: {
-          ...state.joinConfig,
+          ...INITIAL_STATE.joinConfig,
           debugMode: action.payload.debugMode ?? false,
         },
       };

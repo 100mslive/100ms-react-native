@@ -1,6 +1,7 @@
 import React from 'react';
 import {StyleSheet, View, StyleProp, ViewStyle} from 'react-native';
-import Modal, {SupportedAnimation} from 'react-native-modal';
+import Modal from 'react-native-modal';
+
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
@@ -10,8 +11,8 @@ import {CustomButton} from './CustomButton';
 export interface DefaultModalProps {
   modalVisible: boolean;
   setModalVisible: any;
-  animationIn?: SupportedAnimation;
-  animationOut?: SupportedAnimation;
+  animationIn?: any;
+  animationOut?: any;
   modalPosiion?: 'flex-end' | 'center';
   viewStyle?: StyleProp<ViewStyle>;
   modalStyle?: StyleProp<ViewStyle>;

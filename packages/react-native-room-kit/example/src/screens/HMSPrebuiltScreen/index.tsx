@@ -1,7 +1,7 @@
 import React from 'react';
 import {Text} from 'react-native';
 import {RouteProp, useRoute} from '@react-navigation/native';
-import {HMSRoomComposite} from '@100mslive/react-native-room-kit';
+import {HMSPrebuilt} from '@100mslive/react-native-room-kit';
 
 import {AppStackParamList} from '../../navigator';
 
@@ -14,5 +14,5 @@ export const HMSPrebuiltScreen = () => {
     return <Text>Room Code is Required</Text>;
   }
 
-  return <HMSRoomComposite roomCode={roomCode} options={route.params} />;
+  return <HMSPrebuilt roomCode={roomCode} options={route.params} />;
 };

@@ -39,6 +39,9 @@ type QRCodeScreenProp = NativeStackNavigationProp<
   'QRCodeScreen'
 >;
 
+// @ts-ignore
+const isHermes = () => !!global.HermesInternal;
+
 const QRCode = () => {
   const navigate = useNavigation<QRCodeScreenProp>().navigate;
   const {top, bottom, left, right} = useSafeAreaInsets();
@@ -74,7 +77,6 @@ const QRCode = () => {
             joiningLink.replace('preview', 'meeting'),
           );
           // @ts-ignore
-          global.joinConfig = (store.getState() as RootState).app.joinConfig;
           navigate('HMSPrebuiltScreen', {
             roomCode,
             userName: peerName,
@@ -84,6 +86,11 @@ const QRCode = () => {
                 ? {init: initEndpoint, token: tokenEndpoint}
                 : undefined,
             debugMode, // default is false, will deal with this later
+            ios: {
+              appGroup: 'group.rnroomkit',
+              preferredExtension:
+                'live.100ms.reactnative.RNExampleBroadcastUpload',
+            },
           });
         },
         (errorMsg: string) => {
@@ -161,10 +168,24 @@ const QRCode = () => {
         style={styles.container}
         keyboardShouldPersistTaps="always"
       >
+        {/* ts-ignore: ignore-next */}
+        <View
+          style={{
+            backgroundColor: 'black',
+            top: 20,
+            right: 20,
+            position: 'absolute',
+          }}
+        >
+          <Text style={{color: 'white', fontSize: 12}}>
+            Hermes: {!!isHermes ? 'ON' : 'OFF'}
+          </Text>
+        </View>
+
         <Image
           style={styles.image}
           resizeMode="stretch"
-          source={require('../../../assets/illustration.png')}
+          source={require('../../assets/illustration.png')}
         />
         <View>
           <Text style={styles.heading}>Experience the power of 100ms</Text>

@@ -16,11 +16,12 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
 
 import {COLORS} from '../utils/theme';
-import {version as hmsRNSdkVersion} from '../../../package.json';
+import {version as hmsRNSdkVersion} from '@100mslive/react-native-hms/package.json';
+import {version as hmsRoomKitVersion} from '@100mslive/react-native-room-kit/package.json';
 import {
   ios as hmsIOSSdkVersion,
   android as hmsAndroidSdkVersion,
-} from '../../../../react-native-hms/sdk-versions.json';
+} from '@100mslive/react-native-hms/sdk-versions.json';
 import {SwitchRow} from './SwitchRow';
 import {RootState} from '../redux';
 import {
@@ -63,8 +64,8 @@ export const JoinSettingsModalContent: React.FC<
 
       <View style={styles.divider} />
 
-      <ScrollView>
-        <View>
+      <ScrollView contentContainerStyle={{flexGrow: 1}}>
+        <View style={{flexGrow: 1}}>
           <SwitchRow
             text="Debug Info"
             value={debugMode}
@@ -79,144 +80,175 @@ export const JoinSettingsModalContent: React.FC<
             containerStyle={styles.switchContainer}
           />
 
-          <SwitchRow
-            text="Join with Muted Audio"
-            value={mutedAudio}
-            onChange={value => dispatch(changeJoinAudioMuted(value))}
-            LeftIcon={
-              <IoniconsIcons name="mic-outline" size={24} style={styles.icon} />
-            }
-            containerStyle={styles.switchContainer}
-          />
-
-          <SwitchRow
-            text="Join with Muted Video"
-            value={mutedVideo}
-            onChange={value => dispatch(changeJoinVideoMuted(value))}
-            LeftIcon={
-              <MaterialCommunityIcons
-                name="video-off-outline"
-                size={24}
-                style={styles.icon}
+          {debugMode ? (
+            <>
+              <SwitchRow
+                text="Join with Muted Audio"
+                value={mutedAudio}
+                onChange={value => dispatch(changeJoinAudioMuted(value))}
+                LeftIcon={
+                  <IoniconsIcons
+                    name="mic-outline"
+                    size={24}
+                    style={styles.icon}
+                  />
+                }
+                containerStyle={styles.switchContainer}
               />
-            }
-            containerStyle={styles.switchContainer}
-          />
 
-          <SwitchRow
-            text="Skip Preview"
-            value={skipPreview}
-            onChange={value => dispatch(changeJoinSkipPreview(value))}
-            LeftIcon={
-              <IoniconsIcons name="eye-outline" size={24} style={styles.icon} />
-            }
-            containerStyle={styles.switchContainer}
-          />
+              <SwitchRow
+                text="Join with Muted Video"
+                value={mutedVideo}
+                onChange={value => dispatch(changeJoinVideoMuted(value))}
+                LeftIcon={
+                  <MaterialCommunityIcons
+                    name="video-off-outline"
+                    size={24}
+                    style={styles.icon}
+                  />
+                }
+                containerStyle={styles.switchContainer}
+              />
 
-          {Platform.OS === 'ios' ? (
-            <SwitchRow
-              text="Music Mode"
-              value={musicMode}
-              onChange={value => dispatch(changeMusicMode(value))}
-              LeftIcon={
-                <IoniconsIcons
-                  name="ios-musical-notes-outline"
-                  size={24}
-                  style={styles.icon}
+              <SwitchRow
+                text="Skip Preview"
+                value={skipPreview}
+                onChange={value => dispatch(changeJoinSkipPreview(value))}
+                LeftIcon={
+                  <IoniconsIcons
+                    name="eye-outline"
+                    size={24}
+                    style={styles.icon}
+                  />
+                }
+                containerStyle={styles.switchContainer}
+              />
+
+              {Platform.OS === 'ios' ? (
+                <SwitchRow
+                  text="Music Mode"
+                  value={musicMode}
+                  onChange={value => dispatch(changeMusicMode(value))}
+                  LeftIcon={
+                    <IoniconsIcons
+                      name="ios-musical-notes-outline"
+                      size={24}
+                      style={styles.icon}
+                    />
+                  }
+                  containerStyle={styles.switchContainer}
                 />
-              }
-              containerStyle={styles.switchContainer}
-            />
-          ) : null}
+              ) : null}
 
-          {Platform.OS === 'ios' ? (
-            <SwitchRow
-              text="Audio Mixer"
-              value={audioMixer}
-              onChange={value => dispatch(changeAudioMixer(value))}
-              LeftIcon={
-                <EntypoIcons name="sound-mix" size={24} style={styles.icon} />
-              }
-              containerStyle={styles.switchContainer}
-            />
-          ) : null}
-
-          {Platform.OS === 'android' ? (
-            <SwitchRow
-              text="Software Decoder"
-              value={softwareDecoder}
-              onChange={value => dispatch(changeSoftwareDecoder(value))}
-              LeftIcon={
-                <IoniconsIcons
-                  name="settings-outline"
-                  size={24}
-                  style={styles.icon}
+              {Platform.OS === 'ios' ? (
+                <SwitchRow
+                  text="Audio Mixer"
+                  value={audioMixer}
+                  onChange={value => dispatch(changeAudioMixer(value))}
+                  LeftIcon={
+                    <EntypoIcons
+                      name="sound-mix"
+                      size={24}
+                      style={styles.icon}
+                    />
+                  }
+                  containerStyle={styles.switchContainer}
                 />
-              }
-              containerStyle={styles.switchContainer}
-            />
+              ) : null}
+
+              {Platform.OS === 'android' ? (
+                <SwitchRow
+                  text="Software Decoder"
+                  value={softwareDecoder}
+                  onChange={value => dispatch(changeSoftwareDecoder(value))}
+                  LeftIcon={
+                    <IoniconsIcons
+                      name="settings-outline"
+                      size={24}
+                      style={styles.icon}
+                    />
+                  }
+                  containerStyle={styles.switchContainer}
+                />
+              ) : null}
+
+              {Platform.OS === 'android' ? (
+                <SwitchRow
+                  text="Auto Resize"
+                  value={autoResize}
+                  onChange={value => dispatch(changeAutoResize(value))}
+                  LeftIcon={
+                    <IoniconsIcons
+                      name="resize"
+                      size={24}
+                      style={styles.icon}
+                    />
+                  }
+                  containerStyle={styles.switchContainer}
+                />
+              ) : null}
+
+              <TouchableOpacity
+                style={styles.resetBtn}
+                onPress={() => dispatch(resetJoinConfig())}
+              >
+                <FontAwesomeIcons
+                  name="rotate-left"
+                  size={16}
+                  style={styles.resetIcon}
+                />
+
+                <Text style={styles.resetText}>Reset to Defaults</Text>
+              </TouchableOpacity>
+            </>
           ) : null}
-
-          {Platform.OS === 'android' ? (
-            <SwitchRow
-              text="Auto Resize"
-              value={autoResize}
-              onChange={value => dispatch(changeAutoResize(value))}
-              LeftIcon={
-                <IoniconsIcons name="resize" size={24} style={styles.icon} />
-              }
-              containerStyle={styles.switchContainer}
-            />
-          ) : null}
-
-          <View style={styles.divider} />
-
-          <TouchableOpacity
-            style={styles.resetBtn}
-            onPress={() => dispatch(resetJoinConfig())}
-          >
-            <FontAwesomeIcons
-              name="rotate-left"
-              size={16}
-              style={styles.resetIcon}
-            />
-
-            <Text style={styles.resetText}>Reset to Defaults</Text>
-          </TouchableOpacity>
         </View>
 
         {/* <View style={styles.flexSpace} /> */}
 
-        <View style={styles.divider} />
+        {debugMode ? (
+          <>
+            <View style={styles.divider} />
 
-        <View>
-          <Text style={styles.versionText}>
-            App Version{' '}
-            <Text style={styles.versionNumber}>
-              {DeviceInfo.getVersion()} ({DeviceInfo.getBuildNumber()})
-            </Text>
-          </Text>
+            <View>
+              <Text style={styles.versionText}>
+                App Version{' '}
+                <Text style={styles.versionNumber}>
+                  {DeviceInfo.getVersion()} ({DeviceInfo.getBuildNumber()})
+                </Text>
+              </Text>
 
-          <Text style={styles.versionText}>
-            React Native SDK{' '}
-            <Text style={styles.versionNumber}>{hmsRNSdkVersion}</Text>
-          </Text>
+              <Text style={styles.versionText}>
+                React Native SDK{' '}
+                <Text style={styles.versionNumber}>{hmsRNSdkVersion}</Text>
+              </Text>
 
-          <Text style={styles.versionText}>
-            100ms{' '}
-            {Platform.select({ios: 'iOS', android: 'Android', default: '-'})}{' '}
-            SDK{' '}
-            <Text style={styles.versionNumber}>
-              {Platform.select({
-                android: hmsAndroidSdkVersion,
-                ios: hmsIOSSdkVersion,
-                default: '-',
-              })}
-            </Text>
-          </Text>
-        </View>
+              <Text style={styles.versionText}>
+                React Native Room Kit{' '}
+                <Text style={styles.versionNumber}>{hmsRoomKitVersion}</Text>
+              </Text>
 
-        <View style={styles.divider} />
+              <Text style={styles.versionText}>
+                100ms{' '}
+                {Platform.select({
+                  ios: 'iOS',
+                  android: 'Android',
+                  default: '-',
+                })}{' '}
+                SDK{' '}
+                <Text style={styles.versionNumber}>
+                  {Platform.select({
+                    android: hmsAndroidSdkVersion,
+                    ios: hmsIOSSdkVersion,
+                    default: '-',
+                  })}
+                </Text>
+              </Text>
+            </View>
+
+            <View style={styles.divider} />
+          </>
+        ) : null}
 
         <Text style={styles.footer}>
           Made with <FontAwesomeIcons name="heart" size={16} color="red" /> by
@@ -258,7 +290,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
-    // marginTop: 8,
+    marginTop: 16,
   },
   resetText: {
     fontFamily: 'Inter-Medium',
@@ -280,8 +312,8 @@ const styles = StyleSheet.create({
     color: COLORS.TEXT.HIGH_EMPHASIS,
   },
   footer: {
-    // marginTop: 8,
-    // marginBottom: 16,
+    marginTop: 8,
+    marginBottom: 16,
     fontFamily: 'Inter-Medium',
     fontSize: 16,
     letterSpacing: 0.5,
