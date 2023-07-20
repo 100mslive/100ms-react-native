@@ -269,7 +269,7 @@ export const PeerSettingsModalContent: React.FC<
         ) : null}
 
         {/* Don't show Streaming Quality option for local peer */}
-        {!peer.isLocal ? (
+        {debugMode && !peer.isLocal ? (
           <SettingItem
             text="Streaming Quality"
             IconType={Ionicons}

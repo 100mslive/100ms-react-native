@@ -435,7 +435,7 @@ export const RoomSettingsModalContent: React.FC<
           />
         ) : null}
 
-        {localPeerRole?.permissions?.hlsStreaming ? (
+        {debugMode && localPeerRole?.permissions?.hlsStreaming ? (
           <SettingItem
             onPress={handleHLSStreaming}
             text={`${isHLSStreaming === true ? 'Stop' : 'Start'} HLS Streaming`}
@@ -444,7 +444,7 @@ export const RoomSettingsModalContent: React.FC<
           />
         ) : null}
 
-        {localPeerRole?.permissions?.rtmpStreaming ? (
+        {debugMode && localPeerRole?.permissions?.rtmpStreaming ? (
           <SettingItem
             onPress={handleRTMPAndRecording}
             text={
@@ -457,7 +457,7 @@ export const RoomSettingsModalContent: React.FC<
           />
         ) : null}
 
-        {localPeerRole?.permissions?.changeRole ? (
+        {debugMode && localPeerRole?.permissions?.changeRole ? (
           <SettingItem
             onPress={changeBulkRole}
             text="Bulk Role Change"
@@ -466,7 +466,7 @@ export const RoomSettingsModalContent: React.FC<
           />
         ) : null}
 
-        {localPeerRole?.permissions?.mute ? (
+        {debugMode && localPeerRole?.permissions?.mute ? (
           <SettingItem
             onPress={handleRemoteAudiosMute}
             text="Remote Mute All Audio Tracks"
@@ -475,8 +475,9 @@ export const RoomSettingsModalContent: React.FC<
           />
         ) : null}
 
-        {localPeerRole?.permissions?.mute ||
-        localPeerRole?.permissions?.unmute ? (
+        {debugMode &&
+        (localPeerRole?.permissions?.mute ||
+          localPeerRole?.permissions?.unmute) ? (
           <SettingItem
             onPress={changeTrackState}
             text="Change Track State For Role"
