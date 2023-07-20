@@ -75,7 +75,7 @@ const userReducer = (
       state.userId = action.payload.options.userId;
       state.endPoints = action.payload.options.endPoints;
       state.debugMode = action.payload.options.debugMode ?? false;
-      state.iosBuildConfig = action.payload.options.iosBuildConfig ?? null;
+      state.iosBuildConfig = action.payload.options.ios ?? null;
 
       return state;
     case HmsStateActionTypes.CLEAR_STATES:
