@@ -41,6 +41,7 @@ export const PeerSettingsModalContent: React.FC<
   const spotlightTrackId = useSelector(
     (state: RootState) => state.user.spotlightTrackId
   );
+  const debugMode = useSelector((state: RootState) => state.user.debugMode);
   const { handleModalVisibleType: setModalVisible } = useModalType();
 
   const removePeer = () => {
@@ -241,9 +242,10 @@ export const PeerSettingsModalContent: React.FC<
         ) : null}
 
         {/* Don't show Capture Screenshot option, if track is screenshare of local peer */}
-        {peerTrackNode.peer.isLocal &&
-        peerTrackNode.track &&
-        peerTrackNode.track.source === HMSTrackSource.SCREEN ? null : (
+        {!debugMode ||
+        (peerTrackNode.peer.isLocal &&
+          peerTrackNode.track &&
+          peerTrackNode.track.source === HMSTrackSource.SCREEN) ? null : (
           <SettingItem
             text="Capture Screenshot"
             IconType={MaterialCommunityIcons}
@@ -254,7 +256,7 @@ export const PeerSettingsModalContent: React.FC<
         )}
 
         {/* Local Image Capture is only available for local peer */}
-        {peerTrackNode.peer.isLocal ? (
+        {debugMode && peerTrackNode.peer.isLocal ? (
           <SettingItem
             text="Local Image Capture"
             IconType={MaterialCommunityIcons}
