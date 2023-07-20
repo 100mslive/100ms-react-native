@@ -591,7 +591,7 @@ export const useHMSSessionStoreListeners = () => {
   useEffect(() => {
     // Check if instance of HMSSessionStore is available
     if (hmsSessionStore) {
-      let toastTimeoutId: NodeJS.Timeout | null = null;
+      // let toastTimeoutId: NodeJS.Timeout | null = null;
 
       const addSessionStoreListeners = () => {
         // Handle 'spotlight' key values
@@ -639,8 +639,8 @@ export const useHMSSessionStoreListeners = () => {
             )
           );
 
-        let lastSpotlightValue: HMSSessionStoreValue = null;
-        let lastPinnedMessageValue: HMSSessionStoreValue = null;
+        // let lastSpotlightValue: HMSSessionStoreValue = null;
+        // let lastPinnedMessageValue: HMSSessionStoreValue = null;
 
         // Add subscription for `spotlight` & `pinnedMessage` keys updates on Session Store
         const subscription = hmsSessionStore.addKeyChangeListener<
@@ -662,41 +662,41 @@ export const useHMSSessionStoreListeners = () => {
                 handleSpotlightIdChange(data.value);
 
                 // Showing Toast message if value has actually changed
-                if (
-                  data.value !== lastSpotlightValue &&
-                  (data.value || lastSpotlightValue)
-                ) {
-                  Toast.showWithGravity(
-                    `SessionStore: \`spotlight\` key's value changed to ${data.value}`,
-                    Toast.LONG,
-                    Toast.TOP
-                  );
-                }
+                // if (
+                //   data.value !== lastSpotlightValue &&
+                //   (data.value || lastSpotlightValue)
+                // ) {
+                //   Toast.showWithGravity(
+                //     `SessionStore: \`spotlight\` key's value changed to ${data.value}`,
+                //     Toast.LONG,
+                //     Toast.TOP
+                //   );
+                // }
 
-                lastSpotlightValue = data.value;
+                // lastSpotlightValue = data.value;
                 break;
               }
               case 'pinnedMessage': {
                 handlePinnedMessageChange(data.value);
 
                 // Showing Toast message if value has actually changed
-                if (
-                  data.value !== lastPinnedMessageValue &&
-                  (data.value || lastPinnedMessageValue)
-                ) {
-                  if (toastTimeoutId !== null) {
-                    clearTimeout(toastTimeoutId);
-                  }
-                  toastTimeoutId = setTimeout(() => {
-                    Toast.showWithGravity(
-                      `SessionStore: \`pinnedMessage\` key's value changed to ${data.value}`,
-                      Toast.LONG,
-                      Toast.TOP
-                    );
-                  }, 1500);
-                }
+                // if (
+                //   data.value !== lastPinnedMessageValue &&
+                //   (data.value || lastPinnedMessageValue)
+                // ) {
+                //   if (toastTimeoutId !== null) {
+                //     clearTimeout(toastTimeoutId);
+                //   }
+                //   toastTimeoutId = setTimeout(() => {
+                //     Toast.showWithGravity(
+                //       `SessionStore: \`pinnedMessage\` key's value changed to ${data.value}`,
+                //       Toast.LONG,
+                //       Toast.TOP
+                //     );
+                //   }, 1500);
+                // }
 
-                lastPinnedMessageValue = data.value;
+                // lastPinnedMessageValue = data.value;
                 break;
               }
             }
@@ -715,7 +715,7 @@ export const useHMSSessionStoreListeners = () => {
           listener.remove()
         );
 
-        if (toastTimeoutId !== null) clearTimeout(toastTimeoutId);
+        // if (toastTimeoutId !== null) clearTimeout(toastTimeoutId);
       };
     }
   }, [hmsSessionStore]);
