@@ -117,7 +117,6 @@ export const ParticipantsList: React.FC<ParticipantsListProps> = ({ data }) => {
             <View style={styles.participantDescription}>
               <Text style={styles.participantName} numberOfLines={1}>
                 {peer.name}
-                {peer.isLocal && ' (You)'}
               </Text>
               <Text style={styles.participantRole} numberOfLines={1}>
                 {peer.role?.name}

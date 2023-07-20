@@ -79,7 +79,7 @@ const DisplayTrack = React.forwardRef<
           videoTrack?.source !== HMSTrackSource.REGULAR
             ? `${peer.name}'s ${videoTrack.source}`
             : isLocal
-            ? `You (${peer.name})`
+            ? `${peer.name} (You)`
             : peer.name}
         </Text>
       </View>
