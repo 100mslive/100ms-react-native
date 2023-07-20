@@ -1,6 +1,6 @@
 {
   "name": "@100mslive/react-native-room-kit",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "100ms Room Kit provides simple & easy to use UI components to build Live Streaming & Video Conferencing experiences in your apps.",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
