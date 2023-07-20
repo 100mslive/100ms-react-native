@@ -34,7 +34,7 @@ export const HMSPreviewJoinButton: React.FC<HMSPreviewJoinButtonProps> = ({
         ) : null}
 
         <Text style={[styles.text, { opacity: loading ? 0 : undefined }]}>
-          {'Join ->'}
+          {'Join'}
         </Text>
       </>
     </TouchableHighlight>
