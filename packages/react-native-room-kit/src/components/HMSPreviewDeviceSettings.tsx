@@ -51,6 +51,7 @@ export const HMSPreviewDeviceSettings: React.FC = () => {
   const roomLocallyMuted = useSelector(
     (state: RootState) => state.hmsStates.roomLocallyMuted
   );
+  const debugMode = useSelector((state: RootState) => state.user.debugMode);
 
   React.useEffect(() => {
     if (Platform.OS === 'android') {
@@ -113,11 +114,13 @@ export const HMSPreviewDeviceSettings: React.FC = () => {
           setCurrentAudioOutputDevice(data.device);
         }
 
-        Toast.showWithGravity(
-          `Audio Device Output changed to: ${getDescription(data?.device)}`,
-          Toast.LONG,
-          Toast.TOP
-        );
+        if (debugMode) {
+          Toast.showWithGravity(
+            `Audio Device Output changed to: ${getDescription(data?.device)}`,
+            Toast.LONG,
+            Toast.TOP
+          );
+        }
       });
 
       return () => {
@@ -128,7 +131,7 @@ export const HMSPreviewDeviceSettings: React.FC = () => {
         );
       };
     }
-  }, [hmsInstance]);
+  }, [hmsInstance, debugMode]);
 
   const handleOnModalClose = () => {
     if (actionAfterModalHide.current === null) {
