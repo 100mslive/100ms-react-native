@@ -101,6 +101,11 @@ export const HMSPreviewDeviceSettings: React.FC = () => {
         PreviewModalCloseActions.SWITCH_AUDIO_OUTPUT_IOS;
       closeModal();
     } else {
+      if (availableAudioOutputDevices.length === 0) {
+        hmsInstance
+          .getAudioDevicesList()
+          .then((devices) => setAvailableAudioOutputDevices(devices)); // TODO(set-state-after-unmount): setting state irrespective of component unmount check
+      }
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       setDeviceListDropdownOpen((prev) => !prev);
     }
@@ -235,25 +240,48 @@ export const HMSPreviewDeviceSettings: React.FC = () => {
                   backgroundColor: COLORS.SURFACE.DEFAULT,
                 }}
               >
-                <ScrollView showsVerticalScrollIndicator={true}>
-                  {availableAudioOutputDevices.sort().map((device) => (
-                    <TouchableOpacity
-                      disabled={device === currentAudioOutputDevice}
+                <ScrollView
+                  showsVerticalScrollIndicator={true}
+                  contentContainerStyle={{
+                    flex:
+                      availableAudioOutputDevices.length === 0 ? 1 : undefined,
+                  }}
+                >
+                  {availableAudioOutputDevices.length === 0 ? (
+                    <View
                       style={{
-                        paddingHorizontal: 16,
-                        paddingVertical: 12,
-                        backgroundColor:
-                          device === currentAudioOutputDevice
-                            ? COLORS.PRIMARY.DARK
-                            : undefined,
+                        flex: 1,
+                        alignItems: 'center',
+                        justifyContent: 'center',
                       }}
-                      onPress={() => handleSelectAudioDevice(device)}
                     >
-                      <Text style={styles.itemText}>
-                        {getDescription(device)}
+                      <Text style={styles.headerText}>
+                        No other devices available!
                       </Text>
-                    </TouchableOpacity>
-                  ))}
+                    </View>
+                  ) : (
+                    <>
+                      {availableAudioOutputDevices.sort().map((device) => (
+                        <TouchableOpacity
+                          key={device}
+                          disabled={device === currentAudioOutputDevice}
+                          style={{
+                            paddingHorizontal: 16,
+                            paddingVertical: 12,
+                            backgroundColor:
+                              device === currentAudioOutputDevice
+                                ? COLORS.PRIMARY.DARK
+                                : undefined,
+                          }}
+                          onPress={() => handleSelectAudioDevice(device)}
+                        >
+                          <Text style={styles.itemText}>
+                            {getDescription(device)}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </>
+                  )}
                 </ScrollView>
               </View>
             ) : null}
