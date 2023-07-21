@@ -1,5 +1,6 @@
 import type {
   HMSLocalPeer,
+  HMSPeer,
   HMSRole,
   HMSRoom,
 } from '@100mslive/react-native-hms';
@@ -13,7 +14,9 @@ type ActionType =
   | SetIsLocalVideoMutedAction
   | SetIsLocalScreenSharedAction
   | SetRoomLocallyMutedAction
-  | ResetAction;
+  | ResetAction
+  | AddToPreviewPeersList
+  | RemoveFromPreviewPeersList;
 
 type SetRoomAction = {
   type: HmsStateActionTypes.SET_ROOM_STATE;
@@ -54,6 +57,16 @@ type SetRoomLocallyMutedAction = {
   roomLocallyMuted: boolean;
 };
 
+type AddToPreviewPeersList = {
+  type: HmsStateActionTypes.ADD_TO_PREVIEW_PEERS_LIST;
+  peer: HMSPeer;
+};
+
+type RemoveFromPreviewPeersList = {
+  type: HmsStateActionTypes.REMOVE_FROM_PREVIEW_PEERS_LIST;
+  peerId: string;
+};
+
 type IntialStateType = {
   isLocalAudioMuted: boolean | undefined;
   isLocalVideoMuted: boolean | undefined;
@@ -62,6 +75,7 @@ type IntialStateType = {
   room: HMSRoom | null;
   localPeer: HMSLocalPeer | null;
   roles: HMSRole[];
+  previewPeersList: HMSPeer[];
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -72,6 +86,7 @@ const INITIAL_STATE: IntialStateType = {
   room: null,
   localPeer: null,
   roles: [],
+  previewPeersList: [],
 };
 
 const hmsStatesReducer = (
@@ -115,6 +130,18 @@ const hmsStatesReducer = (
       return {
         ...state,
         roomLocallyMuted: action.roomLocallyMuted,
+      };
+    case HmsStateActionTypes.ADD_TO_PREVIEW_PEERS_LIST:
+      return {
+        ...state,
+        previewPeersList: [...state.previewPeersList, action.peer],
+      };
+    case HmsStateActionTypes.REMOVE_FROM_PREVIEW_PEERS_LIST:
+      return {
+        ...state,
+        previewPeersList: state.previewPeersList.filter(
+          (prevPeer) => prevPeer.peerID !== action.peerId
+        ),
       };
     case HmsStateActionTypes.CLEAR_STATES:
       return INITIAL_STATE;

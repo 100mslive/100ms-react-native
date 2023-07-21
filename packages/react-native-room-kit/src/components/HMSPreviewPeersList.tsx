@@ -1,53 +1,30 @@
 import * as React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import {
-  HMSPeer,
-  // HMSPeerUpdate,
-  // useHMSPeerUpdates,
-} from '@100mslive/react-native-hms';
+import { useSelector } from 'react-redux';
+import type { HMSPeer } from '@100mslive/react-native-hms';
 
 import { COLORS } from '../utils/theme';
 import { ParticipantsIcon } from '../Icons';
+import type { RootState } from '../redux';
 
 export interface HMSPreviewPeersListProps {}
 
 export const HMSPreviewPeersList: React.FC<HMSPreviewPeersListProps> = () => {
-  const [peerList, _setPeerList] = React.useState<HMSPeer[]>([]);
-
-  // TODO: Handle case when peer updates are received before this hook mounts
-  // It leads to some already joined peer missing in list
-  // useHMSPeerUpdates(
-  //   ({ peer, type }: { peer: HMSPeer; type: HMSPeerUpdate }) => {
-  //     switch (type) {
-  //       case HMSPeerUpdate.PEER_JOINED:
-  //         setPeerList((prevPeerList) => [...prevPeerList, peer]);
-  //         break;
-  //       case HMSPeerUpdate.PEER_LEFT:
-  //         setPeerList((prevPeerList) =>
-  //           prevPeerList.filter(
-  //             (peerFromList) => peerFromList.peerID !== peer.peerID
-  //           )
-  //         );
-  //         break;
-
-  //       default:
-  //         break;
-  //     }
-  //   },
-  //   []
-  // );
+  const previewPeersList = useSelector(
+    (state: RootState) => state.hmsStates.previewPeersList
+  );
 
   return (
     <View style={styles.container}>
-      {peerList.length > 0 ? <ParticipantsIcon /> : null}
+      {previewPeersList.length > 0 ? <ParticipantsIcon /> : null}
 
-      {peerList.length === 0 ? (
+      {previewPeersList.length === 0 ? (
         <Text style={[styles.text, styles.textSpacer]}>
           You are the first to join
         </Text>
-      ) : peerList.length === 1 ? (
+      ) : previewPeersList.length === 1 ? (
         <Text style={[styles.text, styles.textSpacer]}>
-          {peerList[0]!.name} has joined
+          {previewPeersList[0]!.name} has joined
         </Text>
       ) : (
         <View style={styles.multiTextContainer}>
@@ -56,17 +33,17 @@ export const HMSPreviewPeersList: React.FC<HMSPreviewPeersListProps> = () => {
             ellipsizeMode="tail"
             numberOfLines={1}
           >
-            {peerList
+            {previewPeersList
               .slice(0, 2)
-              .map((peer) => peer.name)
+              .map((peer: HMSPeer) => peer.name)
               .join(', ')}
           </Text>
 
-          {peerList.length - 2 > 0 ? (
+          {previewPeersList.length - 2 > 0 ? (
             <Text style={styles.text}>
               {' '}
-              +{peerList.length - 2}{' '}
-              {peerList.length - 2 > 1 ? 'others' : 'other'}
+              +{previewPeersList.length - 2}{' '}
+              {previewPeersList.length - 2 > 1 ? 'others' : 'other'}
             </Text>
           ) : null}
         </View>
@@ -99,7 +76,10 @@ const styles = StyleSheet.create({
   textSpacer: {
     marginHorizontal: 8,
   },
-  flexView: { flex: 1 },
+  flexView: {
+    flex: 1,
+    flexShrink: 1,
+  },
   multiTextContainer: {
     flexDirection: 'row',
     marginHorizontal: 8,

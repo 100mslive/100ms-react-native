@@ -194,3 +194,13 @@ export const setPeerToUpdate = (peerToUpdate: HMSPeer) => ({
   type: actionTypes.SET_PEER_TO_UPDATE,
   payload: { peerToUpdate },
 });
+
+export const addToPreviewPeersList = (peer: HMSPeer) => ({
+  type: HmsStateActionTypes.ADD_TO_PREVIEW_PEERS_LIST,
+  peer,
+});
+
+export const removeFromPreviewPeersList = (peer: HMSPeer) => ({
+  type: HmsStateActionTypes.REMOVE_FROM_PREVIEW_PEERS_LIST,
+  peerId: peer.peerID,
+});

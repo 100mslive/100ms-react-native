@@ -33,8 +33,10 @@ import type { RootState } from './redux';
 import {
   addMessage,
   addPinnedMessage,
+  addToPreviewPeersList,
   changePipModeStatus,
   clearStore,
+  removeFromPreviewPeersList,
   saveUserData,
   setHMSLocalPeerState,
   setHMSRoleState,
@@ -71,6 +73,7 @@ import {
 import { selectIsHLSViewer } from './hooks-util-selectors';
 
 export const useHMSListeners = (
+  meetingState: MeetingState,
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>,
   setMeetingState: React.Dispatch<React.SetStateAction<MeetingState>>
 ) => {
@@ -79,7 +82,12 @@ export const useHMSListeners = (
 
   useHMSRoomUpdate(hmsInstance, setMeetingState);
 
-  useHMSPeersUpdate(hmsInstance, updateLocalPeer, setPeerTrackNodes);
+  useHMSPeersUpdate(
+    meetingState,
+    hmsInstance,
+    updateLocalPeer,
+    setPeerTrackNodes
+  );
 
   useHMSTrackUpdate(hmsInstance, updateLocalPeer, setPeerTrackNodes);
 };
@@ -204,68 +212,26 @@ type PeerUpdate = {
 };
 
 const useHMSPeersUpdate = (
+  meetingState: MeetingState,
   hmsInstance: HMSSDK,
   updateLocalPeer: () => void,
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>
 ) => {
-  // useHMSPeerUpdates(
-  //   ({ peer, type }: PeerUpdate) => {
-  //     if (type === HMSPeerUpdate.PEER_JOINED) {
-  //       return;
-  //     }
-  //     if (type === HMSPeerUpdate.PEER_LEFT) {
-  //       setPeerTrackNodes((prevPeerTrackNodes) =>
-  //         removePeerTrackNodes(prevPeerTrackNodes, peer)
-  //       );
-  //       return;
-  //     }
-  //     if (peer.isLocal) {
-  //       setPeerTrackNodes((prevPeerTrackNodes) => {
-  //         if (peerTrackNodeExistForPeer(prevPeerTrackNodes, peer)) {
-  //           return replacePeerTrackNodes(prevPeerTrackNodes, peer);
-  //         }
-  //         return prevPeerTrackNodes;
-  //       });
-
-  //       // - TODO: update local localPeer state
-  //       // - Pass this updated data to Meeting component -> DisplayView component
-  //       updateLocalPeer();
-  //       return;
-  //     }
-  //     if (type === HMSPeerUpdate.ROLE_CHANGED) {
-  //       if (
-  //         peer.role?.publishSettings?.allowed === undefined ||
-  //         (peer.role?.publishSettings?.allowed &&
-  //           peer.role?.publishSettings?.allowed.length < 1)
-  //       ) {
-  //         setPeerTrackNodes((prevPeerTrackNodes) => {
-  //           if (peerTrackNodeExistForPeer(prevPeerTrackNodes, peer)) {
-  //             return removePeerTrackNodes(prevPeerTrackNodes, peer);
-  //           }
-  //           return prevPeerTrackNodes;
-  //         });
-  //       }
-  //       return;
-  //     }
-  //     if (
-  //       type === HMSPeerUpdate.METADATA_CHANGED ||
-  //       type === HMSPeerUpdate.NAME_CHANGED ||
-  //       type === HMSPeerUpdate.NETWORK_QUALITY_UPDATED
-  //     ) {
-  //       setPeerTrackNodes((prevPeerTrackNodes) => {
-  //         if (peerTrackNodeExistForPeer(prevPeerTrackNodes, peer)) {
-  //           return replacePeerTrackNodes(prevPeerTrackNodes, peer);
-  //         }
-  //         return prevPeerTrackNodes;
-  //       });
-  //       return;
-  //     }
-  //   },
-  //   [hmsInstance]
-  // );
+  const dispatch = useDispatch();
+  const inMeeting = meetingState === MeetingState.IN_MEETING;
 
   useEffect(() => {
     const peerUpdateHandler = ({ peer, type }: PeerUpdate) => {
+      // Handle State from Preview screen
+      if (!inMeeting) {
+        if (type === HMSPeerUpdate.PEER_JOINED) {
+          dispatch(addToPreviewPeersList(peer));
+        } else if (type === HMSPeerUpdate.PEER_LEFT) {
+          dispatch(removeFromPreviewPeersList(peer));
+        }
+      }
+
+      // Handle State for Meeting screen
       if (type === HMSPeerUpdate.PEER_JOINED) {
         return;
       }
@@ -326,7 +292,7 @@ const useHMSPeersUpdate = (
     return () => {
       hmsInstance.removeEventListener(HMSUpdateListenerActions.ON_PEER_UPDATE);
     };
-  }, [hmsInstance]);
+  }, [inMeeting, hmsInstance]); // TODO: When `inMeeting` becomes true Peer Update is resubscribed, we might lose some events during that time
 };
 
 type TrackUpdate = {

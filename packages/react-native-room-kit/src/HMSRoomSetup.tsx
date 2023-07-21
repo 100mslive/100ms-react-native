@@ -68,7 +68,7 @@ export const HMSRoomSetup = () => {
   }, [getConfig, hmsInstance]);
 
   // HMS Room, Peers, Track Listeners
-  useHMSListeners(setPeerTrackNodes, setMeetingState);
+  useHMSListeners(meetingState, setPeerTrackNodes, setMeetingState);
 
   /**
    * Session store is a shared realtime key-value store that is accessible by everyone in the room.
