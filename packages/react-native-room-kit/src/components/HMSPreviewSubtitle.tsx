@@ -15,7 +15,7 @@ export const HMSPreviewSubtitle: React.FC<HMSPreviewSubtitleProps> = ({
 
 const styles = StyleSheet.create({
   title: {
-    color: COLORS.SURFACE.ON_SURFACE.LOW,
+    color: COLORS.SURFACE.ON_SURFACE.MEDIUM,
     fontSize: 14,
     fontFamily: 'Inter',
     fontWeight: '400',

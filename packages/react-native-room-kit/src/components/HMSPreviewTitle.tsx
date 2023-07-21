@@ -20,7 +20,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter',
     fontWeight: '600',
     lineHeight: 32,
-    marginTop: 8,
     textAlign: 'center',
   },
 });

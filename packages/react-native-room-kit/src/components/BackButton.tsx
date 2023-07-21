@@ -36,7 +36,7 @@ export const BackButton: React.FC<BackButtonProps> = () => {
 const styles = StyleSheet.create({
   button: {
     marginTop: 16,
-    marginLeft: 8,
+    marginLeft: 16,
     backgroundColor: COLORS.SURFACE.DEFAULT,
   },
 });

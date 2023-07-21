@@ -17,3 +17,5 @@ export * from './Clock';
 export * from './End';
 export * from './100ms';
 export * from './Hand';
+export * from './Person';
+export * from './GenericLogo';

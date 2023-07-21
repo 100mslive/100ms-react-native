@@ -29,7 +29,7 @@ export const HMSPreviewEditName: React.FC<HMSPreviewEditNameProps> = () => {
       style={[styles.input, inputFocused ? styles.focusedInput : null]}
       value={userName}
       onChangeText={handleNameChange}
-      placeholder="Name"
+      placeholder="Enter Name..."
       autoCapitalize="words"
       autoCompleteType="name"
       placeholderTextColor={COLORS.SURFACE.ON_SURFACE.LOW}

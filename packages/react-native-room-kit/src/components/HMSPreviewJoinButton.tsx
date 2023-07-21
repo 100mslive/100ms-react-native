@@ -5,8 +5,10 @@ import {
   Text,
   TouchableHighlight,
 } from 'react-native';
+import { useSelector } from 'react-redux';
 
 import { COLORS } from '../utils/theme';
+import type { RootState } from '../redux';
 
 export interface HMSPreviewJoinButtonProps {
   onJoin(): void;
@@ -17,12 +19,21 @@ export const HMSPreviewJoinButton: React.FC<HMSPreviewJoinButtonProps> = ({
   loading,
   onJoin,
 }) => {
+  const userNameInvalid = useSelector(
+    (state: RootState) => state.user.userName.length <= 0
+  );
+
+  const disabledJoin = userNameInvalid || loading;
+
   return (
     <TouchableHighlight
       underlayColor={COLORS.PRIMARY.DARK}
-      style={styles.button}
+      style={[
+        styles.button,
+        disabledJoin ? { backgroundColor: COLORS.PRIMARY.DISABLED } : null,
+      ]}
       onPress={onJoin}
-      disabled={loading}
+      disabled={disabledJoin}
     >
       <>
         {loading ? (
@@ -33,8 +44,14 @@ export const HMSPreviewJoinButton: React.FC<HMSPreviewJoinButtonProps> = ({
           />
         ) : null}
 
-        <Text style={[styles.text, { opacity: loading ? 0 : undefined }]}>
-          {'Join'}
+        <Text
+          style={[
+            styles.text,
+            { opacity: loading ? 0 : undefined },
+            disabledJoin ? { color: COLORS.PRIMARY.ON_PRIMARY.LOW } : null,
+          ]}
+        >
+          Join Now
         </Text>
       </>
     </TouchableHighlight>

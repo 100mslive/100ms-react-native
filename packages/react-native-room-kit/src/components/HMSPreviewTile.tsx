@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { HMSVideoViewMode } from '@100mslive/react-native-hms';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { MicIcon, NetworkQualityIcon } from '../Icons';
+import { PersonIcon } from '../Icons';
 import { useHMSInstance } from '../hooks-util';
 import type { RootState } from '../redux';
 import { getInitials } from '../utils/functions';
@@ -21,15 +21,8 @@ export const HMSPreviewTile: React.FC = () => {
   const isLocalVideoMuted = useSelector(
     (state: RootState) => state.hmsStates.isLocalVideoMuted
   );
-  const isLocalAudioMuted = useSelector(
-    (state: RootState) => state.hmsStates.isLocalAudioMuted
-  );
   const localVideoTrackId = useSelector(
     (state: RootState) => state.hmsStates.localPeer?.videoTrack?.trackId
-  );
-  const localPeerNetworkQuality = useSelector(
-    (state: RootState) =>
-      state.hmsStates.localPeer?.networkQuality?.downlinkQuality
   );
   const userName = useSelector((state: RootState) => state.user.userName);
 
@@ -43,15 +36,12 @@ export const HMSPreviewTile: React.FC = () => {
     <View style={styles.modalContainer}>
       {isLocalVideoMuted || !localVideoTrackId ? (
         <View style={styles.avatarContainer}>
-          <View
-            style={[
-              styles.avatar,
-              userName.length === 0 ? styles.emptyAvatar : null,
-            ]}
-          >
-            <Text style={styles.avatarText}>
-              {userName.length === 0 ? '👤' : getInitials(userName)}
-            </Text>
+          <View style={styles.avatar}>
+            {userName.length === 0 ? (
+              <PersonIcon style={styles.avatarIcon} />
+            ) : (
+              <Text style={styles.avatarText}>{getInitials(userName)}</Text>
+            )}
           </View>
         </View>
       ) : (
@@ -64,18 +54,6 @@ export const HMSPreviewTile: React.FC = () => {
           style={styles.hmsView}
         />
       )}
-
-      {isLocalAudioMuted ? (
-        <View style={styles.micMuted}>
-          <MicIcon muted={true} style={styles.micMutedIcon} />
-        </View>
-      ) : null}
-
-      <View style={styles.nameInTileContainer}>
-        {userName ? <Text style={styles.nameInTile}>{userName}</Text> : null}
-
-        <NetworkQualityIcon quality={localPeerNetworkQuality} />
-      </View>
     </View>
   );
 };
@@ -84,28 +62,11 @@ const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
     position: 'relative',
-    backgroundColor: COLORS.BACKGROUND.DEFAULT,
-    marginHorizontal: 8,
-    borderRadius: 16,
-    alignSelf: 'center',
+    backgroundColor: COLORS.BACKGROUND.DIM,
     overflow: 'hidden',
-    minWidth: '50%',
-    // minHeight: '50%',
-    aspectRatio: 377 / 482, // TODO: DO WE NEED THIS?
   },
   hmsView: {
     flex: 1,
-  },
-  micMuted: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    backgroundColor: COLORS.ALERT.ERROR.DEFAULT,
-    padding: 8,
-    borderRadius: 12,
-  },
-  micMutedIcon: {
-    tintColor: COLORS.ALERT.ERROR.BRIGHTER,
   },
   avatarContainer: {
     flex: 1,
@@ -120,8 +81,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  emptyAvatar: {
-    backgroundColor: '#C3D0E5', // TODO: use it from variable
+  avatarIcon: {
+    width: 40,
+    height: 40,
   },
   avatarText: {
     color: COLORS.SURFACE.ON_SURFACE.HIGH,
@@ -130,23 +92,5 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     lineHeight: 40,
     letterSpacing: 0.25,
-  },
-  nameInTileContainer: {
-    position: 'absolute',
-    bottom: 8,
-    left: 8,
-    backgroundColor: COLORS.BACKGROUND.DIM_80,
-    padding: 8,
-    borderRadius: 12,
-    flexDirection: 'row',
-  },
-  nameInTile: {
-    color: COLORS.SURFACE.ON_SURFACE.HIGH,
-    fontSize: 14,
-    fontFamily: 'Inter',
-    fontWeight: '400',
-    lineHeight: 20,
-    letterSpacing: 0.25,
-    marginRight: 8,
   },
 });

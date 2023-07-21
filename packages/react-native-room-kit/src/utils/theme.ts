@@ -54,7 +54,10 @@ export const COLORS = {
     LIGHT: '#66A1FF',
     DEFAULT: '#2572ED',
     DARK: '#143466',
-    DISABLED: '#3666B2',
+    DISABLED: '#004299',
+    ON_PRIMARY: {
+      LOW: '#84AAFF',
+    },
   },
   SECONDARY: {
     DIM: '#293042',
@@ -88,6 +91,7 @@ export const COLORS = {
     LIGHTER: '#272E38',
     ON_SURFACE: {
       LOW: '#8F9099',
+      MEDIUM: '#C5C6D0',
       HIGH: '#EFF0FA',
     },
   },
