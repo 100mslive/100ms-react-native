@@ -17,7 +17,7 @@ import EntypoIcons from 'react-native-vector-icons/Entypo';
 
 import {COLORS} from '../utils/theme';
 import {version as hmsRNSdkVersion} from '@100mslive/react-native-hms/package.json';
-import {version as hmsRoomKitVersion} from '@100mslive/react-native-room-kit/package.json';
+import {version as hmsRoomKitVersion} from '../../../package.json';
 import {
   ios as hmsIOSSdkVersion,
   android as hmsAndroidSdkVersion,
