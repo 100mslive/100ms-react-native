@@ -62,7 +62,7 @@ PODS:
   - HMSBroadcastExtensionSDK (0.0.9)
   - HMSHLSPlayerSDK (0.0.2):
     - HMSAnalyticsSDK (= 0.0.2)
-  - HMSSDK (0.9.5):
+  - HMSSDK (0.9.6):
     - HMSAnalyticsSDK (= 0.0.2)
     - HMSWebRTC (= 1.0.5116)
   - HMSWebRTC (1.0.5116)
@@ -295,7 +295,7 @@ PODS:
   - react-native-hms (2.0.0):
     - HMSBroadcastExtensionSDK (= 0.0.9)
     - HMSHLSPlayerSDK (= 0.0.2)
-    - HMSSDK (= 0.9.5)
+    - HMSSDK (= 0.9.6)
     - React-Core
   - react-native-safe-area-context (3.4.1):
     - React-Core
@@ -368,7 +368,7 @@ PODS:
     - React-perflogger (= 0.64.4)
   - rn-fetch-blob (0.12.0):
     - React-Core
-  - RNCAsyncStorage (1.19.0):
+  - RNCAsyncStorage (1.19.1):
     - React-Core
   - RNDeviceInfo (9.0.2):
     - React-Core
@@ -616,7 +616,7 @@ SPEC CHECKSUMS:
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: cf9b38bf0b2d048436d9a82ad2abe1404f11e7de
   FBLazyVector: fa8275d5086566e22a26ddc385ab5772e7f9b1bd
-  FBReactNativeSpec: 7e03bcbf42f5230f7a1044f206d95e96fc79cf09
+  FBReactNativeSpec: fac16b9180e777c240cd9d12cf06a2f667c5c275
   Flipper: d3da1aa199aad94455ae725e9f3aa43f3ec17021
   Flipper-DoubleConversion: 38631e41ef4f9b12861c67d17cb5518d06badc41
   Flipper-Folly: 755929a4f851b2fb2c347d533a23f191b008554c
@@ -629,7 +629,7 @@ SPEC CHECKSUMS:
   HMSAnalyticsSDK: 4d2a88a729b1eb42f3d25f217c28937ec318a5b7
   HMSBroadcastExtensionSDK: d80fe325f6c928bd8e5176290b5a4b7ae15d6fbb
   HMSHLSPlayerSDK: 6a54ad4d12f3dc2270d1ecd24019d71282a4f6a3
-  HMSSDK: 81804295a3c5ec6016c0966f2053d7f5f51ccc26
+  HMSSDK: 90d299460a53df3903388c9c4e62e30a5a8c50a8
   HMSWebRTC: ae54e9dd91b869051b283b43b14f57d43b7bf8e1
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   OpenSSL-Universal: 1aa4f6a6ee7256b83db99ec1ccdaa80d10f9af9b
@@ -649,7 +649,7 @@ SPEC CHECKSUMS:
   react-native-avoid-softinput: 71a692888f0c1d426ad9045dc8325773583962cd
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
   react-native-document-picker: 69ca2094d8780cfc1e7e613894d15290fdc54bba
-  react-native-hms: e944cc03e1939f2c9d4a107cf08be333bd02841f
+  react-native-hms: df44f6bd17c398134b506c46bcf4c49eec9ca89a
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
   react-native-simple-toast: 8ee5d23f0b92b935ab7434cdb65159ce12dfb4b7
   React-perflogger: 5a890ca0911669421b7611661e9b58f91c805f5c
@@ -665,7 +665,7 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: 5b441857030bb6c3abaa7517f333cb01875ae499
   ReactCommon: b4a65d2d6e9eeffd4b32dde1245962b3f43907d0
   rn-fetch-blob: f065bb7ab7fb48dd002629f8bdcb0336602d3cba
-  RNCAsyncStorage: 4b98ac3c64efa4e35c1197cb0c5ca5e9f5d4c666
+  RNCAsyncStorage: f47fe18526970a69c34b548883e1aeceb115e3e1
   RNDeviceInfo: 1e3f62b9ec32f7754fac60bd06b8f8a27124e7f0
   RNFlashList: ade81b4e928ebd585dd492014d40fb8d0e848aab
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
