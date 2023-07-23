@@ -17,7 +17,7 @@ perform_npm_actions() {
 }
 
 release_android() {
-  cd ./packages/react-native-hms/android
+  cd ./packages/react-native-hms/example/android
 
   bundle install --verbose
 
@@ -25,7 +25,7 @@ release_android() {
 }
 
 release_iOS() {
-  cd ./packages/react-native-hms/ios
+  cd ./packages/react-native-hms/example/ios
 
   pod install --verbose
 
