@@ -54,7 +54,6 @@ const QRCode = () => {
   const debugMode = useSelector(
     (state: RootState) => state.app.joinConfig.debugMode,
   );
-  const [peerName, setPeerName] = useState<string>('');
   const [joinDisabled, setJoinDisabled] = useState<boolean>(true);
   const [joiningLink, setJoiningLink] = useState<string>('');
   const [moreModalVisible, setMoreModalVisible] = useState(false);
@@ -79,7 +78,6 @@ const QRCode = () => {
           // @ts-ignore
           navigate('HMSPrebuiltScreen', {
             roomCode,
-            userName: peerName,
             userId,
             endPoints:
               tokenEndpoint && initEndpoint
@@ -197,45 +195,14 @@ const QRCode = () => {
           <Text style={styles.joiningLinkInputText}>Joining Link</Text>
         </View>
 
-        <View style={{width: '100%', flexDirection: 'row'}}>
-          <CustomInput
-            value={joiningLink}
-            onChangeText={setJoiningLink}
-            inputStyle={styles.joiningLinkInput}
-            viewStyle={{width: '86%'}}
-            placeholderTextColor={COLORS.TEXT.DISABLED}
-            placeholder="Paste the link here"
-            multiline
-            blurOnSubmit
-          />
-          <TouchableOpacity
-            onPress={onScanQRCodePress}
-            style={{
-              width: '14%',
-              marginTop: 8,
-              backgroundColor: COLORS.PRIMARY.DEFAULT,
-              justifyContent: 'center',
-              alignItems: 'center',
-              borderRadius: 8,
-            }}
-          >
-            <MaterialCommunityIcons
-              name="qrcode"
-              style={{color: COLORS.TEXT.HIGH_EMPHASIS_ACCENT}}
-              size={24}
-            />
-          </TouchableOpacity>
-        </View>
-
         <CustomInput
-          value={peerName}
-          onChangeText={setPeerName}
-          textStyle={styles.userNameInputText}
-          viewStyle={styles.userNameInputView}
-          inputStyle={styles.userNameInput}
+          value={joiningLink}
+          onChangeText={setJoiningLink}
+          inputStyle={styles.joiningLinkInput}
           placeholderTextColor={COLORS.TEXT.DISABLED}
-          placeholder="Enter your name"
-          title="Name"
+          placeholder="Paste the link here"
+          multiline
+          blurOnSubmit
         />
 
         <View style={{flexDirection: 'row'}}>
@@ -261,6 +228,22 @@ const QRCode = () => {
             }
           />
         </View>
+
+        <View style={styles.horizontalSeparator} />
+
+        <CustomButton
+          title="Scan QR Code"
+          onPress={onScanQRCodePress}
+          viewStyle={styles.scanQRButton}
+          textStyle={styles.joinButtonText}
+          LeftIcon={
+            <MaterialCommunityIcons
+              name="qrcode"
+              style={styles.scanQRButtonIcon}
+              size={24}
+            />
+          }
+        />
       </ScrollView>
 
       <DefaultModal
