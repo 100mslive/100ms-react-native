@@ -147,13 +147,15 @@ export const PeerSettingsModalContent: React.FC<
       <Text style={styles.participantRole}>{peer.role?.name}</Text>
 
       <View style={styles.contentContainer}>
-        <SettingItem
-          text={onSpotlight ? 'Remove from Spotlight' : 'Add to Spotlight'}
-          IconType={Ionicons}
-          iconName={onSpotlight ? 'ios-star' : 'ios-star-outline'}
-          onPress={handleSpotlightPress}
-          disabled={!peerTrackNode.track?.trackId}
-        />
+        {debugMode ? (
+          <SettingItem
+            text={onSpotlight ? 'Remove from Spotlight' : 'Add to Spotlight'}
+            IconType={Ionicons}
+            iconName={onSpotlight ? 'ios-star' : 'ios-star-outline'}
+            onPress={handleSpotlightPress}
+            disabled={!peerTrackNode.track?.trackId}
+          />
+        ) : null}
 
         {!peer.isLocal &&
         (localPeerPermissions?.mute || localPeerPermissions?.unmute) ? (
