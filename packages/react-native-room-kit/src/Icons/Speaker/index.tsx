@@ -4,9 +4,11 @@ import type { ImageProps } from 'react-native';
 
 interface SpeakerIconProps extends Omit<ImageProps, 'source'> {
   muted: boolean;
+  size?: 'normal' | 'large';
 }
 
 export const SpeakerIcon: React.FC<SpeakerIconProps> = ({
+  size = 'normal',
   muted,
   style,
   ...restProps
@@ -16,9 +18,11 @@ export const SpeakerIcon: React.FC<SpeakerIconProps> = ({
       source={
         muted
           ? require('./assets/speaker-muted.png')
-          : require('./assets/speaker.png')
+          : size === 'normal'
+          ? require('./assets/speaker.png')
+          : require('./assets/speaker-large.png')
       }
-      style={[styles.icon, style]}
+      style={[styles.icon, style, size === 'large' ? styles.large : null]}
       {...restProps}
     />
   );
@@ -30,5 +34,9 @@ const styles = StyleSheet.create({
     height: 24,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  large: {
+    width: 32,
+    height: 32,
   },
 });

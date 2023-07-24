@@ -2,10 +2,7 @@ import React, { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { AvoidSoftInput } from 'react-native-avoid-softinput';
 import { useSelector } from 'react-redux';
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 
 import { COLORS } from '../utils/theme';
@@ -20,7 +17,7 @@ import { HMSPreviewPeersList } from './HMSPreviewPeersList';
 import { HMSPreviewSubtitle } from './HMSPreviewSubtitle';
 import { HMSPreviewTile } from './HMSPreviewTile';
 import { HMSPreviewTitle } from './HMSPreviewTitle';
-import { HMSPreviewDeviceSettings } from './HMSPreviewDeviceSettings';
+import { HMSSpeakerSettings } from './HMSSpeakerSettings';
 import { GenericLogoIcon, NetworkQualityIcon } from '../Icons';
 import type { RootState } from '../redux';
 
@@ -128,7 +125,7 @@ export const Preview = ({
               <HMSManageCameraRotation />
             </View>
 
-            <HMSPreviewDeviceSettings />
+            <HMSSpeakerSettings />
           </View>
 
           <View style={styles.joinButtonRow}>

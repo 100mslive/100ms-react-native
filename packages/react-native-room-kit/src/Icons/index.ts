@@ -18,4 +18,8 @@ export * from './End';
 export * from './100ms';
 export * from './Hand';
 export * from './Person';
+export * from './AnswerPhone';
+export * from './Bluetooth';
+export * from './Headphones';
+export * from './Wave';
 export * from './GenericLogo';
