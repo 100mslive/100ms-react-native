@@ -4,7 +4,7 @@ Board: https://github.com/100mslive/react-native-hms/projects/17
 
 Branch: `feature/prebuilt`
 
-React Native SDK: 1.7.0
-React Native Room Kit: 0.0.4
+Main SDK: 1.7.0
+Room Kit: 0.0.4
 Android SDK: 2.7.2
 iOS SDK: 0.9.6

@@ -1,7 +1,7 @@
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
-platform :ios, '12.0'
+platform :ios, '13.0'
 
 # ENSURE TO SET THE CORRECT EXTENSION TARGET NAME BELOW.
 # Not required if starting Screenshare from iOS devices is not a feature of the app. Then Remove this Target snippet
@@ -22,11 +22,6 @@ target 'RNExample' do
 
   pod 'Permission-Camera', :path => "#{permissions_path}/Camera"
   pod 'Permission-Microphone', :path => "#{permissions_path}/Microphone"
-
-  target 'RNExampleTests' do
-    inherit! :complete
-    # Pods for testing
-  end
 
   # Enables Flipper.
   #
