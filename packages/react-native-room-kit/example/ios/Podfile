@@ -41,5 +41,4 @@ target 'RNExample' do
       config.build_settings['ENABLE_BITCODE'] = 'NO'
     end
   end
-  sed -i.bo 's/    node->getLayout()\.hadOverflow() |$/\0|/' ./node_modules/react-native/ReactCommon/yoga/yoga/Yoga.cpp
 end
