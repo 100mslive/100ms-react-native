@@ -73,3 +73,9 @@ packages/react-native-room-kit/example/.gitattributes
 packages/react-native-room-kit/example/.gitignore
 packages/react-native-room-kit/example/.prettierrc.js
 packages/react-native-room-kit/example/.watchmanconfig
+
+packages/react-native-room-kit/example/android/fastlane
+packages/react-native-room-kit/example/ios/fastlane
+
+packages/react-native-room-kit/example/ios/RNExample/GoogleService-Info.plist
+packages/react-native-room-kit/example/android/app/google-services.json
