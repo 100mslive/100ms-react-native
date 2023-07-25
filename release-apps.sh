@@ -19,9 +19,9 @@ perform_npm_actions() {
 release_android() {
   cd ./android
 
-  bundle install --verbose
+  # bundle install --verbose
 
-  bundle exec fastlane release_on_firebase
+  # bundle exec fastlane release_on_firebase
 }
 
 release_iOS() {
@@ -47,8 +47,8 @@ perform_git_actions() {
 
   git add ./example/android/app/build.gradle
   git add ./example/ios/Podfile.lock
-  git add ./example/ios/RNHMSExample/Info.plist
-  git add ./example/ios/RNHMSExample.xcodeproj/project.pbxproj
+  git add ./example/ios/RNExample/Info.plist
+  git add ./example/ios/RNExample.xcodeproj/project.pbxproj
 
   git commit -m "released sample app version $versionCode ($buildNumber) ⚛️" --no-verify
 
