@@ -17,7 +17,7 @@ perform_npm_actions() {
 }
 
 release_android() {
-  cd ./packages/react-native-room-kit/example/android
+  cd ./android
 
   bundle install --verbose
 
@@ -25,7 +25,7 @@ release_android() {
 }
 
 release_iOS() {
-  cd ./packages/react-native-room-kit/example/ios
+  cd ./ios
 
   pod install --verbose
 
