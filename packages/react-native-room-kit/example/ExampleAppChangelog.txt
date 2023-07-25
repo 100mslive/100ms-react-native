@@ -1,16 +1,10 @@
 Board: https://github.com/100mslive/react-native-hms/projects/17
 
-229
-- Changed App name to "RN 100ms"
-
-228
-- formatted local peer name in Tile and Participants list
-- Hide Room Name if `debugMode` flag is not set
-- Hide local peer camera screenshot options if `debugMode` flag is not set
-- disabled Toasts on Session Metadata changes
+- App built using HMSRoomKit's Prebuilt APIs
 
 Branch: `feature/prebuilt`
 
 React Native SDK: 1.7.0
-Android SDK: 2.6.7
-iOS SDK: 0.9.5
+React Native Room Kit: 0.0.4
+Android SDK: 2.7.2
+iOS SDK: 0.9.6
