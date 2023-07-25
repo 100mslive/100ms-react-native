@@ -5,7 +5,7 @@ set -e
 set -x
 
 perform_npm_actions() {
-  cd ./packages/react-native-hms
+  cd ./packages/react-native-room-kit
 
   git pull --verbose
 
@@ -17,7 +17,7 @@ perform_npm_actions() {
 }
 
 release_android() {
-  cd ./packages/react-native-hms/example/android
+  cd ./packages/react-native-room-kit/example/android
 
   bundle install --verbose
 
@@ -25,7 +25,7 @@ release_android() {
 }
 
 release_iOS() {
-  cd ./packages/react-native-hms/example/ios
+  cd ./packages/react-native-room-kit/example/ios
 
   pod install --verbose
 
