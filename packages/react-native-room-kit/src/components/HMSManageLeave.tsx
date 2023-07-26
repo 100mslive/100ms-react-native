@@ -9,12 +9,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AlertIcon, LeaveIcon } from '../Icons';
 import { useHMSInstance } from '../hooks-util';
 import type { RootState } from '../redux';
-import { clearStore } from '../redux/actions';
+import { changeMeetingState, clearStore } from '../redux/actions';
 import { COLORS } from '../utils/theme';
 import { ModalTypes } from '../utils/types';
 import { DefaultModal } from './DefaultModal';
 import { EndRoomModal, LeaveRoomModal } from './Modals';
 import { PressableIcon } from './PressableIcon';
+import { MeetingState } from '../types';
 
 export const HMSManageLeave: React.FC<LeaveButtonProps> = (props) => {
   // TODO: read current meeting joined state
@@ -123,10 +124,13 @@ const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
 
         if (navigation && navigation.canGoBack()) {
           navigation.goBack();
+          dispatch(clearStore());
         } else {
-          // TODO: call Callback provided
+          // TODO: call onLeave Callback if provided
+          // Otherwise default action is to show "Meeting Ended" screen
+          dispatch(clearStore()); // TODO: We need different clearStore for MeetingEnded
+          dispatch(changeMeetingState(MeetingState.MEETING_ENDED));
         }
-        dispatch(clearStore());
       })
       .catch((e) => {
         console.log(`Destroy HMS instance Error: ${e}`);

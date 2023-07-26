@@ -11,12 +11,13 @@ import type {
   HMSSessionStore,
 } from '@100mslive/react-native-hms';
 import type {
-  IOSBuildConfig,
+  HMSIOSScreenShareConfig,
   ModalTypes,
   PeerTrackNode,
   PipModes,
 } from '../../utils/types';
 import actionTypes, { HmsStateActionTypes } from '../actionTypes';
+import { MeetingState } from '../../types';
 
 export const setPrebuiltData = (data: {
   roomCode: string;
@@ -28,7 +29,7 @@ export const setPrebuiltData = (data: {
       init: string;
       token: string;
     };
-    ios?: IOSBuildConfig;
+    ios?: HMSIOSScreenShareConfig;
   };
 }) => ({
   type: HmsStateActionTypes.SET_PREBUILT_DATA,
@@ -203,4 +204,9 @@ export const addToPreviewPeersList = (peer: HMSPeer) => ({
 export const removeFromPreviewPeersList = (peer: HMSPeer) => ({
   type: HmsStateActionTypes.REMOVE_FROM_PREVIEW_PEERS_LIST,
   peerId: peer.peerID,
+});
+
+export const changeMeetingState = (meetingState: MeetingState) => ({
+  type: actionTypes.SET_MEETING_STATE,
+  payload: { meetingState },
 });

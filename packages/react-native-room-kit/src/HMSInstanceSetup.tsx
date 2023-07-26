@@ -160,19 +160,14 @@ export const HMSInstanceSetup = () => {
       clearConfig();
       getHmsInstance()
         .then((hmssdkInstance) => {
-          console.log('$$$ hmssdkInstance id = ', hmssdkInstance.id);
           if (!ignore) {
             // If this component is mounted
             // save instance in store
-            console.log('$$$ before batch');
             batch(() => {
-              console.log('$$$ setHMSInstance call');
               dispatch(setHMSInstance(hmssdkInstance));
               // TODO: remove this from user reducer
-              console.log('$$$ saveUserData call');
               dispatch(saveUserData({ hmsInstance: hmssdkInstance }));
             });
-            console.log('$$$ after batch');
           } else {
             // If this component is not mounted when this response is received
             // that means Root componnet is unmounted, we can destroy instance safely

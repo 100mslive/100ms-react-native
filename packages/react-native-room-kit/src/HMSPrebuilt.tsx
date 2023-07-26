@@ -8,7 +8,7 @@ import {
 import { store } from './redux/index';
 import { HMSContainer } from './HMSContainer';
 import { setPrebuiltData } from './redux/actions';
-import type { IOSBuildConfig } from './utils/types';
+import type { HMSIOSScreenShareConfig } from './utils/types';
 
 export interface HMSPrebuiltProps {
   roomCode: string;
@@ -20,7 +20,7 @@ export interface HMSPrebuiltProps {
       token: string;
     };
     debugMode?: boolean;
-    ios?: IOSBuildConfig;
+    ios?: HMSIOSScreenShareConfig;
   };
 }
 

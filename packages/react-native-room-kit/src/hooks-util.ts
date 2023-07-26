@@ -35,12 +35,13 @@ import {
 import { ModalTypes, PipModes } from './utils/types';
 import type { PeerTrackNode } from './utils/types';
 import { createPeerTrackNode, parseMetadata } from './utils/functions';
-import { useDispatch, useSelector, useStore } from 'react-redux';
+import { batch, useDispatch, useSelector, useStore } from 'react-redux';
 import type { RootState } from './redux';
 import {
   addMessage,
   addPinnedMessage,
   addToPreviewPeersList,
+  changeMeetingState,
   changePipModeStatus,
   clearStore,
   removeFromPreviewPeersList,
@@ -80,30 +81,21 @@ import {
 import { selectIsHLSViewer } from './hooks-util-selectors';
 
 export const useHMSListeners = (
-  meetingState: MeetingState,
-  setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>,
-  setMeetingState: React.Dispatch<React.SetStateAction<MeetingState>>
+  setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>
 ) => {
   const hmsInstance = useHMSInstance();
   const updateLocalPeer = useUpdateHMSLocalPeer(hmsInstance);
 
-  useHMSRoomUpdate(hmsInstance, setMeetingState);
+  useHMSRoomUpdate(hmsInstance);
 
-  useHMSPeersUpdate(
-    meetingState,
-    hmsInstance,
-    updateLocalPeer,
-    setPeerTrackNodes
-  );
+  useHMSPeersUpdate(hmsInstance, updateLocalPeer, setPeerTrackNodes);
 
   useHMSTrackUpdate(hmsInstance, updateLocalPeer, setPeerTrackNodes);
 };
 
-const useHMSRoomUpdate = (
-  hmsInstance: HMSSDK,
-  setMeetingState: React.Dispatch<React.SetStateAction<MeetingState>>
-) => {
+const useHMSRoomUpdate = (hmsInstance: HMSSDK) => {
   const dispatch = useDispatch();
+  const reduxStore = useStore();
 
   useEffect(() => {
     const roomUpdateHandler = (data: {
@@ -119,12 +111,14 @@ const useHMSRoomUpdate = (
        * before ON_JOIN, if ON_ROOM comes then we can show Meeting screen to user, instead of Loader or Preview
        */
       if (room.localPeer.role?.name?.includes('hls-') ?? false) {
-        dispatch(setHMSLocalPeerState(room.localPeer));
-        setMeetingState((prevMeetingScreen) => {
-          if (prevMeetingScreen !== MeetingState.IN_MEETING) {
-            return MeetingState.IN_MEETING;
+        const meetingState = (reduxStore.getState() as RootState).app
+          .meetingState;
+
+        batch(() => {
+          dispatch(setHMSLocalPeerState(room.localPeer));
+          if (meetingState !== MeetingState.IN_MEETING) {
+            dispatch(changeMeetingState(MeetingState.IN_MEETING));
           }
-          return prevMeetingScreen;
         });
       }
 
@@ -219,13 +213,14 @@ type PeerUpdate = {
 };
 
 const useHMSPeersUpdate = (
-  meetingState: MeetingState,
   hmsInstance: HMSSDK,
   updateLocalPeer: () => void,
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>
 ) => {
   const dispatch = useDispatch();
-  const inMeeting = meetingState === MeetingState.IN_MEETING;
+  const inMeeting = useSelector(
+    (state: RootState) => state.app.meetingState === MeetingState.IN_MEETING
+  );
 
   useEffect(() => {
     const peerUpdateHandler = ({ peer, type }: PeerUpdate) => {
@@ -776,11 +771,13 @@ export const useHMSPIPRoomLeave = () => {
 
           if (navigation && navigation.canGoBack()) {
             navigation.goBack();
+            dispatch(clearStore());
           } else {
-            // TODO: call Callback provided
+            // TODO: call onLeave Callback if provided
+            // Otherwise default action is to show "Meeting Ended" screen
+            dispatch(clearStore()); // TODO: We need different clearStore for MeetingEnded
+            dispatch(changeMeetingState(MeetingState.MEETING_ENDED));
           }
-
-          dispatch(clearStore());
         })
         .catch((e) => {
           console.log(`Destroy HMS instance Error: ${e}`);
@@ -837,11 +834,13 @@ export const useHMSRemovedFromRoomUpdate = () => {
 
           if (navigation && navigation.canGoBack()) {
             navigation.goBack();
+            dispatch(clearStore());
           } else {
-            // TODO: call Callback provided
+            // TODO: call onLeave Callback if provided
+            // Otherwise default action is to show "Meeting Ended" screen
+            dispatch(clearStore()); // TODO: We need different clearStore for MeetingEnded
+            dispatch(changeMeetingState(MeetingState.MEETING_ENDED));
           }
-
-          dispatch(clearStore());
         })
         .catch((e) => {
           console.log(`Destroy HMS instance Error: ${e}`);

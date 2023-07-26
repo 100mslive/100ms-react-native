@@ -7,10 +7,11 @@ import {
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Platform, StatusBar, StyleSheet, View } from 'react-native';
 import Toast from 'react-native-simple-toast';
-import { batch, useDispatch } from 'react-redux';
+import { batch, useDispatch, useSelector } from 'react-redux';
 
 import { Preview } from './components';
 import {
+  changeMeetingState,
   clearStore,
   setHMSLocalPeerState,
   setHMSRoomState,
@@ -34,7 +35,9 @@ import { MeetingState } from './types';
 import { getJoinConfig } from './utils';
 import { COLORS } from './utils/theme';
 import { FullScreenIndicator } from './components/FullScreenIndicator';
+import { HMSMeetingEnded } from './components/HMSMeetingEnded';
 import { selectIsHLSViewer } from './hooks-util-selectors';
+import type { RootState } from './redux';
 
 type PreviewData = {
   room: HMSRoom;
@@ -42,14 +45,14 @@ type PreviewData = {
 };
 
 export const HMSRoomSetup = () => {
-  console.log('### Inside HMSRoomSetup');
   const didInitMeetingAction = useRef(false);
   const hmsInstance = useHMSInstance();
   const dispatch = useDispatch();
-  console.log('### after dispatch');
 
   const { getConfig, clearConfig } = useHMSConfig();
-  const [meetingState, setMeetingState] = useState(MeetingState.NOT_JOINED);
+  const meetingState = useSelector(
+    (state: RootState) => state.app.meetingState
+  );
   const [peerTrackNodes, setPeerTrackNodes] = useState<PeerTrackNode[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -68,7 +71,7 @@ export const HMSRoomSetup = () => {
   }, [getConfig, hmsInstance]);
 
   // HMS Room, Peers, Track Listeners
-  useHMSListeners(meetingState, setPeerTrackNodes, setMeetingState);
+  useHMSListeners(setPeerTrackNodes);
 
   /**
    * Session store is a shared realtime key-value store that is accessible by everyone in the room.
@@ -126,24 +129,20 @@ export const HMSRoomSetup = () => {
   // HMS Preview Listener
   useEffect(() => {
     const onPreviewHandler = (data: PreviewData) => {
-      console.log('ON_PREVIEW called');
+      setLoading(false);
       batch(() => {
         dispatch(setHMSRoomState(data.room));
         dispatch(setHMSLocalPeerState(data.room.localPeer));
+        dispatch(changeMeetingState(MeetingState.IN_PREVIEW));
       });
-
-      setLoading(false);
-      setMeetingState(MeetingState.IN_PREVIEW);
     };
 
-    console.log('HMSUpdateListenerActions.ON_PREVIEW registered');
     hmsInstance.addEventListener(
       HMSUpdateListenerActions.ON_PREVIEW,
       onPreviewHandler
     );
 
     return () => {
-      console.log('HMSUpdateListenerActions.ON_PREVIEW removed');
       hmsInstance.removeEventListener(HMSUpdateListenerActions.ON_PREVIEW);
     };
   }, [hmsInstance]);
@@ -186,7 +185,7 @@ export const HMSRoomSetup = () => {
         return [hmsLocalPeer, ...prevPeerTrackNodes];
       });
 
-      setMeetingState(MeetingState.IN_MEETING);
+      dispatch(changeMeetingState(MeetingState.IN_MEETING));
     };
 
     hmsInstance.addEventListener(
@@ -199,8 +198,10 @@ export const HMSRoomSetup = () => {
     };
   }, [hmsInstance]);
 
+  const meetingEnded = meetingState === MeetingState.MEETING_ENDED;
+
   useEffect(() => {
-    if (!didInitMeetingAction.current) {
+    if (!meetingEnded && !didInitMeetingAction.current) {
       didInitMeetingAction.current = true;
 
       // let ignore = false;
@@ -227,7 +228,7 @@ export const HMSRoomSetup = () => {
         // ignore = true;
       };
     }
-  }, []);
+  }, [meetingEnded]);
 
   useEffect(() => {
     return () => {
@@ -264,6 +265,8 @@ export const HMSRoomSetup = () => {
         <Preview join={joinMeeting} loadingButtonState={loading} />
       ) : meetingState === MeetingState.IN_MEETING ? (
         <Meeting peerTrackNodes={peerTrackNodes} />
+      ) : meetingState === MeetingState.MEETING_ENDED ? (
+        <HMSMeetingEnded />
       ) : loading ? (
         <FullScreenIndicator />
       ) : (
