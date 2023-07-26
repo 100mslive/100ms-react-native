@@ -9,6 +9,7 @@ import {
   HMSRemoteAudioStats,
   HMSRemoteVideoStats,
 } from '@100mslive/react-native-hms';
+import { MeetingState } from '../../types';
 
 type ActionType = {
   payload: { [key: string]: any };
@@ -37,6 +38,7 @@ type IntialStateType = {
   };
   modalType: ModalTypes;
   peerToUpdate: HMSPeer | null;
+  meetingState: MeetingState;
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -54,6 +56,7 @@ const INITIAL_STATE: IntialStateType = {
   },
   modalType: ModalTypes.DEFAULT,
   peerToUpdate: null,
+  meetingState: MeetingState.NOT_JOINED,
 };
 
 const appReducer = (
@@ -133,6 +136,8 @@ const appReducer = (
           [action.payload.trackId]: action.payload.stats,
         },
       };
+    case ActionTypes.SET_MEETING_STATE:
+      return { ...state, meetingState: action.payload.meetingState };
     case HmsStateActionTypes.CLEAR_STATES:
       return INITIAL_STATE;
     default:

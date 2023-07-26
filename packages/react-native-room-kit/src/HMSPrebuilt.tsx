@@ -1,10 +1,14 @@
-import React, { memo } from 'react';
+import React, { memo, useContext } from 'react';
 import { Provider } from 'react-redux';
+import {
+  SafeAreaInsetsContext,
+  SafeAreaProvider,
+} from 'react-native-safe-area-context';
 
 import { store } from './redux/index';
 import { HMSContainer } from './HMSContainer';
 import { setPrebuiltData } from './redux/actions';
-import type { IOSBuildConfig } from './utils/types';
+import type { HMSIOSScreenShareConfig } from './utils/types';
 
 export interface HMSPrebuiltProps {
   roomCode: string;
@@ -16,19 +20,31 @@ export interface HMSPrebuiltProps {
       token: string;
     };
     debugMode?: boolean;
-    ios?: IOSBuildConfig;
+    ios?: HMSIOSScreenShareConfig;
   };
 }
 
-export const _HMSPrebuilt: React.FC<HMSPrebuiltProps> = (props) => {
+const _HMSPrebuilt: React.FC<HMSPrebuiltProps> = (props) => {
   const { roomCode, options } = props;
+
+  const insetsContext = useContext(SafeAreaInsetsContext);
 
   store.dispatch(setPrebuiltData({ roomCode, options }));
 
+  if (insetsContext) {
+    return (
+      <Provider store={store}>
+        <HMSContainer />
+      </Provider>
+    );
+  }
+
   return (
-    <Provider store={store}>
-      <HMSContainer />
-    </Provider>
+    <SafeAreaProvider>
+      <Provider store={store}>
+        <HMSContainer />
+      </Provider>
+    </SafeAreaProvider>
   );
 };
 

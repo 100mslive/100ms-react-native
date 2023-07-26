@@ -81,9 +81,9 @@ export enum Constants {
   MEET_URL = 'MEET_URL',
 }
 
-export type IOSBuildConfig = {
-  appGroup?: string;
-  preferredExtension?: string;
+export type HMSIOSScreenShareConfig = {
+  appGroup: string;
+  preferredExtension: string;
 };
 
 export const SUPPORTED_ASPECT_RATIOS = [

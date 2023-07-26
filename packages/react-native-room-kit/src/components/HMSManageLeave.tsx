@@ -1,4 +1,4 @@
-import { useNavigation } from '@react-navigation/native';
+import { NavigationContext } from '@react-navigation/native';
 import * as React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Modal from 'react-native-modal';
@@ -9,12 +9,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AlertIcon, LeaveIcon } from '../Icons';
 import { useHMSInstance } from '../hooks-util';
 import type { RootState } from '../redux';
-import { clearStore } from '../redux/actions';
+import { changeMeetingState, clearStore } from '../redux/actions';
 import { COLORS } from '../utils/theme';
 import { ModalTypes } from '../utils/types';
 import { DefaultModal } from './DefaultModal';
 import { EndRoomModal, LeaveRoomModal } from './Modals';
 import { PressableIcon } from './PressableIcon';
+import { MeetingState } from '../types';
 
 export const HMSManageLeave: React.FC<LeaveButtonProps> = (props) => {
   // TODO: read current meeting joined state
@@ -36,8 +37,7 @@ type LeaveButtonProps =
     };
 
 const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
-  // TODO: What if useNavigation context is undefined?
-  const navigation = useNavigation();
+  const navigation = React.useContext(NavigationContext);
   const hmsInstance = useHMSInstance();
   const dispatch = useDispatch();
   const leavePopCloseAction = React.useRef(ModalTypes.DEFAULT);
@@ -122,13 +122,15 @@ const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
         // dispatch(clearPeerData());
         // dispatch(clearHmsReference());
 
-        // if (navigation.canGoBack()) {
-        //   navigation.goBack();
-        // } else {
-        // TODO: remove this later
-        navigation.navigate('QRCodeScreen' as never);
-        dispatch(clearStore());
-        // }
+        if (navigation && navigation.canGoBack()) {
+          navigation.goBack();
+          dispatch(clearStore());
+        } else {
+          // TODO: call onLeave Callback if provided
+          // Otherwise default action is to show "Meeting Ended" screen
+          dispatch(clearStore()); // TODO: We need different clearStore for MeetingEnded
+          dispatch(changeMeetingState(MeetingState.MEETING_ENDED));
+        }
       })
       .catch((e) => {
         console.log(`Destroy HMS instance Error: ${e}`);

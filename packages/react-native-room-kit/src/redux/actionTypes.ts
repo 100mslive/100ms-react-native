@@ -48,6 +48,8 @@ const SET_MODAL_TYPE = 'SET_MODAL_TYPE';
 
 const SET_PEER_TO_UPDATE = 'SET_PEER_TO_UPDATE';
 
+const SET_MEETING_STATE = 'SET_MEETING_STATE';
+
 export default {
   ADD_PINNED_MESSAGE,
   ADD_MESSAGE,
@@ -69,6 +71,7 @@ export default {
   SET_RTC_STATS,
   SET_MODAL_TYPE,
   SET_PEER_TO_UPDATE,
+  SET_MEETING_STATE,
 };
 
 export enum HmsStateActionTypes {

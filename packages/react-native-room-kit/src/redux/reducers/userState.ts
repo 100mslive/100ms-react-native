@@ -5,7 +5,7 @@ import type {
 } from '@100mslive/react-native-hms';
 import { getMeetingCode, getMeetingUrl } from '../../utils/functions';
 import ActionTypes, { HmsStateActionTypes } from '../actionTypes';
-import type { IOSBuildConfig } from '../../utils/types';
+import type { HMSIOSScreenShareConfig } from '../../utils/types';
 
 type ActionType = {
   payload: any;
@@ -24,7 +24,7 @@ type IntialStateType = {
   roomCode: string;
   isHLSFlow: boolean;
   roles: HMSRole[];
-  iosBuildConfig: IOSBuildConfig | null;
+  iosBuildConfig: HMSIOSScreenShareConfig | null;
 };
 
 const INITIAL_STATE: IntialStateType = {
