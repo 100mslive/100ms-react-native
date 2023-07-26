@@ -5,7 +5,7 @@ set -e
 set -x
 
 perform_npm_actions() {
-  cd ./packages/react-native-hms
+  cd ./packages/react-native-room-kit
 
   git pull --verbose
 
@@ -17,15 +17,15 @@ perform_npm_actions() {
 }
 
 release_android() {
-  cd ./packages/react-native-hms/example/android
+  cd ./android
 
-  bundle install --verbose
+  # bundle install --verbose
 
-  bundle exec fastlane release_on_firebase
+  # bundle exec fastlane release_on_firebase
 }
 
 release_iOS() {
-  cd ./packages/react-native-hms/example/ios
+  cd ./ios
 
   pod install --verbose
 
@@ -47,8 +47,8 @@ perform_git_actions() {
 
   git add ./example/android/app/build.gradle
   git add ./example/ios/Podfile.lock
-  git add ./example/ios/RNHMSExample/Info.plist
-  git add ./example/ios/RNHMSExample.xcodeproj/project.pbxproj
+  git add ./example/ios/RNExample/Info.plist
+  git add ./example/ios/RNExample.xcodeproj/project.pbxproj
 
   git commit -m "released sample app version $versionCode ($buildNumber) ⚛️" --no-verify
 

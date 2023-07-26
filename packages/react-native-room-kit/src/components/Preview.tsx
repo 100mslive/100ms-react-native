@@ -67,8 +67,6 @@ export const Preview = ({
         edges={['top', 'left', 'right']}
         mode="margin"
       >
-        <GenericLogoIcon style={{ alignSelf: 'center', marginBottom: 16 }} />
-
         <HMSPreviewTitle />
 
         <HMSPreviewSubtitle />

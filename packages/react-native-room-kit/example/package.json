@@ -1,16 +1,16 @@
 {
   "name": "RNExample",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "private": true,
   "scripts": {
-    "android": "react-native run-android",
-    "ios": "react-native run-ios",
-    "start": "react-native start",
+    "android": "NODE_OPTIONS=--openssl-legacy-provider react-native run-android",
+    "ios": "NODE_OPTIONS=--openssl-legacy-provider react-native run-ios",
+    "start": "NODE_OPTIONS=--openssl-legacy-provider react-native start",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
-    "@100mslive/react-native-hms": "100mslive/100ms-react-native#develop",
+    "@100mslive/react-native-hms": "github:100mslive/100ms-react-native#develop",
     "@miblanchard/react-native-slider": "^2.0.2",
     "@react-native-async-storage/async-storage": "1.17.11",
     "@react-navigation/native": "6.1.7",
