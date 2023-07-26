@@ -1,4 +1,4 @@
-import { useNavigation } from '@react-navigation/native';
+import { NavigationContext } from '@react-navigation/native';
 import * as React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Modal from 'react-native-modal';
@@ -36,8 +36,7 @@ type LeaveButtonProps =
     };
 
 const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
-  // TODO: What if useNavigation context is undefined?
-  const navigation = useNavigation();
+  const navigation = React.useContext(NavigationContext);
   const hmsInstance = useHMSInstance();
   const dispatch = useDispatch();
   const leavePopCloseAction = React.useRef(ModalTypes.DEFAULT);
@@ -122,13 +121,12 @@ const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
         // dispatch(clearPeerData());
         // dispatch(clearHmsReference());
 
-        // if (navigation.canGoBack()) {
-        //   navigation.goBack();
-        // } else {
-        // TODO: remove this later
-        navigation.navigate('QRCodeScreen' as never);
+        if (navigation && navigation.canGoBack()) {
+          navigation.goBack();
+        } else {
+          // TODO: call Callback provided
+        }
         dispatch(clearStore());
-        // }
       })
       .catch((e) => {
         console.log(`Destroy HMS instance Error: ${e}`);

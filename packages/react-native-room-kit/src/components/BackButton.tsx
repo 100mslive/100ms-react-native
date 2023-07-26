@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { NavigationContext } from '@react-navigation/native';
 
 import { COLORS } from '../utils/theme';
 import { PressableIcon } from './PressableIcon';
@@ -9,9 +9,9 @@ import { ChevronIcon } from '../Icons';
 export interface BackButtonProps {}
 
 export const BackButton: React.FC<BackButtonProps> = () => {
-  const navigation = useNavigation();
+  const navigation = React.useContext(NavigationContext);
 
-  if (!navigation.canGoBack()) {
+  if (!navigation || !navigation.canGoBack()) {
     return null;
   }
 
