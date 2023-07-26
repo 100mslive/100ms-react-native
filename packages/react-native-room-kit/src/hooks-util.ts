@@ -23,7 +23,14 @@ import type {
   HMSSessionStoreValue,
 } from '@100mslive/react-native-hms';
 import Toast from 'react-native-simple-toast';
-import { useRef, useCallback, useEffect, useState, useMemo } from 'react';
+import {
+  useRef,
+  useCallback,
+  useEffect,
+  useState,
+  useMemo,
+  useContext,
+} from 'react';
 
 import { ModalTypes, PipModes } from './utils/types';
 import type { PeerTrackNode } from './utils/types';
@@ -61,7 +68,7 @@ import {
   LayoutAnimation,
   Platform,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { NavigationContext } from '@react-navigation/native';
 import {
   useIsLandscapeOrientation,
   useIsPortraitOrientation,
@@ -739,7 +746,7 @@ export const useHMSPIPRoomLeave = () => {
   const hmsInstance = useHMSInstance();
   const dispatch = useDispatch();
   // TODO: What if this is undefined?
-  const navigation = useNavigation();
+  const navigation = useContext(NavigationContext);
 
   useEffect(() => {
     const pipRoomLeaveHandler = () => {
@@ -767,13 +774,13 @@ export const useHMSPIPRoomLeave = () => {
           // dispatch(clearPeerData());
           // dispatch(clearHmsReference());
 
-          // if (navigation.canGoBack()) {
-          //   navigation.goBack();
-          // } else {
-          // TODO: remove this later
-          navigation.navigate('QRCodeScreen' as never);
+          if (navigation && navigation.canGoBack()) {
+            navigation.goBack();
+          } else {
+            // TODO: call Callback provided
+          }
+
           dispatch(clearStore());
-          // }
         })
         .catch((e) => {
           console.log(`Destroy HMS instance Error: ${e}`);
@@ -800,7 +807,7 @@ export const useHMSRemovedFromRoomUpdate = () => {
   const hmsInstance = useHMSInstance();
   const dispatch = useDispatch();
   // TODO: What if this is undefined?
-  const navigation = useNavigation();
+  const navigation = useContext(NavigationContext);
 
   useEffect(() => {
     const removedFromRoomHandler = () => {
@@ -828,13 +835,13 @@ export const useHMSRemovedFromRoomUpdate = () => {
           // dispatch(clearPeerData());
           // dispatch(clearHmsReference());
 
-          // if (navigation.canGoBack()) {
-          //   navigation.goBack();
-          // } else {
-          // TODO: remove this later
-          navigation.navigate('QRCodeScreen' as never);
+          if (navigation && navigation.canGoBack()) {
+            navigation.goBack();
+          } else {
+            // TODO: call Callback provided
+          }
+
           dispatch(clearStore());
-          // }
         })
         .catch((e) => {
           console.log(`Destroy HMS instance Error: ${e}`);

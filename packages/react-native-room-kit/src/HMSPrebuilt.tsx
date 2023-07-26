@@ -1,5 +1,9 @@
-import React, { memo } from 'react';
+import React, { memo, useContext } from 'react';
 import { Provider } from 'react-redux';
+import {
+  SafeAreaInsetsContext,
+  SafeAreaProvider,
+} from 'react-native-safe-area-context';
 
 import { store } from './redux/index';
 import { HMSContainer } from './HMSContainer';
@@ -20,15 +24,27 @@ export interface HMSPrebuiltProps {
   };
 }
 
-export const _HMSPrebuilt: React.FC<HMSPrebuiltProps> = (props) => {
+const _HMSPrebuilt: React.FC<HMSPrebuiltProps> = (props) => {
   const { roomCode, options } = props;
+
+  const insetsContext = useContext(SafeAreaInsetsContext);
 
   store.dispatch(setPrebuiltData({ roomCode, options }));
 
+  if (insetsContext) {
+    return (
+      <Provider store={store}>
+        <HMSContainer />
+      </Provider>
+    );
+  }
+
   return (
-    <Provider store={store}>
-      <HMSContainer />
-    </Provider>
+    <SafeAreaProvider>
+      <Provider store={store}>
+        <HMSContainer />
+      </Provider>
+    </SafeAreaProvider>
   );
 };
 

@@ -14,7 +14,6 @@ export const HMSShowNetworkQuality = () => {
       state.hmsStates.localPeer?.networkQuality?.downlinkQuality
   );
 
-  // TODO: test network quality usage
   useEffect(() => {
     hmsInstance.enableNetworkQualityUpdates();
 
