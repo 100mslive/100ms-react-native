@@ -274,7 +274,7 @@ const LeavePopup: React.FC<LeavePopupProps> = ({
           onPress={onLeavePress}
         >
           <LeaveIcon style={leavePopupStyles.leaveButtonIcon} />
-          <Text style={leavePopupStyles.leaveButtonText}>Leave</Text>
+          <Text style={leavePopupStyles.leaveButtonText}>Leave Studio</Text>
         </TouchableOpacity>
 
         {canEndRoom ? (
