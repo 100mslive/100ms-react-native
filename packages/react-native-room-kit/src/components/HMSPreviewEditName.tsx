@@ -43,13 +43,14 @@ export const HMSPreviewEditName: React.FC<HMSPreviewEditNameProps> = () => {
 const styles = StyleSheet.create({
   input: {
     flex: 1,
+    height: 50,
     textAlignVertical: 'center',
     backgroundColor: COLORS.SURFACE.DEFAULT,
     paddingHorizontal: 16,
-    paddingVertical: 12,
     borderRadius: 8,
     color: COLORS.SURFACE.ON_SURFACE.HIGH,
     fontSize: 16,
+    lineHeight: Platform.OS === 'android' ? 24 : undefined,
     fontFamily: 'Inter',
     fontWeight: '400',
     letterSpacing: 0.5,
