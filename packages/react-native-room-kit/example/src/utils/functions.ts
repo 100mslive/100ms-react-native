@@ -9,7 +9,7 @@ import {
 import {getRoomLinkDetails} from './getRoomLinkDetails';
 
 export const getMeetingUrl = () =>
-  'https://yogi.app.100ms.live/streaming/meeting/nih-bkn-vek';
+  'https://public.app.100ms.live/meeting/xvm-wxwo-gbl';
 
 export const callService = async (
   roomID: string,

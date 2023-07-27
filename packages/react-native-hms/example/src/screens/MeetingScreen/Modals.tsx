@@ -1119,7 +1119,7 @@ export const LeaveRoomModal = ({
           textStyle={styles.roleChangeModalButtonText}
         />
         <CustomButton
-          title="Leave"
+          title="Leave Room"
           onPress={onLeave}
           viewStyle={[
             styles.roleChangeModalSuccessButton,
