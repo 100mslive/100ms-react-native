@@ -1854,7 +1854,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     // MARK: - Helper Functions
 
     // Handle resetting states and data cleanup
-    private func cleanup() {        
+    private func cleanup() {
         self.recentRoleChangeRequest = nil
         self.reconnectingStage = false
         self.preferredExtension = nil
