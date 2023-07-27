@@ -34,7 +34,6 @@ export const Preview = ({
   );
 
   useEffect(() => {
-    AvoidSoftInput.setAdjustNothing();
     AvoidSoftInput.setEnabled(true);
 
     return () => AvoidSoftInput.setEnabled(false);
