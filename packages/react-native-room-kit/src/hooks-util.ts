@@ -1022,7 +1022,18 @@ export const useHMSConfig = () => {
     return hmsConfig;
   }, [hmsInstance]);
 
-  return { clearConfig, getConfig };
+  const updateConfig = useCallback((data: Partial<HMSConfig>) => {
+    if (!hmsConfig) {
+      throw new Error('No HMSConfig is available to update!');
+    }
+
+    Object.entries(data).forEach(([key, value]) => {
+      // @ts-ignore
+      hmsConfig[key] = value;
+    });
+  }, []);
+
+  return { clearConfig, updateConfig, getConfig };
 };
 
 export const useSafeDimensions = () => {

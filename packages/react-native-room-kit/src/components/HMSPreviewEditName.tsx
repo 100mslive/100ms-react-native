@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, TextInput } from 'react-native';
+import { Platform, StyleSheet, TextInput } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { COLORS } from '../utils/theme';
@@ -11,13 +11,13 @@ export interface HMSPreviewEditNameProps {}
 
 export const HMSPreviewEditName: React.FC<HMSPreviewEditNameProps> = () => {
   const dispatch = useDispatch();
-  const { clearConfig } = useHMSConfig();
+  const { updateConfig } = useHMSConfig();
   const userName = useSelector((state: RootState) => state.user.userName);
   const [inputFocused, setInputFocused] = React.useState(false);
 
   const handleNameChange = (name: string) => {
     dispatch(changeUsername(name));
-    clearConfig();
+    updateConfig({ username: name });
   };
 
   const handleInputFocus = () => setInputFocused(true);
