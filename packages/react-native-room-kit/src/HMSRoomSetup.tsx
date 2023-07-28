@@ -7,7 +7,7 @@ import {
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Platform, StatusBar, StyleSheet, View } from 'react-native';
 import Toast from 'react-native-simple-toast';
-import { batch, useDispatch, useSelector } from 'react-redux';
+import { batch, useDispatch, useSelector, useStore } from 'react-redux';
 
 import { Preview } from './components';
 import {
@@ -24,6 +24,7 @@ import {
   useHMSInstance,
   useHMSListeners,
   useHMSSessionStore,
+  useLeaveMethods,
 } from './hooks-util';
 import {
   peerTrackNodeExistForPeerAndTrack,
@@ -36,7 +37,7 @@ import { getJoinConfig } from './utils';
 import { COLORS } from './utils/theme';
 import { FullScreenIndicator } from './components/FullScreenIndicator';
 import { HMSMeetingEnded } from './components/HMSMeetingEnded';
-import { selectIsHLSViewer } from './hooks-util-selectors';
+import { selectIsHLSViewer, selectShouldGoLive } from './hooks-util-selectors';
 import type { RootState } from './redux';
 
 type PreviewData = {
@@ -45,9 +46,11 @@ type PreviewData = {
 };
 
 export const HMSRoomSetup = () => {
+  const ignoreHLSStreamPromise = useRef(false);
   const didInitMeetingAction = useRef(false);
   const hmsInstance = useHMSInstance();
   const dispatch = useDispatch();
+  const reduxStore = useStore();
 
   const { getConfig, clearConfig } = useHMSConfig();
   const meetingState = useSelector(
@@ -55,6 +58,8 @@ export const HMSRoomSetup = () => {
   );
   const [peerTrackNodes, setPeerTrackNodes] = useState<PeerTrackNode[]>([]);
   const [loading, setLoading] = useState(false);
+  const [startingHLSStream, setStartingHLSStream] = useState(false);
+  const { goToPreview } = useLeaveMethods();
 
   const joinMeeting = useCallback(async () => {
     setLoading(true);
@@ -69,6 +74,24 @@ export const HMSRoomSetup = () => {
     // TODO: handle case when promise returned from `getConfig()` is resolved when Root component has been unmounted
     hmsInstance.preview(hmsConfig);
   }, [getConfig, hmsInstance]);
+
+  const startHLSStreaming = useCallback(async () => {
+    setStartingHLSStream(true);
+    try {
+      const d = await hmsInstance.startHLSStreaming();
+      console.log('Start HLS Streaming Success: ', d);
+      if (!ignoreHLSStreamPromise.current) {
+        dispatch(changeMeetingState(MeetingState.IN_MEETING));
+        setStartingHLSStream(false);
+      }
+    } catch (e) {
+      console.log('Start HLS Streaming Error: ', e);
+      if (!ignoreHLSStreamPromise.current) {
+        console.log('Unable to go live at the moment: ', e);
+        goToPreview();
+      }
+    }
+  }, [goToPreview]);
 
   // HMS Room, Peers, Track Listeners
   useHMSListeners(setPeerTrackNodes);
@@ -185,7 +208,13 @@ export const HMSRoomSetup = () => {
         return [hmsLocalPeer, ...prevPeerTrackNodes];
       });
 
-      dispatch(changeMeetingState(MeetingState.IN_MEETING));
+      const shouldGoLive = selectShouldGoLive(reduxStore.getState());
+
+      if (shouldGoLive) {
+        startHLSStreaming();
+      } else {
+        dispatch(changeMeetingState(MeetingState.IN_MEETING));
+      }
     };
 
     hmsInstance.addEventListener(
@@ -196,10 +225,11 @@ export const HMSRoomSetup = () => {
     return () => {
       hmsInstance.removeEventListener(HMSUpdateListenerActions.ON_JOIN);
     };
-  }, [hmsInstance]);
+  }, [startHLSStreaming, hmsInstance]);
 
   const meetingEnded = meetingState === MeetingState.MEETING_ENDED;
 
+  // Handling Automatically calling Preview or Join API
   useEffect(() => {
     if (!meetingEnded && !didInitMeetingAction.current) {
       didInitMeetingAction.current = true;
@@ -232,6 +262,8 @@ export const HMSRoomSetup = () => {
 
   useEffect(() => {
     return () => {
+      ignoreHLSStreamPromise.current = true;
+
       // TODOS:
       // - Check If we have already left meeting, or destroyed native HMSSDK
       //    - No need to reset redux state?
@@ -262,7 +294,11 @@ export const HMSRoomSetup = () => {
       />
 
       {meetingState === MeetingState.IN_PREVIEW ? (
-        <Preview join={joinMeeting} loadingButtonState={loading} />
+        <Preview
+          join={joinMeeting}
+          loadingButtonState={loading}
+          startingHLSStream={startingHLSStream}
+        />
       ) : meetingState === MeetingState.IN_MEETING ? (
         <Meeting peerTrackNodes={peerTrackNodes} />
       ) : meetingState === MeetingState.MEETING_ENDED ? (

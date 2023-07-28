@@ -78,7 +78,7 @@ import {
   useSafeAreaFrame,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
-import { selectIsHLSViewer } from './hooks-util-selectors';
+import { selectIsHLSViewer, selectShouldGoLive } from './hooks-util-selectors';
 
 export const useHMSListeners = (
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>
@@ -1168,4 +1168,97 @@ export const useFilteredParticipants = () => {
     searchText: participantsSearchInput,
     setSearchText: setParticipantsSearchInput,
   };
+};
+
+export const useShouldGoLive = () => {
+  const shouldGoLive = useSelector(selectShouldGoLive);
+
+  return shouldGoLive;
+};
+
+export const useLeaveMethods = () => {
+  const navigation = useContext(NavigationContext);
+  const hmsInstance = useHMSInstance();
+  const dispatch = useDispatch();
+
+  const destroy = useCallback(async () => {
+    try {
+      const s = await hmsInstance.destroy();
+      console.log('Destroy Success: ', s);
+      // TODOS:
+      // - If show `Meeting_Ended` is true, show Meeting screen by setting state to MEETING_ENDED
+      //    - Reset Redux States
+      //    - HMSInstance will not be available now
+      //    - When your presses "Re Join" Action button, restart process from root component
+      //    - When your presses "Done" Action button
+      //        - If we have callback fn, call it
+      //        - Otherwise try our best to navigate away from current screen
+      //
+      // - No screen to show
+      //    - No need to reset redux state?
+      //    - HMSInstance will be available till this point
+      //    - If we have callback fn, call it
+      //    - Otherwise try our best to navigate away from current screen
+      //    - When we are navigated away from screen, HMSInstance will be not available
+
+      // dispatch(clearMessageData());
+      // dispatch(clearPeerData());
+      // dispatch(clearHmsReference());
+
+      if (navigation && navigation.canGoBack()) {
+        navigation.goBack();
+        dispatch(clearStore());
+      } else {
+        // TODO: call onLeave Callback if provided
+        // Otherwise default action is to show "Meeting Ended" screen
+        dispatch(clearStore()); // TODO: We need different clearStore for MeetingEnded
+        dispatch(changeMeetingState(MeetingState.MEETING_ENDED));
+      }
+    } catch (e) {
+      console.log(`Destroy HMS instance Error: ${e}`);
+      Toast.showWithGravity(
+        `Destroy HMS instance Error: ${e}`,
+        Toast.LONG,
+        Toast.TOP
+      );
+      return Promise.reject(e);
+    }
+  }, [hmsInstance]);
+
+  const leave = useCallback(async () => {
+    try {
+      const d = await hmsInstance.leave();
+      console.log('Leave Success: ', d);
+      await destroy();
+    } catch (e) {
+      console.log(`Leave Room Error: ${e}`);
+      Toast.showWithGravity(`Leave Room Error: ${e}`, Toast.LONG, Toast.TOP);
+    }
+  }, [destroy, hmsInstance]);
+
+  const goToPreview = useCallback(async () => {
+    try {
+      await hmsInstance.leave();
+      await hmsInstance.destroy();
+      dispatch(clearStore());
+    } catch (error) {
+      Toast.showWithGravity(
+        `Unable to go to Preview: ${error}`,
+        Toast.LONG,
+        Toast.TOP
+      );
+    }
+  }, [hmsInstance]);
+
+  const endRoom = useCallback(async () => {
+    try {
+      const d = await hmsInstance.endRoom('Host ended the room');
+      console.log('EndRoom Success: ', d);
+      await destroy();
+    } catch (e) {
+      console.log('EndRoom Error: ', e);
+    }
+  }, [destroy, hmsInstance]);
+
+  return { destroy, leave, endRoom, goToPreview };
 };

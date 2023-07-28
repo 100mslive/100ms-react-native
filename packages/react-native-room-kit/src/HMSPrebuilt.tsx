@@ -1,4 +1,4 @@
-import React, { memo, useContext } from 'react';
+import React, { memo } from 'react';
 import { Provider } from 'react-redux';
 import {
   SafeAreaInsetsContext,
@@ -27,11 +27,13 @@ export interface HMSPrebuiltProps {
 const _HMSPrebuilt: React.FC<HMSPrebuiltProps> = (props) => {
   const { roomCode, options } = props;
 
-  const insetsContext = useContext(SafeAreaInsetsContext);
-
   store.dispatch(setPrebuiltData({ roomCode, options }));
 
-  if (insetsContext) {
+  // @ts-ignore Not using `useContext` hook because we don't want to subscribe to updates
+  // We just want to check if SafeAreaProvider exists or not
+  const safeAreaProviderExists = !!SafeAreaInsetsContext.Consumer._currentValue;
+
+  if (safeAreaProviderExists) {
     return (
       <Provider store={store}>
         <HMSContainer />

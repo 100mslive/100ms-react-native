@@ -75,6 +75,7 @@ export const COLORS = {
   BLACK: '#000000',
   WHITE: '#FFFFFF',
   OVERLAY: 'rgba(34, 34, 34, 0.3)',
+  LOADING_BACKDROP: 'rgba(0, 0, 0, 0.7)',
   TEXT: {
     HIGH_EMPHASIS: 'rgba(245, 249, 255, 0.95)', // '#F5F9FF'
     MEDIUM_EMPHASIS: 'rgba(224, 236, 255, 0.80)', // '#E0ECFF'

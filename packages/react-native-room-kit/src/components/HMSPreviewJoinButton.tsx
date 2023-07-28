@@ -9,6 +9,8 @@ import { useSelector } from 'react-redux';
 
 import { COLORS } from '../utils/theme';
 import type { RootState } from '../redux';
+import { RadioIcon } from '../Icons';
+import { useShouldGoLive } from '../hooks-util';
 
 export interface HMSPreviewJoinButtonProps {
   onJoin(): void;
@@ -23,15 +25,14 @@ export const HMSPreviewJoinButton: React.FC<HMSPreviewJoinButtonProps> = ({
     (state: RootState) => state.user.userName.length <= 0
   );
 
+  const shouldGoLive = useShouldGoLive();
+
   const disabledJoin = userNameInvalid || loading;
 
   return (
     <TouchableHighlight
       underlayColor={COLORS.PRIMARY.DARK}
-      style={[
-        styles.button,
-        disabledJoin ? { backgroundColor: COLORS.PRIMARY.DISABLED } : null,
-      ]}
+      style={[styles.button, disabledJoin ? styles.disabledButton : null]}
       onPress={onJoin}
       disabled={disabledJoin}
     >
@@ -44,14 +45,23 @@ export const HMSPreviewJoinButton: React.FC<HMSPreviewJoinButtonProps> = ({
           />
         ) : null}
 
+        {shouldGoLive ? (
+          <RadioIcon
+            style={[
+              loading ? styles.hiddenView : null,
+              disabledJoin ? styles.disabledIcon : null,
+            ]}
+          />
+        ) : null}
+
         <Text
           style={[
             styles.text,
-            { opacity: loading ? 0 : undefined },
-            disabledJoin ? { color: COLORS.PRIMARY.ON_PRIMARY.LOW } : null,
+            loading ? styles.hiddenView : null,
+            disabledJoin ? styles.disabledText : null,
           ]}
         >
-          Join Now
+          {shouldGoLive ? 'Go Live' : 'Join Now'}
         </Text>
       </>
     </TouchableHighlight>
@@ -60,6 +70,7 @@ export const HMSPreviewJoinButton: React.FC<HMSPreviewJoinButtonProps> = ({
 
 const styles = StyleSheet.create({
   button: {
+    flexDirection: 'row',
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
@@ -78,4 +89,16 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
   },
   loader: { position: 'absolute' },
+  disabledButton: {
+    backgroundColor: COLORS.PRIMARY.DISABLED,
+  },
+  disabledIcon: {
+    tintColor: COLORS.PRIMARY.ON_PRIMARY.LOW,
+  },
+  disabledText: {
+    color: COLORS.PRIMARY.ON_PRIMARY.LOW,
+  },
+  hiddenView: {
+    opacity: 0,
+  },
 });

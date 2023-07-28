@@ -1,21 +1,17 @@
-import { NavigationContext } from '@react-navigation/native';
 import * as React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Modal from 'react-native-modal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Toast from 'react-native-simple-toast';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import { AlertIcon, LeaveIcon } from '../Icons';
-import { useHMSInstance } from '../hooks-util';
+import { useLeaveMethods } from '../hooks-util';
 import type { RootState } from '../redux';
-import { changeMeetingState, clearStore } from '../redux/actions';
 import { COLORS } from '../utils/theme';
 import { ModalTypes } from '../utils/types';
 import { DefaultModal } from './DefaultModal';
 import { EndRoomModal, LeaveRoomModal } from './Modals';
 import { PressableIcon } from './PressableIcon';
-import { MeetingState } from '../types';
 
 export const HMSManageLeave: React.FC<LeaveButtonProps> = (props) => {
   // TODO: read current meeting joined state
@@ -37,9 +33,6 @@ type LeaveButtonProps =
     };
 
 const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
-  const navigation = React.useContext(NavigationContext);
-  const hmsInstance = useHMSInstance();
-  const dispatch = useDispatch();
   const leavePopCloseAction = React.useRef(ModalTypes.DEFAULT);
 
   const [leavePopVisible, setLeavePopVisible] = React.useState(false);
@@ -97,73 +90,7 @@ const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
 
   const dismissModal = () => setLeaveModalType(ModalTypes.DEFAULT);
 
-  const destroy = () => {
-    hmsInstance
-      .destroy()
-      .then((s) => {
-        console.log('Destroy Success: ', s);
-        // TODOS:
-        // - If show `Meeting_Ended` is true, show Meeting screen by setting state to MEETING_ENDED
-        //    - Reset Redux States
-        //    - HMSInstance will not be available now
-        //    - When your presses "Re Join" Action button, restart process from root component
-        //    - When your presses "Done" Action button
-        //        - If we have callback fn, call it
-        //        - Otherwise try our best to navigate away from current screen
-        //
-        // - No screen to show
-        //    - No need to reset redux state?
-        //    - HMSInstance will be available till this point
-        //    - If we have callback fn, call it
-        //    - Otherwise try our best to navigate away from current screen
-        //    - When we are navigated away from screen, HMSInstance will be not available
-
-        // dispatch(clearMessageData());
-        // dispatch(clearPeerData());
-        // dispatch(clearHmsReference());
-
-        if (navigation && navigation.canGoBack()) {
-          navigation.goBack();
-          dispatch(clearStore());
-        } else {
-          // TODO: call onLeave Callback if provided
-          // Otherwise default action is to show "Meeting Ended" screen
-          dispatch(clearStore()); // TODO: We need different clearStore for MeetingEnded
-          dispatch(changeMeetingState(MeetingState.MEETING_ENDED));
-        }
-      })
-      .catch((e) => {
-        console.log(`Destroy HMS instance Error: ${e}`);
-        Toast.showWithGravity(
-          `Destroy HMS instance Error: ${e}`,
-          Toast.LONG,
-          Toast.TOP
-        );
-      });
-  };
-
-  const onLeavePress = () => {
-    hmsInstance
-      .leave()
-      .then((d) => {
-        console.log('Leave Success: ', d);
-        destroy();
-      })
-      .catch((e) => {
-        console.log(`Leave Room Error: ${e}`);
-        Toast.showWithGravity(`Leave Room Error: ${e}`, Toast.LONG, Toast.TOP);
-      });
-  };
-
-  const onEndRoomPress = () => {
-    hmsInstance
-      .endRoom('Host ended the room')
-      .then((d) => {
-        console.log('EndRoom Success: ', d);
-        destroy();
-      })
-      .catch((e) => console.log('EndRoom Error: ', e));
-  };
+  const { leave, endRoom } = useLeaveMethods();
 
   const leaveIconDelegate =
     'leaveIconDelegate' in props && props.leaveIconDelegate ? (
@@ -199,7 +126,7 @@ const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
         modalVisible={leaveModalType === ModalTypes.LEAVE_ROOM}
         setModalVisible={dismissModal}
       >
-        <LeaveRoomModal onSuccess={onLeavePress} cancelModal={dismissModal} />
+        <LeaveRoomModal onSuccess={leave} cancelModal={dismissModal} />
       </DefaultModal>
 
       <DefaultModal
@@ -207,7 +134,7 @@ const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
         modalVisible={leaveModalType === ModalTypes.END_ROOM}
         setModalVisible={dismissModal}
       >
-        <EndRoomModal onSuccess={onEndRoomPress} cancelModal={dismissModal} />
+        <EndRoomModal onSuccess={endRoom} cancelModal={dismissModal} />
       </DefaultModal>
     </View>
   );
