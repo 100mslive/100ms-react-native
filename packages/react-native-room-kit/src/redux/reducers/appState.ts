@@ -39,6 +39,7 @@ type IntialStateType = {
   modalType: ModalTypes;
   peerToUpdate: HMSPeer | null;
   meetingState: MeetingState;
+  startingHLSStream: boolean;
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -57,6 +58,7 @@ const INITIAL_STATE: IntialStateType = {
   modalType: ModalTypes.DEFAULT,
   peerToUpdate: null,
   meetingState: MeetingState.NOT_JOINED,
+  startingHLSStream: false,
 };
 
 const appReducer = (
@@ -138,6 +140,8 @@ const appReducer = (
       };
     case ActionTypes.SET_MEETING_STATE:
       return { ...state, meetingState: action.payload.meetingState };
+    case ActionTypes.SET_STARTING_HLS_STREAM:
+      return { ...state, startingHLSStream: action.payload.startingHLSStream };
     case HmsStateActionTypes.CLEAR_STATES:
       return INITIAL_STATE;
     default:

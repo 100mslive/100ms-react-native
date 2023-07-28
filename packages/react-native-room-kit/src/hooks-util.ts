@@ -43,6 +43,7 @@ import {
   addToPreviewPeersList,
   changeMeetingState,
   changePipModeStatus,
+  changeStartingHLSStream,
   clearStore,
   removeFromPreviewPeersList,
   saveUserData,
@@ -144,6 +145,8 @@ const useHMSRoomUpdate = (hmsInstance: HMSSDK) => {
           Toast.TOP
         );
       } else if (type === HMSRoomUpdate.HLS_STREAMING_STATE_UPDATED) {
+        dispatch(changeStartingHLSStream(false));
+
         let streaming = room?.hlsStreamingState?.running;
 
         Toast.showWithGravity(

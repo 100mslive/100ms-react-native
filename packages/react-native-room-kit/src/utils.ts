@@ -1,8 +1,8 @@
 // @ts-nocheck
 
 const DEFAULT_JOINING_CONFIG = {
-  mutedAudio: true,
-  mutedVideo: true,
+  mutedAudio: false,
+  mutedVideo: false,
   skipPreview: false,
   audioMixer: false, // IOS only
   musicMode: false, // IOS only

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
+import { useSelector } from 'react-redux';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { PeerTrackNode } from '../utils/types';
@@ -16,12 +17,18 @@ import {
 } from '../hooks-util';
 import { ChatView } from './ChatWindow';
 import { MeetingScreenContent } from './MeetingScreenContent';
+import { HMSHLSStreamLoading } from './HMSHLSStreamLoading';
+import type { RootState } from '../redux';
 
 interface MeetingProps {
   peerTrackNodes: Array<PeerTrackNode>;
 }
 
 export const Meeting: React.FC<MeetingProps> = ({ peerTrackNodes }) => {
+  const startingHLSStream = useSelector(
+    (state: RootState) => state.app.startingHLSStream
+  );
+
   // TODO: Fetch latest Room and localPeer on mount of this component?
 
   useFetchHMSRoles();
@@ -47,6 +54,10 @@ export const Meeting: React.FC<MeetingProps> = ({ peerTrackNodes }) => {
       clearPendingModalTasks();
     };
   }, []);
+
+  if (startingHLSStream) {
+    return <HMSHLSStreamLoading />;
+  }
 
   /**
    * TODO: disbaled Expended View animation in Webrtc flow
