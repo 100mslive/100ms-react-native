@@ -26,12 +26,6 @@ export const HMSPreviewTile: React.FC = () => {
   );
   const userName = useSelector((state: RootState) => state.user.userName);
 
-  React.useEffect(() => {
-    hmsInstance.enableNetworkQualityUpdates();
-
-    return () => hmsInstance.disableNetworkQualityUpdates();
-  }, []);
-
   return (
     <View style={styles.modalContainer}>
       {isLocalVideoMuted || !localVideoTrackId ? (

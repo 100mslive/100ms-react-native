@@ -18,6 +18,7 @@ import {
 import {
   AnswerPhoneIcon,
   BluetoothIcon,
+  CheckIcon,
   HeadphonesIcon,
   SpeakerIcon,
   WaveIcon,
@@ -28,7 +29,7 @@ import { CloseIcon } from '../Icons';
 import { useHMSInstance } from '../hooks-util';
 import type { RootState } from '../redux';
 
-export const HMSSpeakerSettings: React.FC = () => {
+export const HMSManageAudioOutput: React.FC = () => {
   const hmsInstance = useHMSInstance();
   const [settingsModalVisible, setSettingsModalVisible] = React.useState(false);
 
@@ -147,7 +148,7 @@ export const HMSSpeakerSettings: React.FC = () => {
       >
         <View style={styles.container}>
           <View style={styles.header}>
-            <Text style={styles.headerText}>Speaker Settings</Text>
+            <Text style={styles.headerText}>Audio Output</Text>
 
             <TouchableOpacity
               onPress={dismissModal}
@@ -163,16 +164,28 @@ export const HMSSpeakerSettings: React.FC = () => {
             </View>
           ) : (
             <ScrollView showsVerticalScrollIndicator={true}>
-              {availableAudioOutputDevices.sort().map((device) => (
+              {availableAudioOutputDevices.map((device) => (
                 <React.Fragment key={device}>
-                  {true ? <View style={styles.divider} /> : null}
+                  <View style={styles.divider} />
 
                   <TouchableOpacity
                     style={styles.audioDeviceItem}
                     onPress={() => handleSelectAudioDevice(device)}
                   >
-                    {getIcon(device)}
-                    <Text style={styles.itemText}>{device}</Text>
+                    <View style={styles.itemTextWrapper}>
+                      {getIcon(
+                        device === HMSAudioDevice.AUTOMATIC &&
+                          currentAudioOutputDevice
+                          ? currentAudioOutputDevice
+                          : device
+                      )}
+
+                      <Text style={styles.itemText}>
+                        {getDescription(device, currentAudioOutputDevice)}
+                      </Text>
+                    </View>
+
+                    {device === currentAudioOutputDevice ? <CheckIcon /> : null}
                   </TouchableOpacity>
                 </React.Fragment>
               ))}
@@ -190,7 +203,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   container: {
-    backgroundColor: COLORS.SURFACE.DIM,
+    backgroundColor: COLORS.BACKGROUND.DEFAULT,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     paddingTop: 24,
@@ -217,8 +230,12 @@ const styles = StyleSheet.create({
     right: 16,
     top: 16,
   },
+  itemTextWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   itemText: {
-    flex: 1,
     marginHorizontal: 16,
     color: COLORS.SURFACE.ON_SURFACE.HIGH,
     fontSize: 14,
@@ -235,7 +252,8 @@ const styles = StyleSheet.create({
   audioDeviceItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 24,
+    justifyContent: 'space-between',
+    paddingVertical: 20,
   },
   divider: {
     height: 1,
@@ -255,5 +273,25 @@ const getIcon = (ofDevice: HMSAudioDevice) => {
       return <SpeakerIcon muted={false} />;
     case HMSAudioDevice.WIRED_HEADSET:
       return <HeadphonesIcon />;
+  }
+};
+
+const getDescription = (
+  ofDevice: HMSAudioDevice,
+  currentDevice: HMSAudioDevice | null
+): string => {
+  switch (ofDevice) {
+    case HMSAudioDevice.AUTOMATIC:
+      return currentDevice && currentDevice !== HMSAudioDevice.AUTOMATIC
+        ? `Default (${getDescription(currentDevice, currentDevice)})`
+        : 'Automatic';
+    case HMSAudioDevice.BLUETOOTH:
+      return 'Bluetooth Device';
+    case HMSAudioDevice.EARPIECE:
+      return 'Phone';
+    case HMSAudioDevice.SPEAKER_PHONE:
+      return 'Speaker';
+    case HMSAudioDevice.WIRED_HEADSET:
+      return 'Earphone';
   }
 };

@@ -23,3 +23,5 @@ export * from './Bluetooth';
 export * from './Headphones';
 export * from './Wave';
 export * from './GenericLogo';
+export * from './Radio';
+export * from './Check';
