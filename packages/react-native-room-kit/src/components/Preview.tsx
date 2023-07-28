@@ -28,13 +28,15 @@ const headerEdges = ['top', 'left', 'right'] as const;
 
 const gradientColorShades = [
   '#000000',
-  'rgba(0, 0, 0, 0.9)',
-  'rgba(0, 0, 0, 0.7)',
+  'rgba(0, 0, 0, 0.8)',
+  'rgba(0, 0, 0, 0.5)',
+  'rgba(0, 0, 0, 0.3)',
+  'rgba(0, 0, 0, 0.2)',
   'rgba(0, 0, 0, 0.1)',
-  'rgba(0, 0, 0, 0.05)',
   'rgba(0, 0, 0, 0)',
 ];
-const gradientColorShadeLocations = [0.45, 0.55, 0.7, 0.9, 0.95, 1];
+
+const gradientColorShadeLocations = [0.1, 0.2, 0.3, 0.5, 0.8, 1];
 
 export const Preview = ({
   join,
