@@ -19,6 +19,7 @@ import { saveUserData, setHMSInstance } from './redux/actions';
 import { FullScreenIndicator } from './components/FullScreenIndicator';
 import { clearConfig } from './hooks-util';
 import { store } from './redux';
+import type { HMSIOSScreenShareConfig } from './utils/types';
 
 const getTrackSettings = () => {
   const joinConfig = getJoinConfig();
@@ -72,7 +73,8 @@ const getLogSettings = (): HMSLogSettings => {
   });
 };
 
-const getIOSBuildConfig = () => store.getState().user.iosBuildConfig || {};
+const getIOSBuildConfig = (): Partial<HMSIOSScreenShareConfig> =>
+  store.getState().user.iosBuildConfig || {};
 
 /**
  * Regular Usage:

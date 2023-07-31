@@ -7,8 +7,6 @@ import {
   TextInput,
   StyleSheet,
   Image,
-  Platform,
-  InteractionManager,
   useWindowDimensions,
 } from 'react-native';
 import type { ImageURISource } from 'react-native';
@@ -47,7 +45,7 @@ import {
   changeShowStats,
   saveUserData,
 } from '../redux/actions';
-import { requestExternalStoragePermission, getTime } from '../utils/functions';
+import { getTime } from '../utils/functions';
 import {
   LayoutParams,
   ModalTypes,
