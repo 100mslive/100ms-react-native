@@ -34,8 +34,6 @@ import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import RNFetchBlob from 'rn-fetch-blob';
-import Share from 'react-native-share';
 
 import { styles } from './styles';
 
