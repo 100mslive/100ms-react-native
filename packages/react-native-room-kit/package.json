@@ -52,7 +52,6 @@
   },
   "dependencies": {
     "@react-navigation/native": "^6.0.8",
-    "react-native-avoid-softinput": "^2.4.8",
     "react-native-device-info": "^9.0.2",
     "react-native-document-picker": "^8.1.1",
     "react-native-fs": "^2.19.0",
@@ -94,6 +93,7 @@
     "@shopify/flash-list": "^1.4.3",
     "react": "*",
     "react-native": "*",
+    "react-native-avoid-softinput": "^2.4.8",
     "react-native-permissions": "3.4.0",
     "react-native-reanimated": "^2.17.0",
     "react-native-vector-icons": "^9.1.0"
