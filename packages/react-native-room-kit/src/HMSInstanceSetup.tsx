@@ -33,11 +33,7 @@ const getTrackSettings = () => {
       ? HMSTrackSettingsInitState.MUTED
       : HMSTrackSettingsInitState.UNMUTED,
     audioSource: joinConfig.audioMixer
-      ? [
-          'mic_node',
-          'screen_broadcast_audio_receiver_node',
-          'audio_file_player_node',
-        ]
+      ? ['mic_node', 'screen_broadcast_audio_receiver_node']
       : undefined,
     /**
      * `audioMode` param allows you to capture audio in its highest quality
