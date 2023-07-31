@@ -52,7 +52,6 @@
   },
   "dependencies": {
     "@react-navigation/native": "^6.0.8",
-    "@shopify/flash-list": "^1.4.3",
     "react-native-avoid-softinput": "^2.4.8",
     "react-native-device-info": "^9.0.2",
     "react-native-document-picker": "^8.1.1",
@@ -92,6 +91,7 @@
   },
   "peerDependencies": {
     "@100mslive/react-native-hms": "github:100mslive/100ms-react-native#develop",
+    "@shopify/flash-list": "^1.4.3",
     "react": "*",
     "react-native": "*",
     "react-native-permissions": "3.4.0",
