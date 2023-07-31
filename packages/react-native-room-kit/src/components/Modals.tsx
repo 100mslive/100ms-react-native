@@ -35,7 +35,6 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import RNFetchBlob from 'rn-fetch-blob';
-import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
 
 import { styles } from './styles';
@@ -175,106 +174,6 @@ export const SaveScreenshot = ({
     (state: RootState) => state.hmsStates.localPeer || undefined
   );
 
-  /**
-   * Get target path on external storage to save image
-   * @param {string} imageExtension file extension to use for image
-   * @param {string} peerName name of peer to use in image name
-   * @returns string - path on external storage to save image
-   */
-  const getTargetPath = (imageExtension: string, peerName?: string) => {
-    // formatting peer name
-    const formattedPeerName = peerName
-      ? peerName.replace(/ /g, '-').toLowerCase()
-      : '';
-
-    // name to use for image
-    const imageName = `${formattedPeerName}-snapshot-${Date.now()}.${imageExtension}`;
-
-    // directory for saving image
-    const targetDir =
-      Platform.OS === 'ios'
-        ? RNFetchBlob.fs.dirs.DocumentDir
-        : RNFetchBlob.fs.dirs.DCIMDir;
-
-    const targetLocation = `${targetDir}/${imageName}`;
-
-    return targetLocation;
-  };
-
-  const saveToDisk = async () => {
-    try {
-      // Requesting External Storage permission to save image to disk
-      const permission = await requestExternalStoragePermission();
-
-      // checking External Storage permission and availability of image source that we have to save to disk
-      if (permission && peer && imageSource) {
-        // Waiting for Interactions (Modal Close Animation) to finish
-        InteractionManager.runAfterInteractions(async () => {
-          // image extension to use
-          const imageExtension = 'png';
-
-          // Removing `file://` from URI if it exists, to keep it consistent with `base64` image case
-          const source = imageSource.uri.replace('file://', '');
-
-          // Checking if source is the local file on device
-          const isSourceLocalFile = imageSource.uri.startsWith('file://');
-
-          // if source is local file on ios device then we don't need to do any file system operation
-          // We can use that local file to show preview window to user on ios
-          const targetLocation =
-            isSourceLocalFile && Platform.OS === 'ios'
-              ? source
-              : getTargetPath(imageExtension, peer.name);
-
-          // if source is local file on android device, then we copy source file to target path
-          if (isSourceLocalFile) {
-            if (Platform.OS === 'android') {
-              await RNFS.copyFile(
-                source, // Source Dir
-                targetLocation // Target Dir
-              );
-            }
-          }
-          // if source is not local file, then we write to target path
-          else {
-            await RNFetchBlob.fs.writeFile(
-              targetLocation, // Target Dir
-              source.replace('data:image/png;base64,', ''), // Data to write to "Target Dir"
-              'base64'
-            );
-          }
-
-          Share.open({ url: 'file://' + targetLocation })
-            .then(({ message }) => {
-              if (message.includes('SaveToCameraRoll')) {
-                Toast.showWithGravity(
-                  'Snapshot has been saved successfully',
-                  Toast.LONG,
-                  Toast.TOP
-                );
-              }
-              cancelModal();
-            })
-            .catch((error) => console.log('share error -> ', error))
-            .finally(() => {
-              // On Android, We have already saved image into DCIM dir
-              // Therefore, we can notify user about "save success" and close modal
-              if (Platform.OS === 'android') {
-                Toast.showWithGravity(
-                  'Snapshot has been saved successfully',
-                  Toast.LONG,
-                  Toast.TOP
-                );
-                cancelModal();
-              }
-            });
-        });
-      }
-    } catch (error) {
-      console.warn('Snapshot Save Error: ', error);
-    }
-  };
-
   return (
     <View style={[{ flexGrow: 1 }, styles.volumeModalContainer]}>
       <Text style={styles.roleChangeModalHeading}>
@@ -289,15 +188,9 @@ export const SaveScreenshot = ({
       ) : null}
       <View style={styles.roleChangeModalPermissionContainer}>
         <CustomButton
-          title="Cancel"
+          title="Done"
           onPress={cancelModal}
-          viewStyle={[styles.roleChangeModalCancelButton, { width: '40%' }]}
-          textStyle={styles.roleChangeModalButtonText}
-        />
-        <CustomButton
-          title="Save to Disk"
-          onPress={saveToDisk}
-          viewStyle={[styles.roleChangeModalSuccessButton, { width: '56%' }]}
+          viewStyle={[styles.roleChangeModalCancelButton, { width: '100%' }]}
           textStyle={styles.roleChangeModalButtonText}
         />
       </View>

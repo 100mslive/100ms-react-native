@@ -52,7 +52,6 @@
   },
   "dependencies": {
     "@react-navigation/native": "^6.0.8",
-    "react-native-fs": "^2.19.0",
     "react-native-gesture-handler": "^1.10.3",
     "react-native-linear-gradient": "^2.7.3",
     "react-native-modal": "^12.1.0",
