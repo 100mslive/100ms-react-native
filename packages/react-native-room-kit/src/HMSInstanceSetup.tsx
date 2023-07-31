@@ -12,7 +12,6 @@ import {
   HMSVideoTrackSettings,
 } from '@100mslive/react-native-hms';
 import React, { useEffect } from 'react';
-import { getModel } from 'react-native-device-info';
 import { batch, useDispatch } from 'react-redux';
 
 import { getJoinConfig } from './utils';
@@ -24,22 +23,6 @@ import { store } from './redux';
 const getTrackSettings = () => {
   const joinConfig = getJoinConfig();
 
-  const listOfFaultyDevices = [
-    'Pixel',
-    'Pixel XL',
-    'Moto G5',
-    'Moto G (5S) Plus',
-    'Moto G4',
-    'TA-1053',
-    'Mi A1',
-    'Mi A2',
-    'E5823', // Sony z5 compact
-    'Redmi Note 5',
-    'FP2', // Fairphone FP2
-    'MI 5',
-  ];
-  const deviceModal = getModel();
-
   /**
    * Customize local peer's Audio track settings before Joining the Room.
    *
@@ -49,9 +32,6 @@ const getTrackSettings = () => {
     initialState: joinConfig.mutedAudio
       ? HMSTrackSettingsInitState.MUTED
       : HMSTrackSettingsInitState.UNMUTED,
-    useHardwareEchoCancellation: listOfFaultyDevices.includes(deviceModal)
-      ? true
-      : false,
     audioSource: joinConfig.audioMixer
       ? [
           'mic_node',

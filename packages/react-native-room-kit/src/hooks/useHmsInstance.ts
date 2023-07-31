@@ -12,7 +12,6 @@
 //   HMSVideoTrackSettings,
 // } from '@100mslive/react-native-hms';
 // import { useEffect, useState } from 'react';
-// import { getModel } from 'react-native-device-info';
 
 // export const useHmsInstance = () => {
 //   const [hmsInstance, setHmsInstance] = useState(null);
