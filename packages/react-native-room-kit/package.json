@@ -51,7 +51,6 @@
     "registry": "https://registry.npmjs.org/"
   },
   "dependencies": {
-    "@100mslive/react-native-hms": "github:100mslive/100ms-react-native#develop",
     "@miblanchard/react-native-slider": "^2.0.2",
     "@react-navigation/native": "^6.0.8",
     "@shopify/flash-list": "^1.4.3",
@@ -93,6 +92,7 @@
     "typescript": "^5.0.2"
   },
   "peerDependencies": {
+    "@100mslive/react-native-hms": "github:100mslive/100ms-react-native#develop",
     "react": "*",
     "react-native": "*",
     "react-native-permissions": "3.4.0",
