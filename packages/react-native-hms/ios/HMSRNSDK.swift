@@ -64,17 +64,22 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
 
         let metadata = credentials.value(forKey: "metadata") as? String
+        
+        let endpoint = credentials.value(forKey: "endpoint") as? String
+        
         let captureNetworkQualityInPreview = credentials.value(forKey: "captureNetworkQualityInPreview") as? Bool ?? false
 
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
-            if let endpoint = credentials.value(forKey: "endpoint") as? String {
-                let config = HMSConfig(userName: user, authToken: authToken, metadata: metadata, endpoint: endpoint, captureNetworkQualityInPreview: captureNetworkQualityInPreview)
-                strongSelf.hms?.preview(config: config, delegate: strongSelf)
-            } else {
-                let config = HMSConfig(userName: user, authToken: authToken, metadata: metadata, captureNetworkQualityInPreview: captureNetworkQualityInPreview)
-                strongSelf.hms?.preview(config: config, delegate: strongSelf)
-            }
+            
+            let config = HMSConfig(userName: user,
+                                   authToken: authToken,
+                                   metadata: metadata,
+                                   endpoint: endpoint,
+                                   captureNetworkQualityInPreview: captureNetworkQualityInPreview)
+            
+            strongSelf.hms?.preview(config: config, delegate: strongSelf)
+            
             strongSelf.previewInProgress = true
         }
     }
@@ -134,14 +139,14 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
-
-            if let endpoint = credentials.value(forKey: "endpoint") as? String {
-                let config = HMSConfig(userName: user, authToken: authToken, metadata: metadata, endpoint: endpoint, captureNetworkQualityInPreview: captureNetworkQualityInPreview)
-                strongSelf.hms?.join(config: config, delegate: strongSelf)
-            } else {
-                let config = HMSConfig(userName: user, authToken: authToken, metadata: metadata, captureNetworkQualityInPreview: captureNetworkQualityInPreview)
-                strongSelf.hms?.join(config: config, delegate: strongSelf)
-            }
+            
+            let config = HMSConfig(userName: user,
+                                   authToken: authToken,
+                                   metadata: metadata,
+                                   endpoint: credentials.value(forKey: "endpoint") as? String,
+                                   captureNetworkQualityInPreview: captureNetworkQualityInPreview)
+                
+            strongSelf.hms?.join(config: config, delegate: strongSelf)
         }
     }
 
