@@ -93,13 +93,6 @@ export const PeerSettingsModalContent: React.FC<
     });
   };
 
-  const changeVolumeLevelOfPeer = () => {
-    batch(() => {
-      dispatch(setPeerToUpdate(peerTrackNode.peer));
-      setModalVisible(ModalTypes.VOLUME, true);
-    });
-  };
-
   // Check if selected tile is "On Spotlight"
   const { onSpotlight, tileVideoTrackId, tileAudioTrackId } = isTileOnSpotlight(
     spotlightTrackId,
@@ -231,15 +224,6 @@ export const PeerSettingsModalContent: React.FC<
             IconType={Ionicons}
             iconName={'people-outline'}
             onPress={() => changeRole()}
-          />
-        ) : null}
-
-        {!peer.isLocal ? (
-          <SettingItem
-            text="Set Volume"
-            IconType={Ionicons}
-            iconName={'volume-high-outline'}
-            onPress={() => changeVolumeLevelOfPeer()}
           />
         ) : null}
 

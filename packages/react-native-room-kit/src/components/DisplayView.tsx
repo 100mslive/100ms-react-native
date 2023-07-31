@@ -19,7 +19,6 @@ import {
   ChangeRoleAccepteModal,
   ChangeRoleModal,
   ChangeTrackStateModal,
-  ChangeVolumeModal,
   SaveScreenshot,
 } from './Modals';
 import type { RootState } from '../redux';
@@ -286,15 +285,6 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
             setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
           >
             <ChangeRoleModal
-              cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
-            />
-          </DefaultModal>
-          <DefaultModal
-            modalPosiion="center"
-            modalVisible={modalVisible === ModalTypes.VOLUME}
-            setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
-          >
-            <ChangeVolumeModal
               cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
             />
           </DefaultModal>

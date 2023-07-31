@@ -34,7 +34,6 @@ import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { Slider } from '@miblanchard/react-native-slider';
 import RNFetchBlob from 'rn-fetch-blob';
 import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
@@ -299,53 +298,6 @@ export const SaveScreenshot = ({
           title="Save to Disk"
           onPress={saveToDisk}
           viewStyle={[styles.roleChangeModalSuccessButton, { width: '56%' }]}
-          textStyle={styles.roleChangeModalButtonText}
-        />
-      </View>
-    </View>
-  );
-};
-
-export const ChangeVolumeModal = ({
-  cancelModal,
-}: {
-  cancelModal: Function;
-}) => {
-  const instance = useHMSInstance();
-  const peer = useSelector((state: RootState) => state.app.peerToUpdate);
-  const [volume, setVolume] = useState<number>(0);
-
-  const changeVolume = () => {
-    if (peer?.audioTrack) {
-      instance?.setVolume(peer?.audioTrack, volume);
-    }
-    cancelModal();
-  };
-
-  return (
-    <View style={styles.volumeModalContainer}>
-      <Text style={styles.roleChangeModalHeading}>Set Volume</Text>
-      <View style={styles.volumeModalSlider}>
-        <Text style={styles.roleChangeModalDescription}>Volume: {volume}</Text>
-        <Slider
-          value={volume}
-          maximumValue={10}
-          minimumValue={0}
-          step={1}
-          onValueChange={(value: any) => setVolume(value[0])}
-        />
-      </View>
-      <View style={styles.roleChangeModalPermissionContainer}>
-        <CustomButton
-          title="Cancel"
-          onPress={cancelModal}
-          viewStyle={styles.roleChangeModalCancelButton}
-          textStyle={styles.roleChangeModalButtonText}
-        />
-        <CustomButton
-          title="Change"
-          onPress={changeVolume}
-          viewStyle={styles.roleChangeModalSuccessButton}
           textStyle={styles.roleChangeModalButtonText}
         />
       </View>
@@ -1423,15 +1375,12 @@ export const HlsStreamingModal = ({
 };
 
 export const RecordingModal = ({
-  recordingModal,
   setModalVisible,
 }: {
-  recordingModal: boolean;
   setModalVisible(modalType: ModalTypes, delay?: any): void;
 }) => {
   const instance = useHMSInstance();
   const roomID = useSelector((state: RootState) => state.user.roomID);
-  const [resolutionDetails, setResolutionDetails] = useState<boolean>(false);
   const [recordingDetails, setRecordingDetails] = useState<HMSRTMPConfig>({
     record: false,
     meetingURL: roomID ? roomID + '?token=beam_recording' : undefined,
@@ -1445,7 +1394,7 @@ export const RecordingModal = ({
     setModalVisible(ModalTypes.DEFAULT);
   };
 
-  return recordingModal ? (
+  return (
     <View style={styles.roleChangeModal}>
       <Text style={styles.roleChangeModalHeading}>Recording Details</Text>
       <TextInput
@@ -1498,38 +1447,6 @@ export const RecordingModal = ({
         </View>
         <Text style={styles.roleChangeModalPermission}>Record</Text>
       </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.checkboxButtonContainer}
-        onPress={() => {
-          setResolutionDetails(!resolutionDetails);
-          if (!resolutionDetails) {
-            setModalVisible(ModalTypes.RESOLUTION, true);
-            setRecordingDetails({
-              ...recordingDetails,
-              resolution: {
-                height: 720,
-                width: 1280,
-              },
-            });
-          } else {
-            setRecordingDetails({
-              ...recordingDetails,
-              resolution: undefined,
-            });
-          }
-        }}
-      >
-        <View style={styles.roleChangeModalCheckBox}>
-          {resolutionDetails && (
-            <Entypo
-              name="check"
-              style={styles.roleChangeModalCheck}
-              size={10}
-            />
-          )}
-        </View>
-        <Text style={styles.roleChangeModalPermission}>Resolution</Text>
-      </TouchableOpacity>
       <View style={styles.roleChangeModalPermissionContainer}>
         <CustomButton
           title="Cancel"
@@ -1541,62 +1458,6 @@ export const RecordingModal = ({
           title="Start"
           onPress={changeLayout}
           viewStyle={styles.roleChangeModalSuccessButton}
-          textStyle={styles.roleChangeModalButtonText}
-        />
-      </View>
-    </View>
-  ) : (
-    <View style={styles.roleChangeModal}>
-      <Text style={styles.roleChangeModalHeading}>Resolution Details</Text>
-      <View style={styles.resolutionContainer}>
-        <View style={styles.resolutionDetails}>
-          <Text style={styles.interRegular}>Height :</Text>
-          <Text style={styles.resolutionValue}>
-            {recordingDetails.resolution?.height}
-          </Text>
-        </View>
-        <Slider
-          value={recordingDetails.resolution?.height}
-          maximumValue={1280}
-          minimumValue={480}
-          step={10}
-          onValueChange={(value: any) => {
-            setRecordingDetails({
-              ...recordingDetails,
-              resolution: {
-                height: parseInt(value),
-                width: recordingDetails.resolution?.width ?? 1280,
-              },
-            });
-          }}
-        />
-        <View style={styles.resolutionDetails}>
-          <Text style={styles.interRegular}>Width :</Text>
-          <Text style={styles.resolutionValue}>
-            {recordingDetails.resolution?.width}
-          </Text>
-        </View>
-        <Slider
-          value={recordingDetails.resolution?.width}
-          maximumValue={1280}
-          minimumValue={500}
-          step={10}
-          onValueChange={(value: any) => {
-            setRecordingDetails({
-              ...recordingDetails,
-              resolution: {
-                width: parseInt(value),
-                height: recordingDetails.resolution?.height ?? 720,
-              },
-            });
-          }}
-        />
-      </View>
-      <View style={styles.sortingButtonContainer}>
-        <CustomButton
-          title="Back"
-          onPress={() => setModalVisible(ModalTypes.RECORDING, true)}
-          viewStyle={styles.backButton}
           textStyle={styles.roleChangeModalButtonText}
         />
       </View>
@@ -1753,51 +1614,6 @@ export const RealTime = ({ startedAt }: { startedAt?: Date }) => {
       <Text style={styles.liveTimeText}>
         {second < 10 ? '0' + second : second}
       </Text>
-    </View>
-  );
-};
-
-export const AudioShareSetVolumeModal = ({
-  success,
-  cancel,
-}: {
-  success: Function;
-  cancel: Function;
-}) => {
-  const [volume, setVolume] = useState<number>(0);
-
-  const changeVolume = () => {
-    success(volume);
-    cancel();
-  };
-
-  return (
-    <View style={styles.volumeModalContainer}>
-      <Text style={styles.roleChangeModalHeading}>Set Volume</Text>
-      <View style={styles.volumeModalSlider}>
-        <Text style={styles.roleChangeModalDescription}>Volume: {volume}</Text>
-        <Slider
-          value={volume}
-          maximumValue={1}
-          minimumValue={0}
-          step={0.1}
-          onValueChange={(value: any) => setVolume(value[0])}
-        />
-      </View>
-      <View style={styles.roleChangeModalPermissionContainer}>
-        <CustomButton
-          title="Cancel"
-          onPress={cancel}
-          viewStyle={styles.roleChangeModalCancelButton}
-          textStyle={styles.roleChangeModalButtonText}
-        />
-        <CustomButton
-          title="Change"
-          onPress={changeVolume}
-          viewStyle={styles.roleChangeModalSuccessButton}
-          textStyle={styles.roleChangeModalButtonText}
-        />
-      </View>
     </View>
   );
 };

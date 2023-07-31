@@ -51,7 +51,6 @@
     "registry": "https://registry.npmjs.org/"
   },
   "dependencies": {
-    "@miblanchard/react-native-slider": "^2.0.2",
     "@react-navigation/native": "^6.0.8",
     "@shopify/flash-list": "^1.4.3",
     "react-native-avoid-softinput": "^2.4.8",
