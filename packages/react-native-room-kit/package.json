@@ -52,7 +52,6 @@
   },
   "dependencies": {
     "@react-navigation/native": "^6.0.8",
-    "react-native-gesture-handler": "^1.10.3",
     "react-redux": "^7.2.4",
     "redux": "^4.1.0"
   },
