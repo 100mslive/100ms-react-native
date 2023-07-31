@@ -1,23 +1,14 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
-import { HMSVideoViewMode } from '@100mslive/react-native-hms';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { PersonIcon } from '../Icons';
-import { useHMSInstance } from '../hooks-util';
 import type { RootState } from '../redux';
 import { getInitials } from '../utils/functions';
 import { COLORS } from '../utils/theme';
+import { HMSLocalVideoView } from './HMSLocalVideoView';
 
 export const HMSPreviewTile: React.FC = () => {
-  const hmsInstance = useHMSInstance();
-  const HmsView = hmsInstance.HmsView;
-  const mirrorCamera = useSelector(
-    (state: RootState) => state.app.joinConfig.mirrorCamera
-  );
-  const autoSimulcast = useSelector(
-    (state: RootState) => state.app.joinConfig.autoSimulcast
-  );
   const isLocalVideoMuted = useSelector(
     (state: RootState) => state.hmsStates.isLocalVideoMuted
   );
@@ -39,14 +30,7 @@ export const HMSPreviewTile: React.FC = () => {
           </View>
         </View>
       ) : (
-        <HmsView
-          trackId={localVideoTrackId}
-          key={localVideoTrackId}
-          mirror={mirrorCamera}
-          autoSimulcast={autoSimulcast}
-          scaleType={HMSVideoViewMode.ASPECT_FILL}
-          style={styles.hmsView}
-        />
+        <HMSLocalVideoView />
       )}
     </View>
   );

@@ -210,3 +210,8 @@ export const changeMeetingState = (meetingState: MeetingState) => ({
   type: actionTypes.SET_MEETING_STATE,
   payload: { meetingState },
 });
+
+export const changeStartingHLSStream = (startingHLSStream: boolean) => ({
+  type: actionTypes.SET_STARTING_HLS_STREAM,
+  payload: { startingHLSStream },
+});

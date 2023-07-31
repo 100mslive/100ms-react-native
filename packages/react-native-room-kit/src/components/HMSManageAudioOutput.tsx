@@ -164,31 +164,37 @@ export const HMSManageAudioOutput: React.FC = () => {
             </View>
           ) : (
             <ScrollView showsVerticalScrollIndicator={true}>
-              {availableAudioOutputDevices.map((device) => (
-                <React.Fragment key={device}>
-                  <View style={styles.divider} />
+              {availableAudioOutputDevices
+                .sort(
+                  (a, b) => audioDeviceSortOrder[a] - audioDeviceSortOrder[b]
+                )
+                .map((device) => (
+                  <React.Fragment key={device}>
+                    <View style={styles.divider} />
 
-                  <TouchableOpacity
-                    style={styles.audioDeviceItem}
-                    onPress={() => handleSelectAudioDevice(device)}
-                  >
-                    <View style={styles.itemTextWrapper}>
-                      {getIcon(
-                        device === HMSAudioDevice.AUTOMATIC &&
-                          currentAudioOutputDevice
-                          ? currentAudioOutputDevice
-                          : device
-                      )}
+                    <TouchableOpacity
+                      style={styles.audioDeviceItem}
+                      onPress={() => handleSelectAudioDevice(device)}
+                    >
+                      <View style={styles.itemTextWrapper}>
+                        {getIcon(
+                          device === HMSAudioDevice.AUTOMATIC &&
+                            currentAudioOutputDevice
+                            ? currentAudioOutputDevice
+                            : device
+                        )}
 
-                      <Text style={styles.itemText}>
-                        {getDescription(device, currentAudioOutputDevice)}
-                      </Text>
-                    </View>
+                        <Text style={styles.itemText}>
+                          {getDescription(device, currentAudioOutputDevice)}
+                        </Text>
+                      </View>
 
-                    {device === currentAudioOutputDevice ? <CheckIcon /> : null}
-                  </TouchableOpacity>
-                </React.Fragment>
-              ))}
+                      {device === currentAudioOutputDevice ? (
+                        <CheckIcon />
+                      ) : null}
+                    </TouchableOpacity>
+                  </React.Fragment>
+                ))}
             </ScrollView>
           )}
         </View>
@@ -295,3 +301,11 @@ const getDescription = (
       return 'Earphone';
   }
 };
+
+const audioDeviceSortOrder = {
+  [HMSAudioDevice.AUTOMATIC]: 0,
+  [HMSAudioDevice.SPEAKER_PHONE]: 1,
+  [HMSAudioDevice.WIRED_HEADSET]: 2,
+  [HMSAudioDevice.EARPIECE]: 3,
+  [HMSAudioDevice.BLUETOOTH]: 4,
+} as const;
