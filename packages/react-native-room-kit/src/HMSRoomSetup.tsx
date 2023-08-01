@@ -5,7 +5,14 @@ import {
   HMSUpdateListenerActions,
 } from '@100mslive/react-native-hms';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, Platform, StatusBar, StyleSheet, View } from 'react-native';
+import {
+  Alert,
+  Keyboard,
+  Platform,
+  StatusBar,
+  StyleSheet,
+  View,
+} from 'react-native';
 import Toast from 'react-native-simple-toast';
 import { batch, useDispatch, useSelector, useStore } from 'react-redux';
 
@@ -63,6 +70,7 @@ export const HMSRoomSetup = () => {
 
   const joinMeeting = useCallback(async () => {
     setLoading(true);
+    Keyboard.dismiss();
     const hmsConfig = await getConfig();
     // TODO: handle case when promise returned from `getConfig()` is resolved when Root component has been unmounted
     hmsInstance.join(hmsConfig);

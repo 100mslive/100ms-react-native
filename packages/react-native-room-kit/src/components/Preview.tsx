@@ -1,6 +1,14 @@
-import React, { useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { AvoidSoftInput } from 'react-native-avoid-softinput';
+import React from 'react';
+import {
+  Keyboard,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useAnimatedKeyboard,
+} from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -41,76 +49,83 @@ export const Preview = ({
   join(): void;
   loadingButtonState: boolean;
 }) => {
+  const animatedKeyboard = useAnimatedKeyboard();
+
+  const keyboardAvoidStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateY: -animatedKeyboard.height.value }],
+    };
+  });
+
   const canPublishVideo = useCanPublishVideo();
 
-  useEffect(() => {
-    AvoidSoftInput.setEnabled(true);
-
-    return () => AvoidSoftInput.setEnabled(false);
-  }, []);
-
   return (
-    <View style={styles.container}>
-      {canPublishVideo ? <HMSPreviewTile /> : null}
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.container}>
+        {canPublishVideo ? <HMSPreviewTile /> : null}
 
-      {canPublishVideo ? (
-        <LinearGradient
-          colors={gradientColorShades}
-          locations={gradientColorShadeLocations}
-          style={styles.headerGradient}
-        />
-      ) : null}
+        {canPublishVideo ? (
+          <LinearGradient
+            colors={gradientColorShades}
+            locations={gradientColorShadeLocations}
+            style={styles.headerGradient}
+          />
+        ) : null}
 
-      <SafeAreaView
-        style={canPublishVideo ? styles.header : null}
-        edges={headerEdges}
-        mode="margin"
-      >
-        <HMSPreviewTitle />
+        <SafeAreaView
+          style={canPublishVideo ? styles.header : null}
+          edges={headerEdges}
+          mode="margin"
+        >
+          <HMSPreviewTitle />
 
-        <HMSPreviewSubtitle />
+          <HMSPreviewSubtitle />
 
-        <View style={styles.peerListWrapper}>
-          <HMSPreviewHLSLiveIndicator />
+          <View style={styles.peerListWrapper}>
+            <HMSPreviewHLSLiveIndicator />
 
-          <HMSPreviewPeersList />
-        </View>
-      </SafeAreaView>
+            <HMSPreviewPeersList />
+          </View>
+        </SafeAreaView>
 
-      <SafeAreaView
-        style={styles.backButtonContainer}
-        edges={backButtonEdges}
-        mode="margin"
-      >
-        <BackButton />
-      </SafeAreaView>
+        <SafeAreaView
+          style={styles.backButtonContainer}
+          edges={backButtonEdges}
+          mode="margin"
+        >
+          <BackButton />
+        </SafeAreaView>
 
-      <View style={styles.footerWrapper}>
-        <HMSPreviewNetworkQuality />
+        <View style={styles.footerWrapper}>
+          <HMSPreviewNetworkQuality />
 
-        <View style={styles.footer}>
-          <View style={styles.controlsContainer}>
-            <View style={styles.micAndCameraControls}>
-              <HMSManageLocalAudio />
+          <Animated.View style={[styles.footer, keyboardAvoidStyle]}>
+            <View style={styles.controlsContainer}>
+              <View style={styles.micAndCameraControls}>
+                <HMSManageLocalAudio />
 
-              <View style={styles.manageLocalVideoWrapper}>
-                <HMSManageLocalVideo />
+                <View style={styles.manageLocalVideoWrapper}>
+                  <HMSManageLocalVideo />
+                </View>
+
+                <HMSManageCameraRotation />
               </View>
 
-              <HMSManageCameraRotation />
+              <HMSManageAudioOutput />
             </View>
 
-            <HMSManageAudioOutput />
-          </View>
+            <View style={styles.joinButtonRow}>
+              <HMSPreviewEditName />
 
-          <View style={styles.joinButtonRow}>
-            <HMSPreviewEditName />
-
-            <HMSPreviewJoinButton onJoin={join} loading={loadingButtonState} />
-          </View>
+              <HMSPreviewJoinButton
+                onJoin={join}
+                loading={loadingButtonState}
+              />
+            </View>
+          </Animated.View>
         </View>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 };
 
