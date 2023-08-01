@@ -49,6 +49,7 @@ export const Preview = ({
   join(): void;
   loadingButtonState: boolean;
 }) => {
+  const canPublishVideo = useCanPublishVideo();
   const animatedKeyboard = useAnimatedKeyboard();
 
   const keyboardAvoidStyle = useAnimatedStyle(() => {
@@ -56,8 +57,6 @@ export const Preview = ({
       transform: [{ translateY: -animatedKeyboard.height.value }],
     };
   });
-
-  const canPublishVideo = useCanPublishVideo();
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
