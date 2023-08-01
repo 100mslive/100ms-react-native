@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import {
   View,
   StyleSheet,
@@ -11,7 +11,6 @@ import {
   InteractionManager,
 } from 'react-native';
 import {
-  HMSAudioFilePlayerNode,
   HMSAudioMixingMode,
   HMSUpdateListenerActions,
 } from '@100mslive/react-native-hms';
@@ -21,7 +20,6 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
-import DocumentPicker from 'react-native-document-picker';
 import { openSettings, requestNotifications } from 'react-native-permissions';
 
 import { COLORS } from '../utils/theme';
@@ -34,7 +32,6 @@ import {
 } from '../redux/actions';
 import { ModalTypes, PipModes } from '../utils/types';
 import { parseMetadata } from '../utils/functions';
-import { getJoinConfig } from '../utils';
 import { HMSShareScreen } from './HMSShareScreen';
 import { ScreenShareIcon } from '../Icons';
 
@@ -63,11 +60,6 @@ export const RoomSettingsModalContent: React.FC<
   setAudioDeviceListenerAdded,
   setMuteAllTracksAudio,
 }) => {
-  // REFS
-  const audioFilePlayerNodeRef = useRef(
-    new HMSAudioFilePlayerNode('audio_file_player_node')
-  );
-
   // REDUX STATES & DISPATCH
   const dispatch = useDispatch();
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
@@ -308,73 +300,6 @@ export const RoomSettingsModalContent: React.FC<
         .catch((e) => console.log('Start Audioshare Error: ', e));
     }
   };
-
-  // iOS Audioshare
-  const setAudioShareVolume = () =>
-    setModalVisible(ModalTypes.SET_AUDIO_SHARE_VOLUME, true);
-
-  // iOS Audioshare
-  const playAudioShare = () => {
-    closeRoomSettingsModal();
-    setTimeout(() => {
-      DocumentPicker.pickSingle()
-        .then((result) => {
-          console.log('Document Picker Success: ', result);
-          audioFilePlayerNodeRef.current
-            .play(result?.uri, false, false)
-            .then((d) => {
-              console.log('Start Audioshare Success: ', d);
-            })
-            .catch((e) => console.log('Start Audioshare Error: ', e));
-        })
-        .catch((e) => console.log('Document Picker Error: ', e));
-    }, 500);
-  };
-
-  // iOS Audioshare
-  const stopAudioShare = () => {
-    closeRoomSettingsModal();
-    audioFilePlayerNodeRef.current.stop();
-  };
-
-  // iOS Audioshare
-  const pauseAudioShare = () => {
-    closeRoomSettingsModal();
-    audioFilePlayerNodeRef.current.pause();
-  };
-
-  // iOS Audioshare
-  const resumeAudioShare = () => {
-    closeRoomSettingsModal();
-    audioFilePlayerNodeRef.current.resume();
-  };
-
-  // iOS Audioshare
-  const isAudioSharePlaying = () => {
-    closeRoomSettingsModal();
-    audioFilePlayerNodeRef.current
-      .isPlaying()
-      .then((d) => console.log('Audioshare isPlaying: ', d))
-      .catch((e) => console.log('Audioshare isPlaying: ', e));
-  };
-
-  // iOS Audioshare
-  const getAudioShareDuration = () => {
-    closeRoomSettingsModal();
-    audioFilePlayerNodeRef.current
-      .duration()
-      .then((d) => console.log('Audioshare duration: ', d))
-      .catch((e) => console.log('Audioshare duration: ', e));
-  };
-
-  // iOS Audioshare
-  const getAudioShareCurrentDuration = () => {
-    closeRoomSettingsModal();
-    audioFilePlayerNodeRef.current
-      .currentDuration()
-      .then((d) => console.log('Audioshare currentDuration: ', d))
-      .catch((e) => console.log('Audioshare currentDuration: ', e));
-  };
   //#endregion
 
   return (
@@ -579,68 +504,6 @@ export const RoomSettingsModalContent: React.FC<
                   text="Set Audio Mixing Mode"
                   IconType={EntypoIcons}
                   iconName="sound-mix"
-                />
-              </>
-            ) : null}
-
-            {Platform.OS === 'ios' &&
-            getJoinConfig().audioMixer &&
-            localPeerRole?.publishSettings?.allowed?.includes('audio') ? (
-              <>
-                <SettingItem
-                  onPress={playAudioShare}
-                  text="Play Audio Share"
-                  IconType={Ionicons}
-                  iconName="play-outline"
-                />
-
-                <SettingItem
-                  onPress={stopAudioShare}
-                  text="Stop Audio Share"
-                  IconType={Ionicons}
-                  iconName="stop-outline"
-                />
-
-                <SettingItem
-                  onPress={setAudioShareVolume}
-                  text="Set Audio Share Volume"
-                  IconType={Ionicons}
-                  iconName="volume-high-outline"
-                />
-
-                <SettingItem
-                  onPress={pauseAudioShare}
-                  text="Pause Audio Share"
-                  IconType={Ionicons}
-                  iconName="pause-outline"
-                />
-
-                <SettingItem
-                  onPress={resumeAudioShare}
-                  text="Resume Audio Share"
-                  IconType={Ionicons}
-                  iconName="play-skip-forward-outline"
-                />
-
-                <SettingItem
-                  onPress={isAudioSharePlaying}
-                  text="Is Audio Share Playing"
-                  IconType={MaterialCommunityIcons}
-                  iconName="file-question-outline"
-                />
-
-                <SettingItem
-                  onPress={getAudioShareDuration}
-                  text="Audio Share Duration"
-                  IconType={Ionicons}
-                  iconName="timer-outline"
-                />
-
-                <SettingItem
-                  onPress={getAudioShareCurrentDuration}
-                  text="Audio Share Current Duration"
-                  IconType={Ionicons}
-                  iconName="timer-outline"
                 />
               </>
             ) : null}

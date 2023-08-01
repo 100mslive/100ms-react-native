@@ -11,9 +11,9 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   View,
+  ScrollView,
 } from 'react-native';
 import type { LayoutChangeEvent, ViewStyle } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
 
 import { COLORS } from '../../utils/theme';
 

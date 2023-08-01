@@ -12,7 +12,6 @@ import {
   HMSVideoTrackSettings,
 } from '@100mslive/react-native-hms';
 import React, { useEffect } from 'react';
-import { getModel } from 'react-native-device-info';
 import { batch, useDispatch } from 'react-redux';
 
 import { getJoinConfig } from './utils';
@@ -20,25 +19,10 @@ import { saveUserData, setHMSInstance } from './redux/actions';
 import { FullScreenIndicator } from './components/FullScreenIndicator';
 import { clearConfig } from './hooks-util';
 import { store } from './redux';
+import type { HMSIOSScreenShareConfig } from './utils/types';
 
 const getTrackSettings = () => {
   const joinConfig = getJoinConfig();
-
-  const listOfFaultyDevices = [
-    'Pixel',
-    'Pixel XL',
-    'Moto G5',
-    'Moto G (5S) Plus',
-    'Moto G4',
-    'TA-1053',
-    'Mi A1',
-    'Mi A2',
-    'E5823', // Sony z5 compact
-    'Redmi Note 5',
-    'FP2', // Fairphone FP2
-    'MI 5',
-  ];
-  const deviceModal = getModel();
 
   /**
    * Customize local peer's Audio track settings before Joining the Room.
@@ -49,15 +33,8 @@ const getTrackSettings = () => {
     initialState: joinConfig.mutedAudio
       ? HMSTrackSettingsInitState.MUTED
       : HMSTrackSettingsInitState.UNMUTED,
-    useHardwareEchoCancellation: listOfFaultyDevices.includes(deviceModal)
-      ? true
-      : false,
     audioSource: joinConfig.audioMixer
-      ? [
-          'mic_node',
-          'screen_broadcast_audio_receiver_node',
-          'audio_file_player_node',
-        ]
+      ? ['mic_node', 'screen_broadcast_audio_receiver_node']
       : undefined,
     /**
      * `audioMode` param allows you to capture audio in its highest quality
@@ -96,7 +73,8 @@ const getLogSettings = (): HMSLogSettings => {
   });
 };
 
-const getIOSBuildConfig = () => store.getState().user.iosBuildConfig || {};
+const getIOSBuildConfig = (): Partial<HMSIOSScreenShareConfig> =>
+  store.getState().user.iosBuildConfig || {};
 
 /**
  * Regular Usage:

@@ -75,16 +75,10 @@ export const HMSRoomOptions: React.FC<HMSRoomOptionsProps> = () => {
       </DefaultModal>
       <DefaultModal
         modalPosiion="center"
-        modalVisible={
-          modalVisible === ModalTypes.RECORDING ||
-          modalVisible === ModalTypes.RESOLUTION
-        }
+        modalVisible={modalVisible === ModalTypes.RECORDING}
         setModalVisible={dismissModal}
       >
-        <RecordingModal
-          setModalVisible={setModalVisible}
-          recordingModal={modalVisible === ModalTypes.RECORDING}
-        />
+        <RecordingModal setModalVisible={setModalVisible} />
       </DefaultModal>
       <DefaultModal
         modalPosiion="center"

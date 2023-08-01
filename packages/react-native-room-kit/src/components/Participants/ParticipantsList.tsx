@@ -88,16 +88,6 @@ export const ParticipantsList: React.FC<ParticipantsListProps> = ({ data }) => {
     }
   };
 
-  const onSetVolumePress = (peer: HMSPeer) => {
-    hideMenu();
-    setTimeout(() => {
-      batch(() => {
-        dispatch(setPeerToUpdate(peer));
-        setModalVisible(ModalTypes.VOLUME, true);
-      });
-    }, 500);
-  };
-
   return (
     <FlatList
       data={data}
@@ -222,20 +212,6 @@ export const ParticipantsList: React.FC<ParticipantsListProps> = ({ data }) => {
                       {peer.videoTrack?.isMute() === false
                         ? 'Mute video'
                         : 'Unmute video'}
-                    </Text>
-                  </View>
-                </MenuItem>
-              ) : null}
-              {peer.isLocal === false && !!peer.audioTrack ? (
-                <MenuItem onPress={() => onSetVolumePress(peer)}>
-                  <View style={styles.participantMenuItem}>
-                    <Ionicons
-                      name="volume-high-outline"
-                      style={styles.participantMenuItemIcon}
-                      size={24}
-                    />
-                    <Text style={styles.participantMenuItemName}>
-                      Set Volume
                     </Text>
                   </View>
                 </MenuItem>

@@ -7,8 +7,6 @@ import {
   TextInput,
   StyleSheet,
   Image,
-  Platform,
-  InteractionManager,
   useWindowDimensions,
 } from 'react-native';
 import type { ImageURISource } from 'react-native';
@@ -34,10 +32,6 @@ import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { Slider } from '@miblanchard/react-native-slider';
-import RNFetchBlob from 'rn-fetch-blob';
-import RNFS from 'react-native-fs';
-import Share from 'react-native-share';
 
 import { styles } from './styles';
 
@@ -51,7 +45,7 @@ import {
   changeShowStats,
   saveUserData,
 } from '../redux/actions';
-import { requestExternalStoragePermission, getTime } from '../utils/functions';
+import { getTime } from '../utils/functions';
 import {
   LayoutParams,
   ModalTypes,
@@ -176,106 +170,6 @@ export const SaveScreenshot = ({
     (state: RootState) => state.hmsStates.localPeer || undefined
   );
 
-  /**
-   * Get target path on external storage to save image
-   * @param {string} imageExtension file extension to use for image
-   * @param {string} peerName name of peer to use in image name
-   * @returns string - path on external storage to save image
-   */
-  const getTargetPath = (imageExtension: string, peerName?: string) => {
-    // formatting peer name
-    const formattedPeerName = peerName
-      ? peerName.replace(/ /g, '-').toLowerCase()
-      : '';
-
-    // name to use for image
-    const imageName = `${formattedPeerName}-snapshot-${Date.now()}.${imageExtension}`;
-
-    // directory for saving image
-    const targetDir =
-      Platform.OS === 'ios'
-        ? RNFetchBlob.fs.dirs.DocumentDir
-        : RNFetchBlob.fs.dirs.DCIMDir;
-
-    const targetLocation = `${targetDir}/${imageName}`;
-
-    return targetLocation;
-  };
-
-  const saveToDisk = async () => {
-    try {
-      // Requesting External Storage permission to save image to disk
-      const permission = await requestExternalStoragePermission();
-
-      // checking External Storage permission and availability of image source that we have to save to disk
-      if (permission && peer && imageSource) {
-        // Waiting for Interactions (Modal Close Animation) to finish
-        InteractionManager.runAfterInteractions(async () => {
-          // image extension to use
-          const imageExtension = 'png';
-
-          // Removing `file://` from URI if it exists, to keep it consistent with `base64` image case
-          const source = imageSource.uri.replace('file://', '');
-
-          // Checking if source is the local file on device
-          const isSourceLocalFile = imageSource.uri.startsWith('file://');
-
-          // if source is local file on ios device then we don't need to do any file system operation
-          // We can use that local file to show preview window to user on ios
-          const targetLocation =
-            isSourceLocalFile && Platform.OS === 'ios'
-              ? source
-              : getTargetPath(imageExtension, peer.name);
-
-          // if source is local file on android device, then we copy source file to target path
-          if (isSourceLocalFile) {
-            if (Platform.OS === 'android') {
-              await RNFS.copyFile(
-                source, // Source Dir
-                targetLocation // Target Dir
-              );
-            }
-          }
-          // if source is not local file, then we write to target path
-          else {
-            await RNFetchBlob.fs.writeFile(
-              targetLocation, // Target Dir
-              source.replace('data:image/png;base64,', ''), // Data to write to "Target Dir"
-              'base64'
-            );
-          }
-
-          Share.open({ url: 'file://' + targetLocation })
-            .then(({ message }) => {
-              if (message.includes('SaveToCameraRoll')) {
-                Toast.showWithGravity(
-                  'Snapshot has been saved successfully',
-                  Toast.LONG,
-                  Toast.TOP
-                );
-              }
-              cancelModal();
-            })
-            .catch((error) => console.log('share error -> ', error))
-            .finally(() => {
-              // On Android, We have already saved image into DCIM dir
-              // Therefore, we can notify user about "save success" and close modal
-              if (Platform.OS === 'android') {
-                Toast.showWithGravity(
-                  'Snapshot has been saved successfully',
-                  Toast.LONG,
-                  Toast.TOP
-                );
-                cancelModal();
-              }
-            });
-        });
-      }
-    } catch (error) {
-      console.warn('Snapshot Save Error: ', error);
-    }
-  };
-
   return (
     <View style={[{ flexGrow: 1 }, styles.volumeModalContainer]}>
       <Text style={styles.roleChangeModalHeading}>
@@ -290,62 +184,9 @@ export const SaveScreenshot = ({
       ) : null}
       <View style={styles.roleChangeModalPermissionContainer}>
         <CustomButton
-          title="Cancel"
+          title="Done"
           onPress={cancelModal}
-          viewStyle={[styles.roleChangeModalCancelButton, { width: '40%' }]}
-          textStyle={styles.roleChangeModalButtonText}
-        />
-        <CustomButton
-          title="Save to Disk"
-          onPress={saveToDisk}
-          viewStyle={[styles.roleChangeModalSuccessButton, { width: '56%' }]}
-          textStyle={styles.roleChangeModalButtonText}
-        />
-      </View>
-    </View>
-  );
-};
-
-export const ChangeVolumeModal = ({
-  cancelModal,
-}: {
-  cancelModal: Function;
-}) => {
-  const instance = useHMSInstance();
-  const peer = useSelector((state: RootState) => state.app.peerToUpdate);
-  const [volume, setVolume] = useState<number>(0);
-
-  const changeVolume = () => {
-    if (peer?.audioTrack) {
-      instance?.setVolume(peer?.audioTrack, volume);
-    }
-    cancelModal();
-  };
-
-  return (
-    <View style={styles.volumeModalContainer}>
-      <Text style={styles.roleChangeModalHeading}>Set Volume</Text>
-      <View style={styles.volumeModalSlider}>
-        <Text style={styles.roleChangeModalDescription}>Volume: {volume}</Text>
-        <Slider
-          value={volume}
-          maximumValue={10}
-          minimumValue={0}
-          step={1}
-          onValueChange={(value: any) => setVolume(value[0])}
-        />
-      </View>
-      <View style={styles.roleChangeModalPermissionContainer}>
-        <CustomButton
-          title="Cancel"
-          onPress={cancelModal}
-          viewStyle={styles.roleChangeModalCancelButton}
-          textStyle={styles.roleChangeModalButtonText}
-        />
-        <CustomButton
-          title="Change"
-          onPress={changeVolume}
-          viewStyle={styles.roleChangeModalSuccessButton}
+          viewStyle={[styles.roleChangeModalCancelButton, { width: '100%' }]}
           textStyle={styles.roleChangeModalButtonText}
         />
       </View>
@@ -1423,15 +1264,12 @@ export const HlsStreamingModal = ({
 };
 
 export const RecordingModal = ({
-  recordingModal,
   setModalVisible,
 }: {
-  recordingModal: boolean;
   setModalVisible(modalType: ModalTypes, delay?: any): void;
 }) => {
   const instance = useHMSInstance();
   const roomID = useSelector((state: RootState) => state.user.roomID);
-  const [resolutionDetails, setResolutionDetails] = useState<boolean>(false);
   const [recordingDetails, setRecordingDetails] = useState<HMSRTMPConfig>({
     record: false,
     meetingURL: roomID ? roomID + '?token=beam_recording' : undefined,
@@ -1445,7 +1283,7 @@ export const RecordingModal = ({
     setModalVisible(ModalTypes.DEFAULT);
   };
 
-  return recordingModal ? (
+  return (
     <View style={styles.roleChangeModal}>
       <Text style={styles.roleChangeModalHeading}>Recording Details</Text>
       <TextInput
@@ -1498,38 +1336,6 @@ export const RecordingModal = ({
         </View>
         <Text style={styles.roleChangeModalPermission}>Record</Text>
       </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.checkboxButtonContainer}
-        onPress={() => {
-          setResolutionDetails(!resolutionDetails);
-          if (!resolutionDetails) {
-            setModalVisible(ModalTypes.RESOLUTION, true);
-            setRecordingDetails({
-              ...recordingDetails,
-              resolution: {
-                height: 720,
-                width: 1280,
-              },
-            });
-          } else {
-            setRecordingDetails({
-              ...recordingDetails,
-              resolution: undefined,
-            });
-          }
-        }}
-      >
-        <View style={styles.roleChangeModalCheckBox}>
-          {resolutionDetails && (
-            <Entypo
-              name="check"
-              style={styles.roleChangeModalCheck}
-              size={10}
-            />
-          )}
-        </View>
-        <Text style={styles.roleChangeModalPermission}>Resolution</Text>
-      </TouchableOpacity>
       <View style={styles.roleChangeModalPermissionContainer}>
         <CustomButton
           title="Cancel"
@@ -1541,62 +1347,6 @@ export const RecordingModal = ({
           title="Start"
           onPress={changeLayout}
           viewStyle={styles.roleChangeModalSuccessButton}
-          textStyle={styles.roleChangeModalButtonText}
-        />
-      </View>
-    </View>
-  ) : (
-    <View style={styles.roleChangeModal}>
-      <Text style={styles.roleChangeModalHeading}>Resolution Details</Text>
-      <View style={styles.resolutionContainer}>
-        <View style={styles.resolutionDetails}>
-          <Text style={styles.interRegular}>Height :</Text>
-          <Text style={styles.resolutionValue}>
-            {recordingDetails.resolution?.height}
-          </Text>
-        </View>
-        <Slider
-          value={recordingDetails.resolution?.height}
-          maximumValue={1280}
-          minimumValue={480}
-          step={10}
-          onValueChange={(value: any) => {
-            setRecordingDetails({
-              ...recordingDetails,
-              resolution: {
-                height: parseInt(value),
-                width: recordingDetails.resolution?.width ?? 1280,
-              },
-            });
-          }}
-        />
-        <View style={styles.resolutionDetails}>
-          <Text style={styles.interRegular}>Width :</Text>
-          <Text style={styles.resolutionValue}>
-            {recordingDetails.resolution?.width}
-          </Text>
-        </View>
-        <Slider
-          value={recordingDetails.resolution?.width}
-          maximumValue={1280}
-          minimumValue={500}
-          step={10}
-          onValueChange={(value: any) => {
-            setRecordingDetails({
-              ...recordingDetails,
-              resolution: {
-                width: parseInt(value),
-                height: recordingDetails.resolution?.height ?? 720,
-              },
-            });
-          }}
-        />
-      </View>
-      <View style={styles.sortingButtonContainer}>
-        <CustomButton
-          title="Back"
-          onPress={() => setModalVisible(ModalTypes.RECORDING, true)}
-          viewStyle={styles.backButton}
           textStyle={styles.roleChangeModalButtonText}
         />
       </View>
@@ -1753,51 +1503,6 @@ export const RealTime = ({ startedAt }: { startedAt?: Date }) => {
       <Text style={styles.liveTimeText}>
         {second < 10 ? '0' + second : second}
       </Text>
-    </View>
-  );
-};
-
-export const AudioShareSetVolumeModal = ({
-  success,
-  cancel,
-}: {
-  success: Function;
-  cancel: Function;
-}) => {
-  const [volume, setVolume] = useState<number>(0);
-
-  const changeVolume = () => {
-    success(volume);
-    cancel();
-  };
-
-  return (
-    <View style={styles.volumeModalContainer}>
-      <Text style={styles.roleChangeModalHeading}>Set Volume</Text>
-      <View style={styles.volumeModalSlider}>
-        <Text style={styles.roleChangeModalDescription}>Volume: {volume}</Text>
-        <Slider
-          value={volume}
-          maximumValue={1}
-          minimumValue={0}
-          step={0.1}
-          onValueChange={(value: any) => setVolume(value[0])}
-        />
-      </View>
-      <View style={styles.roleChangeModalPermissionContainer}>
-        <CustomButton
-          title="Cancel"
-          onPress={cancel}
-          viewStyle={styles.roleChangeModalCancelButton}
-          textStyle={styles.roleChangeModalButtonText}
-        />
-        <CustomButton
-          title="Change"
-          onPress={changeVolume}
-          viewStyle={styles.roleChangeModalSuccessButton}
-          textStyle={styles.roleChangeModalButtonText}
-        />
-      </View>
     </View>
   );
 };
