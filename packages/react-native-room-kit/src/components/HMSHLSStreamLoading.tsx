@@ -49,8 +49,7 @@ const styles = StyleSheet.create({
   hlsLoaderText: {
     color: COLORS.SURFACE.ON_SURFACE.HIGH,
     fontSize: 16,
-    fontFamily: 'Inter',
-    fontWeight: '400',
+    fontFamily: 'Inter-Regular',
     lineHeight: 24,
     letterSpacing: 0.5,
   },

@@ -22,8 +22,7 @@ const styles = StyleSheet.create({
   title: {
     color: COLORS.SURFACE.ON_SURFACE.HIGH,
     fontSize: 24,
-    fontFamily: 'Inter',
-    fontWeight: '600',
+    fontFamily: 'Inter-SemiBold',
     lineHeight: 32,
   },
 });

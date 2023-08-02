@@ -38,8 +38,7 @@ const styles = StyleSheet.create({
   text: {
     color: COLORS.SURFACE.ON_SURFACE.HIGH,
     fontSize: 14,
-    fontFamily: 'Inter',
-    fontWeight: '600',
+    fontFamily: 'Inter-SemiBold',
     lineHeight: 24,
   },
   textSpacer: {

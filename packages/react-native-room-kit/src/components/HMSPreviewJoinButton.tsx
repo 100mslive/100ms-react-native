@@ -82,8 +82,7 @@ const styles = StyleSheet.create({
   text: {
     color: COLORS.BASE.WHITE,
     fontSize: 16,
-    fontFamily: 'Inter',
-    fontWeight: '600',
+    fontFamily: 'Inter-SemiBold',
     lineHeight: 24,
     letterSpacing: 0.5,
     marginHorizontal: 8,
