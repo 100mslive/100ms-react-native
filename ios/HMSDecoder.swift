@@ -667,7 +667,7 @@ class HMSDecoder: NSObject {
         if let recordingState = data {
 
             var state = [String: Any]()
-            
+
             state["initialising"] = recordingState.initialising
 
             state["running"] = recordingState.running
