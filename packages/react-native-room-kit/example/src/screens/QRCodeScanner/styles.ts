@@ -58,6 +58,9 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
     color: COLORS.TEXT.HIGH_EMPHASIS_ACCENT,
   },
+  grow: {
+    flex: 1
+  },
 });
 
 export {styles};
