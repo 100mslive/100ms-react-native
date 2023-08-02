@@ -26,8 +26,8 @@ const INITIAL_STATE: IntialStateType = {
   roomID: getMeetingUrl(),
   joinConfig: {
     debugMode: false,
-    mutedAudio: true,
-    mutedVideo: true,
+    mutedAudio: false,
+    mutedVideo: false,
     mirrorCamera: true,
     skipPreview: false,
     audioMixer: false, // IOS only
@@ -69,7 +69,7 @@ const appReducer = (
         ...state,
         joinConfig: {
           ...state.joinConfig,
-          mutedAudio: action.payload.mutedAudio ?? true,
+          mutedAudio: action.payload.mutedAudio ?? false,
         },
       };
     case ActionTypes.CHANGE_JOIN_VIDEO_MUTED:
@@ -77,7 +77,7 @@ const appReducer = (
         ...state,
         joinConfig: {
           ...state.joinConfig,
-          mutedVideo: action.payload.mutedVideo ?? true,
+          mutedVideo: action.payload.mutedVideo ?? false,
         },
       };
     case ActionTypes.CHANGE_MIRROR_CAMERA:
