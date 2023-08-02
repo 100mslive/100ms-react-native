@@ -19,6 +19,7 @@
 		994EB8802A6914F000BAF2F7 /* ReplayKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 994EB87F2A6914F000BAF2F7 /* ReplayKit.framework */; };
 		994EB8832A6914F000BAF2F7 /* SampleHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 994EB8822A6914F000BAF2F7 /* SampleHandler.swift */; };
 		994EB8872A6914F000BAF2F7 /* RNExampleBroadcastUpload.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 994EB87E2A6914F000BAF2F7 /* RNExampleBroadcastUpload.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		99AE27522A797561001F944B /* Inter-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 99AE27512A797561001F944B /* Inter-SemiBold.ttf */; };
 		EC9595B02A6F9D1E00593B36 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EC9595AF2A6F9D1D00593B36 /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
@@ -70,6 +71,7 @@
 		994EB8842A6914F000BAF2F7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		994EB88C2A69150600BAF2F7 /* RNExampleBroadcastUpload.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = RNExampleBroadcastUpload.entitlements; sourceTree = "<group>"; };
 		994EB88D2A69184700BAF2F7 /* RNExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = RNExample.entitlements; path = RNExample/RNExample.entitlements; sourceTree = "<group>"; };
+		99AE27512A797561001F944B /* Inter-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-SemiBold.ttf"; sourceTree = "<group>"; };
 		ABFE59519B596E51CEFDCCC0 /* libPods-RNExample-RNExampleTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RNExample-RNExampleTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0A881CF5CF3F2B244570E2A /* Pods-RNExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNExample.debug.xcconfig"; path = "Target Support Files/Pods-RNExample/Pods-RNExample.debug.xcconfig"; sourceTree = "<group>"; };
 		D00AAFFCFCFDA5787532823F /* Pods-RNExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNExample.release.xcconfig"; path = "Target Support Files/Pods-RNExample/Pods-RNExample.release.xcconfig"; sourceTree = "<group>"; };
@@ -179,6 +181,7 @@
 		994EB8732A65B94100BAF2F7 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				99AE27512A797561001F944B /* Inter-SemiBold.ttf */,
 				994EB8742A65BA2E00BAF2F7 /* Inter-Bold.ttf */,
 				994EB8752A65BA2E00BAF2F7 /* Inter-Medium.ttf */,
 				994EB8762A65BA2E00BAF2F7 /* Inter-Regular.ttf */,
@@ -301,6 +304,7 @@
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				EC9595B02A6F9D1E00593B36 /* GoogleService-Info.plist in Resources */,
+				99AE27522A797561001F944B /* Inter-SemiBold.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
