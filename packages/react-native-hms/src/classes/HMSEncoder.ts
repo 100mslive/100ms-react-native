@@ -436,6 +436,7 @@ export class HMSEncoder {
 
   static encodeBrowserRecordingState(data: any) {
     return new HMSBrowserRecordingState({
+      initialising: data?.initialising || false,
       running: data?.running || false,
       startedAt: HMSEncoder.encodeDate(data?.startedAt),
       stoppedAt: HMSEncoder.encodeDate(data?.stoppedAt),
