@@ -92,6 +92,13 @@ export class HMSRoomCache {
         );
         break;
       }
+      case HMSRoomUpdate.ROOM_PEER_COUNT_UPDATED: {
+        this._data.set(
+          'peerCount',
+          encodeHMSRoomProperty(this.id, 'peerCount', data)
+        );
+        break;
+      }
       default: {
         for (const key in data) {
           const property = key as keyof HMSRoomCacheProps;
