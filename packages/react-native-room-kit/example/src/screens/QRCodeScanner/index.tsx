@@ -1,6 +1,6 @@
 import React from 'react';
 import {Alert, Text, TouchableOpacity, View} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -30,6 +30,7 @@ const QRCodeScanner = () => {
   const debugMode = useSelector(
     (state: RootState) => state.app.joinConfig.debugMode,
   );
+  const isFocused = useIsFocused();
 
   const onScanSuccess = (e: BarCodeReadEvent) => {
     const joiningLink = e.data.replace('meeting', 'preview');
@@ -93,10 +94,14 @@ const QRCodeScanner = () => {
         </TouchableOpacity>
         <Text style={styles.headerText}>Scan QR Code</Text>
       </View>
-      <QRScanner
-        onRead={onScanSuccess}
-        flashMode={RNCamera.Constants.FlashMode.auto}
-      />
+      {isFocused ? (
+        <QRScanner
+          onRead={onScanSuccess}
+          flashMode={RNCamera.Constants.FlashMode.auto}
+        />
+      ) : (
+        <View style={styles.grow} />
+      )}
       <CustomButton
         title="Join with Link Instead"
         onPress={goBack}
