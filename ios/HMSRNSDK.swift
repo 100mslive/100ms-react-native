@@ -1321,9 +1321,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         if eventsEnableStatus[HMSConstants.ON_ROOM_UPDATE] != true {
             return
         }
-        if update == .metaDataUpdated || update == .roomTypeChanged {
-            return
-        }
 
         let roomData = HMSDecoder.getHmsRoomSubset(room, update)
         let type = getString(from: update)
