@@ -46,8 +46,7 @@ const styles = StyleSheet.create({
   avatarText: {
     color: COLORS.SURFACE.ON_SURFACE.HIGH,
     fontSize: 34,
-    fontFamily: 'Inter',
-    fontWeight: '600',
+    fontFamily: 'Inter-SemiBold',
     lineHeight: 40,
     letterSpacing: 0.25,
   },

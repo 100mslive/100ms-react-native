@@ -41,8 +41,7 @@ const styles = StyleSheet.create({
   title: {
     color: COLORS.SURFACE.ON_SURFACE.MEDIUM,
     fontSize: 14,
-    fontFamily: 'Inter',
-    fontWeight: '400',
+    fontFamily: 'Inter-Regular',
     lineHeight: 20,
     marginTop: 4,
     textAlign: 'center',

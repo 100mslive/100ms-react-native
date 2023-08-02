@@ -249,8 +249,7 @@ const leavePopupStyles = StyleSheet.create({
   leaveButtonText: {
     color: COLORS.SURFACE.ON_SURFACE.HIGH,
     fontSize: 14,
-    fontFamily: 'Inter',
-    fontWeight: '600',
+    fontFamily: 'Inter-SemiBold',
     lineHeight: 20,
   },
   divider: {
@@ -271,8 +270,7 @@ const leavePopupStyles = StyleSheet.create({
   endRoomText: {
     color: COLORS.ALERT.ERROR.BRIGHT,
     fontSize: 14,
-    fontFamily: 'Inter',
-    fontWeight: '600',
+    fontFamily: 'Inter-SemiBold',
     lineHeight: 20,
   },
 });
