@@ -220,21 +220,22 @@ const useHMSPeersUpdate = (
   updateLocalPeer: () => void,
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>
 ) => {
-  const dispatch = useDispatch();
-  const inMeeting = useSelector(
-    (state: RootState) => state.app.meetingState === MeetingState.IN_MEETING
-  );
+  // const dispatch = useDispatch();
+  // const inMeeting = useSelector(
+  //   (state: RootState) => state.app.meetingState === MeetingState.IN_MEETING
+  // );
 
   useEffect(() => {
     const peerUpdateHandler = ({ peer, type }: PeerUpdate) => {
       // Handle State from Preview screen
-      if (!inMeeting) {
-        if (type === HMSPeerUpdate.PEER_JOINED) {
-          dispatch(addToPreviewPeersList(peer));
-        } else if (type === HMSPeerUpdate.PEER_LEFT) {
-          dispatch(removeFromPreviewPeersList(peer));
-        }
-      }
+      // TODO: When `inMeeting` becomes true Peer Update is resubscribed, we might lose some events during that time
+      // if (!inMeeting) {
+      //   if (type === HMSPeerUpdate.PEER_JOINED) {
+      //     dispatch(addToPreviewPeersList(peer));
+      //   } else if (type === HMSPeerUpdate.PEER_LEFT) {
+      //     dispatch(removeFromPreviewPeersList(peer));
+      //   }
+      // }
 
       // Handle State for Meeting screen
       if (type === HMSPeerUpdate.PEER_JOINED) {
@@ -297,7 +298,7 @@ const useHMSPeersUpdate = (
     return () => {
       hmsInstance.removeEventListener(HMSUpdateListenerActions.ON_PEER_UPDATE);
     };
-  }, [inMeeting, hmsInstance]); // TODO: When `inMeeting` becomes true Peer Update is resubscribed, we might lose some events during that time
+  }, [hmsInstance]);
 };
 
 type TrackUpdate = {

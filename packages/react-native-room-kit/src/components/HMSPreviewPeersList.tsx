@@ -8,17 +8,17 @@ import type { RootState } from '../redux';
 export interface HMSPreviewPeersListProps {}
 
 export const HMSPreviewPeersList: React.FC<HMSPreviewPeersListProps> = () => {
-  const previewPeersList = useSelector(
-    (state: RootState) => state.hmsStates.previewPeersList
+  const previewPeerCount = useSelector(
+    (state: RootState) => state.hmsStates.room?.peerCount
   );
 
   return (
     <View style={styles.container}>
       <Text style={[styles.text, styles.textSpacer]}>
-        {previewPeersList.length === 0
+        {typeof previewPeerCount !== 'number' || previewPeerCount <= 0
           ? 'You are the first to join'
-          : `${previewPeersList.length} ${
-              previewPeersList.length > 1 ? 'others' : 'other'
+          : `${previewPeerCount} ${
+            previewPeerCount > 1 ? 'others' : 'other'
             } in session`}
       </Text>
     </View>
