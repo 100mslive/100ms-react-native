@@ -118,6 +118,7 @@ export class HMSSDK {
     appGroup?: String;
     preferredExtension?: String;
     logSettings?: HMSLogSettings;
+    isPrebuilt?: boolean;
   }) {
     const { version } = require('../../package.json');
     const { major, minor, patch } = ReactNativeVersion.version;
@@ -128,6 +129,7 @@ export class HMSSDK {
       frameworkInfo: {
         version: major + '.' + minor + '.' + patch,
         sdkVersion: version,
+        isPrebuilt: params?.isPrebuilt || false
       },
       logSettings: params?.logSettings,
     });

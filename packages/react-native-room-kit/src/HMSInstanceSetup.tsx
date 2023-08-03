@@ -119,6 +119,7 @@ const getHmsInstance = async (): Promise<HMSSDK> => {
     trackSettings,
     appGroup,
     preferredExtension,
+    isPrebuilt: true,
   });
 
   const logger = new HMSLogger();
