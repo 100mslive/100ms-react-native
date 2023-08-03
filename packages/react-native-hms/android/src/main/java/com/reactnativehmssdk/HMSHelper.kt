@@ -169,7 +169,8 @@ object HMSHelper {
     ) {
       val version = data.getString("version") as String
       val sdkVersion = data.getString("sdkVersion") as String
-      return FrameworkInfo(AgentType.REACT_NATIVE, sdkVersion, version)
+      val isPrebuilt = data.getBoolean("isPrebuilt")
+      return FrameworkInfo(AgentType.REACT_NATIVE, sdkVersion, version, isPrebuilt)
     }
     return null
   }
