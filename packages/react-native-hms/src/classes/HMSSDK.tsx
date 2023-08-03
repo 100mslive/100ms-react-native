@@ -129,7 +129,7 @@ export class HMSSDK {
       frameworkInfo: {
         version: major + '.' + minor + '.' + patch,
         sdkVersion: version,
-        isPrebuilt: params?.isPrebuilt || false
+        isPrebuilt: params?.isPrebuilt || false,
       },
       logSettings: params?.logSettings,
     });

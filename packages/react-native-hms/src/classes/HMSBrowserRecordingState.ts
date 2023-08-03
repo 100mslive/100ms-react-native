@@ -1,7 +1,6 @@
 import type { HMSException } from './HMSException';
 
 export class HMSBrowserRecordingState {
-
   initialising: boolean;
   running: boolean;
   error?: HMSException;

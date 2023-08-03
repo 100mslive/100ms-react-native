@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     color: COLORS.TEXT.HIGH_EMPHASIS_ACCENT,
   },
   grow: {
-    flex: 1
+    flex: 1,
   },
 });
 

@@ -18,7 +18,7 @@ export const HMSPreviewPeersList: React.FC<HMSPreviewPeersListProps> = () => {
         {typeof previewPeerCount !== 'number' || previewPeerCount <= 0
           ? 'You are the first to join'
           : `${previewPeerCount} ${
-            previewPeerCount > 1 ? 'others' : 'other'
+              previewPeerCount > 1 ? 'others' : 'other'
             } in session`}
       </Text>
     </View>
