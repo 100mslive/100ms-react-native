@@ -1,3 +1,117 @@
+<a href="https://100ms.live/">
+<img src="https://raw.githubusercontent.com/100mslive/react-native-hms/main/100ms.svg" title="100ms logo" float=center height=256>
+</a>
+
+[![HMSLive](https://img.shields.io/npm/v/@100mslive/react-native-hms)](https://www.npmjs.com/package/@100mslive/react-native-hms)
+[![HMSLive Room Kit](https://img.shields.io/npm/v/@100mslive/react-native-room-kit)](https://www.npmjs.com/package/@100mslive/react-native-room-kit)
+[![license](https://img.shields.io/npm/l/@100mslive/react-native-hms)](https://www.100ms.live/)
+[![quality](https://img.shields.io/npms-io/quality-score/@100mslive/react-native-hms)](https://www.npmjs.com/package/@100mslive/react-native-hms)
+[![collaborators](https://img.shields.io/npm/collaborators/@100mslive/react-native-hms)](https://www.npmjs.com/package/@100mslive/react-native-hms)
+[![Documentation](https://img.shields.io/badge/Read-Documentation-blue)](https://docs.100ms.live/react-native/v2/foundation/basics)
+[![Discord](https://img.shields.io/discord/843749923060711464?label=Join%20on%20Discord)](https://100ms.live/discord)
+[![Firebase](https://img.shields.io/badge/Download%20Android-Firebase-green)](https://appdistribution.firebase.dev/i/7b7ab3b30e627c35)
+[![TestFlight](https://img.shields.io/badge/Download%20iOS-TestFlight-blue)](https://testflight.apple.com/join/v4bSIPad)
+[![Activity](https://img.shields.io/github/commit-activity/m/100mslive/react-native-hms.svg)](https://github.com/100mslive/react-native-hms/projects/1)
+[![Register](https://img.shields.io/badge/Contact-Know%20More-blue)](https://dashboard.100ms.live/register)
+
+# 100ms React Native SDK
+
+Integrate Real Time Audio and Video conferencing, Interactive Live Streaming, and Chat in your apps with 100ms React Native SDK.
+
+With support for HLS and RTMP Live Streaming and Recording, Picture-in-Picture (PiP), one-to-one Video Call Modes, Audio Rooms, Video Player and much more, add immersive real-time communications to your apps.
+
+
+📖 Read the Complete Documentation here: https://www.100ms.live/docs/react-native/v2/foundation/basics
+
+## 🏃 Example App
+
+📲 Download the Example iOS app here: https://testflight.apple.com/join/v4bSIPad
+
+🤖 Download the Example Android app here: https://appdistribution.firebase.dev/i/7b7ab3b30e627c35
+
+To get a better understanding of how the example app is structured, what to do on `onJoin`, `onTrack` and `onPeer` listeners, creating `PeerTrackNodes`, how to use Redux, and what type of layouts and sorting you can implement in your app, checkout [Example App's README](https://github.com/100mslive/react-native-hms/blob/develop/example/README.md)
+
+
+## ☝️ Minimum Configuration
+
+- Support for React Native 0.64.4 or above
+- Support for Java 8 or above
+- Support for Android API level 24 or above
+- Xcode 13 or above
+- Support for iOS 12 or above
+
+
+## 🤝 Recommended Configuration
+
+- React Native 0.69.0 or above
+- Java 11 or above
+- Android API level 33 or above
+- Xcode 14 or above
+- iOS 16 or above
+
+## 📱 Supported Devices
+
+- The Android SDK supports Android API level 21 and higher. It is built for armeabi-v7a, arm64-v8a, x86, and x86_64 architectures.
+Devices running Android OS 11 or above is recommended.
+
+- iPhone & iPads with iOS version 12 or above are supported.
+Devices running iOS 16 or above is recommended.
+
+## Installation
+
+```bash
+npm install @100mslive/react-native-room-kit --save
+```
+
+📲 Download the Sample iOS App here: https://testflight.apple.com/join/v4bSIPad
+
+🤖 Download the Sample Android App here: https://appdistribution.firebase.dev/i/7b7ab3b30e627c35
+
+More information about Integrating the SDK is [available here](https://www.100ms.live/docs/react-native/v2/features/integration).
+
+## 🔐 Permissions
+
+### 📱 For iOS Permissions
+
+Add following lines in `Info.plist` file
+
+```xml
+<key>NSCameraUsageDescription</key>
+<string>Please allow access to Camera to enable video conferencing</string>
+<key>NSMicrophoneUsageDescription</key>
+<string>Please allow access to Microphone to enable video conferencing</string>
+<key>NSLocalNetworkUsageDescription</key>
+<string>Please allow access to network usage to enable video conferencing</string>
+```
+
+### 🤖 For Android Permissions
+
+Add following permissions in `AndroidManifest.xml`
+
+```xml
+<uses-feature android:name="android.hardware.camera.autofocus"/>
+<uses-permission android:name="android.permission.CAMERA"/>
+<uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+<uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+<uses-permission android:name="android.permission.RECORD_AUDIO"/>
+<uses-permission android:name="android.permission.INTERNET"/>
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+<uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+<uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+<uses-permission android:name="android.permission.VIBRATE" />
+<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+```
+
+You will also need to request Camera and Record Audio permissions at runtime before you join a call or display a preview. Please follow [Android Documentation](https://developer.android.com/training/permissions/requesting#request-permission) for runtime permissions.
+
+We suggest using [react-native-permission](https://www.npmjs.com/package/react-native-permissions) to acquire permissions from both platforms.
+
+More information about Audio Video Permission on iOS & Android is [available here](https://www.100ms.live/docs/react-native/v2/features/integration#permissions).
+
+
 ## Overview
 
 This guide will walk you through simple instructions to create a Video Conferencing app using the 100ms Prebuilt and test it using an Emulator or your Mobile Phone.
@@ -35,38 +149,27 @@ npx react-native init PrebuiltSampleApp --version 0.68.5 --npm && cd ./PrebuiltS
 
     a. Build the App
     ​
-
-    <Tabs id="test-run-sample-app" items={['Android', 'iOS']} />
-
-    <Tab id="test-run-sample-app-0">
+    #### For Android
 
     ```bash section=BuildApp sectionIndex=1 tab=Android
     npx react-native run-android
     ```
-
-    </Tab>
-
-    <Tab id="test-run-sample-app-1">
-
-    ```bash section=BuildApp sectionIndex=1 tab=iOS
+    
+    #### For iOS
+    ```bash
     npx react-native run-ios --simulator="iPhone 14"
     ```
-
-    </Tab>
-
 
     b. Start Metro Bundler if it is not already started
     ​
 
-    ```bash section=BuildApp sectionIndex=2
+    ```bash
     npx react-native start
     ```
 
     or follow instructions printed in Terminal to start the Metro Bundler or Run the Application.
 
 ### Install the Dependencies
-
-[![npm](https://img.shields.io/npm/v/@100mslive/react-native-room-kit)](https://www.npmjs.com/package/@100mslive/react-native-room-kit)
 
 After the Test run of your app is successful, you can install [100ms React Native Room Kit package](https://www.npmjs.com/package/@100mslive/react-native-room-kit) in your app.
 
@@ -86,9 +189,8 @@ npm install --save @100mslive/react-native-room-kit
 
   Native File Changes for `react-native-permissions` package -
 
-  <Tabs id="native-file-changes-react-native-permissions" items={['Android', 'iOS']} />
-
-  <Tab id="native-file-changes-react-native-permissions-0">
+  #### For Android
+  
   1. Allow camera, recording audio and internet permissions by adding the below snippet to the `AndroidManifest.xml` file (at the application tag level).
 
   ```xml section=androidPermissions
@@ -120,9 +222,9 @@ npm install --save @100mslive/react-native-room-kit
     }
   }
   ```
-  </Tab>
-
-  <Tab id="native-file-changes-react-native-permissions-1">
+  
+  #### For iOS
+  
   1. Allow camera, recording audio and internet permissions
 
   Add the below snippet in the `info.plist` file -
@@ -150,7 +252,7 @@ npm install --save @100mslive/react-native-room-kit
   ...
   end
   ```
-  </Tab>
+  
 
   If you see any permission related error, then check out `react-native-permissions` library [setup guide](https://github.com/zoontek/react-native-permissions/tree/3.4.0#setup) for `v3.4.0`.
 
@@ -194,9 +296,8 @@ npm install github:100mslive/100ms-react-native#release1.8.0
 
 1. Native File Changes for `@100mslive/react-native-hms` package
 
-  <Tabs id="native-file-changes-react-native-hms" items={['iOS']} />
-
-  <Tab id="native-file-changes-react-native-hms-0">
+  #### For iOS
+  
   Change ios target platform version to '13.0' in the `ios/Podfile` file
 
   ```json{4}
@@ -206,7 +307,6 @@ npm install github:100mslive/100ms-react-native#release1.8.0
   platform :ios, '13.0'
   install! 'cocoapods', :deterministic_uuids => false
   ```
-  </Tab>
 
 Follow official installation steps of these libraries if you encounter any problem in setup.
 
@@ -305,24 +405,17 @@ Follow the instructions in one of the tabs below based on the target platform yo
 
 a. Build the App
 
-<Tabs id="run-sample-app" items={['Android', 'iOS']} />
-
-<Tab id="run-sample-app-0">
+#### For Android
 
 ```bash section=BuildApp sectionIndex=1 tab=Android
 npx react-native run-android
 ```
 
-</Tab>
-
-<Tab id="run-sample-app-1">
+#### For iOS
 
 ```bash section=BuildApp sectionIndex=1 tab=iOS
 npx react-native run-ios --simulator="iPhone 14"
 ```
-
-</Tab>
-
 
 b. Start Metro Bundler if it is not already started
 
@@ -330,9 +423,8 @@ b. Start Metro Bundler if it is not already started
 npx react-native start
 ```
 
-or follow instructions printed in Terminal to start the Metro Bundler or Run the Application.
+Follow the instructions printed in the Terminal to start the Metro Bundler or Run the Application.
 
-</div>
 
 ### Check Deployed Sample Apps
 
