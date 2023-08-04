@@ -1,5 +1,6 @@
 import React from 'react';
 import { AppState, Platform } from 'react-native';
+import type { Layout } from '@100mslive/types-prebuilt';
 import { HMSEncoder } from './HMSEncoder';
 import { HMSHelper } from './HMSHelper';
 import { getLogger, logger, setLogger } from './HMSLogger';
@@ -1123,6 +1124,25 @@ export class HMSSDK {
 
     return HMSEncoder.encodeHmsPeer({ peerID: peerId });
   };
+
+  getRoomLayout = async (authToken: string, endpoint?: string): Promise<Layout> => {
+    if (Platform.OS === 'ios') {
+      return Promise.reject('RoomLayout API: Yet to be implemented!');
+    }
+    logger?.verbose('#Function getRoomLayout', {
+      id: this.id,
+      authToken,
+      endpoint,
+    });
+
+    const layputAPIResponse: string = await HMSManager.getRoomLayout({
+      id: this.id,
+      authToken,
+      endpoint
+    });
+
+    return HMSEncoder.encodeRoomLayout(layputAPIResponse);
+  }
 
   /**
    * - This is a prototype event listener that takes action and listens for updates related to that particular action

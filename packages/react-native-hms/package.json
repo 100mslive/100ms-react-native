@@ -101,7 +101,8 @@
     "registry": "https://registry.npmjs.org/"
   },
   "dependencies": {
-    "zustand": "^4.3.8"
+    "zustand": "^4.3.8",
+    "@100mslive/types-prebuilt": "^0.6.0"
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^11.0.0",

@@ -1,3 +1,4 @@
+import type { GetResponse as LayoutAPIResponse, Layout } from '@100mslive/types-prebuilt';
 import HMSManager from './HMSManagerModule';
 
 import { HMSTrack } from './HMSTrack';
@@ -669,5 +670,18 @@ export class HMSEncoder {
     const transformed = data as unknown as T;
 
     return transformed;
+  }
+
+  static async encodeRoomLayout(response: string): Promise<Layout> {
+    try {
+      const parsedResponse: LayoutAPIResponse = JSON.parse(response);
+      if (!parsedResponse.data) {
+        return Promise.reject('Layout API response is corrupted!');
+      }
+      return parsedResponse.data[0];
+
+    } catch (error) {
+      return Promise.reject(error);
+    }
   }
 }

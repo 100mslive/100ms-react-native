@@ -20,9 +20,7 @@ import live.hms.video.sdk.models.enums.HMSTrackUpdate
 import live.hms.video.sdk.models.trackchangerequest.HMSChangeTrackStateRequest
 import live.hms.video.sessionstore.HMSKeyChangeListener
 import live.hms.video.sessionstore.HmsSessionStore
-import live.hms.video.signal.init.HMSTokenListener
-import live.hms.video.signal.init.TokenRequest
-import live.hms.video.signal.init.TokenRequestOptions
+import live.hms.video.signal.init.*
 import live.hms.video.utils.HMSCoroutineScope
 import live.hms.video.utils.HmsUtilities
 import java.io.File
@@ -2056,5 +2054,36 @@ class HMSRNSDK(
       val errorMessage = "removeKeyChangeListener: $requiredKeys"
       rejectCallback(promise, errorMessage)
     }
+  }
+
+  fun getRoomLayout(data: ReadableMap, promise: Promise?) {
+    val unavailableKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("authToken", "String")))
+
+    if (unavailableKeys != null) {
+      val errorMessage = "getRoomLayout: $unavailableKeys"
+      rejectCallback(promise, errorMessage)
+      return
+    }
+
+    val authToken = data.getString("authToken")!!
+    val endpoint = data.getString("endpoint")
+
+    val layoutRequestOptions = endpoint?.let {
+      LayoutRequestOptions(endpoint)
+    }
+
+    hmsSDK?.getRoomLayout(
+      authToken,
+      layoutRequestOptions,
+      object : HMSLayoutListener {
+        override fun onError(error: HMSException) {
+          promise?.reject(error.code.toString(), error.message)
+        }
+
+        override fun onLayoutSuccess(layout: HMSRoomLayout) {
+          promise?.resolve(layout.toString())
+        }
+      }
+    )
   }
 }
