@@ -20,7 +20,6 @@ Integrate Real Time Audio and Video conferencing, Interactive Live Streaming, an
 
 With support for HLS and RTMP Live Streaming and Recording, Picture-in-Picture (PiP), one-to-one Video Call Modes, Audio Rooms, Video Player and much more, add immersive real-time communications to your apps.
 
-
 📖 Read the Complete Documentation here: https://www.100ms.live/docs/react-native/v2/foundation/basics
 
 ## 🏃 Example App
@@ -31,7 +30,6 @@ With support for HLS and RTMP Live Streaming and Recording, Picture-in-Picture (
 
 To get a better understanding of how the example app is structured, what to do on `onJoin`, `onTrack` and `onPeer` listeners, creating `PeerTrackNodes`, how to use Redux, and what type of layouts and sorting you can implement in your app, checkout [Example App's README](https://github.com/100mslive/react-native-hms/blob/develop/example/README.md)
 
-
 ## ☝️ Minimum Configuration
 
 - Support for React Native 0.64.4 or above
@@ -39,7 +37,6 @@ To get a better understanding of how the example app is structured, what to do o
 - Support for Android API level 24 or above
 - Xcode 13 or above
 - Support for iOS 12 or above
-
 
 ## 🤝 Recommended Configuration
 
@@ -52,10 +49,10 @@ To get a better understanding of how the example app is structured, what to do o
 ## 📱 Supported Devices
 
 - The Android SDK supports Android API level 21 and higher. It is built for armeabi-v7a, arm64-v8a, x86, and x86_64 architectures.
-Devices running Android OS 11 or above is recommended.
+  Devices running Android OS 11 or above is recommended.
 
 - iPhone & iPads with iOS version 12 or above are supported.
-Devices running iOS 16 or above is recommended.
+  Devices running iOS 16 or above is recommended.
 
 ## Installation
 
@@ -111,11 +108,9 @@ We suggest using [react-native-permission](https://www.npmjs.com/package/react-n
 
 More information about Audio Video Permission on iOS & Android is [available here](https://www.100ms.live/docs/react-native/v2/features/integration#permissions).
 
-
 ## Overview
 
 This guide will walk you through simple instructions to create a Video Conferencing app using the 100ms Prebuilt and test it using an Emulator or your Mobile Phone.
-
 
 ## Create a sample app
 
@@ -125,10 +120,10 @@ This section contains instructions to create a simple React Native Video Confere
 
 ### Prerequisites
 
--   A [100ms account](https://dashboard.100ms.live/register) if you don't have one already.
--   Working [React Native Development Environment](https://reactnative.dev/docs/environment-setup) for React Native CLI
--   Familiar with basics of [React Native](https://reactnative.dev/docs/getting-started).
--   [VS code](https://code.visualstudio.com/) or any other IDE / code editor
+- A [100ms account](https://dashboard.100ms.live/register) if you don't have one already.
+- Working [React Native Development Environment](https://reactnative.dev/docs/environment-setup) for React Native CLI
+- Familiar with basics of [React Native](https://reactnative.dev/docs/getting-started).
+- [VS code](https://code.visualstudio.com/) or any other IDE / code editor
 
 ### Create a React Native app
 
@@ -147,27 +142,29 @@ npx react-native init PrebuiltSampleApp --version 0.68.5 --npm && cd ./PrebuiltS
 
 4. Test run your app
 
-    a. Build the App
-    ​
-    #### For Android
+   a. Build the App
+   ​
 
-    ```bash section=BuildApp sectionIndex=1 tab=Android
-    npx react-native run-android
-    ```
-    
-    #### For iOS
-    ```bash
-    npx react-native run-ios --simulator="iPhone 14"
-    ```
+   #### For Android
 
-    b. Start Metro Bundler if it is not already started
-    ​
+   ```bash section=BuildApp sectionIndex=1 tab=Android
+   npx react-native run-android
+   ```
 
-    ```bash
-    npx react-native start
-    ```
+   #### For iOS
 
-    or follow instructions printed in Terminal to start the Metro Bundler or Run the Application.
+   ```bash
+   npx react-native run-ios --simulator="iPhone 14"
+   ```
+
+   b. Start Metro Bundler if it is not already started
+   ​
+
+   ```bash
+   npx react-native start
+   ```
+
+   or follow instructions printed in Terminal to start the Metro Bundler or Run the Application.
 
 ### Install the Dependencies
 
@@ -180,105 +177,104 @@ npm install --save @100mslive/react-native-room-kit
 #### Install the Peer Dependencies
 
 1. react-native-permissions package
-  Since the app and `@100mslive/react-native-room-kit` package requires Camera & Microphone permissions, a package for requesting these permissions from users should also be installed. We recommend using the
-  [react-native-permissions](https://www.npmjs.com/package/react-native-permissions) package.
+   Since the app and `@100mslive/react-native-room-kit` package requires Camera & Microphone permissions, a package for requesting these permissions from users should also be installed. We recommend using the
+   [react-native-permissions](https://www.npmjs.com/package/react-native-permissions) package.
 
-  ```bash
-  npm install react-native-permissions@3.4.0
-  ```
+```bash
+npm install react-native-permissions@3.4.0
+```
 
-  Native File Changes for `react-native-permissions` package -
+Native File Changes for `react-native-permissions` package -
 
-  #### For Android
-  
-  1. Allow camera, recording audio and internet permissions by adding the below snippet to the `AndroidManifest.xml` file (at the application tag level).
+#### For Android
 
-  ```xml section=androidPermissions
-  <uses-feature android:name="android.hardware.camera"/>
-  <uses-feature android:name="android.hardware.camera.autofocus"/>
-  <uses-permission android:name="android.permission.CAMERA"/>
-  <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
-  <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
-  <uses-permission android:name="android.permission.RECORD_AUDIO"/>
-  <uses-permission android:name="android.permission.INTERNET"/>
-  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-  <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-  <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
-  <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
-  <uses-permission android:name="android.permission.VIBRATE" />
-  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-  ```
+1. Allow camera, recording audio and internet permissions by adding the below snippet to the `AndroidManifest.xml` file (at the application tag level).
 
-  2. Change `minSdkVersion` to 24 in the `android/build.gradle` file
+```xml section=androidPermissions
+<uses-feature android:name="android.hardware.camera"/>
+<uses-feature android:name="android.hardware.camera.autofocus"/>
+<uses-permission android:name="android.permission.CAMERA"/>
+<uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+<uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+<uses-permission android:name="android.permission.RECORD_AUDIO"/>
+<uses-permission android:name="android.permission.INTERNET"/>
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+<uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+<uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+<uses-permission android:name="android.permission.VIBRATE" />
+<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+```
 
-  ```json{4}
-  buildscript {
-    ext {
-      ...
-      minSdkVersion = 24
-      ...
-    }
+2. Change `minSdkVersion` to 24 in the `android/build.gradle` file
+
+```json{4}
+buildscript {
+  ext {
+    ...
+    minSdkVersion = 24
+    ...
   }
-  ```
-  
-  #### For iOS
-  
-  1. Allow camera, recording audio and internet permissions
+}
+```
 
-  Add the below snippet in the `info.plist` file -
+#### For iOS
 
-  ```xml section=ForIOSPermissions sectionIndex=1
-  <key>NSCameraUsageDescription</key>
-  <string>Please allow access to Camera to enable video conferencing</string>
+1. Allow camera, recording audio and internet permissions
 
-  <key>NSMicrophoneUsageDescription</key>
-  <string>Please allow access to Microphone to enable video conferencing</string>
+Add the below snippet in the `info.plist` file -
 
-  <key>NSLocalNetworkUsageDescription</key>
-  <string>Please allow access to network usage to enable video conferencing</string>
-  ```
+```xml section=ForIOSPermissions sectionIndex=1
+<key>NSCameraUsageDescription</key>
+<string>Please allow access to Camera to enable video conferencing</string>
 
-  2. Add the below snippet in the `ios/Podfile` file -
+<key>NSMicrophoneUsageDescription</key>
+<string>Please allow access to Microphone to enable video conferencing</string>
 
-  ```json{3-6}
-  target 'PrebuiltSampleApp' do
-  ...
-    permissions_path = '../node_modules/react-native-permissions/ios'
+<key>NSLocalNetworkUsageDescription</key>
+<string>Please allow access to network usage to enable video conferencing</string>
+```
 
-    pod 'Permission-Camera', :path => "#{permissions_path}/Camera"
-    pod 'Permission-Microphone', :path => "#{permissions_path}/Microphone"
-  ...
-  end
-  ```
-  
+2. Add the below snippet in the `ios/Podfile` file -
 
-  If you see any permission related error, then check out `react-native-permissions` library [setup guide](https://github.com/zoontek/react-native-permissions/tree/3.4.0#setup) for `v3.4.0`.
+```json{3-6}
+target 'PrebuiltSampleApp' do
+...
+  permissions_path = '../node_modules/react-native-permissions/ios'
 
-  > Note: If you have already setup the `react-native-permissions` package, then you can continue with your existing setup.
+  pod 'Permission-Camera', :path => "#{permissions_path}/Camera"
+  pod 'Permission-Microphone', :path => "#{permissions_path}/Microphone"
+...
+end
+```
 
-  > Note: iOS simulator and android emulator doesn't support actual video, you need actual devices to see your video in real-time.
+If you see any permission related error, then check out `react-native-permissions` library [setup guide](https://github.com/zoontek/react-native-permissions/tree/3.4.0#setup) for `v3.4.0`.
+
+> Note: If you have already setup the `react-native-permissions` package, then you can continue with your existing setup.
+
+> Note: iOS simulator and android emulator doesn't support actual video, you need actual devices to see your video in real-time.
 
 2. react-native-reanimated package
-  `react-native-reanimated` package is required for adding animated views.
+   `react-native-reanimated` package is required for adding animated views.
 
-  ```bash
-  npm install react-native-reanimated@2.17.0
-  ```
+```bash
+npm install react-native-reanimated@2.17.0
+```
 
-  Follow [official installation steps](https://docs.swmansion.com/react-native-reanimated/docs/2.x/fundamentals/installation) for `v2.17.0`.
+Follow [official installation steps](https://docs.swmansion.com/react-native-reanimated/docs/2.x/fundamentals/installation) for `v2.17.0`.
 
-  > Note: If you already have the setup for `react-native-reanimated` package, then you can continue with your existing setup. We recommend using `>= 2.x.x` versions.
+> Note: If you already have the setup for `react-native-reanimated` package, then you can continue with your existing setup. We recommend using `>= 2.x.x` versions.
 
 3. react-native-vector-icons package
-  `react-native-vector-icons` package is required for showing icons in UI.
+   `react-native-vector-icons` package is required for showing icons in UI.
 
-  ```bash
-  npm install react-native-vector-icons@9.1.0
-  ```
+```bash
+npm install react-native-vector-icons@9.1.0
+```
 
-  Follow [official installation steps](https://github.com/oblador/react-native-vector-icons/tree/v9.1.0#installation) for `v9.1.0`.
+Follow [official installation steps](https://github.com/oblador/react-native-vector-icons/tree/v9.1.0#installation) for `v9.1.0`.
 
 #### Install the dependencies of react-native-room-kit package
 
@@ -296,17 +292,17 @@ npm install github:100mslive/100ms-react-native#release1.8.0
 
 1. Native File Changes for `@100mslive/react-native-hms` package
 
-  #### For iOS
-  
-  Change ios target platform version to '13.0' in the `ios/Podfile` file
+#### For iOS
 
-  ```json{4}
-  require_relative '../node_modules/react-native/scripts/react_native_pods'
-  require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
+Change ios target platform version to '13.0' in the `ios/Podfile` file
 
-  platform :ios, '13.0'
-  install! 'cocoapods', :deterministic_uuids => false
-  ```
+```json{4}
+require_relative '../node_modules/react-native/scripts/react_native_pods'
+require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
+
+platform :ios, '13.0'
+install! 'cocoapods', :deterministic_uuids => false
+```
 
 Follow official installation steps of these libraries if you encounter any problem in setup.
 
@@ -352,19 +348,13 @@ After doing changes related to ScreenShare feature, To use screenshare feature o
 />
 ```
 
-
 ### Complete code example
 
 Now that your project setup is complete, let's replace the code in the `App.js` file with the complete code sample below -
 
 ```js section=completeCodeExample
 import React, { useState } from 'react';
-import {
-  StatusBar,
-  StyleSheet,
-  Button,
-  View
-} from 'react-native';
+import { StatusBar, StyleSheet, Button, View } from 'react-native';
 import { HMSPrebuilt } from '@100mslive/react-native-room-kit';
 
 const App = () => {
@@ -375,10 +365,13 @@ const App = () => {
       <StatusBar barStyle={'dark-content'} />
 
       {showHMSPrebuilt ? (
-        <HMSPrebuilt roomCode='mki-scw-wnw' options={{ userName: 'John Appleseed' }} />
+        <HMSPrebuilt
+          roomCode="mki-scw-wnw"
+          options={{ userName: 'John Appleseed' }}
+        />
       ) : (
         <View style={styles.joinContainer}>
-          <Button title='Start' onPress={() => setShowHMSPrebuilt(true)} />
+          <Button title="Start" onPress={() => setShowHMSPrebuilt(true)} />
         </View>
       )}
     </View>
@@ -392,8 +385,8 @@ const styles = StyleSheet.create({
   joinContainer: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center'
-  }
+    justifyContent: 'center',
+  },
 });
 
 export default App;
@@ -424,7 +417,6 @@ npx react-native start
 ```
 
 Follow the instructions printed in the Terminal to start the Metro Bundler or Run the Application.
-
 
 ### Check Deployed Sample Apps
 

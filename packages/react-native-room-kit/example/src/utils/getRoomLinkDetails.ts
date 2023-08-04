@@ -1,10 +1,10 @@
 export const getRoomLinkDetails = (
-  roomLink: string,
-): {roomCode: string; roomDomain: string} => {
+  roomLink: string
+): { roomCode: string; roomDomain: string } => {
   const codeObject = RegExp(/(?!\/)[a-zA-Z\-0-9]*$/g).exec(roomLink);
 
   const domainObject = RegExp(/(https:\/\/)?(?:[a-zA-Z0-9.-])+(?!\\)/).exec(
-    roomLink,
+    roomLink
   );
 
   let roomCode = '';

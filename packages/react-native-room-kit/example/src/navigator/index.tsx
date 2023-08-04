@@ -1,22 +1,22 @@
-import React, {useEffect} from 'react';
-import {Platform, UIManager} from 'react-native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {NavigationContainer} from '@react-navigation/native';
+import React, { useEffect } from 'react';
+import { Platform, UIManager } from 'react-native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { NavigationContainer } from '@react-navigation/native';
 
-import {QRCode} from '../screens/QRCode';
-import {QRCodeScanner} from '../screens/QRCodeScanner';
-import {HMSPrebuiltScreen} from '../screens/HMSPrebuiltScreen';
+import { QRCode } from '../screens/QRCode';
+import { QRCodeScanner } from '../screens/QRCodeScanner';
+import { HMSPrebuiltScreen } from '../screens/HMSPrebuiltScreen';
 
 export type AppStackParamList = {
   WelcomeScreen: undefined;
-  MeetingScreen: {isHLSViewer: boolean};
+  MeetingScreen: { isHLSViewer: boolean };
   QRCodeScreen: undefined;
   QRCodeScannerScreen: undefined;
   HMSPrebuiltScreen: {
     roomCode: string;
     userName?: string;
     userId?: string;
-    endPoints?: {init: string; token: string};
+    endPoints?: { init: string; token: string };
     debugMode?: boolean;
     ios?: {
       appGroup?: string;

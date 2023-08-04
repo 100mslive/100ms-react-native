@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-import {COLORS} from '../utils/theme';
+import { COLORS } from '../utils/theme';
 
 const CustomInput = ({
   value,
@@ -135,4 +135,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export {CustomInput};
+export { CustomInput };

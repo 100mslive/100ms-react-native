@@ -155,6 +155,8 @@ function encodeHMSRoomProperty<T extends keyof HMSRoomCacheProps>(
     value = HMSEncoder.encodeHLSRecordingState(data.hlsRecordingState);
   } else if (property === 'localPeer') {
     value = HMSEncoder.encodeHmsLocalPeer(data.localPeer, id);
+  } else if (property === 'peerCount') {
+    value = typeof data[property] === 'number' ? data[property] : null;
   } else {
     value = data[property];
   }

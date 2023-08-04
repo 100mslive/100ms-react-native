@@ -1628,7 +1628,13 @@ class HMSRNSDK(
           data.putString("metaData", null)
         }
         "peerCount" -> {
-          data.putInt("peerCount", hmsRoom.peerCount)
+          hmsRoom.peerCount.let {
+            if (it == null) {
+              data.putNull("peerCount")
+            } else {
+              data.putInt("peerCount", it)
+            }
+          }
         }
         "peers" -> {
           data.putArray("peers", HMSDecoder.getAllPeers(hmsRoom.peerList))
