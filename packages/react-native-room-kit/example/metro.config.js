@@ -14,7 +14,7 @@ const rnrkModules = Object.keys({
 });
 
 const rnhmsModules = Object.keys({
-  ...rnhmsLibPackageJson.peerDependencies
+  ...rnhmsLibPackageJson.peerDependencies,
 });
 
 module.exports = {
@@ -22,28 +22,26 @@ module.exports = {
   watchFolders: [rnrkLibRoot, rnhmsLibRoot],
 
   resolver: {
-    blockList: blacklist(
-      [
-        ...rnrkModules.map(
-          m =>
-            new RegExp(
-              `^${escape(path.join(rnrkLibRoot, 'node_modules', m))}\\/.*$`,
-            ),
-        ),
-        ...rnhmsModules.map(
-          m =>
-            new RegExp(
-              `^${escape(path.join(rnhmsLibRoot, 'node_modules', m))}\\/.*$`,
-            ),
-        ),
-      ]
-    ),
+    blockList: blacklist([
+      ...rnrkModules.map(
+        (m) =>
+          new RegExp(
+            `^${escape(path.join(rnrkLibRoot, 'node_modules', m))}\\/.*$`
+          )
+      ),
+      ...rnhmsModules.map(
+        (m) =>
+          new RegExp(
+            `^${escape(path.join(rnhmsLibRoot, 'node_modules', m))}\\/.*$`
+          )
+      ),
+    ]),
 
     extraNodeModules: [
       ...new Set([
-        ...rnrkModules.filter(module => module !== rnhmsLibPackageJson.name),
-        ...rnhmsModules
-      ])
+        ...rnrkModules.filter((module) => module !== rnhmsLibPackageJson.name),
+        ...rnhmsModules,
+      ]),
     ].reduce((acc, name) => {
       acc[name] = path.join(__dirname, 'node_modules', name);
       return acc;
