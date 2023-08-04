@@ -1,12 +1,12 @@
 import React from 'react';
-import {StyleSheet, View, StyleProp, ViewStyle} from 'react-native';
+import { StyleSheet, View, StyleProp, ViewStyle } from 'react-native';
 import Modal from 'react-native-modal';
 
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import {COLORS} from '../utils/theme';
-import {CustomButton} from './CustomButton';
+import { COLORS } from '../utils/theme';
+import { CustomButton } from './CustomButton';
 
 export interface DefaultModalProps {
   modalVisible: boolean;
@@ -30,7 +30,7 @@ export const DefaultModal: React.FC<DefaultModalProps> = ({
   viewStyle,
   modalStyle,
 }) => {
-  const {left, right} = useSafeAreaInsets();
+  const { left, right } = useSafeAreaInsets();
   return (
     <Modal
       useNativeDriver={true}
@@ -46,14 +46,14 @@ export const DefaultModal: React.FC<DefaultModalProps> = ({
       onBackdropPress={setModalVisible}
       onDismiss={setModalVisible}
       onBackButtonPress={setModalVisible}
-      style={[modalStyle, {margin: 0, justifyContent: modalPosiion}]}
+      style={[modalStyle, { margin: 0, justifyContent: modalPosiion }]}
     >
       <View
         style={[
           styles.contentContainer,
           modalPosiion === 'flex-end' ? styles.end : styles.center,
           viewStyle,
-          {marginLeft: left, marginRight: right},
+          { marginLeft: left, marginRight: right },
         ]}
       >
         {modalPosiion === 'flex-end' && (

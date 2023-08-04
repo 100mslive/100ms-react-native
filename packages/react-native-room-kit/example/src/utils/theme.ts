@@ -1,5 +1,5 @@
-import {StyleSheet} from 'react-native';
-import {Theme} from './types';
+import { StyleSheet } from 'react-native';
+import { Theme } from './types';
 
 export const FONTS = StyleSheet.create({
   H1: {

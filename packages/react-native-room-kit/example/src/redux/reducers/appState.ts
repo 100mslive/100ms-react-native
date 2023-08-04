@@ -1,8 +1,8 @@
-import {getMeetingUrl} from '../../utils/functions';
+import { getMeetingUrl } from '../../utils/functions';
 import ActionTypes from '../actionTypes';
 
 type ActionType = {
-  payload: {[key: string]: any};
+  payload: { [key: string]: any };
   type: String;
 };
 
@@ -40,7 +40,7 @@ const INITIAL_STATE: IntialStateType = {
 
 const appReducer = (
   state = INITIAL_STATE,
-  action: ActionType,
+  action: ActionType
 ): IntialStateType => {
   switch (action.type) {
     case ActionTypes.SET_ROOM_ID:

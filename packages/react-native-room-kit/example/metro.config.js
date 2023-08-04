@@ -18,11 +18,11 @@ module.exports = {
   resolver: {
     blockList: blacklist(
       modules.map(
-        m =>
+        (m) =>
           new RegExp(
-            `^${escape(path.join(rnrkLibRoot, 'node_modules', m))}\\/.*$`,
-          ),
-      ),
+            `^${escape(path.join(rnrkLibRoot, 'node_modules', m))}\\/.*$`
+          )
+      )
     ),
 
     extraNodeModules: modules.reduce((acc, name) => {

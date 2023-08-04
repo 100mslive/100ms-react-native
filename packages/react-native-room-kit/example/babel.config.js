@@ -13,7 +13,7 @@ module.exports = {
           [rnrkLibPackageJson.name]: path.join(
             __dirname,
             '..',
-            rnrkLibPackageJson.source,
+            rnrkLibPackageJson.source
           ),
         },
       },

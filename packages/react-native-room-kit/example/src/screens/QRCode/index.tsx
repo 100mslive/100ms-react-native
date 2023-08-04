@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
   Image,
@@ -10,29 +10,29 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {useDispatch, useSelector, useStore} from 'react-redux';
+import { useDispatch, useSelector, useStore } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-simple-toast';
 
-import type {AppStackParamList} from '../../navigator';
-import {styles} from './styles';
-import {getMeetingUrl, validateUrl} from '../../utils/functions';
-import {COLORS} from '../../utils/theme';
+import type { AppStackParamList } from '../../navigator';
+import { styles } from './styles';
+import { getMeetingUrl, validateUrl } from '../../utils/functions';
+import { COLORS } from '../../utils/theme';
 import {
   CustomButton,
   CustomInput,
   DefaultModal,
   JoinSettingsModalContent,
 } from '../../components';
-import {setRoomID} from '../../redux/actions';
-import {Constants} from '../../utils/types';
-import {RootState} from '../../redux';
-import {callService} from '../../utils/functions';
+import { setRoomID } from '../../redux/actions';
+import { Constants } from '../../utils/types';
+import { RootState } from '../../redux';
+import { callService } from '../../utils/functions';
 
 type QRCodeScreenProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -44,15 +44,15 @@ const isHermes = () => !!global.HermesInternal;
 
 const QRCode = () => {
   const navigate = useNavigation<QRCodeScreenProp>().navigate;
-  const {top, bottom, left, right} = useSafeAreaInsets();
+  const { top, bottom, left, right } = useSafeAreaInsets();
   const dispatch = useDispatch();
   const store = useStore();
 
   const roomLink = useSelector(
-    (state: RootState) => state.app.roomID || getMeetingUrl(),
+    (state: RootState) => state.app.roomID || getMeetingUrl()
   );
   const debugMode = useSelector(
-    (state: RootState) => state.app.joinConfig.debugMode,
+    (state: RootState) => state.app.joinConfig.debugMode
   );
   const [joinDisabled, setJoinDisabled] = useState<boolean>(true);
   const [joiningLink, setJoiningLink] = useState<string>('');
@@ -68,12 +68,12 @@ const QRCode = () => {
           roomCode: string,
           userId: string,
           tokenEndpoint: string | undefined,
-          initEndpoint: string | undefined,
+          initEndpoint: string | undefined
         ) => {
           // Saving Meeting Link to Async Storage for persisting it between app starts.
           AsyncStorage.setItem(
             Constants.MEET_URL,
-            joiningLink.replace('preview', 'meeting'),
+            joiningLink.replace('preview', 'meeting')
           );
           // @ts-ignore
           navigate('HMSPrebuiltScreen', {
@@ -81,7 +81,7 @@ const QRCode = () => {
             userId,
             endPoints:
               tokenEndpoint && initEndpoint
-                ? {init: initEndpoint, token: tokenEndpoint}
+                ? { init: initEndpoint, token: tokenEndpoint }
                 : undefined,
             debugMode, // default is false, will deal with this later
             ios: {
@@ -93,7 +93,7 @@ const QRCode = () => {
         },
         (errorMsg: string) => {
           Toast.showWithGravity(errorMsg, Toast.LONG, Toast.TOP);
-        },
+        }
       );
     } else {
       Alert.alert('Error', 'Invalid URL');
@@ -113,13 +113,13 @@ const QRCode = () => {
   }, [joiningLink]);
 
   useEffect(() => {
-    Linking.getInitialURL().then(url => {
+    Linking.getInitialURL().then((url) => {
       if (url) {
         setJoiningLink(url);
       }
     });
 
-    const updateUrl = ({url}: {url: string}) => {
+    const updateUrl = ({ url }: { url: string }) => {
       if (url) {
         setJoiningLink(url);
       }
@@ -138,7 +138,7 @@ const QRCode = () => {
           setJoiningLink(url);
         }
       });
-    }, [roomLink]),
+    }, [roomLink])
   );
 
   useEffect(() => {
@@ -175,7 +175,7 @@ const QRCode = () => {
             position: 'absolute',
           }}
         >
-          <Text style={{color: 'white', fontSize: 12}}>
+          <Text style={{ color: 'white', fontSize: 12 }}>
             Hermes: {!!isHermes ? 'ON' : 'OFF'}
           </Text>
         </View>
@@ -205,7 +205,7 @@ const QRCode = () => {
           blurOnSubmit
         />
 
-        <View style={{flexDirection: 'row'}}>
+        <View style={{ flexDirection: 'row' }}>
           <CustomButton
             title="Join Now"
             onPress={onJoinPress}
@@ -250,7 +250,7 @@ const QRCode = () => {
         animationIn={'slideInUp'}
         animationOut={'slideOutDown'}
         modalVisible={moreModalVisible}
-        viewStyle={{height: 700}}
+        viewStyle={{ height: 700 }}
         setModalVisible={closeMoreModal}
       >
         <JoinSettingsModalContent />
@@ -259,4 +259,4 @@ const QRCode = () => {
   );
 };
 
-export {QRCode};
+export { QRCode };
