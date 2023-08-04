@@ -3,29 +3,48 @@ const blacklist = require('metro-config/src/defaults/exclusionList');
 const escape = require('escape-string-regexp');
 
 const rnrkLibRoot = path.resolve(__dirname, '..');
+const rnhmsLibRoot = path.resolve(__dirname, '../../react-native-hms');
 
 const rnrkLibPackageJson = require('../package.json');
+const rnhmsLibPackageJson = require('../../react-native-hms/package.json');
 
-const modules = Object.keys({
+const rnrkModules = Object.keys({
   ...rnrkLibPackageJson.peerDependencies,
   ...rnrkLibPackageJson.dependencies, // This is temporary as we have duplicate dependencies because of which, native modules tries to register twice
 });
 
+const rnhmsModules = Object.keys({
+  ...rnhmsLibPackageJson.peerDependencies
+});
+
 module.exports = {
   projectRoot: __dirname,
-  watchFolders: [rnrkLibRoot],
+  watchFolders: [rnrkLibRoot, rnhmsLibRoot],
 
   resolver: {
     blockList: blacklist(
-      modules.map(
-        (m) =>
-          new RegExp(
-            `^${escape(path.join(rnrkLibRoot, 'node_modules', m))}\\/.*$`
-          )
-      )
+      [
+        ...rnrkModules.map(
+          m =>
+            new RegExp(
+              `^${escape(path.join(rnrkLibRoot, 'node_modules', m))}\\/.*$`,
+            ),
+        ),
+        ...rnhmsModules.map(
+          m =>
+            new RegExp(
+              `^${escape(path.join(rnhmsLibRoot, 'node_modules', m))}\\/.*$`,
+            ),
+        ),
+      ]
     ),
 
-    extraNodeModules: modules.reduce((acc, name) => {
+    extraNodeModules: [
+      ...new Set([
+        ...rnrkModules.filter(module => module !== rnhmsLibPackageJson.name),
+        ...rnhmsModules
+      ])
+    ].reduce((acc, name) => {
       acc[name] = path.join(__dirname, 'node_modules', name);
       return acc;
     }, {}),
