@@ -8,7 +8,7 @@ import {
   ViewStyle,
   ActivityIndicator,
 } from 'react-native';
-import {COLORS} from '../utils/theme';
+import { COLORS } from '../utils/theme';
 
 const CustomButton = ({
   loading = false,
@@ -79,4 +79,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export {CustomButton};
+export { CustomButton };
