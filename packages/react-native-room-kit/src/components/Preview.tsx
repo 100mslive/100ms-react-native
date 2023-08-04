@@ -28,6 +28,7 @@ import { HMSManageAudioOutput } from './HMSManageAudioOutput';
 import { HMSPreviewNetworkQuality } from './HMSPreviewNetworkQuality';
 import { useCanPublishVideo } from '../hooks-sdk';
 import { HMSPreviewHLSLiveIndicator } from './HMSPreviewHLSLiveIndicator';
+import { CompanyLogo } from './CompanyLogo';
 
 const backButtonEdges = ['top'] as const;
 const headerEdges = ['top', 'left', 'right'] as const;
@@ -76,6 +77,8 @@ export const Preview = ({
           edges={headerEdges}
           mode="margin"
         >
+          <CompanyLogo style={styles.logo} />
+
           <HMSPreviewTitle />
 
           <HMSPreviewSubtitle />
@@ -149,6 +152,10 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 260,
     zIndex: 10,
+  },
+  logo: {
+    alignSelf: 'center',
+    marginBottom: 16
   },
   controlsContainer: {
     flexDirection: 'row',

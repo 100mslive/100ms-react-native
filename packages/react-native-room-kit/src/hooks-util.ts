@@ -40,18 +40,17 @@ import type { RootState } from './redux';
 import {
   addMessage,
   addPinnedMessage,
-  addToPreviewPeersList,
   changeMeetingState,
   changePipModeStatus,
   changeStartingHLSStream,
   clearStore,
-  removeFromPreviewPeersList,
   saveUserData,
   setHMSLocalPeerState,
   setHMSRoleState,
   setHMSRoomState,
   setIsLocalAudioMutedState,
   setIsLocalVideoMutedState,
+  setLayoutConfig,
   setModalType,
 } from './redux/actions';
 import {
@@ -1002,6 +1001,7 @@ export const clearConfig = () => {
 
 export const useHMSConfig = () => {
   const hmsInstance = useHMSInstance();
+  const dispatch = useDispatch();
   const store = useStore();
 
   const getConfig = useCallback(async () => {
@@ -1014,6 +1014,14 @@ export const useHMSConfig = () => {
       storeState.user.userId,
       storeState.user.endPoints?.token
     );
+
+    // TODO: [REMOVE LATER] added trycatch block so that we can join rooms where we are getting error from Layout API
+    try {
+      const roomLayout = await hmsInstance.getRoomLayout(token, 'https://api-nonprod.100ms.live');
+      dispatch(setLayoutConfig(roomLayout));
+    } catch (error) {
+      console.warn('# getRoomLayout error: ', error);
+    }
 
     hmsConfig = new HMSConfig({
       authToken: token,
@@ -1265,4 +1273,8 @@ export const useLeaveMethods = () => {
   }, [destroy, hmsInstance]);
 
   return { destroy, leave, endRoom, goToPreview };
+};
+
+export const useHMSLayoutConfig = () => {
+  return useSelector((state: RootState) => state.hmsStates.layoutConfig);
 };

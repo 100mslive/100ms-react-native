@@ -4,6 +4,7 @@ import type {
   HMSRole,
   HMSRoom,
 } from '@100mslive/react-native-hms';
+import type { Layout } from '@100mslive/types-prebuilt';
 import { HmsStateActionTypes } from '../actionTypes';
 
 type ActionType =
@@ -16,7 +17,8 @@ type ActionType =
   | SetRoomLocallyMutedAction
   | ResetAction
   | AddToPreviewPeersList
-  | RemoveFromPreviewPeersList;
+  | RemoveFromPreviewPeersList
+  | SetLayoutConfig;
 
 type SetRoomAction = {
   type: HmsStateActionTypes.SET_ROOM_STATE;
@@ -67,6 +69,11 @@ type RemoveFromPreviewPeersList = {
   peerId: string;
 };
 
+type SetLayoutConfig = {
+  type: HmsStateActionTypes.SET_LAYOUT_CONFIG;
+  layoutConfig: Layout;
+};
+
 type IntialStateType = {
   isLocalAudioMuted: boolean | undefined;
   isLocalVideoMuted: boolean | undefined;
@@ -76,6 +83,7 @@ type IntialStateType = {
   localPeer: HMSLocalPeer | null;
   roles: HMSRole[];
   previewPeersList: HMSPeer[];
+  layoutConfig: Layout | null;
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -87,6 +95,7 @@ const INITIAL_STATE: IntialStateType = {
   localPeer: null,
   roles: [],
   previewPeersList: [],
+  layoutConfig: null,
 };
 
 const hmsStatesReducer = (
@@ -142,6 +151,11 @@ const hmsStatesReducer = (
         previewPeersList: state.previewPeersList.filter(
           (prevPeer) => prevPeer.peerID !== action.peerId
         ),
+      };
+    case HmsStateActionTypes.SET_LAYOUT_CONFIG:
+      return {
+        ...state,
+        layoutConfig: action.layoutConfig,
       };
     case HmsStateActionTypes.CLEAR_STATES:
       return INITIAL_STATE;
