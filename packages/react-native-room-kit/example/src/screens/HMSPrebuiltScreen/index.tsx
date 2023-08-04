@@ -1,9 +1,9 @@
 import React from 'react';
-import {Text} from 'react-native';
-import {RouteProp, useRoute} from '@react-navigation/native';
-import {HMSPrebuilt} from '@100mslive/react-native-room-kit';
+import { Text } from 'react-native';
+import { RouteProp, useRoute } from '@react-navigation/native';
+import { HMSPrebuilt } from '@100mslive/react-native-room-kit';
 
-import {AppStackParamList} from '../../navigator';
+import { AppStackParamList } from '../../navigator';
 
 export const HMSPrebuiltScreen = () => {
   const route = useRoute<RouteProp<AppStackParamList, 'HMSPrebuiltScreen'>>();
