@@ -19,7 +19,7 @@ module.exports = {
           [rnhmsLibPackageJson.name]: path.join(
             __dirname,
             '../../react-native-hms',
-            rnhmsLibPackageJson.source,
+            rnhmsLibPackageJson.source
           ),
         },
       },
