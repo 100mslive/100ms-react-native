@@ -1213,7 +1213,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 return ["metaData": hmsRoom.metaData ?? ""]
 
             case "peerCount":
-                return ["peerCount": hmsRoom.peerCount ?? 0]
+                return ["peerCount": hmsRoom.peerCount as Any]
 
             case "peers":
                 var peers = [[String: Any]]()

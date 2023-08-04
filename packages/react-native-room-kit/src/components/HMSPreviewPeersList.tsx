@@ -12,10 +12,14 @@ export const HMSPreviewPeersList: React.FC<HMSPreviewPeersListProps> = () => {
     (state: RootState) => state.hmsStates.room?.peerCount
   );
 
+  if (typeof previewPeerCount !== 'number') {
+    return null;
+  }
+
   return (
     <View style={styles.container}>
       <Text style={[styles.text, styles.textSpacer]}>
-        {typeof previewPeerCount !== 'number' || previewPeerCount <= 0
+        {previewPeerCount <= 0
           ? 'You are the first to join'
           : `${previewPeerCount} ${
               previewPeerCount > 1 ? 'others' : 'other'
