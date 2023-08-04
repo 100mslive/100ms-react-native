@@ -20,6 +20,7 @@ target 'RNExample' do
     :hermes_enabled => true
   )
 
+  pod 'react-native-hms', :path => '../../../react-native-hms'
   pod 'Permission-Camera', :path => "#{permissions_path}/Camera"
   pod 'Permission-Microphone', :path => "#{permissions_path}/Microphone"
 
