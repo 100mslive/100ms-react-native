@@ -22,8 +22,7 @@ class HMSDecoder: NSObject {
             case .none:
                 return data
             case .metaDataUpdated:
-                let count = room.peerCount ?? 0
-                data["peerCount"] = count
+                data["peerCount"] = room.peerCount
                 return data
             case .hlsRecordingStateUpdated:
                 let hlsRecordingState = HMSDecoder.getHlsRecordingState(hmsRoom?.hlsRecordingState)
@@ -63,7 +62,7 @@ class HMSDecoder: NSObject {
         if let metaData = room.metaData {
             data["metaData"] = metaData
         }
-        data["peerCount"] = room.peerCount ?? 0
+        data["peerCount"] = room.peerCount
         // if let startedAt = room.sessionStartedAt?.timeIntervalSince1970 {
         //     data["startedAt"] = startedAt * 1000
         // }
