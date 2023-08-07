@@ -89,6 +89,9 @@ export type { HmsViewComponent as HMSView } from './classes/HmsView';
 
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
 
+// 100ms React Native Native Module
+export { default as HMSManagerModule } from './classes/HMSManagerModule';
+
 // 100ms Components
 export * from './components/HMSHLSPlayer';
 

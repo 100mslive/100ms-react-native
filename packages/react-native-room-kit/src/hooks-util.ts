@@ -79,6 +79,7 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 import { selectIsHLSViewer, selectShouldGoLive } from './hooks-util-selectors';
+import { getRoomLayout } from './modules/HMSManager';
 
 export const useHMSListeners = (
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>
@@ -1017,7 +1018,7 @@ export const useHMSConfig = () => {
 
     // TODO: [REMOVE LATER] added trycatch block so that we can join rooms where we are getting error from Layout API
     try {
-      const roomLayout = await hmsInstance.getRoomLayout(token, 'https://api-nonprod.100ms.live');
+      const roomLayout = await getRoomLayout(hmsInstance, token, 'https://api-nonprod.100ms.live');
       dispatch(setLayoutConfig(roomLayout));
     } catch (error) {
       console.warn('# getRoomLayout error: ', error);
