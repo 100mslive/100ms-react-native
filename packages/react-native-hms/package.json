@@ -1,6 +1,6 @@
 {
   "name": "@100mslive/react-native-hms",
-  "version": "2.0.0",
+  "version": "1.7.1",
   "description": "Integrate Real Time Audio and Video conferencing, Interactive Live Streaming, and Chat in your apps with 100ms React Native SDK. With support for HLS and RTMP Live Streaming and Recording, Picture-in-Picture (PiP), one-to-one Video Call Modes, Audio Rooms, Video Player and much more, add immersive real-time communications to your apps.",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -90,18 +90,15 @@
     "telecom",
     "reaction"
   ],
-  "repository": "https://github.com/100mslive/react-native-hms",
+  "repository": "https://github.com/100mslive/100ms-react-native",
   "author": "Yogesh <yogesh@100ms.live> (https://www.100ms.live/)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/100mslive/react-native-hms/issues"
+    "url": "https://github.com/100mslive/100ms-react-native/issues"
   },
   "homepage": "https://www.100ms.live/",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
-  },
-  "dependencies": {
-    "zustand": "^4.3.8"
   },
   "devDependencies": {
     "@100mslive/types-prebuilt": "^0.8.0",
@@ -188,5 +185,8 @@
         }
       ]
     ]
+  },
+  "dependencies": {
+    "zustand": "^4.3.8"
   }
 }
