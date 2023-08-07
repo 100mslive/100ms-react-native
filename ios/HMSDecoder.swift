@@ -668,6 +668,8 @@ class HMSDecoder: NSObject {
 
             var state = [String: Any]()
 
+            state["initialising"] = recordingState.initialising
+
             state["running"] = recordingState.running
 
             if let startedAt = recordingState.startedAt?.timeIntervalSince1970 {

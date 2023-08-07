@@ -203,9 +203,6 @@ class HMSRNSDK(
             if (eventsEnableStatus["ON_ROOM_UPDATE"] != true) {
               return
             }
-            if (type == HMSRoomUpdate.ROOM_PEER_COUNT_UPDATED) {
-              return
-            }
 
             val updateType = type.name
             val roomData = HMSDecoder.getHmsRoomSubset(hmsRoom, type)
@@ -332,9 +329,6 @@ class HMSRNSDK(
 
               override fun onRoomUpdate(type: HMSRoomUpdate, hmsRoom: HMSRoom) {
                 if (eventsEnableStatus["ON_ROOM_UPDATE"] != true) {
-                  return
-                }
-                if (type == HMSRoomUpdate.ROOM_PEER_COUNT_UPDATED) {
                   return
                 }
 
