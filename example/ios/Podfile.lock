@@ -290,7 +290,7 @@ PODS:
     - React-Core
   - react-native-document-picker (8.2.1):
     - React-Core
-  - react-native-hms (1.8.0):
+  - react-native-hms (1.7.1):
     - HMSBroadcastExtensionSDK (= 0.0.9)
     - HMSHLSPlayerSDK (= 0.0.2)
     - HMSSDK (= 0.9.6)
@@ -576,7 +576,7 @@ SPEC CHECKSUMS:
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: cf9b38bf0b2d048436d9a82ad2abe1404f11e7de
   FBLazyVector: fa8275d5086566e22a26ddc385ab5772e7f9b1bd
-  FBReactNativeSpec: f00d050e8719afc35d256eed5c4245863cb51bce
+  FBReactNativeSpec: 8e2cf89329af57413b32f9b2651c13d0c1bc2183
   Flipper: d3da1aa199aad94455ae725e9f3aa43f3ec17021
   Flipper-DoubleConversion: 38631e41ef4f9b12861c67d17cb5518d06badc41
   Flipper-Folly: 755929a4f851b2fb2c347d533a23f191b008554c
@@ -608,7 +608,7 @@ SPEC CHECKSUMS:
   React-jsinspector: d4f6973dd474357dbaaf6f52f31ffc713bf3e766
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
   react-native-document-picker: 69ca2094d8780cfc1e7e613894d15290fdc54bba
-  react-native-hms: 58bc5959946021a0f13f19f78b29c17ceccf1f47
+  react-native-hms: 64d73dc2a75c801f641959a6868722ce238409c2
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
   react-native-simple-toast: 8ee5d23f0b92b935ab7434cdb65159ce12dfb4b7
   React-perflogger: 5a890ca0911669421b7611661e9b58f91c805f5c
