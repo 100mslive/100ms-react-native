@@ -101,7 +101,6 @@
     "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {
-    "@100mslive/types-prebuilt": "^0.8.0",
     "@commitlint/config-conventional": "^11.0.0",
     "@react-native-community/eslint-config": "^2.0.0",
     "@types/jest": "^26.0.0",
