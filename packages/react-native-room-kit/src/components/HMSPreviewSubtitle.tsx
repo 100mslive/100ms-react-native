@@ -1,8 +1,10 @@
 import * as React from 'react';
+import { useSelector } from 'react-redux';
 import { StyleSheet, Text, type StyleProp, type TextStyle } from 'react-native';
 
 import { useCanPublishAudio, useCanPublishVideo } from '../hooks-sdk';
 import { useHMSRoomStyle } from '../hooks-util';
+import type { RootState } from '../redux';
 
 export interface HMSPreviewSubtitleProps {
   subtitle?: string;
@@ -14,6 +16,12 @@ export const HMSPreviewSubtitle: React.FC<HMSPreviewSubtitleProps> = ({
   const canPublishAudio = useCanPublishAudio();
   const canPublishVideo = useCanPublishVideo();
 
+  const hmsRoomPreviewSubtitle = useSelector((state: RootState) => {
+    const layoutConfig = state.hmsStates.layoutConfig;
+
+    return layoutConfig?.screens?.preview?.default?.elements?.preview_header?.sub_title;
+  });
+
   const titleStyles = useHMSRoomStyle((theme, typography) => ({
     color: theme.palette.on_surface_medium,
     fontFamily: `${typography.font_family}-Regular`,
@@ -23,6 +31,10 @@ export const HMSPreviewSubtitle: React.FC<HMSPreviewSubtitleProps> = ({
 
   if (subtitle) {
     return <Text style={textStyles}>{subtitle}</Text>;
+  }
+
+  if (hmsRoomPreviewSubtitle) {
+    return <Text style={textStyles}>{hmsRoomPreviewSubtitle}</Text>;
   }
 
   if (canPublishAudio && canPublishVideo) {
