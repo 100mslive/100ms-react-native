@@ -44,8 +44,40 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         self.delegate = manager
         self.id = id
     }
+    
+    // MARK: - Prebuilt
+    
+    func getRoomLayout(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        
+        guard let token = data["authToken"] as? String else {
+            let errorMessage = "getRoomLayout: " + HMSHelper.getUnavailableRequiredKey(data, ["authToken"])
+            emitRequiredKeysError(errorMessage)
+            reject?(errorMessage, errorMessage, nil)
+            return
+        }
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
+            
+            strongSelf.hms?.getRoomLayout(using: token) { layout, error in
+                
+                if let rawData = layout?.rawData {
+                    let jsonString = String(decoding: rawData, as: UTF8.self)
+                    
+                    print(#function, "jsonString: ", jsonString)
+                    resolve?(jsonString)
+                    return
+                }
+                
+                let errorMessage = "\(#function) Could not parse Room Layout for Token: \(token)"
+                strongSelf.emitRequiredKeysError(errorMessage)
+                reject?("40000", errorMessage, nil)
+            }
+        }
+    }
 
     // MARK: - HMS SDK Actions
+    
     func preview(_ credentials: NSDictionary) {
 
         guard !previewInProgress else {
