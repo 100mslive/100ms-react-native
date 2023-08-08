@@ -2089,7 +2089,7 @@ class HMSRNSDK(
         override fun onLayoutSuccess(layout: HMSRoomLayout) {
           promise?.resolve(layout.toString())
         }
-      }
+      },
     )
   }
 }

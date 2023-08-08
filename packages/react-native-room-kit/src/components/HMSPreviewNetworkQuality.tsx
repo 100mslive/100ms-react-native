@@ -20,7 +20,7 @@ export const HMSPreviewNetworkQuality = () => {
     return () => hmsInstance.disableNetworkQualityUpdates();
   }, []);
 
-  const containerStyles = useHMSRoomStyle(theme => ({
+  const containerStyles = useHMSRoomStyle((theme) => ({
     backgroundColor: hexToRgbA(theme.palette.background_dim, 0.8),
   }));
 

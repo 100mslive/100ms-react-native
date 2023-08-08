@@ -30,7 +30,7 @@ const ToggleAudioMuteButton = () => {
     await hmsActions.setLocalAudioEnabled(!isLocalAudioMuted);
   };
 
-  const mutedButtonStyles = useHMSRoomStyle(theme => ({
+  const mutedButtonStyles = useHMSRoomStyle((theme) => ({
     backgroundColor: theme.palette.secondary_dim,
     borderColor: theme.palette.secondary_dim,
   }));

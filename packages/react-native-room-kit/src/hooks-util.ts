@@ -22,7 +22,11 @@ import type {
   HMSSessionStore,
   HMSSessionStoreValue,
 } from '@100mslive/react-native-hms';
-import type { ColorPalette, Theme, Typography } from '@100mslive/types-prebuilt';
+import type {
+  ColorPalette,
+  Theme,
+  Typography,
+} from '@100mslive/types-prebuilt';
 import Toast from 'react-native-simple-toast';
 import {
   useRef,
@@ -37,7 +41,13 @@ import type { DependencyList } from 'react';
 import { ModalTypes, PipModes } from './utils/types';
 import type { PeerTrackNode } from './utils/types';
 import { createPeerTrackNode, parseMetadata } from './utils/functions';
-import { batch, shallowEqual, useDispatch, useSelector, useStore } from 'react-redux';
+import {
+  batch,
+  shallowEqual,
+  useDispatch,
+  useSelector,
+  useStore,
+} from 'react-redux';
 import type { RootState } from './redux';
 import {
   addMessage,
@@ -71,12 +81,7 @@ import {
   LayoutAnimation,
   Platform,
 } from 'react-native';
-import type {
-  ImageStyle,
-  StyleProp,
-  ViewStyle,
-  TextStyle,
-} from 'react-native';
+import type { ImageStyle, StyleProp, ViewStyle, TextStyle } from 'react-native';
 import { NavigationContext } from '@react-navigation/native';
 import {
   useIsLandscapeOrientation,
@@ -1316,8 +1321,8 @@ export const useHMSRoomTheme = <S>(
 };
 
 export const useHMSRoomColorPalette = (): ColorPalette => {
-  return useHMSRoomTheme(theme => theme.palette) as ColorPalette;
-}
+  return useHMSRoomTheme((theme) => theme.palette) as ColorPalette;
+};
 
 export const useHMSRoomTypography = (): Typography => {
   return useSelector((state: RootState) => {
@@ -1340,7 +1345,9 @@ export const useHMSRoomTypography = (): Typography => {
   }, shallowEqual);
 };
 
-export const useHMSRoomStyleSheet = <T extends { [key: string]: StyleProp<ViewStyle | TextStyle | ImageStyle> }>(
+export const useHMSRoomStyleSheet = <
+  T extends { [key: string]: StyleProp<ViewStyle | TextStyle | ImageStyle> },
+>(
   updater: (theme: Required<Theme>, typography: Required<Typography>) => T,
   deps: DependencyList = []
 ): T => {
@@ -1353,11 +1360,16 @@ export const useHMSRoomStyleSheet = <T extends { [key: string]: StyleProp<ViewSt
   );
 };
 
-export const useHMSRoomStyle = <T extends StyleProp<ViewStyle | TextStyle | ImageStyle>>(
+export const useHMSRoomStyle = <
+  T extends StyleProp<ViewStyle | TextStyle | ImageStyle>,
+>(
   updater: (theme: Required<Theme>, typography: Required<Typography>) => T,
   deps: DependencyList = []
 ): T => {
-  return useHMSRoomStyleSheet((theme, typography) => ({
-    default: updater(theme, typography)
-  }), deps).default;
+  return useHMSRoomStyleSheet(
+    (theme, typography) => ({
+      default: updater(theme, typography),
+    }),
+    deps
+  ).default;
 };

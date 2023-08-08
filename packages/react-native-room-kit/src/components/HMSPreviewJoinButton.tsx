@@ -9,7 +9,11 @@ import { shallowEqual, useSelector } from 'react-redux';
 
 import type { RootState } from '../redux';
 import { RadioIcon } from '../Icons';
-import { useHMSRoomColorPalette, useHMSRoomStyleSheet, useShouldGoLive } from '../hooks-util';
+import {
+  useHMSRoomColorPalette,
+  useHMSRoomStyleSheet,
+  useShouldGoLive,
+} from '../hooks-util';
 
 export interface HMSPreviewJoinButtonProps {
   onJoin(): void;
@@ -26,20 +30,23 @@ export const HMSPreviewJoinButton: React.FC<HMSPreviewJoinButtonProps> = ({
 
   const joinButtonLabels = useSelector((state: RootState) => {
     const layoutConfig = state.hmsStates.layoutConfig;
-    const joinLayoutConfig = layoutConfig?.screens?.preview?.default?.elements?.join_form;
+    const joinLayoutConfig =
+      layoutConfig?.screens?.preview?.default?.elements?.join_form;
 
     return {
-      joinBtnLabel: joinLayoutConfig ? joinLayoutConfig.join_btn_label : 'Join Now',
-      goLiveBtnLabel: joinLayoutConfig ? joinLayoutConfig.go_live_btn_label : 'Go Live',
+      joinBtnLabel: joinLayoutConfig
+        ? joinLayoutConfig.join_btn_label
+        : 'Join Now',
+      goLiveBtnLabel: joinLayoutConfig
+        ? joinLayoutConfig.go_live_btn_label
+        : 'Go Live',
     };
   }, shallowEqual);
 
   const shouldGoLive = useShouldGoLive();
 
-  const {
-    primary_dim: primaryDarkColor,
-    on_primary_high: onPrimaryHighColor
-  } = useHMSRoomColorPalette();
+  const { primary_dim: primaryDarkColor, on_primary_high: onPrimaryHighColor } =
+    useHMSRoomColorPalette();
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     button: {
@@ -68,7 +75,7 @@ export const HMSPreviewJoinButton: React.FC<HMSPreviewJoinButtonProps> = ({
       style={[
         styles.button,
         hmsRoomStyles.button,
-        disabledJoin ? hmsRoomStyles.disabledButton : null
+        disabledJoin ? hmsRoomStyles.disabledButton : null,
       ]}
       onPress={onJoin}
       disabled={disabledJoin}
@@ -99,7 +106,9 @@ export const HMSPreviewJoinButton: React.FC<HMSPreviewJoinButtonProps> = ({
             disabledJoin ? hmsRoomStyles.disabledText : null,
           ]}
         >
-          {shouldGoLive ? joinButtonLabels.goLiveBtnLabel : joinButtonLabels.joinBtnLabel}
+          {shouldGoLive
+            ? joinButtonLabels.goLiveBtnLabel
+            : joinButtonLabels.joinBtnLabel}
         </Text>
       </>
     </TouchableHighlight>
@@ -123,7 +132,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
   },
   loader: {
-    position: 'absolute'
+    position: 'absolute',
   },
   hiddenView: {
     opacity: 0,

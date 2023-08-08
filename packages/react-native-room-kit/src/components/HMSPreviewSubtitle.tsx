@@ -19,7 +19,8 @@ export const HMSPreviewSubtitle: React.FC<HMSPreviewSubtitleProps> = ({
   const hmsRoomPreviewSubtitle = useSelector((state: RootState) => {
     const layoutConfig = state.hmsStates.layoutConfig;
 
-    return layoutConfig?.screens?.preview?.default?.elements?.preview_header?.sub_title;
+    return layoutConfig?.screens?.preview?.default?.elements?.preview_header
+      ?.sub_title;
   });
 
   const titleStyles = useHMSRoomStyle((theme, typography) => ({
@@ -39,9 +40,7 @@ export const HMSPreviewSubtitle: React.FC<HMSPreviewSubtitleProps> = ({
 
   if (canPublishAudio && canPublishVideo) {
     return (
-      <Text style={textStyles}>
-        Setup your audio and video before joining
-      </Text>
+      <Text style={textStyles}>Setup your audio and video before joining</Text>
     );
   }
 

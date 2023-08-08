@@ -20,7 +20,7 @@ export const HMSPreviewHLSLiveIndicator = () => {
     text: {
       color: theme.palette.on_surface_high,
       fontFamily: `${typography.font_family}-SemiBold`,
-    }
+    },
   }));
 
   if (!isHLSStreaming) {

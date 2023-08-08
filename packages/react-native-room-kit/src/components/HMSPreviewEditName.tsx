@@ -4,7 +4,11 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import type { RootState } from '../redux';
 import { changeUsername } from '../redux/actions';
-import { useHMSConfig, useHMSRoomColorPalette, useHMSRoomStyleSheet } from '../hooks-util';
+import {
+  useHMSConfig,
+  useHMSRoomColorPalette,
+  useHMSRoomStyleSheet,
+} from '../hooks-util';
 
 export interface HMSPreviewEditNameProps {}
 
@@ -25,7 +29,7 @@ export const HMSPreviewEditName: React.FC<HMSPreviewEditNameProps> = () => {
 
   const {
     on_surface_low: onSurfaceLowColor,
-    on_surface_high: onSurfaceHighColor
+    on_surface_high: onSurfaceHighColor,
   } = useHMSRoomColorPalette();
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
@@ -46,7 +50,7 @@ export const HMSPreviewEditName: React.FC<HMSPreviewEditNameProps> = () => {
       style={[
         styles.input,
         hmsRoomStyles.input,
-        inputFocused ? hmsRoomStyles.focusedInput : null
+        inputFocused ? hmsRoomStyles.focusedInput : null,
       ]}
       value={userName}
       onChangeText={handleNameChange}

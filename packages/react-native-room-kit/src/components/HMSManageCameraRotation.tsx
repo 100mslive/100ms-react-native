@@ -32,7 +32,7 @@ const RotateCameraButton = () => {
   };
 
   const cameraIconStyles = useHMSRoomStyle(
-    theme => ({
+    (theme) => ({
       tintColor: isLocalVideoMuted
         ? theme.palette.on_surface_low
         : theme.palette.on_surface_high,

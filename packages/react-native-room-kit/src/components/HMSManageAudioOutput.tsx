@@ -25,7 +25,11 @@ import {
 } from '../Icons';
 import { PressableIcon } from './PressableIcon';
 import { CloseIcon } from '../Icons';
-import { useHMSInstance, useHMSRoomColorPalette, useHMSRoomStyleSheet } from '../hooks-util';
+import {
+  useHMSInstance,
+  useHMSRoomColorPalette,
+  useHMSRoomStyleSheet,
+} from '../hooks-util';
 import type { RootState } from '../redux';
 
 export const HMSManageAudioOutput: React.FC = () => {
@@ -166,7 +170,9 @@ export const HMSManageAudioOutput: React.FC = () => {
       >
         <View style={[styles.container, hmsRoomStyles.container]}>
           <View style={styles.header}>
-            <Text style={[styles.headerText, hmsRoomStyles.headerText]}>Audio Output</Text>
+            <Text style={[styles.headerText, hmsRoomStyles.headerText]}>
+              Audio Output
+            </Text>
 
             <TouchableOpacity
               onPress={dismissModal}
@@ -178,7 +184,9 @@ export const HMSManageAudioOutput: React.FC = () => {
 
           {availableAudioOutputDevices.length === 0 ? (
             <View style={styles.emptyView}>
-              <Text style={[styles.itemText, hmsRoomStyles.text]}>No other devices available!</Text>
+              <Text style={[styles.itemText, hmsRoomStyles.text]}>
+                No other devices available!
+              </Text>
             </View>
           ) : (
             <ScrollView showsVerticalScrollIndicator={true}>

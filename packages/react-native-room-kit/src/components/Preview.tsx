@@ -58,14 +58,17 @@ export const Preview = ({
     };
   });
 
-  const hmsRoomStyles = useHMSRoomStyleSheet((theme) => ({
-    container: {
-      backgroundColor: theme.palette.background_dim,
-    },
-    footer: {
-      backgroundColor: theme.palette.background_default,
-    }
-  }), []);
+  const hmsRoomStyles = useHMSRoomStyleSheet(
+    (theme) => ({
+      container: {
+        backgroundColor: theme.palette.background_dim,
+      },
+      footer: {
+        backgroundColor: theme.palette.background_default,
+      },
+    }),
+    []
+  );
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -109,7 +112,9 @@ export const Preview = ({
         <View style={styles.footerWrapper}>
           <HMSPreviewNetworkQuality />
 
-          <Animated.View style={[styles.footer, hmsRoomStyles.footer, keyboardAvoidStyle]}>
+          <Animated.View
+            style={[styles.footer, hmsRoomStyles.footer, keyboardAvoidStyle]}
+          >
             <View style={styles.controlsContainer}>
               <View style={styles.micAndCameraControls}>
                 <HMSManageLocalAudio />
@@ -162,7 +167,7 @@ const styles = StyleSheet.create({
   },
   logo: {
     alignSelf: 'center',
-    marginBottom: 16
+    marginBottom: 16,
   },
   controlsContainer: {
     flexDirection: 'row',

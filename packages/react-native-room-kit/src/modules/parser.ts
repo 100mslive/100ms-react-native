@@ -1,4 +1,7 @@
-import type { GetResponse as LayoutAPIResponse, Layout } from '@100mslive/types-prebuilt';
+import type {
+  GetResponse as LayoutAPIResponse,
+  Layout,
+} from '@100mslive/types-prebuilt';
 
 export async function parseRoomLayout(response: string): Promise<Layout> {
   try {

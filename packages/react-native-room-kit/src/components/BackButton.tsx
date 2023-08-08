@@ -11,7 +11,7 @@ export interface BackButtonProps {}
 export const BackButton: React.FC<BackButtonProps> = () => {
   const navigation = React.useContext(NavigationContext);
 
-  const buttonStyles = useHMSRoomStyle(theme => ({
+  const buttonStyles = useHMSRoomStyle((theme) => ({
     backgroundColor: theme.palette.surface_default,
   }));
 

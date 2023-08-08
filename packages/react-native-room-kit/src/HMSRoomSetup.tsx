@@ -291,7 +291,7 @@ export const HMSRoomSetup = () => {
   }, [hmsInstance]);
 
   const emptyViewStyles = useHMSRoomStyle((theme) => ({
-    backgroundColor: theme.palette.background_dim
+    backgroundColor: theme.palette.background_dim,
   }));
 
   const { background_dim: backgroundDimColor } = useHMSRoomColorPalette();

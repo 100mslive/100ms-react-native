@@ -16,10 +16,10 @@ export const selectShouldGoLive = (state: RootState) => {
   const canStartHLSStreaming =
     joinButtonType === JoinForm_JoinBtnType.JOIN_BTN_TYPE_JOIN_AND_GO_LIVE ||
     joinButtonType === JoinForm_JoinBtnType.JOIN_BTN_TYPE_JOIN_ONLY
-      // can start if `joinButtonType` is `JOIN_BTN_TYPE_JOIN_AND_GO_LIVE`
-      ? joinButtonType === JoinForm_JoinBtnType.JOIN_BTN_TYPE_JOIN_AND_GO_LIVE
-      // Check if the Role has permission to start HLS Stream
-      : state.hmsStates.localPeer?.role?.permissions?.hlsStreaming;
+      ? // can start if `joinButtonType` is `JOIN_BTN_TYPE_JOIN_AND_GO_LIVE`
+        joinButtonType === JoinForm_JoinBtnType.JOIN_BTN_TYPE_JOIN_AND_GO_LIVE
+      : // Check if the Role has permission to start HLS Stream
+        state.hmsStates.localPeer?.role?.permissions?.hlsStreaming;
 
   return canStartHLSStreaming && !isHLSStreaming;
 };

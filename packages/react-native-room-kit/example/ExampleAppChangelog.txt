@@ -5,7 +5,10 @@ Board: https://github.com/100mslive/100ms-react-native/projects/25
 - Prebuilt SDK Telemetry
 https://github.com/100mslive/100ms-react-native/projects/25#card-90122682
 
-Branch: `feature/prebuilt`
+- Implement Layout API which configures Room Appearance
+https://github.com/100mslive/100ms-react-native/pull/1118/
+
+Branch: `feature/layout-api-integration`
 
 Main SDK: 1.7.1
 Room Kit: 0.1.0

@@ -35,7 +35,9 @@ export const PressableIcon: React.FC<PressableIconProps> = ({
         styles.pressable,
         {
           borderRadius: rounded ? 20 : undefined,
-          ...(border ? {...styles.withBorder, ...hmsRoomStyles.border} : undefined),
+          ...(border
+            ? { ...styles.withBorder, ...hmsRoomStyles.border }
+            : undefined),
           ...(active ? hmsRoomStyles.active : undefined),
         },
         style,

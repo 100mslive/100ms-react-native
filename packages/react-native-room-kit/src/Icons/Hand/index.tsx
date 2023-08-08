@@ -8,7 +8,7 @@ interface HandIconProps extends Omit<ImageProps, 'source'> {}
 
 export const HandIcon: React.FC<HandIconProps> = ({ style, ...restProps }) => {
   const iconStyles = useHMSRoomStyle((theme) => ({
-    tintColor: theme.palette.on_surface_high
+    tintColor: theme.palette.on_surface_high,
   }));
 
   return (

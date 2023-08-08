@@ -15,7 +15,8 @@ export const HMSPreviewTitle: React.FC<HMSPreviewTitleProps> = ({
   const hmsRoomPreviewTitle = useSelector((state: RootState) => {
     const layoutConfig = state.hmsStates.layoutConfig;
 
-    const previewTitle = layoutConfig?.screens?.preview?.default?.elements?.preview_header?.title;
+    const previewTitle =
+      layoutConfig?.screens?.preview?.default?.elements?.preview_header?.title;
 
     return previewTitle || title;
   });

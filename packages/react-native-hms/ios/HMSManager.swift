@@ -74,9 +74,9 @@ class HMSManager: RCTEventEmitter {
         hmsCollection.removeValue(forKey: id)
         resolve?(["success": id + " removed"])
     }
-    
+
     // MARK: - Prebuilt
-    
+
     @objc
     func getRoomLayout(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)

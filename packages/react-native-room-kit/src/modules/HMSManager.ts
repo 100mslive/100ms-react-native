@@ -5,7 +5,11 @@ import type { Layout } from '@100mslive/types-prebuilt';
 
 import { parseRoomLayout } from './parser';
 
-export async function getRoomLayout(hmsInstance: HMSSDK, authToken: string, endpoint?: string): Promise<Layout> {
+export async function getRoomLayout(
+  hmsInstance: HMSSDK,
+  authToken: string,
+  endpoint?: string
+): Promise<Layout> {
   getLogger()?.verbose('#Function getRoomLayout', {
     id: hmsInstance.id,
     authToken,
@@ -15,7 +19,7 @@ export async function getRoomLayout(hmsInstance: HMSSDK, authToken: string, endp
   const layputAPIResponse: string = await HMSManagerModule.getRoomLayout({
     id: hmsInstance.id,
     authToken,
-    endpoint
+    endpoint,
   });
 
   return parseRoomLayout(layputAPIResponse);

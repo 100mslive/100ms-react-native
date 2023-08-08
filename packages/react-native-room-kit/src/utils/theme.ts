@@ -1,5 +1,9 @@
 import { StyleSheet } from 'react-native';
-import type { ColorPalette, Theme, Typography } from '@100mslive/types-prebuilt';
+import type {
+  ColorPalette,
+  Theme,
+  Typography,
+} from '@100mslive/types-prebuilt';
 
 export const FONTS = StyleSheet.create({
   H1: {
@@ -86,7 +90,7 @@ export const STATIC_COLOR_PALETTE: ColorPalette = {
   alert_error_bright: '#FFB2B6',
   alert_error_brighter: '#FFEDEC',
   alert_error_dim: '#270005',
-}
+};
 
 export const COLORS = {
   PRIMARY: {
@@ -173,25 +177,27 @@ export const COLORS = {
   },
 };
 
-export function hexToRgbA(hex: string, alpha: number = 1){
-  if(!/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+export function hexToRgbA(hex: string, alpha: number = 1) {
+  if (!/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
     return `rgba(0, 0, 0, ${alpha})`;
   }
   let c: any = hex.substring(1).split('');
-  if(c.length== 3){
+  if (c.length == 3) {
     c = [c[0], c[0], c[1], c[1], c[2], c[2]];
   }
-  c = '0x'+c.join('');
+  c = '0x' + c.join('');
 
-  return `rgba(${[(c>>16)&255, (c>>8)&255, c&255].join(', ')}, ${alpha})`;
-};
+  return `rgba(${[(c >> 16) & 255, (c >> 8) & 255, c & 255].join(
+    ', '
+  )}, ${alpha})`;
+}
 
 export const DEFAULT_TYPOGRAPHY: Typography = {
   font_family: 'Inter',
-}
+};
 
 export const DEFAULT_THEME: Required<Theme> = {
   default: true,
   name: 'static',
-  palette: STATIC_COLOR_PALETTE
-}
+  palette: STATIC_COLOR_PALETTE,
+};
