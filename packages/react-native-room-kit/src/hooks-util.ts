@@ -37,7 +37,7 @@ import type { DependencyList } from 'react';
 import { ModalTypes, PipModes } from './utils/types';
 import type { PeerTrackNode } from './utils/types';
 import { createPeerTrackNode, parseMetadata } from './utils/functions';
-import { batch, useDispatch, useSelector, useStore } from 'react-redux';
+import { batch, shallowEqual, useDispatch, useSelector, useStore } from 'react-redux';
 import type { RootState } from './redux';
 import {
   addMessage,
@@ -1312,7 +1312,7 @@ export const useHMSRoomTheme = <S>(
     }
 
     return selector(defaultTheme);
-  });
+  }, shallowEqual);
 };
 
 export const useHMSRoomColorPalette = (): ColorPalette => {
@@ -1322,8 +1322,22 @@ export const useHMSRoomColorPalette = (): ColorPalette => {
 export const useHMSRoomTypography = (): Typography => {
   return useSelector((state: RootState) => {
     const layoutConfig = state.hmsStates.layoutConfig;
-    return layoutConfig?.typography || DEFAULT_TYPOGRAPHY;
-  });
+
+    const typography = layoutConfig?.typography;
+
+    if (!typography) {
+      return DEFAULT_TYPOGRAPHY;
+    }
+
+    if (!typography.font_family) {
+      return {
+        ...DEFAULT_TYPOGRAPHY,
+        ...typography,
+      };
+    }
+
+    return typography;
+  }, shallowEqual);
 };
 
 export const useHMSRoomStyleSheet = <T extends { [key: string]: StyleProp<ViewStyle | TextStyle | ImageStyle> }>(
