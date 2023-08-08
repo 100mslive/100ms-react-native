@@ -5,7 +5,7 @@ import {
   Text,
   TouchableHighlight,
 } from 'react-native';
-import { useSelector } from 'react-redux';
+import { shallowEqual, useSelector } from 'react-redux';
 
 import type { RootState } from '../redux';
 import { RadioIcon } from '../Icons';
@@ -23,6 +23,16 @@ export const HMSPreviewJoinButton: React.FC<HMSPreviewJoinButtonProps> = ({
   const userNameInvalid = useSelector(
     (state: RootState) => state.user.userName.length <= 0
   );
+
+  const joinButtonLabels = useSelector((state: RootState) => {
+    const layoutConfig = state.hmsStates.layoutConfig;
+    const joinLayoutConfig = layoutConfig?.screens?.preview?.default?.elements?.join_form;
+
+    return {
+      joinBtnLabel: joinLayoutConfig ? joinLayoutConfig.join_btn_label : 'Join Now',
+      goLiveBtnLabel: joinLayoutConfig ? joinLayoutConfig.go_live_btn_label : 'Go Live',
+    };
+  }, shallowEqual);
 
   const shouldGoLive = useShouldGoLive();
 
@@ -89,7 +99,7 @@ export const HMSPreviewJoinButton: React.FC<HMSPreviewJoinButtonProps> = ({
             disabledJoin ? hmsRoomStyles.disabledText : null,
           ]}
         >
-          {shouldGoLive ? 'Go Live' : 'Join Now'}
+          {shouldGoLive ? joinButtonLabels.goLiveBtnLabel : joinButtonLabels.joinBtnLabel}
         </Text>
       </>
     </TouchableHighlight>
