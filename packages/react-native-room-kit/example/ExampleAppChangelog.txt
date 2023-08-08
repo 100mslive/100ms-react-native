@@ -8,6 +8,6 @@ https://github.com/100mslive/100ms-react-native/projects/25#card-90122682
 Branch: `feature/prebuilt`
 
 Main SDK: 1.7.1
-Room Kit: 0.0.4
+Room Kit: 0.1.0
 Android SDK: 2.7.2
 iOS SDK: 0.9.8
