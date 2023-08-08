@@ -28,8 +28,8 @@ export const CompanyLogo: React.FC<CompanyLogoProps> = ({
 
 const styles = StyleSheet.create({
   icon: {
-    maxHeight: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: '100%',
+    height: 32,
+    resizeMode: 'contain',
   },
 });
