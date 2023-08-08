@@ -314,7 +314,7 @@ PODS:
     - React-Core
   - react-native-camera/RN (4.2.1):
     - React-Core
-  - react-native-hms (2.0.0):
+  - react-native-hms (1.7.1):
     - HMSBroadcastExtensionSDK (= 0.0.9)
     - HMSHLSPlayerSDK (= 0.0.2)
     - HMSSDK (= 0.9.6)
@@ -670,7 +670,7 @@ SPEC CHECKSUMS:
   React-logger: a1f028f6d8639a3f364ef80419e5e862e1115250
   react-native-avoid-softinput: 71a692888f0c1d426ad9045dc8325773583962cd
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
-  react-native-hms: df44f6bd17c398134b506c46bcf4c49eec9ca89a
+  react-native-hms: 64d73dc2a75c801f641959a6868722ce238409c2
   react-native-safe-area-context: 61c8c484a3a9e7d1fda19f7b1794b35bbfd2262a
   react-native-simple-toast: bf002828cf816775a6809f7a9ec3907509bce11f
   React-perflogger: 0afaf2f01a47fd0fc368a93bfbb5bd3b26db6e7f
