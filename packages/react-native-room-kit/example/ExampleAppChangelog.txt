@@ -10,4 +10,4 @@ Branch: `feature/prebuilt`
 Main SDK: 1.7.1
 Room Kit: 0.0.4
 Android SDK: 2.7.2
-iOS SDK: 0.9.7
+iOS SDK: 0.9.8
