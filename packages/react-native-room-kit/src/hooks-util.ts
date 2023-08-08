@@ -22,6 +22,7 @@ import type {
   HMSSessionStore,
   HMSSessionStoreValue,
 } from '@100mslive/react-native-hms';
+import type { ColorPalette, Theme, Typography } from '@100mslive/types-prebuilt';
 import Toast from 'react-native-simple-toast';
 import {
   useRef,
@@ -31,6 +32,7 @@ import {
   useMemo,
   useContext,
 } from 'react';
+import type { DependencyList } from 'react';
 
 import { ModalTypes, PipModes } from './utils/types';
 import type { PeerTrackNode } from './utils/types';
@@ -69,6 +71,12 @@ import {
   LayoutAnimation,
   Platform,
 } from 'react-native';
+import type {
+  ImageStyle,
+  StyleProp,
+  ViewStyle,
+  TextStyle,
+} from 'react-native';
 import { NavigationContext } from '@react-navigation/native';
 import {
   useIsLandscapeOrientation,
@@ -80,6 +88,7 @@ import {
 } from 'react-native-safe-area-context';
 import { selectIsHLSViewer, selectShouldGoLive } from './hooks-util-selectors';
 import { getRoomLayout } from './modules/HMSManager';
+import { DEFAULT_THEME, DEFAULT_TYPOGRAPHY } from './utils/theme';
 
 export const useHMSListeners = (
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>
@@ -1018,7 +1027,11 @@ export const useHMSConfig = () => {
 
     // TODO: [REMOVE LATER] added trycatch block so that we can join rooms where we are getting error from Layout API
     try {
-      const roomLayout = await getRoomLayout(hmsInstance, token, 'https://api-nonprod.100ms.live');
+      const roomLayout = await getRoomLayout(
+        hmsInstance,
+        token,
+        'https://api-nonprod.100ms.live'
+      );
       dispatch(setLayoutConfig(roomLayout));
     } catch (error) {
       console.warn('# getRoomLayout error: ', error);
@@ -1278,4 +1291,59 @@ export const useLeaveMethods = () => {
 
 export const useHMSLayoutConfig = () => {
   return useSelector((state: RootState) => state.hmsStates.layoutConfig);
+};
+
+export const useHMSRoomTheme = <S>(
+  selector?: (theme: Required<Theme>) => S
+): Required<Theme> | S => {
+  return useSelector((state: RootState) => {
+    const layoutConfig = state.hmsStates.layoutConfig;
+
+    const roomTheme = layoutConfig?.themes.find((theme) => theme.default);
+
+    const defaultTheme: Required<Theme> = roomTheme
+      ? roomTheme.palette
+        ? (roomTheme as Required<Theme>)
+        : { ...roomTheme, palette: DEFAULT_THEME.palette }
+      : DEFAULT_THEME;
+
+    if (!selector) {
+      return defaultTheme;
+    }
+
+    return selector(defaultTheme);
+  });
+};
+
+export const useHMSRoomColorPalette = (): ColorPalette => {
+  return useHMSRoomTheme(theme => theme.palette) as ColorPalette;
+}
+
+export const useHMSRoomTypography = (): Typography => {
+  return useSelector((state: RootState) => {
+    const layoutConfig = state.hmsStates.layoutConfig;
+    return layoutConfig?.typography || DEFAULT_TYPOGRAPHY;
+  });
+};
+
+export const useHMSRoomStyleSheet = <T extends { [key: string]: StyleProp<ViewStyle | TextStyle | ImageStyle> }>(
+  updater: (theme: Required<Theme>, typography: Required<Typography>) => T,
+  deps: DependencyList = []
+): T => {
+  const theme = useHMSRoomTheme<Required<Theme>>();
+  const typography = useHMSRoomTypography();
+
+  return useMemo(
+    () => updater(theme, typography),
+    [theme, typography, ...deps]
+  );
+};
+
+export const useHMSRoomStyle = <T extends StyleProp<ViewStyle | TextStyle | ImageStyle>>(
+  updater: (theme: Required<Theme>, typography: Required<Typography>) => T,
+  deps: DependencyList = []
+): T => {
+  return useHMSRoomStyleSheet((theme, typography) => ({
+    default: updater(theme, typography)
+  }), deps).default;
 };

@@ -12,8 +12,6 @@ import Animated, {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 
-import { COLORS } from '../utils/theme';
-
 import { BackButton } from './BackButton';
 import { HMSManageCameraRotation } from './HMSManageCameraRotation';
 import { HMSManageLocalAudio } from './HMSManageLocalAudio';
@@ -29,6 +27,7 @@ import { HMSPreviewNetworkQuality } from './HMSPreviewNetworkQuality';
 import { useCanPublishVideo } from '../hooks-sdk';
 import { HMSPreviewHLSLiveIndicator } from './HMSPreviewHLSLiveIndicator';
 import { CompanyLogo } from './CompanyLogo';
+import { useHMSRoomStyleSheet } from '../hooks-util';
 
 const backButtonEdges = ['top'] as const;
 const headerEdges = ['top', 'left', 'right'] as const;
@@ -59,9 +58,18 @@ export const Preview = ({
     };
   });
 
+  const hmsRoomStyles = useHMSRoomStyleSheet((theme) => ({
+    container: {
+      backgroundColor: theme.palette.background_dim,
+    },
+    footer: {
+      backgroundColor: theme.palette.background_default,
+    }
+  }), []);
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={styles.container}>
+      <View style={[styles.container, hmsRoomStyles.container]}>
         {canPublishVideo ? <HMSPreviewTile /> : null}
 
         {canPublishVideo ? (
@@ -101,7 +109,7 @@ export const Preview = ({
         <View style={styles.footerWrapper}>
           <HMSPreviewNetworkQuality />
 
-          <Animated.View style={[styles.footer, keyboardAvoidStyle]}>
+          <Animated.View style={[styles.footer, hmsRoomStyles.footer, keyboardAvoidStyle]}>
             <View style={styles.controlsContainer}>
               <View style={styles.micAndCameraControls}>
                 <HMSManageLocalAudio />
@@ -135,7 +143,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     position: 'relative',
-    backgroundColor: COLORS.BACKGROUND.DIM,
     justifyContent: 'center',
   },
   header: {
@@ -190,7 +197,6 @@ const styles = StyleSheet.create({
   },
   footer: {
     flex: 1,
-    backgroundColor: COLORS.BACKGROUND.DEFAULT,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     padding: 16,

@@ -3,9 +3,9 @@ import { View, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 
 import { NetworkQualityIcon } from '../Icons';
-import { COLORS } from '..//utils/theme';
+import { hexToRgbA } from '../utils/theme';
 import type { RootState } from '../redux';
-import { useHMSInstance } from '../hooks-util';
+import { useHMSInstance, useHMSRoomStyle } from '../hooks-util';
 
 export const HMSPreviewNetworkQuality = () => {
   const hmsInstance = useHMSInstance();
@@ -20,8 +20,12 @@ export const HMSPreviewNetworkQuality = () => {
     return () => hmsInstance.disableNetworkQualityUpdates();
   }, []);
 
+  const containerStyles = useHMSRoomStyle(theme => ({
+    backgroundColor: hexToRgbA(theme.palette.background_dim, 0.8),
+  }));
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, containerStyles]}>
       <NetworkQualityIcon quality={localPeerNetworkQuality} />
     </View>
   );
@@ -34,7 +38,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingVertical: 4,
     paddingHorizontal: 8,
-    backgroundColor: COLORS.BACKGROUND.DIM_80,
     alignSelf: 'flex-start',
   },
 });

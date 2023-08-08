@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { StyleSheet, Text } from 'react-native';
 
-import { COLORS } from '../utils/theme';
+import { useHMSRoomStyle } from '../hooks-util';
 
 export interface HMSPreviewTitleProps {
   title?: string;
@@ -10,14 +10,17 @@ export interface HMSPreviewTitleProps {
 export const HMSPreviewTitle: React.FC<HMSPreviewTitleProps> = ({
   title = 'Get Started',
 }) => {
-  return <Text style={styles.title}>{title}</Text>;
+  const titleStyles = useHMSRoomStyle((theme, typography) => ({
+    color: theme.palette.on_surface_high,
+    fontFamily: `${typography.font_family}-SemiBold`,
+  }));
+
+  return <Text style={[styles.title, titleStyles]}>{title}</Text>;
 };
 
 const styles = StyleSheet.create({
   title: {
-    color: COLORS.SURFACE.ON_SURFACE.HIGH,
     fontSize: 24,
-    fontFamily: 'Inter-SemiBold',
     lineHeight: 32,
     textAlign: 'center',
   },

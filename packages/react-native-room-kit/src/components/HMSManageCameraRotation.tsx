@@ -4,8 +4,8 @@ import { useSelector } from 'react-redux';
 import { RotateCameraIcon } from '../Icons';
 import { useCanPublishVideo, useHMSActions } from '../hooks-sdk';
 import type { RootState } from '../redux';
-import { COLORS } from '../utils/theme';
 import { PressableIcon } from './PressableIcon';
+import { useHMSRoomStyle } from '../hooks-util';
 
 export const HMSManageCameraRotation = () => {
   const canPublishVideo = useCanPublishVideo();
@@ -31,18 +31,21 @@ const RotateCameraButton = () => {
     await hmsActions.switchCamera();
   };
 
+  const cameraIconStyles = useHMSRoomStyle(
+    theme => ({
+      tintColor: isLocalVideoMuted
+        ? theme.palette.on_surface_low
+        : theme.palette.on_surface_high,
+    }),
+    [isLocalVideoMuted]
+  );
+
   return (
     <PressableIcon
       onPress={handleVideoMuteTogglePress}
       disabled={isLocalVideoMuted}
     >
-      <RotateCameraIcon
-        style={{
-          tintColor: isLocalVideoMuted
-            ? COLORS.SURFACE.ON_SURFACE.LOW
-            : COLORS.SURFACE.ON_SURFACE.HIGH,
-        }}
-      />
+      <RotateCameraIcon style={cameraIconStyles} />
     </PressableIcon>
   );
 };

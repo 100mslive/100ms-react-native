@@ -1,12 +1,11 @@
 import * as React from 'react';
-import { StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 
 import type { RootState } from '../redux';
-import { COLORS } from '../utils/theme';
 import { useCanPublishVideo, useHMSActions } from '../hooks-sdk';
 import { PressableIcon } from './PressableIcon';
 import { CameraIcon } from '../Icons';
+import { useHMSRoomStyle } from '../hooks-util';
 
 export const HMSManageLocalVideo = () => {
   const canPublishVideo = useCanPublishVideo();
@@ -31,19 +30,17 @@ const ToggleVideoMuteButton = () => {
     await hmsActions.setLocalVideoEnabled(!isLocalVideoMuted);
   };
 
+  const mutedButtonStyles = useHMSRoomStyle(theme => ({
+    backgroundColor: theme.palette.secondary_dim,
+    borderColor: theme.palette.secondary_dim,
+  }));
+
   return (
     <PressableIcon
       onPress={handleVideoMuteTogglePress}
-      style={isLocalVideoMuted ? styles.mutedButton : undefined}
+      style={isLocalVideoMuted ? mutedButtonStyles : undefined}
     >
       <CameraIcon muted={!!isLocalVideoMuted} />
     </PressableIcon>
   );
 };
-
-const styles = StyleSheet.create({
-  mutedButton: {
-    backgroundColor: COLORS.SECONDARY.DIM,
-    borderColor: COLORS.SECONDARY.DIM,
-  },
-});
