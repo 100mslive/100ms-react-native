@@ -3,9 +3,8 @@ import { useSelector } from 'react-redux';
 import { StyleSheet, Image } from 'react-native';
 
 import type { RootState } from '../redux';
-import { COLORS } from '../utils/theme';
 import { CustomButton } from './CustomButton';
-import { useHMSInstance } from '../hooks-util';
+import { useHMSInstance, useHMSRoomStyle } from '../hooks-util';
 
 export const HMSShowNetworkQuality = () => {
   const hmsInstance = useHMSInstance();
@@ -20,11 +19,16 @@ export const HMSShowNetworkQuality = () => {
     return () => hmsInstance.disableNetworkQualityUpdates();
   }, [hmsInstance]);
 
+  const iconContainer = useHMSRoomStyle((theme) => ({
+    backgroundColor: theme.palette.border_bright,
+    borderColor: theme.palette.border_bright,
+  }));
+
   return (
     <CustomButton
       onPress={() => {}}
       disabled={true}
-      viewStyle={styles.singleIconContainer}
+      viewStyle={[styles.singleIconContainer, iconContainer]}
       LeftIcon={
         <Image
           resizeMode="contain"
@@ -53,8 +57,6 @@ const styles = StyleSheet.create({
   },
   singleIconContainer: {
     padding: 8,
-    backgroundColor: COLORS.BORDER.LIGHT,
-    borderColor: COLORS.BORDER.LIGHT,
     borderWidth: 1,
     width: 'auto',
     height: 48,

@@ -24,9 +24,12 @@ import {
   WaveIcon,
 } from '../Icons';
 import { PressableIcon } from './PressableIcon';
-import { COLORS } from '../utils/theme';
 import { CloseIcon } from '../Icons';
-import { useHMSInstance } from '../hooks-util';
+import {
+  useHMSInstance,
+  useHMSRoomColorPalette,
+  useHMSRoomStyleSheet,
+} from '../hooks-util';
 import type { RootState } from '../redux';
 
 export const HMSManageAudioOutput: React.FC = () => {
@@ -121,6 +124,25 @@ export const HMSManageAudioOutput: React.FC = () => {
     setSettingsModalVisible(false);
   };
 
+  const { background_dim: backgroundDimColor } = useHMSRoomColorPalette();
+
+  const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
+    container: {
+      backgroundColor: theme.palette.background_default,
+    },
+    headerText: {
+      color: theme.palette.on_surface_high,
+      fontFamily: `${typography.font_family}-Medium`,
+    },
+    text: {
+      color: theme.palette.on_surface_high,
+      fontFamily: `${typography.font_family}-SemiBold`,
+    },
+    divider: {
+      backgroundColor: theme.palette.border_default,
+    },
+  }));
+
   return (
     <View>
       <PressableIcon onPress={handleSpeakerChange}>
@@ -135,7 +157,7 @@ export const HMSManageAudioOutput: React.FC = () => {
         isVisible={settingsModalVisible}
         animationIn={'slideInUp'}
         animationOut={'slideOutDown'}
-        backdropColor={COLORS.BACKGROUND.DIM}
+        backdropColor={backgroundDimColor}
         backdropOpacity={0.3}
         onBackButtonPress={dismissModal}
         onBackdropPress={dismissModal}
@@ -146,9 +168,11 @@ export const HMSManageAudioOutput: React.FC = () => {
         // swipe
         style={styles.modal}
       >
-        <View style={styles.container}>
+        <View style={[styles.container, hmsRoomStyles.container]}>
           <View style={styles.header}>
-            <Text style={styles.headerText}>Audio Output</Text>
+            <Text style={[styles.headerText, hmsRoomStyles.headerText]}>
+              Audio Output
+            </Text>
 
             <TouchableOpacity
               onPress={dismissModal}
@@ -160,7 +184,9 @@ export const HMSManageAudioOutput: React.FC = () => {
 
           {availableAudioOutputDevices.length === 0 ? (
             <View style={styles.emptyView}>
-              <Text style={styles.itemText}>No other devices available!</Text>
+              <Text style={[styles.itemText, hmsRoomStyles.text]}>
+                No other devices available!
+              </Text>
             </View>
           ) : (
             <ScrollView showsVerticalScrollIndicator={true}>
@@ -170,7 +196,7 @@ export const HMSManageAudioOutput: React.FC = () => {
                 )
                 .map((device) => (
                   <React.Fragment key={device}>
-                    <View style={styles.divider} />
+                    <View style={[styles.divider, hmsRoomStyles.divider]} />
 
                     <TouchableOpacity
                       style={styles.audioDeviceItem}
@@ -184,7 +210,7 @@ export const HMSManageAudioOutput: React.FC = () => {
                             : device
                         )}
 
-                        <Text style={styles.itemText}>
+                        <Text style={[styles.itemText, hmsRoomStyles.text]}>
                           {getDescription(device, currentAudioOutputDevice)}
                         </Text>
                       </View>
@@ -209,7 +235,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   container: {
-    backgroundColor: COLORS.BACKGROUND.DEFAULT,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     paddingTop: 24,
@@ -223,9 +248,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   headerText: {
-    color: COLORS.SURFACE.ON_SURFACE.HIGH,
     fontSize: 16,
-    fontFamily: 'Inter-Medium',
     lineHeight: 24,
     letterSpacing: 0.15,
   },
@@ -242,9 +265,7 @@ const styles = StyleSheet.create({
   },
   itemText: {
     marginHorizontal: 16,
-    color: COLORS.SURFACE.ON_SURFACE.HIGH,
     fontSize: 14,
-    fontFamily: 'Inter-SemiBold',
     lineHeight: 20,
     letterSpacing: 0.1,
   },
@@ -261,7 +282,6 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: COLORS.BORDER.DEFAULT,
   },
 });
 

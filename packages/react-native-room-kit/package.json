@@ -56,6 +56,7 @@
     "redux": "^4.1.0"
   },
   "devDependencies": {
+    "@100mslive/types-prebuilt": "^0.8.0",
     "@commitlint/config-conventional": "^17.0.2",
     "@evilmartians/lefthook": "^1.2.2",
     "@react-native-community/eslint-config": "^3.0.2",

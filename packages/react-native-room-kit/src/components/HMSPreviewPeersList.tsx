@@ -2,8 +2,8 @@ import * as React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSelector } from 'react-redux';
 
-import { COLORS } from '../utils/theme';
 import type { RootState } from '../redux';
+import { useHMSRoomStyleSheet } from '../hooks-util';
 
 export interface HMSPreviewPeersListProps {}
 
@@ -12,13 +12,24 @@ export const HMSPreviewPeersList: React.FC<HMSPreviewPeersListProps> = () => {
     (state: RootState) => state.hmsStates.room?.peerCount
   );
 
+  const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
+    container: {
+      backgroundColor: theme.palette.surface_default,
+      borderColor: theme.palette.border_default,
+    },
+    text: {
+      color: theme.palette.on_surface_high,
+      fontFamily: `${typography.font_family}-SemiBold`,
+    },
+  }));
+
   if (typeof previewPeerCount !== 'number') {
     return null;
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={[styles.text, styles.textSpacer]}>
+    <View style={[styles.container, hmsRoomStyles.container]}>
+      <Text style={[styles.text, hmsRoomStyles.text, styles.textSpacer]}>
         {previewPeerCount <= 0
           ? 'You are the first to join'
           : `${previewPeerCount} ${
@@ -32,17 +43,13 @@ export const HMSPreviewPeersList: React.FC<HMSPreviewPeersListProps> = () => {
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    backgroundColor: COLORS.SURFACE.DEFAULT,
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 20,
-    borderColor: COLORS.BORDER.DEFAULT,
     borderWidth: 1,
   },
   text: {
-    color: COLORS.SURFACE.ON_SURFACE.HIGH,
     fontSize: 14,
-    fontFamily: 'Inter-SemiBold',
     lineHeight: 24,
   },
   textSpacer: {

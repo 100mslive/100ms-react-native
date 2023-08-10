@@ -14,6 +14,8 @@ perform_npm_actions() {
   cd ./example
 
   npm install
+
+  npm run start
 }
 
 release_android() {
