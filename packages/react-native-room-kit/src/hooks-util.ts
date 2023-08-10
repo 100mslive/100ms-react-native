@@ -80,6 +80,7 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 import { selectIsHLSViewer, selectShouldGoLive } from './hooks-util-selectors';
+import type { GridViewRefAttrs } from './components/GridView';
 
 export const useHMSListeners = (
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>
@@ -558,7 +559,7 @@ export const useHMSRoleChangeRequest = (
 
 type SessionStoreListeners = Array<{ remove: () => void }>;
 
-export const useHMSSessionStoreListeners = () => {
+export const useHMSSessionStoreListeners = (gridViewRef: React.MutableRefObject<GridViewRefAttrs | null>) => {
   const dispatch = useDispatch();
   const hmsSessionStore = useSelector(
     (state: RootState) => state.user.hmsSessionStore
@@ -575,6 +576,10 @@ export const useHMSSessionStoreListeners = () => {
         const handleSpotlightIdChange = (id: HMSSessionStoreValue) => {
           // set value to the state to rerender the component to reflect changes
           dispatch(saveUserData({ spotlightTrackId: id }));
+          // Scroll to start of the list
+          gridViewRef.current
+            ?.getFlatlistRef()
+            .current?.scrollToOffset({ animated: true, offset: 0 });
         };
 
         // Handle 'pinnedMessage' key values

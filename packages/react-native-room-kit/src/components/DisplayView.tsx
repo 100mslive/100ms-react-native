@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { View, Text, InteractionManager } from 'react-native';
+import { InteractionManager } from 'react-native';
 import { HMSTrack, HMSCameraControl } from '@100mslive/react-native-hms';
 import Animated, {
   interpolate,
@@ -12,7 +12,7 @@ import { styles } from './styles';
 import { DefaultModal } from './DefaultModal';
 import { ModalTypes, PipModes } from '../utils/types';
 import type { PeerTrackNode } from '../utils/types';
-import { pairData, requestExternalStoragePermission } from '../utils/functions';
+import { requestExternalStoragePermission } from '../utils/functions';
 import {
   ChangeAspectRatio,
   ChangeNameModal,
@@ -24,7 +24,6 @@ import {
 import type { RootState } from '../redux';
 import { GridView } from './GridView';
 import { HLSView } from './HLSView';
-import PIPView from './PIPView';
 import { PeerSettingsModalContent } from '../components/PeerSettingsModalContent';
 import { StreamingQualityModalContent } from '../components/StreamingQualityModalContent';
 import {
@@ -35,8 +34,8 @@ import {
   useIsHLSViewer,
   useModalType,
 } from '../hooks-util';
-import { useIsPortraitOrientation } from '../utils/dimension';
 import { ParticipantsModal } from './ParticipantsModal';
+import { WebrtcView } from './WebrtcView';
 
 type CapturedImagePath = { uri: string } | null;
 
@@ -51,8 +50,6 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
 }) => {
   // --- 100ms SDK Instance ---
   const hmsInstance = useHMSInstance();
-
-  const isPortrait = useIsPortraitOrientation();
   const isHLSViewer = useIsHLSViewer();
 
   const {
@@ -68,9 +65,6 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
   const isPipModeActive = useSelector(
     (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE
   );
-  const spotlightTrackId = useSelector(
-    (state: RootState) => state.user.spotlightTrackId
-  ); // State to track active spotlight trackId
 
   // --- Component Local States ---
   const [selectedPeerTrackNode, setSelectedPeerTrackNode] =
@@ -78,14 +72,8 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
   const [capturedImagePath, setCapturedImagePath] =
     useState<CapturedImagePath>(null);
 
-  // --- Constants ---
-  const pairedPeers = useMemo(
-    () => pairData(peerTrackNodes, isPortrait ? 4 : 2, spotlightTrackId),
-    [peerTrackNodes, spotlightTrackId, isPortrait]
-  );
-
   // --- Listeners ---
-  useHMSSessionStoreListeners();
+  useHMSSessionStoreListeners(gridViewRef);
 
   const trackStateChangeRequest = useHMSChangeTrackStateRequest(() => {
     setModalVisible(ModalTypes.CHANGE_TRACK, true);
@@ -94,16 +82,6 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
   const roleChangeRequest = useHMSRoleChangeRequest(() => {
     setModalVisible(ModalTypes.CHANGE_ROLE_ACCEPT, true);
   });
-
-  // --- Effects ---
-  useEffect(() => {
-    // Scroll to start of the list
-    if (spotlightTrackId) {
-      gridViewRef.current
-        ?.getFlatlistRef()
-        .current?.scrollToOffset({ animated: true, offset: 0 });
-    }
-  }, [spotlightTrackId]);
 
   // functions
 
@@ -164,28 +142,12 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
     <Animated.View style={[styles.container, animatedStyles]}>
       {isHLSViewer ? (
         <HLSView />
-      ) : pairedPeers.length > 0 ? (
-        <>
-          {isPipModeActive ? (
-            <PIPView pairedPeers={pairedPeers} />
-          ) : (
-            <GridView
-              ref={gridViewRef}
-              onPeerTileMorePress={handlePeerTileMorePress}
-              pairedPeers={pairedPeers}
-            />
-          )}
-        </>
       ) : (
-        <View style={styles.welcomeContainer}>
-          <Text style={styles.welcomeHeading}>Welcome!</Text>
-          <Text style={styles.welcomeDescription}>
-            You're the first one here.
-          </Text>
-          <Text style={styles.welcomeDescription}>
-            Sit back and relax till the others join.
-          </Text>
-        </View>
+        <WebrtcView
+          ref={gridViewRef}
+          peerTrackNodes={peerTrackNodes}
+          handlePeerTileMorePress={handlePeerTileMorePress}
+        />
       )}
 
       {isPipModeActive ? null : (

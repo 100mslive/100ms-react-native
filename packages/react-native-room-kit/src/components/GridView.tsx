@@ -1,19 +1,21 @@
 import React, { useRef, useState, useImperativeHandle } from 'react';
 import type { ElementRef } from 'react';
 import { View, FlatList } from 'react-native';
+import type { LayoutChangeEvent, LayoutRectangle } from 'react-native';
 import type { HMSView, HMSPeer } from '@100mslive/react-native-hms';
 
 import { DefaultModal } from './DefaultModal';
 import { SaveScreenshot } from './Modals';
 import { TilesContainer } from './TilesContainer';
 import type { PeerTrackNode } from '../utils/types';
+import { MiniView } from './MiniView';
 
-type GridViewProps = {
+export type GridViewProps = {
   onPeerTileMorePress(peerTrackNode: PeerTrackNode): void;
   pairedPeers: PeerTrackNode[][];
 };
 
-type GridViewRefAttrs = {
+export type GridViewRefAttrs = {
   captureViewScreenshot(node: PeerTrackNode): any;
   getFlatlistRef(): React.RefObject<FlatList<any>>;
 };
@@ -27,6 +29,7 @@ const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
     } | null>(null);
     const hmsViewRefs = useRef<Record<string, ElementRef<typeof HMSView>>>({});
     const flatlistRef = useRef<FlatList>(null);
+    const insetTileBoundingBoxRef = useRef<LayoutRectangle | null>(null);
 
     // We are setting `captureViewScreenshot` method on ref passed to GridView component
     // `captureViewScreenshot` method can be called to with PeerTrackNode to capture the HmsView Snapshot
@@ -87,8 +90,15 @@ const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
 
     const _keyExtractor = React.useCallback((item) => item[0]?.id, []);
 
+    const _handleLayoutChange = React.useCallback(
+      ({ nativeEvent }: LayoutChangeEvent) => {
+        insetTileBoundingBoxRef.current = nativeEvent.layout;
+      },
+      []
+    );
+
     return (
-      <View style={{ flex: 1 }}>
+      <View onLayout={_handleLayoutChange} style={{ flex: 1 }}>
         <FlatList
           ref={flatlistRef}
           horizontal
@@ -102,6 +112,7 @@ const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
           numColumns={1}
           keyExtractor={_keyExtractor}
         />
+        {pairedPeers.length > 0 ? <MiniView boundingBoxRef={insetTileBoundingBoxRef} /> : null}
 
         {/* Save Captured Screenshot of HMSView Modal */}
         <DefaultModal
