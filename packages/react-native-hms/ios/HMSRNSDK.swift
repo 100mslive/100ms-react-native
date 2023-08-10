@@ -50,10 +50,17 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     func getRoomLayout(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
 
         guard let token = data["authToken"] as? String else {
-            let errorMessage = "getRoomLayout: " + HMSHelper.getUnavailableRequiredKey(data, ["authToken"])
-            emitRequiredKeysError(errorMessage)
-            reject?(errorMessage, errorMessage, nil)
+            reject?("40000", "\(#function) " + HMSHelper.getUnavailableRequiredKey(data, ["authToken"]), nil)
             return
+        }
+
+        // This is to make the mock API links work
+        if let endPoint = data["endpoint"] as? String, (endPoint.contains("mockable") || endPoint.contains("nonprod")) {
+           UserDefaults.standard.set(endPoint, forKey: "HMSRoomLayoutEndpointOverride")
+        }
+        // This is to make the QA API work
+        else {
+           UserDefaults.standard.removeObject(forKey: "HMSRoomLayoutEndpointOverride")
         }
 
         DispatchQueue.main.async { [weak self] in
@@ -63,14 +70,11 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
                 if let rawData = layout?.rawData {
                     let jsonString = String(decoding: rawData, as: UTF8.self)
-
-                    print(#function, "jsonString: ", jsonString)
                     resolve?(jsonString)
                     return
                 }
 
                 let errorMessage = "\(#function) Could not parse Room Layout for Token: \(token)"
-                strongSelf.emitRequiredKeysError(errorMessage)
                 reject?("40000", errorMessage, nil)
             }
         }
