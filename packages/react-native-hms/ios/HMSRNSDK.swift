@@ -54,19 +54,16 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
 
-        // This is to make the mock API links work
-        if let endPoint = data["endpoint"] as? String, (endPoint.contains("mockable") || endPoint.contains("nonprod")) {
-           UserDefaults.standard.set(endPoint, forKey: "HMSRoomLayoutEndpointOverride")
-        }
-        // This is to make the QA API work
-        else {
-           UserDefaults.standard.removeObject(forKey: "HMSRoomLayoutEndpointOverride")
-        }
-
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
 
-            strongSelf.hms?.getRoomLayout(using: token) { layout, _ in
+             if let endPoint = data["endpoint"] as? String, (endPoint.contains("mockable") || endPoint.contains("nonprod")) {
+                  UserDefaults.standard.set(endPoint, forKey: "HMSRoomLayoutEndpointOverride")
+             } else {
+                   UserDefaults.standard.removeObject(forKey: "HMSRoomLayoutEndpointOverride")
+             }
+
+            strongSelf.hms?.getRoomLayout(using: token) { layout, error in
 
                 if let rawData = layout?.rawData {
                     let jsonString = String(decoding: rawData, as: UTF8.self)
@@ -74,7 +71,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                     return
                 }
 
-                let errorMessage = "\(#function) Could not parse Room Layout for Token: \(token)"
+                let errorMessage = "\(#function) Could not parse Room Layout for Token: \(token), error: \(error?.localizedDescription ?? "Could not fetch the error")"
                 reject?("40000", errorMessage, nil)
             }
         }
