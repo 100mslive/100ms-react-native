@@ -98,7 +98,8 @@ export const COLORS = {
   },
   BACKGROUND: {
     DIM: '#000000',
-    DIM_80: 'rgba(0, 0, 0, 0.8)',
+    DIM_80: 'rgba(0, 0, 0, 0.80)',
+    DIM_64: 'rgba(0, 0, 0, 0.64)',
     DEFAULT: '#0B0E15',
     DARK: '#090B0D',
     DARKER: '#040405',
