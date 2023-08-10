@@ -66,3 +66,15 @@ example/setupFirebase.js
 *.p8
 *.keystore
 *.zip
+
+./packages/react-native-hms/node_modules
+./packages/react-native-hms/example/node_modules
+./packages/react-native-hms/example/android/build
+./packages/react-native-hms/example/android/app/build
+./packages/react-native-hms/example/ios/Pods
+
+./packages/react-native-room-kit/node_modules
+./packages/react-native-room-kit/example/node_modules
+./packages/react-native-room-kit/example/android/build
+./packages/react-native-room-kit/example/android/app/build
+./packages/react-native-room-kit/example/ios/Pods
