@@ -183,9 +183,6 @@ export const HMSRoomSetup = () => {
 
       const localPeer = data.room.localPeer;
 
-      const peer = localPeer;
-      const track = localPeer.videoTrack as HMSTrack | undefined;
-
       batch(() => {
         if (selectIsHLSViewer(localPeer)) {
           dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: true });
@@ -194,23 +191,26 @@ export const HMSRoomSetup = () => {
         dispatch(setHMSLocalPeerState(data.room.localPeer));
       });
 
-      setPeerTrackNodes((prevPeerTrackNodes) => {
-        if (
-          track &&
-          peerTrackNodeExistForPeerAndTrack(prevPeerTrackNodes, peer, track)
-        ) {
-          return replacePeerTrackNodesWithTrack(
-            prevPeerTrackNodes,
-            peer,
-            track
-          );
-        }
-        if (peerTrackNodeExistForPeer(prevPeerTrackNodes, peer)) {
-          return replacePeerTrackNodes(prevPeerTrackNodes, peer);
-        }
-        const hmsLocalPeer = createPeerTrackNode(peer, track);
-        return [hmsLocalPeer, ...prevPeerTrackNodes];
-      });
+      // const peer = localPeer;
+      // const track = localPeer.videoTrack as HMSTrack | undefined;
+
+      // setPeerTrackNodes((prevPeerTrackNodes) => {
+      //   if (
+      //     track &&
+      //     peerTrackNodeExistForPeerAndTrack(prevPeerTrackNodes, peer, track)
+      //   ) {
+      //     return replacePeerTrackNodesWithTrack(
+      //       prevPeerTrackNodes,
+      //       peer,
+      //       track
+      //     );
+      //   }
+      //   if (peerTrackNodeExistForPeer(prevPeerTrackNodes, peer)) {
+      //     return replacePeerTrackNodes(prevPeerTrackNodes, peer);
+      //   }
+      //   const hmsLocalPeer = createPeerTrackNode(peer, track);
+      //   return [hmsLocalPeer, ...prevPeerTrackNodes];
+      // });
 
       const shouldGoLive = selectShouldGoLive(reduxStore.getState());
 

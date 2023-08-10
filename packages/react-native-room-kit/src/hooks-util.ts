@@ -248,12 +248,12 @@ const useHMSPeersUpdate = (
         return;
       }
       if (peer.isLocal) {
-        setPeerTrackNodes((prevPeerTrackNodes) => {
-          if (peerTrackNodeExistForPeer(prevPeerTrackNodes, peer)) {
-            return replacePeerTrackNodes(prevPeerTrackNodes, peer);
-          }
-          return prevPeerTrackNodes;
-        });
+        // setPeerTrackNodes((prevPeerTrackNodes) => {
+        //   if (peerTrackNodeExistForPeer(prevPeerTrackNodes, peer)) {
+        //     return replacePeerTrackNodes(prevPeerTrackNodes, peer);
+        //   }
+        //   return prevPeerTrackNodes;
+        // });
 
         // - TODO: update local localPeer state
         // - Pass this updated data to Meeting component -> DisplayView component
@@ -316,6 +316,11 @@ const useHMSTrackUpdate = (
 
   useEffect(() => {
     const trackUpdateHandler = ({ peer, track, type }: TrackUpdate) => {
+      if (peer.isLocal && track.source === HMSTrackSource.REGULAR) {
+        updateLocalPeer();
+        return;
+      }
+
       if (type === HMSTrackUpdate.TRACK_ADDED) {
         setPeerTrackNodes((prevPeerTrackNodes) => {
           if (
