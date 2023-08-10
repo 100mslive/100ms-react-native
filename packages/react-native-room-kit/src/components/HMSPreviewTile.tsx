@@ -7,6 +7,7 @@ import type { RootState } from '../redux';
 import { getInitials } from '../utils/functions';
 import { COLORS } from '../utils/theme';
 import { HMSLocalVideoView } from './HMSLocalVideoView';
+import { useHMSRoomStyleSheet } from '../hooks-util';
 
 export const HMSPreviewTile: React.FC = () => {
   const isLocalVideoMuted = useSelector(
@@ -17,15 +18,30 @@ export const HMSPreviewTile: React.FC = () => {
   );
   const userName = useSelector((state: RootState) => state.user.userName);
 
+  const roomStyles = useHMSRoomStyleSheet((theme, typography) => ({
+    container: {
+      backgroundColor: theme.palette.background_dim,
+    },
+    avatar: {
+      backgroundColor: COLORS.EXTENDED.PURPLE,
+    },
+    avatarText: {
+      color: theme.palette.on_surface_high,
+      fontFamily: `${typography.font_family}-SemiBold`,
+    },
+  }));
+
   return (
-    <View style={styles.modalContainer}>
+    <View style={[styles.modalContainer, roomStyles.container]}>
       {isLocalVideoMuted || !localVideoTrackId ? (
         <View style={styles.avatarContainer}>
-          <View style={styles.avatar}>
+          <View style={[styles.avatar, roomStyles.avatar]}>
             {userName.length === 0 ? (
               <PersonIcon style={styles.avatarIcon} />
             ) : (
-              <Text style={styles.avatarText}>{getInitials(userName)}</Text>
+              <Text style={[styles.avatarText, roomStyles.avatarText]}>
+                {getInitials(userName)}
+              </Text>
             )}
           </View>
         </View>
@@ -40,7 +56,6 @@ const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
     position: 'relative',
-    backgroundColor: COLORS.BACKGROUND.DIM,
     overflow: 'hidden',
   },
   hmsView: {
@@ -54,7 +69,6 @@ const styles = StyleSheet.create({
   avatar: {
     width: 88,
     aspectRatio: 1,
-    backgroundColor: COLORS.EXTENDED.PURPLE,
     borderRadius: 44,
     justifyContent: 'center',
     alignItems: 'center',
@@ -64,9 +78,7 @@ const styles = StyleSheet.create({
     height: 40,
   },
   avatarText: {
-    color: COLORS.SURFACE.ON_SURFACE.HIGH,
     fontSize: 34,
-    fontFamily: 'Inter-SemiBold',
     lineHeight: 40,
     letterSpacing: 0.25,
   },

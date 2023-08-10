@@ -31,6 +31,8 @@ import {
   useHMSConfig,
   useHMSInstance,
   useHMSListeners,
+  useHMSRoomColorPalette,
+  useHMSRoomStyle,
   useHMSSessionStore,
   useLeaveMethods,
 } from './hooks-util';
@@ -42,7 +44,6 @@ import {
 } from './peerTrackNodeUtils';
 import { MeetingState } from './types';
 import { getJoinConfig } from './utils';
-import { COLORS } from './utils/theme';
 import { FullScreenIndicator } from './components/FullScreenIndicator';
 import { HMSMeetingEnded } from './components/HMSMeetingEnded';
 import { selectIsHLSViewer, selectShouldGoLive } from './hooks-util-selectors';
@@ -289,10 +290,16 @@ export const HMSRoomSetup = () => {
     };
   }, [hmsInstance]);
 
+  const emptyViewStyles = useHMSRoomStyle((theme) => ({
+    backgroundColor: theme.palette.background_dim,
+  }));
+
+  const { background_dim: backgroundDimColor } = useHMSRoomColorPalette();
+
   return (
     <>
       <StatusBar
-        backgroundColor={COLORS.BACKGROUND.DIM}
+        backgroundColor={backgroundDimColor}
         barStyle={'light-content'}
       />
 
@@ -305,7 +312,7 @@ export const HMSRoomSetup = () => {
       ) : loading ? (
         <FullScreenIndicator />
       ) : (
-        <View style={styles.container} />
+        <View style={[styles.container, emptyViewStyles]} />
       )}
     </>
   );
@@ -314,6 +321,5 @@ export const HMSRoomSetup = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.BACKGROUND.DIM,
   },
 });

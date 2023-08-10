@@ -2,7 +2,7 @@ import * as React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import type { TouchableOpacityProps } from 'react-native';
 
-import { COLORS } from '../utils/theme';
+import { useHMSRoomStyleSheet } from '../hooks-util';
 
 interface PressableIconProps extends Omit<TouchableOpacityProps, 'children'> {
   children: Pick<TouchableOpacityProps, 'children'>;
@@ -19,14 +19,26 @@ export const PressableIcon: React.FC<PressableIconProps> = ({
   border = true,
   ...restProps
 }) => {
+  const hmsRoomStyles = useHMSRoomStyleSheet((theme) => ({
+    border: {
+      borderColor: theme.palette.border_bright,
+    },
+    active: {
+      backgroundColor: theme.palette.secondary_dim,
+      borderColor: theme.palette.secondary_dim,
+    },
+  }));
+
   return (
     <TouchableOpacity
       style={[
         styles.pressable,
         {
           borderRadius: rounded ? 20 : undefined,
-          ...(border ? styles.withBorder : undefined),
-          ...(active ? styles.active : undefined),
+          ...(border
+            ? { ...styles.withBorder, ...hmsRoomStyles.border }
+            : undefined),
+          ...(active ? hmsRoomStyles.active : undefined),
         },
         style,
       ]}
@@ -44,11 +56,6 @@ const styles = StyleSheet.create({
   },
   withBorder: {
     borderRadius: 8,
-    borderColor: COLORS.BORDER.BRIGHT,
     borderWidth: 1,
-  },
-  active: {
-    backgroundColor: COLORS.SECONDARY.DIM,
-    borderColor: COLORS.SECONDARY.DIM,
   },
 });

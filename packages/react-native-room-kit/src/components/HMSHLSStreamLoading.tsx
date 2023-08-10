@@ -5,24 +5,39 @@ import { useSelector } from 'react-redux';
 import { COLORS } from '../utils/theme';
 import type { RootState } from '../redux';
 import { HMSLocalVideoView } from './HMSLocalVideoView';
+import { useHMSRoomColorPalette, useHMSRoomStyleSheet } from '../hooks-util';
 
 export const HMSHLSStreamLoading = () => {
   const isLocalVideoMuted = useSelector(
     (state: RootState) => state.hmsStates.isLocalVideoMuted
   );
 
+  const { primary_default: primaryDefaultColor } = useHMSRoomColorPalette();
+
+  const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
+    container: {
+      backgroundColor: theme.palette.background_dim,
+    },
+    text: {
+      color: theme.palette.on_surface_high,
+      fontFamily: `${typography.font_family}-Regular`,
+    },
+  }));
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, hmsRoomStyles.container]}>
       {isLocalVideoMuted ? null : <HMSLocalVideoView />}
 
       <View style={styles.hlsLoaderContainer}>
         <ActivityIndicator
           style={styles.hlsLoader}
           size={'large'}
-          color={COLORS.PRIMARY.DEFAULT}
+          color={primaryDefaultColor}
         />
 
-        <Text style={styles.hlsLoaderText}>Starting live stream...</Text>
+        <Text style={[styles.hlsLoaderText, hmsRoomStyles.text]}>
+          Starting live stream...
+        </Text>
       </View>
     </View>
   );
@@ -32,7 +47,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     position: 'relative',
-    backgroundColor: COLORS.BACKGROUND.DIM,
   },
   hlsLoaderContainer: {
     position: 'absolute',
@@ -47,9 +61,7 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   hlsLoaderText: {
-    color: COLORS.SURFACE.ON_SURFACE.HIGH,
     fontSize: 16,
-    fontFamily: 'Inter-Regular',
     lineHeight: 24,
     letterSpacing: 0.5,
   },

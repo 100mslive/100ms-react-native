@@ -1,12 +1,11 @@
 import * as React from 'react';
-import { StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 
 import { MicIcon } from '../Icons';
 import { useCanPublishAudio, useHMSActions } from '../hooks-sdk';
 import type { RootState } from '../redux';
-import { COLORS } from '../utils/theme';
 import { PressableIcon } from './PressableIcon';
+import { useHMSRoomStyle } from '../hooks-util';
 
 export const HMSManageLocalAudio = () => {
   const canPublishAudio = useCanPublishAudio();
@@ -31,19 +30,17 @@ const ToggleAudioMuteButton = () => {
     await hmsActions.setLocalAudioEnabled(!isLocalAudioMuted);
   };
 
+  const mutedButtonStyles = useHMSRoomStyle((theme) => ({
+    backgroundColor: theme.palette.secondary_dim,
+    borderColor: theme.palette.secondary_dim,
+  }));
+
   return (
     <PressableIcon
       onPress={handleAudioMuteTogglePress}
-      style={isLocalAudioMuted ? styles.mutedButton : undefined}
+      style={isLocalAudioMuted ? mutedButtonStyles : undefined}
     >
       <MicIcon muted={!!isLocalAudioMuted} />
     </PressableIcon>
   );
 };
-
-const styles = StyleSheet.create({
-  mutedButton: {
-    backgroundColor: COLORS.SECONDARY.DIM,
-    borderColor: COLORS.SECONDARY.DIM,
-  },
-});
