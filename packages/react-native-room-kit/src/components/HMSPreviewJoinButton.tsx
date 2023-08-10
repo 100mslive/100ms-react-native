@@ -5,12 +5,15 @@ import {
   Text,
   TouchableHighlight,
 } from 'react-native';
-import { useSelector } from 'react-redux';
+import { shallowEqual, useSelector } from 'react-redux';
 
-import { COLORS } from '../utils/theme';
 import type { RootState } from '../redux';
 import { RadioIcon } from '../Icons';
-import { useShouldGoLive } from '../hooks-util';
+import {
+  useHMSRoomColorPalette,
+  useHMSRoomStyleSheet,
+  useShouldGoLive,
+} from '../hooks-util';
 
 export interface HMSPreviewJoinButtonProps {
   onJoin(): void;
@@ -25,14 +28,55 @@ export const HMSPreviewJoinButton: React.FC<HMSPreviewJoinButtonProps> = ({
     (state: RootState) => state.user.userName.length <= 0
   );
 
+  const joinButtonLabels = useSelector((state: RootState) => {
+    const layoutConfig = state.hmsStates.layoutConfig;
+    const joinLayoutConfig =
+      layoutConfig?.screens?.preview?.default?.elements?.join_form;
+
+    return {
+      joinBtnLabel: joinLayoutConfig
+        ? joinLayoutConfig.join_btn_label
+        : 'Join Now',
+      goLiveBtnLabel: joinLayoutConfig
+        ? joinLayoutConfig.go_live_btn_label
+        : 'Go Live',
+    };
+  }, shallowEqual);
+
   const shouldGoLive = useShouldGoLive();
+
+  const { primary_dim: primaryDarkColor, on_primary_high: onPrimaryHighColor } =
+    useHMSRoomColorPalette();
+
+  const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
+    button: {
+      backgroundColor: theme.palette.primary_default,
+    },
+    disabledButton: {
+      backgroundColor: theme.palette.primary_disabled,
+    },
+    disabledIcon: {
+      tintColor: theme.palette.on_primary_low,
+    },
+    buttonText: {
+      color: theme.palette.on_primary_high,
+      fontFamily: `${typography.font_family}-SemiBold`,
+    },
+    disabledText: {
+      color: theme.palette.on_primary_low,
+    },
+  }));
 
   const disabledJoin = userNameInvalid || loading;
 
   return (
     <TouchableHighlight
-      underlayColor={COLORS.PRIMARY.DARK}
-      style={[styles.button, disabledJoin ? styles.disabledButton : null]}
+      underlayColor={primaryDarkColor}
+      style={[
+        styles.button,
+        hmsRoomStyles.button,
+        disabledJoin ? hmsRoomStyles.disabledButton : null,
+      ]}
       onPress={onJoin}
       disabled={disabledJoin}
     >
@@ -40,7 +84,7 @@ export const HMSPreviewJoinButton: React.FC<HMSPreviewJoinButtonProps> = ({
         {loading ? (
           <ActivityIndicator
             size={'small'}
-            color={COLORS.BASE.WHITE}
+            color={onPrimaryHighColor}
             style={styles.loader}
           />
         ) : null}
@@ -49,7 +93,7 @@ export const HMSPreviewJoinButton: React.FC<HMSPreviewJoinButtonProps> = ({
           <RadioIcon
             style={[
               loading ? styles.hiddenView : null,
-              disabledJoin ? styles.disabledIcon : null,
+              disabledJoin ? hmsRoomStyles.disabledIcon : null,
             ]}
           />
         ) : null}
@@ -57,11 +101,14 @@ export const HMSPreviewJoinButton: React.FC<HMSPreviewJoinButtonProps> = ({
         <Text
           style={[
             styles.text,
+            hmsRoomStyles.buttonText,
             loading ? styles.hiddenView : null,
-            disabledJoin ? styles.disabledText : null,
+            disabledJoin ? hmsRoomStyles.disabledText : null,
           ]}
         >
-          {shouldGoLive ? 'Go Live' : 'Join Now'}
+          {shouldGoLive
+            ? joinButtonLabels.goLiveBtnLabel
+            : joinButtonLabels.joinBtnLabel}
         </Text>
       </>
     </TouchableHighlight>
@@ -74,28 +121,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
-    backgroundColor: COLORS.PRIMARY.DEFAULT,
     marginLeft: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
   text: {
-    color: COLORS.BASE.WHITE,
     fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
     lineHeight: 24,
     letterSpacing: 0.5,
     marginHorizontal: 8,
   },
-  loader: { position: 'absolute' },
-  disabledButton: {
-    backgroundColor: COLORS.PRIMARY.DISABLED,
-  },
-  disabledIcon: {
-    tintColor: COLORS.PRIMARY.ON_PRIMARY.LOW,
-  },
-  disabledText: {
-    color: COLORS.PRIMARY.ON_PRIMARY.LOW,
+  loader: {
+    position: 'absolute',
   },
   hiddenView: {
     opacity: 0,

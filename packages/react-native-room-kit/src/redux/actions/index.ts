@@ -10,6 +10,8 @@ import type {
   HMSSDK,
   HMSSessionStore,
 } from '@100mslive/react-native-hms';
+import type { Layout } from '@100mslive/types-prebuilt';
+
 import type {
   HMSIOSScreenShareConfig,
   ModalTypes,
@@ -214,4 +216,9 @@ export const changeMeetingState = (meetingState: MeetingState) => ({
 export const changeStartingHLSStream = (startingHLSStream: boolean) => ({
   type: actionTypes.SET_STARTING_HLS_STREAM,
   payload: { startingHLSStream },
+});
+
+export const setLayoutConfig = (layoutConfig: Layout) => ({
+  type: HmsStateActionTypes.SET_LAYOUT_CONFIG,
+  layoutConfig,
 });
