@@ -926,6 +926,13 @@ class HMSManager(reactContext: ReactApplicationContext) :
     hms?.removeKeyChangeListener(data, promise)
   }
 
+  @ReactMethod
+  fun getRoomLayout(data: ReadableMap, promise: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.getRoomLayout(data, promise)
+  }
+
   fun emitEvent(event: String, data: WritableMap) {
     reactApplicationContext
       .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
