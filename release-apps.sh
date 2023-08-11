@@ -15,7 +15,7 @@ perform_npm_actions() {
 
   npm install
 
-  npm run start
+  # npm run start
 }
 
 release_android() {
