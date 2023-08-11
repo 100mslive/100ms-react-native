@@ -1,33 +1,39 @@
 import * as React from 'react';
 import type {MutableRefObject} from 'react';
-import { StyleSheet, type LayoutRectangle, View, LayoutAnimation, TouchableWithoutFeedback} from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { StyleSheet, View, LayoutAnimation } from 'react-native';
+import type { LayoutRectangle } from 'react-native';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, { cancelAnimation, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 import { PeerVideoTileView } from './PeerVideoTile/PeerVideoTileView';
+import type { PeerVideoTileViewProps } from './PeerVideoTile/PeerVideoTileView';
 import { PeerMinimizedView, usePeerMinimizedViewDimensions } from './PeerMinimizedView';
+import type { RootState } from '../redux';
+import { setInsetViewMinimized } from '../redux/actions';
 
 const cornerOffset = {
   x: 8,
-  y: 44,
+  y: 16,
 }
 
-export type MiniViewProps = {
+export interface MiniViewProps extends PeerVideoTileViewProps {
   boundingBoxRef: MutableRefObject<LayoutRectangle | null>;
 };
 
-export const MiniView: React.FC<MiniViewProps> = ({ boundingBoxRef }) => {
+export const MiniView: React.FC<Omit<MiniViewProps, 'insetMode'>> = ({ boundingBoxRef, onMoreOptionsPress }) => {
   const isPressed = useSharedValue(false);
   const xOffset = useSharedValue(0);
   const yOffset = useSharedValue(0);
   const start = useSharedValue({ x: 0, y: 0 });
+  const dispatch = useDispatch();
 
-  const [minimized, setMinimized] = React.useState(false);
+  const minimized = useSelector((state: RootState) => state.app.insetViewMinimized);
 
   const { height: minimizedViewHeigth, width: minimizedViewWidth } = usePeerMinimizedViewDimensions();
 
   const size = {
-    width: minimized? minimizedViewWidth : 104,
+    width: minimized ? minimizedViewWidth : 104,
     height: minimized ? minimizedViewHeigth : 186,
   };
 
@@ -105,14 +111,9 @@ export const MiniView: React.FC<MiniViewProps> = ({ boundingBoxRef }) => {
     }
   }, [minimized]);
 
-  const minimize = () => {
+  const handleMaximize = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setMinimized(true);
-  }
-
-  const maximize = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setMinimized(false);
+    dispatch(setInsetViewMinimized(false));
   }
 
   return (
@@ -126,11 +127,9 @@ export const MiniView: React.FC<MiniViewProps> = ({ boundingBoxRef }) => {
       >
         <View style={styles.contentContainer}>
           {minimized ? (
-            <PeerMinimizedView onMaximizePress={maximize} />
+            <PeerMinimizedView onMaximizePress={handleMaximize} />
           ) : (
-            <TouchableWithoutFeedback>
-              <PeerVideoTileView insetMode={true} />
-            </TouchableWithoutFeedback>
+            <PeerVideoTileView insetMode={true} onMoreOptionsPress={onMoreOptionsPress} />
           )}
         </View>
       </Animated.View>

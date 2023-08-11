@@ -213,6 +213,11 @@ export const changeMeetingState = (meetingState: MeetingState) => ({
   payload: { meetingState },
 });
 
+export const setInsetViewMinimized = (insetViewMinimized: boolean) => ({
+  type: actionTypes.SET_INSET_VIEW_MINIMIZED,
+  payload: { insetViewMinimized },
+});
+
 export const changeStartingHLSStream = (startingHLSStream: boolean) => ({
   type: actionTypes.SET_STARTING_HLS_STREAM,
   payload: { startingHLSStream },

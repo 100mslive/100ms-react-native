@@ -112,7 +112,12 @@ const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
           numColumns={1}
           keyExtractor={_keyExtractor}
         />
-        {pairedPeers.length > 0 ? <MiniView boundingBoxRef={insetTileBoundingBoxRef} /> : null}
+        {pairedPeers.length > 0 ? (
+          <MiniView
+            boundingBoxRef={insetTileBoundingBoxRef}
+            onMoreOptionsPress={onPeerTileMorePress}
+          />
+        ) : null}
 
         {/* Save Captured Screenshot of HMSView Modal */}
         <DefaultModal

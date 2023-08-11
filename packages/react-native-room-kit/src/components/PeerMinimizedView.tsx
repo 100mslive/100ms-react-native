@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useSelector } from 'react-redux';
 
 import type { RootState } from '../redux';
-import { CameraIcon, MicIcon, MinimizeIcon } from '../Icons';
+import { CameraIcon, MaximizeIcon, MicIcon } from '../Icons';
 import { COLORS } from '../utils/theme';
 import { PressableIcon } from './PressableIcon';
 import { useCanPublishAudio, useCanPublishVideo } from '../hooks-sdk';
@@ -53,7 +53,7 @@ const _PeerMinimizedView: React.FC<PeerMinimizedViewProps> = ({ onMaximizePress 
       <Text style={styles.name}>You</Text>
 
       <PressableIcon border={false} style={styles.maximizeBtn} onPress={onMaximizePress}>
-        <MinimizeIcon style={styles.maximizeIcon} />
+        <MaximizeIcon style={styles.maximizeIcon} />
       </PressableIcon>
     </View>
   );

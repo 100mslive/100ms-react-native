@@ -72,6 +72,6 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
       );
     }
 
-    return <PeerVideoTileView />;
+    return <PeerVideoTileView onMoreOptionsPress={handlePeerTileMorePress} />;
   }
 );

@@ -36,6 +36,7 @@ import {
 } from '../hooks-util';
 import { ParticipantsModal } from './ParticipantsModal';
 import { WebrtcView } from './WebrtcView';
+import { BottomSheet } from './BottomSheet';
 
 type CapturedImagePath = { uri: string } | null;
 
@@ -152,16 +153,14 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
 
       {isPipModeActive ? null : (
         <>
-          <DefaultModal
-            backdrop={true}
-            modalPosiion="center"
-            viewStyle={{ minWidth: '70%', width: undefined }}
-            modalVisible={modalVisible === ModalTypes.PEER_SETTINGS}
-            setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
+          <BottomSheet
+            isVisible={modalVisible === ModalTypes.PEER_SETTINGS}
+            dismissModal={() => setModalVisible(ModalTypes.DEFAULT)}
           >
             {selectedPeerTrackNode ? (
               <PeerSettingsModalContent
                 peerTrackNode={selectedPeerTrackNode}
+                peerTrackNodesListEmpty={peerTrackNodes.length === 0}
                 cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
                 onCaptureScreenShotPress={handleCaptureScreenShotPress}
                 onCaptureImageAtMaxSupportedResolutionPress={
@@ -170,7 +169,7 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
                 onStreamingQualityPress={handleStreamingQualityPress}
               />
             ) : null}
-          </DefaultModal>
+          </BottomSheet>
 
           <DefaultModal
             modalPosiion="center"

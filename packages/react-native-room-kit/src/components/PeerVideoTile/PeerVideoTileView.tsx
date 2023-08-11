@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { HMSVideoViewMode } from '@100mslive/react-native-hms';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
+import { HMSVideoViewMode } from '@100mslive/react-native-hms';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import { VideoView } from './VideoView';
 import { AvatarView } from './AvatarView';
@@ -12,23 +13,26 @@ import { PressableIcon } from '../PressableIcon';
 import { ThreeDotsIcon } from '../../Icons';
 import { COLORS } from '../../utils/theme';
 import { PeerNameAndNetwork } from './PeerNameAndNetwork';
-import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { UnmountAfterDelay } from '../UnmountAfterDelay';
+import type { PeerTrackNode } from '../../utils/types';
+import { createPeerTrackNode } from '../../utils/functions';
 
 export interface PeerVideoTileViewProps {
-  onMinimizePress?: () => void;
+  onMoreOptionsPress(node: PeerTrackNode): void;
   insetMode?: boolean;
 }
 
 export const _PeerVideoTileView: React.FC<PeerVideoTileViewProps> = ({
   insetMode = false,
-  onMinimizePress,
+  onMoreOptionsPress,
 }) => {
+  const unmountAfterDelayRef = React.useRef<React.ElementRef<typeof UnmountAfterDelay> | null>(null);
   const [mounted, setMounted] = React.useState(true);
   const localPeer = useSelector((state: RootState) => state.hmsStates.localPeer);
 
   const show = () => {
     setMounted(true);
+    unmountAfterDelayRef.current?.resetTimer();
   }
 
   const hide = () => {
@@ -38,6 +42,17 @@ export const _PeerVideoTileView: React.FC<PeerVideoTileViewProps> = ({
   if (!localPeer) {
     return null;
   }
+
+  const handleTilePress = () => {
+    show();
+  }
+
+  const handleOptionsPress = React.useCallback(() => {
+    if (insetMode) {
+      show();
+    }
+    onMoreOptionsPress(createPeerTrackNode(localPeer, localPeer?.videoTrack));
+  }, [localPeer, onMoreOptionsPress, insetMode]);
 
   return (
     <View style={styles.container}>
@@ -65,16 +80,18 @@ export const _PeerVideoTileView: React.FC<PeerVideoTileViewProps> = ({
         />
       )}
 
+      {insetMode ? <Pressable onPress={handleTilePress} style={styles.pressable} /> : null}
+
       {insetMode ? (
-        <UnmountAfterDelay visible={mounted} onUnmount={hide}>
+        <UnmountAfterDelay ref={unmountAfterDelayRef} visible={mounted} onUnmount={hide}>
           <Animated.View entering={FadeIn} exiting={FadeOut}>
-            <PressableIcon style={styles.iconWrapper} border={false} onPress={onMinimizePress}>
+            <PressableIcon activeOpacity={0.7} style={styles.iconWrapper} border={false} onPress={handleOptionsPress}>
               <ThreeDotsIcon stack='vertical' style={styles.icon} />
             </PressableIcon>
           </Animated.View>
         </UnmountAfterDelay>
       ) : (
-        <PressableIcon style={styles.iconWrapper} border={false}>
+        <PressableIcon activeOpacity={0.7} style={styles.iconWrapper} border={false} onPress={handleOptionsPress}>
           <ThreeDotsIcon stack='vertical' style={styles.icon} />
         </PressableIcon>
       )}
@@ -98,6 +115,11 @@ const styles = StyleSheet.create({
   icon: {
     width: 20,
     height: 20
+  },
+  pressable: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%'
   }
 });
 
