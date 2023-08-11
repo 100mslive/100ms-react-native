@@ -31,7 +31,9 @@ object HMSDecoder {
 
       when (hmsRoomUpdateType) {
         HMSRoomUpdate.ROOM_PEER_COUNT_UPDATED -> {
-          room.putInt("peerCount", hmsRoom.peerCount)
+          // When ROOM_PEER_COUNT_UPDATED update type is received then `peerCount` should be a valid value
+          // using `0` as default
+          room.putInt("peerCount", hmsRoom.peerCount ?: 0)
         }
         HMSRoomUpdate.HLS_RECORDING_STATE_UPDATED -> {
           hmsRoom.hlsRecordingState?.let {
@@ -129,7 +131,13 @@ object HMSDecoder {
 
       room.putArray("peers", this.getAllPeers(hmsRoom.peerList))
 
-      room.putInt("peerCount", hmsRoom.peerCount)
+      hmsRoom.peerCount.let {
+        if (it == null) {
+          room.putNull("peerCount")
+        } else {
+          room.putInt("peerCount", it)
+        }
+      }
     }
     return room
   }

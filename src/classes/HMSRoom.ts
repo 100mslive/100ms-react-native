@@ -128,7 +128,7 @@ export class HMSRoom {
     );
   }
 
-  get peerCount(): number {
+  get peerCount(): number | null {
     const hmsRoomCache = getHmsRoomCache();
 
     if (hmsRoomCache) {
