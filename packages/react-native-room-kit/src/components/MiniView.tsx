@@ -17,7 +17,7 @@ const cornerOffset = {
   y: 16,
 }
 
-export interface MiniViewProps extends PeerVideoTileViewProps {
+export interface MiniViewProps extends Omit<PeerVideoTileViewProps, 'peerTrackNode'> {
   boundingBoxRef: MutableRefObject<LayoutRectangle | null>;
 };
 
@@ -29,6 +29,7 @@ export const MiniView: React.FC<Omit<MiniViewProps, 'insetMode'>> = ({ boundingB
   const dispatch = useDispatch();
 
   const minimized = useSelector((state: RootState) => state.app.insetViewMinimized);
+  const miniviewPeerTrackNode = useSelector((state: RootState) => state.app.miniviewPeerTrackNode);
 
   const { height: minimizedViewHeigth, width: minimizedViewWidth } = usePeerMinimizedViewDimensions();
 
@@ -116,6 +117,10 @@ export const MiniView: React.FC<Omit<MiniViewProps, 'insetMode'>> = ({ boundingB
     dispatch(setInsetViewMinimized(false));
   }
 
+  if (!miniviewPeerTrackNode) {
+    return null;
+  }
+
   return (
     <GestureDetector gesture={Gesture.Simultaneous(panGesture, longPressGesture)}>
       <Animated.View
@@ -127,9 +132,9 @@ export const MiniView: React.FC<Omit<MiniViewProps, 'insetMode'>> = ({ boundingB
       >
         <View style={styles.contentContainer}>
           {minimized ? (
-            <PeerMinimizedView onMaximizePress={handleMaximize} />
+            <PeerMinimizedView peerTrackNode={miniviewPeerTrackNode} onMaximizePress={handleMaximize} />
           ) : (
-            <PeerVideoTileView insetMode={true} onMoreOptionsPress={onMoreOptionsPress} />
+            <PeerVideoTileView peerTrackNode={miniviewPeerTrackNode} insetMode={true} onMoreOptionsPress={onMoreOptionsPress} />
           )}
         </View>
       </Animated.View>

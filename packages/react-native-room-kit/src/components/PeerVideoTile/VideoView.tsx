@@ -1,14 +1,7 @@
 import * as React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-} from 'react-native';
-import type {
-  StyleProp,
-  ViewStyle,
-} from 'react-native';
-import { HMSVideoViewMode, HMSPeer } from '@100mslive/react-native-hms';
+import { View, Text, StyleSheet } from 'react-native';
+import type { StyleProp, ViewStyle } from 'react-native';
+import type { HMSVideoViewMode, HMSView, HMSPeer } from '@100mslive/react-native-hms';
 import { useSelector } from 'react-redux';
 
 import type { RootState } from '../../redux';
@@ -23,48 +16,50 @@ export interface VideoViewProps {
   containerStyle?: StyleProp<ViewStyle>;
 }
 
-const _VideoView: React.FC<VideoViewProps> = ({
-  trackId,
-  peer,
-  overlay,
-  isDegraded,
-  scaleType,
-  containerStyle,
-}) => {
-  const HmsView = useSelector(
-    (state: RootState) => state.user.hmsInstance?.HmsView || null
-  );
-  const mirrorCamera = useSelector(
-    (state: RootState) => state.app.joinConfig.mirrorCamera
-  );
-  const autoSimulcast = useSelector(
-    (state: RootState) => state.app.joinConfig.autoSimulcast
-  );
+const _VideoView = React.forwardRef<
+  React.ElementRef<typeof HMSView>,
+  VideoViewProps
+>(
+  (
+    { trackId, peer, overlay, isDegraded, scaleType, containerStyle },
+    hmsViewRef
+  ) => {
+    const HmsView = useSelector(
+      (state: RootState) => state.user.hmsInstance?.HmsView || null
+    );
+    const mirrorCamera = useSelector(
+      (state: RootState) => state.app.joinConfig.mirrorCamera
+    );
+    const autoSimulcast = useSelector(
+      (state: RootState) => state.app.joinConfig.autoSimulcast
+    );
 
-  if (!HmsView) {
-    return null;
+    if (!HmsView) {
+      return null;
+    }
+
+    return (
+      <View style={[styles.container, containerStyle]}>
+        <HmsView
+          ref={hmsViewRef}
+          setZOrderMediaOverlay={overlay}
+          trackId={trackId}
+          key={trackId}
+          autoSimulcast={autoSimulcast}
+          mirror={peer.isLocal ? mirrorCamera : false}
+          scaleType={scaleType}
+          style={styles.hmsView}
+        />
+
+        {isDegraded ? (
+          <View style={styles.degradedView}>
+            <Text style={styles.degradedText}>Degraded</Text>
+          </View>
+        ) : null}
+      </View>
+    );
   }
-
-  return (
-    <View style={[styles.container, containerStyle]}>
-      <HmsView
-        setZOrderMediaOverlay={overlay}
-        trackId={trackId}
-        key={trackId}
-        autoSimulcast={autoSimulcast}
-        mirror={peer.isLocal ? mirrorCamera : false}
-        scaleType={scaleType}
-        style={styles.hmsView}
-      />
-
-      {isDegraded ? (
-        <View style={styles.degradedView}>
-          <Text style={styles.degradedText}>Degraded</Text>
-        </View>
-      ) : null}
-    </View>
-  );
-};
+);
 
 const styles = StyleSheet.create({
   container: {

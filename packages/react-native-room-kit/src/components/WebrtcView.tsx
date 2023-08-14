@@ -8,11 +8,11 @@ import { PipModes } from '../utils/types';
 import type { PeerTrackNode } from '../utils/types';
 import { pairData } from '../utils/functions';
 import type { RootState } from '../redux';
-import { GridView, type GridViewRefAttrs } from './GridView';
+import { GridView } from './GridView';
+import type { GridViewRefAttrs } from './GridView';
 import PIPView from './PIPView';
 import { useIsPortraitOrientation } from '../utils/dimension';
-import { useCanPublishVideo } from '../hooks-sdk';
-import { PeerVideoTileView } from './PeerVideoTile/PeerVideoTileView';
+import { LocalPeerRegularVideoView } from './LocalPeerRegularVideoView';
 
 interface WebrtcViewProps {
   peerTrackNodes: Array<PeerTrackNode>;
@@ -24,6 +24,8 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
     peerTrackNodes,
     handlePeerTileMorePress,
   }, gridViewRef) => {
+    const isPortrait = useIsPortraitOrientation();
+
     const isPipModeActive = useSelector(
       (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE
     );
@@ -33,18 +35,16 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
       (state: RootState) => state.user.spotlightTrackId
     );
 
-    const isPortrait = useIsPortraitOrientation();
-
     const pairedPeers = useMemo(
-      () => pairData(peerTrackNodes, isPortrait ? 4 : 2, spotlightTrackId),
+      () => pairData(peerTrackNodes, isPortrait ? 6 : 2, spotlightTrackId),
       [peerTrackNodes, spotlightTrackId, isPortrait]
     );
 
-    const canPublishVideo = useCanPublishVideo();
+    const canShowTiles = useSelector(
+      (state: RootState) => !!state.app.localPeerTrackNode || pairedPeers.length > 0
+    );
 
-    const showTiles = canPublishVideo || pairedPeers.length > 0;
-
-    if (!showTiles) {
+    if (!canShowTiles) {
       return (
         <View style={styles.welcomeContainer}>
           <Text style={styles.welcomeHeading}>Welcome!</Text>
@@ -72,6 +72,6 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
       );
     }
 
-    return <PeerVideoTileView onMoreOptionsPress={handlePeerTileMorePress} />;
+    return <LocalPeerRegularVideoView onMoreOptionsPress={handlePeerTileMorePress} />
   }
 );
