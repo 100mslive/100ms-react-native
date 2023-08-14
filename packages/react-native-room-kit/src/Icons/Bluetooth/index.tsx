@@ -2,16 +2,22 @@ import React from 'react';
 import { Image, StyleSheet } from 'react-native';
 import type { ImageProps } from 'react-native';
 
+import { useHMSRoomStyle } from '../../hooks-util';
+
 interface BluetoothIconProps extends Omit<ImageProps, 'source'> {}
 
 export const BluetoothIcon: React.FC<BluetoothIconProps> = ({
   style,
   ...restProps
 }) => {
+  const iconStyles = useHMSRoomStyle((theme) => ({
+    tintColor: theme.palette.on_surface_high
+  }));
+
   return (
     <Image
       source={require('./assets/bluetooth-on.png')}
-      style={[styles.icon, style]}
+      style={[styles.icon, iconStyles, style]}
       {...restProps}
     />
   );
