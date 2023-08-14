@@ -1,17 +1,19 @@
 import * as React from 'react';
+import { useSelector } from 'react-redux';
 import { StyleSheet, View } from 'react-native';
 
 import { useHMSRoomStyleSheet } from '../hooks-util';
+import type { RootState } from '../redux';
 
 export interface PaginationDotsProps {
-  activeIndex: number;
   list: any[];
 }
 
 const _PaginationDots: React.FC<PaginationDotsProps> = ({
-  activeIndex,
   list,
 }) => {
+  const activeIndex = useSelector((state: RootState) => state.app.gridViewActivePage);
+
   const hmsRoomStyles = useHMSRoomStyleSheet(
     (theme) => ({
       dot: { backgroundColor: theme.palette.on_surface_low },

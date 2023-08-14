@@ -43,6 +43,7 @@ type IntialStateType = {
   insetViewMinimized: boolean;
   miniviewPeerTrackNode: null | PeerTrackNode;
   localPeerTrackNode: null | PeerTrackNode;
+  gridViewActivePage: number;
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -65,6 +66,7 @@ const INITIAL_STATE: IntialStateType = {
   insetViewMinimized: false,
   miniviewPeerTrackNode: null,
   localPeerTrackNode: null,
+  gridViewActivePage: 0,
 };
 
 const appReducer = (
@@ -178,6 +180,8 @@ const appReducer = (
     }
     case ActionTypes.SET_STARTING_HLS_STREAM:
       return { ...state, startingHLSStream: action.payload.startingHLSStream };
+    case ActionTypes.SET_GRID_VIEW_ACTIVE_PAGE:
+      return { ...state, gridViewActivePage: action.payload.gridViewActivePage };
     case HmsStateActionTypes.CLEAR_STATES:
       return INITIAL_STATE;
     default:

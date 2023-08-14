@@ -247,3 +247,8 @@ export const setLayoutConfig = (layoutConfig: Layout) => ({
   type: HmsStateActionTypes.SET_LAYOUT_CONFIG,
   layoutConfig,
 });
+
+export const setGridViewActivePage = (pageNumber: number) => ({
+  type: actionTypes.SET_GRID_VIEW_ACTIVE_PAGE,
+  payload: { gridViewActivePage: pageNumber },
+});

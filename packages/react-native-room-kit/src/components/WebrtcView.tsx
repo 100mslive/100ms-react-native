@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
-import { PipModes } from '../utils/types';
+import { MaxTilesInOnePage, PipModes } from '../utils/types';
 import type { PeerTrackNode } from '../utils/types';
 import { pairData } from '../utils/functions';
 import type { RootState } from '../redux';
@@ -34,7 +34,11 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
     );
 
     const pairedPeers = useMemo(
-      () => pairData(peerTrackNodes, isPortrait ? 6 : 2, spotlightTrackId),
+      () => pairData(
+        peerTrackNodes,
+        isPortrait ? MaxTilesInOnePage.IN_PORTRAIT : MaxTilesInOnePage.IN_LANDSCAPE,
+        spotlightTrackId
+      ),
       [peerTrackNodes, spotlightTrackId, isPortrait]
     );
 

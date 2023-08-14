@@ -92,3 +92,8 @@ export const SUPPORTED_ASPECT_RATIOS = [
   { value: 4 / 3, id: '4:3' },
   { value: 3 / 4, id: '3:4' },
 ];
+
+export enum MaxTilesInOnePage {
+  IN_PORTRAIT = 6,
+  IN_LANDSCAPE = 2,
+};
