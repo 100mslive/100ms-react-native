@@ -63,9 +63,14 @@ import {
   setIsLocalAudioMutedState,
   setIsLocalVideoMutedState,
   setLayoutConfig,
+  setLocalPeerTrackNode,
+  setMiniViewPeerTrackNode,
   setModalType,
+  updateLocalPeerTrackNode,
+  updateMiniViewPeerTrackNode,
 } from './redux/actions';
 import {
+  createPeerTrackNodeUniqueId,
   degradeOrRestorePeerTrackNodes,
   peerTrackNodeExistForPeer,
   peerTrackNodeExistForPeerAndTrack,
@@ -235,7 +240,8 @@ const useHMSPeersUpdate = (
   updateLocalPeer: () => void,
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>
 ) => {
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
+  const store = useStore<RootState>();
   // const inMeeting = useSelector(
   //   (state: RootState) => state.app.meetingState === MeetingState.IN_MEETING
   // );
@@ -263,12 +269,29 @@ const useHMSPeersUpdate = (
         return;
       }
       if (peer.isLocal) {
-        // setPeerTrackNodes((prevPeerTrackNodes) => {
-        //   if (peerTrackNodeExistForPeer(prevPeerTrackNodes, peer)) {
-        //     return replacePeerTrackNodes(prevPeerTrackNodes, peer);
-        //   }
-        //   return prevPeerTrackNodes;
-        // });
+        setPeerTrackNodes((prevPeerTrackNodes) => {
+          if (peerTrackNodeExistForPeer(prevPeerTrackNodes, peer)) {
+            return replacePeerTrackNodes(prevPeerTrackNodes, peer);
+          }
+          return prevPeerTrackNodes;
+        });
+
+        const reduxState = store.getState();
+        const miniviewPeerTrackNode = reduxState.app.miniviewPeerTrackNode;
+        const localPeerTrackNode = reduxState.app.localPeerTrackNode;
+
+        batch(() => {
+          if (localPeerTrackNode) {
+            dispatch(updateLocalPeerTrackNode({ peer }));
+          } else {
+            dispatch(setLocalPeerTrackNode(createPeerTrackNode(peer, peer.videoTrack)));
+          }
+
+          // only set `localPeerTrackNode` as miniview peer track node when we are already using it.
+          if (miniviewPeerTrackNode && miniviewPeerTrackNode.peer.peerID === peer.peerID) {
+            dispatch(updateMiniViewPeerTrackNode({ peer }));
+          }
+        });
 
         // - TODO: update local localPeer state
         // - Pass this updated data to Meeting component -> DisplayView component
@@ -328,15 +351,19 @@ const useHMSTrackUpdate = (
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>
 ) => {
   const dispatch = useDispatch();
+  const store = useStore<RootState>();
 
   useEffect(() => {
     const trackUpdateHandler = ({ peer, track, type }: TrackUpdate) => {
-      if (peer.isLocal && track.source === HMSTrackSource.REGULAR) {
-        updateLocalPeer();
-        return;
-      }
+      const reduxState = store.getState();
+      const miniviewPeerTrackNode = reduxState.app.miniviewPeerTrackNode;
+      const localPeerTrackNode = reduxState.app.localPeerTrackNode;
 
       if (type === HMSTrackUpdate.TRACK_ADDED) {
+        const newPeerTrackNode = createPeerTrackNode(peer, track);
+
+        const willCreateMiniviewPeerTrackNode = !miniviewPeerTrackNode && peer.isLocal && track.source === HMSTrackSource.REGULAR;
+
         setPeerTrackNodes((prevPeerTrackNodes) => {
           if (
             peerTrackNodeExistForPeerAndTrack(prevPeerTrackNodes, peer, track)
@@ -350,14 +377,49 @@ const useHMSTrackUpdate = (
             }
             return replacePeerTrackNodes(prevPeerTrackNodes, peer);
           }
-          const newPeerTrackNode = createPeerTrackNode(peer, track);
-          return [...prevPeerTrackNodes, newPeerTrackNode];
+
+          if (miniviewPeerTrackNode
+              ? newPeerTrackNode.id !== miniviewPeerTrackNode.id
+              : !willCreateMiniviewPeerTrackNode
+          ) {
+            return [...prevPeerTrackNodes, newPeerTrackNode];
+          }
+
+          return prevPeerTrackNodes;
         });
 
         // - TODO: update local localPeer state
         // - Pass this updated data to Meeting component -> DisplayView component
         if (peer.isLocal) {
+          if (track.source === HMSTrackSource.REGULAR) {
+            if (!localPeerTrackNode) {
+              dispatch(setLocalPeerTrackNode(newPeerTrackNode));
+            } else {
+              dispatch(updateLocalPeerTrackNode(track.type === HMSTrackType.VIDEO ? { peer, track } : { peer }));
+            }
+
+            // only setting `miniviewPeerTrackNode`, when:
+            // - there is no `miniviewPeerTrackNode`
+            // - if there is, then it is of regular track
+            if (!miniviewPeerTrackNode) {
+              dispatch(setMiniViewPeerTrackNode(newPeerTrackNode));
+            } else if (miniviewPeerTrackNode.id === newPeerTrackNode.id) {
+              dispatch(updateMiniViewPeerTrackNode(track.type === HMSTrackType.VIDEO ? { peer, track } : { peer }));
+            }
+          }
+          // else -> {
+          //    should `localPeerTrackNode` be created/updated for non-regular track addition?
+          //    should `miniviewPeerTrackNode` be created/updated for non-regular track addition?
+          // }
+
           updateLocalPeer();
+        } else {
+          // only setting `miniviewPeerTrackNode`, when:
+          // - there is already `miniviewPeerTrackNode`
+          // - and it is of same peer's regular track
+          if (miniviewPeerTrackNode && miniviewPeerTrackNode.id === newPeerTrackNode.id) {
+            dispatch(updateMiniViewPeerTrackNode(track.type === HMSTrackType.VIDEO ? { peer, track } : { peer }));
+          }
         }
         return;
       }
@@ -375,7 +437,47 @@ const useHMSTrackUpdate = (
         // - TODO: update local localPeer state
         // - Pass this updated data to Meeting component -> DisplayView component
         if (peer.isLocal) {
+          if (track.source === HMSTrackSource.REGULAR) {
+            if (
+              !peer.audioTrack?.trackId
+              && !peer.videoTrack?.trackId
+            ) {
+              dispatch(setLocalPeerTrackNode(null));
+
+              // removing `miniviewPeerTrackNode`, when:
+              // - `localPeerTrack` was used as `miniviewPeerTrackNode`
+              // - and now local peer doesn't have any tracks
+              if (miniviewPeerTrackNode && miniviewPeerTrackNode.peer.peerID === peer.peerID) {
+                dispatch(setMiniViewPeerTrackNode(null));
+              }
+            } else {
+              if (track.type === HMSTrackType.VIDEO) {
+                dispatch(updateLocalPeerTrackNode({ peer, track: undefined }));
+              } else {
+                dispatch(updateLocalPeerTrackNode({ peer }));
+              }
+
+              // updating `miniviewPeerTrackNode`
+              if (miniviewPeerTrackNode && miniviewPeerTrackNode.peer.peerID === peer.peerID) {
+                if (track.type === HMSTrackType.VIDEO) {
+                  dispatch(updateMiniViewPeerTrackNode({ peer, track: undefined }));
+                } else {
+                  dispatch(updateMiniViewPeerTrackNode({ peer }));
+                }
+              }
+            }
+          }
+
           updateLocalPeer();
+        } else {
+          // only removing `miniviewPeerTrackNode`, when:
+          // - there is already `miniviewPeerTrackNode`
+          // - and it is of same peer's regular track
+          const uniqueId = createPeerTrackNodeUniqueId(peer, track);
+
+          if (miniviewPeerTrackNode && miniviewPeerTrackNode.id === uniqueId) {
+            dispatch(setMiniViewPeerTrackNode(null));
+          }
         }
         return;
       }
@@ -409,10 +511,28 @@ const useHMSTrackUpdate = (
           return prevPeerTrackNodes;
         });
 
+        const uniqueId = createPeerTrackNodeUniqueId(peer, track);
+
         // - TODO: update local localPeer state
         // - Pass this updated data to Meeting component -> DisplayView component
         if (peer.isLocal) {
+
+          const updatePayload = track.type === HMSTrackType.VIDEO ? { peer, track } : { peer };
+
+          dispatch(updateLocalPeerTrackNode(updatePayload));
+
+          // Take care of miniviewPeerTrackNode
+          if (miniviewPeerTrackNode && miniviewPeerTrackNode.id === uniqueId) {
+            dispatch(updateMiniViewPeerTrackNode(updatePayload));
+          }
+
           updateLocalPeer();
+        } else {
+          if (miniviewPeerTrackNode && miniviewPeerTrackNode.id === uniqueId) {
+            const updatePayload = track.type === HMSTrackType.VIDEO ? { peer, track } : { peer };
+
+            dispatch(updateMiniViewPeerTrackNode(updatePayload));
+          }
         }
         return;
       }
@@ -433,6 +553,12 @@ const useHMSTrackUpdate = (
           }
           return prevPeerTrackNodes;
         });
+
+        const uniqueId = createPeerTrackNodeUniqueId(peer, track);
+
+        if (miniviewPeerTrackNode && miniviewPeerTrackNode.id === uniqueId) {
+          dispatch(updateMiniViewPeerTrackNode({isDegraded: type === HMSTrackUpdate.TRACK_DEGRADED}));
+        }
         return;
       }
     };

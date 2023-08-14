@@ -13,11 +13,7 @@ export const degradeOrRestorePeerTrackNodes = (
   track: HMSTrack,
   isDegraded: boolean
 ): PeerTrackNode[] => {
-  const uniqueId =
-    peer.peerID +
-    (track.type === HMSTrackType.VIDEO
-      ? track?.source || HMSTrackSource.REGULAR
-      : HMSTrackSource.REGULAR);
+  const uniqueId = createPeerTrackNodeUniqueId(peer, track);
 
   return peerTrackNodes.map((peerTrackNode) => {
     if (peerTrackNode.id !== uniqueId) {
@@ -101,14 +97,21 @@ export const peerTrackNodeExistForPeerAndTrack = (
   peer: HMSPeer,
   track: HMSTrack
 ): boolean => {
-  const uniqueId =
-    peer.peerID +
-    (track.type === HMSTrackType.VIDEO
-      ? track?.source || HMSTrackSource.REGULAR
-      : HMSTrackSource.REGULAR);
+  const uniqueId = createPeerTrackNodeUniqueId(peer, track);
+
   return (
     peerTrackNodes.findIndex(
       (peerTrackNode) => peerTrackNode.id === uniqueId
     ) >= 0
   );
 };
+
+export const createPeerTrackNodeUniqueId = (peer: HMSPeer, track: HMSTrack) => {
+  const uniqueId =
+    peer.peerID +
+    (track.type === HMSTrackType.VIDEO
+      ? track?.source || HMSTrackSource.REGULAR
+      : HMSTrackSource.REGULAR);
+
+  return uniqueId;
+}

@@ -1,35 +1,23 @@
 import * as React from 'react';
-import { useSelector } from 'react-redux';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { PersonIcon } from '../../Icons';
-import type { RootState } from '../../redux';
 import { getInitials } from '../../utils/functions';
 import { COLORS } from '../../utils/theme';
 import type { VideoView } from './VideoView';
 
 export interface AvatarViewProps {
-  videoView: React.ReactElement<typeof VideoView>;
+  name: string;
+  videoView: React.ReactElement<typeof VideoView> | null;
 }
 
-export const _AvatarView: React.FC<AvatarViewProps> = ({ videoView }) => {
-  const showAvatar = useSelector((state: RootState) => {
-    const isLocalVideoMuted = state.hmsStates.isLocalVideoMuted;
-    const localVideoTrackId = state.hmsStates.localPeer?.videoTrack?.trackId;
-
-    // show avatar when video is muted or not available
-    return isLocalVideoMuted || !localVideoTrackId;
-  });
-
-  const name = useSelector(
-    (state: RootState) => state.hmsStates.localPeer?.name
-  );
+export const _AvatarView: React.FC<AvatarViewProps> = ({ name, videoView }) => {
 
   const showInitials = !!name && (name.length > 0);
 
   return (
     <View style={styles.container}>
-      {showAvatar ? (
+      {videoView || (
         <View style={styles.avatarContainer}>
           <View style={styles.avatar}>
             {showInitials ? (
@@ -39,7 +27,7 @@ export const _AvatarView: React.FC<AvatarViewProps> = ({ videoView }) => {
             )}
           </View>
         </View>
-      ) : videoView}
+      )}
     </View>
   );
 };

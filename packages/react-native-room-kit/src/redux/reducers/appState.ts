@@ -41,6 +41,8 @@ type IntialStateType = {
   meetingState: MeetingState;
   startingHLSStream: boolean;
   insetViewMinimized: boolean;
+  miniviewPeerTrackNode: null | PeerTrackNode;
+  localPeerTrackNode: null | PeerTrackNode;
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -61,6 +63,8 @@ const INITIAL_STATE: IntialStateType = {
   meetingState: MeetingState.NOT_JOINED,
   startingHLSStream: false,
   insetViewMinimized: false,
+  miniviewPeerTrackNode: null,
+  localPeerTrackNode: null,
 };
 
 const appReducer = (
@@ -144,6 +148,34 @@ const appReducer = (
       return { ...state, meetingState: action.payload.meetingState };
     case ActionTypes.SET_INSET_VIEW_MINIMIZED:
       return { ...state, insetViewMinimized: action.payload.insetViewMinimized };
+    case ActionTypes.SET_MINI_VIEW_PEERTRACKNODE:
+      return { ...state, miniviewPeerTrackNode: action.payload.miniviewPeerTrackNode };
+    case ActionTypes.UPDATE_MINI_VIEW_PEERTRACKNODE: {
+      if (!state.miniviewPeerTrackNode) {
+        return state;
+      }
+      return {
+        ...state,
+        miniviewPeerTrackNode: {
+          ...state.miniviewPeerTrackNode,
+          ...action.payload,
+        }
+      };
+    }
+    case ActionTypes.SET_LOCAL_PEERTRACKNODE:
+      return { ...state, localPeerTrackNode: action.payload.localPeerTrackNode };
+    case ActionTypes.UPDATE_LOCAL_PEERTRACKNODE: {
+      if (!state.localPeerTrackNode) {
+        return state;
+      }
+      return {
+        ...state,
+        localPeerTrackNode: {
+          ...state.localPeerTrackNode,
+          ...action.payload,
+        }
+      };
+    }
     case ActionTypes.SET_STARTING_HLS_STREAM:
       return { ...state, startingHLSStream: action.payload.startingHLSStream };
     case HmsStateActionTypes.CLEAR_STATES:
