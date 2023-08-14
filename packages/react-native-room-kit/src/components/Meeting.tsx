@@ -10,6 +10,7 @@ import {
   clearPendingModalTasks,
   useFetchHMSRoles,
   useHMSMessages,
+  useHMSNetworkQualityUpdate,
   useHMSPIPRoomLeave,
   useHMSRemovedFromRoomUpdate,
   useLandscapeChatViewVisible,
@@ -45,6 +46,9 @@ export const Meeting: React.FC<MeetingProps> = ({ peerTrackNodes }) => {
 
   // Handle rendering RTC stats on Tiles and inside RTC stats modal
   useRTCStatsListeners();
+
+  // Subscribe to Peers Network quality updates
+  useHMSNetworkQualityUpdate();
 
   const landscapeChatViewVisible = useLandscapeChatViewVisible();
 
