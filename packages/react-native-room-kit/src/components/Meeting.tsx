@@ -59,13 +59,13 @@ export const Meeting: React.FC<MeetingProps> = ({ peerTrackNodes }) => {
     };
   }, []);
 
-  if (startingHLSStream) {
-    return <HMSHLSStreamLoading />;
-  }
-
   const containerStyles = useHMSRoomStyle((theme) => ({
     backgroundColor: theme.palette.background_dim,
   }));
+
+  if (startingHLSStream) {
+    return <HMSHLSStreamLoading />;
+  }
 
   /**
    * TODO: disbaled Expended View animation in Webrtc flow
