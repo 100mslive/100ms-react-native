@@ -2,6 +2,8 @@ import React from 'react';
 import { Image, StyleSheet } from 'react-native';
 import type { ImageProps } from 'react-native';
 
+import { useHMSRoomStyle } from '../../hooks-util';
+
 interface CameraIconProps extends Omit<ImageProps, 'source'> {
   muted: boolean;
 }
@@ -11,6 +13,8 @@ export const CameraIcon: React.FC<CameraIconProps> = ({
   style,
   ...restProps
 }) => {
+  const iconStyles = useHMSRoomStyle(theme => ({ tintColor: theme.palette.on_surface_high }));
+
   return (
     <Image
       source={
@@ -18,7 +22,7 @@ export const CameraIcon: React.FC<CameraIconProps> = ({
           ? require('./assets/camera-muted.png')
           : require('./assets/camera-unmuted.png')
       }
-      style={[styles.icon, style]}
+      style={[styles.icon, iconStyles, style]}
       {...restProps}
     />
   );

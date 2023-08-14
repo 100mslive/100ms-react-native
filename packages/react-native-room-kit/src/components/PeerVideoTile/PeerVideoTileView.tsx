@@ -12,12 +12,13 @@ import { PeerMetadata } from './PeerMetadata';
 import { PeerAudioMutedIndicator } from './PeerAudioMutedIndicator';
 import { PressableIcon } from '../PressableIcon';
 import { ThreeDotsIcon } from '../../Icons';
-import { COLORS } from '../../utils/theme';
+import { hexToRgbA } from '../../utils/theme';
 import { PeerNameAndNetwork } from './PeerNameAndNetwork';
 import { UnmountAfterDelay } from '../UnmountAfterDelay';
 import type { PeerTrackNode } from '../../utils/types';
 import { isTileOnSpotlight } from '../../utils/functions';
 import { selectCanPublishTrackForRole } from '../../hooks-sdk-selectors';
+import { useHMSRoomStyle } from '../../hooks-util';
 
 export interface PeerVideoTileViewProps {
   peerTrackNode: PeerTrackNode;
@@ -68,6 +69,10 @@ export const _PeerVideoTileView = React.forwardRef<
 
   const peerCanPublishAudio = selectCanPublishTrackForRole(peer.role, 'audio');
   const peerCanPublishVideo = selectCanPublishTrackForRole(peer.role, 'video');
+
+  const iconWrapperStyles = useHMSRoomStyle((theme) => ({
+    backgroundColor: hexToRgbA(theme.palette.background_dim, 0.64),
+  }));
 
   return (
     <View style={styles.container}>
@@ -127,7 +132,7 @@ export const _PeerVideoTileView = React.forwardRef<
           <Animated.View entering={FadeIn} exiting={FadeOut}>
             <PressableIcon
               activeOpacity={0.7}
-              style={styles.iconWrapper}
+              style={[styles.iconWrapper, iconWrapperStyles]}
               border={false}
               onPress={handleOptionsPress}
             >
@@ -138,7 +143,7 @@ export const _PeerVideoTileView = React.forwardRef<
       ) : (
         <PressableIcon
           activeOpacity={0.7}
-          style={styles.iconWrapper}
+          style={[styles.iconWrapper, iconWrapperStyles]}
           border={false}
           onPress={handleOptionsPress}
         >
@@ -159,7 +164,6 @@ const styles = StyleSheet.create({
     bottom: 8,
     right: 8,
     padding: 4,
-    backgroundColor: COLORS.BACKGROUND.DIM_64,
     borderRadius: 8,
   },
   icon: {

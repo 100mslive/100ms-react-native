@@ -2,8 +2,9 @@ import * as React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { HMSTrackSource } from '@100mslive/react-native-hms';
 
-import { COLORS } from '../../utils/theme';
+import { hexToRgbA } from '../../utils/theme';
 import { NetworkQualityIcon } from '../../Icons';
+import { useHMSRoomStyleSheet } from '../../hooks-util';
 
 export interface PeerNameAndNetworkProps {
   name: string;
@@ -20,10 +21,20 @@ export const PeerNameAndNetwork: React.FC<PeerNameAndNetworkProps> = ({
 }) => {
   const showTrackSource = trackSource && (trackSource !== HMSTrackSource.REGULAR);
 
+  const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
+    contentContainer: {
+      backgroundColor: hexToRgbA(theme.palette.background_dim, 0.64),
+    },
+    name: {
+      color: theme.palette.on_surface_high,
+      fontFamily: `${typography.font_family}-Regular`,
+    }
+  }));
+
   return (
     <View style={styles.container}>
-      <View style={styles.contentContainer}>
-        <Text style={styles.name} numberOfLines={1} ellipsizeMode={showTrackSource ? 'middle' : 'tail'}>
+      <View style={[styles.contentContainer, hmsRoomStyles.contentContainer]}>
+        <Text style={[styles.name, hmsRoomStyles.name]} numberOfLines={1} ellipsizeMode={showTrackSource ? 'middle' : 'tail'}>
           {name}
           {isLocal ? ' (You)' : ''}
           {showTrackSource ? `'s ${trackSource}` : ''}
@@ -46,7 +57,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingVertical: 4,
     paddingHorizontal: 8,
-    backgroundColor: COLORS.BACKGROUND.DIM_64,
     borderRadius: 8,
     marginLeft: 8, // left offset
     marginRight: 20 + 4 + 44, // network icon width + network icon left margin + 3 dots button width and horizontal margins
@@ -54,9 +64,7 @@ const styles = StyleSheet.create({
   name: {
     flexGrow: 1,
     flexShrink: 1,
-    color: COLORS.SURFACE.ON_SURFACE.HIGH,
     fontSize: 14,
-    fontFamily: 'Inter-Regular',
     lineHeight: 20,
     letterSpacing: 0.25,
   },
