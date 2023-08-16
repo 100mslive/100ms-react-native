@@ -2,6 +2,8 @@ import React from 'react';
 import { Image, StyleSheet } from 'react-native';
 import type { ImageProps } from 'react-native';
 
+import { useHMSRoomStyle } from '../../hooks-util';
+
 interface ThreeDotsIconProps extends Omit<ImageProps, 'source'> {
   stack: 'horizontal' | 'vertical';
 }
@@ -11,6 +13,10 @@ export const ThreeDotsIcon: React.FC<ThreeDotsIconProps> = ({
   style,
   ...restProps
 }) => {
+  const iconStyles = useHMSRoomStyle(theme => ({
+    tintColor: theme.palette.on_surface_high
+  }));
+
   return (
     <Image
       source={
@@ -18,7 +24,7 @@ export const ThreeDotsIcon: React.FC<ThreeDotsIconProps> = ({
           ? require('./assets/three-dots-vertical.png')
           : require('./assets/three-dots-vertical.png')
       }
-      style={[styles.icon, style]}
+      style={[styles.icon, iconStyles, style]}
       {...restProps}
     />
   );

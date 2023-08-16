@@ -11,9 +11,10 @@ import { ModalTypes } from '../utils/types';
 import type { PeerTrackNode } from '../utils/types';
 import { isTileOnSpotlight } from '../utils/functions';
 import { setInsetViewMinimized, setPeerToUpdate } from '../redux/actions';
-import { useHMSRoomStyle, useHMSRoomStyleSheet, useModalType } from '../hooks-util';
-import { CloseIcon, MinimizeIcon, PinIcon, StarIcon } from '../Icons';
+import { useHMSRoomStyle, useModalType } from '../hooks-util';
+import { MinimizeIcon, PinIcon, StarIcon } from '../Icons';
 import { useCanPublishVideo } from '../hooks-sdk';
+import { BottomSheet } from './BottomSheet';
 
 interface PeerSettingsModalContentProps {
   peerTrackNode: PeerTrackNode;
@@ -48,23 +49,6 @@ export const PeerSettingsModalContent: React.FC<
   const debugMode = useSelector((state: RootState) => state.user.debugMode);
   const { handleModalVisibleType: setModalVisible } = useModalType();
   const localPeerCanPublishVideo = useCanPublishVideo();
-
-  const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
-    container: {
-      backgroundColor: theme.palette.background_default,
-    },
-    headerText: {
-      color: theme.palette.on_surface_high,
-      fontFamily: `${typography.font_family}-SemiBold`,
-    },
-    subheadingText: {
-      color: theme.palette.on_surface_medium,
-      fontFamily: `${typography.font_family}-Regular`,
-    },
-    divider: {
-      backgroundColor: theme.palette.border_default,
-    },
-  }));
 
   const removePeer = () => {
     hmsInstance
@@ -162,29 +146,14 @@ export const PeerSettingsModalContent: React.FC<
   const isPeerVideoMute = peer.isLocal ? null : peer.videoTrack?.isMute();
 
   return (
-    <View style={[styles.container, hmsRoomStyles.container]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View>
-          <Text style={[styles.headerText, hmsRoomStyles.headerText]}>
-            {peer.name}
-            {peer.isLocal ? ' (You)' : ''}
-          </Text>
-          <Text style={[styles.subheadingText, hmsRoomStyles.subheadingText]}>
-            {peer.role?.name}
-          </Text>
-        </View>
+    <View>
+      <BottomSheet.Header
+        dismissModal={cancelModal}
+        heading={peer.name + (peer.isLocal ? ' (You)' : '')}
+        subheading={peer.role?.name}
+      />
 
-        <TouchableOpacity
-          onPress={cancelModal}
-          hitSlop={styles.closeIconHitSlop}
-        >
-          <CloseIcon />
-        </TouchableOpacity>
-      </View>
-
-      {/* Divider */}
-      <View style={[styles.divider, hmsRoomStyles.divider]} />
+      <BottomSheet.Divider />
 
       {/* Content */}
       <View style={styles.contentContainer}>
@@ -383,40 +352,6 @@ const SettingItem: React.FC<SettingItemProps> = ({
 };
 
 const styles = StyleSheet.create({
-  container: {
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    paddingBottom: 32,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 24,
-    paddingTop: 16,
-  },
-  headerText: {
-    fontSize: 16,
-    lineHeight: 24,
-    letterSpacing: 0.15,
-  },
-  subheadingText: {
-    marginTop: 4,
-    fontSize: 12,
-    lineHeight: 16,
-    letterSpacing: 0.40,
-  },
-  closeIconHitSlop: {
-    bottom: 16,
-    left: 16,
-    right: 16,
-    top: 16,
-  },
-  divider: {
-    height: 2,
-    width: '100%',
-    marginVertical: 16,
-  },
   contentContainer: {
     marginBottom: 8
   },
