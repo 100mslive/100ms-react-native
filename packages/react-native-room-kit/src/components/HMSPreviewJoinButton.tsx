@@ -34,12 +34,8 @@ export const HMSPreviewJoinButton: React.FC<HMSPreviewJoinButtonProps> = ({
       layoutConfig?.screens?.preview?.default?.elements?.join_form;
 
     return {
-      joinBtnLabel: joinLayoutConfig
-        ? joinLayoutConfig.join_btn_label
-        : 'Join Now',
-      goLiveBtnLabel: joinLayoutConfig
-        ? joinLayoutConfig.go_live_btn_label
-        : 'Go Live',
+      joinBtnLabel: joinLayoutConfig?.join_btn_label || 'Join Now',
+      goLiveBtnLabel: joinLayoutConfig?.go_live_btn_label || 'Go Live',
     };
   }, shallowEqual);
 
