@@ -25,6 +25,7 @@ type IntialStateType = {
   isHLSFlow: boolean;
   roles: HMSRole[];
   iosBuildConfig: HMSIOSScreenShareConfig | null;
+  onMeetingLeave: (() => void) | undefined;
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -40,6 +41,7 @@ const INITIAL_STATE: IntialStateType = {
   hmsSessionStore: null,
   spotlightTrackId: null,
   iosBuildConfig: null,
+  onMeetingLeave: undefined,
 };
 
 const userReducer = (
@@ -76,6 +78,7 @@ const userReducer = (
       state.endPoints = action.payload.options.endPoints;
       state.debugMode = action.payload.options.debugMode ?? false;
       state.iosBuildConfig = action.payload.options.ios ?? null;
+      state.onMeetingLeave = action.payload.onMeetingLeave;
 
       return state;
     case HmsStateActionTypes.CLEAR_STATES:

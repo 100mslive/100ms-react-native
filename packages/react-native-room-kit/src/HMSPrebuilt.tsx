@@ -22,12 +22,13 @@ export interface HMSPrebuiltProps {
     debugMode?: boolean;
     ios?: HMSIOSScreenShareConfig;
   };
+  onMeetingLeave?: () => void;
 }
 
 const _HMSPrebuilt: React.FC<HMSPrebuiltProps> = (props) => {
-  const { roomCode, options } = props;
+  const { roomCode, options, onMeetingLeave } = props;
 
-  store.dispatch(setPrebuiltData({ roomCode, options }));
+  store.dispatch(setPrebuiltData({ roomCode, options, onMeetingLeave }));
 
   // @ts-ignore Not using `useContext` hook because we don't want to subscribe to updates
   // We just want to check if SafeAreaProvider exists or not
