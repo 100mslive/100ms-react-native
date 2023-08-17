@@ -8,20 +8,15 @@ import { QRCodeScanner } from '../screens/QRCodeScanner';
 import { HMSPrebuiltScreen } from '../screens/HMSPrebuiltScreen';
 
 export type AppStackParamList = {
-  WelcomeScreen: undefined;
-  MeetingScreen: { isHLSViewer: boolean };
   QRCodeScreen: undefined;
   QRCodeScannerScreen: undefined;
   HMSPrebuiltScreen: {
     roomCode: string;
     userName?: string;
     userId?: string;
-    endPoints?: { init: string; token: string };
     debugMode?: boolean;
-    ios?: {
-      appGroup?: string;
-      preferredExtension?: string;
-    };
+    initEndPoint?: string;
+    tokenEndPoint?: string;
   };
 };
 

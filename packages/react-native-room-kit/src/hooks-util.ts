@@ -904,54 +904,11 @@ export const useHMSMessages = () => {
 
 export const useHMSPIPRoomLeave = () => {
   const hmsInstance = useHMSInstance();
-  const dispatch = useDispatch();
-  // TODO: What if this is undefined?
-  const navigation = useContext(NavigationContext);
+  const { destroy } = useLeaveMethods();
 
   useEffect(() => {
     const pipRoomLeaveHandler = () => {
-      hmsInstance
-        .destroy()
-        .then((s) => {
-          console.log('Destroy Success: ', s);
-          // TODOS:
-          // - If show `Meeting_Ended` is true, show Meeting screen by setting state to MEETING_ENDED
-          //    - Reset Redux States
-          //    - HMSInstance will not be available now
-          //    - When your presses "Re Join" Action button, restart process from root component
-          //    - When your presses "Done" Action button
-          //        - If we have callback fn, call it
-          //        - Otherwise try our best to navigate away from current screen
-          //
-          // - No screen to show
-          //    - No need to reset redux state?
-          //    - HMSInstance will be available till this point
-          //    - If we have callback fn, call it
-          //    - Otherwise try our best to navigate away from current screen
-          //    - When we are navigated away from screen, HMSInstance will be not available
-
-          // dispatch(clearMessageData());
-          // dispatch(clearPeerData());
-          // dispatch(clearHmsReference());
-
-          if (navigation && navigation.canGoBack()) {
-            navigation.goBack();
-            dispatch(clearStore());
-          } else {
-            // TODO: call onLeave Callback if provided
-            // Otherwise default action is to show "Meeting Ended" screen
-            dispatch(clearStore()); // TODO: We need different clearStore for MeetingEnded
-            dispatch(changeMeetingState(MeetingState.MEETING_ENDED));
-          }
-        })
-        .catch((e) => {
-          console.log(`Destroy HMS instance Error: ${e}`);
-          Toast.showWithGravity(
-            `Destroy HMS instance Error: ${e}`,
-            Toast.LONG,
-            Toast.TOP
-          );
-        });
+      destroy();
     };
 
     hmsInstance.addEventListener(
@@ -962,59 +919,16 @@ export const useHMSPIPRoomLeave = () => {
     return () => {
       hmsInstance.removeEventListener(HMSPIPListenerActions.ON_PIP_ROOM_LEAVE);
     };
-  }, [hmsInstance]);
+  }, [destroy, hmsInstance]);
 };
 
 export const useHMSRemovedFromRoomUpdate = () => {
   const hmsInstance = useHMSInstance();
-  const dispatch = useDispatch();
-  // TODO: What if this is undefined?
-  const navigation = useContext(NavigationContext);
+  const { destroy } = useLeaveMethods();
 
   useEffect(() => {
     const removedFromRoomHandler = () => {
-      hmsInstance
-        .destroy()
-        .then((s) => {
-          console.log('Destroy Success: ', s);
-          // TODOS:
-          // - If show `Meeting_Ended` is true, show Meeting screen by setting state to MEETING_ENDED
-          //    - Reset Redux States
-          //    - HMSInstance will not be available now
-          //    - When your presses "Re Join" Action button, restart process from root component
-          //    - When your presses "Done" Action button
-          //        - If we have callback fn, call it
-          //        - Otherwise try our best to navigate away from current screen
-          //
-          // - No screen to show
-          //    - No need to reset redux state?
-          //    - HMSInstance will be available till this point
-          //    - If we have callback fn, call it
-          //    - Otherwise try our best to navigate away from current screen
-          //    - When we are navigated away from screen, HMSInstance will be not available
-
-          // dispatch(clearMessageData());
-          // dispatch(clearPeerData());
-          // dispatch(clearHmsReference());
-
-          if (navigation && navigation.canGoBack()) {
-            navigation.goBack();
-            dispatch(clearStore());
-          } else {
-            // TODO: call onLeave Callback if provided
-            // Otherwise default action is to show "Meeting Ended" screen
-            dispatch(clearStore()); // TODO: We need different clearStore for MeetingEnded
-            dispatch(changeMeetingState(MeetingState.MEETING_ENDED));
-          }
-        })
-        .catch((e) => {
-          console.log(`Destroy HMS instance Error: ${e}`);
-          Toast.showWithGravity(
-            `Destroy HMS instance Error: ${e}`,
-            Toast.LONG,
-            Toast.TOP
-          );
-        });
+      destroy();
     };
 
     hmsInstance.addEventListener(
@@ -1027,7 +941,7 @@ export const useHMSRemovedFromRoomUpdate = () => {
         HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM
       );
     };
-  }, [hmsInstance]);
+  }, [destroy, hmsInstance]);
 };
 
 export const usePIPListener = () => {
@@ -1456,6 +1370,7 @@ export const useLeaveMethods = () => {
   const navigation = useContext(NavigationContext);
   const hmsInstance = useHMSInstance();
   const dispatch = useDispatch();
+  const reduxStore = useStore<RootState>();
 
   const destroy = useCallback(async () => {
     try {
@@ -1481,7 +1396,12 @@ export const useLeaveMethods = () => {
       // dispatch(clearPeerData());
       // dispatch(clearHmsReference());
 
-      if (navigation && navigation.canGoBack()) {
+      const onLeave = reduxStore.getState().user.onLeave;
+
+      if (typeof onLeave === 'function') {
+        onLeave();
+        dispatch(clearStore());
+      } else if (navigation && navigation.canGoBack()) {
         navigation.goBack();
         dispatch(clearStore());
       } else {
