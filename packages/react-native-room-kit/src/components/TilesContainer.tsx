@@ -7,6 +7,7 @@ import type { HMSView } from '@100mslive/react-native-hms';
 import { Tile } from './Tile';
 import type { PeerTrackNode } from '../utils/types';
 import { useIsLandscapeOrientation } from '../utils/dimension';
+import { groupIntoPairs } from '../utils/functions';
 
 interface TilesContainerProps {
   peerTrackNodes: PeerTrackNode[];
@@ -109,24 +110,6 @@ TilesContainer.displayName = 'TilesContainer';
 export { TilesContainer };
 
 // Utility Functions
-
-/**
- * @param totalNumber total number of tiles
- * @returns list of pairs that can be made from total number of tiles
- *
- * Example: If totalNumber is 5, then output will be = [ [0, 1], [2, 3], [4] ];
- */
-function groupIntoPairs(totalNumber: number) {
-  const pairs = [];
-  for (let i = 0; i < totalNumber; i += 2) {
-    if (i + 1 < totalNumber) {
-      pairs.push([i, i + 1]);
-    } else {
-      pairs.push([i]);
-    }
-  }
-  return pairs;
-}
 
 const oneTileStyle = { width: '100%', height: '100%' }; // 1 Column Layout
 const twoTileStyle = { width: '100%', height: '49.4444%' }; // 1 Column Layout

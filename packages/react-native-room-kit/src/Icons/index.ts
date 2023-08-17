@@ -30,3 +30,6 @@ export * from './Maximize';
 export * from './Minimize';
 export * from './Star';
 export * from './Pin';
+export * from './Pencil';
+export * from './Recording';
+export * from './AlertTriangle';

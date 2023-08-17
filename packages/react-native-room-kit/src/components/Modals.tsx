@@ -194,60 +194,6 @@ export const SaveScreenshot = ({
   );
 };
 
-export const ChangeNameModal = ({ cancelModal }: { cancelModal: Function }) => {
-  const instance = useHMSInstance();
-  const peer = useSelector((state: RootState) => state.app.peerToUpdate);
-  const dispatch = useDispatch();
-
-  const [name, setName] = useState<string>(peer?.name!);
-
-  const changeName = () => {
-    if (name.length > 0) {
-      instance
-        ?.changeName(name)
-        .then((d) => {
-          dispatch(
-            saveUserData({
-              userName: name,
-            })
-          );
-          console.log('Change Name Success: ', d);
-        })
-        .catch((e) => console.log('Change Name Error: ', e));
-    }
-    cancelModal();
-  };
-
-  return (
-    <View style={styles.volumeModalContainer}>
-      <Text style={styles.roleChangeModalHeading}>Change Name</Text>
-      <View style={styles.volumeModalSlider}>
-        <CustomInput
-          value={name}
-          onChangeText={setName}
-          inputStyle={styles.participantChangeNameInput}
-          placeholderTextColor={COLORS.TEXT.DISABLED}
-          placeholder="Find what you’re looking for"
-        />
-      </View>
-      <View style={styles.roleChangeModalPermissionContainer}>
-        <CustomButton
-          title="Cancel"
-          onPress={cancelModal}
-          viewStyle={styles.roleChangeModalCancelButton}
-          textStyle={styles.roleChangeModalButtonText}
-        />
-        <CustomButton
-          title="Change"
-          onPress={changeName}
-          viewStyle={styles.roleChangeModalSuccessButton}
-          textStyle={styles.roleChangeModalButtonText}
-        />
-      </View>
-    </View>
-  );
-};
-
 interface RTCTrack {
   name: string;
   peerId?: string; // peerId is used to get audio track stats

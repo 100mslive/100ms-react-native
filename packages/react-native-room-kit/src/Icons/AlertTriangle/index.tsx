@@ -4,19 +4,16 @@ import type { ImageProps } from 'react-native';
 
 import { useHMSRoomStyle } from '../../hooks-util';
 
-interface ScreenShareIconProps extends Omit<ImageProps, 'source'> {}
+interface AlertTriangleIconProps extends Omit<ImageProps, 'source'> {}
 
-export const ScreenShareIcon: React.FC<ScreenShareIconProps> = ({
-  style,
-  ...restProps
-}) => {
-  const iconStyles = useHMSRoomStyle(theme => ({
-    tintColor: theme.palette.on_surface_high
+export const AlertTriangleIcon: React.FC<AlertTriangleIconProps> = ({ style, ...restProps }) => {
+  const iconStyles = useHMSRoomStyle((theme) => ({
+    tintColor: theme.palette.alert_error_default,
   }));
 
   return (
     <Image
-      source={require('./assets/screen-share.png')}
+      source={require('./assets/alert-triangle.png')}
       style={[styles.icon, iconStyles, style]}
       {...restProps}
     />
