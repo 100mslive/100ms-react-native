@@ -2,6 +2,7 @@ import { NativeModules } from 'react-native';
 import { getLogger } from './HMSLogger';
 import type { HMSTrackType } from './HMSTrackType';
 import { HMSAudioTrack } from './HMSAudioTrack';
+import type { HMSTrackSource } from './HMSTrackSource'
 
 const {
   /**
@@ -54,7 +55,7 @@ export class HMSRemoteAudioTrack extends HMSAudioTrack {
 
   constructor(params: {
     trackId: string;
-    source?: number | string;
+    source?: HMSTrackSource;
     isMute?: boolean;
     trackDescription?: string;
     playbackAllowed?: boolean;

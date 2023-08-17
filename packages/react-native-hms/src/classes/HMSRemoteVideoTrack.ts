@@ -5,6 +5,7 @@ import type { HMSTrackType } from './HMSTrackType';
 import type { HMSLayer } from './HMSLayer';
 import type { HMSSimulcastLayerDefinition } from './HMSSimulcastLayerDefinition';
 import { HMSEncoder } from './HMSEncoder';
+import type { HMSTrackSource } from './HMSTrackSource'
 
 const {
   /**
@@ -105,7 +106,7 @@ export class HMSRemoteVideoTrack extends HMSVideoTrack {
 
   constructor(params: {
     trackId: string;
-    source?: number | string;
+    source?: HMSTrackSource;
     trackDescription?: string;
     isMute?: boolean;
     playbackAllowed?: boolean;
