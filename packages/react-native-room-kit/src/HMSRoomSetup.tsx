@@ -31,6 +31,7 @@ import { createPeerTrackNode } from './utils/functions';
 import type { PeerTrackNode } from './utils/types';
 import { Meeting } from './components/Meeting';
 import {
+  useHMSActiveSpeakerUpdates,
   useHMSConfig,
   useHMSInstance,
   useHMSListeners,
@@ -252,6 +253,12 @@ export const HMSRoomSetup = () => {
       hmsInstance.removeEventListener(HMSUpdateListenerActions.ON_JOIN);
     };
   }, [startHLSStreaming, hmsInstance]);
+
+  const meetingJoined = meetingState === MeetingState.IN_MEETING;
+
+  // HMS Active Speaker Listener
+  // dev-note: This is added here because we have `setPeerTrackNodes` here
+  useHMSActiveSpeakerUpdates(setPeerTrackNodes, meetingJoined);
 
   const meetingEnded = meetingState === MeetingState.MEETING_ENDED;
 

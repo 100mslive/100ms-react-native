@@ -2,6 +2,8 @@ import React from 'react';
 import { Image, StyleSheet } from 'react-native';
 import type { ImageProps } from 'react-native';
 
+import { useHMSRoomStyle } from '../../hooks-util';
+
 interface SpeakerIconProps extends Omit<ImageProps, 'source'> {
   muted: boolean;
   size?: 'normal' | 'large';
@@ -13,6 +15,10 @@ export const SpeakerIcon: React.FC<SpeakerIconProps> = ({
   style,
   ...restProps
 }) => {
+  const iconStyles = useHMSRoomStyle((theme) => ({
+    tintColor: theme.palette.on_surface_high
+  }));
+
   return (
     <Image
       source={
@@ -22,7 +28,7 @@ export const SpeakerIcon: React.FC<SpeakerIconProps> = ({
           ? require('./assets/speaker.png')
           : require('./assets/speaker-large.png')
       }
-      style={[styles.icon, style, size === 'large' ? styles.large : null]}
+      style={[styles.icon, iconStyles, style, size === 'large' ? styles.large : null]}
       {...restProps}
     />
   );

@@ -1,5 +1,4 @@
 import * as React from 'react';
-import Modal from 'react-native-modal';
 import {
   Platform,
   ScrollView,
@@ -24,13 +23,9 @@ import {
   WaveIcon,
 } from '../Icons';
 import { PressableIcon } from './PressableIcon';
-import { CloseIcon } from '../Icons';
-import {
-  useHMSInstance,
-  useHMSRoomColorPalette,
-  useHMSRoomStyleSheet,
-} from '../hooks-util';
+import { useHMSInstance, useHMSRoomStyleSheet } from '../hooks-util';
 import type { RootState } from '../redux';
+import { BottomSheet } from './BottomSheet';
 
 export const HMSManageAudioOutput: React.FC = () => {
   const hmsInstance = useHMSInstance();
@@ -124,12 +119,7 @@ export const HMSManageAudioOutput: React.FC = () => {
     setSettingsModalVisible(false);
   };
 
-  const { background_dim: backgroundDimColor } = useHMSRoomColorPalette();
-
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
-    container: {
-      backgroundColor: theme.palette.background_default,
-    },
     headerText: {
       color: theme.palette.on_surface_high,
       fontFamily: `${typography.font_family}-Medium`,
@@ -153,35 +143,12 @@ export const HMSManageAudioOutput: React.FC = () => {
         )}
       </PressableIcon>
 
-      <Modal
-        isVisible={settingsModalVisible}
-        animationIn={'slideInUp'}
-        animationOut={'slideOutDown'}
-        backdropColor={backgroundDimColor}
-        backdropOpacity={0.3}
-        onBackButtonPress={dismissModal}
-        onBackdropPress={dismissModal}
-        useNativeDriver={true}
-        useNativeDriverForBackdrop={true}
-        hideModalContentWhileAnimating={true}
-        // swipeDirection={['up', 'down']}
-        // swipe
-        style={styles.modal}
-      >
-        <View style={[styles.container, hmsRoomStyles.container]}>
-          <View style={styles.header}>
-            <Text style={[styles.headerText, hmsRoomStyles.headerText]}>
-              Audio Output
-            </Text>
+      <BottomSheet isVisible={settingsModalVisible} dismissModal={dismissModal}>
+        <BottomSheet.Header dismissModal={dismissModal} heading='Audio Output' />
 
-            <TouchableOpacity
-              onPress={dismissModal}
-              hitSlop={styles.closeIconHitSlop}
-            >
-              <CloseIcon />
-            </TouchableOpacity>
-          </View>
+        <BottomSheet.Divider />
 
+        <View style={styles.contentContainer}>
           {availableAudioOutputDevices.length === 0 ? (
             <View style={styles.emptyView}>
               <Text style={[styles.itemText, hmsRoomStyles.text]}>
@@ -194,69 +161,48 @@ export const HMSManageAudioOutput: React.FC = () => {
                 .sort(
                   (a, b) => audioDeviceSortOrder[a] - audioDeviceSortOrder[b]
                 )
-                .map((device) => (
-                  <React.Fragment key={device}>
-                    <View style={[styles.divider, hmsRoomStyles.divider]} />
+                .map((device, index) => {
+                  const isFirst = index === 0;
 
-                    <TouchableOpacity
-                      style={styles.audioDeviceItem}
-                      onPress={() => handleSelectAudioDevice(device)}
-                    >
-                      <View style={styles.itemTextWrapper}>
-                        {getIcon(
-                          device === HMSAudioDevice.AUTOMATIC &&
-                            currentAudioOutputDevice
-                            ? currentAudioOutputDevice
-                            : device
-                        )}
+                  return (
+                    <React.Fragment key={device}>
+                      {isFirst ? null : <View style={[styles.divider, hmsRoomStyles.divider]} />}
 
-                        <Text style={[styles.itemText, hmsRoomStyles.text]}>
-                          {getDescription(device, currentAudioOutputDevice)}
-                        </Text>
-                      </View>
+                      <TouchableOpacity
+                        style={styles.audioDeviceItem}
+                        onPress={() => handleSelectAudioDevice(device)}
+                      >
+                        <View style={styles.itemTextWrapper}>
+                          {getIcon(
+                            device === HMSAudioDevice.AUTOMATIC &&
+                              currentAudioOutputDevice
+                              ? currentAudioOutputDevice
+                              : device
+                          )}
 
-                      {device === currentAudioOutputDevice ? (
-                        <CheckIcon />
-                      ) : null}
-                    </TouchableOpacity>
-                  </React.Fragment>
-                ))}
+                          <Text style={[styles.itemText, hmsRoomStyles.text]}>
+                            {getDescription(device, currentAudioOutputDevice)}
+                          </Text>
+                        </View>
+
+                        {device === currentAudioOutputDevice ? (
+                          <CheckIcon />
+                        ) : null}
+                      </TouchableOpacity>
+                    </React.Fragment>
+                  );
+                })}
             </ScrollView>
           )}
         </View>
-      </Modal>
+      </BottomSheet>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  modal: {
-    margin: 0,
-    justifyContent: 'flex-end',
-  },
-  container: {
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    paddingTop: 24,
-    paddingHorizontal: 16,
-    paddingBottom: 32,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  headerText: {
-    fontSize: 16,
-    lineHeight: 24,
-    letterSpacing: 0.15,
-  },
-  closeIconHitSlop: {
-    bottom: 16,
-    left: 16,
-    right: 16,
-    top: 16,
+  contentContainer: {
+    marginHorizontal: 24,
   },
   itemTextWrapper: {
     flexDirection: 'row',

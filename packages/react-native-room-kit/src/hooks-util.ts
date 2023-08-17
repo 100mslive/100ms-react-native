@@ -21,6 +21,7 @@ import {
 import type {
   HMSSessionStore,
   HMSSessionStoreValue,
+  HMSSpeaker,
 } from '@100mslive/react-native-hms';
 import type {
   ColorPalette,
@@ -38,7 +39,7 @@ import {
 } from 'react';
 import type { DependencyList } from 'react';
 
-import { ModalTypes, PipModes } from './utils/types';
+import { MaxTilesInOnePage, ModalTypes, PipModes } from './utils/types';
 import type { PeerTrackNode } from './utils/types';
 import { createPeerTrackNode, parseMetadata } from './utils/functions';
 import {
@@ -362,7 +363,10 @@ const useHMSTrackUpdate = (
       if (type === HMSTrackUpdate.TRACK_ADDED) {
         const newPeerTrackNode = createPeerTrackNode(peer, track);
 
-        const willCreateMiniviewPeerTrackNode = !miniviewPeerTrackNode && peer.isLocal && track.source === HMSTrackSource.REGULAR;
+        const willCreateMiniviewPeerTrackNode =
+          !miniviewPeerTrackNode &&
+          peer.isLocal &&
+          track.source === HMSTrackSource.REGULAR;
 
         setPeerTrackNodes((prevPeerTrackNodes) => {
           if (
@@ -378,7 +382,8 @@ const useHMSTrackUpdate = (
             return replacePeerTrackNodes(prevPeerTrackNodes, peer);
           }
 
-          if (miniviewPeerTrackNode
+          if (
+            miniviewPeerTrackNode
               ? newPeerTrackNode.id !== miniviewPeerTrackNode.id
               : !willCreateMiniviewPeerTrackNode
           ) {
@@ -438,16 +443,16 @@ const useHMSTrackUpdate = (
         // - Pass this updated data to Meeting component -> DisplayView component
         if (peer.isLocal) {
           if (track.source === HMSTrackSource.REGULAR) {
-            if (
-              !peer.audioTrack?.trackId
-              && !peer.videoTrack?.trackId
-            ) {
+            if (!peer.audioTrack?.trackId && !peer.videoTrack?.trackId) {
               dispatch(setLocalPeerTrackNode(null));
 
               // removing `miniviewPeerTrackNode`, when:
               // - `localPeerTrack` was used as `miniviewPeerTrackNode`
               // - and now local peer doesn't have any tracks
-              if (miniviewPeerTrackNode && miniviewPeerTrackNode.peer.peerID === peer.peerID) {
+              if (
+                miniviewPeerTrackNode &&
+                miniviewPeerTrackNode.peer.peerID === peer.peerID
+              ) {
                 dispatch(setMiniViewPeerTrackNode(null));
               }
             } else {
@@ -458,7 +463,10 @@ const useHMSTrackUpdate = (
               }
 
               // updating `miniviewPeerTrackNode`
-              if (miniviewPeerTrackNode && miniviewPeerTrackNode.peer.peerID === peer.peerID) {
+              if (
+                miniviewPeerTrackNode &&
+                miniviewPeerTrackNode.peer.peerID === peer.peerID
+              ) {
                 if (track.type === HMSTrackType.VIDEO) {
                   dispatch(updateMiniViewPeerTrackNode({ peer, track: undefined }));
                 } else {
@@ -516,8 +524,8 @@ const useHMSTrackUpdate = (
         // - TODO: update local localPeer state
         // - Pass this updated data to Meeting component -> DisplayView component
         if (peer.isLocal) {
-
-          const updatePayload = track.type === HMSTrackType.VIDEO ? { peer, track } : { peer };
+          const updatePayload =
+            track.type === HMSTrackType.VIDEO ? { peer, track } : { peer };
 
           dispatch(updateLocalPeerTrackNode(updatePayload));
 
@@ -529,7 +537,8 @@ const useHMSTrackUpdate = (
           updateLocalPeer();
         } else {
           if (miniviewPeerTrackNode && miniviewPeerTrackNode.id === uniqueId) {
-            const updatePayload = track.type === HMSTrackType.VIDEO ? { peer, track } : { peer };
+            const updatePayload =
+              track.type === HMSTrackType.VIDEO ? { peer, track } : { peer };
 
             dispatch(updateMiniViewPeerTrackNode(updatePayload));
           }
@@ -699,7 +708,9 @@ export const useHMSRoleChangeRequest = (
 
 type SessionStoreListeners = Array<{ remove: () => void }>;
 
-export const useHMSSessionStoreListeners = (gridViewRef: React.MutableRefObject<GridViewRefAttrs | null>) => {
+export const useHMSSessionStoreListeners = (
+  gridViewRef: React.MutableRefObject<GridViewRefAttrs | null>
+) => {
   const dispatch = useDispatch();
   const hmsSessionStore = useSelector(
     (state: RootState) => state.user.hmsSessionStore
@@ -985,7 +996,95 @@ export const useHMSNetworkQualityUpdate = () => {
 
     return () => hmsInstance.disableNetworkQualityUpdates();
   }, [hmsInstance]);
-}
+};
+
+export const useHMSActiveSpeakerUpdates = (
+  setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>,
+  active?: boolean
+) => {
+  const hmsInstance = useHMSInstance();
+  const reduxStore = useStore<RootState>();
+  const isPortraitOrientation = useIsPortraitOrientation();
+
+  useEffect(() => {
+    if (!active) {
+      return;
+    }
+
+    const handleActiveSpeaker = (data: HMSSpeaker[]) => {
+      const activePage = reduxStore.getState().app.gridViewActivePage;
+      if (activePage !== 0) {
+        return;
+      }
+
+      setPeerTrackNodes((prevPeerTrackNodes) => {
+        // list of active speakers which are not in first page
+        const activeSpeakers = data.filter((speaker) => {
+          const uniquePeerTrackNodeId = createPeerTrackNodeUniqueId(
+            speaker.peer,
+            speaker.track
+          );
+
+          const inFirstPage = prevPeerTrackNodes.some(
+            (prevPeerTrackNode, _idx) => {
+              // we are on index which is not in current page
+              if (
+                _idx >=
+                (isPortraitOrientation
+                  ? MaxTilesInOnePage.IN_PORTRAIT
+                  : MaxTilesInOnePage.IN_LANDSCAPE)
+              ) {
+                return false;
+              }
+
+              return prevPeerTrackNode.id === uniquePeerTrackNodeId;
+            }
+          );
+
+          return !inFirstPage;
+        });
+
+        // All active speakers are in first page already, Do nothing
+        if (activeSpeakers.length === 0) {
+          return prevPeerTrackNodes;
+        }
+
+        // Updated list with all Active Speakers in first page
+        return prevPeerTrackNodes.reduce<PeerTrackNode[]>(
+          (accumulated, current) => {
+            if (
+              activeSpeakers.findIndex(
+                (activeSpeaker) =>
+                  createPeerTrackNodeUniqueId(
+                    activeSpeaker.peer,
+                    activeSpeaker.track
+                  ) === current.id
+              ) >= 0
+            ) {
+              // return [current, ...accumulated];
+              accumulated.unshift(current);
+              return accumulated;
+            }
+
+            // return [...accumulated, current];
+            accumulated.push(current);
+            return accumulated;
+          },
+          []
+        );
+      });
+    };
+
+    hmsInstance.addEventListener(
+      HMSUpdateListenerActions.ON_SPEAKER,
+      handleActiveSpeaker
+    );
+
+    return () => {
+      hmsInstance.removeEventListener(HMSUpdateListenerActions.ON_SPEAKER);
+    };
+  }, [isPortraitOrientation, active, hmsInstance]);
+};
 
 let modalTaskRef: { current: any } = { current: null };
 

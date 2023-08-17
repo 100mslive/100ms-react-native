@@ -1,7 +1,7 @@
 import React, { useRef, useState, useImperativeHandle } from 'react';
 import type { ElementRef } from 'react';
 import { View, FlatList, StyleSheet } from 'react-native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import type { LayoutChangeEvent, LayoutRectangle, ViewToken } from 'react-native';
 import type { HMSView, HMSPeer } from '@100mslive/react-native-hms';
 
@@ -12,6 +12,7 @@ import type { PeerTrackNode } from '../utils/types';
 import { MiniView } from './MiniView';
 import type { RootState } from '../redux';
 import { PaginationDots } from './PaginationDots';
+import { setGridViewActivePage } from '../redux/actions';
 
 export type GridViewProps = {
   onPeerTileMorePress(peerTrackNode: PeerTrackNode): void;
@@ -30,7 +31,7 @@ const FLATLIST_VIEWABILITY_CONFIG = {
 
 export const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
   ({ pairedPeers, onPeerTileMorePress }, ref) => {
-    // hooks
+    const dispatch = useDispatch();
     const [screenshotData, setScreenshotData] = useState<{
       peer: HMSPeer;
       source: { uri: string };
@@ -38,7 +39,6 @@ export const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
     const hmsViewRefs = useRef<Record<string, ElementRef<typeof HMSView>>>({});
     const flatlistRef = useRef<FlatList>(null);
     const insetTileBoundingBoxRef = useRef<LayoutRectangle | null>(null);
-    const [activePage, setActivePage] = useState(0);
     const miniviewPeerTrackNodeExists = useSelector((state: RootState) => !!state.app.miniviewPeerTrackNode);
 
     // We are setting `captureViewScreenshot` method on ref passed to GridView component
@@ -114,7 +114,7 @@ export const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
       const firstViewable = info.viewableItems[0];
 
       if (firstViewable?.isViewable && (typeof firstViewable.index === 'number')) {
-        setActivePage(firstViewable.index);
+        dispatch(setGridViewActivePage(firstViewable.index));
       }
     }, []);
 
@@ -148,7 +148,7 @@ export const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
         </View>
 
         {pairedPeers.length > 1 ? (
-          <PaginationDots activeIndex={activePage} list={pairedPeers} />
+          <PaginationDots list={pairedPeers} />
         ) : null}
 
         {/* Save Captured Screenshot of HMSView Modal */}
