@@ -1,5 +1,5 @@
 import React, { memo, useMemo } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Platform } from 'react-native';
 import Animated, {
   interpolate,
   useAnimatedProps,
@@ -9,7 +9,6 @@ import type { SharedValue } from 'react-native-reanimated';
 
 import { COLORS } from '../utils/theme';
 import { useIsHLSViewer } from '../hooks-util';
-import { EndIcon } from '../Icons';
 import { HMSManageLeave } from './HMSManageLeave';
 import { HMSManageRaiseHand } from './HMSManageRaiseHand';
 import { HMSManageLocalAudio } from './HMSManageLocalAudio';
@@ -28,10 +27,10 @@ export const _Footer: React.FC<FooterProps> = ({ offset }) => {
   const canPublishVideo = useCanPublishVideo();
 
   const footerActionButtons = useMemo(() => {
-    const actions = ['chat'];
+    const actions = ['chat', 'options'];
 
     if (isHLSViewer) {
-      actions.unshift('leave');
+      actions.unshift('hand-raise');
     }
 
     if (canPublishVideo) {
@@ -42,7 +41,7 @@ export const _Footer: React.FC<FooterProps> = ({ offset }) => {
       actions.unshift('audio');
     }
 
-    actions.push(isHLSViewer ? 'hand-raise' : 'options');
+    actions.unshift('leave');
 
     return actions;
   }, [isHLSViewer, canPublishAudio, canPublishVideo]);
@@ -72,7 +71,7 @@ export const _Footer: React.FC<FooterProps> = ({ offset }) => {
               style={index === 0 ? null : styles.iconWrapper}
             >
               {actionType === 'leave' ? (
-                <HMSManageLeave leaveIconDelegate={<EndIcon />} />
+                <HMSManageLeave />
               ) : actionType === 'audio' ? (
                 <HMSManageLocalAudio />
               ) : actionType === 'video' ? (
@@ -94,12 +93,13 @@ export const _Footer: React.FC<FooterProps> = ({ offset }) => {
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: 8,
+    paddingTop: 16,
     paddingHorizontal: 16,
     backgroundColor: COLORS.BACKGROUND.DIM,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: Platform.OS === 'android' ? 16 : 0, // TODO: need to correct hide aimation offsets because of this change
   },
   iconWrapper: {
     marginLeft: 24,
