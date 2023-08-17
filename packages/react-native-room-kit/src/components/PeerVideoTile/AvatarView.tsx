@@ -5,6 +5,7 @@ import { PersonIcon } from '../../Icons';
 import { getInitials } from '../../utils/functions';
 import { COLORS } from '../../utils/theme';
 import type { VideoView } from './VideoView';
+import { useHMSRoomStyleSheet } from '../../hooks-util';
 
 export interface AvatarViewProps {
   name: string;
@@ -15,13 +16,26 @@ export const _AvatarView: React.FC<AvatarViewProps> = ({ name, videoView }) => {
 
   const showInitials = !!name && (name.length > 0);
 
+  const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
+    avatarContainer: {
+      backgroundColor: theme.palette.surface_default,
+    },
+    avatar: {
+      backgroundColor: COLORS.EXTENDED.PURPLE,
+    },
+    avatarText: {
+      color: theme.palette.on_surface_high,
+      fontFamily: `${typography.font_family}-SemiBold`,
+    },
+  }));
+
   return (
     <View style={styles.container}>
       {videoView || (
-        <View style={styles.avatarContainer}>
-          <View style={styles.avatar}>
+        <View style={[styles.avatarContainer, hmsRoomStyles.avatarContainer]}>
+          <View style={[styles.avatar, hmsRoomStyles.avatar]}>
             {showInitials ? (
-              <Text style={styles.avatarText}>{getInitials(name)}</Text>
+              <Text style={[styles.avatarText, hmsRoomStyles.avatarText]}>{getInitials(name)}</Text>
             ) : (
               <PersonIcon style={styles.avatarIcon} />
             )}
@@ -42,12 +56,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: COLORS.SURFACE.DEFAULT,
   },
   avatar: {
     width: 88,
     aspectRatio: 1,
-    backgroundColor: COLORS.EXTENDED.PURPLE,
     borderRadius: 44,
     justifyContent: 'center',
     alignItems: 'center',
@@ -57,9 +69,7 @@ const styles = StyleSheet.create({
     height: 40,
   },
   avatarText: {
-    color: COLORS.SURFACE.ON_SURFACE.HIGH,
     fontSize: 34,
-    fontFamily: 'Inter-SemiBold',
     lineHeight: 40,
     letterSpacing: 0.25,
   },

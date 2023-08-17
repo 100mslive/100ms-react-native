@@ -2,13 +2,17 @@ import React from 'react';
 import { Image, StyleSheet } from 'react-native';
 import type { ImageProps } from 'react-native';
 
+import { useHMSRoomStyle } from '../../hooks-util';
+
 interface PinIconProps extends Omit<ImageProps, 'source'> {}
 
 export const PinIcon: React.FC<PinIconProps> = ({ style, ...restProps }) => {
+  const iconStyles = useHMSRoomStyle(theme => ({ tintColor: theme.palette.on_surface_high }));
+
   return (
     <Image
       source={require('./assets/pin.png')}
-      style={[styles.icon, style]}
+      style={[styles.icon, iconStyles, style]}
       {...restProps}
     />
   );

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { MicIcon } from '../../Icons';
-import { COLORS } from '../../utils/theme';
+import { useHMSRoomStyle } from '../../hooks-util';
 
 export interface PeerAudioMutedIndicatorProps {
   isMuted: boolean | undefined;
@@ -11,9 +11,13 @@ export interface PeerAudioMutedIndicatorProps {
 export const PeerAudioMutedIndicator: React.FC<
   PeerAudioMutedIndicatorProps
 > = ({ isMuted }) => {
+  const iconWrapperStyles = useHMSRoomStyle((theme) => ({
+    backgroundColor: theme.palette.secondary_dim,
+  }));
+
   if (isMuted) {
     return (
-      <View style={styles.iconWrapper}>
+      <View style={[styles.iconWrapper, iconWrapperStyles]}>
         <MicIcon muted={true} style={styles.icon} />
       </View>
     );
@@ -28,12 +32,10 @@ const styles = StyleSheet.create({
     top: 8,
     right: 8,
     padding: 8,
-    backgroundColor: COLORS.SECONDARY.DIM,
     borderRadius: 16,
   },
   icon: {
     width: 16,
     height: 16,
-    tintColor: COLORS.SURFACE.ON_SURFACE.HIGH,
   },
 });

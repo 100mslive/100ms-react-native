@@ -5,7 +5,7 @@ import type { HMSVideoViewMode, HMSView, HMSPeer } from '@100mslive/react-native
 import { useSelector } from 'react-redux';
 
 import type { RootState } from '../../redux';
-import { COLORS } from '../../utils/theme';
+import { useHMSRoomStyleSheet } from '../../hooks-util';
 
 export interface VideoViewProps {
   trackId: string;
@@ -33,6 +33,15 @@ const _VideoView = React.forwardRef<
     const autoSimulcast = useSelector(
       (state: RootState) => state.app.joinConfig.autoSimulcast
     );
+    const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
+      degradedView: {
+        backgroundColor: theme.palette.surface_default,
+      },
+      degradedText: {
+        color: theme.palette.on_surface_high,
+        fontFamily: `${typography.font_family}-SemiBold`,
+      },
+    }));
 
     if (!HmsView) {
       return null;
@@ -52,8 +61,8 @@ const _VideoView = React.forwardRef<
         />
 
         {isDegraded ? (
-          <View style={styles.degradedView}>
-            <Text style={styles.degradedText}>Degraded</Text>
+          <View style={[styles.degradedView, hmsRoomStyles.degradedView]}>
+            <Text style={[styles.degradedText, hmsRoomStyles.degradedText]}>Degraded</Text>
           </View>
         ) : null}
       </View>
@@ -76,14 +85,11 @@ const styles = StyleSheet.create({
     height: '100%',
     width: '100%',
     zIndex: 2,
-    backgroundColor: COLORS.SURFACE.DEFAULT,
     alignItems: 'center',
     justifyContent: 'center',
   },
   degradedText: {
-    color: COLORS.SURFACE.ON_SURFACE.HIGH,
     fontSize: 15,
-    fontFamily: 'Inter-SemiBold',
     lineHeight: 20,
     letterSpacing: 0.25,
   },

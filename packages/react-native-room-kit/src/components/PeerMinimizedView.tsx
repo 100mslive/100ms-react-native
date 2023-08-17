@@ -2,11 +2,11 @@ import * as React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { CameraIcon, MaximizeIcon, MicIcon } from '../Icons';
-import { COLORS } from '../utils/theme';
 import { PressableIcon } from './PressableIcon';
 import { useCanPublishAudio, useCanPublishVideo } from '../hooks-sdk';
 import type { PeerTrackNode } from '../utils/types';
 import { selectCanPublishTrackForRole } from '../hooks-sdk-selectors';
+import { useHMSRoomStyleSheet } from '../hooks-util';
 
 export const usePeerMinimizedViewDimensions = () => {
   const canPublishAudio = useCanPublishAudio();
@@ -34,22 +34,35 @@ const _PeerMinimizedView: React.FC<PeerMinimizedViewProps> = ({ peerTrackNode, o
   const isAudioMuted = peerTrackNode.peer.audioTrack?.isMute();
   const isVideoMuted = peerTrackNode.track?.isMute();
 
+  const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
+    container: {
+      backgroundColor: theme.palette.surface_default,
+    },
+    iconWrapper: {
+      backgroundColor: theme.palette.surface_bright,
+    },
+    name: {
+      color: theme.palette.on_surface_high,
+      fontFamily: `${typography.font_family}-Regular`,
+    }
+  }));
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, hmsRoomStyles.container]}>
       <View style={styles.wrapper}>
         {peerCanPublishAudio ? (
-          <View style={styles.iconWrapper}>
+          <View style={[styles.iconWrapper, hmsRoomStyles.iconWrapper]}>
             <MicIcon muted={!!isAudioMuted} style={styles.icon} />
           </View>
         ) : null }
 
         {peerCanPublishVideo ? (
-          <View style={styles.iconWrapper}>
+          <View style={[styles.iconWrapper, hmsRoomStyles.iconWrapper]}>
             <CameraIcon muted={!!isVideoMuted} style={styles.icon} />
           </View>
         ) : null}
 
-        <Text style={styles.name} numberOfLines={1}>
+        <Text style={[styles.name, hmsRoomStyles.name]} numberOfLines={1}>
           {peerTrackNode.peer.isLocal ? 'You' : peerTrackNode.peer.name}
         </Text>
       </View>
@@ -68,7 +81,6 @@ const styles = StyleSheet.create({
     padding: 8,
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: COLORS.SURFACE.DEFAULT,
     borderRadius: 8,
   },
   wrapper: {
@@ -78,19 +90,15 @@ const styles = StyleSheet.create({
   iconWrapper: {
     padding: 2,
     marginRight: 6,
-    backgroundColor: COLORS.SURFACE.BRIGHT,
     borderRadius: 4,
   },
   icon: {
     width: 16,
     height: 16,
-    tintColor: COLORS.SURFACE.ON_SURFACE.HIGH,
   },
   name: {
     maxWidth: 48,
-    color: COLORS.SURFACE.ON_SURFACE.HIGH,
     fontSize: 14,
-    fontFamily: 'Inter-Regular',
     lineHeight: 20,
     letterSpacing: 0.25,
     marginRight: 12

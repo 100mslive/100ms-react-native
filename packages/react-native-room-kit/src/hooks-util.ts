@@ -977,6 +977,16 @@ export const usePIPListener = () => {
   }, [isPipModeActive, hmsInstance]);
 };
 
+export const useHMSNetworkQualityUpdate = () => {
+  const hmsInstance = useHMSInstance();
+
+  useEffect(() => {
+    hmsInstance.enableNetworkQualityUpdates();
+
+    return () => hmsInstance.disableNetworkQualityUpdates();
+  }, [hmsInstance]);
+}
+
 let modalTaskRef: { current: any } = { current: null };
 
 export const clearPendingModalTasks = () => {

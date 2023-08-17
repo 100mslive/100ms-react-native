@@ -5,13 +5,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { PeerTrackNode } from '../utils/types';
 import { useRTCStatsListeners } from '../utils/hooks';
-import { COLORS } from '../utils/theme';
 import {
   clearPendingModalTasks,
   useFetchHMSRoles,
   useHMSMessages,
+  useHMSNetworkQualityUpdate,
   useHMSPIPRoomLeave,
   useHMSRemovedFromRoomUpdate,
+  useHMSRoomStyle,
   useLandscapeChatViewVisible,
   usePIPListener,
 } from '../hooks-util';
@@ -46,6 +47,9 @@ export const Meeting: React.FC<MeetingProps> = ({ peerTrackNodes }) => {
   // Handle rendering RTC stats on Tiles and inside RTC stats modal
   useRTCStatsListeners();
 
+  // Subscribe to Peers Network quality updates
+  useHMSNetworkQualityUpdate();
+
   const landscapeChatViewVisible = useLandscapeChatViewVisible();
 
   // Clearing any pending modal opening tasks
@@ -54,6 +58,10 @@ export const Meeting: React.FC<MeetingProps> = ({ peerTrackNodes }) => {
       clearPendingModalTasks();
     };
   }, []);
+
+  const containerStyles = useHMSRoomStyle((theme) => ({
+    backgroundColor: theme.palette.background_dim,
+  }));
 
   if (startingHLSStream) {
     return <HMSHLSStreamLoading />;
@@ -66,7 +74,7 @@ export const Meeting: React.FC<MeetingProps> = ({ peerTrackNodes }) => {
    * Solution: Try using Tab Gesture detector instead on Pressable component
    */
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, containerStyles]}>
       <MeetingScreenContent peerTrackNodes={peerTrackNodes} />
 
       {landscapeChatViewVisible ? <ChatView /> : null}
@@ -77,7 +85,6 @@ export const Meeting: React.FC<MeetingProps> = ({ peerTrackNodes }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.BACKGROUND.DIM,
     flexDirection: 'row',
   },
 });

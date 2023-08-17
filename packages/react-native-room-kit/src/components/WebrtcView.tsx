@@ -1,8 +1,5 @@
 import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import { View, Text } from 'react-native';
-
-import { styles } from './styles';
 
 import { PipModes } from '../utils/types';
 import type { PeerTrackNode } from '../utils/types';
@@ -13,6 +10,7 @@ import type { GridViewRefAttrs } from './GridView';
 import PIPView from './PIPView';
 import { useIsPortraitOrientation } from '../utils/dimension';
 import { LocalPeerRegularVideoView } from './LocalPeerRegularVideoView';
+import { WelcomeInMeeting } from './WelcomeInMeeting';
 
 interface WebrtcViewProps {
   peerTrackNodes: Array<PeerTrackNode>;
@@ -45,17 +43,7 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
     );
 
     if (!canShowTiles) {
-      return (
-        <View style={styles.welcomeContainer}>
-          <Text style={styles.welcomeHeading}>Welcome!</Text>
-          <Text style={styles.welcomeDescription}>
-            You're the first one here.
-          </Text>
-          <Text style={styles.welcomeDescription}>
-            Sit back and relax till the others join.
-          </Text>
-        </View>
-      );
+      return <WelcomeInMeeting />;
     }
 
     if (isPipModeActive) {

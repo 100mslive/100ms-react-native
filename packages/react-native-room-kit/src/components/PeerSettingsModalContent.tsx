@@ -11,7 +11,7 @@ import { ModalTypes } from '../utils/types';
 import type { PeerTrackNode } from '../utils/types';
 import { isTileOnSpotlight } from '../utils/functions';
 import { setInsetViewMinimized, setPeerToUpdate } from '../redux/actions';
-import { useHMSRoomStyleSheet, useModalType } from '../hooks-util';
+import { useHMSRoomStyle, useHMSRoomStyleSheet, useModalType } from '../hooks-util';
 import { CloseIcon, MinimizeIcon, PinIcon, StarIcon } from '../Icons';
 import { useCanPublishVideo } from '../hooks-sdk';
 
@@ -60,10 +60,6 @@ export const PeerSettingsModalContent: React.FC<
     subheadingText: {
       color: theme.palette.on_surface_medium,
       fontFamily: `${typography.font_family}-Regular`,
-    },
-    text: {
-      color: theme.palette.on_surface_high,
-      fontFamily: `${typography.font_family}-SemiBold`,
     },
     divider: {
       backgroundColor: theme.palette.border_default,
@@ -368,6 +364,11 @@ const SettingItem: React.FC<SettingItemProps> = ({
   disabled = false,
   ...resetProps
 }) => {
+  const textStyles = useHMSRoomStyle((theme, typography) => ({
+    color: theme.palette.on_surface_high,
+    fontFamily: `${typography.font_family}-SemiBold`
+  }));
+
   return (
     <TouchableOpacity
       disabled={disabled}
@@ -376,7 +377,7 @@ const SettingItem: React.FC<SettingItemProps> = ({
     >
       {resetProps.customIcon ? resetProps.icon : <resetProps.IconType name={resetProps.iconName} size={24} style={styles.icon} />}
 
-      <Text style={styles.text}>{text}</Text>
+      <Text style={[styles.text, textStyles]}>{text}</Text>
     </TouchableOpacity>
   );
 };
@@ -424,23 +425,6 @@ const styles = StyleSheet.create({
     height: 20,
     marginRight: 8,
   },
-  roleChangeModalHeading: {
-    color: COLORS.TEXT.HIGH_EMPHASIS,
-    fontSize: 20,
-    lineHeight: 24,
-    letterSpacing: 0.15,
-    fontFamily: 'Inter-Medium',
-    textTransform: 'capitalize',
-  },
-  participantRole: {
-    color: COLORS.TEXT.MEDIUM_EMPHASIS,
-    fontSize: 12,
-    lineHeight: 16,
-    letterSpacing: 0.4,
-    marginTop: 4,
-    fontFamily: 'Inter-Regular',
-    textTransform: 'capitalize',
-  },
   button: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -449,9 +433,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   text: {
-    color: COLORS.SURFACE.ON_SURFACE.HIGH,
     fontSize: 14,
-    fontFamily: 'Inter-SemiBold',
     lineHeight: 20,
     letterSpacing: 0.10,
   },
