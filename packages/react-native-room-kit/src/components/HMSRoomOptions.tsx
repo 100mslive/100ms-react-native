@@ -18,6 +18,9 @@ import {
 } from './Modals';
 import { ModalTypes } from '../utils/types';
 import { useModalType } from '../hooks-util';
+import { BottomSheet } from './BottomSheet';
+import { ChangeNameModalContent } from './ChangeNameModalContent';
+import { StopRecordingModalContent } from './StopRecordingModalContent';
 
 interface HMSRoomOptionsProps {}
 
@@ -47,11 +50,10 @@ export const HMSRoomOptions: React.FC<HMSRoomOptionsProps> = () => {
         <ThreeDotsIcon stack="vertical" />
       </PressableIcon>
 
-      <DefaultModal
-        animationIn={'slideInUp'}
-        animationOut={'slideOutDown'}
-        modalVisible={modalVisible === ModalTypes.SETTINGS}
-        setModalVisible={dismissModal}
+      <BottomSheet
+        isVisible={modalVisible === ModalTypes.SETTINGS}
+        dismissModal={dismissModal}
+        animationOutTiming={800}
       >
         <RoomSettingsModalContent
           newAudioMixingMode={newAudioMixingMode}
@@ -64,7 +66,25 @@ export const HMSRoomOptions: React.FC<HMSRoomOptionsProps> = () => {
           setIsAudioShared={setIsAudioShared}
           setMuteAllTracksAudio={setMuteAllTracksAudio}
         />
-      </DefaultModal>
+      </BottomSheet>
+
+      <BottomSheet
+        isVisible={modalVisible === ModalTypes.CHANGE_NAME}
+        dismissModal={dismissModal}
+        avoidKeyboard={true}
+        animationOutTiming={800}
+      >
+        <ChangeNameModalContent dismissModal={dismissModal} />
+      </BottomSheet>
+
+      <BottomSheet
+        isVisible={modalVisible === ModalTypes.STOP_RECORDING}
+        dismissModal={dismissModal}
+        animationOutTiming={800}
+      >
+        <StopRecordingModalContent dismissModal={dismissModal} />
+      </BottomSheet>
+
       <DefaultModal
         animationIn={'slideInUp'}
         animationOut={'slideOutDown'}

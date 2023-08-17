@@ -30,6 +30,8 @@ export const BottomSheet: React.FC<BottomSheetProps> & {
     backgroundColor: theme.palette.background_default,
   }));
 
+  const { handleModalHideAction } = useBottomSheetActionHandlers();
+
   return (
     <Modal
       {...resetProps}
@@ -45,6 +47,9 @@ export const BottomSheet: React.FC<BottomSheetProps> & {
         resetProps.hideModalContentWhileAnimating ?? true
       }
       style={[styles.modal, style]}
+      onModalHide={resetProps.onModalHide ?? handleModalHideAction}
+      supportedOrientations={resetProps.supportedOrientations ?? ['portrait', 'landscape']}
+      // coverScreen={true}
     >
       <View style={[styles.container, containerStyles]}>{children}</View>
     </Modal>
@@ -108,6 +113,33 @@ const BottomSheetDivider: React.FC = () => {
 BottomSheet.Header = BottomSheetHeader;
 
 BottomSheet.Divider = BottomSheetDivider;
+
+const onModalHideActionHandlerRef: { handler: null | (() => void) } = { handler: null };
+
+const useBottomSheetActionHandlers = () => {
+  const onModalHideActionRef = React.useRef(onModalHideActionHandlerRef);
+
+  const handleModalHideAction = React.useCallback(() => {
+    if (typeof onModalHideActionRef.current.handler === 'function') {
+      onModalHideActionRef.current.handler();
+    }
+    onModalHideActionRef.current.handler = null;
+  }, []);
+
+  return { handleModalHideAction };
+}
+
+export const useBottomSheetActions = () => {
+  const registerOnModalHideAction = React.useCallback((action: () => void) => {
+    onModalHideActionHandlerRef.handler = action;
+  }, []);
+
+  const clearOnModalHideAction = React.useCallback(() => {
+    onModalHideActionHandlerRef.handler = null;
+  }, []);
+
+  return { registerOnModalHideAction, clearOnModalHideAction };
+}
 
 const styles = StyleSheet.create({
   modal: {

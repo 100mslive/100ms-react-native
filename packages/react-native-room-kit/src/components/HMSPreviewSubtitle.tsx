@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
-import { StyleSheet, Text, type StyleProp, type TextStyle } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
+import type { StyleProp, TextStyle } from 'react-native';
 
 import { useCanPublishAudio, useCanPublishVideo } from '../hooks-sdk';
 import { useHMSRoomStyle } from '../hooks-util';

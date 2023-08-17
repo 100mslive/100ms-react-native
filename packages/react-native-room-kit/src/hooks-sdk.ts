@@ -146,11 +146,29 @@ export const useHMSActions = () => {
     }
   }, []);
 
+  const changeName = useCallback(async (name: string): Promise<void> => {
+    const state: RootState = store.getState();
+    const hmsInstance = state.user.hmsInstance;
+
+    if (!hmsInstance) {
+      return Promise.reject('HMSSDK Instance is not available!');
+    }
+
+    try {
+      const result = await hmsInstance.changeName(name);
+      console.log('Change Name Success: ', result);
+    } catch (error) {
+      console.log('Change Name Error: ', error);
+      return Promise.reject(error);
+    }
+  }, []);
+
   return {
     setLocalAudioEnabled,
     setLocalVideoEnabled,
     switchCamera,
     setScreenShareEnabled,
     changeMetadata,
+    changeName,
   };
 };

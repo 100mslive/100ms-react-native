@@ -1,39 +1,30 @@
-import React from 'react';
+import * as React from 'react';
 import {
   View,
   StyleSheet,
   Text,
-  Platform,
-  ScrollView,
-  Image,
   TouchableOpacity,
-  Alert,
-  InteractionManager,
 } from 'react-native';
-import {
-  HMSAudioMixingMode,
-  HMSUpdateListenerActions,
-} from '@100mslive/react-native-hms';
+import type { HMSAudioMixingMode } from '@100mslive/react-native-hms';
 import { useDispatch, useSelector } from 'react-redux';
-import Toast from 'react-native-simple-toast';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import EntypoIcons from 'react-native-vector-icons/Entypo';
-import { openSettings, requestNotifications } from 'react-native-permissions';
 
-import { COLORS } from '../utils/theme';
 import type { RootState } from '../redux';
+import { ModalTypes } from '../utils/types';
+import { groupIntoTriplets, parseMetadata } from '../utils/functions';
 import {
-  changePipModeStatus,
-  changeEnableHLSPlayerControls,
-  changeShowHLSStats,
-  changeShowCustomHLSPlayerControls,
-} from '../redux/actions';
-import { ModalTypes, PipModes } from '../utils/types';
-import { parseMetadata } from '../utils/functions';
-import { HMSShareScreen } from './HMSShareScreen';
-import { ScreenShareIcon } from '../Icons';
+  BRBIcon,
+  HandIcon,
+  ParticipantsIcon,
+  PencilIcon,
+  RecordingIcon,
+  ScreenShareIcon,
+} from '../Icons';
+import { BottomSheet, useBottomSheetActions } from './BottomSheet';
+import { useHMSInstance, useHMSRoomStyleSheet } from '../hooks-util';
+import { useCanPublishScreen, useHMSActions } from '../hooks-sdk';
+import { RoomSettingsModalDebugModeContent } from './RoomSettingsModalDebugModeContent';
+import { setStartingRecording } from '../redux/actions';
+import { ParticipantsCount } from './ParticipantsCount';
 
 interface RoomSettingsModalContentProps {
   newAudioMixingMode: HMSAudioMixingMode;
@@ -49,559 +40,277 @@ interface RoomSettingsModalContentProps {
 
 export const RoomSettingsModalContent: React.FC<
   RoomSettingsModalContentProps
-> = ({
-  newAudioMixingMode,
-  isAudioShared, //
-  audioDeviceListenerAdded,
-  muteAllTracksAudio,
-  closeRoomSettingsModal,
-  setModalVisible,
-  setIsAudioShared,
-  setAudioDeviceListenerAdded,
-  setMuteAllTracksAudio,
-}) => {
-  // REDUX STATES & DISPATCH
+> = (props) => {
+  const { closeRoomSettingsModal, setModalVisible } = props;
+
   const dispatch = useDispatch();
-  const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
+  const hmsInstance = useHMSInstance();
   const debugMode = useSelector((state: RootState) => state.user.debugMode);
-  const localPeerRole = useSelector(
-    (state: RootState) => state.hmsStates.localPeer?.role
+
+  const hmsActions = useHMSActions();
+
+  const { registerOnModalHideAction } = useBottomSheetActions();
+
+  // #region Participants realted states and functions
+  const onParticipantsPress = () => {
+    // Register callback to be called when bottom sheet is hiddden
+    registerOnModalHideAction(() => {
+      setModalVisible(ModalTypes.PARTICIPANTS);
+    });
+
+    // Close the current bottom sheet
+    closeRoomSettingsModal();
+  };
+  // #endregion
+
+  // #region Screen Share related states and functions
+  const canPublishScreen = useCanPublishScreen();
+
+  const isLocalScreenShared = useSelector(
+    (state: RootState) => state.hmsStates.isLocalScreenShared
   );
+
+  const handleScreenShareTogglePress = async () => {
+    closeRoomSettingsModal();
+    await hmsActions.setScreenShareEnabled(!isLocalScreenShared);
+  };
+  // #endregion
+
+  // #region "BRB" and "Hand Raise" related states and functions
   const localPeerMetadata = useSelector(
     (state: RootState) => state.hmsStates.localPeer?.metadata
   );
-  const isHLSStreaming = useSelector(
-    (state: RootState) =>
-      state.hmsStates.room?.hlsStreamingState?.running ?? false
-  );
-  const rtmpAndRecording = useSelector(
-    (state: RootState) =>
-      state.hmsStates.room?.browserRecordingState?.running ?? false
-  );
-
-  const pipModeStatus = useSelector(
-    (state: RootState) => state.app.pipModeStatus
-  );
-  const showHLSStats = useSelector(
-    (state: RootState) => state.app.joinConfig.showHLSStats
-  );
-  const enableHLSPlayerControls = useSelector(
-    (state: RootState) => state.app.joinConfig.enableHLSPlayerControls
-  );
-  const showCustomHLSPlayerControls = useSelector(
-    (state: RootState) => state.app.joinConfig.showCustomHLSPlayerControls
-  );
-
-  // CONSTANTS
   const parsedMetadata = parseMetadata(localPeerMetadata);
-  const isPipModeUnavailable = pipModeStatus === PipModes.NOT_AVAILABLE;
 
-  //#region FUNCTIONS
-  const handleBRB = async () => {
+  const isBRBOn = !!parsedMetadata.isBRBOn;
+  const isHandRaised = !!parsedMetadata.isHandRaised;
+
+  const toggleRaiseHand = async () => {
+    const newMetadata = {
+      ...parsedMetadata,
+      isBRBOn: false,
+      isHandRaised: !isHandRaised,
+    };
     closeRoomSettingsModal();
-
-    await hmsInstance
-      ?.changeMetadata(
-        JSON.stringify({
-          ...parsedMetadata,
-          isBRBOn: !parsedMetadata?.isBRBOn,
-          isHandRaised: false,
-        })
-      )
-      .then((d) => console.log('Change Metadata Success: ', d))
-      .catch((e) => console.log('Change Metadata Error: ', e));
+    await hmsActions.changeMetadata(newMetadata);
   };
 
-  const onRaiseHandPress = async () => {
+  const toggleBRB = async () => {
+    const newMetadata = {
+      ...parsedMetadata,
+      isHandRaised: false,
+      isBRBOn: !isBRBOn,
+    };
     closeRoomSettingsModal();
-
-    await hmsInstance
-      ?.changeMetadata(
-        JSON.stringify({
-          ...parsedMetadata,
-          isHandRaised: !parsedMetadata?.isHandRaised,
-          isBRBOn: false,
-        })
-      )
-      .then((d) => console.log('Change Metadata Success: ', d))
-      .catch((e) => console.log('Change Metadata Error: ', e));
+    await hmsActions.changeMetadata(newMetadata);
   };
+  // #endregion
 
-  const onParticipantsPress = () => {
-    InteractionManager.runAfterInteractions(() => {
-      setModalVisible(ModalTypes.PARTICIPANTS, true);
-    });
-  };
+  // #region Recording related states and functions
+  const canStartRecording = useSelector(
+    (state: RootState) =>
+      !!state.hmsStates.localPeer?.role?.permissions?.browserRecording
+  );
 
-  const enterPipMode = async () => {
-    if (isPipModeUnavailable) {
-      return console.log('PIP mode unavailable on Deice!');
-    }
+  const isRecordingOn = useSelector(
+    (state: RootState) => !!state.hmsStates.room?.browserRecordingState?.running
+  );
 
-    closeRoomSettingsModal();
-
-    try {
-      const isEnabled = await hmsInstance?.enablePipMode({
-        aspectRatio: [16, 9], // for 16:9 aspect ratio
-        endButton: true,
-        videoButton: true,
-        audioButton: true,
+  const handleRecordingTogglePress = () => {
+    if (isRecordingOn) {
+      registerOnModalHideAction(() => {
+        setModalVisible(ModalTypes.STOP_RECORDING);
       });
-      if (isEnabled === true) {
-        dispatch(changePipModeStatus(PipModes.ACTIVE));
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const handleLocalRemoteAudiosMute = () => {
-    closeRoomSettingsModal();
-    hmsInstance?.setPlaybackForAllAudio(!muteAllTracksAudio);
-    setMuteAllTracksAudio(!muteAllTracksAudio);
-  };
-
-  const handleRemoteAudiosMute = async () => {
-    closeRoomSettingsModal();
-    await hmsInstance
-      ?.remoteMuteAllAudio()
-      .then((d) => console.log('Remote Mute All Audio Success: ', d))
-      .catch((e) => console.log('Remote Mute All Audio Error: ', e));
-  };
-
-  const handleHLSStreaming = () => {
-    if (isHLSStreaming) {
       closeRoomSettingsModal();
-      hmsInstance
-        ?.stopHLSStreaming()
-        .then((d) => console.log('Stop HLS Streaming Success: ', d))
-        .catch((e) => console.log('Stop HLS Streaming Error: ', e));
     } else {
-      setModalVisible(ModalTypes.HLS_STREAMING, true);
-    }
-  };
-
-  const handleRTMPAndRecording = () => {
-    if (rtmpAndRecording) {
+      dispatch(setStartingRecording(true));
+      hmsInstance.startRTMPOrRecording({ record: true }).finally(() => dispatch(setStartingRecording(false)))
       closeRoomSettingsModal();
-      hmsInstance
-        ?.stopRtmpAndRecording()
-        .then((d) => console.log('Stop RTMP And Recording Success: ', d))
-        .catch((e) => console.log('Stop RTMP And Recording Error: ', e));
-    } else {
-      setModalVisible(ModalTypes.RECORDING, true);
     }
   };
+  // #endregion
 
-  const addRemoveAudioDeviceChangeListener = () => {
+  // #region Change Name functions
+  const changeName = () => {
+    // Register callback to be called when bottom sheet is hiddden
+    registerOnModalHideAction(() => {
+      setModalVisible(ModalTypes.CHANGE_NAME);
+    });
+
+    // Close the current bottom sheet
     closeRoomSettingsModal();
-    if (hmsInstance) {
-      if (audioDeviceListenerAdded) {
-        setAudioDeviceListenerAdded(false);
-
-        hmsInstance.removeEventListener(
-          HMSUpdateListenerActions.ON_AUDIO_DEVICE_CHANGED
-        );
-      } else {
-        setAudioDeviceListenerAdded(true);
-
-        hmsInstance.setAudioDeviceChangeListener((data: any) => {
-          Toast.showWithGravity(
-            `Audio Device Output changed to ${data?.device}`,
-            Toast.LONG,
-            Toast.TOP
-          );
-        });
-      }
-    }
   };
-
-  const changeBulkRole = () =>
-    setModalVisible(ModalTypes.BULK_ROLE_CHANGE, true);
-
-  const changeTrackState = () =>
-    setModalVisible(ModalTypes.CHANGE_TRACK_ROLE, true);
-
-  const switchAudioOutput = () => {
-    if (Platform.OS === 'android') {
-      setModalVisible(ModalTypes.SWITCH_AUDIO_OUTPUT, true);
-    } else {
-      closeRoomSettingsModal();
-      hmsInstance?.switchAudioOutputUsingIOSUI();
-    }
-  };
-
-  const changeAudioMode = () =>
-    setModalVisible(ModalTypes.CHANGE_AUDIO_MODE, true);
-
-  const setAudioMixingMode = () =>
-    setModalVisible(ModalTypes.AUDIO_MIXING_MODE, true);
-
-  const handleHLSPlayerAspectRatio = () => {
-    setModalVisible(ModalTypes.HLS_PLAYER_ASPECT_RATIO, true);
-  };
-
-  const showRTCStats = () => setModalVisible(ModalTypes.RTC_STATS, true);
-
-  const toggleShowHLSStats = () => {
-    dispatch(changeShowHLSStats(!showHLSStats));
-    setModalVisible(ModalTypes.DEFAULT);
-  };
-
-  const toggleEnableHLSPlayerControls = () => {
-    dispatch(changeEnableHLSPlayerControls(!enableHLSPlayerControls));
-    setModalVisible(ModalTypes.DEFAULT);
-  };
-
-  const toggleShowCustomHLSPlayerControls = () => {
-    dispatch(changeShowCustomHLSPlayerControls(!showCustomHLSPlayerControls));
-    setModalVisible(ModalTypes.DEFAULT);
-  };
-
-  // Android Audioshare
-  const handleAudioShare = async () => {
-    closeRoomSettingsModal();
-    if (isAudioShared) {
-      hmsInstance
-        ?.stopAudioshare()
-        .then((d) => {
-          setIsAudioShared(false);
-          console.log('Stop Audioshare Success: ', d);
-        })
-        .catch((e) => console.log('Stop Audioshare Error: ', e));
-    } else {
-      // check notification permission on android platform
-      // Audio share feature needs foreground service running. for Foreground service to keep running, we need active notification.
-      if (Platform.OS === 'android') {
-        const result = await requestNotifications(['alert', 'sound']);
-
-        console.log('Notification Permission Result: ', result);
-
-        if (result.status === 'blocked') {
-          Alert.alert(
-            'Notification Permission is Blocked!',
-            '100ms SDK needs notification permission to start audio share. Please allow notification from settings and try again!',
-            [
-              { text: 'cancel' },
-              { text: 'Go to Settings', onPress: () => openSettings() },
-            ],
-            { cancelable: true }
-          );
-          return;
-        }
-      }
-
-      hmsInstance
-        ?.startAudioshare(newAudioMixingMode)
-        .then((d) => {
-          setIsAudioShared(true);
-          console.log('Start Audioshare Success: ', d);
-        })
-        .catch((e) => console.log('Start Audioshare Error: ', e));
-    }
-  };
-  //#endregion
+  // #endregion
 
   return (
-    <View style={styles.container}>
-      <View style={styles.chatHeaderContainer}>
-        <Text style={styles.chatHeading}>More Options</Text>
+    <View>
+      <BottomSheet.Header
+        dismissModal={closeRoomSettingsModal}
+        heading="Options"
+      />
+
+      <BottomSheet.Divider />
+
+      <View style={styles.contentContainer}>
+        {groupIntoTriplets(
+          [
+            {
+              icon: <ParticipantsIcon style={{ width: 20, height: 20 }} />,
+              label: 'Participants',
+              pressHandler: onParticipantsPress,
+              isActive: false,
+              hide: false,
+              sibling: <ParticipantsCount />
+              // parent
+              // children
+            },
+            {
+              icon: <ScreenShareIcon style={{ width: 20, height: 20 }} />,
+              label: !!isLocalScreenShared ? 'Sharing Screen' : 'Share Screen',
+              pressHandler: handleScreenShareTogglePress,
+              isActive: !!isLocalScreenShared, // Show active if screen is shared
+              hide: !canPublishScreen, // Hide if can't publish screen
+            },
+            {
+              icon: <BRBIcon style={{ width: 20, height: 20 }} />,
+              label: isBRBOn ? "I'm Back" : 'Be Right Back',
+              pressHandler: toggleBRB,
+              isActive: isBRBOn, // Show active if `isBRBOn` is set on metadata
+              hide: false, // Hide if can't publish screen
+            },
+            {
+              icon: <HandIcon style={{ width: 20, height: 20 }} />,
+              label: parsedMetadata.isHandRaised ? 'Hand Raised' : 'Raise Hand',
+              pressHandler: toggleRaiseHand,
+              isActive: isHandRaised, // Show active if `isHandRaised` is set on metadata
+              hide: false, // Hide if can't publish screen
+            },
+            {
+              icon: <RecordingIcon style={{ width: 20, height: 20 }} />,
+              label: isRecordingOn ? 'Stop Recording' : 'Start Recording',
+              pressHandler: handleRecordingTogglePress,
+              isActive: !!isRecordingOn,
+              hide: !canStartRecording, // Hide if can't publish screen
+            },
+            {
+              icon: <PencilIcon style={{ width: 20, height: 20 }} />,
+              label: 'Change Name',
+              pressHandler: changeName,
+              isActive: false,
+              hide: false,
+            },
+          ].filter((itm) => !itm.hide),
+          true
+        ).map((itm, idx) => {
+          const isFirst = idx === 0;
+
+          return (
+            <>
+              {isFirst ? null : <View style={styles.rowSpacer} />}
+
+              <View style={styles.row}>
+                {itm.map((item, index) => {
+                  const isFirst = index === 0;
+
+                  return (
+                    <>
+                      {isFirst ? null : <View style={styles.colSpacer} />}
+
+                      <View style={styles.col}>
+                        {item ? (
+                          <>
+                            <SettingItem
+                              icon={item.icon}
+                              onPress={item.pressHandler}
+                              text={item.label}
+                              isActive={item.isActive}
+                            />
+
+                            {item.sibling}
+                          </>
+                        ) : null}
+                      </View>
+                    </>
+                  );
+                })}
+              </View>
+            </>
+          );
+        })}
       </View>
 
-      <ScrollView
-        style={styles.contentContainer}
-        contentContainerStyle={styles.scrollContentContainer}
-      >
-        <HMSShareScreen
-          screenShareDelegate={
-            <ScreenShareDelegate
-              closeRoomSettingsModal={closeRoomSettingsModal}
-            />
-          }
-        />
-
-        <TouchableOpacity onPress={handleBRB} style={styles.button}>
-          <Image source={require('../assets/brb.png')} style={styles.brbIcon} />
-
-          <Text style={styles.text}>
-            {parsedMetadata?.isBRBOn ? 'Remove BRB' : 'Set BRB'}
-          </Text>
-        </TouchableOpacity>
-
-        <SettingItem
-          onPress={onRaiseHandPress}
-          text={parsedMetadata?.isHandRaised ? 'Low Your Hand' : 'Raise Hand'}
-          IconType={Ionicons}
-          iconName={'hand-left-outline'}
-        />
-
-        <SettingItem
-          onPress={onParticipantsPress}
-          text={'Participants'}
-          IconType={Ionicons}
-          iconName={'people'}
-        />
-
-        {localPeerRole?.name?.includes('hls-') ? (
-          <SettingItem
-            onPress={handleHLSPlayerAspectRatio}
-            text={'Change Aspect Ratio'}
-            IconType={MaterialCommunityIcons}
-            iconName={'aspect-ratio'}
-          />
-        ) : null}
-
-        {!localPeerRole?.name?.includes('hls-') ? (
-          <SettingItem
-            onPress={handleLocalRemoteAudiosMute}
-            text={`${muteAllTracksAudio ? 'Unmute' : 'Mute'} Room`}
-            IconType={Ionicons}
-            iconName={muteAllTracksAudio ? 'mic-off-outline' : 'mic-outline'}
-          />
-        ) : null}
-
-        {debugMode && localPeerRole?.permissions?.hlsStreaming ? (
-          <SettingItem
-            onPress={handleHLSStreaming}
-            text={`${isHLSStreaming === true ? 'Stop' : 'Start'} HLS Streaming`}
-            IconType={Ionicons}
-            iconName="radio-outline"
-          />
-        ) : null}
-
-        {debugMode && localPeerRole?.permissions?.rtmpStreaming ? (
-          <SettingItem
-            onPress={handleRTMPAndRecording}
-            text={
-              rtmpAndRecording === true
-                ? 'Stop RTMP And Recording'
-                : 'Start RTMP or Recording'
-            }
-            IconType={Ionicons}
-            iconName="recording-outline"
-          />
-        ) : null}
-
-        {debugMode && localPeerRole?.permissions?.changeRole ? (
-          <SettingItem
-            onPress={changeBulkRole}
-            text="Bulk Role Change"
-            IconType={Ionicons}
-            iconName="people-outline"
-          />
-        ) : null}
-
-        {debugMode && localPeerRole?.permissions?.mute ? (
-          <SettingItem
-            onPress={handleRemoteAudiosMute}
-            text="Remote Mute All Audio Tracks"
-            IconType={Ionicons}
-            iconName="mic-off-outline"
-          />
-        ) : null}
-
-        {debugMode &&
-        (localPeerRole?.permissions?.mute ||
-          localPeerRole?.permissions?.unmute) ? (
-          <SettingItem
-            onPress={changeTrackState}
-            text="Change Track State For Role"
-            IconType={MaterialIcons}
-            iconName="track-changes"
-          />
-        ) : null}
-
-        {localPeerRole?.publishSettings?.allowed?.includes('audio') ? (
-          <SettingItem
-            onPress={switchAudioOutput}
-            text="Switch Audio Output"
-            IconType={MaterialCommunityIcons}
-            iconName="cast-audio"
-          />
-        ) : null}
-
-        {!isPipModeUnavailable ? (
-          <SettingItem
-            onPress={enterPipMode}
-            text="Picture in Picture (PIP) Mode"
-            IconType={MaterialCommunityIcons}
-            iconName="picture-in-picture-bottom-right"
-          />
-        ) : null}
-
-        {debugMode ? (
-          <>
-            {localPeerRole?.name?.includes('hls-') ? (
-              <>
-                <SettingItem
-                  onPress={toggleShowHLSStats}
-                  text={showHLSStats ? 'Hide HLS Stats' : 'Show HLS Stats'}
-                  IconType={MaterialCommunityIcons}
-                  iconName={'clipboard-pulse-outline'}
-                />
-
-                <SettingItem
-                  onPress={toggleEnableHLSPlayerControls}
-                  text={
-                    enableHLSPlayerControls
-                      ? 'Disable HLS Player Controls'
-                      : 'Enable HLS Player Controls'
-                  }
-                  IconType={Ionicons}
-                  iconName={'ios-settings-outline'}
-                />
-
-                <SettingItem
-                  onPress={toggleShowCustomHLSPlayerControls}
-                  text={
-                    showCustomHLSPlayerControls
-                      ? 'Hide Custom HLS Player Controls'
-                      : 'Show Custom HLS Player Controls'
-                  }
-                  IconType={Ionicons}
-                  iconName={'ios-settings-outline'}
-                />
-              </>
-            ) : (
-              <>
-                <SettingItem
-                  onPress={showRTCStats}
-                  text="Show RTC Stats"
-                  IconType={MaterialCommunityIcons}
-                  iconName={'clipboard-pulse-outline'}
-                />
-              </>
-            )}
-
-            {Platform.OS === 'android' &&
-            localPeerRole?.publishSettings?.allowed?.includes('audio') ? (
-              <>
-                <SettingItem
-                  onPress={addRemoveAudioDeviceChangeListener}
-                  text={`${
-                    audioDeviceListenerAdded ? 'Remove' : 'Set'
-                  } Audio Output Change Listener`}
-                  IconType={MaterialCommunityIcons}
-                  iconName="video-input-component"
-                />
-
-                <SettingItem
-                  onPress={handleAudioShare}
-                  text={`${isAudioShared ? 'Stop' : 'Start'} Audioshare`}
-                  IconType={Ionicons}
-                  iconName="share-social-outline"
-                />
-
-                <SettingItem
-                  onPress={changeAudioMode}
-                  text="Set Audio Mode"
-                  IconType={MaterialCommunityIcons}
-                  iconName="call-split"
-                />
-
-                <SettingItem
-                  onPress={setAudioMixingMode}
-                  text="Set Audio Mixing Mode"
-                  IconType={EntypoIcons}
-                  iconName="sound-mix"
-                />
-              </>
-            ) : null}
-          </>
-        ) : null}
-      </ScrollView>
+      {debugMode ? <RoomSettingsModalDebugModeContent {...props} /> : null}
     </View>
   );
 };
 
-interface SettingItemProps {
-  onPress(): void;
+type SettingItemProps = {
   text: string;
-  iconName: string;
-  IconType: any;
-}
-
-const SettingItem: React.FC<SettingItemProps> = ({
-  onPress,
-  text,
-  iconName,
-  IconType,
-}) => {
-  return (
-    <TouchableOpacity style={styles.button} onPress={onPress}>
-      <IconType name={iconName} size={24} style={styles.icon} />
-
-      <Text style={styles.text}>{text}</Text>
-    </TouchableOpacity>
-  );
+  icon: React.ReactElement;
+  onPress(): void;
+  isActive?: boolean;
 };
 
-const ScreenShareDelegate = ({
-  isLocalScreenShared,
+const SettingItem: React.FC<SettingItemProps> = ({
+  text,
+  icon,
   onPress,
-  closeRoomSettingsModal,
-}: any) => {
-  const handleScreenSharePress = () => {
-    closeRoomSettingsModal();
-    onPress?.();
-  };
+  isActive = false,
+}) => {
+  const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
+    button: {
+      backgroundColor: theme.palette.surface_bright,
+    },
+    text: {
+      color: theme.palette.on_surface_high,
+      fontFamily: `${typography.font_family}-SemiBold`,
+    },
+  }));
 
   return (
-    <TouchableOpacity onPress={handleScreenSharePress} style={styles.button}>
-      <ScreenShareIcon style={styles.icon} />
-      <Text style={styles.text}>
-        {isLocalScreenShared ? 'Stop Screen Share' : 'Screen Share'}
+    <TouchableOpacity
+      style={[styles.button, isActive ? hmsRoomStyles.button : null]}
+      onPress={onPress}
+    >
+      {icon}
+
+      <Text style={[styles.text, hmsRoomStyles.text]} numberOfLines={2}>
+        {text}
       </Text>
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    height: '100%',
-    width: '100%',
-    backgroundColor: COLORS.SURFACE.DEFAULT,
-  },
-  chatHeaderContainer: {
-    height: 48,
-    width: '80%',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  chatHeading: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 20,
-    lineHeight: 24,
-    letterSpacing: 0.15,
-    color: COLORS.TEXT.HIGH_EMPHASIS,
-    paddingRight: 12,
-  },
   contentContainer: {
+    marginHorizontal: 20,
+  },
+  row: {
+    flexDirection: 'row',
+  },
+  rowSpacer: {
+    height: 16,
+    width: '100%',
+  },
+  col: {
     flex: 1,
-    marginVertical: 4,
+    position: 'relative',
   },
-  scrollContentContainer: {
-    paddingBottom: 52,
-  },
-  brbIcon: {
-    width: 24,
-    height: 24,
-    tintColor: COLORS.WHITE,
-    marginRight: 12,
+  colSpacer: {
+    width: 12,
+    height: '100%',
   },
   button: {
-    flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 12,
+    borderRadius: 4,
+    paddingVertical: 8,
+    paddingHorizontal: 4,
   },
   text: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 14,
-    lineHeight: 24,
-    color: COLORS.TEXT.HIGH_EMPHASIS,
-  },
-  icon: {
-    color: COLORS.WHITE,
-    marginRight: 12,
+    textAlign: 'center',
+    fontSize: 12,
+    lineHeight: 16,
+    letterSpacing: 0.4,
+    marginTop: 8,
   },
 });
