@@ -23,7 +23,7 @@ import { BottomSheet, useBottomSheetActions } from './BottomSheet';
 import { useHMSInstance, useHMSRoomStyleSheet } from '../hooks-util';
 import { useCanPublishScreen, useHMSActions } from '../hooks-sdk';
 import { RoomSettingsModalDebugModeContent } from './RoomSettingsModalDebugModeContent';
-import { setStartingRecording } from '../redux/actions';
+import { setStartingOrStoppingRecording } from '../redux/actions';
 import { ParticipantsCount } from './ParticipantsCount';
 
 interface RoomSettingsModalContentProps {
@@ -123,8 +123,8 @@ export const RoomSettingsModalContent: React.FC<
       });
       closeRoomSettingsModal();
     } else {
-      dispatch(setStartingRecording(true));
-      hmsInstance.startRTMPOrRecording({ record: true }).finally(() => dispatch(setStartingRecording(false)))
+      dispatch(setStartingOrStoppingRecording(true));
+      hmsInstance.startRTMPOrRecording({ record: true }).catch(() => dispatch(setStartingOrStoppingRecording(false)));
       closeRoomSettingsModal();
     }
   };

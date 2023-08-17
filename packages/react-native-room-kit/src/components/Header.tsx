@@ -1,18 +1,16 @@
 import React, { memo } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import Animated, {
   useAnimatedProps,
   useAnimatedStyle,
 } from 'react-native-reanimated';
 import type { SharedValue } from 'react-native-reanimated';
 
-import { COLORS } from '../utils/theme';
-import { HMSManageLeave } from './HMSManageLeave';
 import { HMSManageCameraRotation } from './HMSManageCameraRotation';
-import { useIsHLSViewer } from '../hooks-util';
-import { HmsLogoIcon } from '../Icons';
-import { useSelector } from 'react-redux';
-import type { RootState } from '../redux';
+import { useHMSRoomStyle, useIsHLSViewer } from '../hooks-util';
+import { HMSManageAudioOutput } from './HMSManageAudioOutput';
+import { HMSRecordingIndicator } from './HMSRecordingIndicator';
+import { CompanyLogo } from './CompanyLogo';
 
 interface HeaderProps {
   offset: SharedValue<number>;
@@ -20,10 +18,7 @@ interface HeaderProps {
 
 export const _Header: React.FC<HeaderProps> = ({ offset }) => {
   const isHLSViewer = useIsHLSViewer();
-  const roomName = useSelector(
-    (state: RootState) => state.hmsStates.room?.name
-  );
-  const debugMode = useSelector((state: RootState) => state.user.debugMode);
+
   const animatedStyles = useAnimatedStyle(() => {
     return {
       opacity: offset.value,
@@ -39,50 +34,56 @@ export const _Header: React.FC<HeaderProps> = ({ offset }) => {
     };
   }, []);
 
+  const containerStyles = useHMSRoomStyle((theme) => ({
+    backgroundColor: theme.palette.background_dim,
+  }));
+
   return (
     <Animated.View style={animatedStyles} animatedProps={animatedProps}>
-      {isHLSViewer ? (
-        <View style={styles.hlsContainer}>
-          <HmsLogoIcon />
+      <View style={[styles.container, containerStyles]}>
+        <View style={styles.logoContainer}>
+          <CompanyLogo style={styles.logo} />
 
-          {debugMode && roomName ? (
-            <Text style={styles.roomName}>{roomName}</Text>
-          ) : null}
+          <HMSRecordingIndicator />
         </View>
-      ) : (
-        <View style={styles.container}>
-          <HMSManageLeave />
-          <HMSManageCameraRotation />
+
+        <View style={styles.controls}>
+          {isHLSViewer ? null : (
+            <View style={styles.cameraRotationWrapper}>
+              <HMSManageCameraRotation />
+            </View>
+          )}
+
+          <HMSManageAudioOutput />
         </View>
-      )}
+      </View>
     </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: 8,
+    paddingTop: 8,
+    paddingBottom: 16,
     paddingHorizontal: 16,
-    backgroundColor: COLORS.BACKGROUND.DIM,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  hlsContainer: {
-    padding: 16,
-    paddingTop: 8,
+  logoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  logo: {
+    marginRight: 12
+  },
+  controls: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginLeft: 16,
   },
-  roomName: {
-    flex: 1,
-    fontFamily: 'Inter',
-    fontSize: 15,
-    fontWeight: '500',
-    color: COLORS.SURFACE.ON_SURFACE.HIGH,
-    lineHeight: 20,
-    letterSpacing: 0.1,
-    marginLeft: 24,
+  cameraRotationWrapper: {
+    marginRight: 16
   },
 });
 

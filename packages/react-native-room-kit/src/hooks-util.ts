@@ -67,6 +67,7 @@ import {
   setLocalPeerTrackNode,
   setMiniViewPeerTrackNode,
   setModalType,
+  setStartingOrStoppingRecording,
   updateLocalPeerTrackNode,
   updateMiniViewPeerTrackNode,
 } from './redux/actions';
@@ -117,7 +118,7 @@ export const useHMSListeners = (
 
 const useHMSRoomUpdate = (hmsInstance: HMSSDK) => {
   const dispatch = useDispatch();
-  const reduxStore = useStore();
+  const reduxStore = useStore<RootState>();
 
   useEffect(() => {
     const roomUpdateHandler = (data: {
@@ -133,8 +134,7 @@ const useHMSRoomUpdate = (hmsInstance: HMSSDK) => {
        * before ON_JOIN, if ON_ROOM comes then we can show Meeting screen to user, instead of Loader or Preview
        */
       if (room.localPeer.role?.name?.includes('hls-') ?? false) {
-        const meetingState = (reduxStore.getState() as RootState).app
-          .meetingState;
+        const meetingState = reduxStore.getState().app.meetingState;
 
         batch(() => {
           dispatch(setHMSLocalPeerState(room.localPeer));
@@ -145,6 +145,12 @@ const useHMSRoomUpdate = (hmsInstance: HMSSDK) => {
       }
 
       if (type === HMSRoomUpdate.BROWSER_RECORDING_STATE_UPDATED) {
+        const startingOrStoppingRecording = reduxStore.getState().app.startingOrStoppingRecording;
+
+        if (startingOrStoppingRecording) {
+          dispatch(setStartingOrStoppingRecording(false));
+        }
+
         let streaming = room?.browserRecordingState?.running;
         const startAtDate = room?.browserRecordingState?.startedAt;
 
