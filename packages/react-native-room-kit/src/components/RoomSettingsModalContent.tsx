@@ -18,7 +18,7 @@ import { BottomSheet, useBottomSheetActions } from './BottomSheet';
 import { useHMSInstance, useHMSRoomStyleSheet } from '../hooks-util';
 import { useCanPublishScreen, useHMSActions } from '../hooks-sdk';
 import { RoomSettingsModalDebugModeContent } from './RoomSettingsModalDebugModeContent';
-import { setStartingRecording } from '../redux/actions';
+import { setStartingOrStoppingRecording } from '../redux/actions';
 import { ParticipantsCount } from './ParticipantsCount';
 
 interface RoomSettingsModalContentProps {
@@ -118,10 +118,10 @@ export const RoomSettingsModalContent: React.FC<
       });
       closeRoomSettingsModal();
     } else {
-      dispatch(setStartingRecording(true));
+      dispatch(setStartingOrStoppingRecording(true));
       hmsInstance
         .startRTMPOrRecording({ record: true })
-        .finally(() => dispatch(setStartingRecording(false)));
+        .catch(() => dispatch(setStartingOrStoppingRecording(false)));
       closeRoomSettingsModal();
     }
   };
@@ -152,6 +152,7 @@ export const RoomSettingsModalContent: React.FC<
         {groupIntoTriplets(
           [
             {
+              id: 'participants',
               icon: <ParticipantsIcon style={{ width: 20, height: 20 }} />,
               label: 'Participants',
               pressHandler: onParticipantsPress,
@@ -162,6 +163,7 @@ export const RoomSettingsModalContent: React.FC<
               // children
             },
             {
+              id: 'share-screen',
               icon: <ScreenShareIcon style={{ width: 20, height: 20 }} />,
               label: !!isLocalScreenShared ? 'Sharing Screen' : 'Share Screen',
               pressHandler: handleScreenShareTogglePress,
@@ -169,6 +171,7 @@ export const RoomSettingsModalContent: React.FC<
               hide: !canPublishScreen, // Hide if can't publish screen
             },
             {
+              id: 'brb',
               icon: <BRBIcon style={{ width: 20, height: 20 }} />,
               label: isBRBOn ? "I'm Back" : 'Be Right Back',
               pressHandler: toggleBRB,
@@ -176,6 +179,7 @@ export const RoomSettingsModalContent: React.FC<
               hide: false, // Hide if can't publish screen
             },
             {
+              id: 'raise-hand',
               icon: <HandIcon style={{ width: 20, height: 20 }} />,
               label: parsedMetadata.isHandRaised ? 'Hand Raised' : 'Raise Hand',
               pressHandler: toggleRaiseHand,
@@ -183,6 +187,7 @@ export const RoomSettingsModalContent: React.FC<
               hide: false, // Hide if can't publish screen
             },
             {
+              id: 'start-recording',
               icon: <RecordingIcon style={{ width: 20, height: 20 }} />,
               label: isRecordingOn ? 'Stop Recording' : 'Start Recording',
               pressHandler: handleRecordingTogglePress,
@@ -190,6 +195,7 @@ export const RoomSettingsModalContent: React.FC<
               hide: !canStartRecording, // Hide if can't publish screen
             },
             {
+              id: 'change-name',
               icon: <PencilIcon style={{ width: 20, height: 20 }} />,
               label: 'Change Name',
               pressHandler: changeName,
@@ -202,7 +208,7 @@ export const RoomSettingsModalContent: React.FC<
           const isFirst = idx === 0;
 
           return (
-            <>
+            <React.Fragment key={idx.toString()}>
               {isFirst ? null : <View style={styles.rowSpacer} />}
 
               <View style={styles.row}>
@@ -210,7 +216,7 @@ export const RoomSettingsModalContent: React.FC<
                   const isFirst = index === 0;
 
                   return (
-                    <>
+                    <React.Fragment key={item ? item.id : index.toString()}>
                       {isFirst ? null : <View style={styles.colSpacer} />}
 
                       <View style={styles.col}>
@@ -227,11 +233,11 @@ export const RoomSettingsModalContent: React.FC<
                           </>
                         ) : null}
                       </View>
-                    </>
+                    </React.Fragment>
                   );
                 })}
               </View>
-            </>
+            </React.Fragment>
           );
         })}
       </View>

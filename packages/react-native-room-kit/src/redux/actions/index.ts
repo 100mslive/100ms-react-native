@@ -262,7 +262,7 @@ export const setGridViewActivePage = (pageNumber: number) => ({
   payload: { gridViewActivePage: pageNumber },
 });
 
-export const setStartingRecording = (startingRecording: boolean) => ({
-  type: actionTypes.SET_STARTING_RECORDING,
-  payload: { startingRecording },
+export const setStartingOrStoppingRecording = (startingOrStoppingRecording: boolean) => ({
+  type: actionTypes.SET_STARTING_OR_STOPPING_RECORDING,
+  payload: { startingOrStoppingRecording },
 });
