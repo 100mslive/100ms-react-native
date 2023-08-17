@@ -6,9 +6,12 @@ import { useHMSRoomStyle } from '../../hooks-util';
 
 interface RecordingIconProps extends Omit<ImageProps, 'source'> {}
 
-export const RecordingIcon: React.FC<RecordingIconProps> = ({ style, ...restProps }) => {
-  const iconStyles = useHMSRoomStyle(theme => ({
-    tintColor: theme.palette.on_surface_high
+export const RecordingIcon: React.FC<RecordingIconProps> = ({
+  style,
+  ...restProps
+}) => {
+  const iconStyles = useHMSRoomStyle((theme) => ({
+    tintColor: theme.palette.on_surface_high,
   }));
 
   return (

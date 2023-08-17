@@ -21,8 +21,10 @@ export const HMSDangerButton: React.FC<HMSDangerButtonProps> = ({
   disabled,
   leftComponent,
 }) => {
-  const { alert_error_dim: alertErrorDimColor, alert_error_brighter: alertErrorBrighterColor } =
-    useHMSRoomColorPalette();
+  const {
+    alert_error_dim: alertErrorDimColor,
+    alert_error_brighter: alertErrorBrighterColor,
+  } = useHMSRoomColorPalette();
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     button: {

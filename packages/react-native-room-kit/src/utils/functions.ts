@@ -530,11 +530,11 @@ export const getTimeStringin12HourFormat = (time: Date) => {
 export function groupIntoPairs(totalNumber: number) {
   const pairs = [];
   for (let i = 0; i < totalNumber; i += 2) {
-      if (i + 1 < totalNumber) {
-          pairs.push([i, i + 1]);
-      } else {
-          pairs.push([i]);
-      }
+    if (i + 1 < totalNumber) {
+      pairs.push([i, i + 1]);
+    } else {
+      pairs.push([i]);
+    }
   }
   return pairs;
 }
@@ -547,7 +547,7 @@ export function groupIntoPairs(totalNumber: number) {
  */
 export function groupIntoTriplets<T>(list: T[], fill?: boolean) {
   const pairs = [];
-  const listLength =  list.length;
+  const listLength = list.length;
 
   for (let i = 0; i < listLength; i += 3) {
     if (i + 2 < listLength) {

@@ -5,6 +5,8 @@ import android.view.WindowManager;
 
 import com.facebook.react.ReactActivity;
 
+import org.devio.rn.splashscreen.SplashScreen;
+
 public class MainActivity extends ReactActivity {
 
   /**
@@ -17,7 +19,9 @@ public class MainActivity extends ReactActivity {
   }
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
+    SplashScreen.show(this, R.id.lottie); // here
+    SplashScreen.setAnimationFinished(true);
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    super.onCreate(savedInstanceState);
   }
 }

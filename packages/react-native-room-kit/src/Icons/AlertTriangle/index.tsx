@@ -6,7 +6,10 @@ import { useHMSRoomStyle } from '../../hooks-util';
 
 interface AlertTriangleIconProps extends Omit<ImageProps, 'source'> {}
 
-export const AlertTriangleIcon: React.FC<AlertTriangleIconProps> = ({ style, ...restProps }) => {
+export const AlertTriangleIcon: React.FC<AlertTriangleIconProps> = ({
+  style,
+  ...restProps
+}) => {
   const iconStyles = useHMSRoomStyle((theme) => ({
     tintColor: theme.palette.alert_error_default,
   }));

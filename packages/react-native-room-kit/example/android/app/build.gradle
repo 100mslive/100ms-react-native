@@ -136,8 +136,8 @@ android {
         applicationId "live.hms.rn"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 270
-        versionName "2.3.19"
+        versionCode 271
+        versionName "2.3.20"
         missingDimensionStrategy 'react-native-camera', 'general'
     }
     splits {
@@ -238,6 +238,8 @@ dependencies {
     }
 
     implementation project(':reactnativehmssdk')
+
+    implementation project(':react-native-lottie-splash-screen')
 }
 
 // Run this once to be able to run the application with BUCK

@@ -33,6 +33,7 @@ import { setRoomID } from '../../redux/actions';
 import { Constants } from '../../utils/types';
 import { RootState } from '../../redux';
 import { callService } from '../../utils/functions';
+import LottieSplashScreen from 'react-native-lottie-splash-screen';
 
 type QRCodeScreenProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -100,6 +101,10 @@ const QRCode = () => {
   const onScanQRCodePress = () => {
     navigate('QRCodeScannerScreen');
   };
+
+  useEffect(() => {
+    LottieSplashScreen.hide();
+  }, []);
 
   useEffect(() => {
     setJoinDisabled(!validateUrl(joiningLink));

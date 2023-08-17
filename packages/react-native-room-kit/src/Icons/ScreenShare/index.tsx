@@ -10,8 +10,8 @@ export const ScreenShareIcon: React.FC<ScreenShareIconProps> = ({
   style,
   ...restProps
 }) => {
-  const iconStyles = useHMSRoomStyle(theme => ({
-    tintColor: theme.palette.on_surface_high
+  const iconStyles = useHMSRoomStyle((theme) => ({
+    tintColor: theme.palette.on_surface_high,
   }));
 
   return (

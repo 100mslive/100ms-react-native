@@ -1,10 +1,5 @@
 import * as React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
 import { useHMSRoomStyleSheet, useLeaveMethods } from '../hooks-util';
 import { AlertTriangleIcon, CloseIcon } from '../Icons';
@@ -14,7 +9,9 @@ export interface EndRoomModalContentProps {
   dismissModal(): void;
 }
 
-export const EndRoomModalContent: React.FC<EndRoomModalContentProps> = ({ dismissModal }) => {
+export const EndRoomModalContent: React.FC<EndRoomModalContentProps> = ({
+  dismissModal,
+}) => {
   const { endRoom } = useLeaveMethods();
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
@@ -24,8 +21,8 @@ export const EndRoomModalContent: React.FC<EndRoomModalContentProps> = ({ dismis
     },
     text: {
       color: theme.palette.on_surface_medium,
-      fontFamily: `${typography.font_family}-Regular`
-    }
+      fontFamily: `${typography.font_family}-Regular`,
+    },
   }));
 
   return (
@@ -47,13 +44,12 @@ export const EndRoomModalContent: React.FC<EndRoomModalContentProps> = ({ dismis
         </TouchableOpacity>
       </View>
 
-      <Text style={[styles.text, hmsRoomStyles.text]}>The session will end for everyone and all the activities will stop. You can't undo this action.</Text>
+      <Text style={[styles.text, hmsRoomStyles.text]}>
+        The session will end for everyone and all the activities will stop. You
+        can't undo this action.
+      </Text>
 
-      <HMSDangerButton
-        loading={false}
-        onPress={endRoom}
-        title='End Session'
-      />
+      <HMSDangerButton loading={false} onPress={endRoom} title="End Session" />
     </View>
   );
 };
@@ -61,7 +57,7 @@ export const EndRoomModalContent: React.FC<EndRoomModalContentProps> = ({ dismis
 const styles = StyleSheet.create({
   container: {
     marginTop: 24,
-    marginHorizontal: 24
+    marginHorizontal: 24,
   },
   header: {
     flexDirection: 'row',
@@ -71,7 +67,7 @@ const styles = StyleSheet.create({
   },
   headerControls: {
     flexDirection: 'row',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   headerText: {
     fontSize: 20,
@@ -89,6 +85,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     letterSpacing: 0.25,
-    marginBottom: 24
-  }
+    marginBottom: 24,
+  },
 });
