@@ -163,7 +163,7 @@ export const RoomSettingsModalContent: React.FC<
             },
             {
               icon: <ScreenShareIcon style={{ width: 20, height: 20 }} />,
-              label: !!isLocalScreenShared ? 'Sharing Screen' : 'Share Screen',
+              label: isLocalScreenShared ? 'Sharing Screen' : 'Share Screen',
               pressHandler: handleScreenShareTogglePress,
               isActive: !!isLocalScreenShared, // Show active if screen is shared
               hide: !canPublishScreen, // Hide if can't publish screen

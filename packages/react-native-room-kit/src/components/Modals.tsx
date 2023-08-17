@@ -36,15 +36,10 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { styles } from './styles';
 
 import { CustomButton } from './CustomButton';
-import { CustomInput } from './CustomInput';
 import { Menu, MenuItem } from './MenuModal';
 
 import { CustomPicker } from './Picker';
-import {
-  changeHLSAspectRatio,
-  changeShowStats,
-  saveUserData,
-} from '../redux/actions';
+import { changeHLSAspectRatio, changeShowStats } from '../redux/actions';
 import { getTime } from '../utils/functions';
 import {
   LayoutParams,

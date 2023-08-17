@@ -32,9 +32,8 @@ const CustomInput = ({
   blurOnSubmit,
   disableFullscreenUI = true,
   clear = true,
-  autoCapitalize = 'none', // autoCorrect = false,
-} // autoCompleteType = 'off',
-: {
+  autoCapitalize = 'none', // autoCorrect = false, // autoCompleteType = 'off',
+}: {
   value?: string;
   title?: string;
   onChangeText: Function;

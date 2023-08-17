@@ -174,7 +174,7 @@ const QRCode = () => {
           }}
         >
           <Text style={{ color: 'white', fontSize: 12 }}>
-            Hermes: {!!isHermes ? 'ON' : 'OFF'}
+            Hermes: {isHermes ? 'ON' : 'OFF'}
           </Text>
         </View>
 

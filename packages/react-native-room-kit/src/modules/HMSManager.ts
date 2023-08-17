@@ -1,4 +1,3 @@
-import { Platform } from 'react-native';
 import { HMSManagerModule, getLogger } from '@100mslive/react-native-hms';
 import type { HMSSDK } from '@100mslive/react-native-hms';
 import type { Layout } from '@100mslive/types-prebuilt';
