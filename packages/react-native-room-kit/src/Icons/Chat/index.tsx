@@ -7,8 +7,8 @@ import { useHMSRoomStyle } from '../../hooks-util';
 interface ChatIconProps extends Omit<ImageProps, 'source'> {}
 
 export const ChatIcon: React.FC<ChatIconProps> = ({ style, ...restProps }) => {
-  const iconStyles = useHMSRoomStyle(theme => ({
-    tintColor: theme.palette.on_surface_high
+  const iconStyles = useHMSRoomStyle((theme) => ({
+    tintColor: theme.palette.on_surface_high,
   }));
 
   return (

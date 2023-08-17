@@ -9,10 +9,10 @@ export interface PaginationDotsProps {
   list: any[];
 }
 
-const _PaginationDots: React.FC<PaginationDotsProps> = ({
-  list,
-}) => {
-  const activeIndex = useSelector((state: RootState) => state.app.gridViewActivePage);
+const _PaginationDots: React.FC<PaginationDotsProps> = ({ list }) => {
+  const activeIndex = useSelector(
+    (state: RootState) => state.app.gridViewActivePage
+  );
 
   const hmsRoomStyles = useHMSRoomStyleSheet(
     (theme) => ({

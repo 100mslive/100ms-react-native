@@ -201,7 +201,9 @@ export const HMSRoomSetup = () => {
           dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: true });
         } else {
           if (reduxState.app.localPeerTrackNode) {
-            dispatch(updateLocalPeerTrackNode({ peer, track: peer.videoTrack }));
+            dispatch(
+              updateLocalPeerTrackNode({ peer, track: peer.videoTrack })
+            );
           } else {
             // saving above created `PeerTrackNode` in store
             dispatch(setLocalPeerTrackNode(localPeerTrackNode));
@@ -230,8 +232,8 @@ export const HMSRoomSetup = () => {
           return replacePeerTrackNodes(prevPeerTrackNodes, peer);
         }
 
-      //   const hmsLocalPeer = createPeerTrackNode(peer, track);
-      //   return [hmsLocalPeer, ...prevPeerTrackNodes];
+        //   const hmsLocalPeer = createPeerTrackNode(peer, track);
+        //   return [hmsLocalPeer, ...prevPeerTrackNodes];
 
         return prevPeerTrackNodes;
       });

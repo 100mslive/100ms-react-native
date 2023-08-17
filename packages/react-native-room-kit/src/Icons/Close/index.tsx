@@ -11,7 +11,7 @@ export const CloseIcon: React.FC<CloseIconProps> = ({
   ...restProps
 }) => {
   const iconStyles = useHMSRoomStyle((theme) => ({
-    tintColor: theme.palette.on_surface_high
+    tintColor: theme.palette.on_surface_high,
   }));
 
   return (

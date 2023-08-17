@@ -15,7 +15,7 @@ export const PeerMetadata: React.FC<PeerMetadataProps> = ({ metadata }) => {
   const iconWrapperStyles = useHMSRoomStyle((theme) => ({
     backgroundColor: theme.palette.secondary_dim,
   }));
-  
+
   if (parsedMetadata.isBRBOn) {
     return (
       <View style={[styles.iconWrapper, iconWrapperStyles]}>
@@ -33,7 +33,7 @@ export const PeerMetadata: React.FC<PeerMetadataProps> = ({ metadata }) => {
   }
 
   return null;
-}
+};
 
 const styles = StyleSheet.create({
   iconWrapper: {
@@ -41,6 +41,6 @@ const styles = StyleSheet.create({
     top: 8,
     left: 8,
     padding: 4,
-    borderRadius: 16
-  }
+    borderRadius: 16,
+  },
 });

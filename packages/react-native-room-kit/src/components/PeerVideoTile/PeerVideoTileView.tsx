@@ -90,7 +90,7 @@ export const _PeerVideoTileView = React.forwardRef<
               isDegraded={isDegraded}
               overlay={insetMode}
               scaleType={
-                onSpotlight || (track.source !== HMSTrackSource.REGULAR)
+                onSpotlight || track.source !== HMSTrackSource.REGULAR
                   ? HMSVideoViewMode.ASPECT_FIT
                   : HMSVideoViewMode.ASPECT_FILL
               }

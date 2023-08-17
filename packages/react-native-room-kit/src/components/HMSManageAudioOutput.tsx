@@ -144,7 +144,10 @@ export const HMSManageAudioOutput: React.FC = () => {
       </PressableIcon>
 
       <BottomSheet isVisible={settingsModalVisible} dismissModal={dismissModal}>
-        <BottomSheet.Header dismissModal={dismissModal} heading='Audio Output' />
+        <BottomSheet.Header
+          dismissModal={dismissModal}
+          heading="Audio Output"
+        />
 
         <BottomSheet.Divider />
 
@@ -166,7 +169,9 @@ export const HMSManageAudioOutput: React.FC = () => {
 
                   return (
                     <React.Fragment key={device}>
-                      {isFirst ? null : <View style={[styles.divider, hmsRoomStyles.divider]} />}
+                      {isFirst ? null : (
+                        <View style={[styles.divider, hmsRoomStyles.divider]} />
+                      )}
 
                       <TouchableOpacity
                         style={styles.audioDeviceItem}

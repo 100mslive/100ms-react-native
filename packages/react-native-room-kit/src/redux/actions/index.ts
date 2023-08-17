@@ -219,22 +219,30 @@ export const setInsetViewMinimized = (insetViewMinimized: boolean) => ({
   payload: { insetViewMinimized },
 });
 
-export const setMiniViewPeerTrackNode = (miniviewPeerTrackNode: PeerTrackNode | null) => ({
+export const setMiniViewPeerTrackNode = (
+  miniviewPeerTrackNode: PeerTrackNode | null
+) => ({
   type: actionTypes.SET_MINI_VIEW_PEERTRACKNODE,
   payload: { miniviewPeerTrackNode },
 });
 
-export const updateMiniViewPeerTrackNode = (data: Partial<Omit<PeerTrackNode, 'id'>>) => ({
+export const updateMiniViewPeerTrackNode = (
+  data: Partial<Omit<PeerTrackNode, 'id'>>
+) => ({
   type: actionTypes.UPDATE_MINI_VIEW_PEERTRACKNODE,
   payload: data,
 });
 
-export const setLocalPeerTrackNode = (localPeerTrackNode: PeerTrackNode | null) => ({
+export const setLocalPeerTrackNode = (
+  localPeerTrackNode: PeerTrackNode | null
+) => ({
   type: actionTypes.SET_LOCAL_PEERTRACKNODE,
   payload: { localPeerTrackNode },
 });
 
-export const updateLocalPeerTrackNode = (data: Partial<Omit<PeerTrackNode, 'id' | 'isDegraded'>>) => ({
+export const updateLocalPeerTrackNode = (
+  data: Partial<Omit<PeerTrackNode, 'id' | 'isDegraded'>>
+) => ({
   type: actionTypes.UPDATE_LOCAL_PEERTRACKNODE,
   payload: data,
 });

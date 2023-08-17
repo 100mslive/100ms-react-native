@@ -19,7 +19,7 @@ export const PeerNameAndNetwork: React.FC<PeerNameAndNetworkProps> = ({
   trackSource,
   networkQuality,
 }) => {
-  const showTrackSource = trackSource && (trackSource !== HMSTrackSource.REGULAR);
+  const showTrackSource = trackSource && trackSource !== HMSTrackSource.REGULAR;
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     contentContainer: {
@@ -28,19 +28,26 @@ export const PeerNameAndNetwork: React.FC<PeerNameAndNetworkProps> = ({
     name: {
       color: theme.palette.on_surface_high,
       fontFamily: `${typography.font_family}-Regular`,
-    }
+    },
   }));
 
   return (
     <View style={styles.container}>
       <View style={[styles.contentContainer, hmsRoomStyles.contentContainer]}>
-        <Text style={[styles.name, hmsRoomStyles.name]} numberOfLines={1} ellipsizeMode={showTrackSource ? 'middle' : 'tail'}>
+        <Text
+          style={[styles.name, hmsRoomStyles.name]}
+          numberOfLines={1}
+          ellipsizeMode={showTrackSource ? 'middle' : 'tail'}
+        >
           {name}
           {isLocal ? ' (You)' : ''}
           {showTrackSource ? `'s ${trackSource}` : ''}
         </Text>
 
-        <NetworkQualityIcon quality={networkQuality} style={styles.networkIcon} />
+        <NetworkQualityIcon
+          quality={networkQuality}
+          style={styles.networkIcon}
+        />
       </View>
     </View>
   );
@@ -69,6 +76,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.25,
   },
   networkIcon: {
-    marginLeft: 4
-  }
+    marginLeft: 4,
+  },
 });

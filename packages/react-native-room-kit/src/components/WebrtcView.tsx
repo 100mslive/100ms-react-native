@@ -18,10 +18,7 @@ interface WebrtcViewProps {
 }
 
 export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
-  ({
-    peerTrackNodes,
-    handlePeerTileMorePress,
-  }, gridViewRef) => {
+  ({ peerTrackNodes, handlePeerTileMorePress }, gridViewRef) => {
     const isPortrait = useIsPortraitOrientation();
 
     const isPipModeActive = useSelector(
@@ -34,16 +31,20 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
     );
 
     const pairedPeers = useMemo(
-      () => pairData(
-        peerTrackNodes,
-        isPortrait ? MaxTilesInOnePage.IN_PORTRAIT : MaxTilesInOnePage.IN_LANDSCAPE,
-        spotlightTrackId
-      ),
+      () =>
+        pairData(
+          peerTrackNodes,
+          isPortrait
+            ? MaxTilesInOnePage.IN_PORTRAIT
+            : MaxTilesInOnePage.IN_LANDSCAPE,
+          spotlightTrackId
+        ),
       [peerTrackNodes, spotlightTrackId, isPortrait]
     );
 
     const canShowTiles = useSelector(
-      (state: RootState) => !!state.app.localPeerTrackNode || pairedPeers.length > 0
+      (state: RootState) =>
+        !!state.app.localPeerTrackNode || pairedPeers.length > 0
     );
 
     if (!canShowTiles) {
@@ -64,6 +65,8 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
       );
     }
 
-    return <LocalPeerRegularVideoView onMoreOptionsPress={handlePeerTileMorePress} />
+    return (
+      <LocalPeerRegularVideoView onMoreOptionsPress={handlePeerTileMorePress} />
+    );
   }
 );

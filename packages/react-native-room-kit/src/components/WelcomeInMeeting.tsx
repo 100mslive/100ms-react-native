@@ -28,7 +28,7 @@ export const WelcomeInMeeting: React.FC<WelcomeInMeetingProps> = () => {
       </Text>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -48,5 +48,5 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     letterSpacing: 0.15,
     textAlign: 'center',
-  }
+  },
 });

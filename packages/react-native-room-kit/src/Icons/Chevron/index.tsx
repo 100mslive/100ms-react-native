@@ -14,7 +14,7 @@ export const ChevronIcon: React.FC<ChevronIconProps> = ({
   ...restProps
 }) => {
   const iconStyles = useHMSRoomStyle((theme) => ({
-    tintColor: theme.palette.on_surface_high
+    tintColor: theme.palette.on_surface_high,
   }));
 
   return (

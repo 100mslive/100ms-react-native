@@ -1,7 +1,11 @@
 import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
-import type { HMSVideoViewMode, HMSView, HMSPeer } from '@100mslive/react-native-hms';
+import type {
+  HMSVideoViewMode,
+  HMSView,
+  HMSPeer,
+} from '@100mslive/react-native-hms';
 import { useSelector } from 'react-redux';
 
 import type { RootState } from '../../redux';
@@ -62,7 +66,9 @@ const _VideoView = React.forwardRef<
 
         {isDegraded ? (
           <View style={[styles.degradedView, hmsRoomStyles.degradedView]}>
-            <Text style={[styles.degradedText, hmsRoomStyles.degradedText]}>Degraded</Text>
+            <Text style={[styles.degradedText, hmsRoomStyles.degradedText]}>
+              Degraded
+            </Text>
           </View>
         ) : null}
       </View>

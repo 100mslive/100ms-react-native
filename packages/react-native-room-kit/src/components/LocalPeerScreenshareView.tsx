@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-import { CustomButton } from "./CustomButton";
+import { CustomButton } from './CustomButton';
 import { useHMSActions } from '../hooks-sdk';
 import { COLORS } from '../utils/theme';
 
@@ -20,9 +20,7 @@ export const LocalPeerScreenshareView = () => {
         style={styles.icon}
         size={48}
       />
-      <Text style={styles.text}>
-        You are sharing your screen
-      </Text>
+      <Text style={styles.text}>You are sharing your screen</Text>
       <CustomButton
         title="X   Stop Screenshare"
         onPress={onEndScreenSharePress}
@@ -31,7 +29,7 @@ export const LocalPeerScreenshareView = () => {
       />
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -70,5 +68,5 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
     fontFamily: 'Inter-Medium',
     textTransform: 'capitalize',
-  }
+  },
 });

@@ -61,21 +61,27 @@ const _TilesContainer: React.FC<TilesContainerProps> = ({
         // Use Grid Layout
         <React.Fragment>
           {groupIntoPairs(peerTrackNodes.length).map((pair, idx) => {
-
-            const peerTrackNodesPair = pair.map(nodeIndex => peerTrackNodes[nodeIndex] as PeerTrackNode);
+            const peerTrackNodesPair = pair.map(
+              (nodeIndex) => peerTrackNodes[nodeIndex] as PeerTrackNode
+            );
             const isFirstPairGroup = idx === 0;
 
             return (
               <View
-                key={peerTrackNodesPair.map(peerTrackNode => peerTrackNode.id).join(',')}
+                key={peerTrackNodesPair
+                  .map((peerTrackNode) => peerTrackNode.id)
+                  .join(',')}
                 style={{
-                  justifyContent: peerTrackNodesPair.length === 1 ? 'center' : 'space-between',
+                  justifyContent:
+                    peerTrackNodesPair.length === 1
+                      ? 'center'
+                      : 'space-between',
                   flexDirection: 'row',
                   flex: growableTileLayout ? 1 : 0,
                   marginTop: isFirstPairGroup ? 0 : 8,
                 }}
               >
-                {peerTrackNodesPair.map(peerTrackNode => {
+                {peerTrackNodesPair.map((peerTrackNode) => {
                   return (
                     <Tile
                       key={peerTrackNode.id}
@@ -102,7 +108,6 @@ const TilesContainer = React.memo(_TilesContainer);
 TilesContainer.displayName = 'TilesContainer';
 
 export { TilesContainer };
-
 
 // Utility Functions
 

@@ -1,5 +1,12 @@
 import React from 'react';
-import { View, TouchableOpacity, Text, StyleSheet, LayoutAnimation, InteractionManager } from 'react-native';
+import {
+  View,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  LayoutAnimation,
+  InteractionManager,
+} from 'react-native';
 import { batch, useDispatch, useSelector } from 'react-redux';
 import { HMSTrack, HMSTrackSource } from '@100mslive/react-native-hms';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -98,7 +105,7 @@ export const PeerSettingsModalContent: React.FC<
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       dispatch(setInsetViewMinimized(true));
     });
-  }
+  };
 
   const changeRole = () => {
     batch(() => {
@@ -169,7 +176,11 @@ export const PeerSettingsModalContent: React.FC<
 
         <SettingItem
           customIcon={true}
-          text={onSpotlight ? 'Remove Spotlight for Everyone' : 'Spotlight Tile for Everyone'}
+          text={
+            onSpotlight
+              ? 'Remove Spotlight for Everyone'
+              : 'Spotlight Tile for Everyone'
+          }
           icon={<StarIcon style={styles.customIcon} />}
           onPress={handleSpotlightPress}
           disabled={!peerTrackNode.track?.trackId}
@@ -308,24 +319,25 @@ export const PeerSettingsModalContent: React.FC<
   );
 };
 
-type SettingItemBaseProps  = {
+type SettingItemBaseProps = {
   onPress(): void;
   text: string;
   disabled?: boolean;
-}
+};
 
-type SettingItemWithCustomIconProps  = {
-  customIcon: true,
+type SettingItemWithCustomIconProps = {
+  customIcon: true;
   icon: React.ReactElement;
-}
+};
 
-type SettingItemWithIconProps  = {
-  customIcon?: false,
+type SettingItemWithIconProps = {
+  customIcon?: false;
   iconName: string;
   IconType: any;
-}
+};
 
-type SettingItemProps = SettingItemBaseProps & (SettingItemWithCustomIconProps | SettingItemWithIconProps);
+type SettingItemProps = SettingItemBaseProps &
+  (SettingItemWithCustomIconProps | SettingItemWithIconProps);
 
 const SettingItem: React.FC<SettingItemProps> = ({
   onPress,
@@ -335,7 +347,7 @@ const SettingItem: React.FC<SettingItemProps> = ({
 }) => {
   const textStyles = useHMSRoomStyle((theme, typography) => ({
     color: theme.palette.on_surface_high,
-    fontFamily: `${typography.font_family}-SemiBold`
+    fontFamily: `${typography.font_family}-SemiBold`,
   }));
 
   return (
@@ -344,7 +356,15 @@ const SettingItem: React.FC<SettingItemProps> = ({
       style={[styles.button, disabled ? { opacity: 0.6 } : null]}
       onPress={onPress}
     >
-      {resetProps.customIcon ? resetProps.icon : <resetProps.IconType name={resetProps.iconName} size={24} style={styles.icon} />}
+      {resetProps.customIcon ? (
+        resetProps.icon
+      ) : (
+        <resetProps.IconType
+          name={resetProps.iconName}
+          size={24}
+          style={styles.icon}
+        />
+      )}
 
       <Text style={[styles.text, textStyles]}>{text}</Text>
     </TouchableOpacity>
@@ -353,7 +373,7 @@ const SettingItem: React.FC<SettingItemProps> = ({
 
 const styles = StyleSheet.create({
   contentContainer: {
-    marginBottom: 8
+    marginBottom: 8,
   },
   customIcon: {
     width: 20,
@@ -370,7 +390,7 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 14,
     lineHeight: 20,
-    letterSpacing: 0.10,
+    letterSpacing: 0.1,
   },
   icon: {
     color: COLORS.WHITE,

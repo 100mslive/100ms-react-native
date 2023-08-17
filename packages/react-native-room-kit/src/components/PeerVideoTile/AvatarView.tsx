@@ -13,8 +13,7 @@ export interface AvatarViewProps {
 }
 
 export const _AvatarView: React.FC<AvatarViewProps> = ({ name, videoView }) => {
-
-  const showInitials = !!name && (name.length > 0);
+  const showInitials = !!name && name.length > 0;
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     avatarContainer: {
@@ -35,7 +34,9 @@ export const _AvatarView: React.FC<AvatarViewProps> = ({ name, videoView }) => {
         <View style={[styles.avatarContainer, hmsRoomStyles.avatarContainer]}>
           <View style={[styles.avatar, hmsRoomStyles.avatar]}>
             {showInitials ? (
-              <Text style={[styles.avatarText, hmsRoomStyles.avatarText]}>{getInitials(name)}</Text>
+              <Text style={[styles.avatarText, hmsRoomStyles.avatarText]}>
+                {getInitials(name)}
+              </Text>
             ) : (
               <PersonIcon style={styles.avatarIcon} />
             )}
