@@ -6,8 +6,13 @@ import { useHMSRoomStyle } from '../../hooks-util';
 
 interface MinimizeIconProps extends Omit<ImageProps, 'source'> {}
 
-export const MinimizeIcon: React.FC<MinimizeIconProps> = ({ style, ...restProps }) => {
-  const iconStyles = useHMSRoomStyle(theme => ({ tintColor: theme.palette.on_surface_high }));
+export const MinimizeIcon: React.FC<MinimizeIconProps> = ({
+  style,
+  ...restProps
+}) => {
+  const iconStyles = useHMSRoomStyle((theme) => ({
+    tintColor: theme.palette.on_surface_high,
+  }));
 
   return (
     <Image

@@ -285,11 +285,16 @@ const useHMSPeersUpdate = (
           if (localPeerTrackNode) {
             dispatch(updateLocalPeerTrackNode({ peer }));
           } else {
-            dispatch(setLocalPeerTrackNode(createPeerTrackNode(peer, peer.videoTrack)));
+            dispatch(
+              setLocalPeerTrackNode(createPeerTrackNode(peer, peer.videoTrack))
+            );
           }
 
           // only set `localPeerTrackNode` as miniview peer track node when we are already using it.
-          if (miniviewPeerTrackNode && miniviewPeerTrackNode.peer.peerID === peer.peerID) {
+          if (
+            miniviewPeerTrackNode &&
+            miniviewPeerTrackNode.peer.peerID === peer.peerID
+          ) {
             dispatch(updateMiniViewPeerTrackNode({ peer }));
           }
         });
@@ -400,7 +405,11 @@ const useHMSTrackUpdate = (
             if (!localPeerTrackNode) {
               dispatch(setLocalPeerTrackNode(newPeerTrackNode));
             } else {
-              dispatch(updateLocalPeerTrackNode(track.type === HMSTrackType.VIDEO ? { peer, track } : { peer }));
+              dispatch(
+                updateLocalPeerTrackNode(
+                  track.type === HMSTrackType.VIDEO ? { peer, track } : { peer }
+                )
+              );
             }
 
             // only setting `miniviewPeerTrackNode`, when:
@@ -409,7 +418,11 @@ const useHMSTrackUpdate = (
             if (!miniviewPeerTrackNode) {
               dispatch(setMiniViewPeerTrackNode(newPeerTrackNode));
             } else if (miniviewPeerTrackNode.id === newPeerTrackNode.id) {
-              dispatch(updateMiniViewPeerTrackNode(track.type === HMSTrackType.VIDEO ? { peer, track } : { peer }));
+              dispatch(
+                updateMiniViewPeerTrackNode(
+                  track.type === HMSTrackType.VIDEO ? { peer, track } : { peer }
+                )
+              );
             }
           }
           // else -> {
@@ -422,8 +435,15 @@ const useHMSTrackUpdate = (
           // only setting `miniviewPeerTrackNode`, when:
           // - there is already `miniviewPeerTrackNode`
           // - and it is of same peer's regular track
-          if (miniviewPeerTrackNode && miniviewPeerTrackNode.id === newPeerTrackNode.id) {
-            dispatch(updateMiniViewPeerTrackNode(track.type === HMSTrackType.VIDEO ? { peer, track } : { peer }));
+          if (
+            miniviewPeerTrackNode &&
+            miniviewPeerTrackNode.id === newPeerTrackNode.id
+          ) {
+            dispatch(
+              updateMiniViewPeerTrackNode(
+                track.type === HMSTrackType.VIDEO ? { peer, track } : { peer }
+              )
+            );
           }
         }
         return;
@@ -468,7 +488,9 @@ const useHMSTrackUpdate = (
                 miniviewPeerTrackNode.peer.peerID === peer.peerID
               ) {
                 if (track.type === HMSTrackType.VIDEO) {
-                  dispatch(updateMiniViewPeerTrackNode({ peer, track: undefined }));
+                  dispatch(
+                    updateMiniViewPeerTrackNode({ peer, track: undefined })
+                  );
                 } else {
                   dispatch(updateMiniViewPeerTrackNode({ peer }));
                 }
@@ -566,7 +588,11 @@ const useHMSTrackUpdate = (
         const uniqueId = createPeerTrackNodeUniqueId(peer, track);
 
         if (miniviewPeerTrackNode && miniviewPeerTrackNode.id === uniqueId) {
-          dispatch(updateMiniViewPeerTrackNode({isDegraded: type === HMSTrackUpdate.TRACK_DEGRADED}));
+          dispatch(
+            updateMiniViewPeerTrackNode({
+              isDegraded: type === HMSTrackUpdate.TRACK_DEGRADED,
+            })
+          );
         }
         return;
       }

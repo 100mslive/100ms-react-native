@@ -11,10 +11,12 @@ export interface LocalPeerRegularVideoViewProps
 export const LocalPeerRegularVideoView: React.FC<
   LocalPeerRegularVideoViewProps
 > = ({ onMoreOptionsPress }) => {
-  const localPeerTrackNode = useSelector((state: RootState) => state.app.localPeerTrackNode);
+  const localPeerTrackNode = useSelector(
+    (state: RootState) => state.app.localPeerTrackNode
+  );
 
   if (!localPeerTrackNode) {
-    return null
+    return null;
   }
 
   return (

@@ -14,22 +14,34 @@ export const usePeerMinimizedViewDimensions = () => {
 
   const iconTakesSpace = 20 + 6; // Width + Right Margin
   const totalWidth = 148;
-  const widthLessIconsWidth = totalWidth - (2 * iconTakesSpace);
+  const widthLessIconsWidth = totalWidth - 2 * iconTakesSpace;
 
   return {
-    width: widthLessIconsWidth + (canPublishAudio ? iconTakesSpace : 0) + (canPublishVideo ? iconTakesSpace : 0),
+    width:
+      widthLessIconsWidth +
+      (canPublishAudio ? iconTakesSpace : 0) +
+      (canPublishVideo ? iconTakesSpace : 0),
     height: 36,
   };
-}
+};
 
 export interface PeerMinimizedViewProps {
   peerTrackNode: PeerTrackNode;
   onMaximizePress(): void;
 }
 
-const _PeerMinimizedView: React.FC<PeerMinimizedViewProps> = ({ peerTrackNode, onMaximizePress }) => {
-  const peerCanPublishAudio = selectCanPublishTrackForRole(peerTrackNode.peer.role, 'audio');
-  const peerCanPublishVideo = selectCanPublishTrackForRole(peerTrackNode.peer.role, 'video');
+const _PeerMinimizedView: React.FC<PeerMinimizedViewProps> = ({
+  peerTrackNode,
+  onMaximizePress,
+}) => {
+  const peerCanPublishAudio = selectCanPublishTrackForRole(
+    peerTrackNode.peer.role,
+    'audio'
+  );
+  const peerCanPublishVideo = selectCanPublishTrackForRole(
+    peerTrackNode.peer.role,
+    'video'
+  );
 
   const isAudioMuted = peerTrackNode.peer.audioTrack?.isMute();
   const isVideoMuted = peerTrackNode.track?.isMute();
@@ -44,7 +56,7 @@ const _PeerMinimizedView: React.FC<PeerMinimizedViewProps> = ({ peerTrackNode, o
     name: {
       color: theme.palette.on_surface_high,
       fontFamily: `${typography.font_family}-Regular`,
-    }
+    },
   }));
 
   return (
@@ -54,7 +66,7 @@ const _PeerMinimizedView: React.FC<PeerMinimizedViewProps> = ({ peerTrackNode, o
           <View style={[styles.iconWrapper, hmsRoomStyles.iconWrapper]}>
             <MicIcon muted={!!isAudioMuted} style={styles.icon} />
           </View>
-        ) : null }
+        ) : null}
 
         {peerCanPublishVideo ? (
           <View style={[styles.iconWrapper, hmsRoomStyles.iconWrapper]}>
@@ -67,12 +79,16 @@ const _PeerMinimizedView: React.FC<PeerMinimizedViewProps> = ({ peerTrackNode, o
         </Text>
       </View>
 
-      <PressableIcon border={false} style={styles.maximizeBtn} onPress={onMaximizePress}>
+      <PressableIcon
+        border={false}
+        style={styles.maximizeBtn}
+        onPress={onMaximizePress}
+      >
         <MaximizeIcon style={styles.maximizeIcon} />
       </PressableIcon>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -101,15 +117,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     letterSpacing: 0.25,
-    marginRight: 12
+    marginRight: 12,
   },
   maximizeBtn: {
-    padding: 0
+    padding: 0,
   },
   maximizeIcon: {
     width: 20,
-    height: 20
-  }
+    height: 20,
+  },
 });
 
 export const PeerMinimizedView = React.memo(_PeerMinimizedView);

@@ -16,7 +16,7 @@ export const SpeakerIcon: React.FC<SpeakerIconProps> = ({
   ...restProps
 }) => {
   const iconStyles = useHMSRoomStyle((theme) => ({
-    tintColor: theme.palette.on_surface_high
+    tintColor: theme.palette.on_surface_high,
   }));
 
   return (
@@ -28,7 +28,12 @@ export const SpeakerIcon: React.FC<SpeakerIconProps> = ({
           ? require('./assets/speaker.png')
           : require('./assets/speaker-large.png')
       }
-      style={[styles.icon, iconStyles, style, size === 'large' ? styles.large : null]}
+      style={[
+        styles.icon,
+        iconStyles,
+        style,
+        size === 'large' ? styles.large : null,
+      ]}
       {...restProps}
     />
   );

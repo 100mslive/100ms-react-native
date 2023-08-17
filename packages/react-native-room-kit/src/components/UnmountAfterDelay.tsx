@@ -13,44 +13,49 @@ export interface UnmountAfterDelayProps {
 
 export type UnmountAfterDelayAttrs = {
   resetTimer(): void;
-}
+};
 
-export const UnmountAfterDelay = React.forwardRef<UnmountAfterDelayAttrs, UnmountAfterDelayProps>(
-  ({ delay = 4000, children, visible, onUnmount }, ref) => {
-    const timeoutId = React.useRef<NodeJS.Timeout | null>(null);
+export const UnmountAfterDelay = React.forwardRef<
+  UnmountAfterDelayAttrs,
+  UnmountAfterDelayProps
+>(({ delay = 4000, children, visible, onUnmount }, ref) => {
+  const timeoutId = React.useRef<NodeJS.Timeout | null>(null);
 
-    const setTimer = React.useCallback(() => {
-      if (timeoutId.current) {
-        clearTimeout(timeoutId.current);
-      }
-      timeoutId.current = setTimeout(() => {
-        onUnmount();
-        timeoutId.current = null;
-      }, delay);
-    }, [delay]);
+  const setTimer = React.useCallback(() => {
+    if (timeoutId.current) {
+      clearTimeout(timeoutId.current);
+    }
+    timeoutId.current = setTimeout(() => {
+      onUnmount();
+      timeoutId.current = null;
+    }, delay);
+  }, [delay]);
 
-    const clearTimer = React.useCallback(() => {
-      if (timeoutId.current) {
-        clearTimeout(timeoutId.current);
-        timeoutId.current = null;
-      }
-    }, []);
+  const clearTimer = React.useCallback(() => {
+    if (timeoutId.current) {
+      clearTimeout(timeoutId.current);
+      timeoutId.current = null;
+    }
+  }, []);
 
-    React.useImperativeHandle(ref, () => ({
+  React.useImperativeHandle(
+    ref,
+    () => ({
       resetTimer: () => {
         clearTimer();
         setTimer();
-      }
-    }), [setTimer]);
+      },
+    }),
+    [setTimer]
+  );
 
-    React.useEffect(() => {
-      if (visible) {
-        setTimer();
+  React.useEffect(() => {
+    if (visible) {
+      setTimer();
 
-        return clearTimer;
-      }
-    }, [visible, setTimer, clearTimer]);
+      return clearTimer;
+    }
+  }, [visible, setTimer, clearTimer]);
 
-    return visible ? children : null;
-  }
-);
+  return visible ? children : null;
+});

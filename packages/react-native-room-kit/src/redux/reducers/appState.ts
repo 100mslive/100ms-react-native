@@ -149,9 +149,15 @@ const appReducer = (
     case ActionTypes.SET_MEETING_STATE:
       return { ...state, meetingState: action.payload.meetingState };
     case ActionTypes.SET_INSET_VIEW_MINIMIZED:
-      return { ...state, insetViewMinimized: action.payload.insetViewMinimized };
+      return {
+        ...state,
+        insetViewMinimized: action.payload.insetViewMinimized,
+      };
     case ActionTypes.SET_MINI_VIEW_PEERTRACKNODE:
-      return { ...state, miniviewPeerTrackNode: action.payload.miniviewPeerTrackNode };
+      return {
+        ...state,
+        miniviewPeerTrackNode: action.payload.miniviewPeerTrackNode,
+      };
     case ActionTypes.UPDATE_MINI_VIEW_PEERTRACKNODE: {
       if (!state.miniviewPeerTrackNode) {
         return state;
@@ -161,11 +167,14 @@ const appReducer = (
         miniviewPeerTrackNode: {
           ...state.miniviewPeerTrackNode,
           ...action.payload,
-        }
+        },
       };
     }
     case ActionTypes.SET_LOCAL_PEERTRACKNODE:
-      return { ...state, localPeerTrackNode: action.payload.localPeerTrackNode };
+      return {
+        ...state,
+        localPeerTrackNode: action.payload.localPeerTrackNode,
+      };
     case ActionTypes.UPDATE_LOCAL_PEERTRACKNODE: {
       if (!state.localPeerTrackNode) {
         return state;
@@ -175,13 +184,16 @@ const appReducer = (
         localPeerTrackNode: {
           ...state.localPeerTrackNode,
           ...action.payload,
-        }
+        },
       };
     }
     case ActionTypes.SET_STARTING_HLS_STREAM:
       return { ...state, startingHLSStream: action.payload.startingHLSStream };
     case ActionTypes.SET_GRID_VIEW_ACTIVE_PAGE:
-      return { ...state, gridViewActivePage: action.payload.gridViewActivePage };
+      return {
+        ...state,
+        gridViewActivePage: action.payload.gridViewActivePage,
+      };
     case HmsStateActionTypes.CLEAR_STATES:
       return INITIAL_STATE;
     default:

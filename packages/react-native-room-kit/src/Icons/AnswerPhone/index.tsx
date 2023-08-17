@@ -11,7 +11,7 @@ export const AnswerPhoneIcon: React.FC<AnswerPhoneIconProps> = ({
   ...restProps
 }) => {
   const iconStyles = useHMSRoomStyle((theme) => ({
-    tintColor: theme.palette.on_surface_high
+    tintColor: theme.palette.on_surface_high,
   }));
 
   return (

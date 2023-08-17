@@ -114,4 +114,4 @@ export const createPeerTrackNodeUniqueId = (peer: HMSPeer, track: HMSTrack) => {
       : HMSTrackSource.REGULAR);
 
   return uniqueId;
-}
+};

@@ -7,7 +7,9 @@ import { useHMSRoomStyle } from '../../hooks-util';
 interface StarIconProps extends Omit<ImageProps, 'source'> {}
 
 export const StarIcon: React.FC<StarIconProps> = ({ style, ...restProps }) => {
-  const iconStyles = useHMSRoomStyle(theme => ({ tintColor: theme.palette.on_surface_high }));
+  const iconStyles = useHMSRoomStyle((theme) => ({
+    tintColor: theme.palette.on_surface_high,
+  }));
 
   return (
     <Image
