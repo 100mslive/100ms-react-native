@@ -3,6 +3,7 @@ import { HMSVideoTrack } from './HMSVideoTrack';
 import { getLogger } from './HMSLogger';
 import type { HMSVideoTrackSettings } from './HMSVideoTrackSettings';
 import type { HMSTrackType } from './HMSTrackType';
+import type { HMSTrackSource } from './HMSTrackSource'
 
 const {
   /**
@@ -51,7 +52,7 @@ export class HMSLocalVideoTrack extends HMSVideoTrack {
   constructor(params: {
     id: string;
     trackId: string;
-    source?: number | string;
+    source?: HMSTrackSource;
     trackDescription?: string;
     isMute?: boolean;
     settings?: HMSVideoTrackSettings;
