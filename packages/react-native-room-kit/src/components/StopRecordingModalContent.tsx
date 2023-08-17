@@ -9,7 +9,9 @@ export interface StopRecordingModalContentProps {
   dismissModal(): void;
 }
 
-export const StopRecordingModalContent: React.FC<StopRecordingModalContentProps> = ({ dismissModal }) => {
+export const StopRecordingModalContent: React.FC<
+  StopRecordingModalContentProps
+> = ({ dismissModal }) => {
   const hmsInstance = useHMSInstance();
   const [stopRecordingLoading, setStopRecordingLoading] = React.useState(false);
 
@@ -20,8 +22,8 @@ export const StopRecordingModalContent: React.FC<StopRecordingModalContentProps>
     },
     text: {
       color: theme.palette.on_surface_medium,
-      fontFamily: `${typography.font_family}-Regular`
-    }
+      fontFamily: `${typography.font_family}-Regular`,
+    },
   }));
 
   const stopRecording = async () => {
@@ -53,12 +55,14 @@ export const StopRecordingModalContent: React.FC<StopRecordingModalContentProps>
         </TouchableOpacity>
       </View>
 
-      <Text style={[styles.text, hmsRoomStyles.text]}>Are you sure you want to stop recording? You can't undo this action.</Text>
+      <Text style={[styles.text, hmsRoomStyles.text]}>
+        Are you sure you want to stop recording? You can't undo this action.
+      </Text>
 
       <HMSDangerButton
         loading={stopRecordingLoading}
         onPress={stopRecording}
-        title='Stop Recording'
+        title="Stop Recording"
         disabled={stopRecordingLoading}
       />
     </View>
@@ -68,7 +72,7 @@ export const StopRecordingModalContent: React.FC<StopRecordingModalContentProps>
 const styles = StyleSheet.create({
   container: {
     marginTop: 24,
-    marginHorizontal: 24
+    marginHorizontal: 24,
   },
   header: {
     flexDirection: 'row',
@@ -78,7 +82,7 @@ const styles = StyleSheet.create({
   },
   headerControls: {
     flexDirection: 'row',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   headerText: {
     fontSize: 20,
@@ -96,6 +100,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     letterSpacing: 0.25,
-    marginBottom: 16
-  }
+    marginBottom: 16,
+  },
 });

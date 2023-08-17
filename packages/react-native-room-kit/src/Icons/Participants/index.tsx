@@ -10,8 +10,8 @@ export const ParticipantsIcon: React.FC<ParticipantsIconProps> = ({
   style,
   ...restProps
 }) => {
-  const iconStyles = useHMSRoomStyle(theme => ({
-    tintColor: theme.palette.on_surface_high
+  const iconStyles = useHMSRoomStyle((theme) => ({
+    tintColor: theme.palette.on_surface_high,
   }));
 
   return (

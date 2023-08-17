@@ -1,10 +1,5 @@
 import * as React from 'react';
-import {
-  View,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-} from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import type { HMSAudioMixingMode } from '@100mslive/react-native-hms';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -124,7 +119,9 @@ export const RoomSettingsModalContent: React.FC<
       closeRoomSettingsModal();
     } else {
       dispatch(setStartingRecording(true));
-      hmsInstance.startRTMPOrRecording({ record: true }).finally(() => dispatch(setStartingRecording(false)))
+      hmsInstance
+        .startRTMPOrRecording({ record: true })
+        .finally(() => dispatch(setStartingRecording(false)));
       closeRoomSettingsModal();
     }
   };
@@ -160,7 +157,7 @@ export const RoomSettingsModalContent: React.FC<
               pressHandler: onParticipantsPress,
               isActive: false,
               hide: false,
-              sibling: <ParticipantsCount />
+              sibling: <ParticipantsCount />,
               // parent
               // children
             },

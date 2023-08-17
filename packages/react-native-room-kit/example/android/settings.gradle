@@ -4,3 +4,6 @@ include ':app'
 
 include ':reactnativehmssdk'
 project(':reactnativehmssdk').projectDir = new File(rootProject.projectDir, '../../../react-native-hms/android')
+
+include ':react-native-lottie-splash-screen'
+project(':react-native-lottie-splash-screen').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-lottie-splash-screen/android')

@@ -48,7 +48,9 @@ export const BottomSheet: React.FC<BottomSheetProps> & {
       }
       style={[styles.modal, style]}
       onModalHide={resetProps.onModalHide ?? handleModalHideAction}
-      supportedOrientations={resetProps.supportedOrientations ?? ['portrait', 'landscape']}
+      supportedOrientations={
+        resetProps.supportedOrientations ?? ['portrait', 'landscape']
+      }
       // coverScreen={true}
     >
       <View style={[styles.container, containerStyles]}>{children}</View>
@@ -114,7 +116,9 @@ BottomSheet.Header = BottomSheetHeader;
 
 BottomSheet.Divider = BottomSheetDivider;
 
-const onModalHideActionHandlerRef: { handler: null | (() => void) } = { handler: null };
+const onModalHideActionHandlerRef: { handler: null | (() => void) } = {
+  handler: null,
+};
 
 const useBottomSheetActionHandlers = () => {
   const onModalHideActionRef = React.useRef(onModalHideActionHandlerRef);
@@ -127,7 +131,7 @@ const useBottomSheetActionHandlers = () => {
   }, []);
 
   return { handleModalHideAction };
-}
+};
 
 export const useBottomSheetActions = () => {
   const registerOnModalHideAction = React.useCallback((action: () => void) => {
@@ -139,7 +143,7 @@ export const useBottomSheetActions = () => {
   }, []);
 
   return { registerOnModalHideAction, clearOnModalHideAction };
-}
+};
 
 const styles = StyleSheet.create({
   modal: {

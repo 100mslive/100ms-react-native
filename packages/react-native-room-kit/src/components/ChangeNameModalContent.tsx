@@ -1,5 +1,11 @@
 import * as React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Keyboard } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Keyboard,
+} from 'react-native';
 import { useSelector } from 'react-redux';
 
 import type { RootState } from '../redux';
@@ -15,9 +21,13 @@ export interface ChangeNameModalContentProps {
   dismissModal(): void;
 }
 
-export const ChangeNameModalContent: React.FC<ChangeNameModalContentProps> = ({ dismissModal }) => {
+export const ChangeNameModalContent: React.FC<ChangeNameModalContentProps> = ({
+  dismissModal,
+}) => {
   const hmsActions = useHMSActions();
-  const localPeerName = useSelector((state: RootState) => state.hmsStates.localPeer?.name || '');
+  const localPeerName = useSelector(
+    (state: RootState) => state.hmsStates.localPeer?.name || ''
+  );
 
   const [name, setName] = React.useState(localPeerName);
   const [nameChangeLoading, setNameChangeLoading] = React.useState(false);
@@ -50,7 +60,7 @@ export const ChangeNameModalContent: React.FC<ChangeNameModalContentProps> = ({ 
   const handleClosePress = () => {
     Keyboard.dismiss();
     dismissModal();
-  }
+  };
 
   const changeName = async () => {
     if (invalidName) return;
@@ -74,7 +84,7 @@ export const ChangeNameModalContent: React.FC<ChangeNameModalContentProps> = ({ 
             onPress={handleBackPress}
             hitSlop={styles.closeIconHitSlop}
           >
-            <ChevronIcon direction='left' />
+            <ChevronIcon direction="left" />
           </TouchableOpacity>
 
           <Text style={[styles.headerText, hmsRoomStyles.headerText]}>
@@ -95,12 +105,17 @@ export const ChangeNameModalContent: React.FC<ChangeNameModalContentProps> = ({ 
 
       {/* Content */}
       <View style={styles.contentContainer}>
-        <HMSTextInput style={styles.textInput} value={name} autoFocus={true} onChangeText={setName} />
+        <HMSTextInput
+          style={styles.textInput}
+          value={name}
+          autoFocus={true}
+          onChangeText={setName}
+        />
 
         <HMSPrimaryButton
           loading={nameChangeLoading}
           onPress={changeName}
-          title='Change'
+          title="Change"
           disabled={disabledButton}
         />
       </View>
@@ -118,7 +133,7 @@ const styles = StyleSheet.create({
   },
   headerControls: {
     flexDirection: 'row',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   headerText: {
     fontSize: 16,
@@ -133,10 +148,10 @@ const styles = StyleSheet.create({
     top: 16,
   },
   contentContainer: {
-    marginHorizontal: 24
+    marginHorizontal: 24,
   },
   textInput: {
     flex: undefined,
-    marginBottom: 16
-  }
+    marginBottom: 16,
+  },
 });

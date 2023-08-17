@@ -26,12 +26,10 @@ const _ParticipantsCount = () => {
 
   return (
     <View style={[styles.container, hmsRoomStyles.container]}>
-      <Text style={[styles.count, hmsRoomStyles.count]}>
-        {peerCount}
-      </Text>
+      <Text style={[styles.count, hmsRoomStyles.count]}>{peerCount}</Text>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -46,9 +44,9 @@ const styles = StyleSheet.create({
   count: {
     fontSize: 10,
     lineHeight: 16,
-    letterSpacing: 1.50,
+    letterSpacing: 1.5,
     textAlign: 'center',
-  }
+  },
 });
 
 export const ParticipantsCount = React.memo(_ParticipantsCount);

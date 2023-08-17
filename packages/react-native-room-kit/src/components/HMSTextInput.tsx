@@ -2,10 +2,7 @@ import * as React from 'react';
 import { Platform, StyleSheet, TextInput } from 'react-native';
 import type { StyleProp, TextStyle } from 'react-native';
 
-import {
-  useHMSRoomColorPalette,
-  useHMSRoomStyleSheet,
-} from '../hooks-util';
+import { useHMSRoomColorPalette, useHMSRoomStyleSheet } from '../hooks-util';
 
 export interface HMSTextInputProps {
   value: string;
@@ -14,7 +11,12 @@ export interface HMSTextInputProps {
   autoFocus?: boolean;
 }
 
-export const HMSTextInput: React.FC<HMSTextInputProps> = ({ value, onChangeText, style, autoFocus }) => {
+export const HMSTextInput: React.FC<HMSTextInputProps> = ({
+  value,
+  onChangeText,
+  style,
+  autoFocus,
+}) => {
   const [inputFocused, setInputFocused] = React.useState(false);
 
   const handleInputFocus = () => setInputFocused(true);

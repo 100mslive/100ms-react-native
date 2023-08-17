@@ -6,9 +6,12 @@ import { useHMSRoomStyle } from '../../hooks-util';
 
 interface PencilIconProps extends Omit<ImageProps, 'source'> {}
 
-export const PencilIcon: React.FC<PencilIconProps> = ({ style, ...restProps }) => {
-  const iconStyles = useHMSRoomStyle(theme => ({
-    tintColor: theme.palette.on_surface_high
+export const PencilIcon: React.FC<PencilIconProps> = ({
+  style,
+  ...restProps
+}) => {
+  const iconStyles = useHMSRoomStyle((theme) => ({
+    tintColor: theme.palette.on_surface_high,
   }));
 
   return (
