@@ -1151,10 +1151,10 @@ export const useLeaveMethods = () => {
       // dispatch(clearPeerData());
       // dispatch(clearHmsReference());
 
-      const onMeetingLeave = reduxStore.getState().user.onMeetingLeave;
+      const onLeave = reduxStore.getState().user.onLeave;
 
-      if (typeof onMeetingLeave === 'function') {
-        onMeetingLeave();
+      if (typeof onLeave === 'function') {
+        onLeave();
         dispatch(clearStore());
       } else if (navigation && navigation.canGoBack()) {
         navigation.goBack();

@@ -45,7 +45,7 @@ export const HMSPrebuiltScreen = () => {
     <HMSPrebuilt
       roomCode={roomCode}
       options={prebuiltOptions}
-      onMeetingLeave={handleMeetingLeave}
+      onLeave={handleMeetingLeave}
     />
   );
 };

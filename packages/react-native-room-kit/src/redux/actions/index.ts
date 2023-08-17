@@ -33,7 +33,7 @@ export const setPrebuiltData = (data: {
     };
     ios?: HMSIOSScreenShareConfig;
   };
-  onMeetingLeave?: () => void;
+  onLeave?: () => void;
 }) => ({
   type: HmsStateActionTypes.SET_PREBUILT_DATA,
   payload: data,
