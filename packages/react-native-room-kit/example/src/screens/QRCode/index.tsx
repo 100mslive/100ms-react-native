@@ -79,16 +79,9 @@ const QRCode = () => {
           navigate('HMSPrebuiltScreen', {
             roomCode,
             userId,
-            endPoints:
-              tokenEndpoint && initEndpoint
-                ? { init: initEndpoint, token: tokenEndpoint }
-                : undefined,
+            initEndPoint: initEndpoint,
+            tokenEndPoint: tokenEndpoint,
             debugMode, // default is false, will deal with this later
-            ios: {
-              appGroup: 'group.rnroomkit',
-              preferredExtension:
-                'live.100ms.reactnative.RNExampleBroadcastUpload',
-            },
           });
         },
         (errorMsg: string) => {
