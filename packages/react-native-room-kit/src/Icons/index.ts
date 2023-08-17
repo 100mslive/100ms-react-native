@@ -25,3 +25,8 @@ export * from './Wave';
 export * from './GenericLogo';
 export * from './Radio';
 export * from './Check';
+export * from './BRB';
+export * from './Maximize';
+export * from './Minimize';
+export * from './Star';
+export * from './Pin';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, Text, StyleSheet, LayoutAnimation, InteractionManager } from 'react-native';
 import { batch, useDispatch, useSelector } from 'react-redux';
 import { HMSTrack, HMSTrackSource } from '@100mslive/react-native-hms';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -10,11 +10,14 @@ import { COLORS } from '../utils/theme';
 import { ModalTypes } from '../utils/types';
 import type { PeerTrackNode } from '../utils/types';
 import { isTileOnSpotlight } from '../utils/functions';
-import { setPeerToUpdate } from '../redux/actions';
-import { useModalType } from '../hooks-util';
+import { setInsetViewMinimized, setPeerToUpdate } from '../redux/actions';
+import { useHMSRoomStyleSheet, useModalType } from '../hooks-util';
+import { CloseIcon, MinimizeIcon, PinIcon, StarIcon } from '../Icons';
+import { useCanPublishVideo } from '../hooks-sdk';
 
 interface PeerSettingsModalContentProps {
   peerTrackNode: PeerTrackNode;
+  peerTrackNodesListEmpty: boolean;
   cancelModal(): void;
   onCaptureScreenShotPress(node: PeerTrackNode): void;
   onCaptureImageAtMaxSupportedResolutionPress(node: PeerTrackNode): void;
@@ -25,6 +28,7 @@ export const PeerSettingsModalContent: React.FC<
   PeerSettingsModalContentProps
 > = ({
   peerTrackNode,
+  peerTrackNodesListEmpty,
   cancelModal,
   onCaptureScreenShotPress,
   onCaptureImageAtMaxSupportedResolutionPress,
@@ -43,6 +47,28 @@ export const PeerSettingsModalContent: React.FC<
   );
   const debugMode = useSelector((state: RootState) => state.user.debugMode);
   const { handleModalVisibleType: setModalVisible } = useModalType();
+  const localPeerCanPublishVideo = useCanPublishVideo();
+
+  const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
+    container: {
+      backgroundColor: theme.palette.background_default,
+    },
+    headerText: {
+      color: theme.palette.on_surface_high,
+      fontFamily: `${typography.font_family}-SemiBold`,
+    },
+    subheadingText: {
+      color: theme.palette.on_surface_medium,
+      fontFamily: `${typography.font_family}-Regular`,
+    },
+    text: {
+      color: theme.palette.on_surface_high,
+      fontFamily: `${typography.font_family}-SemiBold`,
+    },
+    divider: {
+      backgroundColor: theme.palette.border_default,
+    },
+  }));
 
   const removePeer = () => {
     hmsInstance
@@ -79,12 +105,20 @@ export const PeerSettingsModalContent: React.FC<
     );
   };
 
-  const changeName = () => {
-    batch(() => {
-      dispatch(setPeerToUpdate(peerTrackNode.peer));
-      setModalVisible(ModalTypes.CHANGE_NAME, true);
+  // const changeName = () => {
+  //   batch(() => {
+  //     dispatch(setPeerToUpdate(peerTrackNode.peer));
+  //     setModalVisible(ModalTypes.CHANGE_NAME, true);
+  //   });
+  // };
+
+  const handleMinimizeVideoPress = () => {
+    cancelModal();
+    InteractionManager.runAfterInteractions(() => {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      dispatch(setInsetViewMinimized(true));
     });
-  };
+  }
 
   const changeRole = () => {
     batch(() => {
@@ -132,21 +166,57 @@ export const PeerSettingsModalContent: React.FC<
   const isPeerVideoMute = peer.isLocal ? null : peer.videoTrack?.isMute();
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.roleChangeModalHeading}>
-        {peer.name}
-        {peer.isLocal ? ' (You)' : ''}
-      </Text>
-      <Text style={styles.participantRole}>{peer.role?.name}</Text>
+    <View style={[styles.container, hmsRoomStyles.container]}>
+      {/* Header */}
+      <View style={styles.header}>
+        <View>
+          <Text style={[styles.headerText, hmsRoomStyles.headerText]}>
+            {peer.name}
+            {peer.isLocal ? ' (You)' : ''}
+          </Text>
+          <Text style={[styles.subheadingText, hmsRoomStyles.subheadingText]}>
+            {peer.role?.name}
+          </Text>
+        </View>
 
+        <TouchableOpacity
+          onPress={cancelModal}
+          hitSlop={styles.closeIconHitSlop}
+        >
+          <CloseIcon />
+        </TouchableOpacity>
+      </View>
+
+      {/* Divider */}
+      <View style={[styles.divider, hmsRoomStyles.divider]} />
+
+      {/* Content */}
       <View style={styles.contentContainer}>
-        {debugMode ? (
+        {peer.isLocal ? ( // TODO: Remove this condition later
           <SettingItem
-            text={onSpotlight ? 'Remove from Spotlight' : 'Add to Spotlight'}
-            IconType={Ionicons}
-            iconName={onSpotlight ? 'ios-star' : 'ios-star-outline'}
-            onPress={handleSpotlightPress}
-            disabled={!peerTrackNode.track?.trackId}
+            customIcon={true}
+            text={true ? 'Pin Tile for Myself' : 'Unpin Tile for Myself'}
+            icon={<PinIcon style={styles.customIcon} />}
+            disabled={true}
+            onPress={() => {}}
+          />
+        ) : null}
+
+        <SettingItem
+          customIcon={true}
+          text={onSpotlight ? 'Remove Spotlight for Everyone' : 'Spotlight Tile for Everyone'}
+          icon={<StarIcon style={styles.customIcon} />}
+          onPress={handleSpotlightPress}
+          disabled={!peerTrackNode.track?.trackId}
+        />
+
+        {peer.isLocal && localPeerCanPublishVideo ? (
+          <SettingItem
+            customIcon={true}
+            text={'Minimize Your Video'}
+            icon={<MinimizeIcon style={styles.customIcon} />}
+            onPress={handleMinimizeVideoPress}
+            disabled={peerTrackNodesListEmpty}
           />
         ) : null}
 
@@ -209,16 +279,16 @@ export const PeerSettingsModalContent: React.FC<
           />
         ) : null}
 
-        {peer.isLocal ? (
+        {/* {peer.isLocal ? (
           <SettingItem
             text="Change Name"
             IconType={MaterialCommunityIcons}
             iconName={'account-edit-outline'}
             onPress={() => changeName()}
           />
-        ) : null}
+        ) : null} */}
 
-        {localPeerPermissions?.changeRole ? (
+        {!peer.isLocal && localPeerPermissions?.changeRole ? (
           <SettingItem
             text="Change Role"
             IconType={Ionicons}
@@ -273,20 +343,30 @@ export const PeerSettingsModalContent: React.FC<
   );
 };
 
-interface SettingItemProps {
+type SettingItemBaseProps  = {
   onPress(): void;
   text: string;
-  iconName: string;
-  IconType: any;
   disabled?: boolean;
 }
+
+type SettingItemWithCustomIconProps  = {
+  customIcon: true,
+  icon: React.ReactElement;
+}
+
+type SettingItemWithIconProps  = {
+  customIcon?: false,
+  iconName: string;
+  IconType: any;
+}
+
+type SettingItemProps = SettingItemBaseProps & (SettingItemWithCustomIconProps | SettingItemWithIconProps);
 
 const SettingItem: React.FC<SettingItemProps> = ({
   onPress,
   text,
-  iconName,
-  IconType,
   disabled = false,
+  ...resetProps
 }) => {
   return (
     <TouchableOpacity
@@ -294,7 +374,7 @@ const SettingItem: React.FC<SettingItemProps> = ({
       style={[styles.button, disabled ? { opacity: 0.6 } : null]}
       onPress={onPress}
     >
-      <IconType name={iconName} size={24} style={styles.icon} />
+      {resetProps.customIcon ? resetProps.icon : <resetProps.IconType name={resetProps.iconName} size={24} style={styles.icon} />}
 
       <Text style={styles.text}>{text}</Text>
     </TouchableOpacity>
@@ -303,10 +383,46 @@ const SettingItem: React.FC<SettingItemProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    padding: 24,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    paddingBottom: 32,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 24,
+    paddingTop: 16,
+  },
+  headerText: {
+    fontSize: 16,
+    lineHeight: 24,
+    letterSpacing: 0.15,
+  },
+  subheadingText: {
+    marginTop: 4,
+    fontSize: 12,
+    lineHeight: 16,
+    letterSpacing: 0.40,
+  },
+  closeIconHitSlop: {
+    bottom: 16,
+    left: 16,
+    right: 16,
+    top: 16,
+  },
+  divider: {
+    height: 2,
+    width: '100%',
+    marginVertical: 16,
   },
   contentContainer: {
-    marginTop: 16,
+    marginBottom: 8
+  },
+  customIcon: {
+    width: 20,
+    height: 20,
+    marginRight: 8,
   },
   roleChangeModalHeading: {
     color: COLORS.TEXT.HIGH_EMPHASIS,
@@ -328,13 +444,16 @@ const styles = StyleSheet.create({
   button: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    marginBottom: 8,
   },
   text: {
-    fontFamily: 'Inter-Medium',
+    color: COLORS.SURFACE.ON_SURFACE.HIGH,
     fontSize: 14,
-    lineHeight: 24,
-    color: COLORS.TEXT.HIGH_EMPHASIS,
+    fontFamily: 'Inter-SemiBold',
+    lineHeight: 20,
+    letterSpacing: 0.10,
   },
   icon: {
     color: COLORS.WHITE,

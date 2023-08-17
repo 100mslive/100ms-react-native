@@ -213,6 +213,31 @@ export const changeMeetingState = (meetingState: MeetingState) => ({
   payload: { meetingState },
 });
 
+export const setInsetViewMinimized = (insetViewMinimized: boolean) => ({
+  type: actionTypes.SET_INSET_VIEW_MINIMIZED,
+  payload: { insetViewMinimized },
+});
+
+export const setMiniViewPeerTrackNode = (miniviewPeerTrackNode: PeerTrackNode | null) => ({
+  type: actionTypes.SET_MINI_VIEW_PEERTRACKNODE,
+  payload: { miniviewPeerTrackNode },
+});
+
+export const updateMiniViewPeerTrackNode = (data: Partial<Omit<PeerTrackNode, 'id'>>) => ({
+  type: actionTypes.UPDATE_MINI_VIEW_PEERTRACKNODE,
+  payload: data,
+});
+
+export const setLocalPeerTrackNode = (localPeerTrackNode: PeerTrackNode | null) => ({
+  type: actionTypes.SET_LOCAL_PEERTRACKNODE,
+  payload: { localPeerTrackNode },
+});
+
+export const updateLocalPeerTrackNode = (data: Partial<Omit<PeerTrackNode, 'id' | 'isDegraded'>>) => ({
+  type: actionTypes.UPDATE_LOCAL_PEERTRACKNODE,
+  payload: data,
+});
+
 export const changeStartingHLSStream = (startingHLSStream: boolean) => ({
   type: actionTypes.SET_STARTING_HLS_STREAM,
   payload: { startingHLSStream },

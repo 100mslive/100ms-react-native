@@ -23,6 +23,9 @@ import {
   clearStore,
   setHMSLocalPeerState,
   setHMSRoomState,
+  setLocalPeerTrackNode,
+  setMiniViewPeerTrackNode,
+  updateLocalPeerTrackNode,
 } from './redux/actions';
 import { createPeerTrackNode } from './utils/functions';
 import type { PeerTrackNode } from './utils/types';
@@ -59,7 +62,7 @@ export const HMSRoomSetup = () => {
   const didInitMeetingAction = useRef(false);
   const hmsInstance = useHMSInstance();
   const dispatch = useDispatch();
-  const reduxStore = useStore();
+  const reduxStore = useStore<RootState>();
 
   const { getConfig, clearConfig } = useHMSConfig();
   const meetingState = useSelector(
@@ -182,19 +185,35 @@ export const HMSRoomSetup = () => {
 
       setLoading(false);
 
+      const reduxState = reduxStore.getState();
+
       const localPeer = data.room.localPeer;
 
       const peer = localPeer;
       const track = localPeer.videoTrack as HMSTrack | undefined;
 
+      // Creating `PeerTrackNode` for local peer
+      const localPeerTrackNode = createPeerTrackNode(peer, track);
+
       batch(() => {
         if (selectIsHLSViewer(localPeer)) {
           dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: true });
+        } else {
+          if (reduxState.app.localPeerTrackNode) {
+            dispatch(updateLocalPeerTrackNode({ peer, track: peer.videoTrack }));
+          } else {
+            // saving above created `PeerTrackNode` in store
+            dispatch(setLocalPeerTrackNode(localPeerTrackNode));
+          }
+
+          // setting local `PeerTrackNode` as node for MiniView
+          dispatch(setMiniViewPeerTrackNode(localPeerTrackNode));
         }
         dispatch(setHMSRoomState(data.room));
         dispatch(setHMSLocalPeerState(data.room.localPeer));
       });
 
+      // If `peerTrackNodes` also contains a tile for local peer then updating it
       setPeerTrackNodes((prevPeerTrackNodes) => {
         if (
           track &&
@@ -209,11 +228,14 @@ export const HMSRoomSetup = () => {
         if (peerTrackNodeExistForPeer(prevPeerTrackNodes, peer)) {
           return replacePeerTrackNodes(prevPeerTrackNodes, peer);
         }
-        const hmsLocalPeer = createPeerTrackNode(peer, track);
-        return [hmsLocalPeer, ...prevPeerTrackNodes];
+
+      //   const hmsLocalPeer = createPeerTrackNode(peer, track);
+      //   return [hmsLocalPeer, ...prevPeerTrackNodes];
+
+        return prevPeerTrackNodes;
       });
 
-      const shouldGoLive = selectShouldGoLive(reduxStore.getState());
+      const shouldGoLive = selectShouldGoLive(reduxState);
 
       if (shouldGoLive) {
         startHLSStreaming();

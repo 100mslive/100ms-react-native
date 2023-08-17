@@ -395,6 +395,8 @@ PODS:
     - React-Core
   - RNFlashList (1.5.0):
     - React-Core
+  - RNGestureHandler (2.12.1):
+    - React-Core
   - RNPermissions (3.4.0):
     - React-Core
   - RNReanimated (2.17.0):
@@ -503,6 +505,7 @@ DEPENDENCIES:
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - "RNFlashList (from `../node_modules/@shopify/flash-list`)"
+  - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
@@ -616,6 +619,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-device-info"
   RNFlashList:
     :path: "../node_modules/@shopify/flash-list"
+  RNGestureHandler:
+    :path: "../node_modules/react-native-gesture-handler"
   RNPermissions:
     :path: "../node_modules/react-native-permissions"
   RNReanimated:
@@ -688,6 +693,7 @@ SPEC CHECKSUMS:
   RNCAsyncStorage: 8616bd5a58af409453ea4e1b246521bb76578d60
   RNDeviceInfo: 1e3f62b9ec32f7754fac60bd06b8f8a27124e7f0
   RNFlashList: 25b0e092b4470c84db0386d4f5316dc34123bb6d
+  RNGestureHandler: c0d04458598fcb26052494ae23dda8f8f5162b13
   RNPermissions: eac721f71748c4472d6e876038270b75397d6ee7
   RNReanimated: 953281675307b83d2c12ac4c39e6c3415d0ce248
   RNScreens: 01ab149b5dd5c27f5ff26741b1d2bdf2cee1af35
