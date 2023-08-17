@@ -2,6 +2,7 @@ import * as React from 'react';
 import Modal from 'react-native-modal';
 import type { ReactNativeModal } from 'react-native-modal';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import type { StyleProp, ViewStyle } from 'react-native';
 
 import { CloseIcon } from '../Icons';
 import {
@@ -18,12 +19,13 @@ export type BottomSheetProps = WithRequired<
 > & {
   // closes modal and no action will be taken after modal has been closed
   dismissModal(): void;
+  containerStyle?: StyleProp<ViewStyle>;
 };
 
 export const BottomSheet: React.FC<BottomSheetProps> & {
   Header: React.FC<HeaderProps>;
   Divider: React.FC;
-} = ({ dismissModal, style, children, ...resetProps }) => {
+} = ({ dismissModal, style, children, containerStyle, ...resetProps }) => {
   const { background_dim: backgroundDimColor } = useHMSRoomColorPalette();
 
   const containerStyles = useHMSRoomStyle((theme) => ({
@@ -51,7 +53,9 @@ export const BottomSheet: React.FC<BottomSheetProps> & {
       supportedOrientations={resetProps.supportedOrientations ?? ['portrait', 'landscape']}
       // coverScreen={true}
     >
-      <View style={[styles.container, containerStyles]}>{children}</View>
+      <View style={[styles.container, containerStyles, containerStyle]}>
+        {children}
+      </View>
     </Modal>
   );
 };
