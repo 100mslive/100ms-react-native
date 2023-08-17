@@ -520,3 +520,51 @@ export const getTimeStringin12HourFormat = (time: Date) => {
     notation
   );
 };
+
+/**
+ * @param totalNumber total number of tiles
+ * @returns list of pairs that can be made from total number of tiles
+ *
+ * Example: If totalNumber is `5`, then output will be = `[ [0, 1], [2, 3], [4] ]`;
+ */
+export function groupIntoPairs(totalNumber: number) {
+  const pairs = [];
+  for (let i = 0; i < totalNumber; i += 2) {
+      if (i + 1 < totalNumber) {
+          pairs.push([i, i + 1]);
+      } else {
+          pairs.push([i]);
+      }
+  }
+  return pairs;
+}
+
+/**
+ * @param list array of items
+ * @returns list of triplets
+ *
+ * Example: If list is `[a, b, c, d]`, then output will be `[ [a, b, c], [d] ]`
+ */
+export function groupIntoTriplets<T>(list: T[], fill?: boolean) {
+  const pairs = [];
+  const listLength =  list.length;
+
+  for (let i = 0; i < listLength; i += 3) {
+    if (i + 2 < listLength) {
+      pairs.push([list[i], list[i + 1], list[i + 2]]);
+    } else if (i + 1 < listLength) {
+      const t = [list[i], list[i + 1]];
+      if (fill) {
+        t.push(undefined);
+      }
+      pairs.push(t);
+    } else {
+      const t = [list[i]];
+      if (fill) {
+        t.splice(0, 0, undefined, undefined);
+      }
+      pairs.push(t);
+    }
+  }
+  return pairs;
+}

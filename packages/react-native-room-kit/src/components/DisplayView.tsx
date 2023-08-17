@@ -15,7 +15,6 @@ import type { PeerTrackNode } from '../utils/types';
 import { requestExternalStoragePermission } from '../utils/functions';
 import {
   ChangeAspectRatio,
-  ChangeNameModal,
   ChangeRoleAccepteModal,
   ChangeRoleModal,
   ChangeTrackStateModal,
@@ -246,15 +245,6 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
             setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
           >
             <ChangeRoleModal
-              cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
-            />
-          </DefaultModal>
-          <DefaultModal
-            modalPosiion="center"
-            modalVisible={modalVisible === ModalTypes.CHANGE_NAME}
-            setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
-          >
-            <ChangeNameModal
               cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
             />
           </DefaultModal>

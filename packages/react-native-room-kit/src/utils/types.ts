@@ -55,6 +55,7 @@ export enum ModalTypes {
   PEER_SETTINGS = 'peerSettings',
   STREAMING_QUALITY_SETTING = 'streamingQualitySetting',
   HLS_PLAYER_ASPECT_RATIO = 'hlsPlayerAspectRatio',
+  STOP_RECORDING = 'stopRecording',
   DEFAULT = '',
 }
 
