@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { HMSAudioMixingMode, HMSAudioMode } from '@100mslive/react-native-hms';
 
 import { PressableIcon } from './PressableIcon';
-import { ThreeDotsIcon } from '../Icons';
+import { HamburgerIcon } from '../Icons';
 import { DefaultModal } from './DefaultModal';
 import { RoomSettingsModalContent } from './RoomSettingsModalContent';
 import {
@@ -47,7 +47,7 @@ export const HMSRoomOptions: React.FC<HMSRoomOptionsProps> = () => {
   return (
     <View>
       <PressableIcon onPress={onSettingsPress}>
-        <ThreeDotsIcon stack="vertical" />
+        <HamburgerIcon />
       </PressableIcon>
 
       <BottomSheet

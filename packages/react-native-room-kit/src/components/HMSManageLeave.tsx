@@ -1,17 +1,20 @@
 import * as React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Modal from 'react-native-modal';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 
-import { AlertIcon, LeaveIcon } from '../Icons';
-import { useLeaveMethods } from '../hooks-util';
+import { EndIcon, LeaveIcon } from '../Icons';
+import {
+  useHMSRoomStyleSheet,
+  useIsHLSViewer,
+  useLeaveMethods,
+} from '../hooks-util';
 import type { RootState } from '../redux';
 import { COLORS } from '../utils/theme';
 import { ModalTypes } from '../utils/types';
-import { DefaultModal } from './DefaultModal';
-import { EndRoomModal, LeaveRoomModal } from './Modals';
 import { PressableIcon } from './PressableIcon';
+import { BottomSheet } from './BottomSheet';
+import { StopIcon } from '../Icons';
+import { EndRoomModalContent } from './EndRoomModalContent';
 
 export const HMSManageLeave: React.FC<LeaveButtonProps> = (props) => {
   // TODO: read current meeting joined state
@@ -34,7 +37,7 @@ type LeaveButtonProps =
 
 const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
   const leavePopCloseAction = React.useRef(ModalTypes.DEFAULT);
-
+  const isHLSViewer = useIsHLSViewer();
   const [leavePopVisible, setLeavePopVisible] = React.useState(false);
   const [leaveModalType, setLeaveModalType] = React.useState(
     ModalTypes.DEFAULT
@@ -42,6 +45,8 @@ const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
   const canEndRoom = useSelector(
     (state: RootState) => state.hmsStates.localPeer?.role?.permissions?.endRoom
   );
+
+  const { leave } = useLeaveMethods();
 
   /**
    * Opens the Leave Popup Menu
@@ -59,8 +64,8 @@ const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
    * Leave Modal will open after the popup is hidden
    */
   const handleLeavePress = () => {
-    leavePopCloseAction.current = ModalTypes.LEAVE_ROOM;
     setLeavePopVisible(false);
+    leave();
   };
 
   /**
@@ -90,13 +95,13 @@ const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
 
   const dismissModal = () => setLeaveModalType(ModalTypes.DEFAULT);
 
-  const { leave, endRoom } = useLeaveMethods();
-
   const leaveIconDelegate =
     'leaveIconDelegate' in props && props.leaveIconDelegate ? (
       props.leaveIconDelegate
+    ) : isHLSViewer ? (
+      <LeaveIcon style={{ transform: [{ rotateZ: '180 deg' }] }} />
     ) : (
-      <LeaveIcon />
+      <EndIcon />
     );
 
   const leaveButtonDelegate =
@@ -113,7 +118,7 @@ const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
         style: styles.button,
       })}
 
-      <LeavePopup
+      <LeaveBottomSheet
         isVisible={leavePopVisible}
         onEndSessionPress={handleEndSessionPress}
         onLeavePress={handleLeavePress}
@@ -121,21 +126,12 @@ const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
         onPopupHide={handlePopupHide}
       />
 
-      <DefaultModal
-        modalPosiion="center"
-        modalVisible={leaveModalType === ModalTypes.LEAVE_ROOM}
-        setModalVisible={dismissModal}
+      <BottomSheet
+        dismissModal={dismissModal}
+        isVisible={leaveModalType === ModalTypes.END_ROOM}
       >
-        <LeaveRoomModal onSuccess={leave} cancelModal={dismissModal} />
-      </DefaultModal>
-
-      <DefaultModal
-        modalPosiion="center"
-        modalVisible={leaveModalType === ModalTypes.END_ROOM}
-        setModalVisible={dismissModal}
-      >
-        <EndRoomModal onSuccess={endRoom} cancelModal={dismissModal} />
-      </DefaultModal>
+        <EndRoomModalContent dismissModal={dismissModal} />
+      </BottomSheet>
     </View>
   );
 };
@@ -150,7 +146,7 @@ const styles = StyleSheet.create({
   },
 });
 
-interface LeavePopupProps {
+interface LeaveBottomSheetProps {
   isVisible: boolean;
   onPopupDismiss(): void;
   onLeavePress(): void;
@@ -158,119 +154,118 @@ interface LeavePopupProps {
   onPopupHide(): void;
 }
 
-const LeavePopup: React.FC<LeavePopupProps> = ({
+const LeaveBottomSheet: React.FC<LeaveBottomSheetProps> = ({
   isVisible,
   onPopupDismiss,
   onLeavePress,
   onEndSessionPress,
   onPopupHide,
 }) => {
-  const safeAreaInsets = useSafeAreaInsets();
   const canEndRoom = useSelector(
     (state: RootState) => state.hmsStates.localPeer?.role?.permissions?.endRoom
   );
 
+  const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
+    text: {
+      color: theme.palette.on_surface_high,
+      fontFamily: `${typography.font_family}-SemiBold`,
+    },
+    subtext: {
+      color: theme.palette.on_surface_low,
+      fontFamily: `${typography.font_family}-Regular`,
+    },
+    endButton: {
+      backgroundColor: theme.palette.alert_error_dim,
+    },
+    endText: {
+      color: theme.palette.alert_error_brighter,
+      fontFamily: `${typography.font_family}-SemiBold`,
+    },
+    endSubtext: {
+      color: theme.palette.alert_error_bright,
+      fontFamily: `${typography.font_family}-Regular`,
+    },
+    endIcon: {
+      tintColor: theme.palette.alert_error_brighter,
+    },
+  }));
+
   return (
-    <Modal
+    <BottomSheet
       isVisible={isVisible}
-      animationIn={'fadeIn'}
-      animationOut={'fadeOut'}
-      backdropColor={COLORS.BACKGROUND.DIM}
-      backdropOpacity={0}
-      onBackButtonPress={onPopupDismiss}
-      onBackdropPress={onPopupDismiss}
-      useNativeDriver={true}
+      containerStyle={leavePopupStyles.container}
+      dismissModal={onPopupDismiss}
       onModalHide={onPopupHide}
-      useNativeDriverForBackdrop={true}
-      hideModalContentWhileAnimating={true}
-      style={leavePopupStyles.modal}
     >
-      <View
-        style={[
-          leavePopupStyles.leavePopupContent,
-          {
-            marginTop: safeAreaInsets.top + HEADER_HEIGHT,
-            marginLeft: safeAreaInsets.left + 16 - 1, // LEFT_HEADER_PADDING - HEADER_BORDER_WIDTH,
-            marginRight: safeAreaInsets.right,
-            marginBottom: safeAreaInsets.bottom,
-          },
-        ]}
-      >
+      <View>
         <TouchableOpacity
-          style={leavePopupStyles.leaveButton}
+          style={leavePopupStyles.button}
           onPress={onLeavePress}
         >
-          <LeaveIcon style={leavePopupStyles.leaveButtonIcon} />
-          <Text style={leavePopupStyles.leaveButtonText}>Leave Studio</Text>
+          <LeaveIcon style={leavePopupStyles.icon} />
+
+          <View style={leavePopupStyles.textContainer}>
+            <Text style={[leavePopupStyles.text, hmsRoomStyles.text]}>
+              Leave
+            </Text>
+            <Text style={[leavePopupStyles.subtext, hmsRoomStyles.subtext]}>
+              Others will continue after you leave. You can join the session
+              again.
+            </Text>
+          </View>
         </TouchableOpacity>
 
         {canEndRoom ? (
-          <>
-            <View style={leavePopupStyles.divider} />
+          <TouchableOpacity
+            style={[leavePopupStyles.button, hmsRoomStyles.endButton]}
+            onPress={onEndSessionPress}
+          >
+            <StopIcon style={[leavePopupStyles.icon, hmsRoomStyles.endIcon]} />
 
-            <TouchableOpacity
-              style={leavePopupStyles.endRoomButton}
-              onPress={onEndSessionPress}
-            >
-              <AlertIcon style={leavePopupStyles.endRoomIcon} />
-              <Text style={leavePopupStyles.endRoomText}>End Session</Text>
-            </TouchableOpacity>
-          </>
+            <View style={leavePopupStyles.textContainer}>
+              <Text style={[leavePopupStyles.text, hmsRoomStyles.endText]}>
+                End Stream
+              </Text>
+              <Text
+                style={[leavePopupStyles.subtext, hmsRoomStyles.endSubtext]}
+              >
+                The stream & session will end for everyone. You can't undo this
+                action.
+              </Text>
+            </View>
+          </TouchableOpacity>
         ) : null}
       </View>
-    </Modal>
+    </BottomSheet>
   );
 };
 
 const leavePopupStyles = StyleSheet.create({
-  modal: {
-    margin: 0,
-    justifyContent: 'flex-start',
+  container: {
+    paddingBottom: 0,
   },
-  leavePopupContent: {
-    overflow: 'hidden',
-    width: 243,
-    backgroundColor: COLORS.SURFACE.DIM,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: COLORS.BORDER.BRIGHT,
-  },
-  leaveButton: {
+  button: {
     flexDirection: 'row',
-    paddingHorizontal: 8,
-    paddingVertical: 16,
+    padding: 24,
   },
-  leaveButtonIcon: {
-    width: 20,
-    height: 20,
-    marginHorizontal: 8,
+  icon: {
+    width: 24,
+    height: 24,
+    marginRight: 16,
     transform: [{ rotateY: '180deg' }],
   },
-  leaveButtonText: {
-    color: COLORS.SURFACE.ON_SURFACE.HIGH,
+  textContainer: {
+    flex: 1,
+  },
+  text: {
+    fontSize: 20,
+    lineHeight: 24,
+    letterSpacing: 0.15,
+  },
+  subtext: {
     fontSize: 14,
-    fontFamily: 'Inter-SemiBold',
     lineHeight: 20,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: COLORS.BORDER.BRIGHT,
-  },
-  endRoomButton: {
-    flexDirection: 'row',
-    backgroundColor: COLORS.ALERT.ERROR.DIM,
-    paddingHorizontal: 8,
-    paddingVertical: 16,
-  },
-  endRoomIcon: {
-    width: 20,
-    height: 20,
-    marginHorizontal: 8,
-  },
-  endRoomText: {
-    color: COLORS.ALERT.ERROR.BRIGHT,
-    fontSize: 14,
-    fontFamily: 'Inter-SemiBold',
-    lineHeight: 20,
+    letterSpacing: 0.25,
+    marginTop: 4,
   },
 });

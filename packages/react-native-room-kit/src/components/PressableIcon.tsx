@@ -24,8 +24,8 @@ export const PressableIcon: React.FC<PressableIconProps> = ({
       borderColor: theme.palette.border_bright,
     },
     active: {
-      backgroundColor: theme.palette.secondary_dim,
-      borderColor: theme.palette.secondary_dim,
+      backgroundColor: theme.palette.surface_brighter,
+      borderColor: theme.palette.surface_brighter,
     },
   }));
 

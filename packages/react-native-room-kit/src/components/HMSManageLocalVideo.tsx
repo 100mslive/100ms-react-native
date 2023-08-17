@@ -5,7 +5,6 @@ import type { RootState } from '../redux';
 import { useCanPublishVideo, useHMSActions } from '../hooks-sdk';
 import { PressableIcon } from './PressableIcon';
 import { CameraIcon } from '../Icons';
-import { useHMSRoomStyle } from '../hooks-util';
 
 export const HMSManageLocalVideo = () => {
   const canPublishVideo = useCanPublishVideo();
@@ -30,15 +29,10 @@ const ToggleVideoMuteButton = () => {
     await hmsActions.setLocalVideoEnabled(!isLocalVideoMuted);
   };
 
-  const mutedButtonStyles = useHMSRoomStyle((theme) => ({
-    backgroundColor: theme.palette.secondary_dim,
-    borderColor: theme.palette.secondary_dim,
-  }));
-
   return (
     <PressableIcon
       onPress={handleVideoMuteTogglePress}
-      style={isLocalVideoMuted ? mutedButtonStyles : undefined}
+      active={isLocalVideoMuted}
     >
       <CameraIcon muted={!!isLocalVideoMuted} />
     </PressableIcon>

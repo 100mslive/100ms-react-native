@@ -33,3 +33,5 @@ export * from './Pin';
 export * from './Pencil';
 export * from './Recording';
 export * from './AlertTriangle';
+export * from './Hamburger';
+export * from './Stop';
