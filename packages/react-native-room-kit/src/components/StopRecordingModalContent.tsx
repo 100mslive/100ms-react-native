@@ -1,9 +1,12 @@
 import * as React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
+import type { RootState } from '../redux';
 import { useHMSInstance, useHMSRoomStyleSheet } from '../hooks-util';
 import { AlertTriangleIcon, CloseIcon } from '../Icons';
 import { HMSDangerButton } from './HMSDangerButton';
+import { setStartingOrStoppingRecording } from '../redux/actions';
 
 export interface StopRecordingModalContentProps {
   dismissModal(): void;
@@ -12,8 +15,9 @@ export interface StopRecordingModalContentProps {
 export const StopRecordingModalContent: React.FC<
   StopRecordingModalContentProps
 > = ({ dismissModal }) => {
+  const dispatch = useDispatch();
   const hmsInstance = useHMSInstance();
-  const [stopRecordingLoading, setStopRecordingLoading] = React.useState(false);
+  const startingOrStoppingRecording = useSelector((state: RootState) => state.app.startingOrStoppingRecording);
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     headerText: {
@@ -27,12 +31,12 @@ export const StopRecordingModalContent: React.FC<
   }));
 
   const stopRecording = async () => {
-    setStopRecordingLoading(true);
+    dispatch(setStartingOrStoppingRecording(true));
     try {
       await hmsInstance.stopRtmpAndRecording();
       dismissModal();
     } catch (error) {
-      setStopRecordingLoading(false);
+      dispatch(setStartingOrStoppingRecording(false));
     }
   };
 
@@ -60,10 +64,10 @@ export const StopRecordingModalContent: React.FC<
       </Text>
 
       <HMSDangerButton
-        loading={stopRecordingLoading}
+        loading={startingOrStoppingRecording}
         onPress={stopRecording}
         title="Stop Recording"
-        disabled={stopRecordingLoading}
+        disabled={startingOrStoppingRecording}
       />
     </View>
   );

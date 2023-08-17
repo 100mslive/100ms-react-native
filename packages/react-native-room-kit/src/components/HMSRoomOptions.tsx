@@ -53,7 +53,7 @@ export const HMSRoomOptions: React.FC<HMSRoomOptionsProps> = () => {
       <BottomSheet
         isVisible={modalVisible === ModalTypes.SETTINGS}
         dismissModal={dismissModal}
-        animationOutTiming={800}
+        animationOutTiming={700}
       >
         <RoomSettingsModalContent
           newAudioMixingMode={newAudioMixingMode}
@@ -72,7 +72,7 @@ export const HMSRoomOptions: React.FC<HMSRoomOptionsProps> = () => {
         isVisible={modalVisible === ModalTypes.CHANGE_NAME}
         dismissModal={dismissModal}
         avoidKeyboard={true}
-        animationOutTiming={800}
+        animationOutTiming={700}
       >
         <ChangeNameModalContent dismissModal={dismissModal} />
       </BottomSheet>

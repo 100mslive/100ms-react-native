@@ -129,6 +129,7 @@ const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
       <BottomSheet
         dismissModal={dismissModal}
         isVisible={leaveModalType === ModalTypes.END_ROOM}
+        animationOutTiming={700}
       >
         <EndRoomModalContent dismissModal={dismissModal} />
       </BottomSheet>
@@ -136,7 +137,8 @@ const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
   );
 };
 
-
+// const HEADER_CONTENT_HEIGHT = 24 + 8 + 8 + 2; // ICON_SIZE + TOP_PADDING + BOTTOM_PADDING + TOP&BOTTOM_BORDER_WIDTH
+// const HEADER_HEIGHT = 8 + HEADER_CONTENT_HEIGHT + 8; // TOP_HEADER_PADDING + HEADER_CONTENT_HEIGHT + BOTTOM_HEADER_PADDING
 
 const styles = StyleSheet.create({
   button: {
@@ -195,6 +197,7 @@ const LeaveBottomSheet: React.FC<LeaveBottomSheetProps> = ({
       containerStyle={leavePopupStyles.container}
       dismissModal={onPopupDismiss}
       onModalHide={onPopupHide}
+      animationOutTiming={700}
     >
       <View>
         <TouchableOpacity
