@@ -5,7 +5,7 @@ import type { HMSTrackType } from './HMSTrackType';
 import type { HMSLayer } from './HMSLayer';
 import type { HMSSimulcastLayerDefinition } from './HMSSimulcastLayerDefinition';
 import { HMSEncoder } from './HMSEncoder';
-import type { HMSTrackSource } from './HMSTrackSource'
+import type { HMSTrackSource } from './HMSTrackSource';
 
 const {
   /**

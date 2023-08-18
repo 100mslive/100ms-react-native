@@ -17,7 +17,9 @@ export const StopRecordingModalContent: React.FC<
 > = ({ dismissModal }) => {
   const dispatch = useDispatch();
   const hmsInstance = useHMSInstance();
-  const startingOrStoppingRecording = useSelector((state: RootState) => state.app.startingOrStoppingRecording);
+  const startingOrStoppingRecording = useSelector(
+    (state: RootState) => state.app.startingOrStoppingRecording
+  );
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     headerText: {

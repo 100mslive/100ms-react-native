@@ -2,7 +2,7 @@ import { NativeModules } from 'react-native';
 import { getLogger } from './HMSLogger';
 import type { HMSTrackType } from './HMSTrackType';
 import { HMSAudioTrack } from './HMSAudioTrack';
-import type { HMSTrackSource } from './HMSTrackSource'
+import type { HMSTrackSource } from './HMSTrackSource';
 
 const {
   /**

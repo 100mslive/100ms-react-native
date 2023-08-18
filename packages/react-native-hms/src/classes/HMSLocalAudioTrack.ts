@@ -3,7 +3,7 @@ import { HMSAudioTrack } from './HMSAudioTrack';
 import { getLogger } from './HMSLogger';
 import type { HMSAudioTrackSettings } from './HMSAudioTrackSettings';
 import type { HMSTrackType } from './HMSTrackType';
-import type { HMSTrackSource } from './HMSTrackSource'
+import type { HMSTrackSource } from './HMSTrackSource';
 
 const {
   /**

@@ -103,7 +103,9 @@ const QRCode = () => {
   };
 
   useEffect(() => {
-    LottieSplashScreen.hide();
+    setTimeout(() => {
+      LottieSplashScreen.hide();
+    }, 1000);
   }, []);
 
   useEffect(() => {

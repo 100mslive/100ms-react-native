@@ -3,7 +3,7 @@ import { HMSVideoTrack } from './HMSVideoTrack';
 import { getLogger } from './HMSLogger';
 import type { HMSVideoTrackSettings } from './HMSVideoTrackSettings';
 import type { HMSTrackType } from './HMSTrackType';
-import type { HMSTrackSource } from './HMSTrackSource'
+import type { HMSTrackSource } from './HMSTrackSource';
 
 const {
   /**

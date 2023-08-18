@@ -46,7 +46,7 @@ export const HLSView: React.FC = () => {
       | 'seekForward'
       | 'seekBackward'
       | 'seekToLive'
-      | 'setVolume'
+      | 'setVolume',
   >(
     action: T,
     ...args: any[]
