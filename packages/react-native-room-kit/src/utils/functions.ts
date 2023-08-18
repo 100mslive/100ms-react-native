@@ -561,7 +561,7 @@ export function groupIntoTriplets<T>(list: T[], fill?: boolean) {
     } else {
       const t = [list[i]];
       if (fill) {
-        t.splice(0, 0, undefined, undefined);
+        t.splice(1, 0, undefined, undefined);
       }
       pairs.push(t);
     }

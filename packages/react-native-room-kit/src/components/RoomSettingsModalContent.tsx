@@ -15,7 +15,7 @@ import {
   ScreenShareIcon,
 } from '../Icons';
 import { BottomSheet, useBottomSheetActions } from './BottomSheet';
-import { useHMSInstance, useHMSRoomStyleSheet } from '../hooks-util';
+import { useHMSInstance, useHMSRoomStyleSheet, useIsHLSViewer } from '../hooks-util';
 import { useCanPublishScreen, useHMSActions } from '../hooks-sdk';
 import { RoomSettingsModalDebugModeContent } from './RoomSettingsModalDebugModeContent';
 import { setStartingOrStoppingRecording } from '../redux/actions';
@@ -41,6 +41,7 @@ export const RoomSettingsModalContent: React.FC<
   const dispatch = useDispatch();
   const hmsInstance = useHMSInstance();
   const debugMode = useSelector((state: RootState) => state.user.debugMode);
+  const isHLSViewer = useIsHLSViewer();
 
   const hmsActions = useHMSActions();
 
@@ -184,7 +185,7 @@ export const RoomSettingsModalContent: React.FC<
               label: parsedMetadata.isHandRaised ? 'Hand Raised' : 'Raise Hand',
               pressHandler: toggleRaiseHand,
               isActive: isHandRaised, // Show active if `isHandRaised` is set on metadata
-              hide: false, // Hide if can't publish screen
+              hide: isHLSViewer, // Hide if can't publish screen
             },
             {
               id: 'start-recording',

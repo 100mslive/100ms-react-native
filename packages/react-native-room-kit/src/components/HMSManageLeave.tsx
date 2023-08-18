@@ -42,9 +42,6 @@ const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
   const [leaveModalType, setLeaveModalType] = React.useState(
     ModalTypes.DEFAULT
   );
-  const canEndRoom = useSelector(
-    (state: RootState) => state.hmsStates.localPeer?.role?.permissions?.endRoom
-  );
 
   const { leave } = useLeaveMethods();
 
@@ -52,11 +49,7 @@ const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
    * Opens the Leave Popup Menu
    */
   const handleLeaveButtonPress = () => {
-    if (canEndRoom) {
-      setLeavePopVisible(true);
-    } else {
-      setLeaveModalType(ModalTypes.LEAVE_ROOM);
-    }
+    setLeavePopVisible(true);
   };
 
   /**
@@ -99,7 +92,7 @@ const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
     'leaveIconDelegate' in props && props.leaveIconDelegate ? (
       props.leaveIconDelegate
     ) : isHLSViewer ? (
-      <LeaveIcon style={{ transform: [{ rotateZ: '180 deg' }] }} />
+      <LeaveIcon />
     ) : (
       <EndIcon />
     );
@@ -254,7 +247,6 @@ const leavePopupStyles = StyleSheet.create({
     width: 24,
     height: 24,
     marginRight: 16,
-    transform: [{ rotateY: '180deg' }],
   },
   textContainer: {
     flex: 1,
