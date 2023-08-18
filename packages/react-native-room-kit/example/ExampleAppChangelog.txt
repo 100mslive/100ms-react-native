@@ -1,16 +1,15 @@
-Board: https://github.com/100mslive/100ms-react-native/projects/25
+Board: https://github.com/100mslive/100ms-react-native/projects/26
 
-- App built using HMSRoomKit's Prebuilt APIs
+- Added Active Speaker Sorting
+https://github.com/100mslive/100ms-react-native/issues/1126
 
-- Prebuilt SDK Telemetry
-https://github.com/100mslive/100ms-react-native/projects/25#card-90122682
+- Added Equal Prominence Layout
+https://github.com/100mslive/100ms-react-native/issues/1124
 
-- Implement Layout API which configures Room Appearance
-https://github.com/100mslive/100ms-react-native/pull/1118/
+- Added Local Peer in Inset Tile
+https://github.com/100mslive/100ms-react-native/issues/1123
 
-Branch: `feature/layout-api-integration`
-
-Main SDK: 1.7.1
+Core SDK: 1.7.1
 Room Kit: 0.1.0
 Android SDK: 2.7.3
-iOS SDK: 0.9.8
+iOS SDK: 0.9.9
