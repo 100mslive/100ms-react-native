@@ -69,6 +69,15 @@ object HMSDecoder {
             )
           }
         }
+        HMSRoomUpdate.ROOM_MUTED -> {
+          print("ROOM_MUTED received")
+        }
+        HMSRoomUpdate.ROOM_UNMUTED -> {
+          print("ROOM_UNMUTED received")
+        }
+        else -> {
+          print("Unknown Room Update Type received")
+        }
       }
     }
     return room
@@ -153,7 +162,9 @@ object HMSDecoder {
             peer.putMap("networkQuality", this.getHmsNetworkQuality(it))
           }
         }
-        else -> {}
+        else -> {
+          print("Unknown Peer Update Type received")
+        }
       }
     }
     return peer
@@ -179,6 +190,9 @@ object HMSDecoder {
             hmsPeer.networkQuality?.let {
               peer.putMap("networkQuality", this.getHmsNetworkQuality(it))
             }
+          }
+          else -> {
+            print("Unknown Peer Update Type received")
           }
         }
       }
