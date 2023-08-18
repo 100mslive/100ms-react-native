@@ -28,7 +28,7 @@ export const CompanyLogo: React.FC<CompanyLogoProps> = ({
 
 const styles = StyleSheet.create({
   icon: {
-    width: '100%',
+    aspectRatio: 1,
     height: 32,
     resizeMode: 'contain',
   },

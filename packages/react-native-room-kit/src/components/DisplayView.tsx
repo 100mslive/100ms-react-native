@@ -139,7 +139,7 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
   }, []);
 
   return (
-    <Animated.View style={[styles.container, animatedStyles]}>
+    <Animated.View style={[{ flex: 1 }, animatedStyles]}>
       {isHLSViewer ? (
         <HLSView />
       ) : (

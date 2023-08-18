@@ -6,9 +6,9 @@ import Animated, {
   useAnimatedStyle,
 } from 'react-native-reanimated';
 import type { SharedValue } from 'react-native-reanimated';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { COLORS } from '../utils/theme';
-import { useIsHLSViewer } from '../hooks-util';
+import { useHMSRoomStyle, useIsHLSViewer } from '../hooks-util';
 import { HMSManageLeave } from './HMSManageLeave';
 import { HMSManageRaiseHand } from './HMSManageRaiseHand';
 import { HMSManageLocalAudio } from './HMSManageLocalAudio';
@@ -61,32 +61,38 @@ export const _Footer: React.FC<FooterProps> = ({ offset }) => {
     };
   }, []);
 
+  const containerStyles = useHMSRoomStyle((theme) => ({
+    backgroundColor: theme.palette.background_dim,
+  }));
+
   return (
     <Animated.View style={animatedStyles} animatedProps={animatedProps}>
-      <View style={styles.container}>
-        {footerActionButtons.map((actionType, index) => {
-          return (
-            <View
-              key={actionType}
-              style={index === 0 ? null : styles.iconWrapper}
-            >
-              {actionType === 'leave' ? (
-                <HMSManageLeave />
-              ) : actionType === 'audio' ? (
-                <HMSManageLocalAudio />
-              ) : actionType === 'video' ? (
-                <HMSManageLocalVideo />
-              ) : actionType === 'chat' ? (
-                <HMSChat />
-              ) : actionType === 'options' ? (
-                <HMSRoomOptions />
-              ) : actionType === 'hand-raise' ? (
-                <HMSManageRaiseHand />
-              ) : null}
-            </View>
-          );
-        })}
-      </View>
+      <SafeAreaView style={containerStyles} edges={['bottom']}>
+        <View style={[styles.container, containerStyles]}>
+          {footerActionButtons.map((actionType, index) => {
+            return (
+              <View
+                key={actionType}
+                style={index === 0 ? null : styles.iconWrapper}
+              >
+                {actionType === 'leave' ? (
+                  <HMSManageLeave />
+                ) : actionType === 'audio' ? (
+                  <HMSManageLocalAudio />
+                ) : actionType === 'video' ? (
+                  <HMSManageLocalVideo />
+                ) : actionType === 'chat' ? (
+                  <HMSChat />
+                ) : actionType === 'options' ? (
+                  <HMSRoomOptions />
+                ) : actionType === 'hand-raise' ? (
+                  <HMSManageRaiseHand />
+                ) : null}
+              </View>
+            );
+          })}
+        </View>
+      </SafeAreaView>
     </Animated.View>
   );
 };
@@ -95,7 +101,6 @@ const styles = StyleSheet.create({
   container: {
     paddingTop: 16,
     paddingHorizontal: 16,
-    backgroundColor: COLORS.BACKGROUND.DIM,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

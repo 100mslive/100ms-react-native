@@ -88,7 +88,7 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
       ]}
       disabled={isHLSViewer || true}
     >
-      <HMSStatusBar hidden={controlsHidden} />
+      <HMSStatusBar hidden={controlsHidden} barStyle={'light-content'} />
 
       {isPipModeActive ? null : <Header offset={offset} />}
 

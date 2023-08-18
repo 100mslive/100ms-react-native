@@ -9,7 +9,6 @@ import {
   useLeaveMethods,
 } from '../hooks-util';
 import type { RootState } from '../redux';
-import { COLORS } from '../utils/theme';
 import { ModalTypes } from '../utils/types';
 import { PressableIcon } from './PressableIcon';
 import { BottomSheet } from './BottomSheet';
@@ -88,13 +87,23 @@ const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
 
   const dismissModal = () => setLeaveModalType(ModalTypes.DEFAULT);
 
+  const hmsRoomStyles = useHMSRoomStyleSheet((theme) => ({
+    button: {
+      backgroundColor: theme.palette.alert_error_default,
+      borderColor: theme.palette.alert_error_default
+    },
+    icon: {
+      tintColor: theme.palette.alert_error_brighter
+    },
+  }));
+
   const leaveIconDelegate =
     'leaveIconDelegate' in props && props.leaveIconDelegate ? (
       props.leaveIconDelegate
     ) : isHLSViewer ? (
-      <LeaveIcon />
+      <LeaveIcon style={hmsRoomStyles.icon} />
     ) : (
-      <EndIcon />
+      <EndIcon style={hmsRoomStyles.icon} />
     );
 
   const leaveButtonDelegate =
@@ -108,7 +117,7 @@ const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
     <View>
       {React.cloneElement(leaveButtonDelegate, {
         onPress: handleLeaveButtonPress,
-        style: styles.button,
+        style: hmsRoomStyles.button,
       })}
 
       <LeaveBottomSheet
@@ -132,13 +141,6 @@ const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
 
 // const HEADER_CONTENT_HEIGHT = 24 + 8 + 8 + 2; // ICON_SIZE + TOP_PADDING + BOTTOM_PADDING + TOP&BOTTOM_BORDER_WIDTH
 // const HEADER_HEIGHT = 8 + HEADER_CONTENT_HEIGHT + 8; // TOP_HEADER_PADDING + HEADER_CONTENT_HEIGHT + BOTTOM_HEADER_PADDING
-
-const styles = StyleSheet.create({
-  button: {
-    backgroundColor: COLORS.ALERT.ERROR.DEFAULT,
-    borderColor: COLORS.ALERT.ERROR.DEFAULT,
-  },
-});
 
 interface LeaveBottomSheetProps {
   isVisible: boolean;
