@@ -10,16 +10,18 @@ export const HMSRecordingIndicator = () => {
   const isRecordingOn = useSelector(
     (state: RootState) => !!state.hmsStates.room?.browserRecordingState?.running
   );
-  const startingOrStoppingRecording = useSelector((state: RootState) => state.app.startingOrStoppingRecording);
+  const startingOrStoppingRecording = useSelector(
+    (state: RootState) => state.app.startingOrStoppingRecording
+  );
 
   const { on_surface_high: onSurfaceHighColor } = useHMSRoomColorPalette();
 
   const iconStyles = useHMSRoomStyle((theme) => ({
-    tintColor: theme.palette.alert_error_default
+    tintColor: theme.palette.alert_error_default,
   }));
 
   if (startingOrStoppingRecording) {
-    return <ActivityIndicator size={"small"} color={onSurfaceHighColor} />
+    return <ActivityIndicator size={'small'} color={onSurfaceHighColor} />;
   }
 
   if (isRecordingOn) {
@@ -27,7 +29,7 @@ export const HMSRecordingIndicator = () => {
   }
 
   return null;
-}
+};
 
 const styles = StyleSheet.create({
   icon: {

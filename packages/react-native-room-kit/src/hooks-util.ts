@@ -145,7 +145,8 @@ const useHMSRoomUpdate = (hmsInstance: HMSSDK) => {
       }
 
       if (type === HMSRoomUpdate.BROWSER_RECORDING_STATE_UPDATED) {
-        const startingOrStoppingRecording = reduxStore.getState().app.startingOrStoppingRecording;
+        const startingOrStoppingRecording =
+          reduxStore.getState().app.startingOrStoppingRecording;
 
         if (startingOrStoppingRecording) {
           dispatch(setStartingOrStoppingRecording(false));
@@ -1270,7 +1271,7 @@ export const useSafeDimensions = () => {
 
 export const useShowChat = (): [
   'none' | 'inset' | 'modal',
-  (show: boolean) => void
+  (show: boolean) => void,
 ] => {
   const dispatch = useDispatch();
   const isHLSViewer = useIsHLSViewer();
@@ -1543,7 +1544,7 @@ export const useHMSRoomTypography = (): Typography => {
 };
 
 export const useHMSRoomStyleSheet = <
-  T extends { [key: string]: StyleProp<ViewStyle | TextStyle | ImageStyle> }
+  T extends { [key: string]: StyleProp<ViewStyle | TextStyle | ImageStyle> },
 >(
   updater: (theme: Required<Theme>, typography: Required<Typography>) => T,
   deps: DependencyList = []
@@ -1558,7 +1559,7 @@ export const useHMSRoomStyleSheet = <
 };
 
 export const useHMSRoomStyle = <
-  T extends StyleProp<ViewStyle | TextStyle | ImageStyle>
+  T extends StyleProp<ViewStyle | TextStyle | ImageStyle>,
 >(
   updater: (theme: Required<Theme>, typography: Required<Typography>) => T,
   deps: DependencyList = []

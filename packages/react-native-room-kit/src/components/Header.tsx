@@ -72,10 +72,10 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     flexDirection: 'row',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   logo: {
-    marginRight: 12
+    marginRight: 12,
   },
   controls: {
     flexDirection: 'row',
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     marginLeft: 16,
   },
   cameraRotationWrapper: {
-    marginRight: 16
+    marginRight: 16,
   },
 });
 

@@ -6,10 +6,7 @@ import { useHMSRoomStyle } from '../../hooks-util';
 
 interface StopIconProps extends Omit<ImageProps, 'source'> {}
 
-export const StopIcon: React.FC<StopIconProps> = ({
-  style,
-  ...restProps
-}) => {
+export const StopIcon: React.FC<StopIconProps> = ({ style, ...restProps }) => {
   const iconStyles = useHMSRoomStyle((theme) => ({
     tintColor: theme.palette.on_surface_high,
   }));

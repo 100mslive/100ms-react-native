@@ -4,7 +4,7 @@ import type { HMSAudioTrackSettings } from './HMSAudioTrackSettings';
 import { HMSLocalAudioTrack } from './HMSLocalAudioTrack';
 import { HMSLocalVideoTrack } from './HMSLocalVideoTrack';
 import type { HMSTrackType } from './HMSTrackType';
-import type { HMSTrackSource } from './HMSTrackSource'
+import type { HMSTrackSource } from './HMSTrackSource';
 
 export class HMSLocalPeer extends HMSPeer {
   private localAudio?: HMSLocalAudioTrack;

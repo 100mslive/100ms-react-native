@@ -1,5 +1,5 @@
 import { HMSTrack } from './HMSTrack';
-import type { HMSTrackSource } from './HMSTrackSource'
+import type { HMSTrackSource } from './HMSTrackSource';
 import type { HMSTrackType } from './HMSTrackType';
 
 export class HMSAudioTrack extends HMSTrack {
