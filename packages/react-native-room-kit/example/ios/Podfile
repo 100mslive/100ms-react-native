@@ -1,0 +1,40 @@
+require_relative '../node_modules/react-native/scripts/react_native_pods'
+require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
+
+platform :ios, '13.0'
+
+# ENSURE TO SET THE CORRECT EXTENSION TARGET NAME BELOW.
+# Not required if starting Screenshare from iOS devices is not a feature of the app. Then Remove this Target snippet
+target 'RNExampleBroadcastUpload' do
+  use_modular_headers!
+  pod 'HMSBroadcastExtensionSDK'
+end
+
+target 'RNExample' do
+  config = use_native_modules!
+  permissions_path = '../node_modules/react-native-permissions/ios'
+
+  use_react_native!(
+    :path => config[:reactNativePath],
+    # to enable hermes on iOS, change `false` to `true` and then install pods
+    :hermes_enabled => true
+  )
+
+  pod 'react-native-hms', :path => '../../../react-native-hms'
+  pod 'Permission-Camera', :path => "#{permissions_path}/Camera"
+  pod 'Permission-Microphone', :path => "#{permissions_path}/Microphone"
+
+  # Enables Flipper.
+  #
+  # Note that if you have use_frameworks! enabled, Flipper will not work and
+  # you should disable the next line.
+  use_flipper!()
+
+  post_install do |installer|
+    react_native_post_install(installer)
+    __apply_Xcode_12_5_M1_post_install_workaround(installer)
+    installer.pods_project.build_configurations.each do |config|
+      config.build_settings['ENABLE_BITCODE'] = 'NO'
+    end
+  end
+end

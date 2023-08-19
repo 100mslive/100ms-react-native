@@ -19,7 +19,6 @@ Integrate Real Time Audio and Video conferencing, Interactive Live Streaming, an
 
 With support for HLS and RTMP Live Streaming and Recording, Picture-in-Picture (PiP), one-to-one Video Call Modes, Audio Rooms, Video Player and much more, add immersive real-time communications to your apps.
 
-
 📖 Read the Complete Documentation here: https://www.100ms.live/docs/react-native/v2/foundation/basics
 
 ## 🏃 Example App
@@ -28,8 +27,7 @@ With support for HLS and RTMP Live Streaming and Recording, Picture-in-Picture (
 
 🤖 Download the Example Android app here: https://appdistribution.firebase.dev/i/7b7ab3b30e627c35
 
-To get a better understanding of how the example app is structured, what to do on `onJoin`, `onTrack` and `onPeer` listeners, creating `PeerTrackNodes`, how to use Redux, and what type of layouts and sorting you can implement in your app, checkout [Example App's README](https://github.com/100mslive/react-native-hms/blob/develop/example/README.md)
-
+To get a better understanding of how the example app is structured, what to do on `onJoin`, `onTrack` and `onPeer` listeners, creating `PeerTrackNodes`, how to use Redux, and what type of layouts and sorting you can implement in your app, checkout [Example App's README](https://github.com/100mslive/react-native-hms/blob/develop/packages/react-native-hms/example/README.md)
 
 To run the Example app on your system, follow these steps -
 
@@ -41,7 +39,6 @@ To run the Example app on your system, follow these steps -
 
 Troubleshooting Guide for resolving issues in running the Example app is [available here](https://www.100ms.live/docs/react-native/v2/guides/faq#run-the-example-app).
 
-
 ## ☝️ Minimum Configuration
 
 - Support for React Native 0.64.4 or above
@@ -49,7 +46,6 @@ Troubleshooting Guide for resolving issues in running the Example app is [availa
 - Support for Android API level 24 or above
 - Xcode 13 or above
 - Support for iOS 12 or above
-
 
 ## 🤝 Recommended Configuration
 
@@ -62,10 +58,10 @@ Troubleshooting Guide for resolving issues in running the Example app is [availa
 ## 📱 Supported Devices
 
 - The Android SDK supports Android API level 21 and higher. It is built for armeabi-v7a, arm64-v8a, x86, and x86_64 architectures.
-Devices running Android OS 11 or above is recommended.
+  Devices running Android OS 11 or above is recommended.
 
 - iPhone & iPads with iOS version 12 or above are supported.
-Devices running iOS 16 or above is recommended.
+  Devices running iOS 16 or above is recommended.
 
 ## Installation
 
@@ -117,9 +113,7 @@ We suggest using [react-native-permission](https://www.npmjs.com/package/react-n
 
 More information about Audio Video Permission on iOS & Android is [available here](https://www.100ms.live/docs/react-native/v2/features/integration#permissions).
 
-
 ## [QuickStart](https://www.100ms.live/docs/react-native/v2/guides/quickstart)
-
 
 The package exports all the classes and a HMSSDK class that manages everything.
 
@@ -128,7 +122,7 @@ The package exports all the classes and a HMSSDK class that manages everything.
 First invoke the `build` method which returns an instance of `HMSSDK`. Save this instance to perform all actions related to 100ms.
 
 ```ts
-import { HMSSDK } from '@100mslive/react-native-hms';
+import { HMSSDK } from "@100mslive/react-native-hms";
 
 /**
  * create HMSSDK instance using the build method & save it for further usage
@@ -148,10 +142,11 @@ We can get the authentication token using room-code from meeting URL.
 Let's understand the subdomain and code from the sample URL
 
 In this sample url: `http://100ms-rocks.app.100ms.live/meeting/abc-defg-hij`
- -  Subdomain is `100ms-rocks`
- -  Room code is `abc-defg-hij`
 
-Now to get the room-code from meeting URL, we can write our own logic or use the `getCode` method from [here](https://github.com/100mslive/react-native-hms/blob/main/example/src/utils/getRoomLinkDetails.ts)
+- Subdomain is `100ms-rocks`
+- Room code is `abc-defg-hij`
+
+Now to get the room-code from meeting URL, we can write our own logic or use the `getCode` method from [here](https://github.com/100mslive/react-native-hms/blob/main/packages/react-native-hms/example/src/utils/getRoomLinkDetails.ts)
 
 To generate token we will be using `getAuthTokenByRoomCode` method available on `HMSSDK` instance. This method has `roomCode` as a required
 parameter and `userId` & `endpoint` as optional parameter.
@@ -163,12 +158,15 @@ Let's checkout the implementation:
  * `getAuthTokenByRoomCode` returns a promise which is resolved with "auth token"
  * checkout {@link https://www.100ms.live/docs/react-native/v2/how--to-guides/install-the-sdk/hmssdk#what-does-destroy-method-do}
  */
-const token = await hmsInstance.getAuthTokenByRoomCode('YOUR_ROOM_CODE');
+const token = await hmsInstance.getAuthTokenByRoomCode("YOUR_ROOM_CODE");
 
 /**
  * Create `HMSConfig` with the above auth token and username
  */
-const hmsConfig = new HMSConfig({ authToken: token, username: 'John Appleseed' });
+const hmsConfig = new HMSConfig({
+  authToken: token,
+  username: "John Appleseed",
+});
 ```
 
 ### Get temporary token from dashboard
@@ -179,8 +177,7 @@ To test audio/video functionality, you need to connect to a 100ms Room. Please c
 2. Use the `Video Conferencing Starter Kit` to create a room with a default template assigned to it to test this app quickly.
 3. Go to the [Rooms page](https://dashboard.100ms.live/rooms) in your dashboard, click on the `Room Id` of the room you created above, and click on the `Join Room` button on the top right.
 4. You will see 100ms demo URLs for the roles created when you deployed the starter kit; you can click on the 'key' icon to copy the token and update the `AUTH_TOKEN` variable in "App.js" file.
-    > Token from 100ms dashboard is for testing purposes only, For production applications you must generate tokens on your own server. Refer to the [Management Token section](/concepts/v2/concepts/security-and-tokens#management-token) in Authentication and Tokens guide for more information.
-
+   > Token from 100ms dashboard is for testing purposes only, For production applications you must generate tokens on your own server. Refer to the [Management Token section](/concepts/v2/concepts/security-and-tokens#management-token) in Authentication and Tokens guide for more information.
 
 ## [Add Event Listeners](https://www.100ms.live/docs/react-native/v2/features/event-listeners)
 
@@ -202,7 +199,6 @@ hmsInstance.addEventListener(
 
 The detailed QuickStart Guide is [available here](https://www.100ms.live/docs/react-native/v2/guides/quickstart).
 
-
 ## [Join the Room](https://www.100ms.live/docs/react-native/v2/features/join)
 
 To interact with _peers_ in audio or video call, the user needs to **Join** a **Room**.
@@ -219,7 +215,6 @@ Additionally, you can also pass these fields while Joining a Room -
 
 2. Peer Metadata - This can be used to pass any additional metadata associated with the user using `metadata` of `HMSConfig` object. For Eg: user-id mapping at the application side. More information is [available here](https://www.100ms.live/docs/react-native/v2/advanced-features/change-metadata).
 
-
 NOTE: `ON_JOIN` Event Listener must be **attached** before calling `join` function to receive the event callback.
 
 ```ts
@@ -227,27 +222,31 @@ NOTE: `ON_JOIN` Event Listener must be **attached** before calling `join` functi
 const hmsInstance = await HMSSDK.build();
 
 // Generate 100ms Auth Token by Room Code
-const token = await hmsInstance.getAuthTokenByRoomCode('abc-defg-hij'); // Sample Room Code
+const token = await hmsInstance.getAuthTokenByRoomCode("abc-defg-hij"); // Sample Room Code
 
 // You'll need to add Event Listeners for HMSUpdateListenerActions, which are invoked to notify about updates happening in the room like a peer joins/leaves, a track got muted/unmuted, any errors that occur, etc.
 hmsInstance.addEventListener(HMSUpdateListenerActions.ON_JOIN, onJoinSuccess);
-hmsInstance.addEventListener(HMSUpdateListenerActions.ON_PEER_UPDATE, onPeerUpdate);
-hmsInstance.addEventListener(HMSUpdateListenerActions.ON_TRACK_UPDATE, onTrackUpdate);
+hmsInstance.addEventListener(
+  HMSUpdateListenerActions.ON_PEER_UPDATE,
+  onPeerUpdate,
+);
+hmsInstance.addEventListener(
+  HMSUpdateListenerActions.ON_TRACK_UPDATE,
+  onTrackUpdate,
+);
 hmsInstance.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
-
 
 // Next, create an object of HMSConfig class using the available joining configurations.
 let config = new HMSConfig({
-                    authToken: token, // client-side token generated by `getAuthTokenByRoomCode` method
-                    username: 'John Appleseed',
-                });
+  authToken: token, // client-side token generated by `getAuthTokenByRoomCode` method
+  username: "John Appleseed",
+});
 
 // Now, we are primed to join the room. All you have to do is calling join by passing the config object
 hmsInstance.join(config);
 ```
 
 More information about Joining a Room is [available here](https://www.100ms.live/docs/react-native/v2/features/join).
-
 
 ## Basic Mechanism of using 100ms APIs
 
@@ -267,7 +266,7 @@ hmsInstance?.localPeer?.localVideoTrack()?.switchCamera();
 await hmsInstance?.leave();
 
 // To send a Chat Message to all peers in Room
-await hmsInstance?.sendBroadcastMessage('Hello Everyone! 👋');
+await hmsInstance?.sendBroadcastMessage("Hello Everyone! 👋");
 ```
 
 More information about using `HMSSDK` APIs is [available here](https://www.100ms.live/docs/react-native/v2/guides/quickstart).
@@ -286,16 +285,12 @@ We can also optionally pass props like `key`, `scaleType`, `mirror` to customize
 // get HmsView from the HMSSDK instance created earlier
 const HmsView = hmsInstance.HmsView;
 
-<HmsView
-  trackId={videoTrackId}
-  key={videoTrackId}
-  style={styles.hmsView}
-/>
+<HmsView trackId={videoTrackId} key={videoTrackId} style={styles.hmsView} />;
 
 const styles = StyleSheet.create({
   hmsView: {
-    height: '100%',
-    width: '100%',
+    height: "100%",
+    width: "100%",
   },
 });
 ```
@@ -304,14 +299,13 @@ const styles = StyleSheet.create({
 
 - It's recommended to always pass the `key` property while creating `HmsView`. If a null or undefined `trackId` is passed in `HmsView` you will have to unmount and remount with the new `trackId`. Using the `key` prop and passing `trackId` to it automatically achieves this.
 
-- `HmsView` component requires  `width` and `height` in `style` prop to set bounds of the tile that will show the video stream.
+- `HmsView` component requires `width` and `height` in `style` prop to set bounds of the tile that will show the video stream.
 
 - Once the requirement of that `HmsView` is finished it should **ALWAYS** be disposed.
 
 - Recommended practice is to show maximum of 3 to 4 `HmsView` on a single page/screen of the app. This avoids overloading network data consumption & video decoding resources of the device.
 
 More information about Rendering Videos is [available here](https://www.100ms.live/docs/react-native/v2/features/render-video).
-
 
 ## [Using Track Updates to display Videos](https://www.100ms.live/docs/react-native/v2/features/render-video)
 
@@ -354,13 +348,10 @@ hmsInstance.addEventListener(
 
 More information about Rendering Videos is [available here](https://www.100ms.live/docs/react-native/v2/features/render-video).
 
+### 🚂 [Example Implementations](https://github.com/100mslive/react-native-hms/tree/main/packages/react-native-hms/example)
 
+In the [100ms Example App](https://github.com/100mslive/react-native-hms/tree/main/packages/react-native-hms/example) we have shown how to set up the various listeners, what data to store in Redux and what all features you can implement.
 
-### 🚂 [Example Implementations](https://github.com/100mslive/react-native-hms/tree/main/example)
-
-In the [100ms Example App](https://github.com/100mslive/react-native-hms/tree/main/example) we have shown how to set up the various listeners, what data to store in Redux and what all features you can implement.
-
-We have also implemented multiple views which are commonly used. Checkout the [videos & relevant code in the Example app](https://github.com/100mslive/react-native-hms/tree/main/example#additional-features).
-
+We have also implemented multiple views which are commonly used. Checkout the [videos & relevant code in the Example app](https://github.com/100mslive/react-native-hms/tree/main/packages/react-native-hms/example#additional-features).
 
 📖 Read the Complete Documentation here: https://www.100ms.live/docs/react-native/v2/foundation/basics

@@ -1,0 +1,178 @@
+{
+  "name": "@100mslive/react-native-room-kit",
+  "version": "0.2.0",
+  "description": "100ms Room Kit provides simple & easy to use UI components to build Live Streaming & Video Conferencing experiences in your apps.",
+  "main": "lib/commonjs/index",
+  "module": "lib/module/index",
+  "types": "lib/typescript/index.d.ts",
+  "react-native": "src/index",
+  "source": "src/index",
+  "files": [
+    "src",
+    "lib",
+    "android",
+    "ios",
+    "cpp",
+    "*.podspec",
+    "!lib/typescript/example",
+    "!ios/build",
+    "!android/build",
+    "!android/gradle",
+    "!android/gradlew",
+    "!android/gradlew.bat",
+    "!android/local.properties",
+    "!**/__tests__",
+    "!**/__fixtures__",
+    "!**/__mocks__",
+    "!**/.*"
+  ],
+  "scripts": {
+    "test": "jest",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "prepack": "bob build",
+    "release": "release-it",
+    "example": "yarn --cwd example",
+    "bootstrap": "yarn example && yarn install"
+  },
+  "keywords": [
+    "react-native",
+    "ios",
+    "android"
+  ],
+  "repository": "https://github.com/100mslive/react-native-hms",
+  "author": "Yogesh <yogesh@100ms.live> (https://www.100ms.live/), Jatin <jatin.nagar@100ms.live> (https://www.100ms.live/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/100mslive/react-native-hms/issues"
+  },
+  "homepage": "https://github.com/100mslive/react-native-hms#readme",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "dependencies": {
+    "@react-navigation/native": "^6.0.8",
+    "react-redux": "^7.2.4",
+    "redux": "^4.1.0"
+  },
+  "devDependencies": {
+    "@100mslive/types-prebuilt": "^0.8.0",
+    "@commitlint/config-conventional": "^17.0.2",
+    "@evilmartians/lefthook": "^1.2.2",
+    "@react-native-community/eslint-config": "^3.0.2",
+    "@release-it/conventional-changelog": "^5.0.0",
+    "@types/jest": "^28.1.2",
+    "@types/react": "~17.0.21",
+    "@types/react-native": "^0.64.5",
+    "@types/react-native-vector-icons": "^6.4.8",
+    "commitlint": "^17.0.2",
+    "del-cli": "^5.0.0",
+    "eslint": "^8.4.1",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "jest": "^28.1.1",
+    "pod-install": "^0.1.0",
+    "prettier": "^2.0.5",
+    "react": "17.0.1",
+    "react-native": "0.64.4",
+    "react-native-builder-bob": "^0.21.2",
+    "release-it": "^15.0.0",
+    "typescript": "^5.0.2"
+  },
+  "peerDependencies": {
+    "@100mslive/react-native-hms": "1.7.1",
+    "@shopify/flash-list": "^1.4.3",
+    "react": "*",
+    "react-native": "*",
+    "react-native-avoid-softinput": "^2.4.8",
+    "react-native-gesture-handler": "^2.12.1",
+    "react-native-linear-gradient": "^2.7.3",
+    "react-native-modal": "^12.1.0",
+    "react-native-permissions": "3.4.0",
+    "react-native-reanimated": "^2.17.0",
+    "react-native-safe-area-context": "^3.3.0",
+    "react-native-simple-toast": "^1.1.3",
+    "react-native-vector-icons": "^9.1.0"
+  },
+  "resolutions": {
+    "@types/react": "17.0.21"
+  },
+  "engines": {
+    "node": ">= 16.0.0"
+  },
+  "packageManager": "^yarn@1.22.15",
+  "jest": {
+    "preset": "react-native",
+    "modulePathIgnorePatterns": [
+      "<rootDir>/example/node_modules",
+      "<rootDir>/lib/"
+    ]
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "release-it": {
+    "git": {
+      "commitMessage": "chore: release ${version}",
+      "tagName": "v${version}"
+    },
+    "npm": {
+      "publish": true
+    },
+    "github": {
+      "release": true
+    },
+    "plugins": {
+      "@release-it/conventional-changelog": {
+        "preset": "angular"
+      }
+    }
+  },
+  "eslintConfig": {
+    "root": true,
+    "extends": [
+      "@react-native-community",
+      "prettier"
+    ],
+    "rules": {
+      "prettier/prettier": [
+        "error",
+        {
+          "quoteProps": "consistent",
+          "singleQuote": true,
+          "tabWidth": 2,
+          "trailingComma": "es5",
+          "useTabs": false
+        }
+      ]
+    }
+  },
+  "eslintIgnore": [
+    "node_modules/",
+    "lib/"
+  ],
+  "prettier": {
+    "quoteProps": "consistent",
+    "singleQuote": true,
+    "tabWidth": 2,
+    "trailingComma": "es5",
+    "useTabs": false
+  },
+  "react-native-builder-bob": {
+    "source": "src",
+    "output": "lib",
+    "targets": [
+      "commonjs",
+      "module",
+      [
+        "typescript",
+        {
+          "project": "tsconfig.build.json",
+          "tsc": "node_modules/typescript/bin/tsc"
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig",
+  "compilerOptions": {
+    "paths": {
+      "@100mslive/react-native-room-kit": ["./src/index"]
+    }
+  },
+  "exclude": ["example"]
+}
