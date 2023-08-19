@@ -8,7 +8,6 @@ import Animated, {
 } from 'react-native-reanimated';
 import type { SharedValue } from 'react-native-reanimated';
 
-import { styles } from './styles';
 import { DefaultModal } from './DefaultModal';
 import { ModalTypes, PipModes } from '../utils/types';
 import type { PeerTrackNode } from '../utils/types';
