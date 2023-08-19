@@ -80,7 +80,7 @@
     "typescript": "^5.0.2"
   },
   "peerDependencies": {
-    "@100mslive/react-native-hms": "github:100mslive/100ms-react-native#release1.8.0",
+    "@100mslive/react-native-hms": "1.7.1",
     "@shopify/flash-list": "^1.4.3",
     "react": "*",
     "react-native": "*",
