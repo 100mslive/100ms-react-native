@@ -3,6 +3,7 @@ import { HMSAudioTrack } from './HMSAudioTrack';
 import { getLogger } from './HMSLogger';
 import type { HMSAudioTrackSettings } from './HMSAudioTrackSettings';
 import type { HMSTrackType } from './HMSTrackType';
+import type { HMSTrackSource } from './HMSTrackSource'
 
 const {
   /**
@@ -55,7 +56,7 @@ export class HMSLocalAudioTrack extends HMSAudioTrack {
   constructor(params: {
     id: string;
     trackId: string;
-    source?: number | string;
+    source?: HMSTrackSource;
     trackDescription?: string;
     isMute?: boolean;
     settings?: HMSAudioTrackSettings;

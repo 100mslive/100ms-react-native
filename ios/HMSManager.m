@@ -79,4 +79,8 @@ RCT_EXTERN_METHOD(setSessionMetadataForKey: (NSDictionary) data :(RCTPromiseReso
 RCT_EXTERN_METHOD(addKeyChangeListener: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(removeKeyChangeListener: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 
+#pragma mark - Prebuilt
+
+RCT_EXTERN_METHOD(getRoomLayout: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+
 @end

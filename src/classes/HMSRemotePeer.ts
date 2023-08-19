@@ -1,6 +1,7 @@
 import { HMSPeer } from './HMSPeer';
 import { HMSRemoteAudioTrack } from './HMSRemoteAudioTrack';
 import { HMSRemoteVideoTrack } from './HMSRemoteVideoTrack';
+import type { HMSTrackSource } from './HMSTrackSource'
 
 export class HMSRemotePeer extends HMSPeer {
   private remoteAudio?: HMSRemoteAudioTrack;
@@ -18,7 +19,7 @@ export class HMSRemotePeer extends HMSPeer {
     peerID: string;
     remoteAudioTrackData?: {
       trackId: string;
-      source?: number | string;
+      source?: HMSTrackSource;
       isMute?: boolean;
       trackDescription?: string;
       playbackAllowed?: boolean;
@@ -26,7 +27,7 @@ export class HMSRemotePeer extends HMSPeer {
     };
     remoteVideoTrackData?: {
       trackId: string;
-      source?: number | string;
+      source?: HMSTrackSource;
       trackDescription?: string;
       isMute?: boolean;
       playbackAllowed?: boolean;
