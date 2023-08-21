@@ -46,13 +46,12 @@ export const PressableIcon: React.FC<PressableIconProps> = ({
         styles.pressable,
         hmsRoomStyles.pressable,
         {
-          borderRadius: rounded ? 20 : undefined,
-          ...(border
+          borderRadius: rounded ? 20 : 8,
+          ...(border && !isHLSViewer
             ? { ...styles.withBorder, ...hmsRoomStyles.border }
             : undefined),
           ...(active ? hmsRoomStyles.active : undefined),
         },
-        { borderWidth: isHLSViewer ? 0 : 1 },
         style,
       ]}
       {...restProps}
@@ -64,11 +63,11 @@ export const PressableIcon: React.FC<PressableIconProps> = ({
 
 const styles = StyleSheet.create({
   pressable: {
+    borderRadius: 8,
     padding: 8,
     alignSelf: 'flex-start',
   },
   withBorder: {
-    borderRadius: 8,
     borderWidth: 1,
   },
 });
