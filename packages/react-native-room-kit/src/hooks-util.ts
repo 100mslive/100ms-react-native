@@ -1492,6 +1492,7 @@ export const useLeaveMethods = () => {
   return { destroy, leave, endRoom, goToPreview };
 };
 
+// Returns layout config as it is returned from server
 export const useHMSLayoutConfig = () => {
   return useSelector((state: RootState) => state.hmsStates.layoutConfig);
 };
@@ -1538,6 +1539,9 @@ export const useHMSRoomTypography = (): Typography => {
         ...typography,
       };
     }
+
+    // formatting font family name
+    typography.font_family = typography.font_family.replace(/ /g, '');
 
     return typography;
   }, shallowEqual);
