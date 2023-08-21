@@ -152,36 +152,10 @@ const useHMSRoomUpdate = (hmsInstance: HMSSDK) => {
           dispatch(setStartingOrStoppingRecording(false));
         }
 
-        let streaming = room?.browserRecordingState?.running;
-        const startAtDate = room?.browserRecordingState?.startedAt;
-
-        let startTime: null | string = null;
-
-        if (startAtDate) {
-          let hours = startAtDate.getHours().toString();
-          let minutes = startAtDate.getMinutes()?.toString();
-          startTime = hours + ':' + minutes;
-        }
-
-        Toast.showWithGravity(
-          `Browser Recording ${
-            streaming
-              ? `Started ${startTime ? 'At ' + startTime : ''}`
-              : 'Stopped'
-          }`,
-          Toast.LONG,
-          Toast.TOP
-        );
       } else if (type === HMSRoomUpdate.HLS_STREAMING_STATE_UPDATED) {
+
         dispatch(changeStartingHLSStream(false));
 
-        let streaming = room?.hlsStreamingState?.running;
-
-        Toast.showWithGravity(
-          `HLS Streaming ${streaming ? 'Started' : 'Stopped'}`,
-          Toast.LONG,
-          Toast.TOP
-        );
       } else if (type === HMSRoomUpdate.RTMP_STREAMING_STATE_UPDATED) {
         let streaming = room?.rtmpHMSRtmpStreamingState?.running;
         const startAtDate = room?.rtmpHMSRtmpStreamingState?.startedAt;
