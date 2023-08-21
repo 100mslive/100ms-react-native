@@ -1252,18 +1252,14 @@ export const useShowChat = (): [
   const showChatView = useSelector(
     (state: RootState) => state.chatWindow.showChatView
   );
-  const hlsAspectRatio = useSelector(
-    (state: RootState) => state.app.hlsAspectRatio
-  );
   const chatVisible: 'none' | 'inset' | 'modal' = useMemo(() => {
     if (!showChatView) return 'none';
 
-    if (isHLSViewer && ['16:9', '4:3'].includes(hlsAspectRatio.id))
-      return 'inset';
+    if (isHLSViewer && false) return 'inset'; // TODO: remove static `false` when HLS chat view design is complete
 
     // TODO: handle case when type modal is selected, but chat modal is not shown because aspect ration modal was just closed
     return 'modal';
-  }, [showChatView, hlsAspectRatio.id, isHLSViewer]);
+  }, [showChatView, isHLSViewer]);
 
   const isChatVisibleInsetType = chatVisible === 'inset';
 
