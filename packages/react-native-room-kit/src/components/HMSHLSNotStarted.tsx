@@ -1,17 +1,10 @@
 import * as React from 'react';
-import { useSelector } from 'react-redux';
 import { View, Text, StyleSheet } from 'react-native';
 
-import type { RootState } from '../redux';
-import { useHMSRoomStyleSheet, usePortraitChatViewVisible } from '../hooks-util';
+import { useHMSRoomStyleSheet } from '../hooks-util';
 import { RadioIcon } from '../Icons';
 
 export const HMSHLSNotStarted = () => {
-  const portraitChatViewVisible = usePortraitChatViewVisible();
-  const hlsAspectRatio = useSelector(
-    (state: RootState) => state.app.hlsAspectRatio
-  );
-
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     title: {
       color: theme.palette.on_surface_high,
@@ -24,13 +17,7 @@ export const HMSHLSNotStarted = () => {
   }));
 
   return (
-    <View
-      style={[
-        styles.container,
-        portraitChatViewVisible ? styles.taleLessSpaceAsYouCan : null,
-        portraitChatViewVisible ? { aspectRatio: hlsAspectRatio.value } : null,
-      ]}
-    >
+    <View style={styles.container}>
       <RadioIcon size='extra-large' containerStyle={styles.icon} />
       <Text style={[styles.title, hmsRoomStyles.title]}>Stream yet to start</Text>
       <Text style={[styles.description, hmsRoomStyles.description]}>

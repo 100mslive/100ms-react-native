@@ -15,8 +15,10 @@ import type { RootState } from '../redux';
 import { Footer } from './Footer';
 import { DisplayView } from './DisplayView';
 import { Header } from './Header';
-import { useIsHLSViewer, useLandscapeChatViewVisible } from '../hooks-util';
+import { useIsHLSViewer } from '../hooks-util';
 import { HMSStatusBar } from './StatusBar';
+import { AnimatedFooter } from './AnimatedFooter';
+import { HLSFooter } from './HLSFooter';
 
 interface MeetingScreenContentProps {
   peerTrackNodes: Array<PeerTrackNode>;
@@ -71,8 +73,6 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
   //   }
   // }, [isHLSViewer]);
 
-  const landscapeChatViewVisible = useLandscapeChatViewVisible();
-
   /**
    * TODO: disbaled Expended View animation in Webrtc flow
    *
@@ -82,10 +82,7 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
   return (
     <Pressable
       onPress={toggleControls}
-      style={[
-        styles.container,
-        landscapeChatViewVisible ? styles.takeLessSpaceAsItCan : null,
-      ]}
+      style={styles.container}
       disabled={isHLSViewer || true}
     >
       <HMSStatusBar hidden={controlsHidden} barStyle={'light-content'} />
@@ -94,7 +91,16 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
 
       <DisplayView offset={offset} peerTrackNodes={peerTrackNodes} />
 
-      {isPipModeActive ? null : <Footer offset={offset} />}
+      {isPipModeActive
+        ? null
+        : isHLSViewer
+          ? <HLSFooter offset={offset} />
+          : (
+            <AnimatedFooter offset={offset}>
+              <Footer  />
+            </AnimatedFooter>
+          )
+      }
     </Pressable>
   );
 };
@@ -102,6 +108,7 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    position: 'relative',
   },
   takeLessSpaceAsItCan: {
     flex: 0,

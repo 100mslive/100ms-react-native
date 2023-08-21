@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -13,10 +13,9 @@ import {
   useHMSPIPRoomLeave,
   useHMSRemovedFromRoomUpdate,
   useHMSRoomStyle,
-  useLandscapeChatViewVisible,
+  useIsHLSViewer,
   usePIPListener,
 } from '../hooks-util';
-import { ChatView } from './ChatWindow';
 import { MeetingScreenContent } from './MeetingScreenContent';
 import { HMSHLSStreamLoading } from './HMSHLSStreamLoading';
 import type { RootState } from '../redux';
@@ -29,6 +28,8 @@ export const Meeting: React.FC<MeetingProps> = ({ peerTrackNodes }) => {
   const startingHLSStream = useSelector(
     (state: RootState) => state.app.startingHLSStream
   );
+
+  const isHLSViewer = useIsHLSViewer();
 
   // TODO: Fetch latest Room and localPeer on mount of this component?
 
@@ -50,8 +51,6 @@ export const Meeting: React.FC<MeetingProps> = ({ peerTrackNodes }) => {
   // Subscribe to Peers Network quality updates
   useHMSNetworkQualityUpdate();
 
-  const landscapeChatViewVisible = useLandscapeChatViewVisible();
-
   // Clearing any pending modal opening tasks
   React.useEffect(() => {
     return () => {
@@ -67,6 +66,8 @@ export const Meeting: React.FC<MeetingProps> = ({ peerTrackNodes }) => {
     return <HMSHLSStreamLoading />;
   }
 
+  const Container = isHLSViewer ? View : SafeAreaView;
+
   /**
    * TODO: disbaled Expended View animation in Webrtc flow
    *
@@ -74,11 +75,11 @@ export const Meeting: React.FC<MeetingProps> = ({ peerTrackNodes }) => {
    * Solution: Try using Tab Gesture detector instead on Pressable component
    */
   return (
-    <SafeAreaView style={[styles.container, containerStyles]} edges={['top', 'left', 'right']}>
+    <Container style={[styles.container, containerStyles]} edges={['left', 'right']}>
       <MeetingScreenContent peerTrackNodes={peerTrackNodes} />
 
-      {landscapeChatViewVisible ? <ChatView /> : null}
-    </SafeAreaView>
+      {/* {landscapeChatViewVisible ? <ChatView /> : null} */}
+    </Container>
   );
 };
 

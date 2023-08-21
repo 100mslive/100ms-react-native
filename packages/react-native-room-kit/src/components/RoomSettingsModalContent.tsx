@@ -177,7 +177,7 @@ export const RoomSettingsModalContent: React.FC<
               label: isBRBOn ? "I'm Back" : 'Be Right Back',
               pressHandler: toggleBRB,
               isActive: isBRBOn, // Show active if `isBRBOn` is set on metadata
-              hide: false, // Hide if can't publish screen
+              hide: isHLSViewer, // Hide if can't publish screen
             },
             {
               id: 'raise-hand',

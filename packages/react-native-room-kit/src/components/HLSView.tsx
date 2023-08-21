@@ -1,18 +1,15 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef } from 'react';
 import type { ComponentRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import { HMSHLSPlayer } from '@100mslive/react-native-hms';
-import { AvoidSoftInput } from 'react-native-avoid-softinput';
 
 import type { RootState } from '../redux';
 import { changeShowHLSStats } from '../redux/actions';
 import { HLSPlayerStatsView } from './HLSPlayerStatsView';
 import { HLSPlayerEmoticons } from './HLSPlayerEmoticons';
 import { CustomControls } from './CustomHLSPlayerControls';
-import { ChatView } from './ChatWindow';
 import { COLORS } from '../utils/theme';
-import { usePortraitChatViewVisible } from '../hooks-util';
 import { HMSHLSNotStarted } from './HMSHLSNotStarted';
 
 export const HLSView: React.FC = () => {
@@ -28,10 +25,6 @@ export const HLSView: React.FC = () => {
   const enableHLSPlayerControls = useSelector(
     (state: RootState) => state.app.joinConfig.enableHLSPlayerControls
   );
-  const hlsAspectRatio = useSelector(
-    (state: RootState) => state.app.hlsAspectRatio
-  );
-  const portraitChatViewVisible = usePortraitChatViewVisible();
 
   const handleClosePress = () => {
     dispatch(changeShowHLSStats(false));
@@ -87,12 +80,7 @@ export const HLSView: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    AvoidSoftInput.setAdjustNothing();
-    AvoidSoftInput.setEnabled(true);
-
-    return () => AvoidSoftInput.setEnabled(false);
-  }, []);
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
   return (
     <View style={styles.hlsView}>
@@ -103,26 +91,25 @@ export const HLSView: React.FC = () => {
               key={index}
               style={[
                 styles.hlsPlayerContainer,
-                portraitChatViewVisible ? styles.taleLessSpaceAsYouCan : null,
               ]}
             >
               {/* <View>
                 <Animated.View style={{flex: canShowChatView ? 0 : 1}} collapsable={false} layout={}> */}
               <HMSHLSPlayer
                 ref={hmsHlsPlayerRef}
-                containerStyle={
-                  portraitChatViewVisible ? styles.taleLessSpaceAsYouCan : null
-                }
-                aspectRatio={hlsAspectRatio.value}
+                aspectRatio={windowWidth / windowHeight}
                 enableStats={showHLSStats}
                 enableControls={enableHLSPlayerControls}
               />
               {/* </Animated.View>
               </View> */}
+
               <HLSPlayerEmoticons />
+
               {showHLSStats ? (
                 <HLSPlayerStatsView onClosePress={handleClosePress} />
               ) : null}
+
               {showCustomHLSPlayerControls ? (
                 <CustomControls handleControlPress={hlsPlayerActions} />
               ) : null}
@@ -136,8 +123,6 @@ export const HLSView: React.FC = () => {
       ) : (
         <HMSHLSNotStarted />
       )}
-
-      {portraitChatViewVisible ? <ChatView /> : null}
     </View>
   );
 };

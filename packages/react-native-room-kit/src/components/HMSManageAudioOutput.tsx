@@ -23,12 +23,13 @@ import {
   WaveIcon,
 } from '../Icons';
 import { PressableIcon } from './PressableIcon';
-import { useHMSInstance, useHMSRoomStyleSheet } from '../hooks-util';
+import { useHMSInstance, useHMSRoomStyleSheet, useIsHLSViewer } from '../hooks-util';
 import type { RootState } from '../redux';
 import { BottomSheet } from './BottomSheet';
 
 export const HMSManageAudioOutput: React.FC = () => {
   const hmsInstance = useHMSInstance();
+  const isHLSViewer = useIsHLSViewer();
   const [settingsModalVisible, setSettingsModalVisible] = React.useState(false);
 
   const [currentAudioOutputDevice, setCurrentAudioOutputDevice] =
@@ -135,7 +136,7 @@ export const HMSManageAudioOutput: React.FC = () => {
 
   return (
     <View>
-      <PressableIcon onPress={handleSpeakerChange}>
+      <PressableIcon onPress={handleSpeakerChange} style={isHLSViewer ? styles.button : null}>
         {Platform.OS === 'ios' ? (
           <SpeakerIcon muted={false} />
         ) : (
@@ -206,6 +207,10 @@ export const HMSManageAudioOutput: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  button: {
+    backgroundColor: 'transparent',
+    borderWidth: 1
+  },
   contentContainer: {
     marginHorizontal: 24,
   },
