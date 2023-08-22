@@ -198,7 +198,8 @@ export const HMSRoomSetup = () => {
 
       batch(() => {
         if (selectIsHLSViewer(localPeer)) {
-          dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: true });
+          // TODO: enable below statement when HLS chat view design is complete
+          // dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: true });
         } else {
           if (reduxState.app.localPeerTrackNode) {
             dispatch(

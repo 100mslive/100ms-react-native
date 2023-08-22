@@ -57,7 +57,7 @@ const INITIAL_STATE: IntialStateType = {
     autoSimulcast: true,
     showStats: false,
     showHLSStats: false,
-    enableHLSPlayerControls: true,
+    enableHLSPlayerControls: false,
     showCustomHLSPlayerControls: false,
   },
   modalType: ModalTypes.DEFAULT,

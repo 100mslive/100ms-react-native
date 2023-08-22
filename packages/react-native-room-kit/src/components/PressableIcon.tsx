@@ -2,7 +2,8 @@ import * as React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import type { TouchableOpacityProps } from 'react-native';
 
-import { useHMSRoomStyleSheet } from '../hooks-util';
+import { useHMSRoomStyleSheet, useIsHLSViewer } from '../hooks-util';
+import { hexToRgbA } from '../utils/theme';
 
 interface PressableIconProps extends Omit<TouchableOpacityProps, 'children'> {
   children: Pick<TouchableOpacityProps, 'children'>;
@@ -19,23 +20,34 @@ export const PressableIcon: React.FC<PressableIconProps> = ({
   border = true,
   ...restProps
 }) => {
-  const hmsRoomStyles = useHMSRoomStyleSheet((theme) => ({
-    border: {
-      borderColor: theme.palette.border_bright,
-    },
-    active: {
-      backgroundColor: theme.palette.surface_brighter,
-      borderColor: theme.palette.surface_brighter,
-    },
-  }));
+  const isHLSViewer = useIsHLSViewer();
+
+  const hmsRoomStyles = useHMSRoomStyleSheet(
+    (theme) => ({
+      pressable: {
+        backgroundColor: isHLSViewer
+          ? hexToRgbA(theme.palette.background_dim, 0.64)
+          : undefined,
+      },
+      border: {
+        borderColor: theme.palette.border_bright,
+      },
+      active: {
+        backgroundColor: theme.palette.surface_brighter,
+        borderColor: theme.palette.surface_brighter,
+      },
+    }),
+    [isHLSViewer]
+  );
 
   return (
     <TouchableOpacity
       style={[
         styles.pressable,
+        hmsRoomStyles.pressable,
         {
-          borderRadius: rounded ? 20 : undefined,
-          ...(border
+          borderRadius: rounded ? 20 : 8,
+          ...(border && !isHLSViewer
             ? { ...styles.withBorder, ...hmsRoomStyles.border }
             : undefined),
           ...(active ? hmsRoomStyles.active : undefined),
@@ -51,11 +63,11 @@ export const PressableIcon: React.FC<PressableIconProps> = ({
 
 const styles = StyleSheet.create({
   pressable: {
+    borderRadius: 8,
     padding: 8,
     alignSelf: 'flex-start',
   },
   withBorder: {
-    borderRadius: 8,
     borderWidth: 1,
   },
 });

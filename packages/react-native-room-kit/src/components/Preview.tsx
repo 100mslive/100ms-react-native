@@ -27,7 +27,7 @@ import { HMSPreviewNetworkQuality } from './HMSPreviewNetworkQuality';
 import { useCanPublishVideo } from '../hooks-sdk';
 import { HMSPreviewHLSLiveIndicator } from './HMSPreviewHLSLiveIndicator';
 import { CompanyLogo } from './CompanyLogo';
-import { useHMSRoomStyleSheet } from '../hooks-util';
+import { useHMSRoomStyleSheet, useIsHLSViewer } from '../hooks-util';
 
 const backButtonEdges = ['top'] as const;
 const headerEdges = ['top', 'left', 'right'] as const;
@@ -57,6 +57,8 @@ export const Preview = ({
       transform: [{ translateY: -animatedKeyboard.height.value }],
     };
   });
+
+  const isHLSViewer = useIsHLSViewer();
 
   const hmsRoomStyles = useHMSRoomStyleSheet(
     (theme) => ({
@@ -115,19 +117,21 @@ export const Preview = ({
           <Animated.View
             style={[styles.footer, hmsRoomStyles.footer, keyboardAvoidStyle]}
           >
-            <View style={styles.controlsContainer}>
-              <View style={styles.micAndCameraControls}>
-                <HMSManageLocalAudio />
+            {isHLSViewer ? null : (
+              <View style={styles.controlsContainer}>
+                <View style={styles.micAndCameraControls}>
+                  <HMSManageLocalAudio />
 
-                <View style={styles.manageLocalVideoWrapper}>
-                  <HMSManageLocalVideo />
+                  <View style={styles.manageLocalVideoWrapper}>
+                    <HMSManageLocalVideo />
+                  </View>
+
+                  <HMSManageCameraRotation />
                 </View>
 
-                <HMSManageCameraRotation />
+                <HMSManageAudioOutput />
               </View>
-
-              <HMSManageAudioOutput />
-            </View>
+            )}
 
             <View style={styles.joinButtonRow}>
               <HMSPreviewEditName />

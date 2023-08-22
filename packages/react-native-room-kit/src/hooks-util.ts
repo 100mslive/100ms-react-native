@@ -129,20 +129,20 @@ const useHMSRoomUpdate = (hmsInstance: HMSSDK) => {
 
       dispatch(setHMSRoomState(room));
 
-      /**
-       * Handle case when User is joining as HLSViewer,
-       * before ON_JOIN, if ON_ROOM comes then we can show Meeting screen to user, instead of Loader or Preview
-       */
-      if (room.localPeer.role?.name?.includes('hls-') ?? false) {
-        const meetingState = reduxStore.getState().app.meetingState;
+      // /**
+      //  * Handle case when User is joining as HLSViewer,
+      //  * before ON_JOIN, if ON_ROOM comes then we can show Meeting screen to user, instead of Loader or Preview
+      //  */
+      // if (room.localPeer.role?.name?.includes('hls-') ?? false) {
+      //   const meetingState = reduxStore.getState().app.meetingState;
 
-        batch(() => {
-          dispatch(setHMSLocalPeerState(room.localPeer));
-          if (meetingState !== MeetingState.IN_MEETING) {
-            dispatch(changeMeetingState(MeetingState.IN_MEETING));
-          }
-        });
-      }
+      //   batch(() => {
+      //     dispatch(setHMSLocalPeerState(room.localPeer));
+      //     if (meetingState !== MeetingState.IN_MEETING) {
+      //       dispatch(changeMeetingState(MeetingState.IN_MEETING));
+      //     }
+      //   });
+      // }
 
       if (type === HMSRoomUpdate.BROWSER_RECORDING_STATE_UPDATED) {
         const startingOrStoppingRecording =
@@ -152,36 +152,10 @@ const useHMSRoomUpdate = (hmsInstance: HMSSDK) => {
           dispatch(setStartingOrStoppingRecording(false));
         }
 
-        let streaming = room?.browserRecordingState?.running;
-        const startAtDate = room?.browserRecordingState?.startedAt;
-
-        let startTime: null | string = null;
-
-        if (startAtDate) {
-          let hours = startAtDate.getHours().toString();
-          let minutes = startAtDate.getMinutes()?.toString();
-          startTime = hours + ':' + minutes;
-        }
-
-        Toast.showWithGravity(
-          `Browser Recording ${
-            streaming
-              ? `Started ${startTime ? 'At ' + startTime : ''}`
-              : 'Stopped'
-          }`,
-          Toast.LONG,
-          Toast.TOP
-        );
       } else if (type === HMSRoomUpdate.HLS_STREAMING_STATE_UPDATED) {
+
         dispatch(changeStartingHLSStream(false));
 
-        let streaming = room?.hlsStreamingState?.running;
-
-        Toast.showWithGravity(
-          `HLS Streaming ${streaming ? 'Started' : 'Stopped'}`,
-          Toast.LONG,
-          Toast.TOP
-        );
       } else if (type === HMSRoomUpdate.RTMP_STREAMING_STATE_UPDATED) {
         let streaming = room?.rtmpHMSRtmpStreamingState?.running;
         const startAtDate = room?.rtmpHMSRtmpStreamingState?.startedAt;
@@ -1278,18 +1252,14 @@ export const useShowChat = (): [
   const showChatView = useSelector(
     (state: RootState) => state.chatWindow.showChatView
   );
-  const hlsAspectRatio = useSelector(
-    (state: RootState) => state.app.hlsAspectRatio
-  );
   const chatVisible: 'none' | 'inset' | 'modal' = useMemo(() => {
     if (!showChatView) return 'none';
 
-    if (isHLSViewer && ['16:9', '4:3'].includes(hlsAspectRatio.id))
-      return 'inset';
+    if (isHLSViewer && false) return 'inset'; // TODO: remove static `false` when HLS chat view design is complete
 
     // TODO: handle case when type modal is selected, but chat modal is not shown because aspect ration modal was just closed
     return 'modal';
-  }, [showChatView, hlsAspectRatio.id, isHLSViewer]);
+  }, [showChatView, isHLSViewer]);
 
   const isChatVisibleInsetType = chatVisible === 'inset';
 
@@ -1492,6 +1462,7 @@ export const useLeaveMethods = () => {
   return { destroy, leave, endRoom, goToPreview };
 };
 
+// Returns layout config as it is returned from server
 export const useHMSLayoutConfig = () => {
   return useSelector((state: RootState) => state.hmsStates.layoutConfig);
 };
@@ -1538,6 +1509,9 @@ export const useHMSRoomTypography = (): Typography => {
         ...typography,
       };
     }
+
+    // formatting font family name
+    typography.font_family = typography.font_family.replace(/ /g, '');
 
     return typography;
   }, shallowEqual);

@@ -5,12 +5,14 @@ import Animated, {
   useAnimatedStyle,
 } from 'react-native-reanimated';
 import type { SharedValue } from 'react-native-reanimated';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { HMSManageCameraRotation } from './HMSManageCameraRotation';
 import { useHMSRoomStyle, useIsHLSViewer } from '../hooks-util';
 import { HMSManageAudioOutput } from './HMSManageAudioOutput';
 import { HMSRecordingIndicator } from './HMSRecordingIndicator';
 import { CompanyLogo } from './CompanyLogo';
+import { HMSLiveIndicator } from './HMSLiveIndicator';
 
 interface HeaderProps {
   offset: SharedValue<number>;
@@ -39,29 +41,45 @@ export const _Header: React.FC<HeaderProps> = ({ offset }) => {
   }));
 
   return (
-    <Animated.View style={animatedStyles} animatedProps={animatedProps}>
-      <View style={[styles.container, containerStyles]}>
-        <View style={styles.logoContainer}>
-          <CompanyLogo style={styles.logo} />
+    <Animated.View
+      style={[isHLSViewer ? styles.hlsContainer : null, animatedStyles]}
+      animatedProps={animatedProps}
+    >
+      <SafeAreaView
+        style={isHLSViewer ? null : containerStyles}
+        edges={['top']}
+      >
+        <View style={[styles.container, isHLSViewer ? null : containerStyles]}>
+          <View style={styles.logoContainer}>
+            <CompanyLogo style={styles.logo} />
 
-          <HMSRecordingIndicator />
-        </View>
+            <HMSRecordingIndicator />
 
-        <View style={styles.controls}>
+            <HMSLiveIndicator />
+          </View>
+
           {isHLSViewer ? null : (
-            <View style={styles.cameraRotationWrapper}>
-              <HMSManageCameraRotation />
+            <View style={styles.controls}>
+              <View style={styles.cameraRotationWrapper}>
+                <HMSManageCameraRotation />
+              </View>
+
+              <HMSManageAudioOutput />
             </View>
           )}
-
-          <HMSManageAudioOutput />
         </View>
-      </View>
+      </SafeAreaView>
     </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
+  hlsContainer: {
+    position: 'absolute',
+    top: 0,
+    width: '100%',
+    zIndex: 1,
+  },
   container: {
     paddingTop: 8,
     paddingBottom: 16,
