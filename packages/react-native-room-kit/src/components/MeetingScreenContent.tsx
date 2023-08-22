@@ -1,6 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { StyleSheet, Pressable } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import {
   Easing,
   cancelAnimation,
@@ -73,6 +74,13 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
   //   }
   // }, [isHLSViewer]);
 
+  const tapGesture = Gesture.Tap()
+    .cancelsTouchesInView(false)
+    .enabled(isHLSViewer)
+    .onStart(() => {
+      toggleControls();
+    });
+
   /**
    * TODO: disbaled Expended View animation in Webrtc flow
    *
@@ -80,28 +88,23 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
    * Solution: Try using Tab Gesture detector instead on Pressable component
    */
   return (
-    <Pressable
-      onPress={toggleControls}
-      style={styles.container}
-      disabled={isHLSViewer || true}
-    >
-      <HMSStatusBar hidden={controlsHidden} barStyle={'light-content'} />
+    <GestureDetector gesture={tapGesture}>
+      <View style={styles.container} collapsable={false} >
+        <HMSStatusBar hidden={controlsHidden} barStyle={'light-content'} />
 
-      {isPipModeActive ? null : <Header offset={offset} />}
+        {isPipModeActive ? null : <Header offset={offset} />}
 
-      <DisplayView offset={offset} peerTrackNodes={peerTrackNodes} />
+        <DisplayView offset={offset} peerTrackNodes={peerTrackNodes} />
 
-      {isPipModeActive
-        ? null
-        : isHLSViewer
-          ? <HLSFooter offset={offset} />
-          : (
-            <AnimatedFooter offset={offset}>
-              <Footer  />
-            </AnimatedFooter>
-          )
-      }
-    </Pressable>
+        {isPipModeActive ? null : isHLSViewer ? (
+          <HLSFooter offset={offset} />
+        ) : (
+          <AnimatedFooter offset={offset}>
+            <Footer />
+          </AnimatedFooter>
+        )}
+      </View>
+    </GestureDetector>
   );
 };
 
@@ -109,8 +112,5 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     position: 'relative',
-  },
-  takeLessSpaceAsItCan: {
-    flex: 0,
   },
 });

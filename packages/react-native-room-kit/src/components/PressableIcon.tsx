@@ -1,11 +1,12 @@
 import * as React from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet } from 'react-native';
 import type { TouchableOpacityProps } from 'react-native';
+import { TouchableOpacity, GestureDetector, Gesture } from 'react-native-gesture-handler';
 
 import { useHMSRoomStyleSheet, useIsHLSViewer } from '../hooks-util';
 import { hexToRgbA } from '../utils/theme';
 
-interface PressableIconProps extends Omit<TouchableOpacityProps, 'children'> {
+interface PressableIconProps extends Omit<TouchableOpacity['props'], 'children'> {
   children: Pick<TouchableOpacityProps, 'children'>;
   active?: boolean;
   rounded?: boolean;
@@ -41,23 +42,25 @@ export const PressableIcon: React.FC<PressableIconProps> = ({
   );
 
   return (
-    <TouchableOpacity
-      style={[
-        styles.pressable,
-        hmsRoomStyles.pressable,
-        {
-          borderRadius: rounded ? 20 : 8,
-          ...(border && !isHLSViewer
-            ? { ...styles.withBorder, ...hmsRoomStyles.border }
-            : undefined),
-          ...(active ? hmsRoomStyles.active : undefined),
-        },
-        style,
-      ]}
-      {...restProps}
-    >
-      {children}
-    </TouchableOpacity>
+    <GestureDetector gesture={Gesture.Tap().cancelsTouchesInView(false)}>
+      <TouchableOpacity
+        style={[
+          styles.pressable,
+          hmsRoomStyles.pressable,
+          {
+            borderRadius: rounded ? 20 : 8,
+            ...(border && !isHLSViewer
+              ? { ...styles.withBorder, ...hmsRoomStyles.border }
+              : undefined),
+            ...(active ? hmsRoomStyles.active : undefined),
+          },
+          style,
+        ]}
+        {...restProps}
+      >
+        {children}
+      </TouchableOpacity>
+    </GestureDetector>
   );
 };
 
