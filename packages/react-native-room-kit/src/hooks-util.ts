@@ -156,8 +156,11 @@ const useHMSRoomUpdate = (hmsInstance: HMSSDK) => {
         if (startingOrStoppingRecording) {
           dispatch(setStartingOrStoppingRecording(false));
         }
+
       } else if (type === HMSRoomUpdate.HLS_STREAMING_STATE_UPDATED) {
+
         dispatch(changeStartingHLSStream(false));
+
       } else if (type === HMSRoomUpdate.RTMP_STREAMING_STATE_UPDATED) {
         let streaming = room?.rtmpHMSRtmpStreamingState?.running;
         const startAtDate = room?.rtmpHMSRtmpStreamingState?.startedAt;
