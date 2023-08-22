@@ -1,4 +1,5 @@
 import * as React from 'react';
+import type { StyleProp, ViewStyle } from 'react-native';
 import Animated, {
   interpolate,
   useAnimatedProps,
@@ -8,9 +9,10 @@ import type { SharedValue } from 'react-native-reanimated';
 
 interface AnimatedHLSFooterProps {
   offset: SharedValue<number>;
+  style?: StyleProp<Animated.AnimateStyle<StyleProp<ViewStyle>>>;
 }
 
-export const AnimatedHLSFooter: React.FC<AnimatedHLSFooterProps> = ({ offset, children }) => {
+export const AnimatedHLSFooter: React.FC<AnimatedHLSFooterProps> = ({ offset, children, style }) => {
   const animatedStyles = useAnimatedStyle(() => {
     return {
       opacity: interpolate(offset.value, [0, 0.7, 1], [0, 0.5, 1]),
@@ -27,7 +29,7 @@ export const AnimatedHLSFooter: React.FC<AnimatedHLSFooterProps> = ({ offset, ch
   }, []);
 
   return (
-    <Animated.View style={[animatedStyles, { position: 'absolute', width: '100%', bottom: 0 }]} animatedProps={animatedProps}>
+    <Animated.View style={[animatedStyles, style]} animatedProps={animatedProps}>
       {children}
     </Animated.View>
   );

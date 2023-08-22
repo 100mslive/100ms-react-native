@@ -1,13 +1,20 @@
 import { HmsStateActionTypes } from '../actionTypes';
 
-const INITIAL_STATE = {
+type InitialType = {
+  showChatView: boolean;
+  typedMessage: string;
+  sendTo: any;
+  sendToType: 'everyone' | 'role' | 'direct';
+}
+
+const INITIAL_STATE: InitialType = {
   showChatView: false,
   typedMessage: '',
   sendTo: { name: 'everyone' },
   sendToType: 'everyone', // 'everyone' | 'role' | 'direct'
 };
 
-const chatWindowReducer = (state = INITIAL_STATE, action: any): any => {
+const chatWindowReducer = (state = INITIAL_STATE, action: any): InitialType => {
   switch (action.type) {
     case 'SET_SENDTO':
       return {

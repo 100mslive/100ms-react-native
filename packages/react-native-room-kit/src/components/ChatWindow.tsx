@@ -8,15 +8,7 @@ import {
   TextInput,
 } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
-import {
-  HMSMessage,
-  HMSMessageRecipient,
-  HMSMessageRecipientType,
-  HMSMessageType,
-  HMSPeer,
-  HMSRemotePeer,
-  HMSRole,
-} from '@100mslive/react-native-hms';
+import { HMSRemotePeer, HMSRole } from '@100mslive/react-native-hms';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -25,10 +17,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Menu, MenuDivider, MenuItem } from './MenuModal';
 import { COLORS } from '../utils/theme';
 import type { RootState } from '../redux';
-import { addMessage } from '../redux/actions';
 import { PressableIcon } from './PressableIcon';
 import { ChatIcon, CloseIcon, ParticipantsIcon, SendIcon } from '../Icons';
-import { useHMSInstance, useShowChat } from '../hooks-util';
+import { useHMSInstance, useSendMessage, useShowChat } from '../hooks-util';
 import { ChatList } from './Chat';
 import { SearchableParticipantsView } from './Participants';
 
@@ -182,92 +173,23 @@ export const ChatTextInput: React.FC<ChatTextInputProps> = ({
   containerStyle,
   clearButton = false,
 }) => {
-  const hmsInstance = useHMSInstance();
   const dispatch = useDispatch();
-  const localPeer = useSelector(
-    (state: RootState) => state.hmsStates.localPeer
-  );
   const [inputFocused, setInputFocused] = React.useState(false);
-  const typedMessage = useSelector(
-    (state: RootState) => state.chatWindow.typedMessage
-  );
-  const sendingTo = useSelector(
-    (state: RootState) =>
-      state.chatWindow.sendTo as HMSRole | HMSRemotePeer | { name: string }
-  );
-  const sendingToType = useSelector(
-    (state: RootState) => state.chatWindow.sendToType
-  );
 
   const handleInputFocus = () => setInputFocused(true);
 
   const handleInputBlur = () => setInputFocused(false);
 
-  const handleMessageTyping = (text: string) => {
-    dispatch({ type: 'SET_TYPED_MESSAGE', typedMessage: text });
-  };
+  const sendingTo = useSelector(
+    (state: RootState) =>
+      state.chatWindow.sendTo as HMSRole | HMSRemotePeer | { name: string }
+  );
 
   const clearTypedMessage = () => {
     dispatch({ type: 'SET_TYPED_MESSAGE', typedMessage: '' });
   };
 
-  const sendMessage = () => {
-    if (typedMessage.length > 0 && hmsInstance) {
-      let hmsMessageRecipient: HMSMessageRecipient;
-
-      if (sendingToType === 'role') {
-        hmsMessageRecipient = new HMSMessageRecipient({
-          recipientType: HMSMessageRecipientType.ROLES,
-          recipientRoles: [sendingTo as HMSRole],
-        });
-      } else if (sendingToType === 'direct') {
-        hmsMessageRecipient = new HMSMessageRecipient({
-          recipientType: HMSMessageRecipientType.PEER,
-          recipientPeer: sendingTo as HMSPeer,
-        });
-      } else {
-        hmsMessageRecipient = new HMSMessageRecipient({
-          recipientType: HMSMessageRecipientType.BROADCAST,
-        });
-      }
-
-      // Saving reference of `typedMessage` state to local variable
-      // to use the typed message after clearing state
-      const messageText = typedMessage;
-
-      clearTypedMessage();
-
-      const handleMessageID = ({
-        messageId,
-      }: {
-        messageId: string | undefined;
-      }) => {
-        if (messageId) {
-          const localMessage = new HMSMessage({
-            messageId: messageId,
-            message: messageText,
-            type: HMSMessageType.CHAT,
-            time: new Date(),
-            sender: localPeer || undefined,
-            recipient: hmsMessageRecipient,
-          });
-          dispatch(addMessage(localMessage));
-        }
-      };
-
-      if (sendingToType === 'role') {
-        hmsInstance
-          .sendGroupMessage(messageText, [sendingTo as HMSRole])
-          .then(handleMessageID);
-      } else if (sendingToType === 'direct') {
-        hmsInstance
-          .sendDirectMessage(messageText, sendingTo as HMSPeer)
-          .then(handleMessageID);
-      } else {
-        hmsInstance.sendBroadcastMessage(messageText).then(handleMessageID);
-      }
-    }
-  };
+  const { message, setMessage, sendMessage } = useSendMessage();
 
   return (
     <View
@@ -283,8 +205,8 @@ export const ChatTextInput: React.FC<ChatTextInputProps> = ({
     >
       <TextInput
         style={chatTextInputStyles.input}
-        value={typedMessage}
-        onChangeText={handleMessageTyping}
+        value={message}
+        onChangeText={setMessage}
         placeholder={`Send a message to ${sendingTo.name}`}
         autoCapitalize="sentences"
         autoCompleteType="off"
@@ -296,7 +218,7 @@ export const ChatTextInput: React.FC<ChatTextInputProps> = ({
         onSubmitEditing={sendMessage}
         returnKeyType="send"
       />
-      {clearButton && typedMessage.length > 0 ? (
+      {clearButton && message.length > 0 ? (
         <PressableIcon
           onPress={clearTypedMessage}
           border={false}

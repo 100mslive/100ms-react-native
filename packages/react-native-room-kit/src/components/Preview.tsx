@@ -5,10 +5,6 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useAnimatedKeyboard,
-} from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -28,6 +24,7 @@ import { useCanPublishVideo } from '../hooks-sdk';
 import { HMSPreviewHLSLiveIndicator } from './HMSPreviewHLSLiveIndicator';
 import { CompanyLogo } from './CompanyLogo';
 import { useHMSRoomStyleSheet, useIsHLSViewer } from '../hooks-util';
+import { HMSKeyboardAvoidingView } from './HMSKeyboardAvoidingView';
 
 const backButtonEdges = ['top'] as const;
 const headerEdges = ['top', 'left', 'right'] as const;
@@ -50,14 +47,6 @@ export const Preview = ({
   loadingButtonState: boolean;
 }) => {
   const canPublishVideo = useCanPublishVideo();
-  const animatedKeyboard = useAnimatedKeyboard();
-
-  const keyboardAvoidStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateY: -animatedKeyboard.height.value }],
-    };
-  });
-
   const isHLSViewer = useIsHLSViewer();
 
   const hmsRoomStyles = useHMSRoomStyleSheet(
@@ -114,8 +103,8 @@ export const Preview = ({
         <View style={styles.footerWrapper}>
           <HMSPreviewNetworkQuality />
 
-          <Animated.View
-            style={[styles.footer, hmsRoomStyles.footer, keyboardAvoidStyle]}
+          <HMSKeyboardAvoidingView
+            style={[styles.footer, hmsRoomStyles.footer]}
           >
             {isHLSViewer ? null : (
               <View style={styles.controlsContainer}>
@@ -141,7 +130,7 @@ export const Preview = ({
                 loading={loadingButtonState}
               />
             </View>
-          </Animated.View>
+          </HMSKeyboardAvoidingView>
         </View>
       </View>
     </TouchableWithoutFeedback>

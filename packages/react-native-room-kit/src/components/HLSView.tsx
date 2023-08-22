@@ -87,22 +87,13 @@ export const HLSView: React.FC = () => {
       {room?.hlsStreamingState?.running ? (
         room?.hlsStreamingState?.variants?.slice(0, 1)?.map((variant, index) =>
           variant?.hlsStreamUrl ? (
-            <View
-              key={index}
-              style={[
-                styles.hlsPlayerContainer,
-              ]}
-            >
-              {/* <View>
-                <Animated.View style={{flex: canShowChatView ? 0 : 1}} collapsable={false} layout={}> */}
+            <View key={index} style={styles.hlsPlayerContainer}>
               <HMSHLSPlayer
                 ref={hmsHlsPlayerRef}
                 aspectRatio={windowWidth / windowHeight}
                 enableStats={showHLSStats}
                 enableControls={enableHLSPlayerControls}
               />
-              {/* </Animated.View>
-              </View> */}
 
               <HLSPlayerEmoticons />
 
