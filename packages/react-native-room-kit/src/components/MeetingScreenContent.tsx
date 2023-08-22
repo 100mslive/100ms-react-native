@@ -91,16 +91,13 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
 
       <DisplayView offset={offset} peerTrackNodes={peerTrackNodes} />
 
-      {isPipModeActive
-        ? null
-        : isHLSViewer
-          ? <HLSFooter offset={offset} />
-          : (
-            <AnimatedFooter offset={offset}>
-              <Footer  />
-            </AnimatedFooter>
-          )
-      }
+      {isPipModeActive ? null : isHLSViewer ? (
+        <HLSFooter offset={offset} />
+      ) : (
+        <AnimatedFooter offset={offset}>
+          <Footer />
+        </AnimatedFooter>
+      )}
     </Pressable>
   );
 };

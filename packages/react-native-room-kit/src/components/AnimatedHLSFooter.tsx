@@ -12,7 +12,11 @@ interface AnimatedHLSFooterProps {
   style?: StyleProp<Animated.AnimateStyle<StyleProp<ViewStyle>>>;
 }
 
-export const AnimatedHLSFooter: React.FC<AnimatedHLSFooterProps> = ({ offset, children, style }) => {
+export const AnimatedHLSFooter: React.FC<AnimatedHLSFooterProps> = ({
+  offset,
+  children,
+  style,
+}) => {
   const animatedStyles = useAnimatedStyle(() => {
     return {
       opacity: interpolate(offset.value, [0, 0.7, 1], [0, 0.5, 1]),
@@ -29,7 +33,10 @@ export const AnimatedHLSFooter: React.FC<AnimatedHLSFooterProps> = ({ offset, ch
   }, []);
 
   return (
-    <Animated.View style={[animatedStyles, style]} animatedProps={animatedProps}>
+    <Animated.View
+      style={[animatedStyles, style]}
+      animatedProps={animatedProps}
+    >
       {children}
     </Animated.View>
   );

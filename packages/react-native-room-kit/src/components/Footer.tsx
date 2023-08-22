@@ -43,8 +43,16 @@ export const _Footer: React.FC<FooterProps> = () => {
   }));
 
   return (
-    <SafeAreaView style={isHLSViewer ? null : containerStyles} edges={['bottom']}>
-      <View style={[styles.container, isHLSViewer ? styles.hlsContainer : containerStyles]}>
+    <SafeAreaView
+      style={isHLSViewer ? null : containerStyles}
+      edges={['bottom']}
+    >
+      <View
+        style={[
+          styles.container,
+          isHLSViewer ? styles.hlsContainer : containerStyles,
+        ]}
+      >
         {footerActionButtons.map((actionType, index) => {
           return (
             <View

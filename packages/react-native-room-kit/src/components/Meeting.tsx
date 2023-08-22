@@ -75,7 +75,10 @@ export const Meeting: React.FC<MeetingProps> = ({ peerTrackNodes }) => {
    * Solution: Try using Tab Gesture detector instead on Pressable component
    */
   return (
-    <Container style={[styles.container, containerStyles]} edges={['left', 'right']}>
+    <Container
+      style={[styles.container, containerStyles]}
+      edges={['left', 'right']}
+    >
       <MeetingScreenContent peerTrackNodes={peerTrackNodes} />
 
       {/* {landscapeChatViewVisible ? <ChatView /> : null} */}

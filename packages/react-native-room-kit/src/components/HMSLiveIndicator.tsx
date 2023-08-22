@@ -25,9 +25,11 @@ const _HMSLiveIndicator = () => {
       fontFamily: `${typograhy.font_family}-SemiBold`,
     },
     viewers: {
-      backgroundColor: isHLSViewer ? hexToRgbA(theme.palette.background_dim, 0.64) : undefined,
+      backgroundColor: isHLSViewer
+        ? hexToRgbA(theme.palette.background_dim, 0.64)
+        : undefined,
       borderWidth: isHLSViewer ? 0 : 1,
-      borderColor: theme.palette.border_bright
+      borderColor: theme.palette.border_bright,
     },
     count: {
       color: theme.palette.on_surface_high,
@@ -51,12 +53,14 @@ const _HMSLiveIndicator = () => {
         <View style={[styles.viewers, hmsRoomStyles.viewers]}>
           <EyeIcon />
 
-          <Text style={[styles.count, hmsRoomStyles.count]}>{previewPeerCount}</Text>
+          <Text style={[styles.count, hmsRoomStyles.count]}>
+            {previewPeerCount}
+          </Text>
         </View>
       ) : null}
     </View>
   );
-}
+};
 
 export const HMSLiveIndicator = React.memo(_HMSLiveIndicator);
 
@@ -95,5 +99,5 @@ const styles = StyleSheet.create({
     textAlignVertical: 'center',
 
     marginLeft: 4,
-  }
+  },
 });

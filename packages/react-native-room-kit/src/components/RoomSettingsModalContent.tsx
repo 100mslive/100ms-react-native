@@ -15,7 +15,11 @@ import {
   ScreenShareIcon,
 } from '../Icons';
 import { BottomSheet, useBottomSheetActions } from './BottomSheet';
-import { useHMSInstance, useHMSRoomStyleSheet, useIsHLSViewer } from '../hooks-util';
+import {
+  useHMSInstance,
+  useHMSRoomStyleSheet,
+  useIsHLSViewer,
+} from '../hooks-util';
 import { useCanPublishScreen, useHMSActions } from '../hooks-sdk';
 import { RoomSettingsModalDebugModeContent } from './RoomSettingsModalDebugModeContent';
 import { setStartingOrStoppingRecording } from '../redux/actions';

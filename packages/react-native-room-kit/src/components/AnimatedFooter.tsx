@@ -10,7 +10,10 @@ interface AnimatedFooterProps {
   offset: SharedValue<number>;
 }
 
-export const AnimatedFooter: React.FC<AnimatedFooterProps> = ({ offset, children }) => {
+export const AnimatedFooter: React.FC<AnimatedFooterProps> = ({
+  offset,
+  children,
+}) => {
   const animatedStyles = useAnimatedStyle(() => {
     return {
       opacity: interpolate(offset.value, [0, 0.7, 1], [0, 0.5, 1]),

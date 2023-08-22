@@ -13,13 +13,15 @@ export const HMSHLSNotStarted = () => {
     description: {
       color: theme.palette.on_surface_medium,
       fontFamily: `${typography.font_family}-Regular`,
-    }
+    },
   }));
 
   return (
     <View style={styles.container}>
-      <RadioIcon size='extra-large' containerStyle={styles.icon} />
-      <Text style={[styles.title, hmsRoomStyles.title]}>Stream yet to start</Text>
+      <RadioIcon size="extra-large" containerStyle={styles.icon} />
+      <Text style={[styles.title, hmsRoomStyles.title]}>
+        Stream yet to start
+      </Text>
       <Text style={[styles.description, hmsRoomStyles.description]}>
         Sit back and relax
       </Text>
@@ -35,7 +37,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   icon: {
-    marginBottom: 24
+    marginBottom: 24,
   },
   title: {
     fontSize: 24,

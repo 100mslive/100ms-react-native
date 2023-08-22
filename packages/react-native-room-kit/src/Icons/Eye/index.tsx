@@ -5,7 +5,7 @@ import type { ImageProps } from 'react-native';
 import { useHMSRoomStyle } from '../../hooks-util';
 
 interface EyeIconProps extends Omit<ImageProps, 'source'> {
-  size?: 'small'
+  size?: 'small';
 }
 
 export const EyeIcon: React.FC<EyeIconProps> = ({

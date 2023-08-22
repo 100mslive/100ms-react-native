@@ -13,18 +13,21 @@ const _HMSHLSMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
   const messageSender = message.sender;
   const isMessageSenderLocal = !!messageSender?.isLocal;
 
-  const hmsRoomStyles = useHMSRoomStyleSheet((_theme, typography) => ({
-    senderName: {
-      color: '#ffffff',
-      fontFamily: `${typography.font_family}-SemiBold`,
-      textShadowColor: 'rgba(0, 0, 0, 0.4)',
-    },
-    message: {
-      color: '#ffffff',
-      fontFamily: `${typography.font_family}-Regular`,
-      textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    },
-  }), []);
+  const hmsRoomStyles = useHMSRoomStyleSheet(
+    (_theme, typography) => ({
+      senderName: {
+        color: '#ffffff',
+        fontFamily: `${typography.font_family}-SemiBold`,
+        textShadowColor: 'rgba(0, 0, 0, 0.4)',
+      },
+      message: {
+        color: '#ffffff',
+        fontFamily: `${typography.font_family}-Regular`,
+        textShadowColor: 'rgba(0, 0, 0, 0.3)',
+      },
+    }),
+    []
+  );
 
   return (
     <View style={styles.container}>
@@ -66,7 +69,7 @@ const styles = StyleSheet.create({
   senderName: {
     fontSize: 14,
     lineHeight: Platform.OS === 'android' ? 20 : undefined,
-    letterSpacing: 0.10,
+    letterSpacing: 0.1,
     textShadowOffset: { height: 2, width: 2 },
     textShadowRadius: 3,
   },

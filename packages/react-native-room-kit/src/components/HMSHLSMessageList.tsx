@@ -7,7 +7,6 @@ import type { HMSMessage } from '@100mslive/react-native-hms';
 import type { RootState } from '../redux';
 import { HMSHLSMessage } from './HMSHLSMessage';
 
-
 export const HMSHLSMessageList: React.FC = () => {
   const { height: windowHeight } = useWindowDimensions();
   const messages = useSelector((state: RootState) => state.messages.messages);

@@ -5,7 +5,7 @@ type InitialType = {
   typedMessage: string;
   sendTo: any;
   sendToType: 'everyone' | 'role' | 'direct';
-}
+};
 
 const INITIAL_STATE: InitialType = {
   showChatView: false,
