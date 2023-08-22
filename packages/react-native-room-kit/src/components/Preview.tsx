@@ -49,8 +49,6 @@ export const Preview = ({
   const canPublishVideo = useCanPublishVideo();
   const isHLSViewer = useIsHLSViewer();
 
-  const isHLSViewer = useIsHLSViewer();
-
   const hmsRoomStyles = useHMSRoomStyleSheet(
     (theme) => ({
       container: {
