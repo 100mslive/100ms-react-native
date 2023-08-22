@@ -3,6 +3,8 @@ import {
   HMSConfig,
   HMSLocalPeer,
   HMSMessage,
+  HMSMessageRecipientType,
+  HMSMessageType,
   HMSPIPListenerActions,
   HMSPeer,
   HMSPeerUpdate,
@@ -16,9 +18,11 @@ import {
   HMSTrackType,
   HMSTrackUpdate,
   HMSUpdateListenerActions,
+  HMSMessageRecipient,
   // useHMSPeerUpdates,
 } from '@100mslive/react-native-hms';
 import type {
+  HMSRole,
   HMSSessionStore,
   HMSSessionStoreValue,
   HMSSpeaker,
@@ -85,6 +89,7 @@ import { MeetingState } from './types';
 import {
   AppState,
   InteractionManager,
+  Keyboard,
   LayoutAnimation,
   Platform,
 } from 'react-native';
@@ -1255,7 +1260,7 @@ export const useShowChat = (): [
   const chatVisible: 'none' | 'inset' | 'modal' = useMemo(() => {
     if (!showChatView) return 'none';
 
-    if (isHLSViewer && false) return 'inset'; // TODO: remove static `false` when HLS chat view design is complete
+    if (isHLSViewer) return 'inset';
 
     // TODO: handle case when type modal is selected, but chat modal is not shown because aspect ration modal was just closed
     return 'modal';
@@ -1544,4 +1549,99 @@ export const useHMSRoomStyle = <
     }),
     deps
   ).default;
+};
+
+export const useSendMessage = () => {
+  const hmsInstance = useHMSInstance();
+  const dispatch = useDispatch();
+  const reduxStore = useStore<RootState>();
+
+  const message = useSelector(
+    (state: RootState) => state.chatWindow.typedMessage
+  );
+
+  const setMessage = useCallback((text: string) => {
+    dispatch({ type: 'SET_TYPED_MESSAGE', typedMessage: text });
+  }, []);
+
+  const sendMessage = useCallback(async () => {
+    const chatWindowState = reduxStore.getState().chatWindow;
+
+    const message = chatWindowState.typedMessage;
+    const sendingToType = chatWindowState.sendToType;
+    const sendingTo = chatWindowState.sendTo as
+      | HMSRole
+      | HMSRemotePeer
+      | { name: string };
+
+    if (message.length <= 0) return;
+
+    const hmsMessageRecipient = new HMSMessageRecipient({
+      recipientType:
+        sendingToType === 'role'
+          ? HMSMessageRecipientType.ROLES
+          : sendingToType === 'direct'
+          ? HMSMessageRecipientType.PEER
+          : HMSMessageRecipientType.BROADCAST,
+      recipientPeer:
+        sendingToType === 'direct' && 'peerID' in sendingTo
+          ? sendingTo
+          : undefined,
+      recipientRoles: sendingToType === 'role' ? [sendingTo] : undefined,
+    });
+
+    // Saving reference of `message` state to local variable
+    // to use the typed message after clearing state
+    const messageText = message;
+
+    dispatch({ type: 'SET_TYPED_MESSAGE', typedMessage: '' });
+
+    const handleMessageID = ({
+      messageId,
+    }: {
+      messageId: string | undefined;
+    }) => {
+      const localPeer = reduxStore.getState().hmsStates.localPeer;
+
+      if (messageId) {
+        Keyboard.dismiss();
+        const localMessage = new HMSMessage({
+          messageId: messageId,
+          message: messageText,
+          type: HMSMessageType.CHAT,
+          time: new Date(),
+          sender: localPeer || undefined,
+          recipient: hmsMessageRecipient,
+        });
+        dispatch(addMessage(localMessage));
+      }
+    };
+
+    try {
+      let result: { messageId: string | undefined };
+      if (sendingToType === 'role') {
+        result = await hmsInstance.sendGroupMessage(messageText, [
+          sendingTo as HMSRole,
+        ]);
+      } else if (sendingToType === 'direct') {
+        result = await hmsInstance.sendDirectMessage(
+          messageText,
+          sendingTo as HMSPeer
+        );
+      } else {
+        result = await hmsInstance.sendBroadcastMessage(messageText);
+      }
+      handleMessageID(result);
+
+      return Promise.resolve(result);
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }, []);
+
+  return {
+    message,
+    setMessage,
+    sendMessage,
+  };
 };
