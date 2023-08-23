@@ -448,7 +448,7 @@ const useHMSTrackUpdate = (
           track.source === HMSTrackSource.REGULAR;
 
         if (track.source === HMSTrackSource.SCREEN) {
-          if (!peer.isLocal) {
+          if (!peer.isLocal && track.type === HMSTrackType.VIDEO) {
             dispatch(addScreenshareTile(newPeerTrackNode));
           }
         } else {
@@ -530,7 +530,7 @@ const useHMSTrackUpdate = (
       }
       if (type === HMSTrackUpdate.TRACK_REMOVED) {
         if (track.source === HMSTrackSource.SCREEN) {
-          if (!peer.isLocal) {
+          if (!peer.isLocal && track.type === HMSTrackType.VIDEO) {
             const screensharePeerTrackNodes =
               reduxState.app.screensharePeerTrackNodes;
             const nodeToRemove = screensharePeerTrackNodes.find(
