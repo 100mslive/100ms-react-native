@@ -62,6 +62,7 @@ import {
   changeStartingHLSStream,
   clearStore,
   saveUserData,
+  setFullScreenPeerTrackNode,
   setHMSLocalPeerState,
   setHMSRoleState,
   setHMSRoomState,
@@ -72,6 +73,7 @@ import {
   setMiniViewPeerTrackNode,
   setModalType,
   setStartingOrStoppingRecording,
+  updateFullScreenPeerTrackNode,
   updateLocalPeerTrackNode,
   updateMiniViewPeerTrackNode,
 } from './redux/actions';
@@ -250,6 +252,14 @@ const useHMSPeersUpdate = (
         setPeerTrackNodes((prevPeerTrackNodes) =>
           removePeerTrackNodes(prevPeerTrackNodes, peer)
         );
+        const reduxState = store.getState();
+        const fullScreenPeerTrackNode = reduxState.app.fullScreenPeerTrackNode;
+        if (
+          fullScreenPeerTrackNode !== null &&
+          fullScreenPeerTrackNode.peer.peerID === peer.peerID
+        ) {
+          dispatch(setFullScreenPeerTrackNode(null));
+        }
         return;
       }
       if (peer.isLocal) {
@@ -261,6 +271,7 @@ const useHMSPeersUpdate = (
         });
 
         const reduxState = store.getState();
+        const fullScreenPeerTrackNode = reduxState.app.fullScreenPeerTrackNode;
         const miniviewPeerTrackNode = reduxState.app.miniviewPeerTrackNode;
         const localPeerTrackNode = reduxState.app.localPeerTrackNode;
 
@@ -271,6 +282,13 @@ const useHMSPeersUpdate = (
             dispatch(
               setLocalPeerTrackNode(createPeerTrackNode(peer, peer.videoTrack))
             );
+          }
+
+          if (
+            fullScreenPeerTrackNode &&
+            fullScreenPeerTrackNode.peer.peerID === peer.peerID
+          ) {
+            dispatch(updateFullScreenPeerTrackNode({ peer }));
           }
 
           // only set `localPeerTrackNode` as miniview peer track node when we are already using it.
@@ -300,6 +318,21 @@ const useHMSPeersUpdate = (
             return prevPeerTrackNodes;
           });
         }
+        if (
+          peer.role?.publishSettings?.allowed === undefined ||
+          (peer.role?.publishSettings?.allowed &&
+            !peer.role?.publishSettings?.allowed.includes('video'))
+        ) {
+          const reduxState = store.getState();
+          const fullScreenPeerTrackNode = reduxState.app.fullScreenPeerTrackNode;
+
+          if (
+            fullScreenPeerTrackNode !== null &&
+            fullScreenPeerTrackNode.peer.peerID === peer.peerID
+          ) {
+            dispatch(setFullScreenPeerTrackNode(null));
+          }
+        }
         return;
       }
       if (
@@ -313,6 +346,14 @@ const useHMSPeersUpdate = (
           }
           return prevPeerTrackNodes;
         });
+        const reduxState = store.getState();
+        const fullScreenPeerTrackNode = reduxState.app.fullScreenPeerTrackNode;
+        if (
+          fullScreenPeerTrackNode !== null &&
+          fullScreenPeerTrackNode.peer.peerID === peer.peerID
+        ) {
+          dispatch(updateFullScreenPeerTrackNode({ peer }));
+        }
         return;
       }
     };
@@ -345,6 +386,7 @@ const useHMSTrackUpdate = (
   useEffect(() => {
     const trackUpdateHandler = ({ peer, track, type }: TrackUpdate) => {
       const reduxState = store.getState();
+      const fullScreenPeerTrackNode = reduxState.app.fullScreenPeerTrackNode;
       const miniviewPeerTrackNode = reduxState.app.miniviewPeerTrackNode;
       const localPeerTrackNode = reduxState.app.localPeerTrackNode;
 
@@ -442,6 +484,14 @@ const useHMSTrackUpdate = (
           );
         }
 
+        if (
+          fullScreenPeerTrackNode &&
+          fullScreenPeerTrackNode.track &&
+          fullScreenPeerTrackNode.track.trackId === track.trackId
+        ) {
+          dispatch(setFullScreenPeerTrackNode(null));
+        }
+
         // - TODO: update local localPeer state
         // - Pass this updated data to Meeting component -> DisplayView component
         if (peer.isLocal) {
@@ -528,26 +578,22 @@ const useHMSTrackUpdate = (
 
         // - TODO: update local localPeer state
         // - Pass this updated data to Meeting component -> DisplayView component
+        const updatePayload =
+          track.type === HMSTrackType.VIDEO ? { peer, track } : { peer };
+
         if (peer.isLocal) {
-          const updatePayload =
-            track.type === HMSTrackType.VIDEO ? { peer, track } : { peer };
-
           dispatch(updateLocalPeerTrackNode(updatePayload));
-
-          // Take care of miniviewPeerTrackNode
-          if (miniviewPeerTrackNode && miniviewPeerTrackNode.id === uniqueId) {
-            dispatch(updateMiniViewPeerTrackNode(updatePayload));
-          }
-
           updateLocalPeer();
-        } else {
-          if (miniviewPeerTrackNode && miniviewPeerTrackNode.id === uniqueId) {
-            const updatePayload =
-              track.type === HMSTrackType.VIDEO ? { peer, track } : { peer };
-
-            dispatch(updateMiniViewPeerTrackNode(updatePayload));
-          }
         }
+
+        if (miniviewPeerTrackNode && miniviewPeerTrackNode.id === uniqueId) {
+          dispatch(updateMiniViewPeerTrackNode(updatePayload));
+        }
+
+        if (fullScreenPeerTrackNode && fullScreenPeerTrackNode.id === uniqueId) {
+          dispatch(updateFullScreenPeerTrackNode(updatePayload));
+        }
+
         return;
       }
       if (
@@ -573,6 +619,13 @@ const useHMSTrackUpdate = (
         if (miniviewPeerTrackNode && miniviewPeerTrackNode.id === uniqueId) {
           dispatch(
             updateMiniViewPeerTrackNode({
+              isDegraded: type === HMSTrackUpdate.TRACK_DEGRADED,
+            })
+          );
+        }
+        if (fullScreenPeerTrackNode && fullScreenPeerTrackNode.id === uniqueId) {
+          dispatch(
+            updateFullScreenPeerTrackNode({
               isDegraded: type === HMSTrackUpdate.TRACK_DEGRADED,
             })
           );

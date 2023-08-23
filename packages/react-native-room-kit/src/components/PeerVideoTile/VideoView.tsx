@@ -10,10 +10,12 @@ import { useSelector } from 'react-redux';
 
 import type { RootState } from '../../redux';
 import { useHMSRoomStyleSheet } from '../../hooks-util';
+import { HMSPinchGesture } from './HMSPinchGesture';
 
 export interface VideoViewProps {
   trackId: string;
   peer: HMSPeer;
+  zoomIn?: boolean;
   overlay?: boolean;
   isDegraded?: boolean;
   scaleType?: HMSVideoViewMode;
@@ -25,7 +27,15 @@ const _VideoView = React.forwardRef<
   VideoViewProps
 >(
   (
-    { trackId, peer, overlay, isDegraded, scaleType, containerStyle },
+    {
+      trackId,
+      peer,
+      overlay,
+      isDegraded,
+      scaleType,
+      containerStyle,
+      zoomIn = false,
+    },
     hmsViewRef
   ) => {
     const HmsView = useSelector(
@@ -51,7 +61,7 @@ const _VideoView = React.forwardRef<
       return null;
     }
 
-    return (
+    const videoView = (
       <View style={[styles.container, containerStyle]}>
         <HmsView
           ref={hmsViewRef}
@@ -63,6 +73,18 @@ const _VideoView = React.forwardRef<
           scaleType={scaleType}
           style={styles.hmsView}
         />
+      </View>
+    );
+
+    return (
+      <View style={styles.container}>
+        {zoomIn ? (
+          <HMSPinchGesture style={styles.container}>
+            {videoView}
+          </HMSPinchGesture>
+        ) : (
+          videoView
+        )}
 
         {isDegraded ? (
           <View style={[styles.degradedView, hmsRoomStyles.degradedView]}>

@@ -233,6 +233,20 @@ export const updateMiniViewPeerTrackNode = (
   payload: data,
 });
 
+export const setFullScreenPeerTrackNode = (
+  fullScreenPeerTrackNode: PeerTrackNode | null
+) => ({
+  type: actionTypes.SET_FULLSCREEN_PEERTRACKNODE,
+  payload: { fullScreenPeerTrackNode },
+});
+
+export const updateFullScreenPeerTrackNode = (
+  data: Partial<Omit<PeerTrackNode, 'id'>>
+) => ({
+  type: actionTypes.UPDATE_FULLSCREEN_PEERTRACKNODE,
+  payload: data,
+});
+
 export const setLocalPeerTrackNode = (
   localPeerTrackNode: PeerTrackNode | null
 ) => ({
