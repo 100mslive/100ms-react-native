@@ -324,7 +324,8 @@ const useHMSPeersUpdate = (
             !peer.role?.publishSettings?.allowed.includes('video'))
         ) {
           const reduxState = store.getState();
-          const fullScreenPeerTrackNode = reduxState.app.fullScreenPeerTrackNode;
+          const fullScreenPeerTrackNode =
+            reduxState.app.fullScreenPeerTrackNode;
 
           if (
             fullScreenPeerTrackNode !== null &&
@@ -590,7 +591,10 @@ const useHMSTrackUpdate = (
           dispatch(updateMiniViewPeerTrackNode(updatePayload));
         }
 
-        if (fullScreenPeerTrackNode && fullScreenPeerTrackNode.id === uniqueId) {
+        if (
+          fullScreenPeerTrackNode &&
+          fullScreenPeerTrackNode.id === uniqueId
+        ) {
           dispatch(updateFullScreenPeerTrackNode(updatePayload));
         }
 
@@ -623,7 +627,10 @@ const useHMSTrackUpdate = (
             })
           );
         }
-        if (fullScreenPeerTrackNode && fullScreenPeerTrackNode.id === uniqueId) {
+        if (
+          fullScreenPeerTrackNode &&
+          fullScreenPeerTrackNode.id === uniqueId
+        ) {
           dispatch(
             updateFullScreenPeerTrackNode({
               isDegraded: type === HMSTrackUpdate.TRACK_DEGRADED,
