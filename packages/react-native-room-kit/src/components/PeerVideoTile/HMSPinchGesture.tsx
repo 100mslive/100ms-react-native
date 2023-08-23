@@ -20,12 +20,15 @@ export const HMSPinchGesture: React.FC<HMSPinchGestureProps> = ({
 
   const pinchGesture = Gesture.Pinch()
     .onUpdate((e) => {
-      scale.value = Math.max(savedScale.value * e.scale, 0.94);
+      scale.value = Math.min(Math.max(savedScale.value * e.scale, 0.94), 5.2);
     })
     .onEnd(() => {
       if (scale.value < 1) {
         scale.value = withSpring(1, { damping: 100, stiffness: 200 });
         savedScale.value = 1;
+      } else if (scale.value > 5) {
+        scale.value = withSpring(5, { damping: 100, stiffness: 200 });
+        savedScale.value = 5;
       } else {
         savedScale.value = scale.value;
       }
