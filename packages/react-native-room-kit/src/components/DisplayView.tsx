@@ -35,6 +35,7 @@ import {
 import { ParticipantsModal } from './ParticipantsModal';
 import { WebrtcView } from './WebrtcView';
 import { BottomSheet } from './BottomSheet';
+import { FullScreenVideoView } from './FullScreenVideoView';
 
 type CapturedImagePath = { uri: string } | null;
 
@@ -151,6 +152,8 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
 
       {isPipModeActive ? null : (
         <>
+          <FullScreenVideoView />
+
           <BottomSheet
             isVisible={modalVisible === ModalTypes.PEER_SETTINGS}
             dismissModal={() => setModalVisible(ModalTypes.DEFAULT)}

@@ -45,6 +45,7 @@ type IntialStateType = {
   localPeerTrackNode: null | PeerTrackNode;
   gridViewActivePage: number;
   startingOrStoppingRecording: boolean;
+  fullScreenPeerTrackNode: null | PeerTrackNode;
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -69,6 +70,7 @@ const INITIAL_STATE: IntialStateType = {
   localPeerTrackNode: null,
   gridViewActivePage: 0,
   startingOrStoppingRecording: false,
+  fullScreenPeerTrackNode: null,
 };
 
 const appReducer = (
@@ -185,6 +187,23 @@ const appReducer = (
         ...state,
         localPeerTrackNode: {
           ...state.localPeerTrackNode,
+          ...action.payload,
+        },
+      };
+    }
+    case ActionTypes.SET_FULLSCREEN_PEERTRACKNODE:
+      return {
+        ...state,
+        fullScreenPeerTrackNode: action.payload.fullScreenPeerTrackNode,
+      };
+    case ActionTypes.UPDATE_FULLSCREEN_PEERTRACKNODE: {
+      if (!state.fullScreenPeerTrackNode) {
+        return state;
+      }
+      return {
+        ...state,
+        fullScreenPeerTrackNode: {
+          ...state.fullScreenPeerTrackNode,
           ...action.payload,
         },
       };
