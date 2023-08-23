@@ -30,16 +30,22 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
       (state: RootState) => state.user.spotlightTrackId
     );
 
+    const screenshareTilesAvailable = useSelector(
+      (state: RootState) => state.app.screensharePeerTrackNodes.length > 0
+    );
+
     const pairedPeers = useMemo(
       () =>
         pairData(
           peerTrackNodes,
           isPortrait
-            ? MaxTilesInOnePage.IN_PORTRAIT
+            ? screenshareTilesAvailable
+              ? MaxTilesInOnePage.IN_PORTRAIT_WITH_SCREENSHARES
+              : MaxTilesInOnePage.IN_PORTRAIT
             : MaxTilesInOnePage.IN_LANDSCAPE,
           spotlightTrackId
         ),
-      [peerTrackNodes, spotlightTrackId, isPortrait]
+      [peerTrackNodes, screenshareTilesAvailable, spotlightTrackId, isPortrait]
     );
 
     const canShowTiles = useSelector(

@@ -57,10 +57,12 @@ import type { RootState } from './redux';
 import {
   addMessage,
   addPinnedMessage,
+  addScreenshareTile,
   changeMeetingState,
   changePipModeStatus,
   changeStartingHLSStream,
   clearStore,
+  removeScreenshareTile,
   saveUserData,
   setFullScreenPeerTrackNode,
   setHMSLocalPeerState,
@@ -76,6 +78,7 @@ import {
   updateFullScreenPeerTrackNode,
   updateLocalPeerTrackNode,
   updateMiniViewPeerTrackNode,
+  updateScreenshareTile,
 } from './redux/actions';
 import {
   createPeerTrackNodeUniqueId,
@@ -249,10 +252,24 @@ const useHMSPeersUpdate = (
         return;
       }
       if (type === HMSPeerUpdate.PEER_LEFT) {
+        // Handling regular tiles list
         setPeerTrackNodes((prevPeerTrackNodes) =>
           removePeerTrackNodes(prevPeerTrackNodes, peer)
         );
+
         const reduxState = store.getState();
+
+        // Handling Screenshare tiles list
+        const screensharePeerTrackNodes =
+          reduxState.app.screensharePeerTrackNodes;
+        const nodeToRemove = screensharePeerTrackNodes.find(
+          (node) => node.peer.peerID === peer.peerID
+        );
+        if (nodeToRemove) {
+          dispatch(removeScreenshareTile(nodeToRemove.id));
+        }
+
+        // Handling Full screen view
         const fullScreenPeerTrackNode = reduxState.app.fullScreenPeerTrackNode;
         if (
           fullScreenPeerTrackNode !== null &&
@@ -306,6 +323,7 @@ const useHMSPeersUpdate = (
         return;
       }
       if (type === HMSPeerUpdate.ROLE_CHANGED) {
+        // Handling regular tiles list
         if (
           peer.role?.publishSettings?.allowed === undefined ||
           (peer.role?.publishSettings?.allowed &&
@@ -318,14 +336,33 @@ const useHMSPeersUpdate = (
             return prevPeerTrackNodes;
           });
         }
+
+        const reduxState = store.getState();
+
+        // Handling screenshare tiles list
+        if (
+          peer.role?.publishSettings?.allowed === undefined ||
+          (peer.role?.publishSettings?.allowed &&
+            !peer.role?.publishSettings?.allowed.includes('screen'))
+        ) {
+          const screensharePeerTrackNodes =
+            reduxState.app.screensharePeerTrackNodes;
+          const nodeToRemove = screensharePeerTrackNodes.find(
+            (node) => node.peer.peerID === peer.peerID
+          );
+          if (nodeToRemove) {
+            dispatch(removeScreenshareTile(nodeToRemove.id));
+          }
+        }
+
+        // Handling full screen view
         if (
           peer.role?.publishSettings?.allowed === undefined ||
           (peer.role?.publishSettings?.allowed &&
             !peer.role?.publishSettings?.allowed.includes('video'))
         ) {
-          const reduxState = store.getState();
-          const fullScreenPeerTrackNode = reduxState.app.fullScreenPeerTrackNode;
-
+          const fullScreenPeerTrackNode =
+            reduxState.app.fullScreenPeerTrackNode;
           if (
             fullScreenPeerTrackNode !== null &&
             fullScreenPeerTrackNode.peer.peerID === peer.peerID
@@ -347,6 +384,18 @@ const useHMSPeersUpdate = (
           return prevPeerTrackNodes;
         });
         const reduxState = store.getState();
+
+        // Handling screenshare tile views
+        const screensharePeerTrackNodes =
+          reduxState.app.screensharePeerTrackNodes;
+        const nodeToUpdate = screensharePeerTrackNodes.find(
+          (node) => node.peer.peerID === peer.peerID
+        );
+        if (nodeToUpdate) {
+          dispatch(updateScreenshareTile({ id: nodeToUpdate.id, peer }));
+        }
+
+        // Handling fullscreen view
         const fullScreenPeerTrackNode = reduxState.app.fullScreenPeerTrackNode;
         if (
           fullScreenPeerTrackNode !== null &&
@@ -398,30 +447,36 @@ const useHMSTrackUpdate = (
           peer.isLocal &&
           track.source === HMSTrackSource.REGULAR;
 
-        setPeerTrackNodes((prevPeerTrackNodes) => {
-          if (
-            peerTrackNodeExistForPeerAndTrack(prevPeerTrackNodes, peer, track)
-          ) {
-            if (track.type === HMSTrackType.VIDEO) {
-              return replacePeerTrackNodesWithTrack(
-                prevPeerTrackNodes,
-                peer,
-                track
-              );
+        if (track.source === HMSTrackSource.SCREEN) {
+          if (!peer.isLocal) {
+            dispatch(addScreenshareTile(newPeerTrackNode));
+          }
+        } else {
+          setPeerTrackNodes((prevPeerTrackNodes) => {
+            if (
+              peerTrackNodeExistForPeerAndTrack(prevPeerTrackNodes, peer, track)
+            ) {
+              if (track.type === HMSTrackType.VIDEO) {
+                return replacePeerTrackNodesWithTrack(
+                  prevPeerTrackNodes,
+                  peer,
+                  track
+                );
+              }
+              return replacePeerTrackNodes(prevPeerTrackNodes, peer);
             }
-            return replacePeerTrackNodes(prevPeerTrackNodes, peer);
-          }
 
-          if (
-            miniviewPeerTrackNode
-              ? newPeerTrackNode.id !== miniviewPeerTrackNode.id
-              : !willCreateMiniviewPeerTrackNode
-          ) {
-            return [...prevPeerTrackNodes, newPeerTrackNode];
-          }
+            if (
+              miniviewPeerTrackNode
+                ? newPeerTrackNode.id !== miniviewPeerTrackNode.id
+                : !willCreateMiniviewPeerTrackNode
+            ) {
+              return [...prevPeerTrackNodes, newPeerTrackNode];
+            }
 
-          return prevPeerTrackNodes;
-        });
+            return prevPeerTrackNodes;
+          });
+        }
 
         // - TODO: update local localPeer state
         // - Pass this updated data to Meeting component -> DisplayView component
@@ -474,8 +529,19 @@ const useHMSTrackUpdate = (
         return;
       }
       if (type === HMSTrackUpdate.TRACK_REMOVED) {
-        if (
-          track.source !== HMSTrackSource.REGULAR ||
+        if (track.source === HMSTrackSource.SCREEN) {
+          if (!peer.isLocal) {
+            const screensharePeerTrackNodes =
+              reduxState.app.screensharePeerTrackNodes;
+            const nodeToRemove = screensharePeerTrackNodes.find(
+              (node) => node.track?.trackId === track.trackId
+            );
+            if (nodeToRemove) {
+              dispatch(removeScreenshareTile(nodeToRemove.id));
+            }
+          }
+        } else if (
+          track.source === HMSTrackSource.PLUGIN ||
           (peer.audioTrack?.trackId === undefined &&
             peer.videoTrack?.trackId === undefined)
         ) {
@@ -590,7 +656,10 @@ const useHMSTrackUpdate = (
           dispatch(updateMiniViewPeerTrackNode(updatePayload));
         }
 
-        if (fullScreenPeerTrackNode && fullScreenPeerTrackNode.id === uniqueId) {
+        if (
+          fullScreenPeerTrackNode &&
+          fullScreenPeerTrackNode.id === uniqueId
+        ) {
           dispatch(updateFullScreenPeerTrackNode(updatePayload));
         }
 
@@ -600,22 +669,42 @@ const useHMSTrackUpdate = (
         type === HMSTrackUpdate.TRACK_RESTORED ||
         type === HMSTrackUpdate.TRACK_DEGRADED
       ) {
-        setPeerTrackNodes((prevPeerTrackNodes) => {
-          if (
-            peerTrackNodeExistForPeerAndTrack(prevPeerTrackNodes, peer, track)
-          ) {
-            return degradeOrRestorePeerTrackNodes(
-              prevPeerTrackNodes,
-              peer,
-              track,
-              type === HMSTrackUpdate.TRACK_DEGRADED
+        // Checking if track source is screenshare
+        if (track.source === HMSTrackSource.SCREEN) {
+          // Handling screenshare tiles list
+          const screensharePeerTrackNodes =
+            reduxState.app.screensharePeerTrackNodes;
+          const nodeToUpdate = screensharePeerTrackNodes.find(
+            (node) => node.track?.trackId === track.trackId
+          );
+          if (nodeToUpdate) {
+            dispatch(
+              updateScreenshareTile({
+                id: nodeToUpdate.id,
+                isDegraded: type === HMSTrackUpdate.TRACK_DEGRADED,
+              })
             );
           }
-          return prevPeerTrackNodes;
-        });
+        } else {
+          // Handling regular tiles list
+          setPeerTrackNodes((prevPeerTrackNodes) => {
+            if (
+              peerTrackNodeExistForPeerAndTrack(prevPeerTrackNodes, peer, track)
+            ) {
+              return degradeOrRestorePeerTrackNodes(
+                prevPeerTrackNodes,
+                peer,
+                track,
+                type === HMSTrackUpdate.TRACK_DEGRADED
+              );
+            }
+            return prevPeerTrackNodes;
+          });
+        }
 
         const uniqueId = createPeerTrackNodeUniqueId(peer, track);
 
+        // Handling miniview
         if (miniviewPeerTrackNode && miniviewPeerTrackNode.id === uniqueId) {
           dispatch(
             updateMiniViewPeerTrackNode({
@@ -623,7 +712,12 @@ const useHMSTrackUpdate = (
             })
           );
         }
-        if (fullScreenPeerTrackNode && fullScreenPeerTrackNode.id === uniqueId) {
+
+        // Handling full screen view
+        if (
+          fullScreenPeerTrackNode &&
+          fullScreenPeerTrackNode.id === uniqueId
+        ) {
           dispatch(
             updateFullScreenPeerTrackNode({
               isDegraded: type === HMSTrackUpdate.TRACK_DEGRADED,
@@ -791,7 +885,7 @@ export const useHMSSessionStoreListeners = (
           dispatch(saveUserData({ spotlightTrackId: id }));
           // Scroll to start of the list
           gridViewRef.current
-            ?.getFlatlistRef()
+            ?.getRegularTilesFlatlistRef()
             .current?.scrollToOffset({ animated: true, offset: 0 });
         };
 
