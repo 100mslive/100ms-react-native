@@ -19,7 +19,8 @@ export const PeerNameAndNetwork: React.FC<PeerNameAndNetworkProps> = ({
   trackSource,
   networkQuality,
 }) => {
-  const isScreenTrackSource = trackSource && trackSource === HMSTrackSource.SCREEN;
+  const isScreenTrackSource =
+    trackSource && trackSource === HMSTrackSource.SCREEN;
   const showTrackSource = trackSource && trackSource !== HMSTrackSource.REGULAR;
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
@@ -83,7 +84,7 @@ const styles = StyleSheet.create({
   screenShareIcon: {
     width: 20,
     height: 20,
-    marginRight: 6
+    marginRight: 6,
   },
   networkIcon: {
     marginLeft: 4,

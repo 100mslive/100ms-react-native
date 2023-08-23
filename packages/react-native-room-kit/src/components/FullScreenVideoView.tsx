@@ -46,7 +46,10 @@ export const FullScreenVideoView = () => {
       <SafeAreaView style={styles.container}>
         <View style={[styles.contentContainer, contentContainerStyles]}>
           {fullScreenPeerTrackNode && fullScreenPeerTrackNode.track?.trackId ? (
-            <PeerVideoTileView peerTrackNode={fullScreenPeerTrackNode} zoomIn={true} />
+            <PeerVideoTileView
+              peerTrackNode={fullScreenPeerTrackNode}
+              zoomIn={true}
+            />
           ) : null}
 
           <HMSFullScreenButton peerTrackNode={fullScreenPeerTrackNode!} />

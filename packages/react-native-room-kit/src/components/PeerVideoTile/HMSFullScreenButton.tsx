@@ -27,7 +27,7 @@ export const HMSFullScreenButton: React.FC<HMSFullScreenButtonProps> = ({
   }));
 
   const maximizeAction =
-    !fullScreenPeerTrackNode || (fullScreenPeerTrackNode.id !== peerTrackNode.id);
+    !fullScreenPeerTrackNode || fullScreenPeerTrackNode.id !== peerTrackNode.id;
 
   const handleFullScreenPress = () => {
     dispatch(setFullScreenPeerTrackNode(maximizeAction ? peerTrackNode : null));
