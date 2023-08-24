@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Dimensions } from 'react-native';
+import { useSelector } from 'react-redux';
 import type { ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { HMSView } from '@100mslive/react-native-hms';
@@ -8,6 +9,7 @@ import { Tile } from './Tile';
 import type { PeerTrackNode } from '../utils/types';
 import { useIsLandscapeOrientation } from '../utils/dimension';
 import { groupIntoPairs } from '../utils/functions';
+import type { RootState } from '../redux';
 
 interface TilesContainerProps {
   peerTrackNodes: PeerTrackNode[];
@@ -23,10 +25,14 @@ const _TilesContainer: React.FC<TilesContainerProps> = ({
   const { left, right } = useSafeAreaInsets();
   const isLandscapeOrientation = useIsLandscapeOrientation();
 
-  const stylesConfig = computeTileWidthAndHeight(
-    peerTrackNodes.length,
-    isLandscapeOrientation
+  const screenshareTilesAvailable = useSelector(
+    (state: RootState) => state.app.screensharePeerTrackNodes.length > 0
   );
+
+  const stylesConfig = computeTileWidthAndHeight(peerTrackNodes.length, {
+    isLandscapeOrientation,
+    type: screenshareTilesAvailable ? 'row' : 'default',
+  });
 
   // In this layout, Tile will take as much height and width as possible
   // Width and Height of Tile are independent of each other
@@ -36,7 +42,15 @@ const _TilesContainer: React.FC<TilesContainerProps> = ({
     <View
       style={[
         // If tile are growable, then we want whatever remaining space to be between them
-        { justifyContent: growableTileLayout ? 'space-between' : 'center' },
+        {
+          justifyContent:
+            screenshareTilesAvailable && peerTrackNodes.length === 1
+              ? 'center'
+              : growableTileLayout
+              ? 'space-between'
+              : 'center',
+          flexDirection: screenshareTilesAvailable ? 'row' : 'column',
+        },
         { width: Dimensions.get('window').width - left - right },
       ]}
     >
@@ -125,26 +139,42 @@ const fourTileStyleLandscape = { width: '50%', height: '50%' };
 
 function computeTileWidthAndHeight(
   totalTiles: number,
-  isLandscapeOrientation: boolean
+  config: {
+    type: 'row' | 'column' | 'default';
+    isLandscapeOrientation: boolean;
+  }
 ): {
   width?: ViewStyle['width'];
   height?: ViewStyle['height'];
   aspectRatio?: ViewStyle['aspectRatio'];
 } {
+  const { type, isLandscapeOrientation } = config || {
+    type: 'default',
+    isLandscapeOrientation: false,
+  };
+
+  if (isLandscapeOrientation) {
+    return (
+      [
+        oneTileStyleLandscape,
+        twoTileStyleLandscape,
+        threeTileStyleLandscape,
+        fourTileStyleLandscape,
+      ][Math.min(totalTiles - 1, 3)] || { width: '100%', height: '100%' }
+    );
+  }
+
+  if (type === 'row') {
+    return fiveAndSixTileStyle;
+  }
+
   return (
-    (isLandscapeOrientation
-      ? [
-          oneTileStyleLandscape,
-          twoTileStyleLandscape,
-          threeTileStyleLandscape,
-          fourTileStyleLandscape,
-        ][Math.min(totalTiles - 1, 3)]
-      : [
-          oneTileStyle,
-          twoTileStyle,
-          threeTileStyle,
-          fourTileStyle,
-          fiveAndSixTileStyle,
-        ][Math.min(totalTiles - 1, 4)]) || { width: '100%', height: '100%' }
+    [
+      oneTileStyle,
+      twoTileStyle,
+      threeTileStyle,
+      fourTileStyle,
+      fiveAndSixTileStyle,
+    ][Math.min(totalTiles - 1, 4)] || { width: '100%', height: '100%' }
   );
 }
