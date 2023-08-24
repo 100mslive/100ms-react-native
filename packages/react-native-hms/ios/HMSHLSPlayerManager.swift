@@ -200,7 +200,7 @@ class HMSHLSPlayer: UIView {
         self.addSubview(playerViewController.view)
 
         attachPlayerPlaybackListeners()
-        
+
         hmsHLSPlayerViewController?.showsPlaybackControls = false
         hmsHLSPlayerViewController?.allowsPictureInPicturePlayback = true
         hmsHLSPlayerViewController?.videoGravity = .resizeAspectFill
