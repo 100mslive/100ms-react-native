@@ -92,7 +92,7 @@ const _TilesContainer: React.FC<TilesContainerProps> = ({
                       : 'space-between',
                   flexDirection: 'row',
                   flex: growableTileLayout ? 1 : 0,
-                  marginTop: isFirstPairGroup ? 0 : 8,
+                  marginTop: isFirstPairGroup ? 0 : 4,
                 }}
               >
                 {peerTrackNodesPair.map((peerTrackNode) => {
@@ -126,11 +126,11 @@ export { TilesContainer };
 // Utility Functions
 
 const oneTileStyle = { width: '100%', height: '100%' }; // 1 Column Layout
-const twoTileStyle = { width: '100%', height: '49.4444%' }; // 1 Column Layout
-const threeTileStyle = { width: '100%', height: '32.6666%' }; // 1 Column Layout
+const twoTileStyle = { width: '100%', height: '49.7222%' }; // 1 Column Layout
+const threeTileStyle = { width: '100%', height: '33%' }; // 1 Column Layout
 
-const fourTileStyle = { width: '49%', height: '100%' }; // Grid Layout when Width and Height has no-correlatiom
-const fiveAndSixTileStyle = { width: '49%', aspectRatio: 1 }; // Grid Layout when width and Height as fixed aspectRatio
+const fourTileStyle = { width: '49.5%', height: '100%' }; // Grid Layout when Width and Height has no-correlatiom
+const fiveAndSixTileStyle = { width: '49.5%', aspectRatio: 1 }; // Grid Layout when width and Height as fixed aspectRatio
 
 const oneTileStyleLandscape = { width: '100%', height: '100%' };
 const twoTileStyleLandscape = { width: '50%', height: '100%' };
