@@ -290,7 +290,7 @@ const ScreenshareTiles = React.forwardRef<
   );
 
   return (
-    <View style={{ flex: 1, marginBottom: 8 }}>
+    <View style={{ flex: 1, marginBottom: 4 }}>
       <FlatList
         ref={flatlistRef}
         horizontal={true}
