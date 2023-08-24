@@ -12,9 +12,12 @@ import ReplayKit
 class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
     var hms: HMSSDK?
-    var recentRoleChangeRequest: HMSRoleChangeRequest?
+    
     var delegate: HMSManager?
     var id: String = "12345"
+    
+    private var recentRoleChangeRequest: HMSRoleChangeRequest?
+    private var previewForRoleTracks: [HMSTrack]?
     private var reconnectingStage: Bool = false
     private var preferredExtension: String?
     private var systemBroadcastPicker: RPSystemBroadcastPickerView?
@@ -144,8 +147,12 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
 
-    func cancelPreview() {
-        hms?.cancelPreview()
+    func cancelPreview(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        DispatchQueue.main.async { [weak self] in
+            self?.hms?.cancelPreview()
+            self?.previewForRoleTracks = nil
+            resolve?(["success": true])
+        }
     }
 
     func join(_ credentials: NSDictionary) {
@@ -388,6 +395,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 }
             })
             self?.recentRoleChangeRequest = nil
+            self?.previewForRoleTracks = nil
         }
     }
 
@@ -1889,6 +1897,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     // Handle resetting states and data cleanup
     private func cleanup() {
         self.recentRoleChangeRequest = nil
+        self.previewForRoleTracks = nil
         self.reconnectingStage = false
         self.preferredExtension = nil
         self.systemBroadcastPicker = nil
