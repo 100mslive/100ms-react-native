@@ -12,9 +12,12 @@ import ReplayKit
 class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
     var hms: HMSSDK?
-    var recentRoleChangeRequest: HMSRoleChangeRequest?
+    
     var delegate: HMSManager?
     var id: String = "12345"
+    
+    private var recentRoleChangeRequest: HMSRoleChangeRequest?
+    internal var previewForRoleTracks: [HMSTrack]?
     private var reconnectingStage: Bool = false
     private var preferredExtension: String?
     private var systemBroadcastPicker: RPSystemBroadcastPickerView?
@@ -129,25 +132,27 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         let roleObj = HMSHelper.getRoleFromRoleName(role, roles: hms?.roles)
 
         if let extractedRole = roleObj {
-            hms?.preview(role: extractedRole, completion: { tracks, error in
-                if error != nil {
-                    if eventsEnableStatus[HMSConstants.ON_ERROR] == true {
-                        delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": HMSDecoder.getError(error), "id": id])
+            DispatchQueue.main.async { [weak self] in
+                self?.hms?.preview(role: extractedRole) { tracks, error in
+                    if error != nil {
+                        reject?(error?.localizedDescription, error?.localizedDescription, nil)
+                        return
                     }
-                    reject?(error?.localizedDescription, error?.localizedDescription, nil)
-                    return
+                    
+                    let decodedTracks = HMSDecoder.getAllTracks(tracks ?? [])
+                    
+                    resolve?(["success": true, "tracks": decodedTracks] as [String: Any])
                 }
-
-                let decodedTracks = HMSDecoder.getAllTracks(tracks ?? [])
-
-                resolve?(["success": true, "tracks": decodedTracks] as [String: Any])
-                return
-            })
+            }
         }
     }
 
-    func cancelPreview() {
-        hms?.cancelPreview()
+    func cancelPreview(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        DispatchQueue.main.async { [weak self] in
+            self?.hms?.cancelPreview()
+            self?.previewForRoleTracks = nil
+            resolve?(["success": true])
+        }
     }
 
     func join(_ credentials: NSDictionary) {
@@ -230,7 +235,15 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
 
         DispatchQueue.main.async { [weak self] in
-            self?.hms?.localPeer?.localAudioTrack()?.setMute(isMute)
+            if let audioTrack = self?.hms?.localPeer?.localAudioTrack() {
+                audioTrack.setMute(isMute)
+            } else if let tracks = self?.previewForRoleTracks {
+                if let audioTrack = tracks.first(where: { $0.kind == HMSTrackKind.audio }) as? HMSLocalAudioTrack {
+                    audioTrack.setMute(isMute)
+                }
+            } else {
+                print(#function, "No local audio track available for setting mute state.")
+            }
         }
     }
 
@@ -243,13 +256,29 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
 
         DispatchQueue.main.async { [weak self] in
-            self?.hms?.localPeer?.localVideoTrack()?.setMute(isMute)
+            if let videoTrack = self?.hms?.localPeer?.localVideoTrack() {
+                videoTrack.setMute(isMute)
+            } else if let tracks = self?.previewForRoleTracks {
+                if let videoTrack = tracks.first(where: { $0.kind == HMSTrackKind.video }) as? HMSLocalVideoTrack {
+                    videoTrack.setMute(isMute)
+                }
+            } else {
+                print(#function, "No local video track available for setting mute state.")
+            }
         }
     }
 
     func switchCamera() {
         DispatchQueue.main.async { [weak self] in
-            self?.hms?.localPeer?.localVideoTrack()?.switchCamera()
+            if let localVideoTrack = self?.hms?.localPeer?.localVideoTrack() {
+                localVideoTrack.switchCamera()
+            } else if let tracks = self?.previewForRoleTracks {
+                if let videoTrack = tracks.first(where: { $0.kind == HMSTrackKind.video }) as? HMSLocalVideoTrack {
+                    videoTrack.switchCamera()
+                }
+            } else {
+                print(#function, "No local video track available for switching camera.")
+            }
         }
     }
 
@@ -390,6 +419,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 }
             })
             self?.recentRoleChangeRequest = nil
+            self?.previewForRoleTracks = nil
         }
     }
 
@@ -1891,6 +1921,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     // Handle resetting states and data cleanup
     private func cleanup() {
         self.recentRoleChangeRequest = nil
+        self.previewForRoleTracks = nil
         self.reconnectingStage = false
         self.preferredExtension = nil
         self.systemBroadcastPicker = nil

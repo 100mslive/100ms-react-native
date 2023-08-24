@@ -288,12 +288,16 @@ export const addScreenshareTile = (screenshareNode: PeerTrackNode) => ({
   payload: { screenshareNode },
 });
 
-export const removeScreenshareTile = (peerTrackNodeId: PeerTrackNode['id']) => ({
+export const removeScreenshareTile = (
+  peerTrackNodeId: PeerTrackNode['id']
+) => ({
   type: actionTypes.REMOVE_SCREENSHARE_TILE,
   payload: { id: peerTrackNodeId },
 });
 
-export const updateScreenshareTile = (data: Partial<PeerTrackNode> & { id: string }) => ({
+export const updateScreenshareTile = (
+  data: Partial<PeerTrackNode> & { id: string }
+) => ({
   type: actionTypes.UPDATE_SCREENSHARE_TILE,
   payload: data,
 });
