@@ -20,6 +20,7 @@ import { setGridViewActivePage } from '../redux/actions';
 import { Tile } from './Tile';
 import { HMSLocalScreenshareTile } from './HMSLocalScreenshareTile';
 
+
 export type GridViewProps = {
   onPeerTileMorePress(peerTrackNode: PeerTrackNode): void;
   pairedPeers: PeerTrackNode[][];
