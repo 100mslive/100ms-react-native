@@ -20,7 +20,6 @@ import { setGridViewActivePage } from '../redux/actions';
 import { Tile } from './Tile';
 import { HMSLocalScreenshareTile } from './HMSLocalScreenshareTile';
 
-
 export type GridViewProps = {
   onPeerTileMorePress(peerTrackNode: PeerTrackNode): void;
   pairedPeers: PeerTrackNode[][];
@@ -291,7 +290,7 @@ const ScreenshareTiles = React.forwardRef<
   );
 
   return (
-    <View style={{ flex: 1, marginBottom: 8 }}>
+    <View style={{ flex: 1, marginBottom: 4 }}>
       <FlatList
         ref={flatlistRef}
         horizontal={true}
