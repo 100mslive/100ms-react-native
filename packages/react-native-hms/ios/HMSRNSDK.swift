@@ -129,20 +129,18 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         let roleObj = HMSHelper.getRoleFromRoleName(role, roles: hms?.roles)
 
         if let extractedRole = roleObj {
-            hms?.preview(role: extractedRole, completion: { tracks, error in
-                if error != nil {
-                    if eventsEnableStatus[HMSConstants.ON_ERROR] == true {
-                        delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": HMSDecoder.getError(error), "id": id])
+            DispatchQueue.main.async { [weak self] in
+                self?.hms?.preview(role: extractedRole) { tracks, error in
+                    if error != nil {
+                        reject?(error?.localizedDescription, error?.localizedDescription, nil)
+                        return
                     }
-                    reject?(error?.localizedDescription, error?.localizedDescription, nil)
-                    return
+                    
+                    let decodedTracks = HMSDecoder.getAllTracks(tracks ?? [])
+                    
+                    resolve?(["success": true, "tracks": decodedTracks] as [String: Any])
                 }
-
-                let decodedTracks = HMSDecoder.getAllTracks(tracks ?? [])
-
-                resolve?(["success": true, "tracks": decodedTracks] as [String: Any])
-                return
-            })
+            }
         }
     }
 

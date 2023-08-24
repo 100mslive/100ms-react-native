@@ -15,10 +15,10 @@ RCT_EXTERN_METHOD(sendDirectMessage: (NSDictionary) data :(RCTPromiseResolveBloc
 RCT_EXTERN_METHOD(setPlaybackAllowed: (NSDictionary) data)
 RCT_EXTERN_METHOD(removePeer: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(endRoom: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
-RCT_EXTERN_METHOD(changeRole: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+
 RCT_EXTERN_METHOD(changeTrackState: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(changeTrackStateForRoles: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
-RCT_EXTERN_METHOD(acceptRoleChange: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+
 RCT_EXTERN_METHOD(isMute: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(getRoom: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 RCT_EXTERN_METHOD(switchCamera: (NSDictionary) data)
@@ -82,5 +82,11 @@ RCT_EXTERN_METHOD(removeKeyChangeListener: (NSDictionary) data :(RCTPromiseResol
 #pragma mark - Prebuilt
 
 RCT_EXTERN_METHOD(getRoomLayout: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+
+#pragma mark - Role Change
+
+RCT_EXTERN_METHOD(changeRole: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(acceptRoleChange: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
+RCT_EXTERN_METHOD(previewForRole: (NSDictionary) data :(RCTPromiseResolveBlock) resolve :(RCTPromiseRejectBlock) reject)
 
 @end
