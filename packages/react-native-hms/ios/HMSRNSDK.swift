@@ -17,7 +17,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     var id: String = "12345"
     
     private var recentRoleChangeRequest: HMSRoleChangeRequest?
-    private var previewForRoleTracks: [HMSTrack]?
+    internal var previewForRoleTracks: [HMSTrack]?
     private var reconnectingStage: Bool = false
     private var preferredExtension: String?
     private var systemBroadcastPicker: RPSystemBroadcastPickerView?
