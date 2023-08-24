@@ -9,7 +9,7 @@ import {
 import { getRoomLinkDetails } from './getRoomLinkDetails';
 
 export const getMeetingUrl = () =>
-  'https://saikat.qa-app.100ms.live/meeting/jnf-wqy-par';
+  'https://public.app.100ms.live/meeting/xvm-wxwo-gbl';
 
 export const callService = async (
   roomID: string,
