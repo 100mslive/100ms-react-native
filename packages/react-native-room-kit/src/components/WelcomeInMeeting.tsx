@@ -2,6 +2,7 @@ import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
 import { useHMSRoomStyleSheet } from '../hooks-util';
+import { HMSLocalScreenshareTile } from './HMSLocalScreenshareTile';
 
 export interface WelcomeInMeetingProps {}
 
@@ -18,15 +19,19 @@ export const WelcomeInMeeting: React.FC<WelcomeInMeetingProps> = () => {
   }));
 
   return (
-    <View style={styles.container}>
-      <Text style={[styles.heading, hmsRoomStyles.heading]}>Welcome!</Text>
-      <Text style={[styles.description, hmsRoomStyles.description]}>
-        You're the first one here.
-      </Text>
-      <Text style={[styles.description, hmsRoomStyles.description]}>
-        Sit back and relax till the others join.
-      </Text>
-    </View>
+    <>
+      <View style={styles.container}>
+        <Text style={[styles.heading, hmsRoomStyles.heading]}>Welcome!</Text>
+        <Text style={[styles.description, hmsRoomStyles.description]}>
+          You're the first one here.
+        </Text>
+        <Text style={[styles.description, hmsRoomStyles.description]}>
+          Sit back and relax till the others join.
+        </Text>
+      </View>
+
+      <HMSLocalScreenshareTile />
+    </>
   );
 };
 
