@@ -254,7 +254,13 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
     func switchCamera() {
         DispatchQueue.main.async { [weak self] in
-            self?.hms?.localPeer?.localVideoTrack()?.switchCamera()
+            if let localVideoTrack = self?.hms?.localPeer?.localVideoTrack() {
+                localVideoTrack.switchCamera()
+            } else if let tracks = self?.previewForRoleTracks {
+                if let videoTrack = tracks.first(where: { $0.kind == HMSTrackKind.video }) as? HMSLocalVideoTrack {
+                    videoTrack.switchCamera()
+                }
+            }
         }
     }
 
