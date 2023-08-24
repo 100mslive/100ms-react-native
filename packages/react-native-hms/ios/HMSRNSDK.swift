@@ -235,7 +235,15 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
 
         DispatchQueue.main.async { [weak self] in
-            self?.hms?.localPeer?.localAudioTrack()?.setMute(isMute)
+            if let audioTrack = self?.hms?.localPeer?.localAudioTrack() {
+                audioTrack.setMute(isMute)
+            } else if let tracks = self?.previewForRoleTracks {
+                if let audioTrack = tracks.first(where: { $0.kind == HMSTrackKind.audio }) as? HMSLocalAudioTrack {
+                    audioTrack.setMute(isMute)
+                }
+            } else {
+                print(#function, "No local audio track available for setting mute state.")
+            }
         }
     }
 
@@ -248,7 +256,15 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
 
         DispatchQueue.main.async { [weak self] in
-            self?.hms?.localPeer?.localVideoTrack()?.setMute(isMute)
+            if let videoTrack = self?.hms?.localPeer?.localVideoTrack() {
+                videoTrack.setMute(isMute)
+            } else if let tracks = self?.previewForRoleTracks {
+                if let videoTrack = tracks.first(where: { $0.kind == HMSTrackKind.video }) as? HMSLocalVideoTrack {
+                    videoTrack.setMute(isMute)
+                }
+            } else {
+                print(#function, "No local video track available for setting mute state.")
+            }
         }
     }
 
@@ -260,6 +276,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 if let videoTrack = tracks.first(where: { $0.kind == HMSTrackKind.video }) as? HMSLocalVideoTrack {
                     videoTrack.switchCamera()
                 }
+            } else {
+                print(#function, "No local video track available for switching camera.")
             }
         }
     }
