@@ -660,6 +660,49 @@ export class HMSSDK {
   };
 
   /**
+   * -Preview for a specific Role before changing it.
+   *
+   * By previewing before doing a Role Change, users can see their expected Audio & Video tracks which will be visible to other Peers in Room post changing the Role.
+   *
+   * checkout {@link https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/peer/change-role} for more info
+   *
+   * @param {role: string}
+   * @memberof HMSSDK
+   */
+  previewForRole = async (role: string) => {
+    logger?.verbose('#Function previewForRole', {
+      role,
+      id: this.id,
+    });
+    const data: { data: string } = await HMSManager.previewForRole({
+      role,
+      id: this.id,
+    });
+
+    return data;
+  };
+
+  /**
+   * Cancel the Previewing for Role invocation.
+   *
+   * If a [previewForRole] call was performed previously then calling this method clears the tracks created anticipating a Change of Role
+   *
+   * checkout {@link https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/peer/change-role} for more info
+   *
+   * @memberof HMSSDK
+   */
+  cancelPreview = async () => {
+    logger?.verbose('#Function cancelPreview', {
+      id: this.id,
+    });
+    const data: { data: string } = await HMSManager.cancelPreview({
+      id: this.id,
+    });
+
+    return data;
+  };
+
+  /**
    * - Calling this function will accept the most recent roleChange request made by anyone in the room
    *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/change-role} for more info
