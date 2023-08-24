@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
 import { useHMSRoomStyleSheet } from '../hooks-util';
-import { HMSLocalScreenshareTile } from './HMSLocalScreenshareTile';
+import { HMSNotifications } from './HMSNotifications';
 
 export interface WelcomeInMeetingProps {}
 
@@ -30,7 +30,7 @@ export const WelcomeInMeeting: React.FC<WelcomeInMeetingProps> = () => {
         </Text>
       </View>
 
-      <HMSLocalScreenshareTile />
+      <HMSNotifications />
     </>
   );
 };

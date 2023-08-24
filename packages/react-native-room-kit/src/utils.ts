@@ -22,3 +22,9 @@ export const getJoinConfig = (): typeof DEFAULT_JOINING_CONFIG => {
 
   return config;
 };
+
+export enum NotificationTypes {
+  ROLE_CHANGE_DECLINED = 'role_change_declined',
+  HAND_RAISE = 'hand_raise',
+  LOCAL_SCREENSHARE = 'local_screenshare',
+};

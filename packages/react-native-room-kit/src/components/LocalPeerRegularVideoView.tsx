@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { PeerVideoTileView } from './PeerVideoTile/PeerVideoTileView';
 import type { PeerVideoTileViewProps } from './PeerVideoTile/PeerVideoTileView';
 import type { RootState } from '../redux';
-import { HMSLocalScreenshareTile } from './HMSLocalScreenshareTile';
+import { HMSNotifications } from './HMSNotifications';
 
 export interface LocalPeerRegularVideoViewProps
   extends Omit<PeerVideoTileViewProps, 'peerTrackNode'> {}
@@ -27,7 +27,7 @@ export const LocalPeerRegularVideoView: React.FC<
         onMoreOptionsPress={onMoreOptionsPress}
       />
 
-      <HMSLocalScreenshareTile />
+      <HMSNotifications />
     </>
   );
 };

@@ -297,3 +297,13 @@ export const updateScreenshareTile = (data: Partial<PeerTrackNode> & { id: strin
   type: actionTypes.UPDATE_SCREENSHARE_TILE,
   payload: data,
 });
+
+export const addNotification = (notification: { id: string; type: string; peer: HMSPeer; }) => ({
+  type: actionTypes.ADD_NOTIFICATION,
+  payload: { notification },
+});
+
+export const removeNotification = (notificationId: string) => ({
+  type: actionTypes.REMOVE_NOTIFICATION,
+  payload: { id: notificationId },
+});
