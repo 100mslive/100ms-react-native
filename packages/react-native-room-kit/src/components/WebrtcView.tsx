@@ -48,12 +48,12 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
       [peerTrackNodes, screenshareTilesAvailable, spotlightTrackId, isPortrait]
     );
 
-    const canShowTiles = useSelector(
+    const showWelcomeBanner = useSelector(
       (state: RootState) =>
-        !!state.app.localPeerTrackNode || pairedPeers.length > 0
+        !state.app.localPeerTrackNode && pairedPeers.length === 0
     );
 
-    if (!canShowTiles) {
+    if (showWelcomeBanner) {
       return <WelcomeInMeeting />;
     }
 

@@ -18,6 +18,8 @@ import type { RootState } from '../redux';
 import { PaginationDots } from './PaginationDots';
 import { setGridViewActivePage } from '../redux/actions';
 import { Tile } from './Tile';
+import { HMSLocalScreenshareTile } from './HMSLocalScreenshareTile';
+
 
 export type GridViewProps = {
   onPeerTileMorePress(peerTrackNode: PeerTrackNode): void;
@@ -27,7 +29,9 @@ export type GridViewProps = {
 export type GridViewRefAttrs = {
   captureViewScreenshot(node: PeerTrackNode): any;
   getRegularTilesFlatlistRef(): React.RefObject<FlatList<PeerTrackNode[]>>;
-  getScreenshareTilesFlatlistRef(): React.RefObject<FlatList<PeerTrackNode>> | null;
+  getScreenshareTilesFlatlistRef(): React.RefObject<
+    FlatList<PeerTrackNode>
+  > | null;
 };
 
 const FLATLIST_VIEWABILITY_CONFIG = {
@@ -132,6 +136,8 @@ export const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
             onMoreOptionsPress={onPeerTileMorePress}
           />
         ) : null}
+
+        <HMSLocalScreenshareTile />
 
         {/* Save Captured Screenshot of HMSView Modal */}
         <DefaultModal
