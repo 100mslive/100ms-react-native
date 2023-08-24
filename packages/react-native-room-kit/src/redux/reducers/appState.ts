@@ -46,6 +46,7 @@ type IntialStateType = {
   gridViewActivePage: number;
   startingOrStoppingRecording: boolean;
   fullScreenPeerTrackNode: null | PeerTrackNode;
+  screensharePeerTrackNodes: PeerTrackNode[];
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -71,6 +72,7 @@ const INITIAL_STATE: IntialStateType = {
   gridViewActivePage: 0,
   startingOrStoppingRecording: false,
   fullScreenPeerTrackNode: null,
+  screensharePeerTrackNodes: [],
 };
 
 const appReducer = (
@@ -220,6 +222,34 @@ const appReducer = (
         ...state,
         startingOrStoppingRecording: action.payload.startingOrStoppingRecording,
       };
+    case ActionTypes.ADD_SCREENSHARE_TILE: {
+      return {
+        ...state,
+        screensharePeerTrackNodes: [
+          ...state.screensharePeerTrackNodes,
+          action.payload.screenshareNode,
+        ],
+      };
+    }
+    case ActionTypes.REMOVE_SCREENSHARE_TILE: {
+      return {
+        ...state,
+        screensharePeerTrackNodes: state.screensharePeerTrackNodes.filter(
+          (node) => node.id !== action.payload.id
+        ),
+      };
+    }
+    case ActionTypes.UPDATE_SCREENSHARE_TILE: {
+      return {
+        ...state,
+        screensharePeerTrackNodes: state.screensharePeerTrackNodes.map(
+          (node) =>
+            node.id === action.payload.id
+              ? { ...node, ...action.payload }
+              : node
+        ),
+      };
+    }
     case HmsStateActionTypes.CLEAR_STATES:
       return INITIAL_STATE;
     default:
