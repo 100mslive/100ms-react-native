@@ -139,6 +139,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                         return
                     }
                     
+                    self?.previewForRoleTracks = tracks
+                    
                     let decodedTracks = HMSDecoder.getAllTracks(tracks ?? [])
                     
                     resolve?(["success": true, "tracks": decodedTracks] as [String: Any])
