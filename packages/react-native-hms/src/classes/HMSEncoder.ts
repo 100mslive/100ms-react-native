@@ -39,6 +39,7 @@ import { HMSRemoteVideoStats } from './HMSRemoteVideoStats';
 import { HMSLayer } from './HMSLayer';
 import { HMSSimulcastLayerDefinition } from './HMSSimulcastLayerDefinition';
 import { HMSQualityLimitationReasons } from './HMSQualityLimitationReasons';
+import { HMSTrackType } from './HMSTrackType';
 
 interface InitialData {
   roles: Record<string, HMSRole>;
@@ -320,6 +321,14 @@ export class HMSEncoder {
   static encodeHmsPreviewTracks(previewTracks: any[], id: string) {
     return previewTracks?.map((track) => {
       return this.encodeHmsTrack(track, id);
+    });
+  }
+
+  static encodeHmsPreviewForRoleTracks(previewTracks: any[], id: string) {
+    return previewTracks?.map((track) => {
+      return track.type === HMSTrackType.VIDEO
+        ? this.encodeHmsLocalVideoTrack(track, id)
+        : this.encodeHmsLocalAudioTrack(track, id);
     });
   }
 
