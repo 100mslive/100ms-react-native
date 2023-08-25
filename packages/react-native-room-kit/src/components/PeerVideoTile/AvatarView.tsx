@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import type { StyleProp, ViewStyle } from 'react-native';
 
 import { PersonIcon } from '../../Icons';
 import { getInitials } from '../../utils/functions';
@@ -10,9 +11,16 @@ import { useHMSRoomStyleSheet } from '../../hooks-util';
 export interface AvatarViewProps {
   name: string;
   videoView: React.ReactElement<typeof VideoView> | null;
+  avatarStyles?: StyleProp<ViewStyle>;
+  avatarContainerStyles?: StyleProp<ViewStyle>;
 }
 
-export const _AvatarView: React.FC<AvatarViewProps> = ({ name, videoView }) => {
+export const _AvatarView: React.FC<AvatarViewProps> = ({
+  name,
+  videoView,
+  avatarStyles,
+  avatarContainerStyles,
+}) => {
   const showInitials = !!name && name.length > 0;
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
@@ -31,8 +39,14 @@ export const _AvatarView: React.FC<AvatarViewProps> = ({ name, videoView }) => {
   return (
     <View style={styles.container}>
       {videoView || (
-        <View style={[styles.avatarContainer, hmsRoomStyles.avatarContainer]}>
-          <View style={[styles.avatar, hmsRoomStyles.avatar]}>
+        <View
+          style={[
+            styles.avatarContainer,
+            hmsRoomStyles.avatarContainer,
+            avatarContainerStyles,
+          ]}
+        >
+          <View style={[styles.avatar, hmsRoomStyles.avatar, avatarStyles]}>
             {showInitials ? (
               <Text style={[styles.avatarText, hmsRoomStyles.avatarText]}>
                 {getInitials(name)}

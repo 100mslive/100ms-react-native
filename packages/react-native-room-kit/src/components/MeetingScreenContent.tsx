@@ -19,6 +19,7 @@ import { useIsHLSViewer } from '../hooks-util';
 import { HMSStatusBar } from './StatusBar';
 import { AnimatedFooter } from './AnimatedFooter';
 import { HLSFooter } from './HLSFooter';
+import { AnimatedHeader } from './AnimatedHeader';
 
 interface MeetingScreenContentProps {
   peerTrackNodes: Array<PeerTrackNode>;
@@ -87,7 +88,11 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
     >
       <HMSStatusBar hidden={controlsHidden} barStyle={'light-content'} />
 
-      {isPipModeActive ? null : <Header offset={offset} />}
+      {isPipModeActive ? null : (
+        <AnimatedHeader offset={offset}>
+          <Header transparent={isHLSViewer} showControls={!isHLSViewer} />
+        </AnimatedHeader>
+      )}
 
       <DisplayView offset={offset} peerTrackNodes={peerTrackNodes} />
 

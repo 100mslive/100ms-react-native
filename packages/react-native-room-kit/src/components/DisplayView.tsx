@@ -14,7 +14,6 @@ import type { PeerTrackNode } from '../utils/types';
 import { requestExternalStoragePermission } from '../utils/functions';
 import {
   ChangeAspectRatio,
-  ChangeRoleAccepteModal,
   ChangeRoleModal,
   ChangeTrackStateModal,
   SaveScreenshot,
@@ -36,6 +35,7 @@ import { ParticipantsModal } from './ParticipantsModal';
 import { WebrtcView } from './WebrtcView';
 import { BottomSheet } from './BottomSheet';
 import { FullScreenVideoView } from './FullScreenVideoView';
+import { PreviewForRoleChangeModal } from './PreviewForRoleChangeModal';
 
 type CapturedImagePath = { uri: string } | null;
 
@@ -79,9 +79,7 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
     setModalVisible(ModalTypes.CHANGE_TRACK, true);
   });
 
-  const roleChangeRequest = useHMSRoleChangeRequest(() => {
-    setModalVisible(ModalTypes.CHANGE_ROLE_ACCEPT, true);
-  });
+  useHMSRoleChangeRequest();
 
   // functions
 
@@ -152,6 +150,8 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
 
       {isPipModeActive ? null : (
         <>
+          <PreviewForRoleChangeModal />
+
           <FullScreenVideoView />
 
           <BottomSheet
@@ -216,19 +216,6 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
             {trackStateChangeRequest ? (
               <ChangeTrackStateModal
                 roleChangeRequest={trackStateChangeRequest}
-                cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
-              />
-            ) : null}
-          </DefaultModal>
-          <DefaultModal
-            modalPosiion="center"
-            modalVisible={modalVisible === ModalTypes.CHANGE_ROLE_ACCEPT}
-            setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
-          >
-            {roleChangeRequest ? (
-              <ChangeRoleAccepteModal
-                instance={hmsInstance}
-                roleChangeRequest={roleChangeRequest}
                 cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
               />
             ) : null}

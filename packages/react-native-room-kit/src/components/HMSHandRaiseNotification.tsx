@@ -16,11 +16,13 @@ import { removeNotification } from '../redux/actions';
 export interface HMSHandRaiseNotificationProps {
   peer: HMSPeer;
   id: string;
+  dismissDelay?: number;
+  autoDismiss?: boolean;
 }
 
 export const HMSHandRaiseNotification: React.FC<
   HMSHandRaiseNotificationProps
-> = ({ peer, id }) => {
+> = ({ peer, id, dismissDelay=5000, autoDismiss }) => {
   const dispatch = useDispatch();
   const hmsInstance = useHMSInstance();
   const broadcasterRole = useSelector(
@@ -49,7 +51,8 @@ export const HMSHandRaiseNotification: React.FC<
       id={id}
       icon={<HandIcon />}
       text={`${peer.name} raised hand`}
-      dismissDelay={30000}
+      dismissDelay={dismissDelay}
+      autoDismiss={autoDismiss}
       cta={
         <TouchableHighlight
           underlayColor={secondaryDimColor}

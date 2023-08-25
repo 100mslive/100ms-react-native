@@ -20,10 +20,13 @@ export const HMSNotifications: React.FC<HMSNotificationsProps> = () => {
   const isLocalScreenShared = useSelector(
     (state: RootState) => state.hmsStates.isLocalScreenShared
   );
+
+  // notifications is a stack, first will appear last
   const notifications: (
     | typeof LOCAL_SCREENSHARE_PAYLOAD
     | { id: string; type: string; peer: HMSPeer }
   )[] = useSelector((state: RootState) => {
+    // Latest notification will be at 0th index.
     const allNotifications = state.app.notifications;
 
     let list = [];
@@ -31,11 +34,19 @@ export const HMSNotifications: React.FC<HMSNotificationsProps> = () => {
     if (isLocalScreenShared) {
       list.push(LOCAL_SCREENSHARE_PAYLOAD);
 
+      // We are picking the latest notification always
       if (allNotifications.length > 0) {
         const firstNotification = allNotifications[0];
 
+        const secondNotification =
+          allNotifications.length > 1 ? allNotifications[1] : null;
+
+        if (secondNotification) {
+          list.push(secondNotification);
+        }
+
         if (firstNotification) {
-          list.unshift(firstNotification);
+          list.push(firstNotification);
         }
       }
     } else if (allNotifications.length > 0) {
@@ -43,6 +54,13 @@ export const HMSNotifications: React.FC<HMSNotificationsProps> = () => {
 
       const secondNotification =
         allNotifications.length > 1 ? allNotifications[1] : null;
+
+      const thirdNotification =
+        allNotifications.length > 2 ? allNotifications[2] : null;
+
+      if (thirdNotification) {
+        list.push(thirdNotification);
+      }
 
       if (secondNotification) {
         list.push(secondNotification);
@@ -62,34 +80,42 @@ export const HMSNotifications: React.FC<HMSNotificationsProps> = () => {
 
   return (
     <View style={styles.absoluteContainer}>
-      {notifications.map((notification, index, arr) => (
-        <View
-          key={index}
-          style={[
-            {
-              transform: [{ scale: index === 0 && arr.length > 1 ? 0.96 : 1 }],
-            },
-            index === 0 ? null : styles.notificationWrapper,
-            index === 0 ? null : { bottom: index * 16 },
-          ]}
-        >
-          {notification.type === NotificationTypes.LOCAL_SCREENSHARE ? (
-            <HMSLocalScreenshareNotification />
-          ) : notification.type === NotificationTypes.HAND_RAISE &&
-            'peer' in notification ? (
-            <HMSHandRaiseNotification
-              id={notification.id}
-              peer={notification.peer}
-            />
-          ) : notification.type === NotificationTypes.ROLE_CHANGE_DECLINED &&
-            'peer' in notification ? (
-            <HMSRoleChangeDeclinedNotification
-              id={notification.id}
-              peerName={notification.peer.name}
-            />
-          ) : null}
-        </View>
-      ))}
+      {notifications.map((notification, index, arr) => {
+        const atTop = index === arr.length - 1;
+        const atBottom = index === 0;
+        return (
+          <View
+            key={notification.id}
+            style={[
+              {
+                transform: [{ scale: getScale(arr.length, index) }],
+              },
+              atBottom ? null : styles.notificationWrapper,
+              atBottom ? null : { bottom: index * 16 },
+            ]}
+          >
+            {notification.type === NotificationTypes.LOCAL_SCREENSHARE ? (
+              <HMSLocalScreenshareNotification />
+            ) : notification.type === NotificationTypes.HAND_RAISE &&
+              'peer' in notification ? (
+              <HMSHandRaiseNotification
+                id={notification.id}
+                peer={notification.peer}
+                autoDismiss={atTop}
+                dismissDelay={20000}
+              />
+            ) : notification.type === NotificationTypes.ROLE_CHANGE_DECLINED &&
+              'peer' in notification ? (
+              <HMSRoleChangeDeclinedNotification
+                id={notification.id}
+                peerName={notification.peer.name}
+                autoDismiss={atTop}
+                dismissDelay={10000}
+              />
+            ) : null}
+          </View>
+        );
+      })}
     </View>
   );
 };
@@ -100,10 +126,25 @@ const styles = StyleSheet.create({
     bottom: 16,
     width: '100%',
     zIndex: 1,
-    // backgroundColor: 'yellow',
   },
   notificationWrapper: {
     position: 'absolute',
     width: '100%',
   },
 });
+
+const getScale = (totalItem: number, current: number): number => {
+  if (totalItem === 1) {
+    return 1;
+  }
+
+  if (totalItem === 2) {
+    return [0.96, 1][current]!;
+  }
+
+  if (totalItem === 3) {
+    return [0.94, 0.97, 1][current]!;
+  }
+
+  return 1;
+}

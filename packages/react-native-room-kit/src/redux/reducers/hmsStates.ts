@@ -2,6 +2,7 @@ import type {
   HMSLocalPeer,
   HMSPeer,
   HMSRole,
+  HMSRoleChangeRequest,
   HMSRoom,
 } from '@100mslive/react-native-hms';
 import type { Layout } from '@100mslive/types-prebuilt';
@@ -18,7 +19,8 @@ type ActionType =
   | ResetAction
   | AddToPreviewPeersList
   | RemoveFromPreviewPeersList
-  | SetLayoutConfig;
+  | SetLayoutConfig
+  | SetRoleChangeRequest;
 
 type SetRoomAction = {
   type: HmsStateActionTypes.SET_ROOM_STATE;
@@ -74,6 +76,11 @@ type SetLayoutConfig = {
   layoutConfig: Layout;
 };
 
+type SetRoleChangeRequest = {
+  type: HmsStateActionTypes.SET_ROLE_CHANGE_REQUEST;
+  roleChangeRequest: HMSRoleChangeRequest | null;
+};
+
 type IntialStateType = {
   isLocalAudioMuted: boolean | undefined;
   isLocalVideoMuted: boolean | undefined;
@@ -84,6 +91,7 @@ type IntialStateType = {
   roles: HMSRole[];
   previewPeersList: HMSPeer[];
   layoutConfig: Layout | null;
+  roleChangeRequest: HMSRoleChangeRequest | null;
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -96,6 +104,7 @@ const INITIAL_STATE: IntialStateType = {
   roles: [],
   previewPeersList: [],
   layoutConfig: null,
+  roleChangeRequest: null,
 };
 
 const hmsStatesReducer = (
@@ -156,6 +165,11 @@ const hmsStatesReducer = (
       return {
         ...state,
         layoutConfig: action.layoutConfig,
+      };
+    case HmsStateActionTypes.SET_ROLE_CHANGE_REQUEST:
+      return {
+        ...state,
+        roleChangeRequest: action.roleChangeRequest,
       };
     case HmsStateActionTypes.CLEAR_STATES:
       return INITIAL_STATE;

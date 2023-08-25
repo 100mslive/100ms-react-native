@@ -7,6 +7,7 @@ import type {
   HMSRemoteAudioStats,
   HMSRemoteVideoStats,
   HMSRole,
+  HMSRoleChangeRequest,
   HMSSDK,
   HMSSessionStore,
 } from '@100mslive/react-native-hms';
@@ -310,4 +311,9 @@ export const addNotification = (notification: { id: string; type: string; peer: 
 export const removeNotification = (notificationId: string) => ({
   type: actionTypes.REMOVE_NOTIFICATION,
   payload: { id: notificationId },
+});
+
+export const setRoleChangeRequest = (roleChangeRequest: HMSRoleChangeRequest | null) => ({
+  type: HmsStateActionTypes.SET_ROLE_CHANGE_REQUEST,
+  roleChangeRequest
 });

@@ -76,6 +76,7 @@ import {
   setLocalPeerTrackNode,
   setMiniViewPeerTrackNode,
   setModalType,
+  setRoleChangeRequest,
   setStartingOrStoppingRecording,
   updateFullScreenPeerTrackNode,
   updateLocalPeerTrackNode,
@@ -535,6 +536,12 @@ const useHMSTrackUpdate = (
                 )
               );
             }
+
+            // if (track.type === HMSTrackType.AUDIO) {
+            //   dispatch(setIsLocalAudioMutedState(track.isMute()));
+            // } else if (track.type === HMSTrackType.VIDEO) {
+            //   dispatch(setIsLocalVideoMutedState(track.isMute()));
+            // }
           }
           // else -> {
           //    should `localPeerTrackNode` be created/updated for non-regular track addition?
@@ -856,26 +863,20 @@ export const useHMSChangeTrackStateRequest = (
   return trackStateChangeRequest;
 };
 
-type RoleChangeRequest = {
-  requestedBy?: string;
-  suggestedRole?: string;
-};
-
 export const useHMSRoleChangeRequest = (
   callback?: (request: HMSRoleChangeRequest) => void,
   deps?: React.DependencyList
 ) => {
+  const taskRef = useRef<any>(null);
+  const dispatch = useDispatch();
   const hmsInstance = useHMSInstance();
-  const [roleChangeRequest, setRoleChangeRequest] =
-    useState<RoleChangeRequest | null>(null);
 
   useEffect(() => {
-    const changeRoleRequestHandler = (request: HMSRoleChangeRequest) => {
-      setRoleChangeRequest({
-        requestedBy: request?.requestedBy?.name,
-        suggestedRole: request?.suggestedRole?.name,
+    const changeRoleRequestHandler = async (request: HMSRoleChangeRequest) => {
+      taskRef.current = InteractionManager.runAfterInteractions(() => {
+        dispatch(setRoleChangeRequest(request));
+        callback?.(request);
       });
-      callback?.(request);
     };
 
     hmsInstance.addEventListener(
@@ -884,13 +885,12 @@ export const useHMSRoleChangeRequest = (
     );
 
     return () => {
+      taskRef.current?.cancel();
       hmsInstance.removeEventListener(
         HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST
       );
     };
   }, [...(deps || []), hmsInstance]);
-
-  return roleChangeRequest;
 };
 
 type SessionStoreListeners = Array<{ remove: () => void }>;
