@@ -217,6 +217,20 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
+  fun previewForRole(data: ReadableMap, callback: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.previewForRole(data, callback)
+  }
+
+  @ReactMethod
+  fun cancelPreview(data: ReadableMap, callback: Promise?) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.cancelPreview(callback)
+  }
+
+  @ReactMethod
   fun acceptRoleChange(data: ReadableMap, callback: Promise?) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
