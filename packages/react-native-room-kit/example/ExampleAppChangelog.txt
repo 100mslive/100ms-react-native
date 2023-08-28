@@ -1,13 +1,13 @@
-Board: https://github.com/100mslive/100ms-react-native/projects/26
+Board: https://github.com/100mslive/100ms-react-native/projects/28
 
-- Added Active Speaker Sorting
-https://github.com/100mslive/100ms-react-native/issues/1126
+- Added Equal Prominence Remote & Local Screenshare
+https://github.com/100mslive/100ms-react-native/issues/1137
 
 - Added Equal Prominence Layout
 https://github.com/100mslive/100ms-react-native/issues/1124
 
-- Added Local Peer in Inset Tile
-https://github.com/100mslive/100ms-react-native/issues/1123
+- Added Full screen ScreenShare with pinch to zoom
+https://github.com/100mslive/100ms-react-native/issues/1136
 
 Room Kit: 0.2.0
 Core SDK: 1.7.2
