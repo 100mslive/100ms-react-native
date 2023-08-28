@@ -1044,28 +1044,25 @@ class HMSRNSDK(
         callback?.reject("4000", "ROLE_NOT_FOUND")
         return
       }
-      hmsSDK.preview(role, object: RolePreviewListener{
-        override fun onError(error: HMSException) {
-          callback?.reject(error.code.toString(), error.message)
-        }
-
-        override fun onTracks(localTracks: Array<HMSTrack>) {
-          val tracks = ArrayList<Any>()
-          localTracks.forEach { track ->
-
-            ///Assigning values to preview for role tracks
-            if(track.type == HMSTrackType.AUDIO) {
-              previewForRoleAudioTrack = track as HMSLocalAudioTrack
-            }
-            else if(track.type == HMSTrackType.VIDEO && track.source == "regular") {
-              previewForRoleVideoTrack = track as HMSLocalVideoTrack
-            }
-
-            HMSDecoder.getHmsTrack(track)?.let { tracks.add(it) }
+      hmsSDK?.preview(
+        role,
+        object : RolePreviewListener {
+          override fun onError(error: HMSException) {
+            callback?.reject(error.code.toString(), error.message)
           }
-          callback?.resolve(tracks)
-        }
-      })
+
+          override fun onTracks(localTracks: Array<HMSTrack>) {
+            val tracks = HMSDecoder.getPreviewTracks(localTracks)
+
+            val data: WritableMap = Arguments.createMap()
+
+            data.putArray("tracks", tracks)
+            data.putBoolean("success", true)
+
+            callback?.resolve(data)
+          }
+        },
+      )
     } else {
       val errorMessage = "Missing required keys for previewForRole: $requiredKeys"
       self.emitRequiredKeysError(errorMessage)
@@ -1073,7 +1070,7 @@ class HMSRNSDK(
     }
   }
 
-  fun  cancelPreview(callback: Promise?) {
+  fun cancelPreview(callback: Promise?) {
     hmsSDK?.cancelPreview()
     previewForRoleAudioTrack = null
     previewForRoleVideoTrack = null
