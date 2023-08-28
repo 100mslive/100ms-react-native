@@ -143,7 +143,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
                     let decodedTracks = HMSDecoder.getAllTracks(tracks ?? [])
 
-                    resolve?(["success": true, "tracks": decodedTracks] as [String: Any])
+                    resolve?(decodedTracks)
                 }
             }
         }
