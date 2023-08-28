@@ -47,7 +47,8 @@ export const FullScreenVideoView = () => {
       <GestureHandlerRootView style={styles.container}>
         <SafeAreaView style={styles.container}>
           <View style={[styles.contentContainer, contentContainerStyles]}>
-            {fullScreenPeerTrackNode && fullScreenPeerTrackNode.track?.trackId ? (
+            {fullScreenPeerTrackNode &&
+            fullScreenPeerTrackNode.track?.trackId ? (
               <PeerVideoTileView
                 peerTrackNode={fullScreenPeerTrackNode}
                 zoomIn={true}

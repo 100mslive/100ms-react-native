@@ -22,7 +22,7 @@ export interface HMSHandRaiseNotificationProps {
 
 export const HMSHandRaiseNotification: React.FC<
   HMSHandRaiseNotificationProps
-> = ({ peer, id, dismissDelay=5000, autoDismiss }) => {
+> = ({ peer, id, dismissDelay = 5000, autoDismiss }) => {
   const dispatch = useDispatch();
   const hmsInstance = useHMSInstance();
   const broadcasterRole = useSelector(

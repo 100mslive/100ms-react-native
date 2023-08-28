@@ -12,10 +12,10 @@ import ReplayKit
 class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
     var hms: HMSSDK?
-    
+
     var delegate: HMSManager?
     var id: String = "12345"
-    
+
     private var recentRoleChangeRequest: HMSRoleChangeRequest?
     internal var previewForRoleTracks: [HMSTrack]?
     private var reconnectingStage: Bool = false
@@ -138,11 +138,11 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                         reject?(error?.localizedDescription, error?.localizedDescription, nil)
                         return
                     }
-                    
+
                     self?.previewForRoleTracks = tracks
-                    
+
                     let decodedTracks = HMSDecoder.getAllTracks(tracks ?? [])
-                    
+
                     resolve?(["success": true, "tracks": decodedTracks] as [String: Any])
                 }
             }

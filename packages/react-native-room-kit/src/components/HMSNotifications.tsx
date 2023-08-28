@@ -147,4 +147,4 @@ const getScale = (totalItem: number, current: number): number => {
   }
 
   return 1;
-}
+};

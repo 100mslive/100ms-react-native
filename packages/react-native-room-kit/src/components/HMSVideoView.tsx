@@ -9,7 +9,11 @@ import { useHMSInstance } from '../hooks-util';
 
 export interface HMSVideoViewProps extends Omit<HMSViewProps, 'id'> {}
 
-export const HMSVideoView: React.FC<HMSVideoViewProps> = ({ trackId, style, ...restProps }) => {
+export const HMSVideoView: React.FC<HMSVideoViewProps> = ({
+  trackId,
+  style,
+  ...restProps
+}) => {
   const hmsInstance = useHMSInstance();
   const HmsView = hmsInstance.HmsView;
   const mirrorCamera = useSelector(
@@ -27,7 +31,7 @@ export const HMSVideoView: React.FC<HMSVideoViewProps> = ({ trackId, style, ...r
       mirror={restProps.mirror ?? mirrorCamera}
       autoSimulcast={restProps.autoSimulcast ?? autoSimulcast}
       scaleType={restProps.scaleType ?? HMSVideoViewMode.ASPECT_FILL}
-      style={{...styles.hmsView, ...style}}
+      style={{ ...styles.hmsView, ...style }}
     />
   );
 };
