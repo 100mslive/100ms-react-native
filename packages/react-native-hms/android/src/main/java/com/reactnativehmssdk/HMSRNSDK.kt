@@ -37,6 +37,8 @@ class HMSRNSDK(
   var audioshareCallback: Promise? = null
   var isAudioSharing: Boolean = false
   var delegate: HMSManager = HmsDelegate
+  var previewForRoleVideoTrack: HMSLocalVideoTrack? = null
+  var previewForRoleAudioTrack: HMSLocalAudioTrack? = null
   private var recentRoleChangeRequest: HMSRoleChangeRequest? = null
   private var context: ReactApplicationContext = reactApplicationContext
   private var previewInProgress: Boolean = false
@@ -1031,6 +1033,51 @@ class HMSRNSDK(
       self.emitRequiredKeysError(errorMessage)
       rejectCallback(callback, errorMessage)
     }
+  }
+
+  fun previewForRole(data: ReadableMap, callback: Promise?) {
+    val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("role", "String")))
+    if (requiredKeys === null) {
+      val roleString = data.getString("role")
+      val role = HMSHelper.getRoleFromRoleName(roleString, hmsSDK?.getRoles())
+      if (role == null) {
+        callback?.reject("4000", "ROLE_NOT_FOUND")
+        return
+      }
+      hmsSDK.preview(role, object: RolePreviewListener{
+        override fun onError(error: HMSException) {
+          callback?.reject(error.code.toString(), error.message)
+        }
+
+        override fun onTracks(localTracks: Array<HMSTrack>) {
+          val tracks = ArrayList<Any>()
+          localTracks.forEach { track ->
+
+            ///Assigning values to preview for role tracks
+            if(track.type == HMSTrackType.AUDIO) {
+              previewForRoleAudioTrack = track as HMSLocalAudioTrack
+            }
+            else if(track.type == HMSTrackType.VIDEO && track.source == "regular") {
+              previewForRoleVideoTrack = track as HMSLocalVideoTrack
+            }
+
+            HMSDecoder.getHmsTrack(track)?.let { tracks.add(it) }
+          }
+          callback?.resolve(tracks)
+        }
+      })
+    } else {
+      val errorMessage = "Missing required keys for previewForRole: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(callback, errorMessage)
+    }
+  }
+
+  fun  cancelPreview(callback: Promise?) {
+    hmsSDK?.cancelPreview()
+    previewForRoleAudioTrack = null
+    previewForRoleVideoTrack = null
+    callback?.resolve(emitHMSSuccess())
   }
 
   fun acceptRoleChange(callback: Promise?) {
