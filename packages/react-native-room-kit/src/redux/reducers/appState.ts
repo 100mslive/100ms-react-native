@@ -47,7 +47,7 @@ type IntialStateType = {
   startingOrStoppingRecording: boolean;
   fullScreenPeerTrackNode: null | PeerTrackNode;
   screensharePeerTrackNodes: PeerTrackNode[];
-  notifications: { id: string; type: string; peer: HMSPeer; }[];
+  notifications: { id: string; type: string; peer: HMSPeer }[];
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -261,7 +261,9 @@ const appReducer = (
     case ActionTypes.REMOVE_NOTIFICATION: {
       return {
         ...state,
-        notifications: state.notifications.filter(notification => notification.id !== action.payload.id),
+        notifications: state.notifications.filter(
+          (notification) => notification.id !== action.payload.id
+        ),
       };
     }
     case HmsStateActionTypes.CLEAR_STATES:

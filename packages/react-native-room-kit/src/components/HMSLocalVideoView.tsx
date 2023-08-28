@@ -9,7 +9,7 @@ export const HMSLocalVideoView = () => {
     (state: RootState) => state.hmsStates.localPeer?.videoTrack?.trackId
   );
 
-  return (
-    localVideoTrackId ? <HMSVideoView trackId={localVideoTrackId} /> : null
-  );
+  return localVideoTrackId ? (
+    <HMSVideoView trackId={localVideoTrackId} />
+  ) : null;
 };

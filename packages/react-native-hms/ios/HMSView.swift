@@ -90,7 +90,7 @@ class HmssdkDisplayView: UIView {
                 print(#function, "Required data to setup video view not found")
                 return
             }
-            
+
             if let videoTrack = HMSUtilities.getVideoTrack(for: trackID, in: room) {
                 videoView.setVideoTrack(videoTrack)
             } else if let videoTrack = getPreviewForRoleTrack(trackID) {
@@ -101,9 +101,9 @@ class HmssdkDisplayView: UIView {
             }
         }
     }
-    
+
     private func getPreviewForRoleTrack(_ trackID: String) -> HMSVideoTrack? {
-        
+
         if let hmsRnSdk = hmsCollection["12345"] {
             if let tracks = hmsRnSdk.previewForRoleTracks {
                 if let videoTrack = tracks.first(where: { $0.trackId == trackID }) as? HMSVideoTrack {
@@ -111,7 +111,7 @@ class HmssdkDisplayView: UIView {
                 }
             }
         }
-        
+
         return nil
     }
 

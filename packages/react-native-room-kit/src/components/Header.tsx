@@ -14,16 +14,16 @@ interface HeaderProps {
   showControls?: boolean;
 }
 
-export const _Header: React.FC<HeaderProps> = ({ transparent=false, showControls=true }) => {
+export const _Header: React.FC<HeaderProps> = ({
+  transparent = false,
+  showControls = true,
+}) => {
   const containerStyles = useHMSRoomStyle((theme) => ({
     backgroundColor: theme.palette.background_dim,
   }));
 
   return (
-    <SafeAreaView
-      style={transparent ? null : containerStyles}
-      edges={['top']}
-    >
+    <SafeAreaView style={transparent ? null : containerStyles} edges={['top']}>
       <View style={[styles.container, transparent ? null : containerStyles]}>
         <View style={styles.logoContainer}>
           <CompanyLogo style={styles.logo} />
