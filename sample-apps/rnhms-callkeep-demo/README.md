@@ -6,16 +6,6 @@ with [100ms React Native SDK](https://github.com/100mslive/react-native-hms).
 The app has implemented basic video call conferencing using `v1.6.2` of the `100mslive/react-native-hms` library. It uses
 [Room Code](https://www.100ms.live/docs/react-native/v2/quickstart/token#get-room-code-from-100ms-dashboard) for generating 100ms Auth Token.
 
-Branch Setup:
-
-- `origin/main` branch has a basic video call conferencing feature with 100ms
-
-- `origin/android-feature-fcm-support` branch has implemented support for Firebase cloud messaging. This allows us to send data notifications
-to the app even when it's in an inactive state.
-
-- `origin/android-feature-callkeep-support` branch has implemented support for
-[Reacty Native Callkeep](https://github.com/react-native-webrtc/react-native-callkeep) library.
-
 
 > Important Note: React Native Callkeep library and Firebase support are added only for Android. Therefore, the iOS build can only be made on the `main` branch.
 
@@ -37,8 +27,8 @@ React Native SDK within your app.
 
 The `main` branch of this repository implements the basic video call conferencing feature with 100ms React Native SDK.
 
-You can also checkout [quickstart app](https://github.com/100mslive/react-native-hms/tree/main/sample-apps/rn-quickstart-app) or
-[advanced example app](https://github.com/100mslive/react-native-hms/tree/main/example) which implements all the features provided by 100ms.
+You can also checkout [quickstart app](https://www.100ms.live/docs/react-native/v2/quickstart/quickstart) or
+[Prebuilt example app](https://www.100ms.live/docs/react-native/v2/quickstart/prebuilt) which implements all the features provided by 100ms.
 
 ### 2. Add support for Firebase Cloud Messaging
 
@@ -64,7 +54,7 @@ RNCallkeep library requires some permissions before its features can be used wit
 We need to call the `RNCallKeep.setup` method on the main screen of the app so that it always gets called whenever the app starts.
 In this way, We will already have the required permissions before the app shows the call screen from an inactive state.
 
-We are calling the `RNCallKeep.setup` method in [`FCMSetup` component](https://github.com/stanwolverine/rnhms-callkeep-demo/blob/android-feature-callkeep-support/src/components/FCMSetup.js)
+We are calling the `RNCallKeep.setup` method in [`FCMSetup` component](https://github.com/100mslive/100ms-react-native/blob/main/sample-apps/rnhms-callkeep-demo/src/components/FCMSetup.js)
 which is always rendered irrespective of the screen user is on.
 
 <img width="600" alt="FCMSetup component snapshot" src="https://github.com/stanwolverine/rnhms-callkeep-demo/assets/45194090/76d62044-7c3f-4eb2-93d5-825c02864b6e">
@@ -181,7 +171,7 @@ When the App starts, fetch if any data is available for the incoming call, for o
 If no data is present for the `answerCall_data` key, then the app can continue the normal flow, otherwise, you can show directly show "Meeting screen"
 to the user and pass the fetched "room code" to the "Meeting screen".
 
-You can check out how we handled App UI in the app [here](https://github.com/stanwolverine/rnhms-callkeep-demo/blob/android-feature-callkeep-support/src/navigator/index.js#L72)
+You can check out how we handled App UI in the app [here](https://github.com/100mslive/100ms-react-native/blob/main/sample-apps/rnhms-callkeep-demo/src/navigator/index.js#L72)
 
 ```
 // Sudo Code for Handling App UI logic
