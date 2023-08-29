@@ -593,17 +593,17 @@ class HMSRNSDK(
 
   fun setLocalMute(data: ReadableMap) {
     val isMute = data.getBoolean("isMute")
-    hmsSDK?.getLocalPeer()?.audioTrack?.setMute(isMute)
+    hmsSDK?.getLocalPeer()?.audioTrack?.setMute(isMute) ?: previewForRoleAudioTrack?.setMute(isMute)
   }
 
   fun setLocalVideoMute(data: ReadableMap) {
     val isMute = data.getBoolean("isMute")
-    hmsSDK?.getLocalPeer()?.videoTrack?.setMute(isMute)
+    hmsSDK?.getLocalPeer()?.videoTrack?.setMute(isMute) ?: previewForRoleVideoTrack?.setMute(isMute)
   }
 
   fun switchCamera() {
     if (hmsSDK?.getLocalPeer()?.videoTrack?.isMute == false) {
-      HMSCoroutineScope.launch { hmsSDK?.getLocalPeer()?.videoTrack?.switchCamera() }
+      HMSCoroutineScope.launch { hmsSDK?.getLocalPeer()?.videoTrack?.switchCamera() ?: previewForRoleVideoTrack?.switchCamera() }
     }
   }
 
