@@ -112,15 +112,26 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
     if (id != null) {
       sdkId = id
     }
-    val hms = hmsCollection[sdkId]?.hmsSDK
+    val rnSDK = hmsCollection[sdkId]
+    val hms = rnSDK?.hmsSDK
 
     if (trackId != null && hms != null) {
       if (mirror != null) {
         hmsVideoView?.setMirror(mirror)
       }
       updateScaleType(scaleType)
-      // TODO: can be optimized here
-      videoTrack = hms.getRoom()?.let { HmsUtilities.getVideoTrack(trackId, it) }
+
+      hms.getRoom()?.let { room ->
+        HmsUtilities.getVideoTrack(trackId, room)?.let { fetchedTrack ->
+          videoTrack = fetchedTrack
+        } ?: {
+          rnSDK?.previewForRoleVideoTrack?.let {
+            if (it.trackId == trackId) {
+              videoTrack = it
+            }
+          }
+        }
+      }
     }
   }
 
