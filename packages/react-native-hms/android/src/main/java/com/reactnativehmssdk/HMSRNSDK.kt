@@ -1054,6 +1054,15 @@ class HMSRNSDK(
           override fun onTracks(localTracks: Array<HMSTrack>) {
             val tracks = HMSDecoder.getPreviewTracks(localTracks)
 
+            localTracks.forEach { track ->
+              // /Assigning values to preview for role tracks
+              if (track.type == HMSTrackType.AUDIO) {
+                previewForRoleAudioTrack = track as HMSLocalAudioTrack
+              } else if (track.type == HMSTrackType.VIDEO && track.source == "regular") {
+                previewForRoleVideoTrack = track as HMSLocalVideoTrack
+              }
+            }
+
             val data: WritableMap = Arguments.createMap()
 
             data.putArray("tracks", tracks)
@@ -1092,6 +1101,8 @@ class HMSRNSDK(
         },
       )
       recentRoleChangeRequest = null
+      previewForRoleAudioTrack = null
+      previewForRoleVideoTrack = null
     } else {
       val errorMessage = "acceptRoleChange: recentRoleChangeRequest not found"
       self.emitRequiredKeysError(errorMessage)
