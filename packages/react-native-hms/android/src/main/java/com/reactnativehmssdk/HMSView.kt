@@ -122,13 +122,17 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
       updateScaleType(scaleType)
 
       hms.getRoom()?.let { room ->
-        HmsUtilities.getVideoTrack(trackId, room)?.let { fetchedTrack ->
-          videoTrack = fetchedTrack
-        } ?: {
-          rnSDK?.previewForRoleVideoTrack?.let {
-            if (it.trackId == trackId) {
-              videoTrack = it
+        val regularVideoTrack: HMSVideoTrack? = HmsUtilities.getVideoTrack(trackId, room)
+
+        regularVideoTrack.let { fetchedTrack ->
+          if (fetchedTrack == null) {
+            rnSDK.previewForRoleVideoTrack?.let {
+              if (it.trackId == trackId) {
+                videoTrack = it
+              }
             }
+          } else {
+            videoTrack = fetchedTrack
           }
         }
       }
