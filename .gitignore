@@ -79,9 +79,3 @@ packages/react-native-room-kit/example/ios/fastlane
 
 packages/react-native-room-kit/example/ios/RNExample/GoogleService-Info.plist
 packages/react-native-room-kit/example/android/app/google-services.json
-sample-apps/rnhms-callkeep-demo-main/.eslintrc.js
-sample-apps/rnhms-callkeep-demo-main/.flowconfig
-sample-apps/rnhms-callkeep-demo-main/.gitignore
-sample-apps/rnhms-callkeep-demo-main/.prettierrc.js
-sample-apps/rnhms-callkeep-demo-main/.ruby-version
-sample-apps/rnhms-callkeep-demo-main/.watchmanconfig
