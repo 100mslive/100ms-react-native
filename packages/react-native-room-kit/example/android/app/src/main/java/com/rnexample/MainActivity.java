@@ -7,6 +7,8 @@ import com.facebook.react.ReactActivity;
 
 import org.devio.rn.splashscreen.SplashScreen;
 
+// import live.hms.rn.R;
+
 public class MainActivity extends ReactActivity {
 
   /**

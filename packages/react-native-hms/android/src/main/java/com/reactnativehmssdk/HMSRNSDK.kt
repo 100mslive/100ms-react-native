@@ -37,6 +37,8 @@ class HMSRNSDK(
   var audioshareCallback: Promise? = null
   var isAudioSharing: Boolean = false
   var delegate: HMSManager = HmsDelegate
+  var previewForRoleVideoTrack: HMSLocalVideoTrack? = null
+  var previewForRoleAudioTrack: HMSLocalAudioTrack? = null
   private var recentRoleChangeRequest: HMSRoleChangeRequest? = null
   private var context: ReactApplicationContext = reactApplicationContext
   private var previewInProgress: Boolean = false
@@ -591,17 +593,26 @@ class HMSRNSDK(
 
   fun setLocalMute(data: ReadableMap) {
     val isMute = data.getBoolean("isMute")
-    hmsSDK?.getLocalPeer()?.audioTrack?.setMute(isMute)
+    val localAudioTrack = hmsSDK?.getLocalPeer()?.audioTrack ?: previewForRoleAudioTrack
+    localAudioTrack?.let {
+      it.setMute(isMute)
+    }
   }
 
   fun setLocalVideoMute(data: ReadableMap) {
     val isMute = data.getBoolean("isMute")
-    hmsSDK?.getLocalPeer()?.videoTrack?.setMute(isMute)
+    val localVideoTrack = hmsSDK?.getLocalPeer()?.videoTrack ?: previewForRoleVideoTrack
+    localVideoTrack?.let {
+      it.setMute(isMute)
+    }
   }
 
   fun switchCamera() {
-    if (hmsSDK?.getLocalPeer()?.videoTrack?.isMute == false) {
-      HMSCoroutineScope.launch { hmsSDK?.getLocalPeer()?.videoTrack?.switchCamera() }
+    val localVideoTrack = hmsSDK?.getLocalPeer()?.videoTrack ?: previewForRoleVideoTrack
+    localVideoTrack?.let {
+      if (!it.isMute) {
+        HMSCoroutineScope.launch { it.switchCamera() }
+      }
     }
   }
 
@@ -1033,6 +1044,57 @@ class HMSRNSDK(
     }
   }
 
+  fun previewForRole(data: ReadableMap, callback: Promise?) {
+    val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("role", "String")))
+    if (requiredKeys === null) {
+      val roleString = data.getString("role")
+      val role = HMSHelper.getRoleFromRoleName(roleString, hmsSDK?.getRoles())
+      if (role == null) {
+        callback?.reject("4000", "ROLE_NOT_FOUND")
+        return
+      }
+      hmsSDK?.preview(
+        role,
+        object : RolePreviewListener {
+          override fun onError(error: HMSException) {
+            callback?.reject(error.code.toString(), error.message)
+          }
+
+          override fun onTracks(localTracks: Array<HMSTrack>) {
+            val tracks = HMSDecoder.getPreviewTracks(localTracks)
+
+            localTracks.forEach { track ->
+              // /Assigning values to preview for role tracks
+              if (track.type == HMSTrackType.AUDIO) {
+                previewForRoleAudioTrack = track as HMSLocalAudioTrack
+              } else if (track.type == HMSTrackType.VIDEO && track.source == "regular") {
+                previewForRoleVideoTrack = track as HMSLocalVideoTrack
+              }
+            }
+
+            val data: WritableMap = Arguments.createMap()
+
+            data.putArray("tracks", tracks)
+            data.putBoolean("success", true)
+
+            callback?.resolve(data)
+          }
+        },
+      )
+    } else {
+      val errorMessage = "Missing required keys for previewForRole: $requiredKeys"
+      self.emitRequiredKeysError(errorMessage)
+      rejectCallback(callback, errorMessage)
+    }
+  }
+
+  fun cancelPreview(callback: Promise?) {
+    hmsSDK?.cancelPreview()
+    previewForRoleAudioTrack = null
+    previewForRoleVideoTrack = null
+    callback?.resolve(emitHMSSuccess())
+  }
+
   fun acceptRoleChange(callback: Promise?) {
     if (recentRoleChangeRequest !== null) {
       hmsSDK?.acceptChangeRole(
@@ -1048,6 +1110,8 @@ class HMSRNSDK(
         },
       )
       recentRoleChangeRequest = null
+      previewForRoleAudioTrack = null
+      previewForRoleVideoTrack = null
     } else {
       val errorMessage = "acceptRoleChange: recentRoleChangeRequest not found"
       self.emitRequiredKeysError(errorMessage)

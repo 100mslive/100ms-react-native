@@ -56,12 +56,14 @@ import {
 import type { RootState } from './redux';
 import {
   addMessage,
+  addNotification,
   addPinnedMessage,
   addScreenshareTile,
   changeMeetingState,
   changePipModeStatus,
   changeStartingHLSStream,
   clearStore,
+  removeNotification,
   removeScreenshareTile,
   saveUserData,
   setFullScreenPeerTrackNode,
@@ -74,6 +76,7 @@ import {
   setLocalPeerTrackNode,
   setMiniViewPeerTrackNode,
   setModalType,
+  setRoleChangeRequest,
   setStartingOrStoppingRecording,
   updateFullScreenPeerTrackNode,
   updateLocalPeerTrackNode,
@@ -112,6 +115,7 @@ import { selectIsHLSViewer, selectShouldGoLive } from './hooks-util-selectors';
 import type { GridViewRefAttrs } from './components/GridView';
 import { getRoomLayout } from './modules/HMSManager';
 import { DEFAULT_THEME, DEFAULT_TYPOGRAPHY } from './utils/theme';
+import { NotificationTypes } from './utils';
 
 export const useHMSListeners = (
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>
@@ -377,13 +381,41 @@ const useHMSPeersUpdate = (
         type === HMSPeerUpdate.NAME_CHANGED ||
         type === HMSPeerUpdate.NETWORK_QUALITY_UPDATED
       ) {
+        const reduxState = store.getState();
+
+        if (type === HMSPeerUpdate.METADATA_CHANGED) {
+          const handRaised = parseMetadata(peer.metadata).isHandRaised;
+          if (handRaised) {
+            const canChangeRole =
+              reduxState.hmsStates.localPeer?.role?.permissions?.changeRole;
+            if (canChangeRole) {
+              dispatch(
+                addNotification({
+                  id: `${peer.peerID}-${NotificationTypes.HAND_RAISE}`,
+                  type: NotificationTypes.HAND_RAISE,
+                  peer,
+                })
+              );
+            }
+          } else {
+            const notifications = reduxState.app.notifications;
+            const notificationToRemove = notifications.find(
+              (notification) =>
+                notification.id ===
+                `${peer.peerID}-${NotificationTypes.HAND_RAISE}`
+            );
+            if (notificationToRemove) {
+              dispatch(removeNotification(notificationToRemove.id));
+            }
+          }
+        }
+
         setPeerTrackNodes((prevPeerTrackNodes) => {
           if (peerTrackNodeExistForPeer(prevPeerTrackNodes, peer)) {
             return replacePeerTrackNodes(prevPeerTrackNodes, peer);
           }
           return prevPeerTrackNodes;
         });
-        const reduxState = store.getState();
 
         // Handling screenshare tile views
         const screensharePeerTrackNodes =
@@ -504,6 +536,12 @@ const useHMSTrackUpdate = (
                 )
               );
             }
+
+            // if (track.type === HMSTrackType.AUDIO) {
+            //   dispatch(setIsLocalAudioMutedState(track.isMute()));
+            // } else if (track.type === HMSTrackType.VIDEO) {
+            //   dispatch(setIsLocalVideoMutedState(track.isMute()));
+            // }
           }
           // else -> {
           //    should `localPeerTrackNode` be created/updated for non-regular track addition?
@@ -825,26 +863,20 @@ export const useHMSChangeTrackStateRequest = (
   return trackStateChangeRequest;
 };
 
-type RoleChangeRequest = {
-  requestedBy?: string;
-  suggestedRole?: string;
-};
-
 export const useHMSRoleChangeRequest = (
   callback?: (request: HMSRoleChangeRequest) => void,
   deps?: React.DependencyList
 ) => {
+  const taskRef = useRef<any>(null);
+  const dispatch = useDispatch();
   const hmsInstance = useHMSInstance();
-  const [roleChangeRequest, setRoleChangeRequest] =
-    useState<RoleChangeRequest | null>(null);
 
   useEffect(() => {
-    const changeRoleRequestHandler = (request: HMSRoleChangeRequest) => {
-      setRoleChangeRequest({
-        requestedBy: request?.requestedBy?.name,
-        suggestedRole: request?.suggestedRole?.name,
+    const changeRoleRequestHandler = async (request: HMSRoleChangeRequest) => {
+      taskRef.current = InteractionManager.runAfterInteractions(() => {
+        dispatch(setRoleChangeRequest(request));
+        callback?.(request);
       });
-      callback?.(request);
     };
 
     hmsInstance.addEventListener(
@@ -853,13 +885,12 @@ export const useHMSRoleChangeRequest = (
     );
 
     return () => {
+      taskRef.current?.cancel();
       hmsInstance.removeEventListener(
         HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST
       );
     };
   }, [...(deps || []), hmsInstance]);
-
-  return roleChangeRequest;
 };
 
 type SessionStoreListeners = Array<{ remove: () => void }>;
@@ -1040,10 +1071,26 @@ export const useHMSSessionStore = () => {
 export const useHMSMessages = () => {
   const hmsInstance = useHMSInstance();
   const dispatch = useDispatch();
+  const canChangeRole = useSelector(
+    (state: RootState) =>
+      state.hmsStates.localPeer?.role?.permissions?.changeRole
+  );
 
   useEffect(() => {
     const onMessageListener = (message: HMSMessage) => {
-      dispatch(addMessage(message));
+      if ((message.type as string) === NotificationTypes.ROLE_CHANGE_DECLINED) {
+        if (canChangeRole) {
+          dispatch(
+            addNotification({
+              id: `${message.sender?.peerID}-${NotificationTypes.ROLE_CHANGE_DECLINED}`,
+              type: NotificationTypes.ROLE_CHANGE_DECLINED,
+              peer: message.sender!,
+            })
+          );
+        }
+      } else {
+        dispatch(addMessage(message));
+      }
     };
 
     hmsInstance.addEventListener(
@@ -1055,7 +1102,7 @@ export const useHMSMessages = () => {
       // TODO: Remove this listener when user leaves, removed or room is ended
       hmsInstance.removeEventListener(HMSUpdateListenerActions.ON_MESSAGE);
     };
-  }, [hmsInstance]);
+  }, [canChangeRole, hmsInstance]);
 };
 
 export const useHMSPIPRoomLeave = () => {

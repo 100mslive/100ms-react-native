@@ -5,23 +5,21 @@ import {
   TouchableOpacity,
   Text,
   Platform,
-  TextInput,
 } from 'react-native';
-import type { StyleProp, ViewStyle } from 'react-native';
-import { HMSRemotePeer, HMSRole } from '@100mslive/react-native-hms';
+import { HMSRemotePeer } from '@100mslive/react-native-hms';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { Menu, MenuDivider, MenuItem } from './MenuModal';
 import { COLORS } from '../utils/theme';
 import type { RootState } from '../redux';
 import { PressableIcon } from './PressableIcon';
-import { ChatIcon, CloseIcon, ParticipantsIcon, SendIcon } from '../Icons';
-import { useHMSInstance, useSendMessage, useShowChat } from '../hooks-util';
+import { CloseIcon } from '../Icons';
+import { useHMSInstance, useHMSRoomStyleSheet, useShowChat } from '../hooks-util';
 import { ChatList } from './Chat';
 import { SearchableParticipantsView } from './Participants';
+import { HMSSendMessageInput } from './HMSSendMessageInput';
 
 interface ChatHeaderProps {
   filters: boolean;
@@ -58,16 +56,10 @@ const chatHeaderStyles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitle: {
-    color: COLORS.SURFACE.ON_SURFACE.HIGH,
     fontSize: 14,
-    fontFamily: 'Inter',
-    fontWeight: '600',
     lineHeight: 20,
     letterSpacing: 0.25,
-  },
-  closeIcon: {
-    width: 20,
-    height: 20,
+    textAlign: 'center'
   },
 });
 
@@ -82,193 +74,77 @@ const tabs: [string, string] = ['Chat', 'Participants'];
 export const ChatAndParticipantsHeader: React.FC<
   ChatAndParticipantsHeaderProps
 > = ({ activeTab, setActiveTab, onClosePress }) => {
+  const peersCount = useSelector((state: RootState) => state.hmsStates.room?.peerCount);
+
+  const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
+    tab: {
+      backgroundColor: theme.palette.surface_bright,
+    },
+    headerTitle: {
+      color: theme.palette.on_surface_low,
+      fontFamily: `${typography.font_family}-SemiBold`,
+    },
+    activeHeaderTitle: {
+      color: theme.palette.on_surface_high,
+    }
+  }));
+
   return (
-    <View style={chatAndParticipantsHeaderStyles.container}>
-      <View style={chatAndParticipantsHeaderStyles.grayBar} />
+    <View style={chatAndParticipantsHeaderStyles.header}>
+      <View style={chatAndParticipantsHeaderStyles.headerTitleWrapper}>
+        {tabs.map((tab) => {
+          const isActive = activeTab === tab;
 
-      <View style={chatAndParticipantsHeaderStyles.header}>
-        <View style={chatAndParticipantsHeaderStyles.headerTitleWrapper}>
-          {tabs.map((tab) => {
-            const isActive = activeTab === tab;
-            const TabIcon = tab === 'Chat' ? ChatIcon : ParticipantsIcon;
-
-            return (
-              <TouchableOpacity
-                key={tab}
+          return (
+            <TouchableOpacity
+              key={tab}
+              style={[
+                chatAndParticipantsHeaderStyles.tab,
+                isActive ? hmsRoomStyles.tab : null,
+              ]}
+              onPress={() => setActiveTab(tab)}
+            >
+              <Text
                 style={[
-                  chatAndParticipantsHeaderStyles.tab,
-                  isActive ? { borderColor: COLORS.PRIMARY.DEFAULT } : null,
+                  chatHeaderStyles.headerTitle,
+                  hmsRoomStyles.headerTitle,
+                  isActive ? hmsRoomStyles.activeHeaderTitle : null,
                 ]}
-                onPress={() => setActiveTab(tab)}
               >
-                <TabIcon
-                  style={[
-                    chatAndParticipantsHeaderStyles.tabIcon,
-                    isActive ? { tintColor: COLORS.PRIMARY.DEFAULT } : null,
-                  ]}
-                />
-
-                <Text
-                  style={[
-                    chatHeaderStyles.headerTitle,
-                    isActive ? null : { color: COLORS.SURFACE.ON_SURFACE.LOW },
-                  ]}
-                >
-                  {tab}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
-        <PressableIcon border={false} onPress={onClosePress}>
-          <CloseIcon style={chatHeaderStyles.closeIcon} />
-        </PressableIcon>
+                {tab}{tab === 'Participants' && typeof peersCount === 'number' ? ` (${peersCount})` : null}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
       </View>
+
+      <TouchableOpacity onPress={onClosePress}>
+        <CloseIcon />
+      </TouchableOpacity>
     </View>
   );
 };
 
 const chatAndParticipantsHeaderStyles = StyleSheet.create({
-  container: {
-    position: 'relative',
-  },
-  grayBar: {
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    height: 2,
-    backgroundColor: COLORS.BORDER.LIGHT,
-  },
   header: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   headerTitleWrapper: {
+    flex: 1,
     flexDirection: 'row',
-    alignItems: 'center',
+    padding: 4,
+    borderRadius: 8,
+    backgroundColor: COLORS.SURFACE.DEFAULT,
+    marginRight: 16,
   },
   tab: {
-    flexDirection: 'row',
-    paddingVertical: 8,
-    borderBottomWidth: 2,
-    marginRight: 16,
-    borderColor: COLORS.BORDER.LIGHT,
-  },
-  tabIcon: {
-    width: 20,
-    height: 20,
-    marginRight: 8,
-    tintColor: COLORS.SURFACE.ON_SURFACE.LOW,
-  },
-});
-
-interface ChatTextInputProps {
-  containerStyle?: StyleProp<ViewStyle>;
-  clearButton?: boolean;
-}
-
-export const ChatTextInput: React.FC<ChatTextInputProps> = ({
-  containerStyle,
-  clearButton = false,
-}) => {
-  const dispatch = useDispatch();
-  const [inputFocused, setInputFocused] = React.useState(false);
-
-  const handleInputFocus = () => setInputFocused(true);
-
-  const handleInputBlur = () => setInputFocused(false);
-
-  const sendingTo = useSelector(
-    (state: RootState) =>
-      state.chatWindow.sendTo as HMSRole | HMSRemotePeer | { name: string }
-  );
-
-  const clearTypedMessage = () => {
-    dispatch({ type: 'SET_TYPED_MESSAGE', typedMessage: '' });
-  };
-
-  const { message, setMessage, sendMessage } = useSendMessage();
-
-  return (
-    <View
-      style={[
-        chatTextInputStyles.inputContainer,
-        {
-          borderColor: inputFocused
-            ? COLORS.PRIMARY.DEFAULT
-            : COLORS.SURFACE.DEFAULT,
-        },
-        containerStyle,
-      ]}
-    >
-      <TextInput
-        style={chatTextInputStyles.input}
-        value={message}
-        onChangeText={setMessage}
-        placeholder={`Send a message to ${sendingTo.name}`}
-        autoCapitalize="sentences"
-        autoCompleteType="off"
-        placeholderTextColor={COLORS.SURFACE.ON_SURFACE.LOW}
-        selectionColor={COLORS.SURFACE.ON_SURFACE.HIGH}
-        onFocus={handleInputFocus}
-        onBlur={handleInputBlur}
-        blurOnSubmit={true}
-        onSubmitEditing={sendMessage}
-        returnKeyType="send"
-      />
-      {clearButton && message.length > 0 ? (
-        <PressableIcon
-          onPress={clearTypedMessage}
-          border={false}
-          rounded={false}
-          style={chatTextInputStyles.sendIconWrapper}
-        >
-          <CloseIcon style={chatTextInputStyles.sendIcon} />
-        </PressableIcon>
-      ) : null}
-      <PressableIcon
-        onPress={sendMessage}
-        border={false}
-        rounded={false}
-        style={chatTextInputStyles.sendIconWrapper}
-      >
-        <SendIcon style={chatTextInputStyles.sendIcon} />
-      </PressableIcon>
-    </View>
-  );
-};
-
-const chatTextInputStyles = StyleSheet.create({
-  inputContainer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    backgroundColor: COLORS.SURFACE.DEFAULT,
-    overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: COLORS.SURFACE.DEFAULT,
-    borderRadius: 8,
-  },
-  input: {
     flex: 1,
-    textAlignVertical: 'center',
-    paddingHorizontal: 16,
-    paddingRight: 0,
-    paddingVertical: 12,
-    color: COLORS.SURFACE.ON_SURFACE.HIGH,
-    fontSize: 16,
-    fontFamily: 'Inter',
-    fontWeight: '400',
-    letterSpacing: 0.5,
-  },
-  sendIconWrapper: {
-    alignSelf: 'stretch',
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  sendIcon: {
-    tintColor: COLORS.SURFACE.ON_SURFACE.LOW,
+    padding: 8,
+    borderRadius: 4,
   },
 });
 
@@ -386,18 +262,23 @@ export const ChatView: React.FC = () => {
 
   const hideInsetChatView = () => setChatVisible(false);
 
+  const hmsRoomStyles = useHMSRoomStyleSheet((theme) => ({
+    container: {
+      backgroundColor: theme.palette.surface_dim,
+    },
+    input: {
+      backgroundColor: theme.palette.surface_default,
+      borderColor: theme.palette.surface_default,
+    },
+  }));
+
   // const estimatedListSize = useMemo(() => ({
   //   height: Dimensions.get('window').height * 0.45,
   //   width: Dimensions.get('window').width - 32,
   // }), []);
 
   return (
-    // <Animated.View
-    //   style={chatViewStyles.container}
-    //   entering={SlideInDown}
-    //   exiting={SlideOutDown}
-    // >
-    <View style={chatViewStyles.container}>
+    <View style={[chatViewStyles.container, hmsRoomStyles.container]}>
       <ChatAndParticipantsHeader
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -408,7 +289,7 @@ export const ChatView: React.FC = () => {
         <>
           <ChatList />
 
-          <ChatTextInput clearButton={true} />
+          <HMSSendMessageInput containerStyle={[chatViewStyles.input, hmsRoomStyles.input]} />
         </>
       ) : activeTab === 'Participants' ? (
         <View style={chatViewStyles.participantsWrapper}>
@@ -416,40 +297,30 @@ export const ChatView: React.FC = () => {
         </View>
       ) : null}
     </View>
-    // </Animated.View>
   );
 };
 
 const chatViewStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.SURFACE.DIM,
-    padding: 16,
-    borderTopRightRadius: 16,
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 32,
+    marginTop: 112,
     borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
   },
   participantsWrapper: {
     marginTop: 16,
   },
+  input: {
+    flex: 0,
+    height: 40,
+    marginHorizontal: 0,
+    marginTop: 0,
+    marginBottom: 0,
+  }
 });
-
-export const ChatWindow: React.FC = () => {
-  const { bottom } = useSafeAreaInsets();
-
-  return (
-    <View style={styles.container}>
-      <ChatHeader filters={true} />
-
-      <ChatList />
-
-      <View
-        style={bottom === 0 ? styles.inputContainer : { marginBottom: bottom }}
-      >
-        <ChatTextInput clearButton={true} containerStyle={styles.input} />
-      </View>
-    </View>
-  );
-};
 
 const styles = StyleSheet.create({
   container: {

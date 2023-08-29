@@ -2,15 +2,22 @@ import React from 'react';
 import { Image, StyleSheet } from 'react-native';
 import type { ImageProps } from 'react-native';
 
-interface PersonIconProps extends Omit<ImageProps, 'source'> {}
+interface PersonIconProps extends Omit<ImageProps, 'source'> {
+  type?: 'off' | 'normal';
+}
 
 export const PersonIcon: React.FC<PersonIconProps> = ({
   style,
+  type = 'normal',
   ...restProps
 }) => {
   return (
     <Image
-      source={require('./assets/person.png')}
+      source={
+        type === 'off'
+          ? require('./assets/person-off.png')
+          : require('./assets/person.png')
+      }
       style={[styles.icon, style]}
       {...restProps}
     />

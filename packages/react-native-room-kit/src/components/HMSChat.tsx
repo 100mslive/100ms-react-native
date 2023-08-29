@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { ChatIcon } from '../Icons';
 import { PressableIcon } from './PressableIcon';
-import { ChatWindow } from './ChatWindow';
-import { DefaultModal } from './DefaultModal';
+import { ChatView } from './ChatWindow';
 import { useShowChat } from '../hooks-util';
+import { BottomSheet } from './BottomSheet';
 
 export const HMSChat = () => {
   const [chatVisibleType, setChatVisible] = useShowChat();
@@ -23,14 +23,22 @@ export const HMSChat = () => {
         <ChatIcon />
       </PressableIcon>
 
-      <DefaultModal
-        animationIn={'slideInUp'}
-        animationOut={'slideOutDown'}
-        modalVisible={chatVisibleType === 'modal'}
-        setModalVisible={closeChatWindow}
+      <BottomSheet
+        dismissModal={closeChatWindow}
+        isVisible={chatVisibleType === 'modal'}
+        avoidKeyboard={true}
+        containerStyle={styles.bottomSheet}
       >
-        <ChatWindow />
-      </DefaultModal>
+        <ChatView />
+      </BottomSheet>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  bottomSheet: {
+    flex: 1,
+    backgroundColor: undefined,
+    paddingBottom: 0,
+  }
+});

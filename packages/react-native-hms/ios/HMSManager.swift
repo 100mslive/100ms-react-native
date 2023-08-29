@@ -99,10 +99,10 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func cancelPreview(_ data: NSDictionary) {
+    func cancelPreview(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
-        hms?.cancelPreview()
+        hms?.cancelPreview(resolve, reject)
     }
 
     // MARK: - Join Room
