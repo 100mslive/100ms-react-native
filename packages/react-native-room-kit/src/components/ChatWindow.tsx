@@ -16,7 +16,11 @@ import { COLORS } from '../utils/theme';
 import type { RootState } from '../redux';
 import { PressableIcon } from './PressableIcon';
 import { CloseIcon } from '../Icons';
-import { useHMSInstance, useHMSRoomStyleSheet, useShowChat } from '../hooks-util';
+import {
+  useHMSInstance,
+  useHMSRoomStyleSheet,
+  useShowChat,
+} from '../hooks-util';
 import { ChatList } from './Chat';
 import { SearchableParticipantsView } from './Participants';
 import { HMSSendMessageInput } from './HMSSendMessageInput';
@@ -59,7 +63,7 @@ const chatHeaderStyles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     letterSpacing: 0.25,
-    textAlign: 'center'
+    textAlign: 'center',
   },
 });
 
@@ -74,7 +78,9 @@ const tabs: [string, string] = ['Chat', 'Participants'];
 export const ChatAndParticipantsHeader: React.FC<
   ChatAndParticipantsHeaderProps
 > = ({ activeTab, setActiveTab, onClosePress }) => {
-  const peersCount = useSelector((state: RootState) => state.hmsStates.room?.peerCount);
+  const peersCount = useSelector(
+    (state: RootState) => state.hmsStates.room?.peerCount
+  );
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     tab: {
@@ -86,7 +92,7 @@ export const ChatAndParticipantsHeader: React.FC<
     },
     activeHeaderTitle: {
       color: theme.palette.on_surface_high,
-    }
+    },
   }));
 
   return (
@@ -111,7 +117,10 @@ export const ChatAndParticipantsHeader: React.FC<
                   isActive ? hmsRoomStyles.activeHeaderTitle : null,
                 ]}
               >
-                {tab}{tab === 'Participants' && typeof peersCount === 'number' ? ` (${peersCount})` : null}
+                {tab}
+                {tab === 'Participants' && typeof peersCount === 'number'
+                  ? ` (${peersCount})`
+                  : null}
               </Text>
             </TouchableOpacity>
           );
@@ -289,7 +298,9 @@ export const ChatView: React.FC = () => {
         <>
           <ChatList />
 
-          <HMSSendMessageInput containerStyle={[chatViewStyles.input, hmsRoomStyles.input]} />
+          <HMSSendMessageInput
+            containerStyle={[chatViewStyles.input, hmsRoomStyles.input]}
+          />
         </>
       ) : activeTab === 'Participants' ? (
         <View style={chatViewStyles.participantsWrapper}>
@@ -319,7 +330,7 @@ const chatViewStyles = StyleSheet.create({
     marginHorizontal: 0,
     marginTop: 0,
     marginBottom: 0,
-  }
+  },
 });
 
 const styles = StyleSheet.create({

@@ -635,8 +635,7 @@ export class HMSSDK {
     return await HMSManager.changeName(data);
   };
 
-
-    /**
+  /**
    * -Preview for a specific Role before changing it.
    *
    * By previewing before doing a Role Change, users can see their expected Audio & Video tracks which will be visible to other Peers in Room post changing the Role.

@@ -40,5 +40,5 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: undefined,
     paddingBottom: 0,
-  }
+  },
 });
