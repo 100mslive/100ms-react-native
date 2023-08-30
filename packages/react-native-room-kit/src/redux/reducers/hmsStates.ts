@@ -73,7 +73,7 @@ type RemoveFromPreviewPeersList = {
 
 type SetLayoutConfig = {
   type: HmsStateActionTypes.SET_LAYOUT_CONFIG;
-  layoutConfig: Layout;
+  layoutConfig: Layout[];
 };
 
 type SetRoleChangeRequest = {
@@ -90,7 +90,7 @@ type IntialStateType = {
   localPeer: HMSLocalPeer | null;
   roles: HMSRole[];
   previewPeersList: HMSPeer[];
-  layoutConfig: Layout | null;
+  layoutConfig: Layout[] | null;
   roleChangeRequest: HMSRoleChangeRequest | null;
 };
 

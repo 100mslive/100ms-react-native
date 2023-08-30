@@ -29,6 +29,7 @@ import type {
 } from '@100mslive/react-native-hms';
 import type {
   ColorPalette,
+  Layout,
   Theme,
   Typography,
 } from '@100mslive/types-prebuilt';
@@ -111,7 +112,11 @@ import {
   useSafeAreaFrame,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
-import { selectIsHLSViewer, selectShouldGoLive } from './hooks-util-selectors';
+import {
+  selectIsHLSViewer,
+  selectLayoutConfigForRole,
+  selectShouldGoLive,
+} from './hooks-util-selectors';
 import type { GridViewRefAttrs } from './components/GridView';
 import { getRoomLayout } from './modules/HMSManager';
 import { DEFAULT_THEME, DEFAULT_TYPOGRAPHY } from './utils/theme';
@@ -1659,21 +1664,31 @@ export const useLeaveMethods = () => {
 };
 
 // Returns layout config as it is returned from server
-export const useHMSLayoutConfig = () => {
-  return useSelector((state: RootState) => state.hmsStates.layoutConfig);
+export const useHMSLayoutConfig = <Selected = unknown>(
+  selector: (layoutConfig: Layout | null) => Selected,
+  equalityFn?: (left: Selected, right: Selected) => boolean
+): Selected => {
+  return useSelector((state: RootState) => {
+    return selector(
+      selectLayoutConfigForRole(
+        state.hmsStates.layoutConfig,
+        state.hmsStates.localPeer?.role || null
+      )
+    );
+  }, equalityFn);
 };
 
+type ThemeWithPalette = Theme & { palette: ColorPalette };
+
 export const useHMSRoomTheme = <S>(
-  selector?: (theme: Required<Theme>) => S
-): Required<Theme> | S => {
-  return useSelector((state: RootState) => {
-    const layoutConfig = state.hmsStates.layoutConfig;
+  selector?: (theme: ThemeWithPalette) => S
+): ThemeWithPalette | S => {
+  return useHMSLayoutConfig((layoutConfig) => {
+    const roomTheme = layoutConfig?.themes?.find((theme) => theme.default);
 
-    const roomTheme = layoutConfig?.themes.find((theme) => theme.default);
-
-    const defaultTheme: Required<Theme> = roomTheme
+    const defaultTheme: ThemeWithPalette = roomTheme
       ? roomTheme.palette
-        ? (roomTheme as Required<Theme>)
+        ? (roomTheme as ThemeWithPalette)
         : { ...roomTheme, palette: DEFAULT_THEME.palette }
       : DEFAULT_THEME;
 
@@ -1689,10 +1704,8 @@ export const useHMSRoomColorPalette = (): ColorPalette => {
   return useHMSRoomTheme((theme) => theme.palette) as ColorPalette;
 };
 
-export const useHMSRoomTypography = (): Typography => {
-  return useSelector((state: RootState) => {
-    const layoutConfig = state.hmsStates.layoutConfig;
-
+export const useHMSRoomTypography = (): Required<Typography> => {
+  return useHMSLayoutConfig((layoutConfig) => {
     const typography = layoutConfig?.typography;
 
     if (!typography) {
@@ -1709,17 +1722,17 @@ export const useHMSRoomTypography = (): Typography => {
     // formatting font family name
     typography.font_family = typography.font_family.replace(/ /g, '');
 
-    return typography;
+    return typography as Required<Typography>;
   }, shallowEqual);
 };
 
 export const useHMSRoomStyleSheet = <
   T extends { [key: string]: StyleProp<ViewStyle | TextStyle | ImageStyle> },
 >(
-  updater: (theme: Required<Theme>, typography: Required<Typography>) => T,
+  updater: (theme: ThemeWithPalette, typography: Required<Typography>) => T,
   deps: DependencyList = []
 ): T => {
-  const theme = useHMSRoomTheme<Required<Theme>>();
+  const theme = useHMSRoomTheme<ThemeWithPalette>();
   const typography = useHMSRoomTypography();
 
   return useMemo(
@@ -1731,7 +1744,7 @@ export const useHMSRoomStyleSheet = <
 export const useHMSRoomStyle = <
   T extends StyleProp<ViewStyle | TextStyle | ImageStyle>,
 >(
-  updater: (theme: Required<Theme>, typography: Required<Typography>) => T,
+  updater: (theme: ThemeWithPalette, typography: Required<Typography>) => T,
   deps: DependencyList = []
 ): T => {
   return useHMSRoomStyleSheet(

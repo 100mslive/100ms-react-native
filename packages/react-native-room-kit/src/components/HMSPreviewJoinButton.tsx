@@ -4,7 +4,7 @@ import { shallowEqual, useSelector } from 'react-redux';
 
 import type { RootState } from '../redux';
 import { RadioIcon } from '../Icons';
-import { useHMSRoomStyle, useShouldGoLive } from '../hooks-util';
+import { useHMSLayoutConfig, useHMSRoomStyle, useShouldGoLive } from '../hooks-util';
 import { HMSPrimaryButton } from './HMSPrimaryButton';
 
 export interface HMSPreviewJoinButtonProps {
@@ -20,8 +20,7 @@ export const HMSPreviewJoinButton: React.FC<HMSPreviewJoinButtonProps> = ({
     (state: RootState) => state.user.userName.length <= 0
   );
 
-  const joinButtonLabels = useSelector((state: RootState) => {
-    const layoutConfig = state.hmsStates.layoutConfig;
+  const joinButtonLabels = useHMSLayoutConfig((layoutConfig) => {
     const joinLayoutConfig =
       layoutConfig?.screens?.preview?.default?.elements?.join_form;
 

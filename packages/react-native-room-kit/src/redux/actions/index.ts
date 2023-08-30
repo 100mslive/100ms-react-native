@@ -267,7 +267,7 @@ export const changeStartingHLSStream = (startingHLSStream: boolean) => ({
   payload: { startingHLSStream },
 });
 
-export const setLayoutConfig = (layoutConfig: Layout) => ({
+export const setLayoutConfig = (layoutConfig: Layout[]) => ({
   type: HmsStateActionTypes.SET_LAYOUT_CONFIG,
   layoutConfig,
 });

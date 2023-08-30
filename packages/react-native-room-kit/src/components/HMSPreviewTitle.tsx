@@ -1,9 +1,7 @@
 import * as React from 'react';
 import { StyleSheet, Text } from 'react-native';
-import { useSelector } from 'react-redux';
 
-import { useHMSRoomStyle } from '../hooks-util';
-import type { RootState } from '../redux';
+import { useHMSLayoutConfig, useHMSRoomStyle } from '../hooks-util';
 
 export interface HMSPreviewTitleProps {
   title?: string;
@@ -12,9 +10,7 @@ export interface HMSPreviewTitleProps {
 export const HMSPreviewTitle: React.FC<HMSPreviewTitleProps> = ({
   title = 'Get Started',
 }) => {
-  const hmsRoomPreviewTitle = useSelector((state: RootState) => {
-    const layoutConfig = state.hmsStates.layoutConfig;
-
+  const hmsRoomPreviewTitle = useHMSLayoutConfig((layoutConfig) => {
     const previewTitle =
       layoutConfig?.screens?.preview?.default?.elements?.preview_header?.title;
 

@@ -1,4 +1,5 @@
-import type { HMSPeer } from '@100mslive/react-native-hms';
+import type { Layout } from '@100mslive/types-prebuilt';
+import type { HMSPeer, HMSRole } from '@100mslive/react-native-hms';
 import { JoinForm_JoinBtnType } from '@100mslive/types-prebuilt/elements/join_form';
 
 import type { RootState } from './redux';
@@ -6,8 +7,25 @@ import type { RootState } from './redux';
 export const selectIsHLSViewer = (peer: HMSPeer | null | undefined) =>
   peer?.role?.name?.includes('hls') ?? false;
 
+export const selectLayoutConfigForRole = (layoutConfig: Layout[] | null, role: HMSRole | null): Layout | null => {
+  if (layoutConfig === null || (layoutConfig.length <= 0)) {
+    return null;
+  }
+
+  if (role === null) {
+    return layoutConfig[0] || null;
+  }
+
+  const selectedLayout = layoutConfig.find(layout => layout.role === role.name);
+
+  return selectedLayout || layoutConfig[0] || null;
+};
+
 export const selectShouldGoLive = (state: RootState) => {
-  const layoutConfig = state.hmsStates.layoutConfig;
+  const currentRole = state.hmsStates.localPeer?.role || null;
+
+  const layoutConfig = selectLayoutConfigForRole(state.hmsStates.layoutConfig, currentRole);
+
   const isHLSStreaming = state.hmsStates.room?.hlsStreamingState.running;
 
   const joinButtonType =

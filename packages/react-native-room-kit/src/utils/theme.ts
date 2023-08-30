@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { Theme_ThemeType } from '@100mslive/types-prebuilt';
 import type {
   ColorPalette,
   Theme,
@@ -193,12 +194,13 @@ export function hexToRgbA(hex: string, alpha: number = 1) {
   )}, ${alpha})`;
 }
 
-export const DEFAULT_TYPOGRAPHY: Typography = {
+export const DEFAULT_TYPOGRAPHY: Required<Typography> = {
   font_family: 'Inter',
 };
 
 export const DEFAULT_THEME: Required<Theme> = {
   default: true,
   name: 'static',
+  theme_type: Theme_ThemeType.THEME_TYPE_DARK,
   palette: STATIC_COLOR_PALETTE,
 };
