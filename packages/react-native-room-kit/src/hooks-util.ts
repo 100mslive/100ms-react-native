@@ -375,10 +375,28 @@ const useHMSPeersUpdate = (
 
         if (type === HMSPeerUpdate.METADATA_CHANGED) {
           const handRaised = parseMetadata(peer.metadata).isHandRaised;
+
           if (handRaised) {
+            const { layoutConfig, localPeer } = reduxState.hmsStates;
+
+            const selectedLayoutConfig = selectLayoutConfigForRole(
+              layoutConfig,
+              localPeer?.role || null
+            );
+
+            // list of roles which should be brought on stage when they raise hand
+            const offStageRoles =
+              selectedLayoutConfig?.screens?.conferencing?.default?.elements
+                ?.on_stage_exp?.off_stage_roles;
+
+            // checking if the current peer role is included in the above list
+            const shouldBringOnStage =
+              offStageRoles && offStageRoles.includes(peer.role?.name!);
+
             const canChangeRole =
               reduxState.hmsStates.localPeer?.role?.permissions?.changeRole;
-            if (canChangeRole) {
+
+            if (shouldBringOnStage && canChangeRole) {
               dispatch(
                 addNotification({
                   id: `${peer.peerID}-${NotificationTypes.HAND_RAISE}`,
@@ -803,10 +821,10 @@ export const useHMSInstance = () => {
 
 export const useIsHLSViewer = () => {
   return useSelector((state: RootState) => {
-    const {layoutConfig, localPeer} = state.hmsStates;
+    const { layoutConfig, localPeer } = state.hmsStates;
     const selectedLayoutConfig = selectLayoutConfigForRole(
       layoutConfig,
-      localPeer?.role || null,
+      localPeer?.role || null
     );
     return selectIsHLSViewer(localPeer?.role, selectedLayoutConfig);
   });
@@ -1359,11 +1377,7 @@ export const useShowLandscapeLayout = () => {
   );
   const isHLSViewer = useIsHLSViewer();
 
-  return (
-    isLandscapeOrientation &&
-    !!localPeerRoleName &&
-    isHLSViewer
-  );
+  return isLandscapeOrientation && !!localPeerRoleName && isHLSViewer;
 };
 
 let hmsConfig: HMSConfig | null = null;
