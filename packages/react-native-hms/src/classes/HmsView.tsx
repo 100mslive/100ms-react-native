@@ -91,10 +91,6 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
     const capture = async () => {
       const viewManagerConfig = UIManager.getViewManagerConfig('HMSView');
 
-      if (!viewManagerConfig.Commands.capture) {
-        return Promise.reject('Capture command not available on HMSView');
-      }
-
       let requestId = _nextRequestId++;
       let requestMap = _requestMap;
 
