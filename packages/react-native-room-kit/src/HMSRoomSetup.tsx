@@ -50,7 +50,11 @@ import { MeetingState } from './types';
 import { getJoinConfig } from './utils';
 import { FullScreenIndicator } from './components/FullScreenIndicator';
 import { HMSMeetingEnded } from './components/HMSMeetingEnded';
-import { selectIsHLSViewer, selectShouldGoLive } from './hooks-util-selectors';
+import {
+  selectIsHLSViewer,
+  selectLayoutConfigForRole,
+  selectShouldGoLive,
+} from './hooks-util-selectors';
 import type { RootState } from './redux';
 
 type PreviewData = {
@@ -193,11 +197,19 @@ export const HMSRoomSetup = () => {
       const peer = localPeer;
       const track = localPeer.videoTrack as HMSTrack | undefined;
 
+      const isHLSViewer = selectIsHLSViewer(
+        localPeer.role,
+        selectLayoutConfigForRole(
+          reduxState.hmsStates.layoutConfig,
+          localPeer.role || null
+        )
+      );
+
       // Creating `PeerTrackNode` for local peer
       const localPeerTrackNode = createPeerTrackNode(peer, track);
 
       batch(() => {
-        if (selectIsHLSViewer(localPeer)) {
+        if (isHLSViewer) {
           // TODO: enable below statement when HLS chat view design is complete
           // dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: true });
         } else {

@@ -148,21 +148,6 @@ const useHMSRoomUpdate = (hmsInstance: HMSSDK) => {
 
       dispatch(setHMSRoomState(room));
 
-      // /**
-      //  * Handle case when User is joining as HLSViewer,
-      //  * before ON_JOIN, if ON_ROOM comes then we can show Meeting screen to user, instead of Loader or Preview
-      //  */
-      // if (room.localPeer.role?.name?.includes('hls-') ?? false) {
-      //   const meetingState = reduxStore.getState().app.meetingState;
-
-      //   batch(() => {
-      //     dispatch(setHMSLocalPeerState(room.localPeer));
-      //     if (meetingState !== MeetingState.IN_MEETING) {
-      //       dispatch(changeMeetingState(MeetingState.IN_MEETING));
-      //     }
-      //   });
-      // }
-
       if (type === HMSRoomUpdate.BROWSER_RECORDING_STATE_UPDATED) {
         const startingOrStoppingRecording =
           reduxStore.getState().app.startingOrStoppingRecording;
@@ -817,9 +802,14 @@ export const useHMSInstance = () => {
 };
 
 export const useIsHLSViewer = () => {
-  return useSelector((state: RootState) =>
-    selectIsHLSViewer(state.hmsStates.localPeer)
-  );
+  return useSelector((state: RootState) => {
+    const {layoutConfig, localPeer} = state.hmsStates;
+    const selectedLayoutConfig = selectLayoutConfigForRole(
+      layoutConfig,
+      localPeer?.role || null,
+    );
+    return selectIsHLSViewer(localPeer?.role, selectedLayoutConfig);
+  });
 };
 
 type TrackStateChangeRequest = {
@@ -1367,11 +1357,12 @@ export const useShowLandscapeLayout = () => {
   const localPeerRoleName = useSelector(
     (state: RootState) => state.hmsStates.localPeer?.role?.name
   );
+  const isHLSViewer = useIsHLSViewer();
 
   return (
     isLandscapeOrientation &&
     !!localPeerRoleName &&
-    localPeerRoleName.includes('hls-')
+    isHLSViewer
   );
 };
 
