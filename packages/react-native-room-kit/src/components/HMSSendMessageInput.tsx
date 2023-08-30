@@ -31,7 +31,11 @@ export const HMSSendMessageInput: React.FC<HMSSendMessageInputProps> = ({
       placeholder="Send a message..."
       autoCapitalize="sentences"
       autoCompleteType="off"
-      containerStyle={[styles.inputContainer, hmsRoomStyles.containerStyle, containerStyle]}
+      containerStyle={[
+        styles.inputContainer,
+        hmsRoomStyles.containerStyle,
+        containerStyle,
+      ]}
       sendIcon={true}
       onSendIconPress={sendMessage}
       onSubmitEditing={sendMessage}

@@ -82,7 +82,7 @@ export const HMSPinchGesture: React.FC<HMSPinchGestureProps> = ({
     .onUpdate((e) => {
       translation.value = {
         x: e.translationX + savedTranslation.value.x,
-        y: e.translationY + savedTranslation.value.y
+        y: e.translationY + savedTranslation.value.y,
       };
     })
     .onEnd(() => {
@@ -97,7 +97,7 @@ export const HMSPinchGesture: React.FC<HMSPinchGestureProps> = ({
       adjustedFocalPoint.value = {
         x: e.focalX - focalShift.value.x, // subtracting "focal point shift" value from "current focal point", we will get "focal point before the shift", and apply transformations on the that focal point
         y: e.focalY - focalShift.value.y, // subtracting "focal point shift" value from "current focal point", we will get "focal point before the shift", and apply transformations on the that focal point
-      }
+      };
     })
     .onUpdate((e) => {
       // Calculating `focal point` shift values when `numberOfPointers` changes
@@ -107,20 +107,24 @@ export const HMSPinchGesture: React.FC<HMSPinchGestureProps> = ({
         focalShift.value = {
           x: e.focalX - (focalPoint.value.x - focalShift.value.x),
           y: e.focalY - (focalPoint.value.y - focalShift.value.y),
-        }
+        };
       }
 
       adjustedFocalPoint.value = {
         x: e.focalX - focalShift.value.x, // subtracting "focal point shift" value from "current focal point", we will get "focal point before the shift", and apply transformations on the that focal point
         y: e.focalY - focalShift.value.y, // subtracting "focal point shift" value from "current focal point", we will get "focal point before the shift", and apply transformations on the that focal point
-      }
+      };
 
       // Applying translations
       translation.value = {
-        x: (adjustedFocalPoint.value.x - focalPointAtStart.value.x) // subtracting "focal point position capturred at start of gesture" from "adjusted focal point position" we will get the translation value
-          + savedTranslation.value.x, // Adding current translation to previous Translation to make it a continuous gesture
-        y: (adjustedFocalPoint.value.y - focalPointAtStart.value.y) // subtracting "focal point position capturred at start of gesture" from "adjusted focal point position" we will get the translation value
-          + savedTranslation.value.y, // Adding current translation to previous Translation to make it a continuous gesture
+        x:
+          adjustedFocalPoint.value.x -
+          focalPointAtStart.value.x + // subtracting "focal point position capturred at start of gesture" from "adjusted focal point position" we will get the translation value
+          savedTranslation.value.x, // Adding current translation to previous Translation to make it a continuous gesture
+        y:
+          adjustedFocalPoint.value.y -
+          focalPointAtStart.value.y + // subtracting "focal point position capturred at start of gesture" from "adjusted focal point position" we will get the translation value
+          savedTranslation.value.y, // Adding current translation to previous Translation to make it a continuous gesture
       };
 
       // saving focal point to apply scaling on correct position
@@ -139,7 +143,7 @@ export const HMSPinchGesture: React.FC<HMSPinchGestureProps> = ({
         savedScale.value = scale.value;
       }
 
-      focalShift.value = {x: 0, y: 0}
+      focalShift.value = { x: 0, y: 0 };
       savedTranslation.value = translation.value;
     });
 
@@ -147,11 +151,13 @@ export const HMSPinchGesture: React.FC<HMSPinchGestureProps> = ({
     transform: [
       { translateX: translation.value.x },
       { translateY: translation.value.y },
-      { translateX: focalPointAtStart.value.x - (dimensions.value.width / 2) },
-      { translateY: focalPointAtStart.value.y - (dimensions.value.height / 2) },
+      { translateX: focalPointAtStart.value.x - dimensions.value.width / 2 },
+      { translateY: focalPointAtStart.value.y - dimensions.value.height / 2 },
       { scale: scale.value },
-      { translateX: -(focalPointAtStart.value.x - (dimensions.value.width / 2)) },
-      { translateY: -(focalPointAtStart.value.y - (dimensions.value.height / 2)) },
+      { translateX: -(focalPointAtStart.value.x - dimensions.value.width / 2) },
+      {
+        translateY: -(focalPointAtStart.value.y - dimensions.value.height / 2),
+      },
     ],
   }));
 

@@ -1,6 +1,6 @@
 version: 0.1
 cli:
-  version: 1.14.1
+  version: 1.14.2
 plugins:
   sources:
     - id: trunk
@@ -11,7 +11,7 @@ lint:
     - checkov@2.4.9
     - osv-scanner@1.3.6
     - trivy@0.44.1
-    - trufflehog@3.53.0
+    - trufflehog@3.54.0
     - oxipng@8.0.0
     - yamllint@1.32.0
     - ktlint@0.50.0
