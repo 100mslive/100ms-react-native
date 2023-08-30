@@ -53,7 +53,7 @@ export const HMSNotification: React.FC<HMSNotificationProps> = ({
 
   const notification = (
     <View style={[styles.container, hmsRoomStyles.container, style]}>
-      <View style={[styles.wrapper, { flex: 1 }]}>
+      <View style={styles.leftWrapper}>
         {icon ? <View style={styles.icon}>{icon}</View> : null}
 
         {typeof text === 'string' ? (
@@ -65,7 +65,7 @@ export const HMSNotification: React.FC<HMSNotificationProps> = ({
         )}
       </View>
 
-      <View style={[styles.wrapper]}>
+      <View style={styles.rightWrapper}>
         {cta}
 
         {dismissNotification ? (
@@ -104,15 +104,21 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  wrapper: {
+  leftWrapper: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  rightWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 16,
   },
   icon: {
     marginRight: 8,
   },
   text: {
-    // flexShrink: 1,
+    flexShrink: 1,
     fontSize: 14,
     lineHeight: 20,
     letterSpacing: 0.1,
