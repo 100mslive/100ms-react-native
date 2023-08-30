@@ -1,17 +1,18 @@
+import type { HMSRemotePeer, HMSRole } from '@100mslive/react-native-hms';
+
 import { HmsStateActionTypes } from '../actionTypes';
+import { ChatBroadcastFilter } from '../../utils/types';
 
 type InitialType = {
   showChatView: boolean;
   typedMessage: string;
-  sendTo: any;
-  sendToType: 'everyone' | 'role' | 'direct';
+  sendTo: HMSRemotePeer | HMSRole | typeof ChatBroadcastFilter;
 };
 
 const INITIAL_STATE: InitialType = {
   showChatView: false,
   typedMessage: '',
-  sendTo: { name: 'everyone' },
-  sendToType: 'everyone', // 'everyone' | 'role' | 'direct'
+  sendTo: ChatBroadcastFilter,
 };
 
 const chatWindowReducer = (state = INITIAL_STATE, action: any): InitialType => {
@@ -20,7 +21,6 @@ const chatWindowReducer = (state = INITIAL_STATE, action: any): InitialType => {
       return {
         ...state,
         sendTo: action.sendTo,
-        sendToType: action.sendToType,
       };
     case 'SET_TYPED_MESSAGE':
       return {

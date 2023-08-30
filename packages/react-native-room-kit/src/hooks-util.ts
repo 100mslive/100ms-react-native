@@ -44,7 +44,7 @@ import {
 import type { DependencyList } from 'react';
 
 import { MaxTilesInOnePage, ModalTypes, PipModes } from './utils/types';
-import type { PeerTrackNode } from './utils/types';
+import type { ChatBroadcastFilter, PeerTrackNode } from './utils/types';
 import { createPeerTrackNode, parseMetadata } from './utils/functions';
 import {
   batch,
@@ -1759,26 +1759,22 @@ export const useSendMessage = () => {
     const chatWindowState = reduxStore.getState().chatWindow;
 
     const message = chatWindowState.typedMessage;
-    const sendingToType = chatWindowState.sendToType;
     const sendingTo = chatWindowState.sendTo as
       | HMSRole
       | HMSRemotePeer
-      | { name: string };
+      | typeof ChatBroadcastFilter;
 
     if (message.length <= 0) return;
 
     const hmsMessageRecipient = new HMSMessageRecipient({
       recipientType:
-        sendingToType === 'role'
+        'publishSettings' in sendingTo
           ? HMSMessageRecipientType.ROLES
-          : sendingToType === 'direct'
+          : 'peerID' in sendingTo
           ? HMSMessageRecipientType.PEER
           : HMSMessageRecipientType.BROADCAST,
-      recipientPeer:
-        sendingToType === 'direct' && 'peerID' in sendingTo
-          ? sendingTo
-          : undefined,
-      recipientRoles: sendingToType === 'role' ? [sendingTo] : undefined,
+      recipientPeer: 'peerID' in sendingTo ? sendingTo : undefined,
+      recipientRoles: 'publishSettings' in sendingTo ? [sendingTo] : undefined,
     });
 
     // Saving reference of `message` state to local variable
@@ -1810,14 +1806,12 @@ export const useSendMessage = () => {
 
     try {
       let result: { messageId: string | undefined };
-      if (sendingToType === 'role') {
-        result = await hmsInstance.sendGroupMessage(messageText, [
-          sendingTo as HMSRole,
-        ]);
-      } else if (sendingToType === 'direct') {
+      if ('publishSettings' in sendingTo) {
+        result = await hmsInstance.sendGroupMessage(messageText, [sendingTo]);
+      } else if ('peerID' in sendingTo) {
         result = await hmsInstance.sendDirectMessage(
           messageText,
-          sendingTo as HMSPeer
+          sendingTo
         );
       } else {
         result = await hmsInstance.sendBroadcastMessage(messageText);

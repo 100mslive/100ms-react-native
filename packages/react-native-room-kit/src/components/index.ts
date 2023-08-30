@@ -1,4 +1,3 @@
-export * from './ChatWindow';
 export * from './Preview';
 export * from './Picker';
 export * from './CustomInput';

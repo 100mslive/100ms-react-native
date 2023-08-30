@@ -1,4 +1,5 @@
 import ActionTypes, { HmsStateActionTypes } from '../actionTypes';
+import { ChatBottomSheetTabs } from '../../utils/types';
 import type { PeerTrackNode } from '../../utils/types';
 import { SUPPORTED_ASPECT_RATIOS, ModalTypes } from '../../utils/types';
 import { PipModes } from '../../utils/types';
@@ -48,6 +49,8 @@ type IntialStateType = {
   fullScreenPeerTrackNode: null | PeerTrackNode;
   screensharePeerTrackNodes: PeerTrackNode[];
   notifications: { id: string; type: string; peer: HMSPeer }[];
+  activeChatBottomSheetTab: typeof ChatBottomSheetTabs[number];
+  chatFilterSheetVisible: boolean;
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -75,6 +78,8 @@ const INITIAL_STATE: IntialStateType = {
   fullScreenPeerTrackNode: null,
   screensharePeerTrackNodes: [],
   notifications: [],
+  activeChatBottomSheetTab: ChatBottomSheetTabs[0],
+  chatFilterSheetVisible: false,
 };
 
 const appReducer = (
@@ -264,6 +269,18 @@ const appReducer = (
         notifications: state.notifications.filter(
           (notification) => notification.id !== action.payload.id
         ),
+      };
+    }
+    case ActionTypes.SET_ACTIVE_CHAT_BOTTOM_SHEET_TAB: {
+      return {
+        ...state,
+        activeChatBottomSheetTab: action.payload.activeChatBottomSheetTab
+      };
+    }
+    case ActionTypes.SET_CHAT_FILTER_SHEET_VISIBLE: {
+      return {
+        ...state,
+        chatFilterSheetVisible: action.payload.chatFilterSheetVisible
       };
     }
     case HmsStateActionTypes.CLEAR_STATES:
