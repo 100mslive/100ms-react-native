@@ -14,6 +14,7 @@ import type {
 import type { Layout } from '@100mslive/types-prebuilt';
 
 import type {
+  ChatBottomSheetTabs,
   HMSIOSScreenShareConfig,
   ModalTypes,
   PeerTrackNode,
@@ -322,4 +323,16 @@ export const setRoleChangeRequest = (
 ) => ({
   type: HmsStateActionTypes.SET_ROLE_CHANGE_REQUEST,
   roleChangeRequest,
+});
+
+export const setActiveChatBottomSheetTab = (
+  activeChatBottomSheetTab: (typeof ChatBottomSheetTabs)[number]
+) => ({
+  type: actionTypes.SET_ACTIVE_CHAT_BOTTOM_SHEET_TAB,
+  payload: { activeChatBottomSheetTab },
+});
+
+export const setChatFilterSheetVisible = (chatFilterSheetVisible: boolean) => ({
+  type: actionTypes.SET_CHAT_FILTER_SHEET_VISIBLE,
+  payload: { chatFilterSheetVisible }
 });

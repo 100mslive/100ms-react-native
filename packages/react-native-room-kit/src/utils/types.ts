@@ -99,3 +99,7 @@ export enum MaxTilesInOnePage {
   IN_PORTRAIT = 6,
   IN_LANDSCAPE = 2,
 }
+
+export const ChatBottomSheetTabs = ['Chat', 'Participants'] as const;
+
+export const ChatBroadcastFilter = { name: 'everyone' } as const;

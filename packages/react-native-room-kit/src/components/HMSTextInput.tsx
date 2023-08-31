@@ -19,20 +19,23 @@ import { SendIcon } from '../Icons';
 export type HMSTextInputProps = TextInputProps & {
   value: string;
   focusedStyle?: StyleProp<TextStyle>;
+  leftIcon?: React.ReactElement;
+  containerStyle?: StyleProp<ViewStyle>;
+  focusedContainerStyle?: StyleProp<ViewStyle>;
 } & (
     | {
-        leftIcon: React.ReactElement;
+        rightIcon: React.ReactElement;
         containerStyle?: StyleProp<ViewStyle>;
         focusedContainerStyle?: StyleProp<ViewStyle>;
       }
     | {
-        leftIcon?: undefined;
+        rightIcon?: undefined;
         sendIcon: boolean;
         onSendIconPress(): void;
         containerStyle?: StyleProp<ViewStyle>;
         focusedContainerStyle?: StyleProp<ViewStyle>;
       }
-    | { leftIcon?: undefined; sendIcon?: undefined }
+    | { rightIcon?: undefined; sendIcon?: undefined }
   );
 
 export const HMSTextInput: React.FC<HMSTextInputProps> = ({
@@ -53,7 +56,7 @@ export const HMSTextInput: React.FC<HMSTextInputProps> = ({
     on_surface_high: onSurfaceHighColor,
   } = useHMSRoomColorPalette();
 
-  const containerExists = resetProps.leftIcon || resetProps.sendIcon;
+  const containerExists = resetProps.leftIcon || resetProps.rightIcon || resetProps.sendIcon;
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     // TEXT INPUT STYLES
@@ -135,22 +138,24 @@ export const HMSTextInput: React.FC<HMSTextInputProps> = ({
     // regular styles
     styles.container,
     hmsRoomStyles.container, // theme regular styles
-    resetProps.leftIcon || resetProps.sendIcon
+    resetProps.leftIcon || resetProps.rightIcon || resetProps.sendIcon
       ? resetProps.containerStyle
       : null, // user provided regular styles
 
     // focused styles
     inputFocused ? hmsRoomStyles.focusedContainer : null, // theme focused styles
-    inputFocused && (resetProps.leftIcon || resetProps.sendIcon)
+    inputFocused && (resetProps.leftIcon || resetProps.rightIcon || resetProps.sendIcon)
       ? resetProps.focusedContainerStyle
       : null, // user provided focused styles
   ];
 
   return (
     <View style={containerStyles}>
+      {resetProps.leftIcon}
+
       {textInputComp}
 
-      {resetProps.leftIcon ||
+      {resetProps.rightIcon ||
         (resetProps.sendIcon ? (
           <TouchableOpacity
             style={styles.sendIconButton}
@@ -193,7 +198,6 @@ const styles = StyleSheet.create({
   childInput: {
     flex: 1,
     textAlignVertical: 'center',
-    marginRight: 8,
     fontSize: 16,
     lineHeight: Platform.OS === 'android' ? 24 : undefined,
     letterSpacing: 0.5,
@@ -201,5 +205,6 @@ const styles = StyleSheet.create({
   sendIconButton: {
     alignItems: 'center',
     justifyContent: 'center',
+    marginLeft: 8,
   },
 });

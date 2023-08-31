@@ -36,3 +36,4 @@ export * from './AlertTriangle';
 export * from './Hamburger';
 export * from './Stop';
 export * from './Eye';
+export * from './Search';
