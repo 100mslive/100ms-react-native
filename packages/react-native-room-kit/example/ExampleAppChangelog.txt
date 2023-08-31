@@ -1,5 +1,8 @@
 Board: https://github.com/100mslive/100ms-react-native/projects/28
 
+- Using Layout API for Viewer on Stage Role Flow
+https://github.com/100mslive/100ms-react-native/issues/1155
+
 - Added Equal Prominence Remote & Local Screenshare
 https://github.com/100mslive/100ms-react-native/issues/1137
 
