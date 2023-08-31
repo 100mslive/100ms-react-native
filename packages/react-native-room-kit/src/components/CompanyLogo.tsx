@@ -10,7 +10,9 @@ export const CompanyLogo: React.FC<CompanyLogoProps> = ({
   style,
   ...restProps
 }) => {
-  const logoSource = useHMSLayoutConfig((layoutConfig) => layoutConfig?.logo?.url);
+  const logoSource = useHMSLayoutConfig(
+    (layoutConfig) => layoutConfig?.logo?.url
+  );
 
   if (!logoSource) {
     return null;

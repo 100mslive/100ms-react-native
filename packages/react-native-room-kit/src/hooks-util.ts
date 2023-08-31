@@ -1827,10 +1827,7 @@ export const useSendMessage = () => {
       if ('publishSettings' in sendingTo) {
         result = await hmsInstance.sendGroupMessage(messageText, [sendingTo]);
       } else if ('peerID' in sendingTo) {
-        result = await hmsInstance.sendDirectMessage(
-          messageText,
-          sendingTo
-        );
+        result = await hmsInstance.sendDirectMessage(messageText, sendingTo);
       } else {
         result = await hmsInstance.sendBroadcastMessage(messageText);
       }

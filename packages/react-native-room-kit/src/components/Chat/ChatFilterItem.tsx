@@ -33,7 +33,7 @@ const _ChatFilterItem: React.FC<ChatFilterItemProps> = ({
       dispatch(setChatFilterSheetVisible(false));
       dispatch({ type: 'SET_SENDTO', sendTo: item });
     });
-  }
+  };
 
   return (
     <TouchableOpacity

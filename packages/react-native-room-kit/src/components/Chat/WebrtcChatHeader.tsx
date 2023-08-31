@@ -20,7 +20,9 @@ const _WebrtcChatHeader: React.FC<WebrtcChatHeaderProps> = ({
   const peersCount = useSelector(
     (state: RootState) => state.hmsStates.room?.peerCount
   );
-  const activeChatBottomSheetTab = useSelector((state: RootState) => state.app.activeChatBottomSheetTab);
+  const activeChatBottomSheetTab = useSelector(
+    (state: RootState) => state.app.activeChatBottomSheetTab
+  );
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     tab: {

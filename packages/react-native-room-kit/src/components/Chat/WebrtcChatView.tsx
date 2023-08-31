@@ -12,7 +12,9 @@ import { ChatFilterBottomSheetOpener } from './ChatFilterBottomSheetOpener';
 import type { RootState } from '../../redux';
 
 const _WebrtcChatView: React.FC = () => {
-  const activeChatBottomSheetTab = useSelector((state: RootState) => state.app.activeChatBottomSheetTab);
+  const activeChatBottomSheetTab = useSelector(
+    (state: RootState) => state.app.activeChatBottomSheetTab
+  );
 
   const [_, setChatVisible] = useShowChat();
 

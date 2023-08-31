@@ -49,7 +49,7 @@ type IntialStateType = {
   fullScreenPeerTrackNode: null | PeerTrackNode;
   screensharePeerTrackNodes: PeerTrackNode[];
   notifications: { id: string; type: string; peer: HMSPeer }[];
-  activeChatBottomSheetTab: typeof ChatBottomSheetTabs[number];
+  activeChatBottomSheetTab: (typeof ChatBottomSheetTabs)[number];
   chatFilterSheetVisible: boolean;
 };
 
@@ -274,13 +274,13 @@ const appReducer = (
     case ActionTypes.SET_ACTIVE_CHAT_BOTTOM_SHEET_TAB: {
       return {
         ...state,
-        activeChatBottomSheetTab: action.payload.activeChatBottomSheetTab
+        activeChatBottomSheetTab: action.payload.activeChatBottomSheetTab,
       };
     }
     case ActionTypes.SET_CHAT_FILTER_SHEET_VISIBLE: {
       return {
         ...state,
-        chatFilterSheetVisible: action.payload.chatFilterSheetVisible
+        chatFilterSheetVisible: action.payload.chatFilterSheetVisible,
       };
     }
     case HmsStateActionTypes.CLEAR_STATES:

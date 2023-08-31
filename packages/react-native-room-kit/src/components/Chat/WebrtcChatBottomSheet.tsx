@@ -19,8 +19,8 @@ export const WebrtcChatBottomSheet = () => {
     >
       <WebrtcChatView />
     </BottomSheet>
-  );  
-}
+  );
+};
 
 const styles = StyleSheet.create({
   bottomSheet: {
@@ -28,5 +28,5 @@ const styles = StyleSheet.create({
     backgroundColor: undefined,
     paddingBottom: 0,
     marginTop: 112,
-  }
+  },
 });

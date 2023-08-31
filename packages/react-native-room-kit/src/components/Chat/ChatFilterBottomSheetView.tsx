@@ -11,10 +11,13 @@ import { setChatFilterSheetVisible } from '../../redux/actions';
 
 interface ChatFilterBottomSheetViewProps {}
 
-const _ChatFilterBottomSheetView: React.FC<ChatFilterBottomSheetViewProps> = ({
-}) => {
+const _ChatFilterBottomSheetView: React.FC<
+  ChatFilterBottomSheetViewProps
+> = ({}) => {
   const dispatch = useDispatch();
-  const chatFilterSheetVisible = useSelector((state: RootState) => state.app.chatFilterSheetVisible);
+  const chatFilterSheetVisible = useSelector(
+    (state: RootState) => state.app.chatFilterSheetVisible
+  );
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme) => ({
     backdrop: {
@@ -27,7 +30,7 @@ const _ChatFilterBottomSheetView: React.FC<ChatFilterBottomSheetViewProps> = ({
 
   const closeFiltersBottomSheet = () => {
     dispatch(setChatFilterSheetVisible(false));
-  }
+  };
 
   if (!chatFilterSheetVisible) {
     return null;

@@ -56,7 +56,8 @@ export const HMSTextInput: React.FC<HMSTextInputProps> = ({
     on_surface_high: onSurfaceHighColor,
   } = useHMSRoomColorPalette();
 
-  const containerExists = resetProps.leftIcon || resetProps.rightIcon || resetProps.sendIcon;
+  const containerExists =
+    resetProps.leftIcon || resetProps.rightIcon || resetProps.sendIcon;
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     // TEXT INPUT STYLES
@@ -144,7 +145,8 @@ export const HMSTextInput: React.FC<HMSTextInputProps> = ({
 
     // focused styles
     inputFocused ? hmsRoomStyles.focusedContainer : null, // theme focused styles
-    inputFocused && (resetProps.leftIcon || resetProps.rightIcon || resetProps.sendIcon)
+    inputFocused &&
+    (resetProps.leftIcon || resetProps.rightIcon || resetProps.sendIcon)
       ? resetProps.focusedContainerStyle
       : null, // user provided focused styles
   ];

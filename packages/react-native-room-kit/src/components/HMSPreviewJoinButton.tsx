@@ -4,7 +4,11 @@ import { shallowEqual, useSelector } from 'react-redux';
 
 import type { RootState } from '../redux';
 import { RadioIcon } from '../Icons';
-import { useHMSLayoutConfig, useHMSRoomStyle, useShouldGoLive } from '../hooks-util';
+import {
+  useHMSLayoutConfig,
+  useHMSRoomStyle,
+  useShouldGoLive,
+} from '../hooks-util';
 import { HMSPrimaryButton } from './HMSPrimaryButton';
 
 export interface HMSPreviewJoinButtonProps {

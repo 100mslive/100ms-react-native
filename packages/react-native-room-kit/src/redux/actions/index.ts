@@ -334,5 +334,5 @@ export const setActiveChatBottomSheetTab = (
 
 export const setChatFilterSheetVisible = (chatFilterSheetVisible: boolean) => ({
   type: actionTypes.SET_CHAT_FILTER_SHEET_VISIBLE,
-  payload: { chatFilterSheetVisible }
+  payload: { chatFilterSheetVisible },
 });
