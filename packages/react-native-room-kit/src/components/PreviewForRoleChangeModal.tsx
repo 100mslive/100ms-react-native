@@ -26,6 +26,10 @@ import { CameraIcon, MicIcon, RotateCameraIcon } from '../Icons';
 import { PressableIcon } from './PressableIcon';
 import { AvatarView } from './PeerVideoTile/AvatarView';
 import { HMSVideoView } from './HMSVideoView';
+import {
+  selectIsHLSViewer,
+  selectLayoutConfigForRole,
+} from '../hooks-util-selectors';
 
 const _PreviewForRoleChangeModal = () => {
   const dispatch = useDispatch();
@@ -41,6 +45,14 @@ const _PreviewForRoleChangeModal = () => {
     (state: RootState) => parseMetadata(state.hmsStates.localPeer?.metadata),
     shallowEqual
   );
+  const becomeHLSViewer = useSelector((state: RootState) => {
+    const layoutConfig = selectLayoutConfigForRole(
+      state.hmsStates.layoutConfig,
+      roleChangeRequest?.suggestedRole || null
+    );
+    return selectIsHLSViewer(roleChangeRequest?.suggestedRole, layoutConfig);
+  });
+
   const [localVideoTrack, setLocalVideoTrack] =
     React.useState<HMSLocalVideoTrack | null>(null);
   const [localAudioTrack, setLocalAudioTrack] =
@@ -194,9 +206,6 @@ const _PreviewForRoleChangeModal = () => {
     roleChangeRequest?.suggestedRole,
     'video'
   );
-
-  const becomeHLSViewer =
-    roleChangeRequest?.suggestedRole.name?.includes('hls-');
 
   const heading = becomeHLSViewer
     ? "You're invited to view the live stream"

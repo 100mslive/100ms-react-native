@@ -28,6 +28,7 @@ import {
   changeShowCustomHLSPlayerControls,
 } from '../redux/actions';
 import { ModalTypes, PipModes } from '../utils/types';
+import { useIsHLSViewer } from '../hooks-util';
 
 interface RoomSettingsModalDebugModeContentProps {
   newAudioMixingMode: HMSAudioMixingMode;
@@ -78,6 +79,7 @@ export const RoomSettingsModalDebugModeContent: React.FC<
   const showCustomHLSPlayerControls = useSelector(
     (state: RootState) => state.app.joinConfig.showCustomHLSPlayerControls
   );
+  const isHLSViewer = useIsHLSViewer();
 
   // CONSTANTS
   const isPipModeUnavailable = pipModeStatus === PipModes.NOT_AVAILABLE;
@@ -243,7 +245,7 @@ export const RoomSettingsModalDebugModeContent: React.FC<
 
   return (
     <ScrollView style={styles.container}>
-      {localPeerRole?.name?.includes('hls-') ? (
+      {isHLSViewer ? (
         <SettingItem
           onPress={handleHLSPlayerAspectRatio}
           text={'Change Aspect Ratio'}
@@ -252,7 +254,7 @@ export const RoomSettingsModalDebugModeContent: React.FC<
         />
       ) : null}
 
-      {!localPeerRole?.name?.includes('hls-') ? (
+      {!isHLSViewer ? (
         <SettingItem
           onPress={handleLocalRemoteAudiosMute}
           text={`${muteAllTracksAudio ? 'Unmute' : 'Mute'} Room`}
@@ -319,7 +321,7 @@ export const RoomSettingsModalDebugModeContent: React.FC<
 
       {debugMode ? (
         <>
-          {localPeerRole?.name?.includes('hls-') ? (
+          {isHLSViewer ? (
             <>
               <SettingItem
                 onPress={toggleShowHLSStats}

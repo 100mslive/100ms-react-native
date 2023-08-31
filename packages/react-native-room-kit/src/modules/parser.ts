@@ -3,19 +3,18 @@ import type {
   Layout,
 } from '@100mslive/types-prebuilt';
 
-export async function parseRoomLayout(response: string): Promise<Layout> {
+export async function parseRoomLayout(response: string): Promise<Layout[]> {
   try {
     const parsedResponse: LayoutAPIResponse = JSON.parse(response);
     if (!parsedResponse.data) {
       return Promise.reject('Layout API response is corrupted!');
     }
 
-    const firstLayout = parsedResponse.data[0];
-    if (!firstLayout) {
+    if (parsedResponse.data.length <= 0) {
       return Promise.reject('No Layout found for the Room!');
     }
 
-    return firstLayout;
+    return parsedResponse.data;
   } catch (error) {
     return Promise.reject(error);
   }

@@ -5,6 +5,7 @@ import type { HMSPeer } from '@100mslive/react-native-hms';
 import { HandIcon } from '../Icons';
 import {
   useHMSInstance,
+  useHMSLayoutConfig,
   useHMSRoomColorPalette,
   useHMSRoomStyleSheet,
 } from '../hooks-util';
@@ -25,9 +26,19 @@ export const HMSHandRaiseNotification: React.FC<
 > = ({ peer, id, dismissDelay = 5000, autoDismiss }) => {
   const dispatch = useDispatch();
   const hmsInstance = useHMSInstance();
-  const broadcasterRole = useSelector(
-    (state: RootState) => state.hmsStates.localPeer?.role!
+  const onStageExpData = useHMSLayoutConfig(
+    (layoutConfig) =>
+      layoutConfig?.screens?.conferencing?.default?.elements?.on_stage_exp
   );
+  const onStageRole = useSelector((state: RootState) => {
+    const onStageRoleStr = onStageExpData?.on_stage_role;
+    if (!onStageRoleStr) {
+      return null;
+    }
+    return (
+      state.hmsStates.roles.find((role) => role.name === onStageRoleStr) || null
+    );
+  });
 
   const { secondary_dim: secondaryDimColor } = useHMSRoomColorPalette();
 
@@ -42,8 +53,15 @@ export const HMSHandRaiseNotification: React.FC<
   }));
 
   const bringPeerToStage = async () => {
+    if (!onStageRole) {
+      return Promise.reject(
+        `${
+          onStageExpData ? '"on_stage_role"' : '"on_stage_exp"'
+        } data is not available`
+      );
+    }
     dispatch(removeNotification(id));
-    await hmsInstance.changeRoleOfPeer(peer, broadcasterRole, false);
+    await hmsInstance.changeRoleOfPeer(peer, onStageRole, false);
   };
 
   return (
@@ -60,7 +78,7 @@ export const HMSHandRaiseNotification: React.FC<
           onPress={bringPeerToStage}
         >
           <Text style={[styles.buttonText, hmsRoomStyles.buttonText]}>
-            Bring on Stage
+            {onStageExpData?.bring_to_stage_label || 'Bring to Stage'}
           </Text>
         </TouchableHighlight>
       }
@@ -73,7 +91,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 8,
-    marginHorizontal: 16,
+    marginRight: 16,
   },
   buttonText: {
     fontSize: 14,
