@@ -274,8 +274,9 @@ export class HMSSDK {
    *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/chat} for more info
    *
-   * @param {message: string} and @param {type: string}
    * @memberof HMSSDK
+   * @param message the message that is to be sent
+   * @param type the default type is set to CHAT. You can pass a custom type here for sending events like Emoji Reactions, Notifications, etc
    */
   sendBroadcastMessage = async (
     message: string,
@@ -1027,8 +1028,8 @@ export class HMSSDK {
    *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/audio-output-routing#switch-audio-focus-to-another-device} for more info
    *
-   * @param {HMSAudioDevice}
    * @memberof HMSSDK
+   * @param audioDevice
    */
   switchAudioOutput = (audioDevice: HMSAudioDevice) => {
     logger?.verbose('#Function switchAudioOutput', {
