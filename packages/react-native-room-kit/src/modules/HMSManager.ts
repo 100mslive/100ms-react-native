@@ -15,11 +15,11 @@ export async function getRoomLayout(
     endpoint,
   });
 
-  const layputAPIResponse: string = await HMSManagerModule.getRoomLayout({
+  const layoutAPIResponse: string = await HMSManagerModule.getRoomLayout({
     id: hmsInstance.id,
     authToken,
     endpoint,
   });
 
-  return parseRoomLayout(layputAPIResponse);
+  return parseRoomLayout(layoutAPIResponse);
 }
