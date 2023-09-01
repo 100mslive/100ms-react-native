@@ -93,6 +93,7 @@ export class HMSEncoder {
   static encodeHmsPeer(peer: any) {
     const encodedObj = {
       peerID: peer?.peerID,
+      name: peer?.name,
     };
 
     return new HMSPeer(encodedObj);
