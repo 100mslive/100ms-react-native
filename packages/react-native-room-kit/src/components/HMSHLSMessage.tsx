@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, Platform } from 'react-native';
 import { HMSMessage } from '@100mslive/react-native-hms';
 
 import { useHMSRoomStyleSheet } from '../hooks-util';
-import { hexToRgbA } from '../utils/theme';
 
 interface HMSHLSMessageProps {
   message: HMSMessage;
@@ -78,6 +77,8 @@ const styles = StyleSheet.create({
     lineHeight: Platform.OS === 'android' ? 20 : undefined,
     letterSpacing: 0.25,
     marginTop: 2,
+    textShadowOffset: { height: 2, width: 2 },
+    textShadowRadius: 3,
   },
   textAlignRight: {
     textAlign: 'right',
