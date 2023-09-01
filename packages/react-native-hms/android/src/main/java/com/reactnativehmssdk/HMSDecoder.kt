@@ -146,11 +146,9 @@ object HMSDecoder {
     val peer: WritableMap = Arguments.createMap()
     if (hmsPeer != null) {
       peer.putString(peerUpdateType.ordinal.toString(), hmsPeer.peerID)
+      peer.putString("name", hmsPeer.name)
 
       when (peerUpdateType) {
-        HMSPeerUpdate.NAME_CHANGED -> {
-          peer.putString("name", hmsPeer.name)
-        }
         HMSPeerUpdate.METADATA_CHANGED -> {
           peer.putString("metadata", hmsPeer.metadata)
         }
@@ -162,8 +160,11 @@ object HMSDecoder {
             peer.putMap("networkQuality", this.getHmsNetworkQuality(it))
           }
         }
+        HMSPeerUpdate.NAME_CHANGED -> {
+          print("$peerUpdateType received")
+        }
         else -> {
-          print("Unknown Peer Update Type received")
+          print("Unhandled Peer Update Type received: $peerUpdateType")
         }
       }
     }
@@ -174,12 +175,10 @@ object HMSDecoder {
     val peer: WritableMap = Arguments.createMap()
     if (hmsPeer != null) {
       peer.putString("peerID", hmsPeer.peerID)
+      peer.putString("name", hmsPeer.name)
 
       if (peerUpdateType !== null) {
         when (peerUpdateType) {
-          HMSPeerUpdate.NAME_CHANGED -> {
-            peer.putString("name", hmsPeer.name)
-          }
           HMSPeerUpdate.METADATA_CHANGED -> {
             peer.putString("metadata", hmsPeer.metadata)
           }
@@ -191,8 +190,11 @@ object HMSDecoder {
               peer.putMap("networkQuality", this.getHmsNetworkQuality(it))
             }
           }
+          HMSPeerUpdate.NAME_CHANGED -> {
+            print("$peerUpdateType received")
+          }
           else -> {
-            print("Unknown Peer Update Type received")
+            print("Unhandled Peer Update Type received: $peerUpdateType")
           }
         }
       }
