@@ -19,6 +19,7 @@ export class HMSLocalPeer extends HMSPeer {
 
   constructor(params: {
     peerID: string;
+    name: string;
     localAudioTrackData?: {
       id: string;
       trackId: string;
