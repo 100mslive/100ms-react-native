@@ -13,8 +13,8 @@ export const usePeerMinimizedViewDimensions = () => {
   const canPublishVideo = useCanPublishVideo();
 
   const iconTakesSpace = 20 + 6; // Width + Right Margin
-  const totalWidth = 148;
-  const widthLessIconsWidth = totalWidth - 2 * iconTakesSpace;
+  const totalWidth = 128;
+  const widthLessIconsWidth = totalWidth - (2 * iconTakesSpace);
 
   return {
     width:
