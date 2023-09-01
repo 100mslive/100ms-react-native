@@ -1,9 +1,11 @@
 import * as React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
+import { JoinForm_JoinBtnType } from '@100mslive/types-prebuilt/elements/join_form';
 
 import { EndIcon, LeaveIcon } from '../Icons';
 import {
+  useHMSLayoutConfig,
   useHMSRoomStyleSheet,
   useIsHLSViewer,
   useLeaveMethods,
@@ -90,10 +92,10 @@ const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
   const hmsRoomStyles = useHMSRoomStyleSheet((theme) => ({
     button: {
       backgroundColor: theme.palette.alert_error_default,
-      borderColor: theme.palette.alert_error_default
+      borderColor: theme.palette.alert_error_default,
     },
     icon: {
-      tintColor: theme.palette.alert_error_brighter
+      tintColor: theme.palette.alert_error_brighter,
     },
   }));
 
@@ -157,9 +159,23 @@ const LeaveBottomSheet: React.FC<LeaveBottomSheetProps> = ({
   onEndSessionPress,
   onPopupHide,
 }) => {
+  const joinAndGoLiveBtnType = useHMSLayoutConfig((layoutConfig) => {
+    return (
+      layoutConfig?.screens?.preview?.default?.elements?.join_form
+        ?.join_btn_type === JoinForm_JoinBtnType.JOIN_BTN_TYPE_JOIN_AND_GO_LIVE
+    );
+  });
   const canEndRoom = useSelector(
     (state: RootState) => state.hmsStates.localPeer?.role?.permissions?.endRoom
   );
+  const isStreaming = useSelector(
+    (state: RootState) => state.hmsStates.room?.hlsStreamingState.running
+  );
+  const isRecording = useSelector(
+    (state: RootState) => state.hmsStates.room?.browserRecordingState.running
+  );
+
+  const showEndButton = joinAndGoLiveBtnType && canEndRoom && (isStreaming || isRecording);
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     text: {
@@ -212,7 +228,7 @@ const LeaveBottomSheet: React.FC<LeaveBottomSheetProps> = ({
           </View>
         </TouchableOpacity>
 
-        {canEndRoom ? (
+        {showEndButton ? (
           <TouchableOpacity
             style={[leavePopupStyles.button, hmsRoomStyles.endButton]}
             onPress={onEndSessionPress}
@@ -221,12 +237,12 @@ const LeaveBottomSheet: React.FC<LeaveBottomSheetProps> = ({
 
             <View style={leavePopupStyles.textContainer}>
               <Text style={[leavePopupStyles.text, hmsRoomStyles.endText]}>
-                End Stream
+                {isStreaming ? 'End Stream' : 'End Session'}
               </Text>
               <Text
                 style={[leavePopupStyles.subtext, hmsRoomStyles.endSubtext]}
               >
-                The stream & session will end for everyone. You can't undo this
+                The {isStreaming ? 'stream' : 'recording'} & session will end for everyone. You can't undo this
                 action.
               </Text>
             </View>
