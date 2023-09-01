@@ -73,7 +73,6 @@ export * from './classes/HMSAudioMixerSource';
 export * from './classes/HMSTrackSettingsInitState';
 export * from './classes/HMSLogSettings';
 export * from './classes/HMSLogAlarmManager';
-export * from './classes/HMSMessageType';
 export * from './classes/HMSPIPListenerActions';
 export * from './classes/HMSLayer';
 export * from './classes/HMSSimulcastLayerDefinition';

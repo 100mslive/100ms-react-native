@@ -5,7 +5,6 @@ import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import {
   HMSLocalAudioTrack,
   HMSLocalVideoTrack,
-  HMSMessageType,
   HMSTrackType,
 } from '@100mslive/react-native-hms';
 
@@ -154,7 +153,7 @@ const _PreviewForRoleChangeModal = () => {
       await hmsInstance.sendDirectMessage(
         '',
         roleChangeRequest.requestedBy,
-        NotificationTypes.ROLE_CHANGE_DECLINED as unknown as HMSMessageType
+        NotificationTypes.ROLE_CHANGE_DECLINED
       );
     }
     dispatch(setRoleChangeRequest(null));
