@@ -12,4 +12,4 @@ https://github.com/100mslive/100ms-react-native/issues/1123
 Core SDK: 1.7.1
 Room Kit: 0.1.0
 Android SDK: 2.7.3
-iOS SDK: 0.9.9
+iOS SDK: 0.9.10
