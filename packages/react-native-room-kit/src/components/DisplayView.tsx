@@ -36,6 +36,7 @@ import { WebrtcView } from './WebrtcView';
 import { BottomSheet } from './BottomSheet';
 import { FullScreenVideoView } from './FullScreenVideoView';
 import { PreviewForRoleChangeModal } from './PreviewForRoleChangeModal';
+import { ChatAndParticipantsBottomSheet } from './ChatAndParticipants';
 
 type CapturedImagePath = { uri: string } | null;
 
@@ -153,6 +154,8 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
           <PreviewForRoleChangeModal />
 
           <FullScreenVideoView />
+
+          <ChatAndParticipantsBottomSheet />
 
           <BottomSheet
             isVisible={modalVisible === ModalTypes.PEER_SETTINGS}

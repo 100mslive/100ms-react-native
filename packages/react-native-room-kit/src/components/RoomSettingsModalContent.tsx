@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import type { HMSAudioMixingMode } from '@100mslive/react-native-hms';
-import { useDispatch, useSelector } from 'react-redux';
+import { batch, useDispatch, useSelector } from 'react-redux';
 
 import type { RootState } from '../redux';
 import { ModalTypes } from '../utils/types';
@@ -22,7 +22,7 @@ import {
 } from '../hooks-util';
 import { useCanPublishScreen, useHMSActions } from '../hooks-sdk';
 import { RoomSettingsModalDebugModeContent } from './RoomSettingsModalDebugModeContent';
-import { setStartingOrStoppingRecording } from '../redux/actions';
+import { setActiveChatBottomSheetTab, setStartingOrStoppingRecording } from '../redux/actions';
 import { ParticipantsCount } from './ParticipantsCount';
 
 interface RoomSettingsModalContentProps {
@@ -55,7 +55,14 @@ export const RoomSettingsModalContent: React.FC<
   const onParticipantsPress = () => {
     // Register callback to be called when bottom sheet is hiddden
     registerOnModalHideAction(() => {
-      setModalVisible(ModalTypes.PARTICIPANTS);
+      if (isHLSViewer) {
+        setModalVisible(ModalTypes.PARTICIPANTS);
+      } else {
+        batch(() => {
+          dispatch(setActiveChatBottomSheetTab('Participants'));
+          dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: true });
+        });
+      }
     });
 
     // Close the current bottom sheet

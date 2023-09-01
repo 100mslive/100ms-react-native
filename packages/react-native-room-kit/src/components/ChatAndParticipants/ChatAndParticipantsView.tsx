@@ -3,15 +3,15 @@ import { useSelector } from 'react-redux';
 import { StyleSheet, View } from 'react-native';
 
 import { useHMSRoomStyleSheet, useShowChat } from '../../hooks-util';
-import { ChatList } from './ChatList';
+import { ChatList } from '../Chat/ChatList';
 import { HMSSendMessageInput } from '../HMSSendMessageInput';
 import { SearchableParticipantsView } from '../Participants';
-import { WebrtcChatHeader } from './WebrtcChatHeader';
-import { ChatFilterBottomSheetView } from './ChatFilterBottomSheetView';
-import { ChatFilterBottomSheetOpener } from './ChatFilterBottomSheetOpener';
+import { ChatAndParticipantsHeader } from './ChatAndParticipantsHeader';
+import { ChatFilterBottomSheetView } from '../Chat/ChatFilterBottomSheetView';
+import { ChatFilterBottomSheetOpener } from '../Chat/ChatFilterBottomSheetOpener';
 import type { RootState } from '../../redux';
 
-const _WebrtcChatView: React.FC = () => {
+const _ChatAndParticipantsView: React.FC = () => {
   const activeChatBottomSheetTab = useSelector(
     (state: RootState) => state.app.activeChatBottomSheetTab
   );
@@ -33,7 +33,7 @@ const _WebrtcChatView: React.FC = () => {
   return (
     <View style={{ flex: 1, position: 'relative' }}>
       <View style={[chatViewStyles.container, hmsRoomStyles.container]}>
-        <WebrtcChatHeader onClosePress={closeChatBottomSheet} />
+        <ChatAndParticipantsHeader onClosePress={closeChatBottomSheet} />
 
         {activeChatBottomSheetTab === 'Chat' ? (
           <>
@@ -72,8 +72,9 @@ const chatViewStyles = StyleSheet.create({
     marginBottom: 0,
   },
   participantsWrapper: {
+    flex: 1,
     marginTop: 16,
   },
 });
 
-export const WebrtcChatView = React.memo(_WebrtcChatView);
+export const ChatAndParticipantsView = React.memo(_ChatAndParticipantsView);

@@ -3,9 +3,9 @@ import { StyleSheet } from 'react-native';
 
 import { BottomSheet } from '../BottomSheet';
 import { useShowChat } from '../../hooks-util';
-import { WebrtcChatView } from './WebrtcChatView';
+import { ChatAndParticipantsView } from './ChatAndParticipantsView';
 
-export const WebrtcChatBottomSheet = () => {
+export const ChatAndParticipantsBottomSheet = () => {
   const [chatVisibleType, setChatVisible] = useShowChat();
 
   const closeChatWindow = () => setChatVisible(false);
@@ -17,7 +17,7 @@ export const WebrtcChatBottomSheet = () => {
       avoidKeyboard={true}
       containerStyle={styles.bottomSheet}
     >
-      <WebrtcChatView />
+      <ChatAndParticipantsView />
     </BottomSheet>
   );
 };

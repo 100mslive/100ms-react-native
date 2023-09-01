@@ -13,7 +13,7 @@ interface WebrtcChatHeaderProps {
   onClosePress?: () => void;
 }
 
-const _WebrtcChatHeader: React.FC<WebrtcChatHeaderProps> = ({
+const _ChatAndParticipantsHeader: React.FC<WebrtcChatHeaderProps> = ({
   onClosePress,
 }) => {
   const dispatch = useDispatch();
@@ -102,4 +102,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export const WebrtcChatHeader = React.memo(_WebrtcChatHeader);
+export const ChatAndParticipantsHeader = React.memo(_ChatAndParticipantsHeader);

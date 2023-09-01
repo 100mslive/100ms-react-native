@@ -67,6 +67,7 @@ import {
   removeNotification,
   removeScreenshareTile,
   saveUserData,
+  setActiveChatBottomSheetTab,
   setFullScreenPeerTrackNode,
   setHMSLocalPeerState,
   setHMSRoleState,
@@ -1474,7 +1475,12 @@ export const useShowChat = (): [
       if (isChatVisibleInsetType) {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       }
-      dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: show });
+      batch(() => {
+        if (!isChatVisibleInsetType) {
+          dispatch(setActiveChatBottomSheetTab('Chat'));
+        }
+        dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: show });
+      });
     },
     [isChatVisibleInsetType]
   );
@@ -1513,11 +1519,15 @@ export const useFilteredParticipants = () => {
     localPeer ? [localPeer] : []
   );
 
+  const formattedParticipantsSearchInput = participantsSearchInput
+    .trim()
+    .toLowerCase();
+
   const filteredPeerTrackNodes = useMemo(() => {
     const newFilteredPeerTrackNodes = hmsPeers?.filter((peer) => {
       if (
-        participantsSearchInput.length < 1 ||
-        peer.name.includes(participantsSearchInput) ||
+        formattedParticipantsSearchInput.length < 1 ||
+        peer.name.toLowerCase().includes(participantsSearchInput) ||
         peer.role?.name?.includes(participantsSearchInput)
       ) {
         return true;
@@ -1539,7 +1549,7 @@ export const useFilteredParticipants = () => {
     return newFilteredPeerTrackNodes.filter(
       (peer) => peer.role?.name === filter
     );
-  }, [participantsSearchInput, filter, hmsPeers]);
+  }, [formattedParticipantsSearchInput, filter, hmsPeers]);
 
   useEffect(() => {
     let ignore = false;
