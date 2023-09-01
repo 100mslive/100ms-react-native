@@ -423,6 +423,7 @@ object HMSDecoder {
     val peer: WritableMap = Arguments.createMap()
     if (hmsLocalPeer != null) {
       peer.putString("peerID", hmsLocalPeer.peerID)
+      peer.putString("name", hmsLocalPeer.name)
 
       hmsLocalPeer.audioTrack?.let {
         peer.putMap("localAudioTrackData", this.getHmsLocalAudioTrack(it))
@@ -508,6 +509,7 @@ object HMSDecoder {
     val peer: WritableMap = Arguments.createMap()
     if (hmsRemotePeer != null) {
       peer.putString("peerID", hmsRemotePeer.peerID)
+      peer.putString("name", hmsRemotePeer.name)
 
       hmsRemotePeer.audioTrack?.let {
         peer.putMap("remoteAudioTrackData", this.getHmsRemoteAudioTrack(it))
