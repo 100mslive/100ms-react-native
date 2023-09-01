@@ -17,6 +17,7 @@ export class HMSRemotePeer extends HMSPeer {
 
   constructor(params: {
     peerID: string;
+    name: string;
     remoteAudioTrackData?: {
       trackId: string;
       source?: HMSTrackSource;
