@@ -247,6 +247,7 @@ class HMSDecoder: NSObject {
         var peerDict = [String: Any]()
 
         peerDict["peerID"] = peer.peerID
+        peerDict["name"] = peer.name
 
         if let audio = peer.audioTrack {
             if let localAudio = audio as? HMSLocalAudioTrack {
@@ -350,7 +351,8 @@ class HMSDecoder: NSObject {
         var peerDict = [String: Any]()
 
         peerDict["peerID"] = peer.peerID
-
+        peerDict["name"] = peer.name
+        
         // joinedAt
 
         if let audio = peer.audioTrack {
