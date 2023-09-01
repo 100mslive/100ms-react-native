@@ -171,11 +171,8 @@ const LeaveBottomSheet: React.FC<LeaveBottomSheetProps> = ({
   const isStreaming = useSelector(
     (state: RootState) => state.hmsStates.room?.hlsStreamingState.running
   );
-  const isRecording = useSelector(
-    (state: RootState) => state.hmsStates.room?.browserRecordingState.running
-  );
 
-  const showEndButton = joinAndGoLiveBtnType && canEndRoom && (isStreaming || isRecording);
+  const showEndButton = joinAndGoLiveBtnType && canEndRoom && isStreaming;
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     text: {
@@ -242,7 +239,7 @@ const LeaveBottomSheet: React.FC<LeaveBottomSheetProps> = ({
               <Text
                 style={[leavePopupStyles.subtext, hmsRoomStyles.endSubtext]}
               >
-                The {isStreaming ? 'stream' : 'recording'} & session will end for everyone. You can't undo this
+                The {isStreaming ? 'stream & ' : ''}session will end for everyone. You can't undo this
                 action.
               </Text>
             </View>
