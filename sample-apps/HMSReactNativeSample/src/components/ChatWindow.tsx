@@ -12,7 +12,6 @@ import {
   HMSMessage,
   HMSMessageRecipient,
   HMSMessageRecipientType,
-  HMSMessageType,
   HMSPeer,
   HMSRemotePeer,
   HMSRole,
@@ -339,7 +338,7 @@ export const ChatWindow = ({localPeer}: {localPeer?: HMSLocalPeer}) => {
           const localMessage = new HMSMessage({
             messageId: messageId,
             message: messageText,
-            type: HMSMessageType.CHAT,
+            type: 'chat',
             time: new Date(),
             sender: localPeer,
             recipient: hmsMessageRecipient,

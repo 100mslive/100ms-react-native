@@ -26,7 +26,6 @@ import type { HMSAudioDevice } from './HMSAudioDevice';
 import type { HMSAudioMode } from './HMSAudioMode';
 import type { HMSAudioMixingMode } from './HMSAudioMixingMode';
 import type { HMSLogSettings } from './HMSLogSettings';
-import { HMSMessageType } from './HMSMessageType';
 import { HMSPIPListenerActions } from './HMSPIPListenerActions';
 import HMSNativeEventListener from './HMSNativeEventListener';
 import type { HMSNativeEventSubscription } from './HMSNativeEventListener';
@@ -304,7 +303,7 @@ export class HMSSDK {
    */
   sendBroadcastMessage = async (
     message: string,
-    type: HMSMessageType = HMSMessageType.CHAT
+    type: string = 'chat',
   ) => {
     logger?.verbose('#Function sendBroadcastMessage', {
       message,
@@ -332,7 +331,7 @@ export class HMSSDK {
   sendGroupMessage = async (
     message: string,
     roles: HMSRole[],
-    type: HMSMessageType = HMSMessageType.CHAT
+    type: string = 'chat'
   ) => {
     logger?.verbose('#Function sendGroupMessage', {
       message,
@@ -362,7 +361,7 @@ export class HMSSDK {
   sendDirectMessage = async (
     message: string,
     peer: HMSPeer,
-    type: HMSMessageType = HMSMessageType.CHAT
+    type: string = 'chat'
   ) => {
     logger?.verbose('#Function sendDirectMessage', {
       message,

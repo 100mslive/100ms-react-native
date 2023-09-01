@@ -3,6 +3,7 @@ import {
   HMSConfig,
   HMSLocalPeer,
   HMSMessage,
+  HMSMessageRecipientType,
   HMSPIPListenerActions,
   HMSPeer,
   HMSPeerUpdate,
@@ -1570,4 +1571,90 @@ export const useHMSRoomStyle = <
     }),
     deps
   ).default;
+};
+
+export const useSendMessage = () => {
+  const hmsInstance = useHMSInstance();
+  const dispatch = useDispatch();
+  const reduxStore = useStore<RootState>();
+
+  const message = useSelector(
+    (state: RootState) => state.chatWindow.typedMessage
+  );
+
+  const setMessage = useCallback((text: string) => {
+    dispatch({ type: 'SET_TYPED_MESSAGE', typedMessage: text });
+  }, []);
+
+  const sendMessage = useCallback(async () => {
+    const chatWindowState = reduxStore.getState().chatWindow;
+
+    const message = chatWindowState.typedMessage;
+    const sendingTo = chatWindowState.sendTo as
+      | HMSRole
+      | HMSRemotePeer
+      | typeof ChatBroadcastFilter;
+
+    if (message.length <= 0) return;
+
+    const hmsMessageRecipient = new HMSMessageRecipient({
+      recipientType:
+        'publishSettings' in sendingTo
+          ? HMSMessageRecipientType.ROLES
+          : 'peerID' in sendingTo
+          ? HMSMessageRecipientType.PEER
+          : HMSMessageRecipientType.BROADCAST,
+      recipientPeer: 'peerID' in sendingTo ? sendingTo : undefined,
+      recipientRoles: 'publishSettings' in sendingTo ? [sendingTo] : undefined,
+    });
+
+    // Saving reference of `message` state to local variable
+    // to use the typed message after clearing state
+    const messageText = message;
+
+    dispatch({ type: 'SET_TYPED_MESSAGE', typedMessage: '' });
+
+    const handleMessageID = ({
+      messageId,
+    }: {
+      messageId: string | undefined;
+    }) => {
+      const localPeer = reduxStore.getState().hmsStates.localPeer;
+
+      if (messageId) {
+        Keyboard.dismiss();
+        const localMessage = new HMSMessage({
+          messageId: messageId,
+          message: messageText,
+          type: 'chat',
+          time: new Date(),
+          sender: localPeer || undefined,
+          recipient: hmsMessageRecipient,
+        });
+        dispatch(addMessage(localMessage));
+      }
+    };
+
+    try {
+      let result: { messageId: string | undefined };
+      if ('publishSettings' in sendingTo) {
+        result = await hmsInstance.sendGroupMessage(messageText, [sendingTo]);
+      } else if ('peerID' in sendingTo) {
+        result = await hmsInstance.sendDirectMessage(messageText, sendingTo);
+      } else {
+        result = await hmsInstance.sendBroadcastMessage(messageText);
+      }
+      handleMessageID(result);
+
+      return Promise.resolve(result);
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }, []);
+
+  return {
+    message,
+    setMessage,
+    sendMessage,
+  };
 };

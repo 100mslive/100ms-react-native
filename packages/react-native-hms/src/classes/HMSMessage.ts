@@ -1,11 +1,10 @@
 import type { HMSMessageRecipient } from './HMSMessageRecipient';
-import type { HMSMessageType } from './HMSMessageType';
 import type { HMSPeer } from './HMSPeer';
 
 export class HMSMessage {
   public message: string;
   public messageId: string;
-  public type: HMSMessageType;
+  public type: string;
   public time: Date;
   public sender?: HMSPeer;
   public recipient: HMSMessageRecipient;
@@ -13,7 +12,7 @@ export class HMSMessage {
   constructor(params: {
     message: string;
     messageId: string;
-    type: HMSMessageType;
+    type: string;
     time: Date;
     sender?: HMSPeer;
     recipient: HMSMessageRecipient;
