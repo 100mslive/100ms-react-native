@@ -11,7 +11,7 @@ import {QRCodeScanner} from '../screens/QRCodeScanner';
 export type AppStackParamList = {
   WelcomeScreen: undefined;
   MeetingScreen: {isHLSViewer: boolean};
-  QRCodeScreen: undefined;
+  HomeScreen: undefined;
   QRCodeScannerScreen: undefined;
 };
 
@@ -32,7 +32,7 @@ const AppStackNavigator = () => {
 
   return (
     <NavigationContainer>
-      <AppStack.Navigator initialRouteName="QRCodeScreen">
+      <AppStack.Navigator initialRouteName="HomeScreen">
         <AppStack.Screen
           name="WelcomeScreen"
           component={Welcome}

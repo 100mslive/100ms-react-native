@@ -37,13 +37,10 @@ import LottieSplashScreen from 'react-native-lottie-splash-screen';
 
 type QRCodeScreenProp = NativeStackNavigationProp<
   AppStackParamList,
-  'QRCodeScreen'
+  'HomeScreen'
 >;
 
-// @ts-ignore
-const isHermes = () => !!global.HermesInternal;
-
-const QRCode = () => {
+const HomeScreen = () => {
   const navigate = useNavigation<QRCodeScreenProp>().navigate;
   const { top, bottom, left, right } = useSafeAreaInsets();
   const dispatch = useDispatch();
@@ -175,9 +172,6 @@ const QRCode = () => {
             position: 'absolute',
           }}
         >
-          <Text style={{ color: 'white', fontSize: 12 }}>
-            Hermes: {isHermes ? 'ON' : 'OFF'}
-          </Text>
         </View>
 
         <Image
@@ -259,4 +253,4 @@ const QRCode = () => {
   );
 };
 
-export { QRCode };
+export { HomeScreen };

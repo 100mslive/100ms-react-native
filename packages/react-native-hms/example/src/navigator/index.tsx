@@ -11,7 +11,7 @@ import {QRCodeScanner} from '../screens/QRCodeScanner';
 export type AppStackParamList = {
   WelcomeScreen: undefined;
   MeetingScreen: {isHLSViewer: boolean};
-  QRCodeScreen: undefined;
+  HomeScreen: undefined;
   QRCodeScannerScreen: undefined;
 };
 

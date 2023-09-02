@@ -3,12 +3,12 @@ import { Platform, UIManager } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
 
-import { QRCode } from '../screens/QRCode';
+import { HomeScreen } from '../screens/QRCode';
 import { QRCodeScanner } from '../screens/QRCodeScanner';
 import { HMSPrebuiltScreen } from '../screens/HMSPrebuiltScreen';
 
 export type AppStackParamList = {
-  QRCodeScreen: undefined;
+  HomeScreen: undefined;
   QRCodeScannerScreen: undefined;
   HMSPrebuiltScreen: {
     roomCode: string;
@@ -36,10 +36,10 @@ const AppStackNavigator = () => {
 
   return (
     <NavigationContainer>
-      <AppStack.Navigator initialRouteName="QRCodeScreen">
+      <AppStack.Navigator initialRouteName={'HomeScreen'}>
         <AppStack.Screen
-          name="QRCodeScreen"
-          component={QRCode}
+          name="HomeScreen"
+          component={HomeScreen}
           options={navigationOptions}
         />
         <AppStack.Screen
