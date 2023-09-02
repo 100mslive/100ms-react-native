@@ -42,7 +42,7 @@ export class HMSPeer {
     }
   }
 
-  constructor(params: { peerID: string, name: string }) {
+  constructor(params: { peerID: string; name: string }) {
     this.peerID = params.peerID;
     this.name = params.name;
   }

@@ -277,10 +277,7 @@ export class HMSSDK {
    * @param message the message that is to be sent
    * @param type the default type is set to CHAT. You can pass a custom type here for sending events like Emoji Reactions, Notifications, etc
    */
-  sendBroadcastMessage = async (
-    message: string,
-    type: string = 'chat',
-  ) => {
+  sendBroadcastMessage = async (message: string, type: string = 'chat') => {
     logger?.verbose('#Function sendBroadcastMessage', {
       message,
       type: type || null,
