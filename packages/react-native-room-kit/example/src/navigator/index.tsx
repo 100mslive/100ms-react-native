@@ -3,7 +3,7 @@ import { Platform, UIManager } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
 
-import { HomeScreen } from '../screens/QRCode';
+import { HomeScreen } from '../screens/HomeScreen';
 import { QRCodeScanner } from '../screens/QRCodeScanner';
 import { HMSPrebuiltScreen } from '../screens/HMSPrebuiltScreen';
 
