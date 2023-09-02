@@ -5,6 +5,7 @@
   "scripts": {
     "android": "NODE_OPTIONS=--openssl-legacy-provider react-native run-android",
     "ios": "NODE_OPTIONS=--openssl-legacy-provider react-native run-ios",
+    "sim": "npx react-native run-ios --simulator=\"iPhone 14 Pro\"",
     "start": "NODE_OPTIONS=--openssl-legacy-provider react-native start",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
