@@ -22,7 +22,10 @@ import {
 } from '../hooks-util';
 import { useCanPublishScreen, useHMSActions } from '../hooks-sdk';
 import { RoomSettingsModalDebugModeContent } from './RoomSettingsModalDebugModeContent';
-import { setActiveChatBottomSheetTab, setStartingOrStoppingRecording } from '../redux/actions';
+import {
+  setActiveChatBottomSheetTab,
+  setStartingOrStoppingRecording,
+} from '../redux/actions';
 import { ParticipantsCount } from './ParticipantsCount';
 
 interface RoomSettingsModalContentProps {

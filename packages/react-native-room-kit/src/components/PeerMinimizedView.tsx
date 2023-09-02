@@ -14,7 +14,7 @@ export const usePeerMinimizedViewDimensions = () => {
 
   const iconTakesSpace = 20 + 6; // Width + Right Margin
   const totalWidth = 128;
-  const widthLessIconsWidth = totalWidth - (2 * iconTakesSpace);
+  const widthLessIconsWidth = totalWidth - 2 * iconTakesSpace;
 
   return {
     width:

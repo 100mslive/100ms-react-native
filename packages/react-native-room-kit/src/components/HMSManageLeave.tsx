@@ -239,8 +239,8 @@ const LeaveBottomSheet: React.FC<LeaveBottomSheetProps> = ({
               <Text
                 style={[leavePopupStyles.subtext, hmsRoomStyles.endSubtext]}
               >
-                The {isStreaming ? 'stream & ' : ''}session will end for everyone. You can't undo this
-                action.
+                The {isStreaming ? 'stream & ' : ''}session will end for
+                everyone. You can't undo this action.
               </Text>
             </View>
           </TouchableOpacity>

@@ -1,1 +1,1 @@
-export * from './ChatAndParticipantsBottomSheet';;
+export * from './ChatAndParticipantsBottomSheet';
