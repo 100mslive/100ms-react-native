@@ -1,12 +1,10 @@
 import {
-  HMSAudioFilePlayerNode,
   HMSAudioMixingMode,
   HMSAudioMode,
   HMSChangeTrackStateRequest,
   HMSException,
   HMSLocalPeer,
   HMSMessage,
-  HMSMessageType,
   HMSPeer,
   HMSPeerUpdate,
   HMSRoleChangeRequest,
