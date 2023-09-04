@@ -292,7 +292,7 @@ PODS:
     - React-Core
   - react-native-document-picker (8.2.1):
     - React-Core
-  - react-native-hms (1.7.2):
+  - react-native-hms (1.7.3):
     - HMSBroadcastExtensionSDK (= 0.0.9)
     - HMSHLSPlayerSDK (= 0.0.2)
     - HMSSDK (= 0.9.10)
@@ -649,7 +649,7 @@ SPEC CHECKSUMS:
   react-native-avoid-softinput: 71a692888f0c1d426ad9045dc8325773583962cd
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
   react-native-document-picker: 69ca2094d8780cfc1e7e613894d15290fdc54bba
-  react-native-hms: 1c898d68acc3d96fb9e294c7bed5e956d6785127
+  react-native-hms: cb6412ad2ede4f4763bd7681cb26afb6ca39d77f
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
   react-native-simple-toast: 8ee5d23f0b92b935ab7434cdb65159ce12dfb4b7
   React-perflogger: 5a890ca0911669421b7611661e9b58f91c805f5c
