@@ -5,7 +5,6 @@ import { PeerVideoTileView } from './PeerVideoTile/PeerVideoTileView';
 import type { PeerVideoTileViewProps } from './PeerVideoTile/PeerVideoTileView';
 import type { RootState } from '../redux';
 import { HMSNotifications } from './HMSNotifications';
-import { useAllowedPublish } from '../hooks-util';
 
 export interface LocalPeerRegularVideoViewProps
   extends Omit<PeerVideoTileViewProps, 'peerTrackNode'> {}
@@ -16,13 +15,8 @@ export const LocalPeerRegularVideoView: React.FC<
   const localPeerTrackNode = useSelector(
     (state: RootState) => state.app.localPeerTrackNode
   );
-  const hasPublishPermissions = useSelector(
-    (state: RootState) => {
-      return state.app.localPeerTrackNode?.peer && useAllowedPublish(state.app.localPeerTrackNode?.peer);
-    }
-  );
 
-  if (!localPeerTrackNode || !hasPublishPermissions) {
+  if (!localPeerTrackNode) {
     return null;
   }
 
