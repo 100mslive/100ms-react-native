@@ -71,6 +71,17 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
       );
     }
 
+    const hasPublishPermissions = useSelector(
+      (state: RootState) => {
+        return state.app.localPeerTrackNode?.peer.role?.publishSettings?.allowed &&
+          (state.app.localPeerTrackNode?.peer.role?.publishSettings?.allowed?.length > 0);
+      }
+    );
+
+    if (!hasPublishPermissions) {
+      return null;
+    }
+
     return (
       <LocalPeerRegularVideoView onMoreOptionsPress={handlePeerTileMorePress} />
     );
