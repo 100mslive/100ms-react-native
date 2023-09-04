@@ -4,7 +4,6 @@ import { View } from 'react-native';
 import { ChatIcon } from '../Icons';
 import { PressableIcon } from './PressableIcon';
 import { useShowChat } from '../hooks-util';
-import { WebrtcChatBottomSheet } from './Chat/WebrtcChatBottomSheet';
 
 export const HMSChat = () => {
   const [chatVisibleType, setChatVisible] = useShowChat();
@@ -19,8 +18,6 @@ export const HMSChat = () => {
       >
         <ChatIcon />
       </PressableIcon>
-
-      <WebrtcChatBottomSheet />
     </View>
   );
 };

@@ -35,7 +35,8 @@ const _ChatList: React.FC<ChatListProps> = () => {
       <FlashList
         data={messages}
         inverted={true}
-        estimatedItemSize={104}
+        estimatedItemSize={75}
+        centerContent={messages.length === 0}
         contentContainerStyle={chatListStyle.listContentContainer} // Bug: Android inverted flashlist will apply padding on left when `paddingRight: 12` is applied
         keyboardShouldPersistTaps="always"
         ListEmptyComponent={ChatBanner}
@@ -50,7 +51,8 @@ const _ChatList: React.FC<ChatListProps> = () => {
 const chatListStyle = StyleSheet.create({
   list: {
     flex: 1,
-    marginVertical: 8,
+    marginTop: 8,
+    marginBottom: 16,
   },
   listContentContainer: {
     paddingRight: 12,

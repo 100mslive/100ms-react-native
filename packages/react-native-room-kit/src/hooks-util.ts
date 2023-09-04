@@ -17,15 +17,18 @@ import {
   HMSTrackType,
   HMSTrackUpdate,
   HMSUpdateListenerActions,
+  HMSMessageRecipient,
   // useHMSPeerUpdates,
 } from '@100mslive/react-native-hms';
 import type {
+  HMSRole,
   HMSSessionStore,
   HMSSessionStoreValue,
   HMSSpeaker,
 } from '@100mslive/react-native-hms';
 import type {
   ColorPalette,
+  Layout,
   Theme,
   Typography,
 } from '@100mslive/types-prebuilt';
@@ -41,7 +44,7 @@ import {
 import type { DependencyList } from 'react';
 
 import { MaxTilesInOnePage, ModalTypes, PipModes } from './utils/types';
-import type { PeerTrackNode } from './utils/types';
+import type { ChatBroadcastFilter, PeerTrackNode } from './utils/types';
 import { createPeerTrackNode, parseMetadata } from './utils/functions';
 import {
   batch,
@@ -53,12 +56,18 @@ import {
 import type { RootState } from './redux';
 import {
   addMessage,
+  addNotification,
   addPinnedMessage,
+  addScreenshareTile,
   changeMeetingState,
   changePipModeStatus,
   changeStartingHLSStream,
   clearStore,
+  removeNotification,
+  removeScreenshareTile,
   saveUserData,
+  setActiveChatBottomSheetTab,
+  setFullScreenPeerTrackNode,
   setHMSLocalPeerState,
   setHMSRoleState,
   setHMSRoomState,
@@ -68,9 +77,12 @@ import {
   setLocalPeerTrackNode,
   setMiniViewPeerTrackNode,
   setModalType,
+  setRoleChangeRequest,
   setStartingOrStoppingRecording,
+  updateFullScreenPeerTrackNode,
   updateLocalPeerTrackNode,
   updateMiniViewPeerTrackNode,
+  updateScreenshareTile,
 } from './redux/actions';
 import {
   createPeerTrackNodeUniqueId,
@@ -86,6 +98,7 @@ import { MeetingState } from './types';
 import {
   AppState,
   InteractionManager,
+  Keyboard,
   LayoutAnimation,
   Platform,
 } from 'react-native';
@@ -99,10 +112,15 @@ import {
   useSafeAreaFrame,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
-import { selectIsHLSViewer, selectShouldGoLive } from './hooks-util-selectors';
+import {
+  selectIsHLSViewer,
+  selectLayoutConfigForRole,
+  selectShouldGoLive,
+} from './hooks-util-selectors';
 import type { GridViewRefAttrs } from './components/GridView';
 import { getRoomLayout } from './modules/HMSManager';
 import { DEFAULT_THEME, DEFAULT_TYPOGRAPHY } from './utils/theme';
+import { NotificationTypes } from './utils';
 
 export const useHMSListeners = (
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>
@@ -130,21 +148,6 @@ const useHMSRoomUpdate = (hmsInstance: HMSSDK) => {
 
       dispatch(setHMSRoomState(room));
 
-      /**
-       * Handle case when User is joining as HLSViewer,
-       * before ON_JOIN, if ON_ROOM comes then we can show Meeting screen to user, instead of Loader or Preview
-       */
-      if (room.localPeer.role?.name?.includes('hls-') ?? false) {
-        const meetingState = reduxStore.getState().app.meetingState;
-
-        batch(() => {
-          dispatch(setHMSLocalPeerState(room.localPeer));
-          if (meetingState !== MeetingState.IN_MEETING) {
-            dispatch(changeMeetingState(MeetingState.IN_MEETING));
-          }
-        });
-      }
-
       if (type === HMSRoomUpdate.BROWSER_RECORDING_STATE_UPDATED) {
         const startingOrStoppingRecording =
           reduxStore.getState().app.startingOrStoppingRecording;
@@ -152,37 +155,8 @@ const useHMSRoomUpdate = (hmsInstance: HMSSDK) => {
         if (startingOrStoppingRecording) {
           dispatch(setStartingOrStoppingRecording(false));
         }
-
-        let streaming = room?.browserRecordingState?.running;
-        const startAtDate = room?.browserRecordingState?.startedAt;
-
-        let startTime: null | string = null;
-
-        if (startAtDate) {
-          let hours = startAtDate.getHours().toString();
-          let minutes = startAtDate.getMinutes()?.toString();
-          startTime = hours + ':' + minutes;
-        }
-
-        Toast.showWithGravity(
-          `Browser Recording ${
-            streaming
-              ? `Started ${startTime ? 'At ' + startTime : ''}`
-              : 'Stopped'
-          }`,
-          Toast.LONG,
-          Toast.TOP
-        );
       } else if (type === HMSRoomUpdate.HLS_STREAMING_STATE_UPDATED) {
         dispatch(changeStartingHLSStream(false));
-
-        let streaming = room?.hlsStreamingState?.running;
-
-        Toast.showWithGravity(
-          `HLS Streaming ${streaming ? 'Started' : 'Stopped'}`,
-          Toast.LONG,
-          Toast.TOP
-        );
       } else if (type === HMSRoomUpdate.RTMP_STREAMING_STATE_UPDATED) {
         let streaming = room?.rtmpHMSRtmpStreamingState?.running;
         const startAtDate = room?.rtmpHMSRtmpStreamingState?.startedAt;
@@ -272,9 +246,31 @@ const useHMSPeersUpdate = (
         return;
       }
       if (type === HMSPeerUpdate.PEER_LEFT) {
+        // Handling regular tiles list
         setPeerTrackNodes((prevPeerTrackNodes) =>
           removePeerTrackNodes(prevPeerTrackNodes, peer)
         );
+
+        const reduxState = store.getState();
+
+        // Handling Screenshare tiles list
+        const screensharePeerTrackNodes =
+          reduxState.app.screensharePeerTrackNodes;
+        const nodeToRemove = screensharePeerTrackNodes.find(
+          (node) => node.peer.peerID === peer.peerID
+        );
+        if (nodeToRemove) {
+          dispatch(removeScreenshareTile(nodeToRemove.id));
+        }
+
+        // Handling Full screen view
+        const fullScreenPeerTrackNode = reduxState.app.fullScreenPeerTrackNode;
+        if (
+          fullScreenPeerTrackNode !== null &&
+          fullScreenPeerTrackNode.peer.peerID === peer.peerID
+        ) {
+          dispatch(setFullScreenPeerTrackNode(null));
+        }
         return;
       }
       if (peer.isLocal) {
@@ -286,6 +282,7 @@ const useHMSPeersUpdate = (
         });
 
         const reduxState = store.getState();
+        const fullScreenPeerTrackNode = reduxState.app.fullScreenPeerTrackNode;
         const miniviewPeerTrackNode = reduxState.app.miniviewPeerTrackNode;
         const localPeerTrackNode = reduxState.app.localPeerTrackNode;
 
@@ -296,6 +293,13 @@ const useHMSPeersUpdate = (
             dispatch(
               setLocalPeerTrackNode(createPeerTrackNode(peer, peer.videoTrack))
             );
+          }
+
+          if (
+            fullScreenPeerTrackNode &&
+            fullScreenPeerTrackNode.peer.peerID === peer.peerID
+          ) {
+            dispatch(updateFullScreenPeerTrackNode({ peer }));
           }
 
           // only set `localPeerTrackNode` as miniview peer track node when we are already using it.
@@ -313,6 +317,7 @@ const useHMSPeersUpdate = (
         return;
       }
       if (type === HMSPeerUpdate.ROLE_CHANGED) {
+        // Handling regular tiles list
         if (
           peer.role?.publishSettings?.allowed === undefined ||
           (peer.role?.publishSettings?.allowed &&
@@ -325,6 +330,40 @@ const useHMSPeersUpdate = (
             return prevPeerTrackNodes;
           });
         }
+
+        const reduxState = store.getState();
+
+        // Handling screenshare tiles list
+        if (
+          peer.role?.publishSettings?.allowed === undefined ||
+          (peer.role?.publishSettings?.allowed &&
+            !peer.role?.publishSettings?.allowed.includes('screen'))
+        ) {
+          const screensharePeerTrackNodes =
+            reduxState.app.screensharePeerTrackNodes;
+          const nodeToRemove = screensharePeerTrackNodes.find(
+            (node) => node.peer.peerID === peer.peerID
+          );
+          if (nodeToRemove) {
+            dispatch(removeScreenshareTile(nodeToRemove.id));
+          }
+        }
+
+        // Handling full screen view
+        if (
+          peer.role?.publishSettings?.allowed === undefined ||
+          (peer.role?.publishSettings?.allowed &&
+            !peer.role?.publishSettings?.allowed.includes('video'))
+        ) {
+          const fullScreenPeerTrackNode =
+            reduxState.app.fullScreenPeerTrackNode;
+          if (
+            fullScreenPeerTrackNode !== null &&
+            fullScreenPeerTrackNode.peer.peerID === peer.peerID
+          ) {
+            dispatch(setFullScreenPeerTrackNode(null));
+          }
+        }
         return;
       }
       if (
@@ -332,12 +371,78 @@ const useHMSPeersUpdate = (
         type === HMSPeerUpdate.NAME_CHANGED ||
         type === HMSPeerUpdate.NETWORK_QUALITY_UPDATED
       ) {
+        const reduxState = store.getState();
+
+        if (type === HMSPeerUpdate.METADATA_CHANGED) {
+          const handRaised = parseMetadata(peer.metadata).isHandRaised;
+
+          if (handRaised) {
+            const { layoutConfig, localPeer } = reduxState.hmsStates;
+
+            const selectedLayoutConfig = selectLayoutConfigForRole(
+              layoutConfig,
+              localPeer?.role || null
+            );
+
+            // list of roles which should be brought on stage when they raise hand
+            const offStageRoles =
+              selectedLayoutConfig?.screens?.conferencing?.default?.elements
+                ?.on_stage_exp?.off_stage_roles;
+
+            // checking if the current peer role is included in the above list
+            const shouldBringOnStage =
+              offStageRoles && offStageRoles.includes(peer.role?.name!);
+
+            const canChangeRole =
+              reduxState.hmsStates.localPeer?.role?.permissions?.changeRole;
+
+            if (shouldBringOnStage && canChangeRole) {
+              dispatch(
+                addNotification({
+                  id: `${peer.peerID}-${NotificationTypes.HAND_RAISE}`,
+                  type: NotificationTypes.HAND_RAISE,
+                  peer,
+                })
+              );
+            }
+          } else {
+            const notifications = reduxState.app.notifications;
+            const notificationToRemove = notifications.find(
+              (notification) =>
+                notification.id ===
+                `${peer.peerID}-${NotificationTypes.HAND_RAISE}`
+            );
+            if (notificationToRemove) {
+              dispatch(removeNotification(notificationToRemove.id));
+            }
+          }
+        }
+
         setPeerTrackNodes((prevPeerTrackNodes) => {
           if (peerTrackNodeExistForPeer(prevPeerTrackNodes, peer)) {
             return replacePeerTrackNodes(prevPeerTrackNodes, peer);
           }
           return prevPeerTrackNodes;
         });
+
+        // Handling screenshare tile views
+        const screensharePeerTrackNodes =
+          reduxState.app.screensharePeerTrackNodes;
+        const nodeToUpdate = screensharePeerTrackNodes.find(
+          (node) => node.peer.peerID === peer.peerID
+        );
+        if (nodeToUpdate) {
+          dispatch(updateScreenshareTile({ id: nodeToUpdate.id, peer }));
+        }
+
+        // Handling fullscreen view
+        const fullScreenPeerTrackNode = reduxState.app.fullScreenPeerTrackNode;
+        if (
+          fullScreenPeerTrackNode !== null &&
+          fullScreenPeerTrackNode.peer.peerID === peer.peerID
+        ) {
+          dispatch(updateFullScreenPeerTrackNode({ peer }));
+        }
         return;
       }
     };
@@ -370,6 +475,7 @@ const useHMSTrackUpdate = (
   useEffect(() => {
     const trackUpdateHandler = ({ peer, track, type }: TrackUpdate) => {
       const reduxState = store.getState();
+      const fullScreenPeerTrackNode = reduxState.app.fullScreenPeerTrackNode;
       const miniviewPeerTrackNode = reduxState.app.miniviewPeerTrackNode;
       const localPeerTrackNode = reduxState.app.localPeerTrackNode;
 
@@ -381,30 +487,36 @@ const useHMSTrackUpdate = (
           peer.isLocal &&
           track.source === HMSTrackSource.REGULAR;
 
-        setPeerTrackNodes((prevPeerTrackNodes) => {
-          if (
-            peerTrackNodeExistForPeerAndTrack(prevPeerTrackNodes, peer, track)
-          ) {
-            if (track.type === HMSTrackType.VIDEO) {
-              return replacePeerTrackNodesWithTrack(
-                prevPeerTrackNodes,
-                peer,
-                track
-              );
+        if (track.source === HMSTrackSource.SCREEN) {
+          if (!peer.isLocal && track.type === HMSTrackType.VIDEO) {
+            dispatch(addScreenshareTile(newPeerTrackNode));
+          }
+        } else {
+          setPeerTrackNodes((prevPeerTrackNodes) => {
+            if (
+              peerTrackNodeExistForPeerAndTrack(prevPeerTrackNodes, peer, track)
+            ) {
+              if (track.type === HMSTrackType.VIDEO) {
+                return replacePeerTrackNodesWithTrack(
+                  prevPeerTrackNodes,
+                  peer,
+                  track
+                );
+              }
+              return replacePeerTrackNodes(prevPeerTrackNodes, peer);
             }
-            return replacePeerTrackNodes(prevPeerTrackNodes, peer);
-          }
 
-          if (
-            miniviewPeerTrackNode
-              ? newPeerTrackNode.id !== miniviewPeerTrackNode.id
-              : !willCreateMiniviewPeerTrackNode
-          ) {
-            return [...prevPeerTrackNodes, newPeerTrackNode];
-          }
+            if (
+              miniviewPeerTrackNode
+                ? newPeerTrackNode.id !== miniviewPeerTrackNode.id
+                : !willCreateMiniviewPeerTrackNode
+            ) {
+              return [...prevPeerTrackNodes, newPeerTrackNode];
+            }
 
-          return prevPeerTrackNodes;
-        });
+            return prevPeerTrackNodes;
+          });
+        }
 
         // - TODO: update local localPeer state
         // - Pass this updated data to Meeting component -> DisplayView component
@@ -432,6 +544,12 @@ const useHMSTrackUpdate = (
                 )
               );
             }
+
+            // if (track.type === HMSTrackType.AUDIO) {
+            //   dispatch(setIsLocalAudioMutedState(track.isMute()));
+            // } else if (track.type === HMSTrackType.VIDEO) {
+            //   dispatch(setIsLocalVideoMutedState(track.isMute()));
+            // }
           }
           // else -> {
           //    should `localPeerTrackNode` be created/updated for non-regular track addition?
@@ -457,14 +575,33 @@ const useHMSTrackUpdate = (
         return;
       }
       if (type === HMSTrackUpdate.TRACK_REMOVED) {
-        if (
-          track.source !== HMSTrackSource.REGULAR ||
+        if (track.source === HMSTrackSource.SCREEN) {
+          if (!peer.isLocal && track.type === HMSTrackType.VIDEO) {
+            const screensharePeerTrackNodes =
+              reduxState.app.screensharePeerTrackNodes;
+            const nodeToRemove = screensharePeerTrackNodes.find(
+              (node) => node.track?.trackId === track.trackId
+            );
+            if (nodeToRemove) {
+              dispatch(removeScreenshareTile(nodeToRemove.id));
+            }
+          }
+        } else if (
+          track.source === HMSTrackSource.PLUGIN ||
           (peer.audioTrack?.trackId === undefined &&
             peer.videoTrack?.trackId === undefined)
         ) {
           setPeerTrackNodes((prevPeerTrackNodes) =>
             removePeerTrackNodesWithTrack(prevPeerTrackNodes, peer, track)
           );
+        }
+
+        if (
+          fullScreenPeerTrackNode &&
+          fullScreenPeerTrackNode.track &&
+          fullScreenPeerTrackNode.track.trackId === track.trackId
+        ) {
+          dispatch(setFullScreenPeerTrackNode(null));
         }
 
         // - TODO: update local localPeer state
@@ -553,51 +690,82 @@ const useHMSTrackUpdate = (
 
         // - TODO: update local localPeer state
         // - Pass this updated data to Meeting component -> DisplayView component
+        const updatePayload =
+          track.type === HMSTrackType.VIDEO ? { peer, track } : { peer };
+
         if (peer.isLocal) {
-          const updatePayload =
-            track.type === HMSTrackType.VIDEO ? { peer, track } : { peer };
-
           dispatch(updateLocalPeerTrackNode(updatePayload));
-
-          // Take care of miniviewPeerTrackNode
-          if (miniviewPeerTrackNode && miniviewPeerTrackNode.id === uniqueId) {
-            dispatch(updateMiniViewPeerTrackNode(updatePayload));
-          }
-
           updateLocalPeer();
-        } else {
-          if (miniviewPeerTrackNode && miniviewPeerTrackNode.id === uniqueId) {
-            const updatePayload =
-              track.type === HMSTrackType.VIDEO ? { peer, track } : { peer };
-
-            dispatch(updateMiniViewPeerTrackNode(updatePayload));
-          }
         }
+
+        if (miniviewPeerTrackNode && miniviewPeerTrackNode.id === uniqueId) {
+          dispatch(updateMiniViewPeerTrackNode(updatePayload));
+        }
+
+        if (
+          fullScreenPeerTrackNode &&
+          fullScreenPeerTrackNode.id === uniqueId
+        ) {
+          dispatch(updateFullScreenPeerTrackNode(updatePayload));
+        }
+
         return;
       }
       if (
         type === HMSTrackUpdate.TRACK_RESTORED ||
         type === HMSTrackUpdate.TRACK_DEGRADED
       ) {
-        setPeerTrackNodes((prevPeerTrackNodes) => {
-          if (
-            peerTrackNodeExistForPeerAndTrack(prevPeerTrackNodes, peer, track)
-          ) {
-            return degradeOrRestorePeerTrackNodes(
-              prevPeerTrackNodes,
-              peer,
-              track,
-              type === HMSTrackUpdate.TRACK_DEGRADED
+        // Checking if track source is screenshare
+        if (track.source === HMSTrackSource.SCREEN) {
+          // Handling screenshare tiles list
+          const screensharePeerTrackNodes =
+            reduxState.app.screensharePeerTrackNodes;
+          const nodeToUpdate = screensharePeerTrackNodes.find(
+            (node) => node.track?.trackId === track.trackId
+          );
+          if (nodeToUpdate) {
+            dispatch(
+              updateScreenshareTile({
+                id: nodeToUpdate.id,
+                isDegraded: type === HMSTrackUpdate.TRACK_DEGRADED,
+              })
             );
           }
-          return prevPeerTrackNodes;
-        });
+        } else {
+          // Handling regular tiles list
+          setPeerTrackNodes((prevPeerTrackNodes) => {
+            if (
+              peerTrackNodeExistForPeerAndTrack(prevPeerTrackNodes, peer, track)
+            ) {
+              return degradeOrRestorePeerTrackNodes(
+                prevPeerTrackNodes,
+                peer,
+                track,
+                type === HMSTrackUpdate.TRACK_DEGRADED
+              );
+            }
+            return prevPeerTrackNodes;
+          });
+        }
 
         const uniqueId = createPeerTrackNodeUniqueId(peer, track);
 
+        // Handling miniview
         if (miniviewPeerTrackNode && miniviewPeerTrackNode.id === uniqueId) {
           dispatch(
             updateMiniViewPeerTrackNode({
+              isDegraded: type === HMSTrackUpdate.TRACK_DEGRADED,
+            })
+          );
+        }
+
+        // Handling full screen view
+        if (
+          fullScreenPeerTrackNode &&
+          fullScreenPeerTrackNode.id === uniqueId
+        ) {
+          dispatch(
+            updateFullScreenPeerTrackNode({
               isDegraded: type === HMSTrackUpdate.TRACK_DEGRADED,
             })
           );
@@ -652,9 +820,14 @@ export const useHMSInstance = () => {
 };
 
 export const useIsHLSViewer = () => {
-  return useSelector((state: RootState) =>
-    selectIsHLSViewer(state.hmsStates.localPeer)
-  );
+  return useSelector((state: RootState) => {
+    const { layoutConfig, localPeer } = state.hmsStates;
+    const selectedLayoutConfig = selectLayoutConfigForRole(
+      layoutConfig,
+      localPeer?.role || null
+    );
+    return selectIsHLSViewer(localPeer?.role, selectedLayoutConfig);
+  });
 };
 
 type TrackStateChangeRequest = {
@@ -703,26 +876,20 @@ export const useHMSChangeTrackStateRequest = (
   return trackStateChangeRequest;
 };
 
-type RoleChangeRequest = {
-  requestedBy?: string;
-  suggestedRole?: string;
-};
-
 export const useHMSRoleChangeRequest = (
   callback?: (request: HMSRoleChangeRequest) => void,
   deps?: React.DependencyList
 ) => {
+  const taskRef = useRef<any>(null);
+  const dispatch = useDispatch();
   const hmsInstance = useHMSInstance();
-  const [roleChangeRequest, setRoleChangeRequest] =
-    useState<RoleChangeRequest | null>(null);
 
   useEffect(() => {
-    const changeRoleRequestHandler = (request: HMSRoleChangeRequest) => {
-      setRoleChangeRequest({
-        requestedBy: request?.requestedBy?.name,
-        suggestedRole: request?.suggestedRole?.name,
+    const changeRoleRequestHandler = async (request: HMSRoleChangeRequest) => {
+      taskRef.current = InteractionManager.runAfterInteractions(() => {
+        dispatch(setRoleChangeRequest(request));
+        callback?.(request);
       });
-      callback?.(request);
     };
 
     hmsInstance.addEventListener(
@@ -731,13 +898,12 @@ export const useHMSRoleChangeRequest = (
     );
 
     return () => {
+      taskRef.current?.cancel();
       hmsInstance.removeEventListener(
         HMSUpdateListenerActions.ON_ROLE_CHANGE_REQUEST
       );
     };
   }, [...(deps || []), hmsInstance]);
-
-  return roleChangeRequest;
 };
 
 type SessionStoreListeners = Array<{ remove: () => void }>;
@@ -763,7 +929,7 @@ export const useHMSSessionStoreListeners = (
           dispatch(saveUserData({ spotlightTrackId: id }));
           // Scroll to start of the list
           gridViewRef.current
-            ?.getFlatlistRef()
+            ?.getRegularTilesFlatlistRef()
             .current?.scrollToOffset({ animated: true, offset: 0 });
         };
 
@@ -918,10 +1084,26 @@ export const useHMSSessionStore = () => {
 export const useHMSMessages = () => {
   const hmsInstance = useHMSInstance();
   const dispatch = useDispatch();
+  const canChangeRole = useSelector(
+    (state: RootState) =>
+      state.hmsStates.localPeer?.role?.permissions?.changeRole
+  );
 
   useEffect(() => {
     const onMessageListener = (message: HMSMessage) => {
-      dispatch(addMessage(message));
+      if ((message.type as string) === NotificationTypes.ROLE_CHANGE_DECLINED) {
+        if (canChangeRole) {
+          dispatch(
+            addNotification({
+              id: `${message.sender?.peerID}-${NotificationTypes.ROLE_CHANGE_DECLINED}`,
+              type: NotificationTypes.ROLE_CHANGE_DECLINED,
+              peer: message.sender!,
+            })
+          );
+        }
+      } else {
+        dispatch(addMessage(message));
+      }
     };
 
     hmsInstance.addEventListener(
@@ -933,7 +1115,7 @@ export const useHMSMessages = () => {
       // TODO: Remove this listener when user leaves, removed or room is ended
       hmsInstance.removeEventListener(HMSUpdateListenerActions.ON_MESSAGE);
     };
-  }, [hmsInstance]);
+  }, [canChangeRole, hmsInstance]);
 };
 
 export const useHMSPIPRoomLeave = () => {
@@ -1193,12 +1375,9 @@ export const useShowLandscapeLayout = () => {
   const localPeerRoleName = useSelector(
     (state: RootState) => state.hmsStates.localPeer?.role?.name
   );
+  const isHLSViewer = useIsHLSViewer();
 
-  return (
-    isLandscapeOrientation &&
-    !!localPeerRoleName &&
-    localPeerRoleName.includes('hls-')
-  );
+  return isLandscapeOrientation && !!localPeerRoleName && isHLSViewer;
 };
 
 let hmsConfig: HMSConfig | null = null;
@@ -1228,7 +1407,7 @@ export const useHMSConfig = () => {
       const roomLayout = await getRoomLayout(
         hmsInstance,
         token,
-        'https://api-nonprod.100ms.live'
+        'https://api-nonprod.100ms.live' // 'https://demo8271564.mockable.io'
       );
       dispatch(setLayoutConfig(roomLayout));
     } catch (error) {
@@ -1279,18 +1458,14 @@ export const useShowChat = (): [
   const showChatView = useSelector(
     (state: RootState) => state.chatWindow.showChatView
   );
-  const hlsAspectRatio = useSelector(
-    (state: RootState) => state.app.hlsAspectRatio
-  );
   const chatVisible: 'none' | 'inset' | 'modal' = useMemo(() => {
     if (!showChatView) return 'none';
 
-    if (isHLSViewer && ['16:9', '4:3'].includes(hlsAspectRatio.id))
-      return 'inset';
+    if (isHLSViewer) return 'inset';
 
     // TODO: handle case when type modal is selected, but chat modal is not shown because aspect ration modal was just closed
     return 'modal';
-  }, [showChatView, hlsAspectRatio.id, isHLSViewer]);
+  }, [showChatView, isHLSViewer]);
 
   const isChatVisibleInsetType = chatVisible === 'inset';
 
@@ -1299,7 +1474,12 @@ export const useShowChat = (): [
       if (isChatVisibleInsetType) {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       }
-      dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: show });
+      batch(() => {
+        if (!isChatVisibleInsetType) {
+          dispatch(setActiveChatBottomSheetTab('Chat'));
+        }
+        dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: show });
+      });
     },
     [isChatVisibleInsetType]
   );
@@ -1338,11 +1518,15 @@ export const useFilteredParticipants = () => {
     localPeer ? [localPeer] : []
   );
 
+  const formattedParticipantsSearchInput = participantsSearchInput
+    .trim()
+    .toLowerCase();
+
   const filteredPeerTrackNodes = useMemo(() => {
     const newFilteredPeerTrackNodes = hmsPeers?.filter((peer) => {
       if (
-        participantsSearchInput.length < 1 ||
-        peer.name.includes(participantsSearchInput) ||
+        formattedParticipantsSearchInput.length < 1 ||
+        peer.name.toLowerCase().includes(participantsSearchInput) ||
         peer.role?.name?.includes(participantsSearchInput)
       ) {
         return true;
@@ -1364,7 +1548,7 @@ export const useFilteredParticipants = () => {
     return newFilteredPeerTrackNodes.filter(
       (peer) => peer.role?.name === filter
     );
-  }, [participantsSearchInput, filter, hmsPeers]);
+  }, [formattedParticipantsSearchInput, filter, hmsPeers]);
 
   useEffect(() => {
     let ignore = false;
@@ -1493,21 +1677,32 @@ export const useLeaveMethods = () => {
   return { destroy, leave, endRoom, goToPreview };
 };
 
-export const useHMSLayoutConfig = () => {
-  return useSelector((state: RootState) => state.hmsStates.layoutConfig);
+// Returns layout config as it is returned from server
+export const useHMSLayoutConfig = <Selected = unknown>(
+  selector: (layoutConfig: Layout | null) => Selected,
+  equalityFn?: (left: Selected, right: Selected) => boolean
+): Selected => {
+  return useSelector((state: RootState) => {
+    return selector(
+      selectLayoutConfigForRole(
+        state.hmsStates.layoutConfig,
+        state.hmsStates.localPeer?.role || null
+      )
+    );
+  }, equalityFn);
 };
 
+type ThemeWithPalette = Theme & { palette: ColorPalette };
+
 export const useHMSRoomTheme = <S>(
-  selector?: (theme: Required<Theme>) => S
-): Required<Theme> | S => {
-  return useSelector((state: RootState) => {
-    const layoutConfig = state.hmsStates.layoutConfig;
+  selector?: (theme: ThemeWithPalette) => S
+): ThemeWithPalette | S => {
+  return useHMSLayoutConfig((layoutConfig) => {
+    const roomTheme = layoutConfig?.themes?.find((theme) => theme.default);
 
-    const roomTheme = layoutConfig?.themes.find((theme) => theme.default);
-
-    const defaultTheme: Required<Theme> = roomTheme
+    const defaultTheme: ThemeWithPalette = roomTheme
       ? roomTheme.palette
-        ? (roomTheme as Required<Theme>)
+        ? (roomTheme as ThemeWithPalette)
         : { ...roomTheme, palette: DEFAULT_THEME.palette }
       : DEFAULT_THEME;
 
@@ -1523,10 +1718,8 @@ export const useHMSRoomColorPalette = (): ColorPalette => {
   return useHMSRoomTheme((theme) => theme.palette) as ColorPalette;
 };
 
-export const useHMSRoomTypography = (): Typography => {
-  return useSelector((state: RootState) => {
-    const layoutConfig = state.hmsStates.layoutConfig;
-
+export const useHMSRoomTypography = (): Required<Typography> => {
+  return useHMSLayoutConfig((layoutConfig) => {
     const typography = layoutConfig?.typography;
 
     if (!typography) {
@@ -1540,17 +1733,20 @@ export const useHMSRoomTypography = (): Typography => {
       };
     }
 
-    return typography;
+    // formatting font family name
+    typography.font_family = typography.font_family.replace(/ /g, '');
+
+    return typography as Required<Typography>;
   }, shallowEqual);
 };
 
 export const useHMSRoomStyleSheet = <
   T extends { [key: string]: StyleProp<ViewStyle | TextStyle | ImageStyle> },
 >(
-  updater: (theme: Required<Theme>, typography: Required<Typography>) => T,
+  updater: (theme: ThemeWithPalette, typography: Required<Typography>) => T,
   deps: DependencyList = []
 ): T => {
-  const theme = useHMSRoomTheme<Required<Theme>>();
+  const theme = useHMSRoomTheme<ThemeWithPalette>();
   const typography = useHMSRoomTypography();
 
   return useMemo(
@@ -1562,7 +1758,7 @@ export const useHMSRoomStyleSheet = <
 export const useHMSRoomStyle = <
   T extends StyleProp<ViewStyle | TextStyle | ImageStyle>,
 >(
-  updater: (theme: Required<Theme>, typography: Required<Typography>) => T,
+  updater: (theme: ThemeWithPalette, typography: Required<Typography>) => T,
   deps: DependencyList = []
 ): T => {
   return useHMSRoomStyleSheet(

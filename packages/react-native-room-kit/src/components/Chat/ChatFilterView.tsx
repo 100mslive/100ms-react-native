@@ -179,6 +179,7 @@ const _ChatFilterView: React.FC<ChatFilterViewProps> = () => {
 
                   return (
                     <ChatFilterItem
+                      key={role.name}
                       item={role}
                       active={isActive}
                       disabled={isActive}

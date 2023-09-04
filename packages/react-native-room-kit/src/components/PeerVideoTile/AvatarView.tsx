@@ -25,7 +25,7 @@ export const _AvatarView: React.FC<AvatarViewProps> = ({
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     avatarContainer: {
-      backgroundColor: theme.palette.surface_default,
+      backgroundColor: theme.palette.background_default,
     },
     avatar: {
       backgroundColor: COLORS.EXTENDED.PURPLE,

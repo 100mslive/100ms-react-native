@@ -264,7 +264,7 @@ export const PeerSettingsModalContent: React.FC<
           />
         ) : null} */}
 
-        {!peer.isLocal && localPeerPermissions?.changeRole ? (
+        {debugMode && !peer.isLocal && localPeerPermissions?.changeRole ? (
           <SettingItem
             text="Change Role"
             IconType={Ionicons}
