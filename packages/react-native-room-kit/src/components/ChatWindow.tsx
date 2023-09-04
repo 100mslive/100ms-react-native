@@ -12,7 +12,6 @@ import {
   HMSMessage,
   HMSMessageRecipient,
   HMSMessageRecipientType,
-  HMSMessageType,
   HMSPeer,
   HMSRemotePeer,
   HMSRole,
@@ -246,7 +245,7 @@ export const ChatTextInput: React.FC<ChatTextInputProps> = ({
           const localMessage = new HMSMessage({
             messageId: messageId,
             message: messageText,
-            type: HMSMessageType.CHAT,
+            type: 'chat',
             time: new Date(),
             sender: localPeer || undefined,
             recipient: hmsMessageRecipient,

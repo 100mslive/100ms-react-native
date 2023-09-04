@@ -106,11 +106,9 @@ class HMSDecoder: NSObject {
         guard let updateType = getPeerUpdateTypeOrdinals(peerUpdateType) else { return peerDict }
 
         peerDict[updateType] = peer.peerID
+        peerDict["name"] = peer.name
 
         switch peerUpdateType {
-            case .nameUpdated:
-                peerDict["name"] = peer.name
-                return peerDict
             case .metadataUpdated:
                 peerDict["metadata"] = peer.metadata ?? ""
                 return peerDict
@@ -134,11 +132,9 @@ class HMSDecoder: NSObject {
         var peerDict = [String: Any]()
 
         peerDict["peerID"] = peer.peerID
+        peerDict["name"] = peer.name
 
         switch peerUpdateType {
-            case .nameUpdated:
-                peerDict["name"] = peer.name
-                return peerDict
             case .metadataUpdated:
                 peerDict["metadata"] = peer.metadata ?? ""
                 return peerDict
@@ -251,6 +247,7 @@ class HMSDecoder: NSObject {
         var peerDict = [String: Any]()
 
         peerDict["peerID"] = peer.peerID
+        peerDict["name"] = peer.name
 
         if let audio = peer.audioTrack {
             if let localAudio = audio as? HMSLocalAudioTrack {
@@ -354,7 +351,8 @@ class HMSDecoder: NSObject {
         var peerDict = [String: Any]()
 
         peerDict["peerID"] = peer.peerID
-
+        peerDict["name"] = peer.name
+        
         // joinedAt
 
         if let audio = peer.audioTrack {

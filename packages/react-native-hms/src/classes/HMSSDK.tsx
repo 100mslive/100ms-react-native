@@ -26,7 +26,6 @@ import type { HMSAudioDevice } from './HMSAudioDevice';
 import type { HMSAudioMode } from './HMSAudioMode';
 import type { HMSAudioMixingMode } from './HMSAudioMixingMode';
 import type { HMSLogSettings } from './HMSLogSettings';
-import { HMSMessageType } from './HMSMessageType';
 import { HMSPIPListenerActions } from './HMSPIPListenerActions';
 import HMSNativeEventListener from './HMSNativeEventListener';
 import type { HMSNativeEventSubscription } from './HMSNativeEventListener';
@@ -298,13 +297,11 @@ export class HMSSDK {
    *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/chat} for more info
    *
-   * @param {message: string} and @param {type: string}
    * @memberof HMSSDK
+   * @param message the message that is to be sent
+   * @param type the default type is set to CHAT. You can pass a custom type here for sending events like Emoji Reactions, Notifications, etc
    */
-  sendBroadcastMessage = async (
-    message: string,
-    type: HMSMessageType = HMSMessageType.CHAT
-  ) => {
+  sendBroadcastMessage = async (message: string, type: string = 'chat') => {
     logger?.verbose('#Function sendBroadcastMessage', {
       message,
       type: type || null,
@@ -331,7 +328,7 @@ export class HMSSDK {
   sendGroupMessage = async (
     message: string,
     roles: HMSRole[],
-    type: HMSMessageType = HMSMessageType.CHAT
+    type: string = 'chat'
   ) => {
     logger?.verbose('#Function sendGroupMessage', {
       message,
@@ -361,7 +358,7 @@ export class HMSSDK {
   sendDirectMessage = async (
     message: string,
     peer: HMSPeer,
-    type: HMSMessageType = HMSMessageType.CHAT
+    type: string = 'chat'
   ) => {
     logger?.verbose('#Function sendDirectMessage', {
       message,
@@ -1003,8 +1000,8 @@ export class HMSSDK {
    *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/audio-output-routing#switch-audio-focus-to-another-device} for more info
    *
-   * @param {HMSAudioDevice}
    * @memberof HMSSDK
+   * @param audioDevice
    */
   switchAudioOutput = (audioDevice: HMSAudioDevice) => {
     logger?.verbose('#Function switchAudioOutput', {

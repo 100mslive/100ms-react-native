@@ -6,7 +6,6 @@ import {
   HMSException,
   HMSLocalPeer,
   HMSMessage,
-  HMSMessageType,
   HMSPeer,
   HMSPeerUpdate,
   HMSRoleChangeRequest,

@@ -73,7 +73,7 @@ body:
               and attach it below between the lines with the backticks.
         -->
 
-        ```dart
+        ```js
         ```
     validations:
       required: true
