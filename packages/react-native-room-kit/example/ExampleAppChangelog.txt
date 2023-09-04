@@ -12,7 +12,7 @@ https://github.com/100mslive/100ms-react-native/issues/1124
 - Added Full screen ScreenShare with pinch to zoom
 https://github.com/100mslive/100ms-react-native/issues/1136
 
-Room Kit: 0.2.0
-Core SDK: 1.7.2
+Room Kit: 0.3.0
+Core SDK: 1.7.3
 Android SDK: 2.7.3
 iOS SDK: 0.9.10

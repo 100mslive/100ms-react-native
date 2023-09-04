@@ -22,7 +22,7 @@ import { UnmountAfterDelay } from '../UnmountAfterDelay';
 import type { PeerTrackNode } from '../../utils/types';
 import { isTileOnSpotlight } from '../../utils/functions';
 import { selectCanPublishTrackForRole } from '../../hooks-sdk-selectors';
-import { useHMSRoomStyle } from '../../hooks-util';
+import { useHMSRoomStyleSheet } from '../../hooks-util';
 import { HMSFullScreenButton } from './HMSFullScreenButton';
 
 export interface PeerVideoTileViewProps {
@@ -86,8 +86,13 @@ export const _PeerVideoTileView = React.forwardRef<
       'video'
     );
 
-    const iconWrapperStyles = useHMSRoomStyle((theme) => ({
-      backgroundColor: hexToRgbA(theme.palette.background_dim, 0.64),
+    const hmsRoomStyles = useHMSRoomStyleSheet((theme) => ({
+      iconWrapperStyles: {
+        backgroundColor: hexToRgbA(theme.palette.background_dim, 0.64),
+      },
+      avatarContainer: {
+        backgroundColor: theme.palette.surface_default,
+      },
     }));
 
     const trackSource = track?.source;
@@ -105,6 +110,9 @@ export const _PeerVideoTileView = React.forwardRef<
       <View style={styles.container}>
         <AvatarView
           name={peer.name}
+          avatarContainerStyles={
+            insetMode ? hmsRoomStyles.avatarContainer : null
+          }
           videoView={
             showingVideoTrack ? (
               <VideoView
@@ -159,7 +167,7 @@ export const _PeerVideoTileView = React.forwardRef<
             <Animated.View entering={FadeIn} exiting={FadeOut}>
               <PressableIcon
                 activeOpacity={0.7}
-                style={[styles.iconWrapper, iconWrapperStyles]}
+                style={[styles.iconWrapper, hmsRoomStyles.iconWrapperStyles]}
                 border={false}
                 onPress={handleOptionsPress}
               >
@@ -170,7 +178,7 @@ export const _PeerVideoTileView = React.forwardRef<
         ) : (
           <PressableIcon
             activeOpacity={0.7}
-            style={[styles.iconWrapper, iconWrapperStyles]}
+            style={[styles.iconWrapper, hmsRoomStyles.iconWrapperStyles]}
             border={false}
             onPress={handleOptionsPress}
           >
