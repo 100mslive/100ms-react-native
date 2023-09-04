@@ -169,6 +169,17 @@ const ChatList = ({
 }) => {
   const messages = useSelector((state: RootState) => state.messages.messages);
 
+  const filterMessages = (messages: HMSMessage[], messageType: string) => {
+    const filteredMessages: any[] = [];
+    for (const message of messages) {
+      if (message.type !== messageType) {
+        filteredMessages.push(message);
+      }
+    }
+    return filteredMessages;
+  };
+
+  const filteredMessages = filterMessages(messages, "EMOJI_REACTION");
   // const scollviewRef = useRef<FlatList>(null);
 
   // useEffect(() => {
@@ -181,7 +192,7 @@ const ChatList = ({
 
   return (
     <FlatList
-      data={messages}
+      data={filteredMessages}
       initialNumToRender={2}
       maxToRenderPerBatch={3}
       windowSize={11}
