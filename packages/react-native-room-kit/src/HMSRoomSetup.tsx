@@ -39,6 +39,7 @@ import {
   useHMSRoomStyle,
   useHMSSessionStore,
   useLeaveMethods,
+  useAllowedPublish,
 } from './hooks-util';
 import {
   peerTrackNodeExistForPeerAndTrack,
@@ -209,7 +210,7 @@ export const HMSRoomSetup = () => {
       const localPeerTrackNode = createPeerTrackNode(peer, track);
 
       batch(() => {
-        if (isHLSViewer) {
+        if (isHLSViewer || !useAllowedPublish(localPeer)) {
           // TODO: enable below statement when HLS chat view design is complete
           // dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: true });
         } else {

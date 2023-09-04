@@ -289,7 +289,7 @@ const useHMSPeersUpdate = (
         batch(() => {
           if (localPeerTrackNode) {
             dispatch(updateLocalPeerTrackNode({ peer }));
-          } else {
+          } else if (useAllowedPublish(peer)) {
             dispatch(
               setLocalPeerTrackNode(createPeerTrackNode(peer, peer.videoTrack))
             );
@@ -464,6 +464,10 @@ type TrackUpdate = {
   type: HMSTrackUpdate;
 };
 
+export const useAllowedPublish = (peer: HMSPeer): boolean => {
+  return (peer.role?.publishSettings?.allowed && peer.role?.publishSettings?.allowed?.length > 0) ?? false;
+}
+
 const useHMSTrackUpdate = (
   hmsInstance: HMSSDK,
   updateLocalPeer: () => void,
@@ -523,7 +527,9 @@ const useHMSTrackUpdate = (
         if (peer.isLocal) {
           if (track.source === HMSTrackSource.REGULAR) {
             if (!localPeerTrackNode) {
-              dispatch(setLocalPeerTrackNode(newPeerTrackNode));
+              if (useAllowedPublish(newPeerTrackNode.peer)) {
+                dispatch(setLocalPeerTrackNode(newPeerTrackNode));
+              }
             } else {
               dispatch(
                 updateLocalPeerTrackNode(
