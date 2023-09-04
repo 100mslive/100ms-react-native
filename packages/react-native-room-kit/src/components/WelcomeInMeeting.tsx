@@ -11,7 +11,8 @@ export const WelcomeInMeeting: React.FC<WelcomeInMeetingProps> = () => {
       <View style={styles.container}>
         <Image
           source={require('../assets/welcome.png')}
-          style={{ width: 149, height: 152 }} />
+          style={{ width: 149, height: 152 }}
+        />
       </View>
 
       <HMSNotifications />
@@ -24,5 +25,5 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-  }
+  },
 });
