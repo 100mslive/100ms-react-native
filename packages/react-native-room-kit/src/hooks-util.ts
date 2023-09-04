@@ -1097,7 +1097,7 @@ export const useHMSMessages = () => {
 
   useEffect(() => {
     const onMessageListener = (message: HMSMessage) => {
-      if ((message.type as string) === NotificationTypes.ROLE_CHANGE_DECLINED) {
+      if (message.type === NotificationTypes.ROLE_CHANGE_DECLINED) {
         if (canChangeRole) {
           dispatch(
             addNotification({
@@ -1107,7 +1107,10 @@ export const useHMSMessages = () => {
             })
           );
         }
-      } else {
+      } else if (message.type === 'EMOJI_REACTION') {
+        console.log('Ignoring Emoji Reaction Message: ', message);
+      }
+      else {
         dispatch(addMessage(message));
       }
     };
