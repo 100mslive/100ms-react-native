@@ -31,8 +31,6 @@ const CustomInput = ({
   disableFullscreenUI = true,
   clear = true,
   autoCapitalize = 'none',
-  autoCorrect = false,
-  autoCompleteType = 'off',
 }: {
   value?: string;
   title?: string;

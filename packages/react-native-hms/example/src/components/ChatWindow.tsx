@@ -29,7 +29,7 @@ import {COLORS} from '../utils/theme';
 import type {RootState} from '../redux';
 import {CustomInput} from './CustomInput';
 import {CustomButton} from './CustomButton';
-import {addMessage, addPinnedMessage} from '../redux/actions';
+import {addMessage} from '../redux/actions';
 
 const getTimeStringin12HourFormat = (time: Date) => {
   let hours = time.getHours();
