@@ -20,22 +20,23 @@ export const HLSPlayerStatsView: React.FC<HLSPlayerStatsViewProps> = ({
         <Text>close</Text>
       </TouchableOpacity>
 
-      error ?
-      <Text>{error}</Text>
-      :
-      <View>
-        <Text>Bandwidth Estimate: {stats.bandWidthEstimate}</Text>
-        <Text>Total Bytes Loaded: {stats.totalBytesLoaded}</Text>
-        <Text>Buffered Duration: {stats.bufferedDuration}</Text>
+      {error ? (
+        <Text>{error}</Text>
+      ) : (
+        <View>
+          <Text>Bandwidth Estimate: {stats.bandWidthEstimate}</Text>
+          <Text>Total Bytes Loaded: {stats.totalBytesLoaded}</Text>
+          <Text>Buffered Duration: {stats.bufferedDuration}</Text>
 
-        <Text>Distance From Live: {stats.distanceFromLive}</Text>
-        <Text>Dropped Frame Count: {stats.droppedFrameCount}</Text>
+          <Text>Distance From Live: {stats.distanceFromLive}</Text>
+          <Text>Dropped Frame Count: {stats.droppedFrameCount}</Text>
 
-        <Text>Average Bitrate: {stats.averageBitrate}</Text>
+          <Text>Average Bitrate: {stats.averageBitrate}</Text>
 
-        <Text>Video Height: {stats.videoHeight}</Text>
-        <Text>Video Width: {stats.videoWidth}</Text>
-    </View>
+          <Text>Video Height: {stats.videoHeight}</Text>
+          <Text>Video Width: {stats.videoWidth}</Text>
+        </View>
+      )}
     </View>
   );
 };
