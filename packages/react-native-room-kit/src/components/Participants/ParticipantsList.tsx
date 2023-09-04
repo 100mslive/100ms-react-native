@@ -30,6 +30,7 @@ export const ParticipantsList: React.FC<ParticipantsListProps> = ({ data }) => {
   const localPeerPermissions = useSelector(
     (state: RootState) => state.hmsStates.localPeer?.role?.permissions
   );
+  const debugMode = useSelector((state: RootState) => state.user.debugMode);
   const { handleModalVisibleType: setModalVisible } = useModalType();
 
   const [visible, setVisible] = React.useState(-1);
@@ -160,7 +161,7 @@ export const ParticipantsList: React.FC<ParticipantsListProps> = ({ data }) => {
                   </View>
                 </MenuItem>
               )}
-              {localPeerPermissions?.changeRole && (
+              {debugMode && localPeerPermissions?.changeRole ? (
                 <MenuItem onPress={() => onChangeRolePress(peer)}>
                   <View style={styles.participantMenuItem}>
                     <Ionicons
@@ -173,7 +174,7 @@ export const ParticipantsList: React.FC<ParticipantsListProps> = ({ data }) => {
                     </Text>
                   </View>
                 </MenuItem>
-              )}
+              ) : null}
               {peer.isLocal === false &&
               !!peer.audioTrack &&
               peer.role?.publishSettings?.allowed?.includes('audio') ? (
