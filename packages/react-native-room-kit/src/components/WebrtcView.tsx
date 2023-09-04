@@ -71,7 +71,6 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
       );
     }
 
-
     return (
       <LocalPeerRegularVideoView onMoreOptionsPress={handlePeerTileMorePress} />
     );
