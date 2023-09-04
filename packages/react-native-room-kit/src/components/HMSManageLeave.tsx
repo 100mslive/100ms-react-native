@@ -3,11 +3,10 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { JoinForm_JoinBtnType } from '@100mslive/types-prebuilt/elements/join_form';
 
-import { EndIcon, LeaveIcon } from '../Icons';
+import { LeaveIcon } from '../Icons';
 import {
   useHMSLayoutConfig,
   useHMSRoomStyleSheet,
-  useIsHLSViewer,
   useLeaveMethods,
 } from '../hooks-util';
 import type { RootState } from '../redux';
@@ -38,7 +37,6 @@ type LeaveButtonProps =
 
 const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
   const leavePopCloseAction = React.useRef(ModalTypes.DEFAULT);
-  const isHLSViewer = useIsHLSViewer();
   const [leavePopVisible, setLeavePopVisible] = React.useState(false);
   const [leaveModalType, setLeaveModalType] = React.useState(
     ModalTypes.DEFAULT
@@ -102,10 +100,8 @@ const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
   const leaveIconDelegate =
     'leaveIconDelegate' in props && props.leaveIconDelegate ? (
       props.leaveIconDelegate
-    ) : isHLSViewer ? (
-      <LeaveIcon style={hmsRoomStyles.icon} />
     ) : (
-      <EndIcon style={hmsRoomStyles.icon} />
+      <LeaveIcon style={hmsRoomStyles.icon} />
     );
 
   const leaveButtonDelegate =
