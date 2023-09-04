@@ -22,11 +22,7 @@ export const LocalPeerRegularVideoView: React.FC<
     }
   );
 
-  if (!localPeerTrackNode) {
-    return null;
-  }
-
-  if (!hasPublishPermissions) {
+  if (!localPeerTrackNode || !hasPublishPermissions) {
     return null;
   }
 
