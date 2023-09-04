@@ -175,9 +175,6 @@ const QRCode = () => {
             position: 'absolute',
           }}
         >
-          <Text style={{ color: 'white', fontSize: 12 }}>
-            Hermes: {isHermes ? 'ON' : 'OFF'}
-          </Text>
         </View>
 
         <Image
