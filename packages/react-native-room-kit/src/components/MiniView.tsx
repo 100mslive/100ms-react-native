@@ -19,6 +19,7 @@ import {
 } from './PeerMinimizedView';
 import type { RootState } from '../redux';
 import { setInsetViewMinimized } from '../redux/actions';
+import { isPublishingAllowed } from '../hooks-util';
 
 const cornerOffset = {
   x: 8, // rightX
@@ -136,7 +137,7 @@ export const MiniView: React.FC<Omit<MiniViewProps, 'insetMode'>> = ({
     dispatch(setInsetViewMinimized(false));
   };
 
-  if (!miniviewPeerTrackNode) {
+  if (!miniviewPeerTrackNode || (!isPublishingAllowed(miniviewPeerTrackNode.peer))) {
     return null;
   }
 
