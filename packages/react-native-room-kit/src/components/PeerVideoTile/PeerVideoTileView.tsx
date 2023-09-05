@@ -6,7 +6,6 @@ import {
   HMSVideoViewMode,
 } from '@100mslive/react-native-hms';
 import type { HMSView } from '@100mslive/react-native-hms';
-import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useSelector } from 'react-redux';
 
 import { VideoView } from './VideoView';
@@ -164,16 +163,14 @@ export const _PeerVideoTileView = React.forwardRef<
             visible={mounted}
             onUnmount={hide}
           >
-            <Animated.View entering={FadeIn} exiting={FadeOut}>
-              <PressableIcon
-                activeOpacity={0.7}
-                style={[styles.iconWrapper, hmsRoomStyles.iconWrapperStyles]}
-                border={false}
-                onPress={handleOptionsPress}
-              >
-                <ThreeDotsIcon stack="vertical" style={styles.icon} />
-              </PressableIcon>
-            </Animated.View>
+            <PressableIcon
+              activeOpacity={0.7}
+              style={[styles.iconWrapper, hmsRoomStyles.iconWrapperStyles]}
+              border={false}
+              onPress={handleOptionsPress}
+            >
+              <ThreeDotsIcon stack="vertical" style={styles.icon} />
+            </PressableIcon>
           </UnmountAfterDelay>
         ) : (
           <PressableIcon
