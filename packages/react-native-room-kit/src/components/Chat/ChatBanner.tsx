@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, StyleSheet, Text, Platform, Image } from 'react-native';
+import { View, StyleSheet, Text, Image } from 'react-native';
 
 import { useHMSRoomStyleSheet } from '../../hooks-util';
 
@@ -33,9 +33,10 @@ export const ChatBanner = () => {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    transform: [Platform.OS === 'android' ? { scale: -1 } : { scaleY: -1 }],
+    // transform: [Platform.OS === 'android' ? { scale: -1 } : { scaleY: -1 }],
   },
   title: {
     fontSize: 20,
