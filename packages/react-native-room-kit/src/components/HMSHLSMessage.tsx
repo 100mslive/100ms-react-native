@@ -17,12 +17,12 @@ const _HMSHLSMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
       senderName: {
         color: '#ffffff',
         fontFamily: `${typography.font_family}-SemiBold`,
-        textShadowColor: 'rgba(0, 0, 0, 0.4)',
+        textShadowColor: 'rgba(0, 0, 0, 0.5)',
       },
       message: {
         color: '#ffffff',
         fontFamily: `${typography.font_family}-Regular`,
-        textShadowColor: 'rgba(0, 0, 0, 0.3)',
+        textShadowColor: 'rgba(0, 0, 0, 0.5)',
       },
     }),
     []
@@ -69,16 +69,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: Platform.OS === 'android' ? 20 : undefined,
     letterSpacing: 0.1,
-    textShadowOffset: { height: 2, width: 2 },
-    textShadowRadius: 3,
+    textShadowOffset: { height: 1, width: 1 },
+    textShadowRadius: 2,
   },
   message: {
     fontSize: 14,
     lineHeight: Platform.OS === 'android' ? 20 : undefined,
     letterSpacing: 0.25,
     marginTop: 2,
-    textShadowOffset: { height: 2, width: 2 },
-    textShadowRadius: 3,
+    textShadowOffset: { height: 0.5, width: 0.5 },
+    textShadowRadius: 2,
   },
   textAlignRight: {
     textAlign: 'right',
