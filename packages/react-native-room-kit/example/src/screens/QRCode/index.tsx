@@ -174,8 +174,7 @@ const QRCode = () => {
             right: 20,
             position: 'absolute',
           }}
-        >
-        </View>
+        ></View>
 
         <Image
           style={styles.image}

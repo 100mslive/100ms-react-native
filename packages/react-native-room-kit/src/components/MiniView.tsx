@@ -137,7 +137,10 @@ export const MiniView: React.FC<Omit<MiniViewProps, 'insetMode'>> = ({
     dispatch(setInsetViewMinimized(false));
   };
 
-  if (!miniviewPeerTrackNode || (!isPublishingAllowed(miniviewPeerTrackNode.peer))) {
+  if (
+    !miniviewPeerTrackNode ||
+    !isPublishingAllowed(miniviewPeerTrackNode.peer)
+  ) {
     return null;
   }
 

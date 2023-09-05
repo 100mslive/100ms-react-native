@@ -465,8 +465,12 @@ type TrackUpdate = {
 };
 
 export const isPublishingAllowed = (peer: HMSPeer): boolean => {
-  return (peer.role?.publishSettings?.allowed && peer.role?.publishSettings?.allowed?.length > 0) ?? false;
-}
+  return (
+    (peer.role?.publishSettings?.allowed &&
+      peer.role?.publishSettings?.allowed?.length > 0) ??
+    false
+  );
+};
 
 const useHMSTrackUpdate = (
   hmsInstance: HMSSDK,
@@ -1109,8 +1113,7 @@ export const useHMSMessages = () => {
         }
       } else if (message.type === 'EMOJI_REACTION') {
         console.log('Ignoring Emoji Reaction Message: ', message);
-      }
-      else {
+      } else {
         dispatch(addMessage(message));
       }
     };
