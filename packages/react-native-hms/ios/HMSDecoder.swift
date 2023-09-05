@@ -21,7 +21,7 @@ class HMSDecoder: NSObject {
         switch hmsRoomUpdateType {
             case .none:
                 return data
-            case .metaDataUpdated:
+            case .peerCountUpdated:
                 data["peerCount"] = room.peerCount
                 return data
             case .hlsRecordingStateUpdated:
