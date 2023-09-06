@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { useWindowDimensions } from 'react-native';
+import { Platform, StatusBar, useWindowDimensions } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 import Animated, {
-  useAnimatedKeyboard,
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated';
+import { useReanimatedKeyboardAnimation } from 'react-native-keyboard-controller';
 
 export interface HMSKeyboardAvoidingViewProps {
   style?: StyleProp<Animated.AnimateStyle<StyleProp<ViewStyle>>>;
@@ -16,26 +16,31 @@ export const HMSKeyboardAvoidingView: React.FC<
 > = ({ children, style }) => {
   const animatedViewRef = React.useRef<Animated.View>(null);
   const { height: windowHeight } = useWindowDimensions();
-  const animatedKeyboard = useAnimatedKeyboard();
+  const animatedKeyboard = useReanimatedKeyboardAnimation();
 
   const initialPageY = useSharedValue(0);
 
   const _handleViewOnLayout = React.useCallback(() => {
-    animatedViewRef.current?.measure((_fx, _fy, _width, height, _px, py) => {
+    animatedViewRef.current?.measureInWindow((_fx, fy, _width, height) => {
       if (height > 0) {
-        initialPageY.value = windowHeight - (height + py);
+        const finalWindowHeight =
+          Platform.OS === 'android' && Platform.Version < 29
+            ? windowHeight - (StatusBar.currentHeight ?? 0)
+            : windowHeight;
+        initialPageY.value = finalWindowHeight - (height + fy);
       }
     });
   }, []);
 
   const keyboardAvoidStyle = useAnimatedStyle(() => {
+    const keyboardHeight = -animatedKeyboard.height.value;
     return {
       transform: [
         {
           translateY:
-            animatedKeyboard.height.value <= initialPageY.value
+          keyboardHeight <= initialPageY.value
               ? 0 // Keep element at original `pageY` till and when keyboard height is less than `pageY`
-              : -(animatedKeyboard.height.value - initialPageY.value),
+              : -(keyboardHeight - initialPageY.value),
         },
       ],
     };

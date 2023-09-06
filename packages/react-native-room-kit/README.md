@@ -283,7 +283,7 @@ Follow [official installation steps](https://github.com/oblador/react-native-vec
 ```bash
 npm install github:100mslive/100ms-react-native#release1.8.0
   @shopify/flash-list@1.4.3
-  react-native-avoid-softinput@2.4.8
+  react-native-keyboard-controller@^1.6.1
   react-native-linear-gradient@2.7.3
   react-native-modal@12.1.0
   react-native-safe-area-context@3.3.0
