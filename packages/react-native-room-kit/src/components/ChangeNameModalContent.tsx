@@ -9,10 +9,9 @@ import {
 import { useSelector } from 'react-redux';
 
 import type { RootState } from '../redux';
-import { useHMSRoomStyleSheet, useModalType } from '../hooks-util';
-import { BottomSheet, useBottomSheetActions } from './BottomSheet';
+import { useHMSRoomStyleSheet } from '../hooks-util';
+import { BottomSheet } from './BottomSheet';
 import { ChevronIcon, CloseIcon } from '../Icons';
-import { ModalTypes } from '../utils/types';
 import { HMSTextInput } from './HMSTextInput';
 import { HMSPrimaryButton } from './HMSPrimaryButton';
 import { useHMSActions } from '../hooks-sdk';
@@ -31,9 +30,6 @@ export const ChangeNameModalContent: React.FC<ChangeNameModalContentProps> = ({
 
   const [name, setName] = React.useState(localPeerName);
   const [nameChangeLoading, setNameChangeLoading] = React.useState(false);
-  const { handleModalVisibleType } = useModalType();
-
-  const { registerOnModalHideAction } = useBottomSheetActions();
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     headerText: {

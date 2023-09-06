@@ -34,7 +34,11 @@ class HMSHLSPlayerManager : SimpleViewManager<HMSHLSPlayer>() {
     )
   }
 
-  override fun receiveCommand(root: HMSHLSPlayer, commandId: Int, args: ReadableArray?) {
+  override fun receiveCommand(
+    root: HMSHLSPlayer,
+    commandId: Int,
+    args: ReadableArray?,
+  ) {
     super.receiveCommand(root, commandId, args)
 
     when (commandId) {
@@ -81,17 +85,26 @@ class HMSHLSPlayerManager : SimpleViewManager<HMSHLSPlayer>() {
   }
 
   @ReactProp(name = "url")
-  fun setStreamURL(view: HMSHLSPlayer, data: String?) {
+  fun setStreamURL(
+    view: HMSHLSPlayer,
+    data: String?,
+  ) {
     view.play(data)
   }
 
   @ReactProp(name = "enableStats", defaultBoolean = false)
-  fun setEnableStats(view: HMSHLSPlayer, data: Boolean) {
+  fun setEnableStats(
+    view: HMSHLSPlayer,
+    data: Boolean,
+  ) {
     view.enableStats(data)
   }
 
   @ReactProp(name = "enableControls", defaultBoolean = false)
-  fun setEnableControls(view: HMSHLSPlayer, data: Boolean) {
+  fun setEnableControls(
+    view: HMSHLSPlayer,
+    data: Boolean,
+  ) {
     view.enableControls(data)
   }
 

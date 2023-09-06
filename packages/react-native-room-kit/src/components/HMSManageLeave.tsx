@@ -3,10 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 
 import { LeaveIcon } from '../Icons';
-import {
-  useHMSRoomStyleSheet,
-  useLeaveMethods,
-} from '../hooks-util';
+import { useHMSRoomStyleSheet, useLeaveMethods } from '../hooks-util';
 import type { RootState } from '../redux';
 import { ModalTypes } from '../utils/types';
 import { PressableIcon } from './PressableIcon';

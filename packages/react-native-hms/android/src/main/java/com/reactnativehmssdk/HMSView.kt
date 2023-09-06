@@ -36,16 +36,21 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
     hmsVideoView?.setMirror(false)
     hmsVideoView?.disableAutoSimulcastLayerSelect(disableAutoSimulcastLayerSelect)
 
-    hmsVideoView?.addVideoViewStateChangeListener(object : VideoViewStateChangeListener {
-      override fun onResolutionChange(newWidth: Int, newHeight: Int) {
-        super.onResolutionChange(newWidth, newHeight)
-        if (!jsCanApplyStyles) {
-          val event: WritableMap = Arguments.createMap()
-          context.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "topChange", event)
-          jsCanApplyStyles = true
+    hmsVideoView?.addVideoViewStateChangeListener(
+      object : VideoViewStateChangeListener {
+        override fun onResolutionChange(
+          newWidth: Int,
+          newHeight: Int,
+        ) {
+          super.onResolutionChange(newWidth, newHeight)
+          if (!jsCanApplyStyles) {
+            val event: WritableMap = Arguments.createMap()
+            context.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "topChange", event)
+            jsCanApplyStyles = true
+          }
         }
-      }
-    })
+      },
+    )
   }
 
   @RequiresApi(Build.VERSION_CODES.N)

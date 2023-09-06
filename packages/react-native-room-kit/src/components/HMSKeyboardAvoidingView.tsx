@@ -38,7 +38,7 @@ export const HMSKeyboardAvoidingView: React.FC<
       transform: [
         {
           translateY:
-          keyboardHeight <= initialPageY.value
+            keyboardHeight <= initialPageY.value
               ? 0 // Keep element at original `pageY` till and when keyboard height is less than `pageY`
               : -(keyboardHeight - initialPageY.value),
         },

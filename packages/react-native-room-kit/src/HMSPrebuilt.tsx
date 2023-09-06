@@ -47,11 +47,7 @@ const _HMSPrebuilt: React.FC<HMSPrebuiltProps> = (props) => {
     return content;
   }
 
-  return (
-    <SafeAreaProvider>
-      {content}
-    </SafeAreaProvider>
-  );
+  return <SafeAreaProvider>{content}</SafeAreaProvider>;
 };
 
 // TODO: handle props change

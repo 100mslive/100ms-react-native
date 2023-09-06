@@ -24,6 +24,7 @@ class HmsScreenshareActivity : ComponentActivity() {
               HMSManager.hmsCollection[id]?.screenshareCallback?.reject(error)
               HMSManager.hmsCollection[id]?.emitHMSError(error)
             }
+
             override fun onSuccess() {
               HMSManager.hmsCollection[id]?.screenshareCallback?.resolve(
                 HMSManager.hmsCollection[id]?.emitHMSSuccess(),

@@ -105,7 +105,6 @@ export const PeerSettingsModalContent: React.FC<
     });
   };
 
-
   const { peer } = peerTrackNode;
 
   const localPeerPermissions = localPeer?.role?.permissions;
@@ -125,7 +124,6 @@ export const PeerSettingsModalContent: React.FC<
 
       {/* Content */}
       <View style={styles.contentContainer}>
-
         {peer.isLocal ? (
           <SettingItem
             customIcon={true}

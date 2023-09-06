@@ -12,7 +12,6 @@ import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.annotations.ReactProp
 
 class HMSSDKViewManager : SimpleViewManager<HMSView>() {
-
   private var reactContext: ThemedReactContext? = null
 
   override fun getName(): String {
@@ -41,14 +40,22 @@ class HMSSDKViewManager : SimpleViewManager<HMSView>() {
   }
 
   @RequiresApi(Build.VERSION_CODES.N)
-  override fun receiveCommand(@NonNull root: HMSView, commandId: String?, args: ReadableArray?) {
+  override fun receiveCommand(
+    @NonNull root: HMSView,
+    commandId: String?,
+    args: ReadableArray?,
+  ) {
     when (commandId) {
       "capture" -> root.captureHmsView(args)
     }
   }
 
   @RequiresApi(Build.VERSION_CODES.N)
-  override fun receiveCommand(@NonNull root: HMSView, commandId: Int, args: ReadableArray?) {
+  override fun receiveCommand(
+    @NonNull root: HMSView,
+    commandId: Int,
+    args: ReadableArray?,
+  ) {
     when (commandId) {
       1 -> root.captureHmsView(args)
     }
@@ -60,7 +67,10 @@ class HMSSDKViewManager : SimpleViewManager<HMSView>() {
   }
 
   @ReactProp(name = "data")
-  fun setData(view: HMSView, data: ReadableMap) {
+  fun setData(
+    view: HMSView,
+    data: ReadableMap,
+  ) {
     val trackId = data.getString("trackId")
     val id = data.getString("id")
     val mirror = data.getBoolean("mirror")
@@ -72,17 +82,26 @@ class HMSSDKViewManager : SimpleViewManager<HMSView>() {
   }
 
   @ReactProp(name = "scaleType")
-  fun setScaleType(view: HMSView, data: String?) {
+  fun setScaleType(
+    view: HMSView,
+    data: String?,
+  ) {
     view.updateScaleType(data)
   }
 
   @ReactProp(name = "setZOrderMediaOverlay")
-  fun setZOrderMediaOverlay(view: HMSView, data: Boolean?) {
+  fun setZOrderMediaOverlay(
+    view: HMSView,
+    data: Boolean?,
+  ) {
     view.updateZOrderMediaOverlay(data)
   }
 
   @ReactProp(name = "autoSimulcast")
-  fun setAutoSimulcast(view: HMSView, data: Boolean?) {
+  fun setAutoSimulcast(
+    view: HMSView,
+    data: Boolean?,
+  ) {
     data?.let { view.updateAutoSimulcast(it) }
   }
 

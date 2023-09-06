@@ -34,7 +34,10 @@ class HMSManager(reactContext: ReactApplicationContext) :
   // Example method
   // See https://reactnative.dev/docs/native-modules-android
   @ReactMethod
-  fun build(data: ReadableMap?, callback: Promise?) {
+  fun build(
+    data: ReadableMap?,
+    callback: Promise?,
+  ) {
     val hasItem = hmsCollection.containsKey("12345")
     if (hasItem) {
       val uuid = UUID.randomUUID()
@@ -90,28 +93,40 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun leave(data: ReadableMap, callback: Promise?) {
+  fun leave(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.leave(callback)
   }
 
   @ReactMethod
-  fun sendBroadcastMessage(data: ReadableMap, callback: Promise?) {
+  fun sendBroadcastMessage(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.sendBroadcastMessage(data, callback)
   }
 
   @ReactMethod
-  fun sendGroupMessage(data: ReadableMap, callback: Promise?) {
+  fun sendGroupMessage(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.sendGroupMessage(data, callback)
   }
 
   @ReactMethod
-  fun sendDirectMessage(data: ReadableMap, callback: Promise?) {
+  fun sendDirectMessage(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.sendDirectMessage(data, callback)
@@ -119,84 +134,120 @@ class HMSManager(reactContext: ReactApplicationContext) :
 
   @kotlin.Deprecated("Use #Function changeRoleOfPeer instead")
   @ReactMethod
-  fun changeRole(data: ReadableMap, callback: Promise?) {
+  fun changeRole(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.changeRole(data, callback)
   }
 
   @ReactMethod
-  fun changeRoleOfPeer(data: ReadableMap, promise: Promise?) {
+  fun changeRoleOfPeer(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.changeRoleOfPeer(data, promise)
   }
 
   @ReactMethod
-  fun changeRoleOfPeersWithRoles(data: ReadableMap, promise: Promise?) {
+  fun changeRoleOfPeersWithRoles(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.changeRoleOfPeersWithRoles(data, promise)
   }
 
   @ReactMethod
-  fun changeTrackState(data: ReadableMap, callback: Promise?) {
+  fun changeTrackState(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.changeTrackState(data, callback)
   }
 
   @ReactMethod
-  fun changeTrackStateForRoles(data: ReadableMap, callback: Promise?) {
+  fun changeTrackStateForRoles(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.changeTrackStateForRoles(data, callback)
   }
 
   @ReactMethod
-  fun isMute(data: ReadableMap, callback: Promise?) {
+  fun isMute(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.isMute(data, callback)
   }
 
   @ReactMethod
-  fun removePeer(data: ReadableMap, callback: Promise?) {
+  fun removePeer(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.removePeer(data, callback)
   }
 
   @ReactMethod
-  fun isPlaybackAllowed(data: ReadableMap, callback: Promise?) {
+  fun isPlaybackAllowed(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.isPlaybackAllowed(data, callback)
   }
 
   @ReactMethod
-  fun getRoom(data: ReadableMap, callback: Promise?) {
+  fun getRoom(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.getRoom(callback)
   }
 
   @ReactMethod
-  fun getLocalPeer(data: ReadableMap, callback: Promise?) {
+  fun getLocalPeer(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.getLocalPeer(callback)
   }
 
   @ReactMethod
-  fun getRemotePeers(data: ReadableMap, callback: Promise?) {
+  fun getRemotePeers(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.getRemotePeers(callback)
   }
 
   @ReactMethod
-  fun getRoles(data: ReadableMap, callback: Promise?) {
+  fun getRoles(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.getRoles(callback)
@@ -210,28 +261,40 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun endRoom(data: ReadableMap, callback: Promise?) {
+  fun endRoom(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.endRoom(data, callback)
   }
 
   @ReactMethod
-  fun previewForRole(data: ReadableMap, callback: Promise?) {
+  fun previewForRole(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.previewForRole(data, callback)
   }
 
   @ReactMethod
-  fun cancelPreview(data: ReadableMap, callback: Promise?) {
+  fun cancelPreview(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.cancelPreview(callback)
   }
 
   @ReactMethod
-  fun acceptRoleChange(data: ReadableMap, callback: Promise?) {
+  fun acceptRoleChange(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.acceptRoleChange(callback)
@@ -245,7 +308,10 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun getVolume(data: ReadableMap, callback: Promise?) {
+  fun getVolume(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.getVolume(data, callback)
@@ -259,21 +325,30 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun remoteMuteAllAudio(data: ReadableMap, callback: Promise?) {
+  fun remoteMuteAllAudio(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.remoteMuteAllAudio(callback)
   }
 
   @ReactMethod
-  fun changeMetadata(data: ReadableMap, callback: Promise?) {
+  fun changeMetadata(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.changeMetadata(data, callback)
   }
 
   @ReactMethod
-  fun startScreenshare(data: ReadableMap, callback: Promise?) {
+  fun startScreenshare(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     currentActivity?.application?.registerActivityLifecycleCallbacks(this)
     val hms = HMSHelper.getHms(data, hmsCollection)
 
@@ -281,14 +356,20 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun isScreenShared(data: ReadableMap, callback: Promise?) {
+  fun isScreenShared(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.isScreenShared(callback)
   }
 
   @ReactMethod
-  fun stopScreenshare(data: ReadableMap, callback: Promise?) {
+  fun stopScreenshare(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     currentActivity?.application?.unregisterActivityLifecycleCallbacks(this)
@@ -296,7 +377,10 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun startAudioshare(data: ReadableMap, callback: Promise?) {
+  fun startAudioshare(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     currentActivity?.application?.registerActivityLifecycleCallbacks(this)
     val hms = HMSHelper.getHms(data, hmsCollection)
 
@@ -304,14 +388,20 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun isAudioShared(data: ReadableMap, callback: Promise?) {
+  fun isAudioShared(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.isAudioShared(callback)
   }
 
   @ReactMethod
-  fun stopAudioshare(data: ReadableMap, callback: Promise?) {
+  fun stopAudioshare(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     currentActivity?.application?.unregisterActivityLifecycleCallbacks(this)
@@ -319,42 +409,60 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun getAudioMixingMode(data: ReadableMap, callback: Promise?) {
+  fun getAudioMixingMode(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     callback?.resolve(hms?.getAudioMixingMode()?.name)
   }
 
   @ReactMethod
-  fun setAudioMixingMode(data: ReadableMap, callback: Promise?) {
+  fun setAudioMixingMode(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.setAudioMixingMode(data, callback)
   }
 
   @ReactMethod
-  fun startRTMPOrRecording(data: ReadableMap, callback: Promise?) {
+  fun startRTMPOrRecording(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.startRTMPOrRecording(data, callback)
   }
 
   @ReactMethod
-  fun stopRtmpAndRecording(data: ReadableMap, callback: Promise?) {
+  fun stopRtmpAndRecording(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.stopRtmpAndRecording(callback)
   }
 
   @ReactMethod
-  fun startHLSStreaming(data: ReadableMap, callback: Promise?) {
+  fun startHLSStreaming(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.startHLSStreaming(data, callback)
   }
 
   @ReactMethod
-  fun stopHLSStreaming(data: ReadableMap, callback: Promise?) {
+  fun stopHLSStreaming(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.stopHLSStreaming(callback)
@@ -368,14 +476,20 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun changeName(data: ReadableMap, callback: Promise?) {
+  fun changeName(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.changeName(data, callback)
   }
 
   @ReactMethod
-  fun destroy(data: ReadableMap, callback: Promise?) {
+  fun destroy(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val id = data.getString("id")
     hmsCollection.remove(id)
     val result: WritableMap = Arguments.createMap()
@@ -399,14 +513,20 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun getAudioDevicesList(data: ReadableMap, callback: Promise?) {
+  fun getAudioDevicesList(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.getAudioDevicesList(callback)
   }
 
   @ReactMethod
-  fun getAudioOutputRouteType(data: ReadableMap, callback: Promise?) {
+  fun getAudioOutputRouteType(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.getAudioOutputRouteType(callback)
@@ -448,28 +568,40 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun enableEvent(data: ReadableMap, promise: Promise?) {
+  fun enableEvent(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.enableEvent(data, promise)
   }
 
   @ReactMethod
-  fun disableEvent(data: ReadableMap, promise: Promise?) {
+  fun disableEvent(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.disableEvent(data, promise)
   }
 
   @ReactMethod()
-  fun restrictData(data: ReadableMap, promise: Promise?) {
+  fun restrictData(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.restrictData(data, promise)
   }
 
   @ReactMethod()
-  fun getAuthTokenByRoomCode(data: ReadableMap, promise: Promise) {
+  fun getAuthTokenByRoomCode(
+    data: ReadableMap,
+    promise: Promise,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.getAuthTokenByRoomCode(data, promise)
@@ -551,51 +683,60 @@ class HMSManager(reactContext: ReactApplicationContext) :
 
       when (code) {
         PipActionReceiver.PIPActions.localAudio.requestCode -> {
-          val audioActionIdx = pipRemoteActionsList.indexOfFirst { it is android.app.RemoteAction && it.title == PipActionReceiver.PIPActions.localAudio.title }
+          val audioActionIdx =
+            pipRemoteActionsList.indexOfFirst {
+              it is android.app.RemoteAction && it.title == PipActionReceiver.PIPActions.localAudio.title
+            }
           if (audioActionIdx >= 0) {
-            pipRemoteActionsList[audioActionIdx] = android.app.RemoteAction(
-              android.graphics.drawable.Icon.createWithResource(
-                reactApplicationContext,
-                if (hmssdk?.getLocalPeer()?.audioTrack?.isMute === true) R.drawable.ic_mic_off_24 else R.drawable.ic_mic_24,
-              ),
-              PipActionReceiver.PIPActions.localAudio.title,
-              PipActionReceiver.PIPActions.localAudio.description,
-              PendingIntent.getBroadcast(
-                reactApplicationContext,
-                PipActionReceiver.PIPActions.localAudio.requestCode,
-                Intent(PipActionReceiver.PIP_INTENT_ACTION).putExtra(PipActionReceiver.PIPActions.localAudio.title, PipActionReceiver.PIPActions.localAudio.requestCode),
-                PendingIntent.FLAG_IMMUTABLE,
-              ),
-            )
+            pipRemoteActionsList[audioActionIdx] =
+              android.app.RemoteAction(
+                android.graphics.drawable.Icon.createWithResource(
+                  reactApplicationContext,
+                  if (hmssdk?.getLocalPeer()?.audioTrack?.isMute === true) R.drawable.ic_mic_off_24 else R.drawable.ic_mic_24,
+                ),
+                PipActionReceiver.PIPActions.localAudio.title,
+                PipActionReceiver.PIPActions.localAudio.description,
+                PendingIntent.getBroadcast(
+                  reactApplicationContext,
+                  PipActionReceiver.PIPActions.localAudio.requestCode,
+                  Intent(PipActionReceiver.PIP_INTENT_ACTION).putExtra(PipActionReceiver.PIPActions.localAudio.title, PipActionReceiver.PIPActions.localAudio.requestCode),
+                  PendingIntent.FLAG_IMMUTABLE,
+                ),
+              )
           }
         }
         PipActionReceiver.PIPActions.localVideo.requestCode -> {
-          val videoActionIdx = pipRemoteActionsList.indexOfFirst { it is android.app.RemoteAction && it.title == PipActionReceiver.PIPActions.localVideo.title }
+          val videoActionIdx =
+            pipRemoteActionsList.indexOfFirst {
+              it is android.app.RemoteAction && it.title == PipActionReceiver.PIPActions.localVideo.title
+            }
           if (videoActionIdx >= 0) {
             val isVideoMute = hmssdk?.getLocalPeer()?.videoTrack?.isMute
             val updatedIcon = if (isVideoMute === true) R.drawable.ic_camera_toggle_off else R.drawable.ic_camera_toggle_on
-            pipRemoteActionsList[videoActionIdx] = android.app.RemoteAction(
-              android.graphics.drawable.Icon.createWithResource(
-                reactApplicationContext,
-                updatedIcon,
-              ),
-              PipActionReceiver.PIPActions.localVideo.title,
-              PipActionReceiver.PIPActions.localVideo.description,
-              PendingIntent.getBroadcast(
-                reactApplicationContext,
-                PipActionReceiver.PIPActions.localVideo.requestCode,
-                Intent(PipActionReceiver.PIP_INTENT_ACTION).putExtra(PipActionReceiver.PIPActions.localVideo.title, PipActionReceiver.PIPActions.localVideo.requestCode),
-                PendingIntent.FLAG_IMMUTABLE,
-              ),
-            )
+            pipRemoteActionsList[videoActionIdx] =
+              android.app.RemoteAction(
+                android.graphics.drawable.Icon.createWithResource(
+                  reactApplicationContext,
+                  updatedIcon,
+                ),
+                PipActionReceiver.PIPActions.localVideo.title,
+                PipActionReceiver.PIPActions.localVideo.description,
+                PendingIntent.getBroadcast(
+                  reactApplicationContext,
+                  PipActionReceiver.PIPActions.localVideo.requestCode,
+                  Intent(PipActionReceiver.PIP_INTENT_ACTION).putExtra(PipActionReceiver.PIPActions.localVideo.title, PipActionReceiver.PIPActions.localVideo.requestCode),
+                  PendingIntent.FLAG_IMMUTABLE,
+                ),
+              )
           }
         }
       }
 
-      val pipParams = android.app.PictureInPictureParams.Builder().let {
-        it.setActions(pipRemoteActionsList.filterIsInstance<android.app.RemoteAction>())
-        it.build()
-      }
+      val pipParams =
+        android.app.PictureInPictureParams.Builder().let {
+          it.setActions(pipRemoteActionsList.filterIsInstance<android.app.RemoteAction>())
+          it.build()
+        }
 
       activity.setPictureInPictureParams(pipParams)
     }
@@ -610,7 +751,11 @@ class HMSManager(reactContext: ReactApplicationContext) :
   )
 
   @ReactMethod
-  fun handlePipActions(action: String, data: ReadableMap, promise: Promise?) {
+  fun handlePipActions(
+    action: String,
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
       promise?.reject(Throwable("PIP mode is not supported!"))
       return
@@ -651,94 +796,97 @@ class HMSManager(reactContext: ReactApplicationContext) :
       return null
     }
 
-    val pipParams = android.app.PictureInPictureParams.Builder().let {
-      if (config.aspectRatio !== null) {
-        it.setAspectRatio(
-          Rational(
-            config.aspectRatio.first,
-            config.aspectRatio.second,
-          ),
-        )
-      }
+    val pipParams =
+      android.app.PictureInPictureParams.Builder().let {
+        if (config.aspectRatio !== null) {
+          it.setAspectRatio(
+            Rational(
+              config.aspectRatio.first,
+              config.aspectRatio.second,
+            ),
+          )
+        }
 
 //      TODO:= We need compileSdkVersion >= 31 for autoEnterEnabled
 //      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && config.autoEnterEnabled !== null)
 //        it.setAutoEnterEnabled(config.autoEnterEnabled)
 //      }
 
-      // region Setting RemoteActions on PictureInPictureParams
-      val hmssdk = getHmsInstance()[PipActionReceiver.sdkIdForPIP!!]?.hmsSDK
+        // region Setting RemoteActions on PictureInPictureParams
+        val hmssdk = getHmsInstance()[PipActionReceiver.sdkIdForPIP!!]?.hmsSDK
 
-      pipRemoteActionsList.clear()
+        pipRemoteActionsList.clear()
 
-      val localPeer = hmssdk?.getLocalPeer()
-      val allowedPublishing = localPeer?.hmsRole?.publishParams?.allowed
+        val localPeer = hmssdk?.getLocalPeer()
+        val allowedPublishing = localPeer?.hmsRole?.publishParams?.allowed
 
-      if (config.showAudioButton && allowedPublishing?.contains("audio") === true) {
-        pipRemoteActionsList.add(
-          android.app.RemoteAction(
-            android.graphics.drawable.Icon.createWithResource(
-              reactApplicationContext,
-              if (localPeer?.audioTrack?.isMute === true) R.drawable.ic_mic_off_24 else R.drawable.ic_mic_24,
+        if (config.showAudioButton && allowedPublishing?.contains("audio") === true) {
+          pipRemoteActionsList.add(
+            android.app.RemoteAction(
+              android.graphics.drawable.Icon.createWithResource(
+                reactApplicationContext,
+                if (localPeer?.audioTrack?.isMute === true) R.drawable.ic_mic_off_24 else R.drawable.ic_mic_24,
+              ),
+              PipActionReceiver.PIPActions.localAudio.title,
+              PipActionReceiver.PIPActions.localAudio.description,
+              PendingIntent.getBroadcast(
+                reactApplicationContext,
+                PipActionReceiver.PIPActions.localAudio.requestCode,
+                Intent(
+                  PipActionReceiver.PIP_INTENT_ACTION,
+                ).putExtra(PipActionReceiver.PIPActions.localAudio.title, PipActionReceiver.PIPActions.localAudio.requestCode),
+                PendingIntent.FLAG_IMMUTABLE,
+              ),
             ),
-            PipActionReceiver.PIPActions.localAudio.title,
-            PipActionReceiver.PIPActions.localAudio.description,
-            PendingIntent.getBroadcast(
-              reactApplicationContext,
-              PipActionReceiver.PIPActions.localAudio.requestCode,
-              Intent(PipActionReceiver.PIP_INTENT_ACTION).putExtra(PipActionReceiver.PIPActions.localAudio.title, PipActionReceiver.PIPActions.localAudio.requestCode),
-              PendingIntent.FLAG_IMMUTABLE,
-            ),
-          ),
-        )
-      }
+          )
+        }
 
-      if (config.showEndButton) {
-        pipRemoteActionsList.add(
-          android.app.RemoteAction(
-            android.graphics.drawable.Icon.createWithResource(reactApplicationContext, R.drawable.ic_call_end_24),
-            PipActionReceiver.PIPActions.endMeet.title,
-            PipActionReceiver.PIPActions.endMeet.description,
-            PendingIntent.getBroadcast(
-              reactApplicationContext,
-              PipActionReceiver.PIPActions.endMeet.requestCode,
-              Intent(PipActionReceiver.PIP_INTENT_ACTION).putExtra(
-                PipActionReceiver.PIPActions.endMeet.title,
+        if (config.showEndButton) {
+          pipRemoteActionsList.add(
+            android.app.RemoteAction(
+              android.graphics.drawable.Icon.createWithResource(reactApplicationContext, R.drawable.ic_call_end_24),
+              PipActionReceiver.PIPActions.endMeet.title,
+              PipActionReceiver.PIPActions.endMeet.description,
+              PendingIntent.getBroadcast(
+                reactApplicationContext,
                 PipActionReceiver.PIPActions.endMeet.requestCode,
+                Intent(PipActionReceiver.PIP_INTENT_ACTION).putExtra(
+                  PipActionReceiver.PIPActions.endMeet.title,
+                  PipActionReceiver.PIPActions.endMeet.requestCode,
+                ),
+                PendingIntent.FLAG_IMMUTABLE,
               ),
-              PendingIntent.FLAG_IMMUTABLE,
             ),
-          ),
-        )
-      }
+          )
+        }
 
-      if (config.showVideoButton && allowedPublishing?.contains("video") === true) {
-        pipRemoteActionsList.add(
-          android.app.RemoteAction(
-            android.graphics.drawable.Icon.createWithResource(
-              reactApplicationContext,
-              if (localPeer?.videoTrack?.isMute === true) R.drawable.ic_camera_toggle_off else R.drawable.ic_camera_toggle_on,
-            ),
-            PipActionReceiver.PIPActions.localVideo.title,
-            PipActionReceiver.PIPActions.localVideo.description,
-            PendingIntent.getBroadcast(
-              reactApplicationContext,
-              PipActionReceiver.PIPActions.localVideo.requestCode,
-              Intent(PipActionReceiver.PIP_INTENT_ACTION).putExtra(
-                PipActionReceiver.PIPActions.localVideo.title,
+        if (config.showVideoButton && allowedPublishing?.contains("video") === true) {
+          pipRemoteActionsList.add(
+            android.app.RemoteAction(
+              android.graphics.drawable.Icon.createWithResource(
+                reactApplicationContext,
+                if (localPeer?.videoTrack?.isMute === true) R.drawable.ic_camera_toggle_off else R.drawable.ic_camera_toggle_on,
+              ),
+              PipActionReceiver.PIPActions.localVideo.title,
+              PipActionReceiver.PIPActions.localVideo.description,
+              PendingIntent.getBroadcast(
+                reactApplicationContext,
                 PipActionReceiver.PIPActions.localVideo.requestCode,
+                Intent(PipActionReceiver.PIP_INTENT_ACTION).putExtra(
+                  PipActionReceiver.PIPActions.localVideo.title,
+                  PipActionReceiver.PIPActions.localVideo.requestCode,
+                ),
+                PendingIntent.FLAG_IMMUTABLE,
               ),
-              PendingIntent.FLAG_IMMUTABLE,
             ),
-          ),
-        )
+          )
+        }
+
+        it.setActions(pipRemoteActionsList.filterIsInstance<android.app.RemoteAction>())
+        // endregion
+
+        it.build()
       }
-
-      it.setActions(pipRemoteActionsList.filterIsInstance<android.app.RemoteAction>())
-      // endregion
-
-      it.build()
-    }
 
     return pipParams
   }
@@ -871,89 +1019,128 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun getRemoteVideoTrackFromTrackId(data: ReadableMap, promise: Promise) {
+  fun getRemoteVideoTrackFromTrackId(
+    data: ReadableMap,
+    promise: Promise,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.getRemoteVideoTrackFromTrackId(data, promise)
   }
 
   @ReactMethod
-  fun getRemoteAudioTrackFromTrackId(data: ReadableMap, promise: Promise) {
+  fun getRemoteAudioTrackFromTrackId(
+    data: ReadableMap,
+    promise: Promise,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.getRemoteAudioTrackFromTrackId(data, promise)
   }
 
   @ReactMethod
-  fun getVideoTrackLayer(data: ReadableMap, promise: Promise) {
+  fun getVideoTrackLayer(
+    data: ReadableMap,
+    promise: Promise,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.getVideoTrackLayer(data, promise)
   }
 
   @ReactMethod
-  fun getVideoTrackLayerDefinition(data: ReadableMap, promise: Promise) {
+  fun getVideoTrackLayerDefinition(
+    data: ReadableMap,
+    promise: Promise,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.getVideoTrackLayerDefinition(data, promise)
   }
 
   @ReactMethod
-  fun setVideoTrackLayer(data: ReadableMap, promise: Promise?) {
+  fun setVideoTrackLayer(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.setVideoTrackLayer(data, promise)
   }
 
   @ReactMethod
-  fun captureImageAtMaxSupportedResolution(data: ReadableMap, promise: Promise?) {
+  fun captureImageAtMaxSupportedResolution(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.captureImageAtMaxSupportedResolution(data, promise)
   }
 
   @ReactMethod
-  fun setSessionMetadataForKey(data: ReadableMap, promise: Promise?) {
+  fun setSessionMetadataForKey(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.setSessionMetadataForKey(data, promise)
   }
 
   @ReactMethod
-  fun getSessionMetadataForKey(data: ReadableMap, promise: Promise?) {
+  fun getSessionMetadataForKey(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.getSessionMetadataForKey(data, promise)
   }
 
   @ReactMethod
-  fun addKeyChangeListener(data: ReadableMap, promise: Promise?) {
+  fun addKeyChangeListener(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.addKeyChangeListener(data, promise)
   }
 
   @ReactMethod
-  fun removeKeyChangeListener(data: ReadableMap, promise: Promise?) {
+  fun removeKeyChangeListener(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.removeKeyChangeListener(data, promise)
   }
 
   @ReactMethod
-  fun getRoomLayout(data: ReadableMap, promise: Promise?) {
+  fun getRoomLayout(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.getRoomLayout(data, promise)
   }
 
-  fun emitEvent(event: String, data: WritableMap) {
+  fun emitEvent(
+    event: String,
+    data: WritableMap,
+  ) {
     reactApplicationContext
       .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
       .emit(event, data)
   }
 
-  override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
+  override fun onActivityCreated(
+    activity: Activity,
+    savedInstanceState: Bundle?,
+  ) {}
 
   override fun onActivityStarted(activity: Activity) {}
 
@@ -963,7 +1150,10 @@ class HMSManager(reactContext: ReactApplicationContext) :
 
   override fun onActivityStopped(activity: Activity) {}
 
-  override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
+  override fun onActivitySaveInstanceState(
+    activity: Activity,
+    outState: Bundle,
+  ) {}
 
   override fun onActivityDestroyed(activity: Activity) {
     try {

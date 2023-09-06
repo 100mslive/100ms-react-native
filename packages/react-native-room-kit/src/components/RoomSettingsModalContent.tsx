@@ -141,7 +141,6 @@ export const RoomSettingsModalContent: React.FC<
   };
   // #endregion
 
-
   return (
     <View>
       <BottomSheet.Header

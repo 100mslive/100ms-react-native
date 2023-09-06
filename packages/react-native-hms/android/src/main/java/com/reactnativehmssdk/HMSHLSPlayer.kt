@@ -22,83 +22,85 @@ class HMSHLSPlayer(context: ReactContext) : FrameLayout(context) {
   private var hmsHlsPlayer: HmsHlsPlayer? = null // 100ms HLS Player
   private var hmssdkInstance: HMSSDK? = null
   private var statsMonitorAttached = false
-  private val hmsHlsPlaybackEventsObject = object : HmsHlsPlaybackEvents {
-    override fun onCue(cue: HmsHlsCue) {
-      super.onCue(cue)
+  private val hmsHlsPlaybackEventsObject =
+    object : HmsHlsPlaybackEvents {
+      override fun onCue(cue: HmsHlsCue) {
+        super.onCue(cue)
 
-      val data = Arguments.createMap()
-      cue.endDate?.let { data.putString("endDate", it.time.toString()) }
-      cue.id?.let { data.putString("id", it) }
-      cue.payloadval?.let { data.putString("payloadval", it) }
-      data.putString("startDate", cue.startDate.time.toString())
+        val data = Arguments.createMap()
+        cue.endDate?.let { data.putString("endDate", it.time.toString()) }
+        cue.id?.let { data.putString("id", it) }
+        cue.payloadval?.let { data.putString("payloadval", it) }
+        data.putString("startDate", cue.startDate.time.toString())
 
-      sendHLSPlaybackEventToJS(HMSHLSPlayerConstants.ON_PLAYBACK_CUE_EVENT, data)
-    }
-
-    override fun onPlaybackFailure(error: HmsHlsException) {
-      super.onPlaybackFailure(error)
-
-      val data = Arguments.createMap()
-
-      // error
-      val errorData = Arguments.createMap()
-      errorData.putInt("errorCode", error.error.errorCode)
-      errorData.putString("errorCodeName", error.error.errorCodeName)
-      error.error.message?.let {
-        errorData.putString("message", it)
+        sendHLSPlaybackEventToJS(HMSHLSPlayerConstants.ON_PLAYBACK_CUE_EVENT, data)
       }
 
-      data.putMap("error", errorData)
+      override fun onPlaybackFailure(error: HmsHlsException) {
+        super.onPlaybackFailure(error)
 
-      sendHLSPlaybackEventToJS(HMSHLSPlayerConstants.ON_PLAYBACK_FAILURE_EVENT, data)
+        val data = Arguments.createMap()
+
+        // error
+        val errorData = Arguments.createMap()
+        errorData.putInt("errorCode", error.error.errorCode)
+        errorData.putString("errorCodeName", error.error.errorCodeName)
+        error.error.message?.let {
+          errorData.putString("message", it)
+        }
+
+        data.putMap("error", errorData)
+
+        sendHLSPlaybackEventToJS(HMSHLSPlayerConstants.ON_PLAYBACK_FAILURE_EVENT, data)
+      }
+
+      override fun onPlaybackStateChanged(state: HmsHlsPlaybackState) {
+        super.onPlaybackStateChanged(state)
+
+        val data = Arguments.createMap()
+        data.putString("state", state.name)
+        sendHLSPlaybackEventToJS(HMSHLSPlayerConstants.ON_PLAYBACK_STATE_CHANGE_EVENT, data)
+      }
     }
+  private val hmsHlsPlayerStatsListenerObject =
+    object : PlayerStatsListener {
+      override fun onError(error: HMSException) {
+        val data = Arguments.createMap()
 
-    override fun onPlaybackStateChanged(state: HmsHlsPlaybackState) {
-      super.onPlaybackStateChanged(state)
+        data.putString("action", error.action)
+        data.putInt("code", error.code)
+        data.putString("description", error.description)
+        data.putBoolean("isTerminal", error.isTerminal)
+        data.putString("message", error.message)
+        data.putString("name", error.name)
 
-      val data = Arguments.createMap()
-      data.putString("state", state.name)
-      sendHLSPlaybackEventToJS(HMSHLSPlayerConstants.ON_PLAYBACK_STATE_CHANGE_EVENT, data)
+        sendHLSStatsEventToJS(HMSHLSPlayerConstants.ON_STATS_EVENT_ERROR, data)
+      }
+
+      override fun onEventUpdate(playerStatsModel: PlayerStatsModel) {
+        val data = Arguments.createMap()
+
+        // bandwidth
+        data.putInt("bandWidthEstimate", playerStatsModel.bandwidth.bandWidthEstimate.toInt())
+        data.putInt("totalBytesLoaded", playerStatsModel.bandwidth.totalBytesLoaded.toInt())
+
+        // bufferedDuration
+        data.putInt("bufferedDuration", playerStatsModel.bufferedDuration.toInt())
+
+        // distanceFromLive
+        data.putInt("distanceFromLive", playerStatsModel.distanceFromLive.toInt())
+
+        // frameInfo
+        data.putInt("droppedFrameCount", playerStatsModel.frameInfo.droppedFrameCount)
+
+        // videoInfo
+        data.putInt("averageBitrate", playerStatsModel.videoInfo.averageBitrate)
+        data.putInt("videoHeight", playerStatsModel.videoInfo.videoHeight)
+        data.putInt("videoWidth", playerStatsModel.videoInfo.videoWidth)
+
+        sendHLSStatsEventToJS(HMSHLSPlayerConstants.ON_STATS_EVENT_UPDATE, data)
+      }
     }
-  }
-  private val hmsHlsPlayerStatsListenerObject = object : PlayerStatsListener {
-    override fun onError(error: HMSException) {
-      val data = Arguments.createMap()
-
-      data.putString("action", error.action)
-      data.putInt("code", error.code)
-      data.putString("description", error.description)
-      data.putBoolean("isTerminal", error.isTerminal)
-      data.putString("message", error.message)
-      data.putString("name", error.name)
-
-      sendHLSStatsEventToJS(HMSHLSPlayerConstants.ON_STATS_EVENT_ERROR, data)
-    }
-
-    override fun onEventUpdate(playerStatsModel: PlayerStatsModel) {
-      val data = Arguments.createMap()
-
-      // bandwidth
-      data.putInt("bandWidthEstimate", playerStatsModel.bandwidth.bandWidthEstimate.toInt())
-      data.putInt("totalBytesLoaded", playerStatsModel.bandwidth.totalBytesLoaded.toInt())
-
-      // bufferedDuration
-      data.putInt("bufferedDuration", playerStatsModel.bufferedDuration.toInt())
-
-      // distanceFromLive
-      data.putInt("distanceFromLive", playerStatsModel.distanceFromLive.toInt())
-
-      // frameInfo
-      data.putInt("droppedFrameCount", playerStatsModel.frameInfo.droppedFrameCount)
-
-      // videoInfo
-      data.putInt("averageBitrate", playerStatsModel.videoInfo.averageBitrate)
-      data.putInt("videoHeight", playerStatsModel.videoInfo.videoHeight)
-      data.putInt("videoWidth", playerStatsModel.videoInfo.videoWidth)
-
-      sendHLSStatsEventToJS(HMSHLSPlayerConstants.ON_STATS_EVENT_UPDATE, data)
-    }
-  }
 
   init {
     val inflater = getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -138,13 +140,14 @@ class HMSHLSPlayer(context: ReactContext) : FrameLayout(context) {
 
     val hlsStreamingState = this.hmssdkInstance?.getRoom()?.hlsStreamingState
 
-    val defaultURL: String? = hlsStreamingState?.let {
-      if (it.running) {
-        it.variants?.get(0)?.hlsStreamUrl
-      } else {
-        null
+    val defaultURL: String? =
+      hlsStreamingState?.let {
+        if (it.running) {
+          it.variants?.get(0)?.hlsStreamUrl
+        } else {
+          null
+        }
       }
-    }
 
     if (defaultURL !== null) {
       hmsHlsPlayer?.play(defaultURL)
@@ -215,7 +218,10 @@ class HMSHLSPlayer(context: ReactContext) : FrameLayout(context) {
     statsMonitorAttached = false
   }
 
-  private fun sendHLSPlaybackEventToJS(eventName: String, data: WritableMap) {
+  private fun sendHLSPlaybackEventToJS(
+    eventName: String,
+    data: WritableMap,
+  ) {
     val event: WritableMap = Arguments.createMap()
     event.putString("event", eventName)
     event.putMap("data", data)
@@ -224,7 +230,10 @@ class HMSHLSPlayer(context: ReactContext) : FrameLayout(context) {
     reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, HMSHLSPlayerConstants.HMS_HLS_PLAYBACK_EVENT, event)
   }
 
-  private fun sendHLSStatsEventToJS(eventName: String, data: WritableMap) {
+  private fun sendHLSStatsEventToJS(
+    eventName: String,
+    data: WritableMap,
+  ) {
     val event: WritableMap = Arguments.createMap()
     event.putString("event", eventName)
     event.putMap("data", data)
