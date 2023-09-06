@@ -158,8 +158,8 @@ export const _PeerVideoTileView = React.forwardRef<
 
         {/* 3 dots option menu */}
         {!onMoreOptionsPress ||
-        (track !== null &&
-          track!.source !== HMSTrackSource.REGULAR) ? null : insetMode ? (
+        (track &&
+          track?.source !== HMSTrackSource.REGULAR) ? null : insetMode ? (
           <UnmountAfterDelay
             ref={unmountAfterDelayRef}
             visible={mounted}
