@@ -16,10 +16,9 @@ import type { RootState } from '../redux';
 import { COLORS } from '../utils/theme';
 import { ModalTypes } from '../utils/types';
 import type { PeerTrackNode } from '../utils/types';
-import { isTileOnSpotlight } from '../utils/functions';
 import { setInsetViewMinimized, setPeerToUpdate } from '../redux/actions';
 import { useHMSRoomStyle, useModalType } from '../hooks-util';
-import { MinimizeIcon, PinIcon, StarIcon } from '../Icons';
+import { MinimizeIcon } from '../Icons';
 import { useCanPublishVideo } from '../hooks-sdk';
 import { BottomSheet } from './BottomSheet';
 
@@ -47,12 +46,7 @@ export const PeerSettingsModalContent: React.FC<
   const localPeer = useSelector(
     (state: RootState) => state.hmsStates.localPeer
   );
-  const hmsSessionStore = useSelector(
-    (state: RootState) => state.user.hmsSessionStore
-  );
-  const spotlightTrackId = useSelector(
-    (state: RootState) => state.user.spotlightTrackId
-  );
+
   const debugMode = useSelector((state: RootState) => state.user.debugMode);
   const { handleModalVisibleType: setModalVisible } = useModalType();
   const localPeerCanPublishVideo = useCanPublishVideo();
@@ -114,36 +108,6 @@ export const PeerSettingsModalContent: React.FC<
     });
   };
 
-  // Check if selected tile is "On Spotlight"
-  const { onSpotlight, tileVideoTrackId, tileAudioTrackId } = isTileOnSpotlight(
-    spotlightTrackId,
-    {
-      tileVideoTrack: peerTrackNode.track,
-      peerRegularAudioTrack: peerTrackNode.peer.audioTrack,
-      peerAuxTracks: peerTrackNode.peer.auxiliaryTracks,
-    }
-  );
-
-  const handleSpotlightPress = async () => {
-    try {
-      // Close Modal
-      cancelModal();
-
-      if (!hmsSessionStore) {
-        return null;
-      }
-
-      if (tileAudioTrackId || tileVideoTrackId) {
-        // Toggle `spotlight` key value on Session Store
-        await hmsSessionStore.set(
-          onSpotlight ? null : tileAudioTrackId || tileVideoTrackId,
-          'spotlight'
-        );
-      }
-    } catch (error) {
-      console.log('Add to spotlight error -> ', error);
-    }
-  };
 
   const { peer } = peerTrackNode;
 
@@ -164,27 +128,6 @@ export const PeerSettingsModalContent: React.FC<
 
       {/* Content */}
       <View style={styles.contentContainer}>
-        {peer.isLocal ? ( // TODO: Remove this condition later
-          <SettingItem
-            customIcon={true}
-            text={true ? 'Pin Tile for Myself' : 'Unpin Tile for Myself'}
-            icon={<PinIcon style={styles.customIcon} />}
-            disabled={true}
-            onPress={() => {}}
-          />
-        ) : null}
-
-        <SettingItem
-          customIcon={true}
-          text={
-            onSpotlight
-              ? 'Remove Spotlight for Everyone'
-              : 'Spotlight Tile for Everyone'
-          }
-          icon={<StarIcon style={styles.customIcon} />}
-          onPress={handleSpotlightPress}
-          disabled={!peerTrackNode.track?.trackId}
-        />
 
         {peer.isLocal && localPeerCanPublishVideo ? (
           <SettingItem
