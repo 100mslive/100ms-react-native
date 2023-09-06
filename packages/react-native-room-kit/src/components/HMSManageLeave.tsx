@@ -1,11 +1,9 @@
 import * as React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
-import { JoinForm_JoinBtnType } from '@100mslive/types-prebuilt/elements/join_form';
 
 import { LeaveIcon } from '../Icons';
 import {
-  useHMSLayoutConfig,
   useHMSRoomStyleSheet,
   useLeaveMethods,
 } from '../hooks-util';
@@ -155,20 +153,12 @@ const LeaveBottomSheet: React.FC<LeaveBottomSheetProps> = ({
   onEndSessionPress,
   onPopupHide,
 }) => {
-  const joinAndGoLiveBtnType = useHMSLayoutConfig((layoutConfig) => {
-    return (
-      layoutConfig?.screens?.preview?.default?.elements?.join_form
-        ?.join_btn_type === JoinForm_JoinBtnType.JOIN_BTN_TYPE_JOIN_AND_GO_LIVE
-    );
-  });
   const canEndRoom = useSelector(
     (state: RootState) => state.hmsStates.localPeer?.role?.permissions?.endRoom
   );
   const isStreaming = useSelector(
     (state: RootState) => state.hmsStates.room?.hlsStreamingState.running
   );
-
-  const showEndButton = joinAndGoLiveBtnType && canEndRoom && isStreaming;
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     text: {
@@ -221,7 +211,7 @@ const LeaveBottomSheet: React.FC<LeaveBottomSheetProps> = ({
           </View>
         </TouchableOpacity>
 
-        {showEndButton ? (
+        {canEndRoom ? (
           <TouchableOpacity
             style={[leavePopupStyles.button, hmsRoomStyles.endButton]}
             onPress={onEndSessionPress}
@@ -230,7 +220,7 @@ const LeaveBottomSheet: React.FC<LeaveBottomSheetProps> = ({
 
             <View style={leavePopupStyles.textContainer}>
               <Text style={[leavePopupStyles.text, hmsRoomStyles.endText]}>
-                {isStreaming ? 'End Stream' : 'End Session'}
+                End Session
               </Text>
               <Text
                 style={[leavePopupStyles.subtext, hmsRoomStyles.endSubtext]}

@@ -87,7 +87,7 @@ export const _PeerVideoTileView = React.forwardRef<
 
     const hmsRoomStyles = useHMSRoomStyleSheet((theme) => ({
       iconWrapperStyles: {
-        backgroundColor: hexToRgbA(theme.palette.background_dim, 0.64),
+        backgroundColor: hexToRgbA(theme.palette.background_dim!, 0.64),
       },
       avatarContainer: {
         backgroundColor: theme.palette.surface_default,
