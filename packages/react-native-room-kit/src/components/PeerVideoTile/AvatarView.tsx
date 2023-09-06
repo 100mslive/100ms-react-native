@@ -48,9 +48,20 @@ export const _AvatarView: React.FC<AvatarViewProps> = ({
             avatarContainerStyles,
           ]}
         >
-          <View style={[isInset ? styles.insetAvatar : styles.avatar, hmsRoomStyles.avatar, avatarStyles]}>
+          <View
+            style={[
+              isInset ? styles.insetAvatar : styles.avatar,
+              hmsRoomStyles.avatar,
+              avatarStyles,
+            ]}
+          >
             {showInitials ? (
-              <Text style={[isInset ? styles.insetText : styles.avatarText, hmsRoomStyles.avatarText]}>
+              <Text
+                style={[
+                  isInset ? styles.insetText : styles.avatarText,
+                  hmsRoomStyles.avatarText,
+                ]}
+              >
                 {getInitials(name)}
               </Text>
             ) : (
@@ -100,7 +111,7 @@ const styles = StyleSheet.create({
   insetText: {
     fontSize: 24,
     lineHeight: 32,
-  }
+  },
 });
 
 export const AvatarView = React.memo(_AvatarView);

@@ -53,14 +53,14 @@ const _HMSLiveIndicator = () => {
   }));
 
   const showParticipantList = () => {
-      if (isHLSViewer) {
-        setModalVisible(ModalTypes.PARTICIPANTS);
-      } else {
-        batch(() => {
-          dispatch(setActiveChatBottomSheetTab('Participants'));
-          dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: true });
-        });
-      }
+    if (isHLSViewer) {
+      setModalVisible(ModalTypes.PARTICIPANTS);
+    } else {
+      batch(() => {
+        dispatch(setActiveChatBottomSheetTab('Participants'));
+        dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: true });
+      });
+    }
   };
 
   if (!live) {
