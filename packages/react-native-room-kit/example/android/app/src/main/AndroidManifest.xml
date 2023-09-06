@@ -59,6 +59,8 @@
             <data android:scheme="100ms" android:host=""/>
         </intent-filter>
       </activity>
-        <service android:name="com.voximplant.foregroundservice.VIForegroundService"> </service>
+        <service android:name="com.voximplant.foregroundservice.VIForegroundService"
+                 android:foregroundServiceType="camera|microphone"
+                 android:stopWithTask="true" > </service>
     </application>
 </manifest>
