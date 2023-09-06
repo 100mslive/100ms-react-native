@@ -4,6 +4,7 @@ import {
   SafeAreaInsetsContext,
   SafeAreaProvider,
 } from 'react-native-safe-area-context';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 
 import { store } from './redux/index';
 import { HMSContainer } from './HMSContainer';
@@ -34,19 +35,21 @@ const _HMSPrebuilt: React.FC<HMSPrebuiltProps> = (props) => {
   // We just want to check if SafeAreaProvider exists or not
   const safeAreaProviderExists = !!SafeAreaInsetsContext.Consumer._currentValue;
 
-  if (safeAreaProviderExists) {
-    return (
+  const content = (
+    <KeyboardProvider>
       <Provider store={store}>
         <HMSContainer />
       </Provider>
-    );
+    </KeyboardProvider>
+  );
+
+  if (safeAreaProviderExists) {
+    return content;
   }
 
   return (
     <SafeAreaProvider>
-      <Provider store={store}>
-        <HMSContainer />
-      </Provider>
+      {content}
     </SafeAreaProvider>
   );
 };

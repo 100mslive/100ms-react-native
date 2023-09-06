@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { View } from 'react-native';
 
 import { ChatIcon } from '../Icons';
 import { PressableIcon } from './PressableIcon';
@@ -11,13 +10,11 @@ export const HMSChat = () => {
   const toggleChatWindow = () => setChatVisible(chatVisibleType === 'none');
 
   return (
-    <View>
-      <PressableIcon
-        onPress={toggleChatWindow}
-        active={chatVisibleType === 'inset'}
-      >
-        <ChatIcon />
-      </PressableIcon>
-    </View>
+    <PressableIcon
+      onPress={toggleChatWindow}
+      active={chatVisibleType === 'inset'}
+    >
+      <ChatIcon />
+    </PressableIcon>
   );
 };
