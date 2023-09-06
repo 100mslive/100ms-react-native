@@ -11,6 +11,9 @@ import type { HMSPrebuiltProps } from '@100mslive/react-native-room-kit';
 
 import { AppStackParamList } from '../../navigator';
 
+import  VIForegroundService from '@voximplant/react-native-foreground-service';
+
+
 export const HMSPrebuiltScreen = () => {
   const navigation = useNavigation<NavigationProp<AppStackParamList>>();
   const screenParams =
@@ -18,7 +21,10 @@ export const HMSPrebuiltScreen = () => {
 
   // function to be called when meeting is ended
   const handleMeetingLeave = useCallback(() => {
-    navigation.navigate('QRCodeScreen');
+    VIForegroundService.getInstance().stopService().then((result: any) => {
+      console.log('Stopped Android Foreground service: ', result);
+      navigation.navigate('QRCodeScreen');
+    });
   }, []);
 
   // room code of the HMSRoom
@@ -43,6 +49,36 @@ export const HMSPrebuiltScreen = () => {
       },
     }),
     [screenParams]
+  );
+
+  const androidForegroundServiceChannelConfig = {
+    id: 'MyAppChannelID',
+    name: 'My App Channel name',
+    enableVibration: true,
+    importance: 5,
+  };
+  VIForegroundService.getInstance().createNotificationChannel(
+    androidForegroundServiceChannelConfig
+  ).then((r: any) => console.log('Created Android Foreground Service channel', r));
+
+  const startAndroidForegroundService = async () => {
+    const notificationConfig = {
+      channelId: 'MyAppChannelID',
+      id: 1000,
+      title: 'Foreground Service',
+      text: 'Starting Android Foreground Service now',
+      icon: '../assets/100ms-logo.png',
+      priority: 2,
+    };
+    try {
+      VIForegroundService.getInstance().startService(notificationConfig);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  startAndroidForegroundService().then(() =>
+    console.log('Android Foreground service started')
   );
 
   // Room Code is required to join the room
