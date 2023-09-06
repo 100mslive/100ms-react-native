@@ -112,6 +112,7 @@ export const _PeerVideoTileView = React.forwardRef<
           avatarContainerStyles={
             insetMode ? hmsRoomStyles.avatarContainer : null
           }
+          isInset={insetMode}
           videoView={
             showingVideoTrack ? (
               <VideoView

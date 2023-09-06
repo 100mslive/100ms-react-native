@@ -13,6 +13,7 @@ export interface AvatarViewProps {
   videoView: React.ReactElement<typeof VideoView> | null;
   avatarStyles?: StyleProp<ViewStyle>;
   avatarContainerStyles?: StyleProp<ViewStyle>;
+  isInset?: boolean;
 }
 
 export const _AvatarView: React.FC<AvatarViewProps> = ({
@@ -20,6 +21,7 @@ export const _AvatarView: React.FC<AvatarViewProps> = ({
   videoView,
   avatarStyles,
   avatarContainerStyles,
+  isInset = false,
 }) => {
   const showInitials = !!name && name.length > 0;
 
@@ -46,9 +48,9 @@ export const _AvatarView: React.FC<AvatarViewProps> = ({
             avatarContainerStyles,
           ]}
         >
-          <View style={[styles.avatar, hmsRoomStyles.avatar, avatarStyles]}>
+          <View style={[isInset ? styles.insetAvatar : styles.avatar, hmsRoomStyles.avatar, avatarStyles]}>
             {showInitials ? (
-              <Text style={[styles.avatarText, hmsRoomStyles.avatarText]}>
+              <Text style={[isInset ? styles.insetText : styles.avatarText, hmsRoomStyles.avatarText]}>
                 {getInitials(name)}
               </Text>
             ) : (
@@ -79,6 +81,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  insetAvatar: {
+    width: 64,
+    aspectRatio: 1,
+    borderRadius: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   avatarIcon: {
     width: 40,
     height: 40,
@@ -88,6 +97,10 @@ const styles = StyleSheet.create({
     lineHeight: 40,
     letterSpacing: 0.25,
   },
+  insetText: {
+    fontSize: 24,
+    lineHeight: 32,
+  }
 });
 
 export const AvatarView = React.memo(_AvatarView);
