@@ -6,7 +6,7 @@ import {
   Platform,
   TouchableOpacity,
 } from 'react-native';
-import { useSelector } from 'react-redux';
+import { batch, useDispatch, useSelector } from 'react-redux';
 
 import {
   useHMSRoomStyleSheet,
@@ -17,8 +17,10 @@ import { EyeIcon } from '../Icons';
 import { hexToRgbA } from '../utils/theme';
 import type { RootState } from '../redux';
 import { ModalTypes } from '../utils/types';
+import { setActiveChatBottomSheetTab } from '../redux/actions';
 
 const _HMSLiveIndicator = () => {
+  const dispatch = useDispatch();
   const isHLSViewer = useIsHLSViewer();
   const previewPeerCount = useSelector(
     (state: RootState) => state.hmsStates.room?.peerCount
