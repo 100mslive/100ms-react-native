@@ -10,7 +10,6 @@ import {
   BRBIcon,
   HandIcon,
   ParticipantsIcon,
-  PencilIcon,
   RecordingIcon,
   ScreenShareIcon,
 } from '../Icons';
@@ -142,17 +141,6 @@ export const RoomSettingsModalContent: React.FC<
   };
   // #endregion
 
-  // #region Change Name functions
-  const changeName = () => {
-    // Register callback to be called when bottom sheet is hiddden
-    registerOnModalHideAction(() => {
-      setModalVisible(ModalTypes.CHANGE_NAME);
-    });
-
-    // Close the current bottom sheet
-    closeRoomSettingsModal();
-  };
-  // #endregion
 
   return (
     <View>
@@ -208,14 +196,6 @@ export const RoomSettingsModalContent: React.FC<
               pressHandler: handleRecordingTogglePress,
               isActive: !!isRecordingOn,
               hide: !canStartRecording, // Hide if can't publish screen
-            },
-            {
-              id: 'change-name',
-              icon: <PencilIcon style={{ width: 20, height: 20 }} />,
-              label: 'Change Name',
-              pressHandler: changeName,
-              isActive: false,
-              hide: false,
             },
           ].filter((itm) => !itm.hide),
           true

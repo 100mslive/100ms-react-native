@@ -48,11 +48,6 @@ export const ChangeNameModalContent: React.FC<ChangeNameModalContentProps> = ({
   const handleBackPress = () => {
     Keyboard.dismiss();
 
-    // Open SETTINGS bottom sheet when current sheet is closed
-    registerOnModalHideAction(() => {
-      handleModalVisibleType(ModalTypes.SETTINGS);
-    });
-
     // Close current bottom sheet
     dismissModal();
   };

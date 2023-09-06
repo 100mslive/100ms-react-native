@@ -18,7 +18,7 @@ import { ModalTypes } from '../utils/types';
 import type { PeerTrackNode } from '../utils/types';
 import { setInsetViewMinimized, setPeerToUpdate } from '../redux/actions';
 import { useHMSRoomStyle, useModalType } from '../hooks-util';
-import { MinimizeIcon } from '../Icons';
+import { MinimizeIcon, PencilIcon } from '../Icons';
 import { useCanPublishVideo } from '../hooks-sdk';
 import { BottomSheet } from './BottomSheet';
 
@@ -86,12 +86,9 @@ export const PeerSettingsModalContent: React.FC<
     );
   };
 
-  // const changeName = () => {
-  //   batch(() => {
-  //     dispatch(setPeerToUpdate(peerTrackNode.peer));
-  //     setModalVisible(ModalTypes.CHANGE_NAME, true);
-  //   });
-  // };
+  const changeName = () => {
+    setModalVisible(ModalTypes.CHANGE_NAME, true);
+  };
 
   const handleMinimizeVideoPress = () => {
     cancelModal();
@@ -128,6 +125,15 @@ export const PeerSettingsModalContent: React.FC<
 
       {/* Content */}
       <View style={styles.contentContainer}>
+
+        {peer.isLocal ? (
+          <SettingItem
+            customIcon={true}
+            text={'Change Name'}
+            icon={<PencilIcon style={styles.customIcon} />}
+            onPress={changeName}
+          />
+        ) : null}
 
         {peer.isLocal && localPeerCanPublishVideo ? (
           <SettingItem
@@ -198,15 +204,6 @@ export const PeerSettingsModalContent: React.FC<
           />
         ) : null}
 
-        {/* {peer.isLocal ? (
-          <SettingItem
-            text="Change Name"
-            IconType={MaterialCommunityIcons}
-            iconName={'account-edit-outline'}
-            onPress={() => changeName()}
-          />
-        ) : null} */}
-
         {debugMode && !peer.isLocal && localPeerPermissions?.changeRole ? (
           <SettingItem
             text="Change Role"
@@ -226,7 +223,7 @@ export const PeerSettingsModalContent: React.FC<
             IconType={MaterialCommunityIcons}
             iconName={'cellphone-screenshot'}
             onPress={() => onCaptureScreenShotPress(peerTrackNode)}
-            disabled={!peerTrackNode.track || peerTrackNode.track.isMute()} // Capture Screenshot option should be disable, if track is muted or not available
+            disabled={!peerTrackNode.track || peerTrackNode.track.isMute()} // Capture Screenshot option should be disabled, if track is muted or not available
           />
         )}
 
@@ -239,7 +236,7 @@ export const PeerSettingsModalContent: React.FC<
             onPress={() =>
               onCaptureImageAtMaxSupportedResolutionPress(peerTrackNode)
             }
-            disabled={!peerTrackNode.track || peerTrackNode.track.isMute()} // Local Image Capture option should be disable, if track is muted or not available
+            disabled={!peerTrackNode.track || peerTrackNode.track.isMute()} // Local Image Capture option should be disabled, if track is muted or not available
           />
         ) : null}
 
