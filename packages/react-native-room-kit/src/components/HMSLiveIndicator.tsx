@@ -1,11 +1,22 @@
 import * as React from 'react';
-import { StyleSheet, View, Text, Platform } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  Platform,
+  TouchableOpacity,
+} from 'react-native';
 import { useSelector } from 'react-redux';
 
-import { useHMSRoomStyleSheet, useIsHLSViewer } from '../hooks-util';
+import {
+  useHMSRoomStyleSheet,
+  useIsHLSViewer,
+  useModalType,
+} from '../hooks-util';
 import { EyeIcon } from '../Icons';
 import { hexToRgbA } from '../utils/theme';
 import type { RootState } from '../redux';
+import { ModalTypes } from '../utils/types';
 
 const _HMSLiveIndicator = () => {
   const isHLSViewer = useIsHLSViewer();
@@ -15,6 +26,8 @@ const _HMSLiveIndicator = () => {
   const live = useSelector(
     (state: RootState) => !!state.hmsStates.room?.hlsStreamingState.running
   );
+
+  const { handleModalVisibleType: setModalVisible } = useModalType();
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typograhy) => ({
     live: {
@@ -26,7 +39,7 @@ const _HMSLiveIndicator = () => {
     },
     viewers: {
       backgroundColor: isHLSViewer
-        ? hexToRgbA(theme.palette.background_dim, 0.64)
+        ? hexToRgbA(theme.palette.background_dim!, 0.64)
         : undefined,
       borderWidth: isHLSViewer ? 0 : 1,
       borderColor: theme.palette.border_bright,
@@ -36,6 +49,10 @@ const _HMSLiveIndicator = () => {
       fontFamily: `${typograhy.font_family}-SemiBold`,
     },
   }));
+
+  const showParticipantList = () => {
+    setModalVisible(ModalTypes.PARTICIPANTS);
+  };
 
   if (!live) {
     return null;
@@ -50,13 +67,16 @@ const _HMSLiveIndicator = () => {
 
       {/* Viewer Count */}
       {typeof previewPeerCount === 'number' ? (
-        <View style={[styles.viewers, hmsRoomStyles.viewers]}>
+        <TouchableOpacity
+          style={[styles.viewers, hmsRoomStyles.viewers]}
+          onPress={showParticipantList}
+        >
           <EyeIcon />
 
           <Text style={[styles.count, hmsRoomStyles.count]}>
             {previewPeerCount}
           </Text>
-        </View>
+        </TouchableOpacity>
       ) : null}
     </View>
   );
