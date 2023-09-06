@@ -53,9 +53,9 @@ export const RoomSettingsModalContent: React.FC<
 
   const { registerOnModalHideAction } = useBottomSheetActions();
 
-  // #region Participants realted states and functions
+  // #region Participants related states and functions
   const onParticipantsPress = () => {
-    // Register callback to be called when bottom sheet is hiddden
+    // Register callback to be called when bottom sheet is hidden
     registerOnModalHideAction(() => {
       if (isHLSViewer) {
         setModalVisible(ModalTypes.PARTICIPANTS);
