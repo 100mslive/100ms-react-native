@@ -32,16 +32,9 @@ const _ChatMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
 
   return (
     <View style={styles.container}>
-      <View
-        style={[
-          styles.nameWrapper,
-        ]}
-      >
+      <View style={[styles.nameWrapper]}>
         <Text
-          style={[
-            styles.senderName,
-            hmsRoomStyles.senderName,
-          ]}
+          style={[styles.senderName, hmsRoomStyles.senderName]}
           numberOfLines={1}
         >
           {messageSender
@@ -51,22 +44,12 @@ const _ChatMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
             : 'Anonymous'}
         </Text>
 
-        <Text
-          style={[
-            styles.time,
-            hmsRoomStyles.time,
-          ]}
-        >
+        <Text style={[styles.time, hmsRoomStyles.time]}>
           {getTimeStringin12HourFormat(message.time)}
         </Text>
       </View>
 
-      <Text
-        style={[
-          styles.message,
-          hmsRoomStyles.message,
-        ]}
-      >
+      <Text style={[styles.message, hmsRoomStyles.message]}>
         {message.message}
       </Text>
     </View>
