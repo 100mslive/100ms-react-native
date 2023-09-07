@@ -10,7 +10,6 @@ interface HMSHLSMessageProps {
 
 const _HMSHLSMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
   const messageSender = message.sender;
-  const isMessageSenderLocal = !!messageSender?.isLocal;
 
   const hmsRoomStyles = useHMSRoomStyleSheet(
     (_theme, typography) => ({
@@ -34,7 +33,6 @@ const _HMSHLSMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
         style={[
           styles.senderName,
           hmsRoomStyles.senderName,
-          isMessageSenderLocal ? styles.textAlignRight : null,
         ]}
         numberOfLines={1}
       >
@@ -49,7 +47,6 @@ const _HMSHLSMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
         style={[
           styles.message,
           hmsRoomStyles.message,
-          isMessageSenderLocal ? styles.textAlignRight : null,
         ]}
       >
         {message.message}
@@ -79,8 +76,5 @@ const styles = StyleSheet.create({
     marginTop: 2,
     textShadowOffset: { height: 0.5, width: 0.5 },
     textShadowRadius: 2,
-  },
-  textAlignRight: {
-    textAlign: 'right',
   },
 });

@@ -11,7 +11,6 @@ interface HMSHLSMessageProps {
 
 const _ChatMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
   const messageSender = message.sender;
-  const isMessageSenderLocal = !!messageSender?.isLocal;
 
   const hmsRoomStyles = useHMSRoomStyleSheet(
     (theme, typography) => ({
@@ -36,14 +35,12 @@ const _ChatMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
       <View
         style={[
           styles.nameWrapper,
-          isMessageSenderLocal ? styles.nameWrapperAlignRight : null,
         ]}
       >
         <Text
           style={[
             styles.senderName,
             hmsRoomStyles.senderName,
-            isMessageSenderLocal ? styles.textAlignRight : null,
           ]}
           numberOfLines={1}
         >
@@ -58,7 +55,6 @@ const _ChatMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
           style={[
             styles.time,
             hmsRoomStyles.time,
-            isMessageSenderLocal ? styles.textAlignRight : null,
           ]}
         >
           {getTimeStringin12HourFormat(message.time)}
@@ -69,7 +65,6 @@ const _ChatMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
         style={[
           styles.message,
           hmsRoomStyles.message,
-          isMessageSenderLocal ? styles.textAlignRight : null,
         ]}
       >
         {message.message}
@@ -90,9 +85,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-end',
   },
-  nameWrapperAlignRight: {
-    justifyContent: 'flex-end',
-  },
   senderName: {
     fontSize: 14,
     lineHeight: Platform.OS === 'android' ? 20 : undefined,
@@ -109,8 +101,5 @@ const styles = StyleSheet.create({
     lineHeight: Platform.OS === 'android' ? 20 : undefined,
     letterSpacing: 0.25,
     marginTop: 8,
-  },
-  textAlignRight: {
-    textAlign: 'right',
   },
 });
