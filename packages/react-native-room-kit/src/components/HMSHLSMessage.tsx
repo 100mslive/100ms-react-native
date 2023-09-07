@@ -10,7 +10,6 @@ interface HMSHLSMessageProps {
 
 const _HMSHLSMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
   const messageSender = message.sender;
-  const isMessageSenderLocal = !!messageSender?.isLocal;
 
   const hmsRoomStyles = useHMSRoomStyleSheet(
     (_theme, typography) => ({
