@@ -76,7 +76,6 @@ export const HMSRoomSetup = () => {
   );
   const [peerTrackNodes, setPeerTrackNodes] = useState<PeerTrackNode[]>([]);
   const [loading, setLoading] = useState(false);
-  const { goToPreview } = useLeaveMethods();
 
   const joinMeeting = useCallback(async () => {
     setLoading(true);
@@ -305,31 +304,15 @@ export const HMSRoomSetup = () => {
     }
   }, [meetingEnded]);
 
+  const { leave } = useLeaveMethods(true);
+
   useEffect(() => {
     return () => {
       ignoreHLSStreamPromise.current = true;
-
-      // TODOS:
-      // - Check If we have already left meeting, or destroyed native HMSSDK
-      //    - No need to reset redux state?
-      //    - HMSInstance will be available till this point
-      //    - If we have callback fn, call it
-      //    - When we are navigated away from screen, HMSInstance will be not available
-      // - Otherwise
-      //    - call leave method, if not called
-      //    - call destroy method, if not called
-      //    - Reset Redux States or No need?
-      //    - If we have callback fn, call it
-      //    - When we are navigated away from screen, HMSInstance will be not available
-      hmsInstance.leave().finally(() => {
-        hmsInstance.destroy();
-        dispatch(clearStore());
-      });
-      //dispatch(clearHmsReference());
-      // dispatch(clearMessageData());
-      // dispatch(clearPeerData());
+      leave();
+      dispatch(clearStore());
     };
-  }, [hmsInstance]);
+  }, []);
 
   const emptyViewStyles = useHMSRoomStyle((theme) => ({
     backgroundColor: theme.palette.background_dim,

@@ -1140,8 +1140,8 @@ export const useHMSPIPRoomLeave = () => {
   const { destroy } = useLeaveMethods(true);
 
   useEffect(() => {
-    const pipRoomLeaveHandler = async () => {
-      await destroy();
+    const pipRoomLeaveHandler = () => {
+       destroy();
     };
 
     hmsInstance.addEventListener(
@@ -1160,8 +1160,8 @@ export const useHMSRemovedFromRoomUpdate = () => {
   const { destroy } = useLeaveMethods(true);
 
   useEffect(() => {
-    const removedFromRoomHandler = async () => {
-      await destroy();
+    const removedFromRoomHandler = () => {
+      destroy();
     };
 
     hmsInstance.addEventListener(
@@ -1756,9 +1756,9 @@ export const useLeaveMethods = (isUnmounted: boolean) => {
   const dispatch = useDispatch();
   const reduxStore = useStore<RootState>();
 
-  const destroy = useCallback(async () => {
+  const destroy = useCallback(() => {
     try {
-      const s = await hmsInstance.destroy();
+      const s = hmsInstance.destroy();
       console.log('Destroy Success: ', s);
       // TODOS:
       // - If show `Meeting_Ended` is true, show Meeting screen by setting state to MEETING_ENDED
