@@ -37,7 +37,7 @@ const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
     ModalTypes.DEFAULT
   );
 
-  const { leave } = useLeaveMethods();
+  const { leave } = useLeaveMethods(false);
 
   /**
    * Opens the Leave Popup Menu
@@ -50,9 +50,9 @@ const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
    * Closes the Leave Popup Menu
    * Leave Modal will open after the popup is hidden
    */
-  const handleLeavePress = () => {
+  const handleLeavePress = async () => {
     setLeavePopVisible(false);
-    leave();
+    await leave();
   };
 
   /**

@@ -17,7 +17,7 @@ import { batch, useDispatch } from 'react-redux';
 import { getJoinConfig } from './utils';
 import { saveUserData, setHMSInstance } from './redux/actions';
 import { FullScreenIndicator } from './components/FullScreenIndicator';
-import { clearConfig } from './hooks-util';
+import { clearConfig, useLeaveMethods } from './hooks-util';
 import { store } from './redux';
 import type { HMSIOSScreenShareConfig } from './utils/types';
 
@@ -131,6 +131,7 @@ const getHmsInstance = async (): Promise<HMSSDK> => {
 
 export const HMSInstanceSetup = () => {
   const dispatch = useDispatch();
+  const { leave } = useLeaveMethods(true);
 
   useEffect(() => {
     let ignore = false;
@@ -138,7 +139,7 @@ export const HMSInstanceSetup = () => {
     const setupHMSInstance = async () => {
       clearConfig();
       getHmsInstance()
-        .then((hmssdkInstance) => {
+        .then(async (hmssdkInstance) => {
           if (!ignore) {
             // If this component is mounted
             // save instance in store
@@ -149,8 +150,8 @@ export const HMSInstanceSetup = () => {
             });
           } else {
             // If this component is not mounted when this response is received
-            // that means Root componnet is unmounted, we can destroy instance safely
-            hmssdkInstance.leave().finally(() => hmssdkInstance.destroy());
+            // that means Root component is unmounted, we can destroy instance safely
+            await leave();
           }
         })
         .catch((error) => {
