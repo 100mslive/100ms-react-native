@@ -31,12 +31,12 @@ import {
   useIsHLSViewer,
   useModalType,
 } from '../hooks-util';
-import { ParticipantsModal } from './ParticipantsModal';
 import { WebrtcView } from './WebrtcView';
 import { BottomSheet } from './BottomSheet';
 import { FullScreenVideoView } from './FullScreenVideoView';
 import { PreviewForRoleChangeModal } from './PreviewForRoleChangeModal';
 import { ChatAndParticipantsBottomSheet } from './ChatAndParticipants';
+import { ParticipantsBottomSheet } from './ParticipantsBottomSheet';
 
 type CapturedImagePath = { uri: string } | null;
 
@@ -155,7 +155,11 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
 
           <FullScreenVideoView />
 
-          <ChatAndParticipantsBottomSheet />
+          {isHLSViewer ? (
+            <ParticipantsBottomSheet />
+          ) : (
+            <ChatAndParticipantsBottomSheet />
+          )}
 
           <BottomSheet
             isVisible={modalVisible === ModalTypes.PEER_SETTINGS}
@@ -222,14 +226,6 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
                 cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
               />
             ) : null}
-          </DefaultModal>
-          <DefaultModal
-            animationIn={'slideInUp'}
-            animationOut={'slideOutDown'}
-            modalVisible={modalVisible === ModalTypes.PARTICIPANTS}
-            setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
-          >
-            <ParticipantsModal />
           </DefaultModal>
           <DefaultModal
             modalPosiion="center"

@@ -58,7 +58,9 @@ import {
   addMessage,
   addNotification,
   addPinnedMessage,
+  addRemoveParticipant,
   addScreenshareTile,
+  addUpdateParticipant,
   changeMeetingState,
   changePipModeStatus,
   changeStartingHLSStream,
@@ -243,9 +245,12 @@ const useHMSPeersUpdate = (
 
       // Handle State for Meeting screen
       if (type === HMSPeerUpdate.PEER_JOINED) {
+        dispatch(addRemoveParticipant(peer));
         return;
       }
       if (type === HMSPeerUpdate.PEER_LEFT) {
+        dispatch(addRemoveParticipant(peer));
+
         // Handling regular tiles list
         setPeerTrackNodes((prevPeerTrackNodes) =>
           removePeerTrackNodes(prevPeerTrackNodes, peer)
@@ -317,6 +322,8 @@ const useHMSPeersUpdate = (
         return;
       }
       if (type === HMSPeerUpdate.ROLE_CHANGED) {
+        dispatch(addUpdateParticipant(peer));
+
         // Handling regular tiles list
         if (
           peer.role?.publishSettings?.allowed === undefined ||
@@ -371,6 +378,8 @@ const useHMSPeersUpdate = (
         type === HMSPeerUpdate.NAME_CHANGED ||
         type === HMSPeerUpdate.NETWORK_QUALITY_UPDATED
       ) {
+        dispatch(addUpdateParticipant(peer));
+
         const reduxState = store.getState();
 
         if (type === HMSPeerUpdate.METADATA_CHANGED) {
@@ -1519,75 +1528,234 @@ export const useLandscapeChatViewVisible = () => {
   return pipModeNotActive && isLandscapeOrientation && chatVisible === 'inset';
 };
 
+export type ParticipantHeaderData = {
+  label: string;
+  role: HMSRole;
+  itemsLength: number;
+};
+
+export type ParticipantHandRaisedHeaderData = {
+  label: string;
+  itemsLength: number;
+};
+
+export type ListItemUI<
+  T =
+    | ParticipantHeaderData
+    | HMSLocalPeer
+    | HMSPeer
+    | ParticipantHandRaisedHeaderData,
+> = {
+  type: 'EXPANDED_HEADER' | 'COLLAPSED_HEADER' | 'LAST_ITEM' | 'REGULAR_ITEM';
+  data: T;
+  key: string;
+};
+
 export const useFilteredParticipants = () => {
-  const hmsInstance = useHMSInstance();
+  const roles = useSelector((state: RootState) => state.hmsStates.roles);
+  const onStageRole = useHMSLayoutConfig(
+    (layoutConfig) =>
+      layoutConfig?.screens?.conferencing?.default?.elements?.on_stage_exp
+        ?.on_stage_role || null
+  );
+
+  const [searchText, setSearchText] = useState('');
+  const formattedSearchText = searchText.trim().toLowerCase();
+
   const localPeer = useSelector(
     (state: RootState) => state.hmsStates.localPeer
   );
-  const [filter, setFilter] = useState('everyone');
-  const [participantsSearchInput, setParticipantsSearchInput] = useState('');
-  const [hmsPeers, setHmsPeers] = useState<(HMSLocalPeer | HMSRemotePeer)[]>(
-    localPeer ? [localPeer] : []
+  const remoteParticipants = useSelector(
+    (state: RootState) => state.hmsStates.remoteParticipants
   );
 
-  const formattedParticipantsSearchInput = participantsSearchInput
-    .trim()
-    .toLowerCase();
-
-  const filteredPeerTrackNodes = useMemo(() => {
-    const newFilteredPeerTrackNodes = hmsPeers?.filter((peer) => {
-      if (
-        formattedParticipantsSearchInput.length < 1 ||
-        peer.name.toLowerCase().includes(participantsSearchInput) ||
-        peer.role?.name?.includes(participantsSearchInput)
-      ) {
-        return true;
-      }
-      return false;
-    });
-
-    if (filter === 'everyone') {
-      return newFilteredPeerTrackNodes;
-    }
-
-    if (filter === 'raised hand') {
-      return newFilteredPeerTrackNodes.filter((peer) => {
-        const parsedMetaData = parseMetadata(peer.metadata);
-        return parsedMetaData.isHandRaised === true;
-      });
-    }
-
-    return newFilteredPeerTrackNodes.filter(
-      (peer) => peer.role?.name === filter
+  const peerGroups = useMemo(() => {
+    return groupPeersAsPerRole(
+      remoteParticipants,
+      localPeer,
+      formattedSearchText
     );
-  }, [formattedParticipantsSearchInput, filter, hmsPeers]);
+  }, [formattedSearchText, localPeer, remoteParticipants]);
 
-  useEffect(() => {
-    let ignore = false;
-
-    hmsInstance.getRemotePeers().then((peers) => {
-      if (localPeer) {
-        InteractionManager.runAfterInteractions(() => {
-          if (!ignore) {
-            setHmsPeers([localPeer, ...peers]);
+  const sortedRoles = useMemo(() => {
+    return roles
+      .filter((role) => peerGroups.has(role.name!))
+      .sort((a, b) => {
+        if (onStageRole) {
+          if (a.name === onStageRole && b.name === onStageRole) {
+            return 0;
           }
+
+          if (a.name === onStageRole) {
+            return -1;
+          }
+
+          if (b.name === onStageRole) {
+            return 1;
+          }
+        }
+
+        const canAPublish: boolean =
+          (a.publishSettings?.allowed &&
+            a.publishSettings.allowed.length > 0) ??
+          false;
+        const canBPublish: boolean =
+          (b.publishSettings?.allowed &&
+            b.publishSettings.allowed.length > 0) ??
+          false;
+
+        if (canAPublish && canBPublish) {
+          return 0;
+        }
+
+        if (canAPublish) {
+          return -1;
+        }
+
+        return 1;
+      });
+  }, [peerGroups, onStageRole, roles]);
+
+  const firstGroupName = peerGroups.has('hand-raised')
+    ? 'hand-raised'
+    : sortedRoles[0]?.name;
+
+  const [expandedGroups, setExpandedGroups] = useState<string[]>(
+    firstGroupName ? [firstGroupName] : []
+  );
+
+  const groupedList = useMemo(() => {
+    let list: ListItemUI[] = [];
+
+    const handRaisedPeers = peerGroups.get('hand-raised');
+
+    if (handRaisedPeers) {
+      const expanded = expandedGroups.includes('hand-raised');
+
+      list.push({
+        type: expanded ? 'EXPANDED_HEADER' : 'COLLAPSED_HEADER',
+        key: 'hand-raised',
+        data: {
+          label: `Hand Raised (${handRaisedPeers.length})`,
+          itemsLength: handRaisedPeers.length,
+        },
+      });
+
+      if (expanded) {
+        list = list.concat(
+          handRaisedPeers.map((peer, idx, arr) => {
+            const isLast = arr.length - 1 === idx;
+
+            return {
+              data: peer,
+              key: `${peer.peerID}--${'hand-raised'}`,
+              type: isLast ? 'LAST_ITEM' : 'REGULAR_ITEM',
+            };
+          })
+        );
+      }
+    }
+
+    sortedRoles.forEach((role) => {
+      const peers = peerGroups.get(role.name!);
+
+      if (peers) {
+        const expanded = expandedGroups.includes(role.name!);
+
+        list.push({
+          type: expanded ? 'EXPANDED_HEADER' : 'COLLAPSED_HEADER',
+          key: role.name!,
+          data: {
+            label: `${role.name!} (${peers.length})`,
+            role: role,
+            itemsLength: peers.length,
+          },
         });
+
+        if (expanded) {
+          list = list.concat(
+            peers.map((peer, idx, arr) => {
+              const isLast = arr.length - 1 === idx;
+
+              return {
+                data: peer,
+                key: `${peer.peerID}--${role.name!}`,
+                type: isLast ? 'LAST_ITEM' : 'REGULAR_ITEM',
+              };
+            })
+          );
+        }
       }
     });
 
-    return () => {
-      ignore = true;
-    };
-  }, [localPeer, hmsInstance]);
+    return list;
+  }, [expandedGroups, peerGroups, sortedRoles]);
 
   return {
-    allParticipants: hmsPeers,
-    filteredParticipants: filteredPeerTrackNodes,
-    selectedFilter: filter,
-    changeFilter: setFilter,
-    searchText: participantsSearchInput,
-    setSearchText: setParticipantsSearchInput,
+    data: groupedList,
+    searchText,
+    formattedSearchText,
+    setSearchText,
+    expandedGroups,
+    setExpandedGroups,
   };
+};
+
+const groupPeersAsPerRole = (
+  remotePeers: HMSPeer[],
+  localPeer: HMSLocalPeer | null,
+  searchText: string
+) => {
+  const groups: Map<string, (HMSLocalPeer | HMSPeer)[]> = new Map();
+
+  if (
+    localPeer && // local peer should exist
+    localPeer.role && // local peer should have a valid role
+    (searchText.length <= 0 ||
+      localPeer.name.toLowerCase().includes(searchText)) // search text should be empty or local peer name should include searchText
+  ) {
+    groups.set(localPeer.role.name!, [localPeer]);
+    if (parseMetadata(localPeer.metadata).isHandRaised) {
+      groups.set('hand-raised', [localPeer]);
+    }
+  }
+
+  for (const remotePeer of remotePeers) {
+    const remotePeerRole = remotePeer.role;
+
+    if (!remotePeerRole) {
+      continue;
+    }
+
+    if (
+      searchText.length <= 0 ||
+      remotePeer.name.toLowerCase().includes(searchText)
+    ) {
+      if (!groups.has(remotePeerRole.name!)) {
+        groups.set(remotePeerRole.name!, []);
+      }
+
+      const group = groups.get(remotePeerRole.name!);
+
+      if (!group) {
+        continue;
+      }
+
+      group.push(remotePeer);
+
+      if (parseMetadata(remotePeer.metadata).isHandRaised) {
+        if (!groups.has('hand-raised')) {
+          groups.set('hand-raised', []);
+        }
+
+        const group = groups.get('hand-raised');
+
+        if (group) group.push(remotePeer);
+      }
+    }
+  }
+
+  return groups;
 };
 
 export const useShouldGoLive = () => {

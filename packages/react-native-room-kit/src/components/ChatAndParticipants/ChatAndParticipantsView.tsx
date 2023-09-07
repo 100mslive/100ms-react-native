@@ -32,7 +32,15 @@ const _ChatAndParticipantsView: React.FC = () => {
 
   return (
     <View style={{ flex: 1, position: 'relative' }}>
-      <View style={[chatViewStyles.container, hmsRoomStyles.container]}>
+      <View
+        style={[
+          chatViewStyles.container,
+          hmsRoomStyles.container,
+          activeChatBottomSheetTab === 'Participants'
+            ? chatViewStyles.participantsContainer
+            : null,
+        ]}
+      >
         <ChatAndParticipantsHeader onClosePress={closeChatBottomSheet} />
 
         {activeChatBottomSheetTab === 'Chat' ? (
@@ -63,6 +71,11 @@ const chatViewStyles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 32,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+  },
+  participantsContainer: {
+    paddingBottom: 0,
   },
   input: {
     flex: 0,

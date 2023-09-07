@@ -1,64 +1,50 @@
 import * as React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { useSelector } from 'react-redux';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
-import { COLORS } from '../../utils/theme';
-import { ParticipantFilter } from './ParticipantsFilter';
+import { CloseIcon } from '../../Icons';
+import { useHMSRoomStyle } from '../../hooks-util';
+import type { RootState } from '../../redux';
 
 type ParticipantsHeaderProps = {
-  participantsCount: number;
-  filter: string;
-  setFilter: React.Dispatch<React.SetStateAction<string>>;
+  onClosePress(): void;
 };
 
 export const ParticipantsHeader: React.FC<ParticipantsHeaderProps> = ({
-  participantsCount,
-  filter,
-  setFilter,
+  onClosePress,
 }) => {
+  const peersCount = useSelector(
+    (state: RootState) => state.hmsStates.room?.peerCount ?? 0
+  );
+
+  const titleStyle = useHMSRoomStyle((theme, typography) => ({
+    color: theme.palette.on_surface_high,
+    fontFamily: `${typography.font_family}-SemiBold`,
+  }));
+
   return (
-    <View style={styles.participantsHeaderContainer}>
-      <Text style={styles.participantsHeading}>Participants</Text>
+    <View style={styles.container}>
+      <Text style={[styles.title, titleStyle]}>
+        Participants ({peersCount})
+      </Text>
 
-      <ParticipantFilter filter={filter} setFilter={setFilter} />
-
-      <View style={styles.peerCountContainer}>
-        <Text style={styles.peerCount}>{participantsCount}</Text>
-      </View>
+      <TouchableOpacity onPress={onClosePress}>
+        <CloseIcon />
+      </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  participantsHeaderContainer: {
-    height: 48,
-    width: '80%',
-    marginBottom: 24,
+  container: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
   },
-  participantsHeading: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 20,
-    lineHeight: 24,
-    letterSpacing: 0.15,
-    color: COLORS.TEXT.HIGH_EMPHASIS,
-    paddingRight: 12,
-  },
-  peerCountContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderColor: COLORS.BORDER.ACCENT,
-    borderWidth: 2,
-    borderRadius: 30,
-    marginLeft: 12,
-    height: 30,
-    paddingHorizontal: 6,
-  },
-  peerCount: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 20,
-    lineHeight: 24,
-    letterSpacing: 0.15,
-    color: COLORS.TEXT.HIGH_EMPHASIS,
+  title: {
+    fontSize: 14,
+    lineHeight: 20,
+    letterSpacing: 0.25,
   },
 });

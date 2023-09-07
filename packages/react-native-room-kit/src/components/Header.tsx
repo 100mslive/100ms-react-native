@@ -14,6 +14,11 @@ interface HeaderProps {
   showControls?: boolean;
 }
 
+const TOP_PADDING = 8;
+const BOTTOM_PADDING = 16;
+const CONTENT_HEIGHT = 42;
+export const HEADER_HEIGHT = TOP_PADDING + CONTENT_HEIGHT + BOTTOM_PADDING;
+
 export const _Header: React.FC<HeaderProps> = ({
   transparent = false,
   showControls = true,
@@ -49,8 +54,8 @@ export const _Header: React.FC<HeaderProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 8,
-    paddingBottom: 16,
+    paddingTop: TOP_PADDING,
+    paddingBottom: BOTTOM_PADDING,
     paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
