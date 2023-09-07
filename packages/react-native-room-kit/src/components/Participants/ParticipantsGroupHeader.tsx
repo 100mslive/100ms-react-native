@@ -2,7 +2,11 @@ import * as React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
 import { useHMSRoomStyleSheet } from '../../hooks-util';
-import type { ListItemUI, ParticipantHandRaisedHeaderData, ParticipantHeaderData } from '../../hooks-util';
+import type {
+  ListItemUI,
+  ParticipantHandRaisedHeaderData,
+  ParticipantHeaderData,
+} from '../../hooks-util';
 import { ChevronIcon, ThreeDotsIcon } from '../../Icons';
 import { Menu } from '../MenuModal';
 import { ParticipantsGroupOptions } from './ParticipantsGroupOptions';
@@ -43,13 +47,13 @@ const _ParticipantsGroupHeader: React.FC<ParticipantsGroupHeaderProps> = ({
   const toggleGroupExpand = () => {
     const groupName = data.key;
 
-    setExpandedGroups(expandedGroups => {
+    setExpandedGroups((expandedGroups) => {
       if (expandedGroups.includes(groupName)) {
-        return expandedGroups.filter(group => group !== groupName);
+        return expandedGroups.filter((group) => group !== groupName);
       }
       return [...expandedGroups, groupName];
     });
-  }
+  };
 
   return (
     <View

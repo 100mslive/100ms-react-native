@@ -1141,7 +1141,7 @@ export const useHMSPIPRoomLeave = () => {
 
   useEffect(() => {
     const pipRoomLeaveHandler = () => {
-       destroy();
+      destroy();
     };
 
     hmsInstance.addEventListener(

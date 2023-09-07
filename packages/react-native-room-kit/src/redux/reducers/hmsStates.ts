@@ -173,7 +173,9 @@ const hmsStatesReducer = (
           ...state,
           remoteParticipants: state.remoteParticipants.map(
             (remoteParticipant) =>
-              remoteParticipant.peerID === action.remoteParticipant.peerID ? action.remoteParticipant : remoteParticipant
+              remoteParticipant.peerID === action.remoteParticipant.peerID
+                ? action.remoteParticipant
+                : remoteParticipant
           ),
         };
       }

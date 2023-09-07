@@ -57,6 +57,6 @@ const styles = StyleSheet.create({
   },
   listWrapper: {
     flex: 1,
-    marginTop: 8
+    marginTop: 8,
   },
 });

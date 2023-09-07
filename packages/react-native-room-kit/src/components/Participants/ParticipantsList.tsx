@@ -81,7 +81,7 @@ export const ParticipantsList: React.FC<ParticipantsListProps> = ({
 
 const styles = StyleSheet.create({
   list: {
-    paddingBottom: 32
+    paddingBottom: 32,
   },
   emptyContainer: {
     flex: 1,
