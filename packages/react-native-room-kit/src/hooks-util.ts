@@ -111,10 +111,6 @@ import {
   useIsPortraitOrientation,
 } from './utils/dimension';
 import {
-  useSafeAreaFrame,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
-import {
   selectIsHLSViewer,
   selectLayoutConfigForRole,
   selectShouldGoLive,
@@ -1141,11 +1137,11 @@ export const useHMSMessages = () => {
 
 export const useHMSPIPRoomLeave = () => {
   const hmsInstance = useHMSInstance();
-  const { destroy } = useLeaveMethods();
+  const { destroy } = useLeaveMethods(true);
 
   useEffect(() => {
-    const pipRoomLeaveHandler = () => {
-      destroy();
+    const pipRoomLeaveHandler = async () => {
+      await destroy();
     };
 
     hmsInstance.addEventListener(
@@ -1161,11 +1157,11 @@ export const useHMSPIPRoomLeave = () => {
 
 export const useHMSRemovedFromRoomUpdate = () => {
   const hmsInstance = useHMSInstance();
-  const { destroy } = useLeaveMethods();
+  const { destroy } = useLeaveMethods(true);
 
   useEffect(() => {
-    const removedFromRoomHandler = () => {
-      destroy();
+    const removedFromRoomHandler = async () => {
+      await destroy();
     };
 
     hmsInstance.addEventListener(
@@ -1458,16 +1454,6 @@ export const useHMSConfig = () => {
   }, []);
 
   return { clearConfig, updateConfig, getConfig };
-};
-
-export const useSafeDimensions = () => {
-  const { height, width } = useSafeAreaFrame();
-  const safeAreaInsets = useSafeAreaInsets();
-
-  return {
-    safeWidth: width - safeAreaInsets.left - safeAreaInsets.right,
-    safeHeight: height - safeAreaInsets.top - safeAreaInsets.bottom,
-  };
 };
 
 export const useShowChat = (): [
@@ -1764,7 +1750,7 @@ export const useShouldGoLive = () => {
   return shouldGoLive;
 };
 
-export const useLeaveMethods = () => {
+export const useLeaveMethods = (isUnmounted: boolean) => {
   const navigation = useContext(NavigationContext);
   const hmsInstance = useHMSInstance();
   const dispatch = useDispatch();
@@ -1799,11 +1785,10 @@ export const useLeaveMethods = () => {
       if (typeof onLeave === 'function') {
         onLeave();
         dispatch(clearStore());
-      } else if (navigation && navigation.canGoBack()) {
+      } else if (navigation && navigation.canGoBack() && !isUnmounted) {
         navigation.goBack();
         dispatch(clearStore());
       } else {
-        // TODO: call onLeave Callback if provided
         // Otherwise default action is to show "Meeting Ended" screen
         dispatch(clearStore()); // TODO: We need different clearStore for MeetingEnded
         dispatch(changeMeetingState(MeetingState.MEETING_ENDED));
