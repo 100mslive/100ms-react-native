@@ -716,7 +716,6 @@ class HMSRNSDK(
         data.getString("type") as String,
         object : HMSMessageResultListener {
           override fun onError(error: HMSException) {
-            self.emitHMSError(error)
             callback?.reject(error.code.toString(), error.message)
           }
 
@@ -752,7 +751,6 @@ class HMSRNSDK(
         encodedTargetedRoles,
         object : HMSMessageResultListener {
           override fun onError(error: HMSException) {
-            self.emitHMSError(error)
             callback?.reject(error.code.toString(), error.message)
           }
 
@@ -787,7 +785,6 @@ class HMSRNSDK(
           peer,
           object : HMSMessageResultListener {
             override fun onError(error: HMSException) {
-              self.emitHMSError(error)
               callback?.reject(error.code.toString(), error.message)
             }
 
@@ -844,7 +841,6 @@ class HMSRNSDK(
             }
 
             override fun onError(error: HMSException) {
-              self.emitHMSError(error)
               callback?.reject(error.code.toString(), error.message)
             }
           },
@@ -893,7 +889,6 @@ class HMSRNSDK(
             }
 
             override fun onError(error: HMSException) {
-              self.emitHMSError(error)
               promise?.reject(error.code.toString(), error.message)
             }
           },
@@ -937,7 +932,6 @@ class HMSRNSDK(
               }
 
               override fun onError(error: HMSException) {
-                self.emitHMSError(error)
                 promise?.reject(error.code.toString(), error.message)
               }
             },
@@ -974,7 +968,6 @@ class HMSRNSDK(
             }
 
             override fun onError(error: HMSException) {
-              self.emitHMSError(error)
               callback?.reject(error.code.toString(), error.message)
             }
           },
@@ -1029,7 +1022,6 @@ class HMSRNSDK(
           }
 
           override fun onError(error: HMSException) {
-            self.emitHMSError(error)
             callback?.reject(error.code.toString(), error.message)
           }
         },
@@ -1085,7 +1077,6 @@ class HMSRNSDK(
             }
 
             override fun onError(error: HMSException) {
-              self.emitHMSError(error)
               callback?.reject(error.code.toString(), error.message)
             }
           },
@@ -1121,7 +1112,6 @@ class HMSRNSDK(
           }
 
           override fun onError(error: HMSException) {
-            self.emitHMSError(error)
             callback?.reject(error.code.toString(), error.message)
           }
         },
@@ -1197,7 +1187,6 @@ class HMSRNSDK(
           }
 
           override fun onError(error: HMSException) {
-            self.emitHMSError(error)
             callback?.reject(error.code.toString(), error.message)
           }
         },
@@ -1412,7 +1401,6 @@ class HMSRNSDK(
 
             override fun onError(error: HMSException) {
               callback?.reject(error.code.toString(), error.message)
-              self.emitHMSError(error)
             }
           },
         )
@@ -1449,7 +1437,6 @@ class HMSRNSDK(
 
             override fun onError(error: HMSException) {
               callback?.reject(error.code.toString(), error.message)
-              self.emitHMSError(error)
             }
           },
         )
@@ -1470,7 +1457,6 @@ class HMSRNSDK(
 
         override fun onError(error: HMSException) {
           callback?.reject(error.code.toString(), error.message)
-          self.emitHMSError(error)
         }
       },
     )
@@ -1496,7 +1482,6 @@ class HMSRNSDK(
         override fun onError(error: HMSException) {
           screenshareCallback = null
           callback?.reject(error.code.toString(), error.message)
-          self.emitHMSError(error)
         }
 
         override fun onSuccess() {
@@ -1521,7 +1506,6 @@ class HMSRNSDK(
 
         override fun onError(error: HMSException) {
           callback?.reject(error.code.toString(), error.message)
-          self.emitHMSError(error)
         }
       },
     )
@@ -1537,7 +1521,6 @@ class HMSRNSDK(
 
         override fun onError(error: HMSException) {
           callback?.reject(error.code.toString(), error.message)
-          self.emitHMSError(error)
         }
       },
     )
@@ -1580,7 +1563,6 @@ class HMSRNSDK(
 
             override fun onError(error: HMSException) {
               callback?.reject(error.code.toString(), error.message)
-              self.emitHMSError(error)
             }
           },
         )
@@ -1690,7 +1672,6 @@ class HMSRNSDK(
         override fun onError(error: HMSException) {
           audioshareCallback = null
           callback?.reject(error.code.toString(), error.message)
-          self.emitHMSError(error)
         }
 
         override fun onSuccess() {
