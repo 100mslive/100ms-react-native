@@ -1,46 +1,62 @@
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
 
-import { useFilteredParticipants } from '../hooks-util';
+import { useFilteredParticipants, useHMSRoomStyle } from '../hooks-util';
 import {
   ParticipantsHeader,
   ParticipantsList,
   ParticipantsSearchInput,
 } from './Participants';
 
-type ParticipantsModalProps = {};
+type ParticipantsModalProps = {
+  dismissModal(): void;
+};
 
-export const ParticipantsModal: React.FC<ParticipantsModalProps> = ({}) => {
+export const ParticipantsModal: React.FC<ParticipantsModalProps> = ({
+  dismissModal,
+}) => {
   const {
-    selectedFilter,
-    changeFilter,
-    allParticipants,
-    filteredParticipants,
+    data,
     searchText,
+    formattedSearchText,
     setSearchText,
+    setExpandedGroups,
   } = useFilteredParticipants();
 
+  const containerStyle = useHMSRoomStyle((theme) => ({
+    backgroundColor: theme.palette.surface_dim,
+  }));
+
   return (
-    <View style={styles.participantContainer}>
-      <ParticipantsHeader
-        filter={selectedFilter}
-        setFilter={changeFilter}
-        participantsCount={allParticipants.length}
-      />
+    <View style={[styles.container, containerStyle]}>
+      <ParticipantsHeader onClosePress={dismissModal} />
 
       <ParticipantsSearchInput
         searchText={searchText}
         setSearchText={setSearchText}
       />
 
-      <ParticipantsList data={filteredParticipants} />
+      <View style={styles.listWrapper}>
+        <ParticipantsList
+          data={data}
+          setExpandedGroups={setExpandedGroups}
+          searchTextExists={formattedSearchText.length > 0}
+        />
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  participantContainer: {
-    height: '100%',
-    width: '100%',
+  container: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+  },
+  listWrapper: {
+    flex: 1,
+    marginTop: 8,
   },
 });

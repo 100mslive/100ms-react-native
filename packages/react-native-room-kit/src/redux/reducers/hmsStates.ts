@@ -20,7 +20,9 @@ type ActionType =
   | AddToPreviewPeersList
   | RemoveFromPreviewPeersList
   | SetLayoutConfig
-  | SetRoleChangeRequest;
+  | SetRoleChangeRequest
+  | AddRemoveParticipant
+  | AddUpdateParticipant;
 
 type SetRoomAction = {
   type: HmsStateActionTypes.SET_ROOM_STATE;
@@ -81,6 +83,16 @@ type SetRoleChangeRequest = {
   roleChangeRequest: HMSRoleChangeRequest | null;
 };
 
+type AddRemoveParticipant = {
+  type: HmsStateActionTypes.ADD_REMOVE_PARTICIPANT;
+  remoteParticipant: HMSPeer;
+};
+
+type AddUpdateParticipant = {
+  type: HmsStateActionTypes.ADD_UPDATE_PARTICIPANT;
+  remoteParticipant: HMSPeer;
+};
+
 type IntialStateType = {
   isLocalAudioMuted: boolean | undefined;
   isLocalVideoMuted: boolean | undefined;
@@ -88,6 +100,7 @@ type IntialStateType = {
   roomLocallyMuted: boolean;
   room: HMSRoom | null;
   localPeer: HMSLocalPeer | null;
+  remoteParticipants: HMSPeer[];
   roles: HMSRole[];
   previewPeersList: HMSPeer[];
   layoutConfig: Layout[] | null;
@@ -101,6 +114,7 @@ const INITIAL_STATE: IntialStateType = {
   roomLocallyMuted: false,
   room: null,
   localPeer: null,
+  remoteParticipants: [],
   roles: [],
   previewPeersList: [],
   layoutConfig: null,
@@ -124,6 +138,56 @@ const hmsStatesReducer = (
         isLocalAudioMuted: action.localPeer?.audioTrack?.isMute(),
         isLocalVideoMuted: action.localPeer?.videoTrack?.isMute(),
       };
+    case HmsStateActionTypes.ADD_REMOVE_PARTICIPANT: {
+      if (
+        state.remoteParticipants.findIndex(
+          (remoteParticipant) =>
+            remoteParticipant.peerID === action.remoteParticipant.peerID
+        ) >= 0
+      ) {
+        return {
+          ...state,
+          remoteParticipants: state.remoteParticipants.filter(
+            (remoteParticipant) =>
+              remoteParticipant.peerID !== action.remoteParticipant.peerID
+          ),
+        };
+      }
+
+      return {
+        ...state,
+        remoteParticipants: [
+          ...state.remoteParticipants,
+          action.remoteParticipant,
+        ],
+      };
+    }
+    case HmsStateActionTypes.ADD_UPDATE_PARTICIPANT: {
+      if (
+        state.remoteParticipants.findIndex(
+          (remoteParticipant) =>
+            remoteParticipant.peerID === action.remoteParticipant.peerID
+        ) >= 0
+      ) {
+        return {
+          ...state,
+          remoteParticipants: state.remoteParticipants.map(
+            (remoteParticipant) =>
+              remoteParticipant.peerID === action.remoteParticipant.peerID
+                ? action.remoteParticipant
+                : remoteParticipant
+          ),
+        };
+      }
+
+      return {
+        ...state,
+        remoteParticipants: [
+          ...state.remoteParticipants,
+          action.remoteParticipant,
+        ],
+      };
+    }
     case HmsStateActionTypes.SET_ROLES_STATE:
       return {
         ...state,

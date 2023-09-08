@@ -336,3 +336,13 @@ export const setChatFilterSheetVisible = (chatFilterSheetVisible: boolean) => ({
   type: actionTypes.SET_CHAT_FILTER_SHEET_VISIBLE,
   payload: { chatFilterSheetVisible },
 });
+
+export const addRemoveParticipant = (remoteParticipant: HMSPeer) => ({
+  type: HmsStateActionTypes.ADD_REMOVE_PARTICIPANT,
+  remoteParticipant,
+});
+
+export const addUpdateParticipant = (remoteParticipant: HMSPeer) => ({
+  type: HmsStateActionTypes.ADD_UPDATE_PARTICIPANT,
+  remoteParticipant,
+});

@@ -4,11 +4,14 @@ import { FlashList, type ListRenderItem } from '@shopify/flash-list';
 import { StyleSheet, Text, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { useHMSInstance, useHMSRoomStyleSheet } from '../../hooks-util';
+import {
+  useHMSInstance,
+  useHMSRoomColorPalette,
+  useHMSRoomStyleSheet,
+} from '../../hooks-util';
 import type { RootState } from '../../redux';
 import { BottomSheet } from '../BottomSheet';
 import { HMSTextInput } from '../HMSTextInput';
-import { COLORS } from '../../utils/theme';
 import { ParticipantsIcon, SearchIcon } from '../../Icons';
 import { ChatFilterItem } from './ChatFilterItem';
 import { setChatFilterSheetVisible } from '../../redux/actions';
@@ -24,6 +27,8 @@ const _ChatFilterView: React.FC<ChatFilterViewProps> = () => {
   const [loadingPeersList, setLoadingPeersList] = React.useState(false);
   const [remotePeers, setRemotePeers] = React.useState<HMSRemotePeer[]>([]);
   const [filterText, setFilterText] = React.useState('');
+
+  const { on_surface_medium: onSurfaceMediumColor } = useHMSRoomColorPalette();
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     textInputContainer: {
@@ -131,7 +136,7 @@ const _ChatFilterView: React.FC<ChatFilterViewProps> = () => {
           hmsRoomStyles.textInputContainer,
         ]}
         focusedContainerStyle={styles.textInputFocusedContainer}
-        placeholderTextColor={COLORS.SURFACE.ON_SURFACE.MEDIUM}
+        placeholderTextColor={onSurfaceMediumColor}
         leftIcon={<SearchIcon style={styles.textInputSearchIcon} />}
       />
 

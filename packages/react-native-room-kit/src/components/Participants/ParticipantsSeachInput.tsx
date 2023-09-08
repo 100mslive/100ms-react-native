@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { View, StyleSheet } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { StyleSheet, Platform } from 'react-native';
 
-import { CustomInput } from '../CustomInput';
-import { COLORS } from '../../utils/theme';
+import { useHMSRoomColorPalette, useHMSRoomStyle } from '../../hooks-util';
+import { SearchIcon } from '../../Icons';
+import { HMSTextInput } from '../HMSTextInput';
 
 type ParticipantsSearchInputProps = {
   searchText: string;
@@ -13,43 +13,45 @@ type ParticipantsSearchInputProps = {
 export const ParticipantsSearchInput: React.FC<
   ParticipantsSearchInputProps
 > = ({ searchText, setSearchText }) => {
+  const { on_surface_low: onSurfaceLowColor } = useHMSRoomColorPalette();
+
+  const textInputStyle = useHMSRoomStyle((theme) => ({
+    backgroundColor: theme.palette.surface_default,
+    borderColor: theme.palette.surface_default,
+  }));
+
   return (
-    <View>
-      <CustomInput
-        value={searchText}
-        onChangeText={setSearchText}
-        inputStyle={styles.participantsSearchInput}
-        placeholderTextColor={COLORS.TEXT.DISABLED}
-        placeholder="Find what you're looking for"
-      />
-      <Ionicons
-        name="search"
-        style={styles.participantsSearchInputIcon}
-        size={24}
-      />
-    </View>
+    <HMSTextInput
+      value={searchText}
+      onChangeText={setSearchText}
+      placeholder="Search for participants"
+      style={styles.input}
+      containerStyle={[styles.textInputContainer, textInputStyle]}
+      focusedContainerStyle={[styles.focusedTextInputContainer, textInputStyle]}
+      placeholderTextColor={onSurfaceLowColor}
+      leftIcon={<SearchIcon style={styles.searchIcon} />}
+    />
   );
 };
 
 const styles = StyleSheet.create({
-  participantsSearchInput: {
-    backgroundColor: COLORS.SURFACE.DEFAULT,
-    borderColor: COLORS.BORDER.LIGHT,
+  focusedTextInputContainer: {
     borderWidth: 1,
-    width: '100%',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingLeft: 48,
-    color: COLORS.TEXT.HIGH_EMPHASIS,
-    fontFamily: 'Inter-Medium',
   },
-  participantsSearchInputIcon: {
-    position: 'absolute',
-    top: 12,
-    bottom: 12,
-    left: 16,
-    right: 16,
-    color: COLORS.TEXT.MEDIUM_EMPHASIS,
-    width: 24,
+  textInputContainer: {
+    borderWidth: 1,
+    flex: 0,
+    height: 40,
+    paddingLeft: 8,
+    paddingRight: 8,
+  },
+  input: {
+    fontSize: 14,
+    lineHeight: Platform.OS === 'android' ? 20 : undefined,
+    letterSpacing: 0.25,
+  },
+  searchIcon: {
+    marginRight: 8,
+    alignSelf: 'center',
   },
 });

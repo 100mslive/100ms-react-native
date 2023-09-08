@@ -89,7 +89,11 @@ dependencies {
     // implementation "live.100ms:android-sdk:${sdkVersions["android"]}"
     // implementation "live.100ms:video-view:${sdkVersions["android"]}"
     // implementation "live.100ms:hls-player:${sdkVersions["android"]}"
-    implementation "com.github.100mslive.android-sdk:videoview:dev-v2-SNAPSHOT"
-    implementation "com.github.100mslive.android-sdk:hls-player:dev-v2-SNAPSHOT"
-    implementation 'com.github.100mslive.android-sdk:lib:dev-v2-SNAPSHOT'
+
+         implementation "live.100ms:android-sdk:2.7.5"
+         implementation "live.100ms:video-view:2.7.5"
+         implementation "live.100ms:hls-player:2.7.5"
+//     implementation "com.github.100mslive.android-sdk:videoview:dev-v2-SNAPSHOT"
+//     implementation "com.github.100mslive.android-sdk:hls-player:dev-v2-SNAPSHOT"
+//     implementation 'com.github.100mslive.android-sdk:lib:dev-v2-SNAPSHOT'
 }
