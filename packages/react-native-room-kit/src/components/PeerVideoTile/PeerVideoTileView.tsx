@@ -20,7 +20,10 @@ import { PeerNameAndNetwork } from './PeerNameAndNetwork';
 import { UnmountAfterDelay } from '../UnmountAfterDelay';
 import type { PeerTrackNode } from '../../utils/types';
 import { isTileOnSpotlight } from '../../utils/functions';
-import { selectCanPublishTrackForRole } from '../../hooks-sdk-selectors';
+import {
+  selectAllowedTracksToPublish,
+  selectCanPublishTrackForRole,
+} from '../../hooks-sdk-selectors';
 import { useHMSRoomStyleSheet } from '../../hooks-util';
 import { HMSFullScreenButton } from './HMSFullScreenButton';
 
@@ -84,6 +87,11 @@ export const _PeerVideoTileView = React.forwardRef<
       peer.role,
       'video'
     );
+
+    const allowedToPublish = useSelector((state: RootState) => {
+      const allowed = selectAllowedTracksToPublish(state);
+      return (allowed && allowed.length > 0) ?? false;
+    });
 
     const hmsRoomStyles = useHMSRoomStyleSheet((theme) => ({
       iconWrapperStyles: {
@@ -175,7 +183,7 @@ export const _PeerVideoTileView = React.forwardRef<
               <ThreeDotsIcon stack="vertical" style={styles.icon} />
             </PressableIcon>
           </UnmountAfterDelay>
-        ) : (
+        ) : !allowedToPublish ? null : (
           <PressableIcon
             activeOpacity={0.7}
             style={[styles.iconWrapper, hmsRoomStyles.iconWrapperStyles]}
