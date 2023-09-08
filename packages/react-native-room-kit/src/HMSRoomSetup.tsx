@@ -70,6 +70,8 @@ export const HMSRoomSetup = () => {
   const dispatch = useDispatch();
   const reduxStore = useStore<RootState>();
 
+  const { goToPreview } = useLeaveMethods(true);
+
   const { getConfig, clearConfig } = useHMSConfig();
   const meetingState = useSelector(
     (state: RootState) => state.app.meetingState
