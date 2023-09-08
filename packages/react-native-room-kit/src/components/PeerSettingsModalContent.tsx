@@ -202,56 +202,6 @@ export const PeerSettingsModalContent: React.FC<
           />
         ) : null}
 
-        {debugMode && !peer.isLocal && localPeerPermissions?.changeRole ? (
-          <SettingItem
-            text="Change Role"
-            IconType={Ionicons}
-            iconName={'people-outline'}
-            onPress={() => changeRole()}
-          />
-        ) : null}
-
-        {/* Don't show Capture Screenshot option, if track is screenshare of local peer */}
-        {!debugMode ||
-        (peerTrackNode.peer.isLocal &&
-          peerTrackNode.track &&
-          peerTrackNode.track.source === HMSTrackSource.SCREEN) ? null : (
-          <SettingItem
-            text="Capture Screenshot"
-            IconType={MaterialCommunityIcons}
-            iconName={'cellphone-screenshot'}
-            onPress={() => onCaptureScreenShotPress(peerTrackNode)}
-            disabled={!peerTrackNode.track || peerTrackNode.track.isMute()} // Capture Screenshot option should be disabled, if track is muted or not available
-          />
-        )}
-
-        {/* Local Image Capture is only available for local peer */}
-        {debugMode && peerTrackNode.peer.isLocal ? (
-          <SettingItem
-            text="Local Image Capture"
-            IconType={MaterialCommunityIcons}
-            iconName={'cellphone-screenshot'}
-            onPress={() =>
-              onCaptureImageAtMaxSupportedResolutionPress(peerTrackNode)
-            }
-            disabled={!peerTrackNode.track || peerTrackNode.track.isMute()} // Local Image Capture option should be disabled, if track is muted or not available
-          />
-        ) : null}
-
-        {/* Don't show Streaming Quality option for local peer */}
-        {debugMode && !peer.isLocal ? (
-          <SettingItem
-            text="Streaming Quality"
-            IconType={Ionicons}
-            iconName={'layers-outline'}
-            onPress={() =>
-              peerTrackNode.track
-                ? onStreamingQualityPress(peerTrackNode.track)
-                : null
-            }
-            disabled={!peerTrackNode.track || peerTrackNode.track.isMute()} // Streaming Quality option should be disable, if track is muted or not available
-          />
-        ) : null}
       </View>
     </View>
   );
