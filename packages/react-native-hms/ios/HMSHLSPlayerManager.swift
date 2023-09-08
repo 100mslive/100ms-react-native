@@ -202,11 +202,8 @@ class HMSHLSPlayer: UIView {
         attachPlayerPlaybackListeners()
 
         hmsHLSPlayerViewController?.showsPlaybackControls = false
-        hmsHLSPlayerViewController?.allowsPictureInPicturePlayback = true
+        hmsHLSPlayerViewController?.allowsPictureInPicturePlayback = false
         hmsHLSPlayerViewController?.videoGravity = .resizeAspectFill
-        if #available(iOS 14.2, *) {
-            hmsHLSPlayerViewController?.canStartPictureInPictureAutomaticallyFromInline = true
-        }
     }
 
     required init?(coder: NSCoder) {
