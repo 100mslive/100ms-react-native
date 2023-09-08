@@ -10,6 +10,7 @@ import type {
   HMSRoleChangeRequest,
   HMSSDK,
   HMSSessionStore,
+  HMSSpeaker,
 } from '@100mslive/react-native-hms';
 import type { Layout } from '@100mslive/types-prebuilt';
 
@@ -345,4 +346,9 @@ export const addRemoveParticipant = (participant: HMSPeer) => ({
 export const addUpdateParticipant = (participant: HMSPeer) => ({
   type: HmsStateActionTypes.ADD_UPDATE_PARTICIPANT,
   participant,
+});
+
+export const setActiveSpeakers = (activeSpeakers: HMSSpeaker[]) => ({
+  type: HmsStateActionTypes.SET_ACTIVE_SPEAKERS,
+  activeSpeakers,
 });

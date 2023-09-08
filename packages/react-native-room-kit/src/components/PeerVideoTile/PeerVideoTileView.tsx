@@ -12,7 +12,7 @@ import { VideoView } from './VideoView';
 import { AvatarView } from './AvatarView';
 import type { RootState } from '../../redux';
 import { PeerMetadata } from './PeerMetadata';
-import { PeerAudioMutedIndicator } from './PeerAudioMutedIndicator';
+import { PeerAudioIndicator } from './PeerAudioIndicator';
 import { PressableIcon } from '../PressableIcon';
 import { ThreeDotsIcon } from '../../Icons';
 import { hexToRgbA } from '../../utils/theme';
@@ -147,7 +147,7 @@ export const _PeerVideoTileView = React.forwardRef<
         {screenShareTile && showingVideoTrack ? (
           <HMSFullScreenButton peerTrackNode={peerTrackNode} />
         ) : peerCanPublishAudio ? (
-          <PeerAudioMutedIndicator isMuted={peer.audioTrack?.isMute()} />
+          <PeerAudioIndicator isMuted={peer.audioTrack?.isMute()} peer={peer} />
         ) : null}
 
         {/* Handling showing Peer name */}

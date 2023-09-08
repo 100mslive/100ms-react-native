@@ -69,6 +69,7 @@ import {
   removeScreenshareTile,
   saveUserData,
   setActiveChatBottomSheetTab,
+  setActiveSpeakers,
   setFullScreenPeerTrackNode,
   setHMSLocalPeerState,
   setHMSRoleState,
@@ -1236,6 +1237,7 @@ export const useHMSActiveSpeakerUpdates = (
   active?: boolean
 ) => {
   const hmsInstance = useHMSInstance();
+  const dispatch = useDispatch();
   const reduxStore = useStore<RootState>();
   const isPortraitOrientation = useIsPortraitOrientation();
 
@@ -1245,6 +1247,8 @@ export const useHMSActiveSpeakerUpdates = (
     }
 
     const handleActiveSpeaker = (data: HMSSpeaker[]) => {
+      dispatch(setActiveSpeakers(data));
+
       const activePage = reduxStore.getState().app.gridViewActivePage;
       if (activePage !== 0) {
         return;

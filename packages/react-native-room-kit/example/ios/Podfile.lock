@@ -84,6 +84,10 @@ PODS:
     - HMSWebRTC (= 1.0.5116)
   - HMSWebRTC (1.0.5116)
   - libevent (2.1.12)
+  - lottie-ios (4.2.0)
+  - lottie-react-native (6.2.0):
+    - lottie-ios (~> 4.2.0)
+    - React-Core
   - OpenSSL-Universal (1.1.180)
   - Permission-Camera (3.4.0):
     - RNPermissions
@@ -469,6 +473,7 @@ DEPENDENCIES:
   - hermes-engine (~> 0.9.0)
   - HMSBroadcastExtensionSDK
   - libevent (~> 2.1.12)
+  - lottie-react-native (from `../node_modules/lottie-react-native`)
   - OpenSSL-Universal (= 1.1.180)
   - Permission-Camera (from `../node_modules/react-native-permissions/ios/Camera`)
   - Permission-Microphone (from `../node_modules/react-native-permissions/ios/Microphone`)
@@ -535,6 +540,7 @@ SPEC REPOS:
     - HMSSDK
     - HMSWebRTC
     - libevent
+    - lottie-ios
     - OpenSSL-Universal
     - Toast
     - YogaKit
@@ -552,6 +558,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/React/FBReactNativeSpec"
   glog:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
+  lottie-react-native:
+    :path: "../node_modules/lottie-react-native"
   Permission-Camera:
     :path: "../node_modules/react-native-permissions/ios/Camera"
   Permission-Microphone:
@@ -662,6 +670,8 @@ SPEC CHECKSUMS:
   HMSSDK: d921a4e75470d0ca20a9390d52c07a20b1361d3f
   HMSWebRTC: ae54e9dd91b869051b283b43b14f57d43b7bf8e1
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
+  lottie-ios: 809ecf2d460ed650a6aed7aa88b2ec45fab4779c
+  lottie-react-native: b04640d81bfc87915cd5c9058caa1112374691ff
   OpenSSL-Universal: 1aa4f6a6ee7256b83db99ec1ccdaa80d10f9af9b
   Permission-Camera: 40f43388fa8a648dc6ced73f145ef329ab3ff3fe
   Permission-Microphone: 62492e9e3026112dfaecd6fff87a245c3d7367b8
