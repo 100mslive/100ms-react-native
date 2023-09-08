@@ -141,9 +141,12 @@ const hmsStatesReducer = (
         room: action.room,
       };
     case HmsStateActionTypes.SET_LOCAL_PEER_STATE: {
-      const participantsHasLocalPeer = action.localPeer !== null ? state.participants.findIndex(
-        (participant) => participant.peerID === action.localPeer?.peerID
-      ) >= 0 : false;
+      const participantsHasLocalPeer =
+        action.localPeer !== null
+          ? state.participants.findIndex(
+              (participant) => participant.peerID === action.localPeer?.peerID
+            ) >= 0
+          : false;
 
       return {
         ...state,
@@ -152,15 +155,16 @@ const hmsStatesReducer = (
         isLocalVideoMuted: action.localPeer?.videoTrack?.isMute(),
 
         // Adding or updating local peer in participants list
-        participants: action.localPeer !== null
-          ? participantsHasLocalPeer
-            ? state.participants.map((participant) =>
-                participant.peerID === action.localPeer?.peerID
-                  ? action.localPeer
-                  : participant
-              )
-            : [action.localPeer, ...state.participants]
-          : state.participants,
+        participants:
+          action.localPeer !== null
+            ? participantsHasLocalPeer
+              ? state.participants.map((participant) =>
+                  participant.peerID === action.localPeer?.peerID
+                    ? action.localPeer
+                    : participant
+                )
+              : [action.localPeer, ...state.participants]
+            : state.participants,
       };
     }
     case HmsStateActionTypes.ADD_REMOVE_PARTICIPANT: {

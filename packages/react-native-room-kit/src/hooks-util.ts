@@ -1557,10 +1557,7 @@ export const useFilteredParticipants = () => {
   );
 
   const peerGroups = useMemo(() => {
-    return groupParticipantsAsPerRole(
-      participants,
-      formattedSearchText
-    );
+    return groupParticipantsAsPerRole(participants, formattedSearchText);
   }, [formattedSearchText, participants]);
 
   const sortedRoles = useMemo(() => {

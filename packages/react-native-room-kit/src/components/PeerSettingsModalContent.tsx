@@ -201,7 +201,6 @@ export const PeerSettingsModalContent: React.FC<
             onPress={removePeer}
           />
         ) : null}
-
       </View>
     </View>
   );
