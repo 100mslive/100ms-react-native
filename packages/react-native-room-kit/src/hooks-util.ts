@@ -1788,16 +1788,24 @@ export const useLeaveMethods = (isUnmounted: boolean) => {
     }
   }, [hmsInstance]);
 
-  const leave = useCallback(async () => {
-    try {
-      const d = await hmsInstance.leave();
-      console.log('Leave Success: ', d);
-      await destroy();
-    } catch (e) {
-      console.log(`Leave Room Error: ${e}`);
-      Toast.showWithGravity(`Leave Room Error: ${e}`, Toast.LONG, Toast.TOP);
-    }
-  }, [destroy, hmsInstance]);
+  const leave = useCallback(
+    async (shouldEndStream: boolean = false) => {
+      if (shouldEndStream) {
+        hmsInstance.stopHLSStreaming().catch((error) => {
+          console.log('Stop HLS Streaming Error: ', error);
+        });
+      }
+      try {
+        const d = await hmsInstance.leave();
+        console.log('Leave Success: ', d);
+        await destroy();
+      } catch (e) {
+        console.log(`Leave Room Error: ${e}`);
+        Toast.showWithGravity(`Leave Room Error: ${e}`, Toast.LONG, Toast.TOP);
+      }
+    },
+    [destroy, hmsInstance]
+  );
 
   const goToPreview = useCallback(async () => {
     try {

@@ -4,6 +4,8 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useHMSRoomStyleSheet, useLeaveMethods } from '../hooks-util';
 import { AlertTriangleIcon, CloseIcon } from '../Icons';
 import { HMSDangerButton } from './HMSDangerButton';
+import { useSelector } from 'react-redux';
+import type { RootState } from '../redux';
 
 export interface EndRoomModalContentProps {
   dismissModal(): void;
@@ -12,7 +14,7 @@ export interface EndRoomModalContentProps {
 export const EndRoomModalContent: React.FC<EndRoomModalContentProps> = ({
   dismissModal,
 }) => {
-  const { endRoom } = useLeaveMethods();
+  const { endRoom, leave } = useLeaveMethods(false);
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     headerText: {
@@ -25,6 +27,20 @@ export const EndRoomModalContent: React.FC<EndRoomModalContentProps> = ({
     },
   }));
 
+  const canEndRoom = useSelector(
+    (state: RootState) => state.hmsStates.localPeer?.role?.permissions?.endRoom
+  );
+
+  const canStream = useSelector(
+    (state: RootState) =>
+      state.hmsStates.localPeer?.role?.permissions?.hlsStreaming
+  );
+
+  const isStreaming = useSelector(
+    (state: RootState) =>
+      state.hmsStates.room?.hlsStreamingState?.running ?? false
+  );
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -32,7 +48,11 @@ export const EndRoomModalContent: React.FC<EndRoomModalContentProps> = ({
           <AlertTriangleIcon />
 
           <Text style={[styles.headerText, hmsRoomStyles.headerText]}>
-            End Session
+            {canStream && isStreaming
+              ? 'End Stream'
+              : canEndRoom
+              ? 'End Session'
+              : 'Leave'}
           </Text>
         </View>
 
@@ -43,13 +63,18 @@ export const EndRoomModalContent: React.FC<EndRoomModalContentProps> = ({
           <CloseIcon />
         </TouchableOpacity>
       </View>
-
       <Text style={[styles.text, hmsRoomStyles.text]}>
-        The session will end for everyone and all the activities will stop. You
-        can't undo this action.
+        {canStream && isStreaming
+          ? 'The stream will end for everyone after they’ve watched it.'
+          : canEndRoom
+          ? 'The session will end for everyone in the room immediately. '
+          : 'Others will continue after you leave. You can join the session again.'}
       </Text>
-
-      <HMSDangerButton loading={false} onPress={endRoom} title="End Session" />
+      <HMSDangerButton
+        loading={false}
+        onPress={canStream && isStreaming ? () => leave(true) : endRoom}
+        title={canStream && isStreaming ? 'End Stream' : 'End Session'}
+      />
     </View>
   );
 };
