@@ -1548,20 +1548,16 @@ export const useFilteredParticipants = () => {
   const [searchText, setSearchText] = useState('');
   const formattedSearchText = searchText.trim().toLowerCase();
 
-  const localPeer = useSelector(
-    (state: RootState) => state.hmsStates.localPeer
-  );
-  const remoteParticipants = useSelector(
-    (state: RootState) => state.hmsStates.remoteParticipants
+  const participants = useSelector(
+    (state: RootState) => state.hmsStates.participants
   );
 
   const peerGroups = useMemo(() => {
-    return groupPeersAsPerRole(
-      remoteParticipants,
-      localPeer,
+    return groupParticipantsAsPerRole(
+      participants,
       formattedSearchText
     );
-  }, [formattedSearchText, localPeer, remoteParticipants]);
+  }, [formattedSearchText, participants]);
 
   const sortedRoles = useMemo(() => {
     return roles
@@ -1687,56 +1683,43 @@ export const useFilteredParticipants = () => {
   };
 };
 
-const groupPeersAsPerRole = (
-  remotePeers: HMSPeer[],
-  localPeer: HMSLocalPeer | null,
+const groupParticipantsAsPerRole = (
+  participants: (HMSLocalPeer | HMSPeer)[],
   searchText: string
 ) => {
   const groups: Map<string, (HMSLocalPeer | HMSPeer)[]> = new Map();
 
-  if (
-    localPeer && // local peer should exist
-    localPeer.role && // local peer should have a valid role
-    (searchText.length <= 0 ||
-      localPeer.name.toLowerCase().includes(searchText)) // search text should be empty or local peer name should include searchText
-  ) {
-    groups.set(localPeer.role.name!, [localPeer]);
-    if (parseMetadata(localPeer.metadata).isHandRaised) {
-      groups.set('hand-raised', [localPeer]);
-    }
-  }
+  for (const participant of participants) {
+    const participantRole = participant.role;
 
-  for (const remotePeer of remotePeers) {
-    const remotePeerRole = remotePeer.role;
-
-    if (!remotePeerRole) {
+    if (!participantRole) {
       continue;
     }
 
     if (
       searchText.length <= 0 ||
-      remotePeer.name.toLowerCase().includes(searchText)
+      participant.name.toLowerCase().includes(searchText)
     ) {
-      if (!groups.has(remotePeerRole.name!)) {
-        groups.set(remotePeerRole.name!, []);
+      if (!groups.has(participantRole.name!)) {
+        groups.set(participantRole.name!, []);
       }
 
-      const group = groups.get(remotePeerRole.name!);
+      const group = groups.get(participantRole.name!);
 
       if (!group) {
         continue;
       }
 
-      group.push(remotePeer);
+      group.push(participant);
 
-      if (parseMetadata(remotePeer.metadata).isHandRaised) {
+      if (parseMetadata(participant.metadata).isHandRaised) {
         if (!groups.has('hand-raised')) {
           groups.set('hand-raised', []);
         }
 
         const group = groups.get('hand-raised');
 
-        if (group) group.push(remotePeer);
+        if (group) group.push(participant);
       }
     }
   }

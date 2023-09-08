@@ -3,7 +3,7 @@ import { Image, StyleSheet } from 'react-native';
 import type { ImageProps } from 'react-native';
 
 interface PersonIconProps extends Omit<ImageProps, 'source'> {
-  type?: 'off' | 'normal';
+  type?: 'off' | 'normal' | 'left' | 'rectangle';
 }
 
 export const PersonIcon: React.FC<PersonIconProps> = ({
@@ -16,6 +16,10 @@ export const PersonIcon: React.FC<PersonIconProps> = ({
       source={
         type === 'off'
           ? require('./assets/person-off.png')
+          : type === 'left'
+          ? require('./assets/person-left.png')
+          : type === 'rectangle'
+          ? require('./assets/person-rectangle.png')
           : require('./assets/person.png')
       }
       style={[styles.icon, style]}

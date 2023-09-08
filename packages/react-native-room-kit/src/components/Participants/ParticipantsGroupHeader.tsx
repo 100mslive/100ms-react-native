@@ -1,5 +1,7 @@
 import * as React from 'react';
+// import { useSelector } from 'react-redux';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+// import type { HMSRole } from '@100mslive/react-native-hms';
 
 import { useHMSRoomStyleSheet } from '../../hooks-util';
 import type {
@@ -10,6 +12,8 @@ import type {
 import { ChevronIcon, ThreeDotsIcon } from '../../Icons';
 import { Menu } from '../MenuModal';
 import { ParticipantsGroupOptions } from './ParticipantsGroupOptions';
+// import type { RootState } from '../../redux';
+// import { isParticipantHostOrBroadcaster } from '../../utils/functions';
 
 interface ParticipantsGroupHeaderProps {
   data: ListItemUI<ParticipantHeaderData | ParticipantHandRaisedHeaderData>;
@@ -20,6 +24,11 @@ const _ParticipantsGroupHeader: React.FC<ParticipantsGroupHeaderProps> = ({
   data,
   setExpandedGroups,
 }) => {
+  // const selfHostOrBroadcaster = useSelector((state: RootState) => {
+  //   const selfRole = state.hmsStates.localPeer?.role;
+  //   return selfRole && isParticipantHostOrBroadcaster(selfRole);
+  // });
+
   const [optionsVisible, setOptionsVisible] = React.useState(false);
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
@@ -36,11 +45,16 @@ const _ParticipantsGroupHeader: React.FC<ParticipantsGroupHeaderProps> = ({
     },
   }));
 
+  const show3Dots = false;
+  // const show3Dots =
+  //   selfHostOrBroadcaster &&
+  //   ('role' in data.data
+  //     ? !isParticipantHostOrBroadcaster(data.data.role)
+  //     : data.key === 'hand-raised');
+
   const showOptions = () => setOptionsVisible(true);
 
   const hideOptions = () => setOptionsVisible(false);
-
-  const hide3Dots = true;
 
   const expanded = data.type === 'EXPANDED_HEADER';
 
@@ -66,7 +80,7 @@ const _ParticipantsGroupHeader: React.FC<ParticipantsGroupHeaderProps> = ({
       <Text style={[styles.label, hmsRoomStyles.label]}>{data.data.label}</Text>
 
       <View style={styles.controls}>
-        {hide3Dots ? null : (
+        {show3Dots ? (
           <Menu
             visible={optionsVisible}
             onRequestClose={hideOptions}
@@ -79,7 +93,7 @@ const _ParticipantsGroupHeader: React.FC<ParticipantsGroupHeaderProps> = ({
           >
             <ParticipantsGroupOptions data={data} />
           </Menu>
-        )}
+        ) : null}
 
         <TouchableOpacity
           style={[styles.control, expanded ? styles.expandedArrowIcon : null]}
