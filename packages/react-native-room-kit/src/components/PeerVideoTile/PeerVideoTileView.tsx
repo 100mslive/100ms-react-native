@@ -20,7 +20,10 @@ import { PeerNameAndNetwork } from './PeerNameAndNetwork';
 import { UnmountAfterDelay } from '../UnmountAfterDelay';
 import type { PeerTrackNode } from '../../utils/types';
 import { isTileOnSpotlight } from '../../utils/functions';
-import { selectAllowedTracksToPublish, selectCanPublishTrackForRole } from '../../hooks-sdk-selectors';
+import {
+  selectAllowedTracksToPublish,
+  selectCanPublishTrackForRole,
+} from '../../hooks-sdk-selectors';
 import { useHMSRoomStyleSheet } from '../../hooks-util';
 import { HMSFullScreenButton } from './HMSFullScreenButton';
 
@@ -85,10 +88,11 @@ export const _PeerVideoTileView = React.forwardRef<
       'video'
     );
 
-    const allowedToPublish = selectAllowedTracksToPublish(
-      useSelector((state: RootState) => state)
-    ) ?? [];
-    
+    const allowedToPublish = useSelector((state: RootState) => {
+      const allowed = selectAllowedTracksToPublish(state);
+      return (allowed && allowed.length > 0) ?? false;
+    });
+
     const hmsRoomStyles = useHMSRoomStyleSheet((theme) => ({
       iconWrapperStyles: {
         backgroundColor: hexToRgbA(theme.palette.background_dim!, 0.64),
@@ -109,55 +113,77 @@ export const _PeerVideoTileView = React.forwardRef<
       track.type === HMSTrackType.VIDEO &&
       track.isMute() === false;
 
-    return <View style={styles.container}>
-      <AvatarView
-        name={peer.name}
-        avatarContainerStyles={
-          insetMode ? hmsRoomStyles.avatarContainer : null
-        }
-        isInset={insetMode}
-        videoView={
-          showingVideoTrack ? <VideoView
-              ref={hmsViewRef}
-              peer={peer}
-              zoomIn={zoomIn}
-              trackId={track.trackId}
-              isDegraded={isDegraded}
-              overlay={insetMode}
-              scaleType={
-                onSpotlight || track.source !== HMSTrackSource.REGULAR
-                  ? HMSVideoViewMode.ASPECT_FIT
-                  : HMSVideoViewMode.ASPECT_FILL
-              }
-            /> : null
-        }
-      />
-
-      {/* Handling Peer Metadata */}
-      <PeerMetadata metadata={peer.metadata} />
-
-      {/* Handling Peer Audio Mute indicator */}
-      {screenShareTile && showingVideoTrack ? <HMSFullScreenButton peerTrackNode={peerTrackNode} /> : peerCanPublishAudio ? <PeerAudioMutedIndicator isMuted={peer.audioTrack?.isMute()} /> : null}
-
-      {/* Handling showing Peer name */}
-      {insetMode ? null : <PeerNameAndNetwork
+    return (
+      <View style={styles.container}>
+        <AvatarView
           name={peer.name}
-          isLocal={peer.isLocal}
-          trackSource={trackSource}
-          networkQuality={peer.networkQuality?.downlinkQuality}
-        />}
+          avatarContainerStyles={
+            insetMode ? hmsRoomStyles.avatarContainer : null
+          }
+          isInset={insetMode}
+          videoView={
+            showingVideoTrack ? (
+              <VideoView
+                ref={hmsViewRef}
+                peer={peer}
+                zoomIn={zoomIn}
+                trackId={track.trackId}
+                isDegraded={isDegraded}
+                overlay={insetMode}
+                scaleType={
+                  onSpotlight || track.source !== HMSTrackSource.REGULAR
+                    ? HMSVideoViewMode.ASPECT_FIT
+                    : HMSVideoViewMode.ASPECT_FILL
+                }
+              />
+            ) : null
+          }
+        />
 
-      {/* Handling press on this View, currently we make 3 dots visible when pressed */}
-      {insetMode ? <Pressable style={styles.pressable} onPress={handleTilePress} /> : null}
+        {/* Handling Peer Metadata */}
+        <PeerMetadata metadata={peer.metadata} />
 
-      {/* 3 dots option menu */}
-      {!onMoreOptionsPress ||
-      track &&
-        track?.source !== HMSTrackSource.REGULAR ? null : insetMode ? <UnmountAfterDelay
-          ref={unmountAfterDelayRef}
-          visible={mounted}
-          onUnmount={hide}
-        >
+        {/* Handling Peer Audio Mute indicator */}
+        {screenShareTile && showingVideoTrack ? (
+          <HMSFullScreenButton peerTrackNode={peerTrackNode} />
+        ) : peerCanPublishAudio ? (
+          <PeerAudioMutedIndicator isMuted={peer.audioTrack?.isMute()} />
+        ) : null}
+
+        {/* Handling showing Peer name */}
+        {insetMode ? null : (
+          <PeerNameAndNetwork
+            name={peer.name}
+            isLocal={peer.isLocal}
+            trackSource={trackSource}
+            networkQuality={peer.networkQuality?.downlinkQuality}
+          />
+        )}
+
+        {/* Handling press on this View, currently we make 3 dots visible when pressed */}
+        {insetMode ? (
+          <Pressable style={styles.pressable} onPress={handleTilePress} />
+        ) : null}
+
+        {/* 3 dots option menu */}
+        {!onMoreOptionsPress ||
+        (track &&
+          track?.source !== HMSTrackSource.REGULAR) ? null : insetMode ? (
+          <UnmountAfterDelay
+            ref={unmountAfterDelayRef}
+            visible={mounted}
+            onUnmount={hide}
+          >
+            <PressableIcon
+              activeOpacity={0.7}
+              style={[styles.iconWrapper, hmsRoomStyles.iconWrapperStyles]}
+              border={false}
+              onPress={handleOptionsPress}
+            >
+              <ThreeDotsIcon stack="vertical" style={styles.icon} />
+            </PressableIcon>
+          </UnmountAfterDelay>
+        ) : !allowedToPublish ? null : (
           <PressableIcon
             activeOpacity={0.7}
             style={[styles.iconWrapper, hmsRoomStyles.iconWrapperStyles]}
@@ -166,17 +192,9 @@ export const _PeerVideoTileView = React.forwardRef<
           >
             <ThreeDotsIcon stack="vertical" style={styles.icon} />
           </PressableIcon>
-        </UnmountAfterDelay> : allowedToPublish.length === 0 ? null : (
-        <PressableIcon
-          activeOpacity={0.7}
-          style={[styles.iconWrapper, hmsRoomStyles.iconWrapperStyles]}
-          border={false}
-          onPress={handleOptionsPress}
-        >
-          <ThreeDotsIcon stack="vertical" style={styles.icon} />
-        </PressableIcon>
-      )}
-    </View>;
+        )}
+      </View>
+    );
   }
 );
 
