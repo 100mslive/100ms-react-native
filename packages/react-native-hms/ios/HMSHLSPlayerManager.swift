@@ -202,11 +202,7 @@ class HMSHLSPlayer: UIView {
         attachPlayerPlaybackListeners()
 
         hmsHLSPlayerViewController?.showsPlaybackControls = false
-        hmsHLSPlayerViewController?.allowsPictureInPicturePlayback = true
-        hmsHLSPlayerViewController?.videoGravity = .resizeAspectFill
-        if #available(iOS 14.2, *) {
-            hmsHLSPlayerViewController?.canStartPictureInPictureAutomaticallyFromInline = true
-        }
+        hmsHLSPlayerViewController?.allowsPictureInPicturePlayback = false
     }
 
     required init?(coder: NSCoder) {
@@ -340,6 +336,15 @@ class HLSPlaybackEventController: HMSHLSPlayerDelegate {
 
     func onPlaybackFailure(error: Error) {
         hmsHlsPlayerDelegate?.onPlaybackFailure(error: error)
+    }
+    
+    func onResolutionChanged(videoSize: CGSize) {
+        if videoSize.width >= videoSize.height {
+            hmsHlsPlayerDelegate?.hmsHLSPlayerViewController?.videoGravity = .resizeAspect
+        }
+        else {
+            hmsHlsPlayerDelegate?.hmsHLSPlayerViewController?.videoGravity = .resizeAspectFill
+        }
     }
 }
 

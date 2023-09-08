@@ -69,6 +69,7 @@ export const HMSRoomSetup = () => {
   const hmsInstance = useHMSInstance();
   const dispatch = useDispatch();
   const reduxStore = useStore<RootState>();
+  const { goToPreview } = useLeaveMethods(true);
 
   const { goToPreview } = useLeaveMethods(true);
 

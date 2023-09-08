@@ -1,19 +1,29 @@
 import * as React from 'react';
+import { useSelector } from 'react-redux';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import type { HMSLocalPeer, HMSRemotePeer } from '@100mslive/react-native-hms';
 
-import { parseMetadata } from '../../utils/functions';
+import {
+  isParticipantHostOrBroadcaster,
+  parseMetadata,
+} from '../../utils/functions';
 import { useHMSRoomStyleSheet } from '../../hooks-util';
 import type { ListItemUI } from '../../hooks-util';
 import { HandIcon, NetworkQualityIcon, ThreeDotsIcon } from '../../Icons';
 import { Menu } from '../MenuModal';
 import { ParticipantsItemOptions } from './ParticipantsItemOptions';
+import type { RootState } from '../../redux';
 
 interface ParticipantsItemProps {
   data: ListItemUI<HMSLocalPeer | HMSRemotePeer>;
 }
 
 const _ParticipantsItem: React.FC<ParticipantsItemProps> = ({ data }) => {
+  const selfHostOrBroadcaster = useSelector((state: RootState) => {
+    const selfRole = state.hmsStates.localPeer?.role;
+    return selfRole && isParticipantHostOrBroadcaster(selfRole);
+  });
+
   const [optionsVisible, setOptionsVisible] = React.useState(false);
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
@@ -33,17 +43,22 @@ const _ParticipantsItem: React.FC<ParticipantsItemProps> = ({ data }) => {
     },
   }));
 
+  const show3Dots =
+    selfHostOrBroadcaster &&
+    ('role' in data.data
+      ? !isParticipantHostOrBroadcaster(data.data.role!)
+      : data.key === 'hand-raised');
+
   const showOptions = () => setOptionsVisible(true);
 
   const hideOptions = () => setOptionsVisible(false);
-
-  const hide3Dots = true;
 
   const isLast = data.type === 'LAST_ITEM';
 
   const peer = data.data;
   const isHandRaised = parseMetadata(peer.metadata).isHandRaised;
 
+  const [_peerID, peerGroupName] = data.key.split('--');
   return (
     <View
       style={[
@@ -52,7 +67,10 @@ const _ParticipantsItem: React.FC<ParticipantsItemProps> = ({ data }) => {
         hmsRoomStyles.container,
       ]}
     >
-      <Text style={[styles.label, hmsRoomStyles.label]}>{data.data.name}</Text>
+      <Text style={[styles.label, hmsRoomStyles.label]}>
+        {data.data.name}
+        {data.data.isLocal ? ' (You)' : null}
+      </Text>
 
       <View style={styles.controls}>
         {isHandRaised ? (
@@ -84,7 +102,7 @@ const _ParticipantsItem: React.FC<ParticipantsItemProps> = ({ data }) => {
           </View>
         ) : null}
 
-        {hide3Dots ? null : (
+        {show3Dots ? (
           <Menu
             visible={optionsVisible}
             onRequestClose={hideOptions}
@@ -95,9 +113,13 @@ const _ParticipantsItem: React.FC<ParticipantsItemProps> = ({ data }) => {
             }
             style={{ ...styles.menu, ...hmsRoomStyles.menu }}
           >
-            <ParticipantsItemOptions peer={peer} />
+            <ParticipantsItemOptions
+              peer={peer}
+              onItemPress={hideOptions}
+              insideHandRaiseGroup={peerGroupName === 'hand-raised'}
+            />
           </Menu>
-        )}
+        ) : null}
       </View>
     </View>
   );

@@ -85,12 +85,12 @@ type SetRoleChangeRequest = {
 
 type AddRemoveParticipant = {
   type: HmsStateActionTypes.ADD_REMOVE_PARTICIPANT;
-  remoteParticipant: HMSPeer;
+  participant: HMSPeer;
 };
 
 type AddUpdateParticipant = {
   type: HmsStateActionTypes.ADD_UPDATE_PARTICIPANT;
-  remoteParticipant: HMSPeer;
+  participant: HMSPeer;
 };
 
 type IntialStateType = {
@@ -100,7 +100,7 @@ type IntialStateType = {
   roomLocallyMuted: boolean;
   room: HMSRoom | null;
   localPeer: HMSLocalPeer | null;
-  remoteParticipants: HMSPeer[];
+  participants: (HMSPeer | HMSLocalPeer)[];
   roles: HMSRole[];
   previewPeersList: HMSPeer[];
   layoutConfig: Layout[] | null;
@@ -114,7 +114,7 @@ const INITIAL_STATE: IntialStateType = {
   roomLocallyMuted: false,
   room: null,
   localPeer: null,
-  remoteParticipants: [],
+  participants: [],
   roles: [],
   previewPeersList: [],
   layoutConfig: null,
@@ -131,61 +131,67 @@ const hmsStatesReducer = (
         ...state,
         room: action.room,
       };
-    case HmsStateActionTypes.SET_LOCAL_PEER_STATE:
+    case HmsStateActionTypes.SET_LOCAL_PEER_STATE: {
+      const participantsHasLocalPeer = action.localPeer !== null ? state.participants.findIndex(
+        (participant) => participant.peerID === action.localPeer?.peerID
+      ) >= 0 : false;
+
       return {
         ...state,
         localPeer: action.localPeer,
         isLocalAudioMuted: action.localPeer?.audioTrack?.isMute(),
         isLocalVideoMuted: action.localPeer?.videoTrack?.isMute(),
+
+        // Adding or updating local peer in participants list
+        participants: action.localPeer !== null
+          ? participantsHasLocalPeer
+            ? state.participants.map((participant) =>
+                participant.peerID === action.localPeer?.peerID
+                  ? action.localPeer
+                  : participant
+              )
+            : [action.localPeer, ...state.participants]
+          : state.participants,
       };
+    }
     case HmsStateActionTypes.ADD_REMOVE_PARTICIPANT: {
       if (
-        state.remoteParticipants.findIndex(
-          (remoteParticipant) =>
-            remoteParticipant.peerID === action.remoteParticipant.peerID
+        state.participants.findIndex(
+          (participant) => participant.peerID === action.participant.peerID
         ) >= 0
       ) {
         return {
           ...state,
-          remoteParticipants: state.remoteParticipants.filter(
-            (remoteParticipant) =>
-              remoteParticipant.peerID !== action.remoteParticipant.peerID
+          participants: state.participants.filter(
+            (participant) => participant.peerID !== action.participant.peerID
           ),
         };
       }
 
       return {
         ...state,
-        remoteParticipants: [
-          ...state.remoteParticipants,
-          action.remoteParticipant,
-        ],
+        participants: [...state.participants, action.participant],
       };
     }
     case HmsStateActionTypes.ADD_UPDATE_PARTICIPANT: {
       if (
-        state.remoteParticipants.findIndex(
-          (remoteParticipant) =>
-            remoteParticipant.peerID === action.remoteParticipant.peerID
+        state.participants.findIndex(
+          (participant) => participant.peerID === action.participant.peerID
         ) >= 0
       ) {
         return {
           ...state,
-          remoteParticipants: state.remoteParticipants.map(
-            (remoteParticipant) =>
-              remoteParticipant.peerID === action.remoteParticipant.peerID
-                ? action.remoteParticipant
-                : remoteParticipant
+          participants: state.participants.map((participant) =>
+            participant.peerID === action.participant.peerID
+              ? action.participant
+              : participant
           ),
         };
       }
 
       return {
         ...state,
-        remoteParticipants: [
-          ...state.remoteParticipants,
-          action.remoteParticipant,
-        ],
+        participants: [...state.participants, action.participant],
       };
     }
     case HmsStateActionTypes.SET_ROLES_STATE:
