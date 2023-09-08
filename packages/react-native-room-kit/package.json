@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "@react-navigation/native": "^6.0.8",
-    "lottie-react-native": "^6.2.0",
+    "lottie-react-native": "5.1.6",
     "react-redux": "^7.2.4",
     "redux": "^4.1.0"
   },
