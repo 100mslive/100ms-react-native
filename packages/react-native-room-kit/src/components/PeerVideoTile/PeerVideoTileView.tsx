@@ -12,10 +12,10 @@ import { VideoView } from './VideoView';
 import { AvatarView } from './AvatarView';
 import type { RootState } from '../../redux';
 import { PeerMetadata } from './PeerMetadata';
-import { PeerAudioMutedIndicator } from './PeerAudioMutedIndicator';
+import { PeerAudioIndicator } from './PeerAudioIndicator';
 import { PressableIcon } from '../PressableIcon';
 import { ThreeDotsIcon } from '../../Icons';
-import { COLORS, hexToRgbA } from '../../utils/theme';
+import { hexToRgbA } from '../../utils/theme';
 import { PeerNameAndNetwork } from './PeerNameAndNetwork';
 import { UnmountAfterDelay } from '../UnmountAfterDelay';
 import type { PeerTrackNode } from '../../utils/types';
@@ -26,7 +26,6 @@ import {
 } from '../../hooks-sdk-selectors';
 import { useHMSRoomStyleSheet } from '../../hooks-util';
 import { HMSFullScreenButton } from './HMSFullScreenButton';
-import LottieView from 'lottie-react-native';
 
 export interface PeerVideoTileViewProps {
   peerTrackNode: PeerTrackNode;
@@ -148,9 +147,7 @@ export const _PeerVideoTileView = React.forwardRef<
         {screenShareTile && showingVideoTrack ? (
           <HMSFullScreenButton peerTrackNode={peerTrackNode} />
         ) : peerCanPublishAudio ? (
-          // <PeerAudioMutedIndicator isMuted={peer.audioTrack?.isMute()} />
-          <LottieView style={{ width: 50, height: 50, backgroundColor: 'red'}} source={require('../../assets/audio-level-white.json')} autoPlay loop />
-
+          <PeerAudioIndicator isMuted={peer.audioTrack?.isMute()} peer={peer} />
         ) : null}
 
         {/* Handling showing Peer name */}

@@ -4,6 +4,7 @@ import type {
   HMSRole,
   HMSRoleChangeRequest,
   HMSRoom,
+  HMSSpeaker,
 } from '@100mslive/react-native-hms';
 import type { Layout } from '@100mslive/types-prebuilt';
 import { HmsStateActionTypes } from '../actionTypes';
@@ -22,7 +23,8 @@ type ActionType =
   | SetLayoutConfig
   | SetRoleChangeRequest
   | AddRemoveParticipant
-  | AddUpdateParticipant;
+  | AddUpdateParticipant
+  | SetActiveSpeakers;
 
 type SetRoomAction = {
   type: HmsStateActionTypes.SET_ROOM_STATE;
@@ -93,6 +95,11 @@ type AddUpdateParticipant = {
   participant: HMSPeer;
 };
 
+type SetActiveSpeakers = {
+  type: HmsStateActionTypes.SET_ACTIVE_SPEAKERS;
+  activeSpeakers: HMSSpeaker[];
+};
+
 type IntialStateType = {
   isLocalAudioMuted: boolean | undefined;
   isLocalVideoMuted: boolean | undefined;
@@ -101,6 +108,7 @@ type IntialStateType = {
   room: HMSRoom | null;
   localPeer: HMSLocalPeer | null;
   participants: (HMSPeer | HMSLocalPeer)[];
+  activeSpeakers: HMSSpeaker[];
   roles: HMSRole[];
   previewPeersList: HMSPeer[];
   layoutConfig: Layout[] | null;
@@ -115,6 +123,7 @@ const INITIAL_STATE: IntialStateType = {
   room: null,
   localPeer: null,
   participants: [],
+  activeSpeakers: [],
   roles: [],
   previewPeersList: [],
   layoutConfig: null,
@@ -198,6 +207,11 @@ const hmsStatesReducer = (
       return {
         ...state,
         roles: action.roles,
+      };
+    case HmsStateActionTypes.SET_ACTIVE_SPEAKERS:
+      return {
+        ...state,
+        activeSpeakers: action.activeSpeakers,
       };
     case HmsStateActionTypes.SET_IS_LOCAL_AUDIO_MUTED_STATE:
       return {
