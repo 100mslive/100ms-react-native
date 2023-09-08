@@ -323,7 +323,7 @@ PODS:
     - HMSHLSPlayerSDK (= 0.0.2)
     - HMSSDK (= 0.9.10)
     - React-Core
-  - react-native-keyboard-controller (1.6.1):
+  - react-native-keyboard-controller (1.7.0):
     - React-Core
   - react-native-lottie-splash-screen (1.1.1):
     - React
@@ -696,7 +696,7 @@ SPEC CHECKSUMS:
   react-native-blur: cfdad7b3c01d725ab62a8a729f42ea463998afa2
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
   react-native-hms: cb6412ad2ede4f4763bd7681cb26afb6ca39d77f
-  react-native-keyboard-controller: 04fed02b3ff24e18486c7fb52ab92267c15b27a9
+  react-native-keyboard-controller: 3a9328bd05ce52bb1c2680160b51b1a24dd50d59
   react-native-lottie-splash-screen: 015423265bac5f46016dff2e31c97b9590808856
   react-native-safe-area-context: 61c8c484a3a9e7d1fda19f7b1794b35bbfd2262a
   react-native-simple-toast: bf002828cf816775a6809f7a9ec3907509bce11f

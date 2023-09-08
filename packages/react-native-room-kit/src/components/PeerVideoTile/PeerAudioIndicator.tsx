@@ -13,11 +13,17 @@ export interface PeerAudioIndicatorProps {
   isMuted: boolean | undefined;
 }
 
-export const PeerAudioIndicator: React.FC<
-  PeerAudioIndicatorProps
-> = ({ peer, isMuted }) => {
-  const activeSpeaker = useSelector((state: RootState) => state.hmsStates.activeSpeakers.findIndex(activeSpeaker => activeSpeaker.peer.peerID === peer.peerID) >= 0);
-  
+export const PeerAudioIndicator: React.FC<PeerAudioIndicatorProps> = ({
+  peer,
+  isMuted,
+}) => {
+  const activeSpeaker = useSelector(
+    (state: RootState) =>
+      state.hmsStates.activeSpeakers.findIndex(
+        (activeSpeaker) => activeSpeaker.peer.peerID === peer.peerID
+      ) >= 0
+  );
+
   const iconWrapperStyles = useHMSRoomStyle((theme) => ({
     backgroundColor: theme.palette.secondary_dim,
   }));
@@ -33,7 +39,12 @@ export const PeerAudioIndicator: React.FC<
   if (activeSpeaker) {
     return (
       <View style={[styles.speakerIconWrapper, iconWrapperStyles]}>
-        <LottieView style={styles.speakerIcon} source={require('../../assets/audio-level-white.json')} autoPlay loop />
+        <LottieView
+          style={styles.speakerIcon}
+          source={require('../../assets/audio-level-white.json')}
+          autoPlay
+          loop
+        />
       </View>
     );
   }

@@ -337,12 +337,11 @@ class HLSPlaybackEventController: HMSHLSPlayerDelegate {
     func onPlaybackFailure(error: Error) {
         hmsHlsPlayerDelegate?.onPlaybackFailure(error: error)
     }
-    
+
     func onResolutionChanged(videoSize: CGSize) {
         if videoSize.width >= videoSize.height {
             hmsHlsPlayerDelegate?.hmsHLSPlayerViewController?.videoGravity = .resizeAspect
-        }
-        else {
+        } else {
             hmsHlsPlayerDelegate?.hmsHLSPlayerViewController?.videoGravity = .resizeAspectFill
         }
     }
