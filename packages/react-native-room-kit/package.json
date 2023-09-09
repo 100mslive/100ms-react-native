@@ -52,7 +52,6 @@
   },
   "dependencies": {
     "@react-navigation/native": "^6.0.8",
-    "lottie-react-native": "5.1.6",
     "react-redux": "^7.2.4",
     "redux": "^4.1.0"
   },
@@ -82,7 +81,9 @@
   },
   "peerDependencies": {
     "@100mslive/react-native-hms": "1.7.1",
+    "@react-native-community/blur": "^4.3.2",
     "@shopify/flash-list": "^1.4.3",
+    "lottie-react-native": "5.1.6",
     "react": "*",
     "react-native": "*",
     "react-native-gesture-handler": "^2.12.1",
