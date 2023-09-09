@@ -7,10 +7,12 @@ import type {
   HMSPeer,
 } from '@100mslive/react-native-hms';
 import { useSelector } from 'react-redux';
+import { BlurView } from "@react-native-community/blur";
 
 import type { RootState } from '../../redux';
 import { useHMSRoomStyleSheet } from '../../hooks-util';
 import { HMSPinchGesture } from './HMSPinchGesture';
+import { AlertTriangleIcon } from '../../Icons';
 
 export interface VideoViewProps {
   trackId: string;
@@ -53,7 +55,10 @@ const _VideoView = React.forwardRef<
       },
       degradedText: {
         color: theme.palette.on_surface_high,
-        fontFamily: `${typography.font_family}-SemiBold`,
+        fontFamily: `${typography.font_family}-Regular`,
+      },
+      icon: {
+        tintColor: theme.palette.on_surface_high,
       },
     }));
 
@@ -87,10 +92,16 @@ const _VideoView = React.forwardRef<
         )}
 
         {isDegraded ? (
-          <View style={[styles.degradedView, hmsRoomStyles.degradedView]}>
-            <Text style={[styles.degradedText, hmsRoomStyles.degradedText]}>
-              Degraded
-            </Text>
+          <View style={styles.degradedView}>
+            <BlurView
+              style={styles.blurView}
+              blurType="dark"
+              blurAmount={24}
+            />
+
+            <AlertTriangleIcon type='fill' style={[styles.icon, hmsRoomStyles.icon]} />
+
+            <Text numberOfLines={2} style={[styles.degradedText, hmsRoomStyles.degradedText]}>{peer.isLocal ? 'Your' : `${peer.name}'s`} network is unstable</Text>
           </View>
         ) : null}
       </View>
@@ -116,10 +127,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  blurView: {
+    flex: 1,
+    position: 'absolute',
+    height: '100%',
+    width: '100%',
+  },
   degradedText: {
-    fontSize: 15,
-    lineHeight: 20,
-    letterSpacing: 0.25,
+    fontSize: 12,
+    lineHeight: 16,
+    letterSpacing: 0.40,
+    marginTop: 8,
+    textAlign:'center',
+    paddingHorizontal: 8,
+  },
+  icon: {
+    width: 32,
+    height: 32,
   },
 });
 
