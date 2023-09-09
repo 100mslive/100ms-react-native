@@ -111,15 +111,6 @@ const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
       <PressableIcon>{React.cloneElement(leaveIconDelegate)}</PressableIcon>
     );
 
-  const canEndRoom = useSelector(
-    (state: RootState) => state.hmsStates.localPeer?.role?.permissions?.endRoom
-  );
-
-  const canStream = useSelector(
-    (state: RootState) =>
-      state.hmsStates.localPeer?.role?.permissions?.hlsStreaming
-  );
-
   return (
     <View>
       {React.cloneElement(leaveButtonDelegate, {

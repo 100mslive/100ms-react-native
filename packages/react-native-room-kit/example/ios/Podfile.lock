@@ -79,7 +79,7 @@ PODS:
   - HMSBroadcastExtensionSDK (0.0.9)
   - HMSHLSPlayerSDK (0.0.2):
     - HMSAnalyticsSDK (= 0.0.2)
-  - HMSSDK (0.9.10):
+  - HMSSDK (0.9.11):
     - HMSAnalyticsSDK (= 0.0.2)
     - HMSWebRTC (= 1.0.5116)
   - HMSWebRTC (1.0.5116)
@@ -319,7 +319,7 @@ PODS:
   - react-native-hms (1.7.3):
     - HMSBroadcastExtensionSDK (= 0.0.9)
     - HMSHLSPlayerSDK (= 0.0.2)
-    - HMSSDK (= 0.9.10)
+    - HMSSDK (= 0.9.11)
     - React-Core
   - react-native-keyboard-controller (1.7.0):
     - React-Core
@@ -667,7 +667,7 @@ SPEC CHECKSUMS:
   HMSAnalyticsSDK: 4d2a88a729b1eb42f3d25f217c28937ec318a5b7
   HMSBroadcastExtensionSDK: d80fe325f6c928bd8e5176290b5a4b7ae15d6fbb
   HMSHLSPlayerSDK: 6a54ad4d12f3dc2270d1ecd24019d71282a4f6a3
-  HMSSDK: d921a4e75470d0ca20a9390d52c07a20b1361d3f
+  HMSSDK: 77720372c9d6378f1b721cb0fb3553b3d1401a9b
   HMSWebRTC: ae54e9dd91b869051b283b43b14f57d43b7bf8e1
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   lottie-ios: 8f97d3271e155c2d688875c29cd3c74908aef5f8
@@ -689,7 +689,7 @@ SPEC CHECKSUMS:
   React-jsinspector: f4775ea9118cbe1f72b834f0f842baa7a99508d8
   React-logger: a1f028f6d8639a3f364ef80419e5e862e1115250
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
-  react-native-hms: cb6412ad2ede4f4763bd7681cb26afb6ca39d77f
+  react-native-hms: 17691d9c8ccfc258959b17ba637aa067c943a55f
   react-native-keyboard-controller: 3a9328bd05ce52bb1c2680160b51b1a24dd50d59
   react-native-lottie-splash-screen: 015423265bac5f46016dff2e31c97b9590808856
   react-native-safe-area-context: 61c8c484a3a9e7d1fda19f7b1794b35bbfd2262a

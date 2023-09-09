@@ -2,14 +2,22 @@ import React, { memo, useMemo } from 'react';
 import { View, StyleSheet, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { useHMSLayoutConfig, useHMSRoomStyle, useIsHLSViewer } from '../hooks-util';
+import {
+  useHMSLayoutConfig,
+  useHMSRoomStyle,
+  useIsHLSViewer,
+} from '../hooks-util';
 import { HMSManageLeave } from './HMSManageLeave';
 import { HMSManageRaiseHand } from './HMSManageRaiseHand';
 import { HMSManageLocalAudio } from './HMSManageLocalAudio';
 import { HMSManageLocalVideo } from './HMSManageLocalVideo';
 import { HMSChat } from './HMSChat';
 import { HMSRoomOptions } from './HMSRoomOptions';
-import { useCanPublishAudio, useCanPublishScreen, useCanPublishVideo } from '../hooks-sdk';
+import {
+  useCanPublishAudio,
+  useCanPublishScreen,
+  useCanPublishVideo,
+} from '../hooks-sdk';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../redux';
 
@@ -31,24 +39,18 @@ export const _Footer: React.FC<FooterProps> = () => {
       !!layoutConfig?.screens?.conferencing?.default?.elements?.brb
   );
 
-  const localPeerRole = useSelector(
-    (state: RootState) => state.hmsStates.localPeer?.role
-  );
-
-  const isOnStage = useHMSLayoutConfig(
-    (layoutConfig) => {
-      return !!layoutConfig?.screens?.conferencing?.default?.elements?.on_stage_exp;
-    }
-  );
+  const isOnStage = useHMSLayoutConfig((layoutConfig) => {
+    return !!layoutConfig?.screens?.conferencing?.default?.elements
+      ?.on_stage_exp;
+  });
 
   const canStartRecording = useSelector(
     (state: RootState) =>
       !!state.hmsStates.localPeer?.role?.permissions?.browserRecording
   );
 
-  const canShowOptions = (
-    canPublishScreen || canShowParticipants || canShowBRB || canStartRecording
-  )
+  const canShowOptions =
+    canPublishScreen || canShowParticipants || canShowBRB || canStartRecording;
 
   const footerActionButtons = useMemo(() => {
     const actions = ['chat'];
@@ -67,7 +69,7 @@ export const _Footer: React.FC<FooterProps> = () => {
 
     actions.unshift('leave');
 
-    if (canShowOptions){
+    if (canShowOptions) {
       actions.push('options');
     }
 

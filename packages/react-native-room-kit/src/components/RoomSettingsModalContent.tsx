@@ -8,14 +8,14 @@ import { ModalTypes } from '../utils/types';
 import { groupIntoTriplets, parseMetadata } from '../utils/functions';
 import {
   BRBIcon,
-  HandIcon,
   ParticipantsIcon,
   RecordingIcon,
   ScreenShareIcon,
 } from '../Icons';
 import { BottomSheet, useBottomSheetActions } from './BottomSheet';
 import {
-  useHMSInstance, useHMSLayoutConfig,
+  useHMSInstance,
+  useHMSLayoutConfig,
   useHMSRoomStyleSheet,
   useIsHLSViewer,
 } from '../hooks-util';
@@ -26,7 +26,6 @@ import {
   setStartingOrStoppingRecording,
 } from '../redux/actions';
 import { ParticipantsCount } from './ParticipantsCount';
-import { selectCanPublishTrack } from '../hooks-sdk-selectors';
 
 interface RoomSettingsModalContentProps {
   newAudioMixingMode: HMSAudioMixingMode;
@@ -91,23 +90,9 @@ export const RoomSettingsModalContent: React.FC<
     (state: RootState) => state.hmsStates.localPeer?.metadata
   );
 
-  const localPeerRole = useSelector(
-    (state: RootState) => state.hmsStates.localPeer?.role
-  );
   const parsedMetadata = parseMetadata(localPeerMetadata);
 
   const isBRBOn = !!parsedMetadata.isBRBOn;
-  const isHandRaised = !!parsedMetadata.isHandRaised;
-
-  const toggleRaiseHand = async () => {
-    const newMetadata = {
-      ...parsedMetadata,
-      isBRBOn: false,
-      isHandRaised: !isHandRaised,
-    };
-    closeRoomSettingsModal();
-    await hmsActions.changeMetadata(newMetadata);
-  };
 
   const toggleBRB = async () => {
     const newMetadata = {
@@ -168,7 +153,7 @@ export const RoomSettingsModalContent: React.FC<
       <View style={styles.contentContainer}>
         {groupIntoTriplets(
           [
-              {
+            {
               id: 'participants',
               icon: <ParticipantsIcon style={{ width: 20, height: 20 }} />,
               label: 'Participants',
@@ -200,7 +185,7 @@ export const RoomSettingsModalContent: React.FC<
               icon: <RecordingIcon style={{ width: 20, height: 20 }} />,
               label: isRecordingOn ? 'Stop Recording' : 'Start Recording',
               pressHandler: handleRecordingTogglePress,
-              isActive: !!isRecordingOn,
+              isActive: isRecordingOn,
               hide: !canStartRecording, // Hide if can't publish screen
             },
           ].filter((itm) => !itm.hide),
