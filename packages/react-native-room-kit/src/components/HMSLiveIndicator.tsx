@@ -6,21 +6,18 @@ import {
   Platform,
   TouchableOpacity,
 } from 'react-native';
-import { batch, useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import {
   useHMSRoomStyleSheet,
   useIsHLSViewer,
-  useModalType,
+  useShowParticipantsSheet,
 } from '../hooks-util';
 import { EyeIcon } from '../Icons';
 import { hexToRgbA } from '../utils/theme';
 import type { RootState } from '../redux';
-import { ModalTypes } from '../utils/types';
-import { setActiveChatBottomSheetTab } from '../redux/actions';
 
 const _HMSLiveIndicator = () => {
-  const dispatch = useDispatch();
   const isHLSViewer = useIsHLSViewer();
   const previewPeerCount = useSelector(
     (state: RootState) => state.hmsStates.room?.peerCount
@@ -28,8 +25,6 @@ const _HMSLiveIndicator = () => {
   const live = useSelector(
     (state: RootState) => !!state.hmsStates.room?.hlsStreamingState.running
   );
-
-  const { handleModalVisibleType: setModalVisible } = useModalType();
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typograhy) => ({
     live: {
@@ -52,16 +47,7 @@ const _HMSLiveIndicator = () => {
     },
   }));
 
-  const showParticipantList = () => {
-    if (isHLSViewer) {
-      setModalVisible(ModalTypes.PARTICIPANTS);
-    } else {
-      batch(() => {
-        dispatch(setActiveChatBottomSheetTab('Participants'));
-        dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: true });
-      });
-    }
-  };
+  const showParticipantList = useShowParticipantsSheet();
 
   if (!live) {
     return null;

@@ -11,6 +11,8 @@ import PIPView from './PIPView';
 import { useIsPortraitOrientation } from '../utils/dimension';
 import { LocalPeerRegularVideoView } from './LocalPeerRegularVideoView';
 import { WelcomeInMeeting } from './WelcomeInMeeting';
+import { OverlayContainer } from './OverlayContainer';
+import { OverlayedViews } from './OverlayedViews';
 
 interface WebrtcViewProps {
   peerTrackNodes: Array<PeerTrackNode>;
@@ -53,26 +55,28 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
         !state.app.localPeerTrackNode && pairedPeers.length === 0
     );
 
-    if (showWelcomeBanner) {
-      return <WelcomeInMeeting />;
-    }
-
     if (isPipModeActive) {
       return <PIPView pairedPeers={pairedPeers} />;
     }
 
-    if (pairedPeers.length > 0) {
-      return (
-        <GridView
-          ref={gridViewRef}
-          onPeerTileMorePress={handlePeerTileMorePress}
-          pairedPeers={pairedPeers}
-        />
-      );
-    }
-
     return (
-      <LocalPeerRegularVideoView onMoreOptionsPress={handlePeerTileMorePress} />
+      <OverlayContainer>
+        {showWelcomeBanner ? (
+          <WelcomeInMeeting />
+        ) : pairedPeers.length > 0 ? (
+          <GridView
+            ref={gridViewRef}
+            onPeerTileMorePress={handlePeerTileMorePress}
+            pairedPeers={pairedPeers}
+          />
+        ) : (
+          <LocalPeerRegularVideoView
+            onMoreOptionsPress={handlePeerTileMorePress}
+          />
+        )}
+
+        <OverlayedViews />
+      </OverlayContainer>
     );
   }
 );

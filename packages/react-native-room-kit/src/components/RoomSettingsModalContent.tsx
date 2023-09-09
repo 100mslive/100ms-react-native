@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import type { HMSAudioMixingMode } from '@100mslive/react-native-hms';
-import { batch, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import type { RootState } from '../redux';
 import { ModalTypes } from '../utils/types';
@@ -17,12 +17,11 @@ import {
   useHMSInstance,
   useHMSLayoutConfig,
   useHMSRoomStyleSheet,
-  useIsHLSViewer,
+  useShowParticipantsSheet,
 } from '../hooks-util';
 import { useCanPublishScreen, useHMSActions } from '../hooks-sdk';
 import { RoomSettingsModalDebugModeContent } from './RoomSettingsModalDebugModeContent';
 import {
-  setActiveChatBottomSheetTab,
   setStartingOrStoppingRecording,
 } from '../redux/actions';
 import { ParticipantsCount } from './ParticipantsCount';
@@ -47,25 +46,17 @@ export const RoomSettingsModalContent: React.FC<
   const dispatch = useDispatch();
   const hmsInstance = useHMSInstance();
   const debugMode = useSelector((state: RootState) => state.user.debugMode);
-  const isHLSViewer = useIsHLSViewer();
 
   const hmsActions = useHMSActions();
 
   const { registerOnModalHideAction } = useBottomSheetActions();
 
+  const showParticipantList = useShowParticipantsSheet();
+
   // #region Participants related states and functions
   const onParticipantsPress = () => {
     // Register callback to be called when bottom sheet is hidden
-    registerOnModalHideAction(() => {
-      if (isHLSViewer) {
-        setModalVisible(ModalTypes.PARTICIPANTS);
-      } else {
-        batch(() => {
-          dispatch(setActiveChatBottomSheetTab('Participants'));
-          dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: true });
-        });
-      }
-    });
+    registerOnModalHideAction(showParticipantList);
 
     // Close the current bottom sheet
     closeRoomSettingsModal();

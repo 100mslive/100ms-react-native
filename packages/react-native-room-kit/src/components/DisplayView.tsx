@@ -25,6 +25,7 @@ import { PeerSettingsModalContent } from '../components/PeerSettingsModalContent
 import { StreamingQualityModalContent } from '../components/StreamingQualityModalContent';
 import {
   useHMSChangeTrackStateRequest,
+  useHMSChatLayoutConfig,
   useHMSInstance,
   useHMSRoleChangeRequest,
   useHMSSessionStoreListeners,
@@ -52,6 +53,8 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
   // --- 100ms SDK Instance ---
   const hmsInstance = useHMSInstance();
   const isHLSViewer = useIsHLSViewer();
+
+  const overlayChatLayout = useHMSChatLayoutConfig((chatConfig) => chatConfig?.overlay_view);
 
   const {
     modalVisibleType: modalVisible,
@@ -155,7 +158,7 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
 
           <FullScreenVideoView />
 
-          {isHLSViewer ? (
+          {overlayChatLayout ? (
             <ParticipantsBottomSheet />
           ) : (
             <ChatAndParticipantsBottomSheet />

@@ -4,7 +4,7 @@ import type { SharedValue } from 'react-native-reanimated';
 
 import { Footer } from './Footer';
 import { AnimatedHLSFooter } from './AnimatedHLSFooter';
-import { HLSChatView } from './HLSChatView';
+import { HLSChatView } from './HMSOverlayChatView';
 import { useShowChat } from '../hooks-util';
 
 interface HLSFooterProps {

@@ -20,8 +20,21 @@ export const HMSHLSMessageList: React.FC = () => {
     return <HMSHLSMessage message={data.item} />;
   }, []);
 
+  if (messages.length <= 0) {
+    return null;
+  }
+
   return (
-    <View style={[styles.container, { height: windowHeight * 0.3 }]}>
+    <View
+      style={[
+        styles.container,
+        {
+          maxHeight: windowHeight * 0.2,
+          height:
+            (messages.length > 3) ? windowHeight * 0.2 : (messages.length * 54),
+        },
+      ]}
+    >
       <FlashList
         data={messages}
         inverted={true}
@@ -40,7 +53,6 @@ export const HMSHLSMessageList: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     position: 'relative',
-    minHeight: 192,
     marginVertical: 8,
     marginHorizontal: 16,
   },
