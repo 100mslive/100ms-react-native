@@ -6,5 +6,5 @@
   android:id="@+id/hls_view"
   android:layout_width="match_parent"
   app:resize_mode="zoom"
-  android:layout_height="wrap_content"
-  android:layout_gravity="center" />
+  android:layout_height="match_parent"
+  />

@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import type { ComponentRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { HMSHLSPlayer } from '@100mslive/react-native-hms';
 
 import type { RootState } from '../redux';
@@ -80,8 +80,6 @@ export const HLSView: React.FC = () => {
     }
   };
 
-  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
-
   return (
     <View style={styles.hlsView}>
       {room?.hlsStreamingState?.running ? (
@@ -90,7 +88,6 @@ export const HLSView: React.FC = () => {
             <View key={index} style={styles.hlsPlayerContainer}>
               <HMSHLSPlayer
                 ref={hmsHlsPlayerRef}
-                aspectRatio={windowWidth / windowHeight}
                 enableStats={showHLSStats}
                 enableControls={enableHLSPlayerControls}
               />
