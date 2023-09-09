@@ -39,6 +39,7 @@ export const HMSHLSMessageList: React.FC = () => {
         data={messages}
         inverted={true}
         estimatedItemSize={62}
+        contentContainerStyle={{ paddingBottom: 30 }}
         // contentContainerStyle={styles.listContentContainer} // Bug: Android inverted flashlist will apply padding on left when `paddingRight: 12` is applied
         keyboardShouldPersistTaps="always"
         // ListEmptyComponent={ChatBanner}
