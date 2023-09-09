@@ -20,6 +20,7 @@ import {
   HMSMessageRecipient,
   // useHMSPeerUpdates,
 } from '@100mslive/react-native-hms';
+import type { Chat as ChatConfig } from '@100mslive/types-prebuilt/elements/chat';
 import type {
   HMSRole,
   HMSSessionStore,
@@ -57,8 +58,8 @@ import type { RootState } from './redux';
 import {
   addMessage,
   addNotification,
+  addParticipant,
   addPinnedMessage,
-  addRemoveParticipant,
   addScreenshareTile,
   addUpdateParticipant,
   changeMeetingState,
@@ -66,6 +67,7 @@ import {
   changeStartingHLSStream,
   clearStore,
   removeNotification,
+  removeParticipant,
   removeScreenshareTile,
   saveUserData,
   setActiveChatBottomSheetTab,
@@ -112,6 +114,7 @@ import {
   useIsPortraitOrientation,
 } from './utils/dimension';
 import {
+  selectChatLayoutConfig,
   selectIsHLSViewer,
   selectLayoutConfigForRole,
   selectShouldGoLive,
@@ -242,11 +245,11 @@ const useHMSPeersUpdate = (
 
       // Handle State for Meeting screen
       if (type === HMSPeerUpdate.PEER_JOINED) {
-        dispatch(addRemoveParticipant(peer));
+        dispatch(addParticipant(peer));
         return;
       }
       if (type === HMSPeerUpdate.PEER_LEFT) {
-        dispatch(addRemoveParticipant(peer));
+        dispatch(removeParticipant(peer));
 
         // Handling regular tiles list
         setPeerTrackNodes((prevPeerTrackNodes) =>
@@ -1465,18 +1468,18 @@ export const useShowChat = (): [
   (show: boolean) => void,
 ] => {
   const dispatch = useDispatch();
-  const isHLSViewer = useIsHLSViewer();
+  const overlayChatLayout = useHMSChatLayoutConfig((chatConfig) => chatConfig?.overlay_view);
   const showChatView = useSelector(
     (state: RootState) => state.chatWindow.showChatView
   );
   const chatVisible: 'none' | 'inset' | 'modal' = useMemo(() => {
     if (!showChatView) return 'none';
 
-    if (isHLSViewer) return 'inset';
+    if (overlayChatLayout) return 'inset';
 
     // TODO: handle case when type modal is selected, but chat modal is not shown because aspect ration modal was just closed
     return 'modal';
-  }, [showChatView, isHLSViewer]);
+  }, [showChatView, overlayChatLayout]);
 
   const isChatVisibleInsetType = chatVisible === 'inset';
 
@@ -1496,6 +1499,25 @@ export const useShowChat = (): [
   );
 
   return [chatVisible, showChat];
+};
+
+export const useShowParticipantsSheet = () => {
+  const dispatch = useDispatch();
+  const overlayChatLayout = useHMSChatLayoutConfig((chatConfig) => chatConfig?.overlay_view);
+  const { handleModalVisibleType: setModalVisible } = useModalType();
+
+  const showParticipantsSheet = useCallback(() => {
+    if (overlayChatLayout) {
+      setModalVisible(ModalTypes.PARTICIPANTS);
+    } else {
+      batch(() => {
+        dispatch(setActiveChatBottomSheetTab('Participants'));
+        dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: true });
+      });
+    }
+  }, [overlayChatLayout, setModalVisible]);
+
+  return showParticipantsSheet;
 };
 
 export const usePortraitChatViewVisible = () => {
@@ -2010,4 +2032,14 @@ export const useSendMessage = () => {
     setMessage,
     sendMessage,
   };
+};
+
+export const useHMSChatLayoutConfig = <Selected = unknown>(
+  selector: (chatConfig: ChatConfig | null) => Selected,
+  equalityFn?: (left: Selected, right: Selected) => boolean
+): Selected => {
+  return useHMSLayoutConfig((layoutConfig) => {
+    const chatConfig = selectChatLayoutConfig(layoutConfig);
+    return selector(chatConfig);
+  }, equalityFn);
 };

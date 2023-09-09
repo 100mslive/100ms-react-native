@@ -79,7 +79,12 @@ export const HMSNotifications: React.FC<HMSNotificationsProps> = () => {
   }
 
   return (
-    <View style={styles.absoluteContainer}>
+    <View
+      style={[
+        styles.absoluteContainer,
+        { paddingTop: (notifications.length - 1) * 16 },
+      ]}
+    >
       {notifications.map((notification, index, arr) => {
         const atTop = index === arr.length - 1;
         const atBottom = index === 0;
@@ -122,10 +127,9 @@ export const HMSNotifications: React.FC<HMSNotificationsProps> = () => {
 
 const styles = StyleSheet.create({
   absoluteContainer: {
-    position: 'absolute',
-    bottom: 16,
+    position: 'relative',
+    marginBottom: 8,
     width: '100%',
-    zIndex: 1,
   },
   notificationWrapper: {
     position: 'absolute',

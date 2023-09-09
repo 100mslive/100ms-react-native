@@ -82,6 +82,7 @@
   "peerDependencies": {
     "@100mslive/react-native-hms": "1.7.1",
     "@react-native-community/blur": "^4.3.2",
+    "@react-native-masked-view/masked-view": "^0.2.9",
     "@shopify/flash-list": "^1.4.3",
     "lottie-react-native": "5.1.6",
     "react": "*",

@@ -52,11 +52,13 @@ import { getJoinConfig } from './utils';
 import { FullScreenIndicator } from './components/FullScreenIndicator';
 import { HMSMeetingEnded } from './components/HMSMeetingEnded';
 import {
+  selectChatLayoutConfig,
   selectIsHLSViewer,
   selectLayoutConfigForRole,
   selectShouldGoLive,
 } from './hooks-util-selectors';
 import type { RootState } from './redux';
+import { Chat_ChatState } from '@100mslive/types-prebuilt/elements/chat';
 
 type PreviewData = {
   room: HMSRoom;
@@ -198,22 +200,28 @@ export const HMSRoomSetup = () => {
       const peer = localPeer;
       const track = localPeer.videoTrack as HMSTrack | undefined;
 
+      const currentLayoutConfig = selectLayoutConfigForRole(
+        reduxState.hmsStates.layoutConfig,
+        localPeer.role || null
+      );
+
       const isHLSViewer = selectIsHLSViewer(
         localPeer.role,
-        selectLayoutConfigForRole(
-          reduxState.hmsStates.layoutConfig,
-          localPeer.role || null
-        )
+        currentLayoutConfig,
       );
 
       // Creating `PeerTrackNode` for local peer
       const localPeerTrackNode = createPeerTrackNode(peer, track);
 
       batch(() => {
-        if (isHLSViewer || !isPublishingAllowed(localPeer)) {
-          // TODO: enable below statement when HLS chat view design is complete
-          // dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: true });
-        } else {
+        const chatConfig = selectChatLayoutConfig(currentLayoutConfig);
+        const overlayChatLayout = chatConfig && chatConfig.overlay_view && chatConfig.initial_state === Chat_ChatState.CHAT_STATE_OPEN;
+
+        if (overlayChatLayout) {
+          dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: true });
+        }
+
+        if (isPublishingAllowed(localPeer) && !isHLSViewer) {
           if (reduxState.app.localPeerTrackNode) {
             dispatch(
               updateLocalPeerTrackNode({ peer, track: peer.videoTrack })
@@ -226,6 +234,7 @@ export const HMSRoomSetup = () => {
           // setting local `PeerTrackNode` as node for MiniView
           dispatch(setMiniViewPeerTrackNode(localPeerTrackNode));
         }
+
         dispatch(setHMSRoomState(data.room));
         dispatch(setHMSLocalPeerState(data.room.localPeer));
       });

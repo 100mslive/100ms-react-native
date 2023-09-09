@@ -18,7 +18,6 @@ import type { RootState } from '../redux';
 import { PaginationDots } from './PaginationDots';
 import { setGridViewActivePage } from '../redux/actions';
 import { Tile } from './Tile';
-import { HMSNotifications } from './HMSNotifications';
 
 export type GridViewProps = {
   onPeerTileMorePress(peerTrackNode: PeerTrackNode): void;
@@ -135,8 +134,6 @@ export const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
             onMoreOptionsPress={onPeerTileMorePress}
           />
         ) : null}
-
-        <HMSNotifications />
 
         {/* Save Captured Screenshot of HMSView Modal */}
         <DefaultModal

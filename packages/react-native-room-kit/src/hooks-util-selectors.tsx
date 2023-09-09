@@ -58,3 +58,10 @@ export const selectShouldGoLive = (state: RootState) => {
 
   return canStartHLSStreaming && !isHLSStreaming;
 };
+
+export const selectChatLayoutConfig = (layoutConfig: Layout | null) => {
+  const conferencingConfig = layoutConfig?.screens?.conferencing;
+  const screenOptions = conferencingConfig ? (conferencingConfig.default || conferencingConfig.hls_live_streaming) : null;
+
+  return screenOptions?.elements?.chat ?? null;
+};
