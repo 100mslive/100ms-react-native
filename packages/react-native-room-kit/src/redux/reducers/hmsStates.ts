@@ -22,7 +22,8 @@ type ActionType =
   | RemoveFromPreviewPeersList
   | SetLayoutConfig
   | SetRoleChangeRequest
-  | AddRemoveParticipant
+  | AddParticipant
+  | RemoveParticipant
   | AddUpdateParticipant
   | SetActiveSpeakers;
 
@@ -85,8 +86,13 @@ type SetRoleChangeRequest = {
   roleChangeRequest: HMSRoleChangeRequest | null;
 };
 
-type AddRemoveParticipant = {
-  type: HmsStateActionTypes.ADD_REMOVE_PARTICIPANT;
+type AddParticipant = {
+  type: HmsStateActionTypes.ADD_PARTICIPANT;
+  participant: HMSPeer;
+};
+
+type RemoveParticipant = {
+  type: HmsStateActionTypes.REMOVE_PARTICIPANT;
   participant: HMSPeer;
 };
 
@@ -167,7 +173,21 @@ const hmsStatesReducer = (
             : state.participants,
       };
     }
-    case HmsStateActionTypes.ADD_REMOVE_PARTICIPANT: {
+    case HmsStateActionTypes.ADD_PARTICIPANT: {
+      if (
+        state.participants.findIndex(
+          (participant) => participant.peerID === action.participant.peerID
+        ) >= 0
+      ) {
+        return state;
+      }
+
+      return {
+        ...state,
+        participants: [...state.participants, action.participant],
+      };
+    }
+    case HmsStateActionTypes.REMOVE_PARTICIPANT: {
       if (
         state.participants.findIndex(
           (participant) => participant.peerID === action.participant.peerID
@@ -181,10 +201,7 @@ const hmsStatesReducer = (
         };
       }
 
-      return {
-        ...state,
-        participants: [...state.participants, action.participant],
-      };
+      return state;
     }
     case HmsStateActionTypes.ADD_UPDATE_PARTICIPANT: {
       if (

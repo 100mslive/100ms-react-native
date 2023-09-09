@@ -338,8 +338,13 @@ export const setChatFilterSheetVisible = (chatFilterSheetVisible: boolean) => ({
   payload: { chatFilterSheetVisible },
 });
 
-export const addRemoveParticipant = (participant: HMSPeer) => ({
-  type: HmsStateActionTypes.ADD_REMOVE_PARTICIPANT,
+export const addParticipant = (participant: HMSPeer) => ({
+  type: HmsStateActionTypes.ADD_PARTICIPANT,
+  participant,
+});
+
+export const removeParticipant = (participant: HMSPeer) => ({
+  type: HmsStateActionTypes.REMOVE_PARTICIPANT,
   participant,
 });
 

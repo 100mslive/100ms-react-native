@@ -58,8 +58,8 @@ import type { RootState } from './redux';
 import {
   addMessage,
   addNotification,
+  addParticipant,
   addPinnedMessage,
-  addRemoveParticipant,
   addScreenshareTile,
   addUpdateParticipant,
   changeMeetingState,
@@ -67,6 +67,7 @@ import {
   changeStartingHLSStream,
   clearStore,
   removeNotification,
+  removeParticipant,
   removeScreenshareTile,
   saveUserData,
   setActiveChatBottomSheetTab,
@@ -244,11 +245,11 @@ const useHMSPeersUpdate = (
 
       // Handle State for Meeting screen
       if (type === HMSPeerUpdate.PEER_JOINED) {
-        dispatch(addRemoveParticipant(peer));
+        dispatch(addParticipant(peer));
         return;
       }
       if (type === HMSPeerUpdate.PEER_LEFT) {
-        dispatch(addRemoveParticipant(peer));
+        dispatch(removeParticipant(peer));
 
         // Handling regular tiles list
         setPeerTrackNodes((prevPeerTrackNodes) =>
