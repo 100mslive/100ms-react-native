@@ -2,14 +2,24 @@ import React, { memo, useMemo } from 'react';
 import { View, StyleSheet, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { useHMSRoomStyle, useIsHLSViewer } from '../hooks-util';
+import {
+  useHMSLayoutConfig,
+  useHMSRoomStyle,
+  useIsHLSViewer,
+} from '../hooks-util';
 import { HMSManageLeave } from './HMSManageLeave';
 import { HMSManageRaiseHand } from './HMSManageRaiseHand';
 import { HMSManageLocalAudio } from './HMSManageLocalAudio';
 import { HMSManageLocalVideo } from './HMSManageLocalVideo';
 import { HMSChat } from './HMSChat';
 import { HMSRoomOptions } from './HMSRoomOptions';
-import { useCanPublishAudio, useCanPublishVideo } from '../hooks-sdk';
+import {
+  useCanPublishAudio,
+  useCanPublishScreen,
+  useCanPublishVideo,
+} from '../hooks-sdk';
+import { useSelector } from 'react-redux';
+import type { RootState } from '../redux';
 
 interface FooterProps {}
 
@@ -17,11 +27,35 @@ export const _Footer: React.FC<FooterProps> = () => {
   const isHLSViewer = useIsHLSViewer();
   const canPublishAudio = useCanPublishAudio();
   const canPublishVideo = useCanPublishVideo();
+  const canPublishScreen = useCanPublishScreen();
+
+  const canShowParticipants = useHMSLayoutConfig(
+    (layoutConfig) =>
+      !!layoutConfig?.screens?.conferencing?.default?.elements?.participant_list
+  );
+
+  const canShowBRB = useHMSLayoutConfig(
+    (layoutConfig) =>
+      !!layoutConfig?.screens?.conferencing?.default?.elements?.brb
+  );
+
+  const isOnStage = useHMSLayoutConfig((layoutConfig) => {
+    return !!layoutConfig?.screens?.conferencing?.default?.elements
+      ?.on_stage_exp;
+  });
+
+  const canStartRecording = useSelector(
+    (state: RootState) =>
+      !!state.hmsStates.localPeer?.role?.permissions?.browserRecording
+  );
+
+  const canShowOptions =
+    canPublishScreen || canShowParticipants || canShowBRB || canStartRecording;
 
   const footerActionButtons = useMemo(() => {
-    const actions = ['chat', 'options'];
+    const actions = ['chat'];
 
-    if (isHLSViewer) {
+    if (!isOnStage) {
       actions.unshift('hand-raise');
     }
 
@@ -35,8 +69,12 @@ export const _Footer: React.FC<FooterProps> = () => {
 
     actions.unshift('leave');
 
+    if (canShowOptions) {
+      actions.push('options');
+    }
+
     return actions;
-  }, [isHLSViewer, canPublishAudio, canPublishVideo]);
+  }, [canShowOptions, isOnStage, canPublishAudio, canPublishVideo]);
 
   const containerStyles = useHMSRoomStyle((theme) => ({
     backgroundColor: theme.palette.background_dim,

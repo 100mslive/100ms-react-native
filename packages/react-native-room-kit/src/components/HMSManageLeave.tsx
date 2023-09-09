@@ -64,6 +64,11 @@ const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
     setLeavePopVisible(false);
   };
 
+  const handleEndStreamPress = async () => {
+    leavePopCloseAction.current = ModalTypes.END_ROOM;
+    setLeavePopVisible(false);
+  };
+
   /**
    * Closes the Leave Popup Menu
    * No action is taken when the popup is hidden
@@ -119,6 +124,7 @@ const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
         onLeavePress={handleLeavePress}
         onPopupDismiss={dismissPopup}
         onPopupHide={handlePopupHide}
+        onEndStreamPress={handleEndStreamPress}
       />
 
       <BottomSheet
@@ -140,6 +146,7 @@ interface LeaveBottomSheetProps {
   onPopupDismiss(): void;
   onLeavePress(): void;
   onEndSessionPress(): void;
+  onEndStreamPress(): void;
   onPopupHide(): void;
 }
 
@@ -148,13 +155,20 @@ const LeaveBottomSheet: React.FC<LeaveBottomSheetProps> = ({
   onPopupDismiss,
   onLeavePress,
   onEndSessionPress,
+  onEndStreamPress,
   onPopupHide,
 }) => {
   const canEndRoom = useSelector(
     (state: RootState) => state.hmsStates.localPeer?.role?.permissions?.endRoom
   );
+  const canStream = useSelector(
+    (state: RootState) =>
+      state.hmsStates.localPeer?.role?.permissions?.hlsStreaming
+  );
+
   const isStreaming = useSelector(
-    (state: RootState) => state.hmsStates.room?.hlsStreamingState.running
+    (state: RootState) =>
+      state.hmsStates.room?.hlsStreamingState?.running ?? false
   );
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
@@ -208,7 +222,25 @@ const LeaveBottomSheet: React.FC<LeaveBottomSheetProps> = ({
           </View>
         </TouchableOpacity>
 
-        {canEndRoom ? (
+        {canStream && isStreaming ? (
+          <TouchableOpacity
+            style={[leavePopupStyles.button, hmsRoomStyles.endButton]}
+            onPress={onEndStreamPress}
+          >
+            <StopIcon style={[leavePopupStyles.icon, hmsRoomStyles.endIcon]} />
+
+            <View style={leavePopupStyles.textContainer}>
+              <Text style={[leavePopupStyles.text, hmsRoomStyles.endText]}>
+                End Stream
+              </Text>
+              <Text
+                style={[leavePopupStyles.subtext, hmsRoomStyles.endSubtext]}
+              >
+                The stream will end for everyone after they’ve watched it.
+              </Text>
+            </View>
+          </TouchableOpacity>
+        ) : canEndRoom ? (
           <TouchableOpacity
             style={[leavePopupStyles.button, hmsRoomStyles.endButton]}
             onPress={onEndSessionPress}
@@ -222,8 +254,7 @@ const LeaveBottomSheet: React.FC<LeaveBottomSheetProps> = ({
               <Text
                 style={[leavePopupStyles.subtext, hmsRoomStyles.endSubtext]}
               >
-                The {isStreaming ? 'stream & ' : ''}session will end for
-                everyone. You can't undo this action.
+                The session will end for everyone in the room immediately.
               </Text>
             </View>
           </TouchableOpacity>

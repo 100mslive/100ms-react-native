@@ -8,7 +8,6 @@ import { ModalTypes } from '../utils/types';
 import { groupIntoTriplets, parseMetadata } from '../utils/functions';
 import {
   BRBIcon,
-  HandIcon,
   ParticipantsIcon,
   RecordingIcon,
   ScreenShareIcon,
@@ -16,6 +15,7 @@ import {
 import { BottomSheet, useBottomSheetActions } from './BottomSheet';
 import {
   useHMSInstance,
+  useHMSLayoutConfig,
   useHMSRoomStyleSheet,
   useIsHLSViewer,
 } from '../hooks-util';
@@ -89,20 +89,10 @@ export const RoomSettingsModalContent: React.FC<
   const localPeerMetadata = useSelector(
     (state: RootState) => state.hmsStates.localPeer?.metadata
   );
+
   const parsedMetadata = parseMetadata(localPeerMetadata);
 
   const isBRBOn = !!parsedMetadata.isBRBOn;
-  const isHandRaised = !!parsedMetadata.isHandRaised;
-
-  const toggleRaiseHand = async () => {
-    const newMetadata = {
-      ...parsedMetadata,
-      isBRBOn: false,
-      isHandRaised: !isHandRaised,
-    };
-    closeRoomSettingsModal();
-    await hmsActions.changeMetadata(newMetadata);
-  };
 
   const toggleBRB = async () => {
     const newMetadata = {
@@ -141,6 +131,16 @@ export const RoomSettingsModalContent: React.FC<
   };
   // #endregion
 
+  const canShowParticipants = useHMSLayoutConfig(
+    (layoutConfig) =>
+      !!layoutConfig?.screens?.conferencing?.default?.elements?.participant_list
+  );
+
+  const canShowBRB = useHMSLayoutConfig(
+    (layoutConfig) =>
+      !!layoutConfig?.screens?.conferencing?.default?.elements?.brb
+  );
+
   return (
     <View>
       <BottomSheet.Header
@@ -159,7 +159,7 @@ export const RoomSettingsModalContent: React.FC<
               label: 'Participants',
               pressHandler: onParticipantsPress,
               isActive: false,
-              hide: false,
+              hide: !canShowParticipants,
               sibling: <ParticipantsCount />,
               // parent
               // children
@@ -178,22 +178,14 @@ export const RoomSettingsModalContent: React.FC<
               label: isBRBOn ? "I'm Back" : 'Be Right Back',
               pressHandler: toggleBRB,
               isActive: isBRBOn, // Show active if `isBRBOn` is set on metadata
-              hide: isHLSViewer, // Hide if can't publish screen
-            },
-            {
-              id: 'raise-hand',
-              icon: <HandIcon style={{ width: 20, height: 20 }} />,
-              label: parsedMetadata.isHandRaised ? 'Hand Raised' : 'Raise Hand',
-              pressHandler: toggleRaiseHand,
-              isActive: isHandRaised, // Show active if `isHandRaised` is set on metadata
-              hide: isHLSViewer, // Hide if can't publish screen
+              hide: !canShowBRB, // Hide if can't publish screen
             },
             {
               id: 'start-recording',
               icon: <RecordingIcon style={{ width: 20, height: 20 }} />,
               label: isRecordingOn ? 'Stop Recording' : 'Start Recording',
               pressHandler: handleRecordingTogglePress,
-              isActive: !!isRecordingOn,
+              isActive: isRecordingOn,
               hide: !canStartRecording, // Hide if can't publish screen
             },
           ].filter((itm) => !itm.hide),
