@@ -1,4 +1,4 @@
-import React, { useImperativeHandle, useRef } from 'react';
+import React, { useImperativeHandle, useRef, useState } from 'react';
 import { View, StyleSheet, UIManager, findNodeHandle } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 
@@ -54,13 +54,16 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
     url = '',
     style,
     containerStyle,
-    aspectRatio = 9 / 16,
     enableStats,
     enableControls = false,
   },
   ref
 ) => {
   const hmsHlsPlayerRef = useRef<RCTHMSHLSPlayerRef | null>(null);
+
+  const [aspectRatio, setAspectRatio] = useState(
+    16/9
+  );
 
   useImperativeHandle(
     ref,
@@ -205,6 +208,11 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
       setHMSHLSPlayerPlaybackError(data.error);
     } else {
       setHMSHLSPlayerPlaybackState(data.state);
+      if (data.state === 'onVideoSizeChanged') {
+        if (typeof data.aspectRatio === 'number') {
+          setAspectRatio(data.aspectRatio);
+        }
+      }
     }
   };
 
@@ -225,7 +233,7 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
         <RCTHMSHLSPlayer
           ref={hmsHlsPlayerRef}
           url={url}
-          style={[styles.player, { aspectRatio }]}
+          style={[styles.player, { aspectRatio: aspectRatio, flex: aspectRatio < 1 ? 1 : undefined }]}
           enableStats={enableStats}
           enableControls={enableControls}
           onHmsHlsPlaybackEvent={handleHLSPlaybackEvent}
@@ -254,8 +262,7 @@ const styles = StyleSheet.create({
   },
   player: {
     width: '100%',
-    maxHeight: '100%',
-    maxWidth: '100%',
-    aspectRatio: 9 / 16,
+    aspectRatio: 16 / 9,
+    flex: 1,
   },
 });
