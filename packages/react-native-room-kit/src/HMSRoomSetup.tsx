@@ -56,6 +56,7 @@ import {
   selectIsHLSViewer,
   selectLayoutConfigForRole,
   selectShouldGoLive,
+  selectVideoTileLayoutConfig,
 } from './hooks-util-selectors';
 import type { RootState } from './redux';
 import { Chat_ChatState } from '@100mslive/types-prebuilt/elements/chat';
@@ -213,11 +214,18 @@ export const HMSRoomSetup = () => {
       // Creating `PeerTrackNode` for local peer
       const localPeerTrackNode = createPeerTrackNode(peer, track);
 
+      const enableLocalTileInset =
+        selectVideoTileLayoutConfig(currentLayoutConfig)?.grid
+          ?.enable_local_tile_inset;
+
       batch(() => {
         const chatConfig = selectChatLayoutConfig(currentLayoutConfig);
-        const overlayChatLayout = chatConfig && chatConfig.overlay_view && chatConfig.initial_state === Chat_ChatState.CHAT_STATE_OPEN;
+        const overlayChatInitialState =
+          chatConfig &&
+          chatConfig.overlay_view &&
+          chatConfig.initial_state;
 
-        if (overlayChatLayout) {
+        if (overlayChatInitialState === Chat_ChatState.CHAT_STATE_OPEN) {
           dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: true });
         }
 
@@ -232,7 +240,9 @@ export const HMSRoomSetup = () => {
           }
 
           // setting local `PeerTrackNode` as node for MiniView
-          dispatch(setMiniViewPeerTrackNode(localPeerTrackNode));
+          if (enableLocalTileInset) {
+            dispatch(setMiniViewPeerTrackNode(localPeerTrackNode));
+          }
         }
 
         dispatch(setHMSRoomState(data.room));
@@ -255,8 +265,10 @@ export const HMSRoomSetup = () => {
           return replacePeerTrackNodes(prevPeerTrackNodes, peer);
         }
 
-        //   const hmsLocalPeer = createPeerTrackNode(peer, track);
-        //   return [hmsLocalPeer, ...prevPeerTrackNodes];
+        // setting local `PeerTrackNode` in regular peerTrackNodes array when inset tile is disabled
+        if (!enableLocalTileInset) {
+          return [localPeerTrackNode, ...prevPeerTrackNodes];
+        }
 
         return prevPeerTrackNodes;
       });
