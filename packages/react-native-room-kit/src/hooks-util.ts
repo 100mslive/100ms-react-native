@@ -118,6 +118,7 @@ import {
   selectIsHLSViewer,
   selectLayoutConfigForRole,
   selectShouldGoLive,
+  selectVideoTileLayoutConfig,
 } from './hooks-util-selectors';
 import type { GridViewRefAttrs } from './components/GridView';
 import { getRoomLayout } from './modules/HMSManager';
@@ -279,17 +280,35 @@ const useHMSPeersUpdate = (
         return;
       }
       if (peer.isLocal) {
-        setPeerTrackNodes((prevPeerTrackNodes) => {
-          if (peerTrackNodeExistForPeer(prevPeerTrackNodes, peer)) {
-            return replacePeerTrackNodes(prevPeerTrackNodes, peer);
-          }
-          return prevPeerTrackNodes;
-        });
-
         const reduxState = store.getState();
         const fullScreenPeerTrackNode = reduxState.app.fullScreenPeerTrackNode;
         const miniviewPeerTrackNode = reduxState.app.miniviewPeerTrackNode;
         const localPeerTrackNode = reduxState.app.localPeerTrackNode;
+
+        // Currently Applied Layout config
+        const currentLayoutConfig = selectLayoutConfigForRole(
+          reduxState.hmsStates.layoutConfig,
+          peer.role || null
+        );
+
+        // Local Tile Inset layout is enabled
+        const enableLocalTileInset =
+          selectVideoTileLayoutConfig(currentLayoutConfig)?.grid
+            ?.enable_local_tile_inset;
+
+        // Local Tile Inset layout is disabled
+        const localTileInsetDisbaled = !enableLocalTileInset;
+
+        // Local Tile Inset layout is disabled
+        // then update local peer track node available in list of peer track nodes
+        if (localTileInsetDisbaled) {
+          setPeerTrackNodes((prevPeerTrackNodes) => {
+            if (peerTrackNodeExistForPeer(prevPeerTrackNodes, peer)) {
+              return replacePeerTrackNodes(prevPeerTrackNodes, peer);
+            }
+            return prevPeerTrackNodes;
+          });
+        }
 
         batch(() => {
           if (localPeerTrackNode) {
@@ -307,12 +326,24 @@ const useHMSPeersUpdate = (
             dispatch(updateFullScreenPeerTrackNode({ peer }));
           }
 
-          // only set `localPeerTrackNode` as miniview peer track node when we are already using it.
-          if (
-            miniviewPeerTrackNode &&
-            miniviewPeerTrackNode.peer.peerID === peer.peerID
-          ) {
-            dispatch(updateMiniViewPeerTrackNode({ peer }));
+          // If Local Tile Inset layout is enabled, then update or set it
+          if (enableLocalTileInset) {
+            if (
+              miniviewPeerTrackNode !== null &&
+              miniviewPeerTrackNode.peer.peerID === peer.peerID
+            ) {
+              dispatch(updateMiniViewPeerTrackNode({ peer }));
+            } else if (miniviewPeerTrackNode === null) {
+              dispatch(
+                setMiniViewPeerTrackNode(
+                  createPeerTrackNode(peer, peer.videoTrack)
+                )
+              );
+            }
+          }
+          // If Local Tile Inset layout is disabled, then remove it if it exists
+          else if (miniviewPeerTrackNode) {
+            dispatch(setMiniViewPeerTrackNode(null));
           }
         });
 
@@ -496,13 +527,17 @@ const useHMSTrackUpdate = (
       const miniviewPeerTrackNode = reduxState.app.miniviewPeerTrackNode;
       const localPeerTrackNode = reduxState.app.localPeerTrackNode;
 
+      const currentLayoutConfig = selectLayoutConfigForRole(
+        reduxState.hmsStates.layoutConfig,
+        reduxState.hmsStates.localPeer?.role ?? null
+      );
+
+      const localTileInsetEnabled =
+        selectVideoTileLayoutConfig(currentLayoutConfig)?.grid
+          ?.enable_local_tile_inset;
+
       if (type === HMSTrackUpdate.TRACK_ADDED) {
         const newPeerTrackNode = createPeerTrackNode(peer, track);
-
-        const willCreateMiniviewPeerTrackNode =
-          !miniviewPeerTrackNode &&
-          peer.isLocal &&
-          track.source === HMSTrackSource.REGULAR;
 
         if (track.source === HMSTrackSource.SCREEN) {
           if (!peer.isLocal && track.type === HMSTrackType.VIDEO) {
@@ -523,10 +558,15 @@ const useHMSTrackUpdate = (
               return replacePeerTrackNodes(prevPeerTrackNodes, peer);
             }
 
+            if (peer.isLocal && !localTileInsetEnabled) {
+              return [newPeerTrackNode, ...prevPeerTrackNodes];
+            }
+
             if (
-              miniviewPeerTrackNode
+              !peer.isLocal &&
+              (miniviewPeerTrackNode
                 ? newPeerTrackNode.id !== miniviewPeerTrackNode.id
-                : !willCreateMiniviewPeerTrackNode
+                : true)
             ) {
               return [...prevPeerTrackNodes, newPeerTrackNode];
             }
@@ -551,17 +591,21 @@ const useHMSTrackUpdate = (
               );
             }
 
-            // only setting `miniviewPeerTrackNode`, when:
-            // - there is no `miniviewPeerTrackNode`
-            // - if there is, then it is of regular track
-            if (!miniviewPeerTrackNode) {
-              dispatch(setMiniViewPeerTrackNode(newPeerTrackNode));
-            } else if (miniviewPeerTrackNode.id === newPeerTrackNode.id) {
-              dispatch(
-                updateMiniViewPeerTrackNode(
-                  track.type === HMSTrackType.VIDEO ? { peer, track } : { peer }
-                )
-              );
+            if (localTileInsetEnabled) {
+              // only setting `miniviewPeerTrackNode`, when:
+              // - there is no `miniviewPeerTrackNode`
+              // - if there is, then it is of regular track
+              if (!miniviewPeerTrackNode) {
+                dispatch(setMiniViewPeerTrackNode(newPeerTrackNode));
+              } else if (miniviewPeerTrackNode.id === newPeerTrackNode.id) {
+                dispatch(
+                  updateMiniViewPeerTrackNode(
+                    track.type === HMSTrackType.VIDEO
+                      ? { peer, track }
+                      : { peer }
+                  )
+                );
+              }
             }
 
             // if (track.type === HMSTrackType.AUDIO) {
@@ -1468,7 +1512,9 @@ export const useShowChat = (): [
   (show: boolean) => void,
 ] => {
   const dispatch = useDispatch();
-  const overlayChatLayout = useHMSChatLayoutConfig((chatConfig) => chatConfig?.overlay_view);
+  const overlayChatLayout = useHMSChatLayoutConfig(
+    (chatConfig) => chatConfig?.overlay_view
+  );
   const showChatView = useSelector(
     (state: RootState) => state.chatWindow.showChatView
   );
@@ -1503,7 +1549,9 @@ export const useShowChat = (): [
 
 export const useShowParticipantsSheet = () => {
   const dispatch = useDispatch();
-  const overlayChatLayout = useHMSChatLayoutConfig((chatConfig) => chatConfig?.overlay_view);
+  const overlayChatLayout = useHMSChatLayoutConfig(
+    (chatConfig) => chatConfig?.overlay_view
+  );
   const { handleModalVisibleType: setModalVisible } = useModalType();
 
   const showParticipantsSheet = useCallback(() => {

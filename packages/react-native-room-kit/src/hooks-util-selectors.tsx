@@ -65,3 +65,7 @@ export const selectChatLayoutConfig = (layoutConfig: Layout | null) => {
 
   return screenOptions?.elements?.chat ?? null;
 };
+
+export const selectVideoTileLayoutConfig = (layoutConfig: Layout | null) => {
+  return layoutConfig?.screens?.conferencing?.default?.elements?.video_tile_layout;
+};
