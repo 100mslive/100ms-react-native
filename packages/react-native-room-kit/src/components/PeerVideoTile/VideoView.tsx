@@ -7,7 +7,7 @@ import type {
   HMSPeer,
 } from '@100mslive/react-native-hms';
 import { useSelector } from 'react-redux';
-import { BlurView } from "@react-native-community/blur";
+import { BlurView } from '@react-native-community/blur';
 
 import type { RootState } from '../../redux';
 import { useHMSRoomStyleSheet } from '../../hooks-util';
@@ -93,15 +93,19 @@ const _VideoView = React.forwardRef<
 
         {isDegraded ? (
           <View style={styles.degradedView}>
-            <BlurView
-              style={styles.blurView}
-              blurType="dark"
-              blurAmount={24}
+            <BlurView style={styles.blurView} blurType="dark" blurAmount={24} />
+
+            <AlertTriangleIcon
+              type="fill"
+              style={[styles.icon, hmsRoomStyles.icon]}
             />
 
-            <AlertTriangleIcon type='fill' style={[styles.icon, hmsRoomStyles.icon]} />
-
-            <Text numberOfLines={2} style={[styles.degradedText, hmsRoomStyles.degradedText]}>{peer.isLocal ? 'Your' : `${peer.name}'s`} network is unstable</Text>
+            <Text
+              numberOfLines={2}
+              style={[styles.degradedText, hmsRoomStyles.degradedText]}
+            >
+              {peer.isLocal ? 'Your' : `${peer.name}'s`} network is unstable
+            </Text>
           </View>
         ) : null}
       </View>
@@ -136,9 +140,9 @@ const styles = StyleSheet.create({
   degradedText: {
     fontSize: 12,
     lineHeight: 16,
-    letterSpacing: 0.40,
+    letterSpacing: 0.4,
     marginTop: 8,
-    textAlign:'center',
+    textAlign: 'center',
     paddingHorizontal: 8,
   },
   icon: {

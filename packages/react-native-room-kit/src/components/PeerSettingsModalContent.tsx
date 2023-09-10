@@ -47,7 +47,7 @@ export const PeerSettingsModalContent: React.FC<
     (state: RootState) => state.hmsStates.localPeer
   );
   const settingsForMiniview = useSelector((state: RootState) => {
-    const mininode  = state.app.miniviewPeerTrackNode;
+    const mininode = state.app.miniviewPeerTrackNode;
     return mininode && mininode.id === peerTrackNode.id;
   });
 

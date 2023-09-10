@@ -5,7 +5,7 @@ import type { ImageProps } from 'react-native';
 import { useHMSRoomStyle } from '../../hooks-util';
 
 interface AlertTriangleIconProps extends Omit<ImageProps, 'source'> {
-  type?: 'fill' | 'line'
+  type?: 'fill' | 'line';
 }
 
 export const AlertTriangleIcon: React.FC<AlertTriangleIconProps> = ({
@@ -19,7 +19,11 @@ export const AlertTriangleIcon: React.FC<AlertTriangleIconProps> = ({
 
   return (
     <Image
-      source={type === 'fill' ? require('./assets/alert-triangle-filled.png') : require('./assets/alert-triangle.png')}
+      source={
+        type === 'fill'
+          ? require('./assets/alert-triangle-filled.png')
+          : require('./assets/alert-triangle.png')
+      }
       style={[styles.icon, iconStyles, style]}
       {...restProps}
     />

@@ -314,11 +314,11 @@ class HMSHLSPlayer: UIView {
         var data = [String: Any]()
 
         data["state"] = videoSizeChanged ? "onVideoSizeChanged" : state?.description
-        
+
         if let aspectRatio = aspectRatio {
             data["aspectRatio"] = aspectRatio
         }
-        
+
         sendHLSPlaybackEventToJS(HMSHLSPlayerConstants.ON_PLAYBACK_STATE_CHANGE_EVENT, data)
     }
 }

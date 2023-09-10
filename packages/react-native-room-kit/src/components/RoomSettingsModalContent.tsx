@@ -21,9 +21,7 @@ import {
 } from '../hooks-util';
 import { useCanPublishScreen, useHMSActions } from '../hooks-sdk';
 import { RoomSettingsModalDebugModeContent } from './RoomSettingsModalDebugModeContent';
-import {
-  setStartingOrStoppingRecording,
-} from '../redux/actions';
+import { setStartingOrStoppingRecording } from '../redux/actions';
 import { ParticipantsCount } from './ParticipantsCount';
 
 interface RoomSettingsModalContentProps {

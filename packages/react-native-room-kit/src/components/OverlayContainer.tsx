@@ -12,11 +12,7 @@ export const OverlayContainer: React.FC<OverlayContainerProps> & {
 type OverlayProps = {};
 
 const Overlay: React.FC<OverlayProps> = ({ children }) => {
-  return (
-    <View style={styles.absoluteContainer}>
-      {children}
-    </View>
-  );
+  return <View style={styles.absoluteContainer}>{children}</View>;
 };
 
 OverlayContainer.Overlay = Overlay;

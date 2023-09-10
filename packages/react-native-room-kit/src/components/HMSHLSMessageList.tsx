@@ -31,7 +31,7 @@ export const HMSHLSMessageList: React.FC = () => {
         {
           maxHeight: windowHeight * 0.2,
           height:
-            (messages.length > 3) ? windowHeight * 0.2 : (messages.length * 54),
+            messages.length > 3 ? windowHeight * 0.2 : messages.length * 54,
         },
       ]}
     >

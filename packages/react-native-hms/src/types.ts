@@ -38,8 +38,8 @@ export enum HMSHLSPlayerPlaybackState {
 }
 
 export type HMSHLSPlayerPlaybackStateChangeEventData = {
-  state: HMSHLSPlayerPlaybackState,
-  aspectRatio: number | undefined,
+  state: HMSHLSPlayerPlaybackState;
+  aspectRatio: number | undefined;
 };
 
 type HMSHLSPlayerPlaybackCueEvent = HMSHLSPlayerEvent<

@@ -61,11 +61,14 @@ export const selectShouldGoLive = (state: RootState) => {
 
 export const selectChatLayoutConfig = (layoutConfig: Layout | null) => {
   const conferencingConfig = layoutConfig?.screens?.conferencing;
-  const screenOptions = conferencingConfig ? (conferencingConfig.default || conferencingConfig.hls_live_streaming) : null;
+  const screenOptions = conferencingConfig
+    ? conferencingConfig.default || conferencingConfig.hls_live_streaming
+    : null;
 
   return screenOptions?.elements?.chat ?? null;
 };
 
 export const selectVideoTileLayoutConfig = (layoutConfig: Layout | null) => {
-  return layoutConfig?.screens?.conferencing?.default?.elements?.video_tile_layout;
+  return layoutConfig?.screens?.conferencing?.default?.elements
+    ?.video_tile_layout;
 };

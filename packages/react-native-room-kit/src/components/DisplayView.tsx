@@ -54,7 +54,9 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
   const hmsInstance = useHMSInstance();
   const isHLSViewer = useIsHLSViewer();
 
-  const overlayChatLayout = useHMSChatLayoutConfig((chatConfig) => chatConfig?.overlay_view);
+  const overlayChatLayout = useHMSChatLayoutConfig(
+    (chatConfig) => chatConfig?.overlay_view
+  );
 
   const {
     modalVisibleType: modalVisible,

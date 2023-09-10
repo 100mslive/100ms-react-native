@@ -208,7 +208,7 @@ export const HMSRoomSetup = () => {
 
       const isHLSViewer = selectIsHLSViewer(
         localPeer.role,
-        currentLayoutConfig,
+        currentLayoutConfig
       );
 
       // Creating `PeerTrackNode` for local peer
@@ -221,9 +221,7 @@ export const HMSRoomSetup = () => {
       batch(() => {
         const chatConfig = selectChatLayoutConfig(currentLayoutConfig);
         const overlayChatInitialState =
-          chatConfig &&
-          chatConfig.overlay_view &&
-          chatConfig.initial_state;
+          chatConfig && chatConfig.overlay_view && chatConfig.initial_state;
 
         if (overlayChatInitialState === Chat_ChatState.CHAT_STATE_OPEN) {
           dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: true });

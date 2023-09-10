@@ -50,20 +50,12 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
   HMSHLSPlayerRefProperties,
   HMSHLSPlayerProps
 > = (
-  {
-    url = '',
-    style,
-    containerStyle,
-    enableStats,
-    enableControls = false,
-  },
+  { url = '', style, containerStyle, enableStats, enableControls = false },
   ref
 ) => {
   const hmsHlsPlayerRef = useRef<RCTHMSHLSPlayerRef | null>(null);
 
-  const [aspectRatio, setAspectRatio] = useState(
-    16/9
-  );
+  const [aspectRatio, setAspectRatio] = useState(16 / 9);
 
   useImperativeHandle(
     ref,
@@ -233,7 +225,10 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
         <RCTHMSHLSPlayer
           ref={hmsHlsPlayerRef}
           url={url}
-          style={[styles.player, { aspectRatio: aspectRatio, flex: aspectRatio < 1 ? 1 : undefined }]}
+          style={[
+            styles.player,
+            { aspectRatio: aspectRatio, flex: aspectRatio < 1 ? 1 : undefined },
+          ]}
           enableStats={enableStats}
           enableControls={enableControls}
           onHmsHlsPlaybackEvent={handleHLSPlaybackEvent}
