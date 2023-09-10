@@ -46,6 +46,10 @@ export const PeerSettingsModalContent: React.FC<
   const localPeer = useSelector(
     (state: RootState) => state.hmsStates.localPeer
   );
+  const settingsForMiniview = useSelector((state: RootState) => {
+    const mininode  = state.app.miniviewPeerTrackNode;
+    return mininode && mininode.id === peerTrackNode.id;
+  });
 
   const debugMode = useSelector((state: RootState) => state.user.debugMode);
   const { handleModalVisibleType: setModalVisible } = useModalType();
@@ -133,7 +137,7 @@ export const PeerSettingsModalContent: React.FC<
           />
         ) : null}
 
-        {peer.isLocal && localPeerCanPublishVideo ? (
+        {settingsForMiniview ? (
           <SettingItem
             customIcon={true}
             text={'Minimize Your Video'}
