@@ -285,31 +285,27 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func leave(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        if reconnectingStage {
-            reject?("Still in reconnecting stage", "Still in reconnecting stage", nil)
-        } else {
-            DispatchQueue.main.async { [weak self] in
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else {
+                print(#function, "Could not find reference to self while executing Room leave")
+                return
+            }
+
+            strongSelf.hms?.leave { [weak self] success, error in
+
                 guard let strongSelf = self else {
-                    print(#function, "Could not find reference to self while executing Room leave")
+                    print(#function, "Could not find reference to self when callback is received while executing Room leave")
                     return
                 }
 
-                strongSelf.hms?.leave { [weak self] success, error in
-
-                    guard let strongSelf = self else {
-                        print(#function, "Could not find reference to self when callback is received while executing Room leave")
-                        return
+                if success {
+                    resolve?(["success": success])
+                    strongSelf.cleanup() // resetting states and doing data cleanup
+                } else {
+                    if strongSelf.eventsEnableStatus[HMSConstants.ON_ERROR] == true {
+                        strongSelf.delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": HMSDecoder.getError(error), "id": strongSelf.id])
                     }
-
-                    if success {
-                        resolve?(["success": success])
-                        strongSelf.cleanup() // resetting states and doing data cleanup
-                    } else {
-                        if strongSelf.eventsEnableStatus[HMSConstants.ON_ERROR] == true {
-                            strongSelf.delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": HMSDecoder.getError(error), "id": strongSelf.id])
-                        }
-                        reject?("error in leave", "error in leave", nil)
-                    }
+                    reject?("error in leave", "error in leave", nil)
                 }
             }
         }
