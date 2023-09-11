@@ -1,4 +1,8 @@
-import type { Layout } from '@100mslive/types-prebuilt';
+import type {
+  DefaultConferencingScreen,
+  HLSLiveStreamingScreen,
+  Layout,
+} from '@100mslive/types-prebuilt';
 import type { HMSRole } from '@100mslive/react-native-hms';
 import { JoinForm_JoinBtnType } from '@100mslive/types-prebuilt/elements/join_form';
 
@@ -71,4 +75,14 @@ export const selectChatLayoutConfig = (layoutConfig: Layout | null) => {
 export const selectVideoTileLayoutConfig = (layoutConfig: Layout | null) => {
   return layoutConfig?.screens?.conferencing?.default?.elements
     ?.video_tile_layout;
+};
+
+export const selectConferencingScreenConfig = (
+  layoutConfig: Layout | null
+): DefaultConferencingScreen | HLSLiveStreamingScreen | null => {
+  const conferencingConfig = layoutConfig?.screens?.conferencing;
+  return (
+    (conferencingConfig?.default || conferencingConfig?.hls_live_streaming) ??
+    null
+  );
 };

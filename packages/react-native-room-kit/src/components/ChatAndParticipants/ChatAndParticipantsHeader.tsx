@@ -3,7 +3,10 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { CloseIcon } from '../../Icons';
-import { useHMSLayoutConfig, useHMSRoomStyleSheet } from '../../hooks-util';
+import {
+  useHMSConferencingScreenConfig,
+  useHMSRoomStyleSheet,
+} from '../../hooks-util';
 import type { RootState } from '../../redux';
 import { COLORS } from '../../utils/theme';
 import { ChatBottomSheetTabs } from '../../utils/types';
@@ -23,9 +26,9 @@ const _ChatAndParticipantsHeader: React.FC<WebrtcChatHeaderProps> = ({
   const activeChatBottomSheetTab = useSelector(
     (state: RootState) => state.app.activeChatBottomSheetTab
   );
-  const canShowParticipants = useHMSLayoutConfig(
-    (layoutConfig) =>
-      !!layoutConfig?.screens?.conferencing?.default?.elements?.participant_list
+  const canShowParticipants = useHMSConferencingScreenConfig(
+    (conferencingScreenConfig) =>
+      !!conferencingScreenConfig?.elements?.participant_list
   );
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({

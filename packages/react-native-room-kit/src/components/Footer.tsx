@@ -3,6 +3,7 @@ import { View, StyleSheet, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
+  useHMSConferencingScreenConfig,
   useHMSLayoutConfig,
   useHMSRoomStyle,
   useIsHLSViewer,
@@ -29,9 +30,9 @@ export const _Footer: React.FC<FooterProps> = () => {
   const canPublishVideo = useCanPublishVideo();
   const canPublishScreen = useCanPublishScreen();
 
-  const canShowParticipants = useHMSLayoutConfig(
-    (layoutConfig) =>
-      !!layoutConfig?.screens?.conferencing?.default?.elements?.participant_list
+  const canShowParticipants = useHMSConferencingScreenConfig(
+    (conferencingScreenConfig) =>
+      !!conferencingScreenConfig?.elements?.participant_list
   );
 
   const canShowBRB = useHMSLayoutConfig(
@@ -49,11 +50,19 @@ export const _Footer: React.FC<FooterProps> = () => {
       !!state.hmsStates.localPeer?.role?.permissions?.browserRecording
   );
 
+  const canShowChat = useHMSConferencingScreenConfig(
+    (conferencingScreenConfig) => !!conferencingScreenConfig?.elements?.chat
+  );
+
   const canShowOptions =
     canPublishScreen || canShowParticipants || canShowBRB || canStartRecording;
 
   const footerActionButtons = useMemo(() => {
-    const actions = ['chat'];
+    const actions = [];
+
+    if (canShowChat) {
+      actions.push('chat');
+    }
 
     if (!isOnStage) {
       actions.unshift('hand-raise');
@@ -74,7 +83,13 @@ export const _Footer: React.FC<FooterProps> = () => {
     }
 
     return actions;
-  }, [canShowOptions, isOnStage, canPublishAudio, canPublishVideo]);
+  }, [
+    isOnStage,
+    canShowOptions,
+    canShowChat,
+    canPublishAudio,
+    canPublishVideo,
+  ]);
 
   const containerStyles = useHMSRoomStyle((theme) => ({
     backgroundColor: theme.palette.background_dim,

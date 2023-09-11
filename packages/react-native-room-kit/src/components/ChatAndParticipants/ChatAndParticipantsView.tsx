@@ -2,7 +2,11 @@ import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { StyleSheet, View } from 'react-native';
 
-import { useHMSRoomStyleSheet, useShowChat } from '../../hooks-util';
+import {
+  useHMSConferencingScreenConfig,
+  useHMSRoomStyleSheet,
+  useShowChat,
+} from '../../hooks-util';
 import { ChatList } from '../Chat/ChatList';
 import { HMSSendMessageInput } from '../HMSSendMessageInput';
 import { SearchableParticipantsView } from '../Participants';
@@ -30,20 +34,30 @@ const _ChatAndParticipantsView: React.FC = () => {
     },
   }));
 
+  const canShowParticipants = useHMSConferencingScreenConfig(
+    (conferencingScreenConfig) =>
+      !!conferencingScreenConfig?.elements?.participant_list
+  );
+
+  const showParticipants =
+    activeChatBottomSheetTab === 'Participants' && canShowParticipants;
+
   return (
     <View style={{ flex: 1, position: 'relative' }}>
       <View
         style={[
           chatViewStyles.container,
           hmsRoomStyles.container,
-          activeChatBottomSheetTab === 'Participants'
-            ? chatViewStyles.participantsContainer
-            : null,
+          showParticipants ? chatViewStyles.participantsContainer : null,
         ]}
       >
         <ChatAndParticipantsHeader onClosePress={closeChatBottomSheet} />
 
-        {activeChatBottomSheetTab === 'Chat' ? (
+        {showParticipants ? (
+          <View style={chatViewStyles.participantsWrapper}>
+            <SearchableParticipantsView />
+          </View>
+        ) : (
           <>
             <ChatList />
 
@@ -53,11 +67,7 @@ const _ChatAndParticipantsView: React.FC = () => {
               containerStyle={[chatViewStyles.input, hmsRoomStyles.input]}
             />
           </>
-        ) : activeChatBottomSheetTab === 'Participants' ? (
-          <View style={chatViewStyles.participantsWrapper}>
-            <SearchableParticipantsView />
-          </View>
-        ) : null}
+        )}
       </View>
 
       <ChatFilterBottomSheetView />

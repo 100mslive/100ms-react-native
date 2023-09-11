@@ -14,6 +14,7 @@ import {
 } from '../Icons';
 import { BottomSheet, useBottomSheetActions } from './BottomSheet';
 import {
+  useHMSConferencingScreenConfig,
   useHMSInstance,
   useHMSLayoutConfig,
   useHMSRoomStyleSheet,
@@ -120,9 +121,9 @@ export const RoomSettingsModalContent: React.FC<
   };
   // #endregion
 
-  const canShowParticipants = useHMSLayoutConfig(
-    (layoutConfig) =>
-      !!layoutConfig?.screens?.conferencing?.default?.elements?.participant_list
+  const canShowParticipants = useHMSConferencingScreenConfig(
+    (conferencingScreenConfig) =>
+      !!conferencingScreenConfig?.elements?.participant_list
   );
 
   const canShowBRB = useHMSLayoutConfig(

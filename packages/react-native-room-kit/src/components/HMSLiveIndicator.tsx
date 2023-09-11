@@ -9,6 +9,7 @@ import {
 import { useSelector } from 'react-redux';
 
 import {
+  useHMSConferencingScreenConfig,
   useHMSRoomStyleSheet,
   useIsHLSViewer,
   useShowParticipantsSheet,
@@ -49,6 +50,11 @@ const _HMSLiveIndicator = () => {
 
   const showParticipantList = useShowParticipantsSheet();
 
+  const canShowParticipants = useHMSConferencingScreenConfig(
+    (conferencingScreenConfig) =>
+      !!conferencingScreenConfig?.elements?.participant_list
+  );
+
   if (!live) {
     return null;
   }
@@ -65,6 +71,7 @@ const _HMSLiveIndicator = () => {
         <TouchableOpacity
           style={[styles.viewers, hmsRoomStyles.viewers]}
           onPress={showParticipantList}
+          disabled={!canShowParticipants}
         >
           <EyeIcon />
 
