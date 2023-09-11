@@ -11,6 +11,7 @@ import {
   useHMSMessages,
   useHMSNetworkQualityUpdate,
   useHMSPIPRoomLeave,
+  useHMSReconnection,
   useHMSRemovedFromRoomUpdate,
   useHMSRoomStyle,
   useIsHLSViewer,
@@ -36,6 +37,8 @@ export const Meeting: React.FC<MeetingProps> = ({ peerTrackNodes }) => {
   useFetchHMSRoles();
 
   useHMSMessages();
+
+  useHMSReconnection();
 
   useHMSRemovedFromRoomUpdate();
 

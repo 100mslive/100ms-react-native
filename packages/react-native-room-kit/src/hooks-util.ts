@@ -82,6 +82,7 @@ import {
   setLocalPeerTrackNode,
   setMiniViewPeerTrackNode,
   setModalType,
+  setReconnecting,
   setRoleChangeRequest,
   setStartingOrStoppingRecording,
   updateFullScreenPeerTrackNode,
@@ -1182,6 +1183,38 @@ export const useHMSMessages = () => {
     };
   }, [canChangeRole, hmsInstance]);
 };
+
+export const useHMSReconnection = () => {
+  const dispatch = useDispatch();
+  const hmsInstance = useHMSInstance();
+
+  useEffect(() => {
+    let mounted = true;
+
+    hmsInstance.addEventListener(
+      HMSUpdateListenerActions.RECONNECTING,
+      () => {
+        if (mounted) {
+          dispatch(setReconnecting(true));
+        }
+      }
+    );
+    hmsInstance.addEventListener(
+      HMSUpdateListenerActions.RECONNECTED,
+      () => {
+        if (mounted) {
+          dispatch(setReconnecting(false));
+        }
+      }
+    );
+
+    return () => {
+      mounted = false;
+      hmsInstance.removeEventListener(HMSUpdateListenerActions.RECONNECTING);
+      hmsInstance.removeEventListener(HMSUpdateListenerActions.RECONNECTED);
+    };
+  }, [hmsInstance]);
+}
 
 export const useHMSPIPRoomLeave = () => {
   const hmsInstance = useHMSInstance();

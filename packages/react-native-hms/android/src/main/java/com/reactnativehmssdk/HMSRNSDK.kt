@@ -663,42 +663,32 @@ class HMSRNSDK(
     callback: Promise?,
     fromPIP: Boolean = false,
   ) {
-    if (reconnectingStage) {
-      val errorMessage = "Still in reconnecting stage"
+    hmsSDK?.leave(
+      object : HMSActionResultListener {
+        override fun onSuccess() {
+          if (fromPIP) {
+            context.currentActivity?.moveTaskToBack(false)
 
-      if (fromPIP) {
-        self.emitHMSError(HMSException(101, errorMessage, "PIP Action", "Leave called from PIP Window", "HMSRNSDK #Function leave"))
-      } else {
-        callback?.reject("101", errorMessage)
-      }
-    } else {
-      hmsSDK?.leave(
-        object : HMSActionResultListener {
-          override fun onSuccess() {
-            if (fromPIP) {
-              context.currentActivity?.moveTaskToBack(false)
-
-              if (eventsEnableStatus["ON_PIP_ROOM_LEAVE"] != true) {
-                return
-              }
-              val map: WritableMap = Arguments.createMap()
-              map.putString("id", id)
-              delegate.emitEvent("ON_PIP_ROOM_LEAVE", map)
-            } else {
-              callback?.resolve(emitHMSSuccess())
+            if (eventsEnableStatus["ON_PIP_ROOM_LEAVE"] != true) {
+              return
             }
-            cleanup() // resetting states and doing data cleanup
+            val map: WritableMap = Arguments.createMap()
+            map.putString("id", id)
+            delegate.emitEvent("ON_PIP_ROOM_LEAVE", map)
+          } else {
+            callback?.resolve(emitHMSSuccess())
           }
+          cleanup() // resetting states and doing data cleanup
+        }
 
-          override fun onError(error: HMSException) {
-            if (!fromPIP) {
-              callback?.reject(error.code.toString(), error.message)
-            }
-            self.emitHMSError(error)
+        override fun onError(error: HMSException) {
+          if (!fromPIP) {
+            callback?.reject(error.code.toString(), error.message)
           }
-        },
-      )
-    }
+          self.emitHMSError(error)
+        }
+      },
+    )
   }
 
   fun sendBroadcastMessage(
