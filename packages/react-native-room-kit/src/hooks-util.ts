@@ -29,6 +29,8 @@ import type {
 } from '@100mslive/react-native-hms';
 import type {
   ColorPalette,
+  DefaultConferencingScreen,
+  HLSLiveStreamingScreen,
   Layout,
   Theme,
   Typography,
@@ -116,6 +118,7 @@ import {
 } from './utils/dimension';
 import {
   selectChatLayoutConfig,
+  selectConferencingScreenConfig,
   selectIsHLSViewer,
   selectLayoutConfigForRole,
   selectShouldGoLive,
@@ -1152,6 +1155,9 @@ export const useHMSMessages = () => {
     (state: RootState) =>
       state.hmsStates.localPeer?.role?.permissions?.changeRole
   );
+  const canShowChat = useHMSConferencingScreenConfig(
+    (conferencingScreenConfig) => !!conferencingScreenConfig?.elements?.chat
+  );
 
   useEffect(() => {
     const onMessageListener = (message: HMSMessage) => {
@@ -1167,7 +1173,7 @@ export const useHMSMessages = () => {
         }
       } else if (message.type === 'EMOJI_REACTION') {
         console.log('Ignoring Emoji Reaction Message: ', message);
-      } else {
+      } else if (canShowChat) {
         dispatch(addMessage(message));
       }
     };
@@ -1181,7 +1187,7 @@ export const useHMSMessages = () => {
       // TODO: Remove this listener when user leaves, removed or room is ended
       hmsInstance.removeEventListener(HMSUpdateListenerActions.ON_MESSAGE);
     };
-  }, [canChangeRole, hmsInstance]);
+  }, [canChangeRole, canShowChat, hmsInstance]);
 };
 
 export const useHMSReconnection = () => {
@@ -1191,22 +1197,16 @@ export const useHMSReconnection = () => {
   useEffect(() => {
     let mounted = true;
 
-    hmsInstance.addEventListener(
-      HMSUpdateListenerActions.RECONNECTING,
-      () => {
-        if (mounted) {
-          dispatch(setReconnecting(true));
-        }
+    hmsInstance.addEventListener(HMSUpdateListenerActions.RECONNECTING, () => {
+      if (mounted) {
+        dispatch(setReconnecting(true));
       }
-    );
-    hmsInstance.addEventListener(
-      HMSUpdateListenerActions.RECONNECTED,
-      () => {
-        if (mounted) {
-          dispatch(setReconnecting(false));
-        }
+    });
+    hmsInstance.addEventListener(HMSUpdateListenerActions.RECONNECTED, () => {
+      if (mounted) {
+        dispatch(setReconnecting(false));
       }
-    );
+    });
 
     return () => {
       mounted = false;
@@ -1214,7 +1214,7 @@ export const useHMSReconnection = () => {
       hmsInstance.removeEventListener(HMSUpdateListenerActions.RECONNECTED);
     };
   }, [hmsInstance]);
-}
+};
 
 export const useHMSPIPRoomLeave = () => {
   const hmsInstance = useHMSInstance();
@@ -1546,10 +1546,13 @@ export const useShowChat = (): [
 ] => {
   const dispatch = useDispatch();
   const overlayChatLayout = useHMSChatLayoutConfig(
-    (chatConfig) => chatConfig?.overlay_view
+    (chatConfig) => chatConfig?.is_overlay
   );
   const showChatView = useSelector(
     (state: RootState) => state.chatWindow.showChatView
+  );
+  const canShowChat = useHMSConferencingScreenConfig(
+    (conferencingScreenConfig) => !!conferencingScreenConfig?.elements?.chat
   );
   const chatVisible: 'none' | 'inset' | 'modal' = useMemo(() => {
     if (!showChatView) return 'none';
@@ -1564,6 +1567,8 @@ export const useShowChat = (): [
 
   const showChat = useCallback(
     (show: boolean) => {
+      if (!canShowChat) return;
+
       if (isChatVisibleInsetType) {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       }
@@ -1583,12 +1588,23 @@ export const useShowChat = (): [
 export const useShowParticipantsSheet = () => {
   const dispatch = useDispatch();
   const overlayChatLayout = useHMSChatLayoutConfig(
-    (chatConfig) => chatConfig?.overlay_view
+    (chatConfig) => chatConfig?.is_overlay
   );
+  const canShowParticipants = useHMSConferencingScreenConfig(
+    (conferencingScreenConfig) =>
+      !!conferencingScreenConfig?.elements?.participant_list
+  );
+
+  const canShowChat = useHMSConferencingScreenConfig(
+    (conferencingScreenConfig) => !!conferencingScreenConfig?.elements?.chat
+  );
+
   const { handleModalVisibleType: setModalVisible } = useModalType();
 
   const showParticipantsSheet = useCallback(() => {
-    if (overlayChatLayout) {
+    if (!canShowParticipants) return;
+
+    if (overlayChatLayout || !canShowChat) {
       setModalVisible(ModalTypes.PARTICIPANTS);
     } else {
       batch(() => {
@@ -1596,7 +1612,7 @@ export const useShowParticipantsSheet = () => {
         dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: true });
       });
     }
-  }, [overlayChatLayout, setModalVisible]);
+  }, [overlayChatLayout, canShowParticipants, setModalVisible]);
 
   return showParticipantsSheet;
 };
@@ -2122,5 +2138,21 @@ export const useHMSChatLayoutConfig = <Selected = unknown>(
   return useHMSLayoutConfig((layoutConfig) => {
     const chatConfig = selectChatLayoutConfig(layoutConfig);
     return selector(chatConfig);
+  }, equalityFn);
+};
+
+export const useHMSConferencingScreenConfig = <Selected = unknown>(
+  selector: (
+    conferencingScreenConfig:
+      | DefaultConferencingScreen
+      | HLSLiveStreamingScreen
+      | null
+  ) => Selected,
+  equalityFn?: (left: Selected, right: Selected) => boolean
+): Selected => {
+  return useHMSLayoutConfig((layoutConfig) => {
+    const conferencingScreenConfig =
+      selectConferencingScreenConfig(layoutConfig);
+    return selector(conferencingScreenConfig);
   }, equalityFn);
 };
