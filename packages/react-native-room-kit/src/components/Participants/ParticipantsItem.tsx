@@ -43,11 +43,7 @@ const _ParticipantsItem: React.FC<ParticipantsItemProps> = ({ data }) => {
     },
   }));
 
-  const show3Dots =
-    selfHostOrBroadcaster &&
-    ('role' in data.data
-      ? !isParticipantHostOrBroadcaster(data.data.role!)
-      : data.key === 'hand-raised');
+  const show3Dots = selfHostOrBroadcaster && !data.data.isLocal;
 
   const showOptions = () => setOptionsVisible(true);
 
