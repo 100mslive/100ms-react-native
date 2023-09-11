@@ -3,7 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { CloseIcon } from '../../Icons';
-import { useHMSRoomStyleSheet } from '../../hooks-util';
+import { useHMSLayoutConfig, useHMSRoomStyleSheet } from '../../hooks-util';
 import type { RootState } from '../../redux';
 import { COLORS } from '../../utils/theme';
 import { ChatBottomSheetTabs } from '../../utils/types';
@@ -23,6 +23,10 @@ const _ChatAndParticipantsHeader: React.FC<WebrtcChatHeaderProps> = ({
   const activeChatBottomSheetTab = useSelector(
     (state: RootState) => state.app.activeChatBottomSheetTab
   );
+  const canShowParticipants = useHMSLayoutConfig(
+    (layoutConfig) =>
+      !!layoutConfig?.screens?.conferencing?.default?.elements?.participant_list
+  );
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     tab: {
@@ -34,37 +38,48 @@ const _ChatAndParticipantsHeader: React.FC<WebrtcChatHeaderProps> = ({
     },
     activeHeaderTitle: {
       color: theme.palette.on_surface_high,
+      fontFamily: `${typography.font_family}-SemiBold`,
     },
   }));
 
-  return (
-    <View style={styles.header}>
-      <View style={styles.headerTitleWrapper}>
-        {ChatBottomSheetTabs.map((tab) => {
-          const isActive = activeChatBottomSheetTab === tab;
+  const visibleChatBottomSheetTabs = ChatBottomSheetTabs.filter((tab) =>
+    tab === 'Participants' ? canShowParticipants : true
+  );
 
-          return (
-            <TouchableOpacity
-              key={tab}
-              style={[styles.tab, isActive ? hmsRoomStyles.tab : null]}
-              onPress={() => dispatch(setActiveChatBottomSheetTab(tab))}
-            >
-              <Text
-                style={[
-                  styles.headerTitle,
-                  hmsRoomStyles.headerTitle,
-                  isActive ? hmsRoomStyles.activeHeaderTitle : null,
-                ]}
+  return (
+    <View style={canShowParticipants ? styles.tabsHeader : styles.header}>
+      {visibleChatBottomSheetTabs.length === 1 ? (
+        <Text style={[styles.headerTitle, hmsRoomStyles.activeHeaderTitle]}>
+          {visibleChatBottomSheetTabs[0]}
+        </Text>
+      ) : (
+        <View style={styles.headerTitleWrapper}>
+          {visibleChatBottomSheetTabs.map((tab) => {
+            const isActive = activeChatBottomSheetTab === tab;
+
+            return (
+              <TouchableOpacity
+                key={tab}
+                style={[styles.tab, isActive ? hmsRoomStyles.tab : null]}
+                onPress={() => dispatch(setActiveChatBottomSheetTab(tab))}
               >
-                {tab}
-                {tab === 'Participants' && typeof peersCount === 'number'
-                  ? ` (${peersCount})`
-                  : null}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
+                <Text
+                  style={[
+                    styles.headerTitle,
+                    hmsRoomStyles.headerTitle,
+                    isActive ? hmsRoomStyles.activeHeaderTitle : null,
+                  ]}
+                >
+                  {tab}
+                  {tab === 'Participants' && typeof peersCount === 'number'
+                    ? ` (${peersCount})`
+                    : null}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      )}
 
       <TouchableOpacity onPress={onClosePress}>
         <CloseIcon />
@@ -74,9 +89,14 @@ const _ChatAndParticipantsHeader: React.FC<WebrtcChatHeaderProps> = ({
 };
 
 const styles = StyleSheet.create({
+  tabsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
   headerTitleWrapper: {
     flex: 1,
