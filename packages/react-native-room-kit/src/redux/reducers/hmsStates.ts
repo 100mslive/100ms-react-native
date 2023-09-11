@@ -25,7 +25,8 @@ type ActionType =
   | AddParticipant
   | RemoveParticipant
   | AddUpdateParticipant
-  | SetActiveSpeakers;
+  | SetActiveSpeakers
+  | SetReconnecting;
 
 type SetRoomAction = {
   type: HmsStateActionTypes.SET_ROOM_STATE;
@@ -106,10 +107,16 @@ type SetActiveSpeakers = {
   activeSpeakers: HMSSpeaker[];
 };
 
+type SetReconnecting = {
+  type: HmsStateActionTypes.SET_RECONNECTING;
+  reconnecting: boolean;
+};
+
 type IntialStateType = {
   isLocalAudioMuted: boolean | undefined;
   isLocalVideoMuted: boolean | undefined;
   isLocalScreenShared: boolean | undefined;
+  reconnecting: boolean;
   roomLocallyMuted: boolean;
   room: HMSRoom | null;
   localPeer: HMSLocalPeer | null;
@@ -125,6 +132,7 @@ const INITIAL_STATE: IntialStateType = {
   isLocalAudioMuted: undefined,
   isLocalVideoMuted: undefined,
   isLocalScreenShared: undefined,
+  reconnecting: false,
   roomLocallyMuted: false,
   room: null,
   localPeer: null,
@@ -275,6 +283,11 @@ const hmsStatesReducer = (
       return {
         ...state,
         roleChangeRequest: action.roleChangeRequest,
+      };
+    case HmsStateActionTypes.SET_RECONNECTING:
+      return {
+        ...state,
+        reconnecting: action.reconnecting,
       };
     case HmsStateActionTypes.CLEAR_STATES:
       return INITIAL_STATE;

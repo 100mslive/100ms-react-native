@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { StyleSheet, Pressable } from 'react-native';
+import { StyleSheet, Pressable, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import {
   Easing,
@@ -20,6 +20,7 @@ import { HMSStatusBar } from './StatusBar';
 import { AnimatedFooter } from './AnimatedFooter';
 import { HLSFooter } from './HLSFooter';
 import { AnimatedHeader } from './AnimatedHeader';
+import { ReconnectionView } from './ReconnectionView';
 
 interface MeetingScreenContentProps {
   peerTrackNodes: Array<PeerTrackNode>;
@@ -88,13 +89,17 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
     >
       <HMSStatusBar hidden={controlsHidden} barStyle={'light-content'} />
 
-      {isPipModeActive ? null : (
-        <AnimatedHeader offset={offset}>
-          <Header transparent={isHLSViewer} showControls={!isHLSViewer} />
-        </AnimatedHeader>
-      )}
+      <View style={styles.reconnectionWrapper}>
+        {isPipModeActive ? null : (
+          <AnimatedHeader offset={offset}>
+            <Header transparent={isHLSViewer} showControls={!isHLSViewer} />
+          </AnimatedHeader>
+        )}
 
-      <DisplayView offset={offset} peerTrackNodes={peerTrackNodes} />
+        <DisplayView offset={offset} peerTrackNodes={peerTrackNodes} />
+
+        <ReconnectionView />
+      </View>
 
       {isPipModeActive ? null : isHLSViewer ? (
         <HLSFooter offset={offset} />
@@ -114,5 +119,8 @@ const styles = StyleSheet.create({
   },
   takeLessSpaceAsItCan: {
     flex: 0,
+  },
+  reconnectionWrapper: {
+    flex: 1,
   },
 });

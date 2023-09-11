@@ -357,3 +357,8 @@ export const setActiveSpeakers = (activeSpeakers: HMSSpeaker[]) => ({
   type: HmsStateActionTypes.SET_ACTIVE_SPEAKERS,
   activeSpeakers,
 });
+
+export const setReconnecting = (reconnecting: boolean) => ({
+  type: HmsStateActionTypes.SET_RECONNECTING,
+  reconnecting,
+});
