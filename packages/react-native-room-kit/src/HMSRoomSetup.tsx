@@ -223,7 +223,10 @@ export const HMSRoomSetup = () => {
         const overlayChatInitialState =
           chatConfig && chatConfig.is_overlay && chatConfig.initial_state;
 
-        if (!!chatConfig && overlayChatInitialState === Chat_ChatState.CHAT_STATE_OPEN) {
+        if (
+          !!chatConfig &&
+          overlayChatInitialState === Chat_ChatState.CHAT_STATE_OPEN
+        ) {
           dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: true });
         }
 
