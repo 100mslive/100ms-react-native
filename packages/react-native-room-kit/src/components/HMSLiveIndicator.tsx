@@ -9,10 +9,9 @@ import {
 import { useSelector } from 'react-redux';
 
 import {
-  useHMSConferencingScreenConfig,
   useHMSRoomStyleSheet,
   useIsHLSViewer,
-  useShowParticipantsSheet,
+  useShowChatAndParticipants,
 } from '../hooks-util';
 import { EyeIcon } from '../Icons';
 import { hexToRgbA } from '../utils/theme';
@@ -48,12 +47,11 @@ const _HMSLiveIndicator = () => {
     },
   }));
 
-  const showParticipantList = useShowParticipantsSheet();
+  const {canShowParticipants, show} = useShowChatAndParticipants();
 
-  const canShowParticipants = useHMSConferencingScreenConfig(
-    (conferencingScreenConfig) =>
-      !!conferencingScreenConfig?.elements?.participant_list
-  );
+  const showParticipantsSheet = () => {
+    show('participants');
+  }
 
   if (!live) {
     return null;
@@ -70,7 +68,7 @@ const _HMSLiveIndicator = () => {
       {typeof previewPeerCount === 'number' ? (
         <TouchableOpacity
           style={[styles.viewers, hmsRoomStyles.viewers]}
-          onPress={showParticipantList}
+          onPress={showParticipantsSheet}
           disabled={!canShowParticipants}
         >
           <EyeIcon />

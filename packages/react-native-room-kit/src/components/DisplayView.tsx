@@ -25,7 +25,6 @@ import { PeerSettingsModalContent } from '../components/PeerSettingsModalContent
 import { StreamingQualityModalContent } from '../components/StreamingQualityModalContent';
 import {
   useHMSChangeTrackStateRequest,
-  useHMSChatLayoutConfig,
   useHMSInstance,
   useHMSRoleChangeRequest,
   useHMSSessionStoreListeners,
@@ -37,7 +36,6 @@ import { BottomSheet } from './BottomSheet';
 import { FullScreenVideoView } from './FullScreenVideoView';
 import { PreviewForRoleChangeModal } from './PreviewForRoleChangeModal';
 import { ChatAndParticipantsBottomSheet } from './ChatAndParticipants';
-import { ParticipantsBottomSheet } from './ParticipantsBottomSheet';
 
 type CapturedImagePath = { uri: string } | null;
 
@@ -53,10 +51,6 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
   // --- 100ms SDK Instance ---
   const hmsInstance = useHMSInstance();
   const isHLSViewer = useIsHLSViewer();
-
-  const overlayChatLayout = useHMSChatLayoutConfig(
-    (chatConfig) => chatConfig?.is_overlay
-  );
 
   const {
     modalVisibleType: modalVisible,
@@ -160,11 +154,7 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
 
           <FullScreenVideoView />
 
-          {overlayChatLayout ? (
-            <ParticipantsBottomSheet />
-          ) : (
-            <ChatAndParticipantsBottomSheet />
-          )}
+          <ChatAndParticipantsBottomSheet />
 
           <BottomSheet
             isVisible={modalVisible === ModalTypes.PEER_SETTINGS}

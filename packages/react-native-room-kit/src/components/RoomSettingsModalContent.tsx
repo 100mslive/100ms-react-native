@@ -15,11 +15,10 @@ import {
 } from '../Icons';
 import { BottomSheet, useBottomSheetActions } from './BottomSheet';
 import {
-  useHMSConferencingScreenConfig,
   useHMSInstance,
   useHMSLayoutConfig,
   useHMSRoomStyleSheet,
-  useShowParticipantsSheet,
+  useShowChatAndParticipants,
 } from '../hooks-util';
 import { useCanPublishScreen, useHMSActions } from '../hooks-sdk';
 import { RoomSettingsModalDebugModeContent } from './RoomSettingsModalDebugModeContent';
@@ -52,12 +51,12 @@ export const RoomSettingsModalContent: React.FC<
 
   const { registerOnModalHideAction } = useBottomSheetActions();
 
-  const showParticipantList = useShowParticipantsSheet();
+  const {canShowParticipants, show} = useShowChatAndParticipants();
 
   // #region Participants related states and functions
   const onParticipantsPress = () => {
     // Register callback to be called when bottom sheet is hidden
-    registerOnModalHideAction(showParticipantList);
+    registerOnModalHideAction(() => show('participants'));
 
     // Close the current bottom sheet
     closeRoomSettingsModal();
@@ -133,11 +132,6 @@ export const RoomSettingsModalContent: React.FC<
     }
   };
   // #endregion
-
-  const canShowParticipants = useHMSConferencingScreenConfig(
-    (conferencingScreenConfig) =>
-      !!conferencingScreenConfig?.elements?.participant_list
-  );
 
   const canShowBRB = useHMSLayoutConfig(
     (layoutConfig) =>

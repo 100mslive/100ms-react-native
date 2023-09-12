@@ -2,17 +2,23 @@ import * as React from 'react';
 
 import { ChatIcon } from '../Icons';
 import { PressableIcon } from './PressableIcon';
-import { useShowChat } from '../hooks-util';
+import { useShowChatAndParticipants } from '../hooks-util';
 
 export const HMSChat = () => {
-  const [chatVisibleType, setChatVisible] = useShowChat();
+  const { overlayChatVisible, show, hide } = useShowChatAndParticipants();
 
-  const toggleChatWindow = () => setChatVisible(chatVisibleType === 'none');
+  const toggleChatWindow = () => {
+    if (overlayChatVisible) {
+      hide('chat_overlay');
+    } else {
+      show('chat');
+    }
+  };
 
   return (
     <PressableIcon
       onPress={toggleChatWindow}
-      active={chatVisibleType === 'inset'}
+      active={overlayChatVisible}
     >
       <ChatIcon />
     </PressableIcon>

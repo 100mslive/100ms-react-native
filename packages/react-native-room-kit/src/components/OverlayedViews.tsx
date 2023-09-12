@@ -3,16 +3,16 @@ import * as React from 'react';
 import { HMSNotifications } from './HMSNotifications';
 import { OverlayContainer } from './OverlayContainer';
 import { HLSChatView } from './HMSOverlayChatView';
-import { useShowChat } from '../hooks-util';
+import { useShowChatAndParticipants } from '../hooks-util';
 
 export type OverlayedViewsProps = {};
 
 const _OverlayedViews: React.FC<OverlayedViewsProps> = () => {
-  const [showChatType] = useShowChat();
+  const {overlayChatVisible} = useShowChatAndParticipants();
 
   return (
     <OverlayContainer.Overlay>
-      {showChatType === 'inset' ? <HLSChatView /> : null}
+      {overlayChatVisible ? <HLSChatView /> : null}
 
       <HMSNotifications />
     </OverlayContainer.Overlay>
