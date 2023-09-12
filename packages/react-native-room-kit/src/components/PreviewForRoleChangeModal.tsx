@@ -40,6 +40,9 @@ const _PreviewForRoleChangeModal = () => {
   const localPeerName = useSelector(
     (state: RootState) => state.hmsStates.localPeer?.name || ''
   );
+  const localPeerRoleName = useSelector(
+    (state: RootState) => state.hmsStates.localPeer?.role?.name
+  );
   const localPeerMetadata = useSelector(
     (state: RootState) => parseMetadata(state.hmsStates.localPeer?.metadata),
     shallowEqual
@@ -144,6 +147,15 @@ const _PreviewForRoleChangeModal = () => {
 
   const handleRequestAccept = async () => {
     dispatch(setRoleChangeRequest(null));
+    // saving current role in peer metadata,
+    // so that when peer is removed from stage, we can assign previous role to it.
+    if (localPeerRoleName) {
+      const newMetadata = {
+        ...localPeerMetadata,
+        prevRole: localPeerRoleName,
+      };
+      await hmsActions.changeMetadata(newMetadata);
+    }
     await hmsInstance.acceptRoleChange();
   };
 

@@ -57,10 +57,13 @@ const _ParticipantsItemOptions: React.FC<ParticipantsItemOptionsProps> = ({
     return layoutConfig?.screens?.conferencing?.default?.elements?.on_stage_exp
       ?.off_stage_roles;
   });
-  const offStageRoleStr =
+  const firstOffStageRoleStr =
     offStageRoles && offStageRoles.length > 0 ? offStageRoles[0] : undefined;
+  const prevRoleStr = parseMetadata(peer.metadata).prevRole;
+
   const offStageRole = useSelector((state: RootState) => {
     const roles = state.hmsStates.roles;
+    const offStageRoleStr = prevRoleStr || firstOffStageRoleStr;
     return roles.find((role) => role.name === offStageRoleStr);
   });
 
@@ -112,7 +115,7 @@ const _ParticipantsItemOptions: React.FC<ParticipantsItemOptionsProps> = ({
         .then((d) => console.log('Remove from Stage Success: ', d))
         .catch((e) => console.log('Remove from Stage Error: ', e));
     } else {
-      console.warn(`offStageRole '${offStageRoleStr}' is ${offStageRole}`);
+      console.warn(`offStageRole '${prevRoleStr || firstOffStageRoleStr}' is ${offStageRole}`);
     }
     onItemPress();
   };

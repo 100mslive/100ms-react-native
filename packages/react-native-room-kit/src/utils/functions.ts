@@ -54,6 +54,7 @@ export const parseMetadata = (
 ): {
   isHandRaised?: boolean;
   isBRBOn?: boolean;
+  prevRole?: string;
 } => {
   try {
     if (metadata) {
