@@ -93,6 +93,13 @@ export const _PeerVideoTileView = React.forwardRef<
       return (allowed && allowed.length > 0) ?? false;
     });
 
+    const localPeerPermissions = useSelector(
+      (state: RootState) => {
+        const permissions = state.hmsStates.localPeer?.role?.permissions;
+        return (permissions &&  (permissions.changeRole || permissions.mute || permissions.unmute || permissions.removeOthers));
+      }
+    );
+
     const hmsRoomStyles = useHMSRoomStyleSheet((theme) => ({
       iconWrapperStyles: {
         backgroundColor: hexToRgbA(theme.palette.background_dim!, 0.64),
@@ -183,7 +190,7 @@ export const _PeerVideoTileView = React.forwardRef<
               <ThreeDotsIcon stack="vertical" style={styles.icon} />
             </PressableIcon>
           </UnmountAfterDelay>
-        ) : !allowedToPublish ? null : (
+        ) : !allowedToPublish || !localPeerPermissions ? null : (
           <PressableIcon
             activeOpacity={0.7}
             style={[styles.iconWrapper, hmsRoomStyles.iconWrapperStyles]}
