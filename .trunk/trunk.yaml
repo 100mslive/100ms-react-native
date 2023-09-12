@@ -11,7 +11,7 @@ lint:
     - checkov@2.4.9
     - osv-scanner@1.3.6
     - trivy@0.45.0
-    - trufflehog@3.54.3
+    - trufflehog@3.54.4
     - oxipng@8.0.0
     - yamllint@1.32.0
     - ktlint@1.0.0

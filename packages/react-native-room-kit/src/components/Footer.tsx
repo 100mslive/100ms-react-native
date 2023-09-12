@@ -30,6 +30,8 @@ export const _Footer: React.FC<FooterProps> = () => {
   const canPublishVideo = useCanPublishVideo();
   const canPublishScreen = useCanPublishScreen();
 
+  const isViewer = !(canPublishAudio || canPublishVideo || canPublishScreen);
+
   const { canShowParticipants, canShowChat } = useShowChatAndParticipants();
 
   const canShowBRB = useHMSLayoutConfig(
@@ -57,7 +59,7 @@ export const _Footer: React.FC<FooterProps> = () => {
       actions.push('chat');
     }
 
-    if (!isOnStage) {
+    if (!isOnStage && isViewer) {
       actions.unshift('hand-raise');
     }
 
@@ -80,6 +82,7 @@ export const _Footer: React.FC<FooterProps> = () => {
     isOnStage,
     canShowOptions,
     canShowChat,
+    isViewer,
     canPublishAudio,
     canPublishVideo,
   ]);

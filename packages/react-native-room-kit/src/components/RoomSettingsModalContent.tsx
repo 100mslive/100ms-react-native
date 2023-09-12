@@ -8,6 +8,7 @@ import { ModalTypes } from '../utils/types';
 import { groupIntoTriplets, parseMetadata } from '../utils/functions';
 import {
   BRBIcon,
+  HandIcon,
   ParticipantsIcon,
   RecordingIcon,
   ScreenShareIcon,
@@ -23,6 +24,7 @@ import { useCanPublishScreen, useHMSActions } from '../hooks-sdk';
 import { RoomSettingsModalDebugModeContent } from './RoomSettingsModalDebugModeContent';
 import { setStartingOrStoppingRecording } from '../redux/actions';
 import { ParticipantsCount } from './ParticipantsCount';
+import { selectAllowedTracksToPublish } from '../hooks-sdk-selectors';
 
 interface RoomSettingsModalContentProps {
   newAudioMixingMode: HMSAudioMixingMode;
@@ -82,6 +84,17 @@ export const RoomSettingsModalContent: React.FC<
   const parsedMetadata = parseMetadata(localPeerMetadata);
 
   const isBRBOn = !!parsedMetadata.isBRBOn;
+  const isHandRaised = !!parsedMetadata.isHandRaised;
+
+  const toggleRaiseHand = async () => {
+    const newMetadata = {
+      ...parsedMetadata,
+      isBRBOn: false,
+      isHandRaised: !isHandRaised,
+    };
+    closeRoomSettingsModal();
+    await hmsActions.changeMetadata(newMetadata);
+  };
 
   const toggleBRB = async () => {
     const newMetadata = {
@@ -125,6 +138,18 @@ export const RoomSettingsModalContent: React.FC<
       !!layoutConfig?.screens?.conferencing?.default?.elements?.brb
   );
 
+  const isOnStage = useHMSLayoutConfig((layoutConfig) => {
+    return !!layoutConfig?.screens?.conferencing?.default?.elements
+      ?.on_stage_exp;
+  });
+
+  const allowedToPublish = useSelector((state: RootState) => {
+    const allowed = selectAllowedTracksToPublish(state);
+    return (allowed && allowed.length > 0) ?? false;
+  });
+
+  const showHandRaiseIcon = !isOnStage && allowedToPublish;
+
   return (
     <View>
       <BottomSheet.Header
@@ -163,6 +188,14 @@ export const RoomSettingsModalContent: React.FC<
               pressHandler: toggleBRB,
               isActive: isBRBOn, // Show active if `isBRBOn` is set on metadata
               hide: !canShowBRB, // Hide if can't publish screen
+            },
+            {
+              id: 'raise-hand',
+              icon: <HandIcon style={{ width: 20, height: 20 }} />,
+              label: parsedMetadata.isHandRaised ? 'Hand Raised' : 'Raise Hand',
+              pressHandler: toggleRaiseHand,
+              isActive: isHandRaised, // Show active if `isHandRaised` is set on metadata
+              hide: !showHandRaiseIcon, // Hide if can't publish screen
             },
             {
               id: 'start-recording',
