@@ -4,8 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { CloseIcon } from '../../Icons';
 import {
-  useHMSConferencingScreenConfig,
   useHMSRoomStyleSheet,
+  useShowChatAndParticipants,
 } from '../../hooks-util';
 import type { RootState } from '../../redux';
 import { COLORS } from '../../utils/theme';
@@ -23,13 +23,6 @@ const _ChatAndParticipantsHeader: React.FC<WebrtcChatHeaderProps> = ({
   const peersCount = useSelector(
     (state: RootState) => state.hmsStates.room?.peerCount
   );
-  const activeChatBottomSheetTab = useSelector(
-    (state: RootState) => state.app.activeChatBottomSheetTab
-  );
-  const canShowParticipants = useHMSConferencingScreenConfig(
-    (conferencingScreenConfig) =>
-      !!conferencingScreenConfig?.elements?.participant_list
-  );
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     tab: {
@@ -45,15 +38,32 @@ const _ChatAndParticipantsHeader: React.FC<WebrtcChatHeaderProps> = ({
     },
   }));
 
-  const visibleChatBottomSheetTabs = ChatBottomSheetTabs.filter((tab) =>
-    tab === 'Participants' ? canShowParticipants : true
+  const activeChatBottomSheetTab = useSelector(
+    (state: RootState) => state.app.activeChatBottomSheetTab
   );
+  const { canShowParticipants, canShowChat, overlayChatLayout } = useShowChatAndParticipants();
+
+  const visibleChatBottomSheetTabs = ChatBottomSheetTabs.filter((tab) => {
+    if (tab === 'Participants') return canShowParticipants;
+    if (tab === 'Chat') return canShowChat && !overlayChatLayout;
+    return true;
+  });
 
   return (
-    <View style={canShowParticipants ? styles.tabsHeader : styles.header}>
+    <View
+      style={
+        visibleChatBottomSheetTabs.length > 1
+          ? styles.tabsHeader
+          : styles.header
+      }
+    >
       {visibleChatBottomSheetTabs.length === 1 ? (
         <Text style={[styles.headerTitle, hmsRoomStyles.activeHeaderTitle]}>
           {visibleChatBottomSheetTabs[0]}
+          {visibleChatBottomSheetTabs[0] === 'Participants' &&
+          typeof peersCount === 'number'
+            ? ` (${peersCount})`
+            : null}
         </Text>
       ) : (
         <View style={styles.headerTitleWrapper}>
@@ -100,6 +110,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    marginTop: 4,
   },
   headerTitleWrapper: {
     flex: 1,

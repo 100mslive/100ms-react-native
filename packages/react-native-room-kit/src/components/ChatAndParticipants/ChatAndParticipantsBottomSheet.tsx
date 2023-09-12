@@ -3,21 +3,21 @@ import { StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BottomSheet } from '../BottomSheet';
-import { useShowChat } from '../../hooks-util';
+import { useShowChatAndParticipants } from '../../hooks-util';
 import { ChatAndParticipantsView } from './ChatAndParticipantsView';
 import { HEADER_HEIGHT } from '../Header';
 
 export const ChatAndParticipantsBottomSheet = () => {
   const { top: topSafeArea } = useSafeAreaInsets();
 
-  const [chatVisibleType, setChatVisible] = useShowChat();
+  const { modalVisible, hide } = useShowChatAndParticipants();
 
-  const closeChatWindow = () => setChatVisible(false);
+  const closeChatWindow = () => hide('modal');
 
   return (
     <BottomSheet
       dismissModal={closeChatWindow}
-      isVisible={chatVisibleType === 'modal'}
+      isVisible={modalVisible}
       avoidKeyboard={true}
       containerStyle={[
         styles.bottomSheet,

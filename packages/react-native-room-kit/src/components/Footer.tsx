@@ -3,10 +3,10 @@ import { View, StyleSheet, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
-  useHMSConferencingScreenConfig,
   useHMSLayoutConfig,
   useHMSRoomStyle,
   useIsHLSViewer,
+  useShowChatAndParticipants,
 } from '../hooks-util';
 import { HMSManageLeave } from './HMSManageLeave';
 import { HMSManageRaiseHand } from './HMSManageRaiseHand';
@@ -30,10 +30,7 @@ export const _Footer: React.FC<FooterProps> = () => {
   const canPublishVideo = useCanPublishVideo();
   const canPublishScreen = useCanPublishScreen();
 
-  const canShowParticipants = useHMSConferencingScreenConfig(
-    (conferencingScreenConfig) =>
-      !!conferencingScreenConfig?.elements?.participant_list
-  );
+  const { canShowParticipants, canShowChat } = useShowChatAndParticipants();
 
   const canShowBRB = useHMSLayoutConfig(
     (layoutConfig) =>
@@ -48,10 +45,6 @@ export const _Footer: React.FC<FooterProps> = () => {
   const canStartRecording = useSelector(
     (state: RootState) =>
       !!state.hmsStates.localPeer?.role?.permissions?.browserRecording
-  );
-
-  const canShowChat = useHMSConferencingScreenConfig(
-    (conferencingScreenConfig) => !!conferencingScreenConfig?.elements?.chat
   );
 
   const canShowOptions =

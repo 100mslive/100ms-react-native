@@ -1540,101 +1540,87 @@ export const useHMSConfig = () => {
   return { clearConfig, updateConfig, getConfig };
 };
 
-export const useShowChat = (): [
-  'none' | 'inset' | 'modal',
-  (show: boolean) => void,
-] => {
+export const useShowChatAndParticipants = () => {
   const dispatch = useDispatch();
+  const { modalVisibleType, handleModalVisibleType: setModalVisible } = useModalType();
+
   const overlayChatLayout = useHMSChatLayoutConfig(
     (chatConfig) => chatConfig?.is_overlay
-  );
-  const showChatView = useSelector(
-    (state: RootState) => state.chatWindow.showChatView
   );
   const canShowChat = useHMSConferencingScreenConfig(
     (conferencingScreenConfig) => !!conferencingScreenConfig?.elements?.chat
-  );
-  const chatVisible: 'none' | 'inset' | 'modal' = useMemo(() => {
-    if (!showChatView) return 'none';
-
-    if (overlayChatLayout) return 'inset';
-
-    // TODO: handle case when type modal is selected, but chat modal is not shown because aspect ration modal was just closed
-    return 'modal';
-  }, [showChatView, overlayChatLayout]);
-
-  const isChatVisibleInsetType = chatVisible === 'inset';
-
-  const showChat = useCallback(
-    (show: boolean) => {
-      if (!canShowChat) return;
-
-      if (isChatVisibleInsetType) {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-      }
-      batch(() => {
-        if (!isChatVisibleInsetType) {
-          dispatch(setActiveChatBottomSheetTab('Chat'));
-        }
-        dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: show });
-      });
-    },
-    [isChatVisibleInsetType]
-  );
-
-  return [chatVisible, showChat];
-};
-
-export const useShowParticipantsSheet = () => {
-  const dispatch = useDispatch();
-  const overlayChatLayout = useHMSChatLayoutConfig(
-    (chatConfig) => chatConfig?.is_overlay
   );
   const canShowParticipants = useHMSConferencingScreenConfig(
     (conferencingScreenConfig) =>
       !!conferencingScreenConfig?.elements?.participant_list
   );
 
-  const canShowChat = useHMSConferencingScreenConfig(
-    (conferencingScreenConfig) => !!conferencingScreenConfig?.elements?.chat
+  // state for inset chat view
+  const overlayChatVisible = useSelector(
+    (state: RootState) => state.chatWindow.showChatView
   );
 
-  const { handleModalVisibleType: setModalVisible } = useModalType();
+  const modalVisible = modalVisibleType === ModalTypes.CHAT_AND_PARTICIPANTS;
 
-  const showParticipantsSheet = useCallback(() => {
-    if (!canShowParticipants) return;
+  const show = useCallback((view: 'chat' | 'participants') => {
+    // Handle Showing Chat View/Modal
+    if (view === 'chat') {
+      if (!canShowChat) return;
 
-    if (overlayChatLayout || !canShowChat) {
-      setModalVisible(ModalTypes.PARTICIPANTS);
-    } else {
-      batch(() => {
-        dispatch(setActiveChatBottomSheetTab('Participants'));
+      if (overlayChatLayout) {
         dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: true });
-      });
+      } else {
+        batch(() => {
+          dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: false });
+          dispatch(setActiveChatBottomSheetTab('Chat'));
+        });
+        setModalVisible(ModalTypes.CHAT_AND_PARTICIPANTS);
+      }
     }
-  }, [overlayChatLayout, canShowParticipants, setModalVisible]);
+    // Handle Showing Participant
+    else if (canShowParticipants) {
+      dispatch(setActiveChatBottomSheetTab('Participants'));
+      setModalVisible(ModalTypes.CHAT_AND_PARTICIPANTS);
+    }
+  }, [overlayChatLayout, canShowChat, canShowParticipants, setModalVisible]);
 
-  return showParticipantsSheet;
+  const hide = useCallback((view: 'chat_overlay' | 'modal') => {
+    if (view === 'chat_overlay') {
+      dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: false });
+    } else {
+      setModalVisible(ModalTypes.DEFAULT);
+    }
+  }, [overlayChatLayout, setModalVisible]);
+
+  return {
+    overlayChatVisible,
+    modalVisible,
+    overlayChatLayout,
+    canShowChat,
+    canShowParticipants,
+    show,
+    hide,
+  };
 };
 
 export const usePortraitChatViewVisible = () => {
-  const [chatVisible] = useShowChat();
+  const {overlayChatVisible} = useShowChatAndParticipants();
   const pipModeNotActive = useSelector(
     (state: RootState) => state.app.pipModeStatus !== PipModes.ACTIVE
   );
   const isPortraitOrientation = useIsPortraitOrientation();
 
-  return pipModeNotActive && isPortraitOrientation && chatVisible === 'inset';
+  return pipModeNotActive && isPortraitOrientation && overlayChatVisible;
 };
 
 export const useLandscapeChatViewVisible = () => {
-  const [chatVisible] = useShowChat();
+  const {overlayChatVisible} = useShowChatAndParticipants();
   const pipModeNotActive = useSelector(
     (state: RootState) => state.app.pipModeStatus !== PipModes.ACTIVE
   );
   const isLandscapeOrientation = useIsLandscapeOrientation();
 
-  return pipModeNotActive && isLandscapeOrientation && chatVisible === 'inset';
+  return pipModeNotActive && isLandscapeOrientation && overlayChatVisible;
 };
 
 export type ParticipantHeaderData = {

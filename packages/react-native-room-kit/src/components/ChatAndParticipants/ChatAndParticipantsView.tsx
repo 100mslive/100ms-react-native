@@ -3,71 +3,54 @@ import { useSelector } from 'react-redux';
 import { StyleSheet, View } from 'react-native';
 
 import {
-  useHMSConferencingScreenConfig,
   useHMSRoomStyleSheet,
-  useShowChat,
+  useShowChatAndParticipants,
 } from '../../hooks-util';
-import { ChatList } from '../Chat/ChatList';
-import { HMSSendMessageInput } from '../HMSSendMessageInput';
-import { SearchableParticipantsView } from '../Participants';
 import { ChatAndParticipantsHeader } from './ChatAndParticipantsHeader';
 import { ChatFilterBottomSheetView } from '../Chat/ChatFilterBottomSheetView';
-import { ChatFilterBottomSheetOpener } from '../Chat/ChatFilterBottomSheetOpener';
 import type { RootState } from '../../redux';
+import { ParticipantsView } from './ParticipantsView';
+import { ChatView } from './ChatView';
 
 const _ChatAndParticipantsView: React.FC = () => {
   const activeChatBottomSheetTab = useSelector(
     (state: RootState) => state.app.activeChatBottomSheetTab
   );
 
-  const [_, setChatVisible] = useShowChat();
+  const { hide, canShowParticipants, canShowChat, overlayChatLayout } =
+    useShowChatAndParticipants();
 
-  const closeChatBottomSheet = () => setChatVisible(false);
+  const closeBottomSheet = () => hide('modal');
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme) => ({
-    container: {
+    contentContainer: {
       backgroundColor: theme.palette.surface_dim,
     },
-    input: {
-      backgroundColor: theme.palette.surface_default,
-      borderColor: theme.palette.surface_default,
-    },
   }));
-
-  const canShowParticipants = useHMSConferencingScreenConfig(
-    (conferencingScreenConfig) =>
-      !!conferencingScreenConfig?.elements?.participant_list
-  );
 
   const showParticipants =
     activeChatBottomSheetTab === 'Participants' && canShowParticipants;
 
+  const showChat = activeChatBottomSheetTab === 'Chat' && canShowChat && !overlayChatLayout;
+
   return (
-    <View style={{ flex: 1, position: 'relative' }}>
+    <View style={styles.container}>
       <View
         style={[
-          chatViewStyles.container,
-          hmsRoomStyles.container,
-          showParticipants ? chatViewStyles.participantsContainer : null,
+          styles.contentContainer,
+          hmsRoomStyles.contentContainer,
+          showParticipants ? styles.participantsContainer : null,
         ]}
       >
-        <ChatAndParticipantsHeader onClosePress={closeChatBottomSheet} />
+        <ChatAndParticipantsHeader onClosePress={closeBottomSheet} />
 
         {showParticipants ? (
-          <View style={chatViewStyles.participantsWrapper}>
-            <SearchableParticipantsView />
+          <View style={styles.participantsWrapper}>
+            <ParticipantsView />
           </View>
-        ) : (
-          <>
-            <ChatList />
-
-            <ChatFilterBottomSheetOpener />
-
-            <HMSSendMessageInput
-              containerStyle={[chatViewStyles.input, hmsRoomStyles.input]}
-            />
-          </>
-        )}
+        ) : showChat ? (
+          <ChatView />
+        ) : null}
       </View>
 
       <ChatFilterBottomSheetView />
@@ -75,8 +58,12 @@ const _ChatAndParticipantsView: React.FC = () => {
   );
 };
 
-const chatViewStyles = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    position: 'relative',
+  },
+  contentContainer: {
     flex: 1,
     paddingHorizontal: 16,
     paddingTop: 12,
@@ -86,13 +73,6 @@ const chatViewStyles = StyleSheet.create({
   },
   participantsContainer: {
     paddingBottom: 0,
-  },
-  input: {
-    flex: 0,
-    height: 40,
-    marginHorizontal: 0,
-    marginTop: 0,
-    marginBottom: 0,
   },
   participantsWrapper: {
     flex: 1,

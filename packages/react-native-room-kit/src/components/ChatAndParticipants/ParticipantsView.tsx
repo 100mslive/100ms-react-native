@@ -1,11 +1,12 @@
 import * as React from 'react';
-import { View } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 
 import { useFilteredParticipants } from '../../hooks-util';
-import { ParticipantsList } from './ParticipantsList';
-import { ParticipantsSearchInput } from './ParticipantsSeachInput';
+import { ParticipantsList, ParticipantsSearchInput } from '../Participants';
 
-export const SearchableParticipantsView: React.FC = () => {
+type ParticipantsViewProps = {};
+
+export const ParticipantsView: React.FC<ParticipantsViewProps> = () => {
   const {
     data,
     searchText,
@@ -21,12 +22,7 @@ export const SearchableParticipantsView: React.FC = () => {
         setSearchText={setSearchText}
       />
 
-      <View
-        style={{
-          flex: 1,
-          marginTop: 8,
-        }}
-      >
+      <View style={styles.listWrapper}>
         <ParticipantsList
           data={data}
           setExpandedGroups={setExpandedGroups}
@@ -36,3 +32,10 @@ export const SearchableParticipantsView: React.FC = () => {
     </>
   );
 };
+
+const styles = StyleSheet.create({
+  listWrapper: {
+    flex: 1,
+    marginTop: 8,
+  },
+});
