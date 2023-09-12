@@ -218,6 +218,8 @@ export const HMSRoomSetup = () => {
         selectVideoTileLayoutConfig(currentLayoutConfig)?.grid
           ?.enable_local_tile_inset;
 
+      const canCreateTile = isPublishingAllowed(localPeer) && !isHLSViewer;
+
       batch(() => {
         const chatConfig = selectChatLayoutConfig(currentLayoutConfig);
         const overlayChatInitialState =
@@ -230,7 +232,7 @@ export const HMSRoomSetup = () => {
           dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: true });
         }
 
-        if (isPublishingAllowed(localPeer) && !isHLSViewer) {
+        if (canCreateTile) {
           if (reduxState.app.localPeerTrackNode) {
             dispatch(
               updateLocalPeerTrackNode({ peer, track: peer.videoTrack })
@@ -267,7 +269,7 @@ export const HMSRoomSetup = () => {
         }
 
         // setting local `PeerTrackNode` in regular peerTrackNodes array when inset tile is disabled
-        if (!enableLocalTileInset) {
+        if (!enableLocalTileInset && canCreateTile) {
           return [localPeerTrackNode, ...prevPeerTrackNodes];
         }
 

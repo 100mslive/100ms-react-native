@@ -337,7 +337,11 @@ const useHMSPeersUpdate = (
               miniviewPeerTrackNode.peer.peerID === peer.peerID
             ) {
               dispatch(updateMiniViewPeerTrackNode({ peer }));
-            } else if (miniviewPeerTrackNode === null) {
+            } else if (
+              miniviewPeerTrackNode === null &&
+              peer.role?.publishSettings?.allowed &&
+              peer.role.publishSettings.allowed.length > 0
+            ) {
               dispatch(
                 setMiniViewPeerTrackNode(
                   createPeerTrackNode(peer, peer.videoTrack)
