@@ -12,7 +12,7 @@ interface HLSFooterProps {
 }
 
 export const HLSFooter: React.FC<HLSFooterProps> = ({ offset }) => {
-  const {overlayChatVisible} = useShowChatAndParticipants();
+  const { overlayChatVisible } = useShowChatAndParticipants();
 
   return (
     <AnimatedHLSFooter offset={offset} style={styles.animatedContainer}>

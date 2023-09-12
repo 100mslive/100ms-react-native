@@ -51,7 +51,7 @@ export const RoomSettingsModalContent: React.FC<
 
   const { registerOnModalHideAction } = useBottomSheetActions();
 
-  const {canShowParticipants, show} = useShowChatAndParticipants();
+  const { canShowParticipants, show } = useShowChatAndParticipants();
 
   // #region Participants related states and functions
   const onParticipantsPress = () => {

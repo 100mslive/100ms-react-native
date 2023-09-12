@@ -31,7 +31,8 @@ const _ChatAndParticipantsView: React.FC = () => {
   const showParticipants =
     activeChatBottomSheetTab === 'Participants' && canShowParticipants;
 
-  const showChat = activeChatBottomSheetTab === 'Chat' && canShowChat && !overlayChatLayout;
+  const showChat =
+    activeChatBottomSheetTab === 'Chat' && canShowChat && !overlayChatLayout;
 
   return (
     <View style={styles.container}>

@@ -93,12 +93,16 @@ export const _PeerVideoTileView = React.forwardRef<
       return (allowed && allowed.length > 0) ?? false;
     });
 
-    const localPeerPermissions = useSelector(
-      (state: RootState) => {
-        const permissions = state.hmsStates.localPeer?.role?.permissions;
-        return (permissions &&  (permissions.changeRole || permissions.mute || permissions.unmute || permissions.removeOthers));
-      }
-    );
+    const localPeerPermissions = useSelector((state: RootState) => {
+      const permissions = state.hmsStates.localPeer?.role?.permissions;
+      return (
+        permissions &&
+        (permissions.changeRole ||
+          permissions.mute ||
+          permissions.unmute ||
+          permissions.removeOthers)
+      );
+    });
 
     const hmsRoomStyles = useHMSRoomStyleSheet((theme) => ({
       iconWrapperStyles: {

@@ -8,7 +8,7 @@ import { useShowChatAndParticipants } from '../hooks-util';
 export type OverlayedViewsProps = {};
 
 const _OverlayedViews: React.FC<OverlayedViewsProps> = () => {
-  const {overlayChatVisible} = useShowChatAndParticipants();
+  const { overlayChatVisible } = useShowChatAndParticipants();
 
   return (
     <OverlayContainer.Overlay>

@@ -16,10 +16,7 @@ export const HMSChat = () => {
   };
 
   return (
-    <PressableIcon
-      onPress={toggleChatWindow}
-      active={overlayChatVisible}
-    >
+    <PressableIcon onPress={toggleChatWindow} active={overlayChatVisible}>
       <ChatIcon />
     </PressableIcon>
   );

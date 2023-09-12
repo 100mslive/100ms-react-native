@@ -47,11 +47,11 @@ const _HMSLiveIndicator = () => {
     },
   }));
 
-  const {canShowParticipants, show} = useShowChatAndParticipants();
+  const { canShowParticipants, show } = useShowChatAndParticipants();
 
   const showParticipantsSheet = () => {
     show('participants');
-  }
+  };
 
   if (!live) {
     return null;

@@ -41,7 +41,8 @@ const _ChatAndParticipantsHeader: React.FC<WebrtcChatHeaderProps> = ({
   const activeChatBottomSheetTab = useSelector(
     (state: RootState) => state.app.activeChatBottomSheetTab
   );
-  const { canShowParticipants, canShowChat, overlayChatLayout } = useShowChatAndParticipants();
+  const { canShowParticipants, canShowChat, overlayChatLayout } =
+    useShowChatAndParticipants();
 
   const visibleChatBottomSheetTabs = ChatBottomSheetTabs.filter((tab) => {
     if (tab === 'Participants') return canShowParticipants;

@@ -7,8 +7,8 @@ import {
   LayoutAnimation,
   InteractionManager,
 } from 'react-native';
-import { batch, useDispatch, useSelector } from 'react-redux';
-import { HMSTrack, HMSTrackSource } from '@100mslive/react-native-hms';
+import { useDispatch, useSelector } from 'react-redux';
+import { HMSTrack } from '@100mslive/react-native-hms';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -16,10 +16,9 @@ import type { RootState } from '../redux';
 import { COLORS } from '../utils/theme';
 import { ModalTypes } from '../utils/types';
 import type { PeerTrackNode } from '../utils/types';
-import { setInsetViewMinimized, setPeerToUpdate } from '../redux/actions';
+import { setInsetViewMinimized } from '../redux/actions';
 import { useHMSRoomStyle, useModalType } from '../hooks-util';
 import { MinimizeIcon, PencilIcon } from '../Icons';
-import { useCanPublishVideo } from '../hooks-sdk';
 import { BottomSheet } from './BottomSheet';
 
 interface PeerSettingsModalContentProps {
@@ -33,14 +32,7 @@ interface PeerSettingsModalContentProps {
 
 export const PeerSettingsModalContent: React.FC<
   PeerSettingsModalContentProps
-> = ({
-  peerTrackNode,
-  peerTrackNodesListEmpty,
-  cancelModal,
-  onCaptureScreenShotPress,
-  onCaptureImageAtMaxSupportedResolutionPress,
-  onStreamingQualityPress,
-}) => {
+> = ({ peerTrackNode, peerTrackNodesListEmpty, cancelModal }) => {
   const dispatch = useDispatch();
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
   const localPeer = useSelector(
@@ -51,9 +43,7 @@ export const PeerSettingsModalContent: React.FC<
     return mininode && mininode.id === peerTrackNode.id;
   });
 
-  const debugMode = useSelector((state: RootState) => state.user.debugMode);
   const { handleModalVisibleType: setModalVisible } = useModalType();
-  const localPeerCanPublishVideo = useCanPublishVideo();
 
   const removePeer = () => {
     hmsInstance
@@ -99,13 +89,6 @@ export const PeerSettingsModalContent: React.FC<
     InteractionManager.runAfterInteractions(() => {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       dispatch(setInsetViewMinimized(true));
-    });
-  };
-
-  const changeRole = () => {
-    batch(() => {
-      dispatch(setPeerToUpdate(peerTrackNode.peer));
-      setModalVisible(ModalTypes.CHANGE_ROLE, true);
     });
   };
 

@@ -1542,7 +1542,8 @@ export const useHMSConfig = () => {
 
 export const useShowChatAndParticipants = () => {
   const dispatch = useDispatch();
-  const { modalVisibleType, handleModalVisibleType: setModalVisible } = useModalType();
+  const { modalVisibleType, handleModalVisibleType: setModalVisible } =
+    useModalType();
 
   const overlayChatLayout = useHMSChatLayoutConfig(
     (chatConfig) => chatConfig?.is_overlay
@@ -1562,35 +1563,41 @@ export const useShowChatAndParticipants = () => {
 
   const modalVisible = modalVisibleType === ModalTypes.CHAT_AND_PARTICIPANTS;
 
-  const show = useCallback((view: 'chat' | 'participants') => {
-    // Handle Showing Chat View/Modal
-    if (view === 'chat') {
-      if (!canShowChat) return;
+  const show = useCallback(
+    (view: 'chat' | 'participants') => {
+      // Handle Showing Chat View/Modal
+      if (view === 'chat') {
+        if (!canShowChat) return;
 
-      if (overlayChatLayout) {
-        dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: true });
-      } else {
-        batch(() => {
-          dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: false });
-          dispatch(setActiveChatBottomSheetTab('Chat'));
-        });
+        if (overlayChatLayout) {
+          dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: true });
+        } else {
+          batch(() => {
+            dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: false });
+            dispatch(setActiveChatBottomSheetTab('Chat'));
+          });
+          setModalVisible(ModalTypes.CHAT_AND_PARTICIPANTS);
+        }
+      }
+      // Handle Showing Participant
+      else if (canShowParticipants) {
+        dispatch(setActiveChatBottomSheetTab('Participants'));
         setModalVisible(ModalTypes.CHAT_AND_PARTICIPANTS);
       }
-    }
-    // Handle Showing Participant
-    else if (canShowParticipants) {
-      dispatch(setActiveChatBottomSheetTab('Participants'));
-      setModalVisible(ModalTypes.CHAT_AND_PARTICIPANTS);
-    }
-  }, [overlayChatLayout, canShowChat, canShowParticipants, setModalVisible]);
+    },
+    [overlayChatLayout, canShowChat, canShowParticipants, setModalVisible]
+  );
 
-  const hide = useCallback((view: 'chat_overlay' | 'modal') => {
-    if (view === 'chat_overlay') {
-      dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: false });
-    } else {
-      setModalVisible(ModalTypes.DEFAULT);
-    }
-  }, [overlayChatLayout, setModalVisible]);
+  const hide = useCallback(
+    (view: 'chat_overlay' | 'modal') => {
+      if (view === 'chat_overlay') {
+        dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: false });
+      } else {
+        setModalVisible(ModalTypes.DEFAULT);
+      }
+    },
+    [overlayChatLayout, setModalVisible]
+  );
 
   return {
     overlayChatVisible,
@@ -1604,7 +1611,7 @@ export const useShowChatAndParticipants = () => {
 };
 
 export const usePortraitChatViewVisible = () => {
-  const {overlayChatVisible} = useShowChatAndParticipants();
+  const { overlayChatVisible } = useShowChatAndParticipants();
   const pipModeNotActive = useSelector(
     (state: RootState) => state.app.pipModeStatus !== PipModes.ACTIVE
   );
@@ -1614,7 +1621,7 @@ export const usePortraitChatViewVisible = () => {
 };
 
 export const useLandscapeChatViewVisible = () => {
-  const {overlayChatVisible} = useShowChatAndParticipants();
+  const { overlayChatVisible } = useShowChatAndParticipants();
   const pipModeNotActive = useSelector(
     (state: RootState) => state.app.pipModeStatus !== PipModes.ACTIVE
   );
