@@ -1,9 +1,12 @@
 import * as React from 'react';
-import type { LayoutChangeEvent, StyleProp, ViewStyle } from 'react-native';
+import { Dimensions, type LayoutChangeEvent, type StyleProp, type ViewStyle } from 'react-native';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, {
+  runOnJS,
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
+  useWorkletCallback,
   withSpring,
 } from 'react-native-reanimated';
 
@@ -67,6 +70,18 @@ export const HMSPinchGesture: React.FC<HMSPinchGestureProps> = ({
   const translation = useSharedValue({ x: 0, y: 0 });
   const savedTranslation = useSharedValue({ x: 0, y: 0 });
 
+  // const min = useDerivedValue(() => {
+  //   'worklet';
+  //   const viewWidth = dimensions.value.width;
+  //   const viewHeight = dimensions.value.height;
+  //   const scaleValue = scale.value;
+
+  //   return {
+  //     x: dimensions.value.width - (dimensions.value.width * scaleValue),
+  //     y: viewHeight - (viewHeight * scaleValue),
+  //   };
+  // });
+
   const handleLayoutChange = React.useCallback(
     ({ nativeEvent }: LayoutChangeEvent) => {
       dimensions.value = {
@@ -77,16 +92,82 @@ export const HMSPinchGesture: React.FC<HMSPinchGestureProps> = ({
     []
   );
 
+  const limitTranslation = useWorkletCallback((x: number, y: number) => {
+    'worklet';
+    const max = { x: 0, y: 0 };
+    const min = {
+      x: dimensions.value.width - (dimensions.value.width * scale.value),
+      y: dimensions.value.height - (dimensions.value.height * scale.value),
+    };
+
+    console.log('dimensions -> ', dimensions.value);
+    console.log('scale -> ', scale.value);
+    console.log(min);
+
+    return {
+      x: Math.max(Math.min(max.x, x), min.x),
+      y: Math.max(Math.min(max.y, y), min.y),
+    };
+  }, []);
+
   const panGesture = Gesture.Pan()
     .maxPointers(1)
     .onUpdate((e) => {
-      translation.value = {
-        x: e.translationX + savedTranslation.value.x,
-        y: e.translationY + savedTranslation.value.y,
-      };
+      translation.value = limitTranslation(
+        e.translationX + savedTranslation.value.x,
+        e.translationY + savedTranslation.value.y,
+      );
     })
     .onEnd(() => {
       savedTranslation.value = translation.value;
+
+
+      // let finalTranslationX = translation.value.x;
+      // let finalTranslationY = translation.value.y;
+
+      // if (translation.value.x > 0) {
+      //   // set to `0`
+      //   finalTranslationX = 0;
+      // }
+
+      // const rightAnchor = dimensions.value.width - (dimensions.value.width * scale.value);
+
+      // if (translation.value.x < rightAnchor) {
+      //   // set to `rightAnchor`
+      //   finalTranslationX = rightAnchor;
+      // }
+
+      // if (translation.value.y > 0) {
+      //   // set to `0`
+      //   finalTranslationY = 0;
+      // }
+
+      // const downAnchor = dimensions.value.height - (dimensions.value.height * scale.value);
+
+      // if (translation.value.y < downAnchor) {
+      //   // set to `downAnchor`
+      //   finalTranslationY = downAnchor;
+      // }
+
+      // if (
+      //   finalTranslationX !== translation.value.x ||
+      //   finalTranslationY !== translation.value.y
+      // ) {
+      //   translation.value = {
+      //     x: finalTranslationX,
+      //     y: finalTranslationY,
+      //   };
+      // }
+
+      // savedTranslation.value = {
+      //   x: finalTranslationX,
+      //   y: finalTranslationY,
+      // };
+
+      // console.log('Device Width -> ', dimensions.value.width);
+      // console.log('Device Height -> ', dimensions.value.height);
+      // console.log('x ->', translation.value.x);
+      // console.log('y -> ', translation.value.y);
     });
 
   const pinchGesture = Gesture.Pinch()
@@ -145,6 +226,9 @@ export const HMSPinchGesture: React.FC<HMSPinchGestureProps> = ({
 
       focalShift.value = { x: 0, y: 0 };
       savedTranslation.value = translation.value;
+
+      console.log('x ->', translation.value.x);
+      console.log('y -> ', translation.value.y);
     });
 
   const animatedStyle = useAnimatedStyle(() => ({
