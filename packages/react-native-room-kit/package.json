@@ -51,12 +51,12 @@
     "registry": "https://registry.npmjs.org/"
   },
   "dependencies": {
+    "@100mslive/types-prebuilt": "^0.12.0",
     "@react-navigation/native": "^6.0.8",
     "react-redux": "^7.2.4",
     "redux": "^4.1.0"
   },
   "devDependencies": {
-    "@100mslive/types-prebuilt": "^0.11.0",
     "@commitlint/config-conventional": "^17.0.2",
     "@evilmartians/lefthook": "^1.2.2",
     "@react-native-community/eslint-config": "^3.0.2",
@@ -80,7 +80,7 @@
     "typescript": "^5.0.2"
   },
   "peerDependencies": {
-    "@100mslive/react-native-hms": "1.7.1",
+    "@100mslive/react-native-hms": "1.7.2",
     "@react-native-community/blur": "^4.3.2",
     "@react-native-masked-view/masked-view": "^0.2.9",
     "@shopify/flash-list": "^1.4.3",
