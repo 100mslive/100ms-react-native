@@ -38,15 +38,9 @@ import { styles } from './styles';
 import { CustomButton } from './CustomButton';
 import { Menu, MenuItem } from './MenuModal';
 
-import { CustomPicker } from './Picker';
 import { changeHLSAspectRatio, changeShowStats } from '../redux/actions';
 import { getTime } from '../utils/functions';
-import {
-  LayoutParams,
-  ModalTypes,
-  SUPPORTED_ASPECT_RATIOS,
-  SortingType,
-} from '../utils/types';
+import { ModalTypes, SUPPORTED_ASPECT_RATIOS } from '../utils/types';
 import { COLORS } from '../utils/theme';
 import type { RootState } from '../redux';
 import { SwitchRow } from './SwitchRow';
@@ -725,98 +719,6 @@ export const ChangeAudioMixingModeModal = ({
         <CustomButton
           title="Change"
           onPress={changeAudioMixingMode}
-          viewStyle={styles.roleChangeModalSuccessButton}
-          textStyle={styles.roleChangeModalButtonText}
-        />
-      </View>
-    </View>
-  );
-};
-
-export const ChangeSortingModal = ({
-  data,
-  selectedItem,
-  onItemSelected,
-  cancelModal,
-}: {
-  data: SortingType[];
-  selectedItem: SortingType | undefined;
-  onItemSelected: React.Dispatch<React.SetStateAction<SortingType | undefined>>;
-  cancelModal: Function;
-}) => {
-  const [sortingType, setSortingType] = useState<SortingType>(
-    selectedItem || SortingType.DEFAULT
-  );
-
-  const changeSorting = () => {
-    onItemSelected(sortingType);
-    cancelModal();
-  };
-
-  return (
-    <View style={styles.roleChangeModal}>
-      <Text style={styles.roleChangeModalHeading}>Sorting Style</Text>
-      <CustomPicker
-        data={data}
-        selectedItem={sortingType}
-        onItemSelected={setSortingType}
-        viewStyle={styles.picker}
-      />
-      <View style={styles.sortingButtonContainer}>
-        <CustomButton
-          title="Cancel"
-          onPress={cancelModal}
-          viewStyle={styles.roleChangeModalCancelButton}
-          textStyle={styles.roleChangeModalButtonText}
-        />
-        <CustomButton
-          title="Change"
-          onPress={changeSorting}
-          viewStyle={styles.roleChangeModalSuccessButton}
-          textStyle={styles.roleChangeModalButtonText}
-        />
-      </View>
-    </View>
-  );
-};
-
-export const ChangeLayoutModal = ({
-  data,
-  selectedItem,
-  onItemSelected,
-  cancelModal,
-}: {
-  data: LayoutParams[];
-  selectedItem: LayoutParams;
-  onItemSelected: React.Dispatch<React.SetStateAction<LayoutParams>>;
-  cancelModal: Function;
-}) => {
-  const [layout, setLayout] = useState<LayoutParams>(selectedItem);
-
-  const changeLayout = () => {
-    onItemSelected(layout);
-    cancelModal();
-  };
-
-  return (
-    <View style={styles.roleChangeModal}>
-      <Text style={styles.roleChangeModalHeading}>Layout Style</Text>
-      <CustomPicker
-        data={data}
-        selectedItem={layout}
-        onItemSelected={setLayout}
-        viewStyle={styles.picker}
-      />
-      <View style={styles.sortingButtonContainer}>
-        <CustomButton
-          title="Cancel"
-          onPress={cancelModal}
-          viewStyle={styles.roleChangeModalCancelButton}
-          textStyle={styles.roleChangeModalButtonText}
-        />
-        <CustomButton
-          title="Change"
-          onPress={changeLayout}
           viewStyle={styles.roleChangeModalSuccessButton}
           textStyle={styles.roleChangeModalButtonText}
         />
