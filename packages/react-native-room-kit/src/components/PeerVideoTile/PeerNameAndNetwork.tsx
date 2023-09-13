@@ -25,7 +25,9 @@ export const PeerNameAndNetwork: React.FC<PeerNameAndNetworkProps> = ({
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     contentContainer: {
-      backgroundColor: hexToRgbA(theme.palette.background_dim, 0.64),
+      backgroundColor:
+        theme.palette.background_dim &&
+        hexToRgbA(theme.palette.background_dim, 0.64),
     },
     name: {
       color: theme.palette.on_surface_high,

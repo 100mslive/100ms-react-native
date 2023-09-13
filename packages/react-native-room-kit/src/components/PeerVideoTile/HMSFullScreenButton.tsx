@@ -23,7 +23,9 @@ export const HMSFullScreenButton: React.FC<HMSFullScreenButtonProps> = ({
   );
 
   const buttonStyles = useHMSRoomStyle((theme) => ({
-    backgroundColor: hexToRgbA(theme.palette.background_dim, 0.64),
+    backgroundColor:
+      theme.palette.background_dim &&
+      hexToRgbA(theme.palette.background_dim, 0.64),
   }));
 
   const maximizeAction =
