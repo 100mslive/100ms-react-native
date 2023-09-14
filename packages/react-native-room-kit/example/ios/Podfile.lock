@@ -439,8 +439,6 @@ PODS:
   - RNScreens (3.5.0):
     - React-Core
     - React-RCTImage
-  - RNVectorIcons (9.1.0):
-    - React-Core
   - Toast (4.0.0)
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
@@ -523,7 +521,6 @@ DEPENDENCIES:
   - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
-  - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -650,8 +647,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
-  RNVectorIcons:
-    :path: "../node_modules/react-native-vector-icons"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -725,7 +720,6 @@ SPEC CHECKSUMS:
   RNPermissions: eac721f71748c4472d6e876038270b75397d6ee7
   RNReanimated: 953281675307b83d2c12ac4c39e6c3415d0ce248
   RNScreens: 01ab149b5dd5c27f5ff26741b1d2bdf2cee1af35
-  RNVectorIcons: 7923e585eaeb139b9f4531d25a125a1500162a0b
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
   Yoga: d6b6a80659aa3e91aaba01d0012e7edcbedcbecd
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a

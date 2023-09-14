@@ -267,15 +267,6 @@ Follow [official installation steps](https://docs.swmansion.com/react-native-rea
 
 > Note: If you already have the setup for `react-native-reanimated` package, then you can continue with your existing setup. We recommend using `>= 2.x.x` versions.
 
-3. react-native-vector-icons package
-   `react-native-vector-icons` package is required for showing icons in UI.
-
-```bash
-npm install react-native-vector-icons@9.1.0
-```
-
-Follow [official installation steps](https://github.com/oblador/react-native-vector-icons/tree/v9.1.0#installation) for `v9.1.0`.
-
 #### Install the dependencies of react-native-room-kit package
 
 `react-native-room-kit` package depends upon many other packages. These packages to be your app's direct dependencies so that `react-native` can link them.

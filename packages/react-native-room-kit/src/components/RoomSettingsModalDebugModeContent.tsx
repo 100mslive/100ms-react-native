@@ -13,10 +13,6 @@ import {
 } from '@100mslive/react-native-hms';
 import { useDispatch, useSelector } from 'react-redux';
 import Toast from 'react-native-simple-toast';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import EntypoIcons from 'react-native-vector-icons/Entypo';
 import { openSettings, requestNotifications } from 'react-native-permissions';
 
 import { COLORS } from '../utils/theme';
@@ -249,8 +245,6 @@ export const RoomSettingsModalDebugModeContent: React.FC<
         <SettingItem
           onPress={handleHLSPlayerAspectRatio}
           text={'Change Aspect Ratio'}
-          IconType={MaterialCommunityIcons}
-          iconName={'aspect-ratio'}
         />
       ) : null}
 
@@ -258,8 +252,6 @@ export const RoomSettingsModalDebugModeContent: React.FC<
         <SettingItem
           onPress={handleLocalRemoteAudiosMute}
           text={`${muteAllTracksAudio ? 'Unmute' : 'Mute'} Room`}
-          IconType={Ionicons}
-          iconName={muteAllTracksAudio ? 'mic-off-outline' : 'mic-outline'}
         />
       ) : null}
 
@@ -267,8 +259,6 @@ export const RoomSettingsModalDebugModeContent: React.FC<
         <SettingItem
           onPress={handleHLSStreaming}
           text={`${isHLSStreaming === true ? 'Stop' : 'Start'} HLS Streaming`}
-          IconType={Ionicons}
-          iconName="radio-outline"
         />
       ) : null}
 
@@ -276,8 +266,6 @@ export const RoomSettingsModalDebugModeContent: React.FC<
         <SettingItem
           onPress={changeBulkRole}
           text="Bulk Role Change"
-          IconType={Ionicons}
-          iconName="people-outline"
         />
       ) : null}
 
@@ -285,8 +273,6 @@ export const RoomSettingsModalDebugModeContent: React.FC<
         <SettingItem
           onPress={handleRemoteAudiosMute}
           text="Remote Mute All Audio Tracks"
-          IconType={Ionicons}
-          iconName="mic-off-outline"
         />
       ) : null}
 
@@ -296,8 +282,6 @@ export const RoomSettingsModalDebugModeContent: React.FC<
         <SettingItem
           onPress={changeTrackState}
           text="Change Track State For Role"
-          IconType={MaterialIcons}
-          iconName="track-changes"
         />
       ) : null}
 
@@ -305,8 +289,6 @@ export const RoomSettingsModalDebugModeContent: React.FC<
         <SettingItem
           onPress={switchAudioOutput}
           text="Switch Audio Output"
-          IconType={MaterialCommunityIcons}
-          iconName="cast-audio"
         />
       ) : null}
 
@@ -314,8 +296,6 @@ export const RoomSettingsModalDebugModeContent: React.FC<
         <SettingItem
           onPress={enterPipMode}
           text="Picture in Picture (PIP) Mode"
-          IconType={MaterialCommunityIcons}
-          iconName="picture-in-picture-bottom-right"
         />
       ) : null}
 
@@ -326,8 +306,6 @@ export const RoomSettingsModalDebugModeContent: React.FC<
               <SettingItem
                 onPress={toggleShowHLSStats}
                 text={showHLSStats ? 'Hide HLS Stats' : 'Show HLS Stats'}
-                IconType={MaterialCommunityIcons}
-                iconName={'clipboard-pulse-outline'}
               />
 
               <SettingItem
@@ -337,8 +315,6 @@ export const RoomSettingsModalDebugModeContent: React.FC<
                     ? 'Disable HLS Player Controls'
                     : 'Enable HLS Player Controls'
                 }
-                IconType={Ionicons}
-                iconName={'ios-settings-outline'}
               />
 
               <SettingItem
@@ -348,8 +324,6 @@ export const RoomSettingsModalDebugModeContent: React.FC<
                     ? 'Hide Custom HLS Player Controls'
                     : 'Show Custom HLS Player Controls'
                 }
-                IconType={Ionicons}
-                iconName={'ios-settings-outline'}
               />
             </>
           ) : (
@@ -357,8 +331,6 @@ export const RoomSettingsModalDebugModeContent: React.FC<
               <SettingItem
                 onPress={showRTCStats}
                 text="Show RTC Stats"
-                IconType={MaterialCommunityIcons}
-                iconName={'clipboard-pulse-outline'}
               />
             </>
           )}
@@ -371,29 +343,21 @@ export const RoomSettingsModalDebugModeContent: React.FC<
                 text={`${
                   audioDeviceListenerAdded ? 'Remove' : 'Set'
                 } Audio Output Change Listener`}
-                IconType={MaterialCommunityIcons}
-                iconName="video-input-component"
               />
 
               <SettingItem
                 onPress={handleAudioShare}
                 text={`${isAudioShared ? 'Stop' : 'Start'} Audioshare`}
-                IconType={Ionicons}
-                iconName="share-social-outline"
               />
 
               <SettingItem
                 onPress={changeAudioMode}
                 text="Set Audio Mode"
-                IconType={MaterialCommunityIcons}
-                iconName="call-split"
               />
 
               <SettingItem
                 onPress={setAudioMixingMode}
                 text="Set Audio Mixing Mode"
-                IconType={EntypoIcons}
-                iconName="sound-mix"
               />
             </>
           ) : null}
@@ -406,20 +370,14 @@ export const RoomSettingsModalDebugModeContent: React.FC<
 interface SettingItemProps {
   onPress(): void;
   text: string;
-  iconName: string;
-  IconType: any;
 }
 
 const SettingItem: React.FC<SettingItemProps> = ({
   onPress,
   text,
-  iconName,
-  IconType,
 }) => {
   return (
     <TouchableOpacity style={styles.button} onPress={onPress}>
-      <IconType name={iconName} size={24} style={styles.icon} />
-
       <Text style={styles.text}>{text}</Text>
     </TouchableOpacity>
   );
@@ -434,6 +392,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 12,
+    marginHorizontal: 16,
   },
   text: {
     fontFamily: 'Inter-Medium',

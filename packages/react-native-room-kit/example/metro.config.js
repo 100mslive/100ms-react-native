@@ -10,7 +10,6 @@ const rnhmsLibPackageJson = require('../../react-native-hms/package.json');
 
 const rnrkModules = Object.keys({
   ...rnrkLibPackageJson.peerDependencies,
-  ...rnrkLibPackageJson.dependencies, // This is temporary as we have duplicate dependencies because of which, native modules tries to register twice
 });
 
 const rnhmsModules = Object.keys({

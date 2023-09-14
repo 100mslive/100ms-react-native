@@ -7,18 +7,22 @@ import {
   LayoutAnimation,
   InteractionManager,
 } from 'react-native';
+import type { StyleProp, TextStyle } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { HMSTrack } from '@100mslive/react-native-hms';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import type { RootState } from '../redux';
-import { COLORS } from '../utils/theme';
 import { ModalTypes } from '../utils/types';
 import type { PeerTrackNode } from '../utils/types';
 import { setInsetViewMinimized } from '../redux/actions';
 import { useHMSRoomStyle, useModalType } from '../hooks-util';
-import { MinimizeIcon, PencilIcon } from '../Icons';
+import {
+  CameraIcon,
+  MicIcon,
+  MinimizeIcon,
+  PencilIcon,
+  PersonIcon,
+} from '../Icons';
 import { BottomSheet } from './BottomSheet';
 
 interface PeerSettingsModalContentProps {
@@ -42,6 +46,10 @@ export const PeerSettingsModalContent: React.FC<
     const mininode = state.app.miniviewPeerTrackNode;
     return mininode && mininode.id === peerTrackNode.id;
   });
+
+  const removeTextStyle = useHMSRoomStyle((theme) => ({
+    color: theme.palette.alert_error_default,
+  }));
 
   const { handleModalVisibleType: setModalVisible } = useModalType();
 
@@ -113,7 +121,6 @@ export const PeerSettingsModalContent: React.FC<
       <View style={styles.contentContainer}>
         {peer.isLocal ? (
           <SettingItem
-            customIcon={true}
             text={'Change Name'}
             icon={<PencilIcon style={styles.customIcon} />}
             onPress={changeName}
@@ -122,7 +129,6 @@ export const PeerSettingsModalContent: React.FC<
 
         {settingsForMiniview ? (
           <SettingItem
-            customIcon={true}
             text={'Minimize Your Video'}
             icon={<MinimizeIcon style={styles.customIcon} />}
             onPress={handleMinimizeVideoPress}
@@ -137,8 +143,7 @@ export const PeerSettingsModalContent: React.FC<
             {isPeerAudioMute && localPeerPermissions?.unmute ? (
               <SettingItem
                 text={'Request Audio Unmute'}
-                IconType={Ionicons}
-                iconName={'mic-off-outline'}
+                icon={<MicIcon muted={false} style={styles.customIcon} />}
                 onPress={toggleMuteAudio}
               />
             ) : null}
@@ -147,8 +152,7 @@ export const PeerSettingsModalContent: React.FC<
             {!isPeerAudioMute && localPeerPermissions?.mute ? (
               <SettingItem
                 text={'Mute Audio'}
-                IconType={Ionicons}
-                iconName={'mic-outline'}
+                icon={<MicIcon muted={true} style={styles.customIcon} />}
                 onPress={toggleMuteAudio}
               />
             ) : null}
@@ -162,8 +166,7 @@ export const PeerSettingsModalContent: React.FC<
             {isPeerVideoMute && localPeerPermissions?.unmute ? (
               <SettingItem
                 text={'Request Video Unmute'}
-                IconType={MaterialCommunityIcons}
-                iconName={'video-off-outline'}
+                icon={<CameraIcon muted={false} style={styles.customIcon} />}
                 onPress={toggleMuteVideo}
               />
             ) : null}
@@ -172,8 +175,7 @@ export const PeerSettingsModalContent: React.FC<
             {!isPeerVideoMute && localPeerPermissions?.mute ? (
               <SettingItem
                 text={'Mute Video'}
-                IconType={MaterialCommunityIcons}
-                iconName={'video-outline'}
+                icon={<CameraIcon muted={true} style={styles.customIcon} />}
                 onPress={toggleMuteVideo}
               />
             ) : null}
@@ -182,9 +184,9 @@ export const PeerSettingsModalContent: React.FC<
 
         {!peer.isLocal && localPeerPermissions?.removeOthers ? (
           <SettingItem
-            text="Remove Peer"
-            IconType={Ionicons}
-            iconName={'person-remove-outline'}
+            text="Remove Participant"
+            textStyle={removeTextStyle}
+            icon={<PersonIcon type="left" style={styles.customIcon} />}
             onPress={removePeer}
           />
         ) : null}
@@ -193,31 +195,20 @@ export const PeerSettingsModalContent: React.FC<
   );
 };
 
-type SettingItemBaseProps = {
+type SettingItemProps = {
   onPress(): void;
   text: string;
-  disabled?: boolean;
-};
-
-type SettingItemWithCustomIconProps = {
-  customIcon: true;
   icon: React.ReactElement;
+  disabled?: boolean;
+  textStyle?: StyleProp<TextStyle>;
 };
-
-type SettingItemWithIconProps = {
-  customIcon?: false;
-  iconName: string;
-  IconType: any;
-};
-
-type SettingItemProps = SettingItemBaseProps &
-  (SettingItemWithCustomIconProps | SettingItemWithIconProps);
 
 const SettingItem: React.FC<SettingItemProps> = ({
   onPress,
   text,
+  icon,
+  textStyle,
   disabled = false,
-  ...resetProps
 }) => {
   const textStyles = useHMSRoomStyle((theme, typography) => ({
     color: theme.palette.on_surface_high,
@@ -230,17 +221,9 @@ const SettingItem: React.FC<SettingItemProps> = ({
       style={[styles.button, disabled ? { opacity: 0.6 } : null]}
       onPress={onPress}
     >
-      {resetProps.customIcon ? (
-        resetProps.icon
-      ) : (
-        <resetProps.IconType
-          name={resetProps.iconName}
-          size={24}
-          style={styles.icon}
-        />
-      )}
+      {icon}
 
-      <Text style={[styles.text, textStyles]}>{text}</Text>
+      <Text style={[styles.text, textStyles, textStyle]}>{text}</Text>
     </TouchableOpacity>
   );
 };
@@ -265,9 +248,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     letterSpacing: 0.1,
-  },
-  icon: {
-    color: COLORS.WHITE,
-    marginRight: 12,
   },
 });

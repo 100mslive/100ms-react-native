@@ -26,7 +26,8 @@ export const PressableIcon: React.FC<PressableIconProps> = ({
     (theme) => ({
       pressable: {
         backgroundColor: isHLSViewer
-          ? hexToRgbA(theme.palette.background_dim, 0.64)
+          ? theme.palette.background_dim &&
+            hexToRgbA(theme.palette.background_dim, 0.64)
           : undefined,
       },
       border: {

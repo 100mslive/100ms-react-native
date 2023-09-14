@@ -1,11 +1,16 @@
 import * as React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+} from 'react-native';
 import { useSelector } from 'react-redux';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-import { COLORS } from '../../utils/theme';
 import type { RootState } from '../../redux';
-import { CustomButton } from '../CustomButton';
+import { useHMSRoomStyleSheet } from '../../hooks-util';
+import { CloseIcon, PinIcon } from '../../Icons';
 
 export const PinnedMessage = () => {
   const pinnedMessage = useSelector(
@@ -14,6 +19,19 @@ export const PinnedMessage = () => {
   const hmsSessionStore = useSelector(
     (state: RootState) => state.user.hmsSessionStore
   );
+
+  const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
+    container: {
+      backgroundColor: theme.palette.surface_default,
+    },
+    closeIcon: {
+      tintColor: theme.palette.on_surface_medium,
+    },
+    text: {
+      fontFamily: `${typography.font_family}-Regular`,
+      color: theme.palette.on_surface_high,
+    },
+  }));
 
   const removePinnedMessage = React.useCallback(async () => {
     // If instance of HMSSessionStore is available
@@ -33,57 +51,39 @@ export const PinnedMessage = () => {
   }
 
   return (
-    <View style={styles.pinnedMessage}>
-      <View style={styles.bannerIconContainer}>
-        <MaterialCommunityIcons
-          style={styles.bannerIcon}
-          size={16}
-          name="pin-outline"
-        />
-      </View>
-      <View style={styles.bannerTextContainer}>
-        <Text style={styles.bannerText}>{pinnedMessage}</Text>
-      </View>
-      <CustomButton
-        onPress={removePinnedMessage}
-        viewStyle={styles.bannerIconContainer}
-        LeftIcon={
-          <MaterialCommunityIcons
-            style={styles.bannerIcon}
-            size={24}
-            name="close"
-          />
-        }
-      />
+    <View style={[styles.container, hmsRoomStyles.container]}>
+      <PinIcon style={[styles.icon, hmsRoomStyles.closeIcon]} />
+
+      <ScrollView style={styles.textWrapper}>
+        <Text style={[styles.text, hmsRoomStyles.text]}>{pinnedMessage}</Text>
+      </ScrollView>
+
+      <TouchableOpacity onPress={removePinnedMessage}>
+        <CloseIcon style={[styles.icon, hmsRoomStyles.closeIcon]} />
+      </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  pinnedMessage: {
-    height: 80,
+  container: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.SURFACE.LIGHT,
     borderRadius: 8,
+    padding: 8,
+    marginTop: 8,
   },
-  bannerIcon: {
-    color: COLORS.TEXT.DISABLED,
+  textWrapper: {
+    maxHeight: 50,
+    marginHorizontal: 8,
   },
-  bannerIconContainer: {
-    width: 52,
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
+  icon: {
+    width: 20,
+    height: 20,
   },
-  bannerTextContainer: {
-    flex: 1,
-  },
-  bannerText: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 12,
-    lineHeight: 16,
-    letterSpacing: 0.4,
-    color: COLORS.TEXT.MEDIUM_EMPHASIS,
+  text: {
+    fontSize: 14,
+    lineHeight: 20,
+    letterSpacing: 0.25,
   },
 });

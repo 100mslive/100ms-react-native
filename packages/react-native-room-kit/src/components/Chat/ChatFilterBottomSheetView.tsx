@@ -21,7 +21,9 @@ const _ChatFilterBottomSheetView: React.FC<
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme) => ({
     backdrop: {
-      backgroundColor: hexToRgbA(theme.palette.background_dim, 0.1),
+      backgroundColor:
+        theme.palette.background_dim &&
+        hexToRgbA(theme.palette.background_dim, 0.1),
     },
     contentContainer: {
       backgroundColor: theme.palette.surface_default,

@@ -120,7 +120,8 @@ const _PreviewForRoleChangeModal = () => {
       );
 
       const localVideoTrack = previewForRoleTracks.find(
-        (track) => track.type === HMSTrackType.VIDEO
+        (track: HMSLocalVideoTrack | HMSLocalAudioTrack) =>
+          track.type === HMSTrackType.VIDEO
       ) as HMSLocalVideoTrack;
       if (localVideoTrack) {
         setLocalVideoTrack(localVideoTrack);
@@ -128,7 +129,8 @@ const _PreviewForRoleChangeModal = () => {
       }
 
       const localAudioTrack = previewForRoleTracks.find(
-        (track) => track.type === HMSTrackType.AUDIO
+        (track: HMSLocalVideoTrack | HMSLocalAudioTrack) =>
+          track.type === HMSTrackType.AUDIO
       ) as HMSLocalAudioTrack;
       if (localAudioTrack) {
         setLocalAudioTrack(localAudioTrack);

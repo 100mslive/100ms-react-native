@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import { CustomButton } from './CustomButton';
 import { useHMSActions } from '../hooks-sdk';
@@ -15,11 +14,6 @@ export const LocalPeerScreenshareView = () => {
 
   return (
     <View style={styles.container}>
-      <MaterialCommunityIcons
-        name="monitor-share"
-        style={styles.icon}
-        size={48}
-      />
       <Text style={styles.text}>You are sharing your screen</Text>
       <CustomButton
         title="X   Stop Screenshare"

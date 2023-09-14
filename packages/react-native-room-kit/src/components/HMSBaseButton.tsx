@@ -12,8 +12,8 @@ export interface HMSBaseButtonProps {
   title: string;
   loading: boolean;
   onPress(): void;
-  underlayColor: ColorValue;
-  loaderColor: ColorValue;
+  underlayColor?: ColorValue | undefined;
+  loaderColor?: ColorValue | undefined;
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
   disabled?: boolean;
