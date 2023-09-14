@@ -28,10 +28,6 @@ import {
   HMSLocalPeer,
   HMSRemotePeer,
 } from '@100mslive/react-native-hms';
-import Feather from 'react-native-vector-icons/Feather';
-import Entypo from 'react-native-vector-icons/Entypo';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import { styles } from './styles';
 
@@ -81,11 +77,6 @@ export const ChangeRoleModal = ({ cancelModal }: { cancelModal: Function }) => {
             <Text style={styles.participantFilterText} numberOfLines={1}>
               {newRole?.name}
             </Text>
-            <MaterialIcons
-              name={visible ? 'arrow-drop-up' : 'arrow-drop-down'}
-              style={styles.participantFilterIcon}
-              size={24}
-            />
           </TouchableOpacity>
         }
         onRequestClose={hideMenu}
@@ -116,16 +107,12 @@ export const ChangeRoleModal = ({ cancelModal }: { cancelModal: Function }) => {
             setRequest(!request);
           }}
         >
-          <View style={styles.roleChangeModalCheckBox}>
-            {request && (
-              <Entypo
-                name="check"
-                style={styles.roleChangeModalCheck}
-                size={10}
-              />
-            )}
-          </View>
-          <Text style={styles.roleChangeModalPermission}>
+          <Text
+            style={[
+              styles.roleChangeModalPermission,
+              request ? { color: COLORS.PRIMARY.DEFAULT } : null,
+            ]}
+          >
             Request permission from the user
           </Text>
         </TouchableOpacity>
@@ -303,13 +290,6 @@ export const RtcStatsModal = () => {
             <Text style={styles.participantFilterText} numberOfLines={1}>
               {currentTrack?.name ?? 'Choose'}
             </Text>
-            <MaterialIcons
-              name={
-                tracksListModalVisible ? 'arrow-drop-up' : 'arrow-drop-down'
-              }
-              style={styles.participantFilterIcon}
-              size={24}
-            />
           </TouchableOpacity>
         }
         onRequestClose={hideMenu}
@@ -403,53 +383,6 @@ export const RtcStatsModal = () => {
   );
 };
 
-export const LeaveRoomModal = ({
-  onSuccess,
-  cancelModal,
-}: {
-  onSuccess: Function;
-  cancelModal: Function;
-}) => {
-  const onLeave = () => {
-    cancelModal();
-    onSuccess();
-  };
-  return (
-    <View style={styles.volumeModalContainer}>
-      <View style={styles.participantMenuItem}>
-        <Feather
-          name="log-out"
-          style={styles.participantMenuItemIcon}
-          size={24}
-        />
-        <Text style={styles.roleChangeModalHeading}>Leave Studio</Text>
-      </View>
-      <View style={styles.roleChangeModalPermissionContainer}>
-        <Text style={styles.roleChangeModalDescription}>
-          Others will continue after you leave. You can join the studio again.
-        </Text>
-      </View>
-      <View style={styles.roleChangeModalPermissionContainer}>
-        <CustomButton
-          title="Don’t Leave"
-          onPress={cancelModal}
-          viewStyle={styles.roleChangeModalCancelButton}
-          textStyle={styles.roleChangeModalButtonText}
-        />
-        <CustomButton
-          title="Leave"
-          onPress={onLeave}
-          viewStyle={[
-            styles.roleChangeModalSuccessButton,
-            styles.errorContainer,
-          ]}
-          textStyle={styles.roleChangeModalButtonText}
-        />
-      </View>
-    </View>
-  );
-};
-
 export const ChangeAudioOutputModal = ({
   cancelModal,
 }: {
@@ -487,16 +420,16 @@ export const ChangeAudioOutputModal = ({
               setCurrentOutputDevice(device);
             }}
           >
-            <View style={styles.roleChangeModalCheckBox}>
-              {currentOutputDevice === device && (
-                <Entypo
-                  name="check"
-                  style={styles.roleChangeModalCheck}
-                  size={10}
-                />
-              )}
-            </View>
-            <Text style={styles.roleChangeModalPermission}>{device}</Text>
+            <Text
+              style={[
+                styles.roleChangeModalPermission,
+                currentOutputDevice === device
+                  ? { color: COLORS.PRIMARY.DEFAULT }
+                  : null,
+              ]}
+            >
+              {device}
+            </Text>
           </TouchableOpacity>
         );
       })}
@@ -553,16 +486,16 @@ export const ChangeAspectRatio = ({
               style={styles.roleChangeModalPermissionContainer}
               onPress={() => setSelectedRatio(ratio)}
             >
-              <View style={styles.roleChangeModalCheckBox}>
-                {selectedRatio.id === ratio.id ? (
-                  <Entypo
-                    name="check"
-                    style={styles.roleChangeModalCheck}
-                    size={10}
-                  />
-                ) : null}
-              </View>
-              <Text style={styles.roleChangeModalPermission}>{ratio.id}</Text>
+              <Text
+                style={[
+                  styles.roleChangeModalPermission,
+                  selectedRatio.id === ratio.id
+                    ? { color: COLORS.PRIMARY.DEFAULT }
+                    : null,
+                ]}
+              >
+                {ratio.id}
+              </Text>
             </TouchableOpacity>
           );
         })}
@@ -625,16 +558,16 @@ export const ChangeAudioModeModal = ({
               setCurrentAudioMode(AudioModeList.indexOf(mode));
             }}
           >
-            <View style={styles.roleChangeModalCheckBox}>
-              {currentAudioMode === AudioModeList.indexOf(mode) && (
-                <Entypo
-                  name="check"
-                  style={styles.roleChangeModalCheck}
-                  size={10}
-                />
-              )}
-            </View>
-            <Text style={styles.roleChangeModalPermission}>{mode}</Text>
+            <Text
+              style={[
+                styles.roleChangeModalPermission,
+                currentAudioMode === AudioModeList.indexOf(mode)
+                  ? { color: COLORS.PRIMARY.DEFAULT }
+                  : null,
+              ]}
+            >
+              {mode}
+            </Text>
           </TouchableOpacity>
         );
       })}
@@ -694,16 +627,14 @@ export const ChangeAudioMixingModeModal = ({
               setNewAudioMixingMode(audioMixingMode as HMSAudioMixingMode);
             }}
           >
-            <View style={styles.roleChangeModalCheckBox}>
-              {newAudioMixingMode === audioMixingMode && (
-                <Entypo
-                  name="check"
-                  style={styles.roleChangeModalCheck}
-                  size={10}
-                />
-              )}
-            </View>
-            <Text style={styles.roleChangeModalPermission}>
+            <Text
+              style={[
+                styles.roleChangeModalPermission,
+                newAudioMixingMode === audioMixingMode
+                  ? { color: COLORS.PRIMARY.DEFAULT }
+                  : null,
+              ]}
+            >
               {audioMixingMode}
             </Text>
           </TouchableOpacity>
@@ -769,11 +700,6 @@ export const ChangeTrackStateForRoleModal = ({
             <Text style={styles.participantFilterText} numberOfLines={1}>
               {role?.name}
             </Text>
-            <MaterialIcons
-              name={visible ? 'arrow-drop-up' : 'arrow-drop-down'}
-              style={styles.participantFilterIcon}
-              size={24}
-            />
           </TouchableOpacity>
         }
         onRequestClose={hideMenu}
@@ -806,16 +732,14 @@ export const ChangeTrackStateForRoleModal = ({
             style={styles.changeTrackStateRoleOption}
             onPress={() => setTrackState(true)}
           >
-            <View style={styles.roleChangeModalCheckBox}>
-              {trackState && (
-                <Entypo
-                  name="check"
-                  style={styles.roleChangeModalCheck}
-                  size={10}
-                />
-              )}
-            </View>
-            <Text style={styles.roleChangeModalPermission}>MUTE</Text>
+            <Text
+              style={[
+                styles.roleChangeModalPermission,
+                trackState ? { color: COLORS.PRIMARY.DEFAULT } : null,
+              ]}
+            >
+              MUTE
+            </Text>
           </TouchableOpacity>
         )}
         {localPeerRole?.permissions?.unmute && (
@@ -823,16 +747,14 @@ export const ChangeTrackStateForRoleModal = ({
             style={styles.changeTrackStateRoleOption}
             onPress={() => setTrackState(false)}
           >
-            <View style={styles.roleChangeModalCheckBox}>
-              {!trackState && (
-                <Entypo
-                  name="check"
-                  style={styles.roleChangeModalCheck}
-                  size={10}
-                />
-              )}
-            </View>
-            <Text style={styles.roleChangeModalPermission}>UNMUTE</Text>
+            <Text
+              style={[
+                styles.roleChangeModalPermission,
+                !trackState ? { color: COLORS.PRIMARY.DEFAULT } : null,
+              ]}
+            >
+              UNMUTE
+            </Text>
           </TouchableOpacity>
         )}
       </View>
@@ -844,16 +766,14 @@ export const ChangeTrackStateForRoleModal = ({
           style={styles.changeTrackStateRoleOption}
           onPress={() => setTrackType(HMSTrackType.AUDIO)}
         >
-          <View style={styles.roleChangeModalCheckBox}>
-            {trackType === HMSTrackType.AUDIO && (
-              <Entypo
-                name="check"
-                style={styles.roleChangeModalCheck}
-                size={10}
-              />
-            )}
-          </View>
-          <Text style={styles.roleChangeModalPermission}>
+          <Text
+            style={[
+              styles.roleChangeModalPermission,
+              trackType === HMSTrackType.AUDIO
+                ? { color: COLORS.PRIMARY.DEFAULT }
+                : null,
+            ]}
+          >
             {HMSTrackType.AUDIO}
           </Text>
         </TouchableOpacity>
@@ -861,16 +781,14 @@ export const ChangeTrackStateForRoleModal = ({
           style={styles.changeTrackStateRoleOption}
           onPress={() => setTrackType(HMSTrackType.VIDEO)}
         >
-          <View style={styles.roleChangeModalCheckBox}>
-            {trackType === HMSTrackType.VIDEO && (
-              <Entypo
-                name="check"
-                style={styles.roleChangeModalCheck}
-                size={10}
-              />
-            )}
-          </View>
-          <Text style={styles.roleChangeModalPermission}>
+          <Text
+            style={[
+              styles.roleChangeModalPermission,
+              trackType === HMSTrackType.VIDEO
+                ? { color: COLORS.PRIMARY.DEFAULT }
+                : null,
+            ]}
+          >
             {HMSTrackType.VIDEO}
           </Text>
         </TouchableOpacity>
@@ -1007,16 +925,16 @@ export const HlsStreamingModal = ({
           });
         }}
       >
-        <View style={styles.roleChangeModalCheckBox}>
-          {hlsRecordingDetails.singleFilePerLayer && (
-            <Entypo
-              name="check"
-              style={styles.roleChangeModalCheck}
-              size={10}
-            />
-          )}
-        </View>
-        <Text style={styles.roleChangeModalPermission}>SingleFilePerLayer</Text>
+        <Text
+          style={[
+            styles.roleChangeModalPermission,
+            hlsRecordingDetails.singleFilePerLayer
+              ? { color: COLORS.PRIMARY.DEFAULT }
+              : null,
+          ]}
+        >
+          SingleFilePerLayer
+        </Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.checkboxButtonContainer}
@@ -1027,16 +945,16 @@ export const HlsStreamingModal = ({
           });
         }}
       >
-        <View style={styles.roleChangeModalCheckBox}>
-          {hlsRecordingDetails.videoOnDemand && (
-            <Entypo
-              name="check"
-              style={styles.roleChangeModalCheck}
-              size={10}
-            />
-          )}
-        </View>
-        <Text style={styles.roleChangeModalPermission}>VideoOnDemand</Text>
+        <Text
+          style={[
+            styles.roleChangeModalPermission,
+            hlsRecordingDetails.videoOnDemand
+              ? { color: COLORS.PRIMARY.DEFAULT }
+              : null,
+          ]}
+        >
+          VideoOnDemand
+        </Text>
       </TouchableOpacity>
       <View style={styles.roleChangeModalPermissionContainer}>
         <CustomButton
@@ -1118,16 +1036,14 @@ export const RecordingModal = ({
           });
         }}
       >
-        <View style={styles.roleChangeModalCheckBox}>
-          {recordingDetails.record && (
-            <Entypo
-              name="check"
-              style={styles.roleChangeModalCheck}
-              size={10}
-            />
-          )}
-        </View>
-        <Text style={styles.roleChangeModalPermission}>Record</Text>
+        <Text
+          style={[
+            styles.roleChangeModalPermission,
+            recordingDetails.record ? { color: COLORS.PRIMARY.DEFAULT } : null,
+          ]}
+        >
+          Record
+        </Text>
       </TouchableOpacity>
       <View style={styles.roleChangeModalPermissionContainer}>
         <CustomButton
@@ -1181,56 +1097,6 @@ export const ChangeRoleAccepteModal = ({
           title="Accept"
           onPress={changeLayout}
           viewStyle={styles.roleChangeModalSuccessButton}
-          textStyle={styles.roleChangeModalButtonText}
-        />
-      </View>
-    </View>
-  );
-};
-
-export const EndHlsModal = ({
-  onSuccess,
-  cancelModal,
-}: {
-  onSuccess: Function;
-  cancelModal: Function;
-}) => {
-  const onEnd = () => {
-    cancelModal();
-    onSuccess();
-  };
-  return (
-    <View style={styles.volumeModalContainer}>
-      <View style={styles.participantMenuItem}>
-        <Feather
-          name="alert-triangle"
-          style={[styles.participantMenuItemIcon, styles.error]}
-          size={24}
-        />
-        <Text style={[styles.roleChangeModalHeading, styles.error]}>
-          End live stream for all?
-        </Text>
-      </View>
-      <View style={styles.roleChangeModalPermissionContainer}>
-        <Text style={styles.roleChangeModalDescription}>
-          Your stream will end and everone will go offline immediately in this
-          room. You can’t undo this action.
-        </Text>
-      </View>
-      <View style={styles.roleChangeModalPermissionContainer}>
-        <CustomButton
-          title="Don’t End"
-          onPress={cancelModal}
-          viewStyle={styles.roleChangeModalCancelButton}
-          textStyle={styles.roleChangeModalButtonText}
-        />
-        <CustomButton
-          title="End Stream"
-          onPress={onEnd}
-          viewStyle={[
-            styles.roleChangeModalSuccessButton,
-            styles.errorContainer,
-          ]}
           textStyle={styles.roleChangeModalButtonText}
         />
       </View>
@@ -1374,12 +1240,6 @@ export const ChangeBulkRoleModal: React.FC<ChangeBulkRoleModalProps> = ({
               {rolesToChange.map((role) => role.name).join(', ') ||
                 'Select Roles'}
             </Text>
-
-            <MaterialCommunityIcons
-              name="chevron-right"
-              size={16}
-              style={bulkRoleStyles.chevronIcon}
-            />
           </TouchableOpacity>
         </View>
 
@@ -1393,12 +1253,6 @@ export const ChangeBulkRoleModal: React.FC<ChangeBulkRoleModalProps> = ({
             <Text style={bulkRoleStyles.value}>
               {targetRole ? targetRole.name : 'Select Role'}
             </Text>
-
-            <MaterialCommunityIcons
-              name="chevron-right"
-              size={16}
-              style={bulkRoleStyles.chevronIcon}
-            />
           </TouchableOpacity>
         </View>
       </View>
@@ -1446,27 +1300,13 @@ export const ChangeBulkRoleModal: React.FC<ChangeBulkRoleModalProps> = ({
                     style={bulkRoleStyles.roleBtn}
                     onPress={() => handleRoleSelection(role)}
                   >
-                    <View style={bulkRoleStyles.checkboxContainer}>
-                      {showRolesSelectionView === RoleSelection.TARGET ? (
-                        <MaterialCommunityIcons
-                          name={selected ? 'radiobox-marked' : 'radiobox-blank'}
-                          style={styles.roleChangeModalCheck}
-                          size={20}
-                        />
-                      ) : (
-                        <MaterialCommunityIcons
-                          name={
-                            selected
-                              ? 'checkbox-outline'
-                              : 'checkbox-blank-outline'
-                          }
-                          style={styles.roleChangeModalCheck}
-                          size={24}
-                        />
-                      )}
-                    </View>
-
-                    <Text style={bulkRoleStyles.checkboxLabel}>
+                    <Text
+                      style={{
+                        color: selected
+                          ? COLORS.PRIMARY.DEFAULT
+                          : COLORS.TEXT.MEDIUM_EMPHASIS,
+                      }}
+                    >
                       {role.name}
                     </Text>
                   </TouchableOpacity>
