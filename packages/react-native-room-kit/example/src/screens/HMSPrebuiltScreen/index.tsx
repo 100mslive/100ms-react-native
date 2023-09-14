@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo } from 'react';
-import { Text } from 'react-native';
+import React, { useCallback, useEffect, useMemo } from 'react';
+import { Platform, Text } from 'react-native';
 import {
   NavigationProp,
   RouteProp,
@@ -19,13 +19,11 @@ export const HMSPrebuiltScreen = () => {
     useRoute<RouteProp<AppStackParamList, 'HMSPrebuiltScreen'>>().params;
 
   // function to be called when meeting is ended
-  const handleMeetingLeave = useCallback(() => {
-    VIForegroundService.getInstance()
-      .stopService()
-      .then((result: any) => {
-        console.log('Stopped Android Foreground service: ', result);
-        navigation.navigate('QRCodeScreen');
-      });
+  const handleMeetingLeave = useCallback(async () => {
+    if (Platform.OS === 'android') {
+      await VIForegroundService.getInstance().stopService()
+    }
+    navigation.navigate('QRCodeScreen');
   }, []);
 
   // room code of the HMSRoom
@@ -52,38 +50,38 @@ export const HMSPrebuiltScreen = () => {
     [screenParams]
   );
 
-  const androidForegroundServiceChannelConfig = {
-    id: 'MyAppChannelID',
-    name: 'My App Channel name',
-    enableVibration: true,
-    importance: 5,
-  };
-  VIForegroundService.getInstance()
-    .createNotificationChannel(androidForegroundServiceChannelConfig)
-    .then((r: any) =>
-      console.log('Created Android Foreground Service channel', r)
-    );
+  useEffect(() => {
 
-  const startAndroidForegroundService = async () => {
-    const notificationConfig = {
-      channelId: 'MyAppChannelID',
-      id: 1000,
-      title: 'Foreground Service',
-      text: 'Starting Android Foreground Service now',
-      icon: '../assets/100ms-logo.png',
-      priority: 2,
-    };
-    try {
-      VIForegroundService.getInstance().startService(notificationConfig);
-    } catch (e) {
-      console.error(e);
+    if (Platform.OS === 'android') {
+      const startAndroidForegroundService = async () => {
+        const androidForegroundServiceChannelConfig = {
+          id: 'MyAppChannelID',
+          name: 'My App Channel name',
+          enableVibration: true,
+          importance: 5,
+        };
+        await VIForegroundService.getInstance().createNotificationChannel(androidForegroundServiceChannelConfig)
+
+        const notificationConfig = {
+          channelId: 'MyAppChannelID',
+          id: 1000,
+          title: 'Foreground Service',
+          text: 'Starting Android Foreground Service now',
+          icon: '../assets/100ms-logo.png',
+          priority: 2,
+        };
+        try {
+          VIForegroundService.getInstance().startService(notificationConfig);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      startAndroidForegroundService();
     }
-  };
 
-  startAndroidForegroundService().then(() =>
-    console.log('Android Foreground service started')
-  );
 
+  } ,[])
   // Room Code is required to join the room
   if (!roomCode) {
     return <Text>Room Code is Required</Text>;
