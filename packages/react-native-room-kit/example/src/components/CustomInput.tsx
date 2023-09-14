@@ -10,9 +10,9 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import { COLORS } from '../utils/theme';
+import { CloseIcon } from '../icons';
 
 const CustomInput = ({
   value,
@@ -104,7 +104,7 @@ const CustomInput = ({
             }}
             style={[styles.clearContainer, clearButtonStyle]}
           >
-            <MaterialIcons name="clear" style={styles.clearIcon} size={24} />
+            <CloseIcon style={styles.clearIcon} />
           </TouchableOpacity>
         )}
       </View>
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     paddingRight: 40,
   },
   clearIcon: {
-    color: COLORS.TEXT.HIGH_EMPHASIS,
+    tintColor: COLORS.TEXT.HIGH_EMPHASIS,
   },
 });
 

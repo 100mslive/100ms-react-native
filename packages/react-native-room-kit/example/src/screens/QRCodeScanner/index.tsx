@@ -2,7 +2,6 @@ import React from 'react';
 import { Alert, Text, TouchableOpacity, View } from 'react-native';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BarCodeReadEvent, RNCamera } from 'react-native-camera';
@@ -17,14 +16,15 @@ import { setRoomID } from '../../redux/actions';
 import { callService, validateUrl } from '../../utils/functions';
 import { Constants } from '../../utils/types';
 import { RootState } from '../../redux';
+import { ChevronIcon } from '../../icons';
 
-type WelcomeScreenProp = NativeStackNavigationProp<
+type QRCodeScannerScreenProp = NativeStackNavigationProp<
   AppStackParamList,
-  'WelcomeScreen'
+  'QRCodeScannerScreen'
 >;
 
 const QRCodeScanner = () => {
-  const { navigate, goBack } = useNavigation<WelcomeScreenProp>();
+  const { navigate, goBack } = useNavigation<QRCodeScannerScreenProp>();
   const dispatch = useDispatch();
   const { top, bottom, left, right } = useSafeAreaInsets();
   const debugMode = useSelector(
@@ -83,7 +83,7 @@ const QRCodeScanner = () => {
     >
       <View style={styles.headerContainer}>
         <TouchableOpacity style={styles.headerIconContainer} onPress={goBack}>
-          <Ionicons size={24} style={styles.headerIcon} name="chevron-back" />
+          <ChevronIcon direction='left' />
         </TouchableOpacity>
         <Text style={styles.headerText}>Scan QR Code</Text>
       </View>
@@ -100,9 +100,6 @@ const QRCodeScanner = () => {
         onPress={goBack}
         viewStyle={styles.joinWithLink}
         textStyle={styles.joinWithLinkText}
-        LeftIcon={
-          <Ionicons size={24} style={styles.joinWithLinkIcon} name="link" />
-        }
       />
     </View>
   );

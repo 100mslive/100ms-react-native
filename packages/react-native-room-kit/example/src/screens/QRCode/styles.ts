@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 8,
   },
   moreButtonIcon: {
-    color: COLORS.TEXT.HIGH_EMPHASIS_ACCENT,
+    tintColor: COLORS.TEXT.HIGH_EMPHASIS_ACCENT,
   },
   horizontalSeparator: {
     height: 1,
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   scanQRButtonIcon: {
-    color: COLORS.TEXT.HIGH_EMPHASIS_ACCENT,
+    tintColor: COLORS.TEXT.HIGH_EMPHASIS_ACCENT,
     paddingRight: 12,
   },
   joiningFlowLeft: {

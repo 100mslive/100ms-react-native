@@ -9,11 +9,6 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
-import FontAwesomeIcons from 'react-native-vector-icons/FontAwesome';
-import IoniconsIcons from 'react-native-vector-icons/Ionicons';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import EntypoIcons from 'react-native-vector-icons/Entypo';
 
 import { COLORS } from '../utils/theme';
 import { version as hmsRNSdkVersion } from '../../../../react-native-hms/package.json';
@@ -70,13 +65,6 @@ export const JoinSettingsModalContent: React.FC<
             text="Debug Info"
             value={debugMode}
             onChange={(value) => dispatch(changeDebugMode(value))}
-            LeftIcon={
-              <IoniconsIcons
-                name="ios-bug-outline"
-                size={24}
-                style={styles.icon}
-              />
-            }
             containerStyle={styles.switchContainer}
           />
 
@@ -86,13 +74,6 @@ export const JoinSettingsModalContent: React.FC<
                 text="Join with Muted Audio"
                 value={mutedAudio}
                 onChange={(value) => dispatch(changeJoinAudioMuted(value))}
-                LeftIcon={
-                  <IoniconsIcons
-                    name="mic-outline"
-                    size={24}
-                    style={styles.icon}
-                  />
-                }
                 containerStyle={styles.switchContainer}
               />
 
@@ -100,13 +81,6 @@ export const JoinSettingsModalContent: React.FC<
                 text="Join with Muted Video"
                 value={mutedVideo}
                 onChange={(value) => dispatch(changeJoinVideoMuted(value))}
-                LeftIcon={
-                  <MaterialCommunityIcons
-                    name="video-off-outline"
-                    size={24}
-                    style={styles.icon}
-                  />
-                }
                 containerStyle={styles.switchContainer}
               />
 
@@ -114,13 +88,6 @@ export const JoinSettingsModalContent: React.FC<
                 text="Skip Preview"
                 value={skipPreview}
                 onChange={(value) => dispatch(changeJoinSkipPreview(value))}
-                LeftIcon={
-                  <IoniconsIcons
-                    name="eye-outline"
-                    size={24}
-                    style={styles.icon}
-                  />
-                }
                 containerStyle={styles.switchContainer}
               />
 
@@ -129,13 +96,6 @@ export const JoinSettingsModalContent: React.FC<
                   text="Music Mode"
                   value={musicMode}
                   onChange={(value) => dispatch(changeMusicMode(value))}
-                  LeftIcon={
-                    <IoniconsIcons
-                      name="ios-musical-notes-outline"
-                      size={24}
-                      style={styles.icon}
-                    />
-                  }
                   containerStyle={styles.switchContainer}
                 />
               ) : null}
@@ -145,13 +105,6 @@ export const JoinSettingsModalContent: React.FC<
                   text="Audio Mixer"
                   value={audioMixer}
                   onChange={(value) => dispatch(changeAudioMixer(value))}
-                  LeftIcon={
-                    <EntypoIcons
-                      name="sound-mix"
-                      size={24}
-                      style={styles.icon}
-                    />
-                  }
                   containerStyle={styles.switchContainer}
                 />
               ) : null}
@@ -161,13 +114,6 @@ export const JoinSettingsModalContent: React.FC<
                   text="Software Decoder"
                   value={softwareDecoder}
                   onChange={(value) => dispatch(changeSoftwareDecoder(value))}
-                  LeftIcon={
-                    <IoniconsIcons
-                      name="settings-outline"
-                      size={24}
-                      style={styles.icon}
-                    />
-                  }
                   containerStyle={styles.switchContainer}
                 />
               ) : null}
@@ -177,13 +123,6 @@ export const JoinSettingsModalContent: React.FC<
                   text="Auto Resize"
                   value={autoResize}
                   onChange={(value) => dispatch(changeAutoResize(value))}
-                  LeftIcon={
-                    <IoniconsIcons
-                      name="resize"
-                      size={24}
-                      style={styles.icon}
-                    />
-                  }
                   containerStyle={styles.switchContainer}
                 />
               ) : null}
@@ -192,12 +131,6 @@ export const JoinSettingsModalContent: React.FC<
                 style={styles.resetBtn}
                 onPress={() => dispatch(resetJoinConfig())}
               >
-                <FontAwesomeIcons
-                  name="rotate-left"
-                  size={16}
-                  style={styles.resetIcon}
-                />
-
                 <Text style={styles.resetText}>Reset to Defaults</Text>
               </TouchableOpacity>
             </>
@@ -250,10 +183,7 @@ export const JoinSettingsModalContent: React.FC<
           </>
         ) : null}
 
-        <Text style={styles.footer}>
-          Made with <FontAwesomeIcons name="heart" size={16} color="red" /> by
-          100ms
-        </Text>
+        <Text style={styles.footer}>Made with ❤️ by 100ms</Text>
       </ScrollView>
     </View>
   );
