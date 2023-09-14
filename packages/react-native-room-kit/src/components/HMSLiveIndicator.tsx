@@ -36,7 +36,8 @@ const _HMSLiveIndicator = () => {
     },
     viewers: {
       backgroundColor: isHLSViewer
-        ? hexToRgbA(theme.palette.background_dim!, 0.64)
+        ? theme.palette.background_dim &&
+          hexToRgbA(theme.palette.background_dim, 0.64)
         : undefined,
       borderWidth: isHLSViewer ? 0 : 1,
       borderColor: theme.palette.border_bright,
