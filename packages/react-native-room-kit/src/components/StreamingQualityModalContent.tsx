@@ -13,12 +13,12 @@ import {
   HMSLayer,
   HMSSimulcastLayerDefinition,
 } from '@100mslive/react-native-hms';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import { CustomButton } from './CustomButton';
 import type { RootState } from '../redux';
 import { COLORS } from '../utils/theme';
 import { Menu, MenuItem } from './MenuModal';
+import { ChevronIcon } from '../Icons';
 
 interface PeerSettingsModalContentProps {
   track: HMSTrack;
@@ -111,10 +111,13 @@ export const StreamingQualityModalContent: React.FC<
               <Text style={styles.participantFilterText} numberOfLines={1}>
                 {selectedLayer}
               </Text>
-              <MaterialIcons
-                name={showQualityOptions ? 'arrow-drop-up' : 'arrow-drop-down'}
-                style={styles.participantFilterIcon}
-                size={24}
+              <ChevronIcon
+                direction={'down'}
+                style={{
+                  transform: [
+                    { rotateZ: showQualityOptions ? '180deg' : '0deg' },
+                  ],
+                }}
               />
             </TouchableOpacity>
           }
@@ -200,9 +203,6 @@ const styles = StyleSheet.create({
     lineHeight: 16 * 1.4,
     marginRight: 12,
     textTransform: 'capitalize',
-  },
-  participantFilterIcon: {
-    color: COLORS.TEXT.HIGH_EMPHASIS,
   },
   roleChangeModalHeading: {
     color: COLORS.TEXT.HIGH_EMPHASIS,
