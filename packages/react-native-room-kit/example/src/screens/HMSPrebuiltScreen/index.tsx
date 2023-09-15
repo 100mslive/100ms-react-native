@@ -21,7 +21,7 @@ export const HMSPrebuiltScreen = () => {
   // function to be called when meeting is ended
   const handleMeetingLeave = useCallback(async () => {
     if (Platform.OS === 'android') {
-      await VIForegroundService.getInstance().stopService()
+      await VIForegroundService.getInstance().stopService();
     }
     navigation.navigate('QRCodeScreen');
   }, []);
@@ -52,7 +52,6 @@ export const HMSPrebuiltScreen = () => {
   );
 
   useEffect(() => {
-
     if (Platform.OS === 'android') {
       const startAndroidForegroundService = async () => {
         const androidForegroundServiceChannelConfig = {
@@ -61,7 +60,9 @@ export const HMSPrebuiltScreen = () => {
           enableVibration: true,
           importance: 5,
         };
-        await VIForegroundService.getInstance().createNotificationChannel(androidForegroundServiceChannelConfig)
+        await VIForegroundService.getInstance().createNotificationChannel(
+          androidForegroundServiceChannelConfig
+        );
 
         const notificationConfig = {
           channelId: 'MyAppChannelID',
@@ -76,13 +77,11 @@ export const HMSPrebuiltScreen = () => {
         } catch (e) {
           console.error(e);
         }
-      }
+      };
 
       startAndroidForegroundService();
     }
-
-
-  } ,[])
+  }, []);
   // Room Code is required to join the room
   if (!roomCode) {
     return <Text>Room Code is Required</Text>;

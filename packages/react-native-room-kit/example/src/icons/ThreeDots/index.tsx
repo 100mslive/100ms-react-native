@@ -1,6 +1,6 @@
 import React from 'react';
-import {Image, StyleSheet} from 'react-native';
-import type {ImageProps} from 'react-native';
+import { Image, StyleSheet } from 'react-native';
+import type { ImageProps } from 'react-native';
 
 interface ThreeDotsIconProps extends Omit<ImageProps, 'source'> {}
 

@@ -215,9 +215,7 @@ const QRCode = () => {
           <CustomButton
             onPress={handleMorePress}
             viewStyle={styles.moreButton}
-            RightIcon={
-              <ThreeDotsIcon style={styles.moreButtonIcon} />
-            }
+            RightIcon={<ThreeDotsIcon style={styles.moreButtonIcon} />}
           />
         </View>
 
@@ -228,9 +226,7 @@ const QRCode = () => {
           onPress={onScanQRCodePress}
           viewStyle={styles.scanQRButton}
           textStyle={styles.joinButtonText}
-          LeftIcon={
-            <QRCodeIcon style={styles.scanQRButtonIcon} />
-          }
+          LeftIcon={<QRCodeIcon style={styles.scanQRButtonIcon} />}
         />
       </ScrollView>
 
