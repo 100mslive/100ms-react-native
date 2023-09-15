@@ -33,6 +33,7 @@ export const setPrebuiltData = (data: {
     endPoints?: {
       init: string;
       token: string;
+      layout: string;
     };
     ios?: HMSIOSScreenShareConfig;
   };

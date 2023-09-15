@@ -15,7 +15,7 @@ type ActionType = {
 type IntialStateType = {
   userName: string;
   userId: string | undefined;
-  endPoints: { init: string; token: string } | undefined;
+  endPoints: { init: string; token: string; layout: string; } | undefined;
   debugMode: boolean;
   roomID: string;
   hmsInstance?: HMSSDK;

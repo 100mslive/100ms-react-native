@@ -17,6 +17,7 @@ export type AppStackParamList = {
     debugMode?: boolean;
     initEndPoint?: string;
     tokenEndPoint?: string;
+    layoutEndPoint?: string;
   };
 };
 

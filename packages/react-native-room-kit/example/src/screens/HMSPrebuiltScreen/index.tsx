@@ -36,10 +36,11 @@ export const HMSPrebuiltScreen = () => {
       userId: screenParams?.userId,
       debugMode: screenParams?.debugMode,
       endPoints:
-        screenParams?.tokenEndPoint && screenParams?.initEndPoint
+        screenParams?.tokenEndPoint && screenParams?.initEndPoint && screenParams?.layoutEndPoint
           ? {
               token: screenParams?.tokenEndPoint,
               init: screenParams?.initEndPoint,
+              layout: screenParams?.layoutEndPoint,
             }
           : undefined,
       ios: {
