@@ -36,16 +36,21 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
     hmsVideoView?.setMirror(false)
     hmsVideoView?.disableAutoSimulcastLayerSelect(disableAutoSimulcastLayerSelect)
 
-    hmsVideoView?.addVideoViewStateChangeListener(object : VideoViewStateChangeListener {
-      override fun onResolutionChange(newWidth: Int, newHeight: Int) {
-        super.onResolutionChange(newWidth, newHeight)
-        if (!jsCanApplyStyles) {
-          val event: WritableMap = Arguments.createMap()
-          context.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "topChange", event)
-          jsCanApplyStyles = true
+    hmsVideoView?.addVideoViewStateChangeListener(
+      object : VideoViewStateChangeListener {
+        override fun onResolutionChange(
+          newWidth: Int,
+          newHeight: Int,
+        ) {
+          super.onResolutionChange(newWidth, newHeight)
+          if (!jsCanApplyStyles) {
+            val event: WritableMap = Arguments.createMap()
+            context.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "topChange", event)
+            jsCanApplyStyles = true
+          }
         }
-      }
-    })
+      },
+    )
   }
 
   @RequiresApi(Build.VERSION_CODES.N)
@@ -112,15 +117,30 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
     if (id != null) {
       sdkId = id
     }
-    val hms = hmsCollection[sdkId]?.hmsSDK
+    val rnSDK = hmsCollection[sdkId]
+    val hms = rnSDK?.hmsSDK
 
     if (trackId != null && hms != null) {
       if (mirror != null) {
         hmsVideoView?.setMirror(mirror)
       }
       updateScaleType(scaleType)
-      // TODO: can be optimized here
-      videoTrack = hms.getRoom()?.let { HmsUtilities.getVideoTrack(trackId, it) }
+
+      hms.getRoom()?.let { room ->
+        val regularVideoTrack: HMSVideoTrack? = HmsUtilities.getVideoTrack(trackId, room)
+
+        regularVideoTrack.let { fetchedTrack ->
+          if (fetchedTrack == null) {
+            rnSDK.previewForRoleVideoTrack?.let {
+              if (it.trackId == trackId) {
+                videoTrack = it
+              }
+            }
+          } else {
+            videoTrack = fetchedTrack
+          }
+        }
+      }
     }
   }
 

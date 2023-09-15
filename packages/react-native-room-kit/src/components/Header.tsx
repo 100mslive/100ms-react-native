@@ -1,70 +1,61 @@
 import React, { memo } from 'react';
 import { View, StyleSheet } from 'react-native';
-import Animated, {
-  useAnimatedProps,
-  useAnimatedStyle,
-} from 'react-native-reanimated';
-import type { SharedValue } from 'react-native-reanimated';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { HMSManageCameraRotation } from './HMSManageCameraRotation';
-import { useHMSRoomStyle, useIsHLSViewer } from '../hooks-util';
+import { useHMSRoomStyle } from '../hooks-util';
 import { HMSManageAudioOutput } from './HMSManageAudioOutput';
 import { HMSRecordingIndicator } from './HMSRecordingIndicator';
 import { CompanyLogo } from './CompanyLogo';
+import { HMSLiveIndicator } from './HMSLiveIndicator';
 
 interface HeaderProps {
-  offset: SharedValue<number>;
+  transparent?: boolean;
+  showControls?: boolean;
 }
 
-export const _Header: React.FC<HeaderProps> = ({ offset }) => {
-  const isHLSViewer = useIsHLSViewer();
+const TOP_PADDING = 8;
+const BOTTOM_PADDING = 16;
+const CONTENT_HEIGHT = 42;
+export const HEADER_HEIGHT = TOP_PADDING + CONTENT_HEIGHT + BOTTOM_PADDING;
 
-  const animatedStyles = useAnimatedStyle(() => {
-    return {
-      opacity: offset.value,
-      // transform: [{ translateY: interpolate(offset.value, [0, 1], [-10, 0]) }]
-    };
-  }, []);
-
-  const animatedProps = useAnimatedProps((): {
-    pointerEvents: 'none' | 'auto';
-  } => {
-    return {
-      pointerEvents: offset.value === 0 ? 'none' : 'auto',
-    };
-  }, []);
-
+export const _Header: React.FC<HeaderProps> = ({
+  transparent = false,
+  showControls = true,
+}) => {
   const containerStyles = useHMSRoomStyle((theme) => ({
     backgroundColor: theme.palette.background_dim,
   }));
 
   return (
-    <Animated.View style={animatedStyles} animatedProps={animatedProps}>
-      <View style={[styles.container, containerStyles]}>
+    <SafeAreaView style={transparent ? null : containerStyles} edges={['top']}>
+      <View style={[styles.container, transparent ? null : containerStyles]}>
         <View style={styles.logoContainer}>
           <CompanyLogo style={styles.logo} />
 
           <HMSRecordingIndicator />
+
+          <HMSLiveIndicator />
         </View>
 
-        <View style={styles.controls}>
-          {isHLSViewer ? null : (
+        {showControls ? (
+          <View style={styles.controls}>
             <View style={styles.cameraRotationWrapper}>
               <HMSManageCameraRotation />
             </View>
-          )}
 
-          <HMSManageAudioOutput />
-        </View>
+            <HMSManageAudioOutput />
+          </View>
+        ) : null}
       </View>
-    </Animated.View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 8,
-    paddingBottom: 16,
+    paddingTop: TOP_PADDING,
+    paddingBottom: BOTTOM_PADDING,
     paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
@@ -88,102 +79,3 @@ const styles = StyleSheet.create({
 });
 
 export const Header = memo(_Header);
-
-// export const _Header2 = ({
-//   isLeaveMenuOpen,
-//   setModalVisible,
-// }: {
-//   isLeaveMenuOpen: boolean;
-//   setModalVisible(modalType: ModalTypes, delay?: any): void;
-// }) => {
-//   // hooks
-//   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
-//   const room = useSelector((state: RootState) => state.hmsStates.room);
-//   const localPeer = useSelector(
-//     (state: RootState) => state.hmsStates.localPeer,
-//   );
-//   const roomCode = useSelector((state: RootState) => state.user.roomCode);
-//   const isScreenShared = useSelector(
-//     (state: RootState) => state.hmsStates.isLocalScreenShared,
-//   );
-//   const showLandscapeLayout = useShowLandscapeLayout();
-
-//   // constants
-//   const iconSize = 20;
-
-//   // functions
-
-//   return (
-//     <View
-//       style={[
-//         styles.iconTopWrapper,
-//         showLandscapeLayout ? styles.iconTopWrapperLandscape : null,
-//       ]}
-//     >
-//       <View
-//         style={[
-//           styles.iconTopSubWrapper,
-//           showLandscapeLayout ? styles.iconTopSubWrapperLandscape : null,
-//         ]}
-//       >
-//         {room?.hlsStreamingState?.running ? (
-//           <View>
-//             <View style={styles.liveTextContainer}>
-//               <View style={styles.liveStatus} />
-//               <Text style={styles.liveTimeText}>Live</Text>
-//             </View>
-//             {Array.isArray(room?.hlsStreamingState?.variants) ? (
-//               <RealTime
-//                 startedAt={room?.hlsStreamingState?.variants[0]?.startedAt}
-//               />
-//             ) : null}
-//           </View>
-//         ) : (
-//           <Text style={styles.headerName}>{roomCode}</Text>
-//         )}
-//       </View>
-//       <View
-//         style={[
-//           styles.iconTopSubWrapper,
-//           showLandscapeLayout ? styles.iconTopSubWrapperLandscape : null,
-//         ]}
-//       >
-//         {(room?.browserRecordingState?.running ||
-//           room?.hlsRecordingState?.running) && (
-//           <MaterialCommunityIcons
-//             name="record-circle-outline"
-//             style={
-//               showLandscapeLayout
-//                 ? styles.roomStatusLandscape
-//                 : styles.roomStatus
-//             }
-//             size={iconSize}
-//           />
-//         )}
-//         {(room?.hlsStreamingState?.running ||
-//           room?.rtmpHMSRtmpStreamingState?.running) && (
-//           <Ionicons
-//             name="globe-outline"
-//             style={
-//               showLandscapeLayout
-//                 ? styles.roomStatusLandscape
-//                 : styles.roomStatus
-//             }
-//             size={iconSize}
-//           />
-//         )}
-//         {isScreenShared && (
-//           <Feather
-//             name="copy"
-//             style={
-//               showLandscapeLayout
-//                 ? styles.roomStatusLandscape
-//                 : styles.roomStatus
-//             }
-//             size={iconSize}
-//           />
-//         )}
-//       </View>
-//     </View>
-//   );
-// };

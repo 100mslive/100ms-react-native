@@ -1,19 +1,20 @@
 import * as React from 'react';
-import { useSelector } from 'react-redux';
 import { StyleSheet, View } from 'react-native';
+import type { StyleProp, ViewStyle } from 'react-native';
 
 import { useHMSRoomStyleSheet } from '../hooks-util';
-import type { RootState } from '../redux';
 
 export interface PaginationDotsProps {
   list: any[];
+  activeIndex: number;
+  style?: StyleProp<ViewStyle>;
 }
 
-const _PaginationDots: React.FC<PaginationDotsProps> = ({ list }) => {
-  const activeIndex = useSelector(
-    (state: RootState) => state.app.gridViewActivePage
-  );
-
+const _PaginationDots: React.FC<PaginationDotsProps> = ({
+  list,
+  activeIndex,
+  style,
+}) => {
   const hmsRoomStyles = useHMSRoomStyleSheet(
     (theme) => ({
       dot: { backgroundColor: theme.palette.on_surface_low },
@@ -23,7 +24,7 @@ const _PaginationDots: React.FC<PaginationDotsProps> = ({ list }) => {
   );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, style]}>
       {list.map((listItem, idx) => {
         const isActive = activeIndex === idx;
         const isFirst = idx === 0;

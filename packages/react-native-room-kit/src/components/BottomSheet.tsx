@@ -24,7 +24,7 @@ export type BottomSheetProps = WithRequired<
 
 export const BottomSheet: React.FC<BottomSheetProps> & {
   Header: React.FC<HeaderProps>;
-  Divider: React.FC;
+  Divider: React.FC<BottomSheetDividerProps>;
 } = ({ dismissModal, style, children, containerStyle, ...resetProps }) => {
   const { background_dim: backgroundDimColor } = useHMSRoomColorPalette();
 
@@ -108,12 +108,16 @@ const BottomSheetHeader: React.FC<HeaderProps> = ({
   );
 };
 
-const BottomSheetDivider: React.FC = () => {
+interface BottomSheetDividerProps {
+  style?: StyleProp<ViewStyle>;
+}
+
+const BottomSheetDivider: React.FC<BottomSheetDividerProps> = ({ style }) => {
   const dividerStyles = useHMSRoomStyle((theme) => ({
     backgroundColor: theme.palette.border_default,
   }));
 
-  return <View style={[styles.divider, dividerStyles]} />;
+  return <View style={[styles.divider, dividerStyles, style]} />;
 };
 
 BottomSheet.Header = BottomSheetHeader;
@@ -184,7 +188,7 @@ const styles = StyleSheet.create({
     top: 16,
   },
   divider: {
-    height: 1,
+    height: 2,
     width: '100%',
     marginVertical: 16,
   },

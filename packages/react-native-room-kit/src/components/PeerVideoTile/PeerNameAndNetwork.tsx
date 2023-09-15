@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { HMSTrackSource } from '@100mslive/react-native-hms';
 
 import { hexToRgbA } from '../../utils/theme';
-import { NetworkQualityIcon } from '../../Icons';
+import { NetworkQualityIcon, ScreenShareIcon } from '../../Icons';
 import { useHMSRoomStyleSheet } from '../../hooks-util';
 
 export interface PeerNameAndNetworkProps {
@@ -19,11 +19,15 @@ export const PeerNameAndNetwork: React.FC<PeerNameAndNetworkProps> = ({
   trackSource,
   networkQuality,
 }) => {
+  const isScreenTrackSource =
+    trackSource && trackSource === HMSTrackSource.SCREEN;
   const showTrackSource = trackSource && trackSource !== HMSTrackSource.REGULAR;
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     contentContainer: {
-      backgroundColor: hexToRgbA(theme.palette.background_dim, 0.64),
+      backgroundColor:
+        theme.palette.background_dim &&
+        hexToRgbA(theme.palette.background_dim, 0.64),
     },
     name: {
       color: theme.palette.on_surface_high,
@@ -34,6 +38,10 @@ export const PeerNameAndNetwork: React.FC<PeerNameAndNetworkProps> = ({
   return (
     <View style={styles.container}>
       <View style={[styles.contentContainer, hmsRoomStyles.contentContainer]}>
+        {isScreenTrackSource ? (
+          <ScreenShareIcon style={styles.screenShareIcon} />
+        ) : null}
+
         <Text
           style={[styles.name, hmsRoomStyles.name]}
           numberOfLines={1}
@@ -74,6 +82,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     letterSpacing: 0.25,
+  },
+  screenShareIcon: {
+    width: 20,
+    height: 20,
+    marginRight: 6,
   },
   networkIcon: {
     marginLeft: 4,

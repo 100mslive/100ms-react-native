@@ -1,35 +1,65 @@
 import React, { memo, useMemo } from 'react';
 import { View, StyleSheet, Platform } from 'react-native';
-import Animated, {
-  interpolate,
-  useAnimatedProps,
-  useAnimatedStyle,
-} from 'react-native-reanimated';
-import type { SharedValue } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { useHMSRoomStyle, useIsHLSViewer } from '../hooks-util';
+import {
+  useHMSLayoutConfig,
+  useHMSRoomStyle,
+  useIsHLSViewer,
+  useShowChatAndParticipants,
+} from '../hooks-util';
 import { HMSManageLeave } from './HMSManageLeave';
 import { HMSManageRaiseHand } from './HMSManageRaiseHand';
 import { HMSManageLocalAudio } from './HMSManageLocalAudio';
 import { HMSManageLocalVideo } from './HMSManageLocalVideo';
 import { HMSChat } from './HMSChat';
 import { HMSRoomOptions } from './HMSRoomOptions';
-import { useCanPublishAudio, useCanPublishVideo } from '../hooks-sdk';
+import {
+  useCanPublishAudio,
+  useCanPublishScreen,
+  useCanPublishVideo,
+} from '../hooks-sdk';
+import { useSelector } from 'react-redux';
+import type { RootState } from '../redux';
 
-interface FooterProps {
-  offset: SharedValue<number>;
-}
+interface FooterProps {}
 
-export const _Footer: React.FC<FooterProps> = ({ offset }) => {
+export const _Footer: React.FC<FooterProps> = () => {
   const isHLSViewer = useIsHLSViewer();
   const canPublishAudio = useCanPublishAudio();
   const canPublishVideo = useCanPublishVideo();
+  const canPublishScreen = useCanPublishScreen();
+
+  const isViewer = !(canPublishAudio || canPublishVideo || canPublishScreen);
+
+  const { canShowParticipants, canShowChat } = useShowChatAndParticipants();
+
+  const canShowBRB = useHMSLayoutConfig(
+    (layoutConfig) =>
+      !!layoutConfig?.screens?.conferencing?.default?.elements?.brb
+  );
+
+  const isOnStage = useHMSLayoutConfig((layoutConfig) => {
+    return !!layoutConfig?.screens?.conferencing?.default?.elements
+      ?.on_stage_exp;
+  });
+
+  const canStartRecording = useSelector(
+    (state: RootState) =>
+      !!state.hmsStates.localPeer?.role?.permissions?.browserRecording
+  );
+
+  const canShowOptions =
+    canPublishScreen || canShowParticipants || canShowBRB || canStartRecording;
 
   const footerActionButtons = useMemo(() => {
-    const actions = ['chat', 'options'];
+    const actions = [];
 
-    if (isHLSViewer) {
+    if (canShowChat) {
+      actions.push('chat');
+    }
+
+    if (!isOnStage && isViewer) {
       actions.unshift('hand-raise');
     }
 
@@ -43,57 +73,59 @@ export const _Footer: React.FC<FooterProps> = ({ offset }) => {
 
     actions.unshift('leave');
 
+    if (canShowOptions) {
+      actions.push('options');
+    }
+
     return actions;
-  }, [isHLSViewer, canPublishAudio, canPublishVideo]);
-
-  const animatedStyles = useAnimatedStyle(() => {
-    return {
-      opacity: interpolate(offset.value, [0, 0.7, 1], [0, 0.5, 1]),
-      transform: [{ translateY: interpolate(offset.value, [0, 1], [10, 0]) }],
-    };
-  }, []);
-
-  const animatedProps = useAnimatedProps((): {
-    pointerEvents: 'none' | 'auto';
-  } => {
-    return {
-      pointerEvents: offset.value === 0 ? 'none' : 'auto',
-    };
-  }, []);
+  }, [
+    isOnStage,
+    canShowOptions,
+    canShowChat,
+    isViewer,
+    canPublishAudio,
+    canPublishVideo,
+  ]);
 
   const containerStyles = useHMSRoomStyle((theme) => ({
     backgroundColor: theme.palette.background_dim,
   }));
 
   return (
-    <Animated.View style={animatedStyles} animatedProps={animatedProps}>
-      <SafeAreaView style={containerStyles} edges={['bottom']}>
-        <View style={[styles.container, containerStyles]}>
-          {footerActionButtons.map((actionType, index) => {
-            return (
-              <View
-                key={actionType}
-                style={index === 0 ? null : styles.iconWrapper}
-              >
-                {actionType === 'leave' ? (
-                  <HMSManageLeave />
-                ) : actionType === 'audio' ? (
-                  <HMSManageLocalAudio />
-                ) : actionType === 'video' ? (
-                  <HMSManageLocalVideo />
-                ) : actionType === 'chat' ? (
-                  <HMSChat />
-                ) : actionType === 'options' ? (
-                  <HMSRoomOptions />
-                ) : actionType === 'hand-raise' ? (
-                  <HMSManageRaiseHand />
-                ) : null}
-              </View>
-            );
-          })}
-        </View>
-      </SafeAreaView>
-    </Animated.View>
+    <SafeAreaView
+      style={isHLSViewer ? null : containerStyles}
+      edges={['bottom']}
+    >
+      <View
+        style={[
+          styles.container,
+          isHLSViewer ? styles.hlsContainer : containerStyles,
+        ]}
+      >
+        {footerActionButtons.map((actionType, index) => {
+          return (
+            <View
+              key={actionType}
+              style={index === 0 ? null : styles.iconWrapper}
+            >
+              {actionType === 'leave' ? (
+                <HMSManageLeave />
+              ) : actionType === 'audio' ? (
+                <HMSManageLocalAudio />
+              ) : actionType === 'video' ? (
+                <HMSManageLocalVideo />
+              ) : actionType === 'chat' ? (
+                <HMSChat />
+              ) : actionType === 'options' ? (
+                <HMSRoomOptions />
+              ) : actionType === 'hand-raise' ? (
+                <HMSManageRaiseHand />
+              ) : null}
+            </View>
+          );
+        })}
+      </View>
+    </SafeAreaView>
   );
 };
 
@@ -105,6 +137,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Platform.OS === 'android' ? 16 : 0, // TODO: need to correct hide aimation offsets because of this change
+  },
+  hlsContainer: {
+    paddingTop: 8,
   },
   iconWrapper: {
     marginLeft: 24,

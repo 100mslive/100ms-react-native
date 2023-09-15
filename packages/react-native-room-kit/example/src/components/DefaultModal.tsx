@@ -1,12 +1,11 @@
 import React from 'react';
 import { StyleSheet, View, StyleProp, ViewStyle } from 'react-native';
 import Modal from 'react-native-modal';
-
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { COLORS } from '../utils/theme';
 import { CustomButton } from './CustomButton';
+import { CloseIcon } from '../icons';
 
 export interface DefaultModalProps {
   modalVisible: boolean;
@@ -60,13 +59,7 @@ export const DefaultModal: React.FC<DefaultModalProps> = ({
           <CustomButton
             onPress={setModalVisible}
             viewStyle={styles.crossButton}
-            LeftIcon={
-              <MaterialCommunityIcons
-                name="close"
-                style={styles.crossButtonIcon}
-                size={24}
-              />
-            }
+            LeftIcon={<CloseIcon style={styles.crossButtonIcon} />}
           />
         )}
         {children}
@@ -111,6 +104,6 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
   crossButtonIcon: {
-    color: COLORS.TEXT.HIGH_EMPHASIS,
+    tintColor: COLORS.TEXT.HIGH_EMPHASIS,
   },
 });

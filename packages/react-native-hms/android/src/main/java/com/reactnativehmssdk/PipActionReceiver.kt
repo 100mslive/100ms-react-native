@@ -22,14 +22,18 @@ class PipActionReceiver(
     var sdkIdForPIP: String? = null
     private var registered = false
     const val PIP_INTENT_ACTION = "PIP_INTENT_ACTION"
-    val PIPActions = PIPActions(
-      endMeet = PIPAction(title = "End", description = "End Meeting", requestCode = 346),
-      localAudio = PIPAction(title = "Mic", description = "Toggle Mic", requestCode = 344),
-      localVideo = PIPAction(title = "Camera", description = "Toggle Camera", requestCode = 345),
-    )
+    val PIPActions =
+      PIPActions(
+        endMeet = PIPAction(title = "End", description = "End Meeting", requestCode = 346),
+        localAudio = PIPAction(title = "Mic", description = "Toggle Mic", requestCode = 344),
+        localVideo = PIPAction(title = "Camera", description = "Toggle Camera", requestCode = 345),
+      )
   }
 
-  override fun onReceive(context: Context?, intent: Intent?) {
+  override fun onReceive(
+    context: Context?,
+    intent: Intent?,
+  ) {
     if (intent !== null) {
       if (intent.hasExtra(PIPActions.endMeet.title)) {
         return endMeeting()

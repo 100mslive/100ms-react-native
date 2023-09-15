@@ -200,6 +200,9 @@ class HMSHLSPlayer: UIView {
         self.addSubview(playerViewController.view)
 
         attachPlayerPlaybackListeners()
+
+        hmsHLSPlayerViewController?.showsPlaybackControls = false
+        hmsHLSPlayerViewController?.allowsPictureInPicturePlayback = false
     }
 
     required init?(coder: NSCoder) {
@@ -305,12 +308,16 @@ class HMSHLSPlayer: UIView {
         sendHLSPlaybackEventToJS(HMSHLSPlayerConstants.ON_PLAYBACK_FAILURE_EVENT, data)
     }
 
-    fileprivate func onPlaybackStateChanged(state: HMSHLSPlaybackState) {
+    fileprivate func onPlaybackStateChanged(state: HMSHLSPlaybackState? = nil, videoSizeChanged: Bool = false, aspectRatio: Double? = nil) {
         guard onHmsHlsPlaybackEvent != nil else { return }
 
         var data = [String: Any]()
 
-        data["state"] = state.description
+        data["state"] = videoSizeChanged ? "onVideoSizeChanged" : state?.description
+
+        if let aspectRatio = aspectRatio {
+            data["aspectRatio"] = aspectRatio
+        }
 
         sendHLSPlaybackEventToJS(HMSHLSPlayerConstants.ON_PLAYBACK_STATE_CHANGE_EVENT, data)
     }
@@ -333,6 +340,15 @@ class HLSPlaybackEventController: HMSHLSPlayerDelegate {
 
     func onPlaybackFailure(error: Error) {
         hmsHlsPlayerDelegate?.onPlaybackFailure(error: error)
+    }
+
+    func onResolutionChanged(videoSize: CGSize) {
+        if videoSize.width >= videoSize.height {
+            hmsHlsPlayerDelegate?.hmsHLSPlayerViewController?.videoGravity = .resizeAspect
+        } else {
+            hmsHlsPlayerDelegate?.hmsHLSPlayerViewController?.videoGravity = .resizeAspectFill
+        }
+        hmsHlsPlayerDelegate?.onPlaybackStateChanged(videoSizeChanged: true, aspectRatio: videoSize.width/videoSize.height)
     }
 }
 

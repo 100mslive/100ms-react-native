@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { StyleSheet, Pressable } from 'react-native';
+import { StyleSheet, Pressable, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import {
   Easing,
@@ -15,8 +15,12 @@ import type { RootState } from '../redux';
 import { Footer } from './Footer';
 import { DisplayView } from './DisplayView';
 import { Header } from './Header';
-import { useIsHLSViewer, useLandscapeChatViewVisible } from '../hooks-util';
+import { useIsHLSViewer } from '../hooks-util';
 import { HMSStatusBar } from './StatusBar';
+import { AnimatedFooter } from './AnimatedFooter';
+import { HLSFooter } from './HLSFooter';
+import { AnimatedHeader } from './AnimatedHeader';
+import { ReconnectionView } from './ReconnectionView';
 
 interface MeetingScreenContentProps {
   peerTrackNodes: Array<PeerTrackNode>;
@@ -71,8 +75,6 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
   //   }
   // }, [isHLSViewer]);
 
-  const landscapeChatViewVisible = useLandscapeChatViewVisible();
-
   /**
    * TODO: disbaled Expended View animation in Webrtc flow
    *
@@ -82,19 +84,30 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
   return (
     <Pressable
       onPress={toggleControls}
-      style={[
-        styles.container,
-        landscapeChatViewVisible ? styles.takeLessSpaceAsItCan : null,
-      ]}
+      style={styles.container}
       disabled={isHLSViewer || true}
     >
       <HMSStatusBar hidden={controlsHidden} barStyle={'light-content'} />
 
-      {isPipModeActive ? null : <Header offset={offset} />}
+      <View style={styles.reconnectionWrapper}>
+        {isPipModeActive ? null : (
+          <AnimatedHeader offset={offset}>
+            <Header transparent={isHLSViewer} showControls={!isHLSViewer} />
+          </AnimatedHeader>
+        )}
 
-      <DisplayView offset={offset} peerTrackNodes={peerTrackNodes} />
+        <DisplayView offset={offset} peerTrackNodes={peerTrackNodes} />
 
-      {isPipModeActive ? null : <Footer offset={offset} />}
+        <ReconnectionView />
+      </View>
+
+      {isPipModeActive ? null : isHLSViewer ? (
+        <HLSFooter offset={offset} />
+      ) : (
+        <AnimatedFooter offset={offset}>
+          <Footer />
+        </AnimatedFooter>
+      )}
     </Pressable>
   );
 };
@@ -102,8 +115,12 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    position: 'relative',
   },
   takeLessSpaceAsItCan: {
     flex: 0,
+  },
+  reconnectionWrapper: {
+    flex: 1,
   },
 });

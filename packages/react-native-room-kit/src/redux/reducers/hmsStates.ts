@@ -2,7 +2,9 @@ import type {
   HMSLocalPeer,
   HMSPeer,
   HMSRole,
+  HMSRoleChangeRequest,
   HMSRoom,
+  HMSSpeaker,
 } from '@100mslive/react-native-hms';
 import type { Layout } from '@100mslive/types-prebuilt';
 import { HmsStateActionTypes } from '../actionTypes';
@@ -18,7 +20,13 @@ type ActionType =
   | ResetAction
   | AddToPreviewPeersList
   | RemoveFromPreviewPeersList
-  | SetLayoutConfig;
+  | SetLayoutConfig
+  | SetRoleChangeRequest
+  | AddParticipant
+  | RemoveParticipant
+  | AddUpdateParticipant
+  | SetActiveSpeakers
+  | SetReconnecting;
 
 type SetRoomAction = {
   type: HmsStateActionTypes.SET_ROOM_STATE;
@@ -71,31 +79,69 @@ type RemoveFromPreviewPeersList = {
 
 type SetLayoutConfig = {
   type: HmsStateActionTypes.SET_LAYOUT_CONFIG;
-  layoutConfig: Layout;
+  layoutConfig: Layout[];
+};
+
+type SetRoleChangeRequest = {
+  type: HmsStateActionTypes.SET_ROLE_CHANGE_REQUEST;
+  roleChangeRequest: HMSRoleChangeRequest | null;
+};
+
+type AddParticipant = {
+  type: HmsStateActionTypes.ADD_PARTICIPANT;
+  participant: HMSPeer;
+};
+
+type RemoveParticipant = {
+  type: HmsStateActionTypes.REMOVE_PARTICIPANT;
+  participant: HMSPeer;
+};
+
+type AddUpdateParticipant = {
+  type: HmsStateActionTypes.ADD_UPDATE_PARTICIPANT;
+  participant: HMSPeer;
+};
+
+type SetActiveSpeakers = {
+  type: HmsStateActionTypes.SET_ACTIVE_SPEAKERS;
+  activeSpeakers: HMSSpeaker[];
+};
+
+type SetReconnecting = {
+  type: HmsStateActionTypes.SET_RECONNECTING;
+  reconnecting: boolean;
 };
 
 type IntialStateType = {
   isLocalAudioMuted: boolean | undefined;
   isLocalVideoMuted: boolean | undefined;
   isLocalScreenShared: boolean | undefined;
+  reconnecting: boolean;
   roomLocallyMuted: boolean;
   room: HMSRoom | null;
   localPeer: HMSLocalPeer | null;
+  participants: (HMSPeer | HMSLocalPeer)[];
+  activeSpeakers: HMSSpeaker[];
   roles: HMSRole[];
   previewPeersList: HMSPeer[];
-  layoutConfig: Layout | null;
+  layoutConfig: Layout[] | null;
+  roleChangeRequest: HMSRoleChangeRequest | null;
 };
 
 const INITIAL_STATE: IntialStateType = {
   isLocalAudioMuted: undefined,
   isLocalVideoMuted: undefined,
   isLocalScreenShared: undefined,
+  reconnecting: false,
   roomLocallyMuted: false,
   room: null,
   localPeer: null,
+  participants: [],
+  activeSpeakers: [],
   roles: [],
   previewPeersList: [],
   layoutConfig: null,
+  roleChangeRequest: null,
 };
 
 const hmsStatesReducer = (
@@ -108,17 +154,93 @@ const hmsStatesReducer = (
         ...state,
         room: action.room,
       };
-    case HmsStateActionTypes.SET_LOCAL_PEER_STATE:
+    case HmsStateActionTypes.SET_LOCAL_PEER_STATE: {
+      const participantsHasLocalPeer =
+        action.localPeer !== null
+          ? state.participants.findIndex(
+              (participant) => participant.peerID === action.localPeer?.peerID
+            ) >= 0
+          : false;
+
       return {
         ...state,
         localPeer: action.localPeer,
         isLocalAudioMuted: action.localPeer?.audioTrack?.isMute(),
         isLocalVideoMuted: action.localPeer?.videoTrack?.isMute(),
+
+        // Adding or updating local peer in participants list
+        participants:
+          action.localPeer !== null
+            ? participantsHasLocalPeer
+              ? state.participants.map((participant) =>
+                  participant.peerID === action.localPeer?.peerID
+                    ? action.localPeer
+                    : participant
+                )
+              : [action.localPeer, ...state.participants]
+            : state.participants,
       };
+    }
+    case HmsStateActionTypes.ADD_PARTICIPANT: {
+      if (
+        state.participants.findIndex(
+          (participant) => participant.peerID === action.participant.peerID
+        ) >= 0
+      ) {
+        return state;
+      }
+
+      return {
+        ...state,
+        participants: [...state.participants, action.participant],
+      };
+    }
+    case HmsStateActionTypes.REMOVE_PARTICIPANT: {
+      if (
+        state.participants.findIndex(
+          (participant) => participant.peerID === action.participant.peerID
+        ) >= 0
+      ) {
+        return {
+          ...state,
+          participants: state.participants.filter(
+            (participant) => participant.peerID !== action.participant.peerID
+          ),
+        };
+      }
+
+      return state;
+    }
+    case HmsStateActionTypes.ADD_UPDATE_PARTICIPANT: {
+      if (
+        state.participants.findIndex(
+          (participant) => participant.peerID === action.participant.peerID
+        ) >= 0
+      ) {
+        return {
+          ...state,
+          participants: state.participants.map((participant) =>
+            participant.peerID === action.participant.peerID
+              ? action.participant
+              : participant
+          ),
+        };
+      }
+
+      return {
+        ...state,
+        participants: [...state.participants, action.participant],
+      };
+    }
     case HmsStateActionTypes.SET_ROLES_STATE:
       return {
         ...state,
         roles: action.roles,
+      };
+    case HmsStateActionTypes.SET_ACTIVE_SPEAKERS:
+      return {
+        ...state,
+        activeSpeakers: action.activeSpeakers,
       };
     case HmsStateActionTypes.SET_IS_LOCAL_AUDIO_MUTED_STATE:
       return {
@@ -156,6 +278,16 @@ const hmsStatesReducer = (
       return {
         ...state,
         layoutConfig: action.layoutConfig,
+      };
+    case HmsStateActionTypes.SET_ROLE_CHANGE_REQUEST:
+      return {
+        ...state,
+        roleChangeRequest: action.roleChangeRequest,
+      };
+    case HmsStateActionTypes.SET_RECONNECTING:
+      return {
+        ...state,
+        reconnecting: action.reconnecting,
       };
     case HmsStateActionTypes.CLEAR_STATES:
       return INITIAL_STATE;

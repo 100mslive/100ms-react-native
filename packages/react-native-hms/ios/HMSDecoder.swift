@@ -21,7 +21,7 @@ class HMSDecoder: NSObject {
         switch hmsRoomUpdateType {
             case .none:
                 return data
-            case .metaDataUpdated:
+            case .peerCountUpdated:
                 data["peerCount"] = room.peerCount
                 return data
             case .hlsRecordingStateUpdated:
@@ -352,7 +352,7 @@ class HMSDecoder: NSObject {
 
         peerDict["peerID"] = peer.peerID
         peerDict["name"] = peer.name
-        
+
         // joinedAt
 
         if let audio = peer.audioTrack {

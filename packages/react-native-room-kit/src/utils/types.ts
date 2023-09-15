@@ -44,10 +44,9 @@ export enum ModalTypes {
   LEAVE_ROOM = 'leaveRoom',
   END_ROOM = 'endRoom',
   SETTINGS = 'settings',
-  CHAT = 'chat',
   ZOOM = 'zoom',
   PREVIEW = 'preview',
-  PARTICIPANTS = 'participants',
+  CHAT_AND_PARTICIPANTS = 'chat_and_participants',
   AUDIO_MIXING_MODE = 'audioMixingMode',
   SET_AUDIO_SHARE_VOLUME = 'setAudioShareVolume',
   WELCOME_SETTINGS = 'welcomeSettings',
@@ -95,6 +94,11 @@ export const SUPPORTED_ASPECT_RATIOS = [
 ];
 
 export enum MaxTilesInOnePage {
+  IN_PORTRAIT_WITH_SCREENSHARES = 2,
   IN_PORTRAIT = 6,
   IN_LANDSCAPE = 2,
 }
+
+export const ChatBottomSheetTabs = ['Chat', 'Participants'] as const;
+
+export const ChatBroadcastFilter = { name: 'everyone' } as const;

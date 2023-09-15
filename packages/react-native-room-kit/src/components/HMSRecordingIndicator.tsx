@@ -21,11 +21,19 @@ export const HMSRecordingIndicator = () => {
   }));
 
   if (startingOrStoppingRecording) {
-    return <ActivityIndicator size={'small'} color={onSurfaceHighColor} />;
+    return (
+      <ActivityIndicator
+        size={'small'}
+        color={onSurfaceHighColor}
+        style={styles.rightSpace}
+      />
+    );
   }
 
   if (isRecordingOn) {
-    return <RecordingIcon style={[styles.icon, iconStyles]} />;
+    return (
+      <RecordingIcon style={[styles.icon, styles.rightSpace, iconStyles]} />
+    );
   }
 
   return null;
@@ -35,5 +43,8 @@ const styles = StyleSheet.create({
   icon: {
     width: 24,
     height: 24,
+  },
+  rightSpace: {
+    marginRight: 8,
   },
 });

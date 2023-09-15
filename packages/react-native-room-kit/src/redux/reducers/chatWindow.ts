@@ -1,19 +1,26 @@
-import { HmsStateActionTypes } from '../actionTypes';
+import type { HMSRemotePeer, HMSRole } from '@100mslive/react-native-hms';
 
-const INITIAL_STATE = {
-  showChatView: false,
-  typedMessage: '',
-  sendTo: { name: 'everyone' },
-  sendToType: 'everyone', // 'everyone' | 'role' | 'direct'
+import { HmsStateActionTypes } from '../actionTypes';
+import { ChatBroadcastFilter } from '../../utils/types';
+
+type InitialType = {
+  showChatView: boolean;
+  typedMessage: string;
+  sendTo: HMSRemotePeer | HMSRole | typeof ChatBroadcastFilter;
 };
 
-const chatWindowReducer = (state = INITIAL_STATE, action: any): any => {
+const INITIAL_STATE: InitialType = {
+  showChatView: false,
+  typedMessage: '',
+  sendTo: ChatBroadcastFilter,
+};
+
+const chatWindowReducer = (state = INITIAL_STATE, action: any): InitialType => {
   switch (action.type) {
     case 'SET_SENDTO':
       return {
         ...state,
         sendTo: action.sendTo,
-        sendToType: action.sendToType,
       };
     case 'SET_TYPED_MESSAGE':
       return {

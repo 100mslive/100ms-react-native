@@ -91,14 +91,28 @@ class HmssdkDisplayView: UIView {
                 return
             }
 
-            guard let videoTrack = HMSUtilities.getVideoTrack(for: trackID, in: room)
-            else {
+            if let videoTrack = HMSUtilities.getVideoTrack(for: trackID, in: room) {
+                videoView.setVideoTrack(videoTrack)
+            } else if let videoTrack = getPreviewForRoleTrack(trackID) {
+                videoView.setVideoTrack(videoTrack)
+            } else {
                 print(#function, "Could not find video track in room with trackID: \(trackID)")
                 return
             }
-
-            videoView.setVideoTrack(videoTrack)
         }
+    }
+
+    private func getPreviewForRoleTrack(_ trackID: String) -> HMSVideoTrack? {
+
+        if let hmsRnSdk = hmsCollection["12345"] {
+            if let tracks = hmsRnSdk.previewForRoleTracks {
+                if let videoTrack = tracks.first(where: { $0.trackId == trackID }) as? HMSVideoTrack {
+                    return videoTrack
+                }
+            }
+        }
+
+        return nil
     }
 
     @objc func captureHmsView( _ requestId: NSNumber) {

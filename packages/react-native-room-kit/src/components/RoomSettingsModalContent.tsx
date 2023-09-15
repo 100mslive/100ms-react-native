@@ -10,16 +10,21 @@ import {
   BRBIcon,
   HandIcon,
   ParticipantsIcon,
-  PencilIcon,
   RecordingIcon,
   ScreenShareIcon,
 } from '../Icons';
 import { BottomSheet, useBottomSheetActions } from './BottomSheet';
-import { useHMSInstance, useHMSRoomStyleSheet, useIsHLSViewer } from '../hooks-util';
+import {
+  useHMSInstance,
+  useHMSLayoutConfig,
+  useHMSRoomStyleSheet,
+  useShowChatAndParticipants,
+} from '../hooks-util';
 import { useCanPublishScreen, useHMSActions } from '../hooks-sdk';
 import { RoomSettingsModalDebugModeContent } from './RoomSettingsModalDebugModeContent';
 import { setStartingOrStoppingRecording } from '../redux/actions';
 import { ParticipantsCount } from './ParticipantsCount';
+import { selectAllowedTracksToPublish } from '../hooks-sdk-selectors';
 
 interface RoomSettingsModalContentProps {
   newAudioMixingMode: HMSAudioMixingMode;
@@ -41,18 +46,17 @@ export const RoomSettingsModalContent: React.FC<
   const dispatch = useDispatch();
   const hmsInstance = useHMSInstance();
   const debugMode = useSelector((state: RootState) => state.user.debugMode);
-  const isHLSViewer = useIsHLSViewer();
 
   const hmsActions = useHMSActions();
 
   const { registerOnModalHideAction } = useBottomSheetActions();
 
-  // #region Participants realted states and functions
+  const { canShowParticipants, show } = useShowChatAndParticipants();
+
+  // #region Participants related states and functions
   const onParticipantsPress = () => {
-    // Register callback to be called when bottom sheet is hiddden
-    registerOnModalHideAction(() => {
-      setModalVisible(ModalTypes.PARTICIPANTS);
-    });
+    // Register callback to be called when bottom sheet is hidden
+    registerOnModalHideAction(() => show('participants'));
 
     // Close the current bottom sheet
     closeRoomSettingsModal();
@@ -76,6 +80,7 @@ export const RoomSettingsModalContent: React.FC<
   const localPeerMetadata = useSelector(
     (state: RootState) => state.hmsStates.localPeer?.metadata
   );
+
   const parsedMetadata = parseMetadata(localPeerMetadata);
 
   const isBRBOn = !!parsedMetadata.isBRBOn;
@@ -128,17 +133,22 @@ export const RoomSettingsModalContent: React.FC<
   };
   // #endregion
 
-  // #region Change Name functions
-  const changeName = () => {
-    // Register callback to be called when bottom sheet is hiddden
-    registerOnModalHideAction(() => {
-      setModalVisible(ModalTypes.CHANGE_NAME);
-    });
+  const canShowBRB = useHMSLayoutConfig(
+    (layoutConfig) =>
+      !!layoutConfig?.screens?.conferencing?.default?.elements?.brb
+  );
 
-    // Close the current bottom sheet
-    closeRoomSettingsModal();
-  };
-  // #endregion
+  const isOnStage = useHMSLayoutConfig((layoutConfig) => {
+    return !!layoutConfig?.screens?.conferencing?.default?.elements
+      ?.on_stage_exp;
+  });
+
+  const allowedToPublish = useSelector((state: RootState) => {
+    const allowed = selectAllowedTracksToPublish(state);
+    return (allowed && allowed.length > 0) ?? false;
+  });
+
+  const showHandRaiseIcon = !isOnStage && allowedToPublish;
 
   return (
     <View>
@@ -158,7 +168,7 @@ export const RoomSettingsModalContent: React.FC<
               label: 'Participants',
               pressHandler: onParticipantsPress,
               isActive: false,
-              hide: false,
+              hide: !canShowParticipants,
               sibling: <ParticipantsCount />,
               // parent
               // children
@@ -177,7 +187,7 @@ export const RoomSettingsModalContent: React.FC<
               label: isBRBOn ? "I'm Back" : 'Be Right Back',
               pressHandler: toggleBRB,
               isActive: isBRBOn, // Show active if `isBRBOn` is set on metadata
-              hide: false, // Hide if can't publish screen
+              hide: !canShowBRB, // Hide if can't publish screen
             },
             {
               id: 'raise-hand',
@@ -185,23 +195,15 @@ export const RoomSettingsModalContent: React.FC<
               label: parsedMetadata.isHandRaised ? 'Hand Raised' : 'Raise Hand',
               pressHandler: toggleRaiseHand,
               isActive: isHandRaised, // Show active if `isHandRaised` is set on metadata
-              hide: isHLSViewer, // Hide if can't publish screen
+              hide: !showHandRaiseIcon, // Hide if can't publish screen
             },
             {
               id: 'start-recording',
               icon: <RecordingIcon style={{ width: 20, height: 20 }} />,
               label: isRecordingOn ? 'Stop Recording' : 'Start Recording',
               pressHandler: handleRecordingTogglePress,
-              isActive: !!isRecordingOn,
+              isActive: isRecordingOn,
               hide: !canStartRecording, // Hide if can't publish screen
-            },
-            {
-              id: 'change-name',
-              icon: <PencilIcon style={{ width: 20, height: 20 }} />,
-              label: 'Change Name',
-              pressHandler: changeName,
-              isActive: false,
-              hide: false,
             },
           ].filter((itm) => !itm.hide),
           true

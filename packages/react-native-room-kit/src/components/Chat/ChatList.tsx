@@ -32,17 +32,20 @@ const _ChatList: React.FC<ChatListProps> = () => {
     <View style={chatListStyle.list}>
       <PinnedMessage />
 
-      <FlashList
-        data={messages}
-        inverted={true}
-        estimatedItemSize={104}
-        contentContainerStyle={chatListStyle.listContentContainer} // Bug: Android inverted flashlist will apply padding on left when `paddingRight: 12` is applied
-        keyboardShouldPersistTaps="always"
-        ListEmptyComponent={ChatBanner}
-        // ItemSeparatorComponent={() => <View style={{ height: 16 }} />} // TODO: There is a bug related to this: https://github.com/Shopify/flash-list/issues/638
-        renderItem={_renderItem}
-        keyExtractor={_keyExtractor}
-      />
+      {messages.length > 0 ? (
+        <FlashList
+          data={messages}
+          inverted={true}
+          estimatedItemSize={75}
+          contentContainerStyle={chatListStyle.listContentContainer} // Bug: Android inverted flashlist will apply padding on left when `paddingRight: 12` is applied
+          keyboardShouldPersistTaps="always"
+          // ItemSeparatorComponent={() => <View style={{ height: 16 }} />} // TODO: There is a bug related to this: https://github.com/Shopify/flash-list/issues/638
+          renderItem={_renderItem}
+          keyExtractor={_keyExtractor}
+        />
+      ) : (
+        <ChatBanner />
+      )}
     </View>
   );
 };
@@ -50,7 +53,8 @@ const _ChatList: React.FC<ChatListProps> = () => {
 const chatListStyle = StyleSheet.create({
   list: {
     flex: 1,
-    marginVertical: 8,
+    marginTop: 8,
+    marginBottom: 16,
   },
   listContentContainer: {
     paddingRight: 12,

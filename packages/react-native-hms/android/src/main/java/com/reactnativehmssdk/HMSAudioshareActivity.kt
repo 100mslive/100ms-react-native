@@ -25,6 +25,7 @@ class HMSAudioshareActivity : ComponentActivity() {
               HMSManager.hmsCollection[id]?.audioshareCallback?.reject(error)
               HMSManager.hmsCollection[id]?.emitHMSError(error)
             }
+
             override fun onSuccess() {
               HMSManager.hmsCollection[id]?.isAudioSharing = true
               HMSManager.hmsCollection[id]?.audioshareCallback?.resolve(

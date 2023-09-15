@@ -7,12 +7,15 @@ import type {
   HMSRemoteAudioStats,
   HMSRemoteVideoStats,
   HMSRole,
+  HMSRoleChangeRequest,
   HMSSDK,
   HMSSessionStore,
+  HMSSpeaker,
 } from '@100mslive/react-native-hms';
 import type { Layout } from '@100mslive/types-prebuilt';
 
 import type {
+  ChatBottomSheetTabs,
   HMSIOSScreenShareConfig,
   ModalTypes,
   PeerTrackNode,
@@ -30,6 +33,7 @@ export const setPrebuiltData = (data: {
     endPoints?: {
       init: string;
       token: string;
+      layout: string;
     };
     ios?: HMSIOSScreenShareConfig;
   };
@@ -233,6 +237,20 @@ export const updateMiniViewPeerTrackNode = (
   payload: data,
 });
 
+export const setFullScreenPeerTrackNode = (
+  fullScreenPeerTrackNode: PeerTrackNode | null
+) => ({
+  type: actionTypes.SET_FULLSCREEN_PEERTRACKNODE,
+  payload: { fullScreenPeerTrackNode },
+});
+
+export const updateFullScreenPeerTrackNode = (
+  data: Partial<Omit<PeerTrackNode, 'id'>>
+) => ({
+  type: actionTypes.UPDATE_FULLSCREEN_PEERTRACKNODE,
+  payload: data,
+});
+
 export const setLocalPeerTrackNode = (
   localPeerTrackNode: PeerTrackNode | null
 ) => ({
@@ -252,7 +270,7 @@ export const changeStartingHLSStream = (startingHLSStream: boolean) => ({
   payload: { startingHLSStream },
 });
 
-export const setLayoutConfig = (layoutConfig: Layout) => ({
+export const setLayoutConfig = (layoutConfig: Layout[]) => ({
   type: HmsStateActionTypes.SET_LAYOUT_CONFIG,
   layoutConfig,
 });
@@ -267,4 +285,81 @@ export const setStartingOrStoppingRecording = (
 ) => ({
   type: actionTypes.SET_STARTING_OR_STOPPING_RECORDING,
   payload: { startingOrStoppingRecording },
+});
+
+export const addScreenshareTile = (screenshareNode: PeerTrackNode) => ({
+  type: actionTypes.ADD_SCREENSHARE_TILE,
+  payload: { screenshareNode },
+});
+
+export const removeScreenshareTile = (
+  peerTrackNodeId: PeerTrackNode['id']
+) => ({
+  type: actionTypes.REMOVE_SCREENSHARE_TILE,
+  payload: { id: peerTrackNodeId },
+});
+
+export const updateScreenshareTile = (
+  data: Partial<PeerTrackNode> & { id: string }
+) => ({
+  type: actionTypes.UPDATE_SCREENSHARE_TILE,
+  payload: data,
+});
+
+export const addNotification = (notification: {
+  id: string;
+  type: string;
+  peer: HMSPeer;
+}) => ({
+  type: actionTypes.ADD_NOTIFICATION,
+  payload: { notification },
+});
+
+export const removeNotification = (notificationId: string) => ({
+  type: actionTypes.REMOVE_NOTIFICATION,
+  payload: { id: notificationId },
+});
+
+export const setRoleChangeRequest = (
+  roleChangeRequest: HMSRoleChangeRequest | null
+) => ({
+  type: HmsStateActionTypes.SET_ROLE_CHANGE_REQUEST,
+  roleChangeRequest,
+});
+
+export const setActiveChatBottomSheetTab = (
+  activeChatBottomSheetTab: (typeof ChatBottomSheetTabs)[number]
+) => ({
+  type: actionTypes.SET_ACTIVE_CHAT_BOTTOM_SHEET_TAB,
+  payload: { activeChatBottomSheetTab },
+});
+
+export const setChatFilterSheetVisible = (chatFilterSheetVisible: boolean) => ({
+  type: actionTypes.SET_CHAT_FILTER_SHEET_VISIBLE,
+  payload: { chatFilterSheetVisible },
+});
+
+export const addParticipant = (participant: HMSPeer) => ({
+  type: HmsStateActionTypes.ADD_PARTICIPANT,
+  participant,
+});
+
+export const removeParticipant = (participant: HMSPeer) => ({
+  type: HmsStateActionTypes.REMOVE_PARTICIPANT,
+  participant,
+});
+
+export const addUpdateParticipant = (participant: HMSPeer) => ({
+  type: HmsStateActionTypes.ADD_UPDATE_PARTICIPANT,
+  participant,
+});
+
+export const setActiveSpeakers = (activeSpeakers: HMSSpeaker[]) => ({
+  type: HmsStateActionTypes.SET_ACTIVE_SPEAKERS,
+  activeSpeakers,
+});
+
+export const setReconnecting = (reconnecting: boolean) => ({
+  type: HmsStateActionTypes.SET_RECONNECTING,
+  reconnecting,
 });

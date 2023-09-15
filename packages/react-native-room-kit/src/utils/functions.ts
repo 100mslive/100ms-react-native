@@ -11,6 +11,7 @@ import {
   HMSTrackType,
   HMSTrackSource,
   HMSVideoTrack,
+  HMSRole,
 } from '@100mslive/react-native-hms';
 
 import type { PeerTrackNode } from './types';
@@ -53,6 +54,7 @@ export const parseMetadata = (
 ): {
   isHandRaised?: boolean;
   isBRBOn?: boolean;
+  prevRole?: string;
 } => {
   try {
     if (metadata) {
@@ -568,3 +570,10 @@ export function groupIntoTriplets<T>(list: T[], fill?: boolean) {
   }
   return pairs;
 }
+
+export const isParticipantHostOrBroadcaster = (role: HMSRole): boolean => {
+  const allowed = role.publishSettings?.allowed;
+  const canChangeRole = role.permissions?.changeRole;
+
+  return Boolean(allowed && allowed.length > 0 && canChangeRole);
+};

@@ -34,10 +34,12 @@ export enum HMSHLSPlayerPlaybackState {
   PLAYING = 'playing',
   STOPPED = 'stopped',
   UNKNOWN = 'unknown',
+  onVideoSizeChanged = 'onVideoSizeChanged',
 }
 
 export type HMSHLSPlayerPlaybackStateChangeEventData = {
   state: HMSHLSPlayerPlaybackState;
+  aspectRatio: number | undefined;
 };
 
 type HMSHLSPlayerPlaybackCueEvent = HMSHLSPlayerEvent<

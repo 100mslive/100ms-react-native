@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import type { StyleProp, ViewStyle } from 'react-native';
 
 import { PersonIcon } from '../../Icons';
 import { getInitials } from '../../utils/functions';
@@ -10,14 +11,23 @@ import { useHMSRoomStyleSheet } from '../../hooks-util';
 export interface AvatarViewProps {
   name: string;
   videoView: React.ReactElement<typeof VideoView> | null;
+  avatarStyles?: StyleProp<ViewStyle>;
+  avatarContainerStyles?: StyleProp<ViewStyle>;
+  isInset?: boolean;
 }
 
-export const _AvatarView: React.FC<AvatarViewProps> = ({ name, videoView }) => {
+export const _AvatarView: React.FC<AvatarViewProps> = ({
+  name,
+  videoView,
+  avatarStyles,
+  avatarContainerStyles,
+  isInset = false,
+}) => {
   const showInitials = !!name && name.length > 0;
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     avatarContainer: {
-      backgroundColor: theme.palette.surface_default,
+      backgroundColor: theme.palette.background_default,
     },
     avatar: {
       backgroundColor: COLORS.EXTENDED.PURPLE,
@@ -31,10 +41,27 @@ export const _AvatarView: React.FC<AvatarViewProps> = ({ name, videoView }) => {
   return (
     <View style={styles.container}>
       {videoView || (
-        <View style={[styles.avatarContainer, hmsRoomStyles.avatarContainer]}>
-          <View style={[styles.avatar, hmsRoomStyles.avatar]}>
+        <View
+          style={[
+            styles.avatarContainer,
+            hmsRoomStyles.avatarContainer,
+            avatarContainerStyles,
+          ]}
+        >
+          <View
+            style={[
+              isInset ? styles.insetAvatar : styles.avatar,
+              hmsRoomStyles.avatar,
+              avatarStyles,
+            ]}
+          >
             {showInitials ? (
-              <Text style={[styles.avatarText, hmsRoomStyles.avatarText]}>
+              <Text
+                style={[
+                  isInset ? styles.insetText : styles.avatarText,
+                  hmsRoomStyles.avatarText,
+                ]}
+              >
                 {getInitials(name)}
               </Text>
             ) : (
@@ -65,6 +92,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  insetAvatar: {
+    width: 64,
+    aspectRatio: 1,
+    borderRadius: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   avatarIcon: {
     width: 40,
     height: 40,
@@ -73,6 +107,10 @@ const styles = StyleSheet.create({
     fontSize: 34,
     lineHeight: 40,
     letterSpacing: 0.25,
+  },
+  insetText: {
+    fontSize: 24,
+    lineHeight: 32,
   },
 });
 

@@ -1,5 +1,4 @@
 import {
-  HMSAudioFilePlayerNode,
   HMSAudioMixingMode,
   HMSAudioMode,
   HMSChangeTrackStateRequest,

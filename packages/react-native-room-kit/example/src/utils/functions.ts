@@ -9,7 +9,7 @@ import {
 import { getRoomLinkDetails } from './getRoomLinkDetails';
 
 export const getMeetingUrl = () =>
-  'https://saikat.qa-app.100ms.live/meeting/jnf-wqy-par';
+  'https://public.app.100ms.live/meeting/xvm-wxwo-gbl';
 
 export const callService = async (
   roomID: string,
@@ -48,7 +48,8 @@ export const callService = async (
         isQARoom
           ? `https://auth-nonprod.100ms.live${Platform.OS === 'ios' ? '/' : ''}`
           : undefined, // Auth Endpoint
-        isQARoom ? 'https://qa-init.100ms.live/init' : undefined // HMSConfig Endpoint
+        isQARoom ? 'https://qa-init.100ms.live/init' : undefined, // HMSConfig Endpoint
+        isQARoom ? 'https://api-nonprod.100ms.live' : undefined, // Room Layout endpoint
       );
       return;
     } else {

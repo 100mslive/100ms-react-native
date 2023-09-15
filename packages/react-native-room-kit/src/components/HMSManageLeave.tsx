@@ -2,12 +2,8 @@ import * as React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 
-import { EndIcon, LeaveIcon } from '../Icons';
-import {
-  useHMSRoomStyleSheet,
-  useIsHLSViewer,
-  useLeaveMethods,
-} from '../hooks-util';
+import { LeaveIcon } from '../Icons';
+import { useHMSRoomStyleSheet, useLeaveMethods } from '../hooks-util';
 import type { RootState } from '../redux';
 import { ModalTypes } from '../utils/types';
 import { PressableIcon } from './PressableIcon';
@@ -36,13 +32,12 @@ type LeaveButtonProps =
 
 const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
   const leavePopCloseAction = React.useRef(ModalTypes.DEFAULT);
-  const isHLSViewer = useIsHLSViewer();
   const [leavePopVisible, setLeavePopVisible] = React.useState(false);
   const [leaveModalType, setLeaveModalType] = React.useState(
     ModalTypes.DEFAULT
   );
 
-  const { leave } = useLeaveMethods();
+  const { leave } = useLeaveMethods(false);
 
   /**
    * Opens the Leave Popup Menu
@@ -55,9 +50,9 @@ const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
    * Closes the Leave Popup Menu
    * Leave Modal will open after the popup is hidden
    */
-  const handleLeavePress = () => {
+  const handleLeavePress = async () => {
     setLeavePopVisible(false);
-    leave();
+    await leave();
   };
 
   /**
@@ -65,6 +60,11 @@ const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
    * End Session Modal will open after the popup is hidden
    */
   const handleEndSessionPress = async () => {
+    leavePopCloseAction.current = ModalTypes.END_ROOM;
+    setLeavePopVisible(false);
+  };
+
+  const handleEndStreamPress = async () => {
     leavePopCloseAction.current = ModalTypes.END_ROOM;
     setLeavePopVisible(false);
   };
@@ -90,20 +90,18 @@ const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
   const hmsRoomStyles = useHMSRoomStyleSheet((theme) => ({
     button: {
       backgroundColor: theme.palette.alert_error_default,
-      borderColor: theme.palette.alert_error_default
+      borderColor: theme.palette.alert_error_default,
     },
     icon: {
-      tintColor: theme.palette.alert_error_brighter
+      tintColor: theme.palette.alert_error_brighter,
     },
   }));
 
   const leaveIconDelegate =
     'leaveIconDelegate' in props && props.leaveIconDelegate ? (
       props.leaveIconDelegate
-    ) : isHLSViewer ? (
-      <LeaveIcon style={hmsRoomStyles.icon} />
     ) : (
-      <EndIcon style={hmsRoomStyles.icon} />
+      <LeaveIcon style={hmsRoomStyles.icon} />
     );
 
   const leaveButtonDelegate =
@@ -126,6 +124,7 @@ const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
         onLeavePress={handleLeavePress}
         onPopupDismiss={dismissPopup}
         onPopupHide={handlePopupHide}
+        onEndStreamPress={handleEndStreamPress}
       />
 
       <BottomSheet
@@ -147,6 +146,7 @@ interface LeaveBottomSheetProps {
   onPopupDismiss(): void;
   onLeavePress(): void;
   onEndSessionPress(): void;
+  onEndStreamPress(): void;
   onPopupHide(): void;
 }
 
@@ -155,10 +155,20 @@ const LeaveBottomSheet: React.FC<LeaveBottomSheetProps> = ({
   onPopupDismiss,
   onLeavePress,
   onEndSessionPress,
+  onEndStreamPress,
   onPopupHide,
 }) => {
   const canEndRoom = useSelector(
     (state: RootState) => state.hmsStates.localPeer?.role?.permissions?.endRoom
+  );
+  const canStream = useSelector(
+    (state: RootState) =>
+      state.hmsStates.localPeer?.role?.permissions?.hlsStreaming
+  );
+
+  const isStreaming = useSelector(
+    (state: RootState) =>
+      state.hmsStates.room?.hlsStreamingState?.running ?? false
   );
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
@@ -212,10 +222,10 @@ const LeaveBottomSheet: React.FC<LeaveBottomSheetProps> = ({
           </View>
         </TouchableOpacity>
 
-        {canEndRoom ? (
+        {canStream && isStreaming ? (
           <TouchableOpacity
             style={[leavePopupStyles.button, hmsRoomStyles.endButton]}
-            onPress={onEndSessionPress}
+            onPress={onEndStreamPress}
           >
             <StopIcon style={[leavePopupStyles.icon, hmsRoomStyles.endIcon]} />
 
@@ -226,8 +236,25 @@ const LeaveBottomSheet: React.FC<LeaveBottomSheetProps> = ({
               <Text
                 style={[leavePopupStyles.subtext, hmsRoomStyles.endSubtext]}
               >
-                The stream & session will end for everyone. You can't undo this
-                action.
+                The stream will end for everyone after they’ve watched it.
+              </Text>
+            </View>
+          </TouchableOpacity>
+        ) : canEndRoom ? (
+          <TouchableOpacity
+            style={[leavePopupStyles.button, hmsRoomStyles.endButton]}
+            onPress={onEndSessionPress}
+          >
+            <StopIcon style={[leavePopupStyles.icon, hmsRoomStyles.endIcon]} />
+
+            <View style={leavePopupStyles.textContainer}>
+              <Text style={[leavePopupStyles.text, hmsRoomStyles.endText]}>
+                End Session
+              </Text>
+              <Text
+                style={[leavePopupStyles.subtext, hmsRoomStyles.endSubtext]}
+              >
+                The session will end for everyone in the room immediately.
               </Text>
             </View>
           </TouchableOpacity>

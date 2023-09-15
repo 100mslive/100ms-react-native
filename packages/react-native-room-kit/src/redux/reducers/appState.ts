@@ -1,4 +1,5 @@
 import ActionTypes, { HmsStateActionTypes } from '../actionTypes';
+import { ChatBottomSheetTabs } from '../../utils/types';
 import type { PeerTrackNode } from '../../utils/types';
 import { SUPPORTED_ASPECT_RATIOS, ModalTypes } from '../../utils/types';
 import { PipModes } from '../../utils/types';
@@ -45,6 +46,11 @@ type IntialStateType = {
   localPeerTrackNode: null | PeerTrackNode;
   gridViewActivePage: number;
   startingOrStoppingRecording: boolean;
+  fullScreenPeerTrackNode: null | PeerTrackNode;
+  screensharePeerTrackNodes: PeerTrackNode[];
+  notifications: { id: string; type: string; peer: HMSPeer }[];
+  activeChatBottomSheetTab: (typeof ChatBottomSheetTabs)[number];
+  chatFilterSheetVisible: boolean;
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -57,7 +63,7 @@ const INITIAL_STATE: IntialStateType = {
     autoSimulcast: true,
     showStats: false,
     showHLSStats: false,
-    enableHLSPlayerControls: true,
+    enableHLSPlayerControls: false,
     showCustomHLSPlayerControls: false,
   },
   modalType: ModalTypes.DEFAULT,
@@ -69,6 +75,11 @@ const INITIAL_STATE: IntialStateType = {
   localPeerTrackNode: null,
   gridViewActivePage: 0,
   startingOrStoppingRecording: false,
+  fullScreenPeerTrackNode: null,
+  screensharePeerTrackNodes: [],
+  notifications: [],
+  activeChatBottomSheetTab: ChatBottomSheetTabs[0],
+  chatFilterSheetVisible: false,
 };
 
 const appReducer = (
@@ -189,6 +200,23 @@ const appReducer = (
         },
       };
     }
+    case ActionTypes.SET_FULLSCREEN_PEERTRACKNODE:
+      return {
+        ...state,
+        fullScreenPeerTrackNode: action.payload.fullScreenPeerTrackNode,
+      };
+    case ActionTypes.UPDATE_FULLSCREEN_PEERTRACKNODE: {
+      if (!state.fullScreenPeerTrackNode) {
+        return state;
+      }
+      return {
+        ...state,
+        fullScreenPeerTrackNode: {
+          ...state.fullScreenPeerTrackNode,
+          ...action.payload,
+        },
+      };
+    }
     case ActionTypes.SET_STARTING_HLS_STREAM:
       return { ...state, startingHLSStream: action.payload.startingHLSStream };
     case ActionTypes.SET_GRID_VIEW_ACTIVE_PAGE:
@@ -201,6 +229,60 @@ const appReducer = (
         ...state,
         startingOrStoppingRecording: action.payload.startingOrStoppingRecording,
       };
+    case ActionTypes.ADD_SCREENSHARE_TILE: {
+      return {
+        ...state,
+        screensharePeerTrackNodes: [
+          ...state.screensharePeerTrackNodes,
+          action.payload.screenshareNode,
+        ],
+      };
+    }
+    case ActionTypes.REMOVE_SCREENSHARE_TILE: {
+      return {
+        ...state,
+        screensharePeerTrackNodes: state.screensharePeerTrackNodes.filter(
+          (node) => node.id !== action.payload.id
+        ),
+      };
+    }
+    case ActionTypes.UPDATE_SCREENSHARE_TILE: {
+      return {
+        ...state,
+        screensharePeerTrackNodes: state.screensharePeerTrackNodes.map(
+          (node) =>
+            node.id === action.payload.id
+              ? { ...node, ...action.payload }
+              : node
+        ),
+      };
+    }
+    case ActionTypes.ADD_NOTIFICATION: {
+      return {
+        ...state,
+        notifications: [action.payload.notification, ...state.notifications],
+      };
+    }
+    case ActionTypes.REMOVE_NOTIFICATION: {
+      return {
+        ...state,
+        notifications: state.notifications.filter(
+          (notification) => notification.id !== action.payload.id
+        ),
+      };
+    }
+    case ActionTypes.SET_ACTIVE_CHAT_BOTTOM_SHEET_TAB: {
+      return {
+        ...state,
+        activeChatBottomSheetTab: action.payload.activeChatBottomSheetTab,
+      };
+    }
+    case ActionTypes.SET_CHAT_FILTER_SHEET_VISIBLE: {
+      return {
+        ...state,
+        chatFilterSheetVisible: action.payload.chatFilterSheetVisible,
+      };
+    }
     case HmsStateActionTypes.CLEAR_STATES:
       return INITIAL_STATE;
     default:

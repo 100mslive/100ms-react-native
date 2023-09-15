@@ -29,7 +29,6 @@ import java.io.ByteArrayOutputStream
 import java.util.*
 
 object HMSHelper {
-
   fun areAllRequiredKeysAvailable(
     map: ReadableMap?,
     requiredKeys: Array<Pair<String, String>>,
@@ -96,14 +95,20 @@ object HMSHelper {
     return null
   }
 
-  fun getPeerFromPeerId(peerId: String?, room: HMSRoom?): HMSPeer? {
+  fun getPeerFromPeerId(
+    peerId: String?,
+    room: HMSRoom?,
+  ): HMSPeer? {
     if (peerId != null && room != null) {
       return HmsUtilities.getPeer(peerId, room)
     }
     return null
   }
 
-  fun getRemotePeerFromPeerId(peerId: String?, room: HMSRoom?): HMSRemotePeer? {
+  fun getRemotePeerFromPeerId(
+    peerId: String?,
+    room: HMSRoom?,
+  ): HMSRemotePeer? {
     if (peerId != null && room != null) {
       return HmsUtilities.getPeer(peerId, room) as? HMSRemotePeer
     }
@@ -128,7 +133,10 @@ object HMSHelper {
     return encodedRoles.toList()
   }
 
-  fun getRoleFromRoleName(role: String?, roles: List<HMSRole>?): HMSRole? {
+  fun getRoleFromRoleName(
+    role: String?,
+    roles: List<HMSRole>?,
+  ): HMSRole? {
     if (role != null && roles != null) {
       for (hmsRole in roles) {
         if (role == hmsRole.name) {
@@ -139,21 +147,30 @@ object HMSHelper {
     return null
   }
 
-  fun getRemoteAudioTrackFromTrackId(trackId: String?, room: HMSRoom?): HMSRemoteAudioTrack? {
+  fun getRemoteAudioTrackFromTrackId(
+    trackId: String?,
+    room: HMSRoom?,
+  ): HMSRemoteAudioTrack? {
     if (trackId != null && room != null) {
       return HmsUtilities.getAudioTrack(trackId, room) as? HMSRemoteAudioTrack
     }
     return null
   }
 
-  fun getRemoteVideoTrackFromTrackId(trackId: String?, room: HMSRoom?): HMSRemoteVideoTrack? {
+  fun getRemoteVideoTrackFromTrackId(
+    trackId: String?,
+    room: HMSRoom?,
+  ): HMSRemoteVideoTrack? {
     if (trackId != null && room != null) {
       return HmsUtilities.getVideoTrack(trackId, room) as? HMSRemoteVideoTrack
     }
     return null
   }
 
-  fun getTrackFromTrackId(trackId: String?, room: HMSRoom?): HMSTrack? {
+  fun getTrackFromTrackId(
+    trackId: String?,
+    room: HMSRoom?,
+  ): HMSTrack? {
     if (trackId != null && room != null) {
       return HmsUtilities.getTrack(trackId, room)
     }
@@ -334,7 +351,10 @@ object HMSHelper {
     return HMSVideoTrackSettings.CameraFacing.FRONT
   }
 
-  fun getHms(credentials: ReadableMap, hmsCollection: MutableMap<String, HMSRNSDK>): HMSRNSDK? {
+  fun getHms(
+    credentials: ReadableMap,
+    hmsCollection: MutableMap<String, HMSRNSDK>,
+  ): HMSRNSDK? {
     val id = credentials.getString("id")
 
     return if (id != null) {
@@ -372,9 +392,7 @@ object HMSHelper {
     return HMSHLSConfig(hlsMeetingUrlVariant, hlsRecordingConfig)
   }
 
-  private fun getHMSHLSMeetingURLVariants(
-    hmsMeetingURLVariants: ArrayList<HashMap<String, String>>?,
-  ): List<HMSHLSMeetingURLVariant> {
+  private fun getHMSHLSMeetingURLVariants(hmsMeetingURLVariants: ArrayList<HashMap<String, String>>?): List<HMSHLSMeetingURLVariant> {
     val meetingURLVariants = mutableListOf<HMSHLSMeetingURLVariant>()
     if (hmsMeetingURLVariants !== null) {
       for (variant in hmsMeetingURLVariants) {
@@ -408,9 +426,7 @@ object HMSHelper {
     return null
   }
 
-  private fun getHMSHLSMeetingURLVariant(
-    hmsMeetingURLVariant: HashMap<String, String>?,
-  ): HMSHLSMeetingURLVariant {
+  private fun getHMSHLSMeetingURLVariant(hmsMeetingURLVariant: HashMap<String, String>?): HMSHLSMeetingURLVariant {
     var meetingURLVariant = HMSHLSMeetingURLVariant("", "")
     if (hmsMeetingURLVariant !== null) {
       val meetingUrl = hmsMeetingURLVariant["meetingUrl"] as String
@@ -478,7 +494,7 @@ object HMSHelper {
             initEndpoint = credentials.getString("endpoint") as String,
             metadata = credentials.getString("metadata") as String,
             captureNetworkQualityInPreview =
-            credentials.getBoolean("captureNetworkQualityInPreview"),
+              credentials.getBoolean("captureNetworkQualityInPreview"),
           )
       }
       areAllRequiredKeysAvailable(
@@ -503,7 +519,7 @@ object HMSHelper {
             credentials.getString("authToken") as String,
             initEndpoint = credentials.getString("endpoint") as String,
             captureNetworkQualityInPreview =
-            credentials.getBoolean("captureNetworkQualityInPreview"),
+              credentials.getBoolean("captureNetworkQualityInPreview"),
           )
       }
       areAllRequiredKeysAvailable(
@@ -516,7 +532,7 @@ object HMSHelper {
             credentials.getString("authToken") as String,
             metadata = credentials.getString("metadata") as String,
             captureNetworkQualityInPreview =
-            credentials.getBoolean("captureNetworkQualityInPreview"),
+              credentials.getBoolean("captureNetworkQualityInPreview"),
           )
       }
       areAllRequiredKeysAvailable(credentials, arrayOf(Pair("endpoint", "String"))) -> {
@@ -544,7 +560,7 @@ object HMSHelper {
             credentials.getString("username") as String,
             credentials.getString("authToken") as String,
             captureNetworkQualityInPreview =
-            credentials.getBoolean("captureNetworkQualityInPreview"),
+              credentials.getBoolean("captureNetworkQualityInPreview"),
           )
       }
     }

@@ -14,7 +14,6 @@ import type { PeerTrackNode } from '../utils/types';
 import { requestExternalStoragePermission } from '../utils/functions';
 import {
   ChangeAspectRatio,
-  ChangeRoleAccepteModal,
   ChangeRoleModal,
   ChangeTrackStateModal,
   SaveScreenshot,
@@ -32,9 +31,11 @@ import {
   useIsHLSViewer,
   useModalType,
 } from '../hooks-util';
-import { ParticipantsModal } from './ParticipantsModal';
 import { WebrtcView } from './WebrtcView';
 import { BottomSheet } from './BottomSheet';
+import { FullScreenVideoView } from './FullScreenVideoView';
+import { PreviewForRoleChangeModal } from './PreviewForRoleChangeModal';
+import { ChatAndParticipantsBottomSheet } from './ChatAndParticipants';
 
 type CapturedImagePath = { uri: string } | null;
 
@@ -78,9 +79,7 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
     setModalVisible(ModalTypes.CHANGE_TRACK, true);
   });
 
-  const roleChangeRequest = useHMSRoleChangeRequest(() => {
-    setModalVisible(ModalTypes.CHANGE_ROLE_ACCEPT, true);
-  });
+  useHMSRoleChangeRequest();
 
   // functions
 
@@ -151,6 +150,12 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
 
       {isPipModeActive ? null : (
         <>
+          <PreviewForRoleChangeModal />
+
+          <FullScreenVideoView />
+
+          <ChatAndParticipantsBottomSheet />
+
           <BottomSheet
             isVisible={modalVisible === ModalTypes.PEER_SETTINGS}
             dismissModal={() => setModalVisible(ModalTypes.DEFAULT)}
@@ -216,27 +221,6 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
                 cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
               />
             ) : null}
-          </DefaultModal>
-          <DefaultModal
-            modalPosiion="center"
-            modalVisible={modalVisible === ModalTypes.CHANGE_ROLE_ACCEPT}
-            setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
-          >
-            {roleChangeRequest ? (
-              <ChangeRoleAccepteModal
-                instance={hmsInstance}
-                roleChangeRequest={roleChangeRequest}
-                cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
-              />
-            ) : null}
-          </DefaultModal>
-          <DefaultModal
-            animationIn={'slideInUp'}
-            animationOut={'slideOutDown'}
-            modalVisible={modalVisible === ModalTypes.PARTICIPANTS}
-            setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
-          >
-            <ParticipantsModal />
           </DefaultModal>
           <DefaultModal
             modalPosiion="center"

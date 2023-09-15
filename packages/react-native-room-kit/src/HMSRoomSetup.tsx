@@ -39,6 +39,7 @@ import {
   useHMSRoomStyle,
   useHMSSessionStore,
   useLeaveMethods,
+  isPublishingAllowed,
 } from './hooks-util';
 import {
   peerTrackNodeExistForPeerAndTrack,
@@ -50,8 +51,15 @@ import { MeetingState } from './types';
 import { getJoinConfig } from './utils';
 import { FullScreenIndicator } from './components/FullScreenIndicator';
 import { HMSMeetingEnded } from './components/HMSMeetingEnded';
-import { selectIsHLSViewer, selectShouldGoLive } from './hooks-util-selectors';
+import {
+  selectChatLayoutConfig,
+  selectIsHLSViewer,
+  selectLayoutConfigForRole,
+  selectShouldGoLive,
+  selectVideoTileLayoutConfig,
+} from './hooks-util-selectors';
 import type { RootState } from './redux';
+import { Chat_ChatState } from '@100mslive/types-prebuilt/elements/chat';
 
 type PreviewData = {
   room: HMSRoom;
@@ -64,6 +72,7 @@ export const HMSRoomSetup = () => {
   const hmsInstance = useHMSInstance();
   const dispatch = useDispatch();
   const reduxStore = useStore<RootState>();
+  const { goToPreview } = useLeaveMethods(true);
 
   const { getConfig, clearConfig } = useHMSConfig();
   const meetingState = useSelector(
@@ -71,7 +80,6 @@ export const HMSRoomSetup = () => {
   );
   const [peerTrackNodes, setPeerTrackNodes] = useState<PeerTrackNode[]>([]);
   const [loading, setLoading] = useState(false);
-  const { goToPreview } = useLeaveMethods();
 
   const joinMeeting = useCallback(async () => {
     setLoading(true);
@@ -193,13 +201,38 @@ export const HMSRoomSetup = () => {
       const peer = localPeer;
       const track = localPeer.videoTrack as HMSTrack | undefined;
 
+      const currentLayoutConfig = selectLayoutConfigForRole(
+        reduxState.hmsStates.layoutConfig,
+        localPeer.role || null
+      );
+
+      const isHLSViewer = selectIsHLSViewer(
+        localPeer.role,
+        currentLayoutConfig
+      );
+
       // Creating `PeerTrackNode` for local peer
       const localPeerTrackNode = createPeerTrackNode(peer, track);
 
+      const enableLocalTileInset =
+        selectVideoTileLayoutConfig(currentLayoutConfig)?.grid
+          ?.enable_local_tile_inset;
+
+      const canCreateTile = isPublishingAllowed(localPeer) && !isHLSViewer;
+
       batch(() => {
-        if (selectIsHLSViewer(localPeer)) {
+        const chatConfig = selectChatLayoutConfig(currentLayoutConfig);
+        const overlayChatInitialState =
+          chatConfig && chatConfig.is_overlay && chatConfig.initial_state;
+
+        if (
+          !!chatConfig &&
+          overlayChatInitialState === Chat_ChatState.CHAT_STATE_OPEN
+        ) {
           dispatch({ type: 'SET_SHOW_CHAT_VIEW', showChatView: true });
-        } else {
+        }
+
+        if (canCreateTile) {
           if (reduxState.app.localPeerTrackNode) {
             dispatch(
               updateLocalPeerTrackNode({ peer, track: peer.videoTrack })
@@ -210,8 +243,11 @@ export const HMSRoomSetup = () => {
           }
 
           // setting local `PeerTrackNode` as node for MiniView
-          dispatch(setMiniViewPeerTrackNode(localPeerTrackNode));
+          if (enableLocalTileInset) {
+            dispatch(setMiniViewPeerTrackNode(localPeerTrackNode));
+          }
         }
+
         dispatch(setHMSRoomState(data.room));
         dispatch(setHMSLocalPeerState(data.room.localPeer));
       });
@@ -232,8 +268,10 @@ export const HMSRoomSetup = () => {
           return replacePeerTrackNodes(prevPeerTrackNodes, peer);
         }
 
-        //   const hmsLocalPeer = createPeerTrackNode(peer, track);
-        //   return [hmsLocalPeer, ...prevPeerTrackNodes];
+        // setting local `PeerTrackNode` in regular peerTrackNodes array when inset tile is disabled
+        if (!enableLocalTileInset && canCreateTile) {
+          return [localPeerTrackNode, ...prevPeerTrackNodes];
+        }
 
         return prevPeerTrackNodes;
       });
@@ -295,31 +333,15 @@ export const HMSRoomSetup = () => {
     }
   }, [meetingEnded]);
 
+  const { leave } = useLeaveMethods(true);
+
   useEffect(() => {
     return () => {
       ignoreHLSStreamPromise.current = true;
-
-      // TODOS:
-      // - Check If we have already left meeting, or destroyed native HMSSDK
-      //    - No need to reset redux state?
-      //    - HMSInstance will be available till this point
-      //    - If we have callback fn, call it
-      //    - When we are navigated away from screen, HMSInstance will be not available
-      // - Otherwise
-      //    - call leave method, if not called
-      //    - call destroy method, if not called
-      //    - Reset Redux States or No need?
-      //    - If we have callback fn, call it
-      //    - When we are navigated away from screen, HMSInstance will be not available
-      hmsInstance.leave().finally(() => {
-        hmsInstance.destroy();
-        dispatch(clearStore());
-      });
-      //dispatch(clearHmsReference());
-      // dispatch(clearMessageData());
-      // dispatch(clearPeerData());
+      leave();
+      dispatch(clearStore());
     };
-  }, [hmsInstance]);
+  }, []);
 
   const emptyViewStyles = useHMSRoomStyle((theme) => ({
     backgroundColor: theme.palette.background_dim,

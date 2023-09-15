@@ -7,14 +7,11 @@ import {
   Platform,
   ScrollView,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useDispatch, useSelector, useStore } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-simple-toast';
@@ -34,6 +31,7 @@ import { Constants } from '../../utils/types';
 import { RootState } from '../../redux';
 import { callService } from '../../utils/functions';
 import LottieSplashScreen from 'react-native-lottie-splash-screen';
+import { QRCodeIcon, ThreeDotsIcon } from '../../icons';
 
 type QRCodeScreenProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -69,7 +67,8 @@ const QRCode = () => {
           roomCode: string,
           userId: string,
           tokenEndpoint: string | undefined,
-          initEndpoint: string | undefined
+          initEndpoint: string | undefined,
+          layoutEndPoint: string | undefined,
         ) => {
           // Saving Meeting Link to Async Storage for persisting it between app starts.
           AsyncStorage.setItem(
@@ -82,6 +81,7 @@ const QRCode = () => {
             userId,
             initEndPoint: initEndpoint,
             tokenEndPoint: tokenEndpoint,
+            layoutEndPoint: layoutEndPoint,
             debugMode, // default is false, will deal with this later
           });
         },
@@ -174,11 +174,7 @@ const QRCode = () => {
             right: 20,
             position: 'absolute',
           }}
-        >
-          <Text style={{ color: 'white', fontSize: 12 }}>
-            Hermes: {isHermes ? 'ON' : 'OFF'}
-          </Text>
-        </View>
+        ></View>
 
         <Image
           style={styles.image}
@@ -219,13 +215,7 @@ const QRCode = () => {
           <CustomButton
             onPress={handleMorePress}
             viewStyle={styles.moreButton}
-            RightIcon={
-              <MaterialIcons
-                name="more-vert"
-                style={styles.moreButtonIcon}
-                size={24}
-              />
-            }
+            RightIcon={<ThreeDotsIcon style={styles.moreButtonIcon} />}
           />
         </View>
 
@@ -236,13 +226,7 @@ const QRCode = () => {
           onPress={onScanQRCodePress}
           viewStyle={styles.scanQRButton}
           textStyle={styles.joinButtonText}
-          LeftIcon={
-            <MaterialCommunityIcons
-              name="qrcode"
-              style={styles.scanQRButtonIcon}
-              size={24}
-            />
-          }
+          LeftIcon={<QRCodeIcon style={styles.scanQRButtonIcon} />}
         />
       </ScrollView>
 

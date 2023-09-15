@@ -79,3 +79,5 @@ packages/react-native-room-kit/example/ios/fastlane
 
 packages/react-native-room-kit/example/ios/RNExample/GoogleService-Info.plist
 packages/react-native-room-kit/example/android/app/google-services.json
+packages/react-native-room-kit/lib
+packages/react-native-hms/lib

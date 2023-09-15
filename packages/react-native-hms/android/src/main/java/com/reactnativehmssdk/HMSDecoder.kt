@@ -16,7 +16,10 @@ import live.hms.video.sdk.models.trackchangerequest.HMSChangeTrackStateRequest
 object HMSDecoder {
   private var restrictRoleData = mutableMapOf<String, Boolean>()
 
-  fun setRestrictRoleData(roleName: String, value: Boolean) {
+  fun setRestrictRoleData(
+    roleName: String,
+    value: Boolean,
+  ) {
     this.restrictRoleData[roleName] = value
   }
 
@@ -24,7 +27,10 @@ object HMSDecoder {
     this.restrictRoleData.clear()
   }
 
-  fun getHmsRoomSubset(hmsRoom: HMSRoom?, hmsRoomUpdateType: HMSRoomUpdate? = null): WritableMap {
+  fun getHmsRoomSubset(
+    hmsRoom: HMSRoom?,
+    hmsRoomUpdateType: HMSRoomUpdate? = null,
+  ): WritableMap {
     val room: WritableMap = Arguments.createMap()
     if (hmsRoom != null) {
       room.putString("id", hmsRoom.roomId)
@@ -142,7 +148,10 @@ object HMSDecoder {
     return room
   }
 
-  fun getHmsPeerSubsetForPeerUpdateEvent(hmsPeer: HMSPeer?, peerUpdateType: HMSPeerUpdate): WritableMap {
+  fun getHmsPeerSubsetForPeerUpdateEvent(
+    hmsPeer: HMSPeer?,
+    peerUpdateType: HMSPeerUpdate,
+  ): WritableMap {
     val peer: WritableMap = Arguments.createMap()
     if (hmsPeer != null) {
       peer.putString(peerUpdateType.ordinal.toString(), hmsPeer.peerID)
@@ -171,7 +180,10 @@ object HMSDecoder {
     return peer
   }
 
-  fun getHmsPeerSubset(hmsPeer: HMSPeer?, peerUpdateType: HMSPeerUpdate? = null): WritableMap {
+  fun getHmsPeerSubset(
+    hmsPeer: HMSPeer?,
+    peerUpdateType: HMSPeerUpdate? = null,
+  ): WritableMap {
     val peer: WritableMap = Arguments.createMap()
     if (hmsPeer != null) {
       peer.putString("peerID", hmsPeer.peerID)
@@ -564,7 +576,10 @@ object HMSDecoder {
     return hmsTracks
   }
 
-  fun getHmsRoleChangeRequest(request: HMSRoleChangeRequest, id: String?): WritableMap {
+  fun getHmsRoleChangeRequest(
+    request: HMSRoleChangeRequest,
+    id: String?,
+  ): WritableMap {
     val roleChangeRequest: WritableMap = Arguments.createMap()
     if (id != null) {
       request.requestedBy?.let {
@@ -577,7 +592,10 @@ object HMSDecoder {
     return roleChangeRequest
   }
 
-  fun getHmsChangeTrackStateRequest(request: HMSChangeTrackStateRequest, id: String): WritableMap {
+  fun getHmsChangeTrackStateRequest(
+    request: HMSChangeTrackStateRequest,
+    id: String,
+  ): WritableMap {
     val changeTrackStateRequest: WritableMap = Arguments.createMap()
 
     request.requestedBy?.let {
@@ -722,9 +740,7 @@ object HMSDecoder {
     return subscribeSettings
   }
 
-  private fun getHmsSubscribeDegradationSettings(
-    hmsSubscribeDegradationParams: SubscribeDegradationParams?,
-  ): WritableMap {
+  private fun getHmsSubscribeDegradationSettings(hmsSubscribeDegradationParams: SubscribeDegradationParams?): WritableMap {
     val subscribeDegradationParams: WritableMap = Arguments.createMap()
     if (hmsSubscribeDegradationParams != null) {
       subscribeDegradationParams.putString(
@@ -862,7 +878,9 @@ object HMSDecoder {
       hmsQualityLimitationReasons.cpu?.let { qualityLimitationReasons.putDouble("cpu", it) }
       hmsQualityLimitationReasons.none?.let { qualityLimitationReasons.putDouble("none", it) }
       hmsQualityLimitationReasons.other?.let { qualityLimitationReasons.putDouble("other", it) }
-      hmsQualityLimitationReasons.qualityLimitationResolutionChanges?.let { qualityLimitationReasons.putInt("qualityLimitationResolutionChanges", it.toInt()) }
+      hmsQualityLimitationReasons.qualityLimitationResolutionChanges?.let {
+        qualityLimitationReasons.putInt("qualityLimitationResolutionChanges", it.toInt())
+      }
       qualityLimitationReasons.putString("reason", hmsQualityLimitationReasons.reason.name)
     }
     return qualityLimitationReasons

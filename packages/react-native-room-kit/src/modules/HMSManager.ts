@@ -8,18 +8,18 @@ export async function getRoomLayout(
   hmsInstance: HMSSDK,
   authToken: string,
   endpoint?: string
-): Promise<Layout> {
+): Promise<Layout[]> {
   getLogger()?.verbose('#Function getRoomLayout', {
     id: hmsInstance.id,
     authToken,
     endpoint,
   });
 
-  const layputAPIResponse: string = await HMSManagerModule.getRoomLayout({
+  const layoutAPIResponse: string = await HMSManagerModule.getRoomLayout({
     id: hmsInstance.id,
     authToken,
     endpoint,
   });
 
-  return parseRoomLayout(layputAPIResponse);
+  return parseRoomLayout(layoutAPIResponse);
 }

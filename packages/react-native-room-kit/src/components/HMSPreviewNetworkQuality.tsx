@@ -21,7 +21,9 @@ export const HMSPreviewNetworkQuality = () => {
   }, []);
 
   const containerStyles = useHMSRoomStyle((theme) => ({
-    backgroundColor: hexToRgbA(theme.palette.background_dim, 0.8),
+    backgroundColor:
+      theme.palette.background_dim &&
+      hexToRgbA(theme.palette.background_dim, 0.8),
   }));
 
   return (

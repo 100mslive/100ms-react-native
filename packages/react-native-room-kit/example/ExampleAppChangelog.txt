@@ -1,15 +1,18 @@
-Board: https://github.com/100mslive/100ms-react-native/projects/26
+Board: https://github.com/100mslive/100ms-react-native/projects/29
 
-- Added Active Speaker Sorting
-https://github.com/100mslive/100ms-react-native/issues/1126
+- Using Layout API for Viewer on Stage Role Flow
+https://github.com/100mslive/100ms-react-native/issues/1155
+
+- Added Equal Prominence Remote & Local Screenshare
+https://github.com/100mslive/100ms-react-native/issues/1137
 
 - Added Equal Prominence Layout
 https://github.com/100mslive/100ms-react-native/issues/1124
 
-- Added Local Peer in Inset Tile
-https://github.com/100mslive/100ms-react-native/issues/1123
+- Added Full screen ScreenShare with pinch to zoom
+https://github.com/100mslive/100ms-react-native/issues/1136
 
-Core SDK: 1.7.1
-Room Kit: 0.1.0
+Room Kit: 0.3.0
+Core SDK: 1.7.3
 Android SDK: 2.7.3
-iOS SDK: 0.9.10
+iOS SDK: 0.9.11
