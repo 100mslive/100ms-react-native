@@ -19,6 +19,7 @@ export interface HMSPrebuiltProps {
     endPoints?: {
       init: string;
       token: string;
+      layout: string;
     };
     debugMode?: boolean;
     ios?: HMSIOSScreenShareConfig;

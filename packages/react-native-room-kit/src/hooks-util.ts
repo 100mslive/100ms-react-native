@@ -1512,7 +1512,7 @@ export const useHMSConfig = () => {
       const roomLayout = await getRoomLayout(
         hmsInstance,
         token,
-        'https://api-nonprod.100ms.live' // 'https://demo8271564.mockable.io'
+        storeState.user.endPoints?.layout
       );
       dispatch(setLayoutConfig(roomLayout));
     } catch (error) {
