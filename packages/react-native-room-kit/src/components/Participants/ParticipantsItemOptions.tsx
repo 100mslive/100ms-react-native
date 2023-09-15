@@ -115,7 +115,11 @@ const _ParticipantsItemOptions: React.FC<ParticipantsItemOptionsProps> = ({
         .then((d) => console.log('Remove from Stage Success: ', d))
         .catch((e) => console.log('Remove from Stage Error: ', e));
     } else {
-      console.warn(`offStageRole '${prevRoleStr || firstOffStageRoleStr}' is ${offStageRole}`);
+      console.warn(
+        `offStageRole '${
+          prevRoleStr || firstOffStageRoleStr
+        }' is ${offStageRole}`
+      );
     }
     onItemPress();
   };

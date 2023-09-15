@@ -83,7 +83,7 @@ const QRCodeScanner = () => {
     >
       <View style={styles.headerContainer}>
         <TouchableOpacity style={styles.headerIconContainer} onPress={goBack}>
-          <ChevronIcon direction='left' />
+          <ChevronIcon direction="left" />
         </TouchableOpacity>
         <Text style={styles.headerText}>Scan QR Code</Text>
       </View>

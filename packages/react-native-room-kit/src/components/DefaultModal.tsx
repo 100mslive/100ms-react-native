@@ -61,7 +61,11 @@ export const DefaultModal: React.FC<DefaultModalProps> = ({
           <CustomButton
             onPress={setModalVisible}
             viewStyle={styles.crossButton}
-            LeftIcon={<View><CloseIcon /></View>}
+            LeftIcon={
+              <View>
+                <CloseIcon />
+              </View>
+            }
           />
         )}
         {children}

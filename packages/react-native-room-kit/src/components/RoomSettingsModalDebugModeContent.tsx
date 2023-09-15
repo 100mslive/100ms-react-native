@@ -263,10 +263,7 @@ export const RoomSettingsModalDebugModeContent: React.FC<
       ) : null}
 
       {debugMode && localPeerRole?.permissions?.changeRole ? (
-        <SettingItem
-          onPress={changeBulkRole}
-          text="Bulk Role Change"
-        />
+        <SettingItem onPress={changeBulkRole} text="Bulk Role Change" />
       ) : null}
 
       {debugMode && localPeerRole?.permissions?.mute ? (
@@ -286,10 +283,7 @@ export const RoomSettingsModalDebugModeContent: React.FC<
       ) : null}
 
       {localPeerRole?.publishSettings?.allowed?.includes('audio') ? (
-        <SettingItem
-          onPress={switchAudioOutput}
-          text="Switch Audio Output"
-        />
+        <SettingItem onPress={switchAudioOutput} text="Switch Audio Output" />
       ) : null}
 
       {!isPipModeUnavailable ? (
@@ -328,10 +322,7 @@ export const RoomSettingsModalDebugModeContent: React.FC<
             </>
           ) : (
             <>
-              <SettingItem
-                onPress={showRTCStats}
-                text="Show RTC Stats"
-              />
+              <SettingItem onPress={showRTCStats} text="Show RTC Stats" />
             </>
           )}
 
@@ -350,10 +341,7 @@ export const RoomSettingsModalDebugModeContent: React.FC<
                 text={`${isAudioShared ? 'Stop' : 'Start'} Audioshare`}
               />
 
-              <SettingItem
-                onPress={changeAudioMode}
-                text="Set Audio Mode"
-              />
+              <SettingItem onPress={changeAudioMode} text="Set Audio Mode" />
 
               <SettingItem
                 onPress={setAudioMixingMode}
@@ -372,10 +360,7 @@ interface SettingItemProps {
   text: string;
 }
 
-const SettingItem: React.FC<SettingItemProps> = ({
-  onPress,
-  text,
-}) => {
+const SettingItem: React.FC<SettingItemProps> = ({ onPress, text }) => {
   return (
     <TouchableOpacity style={styles.button} onPress={onPress}>
       <Text style={styles.text}>{text}</Text>
