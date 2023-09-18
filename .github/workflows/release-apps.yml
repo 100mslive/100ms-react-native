@@ -9,6 +9,7 @@ on:
   push:
     branches:
       - release/**
+      - feature/setupGithubActions
   pull_request:
     types:
       - opened
@@ -56,7 +57,7 @@ jobs:
       - name: Make Gradlew Executable
         run: cd packages/react-native-room-kit/example/android && chmod +x ./gradlew
 
-      - name: Generate App APK
+      - name: Release Apps
         env:
           SLACK_URL: ${{ secrets.SLACK_URL }}
           FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
