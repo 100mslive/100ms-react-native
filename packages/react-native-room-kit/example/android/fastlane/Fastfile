@@ -1,6 +1,4 @@
 
-update_fastlane
-
 default_platform(:android)
 
 platform :android do
@@ -23,17 +21,18 @@ platform :android do
     f.write(s)
     f.close
 
-    build_android_app(
-      task: 'assemble',
-      build_type: 'Release'
-    )
+    # build_android_app(
+    #   task: 'assemble',
+    #   build_type: 'Release'
+    # )
+    sh "./gradlew assembleRelease"
 
     commit = last_git_commit
     firebase_app_distribution(
       app: ENV['FIREBASE_APP_ID'],
       groups: "internal, External",
       service_credentials_file: "reactnative-hms-a32ef61302c5.json",
-      android_artifact_path: lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH],
+      android_artifact_path: "/packages/react-native-room-kit/example/android/app/build/outputs/apk/release/app-release.apk",
       release_notes_file: "../ExampleAppChangelog.txt"
     )
 

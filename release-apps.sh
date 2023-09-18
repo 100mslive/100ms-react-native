@@ -37,22 +37,22 @@ release_iOS() {
 perform_git_actions() {
   cd ..
 
-  while read line; do
-    if [[ $line =~ ^versionCode.[0-9]+$ ]]; then
-      buildNumber=$(echo $line | grep -o -E '[0-9]+')
-    elif [[ $line =~ ^versionName.*$ ]]; then
-      versionCode=$(echo $line | grep -o -E '[0-9].[0-9].[0-9]+')
-    fi
-  done <example/android/app/build.gradle
+  # while read line; do
+  #   if [[ $line =~ ^versionCode.[0-9]+$ ]]; then
+  #     buildNumber=$(echo $line | grep -o -E '[0-9]+')
+  #   elif [[ $line =~ ^versionName.*$ ]]; then
+  #     versionCode=$(echo $line | grep -o -E '[0-9].[0-9].[0-9]+')
+  #   fi
+  # done <example/android/app/build.gradle
 
-  git add ./example/android/app/build.gradle
-  git add ./example/ios/Podfile.lock
-  git add ./example/ios/RNExample/Info.plist
-  git add ./example/ios/RNExample.xcodeproj/project.pbxproj
+  # git add ./example/android/app/build.gradle
+  # git add ./example/ios/Podfile.lock
+  # git add ./example/ios/RNExample/Info.plist
+  # git add ./example/ios/RNExample.xcodeproj/project.pbxproj
 
-  git commit -m "released sample app version $versionCode ($buildNumber) ⚛️" --no-verify
+  # git commit -m "released sample app version $versionCode ($buildNumber) ⚛️" --no-verify
 
-  git push --verbose
+  # git push --verbose
 }
 
 perform_npm_actions
