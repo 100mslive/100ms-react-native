@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="fastlane.lanes">
+    
+    
+    
+      
+      <testcase classname="fastlane.lanes" name="0: update_fastlane" time="1.743257">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="1: default_platform" time="0.000129">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="2: assembleRelease" time="576.626537">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="3: last_git_commit" time="0.216121">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="4: firebase_app_distribution" time="20.047708">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="5: slack" time="3.837716">
+        
+      </testcase>
+    
+  </testsuite>
+</testsuites>

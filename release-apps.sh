@@ -31,7 +31,7 @@ release_iOS() {
 
   bundle install --verbose
 
-  bundle exec fastlane distribute_app
+  # bundle exec fastlane distribute_app
 }
 
 perform_git_actions() {
