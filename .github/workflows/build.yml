@@ -10,6 +10,7 @@ on:
     branches:
       - main
       - develop
+      - feature/setupGithubActions
   pull_request:
     types:
       - opened
@@ -26,7 +27,7 @@ on:
       - .vscode/
 
 jobs:
-  build_appbundle:
+  build_apk:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -40,12 +41,12 @@ jobs:
           java-version: 12.x
       - uses: actions/checkout@v3
       - name: Install dependencies
-        run: npm install
+        run: cd packages/react-native-room-kit/example/; npm install
 
       - name: Cache Gradle Wrapper
         uses: actions/cache@v2
         with:
-          path: ~/.gradle/wrapper
+          path: ~/packages/react-native-room-kit/example/android/.gradle/wrapper
           key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
 
       - name: Cache Gradle Dependencies
