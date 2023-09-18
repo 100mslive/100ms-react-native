@@ -40,7 +40,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Install dependencies
-        run: cd packages/react-native-room-kit/example/; npm install; cd android; bundle install --verbose
+        run: cd packages/react-native-room-kit/example/android; bundle install --verbose
 
       - name: Cache Gradle Wrapper
         uses: actions/cache@v2
