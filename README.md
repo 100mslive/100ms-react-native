@@ -20,6 +20,11 @@ Integrate Real Time Audio and Video conferencing, Interactive Live Streaming, an
 
 With support for HLS and RTMP Live Streaming and Recording, Picture-in-Picture (PiP), one-to-one Video Call Modes, Audio Rooms, Video Player and much more, add immersive real-time communications to your apps.
 
+| Package                                | Version                                                                                                                                  |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| @100mslive/react-native-room-kit       | [![npm](https://img.shields.io/npm/v/@100mslive/react-native-room-kit)](https://www.npmjs.com/package/@100mslive/react-native-room-kit)  |
+| @100mslive/react-native-hms            | [![npm](https://img.shields.io/npm/v/@100mslive/react-native-hms)](https://www.npmjs.com/package/@100mslive/react-native-hms)            |
+
 📖 Read the Complete Documentation here: https://www.100ms.live/docs/react-native/v2/foundation/basics
 
 ## 🏃 Example App
