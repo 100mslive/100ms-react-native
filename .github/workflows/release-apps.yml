@@ -27,7 +27,7 @@ on:
 jobs:
   release_apk:
     if: github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     timeout-minutes: 30
 
     steps:
@@ -38,9 +38,6 @@ jobs:
           distribution: zulu
           java-version: 12.x
       - uses: actions/checkout@v3
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@5311f05890856149502132d25c4a24985a00d426
 
       - name: Install dependencies
         run: cd packages/react-native-room-kit/example/; npm install; cd android; bundle install --verbose
