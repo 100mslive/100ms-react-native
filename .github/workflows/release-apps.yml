@@ -38,8 +38,12 @@ jobs:
           distribution: zulu
           java-version: 12.x
       - uses: actions/checkout@v3
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@5311f05890856149502132d25c4a24985a00d426
+
       - name: Install dependencies
-        run: cd packages/react-native-room-kit/example/; npm install; cd android; gem install bundler; bundle install --verbose
+        run: cd packages/react-native-room-kit/example/; npm install; cd android; bundle install --verbose
 
       - name: Cache Gradle Wrapper
         uses: actions/cache@v2
