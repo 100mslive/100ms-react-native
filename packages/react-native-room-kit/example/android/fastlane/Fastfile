@@ -25,7 +25,7 @@ platform :android do
     #   task: 'assemble',
     #   build_type: 'Release'
     # )
-    sh "pwd;cd ..;./gradlew assembleRelease"
+    sh "cd ..;./gradlew assembleRelease --no-daemon"
 
     commit = last_git_commit
     firebase_app_distribution(
