@@ -25,7 +25,7 @@ on:
       - .vscode/
 
 jobs:
-  build_apk:
+  release_apk:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -39,7 +39,7 @@ jobs:
           java-version: 12.x
       - uses: actions/checkout@v3
       - name: Install dependencies
-        run: cd packages/react-native-room-kit/example/; npm install
+        run: cd packages/react-native-room-kit/example/; npm install; cd android; gem install bundler; bundle install --verbose
 
       - name: Cache Gradle Wrapper
         uses: actions/cache@v2
