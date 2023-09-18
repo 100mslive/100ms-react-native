@@ -3,6 +3,7 @@
 </a>
 
 [![npm](https://img.shields.io/npm/v/@100mslive/react-native-hms)](https://www.npmjs.com/package/@100mslive/react-native-hms)
+[![Build](https://github.com/100mslive/100ms-react-native/actions/workflows/build.yml/badge.svg)](https://github.com/100mslive/100ms-react-native/actions/workflows/build.yml)
 [![license](https://img.shields.io/npm/l/@100mslive/react-native-hms)](https://www.100ms.live/)
 [![quality](https://img.shields.io/npms-io/quality-score/@100mslive/react-native-hms)](https://www.npmjs.com/package/@100mslive/react-native-hms)
 [![collaborators](https://img.shields.io/npm/collaborators/@100mslive/react-native-hms)](https://www.npmjs.com/package/@100mslive/react-native-hms)
