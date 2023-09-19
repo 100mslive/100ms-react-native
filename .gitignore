@@ -81,3 +81,17 @@ packages/react-native-room-kit/example/ios/RNExample/GoogleService-Info.plist
 packages/react-native-room-kit/example/android/app/google-services.json
 packages/react-native-room-kit/lib
 packages/react-native-hms/lib
+
+packages/react-native-hms/example/android/reactnative-hms-a32ef61302c5.json
+packages/react-native-hms/example/ios/reactnative-hms-a32ef61302c5.json
+packages/react-native-hms/example/vendor
+packages/react-native-hms/example/ios/Pods
+packages/react-native-hms/example/android/app/build
+
+packages/react-native-room-kit/example/android/reactnative-hms-a32ef61302c5.json
+packages/react-native-room-kit/example/ios/reactnative-hms-a32ef61302c5.json
+packages/react-native-room-kit/example/vendor
+packages/react-native-room-kit/example/ios/Pods
+packages/react-native-room-kit/example/android/app/build
+
+*.hprof
