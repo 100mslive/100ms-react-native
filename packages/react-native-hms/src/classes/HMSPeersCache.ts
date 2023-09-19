@@ -261,8 +261,7 @@ export function getPeerPropertyFromNative<T extends keyof HMSPeerCacheProps>(
         : undefined;
   } else if (property === 'name') {
     value = data?.[property];
-  }
-  else {
+  } else {
     value = data ? data[property] : undefined;
   }
 

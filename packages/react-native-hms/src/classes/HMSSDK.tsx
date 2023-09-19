@@ -1145,7 +1145,6 @@ export class HMSSDK {
     return HMSEncoder.encodeHmsPeer({ peerID: peerId });
   };
 
-
   /**
    * - This function is used to raise hand for the local peer
    * @memberof HMSSDK

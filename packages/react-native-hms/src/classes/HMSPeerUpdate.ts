@@ -5,7 +5,7 @@ export enum HMSPeerUpdate {
   ROLE_CHANGED = 'ROLE_CHANGED',
   NAME_CHANGED = 'NAME_CHANGED',
   NETWORK_QUALITY_UPDATED = 'NETWORK_QUALITY_UPDATED',
-  HAND_RAISED_CHANGED= 'HAND_RAISED_CHANGED',
+  HAND_RAISED_CHANGED = 'HAND_RAISED_CHANGED',
 }
 
 export const HMSPeerUpdateOrdinals = new Map([
@@ -15,5 +15,5 @@ export const HMSPeerUpdateOrdinals = new Map([
   ['5', HMSPeerUpdate.NAME_CHANGED],
   ['6', HMSPeerUpdate.METADATA_CHANGED],
   ['7', HMSPeerUpdate.NETWORK_QUALITY_UPDATED],
-  ['8', HMSPeerUpdate.HAND_RAISED_CHANGED]
+  ['8', HMSPeerUpdate.HAND_RAISED_CHANGED],
 ]);
