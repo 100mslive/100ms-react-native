@@ -1145,6 +1145,44 @@ export class HMSSDK {
     return HMSEncoder.encodeHmsPeer({ peerID: peerId });
   };
 
+
+  /**
+   * - This function is used to raise hand for the local peer
+   * @memberof HMSSDK
+   */
+  raiseLocalPeerHand = async () => {
+    const data = {
+      id: this.id,
+    };
+    logger?.verbose('#Function raiseLocalPeerHand', data);
+    return HMSManager.raiseLocalPeerHand(data);
+  };
+
+  /**
+   * - This function is used to lower hand for the local peer
+   * @memberof HMSSDK
+   */
+  lowerLocalPeerHand = async () => {
+    const data = {
+      id: this.id,
+    };
+    logger?.verbose('#Function lowerLocalPeerHand', data);
+    return HMSManager.raiseLocalPeerHand(data);
+  };
+
+  /**
+   * - This function is used to lower hand for the remote peer
+   * @param peer
+   */
+  lowerRemotePeerHand = async (peer: HMSPeer) => {
+    const data = {
+      peerId: peer.peerID,
+      id: this.id,
+    };
+    logger?.verbose('#Function lowerRemotePeerHand', data);
+    return HMSManager.lowerRemotePeerHand(data);
+  };
+
   /**
    * - This is a prototype event listener that takes action and listens for updates related to that particular action
    *

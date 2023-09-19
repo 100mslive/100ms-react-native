@@ -207,6 +207,10 @@ export class HMSPeersCache {
         updatedObj.name = data.name;
         break;
       }
+      case HMSPeerUpdate.HAND_RAISED_CHANGED: {
+        updatedObj.isHandRaised = data.isHandRaised;
+        break;
+      }
       default: {
         updatedObj = { ...updatedObj, ...data };
         break;
@@ -257,7 +261,8 @@ export function getPeerPropertyFromNative<T extends keyof HMSPeerCacheProps>(
         : undefined;
   } else if (property === 'name') {
     value = data?.[property];
-  } else {
+  }
+  else {
     value = data ? data[property] : undefined;
   }
 
