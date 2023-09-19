@@ -2347,25 +2347,25 @@ class HMSRNSDK(
     data: ReadableMap,
     promise: Promise?,
   ) {
-    val peerId = data.getString("peerId")!!
-    val peer = HMSHelper.getPeerFromPeerId(peerId, hmsSDK?.getRoom())
+    val peerId = data.getString("peerId")
+    peerId?.let { peerID ->
+      hmsSDK?.getRoom()?.let { room ->
+        val peer = HMSHelper.getPeerFromPeerId(peerID, room)
+        peer?.let { peer ->
+          hmsSDK?.lowerRemotePeerHand(
+            forPeer = peer,
+            object : HMSActionResultListener {
+              override fun onError(error: HMSException) {
+                promise?.reject(error.code.toString(), error.message)
+              }
 
-    if (peer === null) {
-      promise?.reject("101", "PEER_NOT_FOUND")
-      return
+              override fun onSuccess() {
+                promise?.resolve(true)
+              }
+            },
+          )
+        }
+      }
     }
-
-    hmsSDK?.lowerRemotePeerHand(
-      forPeer = peer,
-      object : HMSActionResultListener {
-        override fun onError(error: HMSException) {
-          promise?.reject(error.code.toString(), error.message)
-        }
-
-        override fun onSuccess() {
-          promise?.resolve(true)
-        }
-      },
-    )
   }
 }

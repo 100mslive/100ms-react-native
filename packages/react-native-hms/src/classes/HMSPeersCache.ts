@@ -39,6 +39,7 @@ export type HMSPeerCacheProps = {
   audioTrack?: HMSAudioTrack | undefined;
   videoTrack?: HMSVideoTrack | undefined;
   auxiliaryTracks?: HMSTrack[] | undefined;
+  isHandRaised?: boolean | undefined;
 };
 
 export class HMSPeersCache {
