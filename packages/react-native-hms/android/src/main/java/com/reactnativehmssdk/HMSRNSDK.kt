@@ -2308,4 +2308,64 @@ class HMSRNSDK(
       },
     )
   }
+
+  fun raiseLocalPeerHand(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
+    hmsSDK?.raiseLocalPeerHand(
+      object : HMSActionResultListener {
+        override fun onError(error: HMSException) {
+          promise?.reject(error.code.toString(), error.message)
+        }
+
+        override fun onSuccess() {
+          promise?.resolve(true)
+        }
+      },
+    )
+  }
+
+  fun lowerLocalPeerHand(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
+    hmsSDK?.lowerLocalPeerHand(
+      object : HMSActionResultListener {
+        override fun onError(error: HMSException) {
+          promise?.reject(error.code.toString(), error.message)
+        }
+
+        override fun onSuccess() {
+          promise?.resolve(true)
+        }
+      },
+    )
+  }
+
+  fun lowerRemotePeerHand(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
+    val peerId = data.getString("peerId")!!
+    val peer = HMSHelper.getPeerFromPeerId(peerId, hmsSDK?.getRoom())
+
+    if (peer === null) {
+      promise?.reject("101", "PEER_NOT_FOUND")
+      return
+    }
+
+    hmsSDK?.lowerRemotePeerHand(
+      forPeer = peer,
+      object : HMSActionResultListener {
+        override fun onError(error: HMSException) {
+          promise?.reject(error.code.toString(), error.message)
+        }
+
+        override fun onSuccess() {
+          promise?.resolve(true)
+        }
+      },
+    )
+  }
 }
