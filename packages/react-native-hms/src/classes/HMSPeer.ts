@@ -13,11 +13,19 @@ export class HMSPeer {
   private _customerUserID: string | undefined;
   private _metadata: string | undefined;
   private _role: HMSRole | undefined;
+  private _isHandRaised: boolean | undefined;
 
   private _updateIsLocal(value: boolean) {
     // If `_isLocal` is outdated, update it
     if (this._isLocal !== value) {
       this._isLocal = value;
+    }
+  }
+
+  private _updateIsHandRaised(value: boolean) {
+    // If `_isHandRaised` is outdated, update it
+    if (this._isHandRaised !== value) {
+      this._isHandRaised = value;
     }
   }
 
@@ -62,6 +70,23 @@ export class HMSPeer {
       this._updateIsLocal(value);
     }
     return value ?? this._isLocal;
+  }
+
+  get isHandRaised(): boolean | undefined {
+    const hmsPeersCache = getHmsPeersCache();
+
+    const value = hmsPeersCache
+      ? hmsPeersCache.getProperty(this.peerID, 'isHandRaised')
+      : getPeerPropertyFromNative(
+          HMSConstants.DEFAULT_SDK_ID,
+          this.peerID,
+          'isHandRaised'
+        );
+
+    if (typeof value === 'boolean') {
+      this._updateIsHandRaised(value);
+    }
+    return value ?? this._isHandRaised;
   }
 
   get networkQuality(): HMSNetworkQuality | undefined {

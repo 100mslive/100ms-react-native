@@ -39,6 +39,7 @@ export type HMSPeerCacheProps = {
   audioTrack?: HMSAudioTrack | undefined;
   videoTrack?: HMSVideoTrack | undefined;
   auxiliaryTracks?: HMSTrack[] | undefined;
+  isHandRaised?: boolean | undefined;
 };
 
 export class HMSPeersCache {
@@ -204,6 +205,10 @@ export class HMSPeersCache {
       }
       case HMSPeerUpdate.NAME_CHANGED: {
         updatedObj.name = data.name;
+        break;
+      }
+      case HMSPeerUpdate.HAND_RAISED_CHANGED: {
+        updatedObj.isHandRaised = data.isHandRaised;
         break;
       }
       default: {
