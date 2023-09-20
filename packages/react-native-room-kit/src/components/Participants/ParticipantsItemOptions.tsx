@@ -160,7 +160,7 @@ const _ParticipantsItemOptions: React.FC<ParticipantsItemOptionsProps> = ({
     insideHandRaiseGroup &&
     offStageRoles &&
     offStageRoles.includes(peer.role?.name || '') &&
-    parseMetadata(peer.metadata).isHandRaised;
+    peer.isHandRaised;
 
   return (
     <>

@@ -52,7 +52,6 @@ export const getInitials = (name?: String): String => {
 export const parseMetadata = (
   metadata?: string
 ): {
-  isHandRaised?: boolean;
   isBRBOn?: boolean;
   prevRole?: string;
 } => {

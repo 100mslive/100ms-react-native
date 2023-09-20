@@ -7,16 +7,17 @@ import { useHMSRoomStyle } from '../../hooks-util';
 
 export interface PeerMetadataProps {
   metadata: string | undefined;
+  isHandRaised: boolean;
 }
 
-export const PeerMetadata: React.FC<PeerMetadataProps> = ({ metadata }) => {
-  const parsedMetadata = parseMetadata(metadata);
+export const PeerMetadata: React.FC<PeerMetadataProps> = ({ metadata, isHandRaised }) => {
+  const isBRBOn = !!parseMetadata(metadata).isBRBOn;
 
   const iconWrapperStyles = useHMSRoomStyle((theme) => ({
     backgroundColor: theme.palette.secondary_dim,
   }));
 
-  if (parsedMetadata.isBRBOn) {
+  if (isBRBOn) {
     return (
       <View style={[styles.iconWrapper, iconWrapperStyles]}>
         <BRBIcon />
@@ -24,7 +25,7 @@ export const PeerMetadata: React.FC<PeerMetadataProps> = ({ metadata }) => {
     );
   }
 
-  if (parsedMetadata.isHandRaised) {
+  if (isHandRaised) {
     return (
       <View style={[styles.iconWrapper, iconWrapperStyles]}>
         <HandIcon />

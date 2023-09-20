@@ -11,6 +11,7 @@ import {
   selectCanPublishTrack,
 } from './hooks-sdk-selectors';
 import { useCallback } from 'react';
+import type { HMSPeer } from '@100mslive/react-native-hms';
 
 export const useAllowedTracksToPublish = () => {
   return useSelector(selectAllowedTracksToPublish);
@@ -163,6 +164,57 @@ export const useHMSActions = () => {
     }
   }, []);
 
+  const raiseLocalPeerHand = useCallback(async (): Promise<void> => {
+    const state: RootState = store.getState();
+    const hmsInstance = state.user.hmsInstance;
+
+    if (!hmsInstance) {
+      return Promise.reject('HMSSDK Instance is not available!');
+    }
+
+    try {
+      const result = await hmsInstance.raiseLocalPeerHand();
+      console.log('Raise Local Peer Hand Success: ', result);
+    } catch (error) {
+      console.log('Raise Local Peer Hand Error: ', error);
+      return Promise.reject(error);
+    }
+  }, []);
+
+  const lowerLocalPeerHand = useCallback(async (): Promise<void> => {
+    const state: RootState = store.getState();
+    const hmsInstance = state.user.hmsInstance;
+
+    if (!hmsInstance) {
+      return Promise.reject('HMSSDK Instance is not available!');
+    }
+
+    try {
+      const result = await hmsInstance.lowerLocalPeerHand();
+      console.log('Lower Local Peer Hand Success: ', result);
+    } catch (error) {
+      console.log('Lower Local Peer Hand Error: ', error);
+      return Promise.reject(error);
+    }
+  }, []);
+
+  const lowerRemotePeerHand = useCallback(async (peer: HMSPeer): Promise<void> => {
+    const state: RootState = store.getState();
+    const hmsInstance = state.user.hmsInstance;
+
+    if (!hmsInstance) {
+      return Promise.reject('HMSSDK Instance is not available!');
+    }
+
+    try {
+      const result = await hmsInstance.lowerRemotePeerHand(peer);
+      console.log('Lower Remote Peer Hand Success: ', result);
+    } catch (error) {
+      console.log('Lower Remote Peer Hand Error: ', error);
+      return Promise.reject(error);
+    }
+  }, []);
+
   return {
     setLocalAudioEnabled,
     setLocalVideoEnabled,
@@ -170,5 +222,8 @@ export const useHMSActions = () => {
     setScreenShareEnabled,
     changeMetadata,
     changeName,
+    raiseLocalPeerHand,
+    lowerLocalPeerHand,
+    lowerRemotePeerHand,
   };
 };
