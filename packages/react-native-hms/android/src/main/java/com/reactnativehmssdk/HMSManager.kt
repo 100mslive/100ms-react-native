@@ -1154,6 +1154,30 @@ class HMSManager(reactContext: ReactApplicationContext) :
     hms?.lowerRemotePeerHand(data, promise)
   }
 
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  fun getPeerListIterator(data: ReadableMap): WritableMap? {
+    val hms = HMSHelper.getHms(data, hmsCollection) ?: return null
+    return hms.getPeerListIterator(data)
+  }
+
+  @ReactMethod
+  fun peerListIteratorHasNext(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+    hms?.peerListIteratorHasNext(data, promise)
+  }
+
+  @ReactMethod
+  fun peerListIteratorNext(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+    hms?.peerListIteratorNext(data, promise)
+  }
+
   fun emitEvent(
     event: String,
     data: WritableMap,

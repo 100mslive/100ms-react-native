@@ -12,6 +12,7 @@ import live.hms.video.error.HMSException
 import live.hms.video.media.settings.HMSLayer
 import live.hms.video.media.tracks.*
 import live.hms.video.sdk.*
+import live.hms.video.sdk.listeners.PeerListResultListener
 import live.hms.video.sdk.models.*
 import live.hms.video.sdk.models.enums.AudioMixingMode
 import live.hms.video.sdk.models.enums.HMSPeerUpdate
@@ -50,6 +51,7 @@ class HMSRNSDK(
   private var eventsEnableStatus = mutableMapOf<String, Boolean>()
   private var sessionStore: HmsSessionStore? = null
   private val keyChangeObservers = mutableMapOf<String, HMSKeyChangeListener?>()
+  private val peerListIterators = mutableMapOf<Int, PeerListIterator>()
 
   init {
     val builder = HMSSDK.Builder(reactApplicationContext)
@@ -131,6 +133,7 @@ class HMSRNSDK(
     eventsEnableStatus.clear()
     sessionStore = null
     keyChangeObservers.clear()
+    peerListIterators.clear()
     HMSDecoder.clearRestrictDataStates()
   }
 
@@ -469,7 +472,10 @@ class HMSRNSDK(
                 delegate.emitEvent("ON_SESSION_STORE_AVAILABLE", data)
               }
 
-              override fun peerListUpdated(addedPeers: ArrayList<HMSPeer>?, removedPeers: ArrayList<HMSPeer>?) {
+              override fun peerListUpdated(
+                addedPeers: ArrayList<HMSPeer>?,
+                removedPeers: ArrayList<HMSPeer>?,
+              ) {
                 if (eventsEnableStatus["ON_PEER_LIST_UPDATED"] != true) {
                   return
                 }
@@ -2423,5 +2429,62 @@ class HMSRNSDK(
         }
       }
     }
+  }
+
+  fun getPeerListIterator(data: ReadableMap): WritableMap? {
+    val uniqueId = data.getInt("uniqueId")
+    val options = HMSHelper.getPeerListIteratorOptions(data)
+
+    hmsSDK?.let {
+      val iterator = it.getPeerListIterator(options)
+
+      peerListIterators[uniqueId] = iterator
+      val map = Arguments.createMap()
+      map.putBoolean("success", true)
+      map.putInt("uniqueId", uniqueId)
+      return map
+    }
+    print("Error in getPeerListIterator: HMS SDK is not available")
+    return null
+  }
+
+  fun peerListIteratorHasNext(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
+    val uniqueId = data.getInt("uniqueId")
+
+    peerListIterators[uniqueId]?.let {
+      promise?.resolve(it.hasNext())
+      return
+    }
+    promise?.reject("101", "PeerListIterator is not available")
+  }
+
+  fun peerListIteratorNext(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
+    val uniqueId = data.getInt("uniqueId")
+
+    peerListIterators[uniqueId]?.let { iterator ->
+      iterator.next(
+        object : PeerListResultListener {
+          override fun onError(error: HMSException) {
+            promise?.reject(error.code.toString(), error.message)
+          }
+
+          override fun onSuccess(result: ArrayList<HMSPeer>) {
+            val array = Arguments.createArray()
+            for (peer in result) {
+              val hmsPeer = HMSDecoder.getHmsPeerSubset(peer, null)
+              array.pushMap(hmsPeer)
+            }
+            promise?.resolve(array)
+          }
+        },
+      )
+    }
+    promise?.reject("101", "PeerListIterator is not available")
   }
 }
