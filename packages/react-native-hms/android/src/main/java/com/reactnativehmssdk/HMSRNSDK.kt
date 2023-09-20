@@ -495,6 +495,7 @@ class HMSRNSDK(
                   }
                 }
 
+                data.putString("id", id)
                 data.putArray("addedPeers", addedPeersArray)
                 data.putArray("removedPeers", removedPeersArray)
                 delegate.emitEvent("ON_PEER_LIST_UPDATED", data)
