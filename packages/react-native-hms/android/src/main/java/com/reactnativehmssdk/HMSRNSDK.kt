@@ -1733,6 +1733,9 @@ class HMSRNSDK(
         "role" -> {
           result.putMap("role", HMSDecoder.getHmsRole(peer.hmsRole))
         }
+        "isHandRaised" -> {
+          result.putBoolean("isHandRaised", peer.isHandRaised)
+        }
         "customerUserID" -> {
           if (peer.customerUserID !== null) {
             result.putString("customerUserID", peer.customerUserID)
