@@ -10,7 +10,10 @@ export interface PeerMetadataProps {
   isHandRaised: boolean;
 }
 
-export const PeerMetadata: React.FC<PeerMetadataProps> = ({ metadata, isHandRaised }) => {
+export const PeerMetadata: React.FC<PeerMetadataProps> = ({
+  metadata,
+  isHandRaised,
+}) => {
   const isBRBOn = !!parseMetadata(metadata).isBRBOn;
 
   const iconWrapperStyles = useHMSRoomStyle((theme) => ({

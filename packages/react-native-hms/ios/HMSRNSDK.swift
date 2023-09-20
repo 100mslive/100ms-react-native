@@ -904,8 +904,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func raiseLocalPeerHand(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        self.hms?.raiseLocalPeerHand() { success, error in
-            if (error != nil) {
+        self.hms?.raiseLocalPeerHand { success, error in
+            if error != nil {
                 reject?(error?.localizedDescription, error?.localizedDescription, nil)
                 return
             }
@@ -914,8 +914,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func lowerLocalPeerHand(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        self.hms?.lowerLocalPeerHand() { success, error in
-            if (error != nil) {
+        self.hms?.lowerLocalPeerHand { success, error in
+            if error != nil {
                 reject?(error?.localizedDescription, error?.localizedDescription, nil)
                 return
             }
@@ -937,7 +937,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
 
         self.hms?.lowerRemotePeerHand(remotePeer) { success, error in
-            if (error != nil) {
+            if error != nil {
                 reject?(error?.localizedDescription, error?.localizedDescription, nil)
                 return
             }

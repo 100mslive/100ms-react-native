@@ -198,22 +198,25 @@ export const useHMSActions = () => {
     }
   }, []);
 
-  const lowerRemotePeerHand = useCallback(async (peer: HMSPeer): Promise<void> => {
-    const state: RootState = store.getState();
-    const hmsInstance = state.user.hmsInstance;
+  const lowerRemotePeerHand = useCallback(
+    async (peer: HMSPeer): Promise<void> => {
+      const state: RootState = store.getState();
+      const hmsInstance = state.user.hmsInstance;
 
-    if (!hmsInstance) {
-      return Promise.reject('HMSSDK Instance is not available!');
-    }
+      if (!hmsInstance) {
+        return Promise.reject('HMSSDK Instance is not available!');
+      }
 
-    try {
-      const result = await hmsInstance.lowerRemotePeerHand(peer);
-      console.log('Lower Remote Peer Hand Success: ', result);
-    } catch (error) {
-      console.log('Lower Remote Peer Hand Error: ', error);
-      return Promise.reject(error);
-    }
-  }, []);
+      try {
+        const result = await hmsInstance.lowerRemotePeerHand(peer);
+        console.log('Lower Remote Peer Hand Success: ', result);
+      } catch (error) {
+        console.log('Lower Remote Peer Hand Error: ', error);
+        return Promise.reject(error);
+      }
+    },
+    []
+  );
 
   return {
     setLocalAudioEnabled,

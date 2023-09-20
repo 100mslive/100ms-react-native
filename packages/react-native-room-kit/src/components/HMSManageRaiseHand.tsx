@@ -10,10 +10,10 @@ import { parseMetadata } from '../utils/functions';
 export const HMSManageRaiseHand = () => {
   const hmsActions = useHMSActions();
   const localPeerMetadata = useSelector(
-    (state: RootState) => state.hmsStates.localPeer?.metadata,
+    (state: RootState) => state.hmsStates.localPeer?.metadata
   );
-  const parsedLocalPeerMetadata = parseMetadata(localPeerMetadata)
-  const isBRBOn = !!parsedLocalPeerMetadata.isBRBOn
+  const parsedLocalPeerMetadata = parseMetadata(localPeerMetadata);
+  const isBRBOn = !!parsedLocalPeerMetadata.isBRBOn;
   const isHandRaised = useSelector(
     (state: RootState) => !!state.hmsStates.localPeer?.isHandRaised
   );
@@ -34,10 +34,7 @@ export const HMSManageRaiseHand = () => {
   };
 
   return (
-    <PressableIcon
-      onPress={toggleRaiseHand}
-      active={isHandRaised}
-    >
+    <PressableIcon onPress={toggleRaiseHand} active={isHandRaised}>
       <HandIcon />
     </PressableIcon>
   );

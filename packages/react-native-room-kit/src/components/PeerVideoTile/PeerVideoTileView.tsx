@@ -154,7 +154,10 @@ export const _PeerVideoTileView = React.forwardRef<
         />
 
         {/* Handling Peer Metadata */}
-        <PeerMetadata metadata={peer.metadata} isHandRaised={peer.isHandRaised} />
+        <PeerMetadata
+          metadata={peer.metadata}
+          isHandRaised={peer.isHandRaised}
+        />
 
         {/* Handling Peer Audio Mute indicator */}
         {screenShareTile && showingVideoTrack ? (
