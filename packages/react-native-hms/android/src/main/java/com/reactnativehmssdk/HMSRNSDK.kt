@@ -241,6 +241,34 @@ class HMSRNSDK(
             data.putString("id", id)
             delegate.emitEvent("ON_PREVIEW", data)
           }
+
+          /*
+          override fun peerListUpdated(addedPeers: ArrayList<HMSPeer>?, removedPeers: ArrayList<HMSPeer>?) {
+
+            if (eventsEnableStatus["ON_PEER_LIST_UPDATED"] != true) {
+              return
+            }
+            val data: WritableMap = Arguments.createMap()
+            val addedPeersArray: WritableArray = Arguments.createArray()
+            val removedPeersArray: WritableArray = Arguments.createArray()
+
+            if (addedPeers != null) {
+              for (peer in addedPeers) {
+                addedPeersArray.pushMap(HMSDecoder.getHmsPeerSubset(peer))
+              }
+            }
+
+            if (removedPeers != null) {
+              for (peer in removedPeers) {
+                removedPeersArray.pushMap(HMSDecoder.getHmsPeerSubset(peer))
+              }
+            }
+
+            data.putArray("addedPeers", addedPeersArray)
+            data.putArray("removedPeers", removedPeersArray)
+            delegate.emitEvent("ON_PEER_LIST_UPDATED", data)
+          }
+           */
         },
       )
     } else {
@@ -439,6 +467,31 @@ class HMSRNSDK(
                 val data: WritableMap = Arguments.createMap()
                 data.putString("id", id)
                 delegate.emitEvent("ON_SESSION_STORE_AVAILABLE", data)
+              }
+
+              override fun peerListUpdated(addedPeers: ArrayList<HMSPeer>?, removedPeers: ArrayList<HMSPeer>?) {
+                if (eventsEnableStatus["ON_PEER_LIST_UPDATED"] != true) {
+                  return
+                }
+                val data: WritableMap = Arguments.createMap()
+                val addedPeersArray: WritableArray = Arguments.createArray()
+                val removedPeersArray: WritableArray = Arguments.createArray()
+
+                if (addedPeers != null) {
+                  for (peer in addedPeers) {
+                    addedPeersArray.pushMap(HMSDecoder.getHmsPeerSubset(peer))
+                  }
+                }
+
+                if (removedPeers != null) {
+                  for (peer in removedPeers) {
+                    removedPeersArray.pushMap(HMSDecoder.getHmsPeerSubset(peer))
+                  }
+                }
+
+                data.putArray("addedPeers", addedPeersArray)
+                data.putArray("removedPeers", removedPeersArray)
+                delegate.emitEvent("ON_PEER_LIST_UPDATED", data)
               }
             },
           )
