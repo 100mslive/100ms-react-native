@@ -79,7 +79,7 @@ PODS:
   - HMSBroadcastExtensionSDK (0.0.9)
   - HMSHLSPlayerSDK (0.0.2):
     - HMSAnalyticsSDK (= 0.0.2)
-  - HMSSDK (0.9.12):
+  - HMSSDK (1.0.1):
     - HMSAnalyticsSDK (= 0.0.2)
     - HMSWebRTC (= 1.0.5116)
   - HMSWebRTC (1.0.5116)
@@ -318,10 +318,10 @@ PODS:
     - React-Core
   - react-native-camera/RN (4.2.1):
     - React-Core
-  - react-native-hms (1.8.1):
+  - react-native-hms (1.9.0):
     - HMSBroadcastExtensionSDK (= 0.0.9)
     - HMSHLSPlayerSDK (= 0.0.2)
-    - HMSSDK (= 0.9.12)
+    - HMSSDK (= 1.0.1)
     - React-Core
   - react-native-keyboard-controller (1.7.0):
     - React-Core
@@ -405,7 +405,7 @@ PODS:
     - React-Core
   - RNFlashList (1.6.1):
     - React-Core
-  - RNGestureHandler (2.12.1):
+  - RNGestureHandler (2.13.0):
     - React-Core
   - RNPermissions (3.4.0):
     - React-Core
@@ -672,7 +672,7 @@ SPEC CHECKSUMS:
   HMSAnalyticsSDK: 4d2a88a729b1eb42f3d25f217c28937ec318a5b7
   HMSBroadcastExtensionSDK: d80fe325f6c928bd8e5176290b5a4b7ae15d6fbb
   HMSHLSPlayerSDK: 6a54ad4d12f3dc2270d1ecd24019d71282a4f6a3
-  HMSSDK: 65c1445ad2aac04deb127fe7611f65b8e7447752
+  HMSSDK: 4d3227d2e2499fccaaff25e94a1ff74faf7f2681
   HMSWebRTC: ae54e9dd91b869051b283b43b14f57d43b7bf8e1
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   lottie-ios: 8f97d3271e155c2d688875c29cd3c74908aef5f8
@@ -695,7 +695,7 @@ SPEC CHECKSUMS:
   React-logger: a1f028f6d8639a3f364ef80419e5e862e1115250
   react-native-blur: cfdad7b3c01d725ab62a8a729f42ea463998afa2
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
-  react-native-hms: fa7f6f547bc110c3f4cd01cad033c52e2ac40572
+  react-native-hms: df52bcaf0cfbe6d9b9d75da1cd96fcc5f1357cae
   react-native-keyboard-controller: 3a9328bd05ce52bb1c2680160b51b1a24dd50d59
   react-native-lottie-splash-screen: 015423265bac5f46016dff2e31c97b9590808856
   react-native-safe-area-context: 61c8c484a3a9e7d1fda19f7b1794b35bbfd2262a
@@ -716,7 +716,7 @@ SPEC CHECKSUMS:
   RNCMaskedView: 949696f25ec596bfc697fc88e6f95cf0c79669b6
   RNDeviceInfo: 1e3f62b9ec32f7754fac60bd06b8f8a27124e7f0
   RNFlashList: 236646d48f224a034f35baa0242e1b77db063b1e
-  RNGestureHandler: c0d04458598fcb26052494ae23dda8f8f5162b13
+  RNGestureHandler: 6e4dc6b7ab3a385386d4e36228bd065e5a611394
   RNPermissions: eac721f71748c4472d6e876038270b75397d6ee7
   RNReanimated: 953281675307b83d2c12ac4c39e6c3415d0ce248
   RNScreens: 01ab149b5dd5c27f5ff26741b1d2bdf2cee1af35

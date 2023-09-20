@@ -52,7 +52,6 @@ const _ParticipantsItem: React.FC<ParticipantsItemProps> = ({ data }) => {
   const isLast = data.type === 'LAST_ITEM';
 
   const peer = data.data;
-  const isHandRaised = parseMetadata(peer.metadata).isHandRaised;
 
   const [_peerID, peerGroupName] = data.key.split('--');
   return (
@@ -69,7 +68,7 @@ const _ParticipantsItem: React.FC<ParticipantsItemProps> = ({ data }) => {
       </Text>
 
       <View style={styles.controls}>
-        {isHandRaised ? (
+        {peer.isHandRaised ? (
           <View
             style={[
               styles.control,

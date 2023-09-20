@@ -312,6 +312,27 @@ class HMSManager: RCTEventEmitter {
         hms?.changeName(data, resolve, reject)
     }
 
+    @objc
+    func raiseLocalPeerHand(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.raiseLocalPeerHand(resolve, reject)
+    }
+
+    @objc
+    func lowerLocalPeerHand(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.raiseLocalPeerHand(resolve, reject)
+    }
+
+    @objc
+    func lowerRemotePeerHand(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.lowerRemotePeerHand(data, resolve, reject)
+    }
+
     // MARK: - RTMP Streaming & Recording
 
     @objc

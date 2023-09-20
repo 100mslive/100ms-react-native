@@ -414,6 +414,7 @@ const useHMSPeersUpdate = (
       }
       if (
         type === HMSPeerUpdate.METADATA_CHANGED ||
+        type === HMSPeerUpdate.HAND_RAISED_CHANGED ||
         type === HMSPeerUpdate.NAME_CHANGED ||
         type === HMSPeerUpdate.NETWORK_QUALITY_UPDATED
       ) {
@@ -421,8 +422,8 @@ const useHMSPeersUpdate = (
 
         const reduxState = store.getState();
 
-        if (type === HMSPeerUpdate.METADATA_CHANGED) {
-          const handRaised = parseMetadata(peer.metadata).isHandRaised;
+        if (type === HMSPeerUpdate.HAND_RAISED_CHANGED) {
+          const handRaised = peer.isHandRaised;
 
           if (handRaised) {
             const { layoutConfig, localPeer } = reduxState.hmsStates;
@@ -1524,7 +1525,6 @@ export const useHMSConfig = () => {
       username: storeState.user.userName,
       captureNetworkQualityInPreview: true,
       endpoint: storeState.user.endPoints?.init,
-      // metadata: JSON.stringify({isHandRaised: true}), // To join with hand raised
     });
 
     return hmsConfig;
@@ -1829,7 +1829,7 @@ const groupParticipantsAsPerRole = (
 
       group.push(participant);
 
-      if (parseMetadata(participant.metadata).isHandRaised) {
+      if (participant.isHandRaised) {
         if (!groups.has('hand-raised')) {
           groups.set('hand-raised', []);
         }

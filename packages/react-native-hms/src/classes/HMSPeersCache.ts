@@ -261,6 +261,8 @@ export function getPeerPropertyFromNative<T extends keyof HMSPeerCacheProps>(
         : undefined;
   } else if (property === 'name') {
     value = data?.[property];
+  } else if (property === 'isHandRaised') {
+    value = data ? data[property] : false;
   } else {
     value = data ? data[property] : undefined;
   }
