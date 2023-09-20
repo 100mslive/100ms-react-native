@@ -68,6 +68,7 @@ export class HMSSDK {
   private onJoinDelegate?: any;
   private onRoomDelegate?: any;
   private onPeerDelegate?: any;
+  private onPeerListUpdatedDelegate?: any;
   private onTrackDelegate?: any;
   private onErrorDelegate?: any;
   private onMessageDelegate?: any;
@@ -1291,6 +1292,24 @@ export class HMSSDK {
         this.onPeerDelegate = callback;
         break;
       }
+      case HMSUpdateListenerActions.ON_PEER_LIST_UPDATED: {
+        // Checking if we already have ON_PEER_LIST_UPDATED subscription
+        if (
+          !this.emitterSubscriptions[HMSUpdateListenerActions.ON_PEER_LIST_UPDATED]
+        ) {
+          // Adding ON_PEER_LIST_UPDATED native listener
+          const peerListUpdatedSubscription = HMSNativeEventListener.addListener(
+            this.id,
+            HMSUpdateListenerActions.ON_PEER_LIST_UPDATED,
+            this.onPeerListUpdatedListener
+          );
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_PEER_LIST_UPDATED] =
+            peerListUpdatedSubscription;
+        }
+        // Adding App Delegate listener
+        this.onPeerListUpdatedDelegate = callback;
+        break;
+      }
       case HMSUpdateListenerActions.ON_TRACK_UPDATE: {
         // Checking if we already have ON_TRACK_UPDATE subscription
         if (
@@ -2087,6 +2106,26 @@ export class HMSSDK {
       this.onPeerDelegate({ peer, type });
     }
   };
+
+  onPeerListUpdatedListener = (data: any) => {
+    if (data.id !== this.id) {
+      return;
+    }
+    const addedPeers = HMSEncoder.encodeHmsPeers(data.addedPeers);
+    const removedPeers = HMSEncoder.encodeHmsPeers(data.removedPeers);
+
+    if (this.onPeerListUpdatedDelegate) {
+      logger?.verbose('#Listener ON_PEER_LIST_UPDATED_LISTENER_CALL', {
+        totalAddedPeers: addedPeers.length,
+        totalRemovedPeers: removedPeers.length,
+      });
+
+      this.onPeerListUpdatedDelegate({
+        addedPeers,
+        removedPeers,
+      });
+    }
+  }
 
   onTrackListener = (data: any) => {
     if (data.id !== this.id) {
