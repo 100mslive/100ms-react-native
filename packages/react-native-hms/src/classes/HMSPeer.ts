@@ -13,7 +13,7 @@ export class HMSPeer {
   private _customerUserID: string | undefined;
   private _metadata: string | undefined;
   private _role: HMSRole | undefined;
-  private _isHandRaised: boolean | undefined;
+  private _isHandRaised: boolean = false;
 
   private _updateIsLocal(value: boolean) {
     // If `_isLocal` is outdated, update it
@@ -72,7 +72,7 @@ export class HMSPeer {
     return value ?? this._isLocal;
   }
 
-  get isHandRaised(): boolean | undefined {
+  get isHandRaised(): boolean {
     const hmsPeersCache = getHmsPeersCache();
 
     const value = hmsPeersCache

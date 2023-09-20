@@ -903,6 +903,48 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         resolve?(isScreenShared)
     }
 
+    func raiseLocalPeerHand(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        self.hms?.raiseLocalPeerHand() { success, error in
+            if (error != nil) {
+                reject?(error?.localizedDescription, error?.localizedDescription, nil)
+                return
+            }
+            resolve?(success)
+        }
+    }
+
+    func lowerLocalPeerHand(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        self.hms?.lowerLocalPeerHand() { success, error in
+            if (error != nil) {
+                reject?(error?.localizedDescription, error?.localizedDescription, nil)
+                return
+            }
+            resolve?(success)
+        }
+    }
+
+    func lowerRemotePeerHand(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let peerId = data.value(forKey: "peerId") as? String else {
+            let errorMessage = "lowerRemotePeerHand: " + HMSHelper.getUnavailableRequiredKey(data, ["peerId"])
+            reject?(errorMessage, errorMessage, nil)
+            return
+        }
+
+        guard let remotePeer = HMSHelper.getRemotePeerFromPeerId(peerId, remotePeers: self.hms?.remotePeers) else {
+            let errorMessage = "lowerRemotePeerHand: Could not find remote peer with peerID - " + peerId
+            reject?(errorMessage, errorMessage, nil)
+            return
+        }
+
+        self.hms?.lowerRemotePeerHand(remotePeer) { success, error in
+            if (error != nil) {
+                reject?(error?.localizedDescription, error?.localizedDescription, nil)
+                return
+            }
+            resolve?(success)
+        }
+    }
+
     func playAudioShare(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let fileUrl = data.value(forKey: "fileUrl") as? String,
               let audioNodeName = data.value(forKey: "audioNode") as? String,
@@ -1142,6 +1184,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 }
             case "metadata":
                 return ["metadata": peer.metadata ?? ""]
+            case "isHandRaised":
+                return ["isHandRaised": peer.isHandRaised]
             case "role":
                 return ["role": HMSDecoder.getHmsRole(peer.role)]
             case "customerUserID":
@@ -1316,6 +1360,10 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         let hmsPeer = HMSDecoder.getHmsPeerSubsetForPeerUpdateEvent(peer, update)
 
         self.delegate?.emitEvent(HMSConstants.ON_PEER_UPDATE, hmsPeer)
+    }
+
+    func onPeerListUpdate(added: [HMSPeer], removed: [HMSPeer]) {
+        // NOT IMPLEMENTED
     }
 
     func on(track: HMSTrack, update: HMSTrackUpdate, for peer: HMSPeer) {

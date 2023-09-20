@@ -96,6 +96,18 @@ RCT_EXTERN_METHOD(changeName
                   : (NSDictionary)data
                   : (RCTPromiseResolveBlock)resolve
                   : (RCTPromiseRejectBlock)reject)
+RCT_EXTERN_METHOD(raiseLocalPeerHand
+                  : (NSDictionary)data
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject)
+RCT_EXTERN_METHOD(lowerLocalPeerHand
+                  : (NSDictionary)data
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject)
+RCT_EXTERN_METHOD(lowerRemotePeerHand
+                  : (NSDictionary)data
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(destroy
                   : (NSDictionary)data
                   : (RCTPromiseResolveBlock)resolve
