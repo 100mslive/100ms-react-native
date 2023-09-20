@@ -23,7 +23,9 @@ type ActionType =
   | SetLayoutConfig
   | SetRoleChangeRequest
   | AddParticipant
+  | AddParticipants
   | RemoveParticipant
+  | RemoveParticipants
   | AddUpdateParticipant
   | SetActiveSpeakers
   | SetReconnecting;
@@ -92,9 +94,19 @@ type AddParticipant = {
   participant: HMSPeer;
 };
 
+type AddParticipants = {
+  type: HmsStateActionTypes.ADD_PARTICIPANTS;
+  participants: HMSPeer[];
+};
+
 type RemoveParticipant = {
   type: HmsStateActionTypes.REMOVE_PARTICIPANT;
   participant: HMSPeer;
+};
+
+type RemoveParticipants = {
+  type: HmsStateActionTypes.REMOVE_PARTICIPANTS;
+  participants: HMSPeer[];
 };
 
 type AddUpdateParticipant = {
@@ -195,6 +207,29 @@ const hmsStatesReducer = (
         participants: [...state.participants, action.participant],
       };
     }
+    case HmsStateActionTypes.ADD_PARTICIPANTS: {
+      const participantsToAdd = [];
+
+      action.participants.forEach((peerToAdd) => {
+        // check if `peerToAdd` already exists
+        const exists = state.participants.findIndex(participant => participant.peerID === peerToAdd.peerID) >= 0;
+
+         // if not exists
+        if (!exists) {
+          // - push to `participantsToAdd`
+          participantsToAdd.push(peerToAdd);
+        }
+      });
+
+      if (participantsToAdd.length === 0) {
+        return state;
+      }
+
+      return {
+        ...state,
+        participants: [...state.participants, ...action.participants],
+      };
+    }
     case HmsStateActionTypes.REMOVE_PARTICIPANT: {
       if (
         state.participants.findIndex(
@@ -210,6 +245,19 @@ const hmsStatesReducer = (
       }
 
       return state;
+    }
+    case HmsStateActionTypes.REMOVE_PARTICIPANTS: {
+      return {
+        ...state,
+        participants: state.participants.filter((participant) => {
+
+          const notExists = action.participants.findIndex(peerToRemove => peerToRemove.peerID === participant.peerID) < 0;
+
+          // if `participant` is not in `removedPeers` list
+          // then keep it, otherwise remove it
+          return notExists;
+        }),
+      };
     }
     case HmsStateActionTypes.ADD_UPDATE_PARTICIPANT: {
       if (

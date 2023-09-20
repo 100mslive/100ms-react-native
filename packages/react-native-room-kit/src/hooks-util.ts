@@ -61,6 +61,7 @@ import {
   addMessage,
   addNotification,
   addParticipant,
+  addParticipants,
   addPinnedMessage,
   addScreenshareTile,
   addUpdateParticipant,
@@ -70,6 +71,7 @@ import {
   clearStore,
   removeNotification,
   removeParticipant,
+  removeParticipants,
   removeScreenshareTile,
   saveUserData,
   setActiveChatBottomSheetTab,
@@ -138,6 +140,8 @@ export const useHMSListeners = (
   useHMSRoomUpdate(hmsInstance);
 
   useHMSPeersUpdate(hmsInstance, updateLocalPeer, setPeerTrackNodes);
+
+  useHMSPeerListUpdated(hmsInstance);
 
   useHMSTrackUpdate(hmsInstance, updateLocalPeer, setPeerTrackNodes);
 };
@@ -506,6 +510,33 @@ const useHMSPeersUpdate = (
     };
   }, [hmsInstance]);
 };
+
+type PeerListUpdate = {
+  addedPeers: HMSPeer[];
+  removedPeers: HMSPeer[];
+};
+
+const useHMSPeerListUpdated = (hmsInstance: HMSSDK) => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const peerListUpdateHandler = ({ addedPeers, removedPeers }: PeerListUpdate) => {
+      batch(() => {
+        dispatch(addParticipants(addedPeers));
+        dispatch(removeParticipants(removedPeers));
+      });
+    }
+
+    hmsInstance.addEventListener(
+      HMSUpdateListenerActions.ON_PEER_LIST_UPDATED,
+      peerListUpdateHandler
+    );
+
+    return () => {
+      hmsInstance.removeEventListener(HMSUpdateListenerActions.ON_PEER_LIST_UPDATED);
+    };
+  }, [hmsInstance]);
+}
 
 type TrackUpdate = {
   peer: HMSPeer;
