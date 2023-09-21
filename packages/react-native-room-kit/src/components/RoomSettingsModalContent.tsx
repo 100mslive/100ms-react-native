@@ -84,26 +84,36 @@ export const RoomSettingsModalContent: React.FC<
   const parsedMetadata = parseMetadata(localPeerMetadata);
 
   const isBRBOn = !!parsedMetadata.isBRBOn;
-  const isHandRaised = !!parsedMetadata.isHandRaised;
+  const isHandRaised = useSelector(
+    (state: RootState) => !!state.hmsStates.localPeer?.isHandRaised
+  );
 
   const toggleRaiseHand = async () => {
-    const newMetadata = {
-      ...parsedMetadata,
-      isBRBOn: false,
-      isHandRaised: !isHandRaised,
-    };
     closeRoomSettingsModal();
-    await hmsActions.changeMetadata(newMetadata);
+    if (isBRBOn) {
+      const newMetadata = {
+        ...parsedMetadata,
+        isBRBOn: false,
+      };
+      await hmsActions.changeMetadata(newMetadata);
+    }
+    if (isHandRaised) {
+      await hmsActions.lowerLocalPeerHand();
+    } else {
+      await hmsActions.raiseLocalPeerHand();
+    }
   };
 
   const toggleBRB = async () => {
     const newMetadata = {
       ...parsedMetadata,
-      isHandRaised: false,
       isBRBOn: !isBRBOn,
     };
     closeRoomSettingsModal();
     await hmsActions.changeMetadata(newMetadata);
+    if (isHandRaised) {
+      await hmsActions.lowerLocalPeerHand();
+    }
   };
   // #endregion
 
@@ -192,7 +202,7 @@ export const RoomSettingsModalContent: React.FC<
             {
               id: 'raise-hand',
               icon: <HandIcon style={{ width: 20, height: 20 }} />,
-              label: parsedMetadata.isHandRaised ? 'Hand Raised' : 'Raise Hand',
+              label: isHandRaised ? 'Hand Raised' : 'Raise Hand',
               pressHandler: toggleRaiseHand,
               isActive: isHandRaised, // Show active if `isHandRaised` is set on metadata
               hide: !showHandRaiseIcon, // Hide if can't publish screen

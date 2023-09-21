@@ -1128,6 +1128,32 @@ class HMSManager(reactContext: ReactApplicationContext) :
     hms?.getRoomLayout(data, promise)
   }
 
+  @ReactMethod
+  fun raiseLocalPeerHand(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+    hms?.raiseLocalPeerHand(data, promise)
+  }
+
+  @ReactMethod
+  fun lowerLocalPeerHand(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+    hms?.lowerLocalPeerHand(data, promise)
+  }
+
+  fun lowerRemotePeerHand(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+    hms?.lowerRemotePeerHand(data, promise)
+  }
+
   fun emitEvent(
     event: String,
     data: WritableMap,

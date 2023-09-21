@@ -138,12 +138,7 @@ const _PreviewForRoleChangeModal = () => {
       }
 
       // lower hand
-      const newMetadata = {
-        ...localPeerMetadata,
-        isHandRaised: false,
-        isBRBOn: localPeerMetadata.isBRBOn,
-      };
-      await hmsActions.changeMetadata(newMetadata);
+      await hmsActions.lowerLocalPeerHand();
     }
   };
 

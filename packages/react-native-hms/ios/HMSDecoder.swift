@@ -93,6 +93,7 @@ class HMSDecoder: NSObject {
             case .nameUpdated: return "5"
             case .metadataUpdated: return "6"
             case .networkQualityUpdated: return "7"
+            case .handRaiseUpdated: return "8"
             default: return nil
         }
     }
@@ -111,6 +112,9 @@ class HMSDecoder: NSObject {
         switch peerUpdateType {
             case .metadataUpdated:
                 peerDict["metadata"] = peer.metadata ?? ""
+                return peerDict
+            case .handRaiseUpdated:
+                peerDict["isHandRaised"] = peer.isHandRaised
                 return peerDict
             case .roleUpdated:
                 peerDict["role"] = getHmsRole(peer.role)
@@ -137,6 +141,9 @@ class HMSDecoder: NSObject {
         switch peerUpdateType {
             case .metadataUpdated:
                 peerDict["metadata"] = peer.metadata ?? ""
+                return peerDict
+            case .handRaiseUpdated:
+                peerDict["isHandRaised"] = peer.isHandRaised
                 return peerDict
             case .roleUpdated:
                 peerDict["role"] = getHmsRole(peer.role)
@@ -167,6 +174,7 @@ class HMSDecoder: NSObject {
         if let metadata = peer.metadata {
             data["metadata"] = metadata
         }
+        data["isHandRaised"] = peer.isHandRaised
 
         // joinedAt
 
