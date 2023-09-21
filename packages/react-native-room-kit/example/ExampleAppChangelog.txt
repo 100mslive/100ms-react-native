@@ -3,6 +3,10 @@ Board: https://github.com/100mslive/100ms-react-native/projects/30
 - Added first class APIs for HandRaise
 https://github.com/100mslive/100ms-react-native/issues/1221
 
+- Added new Peer List update event listener
+https://github.com/100mslive/100ms-react-native/issues/1222
+
+
 Room Kit 1.0.1
 Core SDK: 1.9.0
 Android SDK: 2.7.7-alpha
