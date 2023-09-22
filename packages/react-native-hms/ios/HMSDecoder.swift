@@ -891,9 +891,9 @@ class HMSDecoder: NSObject {
     }
 
     static func getRemoteVideoStats(_ data: HMSRemoteVideoStats) -> [Any] {
-        
+
         var stats = [Any]()
-        
+
         stats = [
             data.bitrate,
             Double(data.bytesReceived),

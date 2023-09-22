@@ -212,9 +212,12 @@ const hmsStatesReducer = (
 
       action.participants.forEach((peerToAdd) => {
         // check if `peerToAdd` already exists
-        const exists = state.participants.findIndex(participant => participant.peerID === peerToAdd.peerID) >= 0;
+        const exists =
+          state.participants.findIndex(
+            (participant) => participant.peerID === peerToAdd.peerID
+          ) >= 0;
 
-         // if not exists
+        // if not exists
         if (!exists) {
           // - push to `participantsToAdd`
           participantsToAdd.push(peerToAdd);
@@ -250,8 +253,10 @@ const hmsStatesReducer = (
       return {
         ...state,
         participants: state.participants.filter((participant) => {
-
-          const notExists = action.participants.findIndex(peerToRemove => peerToRemove.peerID === participant.peerID) < 0;
+          const notExists =
+            action.participants.findIndex(
+              (peerToRemove) => peerToRemove.peerID === participant.peerID
+            ) < 0;
 
           // if `participant` is not in `removedPeers` list
           // then keep it, otherwise remove it

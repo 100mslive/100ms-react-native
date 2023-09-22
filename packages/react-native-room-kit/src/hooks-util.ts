@@ -520,12 +520,15 @@ const useHMSPeerListUpdated = (hmsInstance: HMSSDK) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const peerListUpdateHandler = ({ addedPeers, removedPeers }: PeerListUpdate) => {
+    const peerListUpdateHandler = ({
+      addedPeers,
+      removedPeers,
+    }: PeerListUpdate) => {
       batch(() => {
         dispatch(addParticipants(addedPeers));
         dispatch(removeParticipants(removedPeers));
       });
-    }
+    };
 
     hmsInstance.addEventListener(
       HMSUpdateListenerActions.ON_PEER_LIST_UPDATED,
@@ -533,10 +536,12 @@ const useHMSPeerListUpdated = (hmsInstance: HMSSDK) => {
     );
 
     return () => {
-      hmsInstance.removeEventListener(HMSUpdateListenerActions.ON_PEER_LIST_UPDATED);
+      hmsInstance.removeEventListener(
+        HMSUpdateListenerActions.ON_PEER_LIST_UPDATED
+      );
     };
   }, [hmsInstance]);
-}
+};
 
 type TrackUpdate = {
   peer: HMSPeer;

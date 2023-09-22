@@ -1185,8 +1185,9 @@ export class HMSSDK {
     return HMSManager.lowerRemotePeerHand(data);
   };
 
-
-  getPeerListIterator = (options?: HMSPeerListIteratorOptions): HMSPeerListIterator => {
+  getPeerListIterator = (
+    options?: HMSPeerListIteratorOptions
+  ): HMSPeerListIterator => {
     logger?.verbose('#Function getPeerListIterator', {
       id: this.id,
       options,
@@ -1194,19 +1195,20 @@ export class HMSSDK {
 
     const uniqueId = Date.now();
 
-    const data: null | { sucess: boolean, uniqueId: number } = HMSManager.getPeerListIterator({
-      id: this.id,
-      ...options,
-      limit: options?.limit ?? 10,
-      uniqueId: uniqueId,
-    });
+    const data: null | { sucess: boolean; uniqueId: number } =
+      HMSManager.getPeerListIterator({
+        id: this.id,
+        ...options,
+        limit: options?.limit ?? 10,
+        uniqueId: uniqueId,
+      });
 
     if (!data) {
       throw new Error('Unable to create PeerListIterator');
     }
 
     return new HMSPeerListIterator(data.uniqueId);
-  }
+  };
 
   /**
    * - This is a prototype event listener that takes action and listens for updates related to that particular action
@@ -1295,16 +1297,20 @@ export class HMSSDK {
       case HMSUpdateListenerActions.ON_PEER_LIST_UPDATED: {
         // Checking if we already have ON_PEER_LIST_UPDATED subscription
         if (
-          !this.emitterSubscriptions[HMSUpdateListenerActions.ON_PEER_LIST_UPDATED]
+          !this.emitterSubscriptions[
+            HMSUpdateListenerActions.ON_PEER_LIST_UPDATED
+          ]
         ) {
           // Adding ON_PEER_LIST_UPDATED native listener
-          const peerListUpdatedSubscription = HMSNativeEventListener.addListener(
-            this.id,
-            HMSUpdateListenerActions.ON_PEER_LIST_UPDATED,
-            this.onPeerListUpdatedListener
-          );
-          this.emitterSubscriptions[HMSUpdateListenerActions.ON_PEER_LIST_UPDATED] =
-            peerListUpdatedSubscription;
+          const peerListUpdatedSubscription =
+            HMSNativeEventListener.addListener(
+              this.id,
+              HMSUpdateListenerActions.ON_PEER_LIST_UPDATED,
+              this.onPeerListUpdatedListener
+            );
+          this.emitterSubscriptions[
+            HMSUpdateListenerActions.ON_PEER_LIST_UPDATED
+          ] = peerListUpdatedSubscription;
         }
         // Adding App Delegate listener
         this.onPeerListUpdatedDelegate = callback;
@@ -2125,7 +2131,7 @@ export class HMSSDK {
         removedPeers,
       });
     }
-  }
+  };
 
   onTrackListener = (data: any) => {
     if (data.id !== this.id) {
