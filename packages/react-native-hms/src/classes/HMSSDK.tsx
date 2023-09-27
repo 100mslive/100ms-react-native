@@ -1169,7 +1169,7 @@ export class HMSSDK {
       id: this.id,
     };
     logger?.verbose('#Function lowerLocalPeerHand', data);
-    return HMSManager.raiseLocalPeerHand(data);
+    return HMSManager.lowerLocalPeerHand(data);
   };
 
   /**
