@@ -90,7 +90,7 @@ export const RoomSettingsModalDebugModeContent: React.FC<
     closeRoomSettingsModal();
 
     try {
-      const isEnabled = await hmsInstance?.enablePipMode({
+      const isEnabled = await hmsInstance?.enterPipMode({
         aspectRatio: [16, 9], // for 16:9 aspect ratio
         endButton: true,
         videoButton: true,

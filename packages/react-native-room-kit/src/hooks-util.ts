@@ -1307,20 +1307,27 @@ export const usePIPListener = () => {
   );
 
   useEffect(() => {
-    if (isPipModeActive) {
-      const appStateListener = () => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-        dispatch(changePipModeStatus(PipModes.INACTIVE));
-      };
+    const pipModeChangedHandler = (data: {
+      isInPictureInPictureMode: boolean;
+    }) => {
+      dispatch(
+        changePipModeStatus(
+          data.isInPictureInPictureMode ? PipModes.ACTIVE : PipModes.INACTIVE
+        )
+      );
+    };
 
-      AppState.addEventListener('focus', appStateListener);
+    hmsInstance.addEventListener(
+      HMSPIPListenerActions.ON_PIP_MODE_CHANGED,
+      pipModeChangedHandler
+    );
 
-      return () => {
-        AppState.removeEventListener('focus', appStateListener);
-        dispatch(changePipModeStatus(PipModes.INACTIVE));
-      };
-    }
-  }, [isPipModeActive]);
+    return () => {
+      hmsInstance.removeEventListener(
+        HMSPIPListenerActions.ON_PIP_MODE_CHANGED
+      );
+    };
+  }, []);
 
   // Check if PIP is supported or not
   useEffect(() => {

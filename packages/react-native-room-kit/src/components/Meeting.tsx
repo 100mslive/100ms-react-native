@@ -8,6 +8,7 @@ import { useRTCStatsListeners } from '../utils/hooks';
 import {
   clearPendingModalTasks,
   useFetchHMSRoles,
+  useHMSInstance,
   useHMSMessages,
   useHMSNetworkQualityUpdate,
   useHMSPIPRoomLeave,
@@ -26,6 +27,8 @@ interface MeetingProps {
 }
 
 export const Meeting: React.FC<MeetingProps> = ({ peerTrackNodes }) => {
+  const hmsInstance = useHMSInstance();
+
   const startingHLSStream = useSelector(
     (state: RootState) => state.app.startingHLSStream
   );
@@ -58,6 +61,14 @@ export const Meeting: React.FC<MeetingProps> = ({ peerTrackNodes }) => {
   React.useEffect(() => {
     return () => {
       clearPendingModalTasks();
+    };
+  }, []);
+
+  React.useEffect(() => {
+    hmsInstance.setPipParams({ autoEnterPipMode: true });
+
+    return () => {
+      hmsInstance.setPipParams({ autoEnterPipMode: false });
     };
   }, []);
 
