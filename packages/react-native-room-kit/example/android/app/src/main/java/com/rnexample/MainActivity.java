@@ -34,4 +34,10 @@ public class MainActivity extends ReactActivity {
     super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
     HMSManager.Companion.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
   }
+
+  @Override
+  protected void onUserLeaveHint() {
+    super.onUserLeaveHint();
+    HMSManager.Companion.onUserLeaveHint();
+  }
 }
