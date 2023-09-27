@@ -23,6 +23,9 @@ class HMSManager(reactContext: ReactApplicationContext) :
     const val REACT_CLASS = "HMSManager"
     var hmsCollection = mutableMapOf<String, HMSRNSDK>()
 
+    var reactAppContext: ReactApplicationContext? = null
+    var pipParamConfig: PipParamConfig? = null;
+    var pipParamsUntyped: Any? = null;
     var emitter: DeviceEventManagerModule.RCTDeviceEventEmitter? = null
 
     fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
@@ -31,6 +34,18 @@ class HMSManager(reactContext: ReactApplicationContext) :
         data.putBoolean("isInPictureInPictureMode", isInPictureInPictureMode)
 
         it.emit("ON_PIP_MODE_CHANGED", data)
+      }
+    }
+
+    fun onUserLeaveHint() {
+      val pipParams = pipParamsUntyped
+      if (
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+        Build.VERSION.SDK_INT < Build.VERSION_CODES.S &&
+        pipParamConfig?.autoEnterPipMode == true &&
+        pipParams is android.app.PictureInPictureParams
+      ) {
+        reactAppContext?.currentActivity?.enterPictureInPictureMode(pipParams)
       }
     }
   }
@@ -45,6 +60,8 @@ class HMSManager(reactContext: ReactApplicationContext) :
 
   private fun setupPip() {
     if (emitter == null) {
+      reactAppContext = reactApplicationContext
+
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         currentActivity?.let {
          pipReceiver?.register(it)
@@ -768,7 +785,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
   // endregion
 
-  private data class PipParamConfig(
+  data class PipParamConfig(
     val autoEnterPipMode: Boolean,
     val aspectRatio: Pair<Int, Int>?,
     val showEndButton: Boolean,
@@ -1000,6 +1017,10 @@ class HMSManager(reactContext: ReactApplicationContext) :
       if (pipParams !is android.app.PictureInPictureParams) {
         return false
       }
+
+      HMSManager.pipParamConfig = pipParamConfig
+      HMSManager.pipParamsUntyped = pipParams
+
       activity.setPictureInPictureParams(pipParams)
       return true
     } catch (e: Exception) {
@@ -1032,6 +1053,10 @@ class HMSManager(reactContext: ReactApplicationContext) :
       if (pipParams !is android.app.PictureInPictureParams) {
         return false
       }
+
+      HMSManager.pipParamConfig = pipParamConfig
+      HMSManager.pipParamsUntyped = pipParams
+
       return activity.enterPictureInPictureMode(pipParams)
     } catch (e: Exception) {
       throw e
