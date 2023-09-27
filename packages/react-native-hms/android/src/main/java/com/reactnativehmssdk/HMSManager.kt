@@ -5,6 +5,7 @@ import android.app.Application
 import android.app.PendingIntent
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.util.Rational
@@ -21,6 +22,17 @@ class HMSManager(reactContext: ReactApplicationContext) :
   companion object {
     const val REACT_CLASS = "HMSManager"
     var hmsCollection = mutableMapOf<String, HMSRNSDK>()
+
+    var emitter: DeviceEventManagerModule.RCTDeviceEventEmitter? = null
+
+    fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
+      emitter?.let {
+        val data = Arguments.createMap()
+        data.putBoolean("isInPictureInPictureMode", isInPictureInPictureMode)
+
+        it.emit("ON_PIP_MODE_CHANGED", data)
+      }
+    }
   }
 
   override fun getName(): String {
@@ -29,6 +41,19 @@ class HMSManager(reactContext: ReactApplicationContext) :
 
   fun getHmsInstance(): MutableMap<String, HMSRNSDK> {
     return hmsCollection
+  }
+
+  private fun setupPip() {
+    if (emitter == null) {
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        currentActivity?.let {
+         pipReceiver?.register(it)
+        }
+      }
+
+      emitter = reactApplicationContext
+        .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+    }
   }
 
   // Example method
@@ -744,6 +769,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
   // endregion
 
   private data class PipParamConfig(
+    val autoEnterPipMode: Boolean,
     val aspectRatio: Pair<Int, Int>?,
     val showEndButton: Boolean,
     val showVideoButton: Boolean,
@@ -767,6 +793,8 @@ class HMSManager(reactContext: ReactApplicationContext) :
     }
 
     try {
+      setupPip()
+
       PipActionReceiver.sdkIdForPIP = data.getString("id")
 
       when (action) {
@@ -774,8 +802,8 @@ class HMSManager(reactContext: ReactApplicationContext) :
           val result = isPipModeSupported()
           promise?.resolve(result)
         }
-        "enablePipMode" -> {
-          val result = enablePipMode(data)
+        "enterPipMode" -> {
+          val result = enterPipMode(data)
           promise?.resolve(result)
         }
         "setPictureInPictureParams" -> {
@@ -807,10 +835,9 @@ class HMSManager(reactContext: ReactApplicationContext) :
           )
         }
 
-//      TODO:= We need compileSdkVersion >= 31 for autoEnterEnabled
-//      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && config.autoEnterEnabled !== null)
-//        it.setAutoEnterEnabled(config.autoEnterEnabled)
-//      }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+          it.setAutoEnterEnabled(config.autoEnterPipMode)
+        }
 
         // region Setting RemoteActions on PictureInPictureParams
         val hmssdk = getHmsInstance()[PipActionReceiver.sdkIdForPIP!!]?.hmsSDK
@@ -897,13 +924,11 @@ class HMSManager(reactContext: ReactApplicationContext) :
       return null
     }
 
+    var autoEnterPipMode = false
     var aspectRatio: Pair<Int, Int> = Pair(16, 9)
     var showEndButton = false
     var showAudioButton = false
     var showVideoButton = false
-
-//    TODO:= We need compileSdkVersion >= 31 for autoEnterEnabled
-//    var autoEnterEnabled: Boolean? = null;
 
     if (data !== null) {
       if (data.hasKey("aspectRatio")) {
@@ -940,17 +965,17 @@ class HMSManager(reactContext: ReactApplicationContext) :
         showVideoButton = data.getBoolean("videoButton")
       }
 
-//      TODO:= We need compileSdkVersion >= 31 for autoEnterEnabled
-//      if (data.hasKey("autoEnterEnabled")) {
-//        val autoEnterEnabledType = data.getType("autoEnterEnabled")
-//
-//        if (autoEnterEnabledType === ReadableType.Boolean) {
-//          autoEnterEnabled = data.getBoolean("autoEnterEnabled")
-//        }
-//      }
+      if (data.hasKey("autoEnterPipMode")) {
+        val autoEnterPipModeType = data.getType("autoEnterPipMode")
+
+        if (autoEnterPipModeType === ReadableType.Boolean) {
+          autoEnterPipMode = data.getBoolean("autoEnterPipMode")
+        }
+      }
     }
 
     return PipParamConfig(
+      autoEnterPipMode = autoEnterPipMode,
       aspectRatio = aspectRatio,
       showEndButton = showEndButton,
       showAudioButton = showAudioButton,
@@ -991,7 +1016,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @RequiresApi(Build.VERSION_CODES.O)
-  private fun enablePipMode(data: ReadableMap): Boolean {
+  private fun enterPipMode(data: ReadableMap): Boolean {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
       return false
     }
@@ -1007,12 +1032,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
       if (pipParams !is android.app.PictureInPictureParams) {
         return false
       }
-      pipReceiver?.register(activity)
-      val entered = activity.enterPictureInPictureMode(pipParams)
-      if (entered === false) {
-        pipReceiver?.unregister(activity)
-      }
-      return entered
+      return activity.enterPictureInPictureMode(pipParams)
     } catch (e: Exception) {
       throw e
     }
