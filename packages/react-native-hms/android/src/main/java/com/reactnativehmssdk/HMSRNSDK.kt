@@ -2468,24 +2468,28 @@ class HMSRNSDK(
   ) {
     val uniqueId = data.getInt("uniqueId")
 
-    peerListIterators[uniqueId]?.let { iterator ->
-      iterator.next(
-        object : PeerListResultListener {
-          override fun onError(error: HMSException) {
-            promise?.reject(error.code.toString(), error.message)
-          }
+    val peerListIterator = peerListIterators[uniqueId]
 
-          override fun onSuccess(result: ArrayList<HMSPeer>) {
-            val array = Arguments.createArray()
-            for (peer in result) {
-              val hmsPeer = HMSDecoder.getHmsPeerSubset(peer, null)
-              array.pushMap(hmsPeer)
-            }
-            promise?.resolve(array)
-          }
-        },
-      )
+    if (peerListIterator == null) {
+      promise?.reject("101", "PeerListIterator is not available")
+      return
     }
-    promise?.reject("101", "PeerListIterator is not available")
+
+    peerListIterator.next(
+      object : PeerListResultListener {
+        override fun onError(error: HMSException) {
+          promise?.reject(error.code.toString(), error.message)
+        }
+
+        override fun onSuccess(result: ArrayList<HMSPeer>) {
+          val array = Arguments.createArray()
+          for (peer in result) {
+            val hmsPeer = HMSDecoder.getHmsPeerSubset(peer, null)
+            array.pushMap(hmsPeer)
+          }
+          promise?.resolve(array)
+        }
+      },
+    )
   }
 }
