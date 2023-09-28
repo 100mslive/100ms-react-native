@@ -6,13 +6,15 @@ import { HMSConstants } from './HMSConstants';
 
 export class HMSPeerListIterator {
   private readonly uniqueId: number;
+
   constructor(uniqueId: number) {
     this.uniqueId = uniqueId;
   }
+
   async hasNext(): Promise<boolean> {
     logger?.verbose('#Function HMSPeerListIterator#hasNext', this.uniqueId);
     try {
-      return await HMSManagerModule.peerListIteratorHasNext({
+      return HMSManagerModule.peerListIteratorHasNext({
         id: HMSConstants.DEFAULT_SDK_ID,
         uniqueId: this.uniqueId,
       });
