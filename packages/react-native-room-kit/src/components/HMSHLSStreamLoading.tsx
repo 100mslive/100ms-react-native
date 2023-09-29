@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View, ActivityIndicator, Text, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 
-import { COLORS } from '../utils/theme';
+import { hexToRgbA } from '../utils/theme';
 import type { RootState } from '../redux';
 import { HMSLocalVideoView } from './HMSLocalVideoView';
 import { useHMSRoomColorPalette, useHMSRoomStyleSheet } from '../hooks-util';
@@ -22,13 +22,20 @@ export const HMSHLSStreamLoading = () => {
       color: theme.palette.on_surface_high,
       fontFamily: `${typography.font_family}-Regular`,
     },
+    backdropContainer: {
+      backgroundColor: theme.palette.background_dim
+        ? hexToRgbA(theme.palette.background_dim, 0.7)
+        : undefined,
+    },
   }));
 
   return (
     <View style={[styles.container, hmsRoomStyles.container]}>
       {isLocalVideoMuted ? null : <HMSLocalVideoView />}
 
-      <View style={styles.hlsLoaderContainer}>
+      <View
+        style={[styles.hlsLoaderContainer, hmsRoomStyles.backdropContainer]}
+      >
         <ActivityIndicator
           style={styles.hlsLoader}
           size={'large'}
@@ -52,7 +59,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '100%',
     height: '100%',
-    backgroundColor: COLORS.LOADING_BACKDROP,
     zIndex: 5,
     alignItems: 'center',
     justifyContent: 'center',

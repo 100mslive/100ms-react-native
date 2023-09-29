@@ -8,7 +8,6 @@ import {
   useShowChatAndParticipants,
 } from '../../hooks-util';
 import type { RootState } from '../../redux';
-import { COLORS } from '../../utils/theme';
 import { ChatBottomSheetTabs } from '../../utils/types';
 import { setActiveChatBottomSheetTab } from '../../redux/actions';
 
@@ -25,6 +24,9 @@ const _ChatAndParticipantsHeader: React.FC<WebrtcChatHeaderProps> = ({
   );
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
+    headerTitleWrapper: {
+      backgroundColor: theme.palette.surface_default,
+    },
     tab: {
       backgroundColor: theme.palette.surface_bright,
     },
@@ -67,7 +69,9 @@ const _ChatAndParticipantsHeader: React.FC<WebrtcChatHeaderProps> = ({
             : null}
         </Text>
       ) : (
-        <View style={styles.headerTitleWrapper}>
+        <View
+          style={[styles.headerTitleWrapper, hmsRoomStyles.headerTitleWrapper]}
+        >
           {visibleChatBottomSheetTabs.map((tab) => {
             const isActive = activeChatBottomSheetTab === tab;
 
@@ -118,7 +122,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 4,
     borderRadius: 8,
-    backgroundColor: COLORS.SURFACE.DEFAULT,
     marginRight: 16,
   },
   tab: {

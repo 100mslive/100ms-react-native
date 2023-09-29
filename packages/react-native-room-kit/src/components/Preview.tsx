@@ -23,20 +23,17 @@ import { HMSPreviewNetworkQuality } from './HMSPreviewNetworkQuality';
 import { useCanPublishVideo } from '../hooks-sdk';
 import { HMSPreviewHLSLiveIndicator } from './HMSPreviewHLSLiveIndicator';
 import { CompanyLogo } from './CompanyLogo';
-import { useHMSRoomStyleSheet, useIsHLSViewer } from '../hooks-util';
+import {
+  useHMSRoomColorPalette,
+  useHMSRoomStyleSheet,
+  useIsHLSViewer,
+} from '../hooks-util';
 import { HMSKeyboardAvoidingView } from './HMSKeyboardAvoidingView';
+import { hexToRgbA } from '../utils/theme';
 
 const backButtonEdges = ['top'] as const;
 const headerEdges = ['top', 'left', 'right'] as const;
 
-const gradientColorShades = [
-  '#000000',
-  'rgba(0, 0, 0, 0.9)',
-  'rgba(0, 0, 0, 0.7)',
-  'rgba(0, 0, 0, 0.1)',
-  'rgba(0, 0, 0, 0.05)',
-  'rgba(0, 0, 0, 0)',
-];
 const gradientColorShadeLocations = [0.45, 0.55, 0.7, 0.9, 0.95, 1];
 
 export const Preview = ({
@@ -48,6 +45,23 @@ export const Preview = ({
 }) => {
   const canPublishVideo = useCanPublishVideo();
   const isHLSViewer = useIsHLSViewer();
+
+  const { background_dim } = useHMSRoomColorPalette();
+
+  const gradientColorShades = React.useMemo(
+    () =>
+      background_dim
+        ? [
+            hexToRgbA(background_dim, 1),
+            hexToRgbA(background_dim, 0.9),
+            hexToRgbA(background_dim, 0.7),
+            hexToRgbA(background_dim, 0.1),
+            hexToRgbA(background_dim, 0.05),
+            hexToRgbA(background_dim, 0),
+          ]
+        : [],
+    [background_dim]
+  );
 
   const hmsRoomStyles = useHMSRoomStyleSheet(
     (theme) => ({

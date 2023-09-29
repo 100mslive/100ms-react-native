@@ -3,6 +3,7 @@ import type { StyleProp, ViewStyle } from 'react-native';
 
 import { useHMSRoomColorPalette, useHMSRoomStyleSheet } from '../hooks-util';
 import { HMSBaseButton } from './HMSBaseButton';
+import { COLORS } from '../utils/theme';
 
 export interface HMSDangerButtonProps {
   title: string;
@@ -34,7 +35,7 @@ export const HMSDangerButton: React.FC<HMSDangerButtonProps> = ({
       backgroundColor: theme.palette.alert_error_dim,
     },
     buttonText: {
-      color: theme.palette.alert_error_brighter,
+      color: COLORS.WHITE,
       fontFamily: `${typography.font_family}-SemiBold`,
     },
     disabledText: {

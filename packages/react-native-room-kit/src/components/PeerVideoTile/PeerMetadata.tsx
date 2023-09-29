@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { parseMetadata } from '../../utils/functions';
 import { BRBIcon, HandIcon } from '../../Icons';
-import { useHMSRoomStyle } from '../../hooks-util';
+import { useHMSRoomStyleSheet } from '../../hooks-util';
 
 export interface PeerMetadataProps {
   metadata: string | undefined;
@@ -16,22 +16,27 @@ export const PeerMetadata: React.FC<PeerMetadataProps> = ({
 }) => {
   const isBRBOn = !!parseMetadata(metadata).isBRBOn;
 
-  const iconWrapperStyles = useHMSRoomStyle((theme) => ({
-    backgroundColor: theme.palette.secondary_dim,
+  const hmsRoomStyles = useHMSRoomStyleSheet((theme) => ({
+    iconWrapper: {
+      backgroundColor: theme.palette.secondary_dim,
+    },
+    icon: {
+      tintColor: theme.palette.on_secondary_high,
+    },
   }));
 
   if (isBRBOn) {
     return (
-      <View style={[styles.iconWrapper, iconWrapperStyles]}>
-        <BRBIcon />
+      <View style={[styles.iconWrapper, hmsRoomStyles.iconWrapper]}>
+        <BRBIcon style={hmsRoomStyles.icon} />
       </View>
     );
   }
 
   if (isHandRaised) {
     return (
-      <View style={[styles.iconWrapper, iconWrapperStyles]}>
-        <HandIcon />
+      <View style={[styles.iconWrapper, hmsRoomStyles.iconWrapper]}>
+        <HandIcon style={hmsRoomStyles.icon} />
       </View>
     );
   }

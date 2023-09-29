@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 
 import type { RootState } from '../redux';
 import { useHMSRoomStyleSheet } from '../hooks-util';
+import { COLORS } from '../utils/theme';
 
 export const HMSPreviewHLSLiveIndicator = () => {
   const isHLSStreaming = useSelector(
@@ -15,10 +16,10 @@ export const HMSPreviewHLSLiveIndicator = () => {
       backgroundColor: theme.palette.alert_error_default,
     },
     circle: {
-      backgroundColor: theme.palette.on_surface_high,
+      backgroundColor: COLORS.WHITE,
     },
     text: {
-      color: theme.palette.on_surface_high,
+      color: COLORS.WHITE,
       fontFamily: `${typography.font_family}-SemiBold`,
     },
   }));

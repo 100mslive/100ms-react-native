@@ -10,6 +10,7 @@ import { PressableIcon } from './PressableIcon';
 import { BottomSheet } from './BottomSheet';
 import { StopIcon } from '../Icons';
 import { EndRoomModalContent } from './EndRoomModalContent';
+import { COLORS } from '../utils/theme';
 
 export const HMSManageLeave: React.FC<LeaveButtonProps> = (props) => {
   // TODO: read current meeting joined state
@@ -93,7 +94,7 @@ const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
       borderColor: theme.palette.alert_error_default,
     },
     icon: {
-      tintColor: theme.palette.alert_error_brighter,
+      tintColor: COLORS.WHITE,
     },
   }));
 
