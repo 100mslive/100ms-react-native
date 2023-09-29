@@ -98,7 +98,11 @@ export const _PeerVideoTileView = React.forwardRef<
       return (allowed && allowed.length > 0) ?? false;
     });
 
-    const localPeerPermissions = useSelector((state: RootState) => {
+    const canTakeActionOnPeer = useSelector((state: RootState) => {
+      if (peer.isLocal) {
+        return true;
+      }
+
       const permissions = state.hmsStates.localPeer?.role?.permissions;
       return (
         permissions &&
@@ -130,6 +134,13 @@ export const _PeerVideoTileView = React.forwardRef<
       track.trackId &&
       track.type === HMSTrackType.VIDEO &&
       track.isMute() === false;
+
+    const hide3DotsButton =
+      !onMoreOptionsPress || // If button press handler is not available, Or
+      isPipModeActive || // If Pip Window is active, Or
+      (track && track?.source !== HMSTrackSource.REGULAR) || // If track is non-regular, like screen share, Or
+      !canTakeActionOnPeer || // If local peer can't take action on peer, Or
+      !allowedToPublish; // If local peer can't publish tracks
 
     return (
       <View style={styles.container}>
@@ -187,9 +198,7 @@ export const _PeerVideoTileView = React.forwardRef<
         ) : null}
 
         {/* 3 dots option menu */}
-        {!onMoreOptionsPress || isPipModeActive ||
-        (track &&
-          track?.source !== HMSTrackSource.REGULAR) ? null : insetMode ? (
+        {hide3DotsButton ? null : insetMode ? (
           <UnmountAfterDelay
             ref={unmountAfterDelayRef}
             visible={mounted}
@@ -204,7 +213,7 @@ export const _PeerVideoTileView = React.forwardRef<
               <ThreeDotsIcon stack="vertical" style={styles.icon} />
             </PressableIcon>
           </UnmountAfterDelay>
-        ) : !allowedToPublish || !localPeerPermissions ? null : (
+        ) : (
           <PressableIcon
             activeOpacity={0.7}
             style={[styles.iconWrapper, hmsRoomStyles.iconWrapperStyles]}

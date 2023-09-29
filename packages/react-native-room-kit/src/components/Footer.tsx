@@ -50,7 +50,7 @@ export const _Footer: React.FC<FooterProps> = () => {
   );
 
   const canShowOptions =
-    canPublishScreen || canShowParticipants || canShowBRB || canStartRecording;
+    isViewer || canPublishScreen || canShowParticipants || canShowBRB || canStartRecording;
 
   const footerActionButtons = useMemo(() => {
     const actions = [];
