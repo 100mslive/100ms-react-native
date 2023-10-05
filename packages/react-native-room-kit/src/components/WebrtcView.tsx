@@ -56,7 +56,16 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
     );
 
     if (isPipModeActive) {
-      return <PIPView pairedPeers={pairedPeers} />;
+      return (
+        <PIPView
+          peerTrackNodes={peerTrackNodes}
+          customView={showWelcomeBanner ? (
+            <WelcomeInMeeting />
+          ) : pairedPeers.length <= 0 ? (
+            <LocalPeerRegularVideoView />
+          ) : null}
+        />
+      );
     }
 
     return (

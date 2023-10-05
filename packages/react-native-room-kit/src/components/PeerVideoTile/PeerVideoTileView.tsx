@@ -18,6 +18,7 @@ import { ThreeDotsIcon } from '../../Icons';
 import { hexToRgbA } from '../../utils/theme';
 import { PeerNameAndNetwork } from './PeerNameAndNetwork';
 import { UnmountAfterDelay } from '../UnmountAfterDelay';
+import { PipModes } from '../../utils/types';
 import type { PeerTrackNode } from '../../utils/types';
 import { isTileOnSpotlight } from '../../utils/functions';
 import {
@@ -46,6 +47,10 @@ export const _PeerVideoTileView = React.forwardRef<
       typeof UnmountAfterDelay
     > | null>(null);
     const [mounted, setMounted] = React.useState(true);
+
+    const isPipModeActive = useSelector(
+      (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE
+    );
 
     const onSpotlight = useSelector((state: RootState) => {
       const { onSpotlight } = isTileOnSpotlight(state.user.spotlightTrackId, {
@@ -133,7 +138,7 @@ export const _PeerVideoTileView = React.forwardRef<
           avatarContainerStyles={
             insetMode ? hmsRoomStyles.avatarContainer : null
           }
-          isInset={insetMode}
+          isInset={insetMode || isPipModeActive}
           videoView={
             showingVideoTrack ? (
               <VideoView
@@ -167,7 +172,7 @@ export const _PeerVideoTileView = React.forwardRef<
         ) : null}
 
         {/* Handling showing Peer name */}
-        {insetMode ? null : (
+        {(insetMode || isPipModeActive) ? null : (
           <PeerNameAndNetwork
             name={peer.name}
             isLocal={peer.isLocal}
@@ -182,7 +187,7 @@ export const _PeerVideoTileView = React.forwardRef<
         ) : null}
 
         {/* 3 dots option menu */}
-        {!onMoreOptionsPress ||
+        {!onMoreOptionsPress || isPipModeActive ||
         (track &&
           track?.source !== HMSTrackSource.REGULAR) ? null : insetMode ? (
           <UnmountAfterDelay

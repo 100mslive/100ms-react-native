@@ -50,6 +50,7 @@ type HmsViewProps = Omit<HmsComponentProps, 'id'>;
 
 // TODO: Rename to HMSPIPConfig & to be moved to a separate file
 interface PIPConfig {
+  autoEnterPipMode?: boolean;
   aspectRatio?: [number, number];
   endButton?: boolean;
   audioButton?: boolean;
@@ -86,6 +87,7 @@ export class HMSSDK {
   private onAudioDeviceChangedDelegate?: any;
   private onSessionStoreAvailableDelegate?: any;
   private onPIPRoomLeaveDelegate?: any;
+  private onPIPModeChangedDelegate?: any;
 
   private emitterSubscriptions: Partial<
     Record<
@@ -1641,6 +1643,25 @@ export class HMSSDK {
         }
         break;
       }
+      case HMSPIPListenerActions.ON_PIP_MODE_CHANGED: {
+        if (Platform.OS === 'android') {
+          // Checking if we already have ON_PIP_MODE_CHANGED subscription
+          if (
+            !this.emitterSubscriptions[HMSPIPListenerActions.ON_PIP_MODE_CHANGED]
+          ) {
+            const pipModeChangedSubscription = HMSNativeEventListener.addListener(
+              this.id,
+              HMSPIPListenerActions.ON_PIP_MODE_CHANGED,
+              this.onPIPModeChangedListener
+            );
+            this.emitterSubscriptions[HMSPIPListenerActions.ON_PIP_MODE_CHANGED] =
+              pipModeChangedSubscription;
+          }
+          // Adding PIP mode changed Delegate listener
+          this.onPIPModeChangedDelegate = callback;
+        }
+        break;
+      }
       default:
     }
   };
@@ -1977,6 +1998,22 @@ export class HMSSDK {
           }
           // Removing App Delegate listener
           this.onPIPRoomLeaveDelegate = null;
+        }
+        break;
+      }
+      case HMSPIPListenerActions.ON_PIP_MODE_CHANGED: {
+        if (Platform.OS === 'android') {
+          const subscription =
+            this.emitterSubscriptions[HMSPIPListenerActions.ON_PIP_MODE_CHANGED];
+          // Removing ON_PIP_MODE_CHANGED native listener
+          if (subscription) {
+            subscription.remove();
+
+            this.emitterSubscriptions[HMSPIPListenerActions.ON_PIP_MODE_CHANGED] =
+              undefined;
+          }
+          // Removing App Delegate listener
+          this.onPIPModeChangedDelegate = null;
         }
         break;
       }
@@ -2431,12 +2468,20 @@ export class HMSSDK {
     }
   };
 
+  onPIPModeChangedListener = (data: { isInPictureInPictureMode: boolean }) => {
+    if (this.onPIPModeChangedDelegate) {
+      logger?.verbose('#Listener onPIPModeChanged_CALL', data);
+
+      this.onPIPModeChangedDelegate(data);
+    }
+  }
+
   async isPipModeSupported(): Promise<undefined | boolean> {
     return HMSManager.handlePipActions('isPipModeSupported', { id: this.id });
   }
 
-  async enablePipMode(data?: PIPConfig): Promise<undefined | boolean> {
-    return HMSManager.handlePipActions('enablePipMode', {
+  async enterPipMode(data?: PIPConfig): Promise<undefined | boolean> {
+    return HMSManager.handlePipActions('enterPipMode', {
       ...data,
       id: this.id,
     });

@@ -2,10 +2,10 @@ import * as React from 'react';
 import { Platform, StatusBar, useWindowDimensions } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 import Animated, {
+  useAnimatedKeyboard,
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated';
-import { useReanimatedKeyboardAnimation } from 'react-native-keyboard-controller';
 
 export interface HMSKeyboardAvoidingViewProps {
   style?: StyleProp<Animated.AnimateStyle<StyleProp<ViewStyle>>>;
@@ -16,7 +16,7 @@ export const HMSKeyboardAvoidingView: React.FC<
 > = ({ children, style }) => {
   const animatedViewRef = React.useRef<Animated.View>(null);
   const { height: windowHeight } = useWindowDimensions();
-  const animatedKeyboard = useReanimatedKeyboardAnimation();
+  const animatedKeyboard = useAnimatedKeyboard();
 
   const initialPageY = useSharedValue(0);
 
@@ -33,7 +33,7 @@ export const HMSKeyboardAvoidingView: React.FC<
   }, []);
 
   const keyboardAvoidStyle = useAnimatedStyle(() => {
-    const keyboardHeight = -animatedKeyboard.height.value;
+    const keyboardHeight = animatedKeyboard.height.value;
     return {
       transform: [
         {
