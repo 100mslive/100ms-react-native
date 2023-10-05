@@ -487,10 +487,12 @@ object HMSDecoder {
   private fun getHmsAudioTrackSettings(hmsAudioTrackSettings: HMSAudioTrackSettings?): WritableMap {
     val settings: WritableMap = Arguments.createMap()
     if (hmsAudioTrackSettings != null) {
-      settings.putBoolean(
-        "useHardwareAcousticEchoCanceler",
-        hmsAudioTrackSettings.useHardwareAcousticEchoCanceler,
-      )
+      hmsAudioTrackSettings.useHardwareAcousticEchoCanceler?.let {
+        settings.putBoolean(
+          "useHardwareAcousticEchoCanceler",
+          it,
+        )
+      }
       settings.putString("initialState", hmsAudioTrackSettings.initialState.name)
     }
     return settings

@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import LottieView from 'lottie-react-native';
 
 import { MicIcon } from '../../Icons';
-import { useHMSRoomStyle } from '../../hooks-util';
+import { useHMSRoomStyleSheet } from '../../hooks-util';
 import type { RootState } from '../../redux';
 
 export interface PeerAudioIndicatorProps {
@@ -24,21 +24,26 @@ export const PeerAudioIndicator: React.FC<PeerAudioIndicatorProps> = ({
       ) >= 0
   );
 
-  const iconWrapperStyles = useHMSRoomStyle((theme) => ({
-    backgroundColor: theme.palette.secondary_dim,
+  const hmsRoomStyles = useHMSRoomStyleSheet((theme) => ({
+    iconWrapper: {
+      backgroundColor: theme.palette.secondary_dim,
+    },
+    icon: {
+      tintColor: theme.palette.on_secondary_high,
+    },
   }));
 
   if (isMuted) {
     return (
-      <View style={[styles.iconWrapper, iconWrapperStyles]}>
-        <MicIcon muted={true} style={styles.icon} />
+      <View style={[styles.iconWrapper, hmsRoomStyles.iconWrapper]}>
+        <MicIcon muted={true} style={[styles.icon, hmsRoomStyles.icon]} />
       </View>
     );
   }
 
   if (activeSpeaker) {
     return (
-      <View style={[styles.speakerIconWrapper, iconWrapperStyles]}>
+      <View style={[styles.speakerIconWrapper, hmsRoomStyles.iconWrapper]}>
         <LottieView
           style={styles.speakerIcon}
           source={require('../../assets/audio-level-white.json')}
