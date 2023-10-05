@@ -344,9 +344,19 @@ export const addParticipant = (participant: HMSPeer) => ({
   participant,
 });
 
+export const addParticipants = (participants: HMSPeer[]) => ({
+  type: HmsStateActionTypes.ADD_PARTICIPANTS,
+  participants,
+});
+
 export const removeParticipant = (participant: HMSPeer) => ({
   type: HmsStateActionTypes.REMOVE_PARTICIPANT,
   participant,
+});
+
+export const removeParticipants = (participants: HMSPeer[]) => ({
+  type: HmsStateActionTypes.REMOVE_PARTICIPANTS,
+  participants,
 });
 
 export const addUpdateParticipant = (participant: HMSPeer) => ({

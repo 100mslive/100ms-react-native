@@ -10,11 +10,13 @@ import {
   BRBIcon,
   HandIcon,
   ParticipantsIcon,
+  PencilIcon,
   RecordingIcon,
   ScreenShareIcon,
 } from '../Icons';
 import { BottomSheet, useBottomSheetActions } from './BottomSheet';
 import {
+  isPublishingAllowed,
   useHMSInstance,
   useHMSLayoutConfig,
   useHMSRoomStyleSheet,
@@ -48,6 +50,11 @@ export const RoomSettingsModalContent: React.FC<
   const debugMode = useSelector((state: RootState) => state.user.debugMode);
 
   const hmsActions = useHMSActions();
+
+  const isPublisher = useSelector((state: RootState) => {
+    const localPeer = state.hmsStates.localPeer;
+    return localPeer ? isPublishingAllowed(localPeer) : false;
+  });
 
   const { registerOnModalHideAction } = useBottomSheetActions();
 
@@ -84,26 +91,36 @@ export const RoomSettingsModalContent: React.FC<
   const parsedMetadata = parseMetadata(localPeerMetadata);
 
   const isBRBOn = !!parsedMetadata.isBRBOn;
-  const isHandRaised = !!parsedMetadata.isHandRaised;
+  const isHandRaised = useSelector(
+    (state: RootState) => !!state.hmsStates.localPeer?.isHandRaised
+  );
 
   const toggleRaiseHand = async () => {
-    const newMetadata = {
-      ...parsedMetadata,
-      isBRBOn: false,
-      isHandRaised: !isHandRaised,
-    };
     closeRoomSettingsModal();
-    await hmsActions.changeMetadata(newMetadata);
+    if (isBRBOn) {
+      const newMetadata = {
+        ...parsedMetadata,
+        isBRBOn: false,
+      };
+      await hmsActions.changeMetadata(newMetadata);
+    }
+    if (isHandRaised) {
+      await hmsActions.lowerLocalPeerHand();
+    } else {
+      await hmsActions.raiseLocalPeerHand();
+    }
   };
 
   const toggleBRB = async () => {
     const newMetadata = {
       ...parsedMetadata,
-      isHandRaised: false,
       isBRBOn: !isBRBOn,
     };
     closeRoomSettingsModal();
     await hmsActions.changeMetadata(newMetadata);
+    if (isHandRaised) {
+      await hmsActions.lowerLocalPeerHand();
+    }
   };
   // #endregion
 
@@ -132,6 +149,16 @@ export const RoomSettingsModalContent: React.FC<
     }
   };
   // #endregion
+
+  const changeName = () => {
+    // Register callback to be called when bottom sheet is hiddden
+    registerOnModalHideAction(() => {
+      setModalVisible(ModalTypes.CHANGE_NAME);
+    });
+
+    // Close the current bottom sheet
+    closeRoomSettingsModal();
+  };
 
   const canShowBRB = useHMSLayoutConfig(
     (layoutConfig) =>
@@ -192,7 +219,7 @@ export const RoomSettingsModalContent: React.FC<
             {
               id: 'raise-hand',
               icon: <HandIcon style={{ width: 20, height: 20 }} />,
-              label: parsedMetadata.isHandRaised ? 'Hand Raised' : 'Raise Hand',
+              label: isHandRaised ? 'Hand Raised' : 'Raise Hand',
               pressHandler: toggleRaiseHand,
               isActive: isHandRaised, // Show active if `isHandRaised` is set on metadata
               hide: !showHandRaiseIcon, // Hide if can't publish screen
@@ -204,6 +231,14 @@ export const RoomSettingsModalContent: React.FC<
               pressHandler: handleRecordingTogglePress,
               isActive: isRecordingOn,
               hide: !canStartRecording, // Hide if can't publish screen
+            },
+            {
+              id: 'change-name',
+              icon: <PencilIcon style={{ width: 20, height: 20 }} />,
+              label: 'Change Name',
+              pressHandler: changeName,
+              isActive: false,
+              hide: isPublisher,
             },
           ].filter((itm) => !itm.hide),
           true

@@ -6,7 +6,7 @@ import type { RootState } from '../redux';
 import { RadioIcon } from '../Icons';
 import {
   useHMSLayoutConfig,
-  useHMSRoomStyle,
+  useHMSRoomStyleSheet,
   useShouldGoLive,
 } from '../hooks-util';
 import { HMSPrimaryButton } from './HMSPrimaryButton';
@@ -36,8 +36,13 @@ export const HMSPreviewJoinButton: React.FC<HMSPreviewJoinButtonProps> = ({
 
   const shouldGoLive = useShouldGoLive();
 
-  const liveIconStyles = useHMSRoomStyle((theme) => ({
-    tintColor: theme.palette.on_primary_low,
+  const hmsRoomStyles = useHMSRoomStyleSheet((theme) => ({
+    disabledLiveIcon: {
+      tintColor: theme.palette.on_primary_low,
+    },
+    activeLiveIcon: {
+      tintColor: theme.palette.on_primary_high,
+    },
   }));
 
   const disabledJoin = userNameInvalid || loading;
@@ -54,7 +59,13 @@ export const HMSPreviewJoinButton: React.FC<HMSPreviewJoinButtonProps> = ({
       disabled={disabledJoin}
       leftComponent={
         shouldGoLive ? (
-          <RadioIcon style={disabledJoin ? liveIconStyles : null} />
+          <RadioIcon
+            style={
+              disabledJoin
+                ? hmsRoomStyles.disabledLiveIcon
+                : hmsRoomStyles.activeLiveIcon
+            }
+          />
         ) : null
       }
       style={styles.button}

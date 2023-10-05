@@ -39,6 +39,7 @@ export type HMSPeerCacheProps = {
   audioTrack?: HMSAudioTrack | undefined;
   videoTrack?: HMSVideoTrack | undefined;
   auxiliaryTracks?: HMSTrack[] | undefined;
+  isHandRaised?: boolean | undefined;
 };
 
 export class HMSPeersCache {
@@ -206,6 +207,10 @@ export class HMSPeersCache {
         updatedObj.name = data.name;
         break;
       }
+      case HMSPeerUpdate.HAND_RAISED_CHANGED: {
+        updatedObj.isHandRaised = data.isHandRaised;
+        break;
+      }
       default: {
         updatedObj = { ...updatedObj, ...data };
         break;
@@ -256,6 +261,8 @@ export function getPeerPropertyFromNative<T extends keyof HMSPeerCacheProps>(
         : undefined;
   } else if (property === 'name') {
     value = data?.[property];
+  } else if (property === 'isHandRaised') {
+    value = data ? data[property] : false;
   } else {
     value = data ? data[property] : undefined;
   }

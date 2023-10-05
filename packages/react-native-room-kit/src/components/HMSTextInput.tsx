@@ -52,7 +52,7 @@ export const HMSTextInput: React.FC<HMSTextInputProps> = ({
   const handleInputBlur = () => setInputFocused(false);
 
   const {
-    on_surface_low: onSurfaceLowColor,
+    on_surface_medium: onSurfaceMediumColor,
     on_surface_high: onSurfaceHighColor,
   } = useHMSRoomColorPalette();
 
@@ -91,7 +91,7 @@ export const HMSTextInput: React.FC<HMSTextInputProps> = ({
 
     // ICON STYLES
     sendIcon: {
-      tintColor: theme.palette.on_surface_low,
+      tintColor: theme.palette.on_surface_medium,
     },
     focusedSendIcon: {
       tintColor: theme.palette.on_surface_high,
@@ -123,7 +123,7 @@ export const HMSTextInput: React.FC<HMSTextInputProps> = ({
       autoCapitalize={resetProps.autoCapitalize ?? 'words'}
       autoCompleteType={resetProps.autoCompleteType ?? 'name'}
       placeholderTextColor={
-        resetProps.placeholderTextColor ?? onSurfaceLowColor
+        resetProps.placeholderTextColor ?? onSurfaceMediumColor
       }
       selectionColor={resetProps.selectionColor ?? onSurfaceHighColor}
       onFocus={resetProps.onFocus ?? handleInputFocus}

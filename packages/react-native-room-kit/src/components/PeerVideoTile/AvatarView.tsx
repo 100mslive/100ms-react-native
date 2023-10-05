@@ -33,7 +33,7 @@ export const _AvatarView: React.FC<AvatarViewProps> = ({
       backgroundColor: COLORS.EXTENDED.PURPLE,
     },
     avatarText: {
-      color: theme.palette.on_surface_high,
+      color: COLORS.WHITE,
       fontFamily: `${typography.font_family}-SemiBold`,
     },
   }));

@@ -27,6 +27,7 @@ import live.hms.video.utils.HmsUtilities
 import org.webrtc.SurfaceViewRenderer
 import java.io.ByteArrayOutputStream
 import java.util.*
+import kotlin.collections.ArrayList
 
 object HMSHelper {
   fun areAllRequiredKeysAvailable(
@@ -667,5 +668,16 @@ object HMSHelper {
       }
     }
     return HMSAudioManager.AudioDevice.SPEAKER_PHONE
+  }
+
+  fun getPeerListIteratorOptions(data: ReadableMap?): PeerListIteratorOptions? {
+    if (data == null) {
+      return null
+    }
+    val limit = data.getInt("limit")
+    val role = data.getString("byRoleName")
+    val peerIds = data.getArray("byPeerIds")?.toArrayList() as? ArrayList<String>
+
+    return PeerListIteratorOptions(null, role, peerIds, limit)
   }
 }

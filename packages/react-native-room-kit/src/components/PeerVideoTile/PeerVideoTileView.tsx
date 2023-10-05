@@ -18,6 +18,7 @@ import { ThreeDotsIcon } from '../../Icons';
 import { hexToRgbA } from '../../utils/theme';
 import { PeerNameAndNetwork } from './PeerNameAndNetwork';
 import { UnmountAfterDelay } from '../UnmountAfterDelay';
+import { PipModes } from '../../utils/types';
 import type { PeerTrackNode } from '../../utils/types';
 import { isTileOnSpotlight } from '../../utils/functions';
 import {
@@ -46,6 +47,10 @@ export const _PeerVideoTileView = React.forwardRef<
       typeof UnmountAfterDelay
     > | null>(null);
     const [mounted, setMounted] = React.useState(true);
+
+    const isPipModeActive = useSelector(
+      (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE
+    );
 
     const onSpotlight = useSelector((state: RootState) => {
       const { onSpotlight } = isTileOnSpotlight(state.user.spotlightTrackId, {
@@ -93,7 +98,11 @@ export const _PeerVideoTileView = React.forwardRef<
       return (allowed && allowed.length > 0) ?? false;
     });
 
-    const localPeerPermissions = useSelector((state: RootState) => {
+    const canTakeActionOnPeer = useSelector((state: RootState) => {
+      if (peer.isLocal) {
+        return true;
+      }
+
       const permissions = state.hmsStates.localPeer?.role?.permissions;
       return (
         permissions &&
@@ -126,6 +135,13 @@ export const _PeerVideoTileView = React.forwardRef<
       track.type === HMSTrackType.VIDEO &&
       track.isMute() === false;
 
+    const hide3DotsButton =
+      !onMoreOptionsPress || // If button press handler is not available, Or
+      isPipModeActive || // If Pip Window is active, Or
+      (track && track?.source !== HMSTrackSource.REGULAR) || // If track is non-regular, like screen share, Or
+      !canTakeActionOnPeer || // If local peer can't take action on peer, Or
+      !allowedToPublish; // If local peer can't publish tracks
+
     return (
       <View style={styles.container}>
         <AvatarView
@@ -133,7 +149,7 @@ export const _PeerVideoTileView = React.forwardRef<
           avatarContainerStyles={
             insetMode ? hmsRoomStyles.avatarContainer : null
           }
-          isInset={insetMode}
+          isInset={insetMode || isPipModeActive}
           videoView={
             showingVideoTrack ? (
               <VideoView
@@ -154,7 +170,10 @@ export const _PeerVideoTileView = React.forwardRef<
         />
 
         {/* Handling Peer Metadata */}
-        <PeerMetadata metadata={peer.metadata} />
+        <PeerMetadata
+          metadata={peer.metadata}
+          isHandRaised={peer.isHandRaised}
+        />
 
         {/* Handling Peer Audio Mute indicator */}
         {screenShareTile && showingVideoTrack ? (
@@ -164,7 +183,7 @@ export const _PeerVideoTileView = React.forwardRef<
         ) : null}
 
         {/* Handling showing Peer name */}
-        {insetMode ? null : (
+        {(insetMode || isPipModeActive) ? null : (
           <PeerNameAndNetwork
             name={peer.name}
             isLocal={peer.isLocal}
@@ -179,9 +198,7 @@ export const _PeerVideoTileView = React.forwardRef<
         ) : null}
 
         {/* 3 dots option menu */}
-        {!onMoreOptionsPress ||
-        (track &&
-          track?.source !== HMSTrackSource.REGULAR) ? null : insetMode ? (
+        {hide3DotsButton ? null : insetMode ? (
           <UnmountAfterDelay
             ref={unmountAfterDelayRef}
             visible={mounted}
@@ -196,7 +213,7 @@ export const _PeerVideoTileView = React.forwardRef<
               <ThreeDotsIcon stack="vertical" style={styles.icon} />
             </PressableIcon>
           </UnmountAfterDelay>
-        ) : !allowedToPublish || !localPeerPermissions ? null : (
+        ) : (
           <PressableIcon
             activeOpacity={0.7}
             style={[styles.iconWrapper, hmsRoomStyles.iconWrapperStyles]}

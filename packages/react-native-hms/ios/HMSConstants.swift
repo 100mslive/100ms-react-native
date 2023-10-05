@@ -14,6 +14,7 @@ struct HMSConstants {
     static let ON_JOIN = "ON_JOIN"
     static let ON_ROOM_UPDATE = "ON_ROOM_UPDATE"
     static let ON_PEER_UPDATE = "3"
+    static let ON_PEER_LIST_UPDATED = "ON_PEER_LIST_UPDATED"
     static let ON_TRACK_UPDATE = "ON_TRACK_UPDATE"
     static let ON_ROLE_CHANGE_REQUEST = "ON_ROLE_CHANGE_REQUEST"
     static let ON_CHANGE_TRACK_STATE_REQUEST = "ON_CHANGE_TRACK_STATE_REQUEST"

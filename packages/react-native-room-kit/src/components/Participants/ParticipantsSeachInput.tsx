@@ -13,7 +13,7 @@ type ParticipantsSearchInputProps = {
 export const ParticipantsSearchInput: React.FC<
   ParticipantsSearchInputProps
 > = ({ searchText, setSearchText }) => {
-  const { on_surface_low: onSurfaceLowColor } = useHMSRoomColorPalette();
+  const { on_surface_medium: onSurfaceMediumColor } = useHMSRoomColorPalette();
 
   const textInputStyle = useHMSRoomStyle((theme) => ({
     backgroundColor: theme.palette.surface_default,
@@ -28,7 +28,7 @@ export const ParticipantsSearchInput: React.FC<
       style={styles.input}
       containerStyle={[styles.textInputContainer, textInputStyle]}
       focusedContainerStyle={[styles.focusedTextInputContainer, textInputStyle]}
-      placeholderTextColor={onSurfaceLowColor}
+      placeholderTextColor={onSurfaceMediumColor}
       leftIcon={<SearchIcon style={styles.searchIcon} />}
     />
   );

@@ -14,7 +14,7 @@ import {
   useShowChatAndParticipants,
 } from '../hooks-util';
 import { EyeIcon } from '../Icons';
-import { hexToRgbA } from '../utils/theme';
+import { COLORS, hexToRgbA } from '../utils/theme';
 import type { RootState } from '../redux';
 
 const _HMSLiveIndicator = () => {
@@ -23,7 +23,7 @@ const _HMSLiveIndicator = () => {
     (state: RootState) => state.hmsStates.room?.peerCount
   );
   const live = useSelector(
-    (state: RootState) => !!state.hmsStates.room?.hlsStreamingState.running
+    (state: RootState) => !!state.hmsStates.room?.hlsStreamingState?.running
   );
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typograhy) => ({
@@ -31,7 +31,7 @@ const _HMSLiveIndicator = () => {
       backgroundColor: theme.palette.alert_error_default,
     },
     liveText: {
-      color: theme.palette.alert_error_brighter,
+      color: COLORS.WHITE,
       fontFamily: `${typograhy.font_family}-SemiBold`,
     },
     viewers: {

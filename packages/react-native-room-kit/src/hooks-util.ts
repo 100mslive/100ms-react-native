@@ -61,6 +61,7 @@ import {
   addMessage,
   addNotification,
   addParticipant,
+  addParticipants,
   addPinnedMessage,
   addScreenshareTile,
   addUpdateParticipant,
@@ -70,6 +71,7 @@ import {
   clearStore,
   removeNotification,
   removeParticipant,
+  removeParticipants,
   removeScreenshareTile,
   saveUserData,
   setActiveChatBottomSheetTab,
@@ -138,6 +140,8 @@ export const useHMSListeners = (
   useHMSRoomUpdate(hmsInstance);
 
   useHMSPeersUpdate(hmsInstance, updateLocalPeer, setPeerTrackNodes);
+
+  useHMSPeerListUpdated(hmsInstance);
 
   useHMSTrackUpdate(hmsInstance, updateLocalPeer, setPeerTrackNodes);
 };
@@ -414,6 +418,7 @@ const useHMSPeersUpdate = (
       }
       if (
         type === HMSPeerUpdate.METADATA_CHANGED ||
+        type === HMSPeerUpdate.HAND_RAISED_CHANGED ||
         type === HMSPeerUpdate.NAME_CHANGED ||
         type === HMSPeerUpdate.NETWORK_QUALITY_UPDATED
       ) {
@@ -421,8 +426,8 @@ const useHMSPeersUpdate = (
 
         const reduxState = store.getState();
 
-        if (type === HMSPeerUpdate.METADATA_CHANGED) {
-          const handRaised = parseMetadata(peer.metadata).isHandRaised;
+        if (type === HMSPeerUpdate.HAND_RAISED_CHANGED) {
+          const handRaised = peer.isHandRaised;
 
           if (handRaised) {
             const { layoutConfig, localPeer } = reduxState.hmsStates;
@@ -502,6 +507,38 @@ const useHMSPeersUpdate = (
 
     return () => {
       hmsInstance.removeEventListener(HMSUpdateListenerActions.ON_PEER_UPDATE);
+    };
+  }, [hmsInstance]);
+};
+
+type PeerListUpdate = {
+  addedPeers: HMSPeer[];
+  removedPeers: HMSPeer[];
+};
+
+const useHMSPeerListUpdated = (hmsInstance: HMSSDK) => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const peerListUpdateHandler = ({
+      addedPeers,
+      removedPeers,
+    }: PeerListUpdate) => {
+      batch(() => {
+        dispatch(addParticipants(addedPeers));
+        dispatch(removeParticipants(removedPeers));
+      });
+    };
+
+    hmsInstance.addEventListener(
+      HMSUpdateListenerActions.ON_PEER_LIST_UPDATED,
+      peerListUpdateHandler
+    );
+
+    return () => {
+      hmsInstance.removeEventListener(
+        HMSUpdateListenerActions.ON_PEER_LIST_UPDATED
+      );
     };
   }, [hmsInstance]);
 };
@@ -1270,20 +1307,27 @@ export const usePIPListener = () => {
   );
 
   useEffect(() => {
-    if (isPipModeActive) {
-      const appStateListener = () => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-        dispatch(changePipModeStatus(PipModes.INACTIVE));
-      };
+    const pipModeChangedHandler = (data: {
+      isInPictureInPictureMode: boolean;
+    }) => {
+      dispatch(
+        changePipModeStatus(
+          data.isInPictureInPictureMode ? PipModes.ACTIVE : PipModes.INACTIVE
+        )
+      );
+    };
 
-      AppState.addEventListener('focus', appStateListener);
+    hmsInstance.addEventListener(
+      HMSPIPListenerActions.ON_PIP_MODE_CHANGED,
+      pipModeChangedHandler
+    );
 
-      return () => {
-        AppState.removeEventListener('focus', appStateListener);
-        dispatch(changePipModeStatus(PipModes.INACTIVE));
-      };
-    }
-  }, [isPipModeActive]);
+    return () => {
+      hmsInstance.removeEventListener(
+        HMSPIPListenerActions.ON_PIP_MODE_CHANGED
+      );
+    };
+  }, []);
 
   // Check if PIP is supported or not
   useEffect(() => {
@@ -1524,7 +1568,6 @@ export const useHMSConfig = () => {
       username: storeState.user.userName,
       captureNetworkQualityInPreview: true,
       endpoint: storeState.user.endPoints?.init,
-      // metadata: JSON.stringify({isHandRaised: true}), // To join with hand raised
     });
 
     return hmsConfig;
@@ -1829,7 +1872,7 @@ const groupParticipantsAsPerRole = (
 
       group.push(participant);
 
-      if (parseMetadata(participant.metadata).isHandRaised) {
+      if (participant.isHandRaised) {
         if (!groups.has('hand-raised')) {
           groups.set('hand-raised', []);
         }

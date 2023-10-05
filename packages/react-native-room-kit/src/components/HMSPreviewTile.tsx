@@ -26,7 +26,7 @@ export const HMSPreviewTile: React.FC = () => {
       backgroundColor: COLORS.EXTENDED.PURPLE,
     },
     avatarText: {
-      color: theme.palette.on_surface_high,
+      color: COLORS.WHITE,
       fontFamily: `${typography.font_family}-SemiBold`,
     },
   }));

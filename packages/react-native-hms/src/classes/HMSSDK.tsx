@@ -43,11 +43,14 @@ import {
 } from './HMSRoomCache';
 import { HMSPeerUpdateOrdinals } from './HMSPeerUpdate';
 import { HMSSessionStore } from './HMSSessionStore';
+// import type { HMSPeerListIteratorOptions } from './HMSPeerListIteratorOptions';
+// import { HMSPeerListIterator } from './HMSPeerListIterator';
 
 type HmsViewProps = Omit<HmsComponentProps, 'id'>;
 
 // TODO: Rename to HMSPIPConfig & to be moved to a separate file
 interface PIPConfig {
+  autoEnterPipMode?: boolean;
   aspectRatio?: [number, number];
   endButton?: boolean;
   audioButton?: boolean;
@@ -66,6 +69,7 @@ export class HMSSDK {
   private onJoinDelegate?: any;
   private onRoomDelegate?: any;
   private onPeerDelegate?: any;
+  private onPeerListUpdatedDelegate?: any;
   private onTrackDelegate?: any;
   private onErrorDelegate?: any;
   private onMessageDelegate?: any;
@@ -83,6 +87,7 @@ export class HMSSDK {
   private onAudioDeviceChangedDelegate?: any;
   private onSessionStoreAvailableDelegate?: any;
   private onPIPRoomLeaveDelegate?: any;
+  private onPIPModeChangedDelegate?: any;
 
   private emitterSubscriptions: Partial<
     Record<
@@ -1146,6 +1151,68 @@ export class HMSSDK {
   };
 
   /**
+   * - This function is used to raise hand for the local peer
+   * @memberof HMSSDK
+   */
+  raiseLocalPeerHand = async () => {
+    const data = {
+      id: this.id,
+    };
+    logger?.verbose('#Function raiseLocalPeerHand', data);
+    return HMSManager.raiseLocalPeerHand(data);
+  };
+
+  /**
+   * - This function is used to lower hand for the local peer
+   * @memberof HMSSDK
+   */
+  lowerLocalPeerHand = async () => {
+    const data = {
+      id: this.id,
+    };
+    logger?.verbose('#Function lowerLocalPeerHand', data);
+    return HMSManager.lowerLocalPeerHand(data);
+  };
+
+  /**
+   * - This function is used to lower hand for the remote peer
+   * @param peer
+   */
+  lowerRemotePeerHand = async (peer: HMSPeer) => {
+    const data = {
+      peerId: peer.peerID,
+      id: this.id,
+    };
+    logger?.verbose('#Function lowerRemotePeerHand', data);
+    return HMSManager.lowerRemotePeerHand(data);
+  };
+
+  // getPeerListIterator = (
+  //   options?: HMSPeerListIteratorOptions
+  // ): HMSPeerListIterator => {
+  //   logger?.verbose('#Function getPeerListIterator', {
+  //     id: this.id,
+  //     options,
+  //   });
+
+  //   const uniqueId = Date.now();
+
+  //   const data: null | { sucess: boolean; uniqueId: number } =
+  //     HMSManager.getPeerListIterator({
+  //       id: this.id,
+  //       ...options,
+  //       limit: options?.limit ?? 10,
+  //       uniqueId: uniqueId,
+  //     });
+
+  //   if (!data) {
+  //     throw new Error('Unable to create PeerListIterator');
+  //   }
+
+  //   return new HMSPeerListIterator(data.uniqueId);
+  // };
+
+  /**
    * - This is a prototype event listener that takes action and listens for updates related to that particular action
    *
    * @param {string} action
@@ -1227,6 +1294,28 @@ export class HMSSDK {
         }
         // Adding App Delegate listener
         this.onPeerDelegate = callback;
+        break;
+      }
+      case HMSUpdateListenerActions.ON_PEER_LIST_UPDATED: {
+        // Checking if we already have ON_PEER_LIST_UPDATED subscription
+        if (
+          !this.emitterSubscriptions[
+            HMSUpdateListenerActions.ON_PEER_LIST_UPDATED
+          ]
+        ) {
+          // Adding ON_PEER_LIST_UPDATED native listener
+          const peerListUpdatedSubscription =
+            HMSNativeEventListener.addListener(
+              this.id,
+              HMSUpdateListenerActions.ON_PEER_LIST_UPDATED,
+              this.onPeerListUpdatedListener
+            );
+          this.emitterSubscriptions[
+            HMSUpdateListenerActions.ON_PEER_LIST_UPDATED
+          ] = peerListUpdatedSubscription;
+        }
+        // Adding App Delegate listener
+        this.onPeerListUpdatedDelegate = callback;
         break;
       }
       case HMSUpdateListenerActions.ON_TRACK_UPDATE: {
@@ -1551,6 +1640,25 @@ export class HMSSDK {
           }
           // Adding App Delegate listener
           this.onPIPRoomLeaveDelegate = callback;
+        }
+        break;
+      }
+      case HMSPIPListenerActions.ON_PIP_MODE_CHANGED: {
+        if (Platform.OS === 'android') {
+          // Checking if we already have ON_PIP_MODE_CHANGED subscription
+          if (
+            !this.emitterSubscriptions[HMSPIPListenerActions.ON_PIP_MODE_CHANGED]
+          ) {
+            const pipModeChangedSubscription = HMSNativeEventListener.addListener(
+              this.id,
+              HMSPIPListenerActions.ON_PIP_MODE_CHANGED,
+              this.onPIPModeChangedListener
+            );
+            this.emitterSubscriptions[HMSPIPListenerActions.ON_PIP_MODE_CHANGED] =
+              pipModeChangedSubscription;
+          }
+          // Adding PIP mode changed Delegate listener
+          this.onPIPModeChangedDelegate = callback;
         }
         break;
       }
@@ -1893,6 +2001,22 @@ export class HMSSDK {
         }
         break;
       }
+      case HMSPIPListenerActions.ON_PIP_MODE_CHANGED: {
+        if (Platform.OS === 'android') {
+          const subscription =
+            this.emitterSubscriptions[HMSPIPListenerActions.ON_PIP_MODE_CHANGED];
+          // Removing ON_PIP_MODE_CHANGED native listener
+          if (subscription) {
+            subscription.remove();
+
+            this.emitterSubscriptions[HMSPIPListenerActions.ON_PIP_MODE_CHANGED] =
+              undefined;
+          }
+          // Removing App Delegate listener
+          this.onPIPModeChangedDelegate = null;
+        }
+        break;
+      }
       default:
     }
   };
@@ -2023,6 +2147,26 @@ export class HMSSDK {
         type,
       });
       this.onPeerDelegate({ peer, type });
+    }
+  };
+
+  onPeerListUpdatedListener = (data: any) => {
+    if (data.id !== this.id) {
+      return;
+    }
+    const addedPeers = HMSEncoder.encodeHmsPeers(data.addedPeers);
+    const removedPeers = HMSEncoder.encodeHmsPeers(data.removedPeers);
+
+    if (this.onPeerListUpdatedDelegate) {
+      logger?.verbose('#Listener ON_PEER_LIST_UPDATED_LISTENER_CALL', {
+        totalAddedPeers: addedPeers.length,
+        totalRemovedPeers: removedPeers.length,
+      });
+
+      this.onPeerListUpdatedDelegate({
+        addedPeers,
+        removedPeers,
+      });
     }
   };
 
@@ -2324,12 +2468,20 @@ export class HMSSDK {
     }
   };
 
+  onPIPModeChangedListener = (data: { isInPictureInPictureMode: boolean }) => {
+    if (this.onPIPModeChangedDelegate) {
+      logger?.verbose('#Listener onPIPModeChanged_CALL', data);
+
+      this.onPIPModeChangedDelegate(data);
+    }
+  }
+
   async isPipModeSupported(): Promise<undefined | boolean> {
     return HMSManager.handlePipActions('isPipModeSupported', { id: this.id });
   }
 
-  async enablePipMode(data?: PIPConfig): Promise<undefined | boolean> {
-    return HMSManager.handlePipActions('enablePipMode', {
+  async enterPipMode(data?: PIPConfig): Promise<undefined | boolean> {
+    return HMSManager.handlePipActions('enterPipMode', {
       ...data,
       id: this.id,
     });

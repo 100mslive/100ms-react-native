@@ -172,6 +172,9 @@ object HMSDecoder {
         HMSPeerUpdate.NAME_CHANGED -> {
           print("$peerUpdateType received")
         }
+        HMSPeerUpdate.HAND_RAISED_CHANGED -> {
+          peer.putBoolean("isHandRaised", hmsPeer.isHandRaised)
+        }
         else -> {
           print("Unhandled Peer Update Type received: $peerUpdateType")
         }
@@ -205,6 +208,9 @@ object HMSDecoder {
           HMSPeerUpdate.NAME_CHANGED -> {
             print("$peerUpdateType received")
           }
+          HMSPeerUpdate.HAND_RAISED_CHANGED -> {
+            peer.putBoolean("isHandRaised", hmsPeer.isHandRaised)
+          }
           else -> {
             print("Unhandled Peer Update Type received: $peerUpdateType")
           }
@@ -230,6 +236,8 @@ object HMSDecoder {
       peer.putString("metadata", hmsPeer.metadata)
 
       peer.putMap("role", this.getHmsRole(hmsPeer.hmsRole))
+
+      peer.putBoolean("isHandRaised", hmsPeer.isHandRaised)
 
       hmsPeer.networkQuality?.let {
         peer.putMap("networkQuality", this.getHmsNetworkQuality(it))
@@ -479,10 +487,12 @@ object HMSDecoder {
   private fun getHmsAudioTrackSettings(hmsAudioTrackSettings: HMSAudioTrackSettings?): WritableMap {
     val settings: WritableMap = Arguments.createMap()
     if (hmsAudioTrackSettings != null) {
-      settings.putBoolean(
-        "useHardwareAcousticEchoCanceler",
-        hmsAudioTrackSettings.useHardwareAcousticEchoCanceler,
-      )
+      hmsAudioTrackSettings.useHardwareAcousticEchoCanceler?.let {
+        settings.putBoolean(
+          "useHardwareAcousticEchoCanceler",
+          it,
+        )
+      }
       settings.putString("initialState", hmsAudioTrackSettings.initialState.name)
     }
     return settings

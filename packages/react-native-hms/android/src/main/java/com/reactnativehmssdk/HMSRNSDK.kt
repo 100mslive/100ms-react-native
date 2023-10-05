@@ -12,6 +12,7 @@ import live.hms.video.error.HMSException
 import live.hms.video.media.settings.HMSLayer
 import live.hms.video.media.tracks.*
 import live.hms.video.sdk.*
+import live.hms.video.sdk.listeners.PeerListResultListener
 import live.hms.video.sdk.models.*
 import live.hms.video.sdk.models.enums.AudioMixingMode
 import live.hms.video.sdk.models.enums.HMSPeerUpdate
@@ -50,6 +51,7 @@ class HMSRNSDK(
   private var eventsEnableStatus = mutableMapOf<String, Boolean>()
   private var sessionStore: HmsSessionStore? = null
   private val keyChangeObservers = mutableMapOf<String, HMSKeyChangeListener?>()
+  private val peerListIterators = mutableMapOf<Int, PeerListIterator>()
 
   init {
     val builder = HMSSDK.Builder(reactApplicationContext)
@@ -131,6 +133,7 @@ class HMSRNSDK(
     eventsEnableStatus.clear()
     sessionStore = null
     keyChangeObservers.clear()
+    peerListIterators.clear()
     HMSDecoder.clearRestrictDataStates()
   }
 
@@ -241,6 +244,34 @@ class HMSRNSDK(
             data.putString("id", id)
             delegate.emitEvent("ON_PREVIEW", data)
           }
+
+          /*
+          override fun peerListUpdated(addedPeers: ArrayList<HMSPeer>?, removedPeers: ArrayList<HMSPeer>?) {
+
+            if (eventsEnableStatus["ON_PEER_LIST_UPDATED"] != true) {
+              return
+            }
+            val data: WritableMap = Arguments.createMap()
+            val addedPeersArray: WritableArray = Arguments.createArray()
+            val removedPeersArray: WritableArray = Arguments.createArray()
+
+            if (addedPeers != null) {
+              for (peer in addedPeers) {
+                addedPeersArray.pushMap(HMSDecoder.getHmsPeerSubset(peer))
+              }
+            }
+
+            if (removedPeers != null) {
+              for (peer in removedPeers) {
+                removedPeersArray.pushMap(HMSDecoder.getHmsPeerSubset(peer))
+              }
+            }
+
+            data.putArray("addedPeers", addedPeersArray)
+            data.putArray("removedPeers", removedPeersArray)
+            delegate.emitEvent("ON_PEER_LIST_UPDATED", data)
+          }
+           */
         },
       )
     } else {
@@ -439,6 +470,35 @@ class HMSRNSDK(
                 val data: WritableMap = Arguments.createMap()
                 data.putString("id", id)
                 delegate.emitEvent("ON_SESSION_STORE_AVAILABLE", data)
+              }
+
+              override fun peerListUpdated(
+                addedPeers: ArrayList<HMSPeer>?,
+                removedPeers: ArrayList<HMSPeer>?,
+              ) {
+                if (eventsEnableStatus["ON_PEER_LIST_UPDATED"] != true) {
+                  return
+                }
+                val data: WritableMap = Arguments.createMap()
+                val addedPeersArray: WritableArray = Arguments.createArray()
+                val removedPeersArray: WritableArray = Arguments.createArray()
+
+                if (addedPeers != null) {
+                  for (peer in addedPeers) {
+                    addedPeersArray.pushMap(HMSDecoder.getHmsPeerSubset(peer))
+                  }
+                }
+
+                if (removedPeers != null) {
+                  for (peer in removedPeers) {
+                    removedPeersArray.pushMap(HMSDecoder.getHmsPeerSubset(peer))
+                  }
+                }
+
+                data.putString("id", id)
+                data.putArray("addedPeers", addedPeersArray)
+                data.putArray("removedPeers", removedPeersArray)
+                delegate.emitEvent("ON_PEER_LIST_UPDATED", data)
               }
             },
           )
@@ -1733,6 +1793,9 @@ class HMSRNSDK(
         "role" -> {
           result.putMap("role", HMSDecoder.getHmsRole(peer.hmsRole))
         }
+        "isHandRaised" -> {
+          result.putBoolean("isHandRaised", peer.isHandRaised)
+        }
         "customerUserID" -> {
           if (peer.customerUserID !== null) {
             result.putString("customerUserID", peer.customerUserID)
@@ -2304,6 +2367,127 @@ class HMSRNSDK(
 
         override fun onLayoutSuccess(layout: HMSRoomLayout) {
           promise?.resolve(layout.toString())
+        }
+      },
+    )
+  }
+
+  fun raiseLocalPeerHand(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
+    hmsSDK?.raiseLocalPeerHand(
+      object : HMSActionResultListener {
+        override fun onError(error: HMSException) {
+          promise?.reject(error.code.toString(), error.message)
+        }
+
+        override fun onSuccess() {
+          promise?.resolve(true)
+        }
+      },
+    )
+  }
+
+  fun lowerLocalPeerHand(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
+    hmsSDK?.lowerLocalPeerHand(
+      object : HMSActionResultListener {
+        override fun onError(error: HMSException) {
+          promise?.reject(error.code.toString(), error.message)
+        }
+
+        override fun onSuccess() {
+          promise?.resolve(true)
+        }
+      },
+    )
+  }
+
+  fun lowerRemotePeerHand(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
+    val peerId = data.getString("peerId")
+    peerId?.let { peerID ->
+      hmsSDK?.getRoom()?.let { room ->
+        val peer = HMSHelper.getPeerFromPeerId(peerID, room)
+        peer?.let { peer ->
+          hmsSDK?.lowerRemotePeerHand(
+            forPeer = peer,
+            object : HMSActionResultListener {
+              override fun onError(error: HMSException) {
+                promise?.reject(error.code.toString(), error.message)
+              }
+
+              override fun onSuccess() {
+                promise?.resolve(true)
+              }
+            },
+          )
+        }
+      }
+    }
+  }
+
+  fun getPeerListIterator(data: ReadableMap): WritableMap? {
+    val uniqueId = data.getInt("uniqueId")
+    val options = HMSHelper.getPeerListIteratorOptions(data)
+
+    hmsSDK?.let {
+      val iterator = it.getPeerListIterator(options)
+
+      peerListIterators[uniqueId] = iterator
+      val map = Arguments.createMap()
+      map.putBoolean("success", true)
+      map.putInt("uniqueId", uniqueId)
+      return map
+    }
+    print("Error in getPeerListIterator: HMS SDK is not available")
+    return null
+  }
+
+  fun peerListIteratorHasNext(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
+    val uniqueId = data.getInt("uniqueId")
+
+    peerListIterators[uniqueId]?.let {
+      promise?.resolve(it.hasNext())
+      return
+    }
+    promise?.reject("101", "PeerListIterator is not available")
+  }
+
+  fun peerListIteratorNext(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
+    val uniqueId = data.getInt("uniqueId")
+
+    val peerListIterator = peerListIterators[uniqueId]
+
+    if (peerListIterator == null) {
+      promise?.reject("101", "PeerListIterator is not available")
+      return
+    }
+
+    peerListIterator.next(
+      object : PeerListResultListener {
+        override fun onError(error: HMSException) {
+          promise?.reject(error.code.toString(), error.message)
+        }
+
+        override fun onSuccess(result: ArrayList<HMSPeer>) {
+          val array = Arguments.createArray()
+          for (peer in result) {
+            val hmsPeer = HMSDecoder.getHmsPeerSubset(peer, null)
+            array.pushMap(hmsPeer)
+          }
+          promise?.resolve(array)
         }
       },
     )
