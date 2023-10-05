@@ -10,11 +10,13 @@ import {
   BRBIcon,
   HandIcon,
   ParticipantsIcon,
+  PencilIcon,
   RecordingIcon,
   ScreenShareIcon,
 } from '../Icons';
 import { BottomSheet, useBottomSheetActions } from './BottomSheet';
 import {
+  isPublishingAllowed,
   useHMSInstance,
   useHMSLayoutConfig,
   useHMSRoomStyleSheet,
@@ -48,6 +50,11 @@ export const RoomSettingsModalContent: React.FC<
   const debugMode = useSelector((state: RootState) => state.user.debugMode);
 
   const hmsActions = useHMSActions();
+
+  const isPublisher = useSelector((state: RootState) => {
+    const localPeer = state.hmsStates.localPeer;
+    return localPeer ? isPublishingAllowed(localPeer) : false;
+  });
 
   const { registerOnModalHideAction } = useBottomSheetActions();
 
@@ -143,6 +150,16 @@ export const RoomSettingsModalContent: React.FC<
   };
   // #endregion
 
+  const changeName = () => {
+    // Register callback to be called when bottom sheet is hiddden
+    registerOnModalHideAction(() => {
+      setModalVisible(ModalTypes.CHANGE_NAME);
+    });
+
+    // Close the current bottom sheet
+    closeRoomSettingsModal();
+  };
+
   const canShowBRB = useHMSLayoutConfig(
     (layoutConfig) =>
       !!layoutConfig?.screens?.conferencing?.default?.elements?.brb
@@ -214,6 +231,14 @@ export const RoomSettingsModalContent: React.FC<
               pressHandler: handleRecordingTogglePress,
               isActive: isRecordingOn,
               hide: !canStartRecording, // Hide if can't publish screen
+            },
+            {
+              id: 'change-name',
+              icon: <PencilIcon style={{ width: 20, height: 20 }} />,
+              label: 'Change Name',
+              pressHandler: changeName,
+              isActive: false,
+              hide: isPublisher,
             },
           ].filter((itm) => !itm.hide),
           true
