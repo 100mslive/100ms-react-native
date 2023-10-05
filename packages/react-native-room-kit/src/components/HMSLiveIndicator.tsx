@@ -23,7 +23,7 @@ const _HMSLiveIndicator = () => {
     (state: RootState) => state.hmsStates.room?.peerCount
   );
   const live = useSelector(
-    (state: RootState) => !!state.hmsStates.room?.hlsStreamingState.running
+    (state: RootState) => !!state.hmsStates.room?.hlsStreamingState?.running
   );
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typograhy) => ({

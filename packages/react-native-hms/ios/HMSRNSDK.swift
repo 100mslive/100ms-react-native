@@ -1347,6 +1347,24 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         self.delegate?.emitEvent(HMSConstants.ON_ROOM_UPDATE, ["event": HMSConstants.ON_ROOM_UPDATE, "id": self.id, "type": type, "room": roomData])
     }
 
+    func onPeerListUpdate(added: [HMSPeer], removed: [HMSPeer]) {
+        if eventsEnableStatus["ON_PEER_LIST_UPDATED"] != true {
+            return
+        }
+        var addedPeers = [[String: Any]]()
+        var removedPeers = [[String: Any]]()
+
+        for peer in added {
+            addedPeers.append(HMSDecoder.getHmsPeerSubset(peer))
+        }
+
+        for peer in removed {
+            removedPeers.append(HMSDecoder.getHmsPeerSubset(peer))
+        }
+
+        self.delegate?.emitEvent(HMSConstants.ON_PEER_LIST_UPDATED, ["event": HMSConstants.ON_PEER_LIST_UPDATED, "id": self.id, "addedPeers": addedPeers, "removedPeers": removedPeers])
+    }
+
     func on(peer: HMSPeer, update: HMSPeerUpdate) {
 
         guard let isPeerUpdateEnabled = eventsEnableStatus[HMSConstants.ON_PEER_UPDATE],
@@ -1360,10 +1378,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         let hmsPeer = HMSDecoder.getHmsPeerSubsetForPeerUpdateEvent(peer, update)
 
         self.delegate?.emitEvent(HMSConstants.ON_PEER_UPDATE, hmsPeer)
-    }
-
-    func onPeerListUpdate(added: [HMSPeer], removed: [HMSPeer]) {
-        // NOT IMPLEMENTED
     }
 
     func on(track: HMSTrack, update: HMSTrackUpdate, for peer: HMSPeer) {

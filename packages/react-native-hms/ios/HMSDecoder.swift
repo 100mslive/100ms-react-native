@@ -891,16 +891,19 @@ class HMSDecoder: NSObject {
     }
 
     static func getRemoteVideoStats(_ data: HMSRemoteVideoStats) -> [Any] {
-        // [bitrate, bytesReceived, frameRate, jitter, packetsLost, packetsReceived, resolution]
-        return [
+
+        var stats = [Any]()
+
+        stats = [
             data.bitrate,
-            data.bytesReceived,
+            Double(data.bytesReceived),
             data.frameRate,
             data.jitter,
-            data.packetsLost,
-            data.packetsReceived,
+            Double(data.packetsLost),
+            Double(data.packetsReceived),
             HMSDecoder.getHmsVideoResolution(data.resolution)
         ]
+        return stats
     }
 
     static func getHmsMessageRecipient(_ recipient: HMSMessageRecipient) -> [String: Any] {

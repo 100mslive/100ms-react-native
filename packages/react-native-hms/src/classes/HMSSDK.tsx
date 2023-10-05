@@ -43,6 +43,8 @@ import {
 } from './HMSRoomCache';
 import { HMSPeerUpdateOrdinals } from './HMSPeerUpdate';
 import { HMSSessionStore } from './HMSSessionStore';
+import type { HMSPeerListIteratorOptions } from './HMSPeerListIteratorOptions';
+import { HMSPeerListIterator } from './HMSPeerListIterator';
 
 type HmsViewProps = Omit<HmsComponentProps, 'id'>;
 
@@ -66,6 +68,7 @@ export class HMSSDK {
   private onJoinDelegate?: any;
   private onRoomDelegate?: any;
   private onPeerDelegate?: any;
+  private onPeerListUpdatedDelegate?: any;
   private onTrackDelegate?: any;
   private onErrorDelegate?: any;
   private onMessageDelegate?: any;
@@ -1166,7 +1169,7 @@ export class HMSSDK {
       id: this.id,
     };
     logger?.verbose('#Function lowerLocalPeerHand', data);
-    return HMSManager.raiseLocalPeerHand(data);
+    return HMSManager.lowerLocalPeerHand(data);
   };
 
   /**
@@ -1180,6 +1183,31 @@ export class HMSSDK {
     };
     logger?.verbose('#Function lowerRemotePeerHand', data);
     return HMSManager.lowerRemotePeerHand(data);
+  };
+
+  getPeerListIterator = (
+    options?: HMSPeerListIteratorOptions
+  ): HMSPeerListIterator => {
+    logger?.verbose('#Function getPeerListIterator', {
+      id: this.id,
+      options,
+    });
+
+    const uniqueId = Date.now();
+
+    const data: null | { sucess: boolean; uniqueId: number } =
+      HMSManager.getPeerListIterator({
+        id: this.id,
+        ...options,
+        limit: options?.limit ?? 10,
+        uniqueId: uniqueId,
+      });
+
+    if (!data) {
+      throw new Error('Unable to create PeerListIterator');
+    }
+
+    return new HMSPeerListIterator(data.uniqueId);
   };
 
   /**
@@ -1264,6 +1292,28 @@ export class HMSSDK {
         }
         // Adding App Delegate listener
         this.onPeerDelegate = callback;
+        break;
+      }
+      case HMSUpdateListenerActions.ON_PEER_LIST_UPDATED: {
+        // Checking if we already have ON_PEER_LIST_UPDATED subscription
+        if (
+          !this.emitterSubscriptions[
+            HMSUpdateListenerActions.ON_PEER_LIST_UPDATED
+          ]
+        ) {
+          // Adding ON_PEER_LIST_UPDATED native listener
+          const peerListUpdatedSubscription =
+            HMSNativeEventListener.addListener(
+              this.id,
+              HMSUpdateListenerActions.ON_PEER_LIST_UPDATED,
+              this.onPeerListUpdatedListener
+            );
+          this.emitterSubscriptions[
+            HMSUpdateListenerActions.ON_PEER_LIST_UPDATED
+          ] = peerListUpdatedSubscription;
+        }
+        // Adding App Delegate listener
+        this.onPeerListUpdatedDelegate = callback;
         break;
       }
       case HMSUpdateListenerActions.ON_TRACK_UPDATE: {
@@ -2060,6 +2110,26 @@ export class HMSSDK {
         type,
       });
       this.onPeerDelegate({ peer, type });
+    }
+  };
+
+  onPeerListUpdatedListener = (data: any) => {
+    if (data.id !== this.id) {
+      return;
+    }
+    const addedPeers = HMSEncoder.encodeHmsPeers(data.addedPeers);
+    const removedPeers = HMSEncoder.encodeHmsPeers(data.removedPeers);
+
+    if (this.onPeerListUpdatedDelegate) {
+      logger?.verbose('#Listener ON_PEER_LIST_UPDATED_LISTENER_CALL', {
+        totalAddedPeers: addedPeers.length,
+        totalRemovedPeers: removedPeers.length,
+      });
+
+      this.onPeerListUpdatedDelegate({
+        addedPeers,
+        removedPeers,
+      });
     }
   };
 
