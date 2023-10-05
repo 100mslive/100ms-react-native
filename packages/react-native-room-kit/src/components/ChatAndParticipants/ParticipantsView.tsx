@@ -12,7 +12,8 @@ export const ParticipantsView: React.FC<ParticipantsViewProps> = () => {
     searchText,
     formattedSearchText,
     setSearchText,
-    setExpandedGroups,
+    expandedGroup,
+    setExpandedGroup,
   } = useFilteredParticipants();
 
   return (
@@ -25,7 +26,8 @@ export const ParticipantsView: React.FC<ParticipantsViewProps> = () => {
       <View style={styles.listWrapper}>
         <ParticipantsList
           data={data}
-          setExpandedGroups={setExpandedGroups}
+          expandedGroup={expandedGroup}
+          setExpandedGroup={setExpandedGroup}
           searchTextExists={formattedSearchText.length > 0}
         />
       </View>

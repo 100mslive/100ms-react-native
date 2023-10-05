@@ -130,6 +130,7 @@ import type { GridViewRefAttrs } from './components/GridView';
 import { getRoomLayout } from './modules/HMSManager';
 import { DEFAULT_THEME, DEFAULT_TYPOGRAPHY } from './utils/theme';
 import { NotificationTypes } from './utils';
+import type { HMSPeerListIterator } from '../../react-native-hms/src/classes/HMSPeerListIterator';
 
 export const useHMSListeners = (
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>
@@ -1678,13 +1679,16 @@ export const useLandscapeChatViewVisible = () => {
 };
 
 export type ParticipantHeaderData = {
+  id: string;
   label: string;
   role: HMSRole;
   itemsLength: number;
 };
 
 export type ParticipantHandRaisedHeaderData = {
+  id: string;
   label: string;
+  // role: { name: string; }
   itemsLength: number;
 };
 
@@ -1700,6 +1704,55 @@ export type ListItemUI<
   key: string;
 };
 
+export const usePeerIteratorAPI = (roles: string[]) => {
+  const dispatch = useDispatch();
+  const hmsInstance = useHMSInstance();
+
+  useEffect(() => {
+    let mounted = true;
+
+    const createIterator = async (forRole: string) => {
+      const iterator = hmsInstance.getPeerListIterator({ byRoleName: forRole, limit: 10 });
+      const participants = await iterator.next();
+      console.log('***** ', participants);
+      if (mounted) {
+        if (mounted && participants.length > 0) {
+          console.log('***** adding participants');
+          dispatch(addParticipants(participants));
+        }
+      } else {
+        console.log('***** Ignored setting state because unmounted');
+      }
+    }
+
+    roles.forEach(role => {
+      createIterator(role);
+    });
+
+    return () => {
+      mounted = false;
+    }
+  }, [roles]);
+}
+
+/**
+ * current screen
+ *
+ * - create new iterators for off stage roles
+ * - fetch participants
+ * - after 5 seconds, repeat
+ */
+
+/**
+ * view all participants screen
+ *
+ * get iterator - new
+ *
+ */
+
+// const offStageRoles = ['viewer-near-realtime', 'viewer-realtime'];
+const offStageRoles = ['viewer-realtime'];
+
 export const useFilteredParticipants = () => {
   const roles = useSelector((state: RootState) => state.hmsStates.roles);
   const onStageRole = useHMSLayoutConfig(
@@ -1708,138 +1761,106 @@ export const useFilteredParticipants = () => {
         ?.on_stage_role || null
   );
 
+  usePeerIteratorAPI(offStageRoles);
+
   const [searchText, setSearchText] = useState('');
   const formattedSearchText = searchText.trim().toLowerCase();
 
-  const participants = useSelector(
-    (state: RootState) => state.hmsStates.participants
+  const groupedParticipants = useSelector(
+    (state: RootState) => state.hmsStates.groupedParticipants
   );
 
-  const peerGroups = useMemo(() => {
-    return groupParticipantsAsPerRole(participants, formattedSearchText);
-  }, [formattedSearchText, participants]);
+  const sortedRoles = useMemo(
+    () => {
+      return roles
+        .filter((role) =>  {
+          if (!role.name || role.name.startsWith('_')) {
+            return false;
+          }
+          return true;
 
-  const sortedRoles = useMemo(() => {
-    return roles
-      .filter((role) => peerGroups.has(role.name!))
-      .sort((a, b) => {
-        if (onStageRole) {
-          if (a.name === onStageRole && b.name === onStageRole) {
+          // const list = groupedParticipants[role.name!];
+
+          // return list && list.length > 0;
+        })
+        .sort((a, b) => {
+          if (onStageRole) {
+            if (a.name === onStageRole && b.name === onStageRole) {
+              return 0;
+            }
+
+            if (a.name === onStageRole) {
+              return -1;
+            }
+
+            if (b.name === onStageRole) {
+              return 1;
+            }
+          }
+
+          const canAPublish: boolean =
+            (a.publishSettings?.allowed &&
+              a.publishSettings.allowed.length > 0) ??
+            false;
+          const canBPublish: boolean =
+            (b.publishSettings?.allowed &&
+              b.publishSettings.allowed.length > 0) ??
+            false;
+
+          if (canAPublish && canBPublish) {
             return 0;
           }
 
-          if (a.name === onStageRole) {
+          if (canAPublish) {
             return -1;
           }
 
-          if (b.name === onStageRole) {
-            return 1;
-          }
-        }
-
-        const canAPublish: boolean =
-          (a.publishSettings?.allowed &&
-            a.publishSettings.allowed.length > 0) ??
-          false;
-        const canBPublish: boolean =
-          (b.publishSettings?.allowed &&
-            b.publishSettings.allowed.length > 0) ??
-          false;
-
-        if (canAPublish && canBPublish) {
-          return 0;
-        }
-
-        if (canAPublish) {
-          return -1;
-        }
-
-        return 1;
-      });
-  }, [peerGroups, onStageRole, roles]);
-
-  const firstGroupName = peerGroups.has('hand-raised')
-    ? 'hand-raised'
-    : sortedRoles[0]?.name;
-
-  const [expandedGroups, setExpandedGroups] = useState<string[]>(
-    firstGroupName ? [firstGroupName] : []
+          return 1;
+        });
+    },
+    // [groupedParticipants, onStageRole, roles]
+    [onStageRole, roles]
   );
 
-  const groupedList = useMemo(() => {
-    let list: ListItemUI[] = [];
-
-    const handRaisedPeers = peerGroups.get('hand-raised');
-
-    if (handRaisedPeers) {
-      const expanded = expandedGroups.includes('hand-raised');
-
-      list.push({
-        type: expanded ? 'EXPANDED_HEADER' : 'COLLAPSED_HEADER',
-        key: 'hand-raised',
-        data: {
-          label: `Hand Raised (${handRaisedPeers.length})`,
-          itemsLength: handRaisedPeers.length,
-        },
-      });
-
-      if (expanded) {
-        list = list.concat(
-          handRaisedPeers.map((peer, idx, arr) => {
-            const isLast = arr.length - 1 === idx;
-
-            return {
-              data: peer,
-              key: `${peer.peerID}--${'hand-raised'}`,
-              type: isLast ? 'LAST_ITEM' : 'REGULAR_ITEM',
-            };
-          })
-        );
-      }
-    }
+  const participantsAccordianData: { id: string; label: string; data: any[] | undefined; }[] = useMemo(() => {
+    const t = [];
 
     sortedRoles.forEach((role) => {
-      const peers = peerGroups.get(role.name!);
+      const list = groupedParticipants[role.name!];
 
-      if (peers) {
-        const expanded = expandedGroups.includes(role.name!);
-
-        list.push({
-          type: expanded ? 'EXPANDED_HEADER' : 'COLLAPSED_HEADER',
-          key: role.name!,
-          data: {
-            label: `${role.name!} (${peers.length})`,
-            role: role,
-            itemsLength: peers.length,
-          },
+      if (Array.isArray(list) && list.length > 0) {
+        t.push({
+          id: role.name!,
+          label: `${role.name!} (${list.length})`,
+          data: list,
         });
-
-        if (expanded) {
-          list = list.concat(
-            peers.map((peer, idx, arr) => {
-              const isLast = arr.length - 1 === idx;
-
-              return {
-                data: peer,
-                key: `${peer.peerID}--${role.name!}`,
-                type: isLast ? 'LAST_ITEM' : 'REGULAR_ITEM',
-              };
-            })
-          );
-        }
       }
     });
 
-    return list;
-  }, [expandedGroups, peerGroups, sortedRoles]);
+    const allParticipants = Object.values(groupedParticipants).flat();
+
+    const handRaisedParticipants = allParticipants.filter((participant) => participant.isHandRaised);
+
+    if (handRaisedParticipants.length > 0) {
+      t.unshift({
+        id: 'hand-raised',
+        label: `Hand Raised (${handRaisedParticipants.length})`,
+        data: handRaisedParticipants,
+      });
+    }
+
+    return t;
+  }, [groupedParticipants, sortedRoles]);
+
+  const [expandedGroup, setExpandedGroup] = useState<string | null>(participantsAccordianData[0]?.id ?? null);
 
   return {
-    data: groupedList,
+    data: participantsAccordianData,
     searchText,
     formattedSearchText,
     setSearchText,
-    expandedGroups,
-    setExpandedGroups,
+    expandedGroup,
+    setExpandedGroup,
   };
 };
 

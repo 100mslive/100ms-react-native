@@ -5,7 +5,7 @@ import type { ImageProps } from 'react-native';
 import { useHMSRoomStyle } from '../../hooks-util';
 
 interface ChevronIconProps extends Omit<ImageProps, 'source'> {
-  direction: 'left' | 'down';
+  direction: 'left' | 'down' | 'right' | 'top';
 }
 
 export const ChevronIcon: React.FC<ChevronIconProps> = ({
@@ -24,7 +24,14 @@ export const ChevronIcon: React.FC<ChevronIconProps> = ({
           ? require('./assets/chevron-down.png')
           : require('./assets/chevron-left.png')
       }
-      style={[styles.icon, iconStyles, style]}
+      style={[
+        styles.icon,
+        direction === 'right' || direction === 'top' ? {
+          transform: [{rotateZ: direction === 'right' ? '180deg' : '90deg' }]
+        } : null,
+        iconStyles,
+        style,
+      ]}
       {...restProps}
     />
   );

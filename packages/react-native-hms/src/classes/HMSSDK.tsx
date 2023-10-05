@@ -1197,12 +1197,14 @@ export class HMSSDK {
 
     const uniqueId = Date.now();
 
+    const uid = Symbol(uniqueId);
+
     const data: null | { sucess: boolean; uniqueId: number } =
       HMSManager.getPeerListIterator({
         id: this.id,
         ...options,
         limit: options?.limit ?? 10,
-        uniqueId: uniqueId,
+        uniqueId: uid.toString(),
       });
 
     if (!data) {

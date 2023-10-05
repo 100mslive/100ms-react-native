@@ -3,6 +3,7 @@ import type { HMSPeer } from './HMSPeer';
 import HMSManagerModule from './HMSManagerModule';
 import { HMSEncoder, logger } from '@100mslive/react-native-hms';
 import { HMSConstants } from './HMSConstants';
+import { getHmsPeersCache } from './HMSPeersCache';
 
 export class HMSPeerListIterator {
   private readonly uniqueId: number;
@@ -31,6 +32,17 @@ export class HMSPeerListIterator {
         id: HMSConstants.DEFAULT_SDK_ID,
         uniqueId: this.uniqueId,
       });
+
+      if (Array.isArray(peers) && peers.length > 0) {
+        const hmsPeersCache = getHmsPeersCache();
+
+        if (hmsPeersCache) {
+          peers.forEach(peer => {
+            hmsPeersCache.updatePeerCache(peer.peerID, peer);
+          });
+        }
+      }
+
       return HMSEncoder.encodeHmsPeers(peers);
     } catch (e) {
       logger?.error('#Error in #Function HMSPeerListIterator#next ', e);

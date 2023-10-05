@@ -51,7 +51,7 @@ class HMSRNSDK(
   private var eventsEnableStatus = mutableMapOf<String, Boolean>()
   private var sessionStore: HmsSessionStore? = null
   private val keyChangeObservers = mutableMapOf<String, HMSKeyChangeListener?>()
-  private val peerListIterators = mutableMapOf<Int, PeerListIterator>()
+  private val peerListIterators = mutableMapOf<String, PeerListIterator>()
 
   init {
     val builder = HMSSDK.Builder(reactApplicationContext)
@@ -2433,7 +2433,12 @@ class HMSRNSDK(
   }
 
   fun getPeerListIterator(data: ReadableMap): WritableMap? {
-    val uniqueId = data.getInt("uniqueId")
+    val uniqueId = data.getString("uniqueId")
+    if (uniqueId == null) {
+      print("Error in getPeerListIterator: uniqueId is not available")
+      return null
+    }
+
     val options = HMSHelper.getPeerListIteratorOptions(data)
 
     hmsSDK?.let {
@@ -2442,7 +2447,7 @@ class HMSRNSDK(
       peerListIterators[uniqueId] = iterator
       val map = Arguments.createMap()
       map.putBoolean("success", true)
-      map.putInt("uniqueId", uniqueId)
+      map.putString("uniqueId", uniqueId)
       return map
     }
     print("Error in getPeerListIterator: HMS SDK is not available")
@@ -2453,7 +2458,7 @@ class HMSRNSDK(
     data: ReadableMap,
     promise: Promise?,
   ) {
-    val uniqueId = data.getInt("uniqueId")
+    val uniqueId = data.getString("uniqueId")
 
     peerListIterators[uniqueId]?.let {
       promise?.resolve(it.hasNext())
@@ -2466,7 +2471,7 @@ class HMSRNSDK(
     data: ReadableMap,
     promise: Promise?,
   ) {
-    val uniqueId = data.getInt("uniqueId")
+    val uniqueId = data.getString("uniqueId")
 
     val peerListIterator = peerListIterators[uniqueId]
 
@@ -2484,7 +2489,7 @@ class HMSRNSDK(
         override fun onSuccess(result: ArrayList<HMSPeer>) {
           val array = Arguments.createArray()
           for (peer in result) {
-            val hmsPeer = HMSDecoder.getHmsPeerSubset(peer, null)
+            val hmsPeer = HMSDecoder.getHmsPeer(peer)
             array.pushMap(hmsPeer)
           }
           promise?.resolve(array)
