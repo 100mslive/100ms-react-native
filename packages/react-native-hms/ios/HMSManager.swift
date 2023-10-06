@@ -323,7 +323,7 @@ class HMSManager: RCTEventEmitter {
     func lowerLocalPeerHand(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
-        hms?.raiseLocalPeerHand(resolve, reject)
+        hms?.lowerLocalPeerHand(resolve, reject)
     }
 
     @objc

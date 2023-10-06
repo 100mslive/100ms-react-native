@@ -1,8 +1,7 @@
-<a href="https://100ms.live/">
-<img src="https://raw.githubusercontent.com/100mslive/react-native-hms/main/100ms.svg" title="100ms logo" float=center height=256>
-</a>
+[![100ms-svg](https://user-images.githubusercontent.com/93931528/205858417-8c0a0d1b-2d46-4710-9316-7418092fd3d6.svg)](https://100ms.live/)
 
 [![npm](https://img.shields.io/npm/v/@100mslive/react-native-hms)](https://www.npmjs.com/package/@100mslive/react-native-hms)
+[![Build](https://github.com/100mslive/100ms-react-native/actions/workflows/build.yml/badge.svg?branch=develop)](https://github.com/100mslive/100ms-react-native/actions/workflows/build.yml)
 [![license](https://img.shields.io/npm/l/@100mslive/react-native-hms)](https://www.100ms.live/)
 [![quality](https://img.shields.io/npms-io/quality-score/@100mslive/react-native-hms)](https://www.npmjs.com/package/@100mslive/react-native-hms)
 [![collaborators](https://img.shields.io/npm/collaborators/@100mslive/react-native-hms)](https://www.npmjs.com/package/@100mslive/react-native-hms)
