@@ -1,20 +1,20 @@
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
 
-import { useFilteredParticipants } from '../../hooks-util';
 import { ParticipantsList, ParticipantsSearchInput } from '../Participants';
+import { MultiRoleParticipantsList } from '../Participants/MultiRoleParticipantsList';
 
 type ParticipantsViewProps = {};
 
 export const ParticipantsView: React.FC<ParticipantsViewProps> = () => {
-  const {
-    data,
-    searchText,
-    formattedSearchText,
-    setSearchText,
-    expandedGroup,
-    setExpandedGroup,
-  } = useFilteredParticipants();
+  const [searchText, setSearchText] = React.useState('');
+  const [selectedGroupId, setSelectedGroupId] = React.useState<string | null>(
+    null
+  );
+
+  const clearSelectedGroup = React.useCallback(() => {
+    setSelectedGroupId(null);
+  }, []);
 
   return (
     <>
@@ -24,12 +24,18 @@ export const ParticipantsView: React.FC<ParticipantsViewProps> = () => {
       />
 
       <View style={styles.listWrapper}>
-        <ParticipantsList
-          data={data}
-          expandedGroup={expandedGroup}
-          setExpandedGroup={setExpandedGroup}
-          searchTextExists={formattedSearchText.length > 0}
-        />
+        {selectedGroupId === null ? (
+          <MultiRoleParticipantsList
+            searchText={searchText}
+            onViewAllPress={setSelectedGroupId}
+          />
+        ) : (
+          <ParticipantsList
+            searchText={searchText}
+            selectedGroupId={selectedGroupId}
+            onBackPress={clearSelectedGroup}
+          />
+        )}
       </View>
     </>
   );

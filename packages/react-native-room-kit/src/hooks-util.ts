@@ -46,9 +46,14 @@ import {
 } from 'react';
 import type { DependencyList } from 'react';
 
-import { MaxTilesInOnePage, ModalTypes, PipModes } from './utils/types';
+import {
+  MaxTilesInOnePage,
+  ModalTypes,
+  PeerListRefreshInterval,
+  PipModes,
+} from './utils/types';
 import type { ChatBroadcastFilter, PeerTrackNode } from './utils/types';
-import { createPeerTrackNode, parseMetadata } from './utils/functions';
+import { createPeerTrackNode } from './utils/functions';
 import {
   batch,
   shallowEqual,
@@ -73,6 +78,7 @@ import {
   removeParticipant,
   removeParticipants,
   removeScreenshareTile,
+  replaceParticipantsList,
   saveUserData,
   setActiveChatBottomSheetTab,
   setActiveSpeakers,
@@ -105,13 +111,7 @@ import {
   replacePeerTrackNodesWithTrack,
 } from './peerTrackNodeUtils';
 import { MeetingState } from './types';
-import {
-  AppState,
-  InteractionManager,
-  Keyboard,
-  LayoutAnimation,
-  Platform,
-} from 'react-native';
+import { InteractionManager, Keyboard, Platform } from 'react-native';
 import type { ImageStyle, StyleProp, ViewStyle, TextStyle } from 'react-native';
 import { NavigationContext } from '@react-navigation/native';
 import {
@@ -130,7 +130,6 @@ import type { GridViewRefAttrs } from './components/GridView';
 import { getRoomLayout } from './modules/HMSManager';
 import { DEFAULT_THEME, DEFAULT_TYPOGRAPHY } from './utils/theme';
 import { NotificationTypes } from './utils';
-import type { HMSPeerListIterator } from '../../react-native-hms/src/classes/HMSPeerListIterator';
 
 export const useHMSListeners = (
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>
@@ -1678,82 +1677,72 @@ export const useLandscapeChatViewVisible = () => {
   return pipModeNotActive && isLandscapeOrientation && overlayChatVisible;
 };
 
-export type ParticipantHeaderData = {
+export type ParticipantAccordianData = {
   id: string;
   label: string;
-  role: HMSRole;
-  itemsLength: number;
+  showViewAll: boolean;
+  data: (HMSPeer | HMSLocalPeer)[];
 };
 
-export type ParticipantHandRaisedHeaderData = {
-  id: string;
-  label: string;
-  // role: { name: string; }
-  itemsLength: number;
-};
-
-export type ListItemUI<
-  T =
-    | ParticipantHeaderData
-    | HMSLocalPeer
-    | HMSPeer
-    | ParticipantHandRaisedHeaderData,
-> = {
-  type: 'EXPANDED_HEADER' | 'COLLAPSED_HEADER' | 'LAST_ITEM' | 'REGULAR_ITEM';
-  data: T;
-  key: string;
-};
-
-export const usePeerIteratorAPI = (roles: string[]) => {
+export const useOffStageParticipants = () => {
   const dispatch = useDispatch();
   const hmsInstance = useHMSInstance();
+  const offStageRoles = useHMSLayoutConfig(
+    (layoutConfig) =>
+      layoutConfig?.screens?.conferencing?.default?.elements?.on_stage_exp
+        ?.off_stage_roles || null
+  );
+
+  const [participantsTotalCounts, setParticipantsTotalCounts] = useState<
+    Record<string, number>
+  >({});
 
   useEffect(() => {
-    let mounted = true;
+    if (offStageRoles) {
+      let mounted = true;
 
-    const createIterator = async (forRole: string) => {
-      const iterator = hmsInstance.getPeerListIterator({ byRoleName: forRole, limit: 10 });
-      const participants = await iterator.next();
-      console.log('***** ', participants);
-      if (mounted) {
-        if (mounted && participants.length > 0) {
-          console.log('***** adding participants');
-          dispatch(addParticipants(participants));
+      const createIterator = async (forRole: string) => {
+        const iterator = hmsInstance.getPeerListIterator({
+          byRoleName: forRole,
+          limit: 10,
+        });
+        const participants = await iterator.next();
+        if (mounted) {
+          if (mounted && participants.length > 0) {
+            dispatch(replaceParticipantsList(participants, forRole));
+            setParticipantsTotalCounts((prev) => ({
+              ...prev,
+              [forRole]: iterator.totalCount,
+            }));
+          }
+        } else {
+          console.log('***** Ignored setting state because unmounted');
         }
-      } else {
-        console.log('***** Ignored setting state because unmounted');
-      }
+      };
+
+      const createIteratorForRoles = () => {
+        offStageRoles.forEach((role) => {
+          createIterator(role);
+        });
+      };
+
+      createIteratorForRoles();
+
+      const intervalId = setInterval(() => {
+        createIteratorForRoles();
+      }, PeerListRefreshInterval);
+
+      return () => {
+        mounted = false;
+        clearInterval(intervalId);
+      };
     }
+  }, [offStageRoles]);
 
-    roles.forEach(role => {
-      createIterator(role);
-    });
+  return participantsTotalCounts;
+};
 
-    return () => {
-      mounted = false;
-    }
-  }, [roles]);
-}
-
-/**
- * current screen
- *
- * - create new iterators for off stage roles
- * - fetch participants
- * - after 5 seconds, repeat
- */
-
-/**
- * view all participants screen
- *
- * get iterator - new
- *
- */
-
-// const offStageRoles = ['viewer-near-realtime', 'viewer-realtime'];
-const offStageRoles = ['viewer-realtime'];
-
-export const useFilteredParticipants = () => {
+export const useFilteredParticipants = (filterText: string) => {
   const roles = useSelector((state: RootState) => state.hmsStates.roles);
   const onStageRole = useHMSLayoutConfig(
     (layoutConfig) =>
@@ -1761,10 +1750,9 @@ export const useFilteredParticipants = () => {
         ?.on_stage_role || null
   );
 
-  usePeerIteratorAPI(offStageRoles);
+  const offStageParticipantsTotalCounts = useOffStageParticipants();
 
-  const [searchText, setSearchText] = useState('');
-  const formattedSearchText = searchText.trim().toLowerCase();
+  const formattedSearchText = filterText.trim().toLowerCase();
 
   const groupedParticipants = useSelector(
     (state: RootState) => state.hmsStates.groupedParticipants
@@ -1773,7 +1761,7 @@ export const useFilteredParticipants = () => {
   const sortedRoles = useMemo(
     () => {
       return roles
-        .filter((role) =>  {
+        .filter((role) => {
           if (!role.name || role.name.startsWith('_')) {
             return false;
           }
@@ -1822,90 +1810,74 @@ export const useFilteredParticipants = () => {
     [onStageRole, roles]
   );
 
-  const participantsAccordianData: { id: string; label: string; data: any[] | undefined; }[] = useMemo(() => {
+  const participantsAccordianData: ParticipantAccordianData[] = useMemo(() => {
     const t = [];
+
+    const filteredHandRaisedPeers: (HMSPeer | HMSLocalPeer)[][] = [];
 
     sortedRoles.forEach((role) => {
       const list = groupedParticipants[role.name!];
+      const filteredList =
+        Array.isArray(list) && formattedSearchText.length > 0
+          ? list.filter((peer) =>
+              peer.name.toLowerCase().includes(formattedSearchText)
+            )
+          : list;
 
-      if (Array.isArray(list) && list.length > 0) {
+      if (Array.isArray(filteredList) && filteredList.length > 0) {
+
+        filteredHandRaisedPeers.push(filteredList);
+        const offStageRoleTotalCount =
+          offStageParticipantsTotalCounts[role.name!];
+
+        const firstTen = filteredList.slice(0, 10);
+
         t.push({
           id: role.name!,
-          label: `${role.name!} (${list.length})`,
-          data: list,
+          label: `${role.name!} (${filteredList.length})`,
+          showViewAll:
+            typeof offStageRoleTotalCount === 'number' &&
+            formattedSearchText.length <= 0
+              ? offStageRoleTotalCount > 10
+              : filteredList.length > 10,
+          data: firstTen,
         });
       }
     });
 
-    const allParticipants = Object.values(groupedParticipants).flat();
+    const handRaisedParticipants = filteredHandRaisedPeers
+      .flat()
+      .filter((participant) => participant.isHandRaised);
 
-    const handRaisedParticipants = allParticipants.filter((participant) => participant.isHandRaised);
+    const firstTenHandRaisedParticipants = handRaisedParticipants.slice(0, 10);
 
     if (handRaisedParticipants.length > 0) {
       t.unshift({
         id: 'hand-raised',
         label: `Hand Raised (${handRaisedParticipants.length})`,
-        data: handRaisedParticipants,
+        showViewAll: handRaisedParticipants.length > 10,
+        data: firstTenHandRaisedParticipants,
       });
     }
 
     return t;
-  }, [groupedParticipants, sortedRoles]);
+  }, [
+    formattedSearchText,
+    groupedParticipants,
+    offStageParticipantsTotalCounts,
+    sortedRoles,
+  ]);
 
-  const [expandedGroup, setExpandedGroup] = useState<string | null>(participantsAccordianData[0]?.id ?? null);
+  const [expandedGroup, setExpandedGroup] = useState<string | null>(
+    participantsAccordianData[0]?.id ?? null
+  );
 
   return {
     data: participantsAccordianData,
-    searchText,
     formattedSearchText,
-    setSearchText,
     expandedGroup,
     setExpandedGroup,
   };
-};
-
-const groupParticipantsAsPerRole = (
-  participants: (HMSLocalPeer | HMSPeer)[],
-  searchText: string
-) => {
-  const groups: Map<string, (HMSLocalPeer | HMSPeer)[]> = new Map();
-
-  for (const participant of participants) {
-    const participantRole = participant.role;
-
-    if (!participantRole) {
-      continue;
-    }
-
-    if (
-      searchText.length <= 0 ||
-      participant.name.toLowerCase().includes(searchText)
-    ) {
-      if (!groups.has(participantRole.name!)) {
-        groups.set(participantRole.name!, []);
-      }
-
-      const group = groups.get(participantRole.name!);
-
-      if (!group) {
-        continue;
-      }
-
-      group.push(participant);
-
-      if (participant.isHandRaised) {
-        if (!groups.has('hand-raised')) {
-          groups.set('hand-raised', []);
-        }
-
-        const group = groups.get('hand-raised');
-
-        if (group) group.push(participant);
-      }
-    }
-  }
-
-  return groups;
 };
 
 export const useShouldGoLive = () => {

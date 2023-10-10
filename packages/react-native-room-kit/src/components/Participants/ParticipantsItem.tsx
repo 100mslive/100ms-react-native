@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import type { HMSLocalPeer, HMSRemotePeer } from '@100mslive/react-native-hms';
+import type { HMSLocalPeer, HMSPeer } from '@100mslive/react-native-hms';
 
 import { isParticipantHostOrBroadcaster } from '../../utils/functions';
 import { useHMSRoomStyleSheet } from '../../hooks-util';
@@ -11,9 +11,8 @@ import { ParticipantsItemOptions } from './ParticipantsItemOptions';
 import type { RootState } from '../../redux';
 
 interface ParticipantsItemProps {
-  // groupName: string;
   groupId: string;
-  data: HMSLocalPeer | HMSRemotePeer;
+  data: HMSPeer | HMSLocalPeer;
 }
 
 const _ParticipantsItem: React.FC<ParticipantsItemProps> = ({

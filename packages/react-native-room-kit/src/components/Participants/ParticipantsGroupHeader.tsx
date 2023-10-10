@@ -4,11 +4,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 // import type { HMSRole } from '@100mslive/react-native-hms';
 
 import { useHMSRoomStyleSheet } from '../../hooks-util';
-import type {
-  ListItemUI,
-  ParticipantHandRaisedHeaderData,
-  ParticipantHeaderData,
-} from '../../hooks-util';
+import type { ParticipantAccordianData } from '../../hooks-util';
 import { ChevronIcon, ThreeDotsIcon } from '../../Icons';
 import { Menu } from '../MenuModal';
 import { ParticipantsGroupOptions } from './ParticipantsGroupOptions';
@@ -16,14 +12,18 @@ import { ParticipantsGroupOptions } from './ParticipantsGroupOptions';
 // import { isParticipantHostOrBroadcaster } from '../../utils/functions';
 
 interface ParticipantsGroupHeaderProps {
-  data: { id: string; label: string; data: any[] | undefined };
+  id: ParticipantAccordianData['id'];
+  label: ParticipantAccordianData['label'];
   expanded: boolean;
-  toggleExpanded(groupName: string | null): void;
+  onBackPress?: () => void;
+  toggleExpanded?: (groupName: string | null) => void;
 }
 
 const _ParticipantsGroupHeader: React.FC<ParticipantsGroupHeaderProps> = ({
-  data,
+  id,
+  label,
   expanded,
+  onBackPress,
   toggleExpanded,
 }) => {
   // const selfHostOrBroadcaster = useSelector((state: RootState) => {
@@ -58,11 +58,11 @@ const _ParticipantsGroupHeader: React.FC<ParticipantsGroupHeaderProps> = ({
 
   const hideOptions = () => setOptionsVisible(false);
 
-  const toggleGroupExpand = () => {
-    const groupName = data.id;
-
-    toggleExpanded(expanded ? null : groupName);
-  };
+  const toggleGroupExpand = toggleExpanded
+    ? () => {
+        toggleExpanded(expanded ? null : id);
+      }
+    : null;
 
   return (
     <View
@@ -72,7 +72,15 @@ const _ParticipantsGroupHeader: React.FC<ParticipantsGroupHeaderProps> = ({
         hmsRoomStyles.container,
       ]}
     >
-      <Text style={[styles.label, hmsRoomStyles.label]}>{data.label}</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        {onBackPress ? (
+          <TouchableOpacity style={{ marginRight: 8 }} onPress={onBackPress}>
+            <ChevronIcon direction="left" />
+          </TouchableOpacity>
+        ) : null}
+
+        <Text style={[styles.label, hmsRoomStyles.label]}>{label}</Text>
+      </View>
 
       <View style={styles.controls}>
         {show3Dots ? (
@@ -86,16 +94,18 @@ const _ParticipantsGroupHeader: React.FC<ParticipantsGroupHeaderProps> = ({
             }
             style={{ ...styles.menu, ...hmsRoomStyles.menu }}
           >
-            <ParticipantsGroupOptions data={data} />
+            <ParticipantsGroupOptions />
           </Menu>
         ) : null}
 
-        <TouchableOpacity
-          style={[styles.control, expanded ? styles.expandedArrowIcon : null]}
-          onPress={toggleGroupExpand}
-        >
-          <ChevronIcon direction="down" />
-        </TouchableOpacity>
+        {toggleGroupExpand ? (
+          <TouchableOpacity
+            style={[styles.control, expanded ? styles.expandedArrowIcon : null]}
+            onPress={toggleGroupExpand}
+          >
+            <ChevronIcon direction="down" />
+          </TouchableOpacity>
+        ) : null}
       </View>
     </View>
   );

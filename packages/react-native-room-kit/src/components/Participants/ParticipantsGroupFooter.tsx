@@ -2,17 +2,18 @@ import * as React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
 import { useHMSRoomStyleSheet } from '../../hooks-util';
-// import type {
-//   ParticipantHandRaisedHeaderData,
-//   ParticipantHeaderData,
-// } from '../../hooks-util';
+import type { ParticipantAccordianData } from '../../hooks-util';
 import { ChevronIcon } from '../../Icons';
 
 interface ParticipantsGroupHeaderProps {
-  // data: ParticipantHeaderData | ParticipantHandRaisedHeaderData;
+  groupId: ParticipantAccordianData['id'];
+  onViewAllPress(groupId: string): void;
 }
 
-const _ParticipantsGroupFooter: React.FC<ParticipantsGroupHeaderProps> = () => {
+const _ParticipantsGroupFooter: React.FC<ParticipantsGroupHeaderProps> = ({
+  groupId,
+  onViewAllPress,
+}) => {
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     container: {
       borderTopColor: theme.palette.border_bright,
@@ -23,7 +24,9 @@ const _ParticipantsGroupFooter: React.FC<ParticipantsGroupHeaderProps> = () => {
     },
   }));
 
-  const handleViewAllPress = () => {};
+  const handleViewAllPress = () => {
+    onViewAllPress(groupId);
+  };
 
   return (
     <View style={[styles.container, hmsRoomStyles.container]}>

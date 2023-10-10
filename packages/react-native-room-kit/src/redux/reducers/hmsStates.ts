@@ -27,6 +27,7 @@ type ActionType =
   | RemoveParticipant
   | RemoveParticipants
   | AddUpdateParticipant
+  | ReplaceParticipantsList
   | SetActiveSpeakers
   | SetReconnecting;
 
@@ -112,6 +113,12 @@ type RemoveParticipants = {
 type AddUpdateParticipant = {
   type: HmsStateActionTypes.ADD_UPDATE_PARTICIPANT;
   participant: HMSPeer;
+};
+
+type ReplaceParticipantsList = {
+  type: HmsStateActionTypes.REPLACE_PARTICIPANTS_LIST;
+  roleName: string;
+  participants: HMSPeer[];
 };
 
 type SetActiveSpeakers = {
@@ -466,6 +473,15 @@ const hmsStatesReducer = (
           [participantRoleName]: Array.isArray(participants)
             ? [...participants, action.participant]
             : [action.participant],
+        },
+      };
+    }
+    case HmsStateActionTypes.REPLACE_PARTICIPANTS_LIST: {
+      return {
+        ...state,
+        groupedParticipants: {
+          ...state.groupedParticipants,
+          [action.roleName]: action.participants
         },
       };
     }

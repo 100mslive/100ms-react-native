@@ -6,7 +6,7 @@ import { HandIcon } from '../../Icons';
 import { ParticipantsItemOption } from './ParticipantsItemOption';
 
 interface ParticipantsGroupOptionsProps {
-  data: any;
+  // data: any;
 }
 
 const _ParticipantsGroupOptions: React.FC<

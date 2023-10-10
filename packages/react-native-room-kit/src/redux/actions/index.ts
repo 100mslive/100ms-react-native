@@ -364,6 +364,12 @@ export const addUpdateParticipant = (participant: HMSPeer) => ({
   participant,
 });
 
+export const replaceParticipantsList = (participants: HMSPeer[], roleName: string) => ({
+  type: HmsStateActionTypes.REPLACE_PARTICIPANTS_LIST,
+  participants,
+  roleName,
+});
+
 export const setActiveSpeakers = (activeSpeakers: HMSSpeaker[]) => ({
   type: HmsStateActionTypes.SET_ACTIVE_SPEAKERS,
   activeSpeakers,

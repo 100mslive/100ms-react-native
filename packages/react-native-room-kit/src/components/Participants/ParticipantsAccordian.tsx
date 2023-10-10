@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
-import type { HMSRole } from '@100mslive/react-native-hms';
 
 import { ParticipantsGroupHeader } from './ParticipantsGroupHeader';
 import { useHMSRoomStyleSheet } from '../../hooks-util';
+import type { ParticipantAccordianData } from '../../hooks-util';
 import { ParticipantsGroupFooter } from './ParticipantsGroupFooter';
 import { ParticipantsAccordianExpanded } from './ParticipantsAccordianExpanded';
 
@@ -11,15 +11,17 @@ export interface ParticipantsAccordianProps {
   open: boolean;
   // role: HMSRole;
   showViewAll?: boolean;
-  data: { id: string; label: string; data: any[] | undefined; };
+  data: ParticipantAccordianData;
   toggle(uid: string | null): void;
-};
+  onViewAllPress(groupId: string): void;
+}
 
 export const ParticipantsAccordian: React.FC<ParticipantsAccordianProps> = ({
   open,
-  toggle,
   data,
-  showViewAll=false,
+  showViewAll = false,
+  toggle,
+  onViewAllPress,
 }) => {
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     container: {
@@ -36,19 +38,24 @@ export const ParticipantsAccordian: React.FC<ParticipantsAccordianProps> = ({
   }));
 
   return (
-    <View style={[
-      styles.container,
-      hmsRoomStyles.container,
-    ]}>
+    <View style={[styles.container, hmsRoomStyles.container]}>
       <ParticipantsGroupHeader
-        data={data}
+        id={data.id}
+        label={data.label}
         expanded={open}
         toggleExpanded={toggle}
       />
 
-      {open ? <ParticipantsAccordianExpanded data={data} /> : null}
+      {open ? (
+        <ParticipantsAccordianExpanded id={data.id} data={data.data} />
+      ) : null}
 
-      {open && showViewAll ? <ParticipantsGroupFooter /> : null}
+      {open && showViewAll ? (
+        <ParticipantsGroupFooter
+          groupId={data.id}
+          onViewAllPress={onViewAllPress}
+        />
+      ) : null}
     </View>
   );
 };
