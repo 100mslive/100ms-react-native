@@ -2487,12 +2487,19 @@ class HMSRNSDK(
         }
 
         override fun onSuccess(result: ArrayList<HMSPeer>) {
-          val array = Arguments.createArray()
+          val resultData: WritableMap = Arguments.createMap()
+
+          resultData.putInt("totalCount", peerListIterator.totalCount)
+
+          val array: WritableArray = Arguments.createArray()
           for (peer in result) {
             val hmsPeer = HMSDecoder.getHmsPeer(peer)
             array.pushMap(hmsPeer)
           }
-          promise?.resolve(array)
+
+          resultData.putArray("peers", array)
+
+          promise?.resolve(resultData)
         }
       },
     )

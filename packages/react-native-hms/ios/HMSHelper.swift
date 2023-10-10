@@ -347,6 +347,21 @@ class HMSHelper: NSObject {
         return nil
     }
 
+    static func getPeerListIteratorOptions(_ data: NSDictionary?) -> HMSPeerListIteratorOptions? {
+        guard let config = data else {
+            return nil
+        }
+
+        let role = config["byRoleName"] as? String
+        let peerIds = config["peerIds"] as? [String]
+
+        if let limit = config["limit"] as? Int {
+            return HMSPeerListIteratorOptions(filterByRoleName: role, filterByPeerIds: peerIds, limit: limit)
+        }
+
+        return HMSPeerListIteratorOptions(filterByRoleName: role, filterByPeerIds: peerIds)
+    }
+
     private static func getAudioMode(from mode: String?) -> HMSAudioMode? {
         switch mode {
         case "voice":

@@ -6,10 +6,16 @@ import { HMSConstants } from './HMSConstants';
 import { getHmsPeersCache } from './HMSPeersCache';
 
 export class HMSPeerListIterator {
-  private readonly uniqueId: number;
+  private readonly uniqueId: string;
+  private _totalCount: number = 0;
 
-  constructor(uniqueId: number) {
+  get totalCount() {
+    return this._totalCount;
+  }
+
+  constructor(uniqueId: string, totalCount: number) {
     this.uniqueId = uniqueId;
+    this._totalCount = totalCount;
   }
 
   async hasNext(): Promise<boolean> {
@@ -28,10 +34,12 @@ export class HMSPeerListIterator {
   async next(): Promise<HMSPeer[]> {
     logger?.verbose('#Function HMSPeerListIterator#next', this.uniqueId);
     try {
-      const peers = await HMSManagerModule.peerListIteratorNext({
+      const { totalCount, peers } = await HMSManagerModule.peerListIteratorNext({
         id: HMSConstants.DEFAULT_SDK_ID,
         uniqueId: this.uniqueId,
       });
+
+      this._totalCount = totalCount;
 
       if (Array.isArray(peers) && peers.length > 0) {
         const hmsPeersCache = getHmsPeersCache();

@@ -29,6 +29,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     private var eventsEnableStatus: [String: Bool] = [:]
     private var sessionStore: HMSSessionStore?
     private var sessionStoreChangeObservers = [String: NSObjectProtocol]()
+    private var peerListIterators = [String: HMSPeerListIterator]()
 
     // MARK: - Setup
     init(data: NSDictionary?, delegate manager: HMSManager?, uid id: String) {
@@ -1890,6 +1891,84 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
 
+    // MARK: - Peer List Iterator
+
+    func getPeerListIterator(_ data: NSDictionary) -> [AnyHashable: Any]? {
+        guard let uniqueId = data["uniqueId"] as? String else {
+            print("Error in getPeerListIterator: uniqueId is not available")
+            return nil
+        }
+
+        guard let hmssdk = hms else {
+            print("Error in getPeerListIterator: HMSSDK is not available")
+            return nil
+        }
+
+        var peerListIterator: HMSPeerListIterator
+
+        if let peerListIteratorOptions = HMSHelper.getPeerListIteratorOptions(data) {
+            peerListIterator = hmssdk.getPeerListIterator(options: peerListIteratorOptions)
+        } else {
+            peerListIterator = hmssdk.getPeerListIterator()
+        }
+
+        peerListIterators[uniqueId] = peerListIterator
+
+        return [
+            "success": true,
+            "uniqueId": uniqueId,
+            "totalCount": peerListIterator.totalCount
+        ]
+    }
+
+    func peerListIteratorHasNext(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let uniqueId = data["uniqueId"] as? String else {
+            let errorMessage = "\(#function) uniqueId is not available"
+            reject?("6004", errorMessage, nil)
+            return
+        }
+
+        guard let peerListIterator = peerListIterators[uniqueId] else {
+            let errorMessage = "\(#function) HMSPeerListIterator is not available for uniqueId - \(uniqueId)"
+            reject?("6004", errorMessage, nil)
+            return
+        }
+
+        resolve?(peerListIterator.hasNext)
+    }
+
+    func peerListIteratorNext(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let uniqueId = data["uniqueId"] as? String else {
+            let errorMessage = "\(#function) uniqueId is not available"
+            reject?("6004", errorMessage, nil)
+            return
+        }
+
+        guard let peerListIterator = peerListIterators[uniqueId] else {
+            let errorMessage = "\(#function) HMSPeerListIterator is not available for uniqueId - \(uniqueId)"
+            reject?("6004", errorMessage, nil)
+            return
+        }
+
+        peerListIterator.next { peers, error in
+            if let nonnilError = error {
+                reject?("6004", nonnilError.localizedDescription, nil)
+                return
+            }
+
+            if let nonnilPeers = peers {
+                var data = [[String: Any]]()
+                for peer in nonnilPeers {
+                    data.append(HMSDecoder.getHmsPeer(peer))
+                }
+                resolve?(["totalCount": peerListIterator.totalCount, "peers": data])
+            } else {
+                let errorMessage = "\(#function) peers is nil"
+                reject?("6004", errorMessage, nil)
+            }
+        }
+    }
+
     // MARK: - Helper Functions
 
     // Handle resetting states and data cleanup
@@ -1907,6 +1986,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         self.eventsEnableStatus.removeAll()
         self.sessionStore = nil
         self.sessionStoreChangeObservers.removeAll()
+        self.peerListIterators.removeAll()
         HMSDecoder.clearRestrictDataStates()
     }
 

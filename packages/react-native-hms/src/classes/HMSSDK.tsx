@@ -1195,23 +1195,21 @@ export class HMSSDK {
       options,
     });
 
-    const uniqueId = Date.now();
+    const uniqueId = Math.random().toString(16).slice(2);
 
-    const uid = Symbol(uniqueId);
-
-    const data: null | { sucess: boolean; uniqueId: number } =
+    const data: null | { sucess: boolean; uniqueId: string; totalCount: number; } =
       HMSManager.getPeerListIterator({
         id: this.id,
         ...options,
         limit: options?.limit ?? 10,
-        uniqueId: uid.toString(),
+        uniqueId,
       });
 
     if (!data) {
       throw new Error('Unable to create PeerListIterator');
     }
 
-    return new HMSPeerListIterator(data.uniqueId);
+    return new HMSPeerListIterator(data.uniqueId, data.totalCount);
   };
 
   /**
