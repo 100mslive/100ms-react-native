@@ -60,7 +60,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
 
-             if let endPoint = data["endpoint"] as? String, (endPoint.contains("mockable") || endPoint.contains("nonprod")) {
+             if let endPoint = data["endpoint"] as? String, endPoint.contains("mockable") || endPoint.contains("nonprod") {
                   UserDefaults.standard.set(endPoint, forKey: "HMSRoomLayoutEndpointOverride")
              } else {
                    UserDefaults.standard.removeObject(forKey: "HMSRoomLayoutEndpointOverride")
@@ -1322,6 +1322,13 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
         let roomData = HMSDecoder.getHmsRoomSubset(room)
+
+        if #available(iOS 15.0, *) {
+            HMSPIPAction.setupPIP(["data": true], nil, nil)
+        } else {
+            // Fallback on earlier versions
+        }
+
         self.delegate?.emitEvent(HMSConstants.ON_JOIN, ["event": HMSConstants.ON_JOIN, "id": self.id, "room": roomData])
     }
 
