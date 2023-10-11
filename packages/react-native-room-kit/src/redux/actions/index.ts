@@ -360,7 +360,7 @@ export const removeParticipants = (participants: HMSPeer[]) => ({
 });
 
 export const addUpdateParticipant = (participant: HMSPeer) => ({
-  type: HmsStateActionTypes.ADD_UPDATE_PARTICIPANT,
+  type: HmsStateActionTypes.UPDATE_PARTICIPANT,
   participant,
 });
 

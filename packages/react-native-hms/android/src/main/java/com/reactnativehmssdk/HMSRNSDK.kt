@@ -1114,30 +1114,31 @@ class HMSRNSDK(
         arrayOf(Pair("peerId", "String"), Pair("reason", "String")),
       )
     if (requiredKeys === null) {
-      val peerId = data.getString("peerId")
-      val peer = HMSHelper.getRemotePeerFromPeerId(peerId, hmsSDK?.getRoom())
+      HMSCoroutineScope.launch {
+        val peerId = data.getString("peerId")
 
-      if (peer != null) {
-        hmsSDK?.removePeerRequest(
-          peer,
-          data.getString("reason") as String,
-          object : HMSActionResultListener {
-            override fun onSuccess() {
-              callback?.resolve(emitHMSSuccess())
-            }
+        val peer = HMSHelper.getRemotePeerFromPeerId(peerId, hmsSDK)
 
-            override fun onError(error: HMSException) {
-              callback?.reject(error.code.toString(), error.message)
-            }
-          },
-        )
-      } else {
-        self.emitCustomError("PEER_NOT_FOUND")
-        callback?.reject("101", "PEER_NOT_FOUND")
+        if (peer != null) {
+          hmsSDK?.removePeerRequest(
+            peer,
+            data.getString("reason") as String,
+            object : HMSActionResultListener {
+              override fun onSuccess() {
+                callback?.resolve(emitHMSSuccess())
+              }
+
+              override fun onError(error: HMSException) {
+                callback?.reject(error.code.toString(), error.message)
+              }
+            },
+          )
+        } else {
+          callback?.reject("101", "PEER_NOT_FOUND")
+        }
       }
     } else {
       val errorMessage = "removePeer: $requiredKeys"
-      self.emitRequiredKeysError(errorMessage)
       rejectCallback(callback, errorMessage)
     }
   }
@@ -1281,13 +1282,10 @@ class HMSRNSDK(
     val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("mute", "Boolean")))
     if (requiredKeys === null) {
       val mute = data.getBoolean("mute")
-      val peers = hmsSDK?.getRemotePeers()
-      if (peers != null) {
-        for (remotePeer in peers) {
-          val peerId = remotePeer.peerID
-          val peer = HMSHelper.getRemotePeerFromPeerId(peerId, hmsSDK?.getRoom())
-          peer?.audioTrack?.isPlaybackAllowed = !mute
-        }
+      val remotePeers = hmsSDK?.getRemotePeers()
+
+      remotePeers?.forEach() {
+        it.audioTrack?.isPlaybackAllowed = !mute
       }
     } else {
       val errorMessage = "setPlaybackForAllAudio: $requiredKeys"

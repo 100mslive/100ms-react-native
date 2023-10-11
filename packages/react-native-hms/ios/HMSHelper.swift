@@ -17,7 +17,7 @@ class HMSHelper: NSObject {
         return "SEND_ALL_REQUIRED_KEYS"
     }
 
-    static func getPeerFromPeerId(_ peerID: String?, remotePeers: [HMSRemotePeer]?, localPeer: HMSLocalPeer?) -> HMSPeer? {
+    static func getPeerFromPeerId(_ peerID: String?, remotePeers: [HMSRemotePeer]?, localPeer: HMSLocalPeer? = nil) -> HMSPeer? {
 
         guard let peerID = peerID, let peers = remotePeers else { return nil }
         if peerID == localPeer?.peerID {
@@ -26,11 +26,25 @@ class HMSHelper: NSObject {
         return peers.first { $0.peerID == peerID }
     }
 
-    static func getRemotePeerFromPeerId(_ peerID: String?, remotePeers: [HMSRemotePeer]?) -> HMSPeer? {
+    static func getRemotePeerFromPeerId(_ peerID: String?, hmsSDK: HMSSDK?,  completion: @escaping (_ peer: HMSPeer?) -> Void) {
+        guard let peerID = peerID, let hms = hmsSDK, let peers = hms.remotePeers else {
+            completion(nil)
+            return
+        }
 
-        guard let peerID = peerID, let peers = remotePeers else { return nil }
+        if let peerFromList = peers.first(where: { $0.peerID == peerID }) {
+            completion(peerFromList)
+            return
+        }
 
-        return peers.first { $0.peerID == peerID }
+        let peerListIterator = hms.getPeerListIterator(options: HMSPeerListIteratorOptions(filterByPeerIds: [peerID], limit: 1))
+        peerListIterator.next() { peers, error in
+            guard let nonnilPeers = peers, let firstPeer = nonnilPeers.first else {
+                completion(nil)
+                return
+            }
+            completion(firstPeer)
+        }
     }
 
     static func getRolesFromRoleNames(_ targetedRoles: [String]?, roles: [HMSRole]?) -> [HMSRole] {

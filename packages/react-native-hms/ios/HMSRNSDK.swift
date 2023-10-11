@@ -373,7 +373,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
         let type = data.value(forKey: "type") as? String ?? "chat"
         DispatchQueue.main.async { [weak self] in
-            guard let peer = HMSHelper.getRemotePeerFromPeerId(peerId, remotePeers: self?.hms?.remotePeers) else { return }
+            guard let peer = HMSHelper.getPeerFromPeerId(peerId, remotePeers: self?.hms?.remotePeers) else { return }
+
             self?.hms?.sendDirectMessage(type: type, message: message, peer: peer, completion: { message, error in
                 if error == nil {
                     resolve?(["messageId": message?.messageID ?? "", "data": ["sender": message?.sender?.name ?? "", "message": message?.message ?? "", "type": message?.type]] as [String: Any])
@@ -586,22 +587,22 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
         let reason = data.value(forKey: "reason") as? String
 
-        DispatchQueue.main.async { [weak self] in
+        HMSHelper.getRemotePeerFromPeerId(peerId, hmsSDK: self.hms) { peer in
 
-            guard let remotePeers = self?.hms?.remotePeers,
-                  let peer = HMSHelper.getRemotePeerFromPeerId(peerId, remotePeers: remotePeers)
-            else {
+            guard let nonnilPeer = peer else {
                 reject?("PEER_NOT_FOUND", "PEER_NOT_FOUND", nil)
                 return
             }
 
-            self?.hms?.removePeer(peer, reason: reason ?? "Removed from room", completion: { success, error in
-                if success {
-                    resolve?(["success": success])
-                } else {
-                    reject?(error?.localizedDescription, error?.localizedDescription, nil)
-                }
-            })
+            DispatchQueue.main.async { [weak self] in
+                self?.hms?.removePeer(nonnilPeer, reason: reason ?? "Removed from room", completion: { success, error in
+                    if success {
+                        resolve?(["success": success])
+                    } else {
+                        reject?(error?.localizedDescription, error?.localizedDescription, nil)
+                    }
+                })
+            }
         }
     }
 
@@ -931,7 +932,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
 
-        guard let remotePeer = HMSHelper.getRemotePeerFromPeerId(peerId, remotePeers: self.hms?.remotePeers) else {
+        guard let remotePeer = HMSHelper.getPeerFromPeerId(peerId, remotePeers: self.hms?.remotePeers) else {
             let errorMessage = "lowerRemotePeerHand: Could not find remote peer with peerID - " + peerId
             reject?(errorMessage, errorMessage, nil)
             return

@@ -111,7 +111,7 @@ type RemoveParticipants = {
 };
 
 type AddUpdateParticipant = {
-  type: HmsStateActionTypes.ADD_UPDATE_PARTICIPANT;
+  type: HmsStateActionTypes.UPDATE_PARTICIPANT;
   participant: HMSPeer;
 };
 
@@ -405,73 +405,57 @@ const hmsStatesReducer = (
         groupedParticipants: updatedGroupedParticipants,
       };
     }
-    case HmsStateActionTypes.ADD_UPDATE_PARTICIPANT: {
+    case HmsStateActionTypes.UPDATE_PARTICIPANT: {
       const previousParticipant = Object.values(state.groupedParticipants)
         .flat()
         .find(
           (participant) => participant.peerID === action.participant.peerID
         );
 
-      if (previousParticipant) {
-        const previousRoleName = previousParticipant.role?.name!;
-        const currentRoleName = action.participant.role?.name!;
+      if (!previousParticipant) {
+        return state;
+      }
 
-        // check if role change
-        if (previousRoleName !== currentRoleName) {
-          const previousRoleList = state.groupedParticipants[previousRoleName];
-          const currentRoleList = state.groupedParticipants[currentRoleName];
+      const previousRoleName = previousParticipant.role?.name!;
+      const currentRoleName = action.participant.role?.name!;
 
-          return {
-            ...state,
-            groupedParticipants: {
-              ...state.groupedParticipants,
-              // - add to new
-              [currentRoleName]: Array.isArray(currentRoleList)
-                ? [...currentRoleList, action.participant]
-                : [action.participant],
-              // - delete from old
-              [previousRoleName]: Array.isArray(previousRoleList)
-                ? previousRoleList.filter(
-                    (p) => p.peerID !== action.participant.peerID
-                  )
-                : [],
-            },
-          };
-        }
-
-        // update existing
-
-        const currentList = state.groupedParticipants[currentRoleName];
+      // check if role change
+      if (previousRoleName !== currentRoleName) {
+        const previousRoleList = state.groupedParticipants[previousRoleName];
+        const currentRoleList = state.groupedParticipants[currentRoleName];
 
         return {
           ...state,
           groupedParticipants: {
             ...state.groupedParticipants,
-            [currentRoleName]: Array.isArray(currentList)
-              ? currentList.map((p) =>
-                  p.peerID === action.participant.peerID
-                    ? action.participant
-                    : p
-                )
+            // - add to new
+            [currentRoleName]: Array.isArray(currentRoleList)
+              ? [...currentRoleList, action.participant]
               : [action.participant],
+            // - delete from old
+            [previousRoleName]: Array.isArray(previousRoleList)
+              ? previousRoleList.filter(
+                  (p) => p.peerID !== action.participant.peerID
+                )
+              : [],
           },
         };
       }
 
-      const participantRoleName = action.participant.role?.name;
+      // update existing
 
-      if (!participantRoleName) {
-        return state;
-      }
-
-      const participants = state.groupedParticipants[participantRoleName];
+      const currentList = state.groupedParticipants[currentRoleName];
 
       return {
         ...state,
         groupedParticipants: {
           ...state.groupedParticipants,
-          [participantRoleName]: Array.isArray(participants)
-            ? [...participants, action.participant]
+          [currentRoleName]: Array.isArray(currentList)
+            ? currentList.map((p) =>
+                p.peerID === action.participant.peerID
+                  ? action.participant
+                  : p
+              )
             : [action.participant],
         },
       };

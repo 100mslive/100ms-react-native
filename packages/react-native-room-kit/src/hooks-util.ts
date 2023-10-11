@@ -1708,13 +1708,11 @@ export const useOffStageParticipants = () => {
         });
         const participants = await iterator.next();
         if (mounted) {
-          if (mounted && participants.length > 0) {
-            dispatch(replaceParticipantsList(participants, forRole));
-            setParticipantsTotalCounts((prev) => ({
-              ...prev,
-              [forRole]: iterator.totalCount,
-            }));
-          }
+          dispatch(replaceParticipantsList(participants, forRole));
+          setParticipantsTotalCounts((prev) => ({
+            ...prev,
+            [forRole]: iterator.totalCount,
+          }));
         } else {
           console.log('***** Ignored setting state because unmounted');
         }
@@ -1834,7 +1832,11 @@ export const useFilteredParticipants = (filterText: string) => {
 
         t.push({
           id: role.name!,
-          label: `${role.name!} (${filteredList.length})`,
+          label: `${role.name!} (${
+            typeof offStageRoleTotalCount === 'number'
+              ? offStageRoleTotalCount
+              : filteredList.length
+          })`,
           showViewAll:
             typeof offStageRoleTotalCount === 'number' &&
             formattedSearchText.length <= 0

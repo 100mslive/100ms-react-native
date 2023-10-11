@@ -90,6 +90,7 @@ export const ParticipantsList: React.FC<ParticipantsListProps> = ({
   // #Effect: Fetching first page from Peer List Iterator
   React.useEffect(() => {
     let mounted = true;
+    mountedRef.current = true;
 
     if (peerListIterator) {
       setLoading(true);
@@ -116,12 +117,14 @@ export const ParticipantsList: React.FC<ParticipantsListProps> = ({
     };
   }, [headerData, peerListIterator]);
 
+  const filteredSearchText = searchText.trim().toLowerCase();
+
   //#region Flaslist props
   const data = React.useMemo(() => {
     return (isOffStageGroup ? offStageData : dataWithHeader).filter((item) =>
-      'id' in item ? true : item.name.toLowerCase().includes(searchText)
+      'id' in item ? true : item.name.toLowerCase().includes(filteredSearchText)
     );
-  }, [searchText, offStageData, dataWithHeader, isOffStageGroup]);
+  }, [filteredSearchText, offStageData, dataWithHeader, isOffStageGroup]);
 
   const _keyExtractor = React.useCallback(
     (item: HMSPeer | { id: string; label: string }) =>
