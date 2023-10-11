@@ -589,12 +589,12 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
         HMSHelper.getRemotePeerFromPeerId(peerId, hmsSDK: self.hms) { peer in
 
-            guard let nonnilPeer = peer else {
-                reject?("PEER_NOT_FOUND", "PEER_NOT_FOUND", nil)
-                return
-            }
-
             DispatchQueue.main.async { [weak self] in
+                guard let nonnilPeer = peer else {
+                    reject?("PEER_NOT_FOUND", "PEER_NOT_FOUND", nil)
+                    return
+                }
+
                 self?.hms?.removePeer(nonnilPeer, reason: reason ?? "Removed from room", completion: { success, error in
                     if success {
                         resolve?(["success": success])

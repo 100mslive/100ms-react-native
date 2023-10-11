@@ -41,7 +41,7 @@ import {
   HMSRoomCache,
   setHmsRoomCache,
 } from './HMSRoomCache';
-import { HMSPeerUpdateOrdinals } from './HMSPeerUpdate';
+import { HMSPeerUpdate, HMSPeerUpdateOrdinals } from './HMSPeerUpdate';
 import { HMSSessionStore } from './HMSSessionStore';
 import type { HMSPeerListIteratorOptions } from './HMSPeerListIteratorOptions';
 import { HMSPeerListIterator } from './HMSPeerListIterator';
@@ -2139,8 +2139,15 @@ export class HMSSDK {
     const peer: HMSPeer = HMSEncoder.encodeHmsPeer(data.peer);
     const type = HMSEncoder.encodeHmsPeerUpdate(data.type) || data.type;
 
-    getHmsPeersCache()?.updatePeerCache(data.peer.peerID, data.peer, type);
+    if (type === HMSPeerUpdate.PEER_LEFT) {
+      this.sendPeerUpdateWhenPeerLeaves(data, peer, type);
+    } else {
+      getHmsPeersCache()?.updatePeerCache(data.peer.peerID, data.peer, type);
+      this.sendPeerUpdate(peer, type);
+    }
+  };
 
+  private sendPeerUpdate = (peer: any, type: any) => {
     if (this.onPeerDelegate) {
       logger?.verbose('#Listener ON_PEER_LISTENER_CALL', {
         peer,
@@ -2148,7 +2155,13 @@ export class HMSSDK {
       });
       this.onPeerDelegate({ peer, type });
     }
-  };
+  }
+
+  private sendPeerUpdateWhenPeerLeaves = (data: any, peer: any, type: any) => {
+    this.sendPeerUpdate(peer, type);
+
+    getHmsPeersCache()?.updatePeerCache(data.peer.peerID, data.peer, type);
+  }
 
   onPeerListUpdatedListener = (data: any) => {
     if (data.id !== this.id) {
