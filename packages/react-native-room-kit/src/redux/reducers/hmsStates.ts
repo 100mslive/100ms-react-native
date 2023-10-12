@@ -301,8 +301,6 @@ const hmsStatesReducer = (
         }
       });
 
-      console.log('***** participantsToAdd -> ', participantsToAdd);
-
       if (participantsToAdd.size === 0) {
         return state;
       }
@@ -315,8 +313,6 @@ const hmsStatesReducer = (
           ? [...oldList, ...list]
           : list;
       });
-
-      console.log('***** updatedGroupedParticipants -> ', updatedGroupedParticipants);
 
       return {
         ...state,

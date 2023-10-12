@@ -97,7 +97,7 @@ export const ParticipantsList: React.FC<ParticipantsListProps> = ({
 
       peerListIterator
         .next()
-        .then((peers) => {
+        .then((peers: HMSPeer[]) => {
           if (mounted) {
             setLoading(false);
             setOffStageData([headerData, ...peers]);
@@ -165,24 +165,15 @@ export const ParticipantsList: React.FC<ParticipantsListProps> = ({
   );
 
   const _onEndReached = React.useCallback(() => {
-    console.log('***** _onEndReached');
-
     if (loading || !fetchedInitialDataRef.current || !mountedRef.current) {
-      console.log(
-        '***** Returning Early as - ',
-        loading,
-        !fetchedInitialDataRef.current,
-        !mountedRef.current
-      );
       return;
     }
 
     if (peerListIterator) {
-      console.log('***** fetching next batch');
       setLoading(true);
       peerListIterator
         .next()
-        .then((peers) => {
+        .then((peers: HMSPeer[]) => {
           if (mountedRef.current) {
             setLoading(false);
             setOffStageData((prev) => [...prev, ...peers]);
@@ -193,8 +184,6 @@ export const ParticipantsList: React.FC<ParticipantsListProps> = ({
             setLoading(false);
           }
         });
-    } else {
-      console.log('***** peerListIterator not available');
     }
   }, [loading, peerListIterator]);
   //#endregion Flaslist props
