@@ -1,3 +1,4 @@
+# DEPRECATED
 Board: https://100ms.atlassian.net/jira/software/projects/RN/boards/33
 
 - Add Large Rooms Participants List UI
