@@ -64,13 +64,13 @@ export const Meeting: React.FC<MeetingProps> = ({ peerTrackNodes }) => {
     };
   }, []);
 
-  React.useEffect(() => {
-    hmsInstance.setPipParams({ autoEnterPipMode: true });
+  // React.useEffect(() => {
+  //   hmsInstance.setPipParams({ autoEnterPipMode: true });
 
-    return () => {
-      hmsInstance.setPipParams({ autoEnterPipMode: false });
-    };
-  }, []);
+  //   return () => {
+  //     hmsInstance.setPipParams({ autoEnterPipMode: false });
+  //   };
+  // }, []);
 
   const containerStyles = useHMSRoomStyle((theme) => ({
     backgroundColor: theme.palette.background_dim,
