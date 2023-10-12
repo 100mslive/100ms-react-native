@@ -13,7 +13,7 @@ export const HMSRecordingIndicator = () => {
   const startingOrStoppingRecording = useSelector(
     (state: RootState) =>
       state.app.startingOrStoppingRecording ||
-      state.hmsStates.room?.browserRecordingState.initialising
+      (state.hmsStates.room?.browserRecordingState.initialising ?? false)
   );
 
   const { on_surface_high: onSurfaceHighColor } = useHMSRoomColorPalette();
