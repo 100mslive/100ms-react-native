@@ -2191,3 +2191,22 @@ export const useHMSConferencingScreenConfig = <Selected = unknown>(
     return selector(conferencingScreenConfig);
   }, equalityFn);
 };
+
+export const useStartRecording = () => {
+  const dispatch = useDispatch();
+  const hmsInstance = useHMSInstance();
+  const reduxState = useStore<RootState>();
+
+  const startRecording = useCallback(() => {
+    dispatch(setStartingOrStoppingRecording(true));
+    hmsInstance
+      .startRTMPOrRecording({ record: true })
+      .then(() => {
+        const allNotifications = reduxState.getState().app.notifications;
+        allNotifications.find((notification) => notification.type === NotificationTypes.RECORDING_START_FAILED);
+      })
+      .catch(() => dispatch(setStartingOrStoppingRecording(false)));
+  }, [hmsInstance]);
+
+  return { startRecording };
+}

@@ -8,6 +8,7 @@ import { HMSLocalScreenshareNotification } from './HMSLocalScreenshareNotificati
 import { HMSHandRaiseNotification } from './HMSHandRaiseNotification';
 import { HMSRoleChangeDeclinedNotification } from './HMSRoleChangeDeclinedNotification';
 import { NotificationTypes } from '../utils';
+import { HMSRecordingStartFailedNotification } from './HMSRecordingStartFailedNotification';
 
 export interface HMSNotificationsProps {}
 
@@ -22,14 +23,11 @@ export const HMSNotifications: React.FC<HMSNotificationsProps> = () => {
   );
 
   // notifications is a stack, first will appear last
-  const notifications: (
-    | typeof LOCAL_SCREENSHARE_PAYLOAD
-    | { id: string; type: string; peer: HMSPeer }
-  )[] = useSelector((state: RootState) => {
+  const notifications = useSelector((state: RootState) => {
     // Latest notification will be at 0th index.
     const allNotifications = state.app.notifications;
 
-    let list = [];
+    let list: typeof allNotifications = [];
 
     if (isLocalScreenShared) {
       list.push(LOCAL_SCREENSHARE_PAYLOAD);
@@ -116,6 +114,11 @@ export const HMSNotifications: React.FC<HMSNotificationsProps> = () => {
                 peerName={notification.peer.name}
                 autoDismiss={atTop}
                 dismissDelay={10000}
+              />
+            ) : notification.type === NotificationTypes.RECORDING_START_FAILED ? (
+              <HMSRecordingStartFailedNotification
+                id={notification.id}
+                autoDismiss={false}
               />
             ) : null}
           </View>

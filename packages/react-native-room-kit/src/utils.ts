@@ -27,4 +27,5 @@ export enum NotificationTypes {
   ROLE_CHANGE_DECLINED = 'role_change_declined',
   HAND_RAISE = 'hand_raise',
   LOCAL_SCREENSHARE = 'local_screenshare',
+  RECORDING_START_FAILED = 'recording_start_failed',
 }

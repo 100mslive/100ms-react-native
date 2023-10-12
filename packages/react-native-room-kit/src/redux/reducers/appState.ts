@@ -4,6 +4,7 @@ import type { PeerTrackNode } from '../../utils/types';
 import { SUPPORTED_ASPECT_RATIOS, ModalTypes } from '../../utils/types';
 import { PipModes } from '../../utils/types';
 import {
+  HMSException,
   HMSLocalAudioStats,
   HMSLocalVideoStats,
   HMSPeer,
@@ -11,11 +12,17 @@ import {
   HMSRemoteVideoStats,
 } from '@100mslive/react-native-hms';
 import { MeetingState } from '../../types';
+import { NotificationTypes } from '../../utils';
 
 type ActionType = {
   payload: { [key: string]: any };
   type: String;
 };
+
+type Notification =
+  | { id: string; type: string; }
+  | { id: string; type: string; peer: HMSPeer; }
+  | { id: string; type: string; error: HMSException; }
 
 type IntialStateType = {
   peerState: PeerTrackNode[];
@@ -48,7 +55,7 @@ type IntialStateType = {
   startingOrStoppingRecording: boolean;
   fullScreenPeerTrackNode: null | PeerTrackNode;
   screensharePeerTrackNodes: PeerTrackNode[];
-  notifications: { id: string; type: string; peer: HMSPeer }[];
+  notifications: Notification[];
   activeChatBottomSheetTab: (typeof ChatBottomSheetTabs)[number];
   chatFilterSheetVisible: boolean;
 };
@@ -77,7 +84,7 @@ const INITIAL_STATE: IntialStateType = {
   startingOrStoppingRecording: false,
   fullScreenPeerTrackNode: null,
   screensharePeerTrackNodes: [],
-  notifications: [],
+  notifications: [{ id: NotificationTypes.RECORDING_START_FAILED, type: NotificationTypes.RECORDING_START_FAILED }],
   activeChatBottomSheetTab: ChatBottomSheetTabs[0],
   chatFilterSheetVisible: false,
 };
