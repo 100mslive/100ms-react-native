@@ -272,7 +272,7 @@ Follow [official installation steps](https://docs.swmansion.com/react-native-rea
 `react-native-room-kit` package depends upon many other packages. These packages to be your app's direct dependencies so that `react-native` can link them.
 
 ```bash
-npm install github:100mslive/100ms-react-native#release1.8.0
+npm install @100mslive/react-native-hms
   @shopify/flash-list@1.4.3
   react-native-keyboard-controller@^1.6.1
   react-native-linear-gradient@2.7.3
