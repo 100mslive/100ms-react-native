@@ -2,16 +2,11 @@ import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { useHMSRoomStyleSheet } from '../../hooks-util';
-import type {
-  ListItemUI,
-  ParticipantHeaderData,
-  ParticipantHandRaisedHeaderData,
-} from '../../hooks-util';
 import { HandIcon } from '../../Icons';
 import { ParticipantsItemOption } from './ParticipantsItemOption';
 
 interface ParticipantsGroupOptionsProps {
-  data: ListItemUI<ParticipantHeaderData | ParticipantHandRaisedHeaderData>;
+  // data: any;
 }
 
 const _ParticipantsGroupOptions: React.FC<

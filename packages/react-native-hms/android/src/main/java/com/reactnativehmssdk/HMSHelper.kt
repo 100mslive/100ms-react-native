@@ -18,6 +18,8 @@ import live.hms.video.media.settings.*
 import live.hms.video.media.tracks.HMSRemoteAudioTrack
 import live.hms.video.media.tracks.HMSRemoteVideoTrack
 import live.hms.video.media.tracks.HMSTrack
+import live.hms.video.sdk.HMSSDK
+import live.hms.video.sdk.listeners.PeerListResultListener
 import live.hms.video.sdk.models.*
 import live.hms.video.sdk.models.enums.AudioMixingMode
 import live.hms.video.sdk.models.role.HMSRole
@@ -28,6 +30,9 @@ import org.webrtc.SurfaceViewRenderer
 import java.io.ByteArrayOutputStream
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 object HMSHelper {
   fun areAllRequiredKeysAvailable(
@@ -106,14 +111,35 @@ object HMSHelper {
     return null
   }
 
-  fun getRemotePeerFromPeerId(
+  suspend fun getRemotePeerFromPeerId(
     peerId: String?,
-    room: HMSRoom?,
+    hmsSDK: HMSSDK?,
   ): HMSRemotePeer? {
-    if (peerId != null && room != null) {
-      return HmsUtilities.getPeer(peerId, room) as? HMSRemotePeer
+    return suspendCoroutine {
+      val room = hmsSDK?.getRoom()
+
+      if (peerId != null && room != null) {
+        val peerFromRoom = HmsUtilities.getPeer(peerId, room) as? HMSRemotePeer
+        if (peerFromRoom != null) {
+          it.resume(peerFromRoom)
+        } else {
+          val limit = 1
+          val peerIds = arrayListOf(peerId)
+          val peerListIterator = hmsSDK.getPeerListIterator(PeerListIteratorOptions(limit = limit, byPeerIds = peerIds))
+          peerListIterator.next(object : PeerListResultListener {
+            override fun onError(error: HMSException) {
+              it.resumeWithException(error)
+            }
+            override fun onSuccess(result: ArrayList<HMSPeer>) {
+              val peerFromIterator = result[0]
+              it.resume(peerFromIterator as? HMSRemotePeer)
+            }
+          })
+        }
+      } else {
+        it.resume(null)
+      }
     }
-    return null
   }
 
   fun getRolesFromRoleNames(
