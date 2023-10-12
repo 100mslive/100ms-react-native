@@ -1,24 +1,24 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import type { HMSLocalPeer, HMSRemotePeer } from '@100mslive/react-native-hms';
+import type { HMSLocalPeer, HMSPeer } from '@100mslive/react-native-hms';
 
-import {
-  isParticipantHostOrBroadcaster,
-  parseMetadata,
-} from '../../utils/functions';
+import { isParticipantHostOrBroadcaster } from '../../utils/functions';
 import { useHMSRoomStyleSheet } from '../../hooks-util';
-import type { ListItemUI } from '../../hooks-util';
 import { HandIcon, NetworkQualityIcon, ThreeDotsIcon } from '../../Icons';
 import { Menu } from '../MenuModal';
 import { ParticipantsItemOptions } from './ParticipantsItemOptions';
 import type { RootState } from '../../redux';
 
 interface ParticipantsItemProps {
-  data: ListItemUI<HMSLocalPeer | HMSRemotePeer>;
+  groupId: string;
+  data: HMSPeer | HMSLocalPeer;
 }
 
-const _ParticipantsItem: React.FC<ParticipantsItemProps> = ({ data }) => {
+const _ParticipantsItem: React.FC<ParticipantsItemProps> = ({
+  data: peer,
+  groupId,
+}) => {
   const selfHostOrBroadcaster = useSelector((state: RootState) => {
     const selfRole = state.hmsStates.localPeer?.role;
     return selfRole && isParticipantHostOrBroadcaster(selfRole);
@@ -43,28 +43,17 @@ const _ParticipantsItem: React.FC<ParticipantsItemProps> = ({ data }) => {
     },
   }));
 
-  const show3Dots = selfHostOrBroadcaster && !data.data.isLocal;
+  const show3Dots = selfHostOrBroadcaster && !peer.isLocal;
 
   const showOptions = () => setOptionsVisible(true);
 
   const hideOptions = () => setOptionsVisible(false);
 
-  const isLast = data.type === 'LAST_ITEM';
-
-  const peer = data.data;
-
-  const [_peerID, peerGroupName] = data.key.split('--');
   return (
-    <View
-      style={[
-        styles.container,
-        isLast ? styles.lastItemContainer : null,
-        hmsRoomStyles.container,
-      ]}
-    >
+    <View style={styles.container}>
       <Text style={[styles.label, hmsRoomStyles.label]}>
-        {data.data.name}
-        {data.data.isLocal ? ' (You)' : null}
+        {peer.name}
+        {peer.isLocal ? ' (You)' : null}
       </Text>
 
       <View style={styles.controls}>
@@ -111,7 +100,7 @@ const _ParticipantsItem: React.FC<ParticipantsItemProps> = ({ data }) => {
             <ParticipantsItemOptions
               peer={peer}
               onItemPress={hideOptions}
-              insideHandRaiseGroup={peerGroupName === 'hand-raised'}
+              insideHandRaiseGroup={groupId === 'hand-raised'}
             />
           </Menu>
         ) : null}
@@ -123,8 +112,8 @@ const _ParticipantsItem: React.FC<ParticipantsItemProps> = ({ data }) => {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
+    // borderLeftWidth: 1,
+    // borderRightWidth: 1,
     padding: 16,
     justifyContent: 'space-between',
   },
@@ -132,11 +121,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     letterSpacing: 0.1,
-  },
-  lastItemContainer: {
-    borderBottomWidth: 1,
-    borderBottomLeftRadius: 8,
-    borderBottomRightRadius: 8,
   },
   controls: {
     flexDirection: 'row',

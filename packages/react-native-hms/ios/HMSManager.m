@@ -252,4 +252,18 @@ RCT_EXTERN_METHOD(acceptRoleChange
                   : (RCTPromiseResolveBlock)resolve
                   : (RCTPromiseRejectBlock)reject)
 
+#pragma mark - Peer List Iterator
+
+RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(getPeerListIterator : (NSDictionary)data)
+
+RCT_EXTERN_METHOD(peerListIteratorHasNext
+                  : (NSDictionary)data
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject)
+
+RCT_EXTERN_METHOD(peerListIteratorNext
+                  : (NSDictionary)data
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject)
+
 @end

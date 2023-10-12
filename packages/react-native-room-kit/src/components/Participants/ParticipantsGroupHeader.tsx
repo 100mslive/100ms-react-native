@@ -4,11 +4,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 // import type { HMSRole } from '@100mslive/react-native-hms';
 
 import { useHMSRoomStyleSheet } from '../../hooks-util';
-import type {
-  ListItemUI,
-  ParticipantHandRaisedHeaderData,
-  ParticipantHeaderData,
-} from '../../hooks-util';
+import type { ParticipantAccordianData } from '../../hooks-util';
 import { ChevronIcon, ThreeDotsIcon } from '../../Icons';
 import { Menu } from '../MenuModal';
 import { ParticipantsGroupOptions } from './ParticipantsGroupOptions';
@@ -16,13 +12,19 @@ import { ParticipantsGroupOptions } from './ParticipantsGroupOptions';
 // import { isParticipantHostOrBroadcaster } from '../../utils/functions';
 
 interface ParticipantsGroupHeaderProps {
-  data: ListItemUI<ParticipantHeaderData | ParticipantHandRaisedHeaderData>;
-  setExpandedGroups: React.Dispatch<React.SetStateAction<string[]>>;
+  id: ParticipantAccordianData['id'];
+  label: ParticipantAccordianData['label'];
+  expanded: boolean;
+  onBackPress?: () => void;
+  toggleExpanded?: (groupName: string | null) => void;
 }
 
 const _ParticipantsGroupHeader: React.FC<ParticipantsGroupHeaderProps> = ({
-  data,
-  setExpandedGroups,
+  id,
+  label,
+  expanded,
+  onBackPress,
+  toggleExpanded,
 }) => {
   // const selfHostOrBroadcaster = useSelector((state: RootState) => {
   //   const selfRole = state.hmsStates.localPeer?.role;
@@ -48,26 +50,19 @@ const _ParticipantsGroupHeader: React.FC<ParticipantsGroupHeaderProps> = ({
   const show3Dots = false;
   // const show3Dots =
   //   selfHostOrBroadcaster &&
-  //   ('role' in data.data
-  //     ? !isParticipantHostOrBroadcaster(data.data.role)
-  //     : data.key === 'hand-raised');
+  //   ('role' in data
+  //     ? !isParticipantHostOrBroadcaster(data.role)
+  //     : data.id === 'hand-raised');
 
   const showOptions = () => setOptionsVisible(true);
 
   const hideOptions = () => setOptionsVisible(false);
 
-  const expanded = data.type === 'EXPANDED_HEADER';
-
-  const toggleGroupExpand = () => {
-    const groupName = data.key;
-
-    setExpandedGroups((expandedGroups) => {
-      if (expandedGroups.includes(groupName)) {
-        return expandedGroups.filter((group) => group !== groupName);
+  const toggleGroupExpand = toggleExpanded
+    ? () => {
+        toggleExpanded(expanded ? null : id);
       }
-      return [...expandedGroups, groupName];
-    });
-  };
+    : null;
 
   return (
     <View
@@ -77,7 +72,15 @@ const _ParticipantsGroupHeader: React.FC<ParticipantsGroupHeaderProps> = ({
         hmsRoomStyles.container,
       ]}
     >
-      <Text style={[styles.label, hmsRoomStyles.label]}>{data.data.label}</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        {onBackPress ? (
+          <TouchableOpacity style={{ marginRight: 8 }} onPress={onBackPress}>
+            <ChevronIcon direction="left" />
+          </TouchableOpacity>
+        ) : null}
+
+        <Text style={[styles.label, hmsRoomStyles.label]}>{label}</Text>
+      </View>
 
       <View style={styles.controls}>
         {show3Dots ? (
@@ -91,16 +94,18 @@ const _ParticipantsGroupHeader: React.FC<ParticipantsGroupHeaderProps> = ({
             }
             style={{ ...styles.menu, ...hmsRoomStyles.menu }}
           >
-            <ParticipantsGroupOptions data={data} />
+            <ParticipantsGroupOptions />
           </Menu>
         ) : null}
 
-        <TouchableOpacity
-          style={[styles.control, expanded ? styles.expandedArrowIcon : null]}
-          onPress={toggleGroupExpand}
-        >
-          <ChevronIcon direction="down" />
-        </TouchableOpacity>
+        {toggleGroupExpand ? (
+          <TouchableOpacity
+            style={[styles.control, expanded ? styles.expandedArrowIcon : null]}
+            onPress={toggleGroupExpand}
+          >
+            <ChevronIcon direction="down" />
+          </TouchableOpacity>
+        ) : null}
       </View>
     </View>
   );
@@ -109,9 +114,6 @@ const _ParticipantsGroupHeader: React.FC<ParticipantsGroupHeaderProps> = ({
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    marginTop: 16,
-    borderWidth: 1,
-    borderRadius: 8,
     paddingVertical: 12,
     paddingHorizontal: 16,
     justifyContent: 'space-between',
@@ -122,9 +124,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.1,
   },
   expandedContainer: {
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
-    borderRadius: 0,
+    borderBottomWidth: 1,
   },
   controls: {
     flexDirection: 'row',

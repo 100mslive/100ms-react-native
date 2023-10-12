@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
-import type { HMSLocalPeer, HMSRemotePeer } from '@100mslive/react-native-hms';
+import type { HMSLocalPeer, HMSPeer } from '@100mslive/react-native-hms';
 
 import {
   useHMSInstance,
@@ -16,7 +16,7 @@ import { parseMetadata } from '../../utils/functions';
 
 interface ParticipantsItemOptionsProps {
   insideHandRaiseGroup: boolean;
-  peer: HMSLocalPeer | HMSRemotePeer;
+  peer: HMSLocalPeer | HMSPeer;
   onItemPress(): void;
 }
 

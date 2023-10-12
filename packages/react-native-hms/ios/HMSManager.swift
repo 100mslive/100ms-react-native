@@ -620,4 +620,27 @@ class HMSManager: RCTEventEmitter {
 
         hms?.removeKeyChangeListener(data, resolve, reject)
     }
+
+    // MARK: - Peer List Iterator
+
+    @objc
+    func getPeerListIterator(_ data: NSDictionary) -> [AnyHashable: Any]? {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        return hms?.getPeerListIterator(data)
+    }
+
+    @objc
+    func peerListIteratorHasNext(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.peerListIteratorHasNext(data, resolve, reject)
+    }
+
+    @objc
+    func peerListIteratorNext(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.peerListIteratorNext(data, resolve, reject)
+    }
 }

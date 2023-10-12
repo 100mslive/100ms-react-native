@@ -41,10 +41,10 @@ import {
   HMSRoomCache,
   setHmsRoomCache,
 } from './HMSRoomCache';
-import { HMSPeerUpdateOrdinals } from './HMSPeerUpdate';
+import { HMSPeerUpdate, HMSPeerUpdateOrdinals } from './HMSPeerUpdate';
 import { HMSSessionStore } from './HMSSessionStore';
-// import type { HMSPeerListIteratorOptions } from './HMSPeerListIteratorOptions';
-// import { HMSPeerListIterator } from './HMSPeerListIterator';
+import type { HMSPeerListIteratorOptions } from './HMSPeerListIteratorOptions';
+import { HMSPeerListIterator } from './HMSPeerListIterator';
 
 type HmsViewProps = Omit<HmsComponentProps, 'id'>;
 
@@ -1187,30 +1187,48 @@ export class HMSSDK {
     return HMSManager.lowerRemotePeerHand(data);
   };
 
-  // getPeerListIterator = (
-  //   options?: HMSPeerListIteratorOptions
-  // ): HMSPeerListIterator => {
-  //   logger?.verbose('#Function getPeerListIterator', {
-  //     id: this.id,
-  //     options,
-  //   });
+  /**
+   * `getPeerListIterator` method returns an instance of `HMSPeerListIterator` class
+   *
+   * @param options options for configuring iterator
+   * @returns instance of HMSPeerListIterator class
+   *
+   * Example usage:
+   * ```
+   * const peerListIterator =  hmsInstance.getPeerListIterator();
+   * ```
+   * OR
+   * ```
+   * const peerListIterator =  hmsInstance.getPeerListIterator({
+   *    limit: 10,
+   *    byRoleName: 'viewer-realtime',
+   * });
+   * ```
+   */
+  getPeerListIterator = (
+    options?: HMSPeerListIteratorOptions
+  ): HMSPeerListIterator => {
+    logger?.verbose('#Function getPeerListIterator', {
+      id: this.id,
+      options,
+    });
 
-  //   const uniqueId = Date.now();
+    const uniqueId = Math.random().toString(16).slice(2);
 
-  //   const data: null | { sucess: boolean; uniqueId: number } =
-  //     HMSManager.getPeerListIterator({
-  //       id: this.id,
-  //       ...options,
-  //       limit: options?.limit ?? 10,
-  //       uniqueId: uniqueId,
-  //     });
+    const data: null | { sucess: boolean; uniqueId: string; totalCount: number; } =
+      HMSManager.getPeerListIterator({
+        id: this.id,
+        ...options,
+        limit: options?.limit ?? 10,
+        uniqueId,
+      });
 
-  //   if (!data) {
-  //     throw new Error('Unable to create PeerListIterator');
-  //   }
+    if (!data) {
+      throw new Error('Unable to create PeerListIterator');
+    }
 
-  //   return new HMSPeerListIterator(data.uniqueId);
-  // };
+    return new HMSPeerListIterator(data.uniqueId, data.totalCount);
+  };
 
   /**
    * - This is a prototype event listener that takes action and listens for updates related to that particular action
@@ -2139,8 +2157,15 @@ export class HMSSDK {
     const peer: HMSPeer = HMSEncoder.encodeHmsPeer(data.peer);
     const type = HMSEncoder.encodeHmsPeerUpdate(data.type) || data.type;
 
-    getHmsPeersCache()?.updatePeerCache(data.peer.peerID, data.peer, type);
+    if (type === HMSPeerUpdate.PEER_LEFT) {
+      this.sendPeerUpdateWhenPeerLeaves(data, peer, type);
+    } else {
+      getHmsPeersCache()?.updatePeerCache(data.peer.peerID, data.peer, type);
+      this.sendPeerUpdate(peer, type);
+    }
+  };
 
+  private sendPeerUpdate = (peer: any, type: any) => {
     if (this.onPeerDelegate) {
       logger?.verbose('#Listener ON_PEER_LISTENER_CALL', {
         peer,
@@ -2148,7 +2173,13 @@ export class HMSSDK {
       });
       this.onPeerDelegate({ peer, type });
     }
-  };
+  }
+
+  private sendPeerUpdateWhenPeerLeaves = (data: any, peer: any, type: any) => {
+    this.sendPeerUpdate(peer, type);
+
+    getHmsPeersCache()?.updatePeerCache(data.peer.peerID, data.peer, type);
+  }
 
   onPeerListUpdatedListener = (data: any) => {
     if (data.id !== this.id) {

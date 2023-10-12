@@ -102,3 +102,5 @@ export enum MaxTilesInOnePage {
 export const ChatBottomSheetTabs = ['Chat', 'Participants'] as const;
 
 export const ChatBroadcastFilter = { name: 'everyone' } as const;
+
+export const PeerListRefreshInterval = 5000; // in milliseconds
