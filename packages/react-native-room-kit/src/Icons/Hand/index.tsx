@@ -4,26 +4,16 @@ import type { ImageProps } from 'react-native';
 
 import { useHMSRoomStyle } from '../../hooks-util';
 
-interface HandIconProps extends Omit<ImageProps, 'source'> {
-  type?: 'off' | 'on';
-}
+interface HandIconProps extends Omit<ImageProps, 'source'> {}
 
-export const HandIcon: React.FC<HandIconProps> = ({
-  style,
-  type = 'on',
-  ...restProps
-}) => {
+export const HandIcon: React.FC<HandIconProps> = ({ style, ...restProps }) => {
   const iconStyles = useHMSRoomStyle((theme) => ({
     tintColor: theme.palette.on_surface_high,
   }));
 
   return (
     <Image
-      source={
-        type === 'on'
-          ? require('./assets/hand.png')
-          : require('./assets/hand-off.png')
-      }
+      source={require('./assets/hand.png')}
       style={[styles.icon, iconStyles, style]}
       {...restProps}
     />

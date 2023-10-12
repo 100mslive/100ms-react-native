@@ -8,7 +8,7 @@ import {
   useHMSLayoutConfig,
   useHMSRoomStyleSheet,
 } from '../../hooks-util';
-import { CameraIcon, HandIcon, MicIcon, PersonIcon } from '../../Icons';
+import { CameraIcon, MicIcon, PersonIcon } from '../../Icons';
 import { ParticipantsItemOption } from './ParticipantsItemOption';
 import type { RootState } from '../../redux';
 import { selectCanPublishTrackForRole } from '../../hooks-sdk-selectors';
@@ -88,18 +88,6 @@ const _ParticipantsItemOptions: React.FC<ParticipantsItemOptionsProps> = ({
     onItemPress();
   };
 
-  const handleLowerHandPress = () => {
-    if (peer.isHandRaised) {
-      hmsInstance
-        .lowerRemotePeerHand(peer)
-        .then((d) => console.log('Lower Remote Peer hand Success: ', d))
-        .catch((e) => console.log('Lower Remote Peer hand Error: ', e));
-    } else {
-      console.warn(`peer.isHandRaised = ${peer.isHandRaised} | peer's hand is not raised`);
-    }
-    onItemPress();
-  };
-
   const handleAudioTogglePress = () => {
     if (peer.audioTrack) {
       hmsInstance
@@ -174,8 +162,6 @@ const _ParticipantsItemOptions: React.FC<ParticipantsItemOptionsProps> = ({
     offStageRoles.includes(peer.role?.name || '') &&
     peer.isHandRaised;
 
-  const showLowerHandOption = peer.isHandRaised;
-
   return (
     <>
       {[
@@ -188,16 +174,6 @@ const _ParticipantsItemOptions: React.FC<ParticipantsItemOptionsProps> = ({
           pressHandler: handleBringOnStagePress,
           isActive: false,
           hide: !showBringOnStageOptions,
-        },
-        {
-          id: 'lower-hand',
-          icon: (
-            <HandIcon type="off" style={{ width: 20, height: 20 }} />
-          ),
-          label: 'Lower Hand',
-          pressHandler: handleLowerHandPress,
-          isActive: false,
-          hide: !showLowerHandOption,
         },
         {
           id: 'mute-audio',
