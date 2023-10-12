@@ -1187,6 +1187,24 @@ export class HMSSDK {
     return HMSManager.lowerRemotePeerHand(data);
   };
 
+  /**
+   * `getPeerListIterator` method returns an instance of `HMSPeerListIterator` class
+   *
+   * @param options options for configuring iterator
+   * @returns instance of HMSPeerListIterator class
+   *
+   * Example usage:
+   * ```
+   * const peerListIterator =  hmsInstance.getPeerListIterator();
+   * ```
+   * OR
+   * ```
+   * const peerListIterator =  hmsInstance.getPeerListIterator({
+   *    limit: 10,
+   *    byRoleName: 'viewer-realtime',
+   * });
+   * ```
+   */
   getPeerListIterator = (
     options?: HMSPeerListIteratorOptions
   ): HMSPeerListIterator => {
