@@ -1,10 +1,9 @@
 import * as React from 'react';
 
 import { HMSNotification } from './HMSNotification';
-import { HandIcon, PersonIcon, RecordingIcon } from '../Icons';
-import { useDispatch, useSelector } from 'react-redux';
-import { useHMSInstance, useHMSLayoutConfig, useHMSRoomColorPalette, useHMSRoomStyleSheet } from '../hooks-util';
-import type { RootState } from '../redux';
+import { RecordingIcon } from '../Icons';
+import { useDispatch } from 'react-redux';
+import { useHMSRoomColorPalette, useHMSRoomStyleSheet, useStartRecording } from '../hooks-util';
 import { removeNotification } from '../redux/actions';
 import { StyleSheet, Text, TouchableHighlight } from 'react-native';
 
@@ -18,7 +17,6 @@ export const HMSRecordingStartFailedNotification: React.FC<
   HMSRecordingStartFailedNotificationProps
 > = ({ id, autoDismiss, dismissDelay }) => {
   const dispatch = useDispatch();
-  const hmsInstance = useHMSInstance();
 
   const { secondary_dim: secondaryDimColor } = useHMSRoomColorPalette();
 
@@ -32,13 +30,13 @@ export const HMSRecordingStartFailedNotification: React.FC<
     },
   }));
 
-  const dismissNotification = () => {
-    dispatch(removeNotification(id));
-  };
+  const dismissNotification = () => dispatch(removeNotification(id));
+
+  const { startRecording } = useStartRecording();
 
   const retryStartRecording = async () => {
     dismissNotification();
-    // await hmsInstance.changeRoleOfPeer(peer, onStageRole, false);
+    startRecording();
   };
 
   return (

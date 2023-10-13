@@ -4,7 +4,6 @@ import type { PeerTrackNode } from '../../utils/types';
 import { SUPPORTED_ASPECT_RATIOS, ModalTypes } from '../../utils/types';
 import { PipModes } from '../../utils/types';
 import {
-  HMSException,
   HMSLocalAudioStats,
   HMSLocalVideoStats,
   HMSPeer,
@@ -12,17 +11,13 @@ import {
   HMSRemoteVideoStats,
 } from '@100mslive/react-native-hms';
 import { MeetingState } from '../../types';
+import type { Notification } from '../../types';
 import { NotificationTypes } from '../../utils';
 
 type ActionType = {
   payload: { [key: string]: any };
   type: String;
 };
-
-type Notification =
-  | { id: string; type: string; }
-  | { id: string; type: string; peer: HMSPeer; }
-  | { id: string; type: string; error: HMSException; }
 
 type IntialStateType = {
   peerState: PeerTrackNode[];

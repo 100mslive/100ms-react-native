@@ -1821,7 +1821,6 @@ export const useFilteredParticipants = (filterText: string) => {
           : list;
 
       if (Array.isArray(filteredList) && filteredList.length > 0) {
-
         filteredHandRaisedPeers.push(filteredList);
         const offStageRoleTotalCount =
           offStageParticipantsTotalCounts[role.name!];
@@ -2194,17 +2193,59 @@ export const useStartRecording = () => {
   const dispatch = useDispatch();
   const hmsInstance = useHMSInstance();
   const reduxState = useStore<RootState>();
+  // const isRecordingOn = useSelector(
+  //   (state: RootState) => !!state.hmsStates.room?.browserRecordingState?.running
+  // );
+
+  const removeRecordingNotification = useCallback(() => {
+    const allNotifications = reduxState.getState().app.notifications;
+    const recordingFailedNotification = allNotifications.find(
+      (notification) =>
+        notification.type === NotificationTypes.RECORDING_START_FAILED
+    );
+
+    if (recordingFailedNotification) {
+      dispatch(removeNotification(recordingFailedNotification.id));
+    }
+  }, []);
+
+  const addRecordingNotification = useCallback(() => {
+    const allNotifications = reduxState.getState().app.notifications;
+    const recordingFailedNotification = allNotifications.find(
+      (notification) =>
+        notification.type === NotificationTypes.RECORDING_START_FAILED
+    );
+
+    if (!recordingFailedNotification) {
+      dispatch(
+        addNotification({
+          id: NotificationTypes.RECORDING_START_FAILED,
+          type: NotificationTypes.RECORDING_START_FAILED,
+        })
+      );
+    }
+  }, []);
 
   const startRecording = useCallback(() => {
     dispatch(setStartingOrStoppingRecording(true));
+
     hmsInstance
       .startRTMPOrRecording({ record: true })
       .then(() => {
-        const allNotifications = reduxState.getState().app.notifications;
-        allNotifications.find((notification) => notification.type === NotificationTypes.RECORDING_START_FAILED);
+        removeRecordingNotification();
       })
-      .catch(() => dispatch(setStartingOrStoppingRecording(false)));
-  }, [hmsInstance]);
+      .catch((error) => {
+        batch(() => {
+          dispatch(setStartingOrStoppingRecording(false));
+          // DOUBT: show error when it is because of "Recording" is already started?
+          addRecordingNotification();
+        });
+      });
+  }, [removeRecordingNotification, addRecordingNotification, hmsInstance]);
 
-  return { startRecording };
-}
+  return {
+    startRecording,
+    removeRecordingNotification,
+    addRecordingNotification,
+  };
+};

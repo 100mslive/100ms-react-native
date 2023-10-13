@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
 import { StyleSheet, View } from 'react-native';
-import type { HMSPeer } from '@100mslive/react-native-hms';
 
 import type { RootState } from '../redux';
 import { HMSLocalScreenshareNotification } from './HMSLocalScreenshareNotification';
