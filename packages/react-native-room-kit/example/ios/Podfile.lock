@@ -318,7 +318,7 @@ PODS:
     - React-Core
   - react-native-camera/RN (4.2.1):
     - React-Core
-  - react-native-hms (2.0.0-alpha.0):
+  - react-native-hms (1.9.0):
     - HMSBroadcastExtensionSDK (= 0.0.9)
     - HMSHLSPlayerSDK (= 0.0.2)
     - HMSSDK (= 1.1.0)
@@ -403,11 +403,11 @@ PODS:
     - React-Core
   - RNFlashList (1.6.1):
     - React-Core
-  - RNGestureHandler (2.13.0):
+  - RNGestureHandler (2.13.2):
     - React-Core
   - RNPermissions (3.4.0):
     - React-Core
-  - RNReanimated (2.17.0):
+  - RNReanimated (3.5.4):
     - DoubleConversion
     - FBLazyVector
     - FBReactNativeSpec
@@ -434,7 +434,7 @@ PODS:
     - React-RCTText
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (3.5.0):
+  - RNScreens (3.25.0):
     - React-Core
     - React-RCTImage
   - Toast (4.0.0)
@@ -690,7 +690,7 @@ SPEC CHECKSUMS:
   React-logger: a1f028f6d8639a3f364ef80419e5e862e1115250
   react-native-blur: cfdad7b3c01d725ab62a8a729f42ea463998afa2
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
-  react-native-hms: d293476475b2597b57ce2c6f2ca39f143ce667b4
+  react-native-hms: e17e01ae2d414da43fc950a2421b404ab0512fde
   react-native-lottie-splash-screen: 015423265bac5f46016dff2e31c97b9590808856
   react-native-safe-area-context: 61c8c484a3a9e7d1fda19f7b1794b35bbfd2262a
   react-native-simple-toast: bf002828cf816775a6809f7a9ec3907509bce11f
@@ -710,10 +710,10 @@ SPEC CHECKSUMS:
   RNCMaskedView: 949696f25ec596bfc697fc88e6f95cf0c79669b6
   RNDeviceInfo: 1e3f62b9ec32f7754fac60bd06b8f8a27124e7f0
   RNFlashList: 236646d48f224a034f35baa0242e1b77db063b1e
-  RNGestureHandler: 6e4dc6b7ab3a385386d4e36228bd065e5a611394
+  RNGestureHandler: bb86e378287f7713baf3ca205423eb8109790022
   RNPermissions: eac721f71748c4472d6e876038270b75397d6ee7
-  RNReanimated: 953281675307b83d2c12ac4c39e6c3415d0ce248
-  RNScreens: 01ab149b5dd5c27f5ff26741b1d2bdf2cee1af35
+  RNReanimated: de830de2aa2003f34478df6badb02e39a7e89e6d
+  RNScreens: 85d3880b52d34db7b8eeebe2f1a0e807c05e69fa
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
   Yoga: d6b6a80659aa3e91aaba01d0012e7edcbedcbecd
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a

@@ -1713,8 +1713,6 @@ export const useOffStageParticipants = () => {
             ...prev,
             [forRole]: iterator.totalCount,
           }));
-        } else {
-          console.log('***** Ignored setting state because unmounted');
         }
       };
 
