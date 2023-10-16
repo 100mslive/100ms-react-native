@@ -16,7 +16,7 @@ const colorLocations = [0, 0.4, 1];
 
 export const HLSChatView = () => {
   return (
-    <HMSKeyboardAvoidingView>
+    <HMSKeyboardAvoidingView bottomOffset={74}>
       <MaskedView
         maskElement={
           <LinearGradient
