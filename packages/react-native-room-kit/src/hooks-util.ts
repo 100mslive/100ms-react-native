@@ -1360,6 +1360,37 @@ export const useHMSNetworkQualityUpdate = () => {
   }, [hmsInstance]);
 };
 
+export const useEnableAutoPip = () => {
+  const hmsInstance = useHMSInstance();
+
+  const enableAutoPip = useCallback(() => {
+    hmsInstance.setPipParams({ autoEnterPipMode: true });
+  }, [hmsInstance]);
+
+  return enableAutoPip;
+};
+
+export const useDisableAutoPip = () => {
+  const hmsInstance = useHMSInstance();
+
+  const disableAutoPip = useCallback(() => {
+    hmsInstance.setPipParams({ autoEnterPipMode: false });
+  }, [hmsInstance]);
+
+  return disableAutoPip;
+};
+
+export const useAutoPip = () => {
+  const enableAutoPip = useEnableAutoPip();
+  const disableAutoPip = useDisableAutoPip();
+
+  useEffect(() => {
+    enableAutoPip();
+
+    return disableAutoPip;
+  }, [enableAutoPip, disableAutoPip]);
+}
+
 export const useHMSActiveSpeakerUpdates = (
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>,
   active?: boolean
