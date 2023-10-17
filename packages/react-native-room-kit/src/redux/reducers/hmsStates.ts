@@ -27,6 +27,7 @@ type ActionType =
   | RemoveParticipant
   | RemoveParticipants
   | AddUpdateParticipant
+  | ReplaceParticipantsList
   | SetActiveSpeakers
   | SetReconnecting;
 
@@ -110,8 +111,14 @@ type RemoveParticipants = {
 };
 
 type AddUpdateParticipant = {
-  type: HmsStateActionTypes.ADD_UPDATE_PARTICIPANT;
+  type: HmsStateActionTypes.UPDATE_PARTICIPANT;
   participant: HMSPeer;
+};
+
+type ReplaceParticipantsList = {
+  type: HmsStateActionTypes.REPLACE_PARTICIPANTS_LIST;
+  roleName: string;
+  participants: HMSPeer[];
 };
 
 type SetActiveSpeakers = {
@@ -132,7 +139,7 @@ type IntialStateType = {
   roomLocallyMuted: boolean;
   room: HMSRoom | null;
   localPeer: HMSLocalPeer | null;
-  participants: (HMSPeer | HMSLocalPeer)[];
+  groupedParticipants: Record<string, (HMSPeer | HMSLocalPeer)[]>;
   activeSpeakers: HMSSpeaker[];
   roles: HMSRole[];
   previewPeersList: HMSPeer[];
@@ -148,7 +155,7 @@ const INITIAL_STATE: IntialStateType = {
   roomLocallyMuted: false,
   room: null,
   localPeer: null,
-  participants: [],
+  groupedParticipants: {},
   activeSpeakers: [],
   roles: [],
   previewPeersList: [],
@@ -167,12 +174,70 @@ const hmsStatesReducer = (
         room: action.room,
       };
     case HmsStateActionTypes.SET_LOCAL_PEER_STATE: {
-      const participantsHasLocalPeer =
-        action.localPeer !== null
-          ? state.participants.findIndex(
-              (participant) => participant.peerID === action.localPeer?.peerID
-            ) >= 0
-          : false;
+      let updatedGroupedParticipants = state.groupedParticipants;
+
+      if (action.localPeer !== null) {
+        const savedLocalPeer = Object.values(state.groupedParticipants)
+          .flat()
+          .find(
+            (participant) => participant.peerID === action.localPeer?.peerID
+          );
+
+        // update peer or check if  role change happened
+        if (savedLocalPeer) {
+          const previousRoleName = savedLocalPeer.role?.name!;
+          const currentRoleName = action.localPeer.role?.name!;
+
+          const roleChanged = previousRoleName !== currentRoleName;
+
+          if (roleChanged) {
+            const previousList = state.groupedParticipants[previousRoleName];
+            const currentList = state.groupedParticipants[currentRoleName];
+
+            updatedGroupedParticipants = {
+              ...state.groupedParticipants,
+              // add to new list
+              [currentRoleName]: Array.isArray(currentList)
+                ? [action.localPeer, ...currentList]
+                : [action.localPeer],
+              // delete from old list
+              [previousRoleName]: Array.isArray(previousList)
+                ? previousList.filter(
+                    (peer) => peer.peerID !== action.localPeer?.peerID
+                  )
+                : [],
+            };
+          } else {
+            const participants = state.groupedParticipants[currentRoleName];
+
+            updatedGroupedParticipants = {
+              ...state.groupedParticipants,
+              [currentRoleName]: Array.isArray(participants)
+                ? participants.map((participant) =>
+                    participant.peerID === action.localPeer?.peerID
+                      ? action.localPeer
+                      : participant
+                  )
+                : [action.localPeer],
+            };
+          }
+        }
+        // add peer
+        else {
+          const localPeerRoleName = action.localPeer.role?.name;
+
+          if (localPeerRoleName) {
+            const participants = state.groupedParticipants[localPeerRoleName];
+
+            updatedGroupedParticipants = {
+              ...state.groupedParticipants,
+              [localPeerRoleName]: Array.isArray(participants)
+                ? [action.localPeer, ...participants]
+                : [action.localPeer],
+            };
+          }
+        }
+      }
 
       return {
         ...state,
@@ -181,21 +246,21 @@ const hmsStatesReducer = (
         isLocalVideoMuted: action.localPeer?.videoTrack?.isMute(),
 
         // Adding or updating local peer in participants list
-        participants:
-          action.localPeer !== null
-            ? participantsHasLocalPeer
-              ? state.participants.map((participant) =>
-                  participant.peerID === action.localPeer?.peerID
-                    ? action.localPeer
-                    : participant
-                )
-              : [action.localPeer, ...state.participants]
-            : state.participants,
+        groupedParticipants: updatedGroupedParticipants,
       };
     }
     case HmsStateActionTypes.ADD_PARTICIPANT: {
+      const participantRoleName = action.participant.role?.name;
+
+      if (!participantRoleName) {
+        return state;
+      }
+
+      const participants = state.groupedParticipants[participantRoleName];
+
       if (
-        state.participants.findIndex(
+        Array.isArray(participants) &&
+        participants.findIndex(
           (participant) => participant.peerID === action.participant.peerID
         ) >= 0
       ) {
@@ -204,85 +269,200 @@ const hmsStatesReducer = (
 
       return {
         ...state,
-        participants: [...state.participants, action.participant],
+        groupedParticipants: {
+          ...state.groupedParticipants,
+          [participantRoleName]: Array.isArray(participants)
+            ? [...participants, action.participant]
+            : [action.participant],
+        },
       };
     }
     case HmsStateActionTypes.ADD_PARTICIPANTS: {
-      const participantsToAdd = [];
+      const participantsToAdd = new Map<string, (HMSPeer | HMSLocalPeer)[]>();
+
+      const participants = Object.values(state.groupedParticipants).flat();
 
       action.participants.forEach((peerToAdd) => {
         // check if `peerToAdd` already exists
         const exists =
-          state.participants.findIndex(
+          participants.findIndex(
             (participant) => participant.peerID === peerToAdd.peerID
           ) >= 0;
 
-        // if not exists
+        // if not exists, push to existing list or create new against the role
         if (!exists) {
-          // - push to `participantsToAdd`
-          participantsToAdd.push(peerToAdd);
+          const list = participantsToAdd.get(peerToAdd.role?.name!);
+
+          if (list) {
+            list.push(peerToAdd);
+          } else {
+            participantsToAdd.set(peerToAdd.role?.name!, [peerToAdd]);
+          }
         }
       });
 
-      if (participantsToAdd.length === 0) {
+      if (participantsToAdd.size === 0) {
         return state;
       }
 
+      let updatedGroupedParticipants = { ...state.groupedParticipants };
+
+      participantsToAdd.forEach((list, roleName) => {
+        const oldList = updatedGroupedParticipants[roleName];
+        updatedGroupedParticipants[roleName] = Array.isArray(oldList)
+          ? [...oldList, ...list]
+          : list;
+      });
+
       return {
         ...state,
-        participants: [...state.participants, ...action.participants],
+        groupedParticipants: updatedGroupedParticipants,
       };
     }
     case HmsStateActionTypes.REMOVE_PARTICIPANT: {
+      const participantRoleName = action.participant.role?.name;
+
+      if (!participantRoleName) {
+        return state;
+      }
+
+      const participants = state.groupedParticipants[participantRoleName];
+
       if (
-        state.participants.findIndex(
+        Array.isArray(participants) &&
+        participants.findIndex(
           (participant) => participant.peerID === action.participant.peerID
         ) >= 0
       ) {
         return {
           ...state,
-          participants: state.participants.filter(
-            (participant) => participant.peerID !== action.participant.peerID
-          ),
+          groupedParticipants: {
+            ...state.groupedParticipants,
+            [participantRoleName]: participants.filter(
+              (participant) => participant.peerID !== action.participant.peerID
+            ),
+          },
         };
       }
 
       return state;
     }
     case HmsStateActionTypes.REMOVE_PARTICIPANTS: {
+      const participantsToRemove = new Map<
+        string,
+        (HMSPeer | HMSLocalPeer)[]
+      >();
+
+      const participants = Object.values(state.groupedParticipants).flat();
+
+      action.participants.forEach((peerToAdd) => {
+        // check if `peerToAdd` already exists
+        const exists =
+          participants.findIndex(
+            (participant) => participant.peerID === peerToAdd.peerID
+          ) >= 0;
+
+        // if exists, push to existing list or create new against the role
+        if (exists) {
+          const list = participantsToRemove.get(peerToAdd.role?.name!);
+
+          if (list) {
+            list.push(peerToAdd);
+          } else {
+            participantsToRemove.set(peerToAdd.role?.name!, [peerToAdd]);
+          }
+        }
+      });
+
+      if (participantsToRemove.size === 0) {
+        return state;
+      }
+
+      let updatedGroupedParticipants = { ...state.groupedParticipants };
+
+      participantsToRemove.forEach((list, roleName) => {
+        const oldList = updatedGroupedParticipants[roleName];
+        updatedGroupedParticipants[roleName] = Array.isArray(oldList)
+          ? oldList.filter((participant) => {
+              const notExists =
+                list.findIndex(
+                  (peerToRemove) => peerToRemove.peerID === participant.peerID
+                ) < 0;
+
+              // if `participant` is not in `removedPeers` list
+              // then keep it, otherwise remove it
+              return notExists;
+            })
+          : [];
+      });
+
       return {
         ...state,
-        participants: state.participants.filter((participant) => {
-          const notExists =
-            action.participants.findIndex(
-              (peerToRemove) => peerToRemove.peerID === participant.peerID
-            ) < 0;
-
-          // if `participant` is not in `removedPeers` list
-          // then keep it, otherwise remove it
-          return notExists;
-        }),
+        groupedParticipants: updatedGroupedParticipants,
       };
     }
-    case HmsStateActionTypes.ADD_UPDATE_PARTICIPANT: {
-      if (
-        state.participants.findIndex(
+    case HmsStateActionTypes.UPDATE_PARTICIPANT: {
+      const previousParticipant = Object.values(state.groupedParticipants)
+        .flat()
+        .find(
           (participant) => participant.peerID === action.participant.peerID
-        ) >= 0
-      ) {
+        );
+
+      if (!previousParticipant) {
+        return state;
+      }
+
+      const previousRoleName = previousParticipant.role?.name!;
+      const currentRoleName = action.participant.role?.name!;
+
+      // check if role change
+      if (previousRoleName !== currentRoleName) {
+        const previousRoleList = state.groupedParticipants[previousRoleName];
+        const currentRoleList = state.groupedParticipants[currentRoleName];
+
         return {
           ...state,
-          participants: state.participants.map((participant) =>
-            participant.peerID === action.participant.peerID
-              ? action.participant
-              : participant
-          ),
+          groupedParticipants: {
+            ...state.groupedParticipants,
+            // - add to new
+            [currentRoleName]: Array.isArray(currentRoleList)
+              ? [...currentRoleList, action.participant]
+              : [action.participant],
+            // - delete from old
+            [previousRoleName]: Array.isArray(previousRoleList)
+              ? previousRoleList.filter(
+                  (p) => p.peerID !== action.participant.peerID
+                )
+              : [],
+          },
         };
       }
 
+      // update existing
+
+      const currentList = state.groupedParticipants[currentRoleName];
+
       return {
         ...state,
-        participants: [...state.participants, action.participant],
+        groupedParticipants: {
+          ...state.groupedParticipants,
+          [currentRoleName]: Array.isArray(currentList)
+            ? currentList.map((p) =>
+                p.peerID === action.participant.peerID
+                  ? action.participant
+                  : p
+              )
+            : [action.participant],
+        },
+      };
+    }
+    case HmsStateActionTypes.REPLACE_PARTICIPANTS_LIST: {
+      return {
+        ...state,
+        groupedParticipants: {
+          ...state.groupedParticipants,
+          [action.roleName]: action.participants
+        },
       };
     }
     case HmsStateActionTypes.SET_ROLES_STATE:

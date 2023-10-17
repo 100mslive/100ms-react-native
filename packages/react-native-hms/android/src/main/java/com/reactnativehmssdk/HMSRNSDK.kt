@@ -51,7 +51,7 @@ class HMSRNSDK(
   private var eventsEnableStatus = mutableMapOf<String, Boolean>()
   private var sessionStore: HmsSessionStore? = null
   private val keyChangeObservers = mutableMapOf<String, HMSKeyChangeListener?>()
-  private val peerListIterators = mutableMapOf<Int, PeerListIterator>()
+  private val peerListIterators = mutableMapOf<String, PeerListIterator>()
 
   init {
     val builder = HMSSDK.Builder(reactApplicationContext)
@@ -1114,30 +1114,31 @@ class HMSRNSDK(
         arrayOf(Pair("peerId", "String"), Pair("reason", "String")),
       )
     if (requiredKeys === null) {
-      val peerId = data.getString("peerId")
-      val peer = HMSHelper.getRemotePeerFromPeerId(peerId, hmsSDK?.getRoom())
+      HMSCoroutineScope.launch {
+        val peerId = data.getString("peerId")
 
-      if (peer != null) {
-        hmsSDK?.removePeerRequest(
-          peer,
-          data.getString("reason") as String,
-          object : HMSActionResultListener {
-            override fun onSuccess() {
-              callback?.resolve(emitHMSSuccess())
-            }
+        val peer = HMSHelper.getRemotePeerFromPeerId(peerId, hmsSDK)
 
-            override fun onError(error: HMSException) {
-              callback?.reject(error.code.toString(), error.message)
-            }
-          },
-        )
-      } else {
-        self.emitCustomError("PEER_NOT_FOUND")
-        callback?.reject("101", "PEER_NOT_FOUND")
+        if (peer != null) {
+          hmsSDK?.removePeerRequest(
+            peer,
+            data.getString("reason") as String,
+            object : HMSActionResultListener {
+              override fun onSuccess() {
+                callback?.resolve(emitHMSSuccess())
+              }
+
+              override fun onError(error: HMSException) {
+                callback?.reject(error.code.toString(), error.message)
+              }
+            },
+          )
+        } else {
+          callback?.reject("101", "PEER_NOT_FOUND")
+        }
       }
     } else {
       val errorMessage = "removePeer: $requiredKeys"
-      self.emitRequiredKeysError(errorMessage)
       rejectCallback(callback, errorMessage)
     }
   }
@@ -1281,13 +1282,10 @@ class HMSRNSDK(
     val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("mute", "Boolean")))
     if (requiredKeys === null) {
       val mute = data.getBoolean("mute")
-      val peers = hmsSDK?.getRemotePeers()
-      if (peers != null) {
-        for (remotePeer in peers) {
-          val peerId = remotePeer.peerID
-          val peer = HMSHelper.getRemotePeerFromPeerId(peerId, hmsSDK?.getRoom())
-          peer?.audioTrack?.isPlaybackAllowed = !mute
-        }
+      val remotePeers = hmsSDK?.getRemotePeers()
+
+      remotePeers?.forEach() {
+        it.audioTrack?.isPlaybackAllowed = !mute
       }
     } else {
       val errorMessage = "setPlaybackForAllAudio: $requiredKeys"
@@ -2433,7 +2431,12 @@ class HMSRNSDK(
   }
 
   fun getPeerListIterator(data: ReadableMap): WritableMap? {
-    val uniqueId = data.getInt("uniqueId")
+    val uniqueId = data.getString("uniqueId")
+    if (uniqueId == null) {
+      print("Error in getPeerListIterator: uniqueId is not available")
+      return null
+    }
+
     val options = HMSHelper.getPeerListIteratorOptions(data)
 
     hmsSDK?.let {
@@ -2442,7 +2445,7 @@ class HMSRNSDK(
       peerListIterators[uniqueId] = iterator
       val map = Arguments.createMap()
       map.putBoolean("success", true)
-      map.putInt("uniqueId", uniqueId)
+      map.putString("uniqueId", uniqueId)
       return map
     }
     print("Error in getPeerListIterator: HMS SDK is not available")
@@ -2453,7 +2456,7 @@ class HMSRNSDK(
     data: ReadableMap,
     promise: Promise?,
   ) {
-    val uniqueId = data.getInt("uniqueId")
+    val uniqueId = data.getString("uniqueId")
 
     peerListIterators[uniqueId]?.let {
       promise?.resolve(it.hasNext())
@@ -2466,7 +2469,7 @@ class HMSRNSDK(
     data: ReadableMap,
     promise: Promise?,
   ) {
-    val uniqueId = data.getInt("uniqueId")
+    val uniqueId = data.getString("uniqueId")
 
     val peerListIterator = peerListIterators[uniqueId]
 
@@ -2482,12 +2485,19 @@ class HMSRNSDK(
         }
 
         override fun onSuccess(result: ArrayList<HMSPeer>) {
-          val array = Arguments.createArray()
+          val resultData: WritableMap = Arguments.createMap()
+
+          resultData.putInt("totalCount", peerListIterator.totalCount)
+
+          val array: WritableArray = Arguments.createArray()
           for (peer in result) {
-            val hmsPeer = HMSDecoder.getHmsPeerSubset(peer, null)
+            val hmsPeer = HMSDecoder.getHmsPeer(peer)
             array.pushMap(hmsPeer)
           }
-          promise?.resolve(array)
+
+          resultData.putArray("peers", array)
+
+          promise?.resolve(resultData)
         }
       },
     )

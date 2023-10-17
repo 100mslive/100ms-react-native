@@ -635,7 +635,7 @@ object HMSDecoder {
   fun getHMSBrowserRecordingState(data: HMSBrowserRecordingState?): ReadableMap {
     val input = Arguments.createMap()
     if (data !== null) {
-      input.putBoolean("initialising", false)
+      input.putBoolean("initialising", data.initialising)
 
       input.putBoolean("running", data.running)
 

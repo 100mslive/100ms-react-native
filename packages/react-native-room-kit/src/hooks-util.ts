@@ -46,9 +46,14 @@ import {
 } from 'react';
 import type { DependencyList } from 'react';
 
-import { MaxTilesInOnePage, ModalTypes, PipModes } from './utils/types';
+import {
+  MaxTilesInOnePage,
+  ModalTypes,
+  PeerListRefreshInterval,
+  PipModes,
+} from './utils/types';
 import type { ChatBroadcastFilter, PeerTrackNode } from './utils/types';
-import { createPeerTrackNode, parseMetadata } from './utils/functions';
+import { createPeerTrackNode } from './utils/functions';
 import {
   batch,
   shallowEqual,
@@ -73,6 +78,7 @@ import {
   removeParticipant,
   removeParticipants,
   removeScreenshareTile,
+  replaceParticipantsList,
   saveUserData,
   setActiveChatBottomSheetTab,
   setActiveSpeakers,
@@ -105,13 +111,7 @@ import {
   replacePeerTrackNodesWithTrack,
 } from './peerTrackNodeUtils';
 import { MeetingState } from './types';
-import {
-  AppState,
-  InteractionManager,
-  Keyboard,
-  LayoutAnimation,
-  Platform,
-} from 'react-native';
+import { InteractionManager, Keyboard, Platform } from 'react-native';
 import type { ImageStyle, StyleProp, ViewStyle, TextStyle } from 'react-native';
 import { NavigationContext } from '@react-navigation/native';
 import {
@@ -1677,30 +1677,68 @@ export const useLandscapeChatViewVisible = () => {
   return pipModeNotActive && isLandscapeOrientation && overlayChatVisible;
 };
 
-export type ParticipantHeaderData = {
+export type ParticipantAccordianData = {
+  id: string;
   label: string;
-  role: HMSRole;
-  itemsLength: number;
+  showViewAll: boolean;
+  data: (HMSPeer | HMSLocalPeer)[];
 };
 
-export type ParticipantHandRaisedHeaderData = {
-  label: string;
-  itemsLength: number;
+export const useOffStageParticipants = () => {
+  const dispatch = useDispatch();
+  const hmsInstance = useHMSInstance();
+  const offStageRoles = useHMSLayoutConfig(
+    (layoutConfig) =>
+      layoutConfig?.screens?.conferencing?.default?.elements?.on_stage_exp
+        ?.off_stage_roles || null
+  );
+
+  const [participantsTotalCounts, setParticipantsTotalCounts] = useState<
+    Record<string, number>
+  >({});
+
+  useEffect(() => {
+    if (offStageRoles) {
+      let mounted = true;
+
+      const createIterator = async (forRole: string) => {
+        const iterator = hmsInstance.getPeerListIterator({
+          byRoleName: forRole,
+          limit: 10,
+        });
+        const participants = await iterator.next();
+        if (mounted) {
+          dispatch(replaceParticipantsList(participants, forRole));
+          setParticipantsTotalCounts((prev) => ({
+            ...prev,
+            [forRole]: iterator.totalCount,
+          }));
+        }
+      };
+
+      const createIteratorForRoles = () => {
+        offStageRoles.forEach((role) => {
+          createIterator(role);
+        });
+      };
+
+      createIteratorForRoles();
+
+      const intervalId = setInterval(() => {
+        createIteratorForRoles();
+      }, PeerListRefreshInterval);
+
+      return () => {
+        mounted = false;
+        clearInterval(intervalId);
+      };
+    }
+  }, [offStageRoles]);
+
+  return participantsTotalCounts;
 };
 
-export type ListItemUI<
-  T =
-    | ParticipantHeaderData
-    | HMSLocalPeer
-    | HMSPeer
-    | ParticipantHandRaisedHeaderData,
-> = {
-  type: 'EXPANDED_HEADER' | 'COLLAPSED_HEADER' | 'LAST_ITEM' | 'REGULAR_ITEM';
-  data: T;
-  key: string;
-};
-
-export const useFilteredParticipants = () => {
+export const useFilteredParticipants = (filterText: string) => {
   const roles = useSelector((state: RootState) => state.hmsStates.roles);
   const onStageRole = useHMSLayoutConfig(
     (layoutConfig) =>
@@ -1708,183 +1746,138 @@ export const useFilteredParticipants = () => {
         ?.on_stage_role || null
   );
 
-  const [searchText, setSearchText] = useState('');
-  const formattedSearchText = searchText.trim().toLowerCase();
+  const offStageParticipantsTotalCounts = useOffStageParticipants();
 
-  const participants = useSelector(
-    (state: RootState) => state.hmsStates.participants
+  const formattedSearchText = filterText.trim().toLowerCase();
+
+  const groupedParticipants = useSelector(
+    (state: RootState) => state.hmsStates.groupedParticipants
   );
 
-  const peerGroups = useMemo(() => {
-    return groupParticipantsAsPerRole(participants, formattedSearchText);
-  }, [formattedSearchText, participants]);
+  const sortedRoles = useMemo(
+    () => {
+      return roles
+        .filter((role) => {
+          if (!role.name || role.name.startsWith('_')) {
+            return false;
+          }
+          return true;
 
-  const sortedRoles = useMemo(() => {
-    return roles
-      .filter((role) => peerGroups.has(role.name!))
-      .sort((a, b) => {
-        if (onStageRole) {
-          if (a.name === onStageRole && b.name === onStageRole) {
+          // const list = groupedParticipants[role.name!];
+
+          // return list && list.length > 0;
+        })
+        .sort((a, b) => {
+          if (onStageRole) {
+            if (a.name === onStageRole && b.name === onStageRole) {
+              return 0;
+            }
+
+            if (a.name === onStageRole) {
+              return -1;
+            }
+
+            if (b.name === onStageRole) {
+              return 1;
+            }
+          }
+
+          const canAPublish: boolean =
+            (a.publishSettings?.allowed &&
+              a.publishSettings.allowed.length > 0) ??
+            false;
+          const canBPublish: boolean =
+            (b.publishSettings?.allowed &&
+              b.publishSettings.allowed.length > 0) ??
+            false;
+
+          if (canAPublish && canBPublish) {
             return 0;
           }
 
-          if (a.name === onStageRole) {
+          if (canAPublish) {
             return -1;
           }
 
-          if (b.name === onStageRole) {
-            return 1;
-          }
-        }
-
-        const canAPublish: boolean =
-          (a.publishSettings?.allowed &&
-            a.publishSettings.allowed.length > 0) ??
-          false;
-        const canBPublish: boolean =
-          (b.publishSettings?.allowed &&
-            b.publishSettings.allowed.length > 0) ??
-          false;
-
-        if (canAPublish && canBPublish) {
-          return 0;
-        }
-
-        if (canAPublish) {
-          return -1;
-        }
-
-        return 1;
-      });
-  }, [peerGroups, onStageRole, roles]);
-
-  const firstGroupName = peerGroups.has('hand-raised')
-    ? 'hand-raised'
-    : sortedRoles[0]?.name;
-
-  const [expandedGroups, setExpandedGroups] = useState<string[]>(
-    firstGroupName ? [firstGroupName] : []
+          return 1;
+        });
+    },
+    // [groupedParticipants, onStageRole, roles]
+    [onStageRole, roles]
   );
 
-  const groupedList = useMemo(() => {
-    let list: ListItemUI[] = [];
+  const participantsAccordianData: ParticipantAccordianData[] = useMemo(() => {
+    const t = [];
 
-    const handRaisedPeers = peerGroups.get('hand-raised');
-
-    if (handRaisedPeers) {
-      const expanded = expandedGroups.includes('hand-raised');
-
-      list.push({
-        type: expanded ? 'EXPANDED_HEADER' : 'COLLAPSED_HEADER',
-        key: 'hand-raised',
-        data: {
-          label: `Hand Raised (${handRaisedPeers.length})`,
-          itemsLength: handRaisedPeers.length,
-        },
-      });
-
-      if (expanded) {
-        list = list.concat(
-          handRaisedPeers.map((peer, idx, arr) => {
-            const isLast = arr.length - 1 === idx;
-
-            return {
-              data: peer,
-              key: `${peer.peerID}--${'hand-raised'}`,
-              type: isLast ? 'LAST_ITEM' : 'REGULAR_ITEM',
-            };
-          })
-        );
-      }
-    }
+    const filteredHandRaisedPeers: (HMSPeer | HMSLocalPeer)[][] = [];
 
     sortedRoles.forEach((role) => {
-      const peers = peerGroups.get(role.name!);
+      const list = groupedParticipants[role.name!];
+      const filteredList =
+        Array.isArray(list) && formattedSearchText.length > 0
+          ? list.filter((peer) =>
+              peer.name.toLowerCase().includes(formattedSearchText)
+            )
+          : list;
 
-      if (peers) {
-        const expanded = expandedGroups.includes(role.name!);
+      if (Array.isArray(filteredList) && filteredList.length > 0) {
 
-        list.push({
-          type: expanded ? 'EXPANDED_HEADER' : 'COLLAPSED_HEADER',
-          key: role.name!,
-          data: {
-            label: `${role.name!} (${peers.length})`,
-            role: role,
-            itemsLength: peers.length,
-          },
+        filteredHandRaisedPeers.push(filteredList);
+        const offStageRoleTotalCount =
+          offStageParticipantsTotalCounts[role.name!];
+
+        const firstTen = filteredList.slice(0, 10);
+
+        t.push({
+          id: role.name!,
+          label: `${role.name!} (${
+            typeof offStageRoleTotalCount === 'number'
+              ? offStageRoleTotalCount
+              : filteredList.length
+          })`,
+          showViewAll:
+            typeof offStageRoleTotalCount === 'number' &&
+            formattedSearchText.length <= 0
+              ? offStageRoleTotalCount > 10
+              : filteredList.length > 10,
+          data: firstTen,
         });
-
-        if (expanded) {
-          list = list.concat(
-            peers.map((peer, idx, arr) => {
-              const isLast = arr.length - 1 === idx;
-
-              return {
-                data: peer,
-                key: `${peer.peerID}--${role.name!}`,
-                type: isLast ? 'LAST_ITEM' : 'REGULAR_ITEM',
-              };
-            })
-          );
-        }
       }
     });
 
-    return list;
-  }, [expandedGroups, peerGroups, sortedRoles]);
+    const handRaisedParticipants = filteredHandRaisedPeers
+      .flat()
+      .filter((participant) => participant.isHandRaised);
+
+    const firstTenHandRaisedParticipants = handRaisedParticipants.slice(0, 10);
+
+    if (handRaisedParticipants.length > 0) {
+      t.unshift({
+        id: 'hand-raised',
+        label: `Hand Raised (${handRaisedParticipants.length})`,
+        showViewAll: handRaisedParticipants.length > 10,
+        data: firstTenHandRaisedParticipants,
+      });
+    }
+
+    return t;
+  }, [
+    formattedSearchText,
+    groupedParticipants,
+    offStageParticipantsTotalCounts,
+    sortedRoles,
+  ]);
+
+  const [expandedGroup, setExpandedGroup] = useState<string | null>(
+    participantsAccordianData[0]?.id ?? null
+  );
 
   return {
-    data: groupedList,
-    searchText,
+    data: participantsAccordianData,
     formattedSearchText,
-    setSearchText,
-    expandedGroups,
-    setExpandedGroups,
+    expandedGroup,
+    setExpandedGroup,
   };
-};
-
-const groupParticipantsAsPerRole = (
-  participants: (HMSLocalPeer | HMSPeer)[],
-  searchText: string
-) => {
-  const groups: Map<string, (HMSLocalPeer | HMSPeer)[]> = new Map();
-
-  for (const participant of participants) {
-    const participantRole = participant.role;
-
-    if (!participantRole) {
-      continue;
-    }
-
-    if (
-      searchText.length <= 0 ||
-      participant.name.toLowerCase().includes(searchText)
-    ) {
-      if (!groups.has(participantRole.name!)) {
-        groups.set(participantRole.name!, []);
-      }
-
-      const group = groups.get(participantRole.name!);
-
-      if (!group) {
-        continue;
-      }
-
-      group.push(participant);
-
-      if (participant.isHandRaised) {
-        if (!groups.has('hand-raised')) {
-          groups.set('hand-raised', []);
-        }
-
-        const group = groups.get('hand-raised');
-
-        if (group) group.push(participant);
-      }
-    }
-  }
-
-  return groups;
 };
 
 export const useShouldGoLive = () => {
