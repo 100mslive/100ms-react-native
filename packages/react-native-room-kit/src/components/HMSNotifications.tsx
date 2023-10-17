@@ -131,7 +131,7 @@ export const useHMSNotificationsHeight = () => {
     const isLocalScreenShared = state.hmsStates.isLocalScreenShared;
 
     return (
-      Math.max(allNotifications.length, isLocalScreenShared ? 2 : 3) +
+      Math.min(allNotifications.length, isLocalScreenShared ? 2 : 3) +
       (isLocalScreenShared ? 1 : 0)
     );
   });
