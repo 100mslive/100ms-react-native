@@ -33,9 +33,7 @@ export const HMSKeyboardAvoidingView: React.FC<
   });
 
   return (
-    <Animated.View
-      style={[style, keyboardAvoidStyle]}
-    >
+    <Animated.View style={[style, keyboardAvoidStyle]}>
       {children}
     </Animated.View>
   );
