@@ -22,6 +22,7 @@ import {
 } from '@100mslive/react-native-hms';
 import type { Chat as ChatConfig } from '@100mslive/types-prebuilt/elements/chat';
 import type {
+  HMSPIPConfig,
   HMSRole,
   HMSSessionStore,
   HMSSessionStoreValue,
@@ -1360,11 +1361,13 @@ export const useHMSNetworkQualityUpdate = () => {
   }, [hmsInstance]);
 };
 
+export type PIPConfig = Omit<HMSPIPConfig, 'autoEnterPipMode'>;
+
 export const useEnableAutoPip = () => {
   const hmsInstance = useHMSInstance();
 
-  const enableAutoPip = useCallback(() => {
-    hmsInstance.setPipParams({ autoEnterPipMode: true });
+  const enableAutoPip = useCallback((data?: PIPConfig) => {
+    hmsInstance.setPipParams({ ...data, autoEnterPipMode: true });
   }, [hmsInstance]);
 
   return enableAutoPip;
@@ -1373,22 +1376,25 @@ export const useEnableAutoPip = () => {
 export const useDisableAutoPip = () => {
   const hmsInstance = useHMSInstance();
 
-  const disableAutoPip = useCallback(() => {
-    hmsInstance.setPipParams({ autoEnterPipMode: false });
+  const disableAutoPip = useCallback((data?: PIPConfig) => {
+    hmsInstance.setPipParams({ ...data, autoEnterPipMode: false });
   }, [hmsInstance]);
 
   return disableAutoPip;
 };
 
-export const useAutoPip = () => {
+export const useAutoPip = (enabled: boolean = true) => {
   const enableAutoPip = useEnableAutoPip();
   const disableAutoPip = useDisableAutoPip();
+  const isHLSViewer = useIsHLSViewer();
 
   useEffect(() => {
-    enableAutoPip();
+    if (enabled) {
+      enableAutoPip({ aspectRatio: isHLSViewer ? [9, 16] : [16, 9] });
 
-    return disableAutoPip;
-  }, [enableAutoPip, disableAutoPip]);
+      return disableAutoPip;
+    }
+  }, [enabled, isHLSViewer, enableAutoPip, disableAutoPip]);
 }
 
 export const useHMSActiveSpeakerUpdates = (
