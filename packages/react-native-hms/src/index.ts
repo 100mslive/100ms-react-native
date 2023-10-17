@@ -88,6 +88,7 @@ export type {
   HmsViewComponent as HMSView,
   HmsComponentProps as HMSViewProps,
 } from './classes/HmsView';
+export type * from './classes/HMSPIPConfig';
 
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
 
