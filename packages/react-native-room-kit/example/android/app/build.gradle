@@ -140,6 +140,11 @@ android {
         versionName "2.3.91"
         missingDimensionStrategy 'react-native-camera', 'general'
     }
+
+    packagingOptions {
+        pickFirst '**/*.so'
+    }
+
     splits {
         abi {
             reset()
