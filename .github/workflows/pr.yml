@@ -16,11 +16,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Trunk Check
-        uses: trunk-io/trunk-action@v1
+      - run: |
+          curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.44.0/ktlint && chmod a+x ktlint && sudo mv ktlint /usr/local/bin/
+      - name: Run ktlint
+        run: |
+          ktlint --reporter=checkstyle,output=build/ktlint-report.xml
+        continue-on-error: true
+      - uses: yutailang0119/action-ktlint@v3
         with:
-          post-annotations: true
+          report-path: build/*.xml
+        continue-on-error: false
 
       - name: Run Trunk format
-        run: trunk fmt
+        run: curl https://get.trunk.io -fsSL | bash && trunk fmt
+
+      # - name: Trunk Check
+      #   uses: trunk-io/trunk-action@v1
+      #   with:
+      #     post-annotations: true
