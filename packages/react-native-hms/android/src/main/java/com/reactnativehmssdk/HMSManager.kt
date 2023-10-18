@@ -296,10 +296,10 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun setPlaybackAllowed(data: ReadableMap) {
+  fun setPlaybackAllowed(data: ReadableMap, callback: Promise?) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
-    hms?.setPlaybackAllowed(data)
+    hms?.setPlaybackAllowed(data, callback)
   }
 
   @ReactMethod
@@ -343,10 +343,10 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun setVolume(data: ReadableMap) {
+  fun setVolume(data: ReadableMap, callback: Promise?) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
-    hms?.setVolume(data)
+    hms?.setVolume(data, callback)
   }
 
   @ReactMethod
@@ -360,10 +360,10 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun setPlaybackForAllAudio(data: ReadableMap) {
+  fun setPlaybackForAllAudio(data: ReadableMap, callback: Promise?) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
-    hms?.setPlaybackForAllAudio(data)
+    hms?.setPlaybackForAllAudio(data, callback)
   }
 
   @ReactMethod
@@ -575,17 +575,17 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun switchAudioOutput(data: ReadableMap) {
+  fun switchAudioOutput(data: ReadableMap, callback: Promise?) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
-    hms?.switchAudioOutput(data)
+    hms?.switchAudioOutput(data, callback)
   }
 
   @ReactMethod
-  fun setAudioMode(data: ReadableMap) {
+  fun setAudioMode(data: ReadableMap, callback: Promise?) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
-    hms?.setAudioMode(data)
+    hms?.setAudioMode(data, callback)
   }
 
   @ReactMethod
