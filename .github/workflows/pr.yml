@@ -8,7 +8,7 @@ permissions: read-all
 
 jobs:
   trunk_check:
-    name: Run Linters
+    name: Trunk Check Runner
     runs-on: ubuntu-latest
     permissions:
       checks: write # For trunk to post annotations
@@ -16,7 +16,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - run: curl https://get.trunk.io -fsSL | bash && trunk fmt && git status
       # - run: |
       #     curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.44.0/ktlint && chmod a+x ktlint && sudo mv ktlint /usr/local/bin/
       # - name: Run ktlint
@@ -28,10 +27,10 @@ jobs:
       #     report-path: build/*.xml
       #   continue-on-error: false
 
-      # - name: Run Trunk format
-
-
       # - name: Trunk Check
       #   uses: trunk-io/trunk-action@v1
       #   with:
       #     post-annotations: true
+
+      - name: Run SwiftLint
+        uses: norio-nomura/action-swiftlint@3.2.1
