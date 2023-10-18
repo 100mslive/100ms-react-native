@@ -126,15 +126,18 @@ object HMSHelper {
           val limit = 1
           val peerIds = arrayListOf(peerId)
           val peerListIterator = hmsSDK.getPeerListIterator(PeerListIteratorOptions(limit = limit, byPeerIds = peerIds))
-          peerListIterator.next(object : PeerListResultListener {
-            override fun onError(error: HMSException) {
-              it.resumeWithException(error)
-            }
-            override fun onSuccess(result: ArrayList<HMSPeer>) {
-              val peerFromIterator = result[0]
-              it.resume(peerFromIterator as? HMSRemotePeer)
-            }
-          })
+          peerListIterator.next(
+            object : PeerListResultListener {
+              override fun onError(error: HMSException) {
+                it.resumeWithException(error)
+              }
+
+              override fun onSuccess(result: ArrayList<HMSPeer>) {
+                val peerFromIterator = result[0]
+                it.resume(peerFromIterator as? HMSRemotePeer)
+              }
+            },
+          )
         }
       } else {
         it.resume(null)

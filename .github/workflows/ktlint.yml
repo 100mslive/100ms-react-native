@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - '**/*.kt'
+      - "**/*.kt"
 
 concurrency:
   group: ${{ github.head_ref || github.run_id }}
@@ -20,16 +20,16 @@ jobs:
       checks: write
 
     steps:
-    - name: Install ktlint
-      run: |
-        curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.44.0/ktlint && chmod a+x ktlint && sudo mv ktlint /usr/local/bin/
+      - name: Install ktlint
+        run: |
+          curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.44.0/ktlint && chmod a+x ktlint && sudo mv ktlint /usr/local/bin/
 
-    - name: Run ktlint
-      run: |
-        ktlint --reporter=checkstyle,output=build/ktlint-report.xml
-      continue-on-error: true
+      - name: Run ktlint
+        run: |
+          ktlint --reporter=checkstyle,output=build/ktlint-report.xml
+        continue-on-error: true
 
-    - uses: yutailang0119/action-ktlint@v3
-      with:
-        report-path: build/*.xml
-      continue-on-error: false
+      - uses: yutailang0119/action-ktlint@v3
+        with:
+          report-path: build/*.xml
+        continue-on-error: false

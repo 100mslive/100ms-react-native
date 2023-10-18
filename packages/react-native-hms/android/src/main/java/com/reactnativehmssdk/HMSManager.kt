@@ -24,11 +24,14 @@ class HMSManager(reactContext: ReactApplicationContext) :
     var hmsCollection = mutableMapOf<String, HMSRNSDK>()
 
     var reactAppContext: ReactApplicationContext? = null
-    var pipParamConfig: PipParamConfig? = null;
-    var pipParamsUntyped: Any? = null;
+    var pipParamConfig: PipParamConfig? = null
+    var pipParamsUntyped: Any? = null
     var emitter: DeviceEventManagerModule.RCTDeviceEventEmitter? = null
 
-    fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
+    fun onPictureInPictureModeChanged(
+      isInPictureInPictureMode: Boolean,
+      newConfig: Configuration,
+    ) {
       emitter?.let {
         val data = Arguments.createMap()
         data.putBoolean("isInPictureInPictureMode", isInPictureInPictureMode)
@@ -64,12 +67,13 @@ class HMSManager(reactContext: ReactApplicationContext) :
 
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         currentActivity?.let {
-         pipReceiver?.register(it)
+          pipReceiver?.register(it)
         }
       }
 
-      emitter = reactApplicationContext
-        .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+      emitter =
+        reactApplicationContext
+          .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
     }
   }
 

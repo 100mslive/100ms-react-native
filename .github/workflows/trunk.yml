@@ -3,10 +3,10 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - '**/*.ts'
-      - '**/*.tsx'
-      - '**/*.js'
-      - '**/*.jsx'
+      - "**/*.ts"
+      - "**/*.tsx"
+      - "**/*.js"
+      - "**/*.jsx"
 
 concurrency:
   group: ${{ github.head_ref || github.run_id }}

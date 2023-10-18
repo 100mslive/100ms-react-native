@@ -1284,7 +1284,7 @@ class HMSRNSDK(
       val mute = data.getBoolean("mute")
       val remotePeers = hmsSDK?.getRemotePeers()
 
-      remotePeers?.forEach() {
+      remotePeers?.forEach {
         it.audioTrack?.isPlaybackAllowed = !mute
       }
     } else {
