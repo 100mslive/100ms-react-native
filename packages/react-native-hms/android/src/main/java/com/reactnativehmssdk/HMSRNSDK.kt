@@ -1450,10 +1450,6 @@ class HMSRNSDK(
     data: ReadableMap,
     callback: Promise?,
   ) {
-    val errorMessage = "startRTMPOrRecording: Custom Temporary Error"
-    rejectCallback(callback, errorMessage)
-    return
-
     val requiredKeys =
       HMSHelper.getUnavailableRequiredKey(
         data,
