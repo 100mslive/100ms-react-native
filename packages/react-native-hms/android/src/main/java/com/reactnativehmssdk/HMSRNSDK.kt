@@ -67,10 +67,12 @@ class HMSRNSDK(
       if (frameworkInfo != null) {
         builder.setFrameworkInfo(frameworkInfo)
       } else {
-        emitCustomError("Unable to decode framework info")
+        val errorMessage = "Unable to decode framework info"
+        throw HMSException(6002, errorMessage, errorMessage, errorMessage, errorMessage, null, false)
       }
     } else {
-      emitCustomError("Framework info not sent in build function")
+      val errorMessage = "Framework info not sent in build function"
+      throw HMSException(6002, errorMessage, errorMessage, errorMessage, errorMessage, null, false)
     }
 
     if (HMSHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("logSettings", "Map")))) {
