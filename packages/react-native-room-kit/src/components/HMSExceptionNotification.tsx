@@ -1,12 +1,14 @@
 import * as React from 'react';
+import { useDispatch } from 'react-redux';
+import type { HMSException } from '@100mslive/react-native-hms';
+import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 
 import { HMSNotification } from './HMSNotification';
-import { AlertTriangleIcon, RecordingIcon } from '../Icons';
-import { useDispatch } from 'react-redux';
-import { useHMSRoomColorPalette, useHMSRoomStyleSheet } from '../hooks-util';
+import { AlertTriangleIcon } from '../Icons';
+import { useHMSRoomStyleSheet, useModalType } from '../hooks-util';
 import { removeNotification } from '../redux/actions';
-import { StyleSheet, Text, TouchableHighlight } from 'react-native';
-import type { HMSException } from '@100mslive/react-native-hms';
+import { ModalTypes } from '../utils/types';
+import { COLORS } from '../utils/theme';
 
 export interface HMSExceptionNotificationProps {
   id: string;
@@ -19,24 +21,22 @@ export const HMSExceptionNotification: React.FC<
   HMSExceptionNotificationProps
 > = ({ id, exception, autoDismiss, dismissDelay }) => {
   const dispatch = useDispatch();
+  const { handleModalVisibleType } = useModalType();
 
-  // const { secondary_dim: secondaryDimColor } = useHMSRoomColorPalette();
-
-  // const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
-  //   button: {
-  //     backgroundColor: theme.palette.secondary_default,
-  //   },
-  //   buttonText: {
-  //     color: theme.palette.on_secondary_high,
-  //     fontFamily: `${typography.font_family}-SemiBold`,
-  //   },
-  // }));
+  const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
+    button: {
+      backgroundColor: theme.palette.alert_error_default,
+    },
+    buttonText: {
+      color: COLORS.WHITE,
+      fontFamily: `${typography.font_family}-SemiBold`,
+    },
+  }));
 
   const dismissNotification = () => dispatch(removeNotification(id));
 
-  // const retryStartRecording = async () => {
-  //   dismissNotification();
-  // };
+  const handleLeaveRoomPress = () =>
+    handleModalVisibleType(ModalTypes.LEAVE_ROOM);
 
   return (
     <HMSNotification
@@ -45,17 +45,18 @@ export const HMSExceptionNotification: React.FC<
       text={exception.description || 'Something went wrong!'}
       dismissDelay={dismissDelay}
       autoDismiss={autoDismiss}
-      // cta={exception.isTerminal ?
-      //   <TouchableHighlight
-      //     underlayColor={secondaryDimColor}
-      //     style={[styles.button, hmsRoomStyles.button]}
-      //     onPress={retryStartRecording}
-      //   >
-      //     <Text style={[styles.buttonText, hmsRoomStyles.buttonText]}>
-      //       Retry
-      //     </Text>
-      //   </TouchableHighlight>
-      // : undefined}
+      cta={
+        exception.isTerminal ? (
+          <TouchableOpacity
+            style={[styles.button, hmsRoomStyles.button]}
+            onPress={handleLeaveRoomPress}
+          >
+            <Text style={[styles.buttonText, hmsRoomStyles.buttonText]}>
+              Leave
+            </Text>
+          </TouchableOpacity>
+        ) : undefined
+      }
       onDismiss={dismissNotification}
     />
   );
