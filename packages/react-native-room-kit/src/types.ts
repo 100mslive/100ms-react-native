@@ -8,7 +8,15 @@ export enum MeetingState {
   ERROR,
 }
 
+export enum NotificationTypes {
+  ROLE_CHANGE_DECLINED = 'role_change_declined',
+  HAND_RAISE = 'hand_raise',
+  LOCAL_SCREENSHARE = 'local_screenshare',
+  EXCEPTION = 'exception',
+}
+
 export type Notification =
-  | { id: string; type: string; }
-  | { id: string; type: string; peer: HMSPeer; }
-  | { id: string; type: string; error: HMSException; }
+  | { id: string; type: NotificationTypes; }
+  | { id: string; type: NotificationTypes; message: string; }
+  | { id: string; type: NotificationTypes; peer: HMSPeer; }
+  | { id: string; type: NotificationTypes; exception: HMSException; }

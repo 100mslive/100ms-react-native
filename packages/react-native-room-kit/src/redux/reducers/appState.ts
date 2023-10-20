@@ -12,7 +12,6 @@ import {
 } from '@100mslive/react-native-hms';
 import { MeetingState } from '../../types';
 import type { Notification } from '../../types';
-import { NotificationTypes } from '../../utils';
 
 type ActionType = {
   payload: { [key: string]: any };
@@ -79,7 +78,7 @@ const INITIAL_STATE: IntialStateType = {
   startingOrStoppingRecording: false,
   fullScreenPeerTrackNode: null,
   screensharePeerTrackNodes: [],
-  notifications: [{ id: NotificationTypes.RECORDING_START_FAILED, type: NotificationTypes.RECORDING_START_FAILED }],
+  notifications: [],
   activeChatBottomSheetTab: ChatBottomSheetTabs[0],
   chatFilterSheetVisible: false,
 };

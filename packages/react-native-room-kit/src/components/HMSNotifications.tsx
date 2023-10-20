@@ -6,8 +6,10 @@ import type { RootState } from '../redux';
 import { HMSLocalScreenshareNotification } from './HMSLocalScreenshareNotification';
 import { HMSHandRaiseNotification } from './HMSHandRaiseNotification';
 import { HMSRoleChangeDeclinedNotification } from './HMSRoleChangeDeclinedNotification';
-import { NotificationTypes } from '../utils';
-import { HMSRecordingStartFailedNotification } from './HMSRecordingStartFailedNotification';
+import { NotificationTypes } from '../types';
+import { HMSExceptionNotification } from './HMSExceptionNotification';
+import { HMSNotification } from './HMSNotification';
+import { AlertTriangleIcon } from '../Icons';
 
 export interface HMSNotificationsProps {}
 
@@ -114,10 +116,20 @@ export const HMSNotifications: React.FC<HMSNotificationsProps> = () => {
                 autoDismiss={atTop}
                 dismissDelay={10000}
               />
-            ) : notification.type === NotificationTypes.RECORDING_START_FAILED ? (
-              <HMSRecordingStartFailedNotification
+            ) : notification.type === NotificationTypes.EXCEPTION &&
+              'exception' in notification ? (
+              <HMSExceptionNotification
                 id={notification.id}
+                exception={notification.exception}
                 autoDismiss={false}
+              />
+            ) : 'message' in notification ? (
+              <HMSNotification
+                icon={<AlertTriangleIcon type="line" />}
+                id={notification.id}
+                text={notification.message}
+                autoDismiss={false}
+                dismissable={true}
               />
             ) : null}
           </View>

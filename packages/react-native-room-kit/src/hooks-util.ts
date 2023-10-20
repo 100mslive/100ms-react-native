@@ -129,7 +129,7 @@ import {
 import type { GridViewRefAttrs } from './components/GridView';
 import { getRoomLayout } from './modules/HMSManager';
 import { DEFAULT_THEME, DEFAULT_TYPOGRAPHY } from './utils/theme';
-import { NotificationTypes } from './utils';
+import { NotificationTypes } from './types';
 
 export const useHMSListeners = (
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>
@@ -2192,60 +2192,27 @@ export const useHMSConferencingScreenConfig = <Selected = unknown>(
 export const useStartRecording = () => {
   const dispatch = useDispatch();
   const hmsInstance = useHMSInstance();
-  const reduxState = useStore<RootState>();
-  // const isRecordingOn = useSelector(
-  //   (state: RootState) => !!state.hmsStates.room?.browserRecordingState?.running
-  // );
-
-  const removeRecordingNotification = useCallback(() => {
-    const allNotifications = reduxState.getState().app.notifications;
-    const recordingFailedNotification = allNotifications.find(
-      (notification) =>
-        notification.type === NotificationTypes.RECORDING_START_FAILED
-    );
-
-    if (recordingFailedNotification) {
-      dispatch(removeNotification(recordingFailedNotification.id));
-    }
-  }, []);
-
-  const addRecordingNotification = useCallback(() => {
-    const allNotifications = reduxState.getState().app.notifications;
-    const recordingFailedNotification = allNotifications.find(
-      (notification) =>
-        notification.type === NotificationTypes.RECORDING_START_FAILED
-    );
-
-    if (!recordingFailedNotification) {
-      dispatch(
-        addNotification({
-          id: NotificationTypes.RECORDING_START_FAILED,
-          type: NotificationTypes.RECORDING_START_FAILED,
-        })
-      );
-    }
-  }, []);
 
   const startRecording = useCallback(() => {
     dispatch(setStartingOrStoppingRecording(true));
 
     hmsInstance
       .startRTMPOrRecording({ record: true })
-      .then(() => {
-        removeRecordingNotification();
-      })
       .catch((error) => {
         batch(() => {
           dispatch(setStartingOrStoppingRecording(false));
-          // DOUBT: show error when it is because of "Recording" is already started?
-          addRecordingNotification();
+          dispatch(
+            addNotification({
+              id: Math.random().toString(16).slice(2),
+              type: NotificationTypes.EXCEPTION,
+              message: error.message
+            })
+          );
         });
       });
-  }, [removeRecordingNotification, addRecordingNotification, hmsInstance]);
+  }, [hmsInstance]);
 
   return {
     startRecording,
-    removeRecordingNotification,
-    addRecordingNotification,
   };
 };
