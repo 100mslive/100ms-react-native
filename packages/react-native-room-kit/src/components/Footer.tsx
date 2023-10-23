@@ -1,6 +1,9 @@
 import React, { memo, useMemo } from 'react';
 import { View, StyleSheet, Platform } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 
 import {
   useHMSLayoutConfig,
@@ -50,7 +53,11 @@ export const _Footer: React.FC<FooterProps> = () => {
   );
 
   const canShowOptions =
-    isViewer || canPublishScreen || canShowParticipants || canShowBRB || canStartRecording;
+    isViewer ||
+    canPublishScreen ||
+    canShowParticipants ||
+    canShowBRB ||
+    canStartRecording;
 
   const footerActionButtons = useMemo(() => {
     const actions = [];
@@ -127,6 +134,15 @@ export const _Footer: React.FC<FooterProps> = () => {
       </View>
     </SafeAreaView>
   );
+};
+
+export const useFooterHeight = () => {
+  const isHLSViewer = useIsHLSViewer();
+  const { bottom } = useSafeAreaInsets();
+
+  return (
+    bottom + (isHLSViewer ? 8 : 16) + (Platform.OS === 'android' ? 16 : 0) + 40
+  ); // bottomSafeArea + paddingTop + marginBottom + content
 };
 
 const styles = StyleSheet.create({
