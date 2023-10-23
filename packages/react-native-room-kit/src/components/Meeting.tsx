@@ -7,6 +7,7 @@ import type { PeerTrackNode } from '../utils/types';
 import { useRTCStatsListeners } from '../utils/hooks';
 import {
   clearPendingModalTasks,
+  useAutoPip,
   useFetchHMSRoles,
   useHMSMessages,
   useHMSNetworkQualityUpdate,
@@ -53,6 +54,8 @@ export const Meeting: React.FC<MeetingProps> = ({ peerTrackNodes }) => {
 
   // Subscribe to Peers Network quality updates
   useHMSNetworkQualityUpdate();
+
+  useAutoPip();
 
   // Clearing any pending modal opening tasks
   React.useEffect(() => {
