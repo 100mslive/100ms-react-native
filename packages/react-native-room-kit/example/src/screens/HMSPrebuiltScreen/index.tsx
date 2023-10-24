@@ -82,6 +82,7 @@ export const HMSPrebuiltScreen = () => {
       startAndroidForegroundService();
     }
   }, []);
+
   // Room Code is required to join the room
   if (!roomCode) {
     return <Text>Room Code is Required</Text>;

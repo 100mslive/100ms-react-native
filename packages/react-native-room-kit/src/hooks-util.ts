@@ -62,7 +62,7 @@ import {
   useSelector,
   useStore,
 } from 'react-redux';
-import type { RootState } from './redux';
+import type { AppDispatch, RootState } from './redux';
 import {
   addMessage,
   addNotification,
@@ -87,12 +87,15 @@ import {
   setHMSLocalPeerState,
   setHMSRoleState,
   setHMSRoomState,
+  setHandleBackButton,
   setIsLocalAudioMutedState,
   setIsLocalVideoMutedState,
   setLayoutConfig,
   setLocalPeerTrackNode,
   setMiniViewPeerTrackNode,
   setModalType,
+  setOnLeaveHandler,
+  setPrebuiltData,
   setReconnecting,
   setRoleChangeRequest,
   setStartingOrStoppingRecording,
@@ -112,7 +115,13 @@ import {
   replacePeerTrackNodesWithTrack,
 } from './peerTrackNodeUtils';
 import { MeetingState } from './types';
-import { InteractionManager, Keyboard, Platform } from 'react-native';
+import type { HMSPrebuiltProps } from './types';
+import {
+  BackHandler,
+  InteractionManager,
+  Keyboard,
+  Platform,
+} from 'react-native';
 import type { ImageStyle, StyleProp, ViewStyle, TextStyle } from 'react-native';
 import { NavigationContext } from '@react-navigation/native';
 import {
@@ -2225,4 +2234,66 @@ export const useHMSConferencingScreenConfig = <Selected = unknown>(
       selectConferencingScreenConfig(layoutConfig);
     return selector(conferencingScreenConfig);
   }, equalityFn);
+};
+
+export const useBackButtonPress = () => {
+  const { handleModalVisibleType } = useModalType();
+
+  const handleBackPress = useSelector(
+    (state: RootState) => state.app.handleBackButton
+  );
+
+  useEffect(() => {
+    if (handleBackPress) {
+      const backPressHandler = () => {
+        handleModalVisibleType(ModalTypes.LEAVE_ROOM);
+
+        /**
+         * When true is returned the event will not be bubbled up
+         * & no other back action will execute
+         */
+        return true;
+
+        /**
+         * Returning false will let the event to bubble up & let other event listeners
+         * or the system's default back action to be executed.
+         */
+        // return false;
+      };
+
+      const subscription = BackHandler.addEventListener(
+        'hardwareBackPress',
+        backPressHandler
+      );
+
+      return () => {
+        if (typeof subscription.remove === 'function') {
+          subscription.remove();
+        } else {
+          BackHandler.removeEventListener('hardwareBackPress', backPressHandler);
+        }
+      };
+    }
+  }, [handleBackPress, handleModalVisibleType]);
+};
+
+export const useSavePropsToStore = (
+  props: HMSPrebuiltProps,
+  dispatch: AppDispatch
+) => {
+  const { roomCode, options, onLeave, handleBackButton } = props;
+
+  useEffect(() => {
+    dispatch(setPrebuiltData({ roomCode, options }));
+  }, [roomCode, options]);
+
+  useEffect(() => {
+    dispatch(setOnLeaveHandler(onLeave));
+  }, [onLeave]);
+
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      dispatch(setHandleBackButton(handleBackButton));
+    }
+  }, [handleBackButton]);
 };

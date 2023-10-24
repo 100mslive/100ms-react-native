@@ -51,6 +51,7 @@ type IntialStateType = {
   notifications: { id: string; type: string; peer: HMSPeer }[];
   activeChatBottomSheetTab: (typeof ChatBottomSheetTabs)[number];
   chatFilterSheetVisible: boolean;
+  handleBackButton: boolean;
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -80,6 +81,7 @@ const INITIAL_STATE: IntialStateType = {
   notifications: [],
   activeChatBottomSheetTab: ChatBottomSheetTabs[0],
   chatFilterSheetVisible: false,
+  handleBackButton: false,
 };
 
 const appReducer = (
@@ -281,6 +283,12 @@ const appReducer = (
       return {
         ...state,
         chatFilterSheetVisible: action.payload.chatFilterSheetVisible,
+      };
+    }
+    case ActionTypes.SET_HANDLE_BACK_BUTTON: {
+      return {
+        ...state,
+        handleBackButton: action.payload.handleBackButton ?? INITIAL_STATE.handleBackButton,
       };
     }
     case HmsStateActionTypes.CLEAR_STATES:
