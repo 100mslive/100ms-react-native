@@ -59,7 +59,7 @@ PODS:
   - glog (0.3.5)
   - hermes-engine (0.7.2)
   - HMSAnalyticsSDK (0.0.2)
-  - HMSBroadcastExtensionSDK (0.0.9)
+  - HMSBroadcastExtensionSDK (1.0.0)
   - HMSHLSPlayerSDK (0.0.2):
     - HMSAnalyticsSDK (= 0.0.2)
   - HMSSDK (1.1.0):
@@ -293,7 +293,7 @@ PODS:
   - react-native-document-picker (8.2.1):
     - React-Core
   - react-native-hms (1.9.1):
-    - HMSBroadcastExtensionSDK (= 0.0.9)
+    - HMSBroadcastExtensionSDK (= 1.0.0)
     - HMSHLSPlayerSDK (= 0.0.2)
     - HMSSDK (= 1.1.0)
     - React-Core
@@ -407,7 +407,7 @@ PODS:
     - React-RCTText
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (3.25.0):
+  - RNScreens (3.27.0):
     - React-Core
     - React-RCTImage
   - RNShare (8.2.2):
@@ -627,7 +627,7 @@ SPEC CHECKSUMS:
   glog: 73c2498ac6884b13ede40eda8228cb1eee9d9d62
   hermes-engine: 7d97ba46a1e29bacf3e3c61ecb2804a5ddd02d4f
   HMSAnalyticsSDK: 4d2a88a729b1eb42f3d25f217c28937ec318a5b7
-  HMSBroadcastExtensionSDK: d80fe325f6c928bd8e5176290b5a4b7ae15d6fbb
+  HMSBroadcastExtensionSDK: 0757d80497fddec3952858eb14892fb274f9f3c3
   HMSHLSPlayerSDK: 6a54ad4d12f3dc2270d1ecd24019d71282a4f6a3
   HMSSDK: 49e3ac665ceb8904d41787ddf99742e8d7d6529a
   HMSWebRTC: ae54e9dd91b869051b283b43b14f57d43b7bf8e1
@@ -649,7 +649,7 @@ SPEC CHECKSUMS:
   react-native-avoid-softinput: 71a692888f0c1d426ad9045dc8325773583962cd
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
   react-native-document-picker: 69ca2094d8780cfc1e7e613894d15290fdc54bba
-  react-native-hms: e119fe54d8688312472d9f16d920a5c4843124f3
+  react-native-hms: baba404881c4f13a7efa0938ee17607fece1dafd
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
   react-native-simple-toast: 8ee5d23f0b92b935ab7434cdb65159ce12dfb4b7
   React-perflogger: 5a890ca0911669421b7611661e9b58f91c805f5c
@@ -672,7 +672,7 @@ SPEC CHECKSUMS:
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNPermissions: eac721f71748c4472d6e876038270b75397d6ee7
   RNReanimated: 39e61976e5b5c8a891ea8916fb264ae176e8765d
-  RNScreens: 85d3880b52d34db7b8eeebe2f1a0e807c05e69fa
+  RNScreens: 2b19e2471db8a581c83f381f4ea5d43071c9a3bf
   RNShare: d82e10f6b7677f4b0048c23709bd04098d5aee6c
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
