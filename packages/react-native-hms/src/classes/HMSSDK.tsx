@@ -45,17 +45,9 @@ import { HMSPeerUpdate, HMSPeerUpdateOrdinals } from './HMSPeerUpdate';
 import { HMSSessionStore } from './HMSSessionStore';
 import type { HMSPeerListIteratorOptions } from './HMSPeerListIteratorOptions';
 import { HMSPeerListIterator } from './HMSPeerListIterator';
+import type { HMSPIPConfig } from './HMSPIPConfig';
 
 type HmsViewProps = Omit<HmsComponentProps, 'id'>;
-
-// TODO: Rename to HMSPIPConfig & to be moved to a separate file
-interface PIPConfig {
-  autoEnterPipMode?: boolean;
-  aspectRatio?: [number, number];
-  endButton?: boolean;
-  audioButton?: boolean;
-  videoButton?: boolean;
-}
 
 const ReactNativeVersion = require('react-native/Libraries/Core/ReactNativeVersion');
 
@@ -2511,14 +2503,14 @@ export class HMSSDK {
     return HMSManager.handlePipActions('isPipModeSupported', { id: this.id });
   }
 
-  async enterPipMode(data?: PIPConfig): Promise<undefined | boolean> {
+  async enterPipMode(data?: HMSPIPConfig): Promise<undefined | boolean> {
     return HMSManager.handlePipActions('enterPipMode', {
       ...data,
       id: this.id,
     });
   }
 
-  async setPipParams(data?: PIPConfig): Promise<undefined | boolean> {
+  async setPipParams(data?: HMSPIPConfig): Promise<undefined | boolean> {
     return HMSManager.handlePipActions('setPictureInPictureParams', {
       ...data,
       id: this.id,

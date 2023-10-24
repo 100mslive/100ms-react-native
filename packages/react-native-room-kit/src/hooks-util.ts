@@ -22,6 +22,7 @@ import {
 } from '@100mslive/react-native-hms';
 import type { Chat as ChatConfig } from '@100mslive/types-prebuilt/elements/chat';
 import type {
+  HMSPIPConfig,
   HMSRole,
   HMSSessionStore,
   HMSSessionStoreValue,
@@ -1359,6 +1360,42 @@ export const useHMSNetworkQualityUpdate = () => {
     return () => hmsInstance.disableNetworkQualityUpdates();
   }, [hmsInstance]);
 };
+
+export type PIPConfig = Omit<HMSPIPConfig, 'autoEnterPipMode'>;
+
+export const useEnableAutoPip = () => {
+  const hmsInstance = useHMSInstance();
+
+  const enableAutoPip = useCallback((data?: PIPConfig) => {
+    hmsInstance.setPipParams({ ...data, autoEnterPipMode: true });
+  }, [hmsInstance]);
+
+  return enableAutoPip;
+};
+
+export const useDisableAutoPip = () => {
+  const hmsInstance = useHMSInstance();
+
+  const disableAutoPip = useCallback((data?: PIPConfig) => {
+    hmsInstance.setPipParams({ ...data, autoEnterPipMode: false });
+  }, [hmsInstance]);
+
+  return disableAutoPip;
+};
+
+export const useAutoPip = (enabled: boolean = true) => {
+  const enableAutoPip = useEnableAutoPip();
+  const disableAutoPip = useDisableAutoPip();
+  const isHLSViewer = useIsHLSViewer();
+
+  useEffect(() => {
+    if (enabled) {
+      enableAutoPip({ aspectRatio: isHLSViewer ? [9, 16] : [16, 9] });
+
+      return disableAutoPip;
+    }
+  }, [enabled, isHLSViewer, enableAutoPip, disableAutoPip]);
+}
 
 export const useHMSActiveSpeakerUpdates = (
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>,

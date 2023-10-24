@@ -139,6 +139,22 @@ export const HMSNotifications: React.FC<HMSNotificationsProps> = () => {
   );
 };
 
+export const useHMSNotificationsHeight = () => {
+  const numberOfNotifications = useSelector((state: RootState) => {
+    const allNotifications = state.app.notifications;
+    const isLocalScreenShared = state.hmsStates.isLocalScreenShared;
+
+    return (
+      Math.min(allNotifications.length, isLocalScreenShared ? 2 : 3) +
+      (isLocalScreenShared ? 1 : 0)
+    );
+  });
+
+  if (numberOfNotifications === 0) return 0;
+
+  return 8 + (numberOfNotifications - 1) * 16 + 56; // marginBottom + calculated paddingTop + content
+};
+
 const styles = StyleSheet.create({
   absoluteContainer: {
     position: 'relative',
