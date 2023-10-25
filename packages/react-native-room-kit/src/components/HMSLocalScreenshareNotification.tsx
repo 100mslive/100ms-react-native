@@ -5,7 +5,7 @@ import { ScreenShareIcon } from '../Icons';
 import { HMSDangerButton } from './HMSDangerButton';
 import { HMSNotification } from './HMSNotification';
 import { useHMSRoomStyle } from '../hooks-util';
-import { NotificationTypes } from '../utils';
+import { NotificationTypes } from '../types';
 
 export interface HMSLocalScreenshareNotificationProps {}
 

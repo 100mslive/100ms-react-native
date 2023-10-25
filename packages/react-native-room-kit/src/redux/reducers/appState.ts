@@ -11,6 +11,7 @@ import {
   HMSRemoteVideoStats,
 } from '@100mslive/react-native-hms';
 import { MeetingState } from '../../types';
+import type { Notification } from '../../types';
 
 type ActionType = {
   payload: { [key: string]: any };
@@ -48,7 +49,7 @@ type IntialStateType = {
   startingOrStoppingRecording: boolean;
   fullScreenPeerTrackNode: null | PeerTrackNode;
   screensharePeerTrackNodes: PeerTrackNode[];
-  notifications: { id: string; type: string; peer: HMSPeer }[];
+  notifications: Notification[];
   activeChatBottomSheetTab: (typeof ChatBottomSheetTabs)[number];
   chatFilterSheetVisible: boolean;
   handleBackButton: boolean;

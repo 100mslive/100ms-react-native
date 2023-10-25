@@ -21,6 +21,7 @@ import {
   useHMSLayoutConfig,
   useHMSRoomStyleSheet,
   useShowChatAndParticipants,
+  useStartRecording,
 } from '../hooks-util';
 import { useCanPublishScreen, useHMSActions } from '../hooks-sdk';
 import { RoomSettingsModalDebugModeContent } from './RoomSettingsModalDebugModeContent';
@@ -134,6 +135,8 @@ export const RoomSettingsModalContent: React.FC<
     (state: RootState) => !!state.hmsStates.room?.browserRecordingState?.running
   );
 
+  const { startRecording } = useStartRecording();
+
   const handleRecordingTogglePress = () => {
     if (isRecordingOn) {
       registerOnModalHideAction(() => {
@@ -141,10 +144,7 @@ export const RoomSettingsModalContent: React.FC<
       });
       closeRoomSettingsModal();
     } else {
-      dispatch(setStartingOrStoppingRecording(true));
-      hmsInstance
-        .startRTMPOrRecording({ record: true })
-        .catch(() => dispatch(setStartingOrStoppingRecording(false)));
+      startRecording();
       closeRoomSettingsModal();
     }
   };

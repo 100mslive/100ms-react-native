@@ -14,6 +14,7 @@ import com.facebook.react.bridge.*
 import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.reactnativehmssdk.HMSManager.Companion.REACT_CLASS
+import live.hms.video.error.HMSException
 import java.util.UUID
 
 @ReactModule(name = REACT_CLASS)
@@ -80,22 +81,26 @@ class HMSManager(reactContext: ReactApplicationContext) :
     data: ReadableMap?,
     callback: Promise?,
   ) {
-    val hasItem = hmsCollection.containsKey("12345")
-    if (hasItem) {
-      val uuid = UUID.randomUUID()
-      val randomUUIDString = uuid.toString()
-      val sdkInstance = HMSRNSDK(data, this, randomUUIDString, reactApplicationContext)
+    try {
+      val hasItem = hmsCollection.containsKey("12345")
+      if (hasItem) {
+        val uuid = UUID.randomUUID()
+        val randomUUIDString = uuid.toString()
+        val sdkInstance = HMSRNSDK(data, this, randomUUIDString, reactApplicationContext)
 
-      hmsCollection[randomUUIDString] = sdkInstance
+        hmsCollection[randomUUIDString] = sdkInstance
 
-      callback?.resolve(randomUUIDString)
-    } else {
-      val randomUUIDString = "12345"
-      val sdkInstance = HMSRNSDK(data, this, randomUUIDString, reactApplicationContext)
+        callback?.resolve(randomUUIDString)
+      } else {
+        val randomUUIDString = "12345"
+        val sdkInstance = HMSRNSDK(data, this, randomUUIDString, reactApplicationContext)
 
-      hmsCollection[randomUUIDString] = sdkInstance
+        hmsCollection[randomUUIDString] = sdkInstance
 
-      callback?.resolve(randomUUIDString)
+        callback?.resolve(randomUUIDString)
+      }
+    } catch (e: HMSException) {
+      callback?.reject(e.code.toString(), e.description)
     }
   }
 
@@ -296,10 +301,10 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun setPlaybackAllowed(data: ReadableMap) {
+  fun setPlaybackAllowed(data: ReadableMap, callback: Promise?) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
-    hms?.setPlaybackAllowed(data)
+    hms?.setPlaybackAllowed(data, callback)
   }
 
   @ReactMethod
@@ -343,10 +348,10 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun setVolume(data: ReadableMap) {
+  fun setVolume(data: ReadableMap, callback: Promise?) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
-    hms?.setVolume(data)
+    hms?.setVolume(data, callback)
   }
 
   @ReactMethod
@@ -360,10 +365,10 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun setPlaybackForAllAudio(data: ReadableMap) {
+  fun setPlaybackForAllAudio(data: ReadableMap, callback: Promise?) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
-    hms?.setPlaybackForAllAudio(data)
+    hms?.setPlaybackForAllAudio(data, callback)
   }
 
   @ReactMethod
@@ -575,17 +580,17 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun switchAudioOutput(data: ReadableMap) {
+  fun switchAudioOutput(data: ReadableMap, callback: Promise?) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
-    hms?.switchAudioOutput(data)
+    hms?.switchAudioOutput(data, callback)
   }
 
   @ReactMethod
-  fun setAudioMode(data: ReadableMap) {
+  fun setAudioMode(data: ReadableMap, callback: Promise?) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
-    hms?.setAudioMode(data)
+    hms?.setAudioMode(data, callback)
   }
 
   @ReactMethod

@@ -36,6 +36,8 @@ import { BottomSheet } from './BottomSheet';
 import { FullScreenVideoView } from './FullScreenVideoView';
 import { PreviewForRoleChangeModal } from './PreviewForRoleChangeModal';
 import { ChatAndParticipantsBottomSheet } from './ChatAndParticipants';
+import { LeaveRoomBottomSheet } from './LeaveRoomBottomSheet';
+import { EndRoomModal } from './EndRoomModal';
 
 type CapturedImagePath = { uri: string } | null;
 
@@ -150,6 +152,10 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
 
       {isPipModeActive ? null : (
         <>
+          <LeaveRoomBottomSheet />
+
+          <EndRoomModal />
+
           <PreviewForRoleChangeModal />
 
           <FullScreenVideoView />
