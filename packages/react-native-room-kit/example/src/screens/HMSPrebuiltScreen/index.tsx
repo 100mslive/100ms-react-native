@@ -8,7 +8,7 @@ import {
   useRoute,
 } from '@react-navigation/native';
 import { HMSPrebuilt } from '@100mslive/react-native-room-kit';
-import type { HMSPrebuiltProps } from '@100mslive/react-native-room-kit';
+import type { HMSPrebuiltProps, OnLeaveHandler } from '@100mslive/react-native-room-kit';
 
 import { AppStackParamList } from '../../navigator';
 
@@ -23,7 +23,8 @@ export const HMSPrebuiltScreen = () => {
   const isScreenFocused = useIsFocused();
 
   // function to be called when meeting is ended
-  const handleMeetingLeave = useCallback(async () => {
+  const handleMeetingLeave: OnLeaveHandler = useCallback(async (reason) => {
+    console.log(':: reason > ', reason);
     if (Platform.OS === 'android') {
       await VIForegroundService.getInstance().stopService();
     }
