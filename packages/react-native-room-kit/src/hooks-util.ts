@@ -2306,7 +2306,7 @@ export const useSavePropsToStore = (
       dispatch(setAutoEnterPipMode(autoEnterPipMode));
     }
   }, [autoEnterPipMode]);
-}
+};
 
 export const useStartRecording = () => {
   const dispatch = useDispatch();
