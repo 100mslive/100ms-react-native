@@ -8,7 +8,6 @@ export enum MeetingState {
   MEETING_ENDED,
   ERROR,
 }
-
 export interface HMSPrebuiltProps {
   roomCode: string;
   options?: {
