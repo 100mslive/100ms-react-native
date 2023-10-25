@@ -29,6 +29,7 @@ import {
   updateLocalPeerTrackNode,
 } from './redux/actions';
 import { createPeerTrackNode } from './utils/functions';
+import { OnLeaveReason } from './utils/types';
 import type { PeerTrackNode } from './utils/types';
 import { Meeting } from './components/Meeting';
 import {
@@ -349,7 +350,7 @@ export const HMSRoomSetup = () => {
   useEffect(() => {
     return () => {
       ignoreHLSStreamPromise.current = true;
-      leave();
+      leave(OnLeaveReason.LEAVE);
       dispatch(clearStore());
     };
   }, []);

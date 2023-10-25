@@ -6,6 +6,7 @@ import { AlertTriangleIcon, CloseIcon } from '../Icons';
 import { HMSDangerButton } from './HMSDangerButton';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../redux';
+import { OnLeaveReason } from '../utils/types';
 
 export interface EndRoomModalContentProps {
   dismissModal(): void;
@@ -72,7 +73,13 @@ export const EndRoomModalContent: React.FC<EndRoomModalContentProps> = ({
       </Text>
       <HMSDangerButton
         loading={false}
-        onPress={canStream && isStreaming ? () => leave(true) : endRoom}
+        onPress={() => {
+          if (canStream && isStreaming) {
+            leave(OnLeaveReason.LEAVE, true)
+          } else {
+            endRoom(OnLeaveReason.LEAVE);
+          }
+        }}
         title={canStream && isStreaming ? 'End Stream' : 'End Session'}
       />
     </View>

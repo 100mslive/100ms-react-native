@@ -18,6 +18,7 @@ import type {
   ChatBottomSheetTabs,
   HMSIOSScreenShareConfig,
   ModalTypes,
+  OnLeaveHandler,
   PeerTrackNode,
   PipModes,
 } from '../../utils/types';
@@ -43,7 +44,7 @@ export const setPrebuiltData = (data: {
   payload: data,
 });
 
-export const setOnLeaveHandler = (onLeave?: () => void) => ({
+export const setOnLeaveHandler = (onLeave?: OnLeaveHandler) => ({
   type: HmsStateActionTypes.SET_ON_LEAVE_HANDLER,
   payload: { onLeave },
 });
