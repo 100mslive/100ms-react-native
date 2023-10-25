@@ -125,7 +125,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         guard let role = data.value(forKey: "role") as? String
         else {
             let errorMessage = "previewForRole: " + HMSHelper.getUnavailableRequiredKey(data, ["role"])
-            emitRequiredKeysError(errorMessage)
             reject?(errorMessage, errorMessage, nil)
             return
         }
@@ -229,44 +228,48 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
 
-    func setLocalMute(_ data: NSDictionary) {
+    func setLocalMute(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let isMute = data.value(forKey: "isMute") as? Bool
         else {
             let errorMessage = "setLocalMute: " + HMSHelper.getUnavailableRequiredKey(data, ["isMute"])
-            emitRequiredKeysError(errorMessage)
+            reject?(errorMessage, errorMessage, nil)
             return
         }
 
         DispatchQueue.main.async { [weak self] in
             if let audioTrack = self?.hms?.localPeer?.localAudioTrack() {
                 audioTrack.setMute(isMute)
-            } else if let tracks = self?.previewForRoleTracks {
-                if let audioTrack = tracks.first(where: { $0.kind == HMSTrackKind.audio }) as? HMSLocalAudioTrack {
-                    audioTrack.setMute(isMute)
-                }
+                resolve?(true)
+            } else if let tracks = self?.previewForRoleTracks, let audioTrack = tracks.first(where: { $0.kind == HMSTrackKind.audio }) as? HMSLocalAudioTrack {
+                audioTrack.setMute(isMute)
+                resolve?(true)
             } else {
-                print(#function, "No local audio track available for setting mute state.")
+                let errorMessage = "setLocalMute: No local audio track available for setting mute state."
+                print(#function, errorMessage)
+                reject?(errorMessage, errorMessage, nil)
             }
         }
     }
 
-    func setLocalVideoMute(_ data: NSDictionary) {
+    func setLocalVideoMute(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let isMute = data.value(forKey: "isMute") as? Bool
         else {
             let errorMessage = "setLocalVideoMute: " + HMSHelper.getUnavailableRequiredKey(data, ["isMute"])
-            emitRequiredKeysError(errorMessage)
+            reject?(errorMessage, errorMessage, nil)
             return
         }
 
         DispatchQueue.main.async { [weak self] in
             if let videoTrack = self?.hms?.localPeer?.localVideoTrack() {
                 videoTrack.setMute(isMute)
-            } else if let tracks = self?.previewForRoleTracks {
-                if let videoTrack = tracks.first(where: { $0.kind == HMSTrackKind.video }) as? HMSLocalVideoTrack {
-                    videoTrack.setMute(isMute)
-                }
+                resolve?(true)
+            } else if let tracks = self?.previewForRoleTracks, let videoTrack = tracks.first(where: { $0.kind == HMSTrackKind.video }) as? HMSLocalVideoTrack {
+                videoTrack.setMute(isMute)
+                resolve?(true)
             } else {
-                print(#function, "No local video track available for setting mute state.")
+                let errorMessage = "setLocalVideoMute: No local video track available for setting mute state."
+                print(#function, errorMessage)
+                reject?(errorMessage, errorMessage, nil)
             }
         }
     }
@@ -288,24 +291,27 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     func leave(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else {
-                print(#function, "Could not find reference to self while executing Room leave")
+                let errorMessage = "\(#function): Could not find reference to self while executing Room leave"
+                print(#function, errorMessage)
+                reject?(errorMessage, errorMessage, nil)
                 return
             }
 
             strongSelf.hms?.leave { [weak self] success, error in
 
                 guard let strongSelf = self else {
-                    print(#function, "Could not find reference to self when callback is received while executing Room leave")
+                    let errorMessage = "\(#function): Could not find reference to self when callback is received while executing Room leave"
+                    print(#function, errorMessage)
+                    reject?(errorMessage, errorMessage, nil)
                     return
                 }
 
-                if success {
+                if let nonnilError = error {
+                    reject?(nonnilError.localizedDescription, nonnilError.localizedDescription, nil)
+                } else if success {
                     resolve?(["success": success])
                     strongSelf.cleanup() // resetting states and doing data cleanup
                 } else {
-                    if strongSelf.eventsEnableStatus[HMSConstants.ON_ERROR] == true {
-                        strongSelf.delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": HMSDecoder.getError(error), "id": strongSelf.id])
-                    }
                     reject?("error in leave", "error in leave", nil)
                 }
             }
@@ -316,7 +322,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         guard let message = data.value(forKey: "message") as? String
         else {
             let errorMessage = "sendBroadcastMessage: " + HMSHelper.getUnavailableRequiredKey(data, ["message"])
-            emitRequiredKeysError(errorMessage)
             reject?(errorMessage, errorMessage, nil)
             return
         }
@@ -341,7 +346,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
               let targetedRoles = data.value(forKey: "roles") as? [String]
         else {
             let errorMessage = "sendGroupMessage: " + HMSHelper.getUnavailableRequiredKey(data, ["message", "roles"])
-            emitRequiredKeysError(errorMessage)
             reject?(errorMessage, errorMessage, nil)
             return
         }
@@ -366,7 +370,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
               let peerId = data.value(forKey: "peerId") as? String
         else {
             let errorMessage = "sendDirectMessage: " + HMSHelper.getUnavailableRequiredKey(data, ["message", "peerId"])
-            emitRequiredKeysError(errorMessage)
             reject?(errorMessage, errorMessage, nil)
             return
         }
@@ -394,7 +397,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             guard let request = self?.recentRoleChangeRequest
             else {
                 let errorMessage = "acceptRoleChange: recentRoleChangeRequest not found"
-                self?.emitRequiredKeysError(errorMessage)
                 reject?(errorMessage, errorMessage, nil)
                 return
             }
@@ -417,7 +419,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
               let role = data.value(forKey: "role") as? String
         else {
             let errorMessage = "changeRole: " + HMSHelper.getUnavailableRequiredKey(data, ["peerId", "role"])
-            emitRequiredKeysError(errorMessage)
             reject?(errorMessage, errorMessage, nil)
             return
         }
@@ -452,7 +453,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         guard let toRoleString = data.object(forKey: "toRole") as? String
         else {
             let errorMessage = "changeRolesOfAllPeers: " + HMSHelper.getUnavailableRequiredKey(data, ["toRole"])
-            emitRequiredKeysError(errorMessage)
             reject?(errorMessage, errorMessage, nil)
             return
         }
@@ -461,7 +461,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
             guard let toRole = HMSHelper.getRoleFromRoleName(toRoleString, roles: self?.hms?.roles) else {
                 let errorMessage = "changeRolesOfAllPeers: " + HMSHelper.getUnavailableRequiredKey(data, ["toRole"])
-                self?.emitRequiredKeysError(errorMessage)
                 reject?(errorMessage, errorMessage, nil)
                 return
             }
@@ -487,7 +486,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         guard let trackId = data.value(forKey: "trackId") as? String
         else {
             let errorMessage = "changeTrackState: " + HMSHelper.getUnavailableRequiredKey(data, ["trackId"])
-            emitRequiredKeysError(errorMessage)
             reject?(errorMessage, errorMessage, nil)
             return
         }
@@ -517,7 +515,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         guard let mute = data.value(forKey: "mute") as? Bool
         else {
             let errorMessage = "changeTrackStateForRoles: " + HMSHelper.getUnavailableRequiredKey(data, ["mute"])
-            emitRequiredKeysError(errorMessage)
             reject?(errorMessage, errorMessage, nil)
             return
         }
@@ -550,7 +547,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         guard let trackId = data.value(forKey: "trackId") as? String
         else {
             let errorMessage = "isMute: " + HMSHelper.getUnavailableRequiredKey(data, ["trackId"])
-            emitRequiredKeysError(errorMessage)
             reject?(errorMessage, errorMessage, nil)
             return
         }
@@ -580,7 +576,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         guard let peerId = data.value(forKey: "peerId") as? String
         else {
             let errorMessage = "removePeer: " + HMSHelper.getUnavailableRequiredKey(data, ["peerId"])
-            emitRequiredKeysError(errorMessage)
             reject?(errorMessage, errorMessage, nil)
             return
         }
@@ -612,7 +607,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 let reason = data.value(forKey: "reason") as? String
         else {
             let errorMessage = "endRoom: " + HMSHelper.getUnavailableRequiredKey(data, ["lock", "reason"])
-            emitRequiredKeysError(errorMessage)
             reject?(errorMessage, errorMessage, nil)
             return
         }
@@ -633,7 +627,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         guard let trackId = data.value(forKey: "trackId") as? String
         else {
             let errorMessage = "isPlaybackAllowed: " + HMSHelper.getUnavailableRequiredKey(data, ["trackId"])
-            emitRequiredKeysError(errorMessage)
             reject?(errorMessage, errorMessage, nil)
             return
         }
@@ -660,29 +653,35 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
 
-    func setPlaybackAllowed(_ data: NSDictionary) {
+    func setPlaybackAllowed(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let trackId = data.value(forKey: "trackId") as? String,
               let playbackAllowed = data.value(forKey: "playbackAllowed") as? Bool
         else {
             let errorMessage = "setPlaybackAllowed: " + HMSHelper.getUnavailableRequiredKey(data, ["trackId", "playbackAllowed"])
-            emitRequiredKeysError(errorMessage)
+            reject?(errorMessage, errorMessage, nil)
             return
         }
+
         DispatchQueue.main.async { [weak self] in
             guard let remotePeers = self?.hms?.remotePeers
             else {
+                let errorMessage = "setPlaybackAllowed: No remote peers found"
+                reject?(errorMessage, errorMessage, nil)
                 return
             }
+
             let remoteAudioTrack = HMSHelper.getRemoteAudioTrackFromTrackId(trackId, remotePeers)
             let remoteVideoTrack = HMSHelper.getRemoteVideoTrackFromTrackId(trackId, remotePeers)
+
             if remoteAudioTrack != nil {
-                if playbackAllowed {
-                    remoteAudioTrack?.setPlaybackAllowed(playbackAllowed)
-                } else {
-                    remoteAudioTrack?.setPlaybackAllowed(playbackAllowed)
-                }
+                remoteAudioTrack?.setPlaybackAllowed(playbackAllowed)
+                resolve?(true)
             } else if remoteVideoTrack != nil {
                 remoteVideoTrack?.setPlaybackAllowed(playbackAllowed)
+                resolve?(true)
+            } else {
+                let errorMessage = "setPlaybackAllowed: No remote audio or video track to set playback"
+                reject?(errorMessage, errorMessage, nil)
             }
         }
     }
@@ -691,7 +690,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         guard let metadata = data.value(forKey: "metadata") as? String
         else {
             let errorMessage = "changeMetadata: " + HMSHelper.getUnavailableRequiredKey(data, ["metadata"])
-            emitRequiredKeysError(errorMessage)
             reject?(errorMessage, errorMessage, nil)
             return
         }
@@ -707,23 +705,27 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         })
     }
 
-    func setVolume(_ data: NSDictionary) {
+    func setVolume(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let trackId = data.value(forKey: "trackId") as? String,
               let volume = data.value(forKey: "volume") as? Double
         else {
             let errorMessage = "setVolume: " + HMSHelper.getUnavailableRequiredKey(data, ["trackId", "volume"])
-            emitRequiredKeysError(errorMessage)
+            reject?(errorMessage, errorMessage, nil)
             return
         }
 
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
-            let remotePeers = self?.hms?.remotePeers
+            let remotePeers = strongSelf.hms?.remotePeers
 
             let remoteAudioTrack = HMSHelper.getRemoteAudioAuxiliaryTrackFromTrackId(trackId, remotePeers)
 
             if remoteAudioTrack != nil {
                 remoteAudioTrack?.setVolume(volume)
+                resolve?(true)
+            } else {
+                let errorMessage = "setVolume: No remote audio track not available"
+                reject?(errorMessage, errorMessage, nil)
             }
         }
     }
@@ -732,7 +734,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         guard let record = data.value(forKey: "record") as? Bool
         else {
             let errorMessage = "startRTMPOrRecording: " + HMSHelper.getUnavailableRequiredKey(data, ["record"])
-            emitRequiredKeysError(errorMessage)
             reject?(errorMessage, errorMessage, nil)
             return
         }
@@ -747,6 +748,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 meetingUrl = meetLink
             } else {
                 reject?("Invalid meeting url passed", "Invalid meeting url passed", nil)
+                return
             }
         }
 
@@ -811,7 +813,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         guard let name = data.value(forKey: "name") as? String
         else {
             let errorMessage = "changeName: " + HMSHelper.getUnavailableRequiredKey(data, ["name"])
-            emitRequiredKeysError(errorMessage)
             reject?(errorMessage, errorMessage, nil)
             return
         }
@@ -843,18 +844,23 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
 
-    func setPlaybackForAllAudio(_ data: NSDictionary) {
+    func setPlaybackForAllAudio(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let mute = data.value(forKey: "mute") as? Bool
         else {
-            let errorMessage = "setPlaybackForAllAudio: " + HMSHelper.getUnavailableRequiredKey(data, ["setPlaybackForAllAudio"])
-            emitRequiredKeysError(errorMessage)
+            let errorMessage = "setPlaybackForAllAudio: " + HMSHelper.getUnavailableRequiredKey(data, ["mute"])
+            reject?(errorMessage, errorMessage, nil)
             return
         }
 
         DispatchQueue.main.async { [weak self] in
-            let remotePeers = self?.hms?.remotePeers
-            for peer in remotePeers ?? [] {
-                peer.remoteAudioTrack()?.setPlaybackAllowed(!mute)
+            if let remotePeers = self?.hms?.remotePeers {
+                for peer in remotePeers {
+                    peer.remoteAudioTrack()?.setPlaybackAllowed(!mute)
+                }
+                resolve?(true)
+            } else {
+                let errorMessage = "setPlaybackForAllAudio: No Audio is available to set playback"
+                reject?(errorMessage, errorMessage, nil)
             }
         }
     }
@@ -954,7 +960,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
               let playerNode = audioMixerSourceMap[audioNodeName]
         else {
             let errorMessage = "playAudioShare: " + HMSHelper.getUnavailableRequiredKey(data, ["audioNode", "fileUrl"])
-            emitRequiredKeysError(errorMessage)
             reject?(errorMessage, errorMessage, nil)
             return
         }
@@ -976,14 +981,14 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
 
-    func setAudioShareVolume(_ data: NSDictionary) {
+    func setAudioShareVolume(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let volume = data.value(forKey: "volume") as? NSNumber,
               let audioNodeName = data.value(forKey: "audioNode") as? String,
               let audioMixerSourceMap = HMSHelper.getAudioMixerSourceMap(),
               let playerNode = audioMixerSourceMap[audioNodeName]
         else {
             let errorMessage = "setAudioShareVolume: " + HMSHelper.getUnavailableRequiredKey(data, ["audioNode", "volume"])
-            emitRequiredKeysError(errorMessage)
+            reject?(errorMessage, errorMessage, nil)
             return
         }
         if let audioMicNode = playerNode as? HMSMicNode {
@@ -992,53 +997,64 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         if let audioFilePlayerNode = playerNode as? HMSAudioFilePlayerNode {
             audioFilePlayerNode.volume = volume.floatValue
         }
+        resolve?(true)
     }
 
-    func stopAudioShare(_ data: NSDictionary) {
+    func stopAudioShare(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let audioNodeName = data.value(forKey: "audioNode") as? String,
               let audioMixerSourceMap = HMSHelper.getAudioMixerSourceMap(),
               let playerNode = audioMixerSourceMap[audioNodeName]
         else {
             let errorMessage = "stopAudioShare: " + HMSHelper.getUnavailableRequiredKey(data, ["audioNode"])
-            emitRequiredKeysError(errorMessage)
+            reject?(errorMessage, errorMessage, nil)
             return
         }
         if let audioFilePlayerNode = playerNode as? HMSAudioFilePlayerNode {
             audioFilePlayerNode.stop()
+            resolve?(true)
+        } else {
+            let errorMessage = "stopAudioShare: HMSAudioFilePlayerNode not available!"
+            reject?(errorMessage, errorMessage, nil)
         }
     }
 
-    func resumeAudioShare(_ data: NSDictionary) {
+    func resumeAudioShare(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let audioNodeName = data.value(forKey: "audioNode") as? String,
               let audioMixerSourceMap = HMSHelper.getAudioMixerSourceMap(),
               let playerNode = audioMixerSourceMap[audioNodeName]
         else {
             let errorMessage = "resumeAudioShare: " + HMSHelper.getUnavailableRequiredKey(data, ["audioNode"])
-            emitRequiredKeysError(errorMessage)
+            reject?(errorMessage, errorMessage, nil)
             return
         }
         if let audioFilePlayerNode = playerNode as? HMSAudioFilePlayerNode {
             do {
                 try audioFilePlayerNode.resume()
+                resolve?(true)
             } catch {
-                if eventsEnableStatus[HMSConstants.ON_ERROR] == true {
-                    delegate?.emitEvent(HMSConstants.ON_ERROR, ["error": ["code": 6002, "description": error.localizedDescription, "isTerminal": false, "canRetry": true, "params": ["function": #function]] as [String: Any], "id": id])
-                }
+                reject?(error.localizedDescription, error.localizedDescription, nil)
             }
+        } else {
+            let errorMessage = "resumeAudioShare: HMSAudioFilePlayerNode not available!"
+            reject?(errorMessage, errorMessage, nil)
         }
     }
 
-    func pauseAudioShare(_ data: NSDictionary) {
+    func pauseAudioShare(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let audioNodeName = data.value(forKey: "audioNode") as? String,
               let audioMixerSourceMap = HMSHelper.getAudioMixerSourceMap(),
               let playerNode = audioMixerSourceMap[audioNodeName]
         else {
             let errorMessage = "pauseAudioShare: " + HMSHelper.getUnavailableRequiredKey(data, ["audioNode"])
-            emitRequiredKeysError(errorMessage)
+            reject?(errorMessage, errorMessage, nil)
             return
         }
         if let audioFilePlayerNode = playerNode as? HMSAudioFilePlayerNode {
             audioFilePlayerNode.pause()
+            resolve?(true)
+        } else {
+            let errorMessage = "pauseAudioShare: HMSAudioFilePlayerNode not available!"
+            reject?(errorMessage, errorMessage, nil)
         }
     }
 
@@ -1048,7 +1064,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
               let playerNode = audioMixerSourceMap[audioNodeName]
         else {
             let errorMessage = "pauseAudioShare: " + HMSHelper.getUnavailableRequiredKey(data, ["audioNode"])
-            emitRequiredKeysError(errorMessage)
             reject?(errorMessage, errorMessage, nil)
             return
         }
@@ -1065,7 +1080,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
               let playerNode = audioMixerSourceMap[audioNodeName]
         else {
             let errorMessage = "pauseAudioShare: " + HMSHelper.getUnavailableRequiredKey(data, ["audioNode"])
-            emitRequiredKeysError(errorMessage)
             reject?(errorMessage, errorMessage, nil)
             return
         }
@@ -1082,7 +1096,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
               let playerNode = audioMixerSourceMap[audioNodeName]
         else {
             let errorMessage = "pauseAudioShare: " + HMSHelper.getUnavailableRequiredKey(data, ["audioNode"])
-            emitRequiredKeysError(errorMessage)
             reject?(errorMessage, errorMessage, nil)
             return
         }
@@ -1104,7 +1117,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     func enableEvent(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let eventType = data.value(forKey: "eventType") as? String else {
             let errorMessage = "enableEvent: " + HMSHelper.getUnavailableRequiredKey(data, ["eventType"])
-            emitRequiredKeysError(errorMessage)
             reject?(errorMessage, errorMessage, nil)
             return
         }
@@ -1116,7 +1128,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     func disableEvent(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let eventType = data.value(forKey: "eventType") as? String else {
             let errorMessage = "disableEvent: " + HMSHelper.getUnavailableRequiredKey(data, ["eventType"])
-            emitRequiredKeysError(errorMessage)
             reject?(errorMessage, errorMessage, nil)
             return
         }
@@ -1125,14 +1136,15 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         resolve?(["success": true, "message": "function call executed successfully"] as [String: Any])
     }
 
-    func restrictData(_ data: NSDictionary) {
+    func restrictData(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let roleName = data.value(forKey: "roleName") as? String else {
             let errorMessage = "restrictData: " + HMSHelper.getUnavailableRequiredKey(data, ["roleName"])
-            emitRequiredKeysError(errorMessage)
+            reject?(errorMessage, errorMessage, nil)
             return
         }
 
         HMSDecoder.setRestrictRoleData(roleName, true)
+        resolve?(true)
     }
 
     // MARK: - HMS SDK Get APIs
@@ -1272,7 +1284,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         guard let trackId = data.value(forKey: "trackId") as? String
         else {
             let errorMessage = "\(#function) " + HMSHelper.getUnavailableRequiredKey(data, ["trackId"])
-            emitRequiredKeysError(errorMessage)
             reject?(errorMessage, errorMessage, nil)
             return
         }
@@ -1284,7 +1295,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                   let remoteVideoTrack = HMSHelper.getRemoteVideoTrackFromTrackId(trackId, remotePeers)
             else {
                 let errorMessage = "\(#function) " + "TRACK_NOT_FOUND"
-                self?.emitRequiredKeysError(errorMessage)
                 reject?(errorMessage, errorMessage, nil)
                 return
             }
@@ -1297,7 +1307,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         guard let trackId = data.value(forKey: "trackId") as? String
         else {
             let errorMessage = "\(#function) " + HMSHelper.getUnavailableRequiredKey(data, ["trackId"])
-            emitRequiredKeysError(errorMessage)
             reject?(errorMessage, errorMessage, nil)
             return
         }
@@ -1309,7 +1318,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                   let remoteAudioTrack = HMSHelper.getRemoteAudioTrackFromTrackId(trackId, remotePeers)
             else {
                 let errorMessage = "\(#function) " + "TRACK_NOT_FOUND"
-                self?.emitRequiredKeysError(errorMessage)
                 reject?(errorMessage, errorMessage, nil)
                 return
             }
@@ -1553,7 +1561,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         guard let trackId = data.value(forKey: "trackId") as? String
         else {
             let errorMessage = "\(#function) " + HMSHelper.getUnavailableRequiredKey(data, ["trackId"])
-            emitRequiredKeysError(errorMessage)
             reject?(errorMessage, errorMessage, nil)
             return
         }
@@ -1565,7 +1572,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                   let remoteVideoTrack = HMSHelper.getRemoteVideoTrackFromTrackId(trackId, remotePeers)
             else {
                 let errorMessage = "\(#function) " + "TRACK_NOT_FOUND"
-                self?.emitRequiredKeysError(errorMessage)
                 reject?(errorMessage, errorMessage, nil)
                 return
             }
@@ -1573,7 +1579,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             guard let layerDefinitions = remoteVideoTrack.layerDefinitions
             else {
                 let errorMessage = "\(#function) " + "layer definitions not available for track: '\(trackId)' !"
-                self.emitRequiredKeysError(errorMessage)
                 reject?(errorMessage, errorMessage, nil)
                 return
             }
@@ -1589,7 +1594,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         guard let trackId = data.value(forKey: "trackId") as? String
         else {
             let errorMessage = "\(#function) " + HMSHelper.getUnavailableRequiredKey(data, ["trackId"])
-            emitRequiredKeysError(errorMessage)
             reject?(errorMessage, errorMessage, nil)
             return
         }
@@ -1601,7 +1605,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                   let remoteVideoTrack = HMSHelper.getRemoteVideoTrackFromTrackId(trackId, remotePeers)
             else {
                 let errorMessage = "\(#function) " + "TRACK_NOT_FOUND"
-                self?.emitRequiredKeysError(errorMessage)
                 reject?(errorMessage, errorMessage, nil)
                 return
             }
@@ -1617,7 +1620,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
               let layer = data.value(forKey: "layer") as? String
         else {
             let errorMessage = "\(#function) " + HMSHelper.getUnavailableRequiredKey(data, ["trackId", "layer"])
-            emitRequiredKeysError(errorMessage)
             reject?(errorMessage, errorMessage, nil)
             return
         }
@@ -1629,7 +1631,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                   let remoteVideoTrack = HMSHelper.getRemoteVideoTrackFromTrackId(trackId, remotePeers)
             else {
                 let errorMessage = "\(#function) " + "TRACK_NOT_FOUND"
-                self?.emitRequiredKeysError(errorMessage)
                 reject?(errorMessage, errorMessage, nil)
                 return
             }

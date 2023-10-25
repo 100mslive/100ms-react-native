@@ -23,6 +23,7 @@ import type {
 } from '../../utils/types';
 import actionTypes, { HmsStateActionTypes } from '../actionTypes';
 import { MeetingState } from '../../types';
+import type { Notification } from '../../types';
 
 export const setPrebuiltData = (data: {
   roomCode: string;
@@ -310,16 +311,12 @@ export const updateScreenshareTile = (
   payload: data,
 });
 
-export const addNotification = (notification: {
-  id: string;
-  type: string;
-  peer: HMSPeer;
-}) => ({
+export const addNotification = (notification: Notification) => ({
   type: actionTypes.ADD_NOTIFICATION,
   payload: { notification },
 });
 
-export const removeNotification = (notificationId: string) => ({
+export const removeNotification = (notificationId: Notification['id']) => ({
   type: actionTypes.REMOVE_NOTIFICATION,
   payload: { id: notificationId },
 });

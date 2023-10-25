@@ -18,6 +18,7 @@ import { batch, useDispatch, useSelector, useStore } from 'react-redux';
 
 import { Preview } from './components';
 import {
+  addNotification,
   changeMeetingState,
   changeStartingHLSStream,
   clearStore,
@@ -47,7 +48,7 @@ import {
   replacePeerTrackNodes,
   peerTrackNodeExistForPeer,
 } from './peerTrackNodeUtils';
-import { MeetingState } from './types';
+import { MeetingState, NotificationTypes } from './types';
 import { getJoinConfig } from './utils';
 import { FullScreenIndicator } from './components/FullScreenIndicator';
 import { HMSMeetingEnded } from './components/HMSMeetingEnded';
@@ -126,34 +127,46 @@ export const HMSRoomSetup = () => {
    */
   useHMSSessionStore();
 
+  const meetingJoined = meetingState === MeetingState.IN_MEETING;
+
   // HMS Error Listener
   useEffect(() => {
     const hmsErrorHandler = (error: HMSException) => {
-      setLoading(false);
+      if (meetingJoined) {
+        dispatch(
+          addNotification({
+            id: Math.random().toString(16).slice(2),
+            exception: error,
+            type: NotificationTypes.EXCEPTION,
+          })
+        );
+      } else {
+        setLoading(false);
 
-      // TODO: 424 error is not recoverable
-      // (Leave Meeting and Destroy Instance) ???
-      // Inform user with Alert or Error screen and send user back
-      if (error.code === 424) {
-        Alert.alert('Error', error.description || 'Something went wrong', [
-          { text: 'OK', style: 'cancel', onPress: () => {} },
-        ]);
-      } else if (
-        Platform.OS === 'android'
-          ? error.code === 4005 || error.code === 1003
-          : error.code === 2000
-      ) {
-        // TODO: come up with Error Handle mechanism
+        // TODO: 424 error is not recoverable
         // (Leave Meeting and Destroy Instance) ???
-        // Clear Redux Store?
-        // Inform user with Alert or Error screen and send user back (Navigation)
-      }
+        // Inform user with Alert or Error screen and send user back
+        if (error.code === 424) {
+          Alert.alert('Error', error.description || 'Something went wrong', [
+            { text: 'OK', style: 'cancel', onPress: () => {} },
+          ]);
+        } else if (
+          Platform.OS === 'android'
+            ? error.code === 4005 || error.code === 1003
+            : error.code === 2000
+        ) {
+          // TODO: come up with Error Handle mechanism
+          // (Leave Meeting and Destroy Instance) ???
+          // Clear Redux Store?
+          // Inform user with Alert or Error screen and send user back (Navigation)
+        }
 
-      Toast.showWithGravity(
-        `${error?.code} ${error?.description}` || 'Something went wrong',
-        Toast.LONG,
-        Toast.TOP
-      );
+        Toast.showWithGravity(
+          `${error?.code} ${error?.description}` || 'Something went wrong',
+          Toast.LONG,
+          Toast.TOP
+        );
+      }
     };
 
     hmsInstance.addEventListener(
@@ -164,7 +177,7 @@ export const HMSRoomSetup = () => {
     return () => {
       hmsInstance.removeEventListener(HMSUpdateListenerActions.ON_ERROR);
     };
-  }, [hmsInstance]);
+  }, [meetingJoined, hmsInstance]);
 
   // HMS Preview Listener
   useEffect(() => {
@@ -293,8 +306,6 @@ export const HMSRoomSetup = () => {
       hmsInstance.removeEventListener(HMSUpdateListenerActions.ON_JOIN);
     };
   }, [startHLSStreaming, hmsInstance]);
-
-  const meetingJoined = meetingState === MeetingState.IN_MEETING;
 
   // HMS Active Speaker Listener
   // dev-note: This is added here because we have `setPeerTrackNodes` here

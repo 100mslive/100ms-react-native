@@ -125,17 +125,17 @@ class HMSManager: RCTEventEmitter {
     // MARK: - Audio & Video Actions
 
     @objc
-    func setLocalMute(_ data: NSDictionary) {
+    func setLocalMute(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
-        hms?.setLocalMute(data)
+        hms?.setLocalMute(data, resolve, reject)
     }
 
     @objc
-    func setLocalVideoMute(_ data: NSDictionary) {
+    func setLocalVideoMute(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
-        hms?.setLocalVideoMute(data)
+        hms?.setLocalVideoMute(data, resolve, reject)
     }
 
     @objc
@@ -157,10 +157,10 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func setPlaybackAllowed(_ data: NSDictionary) {
+    func setPlaybackAllowed(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
-        hms?.setPlaybackAllowed(data)
+        hms?.setPlaybackAllowed(data, resolve, reject)
     }
 
     @objc
@@ -171,10 +171,10 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func setPlaybackForAllAudio(_ data: NSDictionary) {
+    func setPlaybackForAllAudio(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
-        hms?.setPlaybackForAllAudio(data)
+        hms?.setPlaybackForAllAudio(data, resolve, reject)
     }
 
     @objc
@@ -185,10 +185,10 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func setVolume(_ data: NSDictionary) {
+    func setVolume(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
-        hms?.setVolume(data)
+        hms?.setVolume(data, resolve, reject)
     }
 
     @objc
@@ -398,31 +398,31 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func setAudioShareVolume(_ data: NSDictionary) {
+    func setAudioShareVolume(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
-        hms?.setAudioShareVolume(data)
+        hms?.setAudioShareVolume(data, resolve, reject)
     }
 
     @objc
-    func stopAudioShare(_ data: NSDictionary) {
+    func stopAudioShare(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
-        hms?.stopAudioShare(data)
+        hms?.stopAudioShare(data, resolve, reject)
     }
 
     @objc
-    func resumeAudioShare(_ data: NSDictionary) {
+    func resumeAudioShare(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
-        hms?.resumeAudioShare(data)
+        hms?.resumeAudioShare(data, resolve, reject)
     }
 
     @objc
-    func pauseAudioShare(_ data: NSDictionary) {
+    func pauseAudioShare(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
-        hms?.pauseAudioShare(data)
+        hms?.pauseAudioShare(data, resolve, reject)
     }
 
     @objc
@@ -497,10 +497,10 @@ class HMSManager: RCTEventEmitter {
     // MARK: - Restrict sending whole HMSRole object
 
     @objc
-    func restrictData(_ data: NSDictionary) {
+    func restrictData(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
-        hms?.restrictData(data)
+        hms?.restrictData(data, resolve, reject)
     }
 
     // MARK: - Room Code Auth Token API
