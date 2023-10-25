@@ -130,7 +130,7 @@ import {
 import type { GridViewRefAttrs } from './components/GridView';
 import { getRoomLayout } from './modules/HMSManager';
 import { DEFAULT_THEME, DEFAULT_TYPOGRAPHY } from './utils/theme';
-import { NotificationTypes } from './utils';
+import { NotificationTypes } from './types';
 
 export const useHMSListeners = (
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>
@@ -1858,7 +1858,6 @@ export const useFilteredParticipants = (filterText: string) => {
           : list;
 
       if (Array.isArray(filteredList) && filteredList.length > 0) {
-
         filteredHandRaisedPeers.push(filteredList);
         const offStageRoleTotalCount =
           offStageParticipantsTotalCounts[role.name!];
@@ -2225,4 +2224,32 @@ export const useHMSConferencingScreenConfig = <Selected = unknown>(
       selectConferencingScreenConfig(layoutConfig);
     return selector(conferencingScreenConfig);
   }, equalityFn);
+};
+
+export const useStartRecording = () => {
+  const dispatch = useDispatch();
+  const hmsInstance = useHMSInstance();
+
+  const startRecording = useCallback(() => {
+    dispatch(setStartingOrStoppingRecording(true));
+
+    hmsInstance
+      .startRTMPOrRecording({ record: true })
+      .catch((error) => {
+        batch(() => {
+          dispatch(setStartingOrStoppingRecording(false));
+          dispatch(
+            addNotification({
+              id: Math.random().toString(16).slice(2),
+              type: NotificationTypes.EXCEPTION,
+              message: error.message
+            })
+          );
+        });
+      });
+  }, [hmsInstance]);
+
+  return {
+    startRecording,
+  };
 };

@@ -1,13 +1,15 @@
 import * as React from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
 import { StyleSheet, View } from 'react-native';
-import type { HMSPeer } from '@100mslive/react-native-hms';
 
 import type { RootState } from '../redux';
 import { HMSLocalScreenshareNotification } from './HMSLocalScreenshareNotification';
 import { HMSHandRaiseNotification } from './HMSHandRaiseNotification';
 import { HMSRoleChangeDeclinedNotification } from './HMSRoleChangeDeclinedNotification';
-import { NotificationTypes } from '../utils';
+import { NotificationTypes } from '../types';
+import { HMSExceptionNotification } from './HMSExceptionNotification';
+import { HMSNotification } from './HMSNotification';
+import { AlertTriangleIcon } from '../Icons';
 
 export interface HMSNotificationsProps {}
 
@@ -22,14 +24,11 @@ export const HMSNotifications: React.FC<HMSNotificationsProps> = () => {
   );
 
   // notifications is a stack, first will appear last
-  const notifications: (
-    | typeof LOCAL_SCREENSHARE_PAYLOAD
-    | { id: string; type: string; peer: HMSPeer }
-  )[] = useSelector((state: RootState) => {
+  const notifications = useSelector((state: RootState) => {
     // Latest notification will be at 0th index.
     const allNotifications = state.app.notifications;
 
-    let list = [];
+    let list: typeof allNotifications = [];
 
     if (isLocalScreenShared) {
       list.push(LOCAL_SCREENSHARE_PAYLOAD);
@@ -116,6 +115,21 @@ export const HMSNotifications: React.FC<HMSNotificationsProps> = () => {
                 peerName={notification.peer.name}
                 autoDismiss={atTop}
                 dismissDelay={10000}
+              />
+            ) : notification.type === NotificationTypes.EXCEPTION &&
+              'exception' in notification ? (
+              <HMSExceptionNotification
+                id={notification.id}
+                exception={notification.exception}
+                autoDismiss={false}
+              />
+            ) : 'message' in notification ? (
+              <HMSNotification
+                icon={<AlertTriangleIcon type="line" />}
+                id={notification.id}
+                text={notification.message}
+                autoDismiss={false}
+                dismissable={true}
               />
             ) : null}
           </View>
