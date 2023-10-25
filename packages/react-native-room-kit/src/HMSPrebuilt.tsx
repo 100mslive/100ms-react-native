@@ -42,6 +42,13 @@ const arePropsEqual = (
     return false;
   }
 
+  if (
+    Platform.OS === 'android' &&
+    !Object.is(prevProps.autoEnterPipMode, nextProps.autoEnterPipMode)
+  ) {
+    return false;
+  }
+
   if (!Object.is(prevProps.onLeave, nextProps.onLeave)) {
     return false;
   }

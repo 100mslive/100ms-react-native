@@ -83,6 +83,7 @@ import {
   saveUserData,
   setActiveChatBottomSheetTab,
   setActiveSpeakers,
+  setAutoEnterPipMode,
   setFullScreenPeerTrackNode,
   setHMSLocalPeerState,
   setHMSRoleState,
@@ -1392,19 +1393,23 @@ export const useDisableAutoPip = () => {
   return disableAutoPip;
 };
 
-export const useAutoPip = (enabled: boolean = true) => {
+export const useAutoPip = () => {
   const enableAutoPip = useEnableAutoPip();
   const disableAutoPip = useDisableAutoPip();
   const isHLSViewer = useIsHLSViewer();
 
+  const autoEnterPipMode = useSelector(
+    (state: RootState) => state.app.autoEnterPipMode
+  );
+
   useEffect(() => {
-    if (enabled) {
+    if (autoEnterPipMode) {
       enableAutoPip({ aspectRatio: isHLSViewer ? [9, 16] : [16, 9] });
 
       return disableAutoPip;
     }
-  }, [enabled, isHLSViewer, enableAutoPip, disableAutoPip]);
-}
+  }, [autoEnterPipMode, isHLSViewer, enableAutoPip, disableAutoPip]);
+};
 
 export const useHMSActiveSpeakerUpdates = (
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>,
@@ -2281,7 +2286,7 @@ export const useSavePropsToStore = (
   props: HMSPrebuiltProps,
   dispatch: AppDispatch
 ) => {
-  const { roomCode, options, onLeave, handleBackButton } = props;
+  const { roomCode, options, onLeave, handleBackButton, autoEnterPipMode } = props;
 
   useEffect(() => {
     dispatch(setPrebuiltData({ roomCode, options }));
@@ -2296,4 +2301,10 @@ export const useSavePropsToStore = (
       dispatch(setHandleBackButton(handleBackButton));
     }
   }, [handleBackButton]);
+
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      dispatch(setAutoEnterPipMode(autoEnterPipMode));
+    }
+  }, [autoEnterPipMode])
 };

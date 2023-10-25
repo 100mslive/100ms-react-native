@@ -388,3 +388,8 @@ export const setHandleBackButton = (handleBackButton?: boolean) => ({
   type: actionTypes.SET_HANDLE_BACK_BUTTON,
   payload: { handleBackButton },
 });
+
+export const setAutoEnterPipMode = (autoEnterPipMode?: boolean) => ({
+  type: actionTypes.SET_AUTO_ENTER_PIP_MODE,
+  payload: { autoEnterPipMode },
+});

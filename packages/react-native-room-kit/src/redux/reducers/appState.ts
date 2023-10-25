@@ -52,6 +52,7 @@ type IntialStateType = {
   activeChatBottomSheetTab: (typeof ChatBottomSheetTabs)[number];
   chatFilterSheetVisible: boolean;
   handleBackButton: boolean;
+  autoEnterPipMode: boolean;
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -82,6 +83,7 @@ const INITIAL_STATE: IntialStateType = {
   activeChatBottomSheetTab: ChatBottomSheetTabs[0],
   chatFilterSheetVisible: false,
   handleBackButton: false,
+  autoEnterPipMode: false,
 };
 
 const appReducer = (
@@ -289,6 +291,12 @@ const appReducer = (
       return {
         ...state,
         handleBackButton: action.payload.handleBackButton ?? INITIAL_STATE.handleBackButton,
+      };
+    }
+    case ActionTypes.SET_AUTO_ENTER_PIP_MODE: {
+      return {
+        ...state,
+        autoEnterPipMode: action.payload.autoEnterPipMode ?? INITIAL_STATE.autoEnterPipMode,
       };
     }
     case HmsStateActionTypes.CLEAR_STATES:
