@@ -98,6 +98,7 @@ export const HMSPrebuiltScreen = () => {
       options={prebuiltOptions}
       onLeave={handleMeetingLeave}
       handleBackButton={isScreenFocused}
+      autoEnterPipMode={true}
     />
   );
 };
