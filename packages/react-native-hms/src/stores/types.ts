@@ -4,6 +4,7 @@ import type {
   HMSHLSPlayerPlaybackState,
   HMSHLSPlayerPlaybackCueEventData,
   HMSHLSPlayerPlaybackFailureEventData,
+  HMSHLSPlayerPlaybackResolutionChangeEventData,
   HMSHLSPlayerStatsErrorEventData,
   HMSHLSPlayerStatsUpdateEventData,
 } from '../types';
@@ -25,12 +26,16 @@ export type HMSHLSPlayerPlaybackError =
   | HMSHLSPlayerPlaybackFailureEventData['error']
   | undefined;
 
+export type HMSHLSPlayerResolution = HMSHLSPlayerPlaybackResolutionChangeEventData | undefined;
+
 export interface HMSHLSPlayerPlaybackSlice {
   cue: HMSHLSPlayerCue;
   playbackState: HMSHLSPlayerPlaybackState;
+  resolution: HMSHLSPlayerResolution;
   error: HMSHLSPlayerPlaybackError;
   setCue(cue: HMSHLSPlayerPlaybackCue): void;
   setPlaybackState(playbackState: HMSHLSPlayerPlaybackState): void;
+  setResolution(resolution: HMSHLSPlayerResolution): void;
   setPlaybackError(error: HMSHLSPlayerPlaybackError): void;
 }
 
