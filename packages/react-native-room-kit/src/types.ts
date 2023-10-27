@@ -46,6 +46,20 @@ export interface HMSPrebuiltProps {
    * ```
    */
   handleBackButton?: boolean;
+  /**
+   * [Android Only] autoEnterPipMode - `Optional<Boolean>` | Default value - `false`
+   *
+   * When `true`, App will go into PIP mode automatically when user tries to leave or minimize app while it is inside room
+   *
+   * Example usage:
+   * ```jsx
+   * <HMSPrebuilt
+   *  {...}
+   *  autoEnterPipMode={true}
+   * />
+   * ```
+   */
+  autoEnterPipMode?: boolean;
 }
 
 export enum NotificationTypes {
