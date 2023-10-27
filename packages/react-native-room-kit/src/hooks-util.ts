@@ -18,6 +18,8 @@ import {
   HMSTrackUpdate,
   HMSUpdateListenerActions,
   HMSMessageRecipient,
+  useHMSHLSPlayerResolution,
+  useHmsViewsResolutionsState,
   // useHMSPeerUpdates,
 } from '@100mslive/react-native-hms';
 import type { Chat as ChatConfig } from '@100mslive/types-prebuilt/elements/chat';
@@ -1393,23 +1395,64 @@ export const useDisableAutoPip = () => {
   return disableAutoPip;
 };
 
-export const useAutoPip = () => {
+export const useAutoPip = (oneToOneCall: boolean) => {
   const enableAutoPip = useEnableAutoPip();
   const disableAutoPip = useDisableAutoPip();
-  const isHLSViewer = useIsHLSViewer();
 
   const autoEnterPipMode = useSelector(
     (state: RootState) => state.app.autoEnterPipMode
   );
+  const [numerator, denominator] = usePipAspectRatio(oneToOneCall);
 
   useEffect(() => {
     if (autoEnterPipMode) {
-      enableAutoPip({ aspectRatio: isHLSViewer ? [9, 16] : [16, 9] });
+      enableAutoPip({ aspectRatio: [numerator, denominator] });
 
       return disableAutoPip;
     }
-  }, [autoEnterPipMode, isHLSViewer, enableAutoPip, disableAutoPip]);
+  }, [
+    numerator,
+    denominator,
+    autoEnterPipMode,
+    enableAutoPip,
+    disableAutoPip,
+  ]);
 };
+
+export const usePipAspectRatio = (oneToOneCall: boolean): [number, number] => {
+  const isHLSViewer = useIsHLSViewer();
+  const hlsPlayerResolution = useHMSHLSPlayerResolution();
+
+  const firstSSNodeId = useSelector((state: RootState) => {
+    const ssPeerTrackNode = state.app.screensharePeerTrackNodes[0];
+    return ssPeerTrackNode?.track?.trackId;
+  });
+
+  const ssResolution = useHmsViewsResolutionsState(firstSSNodeId);
+
+  const aspectRatio = useMemo((): [number, number] => {
+    // When user is hlsviewer and we have stream resolution
+    if (isHLSViewer && hlsPlayerResolution) {
+      return [hlsPlayerResolution.width, hlsPlayerResolution.height];
+    }
+    // When user is hlsviewer and we don't have stream resolution
+    if (isHLSViewer) {
+      return [9, 16];
+    }
+    // When we have screenshare resolution, use it
+    if (ssResolution) {
+      return [ssResolution.width, ssResolution.height];
+    }
+    // When there is no screenshare and one-to-one call is happening
+    if (!firstSSNodeId && oneToOneCall) {
+      return [9, 16];
+    }
+    // default aspect ratio
+    return [16, 9];
+  }, [isHLSViewer, firstSSNodeId, oneToOneCall, ssResolution, hlsPlayerResolution]);
+
+  return aspectRatio;
+}
 
 export const useHMSActiveSpeakerUpdates = (
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>,

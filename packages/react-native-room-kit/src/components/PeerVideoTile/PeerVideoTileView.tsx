@@ -177,13 +177,15 @@ export const _PeerVideoTileView = React.forwardRef<
 
         {/* Handling Peer Audio Mute indicator */}
         {screenShareTile && showingVideoTrack ? (
-          <HMSFullScreenButton peerTrackNode={peerTrackNode} />
+          isPipModeActive ? null : (
+            <HMSFullScreenButton peerTrackNode={peerTrackNode} />
+          )
         ) : peerCanPublishAudio ? (
           <PeerAudioIndicator isMuted={peer.audioTrack?.isMute()} peer={peer} />
         ) : null}
 
         {/* Handling showing Peer name */}
-        {(insetMode || isPipModeActive) ? null : (
+        {insetMode || isPipModeActive ? null : (
           <PeerNameAndNetwork
             name={peer.name}
             isLocal={peer.isLocal}

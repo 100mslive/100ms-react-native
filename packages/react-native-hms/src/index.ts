@@ -100,6 +100,7 @@ export * from './components/HMSHLSPlayer';
 
 // 100ms Hooks
 export * from './hooks/useHMSPeerUpdates';
+export { useHmsViewsResolutionsState } from './hooks/hmsviews';
 
 // 100ms types
 export * from './types';
