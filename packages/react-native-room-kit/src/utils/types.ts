@@ -107,11 +107,7 @@ export const ChatBroadcastFilter = { name: 'everyone' } as const;
 
 export const PeerListRefreshInterval = 5000; // in milliseconds
 
-export enum OnLeaveReason {
-  /**
-   * User left the meeting room by pressing the "end" button in PIP window
-   */
-  PIP = 'pip',
+export enum OnLeaveReason {  
   /**
    * User left the meeting room by pressing the "Leave", "End Stream" or "End Room" button in Leave Modal
    */
@@ -119,5 +115,14 @@ export enum OnLeaveReason {
   /**
    * User was removed from the meeting room by another HMSPeer
    */
-  REMOVED = 'removed'
+  PEER_KICKED = 'peer_kicked',
+
+  ROOM_END = 'room_ended',
+
+  NETWORK_ISSUES = 'network_issues',
+
+  /**
+   * User left the meeting room by pressing the "end" button in PIP window
+   */
+  PIP = 'pip',
 };
