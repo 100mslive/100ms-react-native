@@ -29,7 +29,7 @@ class HMSAudioshareActivity : ComponentActivity() {
             override fun onSuccess() {
               HMSManager.hmsCollection[id]?.isAudioSharing = true
               HMSManager.hmsCollection[id]?.audioshareCallback?.resolve(
-                HMSManager.hmsCollection[id]?.emitHMSSuccess(),
+                HMSManager.hmsCollection[id]?.getPromiseResolveData(),
               )
               finish()
             }

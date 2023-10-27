@@ -12,8 +12,14 @@ RCT_EXTERN_METHOD(previewForRole
 RCT_EXTERN_METHOD(cancelPreview : (NSDictionary)data
                   : (RCTPromiseResolveBlock)resolve
                   : (RCTPromiseRejectBlock)reject)
-RCT_EXTERN_METHOD(setLocalMute : (NSDictionary)isMute)
-RCT_EXTERN_METHOD(setLocalVideoMute : (NSDictionary)isMute)
+RCT_EXTERN_METHOD(setLocalMute
+                  : (NSDictionary)isMute
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject)
+RCT_EXTERN_METHOD(setLocalVideoMute
+                  : (NSDictionary)isMute
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(sendBroadcastMessage
                   : (NSDictionary)data
                   : (RCTPromiseResolveBlock)resolve
@@ -26,7 +32,10 @@ RCT_EXTERN_METHOD(sendDirectMessage
                   : (NSDictionary)data
                   : (RCTPromiseResolveBlock)resolve
                   : (RCTPromiseRejectBlock)reject)
-RCT_EXTERN_METHOD(setPlaybackAllowed : (NSDictionary)data)
+RCT_EXTERN_METHOD(setPlaybackAllowed
+                  : (NSDictionary)data
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(removePeer
                   : (NSDictionary)data
                   : (RCTPromiseResolveBlock)resolve
@@ -54,7 +63,10 @@ RCT_EXTERN_METHOD(getRoom
                   : (RCTPromiseResolveBlock)resolve
                   : (RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(switchCamera : (NSDictionary)data)
-RCT_EXTERN_METHOD(setVolume : (NSDictionary)data)
+RCT_EXTERN_METHOD(setVolume
+                  : (NSDictionary)data
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(build
                   : (NSDictionary)data
                   : (RCTPromiseResolveBlock)resolve
@@ -63,7 +75,10 @@ RCT_EXTERN_METHOD(leave
                   : (NSDictionary)data
                   : (RCTPromiseResolveBlock)resolve
                   : (RCTPromiseRejectBlock)reject)
-RCT_EXTERN_METHOD(setPlaybackForAllAudio : (NSDictionary)mute)
+RCT_EXTERN_METHOD(setPlaybackForAllAudio
+                  : (NSDictionary)mute
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(remoteMuteAllAudio
                   : (NSDictionary)data
                   : (RCTPromiseResolveBlock)resolve
@@ -132,10 +147,22 @@ RCT_EXTERN_METHOD(playAudioShare
                   : (NSDictionary)data
                   : (RCTPromiseResolveBlock)resolve
                   : (RCTPromiseRejectBlock)reject)
-RCT_EXTERN_METHOD(setAudioShareVolume : (NSDictionary)data)
-RCT_EXTERN_METHOD(stopAudioShare : (NSDictionary)data)
-RCT_EXTERN_METHOD(resumeAudioShare : (NSDictionary)data)
-RCT_EXTERN_METHOD(pauseAudioShare : (NSDictionary)data)
+RCT_EXTERN_METHOD(setAudioShareVolume
+                  : (NSDictionary)data
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject)
+RCT_EXTERN_METHOD(stopAudioShare
+                  : (NSDictionary)data
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject)
+RCT_EXTERN_METHOD(resumeAudioShare
+                  : (NSDictionary)data
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject)
+RCT_EXTERN_METHOD(pauseAudioShare
+                  : (NSDictionary)data
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(audioShareIsPlaying
                   : (NSDictionary)data
                   : (RCTPromiseResolveBlock)resolve
@@ -182,7 +209,10 @@ RCT_EXTERN_METHOD(disableEvent
                   : (NSDictionary)data
                   : (RCTPromiseResolveBlock)resolve
                   : (RCTPromiseRejectBlock)reject)
-RCT_EXTERN_METHOD(restrictData : (NSDictionary)data)
+RCT_EXTERN_METHOD(restrictData
+                  : (NSDictionary)data
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(getAuthTokenByRoomCode
                   : (NSDictionary)data
                   : (RCTPromiseResolveBlock)resolve

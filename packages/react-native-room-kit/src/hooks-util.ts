@@ -62,7 +62,7 @@ import {
   useSelector,
   useStore,
 } from 'react-redux';
-import type { RootState } from './redux';
+import type { AppDispatch, RootState } from './redux';
 import {
   addMessage,
   addNotification,
@@ -83,16 +83,20 @@ import {
   saveUserData,
   setActiveChatBottomSheetTab,
   setActiveSpeakers,
+  setAutoEnterPipMode,
   setFullScreenPeerTrackNode,
   setHMSLocalPeerState,
   setHMSRoleState,
   setHMSRoomState,
+  setHandleBackButton,
   setIsLocalAudioMutedState,
   setIsLocalVideoMutedState,
   setLayoutConfig,
   setLocalPeerTrackNode,
   setMiniViewPeerTrackNode,
   setModalType,
+  setOnLeaveHandler,
+  setPrebuiltData,
   setReconnecting,
   setRoleChangeRequest,
   setStartingOrStoppingRecording,
@@ -112,7 +116,13 @@ import {
   replacePeerTrackNodesWithTrack,
 } from './peerTrackNodeUtils';
 import { MeetingState } from './types';
-import { InteractionManager, Keyboard, Platform } from 'react-native';
+import type { HMSPrebuiltProps } from './types';
+import {
+  BackHandler,
+  InteractionManager,
+  Keyboard,
+  Platform,
+} from 'react-native';
 import type { ImageStyle, StyleProp, ViewStyle, TextStyle } from 'react-native';
 import { NavigationContext } from '@react-navigation/native';
 import {
@@ -130,7 +140,7 @@ import {
 import type { GridViewRefAttrs } from './components/GridView';
 import { getRoomLayout } from './modules/HMSManager';
 import { DEFAULT_THEME, DEFAULT_TYPOGRAPHY } from './utils/theme';
-import { NotificationTypes } from './utils';
+import { NotificationTypes } from './types';
 
 export const useHMSListeners = (
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>
@@ -1383,19 +1393,23 @@ export const useDisableAutoPip = () => {
   return disableAutoPip;
 };
 
-export const useAutoPip = (enabled: boolean = true) => {
+export const useAutoPip = () => {
   const enableAutoPip = useEnableAutoPip();
   const disableAutoPip = useDisableAutoPip();
   const isHLSViewer = useIsHLSViewer();
 
+  const autoEnterPipMode = useSelector(
+    (state: RootState) => state.app.autoEnterPipMode
+  );
+
   useEffect(() => {
-    if (enabled) {
+    if (autoEnterPipMode) {
       enableAutoPip({ aspectRatio: isHLSViewer ? [9, 16] : [16, 9] });
 
       return disableAutoPip;
     }
-  }, [enabled, isHLSViewer, enableAutoPip, disableAutoPip]);
-}
+  }, [autoEnterPipMode, isHLSViewer, enableAutoPip, disableAutoPip]);
+};
 
 export const useHMSActiveSpeakerUpdates = (
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>,
@@ -1858,7 +1872,6 @@ export const useFilteredParticipants = (filterText: string) => {
           : list;
 
       if (Array.isArray(filteredList) && filteredList.length > 0) {
-
         filteredHandRaisedPeers.push(filteredList);
         const offStageRoleTotalCount =
           offStageParticipantsTotalCounts[role.name!];
@@ -2225,4 +2238,100 @@ export const useHMSConferencingScreenConfig = <Selected = unknown>(
       selectConferencingScreenConfig(layoutConfig);
     return selector(conferencingScreenConfig);
   }, equalityFn);
+};
+
+export const useBackButtonPress = () => {
+  const { handleModalVisibleType } = useModalType();
+
+  const handleBackPress = useSelector(
+    (state: RootState) => state.app.handleBackButton
+  );
+
+  useEffect(() => {
+    if (handleBackPress) {
+      const backPressHandler = () => {
+        handleModalVisibleType(ModalTypes.LEAVE_ROOM);
+
+        /**
+         * When true is returned the event will not be bubbled up
+         * & no other back action will execute
+         */
+        return true;
+
+        /**
+         * Returning false will let the event to bubble up & let other event listeners
+         * or the system's default back action to be executed.
+         */
+        // return false;
+      };
+
+      const subscription = BackHandler.addEventListener(
+        'hardwareBackPress',
+        backPressHandler
+      );
+
+      return () => {
+        if (typeof subscription.remove === 'function') {
+          subscription.remove();
+        } else {
+          BackHandler.removeEventListener('hardwareBackPress', backPressHandler);
+        }
+      };
+    }
+  }, [handleBackPress, handleModalVisibleType]);
+};
+
+export const useSavePropsToStore = (
+  props: HMSPrebuiltProps,
+  dispatch: AppDispatch
+) => {
+  const { roomCode, options, onLeave, handleBackButton, autoEnterPipMode } = props;
+
+  useEffect(() => {
+    dispatch(setPrebuiltData({ roomCode, options }));
+  }, [roomCode, options]);
+
+  useEffect(() => {
+    dispatch(setOnLeaveHandler(onLeave));
+  }, [onLeave]);
+
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      dispatch(setHandleBackButton(handleBackButton));
+    }
+  }, [handleBackButton]);
+
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      dispatch(setAutoEnterPipMode(autoEnterPipMode));
+    }
+  }, [autoEnterPipMode]);
+};
+
+export const useStartRecording = () => {
+  const dispatch = useDispatch();
+  const hmsInstance = useHMSInstance();
+
+  const startRecording = useCallback(() => {
+    dispatch(setStartingOrStoppingRecording(true));
+
+    hmsInstance
+      .startRTMPOrRecording({ record: true })
+      .catch((error) => {
+        batch(() => {
+          dispatch(setStartingOrStoppingRecording(false));
+          dispatch(
+            addNotification({
+              id: Math.random().toString(16).slice(2),
+              type: NotificationTypes.EXCEPTION,
+              message: error.message
+            })
+          );
+        });
+      });
+  }, [hmsInstance]);
+
+  return {
+    startRecording,
+  };
 };

@@ -18,6 +18,7 @@ export interface HMSNotificationProps {
   autoDismiss?: boolean;
   dismissDelay?: number;
   cta?: React.ReactElement;
+  dismissable?: boolean;
 }
 
 export const HMSNotification: React.FC<HMSNotificationProps> = ({
@@ -30,6 +31,7 @@ export const HMSNotification: React.FC<HMSNotificationProps> = ({
   onDismiss,
   dismissDelay = 5000,
   autoDismiss = true,
+  dismissable = false,
 }) => {
   const dispatch = useDispatch();
 
@@ -45,7 +47,7 @@ export const HMSNotification: React.FC<HMSNotificationProps> = ({
 
   const dismissNotification =
     onDismiss ||
-    (autoDismiss
+    (autoDismiss || dismissable
       ? () => {
           dispatch(removeNotification(id));
         }
@@ -77,7 +79,7 @@ export const HMSNotification: React.FC<HMSNotificationProps> = ({
     </View>
   );
 
-  if (dismissNotification) {
+  if (dismissNotification && autoDismiss) {
     return (
       <UnmountAfterDelay
         visible={true}

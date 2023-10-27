@@ -4,10 +4,13 @@ import type { ImageProps } from 'react-native';
 
 import { useHMSRoomStyle } from '../../hooks-util';
 
-interface RecordingIconProps extends Omit<ImageProps, 'source'> {}
+interface RecordingIconProps extends Omit<ImageProps, 'source'> {
+  type?: 'off' | 'on';
+}
 
 export const RecordingIcon: React.FC<RecordingIconProps> = ({
   style,
+  type = 'on',
   ...restProps
 }) => {
   const iconStyles = useHMSRoomStyle((theme) => ({
@@ -16,7 +19,11 @@ export const RecordingIcon: React.FC<RecordingIconProps> = ({
 
   return (
     <Image
-      source={require('./assets/recording.png')}
+      source={
+        type === 'on'
+          ? require('./assets/recording.png')
+          : require('./assets/recording-off.png')
+      }
       style={[styles.icon, iconStyles, style]}
       {...restProps}
     />

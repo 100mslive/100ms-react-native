@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 import { Provider } from 'react-redux';
+import { Platform } from 'react-native';
 import {
   SafeAreaInsetsContext,
   SafeAreaProvider,
@@ -7,29 +8,11 @@ import {
 
 import { store } from './redux/index';
 import { HMSContainer } from './HMSContainer';
-import { setPrebuiltData } from './redux/actions';
-import type { HMSIOSScreenShareConfig } from './utils/types';
-
-export interface HMSPrebuiltProps {
-  roomCode: string;
-  options?: {
-    userName?: string;
-    userId?: string;
-    endPoints?: {
-      init: string;
-      token: string;
-      layout: string;
-    };
-    debugMode?: boolean;
-    ios?: HMSIOSScreenShareConfig;
-  };
-  onLeave?: () => void;
-}
+import { useSavePropsToStore } from './hooks-util';
+import type { HMSPrebuiltProps } from './types';
 
 const _HMSPrebuilt: React.FC<HMSPrebuiltProps> = (props) => {
-  const { roomCode, options, onLeave } = props;
-
-  store.dispatch(setPrebuiltData({ roomCode, options, onLeave }));
+  useSavePropsToStore(props, store.dispatch);
 
   // @ts-ignore Not using `useContext` hook because we don't want to subscribe to updates
   // We just want to check if SafeAreaProvider exists or not
@@ -48,5 +31,31 @@ const _HMSPrebuilt: React.FC<HMSPrebuiltProps> = (props) => {
   return <SafeAreaProvider>{content}</SafeAreaProvider>;
 };
 
-// TODO: handle props change
-export const HMSPrebuilt = memo(_HMSPrebuilt);
+const arePropsEqual = (
+  prevProps: Readonly<HMSPrebuiltProps>,
+  nextProps: Readonly<HMSPrebuiltProps>
+): boolean => {
+  if (
+    Platform.OS === 'android' &&
+    !Object.is(prevProps.handleBackButton, nextProps.handleBackButton)
+  ) {
+    return false;
+  }
+
+  if (
+    Platform.OS === 'android' &&
+    !Object.is(prevProps.autoEnterPipMode, nextProps.autoEnterPipMode)
+  ) {
+    return false;
+  }
+
+  if (!Object.is(prevProps.onLeave, nextProps.onLeave)) {
+    return false;
+  }
+
+  return true;
+};
+
+export const HMSPrebuilt = memo(_HMSPrebuilt, arePropsEqual);
+
+export { type HMSPrebuiltProps };

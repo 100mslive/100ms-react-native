@@ -78,9 +78,13 @@ const userReducer = (
       state.endPoints = action.payload.options.endPoints;
       state.debugMode = action.payload.options.debugMode ?? false;
       state.iosBuildConfig = action.payload.options.ios ?? null;
-      state.onLeave = action.payload.onLeave;
 
       return state;
+    case HmsStateActionTypes.SET_ON_LEAVE_HANDLER:
+      return {
+        ...state,
+        onLeave: action.payload.onLeave,
+      };
     case HmsStateActionTypes.CLEAR_STATES:
       return INITIAL_STATE;
     default:
