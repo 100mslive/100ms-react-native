@@ -66,7 +66,8 @@ export enum NotificationTypes {
   ROLE_CHANGE_DECLINED = 'role_change_declined',
   HAND_RAISE = 'hand_raise',
   LOCAL_SCREENSHARE = 'local_screenshare',
-  EXCEPTION = 'exception',
+  ERROR = 'error',
+  TERMINAL_ERROR = 'terminal_error',
 }
 
 export type Notification =

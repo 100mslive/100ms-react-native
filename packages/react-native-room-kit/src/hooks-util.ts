@@ -1294,8 +1294,14 @@ export const useHMSRemovedFromRoomUpdate = () => {
   const { destroy } = useLeaveMethods(true);
 
   useEffect(() => {
-    const removedFromRoomHandler = () => {
-      destroy(OnLeaveReason.REMOVED);
+    const removedFromRoomHandler = (data: {
+      requestedBy?: HMSPeer | null;
+      reason?: string;
+      roomEnded?: boolean;
+    }) => {
+      destroy(
+        data.roomEnded ? OnLeaveReason.ROOM_END : OnLeaveReason.PEER_KICKED
+      );
     };
 
     hmsInstance.addEventListener(
@@ -2324,7 +2330,7 @@ export const useStartRecording = () => {
           dispatch(
             addNotification({
               id: Math.random().toString(16).slice(2),
-              type: NotificationTypes.EXCEPTION,
+              type: NotificationTypes.ERROR,
               message: error.message
             })
           );

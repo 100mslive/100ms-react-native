@@ -77,7 +77,7 @@ export const EndRoomModalContent: React.FC<EndRoomModalContentProps> = ({
           if (canStream && isStreaming) {
             leave(OnLeaveReason.LEAVE, true)
           } else {
-            endRoom(OnLeaveReason.LEAVE);
+            endRoom(OnLeaveReason.ROOM_END);
           }
         }}
         title={canStream && isStreaming ? 'End Stream' : 'End Session'}

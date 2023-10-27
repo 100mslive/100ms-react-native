@@ -109,20 +109,25 @@ export const PeerListRefreshInterval = 5000; // in milliseconds
 
 export enum OnLeaveReason {  
   /**
-   * User left the meeting room by pressing the "Leave", "End Stream" or "End Room" button in Leave Modal
+   * User left the meeting room by pressing the "Leave" or "End Stream" button in Leave Modal
    */
   LEAVE = 'leave',
   /**
    * User was removed from the meeting room by another HMSPeer
    */
   PEER_KICKED = 'peer_kicked',
-
+  /**
+   * Meeting Room was ended by user or another HMSPeer
+   */
   ROOM_END = 'room_ended',
-
+  /**
+   * Due to network issues, user left the meeting room
+   */
   NETWORK_ISSUES = 'network_issues',
-
   /**
    * User left the meeting room by pressing the "end" button in PIP window
    */
   PIP = 'pip',
 };
+
+export const TerminalExceptionCodes = [4005, 1003, 2000, "4005", "1003", "2000"];
