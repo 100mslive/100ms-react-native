@@ -169,10 +169,8 @@ const _ParticipantsItemOptions: React.FC<ParticipantsItemOptionsProps> = ({
     peer.videoTrack?.isMute();
 
   const showBringOnStageOptions =
-    insideHandRaiseGroup &&
     offStageRoles &&
-    offStageRoles.includes(peer.role?.name || '') &&
-    peer.isHandRaised;
+    offStageRoles.includes(peer.role?.name || '');
 
   const showLowerHandOption = peer.isHandRaised;
 
