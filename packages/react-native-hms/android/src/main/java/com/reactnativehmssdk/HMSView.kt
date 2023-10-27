@@ -43,14 +43,34 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
           newHeight: Int,
         ) {
           super.onResolutionChange(newWidth, newHeight)
-          if (!jsCanApplyStyles) {
-            val event: WritableMap = Arguments.createMap()
-            context.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "topChange", event)
-            jsCanApplyStyles = true
+
+          videoTrack?.let { nonnullVideoTrack ->
+            // emit when source is screen or `jsCanApplyStyles` is `false`
+            if (nonnullVideoTrack.source == "screen" || !jsCanApplyStyles) {
+              jsCanApplyStyles = true
+
+              val data = Arguments.createMap()
+              data.putInt("width", newWidth)
+              data.putInt("height", newHeight)
+
+              sendEventToJS("ON_RESOLUTION_CHANGE_EVENT", data)
+            }
           }
         }
       },
     )
+  }
+
+  private fun sendEventToJS(
+    eventName: String,
+    data: WritableMap,
+  ) {
+    val event: WritableMap = Arguments.createMap()
+    event.putString("event", eventName)
+    event.putMap("data", data)
+
+    val reactContext = context as ReactContext
+    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "topChange", event)
   }
 
   @RequiresApi(Build.VERSION_CODES.N)
