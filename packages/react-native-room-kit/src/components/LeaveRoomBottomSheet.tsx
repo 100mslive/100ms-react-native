@@ -7,7 +7,7 @@ import { useHMSRoomStyleSheet, useLeaveMethods, useModalType } from '../hooks-ut
 import type { RootState } from '../redux';
 import { BottomSheet } from './BottomSheet';
 import { StopIcon } from '../Icons';
-import { ModalTypes } from '../utils/types';
+import { ModalTypes, OnLeaveReason } from '../utils/types';
 
 // const HEADER_CONTENT_HEIGHT = 24 + 8 + 8 + 2; // ICON_SIZE + TOP_PADDING + BOTTOM_PADDING + TOP&BOTTOM_BORDER_WIDTH
 // const HEADER_HEIGHT = 8 + HEADER_CONTENT_HEIGHT + 8; // TOP_HEADER_PADDING + HEADER_CONTENT_HEIGHT + BOTTOM_HEADER_PADDING
@@ -75,7 +75,7 @@ export const LeaveRoomBottomSheet: React.FC<LeaveRoomBottomSheetProps> = () => {
   const onLeavePress = async () => {
     leavePopCloseAction.current = ModalTypes.DEFAULT;
     handleModalVisibleType(ModalTypes.DEFAULT);
-    await leave();
+    await leave(OnLeaveReason.LEAVE);
   };
 
   /**

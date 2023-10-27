@@ -1,5 +1,5 @@
 import type { HMSException, HMSPeer } from "@100mslive/react-native-hms";
-import type { HMSIOSScreenShareConfig } from "./utils/types";
+import type { HMSIOSScreenShareConfig, OnLeaveHandler } from "./utils/types";
 
 export enum MeetingState {
   NOT_JOINED,
@@ -26,7 +26,7 @@ export interface HMSPrebuiltProps {
    *
    * It will be invoked when user leaves meeting or user is removed from the room
    */
-  onLeave?: () => void;
+  onLeave?: OnLeaveHandler;
   /**
    * [Android Only] handleBackButton - `Optional<Boolean>` | Default value - `false`
    *
@@ -66,7 +66,8 @@ export enum NotificationTypes {
   ROLE_CHANGE_DECLINED = 'role_change_declined',
   HAND_RAISE = 'hand_raise',
   LOCAL_SCREENSHARE = 'local_screenshare',
-  EXCEPTION = 'exception',
+  ERROR = 'error',
+  TERMINAL_ERROR = 'terminal_error',
 }
 
 export type Notification =

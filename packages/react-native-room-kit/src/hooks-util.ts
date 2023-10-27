@@ -52,10 +52,11 @@ import type { DependencyList } from 'react';
 import {
   MaxTilesInOnePage,
   ModalTypes,
+  OnLeaveReason,
   PeerListRefreshInterval,
   PipModes,
 } from './utils/types';
-import type { ChatBroadcastFilter, PeerTrackNode } from './utils/types';
+import type { ChatBroadcastFilter, OnLeaveHandler, PeerTrackNode } from './utils/types';
 import { createPeerTrackNode } from './utils/functions';
 import {
   batch,
@@ -1276,7 +1277,7 @@ export const useHMSPIPRoomLeave = () => {
 
   useEffect(() => {
     const pipRoomLeaveHandler = () => {
-      destroy();
+      destroy(OnLeaveReason.PIP);
     };
 
     hmsInstance.addEventListener(
@@ -1295,8 +1296,14 @@ export const useHMSRemovedFromRoomUpdate = () => {
   const { destroy } = useLeaveMethods(true);
 
   useEffect(() => {
-    const removedFromRoomHandler = () => {
-      destroy();
+    const removedFromRoomHandler = (data: {
+      requestedBy?: HMSPeer | null;
+      reason?: string;
+      roomEnded?: boolean;
+    }) => {
+      destroy(
+        data.roomEnded ? OnLeaveReason.ROOM_END : OnLeaveReason.PEER_KICKED
+      );
     };
 
     hmsInstance.addEventListener(
@@ -1991,7 +1998,7 @@ export const useLeaveMethods = (isUnmounted: boolean) => {
   const dispatch = useDispatch();
   const reduxStore = useStore<RootState>();
 
-  const destroy = useCallback(() => {
+  const destroy = useCallback((reason: Parameters<OnLeaveHandler>[0]) => {
     try {
       const s = hmsInstance.destroy();
       console.log('Destroy Success: ', s);
@@ -2018,7 +2025,7 @@ export const useLeaveMethods = (isUnmounted: boolean) => {
       const onLeave = reduxStore.getState().user.onLeave;
 
       if (typeof onLeave === 'function') {
-        onLeave();
+        onLeave(reason);
         dispatch(clearStore());
       } else if (navigation && navigation.canGoBack() && !isUnmounted) {
         navigation.goBack();
@@ -2040,7 +2047,7 @@ export const useLeaveMethods = (isUnmounted: boolean) => {
   }, [hmsInstance]);
 
   const leave = useCallback(
-    async (shouldEndStream: boolean = false) => {
+    async (reason: OnLeaveReason, shouldEndStream: boolean = false) => {
       if (shouldEndStream) {
         hmsInstance.stopHLSStreaming().catch((error) => {
           console.log('Stop HLS Streaming Error: ', error);
@@ -2049,7 +2056,7 @@ export const useLeaveMethods = (isUnmounted: boolean) => {
       try {
         const d = await hmsInstance.leave();
         console.log('Leave Success: ', d);
-        await destroy();
+        await destroy(reason);
       } catch (e) {
         console.log(`Leave Room Error: ${e}`);
         Toast.showWithGravity(`Leave Room Error: ${e}`, Toast.LONG, Toast.TOP);
@@ -2072,11 +2079,11 @@ export const useLeaveMethods = (isUnmounted: boolean) => {
     }
   }, [hmsInstance]);
 
-  const endRoom = useCallback(async () => {
+  const endRoom = useCallback(async (reason: OnLeaveReason) => {
     try {
       const d = await hmsInstance.endRoom('Host ended the room');
       console.log('EndRoom Success: ', d);
-      await destroy();
+      await destroy(reason);
     } catch (e) {
       console.log('EndRoom Error: ', e);
     }
@@ -2374,8 +2381,8 @@ export const useStartRecording = () => {
         dispatch(
           addNotification({
             id: Math.random().toString(16).slice(2),
-            type: NotificationTypes.EXCEPTION,
-            message: error.message,
+            type: NotificationTypes.ERROR,
+            message: error.message
           })
         );
       });

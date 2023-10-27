@@ -5,7 +5,7 @@ import type {
 } from '@100mslive/react-native-hms';
 import { getMeetingCode, getMeetingUrl } from '../../utils/functions';
 import ActionTypes, { HmsStateActionTypes } from '../actionTypes';
-import type { HMSIOSScreenShareConfig } from '../../utils/types';
+import type { HMSIOSScreenShareConfig, OnLeaveHandler } from '../../utils/types';
 
 type ActionType = {
   payload: any;
@@ -25,7 +25,7 @@ type IntialStateType = {
   isHLSFlow: boolean;
   roles: HMSRole[];
   iosBuildConfig: HMSIOSScreenShareConfig | null;
-  onLeave: (() => void) | undefined;
+  onLeave: OnLeaveHandler | undefined;
 };
 
 const INITIAL_STATE: IntialStateType = {
