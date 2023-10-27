@@ -3,6 +3,7 @@ import { Platform, Text } from 'react-native';
 import {
   NavigationProp,
   RouteProp,
+  useIsFocused,
   useNavigation,
   useRoute,
 } from '@react-navigation/native';
@@ -17,6 +18,9 @@ export const HMSPrebuiltScreen = () => {
   const navigation = useNavigation<NavigationProp<AppStackParamList>>();
   const screenParams =
     useRoute<RouteProp<AppStackParamList, 'HMSPrebuiltScreen'>>().params;
+
+  // To handle back button press in Prebuilt, when screen is focused
+  const isScreenFocused = useIsFocused();
 
   // function to be called when meeting is ended
   const handleMeetingLeave = useCallback(async () => {
@@ -82,6 +86,7 @@ export const HMSPrebuiltScreen = () => {
       startAndroidForegroundService();
     }
   }, []);
+
   // Room Code is required to join the room
   if (!roomCode) {
     return <Text>Room Code is Required</Text>;
@@ -92,6 +97,7 @@ export const HMSPrebuiltScreen = () => {
       roomCode={roomCode}
       options={prebuiltOptions}
       onLeave={handleMeetingLeave}
+      handleBackButton={isScreenFocused}
     />
   );
 };

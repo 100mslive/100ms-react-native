@@ -38,10 +38,14 @@ export const setPrebuiltData = (data: {
     };
     ios?: HMSIOSScreenShareConfig;
   };
-  onLeave?: () => void;
 }) => ({
   type: HmsStateActionTypes.SET_PREBUILT_DATA,
   payload: data,
+});
+
+export const setOnLeaveHandler = (onLeave?: () => void) => ({
+  type: HmsStateActionTypes.SET_ON_LEAVE_HANDLER,
+  payload: { onLeave },
 });
 
 export const clearStore = () => ({
@@ -375,4 +379,9 @@ export const setActiveSpeakers = (activeSpeakers: HMSSpeaker[]) => ({
 export const setReconnecting = (reconnecting: boolean) => ({
   type: HmsStateActionTypes.SET_RECONNECTING,
   reconnecting,
+});
+
+export const setHandleBackButton = (handleBackButton?: boolean) => ({
+  type: actionTypes.SET_HANDLE_BACK_BUTTON,
+  payload: { handleBackButton },
 });

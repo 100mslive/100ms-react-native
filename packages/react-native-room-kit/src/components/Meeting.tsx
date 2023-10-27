@@ -8,6 +8,7 @@ import { useRTCStatsListeners } from '../utils/hooks';
 import {
   clearPendingModalTasks,
   useAutoPip,
+  useBackButtonPress,
   useFetchHMSRoles,
   useHMSMessages,
   useHMSNetworkQualityUpdate,
@@ -56,6 +57,9 @@ export const Meeting: React.FC<MeetingProps> = ({ peerTrackNodes }) => {
   useHMSNetworkQualityUpdate();
 
   useAutoPip();
+
+  // Handle Back button press and show leave room modal
+  useBackButtonPress();
 
   // Clearing any pending modal opening tasks
   React.useEffect(() => {
