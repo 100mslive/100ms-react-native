@@ -1378,9 +1378,12 @@ export type PIPConfig = Omit<HMSPIPConfig, 'autoEnterPipMode'>;
 export const useEnableAutoPip = () => {
   const hmsInstance = useHMSInstance();
 
-  const enableAutoPip = useCallback((data?: PIPConfig) => {
-    hmsInstance.setPipParams({ ...data, autoEnterPipMode: true });
-  }, [hmsInstance]);
+  const enableAutoPip = useCallback(
+    (data?: PIPConfig) => {
+      hmsInstance.setPipParams({ ...data, autoEnterPipMode: true });
+    },
+    [hmsInstance]
+  );
 
   return enableAutoPip;
 };
@@ -1388,9 +1391,12 @@ export const useEnableAutoPip = () => {
 export const useDisableAutoPip = () => {
   const hmsInstance = useHMSInstance();
 
-  const disableAutoPip = useCallback((data?: PIPConfig) => {
-    hmsInstance.setPipParams({ ...data, autoEnterPipMode: false });
-  }, [hmsInstance]);
+  const disableAutoPip = useCallback(
+    (data?: PIPConfig) => {
+      hmsInstance.setPipParams({ ...data, autoEnterPipMode: false });
+    },
+    [hmsInstance]
+  );
 
   return disableAutoPip;
 };
@@ -2317,7 +2323,10 @@ export const useBackButtonPress = () => {
         if (typeof subscription.remove === 'function') {
           subscription.remove();
         } else {
-          BackHandler.removeEventListener('hardwareBackPress', backPressHandler);
+          BackHandler.removeEventListener(
+            'hardwareBackPress',
+            backPressHandler
+          );
         }
       };
     }
@@ -2328,7 +2337,8 @@ export const useSavePropsToStore = (
   props: HMSPrebuiltProps,
   dispatch: AppDispatch
 ) => {
-  const { roomCode, options, onLeave, handleBackButton, autoEnterPipMode } = props;
+  const { roomCode, options, onLeave, handleBackButton, autoEnterPipMode } =
+    props;
 
   useEffect(() => {
     dispatch(setPrebuiltData({ roomCode, options }));
@@ -2358,20 +2368,18 @@ export const useStartRecording = () => {
   const startRecording = useCallback(() => {
     dispatch(setStartingOrStoppingRecording(true));
 
-    hmsInstance
-      .startRTMPOrRecording({ record: true })
-      .catch((error) => {
-        batch(() => {
-          dispatch(setStartingOrStoppingRecording(false));
-          dispatch(
-            addNotification({
-              id: Math.random().toString(16).slice(2),
-              type: NotificationTypes.EXCEPTION,
-              message: error.message
-            })
-          );
-        });
+    hmsInstance.startRTMPOrRecording({ record: true }).catch((error) => {
+      batch(() => {
+        dispatch(setStartingOrStoppingRecording(false));
+        dispatch(
+          addNotification({
+            id: Math.random().toString(16).slice(2),
+            type: NotificationTypes.EXCEPTION,
+            message: error.message,
+          })
+        );
       });
+    });
   }, [hmsInstance]);
 
   return {
