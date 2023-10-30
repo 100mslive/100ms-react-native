@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import type { HMSAudioMixingMode } from '@100mslive/react-native-hms';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import type { RootState } from '../redux';
 import { ModalTypes } from '../utils/types';
@@ -17,7 +17,6 @@ import {
 import { BottomSheet, useBottomSheetActions } from './BottomSheet';
 import {
   isPublishingAllowed,
-  useHMSInstance,
   useHMSLayoutConfig,
   useHMSRoomStyleSheet,
   useShowChatAndParticipants,
@@ -25,7 +24,6 @@ import {
 } from '../hooks-util';
 import { useCanPublishScreen, useHMSActions } from '../hooks-sdk';
 import { RoomSettingsModalDebugModeContent } from './RoomSettingsModalDebugModeContent';
-import { setStartingOrStoppingRecording } from '../redux/actions';
 import { ParticipantsCount } from './ParticipantsCount';
 import { selectAllowedTracksToPublish } from '../hooks-sdk-selectors';
 
@@ -46,8 +44,6 @@ export const RoomSettingsModalContent: React.FC<
 > = (props) => {
   const { closeRoomSettingsModal, setModalVisible } = props;
 
-  const dispatch = useDispatch();
-  const hmsInstance = useHMSInstance();
   const debugMode = useSelector((state: RootState) => state.user.debugMode);
 
   const hmsActions = useHMSActions();
