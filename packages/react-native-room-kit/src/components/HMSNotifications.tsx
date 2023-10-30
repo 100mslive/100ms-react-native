@@ -7,7 +7,7 @@ import { HMSLocalScreenshareNotification } from './HMSLocalScreenshareNotificati
 import { HMSHandRaiseNotification } from './HMSHandRaiseNotification';
 import { HMSRoleChangeDeclinedNotification } from './HMSRoleChangeDeclinedNotification';
 import { NotificationTypes } from '../types';
-import { HMSExceptionNotification } from './HMSExceptionNotification';
+import { HMSTerminalErrorNotification } from './HMSTerminalErrorNotification';
 import { HMSNotification } from './HMSNotification';
 import { AlertTriangleIcon } from '../Icons';
 
@@ -116,14 +116,15 @@ export const HMSNotifications: React.FC<HMSNotificationsProps> = () => {
                 autoDismiss={atTop}
                 dismissDelay={10000}
               />
-            ) : notification.type === NotificationTypes.EXCEPTION &&
+            ) : notification.type === NotificationTypes.TERMINAL_ERROR &&
               'exception' in notification ? (
-              <HMSExceptionNotification
+              <HMSTerminalErrorNotification
                 id={notification.id}
                 exception={notification.exception}
                 autoDismiss={false}
               />
-            ) : 'message' in notification ? (
+            ) : notification.type === NotificationTypes.ERROR &&
+              'message' in notification ? (
               <HMSNotification
                 icon={<AlertTriangleIcon type="line" />}
                 id={notification.id}

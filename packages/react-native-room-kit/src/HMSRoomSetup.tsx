@@ -5,14 +5,7 @@ import {
   HMSUpdateListenerActions,
 } from '@100mslive/react-native-hms';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  Alert,
-  Keyboard,
-  Platform,
-  StatusBar,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { Alert, Keyboard, StatusBar, StyleSheet, View } from 'react-native';
 import Toast from 'react-native-simple-toast';
 import { batch, useDispatch, useSelector, useStore } from 'react-redux';
 
@@ -29,6 +22,7 @@ import {
   updateLocalPeerTrackNode,
 } from './redux/actions';
 import { createPeerTrackNode } from './utils/functions';
+import { OnLeaveReason, TerminalExceptionCodes } from './utils/types';
 import type { PeerTrackNode } from './utils/types';
 import { Meeting } from './components/Meeting';
 import {
@@ -74,6 +68,7 @@ export const HMSRoomSetup = () => {
   const dispatch = useDispatch();
   const reduxStore = useStore<RootState>();
   const { goToPreview } = useLeaveMethods(true);
+  const { leave, destroy } = useLeaveMethods(true);
 
   const { getConfig, clearConfig } = useHMSConfig();
   const meetingState = useSelector(
@@ -83,18 +78,52 @@ export const HMSRoomSetup = () => {
   const [loading, setLoading] = useState(false);
 
   const joinMeeting = useCallback(async () => {
-    setLoading(true);
-    Keyboard.dismiss();
-    const hmsConfig = await getConfig();
-    // TODO: handle case when promise returned from `getConfig()` is resolved when Root component has been unmounted
-    hmsInstance.join(hmsConfig);
+    try {
+      setLoading(true);
+      Keyboard.dismiss();
+      const hmsConfig = await getConfig();
+      // TODO: handle case when promise returned from `getConfig()` is resolved when Root component has been unmounted
+      hmsInstance.join(hmsConfig);
+    } catch (error: any) {
+      Alert.alert(
+        'Unable to get HMSConfig',
+        error.message,
+        [
+          {
+            text: 'Leave',
+            style: 'default',
+            onPress: () => {
+              leave(OnLeaveReason.NETWORK_ISSUES);
+            },
+          },
+        ],
+        { cancelable: false }
+      );
+    }
   }, [getConfig, hmsInstance]);
 
   const previewMeeting = useCallback(async () => {
-    setLoading(true);
-    const hmsConfig = await getConfig();
-    // TODO: handle case when promise returned from `getConfig()` is resolved when Root component has been unmounted
-    hmsInstance.preview(hmsConfig);
+    try {
+      setLoading(true);
+      const hmsConfig = await getConfig();
+      // TODO: handle case when promise returned from `getConfig()` is resolved when Root component has been unmounted
+      hmsInstance.preview(hmsConfig);
+    } catch (error: any) {
+      Alert.alert(
+        'Unable to get HMSConfig',
+        error.message,
+        [
+          {
+            text: 'Leave',
+            style: 'default',
+            onPress: () => {
+              destroy(OnLeaveReason.NETWORK_ISSUES);
+            },
+          },
+        ],
+        { cancelable: false }
+      );
+    }
   }, [getConfig, hmsInstance]);
 
   const startHLSStreaming = useCallback(async () => {
@@ -128,44 +157,58 @@ export const HMSRoomSetup = () => {
   useHMSSessionStore();
 
   const meetingJoined = meetingState === MeetingState.IN_MEETING;
+  const previewing = meetingState === MeetingState.IN_PREVIEW;
 
   // HMS Error Listener
   useEffect(() => {
     const hmsErrorHandler = (error: HMSException) => {
+      const terminalError =
+        error.isTerminal || TerminalExceptionCodes.includes(error.code);
+
       if (meetingJoined) {
-        dispatch(
-          addNotification({
-            id: Math.random().toString(16).slice(2),
-            exception: error,
-            type: NotificationTypes.EXCEPTION,
-          })
-        );
+        const uid = Math.random().toString(16).slice(2);
+        const notificationPayload = terminalError
+          ? {
+              id: uid,
+              type: NotificationTypes.TERMINAL_ERROR,
+              exception: error,
+            }
+          : {
+              id: uid,
+              type: NotificationTypes.ERROR,
+              message: error.description,
+            };
+
+        dispatch(addNotification(notificationPayload));
       } else {
         setLoading(false);
 
-        // TODO: 424 error is not recoverable
-        // (Leave Meeting and Destroy Instance) ???
-        // Inform user with Alert or Error screen and send user back
-        if (error.code === 424) {
-          Alert.alert('Error', error.description || 'Something went wrong', [
-            { text: 'OK', style: 'cancel', onPress: () => {} },
-          ]);
-        } else if (
-          Platform.OS === 'android'
-            ? error.code === 4005 || error.code === 1003
-            : error.code === 2000
-        ) {
-          // TODO: come up with Error Handle mechanism
-          // (Leave Meeting and Destroy Instance) ???
-          // Clear Redux Store?
-          // Inform user with Alert or Error screen and send user back (Navigation)
+        if (terminalError) {
+          Alert.alert(
+            error.code.toString(),
+            error.description || 'Something went wrong',
+            [
+              {
+                text: 'Leave',
+                style: 'default',
+                onPress: () => {
+                  if (previewing) {
+                    leave(OnLeaveReason.NETWORK_ISSUES);
+                  } else {
+                    destroy(OnLeaveReason.NETWORK_ISSUES);
+                  }
+                },
+              },
+            ],
+            { cancelable: false }
+          );
+        } else {
+          Toast.showWithGravity(
+            `${error?.code} ${error?.description}` || 'Something went wrong',
+            Toast.LONG,
+            Toast.TOP
+          );
         }
-
-        Toast.showWithGravity(
-          `${error?.code} ${error?.description}` || 'Something went wrong',
-          Toast.LONG,
-          Toast.TOP
-        );
       }
     };
 
@@ -177,7 +220,7 @@ export const HMSRoomSetup = () => {
     return () => {
       hmsInstance.removeEventListener(HMSUpdateListenerActions.ON_ERROR);
     };
-  }, [meetingJoined, hmsInstance]);
+  }, [previewing, meetingJoined, hmsInstance]);
 
   // HMS Preview Listener
   useEffect(() => {
@@ -344,12 +387,10 @@ export const HMSRoomSetup = () => {
     }
   }, [meetingEnded]);
 
-  const { leave } = useLeaveMethods(true);
-
   useEffect(() => {
     return () => {
       ignoreHLSStreamPromise.current = true;
-      leave();
+      leave(OnLeaveReason.LEAVE);
       dispatch(clearStore());
     };
   }, []);

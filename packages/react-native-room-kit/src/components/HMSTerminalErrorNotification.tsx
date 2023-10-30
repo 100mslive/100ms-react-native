@@ -5,23 +5,23 @@ import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 
 import { HMSNotification } from './HMSNotification';
 import { AlertTriangleIcon } from '../Icons';
-import { useHMSRoomStyleSheet, useModalType } from '../hooks-util';
+import { useHMSRoomStyleSheet, useLeaveMethods } from '../hooks-util';
 import { removeNotification } from '../redux/actions';
-import { ModalTypes } from '../utils/types';
+import { OnLeaveReason } from '../utils/types';
 import { COLORS } from '../utils/theme';
 
-export interface HMSExceptionNotificationProps {
+export interface HMSTerminalErrorNotificationProps {
   id: string;
   exception: HMSException;
   autoDismiss?: boolean;
   dismissDelay?: number;
 }
 
-export const HMSExceptionNotification: React.FC<
-  HMSExceptionNotificationProps
+export const HMSTerminalErrorNotification: React.FC<
+  HMSTerminalErrorNotificationProps
 > = ({ id, exception, autoDismiss, dismissDelay }) => {
   const dispatch = useDispatch();
-  const { handleModalVisibleType } = useModalType();
+  const { leave } = useLeaveMethods(false);
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     button: {
@@ -35,8 +35,9 @@ export const HMSExceptionNotification: React.FC<
 
   const dismissNotification = () => dispatch(removeNotification(id));
 
-  const handleLeaveRoomPress = () =>
-    handleModalVisibleType(ModalTypes.LEAVE_ROOM);
+  const handleLeaveRoomPress = () => {
+    leave(OnLeaveReason.NETWORK_ISSUES);
+  };
 
   return (
     <HMSNotification
@@ -45,18 +46,16 @@ export const HMSExceptionNotification: React.FC<
       text={exception.description || 'Something went wrong!'}
       dismissDelay={dismissDelay}
       autoDismiss={autoDismiss}
-      cta={
-        exception.isTerminal ? (
-          <TouchableOpacity
-            style={[styles.button, hmsRoomStyles.button]}
-            onPress={handleLeaveRoomPress}
-          >
-            <Text style={[styles.buttonText, hmsRoomStyles.buttonText]}>
-              Leave
-            </Text>
-          </TouchableOpacity>
-        ) : undefined
-      }
+      cta={(
+        <TouchableOpacity
+          style={[styles.button, hmsRoomStyles.button]}
+          onPress={handleLeaveRoomPress}
+        >
+          <Text style={[styles.buttonText, hmsRoomStyles.buttonText]}>
+            Leave
+          </Text>
+        </TouchableOpacity>
+      )}
       onDismiss={dismissNotification}
     />
   );
