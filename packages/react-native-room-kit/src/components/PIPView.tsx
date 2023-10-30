@@ -5,6 +5,7 @@ import { View } from 'react-native';
 import type { PeerTrackNode } from '../utils/types';
 import { PeerVideoTileView } from './PeerVideoTile/PeerVideoTileView';
 import type { RootState } from '../redux';
+import { COLORS } from '../utils/theme';
 
 type PIPViewProps = {
   peerTrackNodes: PeerTrackNode[];
@@ -44,48 +45,19 @@ const PIPPeerTiles: React.FC<PIPPeerTilesProps> = ({ peerTrackNodes }) => {
       .map((speaker) => speaker.peer.peerID);
   }, shallowEqual);
 
-  if (dominantSpeakerIds.length > 0) {
+  if (
+    dominantSpeakerIds.length > 0 &&
+    anyNewDominantSpeaker(memoDominantSpeakerIdsRef.current, dominantSpeakerIds)
+  ) {
     memoDominantSpeakerIdsRef.current = dominantSpeakerIds;
   }
 
-  const [preferredPeerTrackNodes, setPreferredPeerTrackNodes] = React.useState<
-    PeerTrackNode[]
-  >([]);
-
-  React.useEffect(() => {
-    setPreferredPeerTrackNodes((prevNodes) => {
-      if (peerTrackNodes.length <= 3) {
-        return peerTrackNodes;
-      }
-
-      const allSpeakersArePresent =
-        memoDominantSpeakerIdsRef.current.length === 0 ||
-        memoDominantSpeakerIdsRef.current.every(
-          (speakerId) =>
-            prevNodes.findIndex(
-              (prevNode) => prevNode.peer.peerID === speakerId
-            ) >= 0
-        );
-
-      if (prevNodes.length === 3 && allSpeakersArePresent) {
-        return prevNodes;
-      }
-
-      const dominantSpeakers = getDominantSpeakers(
-        memoDominantSpeakerIdsRef.current,
-        peerTrackNodes
-      );
-
-      return [
-        ...dominantSpeakers,
-        ...peerTrackNodes.slice(0, 3 - dominantSpeakers.length),
-      ];
-    });
-  }, [
-    memoDominantSpeakerIdsRef.current,
-    peerTrackNodes,
-    setPreferredPeerTrackNodes,
-  ]);
+  const preferredPeerTrackNodes = React.useMemo(() => {
+    return getDominantSpeakers(
+      memoDominantSpeakerIdsRef.current,
+      peerTrackNodes
+    );
+  }, [memoDominantSpeakerIdsRef.current, peerTrackNodes]);
 
   if (preferredPeerTrackNodes.length === 0) {
     return null;
@@ -96,7 +68,7 @@ const PIPPeerTiles: React.FC<PIPPeerTilesProps> = ({ peerTrackNodes }) => {
       style={{
         flex: 1,
         flexDirection: 'row',
-        backgroundColor: 'red',
+        backgroundColor: COLORS.BLACK,
       }}
     >
       {preferredPeerTrackNodes.map((node, index, arr) => {
@@ -104,28 +76,50 @@ const PIPPeerTiles: React.FC<PIPPeerTilesProps> = ({ peerTrackNodes }) => {
         const dividerWidth = arr.length > 2 ? 4 : 5;
 
         return (
-          <>
-            {isFirst ? null : <View style={{ height: '100%', width: dividerWidth }} />}
+          <React.Fragment key={node.id}>
+            {isFirst ? null : (
+              <View style={{ height: '100%', width: dividerWidth }} />
+            )}
 
             <View style={{ flex: 1 }}>
-              <PeerVideoTileView key={node.id} peerTrackNode={node} />
+              <PeerVideoTileView peerTrackNode={node} />
             </View>
-          </>
+          </React.Fragment>
         );
       })}
     </View>
   );
 };
 
+function anyNewDominantSpeaker(
+  oldSpeakers: string[],
+  newSpeakers: string[]
+): boolean {
+  if (newSpeakers.length !== oldSpeakers.length) {
+    return true;
+  }
+
+  const uniques = new Set([...oldSpeakers, ...newSpeakers]);
+
+  return uniques.size > oldSpeakers.length;
+}
+
 function getDominantSpeakers(
   dominantSpeakerIds: string[],
   peerTrackNodes: PeerTrackNode[]
 ): PeerTrackNode[] {
-  let dominantSpeakerIdsCopy = dominantSpeakerIds.slice();
-  const list: PeerTrackNode[] = [];
+  if (peerTrackNodes.length <= 3) {
+    return peerTrackNodes;
+  }
 
-  for (const peerTrackNode of peerTrackNodes) {
-    if (dominantSpeakerIdsCopy.length <= 0) {
+  const list = peerTrackNodes.slice(0, 3);
+
+  let dominantSpeakerIdsCopy = dominantSpeakerIds.slice();
+
+  for (let i = 3; i < peerTrackNodes.length; i++) {
+    const peerTrackNode = peerTrackNodes[i];
+
+    if (dominantSpeakerIdsCopy.length <= 0 || !peerTrackNode) {
       break;
     }
 
@@ -133,8 +127,12 @@ function getDominantSpeakers(
       dominantSpeakerIdsCopy = dominantSpeakerIdsCopy.filter(
         (speakerId) => speakerId !== peerTrackNode.peer.peerID
       );
-      list.push(peerTrackNode);
+      list.unshift(peerTrackNode);
     }
+  }
+
+  if (list.length > 3) {
+    list.length = 3;
   }
 
   return list;

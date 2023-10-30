@@ -93,9 +93,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   insetAvatar: {
-    width: 64,
+    width: 44,
     aspectRatio: 1,
-    borderRadius: 44,
+    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -109,8 +109,8 @@ const styles = StyleSheet.create({
     letterSpacing: 0.25,
   },
   insetText: {
-    fontSize: 24,
-    lineHeight: 32,
+    fontSize: 18,
+    lineHeight: 24,
   },
 });
 
