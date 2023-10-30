@@ -9,8 +9,22 @@ import type {
   HMSHLSPlayerStatsUpdateEventData,
 } from '../types';
 
-export type HMSStore = HMSHLSPlayerPlaybackSlice;
+export type HMSStore = HMSHLSPlayerPlaybackSlice & HMSViewsSlice;
 export type HMSHLSPlayerStatsStore = HMSHLSPlayerStatsSlice;
+
+// HMSViews Slice
+
+export type TrackId = string;
+
+export type Resolution = {
+  width: number;
+  height: number;
+};
+
+export interface HMSViewsSlice {
+  hmsviewsResolutions: Record<TrackId, Resolution | undefined>;
+  setHmsviewsResolutions(trackId: TrackId, resolution: Resolution): void;
+};
 
 // HLS Player Playback Slice
 

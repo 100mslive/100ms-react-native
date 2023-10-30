@@ -18,6 +18,8 @@ import {
   HMSTrackUpdate,
   HMSUpdateListenerActions,
   HMSMessageRecipient,
+  useHMSHLSPlayerResolution,
+  useHmsViewsResolutionsState,
   // useHMSPeerUpdates,
 } from '@100mslive/react-native-hms';
 import type { Chat as ChatConfig } from '@100mslive/types-prebuilt/elements/chat';
@@ -1252,12 +1254,21 @@ export const useHMSReconnection = () => {
 
     hmsInstance.addEventListener(HMSUpdateListenerActions.RECONNECTING, () => {
       if (mounted) {
-        dispatch(setReconnecting(true));
+        batch(() => {
+          dispatch(setReconnecting(true));
+          dispatch(addNotification({
+            id: NotificationTypes.RECONNECTING,
+            type: NotificationTypes.RECONNECTING
+          }))
+        });
       }
     });
     hmsInstance.addEventListener(HMSUpdateListenerActions.RECONNECTED, () => {
       if (mounted) {
-        dispatch(setReconnecting(false));
+        batch(() => {
+          dispatch(setReconnecting(false));
+          dispatch(removeNotification(NotificationTypes.RECONNECTING));
+        })
       }
     });
 
@@ -1271,7 +1282,7 @@ export const useHMSReconnection = () => {
 
 export const useHMSPIPRoomLeave = () => {
   const hmsInstance = useHMSInstance();
-  const { destroy } = useLeaveMethods(true);
+  const { destroy } = useLeaveMethods();
 
   useEffect(() => {
     const pipRoomLeaveHandler = () => {
@@ -1291,7 +1302,7 @@ export const useHMSPIPRoomLeave = () => {
 
 export const useHMSRemovedFromRoomUpdate = () => {
   const hmsInstance = useHMSInstance();
-  const { destroy } = useLeaveMethods(true);
+  const { destroy } = useLeaveMethods();
 
   useEffect(() => {
     const removedFromRoomHandler = (data: {
@@ -1383,9 +1394,12 @@ export type PIPConfig = Omit<HMSPIPConfig, 'autoEnterPipMode'>;
 export const useEnableAutoPip = () => {
   const hmsInstance = useHMSInstance();
 
-  const enableAutoPip = useCallback((data?: PIPConfig) => {
-    hmsInstance.setPipParams({ ...data, autoEnterPipMode: true });
-  }, [hmsInstance]);
+  const enableAutoPip = useCallback(
+    (data?: PIPConfig) => {
+      hmsInstance.setPipParams({ ...data, autoEnterPipMode: true });
+    },
+    [hmsInstance]
+  );
 
   return enableAutoPip;
 };
@@ -1393,30 +1407,74 @@ export const useEnableAutoPip = () => {
 export const useDisableAutoPip = () => {
   const hmsInstance = useHMSInstance();
 
-  const disableAutoPip = useCallback((data?: PIPConfig) => {
-    hmsInstance.setPipParams({ ...data, autoEnterPipMode: false });
-  }, [hmsInstance]);
+  const disableAutoPip = useCallback(
+    (data?: PIPConfig) => {
+      hmsInstance.setPipParams({ ...data, autoEnterPipMode: false });
+    },
+    [hmsInstance]
+  );
 
   return disableAutoPip;
 };
 
-export const useAutoPip = () => {
+export const useAutoPip = (oneToOneCall: boolean) => {
   const enableAutoPip = useEnableAutoPip();
   const disableAutoPip = useDisableAutoPip();
-  const isHLSViewer = useIsHLSViewer();
 
   const autoEnterPipMode = useSelector(
     (state: RootState) => state.app.autoEnterPipMode
   );
+  const [numerator, denominator] = usePipAspectRatio(oneToOneCall);
 
   useEffect(() => {
     if (autoEnterPipMode) {
-      enableAutoPip({ aspectRatio: isHLSViewer ? [9, 16] : [16, 9] });
+      enableAutoPip({ aspectRatio: [numerator, denominator] });
 
       return disableAutoPip;
     }
-  }, [autoEnterPipMode, isHLSViewer, enableAutoPip, disableAutoPip]);
+  }, [
+    numerator,
+    denominator,
+    autoEnterPipMode,
+    enableAutoPip,
+    disableAutoPip,
+  ]);
 };
+
+export const usePipAspectRatio = (oneToOneCall: boolean): [number, number] => {
+  const isHLSViewer = useIsHLSViewer();
+  const hlsPlayerResolution = useHMSHLSPlayerResolution();
+
+  const firstSSNodeId = useSelector((state: RootState) => {
+    const ssPeerTrackNode = state.app.screensharePeerTrackNodes[0];
+    return ssPeerTrackNode?.track?.trackId;
+  });
+
+  const ssResolution = useHmsViewsResolutionsState(firstSSNodeId);
+
+  const aspectRatio = useMemo((): [number, number] => {
+    // When user is hlsviewer and we have stream resolution
+    if (isHLSViewer && hlsPlayerResolution) {
+      return [hlsPlayerResolution.width, hlsPlayerResolution.height];
+    }
+    // When user is hlsviewer and we don't have stream resolution
+    if (isHLSViewer) {
+      return [9, 16];
+    }
+    // When we have screenshare resolution, use it
+    if (ssResolution) {
+      return [ssResolution.width, ssResolution.height];
+    }
+    // When there is no screenshare and one-to-one call is happening
+    if (!firstSSNodeId && oneToOneCall) {
+      return [9, 16];
+    }
+    // default aspect ratio
+    return [16, 9];
+  }, [isHLSViewer, firstSSNodeId, oneToOneCall, ssResolution, hlsPlayerResolution]);
+
+  return aspectRatio;
+}
 
 export const useHMSActiveSpeakerUpdates = (
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>,
@@ -1943,7 +2001,7 @@ export const useShouldGoLive = () => {
   return shouldGoLive;
 };
 
-export const useLeaveMethods = (isUnmounted: boolean) => {
+export const useLeaveMethods = () => {
   const navigation = useContext(NavigationContext);
   const hmsInstance = useHMSInstance();
   const dispatch = useDispatch();
@@ -1978,7 +2036,11 @@ export const useLeaveMethods = (isUnmounted: boolean) => {
       if (typeof onLeave === 'function') {
         onLeave(reason);
         dispatch(clearStore());
-      } else if (navigation && navigation.canGoBack() && !isUnmounted) {
+      } else if (
+        navigation &&
+        typeof navigation.canGoBack === 'function' &&
+        navigation.canGoBack()
+      ) {
         navigation.goBack();
         dispatch(clearStore());
       } else {
@@ -2016,14 +2078,14 @@ export const useLeaveMethods = (isUnmounted: boolean) => {
     [destroy, hmsInstance]
   );
 
-  const goToPreview = useCallback(async () => {
+  const prebuiltCleanUp = useCallback(async () => {
     try {
       await hmsInstance.leave();
       await hmsInstance.destroy();
       dispatch(clearStore());
     } catch (error) {
       Toast.showWithGravity(
-        `Unable to go to Preview: ${error}`,
+        `Unable to leave or destroy: ${error}`,
         Toast.LONG,
         Toast.TOP
       );
@@ -2040,7 +2102,7 @@ export const useLeaveMethods = (isUnmounted: boolean) => {
     }
   }, [destroy, hmsInstance]);
 
-  return { destroy, leave, endRoom, goToPreview };
+  return { destroy, leave, endRoom, prebuiltCleanUp };
 };
 
 // Returns layout config as it is returned from server
@@ -2281,7 +2343,10 @@ export const useBackButtonPress = () => {
         if (typeof subscription.remove === 'function') {
           subscription.remove();
         } else {
-          BackHandler.removeEventListener('hardwareBackPress', backPressHandler);
+          BackHandler.removeEventListener(
+            'hardwareBackPress',
+            backPressHandler
+          );
         }
       };
     }
@@ -2292,7 +2357,8 @@ export const useSavePropsToStore = (
   props: HMSPrebuiltProps,
   dispatch: AppDispatch
 ) => {
-  const { roomCode, options, onLeave, handleBackButton, autoEnterPipMode } = props;
+  const { roomCode, options, onLeave, handleBackButton, autoEnterPipMode } =
+    props;
 
   useEffect(() => {
     dispatch(setPrebuiltData({ roomCode, options }));
@@ -2322,20 +2388,18 @@ export const useStartRecording = () => {
   const startRecording = useCallback(() => {
     dispatch(setStartingOrStoppingRecording(true));
 
-    hmsInstance
-      .startRTMPOrRecording({ record: true })
-      .catch((error) => {
-        batch(() => {
-          dispatch(setStartingOrStoppingRecording(false));
-          dispatch(
-            addNotification({
-              id: Math.random().toString(16).slice(2),
-              type: NotificationTypes.ERROR,
-              message: error.message
-            })
-          );
-        });
+    hmsInstance.startRTMPOrRecording({ record: true }).catch((error) => {
+      batch(() => {
+        dispatch(setStartingOrStoppingRecording(false));
+        dispatch(
+          addNotification({
+            id: Math.random().toString(16).slice(2),
+            type: NotificationTypes.ERROR,
+            message: error.message
+          })
+        );
       });
+    });
   }, [hmsInstance]);
 
   return {

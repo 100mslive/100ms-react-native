@@ -1,12 +1,10 @@
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
 import type { HMSException } from '@100mslive/react-native-hms';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 
 import { HMSNotification } from './HMSNotification';
 import { AlertTriangleIcon } from '../Icons';
 import { useHMSRoomStyleSheet, useLeaveMethods } from '../hooks-util';
-import { removeNotification } from '../redux/actions';
 import { OnLeaveReason } from '../utils/types';
 import { COLORS } from '../utils/theme';
 
@@ -20,8 +18,7 @@ export interface HMSTerminalErrorNotificationProps {
 export const HMSTerminalErrorNotification: React.FC<
   HMSTerminalErrorNotificationProps
 > = ({ id, exception, autoDismiss, dismissDelay }) => {
-  const dispatch = useDispatch();
-  const { leave } = useLeaveMethods(false);
+  const { leave } = useLeaveMethods();
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     button: {
@@ -32,8 +29,6 @@ export const HMSTerminalErrorNotification: React.FC<
       fontFamily: `${typography.font_family}-SemiBold`,
     },
   }));
-
-  const dismissNotification = () => dispatch(removeNotification(id));
 
   const handleLeaveRoomPress = () => {
     leave(OnLeaveReason.NETWORK_ISSUES);
@@ -56,7 +51,6 @@ export const HMSTerminalErrorNotification: React.FC<
           </Text>
         </TouchableOpacity>
       )}
-      onDismiss={dismissNotification}
     />
   );
 };

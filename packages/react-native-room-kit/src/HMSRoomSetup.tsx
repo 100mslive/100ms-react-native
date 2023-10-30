@@ -14,7 +14,6 @@ import {
   addNotification,
   changeMeetingState,
   changeStartingHLSStream,
-  clearStore,
   setHMSLocalPeerState,
   setHMSRoomState,
   setLocalPeerTrackNode,
@@ -67,8 +66,7 @@ export const HMSRoomSetup = () => {
   const hmsInstance = useHMSInstance();
   const dispatch = useDispatch();
   const reduxStore = useStore<RootState>();
-  const { goToPreview } = useLeaveMethods(true);
-  const { leave, destroy } = useLeaveMethods(true);
+  const { leave, destroy, prebuiltCleanUp } = useLeaveMethods();
 
   const { getConfig, clearConfig } = useHMSConfig();
   const meetingState = useSelector(
@@ -86,14 +84,14 @@ export const HMSRoomSetup = () => {
       hmsInstance.join(hmsConfig);
     } catch (error: any) {
       Alert.alert(
-        'Unable to get HMSConfig',
+        error.code,
         error.message,
         [
           {
             text: 'Leave',
-            style: 'default',
+            style: 'destructive',
             onPress: () => {
-              leave(OnLeaveReason.NETWORK_ISSUES);
+              leave(OnLeaveReason.LEAVE);
             },
           },
         ],
@@ -110,14 +108,14 @@ export const HMSRoomSetup = () => {
       hmsInstance.preview(hmsConfig);
     } catch (error: any) {
       Alert.alert(
-        'Unable to get HMSConfig',
+        error.code,
         error.message,
         [
           {
             text: 'Leave',
-            style: 'default',
+            style: 'destructive',
             onPress: () => {
-              destroy(OnLeaveReason.NETWORK_ISSUES);
+              destroy(OnLeaveReason.LEAVE);
             },
           },
         ],
@@ -135,10 +133,13 @@ export const HMSRoomSetup = () => {
       console.log('Start HLS Streaming Error: ', e);
       if (!ignoreHLSStreamPromise.current) {
         console.log('Unable to go live at the moment: ', e);
-        // goToPreview();
+        // prebuiltCleanUp();
       }
     }
-  }, [goToPreview, hmsInstance]);
+  }, [
+    // prebuiltCleanUp,
+    hmsInstance
+  ]);
 
   // HMS Room, Peers, Track Listeners
   useHMSListeners(setPeerTrackNodes);
@@ -190,7 +191,7 @@ export const HMSRoomSetup = () => {
             [
               {
                 text: 'Leave',
-                style: 'default',
+                style: 'destructive',
                 onPress: () => {
                   if (previewing) {
                     leave(OnLeaveReason.NETWORK_ISSUES);
@@ -390,8 +391,7 @@ export const HMSRoomSetup = () => {
   useEffect(() => {
     return () => {
       ignoreHLSStreamPromise.current = true;
-      leave(OnLeaveReason.LEAVE);
-      dispatch(clearStore());
+      prebuiltCleanUp();
     };
   }, []);
 

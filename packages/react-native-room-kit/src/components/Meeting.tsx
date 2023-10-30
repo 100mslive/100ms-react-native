@@ -56,7 +56,7 @@ export const Meeting: React.FC<MeetingProps> = ({ peerTrackNodes }) => {
   // Subscribe to Peers Network quality updates
   useHMSNetworkQualityUpdate();
 
-  useAutoPip();
+  useAutoPip(peerTrackNodes.length === 1);
 
   // Handle Back button press and show leave room modal
   useBackButtonPress();
