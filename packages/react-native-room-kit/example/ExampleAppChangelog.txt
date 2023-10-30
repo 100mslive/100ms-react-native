@@ -11,15 +11,7 @@ https://100ms.atlassian.net/browse/RN-104
 
 - Added support for using react-native-animated library version 3.x.x
 
-Known Issues:
-
-- Not getting `PEER_LEFT` update even for broadcaster, only getting `ON_PEER_LIST_UPDATED` event
-https://100ms.atlassian.net/browse/AN-1107
-
-- Not getting Peer obejct in `peerListIterator` next call, while using peerID as filter
-https://100ms.atlassian.net/browse/IOS-764
-
 Room Kit: 1.0.1
 React Native SDK: 1.9.0
-Android SDK: 2.7.7
+Android SDK: 2.7.9
 iOS SDK: 1.1.0
