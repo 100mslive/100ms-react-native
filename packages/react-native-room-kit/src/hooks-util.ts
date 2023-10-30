@@ -1254,12 +1254,21 @@ export const useHMSReconnection = () => {
 
     hmsInstance.addEventListener(HMSUpdateListenerActions.RECONNECTING, () => {
       if (mounted) {
-        dispatch(setReconnecting(true));
+        batch(() => {
+          dispatch(setReconnecting(true));
+          dispatch(addNotification({
+            id: NotificationTypes.RECONNECTING,
+            type: NotificationTypes.RECONNECTING
+          }))
+        });
       }
     });
     hmsInstance.addEventListener(HMSUpdateListenerActions.RECONNECTED, () => {
       if (mounted) {
-        dispatch(setReconnecting(false));
+        batch(() => {
+          dispatch(setReconnecting(false));
+          dispatch(removeNotification(NotificationTypes.RECONNECTING));
+        })
       }
     });
 

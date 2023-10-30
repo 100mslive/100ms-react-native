@@ -191,7 +191,7 @@ export const HMSRoomSetup = () => {
             [
               {
                 text: 'Leave',
-                style: 'default',
+                style: 'destructive',
                 onPress: () => {
                   if (previewing) {
                     leave(OnLeaveReason.NETWORK_ISSUES);

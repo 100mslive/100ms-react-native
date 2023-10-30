@@ -10,6 +10,7 @@ import { NotificationTypes } from '../types';
 import { HMSTerminalErrorNotification } from './HMSTerminalErrorNotification';
 import { HMSNotification } from './HMSNotification';
 import { AlertTriangleIcon } from '../Icons';
+import { HMSReconnectingNotification } from './HMSReconnectingNotification';
 
 export interface HMSNotificationsProps {}
 
@@ -100,6 +101,8 @@ export const HMSNotifications: React.FC<HMSNotificationsProps> = () => {
           >
             {notification.type === NotificationTypes.LOCAL_SCREENSHARE ? (
               <HMSLocalScreenshareNotification />
+            ) : notification.type === NotificationTypes.RECONNECTING ? (
+              <HMSReconnectingNotification />
             ) : notification.type === NotificationTypes.HAND_RAISE &&
               'peer' in notification ? (
               <HMSHandRaiseNotification
