@@ -210,8 +210,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         DispatchQueue.main.async { [weak self] in
             self?.hms?.getAuthTokenByRoomCode(roomCode, userID: userId) { token, error in
                 // error occurred
-                if error != nil {
-                    reject?(error?.localizedDescription, error?.localizedDescription, nil)
+                if let error = error as? NSError {
+                    reject?(String(error.code), error.localizedDescription, nil)
                     return
                 }
                 // no error and token is valid

@@ -57,7 +57,7 @@ export const LeaveRoomBottomSheet: React.FC<LeaveRoomBottomSheetProps> = () => {
 
   const { modalVisibleType, handleModalVisibleType } = useModalType();
 
-  const { leave } = useLeaveMethods(false);
+  const { leave } = useLeaveMethods();
 
   /**
    * Closes the Leave Popup Menu

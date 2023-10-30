@@ -1273,7 +1273,7 @@ export const useHMSReconnection = () => {
 
 export const useHMSPIPRoomLeave = () => {
   const hmsInstance = useHMSInstance();
-  const { destroy } = useLeaveMethods(true);
+  const { destroy } = useLeaveMethods();
 
   useEffect(() => {
     const pipRoomLeaveHandler = () => {
@@ -1293,7 +1293,7 @@ export const useHMSPIPRoomLeave = () => {
 
 export const useHMSRemovedFromRoomUpdate = () => {
   const hmsInstance = useHMSInstance();
-  const { destroy } = useLeaveMethods(true);
+  const { destroy } = useLeaveMethods();
 
   useEffect(() => {
     const removedFromRoomHandler = (data: {
@@ -1992,7 +1992,7 @@ export const useShouldGoLive = () => {
   return shouldGoLive;
 };
 
-export const useLeaveMethods = (isUnmounted: boolean) => {
+export const useLeaveMethods = () => {
   const navigation = useContext(NavigationContext);
   const hmsInstance = useHMSInstance();
   const dispatch = useDispatch();
@@ -2027,7 +2027,11 @@ export const useLeaveMethods = (isUnmounted: boolean) => {
       if (typeof onLeave === 'function') {
         onLeave(reason);
         dispatch(clearStore());
-      } else if (navigation && navigation.canGoBack() && !isUnmounted) {
+      } else if (
+        navigation &&
+        typeof navigation.canGoBack === 'function' &&
+        navigation.canGoBack()
+      ) {
         navigation.goBack();
         dispatch(clearStore());
       } else {
@@ -2065,14 +2069,14 @@ export const useLeaveMethods = (isUnmounted: boolean) => {
     [destroy, hmsInstance]
   );
 
-  const goToPreview = useCallback(async () => {
+  const prebuiltCleanUp = useCallback(async () => {
     try {
       await hmsInstance.leave();
       await hmsInstance.destroy();
       dispatch(clearStore());
     } catch (error) {
       Toast.showWithGravity(
-        `Unable to go to Preview: ${error}`,
+        `Unable to leave or destroy: ${error}`,
         Toast.LONG,
         Toast.TOP
       );
@@ -2089,7 +2093,7 @@ export const useLeaveMethods = (isUnmounted: boolean) => {
     }
   }, [destroy, hmsInstance]);
 
-  return { destroy, leave, endRoom, goToPreview };
+  return { destroy, leave, endRoom, prebuiltCleanUp };
 };
 
 // Returns layout config as it is returned from server

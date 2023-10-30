@@ -15,7 +15,7 @@ export interface EndRoomModalContentProps {
 export const EndRoomModalContent: React.FC<EndRoomModalContentProps> = ({
   dismissModal,
 }) => {
-  const { endRoom, leave } = useLeaveMethods(false);
+  const { endRoom, leave } = useLeaveMethods();
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     headerText: {

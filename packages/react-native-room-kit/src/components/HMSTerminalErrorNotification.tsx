@@ -21,7 +21,7 @@ export const HMSTerminalErrorNotification: React.FC<
   HMSTerminalErrorNotificationProps
 > = ({ id, exception, autoDismiss, dismissDelay }) => {
   const dispatch = useDispatch();
-  const { leave } = useLeaveMethods(false);
+  const { leave } = useLeaveMethods();
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     button: {
