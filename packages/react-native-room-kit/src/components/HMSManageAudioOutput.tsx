@@ -30,6 +30,7 @@ import {
 } from '../hooks-util';
 import type { RootState } from '../redux';
 import { BottomSheet } from './BottomSheet';
+import { TestIds } from '../utils/constants';
 
 export const HMSManageAudioOutput: React.FC = () => {
   const hmsInstance = useHMSInstance();
@@ -141,6 +142,7 @@ export const HMSManageAudioOutput: React.FC = () => {
   return (
     <View>
       <PressableIcon
+        testID={TestIds.manage_audio_output}
         onPress={handleSpeakerChange}
         style={isHLSViewer ? styles.button : null}
       >

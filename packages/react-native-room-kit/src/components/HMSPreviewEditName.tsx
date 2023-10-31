@@ -5,6 +5,7 @@ import type { RootState } from '../redux';
 import { changeUsername } from '../redux/actions';
 import { useHMSConfig } from '../hooks-util';
 import { HMSTextInput } from './HMSTextInput';
+import { TestIds } from '../utils/constants';
 
 export interface HMSPreviewEditNameProps {}
 
@@ -18,5 +19,5 @@ export const HMSPreviewEditName: React.FC<HMSPreviewEditNameProps> = () => {
     updateConfig({ username: name });
   };
 
-  return <HMSTextInput value={userName} onChangeText={handleNameChange} />;
+  return <HMSTextInput testID={TestIds.enter_name} value={userName} onChangeText={handleNameChange} />;
 };

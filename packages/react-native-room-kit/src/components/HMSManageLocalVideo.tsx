@@ -5,6 +5,7 @@ import type { RootState } from '../redux';
 import { useCanPublishVideo, useHMSActions } from '../hooks-sdk';
 import { PressableIcon } from './PressableIcon';
 import { CameraIcon } from '../Icons';
+import { TestIds } from '../utils/constants';
 
 export const HMSManageLocalVideo = () => {
   const canPublishVideo = useCanPublishVideo();
@@ -31,6 +32,7 @@ const ToggleVideoMuteButton = () => {
 
   return (
     <PressableIcon
+      testID={TestIds.camera}
       onPress={handleVideoMuteTogglePress}
       active={isLocalVideoMuted}
     >

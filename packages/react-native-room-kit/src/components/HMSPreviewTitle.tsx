@@ -2,6 +2,7 @@ import * as React from 'react';
 import { StyleSheet, Text } from 'react-native';
 
 import { useHMSLayoutConfig, useHMSRoomStyle } from '../hooks-util';
+import { TestIds } from '../utils/constants';
 
 export interface HMSPreviewTitleProps {
   title?: string;
@@ -22,7 +23,7 @@ export const HMSPreviewTitle: React.FC<HMSPreviewTitleProps> = ({
     fontFamily: `${typography.font_family}-SemiBold`,
   }));
 
-  return <Text style={[styles.title, titleStyles]}>{hmsRoomPreviewTitle}</Text>;
+  return <Text testID={TestIds.title} style={[styles.title, titleStyles]}>{hmsRoomPreviewTitle}</Text>;
 };
 
 const styles = StyleSheet.create({
