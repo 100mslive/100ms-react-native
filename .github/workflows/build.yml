@@ -66,4 +66,4 @@ jobs:
       - name: Generate App APK
         run: |
           cd packages/react-native-room-kit/example/android
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --no-daemon
