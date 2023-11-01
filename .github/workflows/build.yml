@@ -36,7 +36,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses:  actions/checkout@v4
+        uses: actions/checkout@v4
 
       - name: Trunk Check
         uses: trunk-io/trunk-action@v1
@@ -66,4 +66,4 @@ jobs:
       - name: Generate App APK
         run: |
           cd packages/react-native-room-kit/example/android
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleDebug
