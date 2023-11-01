@@ -27,6 +27,20 @@ on:
       - "**.txt"
 
 jobs:
+  check_lint_errors:
+    name: Trunk Check Runner
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses:  actions/checkout@v4
+
+      - name: Trunk Check
+        uses: trunk-io/trunk-action@v1
+
   build_apk:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
@@ -34,7 +48,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - uses: actions/setup-java@v3
         with:
           distribution: zulu
