@@ -40,6 +40,8 @@ jobs:
 
       - name: Trunk Check
         uses: trunk-io/trunk-action@v1
+        with:
+          post-annotations: true
 
   build_apk:
     name: Build APK
