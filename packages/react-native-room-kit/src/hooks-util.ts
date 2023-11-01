@@ -1946,8 +1946,9 @@ export const useFilteredParticipants = (filterText: string) => {
         t.push({
           id: role.name!,
           label: `${role.name!} (${
-            typeof offStageRoleTotalCount === 'number'
-              ? offStageRoleTotalCount
+            typeof offStageRoleTotalCount === 'number' &&
+            offStageRoleTotalCount > filteredList.length
+              ? offStageRoleTotalCount // only use `offStageRoleTotalCount` when it is number and more than list length
               : filteredList.length
           })`,
           showViewAll:
