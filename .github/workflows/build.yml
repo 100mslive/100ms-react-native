@@ -9,7 +9,6 @@ on:
   push:
     branches:
       - main
-      - develop
   pull_request:
     types:
       - opened
@@ -30,6 +29,7 @@ jobs:
   check_lint_errors:
     name: Trunk Check Runner
     runs-on: ubuntu-latest
+    # trunk-ignore(checkov/CKV2_GHA_1)
     permissions:
       checks: write
       contents: read
@@ -42,6 +42,7 @@ jobs:
         uses: trunk-io/trunk-action@v1
 
   build_apk:
+    name: Build APK
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 30
