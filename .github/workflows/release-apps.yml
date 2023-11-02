@@ -39,6 +39,7 @@ jobs:
           java-version: 11.x
       - name: Setup Fastlane
         env:
+          REACT_NATIVE_HMS_JSON: ${{ secrets.REACT_NATIVE_HMS_JSON }}
           ANDROID_APPFILE: ${{ secrets.ANDROID_APPFILE }}
           ANDROID_FASTFILE: ${{ secrets.ANDROID_FASTFILE }}
           ANDROID_PLUGINFILE: ${{ secrets.ANDROID_PLUGINFILE }}
@@ -47,6 +48,9 @@ jobs:
           IOS_PLUGINFILE: ${{ secrets.IOS_PLUGINFILE }}
         run: |
           cd packages/react-native-room-kit/example/android
+
+          echo $REACT_NATIVE_HMS_JSON > reactnative-hms-a32ef61302c5.json
+
           mkdir fastlane
           cd fastlane
 
@@ -57,6 +61,8 @@ jobs:
           ls -la
 
           cd ../../ios
+          echo $REACT_NATIVE_HMS_JSON > reactnative-hms-a32ef61302c5.json
+
           pwd
           mkdir fastlane
           cd fastlane
