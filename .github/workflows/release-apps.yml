@@ -44,9 +44,6 @@ jobs:
       - name: Setup Fastlane
         env:
           REACT_NATIVE_HMS_JSON: ${{ secrets.REACT_NATIVE_HMS_JSON }}
-          ANDROID_APPFILE: ${{ secrets.ANDROID_APPFILE }}
-          ANDROID_FASTFILE: ${{ secrets.ANDROID_FASTFILE }}
-          ANDROID_PLUGINFILE: ${{ secrets.ANDROID_PLUGINFILE }}
           IOS_APPFILE: ${{ secrets.IOS_APPFILE }}
           IOS_FASTFILE: ${{ secrets.IOS_FASTFILE }}
           IOS_PLUGINFILE: ${{ secrets.IOS_PLUGINFILE }}
@@ -58,9 +55,6 @@ jobs:
           mkdir fastlane
           cd fastlane
 
-          echo $ANDROID_APPFILE > Appfile
-          echo $ANDROID_FASTFILE > Fastfile
-          echo $ANDROID_PLUGINFILE > Pluginfile
           pwd
           ls -la
 
