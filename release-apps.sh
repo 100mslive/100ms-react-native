@@ -25,13 +25,14 @@ release_android() {
 }
 
 release_iOS() {
-  cd ./ios
+  pwd
+  # cd ./ios
 
-  pod install --verbose
+  # pod install --verbose
 
-  bundle install --verbose
+  # bundle install --verbose
 
-  bundle exec fastlane distribute_app
+  # bundle exec fastlane distribute_app
 }
 
 perform_git_actions() {
