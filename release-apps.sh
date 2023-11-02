@@ -5,7 +5,10 @@ set -e
 set -x
 
 perform_npm_actions() {
-  cd ./packages/react-native-room-kit
+  cd packages/react-native-hms
+  npm install
+
+  cd ../packages/react-native-room-kit
 
   # git pull --verbose
 
