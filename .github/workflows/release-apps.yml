@@ -37,11 +37,14 @@ jobs:
         with:
           distribution: zulu
           java-version: 11.x
-      - name: Setup Secrets
+      - name: Setup Fastlane
         env:
           ANDROID_APPFILE: ${{ secrets.ANDROID_APPFILE }}
           ANDROID_FASTFILE: ${{ secrets.ANDROID_FASTFILE }}
           ANDROID_PLUGINFILE: ${{ secrets.ANDROID_PLUGINFILE }}
+          IOS_APPFILE: ${{ secrets.IOS_APPFILE }}
+          IOS_FASTFILE: ${{ secrets.IOS_FASTFILE }}
+          IOS_PLUGINFILE: ${{ secrets.IOS_PLUGINFILE }}
         run: |
           cd packages/react-native-room-kit/example/android
           mkdir fastlane
@@ -50,5 +53,15 @@ jobs:
           echo $ANDROID_APPFILE > Appfile
           echo $ANDROID_FASTFILE > Fastfile
           echo $ANDROID_PLUGINFILE > Pluginfile
+          pwd
+          ls -la
 
+          cd ../ios
+          pwd
+          mkdir fastlane
+          cd fastlane
+          echo $IOS_APPFILE > Appfile
+          echo $IOS_FASTFILE > Fastfile
+          echo $IOS_PLUGINFILE > Pluginfile
+          pwd
           ls -la
