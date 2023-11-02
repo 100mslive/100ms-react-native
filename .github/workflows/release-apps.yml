@@ -52,7 +52,6 @@ jobs:
 
           echo $REACT_NATIVE_HMS_JSON > reactnative-hms-a32ef61302c5.json
 
-          mkdir fastlane
           cd fastlane
 
           pwd
