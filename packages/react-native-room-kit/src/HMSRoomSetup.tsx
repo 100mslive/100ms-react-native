@@ -133,6 +133,7 @@ export const HMSRoomSetup = () => {
       console.log('Start HLS Streaming Error: ', e);
       if (!ignoreHLSStreamPromise.current) {
         console.log('Unable to go live at the moment: ', e);
+        dispatch(changeStartingHLSStream(false));
         // prebuiltCleanUp();
       }
     }
