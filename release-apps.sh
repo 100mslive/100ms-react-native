@@ -57,18 +57,20 @@ perform_git_actions() {
 }
 
 perform_npm_actions
-P1=$!
+release_android
+# perform_npm_actions
+# P1=$!
 
-wait $P1
+# wait $P1
 
-release_android &
-P2=$!
+# release_android &
+# P2=$!
 
-release_iOS &
-P3=$!
+# release_iOS &
+# P3=$!
 
-wait $P2 $P3
+# wait $P2 $P3
 
-perform_git_actions
+# perform_git_actions
 
-say done
+# say done
