@@ -39,6 +39,8 @@ jobs:
           java-version: 11.x
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
       - name: Setup Fastlane
         env:
           REACT_NATIVE_HMS_JSON: ${{ secrets.REACT_NATIVE_HMS_JSON }}
