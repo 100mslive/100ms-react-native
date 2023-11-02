@@ -29,7 +29,7 @@ platform :android do
 
     commit = last_git_commit
     firebase_app_distribution(
-      app: ENV["FIREBASE_APP_ID"],
+      app: $FIREBASE_APP_ID,
       groups: "internal, External",
       service_credentials_file: "reactnative-hms-a32ef61302c5.json",
       android_artifact_path: lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH],
@@ -38,7 +38,7 @@ platform :android do
 
     slack(
       message: ":react: 🎉 React Native Android App released! 🎊 :react:",
-      slack_url: ENV["SLACK_URL"],
+      slack_url: $SLACK_URL,
       payload: {
         "📲 Download from Firebase 🤖" => "https://appdistribution.firebase.dev/i/7b7ab3b30e627c35",
         "📝 Changelog with Tickets" => File.read("../../ExampleAppChangelog.txt")
