@@ -10,6 +10,7 @@ import type {
   StyleProp,
   TextInputProps,
   TextStyle,
+  TouchableOpacityProps,
   ViewStyle,
 } from 'react-native';
 
@@ -31,6 +32,7 @@ export type HMSTextInputProps = TextInputProps & {
     | {
         rightIcon?: undefined;
         sendIcon: boolean;
+        sendIconTestID?: TouchableOpacityProps['testID'];
         onSendIconPress(): void;
         containerStyle?: StyleProp<ViewStyle>;
         focusedContainerStyle?: StyleProp<ViewStyle>;
@@ -160,6 +162,7 @@ export const HMSTextInput: React.FC<HMSTextInputProps> = ({
       {resetProps.rightIcon ||
         (resetProps.sendIcon ? (
           <TouchableOpacity
+            testID={resetProps.sendIconTestID}
             style={styles.sendIconButton}
             onPress={resetProps.onSendIconPress}
           >

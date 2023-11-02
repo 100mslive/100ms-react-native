@@ -16,6 +16,7 @@ import { HMSTextInput } from './HMSTextInput';
 import { HMSPrimaryButton } from './HMSPrimaryButton';
 import { useHMSActions } from '../hooks-sdk';
 import { ModalTypes } from '../utils/types';
+import { TestIds } from '../utils/constants';
 
 export interface ChangeNameModalContentProps {
   dismissModal(): void;
@@ -95,12 +96,16 @@ export const ChangeNameModalContent: React.FC<ChangeNameModalContentProps> = ({
             </TouchableOpacity>
           )}
 
-          <Text style={[styles.headerText, hmsRoomStyles.headerText]}>
+          <Text
+            testID={TestIds.change_name_modal_heading}
+            style={[styles.headerText, hmsRoomStyles.headerText]}
+          >
             Change Name
           </Text>
         </View>
 
         <TouchableOpacity
+          testID={TestIds.change_name_modal_close_btn}
           onPress={handleClosePress}
           hitSlop={styles.closeIconHitSlop}
         >
@@ -114,6 +119,7 @@ export const ChangeNameModalContent: React.FC<ChangeNameModalContentProps> = ({
       {/* Content */}
       <View style={styles.contentContainer}>
         <HMSTextInput
+          testID={TestIds.change_name_input}
           style={styles.textInput}
           value={name}
           autoFocus={true}
@@ -121,6 +127,7 @@ export const ChangeNameModalContent: React.FC<ChangeNameModalContentProps> = ({
         />
 
         <HMSPrimaryButton
+          testId={TestIds.change_name_modal_cta}
           loading={nameChangeLoading}
           onPress={changeName}
           title="Change"

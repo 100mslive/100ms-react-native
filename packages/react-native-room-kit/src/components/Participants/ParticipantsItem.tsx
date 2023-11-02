@@ -9,6 +9,7 @@ import { HandIcon, NetworkQualityIcon, ThreeDotsIcon } from '../../Icons';
 import { Menu } from '../MenuModal';
 import { ParticipantsItemOptions } from './ParticipantsItemOptions';
 import type { RootState } from '../../redux';
+import { TestIds } from '../../utils/constants';
 
 interface ParticipantsItemProps {
   groupId: string;
@@ -51,7 +52,7 @@ const _ParticipantsItem: React.FC<ParticipantsItemProps> = ({
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.label, hmsRoomStyles.label]}>
+      <Text testID={TestIds.participant_name} style={[styles.label, hmsRoomStyles.label]}>
         {peer.name}
         {peer.isLocal ? ' (You)' : null}
       </Text>

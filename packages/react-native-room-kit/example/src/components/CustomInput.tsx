@@ -10,11 +10,14 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
+import type { TextInputProps, TouchableOpacityProps } from 'react-native';
 
 import { COLORS } from '../utils/theme';
 import { CloseIcon } from '../icons';
 
 const CustomInput = ({
+  inputTestID,
+  clearTestID,
   value,
   title,
   onChangeText,
@@ -34,6 +37,8 @@ const CustomInput = ({
   autoCorrect = false,
   autoCompleteType = 'off',
 }: {
+  inputTestID?: TextInputProps['testID'];
+  clearTestID?: TouchableOpacityProps['testID'];
   value?: string;
   title?: string;
   onChangeText: Function;
@@ -77,6 +82,7 @@ const CustomInput = ({
       {title && <Text style={textStyle}>{title}</Text>}
       <View>
         <TextInput
+          testID={inputTestID}
           disableFullscreenUI={disableFullscreenUI}
           value={value}
           onChangeText={onChange}
@@ -99,6 +105,7 @@ const CustomInput = ({
         />
         {showClear && (
           <TouchableOpacity
+            testID={clearTestID}
             onPress={() => {
               onChange('');
             }}

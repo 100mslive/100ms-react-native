@@ -4,6 +4,7 @@ import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 
 import { HMSTextInput } from './HMSTextInput';
 import { useHMSRoomStyleSheet, useSendMessage } from '../hooks-util';
+import { TestIds } from '../utils/constants';
 
 interface HMSSendMessageInputProps {
   style?: StyleProp<TextStyle>;
@@ -25,6 +26,7 @@ export const HMSSendMessageInput: React.FC<HMSSendMessageInputProps> = ({
 
   return (
     <HMSTextInput
+      testID={TestIds.enter_message_input}
       style={[styles.input, style]}
       value={message}
       onChangeText={setMessage}
@@ -37,6 +39,7 @@ export const HMSSendMessageInput: React.FC<HMSSendMessageInputProps> = ({
         containerStyle,
       ]}
       sendIcon={true}
+      sendIconTestID={TestIds.send_message_cta}
       onSendIconPress={sendMessage}
       onSubmitEditing={sendMessage}
       returnKeyType="send"

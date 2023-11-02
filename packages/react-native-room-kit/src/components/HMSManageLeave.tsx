@@ -6,6 +6,7 @@ import { useHMSRoomStyleSheet, useModalType } from '../hooks-util';
 import { ModalTypes } from '../utils/types';
 import { PressableIcon } from './PressableIcon';
 import { COLORS } from '../utils/theme';
+import { TestIds } from '../utils/constants';
 
 export const HMSManageLeave: React.FC<LeaveButtonProps> = (props) => {
   // TODO: read current meeting joined state
@@ -65,6 +66,7 @@ const LeaveButton: React.FC<LeaveButtonProps> = (props) => {
       {React.cloneElement(leaveButtonDelegate, {
         onPress: handleLeaveButtonPress,
         style: hmsRoomStyles.button,
+        testID: TestIds.footer_leave_btn
       })}
     </View>
   );

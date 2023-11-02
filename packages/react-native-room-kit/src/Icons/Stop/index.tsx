@@ -3,6 +3,7 @@ import { Image, StyleSheet } from 'react-native';
 import type { ImageProps } from 'react-native';
 
 import { useHMSRoomStyle } from '../../hooks-util';
+import { TestIds } from '../../utils/constants';
 
 interface StopIconProps extends Omit<ImageProps, 'source'> {}
 
@@ -13,6 +14,7 @@ export const StopIcon: React.FC<StopIconProps> = ({ style, ...restProps }) => {
 
   return (
     <Image
+      testID={TestIds.stop_icon}
       source={require('./assets/stop.png')}
       style={[styles.icon, iconStyles, style]}
       {...restProps}

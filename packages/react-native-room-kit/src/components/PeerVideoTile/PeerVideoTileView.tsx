@@ -27,6 +27,7 @@ import {
 } from '../../hooks-sdk-selectors';
 import { useHMSRoomStyleSheet } from '../../hooks-util';
 import { HMSFullScreenButton } from './HMSFullScreenButton';
+import { TestIds } from '../../utils/constants';
 
 export interface PeerVideoTileViewProps {
   peerTrackNode: PeerTrackNode;
@@ -207,6 +208,7 @@ export const _PeerVideoTileView = React.forwardRef<
             onUnmount={hide}
           >
             <PressableIcon
+              testID={TestIds.tile_options}
               activeOpacity={0.7}
               style={[styles.iconWrapper, hmsRoomStyles.iconWrapperStyles]}
               border={false}
@@ -217,6 +219,7 @@ export const _PeerVideoTileView = React.forwardRef<
           </UnmountAfterDelay>
         ) : (
           <PressableIcon
+            testID={TestIds.tile_options}
             activeOpacity={0.7}
             style={[styles.iconWrapper, hmsRoomStyles.iconWrapperStyles]}
             border={false}

@@ -4,6 +4,7 @@ import type { StyleProp, TextStyle } from 'react-native';
 
 import { useCanPublishAudio, useCanPublishVideo } from '../hooks-sdk';
 import { useHMSLayoutConfig, useHMSRoomStyle } from '../hooks-util';
+import { TestIds } from '../utils/constants';
 
 export interface HMSPreviewSubtitleProps {
   subtitle?: string;
@@ -27,29 +28,31 @@ export const HMSPreviewSubtitle: React.FC<HMSPreviewSubtitleProps> = ({
 
   const textStyles: StyleProp<TextStyle> = [styles.title, titleStyles];
 
+  const testID = TestIds.subtitle;
+
   if (subtitle) {
-    return <Text style={textStyles}>{subtitle}</Text>;
+    return <Text testID={testID} style={textStyles}>{subtitle}</Text>;
   }
 
   if (hmsRoomPreviewSubtitle) {
-    return <Text style={textStyles}>{hmsRoomPreviewSubtitle}</Text>;
+    return <Text testID={testID} style={textStyles}>{hmsRoomPreviewSubtitle}</Text>;
   }
 
   if (canPublishAudio && canPublishVideo) {
     return (
-      <Text style={textStyles}>Setup your audio and video before joining</Text>
+      <Text testID={testID} style={textStyles}>Setup your audio and video before joining</Text>
     );
   }
 
   if (canPublishAudio) {
-    return <Text style={textStyles}>Setup your audio before joining</Text>;
+    return <Text testID={testID} style={textStyles}>Setup your audio before joining</Text>;
   }
 
   if (canPublishVideo) {
-    return <Text style={textStyles}>Setup your video before joining</Text>;
+    return <Text testID={testID} style={textStyles}>Setup your video before joining</Text>;
   }
 
-  return <Text style={textStyles}>Enter your name before joining</Text>;
+  return <Text testID={testID} style={textStyles}>Enter your name before joining</Text>;
 };
 
 const styles = StyleSheet.create({

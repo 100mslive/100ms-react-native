@@ -6,12 +6,13 @@ import {
   TouchableHighlight,
   View,
 } from 'react-native';
-import type { StyleProp, ViewStyle, TextStyle, ColorValue } from 'react-native';
+import type { StyleProp, ViewStyle, TextStyle, ColorValue, TouchableHighlightProps } from 'react-native';
 
 export interface HMSBaseButtonProps {
   title: string;
   loading: boolean;
   onPress(): void;
+  testID?: TouchableHighlightProps['testID'];
   underlayColor?: ColorValue | undefined;
   loaderColor?: ColorValue | undefined;
   style?: StyleProp<ViewStyle>;
@@ -21,6 +22,7 @@ export interface HMSBaseButtonProps {
 }
 
 export const HMSBaseButton: React.FC<HMSBaseButtonProps> = ({
+  testID,
   underlayColor,
   loaderColor,
   title,
@@ -33,6 +35,7 @@ export const HMSBaseButton: React.FC<HMSBaseButtonProps> = ({
 }) => {
   return (
     <TouchableHighlight
+      testID={testID}
       underlayColor={underlayColor}
       style={[styles.button, style]}
       onPress={onPress}

@@ -8,6 +8,7 @@ import type { RootState } from '../redux';
 import { BottomSheet } from './BottomSheet';
 import { StopIcon } from '../Icons';
 import { ModalTypes, OnLeaveReason } from '../utils/types';
+import { TestIds } from '../utils/constants';
 
 // const HEADER_CONTENT_HEIGHT = 24 + 8 + 8 + 2; // ICON_SIZE + TOP_PADDING + BOTTOM_PADDING + TOP&BOTTOM_BORDER_WIDTH
 // const HEADER_HEIGHT = 8 + HEADER_CONTENT_HEIGHT + 8; // TOP_HEADER_PADDING + HEADER_CONTENT_HEIGHT + BOTTOM_HEADER_PADDING
@@ -111,6 +112,7 @@ export const LeaveRoomBottomSheet: React.FC<LeaveRoomBottomSheetProps> = () => {
     >
       <View>
         <TouchableOpacity
+          testID={TestIds.leave_cta}
           style={styles.button}
           onPress={onLeavePress}
         >
@@ -120,7 +122,7 @@ export const LeaveRoomBottomSheet: React.FC<LeaveRoomBottomSheetProps> = () => {
             <Text style={[styles.text, hmsRoomStyles.text]}>
               Leave
             </Text>
-            <Text style={[styles.subtext, hmsRoomStyles.subtext]}>
+            <Text testID={TestIds.leave_description} style={[styles.subtext, hmsRoomStyles.subtext]}>
               Others will continue after you leave. You can join the session
               again.
             </Text>
@@ -129,6 +131,7 @@ export const LeaveRoomBottomSheet: React.FC<LeaveRoomBottomSheetProps> = () => {
 
         {canStream && isStreaming ? (
           <TouchableOpacity
+            testID={TestIds.end_stream_cta}
             style={[styles.button, hmsRoomStyles.endButton]}
             onPress={onEndStreamPress}
           >
@@ -139,6 +142,7 @@ export const LeaveRoomBottomSheet: React.FC<LeaveRoomBottomSheetProps> = () => {
                 End Stream
               </Text>
               <Text
+                testID={TestIds.end_stream_description}
                 style={[styles.subtext, hmsRoomStyles.endSubtext]}
               >
                 The stream will end for everyone after they’ve watched it.
@@ -147,6 +151,7 @@ export const LeaveRoomBottomSheet: React.FC<LeaveRoomBottomSheetProps> = () => {
           </TouchableOpacity>
         ) : canEndRoom ? (
           <TouchableOpacity
+            testID={TestIds.end_session_cta}
             style={[styles.button, hmsRoomStyles.endButton]}
             onPress={onEndSessionPress}
           >
@@ -157,6 +162,7 @@ export const LeaveRoomBottomSheet: React.FC<LeaveRoomBottomSheetProps> = () => {
                 End Session
               </Text>
               <Text
+                testID={TestIds.end_session_description}
                 style={[styles.subtext, hmsRoomStyles.endSubtext]}
               >
                 The session will end for everyone in the room immediately.
