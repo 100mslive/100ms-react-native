@@ -10,6 +10,7 @@ import {
 import type { RootState } from '../../redux';
 import { ChatBottomSheetTabs } from '../../utils/types';
 import { setActiveChatBottomSheetTab } from '../../redux/actions';
+import { TestIds } from '../../utils/constants';
 
 interface WebrtcChatHeaderProps {
   onClosePress?: () => void;
@@ -61,7 +62,16 @@ const _ChatAndParticipantsHeader: React.FC<WebrtcChatHeaderProps> = ({
       }
     >
       {visibleChatBottomSheetTabs.length === 1 ? (
-        <Text style={[styles.headerTitle, hmsRoomStyles.activeHeaderTitle]}>
+        <Text
+          testID={
+            visibleChatBottomSheetTabs[0] === 'Participants'
+              ? TestIds.participants_heading
+              : visibleChatBottomSheetTabs[0] === 'Chat'
+              ? TestIds.chat_heading
+              : undefined
+          }
+          style={[styles.headerTitle, hmsRoomStyles.activeHeaderTitle]}
+        >
           {visibleChatBottomSheetTabs[0]}
           {visibleChatBottomSheetTabs[0] === 'Participants' &&
           typeof peersCount === 'number'
@@ -78,10 +88,24 @@ const _ChatAndParticipantsHeader: React.FC<WebrtcChatHeaderProps> = ({
             return (
               <TouchableOpacity
                 key={tab}
+                testID={
+                  tab === 'Participants'
+                      ? TestIds.participants_heading_btn
+                      : tab === 'Chat'
+                      ? TestIds.chat_heading_btn
+                      : undefined
+                }
                 style={[styles.tab, isActive ? hmsRoomStyles.tab : null]}
                 onPress={() => dispatch(setActiveChatBottomSheetTab(tab))}
               >
                 <Text
+                  testID={
+                    tab === 'Participants'
+                      ? (isActive ? TestIds.participants_heading_active : TestIds.participants_heading)
+                      : tab === 'Chat'
+                      ? (isActive ? TestIds.chat_heading_active : TestIds.chat_heading)
+                      : undefined
+                  }
                   style={[
                     styles.headerTitle,
                     hmsRoomStyles.headerTitle,
@@ -99,7 +123,7 @@ const _ChatAndParticipantsHeader: React.FC<WebrtcChatHeaderProps> = ({
         </View>
       )}
 
-      <TouchableOpacity onPress={onClosePress}>
+      <TouchableOpacity testID={TestIds.participants_close_btn} onPress={onClosePress}>
         <CloseIcon />
       </TouchableOpacity>
     </View>

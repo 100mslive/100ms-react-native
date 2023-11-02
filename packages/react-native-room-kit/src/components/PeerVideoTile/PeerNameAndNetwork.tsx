@@ -5,6 +5,7 @@ import { HMSTrackSource } from '@100mslive/react-native-hms';
 import { hexToRgbA } from '../../utils/theme';
 import { NetworkQualityIcon, ScreenShareIcon } from '../../Icons';
 import { useHMSRoomStyleSheet } from '../../hooks-util';
+import { TestIds } from '../../utils/constants';
 
 export interface PeerNameAndNetworkProps {
   name: string;
@@ -43,6 +44,7 @@ export const PeerNameAndNetwork: React.FC<PeerNameAndNetworkProps> = ({
         ) : null}
 
         <Text
+          testID={TestIds.tile_user_name}
           style={[styles.name, hmsRoomStyles.name]}
           numberOfLines={1}
           ellipsizeMode={showTrackSource ? 'middle' : 'tail'}
@@ -53,6 +55,7 @@ export const PeerNameAndNetwork: React.FC<PeerNameAndNetworkProps> = ({
         </Text>
 
         <NetworkQualityIcon
+          testID={TestIds.tile_network_icon}
           quality={networkQuality}
           style={styles.networkIcon}
         />

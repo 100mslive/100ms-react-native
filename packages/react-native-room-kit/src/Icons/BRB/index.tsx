@@ -3,6 +3,7 @@ import { Image, StyleSheet } from 'react-native';
 import type { ImageProps } from 'react-native';
 
 import { useHMSRoomStyle } from '../../hooks-util';
+import { TestIds } from '../../utils/constants';
 
 interface BRBIconProps extends Omit<ImageProps, 'source'> {}
 
@@ -13,6 +14,7 @@ export const BRBIcon: React.FC<BRBIconProps> = ({ style, ...restProps }) => {
 
   return (
     <Image
+      testID={TestIds.brb_icon}
       source={require('./assets/BRB.png')}
       style={[styles.icon, iconStyles, style]}
       {...restProps}

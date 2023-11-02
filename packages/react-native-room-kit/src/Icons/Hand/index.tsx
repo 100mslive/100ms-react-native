@@ -3,6 +3,7 @@ import { Image, StyleSheet } from 'react-native';
 import type { ImageProps } from 'react-native';
 
 import { useHMSRoomStyle } from '../../hooks-util';
+import { TestIds } from '../../utils/constants';
 
 interface HandIconProps extends Omit<ImageProps, 'source'> {
   type?: 'off' | 'on';
@@ -19,6 +20,11 @@ export const HandIcon: React.FC<HandIconProps> = ({
 
   return (
     <Image
+      testID={
+        type === 'on'
+          ? TestIds.hand_icon
+          : TestIds.hand_off_icon
+      }
       source={
         type === 'on'
           ? require('./assets/hand.png')

@@ -7,7 +7,7 @@ import {
   LayoutAnimation,
   InteractionManager,
 } from 'react-native';
-import type { StyleProp, TextStyle } from 'react-native';
+import type { StyleProp, TextStyle, TouchableOpacityProps } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { HMSTrack } from '@100mslive/react-native-hms';
 
@@ -24,6 +24,7 @@ import {
   PersonIcon,
 } from '../Icons';
 import { BottomSheet } from './BottomSheet';
+import { TestIds } from '../utils/constants';
 
 interface PeerSettingsModalContentProps {
   peerTrackNode: PeerTrackNode;
@@ -112,7 +113,10 @@ export const PeerSettingsModalContent: React.FC<
       <BottomSheet.Header
         dismissModal={cancelModal}
         heading={peer.name + (peer.isLocal ? ' (You)' : '')}
+        headingTestID={TestIds.tile_modal_heading}
         subheading={peer.role?.name}
+        subheadingTestID={TestIds.tile_modal_subheading}
+        closeIconTestID={TestIds.tile_modal_close_btn}
       />
 
       <BottomSheet.Divider />
@@ -121,6 +125,7 @@ export const PeerSettingsModalContent: React.FC<
       <View style={styles.contentContainer}>
         {peer.isLocal ? (
           <SettingItem
+            testID={TestIds.tile_modal_change_name_btn}
             text={'Change Name'}
             icon={<PencilIcon style={styles.customIcon} />}
             onPress={changeName}
@@ -199,11 +204,13 @@ type SettingItemProps = {
   onPress(): void;
   text: string;
   icon: React.ReactElement;
+  testID?: TouchableOpacityProps['testID'];
   disabled?: boolean;
   textStyle?: StyleProp<TextStyle>;
 };
 
 const SettingItem: React.FC<SettingItemProps> = ({
+  testID,
   onPress,
   text,
   icon,
@@ -217,6 +224,7 @@ const SettingItem: React.FC<SettingItemProps> = ({
 
   return (
     <TouchableOpacity
+      testID={testID}
       disabled={disabled}
       style={[styles.button, disabled ? { opacity: 0.6 } : null]}
       onPress={onPress}

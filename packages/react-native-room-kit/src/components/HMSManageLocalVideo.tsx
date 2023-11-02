@@ -32,7 +32,7 @@ const ToggleVideoMuteButton = () => {
 
   return (
     <PressableIcon
-      testID={TestIds.camera}
+      testID={!!isLocalVideoMuted ? TestIds.camera_muted_btn : TestIds.camera_unmuted_btn}
       onPress={handleVideoMuteTogglePress}
       active={isLocalVideoMuted}
     >

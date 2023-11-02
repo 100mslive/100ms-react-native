@@ -32,7 +32,7 @@ const ToggleAudioMuteButton = () => {
 
   return (
     <PressableIcon
-      testID={TestIds.mic}
+      testID={!!isLocalAudioMuted ? TestIds.mic_muted_btn : TestIds.mic_unmuted_btn}
       onPress={handleAudioMuteTogglePress}
       active={isLocalAudioMuted}
     >

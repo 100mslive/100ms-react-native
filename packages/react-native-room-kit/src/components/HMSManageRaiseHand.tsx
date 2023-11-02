@@ -6,6 +6,7 @@ import { useHMSActions } from '../hooks-sdk';
 import { PressableIcon } from './PressableIcon';
 import { HandIcon } from '../Icons';
 import { parseMetadata } from '../utils/functions';
+import { TestIds } from '../utils/constants';
 
 export const HMSManageRaiseHand = () => {
   const hmsActions = useHMSActions();
@@ -34,7 +35,7 @@ export const HMSManageRaiseHand = () => {
   };
 
   return (
-    <PressableIcon onPress={toggleRaiseHand} active={isHandRaised}>
+    <PressableIcon testID={isHandRaised ? TestIds.hand_raised_btn : TestIds.hand_raise_btn} onPress={toggleRaiseHand} active={isHandRaised}>
       <HandIcon />
     </PressableIcon>
   );

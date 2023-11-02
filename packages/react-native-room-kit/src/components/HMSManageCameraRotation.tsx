@@ -43,7 +43,7 @@ const RotateCameraButton = () => {
 
   return (
     <PressableIcon
-      testID={TestIds.switch_camera}
+      testID={isLocalVideoMuted ? TestIds.switch_camera_disabled : TestIds.switch_camera}
       onPress={handleVideoMuteTogglePress}
       disabled={isLocalVideoMuted}
     >

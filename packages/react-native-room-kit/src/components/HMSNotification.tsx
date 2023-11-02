@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import type { StyleProp, ViewStyle, TextStyle } from 'react-native';
+import type { StyleProp, ViewStyle, TextStyle, TextProps } from 'react-native';
 
 import { useHMSRoomStyleSheet } from '../hooks-util';
 import { CloseIcon } from '../Icons';
@@ -11,6 +11,7 @@ import { removeNotification } from '../redux/actions';
 export interface HMSNotificationProps {
   id: string;
   text: string | React.ReactElement;
+  textTestID?: TextProps['testID'];
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
   icon?: React.ReactElement;
@@ -28,6 +29,7 @@ export const HMSNotification: React.FC<HMSNotificationProps> = ({
   style,
   textStyle,
   cta,
+  textTestID,
   onDismiss,
   dismissDelay = 5000,
   autoDismiss = true,
@@ -59,7 +61,7 @@ export const HMSNotification: React.FC<HMSNotificationProps> = ({
         {icon ? <View style={styles.icon}>{icon}</View> : null}
 
         {typeof text === 'string' ? (
-          <Text style={[styles.text, hmsRoomStyles.text, textStyle]}>
+          <Text testID={textTestID} style={[styles.text, hmsRoomStyles.text, textStyle]}>
             {text}
           </Text>
         ) : (
