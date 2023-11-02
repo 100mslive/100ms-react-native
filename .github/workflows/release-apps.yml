@@ -56,7 +56,7 @@ jobs:
           pwd
           ls -la
 
-          cd ../ios
+          cd ../../ios
           pwd
           mkdir fastlane
           cd fastlane
