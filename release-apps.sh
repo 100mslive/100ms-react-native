@@ -19,6 +19,8 @@ perform_npm_actions() {
 release_android() {
   cd ./android
 
+  gem install bundler
+
   bundle install --verbose
 
   bundle exec fastlane distribute_app

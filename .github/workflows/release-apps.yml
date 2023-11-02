@@ -37,6 +37,8 @@ jobs:
         with:
           distribution: zulu
           java-version: 11.x
+      - name: Setup Ruby
+        uses: actions/setup-ruby@v1
       - name: Setup Fastlane
         env:
           REACT_NATIVE_HMS_JSON: ${{ secrets.REACT_NATIVE_HMS_JSON }}
