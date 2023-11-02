@@ -48,6 +48,8 @@ jobs:
       - name: Setup Fastlane
         env:
           REACT_NATIVE_HMS_JSON: ${{ secrets.REACT_NATIVE_HMS_JSON }}
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+          SLACK_URL: ${{ secrets.SLACK_URL }}
           IOS_APPFILE: ${{ secrets.IOS_APPFILE }}
           IOS_FASTFILE: ${{ secrets.IOS_FASTFILE }}
           IOS_PLUGINFILE: ${{ secrets.IOS_PLUGINFILE }}
