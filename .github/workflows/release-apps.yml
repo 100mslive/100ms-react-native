@@ -43,16 +43,12 @@ jobs:
           ANDROID_FASTFILE: ${{ secrets.ANDROID_FASTFILE }}
           ANDROID_PLUGINFILE: ${{ secrets.ANDROID_PLUGINFILE }}
         run: |
-          echo $ANDROID_APPFILE
-          echo $ANDROID_FASTFILE
-          echo $ANDROID_PLUGINFILE
+          cd packages/react-native-room-kit/example/android
+          mkdir fastlane
+          cd fastlane
 
-          touch packages/react-native-room-kit/example/android/fastlane/Appfile
-          touch packages/react-native-room-kit/example/android/fastlane/Fastfile
-          touch packages/react-native-room-kit/example/android/fastlane/Pluginfile
+          echo $ANDROID_APPFILE > Appfile
+          echo $ANDROID_FASTFILE > Fastfile
+          echo $ANDROID_PLUGINFILE > Pluginfile
 
-          echo $ANDROID_APPFILE > packages/react-native-room-kit/example/android/fastlane/Appfile
-          echo $ANDROID_FASTFILE > packages/react-native-room-kit/example/android/fastlane/Fastfile
-          echo $ANDROID_PLUGINFILE > packages/react-native-room-kit/example/android/fastlane/Pluginfile
-          cd packages/react-native-room-kit/example/android/
           ls -la
