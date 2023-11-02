@@ -19,9 +19,9 @@ perform_npm_actions() {
 release_android() {
   cd ./android
 
-  gem install bundler
-
   bundle install --verbose
+
+  fastlane add_plugin firebase_app_distribution
 
   bundle exec fastlane distribute_app
 }
