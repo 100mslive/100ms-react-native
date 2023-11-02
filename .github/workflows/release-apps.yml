@@ -71,3 +71,5 @@ jobs:
           echo $IOS_PLUGINFILE > Pluginfile
           pwd
           ls -la
+      - name: Run Release Script
+        run: sh release-apps.sh
