@@ -5,6 +5,9 @@ set -e
 set -x
 
 perform_npm_actions() {
+
+  cat $FIREBASE_APP_ID
+
   cd packages/react-native-hms
 
   npm install
@@ -22,8 +25,6 @@ release_android() {
   cd ./android
 
   bundle install --verbose
-
-  cat $FIREBASE_APP_ID
 
   bundle exec fastlane distribute_app FIREBASE_APP_ID: $FIREBASE_APP_ID SLACK_URL: $SLACK_URL
 }
