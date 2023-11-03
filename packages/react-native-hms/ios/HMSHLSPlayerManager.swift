@@ -191,6 +191,10 @@ class HMSHLSPlayer: UIView {
         self.frame = frame
         self.backgroundColor = UIColor(displayP3Red: 0, green: 0, blue: 0, alpha: 1)
 
+        if #available(iOS 15.0, *) {
+            hmsHLSPlayer._nativePlayer.audiovisualBackgroundPlaybackPolicy = .continuesIfPossible
+        }
+
         // creating 100ms HLS Player and getting player view controller
         let playerViewController = hmsHLSPlayer.videoPlayerViewController(showsPlayerControls: false)
         hmsHLSPlayerViewController = playerViewController
