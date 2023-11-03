@@ -295,6 +295,8 @@ object HMSHelper {
     if (data == null) {
       return null
     }
+     builder.setUseHardwareAcousticEchoCanceler(true)
+     /*
     val builder = HMSAudioTrackSettings.Builder()
     if (areAllRequiredKeysAvailable(data, arrayOf(Pair("useHardwareEchoCancellation", "Boolean")))
     ) {
@@ -303,6 +305,7 @@ object HMSHelper {
     } else {
       builder.setUseHardwareAcousticEchoCanceler(false)
     }
+    */
 
     if (areAllRequiredKeysAvailable(data, arrayOf(Pair("initialState", "String")))) {
       val initialState = getHMSTrackSettingsInitState(data.getString("initialState"))
