@@ -295,17 +295,13 @@ object HMSHelper {
     if (data == null) {
       return null
     }
-     builder.setUseHardwareAcousticEchoCanceler(true)
-     /*
+
     val builder = HMSAudioTrackSettings.Builder()
     if (areAllRequiredKeysAvailable(data, arrayOf(Pair("useHardwareEchoCancellation", "Boolean")))
     ) {
       val useHardwareEchoCancellation = data.getBoolean("useHardwareEchoCancellation")
       builder.setUseHardwareAcousticEchoCanceler(useHardwareEchoCancellation)
-    } else {
-      builder.setUseHardwareAcousticEchoCanceler(false)
     }
-    */
 
     if (areAllRequiredKeysAvailable(data, arrayOf(Pair("initialState", "String")))) {
       val initialState = getHMSTrackSettingsInitState(data.getString("initialState"))
