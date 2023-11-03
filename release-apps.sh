@@ -6,8 +6,6 @@ set -x
 
 perform_npm_actions() {
 
-  cat $FIREBASE_APP_ID
-
   cd packages/react-native-hms
 
   npm install
