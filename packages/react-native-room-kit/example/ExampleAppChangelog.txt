@@ -1,8 +1,17 @@
 Board: https://100ms.atlassian.net/jira/software/projects/RN/boards/33
 
-- Enabled Hardware Echo Cancellation
+- Add Large Rooms Participants List UI
+https://100ms.atlassian.net/browse/RN-106
 
-Room Kit: 1.0.2
-React Native SDK: 1.9.1
+- Add Light Theme Support on Prebuilt
+https://100ms.atlassian.net/browse/RN-105
+
+- Recording Icon changes to show the recording states
+https://100ms.atlassian.net/browse/RN-104
+
+- Added support for using react-native-animated library version 3.x.x
+
+Room Kit: 1.0.1
+React Native SDK: 1.9.0
 Android SDK: 2.7.9
 iOS SDK: 1.1.0
