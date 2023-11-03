@@ -4,7 +4,7 @@ default_platform(:android)
 
 platform :android do
   desc "Firebase App Distribution"
-  lane :distribute_app do
+  lane :distribute_app do |options|
 
     path = '../app/build.gradle'
     re = /versionCode\s+(\d+)/
@@ -28,19 +28,17 @@ platform :android do
     )
 
     commit = last_git_commit
-    firebaseID = sh("$FIREBASE_APP_ID")
     firebase_app_distribution(
-      app: firebaseID,
+      app: options[:FIREBASE_APP_ID],
       groups: "internal, External",
       service_credentials_file: "reactnative-hms-a32ef61302c5.json",
       android_artifact_path: lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH],
       release_notes_file: "../ExampleAppChangelog.txt"
     )
 
-    slackUrl = sh("$SLACK_URL")
     slack(
       message: ":react: 🎉 React Native Android App released! 🎊 :react:",
-      slack_url: slackUrl,
+      slack_url: options[:SLACK_URL],
       payload: {
         "📲 Download from Firebase 🤖" => "https://appdistribution.firebase.dev/i/7b7ab3b30e627c35",
         "📝 Changelog with Tickets" => File.read("../../ExampleAppChangelog.txt")

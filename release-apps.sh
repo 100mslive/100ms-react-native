@@ -6,11 +6,10 @@ set -x
 
 perform_npm_actions() {
   cd packages/react-native-hms
+
   npm install
 
   cd ../react-native-room-kit
-
-  # git pull --verbose
 
   npm install
 
@@ -24,9 +23,9 @@ release_android() {
 
   bundle install --verbose
 
-  fastlane add_plugin firebase_app_distribution
+  cat $FIREBASE_APP_ID
 
-  bundle exec fastlane distribute_app
+  bundle exec fastlane distribute_app FIREBASE_APP_ID: $FIREBASE_APP_ID SLACK_URL: $SLACK_URL
 }
 
 release_iOS() {
