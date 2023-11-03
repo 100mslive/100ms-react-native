@@ -10,6 +10,7 @@ import {
   useShouldGoLive,
 } from '../hooks-util';
 import { HMSPrimaryButton } from './HMSPrimaryButton';
+import { TestIds } from '../utils/constants';
 
 export interface HMSPreviewJoinButtonProps {
   onJoin(): void;
@@ -49,6 +50,11 @@ export const HMSPreviewJoinButton: React.FC<HMSPreviewJoinButtonProps> = ({
 
   return (
     <HMSPrimaryButton
+      testId={
+        shouldGoLive
+          ? TestIds.go_live_btn
+          : TestIds.join_now_btn
+      }
       loading={loading}
       onPress={onJoin}
       title={

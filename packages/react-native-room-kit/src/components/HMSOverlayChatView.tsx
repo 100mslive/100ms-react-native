@@ -6,6 +6,8 @@ import MaskedView from '@react-native-masked-view/masked-view';
 import { HMSKeyboardAvoidingView } from './HMSKeyboardAvoidingView';
 import { HMSSendMessageInput } from './HMSSendMessageInput';
 import { HMSHLSMessageList } from './HMSHLSMessageList';
+import { useFooterHeight } from './Footer';
+import { useHMSNotificationsHeight } from './HMSNotifications';
 
 const colors = [
   'rgba(0, 0, 0, 0)',
@@ -15,8 +17,11 @@ const colors = [
 const colorLocations = [0, 0.4, 1];
 
 export const HLSChatView = () => {
+  const footerHeight = useFooterHeight();
+  const hmsNotificationsHeight = useHMSNotificationsHeight();
+
   return (
-    <HMSKeyboardAvoidingView>
+    <HMSKeyboardAvoidingView bottomOffset={footerHeight + hmsNotificationsHeight}>
       <MaskedView
         maskElement={
           <LinearGradient

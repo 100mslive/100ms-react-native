@@ -8,9 +8,11 @@ import {
   ViewStyle,
   ActivityIndicator,
 } from 'react-native';
+import type { TouchableOpacityProps } from 'react-native';
 import { COLORS } from '../utils/theme';
 
 const CustomButton = ({
+  testID,
   loading = false,
   disabled = false,
   title,
@@ -20,6 +22,7 @@ const CustomButton = ({
   LeftIcon,
   RightIcon,
 }: {
+  testID?: TouchableOpacityProps['testID'];
   title?: string;
   onPress: Function;
   textStyle?: StyleProp<TextStyle>;
@@ -35,6 +38,7 @@ const CustomButton = ({
 
   return (
     <TouchableOpacity
+      testID={testID}
       disabled={disabled || loading}
       style={[
         styles.buttonConatiner,

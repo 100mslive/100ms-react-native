@@ -2,7 +2,7 @@ import * as React from 'react';
 import Modal from 'react-native-modal';
 import type { ReactNativeModal } from 'react-native-modal';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import type { StyleProp, ViewStyle } from 'react-native';
+import type { StyleProp, TextProps, TouchableOpacityProps, ViewStyle } from 'react-native';
 
 import { CloseIcon } from '../Icons';
 import {
@@ -66,12 +66,18 @@ interface HeaderProps {
   dismissModal(): void;
   heading: string;
   subheading?: string;
+  headingTestID?: TextProps['testID'];
+  subheadingTestID?: TextProps['testID'];
+  closeIconTestID?: TouchableOpacityProps['testID'];
 }
 
 const BottomSheetHeader: React.FC<HeaderProps> = ({
   dismissModal,
   heading,
   subheading,
+  headingTestID,
+  subheadingTestID,
+  closeIconTestID,
 }) => {
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     headerText: {
@@ -87,18 +93,19 @@ const BottomSheetHeader: React.FC<HeaderProps> = ({
   return (
     <View style={styles.header}>
       <View>
-        <Text style={[styles.headerText, hmsRoomStyles.headerText]}>
+        <Text testID={headingTestID} style={[styles.headerText, hmsRoomStyles.headerText]}>
           {heading}
         </Text>
 
         {subheading ? (
-          <Text style={[styles.subheadingText, hmsRoomStyles.subheadingText]}>
+          <Text testID={subheadingTestID} style={[styles.subheadingText, hmsRoomStyles.subheadingText]}>
             {subheading}
           </Text>
         ) : null}
       </View>
 
       <TouchableOpacity
+        testID={closeIconTestID}
         onPress={dismissModal}
         hitSlop={styles.closeIconHitSlop}
       >

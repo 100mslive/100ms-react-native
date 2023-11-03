@@ -17,6 +17,10 @@ export const useHMSHLSPlayerPlaybackState = () => {
   return useHMSStore((state) => state.playbackState);
 };
 
+export const useHMSHLSPlayerResolution = () => {
+  return useHMSStore((state) => state.resolution);
+};
+
 export const useHMSHLSPlayerStats = () => {
   return useHMSHLSPlayerStatsStore(
     (state) => ({
@@ -88,6 +92,9 @@ export const useHMSHLSPlayerCue = (
 
 export const setHMSHLSPlayerPlaybackState =
   useHMSStore.getState().setPlaybackState;
+
+export const setHMSHLSPlayerResolution =
+  useHMSStore.getState().setResolution;
 
 export const setHMSHLSPlayerCue = useHMSStore.getState().setCue;
 

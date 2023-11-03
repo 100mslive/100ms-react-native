@@ -11,6 +11,7 @@ import {
   HMSRemoteVideoStats,
 } from '@100mslive/react-native-hms';
 import { MeetingState } from '../../types';
+import type { Notification } from '../../types';
 
 type ActionType = {
   payload: { [key: string]: any };
@@ -48,9 +49,11 @@ type IntialStateType = {
   startingOrStoppingRecording: boolean;
   fullScreenPeerTrackNode: null | PeerTrackNode;
   screensharePeerTrackNodes: PeerTrackNode[];
-  notifications: { id: string; type: string; peer: HMSPeer }[];
+  notifications: Notification[];
   activeChatBottomSheetTab: (typeof ChatBottomSheetTabs)[number];
   chatFilterSheetVisible: boolean;
+  handleBackButton: boolean;
+  autoEnterPipMode: boolean;
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -80,6 +83,8 @@ const INITIAL_STATE: IntialStateType = {
   notifications: [],
   activeChatBottomSheetTab: ChatBottomSheetTabs[0],
   chatFilterSheetVisible: false,
+  handleBackButton: false,
+  autoEnterPipMode: false,
 };
 
 const appReducer = (
@@ -281,6 +286,18 @@ const appReducer = (
       return {
         ...state,
         chatFilterSheetVisible: action.payload.chatFilterSheetVisible,
+      };
+    }
+    case ActionTypes.SET_HANDLE_BACK_BUTTON: {
+      return {
+        ...state,
+        handleBackButton: action.payload.handleBackButton ?? INITIAL_STATE.handleBackButton,
+      };
+    }
+    case ActionTypes.SET_AUTO_ENTER_PIP_MODE: {
+      return {
+        ...state,
+        autoEnterPipMode: action.payload.autoEnterPipMode ?? INITIAL_STATE.autoEnterPipMode,
       };
     }
     case HmsStateActionTypes.CLEAR_STATES:

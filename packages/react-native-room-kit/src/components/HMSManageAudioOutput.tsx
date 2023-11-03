@@ -30,6 +30,7 @@ import {
 } from '../hooks-util';
 import type { RootState } from '../redux';
 import { BottomSheet } from './BottomSheet';
+import { TestIds } from '../utils/constants';
 
 export const HMSManageAudioOutput: React.FC = () => {
   const hmsInstance = useHMSInstance();
@@ -141,6 +142,7 @@ export const HMSManageAudioOutput: React.FC = () => {
   return (
     <View>
       <PressableIcon
+        testID={TestIds.manage_audio_output}
         onPress={handleSpeakerChange}
         style={isHLSViewer ? styles.button : null}
       >
@@ -155,6 +157,8 @@ export const HMSManageAudioOutput: React.FC = () => {
         <BottomSheet.Header
           dismissModal={dismissModal}
           heading="Audio Output"
+          headingTestID={TestIds.audio_modal_heading}
+          closeIconTestID={TestIds.audio_modal_close_btn}
         />
 
         <BottomSheet.Divider />
@@ -162,7 +166,10 @@ export const HMSManageAudioOutput: React.FC = () => {
         <View style={styles.contentContainer}>
           {availableAudioOutputDevices.length === 0 ? (
             <View style={styles.emptyView}>
-              <Text style={[styles.itemText, hmsRoomStyles.text]}>
+              <Text
+                testID={TestIds.audio_modal_empty_text}
+                style={[styles.itemText, hmsRoomStyles.text]}
+              >
                 No other devices available!
               </Text>
             </View>
@@ -182,6 +189,7 @@ export const HMSManageAudioOutput: React.FC = () => {
                       )}
 
                       <TouchableOpacity
+                        testID={audioDeviceTestIds[device]}
                         style={styles.audioDeviceItem}
                         onPress={() => handleSelectAudioDevice(device)}
                       >
@@ -193,13 +201,13 @@ export const HMSManageAudioOutput: React.FC = () => {
                               : device
                           )}
 
-                          <Text style={[styles.itemText, hmsRoomStyles.text]}>
+                          <Text testID={audioDeviceTextTestIds[device]} style={[styles.itemText, hmsRoomStyles.text]}>
                             {getDescription(device, currentAudioOutputDevice)}
                           </Text>
                         </View>
 
                         {device === currentAudioOutputDevice ? (
-                          <CheckIcon />
+                          <CheckIcon testID={activeAudioDeviceTestIds[device]} />
                         ) : null}
                       </TouchableOpacity>
                     </React.Fragment>
@@ -289,4 +297,28 @@ const audioDeviceSortOrder = {
   [HMSAudioDevice.WIRED_HEADSET]: 2,
   [HMSAudioDevice.EARPIECE]: 3,
   [HMSAudioDevice.BLUETOOTH]: 4,
+} as const;
+
+const audioDeviceTestIds = {
+  [HMSAudioDevice.AUTOMATIC]: TestIds.automatic_audio_device_btn,
+  [HMSAudioDevice.SPEAKER_PHONE]: TestIds.phone_speaker_audio_device_btn,
+  [HMSAudioDevice.WIRED_HEADSET]: TestIds.wired_headset_audio_device_btn,
+  [HMSAudioDevice.EARPIECE]: TestIds.earpiece_audio_device_btn,
+  [HMSAudioDevice.BLUETOOTH]: TestIds.bluetooth_audio_device_btn,
+} as const;
+
+const audioDeviceTextTestIds = {
+  [HMSAudioDevice.AUTOMATIC]: TestIds.automatic_audio_device_text,
+  [HMSAudioDevice.SPEAKER_PHONE]: TestIds.phone_speaker_audio_device_text,
+  [HMSAudioDevice.WIRED_HEADSET]: TestIds.wired_headset_audio_device_text,
+  [HMSAudioDevice.EARPIECE]: TestIds.earpiece_audio_device_text,
+  [HMSAudioDevice.BLUETOOTH]: TestIds.bluetooth_audio_device_text,
+} as const;
+
+const activeAudioDeviceTestIds = {
+  [HMSAudioDevice.AUTOMATIC]: TestIds.automatic_audio_device_active,
+  [HMSAudioDevice.SPEAKER_PHONE]: TestIds.phone_speaker_audio_device_active,
+  [HMSAudioDevice.WIRED_HEADSET]: TestIds.wired_headset_audio_device_active,
+  [HMSAudioDevice.EARPIECE]: TestIds.earpiece_audio_device_active,
+  [HMSAudioDevice.BLUETOOTH]: TestIds.bluetooth_audio_device_active,
 } as const;

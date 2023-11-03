@@ -5,6 +5,7 @@ import { MicIcon } from '../Icons';
 import { useCanPublishAudio, useHMSActions } from '../hooks-sdk';
 import type { RootState } from '../redux';
 import { PressableIcon } from './PressableIcon';
+import { TestIds } from '../utils/constants';
 
 export const HMSManageLocalAudio = () => {
   const canPublishAudio = useCanPublishAudio();
@@ -31,6 +32,7 @@ const ToggleAudioMuteButton = () => {
 
   return (
     <PressableIcon
+      testID={!!isLocalAudioMuted ? TestIds.mic_muted_btn : TestIds.mic_unmuted_btn}
       onPress={handleAudioMuteTogglePress}
       active={isLocalAudioMuted}
     >

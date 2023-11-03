@@ -22,4 +22,7 @@ export const createHMSHLSPlayerPlaybackSlice: StateCreator<
 
   error: undefined,
   setPlaybackError: (error: HMSHLSPlayerPlaybackError) => set({ error }),
+
+  resolution: undefined,
+  setResolution: (resolution) => set({ resolution }),
 });

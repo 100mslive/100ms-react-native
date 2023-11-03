@@ -6,9 +6,10 @@ import {
   UIManager,
   Platform,
 } from 'react-native';
-import type { ViewStyle } from 'react-native';
+import type { NativeSyntheticEvent, ViewStyle } from 'react-native';
 import { HMSConstants } from './HMSConstants';
 import { HMSVideoViewMode } from './HMSVideoViewMode';
+import { setHmsViewsResolutionsState } from '../hooks/hmsviews';
 
 interface HmsViewProps {
   data: {
@@ -64,7 +65,20 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
      * This method is passed to `onChange` prop of `HmsView` Native Component.
      * It is invoked when `HmsView` emits 'topChange' event.
      */
-    const onChange = () => setApplyStyles_ANDROID(true);
+    const onChange = ({
+      nativeEvent,
+    }: NativeSyntheticEvent<{
+      data: { height: number; width: number };
+      event: 'ON_RESOLUTION_CHANGE_EVENT';
+    }>) => {
+      const { event, data } = nativeEvent;
+
+      setApplyStyles_ANDROID(true);
+
+      if (event === 'ON_RESOLUTION_CHANGE_EVENT') {
+        setHmsViewsResolutionsState(trackId, data);
+      }
+    };
 
     /**
      * This method is passed to `onDataReturned` prop of `HmsView` Native Component.

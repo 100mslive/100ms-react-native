@@ -6,6 +6,7 @@ import {
   setHMSHLSPlayerCue,
   setHMSHLSPlayerPlaybackError,
   setHMSHLSPlayerPlaybackState,
+  setHMSHLSPlayerResolution,
   setHMSHLSPlayerStats,
   setHMSHLSPlayerStatsError,
 } from './hooks';
@@ -198,13 +199,18 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
       event === HMSHLSPlayerPlaybackEventTypes.ON_PLAYBACK_FAILURE_EVENT
     ) {
       setHMSHLSPlayerPlaybackError(data.error);
+    } else if (
+      event === HMSHLSPlayerPlaybackEventTypes.ON_PLAYBACK_RESOLUTION_CHANGE_EVENT
+    ) {
+      setHMSHLSPlayerResolution({...data});
+
+      const aspectRatio = data.width / data.height;
+
+      if (typeof aspectRatio === 'number' && !isNaN(aspectRatio)) {
+        setAspectRatio(aspectRatio);
+      }
     } else {
       setHMSHLSPlayerPlaybackState(data.state);
-      if (data.state === 'onVideoSizeChanged') {
-        if (typeof data.aspectRatio === 'number') {
-          setAspectRatio(data.aspectRatio);
-        }
-      }
     }
   };
 

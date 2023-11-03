@@ -10,6 +10,7 @@ export enum HMSHLSPlayerPlaybackEventTypes {
   ON_PLAYBACK_CUE_EVENT = 'ON_PLAYBACK_CUE_EVENT',
   ON_PLAYBACK_FAILURE_EVENT = 'ON_PLAYBACK_FAILURE_EVENT',
   ON_PLAYBACK_STATE_CHANGE_EVENT = 'ON_PLAYBACK_STATE_CHANGE_EVENT',
+  ON_PLAYBACK_RESOLUTION_CHANGE_EVENT = 'ON_PLAYBACK_RESOLUTION_CHANGE_EVENT',
 }
 
 export type HMSHLSPlayerPlaybackCueEventData = {
@@ -34,12 +35,15 @@ export enum HMSHLSPlayerPlaybackState {
   PLAYING = 'playing',
   STOPPED = 'stopped',
   UNKNOWN = 'unknown',
-  onVideoSizeChanged = 'onVideoSizeChanged',
 }
 
 export type HMSHLSPlayerPlaybackStateChangeEventData = {
   state: HMSHLSPlayerPlaybackState;
-  aspectRatio: number | undefined;
+};
+
+export type HMSHLSPlayerPlaybackResolutionChangeEventData = {
+  width: number;
+  height: number;
 };
 
 type HMSHLSPlayerPlaybackCueEvent = HMSHLSPlayerEvent<
@@ -57,10 +61,16 @@ type HMSHLSPlayerPlaybackStateChangeEvent = HMSHLSPlayerEvent<
   HMSHLSPlayerPlaybackStateChangeEventData
 >;
 
+type HMSHLSPLayerPlaybackResolutionChangeEvent = HMSHLSPlayerEvent<
+  HMSHLSPlayerPlaybackEventTypes.ON_PLAYBACK_RESOLUTION_CHANGE_EVENT,
+  HMSHLSPlayerPlaybackResolutionChangeEventData
+>;
+
 export type HMSHLSPlayerPlaybackEvent =
   | HMSHLSPlayerPlaybackCueEvent
   | HMSHLSPlayerPlaybackFailureEvent
-  | HMSHLSPlayerPlaybackStateChangeEvent;
+  | HMSHLSPlayerPlaybackStateChangeEvent
+  | HMSHLSPLayerPlaybackResolutionChangeEvent;
 
 // #endregion HMS HLSPlayer Playback Events
 

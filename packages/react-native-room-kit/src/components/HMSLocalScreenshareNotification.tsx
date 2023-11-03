@@ -5,7 +5,8 @@ import { ScreenShareIcon } from '../Icons';
 import { HMSDangerButton } from './HMSDangerButton';
 import { HMSNotification } from './HMSNotification';
 import { useHMSRoomStyle } from '../hooks-util';
-import { NotificationTypes } from '../utils';
+import { NotificationTypes } from '../types';
+import { TestIds } from '../utils/constants';
 
 export interface HMSLocalScreenshareNotificationProps {}
 
@@ -28,9 +29,11 @@ export const HMSLocalScreenshareNotification: React.FC<
       autoDismiss={false}
       style={notificationStyle}
       text={'You are sharing your screen'}
+      textTestID={TestIds.notification_sharing_screen}
       icon={<ScreenShareIcon />}
       cta={
         <HMSDangerButton
+          testID={TestIds.notification_stop_screen_share_btn}
           loading={false}
           onPress={stopScreenshare}
           title="Stop"
