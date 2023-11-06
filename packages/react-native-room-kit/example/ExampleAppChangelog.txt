@@ -1,8 +1,15 @@
 Board: https://100ms.atlassian.net/jira/software/projects/RN/boards/33
 
-- Enabled Hardware Echo Cancellation
+- Enabled Hardware Echo Cancellation by default
+https://100ms.atlassian.net/browse/RN-127
 
-Room Kit: 1.0.2
-React Native SDK: 1.9.1
-Android SDK: 2.7.9
-iOS SDK: 1.1.0
+- Sending of Subscriber Stats
+https://100ms.atlassian.net/browse/RN-115
+
+- Resolved Auto Simulcast bug on Android
+https://100ms.atlassian.net/browse/RN-128
+
+Room Kit: 1.0.3
+React Native SDK: 1.9.2
+Android SDK: 2.8.0
+iOS SDK: 1.2.0
