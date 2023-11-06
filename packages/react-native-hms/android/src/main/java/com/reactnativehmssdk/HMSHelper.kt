@@ -307,6 +307,8 @@ object HMSHelper {
       val initialState = getHMSTrackSettingsInitState(data.getString("initialState"))
       builder.initialState(initialState)
     }
+
+    builder.setPhoneCallMuteState(PhoneCallState.DISABLE_MUTE_ON_VOIP_PHONE_CALL_RING)
     return builder.build()
   }
 
