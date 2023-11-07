@@ -1,17 +1,18 @@
 Board: https://100ms.atlassian.net/jira/software/projects/RN/boards/33
 
-- Add Large Rooms Participants List UI
-https://100ms.atlassian.net/browse/RN-106
+- Enabled Hardware Echo Cancellation by default
+https://100ms.atlassian.net/browse/RN-127
 
-- Add Light Theme Support on Prebuilt
-https://100ms.atlassian.net/browse/RN-105
+- Sending of Subscriber Stats
+https://100ms.atlassian.net/browse/RN-115
 
-- Recording Icon changes to show the recording states
-https://100ms.atlassian.net/browse/RN-104
+- Resolved Auto Simulcast bug on Android
+https://100ms.atlassian.net/browse/RN-128
 
-- Added support for using react-native-animated library version 3.x.x
+- Resolved: On web-RN Android 100ms call, after call interruption on RN, voice is robotic to web user
+https://100ms.atlassian.net/browse/RN-130
 
-Room Kit: 1.0.1
-React Native SDK: 1.9.0
-Android SDK: 2.7.9
-iOS SDK: 1.1.0
+Room Kit: 1.0.3
+React Native SDK: 1.9.2
+Android SDK: 2.8.0
+iOS SDK: 1.2.0
