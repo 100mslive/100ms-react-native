@@ -79,7 +79,7 @@
     "typescript": "^5.0.2"
   },
   "peerDependencies": {
-    "@100mslive/react-native-hms": "1.9.1",
+    "@100mslive/react-native-hms": "1.9.2",
     "@react-native-community/blur": "^4.3.2",
     "@react-native-masked-view/masked-view": "^0.2.9",
     "@shopify/flash-list": "^1.4.3",
