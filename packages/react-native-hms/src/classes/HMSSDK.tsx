@@ -807,11 +807,6 @@ export class HMSSDK {
     });
   };
 
-  resetVolume = () => {
-    logger?.verbose('#Function resetVolume', { id: this.id });
-    if (Platform.OS === 'android') HMSManager.resetVolume({ id: this.id });
-  };
-
   /**
    * - This function is used to start screenshare, currently available only for android
    *
