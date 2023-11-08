@@ -852,6 +852,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
           it.setAutoEnterEnabled(config.autoEnterPipMode)
+          it.setSeamlessResizeEnabled(false)
         }
 
         // region Setting RemoteActions on PictureInPictureParams
