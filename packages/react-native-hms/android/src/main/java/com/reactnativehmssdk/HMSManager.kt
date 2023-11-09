@@ -30,6 +30,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
     var emitter: DeviceEventManagerModule.RCTDeviceEventEmitter? = null
 
     fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
+      isPIPMode = isInPictureInPictureMode
       emitter?.let {
         val data = Arguments.createMap()
         data.putBoolean("isInPictureInPictureMode", isInPictureInPictureMode)
@@ -38,14 +39,46 @@ class HMSManager(reactContext: ReactApplicationContext) :
       }
     }
 
+    fun onWindowFocusChanged(isFocused: Boolean) {
+      if (isFocused && isPIPMode) {
+        emitter?.let {
+          val data = Arguments.createMap()
+          data.putBoolean("isInPictureInPictureMode", false)
+
+          it.emit("ON_PIP_MODE_CHANGED", data)
+        }
+        isPIPMode = false
+      }
+    }
+
+    fun onResume() {
+      if (isPIPMode) {
+        isPIPMode = false
+        emitter?.let {
+          val data = Arguments.createMap()
+          data.putBoolean("isInPictureInPictureMode", false)
+
+          it.emit("ON_PIP_MODE_CHANGED", data)
+        }
+      }
+    }
+
+    private var isPIPMode = false
+
     fun onUserLeaveHint() {
       val pipParams = pipParamsUntyped
       if (
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
-        Build.VERSION.SDK_INT < Build.VERSION_CODES.S &&
         pipParamConfig?.autoEnterPipMode == true &&
         pipParams is android.app.PictureInPictureParams
       ) {
+        isPIPMode = true
+        emitter?.let {
+          val data = Arguments.createMap()
+          data.putBoolean("isInPictureInPictureMode", true)
+
+          it.emit("ON_PIP_MODE_CHANGED", data)
+        }
         reactAppContext?.currentActivity?.enterPictureInPictureMode(pipParams)
       }
     }
@@ -851,7 +884,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-          it.setAutoEnterEnabled(config.autoEnterPipMode)
+          it.setSeamlessResizeEnabled(false)
         }
 
         // region Setting RemoteActions on PictureInPictureParams
