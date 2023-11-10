@@ -5,6 +5,7 @@ import {
   setIsLocalAudioMutedState,
   setIsLocalScreenSharedState,
   setIsLocalVideoMutedState,
+  setRoomLocallyMuted,
 } from './redux/actions';
 import {
   selectAllowedTracksToPublish,
@@ -218,6 +219,25 @@ export const useHMSActions = () => {
     []
   );
 
+  const setRoomMuteLocally = useCallback(async (mute: boolean): Promise<void> => {
+    const state: RootState = store.getState();
+    const hmsInstance = state.user.hmsInstance;
+
+    if (!hmsInstance) {
+      return Promise.reject('HMSSDK Instance is not available!');
+    }
+
+    try {
+      const result = await hmsInstance.setPlaybackForAllAudio(mute);
+      console.log('Set Room Mute Locally Success: ', result);
+
+      dispatch(setRoomLocallyMuted(mute));
+    } catch (error) {
+      console.log('Set Room Mute Locally Error: ', error);
+      return Promise.reject(error);
+    }
+  }, []);
+
   return {
     setLocalAudioEnabled,
     setLocalVideoEnabled,
@@ -228,5 +248,6 @@ export const useHMSActions = () => {
     raiseLocalPeerHand,
     lowerLocalPeerHand,
     lowerRemotePeerHand,
+    setRoomMuteLocally,
   };
 };

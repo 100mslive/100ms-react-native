@@ -31,11 +31,13 @@ import {
 import type { RootState } from '../redux';
 import { BottomSheet } from './BottomSheet';
 import { TestIds } from '../utils/constants';
+import { useHMSActions } from '../hooks-sdk';
 
 export const HMSManageAudioOutput: React.FC = () => {
   const hmsInstance = useHMSInstance();
   const isHLSViewer = useIsHLSViewer();
   const [settingsModalVisible, setSettingsModalVisible] = React.useState(false);
+  const { setRoomMuteLocally } = useHMSActions();
 
   const [currentAudioOutputDevice, setCurrentAudioOutputDevice] =
     React.useState<HMSAudioDevice | null>(null);
@@ -43,6 +45,7 @@ export const HMSManageAudioOutput: React.FC = () => {
     React.useState<HMSAudioDevice[]>([]);
 
   const debugMode = useSelector((state: RootState) => state.user.debugMode);
+  const roomLocallyMuted = useSelector((state: RootState) => state.hmsStates.roomLocallyMuted);
 
   // Fetch current selected audio device and audio devices list on Android
   React.useEffect(() => {
@@ -79,15 +82,17 @@ export const HMSManageAudioOutput: React.FC = () => {
 
   // Handles showing Modal for changing Audio device
   const handleSpeakerChange = () => {
-    if (Platform.OS === 'ios') {
-      hmsInstance.switchAudioOutputUsingIOSUI();
-    } else {
+    if (Platform.OS !== 'ios') {
       if (availableAudioOutputDevices.length === 0) {
         hmsInstance
           .getAudioDevicesList()
           .then((devices) => setAvailableAudioOutputDevices(devices)); // TODO(set-state-after-unmount): setting state irrespective of component unmount check
       }
       setSettingsModalVisible(true);
+    } else if (roomLocallyMuted) {
+      // TODO: open room modal, if possible, highlight "room mute" option
+    } else {
+      hmsInstance.switchAudioOutputUsingIOSUI();
     }
   };
 
@@ -120,22 +125,22 @@ export const HMSManageAudioOutput: React.FC = () => {
   }, [hmsInstance, debugMode]);
 
   // Handle changing selected audio device
-  const handleSelectAudioDevice = (device: HMSAudioDevice) => {
-    hmsInstance.switchAudioOutput(device);
+  const handleSelectAudioDevice = (device: HMSAudioDevice | 'mute-audio') => {
+    if (device === 'mute-audio') {
+      setRoomMuteLocally(true);
+    } else {
+      if (roomLocallyMuted) {
+        setRoomMuteLocally(false);
+      }
+      hmsInstance.switchAudioOutput(device);
+    }
     setSettingsModalVisible(false);
   };
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
-    headerText: {
-      color: theme.palette.on_surface_high,
-      fontFamily: `${typography.font_family}-Medium`,
-    },
     text: {
       color: theme.palette.on_surface_high,
       fontFamily: `${typography.font_family}-SemiBold`,
-    },
-    divider: {
-      backgroundColor: theme.palette.border_default,
     },
   }));
 
@@ -146,7 +151,9 @@ export const HMSManageAudioOutput: React.FC = () => {
         onPress={handleSpeakerChange}
         style={isHLSViewer ? styles.button : null}
       >
-        {Platform.OS === 'ios' ? (
+        {roomLocallyMuted ? (
+          <SpeakerIcon muted={true} />
+        ) : Platform.OS === 'ios' ? (
           <SpeakerIcon muted={false} />
         ) : (
           getIcon(currentAudioOutputDevice || HMSAudioDevice.AUTOMATIC)
@@ -183,41 +190,105 @@ export const HMSManageAudioOutput: React.FC = () => {
                   const isFirst = index === 0;
 
                   return (
-                    <React.Fragment key={device}>
-                      {isFirst ? null : (
-                        <View style={[styles.divider, hmsRoomStyles.divider]} />
+                    <AudioOutputDevice
+                      key={device}
+                      id={device}
+                      hideDivider={isFirst}
+                      selected={device === currentAudioOutputDevice && !roomLocallyMuted}
+                      checkTestID={activeAudioDeviceTestIds[device]}
+                      text={getDescription(device, currentAudioOutputDevice)}
+                      textTestID={audioDeviceTextTestIds[device]}
+                      icon={getIcon(
+                        device === HMSAudioDevice.AUTOMATIC &&
+                          currentAudioOutputDevice
+                          ? currentAudioOutputDevice
+                          : device
                       )}
-
-                      <TouchableOpacity
-                        testID={audioDeviceTestIds[device]}
-                        style={styles.audioDeviceItem}
-                        onPress={() => handleSelectAudioDevice(device)}
-                      >
-                        <View style={styles.itemTextWrapper}>
-                          {getIcon(
-                            device === HMSAudioDevice.AUTOMATIC &&
-                              currentAudioOutputDevice
-                              ? currentAudioOutputDevice
-                              : device
-                          )}
-
-                          <Text testID={audioDeviceTextTestIds[device]} style={[styles.itemText, hmsRoomStyles.text]}>
-                            {getDescription(device, currentAudioOutputDevice)}
-                          </Text>
-                        </View>
-
-                        {device === currentAudioOutputDevice ? (
-                          <CheckIcon testID={activeAudioDeviceTestIds[device]} />
-                        ) : null}
-                      </TouchableOpacity>
-                    </React.Fragment>
+                      buttonTestID={audioDeviceTestIds[device]}
+                      onPress={handleSelectAudioDevice}
+                    />
                   );
                 })}
+
+              <AudioOutputDevice
+                id={'mute-audio'}
+                hideDivider={false}
+                selected={roomLocallyMuted}
+                text={'Mute Audio'}
+                icon={<SpeakerIcon muted={true} />}
+                onPress={handleSelectAudioDevice}
+                checkTestID={TestIds.mute_audio_active}
+                textTestID={TestIds.mute_audio_text}
+                buttonTestID={TestIds.mute_audio_btn}
+              />
             </ScrollView>
           )}
         </View>
       </BottomSheet>
     </View>
+  );
+};
+
+interface AudioOutputDeviceProps {
+  id: HMSAudioDevice | 'mute-audio';
+  hideDivider: boolean;
+  selected: boolean;
+  checkTestID: string;
+  text: string;
+  textTestID: string;
+  icon: React.ReactElement;
+  buttonTestID: string;
+  onPress(selected: HMSAudioDevice | 'mute-audio'): void;
+}
+
+const AudioOutputDevice: React.FC<AudioOutputDeviceProps> = (props) => {
+  const {
+    id,
+    hideDivider,
+    selected,
+    checkTestID,
+    text,
+    textTestID,
+    icon,
+    buttonTestID,
+    onPress,
+  } = props;
+
+  const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
+    text: {
+      color: theme.palette.on_surface_high,
+      fontFamily: `${typography.font_family}-SemiBold`,
+    },
+    divider: {
+      backgroundColor: theme.palette.border_default,
+    },
+  }));
+
+  return (
+    <React.Fragment>
+      {hideDivider ? null : (
+        <View style={[styles.divider, hmsRoomStyles.divider]} />
+      )}
+
+      <TouchableOpacity
+        testID={buttonTestID}
+        style={styles.audioDeviceItem}
+        onPress={() => onPress(id)}
+      >
+        <View style={styles.itemTextWrapper}>
+          {icon}
+
+          <Text
+            testID={textTestID}
+            style={[styles.itemText, hmsRoomStyles.text]}
+          >
+            {text}
+          </Text>
+        </View>
+
+        {selected ? <CheckIcon testID={checkTestID} /> : null}
+      </TouchableOpacity>
+    </React.Fragment>
   );
 };
 
