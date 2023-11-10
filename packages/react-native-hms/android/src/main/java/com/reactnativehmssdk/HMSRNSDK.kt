@@ -1282,10 +1282,13 @@ class HMSRNSDK(
     if (requiredKeys === null) {
       val mute = data.getBoolean("mute")
       self.roomMutedLocally = mute
-      val remotePeers = hmsSDK?.getRemotePeers()
 
-      remotePeers?.forEach() {
-        it.audioTrack?.isPlaybackAllowed = !mute
+      val allAudioTracks = HMSHelper.getAllAudioTracks(hmsSDK?.getRoom())
+
+      allAudioTracks?.forEach() {
+        if (it is HMSRemoteAudioTrack) {
+          it.isPlaybackAllowed = !mute
+        }
       }
       callback?.resolve(true)
     } else {

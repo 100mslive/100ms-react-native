@@ -854,12 +854,14 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
 
         DispatchQueue.main.async { [weak self] in
-            if let self = self, let hms = self.hms {
+            if let self = self, let room = hms?.room {
                 self.roomMutedLocally = mute
 
-                if let remotePeers = hms.remotePeers {
-                    for peer in remotePeers {
-                        peer.remoteAudioTrack()?.setPlaybackAllowed(!mute)
+                let audioTracks = HMSUtilities.getAllAudioTracks(in: room)
+
+                audioTracks.forEach { audioTrack in
+                    if audioTrack is HMSRemoteAudioTrack {
+                        (audioTrack as! HMSRemoteAudioTrack).setPlaybackAllowed(!mute)
                     }
                 }
                 resolve?(true)
@@ -1408,12 +1410,11 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             }
         }
 
-        if roomMutedLocally && update == .trackAdded && track.kind == .audio  && !peer.isLocal, let remotePeers = self.hms?.remotePeers {
-
-            if let remoteAudioTrack = HMSHelper.getRemoteAudioTrackFromTrackId(track.trackId, remotePeers) {
-                remoteAudioTrack.setPlaybackAllowed(!roomMutedLocally)
-            } else if let remoteAuxAudioTrack = HMSHelper.getRemoteAudioAuxiliaryTrackFromTrackId(track.trackId, remotePeers) {
-                remoteAuxAudioTrack.setPlaybackAllowed(!roomMutedLocally)
+        if roomMutedLocally && update == .trackAdded && track.kind == .audio  && !peer.isLocal, let room = self.hms?.room {
+            if let audioTrack = HMSUtilities.getAudioTrack(for: track.trackId, in: room) {
+                if audioTrack is HMSRemoteAudioTrack {
+                    (audioTrack as! HMSRemoteAudioTrack).setPlaybackAllowed(!roomMutedLocally)
+                }
             }
         }
 

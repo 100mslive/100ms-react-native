@@ -15,6 +15,7 @@ import live.hms.video.audio.HMSAudioManager
 import live.hms.video.error.HMSException
 import live.hms.video.events.AgentType
 import live.hms.video.media.settings.*
+import live.hms.video.media.tracks.HMSAudioTrack
 import live.hms.video.media.tracks.HMSRemoteAudioTrack
 import live.hms.video.media.tracks.HMSRemoteVideoTrack
 import live.hms.video.media.tracks.HMSTrack
@@ -180,6 +181,15 @@ object HMSHelper {
   ): HMSRemoteAudioTrack? {
     if (trackId != null && room != null) {
       return HmsUtilities.getAudioTrack(trackId, room) as? HMSRemoteAudioTrack
+    }
+    return null
+  }
+
+  fun getAllAudioTracks(
+    room: HMSRoom?,
+  ): ArrayList<HMSAudioTrack>? {
+    if (room != null) {
+      return HmsUtilities.getAllAudioTracks(room)
     }
     return null
   }
