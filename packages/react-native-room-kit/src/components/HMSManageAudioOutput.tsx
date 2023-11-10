@@ -82,18 +82,12 @@ export const HMSManageAudioOutput: React.FC = () => {
 
   // Handles showing Modal for changing Audio device
   const handleSpeakerChange = () => {
-    if (Platform.OS !== 'ios') {
-      if (availableAudioOutputDevices.length === 0) {
-        hmsInstance
-          .getAudioDevicesList()
-          .then((devices) => setAvailableAudioOutputDevices(devices)); // TODO(set-state-after-unmount): setting state irrespective of component unmount check
-      }
-      setSettingsModalVisible(true);
-    } else if (roomLocallyMuted) {
-      // TODO: open room modal, if possible, highlight "room mute" option
-    } else {
-      hmsInstance.switchAudioOutputUsingIOSUI();
+    if (Platform.OS === 'android' && availableAudioOutputDevices.length === 0) {
+      hmsInstance
+        .getAudioDevicesList()
+        .then((devices) => setAvailableAudioOutputDevices(devices)); // TODO(set-state-after-unmount): setting state irrespective of component unmount check
     }
+    setSettingsModalVisible(true);
   };
 
   // Add audio device change listeners
@@ -125,14 +119,18 @@ export const HMSManageAudioOutput: React.FC = () => {
   }, [hmsInstance, debugMode]);
 
   // Handle changing selected audio device
-  const handleSelectAudioDevice = (device: HMSAudioDevice | 'mute-audio') => {
+  const handleSelectAudioDevice = (device: HMSAudioDevice | 'mute-audio' | 'ios-audio-device') => {
     if (device === 'mute-audio') {
       setRoomMuteLocally(true);
     } else {
       if (roomLocallyMuted) {
         setRoomMuteLocally(false);
       }
-      hmsInstance.switchAudioOutput(device);
+      if (device === 'ios-audio-device') {
+        hmsInstance.switchAudioOutputUsingIOSUI();
+      } else {
+        hmsInstance.switchAudioOutput(device);
+      }
     }
     setSettingsModalVisible(false);
   };
@@ -171,7 +169,33 @@ export const HMSManageAudioOutput: React.FC = () => {
         <BottomSheet.Divider />
 
         <View style={styles.contentContainer}>
-          {availableAudioOutputDevices.length === 0 ? (
+          {Platform.OS === 'ios' ? (
+            <>
+              <AudioOutputDevice
+                id={'ios-audio-device'}
+                hideDivider={true}
+                selected={!roomLocallyMuted}
+                text={'Auto'}
+                icon={<SpeakerIcon muted={false} />}
+                onPress={handleSelectAudioDevice}
+                checkTestID={TestIds.automatic_audio_device_active}
+                textTestID={TestIds.automatic_audio_device_text}
+                buttonTestID={TestIds.automatic_audio_device_btn}
+              />
+
+              <AudioOutputDevice
+                id={'mute-audio'}
+                hideDivider={false}
+                selected={roomLocallyMuted}
+                text={'Mute Audio'}
+                icon={<SpeakerIcon muted={true} />}
+                onPress={handleSelectAudioDevice}
+                checkTestID={TestIds.mute_audio_active}
+                textTestID={TestIds.mute_audio_text}
+                buttonTestID={TestIds.mute_audio_btn}
+              />
+            </>
+          ) : availableAudioOutputDevices.length === 0 ? (
             <View style={styles.emptyView}>
               <Text
                 testID={TestIds.audio_modal_empty_text}
@@ -230,7 +254,7 @@ export const HMSManageAudioOutput: React.FC = () => {
 };
 
 interface AudioOutputDeviceProps {
-  id: HMSAudioDevice | 'mute-audio';
+  id: HMSAudioDevice | 'mute-audio' | 'ios-audio-device';
   hideDivider: boolean;
   selected: boolean;
   checkTestID: string;
@@ -238,7 +262,7 @@ interface AudioOutputDeviceProps {
   textTestID: string;
   icon: React.ReactElement;
   buttonTestID: string;
-  onPress(selected: HMSAudioDevice | 'mute-audio'): void;
+  onPress(selected: HMSAudioDevice | 'mute-audio' | 'ios-audio-device'): void;
 }
 
 const AudioOutputDevice: React.FC<AudioOutputDeviceProps> = (props) => {
