@@ -40,7 +40,8 @@ const QRCodeScanner = () => {
           roomCode: string,
           userId: string,
           tokenEndpoint: string | undefined,
-          initEndpoint: string | undefined
+          initEndpoint: string | undefined,
+          layoutEndPoint: string | undefined,
         ) => {
           // Saving Meeting Link to Async Storage for persisting it between app starts.
           AsyncStorage.setItem(
@@ -53,6 +54,7 @@ const QRCodeScanner = () => {
             userId,
             initEndPoint: initEndpoint,
             tokenEndPoint: tokenEndpoint,
+            layoutEndPoint: layoutEndPoint,
             debugMode, // default is false, will deal with this later
           });
         },
