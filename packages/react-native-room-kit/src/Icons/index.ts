@@ -38,3 +38,4 @@ export * from './Stop';
 export * from './Eye';
 export * from './Search';
 export * from './WelcomeHand';
+export * from './CrossCircle';
