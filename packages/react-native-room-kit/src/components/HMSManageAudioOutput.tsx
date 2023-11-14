@@ -288,7 +288,7 @@ const AudioOutputDevice: React.FC<AudioOutputDeviceProps> = (props) => {
     (theme, typography) => ({
       text: {
         color: selected
-          ? theme.palette.primary_default
+          ? theme.palette.primary_bright
           : theme.palette.on_surface_high,
         fontFamily: `${typography.font_family}-SemiBold`,
       },
@@ -296,7 +296,7 @@ const AudioOutputDevice: React.FC<AudioOutputDeviceProps> = (props) => {
         backgroundColor: theme.palette.border_default,
       },
       checkIcon: {
-        tintColor: theme.palette.primary_default,
+        tintColor: theme.palette.primary_bright,
       },
     }),
     [selected]
