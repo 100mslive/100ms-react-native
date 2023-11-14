@@ -52,6 +52,7 @@ class HMSRNSDK(
   private var sessionStore: HmsSessionStore? = null
   private val keyChangeObservers = mutableMapOf<String, HMSKeyChangeListener?>()
   private val peerListIterators = mutableMapOf<String, PeerListIterator>()
+  private var roomMutedLocally = false
 
   init {
     val builder = HMSSDK.Builder(reactApplicationContext)
@@ -136,6 +137,7 @@ class HMSRNSDK(
     sessionStore = null
     keyChangeObservers.clear()
     peerListIterators.clear()
+    roomMutedLocally = false
     HMSDecoder.clearRestrictDataStates()
   }
 
@@ -398,6 +400,19 @@ class HMSRNSDK(
               track: HMSTrack,
               peer: HMSPeer,
             ) {
+              if (
+                roomMutedLocally &&
+                type == HMSTrackUpdate.TRACK_ADDED &&
+                track.type == HMSTrackType.AUDIO &&
+                !peer.isLocal
+              ) {
+                val room = hmsSDK?.getRoom()
+                val remoteAudioTrack = HMSHelper.getRemoteAudioTrackFromTrackId(track.trackId, room)
+                remoteAudioTrack?.let {
+                  it.isPlaybackAllowed = !roomMutedLocally
+                }
+              }
+
               if (eventsEnableStatus["ON_TRACK_UPDATE"] != true) {
                 return
               }
@@ -1266,10 +1281,14 @@ class HMSRNSDK(
     val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("mute", "Boolean")))
     if (requiredKeys === null) {
       val mute = data.getBoolean("mute")
-      val remotePeers = hmsSDK?.getRemotePeers()
+      self.roomMutedLocally = mute
 
-      remotePeers?.forEach() {
-        it.audioTrack?.isPlaybackAllowed = !mute
+      val allAudioTracks = HMSHelper.getAllAudioTracks(hmsSDK?.getRoom())
+
+      allAudioTracks?.forEach() {
+        if (it is HMSRemoteAudioTrack) {
+          it.isPlaybackAllowed = !mute
+        }
       }
       callback?.resolve(true)
     } else {

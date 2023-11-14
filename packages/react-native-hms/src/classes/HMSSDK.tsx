@@ -2178,14 +2178,6 @@ export class HMSSDK {
 
     getHmsPeersCache()?.updatePeerCache(data.peer.peerID, { track }, data.type);
 
-    if (
-      this.muteStatus &&
-      data?.type === 'TRACK_ADDED' &&
-      track.type === HMSTrackType.AUDIO
-    ) {
-      this.setPlaybackForAllAudio(this.muteStatus);
-    }
-
     if (this.onTrackDelegate) {
       logger?.verbose('#Listener ON_TRACK_LISTENER_CALL', {
         peer,

@@ -7,7 +7,6 @@ type ActionType = {
 };
 
 type IntialStateType = {
-  roomID: string;
   joinConfig: {
     debugMode: boolean;
     mutedAudio: boolean;
@@ -23,7 +22,6 @@ type IntialStateType = {
 };
 
 const INITIAL_STATE: IntialStateType = {
-  roomID: getMeetingUrl(),
   joinConfig: {
     debugMode: false,
     mutedAudio: false,
@@ -43,11 +41,6 @@ const appReducer = (
   action: ActionType
 ): IntialStateType => {
   switch (action.type) {
-    case ActionTypes.SET_ROOM_ID:
-      return {
-        ...state,
-        roomID: action.payload.roomID || '',
-      };
     case ActionTypes.RESET_JOIN_CONFIG:
       return {
         ...state,

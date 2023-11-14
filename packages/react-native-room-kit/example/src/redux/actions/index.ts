@@ -1,10 +1,5 @@
 import actionTypes from '../actionTypes';
 
-export const setRoomID = (roomID: string) => ({
-  type: actionTypes.SET_ROOM_ID,
-  payload: { roomID },
-});
-
 export const resetJoinConfig = () => ({ type: actionTypes.RESET_JOIN_CONFIG });
 
 export const changeDebugMode = (value: boolean) => ({

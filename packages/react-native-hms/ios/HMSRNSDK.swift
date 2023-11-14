@@ -30,6 +30,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     private var sessionStore: HMSSessionStore?
     private var sessionStoreChangeObservers = [String: NSObjectProtocol]()
     private var peerListIterators = [String: HMSPeerListIterator]()
+    private var roomMutedLocally = false
 
     // MARK: - Setup
     init(data: NSDictionary?, delegate manager: HMSManager?, uid id: String) {
@@ -853,13 +854,19 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
 
         DispatchQueue.main.async { [weak self] in
-            if let remotePeers = self?.hms?.remotePeers {
-                for peer in remotePeers {
-                    peer.remoteAudioTrack()?.setPlaybackAllowed(!mute)
+            if let self = self, let room = hms?.room {
+                self.roomMutedLocally = mute
+
+                let audioTracks = HMSUtilities.getAllAudioTracks(in: room)
+
+                audioTracks.forEach { audioTrack in
+                    if audioTrack is HMSRemoteAudioTrack {
+                        (audioTrack as! HMSRemoteAudioTrack).setPlaybackAllowed(!mute)
+                    }
                 }
                 resolve?(true)
             } else {
-                let errorMessage = "setPlaybackForAllAudio: No Audio is available to set playback"
+                let errorMessage = "setPlaybackForAllAudio: HMSSDK instance not available"
                 reject?(errorMessage, errorMessage, nil)
             }
         }
@@ -1400,6 +1407,14 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 isScreenShared = false
                 stopScreenshareResolve?(["success": true])
                 stopScreenshareResolve = nil
+            }
+        }
+
+        if roomMutedLocally && update == .trackAdded && track.kind == .audio  && !peer.isLocal, let room = self.hms?.room {
+            if let audioTrack = HMSUtilities.getAudioTrack(for: track.trackId, in: room) {
+                if audioTrack is HMSRemoteAudioTrack {
+                    (audioTrack as! HMSRemoteAudioTrack).setPlaybackAllowed(!roomMutedLocally)
+                }
             }
         }
 
@@ -1989,6 +2004,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         self.sessionStore = nil
         self.sessionStoreChangeObservers.removeAll()
         self.peerListIterators.removeAll()
+        self.roomMutedLocally = false
         HMSDecoder.clearRestrictDataStates()
     }
 
