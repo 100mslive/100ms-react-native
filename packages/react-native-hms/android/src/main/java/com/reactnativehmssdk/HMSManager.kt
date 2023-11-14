@@ -24,13 +24,13 @@ class HMSManager(reactContext: ReactApplicationContext) :
     const val REACT_CLASS = "HMSManager"
     var hmsCollection = mutableMapOf<String, HMSRNSDK>()
 
+    private var isInPIPMode = false
     var reactAppContext: ReactApplicationContext? = null
     var pipParamConfig: PipParamConfig? = null;
     var pipParamsUntyped: Any? = null;
     var emitter: DeviceEventManagerModule.RCTDeviceEventEmitter? = null
 
-    fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
-      isPIPMode = isInPictureInPictureMode
+    private fun emitPipEvent(isInPictureInPictureMode: Boolean) {
       emitter?.let {
         val data = Arguments.createMap()
         data.putBoolean("isInPictureInPictureMode", isInPictureInPictureMode)
@@ -39,46 +39,29 @@ class HMSManager(reactContext: ReactApplicationContext) :
       }
     }
 
-    fun onWindowFocusChanged(isFocused: Boolean) {
-      if (isFocused && isPIPMode) {
-        emitter?.let {
-          val data = Arguments.createMap()
-          data.putBoolean("isInPictureInPictureMode", false)
-
-          it.emit("ON_PIP_MODE_CHANGED", data)
-        }
-        isPIPMode = false
+    fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
+      // emitPipEvent(isInPictureInPictureMode)
+      if (isInPictureInPictureMode) {
+        isInPIPMode = true
       }
     }
 
     fun onResume() {
-      if (isPIPMode) {
-        isPIPMode = false
-        emitter?.let {
-          val data = Arguments.createMap()
-          data.putBoolean("isInPictureInPictureMode", false)
-
-          it.emit("ON_PIP_MODE_CHANGED", data)
-        }
+      if (isInPIPMode) {
+        isInPIPMode = false
+        emitPipEvent(false)
       }
     }
-
-    private var isPIPMode = false
 
     fun onUserLeaveHint() {
       val pipParams = pipParamsUntyped
       if (
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+//        Build.VERSION.SDK_INT < Build.VERSION_CODES.S &&
         pipParamConfig?.autoEnterPipMode == true &&
         pipParams is android.app.PictureInPictureParams
       ) {
-        isPIPMode = true
-        emitter?.let {
-          val data = Arguments.createMap()
-          data.putBoolean("isInPictureInPictureMode", true)
-
-          it.emit("ON_PIP_MODE_CHANGED", data)
-        }
+        emitPipEvent(true)
         reactAppContext?.currentActivity?.enterPictureInPictureMode(pipParams)
       }
     }
@@ -886,6 +869,10 @@ class HMSManager(reactContext: ReactApplicationContext) :
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
           it.setSeamlessResizeEnabled(false)
         }
+
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+//          it.setAutoEnterEnabled(config.autoEnterPipMode)
+//        }
 
         // region Setting RemoteActions on PictureInPictureParams
         val hmssdk = getHmsInstance()[PipActionReceiver.sdkIdForPIP!!]?.hmsSDK
