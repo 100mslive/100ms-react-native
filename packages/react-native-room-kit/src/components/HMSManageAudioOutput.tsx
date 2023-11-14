@@ -45,7 +45,9 @@ export const HMSManageAudioOutput: React.FC = () => {
     React.useState<HMSAudioDevice[]>([]);
 
   const debugMode = useSelector((state: RootState) => state.user.debugMode);
-  const roomLocallyMuted = useSelector((state: RootState) => state.hmsStates.roomLocallyMuted);
+  const roomLocallyMuted = useSelector(
+    (state: RootState) => state.hmsStates.roomLocallyMuted
+  );
 
   // Fetch current selected audio device and audio devices list on Android
   React.useEffect(() => {
@@ -119,7 +121,9 @@ export const HMSManageAudioOutput: React.FC = () => {
   }, [hmsInstance, debugMode]);
 
   // Handle changing selected audio device
-  const handleSelectAudioDevice = (device: HMSAudioDevice | 'mute-audio' | 'ios-audio-device') => {
+  const handleSelectAudioDevice = (
+    device: HMSAudioDevice | 'mute-audio' | 'ios-audio-device'
+  ) => {
     if (device === 'mute-audio') {
       setRoomMuteLocally(true);
     } else {
@@ -218,7 +222,9 @@ export const HMSManageAudioOutput: React.FC = () => {
                       key={device}
                       id={device}
                       hideDivider={isFirst}
-                      selected={device === currentAudioOutputDevice && !roomLocallyMuted}
+                      selected={
+                        device === currentAudioOutputDevice && !roomLocallyMuted
+                      }
                       checkTestID={activeAudioDeviceTestIds[device]}
                       text={getDescription(device, currentAudioOutputDevice)}
                       textTestID={audioDeviceTextTestIds[device]}
@@ -278,15 +284,23 @@ const AudioOutputDevice: React.FC<AudioOutputDeviceProps> = (props) => {
     onPress,
   } = props;
 
-  const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
-    text: {
-      color: theme.palette.on_surface_high,
-      fontFamily: `${typography.font_family}-SemiBold`,
-    },
-    divider: {
-      backgroundColor: theme.palette.border_default,
-    },
-  }));
+  const hmsRoomStyles = useHMSRoomStyleSheet(
+    (theme, typography) => ({
+      text: {
+        color: selected
+          ? theme.palette.primary_default
+          : theme.palette.on_surface_high,
+        fontFamily: `${typography.font_family}-SemiBold`,
+      },
+      divider: {
+        backgroundColor: theme.palette.border_default,
+      },
+      checkIcon: {
+        tintColor: theme.palette.primary_default,
+      },
+    }),
+    [selected]
+  );
 
   return (
     <React.Fragment>
@@ -296,11 +310,16 @@ const AudioOutputDevice: React.FC<AudioOutputDeviceProps> = (props) => {
 
       <TouchableOpacity
         testID={buttonTestID}
+        disabled={selected}
         style={styles.audioDeviceItem}
         onPress={() => onPress(id)}
       >
         <View style={styles.itemTextWrapper}>
-          {icon}
+          {icon
+            ? React.cloneElement(icon, {
+                style: selected ? hmsRoomStyles.checkIcon : null,
+              })
+            : null}
 
           <Text
             testID={textTestID}
@@ -310,7 +329,9 @@ const AudioOutputDevice: React.FC<AudioOutputDeviceProps> = (props) => {
           </Text>
         </View>
 
-        {selected ? <CheckIcon testID={checkTestID} /> : null}
+        {selected ? (
+          <CheckIcon testID={checkTestID} style={hmsRoomStyles.checkIcon} />
+        ) : null}
       </TouchableOpacity>
     </React.Fragment>
   );
