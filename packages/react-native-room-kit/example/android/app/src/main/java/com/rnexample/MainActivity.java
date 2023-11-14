@@ -2,14 +2,7 @@ package live.hms.rn;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
 import android.view.WindowManager;
-
-import androidx.annotation.NonNull;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.core.view.WindowInsetsControllerCompat;
 
 import com.facebook.react.ReactActivity;
 
@@ -36,48 +29,21 @@ public class MainActivity extends ReactActivity {
     super.onCreate(savedInstanceState);
   }
 
-
-  @Override
-  public void onConfigurationChanged(@NonNull Configuration newConfig) {
-    super.onConfigurationChanged(newConfig);
-    Log.e("PIP", "onConfigurationChanged: " + newConfig.orientation);
-//    adjustFullScreen(newConfig);
-  }
-
-  @Override
-  public void onWindowFocusChanged(boolean hasFocus) {
-    super.onWindowFocusChanged(hasFocus);
-    Log.e("PIP", "onWindowFocusChanged: " + hasFocus);
-//    if (hasFocus) {
-//      HMSManager.Companion.onWindowFocusChanged(true);
-//    }
-  }
-
-  private void adjustFullScreen(Configuration config) {
-    Log.e("PIP", "adjustFullScreen: " + config.orientation);
-//    View view = findViewById(android.R.id.content).getRootView();
-//    final WindowInsetsControllerCompat insetsController =
-//      ViewCompat.getWindowInsetsController(getWindow().getDecorView());
-//      view.setAdjustViewBounds(true);
-  }
   @Override
   public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, Configuration newConfig) {
     super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
-    Log.e("PIP", "onPictureInPictureModeChanged: " + isInPictureInPictureMode);
-//    HMSManager.Companion.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
+    HMSManager.Companion.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
   }
 
   @Override
   protected void onResume() {
     super.onResume();
-    Log.e("PIP", "onResume:");
     HMSManager.Companion.onResume();
   }
 
   @Override
   protected void onUserLeaveHint() {
     super.onUserLeaveHint();
-    Log.e("PIP", "onUserLeaveHint:");
     HMSManager.Companion.onUserLeaveHint();
   }
 }
