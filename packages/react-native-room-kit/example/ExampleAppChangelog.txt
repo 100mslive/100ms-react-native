@@ -9,6 +9,9 @@ https://100ms.atlassian.net/browse/RN-115
 - Resolved Auto Simulcast bug on Android
 https://100ms.atlassian.net/browse/RN-128
 
+- Resolved: On web-RN Android 100ms call, after call interruption on RN, voice is robotic to web user
+https://100ms.atlassian.net/browse/RN-130
+
 Room Kit: 1.0.3
 React Native SDK: 1.9.2
 Android SDK: 2.8.0

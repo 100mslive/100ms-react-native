@@ -12,13 +12,13 @@ import {
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useDispatch, useSelector, useStore } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-simple-toast';
 
 import type { AppStackParamList } from '../../navigator';
 import { styles } from './styles';
-import { getMeetingUrl, validateUrl } from '../../utils/functions';
+import { getMeetingUrl, validateJoiningLink, validateUrl } from '../../utils/functions';
 import { COLORS } from '../../utils/theme';
 import {
   CustomButton,
@@ -26,7 +26,6 @@ import {
   DefaultModal,
   JoinSettingsModalContent,
 } from '../../components';
-import { setRoomID } from '../../redux/actions';
 import { Constants } from '../../utils/types';
 import { RootState } from '../../redux';
 import { callService } from '../../utils/functions';
@@ -45,22 +44,13 @@ const QRCode = () => {
   const navigate = useNavigation<QRCodeScreenProp>().navigate;
   const { top, bottom, left, right } = useSafeAreaInsets();
   const dispatch = useDispatch();
-  const store = useStore();
+  const debugMode = useSelector((state: RootState) => state.app.joinConfig.debugMode);
 
-  const roomLink = useSelector(
-    (state: RootState) => state.app.roomID || getMeetingUrl()
-  );
-  const debugMode = useSelector(
-    (state: RootState) => state.app.joinConfig.debugMode
-  );
-  const [joinDisabled, setJoinDisabled] = useState<boolean>(true);
-  const [joiningLink, setJoiningLink] = useState<string>('');
+  const [joiningLink, setJoiningLink] = useState(getMeetingUrl());
   const [moreModalVisible, setMoreModalVisible] = useState(false);
 
   const onJoinPress = () => {
     if (joiningLink.includes('app.100ms.live/')) {
-      dispatch(setRoomID(joiningLink.replace('meeting', 'preview')));
-
       callService(
         joiningLink,
         (
@@ -98,29 +88,25 @@ const QRCode = () => {
 
   const closeMoreModal = () => setMoreModalVisible(false);
 
-  const onScanQRCodePress = () => {
-    navigate('QRCodeScannerScreen');
-  };
+  const onScanQRCodePress = () => navigate('QRCodeScannerScreen');
 
+  // Handle Splash screen
   useEffect(() => {
     setTimeout(() => {
       LottieSplashScreen.hide();
     }, 1000);
   }, []);
 
-  useEffect(() => {
-    setJoinDisabled(!validateUrl(joiningLink));
-  }, [joiningLink]);
-
+  // Handle Deep Linking
   useEffect(() => {
     Linking.getInitialURL().then((url) => {
-      if (url) {
+      if (url && validateJoiningLink(url)) {
         setJoiningLink(url);
       }
-    });
+    })
 
     const updateUrl = ({ url }: { url: string }) => {
-      if (url) {
+      if (url && validateJoiningLink(url)) {
         setJoiningLink(url);
       }
     };
@@ -131,21 +117,18 @@ const QRCode = () => {
     };
   }, []);
 
+  // Get saved room link from Async Storage
   useFocusEffect(
     useCallback(() => {
       AsyncStorage.getItem(Constants.MEET_URL, (_error, url) => {
-        if (url && url === roomLink) {
+        if (url && validateJoiningLink(url)) {
           setJoiningLink(url);
         }
       });
-    }, [roomLink])
+    }, [])
   );
 
-  useEffect(() => {
-    if (roomLink) {
-      setJoiningLink(roomLink);
-    }
-  }, [roomLink]);
+  const joinDisabled = !validateUrl(joiningLink);
 
   return (
     <KeyboardAvoidingView

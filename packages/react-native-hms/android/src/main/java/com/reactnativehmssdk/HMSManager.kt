@@ -516,13 +516,6 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun resetVolume(data: ReadableMap) {
-    val hms = HMSHelper.getHms(data, hmsCollection)
-
-    hms?.resetVolume()
-  }
-
-  @ReactMethod
   fun changeName(
     data: ReadableMap,
     callback: Promise?,

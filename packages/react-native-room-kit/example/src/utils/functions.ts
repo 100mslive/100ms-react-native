@@ -146,3 +146,7 @@ export const checkPermissions = async (
     return false;
   }
 };
+
+export const validateJoiningLink = (url: string) => {
+  return url && validateUrl(url) && url.includes('app.100ms.live/');
+};
