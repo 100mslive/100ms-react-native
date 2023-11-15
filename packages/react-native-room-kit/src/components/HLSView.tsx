@@ -2,7 +2,11 @@ import React, { useRef } from 'react';
 import type { ComponentRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { View, Text, StyleSheet, Platform } from 'react-native';
-import { HMSHLSPlayer, HMSHLSPlayerPlaybackState, useHMSHLSPlayerPlaybackState } from '@100mslive/react-native-hms';
+import {
+  HMSHLSPlayer,
+  HMSHLSPlayerPlaybackState,
+  useHMSHLSPlayerPlaybackState,
+} from '@100mslive/react-native-hms';
 
 import type { RootState } from '../redux';
 import { changeShowHLSStats } from '../redux/actions';
@@ -85,11 +89,14 @@ export const _HLSView: React.FC = () => {
   const [playerKey, setPlayerKey] = React.useState(1);
 
   const prevReconnectingRef = React.useRef<null | boolean>(null);
-  const reconnecting = useSelector((state: RootState) => state.hmsStates.reconnecting);
+  const reconnecting = useSelector(
+    (state: RootState) => state.hmsStates.reconnecting
+  );
 
   const hlsPlayerPlaybackState = useHMSHLSPlayerPlaybackState();
 
-  const isPlaybackFailed = hlsPlayerPlaybackState === HMSHLSPlayerPlaybackState.FAILED;
+  const isPlaybackFailed =
+    hlsPlayerPlaybackState === HMSHLSPlayerPlaybackState.FAILED;
 
   React.useEffect(() => {
     const prevReconnecting = prevReconnectingRef.current;
@@ -101,7 +108,7 @@ export const _HLSView: React.FC = () => {
       isPlaybackFailed // and player playback is in failed state
     ) {
       // Recreate the HLS PLayer instance
-      setPlayerKey(prevKey => prevKey += 1);
+      setPlayerKey((prevKey) => (prevKey += 1));
     }
 
     prevReconnectingRef.current = reconnecting;
@@ -143,10 +150,19 @@ export const _HLSView: React.FC = () => {
               ) : null}
 
               {isPlaybackFailed ? (
-                <View style={[styles.playbackFailedContainer, hmsRoomStyles.failedContainer]}>
+                <View
+                  style={[
+                    styles.playbackFailedContainer,
+                    hmsRoomStyles.failedContainer,
+                  ]}
+                >
                   <CrossCircleIcon />
 
-                  <Text style={[styles.playbackFailed, hmsRoomStyles.failedText]}>Playback Failed</Text>
+                  <Text
+                    style={[styles.playbackFailed, hmsRoomStyles.failedText]}
+                  >
+                    Playback Failed
+                  </Text>
                 </View>
               ) : null}
             </View>

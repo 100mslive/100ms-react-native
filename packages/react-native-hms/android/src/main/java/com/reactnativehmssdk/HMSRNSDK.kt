@@ -1277,7 +1277,10 @@ class HMSRNSDK(
     rejectCallback(callback, "Audio tracks not found")
   }
 
-  fun setPlaybackForAllAudio(data: ReadableMap, callback: Promise?) {
+  fun setPlaybackForAllAudio(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("mute", "Boolean")))
     if (requiredKeys === null) {
       val mute = data.getBoolean("mute")
@@ -1285,7 +1288,7 @@ class HMSRNSDK(
 
       val allAudioTracks = HMSHelper.getAllAudioTracks(hmsSDK?.getRoom())
 
-      allAudioTracks?.forEach() {
+      allAudioTracks?.forEach {
         if (it is HMSRemoteAudioTrack) {
           it.isPlaybackAllowed = !mute
         }
@@ -1297,7 +1300,10 @@ class HMSRNSDK(
     }
   }
 
-  fun setPlaybackAllowed(data: ReadableMap, callback: Promise?) {
+  fun setPlaybackAllowed(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val requiredKeys =
       HMSHelper.getUnavailableRequiredKey(
         data,
@@ -1371,7 +1377,10 @@ class HMSRNSDK(
     callback?.resolve(roles)
   }
 
-  fun setVolume(data: ReadableMap, callback: Promise?) {
+  fun setVolume(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val requiredKeys =
       HMSHelper.getUnavailableRequiredKey(
         data,
@@ -1622,7 +1631,10 @@ class HMSRNSDK(
     callback?.resolve(hmsSDK?.getAudioOutputRouteType()?.name)
   }
 
-  fun switchAudioOutput(data: ReadableMap, callback: Promise?) {
+  fun switchAudioOutput(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val requiredKeys =
       HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("audioDevice", "String")))
     if (requiredKeys === null) {
@@ -1637,7 +1649,10 @@ class HMSRNSDK(
     }
   }
 
-  fun setAudioMode(data: ReadableMap, callback: Promise?) {
+  fun setAudioMode(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("audioMode", "Int")))
     if (requiredKeys === null) {
       val audioMode = data.getInt("audioMode")

@@ -26,7 +26,7 @@ class HMSHelper: NSObject {
         return peers.first { $0.peerID == peerID }
     }
 
-    static func getRemotePeerFromPeerId(_ peerID: String?, hmsSDK: HMSSDK?,  completion: @escaping (_ peer: HMSPeer?) -> Void) {
+    static func getRemotePeerFromPeerId(_ peerID: String?, hmsSDK: HMSSDK?, completion: @escaping (_ peer: HMSPeer?) -> Void) {
         guard let peerID = peerID, let hms = hmsSDK, let peers = hms.remotePeers else {
             completion(nil)
             return
@@ -38,7 +38,7 @@ class HMSHelper: NSObject {
         }
 
         let peerListIterator = hms.getPeerListIterator(options: HMSPeerListIteratorOptions(filterByPeerIds: [peerID], limit: 1))
-        peerListIterator.next() { peers, error in
+        peerListIterator.next { peers, _ in
             guard let nonnilPeers = peers, let firstPeer = nonnilPeers.first else {
                 completion(nil)
                 return

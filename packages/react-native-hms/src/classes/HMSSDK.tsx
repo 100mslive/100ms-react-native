@@ -1182,13 +1182,16 @@ export class HMSSDK {
 
     const uniqueId = Math.random().toString(16).slice(2);
 
-    const data: null | { sucess: boolean; uniqueId: string; totalCount: number; } =
-      HMSManager.getPeerListIterator({
-        id: this.id,
-        ...options,
-        limit: options?.limit ?? 10,
-        uniqueId,
-      });
+    const data: null | {
+      sucess: boolean;
+      uniqueId: string;
+      totalCount: number;
+    } = HMSManager.getPeerListIterator({
+      id: this.id,
+      ...options,
+      limit: options?.limit ?? 10,
+      uniqueId,
+    });
 
     if (!data) {
       throw new Error('Unable to create PeerListIterator');
@@ -1632,15 +1635,19 @@ export class HMSSDK {
         if (Platform.OS === 'android') {
           // Checking if we already have ON_PIP_MODE_CHANGED subscription
           if (
-            !this.emitterSubscriptions[HMSPIPListenerActions.ON_PIP_MODE_CHANGED]
+            !this.emitterSubscriptions[
+              HMSPIPListenerActions.ON_PIP_MODE_CHANGED
+            ]
           ) {
-            const pipModeChangedSubscription = HMSNativeEventListener.addListener(
-              this.id,
-              HMSPIPListenerActions.ON_PIP_MODE_CHANGED,
-              this.onPIPModeChangedListener
-            );
-            this.emitterSubscriptions[HMSPIPListenerActions.ON_PIP_MODE_CHANGED] =
-              pipModeChangedSubscription;
+            const pipModeChangedSubscription =
+              HMSNativeEventListener.addListener(
+                this.id,
+                HMSPIPListenerActions.ON_PIP_MODE_CHANGED,
+                this.onPIPModeChangedListener
+              );
+            this.emitterSubscriptions[
+              HMSPIPListenerActions.ON_PIP_MODE_CHANGED
+            ] = pipModeChangedSubscription;
           }
           // Adding PIP mode changed Delegate listener
           this.onPIPModeChangedDelegate = callback;
@@ -1989,13 +1996,16 @@ export class HMSSDK {
       case HMSPIPListenerActions.ON_PIP_MODE_CHANGED: {
         if (Platform.OS === 'android') {
           const subscription =
-            this.emitterSubscriptions[HMSPIPListenerActions.ON_PIP_MODE_CHANGED];
+            this.emitterSubscriptions[
+              HMSPIPListenerActions.ON_PIP_MODE_CHANGED
+            ];
           // Removing ON_PIP_MODE_CHANGED native listener
           if (subscription) {
             subscription.remove();
 
-            this.emitterSubscriptions[HMSPIPListenerActions.ON_PIP_MODE_CHANGED] =
-              undefined;
+            this.emitterSubscriptions[
+              HMSPIPListenerActions.ON_PIP_MODE_CHANGED
+            ] = undefined;
           }
           // Removing App Delegate listener
           this.onPIPModeChangedDelegate = null;
@@ -2140,13 +2150,13 @@ export class HMSSDK {
       });
       this.onPeerDelegate({ peer, type });
     }
-  }
+  };
 
   private sendPeerUpdateWhenPeerLeaves = (data: any, peer: any, type: any) => {
     this.sendPeerUpdate(peer, type);
 
     getHmsPeersCache()?.updatePeerCache(data.peer.peerID, data.peer, type);
-  }
+  };
 
   onPeerListUpdatedListener = (data: any) => {
     if (data.id !== this.id) {
@@ -2464,7 +2474,7 @@ export class HMSSDK {
 
       this.onPIPModeChangedDelegate(data);
     }
-  }
+  };
 
   async isPipModeSupported(): Promise<undefined | boolean> {
     return HMSManager.handlePipActions('isPipModeSupported', { id: this.id });

@@ -18,7 +18,11 @@ import Toast from 'react-native-simple-toast';
 
 import type { AppStackParamList } from '../../navigator';
 import { styles } from './styles';
-import { getMeetingUrl, validateJoiningLink, validateUrl } from '../../utils/functions';
+import {
+  getMeetingUrl,
+  validateJoiningLink,
+  validateUrl,
+} from '../../utils/functions';
 import { COLORS } from '../../utils/theme';
 import {
   CustomButton,
@@ -44,7 +48,9 @@ const QRCode = () => {
   const navigate = useNavigation<QRCodeScreenProp>().navigate;
   const { top, bottom, left, right } = useSafeAreaInsets();
   const dispatch = useDispatch();
-  const debugMode = useSelector((state: RootState) => state.app.joinConfig.debugMode);
+  const debugMode = useSelector(
+    (state: RootState) => state.app.joinConfig.debugMode
+  );
 
   const [joiningLink, setJoiningLink] = useState(getMeetingUrl());
   const [moreModalVisible, setMoreModalVisible] = useState(false);
@@ -58,7 +64,7 @@ const QRCode = () => {
           userId: string,
           tokenEndpoint: string | undefined,
           initEndpoint: string | undefined,
-          layoutEndPoint: string | undefined,
+          layoutEndPoint: string | undefined
         ) => {
           // Saving Meeting Link to Async Storage for persisting it between app starts.
           AsyncStorage.setItem(
@@ -103,7 +109,7 @@ const QRCode = () => {
       if (url && validateJoiningLink(url)) {
         setJoiningLink(url);
       }
-    })
+    });
 
     const updateUrl = ({ url }: { url: string }) => {
       if (url && validateJoiningLink(url)) {
@@ -175,8 +181,8 @@ const QRCode = () => {
         </View>
 
         <CustomInput
-          inputTestID='enter-room-link-input'
-          clearTestID='clear-room-link-button'
+          inputTestID="enter-room-link-input"
+          clearTestID="clear-room-link-button"
           value={joiningLink}
           onChangeText={setJoiningLink}
           inputStyle={styles.joiningLinkInput}
@@ -188,7 +194,7 @@ const QRCode = () => {
 
         <View style={{ flexDirection: 'row' }}>
           <CustomButton
-            testID='join-now-button'
+            testID="join-now-button"
             title="Join Now"
             onPress={onJoinPress}
             disabled={joinDisabled}
@@ -199,7 +205,7 @@ const QRCode = () => {
             ]}
           />
           <CustomButton
-            testID='three-dots-config-button'
+            testID="three-dots-config-button"
             onPress={handleMorePress}
             viewStyle={styles.moreButton}
             RightIcon={<ThreeDotsIcon style={styles.moreButtonIcon} />}

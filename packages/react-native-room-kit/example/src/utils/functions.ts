@@ -49,7 +49,7 @@ export const callService = async (
           ? `https://auth-nonprod.100ms.live${Platform.OS === 'ios' ? '/' : ''}`
           : undefined, // Auth Endpoint
         isQARoom ? 'https://qa-init.100ms.live/init' : undefined, // HMSConfig Endpoint
-        isQARoom ? 'https://api-nonprod.100ms.live' : undefined, // Room Layout endpoint
+        isQARoom ? 'https://api-nonprod.100ms.live' : undefined // Room Layout endpoint
       );
       return;
     } else {

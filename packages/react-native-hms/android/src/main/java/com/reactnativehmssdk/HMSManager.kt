@@ -26,8 +26,8 @@ class HMSManager(reactContext: ReactApplicationContext) :
 
     private var isInPIPMode = false
     var reactAppContext: ReactApplicationContext? = null
-    var pipParamConfig: PipParamConfig? = null;
-    var pipParamsUntyped: Any? = null;
+    var pipParamConfig: PipParamConfig? = null
+    var pipParamsUntyped: Any? = null
     var emitter: DeviceEventManagerModule.RCTDeviceEventEmitter? = null
 
     private fun emitPipEvent(isInPictureInPictureMode: Boolean) {
@@ -39,7 +39,10 @@ class HMSManager(reactContext: ReactApplicationContext) :
       }
     }
 
-    fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
+    fun onPictureInPictureModeChanged(
+      isInPictureInPictureMode: Boolean,
+      newConfig: Configuration,
+    ) {
       if (isInPictureInPictureMode) {
         isInPIPMode = true
       }
@@ -79,12 +82,13 @@ class HMSManager(reactContext: ReactApplicationContext) :
 
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         currentActivity?.let {
-         pipReceiver?.register(it)
+          pipReceiver?.register(it)
         }
       }
 
-      emitter = reactApplicationContext
-        .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+      emitter =
+        reactApplicationContext
+          .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
     }
   }
 
@@ -315,7 +319,10 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun setPlaybackAllowed(data: ReadableMap, callback: Promise?) {
+  fun setPlaybackAllowed(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.setPlaybackAllowed(data, callback)
@@ -362,7 +369,10 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun setVolume(data: ReadableMap, callback: Promise?) {
+  fun setVolume(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.setVolume(data, callback)
@@ -379,7 +389,10 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun setPlaybackForAllAudio(data: ReadableMap, callback: Promise?) {
+  fun setPlaybackForAllAudio(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.setPlaybackForAllAudio(data, callback)
@@ -587,14 +600,20 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun switchAudioOutput(data: ReadableMap, callback: Promise?) {
+  fun switchAudioOutput(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.switchAudioOutput(data, callback)
   }
 
   @ReactMethod
-  fun setAudioMode(data: ReadableMap, callback: Promise?) {
+  fun setAudioMode(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.setAudioMode(data, callback)

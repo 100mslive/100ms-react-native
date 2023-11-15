@@ -219,24 +219,27 @@ export const useHMSActions = () => {
     []
   );
 
-  const setRoomMuteLocally = useCallback(async (mute: boolean): Promise<void> => {
-    const state: RootState = store.getState();
-    const hmsInstance = state.user.hmsInstance;
+  const setRoomMuteLocally = useCallback(
+    async (mute: boolean): Promise<void> => {
+      const state: RootState = store.getState();
+      const hmsInstance = state.user.hmsInstance;
 
-    if (!hmsInstance) {
-      return Promise.reject('HMSSDK Instance is not available!');
-    }
+      if (!hmsInstance) {
+        return Promise.reject('HMSSDK Instance is not available!');
+      }
 
-    try {
-      const result = await hmsInstance.setPlaybackForAllAudio(mute);
-      console.log('Set Room Mute Locally Success: ', result);
+      try {
+        const result = await hmsInstance.setPlaybackForAllAudio(mute);
+        console.log('Set Room Mute Locally Success: ', result);
 
-      dispatch(setRoomLocallyMuted(mute));
-    } catch (error) {
-      console.log('Set Room Mute Locally Error: ', error);
-      return Promise.reject(error);
-    }
-  }, []);
+        dispatch(setRoomLocallyMuted(mute));
+      } catch (error) {
+        console.log('Set Room Mute Locally Error: ', error);
+        return Promise.reject(error);
+      }
+    },
+    []
+  );
 
   return {
     setLocalAudioEnabled,

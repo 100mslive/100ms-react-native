@@ -41,13 +41,10 @@ const QRCodeScanner = () => {
           userId: string,
           tokenEndpoint: string | undefined,
           initEndpoint: string | undefined,
-          layoutEndPoint: string | undefined,
+          layoutEndPoint: string | undefined
         ) => {
           // Saving Meeting Link to Async Storage for persisting it between app starts.
-          AsyncStorage.setItem(
-            Constants.MEET_URL,
-            joiningLink
-          );
+          AsyncStorage.setItem(Constants.MEET_URL, joiningLink);
           // @ts-ignore
           navigate('HMSPrebuiltScreen', {
             roomCode,
