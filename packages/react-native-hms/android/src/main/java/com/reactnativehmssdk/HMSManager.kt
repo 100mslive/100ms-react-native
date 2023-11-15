@@ -24,12 +24,13 @@ class HMSManager(reactContext: ReactApplicationContext) :
     const val REACT_CLASS = "HMSManager"
     var hmsCollection = mutableMapOf<String, HMSRNSDK>()
 
+    private var isInPIPMode = false
     var reactAppContext: ReactApplicationContext? = null
     var pipParamConfig: PipParamConfig? = null;
     var pipParamsUntyped: Any? = null;
     var emitter: DeviceEventManagerModule.RCTDeviceEventEmitter? = null
 
-    fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
+    private fun emitPipEvent(isInPictureInPictureMode: Boolean) {
       emitter?.let {
         val data = Arguments.createMap()
         data.putBoolean("isInPictureInPictureMode", isInPictureInPictureMode)
@@ -38,14 +39,27 @@ class HMSManager(reactContext: ReactApplicationContext) :
       }
     }
 
+    fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
+      if (isInPictureInPictureMode) {
+        isInPIPMode = true
+      }
+    }
+
+    fun onResume() {
+      if (isInPIPMode) {
+        isInPIPMode = false
+        emitPipEvent(false)
+      }
+    }
+
     fun onUserLeaveHint() {
       val pipParams = pipParamsUntyped
       if (
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
-        Build.VERSION.SDK_INT < Build.VERSION_CODES.S &&
         pipParamConfig?.autoEnterPipMode == true &&
         pipParams is android.app.PictureInPictureParams
       ) {
+        emitPipEvent(true)
         reactAppContext?.currentActivity?.enterPictureInPictureMode(pipParams)
       }
     }
@@ -851,8 +865,12 @@ class HMSManager(reactContext: ReactApplicationContext) :
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-          it.setAutoEnterEnabled(config.autoEnterPipMode)
+          it.setSeamlessResizeEnabled(false)
         }
+
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+//          it.setAutoEnterEnabled(config.autoEnterPipMode)
+//        }
 
         // region Setting RemoteActions on PictureInPictureParams
         val hmssdk = getHmsInstance()[PipActionReceiver.sdkIdForPIP!!]?.hmsSDK
