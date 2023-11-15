@@ -40,7 +40,6 @@ class HMSManager(reactContext: ReactApplicationContext) :
     }
 
     fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
-      // emitPipEvent(isInPictureInPictureMode)
       if (isInPictureInPictureMode) {
         isInPIPMode = true
       }
@@ -57,7 +56,6 @@ class HMSManager(reactContext: ReactApplicationContext) :
       val pipParams = pipParamsUntyped
       if (
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
-//        Build.VERSION.SDK_INT < Build.VERSION_CODES.S &&
         pipParamConfig?.autoEnterPipMode == true &&
         pipParams is android.app.PictureInPictureParams
       ) {
