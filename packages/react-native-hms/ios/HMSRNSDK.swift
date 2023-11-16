@@ -554,10 +554,10 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
-            guard let localPeer = self?.hms?.localPeer,
+            guard let localPeer = strongSelf.hms?.localPeer,
                 let localTrack = HMSHelper.getLocalTrackFromTrackId(trackId, localPeer: localPeer)
             else {
-                guard let remotePeers = self?.hms?.remotePeers,
+                guard let remotePeers = strongSelf.hms?.remotePeers,
                     let track = HMSHelper.getTrackFromTrackId(trackId, remotePeers)
                 else {
                     reject?("Track not found", "Track not found", nil)
