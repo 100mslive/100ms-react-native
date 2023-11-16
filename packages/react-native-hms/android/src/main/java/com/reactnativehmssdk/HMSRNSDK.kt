@@ -2,6 +2,7 @@ package com.reactnativehmssdk
 
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.os.Build
 import com.facebook.react.bridge.*
 import com.facebook.react.bridge.UiThreadUtil.runOnUiThread
 import com.google.gson.JsonElement
@@ -316,6 +317,13 @@ class HMSRNSDK(
 
             override fun onRemovedFromRoom(notification: HMSRemovedFromRoom) {
               super.onRemovedFromRoom(notification)
+
+              context.currentActivity?.let {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && it.isInPictureInPictureMode) {
+                  it.moveTaskToBack(false)
+                }
+              }
+
               if (eventsEnableStatus["ON_REMOVED_FROM_ROOM"] != true) {
                 cleanup() // resetting states and doing data cleanup
                 return
@@ -380,6 +388,19 @@ class HMSRNSDK(
               type: HMSRoomUpdate,
               hmsRoom: HMSRoom,
             ) {
+              val peerCount = hmsRoom.peerCount
+              if (
+                type == HMSRoomUpdate.ROOM_PEER_COUNT_UPDATED &&
+                peerCount != null &&
+                peerCount <= 1 // `peerCount` includes local peer
+              ) {
+                context.currentActivity?.let {
+                  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && it.isInPictureInPictureMode) {
+                    it.moveTaskToBack(false)
+                  }
+                }
+              }
+
               if (eventsEnableStatus["ON_ROOM_UPDATE"] != true) {
                 return
               }
