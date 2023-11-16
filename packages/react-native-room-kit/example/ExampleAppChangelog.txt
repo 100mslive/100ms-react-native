@@ -1,10 +1,22 @@
 Board: https://100ms.atlassian.net/jira/software/projects/RN/boards/33
+Release: https://100ms.atlassian.net/projects/RN/versions/10599
 
 - Mute speaker option in Prebuilt
 https://100ms.atlassian.net/browse/RN-131
 
 - Persist Room link after joining the Room
 https://100ms.atlassian.net/browse/RN-129
+
+- Improve transitions when entering / exiting PIP Mode on Android
+https://100ms.atlassian.net/browse/RN-139
+
+- Resolved AutoSimulcast always selecting Mid-layer on iOS
+
+- Intermittent: Android app crashed when HLS is started from API
+https://100ms.atlassian.net/browse/RN-123
+
+- RN Android: Stream is not resuming after reconnection
+https://100ms.atlassian.net/browse/RN-125
 
 Room Kit: 1.0.4
 React Native SDK: 1.9.3
