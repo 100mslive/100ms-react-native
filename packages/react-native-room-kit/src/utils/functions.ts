@@ -343,19 +343,19 @@ export const getDisplayTrackDimensions = (
       peersInPage === 1
         ? viewHeight / 1
         : peersInPage === 2
-        ? viewHeight / 2
-        : peersInPage === 3
-        ? viewHeight / 3
-        : viewHeight / 2;
+          ? viewHeight / 2
+          : peersInPage === 3
+            ? viewHeight / 3
+            : viewHeight / 2;
 
     width =
       peersInPage === 1
         ? '100%'
         : peersInPage === 2
-        ? '100%'
-        : peersInPage === 3
-        ? '100%'
-        : '50%';
+          ? '100%'
+          : peersInPage === 3
+            ? '100%'
+            : '50%';
   } else {
     height = viewHeight - (StatusBar.currentHeight || 0);
 

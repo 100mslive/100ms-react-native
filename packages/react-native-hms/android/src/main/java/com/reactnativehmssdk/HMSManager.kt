@@ -1273,11 +1273,11 @@ class HMSManager(reactContext: ReactApplicationContext) :
     val enabled = NotificationManagerCompat.from(reactAppContext).areNotificationsEnabled()
     val data: WritableMap = Arguments.createMap()
 
-    data.putString("status", if (enabled) "granted" else "blocked");
+    data.putString("status", if (enabled) "granted" else "blocked")
     val settings: WritableMap = Arguments.createMap()
-    data.putMap("settings", settings);
+    data.putMap("settings", settings)
 
-    promise?.resolve(data);
+    promise?.resolve(data)
   }
 
   fun emitEvent(
