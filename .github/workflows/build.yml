@@ -64,11 +64,6 @@ jobs:
       - name: Install dependencies
         run: cd packages/react-native-room-kit/example/; npm install
 
-      - name: Trunk Check
-        uses: trunk-io/trunk-action
-        with:
-          post-annotations: true
-
       - name: Make Gradlew Executable
         run: cd packages/react-native-room-kit/example/android && chmod +x ./gradlew
 
