@@ -3,13 +3,13 @@ import { Platform } from 'react-native';
 import { HMSEncoder } from './HMSEncoder';
 import { HMSHelper } from './HMSHelper';
 import { getLogger, logger, setLogger } from './HMSLogger';
-import { HMSTrackType } from './HMSTrackType';
 import { HMSUpdateListenerActions } from './HMSUpdateListenerActions';
 import { HmsViewComponent } from './HmsView';
-import type { HmsComponentProps } from './HmsView';
 
 import HMSManager from '../modules/HMSManagerModule';
 
+import type { HMSTrackType } from './HMSTrackType';
+import type { HmsComponentProps } from './HmsView';
 import type { HMSConfig } from './HMSConfig';
 import type { HMSLocalPeer } from './HMSLocalPeer';
 import type { HMSRemotePeer } from './HMSRemotePeer';
@@ -55,7 +55,6 @@ let HmsSdk: HMSSDK | undefined;
 
 export class HMSSDK {
   id: string;
-  private muteStatus: boolean | undefined;
   private appStateSubscription?: any;
   private onPreviewDelegate?: any;
   private onJoinDelegate?: any;
@@ -239,7 +238,6 @@ export class HMSSDK {
   });
 
   roomLeaveCleanup = () => {
-    this.muteStatus = undefined;
     this?.appStateSubscription?.remove();
     clearHmsPeersCache();
     clearHmsRoomCache();
@@ -698,7 +696,6 @@ export class HMSSDK {
    */
   setPlaybackForAllAudio = (mute: boolean) => {
     logger?.verbose('#Function setPlaybackForAllAudio', { mute, id: this.id });
-    this.muteStatus = mute;
     HMSManager.setPlaybackForAllAudio({ mute, id: this.id });
   };
 
