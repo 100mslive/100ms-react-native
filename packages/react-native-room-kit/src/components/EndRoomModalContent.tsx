@@ -1,11 +1,13 @@
 import * as React from 'react';
+import { useSelector } from 'react-redux';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
 import { useHMSRoomStyleSheet, useLeaveMethods } from '../hooks-util';
 import { AlertTriangleIcon, CloseIcon } from '../Icons';
 import { HMSDangerButton } from './HMSDangerButton';
-import { useSelector } from 'react-redux';
 import type { RootState } from '../redux';
+import { OnLeaveReason } from '../utils/types';
+import { TestIds } from '../utils/constants';
 
 export interface EndRoomModalContentProps {
   dismissModal(): void;
@@ -14,7 +16,7 @@ export interface EndRoomModalContentProps {
 export const EndRoomModalContent: React.FC<EndRoomModalContentProps> = ({
   dismissModal,
 }) => {
-  const { endRoom, leave } = useLeaveMethods(false);
+  const { endRoom, leave } = useLeaveMethods();
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     headerText: {
@@ -47,7 +49,10 @@ export const EndRoomModalContent: React.FC<EndRoomModalContentProps> = ({
         <View style={styles.headerControls}>
           <AlertTriangleIcon />
 
-          <Text style={[styles.headerText, hmsRoomStyles.headerText]}>
+          <Text
+            testID={TestIds.end_confirmation_heading}
+            style={[styles.headerText, hmsRoomStyles.headerText]}
+          >
             {canStream && isStreaming
               ? 'End Stream'
               : canEndRoom
@@ -57,13 +62,18 @@ export const EndRoomModalContent: React.FC<EndRoomModalContentProps> = ({
         </View>
 
         <TouchableOpacity
+          testID={TestIds.end_confirmation_close_btn}
           onPress={dismissModal}
           hitSlop={styles.closeIconHitSlop}
         >
           <CloseIcon />
         </TouchableOpacity>
       </View>
-      <Text style={[styles.text, hmsRoomStyles.text]}>
+
+      <Text
+        testID={TestIds.end_confirmation_description}
+        style={[styles.text, hmsRoomStyles.text]}
+      >
         {canStream && isStreaming
           ? 'The stream will end for everyone after they’ve watched it.'
           : canEndRoom
@@ -71,8 +81,15 @@ export const EndRoomModalContent: React.FC<EndRoomModalContentProps> = ({
           : 'Others will continue after you leave. You can join the session again.'}
       </Text>
       <HMSDangerButton
+        testID={TestIds.end_confirmation_cta}
         loading={false}
-        onPress={canStream && isStreaming ? () => leave(true) : endRoom}
+        onPress={() => {
+          if (canStream && isStreaming) {
+            leave(OnLeaveReason.LEAVE, true)
+          } else {
+            endRoom(OnLeaveReason.ROOM_END);
+          }
+        }}
         title={canStream && isStreaming ? 'End Stream' : 'End Session'}
       />
     </View>

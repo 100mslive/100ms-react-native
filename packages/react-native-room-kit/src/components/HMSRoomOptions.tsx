@@ -21,6 +21,7 @@ import { useModalType } from '../hooks-util';
 import { BottomSheet } from './BottomSheet';
 import { ChangeNameModalContent } from './ChangeNameModalContent';
 import { StopRecordingModalContent } from './StopRecordingModalContent';
+import { TestIds } from '../utils/constants';
 
 interface HMSRoomOptionsProps {}
 
@@ -46,7 +47,7 @@ export const HMSRoomOptions: React.FC<HMSRoomOptionsProps> = () => {
 
   return (
     <View>
-      <PressableIcon onPress={onSettingsPress}>
+      <PressableIcon testID={TestIds.room_options_btn} onPress={onSettingsPress}>
         <HamburgerIcon />
       </PressableIcon>
 

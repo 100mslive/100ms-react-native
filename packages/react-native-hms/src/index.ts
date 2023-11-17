@@ -88,6 +88,7 @@ export type {
   HmsViewComponent as HMSView,
   HmsComponentProps as HMSViewProps,
 } from './classes/HmsView';
+export type { HMSPIPConfig } from './classes/HMSPIPConfig';
 
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
 
@@ -99,6 +100,7 @@ export * from './components/HMSHLSPlayer';
 
 // 100ms Hooks
 export * from './hooks/useHMSPeerUpdates';
+export { useHmsViewsResolutionsState } from './hooks/hmsviews';
 
 // 100ms types
 export * from './types';

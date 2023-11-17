@@ -3,12 +3,14 @@ import type { StyleProp, ViewStyle } from 'react-native';
 
 import { useHMSRoomColorPalette, useHMSRoomStyleSheet } from '../hooks-util';
 import { HMSBaseButton } from './HMSBaseButton';
+import type { HMSBaseButtonProps } from './HMSBaseButton';
 import { COLORS } from '../utils/theme';
 
 export interface HMSDangerButtonProps {
   title: string;
   loading: boolean;
   onPress(): void;
+  testID?: HMSBaseButtonProps['testID'];
   style?: StyleProp<ViewStyle>;
   disabled?: boolean;
   leftComponent?: React.ReactElement | null;
@@ -18,6 +20,7 @@ export const HMSDangerButton: React.FC<HMSDangerButtonProps> = ({
   title,
   loading,
   onPress,
+  testID,
   style,
   disabled,
   leftComponent,
@@ -45,6 +48,7 @@ export const HMSDangerButton: React.FC<HMSDangerButtonProps> = ({
 
   return (
     <HMSBaseButton
+      testID={testID}
       loaderColor={alertErrorBrighterColor}
       loading={loading}
       onPress={onPress}

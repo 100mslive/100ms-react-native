@@ -8,6 +8,7 @@ import type { ParticipantAccordianData } from '../../hooks-util';
 import { ChevronIcon, ThreeDotsIcon } from '../../Icons';
 import { Menu } from '../MenuModal';
 import { ParticipantsGroupOptions } from './ParticipantsGroupOptions';
+import { TestIds } from '../../utils/constants';
 // import type { RootState } from '../../redux';
 // import { isParticipantHostOrBroadcaster } from '../../utils/functions';
 
@@ -74,12 +75,16 @@ const _ParticipantsGroupHeader: React.FC<ParticipantsGroupHeaderProps> = ({
     >
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         {onBackPress ? (
-          <TouchableOpacity style={{ marginRight: 8 }} onPress={onBackPress}>
+          <TouchableOpacity
+            testID={TestIds.participants_group_back_btn}
+            style={{ marginRight: 8 }}
+            onPress={onBackPress}
+          >
             <ChevronIcon direction="left" />
           </TouchableOpacity>
         ) : null}
 
-        <Text style={[styles.label, hmsRoomStyles.label]}>{label}</Text>
+        <Text testID={TestIds.participants_group_name} style={[styles.label, hmsRoomStyles.label]}>{label}</Text>
       </View>
 
       <View style={styles.controls}>
@@ -100,6 +105,11 @@ const _ParticipantsGroupHeader: React.FC<ParticipantsGroupHeaderProps> = ({
 
         {toggleGroupExpand ? (
           <TouchableOpacity
+            testID={
+              expanded
+                ? TestIds.participants_group_collapse_btn
+                : TestIds.participants_group_expand_btn
+            }
             style={[styles.control, expanded ? styles.expandedArrowIcon : null]}
             onPress={toggleGroupExpand}
           >

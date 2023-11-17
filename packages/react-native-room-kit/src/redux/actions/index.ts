@@ -18,11 +18,13 @@ import type {
   ChatBottomSheetTabs,
   HMSIOSScreenShareConfig,
   ModalTypes,
+  OnLeaveHandler,
   PeerTrackNode,
   PipModes,
 } from '../../utils/types';
 import actionTypes, { HmsStateActionTypes } from '../actionTypes';
 import { MeetingState } from '../../types';
+import type { Notification } from '../../types';
 
 export const setPrebuiltData = (data: {
   roomCode: string;
@@ -37,10 +39,14 @@ export const setPrebuiltData = (data: {
     };
     ios?: HMSIOSScreenShareConfig;
   };
-  onLeave?: () => void;
 }) => ({
   type: HmsStateActionTypes.SET_PREBUILT_DATA,
   payload: data,
+});
+
+export const setOnLeaveHandler = (onLeave?: OnLeaveHandler) => ({
+  type: HmsStateActionTypes.SET_ON_LEAVE_HANDLER,
+  payload: { onLeave },
 });
 
 export const clearStore = () => ({
@@ -306,16 +312,12 @@ export const updateScreenshareTile = (
   payload: data,
 });
 
-export const addNotification = (notification: {
-  id: string;
-  type: string;
-  peer: HMSPeer;
-}) => ({
+export const addNotification = (notification: Notification) => ({
   type: actionTypes.ADD_NOTIFICATION,
   payload: { notification },
 });
 
-export const removeNotification = (notificationId: string) => ({
+export const removeNotification = (notificationId: Notification['id']) => ({
   type: actionTypes.REMOVE_NOTIFICATION,
   payload: { id: notificationId },
 });
@@ -378,4 +380,14 @@ export const setActiveSpeakers = (activeSpeakers: HMSSpeaker[]) => ({
 export const setReconnecting = (reconnecting: boolean) => ({
   type: HmsStateActionTypes.SET_RECONNECTING,
   reconnecting,
+});
+
+export const setHandleBackButton = (handleBackButton?: boolean) => ({
+  type: actionTypes.SET_HANDLE_BACK_BUTTON,
+  payload: { handleBackButton },
+});
+
+export const setAutoEnterPipMode = (autoEnterPipMode?: boolean) => ({
+  type: actionTypes.SET_AUTO_ENTER_PIP_MODE,
+  payload: { autoEnterPipMode },
 });

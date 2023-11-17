@@ -7,6 +7,7 @@ import LottieView from 'lottie-react-native';
 import { MicIcon } from '../../Icons';
 import { useHMSRoomStyleSheet } from '../../hooks-util';
 import type { RootState } from '../../redux';
+import { PipModes } from '../../utils/types';
 
 export interface PeerAudioIndicatorProps {
   peer: HMSPeer;
@@ -22,6 +23,10 @@ export const PeerAudioIndicator: React.FC<PeerAudioIndicatorProps> = ({
       state.hmsStates.activeSpeakers.findIndex(
         (activeSpeaker) => activeSpeaker.peer.peerID === peer.peerID
       ) >= 0
+  );
+
+  const isPipModeActive = useSelector(
+    (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE
   );
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme) => ({
@@ -41,7 +46,7 @@ export const PeerAudioIndicator: React.FC<PeerAudioIndicatorProps> = ({
     );
   }
 
-  if (activeSpeaker) {
+  if (activeSpeaker && !isPipModeActive) {
     return (
       <View style={[styles.speakerIconWrapper, hmsRoomStyles.iconWrapper]}>
         <LottieView

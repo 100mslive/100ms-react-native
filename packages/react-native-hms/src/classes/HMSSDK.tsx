@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppState, Platform } from 'react-native';
+import { Platform } from 'react-native';
 import { HMSEncoder } from './HMSEncoder';
 import { HMSHelper } from './HMSHelper';
 import { getLogger, logger, setLogger } from './HMSLogger';
@@ -45,17 +45,9 @@ import { HMSPeerUpdate, HMSPeerUpdateOrdinals } from './HMSPeerUpdate';
 import { HMSSessionStore } from './HMSSessionStore';
 import type { HMSPeerListIteratorOptions } from './HMSPeerListIteratorOptions';
 import { HMSPeerListIterator } from './HMSPeerListIterator';
+import type { HMSPIPConfig } from './HMSPIPConfig';
 
 type HmsViewProps = Omit<HmsComponentProps, 'id'>;
-
-// TODO: Rename to HMSPIPConfig & to be moved to a separate file
-interface PIPConfig {
-  autoEnterPipMode?: boolean;
-  aspectRatio?: [number, number];
-  endButton?: boolean;
-  audioButton?: boolean;
-  videoButton?: boolean;
-}
 
 const ReactNativeVersion = require('react-native/Libraries/Core/ReactNativeVersion');
 
@@ -192,7 +184,6 @@ export class HMSSDK {
    */
   join = async (config: HMSConfig) => {
     logger?.verbose('#Function join', { config, id: this.id });
-    this.addAppStateListener();
     setHmsPeersCache(new HMSPeersCache(this.id));
     setHmsRoomCache(new HMSRoomCache(this.id));
     await HMSManager.join({ ...config, id: this.id });
@@ -814,30 +805,6 @@ export class HMSSDK {
       trackId: track.trackId,
       volume,
     });
-  };
-
-  resetVolume = () => {
-    logger?.verbose('#Function resetVolume', { id: this.id });
-    if (Platform.OS === 'android') HMSManager.resetVolume({ id: this.id });
-  };
-
-  /**
-   * - This is a temporary solution for the situation when mic access is taken from the app and
-   * user returns to the app with no mic access. It will re-acquire the mic by setting the volume
-   * from native side
-   *
-   * @memberof HMSSDK
-   */
-  addAppStateListener = () => {
-    logger?.verbose('#Function addAppStateListener', { id: this.id });
-    this.appStateSubscription = AppState.addEventListener(
-      'change',
-      (nextAppState) => {
-        if (nextAppState === 'active' && Platform.OS === 'android') {
-          this.resetVolume();
-        }
-      }
-    );
   };
 
   /**
@@ -2511,14 +2478,14 @@ export class HMSSDK {
     return HMSManager.handlePipActions('isPipModeSupported', { id: this.id });
   }
 
-  async enterPipMode(data?: PIPConfig): Promise<undefined | boolean> {
+  async enterPipMode(data?: HMSPIPConfig): Promise<undefined | boolean> {
     return HMSManager.handlePipActions('enterPipMode', {
       ...data,
       id: this.id,
     });
   }
 
-  async setPipParams(data?: PIPConfig): Promise<undefined | boolean> {
+  async setPipParams(data?: HMSPIPConfig): Promise<undefined | boolean> {
     return HMSManager.handlePipActions('setPictureInPictureParams', {
       ...data,
       id: this.id,

@@ -16,6 +16,7 @@ import {
 import { EyeIcon } from '../Icons';
 import { COLORS, hexToRgbA } from '../utils/theme';
 import type { RootState } from '../redux';
+import { TestIds } from '../utils/constants';
 
 const _HMSLiveIndicator = () => {
   const isHLSViewer = useIsHLSViewer();
@@ -62,7 +63,7 @@ const _HMSLiveIndicator = () => {
     <View style={styles.container}>
       {/* Live */}
       <View style={[styles.live, hmsRoomStyles.live]}>
-        <Text style={[styles.liveText, hmsRoomStyles.liveText]}>LIVE</Text>
+        <Text testID={TestIds.live_text} style={[styles.liveText, hmsRoomStyles.liveText]}>LIVE</Text>
       </View>
 
       {/* Viewer Count */}
@@ -72,9 +73,9 @@ const _HMSLiveIndicator = () => {
           onPress={showParticipantsSheet}
           disabled={!canShowParticipants}
         >
-          <EyeIcon />
+          <EyeIcon testID={TestIds.peer_count_icon} />
 
-          <Text style={[styles.count, hmsRoomStyles.count]}>
+          <Text testID={TestIds.peer_count} style={[styles.count, hmsRoomStyles.count]}>
             {previewPeerCount}
           </Text>
         </TouchableOpacity>

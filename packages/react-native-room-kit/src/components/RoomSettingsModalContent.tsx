@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import type { TouchableOpacityProps } from 'react-native';
 import type { HMSAudioMixingMode } from '@100mslive/react-native-hms';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import type { RootState } from '../redux';
 import { ModalTypes } from '../utils/types';
@@ -17,16 +18,16 @@ import {
 import { BottomSheet, useBottomSheetActions } from './BottomSheet';
 import {
   isPublishingAllowed,
-  useHMSInstance,
   useHMSLayoutConfig,
   useHMSRoomStyleSheet,
   useShowChatAndParticipants,
+  useStartRecording,
 } from '../hooks-util';
 import { useCanPublishScreen, useHMSActions } from '../hooks-sdk';
 import { RoomSettingsModalDebugModeContent } from './RoomSettingsModalDebugModeContent';
-import { setStartingOrStoppingRecording } from '../redux/actions';
 import { ParticipantsCount } from './ParticipantsCount';
 import { selectAllowedTracksToPublish } from '../hooks-sdk-selectors';
+import { TestIds } from '../utils/constants';
 
 interface RoomSettingsModalContentProps {
   newAudioMixingMode: HMSAudioMixingMode;
@@ -45,8 +46,6 @@ export const RoomSettingsModalContent: React.FC<
 > = (props) => {
   const { closeRoomSettingsModal, setModalVisible } = props;
 
-  const dispatch = useDispatch();
-  const hmsInstance = useHMSInstance();
   const debugMode = useSelector((state: RootState) => state.user.debugMode);
 
   const hmsActions = useHMSActions();
@@ -134,6 +133,8 @@ export const RoomSettingsModalContent: React.FC<
     (state: RootState) => !!state.hmsStates.room?.browserRecordingState?.running
   );
 
+  const { startRecording } = useStartRecording();
+
   const handleRecordingTogglePress = () => {
     if (isRecordingOn) {
       registerOnModalHideAction(() => {
@@ -141,10 +142,7 @@ export const RoomSettingsModalContent: React.FC<
       });
       closeRoomSettingsModal();
     } else {
-      dispatch(setStartingOrStoppingRecording(true));
-      hmsInstance
-        .startRTMPOrRecording({ record: true })
-        .catch(() => dispatch(setStartingOrStoppingRecording(false)));
+      startRecording();
       closeRoomSettingsModal();
     }
   };
@@ -182,6 +180,8 @@ export const RoomSettingsModalContent: React.FC<
       <BottomSheet.Header
         dismissModal={closeRoomSettingsModal}
         heading="Options"
+        headingTestID={TestIds.room_modal_heading}
+        closeIconTestID={TestIds.room_modal_close_btn}
       />
 
       <BottomSheet.Divider />
@@ -191,6 +191,7 @@ export const RoomSettingsModalContent: React.FC<
           [
             {
               id: 'participants',
+              testID: TestIds.room_modal_participants_btn,
               icon: <ParticipantsIcon style={{ width: 20, height: 20 }} />,
               label: 'Participants',
               pressHandler: onParticipantsPress,
@@ -202,6 +203,7 @@ export const RoomSettingsModalContent: React.FC<
             },
             {
               id: 'share-screen',
+              testID: !!isLocalScreenShared ? TestIds.room_modal_stop_screen_share_btn : TestIds.room_modal_share_screen_btn,
               icon: <ScreenShareIcon style={{ width: 20, height: 20 }} />,
               label: isLocalScreenShared ? 'Sharing Screen' : 'Share Screen',
               pressHandler: handleScreenShareTogglePress,
@@ -210,6 +212,7 @@ export const RoomSettingsModalContent: React.FC<
             },
             {
               id: 'brb',
+              testID: isBRBOn ? TestIds.room_modal_stop_brb_btn : TestIds.room_modal_brb_btn,
               icon: <BRBIcon style={{ width: 20, height: 20 }} />,
               label: isBRBOn ? "I'm Back" : 'Be Right Back',
               pressHandler: toggleBRB,
@@ -218,6 +221,7 @@ export const RoomSettingsModalContent: React.FC<
             },
             {
               id: 'raise-hand',
+              testID: isHandRaised ? TestIds.room_modal_hand_raised_btn : TestIds.room_modal_hand_raise_btn,
               icon: <HandIcon style={{ width: 20, height: 20 }} />,
               label: isHandRaised ? 'Hand Raised' : 'Raise Hand',
               pressHandler: toggleRaiseHand,
@@ -226,6 +230,7 @@ export const RoomSettingsModalContent: React.FC<
             },
             {
               id: 'start-recording',
+              testID: isRecordingOn ? TestIds.room_modal_stop_recording_btn : TestIds.room_modal_start_recording_btn,
               icon: <RecordingIcon style={{ width: 20, height: 20 }} />,
               label: isRecordingOn ? 'Stop Recording' : 'Start Recording',
               pressHandler: handleRecordingTogglePress,
@@ -234,6 +239,7 @@ export const RoomSettingsModalContent: React.FC<
             },
             {
               id: 'change-name',
+              testID: TestIds.room_modal_change_name_btn,
               icon: <PencilIcon style={{ width: 20, height: 20 }} />,
               label: 'Change Name',
               pressHandler: changeName,
@@ -261,6 +267,7 @@ export const RoomSettingsModalContent: React.FC<
                         {item ? (
                           <>
                             <SettingItem
+                              testID={item.testID}
                               icon={item.icon}
                               onPress={item.pressHandler}
                               text={item.label}
@@ -289,10 +296,12 @@ type SettingItemProps = {
   text: string;
   icon: React.ReactElement;
   onPress(): void;
+  testID?: TouchableOpacityProps['testID'];
   isActive?: boolean;
 };
 
 const SettingItem: React.FC<SettingItemProps> = ({
+  testID,
   text,
   icon,
   onPress,
@@ -310,6 +319,7 @@ const SettingItem: React.FC<SettingItemProps> = ({
 
   return (
     <TouchableOpacity
+      testID={testID}
       style={[styles.button, isActive ? hmsRoomStyles.button : null]}
       onPress={onPress}
     >

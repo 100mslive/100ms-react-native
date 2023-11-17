@@ -6,4 +6,5 @@ export {
   useHMSHLSPlayerStats,
   useHMSHLSPlayerStat,
   useHMSHLSPlayerStatsError,
+  useHMSHLSPlayerResolution,
 } from './hooks';

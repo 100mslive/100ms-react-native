@@ -20,7 +20,7 @@ import { HMSStatusBar } from './StatusBar';
 import { AnimatedFooter } from './AnimatedFooter';
 import { HLSFooter } from './HLSFooter';
 import { AnimatedHeader } from './AnimatedHeader';
-import { ReconnectionView } from './ReconnectionView';
+// import { ReconnectionView } from './ReconnectionView';
 
 interface MeetingScreenContentProps {
   peerTrackNodes: Array<PeerTrackNode>;
@@ -98,7 +98,7 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
 
         <DisplayView offset={offset} peerTrackNodes={peerTrackNodes} />
 
-        <ReconnectionView />
+        {/* <ReconnectionView /> */}
       </View>
 
       {isPipModeActive ? null : isHLSViewer ? (

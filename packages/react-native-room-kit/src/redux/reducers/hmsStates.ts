@@ -402,17 +402,29 @@ const hmsStatesReducer = (
       };
     }
     case HmsStateActionTypes.UPDATE_PARTICIPANT: {
-      const previousParticipant = Object.values(state.groupedParticipants)
-        .flat()
-        .find(
-          (participant) => participant.peerID === action.participant.peerID
-        );
+      let previousRoleName: HMSRole['name'] | null = null;
 
-      if (!previousParticipant) {
+      for (const groupName in state.groupedParticipants) {
+        if (Object.prototype.hasOwnProperty.call(state.groupedParticipants, groupName)) {
+          const participantsList = state.groupedParticipants[groupName];
+
+          if (Array.isArray(participantsList)) {
+            const result = participantsList.find(
+              (participant) => participant.peerID === action.participant.peerID
+            );
+
+            if (result) {
+              previousRoleName = groupName;
+              break;
+            }
+          }
+        }
+      }
+
+      if (!previousRoleName) {
         return state;
       }
 
-      const previousRoleName = previousParticipant.role?.name!;
       const currentRoleName = action.participant.role?.name!;
 
       // check if role change

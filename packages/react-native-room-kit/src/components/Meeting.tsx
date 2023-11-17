@@ -7,6 +7,8 @@ import type { PeerTrackNode } from '../utils/types';
 import { useRTCStatsListeners } from '../utils/hooks';
 import {
   clearPendingModalTasks,
+  useAutoPip,
+  useBackButtonPress,
   useFetchHMSRoles,
   useHMSMessages,
   useHMSNetworkQualityUpdate,
@@ -53,6 +55,11 @@ export const Meeting: React.FC<MeetingProps> = ({ peerTrackNodes }) => {
 
   // Subscribe to Peers Network quality updates
   useHMSNetworkQualityUpdate();
+
+  useAutoPip(peerTrackNodes.length === 1);
+
+  // Handle Back button press and show leave room modal
+  useBackButtonPress();
 
   // Clearing any pending modal opening tasks
   React.useEffect(() => {

@@ -3,11 +3,13 @@ import type { StyleProp, ViewStyle } from 'react-native';
 
 import { useHMSRoomColorPalette, useHMSRoomStyleSheet } from '../hooks-util';
 import { HMSBaseButton } from './HMSBaseButton';
+import type { HMSBaseButtonProps } from './HMSBaseButton';
 
 export interface HMSPrimaryButtonProps {
   title: string;
   loading: boolean;
   onPress(): void;
+  testId?: HMSBaseButtonProps['testID'];
   style?: StyleProp<ViewStyle>;
   disabled?: boolean;
   leftComponent?: React.ReactElement | null;
@@ -17,6 +19,7 @@ export const HMSPrimaryButton: React.FC<HMSPrimaryButtonProps> = ({
   title,
   loading,
   onPress,
+  testId,
   style,
   disabled,
   leftComponent,
@@ -42,6 +45,7 @@ export const HMSPrimaryButton: React.FC<HMSPrimaryButtonProps> = ({
 
   return (
     <HMSBaseButton
+      testID={testId}
       loaderColor={onPrimaryHighColor}
       loading={loading}
       onPress={onPress}

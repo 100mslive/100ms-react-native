@@ -1,13 +1,16 @@
 import * as React from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
 import { StyleSheet, View } from 'react-native';
-import type { HMSPeer } from '@100mslive/react-native-hms';
 
 import type { RootState } from '../redux';
 import { HMSLocalScreenshareNotification } from './HMSLocalScreenshareNotification';
 import { HMSHandRaiseNotification } from './HMSHandRaiseNotification';
 import { HMSRoleChangeDeclinedNotification } from './HMSRoleChangeDeclinedNotification';
-import { NotificationTypes } from '../utils';
+import { NotificationTypes } from '../types';
+import { HMSTerminalErrorNotification } from './HMSTerminalErrorNotification';
+import { HMSNotification } from './HMSNotification';
+import { AlertTriangleIcon } from '../Icons';
+import { HMSReconnectingNotification } from './HMSReconnectingNotification';
 
 export interface HMSNotificationsProps {}
 
@@ -22,14 +25,11 @@ export const HMSNotifications: React.FC<HMSNotificationsProps> = () => {
   );
 
   // notifications is a stack, first will appear last
-  const notifications: (
-    | typeof LOCAL_SCREENSHARE_PAYLOAD
-    | { id: string; type: string; peer: HMSPeer }
-  )[] = useSelector((state: RootState) => {
+  const notifications = useSelector((state: RootState) => {
     // Latest notification will be at 0th index.
     const allNotifications = state.app.notifications;
 
-    let list = [];
+    let list: typeof allNotifications = [];
 
     if (isLocalScreenShared) {
       list.push(LOCAL_SCREENSHARE_PAYLOAD);
@@ -101,6 +101,8 @@ export const HMSNotifications: React.FC<HMSNotificationsProps> = () => {
           >
             {notification.type === NotificationTypes.LOCAL_SCREENSHARE ? (
               <HMSLocalScreenshareNotification />
+            ) : notification.type === NotificationTypes.RECONNECTING ? (
+              <HMSReconnectingNotification />
             ) : notification.type === NotificationTypes.HAND_RAISE &&
               'peer' in notification ? (
               <HMSHandRaiseNotification
@@ -117,12 +119,44 @@ export const HMSNotifications: React.FC<HMSNotificationsProps> = () => {
                 autoDismiss={atTop}
                 dismissDelay={10000}
               />
+            ) : notification.type === NotificationTypes.TERMINAL_ERROR &&
+              'exception' in notification ? (
+              <HMSTerminalErrorNotification
+                id={notification.id}
+                exception={notification.exception}
+                autoDismiss={false}
+              />
+            ) : notification.type === NotificationTypes.ERROR &&
+              'message' in notification ? (
+              <HMSNotification
+                icon={<AlertTriangleIcon type="line" />}
+                id={notification.id}
+                text={notification.message}
+                autoDismiss={false}
+                dismissable={true}
+              />
             ) : null}
           </View>
         );
       })}
     </View>
   );
+};
+
+export const useHMSNotificationsHeight = () => {
+  const numberOfNotifications = useSelector((state: RootState) => {
+    const allNotifications = state.app.notifications;
+    const isLocalScreenShared = state.hmsStates.isLocalScreenShared;
+
+    return (
+      Math.min(allNotifications.length, isLocalScreenShared ? 2 : 3) +
+      (isLocalScreenShared ? 1 : 0)
+    );
+  });
+
+  if (numberOfNotifications === 0) return 0;
+
+  return 8 + (numberOfNotifications - 1) * 16 + 56; // marginBottom + calculated paddingTop + content
 };
 
 const styles = StyleSheet.create({
