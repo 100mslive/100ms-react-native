@@ -1,4 +1,4 @@
-import HMSManager from './HMSManagerModule';
+import HMSManager from '../modules/HMSManagerModule';
 
 import { HMSTrack } from './HMSTrack';
 import { HMSAudioTrack } from './HMSAudioTrack';

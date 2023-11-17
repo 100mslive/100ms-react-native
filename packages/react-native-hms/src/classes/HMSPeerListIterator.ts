@@ -1,6 +1,6 @@
 // import type { HMSException } from "./HMSException";
 import type { HMSPeer } from './HMSPeer';
-import HMSManagerModule from './HMSManagerModule';
+import HMSManagerModule from '../modules/HMSManagerModule';
 import { HMSEncoder, logger } from '@100mslive/react-native-hms';
 import { HMSConstants } from './HMSConstants';
 import { getHmsPeersCache } from './HMSPeersCache';
@@ -34,10 +34,12 @@ export class HMSPeerListIterator {
   async next(): Promise<HMSPeer[]> {
     logger?.verbose('#Function HMSPeerListIterator#next', this.uniqueId);
     try {
-      const { totalCount, peers } = await HMSManagerModule.peerListIteratorNext({
-        id: HMSConstants.DEFAULT_SDK_ID,
-        uniqueId: this.uniqueId,
-      });
+      const { totalCount, peers } = await HMSManagerModule.peerListIteratorNext(
+        {
+          id: HMSConstants.DEFAULT_SDK_ID,
+          uniqueId: this.uniqueId,
+        }
+      );
 
       this._totalCount = totalCount;
 
@@ -45,7 +47,7 @@ export class HMSPeerListIterator {
         const hmsPeersCache = getHmsPeersCache();
 
         if (hmsPeersCache) {
-          peers.forEach(peer => {
+          peers.forEach((peer) => {
             hmsPeersCache.updatePeerCache(peer.peerID, peer);
           });
         }
