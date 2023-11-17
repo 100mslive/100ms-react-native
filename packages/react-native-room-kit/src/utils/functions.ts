@@ -15,13 +15,6 @@ import {
 } from '@100mslive/react-native-hms';
 
 import type { PeerTrackNode } from './types';
-import {
-  PERMISSIONS,
-  request,
-  requestMultiple,
-  RESULTS,
-} from 'react-native-permissions';
-import { getRoomLinkDetails } from './getRoomLinkDetails';
 
 export const getMeetingUrl = () =>
   'https://yogi.app.100ms.live/streaming/meeting/nih-bkn-vek';
@@ -100,57 +93,6 @@ export const requestExternalStoragePermission = async (): Promise<boolean> => {
     }
   }
   return false;
-};
-
-export const callService = async (
-  roomID: string,
-  success: Function,
-  failure: Function
-) => {
-  let roomCode;
-  let subdomain;
-  try {
-    if (validateUrl(roomID)) {
-      const { roomCode: code, roomDomain: domain } = getRoomLinkDetails(roomID);
-      roomCode = code;
-      subdomain = domain;
-
-      if (!code || !domain) {
-        failure('code, domain not found');
-        return;
-      }
-    } else {
-      failure('Invalid room join link');
-      return;
-    }
-
-    const permissions = await checkPermissions([
-      PERMISSIONS.ANDROID.CAMERA,
-      PERMISSIONS.ANDROID.RECORD_AUDIO,
-      PERMISSIONS.ANDROID.BLUETOOTH_CONNECT,
-    ]);
-
-    if (permissions) {
-      const userId = getRandomUserId(6);
-      const isQARoom = subdomain && subdomain.search('.qa-') >= 0;
-      success(
-        roomCode,
-        userId,
-        isQARoom
-          ? `https://auth-nonprod.100ms.live${Platform.OS === 'ios' ? '/' : ''}`
-          : undefined, // Auth Endpoint
-        isQARoom ? 'https://qa-init.100ms.live/init' : undefined // HMSConfig Endpoint
-      );
-      return;
-    } else {
-      failure('permission not granted');
-      return;
-    }
-  } catch (error) {
-    console.log(error);
-    failure('error in call service');
-    return;
-  }
 };
 
 /**
@@ -305,53 +247,6 @@ export const validateUrl = (url?: string): boolean => {
     return pattern.test(url);
   }
   return false;
-};
-
-export const checkPermissions = async (
-  permissions: Array<
-    (typeof PERMISSIONS.ANDROID)[keyof typeof PERMISSIONS.ANDROID]
-  >
-): Promise<boolean> => {
-  if (Platform.OS === 'ios') {
-    return true;
-  }
-
-  try {
-    const requiredPermissions = permissions.filter(
-      (permission) =>
-        permission.toString() !== PERMISSIONS.ANDROID.BLUETOOTH_CONNECT
-    );
-
-    const results = await requestMultiple(requiredPermissions);
-
-    let allPermissionsGranted = true;
-    requiredPermissions.forEach((permission) => {
-      if (!(results[permission] === RESULTS.GRANTED)) {
-        allPermissionsGranted = false;
-      }
-      console.log(permission, ':', results[permission]);
-    });
-
-    // Bluetooth Connect Permission handling
-    if (
-      permissions.findIndex(
-        (permission) =>
-          permission.toString() === PERMISSIONS.ANDROID.BLUETOOTH_CONNECT
-      ) >= 0
-    ) {
-      const bleConnectResult = await request(
-        PERMISSIONS.ANDROID.BLUETOOTH_CONNECT
-      );
-      console.log(
-        `${PERMISSIONS.ANDROID.BLUETOOTH_CONNECT} : ${bleConnectResult}`
-      );
-    }
-
-    return allPermissionsGranted;
-  } catch (error) {
-    console.log(error);
-    return false;
-  }
 };
 
 export const pairData = (
