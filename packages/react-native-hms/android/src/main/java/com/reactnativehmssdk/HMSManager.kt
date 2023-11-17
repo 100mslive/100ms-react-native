@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.util.Rational
 import android.view.WindowManager
 import androidx.annotation.RequiresApi
+import androidx.core.app.NotificationManagerCompat
 import com.facebook.react.bridge.*
 import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.modules.core.DeviceEventManagerModule
@@ -1259,6 +1260,24 @@ class HMSManager(reactContext: ReactApplicationContext) :
   ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
     hms?.peerListIteratorNext(data, promise)
+  }
+
+  @ReactMethod
+  fun checkNotifications(promise: Promise?) {
+    val reactAppContext = reactAppContext
+
+    if (reactAppContext == null) {
+      promise?.reject(Throwable("`reactAppContext` is not available!"))
+      return
+    }
+    val enabled = NotificationManagerCompat.from(reactAppContext).areNotificationsEnabled()
+    val data: WritableMap = Arguments.createMap()
+
+    data.putString("status", if (enabled) "granted" else "blocked");
+    val settings: WritableMap = Arguments.createMap()
+    data.putMap("settings", settings);
+
+    promise?.resolve(data);
   }
 
   fun emitEvent(

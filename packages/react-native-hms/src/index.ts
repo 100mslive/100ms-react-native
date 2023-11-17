@@ -102,6 +102,10 @@ export * from './components/HMSHLSPlayer';
 export * from './hooks/useHMSPeerUpdates';
 export { useHmsViewsResolutionsState } from './hooks/hmsviews';
 
+// 100ms Utilities
+export type { NotificationResult } from './utils/notification';
+export { checkNotifications } from './utils/notification';
+
 // 100ms types
 export * from './types';
 export * from './stores/types';
