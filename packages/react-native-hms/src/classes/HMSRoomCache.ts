@@ -1,4 +1,4 @@
-import HMSManager from './HMSManagerModule';
+import HMSManager from '../modules/HMSManagerModule';
 
 import type { HMSRoom } from './HMSRoom';
 import { HMSEncoder } from './HMSEncoder';

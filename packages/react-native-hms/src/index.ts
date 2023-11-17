@@ -93,7 +93,7 @@ export type { HMSPIPConfig } from './classes/HMSPIPConfig';
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
 
 // 100ms React Native Native Module
-export { default as HMSManagerModule } from './classes/HMSManagerModule';
+export { default as HMSManagerModule } from './modules/HMSManagerModule';
 
 // 100ms Components
 export * from './components/HMSHLSPlayer';

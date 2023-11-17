@@ -8,7 +8,7 @@ import { HMSUpdateListenerActions } from './HMSUpdateListenerActions';
 import { HmsViewComponent } from './HmsView';
 import type { HmsComponentProps } from './HmsView';
 
-import HMSManager from './HMSManagerModule';
+import HMSManager from '../modules/HMSManagerModule';
 
 import type { HMSConfig } from './HMSConfig';
 import type { HMSLocalPeer } from './HMSLocalPeer';

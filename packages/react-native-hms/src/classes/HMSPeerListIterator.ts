@@ -1,6 +1,6 @@
 // import type { HMSException } from "./HMSException";
 import type { HMSPeer } from './HMSPeer';
-import HMSManagerModule from './HMSManagerModule';
+import HMSManagerModule from '../modules/HMSManagerModule';
 import { HMSEncoder, logger } from '@100mslive/react-native-hms';
 import { HMSConstants } from './HMSConstants';
 import { getHmsPeersCache } from './HMSPeersCache';

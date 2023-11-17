@@ -1,4 +1,4 @@
-import HMSManager from './HMSManagerModule';
+import HMSManager from '../modules/HMSManagerModule';
 import { HMSNativeEventEmitter } from './HMSNativeEventEmitter';
 
 export type { HMSEventSubscription as HMSNativeEventSubscription } from './HMSNativeEventEmitter';

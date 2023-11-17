@@ -1,7 +1,7 @@
 import { DeviceEventEmitter } from 'react-native';
 import type { EmitterSubscription as RNEmitterSubscription } from 'react-native';
 
-import HMSManager from './HMSManagerModule';
+import HMSManager from '../modules/HMSManagerModule';
 
 import { HMSConstants } from './HMSConstants';
 import { getLogger } from './HMSLogger';
