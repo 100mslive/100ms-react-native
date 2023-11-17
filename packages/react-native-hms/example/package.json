@@ -1,6 +1,6 @@
 {
   "name": "RNHMSExample",
-  "version": "1.9.3",
+  "version": "1.9.3-beta.0",
   "private": true,
   "scripts": {
     "preinstall": "cd ../ && npm install && cd ./example",
