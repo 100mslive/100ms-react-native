@@ -9,6 +9,7 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.util.Rational
+import android.view.WindowManager
 import androidx.annotation.RequiresApi
 import com.facebook.react.bridge.*
 import com.facebook.react.module.annotations.ReactModule
@@ -51,6 +52,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
     fun onResume() {
       if (isInPIPMode) {
         isInPIPMode = false
+        reactAppContext?.currentActivity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
         emitPipEvent(false)
       }
     }
@@ -62,6 +64,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
         pipParamConfig?.autoEnterPipMode == true &&
         pipParams is android.app.PictureInPictureParams
       ) {
+        reactAppContext?.currentActivity?.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         emitPipEvent(true)
         reactAppContext?.currentActivity?.enterPictureInPictureMode(pipParams)
       }

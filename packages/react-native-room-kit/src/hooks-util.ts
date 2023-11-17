@@ -1426,13 +1426,21 @@ export const useAutoPip = (oneToOneCall: boolean) => {
   );
   const [numerator, denominator] = usePipAspectRatio(oneToOneCall);
 
+  const remotePeersPresent = useSelector(
+    (state: RootState) => {
+      const room = state.hmsStates.room;
+      return room && (room.peerCount !== null) ? room.peerCount > 1 : false; // `peerCount` includes local peer
+    }
+  );
+
   useEffect(() => {
-    if (autoEnterPipMode) {
+    if (autoEnterPipMode && remotePeersPresent) {
       enableAutoPip({ aspectRatio: [numerator, denominator] });
 
       return disableAutoPip;
     }
   }, [
+    remotePeersPresent,
     numerator,
     denominator,
     autoEnterPipMode,
