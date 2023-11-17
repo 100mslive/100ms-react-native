@@ -749,8 +749,6 @@ class HMSDecoder: NSObject {
 
       if let recordingState = data {
           state["running"] = recordingState.running
-          state["singleFilePerLayer"] = recordingState.singleFilePerLayer
-          state["videoOnDemand"] = recordingState.enableVOD
           if let startedAt = recordingState.startedAt?.timeIntervalSince1970 {
               state["startedAt"] = startedAt * 1000
           }
@@ -766,7 +764,7 @@ class HMSDecoder: NSObject {
                 var decodedVariant = [String: Any]()
                 decodedVariant["meetingUrl"] = variant.meetingURL.absoluteString
                 decodedVariant["metadata"] = variant.metadata
-                decodedVariant["hlsStreamUrl"] = variant.url.absoluteString
+                decodedVariant["hlsStreamUrl"] = variant.url?.absoluteString
                 if let startedAt = variant.startedAt?.timeIntervalSince1970 {
                     decodedVariant["startedAt"] = startedAt * 1000
                 }
