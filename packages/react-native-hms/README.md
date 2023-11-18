@@ -22,6 +22,11 @@ With support for HLS and RTMP Live Streaming and Recording, Picture-in-Picture (
 
 📖 Read the Complete Documentation here: https://www.100ms.live/docs/react-native/v2/foundation/basics
 
+| Package                                | Version                                                                                                                                  |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| @100mslive/react-native-room-kit       | [![npm](https://img.shields.io/npm/v/@100mslive/react-native-room-kit)](https://www.npmjs.com/package/@100mslive/react-native-room-kit)  |
+| @100mslive/react-native-hms            | [![npm](https://img.shields.io/npm/v/@100mslive/react-native-hms)](https://www.npmjs.com/package/@100mslive/react-native-hms)            |
+
 ## 🏃 Example App
 
 📲 Download the Example iOS app here: https://testflight.apple.com/join/v4bSIPad
