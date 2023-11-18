@@ -1,0 +1,18 @@
+# manadate jira number as part of the branch name
+name: jira-lint
+on: [pull_request, workflow_dispatch]
+permissions:
+  checks: write
+  contents: read
+jobs:
+  jira-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: jira-lint
+        uses: cleartax/jira-lint@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          jira-token: ${{ secrets.JIRA_TOKEN }}
+          jira-base-url: https://100ms.atlassian.net
+          skip-branches: ^(main|production|hotfix)$
+          pr-threshold: 1000
