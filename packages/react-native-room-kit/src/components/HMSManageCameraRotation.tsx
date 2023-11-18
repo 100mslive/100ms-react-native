@@ -6,6 +6,7 @@ import { useCanPublishVideo, useHMSActions } from '../hooks-sdk';
 import type { RootState } from '../redux';
 import { PressableIcon } from './PressableIcon';
 import { useHMSRoomStyle } from '../hooks-util';
+import { TestIds } from '../utils/constants';
 
 export const HMSManageCameraRotation = () => {
   const canPublishVideo = useCanPublishVideo();
@@ -42,6 +43,7 @@ const RotateCameraButton = () => {
 
   return (
     <PressableIcon
+      testID={isLocalVideoMuted ? TestIds.switch_camera_disabled : TestIds.switch_camera}
       onPress={handleVideoMuteTogglePress}
       disabled={isLocalVideoMuted}
     >

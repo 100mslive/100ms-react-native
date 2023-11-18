@@ -3,6 +3,7 @@ import { Image, StyleSheet } from 'react-native';
 import type { ImageProps } from 'react-native';
 
 import { useHMSRoomStyle } from '../../hooks-util';
+import { TestIds } from '../../utils/constants';
 
 interface MicIconProps extends Omit<ImageProps, 'source'> {
   muted: boolean;
@@ -19,6 +20,11 @@ export const MicIcon: React.FC<MicIconProps> = ({
 
   return (
     <Image
+      testID={
+        muted
+          ? TestIds.mic_muted_icon
+          : TestIds.mic_unmuted_icon
+      }
       source={
         muted
           ? require('./assets/mic-muted.png')

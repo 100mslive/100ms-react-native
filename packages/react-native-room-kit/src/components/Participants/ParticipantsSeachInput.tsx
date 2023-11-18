@@ -4,6 +4,7 @@ import { StyleSheet, Platform } from 'react-native';
 import { useHMSRoomColorPalette, useHMSRoomStyle } from '../../hooks-util';
 import { SearchIcon } from '../../Icons';
 import { HMSTextInput } from '../HMSTextInput';
+import { TestIds } from '../../utils/constants';
 
 type ParticipantsSearchInputProps = {
   searchText: string;
@@ -22,6 +23,7 @@ export const ParticipantsSearchInput: React.FC<
 
   return (
     <HMSTextInput
+      testID={TestIds.search_participant_input}
       value={searchText}
       onChangeText={setSearchText}
       placeholder="Search for participants"

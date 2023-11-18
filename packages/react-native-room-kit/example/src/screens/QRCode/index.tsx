@@ -192,6 +192,8 @@ const QRCode = () => {
         </View>
 
         <CustomInput
+          inputTestID='enter-room-link-input'
+          clearTestID='clear-room-link-button'
           value={joiningLink}
           onChangeText={setJoiningLink}
           inputStyle={styles.joiningLinkInput}
@@ -203,6 +205,7 @@ const QRCode = () => {
 
         <View style={{ flexDirection: 'row' }}>
           <CustomButton
+            testID='join-now-button'
             title="Join Now"
             onPress={onJoinPress}
             disabled={joinDisabled}
@@ -213,6 +216,7 @@ const QRCode = () => {
             ]}
           />
           <CustomButton
+            testID='three-dots-config-button'
             onPress={handleMorePress}
             viewStyle={styles.moreButton}
             RightIcon={<ThreeDotsIcon style={styles.moreButtonIcon} />}

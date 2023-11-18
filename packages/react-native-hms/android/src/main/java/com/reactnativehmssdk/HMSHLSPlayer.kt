@@ -153,9 +153,9 @@ class HMSHLSPlayer(context: ReactContext) : FrameLayout(context) {
             }
 
             val data = Arguments.createMap()
-            data.putString("state", "onVideoSizeChanged")
-            data.putDouble("aspectRatio", (width / height))
-            sendHLSPlaybackEventToJS(HMSHLSPlayerConstants.ON_PLAYBACK_STATE_CHANGE_EVENT, data)
+            data.putDouble("width", width)
+            data.putDouble("height", height)
+            sendHLSPlaybackEventToJS(HMSHLSPlayerConstants.ON_PLAYBACK_RESOLUTION_CHANGE_EVENT, data)
           }
         }
       },
@@ -285,6 +285,7 @@ object HMSHLSPlayerConstants {
   const val ON_PLAYBACK_CUE_EVENT = "ON_PLAYBACK_CUE_EVENT"
   const val ON_PLAYBACK_FAILURE_EVENT = "ON_PLAYBACK_FAILURE_EVENT"
   const val ON_PLAYBACK_STATE_CHANGE_EVENT = "ON_PLAYBACK_STATE_CHANGE_EVENT"
+  const val ON_PLAYBACK_RESOLUTION_CHANGE_EVENT = "ON_PLAYBACK_RESOLUTION_CHANGE_EVENT"
 
   // HLS Playback Stats Events
   const val HMS_HLS_STATS_EVENT = "hmsHlsStatsEvent"

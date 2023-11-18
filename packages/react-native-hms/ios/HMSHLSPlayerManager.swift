@@ -191,6 +191,10 @@ class HMSHLSPlayer: UIView {
         self.frame = frame
         self.backgroundColor = UIColor(displayP3Red: 0, green: 0, blue: 0, alpha: 1)
 
+        if #available(iOS 15.0, *) {
+            hmsHLSPlayer._nativePlayer.audiovisualBackgroundPlaybackPolicy = .continuesIfPossible
+        }
+
         // creating 100ms HLS Player and getting player view controller
         let playerViewController = hmsHLSPlayer.videoPlayerViewController(showsPlayerControls: false)
         hmsHLSPlayerViewController = playerViewController
@@ -308,18 +312,31 @@ class HMSHLSPlayer: UIView {
         sendHLSPlaybackEventToJS(HMSHLSPlayerConstants.ON_PLAYBACK_FAILURE_EVENT, data)
     }
 
-    fileprivate func onPlaybackStateChanged(state: HMSHLSPlaybackState? = nil, videoSizeChanged: Bool = false, aspectRatio: Double? = nil) {
+    fileprivate func onPlaybackStateChanged(state: HMSHLSPlaybackState) {
         guard onHmsHlsPlaybackEvent != nil else { return }
 
         var data = [String: Any]()
 
-        data["state"] = videoSizeChanged ? "onVideoSizeChanged" : state?.description
-
-        if let aspectRatio = aspectRatio {
-            data["aspectRatio"] = aspectRatio
-        }
+        data["state"] = state.description
 
         sendHLSPlaybackEventToJS(HMSHLSPlayerConstants.ON_PLAYBACK_STATE_CHANGE_EVENT, data)
+    }
+
+    fileprivate func onResolutionChanged(videoSize: CGSize) {
+        if videoSize.width >= videoSize.height {
+            hmsHLSPlayerViewController?.videoGravity = .resizeAspect
+        } else {
+            hmsHLSPlayerViewController?.videoGravity = .resizeAspectFill
+        }
+
+        guard onHmsHlsPlaybackEvent != nil else { return }
+
+        var data = [String: Any]()
+
+        data["width"] = videoSize.width
+        data["height"] = videoSize.height
+
+        sendHLSPlaybackEventToJS(HMSHLSPlayerConstants.ON_PLAYBACK_RESOLUTION_CHANGE_EVENT, data)
     }
 }
 
@@ -343,12 +360,7 @@ class HLSPlaybackEventController: HMSHLSPlayerDelegate {
     }
 
     func onResolutionChanged(videoSize: CGSize) {
-        if videoSize.width >= videoSize.height {
-            hmsHlsPlayerDelegate?.hmsHLSPlayerViewController?.videoGravity = .resizeAspect
-        } else {
-            hmsHlsPlayerDelegate?.hmsHLSPlayerViewController?.videoGravity = .resizeAspectFill
-        }
-        hmsHlsPlayerDelegate?.onPlaybackStateChanged(videoSizeChanged: true, aspectRatio: videoSize.width/videoSize.height)
+        hmsHlsPlayerDelegate?.onResolutionChanged(videoSize: videoSize)
     }
 }
 
@@ -357,6 +369,7 @@ enum HMSHLSPlayerConstants {
     static let ON_PLAYBACK_CUE_EVENT = "ON_PLAYBACK_CUE_EVENT"
     static let ON_PLAYBACK_FAILURE_EVENT = "ON_PLAYBACK_FAILURE_EVENT"
     static let ON_PLAYBACK_STATE_CHANGE_EVENT = "ON_PLAYBACK_STATE_CHANGE_EVENT"
+    static let ON_PLAYBACK_RESOLUTION_CHANGE_EVENT = "ON_PLAYBACK_RESOLUTION_CHANGE_EVENT"
 
     // HLS Playback Stats Events
     static let ON_STATS_EVENT_UPDATE = "ON_STATS_EVENT_UPDATE"

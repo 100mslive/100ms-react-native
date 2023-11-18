@@ -5,6 +5,7 @@ import { NavigationContext } from '@react-navigation/native';
 import { PressableIcon } from './PressableIcon';
 import { ChevronIcon } from '../Icons';
 import { useHMSRoomStyle } from '../hooks-util';
+import { TestIds } from '../utils/constants';
 
 export interface BackButtonProps {}
 
@@ -27,6 +28,7 @@ export const BackButton: React.FC<BackButtonProps> = () => {
 
   return (
     <PressableIcon
+      testID={TestIds.back_button}
       style={[styles.button, buttonStyles]}
       rounded={true}
       border={false}
