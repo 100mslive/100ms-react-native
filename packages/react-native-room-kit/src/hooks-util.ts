@@ -56,7 +56,11 @@ import {
   PeerListRefreshInterval,
   PipModes,
 } from './utils/types';
-import type { ChatBroadcastFilter, OnLeaveHandler, PeerTrackNode } from './utils/types';
+import type {
+  ChatBroadcastFilter,
+  OnLeaveHandler,
+  PeerTrackNode,
+} from './utils/types';
 import { createPeerTrackNode } from './utils/functions';
 import {
   batch,
@@ -1256,10 +1260,12 @@ export const useHMSReconnection = () => {
       if (mounted) {
         batch(() => {
           dispatch(setReconnecting(true));
-          dispatch(addNotification({
-            id: NotificationTypes.RECONNECTING,
-            type: NotificationTypes.RECONNECTING
-          }))
+          dispatch(
+            addNotification({
+              id: NotificationTypes.RECONNECTING,
+              type: NotificationTypes.RECONNECTING,
+            })
+          );
         });
       }
     });
@@ -1268,7 +1274,7 @@ export const useHMSReconnection = () => {
         batch(() => {
           dispatch(setReconnecting(false));
           dispatch(removeNotification(NotificationTypes.RECONNECTING));
-        })
+        });
       }
     });
 
@@ -1426,13 +1432,19 @@ export const useAutoPip = (oneToOneCall: boolean) => {
   );
   const [numerator, denominator] = usePipAspectRatio(oneToOneCall);
 
+  const remotePeersPresent = useSelector((state: RootState) => {
+    const room = state.hmsStates.room;
+    return room && room.peerCount !== null ? room.peerCount > 1 : false; // `peerCount` includes local peer
+  });
+
   useEffect(() => {
-    if (autoEnterPipMode) {
+    if (autoEnterPipMode && remotePeersPresent) {
       enableAutoPip({ aspectRatio: [numerator, denominator] });
 
       return disableAutoPip;
     }
   }, [
+    remotePeersPresent,
     numerator,
     denominator,
     autoEnterPipMode,
@@ -1471,10 +1483,16 @@ export const usePipAspectRatio = (oneToOneCall: boolean): [number, number] => {
     }
     // default aspect ratio
     return [16, 9];
-  }, [isHLSViewer, firstSSNodeId, oneToOneCall, ssResolution, hlsPlayerResolution]);
+  }, [
+    isHLSViewer,
+    firstSSNodeId,
+    oneToOneCall,
+    ssResolution,
+    hlsPlayerResolution,
+  ]);
 
   return aspectRatio;
-}
+};
 
 export const useHMSActiveSpeakerUpdates = (
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>,
@@ -2008,57 +2026,60 @@ export const useLeaveMethods = () => {
   const dispatch = useDispatch();
   const reduxStore = useStore<RootState>();
 
-  const destroy = useCallback((reason: Parameters<OnLeaveHandler>[0]) => {
-    try {
-      const s = hmsInstance.destroy();
-      console.log('Destroy Success: ', s);
-      // TODOS:
-      // - If show `Meeting_Ended` is true, show Meeting screen by setting state to MEETING_ENDED
-      //    - Reset Redux States
-      //    - HMSInstance will not be available now
-      //    - When your presses "Re Join" Action button, restart process from root component
-      //    - When your presses "Done" Action button
-      //        - If we have callback fn, call it
-      //        - Otherwise try our best to navigate away from current screen
-      //
-      // - No screen to show
-      //    - No need to reset redux state?
-      //    - HMSInstance will be available till this point
-      //    - If we have callback fn, call it
-      //    - Otherwise try our best to navigate away from current screen
-      //    - When we are navigated away from screen, HMSInstance will be not available
+  const destroy = useCallback(
+    (reason: Parameters<OnLeaveHandler>[0]) => {
+      try {
+        const s = hmsInstance.destroy();
+        console.log('Destroy Success: ', s);
+        // TODOS:
+        // - If show `Meeting_Ended` is true, show Meeting screen by setting state to MEETING_ENDED
+        //    - Reset Redux States
+        //    - HMSInstance will not be available now
+        //    - When your presses "Re Join" Action button, restart process from root component
+        //    - When your presses "Done" Action button
+        //        - If we have callback fn, call it
+        //        - Otherwise try our best to navigate away from current screen
+        //
+        // - No screen to show
+        //    - No need to reset redux state?
+        //    - HMSInstance will be available till this point
+        //    - If we have callback fn, call it
+        //    - Otherwise try our best to navigate away from current screen
+        //    - When we are navigated away from screen, HMSInstance will be not available
 
-      // dispatch(clearMessageData());
-      // dispatch(clearPeerData());
-      // dispatch(clearHmsReference());
+        // dispatch(clearMessageData());
+        // dispatch(clearPeerData());
+        // dispatch(clearHmsReference());
 
-      const onLeave = reduxStore.getState().user.onLeave;
+        const onLeave = reduxStore.getState().user.onLeave;
 
-      if (typeof onLeave === 'function') {
-        onLeave(reason);
-        dispatch(clearStore());
-      } else if (
-        navigation &&
-        typeof navigation.canGoBack === 'function' &&
-        navigation.canGoBack()
-      ) {
-        navigation.goBack();
-        dispatch(clearStore());
-      } else {
-        // Otherwise default action is to show "Meeting Ended" screen
-        dispatch(clearStore()); // TODO: We need different clearStore for MeetingEnded
-        dispatch(changeMeetingState(MeetingState.MEETING_ENDED));
+        if (typeof onLeave === 'function') {
+          onLeave(reason);
+          dispatch(clearStore());
+        } else if (
+          navigation &&
+          typeof navigation.canGoBack === 'function' &&
+          navigation.canGoBack()
+        ) {
+          navigation.goBack();
+          dispatch(clearStore());
+        } else {
+          // Otherwise default action is to show "Meeting Ended" screen
+          dispatch(clearStore()); // TODO: We need different clearStore for MeetingEnded
+          dispatch(changeMeetingState(MeetingState.MEETING_ENDED));
+        }
+      } catch (e) {
+        console.log(`Destroy HMS instance Error: ${e}`);
+        Toast.showWithGravity(
+          `Destroy HMS instance Error: ${e}`,
+          Toast.LONG,
+          Toast.TOP
+        );
+        return Promise.reject(e);
       }
-    } catch (e) {
-      console.log(`Destroy HMS instance Error: ${e}`);
-      Toast.showWithGravity(
-        `Destroy HMS instance Error: ${e}`,
-        Toast.LONG,
-        Toast.TOP
-      );
-      return Promise.reject(e);
-    }
-  }, [hmsInstance]);
+    },
+    [hmsInstance]
+  );
 
   const leave = useCallback(
     async (reason: OnLeaveReason, shouldEndStream: boolean = false) => {
@@ -2093,15 +2114,18 @@ export const useLeaveMethods = () => {
     }
   }, [hmsInstance]);
 
-  const endRoom = useCallback(async (reason: OnLeaveReason) => {
-    try {
-      const d = await hmsInstance.endRoom('Host ended the room');
-      console.log('EndRoom Success: ', d);
-      await destroy(reason);
-    } catch (e) {
-      console.log('EndRoom Error: ', e);
-    }
-  }, [destroy, hmsInstance]);
+  const endRoom = useCallback(
+    async (reason: OnLeaveReason) => {
+      try {
+        const d = await hmsInstance.endRoom('Host ended the room');
+        console.log('EndRoom Success: ', d);
+        await destroy(reason);
+      } catch (e) {
+        console.log('EndRoom Error: ', e);
+      }
+    },
+    [destroy, hmsInstance]
+  );
 
   return { destroy, leave, endRoom, prebuiltCleanUp };
 };
@@ -2227,8 +2251,8 @@ export const useSendMessage = () => {
         'publishSettings' in sendingTo
           ? HMSMessageRecipientType.ROLES
           : 'peerID' in sendingTo
-          ? HMSMessageRecipientType.PEER
-          : HMSMessageRecipientType.BROADCAST,
+            ? HMSMessageRecipientType.PEER
+            : HMSMessageRecipientType.BROADCAST,
       recipientPeer: 'peerID' in sendingTo ? sendingTo : undefined,
       recipientRoles: 'publishSettings' in sendingTo ? [sendingTo] : undefined,
     });
@@ -2396,7 +2420,7 @@ export const useStartRecording = () => {
           addNotification({
             id: Math.random().toString(16).slice(2),
             type: NotificationTypes.ERROR,
-            message: error.message
+            message: error.message,
           })
         );
       });

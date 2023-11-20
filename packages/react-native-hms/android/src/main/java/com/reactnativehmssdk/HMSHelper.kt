@@ -15,6 +15,7 @@ import live.hms.video.audio.HMSAudioManager
 import live.hms.video.error.HMSException
 import live.hms.video.events.AgentType
 import live.hms.video.media.settings.*
+import live.hms.video.media.tracks.HMSAudioTrack
 import live.hms.video.media.tracks.HMSRemoteAudioTrack
 import live.hms.video.media.tracks.HMSRemoteVideoTrack
 import live.hms.video.media.tracks.HMSTrack
@@ -126,15 +127,18 @@ object HMSHelper {
           val limit = 1
           val peerIds = arrayListOf(peerId)
           val peerListIterator = hmsSDK.getPeerListIterator(PeerListIteratorOptions(limit = limit, byPeerIds = peerIds))
-          peerListIterator.next(object : PeerListResultListener {
-            override fun onError(error: HMSException) {
-              it.resumeWithException(error)
-            }
-            override fun onSuccess(result: ArrayList<HMSPeer>) {
-              val peerFromIterator = result[0]
-              it.resume(peerFromIterator as? HMSRemotePeer)
-            }
-          })
+          peerListIterator.next(
+            object : PeerListResultListener {
+              override fun onError(error: HMSException) {
+                it.resumeWithException(error)
+              }
+
+              override fun onSuccess(result: ArrayList<HMSPeer>) {
+                val peerFromIterator = result[0]
+                it.resume(peerFromIterator as? HMSRemotePeer)
+              }
+            },
+          )
         }
       } else {
         it.resume(null)
@@ -180,6 +184,13 @@ object HMSHelper {
   ): HMSRemoteAudioTrack? {
     if (trackId != null && room != null) {
       return HmsUtilities.getAudioTrack(trackId, room) as? HMSRemoteAudioTrack
+    }
+    return null
+  }
+
+  fun getAllAudioTracks(room: HMSRoom?): ArrayList<HMSAudioTrack>? {
+    if (room != null) {
+      return HmsUtilities.getAllAudioTracks(room)
     }
     return null
   }

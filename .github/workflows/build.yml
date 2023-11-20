@@ -26,29 +26,13 @@ on:
       - "**.txt"
 
 jobs:
-  check_lint_errors:
-    name: Trunk Check Runner
-    runs-on: ubuntu-latest
-    # trunk-ignore(checkov/CKV2_GHA_1)
-    permissions:
-      checks: write
-      contents: read
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Trunk Check
-        uses: trunk-io/trunk-action@v1
-        with:
-          post-annotations: true
-
   build_apk:
     name: Build APK
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
+    # trunk-ignore(checkov/CKV2_GHA_1)
     permissions:
       checks: write
       contents: read
@@ -63,6 +47,11 @@ jobs:
           java-version: 11.x
       - name: Install dependencies
         run: cd packages/react-native-room-kit/example/; npm install
+
+      - name: Trunk Check
+        uses: trunk-io/trunk-action@v1
+        with:
+          post-annotations: true
 
       - name: Make Gradlew Executable
         run: cd packages/react-native-room-kit/example/android && chmod +x ./gradlew

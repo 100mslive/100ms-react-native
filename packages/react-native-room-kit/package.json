@@ -1,6 +1,6 @@
 {
   "name": "@100mslive/react-native-room-kit",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "100ms Room Kit provides simple & easy to use UI components to build Live Streaming & Video Conferencing experiences in your apps.",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -79,7 +79,7 @@
     "typescript": "^5.0.2"
   },
   "peerDependencies": {
-    "@100mslive/react-native-hms": "1.9.2",
+    "@100mslive/react-native-hms": "1.9.3",
     "@react-native-community/blur": "^4.3.2",
     "@react-native-masked-view/masked-view": "^0.2.9",
     "@shopify/flash-list": "^1.4.3",
@@ -89,7 +89,6 @@
     "react-native-gesture-handler": "^2.12.1",
     "react-native-linear-gradient": "^2.7.3",
     "react-native-modal": "^12.1.0",
-    "react-native-permissions": "3.4.0",
     "react-native-reanimated": ">=2.17.0",
     "react-native-safe-area-context": "^3.3.0",
     "react-native-simple-toast": "^1.1.3"

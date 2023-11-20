@@ -79,7 +79,7 @@ PODS:
   - HMSBroadcastExtensionSDK (0.0.9)
   - HMSHLSPlayerSDK (0.0.2):
     - HMSAnalyticsSDK (= 0.0.2)
-  - HMSSDK (1.2.0):
+  - HMSSDK (1.3.0):
     - HMSAnalyticsSDK (= 0.0.2)
     - HMSWebRTC (= 1.0.5116)
   - HMSWebRTC (1.0.5116)
@@ -318,10 +318,10 @@ PODS:
     - React-Core
   - react-native-camera/RN (4.2.1):
     - React-Core
-  - react-native-hms (1.9.2):
+  - react-native-hms (1.9.3):
     - HMSBroadcastExtensionSDK (= 0.0.9)
     - HMSHLSPlayerSDK (= 0.0.2)
-    - HMSSDK (= 1.2.0)
+    - HMSSDK (= 1.3.0)
     - React-Core
   - react-native-lottie-splash-screen (1.1.1):
     - React
@@ -401,7 +401,7 @@ PODS:
     - React-Core
   - RNDeviceInfo (9.0.2):
     - React-Core
-  - RNFlashList (1.6.2):
+  - RNFlashList (1.6.3):
     - React-Core
   - RNGestureHandler (2.13.4):
     - React-Core
@@ -667,7 +667,7 @@ SPEC CHECKSUMS:
   HMSAnalyticsSDK: 4d2a88a729b1eb42f3d25f217c28937ec318a5b7
   HMSBroadcastExtensionSDK: d80fe325f6c928bd8e5176290b5a4b7ae15d6fbb
   HMSHLSPlayerSDK: 6a54ad4d12f3dc2270d1ecd24019d71282a4f6a3
-  HMSSDK: 010fdd904b8d221bb297864800503132fd721d9e
+  HMSSDK: 631908d772646b66b3c4f7f4e1fb2681f7abb990
   HMSWebRTC: ae54e9dd91b869051b283b43b14f57d43b7bf8e1
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   lottie-ios: 8f97d3271e155c2d688875c29cd3c74908aef5f8
@@ -690,7 +690,7 @@ SPEC CHECKSUMS:
   React-logger: a1f028f6d8639a3f364ef80419e5e862e1115250
   react-native-blur: cfdad7b3c01d725ab62a8a729f42ea463998afa2
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
-  react-native-hms: eba348eb6098cddc14c1e3a3074bd6f9d3fb774e
+  react-native-hms: 38fe894145e8b5e8cfe95b5f33bbbac6a824818a
   react-native-lottie-splash-screen: 015423265bac5f46016dff2e31c97b9590808856
   react-native-safe-area-context: 61c8c484a3a9e7d1fda19f7b1794b35bbfd2262a
   react-native-simple-toast: bf002828cf816775a6809f7a9ec3907509bce11f
@@ -709,7 +709,7 @@ SPEC CHECKSUMS:
   RNCAsyncStorage: 8616bd5a58af409453ea4e1b246521bb76578d60
   RNCMaskedView: 949696f25ec596bfc697fc88e6f95cf0c79669b6
   RNDeviceInfo: 1e3f62b9ec32f7754fac60bd06b8f8a27124e7f0
-  RNFlashList: 1983f915ae34e9253e413f31387959590d102f5e
+  RNFlashList: 4b4b6b093afc0df60ae08f9cbf6ccd4c836c667a
   RNGestureHandler: 360f9c7e91ec49ac76f03e73fb394d92e2a88e55
   RNPermissions: eac721f71748c4472d6e876038270b75397d6ee7
   RNReanimated: de830de2aa2003f34478df6badb02e39a7e89e6d

@@ -9,7 +9,9 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.util.Rational
+import android.view.WindowManager
 import androidx.annotation.RequiresApi
+import androidx.core.app.NotificationManagerCompat
 import com.facebook.react.bridge.*
 import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.modules.core.DeviceEventManagerModule
@@ -24,12 +26,13 @@ class HMSManager(reactContext: ReactApplicationContext) :
     const val REACT_CLASS = "HMSManager"
     var hmsCollection = mutableMapOf<String, HMSRNSDK>()
 
+    private var isInPIPMode = false
     var reactAppContext: ReactApplicationContext? = null
-    var pipParamConfig: PipParamConfig? = null;
-    var pipParamsUntyped: Any? = null;
+    var pipParamConfig: PipParamConfig? = null
+    var pipParamsUntyped: Any? = null
     var emitter: DeviceEventManagerModule.RCTDeviceEventEmitter? = null
 
-    fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
+    private fun emitPipEvent(isInPictureInPictureMode: Boolean) {
       emitter?.let {
         val data = Arguments.createMap()
         data.putBoolean("isInPictureInPictureMode", isInPictureInPictureMode)
@@ -38,14 +41,32 @@ class HMSManager(reactContext: ReactApplicationContext) :
       }
     }
 
+    fun onPictureInPictureModeChanged(
+      isInPictureInPictureMode: Boolean,
+      newConfig: Configuration,
+    ) {
+      if (isInPictureInPictureMode) {
+        isInPIPMode = true
+      }
+    }
+
+    fun onResume() {
+      if (isInPIPMode) {
+        isInPIPMode = false
+        reactAppContext?.currentActivity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        emitPipEvent(false)
+      }
+    }
+
     fun onUserLeaveHint() {
       val pipParams = pipParamsUntyped
       if (
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
-        Build.VERSION.SDK_INT < Build.VERSION_CODES.S &&
         pipParamConfig?.autoEnterPipMode == true &&
         pipParams is android.app.PictureInPictureParams
       ) {
+        reactAppContext?.currentActivity?.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        emitPipEvent(true)
         reactAppContext?.currentActivity?.enterPictureInPictureMode(pipParams)
       }
     }
@@ -65,12 +86,13 @@ class HMSManager(reactContext: ReactApplicationContext) :
 
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         currentActivity?.let {
-         pipReceiver?.register(it)
+          pipReceiver?.register(it)
         }
       }
 
-      emitter = reactApplicationContext
-        .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+      emitter =
+        reactApplicationContext
+          .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
     }
   }
 
@@ -301,7 +323,10 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun setPlaybackAllowed(data: ReadableMap, callback: Promise?) {
+  fun setPlaybackAllowed(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.setPlaybackAllowed(data, callback)
@@ -348,7 +373,10 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun setVolume(data: ReadableMap, callback: Promise?) {
+  fun setVolume(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.setVolume(data, callback)
@@ -365,7 +393,10 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun setPlaybackForAllAudio(data: ReadableMap, callback: Promise?) {
+  fun setPlaybackForAllAudio(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.setPlaybackForAllAudio(data, callback)
@@ -573,14 +604,20 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun switchAudioOutput(data: ReadableMap, callback: Promise?) {
+  fun switchAudioOutput(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.switchAudioOutput(data, callback)
   }
 
   @ReactMethod
-  fun setAudioMode(data: ReadableMap, callback: Promise?) {
+  fun setAudioMode(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.setAudioMode(data, callback)
@@ -851,8 +888,12 @@ class HMSManager(reactContext: ReactApplicationContext) :
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-          it.setAutoEnterEnabled(config.autoEnterPipMode)
+          it.setSeamlessResizeEnabled(false)
         }
+
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+//          it.setAutoEnterEnabled(config.autoEnterPipMode)
+//        }
 
         // region Setting RemoteActions on PictureInPictureParams
         val hmssdk = getHmsInstance()[PipActionReceiver.sdkIdForPIP!!]?.hmsSDK
@@ -1219,6 +1260,24 @@ class HMSManager(reactContext: ReactApplicationContext) :
   ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
     hms?.peerListIteratorNext(data, promise)
+  }
+
+  @ReactMethod
+  fun checkNotifications(promise: Promise?) {
+    val reactAppContext = reactAppContext
+
+    if (reactAppContext == null) {
+      promise?.reject(Throwable("`reactAppContext` is not available!"))
+      return
+    }
+    val enabled = NotificationManagerCompat.from(reactAppContext).areNotificationsEnabled()
+    val data: WritableMap = Arguments.createMap()
+
+    data.putString("status", if (enabled) "granted" else "blocked")
+    val settings: WritableMap = Arguments.createMap()
+    data.putMap("settings", settings)
+
+    promise?.resolve(data)
   }
 
   fun emitEvent(

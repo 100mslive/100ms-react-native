@@ -143,4 +143,8 @@ export const TestIds = {
   bluetooth_audio_device_btn: 'bluetooth-audio-device-button',
   bluetooth_audio_device_text: 'bluetooth-audio-device-text',
   bluetooth_audio_device_active: 'bluetooth-audio-device--active',
+
+  mute_audio_btn: 'mute-audio-button',
+  mute_audio_text: 'mute-audio-text',
+  mute_audio_active: 'mute-audio--active',
 } as const;

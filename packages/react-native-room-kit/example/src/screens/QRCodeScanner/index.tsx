@@ -12,7 +12,6 @@ import Toast from 'react-native-simple-toast';
 import type { AppStackParamList } from '../../navigator';
 import { styles } from './styles';
 import { CustomButton } from '../../components';
-import { setRoomID } from '../../redux/actions';
 import { callService, validateUrl } from '../../utils/functions';
 import { Constants } from '../../utils/types';
 import { RootState } from '../../redux';
@@ -25,7 +24,6 @@ type QRCodeScannerScreenProp = NativeStackNavigationProp<
 
 const QRCodeScanner = () => {
   const { navigate, goBack } = useNavigation<QRCodeScannerScreenProp>();
-  const dispatch = useDispatch();
   const { top, bottom, left, right } = useSafeAreaInsets();
   const debugMode = useSelector(
     (state: RootState) => state.app.joinConfig.debugMode
@@ -36,26 +34,24 @@ const QRCodeScanner = () => {
     const joiningLink = e.data.replace('meeting', 'preview');
 
     if (validateUrl(joiningLink) && joiningLink.includes('app.100ms.live/')) {
-      dispatch(setRoomID(joiningLink));
       callService(
         joiningLink,
         (
           roomCode: string,
           userId: string,
           tokenEndpoint: string | undefined,
-          initEndpoint: string | undefined
+          initEndpoint: string | undefined,
+          layoutEndPoint: string | undefined
         ) => {
           // Saving Meeting Link to Async Storage for persisting it between app starts.
-          AsyncStorage.setItem(
-            Constants.MEET_URL,
-            joiningLink.replace('preview', 'meeting')
-          );
+          AsyncStorage.setItem(Constants.MEET_URL, joiningLink);
           // @ts-ignore
           navigate('HMSPrebuiltScreen', {
             roomCode,
             userId,
             initEndPoint: initEndpoint,
             tokenEndPoint: tokenEndpoint,
+            layoutEndPoint: layoutEndPoint,
             debugMode, // default is false, will deal with this later
           });
         },
