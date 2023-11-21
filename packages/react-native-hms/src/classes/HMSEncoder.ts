@@ -459,9 +459,11 @@ export class HMSEncoder {
 
   static encodeServerRecordingState(data: any) {
     return new HMSServerRecordingState({
+      initialising: data?.initialising || false,
       running: data?.running || false,
       error: data?.error || undefined,
       startedAt: HMSEncoder.encodeDate(data?.startedAt),
+      state: data?.state,
     });
   }
 

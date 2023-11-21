@@ -718,6 +718,8 @@ class HMSDecoder: NSObject {
         if let recordingState = data {
 
             var state = [String: Any]()
+            
+            state["initialising"] = recordingState.initialising
 
             state["running"] = recordingState.running
 
@@ -728,6 +730,8 @@ class HMSDecoder: NSObject {
             if let error = recordingState.error {
                 state["error"] = HMSDecoder.getError(error)
             }
+            
+            state["state"] = recordingState.state.displayString()
 
             return state
         } else {
