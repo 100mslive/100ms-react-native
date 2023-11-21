@@ -473,6 +473,7 @@ export class HMSEncoder {
       startedAt: HMSEncoder.encodeDate(data?.startedAt),
       stoppedAt: HMSEncoder.encodeDate(data?.stoppedAt),
       error: data?.error || undefined,
+      state: data?.state,
     });
   }
 

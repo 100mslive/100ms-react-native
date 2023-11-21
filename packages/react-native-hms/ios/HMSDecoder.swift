@@ -707,6 +707,8 @@ class HMSDecoder: NSObject {
             if let error = streamingState.error {
                 state["error"] = HMSDecoder.getError(error)
             }
+            
+            state["state"] = streamingState.state.displayString()
 
             return state
         } else {
