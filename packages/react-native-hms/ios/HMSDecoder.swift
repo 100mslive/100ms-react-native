@@ -684,6 +684,8 @@ class HMSDecoder: NSObject {
             if let error = recordingState.error {
                 state["error"] = HMSDecoder.getError(error)
             }
+            
+            state["state"] = recordingState.state.displayString()
 
             return state
         } else {
