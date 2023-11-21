@@ -754,10 +754,20 @@ class HMSDecoder: NSObject {
       var state = [String: Any]()
 
       if let recordingState = data {
+          
+          state["initialising"] = recordingState.initialising
+          
           state["running"] = recordingState.running
+          
           if let startedAt = recordingState.startedAt?.timeIntervalSince1970 {
               state["startedAt"] = startedAt * 1000
           }
+          
+          if let error = recordingState.error {
+              state["error"] = HMSDecoder.getError(error)
+          }
+          
+          state["state"] = recordingState.state.displayString()
       }
       return state
     }

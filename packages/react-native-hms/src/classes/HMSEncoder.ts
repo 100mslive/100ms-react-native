@@ -499,10 +499,11 @@ export class HMSEncoder {
   static encodeHLSRecordingState(data: any) {
     if (data) {
       return new HMSHLSRecordingState({
+        initialising: data?.initialising || false,
         running: data?.running || false,
         startedAt: HMSEncoder.encodeDate(data?.startedAt),
-        singleFilePerLayer: data?.singleFilePerLayer || false,
-        videoOnDemand: data?.videoOnDemand || false,
+        error: data?.error || undefined,
+        state: data?.state,
       });
     } else {
       return undefined;
