@@ -1,7 +1,7 @@
 export enum HMSStreamingState {
-  NONE = 'None',
-  STARTING = 'Starting',
-  STARTED = 'Started',
-  STOPPED = 'Stopped',
-  FAILED = 'Failed',
+  NONE = 'NONE',
+  STARTING = 'STARTING',
+  STARTED = 'STARTED',
+  STOPPED = 'STOPPED',
+  FAILED = 'FAILED',
 }

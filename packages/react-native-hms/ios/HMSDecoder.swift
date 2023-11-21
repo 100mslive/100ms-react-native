@@ -685,7 +685,7 @@ class HMSDecoder: NSObject {
                 state["error"] = HMSDecoder.getError(error)
             }
             
-            state["state"] = recordingState.state.displayString()
+            state["state"] = recordingState.state.displayString().uppercased()
 
             return state
         } else {
@@ -708,7 +708,7 @@ class HMSDecoder: NSObject {
                 state["error"] = HMSDecoder.getError(error)
             }
             
-            state["state"] = streamingState.state.displayString()
+            state["state"] = streamingState.state.displayString().uppercased()
 
             return state
         } else {
@@ -720,8 +720,6 @@ class HMSDecoder: NSObject {
         if let recordingState = data {
 
             var state = [String: Any]()
-            
-            state["initialising"] = recordingState.initialising
 
             state["running"] = recordingState.running
 
@@ -733,7 +731,7 @@ class HMSDecoder: NSObject {
                 state["error"] = HMSDecoder.getError(error)
             }
             
-            state["state"] = recordingState.state.displayString()
+            state["state"] = recordingState.state.displayString().uppercased()
 
             return state
         } else {
@@ -756,7 +754,7 @@ class HMSDecoder: NSObject {
                 state["error"] = HMSDecoder.getError(error)
             }
             
-            state["state"] = streamingState.state.displayString()
+            state["state"] = streamingState.state.displayString().uppercased()
             
             state["variants"] = HMSDecoder.getHMSHlsVariant(streamingState.variants)
 
@@ -771,8 +769,6 @@ class HMSDecoder: NSObject {
 
       if let recordingState = data {
           
-          state["initialising"] = recordingState.initialising
-          
           state["running"] = recordingState.running
           
           if let startedAt = recordingState.startedAt?.timeIntervalSince1970 {
@@ -783,7 +779,7 @@ class HMSDecoder: NSObject {
               state["error"] = HMSDecoder.getError(error)
           }
           
-          state["state"] = recordingState.state.displayString()
+          state["state"] = recordingState.state.displayString().uppercased()
       }
       return state
     }
