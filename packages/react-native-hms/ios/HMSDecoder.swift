@@ -743,10 +743,24 @@ class HMSDecoder: NSObject {
 
     static func getHlsStreamingState(_ data: HMSHLSStreamingState?) -> [String: Any] {
         if let streamingState = data {
-            let running = streamingState.running
-            let variants = HMSDecoder.getHMSHlsVariant(streamingState.variants)
+            
+            var state = [String: Any]()
 
-            return ["running": running, "variants": variants]
+            state["running"] = streamingState.running
+            
+            if let startedAt = streamingState.startedAt?.timeIntervalSince1970 {
+                state["startedAt"] = startedAt * 1000
+            }
+            
+            if let error = streamingState.error {
+                state["error"] = HMSDecoder.getError(error)
+            }
+            
+            state["state"] = streamingState.state.displayString()
+            
+            state["variants"] = HMSDecoder.getHMSHlsVariant(streamingState.variants)
+
+            return state
         } else {
             return [String: Any]()
         }
