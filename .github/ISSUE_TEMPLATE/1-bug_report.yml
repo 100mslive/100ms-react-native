@@ -1,6 +1,7 @@
 name: 🐛 Bug Report
-description: Report a reproducible bug or regression in 100ms Flutter Package
-labels: ["Needs Triage 🔍"]
+description: Report a reproducible bug or regression in 100ms React Native Package
+title: '🐛 '
+labels: ['Needs Triage 🔍']
 body:
   - type: markdown
     attributes:
@@ -11,15 +12,23 @@ body:
     id: description
     attributes:
       label: Description
-      description: Please provide a clear and concise description of what the bug is. Include screenshots if needed. Test using the [latest 100ms Flutter release](https://github.com/100mslive/100ms-flutter/releases/latest) to make sure your issue has not already been fixed.
+      description: Please provide a clear and concise description of what the bug is. Include screenshots if needed. Test using the [latest 100ms React Native release](https://github.com/100mslive/100ms-react-native/releases/latest) to make sure your issue has not already been fixed.
     validations:
       required: true
   - type: input
     id: version
     attributes:
-      label: 100ms Flutter Version
-      description: What is the latest version of 100ms Flutter that this issue reproduces on? Please only list the highest version you tested.
-      placeholder: ex. 1.3.3
+      label: 100ms React Native Version
+      description: What is the latest version of 100ms React Native that this issue reproduces on? Please only list the highest version you tested.
+      placeholder: ex. 1.7.0
+    validations:
+      required: true
+  - type: input
+    id: react-native-version
+    attributes:
+      label: React Native Version
+      description: What is version React Native used?
+      placeholder: ex. 0.67.0
     validations:
       required: true
   - type: textarea
@@ -51,9 +60,8 @@ body:
         You may provide a screenshot of the application if you think it is relevant to your bug report.
         Here are some tips for providing a minimal example: https://stackoverflow.com/help/mcve
 
-        You can use `flutter create bug` command and update the `main.dart` file.
-        Alternatively, you can use https://dartpad.dev/
-        which is capable of creating and running small Flutter apps.
+        Alternatively, you can use any editor
+        which is capable of creating and running small React Native apps.
         Without this we will unlikely be able to progress on the issue, and because of that
         we regretfully will have to close it.
       value: |
@@ -65,19 +73,16 @@ body:
               and attach it below between the lines with the backticks.
         -->
 
-        ```dart
+        ```js
         ```
     validations:
-      required: true    
+      required: true
   - type: textarea
     attributes:
       label: Logs
       description: |
         Include the full logs of the commands you are running between the lines
-        with the backticks below. If you are running any `flutter` commands,
-        please include the output of running them with `--verbose`; for example,
-        the output of running `flutter --verbose create foo`.
-
+        with the backticks below.
         If the logs are too large to be uploaded to Github, you may upload
         them as a `txt` file or use online tools like https://pastebin.com to
         share it.
@@ -95,21 +100,3 @@ body:
         ```
 
         </details>
-  - type: textarea
-    attributes:
-      label: Flutter Doctor output
-      description: |
-        Please provide the full output of running `flutter doctor -v`
-      value: |
-        <details>
-        <summary>Doctor output</summary>
-
-        ```console
-
-        <!-- Paste your output here -->
-
-        ```
-
-        </details>
-    validations:
-      required: true
