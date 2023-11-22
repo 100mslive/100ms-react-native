@@ -14,7 +14,7 @@ export class HMSHLSStreamingState {
     startedAt?: Date;
     error?: HMSException;
     state: HMSStreamingState;
-    variants?: Array<HMSHLSVariant>
+    variants?: Array<HMSHLSVariant>;
   }) {
     this.running = params.running;
     this.startedAt = params.startedAt;
