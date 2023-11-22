@@ -1,0 +1,62 @@
+name: Build
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+    branches:
+      - main
+      - develop
+    paths-ignore:
+      - "**.md"
+      - doc/**
+      - .git/
+      - .vscode/
+      - "**.txt"
+
+jobs:
+  build_apk:
+    name: Build APK
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    # trunk-ignore(checkov/CKV2_GHA_1)
+    permissions:
+      checks: write
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          distribution: zulu
+          java-version: 11.x
+      - name: Install dependencies
+        run: cd packages/react-native-room-kit/example/; npm install
+
+      - name: Trunk Check
+        uses: trunk-io/trunk-action@v1
+        with:
+          post-annotations: true
+
+      - name: Make Gradlew Executable
+        run: cd packages/react-native-room-kit/example/android && chmod +x ./gradlew
+
+      - name: Generate App APK
+        run: |
+          cd packages/react-native-room-kit/example/android
+          ./gradlew assembleDebug --no-daemon

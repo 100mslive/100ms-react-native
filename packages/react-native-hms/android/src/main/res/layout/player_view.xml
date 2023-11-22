@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.media3.ui.PlayerView xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:id="@+id/hls_view"
+  android:layout_width="match_parent"
+  app:resize_mode="zoom"
+  android:layout_height="match_parent"
+  />
