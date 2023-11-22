@@ -453,6 +453,7 @@ export class HMSEncoder {
       startedAt: HMSEncoder.encodeDate(data?.startedAt),
       stoppedAt: HMSEncoder.encodeDate(data?.stoppedAt),
       error: data?.error || undefined,
+      state: data?.state,
     });
   }
 
@@ -461,6 +462,7 @@ export class HMSEncoder {
       running: data?.running || false,
       error: data?.error || undefined,
       startedAt: HMSEncoder.encodeDate(data?.startedAt),
+      state: data?.state,
     });
   }
 
@@ -468,8 +470,8 @@ export class HMSEncoder {
     return new HMSRtmpStreamingState({
       running: data?.running || false,
       startedAt: HMSEncoder.encodeDate(data?.startedAt),
-      stoppedAt: HMSEncoder.encodeDate(data?.stoppedAt),
       error: data?.error || undefined,
+      state: data?.state,
     });
   }
 
@@ -487,6 +489,9 @@ export class HMSEncoder {
   static encodeHLSStreamingState(data: any) {
     return new HMSHLSStreamingState({
       running: data?.running || false,
+      startedAt: HMSEncoder.encodeDate(data?.startedAt),
+      error: data?.error || undefined,
+      state: data?.state,
       variants: Array.isArray(data?.variants)
         ? this.encodeHLSVariants(data?.variants)
         : undefined,
@@ -498,8 +503,8 @@ export class HMSEncoder {
       return new HMSHLSRecordingState({
         running: data?.running || false,
         startedAt: HMSEncoder.encodeDate(data?.startedAt),
-        singleFilePerLayer: data?.singleFilePerLayer || false,
-        videoOnDemand: data?.videoOnDemand || false,
+        error: data?.error || undefined,
+        state: data?.state,
       });
     } else {
       return undefined;

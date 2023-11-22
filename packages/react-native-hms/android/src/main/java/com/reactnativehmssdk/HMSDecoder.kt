@@ -650,6 +650,8 @@ object HMSDecoder {
       data.error?.let {
         input.putMap("error", this.getError(it))
       }
+
+      input.putString("state", data.state.name)
     }
     return input
   }
@@ -670,6 +672,8 @@ object HMSDecoder {
       data.error?.let {
         input.putMap("error", this.getError(it))
       }
+
+      input.putString("state", data.state.name)
     }
     return input
   }
@@ -686,6 +690,8 @@ object HMSDecoder {
       data.error?.let {
         input.putMap("error", this.getError(it))
       }
+
+      input.putString("state", data.state.name)
     }
     return input
   }
@@ -694,6 +700,13 @@ object HMSDecoder {
     val input = Arguments.createMap()
     if (data !== null) {
       input.putBoolean("running", data.running)
+
+      data.error?.let {
+        input.putMap("error", this.getError(it))
+      }
+
+      input.putString("state", data.state.name)
+
       data.variants?.let {
         input.putArray("variants", this.getHMSHLSVariant(it))
       }
@@ -710,8 +723,7 @@ object HMSDecoder {
         input.putString("startedAt", it.toString())
       }
 
-      data.hlsRecordingConfig?.let { input.putBoolean("singleFilePerLayer", it.singleFilePerLayer) }
-      data.hlsRecordingConfig?.let { input.putBoolean("videoOnDemand", it.videoOnDemand) }
+      input.putString("state", data.state.name)
     }
     return input
   }
