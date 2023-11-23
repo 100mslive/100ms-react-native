@@ -135,6 +135,14 @@ export const HMSNotifications: React.FC<HMSNotificationsProps> = () => {
                 autoDismiss={false}
                 dismissable={true}
               />
+            ) : notification.type === NotificationTypes.INFO &&
+              'message' in notification ? (
+              <HMSNotification
+                id={notification.id}
+                text={notification.message}
+                autoDismiss={true}
+                dismissable={true}
+              />
             ) : null}
           </View>
         );

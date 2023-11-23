@@ -17,9 +17,11 @@ import { ChatFilterItem } from './ChatFilterItem';
 import { setChatFilterSheetVisible } from '../../redux/actions';
 import { ChatBroadcastFilter } from '../../utils/types';
 
-interface ChatFilterViewProps {}
+interface ChatFilterViewProps {
+  onDismiss?: () => void;
+}
 
-const _ChatFilterView: React.FC<ChatFilterViewProps> = () => {
+const _ChatFilterView: React.FC<ChatFilterViewProps> = ({ onDismiss }) => {
   const hmsInstance = useHMSInstance();
   const dispatch = useDispatch();
   const filter = useSelector((state: RootState) => state.chatWindow.sendTo);
@@ -81,7 +83,11 @@ const _ChatFilterView: React.FC<ChatFilterViewProps> = () => {
   );
 
   const closeFiltersBottomSheet = () => {
-    dispatch(setChatFilterSheetVisible(false));
+    if (onDismiss) {
+      onDismiss();
+    } else {
+      dispatch(setChatFilterSheetVisible(false));
+    }
   };
 
   const formattedFilterText = filterText.trim().toLowerCase();

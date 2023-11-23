@@ -11,6 +11,7 @@ import { ChatFilterBottomSheetView } from '../Chat/ChatFilterBottomSheetView';
 import type { RootState } from '../../redux';
 import { ParticipantsView } from './ParticipantsView';
 import { ChatView } from './ChatView';
+import { ChatMoreActionsSheetView } from '../Chat/ChatMoreActionsSheetView';
 
 const _ChatAndParticipantsView: React.FC = () => {
   const activeChatBottomSheetTab = useSelector(
@@ -55,6 +56,7 @@ const _ChatAndParticipantsView: React.FC = () => {
       </View>
 
       <ChatFilterBottomSheetView />
+      <ChatMoreActionsSheetView />
     </View>
   );
 };

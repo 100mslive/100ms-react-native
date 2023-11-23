@@ -341,6 +341,20 @@ export const setChatFilterSheetVisible = (chatFilterSheetVisible: boolean) => ({
   payload: { chatFilterSheetVisible },
 });
 
+export const setChatMoreActionsSheetVisible = (
+  chatMoreActionsSheetVisible: boolean
+) => ({
+  type: actionTypes.SET_CHAT_MORE_ACTIONS_SHEET_VISIBLE,
+  payload: { chatMoreActionsSheetVisible },
+});
+
+export const setChatState = (
+  chatState: null | { enabled: boolean; updatedBy: string }
+) => ({
+  type: actionTypes.SET_CHAT_STATE,
+  payload: { chatState },
+});
+
 export const addParticipant = (participant: HMSPeer) => ({
   type: HmsStateActionTypes.ADD_PARTICIPANT,
   participant,
@@ -366,7 +380,10 @@ export const addUpdateParticipant = (participant: HMSPeer) => ({
   participant,
 });
 
-export const replaceParticipantsList = (participants: HMSPeer[], roleName: string) => ({
+export const replaceParticipantsList = (
+  participants: HMSPeer[],
+  roleName: string
+) => ({
   type: HmsStateActionTypes.REPLACE_PARTICIPANTS_LIST,
   participants,
   roleName,

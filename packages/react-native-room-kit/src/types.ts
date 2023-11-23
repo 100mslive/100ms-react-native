@@ -63,6 +63,7 @@ export interface HMSPrebuiltProps {
 }
 
 export enum NotificationTypes {
+  INFO = 'info',
   ROLE_CHANGE_DECLINED = 'role_change_declined',
   RECONNECTING = 'reconnecting',
   HAND_RAISE = 'hand_raise',

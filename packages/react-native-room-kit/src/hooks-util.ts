@@ -91,6 +91,7 @@ import {
   setActiveChatBottomSheetTab,
   setActiveSpeakers,
   setAutoEnterPipMode,
+  setChatState,
   setFullScreenPeerTrackNode,
   setHMSLocalPeerState,
   setHMSRoleState,
@@ -1037,6 +1038,7 @@ type SessionStoreListeners = Array<{ remove: () => void }>;
 export const useHMSSessionStoreListeners = (
   gridViewRef: React.MutableRefObject<GridViewRefAttrs | null>
 ) => {
+  const store = useStore<RootState>();
   const dispatch = useDispatch();
   const hmsSessionStore = useSelector(
     (state: RootState) => state.user.hmsSessionStore
@@ -1062,6 +1064,51 @@ export const useHMSSessionStoreListeners = (
         // Handle 'pinnedMessage' key values
         const handlePinnedMessageChange = (data: HMSSessionStoreValue) => {
           dispatch(addPinnedMessage(data));
+        };
+
+        // Handle 'chatState' key values
+        const handleChatStateChange = (data: HMSSessionStoreValue) => {
+          try {
+            if (!data) {
+              throw new Error('`data` is a falsy value');
+            }
+            const parsed = JSON.parse(data);
+
+            if (!('enabled' in parsed)) {
+              throw new Error("`data` doesn't have `enabled` property");
+            }
+
+            const appReduxState = store.getState().app;
+            const currentChatState = appReduxState.chatState;
+
+            if (parsed.enabled === currentChatState?.enabled) {
+              return;
+            }
+            const notifications = appReduxState.notifications;
+
+            batch(() => {
+              if (
+                notifications.findIndex((noti) =>
+                  noti.id.startsWith('chat-state-enabled')
+                ) < 0
+              ) {
+                dispatch(
+                  addNotification({
+                    id: `chat-state-enabled-${Math.random()
+                      .toString(16)
+                      .slice(2)}`,
+                    type: NotificationTypes.INFO,
+                    message: `Chat ${parsed.enabled ? 'resumed' : 'paused'} ${
+                      parsed.updatedBy ? `by ${parsed.updatedBy}` : ''
+                    }`,
+                  })
+                );
+              }
+              dispatch(setChatState(parsed));
+            });
+          } catch (error) {
+            dispatch(setChatState(null));
+          }
         };
 
         // Getting value for 'spotlight' key by using `get` method on HMSSessionStore instance
@@ -1098,17 +1145,34 @@ export const useHMSSessionStoreListeners = (
             )
           );
 
+        // Getting value for 'chatState' key by using `get` method on HMSSessionStore instance
+        hmsSessionStore
+          .get('chatState')
+          .then((data) => {
+            console.log(
+              'Session Store get `chatState` key value success: ',
+              data
+            );
+            handleChatStateChange(data);
+          })
+          .catch((error) =>
+            console.log(
+              'Session Store get `chatState` key value error: ',
+              error
+            )
+          );
+
         // let lastSpotlightValue: HMSSessionStoreValue = null;
         // let lastPinnedMessageValue: HMSSessionStoreValue = null;
 
         // Add subscription for `spotlight` & `pinnedMessage` keys updates on Session Store
         const subscription = hmsSessionStore.addKeyChangeListener<
-          ['spotlight', 'pinnedMessage']
-        >(['spotlight', 'pinnedMessage'], (error, data) => {
+          ['spotlight', 'pinnedMessage', 'chatState']
+        >(['spotlight', 'pinnedMessage', 'chatState'], (error, data) => {
           // If error occurs, handle error and return early
           if (error !== null) {
             console.log(
-              '`spotlight` & `pinnedMessage` key listener Error -> ',
+              '`spotlight`, `chatState` & `pinnedMessage` key listener Error -> ',
               error
             );
             return;
@@ -1158,6 +1222,10 @@ export const useHMSSessionStoreListeners = (
                 // lastPinnedMessageValue = data.value;
                 break;
               }
+              case 'chatState': {
+                handleChatStateChange(data.value);
+                break;
+              }
             }
           }
         });
@@ -1177,7 +1245,7 @@ export const useHMSSessionStoreListeners = (
         // if (toastTimeoutId !== null) clearTimeout(toastTimeoutId);
       };
     }
-  }, [hmsSessionStore]);
+  }, [store, hmsSessionStore]);
 };
 
 export const useHMSSessionStore = () => {
@@ -2308,6 +2376,13 @@ export const useSendMessage = () => {
   };
 };
 
+export const useHMSCanDisableChat = () => {
+  return useHMSChatLayoutConfig<boolean>(
+    (chatLayoutConfig) =>
+      chatLayoutConfig?.real_time_controls?.can_disable_chat ?? false
+  );
+};
+
 export const useHMSChatLayoutConfig = <Selected = unknown>(
   selector: (chatConfig: ChatConfig | null) => Selected,
   equalityFn?: (left: Selected, right: Selected) => boolean
@@ -2430,4 +2505,41 @@ export const useStartRecording = () => {
   return {
     startRecording,
   };
+};
+
+export const useHMSChatState = () => {
+  const hmsSessionStore = useSelector(
+    (state: RootState) => state.user.hmsSessionStore
+  );
+  const localPeerName = useSelector(
+    (state: RootState) => state.hmsStates.localPeer?.name
+  );
+  const _chatState = useSelector((state: RootState) => state.app.chatState);
+
+  const chatState = useMemo(
+    () => _chatState || ({ enabled: true } as const),
+    [_chatState]
+  );
+
+  const setChatState = useCallback(
+    async (enabled: boolean) => {
+      // If instance of HMSSessionStore is available
+      if (hmsSessionStore) {
+        try {
+          const value = JSON.stringify({
+            enabled,
+            updatedBy: localPeerName ?? '',
+          });
+          // set `value` on `session` with key 'chatState'
+          const response = await hmsSessionStore.set(value, 'chatState');
+          console.log('setSessionMetaData Response -> ', response);
+        } catch (error) {
+          console.log('setSessionMetaData Error -> ', error);
+        }
+      }
+    },
+    [localPeerName, hmsSessionStore]
+  );
+
+  return { chatState, setChatState };
 };

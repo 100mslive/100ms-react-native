@@ -52,6 +52,8 @@ type IntialStateType = {
   notifications: Notification[];
   activeChatBottomSheetTab: (typeof ChatBottomSheetTabs)[number];
   chatFilterSheetVisible: boolean;
+  chatMoreActionsSheetVisible: boolean;
+  chatState: null | { enabled: boolean; updatedBy: string };
   handleBackButton: boolean;
   autoEnterPipMode: boolean;
 };
@@ -83,6 +85,8 @@ const INITIAL_STATE: IntialStateType = {
   notifications: [],
   activeChatBottomSheetTab: ChatBottomSheetTabs[0],
   chatFilterSheetVisible: false,
+  chatMoreActionsSheetVisible: false,
+  chatState: null,
   handleBackButton: false,
   autoEnterPipMode: false,
 };
@@ -286,6 +290,18 @@ const appReducer = (
       return {
         ...state,
         chatFilterSheetVisible: action.payload.chatFilterSheetVisible,
+      };
+    }
+    case ActionTypes.SET_CHAT_MORE_ACTIONS_SHEET_VISIBLE: {
+      return {
+        ...state,
+        chatMoreActionsSheetVisible: action.payload.chatMoreActionsSheetVisible,
+      };
+    }
+    case ActionTypes.SET_CHAT_STATE: {
+      return {
+        ...state,
+        chatState: action.payload.chatState,
       };
     }
     case ActionTypes.SET_HANDLE_BACK_BUTTON: {
