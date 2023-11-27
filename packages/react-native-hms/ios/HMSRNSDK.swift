@@ -854,7 +854,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
 
         DispatchQueue.main.async { [weak self] in
-            if let self = self, let room = hms?.room {
+            if let self = self, let room = self.hms?.room {
                 self.roomMutedLocally = mute
 
                 let audioTracks = HMSUtilities.getAllAudioTracks(in: room)

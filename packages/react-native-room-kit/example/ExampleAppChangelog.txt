@@ -1,8 +1,7 @@
 Board: https://100ms.atlassian.net/jira/software/projects/RN/boards/33
-Release: https://100ms.atlassian.net/projects/RN/versions/10614/
 
 
-Room Kit: 1.0.5
-React Native SDK: 1.9.4
+Room Kit: 1.0.6
+React Native SDK: 1.9.5
 Android SDK: 2.8.0
 iOS SDK: 1.2.1
