@@ -60,7 +60,7 @@ export const ChatMessage = React.memo(_ChatMessage);
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 16,
+    marginTop: 4,
     padding: 8,
     width: '100%',
   },

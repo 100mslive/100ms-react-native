@@ -1,16 +1,26 @@
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
+import { useSelector } from 'react-redux';
 
-import { useHMSChatState, useHMSRoomStyleSheet } from '../../hooks-util';
+import {
+  useHMSChatState,
+  useHMSRoomStyleSheet,
+  useIsAllowedToSendMessage,
+} from '../../hooks-util';
 import { ChatList } from '../Chat/ChatList';
 import { HMSSendMessageInput } from '../HMSSendMessageInput';
 import { ChatFilterBottomSheetOpener } from '../Chat/ChatFilterBottomSheetOpener';
 import { ChatPaused } from '../Chat/ChatPaused';
+import type { RootState } from '../../redux';
 
 interface ChatViewProps {}
 
 const _ChatView: React.FC<ChatViewProps> = () => {
   const { chatState } = useHMSChatState();
+  const isAllowedToSendMessage = useIsAllowedToSendMessage();
+  const isChatRecipientSelected = useSelector(
+    (state: RootState) => state.chatWindow.sendTo !== null
+  );
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme) => ({
     input: {
@@ -27,9 +37,11 @@ const _ChatView: React.FC<ChatViewProps> = () => {
         <>
           <ChatFilterBottomSheetOpener />
 
-          <HMSSendMessageInput
-            containerStyle={[styles.input, hmsRoomStyles.input]}
-          />
+          {isAllowedToSendMessage && isChatRecipientSelected ? (
+            <HMSSendMessageInput
+              containerStyle={[styles.input, hmsRoomStyles.input]}
+            />
+          ) : null}
         </>
       ) : (
         <ChatPaused style={styles.chatPaused} />

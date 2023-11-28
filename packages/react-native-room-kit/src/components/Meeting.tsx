@@ -18,6 +18,7 @@ import {
   useHMSRoomStyle,
   useIsHLSViewer,
   usePIPListener,
+  useSetDefaultChatRecipient,
 } from '../hooks-util';
 import { MeetingScreenContent } from './MeetingScreenContent';
 import { HMSHLSStreamLoading } from './HMSHLSStreamLoading';
@@ -37,6 +38,9 @@ export const Meeting: React.FC<MeetingProps> = ({ peerTrackNodes }) => {
   // TODO: Fetch latest Room and localPeer on mount of this component?
 
   useFetchHMSRoles();
+
+  // Handle selected (default) Chat Recipient as per dashboard config
+  useSetDefaultChatRecipient();
 
   useHMSMessages();
 

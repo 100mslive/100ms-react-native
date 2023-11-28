@@ -56,11 +56,8 @@ import {
   PeerListRefreshInterval,
   PipModes,
 } from './utils/types';
-import type {
-  ChatBroadcastFilter,
-  OnLeaveHandler,
-  PeerTrackNode,
-} from './utils/types';
+import { ChatBroadcastFilter } from './utils/types';
+import type { OnLeaveHandler, PeerTrackNode } from './utils/types';
 import { createPeerTrackNode } from './utils/functions';
 import {
   batch,
@@ -2307,20 +2304,17 @@ export const useSendMessage = () => {
     const chatWindowState = reduxStore.getState().chatWindow;
 
     const message = chatWindowState.typedMessage;
-    const sendingTo = chatWindowState.sendTo as
-      | HMSRole
-      | HMSRemotePeer
-      | typeof ChatBroadcastFilter;
+    const sendingTo = chatWindowState.sendTo;
 
-    if (message.length <= 0) return;
+    if (message.length <= 0 || !sendingTo) return;
 
     const hmsMessageRecipient = new HMSMessageRecipient({
       recipientType:
         'publishSettings' in sendingTo
           ? HMSMessageRecipientType.ROLES
           : 'peerID' in sendingTo
-            ? HMSMessageRecipientType.PEER
-            : HMSMessageRecipientType.BROADCAST,
+          ? HMSMessageRecipientType.PEER
+          : HMSMessageRecipientType.BROADCAST,
       recipientPeer: 'peerID' in sendingTo ? sendingTo : undefined,
       recipientRoles: 'publishSettings' in sendingTo ? [sendingTo] : undefined,
     });
@@ -2380,6 +2374,81 @@ export const useHMSCanDisableChat = () => {
   return useHMSChatLayoutConfig<boolean>(
     (chatLayoutConfig) =>
       chatLayoutConfig?.real_time_controls?.can_disable_chat ?? false
+  );
+};
+
+type ChatRecipients = {
+  privateChat: boolean;
+  publicChat: boolean;
+  roles: HMSRole[];
+};
+
+export const useHMSChatRecipientSelector = <
+  T extends keyof ChatRecipients | undefined = undefined
+>(
+  selector?: T
+): T extends keyof ChatRecipients ? ChatRecipients[T] : ChatRecipients => {
+  const roles = useSelector((state: RootState) => state.hmsStates.roles);
+
+  const defaultChatRecipient = useMemo(
+    () => ({
+      privateChat: false,
+      publicChat: false,
+      roles: [],
+    }),
+    []
+  );
+
+  const chatLayoutConfig = useHMSChatLayoutConfig(
+    (_chatLayoutConfig) => _chatLayoutConfig
+  );
+
+  const rolesWhitelist = chatLayoutConfig?.roles_whitelist;
+
+  const whitelistedRoles = useMemo(() => {
+    if (!rolesWhitelist) {
+      return defaultChatRecipient.roles;
+    }
+    return rolesWhitelist
+      .map((roleStr) => roles.find((role) => role.name === roleStr))
+      .filter((role): role is HMSRole => !!role);
+  }, [roles, rolesWhitelist, defaultChatRecipient]);
+
+  const privateChat =
+    chatLayoutConfig?.private_chat_enabled ?? defaultChatRecipient.privateChat;
+  const publicChat =
+    chatLayoutConfig?.public_chat_enabled ?? defaultChatRecipient.publicChat;
+
+  if (selector === 'privateChat') {
+    return privateChat;
+  }
+
+  if (selector === 'publicChat') {
+    return publicChat;
+  }
+
+  if (selector === 'roles') {
+    return whitelistedRoles;
+  }
+
+  if (chatLayoutConfig) {
+    return {
+      privateChat,
+      publicChat,
+      roles: whitelistedRoles,
+    };
+  }
+
+  return defaultChatRecipient;
+};
+
+export const useIsAllowedToSendMessage = () => {
+  const chatRecipients = useHMSChatRecipientSelector();
+
+  return (
+    chatRecipients.privateChat ||
+    chatRecipients.publicChat ||
+    chatRecipients.roles.length > 0
   );
 };
 
@@ -2542,4 +2611,46 @@ export const useHMSChatState = () => {
   );
 
   return { chatState, setChatState };
+};
+
+export const useSetDefaultChatRecipient = () => {
+  const dispatch = useDispatch();
+  const localPeerRoleName = useSelector(
+    (state: RootState) => state.hmsStates.localPeer?.role?.name
+  );
+
+  const {
+    privateChat,
+    publicChat,
+    roles: whitelistedRoles,
+  } = useHMSChatRecipientSelector();
+
+  useEffect(() => {
+    if (publicChat) {
+      dispatch({ type: 'SET_SENDTO', sendTo: ChatBroadcastFilter });
+    }
+    // If Role is enabled, Select a role
+    else if (Array.isArray(whitelistedRoles) && whitelistedRoles.length > 0) {
+      const roleObj =
+        whitelistedRoles.length === 1
+          ? whitelistedRoles[0]
+          : whitelistedRoles.filter(
+              (whitelistRole) => whitelistRole.name !== localPeerRoleName
+            )[0];
+
+      if (roleObj) {
+        dispatch({ type: 'SET_SENDTO', sendTo: roleObj });
+      }
+    }
+    // If private is enabled, Select None
+    else if (privateChat) {
+      dispatch({ type: 'SET_SENDTO', sendTo: null });
+    }
+  }, [
+    privateChat,
+    publicChat,
+    whitelistedRoles,
+    localPeerRoleName,
+    dispatch,
+  ]);
 };

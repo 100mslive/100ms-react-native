@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { batch, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { HMSRemotePeer, HMSRole } from '@100mslive/react-native-hms';
 
@@ -13,6 +13,7 @@ interface ChatFilterItemProps {
   disabled?: boolean;
   active?: boolean;
   icon?: React.ReactElement;
+  onDismiss?: () => void;
 }
 
 const _ChatFilterItem: React.FC<ChatFilterItemProps> = ({
@@ -20,6 +21,7 @@ const _ChatFilterItem: React.FC<ChatFilterItemProps> = ({
   disabled,
   active,
   icon,
+  onDismiss,
 }) => {
   const dispatch = useDispatch();
 
@@ -29,10 +31,12 @@ const _ChatFilterItem: React.FC<ChatFilterItemProps> = ({
   }));
 
   const handleFilterSelect = () => {
-    batch(() => {
+    dispatch({ type: 'SET_SENDTO', sendTo: item });
+    if (onDismiss) {
+      onDismiss();
+    } else {
       dispatch(setChatFilterSheetVisible(false));
-      dispatch({ type: 'SET_SENDTO', sendTo: item });
-    });
+    }
   };
 
   return (

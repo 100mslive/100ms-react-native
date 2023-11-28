@@ -1,8 +1,10 @@
 import * as React from 'react';
+import { useSelector } from 'react-redux';
 import { StyleSheet, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import MaskedView from '@react-native-masked-view/masked-view';
 
+import type { RootState } from '../redux';
 import { HMSKeyboardAvoidingView } from './HMSKeyboardAvoidingView';
 import { HMSSendMessageInput } from './HMSSendMessageInput';
 import { HMSHLSMessageList } from './HMSHLSMessageList';
@@ -12,7 +14,7 @@ import { ChatFilterBottomSheetOpener } from './Chat/ChatFilterBottomSheetOpener'
 import { ChatMoreActionsModal } from './Chat/ChatMoreActionsModal';
 import { ChatFilterBottomSheet } from './Chat/ChatFilterBottomSheet';
 import { ChatPaused } from './Chat/ChatPaused';
-import { useHMSChatState } from '../hooks-util';
+import { useHMSChatState, useIsAllowedToSendMessage } from '../hooks-util';
 
 const colors = [
   'rgba(0, 0, 0, 0)',
@@ -25,6 +27,10 @@ export const HLSChatView = () => {
   const footerHeight = useFooterHeight();
   const hmsNotificationsHeight = useHMSNotificationsHeight();
   const { chatState } = useHMSChatState();
+  const isAllowedToSendMessage = useIsAllowedToSendMessage();
+  const isSelectedChatRecipient = useSelector(
+    (state: RootState) => state.chatWindow.sendTo !== null
+  );
 
   return (
     <>
@@ -49,7 +55,10 @@ export const HLSChatView = () => {
             <View style={styles.filterSheetWrapper}>
               <ChatFilterBottomSheetOpener insetMode={true} />
             </View>
-            <HMSSendMessageInput />
+
+            {isAllowedToSendMessage && isSelectedChatRecipient ? (
+              <HMSSendMessageInput />
+            ) : null}
           </>
         ) : (
           <ChatPaused insetMode={true} style={styles.chatPaused} />

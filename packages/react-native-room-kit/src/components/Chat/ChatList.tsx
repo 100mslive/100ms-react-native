@@ -4,19 +4,21 @@ import {
   FlashList,
   // FlashListProps
 } from '@shopify/flash-list';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
 
 import type { RootState } from '../../redux';
 import { ChatMessage } from './ChatMessage';
 import { ChatBanner } from './ChatBanner';
 import { PinnedMessage } from './PinnedMessage';
+import { useIsAllowedToSendMessage } from '../../hooks-util';
 
 type ChatListProps = {
   // estimatedListSize?: FlashListProps<HMSMessage>['estimatedListSize'];
 };
 
 const _ChatList: React.FC<ChatListProps> = () => {
+  const isAllowedToSendMessage = useIsAllowedToSendMessage();
   const messages = useSelector((state: RootState) => state.messages.messages);
 
   const _keyExtractor = React.useCallback(
@@ -29,7 +31,12 @@ const _ChatList: React.FC<ChatListProps> = () => {
   }, []);
 
   return (
-    <View style={chatListStyle.list}>
+    <View
+      style={[
+        chatListStyle.list,
+        isAllowedToSendMessage ? chatListStyle.bottomSpace : null,
+      ]}
+    >
       <PinnedMessage />
 
       {messages.length > 0 ? (
@@ -37,7 +44,8 @@ const _ChatList: React.FC<ChatListProps> = () => {
           data={messages}
           inverted={true}
           estimatedItemSize={75}
-          contentContainerStyle={chatListStyle.listContentContainer} // Bug: Android inverted flashlist will apply padding on left when `paddingRight: 12` is applied
+          showsVerticalScrollIndicator={Platform.OS !== 'android'}
+          // contentContainerStyle={chatListStyle.listContentContainer} // Bug: Android inverted flashlist will apply padding on left when `paddingRight: 12` is applied
           keyboardShouldPersistTaps="always"
           // ItemSeparatorComponent={() => <View style={{ height: 16 }} />} // TODO: There is a bug related to this: https://github.com/Shopify/flash-list/issues/638
           renderItem={_renderItem}
@@ -54,10 +62,12 @@ const chatListStyle = StyleSheet.create({
   list: {
     flex: 1,
     marginTop: 8,
+  },
+  bottomSpace: {
     marginBottom: 16,
   },
   listContentContainer: {
-    paddingRight: 12,
+    paddingRight: 8,
   },
 });
 

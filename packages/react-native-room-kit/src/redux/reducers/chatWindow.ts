@@ -6,13 +6,13 @@ import { ChatBroadcastFilter } from '../../utils/types';
 type InitialType = {
   showChatView: boolean;
   typedMessage: string;
-  sendTo: HMSRemotePeer | HMSRole | typeof ChatBroadcastFilter;
+  sendTo: HMSRemotePeer | HMSRole | typeof ChatBroadcastFilter | null;
 };
 
 const INITIAL_STATE: InitialType = {
   showChatView: false,
   typedMessage: '',
-  sendTo: ChatBroadcastFilter,
+  sendTo: null,
 };
 
 const chatWindowReducer = (state = INITIAL_STATE, action: any): InitialType => {

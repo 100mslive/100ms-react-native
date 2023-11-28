@@ -2,11 +2,19 @@ import * as React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-import { ChevronIcon, ThreeDotsIcon } from '../../Icons';
+import {
+  ChevronIcon,
+  ParticipantsIcon,
+  PersonIcon,
+  SearchIcon,
+  ThreeDotsIcon,
+} from '../../Icons';
 import type { RootState } from '../../redux';
 import {
   useHMSCanDisableChat,
+  useHMSChatRecipientSelector,
   useHMSRoomStyleSheet,
+  useIsAllowedToSendMessage,
   useModalType,
 } from '../../hooks-util';
 import {
@@ -14,7 +22,7 @@ import {
   setChatMoreActionsSheetVisible,
 } from '../../redux/actions';
 import { PressableIcon } from '../PressableIcon';
-import { ModalTypes } from '../../utils/types';
+import { ChatBroadcastFilter, ModalTypes } from '../../utils/types';
 
 interface ChatFilterBottomSheetOpenerProps {
   insetMode?: boolean;
@@ -25,8 +33,10 @@ const _ChatFilterBottomSheetOpener: React.FC<
 > = ({ insetMode = false }) => {
   const dispatch = useDispatch();
   const canDisableChat = useHMSCanDisableChat();
-  const filter = useSelector(
-    (state: RootState) => state.chatWindow.sendTo.name as string
+  const chatRecipients = useHMSChatRecipientSelector();
+  const allowedToSendMessage = useIsAllowedToSendMessage();
+  const selectedChatRecipient = useSelector(
+    (state: RootState) => state.chatWindow.sendTo
   );
   const { handleModalVisibleType } = useModalType();
 
@@ -34,15 +44,15 @@ const _ChatFilterBottomSheetOpener: React.FC<
     (theme, typography) => ({
       label: {
         color: theme.palette.on_surface_medium,
-        fontFamily: `${typography.font_family}-SemiBold`,
+        fontFamily: `${typography.font_family}-Regular`,
       },
       button: {
-        backgroundColor: theme.palette.surface_dim,
+        backgroundColor: theme.palette.surface_default,
         borderColor: theme.palette.border_bright,
       },
       buttonText: {
         color: theme.palette.on_surface_high,
-        fontFamily: `${typography.font_family}-SemiBold`,
+        fontFamily: `${typography.font_family}-Regular`,
       },
       moreActionIcon: {
         tintColor: insetMode
@@ -55,7 +65,6 @@ const _ChatFilterBottomSheetOpener: React.FC<
 
   const openChatFiltersSheet = () => {
     if (insetMode) {
-      // Keyboard.dismiss();
       handleModalVisibleType(ModalTypes.CHAT_FILTER);
     } else {
       dispatch(setChatFilterSheetVisible(true));
@@ -70,22 +79,65 @@ const _ChatFilterBottomSheetOpener: React.FC<
     }
   };
 
+  const filterSheetDisabled =
+    !chatRecipients.privateChat && // filter Sheet can't be diabled when privateChat is 'on'
+    (chatRecipients.publicChat
+      ? chatRecipients.roles.length === 0
+      : chatRecipients.roles.length <= 1);
+
+  const showActionButtons = allowedToSendMessage || canDisableChat;
+
+  if (!showActionButtons) {
+    return null;
+  }
+
   return (
     <View style={styles.container}>
-      <View style={styles.sendToContainer}>
-        <Text style={[styles.label, hmsRoomStyles.label]}>TO</Text>
-
-        <TouchableOpacity
-          onPress={openChatFiltersSheet}
-          style={[styles.button, hmsRoomStyles.button]}
-        >
-          <Text style={[styles.buttonText, hmsRoomStyles.buttonText]}>
-            {filter}
+      {allowedToSendMessage ? (
+        <View style={styles.sendToContainer}>
+          <Text style={[styles.label, hmsRoomStyles.label]}>
+            {selectedChatRecipient !== null
+              ? 'To'
+              : `Choose ${
+                  chatRecipients.privateChat
+                    ? 'Participant'
+                    : chatRecipients.roles.length > 0
+                    ? 'Role'
+                    : ''
+                }`}
           </Text>
 
-          <ChevronIcon direction="down" style={styles.buttonIcon} />
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity
+            disabled={filterSheetDisabled}
+            onPress={openChatFiltersSheet}
+            style={[
+              styles.button,
+              { paddingRight: filterSheetDisabled ? 8 : undefined },
+              hmsRoomStyles.button,
+            ]}
+          >
+            {selectedChatRecipient ? (
+              selectedChatRecipient === ChatBroadcastFilter ? (
+                <ParticipantsIcon style={styles.buttonIcon} />
+              ) : (
+                <PersonIcon style={styles.buttonIcon} />
+              )
+            ) : (
+              <SearchIcon style={styles.buttonIcon} />
+            )}
+
+            <Text style={[styles.buttonText, hmsRoomStyles.buttonText]}>
+              {selectedChatRecipient ? selectedChatRecipient.name : 'Search'}
+            </Text>
+
+            {filterSheetDisabled || !selectedChatRecipient ? null : (
+              <ChevronIcon direction="down" style={styles.buttonIcon} />
+            )}
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <View />
+      )}
 
       {canDisableChat ? (
         <PressableIcon
@@ -119,13 +171,12 @@ const styles = StyleSheet.create({
     height: 16,
   },
   label: {
-    fontSize: 10,
+    fontSize: 12,
     lineHeight: 16,
-    letterSpacing: 1.5,
+    letterSpacing: 0.4,
   },
   button: {
     padding: 4,
-    paddingLeft: 8,
     flexDirection: 'row',
     marginLeft: 8,
     borderWidth: 1,
@@ -133,15 +184,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
-    fontSize: 10,
-    textTransform: 'uppercase',
+    fontSize: 12,
+    textTransform: 'capitalize',
     lineHeight: 16,
-    letterSpacing: 1.5,
+    letterSpacing: 0.4,
+    marginHorizontal: 4,
   },
   buttonIcon: {
     width: 16,
     height: 16,
-    marginLeft: 4,
   },
 });
 
