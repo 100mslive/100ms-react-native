@@ -45,7 +45,10 @@ jobs:
           distribution: zulu
           java-version: 11.x
       - name: Install dependencies
-        run: cd packages/react-native-room-kit/example/; npm install
+        run: cd packages/react-native-hms/example/ && npm install && cd ../react-native-room-kit/example/ && npm install
+
+      - name: Trunk Upgrade
+        uses: trunk-io/trunk-action/upgrade@v1
 
       - name: Trunk Check
         uses: trunk-io/trunk-action@main
