@@ -2601,15 +2601,15 @@ export const useHMSChatState = () => {
       // If instance of HMSSessionStore is available
       if (hmsSessionStore) {
         try {
-          const value = JSON.stringify({
+          const value = {
             enabled,
             updatedBy: {
-              peerID: localPeerID,
-              userID: localPeerUserID,
+              peerID: localPeerID ?? null,
+              userID: localPeerUserID ?? null,
               userName: localPeerName ?? '',
             },
             updatedAt: Date.now(),
-          });
+          };
           // set `value` on `session` with key 'chatState'
           const response = await hmsSessionStore.set(value, 'chatState');
           console.log('setSessionMetaData Response -> ', response);
