@@ -854,7 +854,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
 
         DispatchQueue.main.async { [weak self] in
-            if let self = self, let room = hms?.room {
+            if let self = self, let room = self.hms?.room {
                 self.roomMutedLocally = mute
 
                 let audioTracks = HMSUtilities.getAllAudioTracks(in: room)
@@ -1267,13 +1267,13 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 return ["localPeer": HMSDecoder.getHmsLocalPeer(hms?.localPeer)]
 
             case "browserRecordingState":
-                return ["browserRecordingState": HMSDecoder.getHMSBrowserRecordingState(hmsRoom.browserRecordingState)]
+                return ["browserRecordingState": HMSDecoder.getBrowserRecordingState(hmsRoom.browserRecordingState)]
 
             case "rtmpHMSRtmpStreamingState":
-                return ["rtmpHMSRtmpStreamingState": HMSDecoder.getHMSRtmpStreamingState(hmsRoom.rtmpStreamingState)]
+                return ["rtmpHMSRtmpStreamingState": HMSDecoder.getRtmpStreamingState(hmsRoom.rtmpStreamingState)]
 
             case "serverRecordingState":
-                return ["serverRecordingState": HMSDecoder.getHMSServerRecordingState(hmsRoom.serverRecordingState)]
+                return ["serverRecordingState": HMSDecoder.getServerRecordingState(hmsRoom.serverRecordingState)]
 
             case "hlsStreamingState":
                 return ["hlsStreamingState": HMSDecoder.getHlsStreamingState(hmsRoom.hlsStreamingState)]

@@ -5,15 +5,22 @@ import { ActivityIndicator, StyleSheet } from 'react-native';
 import type { RootState } from '../redux';
 import { RecordingIcon } from '../Icons';
 import { useHMSRoomColorPalette, useHMSRoomStyle } from '../hooks-util';
+import { HMSRecordingState } from '@100mslive/react-native-hms';
+
 
 export const HMSRecordingIndicator = () => {
   const isRecordingOn = useSelector(
-    (state: RootState) => !!state.hmsStates.room?.browserRecordingState?.running
+    (state: RootState) =>
+      !!state.hmsStates.room?.browserRecordingState?.running ||
+      !!state.hmsStates.room?.serverRecordingState?.running ||
+      !!state.hmsStates.room?.hlsRecordingState?.running
   );
   const startingOrStoppingRecording = useSelector(
     (state: RootState) =>
       state.app.startingOrStoppingRecording ||
-      (state.hmsStates.room?.browserRecordingState.initialising ?? false)
+      state.hmsStates.room?.browserRecordingState.state === HMSRecordingState.STARTING ||
+      state.hmsStates.room?.serverRecordingState.state === HMSRecordingState.STARTING ||
+      state.hmsStates.room?.hlsRecordingState?.state === HMSRecordingState.STARTING
   );
 
   const { on_surface_high: onSurfaceHighColor } = useHMSRoomColorPalette();
