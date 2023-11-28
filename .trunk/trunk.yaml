@@ -11,7 +11,6 @@ lint:
     - actionlint@1.6.26
     - prettier@3.1.0
     - swiftlint@0.54.0
-    - eslint@8.54.0
     - checkov@3.1.9
     - osv-scanner@1.4.3
     - trivy@0.47.0

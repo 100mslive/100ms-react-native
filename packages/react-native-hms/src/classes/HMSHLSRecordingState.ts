@@ -1,18 +1,20 @@
-export class HMSHLSRecordingState {
-  singleFilePerLayer: boolean;
-  videoOnDemand: boolean;
-  running: boolean;
-  startedAt?: Date;
+import type { HMSException } from './HMSException';
+import type { HMSRecordingState } from './HMSRecordingState';
 
+export class HMSHLSRecordingState {
+  running: boolean;
+  error?: HMSException;
+  startedAt?: Date;
+  state: HMSRecordingState;
   constructor(params: {
-    singleFilePerLayer: boolean;
-    videoOnDemand: boolean;
     running: boolean;
     startedAt?: Date;
+    error?: HMSException;
+    state: HMSRecordingState;
   }) {
-    this.singleFilePerLayer = params.singleFilePerLayer;
-    this.videoOnDemand = params.videoOnDemand;
     this.running = params.running;
     this.startedAt = params.startedAt;
+    this.error = params.error;
+    this.state = params.state;
   }
 }
