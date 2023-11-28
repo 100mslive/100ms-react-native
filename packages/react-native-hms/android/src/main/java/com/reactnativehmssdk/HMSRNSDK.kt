@@ -2169,13 +2169,21 @@ class HMSRNSDK(
     val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("key", "String")))
     if (requiredKeys === null) {
       val key = data.getString("key")!!
-      val value = data.getString("value")
 
       sessionStore.let {
         if (it === null) {
           val errorMessage = "setSessionMetadataForKey: HmsSessionStore instance is not available!"
           rejectCallback(promise, errorMessage)
           return
+        }
+
+        val value: Any? = when (data.getType("value")) {
+          ReadableType.Boolean -> data.getBoolean("value")
+          ReadableType.Map -> data.getMap("value")?.toHashMap()
+          ReadableType.String -> data.getString("value")
+          ReadableType.Array -> data.getArray("value")?.toArrayList()
+          ReadableType.Number -> data.getDouble("value")
+          ReadableType.Null -> null
         }
 
         it.set(
@@ -2189,7 +2197,6 @@ class HMSRNSDK(
             override fun onSuccess() {
               val result: WritableMap = Arguments.createMap()
               result.putBoolean("success", true)
-              result.putString("finalValue", value)
               promise?.resolve(result)
             }
           },

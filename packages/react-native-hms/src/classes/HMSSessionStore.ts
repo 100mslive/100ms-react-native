@@ -11,6 +11,13 @@ import type { EmitterSubscription } from '../utils';
 
 type Nullable<T> = T | null | undefined;
 
+type JsonPrimitive = string | number | boolean | null;
+type JsonMap = {
+  [key: string]: JsonPrimitive | JsonMap | JsonArray;
+}
+type JsonArray = Array<JsonPrimitive | JsonMap | JsonArray>;
+type Json = JsonPrimitive | JsonMap | JsonArray;
+
 export type HMSSessionStoreValue = Nullable<string>;
 
 /**
@@ -42,8 +49,8 @@ export class HMSSessionStore {
    * @param {string} key
    * @returns {Promise}
    */
-  async set(value: HMSSessionStoreValue, key: string) {
-    const data: { success: true; finalValue: HMSSessionStoreValue } =
+  async set(value: HMSSessionStoreValue | JsonMap, key: string) {
+    const data: { success: true; } =
       await HMSManager.setSessionMetadataForKey({
         id: HMSConstants.DEFAULT_SDK_ID,
         key,
