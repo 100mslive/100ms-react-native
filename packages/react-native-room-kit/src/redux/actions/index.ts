@@ -349,7 +349,7 @@ export const setChatMoreActionsSheetVisible = (
 });
 
 export const setChatState = (
-  chatState: null | { enabled: boolean; updatedBy: string }
+  chatState: null | { enabled: boolean; updatedBy: { peerID: string; userID: string; userName: string; }, updatedAt: number; }
 ) => ({
   type: actionTypes.SET_CHAT_STATE,
   payload: { chatState },

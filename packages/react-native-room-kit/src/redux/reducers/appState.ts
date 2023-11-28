@@ -53,7 +53,7 @@ type IntialStateType = {
   activeChatBottomSheetTab: (typeof ChatBottomSheetTabs)[number];
   chatFilterSheetVisible: boolean;
   chatMoreActionsSheetVisible: boolean;
-  chatState: null | { enabled: boolean; updatedBy: string };
+  chatState: null | { enabled: boolean; updatedBy: { peerID: string; userID: string; userName: string; }, updatedAt: number; };
   handleBackButton: boolean;
   autoEnterPipMode: boolean;
 };

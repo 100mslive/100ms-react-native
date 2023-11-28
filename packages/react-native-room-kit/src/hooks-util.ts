@@ -1096,7 +1096,7 @@ export const useHMSSessionStoreListeners = (
                       .slice(2)}`,
                     type: NotificationTypes.INFO,
                     message: `Chat ${parsed.enabled ? 'resumed' : 'paused'} ${
-                      parsed.updatedBy ? `by ${parsed.updatedBy}` : ''
+                      parsed.updatedBy ? `by ${parsed.updatedBy.userName}` : ''
                     }`,
                   })
                 );
@@ -2583,6 +2583,12 @@ export const useHMSChatState = () => {
   const localPeerName = useSelector(
     (state: RootState) => state.hmsStates.localPeer?.name
   );
+  const localPeerID = useSelector(
+    (state: RootState) => state.hmsStates.localPeer?.peerID
+  );
+  const localPeerUserID = useSelector(
+    (state: RootState) => state.hmsStates.localPeer?.customerUserID
+  );
   const _chatState = useSelector((state: RootState) => state.app.chatState);
 
   const chatState = useMemo(
@@ -2597,7 +2603,12 @@ export const useHMSChatState = () => {
         try {
           const value = JSON.stringify({
             enabled,
-            updatedBy: localPeerName ?? '',
+            updatedBy: {
+              peerID: localPeerID,
+              userID: localPeerUserID,
+              userName: localPeerName ?? '',
+            },
+            updatedAt: Date.now(),
           });
           // set `value` on `session` with key 'chatState'
           const response = await hmsSessionStore.set(value, 'chatState');
@@ -2607,7 +2618,7 @@ export const useHMSChatState = () => {
         }
       }
     },
-    [localPeerName, hmsSessionStore]
+    [localPeerName, hmsSessionStore, localPeerUserID, localPeerID]
   );
 
   return { chatState, setChatState };

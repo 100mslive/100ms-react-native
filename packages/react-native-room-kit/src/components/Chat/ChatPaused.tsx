@@ -57,7 +57,7 @@ export const _ChatPaused: React.FC<ChatPausedProps> = ({
           style={[styles.subtitle, hmsRoomStyles.subtitle]}
         >
           Chat has been paused by{' '}
-          {!chatState.enabled ? chatState.updatedBy : null}
+          {!chatState.enabled ? chatState.updatedBy.userName : null}
         </Text>
       </View>
 
