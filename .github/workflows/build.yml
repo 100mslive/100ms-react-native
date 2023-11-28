@@ -48,7 +48,7 @@ jobs:
         run: cd packages/react-native-room-kit/example/; npm install
 
       - name: Trunk Check
-        uses: trunk-io/trunk-action@v1
+        uses: trunk-io/trunk-action@main
         with:
           post-annotations: true
 
