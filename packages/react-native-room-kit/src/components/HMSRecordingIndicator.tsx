@@ -5,7 +5,8 @@ import { ActivityIndicator, StyleSheet } from 'react-native';
 import type { RootState } from '../redux';
 import { RecordingIcon } from '../Icons';
 import { useHMSRoomColorPalette, useHMSRoomStyle } from '../hooks-util';
-import { HMSRecordingState } from '../../../react-native-hms/src/classes/HMSRecordingState';
+import { HMSRecordingState } from '@100mslive/react-native-hms';
+
 
 export const HMSRecordingIndicator = () => {
   const isRecordingOn = useSelector(
