@@ -1,26 +1,27 @@
 import type { HMSMessage } from '@100mslive/react-native-hms';
 import ActionTypes, { HmsStateActionTypes } from '../actionTypes';
+import type { PinnedMessage } from '../../types';
 
 type ActionType = {
-  payload: HMSMessage | (string | null | undefined);
+  payload: HMSMessage | PinnedMessage[];
   type: String;
 };
 
 type InitType = {
   messages: Array<HMSMessage>;
-  pinnedMessage: string | null | undefined;
+  pinnedMessages: PinnedMessage[];
 };
 
 const INITIAL_STATE: InitType = {
   messages: [],
-  pinnedMessage: null,
+  pinnedMessages: [],
 };
 
 const messageReducer = (state = INITIAL_STATE, action: ActionType) => {
   switch (action.type) {
-    case ActionTypes.ADD_PINNED_MESSAGE.REQUEST:
-      const pinnedMessage = action.payload as string | null | undefined;
-      return { ...state, pinnedMessage };
+    case ActionTypes.ADD_PINNED_MESSAGES.REQUEST:
+      const pinnedMessages = (action.payload ?? INITIAL_STATE.pinnedMessages) as PinnedMessage[];
+      return { ...state, pinnedMessages };
     case ActionTypes.ADD_MESSAGE.REQUEST:
       const message = action.payload as HMSMessage;
       return { ...state, messages: [message, ...state.messages] };

@@ -77,3 +77,20 @@ export type Notification =
   | { id: string; type: NotificationTypes; message: string; }
   | { id: string; type: NotificationTypes; peer: HMSPeer; }
   | { id: string; type: NotificationTypes; exception: HMSException; }
+
+export type PinnedMessage = {
+  text: string;
+  id: string;
+  pinnedBy: string;
+  authorId: string;
+};
+
+export type ChatState = {
+  enabled: boolean;
+  updatedBy: {
+    peerID: string;
+    userID: string;
+    userName: string;
+  };
+  updatedAt: number;
+};

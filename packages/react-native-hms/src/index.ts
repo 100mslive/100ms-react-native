@@ -82,7 +82,10 @@ export * from './classes/HMSCameraControl';
 export * from './classes/HMSIOSAudioMode';
 export type {
   HMSSessionStore,
-  HMSSessionStoreValue,
+  JsonArray,
+  JsonMap,
+  JsonPrimitive,
+  JsonValue
 } from './classes/HMSSessionStore';
 export type {
   HmsViewComponent as HMSView,

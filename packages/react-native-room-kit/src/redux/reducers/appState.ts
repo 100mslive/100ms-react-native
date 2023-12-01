@@ -11,7 +11,7 @@ import {
   HMSRemoteVideoStats,
 } from '@100mslive/react-native-hms';
 import { MeetingState } from '../../types';
-import type { Notification } from '../../types';
+import type { ChatState, Notification } from '../../types';
 
 type ActionType = {
   payload: { [key: string]: any };
@@ -53,7 +53,7 @@ type IntialStateType = {
   activeChatBottomSheetTab: (typeof ChatBottomSheetTabs)[number];
   chatFilterSheetVisible: boolean;
   chatMoreActionsSheetVisible: boolean;
-  chatState: null | { enabled: boolean; updatedBy: { peerID: string; userID: string; userName: string; }, updatedAt: number; };
+  chatState: null | ChatState;
   handleBackButton: boolean;
   autoEnterPipMode: boolean;
 };

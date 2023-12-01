@@ -24,7 +24,7 @@ import type {
 } from '../../utils/types';
 import actionTypes, { HmsStateActionTypes } from '../actionTypes';
 import { MeetingState } from '../../types';
-import type { Notification } from '../../types';
+import type { ChatState, Notification, PinnedMessage } from '../../types';
 
 export const setPrebuiltData = (data: {
   roomCode: string;
@@ -104,8 +104,8 @@ export const addMessage = (data: HMSMessage) => ({
   payload: data,
 });
 
-export const addPinnedMessage = (data: string | null | undefined) => ({
-  type: actionTypes.ADD_PINNED_MESSAGE.REQUEST,
+export const addPinnedMessages = (data: PinnedMessage[]) => ({
+  type: actionTypes.ADD_PINNED_MESSAGES.REQUEST,
   payload: data,
 });
 
@@ -349,7 +349,7 @@ export const setChatMoreActionsSheetVisible = (
 });
 
 export const setChatState = (
-  chatState: null | { enabled: boolean; updatedBy: { peerID: string; userID: string; userName: string; }, updatedAt: number; }
+  chatState: null | ChatState
 ) => ({
   type: actionTypes.SET_CHAT_STATE,
   payload: { chatState },

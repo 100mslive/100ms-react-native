@@ -9,7 +9,7 @@ const createRequests = (base: String) => {
 
 const ADD_MESSAGE = createRequests('ADD_MESSAGE');
 
-const ADD_PINNED_MESSAGE = createRequests('ADD_PINNED_MESSAGE');
+const ADD_PINNED_MESSAGES = createRequests('ADD_PINNED_MESSAGES');
 
 const CLEAR_MESSAGE_DATA = createRequests('CLEAR_MESSAGE_DATA');
 
@@ -94,7 +94,7 @@ const SET_HANDLE_BACK_BUTTON = 'SET_HANDLE_BACK_BUTTON';
 const SET_AUTO_ENTER_PIP_MODE = 'SET_AUTO_ENTER_PIP_MODE';
 
 export default {
-  ADD_PINNED_MESSAGE,
+  ADD_PINNED_MESSAGES,
   ADD_MESSAGE,
   CLEAR_MESSAGE_DATA,
   CLEAR_PEER_DATA,

@@ -7,7 +7,6 @@ import {
   HMSPIPListenerActions,
   HMSPeer,
   HMSPeerUpdate,
-  HMSRemotePeer,
   HMSRoleChangeRequest,
   HMSRoom,
   HMSRoomUpdate,
@@ -27,8 +26,8 @@ import type {
   HMSPIPConfig,
   HMSRole,
   HMSSessionStore,
-  HMSSessionStoreValue,
   HMSSpeaker,
+  JsonValue,
 } from '@100mslive/react-native-hms';
 import type {
   ColorPalette,
@@ -72,7 +71,7 @@ import {
   addNotification,
   addParticipant,
   addParticipants,
-  addPinnedMessage,
+  addPinnedMessages,
   addScreenshareTile,
   addUpdateParticipant,
   changeMeetingState,
@@ -121,7 +120,7 @@ import {
   replacePeerTrackNodesWithTrack,
 } from './peerTrackNodeUtils';
 import { MeetingState } from './types';
-import type { HMSPrebuiltProps } from './types';
+import type { ChatState, HMSPrebuiltProps, PinnedMessage } from './types';
 import {
   BackHandler,
   InteractionManager,
@@ -1049,36 +1048,41 @@ export const useHMSSessionStoreListeners = (
 
       const addSessionStoreListeners = () => {
         // Handle 'spotlight' key values
-        const handleSpotlightIdChange = (id: HMSSessionStoreValue) => {
-          // set value to the state to rerender the component to reflect changes
-          dispatch(saveUserData({ spotlightTrackId: id }));
-          // Scroll to start of the list
-          gridViewRef.current
-            ?.getRegularTilesFlatlistRef()
-            .current?.scrollToOffset({ animated: true, offset: 0 });
+        const handleSpotlightIdChange = (id: JsonValue) => {
+          if (id === null || id === undefined || typeof id === 'string') {
+            // set value to the state to rerender the component to reflect changes
+            dispatch(saveUserData({ spotlightTrackId: id }));
+            // Scroll to start of the list
+            gridViewRef.current
+              ?.getRegularTilesFlatlistRef()
+              .current?.scrollToOffset({ animated: true, offset: 0 });
+          }
         };
 
-        // Handle 'pinnedMessage' key values
-        const handlePinnedMessageChange = (data: HMSSessionStoreValue) => {
-          dispatch(addPinnedMessage(data));
+        // Handle 'pinnedMessages' key values
+        const handlePinnedMessagesChange = (data: JsonValue) => {
+          if (Array.isArray(data)) {
+            dispatch(addPinnedMessages(data as PinnedMessage[]));
+          }
         };
 
         // Handle 'chatState' key values
-        const handleChatStateChange = (data: HMSSessionStoreValue) => {
+        const handleChatStateChange = (data: JsonValue) => {
           try {
-            if (!data) {
+            if (typeof data !== 'object' || Array.isArray(data) || data === null) {
               throw new Error('`data` is a falsy value');
             }
-            const parsed = JSON.parse(data);
 
-            if (!('enabled' in parsed)) {
+            if (!('enabled' in data)) {
               throw new Error("`data` doesn't have `enabled` property");
             }
+
+            const parsedData = data as ChatState;
 
             const appReduxState = store.getState().app;
             const currentChatState = appReduxState.chatState;
 
-            if (parsed.enabled === currentChatState?.enabled) {
+            if (parsedData.enabled === currentChatState?.enabled) {
               return;
             }
             const notifications = appReduxState.notifications;
@@ -1095,13 +1099,13 @@ export const useHMSSessionStoreListeners = (
                       .toString(16)
                       .slice(2)}`,
                     type: NotificationTypes.INFO,
-                    message: `Chat ${parsed.enabled ? 'resumed' : 'paused'} ${
-                      parsed.updatedBy ? `by ${parsed.updatedBy.userName}` : ''
+                    message: `Chat ${parsedData.enabled ? 'resumed' : 'paused'} ${
+                      parsedData.updatedBy ? `by ${parsedData.updatedBy.userName}` : ''
                     }`,
                   })
                 );
               }
-              dispatch(setChatState(parsed));
+              dispatch(setChatState(parsedData));
             });
           } catch (error) {
             dispatch(setChatState(null));
@@ -1125,19 +1129,19 @@ export const useHMSSessionStoreListeners = (
             )
           );
 
-        // Getting value for 'pinnedMessage' key by using `get` method on HMSSessionStore instance
+        // Getting value for 'pinnedMessages' key by using `get` method on HMSSessionStore instance
         hmsSessionStore
-          .get('pinnedMessage')
+          .get('pinnedMessages')
           .then((data) => {
             console.log(
-              'Session Store get `pinnedMessage` key value success: ',
+              'Session Store get `pinnedMessages` key value success: ',
               data
             );
-            handlePinnedMessageChange(data);
+            handlePinnedMessagesChange(data);
           })
           .catch((error) =>
             console.log(
-              'Session Store get `pinnedMessage` key value error: ',
+              'Session Store get `pinnedMessages` key value error: ',
               error
             )
           );
@@ -1162,14 +1166,14 @@ export const useHMSSessionStoreListeners = (
         // let lastSpotlightValue: HMSSessionStoreValue = null;
         // let lastPinnedMessageValue: HMSSessionStoreValue = null;
 
-        // Add subscription for `spotlight` & `pinnedMessage` keys updates on Session Store
+        // Add subscription for `spotlight` & `pinnedMessages` keys updates on Session Store
         const subscription = hmsSessionStore.addKeyChangeListener<
-          ['spotlight', 'pinnedMessage', 'chatState']
-        >(['spotlight', 'pinnedMessage', 'chatState'], (error, data) => {
+          ['spotlight', 'pinnedMessages', 'chatState']
+        >(['spotlight', 'pinnedMessages', 'chatState'], (error, data) => {
           // If error occurs, handle error and return early
           if (error !== null) {
             console.log(
-              '`spotlight`, `chatState` & `pinnedMessage` key listener Error -> ',
+              '`spotlight`, `chatState` & `pinnedMessages` key listener Error -> ',
               error
             );
             return;
@@ -1196,8 +1200,8 @@ export const useHMSSessionStoreListeners = (
                 // lastSpotlightValue = data.value;
                 break;
               }
-              case 'pinnedMessage': {
-                handlePinnedMessageChange(data.value);
+              case 'pinnedMessages': {
+                handlePinnedMessagesChange(data.value);
 
                 // Showing Toast message if value has actually changed
                 // if (
@@ -1209,7 +1213,7 @@ export const useHMSSessionStoreListeners = (
                 //   }
                 //   toastTimeoutId = setTimeout(() => {
                 //     Toast.showWithGravity(
-                //       `SessionStore: \`pinnedMessage\` key's value changed to ${data.value}`,
+                //       `SessionStore: \`pinnedMessages\` key's value changed to ${data.value}`,
                 //       Toast.LONG,
                 //       Toast.TOP
                 //     );

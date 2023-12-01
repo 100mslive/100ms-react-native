@@ -90,7 +90,7 @@ dependencies {
   //  implementation "live.100ms:video-view:${sdkVersions["android"]}"
   //  implementation "live.100ms:hls-player:${sdkVersions["android"]}"
 
-   implementation "com.github.100mslive.android-sdk:videoview:AN-1145-rbac-chat-SNAPSHOT"
-   implementation "com.github.100mslive.android-sdk:hls-player:AN-1145-rbac-chat-SNAPSHOT"
-   implementation 'com.github.100mslive.android-sdk:lib:AN-1145-rbac-chat-SNAPSHOT'
+   implementation "com.github.100mslive.android-sdk:videoview:dev-v2-SNAPSHOT"
+   implementation "com.github.100mslive.android-sdk:hls-player:dev-v2-SNAPSHOT"
+   implementation 'com.github.100mslive.android-sdk:lib:dev-v2-SNAPSHOT'
 }

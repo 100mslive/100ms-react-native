@@ -10,7 +10,7 @@ import { useSelector } from 'react-redux';
 import type { RootState } from '../../redux';
 import { ChatMessage } from './ChatMessage';
 import { ChatBanner } from './ChatBanner';
-import { PinnedMessage } from './PinnedMessage';
+import { PinnedMessages } from './PinnedMessages';
 import { useIsAllowedToSendMessage } from '../../hooks-util';
 
 type ChatListProps = {
@@ -18,6 +18,7 @@ type ChatListProps = {
 };
 
 const _ChatList: React.FC<ChatListProps> = () => {
+  const flashlistRef = React.useRef<null | FlashList<HMSMessage>>(null);
   const isAllowedToSendMessage = useIsAllowedToSendMessage();
   const messages = useSelector((state: RootState) => state.messages.messages);
 
@@ -37,10 +38,11 @@ const _ChatList: React.FC<ChatListProps> = () => {
         isAllowedToSendMessage ? chatListStyle.bottomSpace : null,
       ]}
     >
-      <PinnedMessage />
+      <PinnedMessages flashlistRef={flashlistRef} />
 
       {messages.length > 0 ? (
         <FlashList
+          ref={flashlistRef}
           data={messages}
           inverted={true}
           estimatedItemSize={75}

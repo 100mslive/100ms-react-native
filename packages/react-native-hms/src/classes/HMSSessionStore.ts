@@ -9,16 +9,12 @@ import { HMSUpdateListenerActions } from './HMSUpdateListenerActions';
 import { EventEmitter } from '../utils';
 import type { EmitterSubscription } from '../utils';
 
-type Nullable<T> = T | null | undefined;
-
-type JsonPrimitive = string | number | boolean | null;
-type JsonMap = {
+export type JsonPrimitive = string | number | boolean | null;
+export type JsonMap = {
   [key: string]: JsonPrimitive | JsonMap | JsonArray;
 }
-type JsonArray = Array<JsonPrimitive | JsonMap | JsonArray>;
-type Json = JsonPrimitive | JsonMap | JsonArray;
-
-export type HMSSessionStoreValue = Nullable<string>;
+export type JsonArray = Array<JsonPrimitive | JsonMap | JsonArray>;
+export type JsonValue = JsonPrimitive | JsonMap | JsonArray;
 
 /**
  * Session store is a shared realtime key-value store that is accessible by everyone in the room.
@@ -45,11 +41,11 @@ export class HMSSessionStore {
    * Once a value is assigned, it will be available for other peers in the room
    * who are listening for changes in value for that specific key.
    *
-   * @param {HMSSessionStoreValue} value
+   * @param {JsonValue} value
    * @param {string} key
    * @returns {Promise}
    */
-  async set(value: HMSSessionStoreValue | JsonMap, key: string) {
+  async set(value: JsonValue, key: string) {
     const data: { success: true; } =
       await HMSManager.setSessionMetadataForKey({
         id: HMSConstants.DEFAULT_SDK_ID,
@@ -70,7 +66,7 @@ export class HMSSessionStore {
    * @returns {Promise}
    */
   async get(key: string) {
-    const data: HMSSessionStoreValue =
+    const data: JsonValue =
       await HMSManager.getSessionMetadataForKey({
         id: HMSConstants.DEFAULT_SDK_ID,
         key,
@@ -90,7 +86,7 @@ export class HMSSessionStore {
     forKeys: T,
     callback: (
       error: string | null,
-      data: { key: T[number]; value: HMSSessionStoreValue } | null
+      data: { key: T[number]; value: JsonValue } | null
     ) => void
   ) {
     // Add Native Device Event Emitter if it is not already added
@@ -199,7 +195,7 @@ export class HMSSessionStore {
   private _deviceEventEmitterListener(data: {
     id: string;
     key: string;
-    value: HMSSessionStoreValue;
+    value: JsonValue;
   }) {
     // if id is different from default sdk_id, return early
     if (data.id !== HMSConstants.DEFAULT_SDK_ID) {

@@ -2236,9 +2236,13 @@ class HMSRNSDK(
                   promise?.resolve(null)
                 } else {
                   if (sm.isJsonPrimitive) {
-                    promise?.resolve(sm.asString)
+                    promise?.resolve(sm)
                   } else if (sm.isJsonNull) {
                     promise?.resolve(null)
+                  } else if (sm.isJsonArray) {
+                    promise?.resolve(HMSDecoder.getReadableArrayFromJsonArray(sm.asJsonArray))
+                  } else if (sm.isJsonObject) {
+                    promise?.resolve(HMSDecoder.getReadableMapFromJsonObject(sm.asJsonObject))
                   } else {
                     promise?.resolve(sm.toString())
                   }
@@ -2282,12 +2286,23 @@ class HMSRNSDK(
 
               value.let { sm ->
                 if (sm == null) {
-                  map.putString("value", null)
+                  map.putNull("value")
                 } else {
                   if (sm.isJsonPrimitive) {
-                    map.putString("value", sm.asString)
+                    val primitive = sm.asJsonPrimitive
+                    if (primitive.isBoolean) {
+                      map.putBoolean("value", primitive.asBoolean)
+                    } else if (primitive.isNumber) {
+                      map.putDouble("value", primitive.asDouble)
+                    } else {
+                      map.putString("value", sm.asString)
+                    }
                   } else if (sm.isJsonNull) {
-                    map.putString("value", null)
+                    map.putNull("value")
+                  } else if (sm.isJsonArray) {
+                    map.putArray("value", HMSDecoder.getReadableArrayFromJsonArray(sm.asJsonArray))
+                  } else if (sm.isJsonObject) {
+                    map.putMap("value", HMSDecoder.getReadableMapFromJsonObject(sm.asJsonObject))
                   } else {
                     map.putString("value", sm.toString())
                   }
