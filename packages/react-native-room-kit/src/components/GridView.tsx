@@ -18,6 +18,7 @@ import type { RootState } from '../redux';
 import { PaginationDots } from './PaginationDots';
 import { setGridViewActivePage } from '../redux/actions';
 import { Tile } from './Tile';
+import { useIsLandscapeOrientation } from '../utils/dimension';
 
 export type GridViewProps = {
   onPeerTileMorePress(peerTrackNode: PeerTrackNode): void;
@@ -157,6 +158,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     position: 'relative',
+    flexDirection: 'row',
   },
   measureLayoutView: {
     position: 'absolute',
@@ -182,6 +184,8 @@ const RegularTiles = React.forwardRef<
   const activeIndex = useSelector(
     (state: RootState) => state.app.gridViewActivePage
   );
+
+  const isLandscapeOrientation = useIsLandscapeOrientation();
 
   const _keyExtractor = React.useCallback((item) => item[0]?.id, []);
 
@@ -234,7 +238,7 @@ const RegularTiles = React.forwardRef<
         <PaginationDots
           list={pairedPeers}
           activeIndex={activeIndex}
-          style={screenshareTilesAvailable ? { marginVertical: 8 } : null}
+          style={screenshareTilesAvailable ? { marginVertical: 8 } : isLandscapeOrientation ? { marginVertical: 4 } : null }
         />
       ) : null}
     </View>

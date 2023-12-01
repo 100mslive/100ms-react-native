@@ -49,7 +49,7 @@ const _TilesContainer: React.FC<TilesContainerProps> = ({
               : growableTileLayout
               ? 'space-between'
               : 'center',
-          flexDirection: screenshareTilesAvailable ? 'row' : 'column',
+          flexDirection: screenshareTilesAvailable ? 'row' : isLandscapeOrientation ? 'row' : 'column',
         },
         { width: Dimensions.get('window').width - left - right },
       ]}
@@ -133,8 +133,8 @@ const fourTileStyle = { width: '49.5%', height: '100%' }; // Grid Layout when Wi
 const fiveAndSixTileStyle = { width: '49.5%', aspectRatio: 1 }; // Grid Layout when width and Height as fixed aspectRatio
 
 const oneTileStyleLandscape = { width: '100%', height: '100%' };
-const twoTileStyleLandscape = { width: '50%', height: '100%' };
-const threeTileStyleLandscape = { width: '33.3333%', height: '100%' };
+const twoTileStyleLandscape = { width: '49.7222%', height: '100%' };
+const threeTileStyleLandscape = { width: '33%', height: '100%' };
 const fourTileStyleLandscape = { width: '50%', height: '50%' };
 
 function computeTileWidthAndHeight(
