@@ -49,6 +49,7 @@ export const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
     const screenshareTilesFlatlistRef = useRef<FlatList<PeerTrackNode>>(null);
     const insetTileBoundingBoxRef = useRef<LayoutRectangle | null>(null);
 
+    const isLandscapeOrientation = useIsLandscapeOrientation();
     const screenshareTilesAvailable = useSelector(
       (state: RootState) => state.app.screensharePeerTrackNodes.length > 0
     );
@@ -122,12 +123,14 @@ export const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
           />
         ) : null}
 
-        <RegularTiles
-          ref={regularTilesFlatlistRef}
-          pairedPeers={pairedPeers}
-          setHmsViewRefs={setHmsViewRefs}
-          onPeerTileMorePress={onPeerTileMorePress}
-        />
+        {screenshareTilesAvailable && isLandscapeOrientation ? null : (
+          <RegularTiles
+            ref={regularTilesFlatlistRef}
+            pairedPeers={pairedPeers}
+            setHmsViewRefs={setHmsViewRefs}
+            onPeerTileMorePress={onPeerTileMorePress}
+          />
+        )}
 
         {pairedPeers.length > 0 && miniviewPeerTrackNodeExists ? (
           <MiniView
@@ -158,7 +161,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     position: 'relative',
-    flexDirection: 'row',
   },
   measureLayoutView: {
     position: 'absolute',
@@ -238,7 +240,11 @@ const RegularTiles = React.forwardRef<
         <PaginationDots
           list={pairedPeers}
           activeIndex={activeIndex}
-          style={screenshareTilesAvailable ? { marginVertical: 8 } : isLandscapeOrientation ? { marginVertical: 4 } : null }
+          style={
+            (screenshareTilesAvailable || isLandscapeOrientation)
+              ? { marginVertical: isLandscapeOrientation ? 4 : 8 }
+              : null
+          }
         />
       ) : null}
     </View>
@@ -254,6 +260,7 @@ const ScreenshareTiles = React.forwardRef<
   FlatList<PeerTrackNode>,
   ScreenshareTilesProps
 >(({ onPeerTileMorePress, setHmsViewRefs }, flatlistRef) => {
+  const isLandscapeOrientation = useIsLandscapeOrientation();
   const [activePage, setActivePage] = useState(0);
   const screensharePeerTrackNodes = useSelector(
     (state: RootState) => state.app.screensharePeerTrackNodes
@@ -312,7 +319,7 @@ const ScreenshareTiles = React.forwardRef<
         <PaginationDots
           list={screensharePeerTrackNodes}
           activeIndex={activePage}
-          style={{ marginVertical: 8 }}
+          style={{ marginVertical: isLandscapeOrientation ? 4 : 8 }}
         />
       ) : null}
     </View>

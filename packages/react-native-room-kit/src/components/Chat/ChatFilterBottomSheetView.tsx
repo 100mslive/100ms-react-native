@@ -8,6 +8,7 @@ import { ChatFilterView } from './ChatFilterView';
 import { useHMSRoomStyleSheet } from '../../hooks-util';
 import type { RootState } from '../../redux';
 import { setChatFilterSheetVisible } from '../../redux/actions';
+import { useIsLandscapeOrientation } from '../../utils/dimension';
 
 interface ChatFilterBottomSheetViewProps {}
 
@@ -15,6 +16,7 @@ const _ChatFilterBottomSheetView: React.FC<
   ChatFilterBottomSheetViewProps
 > = ({}) => {
   const dispatch = useDispatch();
+  const isLandscapeOrientation = useIsLandscapeOrientation();
   const chatFilterSheetVisible = useSelector(
     (state: RootState) => state.app.chatFilterSheetVisible
   );
@@ -48,7 +50,11 @@ const _ChatFilterBottomSheetView: React.FC<
       <Animated.View
         entering={SlideInDown}
         exiting={SlideOutDown}
-        style={[styles.contentContainer, hmsRoomStyles.contentContainer]}
+        style={[
+          styles.contentContainer,
+          hmsRoomStyles.contentContainer,
+          isLandscapeOrientation ? { maxHeight: '88%' } : null
+        ]}
       >
         <ChatFilterView />
       </Animated.View>

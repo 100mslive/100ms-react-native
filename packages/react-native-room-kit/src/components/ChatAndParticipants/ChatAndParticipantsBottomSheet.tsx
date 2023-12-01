@@ -6,9 +6,11 @@ import { BottomSheet } from '../BottomSheet';
 import { useShowChatAndParticipants } from '../../hooks-util';
 import { ChatAndParticipantsView } from './ChatAndParticipantsView';
 import { HEADER_HEIGHT } from '../Header';
+import { useIsLandscapeOrientation } from '../../utils/dimension';
 
 export const ChatAndParticipantsBottomSheet = () => {
   const { top: topSafeArea } = useSafeAreaInsets();
+  const isLandscapeOrientation = useIsLandscapeOrientation();
 
   const { modalVisible, hide } = useShowChatAndParticipants();
 
@@ -21,7 +23,7 @@ export const ChatAndParticipantsBottomSheet = () => {
       avoidKeyboard={true}
       containerStyle={[
         styles.bottomSheet,
-        { marginTop: topSafeArea + HEADER_HEIGHT },
+        { marginTop: topSafeArea + (isLandscapeOrientation ? 0 : HEADER_HEIGHT) },
       ]}
     >
       <ChatAndParticipantsView />
