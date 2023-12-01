@@ -140,10 +140,14 @@ export const _Footer: React.FC<FooterProps> = () => {
 
 export const useFooterHeight = () => {
   const isHLSViewer = useIsHLSViewer();
+  const isLandscapeOrientation = useIsLandscapeOrientation();
   const { bottom } = useSafeAreaInsets();
 
   return (
-    bottom + (isHLSViewer ? 8 : 16) + (Platform.OS === 'android' ? 16 : 0) + 40
+    bottom +
+    (isHLSViewer ? 8 : isLandscapeOrientation ? 4 : 16) +
+    (Platform.OS === 'android' ? (isLandscapeOrientation ? 4 : 16) : 0) +
+    40
   ); // bottomSafeArea + paddingTop + marginBottom + content
 };
 
