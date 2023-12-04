@@ -10,6 +10,7 @@ import {
   useHMSRoomStyle,
   useHMSRoomStyleSheet,
 } from '../hooks-util';
+import { useIsLandscapeOrientation } from '../utils/dimension';
 
 type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
 
@@ -20,12 +21,13 @@ export type BottomSheetProps = WithRequired<
   // closes modal and no action will be taken after modal has been closed
   dismissModal(): void;
   containerStyle?: StyleProp<ViewStyle>;
+  fullWidth?: boolean;
 };
 
 export const BottomSheet: React.FC<BottomSheetProps> & {
   Header: React.FC<HeaderProps>;
   Divider: React.FC<BottomSheetDividerProps>;
-} = ({ dismissModal, style, children, containerStyle, ...resetProps }) => {
+} = ({ dismissModal, fullWidth = false, style, children, containerStyle, ...resetProps }) => {
   const { background_dim: backgroundDimColor } = useHMSRoomColorPalette();
 
   const containerStyles = useHMSRoomStyle((theme) => ({
@@ -33,6 +35,8 @@ export const BottomSheet: React.FC<BottomSheetProps> & {
   }));
 
   const { handleModalHideAction } = useBottomSheetActionHandlers();
+
+  const isLandscapeOrientation = useIsLandscapeOrientation();
 
   return (
     <Modal
@@ -55,7 +59,7 @@ export const BottomSheet: React.FC<BottomSheetProps> & {
       }
       // coverScreen={true}
     >
-      <View style={[styles.container, containerStyles, containerStyle]}>
+      <View style={[isLandscapeOrientation && !fullWidth ?  styles.landscapeContainer :  styles.container, containerStyles, containerStyle]}>
         {children}
       </View>
     </Modal>
@@ -169,6 +173,13 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     paddingBottom: 32,
+  },
+  landscapeContainer: {
+    borderRadius: 16,
+    paddingBottom: 32,
+    width: '60%',
+    alignSelf: 'center',
+    marginBottom: 12,
   },
   header: {
     flexDirection: 'row',

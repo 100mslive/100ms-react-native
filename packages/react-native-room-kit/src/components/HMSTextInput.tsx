@@ -16,7 +16,6 @@ import type {
 
 import { useHMSRoomColorPalette, useHMSRoomStyleSheet } from '../hooks-util';
 import { SendIcon } from '../Icons';
-import { useIsLandscapeOrientation } from '../utils/dimension';
 
 export type HMSTextInputProps = TextInputProps & {
   value: string;
@@ -48,7 +47,6 @@ export const HMSTextInput: React.FC<HMSTextInputProps> = ({
   focusedStyle,
   ...resetProps
 }) => {
-  const isLandscapeOrientation = useIsLandscapeOrientation();
   const [inputFocused, setInputFocused] = React.useState(false);
 
   const handleInputFocus = () => setInputFocused(true);
@@ -68,13 +66,13 @@ export const HMSTextInput: React.FC<HMSTextInputProps> = ({
       // TEXT INPUT STYLES
       input: {
         backgroundColor: theme.palette.surface_default,
-        color: isLandscapeOrientation ? theme.palette.on_surface_low : theme.palette.on_surface_high,
+        color: theme.palette.on_surface_high,
         borderColor: theme.palette.surface_default,
         fontFamily: `${typography.font_family}-Regular`,
       },
       // when text input is inside container
       childInput: {
-        color: isLandscapeOrientation ? theme.palette.on_surface_low : theme.palette.on_surface_high,
+        color: theme.palette.on_surface_high,
         fontFamily: `${typography.font_family}-Regular`,
       },
       focusedInput: {
@@ -102,7 +100,6 @@ export const HMSTextInput: React.FC<HMSTextInputProps> = ({
         tintColor: theme.palette.on_surface_high,
       },
     }),
-    [isLandscapeOrientation]
   );
 
   const textInputStyles: StyleProp<TextStyle> = [
@@ -130,13 +127,14 @@ export const HMSTextInput: React.FC<HMSTextInputProps> = ({
       autoCapitalize={resetProps.autoCapitalize ?? 'words'}
       autoCompleteType={resetProps.autoCompleteType ?? 'name'}
       placeholderTextColor={
-        isLandscapeOrientation ? undefined : (resetProps.placeholderTextColor ?? onSurfaceMediumColor)
+        resetProps.placeholderTextColor ?? onSurfaceMediumColor
       }
       selectionColor={
-        isLandscapeOrientation ? undefined : (resetProps.selectionColor ?? onSurfaceHighColor)
+        resetProps.selectionColor ?? onSurfaceHighColor
       }
       onFocus={resetProps.onFocus ?? handleInputFocus}
       onBlur={resetProps.onBlur ?? handleInputBlur}
+      disableFullscreenUI={true}
     />
   );
 

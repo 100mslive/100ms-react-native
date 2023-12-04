@@ -18,6 +18,7 @@ export const ChatAndParticipantsBottomSheet = () => {
 
   return (
     <BottomSheet
+      fullWidth={true}
       dismissModal={closeChatWindow}
       isVisible={modalVisible}
       avoidKeyboard={true}
