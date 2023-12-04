@@ -24,7 +24,9 @@ export const ChatAndParticipantsBottomSheet = () => {
       avoidKeyboard={true}
       containerStyle={[
         styles.bottomSheet,
-        { marginTop: topSafeArea + (isLandscapeOrientation ? 0 : HEADER_HEIGHT) },
+        {
+          marginTop: topSafeArea + (isLandscapeOrientation ? 0 : HEADER_HEIGHT),
+        },
       ]}
     >
       <ChatAndParticipantsView />

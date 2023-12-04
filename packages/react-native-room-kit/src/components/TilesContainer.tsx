@@ -47,9 +47,13 @@ const _TilesContainer: React.FC<TilesContainerProps> = ({
             screenshareTilesAvailable && peerTrackNodes.length === 1
               ? 'center'
               : growableTileLayout
-              ? 'space-between'
-              : 'center',
-          flexDirection: screenshareTilesAvailable ? 'row' : isLandscapeOrientation ? 'row' : 'column',
+                ? 'space-between'
+                : 'center',
+          flexDirection: screenshareTilesAvailable
+            ? 'row'
+            : isLandscapeOrientation
+              ? 'row'
+              : 'column',
         },
         { width: Dimensions.get('window').width - left - right },
       ]}

@@ -61,46 +61,44 @@ export const HMSTextInput: React.FC<HMSTextInputProps> = ({
   const containerExists =
     resetProps.leftIcon || resetProps.rightIcon || resetProps.sendIcon;
 
-  const hmsRoomStyles = useHMSRoomStyleSheet(
-    (theme, typography) => ({
-      // TEXT INPUT STYLES
-      input: {
-        backgroundColor: theme.palette.surface_default,
-        color: theme.palette.on_surface_high,
-        borderColor: theme.palette.surface_default,
-        fontFamily: `${typography.font_family}-Regular`,
-      },
-      // when text input is inside container
-      childInput: {
-        color: theme.palette.on_surface_high,
-        fontFamily: `${typography.font_family}-Regular`,
-      },
-      focusedInput: {
-        borderColor: theme.palette.primary_default,
-        borderWidth: 2,
-      },
-      // when text input is inside container
-      focusedChildInput: {},
+  const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
+    // TEXT INPUT STYLES
+    input: {
+      backgroundColor: theme.palette.surface_default,
+      color: theme.palette.on_surface_high,
+      borderColor: theme.palette.surface_default,
+      fontFamily: `${typography.font_family}-Regular`,
+    },
+    // when text input is inside container
+    childInput: {
+      color: theme.palette.on_surface_high,
+      fontFamily: `${typography.font_family}-Regular`,
+    },
+    focusedInput: {
+      borderColor: theme.palette.primary_default,
+      borderWidth: 2,
+    },
+    // when text input is inside container
+    focusedChildInput: {},
 
-      // CONTAINER STYLES
-      container: {
-        backgroundColor: theme.palette.surface_default,
-        borderColor: theme.palette.surface_default,
-      },
-      focusedContainer: {
-        borderColor: theme.palette.primary_default,
-        borderWidth: 2,
-      },
+    // CONTAINER STYLES
+    container: {
+      backgroundColor: theme.palette.surface_default,
+      borderColor: theme.palette.surface_default,
+    },
+    focusedContainer: {
+      borderColor: theme.palette.primary_default,
+      borderWidth: 2,
+    },
 
-      // ICON STYLES
-      sendIcon: {
-        tintColor: theme.palette.on_surface_medium,
-      },
-      focusedSendIcon: {
-        tintColor: theme.palette.on_surface_high,
-      },
-    }),
-  );
+    // ICON STYLES
+    sendIcon: {
+      tintColor: theme.palette.on_surface_medium,
+    },
+    focusedSendIcon: {
+      tintColor: theme.palette.on_surface_high,
+    },
+  }));
 
   const textInputStyles: StyleProp<TextStyle> = [
     // regular styles
@@ -129,9 +127,7 @@ export const HMSTextInput: React.FC<HMSTextInputProps> = ({
       placeholderTextColor={
         resetProps.placeholderTextColor ?? onSurfaceMediumColor
       }
-      selectionColor={
-        resetProps.selectionColor ?? onSurfaceHighColor
-      }
+      selectionColor={resetProps.selectionColor ?? onSurfaceHighColor}
       onFocus={resetProps.onFocus ?? handleInputFocus}
       onBlur={resetProps.onBlur ?? handleInputBlur}
       disableFullscreenUI={true}

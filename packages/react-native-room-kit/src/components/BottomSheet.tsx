@@ -2,7 +2,12 @@ import * as React from 'react';
 import Modal from 'react-native-modal';
 import type { ReactNativeModal } from 'react-native-modal';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import type { StyleProp, TextProps, TouchableOpacityProps, ViewStyle } from 'react-native';
+import type {
+  StyleProp,
+  TextProps,
+  TouchableOpacityProps,
+  ViewStyle,
+} from 'react-native';
 
 import { CloseIcon } from '../Icons';
 import {
@@ -27,7 +32,14 @@ export type BottomSheetProps = WithRequired<
 export const BottomSheet: React.FC<BottomSheetProps> & {
   Header: React.FC<HeaderProps>;
   Divider: React.FC<BottomSheetDividerProps>;
-} = ({ dismissModal, fullWidth = false, style, children, containerStyle, ...resetProps }) => {
+} = ({
+  dismissModal,
+  fullWidth = false,
+  style,
+  children,
+  containerStyle,
+  ...resetProps
+}) => {
   const { background_dim: backgroundDimColor } = useHMSRoomColorPalette();
 
   const containerStyles = useHMSRoomStyle((theme) => ({
@@ -59,7 +71,15 @@ export const BottomSheet: React.FC<BottomSheetProps> & {
       }
       // coverScreen={true}
     >
-      <View style={[isLandscapeOrientation && !fullWidth ?  styles.landscapeContainer :  styles.container, containerStyles, containerStyle]}>
+      <View
+        style={[
+          isLandscapeOrientation && !fullWidth
+            ? styles.landscapeContainer
+            : styles.container,
+          containerStyles,
+          containerStyle,
+        ]}
+      >
         {children}
       </View>
     </Modal>
@@ -97,12 +117,18 @@ const BottomSheetHeader: React.FC<HeaderProps> = ({
   return (
     <View style={styles.header}>
       <View>
-        <Text testID={headingTestID} style={[styles.headerText, hmsRoomStyles.headerText]}>
+        <Text
+          testID={headingTestID}
+          style={[styles.headerText, hmsRoomStyles.headerText]}
+        >
           {heading}
         </Text>
 
         {subheading ? (
-          <Text testID={subheadingTestID} style={[styles.subheadingText, hmsRoomStyles.subheadingText]}>
+          <Text
+            testID={subheadingTestID}
+            style={[styles.subheadingText, hmsRoomStyles.subheadingText]}
+          >
             {subheading}
           </Text>
         ) : null}

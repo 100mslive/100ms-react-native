@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
   },
   landscapeCoverImage: {
     flexShrink: 1,
-    resizeMode: 'contain'
+    resizeMode: 'contain',
   },
   title: {
     fontSize: 20,

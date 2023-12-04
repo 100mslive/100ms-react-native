@@ -53,7 +53,7 @@ const _ChatFilterBottomSheetView: React.FC<
         style={[
           styles.contentContainer,
           hmsRoomStyles.contentContainer,
-          isLandscapeOrientation ? { maxHeight: '88%' } : null
+          isLandscapeOrientation ? { maxHeight: '88%' } : null,
         ]}
       >
         <ChatFilterView />

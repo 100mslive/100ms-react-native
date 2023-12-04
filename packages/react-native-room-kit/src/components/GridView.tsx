@@ -241,7 +241,7 @@ const RegularTiles = React.forwardRef<
           list={pairedPeers}
           activeIndex={activeIndex}
           style={
-            (screenshareTilesAvailable || isLandscapeOrientation)
+            screenshareTilesAvailable || isLandscapeOrientation
               ? { marginVertical: isLandscapeOrientation ? 4 : 8 }
               : null
           }
