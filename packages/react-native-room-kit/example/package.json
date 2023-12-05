@@ -28,7 +28,7 @@
     "react-native-modal": "12.1.0",
     "react-native-permissions": "3.4.0",
     "react-native-qrcode-scanner": "1.5.5",
-    "react-native-reanimated": ">=2.17.0",
+    "react-native-reanimated": "3.4.2",
     "react-native-safe-area-context": "3.3.0",
     "react-native-screens": "3.25.0",
     "react-native-simple-toast": "1.1.3",
