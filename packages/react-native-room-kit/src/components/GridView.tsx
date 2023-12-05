@@ -1,6 +1,6 @@
 import React, { useRef, useState, useImperativeHandle } from 'react';
 import type { ElementRef } from 'react';
-import { View, FlatList, StyleSheet, Dimensions } from 'react-native';
+import { View, FlatList, StyleSheet, useWindowDimensions } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import type {
   LayoutChangeEvent,
@@ -260,6 +260,7 @@ const ScreenshareTiles = React.forwardRef<
   FlatList<PeerTrackNode>,
   ScreenshareTilesProps
 >(({ onPeerTileMorePress, setHmsViewRefs }, flatlistRef) => {
+  const { width } = useWindowDimensions();
   const isLandscapeOrientation = useIsLandscapeOrientation();
   const [activePage, setActivePage] = useState(0);
   const screensharePeerTrackNodes = useSelector(
@@ -287,14 +288,14 @@ const ScreenshareTiles = React.forwardRef<
       return (
         <Tile
           height={'100%'}
-          width={Dimensions.get('window').width}
+          width={width}
           peerTrackNode={item}
           onPeerTileMorePress={onPeerTileMorePress}
           setHmsViewRefs={setHmsViewRefs}
         />
       );
     },
-    [onPeerTileMorePress, setHmsViewRefs]
+    [width, onPeerTileMorePress, setHmsViewRefs]
   );
 
   return (

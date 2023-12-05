@@ -11,6 +11,7 @@ import { HMSTerminalErrorNotification } from './HMSTerminalErrorNotification';
 import { HMSNotification } from './HMSNotification';
 import { AlertTriangleIcon } from '../Icons';
 import { HMSReconnectingNotification } from './HMSReconnectingNotification';
+import { useIsLandscapeOrientation } from '../utils/dimension';
 
 export interface HMSNotificationsProps {}
 
@@ -23,6 +24,7 @@ export const HMSNotifications: React.FC<HMSNotificationsProps> = () => {
   const isLocalScreenShared = useSelector(
     (state: RootState) => state.hmsStates.isLocalScreenShared
   );
+  const isLandscapeOrientation = useIsLandscapeOrientation();
 
   // notifications is a stack, first will appear last
   const notifications = useSelector((state: RootState) => {
@@ -81,7 +83,7 @@ export const HMSNotifications: React.FC<HMSNotificationsProps> = () => {
   return (
     <View
       style={[
-        styles.absoluteContainer,
+        isLandscapeOrientation ? styles.absoluteLandscapeContainer : styles.absoluteContainer,
         { paddingTop: (notifications.length - 1) * 16 },
       ]}
     >
@@ -164,6 +166,12 @@ const styles = StyleSheet.create({
     position: 'relative',
     marginBottom: 8,
     width: '100%',
+  },
+  absoluteLandscapeContainer: {
+    position: 'relative',
+    marginBottom: 8,
+    width: '60%',
+    alignSelf: 'center',
   },
   notificationWrapper: {
     position: 'absolute',
