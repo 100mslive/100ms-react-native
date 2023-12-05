@@ -83,7 +83,9 @@ export const HMSNotifications: React.FC<HMSNotificationsProps> = () => {
   return (
     <View
       style={[
-        isLandscapeOrientation ? styles.absoluteLandscapeContainer : styles.absoluteContainer,
+        isLandscapeOrientation
+          ? styles.absoluteLandscapeContainer
+          : styles.absoluteContainer,
         { paddingTop: (notifications.length - 1) * 16 },
       ]}
     >

@@ -54,7 +54,9 @@ export const DefaultModal: React.FC<DefaultModalProps> = ({
     >
       <View
         style={[
-          isLandscapeOrientation ? styles.landscapeContentContainer : styles.contentContainer,
+          isLandscapeOrientation
+            ? styles.landscapeContentContainer
+            : styles.contentContainer,
           modalPosiion === 'flex-end' ? styles.end : styles.center,
           viewStyle,
           { marginLeft: left, marginRight: right },
