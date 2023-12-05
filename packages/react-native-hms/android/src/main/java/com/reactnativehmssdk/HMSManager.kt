@@ -26,6 +26,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
     const val REACT_CLASS = "HMSManager"
     var hmsCollection = mutableMapOf<String, HMSRNSDK>()
 
+    var startingScreenShare = false
     private var isInPIPMode = false
     var reactAppContext: ReactApplicationContext? = null
     var pipParamConfig: PipParamConfig? = null
@@ -61,6 +62,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
     fun onUserLeaveHint() {
       val pipParams = pipParamsUntyped
       if (
+        !startingScreenShare &&
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
         pipParamConfig?.autoEnterPipMode == true &&
         pipParams is android.app.PictureInPictureParams
