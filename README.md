@@ -181,7 +181,7 @@ To test audio/video functionality, you need to connect to a 100ms Room. Please c
 2. Use the `Video Conferencing Starter Kit` to create a room with a default template assigned to it to test this app quickly.
 3. Go to the [Rooms page](https://dashboard.100ms.live/rooms) in your dashboard, click on the `Room Id` of the room you created above, and click on the `Join Room` button on the top right.
 4. You will see 100ms demo URLs for the roles created when you deployed the starter kit; you can click on the 'key' icon to copy the token and update the `AUTH_TOKEN` variable in "App.js" file.
-   > Token from 100ms dashboard is for testing purposes only, For production applications you must generate tokens on your own server. Refer to the [Management Token section](/concepts/v2/concepts/security-and-tokens#management-token) in Authentication and Tokens guide for more information.
+   > Token from 100ms dashboard is for testing purposes only, For production applications you must generate tokens on your own server. Refer to the [Management Token section](https://www.100ms.live/docs/get-started/v2/get-started/security-and-tokens#management-token-for-rest-api) in Authentication and Tokens guide for more information.
 
 ## [Add Event Listeners](https://www.100ms.live/docs/react-native/v2/features/event-listeners)
 
