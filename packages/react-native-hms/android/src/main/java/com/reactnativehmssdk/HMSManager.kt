@@ -1266,13 +1266,13 @@ class HMSManager(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun checkNotifications(promise: Promise?) {
-    val reactAppContext = reactAppContext
+    val reactApplicationContext = reactApplicationContext
 
-    if (reactAppContext == null) {
-      promise?.reject(Throwable("`reactAppContext` is not available!"))
+    if (reactApplicationContext == null) {
+      promise?.reject(Throwable("`reactApplicationContext` is not available!"))
       return
     }
-    val enabled = NotificationManagerCompat.from(reactAppContext).areNotificationsEnabled()
+    val enabled = NotificationManagerCompat.from(reactApplicationContext).areNotificationsEnabled()
     val data: WritableMap = Arguments.createMap()
 
     data.putString("status", if (enabled) "granted" else "blocked")
@@ -1280,6 +1280,21 @@ class HMSManager(reactContext: ReactApplicationContext) :
     data.putMap("settings", settings)
 
     promise?.resolve(data)
+  }
+
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  fun setSoftInputMode(inputMode: Int): Int {
+    val window = reactApplicationContext?.currentActivity?.window ?: return -1
+    UiThreadUtil.runOnUiThread {
+      window.setSoftInputMode(inputMode)
+    }
+    return 0
+  }
+
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  fun getSoftInputMode(): Int {
+    val attributes = reactApplicationContext?.currentActivity?.window?.attributes ?: return -1
+    return attributes.softInputMode
   }
 
   fun emitEvent(

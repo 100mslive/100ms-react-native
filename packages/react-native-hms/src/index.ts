@@ -107,6 +107,8 @@ export { useHmsViewsResolutionsState } from './hooks/hmsviews';
 export type { NotificationResult } from './utils/notification';
 export { checkNotifications } from './utils/notification';
 
+export * from './utils/keyboard';
+
 // 100ms types
 export * from './types';
 export * from './stores/types';

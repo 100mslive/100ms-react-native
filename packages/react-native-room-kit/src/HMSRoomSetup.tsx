@@ -34,6 +34,7 @@ import {
   useHMSSessionStore,
   useLeaveMethods,
   isPublishingAllowed,
+  useAndroidSoftInputAdjustResize,
 } from './hooks-util';
 import {
   peerTrackNodeExistForPeerAndTrack,
@@ -157,6 +158,8 @@ export const HMSRoomSetup = () => {
    * Checkout Session Store docs fore more details ${@link https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/room/session-store}
    */
   useHMSSessionStore();
+
+  useAndroidSoftInputAdjustResize();
 
   const meetingJoined = meetingState === MeetingState.IN_MEETING;
   const previewing = meetingState === MeetingState.IN_PREVIEW;
