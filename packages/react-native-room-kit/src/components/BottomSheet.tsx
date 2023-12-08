@@ -69,7 +69,7 @@ export const BottomSheet: React.FC<BottomSheetProps> & {
       supportedOrientations={
         resetProps.supportedOrientations ?? ['portrait', 'landscape']
       }
-      // coverScreen={true}
+      statusBarTranslucent={true}
     >
       <View
         style={[
