@@ -78,12 +78,6 @@ export const Meeting: React.FC<MeetingProps> = ({ peerTrackNodes }) => {
 
   const Container = isHLSViewer ? View : SafeAreaView;
 
-  /**
-   * TODO: disbaled Expended View animation in Webrtc flow
-   *
-   * Problem: Tiles Flatlist was not scrollable because Root Pressable was registering screen taps.
-   * Solution: Try using Tab Gesture detector instead on Pressable component
-   */
   return (
     <Container
       style={[styles.container, containerStyles]}

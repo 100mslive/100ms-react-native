@@ -8,6 +8,7 @@ import {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 import { PipModes } from '../utils/types';
 import type { PeerTrackNode } from '../utils/types';
@@ -57,6 +58,8 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
     );
   }, []);
 
+  const tap = Gesture.Tap().onEnd(() => {toggleControls()}).requireExternalGestureToFail();
+
   // Handles Auto hiding the controls for the first time
   // to make this feature discoverable
   // useEffect(() => {
@@ -84,33 +87,34 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
    * Solution: Try using Tab Gesture detector instead on Pressable component
    */
   return (
-    <Pressable
-      onPress={toggleControls}
-      style={styles.container}
-      disabled={isHLSViewer || true}
+    <GestureDetector
+      gesture={tap}
+      // disabled={isHLSViewer || true}
     >
-      <HMSStatusBar hidden={controlsHidden} barStyle={'light-content'} />
+      <View style={styles.container}>
+        <HMSStatusBar hidden={controlsHidden} barStyle={'light-content'} />
 
-      <View style={styles.reconnectionWrapper}>
-        {isPipModeActive || isLandscapeOrientation ? null : (
-          <AnimatedHeader offset={offset}>
-            <Header transparent={isHLSViewer} showControls={!isHLSViewer} />
-          </AnimatedHeader>
+        <View style={styles.reconnectionWrapper}>
+          {isPipModeActive || isLandscapeOrientation ? null : (
+            <AnimatedHeader offset={offset}>
+              <Header transparent={isHLSViewer} showControls={!isHLSViewer} />
+            </AnimatedHeader>
+          )}
+
+          <DisplayView offset={offset} peerTrackNodes={peerTrackNodes} />
+
+          {/* <ReconnectionView /> */}
+        </View>
+
+        {isPipModeActive ? null : isHLSViewer ? (
+          <HLSFooter offset={offset} />
+        ) : (
+          <AnimatedFooter offset={offset}>
+            <Footer />
+          </AnimatedFooter>
         )}
-
-        <DisplayView offset={offset} peerTrackNodes={peerTrackNodes} />
-
-        {/* <ReconnectionView /> */}
       </View>
-
-      {isPipModeActive ? null : isHLSViewer ? (
-        <HLSFooter offset={offset} />
-      ) : (
-        <AnimatedFooter offset={offset}>
-          <Footer />
-        </AnimatedFooter>
-      )}
-    </Pressable>
+    </GestureDetector>
   );
 };
 
