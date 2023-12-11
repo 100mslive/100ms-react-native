@@ -2454,7 +2454,7 @@ export const useAndroidSoftInputAdjustResize = () => {
         if (currentSoftInputRef.current !== null) {
           setSoftInputMode(currentSoftInputRef.current);
         }
-      }
+      };
     }
   }, []);
 };
@@ -2466,33 +2466,27 @@ export const useKeyboardState = () => {
     let didShowTimeoutId: null | NodeJS.Timeout = null;
     let didHideTimeoutId: null | NodeJS.Timeout = null;
 
-    const didShowSubscription = Keyboard.addListener(
-      'keyboardDidShow',
-      () => {
-        keyboardState.value = KeyboardState.OPENING;
-        if (didShowTimeoutId !== null) {
-          clearTimeout(didShowTimeoutId);
-        }
-        didShowTimeoutId = setTimeout(() => {
-          keyboardState.value = KeyboardState.OPEN;
-          didShowTimeoutId = null;
-        }, 400);
+    const didShowSubscription = Keyboard.addListener('keyboardDidShow', () => {
+      keyboardState.value = KeyboardState.OPENING;
+      if (didShowTimeoutId !== null) {
+        clearTimeout(didShowTimeoutId);
       }
-    );
+      didShowTimeoutId = setTimeout(() => {
+        keyboardState.value = KeyboardState.OPEN;
+        didShowTimeoutId = null;
+      }, 400);
+    });
 
-    const didHideSubscription = Keyboard.addListener(
-      'keyboardDidHide',
-      () => {
-        keyboardState.value = KeyboardState.CLOSING;
-        if (didHideTimeoutId !== null) {
-          clearTimeout(didHideTimeoutId);
-        }
-        didHideTimeoutId = setTimeout(() => {
-          keyboardState.value = KeyboardState.CLOSED;
-          didHideTimeoutId = null;
-        }, 400);
+    const didHideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+      keyboardState.value = KeyboardState.CLOSING;
+      if (didHideTimeoutId !== null) {
+        clearTimeout(didHideTimeoutId);
       }
-    );
+      didHideTimeoutId = setTimeout(() => {
+        keyboardState.value = KeyboardState.CLOSED;
+        didHideTimeoutId = null;
+      }, 400);
+    });
 
     return () => {
       if (didShowTimeoutId !== null) {
@@ -2514,5 +2508,5 @@ export const useKeyboardState = () => {
     };
   }, []);
 
-  return {keyboardState};
+  return { keyboardState };
 };

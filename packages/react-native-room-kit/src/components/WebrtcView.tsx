@@ -3,8 +3,10 @@ import { useSelector } from 'react-redux';
 import { View } from 'react-native';
 import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import type { SharedValue } from 'react-native-reanimated';
-import Animated, { interpolate, useAnimatedStyle } from 'react-native-reanimated';
-
+import Animated, {
+  interpolate,
+  useAnimatedStyle,
+} from 'react-native-reanimated';
 
 import { MaxTilesInOnePage, PipModes } from '../utils/types';
 import type { PeerTrackNode } from '../utils/types';
@@ -68,13 +70,17 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
 
     const animatedStyles = useAnimatedStyle(() => {
       return {
-        height: interpolate(offset.value, [0, 1], [height, height - headerHeight - footerHeight])
+        height: interpolate(
+          offset.value,
+          [0, 1],
+          [height, height - headerHeight - footerHeight]
+        ),
       };
     }, [height, footerHeight, headerHeight]);
 
     const headerPlaceholderAnimatedStyles = useAnimatedStyle(() => {
       return {
-        height: interpolate(offset.value, [0, 1], [0, headerHeight])
+        height: interpolate(offset.value, [0, 1], [0, headerHeight]),
       };
     }, [headerHeight]);
 
@@ -82,11 +88,13 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
       return (
         <PIPView
           peerTrackNodes={peerTrackNodes}
-          customView={showWelcomeBanner ? (
-            <WelcomeInMeeting />
-          ) : pairedPeers.length <= 0 ? (
-            <LocalPeerRegularVideoView />
-          ) : null}
+          customView={
+            showWelcomeBanner ? (
+              <WelcomeInMeeting />
+            ) : pairedPeers.length <= 0 ? (
+              <LocalPeerRegularVideoView />
+            ) : null
+          }
         />
       );
     }

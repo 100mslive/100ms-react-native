@@ -14,7 +14,7 @@ export interface HMSKeyboardAvoidingViewProps {
 
 export const HMSKeyboardAvoidingView: React.FC<
   HMSKeyboardAvoidingViewProps
-> = ({ children, style, bottomOffset=0 }) => {
+> = ({ children, style, bottomOffset = 0 }) => {
   const animatedKeyboard = useAnimatedKeyboard();
 
   const initialPageY = useDerivedValue(() => {

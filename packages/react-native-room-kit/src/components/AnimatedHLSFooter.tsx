@@ -22,15 +22,13 @@ export const AnimatedHLSFooter: React.FC<AnimatedHLSFooterProps> = ({
 
   const animatedStyles = useAnimatedStyle(() => {
     return {
-      transform: [{ translateY: interpolate(offset.value, [0, 1], [footerHeight, 0]) }],
+      transform: [
+        { translateY: interpolate(offset.value, [0, 1], [footerHeight, 0]) },
+      ],
     };
   }, []);
 
   return (
-    <Animated.View
-      style={[animatedStyles, style]}
-    >
-      {children}
-    </Animated.View>
+    <Animated.View style={[animatedStyles, style]}>{children}</Animated.View>
   );
 };

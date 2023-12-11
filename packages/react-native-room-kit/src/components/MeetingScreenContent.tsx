@@ -49,7 +49,7 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
     if (
       !fromTimeout &&
       (keyboardState.value === KeyboardState.OPEN ||
-      keyboardState.value === KeyboardState.OPENING)
+        keyboardState.value === KeyboardState.OPENING)
     ) {
       runOnJS(dismissKeyboard)();
     } else {
@@ -88,7 +88,9 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
     };
   }, []);
 
-  const tapGesture = Gesture.Tap().onEnd(() => toggleControls()).requireExternalGestureToFail();
+  const tapGesture = Gesture.Tap()
+    .onEnd(() => toggleControls())
+    .requireExternalGestureToFail();
 
   return (
     <View style={styles.container}>

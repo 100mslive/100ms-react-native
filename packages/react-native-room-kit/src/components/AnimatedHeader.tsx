@@ -30,7 +30,9 @@ export const AnimatedHeader: React.FC<AnimatedHeaderProps> = ({
     }
     return {
       opacity: interpolate(offset.value, [0, 0.3, 1], [0, 0.7, 1]),
-      transform: [{ translateY: interpolate(offset.value, [0, 1], [-headerHeight, 0]) }],
+      transform: [
+        { translateY: interpolate(offset.value, [0, 1], [-headerHeight, 0]) },
+      ],
     };
   }, [headerHeight, isHLSViewer]);
 

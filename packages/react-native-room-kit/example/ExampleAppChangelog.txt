@@ -6,6 +6,9 @@ https://100ms.atlassian.net/browse/RN-114
 - Landscape Mode support in Prebuilt UI
 https://100ms.atlassian.net/browse/RN-153
 
+- Hide Top & Bottom bars after 5 seconds in Room
+https://100ms.atlassian.net/browse/RN-138
+
 Room Kit: 1.0.6
 React Native SDK: 1.9.5
 Android SDK: 2.8.2

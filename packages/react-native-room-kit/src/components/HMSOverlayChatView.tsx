@@ -20,7 +20,7 @@ const colorLocations = [0, 0.4, 1];
 
 export interface HLSChatViewProps {
   offset?: SharedValue<number>;
-};
+}
 
 export const HLSChatView: React.FC<HLSChatViewProps> = ({ offset }) => {
   const footerHeight = useFooterHeight();
@@ -28,7 +28,10 @@ export const HLSChatView: React.FC<HLSChatViewProps> = ({ offset }) => {
 
   const chatBottomOffset = useDerivedValue(() => {
     if (offset) {
-      return interpolate(offset.value, [0, 1], [0, footerHeight]) + hmsNotificationsHeight;
+      return (
+        interpolate(offset.value, [0, 1], [0, footerHeight]) +
+        hmsNotificationsHeight
+      );
     }
     return footerHeight + hmsNotificationsHeight;
   }, [offset, footerHeight, hmsNotificationsHeight]);

@@ -21,7 +21,9 @@ export const AnimatedFooter: React.FC<AnimatedFooterProps> = ({
   const animatedStyles = useAnimatedStyle(() => {
     return {
       opacity: interpolate(offset.value, [0, 0.3, 1], [0, 0.7, 1]),
-      transform: [{ translateY: interpolate(offset.value, [0, 1], [footerHeight, 0]) }],
+      transform: [
+        { translateY: interpolate(offset.value, [0, 1], [footerHeight, 0]) },
+      ],
     };
   }, [footerHeight]);
 
