@@ -131,3 +131,5 @@ export enum OnLeaveReason {
 };
 
 export const TerminalExceptionCodes = [4005, 1003, 2000, "4005", "1003", "2000"];
+
+export const HeaderFooterHideDelayMs = 5000;

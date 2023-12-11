@@ -2,6 +2,8 @@ import * as React from 'react';
 import { StyleSheet } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import MaskedView from '@react-native-masked-view/masked-view';
+import { useDerivedValue, interpolate } from 'react-native-reanimated';
+import type { SharedValue } from 'react-native-reanimated';
 
 import { HMSKeyboardAvoidingView } from './HMSKeyboardAvoidingView';
 import { HMSSendMessageInput } from './HMSSendMessageInput';
@@ -16,12 +18,23 @@ const colors = [
 ];
 const colorLocations = [0, 0.4, 1];
 
-export const HLSChatView = () => {
+export interface HLSChatViewProps {
+  offset?: SharedValue<number>;
+};
+
+export const HLSChatView: React.FC<HLSChatViewProps> = ({ offset }) => {
   const footerHeight = useFooterHeight();
   const hmsNotificationsHeight = useHMSNotificationsHeight();
 
+  const chatBottomOffset = useDerivedValue(() => {
+    if (offset) {
+      return interpolate(offset.value, [0, 1], [0, footerHeight]) + hmsNotificationsHeight;
+    }
+    return footerHeight + hmsNotificationsHeight;
+  }, [offset, footerHeight, hmsNotificationsHeight]);
+
   return (
-    <HMSKeyboardAvoidingView bottomOffset={footerHeight + hmsNotificationsHeight}>
+    <HMSKeyboardAvoidingView bottomOffset={chatBottomOffset}>
       <MaskedView
         maskElement={
           <LinearGradient

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import type { TouchableOpacityProps } from 'react-native';
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 
 import { useHMSRoomStyleSheet, useIsHLSViewer } from '../hooks-util';
 import { hexToRgbA } from '../utils/theme';
@@ -41,24 +42,28 @@ export const PressableIcon: React.FC<PressableIconProps> = ({
     [isHLSViewer]
   );
 
+  const tapGesture = React.useMemo(() => Gesture.Tap(), []);
+
   return (
-    <TouchableOpacity
-      style={[
-        styles.pressable,
-        hmsRoomStyles.pressable,
-        {
-          borderRadius: rounded ? 20 : 8,
-          ...(border && !isHLSViewer
-            ? { ...styles.withBorder, ...hmsRoomStyles.border }
-            : undefined),
-          ...(active ? hmsRoomStyles.active : undefined),
-        },
-        style,
-      ]}
-      {...restProps}
-    >
-      {children}
-    </TouchableOpacity>
+    <GestureDetector gesture={tapGesture}>
+      <TouchableOpacity
+        style={[
+          styles.pressable,
+          hmsRoomStyles.pressable,
+          {
+            borderRadius: rounded ? 20 : 8,
+            ...(border && !isHLSViewer
+              ? { ...styles.withBorder, ...hmsRoomStyles.border }
+              : undefined),
+            ...(active ? hmsRoomStyles.active : undefined),
+          },
+          style,
+        ]}
+        {...restProps}
+      >
+        {children}
+      </TouchableOpacity>
+    </GestureDetector>
   );
 };
 

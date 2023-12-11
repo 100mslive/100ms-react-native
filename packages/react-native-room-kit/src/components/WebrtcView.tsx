@@ -1,5 +1,10 @@
 import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
+import { View } from 'react-native';
+import { useSafeAreaFrame } from 'react-native-safe-area-context';
+import type { SharedValue } from 'react-native-reanimated';
+import Animated, { interpolate, useAnimatedStyle } from 'react-native-reanimated';
+
 
 import { MaxTilesInOnePage, PipModes } from '../utils/types';
 import type { PeerTrackNode } from '../utils/types';
@@ -13,15 +18,21 @@ import { LocalPeerRegularVideoView } from './LocalPeerRegularVideoView';
 import { WelcomeInMeeting } from './WelcomeInMeeting';
 import { OverlayContainer } from './OverlayContainer';
 import { OverlayedViews } from './OverlayedViews';
+import { useFooterHeight } from './Footer';
+import { useHeaderHeight } from './Header';
 
 interface WebrtcViewProps {
+  offset: SharedValue<number>;
   peerTrackNodes: Array<PeerTrackNode>;
   handlePeerTileMorePress(node: PeerTrackNode): void;
 }
 
 export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
-  ({ peerTrackNodes, handlePeerTileMorePress }, gridViewRef) => {
+  ({ offset, peerTrackNodes, handlePeerTileMorePress }, gridViewRef) => {
     const isPortrait = useIsPortraitOrientation();
+    const { height } = useSafeAreaFrame(); // This height does not include top & bottom safe area as this component isn't wrapped in SafeAreaView
+    const footerHeight = useFooterHeight(); // This height includes top safearea by default
+    const headerHeight = useHeaderHeight(); // This height includes top safearea by default
 
     const isPipModeActive = useSelector(
       (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE
@@ -55,6 +66,18 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
         !state.app.localPeerTrackNode && pairedPeers.length === 0
     );
 
+    const animatedStyles = useAnimatedStyle(() => {
+      return {
+        height: interpolate(offset.value, [0, 1], [height, height - headerHeight - footerHeight])
+      };
+    }, [height, footerHeight, headerHeight]);
+
+    const headerPlaceholderAnimatedStyles = useAnimatedStyle(() => {
+      return {
+        height: interpolate(offset.value, [0, 1], [0, headerHeight])
+      };
+    }, [headerHeight]);
+
     if (isPipModeActive) {
       return (
         <PIPView
@@ -69,23 +92,29 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
     }
 
     return (
-      <OverlayContainer>
-        {showWelcomeBanner ? (
-          <WelcomeInMeeting />
-        ) : pairedPeers.length > 0 ? (
-          <GridView
-            ref={gridViewRef}
-            onPeerTileMorePress={handlePeerTileMorePress}
-            pairedPeers={pairedPeers}
-          />
-        ) : (
-          <LocalPeerRegularVideoView
-            onMoreOptionsPress={handlePeerTileMorePress}
-          />
-        )}
+      <View style={{ flex: 1 }}>
+        <Animated.View style={headerPlaceholderAnimatedStyles} />
 
-        <OverlayedViews />
-      </OverlayContainer>
+        <Animated.View style={animatedStyles}>
+          <OverlayContainer>
+            {showWelcomeBanner ? (
+              <WelcomeInMeeting />
+            ) : pairedPeers.length > 0 ? (
+              <GridView
+                ref={gridViewRef}
+                onPeerTileMorePress={handlePeerTileMorePress}
+                pairedPeers={pairedPeers}
+              />
+            ) : (
+              <LocalPeerRegularVideoView
+                onMoreOptionsPress={handlePeerTileMorePress}
+              />
+            )}
+
+            <OverlayedViews offset={offset} />
+          </OverlayContainer>
+        </Animated.View>
+      </View>
     );
   }
 );
