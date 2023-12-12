@@ -4,11 +4,9 @@ import { View, FlatList, StyleSheet, useWindowDimensions } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import type {
   LayoutChangeEvent,
-  LayoutRectangle,
   ViewToken,
 } from 'react-native';
 import type { HMSView, HMSPeer } from '@100mslive/react-native-hms';
-import { useSharedValue } from 'react-native-reanimated';
 
 import { DefaultModal } from './DefaultModal';
 import { SaveScreenshot } from './Modals';
