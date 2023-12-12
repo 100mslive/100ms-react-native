@@ -1,7 +1,7 @@
 import React, { useCallback, useRef, useState, useEffect } from 'react';
 import { StyleSheet, View, Keyboard } from 'react-native';
 import { useSelector } from 'react-redux';
-import {
+import Animated, {
   Easing,
   KeyboardState,
   cancelAnimation,
@@ -89,15 +89,18 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
   }, []);
 
   const tapGesture = Gesture.Tap()
-    .onEnd(() => toggleControls())
-    .requireExternalGestureToFail();
+    .runOnJS(true)
+    .onEnd(() => {
+      'worklet';
+      toggleControls();
+    });
 
   return (
     <View style={styles.container}>
       <HMSStatusBar hidden={controlsHidden} barStyle={'light-content'} />
 
       <GestureDetector gesture={tapGesture}>
-        <View style={styles.container}>
+        <Animated.View collapsable={false} style={styles.container}>
           {isPipModeActive ? null : (
             <AnimatedHeader offset={offset}>
               <Header transparent={isHLSViewer} showControls={!isHLSViewer} />
@@ -113,7 +116,7 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
               <Footer />
             </AnimatedFooter>
           )}
-        </View>
+        </Animated.View>
       </GestureDetector>
     </View>
   );
