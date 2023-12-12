@@ -1,7 +1,7 @@
 import React, { useCallback, useRef, useState, useEffect } from 'react';
 import { StyleSheet, View, Keyboard } from 'react-native';
 import { useSelector } from 'react-redux';
-import Animated, {
+import {
   Easing,
   KeyboardState,
   cancelAnimation,
@@ -40,23 +40,27 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
   );
   const { keyboardState } = useKeyboardState();
 
-  const dismissKeyboard = () => {
+  const dismissKeyboard = useCallback(() => {
     Keyboard.dismiss();
-  };
+  }, []);
+
+  const clearTimer = useCallback(() => {
+    if (timerIdRef.current !== null) {
+      clearTimeout(timerIdRef.current);
+      timerIdRef.current = null;
+    }
+  }, []);
 
   const toggleControls = useCallback((fromTimeout: boolean = false) => {
     'worklet';
     if (
-      !fromTimeout &&
+      fromTimeout !== true &&
       (keyboardState.value === KeyboardState.OPEN ||
         keyboardState.value === KeyboardState.OPENING)
     ) {
       runOnJS(dismissKeyboard)();
     } else {
-      if (timerIdRef.current !== null) {
-        clearTimeout(timerIdRef.current);
-        timerIdRef.current = null;
-      }
+      runOnJS(clearTimer)();
       cancelAnimation(offset);
       offset.value = withTiming(
         offset.value === 1 ? 0 : 1,
@@ -68,39 +72,30 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
         }
       );
     }
-  }, []);
+  }, [dismissKeyboard, clearTimer]);
 
   // Handles Auto hiding the controls for the first time
   // to make this feature discoverable
   useEffect(() => {
-    if (timerIdRef.current !== null) {
-      clearTimeout(timerIdRef.current);
-    }
+    clearTimer();
     timerIdRef.current = setTimeout(() => {
       timerIdRef.current = null;
       toggleControls(true);
     }, HeaderFooterHideDelayMs);
 
-    return () => {
-      if (timerIdRef.current !== null) {
-        clearTimeout(timerIdRef.current);
-      }
-    };
-  }, []);
+    return clearTimer;
+  }, [clearTimer, toggleControls]);
 
   const tapGesture = Gesture.Tap()
-    .runOnJS(true)
-    .onEnd(() => {
-      'worklet';
-      toggleControls();
-    });
+    .onEnd(() => toggleControls())
+    .requireExternalGestureToFail();
 
   return (
     <View style={styles.container}>
       <HMSStatusBar hidden={controlsHidden} barStyle={'light-content'} />
 
       <GestureDetector gesture={tapGesture}>
-        <Animated.View collapsable={false} style={styles.container}>
+        <View collapsable={false} style={styles.container}>
           {isPipModeActive ? null : (
             <AnimatedHeader offset={offset}>
               <Header transparent={isHLSViewer} showControls={!isHLSViewer} />
@@ -116,7 +111,7 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
               <Footer />
             </AnimatedFooter>
           )}
-        </Animated.View>
+        </View>
       </GestureDetector>
     </View>
   );
