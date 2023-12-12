@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS } from '../utils/theme';
 import { CustomButton } from './CustomButton';
 import { CloseIcon } from '../Icons';
+import { useIsLandscapeOrientation } from '../utils/dimension';
 
 export interface DefaultModalProps {
   modalVisible: boolean;
@@ -32,6 +33,8 @@ export const DefaultModal: React.FC<DefaultModalProps> = ({
   modalStyle,
 }) => {
   const { left, right } = useSafeAreaInsets();
+  const isLandscapeOrientation = useIsLandscapeOrientation();
+
   return (
     <Modal
       useNativeDriver={true}
@@ -51,7 +54,9 @@ export const DefaultModal: React.FC<DefaultModalProps> = ({
     >
       <View
         style={[
-          styles.contentContainer,
+          isLandscapeOrientation
+            ? styles.landscapeContentContainer
+            : styles.contentContainer,
           modalPosiion === 'flex-end' ? styles.end : styles.center,
           viewStyle,
           { marginLeft: left, marginRight: right },
@@ -77,6 +82,12 @@ export const DefaultModal: React.FC<DefaultModalProps> = ({
 const styles = StyleSheet.create({
   contentContainer: {
     maxHeight: '80%',
+    // minHeight: '20%',
+    backgroundColor: COLORS.SURFACE.DEFAULT,
+  },
+  landscapeContentContainer: {
+    maxHeight: '80%',
+    maxWidth: '60%',
     // minHeight: '20%',
     backgroundColor: COLORS.SURFACE.DEFAULT,
   },

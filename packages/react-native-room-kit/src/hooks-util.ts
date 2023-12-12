@@ -20,9 +20,12 @@ import {
   HMSMessageRecipient,
   useHMSHLSPlayerResolution,
   useHmsViewsResolutionsState,
+  setSoftInputMode,
+  getSoftInputMode,
   // useHMSPeerUpdates,
 } from '@100mslive/react-native-hms';
 import type { Chat as ChatConfig } from '@100mslive/types-prebuilt/elements/chat';
+import { SoftInputModes } from '@100mslive/react-native-hms';
 import type {
   HMSPIPConfig,
   HMSRole,
@@ -2430,4 +2433,27 @@ export const useStartRecording = () => {
   return {
     startRecording,
   };
+};
+
+export const useAndroidSoftInputAdjustResize = () => {
+  const currentSoftInputRef = useRef<null | SoftInputModes>(null);
+
+  useEffect(() => {
+    if (Platform.OS !== 'android') {
+      return;
+    }
+    const currentSoftInputMode = getSoftInputMode();
+
+    if (currentSoftInputMode !== SoftInputModes.SOFT_INPUT_ADJUST_RESIZE) {
+      currentSoftInputRef.current = currentSoftInputMode;
+
+      setSoftInputMode(SoftInputModes.SOFT_INPUT_ADJUST_RESIZE);
+
+      return () => {
+        if (currentSoftInputRef.current !== null) {
+          setSoftInputMode(currentSoftInputRef.current);
+        }
+      }
+    }
+  }, []);
 };

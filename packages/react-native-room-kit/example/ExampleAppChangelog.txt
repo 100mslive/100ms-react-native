@@ -1,9 +1,12 @@
 Board: https://100ms.atlassian.net/jira/software/projects/RN/boards/33
 
-- Resolve iOS error by capturing self in block of `setPlaybackForAllAudio` function
-https://100ms.atlassian.net/browse/RN-152
+- Beam Intermediate State Updates
+https://100ms.atlassian.net/browse/RN-114
 
-Room Kit: 1.0.5
-React Native SDK: 1.9.4
-Android SDK: 2.8.0
-iOS SDK: 1.2.1
+- Landscape Mode support in Prebuilt UI
+https://100ms.atlassian.net/browse/RN-153
+
+Room Kit: 1.0.6
+React Native SDK: 1.9.5
+Android SDK: 2.8.2
+iOS SDK: 1.3.1

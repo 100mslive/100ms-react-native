@@ -11,7 +11,6 @@ lint:
     - actionlint@1.6.26
     - prettier@3.1.0
     - swiftlint@0.54.0
-    - eslint@8.54.0
     - checkov@3.1.9
     - osv-scanner@1.4.3
     - trivy@0.47.0
@@ -19,7 +18,7 @@ lint:
     - oxipng@9.0.0
     - yamllint@1.33.0
     - ktlint@1.0.1
-    - svgo@3.0.4
+    - svgo@3.0.5
     - shfmt@3.6.0
     - gitleaks@8.18.1
     - shellcheck@0.9.0

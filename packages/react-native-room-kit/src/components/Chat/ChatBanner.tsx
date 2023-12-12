@@ -2,8 +2,11 @@ import * as React from 'react';
 import { View, StyleSheet, Text, Image } from 'react-native';
 
 import { useHMSRoomStyleSheet } from '../../hooks-util';
+import { useIsLandscapeOrientation } from '../../utils/dimension';
 
 export const ChatBanner = () => {
+  const isLandscapeOrientation = useIsLandscapeOrientation();
+
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     title: {
       color: theme.palette.on_surface_high,
@@ -19,6 +22,7 @@ export const ChatBanner = () => {
     <View style={styles.container}>
       <Image
         source={require('../../assets/empty-chat-illustration/empty-chat.png')}
+        style={isLandscapeOrientation ? styles.landscapeCoverImage : null}
       />
       <Text style={[styles.title, hmsRoomStyles.title]}>
         Start a Conversation
@@ -36,7 +40,12 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
     // transform: [Platform.OS === 'android' ? { scale: -1 } : { scaleY: -1 }],
+  },
+  landscapeCoverImage: {
+    flexShrink: 1,
+    resizeMode: 'contain',
   },
   title: {
     fontSize: 20,

@@ -47,7 +47,7 @@ jobs:
           java-version: 11.x
 
       - name: Install dependencies
-        run: cd packages/react-native-room-kit/example/; npm install
+        run: cd packages/react-native-hms/example/ && npm install && cd ../../react-native-room-kit/example/ && npm install
 
       - name: Make Gradlew Executable
         run: cd packages/react-native-room-kit/example/android && chmod +x ./gradlew

@@ -66,7 +66,9 @@ class HmsScreenshareActivity : ComponentActivity() {
       } catch (e: Exception) {
         println(e)
       }
+      HMSManager.startingScreenShare = false
     } else {
+      HMSManager.startingScreenShare = false
       HMSManager.hmsCollection[id]?.emitHMSError(
         HMSException(
           103,
