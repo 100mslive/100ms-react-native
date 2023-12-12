@@ -1,8 +1,6 @@
 import * as React from 'react';
-import type { MutableRefObject } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { StyleSheet, View, LayoutAnimation } from 'react-native';
-import type { LayoutRectangle } from 'react-native';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, {
   cancelAnimation,
@@ -20,6 +18,7 @@ import {
 import type { RootState } from '../redux';
 import { setInsetViewMinimized } from '../redux/actions';
 import { isPublishingAllowed } from '../hooks-util';
+import { useIsLandscapeOrientation } from '../utils/dimension';
 
 const cornerOffset = {
   x: 8, // rightX
@@ -30,13 +29,16 @@ const cornerOffset = {
 
 export interface MiniViewProps
   extends Omit<PeerVideoTileViewProps, 'peerTrackNode'> {
-  boundingBoxRef: MutableRefObject<LayoutRectangle | null>;
+  boundingBoxWidth: number | null;
+  boundingBoxHeight: number | null;
 }
 
 export const MiniView: React.FC<Omit<MiniViewProps, 'insetMode'>> = ({
-  boundingBoxRef,
+  boundingBoxWidth,
+  boundingBoxHeight,
   onMoreOptionsPress,
 }) => {
+  const isLandscapeOrientation = useIsLandscapeOrientation();
   const isPressed = useSharedValue(false);
   const xOffset = useSharedValue(0);
   const yOffset = useSharedValue(0);
@@ -54,8 +56,8 @@ export const MiniView: React.FC<Omit<MiniViewProps, 'insetMode'>> = ({
     usePeerMinimizedViewDimensions();
 
   const size = {
-    width: minimized ? minimizedViewWidth : 104,
-    height: minimized ? minimizedViewHeigth : 186,
+    width: minimized ? minimizedViewWidth : (isLandscapeOrientation ? 178 : 104),
+    height: minimized ? minimizedViewHeigth : (isLandscapeOrientation ? 98 : 186),
   };
 
   const dimensionStyles = {
@@ -83,7 +85,8 @@ export const MiniView: React.FC<Omit<MiniViewProps, 'insetMode'>> = ({
       size.height,
       cornerOffset.x,
       cornerOffset.topY,
-      boundingBoxRef.current
+      boundingBoxWidth,
+      boundingBoxHeight,
     );
 
     const finalX = snapPointX;
@@ -130,7 +133,7 @@ export const MiniView: React.FC<Omit<MiniViewProps, 'insetMode'>> = ({
       cancelAnimation(xOffset);
       cancelAnimation(yOffset);
     };
-  }, [minimized]);
+  }, [boundingBoxWidth, boundingBoxHeight, minimized]);
 
   const handleMaximize = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -195,25 +198,25 @@ const getSnappingPoints = (
   compHeight: number,
   xCornerOffset: number,
   yCornerOffset: number,
-  boundingBox: null | { width: number; height: number }
+  boundingBoxWidth: number | null,
+  boundingBoxHeight: number | null,
 ) => {
   'worklet';
-  if (!boundingBox) {
+  if (!boundingBoxWidth || !boundingBoxHeight) {
     return {
       snapPointX: 0,
       snapPointY: 0,
     };
   }
-  const { height, width } = boundingBox;
 
   return {
     snapPointX:
-      Math.abs(currentValueX) + compWidth < width / 2
+      Math.abs(currentValueX) + compWidth < boundingBoxWidth / 2
         ? 0
-        : -width + compWidth + xCornerOffset * 2,
+        : -boundingBoxWidth + compWidth + xCornerOffset * 2,
     snapPointY:
-      Math.abs(currentValueY) + compHeight < height / 2
+      Math.abs(currentValueY) + compHeight < boundingBoxHeight / 2
         ? 0
-        : -height + compHeight + yCornerOffset * 2,
+        : -boundingBoxHeight + compHeight + yCornerOffset * 2,
   };
 };

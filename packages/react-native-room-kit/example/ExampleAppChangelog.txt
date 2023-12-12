@@ -3,6 +3,9 @@ Board: https://100ms.atlassian.net/jira/software/projects/RN/boards/33
 - Beam Intermediate State Updates
 https://100ms.atlassian.net/browse/RN-114
 
+- Landscape Mode support in Prebuilt UI
+https://100ms.atlassian.net/browse/RN-153
+
 Room Kit: 1.0.6
 React Native SDK: 1.9.5
 Android SDK: 2.8.2

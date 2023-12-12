@@ -6,10 +6,12 @@ import type { HMSMessage } from '@100mslive/react-native-hms';
 
 import type { RootState } from '../redux';
 import { HMSHLSMessage } from './HMSHLSMessage';
+import { useIsLandscapeOrientation } from '../utils/dimension';
 
 export const HMSHLSMessageList: React.FC = () => {
   const { height: windowHeight } = useWindowDimensions();
   const messages = useSelector((state: RootState) => state.messages.messages);
+  const isLandscapeOrientation = useIsLandscapeOrientation();
 
   const _keyExtractor = React.useCallback(
     (item: HMSMessage) => item.messageId,
@@ -24,14 +26,18 @@ export const HMSHLSMessageList: React.FC = () => {
     return null;
   }
 
+  const HEIGHT_MULTIPLIER = isLandscapeOrientation ? 0.45 : 0.2;
+
   return (
     <View
       style={[
         styles.container,
         {
-          maxHeight: windowHeight * 0.2,
+          maxHeight: windowHeight * HEIGHT_MULTIPLIER,
           height:
-            messages.length > 3 ? windowHeight * 0.2 : messages.length * 54,
+            messages.length > 3
+              ? windowHeight * HEIGHT_MULTIPLIER
+              : messages.length * 54,
         },
       ]}
     >

@@ -24,6 +24,7 @@ import {
 } from '../hooks-sdk';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../redux';
+import { useIsLandscapeOrientation } from '../utils/dimension';
 
 interface FooterProps {}
 
@@ -32,6 +33,7 @@ export const _Footer: React.FC<FooterProps> = () => {
   const canPublishAudio = useCanPublishAudio();
   const canPublishVideo = useCanPublishVideo();
   const canPublishScreen = useCanPublishScreen();
+  const isLandscapeOrientation = useIsLandscapeOrientation();
 
   const isViewer = !(canPublishAudio || canPublishVideo || canPublishScreen);
 
@@ -105,7 +107,7 @@ export const _Footer: React.FC<FooterProps> = () => {
     >
       <View
         style={[
-          styles.container,
+          isLandscapeOrientation ? styles.landscapeContainer : styles.container,
           isHLSViewer ? styles.hlsContainer : containerStyles,
         ]}
       >
@@ -138,10 +140,14 @@ export const _Footer: React.FC<FooterProps> = () => {
 
 export const useFooterHeight = () => {
   const isHLSViewer = useIsHLSViewer();
+  const isLandscapeOrientation = useIsLandscapeOrientation();
   const { bottom } = useSafeAreaInsets();
 
   return (
-    bottom + (isHLSViewer ? 8 : 16) + (Platform.OS === 'android' ? 16 : 0) + 40
+    bottom +
+    (isHLSViewer ? 8 : isLandscapeOrientation ? 4 : 16) +
+    (Platform.OS === 'android' ? (isLandscapeOrientation ? 4 : 16) : 0) +
+    40
   ); // bottomSafeArea + paddingTop + marginBottom + content
 };
 
@@ -152,7 +158,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: Platform.OS === 'android' ? 16 : 0, // TODO: need to correct hide aimation offsets because of this change
+    marginBottom: Platform.OS === 'android' ? 16 : 0, // TODO: need to correct hide animation offsets because of this change
+  },
+  landscapeContainer: {
+    paddingTop: 4,
+    paddingHorizontal: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: Platform.OS === 'android' ? 4 : 0,
   },
   hlsContainer: {
     paddingTop: 8,

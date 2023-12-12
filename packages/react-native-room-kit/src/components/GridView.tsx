@@ -1,6 +1,6 @@
 import React, { useRef, useState, useImperativeHandle } from 'react';
 import type { ElementRef } from 'react';
-import { View, FlatList, StyleSheet, Dimensions } from 'react-native';
+import { View, FlatList, StyleSheet, useWindowDimensions } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import type {
   LayoutChangeEvent,
@@ -8,6 +8,7 @@ import type {
   ViewToken,
 } from 'react-native';
 import type { HMSView, HMSPeer } from '@100mslive/react-native-hms';
+import { useSharedValue } from 'react-native-reanimated';
 
 import { DefaultModal } from './DefaultModal';
 import { SaveScreenshot } from './Modals';
@@ -18,6 +19,7 @@ import type { RootState } from '../redux';
 import { PaginationDots } from './PaginationDots';
 import { setGridViewActivePage } from '../redux/actions';
 import { Tile } from './Tile';
+import { useIsLandscapeOrientation } from '../utils/dimension';
 
 export type GridViewProps = {
   onPeerTileMorePress(peerTrackNode: PeerTrackNode): void;
@@ -46,8 +48,9 @@ export const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
     const hmsViewRefs = useRef<Record<string, ElementRef<typeof HMSView>>>({});
     const regularTilesFlatlistRef = useRef<FlatList<PeerTrackNode[]>>(null);
     const screenshareTilesFlatlistRef = useRef<FlatList<PeerTrackNode>>(null);
-    const insetTileBoundingBoxRef = useRef<LayoutRectangle | null>(null);
+    const [insetTileBoundingBox, setInsetTileBoundingBox] = useState<{ width: number | null, height: number | null }>({ width: null, height: null });
 
+    const isLandscapeOrientation = useIsLandscapeOrientation();
     const screenshareTilesAvailable = useSelector(
       (state: RootState) => state.app.screensharePeerTrackNodes.length > 0
     );
@@ -104,7 +107,7 @@ export const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
 
     const _handleLayoutChange = React.useCallback(
       ({ nativeEvent }: LayoutChangeEvent) => {
-        insetTileBoundingBoxRef.current = nativeEvent.layout;
+        setInsetTileBoundingBox({ width: nativeEvent.layout.width, height: nativeEvent.layout.height });
       },
       []
     );
@@ -121,16 +124,19 @@ export const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
           />
         ) : null}
 
-        <RegularTiles
-          ref={regularTilesFlatlistRef}
-          pairedPeers={pairedPeers}
-          setHmsViewRefs={setHmsViewRefs}
-          onPeerTileMorePress={onPeerTileMorePress}
-        />
+        {screenshareTilesAvailable && isLandscapeOrientation ? null : (
+          <RegularTiles
+            ref={regularTilesFlatlistRef}
+            pairedPeers={pairedPeers}
+            setHmsViewRefs={setHmsViewRefs}
+            onPeerTileMorePress={onPeerTileMorePress}
+          />
+        )}
 
         {pairedPeers.length > 0 && miniviewPeerTrackNodeExists ? (
           <MiniView
-            boundingBoxRef={insetTileBoundingBoxRef}
+            boundingBoxWidth={insetTileBoundingBox.width}
+            boundingBoxHeight={insetTileBoundingBox.height}
             onMoreOptionsPress={onPeerTileMorePress}
           />
         ) : null}
@@ -183,6 +189,8 @@ const RegularTiles = React.forwardRef<
     (state: RootState) => state.app.gridViewActivePage
   );
 
+  const isLandscapeOrientation = useIsLandscapeOrientation();
+
   const _keyExtractor = React.useCallback((item) => item[0]?.id, []);
 
   const _handleViewableItemsChanged = React.useCallback(
@@ -234,7 +242,11 @@ const RegularTiles = React.forwardRef<
         <PaginationDots
           list={pairedPeers}
           activeIndex={activeIndex}
-          style={screenshareTilesAvailable ? { marginVertical: 8 } : null}
+          style={
+            screenshareTilesAvailable || isLandscapeOrientation
+              ? { marginVertical: isLandscapeOrientation ? 4 : 8 }
+              : null
+          }
         />
       ) : null}
     </View>
@@ -250,6 +262,8 @@ const ScreenshareTiles = React.forwardRef<
   FlatList<PeerTrackNode>,
   ScreenshareTilesProps
 >(({ onPeerTileMorePress, setHmsViewRefs }, flatlistRef) => {
+  const { width } = useWindowDimensions();
+  const isLandscapeOrientation = useIsLandscapeOrientation();
   const [activePage, setActivePage] = useState(0);
   const screensharePeerTrackNodes = useSelector(
     (state: RootState) => state.app.screensharePeerTrackNodes
@@ -276,14 +290,14 @@ const ScreenshareTiles = React.forwardRef<
       return (
         <Tile
           height={'100%'}
-          width={Dimensions.get('window').width}
+          width={width}
           peerTrackNode={item}
           onPeerTileMorePress={onPeerTileMorePress}
           setHmsViewRefs={setHmsViewRefs}
         />
       );
     },
-    [onPeerTileMorePress, setHmsViewRefs]
+    [width, onPeerTileMorePress, setHmsViewRefs]
   );
 
   return (
@@ -308,7 +322,7 @@ const ScreenshareTiles = React.forwardRef<
         <PaginationDots
           list={screensharePeerTrackNodes}
           activeIndex={activePage}
-          style={{ marginVertical: 8 }}
+          style={{ marginVertical: isLandscapeOrientation ? 4 : 8 }}
         />
       ) : null}
     </View>

@@ -114,7 +114,7 @@ export const Preview = ({
           <BackButton />
         </SafeAreaView>
 
-        <View style={styles.footerWrapper}>
+        <SafeAreaView edges={['left', 'right']} style={styles.footerWrapper}>
           <HMSPreviewNetworkQuality />
 
           <HMSKeyboardAvoidingView
@@ -145,7 +145,7 @@ export const Preview = ({
               />
             </View>
           </HMSKeyboardAvoidingView>
-        </View>
+        </SafeAreaView>
       </View>
     </TouchableWithoutFeedback>
   );

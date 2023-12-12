@@ -20,6 +20,7 @@ import { HMSStatusBar } from './StatusBar';
 import { AnimatedFooter } from './AnimatedFooter';
 import { HLSFooter } from './HLSFooter';
 import { AnimatedHeader } from './AnimatedHeader';
+import { useIsLandscapeOrientation } from '../utils/dimension';
 // import { ReconnectionView } from './ReconnectionView';
 
 interface MeetingScreenContentProps {
@@ -36,6 +37,7 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
   const isPipModeActive = useSelector(
     (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE
   );
+  const isLandscapeOrientation = useIsLandscapeOrientation();
 
   const toggleControls = useCallback(() => {
     'worklet';
@@ -90,7 +92,7 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
       <HMSStatusBar hidden={controlsHidden} barStyle={'light-content'} />
 
       <View style={styles.reconnectionWrapper}>
-        {isPipModeActive ? null : (
+        {isPipModeActive || isLandscapeOrientation ? null : (
           <AnimatedHeader offset={offset}>
             <Header transparent={isHLSViewer} showControls={!isHLSViewer} />
           </AnimatedHeader>
