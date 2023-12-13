@@ -107,7 +107,7 @@ export const _Footer: React.FC<FooterProps> = () => {
   return (
     <SafeAreaView
       style={isHLSViewer ? null : containerStyles}
-      edges={['bottom']}
+      edges={['bottom', 'left', 'right']}
     >
       <View
         style={[

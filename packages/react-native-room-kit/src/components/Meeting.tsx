@@ -75,8 +75,6 @@ export const Meeting: React.FC<MeetingProps> = ({ peerTrackNodes }) => {
   return (
     <View style={[styles.container, containerStyles]}>
       <MeetingScreenContent peerTrackNodes={peerTrackNodes} />
-
-      {/* {landscapeChatViewVisible ? <ChatView /> : null} */}
     </View>
   );
 };
