@@ -69,6 +69,7 @@ const styles = StyleSheet.create({
     height: '100%',
     zIndex: 1,
     justifyContent: 'flex-end',
+    alignSelf: 'center',
   },
   backdrop: {
     position: 'absolute',

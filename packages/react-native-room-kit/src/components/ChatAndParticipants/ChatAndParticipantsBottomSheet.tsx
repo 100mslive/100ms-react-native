@@ -5,9 +5,11 @@ import { BottomSheet } from '../BottomSheet';
 import { useHMSRoomStyleSheet, useShowChatAndParticipants } from '../../hooks-util';
 import { ChatAndParticipantsView } from './ChatAndParticipantsView';
 import { useHeaderHeight } from '../Header';
+import { useIsLandscapeOrientation } from '../../utils/dimension';
 
 export const ChatAndParticipantsBottomSheet = () => {
   const headerHeight = useHeaderHeight();
+  const isLandscapeOrientation = useIsLandscapeOrientation();
 
   const { modalVisible, hide } = useShowChatAndParticipants();
 
@@ -29,7 +31,7 @@ export const ChatAndParticipantsBottomSheet = () => {
         styles.bottomSheet,
         hmsRoomStyles.contentContainer,
         {
-          marginTop: headerHeight,
+          marginTop: isLandscapeOrientation ? 0 : headerHeight,
         },
       ]}
       bottomOffsetSpace={0}
