@@ -105,7 +105,7 @@ export const LeaveRoomBottomSheet: React.FC<LeaveRoomBottomSheetProps> = () => {
   return (
     <BottomSheet
       isVisible={modalVisibleType === ModalTypes.LEAVE_ROOM}
-      containerStyle={styles.container}
+      bottomOffsetSpace={0}
       dismissModal={onPopupDismiss}
       onModalHide={handlePopupHide}
     >
@@ -175,9 +175,6 @@ export const LeaveRoomBottomSheet: React.FC<LeaveRoomBottomSheetProps> = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    paddingBottom: 0,
-  },
   button: {
     flexDirection: 'row',
     padding: 24,

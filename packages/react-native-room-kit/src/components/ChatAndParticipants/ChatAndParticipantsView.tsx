@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 
 import {
   useHMSRoomStyleSheet,
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
     paddingTop: 12,
-    paddingBottom: 32,
+    paddingBottom: Platform.OS === 'ios' ? 32 : 0,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
   },

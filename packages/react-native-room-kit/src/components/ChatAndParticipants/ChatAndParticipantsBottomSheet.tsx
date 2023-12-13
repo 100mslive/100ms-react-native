@@ -2,7 +2,7 @@ import * as React from 'react';
 import { StyleSheet } from 'react-native';
 
 import { BottomSheet } from '../BottomSheet';
-import { useShowChatAndParticipants } from '../../hooks-util';
+import { useHMSRoomStyleSheet, useShowChatAndParticipants } from '../../hooks-util';
 import { ChatAndParticipantsView } from './ChatAndParticipantsView';
 import { useHeaderHeight } from '../Header';
 
@@ -10,6 +10,12 @@ export const ChatAndParticipantsBottomSheet = () => {
   const headerHeight = useHeaderHeight();
 
   const { modalVisible, hide } = useShowChatAndParticipants();
+
+  const hmsRoomStyles = useHMSRoomStyleSheet((theme) => ({
+    contentContainer: {
+      backgroundColor: theme.palette.surface_dim,
+    },
+  }));
 
   const closeChatWindow = () => hide('modal');
 
@@ -21,10 +27,12 @@ export const ChatAndParticipantsBottomSheet = () => {
       avoidKeyboard={true}
       containerStyle={[
         styles.bottomSheet,
+        hmsRoomStyles.contentContainer,
         {
           marginTop: headerHeight,
         },
       ]}
+      bottomOffsetSpace={0}
     >
       <ChatAndParticipantsView />
     </BottomSheet>
@@ -34,7 +42,5 @@ export const ChatAndParticipantsBottomSheet = () => {
 const styles = StyleSheet.create({
   bottomSheet: {
     flex: 1,
-    backgroundColor: undefined,
-    paddingBottom: 0,
   },
 });

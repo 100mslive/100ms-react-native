@@ -26,6 +26,7 @@ export type BottomSheetProps = WithRequired<
   // closes modal and no action will be taken after modal has been closed
   dismissModal(): void;
   containerStyle?: StyleProp<ViewStyle>;
+  bottomOffsetSpace?: number;
   fullWidth?: boolean;
 };
 
@@ -38,6 +39,7 @@ export const BottomSheet: React.FC<BottomSheetProps> & {
   style,
   children,
   containerStyle,
+  bottomOffsetSpace = 32,
   ...resetProps
 }) => {
   const { background_dim: backgroundDimColor } = useHMSRoomColorPalette();
@@ -84,6 +86,9 @@ export const BottomSheet: React.FC<BottomSheetProps> & {
         ]}
       >
         {children}
+        {typeof bottomOffsetSpace === 'number' && bottomOffsetSpace > 0 ? (
+          <View style={{ height: bottomOffsetSpace, width: '100%' }} />
+        ) : null}
       </Container>
     </Modal>
   );
@@ -201,11 +206,9 @@ const styles = StyleSheet.create({
   container: {
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    paddingBottom: 32,
   },
   landscapeContainer: {
     borderRadius: 16,
-    paddingBottom: 32,
     width: '60%',
     alignSelf: 'center',
     marginBottom: 12,
