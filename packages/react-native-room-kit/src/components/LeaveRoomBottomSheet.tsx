@@ -108,7 +108,6 @@ export const LeaveRoomBottomSheet: React.FC<LeaveRoomBottomSheetProps> = () => {
       containerStyle={styles.container}
       dismissModal={onPopupDismiss}
       onModalHide={handlePopupHide}
-      animationOutTiming={700}
     >
       <View>
         <TouchableOpacity
