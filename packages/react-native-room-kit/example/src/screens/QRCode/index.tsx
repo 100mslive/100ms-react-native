@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
-  Image,
+  Image, Keyboard,
   KeyboardAvoidingView,
   Linking,
   Platform,
@@ -57,6 +57,7 @@ const QRCode = () => {
   const [moreModalVisible, setMoreModalVisible] = useState(false);
 
   const onJoinPress = () => {
+    Keyboard.dismiss();
     if (joiningLink.includes('app.100ms.live/')) {
       callService(
         joiningLink,
