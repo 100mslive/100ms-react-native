@@ -1,16 +1,13 @@
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BottomSheet } from '../BottomSheet';
 import { useShowChatAndParticipants } from '../../hooks-util';
 import { ChatAndParticipantsView } from './ChatAndParticipantsView';
-import { HEADER_HEIGHT } from '../Header';
-import { useIsLandscapeOrientation } from '../../utils/dimension';
+import { useHeaderHeight } from '../Header';
 
 export const ChatAndParticipantsBottomSheet = () => {
-  const { top: topSafeArea } = useSafeAreaInsets();
-  const isLandscapeOrientation = useIsLandscapeOrientation();
+  const headerHeight = useHeaderHeight();
 
   const { modalVisible, hide } = useShowChatAndParticipants();
 
@@ -25,7 +22,7 @@ export const ChatAndParticipantsBottomSheet = () => {
       containerStyle={[
         styles.bottomSheet,
         {
-          marginTop: topSafeArea + (isLandscapeOrientation ? 0 : HEADER_HEIGHT),
+          marginTop: headerHeight,
         },
       ]}
     >

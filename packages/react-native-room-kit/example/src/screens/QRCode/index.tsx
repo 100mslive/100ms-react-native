@@ -53,6 +53,7 @@ const QRCode = () => {
   );
 
   const [joiningLink, setJoiningLink] = useState(getMeetingUrl());
+  const [username, setUsername] = useState('');
   const [moreModalVisible, setMoreModalVisible] = useState(false);
 
   const onJoinPress = () => {
@@ -75,6 +76,7 @@ const QRCode = () => {
           navigate('HMSPrebuiltScreen', {
             roomCode,
             userId,
+            userName: username,
             initEndPoint: initEndpoint,
             tokenEndPoint: tokenEndpoint,
             layoutEndPoint: layoutEndPoint,
@@ -176,6 +178,7 @@ const QRCode = () => {
             Jump right in by pasting a room link or scanning a QR code
           </Text>
         </View>
+
         <View style={styles.joiningLinkInputView}>
           <Text style={styles.joiningLinkInputText}>Joining Link</Text>
         </View>
@@ -188,6 +191,22 @@ const QRCode = () => {
           inputStyle={styles.joiningLinkInput}
           placeholderTextColor={COLORS.TEXT.DISABLED}
           placeholder="Paste the link here"
+          multiline
+          blurOnSubmit
+        />
+
+        <View style={styles.usernameInputView}>
+          <Text style={styles.joiningLinkInputText}>User Name</Text>
+        </View>
+
+        <CustomInput
+          inputTestID="enter-username-input"
+          clearTestID="clear-username-button"
+          value={username}
+          onChangeText={setUsername}
+          inputStyle={styles.joiningLinkInput}
+          placeholderTextColor={COLORS.TEXT.DISABLED}
+          placeholder="Enter username"
           multiline
           blurOnSubmit
         />

@@ -94,6 +94,7 @@ import {
   setActiveChatBottomSheetTab,
   setActiveSpeakers,
   setAutoEnterPipMode,
+  setEditUsernameDisabled,
   setFullScreenPeerTrackNode,
   setHMSLocalPeerState,
   setHMSRoleState,
@@ -2391,6 +2392,10 @@ export const useSavePropsToStore = (
 
   useEffect(() => {
     dispatch(setPrebuiltData({ roomCode, options }));
+    const passedUserName = options?.userName;
+    if (passedUserName && passedUserName.length > 0) {
+      dispatch(setEditUsernameDisabled(true));
+    }
   }, [roomCode, options]);
 
   useEffect(() => {

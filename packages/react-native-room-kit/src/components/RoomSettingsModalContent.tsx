@@ -54,6 +54,7 @@ export const RoomSettingsModalContent: React.FC<
     const localPeer = state.hmsStates.localPeer;
     return localPeer ? isPublishingAllowed(localPeer) : false;
   });
+  const editUsernameDisabled = useSelector((state: RootState) => state.app.editUsernameDisabled);
 
   const { registerOnModalHideAction } = useBottomSheetActions();
 
@@ -244,7 +245,7 @@ export const RoomSettingsModalContent: React.FC<
               label: 'Change Name',
               pressHandler: changeName,
               isActive: false,
-              hide: isPublisher,
+              hide: isPublisher || editUsernameDisabled,
             },
           ].filter((itm) => !itm.hide),
           true
