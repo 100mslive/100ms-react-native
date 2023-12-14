@@ -22,7 +22,6 @@ class HmsScreenshareActivity : ComponentActivity() {
             override fun onError(error: HMSException) {
               finish()
               HMSManager.hmsCollection[id]?.screenshareCallback?.reject(error)
-              HMSManager.hmsCollection[id]?.emitHMSError(error)
             }
 
             override fun onSuccess() {
@@ -45,7 +44,6 @@ class HmsScreenshareActivity : ComponentActivity() {
             "RESULT_CANCELED",
           )
         HMSManager.hmsCollection[id]?.screenshareCallback?.reject(error)
-        HMSManager.hmsCollection[id]?.emitHMSError(error)
         finish()
       }
     }
