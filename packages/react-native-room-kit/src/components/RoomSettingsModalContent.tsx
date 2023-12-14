@@ -20,6 +20,7 @@ import { BottomSheet, useBottomSheetActions } from './BottomSheet';
 import {
   isPublishingAllowed,
   useHMSLayoutConfig,
+  useHMSRoomColorPalette,
   useHMSRoomStyleSheet,
   useShowChatAndParticipants,
   useStartRecording,
@@ -50,6 +51,8 @@ export const RoomSettingsModalContent: React.FC<
   const debugMode = useSelector((state: RootState) => state.user.debugMode);
 
   const hmsActions = useHMSActions();
+
+  const { alert_error_default: alertErrorDefaultColor } = useHMSRoomColorPalette()
 
   const isPublisher = useSelector((state: RootState) => {
     const localPeer = state.hmsStates.localPeer;
@@ -135,6 +138,10 @@ export const RoomSettingsModalContent: React.FC<
     (state: RootState) =>
       state.hmsStates.room?.browserRecordingState?.state === HMSRecordingState.RESUMED ||
       state.hmsStates.room?.browserRecordingState?.state === HMSRecordingState.STARTED
+  );
+  const isRecordingPaused = useSelector(
+    (state: RootState) =>
+      state.hmsStates.room?.browserRecordingState?.state === HMSRecordingState.PAUSED
   );
 
   const { startRecording } = useStartRecording();
@@ -233,12 +240,13 @@ export const RoomSettingsModalContent: React.FC<
               hide: !showHandRaiseIcon, // Hide if can't publish screen
             },
             {
-              id: 'start-recording',
+              id: 'recording',
               testID: isRecordingOn ? TestIds.room_modal_stop_recording_btn : TestIds.room_modal_start_recording_btn,
-              icon: <RecordingIcon style={{ width: 20, height: 20 }} />,
-              label: isRecordingOn ? 'Stop Recording' : 'Start Recording',
+              icon: <RecordingIcon type={isRecordingPaused ? 'pause' : 'on'} style={[{ width: 20, height: 20 }, isRecordingOn ? { tintColor: alertErrorDefaultColor } : null]} />,
+              label: isRecordingOn ? 'Recording' : isRecordingPaused ? 'Recording Paused' : 'Record',
               pressHandler: handleRecordingTogglePress,
-              isActive: isRecordingOn,
+              isActive: false,
+              disabled: isRecordingPaused,
               hide: !canStartRecording, // Hide if can't publish screen
             },
             {
@@ -276,6 +284,7 @@ export const RoomSettingsModalContent: React.FC<
                               onPress={item.pressHandler}
                               text={item.label}
                               isActive={item.isActive}
+                              disabled={item.disabled}
                             />
 
                             {item.sibling}
@@ -300,6 +309,7 @@ type SettingItemProps = {
   text: string;
   icon: React.ReactElement;
   onPress(): void;
+  disabled?: TouchableOpacityProps['disabled'];
   testID?: TouchableOpacityProps['testID'];
   isActive?: boolean;
 };
@@ -309,6 +319,7 @@ const SettingItem: React.FC<SettingItemProps> = ({
   text,
   icon,
   onPress,
+  disabled,
   isActive = false,
 }) => {
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
@@ -324,6 +335,7 @@ const SettingItem: React.FC<SettingItemProps> = ({
   return (
     <TouchableOpacity
       testID={testID}
+      disabled={disabled}
       style={[styles.button, isActive ? hmsRoomStyles.button : null]}
       onPress={onPress}
     >

@@ -60,7 +60,7 @@ export const HMSRecordingIndicator = () => {
 
   if (isRecordingPaused) {
     return (
-      <RecordingIcon type='pause' style={[styles.icon, styles.rightSpace, iconStyles]} />
+      <RecordingIcon type='pause' style={[styles.icon, styles.rightSpace]} />
     );
   }
 
