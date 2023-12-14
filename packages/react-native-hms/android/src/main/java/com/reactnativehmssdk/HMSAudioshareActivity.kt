@@ -23,7 +23,6 @@ class HMSAudioshareActivity : ComponentActivity() {
             override fun onError(error: HMSException) {
               finish()
               HMSManager.hmsCollection[id]?.audioshareCallback?.reject(error)
-              HMSManager.hmsCollection[id]?.emitHMSError(error)
             }
 
             override fun onSuccess() {
@@ -48,7 +47,6 @@ class HMSAudioshareActivity : ComponentActivity() {
             "RESULT_CANCELED",
           )
         HMSManager.hmsCollection[id]?.audioshareCallback?.reject(error)
-        HMSManager.hmsCollection[id]?.emitHMSError(error)
         finish()
       }
     }
