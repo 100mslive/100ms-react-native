@@ -5,7 +5,7 @@ import type { ImageProps } from 'react-native';
 import { useHMSRoomStyle } from '../../hooks-util';
 
 interface RecordingIconProps extends Omit<ImageProps, 'source'> {
-  type?: 'off' | 'on';
+  type?: 'off' | 'on' | 'pause';
 }
 
 export const RecordingIcon: React.FC<RecordingIconProps> = ({
@@ -22,6 +22,8 @@ export const RecordingIcon: React.FC<RecordingIconProps> = ({
       source={
         type === 'on'
           ? require('./assets/recording.png')
+          : type === 'pause'
+          ? require('./assets/recording-pause.png')
           : require('./assets/recording-off.png')
       }
       style={[styles.icon, iconStyles, style]}

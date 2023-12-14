@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
+import { HMSStreamingState } from '@100mslive/react-native-hms';
 
 import { LeaveIcon } from '../Icons';
 import { useHMSRoomStyleSheet, useLeaveMethods, useModalType } from '../hooks-util';
@@ -26,7 +27,7 @@ export const LeaveRoomBottomSheet: React.FC<LeaveRoomBottomSheetProps> = () => {
 
   const isStreaming = useSelector(
     (state: RootState) =>
-      state.hmsStates.room?.hlsStreamingState?.running ?? false
+      state.hmsStates.room?.hlsStreamingState?.state === HMSStreamingState.STARTED ?? false
   );
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({

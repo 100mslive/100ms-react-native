@@ -2,6 +2,7 @@ import * as React from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import type { TouchableOpacityProps } from 'react-native';
 import type { HMSAudioMixingMode } from '@100mslive/react-native-hms';
+import { HMSRecordingState } from '@100mslive/react-native-hms';
 import { useSelector } from 'react-redux';
 
 import type { RootState } from '../redux';
@@ -131,7 +132,9 @@ export const RoomSettingsModalContent: React.FC<
   );
 
   const isRecordingOn = useSelector(
-    (state: RootState) => !!state.hmsStates.room?.browserRecordingState?.running
+    (state: RootState) =>
+      state.hmsStates.room?.browserRecordingState?.state === HMSRecordingState.RESUMED ||
+      state.hmsStates.room?.browserRecordingState?.state === HMSRecordingState.STARTED
   );
 
   const { startRecording } = useStartRecording();

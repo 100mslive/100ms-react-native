@@ -191,48 +191,6 @@ const useHMSRoomUpdate = (hmsInstance: HMSSDK) => {
         }
       } else if (type === HMSRoomUpdate.HLS_STREAMING_STATE_UPDATED) {
         dispatch(changeStartingHLSStream(false));
-      } else if (type === HMSRoomUpdate.RTMP_STREAMING_STATE_UPDATED) {
-        let streaming = room?.rtmpHMSRtmpStreamingState?.running;
-        const startAtDate = room?.rtmpHMSRtmpStreamingState?.startedAt;
-
-        let startTime: null | string = null;
-
-        if (startAtDate) {
-          let hours = startAtDate.getHours().toString();
-          let minutes = startAtDate.getMinutes()?.toString();
-          startTime = hours + ':' + minutes;
-        }
-
-        Toast.showWithGravity(
-          `RTMP Streaming ${
-            streaming
-              ? `Started ${startTime ? 'At ' + startTime : ''}`
-              : 'Stopped'
-          }`,
-          Toast.LONG,
-          Toast.TOP
-        );
-      } else if (type === HMSRoomUpdate.SERVER_RECORDING_STATE_UPDATED) {
-        let streaming = room?.serverRecordingState?.running;
-        const startAtDate = room?.serverRecordingState?.startedAt;
-
-        let startTime: null | string = null;
-
-        if (startAtDate) {
-          let hours = startAtDate.getHours().toString();
-          let minutes = startAtDate.getMinutes()?.toString();
-          startTime = hours + ':' + minutes;
-        }
-
-        Toast.showWithGravity(
-          `Server Recording ${
-            streaming
-              ? `Started ${startTime ? 'At ' + startTime : ''}`
-              : 'Stopped'
-          }`,
-          Toast.LONG,
-          Toast.TOP
-        );
       }
     };
 

@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { useSelector } from 'react-redux';
+import { HMSStreamingState } from '@100mslive/react-native-hms';
 
 import {
   useHMSRoomStyleSheet,
@@ -24,7 +25,7 @@ const _HMSLiveIndicator = () => {
     (state: RootState) => state.hmsStates.room?.peerCount
   );
   const live = useSelector(
-    (state: RootState) => !!state.hmsStates.room?.hlsStreamingState?.running
+    (state: RootState) => state.hmsStates.room?.hlsStreamingState?.state === HMSStreamingState.STARTED
   );
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typograhy) => ({
