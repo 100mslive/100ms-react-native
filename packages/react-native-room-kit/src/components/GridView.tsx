@@ -188,6 +188,8 @@ const RegularTiles = React.forwardRef<
   RegularTilesProps
 >(({ pairedPeers, onPeerTileMorePress, setHmsViewRefs }, flatlistRef) => {
   const dispatch = useDispatch();
+  const firstRef = useRef(true);
+  const [key, setKey] = useState(1);
   const screenshareTilesAvailable = useSelector(
     (state: RootState) => state.app.screensharePeerTrackNodes.length > 0
   );
@@ -196,6 +198,14 @@ const RegularTiles = React.forwardRef<
   );
 
   const isLandscapeOrientation = useIsLandscapeOrientation();
+
+  React.useEffect(() => {
+    if (firstRef.current) {
+      firstRef.current = false;
+    } else {
+      setKey((prev) => prev += 1);
+    }
+  }, [isLandscapeOrientation]);
 
   const _keyExtractor = React.useCallback((item) => item[0]?.id, []);
 
@@ -228,7 +238,8 @@ const RegularTiles = React.forwardRef<
 
   return (
     <View style={{ flex: screenshareTilesAvailable ? undefined : 1 }}>
-      <Animated.FlatList
+      <FlatList
+        key={key}
         ref={flatlistRef}
         horizontal={true}
         data={pairedPeers}
