@@ -8,7 +8,7 @@ import type {
   ViewToken,
 } from 'react-native';
 import type { HMSView, HMSPeer } from '@100mslive/react-native-hms';
-import { useSharedValue } from 'react-native-reanimated';
+import Animated, { useSharedValue } from 'react-native-reanimated';
 
 import { DefaultModal } from './DefaultModal';
 import { SaveScreenshot } from './Modals';
@@ -228,7 +228,7 @@ const RegularTiles = React.forwardRef<
 
   return (
     <View style={{ flex: screenshareTilesAvailable ? undefined : 1 }}>
-      <FlatList
+      <Animated.FlatList
         ref={flatlistRef}
         horizontal={true}
         data={pairedPeers}

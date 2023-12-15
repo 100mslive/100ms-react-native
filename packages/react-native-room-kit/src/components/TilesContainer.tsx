@@ -55,7 +55,7 @@ const _TilesContainer: React.FC<TilesContainerProps> = ({
               ? 'row'
               : 'column',
         },
-        { width: Dimensions.get('window').width - left - right },
+        { width: Dimensions.get('window').width - left - right, height: '100%' },
       ]}
     >
       {peerTrackNodes.length <= 3 ? (
