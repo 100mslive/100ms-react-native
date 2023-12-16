@@ -41,6 +41,12 @@ jobs:
         with:
           node-version: '16'
 
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+
       # - name: Install Dependencies
       #   run: |
       #     cd ./packages/react-native-room-kit
@@ -50,6 +56,7 @@ jobs:
 
       - name: Build Android App from Fastlane
         run: |
+          mkdir ./packages/react-native-room-kit/example/android/fastlane
           echo "${{ secrets.ANDROID_FASTFILE }}" > ./packages/react-native-room-kit/example/android/fastlane/Fastfile
 
       - name: Display the contents
