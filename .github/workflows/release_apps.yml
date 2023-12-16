@@ -52,10 +52,14 @@ jobs:
           mkdir ./packages/react-native-room-kit/example/android/fastlane
           echo "${{ secrets.ANDROID_FASTFILE }}" > ./packages/react-native-room-kit/example/android/fastlane/Fastfile
 
-      - name: Change wrapper permissions
+      - name: Create Release APK
         run: |
           chmod +x ./packages/react-native-room-kit/example/android/gradlew
-          cd ./packages/react-native-room-kit/example/android/
+          cd ./packages/react-native-room-kit
+          npm install
+          cd ./example
+          npm install
+          cd ./android
           ./gradlew assembleRelease
         env:
           FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
