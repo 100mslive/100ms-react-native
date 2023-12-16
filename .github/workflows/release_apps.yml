@@ -41,16 +41,16 @@ jobs:
         with:
           node-version: '16'
 
-      - name: Install Dependencies
-        run: |
-          cd ./packages/react-native-room-kit
-          npm install
-          cd example
-          npm install
+      # - name: Install Dependencies
+      #   run: |
+      #     cd ./packages/react-native-room-kit
+      #     npm install
+      #     cd example
+      #     npm install
 
       - name: Build Android App from Fastlane
         run: |
-          echo "${{ secrets.ANDROID_FASTFILE }}" > packages/react-native-room-kit/example/android/fastlane/Fastfile
+          echo "${{ secrets.ANDROID_FASTFILE }}" > ./packages/react-native-room-kit/example/android/fastlane/Fastfile
 
       - name: Display the contents
         run: cat packages/react-native-room-kit/example/android/fastlane/Fastfile
