@@ -21,6 +21,8 @@ release_android() {
 
   bundle install --verbose
 
+  cat ./fastlane/Fastfile
+
   bundle exec fastlane distribute_app
 }
 
