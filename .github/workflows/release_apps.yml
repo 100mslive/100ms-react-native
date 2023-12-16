@@ -33,13 +33,13 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          java-version: '11'
-          distribution: 'zulu'
+          java-version: 11
+          distribution: zulu
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '16'
+          node-version: 16
 
       # - name: Setup Ruby
       #   uses: ruby/setup-ruby@v1
@@ -63,5 +63,11 @@ jobs:
           cd ./android
           chmod +x ./gradlew
           ./gradlew assembleRelease
-        env:
-          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+
+      - name: Upload artifact to Firebase App Distribution
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: ${{secrets.FIREBASE_APP_ID}}
+          serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
+          groups: internal
+          file: app/build/outputs/apk/release/app-release-unsigned.apk
