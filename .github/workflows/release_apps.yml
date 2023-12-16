@@ -41,25 +41,27 @@ jobs:
         with:
           node-version: '16'
 
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.2'
-          bundler-cache: true
+      # - name: Setup Ruby
+      #   uses: ruby/setup-ruby@v1
+      #   with:
+      #     ruby-version: '3.2'
+      #     bundler-cache: true
 
-      - name: Build Android App from Fastlane
-        run: |
-          mkdir ./packages/react-native-room-kit/example/android/fastlane
-          echo "${{ secrets.ANDROID_FASTFILE }}" > ./packages/react-native-room-kit/example/android/fastlane/Fastfile
+      # - name: Build Android App from Fastlane
+      #   run: |
+      #     mkdir ./packages/react-native-room-kit/example/android/fastlane
+      #     echo "${{ secrets.ANDROID_FASTFILE }}" > ./packages/react-native-room-kit/example/android/fastlane/Fastfile
 
       - name: Create Release APK
         run: |
-          chmod +x ./packages/react-native-room-kit/example/android/gradlew
-          cd ./packages/react-native-room-kit
+          cd ./packages/react-native-hms
+          npm install
+          cd ../react-native-room-kit
           npm install
           cd ./example
           npm install
           cd ./android
+          chmod +x ./gradlew
           ./gradlew assembleRelease
         env:
           FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
