@@ -73,10 +73,11 @@ jobs:
           releaseNotesFile: ./packages/react-native-room-kit/example/ExampleAppChangelog.txt
           file: ./packages/react-native-room-kit/example/android/app/build/outputs/apk/release/app-release.apk
 
-      - name: Send Slack Message
-        id: ReactNativeBot
-        uses: slackapi/slack-github-action@v1.24.0
-        with:
-          payload-file-path: ./packages/react-native-room-kit/example/ExampleAppChangelog.txt
+      - name: Post Slack Notification
+        uses: rtCamp/action-slack-notify@v2.2.1
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_URL }}
+          SLACK_CHANNEL: dogfooding
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_ICON_EMMOJI: ":react:"
+          SLACK_USERNAME: React Native Bot
+          SLACK_WEBHOOK: ${{ secrets.SLACK_URL }}
