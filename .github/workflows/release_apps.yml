@@ -69,5 +69,14 @@ jobs:
         with:
           appId: ${{secrets.FIREBASE_APP_ID}}
           serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
-          groups: internal
+          groups: internal, External
+          releaseNotesFile: ./packages/react-native-room-kit/example/ExampleAppChangelog.txt
           file: ./packages/react-native-room-kit/example/android/app/build/outputs/apk/release/app-release.apk
+
+      - name: Send Slack Message
+        id: ReactNativeBot
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload-file-path: ./packages/react-native-room-kit/example/ExampleAppChangelog.txt
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_URL }}
