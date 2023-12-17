@@ -70,4 +70,4 @@ jobs:
           appId: ${{secrets.FIREBASE_APP_ID}}
           serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
           groups: internal
-          file: app/build/outputs/apk/release/app-release.apk
+          file: ./packages/react-native-room-kit/example/android/app/build/outputs/apk/release/app-release.apk
