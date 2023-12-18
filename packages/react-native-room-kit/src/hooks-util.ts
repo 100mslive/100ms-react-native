@@ -2348,8 +2348,9 @@ export const useSavePropsToStore = (
   const { roomCode, options, onLeave, handleBackButton, autoEnterPipMode } =
     props;
 
+  dispatch(setPrebuiltData({ roomCode, options }));
+
   useEffect(() => {
-    dispatch(setPrebuiltData({ roomCode, options }));
     const passedUserName = options?.userName;
     if (passedUserName && passedUserName.length > 0) {
       dispatch(setEditUsernameDisabled(true));
