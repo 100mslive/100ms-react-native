@@ -1,6 +1,6 @@
 import React, { useRef, useState, useImperativeHandle } from 'react';
 import type { ElementRef } from 'react';
-import { View, FlatList, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, FlatList, StyleSheet, useWindowDimensions, Platform } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import type {
   LayoutChangeEvent,
@@ -231,7 +231,7 @@ const RegularTiles = React.forwardRef<
       <FlatList
         ref={flatlistRef}
         horizontal={true}
-        style={{maxHeight: (safeHeight - 16)}}
+        style={Platform.OS === 'ios' ? {maxHeight: (safeHeight - 16)} : null}
         data={pairedPeers}
         initialNumToRender={1}
         maxToRenderPerBatch={1}
