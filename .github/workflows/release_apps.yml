@@ -30,41 +30,41 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          java-version: 11
-          distribution: zulu
+      # - name: Setup Java
+      #   uses: actions/setup-java@v4
+      #   with:
+      #     java-version: 11
+      #     distribution: zulu
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 16
+      # - name: Setup Node
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: 16
 
-      - name: Create Release APK
-        run: |
-          cd ./packages/react-native-hms
-          npm install
-          cd ../react-native-room-kit
-          npm install
-          cd ./example
-          npm install
-          cd ./android
-          chmod +x ./gradlew
-          ./gradlew assembleRelease
+      # - name: Create Release APK
+      #   run: |
+      #     cd ./packages/react-native-hms
+      #     npm install
+      #     cd ../react-native-room-kit
+      #     npm install
+      #     cd ./example
+      #     npm install
+      #     cd ./android
+      #     chmod +x ./gradlew
+      #     ./gradlew assembleRelease
 
-      - name: Upload artifact to Firebase App Distribution
-        uses: wzieba/Firebase-Distribution-Github-Action@v1
-        with:
-          appId: ${{ secrets.FIREBASE_APP_ID }}
-          serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
-          groups: internal, External
-          releaseNotesFile: ./packages/react-native-room-kit/example/ExampleAppChangelog.txt
-          file: ./packages/react-native-room-kit/example/android/app/build/outputs/apk/release/app-release.apk
+      # - name: Upload artifact to Firebase App Distribution
+      #   uses: wzieba/Firebase-Distribution-Github-Action@v1
+      #   with:
+      #     appId: ${{ secrets.FIREBASE_APP_ID }}
+      #     serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
+      #     groups: internal, External
+      #     releaseNotesFile: ./packages/react-native-room-kit/example/ExampleAppChangelog.txt
+      #     file: ./packages/react-native-room-kit/example/android/app/build/outputs/apk/release/app-release.apk
 
       - name: Get Changelog
         run: |
-          echo "::set-env name=CHANGELOG::$(cat ./packages/react-native-room-kit/example/ExampleAppChangelog.txt)"
+          echo "CHANGELOG=$(cat ./packages/react-native-room-kit/example/ExampleAppChangelog.txt)" >> $GITHUB_ENV
 
       - name: Post Slack Notification
         uses: rtCamp/action-slack-notify@v2.2.1
