@@ -7,7 +7,7 @@ set -x
 perform_npm_actions() {
   cd ./packages/react-native-room-kit
 
-   git pull --verbose
+  git pull --verbose
 
   npm install
 
