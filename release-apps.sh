@@ -21,8 +21,6 @@ release_android() {
 
   bundle install --verbose
 
-  cat ./fastlane/Fastfile
-
   bundle exec fastlane distribute_app
 }
 
@@ -58,7 +56,7 @@ perform_git_actions() {
 }
 
 perform_npm_actions
- P1=$!
+P1=$!
 
 wait $P1
 release_android &
