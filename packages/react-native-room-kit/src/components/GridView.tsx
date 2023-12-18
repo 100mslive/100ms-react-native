@@ -4,11 +4,9 @@ import { View, FlatList, StyleSheet, useWindowDimensions, Platform } from 'react
 import { useDispatch, useSelector } from 'react-redux';
 import type {
   LayoutChangeEvent,
-  LayoutRectangle,
   ViewToken,
 } from 'react-native';
 import type { HMSView, HMSPeer } from '@100mslive/react-native-hms';
-import { useSharedValue } from 'react-native-reanimated';
 
 import { DefaultModal } from './DefaultModal';
 import { SaveScreenshot } from './Modals';
@@ -190,6 +188,7 @@ const RegularTiles = React.forwardRef<
 >(({ pairedPeers, onPeerTileMorePress, setHmsViewRefs }, flatlistRef) => {
   const dispatch = useDispatch();
   const { height: safeHeight } = useSafeAreaFrame();
+
   const screenshareTilesAvailable = useSelector(
     (state: RootState) => state.app.screensharePeerTrackNodes.length > 0
   );
