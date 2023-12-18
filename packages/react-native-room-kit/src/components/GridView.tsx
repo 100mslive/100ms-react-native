@@ -20,6 +20,7 @@ import { PaginationDots } from './PaginationDots';
 import { setGridViewActivePage } from '../redux/actions';
 import { Tile } from './Tile';
 import { useIsLandscapeOrientation } from '../utils/dimension';
+import { useSafeAreaFrame } from 'react-native-safe-area-context';
 
 export type GridViewProps = {
   onPeerTileMorePress(peerTrackNode: PeerTrackNode): void;
@@ -190,6 +191,7 @@ const RegularTiles = React.forwardRef<
   const dispatch = useDispatch();
   const firstRef = useRef(true);
   const [key, setKey] = useState(1);
+  const { height: safeHeight } = useSafeAreaFrame();
   const screenshareTilesAvailable = useSelector(
     (state: RootState) => state.app.screensharePeerTrackNodes.length > 0
   );
@@ -242,6 +244,7 @@ const RegularTiles = React.forwardRef<
         key={key}
         ref={flatlistRef}
         horizontal={true}
+        style={{maxHeight: safeHeight}}
         data={pairedPeers}
         initialNumToRender={1}
         maxToRenderPerBatch={1}
