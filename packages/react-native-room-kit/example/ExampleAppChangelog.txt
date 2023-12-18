@@ -1,3 +1,1 @@
-Hide Top and Bottom bars after 5 seconds in Room
-
 Disable editing username in preview screen if username is passed to prebuilt in options config
