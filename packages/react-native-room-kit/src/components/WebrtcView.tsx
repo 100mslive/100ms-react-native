@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import { View } from 'react-native';
 import { SafeAreaView, useSafeAreaFrame, useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { SharedValue } from 'react-native-reanimated';
 import Animated, {
