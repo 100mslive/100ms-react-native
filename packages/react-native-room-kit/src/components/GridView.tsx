@@ -198,14 +198,6 @@ const RegularTiles = React.forwardRef<
 
   const isLandscapeOrientation = useIsLandscapeOrientation();
 
-  React.useEffect(() => {
-    if (firstRef.current) {
-      firstRef.current = false;
-    } else {
-      setKey((prev) => prev += 1);
-    }
-  }, [isLandscapeOrientation]);
-
   const _keyExtractor = React.useCallback((item) => item[0]?.id, []);
 
   const _handleViewableItemsChanged = React.useCallback(
@@ -238,7 +230,6 @@ const RegularTiles = React.forwardRef<
   return (
     <View style={{ flex: screenshareTilesAvailable ? undefined : 1 }}>
       <FlatList
-        key={key}
         ref={flatlistRef}
         horizontal={true}
         style={Platform.OS === 'ios' ? {maxHeight: (safeHeight - 16)} : null}
