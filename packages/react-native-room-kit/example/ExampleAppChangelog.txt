@@ -1,3 +1,4 @@
+"
 Board: https://100ms.atlassian.net/jira/software/projects/RN/boards/33
 
 Hide Top & Bottom bars after 5 seconds in Room
@@ -10,3 +11,4 @@ Room Kit: 1.0.7
 React Native SDK: 1.9.6
 Android SDK: 2.8.3
 iOS SDK: 1.4.0
+"
