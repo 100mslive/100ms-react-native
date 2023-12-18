@@ -82,6 +82,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  usernameInputView: {
+    marginTop: 8,
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   joinButton: {
     flex: 1,
     backgroundColor: COLORS.PRIMARY.DEFAULT,

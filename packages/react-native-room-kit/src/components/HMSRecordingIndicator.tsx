@@ -10,9 +10,20 @@ import { HMSRecordingState } from '@100mslive/react-native-hms';
 export const HMSRecordingIndicator = () => {
   const isRecordingOn = useSelector(
     (state: RootState) =>
-      !!state.hmsStates.room?.browserRecordingState?.running ||
-      !!state.hmsStates.room?.serverRecordingState?.running ||
-      !!state.hmsStates.room?.hlsRecordingState?.running
+      state.hmsStates.room?.browserRecordingState?.state === HMSRecordingState.STARTED ||
+      state.hmsStates.room?.browserRecordingState?.state === HMSRecordingState.RESUMED ||
+
+      state.hmsStates.room?.serverRecordingState?.state === HMSRecordingState.STARTED ||
+      state.hmsStates.room?.serverRecordingState?.state === HMSRecordingState.RESUMED ||
+
+      state.hmsStates.room?.hlsRecordingState?.state === HMSRecordingState.STARTED ||
+      state.hmsStates.room?.hlsRecordingState?.state === HMSRecordingState.RESUMED
+  );
+  const isRecordingPaused = useSelector(
+    (state: RootState) =>
+      state.hmsStates.room?.browserRecordingState?.state === HMSRecordingState.PAUSED ||
+      state.hmsStates.room?.serverRecordingState?.state === HMSRecordingState.PAUSED ||
+      state.hmsStates.room?.hlsRecordingState?.state === HMSRecordingState.PAUSED
   );
   const startingOrStoppingRecording = useSelector(
     (state: RootState) =>
@@ -44,6 +55,12 @@ export const HMSRecordingIndicator = () => {
   if (isRecordingOn) {
     return (
       <RecordingIcon style={[styles.icon, styles.rightSpace, iconStyles]} />
+    );
+  }
+
+  if (isRecordingPaused) {
+    return (
+      <RecordingIcon type='pause' style={[styles.icon, styles.rightSpace]} />
     );
   }
 

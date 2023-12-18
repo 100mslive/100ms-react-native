@@ -52,6 +52,7 @@ export const _PeerVideoTileView = React.forwardRef<
     const isPipModeActive = useSelector(
       (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE
     );
+    const editUsernameDisabled = useSelector((state: RootState) => state.app.editUsernameDisabled);
 
     const onSpotlight = useSelector((state: RootState) => {
       const { onSpotlight } = isTileOnSpotlight(state.user.spotlightTrackId, {
@@ -101,7 +102,7 @@ export const _PeerVideoTileView = React.forwardRef<
 
     const canTakeActionOnPeer = useSelector((state: RootState) => {
       if (peer.isLocal) {
-        return true;
+        return !editUsernameDisabled || insetMode;
       }
 
       const permissions = state.hmsStates.localPeer?.role?.permissions;

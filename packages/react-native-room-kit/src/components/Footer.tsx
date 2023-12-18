@@ -32,6 +32,7 @@ export const _Footer: React.FC<FooterProps> = () => {
   const canPublishAudio = useCanPublishAudio();
   const canPublishVideo = useCanPublishVideo();
   const canPublishScreen = useCanPublishScreen();
+  const editUsernameDisabled = useSelector((state: RootState) => state.app.editUsernameDisabled);
 
   const isViewer = !(canPublishAudio || canPublishVideo || canPublishScreen);
 
@@ -52,12 +53,18 @@ export const _Footer: React.FC<FooterProps> = () => {
       !!state.hmsStates.localPeer?.role?.permissions?.browserRecording
   );
 
+  const canEditUsernameFromRoomModal = isViewer && !editUsernameDisabled;
+
+  const canShowHandRaiseInFooter = !isOnStage && isViewer; // on_stage_exp object undefined && viewer -> show in footer
+  const canShowHandRaiseInRoomModal = !isOnStage && !isViewer; // on_stage_exp object undefined && publisher -> show in room modal
+
   const canShowOptions =
-    isViewer ||
-    canPublishScreen ||
     canShowParticipants ||
+    canPublishScreen ||
     canShowBRB ||
-    canStartRecording;
+    canShowHandRaiseInRoomModal ||
+    canStartRecording ||
+    canEditUsernameFromRoomModal;
 
   const footerActionButtons = useMemo(() => {
     const actions = [];
@@ -66,7 +73,7 @@ export const _Footer: React.FC<FooterProps> = () => {
       actions.push('chat');
     }
 
-    if (!isOnStage && isViewer) {
+    if (canShowHandRaiseInFooter) {
       actions.unshift('hand-raise');
     }
 
@@ -86,10 +93,9 @@ export const _Footer: React.FC<FooterProps> = () => {
 
     return actions;
   }, [
-    isOnStage,
+    canShowHandRaiseInFooter,
     canShowOptions,
     canShowChat,
-    isViewer,
     canPublishAudio,
     canPublishVideo,
   ]);
@@ -101,7 +107,7 @@ export const _Footer: React.FC<FooterProps> = () => {
   return (
     <SafeAreaView
       style={isHLSViewer ? null : containerStyles}
-      edges={['bottom']}
+      edges={['bottom', 'left', 'right']}
     >
       <View
         style={[

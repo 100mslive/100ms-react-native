@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Modal from 'react-native-modal';
 import type { ReactNativeModal } from 'react-native-modal';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type {
   StyleProp,
   TextProps,
@@ -26,6 +26,7 @@ export type BottomSheetProps = WithRequired<
   // closes modal and no action will be taken after modal has been closed
   dismissModal(): void;
   containerStyle?: StyleProp<ViewStyle>;
+  bottomOffsetSpace?: number;
   fullWidth?: boolean;
 };
 
@@ -38,6 +39,7 @@ export const BottomSheet: React.FC<BottomSheetProps> & {
   style,
   children,
   containerStyle,
+  bottomOffsetSpace = 32,
   ...resetProps
 }) => {
   const { background_dim: backgroundDimColor } = useHMSRoomColorPalette();
@@ -49,6 +51,8 @@ export const BottomSheet: React.FC<BottomSheetProps> & {
   const { handleModalHideAction } = useBottomSheetActionHandlers();
 
   const isLandscapeOrientation = useIsLandscapeOrientation();
+
+  const Container = resetProps.avoidKeyboard && Platform.OS === 'android' ? KeyboardAvoidingView : View;
 
   return (
     <Modal
@@ -71,7 +75,8 @@ export const BottomSheet: React.FC<BottomSheetProps> & {
       }
       statusBarTranslucent={true}
     >
-      <View
+      <Container
+        behavior='padding'
         style={[
           isLandscapeOrientation && !fullWidth
             ? styles.landscapeContainer
@@ -81,7 +86,10 @@ export const BottomSheet: React.FC<BottomSheetProps> & {
         ]}
       >
         {children}
-      </View>
+        {typeof bottomOffsetSpace === 'number' && bottomOffsetSpace > 0 ? (
+          <View style={{ height: bottomOffsetSpace, width: '100%' }} />
+        ) : null}
+      </Container>
     </Modal>
   );
 };
@@ -198,11 +206,9 @@ const styles = StyleSheet.create({
   container: {
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    paddingBottom: 32,
   },
   landscapeContainer: {
     borderRadius: 16,
-    paddingBottom: 32,
     width: '60%',
     alignSelf: 'center',
     marginBottom: 12,

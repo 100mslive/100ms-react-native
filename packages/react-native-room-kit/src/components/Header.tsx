@@ -11,6 +11,7 @@ import { HMSManageAudioOutput } from './HMSManageAudioOutput';
 import { HMSRecordingIndicator } from './HMSRecordingIndicator';
 import { CompanyLogo } from './CompanyLogo';
 import { HMSLiveIndicator } from './HMSLiveIndicator';
+import { HMSLiveViewerCount } from './HMSLiveViewerCount';
 
 interface HeaderProps {
   transparent?: boolean;
@@ -36,14 +37,16 @@ export const _Header: React.FC<HeaderProps> = ({
   }));
 
   return (
-    <SafeAreaView style={transparent ? null : containerStyles} edges={['top']}>
+    <SafeAreaView style={transparent ? null : containerStyles} edges={['top','left','right']}>
       <View style={[styles.container, transparent ? null : containerStyles]}>
         <View style={styles.logoContainer}>
           <CompanyLogo style={styles.logo} />
 
+          <HMSLiveIndicator />
+
           <HMSRecordingIndicator />
 
-          <HMSLiveIndicator />
+          <HMSLiveViewerCount />
         </View>
 
         {showControls ? (

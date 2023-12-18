@@ -391,3 +391,8 @@ export const setAutoEnterPipMode = (autoEnterPipMode?: boolean) => ({
   type: actionTypes.SET_AUTO_ENTER_PIP_MODE,
   payload: { autoEnterPipMode },
 });
+
+export const setEditUsernameDisabled = (editUsernameDisabled: boolean) => ({
+  type: actionTypes.SET_EDIT_USERNAME_DISABLED,
+  payload: { editUsernameDisabled },
+});

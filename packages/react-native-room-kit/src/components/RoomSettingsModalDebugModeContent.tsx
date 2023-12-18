@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import {
   HMSAudioMixingMode,
+  HMSStreamingState,
   HMSUpdateListenerActions,
   checkNotifications,
 } from '@100mslive/react-native-hms';
@@ -61,7 +62,7 @@ export const RoomSettingsModalDebugModeContent: React.FC<
   );
   const isHLSStreaming = useSelector(
     (state: RootState) =>
-      state.hmsStates.room?.hlsStreamingState?.running ?? false
+      state.hmsStates.room?.hlsStreamingState?.state === HMSStreamingState.STARTED ?? false
   );
 
   const pipModeStatus = useSelector(

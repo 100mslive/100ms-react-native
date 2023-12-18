@@ -1,6 +1,6 @@
 import React, { useRef, useState, useImperativeHandle } from 'react';
 import type { ElementRef } from 'react';
-import { View, FlatList, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, FlatList, StyleSheet, useWindowDimensions, Platform } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import type {
   LayoutChangeEvent,
@@ -20,6 +20,7 @@ import { PaginationDots } from './PaginationDots';
 import { setGridViewActivePage } from '../redux/actions';
 import { Tile } from './Tile';
 import { useIsLandscapeOrientation } from '../utils/dimension';
+import { useSafeAreaFrame } from 'react-native-safe-area-context';
 
 export type GridViewProps = {
   onPeerTileMorePress(peerTrackNode: PeerTrackNode): void;
@@ -188,6 +189,7 @@ const RegularTiles = React.forwardRef<
   RegularTilesProps
 >(({ pairedPeers, onPeerTileMorePress, setHmsViewRefs }, flatlistRef) => {
   const dispatch = useDispatch();
+  const { height: safeHeight } = useSafeAreaFrame();
   const screenshareTilesAvailable = useSelector(
     (state: RootState) => state.app.screensharePeerTrackNodes.length > 0
   );
@@ -231,6 +233,7 @@ const RegularTiles = React.forwardRef<
       <FlatList
         ref={flatlistRef}
         horizontal={true}
+        style={Platform.OS === 'ios' ? {maxHeight: (safeHeight - 16)} : null}
         data={pairedPeers}
         initialNumToRender={1}
         maxToRenderPerBatch={1}

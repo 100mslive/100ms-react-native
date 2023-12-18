@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import { View } from 'react-native';
-import { useSafeAreaFrame } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaFrame, useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { SharedValue } from 'react-native-reanimated';
 import Animated, {
   interpolate,
@@ -35,6 +34,7 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
     const { height } = useSafeAreaFrame(); // This height does not include top & bottom safe area as this component isn't wrapped in SafeAreaView
     const footerHeight = useFooterHeight(); // This height includes top safearea by default
     const headerHeight = useHeaderHeight(); // This height includes top safearea by default
+    const { top, bottom } = useSafeAreaInsets();
 
     const isPipModeActive = useSelector(
       (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE
@@ -73,16 +73,16 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
         height: interpolate(
           offset.value,
           [0, 1],
-          [height, height - headerHeight - footerHeight]
+          [height - top - bottom, height - headerHeight - footerHeight]
         ),
       };
-    }, [height, footerHeight, headerHeight]);
+    }, [height, top, bottom, footerHeight, headerHeight]);
 
     const headerPlaceholderAnimatedStyles = useAnimatedStyle(() => {
       return {
-        height: interpolate(offset.value, [0, 1], [0, headerHeight]),
+        height: interpolate(offset.value, [0, 1], [top, headerHeight]),
       };
-    }, [headerHeight]);
+    }, [headerHeight, top]);
 
     if (isPipModeActive) {
       return (
@@ -100,7 +100,7 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
     }
 
     return (
-      <View style={{ flex: 1 }}>
+      <SafeAreaView edges={['left','right']} style={{ flex: 1 }}>
         <Animated.View style={headerPlaceholderAnimatedStyles} />
 
         <Animated.View style={animatedStyles}>
@@ -122,7 +122,7 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
             <OverlayedViews offset={offset} />
           </OverlayContainer>
         </Animated.View>
-      </View>
+      </SafeAreaView>
     );
   }
 );
