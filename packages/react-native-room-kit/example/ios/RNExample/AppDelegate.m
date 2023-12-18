@@ -3,6 +3,7 @@
 #import <React/RCTBridge.h>
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
+#import "RNSplashScreen.h" // here
 
 #ifdef FB_SONARKIT_ENABLED
 #import <FlipperKit/FlipperClient.h>
@@ -22,6 +23,8 @@ static void InitializeFlipper(UIApplication *application) {
   [client start];
 }
 #endif
+
+#import "RNExample-Swift.h" // here
 
 @implementation AppDelegate
 
@@ -48,6 +51,25 @@ static void InitializeFlipper(UIApplication *application) {
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
   [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
+
+  /* splash screen code starts here */
+  Dynamic *t = [Dynamic new];
+  UIView *animationUIView = (UIView *)[t createAnimationViewWithRootView:rootView lottieName:@"Donuts-[remix].json"];
+  animationUIView.backgroundColor = [UIColor colorWithRed:32.0 green:38.0 blue:49.0 alpha:1.0]; // change backgroundColor
+
+  // register LottieSplashScreen to RNSplashScreen
+  [RNSplashScreen showLottieSplash:animationUIView inRootView:rootView];
+
+  // casting UIView type to AnimationView type
+  AnimationView *animationView = (AnimationView *) animationUIView;
+
+  // play
+  [t playWithAnimationView:animationView];
+
+  // If you want the animation layout to be forced to remove when hide is called, use this code
+  [RNSplashScreen setAnimationFinished:true];
+  /* splash screen code end here */
+
   return YES;
 }
 
