@@ -41,17 +41,6 @@ jobs:
         with:
           node-version: 16
 
-      # - name: Setup Ruby
-      #   uses: ruby/setup-ruby@v1
-      #   with:
-      #     ruby-version: '3.2'
-      #     bundler-cache: true
-
-      # - name: Build Android App from Fastlane
-      #   run: |
-      #     mkdir ./packages/react-native-room-kit/example/android/fastlane
-      #     echo "${{ secrets.ANDROID_FASTFILE }}" > ./packages/react-native-room-kit/example/android/fastlane/Fastfile
-
       - name: Create Release APK
         run: |
           cd ./packages/react-native-hms
@@ -67,11 +56,15 @@ jobs:
       - name: Upload artifact to Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1
         with:
-          appId: ${{secrets.FIREBASE_APP_ID}}
+          appId: ${{ secrets.FIREBASE_APP_ID }}
           serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
           groups: internal, External
           releaseNotesFile: ./packages/react-native-room-kit/example/ExampleAppChangelog.txt
           file: ./packages/react-native-room-kit/example/android/app/build/outputs/apk/release/app-release.apk
+
+      - name: Get Changelog
+        run: |
+          echo "::set-env name=CHANGELOG::$(cat ./packages/react-native-room-kit/example/ExampleAppChangelog.txt)"
 
       - name: Post Slack Notification
         uses: rtCamp/action-slack-notify@v2.2.1
@@ -81,3 +74,7 @@ jobs:
           SLACK_ICON_EMMOJI: ":react:"
           SLACK_USERNAME: React Native Bot
           SLACK_WEBHOOK: ${{ secrets.SLACK_URL }}
+          SLACK_TITLE: ":react: 🎉 React Native Android App released! 🎊 :react: \n"
+          SLACK_MESSAGE: ${{ env.CHANGELOG }}
+          SLACK_FOOTER: \n "📲 Download from Firebase 🤖 => https://appdistribution.firebase.dev/i/7b7ab3b30e627c35"
+
