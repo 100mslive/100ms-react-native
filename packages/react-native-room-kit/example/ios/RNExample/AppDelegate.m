@@ -3,6 +3,7 @@
 #import <React/RCTBridge.h>
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
+#import "RNSplashScreen.h" // here
 
 #ifdef FB_SONARKIT_ENABLED
 #import <FlipperKit/FlipperClient.h>
@@ -22,6 +23,8 @@ static void InitializeFlipper(UIApplication *application) {
   [client start];
 }
 #endif
+
+#import "RNExample-Swift.h" // here
 
 @implementation AppDelegate
 
@@ -48,6 +51,19 @@ static void InitializeFlipper(UIApplication *application) {
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
   [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
+
+  Dynamic *t = [Dynamic new];
+  UIView *animationUIView = (UIView *)[t createAnimationViewWithRootView:rootView lottieName:@"Donuts-[remix].json"];
+  animationUIView.backgroundColor = [UIColor colorWithRed:32.0 green:38.0 blue:49.0 alpha:1.0];
+
+  [RNSplashScreen showLottieSplash:animationUIView inRootView:rootView];
+
+  AnimationView *animationView = (AnimationView *) animationUIView;
+
+  [t playWithAnimationView:animationView];
+
+  [RNSplashScreen setAnimationFinished:true];
+
   return YES;
 }
 
