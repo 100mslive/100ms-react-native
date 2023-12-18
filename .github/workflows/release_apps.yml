@@ -36,10 +36,10 @@ jobs:
           java-version: 11
           distribution: zulu
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 16
+      # - name: Setup Node
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: 16
 
       # - name: Create Release APK
       #   run: |
@@ -62,10 +62,10 @@ jobs:
       #     releaseNotesFile: ./packages/react-native-room-kit/example/ExampleAppChangelog.txt
       #     file: ./packages/react-native-room-kit/example/android/app/build/outputs/apk/release/app-release.apk
 
-      - name: Extract Changelog
-        shell: bash
-        run: echo "changelog=$(cat ./packages/react-native-room-kit/example/ExampleAppChangelog.txt)" >> $GITHUB_OUTPUT
-        id: get_changelog
+      # - name: Extract Changelog
+      #   shell: bash
+      #   run: echo "changelog=$(cat ./packages/react-native-room-kit/example/ExampleAppChangelog.txt)" >> $GITHUB_OUTPUT
+      #   id: get_changelog
 
 
       - name: Post Slack Notification
@@ -77,6 +77,5 @@ jobs:
           SLACK_USERNAME: React Native Bot
           SLACK_WEBHOOK: ${{ secrets.SLACK_URL }}
           SLACK_TITLE: "[TEST] :react: 🎉 React Native Android App released! 🎊 :react: \n"
-          SLACK_MESSAGE: ${{ steps.get_changelog.outputs.changelog }}
-          SLACK_FOOTER: \n "📲 Download from Firebase 🤖 => https://appdistribution.firebase.dev/i/7b7ab3b30e627c35"
+          SLACK_FOOTER: 🤖 Download from Firebase 👉 https://appdistribution.firebase.dev/i/7b7ab3b30e627c35
 
