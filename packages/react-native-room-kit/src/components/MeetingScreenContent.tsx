@@ -1,26 +1,27 @@
-import React, { useCallback, useRef, useState } from 'react';
-import { StyleSheet, Pressable, View } from 'react-native';
+import React, { useCallback, useRef, useState, useEffect } from 'react';
+import { StyleSheet, View, Keyboard } from 'react-native';
 import { useSelector } from 'react-redux';
 import {
   Easing,
+  KeyboardState,
   cancelAnimation,
   runOnJS,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
-import { PipModes } from '../utils/types';
+import { HeaderFooterHideDelayMs, PipModes } from '../utils/types';
 import type { PeerTrackNode } from '../utils/types';
 import type { RootState } from '../redux';
 import { Footer } from './Footer';
 import { DisplayView } from './DisplayView';
 import { Header } from './Header';
-import { useIsHLSViewer } from '../hooks-util';
+import { useIsHLSViewer, useKeyboardState } from '../hooks-util';
 import { HMSStatusBar } from './StatusBar';
 import { AnimatedFooter } from './AnimatedFooter';
 import { HLSFooter } from './HLSFooter';
 import { AnimatedHeader } from './AnimatedHeader';
-import { useIsLandscapeOrientation } from '../utils/dimension';
 // import { ReconnectionView } from './ReconnectionView';
 
 interface MeetingScreenContentProps {
@@ -37,80 +38,82 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
   const isPipModeActive = useSelector(
     (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE
   );
-  const isLandscapeOrientation = useIsLandscapeOrientation();
+  const { keyboardState } = useKeyboardState();
 
-  const toggleControls = useCallback(() => {
-    'worklet';
-    if (timerIdRef.current) {
+  const dismissKeyboard = useCallback(() => {
+    Keyboard.dismiss();
+  }, []);
+
+  const clearTimer = useCallback(() => {
+    if (timerIdRef.current !== null) {
       clearTimeout(timerIdRef.current);
       timerIdRef.current = null;
     }
-    cancelAnimation(offset);
-    offset.value = withTiming(
-      offset.value === 1 ? 0 : 1,
-      { duration: 200, easing: Easing.ease },
-      (finished) => {
-        if (finished) {
-          runOnJS(setControlsHidden)(offset.value === 0);
-        }
-      }
-    );
   }, []);
+
+  const toggleControls = useCallback((fromTimeout: boolean = false) => {
+    'worklet';
+    if (
+      fromTimeout !== true &&
+      (keyboardState.value === KeyboardState.OPEN ||
+        keyboardState.value === KeyboardState.OPENING)
+    ) {
+      runOnJS(dismissKeyboard)();
+    } else {
+      runOnJS(clearTimer)();
+      cancelAnimation(offset);
+      offset.value = withTiming(
+        offset.value === 1 ? 0 : 1,
+        { duration: 200, easing: Easing.ease },
+        (finished) => {
+          if (finished) {
+            runOnJS(setControlsHidden)(offset.value === 0);
+          }
+        }
+      );
+    }
+  }, [dismissKeyboard, clearTimer]);
 
   // Handles Auto hiding the controls for the first time
   // to make this feature discoverable
-  // useEffect(() => {
-  //   if (false && !isHLSViewer) {
-  //     if (timerIdRef.current) {
-  //       clearTimeout(timerIdRef.current);
-  //     }
-  //     timerIdRef.current = setTimeout(() => {
-  //       timerIdRef.current = null;
-  //       toggleControls();
-  //     }, 3000); d
+  useEffect(() => {
+    clearTimer();
+    timerIdRef.current = setTimeout(() => {
+      timerIdRef.current = null;
+      toggleControls(true);
+    }, HeaderFooterHideDelayMs);
 
-  //     return () => {
-  //       if (timerIdRef.current) {
-  //         clearTimeout(timerIdRef.current);
-  //       }
-  //     };
-  //   }
-  // }, [isHLSViewer]);
+    return clearTimer;
+  }, [clearTimer, toggleControls]);
 
-  /**
-   * TODO: disbaled Expended View animation in Webrtc flow
-   *
-   * Problem: Tiles Flatlist was not scrollable because Root Pressable was registering screen taps.
-   * Solution: Try using Tab Gesture detector instead on Pressable component
-   */
+  const tapGesture = Gesture.Tap()
+    .onEnd(() => toggleControls())
+    .requireExternalGestureToFail();
+
   return (
-    <Pressable
-      onPress={toggleControls}
-      style={styles.container}
-      disabled={isHLSViewer || true}
-    >
+    <View style={styles.container}>
       <HMSStatusBar hidden={controlsHidden} barStyle={'light-content'} />
 
-      <View style={styles.reconnectionWrapper}>
-        {isPipModeActive || isLandscapeOrientation ? null : (
-          <AnimatedHeader offset={offset}>
-            <Header transparent={isHLSViewer} showControls={!isHLSViewer} />
-          </AnimatedHeader>
-        )}
+      <GestureDetector gesture={tapGesture}>
+        <View collapsable={false} style={styles.container}>
+          {isPipModeActive ? null : (
+            <AnimatedHeader offset={offset}>
+              <Header transparent={isHLSViewer} showControls={!isHLSViewer} />
+            </AnimatedHeader>
+          )}
 
-        <DisplayView offset={offset} peerTrackNodes={peerTrackNodes} />
+          <DisplayView offset={offset} peerTrackNodes={peerTrackNodes} />
 
-        {/* <ReconnectionView /> */}
-      </View>
-
-      {isPipModeActive ? null : isHLSViewer ? (
-        <HLSFooter offset={offset} />
-      ) : (
-        <AnimatedFooter offset={offset}>
-          <Footer />
-        </AnimatedFooter>
-      )}
-    </Pressable>
+          {isPipModeActive ? null : isHLSViewer ? (
+            <HLSFooter offset={offset} />
+          ) : (
+            <AnimatedFooter offset={offset}>
+              <Footer />
+            </AnimatedFooter>
+          )}
+        </View>
+      </GestureDetector>
+    </View>
   );
 };
 

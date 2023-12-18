@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { PeerTrackNode } from '../utils/types';
 import { useRTCStatsListeners } from '../utils/hooks';
@@ -16,7 +15,6 @@ import {
   useHMSReconnection,
   useHMSRemovedFromRoomUpdate,
   useHMSRoomStyle,
-  useIsHLSViewer,
   usePIPListener,
 } from '../hooks-util';
 import { MeetingScreenContent } from './MeetingScreenContent';
@@ -31,8 +29,6 @@ export const Meeting: React.FC<MeetingProps> = ({ peerTrackNodes }) => {
   const startingHLSStream = useSelector(
     (state: RootState) => state.app.startingHLSStream
   );
-
-  const isHLSViewer = useIsHLSViewer();
 
   // TODO: Fetch latest Room and localPeer on mount of this component?
 
@@ -76,23 +72,12 @@ export const Meeting: React.FC<MeetingProps> = ({ peerTrackNodes }) => {
     return <HMSHLSStreamLoading />;
   }
 
-  const Container = isHLSViewer ? View : SafeAreaView;
-
-  /**
-   * TODO: disbaled Expended View animation in Webrtc flow
-   *
-   * Problem: Tiles Flatlist was not scrollable because Root Pressable was registering screen taps.
-   * Solution: Try using Tab Gesture detector instead on Pressable component
-   */
   return (
-    <Container
-      style={[styles.container, containerStyles]}
-      edges={['left', 'right']}
-    >
+    <View style={[styles.container, containerStyles]}>
       <MeetingScreenContent peerTrackNodes={peerTrackNodes} />
 
       {/* {landscapeChatViewVisible ? <ChatView /> : null} */}
-    </Container>
+    </View>
   );
 };
 

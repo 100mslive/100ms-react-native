@@ -4,9 +4,11 @@ import { View, FlatList, StyleSheet, useWindowDimensions } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import type {
   LayoutChangeEvent,
+  LayoutRectangle,
   ViewToken,
 } from 'react-native';
 import type { HMSView, HMSPeer } from '@100mslive/react-native-hms';
+import { useSharedValue } from 'react-native-reanimated';
 
 import { DefaultModal } from './DefaultModal';
 import { SaveScreenshot } from './Modals';
@@ -46,7 +48,10 @@ export const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
     const hmsViewRefs = useRef<Record<string, ElementRef<typeof HMSView>>>({});
     const regularTilesFlatlistRef = useRef<FlatList<PeerTrackNode[]>>(null);
     const screenshareTilesFlatlistRef = useRef<FlatList<PeerTrackNode>>(null);
-    const [insetTileBoundingBox, setInsetTileBoundingBox] = useState<{ width: number | null, height: number | null }>({ width: null, height: null });
+    const [insetTileBoundingBox, setInsetTileBoundingBox] = useState<{
+      width: number | null;
+      height: number | null;
+    }>({ width: null, height: null });
 
     const isLandscapeOrientation = useIsLandscapeOrientation();
     const screenshareTilesAvailable = useSelector(
@@ -105,7 +110,10 @@ export const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
 
     const _handleLayoutChange = React.useCallback(
       ({ nativeEvent }: LayoutChangeEvent) => {
-        setInsetTileBoundingBox({ width: nativeEvent.layout.width, height: nativeEvent.layout.height });
+        setInsetTileBoundingBox({
+          width: nativeEvent.layout.width,
+          height: nativeEvent.layout.height,
+        });
       },
       []
     );

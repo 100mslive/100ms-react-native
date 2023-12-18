@@ -1,6 +1,9 @@
 import React, { memo } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 
 import { HMSManageCameraRotation } from './HMSManageCameraRotation';
 import { useHMSRoomStyle } from '../hooks-util';
@@ -18,6 +21,11 @@ const TOP_PADDING = 8;
 const BOTTOM_PADDING = 16;
 const CONTENT_HEIGHT = 42;
 export const HEADER_HEIGHT = TOP_PADDING + CONTENT_HEIGHT + BOTTOM_PADDING;
+
+export const useHeaderHeight = (excludeSafeArea: boolean = false) => {
+  const { top } = useSafeAreaInsets();
+  return (excludeSafeArea ? 0 : top) + HEADER_HEIGHT;
+};
 
 export const _Header: React.FC<HeaderProps> = ({
   transparent = false,
