@@ -6,14 +6,8 @@ concurrency:
 
 on:
   workflow_dispatch:
-  pull_request:
-    types:
-      - opened
-      - reopened
-      - synchronize
-      - ready_for_review
+  push:
     branches:
-      - main
       - develop
 
 permissions:
@@ -75,7 +69,6 @@ jobs:
           SLACK_ICON_EMMOJI: ":react:"
           SLACK_USERNAME: React Native Bot
           SLACK_WEBHOOK: ${{ secrets.SLACK_URL }}
-          SLACK_TITLE: ":react: 🎉 React Native Android App released! 🎊 :react: \n"
+          SLACK_TITLE: ":react: 🎉 React Native Android App released! 🎊 :react:"
           SLACK_MESSAGE: 📝 Changelog 🔗 https://github.com/100mslive/100ms-react-native/blob/${{ steps.extract_branch.outputs.branch }}/packages/react-native-room-kit/example/ExampleAppChangelog.txt
           SLACK_FOOTER: 🤖 Download from Firebase 👉 https://appdistribution.firebase.dev/i/7b7ab3b30e627c35
-
