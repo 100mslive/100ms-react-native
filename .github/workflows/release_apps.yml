@@ -128,6 +128,6 @@ jobs:
             ${{ secrets.ADHOCEXTENSION_MOBILEPROVISION_BASE64 }}
           code-signing-identity: 'iPhone Distribution'
           team-id: ${{ secrets.IOS_TEAM_ID }}
-          workspace-path: /packages/react-native-room-kit/example/ios/RNExample.xcworkspace
+          workspace-path: packages/react-native-room-kit/example/ios/RNExample.xcworkspace
           scheme: RNExample
           export-method: ad-hoc
