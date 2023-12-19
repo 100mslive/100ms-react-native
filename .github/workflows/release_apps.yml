@@ -117,46 +117,46 @@ jobs:
           cd ./packages/react-native-room-kit/example/ios
           pod install --repo-update
 
-      # - name: Build iOS App for Firebase App Distribution
-      #   uses: yukiarrr/ios-build-action@v1.11.1
-      #   with:
-      #     project-path: packages/react-native-room-kit/example/ios/RNExample.xcodeproj
-      #     p12-base64: ${{ secrets.IOS_P12_BASE64 }}
-      #     certificate-password: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
-      #     mobileprovision-base64: |
-      #       ${{ secrets.ADHOC_MOBILEPROVISION_BASE64 }}
-      #       ${{ secrets.ADHOCEXTENSION_MOBILEPROVISION_BASE64 }}
-      #     code-signing-identity: iPhone Distribution
-      #     team-id: ${{ secrets.IOS_TEAM_ID }}
-      #     workspace-path: packages/react-native-room-kit/example/ios/RNExample.xcworkspace
-      #     scheme: RNExample
-      #     export-method: ad-hoc
-      #     export-options: packages/react-native-room-kit/example/ios/ExportOptions.plist
-
-      - name: Build iOS App for TestFlight
+      - name: Build iOS App for Firebase App Distribution
         uses: yukiarrr/ios-build-action@v1.11.1
         with:
           project-path: packages/react-native-room-kit/example/ios/RNExample.xcodeproj
           p12-base64: ${{ secrets.IOS_P12_BASE64 }}
           certificate-password: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
           mobileprovision-base64: |
-            ${{ secrets.APPSTORE_MOBILEPROVISION_BASE64 }}
-            ${{ secrets.APPSTORE_BROADCAST_MOBILEPROVISION_BASE64 }}
-          code-signing-identity: Apple Distribution
+            ${{ secrets.ADHOC_MOBILEPROVISION_BASE64 }}
+            ${{ secrets.ADHOCEXTENSION_MOBILEPROVISION_BASE64 }}
+          code-signing-identity: iPhone Distribution
           team-id: ${{ secrets.IOS_TEAM_ID }}
           workspace-path: packages/react-native-room-kit/example/ios/RNExample.xcworkspace
           scheme: RNExample
-          export-method: app-store
-          export-options: packages/react-native-room-kit/example/ios/AppStoreExportOptions.plist
-          # output-path: ./packages/output.ipa
+          export-method: ad-hoc
+          export-options: packages/react-native-room-kit/example/ios/ExportOptions.plist
 
-      - name: Upload app to TestFlight
-        uses: apple-actions/upload-testflight-build@v1
-        with:
-          app-path: ./packages/output.ipa
-          issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
-          api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
-          api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+      # - name: Build iOS App for TestFlight
+      #   uses: yukiarrr/ios-build-action@v1.11.1
+      #   with:
+      #     project-path: packages/react-native-room-kit/example/ios/RNExample.xcodeproj
+      #     p12-base64: ${{ secrets.IOS_P12_BASE64 }}
+      #     certificate-password: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+      #     mobileprovision-base64: |
+      #       ${{ secrets.APPSTORE_MOBILEPROVISION_BASE64 }}
+      #       ${{ secrets.APPSTORE_BROADCAST_MOBILEPROVISION_BASE64 }}
+      #     code-signing-identity: Apple Distribution
+      #     team-id: ${{ secrets.IOS_TEAM_ID }}
+      #     workspace-path: packages/react-native-room-kit/example/ios/RNExample.xcworkspace
+      #     scheme: RNExample
+      #     export-method: app-store
+      #     export-options: packages/react-native-room-kit/example/ios/AppStoreExportOptions.plist
+      #     output-path: ./packages/output.ipa
+
+      # - name: Upload app to TestFlight
+      #   uses: apple-actions/upload-testflight-build@v1
+      #   with:
+      #     app-path: ./packages/output.ipa
+      #     issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+      #     api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
+      #     api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
 
       - name: Save IPA to workspace
         run: |
