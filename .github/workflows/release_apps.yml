@@ -133,6 +133,12 @@ jobs:
           export-method: ad-hoc
           export-options: packages/react-native-room-kit/example/ios/ExportOptions.plist
 
+      - name: Publish artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ipa
+          path: output.ipa
+
       # - name: Build iOS App for TestFlight
       #   uses: yukiarrr/ios-build-action@v1.11.1
       #   with:
@@ -169,6 +175,11 @@ jobs:
     timeout-minutes: 30
 
     steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ipa
+
       - name: Upload artifact to Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1.7.0
         with:
@@ -176,7 +187,7 @@ jobs:
           serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
           groups: internal, External
           releaseNotesFile: ./packages/react-native-room-kit/example/ExampleAppChangelog.txt
-          file: $GITHUB_WORKSPACE/output.ipa
+          file: ipa/output.ipa
 
       # - name: Post Slack Notification
       #   uses: rtCamp/action-slack-notify@v2.2.1
