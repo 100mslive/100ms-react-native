@@ -137,13 +137,44 @@ jobs:
           mobileprovision-base64: |
             ${{ secrets.ADHOC_MOBILEPROVISION_BASE64 }}
             ${{ secrets.ADHOCEXTENSION_MOBILEPROVISION_BASE64 }}
-          code-signing-identity: 'iPhone Distribution'
+          code-signing-identity: iPhone Distribution
           team-id: ${{ secrets.IOS_TEAM_ID }}
           workspace-path: packages/react-native-room-kit/example/ios/RNExample.xcworkspace
           scheme: RNExample
           export-method: ad-hoc
           export-options: packages/react-native-room-kit/example/ios/ExportOptions.plist
 
+      # - name: Build iOS App for TestFlight
+      #   uses: yukiarrr/ios-build-action@v1.11.1
+      #   with:
+      #     project-path: packages/react-native-room-kit/example/ios/RNExample.xcodeproj
+      #     p12-base64: ${{ secrets.IOS_P12_BASE64 }}
+      #     certificate-password: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+      #     mobileprovision-base64: |
+      #       ${{ secrets.APPSTORE_MOBILEPROVISION_BASE64 }}
+      #       ${{ secrets.APPSTORE_BROADCAST_MOBILEPROVISION_BASE64 }}
+      #     code-signing-identity: Apple Distribution
+      #     team-id: ${{ secrets.IOS_TEAM_ID }}
+      #     workspace-path: packages/react-native-room-kit/example/ios/RNExample.xcworkspace
+      #     scheme: RNExample
+      #     export-method: app-store
+      #     export-options: packages/react-native-room-kit/example/ios/AppStoreExportOptions.plist
+      #     output-path: ./packages/output.ipa
+
+      # - name: Upload app to TestFlight
+      #   uses: apple-actions/upload-testflight-build@v1
+      #   with:
+      #     app-path: ./packages/output.ipa
+      #     issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+      #     api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
+      #     api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+
+  send_ipa_firebase:
+    name: Send IPA to Firebase
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
       - name: Upload artifact to Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1.7.0
         with:
@@ -153,27 +184,14 @@ jobs:
           releaseNotesFile: ./packages/react-native-room-kit/example/ExampleAppChangelog.txt
           file: ./output.ipa
 
-      - name: Build iOS App for TestFlight
-        uses: yukiarrr/ios-build-action@v1.11.1
-        with:
-          project-path: packages/react-native-room-kit/example/ios/RNExample.xcodeproj
-          p12-base64: ${{ secrets.IOS_P12_BASE64 }}
-          certificate-password: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
-          mobileprovision-base64: |
-            ${{ secrets.APPSTORE_MOBILEPROVISION_BASE64 }}
-            ${{ secrets.APPSTORE_BROADCAST_MOBILEPROVISION_BASE64 }}
-          code-signing-identity: 'Apple Distribution'
-          team-id: ${{ secrets.IOS_TEAM_ID }}
-          workspace-path: packages/react-native-room-kit/example/ios/RNExample.xcworkspace
-          scheme: RNExample
-          export-method: app-store
-          export-options: packages/react-native-room-kit/example/ios/AppStoreExportOptions.plist
-          output-path: ./packages/output.ipa
-
-      - name: 'Upload app to TestFlight'
-        uses: apple-actions/upload-testflight-build@v1
-        with:
-          app-path: ./packages/output.ipa
-          issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
-          api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
-          api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+      # - name: Post Slack Notification
+      #   uses: rtCamp/action-slack-notify@v2.2.1
+      #   env:
+      #     SLACK_CHANNEL: dogfooding
+      #     SLACK_COLOR: ${{ job.status }}
+      #     SLACK_ICON_EMMOJI: ":react:"
+      #     SLACK_USERNAME: React Native Bot
+      #     SLACK_WEBHOOK: ${{ secrets.SLACK_URL }}
+      #     SLACK_TITLE: ":react: 🎉 React Native Android App released! 🎊 :react:"
+      #     SLACK_MESSAGE: 📝 Changelog 🔗 https://github.com/100mslive/100ms-react-native/blob/${{ steps.extract_branch.outputs.branch }}/packages/react-native-room-kit/example/ExampleAppChangelog.txt
+      #     SLACK_FOOTER: 🤖 Download from Firebase 👉 https://appdistribution.firebase.dev/i/7b7ab3b30e627c35
