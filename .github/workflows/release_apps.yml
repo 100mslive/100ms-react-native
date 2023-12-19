@@ -174,7 +174,11 @@ jobs:
     timeout-minutes: 30
 
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
       - name: Download artifact
+        id: download-artifact
         uses: actions/download-artifact@v4
         with:
           name: ipa
@@ -186,7 +190,7 @@ jobs:
           serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
           groups: internal, External
           releaseNotesFile: ./packages/react-native-room-kit/example/ExampleAppChangelog.txt
-          file: ipa
+          file: ${{ steps.download-artifact.outputs.download-path }}
 
       - name: Extract Branch Name
         shell: bash
