@@ -136,32 +136,32 @@ jobs:
       - name: Publish artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ipa
-          path: output.ipa
+          name: ipa-artifact
+          path: ./output.ipa
 
-      - name: Build iOS App for TestFlight
-        uses: yukiarrr/ios-build-action@v1.11.1
-        with:
-          project-path: packages/react-native-room-kit/example/ios/RNExample.xcodeproj
-          p12-base64: ${{ secrets.IOS_P12_BASE64 }}
-          certificate-password: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
-          mobileprovision-base64: |
-            ${{ secrets.APPSTORE_MOBILEPROVISION_BASE64 }}
-            ${{ secrets.APPSTORE_BROADCAST_MOBILEPROVISION_BASE64 }}
-          code-signing-identity: iPhone Distribution
-          team-id: ${{ secrets.IOS_TEAM_ID }}
-          workspace-path: packages/react-native-room-kit/example/ios/RNExample.xcworkspace
-          scheme: RNExample
-          export-options: packages/react-native-room-kit/example/ios/AppStoreExportOptions.plist
-          output-path: ./packages/output.ipa
+      # - name: Build iOS App for TestFlight
+      #   uses: yukiarrr/ios-build-action@v1.11.1
+      #   with:
+      #     project-path: packages/react-native-room-kit/example/ios/RNExample.xcodeproj
+      #     p12-base64: ${{ secrets.IOS_P12_BASE64 }}
+      #     certificate-password: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+      #     mobileprovision-base64: |
+      #       ${{ secrets.APPSTORE_MOBILEPROVISION_BASE64 }}
+      #       ${{ secrets.APPSTORE_BROADCAST_MOBILEPROVISION_BASE64 }}
+      #     code-signing-identity: iPhone Distribution
+      #     team-id: ${{ secrets.IOS_TEAM_ID }}
+      #     workspace-path: packages/react-native-room-kit/example/ios/RNExample.xcworkspace
+      #     scheme: RNExample
+      #     export-options: packages/react-native-room-kit/example/ios/AppStoreExportOptions.plist
+      #     output-path: ./packages/output.ipa
 
-      - name: Upload app to TestFlight
-        uses: apple-actions/upload-testflight-build@v1
-        with:
-          app-path: ./packages/output.ipa
-          issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
-          api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
-          api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+      # - name: Upload app to TestFlight
+      #   uses: apple-actions/upload-testflight-build@v1
+      #   with:
+      #     app-path: ./packages/output.ipa
+      #     issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+      #     api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
+      #     api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
 
   send_ipa_firebase:
     name: Send IPA to Firebase
@@ -170,19 +170,15 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
       - name: Download artifact
         id: download-artifact
         uses: actions/download-artifact@v4
         with:
-          name: ipa
+          name: ipa-artifact
 
-      - name: Unzip files
-        run: |
-          sudo apt-get install -y unzip
-          unzip ${{ steps.download-artifact.outputs.download-path }} -d ${{ steps.download-artifact.outputs.download-path }}
+      # - name: Unzip files
+      #   run: |
+      #     unzip ${{ steps.download-artifact.outputs.download-path }}/ipa.zip -d ${{ steps.download-artifact.outputs.download-path }}
 
       - name: Upload artifact to Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1.7.0
@@ -191,7 +187,7 @@ jobs:
           serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
           groups: internal, External
           releaseNotesFile: ./packages/react-native-room-kit/example/ExampleAppChangelog.txt
-          file: ${{ steps.download-artifact.outputs.download-path }}
+          file: ${{ steps.download-artifact.outputs.download-path }}/output.ipa
 
       - name: Extract Branch Name
         shell: bash
