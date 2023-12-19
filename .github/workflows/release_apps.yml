@@ -135,7 +135,7 @@ jobs:
 
       - name: Save IPA to workspace
         run: |
-          cp ./output.ipa $GITHUB_WORKSPACE/output.ipa
+          cp ./output.ipa $GITHUB_WORKSPACE
 
       # - name: Build iOS App for TestFlight
       #   uses: yukiarrr/ios-build-action@v1.11.1
