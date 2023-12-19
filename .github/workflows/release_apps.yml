@@ -132,7 +132,6 @@ jobs:
           scheme: RNExample
           export-method: ad-hoc
           export-options: packages/react-native-room-kit/example/ios/ExportOptions.plist
-        continue-on-error: true
 
       - name: Publish artifact
         uses: actions/upload-artifact@v4
@@ -155,7 +154,6 @@ jobs:
           scheme: RNExample
           export-options: packages/react-native-room-kit/example/ios/AppStoreExportOptions.plist
           output-path: ./packages/output.ipa
-        continue-on-error: true
 
       - name: Upload app to TestFlight
         uses: apple-actions/upload-testflight-build@v1
