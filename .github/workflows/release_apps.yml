@@ -111,17 +111,6 @@ jobs:
           cd ./example
           npm install
 
-      - name: Restore Pods cache
-        uses: actions/cache@v3.3.2
-        with:
-          path: |
-            packages/react-native-room-kit/example/ios/Pods
-            ~/Library/Caches/CocoaPods
-            ~/.cocoapods
-          key: ${{ runner.os }}-pods-${{ hashFiles('packages/react-native-room-kit/example/ios/Podfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pods-
-
       - name: Install Pods
         run: |
           sudo gem install cocoapods
@@ -143,6 +132,10 @@ jobs:
           scheme: RNExample
           export-method: ad-hoc
           export-options: packages/react-native-room-kit/example/ios/ExportOptions.plist
+
+      - name: Save IPA to workspace
+        run: |
+          cp ./output.ipa $GITHUB_WORKSPACE/output.ipa
 
       # - name: Build iOS App for TestFlight
       #   uses: yukiarrr/ios-build-action@v1.11.1
@@ -183,7 +176,7 @@ jobs:
           serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
           groups: internal, External
           releaseNotesFile: ./packages/react-native-room-kit/example/ExampleAppChangelog.txt
-          file: ./output.ipa
+          file: $GITHUB_WORKSPACE/output.ipa
 
       # - name: Post Slack Notification
       #   uses: rtCamp/action-slack-notify@v2.2.1
