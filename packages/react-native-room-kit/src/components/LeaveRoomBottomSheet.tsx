@@ -4,7 +4,11 @@ import { useSelector } from 'react-redux';
 import { HMSStreamingState } from '@100mslive/react-native-hms';
 
 import { LeaveIcon } from '../Icons';
-import { useHMSRoomStyleSheet, useLeaveMethods, useModalType } from '../hooks-util';
+import {
+  useHMSRoomStyleSheet,
+  useLeaveMethods,
+  useModalType,
+} from '../hooks-util';
 import type { RootState } from '../redux';
 import { BottomSheet } from './BottomSheet';
 import { StopIcon } from '../Icons';
@@ -27,7 +31,8 @@ export const LeaveRoomBottomSheet: React.FC<LeaveRoomBottomSheetProps> = () => {
 
   const isStreaming = useSelector(
     (state: RootState) =>
-      state.hmsStates.room?.hlsStreamingState?.state === HMSStreamingState.STARTED ?? false
+      state.hmsStates.room?.hlsStreamingState?.state ===
+        HMSStreamingState.STARTED ?? false
   );
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
@@ -119,10 +124,11 @@ export const LeaveRoomBottomSheet: React.FC<LeaveRoomBottomSheetProps> = () => {
           <LeaveIcon style={styles.icon} />
 
           <View style={styles.textContainer}>
-            <Text style={[styles.text, hmsRoomStyles.text]}>
-              Leave
-            </Text>
-            <Text testID={TestIds.leave_description} style={[styles.subtext, hmsRoomStyles.subtext]}>
+            <Text style={[styles.text, hmsRoomStyles.text]}>Leave</Text>
+            <Text
+              testID={TestIds.leave_description}
+              style={[styles.subtext, hmsRoomStyles.subtext]}
+            >
               Others will continue after you leave. You can join the session
               again.
             </Text>

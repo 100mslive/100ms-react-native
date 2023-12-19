@@ -47,7 +47,9 @@ export const PeerSettingsModalContent: React.FC<
     const mininode = state.app.miniviewPeerTrackNode;
     return mininode && mininode.id === peerTrackNode.id;
   });
-  const editUsernameDisabled = useSelector((state: RootState) => state.app.editUsernameDisabled);
+  const editUsernameDisabled = useSelector(
+    (state: RootState) => state.app.editUsernameDisabled
+  );
 
   const removeTextStyle = useHMSRoomStyle((theme) => ({
     color: theme.palette.alert_error_default,

@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
-  Image, Keyboard,
+  Image,
+  Keyboard,
   KeyboardAvoidingView,
   Linking,
   Platform,
