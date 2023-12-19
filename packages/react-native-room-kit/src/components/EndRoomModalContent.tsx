@@ -8,6 +8,7 @@ import { HMSDangerButton } from './HMSDangerButton';
 import type { RootState } from '../redux';
 import { OnLeaveReason } from '../utils/types';
 import { TestIds } from '../utils/constants';
+import { useIsHLSStreamingOn } from '../hooks-sdk';
 
 export interface EndRoomModalContentProps {
   dismissModal(): void;
@@ -38,10 +39,7 @@ export const EndRoomModalContent: React.FC<EndRoomModalContentProps> = ({
       state.hmsStates.localPeer?.role?.permissions?.hlsStreaming
   );
 
-  const isStreaming = useSelector(
-    (state: RootState) =>
-      state.hmsStates.room?.hlsStreamingState?.running ?? false
-  );
+  const isHLSStreaming = useIsHLSStreamingOn();
 
   return (
     <View style={styles.container}>
@@ -53,11 +51,11 @@ export const EndRoomModalContent: React.FC<EndRoomModalContentProps> = ({
             testID={TestIds.end_confirmation_heading}
             style={[styles.headerText, hmsRoomStyles.headerText]}
           >
-            {canStream && isStreaming
+            {canStream && isHLSStreaming
               ? 'End Stream'
               : canEndRoom
-              ? 'End Session'
-              : 'Leave'}
+                ? 'End Session'
+                : 'Leave'}
           </Text>
         </View>
 
@@ -74,23 +72,23 @@ export const EndRoomModalContent: React.FC<EndRoomModalContentProps> = ({
         testID={TestIds.end_confirmation_description}
         style={[styles.text, hmsRoomStyles.text]}
       >
-        {canStream && isStreaming
+        {canStream && isHLSStreaming
           ? 'The stream will end for everyone after they’ve watched it.'
           : canEndRoom
-          ? 'The session will end for everyone in the room immediately. '
-          : 'Others will continue after you leave. You can join the session again.'}
+            ? 'The session will end for everyone in the room immediately. '
+            : 'Others will continue after you leave. You can join the session again.'}
       </Text>
       <HMSDangerButton
         testID={TestIds.end_confirmation_cta}
         loading={false}
         onPress={() => {
-          if (canStream && isStreaming) {
-            leave(OnLeaveReason.LEAVE, true)
+          if (canStream && isHLSStreaming) {
+            leave(OnLeaveReason.LEAVE, true);
           } else {
             endRoom(OnLeaveReason.ROOM_END);
           }
         }}
-        title={canStream && isStreaming ? 'End Stream' : 'End Session'}
+        title={canStream && isHLSStreaming ? 'End Stream' : 'End Session'}
       />
     </View>
   );

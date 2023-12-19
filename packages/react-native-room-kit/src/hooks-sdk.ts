@@ -10,9 +10,12 @@ import {
 import {
   selectAllowedTracksToPublish,
   selectCanPublishTrack,
+  selectIsAnyStreamingOn,
+  selectIsHLSStreamingOn,
 } from './hooks-sdk-selectors';
 import { useCallback } from 'react';
 import type { HMSPeer } from '@100mslive/react-native-hms';
+import { HMSRecordingState } from '@100mslive/react-native-hms';
 
 export const useAllowedTracksToPublish = () => {
   return useSelector(selectAllowedTracksToPublish);
@@ -254,3 +257,46 @@ export const useHMSActions = () => {
     setRoomMuteLocally,
   };
 };
+
+export const useIsHLSStreamingOn = () => {
+  return useSelector(selectIsHLSStreamingOn);
+};
+
+export const useIsAnyStreamingOn = () => {
+  return useSelector(selectIsAnyStreamingOn);
+};
+
+export const useIsAnyRecordingOn = () => {
+  return useSelector((state: RootState) => {
+    const room = state.hmsStates.room;
+    return (
+      room?.browserRecordingState?.state ===
+        HMSRecordingState.STARTED ||
+      room?.browserRecordingState?.state ===
+        HMSRecordingState.RESUMED ||
+      room?.serverRecordingState?.state ===
+        HMSRecordingState.STARTED ||
+      room?.serverRecordingState?.state ===
+        HMSRecordingState.RESUMED ||
+      room?.hlsRecordingState?.state ===
+        HMSRecordingState.STARTED ||
+      room?.hlsRecordingState?.state ===
+        HMSRecordingState.RESUMED
+    );
+  });
+};
+
+export const useIsAnyRecordingPaused = () => {
+  const isRecordingPaused = useSelector((state: RootState) => {
+    const room = state.hmsStates.room;
+    return (
+      room?.browserRecordingState?.state ===
+        HMSRecordingState.PAUSED ||
+      room?.serverRecordingState?.state ===
+        HMSRecordingState.PAUSED ||
+      room?.hlsRecordingState?.state ===
+        HMSRecordingState.PAUSED
+    );
+  });
+  return isRecordingPaused;
+}

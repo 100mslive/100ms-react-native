@@ -32,6 +32,9 @@ export const _Footer: React.FC<FooterProps> = () => {
   const canPublishAudio = useCanPublishAudio();
   const canPublishVideo = useCanPublishVideo();
   const canPublishScreen = useCanPublishScreen();
+  const editUsernameDisabled = useSelector(
+    (state: RootState) => state.app.editUsernameDisabled
+  );
 
   const isViewer = !(canPublishAudio || canPublishVideo || canPublishScreen);
 
@@ -52,12 +55,18 @@ export const _Footer: React.FC<FooterProps> = () => {
       !!state.hmsStates.localPeer?.role?.permissions?.browserRecording
   );
 
+  const canEditUsernameFromRoomModal = isViewer && !editUsernameDisabled;
+
+  const canShowHandRaiseInFooter = !isOnStage && isViewer; // on_stage_exp object undefined && viewer -> show in footer
+  const canShowHandRaiseInRoomModal = !isOnStage && !isViewer; // on_stage_exp object undefined && publisher -> show in room modal
+
   const canShowOptions =
-    isViewer ||
-    canPublishScreen ||
     canShowParticipants ||
+    canPublishScreen ||
     canShowBRB ||
-    canStartRecording;
+    canShowHandRaiseInRoomModal ||
+    canStartRecording ||
+    canEditUsernameFromRoomModal;
 
   const footerActionButtons = useMemo(() => {
     const actions = [];
@@ -66,7 +75,7 @@ export const _Footer: React.FC<FooterProps> = () => {
       actions.push('chat');
     }
 
-    if (!isOnStage && isViewer) {
+    if (canShowHandRaiseInFooter) {
       actions.unshift('hand-raise');
     }
 
@@ -86,10 +95,9 @@ export const _Footer: React.FC<FooterProps> = () => {
 
     return actions;
   }, [
-    isOnStage,
+    canShowHandRaiseInFooter,
     canShowOptions,
     canShowChat,
-    isViewer,
     canPublishAudio,
     canPublishVideo,
   ]);
@@ -101,7 +109,7 @@ export const _Footer: React.FC<FooterProps> = () => {
   return (
     <SafeAreaView
       style={isHLSViewer ? null : containerStyles}
-      edges={['bottom']}
+      edges={['bottom', 'left', 'right']}
     >
       <View
         style={[
@@ -136,12 +144,15 @@ export const _Footer: React.FC<FooterProps> = () => {
   );
 };
 
-export const useFooterHeight = () => {
+export const useFooterHeight = (excludeSafeArea: boolean = false) => {
   const isHLSViewer = useIsHLSViewer();
   const { bottom } = useSafeAreaInsets();
 
   return (
-    bottom + (isHLSViewer ? 8 : 16) + (Platform.OS === 'android' ? 16 : 0) + 40
+    (excludeSafeArea ? 0 : bottom) +
+    (isHLSViewer ? 8 : 16) +
+    (Platform.OS === 'android' ? 16 : 0) +
+    40
   ); // bottomSafeArea + paddingTop + marginBottom + content
 };
 
@@ -152,7 +163,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: Platform.OS === 'android' ? 16 : 0, // TODO: need to correct hide aimation offsets because of this change
+    marginBottom: Platform.OS === 'android' ? 16 : 0, // TODO: need to correct hide animation offsets because of this change
   },
   hlsContainer: {
     paddingTop: 8,

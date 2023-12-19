@@ -47,6 +47,9 @@ export const PeerSettingsModalContent: React.FC<
     const mininode = state.app.miniviewPeerTrackNode;
     return mininode && mininode.id === peerTrackNode.id;
   });
+  const editUsernameDisabled = useSelector(
+    (state: RootState) => state.app.editUsernameDisabled
+  );
 
   const removeTextStyle = useHMSRoomStyle((theme) => ({
     color: theme.palette.alert_error_default,
@@ -123,7 +126,7 @@ export const PeerSettingsModalContent: React.FC<
 
       {/* Content */}
       <View style={styles.contentContainer}>
-        {peer.isLocal ? (
+        {peer.isLocal && !editUsernameDisabled ? (
           <SettingItem
             testID={TestIds.tile_modal_change_name_btn}
             text={'Change Name'}

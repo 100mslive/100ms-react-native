@@ -1,26 +1,25 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { ActivityIndicator, StyleSheet } from 'react-native';
+import { HMSRecordingState } from '@100mslive/react-native-hms';
 
 import type { RootState } from '../redux';
 import { RecordingIcon } from '../Icons';
 import { useHMSRoomColorPalette, useHMSRoomStyle } from '../hooks-util';
-import { HMSRecordingState } from '@100mslive/react-native-hms';
-
+import { useIsAnyRecordingOn, useIsAnyRecordingPaused } from '../hooks-sdk';
 
 export const HMSRecordingIndicator = () => {
-  const isRecordingOn = useSelector(
-    (state: RootState) =>
-      !!state.hmsStates.room?.browserRecordingState?.running ||
-      !!state.hmsStates.room?.serverRecordingState?.running ||
-      !!state.hmsStates.room?.hlsRecordingState?.running
-  );
+  const isRecordingOn = useIsAnyRecordingOn();
+  const isRecordingPaused = useIsAnyRecordingPaused();
   const startingOrStoppingRecording = useSelector(
     (state: RootState) =>
       state.app.startingOrStoppingRecording ||
-      state.hmsStates.room?.browserRecordingState.state === HMSRecordingState.STARTING ||
-      state.hmsStates.room?.serverRecordingState.state === HMSRecordingState.STARTING ||
-      state.hmsStates.room?.hlsRecordingState?.state === HMSRecordingState.STARTING
+      state.hmsStates.room?.browserRecordingState.state ===
+        HMSRecordingState.STARTING ||
+      state.hmsStates.room?.serverRecordingState.state ===
+        HMSRecordingState.STARTING ||
+      state.hmsStates.room?.hlsRecordingState?.state ===
+        HMSRecordingState.STARTING
   );
 
   const { on_surface_high: onSurfaceHighColor } = useHMSRoomColorPalette();
@@ -42,6 +41,12 @@ export const HMSRecordingIndicator = () => {
   if (isRecordingOn) {
     return (
       <RecordingIcon style={[styles.icon, styles.rightSpace, iconStyles]} />
+    );
+  }
+
+  if (isRecordingPaused) {
+    return (
+      <RecordingIcon type="pause" style={[styles.icon, styles.rightSpace]} />
     );
   }
 

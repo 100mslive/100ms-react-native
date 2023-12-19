@@ -1,7 +1,7 @@
 Board: https://100ms.atlassian.net/jira/software/projects/RN/boards/33
 
-- Beam Intermediate State Updates
-https://100ms.atlassian.net/browse/RN-114
+- Hide Top & Bottom bars after 5 seconds in Room
+https://100ms.atlassian.net/browse/RN-138
 
 - Real-Time Chat Controls
 https://100ms.atlassian.net/browse/RN-136
@@ -9,7 +9,7 @@ https://100ms.atlassian.net/browse/RN-136
 - Send to picker based on layout API
 https://100ms.atlassian.net/browse/RN-141
 
-Room Kit: 1.0.6
-React Native SDK: 1.9.5
-Android SDK: AN-1145-rbac-chat
-iOS SDK: 1.2.1
+Room Kit: 1.0.7
+React Native SDK: 1.9.6
+Android SDK: 2.8.3
+iOS SDK: 1.4.0

@@ -3,12 +3,17 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 
 import { LeaveIcon } from '../Icons';
-import { useHMSRoomStyleSheet, useLeaveMethods, useModalType } from '../hooks-util';
+import {
+  useHMSRoomStyleSheet,
+  useLeaveMethods,
+  useModalType,
+} from '../hooks-util';
 import type { RootState } from '../redux';
 import { BottomSheet } from './BottomSheet';
 import { StopIcon } from '../Icons';
 import { ModalTypes, OnLeaveReason } from '../utils/types';
 import { TestIds } from '../utils/constants';
+import { useIsHLSStreamingOn } from '../hooks-sdk';
 
 // const HEADER_CONTENT_HEIGHT = 24 + 8 + 8 + 2; // ICON_SIZE + TOP_PADDING + BOTTOM_PADDING + TOP&BOTTOM_BORDER_WIDTH
 // const HEADER_HEIGHT = 8 + HEADER_CONTENT_HEIGHT + 8; // TOP_HEADER_PADDING + HEADER_CONTENT_HEIGHT + BOTTOM_HEADER_PADDING
@@ -24,10 +29,7 @@ export const LeaveRoomBottomSheet: React.FC<LeaveRoomBottomSheetProps> = () => {
       state.hmsStates.localPeer?.role?.permissions?.hlsStreaming
   );
 
-  const isStreaming = useSelector(
-    (state: RootState) =>
-      state.hmsStates.room?.hlsStreamingState?.running ?? false
-  );
+  const isHLSStreaming = useIsHLSStreamingOn();
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     text: {
@@ -105,10 +107,9 @@ export const LeaveRoomBottomSheet: React.FC<LeaveRoomBottomSheetProps> = () => {
   return (
     <BottomSheet
       isVisible={modalVisibleType === ModalTypes.LEAVE_ROOM}
-      containerStyle={styles.container}
+      bottomOffsetSpace={0}
       dismissModal={onPopupDismiss}
       onModalHide={handlePopupHide}
-      animationOutTiming={700}
     >
       <View>
         <TouchableOpacity
@@ -119,17 +120,18 @@ export const LeaveRoomBottomSheet: React.FC<LeaveRoomBottomSheetProps> = () => {
           <LeaveIcon style={styles.icon} />
 
           <View style={styles.textContainer}>
-            <Text style={[styles.text, hmsRoomStyles.text]}>
-              Leave
-            </Text>
-            <Text testID={TestIds.leave_description} style={[styles.subtext, hmsRoomStyles.subtext]}>
+            <Text style={[styles.text, hmsRoomStyles.text]}>Leave</Text>
+            <Text
+              testID={TestIds.leave_description}
+              style={[styles.subtext, hmsRoomStyles.subtext]}
+            >
               Others will continue after you leave. You can join the session
               again.
             </Text>
           </View>
         </TouchableOpacity>
 
-        {canStream && isStreaming ? (
+        {canStream && isHLSStreaming ? (
           <TouchableOpacity
             testID={TestIds.end_stream_cta}
             style={[styles.button, hmsRoomStyles.endButton]}
@@ -176,9 +178,6 @@ export const LeaveRoomBottomSheet: React.FC<LeaveRoomBottomSheetProps> = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    paddingBottom: 0,
-  },
   button: {
     flexDirection: 'row',
     padding: 24,

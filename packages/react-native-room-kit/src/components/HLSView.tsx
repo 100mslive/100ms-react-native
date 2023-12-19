@@ -17,10 +17,12 @@ import { COLORS, hexToRgbA } from '../utils/theme';
 import { HMSHLSNotStarted } from './HMSHLSNotStarted';
 import { CrossCircleIcon } from '../Icons';
 import { useHMSRoomStyleSheet } from '../hooks-util';
+import { useIsHLSStreamingOn } from '../hooks-sdk';
 
 export const _HLSView: React.FC = () => {
   const dispatch = useDispatch();
-  const room = useSelector((state: RootState) => state.hmsStates.room);
+  const isHLSStreaming = useIsHLSStreamingOn();
+  const isStreamUrlPresent = useSelector((state: RootState) => !!state.hmsStates.room?.hlsStreamingState.variants?.[0]?.hlsStreamUrl);
   const hmsHlsPlayerRef = useRef<ComponentRef<typeof HMSHLSPlayer>>(null);
   const showHLSStats = useSelector(
     (state: RootState) => state.app.joinConfig.showHLSStats
@@ -128,49 +130,47 @@ export const _HLSView: React.FC = () => {
 
   return (
     <View style={styles.hlsView}>
-      {room?.hlsStreamingState?.running ? (
-        room?.hlsStreamingState?.variants?.slice(0, 1)?.map((variant, index) =>
-          variant?.hlsStreamUrl ? (
-            <View key={index} style={styles.hlsPlayerContainer}>
-              <HMSHLSPlayer
-                key={playerKey}
-                ref={hmsHlsPlayerRef}
-                enableStats={showHLSStats}
-                enableControls={enableHLSPlayerControls}
-              />
+      {isHLSStreaming ? (
+        isStreamUrlPresent ? (
+          <View style={styles.hlsPlayerContainer}>
+            <HMSHLSPlayer
+              key={playerKey}
+              ref={hmsHlsPlayerRef}
+              enableStats={showHLSStats}
+              enableControls={enableHLSPlayerControls}
+            />
 
-              <HLSPlayerEmoticons />
+            <HLSPlayerEmoticons />
 
-              {showHLSStats ? (
-                <HLSPlayerStatsView onClosePress={handleClosePress} />
-              ) : null}
+            {showHLSStats ? (
+              <HLSPlayerStatsView onClosePress={handleClosePress} />
+            ) : null}
 
-              {showCustomHLSPlayerControls ? (
-                <CustomControls handleControlPress={hlsPlayerActions} />
-              ) : null}
+            {showCustomHLSPlayerControls ? (
+              <CustomControls handleControlPress={hlsPlayerActions} />
+            ) : null}
 
-              {isPlaybackFailed ? (
-                <View
-                  style={[
-                    styles.playbackFailedContainer,
-                    hmsRoomStyles.failedContainer,
-                  ]}
+            {isPlaybackFailed ? (
+              <View
+                style={[
+                  styles.playbackFailedContainer,
+                  hmsRoomStyles.failedContainer,
+                ]}
+              >
+                <CrossCircleIcon />
+
+                <Text
+                  style={[styles.playbackFailed, hmsRoomStyles.failedText]}
                 >
-                  <CrossCircleIcon />
-
-                  <Text
-                    style={[styles.playbackFailed, hmsRoomStyles.failedText]}
-                  >
-                    Playback Failed
-                  </Text>
-                </View>
-              ) : null}
-            </View>
-          ) : (
-            <View key={index} style={styles.textContainer}>
-              <Text style={styles.warningSubtitle}>Stream URL not found!</Text>
-            </View>
-          )
+                  Playback Failed
+                </Text>
+              </View>
+            ) : null}
+          </View>
+        ) : (
+          <View style={styles.textContainer}>
+            <Text style={styles.warningSubtitle}>Stream URL not found!</Text>
+          </View>
         )
       ) : (
         <HMSHLSNotStarted />

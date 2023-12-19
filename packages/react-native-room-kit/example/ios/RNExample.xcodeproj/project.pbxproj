@@ -24,7 +24,9 @@
 		999B5EE72A8231910089F358 /* IBMPlexSans-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 999B5EE32A8231910089F358 /* IBMPlexSans-SemiBold.ttf */; };
 		999B5EE82A8231910089F358 /* IBMPlexSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 999B5EE42A8231910089F358 /* IBMPlexSans-Regular.ttf */; };
 		99AE27522A797561001F944B /* Inter-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 99AE27512A797561001F944B /* Inter-SemiBold.ttf */; };
+		99ED4D8B2B3062BA007B4075 /* Dynamic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99ED4D8A2B3062BA007B4075 /* Dynamic.swift */; };
 		EC7543C02A7D039200F7BC6B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EC7543BF2A7D039200F7BC6B /* GoogleService-Info.plist */; };
+		EC8287DD2B3190AC000D6E7D /* Donuts-[remix].json in Resources */ = {isa = PBXBuildFile; fileRef = EC8287DC2B3190AC000D6E7D /* Donuts-[remix].json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -80,11 +82,14 @@
 		999B5EE32A8231910089F358 /* IBMPlexSans-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "IBMPlexSans-SemiBold.ttf"; sourceTree = "<group>"; };
 		999B5EE42A8231910089F358 /* IBMPlexSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "IBMPlexSans-Regular.ttf"; sourceTree = "<group>"; };
 		99AE27512A797561001F944B /* Inter-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-SemiBold.ttf"; sourceTree = "<group>"; };
+		99ED4D892B3062B9007B4075 /* RNExample-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RNExample-Bridging-Header.h"; sourceTree = "<group>"; };
+		99ED4D8A2B3062BA007B4075 /* Dynamic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dynamic.swift; sourceTree = "<group>"; };
 		ABFE59519B596E51CEFDCCC0 /* libPods-RNExample-RNExampleTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RNExample-RNExampleTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0A881CF5CF3F2B244570E2A /* Pods-RNExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNExample.debug.xcconfig"; path = "Target Support Files/Pods-RNExample/Pods-RNExample.debug.xcconfig"; sourceTree = "<group>"; };
 		D00AAFFCFCFDA5787532823F /* Pods-RNExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNExample.release.xcconfig"; path = "Target Support Files/Pods-RNExample/Pods-RNExample.release.xcconfig"; sourceTree = "<group>"; };
 		E04ECB31213039FA54FAB55F /* Pods-RNExampleBroadcastUpload.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNExampleBroadcastUpload.debug.xcconfig"; path = "Target Support Files/Pods-RNExampleBroadcastUpload/Pods-RNExampleBroadcastUpload.debug.xcconfig"; sourceTree = "<group>"; };
 		EC7543BF2A7D039200F7BC6B /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		EC8287DC2B3190AC000D6E7D /* Donuts-[remix].json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "Donuts-[remix].json"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -129,14 +134,17 @@
 		13B07FAE1A68108700A75B9A /* RNExample */ = {
 			isa = PBXGroup;
 			children = (
-				EC7543BF2A7D039200F7BC6B /* GoogleService-Info.plist */,
-				994EB88D2A69184700BAF2F7 /* RNExample.entitlements */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
+				EC8287DC2B3190AC000D6E7D /* Donuts-[remix].json */,
+				99ED4D8A2B3062BA007B4075 /* Dynamic.swift */,
+				EC7543BF2A7D039200F7BC6B /* GoogleService-Info.plist */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
+				99ED4D892B3062B9007B4075 /* RNExample-Bridging-Header.h */,
+				994EB88D2A69184700BAF2F7 /* RNExample.entitlements */,
 			);
 			name = RNExample;
 			sourceTree = "<group>";
@@ -279,7 +287,7 @@
 				LastUpgradeCheck = 1210;
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
-						LastSwiftMigration = 1120;
+						LastSwiftMigration = 1500;
 					};
 					994EB87D2A6914F000BAF2F7 = {
 						CreatedOnToolsVersion = 14.1;
@@ -312,6 +320,7 @@
 			files = (
 				994EB8782A65BA2E00BAF2F7 /* Inter-Medium.ttf in Resources */,
 				EC7543C02A7D039200F7BC6B /* GoogleService-Info.plist in Resources */,
+				EC8287DD2B3190AC000D6E7D /* Donuts-[remix].json in Resources */,
 				999B5EE72A8231910089F358 /* IBMPlexSans-SemiBold.ttf in Resources */,
 				994EB8792A65BA2E00BAF2F7 /* Inter-Regular.ttf in Resources */,
 				994EB8772A65BA2E00BAF2F7 /* Inter-Bold.ttf in Resources */,
@@ -452,6 +461,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				99ED4D8B2B3062BA007B4075 /* Dynamic.swift in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 			);
@@ -486,7 +496,7 @@
 				CODE_SIGN_ENTITLEMENTS = RNExample/RNExample.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 364;
+				CURRENT_PROJECT_VERSION = 386;
 				DEVELOPMENT_TEAM = 5N85PP82A9;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = RNExample/Info.plist;
@@ -504,6 +514,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = live.100ms.reactnative;
 				PRODUCT_NAME = RNExample;
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "RNExample-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -520,7 +531,7 @@
 				CODE_SIGN_ENTITLEMENTS = RNExample/RNExample.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 364;
+				CURRENT_PROJECT_VERSION = 386;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 5N85PP82A9;
 				INFOPLIST_FILE = RNExample/Info.plist;
@@ -539,6 +550,7 @@
 				PRODUCT_NAME = RNExample;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = ReactNativeDistributionCertificate;
+				SWIFT_OBJC_BRIDGING_HEADER = "RNExample-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
@@ -679,7 +691,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = RNExampleBroadcastUpload/RNExampleBroadcastUpload.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 364;
+				CURRENT_PROJECT_VERSION = 386;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 5N85PP82A9;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -721,7 +733,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 364;
+				CURRENT_PROJECT_VERSION = 386;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 5N85PP82A9;

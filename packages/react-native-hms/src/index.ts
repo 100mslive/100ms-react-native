@@ -80,6 +80,8 @@ export * from './classes/HMSQualityLimitationReasons';
 export * from './classes/HMSQualityLimitationReason';
 export * from './classes/HMSCameraControl';
 export * from './classes/HMSIOSAudioMode';
+export * from './classes/HMSRecordingState';
+export * from './classes/HMSStreamingState';
 export type {
   HMSSessionStore,
   JsonArray,
@@ -109,6 +111,8 @@ export { useHmsViewsResolutionsState } from './hooks/hmsviews';
 // 100ms Utilities
 export type { NotificationResult } from './utils/notification';
 export { checkNotifications } from './utils/notification';
+
+export * from './utils/keyboard';
 
 // 100ms types
 export * from './types';

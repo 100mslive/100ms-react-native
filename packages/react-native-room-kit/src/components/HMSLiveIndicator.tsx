@@ -1,31 +1,13 @@
 import * as React from 'react';
-import {
-  StyleSheet,
-  View,
-  Text,
-  Platform,
-  TouchableOpacity,
-} from 'react-native';
-import { useSelector } from 'react-redux';
+import { StyleSheet, View, Text, Platform } from 'react-native';
 
-import {
-  useHMSRoomStyleSheet,
-  useIsHLSViewer,
-  useShowChatAndParticipants,
-} from '../hooks-util';
-import { EyeIcon } from '../Icons';
-import { COLORS, hexToRgbA } from '../utils/theme';
-import type { RootState } from '../redux';
+import { useHMSRoomStyleSheet } from '../hooks-util';
+import { COLORS } from '../utils/theme';
 import { TestIds } from '../utils/constants';
+import { useIsAnyStreamingOn } from '../hooks-sdk';
 
 const _HMSLiveIndicator = () => {
-  const isHLSViewer = useIsHLSViewer();
-  const previewPeerCount = useSelector(
-    (state: RootState) => state.hmsStates.room?.peerCount
-  );
-  const live = useSelector(
-    (state: RootState) => !!state.hmsStates.room?.hlsStreamingState?.running
-  );
+  const live = useIsAnyStreamingOn();
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typograhy) => ({
     live: {
@@ -35,51 +17,20 @@ const _HMSLiveIndicator = () => {
       color: COLORS.WHITE,
       fontFamily: `${typograhy.font_family}-SemiBold`,
     },
-    viewers: {
-      backgroundColor: isHLSViewer
-        ? theme.palette.background_dim &&
-          hexToRgbA(theme.palette.background_dim, 0.64)
-        : undefined,
-      borderWidth: isHLSViewer ? 0 : 1,
-      borderColor: theme.palette.border_bright,
-    },
-    count: {
-      color: theme.palette.on_surface_high,
-      fontFamily: `${typograhy.font_family}-SemiBold`,
-    },
   }));
-
-  const { canShowParticipants, show } = useShowChatAndParticipants();
-
-  const showParticipantsSheet = () => {
-    show('participants');
-  };
 
   if (!live) {
     return null;
   }
 
   return (
-    <View style={styles.container}>
-      {/* Live */}
-      <View style={[styles.live, hmsRoomStyles.live]}>
-        <Text testID={TestIds.live_text} style={[styles.liveText, hmsRoomStyles.liveText]}>LIVE</Text>
-      </View>
-
-      {/* Viewer Count */}
-      {typeof previewPeerCount === 'number' ? (
-        <TouchableOpacity
-          style={[styles.viewers, hmsRoomStyles.viewers]}
-          onPress={showParticipantsSheet}
-          disabled={!canShowParticipants}
-        >
-          <EyeIcon testID={TestIds.peer_count_icon} />
-
-          <Text testID={TestIds.peer_count} style={[styles.count, hmsRoomStyles.count]}>
-            {previewPeerCount}
-          </Text>
-        </TouchableOpacity>
-      ) : null}
+    <View style={[styles.live, hmsRoomStyles.live]}>
+      <Text
+        testID={TestIds.live_text}
+        style={[styles.liveText, hmsRoomStyles.liveText]}
+      >
+        LIVE
+      </Text>
     </View>
   );
 };
@@ -87,13 +38,11 @@ const _HMSLiveIndicator = () => {
 export const HMSLiveIndicator = React.memo(_HMSLiveIndicator);
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-  },
   live: {
     paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingVertical: 6,
     borderRadius: 4,
+    marginRight: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -103,23 +52,5 @@ const styles = StyleSheet.create({
     letterSpacing: 1.5,
     textAlign: 'center',
     textAlignVertical: 'center',
-  },
-  viewers: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 4,
-    paddingRight: 8,
-    paddingLeft: 6,
-    marginLeft: 8,
-    borderRadius: 4,
-  },
-  count: {
-    fontSize: 10,
-    lineHeight: Platform.OS === 'android' ? 16 : undefined,
-    letterSpacing: 1.5,
-    textAlign: 'center',
-    textAlignVertical: 'center',
-
-    marginLeft: 4,
   },
 });

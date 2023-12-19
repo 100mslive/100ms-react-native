@@ -8,15 +8,16 @@ import Animated, {
   useDerivedValue,
   useSharedValue,
 } from 'react-native-reanimated';
+import type { SharedValue } from 'react-native-reanimated';
 
 export interface HMSKeyboardAvoidingViewProps {
   style?: StyleProp<Animated.AnimateStyle<StyleProp<ViewStyle>>>;
-  bottomOffset?: number;
+  bottomOffset?: number | SharedValue<number>;
 }
 
 export const HMSKeyboardAvoidingView: React.FC<
   HMSKeyboardAvoidingViewProps
-> = ({ children, style, bottomOffset=0 }) => {
+> = ({ children, style, bottomOffset = 0 }) => {
   const animatedKeyboard = useAnimatedKeyboard();
   const keyboardState = useSharedValue(KeyboardState.UNKNOWN);
 
@@ -74,7 +75,9 @@ export const HMSKeyboardAvoidingView: React.FC<
     }
   }, [animatedKeyboard, keyboardState]);
 
-  const initialPageY = useDerivedValue(() => bottomOffset, [bottomOffset]);
+  const initialPageY = useDerivedValue(() => {
+    return typeof bottomOffset === 'number' ? bottomOffset : bottomOffset.value;
+  }, [bottomOffset]);
 
   const keyboardAvoidStyle = useAnimatedStyle(() => {
     const keyboardHeight = animatedKeyboard.height.value;

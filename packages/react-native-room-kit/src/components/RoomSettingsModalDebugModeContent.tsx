@@ -26,6 +26,7 @@ import {
 } from '../redux/actions';
 import { ModalTypes, PipModes } from '../utils/types';
 import { useIsHLSViewer } from '../hooks-util';
+import { useIsHLSStreamingOn } from '../hooks-sdk';
 
 interface RoomSettingsModalDebugModeContentProps {
   newAudioMixingMode: HMSAudioMixingMode;
@@ -59,10 +60,7 @@ export const RoomSettingsModalDebugModeContent: React.FC<
   const localPeerRole = useSelector(
     (state: RootState) => state.hmsStates.localPeer?.role
   );
-  const isHLSStreaming = useSelector(
-    (state: RootState) =>
-      state.hmsStates.room?.hlsStreamingState?.running ?? false
-  );
+  const isHLSStreaming = useIsHLSStreamingOn();
 
   const pipModeStatus = useSelector(
     (state: RootState) => state.app.pipModeStatus

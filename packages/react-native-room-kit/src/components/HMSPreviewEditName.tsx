@@ -13,11 +13,22 @@ export const HMSPreviewEditName: React.FC<HMSPreviewEditNameProps> = () => {
   const dispatch = useDispatch();
   const { updateConfig } = useHMSConfig();
   const userName = useSelector((state: RootState) => state.user.userName);
+  const editUsernameDisabled = useSelector(
+    (state: RootState) => state.app.editUsernameDisabled
+  );
 
   const handleNameChange = (name: string) => {
     dispatch(changeUsername(name));
     updateConfig({ username: name });
   };
 
-  return <HMSTextInput testID={TestIds.enter_name} value={userName} onChangeText={handleNameChange} />;
+  return (
+    <HMSTextInput
+      editable={!editUsernameDisabled}
+      testID={TestIds.enter_name}
+      value={userName}
+      onChangeText={handleNameChange}
+      style={editUsernameDisabled ? { opacity: 0.5 } : null}
+    />
+  );
 };

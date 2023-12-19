@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
   useHMSRoomStyleSheet,
@@ -36,7 +37,7 @@ const _ChatAndParticipantsView: React.FC = () => {
     activeChatBottomSheetTab === 'Chat' && canShowChat && !overlayChatLayout;
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['left', 'right']}>
       <View
         style={[
           styles.contentContainer,
@@ -57,7 +58,7 @@ const _ChatAndParticipantsView: React.FC = () => {
 
       <ChatFilterBottomSheetView />
       <ChatMoreActionsSheetView />
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -70,7 +71,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
     paddingTop: 12,
-    paddingBottom: 32,
+    paddingBottom: Platform.OS === 'ios' ? 32 : 0,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
   },

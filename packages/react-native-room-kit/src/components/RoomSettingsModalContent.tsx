@@ -2,6 +2,7 @@ import * as React from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import type { TouchableOpacityProps } from 'react-native';
 import type { HMSAudioMixingMode } from '@100mslive/react-native-hms';
+import { HMSRecordingState } from '@100mslive/react-native-hms';
 import { useSelector } from 'react-redux';
 
 import type { RootState } from '../redux';
@@ -19,11 +20,12 @@ import { BottomSheet, useBottomSheetActions } from './BottomSheet';
 import {
   isPublishingAllowed,
   useHMSLayoutConfig,
+  useHMSRoomColorPalette,
   useHMSRoomStyleSheet,
   useShowChatAndParticipants,
   useStartRecording,
 } from '../hooks-util';
-import { useCanPublishScreen, useHMSActions } from '../hooks-sdk';
+import { useCanPublishScreen, useHMSActions, useIsAnyStreamingOn } from '../hooks-sdk';
 import { RoomSettingsModalDebugModeContent } from './RoomSettingsModalDebugModeContent';
 import { ParticipantsCount } from './ParticipantsCount';
 import { selectAllowedTracksToPublish } from '../hooks-sdk-selectors';
@@ -50,10 +52,16 @@ export const RoomSettingsModalContent: React.FC<
 
   const hmsActions = useHMSActions();
 
+  const { alert_error_default: alertErrorDefaultColor } =
+    useHMSRoomColorPalette();
+
   const isPublisher = useSelector((state: RootState) => {
     const localPeer = state.hmsStates.localPeer;
     return localPeer ? isPublishingAllowed(localPeer) : false;
   });
+  const editUsernameDisabled = useSelector(
+    (state: RootState) => state.app.editUsernameDisabled
+  );
 
   const { registerOnModalHideAction } = useBottomSheetActions();
 
@@ -128,10 +136,24 @@ export const RoomSettingsModalContent: React.FC<
     (state: RootState) =>
       !!state.hmsStates.localPeer?.role?.permissions?.browserRecording
   );
+  const isAnyStreamingOn = useIsAnyStreamingOn();
 
-  const isRecordingOn = useSelector(
-    (state: RootState) => !!state.hmsStates.room?.browserRecordingState?.running
+  const isRecordingOn = useSelector((state: RootState) => {
+    const room = state.hmsStates.room;
+    return (
+      room?.browserRecordingState?.state === HMSRecordingState.RESUMED ||
+      room?.browserRecordingState?.state === HMSRecordingState.STARTED
+    );
+  });
+  const isRecordingPaused = useSelector(
+    (state: RootState) =>
+      state.hmsStates.room?.browserRecordingState?.state === HMSRecordingState.PAUSED
   );
+  const isRecordingDisabled = useSelector((state: RootState) => {
+    const room = state.hmsStates.room;
+    return isAnyStreamingOn ||
+      (room?.browserRecordingState?.state === HMSRecordingState.STARTING);
+  });
 
   const { startRecording } = useStartRecording();
 
@@ -203,7 +225,9 @@ export const RoomSettingsModalContent: React.FC<
             },
             {
               id: 'share-screen',
-              testID: !!isLocalScreenShared ? TestIds.room_modal_stop_screen_share_btn : TestIds.room_modal_share_screen_btn,
+              testID: !!isLocalScreenShared
+                ? TestIds.room_modal_stop_screen_share_btn
+                : TestIds.room_modal_share_screen_btn,
               icon: <ScreenShareIcon style={{ width: 20, height: 20 }} />,
               label: isLocalScreenShared ? 'Sharing Screen' : 'Share Screen',
               pressHandler: handleScreenShareTogglePress,
@@ -212,7 +236,9 @@ export const RoomSettingsModalContent: React.FC<
             },
             {
               id: 'brb',
-              testID: isBRBOn ? TestIds.room_modal_stop_brb_btn : TestIds.room_modal_brb_btn,
+              testID: isBRBOn
+                ? TestIds.room_modal_stop_brb_btn
+                : TestIds.room_modal_brb_btn,
               icon: <BRBIcon style={{ width: 20, height: 20 }} />,
               label: isBRBOn ? "I'm Back" : 'Be Right Back',
               pressHandler: toggleBRB,
@@ -221,7 +247,9 @@ export const RoomSettingsModalContent: React.FC<
             },
             {
               id: 'raise-hand',
-              testID: isHandRaised ? TestIds.room_modal_hand_raised_btn : TestIds.room_modal_hand_raise_btn,
+              testID: isHandRaised
+                ? TestIds.room_modal_hand_raised_btn
+                : TestIds.room_modal_hand_raise_btn,
               icon: <HandIcon style={{ width: 20, height: 20 }} />,
               label: isHandRaised ? 'Hand Raised' : 'Raise Hand',
               pressHandler: toggleRaiseHand,
@@ -229,12 +257,29 @@ export const RoomSettingsModalContent: React.FC<
               hide: !showHandRaiseIcon, // Hide if can't publish screen
             },
             {
-              id: 'start-recording',
-              testID: isRecordingOn ? TestIds.room_modal_stop_recording_btn : TestIds.room_modal_start_recording_btn,
-              icon: <RecordingIcon style={{ width: 20, height: 20 }} />,
-              label: isRecordingOn ? 'Stop Recording' : 'Start Recording',
+              id: 'recording',
+              testID: isRecordingOn
+                ? TestIds.room_modal_stop_recording_btn
+                : TestIds.room_modal_start_recording_btn,
+              icon: (
+                <RecordingIcon
+                  type={isRecordingPaused ? 'pause' : 'on'}
+                  style={[
+                    { width: 20, height: 20 },
+                    isRecordingOn
+                      ? { tintColor: alertErrorDefaultColor }
+                      : null,
+                  ]}
+                />
+              ),
+              label: isRecordingOn
+                ? 'Recording'
+                : isRecordingPaused
+                  ? 'Recording Paused'
+                  : 'Record',
               pressHandler: handleRecordingTogglePress,
-              isActive: isRecordingOn,
+              isActive: false,
+              disabled: isRecordingDisabled,
               hide: !canStartRecording, // Hide if can't publish screen
             },
             {
@@ -244,7 +289,7 @@ export const RoomSettingsModalContent: React.FC<
               label: 'Change Name',
               pressHandler: changeName,
               isActive: false,
-              hide: isPublisher,
+              hide: isPublisher || editUsernameDisabled,
             },
           ].filter((itm) => !itm.hide),
           true
@@ -272,6 +317,7 @@ export const RoomSettingsModalContent: React.FC<
                               onPress={item.pressHandler}
                               text={item.label}
                               isActive={item.isActive}
+                              disabled={item.disabled}
                             />
 
                             {item.sibling}
@@ -296,6 +342,7 @@ type SettingItemProps = {
   text: string;
   icon: React.ReactElement;
   onPress(): void;
+  disabled?: TouchableOpacityProps['disabled'];
   testID?: TouchableOpacityProps['testID'];
   isActive?: boolean;
 };
@@ -305,6 +352,7 @@ const SettingItem: React.FC<SettingItemProps> = ({
   text,
   icon,
   onPress,
+  disabled,
   isActive = false,
 }) => {
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
@@ -320,7 +368,12 @@ const SettingItem: React.FC<SettingItemProps> = ({
   return (
     <TouchableOpacity
       testID={testID}
-      style={[styles.button, isActive ? hmsRoomStyles.button : null]}
+      disabled={disabled}
+      style={[
+        styles.button,
+        isActive ? hmsRoomStyles.button : null,
+        disabled ? { opacity: 0.6 } : null
+      ]}
       onPress={onPress}
     >
       {icon}

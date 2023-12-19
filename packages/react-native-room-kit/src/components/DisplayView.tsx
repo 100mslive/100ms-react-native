@@ -1,11 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { InteractionManager } from 'react-native';
+import { InteractionManager, View } from 'react-native';
 import { HMSTrack, HMSCameraControl } from '@100mslive/react-native-hms';
-import Animated, {
-  interpolate,
-  useAnimatedStyle,
-} from 'react-native-reanimated';
 import type { SharedValue } from 'react-native-reanimated';
 
 import { DefaultModal } from './DefaultModal';
@@ -132,19 +128,14 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
     setModalVisible(ModalTypes.STREAMING_QUALITY_SETTING, true);
   };
 
-  const animatedStyles = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateY: interpolate(offset.value, [0, 1], [4, 0]) }],
-    };
-  }, []);
-
   return (
-    <Animated.View style={[{ flex: 1 }, animatedStyles]}>
+    <View style={{ flex: 1 }}>
       {isHLSViewer ? (
         <HLSView />
       ) : (
         <WebrtcView
           ref={gridViewRef}
+          offset={offset}
           peerTrackNodes={peerTrackNodes}
           handlePeerTileMorePress={handlePeerTileMorePress}
         />
@@ -239,6 +230,6 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
           </DefaultModal>
         </>
       )}
-    </Animated.View>
+    </View>
   );
 };

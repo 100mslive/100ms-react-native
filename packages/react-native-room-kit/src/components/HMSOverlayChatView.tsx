@@ -3,6 +3,8 @@ import { useSelector } from 'react-redux';
 import { StyleSheet, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import MaskedView from '@react-native-masked-view/masked-view';
+import { useDerivedValue, interpolate } from 'react-native-reanimated';
+import type { SharedValue } from 'react-native-reanimated';
 
 import type { RootState } from '../redux';
 import { HMSKeyboardAvoidingView } from './HMSKeyboardAvoidingView';
@@ -23,7 +25,11 @@ const colors = [
 ];
 const colorLocations = [0, 0.4, 1];
 
-export const HLSChatView = () => {
+export interface HLSChatViewProps {
+  offset?: SharedValue<number>;
+}
+
+export const HLSChatView: React.FC<HLSChatViewProps> = ({ offset }) => {
   const footerHeight = useFooterHeight();
   const hmsNotificationsHeight = useHMSNotificationsHeight();
   const { chatState } = useHMSChatState();
@@ -32,11 +38,19 @@ export const HLSChatView = () => {
     (state: RootState) => state.chatWindow.sendTo !== null
   );
 
+  const chatBottomOffset = useDerivedValue(() => {
+    if (offset) {
+      return (
+        interpolate(offset.value, [0, 1], [0, footerHeight]) +
+        hmsNotificationsHeight
+      );
+    }
+    return footerHeight + hmsNotificationsHeight;
+  }, [offset, footerHeight, hmsNotificationsHeight]);
+
   return (
     <>
-      <HMSKeyboardAvoidingView
-        bottomOffset={footerHeight + hmsNotificationsHeight}
-      >
+      <HMSKeyboardAvoidingView bottomOffset={chatBottomOffset}>
         <MaskedView
           maskElement={
             <LinearGradient
