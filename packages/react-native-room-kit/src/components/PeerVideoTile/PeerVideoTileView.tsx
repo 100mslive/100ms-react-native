@@ -52,7 +52,9 @@ export const _PeerVideoTileView = React.forwardRef<
     const isPipModeActive = useSelector(
       (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE
     );
-    const editUsernameDisabled = useSelector((state: RootState) => state.app.editUsernameDisabled);
+    const editUsernameDisabled = useSelector(
+      (state: RootState) => state.app.editUsernameDisabled
+    );
 
     const onSpotlight = useSelector((state: RootState) => {
       const { onSpotlight } = isTileOnSpotlight(state.user.spotlightTrackId, {

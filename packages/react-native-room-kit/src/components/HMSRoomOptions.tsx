@@ -47,7 +47,10 @@ export const HMSRoomOptions: React.FC<HMSRoomOptionsProps> = () => {
 
   return (
     <View>
-      <PressableIcon testID={TestIds.room_options_btn} onPress={onSettingsPress}>
+      <PressableIcon
+        testID={TestIds.room_options_btn}
+        onPress={onSettingsPress}
+      >
         <HamburgerIcon />
       </PressableIcon>
 

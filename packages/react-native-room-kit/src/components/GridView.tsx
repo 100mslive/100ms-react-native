@@ -1,11 +1,14 @@
 import React, { useRef, useState, useImperativeHandle } from 'react';
 import type { ElementRef } from 'react';
-import { View, FlatList, StyleSheet, useWindowDimensions, Platform } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import type {
-  LayoutChangeEvent,
-  ViewToken,
+import {
+  View,
+  FlatList,
+  StyleSheet,
+  useWindowDimensions,
+  Platform,
 } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import type { LayoutChangeEvent, ViewToken } from 'react-native';
 import type { HMSView, HMSPeer } from '@100mslive/react-native-hms';
 
 import { DefaultModal } from './DefaultModal';
@@ -62,14 +65,20 @@ export const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
     // On Orientation change, scroll to first page of list
     React.useEffect(() => {
       if (screenshareTilesAvailable) {
-        screenshareTilesFlatlistRef.current?.scrollToOffset({ offset: 0, animated: false });
+        screenshareTilesFlatlistRef.current?.scrollToOffset({
+          offset: 0,
+          animated: false,
+        });
       }
     }, [screenshareTilesAvailable, isLandscapeOrientation]);
 
     // On Orientation change, scroll to first page of list
     React.useEffect(() => {
       if (regularTilesAvailable) {
-        regularTilesFlatlistRef.current?.scrollToOffset({ offset: 0, animated: false });
+        regularTilesFlatlistRef.current?.scrollToOffset({
+          offset: 0,
+          animated: false,
+        });
       }
     }, [regularTilesAvailable, isLandscapeOrientation]);
 
@@ -249,7 +258,7 @@ const RegularTiles = React.forwardRef<
       <FlatList
         ref={flatlistRef}
         horizontal={true}
-        style={Platform.OS === 'ios' ? {maxHeight: (safeHeight - 16)} : null}
+        style={Platform.OS === 'ios' ? { maxHeight: safeHeight - 16 } : null}
         data={pairedPeers}
         initialNumToRender={1}
         maxToRenderPerBatch={1}

@@ -13,7 +13,9 @@ export const HMSPreviewEditName: React.FC<HMSPreviewEditNameProps> = () => {
   const dispatch = useDispatch();
   const { updateConfig } = useHMSConfig();
   const userName = useSelector((state: RootState) => state.user.userName);
-  const editUsernameDisabled = useSelector((state: RootState) => state.app.editUsernameDisabled);
+  const editUsernameDisabled = useSelector(
+    (state: RootState) => state.app.editUsernameDisabled
+  );
 
   const handleNameChange = (name: string) => {
     dispatch(changeUsername(name));

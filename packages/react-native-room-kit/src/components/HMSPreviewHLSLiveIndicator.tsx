@@ -9,7 +9,9 @@ import { COLORS } from '../utils/theme';
 
 export const HMSPreviewHLSLiveIndicator = () => {
   const isHLSStreaming = useSelector(
-    (state: RootState) => state.hmsStates.room?.hlsStreamingState?.state === HMSStreamingState.STARTED
+    (state: RootState) =>
+      state.hmsStates.room?.hlsStreamingState?.state ===
+      HMSStreamingState.STARTED
   );
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({

@@ -54,7 +54,7 @@ static void InitializeFlipper(UIApplication *application) {
 
   Dynamic *t = [Dynamic new];
   UIView *animationUIView = (UIView *)[t createAnimationViewWithRootView:rootView lottieName:@"Donuts-[remix].json"];
-  animationUIView.backgroundColor = [UIColor colorWithRed:32.0 green:38.0 blue:49.0 alpha:1.0];
+  animationUIView.backgroundColor = [UIColor blackColor];
 
   [RNSplashScreen showLottieSplash:animationUIView inRootView:rootView];
 

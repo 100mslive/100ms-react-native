@@ -1,6 +1,10 @@
 import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import { SafeAreaView, useSafeAreaFrame, useSafeAreaInsets } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaFrame,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 import type { SharedValue } from 'react-native-reanimated';
 import Animated, {
   interpolate,
@@ -100,7 +104,7 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
     }
 
     return (
-      <SafeAreaView edges={['left','right']} style={{ flex: 1 }}>
+      <SafeAreaView edges={['left', 'right']} style={{ flex: 1 }}>
         <Animated.View style={headerPlaceholderAnimatedStyles} />
 
         <Animated.View style={animatedStyles}>

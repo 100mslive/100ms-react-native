@@ -51,28 +51,31 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
     }
   }, []);
 
-  const toggleControls = useCallback((fromTimeout: boolean = false) => {
-    'worklet';
-    if (
-      fromTimeout !== true &&
-      (keyboardState.value === KeyboardState.OPEN ||
-        keyboardState.value === KeyboardState.OPENING)
-    ) {
-      runOnJS(dismissKeyboard)();
-    } else {
-      runOnJS(clearTimer)();
-      cancelAnimation(offset);
-      offset.value = withTiming(
-        offset.value === 1 ? 0 : 1,
-        { duration: 200, easing: Easing.ease },
-        (finished) => {
-          if (finished) {
-            runOnJS(setControlsHidden)(offset.value === 0);
+  const toggleControls = useCallback(
+    (fromTimeout: boolean = false) => {
+      'worklet';
+      if (
+        fromTimeout !== true &&
+        (keyboardState.value === KeyboardState.OPEN ||
+          keyboardState.value === KeyboardState.OPENING)
+      ) {
+        runOnJS(dismissKeyboard)();
+      } else {
+        runOnJS(clearTimer)();
+        cancelAnimation(offset);
+        offset.value = withTiming(
+          offset.value === 1 ? 0 : 1,
+          { duration: 200, easing: Easing.ease },
+          (finished) => {
+            if (finished) {
+              runOnJS(setControlsHidden)(offset.value === 0);
+            }
           }
-        }
-      );
-    }
-  }, [dismissKeyboard, clearTimer]);
+        );
+      }
+    },
+    [dismissKeyboard, clearTimer]
+  );
 
   // Handles Auto hiding the controls for the first time
   // to make this feature discoverable
