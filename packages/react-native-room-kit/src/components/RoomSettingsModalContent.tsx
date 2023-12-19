@@ -25,7 +25,7 @@ import {
   useShowChatAndParticipants,
   useStartRecording,
 } from '../hooks-util';
-import { useCanPublishScreen, useHMSActions } from '../hooks-sdk';
+import { useCanPublishScreen, useHMSActions, useIsAnyStreamingOn } from '../hooks-sdk';
 import { RoomSettingsModalDebugModeContent } from './RoomSettingsModalDebugModeContent';
 import { ParticipantsCount } from './ParticipantsCount';
 import { selectAllowedTracksToPublish } from '../hooks-sdk-selectors';
@@ -136,19 +136,24 @@ export const RoomSettingsModalContent: React.FC<
     (state: RootState) =>
       !!state.hmsStates.localPeer?.role?.permissions?.browserRecording
   );
+  const isAnyStreamingOn = useIsAnyStreamingOn();
 
-  const isRecordingOn = useSelector(
-    (state: RootState) =>
-      state.hmsStates.room?.browserRecordingState?.state ===
-        HMSRecordingState.RESUMED ||
-      state.hmsStates.room?.browserRecordingState?.state ===
-        HMSRecordingState.STARTED
-  );
+  const isRecordingOn = useSelector((state: RootState) => {
+    const room = state.hmsStates.room;
+    return (
+      room?.browserRecordingState?.state === HMSRecordingState.RESUMED ||
+      room?.browserRecordingState?.state === HMSRecordingState.STARTED
+    );
+  });
   const isRecordingPaused = useSelector(
     (state: RootState) =>
-      state.hmsStates.room?.browserRecordingState?.state ===
-      HMSRecordingState.PAUSED
+      state.hmsStates.room?.browserRecordingState?.state === HMSRecordingState.PAUSED
   );
+  const isRecordingDisabled = useSelector((state: RootState) => {
+    const room = state.hmsStates.room;
+    return isAnyStreamingOn ||
+      (room?.browserRecordingState?.state === HMSRecordingState.STARTING);
+  });
 
   const { startRecording } = useStartRecording();
 
@@ -274,7 +279,7 @@ export const RoomSettingsModalContent: React.FC<
                   : 'Record',
               pressHandler: handleRecordingTogglePress,
               isActive: false,
-              disabled: isRecordingPaused,
+              disabled: isRecordingDisabled,
               hide: !canStartRecording, // Hide if can't publish screen
             },
             {
@@ -364,7 +369,11 @@ const SettingItem: React.FC<SettingItemProps> = ({
     <TouchableOpacity
       testID={testID}
       disabled={disabled}
-      style={[styles.button, isActive ? hmsRoomStyles.button : null]}
+      style={[
+        styles.button,
+        isActive ? hmsRoomStyles.button : null,
+        disabled ? { opacity: 0.6 } : null
+      ]}
       onPress={onPress}
     >
       {icon}

@@ -1,18 +1,12 @@
 import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { useSelector } from 'react-redux';
-import { HMSStreamingState } from '@100mslive/react-native-hms';
 
-import type { RootState } from '../redux';
 import { useHMSRoomStyleSheet } from '../hooks-util';
 import { COLORS } from '../utils/theme';
+import { useIsHLSStreamingOn } from '../hooks-sdk';
 
 export const HMSPreviewHLSLiveIndicator = () => {
-  const isHLSStreaming = useSelector(
-    (state: RootState) =>
-      state.hmsStates.room?.hlsStreamingState?.state ===
-      HMSStreamingState.STARTED
-  );
+  const isHLSStreaming = useIsHLSStreamingOn();
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     container: {
