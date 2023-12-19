@@ -51,7 +51,7 @@ jobs:
       #     ./gradlew assembleRelease
 
       # - name: Upload artifact to Firebase App Distribution
-      #   uses: wzieba/Firebase-Distribution-Github-Action@v1
+      #   uses: wzieba/Firebase-Distribution-Github-Action@v1.7.0
       #   with:
       #     appId: ${{ secrets.FIREBASE_APP_ID }}
       #     serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
@@ -79,7 +79,7 @@ jobs:
   release_ios_app:
     name: Release iOS App
     runs-on: macOS-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
 
     steps:
       - name: Checkout Repository
@@ -111,13 +111,24 @@ jobs:
           cd ./example
           npm install
 
+      - name: Restore Pods cache
+        uses: actions/cache@v3.3.2
+        with:
+          path: |
+            packages/react-native-room-kit/example/ios/Pods
+            ~/Library/Caches/CocoaPods
+            ~/.cocoapods
+          key: ${{ runner.os }}-pods-${{ hashFiles('packages/react-native-room-kit/example/ios/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-
+
       - name: Install Pods
         run: |
           sudo gem install cocoapods
           cd ./packages/react-native-room-kit/example/ios
-          pod install
+          pod install --repo-update
 
-      - name: Build IOS App
+      - name: Build iOS App for Firebase App Distribution
         uses: yukiarrr/ios-build-action@v1.11.1
         with:
           project-path: packages/react-native-room-kit/example/ios/RNExample.xcodeproj
@@ -132,3 +143,37 @@ jobs:
           scheme: RNExample
           export-method: ad-hoc
           export-options: packages/react-native-room-kit/example/ios/ExportOptions.plist
+
+      - name: Upload artifact to Firebase App Distribution
+        uses: wzieba/Firebase-Distribution-Github-Action@v1.7.0
+        with:
+          appId: ${{ secrets.FIREBASE_APP_ID }}
+          serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
+          groups: internal, External
+          releaseNotesFile: ./packages/react-native-room-kit/example/ExampleAppChangelog.txt
+          file: ./output.ipa
+
+      - name: Build iOS App for TestFlight
+        uses: yukiarrr/ios-build-action@v1.11.1
+        with:
+          project-path: packages/react-native-room-kit/example/ios/RNExample.xcodeproj
+          p12-base64: ${{ secrets.IOS_P12_BASE64 }}
+          certificate-password: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          mobileprovision-base64: |
+            ${{ secrets.APPSTORE_MOBILEPROVISION_BASE64 }}
+            ${{ secrets.APPSTORE_BROADCAST_MOBILEPROVISION_BASE64 }}
+          code-signing-identity: 'Apple Distribution'
+          team-id: ${{ secrets.IOS_TEAM_ID }}
+          workspace-path: packages/react-native-room-kit/example/ios/RNExample.xcworkspace
+          scheme: RNExample
+          export-method: app-store
+          export-options: packages/react-native-room-kit/example/ios/AppStoreExportOptions.plist
+          output-path: ./packages/output.ipa
+
+      - name: 'Upload app to TestFlight'
+        uses: apple-actions/upload-testflight-build@v1
+        with:
+          app-path: ./packages/output.ipa
+          issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+          api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
+          api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
