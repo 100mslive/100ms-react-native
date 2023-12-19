@@ -171,6 +171,7 @@ jobs:
 
   send_ipa_firebase:
     name: Send IPA to Firebase
+    needs: release_ios_app
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
