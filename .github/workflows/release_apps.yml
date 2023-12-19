@@ -133,10 +133,6 @@ jobs:
           export-method: ad-hoc
           export-options: packages/react-native-room-kit/example/ios/ExportOptions.plist
 
-      - name: Save IPA to workspace
-        run: |
-          cp ./output.ipa $GITHUB_WORKSPACE
-
       - name: Build iOS App for TestFlight
         uses: yukiarrr/ios-build-action@v1.11.1
         with:
@@ -161,6 +157,10 @@ jobs:
           issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
           api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
           api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+
+      - name: Save IPA to workspace
+        run: |
+          mv ./output.ipa $GITHUB_WORKSPACE
 
   send_ipa_firebase:
     name: Send IPA to Firebase
