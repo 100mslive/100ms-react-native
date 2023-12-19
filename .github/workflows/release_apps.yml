@@ -27,54 +27,54 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # - name: Setup Java
-      #   uses: actions/setup-java@v4
-      #   with:
-      #     java-version: 11
-      #     distribution: zulu
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: 11
+          distribution: zulu
 
-      # - name: Setup Node
-      #   uses: actions/setup-node@v4
-      #   with:
-      #     node-version: 16
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 16
 
-      # - name: Create Release APK
-      #   run: |
-      #     cd ./packages/react-native-hms
-      #     npm install
-      #     cd ../react-native-room-kit
-      #     npm install
-      #     cd ./example
-      #     npm install
-      #     cd ./android
-      #     chmod +x ./gradlew
-      #     ./gradlew assembleRelease
+      - name: Create Release APK
+        run: |
+          cd ./packages/react-native-hms
+          npm install
+          cd ../react-native-room-kit
+          npm install
+          cd ./example
+          npm install
+          cd ./android
+          chmod +x ./gradlew
+          ./gradlew assembleRelease
 
-      # - name: Upload artifact to Firebase App Distribution
-      #   uses: wzieba/Firebase-Distribution-Github-Action@v1.7.0
-      #   with:
-      #     appId: ${{ secrets.FIREBASE_APP_ID }}
-      #     serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
-      #     groups: internal, External
-      #     releaseNotesFile: ./packages/react-native-room-kit/example/ExampleAppChangelog.txt
-      #     file: ./packages/react-native-room-kit/example/android/app/build/outputs/apk/release/app-release.apk
+      - name: Upload artifact to Firebase App Distribution
+        uses: wzieba/Firebase-Distribution-Github-Action@v1.7.0
+        with:
+          appId: ${{ secrets.FIREBASE_APP_ID }}
+          serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
+          groups: internal, External
+          releaseNotesFile: ./packages/react-native-room-kit/example/ExampleAppChangelog.txt
+          file: ./packages/react-native-room-kit/example/android/app/build/outputs/apk/release/app-release.apk
 
-      # - name: Extract Branch Name
-      #   shell: bash
-      #   run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-      #   id: extract_branch
+      - name: Extract Branch Name
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: extract_branch
 
-      # - name: Post Slack Notification
-      #   uses: rtCamp/action-slack-notify@v2.2.1
-      #   env:
-      #     SLACK_CHANNEL: dogfooding
-      #     SLACK_COLOR: ${{ job.status }}
-      #     SLACK_ICON_EMMOJI: ":react:"
-      #     SLACK_USERNAME: React Native Bot
-      #     SLACK_WEBHOOK: ${{ secrets.SLACK_URL }}
-      #     SLACK_TITLE: ":react: 🎉 React Native Android App released! 🎊 :react:"
-      #     SLACK_MESSAGE: 📝 Changelog 🔗 https://github.com/100mslive/100ms-react-native/blob/${{ steps.extract_branch.outputs.branch }}/packages/react-native-room-kit/example/ExampleAppChangelog.txt
-      #     SLACK_FOOTER: 🤖 Download from Firebase 👉 https://appdistribution.firebase.dev/i/7b7ab3b30e627c35
+      - name: Post Slack Notification
+        uses: rtCamp/action-slack-notify@v2.2.1
+        env:
+          SLACK_CHANNEL: dogfooding
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_ICON_EMMOJI: ":react:"
+          SLACK_USERNAME: React Native Bot
+          SLACK_WEBHOOK: ${{ secrets.SLACK_URL }}
+          SLACK_TITLE: ":react: 🎉 React Native Android App released! 🎊 :react:"
+          SLACK_MESSAGE: 📝 Changelog 🔗 https://github.com/100mslive/100ms-react-native/blob/${{ steps.extract_branch.outputs.branch }}/packages/react-native-room-kit/example/ExampleAppChangelog.txt
+          SLACK_FOOTER: 🤖 Download from Firebase 👉 https://appdistribution.firebase.dev/i/7b7ab3b30e627c35
 
   release_ios_app:
     name: Release iOS App
@@ -115,88 +115,92 @@ jobs:
         run: |
           sudo gem install cocoapods
           cd ./packages/react-native-room-kit/example/ios
-          pod install --repo-update
+          pod install
 
-      - name: Build iOS App for Firebase App Distribution
-        uses: yukiarrr/ios-build-action@v1.11.1
-        with:
-          project-path: packages/react-native-room-kit/example/ios/RNExample.xcodeproj
-          p12-base64: ${{ secrets.IOS_P12_BASE64 }}
-          certificate-password: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
-          mobileprovision-base64: |
-            ${{ secrets.ADHOC_MOBILEPROVISION_BASE64 }}
-            ${{ secrets.ADHOCEXTENSION_MOBILEPROVISION_BASE64 }}
-          code-signing-identity: iPhone Distribution
-          team-id: ${{ secrets.IOS_TEAM_ID }}
-          workspace-path: packages/react-native-room-kit/example/ios/RNExample.xcworkspace
-          scheme: RNExample
-          export-method: ad-hoc
-          export-options: packages/react-native-room-kit/example/ios/ExportOptions.plist
-
-      - name: Publish artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ipa
-          path: output.ipa
-
-      # - name: Build iOS App for TestFlight
+      # - name: Build iOS App for Firebase App Distribution
       #   uses: yukiarrr/ios-build-action@v1.11.1
       #   with:
       #     project-path: packages/react-native-room-kit/example/ios/RNExample.xcodeproj
       #     p12-base64: ${{ secrets.IOS_P12_BASE64 }}
       #     certificate-password: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
       #     mobileprovision-base64: |
-      #       ${{ secrets.APPSTORE_MOBILEPROVISION_BASE64 }}
-      #       ${{ secrets.APPSTORE_BROADCAST_MOBILEPROVISION_BASE64 }}
-      #     code-signing-identity: Apple Distribution
+      #       ${{ secrets.ADHOC_MOBILEPROVISION_BASE64 }}
+      #       ${{ secrets.ADHOCEXTENSION_MOBILEPROVISION_BASE64 }}
+      #     code-signing-identity: iPhone Distribution
       #     team-id: ${{ secrets.IOS_TEAM_ID }}
       #     workspace-path: packages/react-native-room-kit/example/ios/RNExample.xcworkspace
       #     scheme: RNExample
-      #     export-method: app-store
-      #     export-options: packages/react-native-room-kit/example/ios/AppStoreExportOptions.plist
-      #     output-path: ./packages/output.ipa
+      #     export-method: ad-hoc
+      #     export-options: packages/react-native-room-kit/example/ios/ExportOptions.plist
 
-      # - name: Upload app to TestFlight
-      #   uses: apple-actions/upload-testflight-build@v1
+      # - name: Publish artifact
+      #   uses: actions/upload-artifact@v4
       #   with:
-      #     app-path: ./packages/output.ipa
-      #     issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
-      #     api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
-      #     api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+      #     name: ipa
+      #     path: output.ipa
+
+      - name: Build iOS App for TestFlight
+        uses: yukiarrr/ios-build-action@v1.11.1
+        with:
+          project-path: packages/react-native-room-kit/example/ios/RNExample.xcodeproj
+          p12-base64: ${{ secrets.IOS_P12_BASE64 }}
+          certificate-password: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          mobileprovision-base64: |
+            ${{ secrets.APPSTORE_MOBILEPROVISION_BASE64 }}
+            ${{ secrets.APPSTORE_BROADCAST_MOBILEPROVISION_BASE64 }}
+          code-signing-identity: Apple Distribution
+          team-id: ${{ secrets.IOS_TEAM_ID }}
+          workspace-path: packages/react-native-room-kit/example/ios/RNExample.xcworkspace
+          scheme: RNExample
+          export-method: app-store
+          export-options: packages/react-native-room-kit/example/ios/AppStoreExportOptions.plist
+
+      - name: Upload app to TestFlight
+        uses: apple-actions/upload-testflight-build@v1
+        with:
+          app-path: ./output.ipa
+          issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+          api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
+          api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
 
       # - name: Save IPA to workspace
       #   run: |
       #     mv ./output.ipa $GITHUB_WORKSPACE
 
-  send_ipa_firebase:
-    name: Send IPA to Firebase
-    needs: release_ios_app
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
+  # send_ipa_firebase:
+  #   name: Send IPA to Firebase
+  #   needs: release_ios_app
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 30
 
-    steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: ipa
+  #   steps:
+  #     - name: Download artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: ipa
 
-      - name: Upload artifact to Firebase App Distribution
-        uses: wzieba/Firebase-Distribution-Github-Action@v1.7.0
-        with:
-          appId: ${{ secrets.FIREBASE_APP_ID }}
-          serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
-          groups: internal, External
-          releaseNotesFile: ./packages/react-native-room-kit/example/ExampleAppChangelog.txt
-          file: ipa/output.ipa
+  #     - name: Upload artifact to Firebase App Distribution
+  #       uses: wzieba/Firebase-Distribution-Github-Action@v1.7.0
+  #       with:
+  #         appId: ${{ secrets.FIREBASE_APP_ID }}
+  #         serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
+  #         groups: internal, External
+  #         releaseNotesFile: ./packages/react-native-room-kit/example/ExampleAppChangelog.txt
+  #         file: ipa/output.ipa
 
-      # - name: Post Slack Notification
-      #   uses: rtCamp/action-slack-notify@v2.2.1
-      #   env:
-      #     SLACK_CHANNEL: dogfooding
-      #     SLACK_COLOR: ${{ job.status }}
-      #     SLACK_ICON_EMMOJI: ":react:"
-      #     SLACK_USERNAME: React Native Bot
-      #     SLACK_WEBHOOK: ${{ secrets.SLACK_URL }}
-      #     SLACK_TITLE: ":react: 🎉 React Native Android App released! 🎊 :react:"
-      #     SLACK_MESSAGE: 📝 Changelog 🔗 https://github.com/100mslive/100ms-react-native/blob/${{ steps.extract_branch.outputs.branch }}/packages/react-native-room-kit/example/ExampleAppChangelog.txt
-      #     SLACK_FOOTER: 🤖 Download from Firebase 👉 https://appdistribution.firebase.dev/i/7b7ab3b30e627c35
+      - name: Extract Branch Name
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: extract_branch
+
+      - name: Post Slack Notification
+        uses: rtCamp/action-slack-notify@v2.2.1
+        env:
+          SLACK_CHANNEL: dogfooding
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_ICON_EMMOJI: ":react:"
+          SLACK_USERNAME: React Native Bot
+          SLACK_WEBHOOK: ${{ secrets.SLACK_URL }}
+          SLACK_TITLE: ":react: 🎉 React Native iOS App released! 🎊 :react:"
+          SLACK_MESSAGE: 📝 Changelog 🔗 https://github.com/100mslive/100ms-react-native/blob/${{ steps.extract_branch.outputs.branch }}/packages/react-native-room-kit/example/ExampleAppChangelog.txt
+          SLACK_FOOTER: 🍎 Download from Firebase 👉 https://appdistribution.firebase.dev/i/bdfa6517b69c31d6 🍎 Download from TestFlight 👉 https://testflight.apple.com/join/v4bSIPad
