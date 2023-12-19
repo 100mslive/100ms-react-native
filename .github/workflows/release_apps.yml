@@ -137,30 +137,30 @@ jobs:
         run: |
           cp ./output.ipa $GITHUB_WORKSPACE
 
-      # - name: Build iOS App for TestFlight
-      #   uses: yukiarrr/ios-build-action@v1.11.1
-      #   with:
-      #     project-path: packages/react-native-room-kit/example/ios/RNExample.xcodeproj
-      #     p12-base64: ${{ secrets.IOS_P12_BASE64 }}
-      #     certificate-password: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
-      #     mobileprovision-base64: |
-      #       ${{ secrets.APPSTORE_MOBILEPROVISION_BASE64 }}
-      #       ${{ secrets.APPSTORE_BROADCAST_MOBILEPROVISION_BASE64 }}
-      #     code-signing-identity: Apple Distribution
-      #     team-id: ${{ secrets.IOS_TEAM_ID }}
-      #     workspace-path: packages/react-native-room-kit/example/ios/RNExample.xcworkspace
-      #     scheme: RNExample
-      #     export-method: app-store
-      #     export-options: packages/react-native-room-kit/example/ios/AppStoreExportOptions.plist
-      #     output-path: ./packages/output.ipa
+      - name: Build iOS App for TestFlight
+        uses: yukiarrr/ios-build-action@v1.11.1
+        with:
+          project-path: packages/react-native-room-kit/example/ios/RNExample.xcodeproj
+          p12-base64: ${{ secrets.IOS_P12_BASE64 }}
+          certificate-password: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          mobileprovision-base64: |
+            ${{ secrets.APPSTORE_MOBILEPROVISION_BASE64 }}
+            ${{ secrets.APPSTORE_BROADCAST_MOBILEPROVISION_BASE64 }}
+          code-signing-identity: Apple Distribution
+          team-id: ${{ secrets.IOS_TEAM_ID }}
+          workspace-path: packages/react-native-room-kit/example/ios/RNExample.xcworkspace
+          scheme: RNExample
+          export-method: app-store
+          export-options: packages/react-native-room-kit/example/ios/AppStoreExportOptions.plist
+          output-path: ./packages/output.ipa
 
-      # - name: Upload app to TestFlight
-      #   uses: apple-actions/upload-testflight-build@v1
-      #   with:
-      #     app-path: ./packages/output.ipa
-      #     issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
-      #     api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
-      #     api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+      - name: Upload app to TestFlight
+        uses: apple-actions/upload-testflight-build@v1
+        with:
+          app-path: ./packages/output.ipa
+          issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+          api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
+          api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
 
   send_ipa_firebase:
     name: Send IPA to Firebase
