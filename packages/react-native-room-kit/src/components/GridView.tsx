@@ -52,10 +52,27 @@ export const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
       height: number | null;
     }>({ width: null, height: null });
 
-    const isLandscapeOrientation = useIsLandscapeOrientation();
     const screenshareTilesAvailable = useSelector(
       (state: RootState) => state.app.screensharePeerTrackNodes.length > 0
     );
+    const regularTilesAvailable = pairedPeers.length > 0;
+
+    const isLandscapeOrientation = useIsLandscapeOrientation();
+
+    // On Orientation change, scroll to first page of list
+    React.useEffect(() => {
+      if (screenshareTilesAvailable) {
+        screenshareTilesFlatlistRef.current?.scrollToOffset({ offset: 0, animated: false });
+      }
+    }, [screenshareTilesAvailable, isLandscapeOrientation]);
+
+    // On Orientation change, scroll to first page of list
+    React.useEffect(() => {
+      if (regularTilesAvailable) {
+        regularTilesFlatlistRef.current?.scrollToOffset({ offset: 0, animated: false });
+      }
+    }, [regularTilesAvailable, isLandscapeOrientation]);
+
     const miniviewPeerTrackNodeExists = useSelector(
       (state: RootState) => !!state.app.miniviewPeerTrackNode
     );
