@@ -6,6 +6,7 @@ import {
   HMSHLSPlayer,
   HMSHLSPlayerPlaybackState,
   useHMSHLSPlayerPlaybackState,
+  HMSStreamingState,
 } from '@100mslive/react-native-hms';
 
 import type { RootState } from '../redux';
@@ -128,7 +129,7 @@ export const _HLSView: React.FC = () => {
 
   return (
     <View style={styles.hlsView}>
-      {room?.hlsStreamingState?.running ? (
+      {room?.hlsStreamingState?.state === HMSStreamingState.STARTED ? (
         room?.hlsStreamingState?.variants?.slice(0, 1)?.map((variant, index) =>
           variant?.hlsStreamUrl ? (
             <View key={index} style={styles.hlsPlayerContainer}>

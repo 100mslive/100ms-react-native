@@ -16,7 +16,6 @@ export const EndRoomModal: React.FC<EndRoomModalProps> = () => {
     <BottomSheet
       dismissModal={dismissModal}
       isVisible={modalVisibleType === ModalTypes.END_ROOM}
-      animationOutTiming={700}
     >
       <EndRoomModalContent dismissModal={dismissModal} />
     </BottomSheet>

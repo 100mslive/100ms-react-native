@@ -18,6 +18,7 @@ import live.hms.stats.PlayerStatsListener
 import live.hms.stats.model.PlayerStatsModel
 import live.hms.video.error.HMSException
 import live.hms.video.sdk.HMSSDK
+import live.hms.video.sdk.models.enums.HMSStreamingState
 import java.util.concurrent.TimeUnit
 
 @SuppressLint("ViewConstructor")
@@ -178,7 +179,7 @@ class HMSHLSPlayer(context: ReactContext) : FrameLayout(context) {
 
     val defaultURL: String? =
       hlsStreamingState?.let {
-        if (it.running) {
+        if (it.state == HMSStreamingState.STARTED) {
           it.variants?.get(0)?.hlsStreamUrl
         } else {
           null

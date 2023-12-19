@@ -107,7 +107,7 @@ export const ChatBroadcastFilter = { name: 'everyone' } as const;
 
 export const PeerListRefreshInterval = 5000; // in milliseconds
 
-export enum OnLeaveReason {  
+export enum OnLeaveReason {
   /**
    * User left the meeting room by pressing the "Leave" or "End Stream" button in Leave Modal
    */
@@ -128,6 +128,15 @@ export enum OnLeaveReason {
    * User left the meeting room by pressing the "end" button in PIP window
    */
   PIP = 'pip',
-};
+}
 
-export const TerminalExceptionCodes = [4005, 1003, 2000, "4005", "1003", "2000"];
+export const TerminalExceptionCodes = [
+  4005,
+  1003,
+  2000,
+  '4005',
+  '1003',
+  '2000',
+];
+
+export const HeaderFooterHideDelayMs = 5000;

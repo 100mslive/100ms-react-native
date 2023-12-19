@@ -54,6 +54,7 @@ type IntialStateType = {
   chatFilterSheetVisible: boolean;
   handleBackButton: boolean;
   autoEnterPipMode: boolean;
+  editUsernameDisabled: boolean;
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -85,6 +86,7 @@ const INITIAL_STATE: IntialStateType = {
   chatFilterSheetVisible: false,
   handleBackButton: false,
   autoEnterPipMode: false,
+  editUsernameDisabled: false,
 };
 
 const appReducer = (
@@ -299,6 +301,12 @@ const appReducer = (
         ...state,
         autoEnterPipMode: action.payload.autoEnterPipMode ?? INITIAL_STATE.autoEnterPipMode,
       };
+    }
+    case ActionTypes.SET_EDIT_USERNAME_DISABLED: {
+      return {
+        ...state,
+        editUsernameDisabled: action.payload.editUsernameDisabled ?? INITIAL_STATE.editUsernameDisabled,
+      }
     }
     case HmsStateActionTypes.CLEAR_STATES:
       return INITIAL_STATE;

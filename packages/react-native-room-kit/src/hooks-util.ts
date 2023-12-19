@@ -94,6 +94,7 @@ import {
   setActiveChatBottomSheetTab,
   setActiveSpeakers,
   setAutoEnterPipMode,
+  setEditUsernameDisabled,
   setFullScreenPeerTrackNode,
   setHMSLocalPeerState,
   setHMSRoleState,
@@ -151,6 +152,7 @@ import type { GridViewRefAttrs } from './components/GridView';
 import { getRoomLayout } from './modules/HMSManager';
 import { DEFAULT_THEME, DEFAULT_TYPOGRAPHY } from './utils/theme';
 import { NotificationTypes } from './types';
+import { KeyboardState, useSharedValue } from 'react-native-reanimated';
 
 export const useHMSListeners = (
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>
@@ -189,48 +191,6 @@ const useHMSRoomUpdate = (hmsInstance: HMSSDK) => {
         }
       } else if (type === HMSRoomUpdate.HLS_STREAMING_STATE_UPDATED) {
         dispatch(changeStartingHLSStream(false));
-      } else if (type === HMSRoomUpdate.RTMP_STREAMING_STATE_UPDATED) {
-        let streaming = room?.rtmpHMSRtmpStreamingState?.running;
-        const startAtDate = room?.rtmpHMSRtmpStreamingState?.startedAt;
-
-        let startTime: null | string = null;
-
-        if (startAtDate) {
-          let hours = startAtDate.getHours().toString();
-          let minutes = startAtDate.getMinutes()?.toString();
-          startTime = hours + ':' + minutes;
-        }
-
-        Toast.showWithGravity(
-          `RTMP Streaming ${
-            streaming
-              ? `Started ${startTime ? 'At ' + startTime : ''}`
-              : 'Stopped'
-          }`,
-          Toast.LONG,
-          Toast.TOP
-        );
-      } else if (type === HMSRoomUpdate.SERVER_RECORDING_STATE_UPDATED) {
-        let streaming = room?.serverRecordingState?.running;
-        const startAtDate = room?.serverRecordingState?.startedAt;
-
-        let startTime: null | string = null;
-
-        if (startAtDate) {
-          let hours = startAtDate.getHours().toString();
-          let minutes = startAtDate.getMinutes()?.toString();
-          startTime = hours + ':' + minutes;
-        }
-
-        Toast.showWithGravity(
-          `Server Recording ${
-            streaming
-              ? `Started ${startTime ? 'At ' + startTime : ''}`
-              : 'Stopped'
-          }`,
-          Toast.LONG,
-          Toast.TOP
-        );
       }
     };
 
@@ -2388,8 +2348,13 @@ export const useSavePropsToStore = (
   const { roomCode, options, onLeave, handleBackButton, autoEnterPipMode } =
     props;
 
+  dispatch(setPrebuiltData({ roomCode, options }));
+
   useEffect(() => {
-    dispatch(setPrebuiltData({ roomCode, options }));
+    const passedUserName = options?.userName;
+    if (passedUserName && passedUserName.length > 0) {
+      dispatch(setEditUsernameDisabled(true));
+    }
   }, [roomCode, options]);
 
   useEffect(() => {
@@ -2453,7 +2418,59 @@ export const useAndroidSoftInputAdjustResize = () => {
         if (currentSoftInputRef.current !== null) {
           setSoftInputMode(currentSoftInputRef.current);
         }
-      }
+      };
     }
   }, []);
+};
+
+export const useKeyboardState = () => {
+  const keyboardState = useSharedValue(KeyboardState.UNKNOWN);
+
+  useEffect(() => {
+    let didShowTimeoutId: null | NodeJS.Timeout = null;
+    let didHideTimeoutId: null | NodeJS.Timeout = null;
+
+    const didShowSubscription = Keyboard.addListener('keyboardDidShow', () => {
+      keyboardState.value = KeyboardState.OPENING;
+      if (didShowTimeoutId !== null) {
+        clearTimeout(didShowTimeoutId);
+      }
+      didShowTimeoutId = setTimeout(() => {
+        keyboardState.value = KeyboardState.OPEN;
+        didShowTimeoutId = null;
+      }, 400);
+    });
+
+    const didHideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+      keyboardState.value = KeyboardState.CLOSING;
+      if (didHideTimeoutId !== null) {
+        clearTimeout(didHideTimeoutId);
+      }
+      didHideTimeoutId = setTimeout(() => {
+        keyboardState.value = KeyboardState.CLOSED;
+        didHideTimeoutId = null;
+      }, 400);
+    });
+
+    return () => {
+      if (didShowTimeoutId !== null) {
+        clearTimeout(didShowTimeoutId);
+      }
+      if (didHideTimeoutId !== null) {
+        clearTimeout(didHideTimeoutId);
+      }
+      if ('remove' in didShowSubscription) {
+        didShowSubscription.remove();
+      } else {
+        Keyboard.removeSubscription(didShowSubscription);
+      }
+      if ('remove' in didHideSubscription) {
+        didHideSubscription.remove();
+      } else {
+        Keyboard.removeSubscription(didHideSubscription);
+      }
+    };
+  }, []);
+
+  return { keyboardState };
 };

@@ -149,7 +149,7 @@ class HMSHLSPlayer: UIView {
             return
         }
 
-        if hlsStreamingState.running && !hlsStreamingState.variants.isEmpty {
+        if hlsStreamingState.state == .started && !hlsStreamingState.variants.isEmpty {
             hmsHLSPlayer.play(hlsStreamingState.variants[0].meetingURL)
         }
     }

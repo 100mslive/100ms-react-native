@@ -56,8 +56,8 @@ export const MiniView: React.FC<Omit<MiniViewProps, 'insetMode'>> = ({
     usePeerMinimizedViewDimensions();
 
   const size = {
-    width: minimized ? minimizedViewWidth : (isLandscapeOrientation ? 178 : 104),
-    height: minimized ? minimizedViewHeigth : (isLandscapeOrientation ? 98 : 186),
+    width: minimized ? minimizedViewWidth : isLandscapeOrientation ? 178 : 104,
+    height: minimized ? minimizedViewHeigth : isLandscapeOrientation ? 98 : 186,
   };
 
   const dimensionStyles = {
@@ -86,7 +86,7 @@ export const MiniView: React.FC<Omit<MiniViewProps, 'insetMode'>> = ({
       cornerOffset.x,
       cornerOffset.topY,
       boundingBoxWidth,
-      boundingBoxHeight,
+      boundingBoxHeight
     );
 
     const finalX = snapPointX;
@@ -199,7 +199,7 @@ const getSnappingPoints = (
   xCornerOffset: number,
   yCornerOffset: number,
   boundingBoxWidth: number | null,
-  boundingBoxHeight: number | null,
+  boundingBoxHeight: number | null
 ) => {
   'worklet';
   if (!boundingBoxWidth || !boundingBoxHeight) {

@@ -3,6 +3,7 @@ import type {
   HLSLiveStreamingScreen,
   Layout,
 } from '@100mslive/types-prebuilt';
+import { HMSStreamingState } from '@100mslive/react-native-hms';
 import type { HMSRole } from '@100mslive/react-native-hms';
 import { JoinForm_JoinBtnType } from '@100mslive/types-prebuilt/elements/join_form';
 
@@ -46,7 +47,7 @@ export const selectShouldGoLive = (state: RootState) => {
   );
 
   const isHLSStreaming =
-    state.hmsStates.room?.hlsStreamingState?.running ?? false;
+    state.hmsStates.room?.hlsStreamingState?.state === HMSStreamingState.STARTED ?? false;
 
   const joinButtonType =
     layoutConfig?.screens?.preview?.default?.elements?.join_form

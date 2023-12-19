@@ -140,7 +140,7 @@ export const HMSRoomSetup = () => {
     }
   }, [
     // prebuiltCleanUp,
-    hmsInstance
+    hmsInstance,
   ]);
 
   // HMS Room, Peers, Track Listeners

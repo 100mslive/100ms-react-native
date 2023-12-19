@@ -17,7 +17,7 @@ export const HLSFooter: React.FC<HLSFooterProps> = ({ offset }) => {
 
   return (
     <AnimatedHLSFooter offset={offset} style={styles.animatedContainer}>
-      {overlayChatVisible ? <HLSChatView /> : null}
+      {overlayChatVisible ? <HLSChatView offset={offset} /> : null}
 
       <HMSNotifications />
 
