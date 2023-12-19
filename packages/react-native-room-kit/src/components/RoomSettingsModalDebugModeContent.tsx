@@ -62,7 +62,8 @@ export const RoomSettingsModalDebugModeContent: React.FC<
   );
   const isHLSStreaming = useSelector(
     (state: RootState) =>
-      state.hmsStates.room?.hlsStreamingState?.state === HMSStreamingState.STARTED ?? false
+      state.hmsStates.room?.hlsStreamingState?.state ===
+        HMSStreamingState.STARTED ?? false
   );
 
   const pipModeStatus = useSelector(

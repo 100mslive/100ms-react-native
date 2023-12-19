@@ -47,7 +47,8 @@ export const selectShouldGoLive = (state: RootState) => {
   );
 
   const isHLSStreaming =
-    state.hmsStates.room?.hlsStreamingState?.state === HMSStreamingState.STARTED ?? false;
+    state.hmsStates.room?.hlsStreamingState?.state ===
+      HMSStreamingState.STARTED ?? false;
 
   const joinButtonType =
     layoutConfig?.screens?.preview?.default?.elements?.join_form

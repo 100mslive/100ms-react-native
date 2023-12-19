@@ -41,7 +41,8 @@ export const EndRoomModalContent: React.FC<EndRoomModalContentProps> = ({
 
   const isStreaming = useSelector(
     (state: RootState) =>
-      state.hmsStates.room?.hlsStreamingState?.state === HMSStreamingState.STARTED ?? false
+      state.hmsStates.room?.hlsStreamingState?.state ===
+        HMSStreamingState.STARTED ?? false
   );
 
   return (
@@ -57,8 +58,8 @@ export const EndRoomModalContent: React.FC<EndRoomModalContentProps> = ({
             {canStream && isStreaming
               ? 'End Stream'
               : canEndRoom
-              ? 'End Session'
-              : 'Leave'}
+                ? 'End Session'
+                : 'Leave'}
           </Text>
         </View>
 
@@ -78,15 +79,15 @@ export const EndRoomModalContent: React.FC<EndRoomModalContentProps> = ({
         {canStream && isStreaming
           ? 'The stream will end for everyone after they’ve watched it.'
           : canEndRoom
-          ? 'The session will end for everyone in the room immediately. '
-          : 'Others will continue after you leave. You can join the session again.'}
+            ? 'The session will end for everyone in the room immediately. '
+            : 'Others will continue after you leave. You can join the session again.'}
       </Text>
       <HMSDangerButton
         testID={TestIds.end_confirmation_cta}
         loading={false}
         onPress={() => {
           if (canStream && isStreaming) {
-            leave(OnLeaveReason.LEAVE, true)
+            leave(OnLeaveReason.LEAVE, true);
           } else {
             endRoom(OnLeaveReason.ROOM_END);
           }

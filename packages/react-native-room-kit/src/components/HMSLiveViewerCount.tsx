@@ -1,10 +1,5 @@
 import * as React from 'react';
-import {
-  StyleSheet,
-  Text,
-  Platform,
-  TouchableOpacity,
-} from 'react-native';
+import { StyleSheet, Text, Platform, TouchableOpacity } from 'react-native';
 import { useSelector } from 'react-redux';
 import { HMSStreamingState } from '@100mslive/react-native-hms';
 
@@ -24,7 +19,9 @@ const _HMSLiveViewerCount = () => {
     (state: RootState) => state.hmsStates.room?.peerCount
   );
   const live = useSelector(
-    (state: RootState) => state.hmsStates.room?.hlsStreamingState?.state === HMSStreamingState.STARTED
+    (state: RootState) =>
+      state.hmsStates.room?.hlsStreamingState?.state ===
+      HMSStreamingState.STARTED
   );
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typograhy) => ({
@@ -60,7 +57,10 @@ const _HMSLiveViewerCount = () => {
     >
       <EyeIcon testID={TestIds.peer_count_icon} />
 
-      <Text testID={TestIds.peer_count} style={[styles.count, hmsRoomStyles.count]}>
+      <Text
+        testID={TestIds.peer_count}
+        style={[styles.count, hmsRoomStyles.count]}
+      >
         {previewPeerCount}
       </Text>
     </TouchableOpacity>
