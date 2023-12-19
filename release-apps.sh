@@ -59,7 +59,6 @@ perform_npm_actions
 P1=$!
 
 wait $P1
-
 release_android &
 P2=$!
 
