@@ -158,9 +158,9 @@ jobs:
       #     api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
       #     api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
 
-      - name: Save IPA to workspace
-        run: |
-          mv ./output.ipa $GITHUB_WORKSPACE
+      # - name: Save IPA to workspace
+      #   run: |
+      #     mv ./output.ipa $GITHUB_WORKSPACE
 
   send_ipa_firebase:
     name: Send IPA to Firebase
