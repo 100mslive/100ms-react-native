@@ -27,54 +27,54 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          java-version: 11
-          distribution: zulu
+      # - name: Setup Java
+      #   uses: actions/setup-java@v4
+      #   with:
+      #     java-version: 11
+      #     distribution: zulu
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 16
+      # - name: Setup Node
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: 16
 
-      - name: Create Release APK
-        run: |
-          cd ./packages/react-native-hms
-          npm install
-          cd ../react-native-room-kit
-          npm install
-          cd ./example
-          npm install
-          cd ./android
-          chmod +x ./gradlew
-          ./gradlew assembleRelease
+      # - name: Create Release APK
+      #   run: |
+      #     cd ./packages/react-native-hms
+      #     npm install
+      #     cd ../react-native-room-kit
+      #     npm install
+      #     cd ./example
+      #     npm install
+      #     cd ./android
+      #     chmod +x ./gradlew
+      #     ./gradlew assembleRelease
 
-      - name: Upload artifact to Firebase App Distribution
-        uses: wzieba/Firebase-Distribution-Github-Action@v1.7.0
-        with:
-          appId: ${{ secrets.FIREBASE_APP_ID }}
-          serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
-          groups: internal, External
-          releaseNotesFile: ./packages/react-native-room-kit/example/ExampleAppChangelog.txt
-          file: ./packages/react-native-room-kit/example/android/app/build/outputs/apk/release/app-release.apk
+      # - name: Upload artifact to Firebase App Distribution
+      #   uses: wzieba/Firebase-Distribution-Github-Action@v1.7.0
+      #   with:
+      #     appId: ${{ secrets.FIREBASE_APP_ID }}
+      #     serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
+      #     groups: internal, External
+      #     releaseNotesFile: ./packages/react-native-room-kit/example/ExampleAppChangelog.txt
+      #     file: ./packages/react-native-room-kit/example/android/app/build/outputs/apk/release/app-release.apk
 
-      - name: Extract Branch Name
-        shell: bash
-        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-        id: extract_branch
+      # - name: Extract Branch Name
+      #   shell: bash
+      #   run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+      #   id: extract_branch
 
-      - name: Post Slack Notification
-        uses: rtCamp/action-slack-notify@v2.2.1
-        env:
-          SLACK_CHANNEL: dogfooding
-          SLACK_COLOR: ${{ job.status }}
-          SLACK_ICON_EMMOJI: ":react:"
-          SLACK_USERNAME: React Native Bot
-          SLACK_WEBHOOK: ${{ secrets.SLACK_URL }}
-          SLACK_TITLE: ":react: 🎉 React Native Android App released! 🎊 :react:"
-          SLACK_MESSAGE: 📝 Changelog 🔗 https://github.com/100mslive/100ms-react-native/blob/${{ steps.extract_branch.outputs.branch }}/packages/react-native-room-kit/example/ExampleAppChangelog.txt
-          SLACK_FOOTER: 🤖 Download from Firebase 👉 https://appdistribution.firebase.dev/i/7b7ab3b30e627c35
+      # - name: Post Slack Notification
+      #   uses: rtCamp/action-slack-notify@v2.2.1
+      #   env:
+      #     SLACK_CHANNEL: dogfooding
+      #     SLACK_COLOR: ${{ job.status }}
+      #     SLACK_ICON_EMMOJI: ":react:"
+      #     SLACK_USERNAME: React Native Bot
+      #     SLACK_WEBHOOK: ${{ secrets.SLACK_URL }}
+      #     SLACK_TITLE: ":react: 🎉 React Native Android App released! 🎊 :react:"
+      #     SLACK_MESSAGE: 📝 Changelog 🔗 https://github.com/100mslive/100ms-react-native/blob/${{ steps.extract_branch.outputs.branch }}/packages/react-native-room-kit/example/ExampleAppChangelog.txt
+      #     SLACK_FOOTER: 🤖 Download from Firebase 👉 https://appdistribution.firebase.dev/i/7b7ab3b30e627c35
 
   release_ios_app:
     name: Release iOS App
@@ -178,6 +178,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ipa
+
+      - name: Unzip files
+        run: |
+          sudo apt-get install -y unzip
+          unzip ${{ steps.download-artifact.outputs.download-path }} -d ${{ steps.download-artifact.outputs.download-path }}
 
       - name: Upload artifact to Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1.7.0
