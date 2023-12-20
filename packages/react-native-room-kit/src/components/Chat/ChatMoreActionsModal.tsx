@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
+import { interpolate } from 'react-native-reanimated';
+import type { SharedValue } from 'react-native-reanimated';
 
 import { BottomSheet } from '../BottomSheet';
 import { useIsAllowedToSendMessage, useModalType } from '../../hooks-util';
@@ -10,7 +12,11 @@ import { useFooterHeight } from '../Footer';
 import { useHMSNotificationsHeight } from '../HMSNotifications';
 import type { RootState } from '../../redux';
 
-const _ChatMoreActionsModal = () => {
+export interface ChatMoreActionsModalProps {
+  offset?: SharedValue<number>;
+}
+
+const _ChatMoreActionsModal: React.FC<ChatMoreActionsModalProps> = ({ offset }) => {
   const { modalVisibleType, handleModalVisibleType } = useModalType();
 
   const footerHeight = useFooterHeight();
@@ -35,9 +41,9 @@ const _ChatMoreActionsModal = () => {
         styles.contentContainer,
         {
           bottom:
-            footerHeight +
+            (offset ? interpolate(offset.value, [0, 1], [0, footerHeight]) : footerHeight) +
             notificationsHeight +
-            (isMessageInputVisible ? 92 : 38),
+            (isMessageInputVisible ? 58 : 8),
         },
       ]}
     >

@@ -53,10 +53,7 @@ const _ChatMoreActionsSheetView: React.FC<
       <Animated.View
         entering={FadeIn.duration(150)}
         exiting={FadeOut.duration(150)}
-        style={[
-          styles.contentContainer,
-          { bottom: isMessageInputVisible ? 112 : 72 },
-        ]}
+        style={styles.contentContainer}
       >
         <ChatMoreActionsView />
       </Animated.View>
@@ -79,7 +76,8 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     position: 'absolute',
-    right: 16,
+    top: 60,
+    right: 48,
     overflow: 'hidden',
   },
 });

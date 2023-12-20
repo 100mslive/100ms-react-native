@@ -14,7 +14,7 @@ const _ChatMoreActionsView: React.FC<ChatMoreActionsViewProps> = ({
   onDismiss,
 }) => {
   const dispatch = useDispatch();
-  const { setChatState } = useHMSChatState();
+  const { chatState, setChatState } = useHMSChatState();
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     container: {
@@ -29,7 +29,7 @@ const _ChatMoreActionsView: React.FC<ChatMoreActionsViewProps> = ({
   }));
 
   const pauseChatHandler = () => {
-    setChatState(false);
+    setChatState(!chatState.enabled);
     if (onDismiss) {
       onDismiss();
     } else {
@@ -41,9 +41,9 @@ const _ChatMoreActionsView: React.FC<ChatMoreActionsViewProps> = ({
     <View style={[styles.container, hmsRoomStyles.container]}>
       <TouchableOpacity onPress={pauseChatHandler} style={styles.button}>
         <View style={styles.buttonWrapper}>
-          <PauseCircleIcon style={styles.buttonIcon} />
+          {chatState.enabled ? <PauseCircleIcon style={styles.buttonIcon} /> : null}
           <Text style={[styles.buttonText, hmsRoomStyles.buttonText]}>
-            Pause Chat
+            {chatState.enabled ? 'Pause Chat' : 'Resume Chat'}
           </Text>
         </View>
       </TouchableOpacity>

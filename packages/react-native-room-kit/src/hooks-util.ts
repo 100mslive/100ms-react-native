@@ -1061,7 +1061,9 @@ export const useHMSSessionStoreListeners = (
                     id: `chat-state-enabled-${Math.random()
                       .toString(16)
                       .slice(2)}`,
+                    icon: parsedData.enabled ? 'chat-on' : 'chat-off',
                     type: NotificationTypes.INFO,
+                    title: `Chat ${parsedData.enabled ? 'Resumed' : 'Paused'}`,
                     message: `Chat ${parsedData.enabled ? 'resumed' : 'paused'} ${
                       parsedData.updatedBy ? `by ${parsedData.updatedBy.userName}` : ''
                     }`,
@@ -2536,7 +2538,7 @@ export const useStartRecording = () => {
           addNotification({
             id: Math.random().toString(16).slice(2),
             type: NotificationTypes.ERROR,
-            message: error.message,
+            title: error.message,
           })
         );
       });

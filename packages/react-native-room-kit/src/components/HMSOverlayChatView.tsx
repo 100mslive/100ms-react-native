@@ -80,7 +80,7 @@ export const HLSChatView: React.FC<HLSChatViewProps> = ({ offset }) => {
       </HMSKeyboardAvoidingView>
 
       <ChatFilterBottomSheet />
-      <ChatMoreActionsModal />
+      <ChatMoreActionsModal offset={offset} />
     </>
   );
 };

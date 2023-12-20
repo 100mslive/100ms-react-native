@@ -135,7 +135,7 @@ export const HMSNotifications: React.FC<HMSNotificationsProps> = () => {
               <HMSNotification
                 icon={<AlertTriangleIcon type="line" />}
                 id={notification.id}
-                text={notification.message}
+                text={notification.title}
                 autoDismiss={false}
                 dismissable={true}
               />
@@ -143,7 +143,9 @@ export const HMSNotifications: React.FC<HMSNotificationsProps> = () => {
               'message' in notification ? (
               <HMSNotification
                 id={notification.id}
-                text={notification.message}
+                icon={notification.icon}
+                description={notification.message}
+                text={notification.title}
                 autoDismiss={true}
                 dismissable={true}
               />

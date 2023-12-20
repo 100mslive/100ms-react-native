@@ -43,6 +43,7 @@ import {
   peerTrackNodeExistForPeer,
 } from './peerTrackNodeUtils';
 import { MeetingState, NotificationTypes } from './types';
+import type { Notification } from './types';
 import { getJoinConfig } from './utils';
 import { FullScreenIndicator } from './components/FullScreenIndicator';
 import { HMSMeetingEnded } from './components/HMSMeetingEnded';
@@ -172,7 +173,7 @@ export const HMSRoomSetup = () => {
 
       if (meetingJoined) {
         const uid = Math.random().toString(16).slice(2);
-        const notificationPayload = terminalError
+        const notificationPayload: Notification = terminalError
           ? {
               id: uid,
               type: NotificationTypes.TERMINAL_ERROR,
@@ -181,7 +182,7 @@ export const HMSRoomSetup = () => {
           : {
               id: uid,
               type: NotificationTypes.ERROR,
-              message: error.description,
+              title: error.description,
             };
 
         dispatch(addNotification(notificationPayload));

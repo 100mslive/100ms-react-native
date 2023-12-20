@@ -24,6 +24,7 @@ import {
 } from '../../redux/actions';
 import { PressableIcon } from '../PressableIcon';
 import { ChatBroadcastFilter, ModalTypes } from '../../utils/types';
+import { hexToRgbA } from '../../utils/theme';
 
 interface ChatFilterBottomSheetOpenerProps {
   insetMode?: boolean;
@@ -48,12 +49,16 @@ const _ChatFilterBottomSheetOpener: React.FC<
         fontFamily: `${typography.font_family}-Regular`,
       },
       button: {
-        backgroundColor: theme.palette.surface_default,
-        borderColor: theme.palette.border_bright,
+        backgroundColor: insetMode
+          ? (theme.palette.background_dim && hexToRgbA(theme.palette.background_dim, 0.64))
+          : theme.palette.primary_default,
       },
       buttonText: {
         color: theme.palette.on_surface_high,
         fontFamily: `${typography.font_family}-Regular`,
+      },
+      moreAction: {
+        backgroundColor: theme.palette.background_dim && hexToRgbA(theme.palette.background_dim, 0.64),
       },
       moreActionIcon: {
         tintColor: insetMode
@@ -144,10 +149,13 @@ const _ChatFilterBottomSheetOpener: React.FC<
         <View />
       )}
 
-      {canDisableChat ? (
+      {canDisableChat && insetMode ? (
         <PressableIcon
           onPress={openChatMoreActionsSheet}
-          style={styles.moreAction}
+          style={[
+            styles.moreAction,
+            hmsRoomStyles.moreAction,
+          ]}
         >
           <ThreeDotsIcon stack="vertical" style={styles.moreActionIcon} />
         </PressableIcon>
@@ -184,7 +192,6 @@ const styles = StyleSheet.create({
     padding: 4,
     flexDirection: 'row',
     marginLeft: 8,
-    borderWidth: 1,
     borderRadius: 4,
     alignItems: 'center',
   },

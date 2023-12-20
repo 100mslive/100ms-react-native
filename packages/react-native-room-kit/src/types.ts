@@ -74,9 +74,9 @@ export enum NotificationTypes {
 
 export type Notification =
   | { id: string; type: NotificationTypes; }
-  | { id: string; type: NotificationTypes; message: string; }
-  | { id: string; type: NotificationTypes; peer: HMSPeer; }
-  | { id: string; type: NotificationTypes; exception: HMSException; }
+  | { id: string; type: NotificationTypes; icon?: string; message?: string; title: string; }
+  | { id: string; type: NotificationTypes; icon?: string; peer: HMSPeer; }
+  | { id: string; type: NotificationTypes; icon?: string; exception: HMSException; }
 
 export type PinnedMessage = {
   text: string;
