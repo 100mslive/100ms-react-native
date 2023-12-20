@@ -137,7 +137,7 @@ jobs:
         run: |
           cd ./packages/react-native-room-kit/example/ios
           npm install -g firebase-tools@12.9.1
-          firebase appdistribution:distribute RNExample.ipa --app 1:408505141940:ios:1d2339892d9ffd8cc325e1 --token 1//0gjWcMdJYEpEcCgYIARAAGBASNwF-L9IrcDSgY5biRN0sdBG_oa4rSkmwGdb4wv0Kf30mhAmWwg6UFHN-21NskMGsriwsjI7eRdI --release-notes-file ../ExampleAppChangelog.txt --groups internal,External
+          firebase appdistribution:distribute output.ipa --app 1:408505141940:ios:1d2339892d9ffd8cc325e1 --token 1//0gjWcMdJYEpEcCgYIARAAGBASNwF-L9IrcDSgY5biRN0sdBG_oa4rSkmwGdb4wv0Kf30mhAmWwg6UFHN-21NskMGsriwsjI7eRdI --release-notes-file ../ExampleAppChangelog.txt --groups internal,External
 
       # - name: Publish artifact
       #   uses: actions/upload-artifact@v4
