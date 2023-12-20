@@ -45,6 +45,15 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 let audioSettings = HMSHelper.getLocalAudioSettings(trackSettings?.value(forKey: "audio") as? NSDictionary, sdk, self?.delegate, id)
                 sdk.trackSettings = HMSTrackSettings(videoSettings: videoSettings, audioSettings: audioSettings)
             }
+            
+            NotificationCenter.default.addObserver(forName: UIApplication.willTerminateNotification,
+                                                   object: nil,
+                                                   queue: .main) { [weak self] notification in
+                print(#function, notification.name)
+                self?.hms?.leave{ success, error in
+                    print(#function, "leave invoked", success, error as Any)
+                }
+            }
         }
         self.delegate = manager
         self.id = id
