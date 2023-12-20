@@ -6,12 +6,14 @@ import {
   TouchableHighlight,
   View,
 } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import type { StyleProp, ViewStyle, TextStyle, ColorValue, TouchableHighlightProps } from 'react-native';
 
 export interface HMSBaseButtonProps {
   title: string;
   loading: boolean;
   onPress(): void;
+  wrapWithGestureDetector?: boolean;
   testID?: TouchableHighlightProps['testID'];
   underlayColor?: ColorValue | undefined;
   loaderColor?: ColorValue | undefined;
@@ -32,8 +34,9 @@ export const HMSBaseButton: React.FC<HMSBaseButtonProps> = ({
   textStyle,
   disabled,
   leftComponent,
+  wrapWithGestureDetector,
 }) => {
-  return (
+  const button = (
     <TouchableHighlight
       testID={testID}
       underlayColor={underlayColor}
@@ -63,6 +66,16 @@ export const HMSBaseButton: React.FC<HMSBaseButtonProps> = ({
       </>
     </TouchableHighlight>
   );
+
+  if (wrapWithGestureDetector) {
+    return (
+      <GestureDetector gesture={Gesture.Tap()}>
+        {button}
+      </GestureDetector>
+    );
+  }
+
+  return button;
 };
 
 const styles = StyleSheet.create({

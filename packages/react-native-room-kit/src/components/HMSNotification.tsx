@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useDispatch } from 'react-redux';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { StyleProp, ViewStyle, TextStyle, TextProps } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 import { useHMSRoomStyleSheet } from '../hooks-util';
 import { CloseIcon } from '../Icons';
@@ -55,6 +56,8 @@ export const HMSNotification: React.FC<HMSNotificationProps> = ({
         }
       : null);
 
+  const tapGesture = Gesture.Tap();
+
   const notification = (
     <View style={[styles.container, hmsRoomStyles.container, style]}>
       <View style={styles.leftWrapper}>
@@ -73,9 +76,11 @@ export const HMSNotification: React.FC<HMSNotificationProps> = ({
         {cta}
 
         {dismissNotification ? (
-          <TouchableOpacity onPress={dismissNotification}>
-            <CloseIcon />
-          </TouchableOpacity>
+          <GestureDetector gesture={tapGesture}>
+            <TouchableOpacity onPress={dismissNotification}>
+              <CloseIcon />
+            </TouchableOpacity>
+          </GestureDetector>
         ) : null}
       </View>
     </View>

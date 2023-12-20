@@ -67,6 +67,7 @@ export const _ChatPaused: React.FC<ChatPausedProps> = ({
           loading={false}
           onPress={resumeChatHandler}
           style={styles.resumeBtn}
+          wrapWithGestureDetector={true}
         />
       ) : null}
     </View>

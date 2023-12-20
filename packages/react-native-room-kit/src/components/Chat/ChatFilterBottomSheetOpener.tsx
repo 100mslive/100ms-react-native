@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 
 import {
   ChevronIcon,
@@ -91,6 +92,8 @@ const _ChatFilterBottomSheetOpener: React.FC<
     return null;
   }
 
+  const tapGesture = Gesture.Tap();
+
   return (
     <View style={styles.container}>
       {allowedToSendMessage ? (
@@ -107,33 +110,35 @@ const _ChatFilterBottomSheetOpener: React.FC<
                 }`}
           </Text>
 
-          <TouchableOpacity
-            disabled={filterSheetDisabled}
-            onPress={openChatFiltersSheet}
-            style={[
-              styles.button,
-              { paddingRight: filterSheetDisabled ? 8 : undefined },
-              hmsRoomStyles.button,
-            ]}
-          >
-            {selectedChatRecipient ? (
-              selectedChatRecipient === ChatBroadcastFilter ? (
-                <ParticipantsIcon style={styles.buttonIcon} />
+          <GestureDetector gesture={tapGesture}>
+            <TouchableOpacity
+              disabled={filterSheetDisabled}
+              onPress={openChatFiltersSheet}
+              style={[
+                styles.button,
+                { paddingRight: filterSheetDisabled ? 8 : undefined },
+                hmsRoomStyles.button,
+              ]}
+            >
+              {selectedChatRecipient ? (
+                selectedChatRecipient === ChatBroadcastFilter ? (
+                  <ParticipantsIcon style={styles.buttonIcon} />
+                ) : (
+                  <PersonIcon style={styles.buttonIcon} />
+                )
               ) : (
-                <PersonIcon style={styles.buttonIcon} />
-              )
-            ) : (
-              <SearchIcon style={styles.buttonIcon} />
-            )}
+                <SearchIcon style={styles.buttonIcon} />
+              )}
 
-            <Text style={[styles.buttonText, hmsRoomStyles.buttonText]}>
-              {selectedChatRecipient ? selectedChatRecipient.name : 'Search'}
-            </Text>
+              <Text style={[styles.buttonText, hmsRoomStyles.buttonText]}>
+                {selectedChatRecipient ? selectedChatRecipient.name : 'Search'}
+              </Text>
 
-            {filterSheetDisabled || !selectedChatRecipient ? null : (
-              <ChevronIcon direction="down" style={styles.buttonIcon} />
-            )}
-          </TouchableOpacity>
+              {filterSheetDisabled || !selectedChatRecipient ? null : (
+                <ChevronIcon direction="down" style={styles.buttonIcon} />
+              )}
+            </TouchableOpacity>
+          </GestureDetector>
         </View>
       ) : (
         <View />

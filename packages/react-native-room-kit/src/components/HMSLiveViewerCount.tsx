@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { StyleSheet, Text, Platform, TouchableOpacity } from 'react-native';
 import { useSelector } from 'react-redux';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 import {
   useHMSRoomStyleSheet,
@@ -37,6 +38,8 @@ const _HMSLiveViewerCount = () => {
 
   const { canShowParticipants, show } = useShowChatAndParticipants();
 
+  const tapGesture = React.useMemo(() => Gesture.Tap(), []);
+
   const showParticipantsSheet = () => {
     show('participants');
   };
@@ -46,20 +49,22 @@ const _HMSLiveViewerCount = () => {
   }
 
   return (
-    <TouchableOpacity
-      style={[styles.viewers, hmsRoomStyles.viewers]}
-      onPress={showParticipantsSheet}
-      disabled={!canShowParticipants}
-    >
-      <EyeIcon testID={TestIds.peer_count_icon} />
-
-      <Text
-        testID={TestIds.peer_count}
-        style={[styles.count, hmsRoomStyles.count]}
+    <GestureDetector gesture={tapGesture}>
+      <TouchableOpacity
+        style={[styles.viewers, hmsRoomStyles.viewers]}
+        onPress={showParticipantsSheet}
+        disabled={!canShowParticipants}
       >
-        {previewPeerCount}
-      </Text>
-    </TouchableOpacity>
+        <EyeIcon testID={TestIds.peer_count_icon} />
+
+        <Text
+          testID={TestIds.peer_count}
+          style={[styles.count, hmsRoomStyles.count]}
+        >
+          {previewPeerCount}
+        </Text>
+      </TouchableOpacity>
+    </GestureDetector>
   );
 };
 
