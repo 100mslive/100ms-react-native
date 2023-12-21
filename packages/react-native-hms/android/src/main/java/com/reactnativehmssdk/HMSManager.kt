@@ -72,6 +72,10 @@ class HMSManager(reactContext: ReactApplicationContext) :
         reactAppContext?.currentActivity?.enterPictureInPictureMode(pipParams)
       }
     }
+
+    fun onDestroy() {
+      hmsCollection["12345"]?.hmsSDK?.leave(null)
+    }
   }
 
   override fun getName(): String {
@@ -1328,10 +1332,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
     try {
       if (activity.componentName.shortClassName == ".MainActivity") {
         for (key in hmsCollection.keys) {
-          val hmsLocalPeer = hmsCollection[key]?.hmsSDK?.getLocalPeer()
-          if (hmsLocalPeer != null) {
-            hmsCollection[key]?.leave(null)
-          }
+            hmsCollection[key]?.leave(callback = null, fromPIP = false)
         }
         currentActivity?.application?.unregisterActivityLifecycleCallbacks(this)
         hmsCollection = mutableMapOf()

@@ -46,4 +46,10 @@ public class MainActivity extends ReactActivity {
     super.onUserLeaveHint();
     HMSManager.Companion.onUserLeaveHint();
   }
+
+  @Override
+  protected void onDestroy() {
+    super.onDestroy();
+    HMSManager.Companion.onDestroy();
+  }
 }
