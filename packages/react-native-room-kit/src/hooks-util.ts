@@ -1032,29 +1032,47 @@ export const useHMSSessionStoreListeners = (
         // Handle 'chatState' key values
         const handleChatStateChange = (data: JsonValue) => {
           try {
-            if (typeof data !== 'object' || Array.isArray(data) || data === null) {
+            if (
+              typeof data !== 'object' ||
+              Array.isArray(data) ||
+              data === null
+            ) {
               throw new Error('`data` is a falsy value');
             }
-
             if (!('enabled' in data)) {
               throw new Error("`data` doesn't have `enabled` property");
             }
 
             const parsedData = data as ChatState;
 
-            const appReduxState = store.getState().app;
-            const currentChatState = appReduxState.chatState;
+            const reduxState = store.getState();
+            const currentChatState = reduxState.app.chatState;
 
             if (parsedData.enabled === currentChatState?.enabled) {
               return;
             }
-            const notifications = appReduxState.notifications;
+
+            const currentLayoutConfig = selectLayoutConfigForRole(
+              reduxState.hmsStates.layoutConfig,
+              reduxState.hmsStates.localPeer?.role ?? null
+            );
+
+            const chatLayoutConfig =
+              selectChatLayoutConfig(currentLayoutConfig);
+
+            const isAllowedToSendMessage =
+              (chatLayoutConfig?.private_chat_enabled ||
+                chatLayoutConfig?.public_chat_enabled ||
+                (chatLayoutConfig?.roles_whitelist &&
+                  chatLayoutConfig?.roles_whitelist.length > 0)) ??
+              false;
 
             batch(() => {
               if (
-                notifications.findIndex((noti) =>
-                  noti.id.startsWith('chat-state-enabled')
-                ) < 0
+                isAllowedToSendMessage && // Only show notification when allowed to send message, AND
+                (!parsedData.enabled || // Chat is Paused, OR
+                  (currentChatState &&
+                    parsedData.enabled !== currentChatState.enabled)) // current Chat state is different from previous state
               ) {
                 dispatch(
                   addNotification({
@@ -2282,8 +2300,8 @@ export const useSendMessage = () => {
         'publishSettings' in sendingTo
           ? HMSMessageRecipientType.ROLES
           : 'peerID' in sendingTo
-          ? HMSMessageRecipientType.PEER
-          : HMSMessageRecipientType.BROADCAST,
+            ? HMSMessageRecipientType.PEER
+            : HMSMessageRecipientType.BROADCAST,
       recipientPeer: 'peerID' in sendingTo ? sendingTo : undefined,
       recipientRoles: 'publishSettings' in sendingTo ? [sendingTo] : undefined,
     });

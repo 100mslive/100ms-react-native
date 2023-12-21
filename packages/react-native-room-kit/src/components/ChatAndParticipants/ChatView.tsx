@@ -43,9 +43,9 @@ const _ChatView: React.FC<ChatViewProps> = () => {
             />
           ) : null}
         </>
-      ) : (
+      ) : isAllowedToSendMessage ? (
         <ChatPaused style={styles.chatPaused} />
-      )}
+      ) : null}
     </>
   );
 };
