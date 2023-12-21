@@ -58,6 +58,12 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         self.delegate = manager
         self.id = id
     }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self,
+                                                  name: UIApplication.willTerminateNotification,
+                                                  object: nil)
+    }
 
     // MARK: - Prebuilt
 
