@@ -2,6 +2,7 @@ package com.reactnativehmssdk
 
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.os.Build
 import com.facebook.react.bridge.*
 import com.facebook.react.bridge.UiThreadUtil.runOnUiThread
 import com.google.gson.JsonElement
@@ -52,6 +53,7 @@ class HMSRNSDK(
   private var sessionStore: HmsSessionStore? = null
   private val keyChangeObservers = mutableMapOf<String, HMSKeyChangeListener?>()
   private val peerListIterators = mutableMapOf<String, PeerListIterator>()
+  private var roomMutedLocally = false
 
   init {
     val builder = HMSSDK.Builder(reactApplicationContext)
@@ -136,6 +138,7 @@ class HMSRNSDK(
     sessionStore = null
     keyChangeObservers.clear()
     peerListIterators.clear()
+    roomMutedLocally = false
     HMSDecoder.clearRestrictDataStates()
   }
 
@@ -314,6 +317,13 @@ class HMSRNSDK(
 
             override fun onRemovedFromRoom(notification: HMSRemovedFromRoom) {
               super.onRemovedFromRoom(notification)
+
+              context.currentActivity?.let {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && it.isInPictureInPictureMode) {
+                  it.moveTaskToBack(false)
+                }
+              }
+
               if (eventsEnableStatus["ON_REMOVED_FROM_ROOM"] != true) {
                 cleanup() // resetting states and doing data cleanup
                 return
@@ -378,6 +388,19 @@ class HMSRNSDK(
               type: HMSRoomUpdate,
               hmsRoom: HMSRoom,
             ) {
+              val peerCount = hmsRoom.peerCount
+              if (
+                type == HMSRoomUpdate.ROOM_PEER_COUNT_UPDATED &&
+                peerCount != null &&
+                peerCount <= 1 // `peerCount` includes local peer
+              ) {
+                context.currentActivity?.let {
+                  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && it.isInPictureInPictureMode) {
+                    it.moveTaskToBack(false)
+                  }
+                }
+              }
+
               if (eventsEnableStatus["ON_ROOM_UPDATE"] != true) {
                 return
               }
@@ -398,6 +421,19 @@ class HMSRNSDK(
               track: HMSTrack,
               peer: HMSPeer,
             ) {
+              if (
+                roomMutedLocally &&
+                type == HMSTrackUpdate.TRACK_ADDED &&
+                track.type == HMSTrackType.AUDIO &&
+                !peer.isLocal
+              ) {
+                val room = hmsSDK?.getRoom()
+                val remoteAudioTrack = HMSHelper.getRemoteAudioTrackFromTrackId(track.trackId, room)
+                remoteAudioTrack?.let {
+                  it.isPlaybackAllowed = !roomMutedLocally
+                }
+              }
+
               if (eventsEnableStatus["ON_TRACK_UPDATE"] != true) {
                 return
               }
@@ -1262,14 +1298,21 @@ class HMSRNSDK(
     rejectCallback(callback, "Audio tracks not found")
   }
 
-  fun setPlaybackForAllAudio(data: ReadableMap, callback: Promise?) {
+  fun setPlaybackForAllAudio(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("mute", "Boolean")))
     if (requiredKeys === null) {
       val mute = data.getBoolean("mute")
-      val remotePeers = hmsSDK?.getRemotePeers()
+      self.roomMutedLocally = mute
 
-      remotePeers?.forEach() {
-        it.audioTrack?.isPlaybackAllowed = !mute
+      val allAudioTracks = HMSHelper.getAllAudioTracks(hmsSDK?.getRoom())
+
+      allAudioTracks?.forEach {
+        if (it is HMSRemoteAudioTrack) {
+          it.isPlaybackAllowed = !mute
+        }
       }
       callback?.resolve(true)
     } else {
@@ -1278,7 +1321,10 @@ class HMSRNSDK(
     }
   }
 
-  fun setPlaybackAllowed(data: ReadableMap, callback: Promise?) {
+  fun setPlaybackAllowed(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val requiredKeys =
       HMSHelper.getUnavailableRequiredKey(
         data,
@@ -1352,7 +1398,10 @@ class HMSRNSDK(
     callback?.resolve(roles)
   }
 
-  fun setVolume(data: ReadableMap, callback: Promise?) {
+  fun setVolume(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val requiredKeys =
       HMSHelper.getUnavailableRequiredKey(
         data,
@@ -1496,6 +1545,7 @@ class HMSRNSDK(
 
   fun startScreenshare(callback: Promise?) {
     screenshareCallback = callback
+    HMSManager.startingScreenShare = true
     runOnUiThread {
       val intent = Intent(context, HmsScreenshareActivity::class.java)
       intent.flags = FLAG_ACTIVITY_NEW_TASK
@@ -1603,7 +1653,10 @@ class HMSRNSDK(
     callback?.resolve(hmsSDK?.getAudioOutputRouteType()?.name)
   }
 
-  fun switchAudioOutput(data: ReadableMap, callback: Promise?) {
+  fun switchAudioOutput(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val requiredKeys =
       HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("audioDevice", "String")))
     if (requiredKeys === null) {
@@ -1618,7 +1671,10 @@ class HMSRNSDK(
     }
   }
 
-  fun setAudioMode(data: ReadableMap, callback: Promise?) {
+  fun setAudioMode(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
     val requiredKeys = HMSHelper.getUnavailableRequiredKey(data, arrayOf(Pair("audioMode", "Int")))
     if (requiredKeys === null) {
       val audioMode = data.getInt("audioMode")

@@ -1,0 +1,9 @@
+export enum HMSRecordingState {
+  NONE = 'NONE',
+  STARTING = 'STARTING',
+  STARTED = 'STARTED',
+  PAUSED = 'PAUSED',
+  RESUMED = 'RESUMED',
+  STOPPED = 'STOPPED',
+  FAILED = 'FAILED',
+}

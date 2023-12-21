@@ -80,6 +80,8 @@ export * from './classes/HMSQualityLimitationReasons';
 export * from './classes/HMSQualityLimitationReason';
 export * from './classes/HMSCameraControl';
 export * from './classes/HMSIOSAudioMode';
+export * from './classes/HMSRecordingState';
+export * from './classes/HMSStreamingState';
 export type {
   HMSSessionStore,
   HMSSessionStoreValue,
@@ -89,11 +91,12 @@ export type {
   HmsComponentProps as HMSViewProps,
 } from './classes/HmsView';
 export type { HMSPIPConfig } from './classes/HMSPIPConfig';
+export { HMSRecordingState } from './classes/HMSRecordingState';
 
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
 
-// 100ms React Native Native Module
-export { default as HMSManagerModule } from './classes/HMSManagerModule';
+// 100ms React Native Module
+export { default as HMSManagerModule } from './modules/HMSManagerModule';
 
 // 100ms Components
 export * from './components/HMSHLSPlayer';
@@ -101,6 +104,12 @@ export * from './components/HMSHLSPlayer';
 // 100ms Hooks
 export * from './hooks/useHMSPeerUpdates';
 export { useHmsViewsResolutionsState } from './hooks/hmsviews';
+
+// 100ms Utilities
+export type { NotificationResult } from './utils/notification';
+export { checkNotifications } from './utils/notification';
+
+export * from './utils/keyboard';
 
 // 100ms types
 export * from './types';

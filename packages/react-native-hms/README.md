@@ -5,7 +5,6 @@
 [![npm](https://img.shields.io/npm/v/@100mslive/react-native-hms)](https://www.npmjs.com/package/@100mslive/react-native-hms)
 [![license](https://img.shields.io/npm/l/@100mslive/react-native-hms)](https://www.100ms.live/)
 [![quality](https://img.shields.io/npms-io/quality-score/@100mslive/react-native-hms)](https://www.npmjs.com/package/@100mslive/react-native-hms)
-[![vulnerabilities](https://img.shields.io/snyk/vulnerabilities/npm/@100mslive/react-native-hms)](https://www.npmjs.com/package/@100mslive/react-native-hms)
 [![collaborators](https://img.shields.io/npm/collaborators/@100mslive/react-native-hms)](https://www.npmjs.com/package/@100mslive/react-native-hms)
 [![Documentation](https://img.shields.io/badge/Read-Documentation-blue)](https://docs.100ms.live/react-native/v2/foundation/basics)
 [![Discord](https://img.shields.io/discord/843749923060711464?label=Join%20on%20Discord)](https://100ms.live/discord)
@@ -21,6 +20,11 @@ Integrate Real Time Audio and Video conferencing, Interactive Live Streaming, an
 With support for HLS and RTMP Live Streaming and Recording, Picture-in-Picture (PiP), one-to-one Video Call Modes, Audio Rooms, Video Player and much more, add immersive real-time communications to your apps.
 
 📖 Read the Complete Documentation here: https://www.100ms.live/docs/react-native/v2/foundation/basics
+
+| Package                                | Version                                                                                                                                  |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| @100mslive/react-native-room-kit       | [![npm](https://img.shields.io/npm/v/@100mslive/react-native-room-kit)](https://www.npmjs.com/package/@100mslive/react-native-room-kit)  |
+| @100mslive/react-native-hms            | [![npm](https://img.shields.io/npm/v/@100mslive/react-native-hms)](https://www.npmjs.com/package/@100mslive/react-native-hms)            |
 
 ## 🏃 Example App
 
@@ -178,7 +182,7 @@ To test audio/video functionality, you need to connect to a 100ms Room. Please c
 2. Use the `Video Conferencing Starter Kit` to create a room with a default template assigned to it to test this app quickly.
 3. Go to the [Rooms page](https://dashboard.100ms.live/rooms) in your dashboard, click on the `Room Id` of the room you created above, and click on the `Join Room` button on the top right.
 4. You will see 100ms demo URLs for the roles created when you deployed the starter kit; you can click on the 'key' icon to copy the token and update the `AUTH_TOKEN` variable in "App.js" file.
-   > Token from 100ms dashboard is for testing purposes only, For production applications you must generate tokens on your own server. Refer to the [Management Token section](/concepts/v2/concepts/security-and-tokens#management-token) in Authentication and Tokens guide for more information.
+   > Token from 100ms dashboard is for testing purposes only, For production applications you must generate tokens on your own server. Refer to the [Management Token section](https://www.100ms.live/docs/get-started/v2/get-started/security-and-tokens#management-token-for-rest-api) in Authentication and Tokens guide for more information.
 
 ## [Add Event Listeners](https://www.100ms.live/docs/react-native/v2/features/event-listeners)
 

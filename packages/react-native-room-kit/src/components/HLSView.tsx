@@ -1,18 +1,25 @@
 import React, { useRef } from 'react';
 import type { ComponentRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { View, Text, StyleSheet } from 'react-native';
-import { HMSHLSPlayer } from '@100mslive/react-native-hms';
+import { View, Text, StyleSheet, Platform } from 'react-native';
+import {
+  HMSHLSPlayer,
+  HMSHLSPlayerPlaybackState,
+  useHMSHLSPlayerPlaybackState,
+  HMSStreamingState,
+} from '@100mslive/react-native-hms';
 
 import type { RootState } from '../redux';
 import { changeShowHLSStats } from '../redux/actions';
 import { HLSPlayerStatsView } from './HLSPlayerStatsView';
 import { HLSPlayerEmoticons } from './HLSPlayerEmoticons';
 import { CustomControls } from './CustomHLSPlayerControls';
-import { COLORS } from '../utils/theme';
+import { COLORS, hexToRgbA } from '../utils/theme';
 import { HMSHLSNotStarted } from './HMSHLSNotStarted';
+import { CrossCircleIcon } from '../Icons';
+import { useHMSRoomStyleSheet } from '../hooks-util';
 
-export const HLSView: React.FC = () => {
+export const _HLSView: React.FC = () => {
   const dispatch = useDispatch();
   const room = useSelector((state: RootState) => state.hmsStates.room);
   const hmsHlsPlayerRef = useRef<ComponentRef<typeof HMSHLSPlayer>>(null);
@@ -80,13 +87,54 @@ export const HLSView: React.FC = () => {
     }
   };
 
+  const [playerKey, setPlayerKey] = React.useState(1);
+
+  const prevReconnectingRef = React.useRef<null | boolean>(null);
+  const reconnecting = useSelector(
+    (state: RootState) => state.hmsStates.reconnecting
+  );
+
+  const hlsPlayerPlaybackState = useHMSHLSPlayerPlaybackState();
+
+  const isPlaybackFailed =
+    hlsPlayerPlaybackState === HMSHLSPlayerPlaybackState.FAILED;
+
+  React.useEffect(() => {
+    const prevReconnecting = prevReconnectingRef.current;
+
+    if (
+      Platform.OS === 'android' &&
+      prevReconnecting && // previously were in reconnection state
+      reconnecting === false && // now in reconnected state
+      isPlaybackFailed // and player playback is in failed state
+    ) {
+      // Recreate the HLS PLayer instance
+      setPlayerKey((prevKey) => (prevKey += 1));
+    }
+
+    prevReconnectingRef.current = reconnecting;
+  }, [reconnecting, isPlaybackFailed]);
+
+  const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
+    failedContainer: {
+      backgroundColor: theme.palette.background_dim
+        ? hexToRgbA(theme.palette.background_dim, 0.7)
+        : COLORS.LOADING_BACKDROP,
+    },
+    failedText: {
+      color: theme.palette.on_surface_high,
+      fontFamily: `${typography.font_family}-Regular`,
+    },
+  }));
+
   return (
     <View style={styles.hlsView}>
-      {room?.hlsStreamingState?.running ? (
+      {room?.hlsStreamingState?.state === HMSStreamingState.STARTED ? (
         room?.hlsStreamingState?.variants?.slice(0, 1)?.map((variant, index) =>
           variant?.hlsStreamUrl ? (
             <View key={index} style={styles.hlsPlayerContainer}>
               <HMSHLSPlayer
+                key={playerKey}
                 ref={hmsHlsPlayerRef}
                 enableStats={showHLSStats}
                 enableControls={enableHLSPlayerControls}
@@ -101,6 +149,23 @@ export const HLSView: React.FC = () => {
               {showCustomHLSPlayerControls ? (
                 <CustomControls handleControlPress={hlsPlayerActions} />
               ) : null}
+
+              {isPlaybackFailed ? (
+                <View
+                  style={[
+                    styles.playbackFailedContainer,
+                    hmsRoomStyles.failedContainer,
+                  ]}
+                >
+                  <CrossCircleIcon />
+
+                  <Text
+                    style={[styles.playbackFailed, hmsRoomStyles.failedText]}
+                  >
+                    Playback Failed
+                  </Text>
+                </View>
+              ) : null}
             </View>
           ) : (
             <View key={index} style={styles.textContainer}>
@@ -114,6 +179,8 @@ export const HLSView: React.FC = () => {
     </View>
   );
 };
+
+export const HLSView = React.memo(_HLSView);
 
 const styles = StyleSheet.create({
   hlsView: {
@@ -139,5 +206,20 @@ const styles = StyleSheet.create({
   },
   taleLessSpaceAsYouCan: {
     flex: 0,
+  },
+  playbackFailedContainer: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+  },
+  playbackFailed: {
+    fontSize: 24,
+    lineHeight: 32,
+    letterSpacing: 0.5,
+    textAlign: 'center',
+    marginTop: 8,
   },
 });

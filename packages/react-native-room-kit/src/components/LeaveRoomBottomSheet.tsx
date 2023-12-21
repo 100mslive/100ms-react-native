@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
+import { HMSStreamingState } from '@100mslive/react-native-hms';
 
 import { LeaveIcon } from '../Icons';
 import { useHMSRoomStyleSheet, useLeaveMethods, useModalType } from '../hooks-util';
@@ -26,7 +27,7 @@ export const LeaveRoomBottomSheet: React.FC<LeaveRoomBottomSheetProps> = () => {
 
   const isStreaming = useSelector(
     (state: RootState) =>
-      state.hmsStates.room?.hlsStreamingState?.running ?? false
+      state.hmsStates.room?.hlsStreamingState?.state === HMSStreamingState.STARTED ?? false
   );
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
@@ -105,10 +106,9 @@ export const LeaveRoomBottomSheet: React.FC<LeaveRoomBottomSheetProps> = () => {
   return (
     <BottomSheet
       isVisible={modalVisibleType === ModalTypes.LEAVE_ROOM}
-      containerStyle={styles.container}
+      bottomOffsetSpace={0}
       dismissModal={onPopupDismiss}
       onModalHide={handlePopupHide}
-      animationOutTiming={700}
     >
       <View>
         <TouchableOpacity
@@ -176,9 +176,6 @@ export const LeaveRoomBottomSheet: React.FC<LeaveRoomBottomSheetProps> = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    paddingBottom: 0,
-  },
   button: {
     flexDirection: 'row',
     padding: 24,

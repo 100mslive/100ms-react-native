@@ -1,4 +1,4 @@
-import HMSManager from './HMSManagerModule';
+import HMSManager from '../modules/HMSManagerModule';
 
 import { HMSEncoder } from './HMSEncoder';
 import { HMSPeerUpdate } from './HMSPeerUpdate';

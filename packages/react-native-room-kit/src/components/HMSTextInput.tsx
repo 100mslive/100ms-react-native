@@ -130,6 +130,7 @@ export const HMSTextInput: React.FC<HMSTextInputProps> = ({
       selectionColor={resetProps.selectionColor ?? onSurfaceHighColor}
       onFocus={resetProps.onFocus ?? handleInputFocus}
       onBlur={resetProps.onBlur ?? handleInputBlur}
+      disableFullscreenUI={true}
     />
   );
 

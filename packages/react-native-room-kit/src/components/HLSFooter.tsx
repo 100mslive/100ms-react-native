@@ -6,6 +6,7 @@ import { Footer } from './Footer';
 import { AnimatedHLSFooter } from './AnimatedHLSFooter';
 import { HLSChatView } from './HMSOverlayChatView';
 import { useShowChatAndParticipants } from '../hooks-util';
+import { HMSNotifications } from './HMSNotifications';
 
 interface HLSFooterProps {
   offset: SharedValue<number>;
@@ -16,7 +17,9 @@ export const HLSFooter: React.FC<HLSFooterProps> = ({ offset }) => {
 
   return (
     <AnimatedHLSFooter offset={offset} style={styles.animatedContainer}>
-      {overlayChatVisible ? <HLSChatView /> : null}
+      {overlayChatVisible ? <HLSChatView offset={offset} /> : null}
+
+      <HMSNotifications />
 
       <Footer />
     </AnimatedHLSFooter>

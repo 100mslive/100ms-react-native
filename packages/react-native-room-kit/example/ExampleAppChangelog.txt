@@ -1,18 +1,12 @@
 Board: https://100ms.atlassian.net/jira/software/projects/RN/boards/33
 
-- Enabled Hardware Echo Cancellation by default
-https://100ms.atlassian.net/browse/RN-127
+- Hide Top & Bottom bars after 5 seconds in Room
+https://100ms.atlassian.net/browse/RN-138
 
-- Sending of Subscriber Stats
-https://100ms.atlassian.net/browse/RN-115
+- Disable editing username in preview screen if username is passed to prebuilt in options config
+https://100ms.atlassian.net/browse/RN-143
 
-- Resolved Auto Simulcast bug on Android
-https://100ms.atlassian.net/browse/RN-128
-
-- Resolved: On web-RN Android 100ms call, after call interruption on RN, voice is robotic to web user
-https://100ms.atlassian.net/browse/RN-130
-
-Room Kit: 1.0.3
-React Native SDK: 1.9.2
-Android SDK: 2.8.0
-iOS SDK: 1.2.0
+Room Kit: 1.0.7
+React Native SDK: 1.9.6
+Android SDK: 2.8.3
+iOS SDK: 1.4.0

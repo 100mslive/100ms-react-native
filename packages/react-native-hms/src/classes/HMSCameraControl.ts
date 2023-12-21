@@ -1,6 +1,6 @@
 import { HMSConstants } from './HMSConstants';
 
-import HMSManager from './HMSManagerModule';
+import HMSManager from '../modules/HMSManagerModule';
 
 export class HMSCameraControl {
   /**

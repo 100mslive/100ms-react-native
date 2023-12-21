@@ -36,6 +36,12 @@ public class MainActivity extends ReactActivity {
   }
 
   @Override
+  protected void onResume() {
+    super.onResume();
+    HMSManager.Companion.onResume();
+  }
+
+  @Override
   protected void onUserLeaveHint() {
     super.onUserLeaveHint();
     HMSManager.Companion.onUserLeaveHint();

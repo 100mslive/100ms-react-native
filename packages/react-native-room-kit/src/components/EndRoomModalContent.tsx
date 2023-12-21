@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { HMSStreamingState } from '@100mslive/react-native-hms';
 
 import { useHMSRoomStyleSheet, useLeaveMethods } from '../hooks-util';
 import { AlertTriangleIcon, CloseIcon } from '../Icons';
@@ -40,7 +41,7 @@ export const EndRoomModalContent: React.FC<EndRoomModalContentProps> = ({
 
   const isStreaming = useSelector(
     (state: RootState) =>
-      state.hmsStates.room?.hlsStreamingState?.running ?? false
+      state.hmsStates.room?.hlsStreamingState?.state === HMSStreamingState.STARTED ?? false
   );
 
   return (

@@ -3,13 +3,13 @@ import { Platform } from 'react-native';
 import { HMSEncoder } from './HMSEncoder';
 import { HMSHelper } from './HMSHelper';
 import { getLogger, logger, setLogger } from './HMSLogger';
-import { HMSTrackType } from './HMSTrackType';
 import { HMSUpdateListenerActions } from './HMSUpdateListenerActions';
 import { HmsViewComponent } from './HmsView';
+
+import HMSManager from '../modules/HMSManagerModule';
+
+import type { HMSTrackType } from './HMSTrackType';
 import type { HmsComponentProps } from './HmsView';
-
-import HMSManager from './HMSManagerModule';
-
 import type { HMSConfig } from './HMSConfig';
 import type { HMSLocalPeer } from './HMSLocalPeer';
 import type { HMSRemotePeer } from './HMSRemotePeer';
@@ -55,7 +55,6 @@ let HmsSdk: HMSSDK | undefined;
 
 export class HMSSDK {
   id: string;
-  private muteStatus: boolean | undefined;
   private appStateSubscription?: any;
   private onPreviewDelegate?: any;
   private onJoinDelegate?: any;
@@ -239,7 +238,6 @@ export class HMSSDK {
   });
 
   roomLeaveCleanup = () => {
-    this.muteStatus = undefined;
     this?.appStateSubscription?.remove();
     clearHmsPeersCache();
     clearHmsRoomCache();
@@ -698,7 +696,6 @@ export class HMSSDK {
    */
   setPlaybackForAllAudio = (mute: boolean) => {
     logger?.verbose('#Function setPlaybackForAllAudio', { mute, id: this.id });
-    this.muteStatus = mute;
     HMSManager.setPlaybackForAllAudio({ mute, id: this.id });
   };
 
@@ -1182,13 +1179,16 @@ export class HMSSDK {
 
     const uniqueId = Math.random().toString(16).slice(2);
 
-    const data: null | { sucess: boolean; uniqueId: string; totalCount: number; } =
-      HMSManager.getPeerListIterator({
-        id: this.id,
-        ...options,
-        limit: options?.limit ?? 10,
-        uniqueId,
-      });
+    const data: null | {
+      sucess: boolean;
+      uniqueId: string;
+      totalCount: number;
+    } = HMSManager.getPeerListIterator({
+      id: this.id,
+      ...options,
+      limit: options?.limit ?? 10,
+      uniqueId,
+    });
 
     if (!data) {
       throw new Error('Unable to create PeerListIterator');
@@ -1632,15 +1632,19 @@ export class HMSSDK {
         if (Platform.OS === 'android') {
           // Checking if we already have ON_PIP_MODE_CHANGED subscription
           if (
-            !this.emitterSubscriptions[HMSPIPListenerActions.ON_PIP_MODE_CHANGED]
+            !this.emitterSubscriptions[
+              HMSPIPListenerActions.ON_PIP_MODE_CHANGED
+            ]
           ) {
-            const pipModeChangedSubscription = HMSNativeEventListener.addListener(
-              this.id,
-              HMSPIPListenerActions.ON_PIP_MODE_CHANGED,
-              this.onPIPModeChangedListener
-            );
-            this.emitterSubscriptions[HMSPIPListenerActions.ON_PIP_MODE_CHANGED] =
-              pipModeChangedSubscription;
+            const pipModeChangedSubscription =
+              HMSNativeEventListener.addListener(
+                this.id,
+                HMSPIPListenerActions.ON_PIP_MODE_CHANGED,
+                this.onPIPModeChangedListener
+              );
+            this.emitterSubscriptions[
+              HMSPIPListenerActions.ON_PIP_MODE_CHANGED
+            ] = pipModeChangedSubscription;
           }
           // Adding PIP mode changed Delegate listener
           this.onPIPModeChangedDelegate = callback;
@@ -1989,13 +1993,16 @@ export class HMSSDK {
       case HMSPIPListenerActions.ON_PIP_MODE_CHANGED: {
         if (Platform.OS === 'android') {
           const subscription =
-            this.emitterSubscriptions[HMSPIPListenerActions.ON_PIP_MODE_CHANGED];
+            this.emitterSubscriptions[
+              HMSPIPListenerActions.ON_PIP_MODE_CHANGED
+            ];
           // Removing ON_PIP_MODE_CHANGED native listener
           if (subscription) {
             subscription.remove();
 
-            this.emitterSubscriptions[HMSPIPListenerActions.ON_PIP_MODE_CHANGED] =
-              undefined;
+            this.emitterSubscriptions[
+              HMSPIPListenerActions.ON_PIP_MODE_CHANGED
+            ] = undefined;
           }
           // Removing App Delegate listener
           this.onPIPModeChangedDelegate = null;
@@ -2140,13 +2147,13 @@ export class HMSSDK {
       });
       this.onPeerDelegate({ peer, type });
     }
-  }
+  };
 
   private sendPeerUpdateWhenPeerLeaves = (data: any, peer: any, type: any) => {
     this.sendPeerUpdate(peer, type);
 
     getHmsPeersCache()?.updatePeerCache(data.peer.peerID, data.peer, type);
-  }
+  };
 
   onPeerListUpdatedListener = (data: any) => {
     if (data.id !== this.id) {
@@ -2177,14 +2184,6 @@ export class HMSSDK {
     const type = data.type;
 
     getHmsPeersCache()?.updatePeerCache(data.peer.peerID, { track }, data.type);
-
-    if (
-      this.muteStatus &&
-      data?.type === 'TRACK_ADDED' &&
-      track.type === HMSTrackType.AUDIO
-    ) {
-      this.setPlaybackForAllAudio(this.muteStatus);
-    }
 
     if (this.onTrackDelegate) {
       logger?.verbose('#Listener ON_TRACK_LISTENER_CALL', {
@@ -2472,7 +2471,7 @@ export class HMSSDK {
 
       this.onPIPModeChangedDelegate(data);
     }
-  }
+  };
 
   async isPipModeSupported(): Promise<undefined | boolean> {
     return HMSManager.handlePipActions('isPipModeSupported', { id: this.id });

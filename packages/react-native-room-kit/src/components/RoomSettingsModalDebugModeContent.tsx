@@ -6,14 +6,16 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  Linking,
 } from 'react-native';
 import {
   HMSAudioMixingMode,
+  HMSStreamingState,
   HMSUpdateListenerActions,
+  checkNotifications,
 } from '@100mslive/react-native-hms';
 import { useDispatch, useSelector } from 'react-redux';
 import Toast from 'react-native-simple-toast';
-import { openSettings, requestNotifications } from 'react-native-permissions';
 
 import { COLORS } from '../utils/theme';
 import type { RootState } from '../redux';
@@ -60,7 +62,7 @@ export const RoomSettingsModalDebugModeContent: React.FC<
   );
   const isHLSStreaming = useSelector(
     (state: RootState) =>
-      state.hmsStates.room?.hlsStreamingState?.running ?? false
+      state.hmsStates.room?.hlsStreamingState?.state === HMSStreamingState.STARTED ?? false
   );
 
   const pipModeStatus = useSelector(
@@ -210,7 +212,7 @@ export const RoomSettingsModalDebugModeContent: React.FC<
       // check notification permission on android platform
       // Audio share feature needs foreground service running. for Foreground service to keep running, we need active notification.
       if (Platform.OS === 'android') {
-        const result = await requestNotifications(['alert', 'sound']);
+        const result = await checkNotifications();
 
         console.log('Notification Permission Result: ', result);
 
@@ -220,7 +222,7 @@ export const RoomSettingsModalDebugModeContent: React.FC<
             '100ms SDK needs notification permission to start audio share. Please allow notification from settings and try again!',
             [
               { text: 'cancel' },
-              { text: 'Go to Settings', onPress: () => openSettings() },
+              { text: 'Go to Settings', onPress: () => Linking.openSettings() },
             ],
             { cancelable: true }
           );

@@ -5,15 +5,35 @@ import { ActivityIndicator, StyleSheet } from 'react-native';
 import type { RootState } from '../redux';
 import { RecordingIcon } from '../Icons';
 import { useHMSRoomColorPalette, useHMSRoomStyle } from '../hooks-util';
+import { HMSRecordingState } from '@100mslive/react-native-hms';
 
 export const HMSRecordingIndicator = () => {
   const isRecordingOn = useSelector(
-    (state: RootState) => !!state.hmsStates.room?.browserRecordingState?.running
+    (state: RootState) =>
+      state.hmsStates.room?.browserRecordingState?.state === HMSRecordingState.STARTED ||
+      state.hmsStates.room?.browserRecordingState?.state === HMSRecordingState.RESUMED ||
+
+      state.hmsStates.room?.serverRecordingState?.state === HMSRecordingState.STARTED ||
+      state.hmsStates.room?.serverRecordingState?.state === HMSRecordingState.RESUMED ||
+
+      state.hmsStates.room?.hlsRecordingState?.state === HMSRecordingState.STARTED ||
+      state.hmsStates.room?.hlsRecordingState?.state === HMSRecordingState.RESUMED
+  );
+  const isRecordingPaused = useSelector(
+    (state: RootState) =>
+      state.hmsStates.room?.browserRecordingState?.state === HMSRecordingState.PAUSED ||
+      state.hmsStates.room?.serverRecordingState?.state === HMSRecordingState.PAUSED ||
+      state.hmsStates.room?.hlsRecordingState?.state === HMSRecordingState.PAUSED
   );
   const startingOrStoppingRecording = useSelector(
     (state: RootState) =>
       state.app.startingOrStoppingRecording ||
-      (state.hmsStates.room?.browserRecordingState.initialising ?? false)
+      state.hmsStates.room?.browserRecordingState.state ===
+        HMSRecordingState.STARTING ||
+      state.hmsStates.room?.serverRecordingState.state ===
+        HMSRecordingState.STARTING ||
+      state.hmsStates.room?.hlsRecordingState?.state ===
+        HMSRecordingState.STARTING
   );
 
   const { on_surface_high: onSurfaceHighColor } = useHMSRoomColorPalette();
@@ -35,6 +55,12 @@ export const HMSRecordingIndicator = () => {
   if (isRecordingOn) {
     return (
       <RecordingIcon style={[styles.icon, styles.rightSpace, iconStyles]} />
+    );
+  }
+
+  if (isRecordingPaused) {
+    return (
+      <RecordingIcon type='pause' style={[styles.icon, styles.rightSpace]} />
     );
   }
 
