@@ -17,11 +17,17 @@ export const selectCanPublishTrackForRole = (
 ) => role?.publishSettings?.allowed?.includes(track) ?? false;
 
 export const selectIsHLSStreamingOn = (state: RootState) => {
-  return (state.hmsStates.room?.hlsStreamingState?.state === HMSStreamingState.STARTED) ?? false
+  return (
+    state.hmsStates.room?.hlsStreamingState?.state ===
+      HMSStreamingState.STARTED ?? false
+  );
 };
 
 export const selectIsRTMPStreamingOn = (state: RootState) => {
-  return (state.hmsStates.room?.rtmpHMSRtmpStreamingState?.state === HMSStreamingState.STARTED) ?? false
+  return (
+    state.hmsStates.room?.rtmpHMSRtmpStreamingState?.state ===
+      HMSStreamingState.STARTED ?? false
+  );
 };
 
 export const selectIsAnyStreamingOn = (state: RootState) => {

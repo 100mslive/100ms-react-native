@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>destination</key>
+	<string>export</string>
+	<key>manageAppVersionAndBuildNumber</key>
+	<true/>
+	<key>method</key>
+	<string>app-store</string>
+	<key>provisioningProfiles</key>
+	<dict>
+		<key>live.100ms.reactnative</key>
+		<string>ReactNativeAppStore</string>
+		<key>live.100ms.reactnative.RNExampleBroadcastUpload</key>
+		<string>RNExampleBroadcastUploadAppStore</string>
+	</dict>
+	<key>signingCertificate</key>
+	<string>63611E77D24E014297309837456FC26F05C2CCA8</string>
+	<key>signingStyle</key>
+	<string>manual</string>
+	<key>stripSwiftSymbols</key>
+	<true/>
+	<key>teamID</key>
+	<string>5N85PP82A9</string>
+	<key>uploadSymbols</key>
+	<true/>
+</dict>
+</plist>

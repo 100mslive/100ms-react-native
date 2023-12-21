@@ -22,7 +22,10 @@ import { useIsHLSStreamingOn } from '../hooks-sdk';
 export const _HLSView: React.FC = () => {
   const dispatch = useDispatch();
   const isHLSStreaming = useIsHLSStreamingOn();
-  const isStreamUrlPresent = useSelector((state: RootState) => !!state.hmsStates.room?.hlsStreamingState.variants?.[0]?.hlsStreamUrl);
+  const isStreamUrlPresent = useSelector(
+    (state: RootState) =>
+      !!state.hmsStates.room?.hlsStreamingState.variants?.[0]?.hlsStreamUrl
+  );
   const hmsHlsPlayerRef = useRef<ComponentRef<typeof HMSHLSPlayer>>(null);
   const showHLSStats = useSelector(
     (state: RootState) => state.app.joinConfig.showHLSStats
@@ -159,9 +162,7 @@ export const _HLSView: React.FC = () => {
               >
                 <CrossCircleIcon />
 
-                <Text
-                  style={[styles.playbackFailed, hmsRoomStyles.failedText]}
-                >
+                <Text style={[styles.playbackFailed, hmsRoomStyles.failedText]}>
                   Playback Failed
                 </Text>
               </View>

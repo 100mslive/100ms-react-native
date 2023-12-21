@@ -25,7 +25,11 @@ import {
   useShowChatAndParticipants,
   useStartRecording,
 } from '../hooks-util';
-import { useCanPublishScreen, useHMSActions, useIsAnyStreamingOn } from '../hooks-sdk';
+import {
+  useCanPublishScreen,
+  useHMSActions,
+  useIsAnyStreamingOn,
+} from '../hooks-sdk';
 import { RoomSettingsModalDebugModeContent } from './RoomSettingsModalDebugModeContent';
 import { ParticipantsCount } from './ParticipantsCount';
 import { selectAllowedTracksToPublish } from '../hooks-sdk-selectors';
@@ -147,12 +151,15 @@ export const RoomSettingsModalContent: React.FC<
   });
   const isRecordingPaused = useSelector(
     (state: RootState) =>
-      state.hmsStates.room?.browserRecordingState?.state === HMSRecordingState.PAUSED
+      state.hmsStates.room?.browserRecordingState?.state ===
+      HMSRecordingState.PAUSED
   );
   const isRecordingDisabled = useSelector((state: RootState) => {
     const room = state.hmsStates.room;
-    return isAnyStreamingOn ||
-      (room?.browserRecordingState?.state === HMSRecordingState.STARTING);
+    return (
+      isAnyStreamingOn ||
+      room?.browserRecordingState?.state === HMSRecordingState.STARTING
+    );
   });
 
   const { startRecording } = useStartRecording();
@@ -372,7 +379,7 @@ const SettingItem: React.FC<SettingItemProps> = ({
       style={[
         styles.button,
         isActive ? hmsRoomStyles.button : null,
-        disabled ? { opacity: 0.6 } : null
+        disabled ? { opacity: 0.6 } : null,
       ]}
       onPress={onPress}
     >
