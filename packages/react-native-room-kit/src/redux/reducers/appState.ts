@@ -293,20 +293,24 @@ const appReducer = (
     case ActionTypes.SET_HANDLE_BACK_BUTTON: {
       return {
         ...state,
-        handleBackButton: action.payload.handleBackButton ?? INITIAL_STATE.handleBackButton,
+        handleBackButton:
+          action.payload.handleBackButton ?? INITIAL_STATE.handleBackButton,
       };
     }
     case ActionTypes.SET_AUTO_ENTER_PIP_MODE: {
       return {
         ...state,
-        autoEnterPipMode: action.payload.autoEnterPipMode ?? INITIAL_STATE.autoEnterPipMode,
+        autoEnterPipMode:
+          action.payload.autoEnterPipMode ?? INITIAL_STATE.autoEnterPipMode,
       };
     }
     case ActionTypes.SET_EDIT_USERNAME_DISABLED: {
       return {
         ...state,
-        editUsernameDisabled: action.payload.editUsernameDisabled ?? INITIAL_STATE.editUsernameDisabled,
-      }
+        editUsernameDisabled:
+          action.payload.editUsernameDisabled ??
+          INITIAL_STATE.editUsernameDisabled,
+      };
     }
     case HmsStateActionTypes.CLEAR_STATES:
       return INITIAL_STATE;

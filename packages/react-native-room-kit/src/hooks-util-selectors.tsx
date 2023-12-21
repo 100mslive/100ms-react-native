@@ -3,11 +3,11 @@ import type {
   HLSLiveStreamingScreen,
   Layout,
 } from '@100mslive/types-prebuilt';
-import { HMSStreamingState } from '@100mslive/react-native-hms';
 import type { HMSRole } from '@100mslive/react-native-hms';
 import { JoinForm_JoinBtnType } from '@100mslive/types-prebuilt/elements/join_form';
 
 import type { RootState } from './redux';
+import { selectIsHLSStreamingOn } from './hooks-sdk-selectors';
 
 export const selectIsHLSViewer = (
   role: HMSRole | null | undefined,
@@ -46,8 +46,7 @@ export const selectShouldGoLive = (state: RootState) => {
     currentRole
   );
 
-  const isHLSStreaming =
-    state.hmsStates.room?.hlsStreamingState?.state === HMSStreamingState.STARTED ?? false;
+  const isHLSStreaming = selectIsHLSStreamingOn(state);
 
   const joinButtonType =
     layoutConfig?.screens?.preview?.default?.elements?.join_form
