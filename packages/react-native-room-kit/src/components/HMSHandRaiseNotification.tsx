@@ -62,6 +62,15 @@ export const HMSHandRaiseNotification: React.FC<
       );
     }
     dispatch(removeNotification(id));
+    // saving current role in peer metadata,
+    // so that when peer is removed from stage, we can assign previous role to it.
+    // if (localPeerRoleName) {
+    //   const newMetadata = {
+    //     ...localPeerMetadata,
+    //     prevRole: localPeerRoleName,
+    //   };
+    //   await hmsActions.changeMetadata(newMetadata);
+    // }
     await hmsInstance.changeRoleOfPeer(peer, onStageRole, false);
   };
 
