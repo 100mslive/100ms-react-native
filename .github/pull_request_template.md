@@ -15,6 +15,7 @@
 ### Pre-launch Checklist
 
 - [ ] The [Documentation] is updated accordingly, or this PR doesn't require it.
+- [ ] The [ExampleAppChangelog] is updated with related tickets, or this PR doesn't require it.
 - [ ] I updated/added relevant documentation (doc comments with `///`).
 - [ ] I listed at least one issue that this PR fixes in the description above.
 - [ ] I added new tests to check the change I am making, or this PR is test-exempt.
@@ -22,3 +23,4 @@
 
 <!-- Links -->
 [Documentation]: https://www.100ms.live/docs
+[ExampleAppChangelog]: https://github.com/100mslive/100ms-react-native/blob/main/packages/react-native-room-kit/example/ExampleAppChangelog.txt
