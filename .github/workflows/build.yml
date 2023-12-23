@@ -49,6 +49,11 @@ jobs:
       - name: Install dependencies
         run: cd packages/react-native-hms/example/ && npm install && cd ../../react-native-room-kit/example/ && npm install
 
+      - name: Prepack
+        run: |
+          cd packages/react-native-hms/ && npm run prepack
+          cd ../react-native-room-kit/ && npm run prepack
+
       - name: Make Gradlew Executable
         run: cd packages/react-native-room-kit/example/android && chmod +x ./gradlew
 
