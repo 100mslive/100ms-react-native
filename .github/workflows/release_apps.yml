@@ -5,10 +5,12 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: {}
   push:
     branches:
       - release
+    tags:
+      - v*
 
 permissions:
   checks: write
@@ -23,6 +25,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Java
         uses: actions/setup-java@v4
