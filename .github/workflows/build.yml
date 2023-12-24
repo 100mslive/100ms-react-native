@@ -46,8 +46,21 @@ jobs:
           distribution: zulu
           java-version: 11.x
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 16
+
       - name: Install dependencies
-        run: cd packages/react-native-hms/example/ && npm install && cd ../../react-native-room-kit/example/ && npm install
+        run: |
+          cd packages/react-native-hms/
+          npm install
+          cd example/
+          npm install
+          cd ../../react-native-room-kit/
+          npm install
+          cd example/
+          npm install
 
       - name: Prepack
         run: |
