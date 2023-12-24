@@ -103,12 +103,26 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd packages/react-native-hms/example/
+          cd packages/react-native-hms/
           npm install
-          cd ../../react-native-room-kit/example/
+          cd example/
+          npm install
+          cd ../../react-native-room-kit/
+          npm install
+          cd example/
           npm install
 
-      - name: Install Pods
+      - name: Cache Pods
+        id: cache-pods
+        uses: actions/cache@v3
+        with:
+          path: packages/react-native-room-kit/example/ios/Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-
+
+      - name: Install Pods if Cache Missed
+        if: steps.cache-pods.outputs.cache-hit != 'true'
         run: |
           sudo gem install cocoapods
           cd ./packages/react-native-room-kit/example/ios
