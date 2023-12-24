@@ -70,25 +70,23 @@ jobs:
       - name: Make Gradlew Executable
         run: cd packages/react-native-room-kit/example/android && chmod +x ./gradlew
 
-      - name: Generate App APK
+      - name: Build Android App
         run: |
           cd packages/react-native-room-kit/example/android
           ./gradlew assembleDebug --no-daemon
 
-      - name: Check Core SDK Bundle Size
-        uses: shwetsolanki/react-native-bundle-size@v1
+      - name: Build iOS App
+        uses: yukiarrr/ios-build-action@v1.11.1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          ios-entry-file: packages/react-native-hms/src/index.ts
-          android-entry-file: packages/react-native-hms/src/index.ts
-          include-assets: 'true'
-          include-source-maps: 'true'
-
-      - name: Check Room Kit Bundle Size
-        uses: shwetsolanki/react-native-bundle-size@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          ios-entry-file: packages/react-native-room-kit/src/index.ts
-          android-entry-file: packages/react-native-room-kit/src/index.ts
-          include-assets: 'true'
-          include-source-maps: 'true'
+          project-path: packages/react-native-room-kit/example/ios/RNExample.xcodeproj
+          p12-base64: ${{ secrets.IOS_P12_BASE64 }}
+          certificate-password: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          mobileprovision-base64: |
+            ${{ secrets.ADHOC_MOBILEPROVISION_BASE64 }}
+            ${{ secrets.ADHOCEXTENSION_MOBILEPROVISION_BASE64 }}
+          code-signing-identity: iPhone Distribution
+          team-id: ${{ secrets.IOS_TEAM_ID }}
+          workspace-path: packages/react-native-room-kit/example/ios/RNExample.xcworkspace
+          scheme: RNExample
+          export-method: ad-hoc
+          export-options: packages/react-native-room-kit/example/ios/ExportOptions.plist
