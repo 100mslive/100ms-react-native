@@ -51,6 +51,12 @@ jobs:
         with:
           node-version: 16
 
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.2
+          bundler-cache: true
+
       - name: Install dependencies
         run: |
           cd packages/react-native-hms/
@@ -61,6 +67,12 @@ jobs:
           npm install
           cd example/
           npm install
+
+      - name: Install Pods
+        run: |
+          sudo gem install cocoapods
+          cd ./packages/react-native-room-kit/example/ios
+          pod install
 
       - name: Publish Dry Run
         run: |
