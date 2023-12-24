@@ -30,8 +30,8 @@ permissions:
   contents: read
 
 jobs:
-  build_apk:
-    name: Build APK
+  build:
+    name: Build App
     if: github.event.pull_request.draft == false
     runs-on: macOS-latest
     timeout-minutes: 60
