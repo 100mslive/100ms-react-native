@@ -33,8 +33,8 @@ jobs:
   build_apk:
     name: Build APK
     if: github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
+    runs-on: macOS-latest
+    timeout-minutes: 60
 
     steps:
       - name: Checkout repository
@@ -74,3 +74,21 @@ jobs:
         run: |
           cd packages/react-native-room-kit/example/android
           ./gradlew assembleDebug --no-daemon
+
+      - name: Check Core SDK Bundle Size
+        uses: shwetsolanki/react-native-bundle-size@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ios-entry-file: packages/react-native-hms/src/index.ts
+          android-entry-file: packages/react-native-hms/src/index.ts
+          include-assets: 'true'
+          include-source-maps: 'true'
+
+      - name: Check Room Kit Bundle Size
+        uses: shwetsolanki/react-native-bundle-size@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ios-entry-file: packages/react-native-room-kit/src/index.ts
+          android-entry-file: packages/react-native-room-kit/src/index.ts
+          include-assets: 'true'
+          include-source-maps: 'true'
