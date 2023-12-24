@@ -1,8 +1,8 @@
 # Description
 
-*Replace this paragraph with a description of what this PR is changing or adding, and why. Consider including before/after screenshots.*
+_Replace this paragraph with a description of what this PR is changing or adding, and why. Consider including before/after screenshots._
 
-*List which issues are fixed by this PR. You must list at least one issue.*
+_List which issues are fixed by this PR. You must list at least one issue._
 
 ---
 
@@ -10,7 +10,7 @@
 
 <!-- Add any other context or additional information about the pull request.-->
 
-*
+-
 
 ### Pre-launch Checklist
 
@@ -22,4 +22,5 @@
 - [ ] All existing and new tests are passing.
 
 <!-- Links -->
+
 [Documentation]: https://www.100ms.live/docs
