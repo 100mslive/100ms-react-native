@@ -1,12 +1,6 @@
 import * as React from 'react';
-import {
-  StyleSheet,
-  Text,
-  Platform,
-  TouchableOpacity,
-} from 'react-native';
+import { StyleSheet, Text, Platform, TouchableOpacity } from 'react-native';
 import { useSelector } from 'react-redux';
-import { HMSStreamingState } from '@100mslive/react-native-hms';
 
 import {
   useHMSRoomStyleSheet,
@@ -17,15 +11,14 @@ import { EyeIcon } from '../Icons';
 import { hexToRgbA } from '../utils/theme';
 import type { RootState } from '../redux';
 import { TestIds } from '../utils/constants';
+import { useIsAnyStreamingOn } from '../hooks-sdk';
 
 const _HMSLiveViewerCount = () => {
   const isHLSViewer = useIsHLSViewer();
   const previewPeerCount = useSelector(
     (state: RootState) => state.hmsStates.room?.peerCount
   );
-  const live = useSelector(
-    (state: RootState) => state.hmsStates.room?.hlsStreamingState?.state === HMSStreamingState.STARTED
-  );
+  const live = useIsAnyStreamingOn();
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typograhy) => ({
     viewers: {
@@ -60,7 +53,10 @@ const _HMSLiveViewerCount = () => {
     >
       <EyeIcon testID={TestIds.peer_count_icon} />
 
-      <Text testID={TestIds.peer_count} style={[styles.count, hmsRoomStyles.count]}>
+      <Text
+        testID={TestIds.peer_count}
+        style={[styles.count, hmsRoomStyles.count]}
+      >
         {previewPeerCount}
       </Text>
     </TouchableOpacity>

@@ -23,8 +23,8 @@ export const RecordingIcon: React.FC<RecordingIconProps> = ({
         type === 'on'
           ? require('./assets/recording.png')
           : type === 'pause'
-          ? require('./assets/recording-pause.png')
-          : require('./assets/recording-off.png')
+            ? require('./assets/recording-pause.png')
+            : require('./assets/recording-off.png')
       }
       style={[styles.icon, iconStyles, style]}
       {...restProps}
