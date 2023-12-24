@@ -62,7 +62,7 @@ jobs:
           cd example/
           npm install
 
-      - name: Prepack
+      - name: Publish Dry Run
         run: |
           cd packages/react-native-hms/ && npm publish --dry-run
           cd ../react-native-room-kit/ && npm publish --dry-run
