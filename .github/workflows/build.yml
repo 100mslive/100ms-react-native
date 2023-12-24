@@ -51,8 +51,8 @@ jobs:
 
       - name: Prepack
         run: |
-          cd packages/react-native-hms/ && npm run prepack
-          cd ../react-native-room-kit/ && npm run prepack
+          cd packages/react-native-hms/ && npm publish --dry-run
+          cd ../react-native-room-kit/ && npm publish --dry-run
 
       - name: Make Gradlew Executable
         run: cd packages/react-native-room-kit/example/android && chmod +x ./gradlew
