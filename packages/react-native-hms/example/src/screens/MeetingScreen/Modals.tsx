@@ -1049,8 +1049,8 @@ export const RtcStatsModal = () => {
                                       value?.width ?? 0
                                     }`
                                   : key === 'qualityLimitationReasons'
-                                  ? value.reason
-                                  : value}
+                                    ? value.reason
+                                    : value}
                               </Text>
                             </View>
                           );

@@ -4,4 +4,4 @@ export interface HMSPIPConfig {
   endButton?: boolean;
   audioButton?: boolean;
   videoButton?: boolean;
-};
+}

@@ -200,9 +200,10 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
     ) {
       setHMSHLSPlayerPlaybackError(data.error);
     } else if (
-      event === HMSHLSPlayerPlaybackEventTypes.ON_PLAYBACK_RESOLUTION_CHANGE_EVENT
+      event ===
+      HMSHLSPlayerPlaybackEventTypes.ON_PLAYBACK_RESOLUTION_CHANGE_EVENT
     ) {
-      setHMSHLSPlayerResolution({...data});
+      setHMSHLSPlayerResolution({ ...data });
 
       const aspectRatio = data.width / data.height;
 
