@@ -32,9 +32,8 @@ runtimes:
     - java@13.0.11
     - node@18.12.1
 actions:
-  disabled:
-    - trunk-check-pre-push
-    - trunk-fmt-pre-commit
   enabled:
     - trunk-announce
     - trunk-upgrade-available
+    - trunk-check-pre-push
+    - trunk-fmt-pre-commit
