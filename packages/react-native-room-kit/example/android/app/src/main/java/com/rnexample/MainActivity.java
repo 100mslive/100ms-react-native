@@ -1,6 +1,7 @@
 package live.hms.rn;
 
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.WindowManager;
 
@@ -38,7 +39,11 @@ public class MainActivity extends ReactActivity {
   @Override
   protected void onResume() {
     super.onResume();
-    HMSManager.Companion.onResume();
+    boolean isPipMode = false;
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+      isPipMode = isInPictureInPictureMode();
+    }
+    HMSManager.Companion.onResume(isPipMode);
   }
 
   @Override

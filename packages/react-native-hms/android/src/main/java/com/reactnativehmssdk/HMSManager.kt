@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.util.Rational
 import android.view.WindowManager
 import androidx.annotation.RequiresApi
@@ -49,14 +50,23 @@ class HMSManager(reactContext: ReactApplicationContext) :
       if (isInPictureInPictureMode) {
         isInPIPMode = true
       }
-    }
-
-    fun onResume() {
-      if (isInPIPMode) {
-        isInPIPMode = false
-        reactAppContext?.currentActivity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+      else {
+        isInPIPMode = true
         emitPipEvent(false)
       }
+    }
+
+    fun onResume(isPipMode: Boolean) {
+      Log.e("HMSManager", "onResume $isPipMode $isInPIPMode")
+//      isInPIPMode = false
+//      if (isInPIPMode) {
+//        isInPIPMode = false
+//      reactAppContext?.currentActivity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+//      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//        isInPIPMode = reactAppContext?.currentActivity?.isInPictureInPictureMode ?: false
+//      }
+//      emitPipEvent(isInPIPMode)
+//      }
     }
 
     fun onUserLeaveHint() {
