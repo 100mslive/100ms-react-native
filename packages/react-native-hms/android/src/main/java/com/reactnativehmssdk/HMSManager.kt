@@ -54,6 +54,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
 
     fun onResume() {
       if (pipParamConfig?.autoEnterPipMode == true) {
+        reactAppContext?.currentActivity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
         isInPIPMode = false
         emitPipEvent(false)
       }
