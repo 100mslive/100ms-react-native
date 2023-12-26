@@ -1,7 +1,6 @@
 package live.hms.rn;
 
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.WindowManager;
 
@@ -9,8 +8,6 @@ import com.facebook.react.ReactActivity;
 
 import org.devio.rn.splashscreen.SplashScreen;
 import com.reactnativehmssdk.HMSManager;
-
-// import live.hms.rn.R;
 
 public class MainActivity extends ReactActivity {
 
