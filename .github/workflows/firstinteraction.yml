@@ -1,13 +1,13 @@
 name: first-interaction
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: {}
   issues:
     types: [opened]
   pull_request:
     branches:
-        - main
-        - develop
+      - main
+      - develop
     types: [opened]
 
 jobs:

@@ -4,7 +4,9 @@ import { useHMSStore } from '../stores/hms-store';
 // use latest state (with component rerender)
 
 export const useHmsViewsResolutionsState = (trackId?: TrackId) => {
-  return useHMSStore((state) => trackId ? state.hmsviewsResolutions[trackId] : undefined);
+  return useHMSStore((state) =>
+    trackId ? state.hmsviewsResolutions[trackId] : undefined
+  );
 };
 
 // state setters
