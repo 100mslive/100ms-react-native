@@ -39,11 +39,7 @@ public class MainActivity extends ReactActivity {
   @Override
   protected void onResume() {
     super.onResume();
-    boolean isPipMode = false;
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-      isPipMode = isInPictureInPictureMode();
-    }
-    HMSManager.Companion.onResume(isPipMode);
+    HMSManager.Companion.onResume();
   }
 
   @Override

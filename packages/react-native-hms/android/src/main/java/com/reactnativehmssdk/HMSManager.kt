@@ -50,23 +50,13 @@ class HMSManager(reactContext: ReactApplicationContext) :
       if (isInPictureInPictureMode) {
         isInPIPMode = true
       }
-      else {
-        isInPIPMode = true
-        emitPipEvent(false)
-      }
     }
 
-    fun onResume(isPipMode: Boolean) {
-      Log.e("HMSManager", "onResume $isPipMode $isInPIPMode")
-//      isInPIPMode = false
-//      if (isInPIPMode) {
-//        isInPIPMode = false
-//      reactAppContext?.currentActivity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-//      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-//        isInPIPMode = reactAppContext?.currentActivity?.isInPictureInPictureMode ?: false
-//      }
-//      emitPipEvent(isInPIPMode)
-//      }
+    fun onResume() {
+      if (pipParamConfig?.autoEnterPipMode == true) {
+        isInPIPMode = false
+        emitPipEvent(false)
+      }
     }
 
     fun onUserLeaveHint() {
