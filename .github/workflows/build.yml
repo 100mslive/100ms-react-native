@@ -73,7 +73,7 @@ jobs:
       - name: Build Android App
         run: |
           cd packages/react-native-room-kit/example/android
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleRelease --no-daemon
 
   build_ios:
     name: Build iOS App
