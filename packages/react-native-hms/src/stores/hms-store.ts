@@ -8,6 +8,6 @@ import type { HMSStore } from './types';
 export const useHMSStore = create<HMSStore>()(
   subscribeWithSelector((...a) => ({
     ...createHMSHLSPlayerPlaybackSlice(...a),
-    ...createHMSViewsSlice(...a)
+    ...createHMSViewsSlice(...a),
   }))
 );
