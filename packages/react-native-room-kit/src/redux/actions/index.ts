@@ -399,3 +399,8 @@ export const setEditUsernameDisabled = (editUsernameDisabled: boolean) => ({
   type: actionTypes.SET_EDIT_USERNAME_DISABLED,
   payload: { editUsernameDisabled },
 });
+
+export const setInitialRole = (initialRole: HMSRole) => ({
+  type: actionTypes.SET_INITIAL_ROLE,
+  payload: { initialRole },
+});

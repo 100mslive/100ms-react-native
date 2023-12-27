@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Keyboard,
   StyleSheet,
@@ -20,7 +20,7 @@ import { HMSPreviewTile } from './HMSPreviewTile';
 import { HMSPreviewTitle } from './HMSPreviewTitle';
 import { HMSManageAudioOutput } from './HMSManageAudioOutput';
 import { HMSPreviewNetworkQuality } from './HMSPreviewNetworkQuality';
-import { useCanPublishVideo } from '../hooks-sdk';
+import { useCanPublishVideo, useHMSActions } from '../hooks-sdk';
 import { HMSPreviewHLSLiveIndicator } from './HMSPreviewHLSLiveIndicator';
 import { CompanyLogo } from './CompanyLogo';
 import {
@@ -74,6 +74,19 @@ export const Preview = ({
     }),
     []
   );
+
+  const hmsActions = useHMSActions();
+
+  useEffect(() => {
+    async function setupAudioVideoOnPreview() {
+      // TODO: rectify the below issue,
+      // false means audio/video is enabled, true means audio/video is disabled
+      // it should have been true means audio/video is enabled, false means audio/video is disabled
+      await hmsActions.setLocalAudioEnabled(false);
+      await hmsActions.setLocalVideoEnabled(false);
+    }
+    setupAudioVideoOnPreview().then((r) => console.log(r));
+  }, []);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>

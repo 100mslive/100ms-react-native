@@ -61,7 +61,11 @@ export const HMSHandRaiseNotification: React.FC<
       );
     }
     dispatch(removeNotification(id));
-    await hmsInstance.changeRoleOfPeer(peer, onStageRole, false);
+    await hmsInstance.changeRoleOfPeer(
+      peer,
+      onStageRole,
+      onStageExpData?.skip_preview_for_role_change || false
+    );
   };
 
   return (

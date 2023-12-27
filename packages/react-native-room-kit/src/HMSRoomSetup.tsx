@@ -16,6 +16,7 @@ import {
   changeStartingHLSStream,
   setHMSLocalPeerState,
   setHMSRoomState,
+  setInitialRole,
   setLocalPeerTrackNode,
   setMiniViewPeerTrackNode,
   updateLocalPeerTrackNode,
@@ -311,6 +312,9 @@ export const HMSRoomSetup = () => {
 
         dispatch(setHMSRoomState(data.room));
         dispatch(setHMSLocalPeerState(data.room.localPeer));
+        if (data.room.localPeer.role) {
+          dispatch(setInitialRole(data.room.localPeer.role));
+        }
       });
 
       // If `peerTrackNodes` also contains a tile for local peer then updating it
