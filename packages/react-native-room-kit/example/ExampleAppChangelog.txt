@@ -12,4 +12,4 @@ https://100ms.atlassian.net/browse/RN-150
 Room Kit: 1.0.8
 React Native SDK: 1.9.7
 Android SDK: 2.8.6
-iOS SDK: 1.4.2
+iOS SDK: 1.4.1
