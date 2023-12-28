@@ -6,7 +6,7 @@ type ActionType = {
   type: String;
 };
 
-type IntialStateType = {
+type InitialStateType = {
   joinConfig: {
     debugMode: boolean;
     mutedAudio: boolean;
@@ -21,11 +21,11 @@ type IntialStateType = {
   };
 };
 
-const INITIAL_STATE: IntialStateType = {
+const INITIAL_STATE: InitialStateType = {
   joinConfig: {
     debugMode: false,
-    mutedAudio: false,
-    mutedVideo: false,
+    mutedAudio: true,
+    mutedVideo: true,
     mirrorCamera: true,
     skipPreview: false,
     audioMixer: false, // IOS only
@@ -39,7 +39,7 @@ const INITIAL_STATE: IntialStateType = {
 const appReducer = (
   state = INITIAL_STATE,
   action: ActionType
-): IntialStateType => {
+): InitialStateType => {
   switch (action.type) {
     case ActionTypes.RESET_JOIN_CONFIG:
       return {

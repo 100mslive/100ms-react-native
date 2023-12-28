@@ -67,6 +67,12 @@ const _ParticipantsItemOptions: React.FC<ParticipantsItemOptionsProps> = ({
     return roles.find((role) => role.name === offStageRoleStr);
   });
 
+  const skipPreviewForRoleChange = useHMSLayoutConfig(
+    (layoutConfig) =>
+      layoutConfig?.screens?.conferencing?.default?.elements?.on_stage_exp
+        ?.skip_preview_for_role_change
+  );
+
   const hmsRoomStyles = useHMSRoomStyleSheet((theme) => ({
     divider: {
       backgroundColor: theme.palette.border_bright,
@@ -79,7 +85,7 @@ const _ParticipantsItemOptions: React.FC<ParticipantsItemOptionsProps> = ({
   const handleBringOnStagePress = () => {
     if (onStageRole) {
       hmsInstance
-        .changeRoleOfPeer(peer, onStageRole)
+        .changeRoleOfPeer(peer, onStageRole, skipPreviewForRoleChange || false)
         .then((d) => console.log('Bring on Stage Success: ', d))
         .catch((e) => console.log('Bring on Stage Error: ', e));
     } else {
@@ -95,7 +101,9 @@ const _ParticipantsItemOptions: React.FC<ParticipantsItemOptionsProps> = ({
         .then((d) => console.log('Lower Remote Peer hand Success: ', d))
         .catch((e) => console.log('Lower Remote Peer hand Error: ', e));
     } else {
-      console.warn(`peer.isHandRaised = ${peer.isHandRaised} | peer's hand is not raised`);
+      console.warn(
+        `peer.isHandRaised = ${peer.isHandRaised} | peer's hand is not raised`
+      );
     }
     onItemPress();
   };
@@ -169,8 +177,7 @@ const _ParticipantsItemOptions: React.FC<ParticipantsItemOptionsProps> = ({
     peer.videoTrack?.isMute();
 
   const showBringOnStageOptions =
-    offStageRoles &&
-    offStageRoles.includes(peer.role?.name || '');
+    offStageRoles && offStageRoles.includes(peer.role?.name || '');
 
   const showLowerHandOption = peer.isHandRaised;
 
@@ -189,9 +196,7 @@ const _ParticipantsItemOptions: React.FC<ParticipantsItemOptionsProps> = ({
         },
         {
           id: 'lower-hand',
-          icon: (
-            <HandIcon type="off" style={{ width: 20, height: 20 }} />
-          ),
+          icon: <HandIcon type="off" style={{ width: 20, height: 20 }} />,
           label: 'Lower Hand',
           pressHandler: handleLowerHandPress,
           isActive: false,

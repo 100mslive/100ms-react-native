@@ -1057,7 +1057,9 @@ const DisplayView = (data: {
         // remove Session Store key update listener on cleanup
         sessionStoreListeners.current.forEach(listener => listener.remove());
 
-        if (toastTimeoutId !== null) clearTimeout(toastTimeoutId);
+        if (toastTimeoutId !== null) {
+          clearTimeout(toastTimeoutId);
+        }
       };
     }
   }, [hmsSessionStore]);

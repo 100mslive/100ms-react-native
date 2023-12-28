@@ -418,3 +418,8 @@ export const setSelectedMessageForAction = (selectedMessageForAction: null | HMS
   type: actionTypes.SET_SELECTED_MESSAGE_FOR_ACTION,
   payload: { selectedMessageForAction },
 });
+
+export const setInitialRole = (initialRole: HMSRole) => ({
+  type: actionTypes.SET_INITIAL_ROLE,
+  payload: { initialRole },
+});

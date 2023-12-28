@@ -60,7 +60,7 @@ import {
 } from './utils/types';
 import { ChatBroadcastFilter } from './utils/types';
 import type { OnLeaveHandler, PeerTrackNode } from './utils/types';
-import { createPeerTrackNode } from './utils/functions';
+import { createPeerTrackNode, parseMetadata } from './utils/functions';
 import {
   batch,
   shallowEqual,
@@ -150,6 +150,7 @@ import { getRoomLayout } from './modules/HMSManager';
 import { DEFAULT_THEME, DEFAULT_TYPOGRAPHY } from './utils/theme';
 import { NotificationTypes } from './types';
 import { KeyboardState, useSharedValue } from 'react-native-reanimated';
+import { useHMSActions } from './hooks-sdk';
 
 export const useHMSListeners = (
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>
@@ -217,6 +218,7 @@ const useHMSPeersUpdate = (
   // const inMeeting = useSelector(
   //   (state: RootState) => state.app.meetingState === MeetingState.IN_MEETING
   // );
+  const hmsActions = useHMSActions();
 
   useEffect(() => {
     const peerUpdateHandler = ({ peer, type }: PeerUpdate) => {
@@ -270,6 +272,7 @@ const useHMSPeersUpdate = (
         const fullScreenPeerTrackNode = reduxState.app.fullScreenPeerTrackNode;
         const miniviewPeerTrackNode = reduxState.app.miniviewPeerTrackNode;
         const localPeerTrackNode = reduxState.app.localPeerTrackNode;
+        const initialRole = reduxState.app.initialRole;
 
         // Currently Applied Layout config
         const currentLayoutConfig = selectLayoutConfigForRole(
@@ -340,6 +343,26 @@ const useHMSPeersUpdate = (
         // - TODO: update local localPeer state
         // - Pass this updated data to Meeting component -> DisplayView component
         updateLocalPeer();
+
+        if (type === HMSPeerUpdate.ROLE_CHANGED) {
+          const parsedLocalPeerMetadata = parseMetadata(peer.metadata);
+
+          if (parsedLocalPeerMetadata.prevRole !== initialRole) {
+            const newMetadata = {
+              ...parsedLocalPeerMetadata,
+              prevRole: initialRole?.name,
+            };
+
+            hmsActions
+              .changeMetadata(newMetadata)
+              .then((r) => {
+                console.log('Metadata changed successfully', r);
+              })
+              .catch((e) => {
+                console.log('Metadata change failed', e);
+              });
+          }
+        }
         return;
       }
       if (type === HMSPeerUpdate.ROLE_CHANGED) {

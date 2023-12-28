@@ -10,6 +10,7 @@ import {
   HMSPeer,
   HMSRemoteAudioStats,
   HMSRemoteVideoStats,
+  HMSRole,
 } from '@100mslive/react-native-hms';
 import { MeetingState } from '../../types';
 import type { ChatState, Notification } from '../../types';
@@ -59,6 +60,7 @@ type IntialStateType = {
   autoEnterPipMode: boolean;
   editUsernameDisabled: boolean;
   selectedMessageForAction: null | HMSMessage;
+  initialRole: HMSRole | null;
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -94,6 +96,7 @@ const INITIAL_STATE: IntialStateType = {
   autoEnterPipMode: false,
   editUsernameDisabled: false,
   selectedMessageForAction: null,
+  initialRole: null,
 };
 
 const appReducer = (
@@ -337,6 +340,12 @@ const appReducer = (
         selectedMessageForAction:
           action.payload.selectedMessageForAction ??
           INITIAL_STATE.selectedMessageForAction
+      };
+    }
+    case ActionTypes.SET_INITIAL_ROLE: {
+      return {
+        ...state,
+        initialRole: action.payload.initialRole ?? INITIAL_STATE.initialRole,
       };
     }
     case HmsStateActionTypes.CLEAR_STATES:

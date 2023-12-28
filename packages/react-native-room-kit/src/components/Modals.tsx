@@ -40,7 +40,7 @@ import { ModalTypes, SUPPORTED_ASPECT_RATIOS } from '../utils/types';
 import { COLORS } from '../utils/theme';
 import type { RootState } from '../redux';
 import { SwitchRow } from './SwitchRow';
-import { useHMSInstance } from '../hooks-util';
+import { useHMSConferencingScreenConfig, useHMSInstance } from '../hooks-util';
 
 export const ChangeRoleModal = ({ cancelModal }: { cancelModal: Function }) => {
   const instance = useHMSInstance();
@@ -48,16 +48,31 @@ export const ChangeRoleModal = ({ cancelModal }: { cancelModal: Function }) => {
   const roles = useSelector((state: RootState) => state.hmsStates.roles);
 
   const [newRole, setNewRole] = useState<HMSRole>(peer?.role!);
-  const [request, setRequest] = useState<boolean>(false);
   const [visible, setVisible] = useState<boolean>(false);
 
+  const skipPreviewForRoleChange = useHMSConferencingScreenConfig(
+    (conferencingScreenConfig) => {
+      if (
+        conferencingScreenConfig?.elements &&
+        'on_stage_exp' in conferencingScreenConfig.elements
+      ) {
+        return (
+          conferencingScreenConfig.elements.on_stage_exp
+            ?.skip_preview_for_role_change || false
+        );
+      }
+      return false;
+    }
+  );
   const hideMenu = () => setVisible(false);
   const showMenu = () => setVisible(true);
   const changeRole = () => {
-    instance?.changeRoleOfPeer(peer!, newRole, !request).catch((e) => {
-      console.log('Change Role of Peer Error: ', e);
-      Toast.showWithGravity((e as Error).message, Toast.LONG, Toast.TOP);
-    });
+    instance
+      ?.changeRoleOfPeer(peer!, newRole, skipPreviewForRoleChange)
+      .catch((e) => {
+        console.log('Change Role of Peer Error: ', e);
+        Toast.showWithGravity((e as Error).message, Toast.LONG, Toast.TOP);
+      });
     cancelModal();
   };
 
@@ -100,23 +115,6 @@ export const ChangeRoleModal = ({ cancelModal }: { cancelModal: Function }) => {
           );
         })}
       </Menu>
-      {!peer?.isLocal && (
-        <TouchableOpacity
-          style={styles.roleChangeModalPermissionContainer}
-          onPress={() => {
-            setRequest(!request);
-          }}
-        >
-          <Text
-            style={[
-              styles.roleChangeModalPermission,
-              request ? { color: COLORS.PRIMARY.DEFAULT } : null,
-            ]}
-          >
-            Request permission from the user
-          </Text>
-        </TouchableOpacity>
-      )}
       <View style={styles.roleChangeModalPermissionContainer}>
         <CustomButton
           title="Cancel"
@@ -347,8 +345,8 @@ export const RtcStatsModal = () => {
                                       value?.width ?? 0
                                     }`
                                   : key === 'qualityLimitationReasons'
-                                  ? value.reason
-                                  : value}
+                                    ? value.reason
+                                    : value}
                               </Text>
                             </View>
                           );

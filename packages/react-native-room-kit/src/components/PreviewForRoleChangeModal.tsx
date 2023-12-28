@@ -124,8 +124,9 @@ const _PreviewForRoleChangeModal = () => {
           track.type === HMSTrackType.VIDEO
       ) as HMSLocalVideoTrack;
       if (localVideoTrack) {
+        localVideoTrack.setMute(false);
         setLocalVideoTrack(localVideoTrack);
-        setIsLocalVideoMuted(localVideoTrack.isMute());
+        setIsLocalVideoMuted(false);
       }
 
       const localAudioTrack = previewForRoleTracks.find(
@@ -133,8 +134,9 @@ const _PreviewForRoleChangeModal = () => {
           track.type === HMSTrackType.AUDIO
       ) as HMSLocalAudioTrack;
       if (localAudioTrack) {
+        localAudioTrack.setMute(false);
         setLocalAudioTrack(localAudioTrack);
-        setIsLocalAudioMuted(localAudioTrack.isMute());
+        setIsLocalAudioMuted(false);
       }
 
       // lower hand
@@ -362,7 +364,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     position: 'relative',
-    backgroundColor: 'silver',
   },
   header: {
     position: 'absolute',

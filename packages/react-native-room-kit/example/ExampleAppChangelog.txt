@@ -9,7 +9,10 @@ https://100ms.atlassian.net/browse/RN-136
 - Send to picker based on layout API
 https://100ms.atlassian.net/browse/RN-141
 
-Room Kit: 1.0.7
-React Native SDK: 1.9.6
-Android SDK: 2.8.3
-iOS SDK: 1.4.0
+- One click role change on Prebuilt
+https://100ms.atlassian.net/browse/RN-150
+
+Room Kit: 1.0.8
+React Native SDK: 1.9.7
+Android SDK: 2.8.6
+iOS SDK: 1.4.2
