@@ -23,6 +23,7 @@ jobs:
 
       - name: Trunk Format
         run: |
+          curl https://get.trunk.io -fsSL | bash
           trunk fmt
 
       - name: Commit and Push changes
