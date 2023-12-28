@@ -131,7 +131,7 @@ const _ParticipantsItemOptions: React.FC<ParticipantsItemOptionsProps> = ({
   const handleRemoveFromStagePress = () => {
     if (offStageRole) {
       hmsInstance
-        .changeRoleOfPeer(peer, offStageRole, skipPreviewForRoleChange || false)
+        .changeRoleOfPeer(peer, offStageRole, true)
         .then((d) => console.log('Remove from Stage Success: ', d))
         .catch((e) => console.log('Remove from Stage Error: ', e));
     } else {
