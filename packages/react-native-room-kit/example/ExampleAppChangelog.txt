@@ -6,7 +6,7 @@ https://100ms.atlassian.net/browse/RN-138
 - Disable editing username in preview screen if username is passed to prebuilt in options config
 https://100ms.atlassian.net/browse/RN-143
 
-Room Kit: 1.0.7
-React Native SDK: 1.9.6
-Android SDK: 2.8.3
-iOS SDK: 1.4.0
+Room Kit: 1.0.8
+React Native SDK: 1.9.7
+Android SDK: 2.8.6
+iOS SDK: 1.4.2
