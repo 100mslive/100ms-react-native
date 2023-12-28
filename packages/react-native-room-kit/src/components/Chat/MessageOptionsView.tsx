@@ -1,9 +1,13 @@
 import * as React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { StyleProp, ViewStyle, TextStyle } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { useHMSMessagePinningActions, useHMSRoomStyle, useIsMessagePinned } from '../../hooks-util';
+import {
+  useHMSMessagePinningActions,
+  useHMSRoomStyle,
+  useIsMessagePinned,
+} from '../../hooks-util';
 import type { RootState } from '../../redux';
 import { BottomSheet } from '../BottomSheet';
 import { PinIcon } from '../../Icons';
@@ -13,9 +17,13 @@ interface MessageOptionsViewProps {
   onDismiss?: () => void;
 }
 
-const _MessageOptionsView: React.FC<MessageOptionsViewProps> = ({ onDismiss }) => {
+const _MessageOptionsView: React.FC<MessageOptionsViewProps> = ({
+  onDismiss,
+}) => {
   const dispatch = useDispatch();
-  const selectedMessageForAction = useSelector((state: RootState) => state.app.selectedMessageForAction);
+  const selectedMessageForAction = useSelector(
+    (state: RootState) => state.app.selectedMessageForAction
+  );
   const isPinned = useIsMessagePinned(selectedMessageForAction);
   const { pinMessage, unpinMessage } = useHMSMessagePinningActions();
 
@@ -112,7 +120,7 @@ const styles = StyleSheet.create({
   bottomSpacer: {
     width: '100%',
     height: 32,
-  }
+  },
 });
 
 export const MessageOptionsView = React.memo(_MessageOptionsView);

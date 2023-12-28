@@ -69,17 +69,16 @@ export const HMSNotification: React.FC<HMSNotificationProps> = ({
       <View style={styles.leftWrapper}>
         {icon ? (
           <View style={styles.icon}>
-            {
-            typeof icon === 'string'
-              ? getIcon(icon)
-              : icon
-            }
+            {typeof icon === 'string' ? getIcon(icon) : icon}
           </View>
         ) : null}
 
         <View>
           {typeof text === 'string' ? (
-            <Text testID={textTestID} style={[styles.text, hmsRoomStyles.text, textStyle]}>
+            <Text
+              testID={textTestID}
+              style={[styles.text, hmsRoomStyles.text, textStyle]}
+            >
               {text}
             </Text>
           ) : (
@@ -166,7 +165,7 @@ function getIcon(icon: string) {
   switch (icon) {
     case 'chat-off':
     case 'chat-on':
-      return <ChatIcon type={icon === 'chat-on' ? 'on' : 'off'} />
+      return <ChatIcon type={icon === 'chat-on' ? 'on' : 'off'} />;
 
     default:
       return null;

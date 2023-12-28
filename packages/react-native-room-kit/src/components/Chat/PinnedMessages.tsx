@@ -1,10 +1,5 @@
 import * as React from 'react';
-import {
-  View,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-} from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import type { TextLayoutEventData } from 'react-native';
 import { useSelector } from 'react-redux';
 import { FlashList } from '@shopify/flash-list';
@@ -12,7 +7,11 @@ import type { ViewToken } from '@shopify/flash-list';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 
 import type { RootState } from '../../redux';
-import { useAllowPinningMessage, useHMSMessagePinningActions, useHMSRoomStyleSheet } from '../../hooks-util';
+import {
+  useAllowPinningMessage,
+  useHMSMessagePinningActions,
+  useHMSRoomStyleSheet,
+} from '../../hooks-util';
 import { PinIcon } from '../../Icons';
 import type { PinnedMessage } from 'src/types';
 import { hexToRgbA } from '../../utils/theme';
@@ -26,14 +25,19 @@ interface PinnedMessagesProps {
   insetMode?: boolean;
 }
 
-export const PinnedMessages: React.FC<PinnedMessagesProps> = ({ insetMode=false }) => {
+export const PinnedMessages: React.FC<PinnedMessagesProps> = ({
+  insetMode = false,
+}) => {
   const listRef = React.useRef<null | React.ElementRef<typeof FlashList>>(null);
-  const textComponentLayoutsRefs = React.useRef<Record<string, TextLayoutEventData>>({});
+  const textComponentLayoutsRefs = React.useRef<
+    Record<string, TextLayoutEventData>
+  >({});
 
   const [listHeight, setListHeight] = React.useState(42);
   const listHeightRef = React.useRef(42);
 
-  const [selectedPinnedMessageIndex, setSelectedMessageIndex] = React.useState(0);
+  const [selectedPinnedMessageIndex, setSelectedMessageIndex] =
+    React.useState(0);
   const selectedPinnedMessageIndexRef = React.useRef(0);
 
   const allowPinningMessage = useAllowPinningMessage();
@@ -45,7 +49,9 @@ export const PinnedMessages: React.FC<PinnedMessagesProps> = ({ insetMode=false 
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     insetContainer: {
-      backgroundColor: theme.palette.background_dim && hexToRgbA(theme.palette.background_dim, 0.64)
+      backgroundColor:
+        theme.palette.background_dim &&
+        hexToRgbA(theme.palette.background_dim, 0.64),
     },
     pinContainer: {
       backgroundColor: theme.palette.surface_default,
@@ -75,17 +81,28 @@ export const PinnedMessages: React.FC<PinnedMessagesProps> = ({ insetMode=false 
       setListHeight(42);
       listHeightRef.current = 42;
     } else {
-      console.log('***** selectedPinnedMessageIndex > ', selectedPinnedMessageIndexRef.current);
-      const visiblePinnedMessage = pinnedMessages[selectedPinnedMessageIndexRef.current];
+      console.log(
+        '***** selectedPinnedMessageIndex > ',
+        selectedPinnedMessageIndexRef.current
+      );
+      const visiblePinnedMessage =
+        pinnedMessages[selectedPinnedMessageIndexRef.current];
       console.log('***** pinnedMessages length > ', pinnedMessages.length);
-      console.log('***** visiblePinnedMessage exists? > ', !!visiblePinnedMessage);
+      console.log(
+        '***** visiblePinnedMessage exists? > ',
+        !!visiblePinnedMessage
+      );
       if (visiblePinnedMessage) {
-        const visibleMessageLayout = textComponentLayoutsRefs.current[visiblePinnedMessage.id];
-        console.log('***** visibleMessageLayout #lines > ', visibleMessageLayout?.lines.length);
+        const visibleMessageLayout =
+          textComponentLayoutsRefs.current[visiblePinnedMessage.id];
+        console.log(
+          '***** visibleMessageLayout #lines > ',
+          visibleMessageLayout?.lines.length
+        );
         if (visibleMessageLayout) {
           if (visibleMessageLayout.lines.length > 2) {
-            setListHeight((visibleMessageLayout.lines.length * 20) + 2);
-            listHeightRef.current = (visibleMessageLayout.lines.length * 20) + 2;
+            setListHeight(visibleMessageLayout.lines.length * 20 + 2);
+            listHeightRef.current = visibleMessageLayout.lines.length * 20 + 2;
 
             // setTimeout(() => {
             //  listRef.current?.scrollToIndex({ index: selectedPinnedMessageIndexRef.current, animated: false });
@@ -97,7 +114,8 @@ export const PinnedMessages: React.FC<PinnedMessagesProps> = ({ insetMode=false 
   }, [listHeight, pinnedMessages]);
 
   const handleUnpinMessagePress = React.useCallback(() => {
-    const visiblePinnedMessage = pinnedMessages[selectedPinnedMessageIndexRef.current];
+    const visiblePinnedMessage =
+      pinnedMessages[selectedPinnedMessageIndexRef.current];
     if (visiblePinnedMessage) {
       if (listHeight > 42) {
         setListHeight(42);
@@ -116,7 +134,7 @@ export const PinnedMessages: React.FC<PinnedMessagesProps> = ({ insetMode=false 
       ) {
         let viewableIndexChanged = false;
 
-        setSelectedMessageIndex(currIndex => {
+        setSelectedMessageIndex((currIndex) => {
           if (currIndex !== firstViewable.index) {
             viewableIndexChanged = true;
           }
@@ -134,37 +152,40 @@ export const PinnedMessages: React.FC<PinnedMessagesProps> = ({ insetMode=false 
     []
   );
 
-  const _renderItem = React.useCallback((data: { item: PinnedMessage }) => {
-    const [sender, text] = data.item.text.split(':');
-    return (
-      <TouchableOpacity
-        activeOpacity={0.8}
-        onPress={handleTapOnPinnedMessage}
-        style={{ height: listHeight, justifyContent: 'center' }}
-      >
-        <Text
-          onTextLayout={({ nativeEvent }) => {
-            textComponentLayoutsRefs.current[data.item.id] = nativeEvent;
-          }}
-          style={[styles.text, hmsRoomStyles.text]}
+  const _renderItem = React.useCallback(
+    (data: { item: PinnedMessage }) => {
+      const [sender, text] = data.item.text.split(':');
+      return (
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={handleTapOnPinnedMessage}
+          style={{ height: listHeight, justifyContent: 'center' }}
         >
-          {text ? (
-            <Text style={hmsRoomStyles.highlightedText}>{sender}: </Text>
-          ) : null}
-          {text ?? sender}
-        </Text>
-      </TouchableOpacity>
-    );
-  }, [listHeight, handleTapOnPinnedMessage]);
-
-  const _keyExtractor = React.useCallback(
-    (item: PinnedMessage) => item.id,
-    []
+          <Text
+            onTextLayout={({ nativeEvent }) => {
+              textComponentLayoutsRefs.current[data.item.id] = nativeEvent;
+            }}
+            style={[styles.text, hmsRoomStyles.text]}
+          >
+            {text ? (
+              <Text style={hmsRoomStyles.highlightedText}>{sender}: </Text>
+            ) : null}
+            {text ?? sender}
+          </Text>
+        </TouchableOpacity>
+      );
+    },
+    [listHeight, handleTapOnPinnedMessage]
   );
+
+  const _keyExtractor = React.useCallback((item: PinnedMessage) => item.id, []);
 
   const tapGesture = React.useMemo(() => Gesture.Tap(), []);
 
-  const extraData = React.useMemo(() => [listHeight, pinnedMessages], [listHeight, pinnedMessages]);
+  const extraData = React.useMemo(
+    () => [listHeight, pinnedMessages],
+    [listHeight, pinnedMessages]
+  );
 
   if (pinnedMessages.length <= 0) {
     return null;
@@ -172,15 +193,17 @@ export const PinnedMessages: React.FC<PinnedMessagesProps> = ({ insetMode=false 
 
   return (
     <GestureDetector gesture={tapGesture}>
-      <View style={[
-        insetMode ? styles.insetContainer : styles.container,
-        insetMode ? hmsRoomStyles.insetContainer : null,
-      ]}>
+      <View
+        style={[
+          insetMode ? styles.insetContainer : styles.container,
+          insetMode ? hmsRoomStyles.insetContainer : null,
+        ]}
+      >
         <View
           style={[
             styles.pinContainer,
             insetMode ? { paddingRight: 0 } : hmsRoomStyles.pinContainer,
-            { height: listHeight + 16 }
+            { height: listHeight + 16 },
           ]}
         >
           {pinnedMessages.length > 1 ? (
@@ -190,14 +213,16 @@ export const PinnedMessages: React.FC<PinnedMessagesProps> = ({ insetMode=false 
                 const isSelected = selectedPinnedMessageIndex === idx;
                 return (
                   <React.Fragment key={message.id}>
-                    {isFirst ? null : <View style={[{ height: 3, width: 2 }]} />}
+                    {isFirst ? null : (
+                      <View style={[{ height: 3, width: 2 }]} />
+                    )}
 
                     <View
                       style={[
                         { width: 2, flexGrow: 1, borderRadius: 16 },
                         isSelected
                           ? hmsRoomStyles.activeMessageContainer
-                          : hmsRoomStyles.inactiveMessageContainer
+                          : hmsRoomStyles.inactiveMessageContainer,
                       ]}
                     />
                   </React.Fragment>
@@ -222,8 +247,14 @@ export const PinnedMessages: React.FC<PinnedMessagesProps> = ({ insetMode=false 
         </View>
 
         {allowPinningMessage ? (
-          <TouchableOpacity style={{marginLeft: 8}} onPress={handleUnpinMessagePress}>
-            <PinIcon type='unpin' style={[styles.icon, hmsRoomStyles.closeIcon]} />
+          <TouchableOpacity
+            style={{ marginLeft: 8 }}
+            onPress={handleUnpinMessagePress}
+          >
+            <PinIcon
+              type="unpin"
+              style={[styles.icon, hmsRoomStyles.closeIcon]}
+            />
           </TouchableOpacity>
         ) : null}
       </View>
@@ -244,7 +275,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
     marginBottom: 4,
     borderRadius: 8,
-    paddingRight: 8
+    paddingRight: 8,
   },
   pinContainer: {
     flexDirection: 'row',

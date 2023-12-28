@@ -339,7 +339,7 @@ const appReducer = (
         ...state,
         selectedMessageForAction:
           action.payload.selectedMessageForAction ??
-          INITIAL_STATE.selectedMessageForAction
+          INITIAL_STATE.selectedMessageForAction,
       };
     }
     case ActionTypes.SET_INITIAL_ROLE: {

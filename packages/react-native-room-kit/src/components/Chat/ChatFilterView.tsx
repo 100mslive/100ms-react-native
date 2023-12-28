@@ -164,8 +164,8 @@ const _ChatFilterView: React.FC<ChatFilterViewProps> = ({ onDismiss }) => {
                 {loadingPeersList
                   ? 'Loading Participants...'
                   : formattedFilterText.length > 0
-                  ? 'No participants found!'
-                  : 'There is no one in the session!'}
+                    ? 'No participants found!'
+                    : 'There is no one in the session!'}
               </Text>
             </View>
           ) : null
@@ -214,7 +214,9 @@ const _ChatFilterView: React.FC<ChatFilterViewProps> = ({ onDismiss }) => {
               <BottomSheet.Divider style={styles.divider} />
             ) : null}
 
-            {rolesSpecificChat.length <= 0 && privateChat && showBroadcastOption ? (
+            {rolesSpecificChat.length <= 0 &&
+            privateChat &&
+            showBroadcastOption ? (
               <BottomSheet.Divider style={styles.divider} />
             ) : null}
 

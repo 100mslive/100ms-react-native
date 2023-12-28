@@ -87,7 +87,7 @@ export type {
   JsonArray,
   JsonMap,
   JsonPrimitive,
-  JsonValue
+  JsonValue,
 } from './classes/HMSSessionStore';
 export type {
   HmsViewComponent as HMSView,

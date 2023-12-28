@@ -20,7 +20,8 @@ const INITIAL_STATE: InitType = {
 const messageReducer = (state = INITIAL_STATE, action: ActionType) => {
   switch (action.type) {
     case ActionTypes.ADD_PINNED_MESSAGES.REQUEST:
-      const pinnedMessages = (action.payload ?? INITIAL_STATE.pinnedMessages) as PinnedMessage[];
+      const pinnedMessages = (action.payload ??
+        INITIAL_STATE.pinnedMessages) as PinnedMessage[];
       return { ...state, pinnedMessages };
     case ActionTypes.ADD_MESSAGE.REQUEST:
       const message = action.payload as HMSMessage;

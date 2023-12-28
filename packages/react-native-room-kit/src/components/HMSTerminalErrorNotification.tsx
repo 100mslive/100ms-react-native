@@ -44,7 +44,7 @@ export const HMSTerminalErrorNotification: React.FC<
       text={exception.description || 'Something went wrong!'}
       dismissDelay={dismissDelay}
       autoDismiss={autoDismiss}
-      cta={(
+      cta={
         <GestureDetector gesture={tapGesture}>
           <TouchableOpacity
             style={[styles.button, hmsRoomStyles.button]}
@@ -55,7 +55,7 @@ export const HMSTerminalErrorNotification: React.FC<
             </Text>
           </TouchableOpacity>
         </GestureDetector>
-      )}
+      }
     />
   );
 };

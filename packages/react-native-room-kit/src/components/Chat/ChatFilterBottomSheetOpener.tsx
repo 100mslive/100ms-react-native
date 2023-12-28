@@ -50,7 +50,8 @@ const _ChatFilterBottomSheetOpener: React.FC<
       },
       button: {
         backgroundColor: insetMode
-          ? (theme.palette.background_dim && hexToRgbA(theme.palette.background_dim, 0.64))
+          ? theme.palette.background_dim &&
+            hexToRgbA(theme.palette.background_dim, 0.64)
           : theme.palette.primary_default,
       },
       buttonText: {
@@ -58,7 +59,9 @@ const _ChatFilterBottomSheetOpener: React.FC<
         fontFamily: `${typography.font_family}-Regular`,
       },
       moreAction: {
-        backgroundColor: theme.palette.background_dim && hexToRgbA(theme.palette.background_dim, 0.64),
+        backgroundColor:
+          theme.palette.background_dim &&
+          hexToRgbA(theme.palette.background_dim, 0.64),
       },
       moreActionIcon: {
         tintColor: insetMode
@@ -110,8 +113,8 @@ const _ChatFilterBottomSheetOpener: React.FC<
                   chatRecipients.privateChat
                     ? 'Participant'
                     : chatRecipients.roles.length > 0
-                    ? 'Role'
-                    : ''
+                      ? 'Role'
+                      : ''
                 }`}
           </Text>
 
@@ -152,10 +155,7 @@ const _ChatFilterBottomSheetOpener: React.FC<
       {canDisableChat && insetMode ? (
         <PressableIcon
           onPress={openChatMoreActionsSheet}
-          style={[
-            styles.moreAction,
-            hmsRoomStyles.moreAction,
-          ]}
+          style={[styles.moreAction, hmsRoomStyles.moreAction]}
         >
           <ThreeDotsIcon stack="vertical" style={styles.moreActionIcon} />
         </PressableIcon>

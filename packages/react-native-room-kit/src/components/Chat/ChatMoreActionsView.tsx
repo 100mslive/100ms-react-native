@@ -41,7 +41,9 @@ const _ChatMoreActionsView: React.FC<ChatMoreActionsViewProps> = ({
     <View style={[styles.container, hmsRoomStyles.container]}>
       <TouchableOpacity onPress={pauseChatHandler} style={styles.button}>
         <View style={styles.buttonWrapper}>
-          {chatState.enabled ? <PauseCircleIcon style={styles.buttonIcon} /> : null}
+          {chatState.enabled ? (
+            <PauseCircleIcon style={styles.buttonIcon} />
+          ) : null}
           <Text style={[styles.buttonText, hmsRoomStyles.buttonText]}>
             {chatState.enabled ? 'Pause Chat' : 'Resume Chat'}
           </Text>

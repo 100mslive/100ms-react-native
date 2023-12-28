@@ -1,10 +1,20 @@
 import * as React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { View, Text, StyleSheet, Platform, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Platform,
+  TouchableOpacity,
+} from 'react-native';
 import type { HMSMessage } from '@100mslive/react-native-hms';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
-import { useAllowPinningMessage, useHMSRoomStyleSheet, useModalType } from '../hooks-util';
+import {
+  useAllowPinningMessage,
+  useHMSRoomStyleSheet,
+  useModalType,
+} from '../hooks-util';
 import { PinIcon, ThreeDotsIcon } from '../Icons';
 import { setSelectedMessageForAction } from '../redux/actions';
 import { ModalTypes } from '../utils/types';
@@ -88,10 +98,7 @@ const _HMSHLSMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
             >
               <ThreeDotsIcon
                 stack="vertical"
-                style={[
-                  styles.threeDots,
-                  hmsRoomStyles.threeDots,
-                ]}
+                style={[styles.threeDots, hmsRoomStyles.threeDots]}
               />
             </TouchableOpacity>
           </GestureDetector>

@@ -12,7 +12,7 @@ import type { EmitterSubscription } from '../utils';
 export type JsonPrimitive = string | number | boolean | null;
 export type JsonMap = {
   [key: string]: JsonPrimitive | JsonMap | JsonArray;
-}
+};
 export type JsonArray = Array<JsonPrimitive | JsonMap | JsonArray>;
 export type JsonValue = JsonPrimitive | JsonMap | JsonArray;
 
@@ -46,12 +46,11 @@ export class HMSSessionStore {
    * @returns {Promise}
    */
   async set(value: JsonValue, key: string) {
-    const data: { success: true; } =
-      await HMSManager.setSessionMetadataForKey({
-        id: HMSConstants.DEFAULT_SDK_ID,
-        key,
-        value,
-      });
+    const data: { success: true } = await HMSManager.setSessionMetadataForKey({
+      id: HMSConstants.DEFAULT_SDK_ID,
+      key,
+      value,
+    });
     return data;
   }
 
@@ -66,11 +65,10 @@ export class HMSSessionStore {
    * @returns {Promise}
    */
   async get(key: string) {
-    const data: JsonValue =
-      await HMSManager.getSessionMetadataForKey({
-        id: HMSConstants.DEFAULT_SDK_ID,
-        key,
-      });
+    const data: JsonValue = await HMSManager.getSessionMetadataForKey({
+      id: HMSConstants.DEFAULT_SDK_ID,
+      key,
+    });
     return data;
   }
 

@@ -2178,14 +2178,15 @@ class HMSRNSDK(
           return
         }
 
-        val value: Any? = when (data.getType("value")) {
-          ReadableType.Boolean -> data.getBoolean("value")
-          ReadableType.Map -> data.getMap("value")?.toHashMap()
-          ReadableType.String -> data.getString("value")
-          ReadableType.Array -> data.getArray("value")?.toArrayList()
-          ReadableType.Number -> data.getDouble("value")
-          ReadableType.Null -> null
-        }
+        val value: Any? =
+          when (data.getType("value")) {
+            ReadableType.Boolean -> data.getBoolean("value")
+            ReadableType.Map -> data.getMap("value")?.toHashMap()
+            ReadableType.String -> data.getString("value")
+            ReadableType.Array -> data.getArray("value")?.toArrayList()
+            ReadableType.Number -> data.getDouble("value")
+            ReadableType.Null -> null
+          }
 
         it.set(
           value, // data/value

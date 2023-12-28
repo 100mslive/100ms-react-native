@@ -19,9 +19,7 @@ interface HMSHLSMessageProps {
   message: HMSMessage;
 }
 
-const _ChatMessage: React.FC<HMSHLSMessageProps> = ({
-  message,
-}) => {
+const _ChatMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
   const dispatch = useDispatch();
   const isPinned = useSelector(
     (state: RootState) =>
@@ -29,7 +27,6 @@ const _ChatMessage: React.FC<HMSHLSMessageProps> = ({
         (pinnedMessage) => pinnedMessage.id === message.messageId
       ) >= 0
   );
-
 
   const allowPinningMessage = useAllowPinningMessage();
 

@@ -20,3 +20,7 @@ jobs:
 
       - name: Trunk Check
         uses: trunk-io/trunk-action@v1.1.9
+
+      - name: Trunk Format
+        run: |
+          trunk fmt

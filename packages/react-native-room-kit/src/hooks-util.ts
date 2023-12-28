@@ -377,7 +377,7 @@ const useHMSPeersUpdate = (
         //   };
         //   await hmsActions.changeMetadata(newMetadata);
         // }
-        
+
         // Handling regular tiles list
         if (
           peer.role?.publishSettings?.allowed === undefined ||
@@ -1115,8 +1115,12 @@ export const useHMSSessionStoreListeners = (
                     icon: parsedData.enabled ? 'chat-on' : 'chat-off',
                     type: NotificationTypes.INFO,
                     title: `Chat ${parsedData.enabled ? 'Resumed' : 'Paused'}`,
-                    message: `Chat ${parsedData.enabled ? 'resumed' : 'paused'} ${
-                      parsedData.updatedBy ? `by ${parsedData.updatedBy.userName}` : ''
+                    message: `Chat ${
+                      parsedData.enabled ? 'resumed' : 'paused'
+                    } ${
+                      parsedData.updatedBy
+                        ? `by ${parsedData.updatedBy.userName}`
+                        : ''
                     }`,
                   })
                 );
@@ -2404,7 +2408,7 @@ type ChatRecipients = {
 };
 
 export const useHMSChatRecipientSelector = <
-  T extends keyof ChatRecipients | undefined = undefined
+  T extends keyof ChatRecipients | undefined = undefined,
 >(
   selector?: T
 ): T extends keyof ChatRecipients ? ChatRecipients[T] : ChatRecipients => {
@@ -2650,11 +2654,12 @@ export const useHMSChatState = () => {
 };
 
 export const useIsMessagePinned = (message: HMSMessage | null) => {
-  return useSelector(
-    (state: RootState) =>
-      message ? state.messages.pinnedMessages.findIndex(
-        (pinnedMessage) => pinnedMessage.id === message.messageId
-      ) >= 0 : false
+  return useSelector((state: RootState) =>
+    message
+      ? state.messages.pinnedMessages.findIndex(
+          (pinnedMessage) => pinnedMessage.id === message.messageId
+        ) >= 0
+      : false
   );
 };
 
@@ -2705,7 +2710,9 @@ export const useHMSMessagePinningActions = () => {
         try {
           const pinnedMessages = store.getState().messages.pinnedMessages;
           const updatedPinnedMessages = pinnedMessages.filter(
-            (pinnedMessage) => pinnedMessage.id !== ('messageId' in message ? message.messageId : message.id)
+            (pinnedMessage) =>
+              pinnedMessage.id !==
+              ('messageId' in message ? message.messageId : message.id)
           );
           const response = await hmsSessionStore.set(
             updatedPinnedMessages,
@@ -2756,13 +2763,7 @@ export const useSetDefaultChatRecipient = () => {
     else if (privateChat) {
       dispatch({ type: 'SET_SENDTO', sendTo: null });
     }
-  }, [
-    privateChat,
-    publicChat,
-    whitelistedRoles,
-    localPeerRoleName,
-    dispatch,
-  ]);
+  }, [privateChat, publicChat, whitelistedRoles, localPeerRoleName, dispatch]);
 };
 
 export const useAndroidSoftInputAdjustResize = () => {
@@ -2841,5 +2842,7 @@ export const useKeyboardState = () => {
 };
 
 export const useAllowPinningMessage = () => {
-  return useHMSChatLayoutConfig((config) => config?.allow_pinning_messages ?? false);
+  return useHMSChatLayoutConfig(
+    (config) => config?.allow_pinning_messages ?? false
+  );
 };

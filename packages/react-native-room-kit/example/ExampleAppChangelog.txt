@@ -1,10 +1,10 @@
 Board: https://100ms.atlassian.net/jira/software/projects/RN/boards/33
 
-- Hide Top & Bottom bars after 5 seconds in Room
-https://100ms.atlassian.net/browse/RN-138
-
 - Real-Time Chat Controls
 https://100ms.atlassian.net/browse/RN-136
+
+- Multi Pin Chat
+https://100ms.atlassian.net/browse/RN-140
 
 - Send to picker based on layout API
 https://100ms.atlassian.net/browse/RN-141

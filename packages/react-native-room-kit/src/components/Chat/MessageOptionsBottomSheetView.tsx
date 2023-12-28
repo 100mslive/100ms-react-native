@@ -48,10 +48,7 @@ const _MessageOptionsBottomSheetView: React.FC<
       <Animated.View
         entering={SlideInDown}
         exiting={SlideOutDown}
-        style={[
-          styles.contentContainer,
-          hmsRoomStyles.contentContainer,
-        ]}
+        style={[styles.contentContainer, hmsRoomStyles.contentContainer]}
       >
         <MessageOptionsView />
       </Animated.View>
@@ -80,4 +77,6 @@ const styles = StyleSheet.create({
   },
 });
 
-export const MessageOptionsBottomSheetView = React.memo(_MessageOptionsBottomSheetView);
+export const MessageOptionsBottomSheetView = React.memo(
+  _MessageOptionsBottomSheetView
+);

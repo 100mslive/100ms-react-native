@@ -348,9 +348,7 @@ export const setChatMoreActionsSheetVisible = (
   payload: { chatMoreActionsSheetVisible },
 });
 
-export const setChatState = (
-  chatState: null | ChatState
-) => ({
+export const setChatState = (chatState: null | ChatState) => ({
   type: actionTypes.SET_CHAT_STATE,
   payload: { chatState },
 });
@@ -414,7 +412,9 @@ export const setEditUsernameDisabled = (editUsernameDisabled: boolean) => ({
   payload: { editUsernameDisabled },
 });
 
-export const setSelectedMessageForAction = (selectedMessageForAction: null | HMSMessage) => ({
+export const setSelectedMessageForAction = (
+  selectedMessageForAction: null | HMSMessage
+) => ({
   type: actionTypes.SET_SELECTED_MESSAGE_FOR_ACTION,
   payload: { selectedMessageForAction },
 });

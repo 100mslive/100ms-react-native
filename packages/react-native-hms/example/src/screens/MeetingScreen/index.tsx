@@ -930,7 +930,11 @@ const DisplayView = (data: {
       const addSessionStoreListeners = () => {
         // Handle 'spotlight' key values
         const handleSpotlightIdChange = (id: JsonValue) => {
-          if (id === null || typeof id === 'string' || typeof id === 'undefined') {
+          if (
+            id === null ||
+            typeof id === 'string' ||
+            typeof id === 'undefined'
+          ) {
             // Scroll to start of the list
             if (id) {
               gridViewRef.current
@@ -944,7 +948,11 @@ const DisplayView = (data: {
 
         // Handle 'pinnedMessage' key values
         const handlePinnedMessageChange = (data: JsonValue) => {
-          if (data === null || typeof data === 'string' || typeof data === 'undefined') {
+          if (
+            data === null ||
+            typeof data === 'string' ||
+            typeof data === 'undefined'
+          ) {
             dispatch(addPinnedMessage(data));
           }
         };

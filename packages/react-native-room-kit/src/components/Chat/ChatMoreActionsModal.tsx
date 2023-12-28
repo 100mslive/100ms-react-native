@@ -16,7 +16,9 @@ export interface ChatMoreActionsModalProps {
   offset?: SharedValue<number>;
 }
 
-const _ChatMoreActionsModal: React.FC<ChatMoreActionsModalProps> = ({ offset }) => {
+const _ChatMoreActionsModal: React.FC<ChatMoreActionsModalProps> = ({
+  offset,
+}) => {
   const { modalVisibleType, handleModalVisibleType } = useModalType();
 
   const footerHeight = useFooterHeight();
@@ -41,7 +43,9 @@ const _ChatMoreActionsModal: React.FC<ChatMoreActionsModalProps> = ({ offset }) 
         styles.contentContainer,
         {
           bottom:
-            (offset ? interpolate(offset.value, [0, 1], [0, footerHeight]) : footerHeight) +
+            (offset
+              ? interpolate(offset.value, [0, 1], [0, footerHeight])
+              : footerHeight) +
             notificationsHeight +
             (isMessageInputVisible ? 58 : 8),
         },

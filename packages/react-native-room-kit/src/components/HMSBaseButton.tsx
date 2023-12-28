@@ -7,7 +7,13 @@ import {
   View,
 } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import type { StyleProp, ViewStyle, TextStyle, ColorValue, TouchableHighlightProps } from 'react-native';
+import type {
+  StyleProp,
+  ViewStyle,
+  TextStyle,
+  ColorValue,
+  TouchableHighlightProps,
+} from 'react-native';
 
 export interface HMSBaseButtonProps {
   title: string;
@@ -68,11 +74,7 @@ export const HMSBaseButton: React.FC<HMSBaseButtonProps> = ({
   );
 
   if (wrapWithGestureDetector) {
-    return (
-      <GestureDetector gesture={Gesture.Tap()}>
-        {button}
-      </GestureDetector>
-    );
+    return <GestureDetector gesture={Gesture.Tap()}>{button}</GestureDetector>;
   }
 
   return button;

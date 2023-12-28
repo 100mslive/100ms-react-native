@@ -1,5 +1,5 @@
-import type { HMSException, HMSPeer } from "@100mslive/react-native-hms";
-import type { HMSIOSScreenShareConfig, OnLeaveHandler } from "./utils/types";
+import type { HMSException, HMSPeer } from '@100mslive/react-native-hms';
+import type { HMSIOSScreenShareConfig, OnLeaveHandler } from './utils/types';
 
 export enum MeetingState {
   NOT_JOINED,
@@ -73,10 +73,21 @@ export enum NotificationTypes {
 }
 
 export type Notification =
-  | { id: string; type: NotificationTypes; }
-  | { id: string; type: NotificationTypes; icon?: string; message?: string; title: string; }
-  | { id: string; type: NotificationTypes; icon?: string; peer: HMSPeer; }
-  | { id: string; type: NotificationTypes; icon?: string; exception: HMSException; }
+  | { id: string; type: NotificationTypes }
+  | {
+      id: string;
+      type: NotificationTypes;
+      icon?: string;
+      message?: string;
+      title: string;
+    }
+  | { id: string; type: NotificationTypes; icon?: string; peer: HMSPeer }
+  | {
+      id: string;
+      type: NotificationTypes;
+      icon?: string;
+      exception: HMSException;
+    };
 
 export type PinnedMessage = {
   text: string;
