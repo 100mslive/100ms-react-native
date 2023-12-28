@@ -345,6 +345,16 @@ const useHMSPeersUpdate = (
       if (type === HMSPeerUpdate.ROLE_CHANGED) {
         dispatch(addUpdateParticipant(peer));
 
+        // saving current role in peer metadata,
+        // so that when peer is removed from stage, we can assign previous role to it.
+        // if (localPeerRoleName) {
+        //   const newMetadata = {
+        //     ...localPeerMetadata,
+        //     prevRole: localPeerRoleName,
+        //   };
+        //   await hmsActions.changeMetadata(newMetadata);
+        // }
+        
         // Handling regular tiles list
         if (
           peer.role?.publishSettings?.allowed === undefined ||
