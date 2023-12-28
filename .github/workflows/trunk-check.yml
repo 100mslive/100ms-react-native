@@ -24,3 +24,9 @@ jobs:
       - name: Trunk Format
         run: |
           trunk fmt
+
+      - name: Commit and Push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 🤖 Automated Format and Fix
+          commit_user_name: 🤖 100ms React Native Bot
