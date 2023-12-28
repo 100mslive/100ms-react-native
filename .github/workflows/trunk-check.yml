@@ -20,14 +20,3 @@ jobs:
 
       - name: Trunk Check
         uses: trunk-io/trunk-action@v1.1.9
-
-      - name: Trunk Format
-        run: |
-          curl https://get.trunk.io -fsSL | bash
-          trunk fmt
-
-      - name: Commit and Push changes
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: 🤖 Automated Format and Fix
-          commit_user_name: 🤖 100ms React Native Bot
