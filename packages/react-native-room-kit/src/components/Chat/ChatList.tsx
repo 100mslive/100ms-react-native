@@ -38,7 +38,7 @@ const _ChatList: React.FC<ChatListProps> = () => {
         isAllowedToSendMessage ? chatListStyle.bottomSpace : null,
       ]}
     >
-      <PinnedMessages flashlistRef={flashlistRef} />
+      <PinnedMessages />
 
       {messages.length > 0 ? (
         <FlashList

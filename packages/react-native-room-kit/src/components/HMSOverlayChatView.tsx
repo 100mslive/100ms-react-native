@@ -17,6 +17,8 @@ import { ChatMoreActionsModal } from './Chat/ChatMoreActionsModal';
 import { ChatFilterBottomSheet } from './Chat/ChatFilterBottomSheet';
 import { ChatPaused } from './Chat/ChatPaused';
 import { useHMSChatState, useIsAllowedToSendMessage } from '../hooks-util';
+import { PinnedMessages } from './Chat';
+import { MessageOptionsBottomSheet } from './Chat/MessageOptionsBottomSheet';
 
 const colors = [
   'rgba(0, 0, 0, 0)',
@@ -64,6 +66,8 @@ export const HLSChatView: React.FC<HLSChatViewProps> = ({ offset }) => {
           <HMSHLSMessageList />
         </MaskedView>
 
+        <PinnedMessages insetMode={true} />
+
         {chatState.enabled ? (
           <>
             <View style={styles.filterSheetWrapper}>
@@ -79,6 +83,7 @@ export const HLSChatView: React.FC<HLSChatViewProps> = ({ offset }) => {
         )}
       </HMSKeyboardAvoidingView>
 
+      <MessageOptionsBottomSheet />
       <ChatFilterBottomSheet />
       <ChatMoreActionsModal offset={offset} />
     </>

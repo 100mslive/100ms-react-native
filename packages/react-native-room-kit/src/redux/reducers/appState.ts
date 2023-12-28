@@ -6,6 +6,7 @@ import { PipModes } from '../../utils/types';
 import {
   HMSLocalAudioStats,
   HMSLocalVideoStats,
+  HMSMessage,
   HMSPeer,
   HMSRemoteAudioStats,
   HMSRemoteVideoStats,
@@ -57,6 +58,7 @@ type IntialStateType = {
   handleBackButton: boolean;
   autoEnterPipMode: boolean;
   editUsernameDisabled: boolean;
+  selectedMessageForAction: null | HMSMessage;
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -91,6 +93,7 @@ const INITIAL_STATE: IntialStateType = {
   handleBackButton: false,
   autoEnterPipMode: false,
   editUsernameDisabled: false,
+  selectedMessageForAction: null,
 };
 
 const appReducer = (
@@ -326,6 +329,14 @@ const appReducer = (
         editUsernameDisabled:
           action.payload.editUsernameDisabled ??
           INITIAL_STATE.editUsernameDisabled,
+      };
+    }
+    case ActionTypes.SET_SELECTED_MESSAGE_FOR_ACTION: {
+      return {
+        ...state,
+        selectedMessageForAction:
+          action.payload.selectedMessageForAction ??
+          INITIAL_STATE.selectedMessageForAction
       };
     }
     case HmsStateActionTypes.CLEAR_STATES:

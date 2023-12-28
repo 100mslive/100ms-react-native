@@ -58,6 +58,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   contentContainer: {
+    width: undefined,
     paddingBottom: 0,
     borderTopRightRadius: 0,
     borderTopLeftRadius: 0,

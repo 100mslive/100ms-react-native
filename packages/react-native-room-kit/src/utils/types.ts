@@ -57,6 +57,7 @@ export enum ModalTypes {
   STOP_RECORDING = 'stopRecording',
   CHAT_FILTER = 'chatFilter',
   CHAT_MORE_ACTIONS = 'chatMoreActions',
+  MESSAGE_OPTIONS = 'messageOptions',
   DEFAULT = '',
 }
 

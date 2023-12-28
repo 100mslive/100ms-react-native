@@ -2616,6 +2616,80 @@ export const useHMSChatState = () => {
   return { chatState, setChatState };
 };
 
+export const useIsMessagePinned = (message: HMSMessage | null) => {
+  return useSelector(
+    (state: RootState) =>
+      message ? state.messages.pinnedMessages.findIndex(
+        (pinnedMessage) => pinnedMessage.id === message.messageId
+      ) >= 0 : false
+  );
+};
+
+export const useHMSMessagePinningActions = () => {
+  const store = useStore<RootState>();
+  const hmsSessionStore = useSelector(
+    (state: RootState) => state.user.hmsSessionStore
+  );
+
+  const pinMessage = useCallback(
+    async (message: HMSMessage) => {
+      // If instance of HMSSessionStore is available
+      if (hmsSessionStore) {
+        try {
+          const reduxState = store.getState();
+          const localPeerName = reduxState.hmsStates.localPeer?.name;
+          const pinnedMessages = reduxState.messages.pinnedMessages;
+
+          let updatedPinnedMessages = [...pinnedMessages];
+
+          let payload = {
+            authorId: message.sender?.customerUserID ?? '',
+            id: message.messageId,
+            pinnedBy: localPeerName ?? '',
+            text: `${message.sender?.name}: ${message.message}`,
+          };
+          if (updatedPinnedMessages.length >= 3) {
+            updatedPinnedMessages.shift();
+          }
+          updatedPinnedMessages.push(payload);
+          const response = await hmsSessionStore.set(
+            updatedPinnedMessages,
+            'pinnedMessages'
+          );
+          console.log('setSessionMetaData Response -> ', response);
+        } catch (error) {
+          console.log('setSessionMetaData Error -> ', error);
+        }
+      }
+    },
+    [hmsSessionStore]
+  );
+
+  const unpinMessage = useCallback(
+    async (message: HMSMessage | PinnedMessage) => {
+      // If instance of HMSSessionStore is available
+      if (hmsSessionStore) {
+        try {
+          const pinnedMessages = store.getState().messages.pinnedMessages;
+          const updatedPinnedMessages = pinnedMessages.filter(
+            (pinnedMessage) => pinnedMessage.id !== ('messageId' in message ? message.messageId : message.id)
+          );
+          const response = await hmsSessionStore.set(
+            updatedPinnedMessages,
+            'pinnedMessages'
+          );
+          console.log('setSessionMetaData Response -> ', response);
+        } catch (error) {
+          console.log('setSessionMetaData Error -> ', error);
+        }
+      }
+    },
+    [hmsSessionStore]
+  );
+
+  return { pinMessage, unpinMessage };
+};
+
 export const useSetDefaultChatRecipient = () => {
   const dispatch = useDispatch();
   const localPeerRoleName = useSelector(
@@ -2731,4 +2805,8 @@ export const useKeyboardState = () => {
   }, []);
 
   return { keyboardState };
+};
+
+export const useAllowPinningMessage = () => {
+  return useHMSChatLayoutConfig((config) => config?.allow_pinning_messages ?? false);
 };

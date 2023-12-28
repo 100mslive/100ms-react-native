@@ -4,39 +4,49 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  ScrollView,
 } from 'react-native';
-import { useSelector, useStore } from 'react-redux';
-import type { FlashList } from '@shopify/flash-list';
+import type { TextLayoutEventData } from 'react-native';
+import { useSelector } from 'react-redux';
+import { FlashList } from '@shopify/flash-list';
+import type { ViewToken } from '@shopify/flash-list';
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 
 import type { RootState } from '../../redux';
-import { useHMSRoomStyleSheet } from '../../hooks-util';
-import { CloseIcon, PinIcon } from '../../Icons';
-import { PressableIcon } from '../PressableIcon';
+import { useAllowPinningMessage, useHMSMessagePinningActions, useHMSRoomStyleSheet } from '../../hooks-util';
+import { PinIcon } from '../../Icons';
+import type { PinnedMessage } from 'src/types';
+import { hexToRgbA } from '../../utils/theme';
 
-export interface PinnedMessagesProps {
-  flashlistRef: React.ElementRef<typeof FlashList>;
+const FLATLIST_VIEWABILITY_CONFIG = {
+  waitForInteraction: true,
+  itemVisiblePercentThreshold: 90,
+};
+
+interface PinnedMessagesProps {
+  insetMode?: boolean;
 }
 
-export const PinnedMessages = ({ flashlistRef }) => {
-  const reduxStore = useStore<RootState>();
-  const [selectedPinnedMessageIndex, setSelectedMessageIndex] = React.useState(0);
-  const [numOfLinesRestricted, setNumOfLinesRestricted] = React.useState(true);
-  const canChangeRef = React.useRef(false);
+export const PinnedMessages: React.FC<PinnedMessagesProps> = ({ insetMode=false }) => {
+  const listRef = React.useRef<null | React.ElementRef<typeof FlashList>>(null);
+  const textComponentLayoutsRefs = React.useRef<Record<string, TextLayoutEventData>>({});
 
+  const [listHeight, setListHeight] = React.useState(42);
+  const listHeightRef = React.useRef(42);
+
+  const [selectedPinnedMessageIndex, setSelectedMessageIndex] = React.useState(0);
+  const selectedPinnedMessageIndexRef = React.useRef(0);
+
+  const allowPinningMessage = useAllowPinningMessage();
+  const { unpinMessage } = useHMSMessagePinningActions();
 
   const pinnedMessages = useSelector(
     (state: RootState) => state.messages.pinnedMessages
   );
-  const hmsSessionStore = useSelector(
-    (state: RootState) => state.user.hmsSessionStore
-  );
-
-  if (selectedPinnedMessageIndex > 0 && selectedPinnedMessageIndex + 1 > pinnedMessages.length) {
-    setSelectedMessageIndex(0);
-  }
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
+    insetContainer: {
+      backgroundColor: theme.palette.background_dim && hexToRgbA(theme.palette.background_dim, 0.64)
+    },
     pinContainer: {
       backgroundColor: theme.palette.surface_default,
     },
@@ -59,104 +69,165 @@ export const PinnedMessages = ({ flashlistRef }) => {
     },
   }));
 
-  // const removePinnedMessage = React.useCallback(async () => {
-  //   // If instance of HMSSessionStore is available
-  //   if (hmsSessionStore) {
-  //     try {
-  //       // set `value` on `session` with key 'pinnedMessages'
-  //       const response = await hmsSessionStore.set(null, 'pinnedMessages');
-  //       console.log('setSessionMetaData Response -> ', response);
-  //     } catch (error) {
-  //       console.log('setSessionMetaData Error -> ', error);
-  //     }
-  //   }
-  // }, [hmsSessionStore]);
-
-  const handlePinnedMessagePress = () => {
-    const currentMessage = pinnedMessages[selectedPinnedMessageIndex]; // 0
-
-    if (!currentMessage) return;
-
-    let newIndex = selectedPinnedMessageIndex; // 0
-
-    if (canChangeRef.current) {
-      setSelectedMessageIndex(currIndex => {
-        if (currIndex + 1 >= pinnedMessages.length) {
-          newIndex = 0;
-          return 0;
-        }
-        newIndex = currIndex + 1;
-        return currIndex + 1;
-      });
-    }
-
-    const newSelectedPinnedMessage = pinnedMessages[newIndex];
-
-    if (!newSelectedPinnedMessage) return;
-
-    const messagesList = reduxStore.getState().messages.messages;
-
-    // find the index of newSelectedPinnedMessage in list
-    const msgIndex = messagesList.findIndex(message => message.messageId === newSelectedPinnedMessage.id);
-
-    if (msgIndex >= 0) {
-      setNumOfLinesRestricted(true);
-      // scroll to message
+  const handleTapOnPinnedMessage = React.useCallback(() => {
+    console.log('***** listHeight > ', listHeight);
+    if (listHeight > 42) {
+      setListHeight(42);
+      listHeightRef.current = 42;
     } else {
-      setNumOfLinesRestricted(false);
-      // show full msg by increasing numOfLines
-    }
+      console.log('***** selectedPinnedMessageIndex > ', selectedPinnedMessageIndexRef.current);
+      const visiblePinnedMessage = pinnedMessages[selectedPinnedMessageIndexRef.current];
+      console.log('***** pinnedMessages length > ', pinnedMessages.length);
+      console.log('***** visiblePinnedMessage exists? > ', !!visiblePinnedMessage);
+      if (visiblePinnedMessage) {
+        const visibleMessageLayout = textComponentLayoutsRefs.current[visiblePinnedMessage.id];
+        console.log('***** visibleMessageLayout #lines > ', visibleMessageLayout?.lines.length);
+        if (visibleMessageLayout) {
+          if (visibleMessageLayout.lines.length > 2) {
+            setListHeight((visibleMessageLayout.lines.length * 20) + 2);
+            listHeightRef.current = (visibleMessageLayout.lines.length * 20) + 2;
 
-    canChangeRef.current = true;
-  }
+            // setTimeout(() => {
+            //  listRef.current?.scrollToIndex({ index: selectedPinnedMessageIndexRef.current, animated: false });
+            // }, 2000);
+          }
+        }
+      }
+    }
+  }, [listHeight, pinnedMessages]);
+
+  const handleUnpinMessagePress = React.useCallback(() => {
+    const visiblePinnedMessage = pinnedMessages[selectedPinnedMessageIndexRef.current];
+    if (visiblePinnedMessage) {
+      if (listHeight > 42) {
+        setListHeight(42);
+        listHeightRef.current = 42;
+      }
+      unpinMessage(visiblePinnedMessage);
+    }
+  }, [listHeight, pinnedMessages]);
+
+  const _handleViewableItemsChanged = React.useCallback(
+    (info: { viewableItems: ViewToken[]; changed: ViewToken[] }) => {
+      const firstViewable = info.viewableItems[0];
+      if (
+        firstViewable?.isViewable &&
+        typeof firstViewable.index === 'number'
+      ) {
+        let viewableIndexChanged = false;
+
+        setSelectedMessageIndex(currIndex => {
+          if (currIndex !== firstViewable.index) {
+            viewableIndexChanged = true;
+          }
+          return firstViewable.index;
+        });
+        selectedPinnedMessageIndexRef.current = firstViewable.index;
+
+        if (viewableIndexChanged && listHeightRef.current > 42) {
+          setListHeight(42);
+          listHeightRef.current = 42;
+        }
+        // setSelectedMessageIndex(firstViewable.index);
+      }
+    },
+    []
+  );
+
+  const _renderItem = React.useCallback((data: { item: PinnedMessage }) => {
+    const [sender, text] = data.item.text.split(':');
+    return (
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onPress={handleTapOnPinnedMessage}
+        style={{ height: listHeight, justifyContent: 'center' }}
+      >
+        <Text
+          onTextLayout={({ nativeEvent }) => {
+            textComponentLayoutsRefs.current[data.item.id] = nativeEvent;
+          }}
+          style={[styles.text, hmsRoomStyles.text]}
+        >
+          {text ? (
+            <Text style={hmsRoomStyles.highlightedText}>{sender}: </Text>
+          ) : null}
+          {text ?? sender}
+        </Text>
+      </TouchableOpacity>
+    );
+  }, [listHeight, handleTapOnPinnedMessage]);
+
+  const _keyExtractor = React.useCallback(
+    (item: PinnedMessage) => item.id,
+    []
+  );
+
+  const tapGesture = React.useMemo(() => Gesture.Tap(), []);
+
+  const extraData = React.useMemo(() => [listHeight, pinnedMessages], [listHeight, pinnedMessages]);
 
   if (pinnedMessages.length <= 0) {
     return null;
   }
 
-  const pinnedMessageToShow = pinnedMessages[selectedPinnedMessageIndex];
-
   return (
-    <View style={styles.container}>
-      <TouchableOpacity activeOpacity={0.8} style={[styles.pinContainer, hmsRoomStyles.pinContainer]} onPress={handlePinnedMessagePress}>
+    <GestureDetector gesture={tapGesture}>
+      <View style={[
+        insetMode ? styles.insetContainer : styles.container,
+        insetMode ? hmsRoomStyles.insetContainer : null,
+      ]}>
+        <View
+          style={[
+            styles.pinContainer,
+            insetMode ? { paddingRight: 0 } : hmsRoomStyles.pinContainer,
+            { height: listHeight + 16 }
+          ]}
+        >
+          {pinnedMessages.length > 1 ? (
+            <View style={{ marginRight: 8, flexDirection: 'column' }}>
+              {pinnedMessages.map((message, idx) => {
+                const isFirst = idx === 0;
+                const isSelected = selectedPinnedMessageIndex === idx;
+                return (
+                  <React.Fragment key={message.id}>
+                    {isFirst ? null : <View style={[{ height: 3, width: 2 }]} />}
 
-        {pinnedMessages.length > 1 ? (
-          <View style={{ marginRight: 8, flexDirection: 'column' }}>
-            {pinnedMessages.map((message, idx) => {
-              const isFirst = idx === 0;
-              const isSelected = selectedPinnedMessageIndex === idx;
+                    <View
+                      style={[
+                        { width: 2, flexGrow: 1, borderRadius: 16 },
+                        isSelected
+                          ? hmsRoomStyles.activeMessageContainer
+                          : hmsRoomStyles.inactiveMessageContainer
+                      ]}
+                    />
+                  </React.Fragment>
+                );
+              })}
+            </View>
+          ) : null}
 
-              return (
-                <React.Fragment key={message.id}>
-                  {isFirst ? null : <View style={[{ height: 3, width: 2 }]} />}
+          <FlashList
+            ref={listRef}
+            data={pinnedMessages}
+            extraData={extraData}
+            showsVerticalScrollIndicator={false}
+            pagingEnabled={true}
+            keyboardShouldPersistTaps="always"
+            renderItem={_renderItem}
+            keyExtractor={_keyExtractor}
+            estimatedItemSize={40}
+            onViewableItemsChanged={_handleViewableItemsChanged}
+            viewabilityConfig={FLATLIST_VIEWABILITY_CONFIG}
+          />
+        </View>
 
-                  <View
-                    style={[
-                      { width: 2, flexGrow: 1, borderRadius: 16 },
-                      isSelected
-                        ? hmsRoomStyles.activeMessageContainer
-                        : hmsRoomStyles.inactiveMessageContainer
-                    ]}
-                  />
-                </React.Fragment>
-              );
-            })}
-          </View>
+        {allowPinningMessage ? (
+          <TouchableOpacity style={{marginLeft: 8}} onPress={handleUnpinMessagePress}>
+            <PinIcon type='unpin' style={[styles.icon, hmsRoomStyles.closeIcon]} />
+          </TouchableOpacity>
         ) : null}
-
-        {pinnedMessageToShow ? (
-          <Text style={[styles.text, hmsRoomStyles.text]} numberOfLines={numOfLinesRestricted ? 2 : undefined}>
-            {pinnedMessageToShow.pinnedBy ? (
-              <Text style={hmsRoomStyles.highlightedText}>{pinnedMessageToShow.pinnedBy}: </Text>
-            ) : null}{pinnedMessageToShow.text}{pinnedMessageToShow.text}
-          </Text>
-        ) : null}
-      </TouchableOpacity>
-
-      <TouchableOpacity style={{}} onPress={undefined}>
-        <PinIcon type='unpin' style={[styles.icon, hmsRoomStyles.closeIcon]} />
-      </TouchableOpacity>
-    </View>
+      </View>
+    </GestureDetector>
   );
 };
 
@@ -166,13 +237,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 8,
   },
+  insetContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+    marginHorizontal: 8,
+    marginBottom: 4,
+    borderRadius: 8,
+    paddingRight: 8
+  },
   pinContainer: {
     flexDirection: 'row',
     flexGrow: 1,
     flexShrink: 1,
     borderRadius: 8,
-    padding: 8,
-    marginRight: 8,
+    paddingVertical: 8,
+    paddingRight: 8,
+    paddingLeft: 8,
   },
   textWrapper: {
     maxHeight: 50,

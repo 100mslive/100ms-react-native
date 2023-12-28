@@ -413,3 +413,8 @@ export const setEditUsernameDisabled = (editUsernameDisabled: boolean) => ({
   type: actionTypes.SET_EDIT_USERNAME_DISABLED,
   payload: { editUsernameDisabled },
 });
+
+export const setSelectedMessageForAction = (selectedMessageForAction: null | HMSMessage) => ({
+  type: actionTypes.SET_SELECTED_MESSAGE_FOR_ACTION,
+  payload: { selectedMessageForAction },
+});
