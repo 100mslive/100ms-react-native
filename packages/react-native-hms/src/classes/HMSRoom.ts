@@ -153,4 +153,17 @@ export class HMSRoom {
       'localPeer'
     );
   }
+
+  get isLargeRoom(): boolean {
+    const hmsRoomCache = getHmsRoomCache();
+
+    if (hmsRoomCache) {
+      return hmsRoomCache.getProperty('isLargeRoom');
+    }
+
+    return getHMSRoomPropertyFromNative(
+      HMSConstants.DEFAULT_SDK_ID,
+      'isLargeRoom'
+    );
+  }
 }
