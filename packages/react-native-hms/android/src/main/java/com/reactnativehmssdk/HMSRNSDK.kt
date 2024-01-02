@@ -1900,6 +1900,9 @@ class HMSRNSDK(
         "hlsRecordingState" -> {
           data.putMap("hlsRecordingState", HMSDecoder.getHMSHlsRecordingState(hmsRoom.hlsRecordingState))
         }
+        "isLargeRoom" -> {
+          data.putBoolean("isLargeRoom", hmsRoom.isLargeRoom)
+        }
       }
 
       return data
