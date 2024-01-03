@@ -11,6 +11,7 @@ import type { HMSMessage } from '@100mslive/react-native-hms';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 import {
+  useAllowBlockingPeerFromChat,
   useAllowPinningMessage,
   useHMSRoomStyleSheet,
   useModalType,
@@ -27,7 +28,13 @@ interface HMSHLSMessageProps {
 const _HMSHLSMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
   const dispatch = useDispatch();
   const { handleModalVisibleType } = useModalType();
+  const localPeerId = useSelector(
+    (state: RootState) => state.hmsStates.localPeer?.peerID
+  );
+
   const allowPinningMessage = useAllowPinningMessage();
+  const allowPeerBlocking = useAllowBlockingPeerFromChat();
+
   const isPinned = useSelector(
     (state: RootState) =>
       state.messages.pinnedMessages.findIndex(
@@ -64,6 +71,12 @@ const _HMSHLSMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
     handleModalVisibleType(ModalTypes.MESSAGE_OPTIONS);
   };
 
+  const canTakeAction =
+    allowPinningMessage ||
+    (allowPeerBlocking &&
+      message.sender &&
+      message.sender.peerID !== localPeerId);
+
   return (
     <View style={styles.container}>
       {isPinned ? (
@@ -90,7 +103,7 @@ const _HMSHLSMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
             : 'Anonymous'}
         </Text>
 
-        {allowPinningMessage ? (
+        {canTakeAction ? (
           <GestureDetector gesture={Gesture.Tap()}>
             <TouchableOpacity
               hitSlop={styles.threeDotsHitSlop}

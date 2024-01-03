@@ -16,9 +16,14 @@ import { ChatFilterBottomSheetOpener } from './Chat/ChatFilterBottomSheetOpener'
 import { ChatMoreActionsModal } from './Chat/ChatMoreActionsModal';
 import { ChatFilterBottomSheet } from './Chat/ChatFilterBottomSheet';
 import { ChatPaused } from './Chat/ChatPaused';
-import { useHMSChatState, useIsAllowedToSendMessage } from '../hooks-util';
+import {
+  useHMSChatState,
+  useIsAllowedToSendMessage,
+  useIsLocalPeerBlockedFromChat,
+} from '../hooks-util';
 import { PinnedMessages } from './Chat';
 import { MessageOptionsBottomSheet } from './Chat/MessageOptionsBottomSheet';
+import { PeerBlockedFromChat } from './Chat/PeerBlockedFromChat';
 
 const colors = [
   'rgba(0, 0, 0, 0)',
@@ -36,6 +41,7 @@ export const HLSChatView: React.FC<HLSChatViewProps> = ({ offset }) => {
   const hmsNotificationsHeight = useHMSNotificationsHeight();
   const { chatState } = useHMSChatState();
   const isAllowedToSendMessage = useIsAllowedToSendMessage();
+  const isLocalPeerBlockedFromChat = useIsLocalPeerBlockedFromChat();
   const isSelectedChatRecipient = useSelector(
     (state: RootState) => state.chatWindow.sendTo !== null
   );
@@ -74,7 +80,9 @@ export const HLSChatView: React.FC<HLSChatViewProps> = ({ offset }) => {
               <ChatFilterBottomSheetOpener insetMode={true} />
             </View>
 
-            {isAllowedToSendMessage && isSelectedChatRecipient ? (
+            {isLocalPeerBlockedFromChat ? (
+              <PeerBlockedFromChat style={styles.peerBlocked} />
+            ) : isAllowedToSendMessage && isSelectedChatRecipient ? (
               <HMSSendMessageInput />
             ) : null}
           </>
@@ -98,5 +106,9 @@ const styles = StyleSheet.create({
   chatPaused: {
     marginHorizontal: 8,
     marginBottom: 38,
+  },
+  peerBlocked: {
+    marginHorizontal: 8,
+    marginBottom: 8,
   },
 });

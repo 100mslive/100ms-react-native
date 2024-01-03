@@ -6,12 +6,14 @@ import {
   useHMSChatState,
   useHMSRoomStyleSheet,
   useIsAllowedToSendMessage,
+  useIsLocalPeerBlockedFromChat,
 } from '../../hooks-util';
 import { ChatList } from '../Chat/ChatList';
 import { HMSSendMessageInput } from '../HMSSendMessageInput';
 import { ChatFilterBottomSheetOpener } from '../Chat/ChatFilterBottomSheetOpener';
 import { ChatPaused } from '../Chat/ChatPaused';
 import type { RootState } from '../../redux';
+import { PeerBlockedFromChat } from '../Chat/PeerBlockedFromChat';
 
 interface ChatViewProps {}
 
@@ -21,6 +23,7 @@ const _ChatView: React.FC<ChatViewProps> = () => {
   const isChatRecipientSelected = useSelector(
     (state: RootState) => state.chatWindow.sendTo !== null
   );
+  const isLocalPeerBlockedFromChat = useIsLocalPeerBlockedFromChat();
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme) => ({
     input: {
@@ -33,7 +36,9 @@ const _ChatView: React.FC<ChatViewProps> = () => {
     <>
       <ChatList />
 
-      {chatState.enabled ? (
+      {isLocalPeerBlockedFromChat ? (
+        <PeerBlockedFromChat style={styles.peerBlocked} />
+      ) : chatState.enabled ? (
         <>
           <ChatFilterBottomSheetOpener />
 
@@ -59,6 +64,9 @@ const styles = StyleSheet.create({
     marginBottom: 0,
   },
   chatPaused: {
+    marginTop: 18, // Applied margin so that content does not shift when this component mounts or unmounts
+  },
+  peerBlocked: {
     marginTop: 18, // Applied margin so that content does not shift when this component mounts or unmounts
   },
 });

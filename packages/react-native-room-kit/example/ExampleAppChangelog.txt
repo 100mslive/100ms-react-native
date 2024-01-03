@@ -12,6 +12,9 @@ https://100ms.atlassian.net/browse/RN-141
 - One click role change on Prebuilt
 https://100ms.atlassian.net/browse/RN-150
 
+- Block peer from chat
+https://100ms.atlassian.net/browse/RN-142
+
 Room Kit: 1.0.8
 React Native SDK: 1.9.7
 Android SDK: 2.8.6

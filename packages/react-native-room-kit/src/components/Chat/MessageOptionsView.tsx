@@ -4,13 +4,18 @@ import type { StyleProp, ViewStyle, TextStyle } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import {
+  useAllowBlockingPeerFromChat,
+  useAllowPinningMessage,
+  useBlockPeerActions,
   useHMSMessagePinningActions,
   useHMSRoomStyle,
+  useHMSRoomStyleSheet,
   useIsMessagePinned,
+  useIsPeerBlocked,
 } from '../../hooks-util';
 import type { RootState } from '../../redux';
 import { BottomSheet } from '../BottomSheet';
-import { PersonIcon, PinIcon } from '../../Icons';
+import { NoEntryIcon, PersonIcon, PinIcon } from '../../Icons';
 import { setSelectedMessageForAction } from '../../redux/actions';
 
 interface MessageOptionsViewProps {
@@ -21,20 +26,42 @@ const _MessageOptionsView: React.FC<MessageOptionsViewProps> = ({
   onDismiss,
 }) => {
   const dispatch = useDispatch();
+
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
-  const selectedMessageForAction = useSelector(
-    (state: RootState) => state.app.selectedMessageForAction
-  );
+
   const localPeer = useSelector(
     (state: RootState) => state.hmsStates.localPeer
   );
   const localPeerPermissions = localPeer?.role?.permissions;
 
+  const removeTextStyle = useHMSRoomStyle((theme) => ({
+    color: theme.palette.alert_error_default,
+  }));
+
+  const localPeerId = useSelector(
+    (state: RootState) => state.hmsStates.localPeer?.peerID
+  );
+  const selectedMessageForAction = useSelector(
+    (state: RootState) => state.app.selectedMessageForAction
+  );
+
+  const allowPinningMessage = useAllowPinningMessage();
   const isPinned = useIsMessagePinned(selectedMessageForAction);
   const { pinMessage, unpinMessage } = useHMSMessagePinningActions();
 
-  const removeTextStyle = useHMSRoomStyle((theme) => ({
-    color: theme.palette.alert_error_default,
+  const allowPeerBlocking = useAllowBlockingPeerFromChat();
+  const isPeerBlocked = useIsPeerBlocked(
+    selectedMessageForAction?.sender ?? null
+  );
+  const { blockPeer, unblockPeer } = useBlockPeerActions();
+
+  const hmsRoomStyle = useHMSRoomStyleSheet((theme) => ({
+    blockLabel: {
+      color: theme.palette.alert_error_default,
+    },
+    blockIcon: {
+      tintColor: theme.palette.alert_error_default,
+    },
   }));
 
   const closeMessageOptionsBottomSheet = () => {
@@ -66,6 +93,25 @@ const _MessageOptionsView: React.FC<MessageOptionsViewProps> = ({
     closeMessageOptionsBottomSheet();
   };
 
+  const handleBlockPeerFromChat = async () => {
+    if (selectedMessageForAction?.sender) {
+      if (isPeerBlocked) {
+        await unblockPeer(selectedMessageForAction.sender);
+      } else {
+        await blockPeer(selectedMessageForAction.sender);
+      }
+    }
+    closeMessageOptionsBottomSheet();
+  };
+
+  const hidePinItem = !(selectedMessageForAction && allowPinningMessage);
+  const hideBlockItem = !(
+    selectedMessageForAction &&
+    selectedMessageForAction.sender &&
+    allowPeerBlocking &&
+    selectedMessageForAction.sender.peerID !== localPeerId
+  );
+
   return (
     <View>
       <BottomSheet.Header
@@ -75,11 +121,24 @@ const _MessageOptionsView: React.FC<MessageOptionsViewProps> = ({
 
       <BottomSheet.Divider style={styles.headerDivider} />
 
-      <MessageOptionsItem
-        label={isPinned ? 'Unpin' : 'Pin'}
-        icon={<PinIcon type={isPinned ? 'unpin' : 'pin'} style={styles.icon} />}
-        onPress={handleMessagePin}
-      />
+      {hidePinItem ? null : (
+        <MessageOptionsItem
+          label={isPinned ? 'Unpin' : 'Pin'}
+          icon={
+            <PinIcon type={isPinned ? 'unpin' : 'pin'} style={styles.icon} />
+          }
+          onPress={handleMessagePin}
+        />
+      )}
+
+      {hideBlockItem ? null : (
+        <MessageOptionsItem
+          label={isPeerBlocked ? 'Unblock from Chat' : 'Block from Chat'}
+          labelStyle={hmsRoomStyle.blockLabel}
+          icon={<NoEntryIcon style={[styles.icon, hmsRoomStyle.blockIcon]} />}
+          onPress={handleBlockPeerFromChat}
+        />
+      )}
 
       {localPeerPermissions?.removeOthers &&
       selectedMessageForAction?.sender &&
