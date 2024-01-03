@@ -10,7 +10,7 @@ import {
 } from '../../hooks-util';
 import type { RootState } from '../../redux';
 import { BottomSheet } from '../BottomSheet';
-import { PinIcon } from '../../Icons';
+import { PersonIcon, PinIcon } from '../../Icons';
 import { setSelectedMessageForAction } from '../../redux/actions';
 
 interface MessageOptionsViewProps {
@@ -21,11 +21,21 @@ const _MessageOptionsView: React.FC<MessageOptionsViewProps> = ({
   onDismiss,
 }) => {
   const dispatch = useDispatch();
+  const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
   const selectedMessageForAction = useSelector(
     (state: RootState) => state.app.selectedMessageForAction
   );
+  const localPeer = useSelector(
+    (state: RootState) => state.hmsStates.localPeer
+  );
+  const localPeerPermissions = localPeer?.role?.permissions;
+
   const isPinned = useIsMessagePinned(selectedMessageForAction);
   const { pinMessage, unpinMessage } = useHMSMessagePinningActions();
+
+  const removeTextStyle = useHMSRoomStyle((theme) => ({
+    color: theme.palette.alert_error_default,
+  }));
 
   const closeMessageOptionsBottomSheet = () => {
     if (onDismiss) {
@@ -35,13 +45,23 @@ const _MessageOptionsView: React.FC<MessageOptionsViewProps> = ({
     }
   };
 
-  const handleMessagePin = () => {
+  const handleMessagePin = async () => {
     if (selectedMessageForAction) {
       if (isPinned) {
-        unpinMessage(selectedMessageForAction);
+        await unpinMessage(selectedMessageForAction);
       } else {
-        pinMessage(selectedMessageForAction);
+        await pinMessage(selectedMessageForAction);
       }
+    }
+    closeMessageOptionsBottomSheet();
+  };
+
+  const handleRemoveParticipant = async () => {
+    if (hmsInstance && selectedMessageForAction?.sender) {
+      await hmsInstance?.removePeer(
+        selectedMessageForAction?.sender,
+        'Removed from chat'
+      );
     }
     closeMessageOptionsBottomSheet();
   };
@@ -60,6 +80,17 @@ const _MessageOptionsView: React.FC<MessageOptionsViewProps> = ({
         icon={<PinIcon type={isPinned ? 'unpin' : 'pin'} style={styles.icon} />}
         onPress={handleMessagePin}
       />
+
+      {localPeerPermissions?.removeOthers &&
+      selectedMessageForAction?.sender &&
+      !selectedMessageForAction.sender.isLocal ? (
+        <MessageOptionsItem
+          label="Remove Participant"
+          labelStyle={removeTextStyle}
+          icon={<PersonIcon type="left" style={styles.icon} />}
+          onPress={handleRemoveParticipant}
+        />
+      ) : null}
 
       <View style={styles.bottomSpacer} />
     </View>
