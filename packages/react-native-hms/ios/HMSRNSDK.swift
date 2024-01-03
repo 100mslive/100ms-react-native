@@ -1283,7 +1283,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
             case "isLargeRoom":
                 return ["isLargeRoom": hmsRoom.isLarge]
-            
+
             default:
                 return nil
         }
@@ -1787,7 +1787,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
             let valueToBeSet = data["value"] as Any
 
-            store.set(valueToBeSet, forKey: key) { value, error in
+            store.set(valueToBeSet, forKey: key) { _, error in
 
                 if let error = error {
                     let errorMessage = "\(#function) Error in setting value: \(valueToBeSet) for key: \(key) to the Session Store. Error: \(error.localizedDescription)"
