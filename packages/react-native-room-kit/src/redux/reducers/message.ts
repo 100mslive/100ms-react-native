@@ -3,7 +3,7 @@ import ActionTypes, { HmsStateActionTypes } from '../actionTypes';
 import type { PinnedMessage } from '../../types';
 
 type ActionType = {
-  payload: HMSMessage | PinnedMessage[];
+  payload: HMSMessage | PinnedMessage[] | string[];
   type: String;
 };
 
@@ -28,6 +28,18 @@ const messageReducer = (state = INITIAL_STATE, action: ActionType) => {
       return { ...state, messages: [message, ...state.messages] };
     case ActionTypes.CLEAR_MESSAGE_DATA.REQUEST:
       return { ...state, messages: [] };
+    case ActionTypes.FILTER_OUT_BLOCKED_MSGS:
+      const chatPeerBlacklist = action.payload as string[];
+      return {
+        ...state,
+        messages: state.messages.filter((message) => {
+          const senderUserId = message.sender?.customerUserID;
+          if (!senderUserId) {
+            return true;
+          }
+          return !chatPeerBlacklist.includes(senderUserId);
+        }),
+      };
     case HmsStateActionTypes.CLEAR_STATES:
       return INITIAL_STATE;
     default:

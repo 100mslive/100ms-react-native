@@ -4,13 +4,18 @@ import type { StyleProp, ViewStyle, TextStyle } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import {
+  useAllowBlockingPeerFromChat,
+  useAllowPinningMessage,
+  useBlockPeerActions,
   useHMSMessagePinningActions,
   useHMSRoomStyle,
+  useHMSRoomStyleSheet,
   useIsMessagePinned,
+  useIsPeerBlocked,
 } from '../../hooks-util';
 import type { RootState } from '../../redux';
 import { BottomSheet } from '../BottomSheet';
-import { PinIcon } from '../../Icons';
+import { NoEntryIcon, PinIcon } from '../../Icons';
 import { setSelectedMessageForAction } from '../../redux/actions';
 
 interface MessageOptionsViewProps {
@@ -21,11 +26,31 @@ const _MessageOptionsView: React.FC<MessageOptionsViewProps> = ({
   onDismiss,
 }) => {
   const dispatch = useDispatch();
+  const localPeerId = useSelector(
+    (state: RootState) => state.hmsStates.localPeer?.peerID
+  );
   const selectedMessageForAction = useSelector(
     (state: RootState) => state.app.selectedMessageForAction
   );
+
+  const allowPinningMessage = useAllowPinningMessage();
   const isPinned = useIsMessagePinned(selectedMessageForAction);
   const { pinMessage, unpinMessage } = useHMSMessagePinningActions();
+
+  const allowPeerBlocking = useAllowBlockingPeerFromChat();
+  const isPeerBlocked = useIsPeerBlocked(
+    selectedMessageForAction?.sender ?? null
+  );
+  const { blockPeer, unblockPeer } = useBlockPeerActions();
+
+  const hmsRoomStyle = useHMSRoomStyleSheet((theme) => ({
+    blockLabel: {
+      color: theme.palette.alert_error_default,
+    },
+    blockIcon: {
+      tintColor: theme.palette.alert_error_default,
+    },
+  }));
 
   const closeMessageOptionsBottomSheet = () => {
     if (onDismiss) {
@@ -46,6 +71,25 @@ const _MessageOptionsView: React.FC<MessageOptionsViewProps> = ({
     closeMessageOptionsBottomSheet();
   };
 
+  const handleBlockPeerFromChat = () => {
+    if (selectedMessageForAction?.sender) {
+      if (isPeerBlocked) {
+        unblockPeer(selectedMessageForAction.sender);
+      } else {
+        blockPeer(selectedMessageForAction.sender);
+      }
+    }
+    closeMessageOptionsBottomSheet();
+  };
+
+  const hidePinItem = !(selectedMessageForAction && allowPinningMessage);
+  const hideBlockItem = !(
+    selectedMessageForAction &&
+    selectedMessageForAction.sender &&
+    allowPeerBlocking &&
+    selectedMessageForAction.sender.peerID !== localPeerId
+  );
+
   return (
     <View>
       <BottomSheet.Header
@@ -55,11 +99,24 @@ const _MessageOptionsView: React.FC<MessageOptionsViewProps> = ({
 
       <BottomSheet.Divider style={styles.headerDivider} />
 
-      <MessageOptionsItem
-        label={isPinned ? 'Unpin' : 'Pin'}
-        icon={<PinIcon type={isPinned ? 'unpin' : 'pin'} style={styles.icon} />}
-        onPress={handleMessagePin}
-      />
+      {hidePinItem ? null : (
+        <MessageOptionsItem
+          label={isPinned ? 'Unpin' : 'Pin'}
+          icon={
+            <PinIcon type={isPinned ? 'unpin' : 'pin'} style={styles.icon} />
+          }
+          onPress={handleMessagePin}
+        />
+      )}
+
+      {hideBlockItem ? null : (
+        <MessageOptionsItem
+          label={isPeerBlocked ? 'Unblock from Chat' : 'Block from Chat'}
+          labelStyle={hmsRoomStyle.blockLabel}
+          icon={<NoEntryIcon style={[styles.icon, hmsRoomStyle.blockIcon]} />}
+          onPress={handleBlockPeerFromChat}
+        />
+      )}
 
       <View style={styles.bottomSpacer} />
     </View>

@@ -61,6 +61,7 @@ type IntialStateType = {
   editUsernameDisabled: boolean;
   selectedMessageForAction: null | HMSMessage;
   initialRole: HMSRole | null;
+  chatPeerBlacklist: string[]; // list of userIds
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -97,6 +98,7 @@ const INITIAL_STATE: IntialStateType = {
   editUsernameDisabled: false,
   selectedMessageForAction: null,
   initialRole: null,
+  chatPeerBlacklist: [],
 };
 
 const appReducer = (
@@ -346,6 +348,13 @@ const appReducer = (
       return {
         ...state,
         initialRole: action.payload.initialRole ?? INITIAL_STATE.initialRole,
+      };
+    }
+    case ActionTypes.SET_CHAT_PEER_BLACKLIST: {
+      return {
+        ...state,
+        chatPeerBlacklist:
+          action.payload.chatPeerBlacklist ?? INITIAL_STATE.chatPeerBlacklist,
       };
     }
     case HmsStateActionTypes.CLEAR_STATES:

@@ -81,6 +81,7 @@ import {
   changePipModeStatus,
   changeStartingHLSStream,
   clearStore,
+  filterOutMsgsFromBlockedPeers,
   removeNotification,
   removeParticipant,
   removeParticipants,
@@ -90,6 +91,7 @@ import {
   setActiveChatBottomSheetTab,
   setActiveSpeakers,
   setAutoEnterPipMode,
+  setChatPeerBlacklist,
   setChatState,
   setEditUsernameDisabled,
   setFullScreenPeerTrackNode,
@@ -1132,6 +1134,19 @@ export const useHMSSessionStoreListeners = (
           }
         };
 
+        // Handle 'chatPeerBlacklist' key values
+        const handleChatPeerBlacklistChange = (data: JsonValue) => {
+          // Whenever list changes :
+          //  - check if local peer is blocked or unblocked
+          //  - filter out messages of blocked peers
+          if (Array.isArray(data)) {
+            batch(() => {
+              dispatch(setChatPeerBlacklist(data as string[]));
+              dispatch(filterOutMsgsFromBlockedPeers(data as string[]));
+            });
+          }
+        };
+
         // Getting value for 'spotlight' key by using `get` method on HMSSessionStore instance
         hmsSessionStore
           .get('spotlight')
@@ -1183,73 +1198,64 @@ export const useHMSSessionStoreListeners = (
             )
           );
 
+        // Getting value for 'chatPeerBlacklist' key by using `get` method on HMSSessionStore instance
+        hmsSessionStore
+          .get('chatPeerBlacklist')
+          .then((data) => {
+            console.log(
+              'Session Store get `chatPeerBlacklist` key value success: ',
+              data
+            );
+            handleChatPeerBlacklistChange(data);
+          })
+          .catch((error) =>
+            console.log(
+              'Session Store get `chatPeerBlacklist` key value error: ',
+              error
+            )
+          );
+
         // let lastSpotlightValue: HMSSessionStoreValue = null;
         // let lastPinnedMessageValue: HMSSessionStoreValue = null;
 
-        // Add subscription for `spotlight` & `pinnedMessages` keys updates on Session Store
+        // Add subscription for `spotlight`, `pinnedMessages`, `chatState` & `chatPeerBlacklist` keys updates on Session Store
         const subscription = hmsSessionStore.addKeyChangeListener<
-          ['spotlight', 'pinnedMessages', 'chatState']
-        >(['spotlight', 'pinnedMessages', 'chatState'], (error, data) => {
-          // If error occurs, handle error and return early
-          if (error !== null) {
-            console.log(
-              '`spotlight`, `chatState` & `pinnedMessages` key listener Error -> ',
-              error
-            );
-            return;
-          }
+          ['spotlight', 'pinnedMessages', 'chatState', 'chatPeerBlacklist']
+        >(
+          ['spotlight', 'pinnedMessages', 'chatState', 'chatPeerBlacklist'],
+          (error, data) => {
+            // If error occurs, handle error and return early
+            if (error !== null) {
+              console.log(
+                '`spotlight`, `pinnedMessages`, `chatState` & `chatPeerBlacklist` key listener Error -> ',
+                error
+              );
+              return;
+            }
 
-          // If no error, handle data
-          if (data !== null) {
-            switch (data.key) {
-              case 'spotlight': {
-                handleSpotlightIdChange(data.value);
-
-                // Showing Toast message if value has actually changed
-                // if (
-                //   data.value !== lastSpotlightValue &&
-                //   (data.value || lastSpotlightValue)
-                // ) {
-                //   Toast.showWithGravity(
-                //     `SessionStore: \`spotlight\` key's value changed to ${data.value}`,
-                //     Toast.LONG,
-                //     Toast.TOP
-                //   );
-                // }
-
-                // lastSpotlightValue = data.value;
-                break;
-              }
-              case 'pinnedMessages': {
-                handlePinnedMessagesChange(data.value);
-
-                // Showing Toast message if value has actually changed
-                // if (
-                //   data.value !== lastPinnedMessageValue &&
-                //   (data.value || lastPinnedMessageValue)
-                // ) {
-                //   if (toastTimeoutId !== null) {
-                //     clearTimeout(toastTimeoutId);
-                //   }
-                //   toastTimeoutId = setTimeout(() => {
-                //     Toast.showWithGravity(
-                //       `SessionStore: \`pinnedMessages\` key's value changed to ${data.value}`,
-                //       Toast.LONG,
-                //       Toast.TOP
-                //     );
-                //   }, 1500);
-                // }
-
-                // lastPinnedMessageValue = data.value;
-                break;
-              }
-              case 'chatState': {
-                handleChatStateChange(data.value);
-                break;
+            // If no error, handle data
+            if (data !== null) {
+              switch (data.key) {
+                case 'spotlight': {
+                  handleSpotlightIdChange(data.value);
+                  break;
+                }
+                case 'pinnedMessages': {
+                  handlePinnedMessagesChange(data.value);
+                  break;
+                }
+                case 'chatState': {
+                  handleChatStateChange(data.value);
+                  break;
+                }
+                case 'chatPeerBlacklist': {
+                  handleChatPeerBlacklistChange(data.value);
+                  break;
+                }
               }
             }
           }
-        });
+        );
 
         // Save reference of `subscription` in a ref
         sessionStoreListenersRef.current.push(subscription);
@@ -2670,7 +2676,12 @@ export const useHMSMessagePinningActions = () => {
   );
 
   const pinMessage = useCallback(
-    async (message: HMSMessage) => {
+    async (message: HMSMessage | HMSMessage[]) => {
+      let messages = message;
+      if (!Array.isArray(messages)) {
+        messages = [messages];
+      }
+
       // If instance of HMSSessionStore is available
       if (hmsSessionStore) {
         try {
@@ -2678,18 +2689,21 @@ export const useHMSMessagePinningActions = () => {
           const localPeerName = reduxState.hmsStates.localPeer?.name;
           const pinnedMessages = reduxState.messages.pinnedMessages;
 
-          let updatedPinnedMessages = [...pinnedMessages];
-
-          let payload = {
+          let payload = messages.map((message) => ({
             authorId: message.sender?.customerUserID ?? '',
             id: message.messageId,
             pinnedBy: localPeerName ?? '',
             text: `${message.sender?.name}: ${message.message}`,
-          };
-          if (updatedPinnedMessages.length >= 3) {
-            updatedPinnedMessages.shift();
+          }));
+
+          let updatedPinnedMessages = [...pinnedMessages, ...payload];
+
+          if (updatedPinnedMessages.length > 3) {
+            updatedPinnedMessages = updatedPinnedMessages.slice(
+              updatedPinnedMessages.length - 3
+            );
           }
-          updatedPinnedMessages.push(payload);
+
           const response = await hmsSessionStore.set(
             updatedPinnedMessages,
             'pinnedMessages'
@@ -2704,15 +2718,23 @@ export const useHMSMessagePinningActions = () => {
   );
 
   const unpinMessage = useCallback(
-    async (message: HMSMessage | PinnedMessage) => {
+    async (
+      message: HMSMessage | PinnedMessage | (HMSMessage | PinnedMessage)[]
+    ) => {
+      let messages = message;
+      if (!Array.isArray(messages)) {
+        messages = [messages];
+      }
+
       // If instance of HMSSessionStore is available
       if (hmsSessionStore) {
         try {
           const pinnedMessages = store.getState().messages.pinnedMessages;
+          const messageIdsToUnpin = messages.map((msg) =>
+            'messageId' in msg ? msg.messageId : msg.id
+          );
           const updatedPinnedMessages = pinnedMessages.filter(
-            (pinnedMessage) =>
-              pinnedMessage.id !==
-              ('messageId' in message ? message.messageId : message.id)
+            (pinnedMessage) => !messageIdsToUnpin.includes(pinnedMessage.id)
           );
           const response = await hmsSessionStore.set(
             updatedPinnedMessages,
@@ -2844,5 +2866,114 @@ export const useKeyboardState = () => {
 export const useAllowPinningMessage = () => {
   return useHMSChatLayoutConfig(
     (config) => config?.allow_pinning_messages ?? false
+  );
+};
+
+export const useIsLocalPeerBlockedFromChat = () => {
+  return useSelector((state: RootState) => {
+    const chatPeerBlacklist = state.app.chatPeerBlacklist;
+    const localPeerUserId = state.hmsStates.localPeer?.customerUserID;
+
+    return localPeerUserId
+      ? chatPeerBlacklist.includes(localPeerUserId)
+      : false;
+  });
+};
+
+export const useIsPeerBlocked = (peer: HMSPeer | null) => {
+  return useSelector((state: RootState) => {
+    const chatPeerBlacklist = state.app.chatPeerBlacklist;
+    const localPeerUserId = peer?.customerUserID;
+
+    return localPeerUserId
+      ? chatPeerBlacklist.includes(localPeerUserId)
+      : false;
+  });
+};
+
+export const useBlockPeerActions = () => {
+  const store = useStore<RootState>();
+  const hmsSessionStore = useSelector(
+    (state: RootState) => state.user.hmsSessionStore
+  );
+  const { unpinMessage } = useHMSMessagePinningActions();
+
+  const blockPeer = useCallback(
+    async (peer: HMSPeer) => {
+      // If instance of HMSSessionStore is available
+      if (hmsSessionStore) {
+        try {
+          const reduxState = store.getState();
+          const chatPeerBlacklist = reduxState.app.chatPeerBlacklist;
+          const pinnedMessages = reduxState.messages.pinnedMessages;
+
+          if (
+            peer.customerUserID &&
+            !chatPeerBlacklist.includes(peer.customerUserID)
+          ) {
+            let updatedChatPeerBlacklist = [
+              ...chatPeerBlacklist,
+              peer.customerUserID,
+            ];
+            const response = await hmsSessionStore.set(
+              updatedChatPeerBlacklist,
+              'chatPeerBlacklist'
+            );
+            console.log('setSessionMetaData Response -> ', response);
+
+            // Unpin messages from sent by the peer
+            const msgsToUnpin = pinnedMessages.filter(
+              (pinnedMessage) => pinnedMessage.authorId === peer.customerUserID
+            );
+            if (msgsToUnpin.length > 0) {
+              await unpinMessage(msgsToUnpin);
+            }
+
+            return response;
+          }
+          return Promise.reject('Peer is already blocked!');
+        } catch (error) {
+          console.log('setSessionMetaData Error -> ', error);
+        }
+      }
+    },
+    [hmsSessionStore, unpinMessage]
+  );
+
+  const unblockPeer = useCallback(
+    async (peer: HMSPeer) => {
+      // If instance of HMSSessionStore is available
+      if (hmsSessionStore) {
+        try {
+          const chatPeerBlacklist = store.getState().app.chatPeerBlacklist;
+          if (
+            peer.customerUserID &&
+            chatPeerBlacklist.includes(peer.customerUserID)
+          ) {
+            const updatedChatPeerBlacklist = chatPeerBlacklist.filter(
+              (peerUserId) => peerUserId !== peer.customerUserID
+            );
+            const response = await hmsSessionStore.set(
+              updatedChatPeerBlacklist,
+              'chatPeerBlacklist'
+            );
+            console.log('setSessionMetaData Response -> ', response);
+            return response;
+          }
+          return Promise.reject('Peer is already unblocked!');
+        } catch (error) {
+          console.log('setSessionMetaData Error -> ', error);
+        }
+      }
+    },
+    [hmsSessionStore]
+  );
+
+  return { blockPeer, unblockPeer };
+};
+
+export const useAllowBlockingPeerFromChat = () => {
+  return useHMSChatLayoutConfig(
+    (config) => config?.real_time_controls?.can_block_user ?? false
   );
 };

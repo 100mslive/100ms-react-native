@@ -423,3 +423,13 @@ export const setInitialRole = (initialRole: HMSRole) => ({
   type: actionTypes.SET_INITIAL_ROLE,
   payload: { initialRole },
 });
+
+export const setChatPeerBlacklist = (chatPeerBlacklist: string[]) => ({
+  type: actionTypes.SET_CHAT_PEER_BLACKLIST,
+  payload: { chatPeerBlacklist },
+});
+
+export const filterOutMsgsFromBlockedPeers = (chatPeerBlacklist: string[]) => ({
+  type: actionTypes.FILTER_OUT_BLOCKED_MSGS,
+  payload: chatPeerBlacklist,
+});

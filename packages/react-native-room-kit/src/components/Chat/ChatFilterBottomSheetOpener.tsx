@@ -16,6 +16,7 @@ import {
   useHMSChatRecipientSelector,
   useHMSRoomStyleSheet,
   useIsAllowedToSendMessage,
+  useIsLocalPeerBlockedFromChat,
   useModalType,
 } from '../../hooks-util';
 import {
@@ -37,6 +38,7 @@ const _ChatFilterBottomSheetOpener: React.FC<
   const canDisableChat = useHMSCanDisableChat();
   const chatRecipients = useHMSChatRecipientSelector();
   const allowedToSendMessage = useIsAllowedToSendMessage();
+  const isLocalPeerBlockedFromChat = useIsLocalPeerBlockedFromChat();
   const selectedChatRecipient = useSelector(
     (state: RootState) => state.chatWindow.sendTo
   );
@@ -94,7 +96,8 @@ const _ChatFilterBottomSheetOpener: React.FC<
       ? chatRecipients.roles.length === 0
       : chatRecipients.roles.length <= 1);
 
-  const showActionButtons = allowedToSendMessage || canDisableChat;
+  const showActionButtons =
+    (allowedToSendMessage && !isLocalPeerBlockedFromChat) || canDisableChat;
 
   if (!showActionButtons) {
     return null;
@@ -104,7 +107,7 @@ const _ChatFilterBottomSheetOpener: React.FC<
 
   return (
     <View style={styles.container}>
-      {allowedToSendMessage ? (
+      {allowedToSendMessage && !isLocalPeerBlockedFromChat ? (
         <View style={styles.sendToContainer}>
           <Text style={[styles.label, hmsRoomStyles.label]}>
             {selectedChatRecipient !== null

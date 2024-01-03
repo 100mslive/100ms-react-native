@@ -9,7 +9,11 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { HMSMessage } from '@100mslive/react-native-hms';
 
-import { useAllowPinningMessage, useHMSRoomStyleSheet } from '../../hooks-util';
+import {
+  useAllowBlockingPeerFromChat,
+  useAllowPinningMessage,
+  useHMSRoomStyleSheet,
+} from '../../hooks-util';
 import { getTimeStringin12HourFormat } from '../../utils/functions';
 import { PinIcon, ThreeDotsIcon } from '../../Icons';
 import type { RootState } from '../../redux';
@@ -27,8 +31,12 @@ const _ChatMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
         (pinnedMessage) => pinnedMessage.id === message.messageId
       ) >= 0
   );
+  const localPeerId = useSelector(
+    (state: RootState) => state.hmsStates.localPeer?.peerID
+  );
 
   const allowPinningMessage = useAllowPinningMessage();
+  const allowPeerBlocking = useAllowBlockingPeerFromChat();
 
   const hmsRoomStyles = useHMSRoomStyleSheet(
     (theme, typography) => ({
@@ -61,6 +69,12 @@ const _ChatMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
 
   const messageSender = message.sender;
 
+  const canTakeAction =
+    allowPinningMessage ||
+    (allowPeerBlocking &&
+      message.sender &&
+      message.sender.peerID !== localPeerId);
+
   return (
     <View style={styles.container}>
       {isPinned ? (
@@ -91,7 +105,7 @@ const _ChatMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
           {getTimeStringin12HourFormat(message.time)}
         </Text>
 
-        {allowPinningMessage ? (
+        {canTakeAction ? (
           <TouchableOpacity
             hitSlop={styles.threeDotsHitSlop}
             onPress={onThreeDotsPress}
