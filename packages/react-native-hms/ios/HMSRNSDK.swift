@@ -1281,6 +1281,9 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             case "hlsRecordingState":
                 return ["hlsRecordingState": HMSDecoder.getHlsRecordingState(hmsRoom.hlsRecordingState)]
 
+            case "isLargeRoom":
+                return ["isLargeRoom": hmsRoom.isLarge]
+            
             default:
                 return nil
         }

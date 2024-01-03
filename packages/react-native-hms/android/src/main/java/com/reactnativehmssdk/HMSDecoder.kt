@@ -146,6 +146,8 @@ object HMSDecoder {
           room.putInt("peerCount", it)
         }
       }
+
+      room.putBoolean("isLargeRoom", hmsRoom.isLargeRoom)
     }
     return room
   }
