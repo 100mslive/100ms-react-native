@@ -2196,7 +2196,7 @@ class HMSRNSDK(
           key, // key
           object : HMSActionResultListener {
             override fun onError(error: HMSException) {
-              promise?.reject(error.code.toString(), error.message)
+              promise?.reject(error.code.toString(), error.description)
             }
 
             override fun onSuccess() {

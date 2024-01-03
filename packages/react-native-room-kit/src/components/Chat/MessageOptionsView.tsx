@@ -12,11 +12,17 @@ import {
   useHMSRoomStyleSheet,
   useIsMessagePinned,
   useIsPeerBlocked,
+  useModalType,
 } from '../../hooks-util';
 import type { RootState } from '../../redux';
 import { BottomSheet } from '../BottomSheet';
 import { NoEntryIcon, PinIcon } from '../../Icons';
-import { setSelectedMessageForAction } from '../../redux/actions';
+import {
+  addNotification,
+  setSelectedMessageForAction,
+} from '../../redux/actions';
+import { ModalTypes } from '../../utils/types';
+import { NotificationTypes } from '../../types';
 
 interface MessageOptionsViewProps {
   onDismiss?: () => void;
@@ -43,6 +49,8 @@ const _MessageOptionsView: React.FC<MessageOptionsViewProps> = ({
   );
   const { blockPeer, unblockPeer } = useBlockPeerActions();
 
+  const { handleModalVisibleType } = useModalType();
+
   const hmsRoomStyle = useHMSRoomStyleSheet((theme) => ({
     blockLabel: {
       color: theme.palette.alert_error_default,
@@ -60,26 +68,49 @@ const _MessageOptionsView: React.FC<MessageOptionsViewProps> = ({
     }
   };
 
-  const handleMessagePin = () => {
-    if (selectedMessageForAction) {
-      if (isPinned) {
-        unpinMessage(selectedMessageForAction);
-      } else {
-        pinMessage(selectedMessageForAction);
-      }
+  const showError = (error: any) => {
+    if (!onDismiss) {
+      handleModalVisibleType(ModalTypes.DEFAULT);
     }
-    closeMessageOptionsBottomSheet();
+    dispatch(
+      addNotification({
+        id: Math.random().toString(16).slice(2),
+        type: NotificationTypes.ERROR,
+        title: error.message,
+      })
+    );
   };
 
-  const handleBlockPeerFromChat = () => {
-    if (selectedMessageForAction?.sender) {
-      if (isPeerBlocked) {
-        unblockPeer(selectedMessageForAction.sender);
-      } else {
-        blockPeer(selectedMessageForAction.sender);
+  const handleMessagePin = async () => {
+    try {
+      if (selectedMessageForAction) {
+        if (isPinned) {
+          await unpinMessage(selectedMessageForAction);
+        } else {
+          await pinMessage(selectedMessageForAction);
+        }
       }
+      closeMessageOptionsBottomSheet();
+    } catch (error) {
+      closeMessageOptionsBottomSheet();
+      showError(error);
     }
-    closeMessageOptionsBottomSheet();
+  };
+
+  const handleBlockPeerFromChat = async () => {
+    try {
+      if (selectedMessageForAction?.sender) {
+        if (isPeerBlocked) {
+          await unblockPeer(selectedMessageForAction.sender);
+        } else {
+          await blockPeer(selectedMessageForAction.sender);
+        }
+      }
+      closeMessageOptionsBottomSheet();
+    } catch (error) {
+      closeMessageOptionsBottomSheet();
+      showError(error);
+    }
   };
 
   const hidePinItem = !(selectedMessageForAction && allowPinningMessage);

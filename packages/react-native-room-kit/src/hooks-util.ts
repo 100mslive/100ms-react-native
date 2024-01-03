@@ -2711,6 +2711,7 @@ export const useHMSMessagePinningActions = () => {
           console.log('setSessionMetaData Response -> ', response);
         } catch (error) {
           console.log('setSessionMetaData Error -> ', error);
+          return Promise.reject(error);
         }
       }
     },
@@ -2743,6 +2744,7 @@ export const useHMSMessagePinningActions = () => {
           console.log('setSessionMetaData Response -> ', response);
         } catch (error) {
           console.log('setSessionMetaData Error -> ', error);
+          return Promise.reject(error);
         }
       }
     },
@@ -2934,6 +2936,7 @@ export const useBlockPeerActions = () => {
           return Promise.reject('Peer is already blocked!');
         } catch (error) {
           console.log('setSessionMetaData Error -> ', error);
+          return Promise.reject(error);
         }
       }
     },
@@ -2963,6 +2966,7 @@ export const useBlockPeerActions = () => {
           return Promise.reject('Peer is already unblocked!');
         } catch (error) {
           console.log('setSessionMetaData Error -> ', error);
+          return Promise.reject(error);
         }
       }
     },
