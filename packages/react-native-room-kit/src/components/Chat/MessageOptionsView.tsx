@@ -15,7 +15,7 @@ import {
 } from '../../hooks-util';
 import type { RootState } from '../../redux';
 import { BottomSheet } from '../BottomSheet';
-import { NoEntryIcon, PinIcon } from '../../Icons';
+import { NoEntryIcon, PersonIcon, PinIcon } from '../../Icons';
 import { setSelectedMessageForAction } from '../../redux/actions';
 
 interface MessageOptionsViewProps {
@@ -26,6 +26,17 @@ const _MessageOptionsView: React.FC<MessageOptionsViewProps> = ({
   onDismiss,
 }) => {
   const dispatch = useDispatch();
+
+  const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
+
+  const localPeerPermissions = useSelector(
+    (state: RootState) => state.hmsStates.localPeer?.role?.permissions
+  );
+
+  const removeTextStyle = useHMSRoomStyle((theme) => ({
+    color: theme.palette.alert_error_default,
+  }));
+
   const localPeerId = useSelector(
     (state: RootState) => state.hmsStates.localPeer?.peerID
   );
@@ -60,23 +71,33 @@ const _MessageOptionsView: React.FC<MessageOptionsViewProps> = ({
     }
   };
 
-  const handleMessagePin = () => {
+  const handleMessagePin = async () => {
     if (selectedMessageForAction) {
       if (isPinned) {
-        unpinMessage(selectedMessageForAction);
+        await unpinMessage(selectedMessageForAction);
       } else {
-        pinMessage(selectedMessageForAction);
+        await pinMessage(selectedMessageForAction);
       }
     }
     closeMessageOptionsBottomSheet();
   };
 
-  const handleBlockPeerFromChat = () => {
+  const handleRemoveParticipant = async () => {
+    if (hmsInstance && selectedMessageForAction?.sender) {
+      await hmsInstance?.removePeer(
+        selectedMessageForAction?.sender,
+        'Removed from chat'
+      );
+    }
+    closeMessageOptionsBottomSheet();
+  };
+
+  const handleBlockPeerFromChat = async () => {
     if (selectedMessageForAction?.sender) {
       if (isPeerBlocked) {
-        unblockPeer(selectedMessageForAction.sender);
+        await unblockPeer(selectedMessageForAction.sender);
       } else {
-        blockPeer(selectedMessageForAction.sender);
+        await blockPeer(selectedMessageForAction.sender);
       }
     }
     closeMessageOptionsBottomSheet();
@@ -117,6 +138,17 @@ const _MessageOptionsView: React.FC<MessageOptionsViewProps> = ({
           onPress={handleBlockPeerFromChat}
         />
       )}
+
+      {localPeerPermissions?.removeOthers &&
+      selectedMessageForAction?.sender &&
+      !selectedMessageForAction.sender.isLocal ? (
+        <MessageOptionsItem
+          label="Remove Participant"
+          labelStyle={removeTextStyle}
+          icon={<PersonIcon type="left" style={styles.icon} />}
+          onPress={handleRemoveParticipant}
+        />
+      ) : null}
 
       <View style={styles.bottomSpacer} />
     </View>
