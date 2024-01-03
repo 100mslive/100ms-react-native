@@ -29,10 +29,9 @@ const _MessageOptionsView: React.FC<MessageOptionsViewProps> = ({
 
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
 
-  const localPeer = useSelector(
-    (state: RootState) => state.hmsStates.localPeer
+  const localPeerPermissions = useSelector(
+    (state: RootState) => state.hmsStates.localPeer?.role?.permissions
   );
-  const localPeerPermissions = localPeer?.role?.permissions;
 
   const removeTextStyle = useHMSRoomStyle((theme) => ({
     color: theme.palette.alert_error_default,
