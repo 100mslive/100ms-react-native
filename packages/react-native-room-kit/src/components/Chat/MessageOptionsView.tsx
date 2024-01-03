@@ -7,6 +7,7 @@ import {
   useAllowBlockingPeerFromChat,
   useAllowPinningMessage,
   useBlockPeerActions,
+  useHMSInstance,
   useHMSMessagePinningActions,
   useHMSRoomStyle,
   useHMSRoomStyleSheet,
@@ -16,7 +17,7 @@ import {
 } from '../../hooks-util';
 import type { RootState } from '../../redux';
 import { BottomSheet } from '../BottomSheet';
-import { NoEntryIcon, PinIcon } from '../../Icons';
+import { NoEntryIcon, PersonIcon, PinIcon } from '../../Icons';
 import {
   addNotification,
   setSelectedMessageForAction,
@@ -32,6 +33,10 @@ const _MessageOptionsView: React.FC<MessageOptionsViewProps> = ({
   onDismiss,
 }) => {
   const dispatch = useDispatch();
+  const hmsInstance = useHMSInstance();
+  const localPeerPermissions = useSelector(
+    (state: RootState) => state.hmsStates.localPeer?.role?.permissions
+  );
   const localPeerId = useSelector(
     (state: RootState) => state.hmsStates.localPeer?.peerID
   );
@@ -113,12 +118,27 @@ const _MessageOptionsView: React.FC<MessageOptionsViewProps> = ({
     }
   };
 
+  const handleRemoveParticipant = async () => {
+    if (selectedMessageForAction?.sender) {
+      await hmsInstance.removePeer(
+        selectedMessageForAction.sender,
+        'Removed from chat'
+      );
+    }
+    closeMessageOptionsBottomSheet();
+  };
+
   const hidePinItem = !(selectedMessageForAction && allowPinningMessage);
   const hideBlockItem = !(
     selectedMessageForAction &&
     selectedMessageForAction.sender &&
     allowPeerBlocking &&
     selectedMessageForAction.sender.peerID !== localPeerId
+  );
+  const hideRemoveItem = !(
+    localPeerPermissions?.removeOthers &&
+    selectedMessageForAction?.sender &&
+    !selectedMessageForAction.sender.isLocal
   );
 
   return (
@@ -146,6 +166,15 @@ const _MessageOptionsView: React.FC<MessageOptionsViewProps> = ({
           labelStyle={hmsRoomStyle.blockLabel}
           icon={<NoEntryIcon style={[styles.icon, hmsRoomStyle.blockIcon]} />}
           onPress={handleBlockPeerFromChat}
+        />
+      )}
+
+      {hideRemoveItem ? null : (
+        <MessageOptionsItem
+          label="Remove Participant"
+          labelStyle={hmsRoomStyle.blockLabel}
+          icon={<PersonIcon type="left" style={[styles.icon, hmsRoomStyle.blockIcon]} />}
+          onPress={handleRemoveParticipant}
         />
       )}
 
