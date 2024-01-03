@@ -37,6 +37,10 @@ const _ChatMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
 
   const allowPinningMessage = useAllowPinningMessage();
   const allowPeerBlocking = useAllowBlockingPeerFromChat();
+  const canRemoveOthers = useSelector(
+    (state: RootState) =>
+      !!state.hmsStates.localPeer?.role?.permissions?.removeOthers
+  );
 
   const hmsRoomStyles = useHMSRoomStyleSheet(
     (theme, typography) => ({
@@ -70,10 +74,13 @@ const _ChatMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
   const messageSender = message.sender;
 
   const canTakeAction =
-    allowPinningMessage ||
+    allowPinningMessage || // can pin message, OR
     (allowPeerBlocking &&
       message.sender &&
-      message.sender.peerID !== localPeerId);
+      message.sender.peerID !== localPeerId) || // can block peers, OR
+    (canRemoveOthers &&
+      message.sender &&
+      message.sender.peerID !== localPeerId); // can remove participants
 
   return (
     <View style={styles.container}>
