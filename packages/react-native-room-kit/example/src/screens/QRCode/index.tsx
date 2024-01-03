@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   Alert,
   Image,
@@ -10,32 +10,32 @@ import {
   Text,
   View,
 } from 'react-native';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useDispatch, useSelector } from 'react-redux';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {useDispatch, useSelector} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-simple-toast';
 
-import type { AppStackParamList } from '../../navigator';
-import { styles } from './styles';
+import type {AppStackParamList} from '../../navigator';
+import {styles} from './styles';
 import {
   getMeetingUrl,
   validateJoiningLink,
   validateUrl,
 } from '../../utils/functions';
-import { COLORS } from '../../utils/theme';
+import {COLORS} from '../../utils/theme';
 import {
   CustomButton,
   CustomInput,
   DefaultModal,
   JoinSettingsModalContent,
 } from '../../components';
-import { Constants } from '../../utils/types';
-import { RootState } from '../../redux';
-import { callService } from '../../utils/functions';
+import {Constants} from '../../utils/types';
+import {RootState} from '../../redux';
+import {callService} from '../../utils/functions';
 import LottieSplashScreen from 'react-native-lottie-splash-screen';
-import { QRCodeIcon, ThreeDotsIcon } from '../../icons';
+import {QRCodeIcon, ThreeDotsIcon} from '../../icons';
 
 type QRCodeScreenProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -47,10 +47,13 @@ const isHermes = () => !!global.HermesInternal;
 
 const QRCode = () => {
   const navigate = useNavigation<QRCodeScreenProp>().navigate;
-  const { top, bottom, left, right } = useSafeAreaInsets();
+  const {top, bottom, left, right} = useSafeAreaInsets();
   const dispatch = useDispatch();
   const debugMode = useSelector(
-    (state: RootState) => state.app.joinConfig.debugMode
+    (state: RootState) => state.app.joinConfig.debugMode,
+  );
+  const staticUserId = useSelector(
+    (state: RootState) => state.app.joinConfig.staticUserId,
   );
 
   const [joiningLink, setJoiningLink] = useState(getMeetingUrl());
@@ -67,17 +70,17 @@ const QRCode = () => {
           userId: string,
           tokenEndpoint: string | undefined,
           initEndpoint: string | undefined,
-          layoutEndPoint: string | undefined
+          layoutEndPoint: string | undefined,
         ) => {
           // Saving Meeting Link to Async Storage for persisting it between app starts.
           AsyncStorage.setItem(
             Constants.MEET_URL,
-            joiningLink.replace('preview', 'meeting')
+            joiningLink.replace('preview', 'meeting'),
           );
           // @ts-ignore
           navigate('HMSPrebuiltScreen', {
             roomCode,
-            userId,
+            userId: staticUserId ? Constants.STATIC_USERID : userId,
             userName: username,
             initEndPoint: initEndpoint,
             tokenEndPoint: tokenEndpoint,
@@ -87,7 +90,7 @@ const QRCode = () => {
         },
         (errorMsg: string) => {
           Toast.showWithGravity(errorMsg, Toast.LONG, Toast.TOP);
-        }
+        },
       );
     } else {
       Alert.alert('Error', 'Invalid URL');
@@ -109,13 +112,13 @@ const QRCode = () => {
 
   // Handle Deep Linking
   useEffect(() => {
-    Linking.getInitialURL().then((url) => {
+    Linking.getInitialURL().then(url => {
       if (url && validateJoiningLink(url)) {
         setJoiningLink(url);
       }
     });
 
-    const updateUrl = ({ url }: { url: string }) => {
+    const updateUrl = ({url}: {url: string}) => {
       if (url && validateJoiningLink(url)) {
         setJoiningLink(url);
       }
@@ -135,7 +138,7 @@ const QRCode = () => {
           setJoiningLink(url);
         }
       });
-    }, [])
+    }, []),
   );
 
   const joinDisabled = !validateUrl(joiningLink);
@@ -213,7 +216,7 @@ const QRCode = () => {
           blurOnSubmit
         />
 
-        <View style={{ flexDirection: 'row' }}>
+        <View style={{flexDirection: 'row'}}>
           <CustomButton
             testID="join-now-button"
             title="Join Now"
@@ -248,7 +251,7 @@ const QRCode = () => {
         animationIn={'slideInUp'}
         animationOut={'slideOutDown'}
         modalVisible={moreModalVisible}
-        viewStyle={{ height: 700 }}
+        viewStyle={{height: 700}}
         setModalVisible={closeMoreModal}
       >
         <JoinSettingsModalContent />
@@ -257,4 +260,4 @@ const QRCode = () => {
   );
 };
 
-export { QRCode };
+export {QRCode};

@@ -1,8 +1,8 @@
-import { getMeetingUrl } from '../../utils/functions';
+import {getMeetingUrl} from '../../utils/functions';
 import ActionTypes from '../actionTypes';
 
 type ActionType = {
-  payload: { [key: string]: any };
+  payload: {[key: string]: any};
   type: String;
 };
 
@@ -18,6 +18,7 @@ type InitialStateType = {
     softwareDecoder: boolean; // Android only
     autoResize: boolean; // Android only
     autoSimulcast: boolean;
+    staticUserId: boolean;
   };
 };
 
@@ -33,12 +34,13 @@ const INITIAL_STATE: InitialStateType = {
     softwareDecoder: true, // Android only
     autoResize: false, // Android only
     autoSimulcast: true,
+    staticUserId: false,
   },
 };
 
 const appReducer = (
   state = INITIAL_STATE,
-  action: ActionType
+  action: ActionType,
 ): InitialStateType => {
   switch (action.type) {
     case ActionTypes.RESET_JOIN_CONFIG:
@@ -127,6 +129,16 @@ const appReducer = (
         joinConfig: {
           ...state.joinConfig,
           autoSimulcast: action.payload.autoSimulcast ?? true,
+        },
+      };
+    case ActionTypes.CHANGE_USE_STATIC_USERID:
+      return {
+        ...state,
+        joinConfig: {
+          ...state.joinConfig,
+          staticUserId:
+            action.payload.staticUserId ??
+            INITIAL_STATE.joinConfig.staticUserId,
         },
       };
     default:

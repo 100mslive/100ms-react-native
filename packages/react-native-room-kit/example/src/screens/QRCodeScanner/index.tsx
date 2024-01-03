@@ -1,21 +1,21 @@
 import React from 'react';
-import { Alert, Text, TouchableOpacity, View } from 'react-native';
-import { useIsFocused, useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import {Alert, Text, TouchableOpacity, View} from 'react-native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BarCodeReadEvent, RNCamera } from 'react-native-camera';
+import {BarCodeReadEvent, RNCamera} from 'react-native-camera';
 import QRScanner from 'react-native-qrcode-scanner';
-import { useDispatch, useSelector } from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import Toast from 'react-native-simple-toast';
 
-import type { AppStackParamList } from '../../navigator';
-import { styles } from './styles';
-import { CustomButton } from '../../components';
-import { callService, validateUrl } from '../../utils/functions';
-import { Constants } from '../../utils/types';
-import { RootState } from '../../redux';
-import { ChevronIcon } from '../../icons';
+import type {AppStackParamList} from '../../navigator';
+import {styles} from './styles';
+import {CustomButton} from '../../components';
+import {callService, validateUrl} from '../../utils/functions';
+import {Constants} from '../../utils/types';
+import {RootState} from '../../redux';
+import {ChevronIcon} from '../../icons';
 
 type QRCodeScannerScreenProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -23,10 +23,13 @@ type QRCodeScannerScreenProp = NativeStackNavigationProp<
 >;
 
 const QRCodeScanner = () => {
-  const { navigate, goBack } = useNavigation<QRCodeScannerScreenProp>();
-  const { top, bottom, left, right } = useSafeAreaInsets();
+  const {navigate, goBack} = useNavigation<QRCodeScannerScreenProp>();
+  const {top, bottom, left, right} = useSafeAreaInsets();
   const debugMode = useSelector(
-    (state: RootState) => state.app.joinConfig.debugMode
+    (state: RootState) => state.app.joinConfig.debugMode,
+  );
+  const staticUserId = useSelector(
+    (state: RootState) => state.app.joinConfig.staticUserId,
   );
   const isFocused = useIsFocused();
 
@@ -41,14 +44,14 @@ const QRCodeScanner = () => {
           userId: string,
           tokenEndpoint: string | undefined,
           initEndpoint: string | undefined,
-          layoutEndPoint: string | undefined
+          layoutEndPoint: string | undefined,
         ) => {
           // Saving Meeting Link to Async Storage for persisting it between app starts.
           AsyncStorage.setItem(Constants.MEET_URL, joiningLink);
           // @ts-ignore
           navigate('HMSPrebuiltScreen', {
             roomCode,
-            userId,
+            userId: staticUserId ? Constants.STATIC_USERID : userId,
             initEndPoint: initEndpoint,
             tokenEndPoint: tokenEndpoint,
             layoutEndPoint: layoutEndPoint,
@@ -57,7 +60,7 @@ const QRCodeScanner = () => {
         },
         (errorMsg: string) => {
           Toast.showWithGravity(errorMsg, Toast.LONG, Toast.TOP);
-        }
+        },
       );
     } else {
       goBack();
@@ -101,4 +104,4 @@ const QRCodeScanner = () => {
   );
 };
 
-export { QRCodeScanner };
+export {QRCodeScanner};
