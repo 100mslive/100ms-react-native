@@ -173,7 +173,12 @@ const _MessageOptionsView: React.FC<MessageOptionsViewProps> = ({
         <MessageOptionsItem
           label="Remove Participant"
           labelStyle={hmsRoomStyle.blockLabel}
-          icon={<PersonIcon type="left" style={[styles.icon, hmsRoomStyle.blockIcon]} />}
+          icon={
+            <PersonIcon
+              type="left"
+              style={[styles.icon, hmsRoomStyle.blockIcon]}
+            />
+          }
           onPress={handleRemoveParticipant}
         />
       )}

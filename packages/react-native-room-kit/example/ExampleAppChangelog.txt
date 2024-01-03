@@ -15,6 +15,9 @@ https://100ms.atlassian.net/browse/RN-150
 - Block peer from chat
 https://100ms.atlassian.net/browse/RN-142
 
+- Add Remove peer option in message context menu
+https://100ms.atlassian.net/browse/RN-188
+
 Room Kit: 1.0.8
 React Native SDK: 1.9.7
 Android SDK: 2.8.6
