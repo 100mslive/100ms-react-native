@@ -1232,6 +1232,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
     hms?.lowerLocalPeerHand(data, promise)
   }
 
+  @ReactMethod
   fun lowerRemotePeerHand(
     data: ReadableMap,
     promise: Promise?,
