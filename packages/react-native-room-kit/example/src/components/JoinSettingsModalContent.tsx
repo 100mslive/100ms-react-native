@@ -1,6 +1,6 @@
 import React from 'react';
 import DeviceInfo from 'react-native-device-info';
-import {useDispatch, useSelector} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   View,
   Text,
@@ -10,15 +10,15 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
-import {COLORS} from '../utils/theme';
-import {version as hmsRNSdkVersion} from '../../../../react-native-hms/package.json';
-import {version as hmsRoomKitVersion} from '../../../package.json';
+import { COLORS } from '../utils/theme';
+import { version as hmsRNSdkVersion } from '../../../../react-native-hms/package.json';
+import { version as hmsRoomKitVersion } from '../../../package.json';
 import {
   ios as hmsIOSSdkVersion,
   android as hmsAndroidSdkVersion,
 } from '../../../../react-native-hms/sdk-versions.json';
-import {SwitchRow} from './SwitchRow';
-import {RootState} from '../redux';
+import { SwitchRow } from './SwitchRow';
+import { RootState } from '../redux';
 import {
   changeAudioMixer,
   changeJoinAudioMuted,
@@ -33,7 +33,7 @@ import {
   changeDebugMode,
   changeUseStaticUserId,
 } from '../redux/actions';
-import {Constants} from '../utils/types';
+import { Constants } from '../utils/types';
 
 interface JoinSettingsModalContentProps {}
 
@@ -62,12 +62,12 @@ export const JoinSettingsModalContent: React.FC<
 
       <View style={styles.divider} />
 
-      <ScrollView contentContainerStyle={{flexGrow: 1}}>
-        <View style={{flexGrow: 1}}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <View style={{ flexGrow: 1 }}>
           <SwitchRow
             text="Debug Info"
             value={debugMode}
-            onChange={value => dispatch(changeDebugMode(value))}
+            onChange={(value) => dispatch(changeDebugMode(value))}
             containerStyle={styles.switchContainer}
           />
 
@@ -76,28 +76,28 @@ export const JoinSettingsModalContent: React.FC<
               <SwitchRow
                 text={`Static UserId (${Constants.STATIC_USERID})`}
                 value={staticUserId}
-                onChange={value => dispatch(changeUseStaticUserId(value))}
+                onChange={(value) => dispatch(changeUseStaticUserId(value))}
                 containerStyle={styles.switchContainer}
               />
 
               <SwitchRow
                 text="Join with Muted Audio"
                 value={mutedAudio}
-                onChange={value => dispatch(changeJoinAudioMuted(value))}
+                onChange={(value) => dispatch(changeJoinAudioMuted(value))}
                 containerStyle={styles.switchContainer}
               />
 
               <SwitchRow
                 text="Join with Muted Video"
                 value={mutedVideo}
-                onChange={value => dispatch(changeJoinVideoMuted(value))}
+                onChange={(value) => dispatch(changeJoinVideoMuted(value))}
                 containerStyle={styles.switchContainer}
               />
 
               <SwitchRow
                 text="Skip Preview"
                 value={skipPreview}
-                onChange={value => dispatch(changeJoinSkipPreview(value))}
+                onChange={(value) => dispatch(changeJoinSkipPreview(value))}
                 containerStyle={styles.switchContainer}
               />
 
@@ -105,7 +105,7 @@ export const JoinSettingsModalContent: React.FC<
                 <SwitchRow
                   text="Music Mode"
                   value={musicMode}
-                  onChange={value => dispatch(changeMusicMode(value))}
+                  onChange={(value) => dispatch(changeMusicMode(value))}
                   containerStyle={styles.switchContainer}
                 />
               ) : null}
@@ -114,7 +114,7 @@ export const JoinSettingsModalContent: React.FC<
                 <SwitchRow
                   text="Audio Mixer"
                   value={audioMixer}
-                  onChange={value => dispatch(changeAudioMixer(value))}
+                  onChange={(value) => dispatch(changeAudioMixer(value))}
                   containerStyle={styles.switchContainer}
                 />
               ) : null}
@@ -123,7 +123,7 @@ export const JoinSettingsModalContent: React.FC<
                 <SwitchRow
                   text="Software Decoder"
                   value={softwareDecoder}
-                  onChange={value => dispatch(changeSoftwareDecoder(value))}
+                  onChange={(value) => dispatch(changeSoftwareDecoder(value))}
                   containerStyle={styles.switchContainer}
                 />
               ) : null}
@@ -132,7 +132,7 @@ export const JoinSettingsModalContent: React.FC<
                 <SwitchRow
                   text="Auto Resize"
                   value={autoResize}
-                  onChange={value => dispatch(changeAutoResize(value))}
+                  onChange={(value) => dispatch(changeAutoResize(value))}
                   containerStyle={styles.switchContainer}
                 />
               ) : null}
