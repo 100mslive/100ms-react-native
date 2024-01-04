@@ -11,9 +11,6 @@ on:
       - release
     tags:
       - v*
-  pull_request:
-    branches:
-      - develop
 
 permissions:
   checks: write
