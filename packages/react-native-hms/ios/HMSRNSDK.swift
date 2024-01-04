@@ -1790,8 +1790,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             store.set(valueToBeSet, forKey: key) { _, error in
 
                 if let error = error {
-                    let errorMessage = "\(#function) Error in setting value: \(valueToBeSet) for key: \(key) to the Session Store. Error: \(error.localizedDescription)"
-                    reject?("6004", errorMessage, nil)
+                    reject?("6004", error.localizedDescription, nil)
                     return
                 }
                 resolve?(["success": true])
