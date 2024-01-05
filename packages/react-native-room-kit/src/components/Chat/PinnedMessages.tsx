@@ -5,7 +5,9 @@ import {
   Text,
   TouchableOpacity,
   ScrollView,
+  Platform,
 } from 'react-native';
+import type { ViewabilityConfig } from 'react-native';
 import { useSelector } from 'react-redux';
 import { FlashList } from '@shopify/flash-list';
 import type { ViewToken } from '@shopify/flash-list';
@@ -21,7 +23,7 @@ import { PinIcon } from '../../Icons';
 import type { PinnedMessage } from 'src/types';
 import { hexToRgbA } from '../../utils/theme';
 
-const FLATLIST_VIEWABILITY_CONFIG = {
+const FLATLIST_VIEWABILITY_CONFIG: ViewabilityConfig = {
   waitForInteraction: true,
   itemVisiblePercentThreshold: 90,
 };
@@ -49,10 +51,10 @@ export const _PinnedMessages: React.FC<PinnedMessagesProps> = ({
     typeof FlashList<PinnedMessage>
   >>(null);
 
-  const [expandableTexts, setExpandableTexts] = React.useState<
-    Record<string, boolean>
+  const [numOfLinesInText, setNumOfLinesInText] = React.useState<
+    Record<string, number>
   >({});
-  const expandableTextsRef = React.useRef(expandableTexts);
+  const numOfLinesInTextRef = React.useRef(numOfLinesInText);
 
   const [listHeight, setListHeight] = React.useState(Heights.COLLAPSED);
   const listHeightRef = React.useRef(Heights.COLLAPSED);
@@ -138,7 +140,10 @@ export const _PinnedMessages: React.FC<PinnedMessagesProps> = ({
           if (currIndex !== firstViewable.index) {
             viewableIndexChanged = true;
           }
-          return firstViewable.index;
+          if (firstViewable.index !== null) {
+            return firstViewable.index;
+          }
+          return currIndex;
         });
         selectedPinnedMessageIndexRef.current = firstViewable.index;
 
@@ -151,7 +156,7 @@ export const _PinnedMessages: React.FC<PinnedMessagesProps> = ({
           visiblePinnedMessage
         ) {
           const visibleMessageExpandable =
-            expandableTexts[visiblePinnedMessage.id];
+            numOfLinesInTextRef.current[visiblePinnedMessage.id];
           if (!visibleMessageExpandable) {
             setListHeight(Heights.COLLAPSED);
             listHeightRef.current = Heights.COLLAPSED;
@@ -159,23 +164,39 @@ export const _PinnedMessages: React.FC<PinnedMessagesProps> = ({
         }
       }
     },
-    [expandableTexts, pinnedMessages]
+    [pinnedMessages]
   );
 
   const _renderItem = React.useCallback(
     (data: { item: PinnedMessage }) => {
-      const expandable = expandableTexts[data.item.id];
+      const numOfLines = numOfLinesInText[data.item.id];
       const [sender, text] = data.item.text.split(':');
 
       return (
         <TouchableOpacity
           activeOpacity={0.8}
-          disabled={!expandable}
-          onPress={expandable ? handleTapOnPinnedMessage : undefined}
-          style={{ height: listHeight, justifyContent: 'center' }}
+          disabled={typeof numOfLines !== 'number'}
+          onPress={
+            typeof numOfLines === 'number'
+              ? handleTapOnPinnedMessage
+              : undefined
+          }
+          style={{
+            height: listHeight,
+            justifyContent: 'center',
+            overflow:
+              Platform.OS === 'ios' && typeof numOfLines !== 'number'
+                ? 'scroll'
+                : 'hidden',
+          }}
         >
-          {listHeight >= Heights.EXAPANDED && expandable ? (
-            <ScrollView nestedScrollEnabled={true}>
+          {listHeight >= Heights.EXAPANDED &&
+          typeof numOfLines === 'number' &&
+          numOfLines > NumOfLines.EXPANDED ? (
+            <ScrollView
+              nestedScrollEnabled={true}
+              contentContainerStyle={{ paddingBottom: 12 }}
+            >
               <TouchableOpacity
                 activeOpacity={0.8}
                 onPress={handleTapOnPinnedMessage}
@@ -183,20 +204,31 @@ export const _PinnedMessages: React.FC<PinnedMessagesProps> = ({
                 <Text
                   onTextLayout={({ nativeEvent }) => {
                     if (nativeEvent.lines.length > NumOfLines.COLLAPSED) {
-                      setExpandableTexts((prev) => {
-                        if (typeof prev[data.item.id] === 'boolean') {
-                          return prev;
+                      setNumOfLinesInText((prev) => {
+                        const currentValue = prev[data.item.id];
+                        let updated;
+                        if (
+                          typeof currentValue === 'number' &&
+                          currentValue === nativeEvent.lines.length
+                        ) {
+                          updated = prev;
+                        } else {
+                          updated = {
+                            ...prev,
+                            [data.item.id]: nativeEvent.lines.length,
+                          };
                         }
-                        return {
-                          ...prev,
-                          [data.item.id]: true,
-                        };
+                        numOfLinesInTextRef.current = updated;
+                        return updated;
                       });
                     }
                   }}
                   style={[styles.text, hmsRoomStyles.text]}
                   numberOfLines={
-                    listHeight === Heights.COLLAPSED ? 3 : undefined
+                    listHeight === Heights.COLLAPSED &&
+                    typeof numOfLines === 'number'
+                      ? 3
+                      : undefined
                   }
                 >
                   {text ? (
@@ -212,19 +244,32 @@ export const _PinnedMessages: React.FC<PinnedMessagesProps> = ({
             <Text
               onTextLayout={({ nativeEvent }) => {
                 if (nativeEvent.lines.length > NumOfLines.COLLAPSED) {
-                  setExpandableTexts((prev) => {
-                    if (typeof prev[data.item.id] === 'boolean') {
-                      return prev;
+                  setNumOfLinesInText((prev) => {
+                    const currentValue = prev[data.item.id];
+                    let updated;
+                    if (
+                      typeof currentValue === 'number' &&
+                      currentValue === nativeEvent.lines.length
+                    ) {
+                      updated = prev;
+                    } else {
+                      updated = {
+                        ...prev,
+                        [data.item.id]: nativeEvent.lines.length,
+                      };
                     }
-                    return {
-                      ...prev,
-                      [data.item.id]: true,
-                    };
+                    numOfLinesInTextRef.current = updated;
+                    return updated;
                   });
                 }
               }}
               style={[styles.text, hmsRoomStyles.text]}
-              numberOfLines={listHeight === Heights.COLLAPSED ? 3 : undefined}
+              numberOfLines={
+                listHeight === Heights.COLLAPSED &&
+                typeof numOfLines === 'number'
+                  ? 3
+                  : undefined
+              }
             >
               {text ? (
                 <Text style={hmsRoomStyles.highlightedText}>{sender}: </Text>
@@ -235,7 +280,7 @@ export const _PinnedMessages: React.FC<PinnedMessagesProps> = ({
         </TouchableOpacity>
       );
     },
-    [listHeight, expandableTexts, handleTapOnPinnedMessage]
+    [listHeight, numOfLinesInText, handleTapOnPinnedMessage]
   );
 
   const _keyExtractor = React.useCallback((item: PinnedMessage) => item.id, []);
@@ -253,8 +298,8 @@ export const _PinnedMessages: React.FC<PinnedMessagesProps> = ({
   const tapGesture = React.useMemo(() => Gesture.Tap(), []);
 
   const extraData = React.useMemo(
-    () => [listHeight, expandableTexts, pinnedMessages],
-    [listHeight, expandableTexts, pinnedMessages]
+    () => [listHeight, numOfLinesInText, pinnedMessages],
+    [listHeight, numOfLinesInText, pinnedMessages]
   );
 
   if (pinnedMessages.length <= 0) {
