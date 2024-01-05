@@ -1,6 +1,11 @@
 import * as React from 'react';
-import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import type { TextLayoutEventData } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+} from 'react-native';
 import { useSelector } from 'react-redux';
 import { FlashList } from '@shopify/flash-list';
 import type { ViewToken } from '@shopify/flash-list';
@@ -25,16 +30,32 @@ interface PinnedMessagesProps {
   insetMode?: boolean;
 }
 
-export const PinnedMessages: React.FC<PinnedMessagesProps> = ({
+const LINE_HEIGHT = 20;
+
+enum NumOfLines {
+  EXPANDED = 6,
+  COLLAPSED = 3,
+}
+
+const Heights = {
+  EXAPANDED: NumOfLines.EXPANDED * LINE_HEIGHT + 2,
+  COLLAPSED: NumOfLines.COLLAPSED * LINE_HEIGHT + 2,
+};
+
+export const _PinnedMessages: React.FC<PinnedMessagesProps> = ({
   insetMode = false,
 }) => {
-  const listRef = React.useRef<null | React.ElementRef<typeof FlashList>>(null);
-  const textComponentLayoutsRefs = React.useRef<
-    Record<string, TextLayoutEventData>
-  >({});
+  const listRef = React.useRef<null | React.ElementRef<
+    typeof FlashList<PinnedMessage>
+  >>(null);
 
-  const [listHeight, setListHeight] = React.useState(42);
-  const listHeightRef = React.useRef(42);
+  const [expandableTexts, setExpandableTexts] = React.useState<
+    Record<string, boolean>
+  >({});
+  const expandableTextsRef = React.useRef(expandableTexts);
+
+  const [listHeight, setListHeight] = React.useState(Heights.COLLAPSED);
+  const listHeightRef = React.useRef(Heights.COLLAPSED);
 
   const [selectedPinnedMessageIndex, setSelectedMessageIndex] =
     React.useState(0);
@@ -73,53 +94,32 @@ export const PinnedMessages: React.FC<PinnedMessagesProps> = ({
       fontFamily: `${typography.font_family}-Regular`,
       color: theme.palette.on_surface_high,
     },
+    ellipsis: {
+      backgroundColor:
+        theme.palette.background_dim &&
+        hexToRgbA(theme.palette.background_dim, 0.64),
+    },
   }));
 
   const handleTapOnPinnedMessage = React.useCallback(() => {
-    console.log('***** listHeight > ', listHeight);
-    if (listHeight > 42) {
-      setListHeight(42);
-      listHeightRef.current = 42;
-    } else {
-      console.log(
-        '***** selectedPinnedMessageIndex > ',
-        selectedPinnedMessageIndexRef.current
-      );
-      const visiblePinnedMessage =
-        pinnedMessages[selectedPinnedMessageIndexRef.current];
-      console.log('***** pinnedMessages length > ', pinnedMessages.length);
-      console.log(
-        '***** visiblePinnedMessage exists? > ',
-        !!visiblePinnedMessage
-      );
-      if (visiblePinnedMessage) {
-        const visibleMessageLayout =
-          textComponentLayoutsRefs.current[visiblePinnedMessage.id];
-        console.log(
-          '***** visibleMessageLayout #lines > ',
-          visibleMessageLayout?.lines.length
-        );
-        if (visibleMessageLayout) {
-          if (visibleMessageLayout.lines.length > 2) {
-            setListHeight(visibleMessageLayout.lines.length * 20 + 2);
-            listHeightRef.current = visibleMessageLayout.lines.length * 20 + 2;
+    setListHeight((prevListHeight) => {
+      let updated =
+        prevListHeight > Heights.COLLAPSED
+          ? Heights.COLLAPSED
+          : Heights.EXAPANDED;
 
-            // setTimeout(() => {
-            //  listRef.current?.scrollToIndex({ index: selectedPinnedMessageIndexRef.current, animated: false });
-            // }, 2000);
-          }
-        }
-      }
-    }
-  }, [listHeight, pinnedMessages]);
+      listHeightRef.current = updated;
+      return updated;
+    });
+  }, []);
 
   const handleUnpinMessagePress = React.useCallback(() => {
     const visiblePinnedMessage =
       pinnedMessages[selectedPinnedMessageIndexRef.current];
     if (visiblePinnedMessage) {
-      if (listHeight > 42) {
-        setListHeight(42);
-        listHeightRef.current = 42;
+      if (listHeight > Heights.COLLAPSED) {
+        setListHeight(Heights.COLLAPSED);
+        listHeightRef.current = Heights.COLLAPSED;
       }
       unpinMessage(visiblePinnedMessage);
     }
@@ -142,49 +142,119 @@ export const PinnedMessages: React.FC<PinnedMessagesProps> = ({
         });
         selectedPinnedMessageIndexRef.current = firstViewable.index;
 
-        if (viewableIndexChanged && listHeightRef.current > 42) {
-          setListHeight(42);
-          listHeightRef.current = 42;
+        const visiblePinnedMessage =
+          pinnedMessages[selectedPinnedMessageIndexRef.current];
+
+        if (
+          viewableIndexChanged &&
+          listHeightRef.current > Heights.COLLAPSED &&
+          visiblePinnedMessage
+        ) {
+          const visibleMessageExpandable =
+            expandableTexts[visiblePinnedMessage.id];
+          if (!visibleMessageExpandable) {
+            setListHeight(Heights.COLLAPSED);
+            listHeightRef.current = Heights.COLLAPSED;
+          }
         }
-        // setSelectedMessageIndex(firstViewable.index);
       }
     },
-    []
+    [expandableTexts, pinnedMessages]
   );
 
   const _renderItem = React.useCallback(
     (data: { item: PinnedMessage }) => {
+      const expandable = expandableTexts[data.item.id];
       const [sender, text] = data.item.text.split(':');
+
       return (
         <TouchableOpacity
           activeOpacity={0.8}
-          onPress={handleTapOnPinnedMessage}
+          disabled={!expandable}
+          onPress={expandable ? handleTapOnPinnedMessage : undefined}
           style={{ height: listHeight, justifyContent: 'center' }}
         >
-          <Text
-            onTextLayout={({ nativeEvent }) => {
-              textComponentLayoutsRefs.current[data.item.id] = nativeEvent;
-            }}
-            style={[styles.text, hmsRoomStyles.text]}
-          >
-            {text ? (
-              <Text style={hmsRoomStyles.highlightedText}>{sender}: </Text>
-            ) : null}
-            {text ?? sender}
-          </Text>
+          {listHeight >= Heights.EXAPANDED && expandable ? (
+            <ScrollView nestedScrollEnabled={true}>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={handleTapOnPinnedMessage}
+              >
+                <Text
+                  onTextLayout={({ nativeEvent }) => {
+                    if (nativeEvent.lines.length > NumOfLines.COLLAPSED) {
+                      setExpandableTexts((prev) => {
+                        if (typeof prev[data.item.id] === 'boolean') {
+                          return prev;
+                        }
+                        return {
+                          ...prev,
+                          [data.item.id]: true,
+                        };
+                      });
+                    }
+                  }}
+                  style={[styles.text, hmsRoomStyles.text]}
+                  numberOfLines={
+                    listHeight === Heights.COLLAPSED ? 3 : undefined
+                  }
+                >
+                  {text ? (
+                    <Text style={hmsRoomStyles.highlightedText}>
+                      {sender}:{' '}
+                    </Text>
+                  ) : null}
+                  {text ?? sender}
+                </Text>
+              </TouchableOpacity>
+            </ScrollView>
+          ) : (
+            <Text
+              onTextLayout={({ nativeEvent }) => {
+                if (nativeEvent.lines.length > NumOfLines.COLLAPSED) {
+                  setExpandableTexts((prev) => {
+                    if (typeof prev[data.item.id] === 'boolean') {
+                      return prev;
+                    }
+                    return {
+                      ...prev,
+                      [data.item.id]: true,
+                    };
+                  });
+                }
+              }}
+              style={[styles.text, hmsRoomStyles.text]}
+              numberOfLines={listHeight === Heights.COLLAPSED ? 3 : undefined}
+            >
+              {text ? (
+                <Text style={hmsRoomStyles.highlightedText}>{sender}: </Text>
+              ) : null}
+              {text ?? sender}
+            </Text>
+          )}
         </TouchableOpacity>
       );
     },
-    [listHeight, handleTapOnPinnedMessage]
+    [listHeight, expandableTexts, handleTapOnPinnedMessage]
   );
 
   const _keyExtractor = React.useCallback((item: PinnedMessage) => item.id, []);
 
+  const _onContentSizeChange = React.useCallback(
+    (_w, _h) => {
+      listRef.current?.scrollToOffset({
+        offset: listHeight * selectedPinnedMessageIndexRef.current,
+        animated: false,
+      });
+    },
+    [listHeight]
+  );
+
   const tapGesture = React.useMemo(() => Gesture.Tap(), []);
 
   const extraData = React.useMemo(
-    () => [listHeight, pinnedMessages],
-    [listHeight, pinnedMessages]
+    () => [listHeight, expandableTexts, pinnedMessages],
+    [listHeight, expandableTexts, pinnedMessages]
   );
 
   if (pinnedMessages.length <= 0) {
@@ -237,9 +307,11 @@ export const PinnedMessages: React.FC<PinnedMessagesProps> = ({
             extraData={extraData}
             showsVerticalScrollIndicator={false}
             pagingEnabled={true}
+            nestedScrollEnabled={true}
             keyboardShouldPersistTaps="always"
             renderItem={_renderItem}
             keyExtractor={_keyExtractor}
+            onContentSizeChange={_onContentSizeChange}
             estimatedItemSize={40}
             onViewableItemsChanged={_handleViewableItemsChanged}
             viewabilityConfig={FLATLIST_VIEWABILITY_CONFIG}
@@ -261,6 +333,8 @@ export const PinnedMessages: React.FC<PinnedMessagesProps> = ({
     </GestureDetector>
   );
 };
+
+export const PinnedMessages = React.memo(_PinnedMessages);
 
 const styles = StyleSheet.create({
   container: {
