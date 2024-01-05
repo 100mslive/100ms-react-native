@@ -37,6 +37,7 @@ export const HMSLocalScreenshareNotification: React.FC<
           loading={false}
           onPress={stopScreenshare}
           title="Stop"
+          wrapWithGestureDetector={true}
         />
       }
     />

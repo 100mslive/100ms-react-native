@@ -13,6 +13,7 @@ export interface HMSPrimaryButtonProps {
   style?: StyleProp<ViewStyle>;
   disabled?: boolean;
   leftComponent?: React.ReactElement | null;
+  wrapWithGestureDetector?: boolean;
 }
 
 export const HMSPrimaryButton: React.FC<HMSPrimaryButtonProps> = ({
@@ -23,6 +24,7 @@ export const HMSPrimaryButton: React.FC<HMSPrimaryButtonProps> = ({
   style,
   disabled,
   leftComponent,
+  wrapWithGestureDetector,
 }) => {
   const { primary_dim: primaryDarkColor, on_primary_high: onPrimaryHighColor } =
     useHMSRoomColorPalette();
@@ -62,6 +64,7 @@ export const HMSPrimaryButton: React.FC<HMSPrimaryButtonProps> = ({
         hmsRoomStyles.buttonText,
         disabled ? hmsRoomStyles.disabledText : null,
       ]}
+      wrapWithGestureDetector={wrapWithGestureDetector}
     />
   );
 };

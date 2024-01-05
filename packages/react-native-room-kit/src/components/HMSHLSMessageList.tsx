@@ -26,7 +26,7 @@ export const HMSHLSMessageList: React.FC = () => {
     return null;
   }
 
-  const HEIGHT_MULTIPLIER = isLandscapeOrientation ? 0.45 : 0.2;
+  const HEIGHT_MULTIPLIER = isLandscapeOrientation ? 0.42 : 0.25;
 
   return (
     <View
@@ -37,7 +37,7 @@ export const HMSHLSMessageList: React.FC = () => {
           height:
             messages.length > 3
               ? windowHeight * HEIGHT_MULTIPLIER
-              : messages.length * 54,
+              : messages.length * 66,
         },
       ]}
     >

@@ -82,6 +82,8 @@ class HMSDecoder: NSObject {
         }
         data["peers"] = peers
 
+        data["isLargeRoom"] = room.isLarge
+
         return data
     }
 

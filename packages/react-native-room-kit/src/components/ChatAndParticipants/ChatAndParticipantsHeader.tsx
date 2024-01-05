@@ -2,14 +2,18 @@ import * as React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { CloseIcon } from '../../Icons';
+import { CloseIcon, SettingsIcon } from '../../Icons';
 import {
+  useHMSCanDisableChat,
   useHMSRoomStyleSheet,
   useShowChatAndParticipants,
 } from '../../hooks-util';
 import type { RootState } from '../../redux';
 import { ChatBottomSheetTabs } from '../../utils/types';
-import { setActiveChatBottomSheetTab } from '../../redux/actions';
+import {
+  setActiveChatBottomSheetTab,
+  setChatMoreActionsSheetVisible,
+} from '../../redux/actions';
 import { TestIds } from '../../utils/constants';
 
 interface WebrtcChatHeaderProps {
@@ -23,6 +27,7 @@ const _ChatAndParticipantsHeader: React.FC<WebrtcChatHeaderProps> = ({
   const peersCount = useSelector(
     (state: RootState) => state.hmsStates.room?.peerCount
   );
+  const canDisableChat = useHMSCanDisableChat();
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     headerTitleWrapper: {
@@ -53,6 +58,15 @@ const _ChatAndParticipantsHeader: React.FC<WebrtcChatHeaderProps> = ({
     return true;
   });
 
+  const onSettingsPress = () => {
+    dispatch(setChatMoreActionsSheetVisible(true));
+  };
+
+  const hideSettigsButton =
+    !canDisableChat || // can't disable chat, OR
+    (visibleChatBottomSheetTabs.length === 1 &&
+      visibleChatBottomSheetTabs[0] === 'Participants'); // Only Participants Header is visible
+
   return (
     <View
       style={
@@ -67,8 +81,8 @@ const _ChatAndParticipantsHeader: React.FC<WebrtcChatHeaderProps> = ({
             visibleChatBottomSheetTabs[0] === 'Participants'
               ? TestIds.participants_heading
               : visibleChatBottomSheetTabs[0] === 'Chat'
-              ? TestIds.chat_heading
-              : undefined
+                ? TestIds.chat_heading
+                : undefined
           }
           style={[styles.headerTitle, hmsRoomStyles.activeHeaderTitle]}
         >
@@ -90,8 +104,8 @@ const _ChatAndParticipantsHeader: React.FC<WebrtcChatHeaderProps> = ({
                 key={tab}
                 testID={
                   tab === 'Participants'
-                      ? TestIds.participants_heading_btn
-                      : tab === 'Chat'
+                    ? TestIds.participants_heading_btn
+                    : tab === 'Chat'
                       ? TestIds.chat_heading_btn
                       : undefined
                 }
@@ -101,10 +115,14 @@ const _ChatAndParticipantsHeader: React.FC<WebrtcChatHeaderProps> = ({
                 <Text
                   testID={
                     tab === 'Participants'
-                      ? (isActive ? TestIds.participants_heading_active : TestIds.participants_heading)
+                      ? isActive
+                        ? TestIds.participants_heading_active
+                        : TestIds.participants_heading
                       : tab === 'Chat'
-                      ? (isActive ? TestIds.chat_heading_active : TestIds.chat_heading)
-                      : undefined
+                        ? isActive
+                          ? TestIds.chat_heading_active
+                          : TestIds.chat_heading
+                        : undefined
                   }
                   style={[
                     styles.headerTitle,
@@ -123,9 +141,27 @@ const _ChatAndParticipantsHeader: React.FC<WebrtcChatHeaderProps> = ({
         </View>
       )}
 
-      <TouchableOpacity testID={TestIds.participants_close_btn} onPress={onClosePress}>
-        <CloseIcon />
-      </TouchableOpacity>
+      <View style={{ flexDirection: 'row' }}>
+        {hideSettigsButton ? null : (
+          <TouchableOpacity
+            disabled={activeChatBottomSheetTab === 'Participants'}
+            onPress={onSettingsPress}
+            style={{
+              marginRight: 16,
+              opacity: activeChatBottomSheetTab === 'Participants' ? 0.5 : 1,
+            }}
+          >
+            <SettingsIcon />
+          </TouchableOpacity>
+        )}
+
+        <TouchableOpacity
+          testID={TestIds.participants_close_btn}
+          onPress={onClosePress}
+        >
+          <CloseIcon />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };

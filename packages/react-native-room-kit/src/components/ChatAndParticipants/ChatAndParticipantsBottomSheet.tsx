@@ -2,7 +2,10 @@ import * as React from 'react';
 import { StyleSheet } from 'react-native';
 
 import { BottomSheet } from '../BottomSheet';
-import { useHMSRoomStyleSheet, useShowChatAndParticipants } from '../../hooks-util';
+import {
+  useHMSRoomStyleSheet,
+  useShowChatAndParticipants,
+} from '../../hooks-util';
 import { ChatAndParticipantsView } from './ChatAndParticipantsView';
 import { useHeaderHeight } from '../Header';
 import { useIsLandscapeOrientation } from '../../utils/dimension';

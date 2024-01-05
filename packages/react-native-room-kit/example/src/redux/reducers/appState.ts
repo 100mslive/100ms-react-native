@@ -6,7 +6,7 @@ type ActionType = {
   type: String;
 };
 
-type IntialStateType = {
+type InitialStateType = {
   joinConfig: {
     debugMode: boolean;
     mutedAudio: boolean;
@@ -18,14 +18,15 @@ type IntialStateType = {
     softwareDecoder: boolean; // Android only
     autoResize: boolean; // Android only
     autoSimulcast: boolean;
+    staticUserId: boolean;
   };
 };
 
-const INITIAL_STATE: IntialStateType = {
+const INITIAL_STATE: InitialStateType = {
   joinConfig: {
     debugMode: false,
-    mutedAudio: false,
-    mutedVideo: false,
+    mutedAudio: true,
+    mutedVideo: true,
     mirrorCamera: true,
     skipPreview: false,
     audioMixer: false, // IOS only
@@ -33,13 +34,14 @@ const INITIAL_STATE: IntialStateType = {
     softwareDecoder: true, // Android only
     autoResize: false, // Android only
     autoSimulcast: true,
+    staticUserId: false,
   },
 };
 
 const appReducer = (
   state = INITIAL_STATE,
   action: ActionType
-): IntialStateType => {
+): InitialStateType => {
   switch (action.type) {
     case ActionTypes.RESET_JOIN_CONFIG:
       return {
@@ -127,6 +129,16 @@ const appReducer = (
         joinConfig: {
           ...state.joinConfig,
           autoSimulcast: action.payload.autoSimulcast ?? true,
+        },
+      };
+    case ActionTypes.CHANGE_USE_STATIC_USERID:
+      return {
+        ...state,
+        joinConfig: {
+          ...state.joinConfig,
+          staticUserId:
+            action.payload.staticUserId ??
+            INITIAL_STATE.joinConfig.staticUserId,
         },
       };
     default:

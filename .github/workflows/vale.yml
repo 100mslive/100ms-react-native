@@ -1,11 +1,10 @@
 name: Vale Linter
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: {}
   pull_request:
-    branches:
-      - develop
-      - main
+    paths:
+      - "**.md"
 
 permissions:
   checks: write

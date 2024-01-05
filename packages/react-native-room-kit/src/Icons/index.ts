@@ -39,3 +39,5 @@ export * from './Eye';
 export * from './Search';
 export * from './WelcomeHand';
 export * from './CrossCircle';
+export * from './PauseCircle';
+export * from './NoEntry';

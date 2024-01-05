@@ -24,7 +24,7 @@ export type Resolution = {
 export interface HMSViewsSlice {
   hmsviewsResolutions: Record<TrackId, Resolution | undefined>;
   setHmsviewsResolutions(trackId: TrackId, resolution: Resolution): void;
-};
+}
 
 // HLS Player Playback Slice
 
@@ -40,7 +40,9 @@ export type HMSHLSPlayerPlaybackError =
   | HMSHLSPlayerPlaybackFailureEventData['error']
   | undefined;
 
-export type HMSHLSPlayerResolution = HMSHLSPlayerPlaybackResolutionChangeEventData | undefined;
+export type HMSHLSPlayerResolution =
+  | HMSHLSPlayerPlaybackResolutionChangeEventData
+  | undefined;
 
 export interface HMSHLSPlayerPlaybackSlice {
   cue: HMSHLSPlayerCue;

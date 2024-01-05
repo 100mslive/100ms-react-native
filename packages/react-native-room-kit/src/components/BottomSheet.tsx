@@ -1,7 +1,14 @@
 import * as React from 'react';
 import Modal from 'react-native-modal';
 import type { ReactNativeModal } from 'react-native-modal';
-import { KeyboardAvoidingView, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import type {
   StyleProp,
   TextProps,
@@ -52,7 +59,10 @@ export const BottomSheet: React.FC<BottomSheetProps> & {
 
   const isLandscapeOrientation = useIsLandscapeOrientation();
 
-  const Container = resetProps.avoidKeyboard && Platform.OS === 'android' ? KeyboardAvoidingView : View;
+  const Container =
+    resetProps.avoidKeyboard && Platform.OS === 'android'
+      ? KeyboardAvoidingView
+      : View;
 
   return (
     <Modal
@@ -76,7 +86,7 @@ export const BottomSheet: React.FC<BottomSheetProps> & {
       statusBarTranslucent={true}
     >
       <Container
-        behavior='padding'
+        behavior="padding"
         style={[
           isLandscapeOrientation && !fullWidth
             ? styles.landscapeContainer

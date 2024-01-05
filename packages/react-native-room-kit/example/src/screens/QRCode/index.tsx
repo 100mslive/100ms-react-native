@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
-  Image, Keyboard,
+  Image,
+  Keyboard,
   KeyboardAvoidingView,
   Linking,
   Platform,
@@ -51,6 +52,9 @@ const QRCode = () => {
   const debugMode = useSelector(
     (state: RootState) => state.app.joinConfig.debugMode
   );
+  const staticUserId = useSelector(
+    (state: RootState) => state.app.joinConfig.staticUserId
+  );
 
   const [joiningLink, setJoiningLink] = useState(getMeetingUrl());
   const [username, setUsername] = useState('');
@@ -76,7 +80,7 @@ const QRCode = () => {
           // @ts-ignore
           navigate('HMSPrebuiltScreen', {
             roomCode,
-            userId,
+            userId: staticUserId ? Constants.STATIC_USERID : userId,
             userName: username,
             initEndPoint: initEndpoint,
             tokenEndPoint: tokenEndpoint,

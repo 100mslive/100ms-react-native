@@ -4,16 +4,29 @@ import type { ImageProps } from 'react-native';
 
 import { useHMSRoomStyle } from '../../hooks-util';
 
-interface ChatIconProps extends Omit<ImageProps, 'source'> {}
+interface ChatIconProps extends Omit<ImageProps, 'source'> {
+  type?: 'on' | 'off';
+}
 
-export const ChatIcon: React.FC<ChatIconProps> = ({ style, ...restProps }) => {
-  const iconStyles = useHMSRoomStyle((theme) => ({
-    tintColor: theme.palette.on_surface_high,
-  }));
+export const ChatIcon: React.FC<ChatIconProps> = ({
+  style,
+  type = 'off',
+  ...restProps
+}) => {
+  const iconStyles = useHMSRoomStyle(
+    (theme) => ({
+      tintColor: type === 'on' ? undefined : theme.palette.on_surface_high,
+    }),
+    [type]
+  );
 
   return (
     <Image
-      source={require('./assets/chat.png')}
+      source={
+        type === 'on'
+          ? require('./assets/chat-on.png')
+          : require('./assets/chat.png')
+      }
       style={[styles.icon, iconStyles, style]}
       {...restProps}
     />

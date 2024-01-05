@@ -14,6 +14,7 @@ export interface HMSDangerButtonProps {
   style?: StyleProp<ViewStyle>;
   disabled?: boolean;
   leftComponent?: React.ReactElement | null;
+  wrapWithGestureDetector?: boolean;
 }
 
 export const HMSDangerButton: React.FC<HMSDangerButtonProps> = ({
@@ -24,6 +25,7 @@ export const HMSDangerButton: React.FC<HMSDangerButtonProps> = ({
   style,
   disabled,
   leftComponent,
+  wrapWithGestureDetector,
 }) => {
   const {
     alert_error_dim: alertErrorDimColor,
@@ -65,6 +67,7 @@ export const HMSDangerButton: React.FC<HMSDangerButtonProps> = ({
         hmsRoomStyles.buttonText,
         disabled ? hmsRoomStyles.disabledText : null,
       ]}
+      wrapWithGestureDetector={wrapWithGestureDetector}
     />
   );
 };

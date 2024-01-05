@@ -51,3 +51,8 @@ export const changeAutoSimulcast = (value: boolean) => ({
   type: actionTypes.CHANGE_AUTO_SIMULCAST,
   payload: { autoSimulcast: value },
 });
+
+export const changeUseStaticUserId = (value: boolean) => ({
+  type: actionTypes.CHANGE_USE_STATIC_USERID,
+  payload: { staticUserId: value },
+});

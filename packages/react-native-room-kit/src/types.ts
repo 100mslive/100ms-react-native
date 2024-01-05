@@ -1,5 +1,5 @@
-import type { HMSException, HMSPeer } from "@100mslive/react-native-hms";
-import type { HMSIOSScreenShareConfig, OnLeaveHandler } from "./utils/types";
+import type { HMSException, HMSPeer } from '@100mslive/react-native-hms';
+import type { HMSIOSScreenShareConfig, OnLeaveHandler } from './utils/types';
 
 export enum MeetingState {
   NOT_JOINED,
@@ -63,6 +63,7 @@ export interface HMSPrebuiltProps {
 }
 
 export enum NotificationTypes {
+  INFO = 'info',
   ROLE_CHANGE_DECLINED = 'role_change_declined',
   RECONNECTING = 'reconnecting',
   HAND_RAISE = 'hand_raise',
@@ -72,7 +73,35 @@ export enum NotificationTypes {
 }
 
 export type Notification =
-  | { id: string; type: NotificationTypes; }
-  | { id: string; type: NotificationTypes; message: string; }
-  | { id: string; type: NotificationTypes; peer: HMSPeer; }
-  | { id: string; type: NotificationTypes; exception: HMSException; }
+  | { id: string; type: NotificationTypes }
+  | {
+      id: string;
+      type: NotificationTypes;
+      icon?: string;
+      message?: string;
+      title: string;
+    }
+  | { id: string; type: NotificationTypes; icon?: string; peer: HMSPeer }
+  | {
+      id: string;
+      type: NotificationTypes;
+      icon?: string;
+      exception: HMSException;
+    };
+
+export type PinnedMessage = {
+  text: string;
+  id: string;
+  pinnedBy: string;
+  authorId: string;
+};
+
+export type ChatState = {
+  enabled: boolean;
+  updatedBy: {
+    peerID: string;
+    userID: string;
+    userName: string;
+  };
+  updatedAt: number;
+};

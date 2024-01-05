@@ -31,7 +31,9 @@ import {
   resetJoinConfig,
   changeMusicMode,
   changeDebugMode,
+  changeUseStaticUserId,
 } from '../redux/actions';
+import { Constants } from '../utils/types';
 
 interface JoinSettingsModalContentProps {}
 
@@ -51,6 +53,7 @@ export const JoinSettingsModalContent: React.FC<
     softwareDecoder,
     autoResize,
     autoSimulcast,
+    staticUserId,
   } = joinConfig;
 
   return (
@@ -70,6 +73,13 @@ export const JoinSettingsModalContent: React.FC<
 
           {debugMode ? (
             <>
+              <SwitchRow
+                text={`Static UserId (${Constants.STATIC_USERID})`}
+                value={staticUserId}
+                onChange={(value) => dispatch(changeUseStaticUserId(value))}
+                containerStyle={styles.switchContainer}
+              />
+
               <SwitchRow
                 text="Join with Muted Audio"
                 value={mutedAudio}

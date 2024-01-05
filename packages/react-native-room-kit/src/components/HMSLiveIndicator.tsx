@@ -1,22 +1,13 @@
 import * as React from 'react';
-import {
-  StyleSheet,
-  View,
-  Text,
-  Platform,
-} from 'react-native';
-import { useSelector } from 'react-redux';
-import { HMSStreamingState } from '@100mslive/react-native-hms';
+import { StyleSheet, View, Text, Platform } from 'react-native';
 
 import { useHMSRoomStyleSheet } from '../hooks-util';
 import { COLORS } from '../utils/theme';
-import type { RootState } from '../redux';
 import { TestIds } from '../utils/constants';
+import { useIsAnyStreamingOn } from '../hooks-sdk';
 
 const _HMSLiveIndicator = () => {
-  const live = useSelector(
-    (state: RootState) => state.hmsStates.room?.hlsStreamingState?.state === HMSStreamingState.STARTED
-  );
+  const live = useIsAnyStreamingOn();
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typograhy) => ({
     live: {
@@ -34,7 +25,12 @@ const _HMSLiveIndicator = () => {
 
   return (
     <View style={[styles.live, hmsRoomStyles.live]}>
-      <Text testID={TestIds.live_text} style={[styles.liveText, hmsRoomStyles.liveText]}>LIVE</Text>
+      <Text
+        testID={TestIds.live_text}
+        style={[styles.liveText, hmsRoomStyles.liveText]}
+      >
+        LIVE
+      </Text>
     </View>
   );
 };

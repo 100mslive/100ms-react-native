@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { StyleSheet, Text, TouchableHighlight } from 'react-native';
 import type { HMSPeer } from '@100mslive/react-native-hms';
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 
 import { HandIcon } from '../Icons';
 import {
@@ -61,7 +62,11 @@ export const HMSHandRaiseNotification: React.FC<
       );
     }
     dispatch(removeNotification(id));
-    await hmsInstance.changeRoleOfPeer(peer, onStageRole, false);
+    await hmsInstance.changeRoleOfPeer(
+      peer,
+      onStageRole,
+      onStageExpData?.skip_preview_for_role_change || false
+    );
   };
 
   return (
@@ -72,15 +77,17 @@ export const HMSHandRaiseNotification: React.FC<
       dismissDelay={dismissDelay}
       autoDismiss={autoDismiss}
       cta={
-        <TouchableHighlight
-          underlayColor={secondaryDimColor}
-          style={[styles.button, hmsRoomStyles.button]}
-          onPress={bringPeerToStage}
-        >
-          <Text style={[styles.buttonText, hmsRoomStyles.buttonText]}>
-            {onStageExpData?.bring_to_stage_label || 'Bring to Stage'}
-          </Text>
-        </TouchableHighlight>
+        <GestureDetector gesture={Gesture.Tap()}>
+          <TouchableHighlight
+            underlayColor={secondaryDimColor}
+            style={[styles.button, hmsRoomStyles.button]}
+            onPress={bringPeerToStage}
+          >
+            <Text style={[styles.buttonText, hmsRoomStyles.buttonText]}>
+              {onStageExpData?.bring_to_stage_label || 'Bring to Stage'}
+            </Text>
+          </TouchableHighlight>
+        </GestureDetector>
       }
     />
   );

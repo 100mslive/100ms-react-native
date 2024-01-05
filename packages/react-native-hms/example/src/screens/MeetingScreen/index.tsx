@@ -18,7 +18,7 @@ import {
   HMSUpdateListenerActions,
   HMSPIPListenerActions,
   HMSCameraControl,
-  HMSSessionStoreValue,
+  JsonValue,
 } from '@100mslive/react-native-hms';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {
@@ -929,20 +929,32 @@ const DisplayView = (data: {
 
       const addSessionStoreListeners = () => {
         // Handle 'spotlight' key values
-        const handleSpotlightIdChange = (id: HMSSessionStoreValue) => {
-          // Scroll to start of the list
-          if (id) {
-            gridViewRef.current
-              ?.getFlatlistRef()
-              .current?.scrollToOffset({animated: true, offset: 0});
+        const handleSpotlightIdChange = (id: JsonValue) => {
+          if (
+            id === null ||
+            typeof id === 'string' ||
+            typeof id === 'undefined'
+          ) {
+            // Scroll to start of the list
+            if (id) {
+              gridViewRef.current
+                ?.getFlatlistRef()
+                .current?.scrollToOffset({animated: true, offset: 0});
+            }
+            // set value to the state to rerender the component to reflect changes
+            dispatch(saveUserData({spotlightTrackId: id}));
           }
-          // set value to the state to rerender the component to reflect changes
-          dispatch(saveUserData({spotlightTrackId: id}));
         };
 
         // Handle 'pinnedMessage' key values
-        const handlePinnedMessageChange = (data: HMSSessionStoreValue) => {
-          dispatch(addPinnedMessage(data));
+        const handlePinnedMessageChange = (data: JsonValue) => {
+          if (
+            data === null ||
+            typeof data === 'string' ||
+            typeof data === 'undefined'
+          ) {
+            dispatch(addPinnedMessage(data));
+          }
         };
 
         // Getting value for 'spotlight' key by using `get` method on HMSSessionStore instance
@@ -979,8 +991,8 @@ const DisplayView = (data: {
             ),
           );
 
-        let lastSpotlightValue: HMSSessionStoreValue = null;
-        let lastPinnedMessageValue: HMSSessionStoreValue = null;
+        let lastSpotlightValue: JsonValue = null;
+        let lastPinnedMessageValue: JsonValue = null;
 
         // Add subscription for `spotlight` & `pinnedMessage` keys updates on Session Store
         const subscription = hmsSessionStore.addKeyChangeListener<
@@ -1053,7 +1065,9 @@ const DisplayView = (data: {
         // remove Session Store key update listener on cleanup
         sessionStoreListeners.current.forEach(listener => listener.remove());
 
-        if (toastTimeoutId !== null) clearTimeout(toastTimeoutId);
+        if (toastTimeoutId !== null) {
+          clearTimeout(toastTimeoutId);
+        }
       };
     }
   }, [hmsSessionStore]);

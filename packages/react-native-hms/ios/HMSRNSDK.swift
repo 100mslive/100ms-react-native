@@ -1281,6 +1281,9 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             case "hlsRecordingState":
                 return ["hlsRecordingState": HMSDecoder.getHlsRecordingState(hmsRoom.hlsRecordingState)]
 
+            case "isLargeRoom":
+                return ["isLargeRoom": hmsRoom.isLarge]
+
             default:
                 return nil
         }
@@ -1742,15 +1745,22 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                     return
                 }
 
-                if let value = value {
-                    if let stringValue = value as? String {
-                        resolve?(stringValue)
-                    } else {
-                        let errorMessage = "\(#function) Session Store value for the key: \(key) is not of String Type. Value: \(value)"
-                        reject?("6004", errorMessage, nil)
-                    }
-                } else {
+                switch value {
+                case .none:
                     resolve?(nil)
+                case let boolValue as Bool:
+                    resolve?(boolValue)
+                case let doubleValue as Double:
+                    resolve?(doubleValue)
+                case let dictValue as [AnyHashable: Any]:
+                    resolve?(dictValue)
+                case let arrayValue as [Any]:
+                    resolve?(arrayValue)
+                case let stringValue as String:
+                    resolve?(stringValue)
+                default:
+                    let errorMessage = "\(#function) Session Store value for the key: \(key) is not of valid type. Value: \(String(describing: value))"
+                    reject?("6004", errorMessage, nil)
                 }
             }
         }
@@ -1777,14 +1787,13 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
             let valueToBeSet = data["value"] as Any
 
-            store.set(valueToBeSet, forKey: key) { value, error in
+            store.set(valueToBeSet, forKey: key) { _, error in
 
                 if let error = error {
-                    let errorMessage = "\(#function) Error in setting value: \(valueToBeSet) for key: \(key) to the Session Store. Error: \(error.localizedDescription)"
-                    reject?("6004", errorMessage, nil)
+                    reject?("6004", error.localizedDescription, nil)
                     return
                 }
-                resolve?(["success": true, "finalValue": value])
+                resolve?(["success": true])
             }
         }
     }
@@ -1829,13 +1838,23 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
                 data["key"] = key
 
-                if let value = value {
-                    if let stringValue = value as? String {
-                        data["value"] = stringValue
-                    } else {
-                        let errorMessage = "\(#function) Session Store value for the key: \(key) is not of String Type. Value: \(value)"
-                        print(errorMessage)
-                    }
+                switch value {
+                case .none:
+                    data["value"] = nil
+                case let boolValue as Bool:
+                    data["value"] = boolValue
+                case let doubleValue as Double:
+                    data["value"] = doubleValue
+                case let dictValue as [AnyHashable: Any]:
+                    data["value"] = dictValue
+                case let arrayValue as [Any]:
+                    data["value"] = arrayValue
+                case let stringValue as String:
+                    data["value"] = stringValue
+                default:
+                    let message = "\(#function) Session Store value for the key: \(key) is not of valid type. Value: \(String(describing: value))"
+                    print(message)
+                    data["value"] = nil
                 }
                 self?.delegate?.emitEvent(HMSConstants.ON_SESSION_STORE_CHANGED, data)
 

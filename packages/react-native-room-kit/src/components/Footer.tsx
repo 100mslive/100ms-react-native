@@ -32,7 +32,9 @@ export const _Footer: React.FC<FooterProps> = () => {
   const canPublishAudio = useCanPublishAudio();
   const canPublishVideo = useCanPublishVideo();
   const canPublishScreen = useCanPublishScreen();
-  const editUsernameDisabled = useSelector((state: RootState) => state.app.editUsernameDisabled);
+  const editUsernameDisabled = useSelector(
+    (state: RootState) => state.app.editUsernameDisabled
+  );
 
   const isViewer = !(canPublishAudio || canPublishVideo || canPublishScreen);
 
