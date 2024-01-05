@@ -12,6 +12,8 @@ import { ChatFilterBottomSheetView } from '../Chat/ChatFilterBottomSheetView';
 import type { RootState } from '../../redux';
 import { ParticipantsView } from './ParticipantsView';
 import { ChatView } from './ChatView';
+import { ChatMoreActionsSheetView } from '../Chat/ChatMoreActionsSheetView';
+import { MessageOptionsBottomSheetView } from '../Chat/MessageOptionsBottomSheetView';
 
 const _ChatAndParticipantsView: React.FC = () => {
   const activeChatBottomSheetTab = useSelector(
@@ -55,7 +57,13 @@ const _ChatAndParticipantsView: React.FC = () => {
         ) : null}
       </View>
 
-      <ChatFilterBottomSheetView />
+      {canShowChat && !overlayChatLayout ? (
+        <>
+          <MessageOptionsBottomSheetView />
+          <ChatFilterBottomSheetView />
+          <ChatMoreActionsSheetView />
+        </>
+      ) : null}
     </SafeAreaView>
   );
 };

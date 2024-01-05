@@ -136,7 +136,9 @@ jobs:
         run: |
           cd ./packages/react-native-room-kit/example/ios
           npm install -g firebase-tools@12.9.1
-          firebase appdistribution:distribute $GITHUB_WORKSPACE/output.ipa --app ${{ secrets.FIREBASE_APP_ID }} --token ${{ secrets.FIREBASE_TOKEN }} --release-notes-file ../ExampleAppChangelog.txt --groups internal,External
+          export GOOGLE_APPLICATION_CREDENTIALS=${{ secrets.CREDENTIAL_FILE_CONTENT }}
+          firebase appdistribution:distribute $GITHUB_WORKSPACE/output.ipa --app ${{ secrets.FIREBASE_APP_ID }} --release-notes-file ../ExampleAppChangelog.txt --groups internal,External
+        continue-on-error: true
 
       - name: Build iOS App for TestFlight
         uses: yukiarrr/ios-build-action@v1.11.1

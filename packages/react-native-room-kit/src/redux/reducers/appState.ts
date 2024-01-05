@@ -6,13 +6,14 @@ import { PipModes } from '../../utils/types';
 import {
   HMSLocalAudioStats,
   HMSLocalVideoStats,
+  HMSMessage,
   HMSPeer,
   HMSRemoteAudioStats,
   HMSRemoteVideoStats,
   HMSRole,
 } from '@100mslive/react-native-hms';
 import { MeetingState } from '../../types';
-import type { Notification } from '../../types';
+import type { ChatState, Notification } from '../../types';
 
 type ActionType = {
   payload: { [key: string]: any };
@@ -53,10 +54,14 @@ type IntialStateType = {
   notifications: Notification[];
   activeChatBottomSheetTab: (typeof ChatBottomSheetTabs)[number];
   chatFilterSheetVisible: boolean;
+  chatMoreActionsSheetVisible: boolean;
+  chatState: null | ChatState;
   handleBackButton: boolean;
   autoEnterPipMode: boolean;
   editUsernameDisabled: boolean;
+  selectedMessageForAction: null | HMSMessage;
   initialRole: HMSRole | null;
+  chatPeerBlacklist: string[]; // list of userIds
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -86,10 +91,14 @@ const INITIAL_STATE: IntialStateType = {
   notifications: [],
   activeChatBottomSheetTab: ChatBottomSheetTabs[0],
   chatFilterSheetVisible: false,
+  chatMoreActionsSheetVisible: false,
+  chatState: null,
   handleBackButton: false,
   autoEnterPipMode: false,
   editUsernameDisabled: false,
+  selectedMessageForAction: null,
   initialRole: null,
+  chatPeerBlacklist: [],
 };
 
 const appReducer = (
@@ -293,6 +302,18 @@ const appReducer = (
         chatFilterSheetVisible: action.payload.chatFilterSheetVisible,
       };
     }
+    case ActionTypes.SET_CHAT_MORE_ACTIONS_SHEET_VISIBLE: {
+      return {
+        ...state,
+        chatMoreActionsSheetVisible: action.payload.chatMoreActionsSheetVisible,
+      };
+    }
+    case ActionTypes.SET_CHAT_STATE: {
+      return {
+        ...state,
+        chatState: action.payload.chatState,
+      };
+    }
     case ActionTypes.SET_HANDLE_BACK_BUTTON: {
       return {
         ...state,
@@ -315,10 +336,25 @@ const appReducer = (
           INITIAL_STATE.editUsernameDisabled,
       };
     }
+    case ActionTypes.SET_SELECTED_MESSAGE_FOR_ACTION: {
+      return {
+        ...state,
+        selectedMessageForAction:
+          action.payload.selectedMessageForAction ??
+          INITIAL_STATE.selectedMessageForAction,
+      };
+    }
     case ActionTypes.SET_INITIAL_ROLE: {
       return {
         ...state,
         initialRole: action.payload.initialRole ?? INITIAL_STATE.initialRole,
+      };
+    }
+    case ActionTypes.SET_CHAT_PEER_BLACKLIST: {
+      return {
+        ...state,
+        chatPeerBlacklist:
+          action.payload.chatPeerBlacklist ?? INITIAL_STATE.chatPeerBlacklist,
       };
     }
     case HmsStateActionTypes.CLEAR_STATES:

@@ -38,15 +38,15 @@ export const HMSRecordingIndicator = () => {
     );
   }
 
-  if (isRecordingOn) {
-    return (
-      <RecordingIcon style={[styles.icon, styles.rightSpace, iconStyles]} />
-    );
-  }
-
   if (isRecordingPaused) {
     return (
       <RecordingIcon type="pause" style={[styles.icon, styles.rightSpace]} />
+    );
+  }
+
+  if (isRecordingOn) {
+    return (
+      <RecordingIcon style={[styles.icon, styles.rightSpace, iconStyles]} />
     );
   }
 

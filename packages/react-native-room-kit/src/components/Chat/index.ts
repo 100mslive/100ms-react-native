@@ -1,4 +1,4 @@
 export * from './ChatBanner';
 export * from './ChatList';
 export * from './ChatMessage';
-export * from './PinnedMessage';
+export * from './PinnedMessages';

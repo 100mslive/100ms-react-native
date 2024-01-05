@@ -2,19 +2,21 @@ import * as React from 'react';
 import { useDispatch } from 'react-redux';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { StyleProp, ViewStyle, TextStyle, TextProps } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 import { useHMSRoomStyleSheet } from '../hooks-util';
-import { CloseIcon } from '../Icons';
+import { ChatIcon, CloseIcon } from '../Icons';
 import { UnmountAfterDelay } from './UnmountAfterDelay';
 import { removeNotification } from '../redux/actions';
 
 export interface HMSNotificationProps {
   id: string;
   text: string | React.ReactElement;
+  description?: string | React.ReactElement;
   textTestID?: TextProps['testID'];
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
-  icon?: React.ReactElement;
+  icon?: string | React.ReactElement;
   onDismiss?: () => void;
   autoDismiss?: boolean;
   dismissDelay?: number;
@@ -25,6 +27,7 @@ export interface HMSNotificationProps {
 export const HMSNotification: React.FC<HMSNotificationProps> = ({
   id,
   text,
+  description = null,
   icon,
   style,
   textStyle,
@@ -45,6 +48,10 @@ export const HMSNotification: React.FC<HMSNotificationProps> = ({
       color: theme.palette.on_surface_high,
       fontFamily: `${typography.font_family}-SemiBold`,
     },
+    description: {
+      color: theme.palette.on_surface_medium,
+      fontFamily: `${typography.font_family}-Regular`,
+    },
   }));
 
   const dismissNotification =
@@ -55,27 +62,47 @@ export const HMSNotification: React.FC<HMSNotificationProps> = ({
         }
       : null);
 
+  const tapGesture = Gesture.Tap();
+
   const notification = (
     <View style={[styles.container, hmsRoomStyles.container, style]}>
       <View style={styles.leftWrapper}>
-        {icon ? <View style={styles.icon}>{icon}</View> : null}
+        {icon ? (
+          <View style={styles.icon}>
+            {typeof icon === 'string' ? getIcon(icon) : icon}
+          </View>
+        ) : null}
 
-        {typeof text === 'string' ? (
-          <Text testID={textTestID} style={[styles.text, hmsRoomStyles.text, textStyle]}>
-            {text}
-          </Text>
-        ) : (
-          text
-        )}
+        <View>
+          {typeof text === 'string' ? (
+            <Text
+              testID={textTestID}
+              style={[styles.text, hmsRoomStyles.text, textStyle]}
+            >
+              {text}
+            </Text>
+          ) : (
+            text
+          )}
+          {typeof description === 'string' ? (
+            <Text style={[styles.description, hmsRoomStyles.description]}>
+              {description}
+            </Text>
+          ) : (
+            description
+          )}
+        </View>
       </View>
 
       <View style={styles.rightWrapper}>
         {cta}
 
         {dismissNotification ? (
-          <TouchableOpacity onPress={dismissNotification}>
-            <CloseIcon />
-          </TouchableOpacity>
+          <GestureDetector gesture={tapGesture}>
+            <TouchableOpacity onPress={dismissNotification}>
+              <CloseIcon />
+            </TouchableOpacity>
+          </GestureDetector>
         ) : null}
       </View>
     </View>
@@ -127,4 +154,20 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     letterSpacing: 0.1,
   },
+  description: {
+    flexShrink: 1,
+    fontSize: 12,
+    lineHeight: 16,
+  },
 });
+
+function getIcon(icon: string) {
+  switch (icon) {
+    case 'chat-off':
+    case 'chat-on':
+      return <ChatIcon type={icon === 'chat-on' ? 'on' : 'off'} />;
+
+    default:
+      return null;
+  }
+}

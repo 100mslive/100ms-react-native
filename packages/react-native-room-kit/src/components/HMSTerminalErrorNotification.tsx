@@ -1,6 +1,7 @@
 import * as React from 'react';
 import type { HMSException } from '@100mslive/react-native-hms';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 import { HMSNotification } from './HMSNotification';
 import { AlertTriangleIcon } from '../Icons';
@@ -34,6 +35,8 @@ export const HMSTerminalErrorNotification: React.FC<
     leave(OnLeaveReason.NETWORK_ISSUES);
   };
 
+  const tapGesture = Gesture.Tap();
+
   return (
     <HMSNotification
       id={id}
@@ -41,16 +44,18 @@ export const HMSTerminalErrorNotification: React.FC<
       text={exception.description || 'Something went wrong!'}
       dismissDelay={dismissDelay}
       autoDismiss={autoDismiss}
-      cta={(
-        <TouchableOpacity
-          style={[styles.button, hmsRoomStyles.button]}
-          onPress={handleLeaveRoomPress}
-        >
-          <Text style={[styles.buttonText, hmsRoomStyles.buttonText]}>
-            Leave
-          </Text>
-        </TouchableOpacity>
-      )}
+      cta={
+        <GestureDetector gesture={tapGesture}>
+          <TouchableOpacity
+            style={[styles.button, hmsRoomStyles.button]}
+            onPress={handleLeaveRoomPress}
+          >
+            <Text style={[styles.buttonText, hmsRoomStyles.buttonText]}>
+              Leave
+            </Text>
+          </TouchableOpacity>
+        </GestureDetector>
+      }
     />
   );
 };

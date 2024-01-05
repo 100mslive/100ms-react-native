@@ -55,6 +55,9 @@ export enum ModalTypes {
   STREAMING_QUALITY_SETTING = 'streamingQualitySetting',
   HLS_PLAYER_ASPECT_RATIO = 'hlsPlayerAspectRatio',
   STOP_RECORDING = 'stopRecording',
+  CHAT_FILTER = 'chatFilter',
+  CHAT_MORE_ACTIONS = 'chatMoreActions',
+  MESSAGE_OPTIONS = 'messageOptions',
   DEFAULT = '',
 }
 

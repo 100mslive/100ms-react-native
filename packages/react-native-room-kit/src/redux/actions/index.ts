@@ -24,7 +24,7 @@ import type {
 } from '../../utils/types';
 import actionTypes, { HmsStateActionTypes } from '../actionTypes';
 import { MeetingState } from '../../types';
-import type { Notification } from '../../types';
+import type { ChatState, Notification, PinnedMessage } from '../../types';
 
 export const setPrebuiltData = (data: {
   roomCode: string;
@@ -104,8 +104,8 @@ export const addMessage = (data: HMSMessage) => ({
   payload: data,
 });
 
-export const addPinnedMessage = (data: string | null | undefined) => ({
-  type: actionTypes.ADD_PINNED_MESSAGE.REQUEST,
+export const addPinnedMessages = (data: PinnedMessage[]) => ({
+  type: actionTypes.ADD_PINNED_MESSAGES.REQUEST,
   payload: data,
 });
 
@@ -341,6 +341,18 @@ export const setChatFilterSheetVisible = (chatFilterSheetVisible: boolean) => ({
   payload: { chatFilterSheetVisible },
 });
 
+export const setChatMoreActionsSheetVisible = (
+  chatMoreActionsSheetVisible: boolean
+) => ({
+  type: actionTypes.SET_CHAT_MORE_ACTIONS_SHEET_VISIBLE,
+  payload: { chatMoreActionsSheetVisible },
+});
+
+export const setChatState = (chatState: null | ChatState) => ({
+  type: actionTypes.SET_CHAT_STATE,
+  payload: { chatState },
+});
+
 export const addParticipant = (participant: HMSPeer) => ({
   type: HmsStateActionTypes.ADD_PARTICIPANT,
   participant,
@@ -400,7 +412,24 @@ export const setEditUsernameDisabled = (editUsernameDisabled: boolean) => ({
   payload: { editUsernameDisabled },
 });
 
+export const setSelectedMessageForAction = (
+  selectedMessageForAction: null | HMSMessage
+) => ({
+  type: actionTypes.SET_SELECTED_MESSAGE_FOR_ACTION,
+  payload: { selectedMessageForAction },
+});
+
 export const setInitialRole = (initialRole: HMSRole) => ({
   type: actionTypes.SET_INITIAL_ROLE,
   payload: { initialRole },
+});
+
+export const setChatPeerBlacklist = (chatPeerBlacklist: string[]) => ({
+  type: actionTypes.SET_CHAT_PEER_BLACKLIST,
+  payload: { chatPeerBlacklist },
+});
+
+export const filterOutMsgsFromBlockedPeers = (chatPeerBlacklist: string[]) => ({
+  type: actionTypes.FILTER_OUT_BLOCKED_MSGS,
+  payload: chatPeerBlacklist,
 });

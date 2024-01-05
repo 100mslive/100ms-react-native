@@ -84,7 +84,10 @@ export * from './classes/HMSRecordingState';
 export * from './classes/HMSStreamingState';
 export type {
   HMSSessionStore,
-  HMSSessionStoreValue,
+  JsonArray,
+  JsonMap,
+  JsonPrimitive,
+  JsonValue,
 } from './classes/HMSSessionStore';
 export type {
   HmsViewComponent as HMSView,

@@ -1,6 +1,8 @@
 package com.reactnativehmssdk
 
 import com.facebook.react.bridge.*
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import live.hms.video.connection.degredation.QualityLimitationReasons
 import live.hms.video.connection.stats.*
 import live.hms.video.connection.stats.quality.HMSNetworkQuality
@@ -976,5 +978,58 @@ object HMSDecoder {
     val simulcastLayerDefinitions: WritableArray = Arguments.createArray()
     hmsSimulcastLayerDefinitions.forEach { simulcastLayerDefinitions.pushMap(getSimulcastLayerDefinition(it)) }
     return simulcastLayerDefinitions
+  }
+
+  fun getReadableArrayFromJsonArray(jsonArray: JsonArray): WritableArray {
+    val writableArray: WritableArray = Arguments.createArray()
+
+    jsonArray.forEach { ele ->
+      if (ele.isJsonPrimitive) {
+        val primitiveEle = ele.asJsonPrimitive
+        if (primitiveEle.isNumber) {
+          writableArray.pushDouble(primitiveEle.asDouble)
+        } else if (primitiveEle.isBoolean) {
+          writableArray.pushBoolean(primitiveEle.asBoolean)
+        } else {
+          writableArray.pushString(primitiveEle.asString)
+        }
+      } else if (ele.isJsonArray) {
+        writableArray.pushArray(getReadableArrayFromJsonArray(ele.asJsonArray))
+      } else if (ele.isJsonObject) {
+        writableArray.pushMap(getReadableMapFromJsonObject(ele.asJsonObject))
+      } else {
+        writableArray.pushNull()
+      }
+    }
+
+    return writableArray
+  }
+
+  fun getReadableMapFromJsonObject(jsonObject: JsonObject): WritableMap {
+    val writableMap: WritableMap = Arguments.createMap()
+
+    jsonObject.keySet().forEach { key ->
+      val jsonEle = jsonObject.get(key)
+
+      if (jsonEle.isJsonObject) {
+        writableMap.putMap(key, getReadableMapFromJsonObject(jsonEle.asJsonObject))
+      } else if (jsonEle.isJsonArray) {
+        writableMap.putArray(key, getReadableArrayFromJsonArray(jsonEle.asJsonArray))
+      } else if (jsonEle.isJsonPrimitive) {
+        val primitiveEle = jsonEle.asJsonPrimitive
+
+        if (primitiveEle.isBoolean) {
+          writableMap.putBoolean(key, primitiveEle.asBoolean)
+        } else if (primitiveEle.isNumber) {
+          writableMap.putDouble(key, primitiveEle.asDouble)
+        } else {
+          writableMap.putString(key, primitiveEle.asString)
+        }
+      } else {
+        writableMap.putNull(key)
+      }
+    }
+
+    return writableMap
   }
 }

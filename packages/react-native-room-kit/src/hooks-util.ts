@@ -7,7 +7,6 @@ import {
   HMSPIPListenerActions,
   HMSPeer,
   HMSPeerUpdate,
-  HMSRemotePeer,
   HMSRoleChangeRequest,
   HMSRoom,
   HMSRoomUpdate,
@@ -30,8 +29,8 @@ import type {
   HMSPIPConfig,
   HMSRole,
   HMSSessionStore,
-  HMSSessionStoreValue,
   HMSSpeaker,
+  JsonValue,
 } from '@100mslive/react-native-hms';
 import type {
   ColorPalette,
@@ -59,11 +58,8 @@ import {
   PeerListRefreshInterval,
   PipModes,
 } from './utils/types';
-import type {
-  ChatBroadcastFilter,
-  OnLeaveHandler,
-  PeerTrackNode,
-} from './utils/types';
+import { ChatBroadcastFilter } from './utils/types';
+import type { OnLeaveHandler, PeerTrackNode } from './utils/types';
 import { createPeerTrackNode, parseMetadata } from './utils/functions';
 import {
   batch,
@@ -78,13 +74,14 @@ import {
   addNotification,
   addParticipant,
   addParticipants,
-  addPinnedMessage,
+  addPinnedMessages,
   addScreenshareTile,
   addUpdateParticipant,
   changeMeetingState,
   changePipModeStatus,
   changeStartingHLSStream,
   clearStore,
+  filterOutMsgsFromBlockedPeers,
   removeNotification,
   removeParticipant,
   removeParticipants,
@@ -94,6 +91,8 @@ import {
   setActiveChatBottomSheetTab,
   setActiveSpeakers,
   setAutoEnterPipMode,
+  setChatPeerBlacklist,
+  setChatState,
   setEditUsernameDisabled,
   setFullScreenPeerTrackNode,
   setHMSLocalPeerState,
@@ -127,7 +126,7 @@ import {
   replacePeerTrackNodesWithTrack,
 } from './peerTrackNodeUtils';
 import { MeetingState } from './types';
-import type { HMSPrebuiltProps } from './types';
+import type { ChatState, HMSPrebuiltProps, PinnedMessage } from './types';
 import {
   BackHandler,
   InteractionManager,
@@ -370,6 +369,16 @@ const useHMSPeersUpdate = (
       }
       if (type === HMSPeerUpdate.ROLE_CHANGED) {
         dispatch(addUpdateParticipant(peer));
+
+        // saving current role in peer metadata,
+        // so that when peer is removed from stage, we can assign previous role to it.
+        // if (localPeerRoleName) {
+        //   const newMetadata = {
+        //     ...localPeerMetadata,
+        //     prevRole: localPeerRoleName,
+        //   };
+        //   await hmsActions.changeMetadata(newMetadata);
+        // }
 
         // Handling regular tiles list
         if (
@@ -1023,6 +1032,7 @@ type SessionStoreListeners = Array<{ remove: () => void }>;
 export const useHMSSessionStoreListeners = (
   gridViewRef: React.MutableRefObject<GridViewRefAttrs | null>
 ) => {
+  const store = useStore<RootState>();
   const dispatch = useDispatch();
   const hmsSessionStore = useSelector(
     (state: RootState) => state.user.hmsSessionStore
@@ -1036,18 +1046,105 @@ export const useHMSSessionStoreListeners = (
 
       const addSessionStoreListeners = () => {
         // Handle 'spotlight' key values
-        const handleSpotlightIdChange = (id: HMSSessionStoreValue) => {
-          // set value to the state to rerender the component to reflect changes
-          dispatch(saveUserData({ spotlightTrackId: id }));
-          // Scroll to start of the list
-          gridViewRef.current
-            ?.getRegularTilesFlatlistRef()
-            .current?.scrollToOffset({ animated: true, offset: 0 });
+        const handleSpotlightIdChange = (id: JsonValue) => {
+          if (id === null || id === undefined || typeof id === 'string') {
+            // set value to the state to rerender the component to reflect changes
+            dispatch(saveUserData({ spotlightTrackId: id }));
+            // Scroll to start of the list
+            gridViewRef.current
+              ?.getRegularTilesFlatlistRef()
+              .current?.scrollToOffset({ animated: true, offset: 0 });
+          }
         };
 
-        // Handle 'pinnedMessage' key values
-        const handlePinnedMessageChange = (data: HMSSessionStoreValue) => {
-          dispatch(addPinnedMessage(data));
+        // Handle 'pinnedMessages' key values
+        const handlePinnedMessagesChange = (data: JsonValue) => {
+          if (Array.isArray(data)) {
+            dispatch(addPinnedMessages(data as PinnedMessage[]));
+          }
+        };
+
+        // Handle 'chatState' key values
+        const handleChatStateChange = (data: JsonValue) => {
+          try {
+            if (
+              typeof data !== 'object' ||
+              Array.isArray(data) ||
+              data === null
+            ) {
+              throw new Error('`data` is a falsy value');
+            }
+            if (!('enabled' in data)) {
+              throw new Error("`data` doesn't have `enabled` property");
+            }
+
+            const parsedData = data as ChatState;
+
+            const reduxState = store.getState();
+            const currentChatState = reduxState.app.chatState;
+
+            if (parsedData.enabled === currentChatState?.enabled) {
+              return;
+            }
+
+            const currentLayoutConfig = selectLayoutConfigForRole(
+              reduxState.hmsStates.layoutConfig,
+              reduxState.hmsStates.localPeer?.role ?? null
+            );
+
+            const chatLayoutConfig =
+              selectChatLayoutConfig(currentLayoutConfig);
+
+            const isAllowedToSendMessage =
+              (chatLayoutConfig?.private_chat_enabled ||
+                chatLayoutConfig?.public_chat_enabled ||
+                (chatLayoutConfig?.roles_whitelist &&
+                  chatLayoutConfig?.roles_whitelist.length > 0)) ??
+              false;
+
+            batch(() => {
+              if (
+                isAllowedToSendMessage && // Only show notification when allowed to send message, AND
+                (!parsedData.enabled || // Chat is Paused, OR
+                  (currentChatState &&
+                    parsedData.enabled !== currentChatState.enabled)) // current Chat state is different from previous state
+              ) {
+                dispatch(
+                  addNotification({
+                    id: `chat-state-enabled-${Math.random()
+                      .toString(16)
+                      .slice(2)}`,
+                    icon: parsedData.enabled ? 'chat-on' : 'chat-off',
+                    type: NotificationTypes.INFO,
+                    title: `Chat ${parsedData.enabled ? 'Resumed' : 'Paused'}`,
+                    message: `Chat ${
+                      parsedData.enabled ? 'resumed' : 'paused'
+                    } ${
+                      parsedData.updatedBy
+                        ? `by ${parsedData.updatedBy.userName}`
+                        : ''
+                    }`,
+                  })
+                );
+              }
+              dispatch(setChatState(parsedData));
+            });
+          } catch (error) {
+            dispatch(setChatState(null));
+          }
+        };
+
+        // Handle 'chatPeerBlacklist' key values
+        const handleChatPeerBlacklistChange = (data: JsonValue) => {
+          // Whenever list changes :
+          //  - check if local peer is blocked or unblocked
+          //  - filter out messages of blocked peers
+          if (Array.isArray(data)) {
+            batch(() => {
+              dispatch(setChatPeerBlacklist(data as string[]));
+              dispatch(filterOutMsgsFromBlockedPeers(data as string[]));
+            });
+          }
         };
 
         // Getting value for 'spotlight' key by using `get` method on HMSSessionStore instance
@@ -1067,19 +1164,53 @@ export const useHMSSessionStoreListeners = (
             )
           );
 
-        // Getting value for 'pinnedMessage' key by using `get` method on HMSSessionStore instance
+        // Getting value for 'pinnedMessages' key by using `get` method on HMSSessionStore instance
         hmsSessionStore
-          .get('pinnedMessage')
+          .get('pinnedMessages')
           .then((data) => {
             console.log(
-              'Session Store get `pinnedMessage` key value success: ',
+              'Session Store get `pinnedMessages` key value success: ',
               data
             );
-            handlePinnedMessageChange(data);
+            handlePinnedMessagesChange(data);
           })
           .catch((error) =>
             console.log(
-              'Session Store get `pinnedMessage` key value error: ',
+              'Session Store get `pinnedMessages` key value error: ',
+              error
+            )
+          );
+
+        // Getting value for 'chatState' key by using `get` method on HMSSessionStore instance
+        hmsSessionStore
+          .get('chatState')
+          .then((data) => {
+            console.log(
+              'Session Store get `chatState` key value success: ',
+              data
+            );
+            handleChatStateChange(data);
+          })
+          .catch((error) =>
+            console.log(
+              'Session Store get `chatState` key value error: ',
+              error
+            )
+          );
+
+        // Getting value for 'chatPeerBlacklist' key by using `get` method on HMSSessionStore instance
+        hmsSessionStore
+          .get('chatPeerBlacklist')
+          .then((data) => {
+            console.log(
+              'Session Store get `chatPeerBlacklist` key value success: ',
+              data
+            );
+            handleChatPeerBlacklistChange(data);
+          })
+          .catch((error) =>
+            console.log(
+              'Session Store get `chatPeerBlacklist` key value error: ',
               error
             )
           );
@@ -1087,66 +1218,44 @@ export const useHMSSessionStoreListeners = (
         // let lastSpotlightValue: HMSSessionStoreValue = null;
         // let lastPinnedMessageValue: HMSSessionStoreValue = null;
 
-        // Add subscription for `spotlight` & `pinnedMessage` keys updates on Session Store
+        // Add subscription for `spotlight`, `pinnedMessages`, `chatState` & `chatPeerBlacklist` keys updates on Session Store
         const subscription = hmsSessionStore.addKeyChangeListener<
-          ['spotlight', 'pinnedMessage']
-        >(['spotlight', 'pinnedMessage'], (error, data) => {
-          // If error occurs, handle error and return early
-          if (error !== null) {
-            console.log(
-              '`spotlight` & `pinnedMessage` key listener Error -> ',
-              error
-            );
-            return;
-          }
+          ['spotlight', 'pinnedMessages', 'chatState', 'chatPeerBlacklist']
+        >(
+          ['spotlight', 'pinnedMessages', 'chatState', 'chatPeerBlacklist'],
+          (error, data) => {
+            // If error occurs, handle error and return early
+            if (error !== null) {
+              console.log(
+                '`spotlight`, `pinnedMessages`, `chatState` & `chatPeerBlacklist` key listener Error -> ',
+                error
+              );
+              return;
+            }
 
-          // If no error, handle data
-          if (data !== null) {
-            switch (data.key) {
-              case 'spotlight': {
-                handleSpotlightIdChange(data.value);
-
-                // Showing Toast message if value has actually changed
-                // if (
-                //   data.value !== lastSpotlightValue &&
-                //   (data.value || lastSpotlightValue)
-                // ) {
-                //   Toast.showWithGravity(
-                //     `SessionStore: \`spotlight\` key's value changed to ${data.value}`,
-                //     Toast.LONG,
-                //     Toast.TOP
-                //   );
-                // }
-
-                // lastSpotlightValue = data.value;
-                break;
-              }
-              case 'pinnedMessage': {
-                handlePinnedMessageChange(data.value);
-
-                // Showing Toast message if value has actually changed
-                // if (
-                //   data.value !== lastPinnedMessageValue &&
-                //   (data.value || lastPinnedMessageValue)
-                // ) {
-                //   if (toastTimeoutId !== null) {
-                //     clearTimeout(toastTimeoutId);
-                //   }
-                //   toastTimeoutId = setTimeout(() => {
-                //     Toast.showWithGravity(
-                //       `SessionStore: \`pinnedMessage\` key's value changed to ${data.value}`,
-                //       Toast.LONG,
-                //       Toast.TOP
-                //     );
-                //   }, 1500);
-                // }
-
-                // lastPinnedMessageValue = data.value;
-                break;
+            // If no error, handle data
+            if (data !== null) {
+              switch (data.key) {
+                case 'spotlight': {
+                  handleSpotlightIdChange(data.value);
+                  break;
+                }
+                case 'pinnedMessages': {
+                  handlePinnedMessagesChange(data.value);
+                  break;
+                }
+                case 'chatState': {
+                  handleChatStateChange(data.value);
+                  break;
+                }
+                case 'chatPeerBlacklist': {
+                  handleChatPeerBlacklistChange(data.value);
+                  break;
+                }
               }
             }
           }
-        });
+        );
 
         // Save reference of `subscription` in a ref
         sessionStoreListenersRef.current.push(subscription);
@@ -1163,7 +1272,7 @@ export const useHMSSessionStoreListeners = (
         // if (toastTimeoutId !== null) clearTimeout(toastTimeoutId);
       };
     }
-  }, [hmsSessionStore]);
+  }, [store, hmsSessionStore]);
 };
 
 export const useHMSSessionStore = () => {
@@ -2225,12 +2334,9 @@ export const useSendMessage = () => {
     const chatWindowState = reduxStore.getState().chatWindow;
 
     const message = chatWindowState.typedMessage;
-    const sendingTo = chatWindowState.sendTo as
-      | HMSRole
-      | HMSRemotePeer
-      | typeof ChatBroadcastFilter;
+    const sendingTo = chatWindowState.sendTo;
 
-    if (message.length <= 0) return;
+    if (message.length <= 0 || !sendingTo) return;
 
     const hmsMessageRecipient = new HMSMessageRecipient({
       recipientType:
@@ -2292,6 +2398,88 @@ export const useSendMessage = () => {
     setMessage,
     sendMessage,
   };
+};
+
+export const useHMSCanDisableChat = () => {
+  return useHMSChatLayoutConfig<boolean>(
+    (chatLayoutConfig) =>
+      chatLayoutConfig?.real_time_controls?.can_disable_chat ?? false
+  );
+};
+
+type ChatRecipients = {
+  privateChat: boolean;
+  publicChat: boolean;
+  roles: HMSRole[];
+};
+
+export const useHMSChatRecipientSelector = <
+  T extends keyof ChatRecipients | undefined = undefined,
+>(
+  selector?: T
+): T extends keyof ChatRecipients ? ChatRecipients[T] : ChatRecipients => {
+  const roles = useSelector((state: RootState) => state.hmsStates.roles);
+
+  const defaultChatRecipient = useMemo(
+    () => ({
+      privateChat: false,
+      publicChat: false,
+      roles: [],
+    }),
+    []
+  );
+
+  const chatLayoutConfig = useHMSChatLayoutConfig(
+    (_chatLayoutConfig) => _chatLayoutConfig
+  );
+
+  const rolesWhitelist = chatLayoutConfig?.roles_whitelist;
+
+  const whitelistedRoles = useMemo(() => {
+    if (!rolesWhitelist) {
+      return defaultChatRecipient.roles;
+    }
+    return rolesWhitelist
+      .map((roleStr) => roles.find((role) => role.name === roleStr))
+      .filter((role): role is HMSRole => !!role);
+  }, [roles, rolesWhitelist, defaultChatRecipient]);
+
+  const privateChat =
+    chatLayoutConfig?.private_chat_enabled ?? defaultChatRecipient.privateChat;
+  const publicChat =
+    chatLayoutConfig?.public_chat_enabled ?? defaultChatRecipient.publicChat;
+
+  if (selector === 'privateChat') {
+    return privateChat;
+  }
+
+  if (selector === 'publicChat') {
+    return publicChat;
+  }
+
+  if (selector === 'roles') {
+    return whitelistedRoles;
+  }
+
+  if (chatLayoutConfig) {
+    return {
+      privateChat,
+      publicChat,
+      roles: whitelistedRoles,
+    };
+  }
+
+  return defaultChatRecipient;
+};
+
+export const useIsAllowedToSendMessage = () => {
+  const chatRecipients = useHMSChatRecipientSelector();
+
+  return (
+    chatRecipients.privateChat ||
+    chatRecipients.publicChat ||
+    chatRecipients.roles.length > 0
+  );
 };
 
 export const useHMSChatLayoutConfig = <Selected = unknown>(
@@ -2411,7 +2599,7 @@ export const useStartRecording = () => {
           addNotification({
             id: Math.random().toString(16).slice(2),
             type: NotificationTypes.ERROR,
-            message: error.message,
+            title: error.message,
           })
         );
       });
@@ -2421,6 +2609,185 @@ export const useStartRecording = () => {
   return {
     startRecording,
   };
+};
+
+export const useHMSChatState = () => {
+  const hmsSessionStore = useSelector(
+    (state: RootState) => state.user.hmsSessionStore
+  );
+  const localPeerName = useSelector(
+    (state: RootState) => state.hmsStates.localPeer?.name
+  );
+  const localPeerID = useSelector(
+    (state: RootState) => state.hmsStates.localPeer?.peerID
+  );
+  const localPeerUserID = useSelector(
+    (state: RootState) => state.hmsStates.localPeer?.customerUserID
+  );
+  const _chatState = useSelector((state: RootState) => state.app.chatState);
+
+  const chatState = useMemo(
+    () => _chatState || ({ enabled: true } as const),
+    [_chatState]
+  );
+
+  const setChatState = useCallback(
+    async (enabled: boolean) => {
+      // If instance of HMSSessionStore is available
+      if (hmsSessionStore) {
+        try {
+          const value = {
+            enabled,
+            updatedBy: {
+              peerID: localPeerID ?? null,
+              userID: localPeerUserID ?? null,
+              userName: localPeerName ?? '',
+            },
+            updatedAt: Date.now(),
+          };
+          // set `value` on `session` with key 'chatState'
+          const response = await hmsSessionStore.set(value, 'chatState');
+          console.log('setSessionMetaData Response -> ', response);
+        } catch (error) {
+          console.log('setSessionMetaData Error -> ', error);
+        }
+      }
+    },
+    [localPeerName, hmsSessionStore, localPeerUserID, localPeerID]
+  );
+
+  return { chatState, setChatState };
+};
+
+export const useIsMessagePinned = (message: HMSMessage | null) => {
+  return useSelector((state: RootState) =>
+    message
+      ? state.messages.pinnedMessages.findIndex(
+          (pinnedMessage) => pinnedMessage.id === message.messageId
+        ) >= 0
+      : false
+  );
+};
+
+export const useHMSMessagePinningActions = () => {
+  const store = useStore<RootState>();
+  const hmsSessionStore = useSelector(
+    (state: RootState) => state.user.hmsSessionStore
+  );
+
+  const pinMessage = useCallback(
+    async (message: HMSMessage | HMSMessage[]) => {
+      let messages = message;
+      if (!Array.isArray(messages)) {
+        messages = [messages];
+      }
+
+      // If instance of HMSSessionStore is available
+      if (hmsSessionStore) {
+        try {
+          const reduxState = store.getState();
+          const localPeerName = reduxState.hmsStates.localPeer?.name;
+          const pinnedMessages = reduxState.messages.pinnedMessages;
+
+          let payload = messages.map((message) => ({
+            authorId: message.sender?.customerUserID ?? '',
+            id: message.messageId,
+            pinnedBy: localPeerName ?? '',
+            text: `${message.sender?.name}: ${message.message}`,
+          }));
+
+          let updatedPinnedMessages = [...pinnedMessages, ...payload];
+
+          if (updatedPinnedMessages.length > 3) {
+            updatedPinnedMessages = updatedPinnedMessages.slice(
+              updatedPinnedMessages.length - 3
+            );
+          }
+
+          const response = await hmsSessionStore.set(
+            updatedPinnedMessages,
+            'pinnedMessages'
+          );
+          console.log('setSessionMetaData Response -> ', response);
+        } catch (error) {
+          console.log('setSessionMetaData Error -> ', error);
+          return Promise.reject(error);
+        }
+      }
+    },
+    [hmsSessionStore]
+  );
+
+  const unpinMessage = useCallback(
+    async (
+      message: HMSMessage | PinnedMessage | (HMSMessage | PinnedMessage)[]
+    ) => {
+      let messages = message;
+      if (!Array.isArray(messages)) {
+        messages = [messages];
+      }
+
+      // If instance of HMSSessionStore is available
+      if (hmsSessionStore) {
+        try {
+          const pinnedMessages = store.getState().messages.pinnedMessages;
+          const messageIdsToUnpin = messages.map((msg) =>
+            'messageId' in msg ? msg.messageId : msg.id
+          );
+          const updatedPinnedMessages = pinnedMessages.filter(
+            (pinnedMessage) => !messageIdsToUnpin.includes(pinnedMessage.id)
+          );
+          const response = await hmsSessionStore.set(
+            updatedPinnedMessages,
+            'pinnedMessages'
+          );
+          console.log('setSessionMetaData Response -> ', response);
+        } catch (error) {
+          console.log('setSessionMetaData Error -> ', error);
+          return Promise.reject(error);
+        }
+      }
+    },
+    [hmsSessionStore]
+  );
+
+  return { pinMessage, unpinMessage };
+};
+
+export const useSetDefaultChatRecipient = () => {
+  const dispatch = useDispatch();
+  const localPeerRoleName = useSelector(
+    (state: RootState) => state.hmsStates.localPeer?.role?.name
+  );
+
+  const {
+    privateChat,
+    publicChat,
+    roles: whitelistedRoles,
+  } = useHMSChatRecipientSelector();
+
+  useEffect(() => {
+    if (publicChat) {
+      dispatch({ type: 'SET_SENDTO', sendTo: ChatBroadcastFilter });
+    }
+    // If Role is enabled, Select a role
+    else if (Array.isArray(whitelistedRoles) && whitelistedRoles.length > 0) {
+      const roleObj =
+        whitelistedRoles.length === 1
+          ? whitelistedRoles[0]
+          : whitelistedRoles.filter(
+              (whitelistRole) => whitelistRole.name !== localPeerRoleName
+            )[0];
+
+      if (roleObj) {
+        dispatch({ type: 'SET_SENDTO', sendTo: roleObj });
+      }
+    }
+    // If private is enabled, Select None
+    else if (privateChat) {
+      dispatch({ type: 'SET_SENDTO', sendTo: null });
+    }
+  }, [privateChat, publicChat, whitelistedRoles, localPeerRoleName, dispatch]);
 };
 
 export const useAndroidSoftInputAdjustResize = () => {
@@ -2496,4 +2863,121 @@ export const useKeyboardState = () => {
   }, []);
 
   return { keyboardState };
+};
+
+export const useAllowPinningMessage = () => {
+  return useHMSChatLayoutConfig(
+    (config) => config?.allow_pinning_messages ?? false
+  );
+};
+
+export const useIsLocalPeerBlockedFromChat = () => {
+  return useSelector((state: RootState) => {
+    const chatPeerBlacklist = state.app.chatPeerBlacklist;
+    const localPeerUserId = state.hmsStates.localPeer?.customerUserID;
+
+    return localPeerUserId
+      ? chatPeerBlacklist.includes(localPeerUserId)
+      : false;
+  });
+};
+
+export const useIsPeerBlocked = (peer: HMSPeer | null) => {
+  return useSelector((state: RootState) => {
+    const chatPeerBlacklist = state.app.chatPeerBlacklist;
+    const localPeerUserId = peer?.customerUserID;
+
+    return localPeerUserId
+      ? chatPeerBlacklist.includes(localPeerUserId)
+      : false;
+  });
+};
+
+export const useBlockPeerActions = () => {
+  const store = useStore<RootState>();
+  const hmsSessionStore = useSelector(
+    (state: RootState) => state.user.hmsSessionStore
+  );
+  const { unpinMessage } = useHMSMessagePinningActions();
+
+  const blockPeer = useCallback(
+    async (peer: HMSPeer) => {
+      // If instance of HMSSessionStore is available
+      if (hmsSessionStore) {
+        try {
+          const reduxState = store.getState();
+          const chatPeerBlacklist = reduxState.app.chatPeerBlacklist;
+          const pinnedMessages = reduxState.messages.pinnedMessages;
+
+          if (
+            peer.customerUserID &&
+            !chatPeerBlacklist.includes(peer.customerUserID)
+          ) {
+            let updatedChatPeerBlacklist = [
+              ...chatPeerBlacklist,
+              peer.customerUserID,
+            ];
+            const response = await hmsSessionStore.set(
+              updatedChatPeerBlacklist,
+              'chatPeerBlacklist'
+            );
+            console.log('setSessionMetaData Response -> ', response);
+
+            // Unpin messages from sent by the peer
+            const msgsToUnpin = pinnedMessages.filter(
+              (pinnedMessage) => pinnedMessage.authorId === peer.customerUserID
+            );
+            if (msgsToUnpin.length > 0) {
+              await unpinMessage(msgsToUnpin);
+            }
+
+            return response;
+          }
+          return Promise.reject('Peer is already blocked!');
+        } catch (error) {
+          console.log('setSessionMetaData Error -> ', error);
+          return Promise.reject(error);
+        }
+      }
+    },
+    [hmsSessionStore, unpinMessage]
+  );
+
+  const unblockPeer = useCallback(
+    async (peer: HMSPeer) => {
+      // If instance of HMSSessionStore is available
+      if (hmsSessionStore) {
+        try {
+          const chatPeerBlacklist = store.getState().app.chatPeerBlacklist;
+          if (
+            peer.customerUserID &&
+            chatPeerBlacklist.includes(peer.customerUserID)
+          ) {
+            const updatedChatPeerBlacklist = chatPeerBlacklist.filter(
+              (peerUserId) => peerUserId !== peer.customerUserID
+            );
+            const response = await hmsSessionStore.set(
+              updatedChatPeerBlacklist,
+              'chatPeerBlacklist'
+            );
+            console.log('setSessionMetaData Response -> ', response);
+            return response;
+          }
+          return Promise.reject('Peer is already unblocked!');
+        } catch (error) {
+          console.log('setSessionMetaData Error -> ', error);
+          return Promise.reject(error);
+        }
+      }
+    },
+    [hmsSessionStore]
+  );
+
+  return { blockPeer, unblockPeer };
+};
+
+export const useAllowBlockingPeerFromChat = () => {
+  return useHMSChatLayoutConfig(
+    (config) => config?.real_time_controls?.can_block_user ?? false
+  );
 };

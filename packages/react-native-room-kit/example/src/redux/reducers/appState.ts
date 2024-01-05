@@ -18,6 +18,7 @@ type InitialStateType = {
     softwareDecoder: boolean; // Android only
     autoResize: boolean; // Android only
     autoSimulcast: boolean;
+    staticUserId: boolean;
   };
 };
 
@@ -33,6 +34,7 @@ const INITIAL_STATE: InitialStateType = {
     softwareDecoder: true, // Android only
     autoResize: false, // Android only
     autoSimulcast: true,
+    staticUserId: false,
   },
 };
 
@@ -127,6 +129,16 @@ const appReducer = (
         joinConfig: {
           ...state.joinConfig,
           autoSimulcast: action.payload.autoSimulcast ?? true,
+        },
+      };
+    case ActionTypes.CHANGE_USE_STATIC_USERID:
+      return {
+        ...state,
+        joinConfig: {
+          ...state.joinConfig,
+          staticUserId:
+            action.payload.staticUserId ??
+            INITIAL_STATE.joinConfig.staticUserId,
         },
       };
     default:

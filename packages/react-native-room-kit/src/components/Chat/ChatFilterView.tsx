@@ -5,6 +5,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import {
+  useHMSChatRecipientSelector,
   useHMSInstance,
   useHMSRoomColorPalette,
   useHMSRoomStyleSheet,
@@ -17,16 +18,22 @@ import { ChatFilterItem } from './ChatFilterItem';
 import { setChatFilterSheetVisible } from '../../redux/actions';
 import { ChatBroadcastFilter } from '../../utils/types';
 
-interface ChatFilterViewProps {}
+interface ChatFilterViewProps {
+  onDismiss?: () => void;
+}
 
-const _ChatFilterView: React.FC<ChatFilterViewProps> = () => {
+const _ChatFilterView: React.FC<ChatFilterViewProps> = ({ onDismiss }) => {
   const hmsInstance = useHMSInstance();
   const dispatch = useDispatch();
   const filter = useSelector((state: RootState) => state.chatWindow.sendTo);
-  const roles = useSelector((state: RootState) => state.hmsStates.roles);
   const [loadingPeersList, setLoadingPeersList] = React.useState(false);
   const [remotePeers, setRemotePeers] = React.useState<HMSRemotePeer[]>([]);
   const [filterText, setFilterText] = React.useState('');
+  const {
+    privateChat,
+    publicChat,
+    roles: rolesSpecificChat,
+  } = useHMSChatRecipientSelector();
 
   const { on_surface_medium: onSurfaceMediumColor } = useHMSRoomColorPalette();
 
@@ -46,23 +53,25 @@ const _ChatFilterView: React.FC<ChatFilterViewProps> = () => {
   }));
 
   React.useEffect(() => {
-    let mounted = true;
+    if (privateChat) {
+      let mounted = true;
 
-    const fetchRemotePeers = async () => {
-      setLoadingPeersList(true);
-      const fetchedRemotePeers = await hmsInstance.getRemotePeers();
-      if (mounted) {
-        setLoadingPeersList(false);
-        setRemotePeers(fetchedRemotePeers);
-      }
-    };
+      const fetchRemotePeers = async () => {
+        setLoadingPeersList(true);
+        const fetchedRemotePeers = await hmsInstance.getRemotePeers();
+        if (mounted) {
+          setLoadingPeersList(false);
+          setRemotePeers(fetchedRemotePeers);
+        }
+      };
 
-    fetchRemotePeers();
+      fetchRemotePeers();
 
-    return () => {
-      mounted = false;
-    };
-  }, [hmsInstance]);
+      return () => {
+        mounted = false;
+      };
+    }
+  }, [privateChat, hmsInstance]);
 
   const _keyExtractor = React.useCallback(
     (item: HMSRemotePeer) => item.peerID,
@@ -73,15 +82,20 @@ const _ChatFilterView: React.FC<ChatFilterViewProps> = () => {
     ({ item, extraData }) => (
       <ChatFilterItem
         item={item}
-        active={extraData.name === item.name}
-        disabled={extraData.name === item.name}
+        active={extraData && extraData.name === item.name}
+        disabled={extraData && extraData.name === item.name}
+        onDismiss={onDismiss}
       />
     ),
-    []
+    [onDismiss]
   );
 
   const closeFiltersBottomSheet = () => {
-    dispatch(setChatFilterSheetVisible(false));
+    if (onDismiss) {
+      onDismiss();
+    } else {
+      dispatch(setChatFilterSheetVisible(false));
+    }
   };
 
   const formattedFilterText = filterText.trim().toLowerCase();
@@ -98,23 +112,14 @@ const _ChatFilterView: React.FC<ChatFilterViewProps> = () => {
   }, [formattedFilterText, remotePeers]);
 
   // Filtering Broadcast option
-  const showBroadcastOption =
-    formattedFilterText.length > 0
+  const showBroadcastOption = publicChat
+    ? formattedFilterText.length > 0
       ? ChatBroadcastFilter.name.includes(formattedFilterText)
-      : true;
-
-  // Filtering Roles
-  const foundRoles = roles.filter((role) => {
-    if (!role.name || role.name.startsWith('_')) {
-      return false;
-    }
-
-    return formattedFilterText.length > 0
-      ? role.name.toLowerCase().includes(formattedFilterText)
-      : true;
-  });
+      : true
+    : false;
 
   const isBroadcastFilterSelected =
+    filter !== null &&
     !('publishSettings' in filter || 'peerId' in filter) && // filter is not HMSRole and HMSRemotePeer
     filter.name === ChatBroadcastFilter.name;
 
@@ -127,18 +132,20 @@ const _ChatFilterView: React.FC<ChatFilterViewProps> = () => {
 
       <BottomSheet.Divider style={styles.headerDivider} />
 
-      <HMSTextInput
-        value={filterText}
-        onChangeText={setFilterText}
-        placeholder="Search for participants"
-        containerStyle={[
-          styles.textInputContainer,
-          hmsRoomStyles.textInputContainer,
-        ]}
-        focusedContainerStyle={styles.textInputFocusedContainer}
-        placeholderTextColor={onSurfaceMediumColor}
-        leftIcon={<SearchIcon style={styles.textInputSearchIcon} />}
-      />
+      {privateChat ? (
+        <HMSTextInput
+          value={filterText}
+          onChangeText={setFilterText}
+          placeholder="Search for participants"
+          containerStyle={[
+            styles.textInputContainer,
+            hmsRoomStyles.textInputContainer,
+          ]}
+          focusedContainerStyle={styles.textInputFocusedContainer}
+          placeholderTextColor={onSurfaceMediumColor}
+          leftIcon={<SearchIcon style={styles.textInputSearchIcon} />}
+        />
+      ) : null}
 
       <FlashList
         data={filteredRemotePeers}
@@ -149,38 +156,46 @@ const _ChatFilterView: React.FC<ChatFilterViewProps> = () => {
         keyExtractor={_keyExtractor}
         renderItem={_renderItem}
         ListEmptyComponent={
-          <View style={styles.placeholderContainer}>
-            <Text
-              style={[styles.placeholderText, hmsRoomStyles.placeholderText]}
-            >
-              {loadingPeersList
-                ? 'Loading Participants...'
-                : formattedFilterText.length > 0
-                ? 'No participants found!'
-                : 'There is no one in the session!'}
-            </Text>
-          </View>
+          privateChat ? (
+            <View style={styles.placeholderContainer}>
+              <Text
+                style={[styles.placeholderText, hmsRoomStyles.placeholderText]}
+              >
+                {loadingPeersList
+                  ? 'Loading Participants...'
+                  : formattedFilterText.length > 0
+                    ? 'No participants found!'
+                    : 'There is no one in the session!'}
+              </Text>
+            </View>
+          ) : null
         }
         ListHeaderComponent={
           <View>
             {showBroadcastOption ? (
-              <>
-                <ChatFilterItem
-                  item={ChatBroadcastFilter}
-                  active={isBroadcastFilterSelected}
-                  disabled={isBroadcastFilterSelected}
-                  icon={<ParticipantsIcon />}
-                />
-                <BottomSheet.Divider style={styles.divider} />
-              </>
+              <ChatFilterItem
+                item={ChatBroadcastFilter}
+                active={isBroadcastFilterSelected}
+                disabled={isBroadcastFilterSelected}
+                icon={<ParticipantsIcon />}
+                onDismiss={onDismiss}
+              />
             ) : null}
 
-            {foundRoles.length > 0 ? (
+            {showBroadcastOption && rolesSpecificChat.length > 0 ? (
+              <BottomSheet.Divider style={styles.divider} />
+            ) : null}
+
+            {rolesSpecificChat.length > 0 ? (
               <View>
                 <Text style={[styles.label, hmsRoomStyles.label]}>ROLES</Text>
-                {foundRoles.map((role) => {
-                  const isRoleSelected = 'publishSettings' in filter;
-                  const isActive = isRoleSelected && filter.name === role.name;
+                {rolesSpecificChat.map((role) => {
+                  const isRoleSelected =
+                    filter !== null && 'publishSettings' in filter;
+                  const isActive =
+                    filter !== null &&
+                    isRoleSelected &&
+                    filter.name === role.name;
 
                   return (
                     <ChatFilterItem
@@ -188,16 +203,28 @@ const _ChatFilterView: React.FC<ChatFilterViewProps> = () => {
                       item={role}
                       active={isActive}
                       disabled={isActive}
+                      onDismiss={onDismiss}
                     />
                   );
                 })}
-                <BottomSheet.Divider style={styles.divider} />
               </View>
             ) : null}
 
-            <Text style={[styles.label, hmsRoomStyles.label]}>
-              PARTICIPANTS
-            </Text>
+            {rolesSpecificChat.length > 0 && privateChat ? (
+              <BottomSheet.Divider style={styles.divider} />
+            ) : null}
+
+            {rolesSpecificChat.length <= 0 &&
+            privateChat &&
+            showBroadcastOption ? (
+              <BottomSheet.Divider style={styles.divider} />
+            ) : null}
+
+            {privateChat ? (
+              <Text style={[styles.label, hmsRoomStyles.label]}>
+                PARTICIPANTS
+              </Text>
+            ) : null}
           </View>
         }
       />

@@ -28,6 +28,9 @@ const QRCodeScanner = () => {
   const debugMode = useSelector(
     (state: RootState) => state.app.joinConfig.debugMode
   );
+  const staticUserId = useSelector(
+    (state: RootState) => state.app.joinConfig.staticUserId
+  );
   const isFocused = useIsFocused();
 
   const onScanSuccess = (e: BarCodeReadEvent) => {
@@ -48,7 +51,7 @@ const QRCodeScanner = () => {
           // @ts-ignore
           navigate('HMSPrebuiltScreen', {
             roomCode,
-            userId,
+            userId: staticUserId ? Constants.STATIC_USERID : userId,
             initEndPoint: initEndpoint,
             tokenEndPoint: tokenEndpoint,
             layoutEndPoint: layoutEndPoint,
