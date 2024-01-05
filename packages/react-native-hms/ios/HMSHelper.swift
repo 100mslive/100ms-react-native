@@ -3,6 +3,7 @@ import Foundation
 
 class HMSHelper: NSObject {
     static var audioMixerSourceHashMap: [String: HMSAudioNode]?
+    static var iterator: HMSPeerListIterator?
 
     static func getUnavailableRequiredKey(_ data: NSDictionary, _ requiredKeys: [String]) -> String {
         for (key) in requiredKeys {
@@ -37,8 +38,9 @@ class HMSHelper: NSObject {
             return
         }
 
-        let peerListIterator = hms.getPeerListIterator(options: HMSPeerListIteratorOptions(filterByPeerIds: [peerID], limit: 1))
-        peerListIterator.next { peers, _ in
+        iterator = hms.getPeerListIterator(options: HMSPeerListIteratorOptions(filterByPeerIds: [peerID], limit: 1))
+        iterator?.next { peers, error in
+            
             guard let nonnilPeers = peers, let firstPeer = nonnilPeers.first else {
                 completion(nil)
                 return
