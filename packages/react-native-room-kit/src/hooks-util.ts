@@ -2413,11 +2413,7 @@ type ChatRecipients = {
   roles: HMSRole[];
 };
 
-export const useHMSChatRecipientSelector = <
-  T extends keyof ChatRecipients | undefined = undefined,
->(
-  selector?: T
-): T extends keyof ChatRecipients ? ChatRecipients[T] : ChatRecipients => {
+export const useHMSChatRecipientSelector = (): ChatRecipients => {
   const roles = useSelector((state: RootState) => state.hmsStates.roles);
 
   const defaultChatRecipient = useMemo(
@@ -2448,18 +2444,6 @@ export const useHMSChatRecipientSelector = <
     chatLayoutConfig?.private_chat_enabled ?? defaultChatRecipient.privateChat;
   const publicChat =
     chatLayoutConfig?.public_chat_enabled ?? defaultChatRecipient.publicChat;
-
-  if (selector === 'privateChat') {
-    return privateChat;
-  }
-
-  if (selector === 'publicChat') {
-    return publicChat;
-  }
-
-  if (selector === 'roles') {
-    return whitelistedRoles;
-  }
 
   if (chatLayoutConfig) {
     return {

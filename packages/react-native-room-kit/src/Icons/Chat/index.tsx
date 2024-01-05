@@ -5,7 +5,7 @@ import type { ImageProps } from 'react-native';
 import { useHMSRoomStyle } from '../../hooks-util';
 
 interface ChatIconProps extends Omit<ImageProps, 'source'> {
-  type: 'on' | 'off';
+  type?: 'on' | 'off';
 }
 
 export const ChatIcon: React.FC<ChatIconProps> = ({

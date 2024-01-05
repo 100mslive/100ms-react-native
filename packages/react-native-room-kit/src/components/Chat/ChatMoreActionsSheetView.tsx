@@ -4,10 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import { hexToRgbA } from '../../utils/theme';
-import {
-  useHMSRoomStyleSheet,
-  useIsAllowedToSendMessage,
-} from '../../hooks-util';
+import { useHMSRoomStyleSheet } from '../../hooks-util';
 import type { RootState } from '../../redux';
 import { setChatMoreActionsSheetVisible } from '../../redux/actions';
 import { ChatMoreActionsView } from './ChatMoreActionsView';
@@ -20,11 +17,6 @@ const _ChatMoreActionsSheetView: React.FC<
   const dispatch = useDispatch();
   const chatMoreActionsSheetVisible = useSelector(
     (state: RootState) => state.app.chatMoreActionsSheetVisible
-  );
-  const isAllowedToSendMessage = useIsAllowedToSendMessage();
-  const isMessageInputVisible = useSelector(
-    (state: RootState) =>
-      state.chatWindow.sendTo !== null && isAllowedToSendMessage
   );
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme) => ({
