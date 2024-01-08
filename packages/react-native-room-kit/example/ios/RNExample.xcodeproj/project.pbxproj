@@ -496,7 +496,7 @@
 				CODE_SIGN_ENTITLEMENTS = RNExample/RNExample.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 403;
+				CURRENT_PROJECT_VERSION = 404;
 				DEVELOPMENT_TEAM = 5N85PP82A9;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = RNExample/Info.plist;
@@ -531,7 +531,7 @@
 				CODE_SIGN_ENTITLEMENTS = RNExample/RNExample.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 403;
+				CURRENT_PROJECT_VERSION = 404;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 5N85PP82A9;
 				INFOPLIST_FILE = RNExample/Info.plist;
@@ -691,7 +691,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = RNExampleBroadcastUpload/RNExampleBroadcastUpload.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 403;
+				CURRENT_PROJECT_VERSION = 404;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 5N85PP82A9;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -733,7 +733,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 403;
+				CURRENT_PROJECT_VERSION = 404;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 5N85PP82A9;
