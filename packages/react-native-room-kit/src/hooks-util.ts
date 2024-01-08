@@ -2149,18 +2149,17 @@ export const useLeaveMethods = () => {
         const onLeave = reduxStore.getState().user.onLeave;
 
         if (typeof onLeave === 'function') {
+          dispatch(changeMeetingState(MeetingState.OUT_FROM_MEETING));
           onLeave(reason);
-          dispatch(clearStore());
         } else if (
           navigation &&
           typeof navigation.canGoBack === 'function' &&
           navigation.canGoBack()
         ) {
+          dispatch(changeMeetingState(MeetingState.OUT_FROM_MEETING));
           navigation.goBack();
-          dispatch(clearStore());
         } else {
           // Otherwise default action is to show "Meeting Ended" screen
-          dispatch(clearStore()); // TODO: We need different clearStore for MeetingEnded
           dispatch(changeMeetingState(MeetingState.MEETING_ENDED));
         }
       } catch (e) {

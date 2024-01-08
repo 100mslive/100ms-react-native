@@ -400,7 +400,7 @@ export const HMSRoomSetup = () => {
   useEffect(() => {
     return () => {
       ignoreHLSStreamPromise.current = true;
-      prebuiltCleanUp();
+      // prebuiltCleanUp();
     };
   }, []);
 
