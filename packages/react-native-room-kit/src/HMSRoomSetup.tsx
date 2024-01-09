@@ -69,7 +69,7 @@ export const HMSRoomSetup = () => {
   const hmsInstance = useHMSInstance();
   const dispatch = useDispatch();
   const reduxStore = useStore<RootState>();
-  const { leave, destroy, prebuiltCleanUp } = useLeaveMethods();
+  const { leave, destroy } = useLeaveMethods();
 
   const { getConfig, clearConfig } = useHMSConfig();
   const meetingState = useSelector(
@@ -137,13 +137,9 @@ export const HMSRoomSetup = () => {
       if (!ignoreHLSStreamPromise.current) {
         console.log('Unable to go live at the moment: ', e);
         dispatch(changeStartingHLSStream(false));
-        // prebuiltCleanUp();
       }
     }
-  }, [
-    // prebuiltCleanUp,
-    hmsInstance,
-  ]);
+  }, [hmsInstance]);
 
   // HMS Room, Peers, Track Listeners
   useHMSListeners(setPeerTrackNodes);
@@ -400,7 +396,6 @@ export const HMSRoomSetup = () => {
   useEffect(() => {
     return () => {
       ignoreHLSStreamPromise.current = true;
-      // prebuiltCleanUp();
     };
   }, []);
 

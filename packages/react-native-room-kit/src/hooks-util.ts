@@ -2149,14 +2149,14 @@ export const useLeaveMethods = () => {
         const onLeave = reduxStore.getState().user.onLeave;
 
         if (typeof onLeave === 'function') {
-          dispatch(changeMeetingState(MeetingState.OUT_FROM_MEETING));
+          dispatch(changeMeetingState(MeetingState.EXITED));
           onLeave(reason);
         } else if (
           navigation &&
           typeof navigation.canGoBack === 'function' &&
           navigation.canGoBack()
         ) {
-          dispatch(changeMeetingState(MeetingState.OUT_FROM_MEETING));
+          dispatch(changeMeetingState(MeetingState.EXITED));
           navigation.goBack();
         } else {
           // Otherwise default action is to show "Meeting Ended" screen

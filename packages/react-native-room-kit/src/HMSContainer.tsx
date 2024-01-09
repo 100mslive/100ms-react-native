@@ -13,8 +13,7 @@ export const HMSContainer = () => {
     (state: RootState) => !!state.user.hmsInstance
   );
   const outOfMeeting = useSelector(
-    (state: RootState) =>
-      state.app.meetingState === MeetingState.OUT_FROM_MEETING
+    (state: RootState) => state.app.meetingState === MeetingState.EXITED
   );
   const canCleanupAfter = isHMSInstanceAvailable && outOfMeeting;
 
