@@ -58,6 +58,7 @@ export enum ModalTypes {
   CHAT_FILTER = 'chatFilter',
   CHAT_MORE_ACTIONS = 'chatMoreActions',
   MESSAGE_OPTIONS = 'messageOptions',
+  POLLS_AND_QUIZZES = 'pollsAndQuizzes',
   DEFAULT = '',
 }
 

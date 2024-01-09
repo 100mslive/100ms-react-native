@@ -96,6 +96,8 @@ export type {
 export type { HMSPIPConfig } from './classes/HMSPIPConfig';
 export { HMSRecordingState } from './classes/HMSRecordingState';
 
+export { HMSPollBuilder } from './classes/polls/HMSPollBuilder';
+
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
 
 // 100ms React Native Module

@@ -22,6 +22,7 @@ import { BottomSheet } from './BottomSheet';
 import { ChangeNameModalContent } from './ChangeNameModalContent';
 import { StopRecordingModalContent } from './StopRecordingModalContent';
 import { TestIds } from '../utils/constants';
+import { PollsAndQuizzesModalContent } from './PollsAndQuizzesModalContent';
 
 interface HMSRoomOptionsProps {}
 
@@ -69,6 +70,14 @@ export const HMSRoomOptions: React.FC<HMSRoomOptionsProps> = () => {
           setIsAudioShared={setIsAudioShared}
           setMuteAllTracksAudio={setMuteAllTracksAudio}
         />
+      </BottomSheet>
+
+      <BottomSheet
+        isVisible={modalVisible === ModalTypes.POLLS_AND_QUIZZES}
+        dismissModal={dismissModal}
+        avoidKeyboard={true}
+      >
+        <PollsAndQuizzesModalContent dismissModal={dismissModal} />
       </BottomSheet>
 
       <BottomSheet
