@@ -46,6 +46,7 @@ import { HMSSessionStore } from './HMSSessionStore';
 import type { HMSPeerListIteratorOptions } from './HMSPeerListIteratorOptions';
 import { HMSPeerListIterator } from './HMSPeerListIterator';
 import type { HMSPIPConfig } from './HMSPIPConfig';
+import { HMSInteractivityCenter } from './HMSInteractivityCenter';
 
 type HmsViewProps = Omit<HmsComponentProps, 'id'>;
 
@@ -55,6 +56,8 @@ let HmsSdk: HMSSDK | undefined;
 
 export class HMSSDK {
   id: string;
+  private _interactivityCenter: HMSInteractivityCenter | null = null;
+
   private appStateSubscription?: any;
   private onPreviewDelegate?: any;
   private onJoinDelegate?: any;
@@ -2489,6 +2492,13 @@ export class HMSSDK {
       ...data,
       id: this.id,
     });
+  }
+
+  get interactivityCenter() {
+    if (!this._interactivityCenter) {
+      this._interactivityCenter = new HMSInteractivityCenter();
+    }
+    return this._interactivityCenter;
   }
 
   /**
