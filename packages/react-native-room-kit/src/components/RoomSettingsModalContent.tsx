@@ -187,6 +187,15 @@ export const RoomSettingsModalContent: React.FC<
     closeRoomSettingsModal();
   };
 
+  const openPollsQuizzesModal = () => {
+    registerOnModalHideAction(() => {
+      setModalVisible(ModalTypes.POLLS_AND_QUIZZES);
+    });
+
+    // Close the current bottom sheet
+    closeRoomSettingsModal();
+  };
+
   const canShowBRB = useHMSLayoutConfig(
     (layoutConfig) =>
       !!layoutConfig?.screens?.conferencing?.default?.elements?.brb
@@ -297,6 +306,14 @@ export const RoomSettingsModalContent: React.FC<
               pressHandler: changeName,
               isActive: false,
               hide: isPublisher || editUsernameDisabled,
+            },
+            {
+              id: 'polls-and-quizes',
+              icon: <PencilIcon style={{ width: 20, height: 20 }} />,
+              label: 'Polls and Quizzes',
+              pressHandler: openPollsQuizzesModal,
+              isActive: false,
+              hide: false,
             },
           ].filter((itm) => !itm.hide),
           true
