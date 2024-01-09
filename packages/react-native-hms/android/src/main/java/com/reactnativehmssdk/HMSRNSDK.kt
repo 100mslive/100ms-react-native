@@ -55,6 +55,10 @@ class HMSRNSDK(
   private val peerListIterators = mutableMapOf<String, PeerListIterator>()
   private var roomMutedLocally = false
 
+  val interactivityCenter: HMSRNInteractivityCenter by lazy {
+    HMSRNInteractivityCenter(hmsSDK?.getHmsInteractivityCenter()!!)
+  }
+
   init {
     val builder = HMSSDK.Builder(reactApplicationContext)
     if (HMSHelper.areAllRequiredKeysAvailable(data, arrayOf(Pair("trackSettings", "Map")))) {

@@ -686,7 +686,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
     hms?.getAuthTokenByRoomCode(data, promise)
   }
 
-  // region Person-In-Person Mode Action handing
+  // region Picture-In-Picture Mode Action handing
   private val pipReceiver by lazy {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       PipActionReceiver(
@@ -778,7 +778,9 @@ class HMSManager(reactContext: ReactApplicationContext) :
                 PendingIntent.getBroadcast(
                   reactApplicationContext,
                   PipActionReceiver.PIPActions.localAudio.requestCode,
-                  Intent(PipActionReceiver.PIP_INTENT_ACTION).putExtra(PipActionReceiver.PIPActions.localAudio.title, PipActionReceiver.PIPActions.localAudio.requestCode),
+                  Intent(
+                    PipActionReceiver.PIP_INTENT_ACTION,
+                  ).putExtra(PipActionReceiver.PIPActions.localAudio.title, PipActionReceiver.PIPActions.localAudio.requestCode),
                   PendingIntent.FLAG_IMMUTABLE,
                 ),
               )
@@ -803,7 +805,9 @@ class HMSManager(reactContext: ReactApplicationContext) :
                 PendingIntent.getBroadcast(
                   reactApplicationContext,
                   PipActionReceiver.PIPActions.localVideo.requestCode,
-                  Intent(PipActionReceiver.PIP_INTENT_ACTION).putExtra(PipActionReceiver.PIPActions.localVideo.title, PipActionReceiver.PIPActions.localVideo.requestCode),
+                  Intent(
+                    PipActionReceiver.PIP_INTENT_ACTION,
+                  ).putExtra(PipActionReceiver.PIPActions.localVideo.title, PipActionReceiver.PIPActions.localVideo.requestCode),
                   PendingIntent.FLAG_IMMUTABLE,
                 ),
               )
@@ -1307,6 +1311,26 @@ class HMSManager(reactContext: ReactApplicationContext) :
       .emit(event, data)
   }
 
+  // region Polls
+  @ReactMethod
+  fun quickStartPoll(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
+    val rnSDK = HMSHelper.getHms(data, hmsCollection)
+    rnSDK?.let {
+      it.interactivityCenter.quickStartPoll(data, promise)
+      return
+    }
+    promise?.reject(
+      "6004",
+      "HMS SDK not initialized",
+    )
+  }
+  // endregion
+
+  // region ActivityLifecycleCallbacks
+
   override fun onActivityCreated(
     activity: Activity,
     savedInstanceState: Bundle?,
@@ -1345,4 +1369,6 @@ class HMSManager(reactContext: ReactApplicationContext) :
       //      Log.d("error", e.message)
     }
   }
+
+  // endregion
 }
