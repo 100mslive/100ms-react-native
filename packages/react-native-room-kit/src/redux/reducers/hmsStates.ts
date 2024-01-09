@@ -177,20 +177,40 @@ const hmsStatesReducer = (
       let updatedGroupedParticipants = state.groupedParticipants;
 
       if (action.localPeer !== null) {
-        const savedLocalPeer = Object.values(state.groupedParticipants)
-          .flat()
-          .find(
-            (participant) => participant.peerID === action.localPeer?.peerID
-          );
+        let previousRoleName: HMSRole['name'] | null = null;
+        let savedLocalPeer: HMSLocalPeer | HMSPeer | null = null;
+
+        for (const groupName in state.groupedParticipants) {
+          if (
+            Object.prototype.hasOwnProperty.call(
+              state.groupedParticipants,
+              groupName
+            )
+          ) {
+            const participantsList = state.groupedParticipants[groupName];
+
+            if (Array.isArray(participantsList)) {
+              const result = participantsList.find(
+                (participant) => participant.peerID === action.localPeer?.peerID
+              );
+
+              if (result) {
+                previousRoleName = groupName;
+                savedLocalPeer = result;
+                break;
+              }
+            }
+          }
+        }
 
         // update peer or check if  role change happened
         if (savedLocalPeer) {
-          const previousRoleName = savedLocalPeer.role?.name!;
           const currentRoleName = action.localPeer.role?.name!;
 
-          const roleChanged = previousRoleName !== currentRoleName;
+          const roleChanged =
+            previousRoleName && previousRoleName !== currentRoleName;
 
-          if (roleChanged) {
+          if (roleChanged && previousRoleName) {
             const previousList = state.groupedParticipants[previousRoleName];
             const currentList = state.groupedParticipants[currentRoleName];
 
@@ -405,7 +425,12 @@ const hmsStatesReducer = (
       let previousRoleName: HMSRole['name'] | null = null;
 
       for (const groupName in state.groupedParticipants) {
-        if (Object.prototype.hasOwnProperty.call(state.groupedParticipants, groupName)) {
+        if (
+          Object.prototype.hasOwnProperty.call(
+            state.groupedParticipants,
+            groupName
+          )
+        ) {
           const participantsList = state.groupedParticipants[groupName];
 
           if (Array.isArray(participantsList)) {
@@ -460,9 +485,7 @@ const hmsStatesReducer = (
           ...state.groupedParticipants,
           [currentRoleName]: Array.isArray(currentList)
             ? currentList.map((p) =>
-                p.peerID === action.participant.peerID
-                  ? action.participant
-                  : p
+                p.peerID === action.participant.peerID ? action.participant : p
               )
             : [action.participant],
         },
@@ -473,7 +496,7 @@ const hmsStatesReducer = (
         ...state,
         groupedParticipants: {
           ...state.groupedParticipants,
-          [action.roleName]: action.participants
+          [action.roleName]: action.participants,
         },
       };
     }
