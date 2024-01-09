@@ -1,5 +1,8 @@
 Board: https://100ms.atlassian.net/jira/software/projects/RN/boards/33
 
+- Fixed in Prebuilt: New sdk instance is created and destroyed when exiting room
+https://100ms.atlassian.net/browse/RN-196
+
 Room Kit: 1.0.9
 React Native SDK: 1.9.8
 Android SDK: 2.8.7
