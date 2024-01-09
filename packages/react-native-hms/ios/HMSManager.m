@@ -296,4 +296,11 @@ RCT_EXTERN_METHOD(peerListIteratorNext
                   : (RCTPromiseResolveBlock)resolve
                   : (RCTPromiseRejectBlock)reject)
 
+#pragma mark - Interactivity Center - Polls/Quiz
+
+RCT_EXTERN_METHOD(quickStartPoll
+                  : (NSDictionary)data
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject)
+
 @end

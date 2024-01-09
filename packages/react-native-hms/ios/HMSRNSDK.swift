@@ -12,6 +12,10 @@ import ReplayKit
 class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
     var hms: HMSSDK?
+    
+    lazy var interactivity: HMSRNInteractivityCenter = {
+        return HMSRNInteractivityCenter(center: hms?.interactivityCenter)
+    }()
 
     var delegate: HMSManager?
     var id: String = "12345"

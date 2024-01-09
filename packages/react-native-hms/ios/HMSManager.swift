@@ -643,4 +643,16 @@ class HMSManager: RCTEventEmitter {
 
         hms?.peerListIteratorNext(data, resolve, reject)
     }
+
+    // MARK: - Interactivity Center - Polls/Quiz
+
+    @objc
+    func quickStartPoll(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
+            reject?("6004", "HMSRNSDK instance not found!", nil)
+            return
+        }
+
+        rnsdk.interactivity.quickStartPoll(data, resolve, reject)
+    }
 }
