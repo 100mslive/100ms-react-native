@@ -5,6 +5,7 @@ export enum MeetingState {
   NOT_JOINED,
   IN_PREVIEW,
   IN_MEETING,
+  EXITED,
   MEETING_ENDED,
   ERROR,
 }
