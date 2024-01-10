@@ -97,6 +97,8 @@ export type { HMSPIPConfig } from './classes/HMSPIPConfig';
 export { HMSRecordingState } from './classes/HMSRecordingState';
 
 export { HMSPollBuilder } from './classes/polls/HMSPollBuilder';
+export { HMSPollQuestionBuilder } from './classes/polls/HMSPollQuestionBuilder';
+export { HMSPollQuestionType } from './classes/polls/HMSPollQuestionType';
 
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
 
