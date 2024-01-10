@@ -9,11 +9,12 @@ import Foundation
 import HMSSDK
 
 class HMSRNInteractivityCenter {
-    var center: HMSInteractivityCenter?
+    weak var hmssdk: HMSSDK?
 
-    init(center: HMSInteractivityCenter?) {
-        self.center = center
-        center?.addPollUpdateListner { [weak self] updatedPoll, update in
+    init(hmssdk: HMSSDK) {
+        self.hmssdk = hmssdk
+
+        hmssdk.interactivityCenter.addPollUpdateListner { [weak self] updatedPoll, update in
             guard let self = self else { return }
             switch update {
             case .started:
@@ -32,20 +33,14 @@ class HMSRNInteractivityCenter {
     }
 
     func quickStartPoll(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let pollBuilder = HMSInteractivityHelper.getPollBuilderFromDict(data, sdkRoles: hmssdk?.roles)
 
-//        guard 
-            let pollBuilder = HMSInteractivityHelper.getPollBuilder(data)
-//        else {
-//            reject?("6004", "", nil)
-//            return
-//        }
-
-        self.center?.quickStartPoll(with: pollBuilder) { success, error in
+        self.hmssdk?.interactivityCenter.quickStartPoll(with: pollBuilder) { success, error in
             if let nonnilError = error {
                 reject?("6004", nonnilError.localizedDescription, nil)
                 return
             }
-            resolve?(success)
+            resolve?(nil)
         }
     }
 }

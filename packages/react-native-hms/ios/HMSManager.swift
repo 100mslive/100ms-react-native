@@ -648,11 +648,11 @@ class HMSManager: RCTEventEmitter {
 
     @objc
     func quickStartPoll(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
+        guard let rnsdk = HMSHelper.getHms(data, hmsCollection), let interactivity = rnsdk.interactivity else {
             reject?("6004", "HMSRNSDK instance not found!", nil)
             return
         }
 
-        rnsdk.interactivity.quickStartPoll(data, resolve, reject)
+        interactivity.quickStartPoll(data, resolve, reject)
     }
 }
