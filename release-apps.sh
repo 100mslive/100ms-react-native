@@ -50,7 +50,7 @@ perform_git_actions() {
   git add ./example/ios/RNExample/Info.plist
   git add ./example/ios/RNExample.xcodeproj/project.pbxproj
 
-  git commit -m "released sample app version $versionCode ($buildNumber) ⚛️" --no-verify
+  git commit -m "released sample app version $versionCode ($buildNumber) ⚛️"
 
   git push --verbose
 }
