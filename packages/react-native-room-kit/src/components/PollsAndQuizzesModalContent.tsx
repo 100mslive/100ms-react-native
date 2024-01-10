@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Keyboard,
+  Platform,
 } from 'react-native';
 import { useSelector } from 'react-redux';
 
@@ -22,7 +23,11 @@ import { HMSPrimaryButton } from './HMSPrimaryButton';
 import { useHMSActions } from '../hooks-sdk';
 import { ModalTypes } from '../utils/types';
 import { TestIds } from '../utils/constants';
-import { HMSPollBuilder } from '@100mslive/react-native-hms';
+import {
+  HMSPollBuilder,
+  HMSPollQuestionBuilder,
+  HMSPollQuestionType,
+} from '@100mslive/react-native-hms';
 
 export interface PollsAndQuizzesModalContentProps {
   dismissModal(): void;
@@ -32,6 +37,9 @@ export const PollsAndQuizzesModalContent: React.FC<
   PollsAndQuizzesModalContentProps
 > = ({ dismissModal }) => {
   const hmsInstance = useHMSInstance();
+  const localPeerRole = useSelector((state: RootState) => {
+    return state.hmsStates.localPeer?.role;
+  });
   // const hmsActions = useHMSActions();
   const isPublisher = useSelector((state: RootState) => {
     const localPeer = state.hmsStates.localPeer;
@@ -69,6 +77,34 @@ export const PollsAndQuizzesModalContent: React.FC<
   const launchPoll = async () => {
     try {
       const pollBuilder = new HMSPollBuilder();
+      pollBuilder.withTitle('Feedback Form');
+      if (localPeerRole) {
+        pollBuilder.withRolesThatCanViewResponses([localPeerRole]);
+      }
+
+      const pollQuestionBuilder = new HMSPollQuestionBuilder();
+
+      pollQuestionBuilder.withTitle('Any Other Feedback?');
+      pollQuestionBuilder.withCanBeSkipped(true);
+      pollQuestionBuilder.withType(HMSPollQuestionType.shortAnswer);
+
+      pollBuilder.addQuestion(pollQuestionBuilder);
+
+      pollBuilder.addSingleChoiceQuestion('What would you rate us?', [
+        '1 Star',
+        '2 Star',
+        '3 Star',
+        '4 Star',
+        '5 Star',
+      ]);
+
+      pollBuilder.addMultiChoiceQuestion('What did you like about us?', [
+        'Fast Speed',
+        'Good DevEx',
+        'Reliable',
+        'Features',
+      ]);
+
       const r =
         await hmsInstance.interactivityCenter.quickStartPoll(pollBuilder);
       console.log('result - ', r);
@@ -118,6 +154,7 @@ export const PollsAndQuizzesModalContent: React.FC<
           title="Launch Poll"
           onPress={launchPoll}
           loading={false}
+          disabled={Platform.OS === 'android'}
         />
       </View>
     </View>
