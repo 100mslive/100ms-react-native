@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector, useStore } from 'react-redux';
 
 import type { RootState } from './redux';
 import { HMSInstanceSetup } from './HMSInstanceSetup';
@@ -8,22 +8,28 @@ import { MeetingState } from './types';
 import { clearStore } from './redux/actions';
 
 export const HMSContainer = () => {
+  const store = useStore<RootState>();
   const dispatch = useDispatch();
-  const isHMSInstanceAvailable = useSelector(
-    (state: RootState) => !!state.user.hmsInstance
-  );
-  const outOfMeeting = useSelector(
-    (state: RootState) => state.app.meetingState === MeetingState.EXITED
-  );
-  const canCleanupAfter = isHMSInstanceAvailable && outOfMeeting;
+  const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
 
   React.useEffect(() => {
-    if (canCleanupAfter) {
-      return () => {
+    if (hmsInstance) {
+      const cleanup = async () => {
+        const userExited =
+          store.getState().app.meetingState === MeetingState.EXITED;
+        if (!userExited) {
+          await hmsInstance.leave();
+          await hmsInstance.destroy();
+        }
         dispatch(clearStore());
       };
+      return () => {
+        cleanup();
+      };
     }
-  }, [canCleanupAfter]);
+  }, [hmsInstance, store]);
+
+  const isHMSInstanceAvailable = !!hmsInstance;
 
   if (isHMSInstanceAvailable) {
     return <HMSRoomSetup />;
