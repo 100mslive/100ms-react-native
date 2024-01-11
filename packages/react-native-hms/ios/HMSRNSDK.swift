@@ -12,6 +12,7 @@ import ReplayKit
 class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
     var hms: HMSSDK?
+    var interactivity: HMSRNInteractivityCenter?
 
     var delegate: HMSManager?
     var id: String = "12345"
@@ -44,6 +45,9 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 let videoSettings = HMSHelper.getLocalVideoSettings(trackSettings?.value(forKey: "video") as? NSDictionary)
                 let audioSettings = HMSHelper.getLocalAudioSettings(trackSettings?.value(forKey: "audio") as? NSDictionary, sdk, self?.delegate, id)
                 sdk.trackSettings = HMSTrackSettings(videoSettings: videoSettings, audioSettings: audioSettings)
+            }
+            if let hms = self?.hms {
+                self?.interactivity = HMSRNInteractivityCenter(hmssdk: hms)
             }
 
             NotificationCenter.default.addObserver(forName: UIApplication.willTerminateNotification,
