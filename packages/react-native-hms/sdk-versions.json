@@ -1,6 +1,6 @@
 {
-  "ios": "1.4.1",
+  "ios": "1.4.2",
   "iOSBroadcastExtension": "0.0.9",
   "iOSHMSHLSPlayer": "0.0.2",
-  "android": "2.8.6"
+  "android": "2.8.7"
 }

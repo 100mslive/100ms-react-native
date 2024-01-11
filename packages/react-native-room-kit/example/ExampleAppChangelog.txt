@@ -1,24 +1,15 @@
 Board: https://100ms.atlassian.net/jira/software/projects/RN/boards/33
 
-- Real-Time Chat Controls
-https://100ms.atlassian.net/browse/RN-136
+- Fixed in Prebuilt: New sdk instance is created and destroyed when exiting room
+https://100ms.atlassian.net/browse/RN-196
 
-- Multi Pin Chat
-https://100ms.atlassian.net/browse/RN-140
+- Fixed in Prebuilt: viewer-realtime dropdown is still shown for vrt peer after moving to on-stage
+https://100ms.atlassian.net/browse/RN-173
 
-- Send to picker based on layout API
-https://100ms.atlassian.net/browse/RN-141
+- iOS Only: Leave Room immediately if app is killed
+https://100ms.atlassian.net/browse/RN-181
 
-- One click role change on Prebuilt
-https://100ms.atlassian.net/browse/RN-150
-
-- Block peer from chat
-https://100ms.atlassian.net/browse/RN-142
-
-- Add Remove peer option in message context menu
-https://100ms.atlassian.net/browse/RN-188
-
-Room Kit: 1.0.8
-React Native SDK: 1.9.7
-Android SDK: 2.8.6
-iOS SDK: 1.4.1
+Room Kit: 1.0.9
+React Native SDK: 1.9.8
+Android SDK: 2.8.7
+iOS SDK: 1.4.2

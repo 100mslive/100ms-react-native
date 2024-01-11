@@ -39,8 +39,8 @@ class HMSHelper: NSObject {
         }
 
         iterator = hms.getPeerListIterator(options: HMSPeerListIteratorOptions(filterByPeerIds: [peerID], limit: 1))
-        iterator?.next { peers, error in
-            
+        iterator?.next { peers, _ in
+
             guard let nonnilPeers = peers, let firstPeer = nonnilPeers.first else {
                 completion(nil)
                 return
