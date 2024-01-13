@@ -1318,9 +1318,11 @@ class HMSManager(reactContext: ReactApplicationContext) :
     promise: Promise?,
   ) {
     val rnSDK = HMSHelper.getHms(data, hmsCollection)
-    rnSDK?.let {
-      it.interactivityCenter.quickStartPoll(data, promise)
-      return
+    rnSDK?.let { sdk ->
+      sdk.interactivityCenter?.let { center ->
+        center.quickStartPoll(data, promise)
+        return
+      }
     }
     promise?.reject(
       "6004",
@@ -1366,7 +1368,6 @@ class HMSManager(reactContext: ReactApplicationContext) :
         }
       }
     } catch (e: Exception) {
-      //      Log.d("error", e.message)
     }
   }
 

@@ -55,7 +55,7 @@ class HMSRNSDK(
   private val peerListIterators = mutableMapOf<String, PeerListIterator>()
   private var roomMutedLocally = false
 
-  val interactivityCenter: HMSRNInteractivityCenter
+  var interactivityCenter: HMSRNInteractivityCenter? = null
 
   init {
     val builder = HMSSDK.Builder(reactApplicationContext)
@@ -88,7 +88,9 @@ class HMSRNSDK(
 
     this.hmsSDK = builder.build()
 
-    interactivityCenter = HMSRNInteractivityCenter(hmsSDK?.getHmsInteractivityCenter()!!)
+    hmsSDK?.let {
+      interactivityCenter = HMSRNInteractivityCenter(it)
+    }
   }
 
   private fun emitCustomError(message: String) {

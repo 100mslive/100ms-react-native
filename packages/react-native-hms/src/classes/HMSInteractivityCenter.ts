@@ -10,7 +10,7 @@ export class HMSInteractivityCenter {
       ...pollBuilder,
       id: HMSConstants.DEFAULT_SDK_ID,
     };
-    logger?.verbose('#Function quickStartPoll', data);
+    logger?.verbose('#Function quickStartPoll', JSON.stringify(data));
     return HMSManager.quickStartPoll(data);
   }
 }

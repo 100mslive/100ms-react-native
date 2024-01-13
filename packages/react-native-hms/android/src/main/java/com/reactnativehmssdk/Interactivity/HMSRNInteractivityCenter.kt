@@ -1,17 +1,18 @@
 package com.reactnativehmssdk
+import android.util.Log
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReadableMap
 import live.hms.video.error.HMSException
-import live.hms.video.interactivity.HmsInteractivityCenter
 import live.hms.video.interactivity.HmsPollUpdateListener
 import live.hms.video.polls.models.HMSPollUpdateType
 import live.hms.video.polls.models.HmsPoll
 import live.hms.video.sdk.HMSActionResultListener
+import live.hms.video.sdk.HMSSDK
 
-class HMSRNInteractivityCenter(val center: HmsInteractivityCenter) {
+class HMSRNInteractivityCenter(private val sdk: HMSSDK) {
   init {
     // Listen for poll updates
-    this.center.pollUpdateListener =
+    this.sdk.getHmsInteractivityCenter().pollUpdateListener =
       object : HmsPollUpdateListener {
         override fun onPollUpdate(
           hmsPoll: HmsPoll,
@@ -32,8 +33,8 @@ class HMSRNInteractivityCenter(val center: HmsInteractivityCenter) {
     data: ReadableMap,
     promise: Promise?,
   ) {
-    center.quickStartPoll(
-      HMSInteractivityHelper.getPollBuilder(data),
+    this.sdk.getHmsInteractivityCenter().quickStartPoll(
+      HMSInteractivityHelper.getPollBuilder(data, sdk.getRoles()),
       object : HMSActionResultListener {
         override fun onError(error: HMSException) {
           // Error
@@ -48,20 +49,23 @@ class HMSRNInteractivityCenter(val center: HmsInteractivityCenter) {
     )
   }
 
-  // region
+  // endregion
 
   // region Poll Update Listener
 
   fun showPollStartedToast() {
     // Show toast
+    Log.e("Interactivity", "showPollStartedToast")
   }
 
   fun loadResultsSummaryIfNeeded() {
     // Load results summary
+    Log.e("Interactivity", "loadResultsSummaryIfNeeded")
   }
 
   fun updateResultsScreen() {
     // Update results screen
+    Log.e("Interactivity", "updateResultsScreen")
   }
   // endregion
 }

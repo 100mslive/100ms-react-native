@@ -154,7 +154,7 @@ export const PollsAndQuizzesModalContent: React.FC<
           title="Launch Poll"
           onPress={launchPoll}
           loading={false}
-          disabled={Platform.OS === 'android'}
+          disabled={false}
         />
       </View>
     </View>
