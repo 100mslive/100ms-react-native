@@ -59,13 +59,10 @@ object HMSInteractivityHelper {
 
     if (data.hasKey("questions")) {
       val questions = data.getArray("questions")?.toArrayList() as? ArrayList<HashMap<String, Any>>
-      Log.e("HMSInteractivityHelper", questions.toString())
 
       if (questions != null) {
         for (item in questions) {
-          Log.e("HMSInteractivityHelper", item.toString())
-
-          val questionType = item["rnType"] as? String
+          val questionType = item["rntype"] as? String
           if (questionType != null) {
             when (questionType) {
               "singleChoice" -> {
