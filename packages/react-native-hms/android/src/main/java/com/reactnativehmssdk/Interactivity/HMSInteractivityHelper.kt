@@ -43,193 +43,27 @@ object HMSInteractivityHelper {
     }
 
     if (data.hasKey("rolesThatCanViewResponses")) {
-      val rolesThatCanViewResponsesString =
-        data.getArray("rolesThatCanViewResponses")?.toArrayList() as? ArrayList<String>
-      val encodedTargetedRoles =
-        HMSHelper.getRolesFromRoleNames(rolesThatCanViewResponsesString, roles)
-      pollBuilder.withRolesThatCanViewResponses(encodedTargetedRoles)
+      pollBuilder.withRolesThatCanViewResponses(getRolesThatCanViewResponses(data, roles))
     }
 
     if (data.hasKey("rolesThatCanVote")) {
-      val rolesThatCanVoteString =
-        data.getArray("rolesThatCanVote")?.toArrayList() as? ArrayList<String>
-      val encodedRolesThatCanVote = HMSHelper.getRolesFromRoleNames(rolesThatCanVoteString, roles)
-      pollBuilder.withRolesThatCanVote(encodedRolesThatCanVote)
+      pollBuilder.withRolesThatCanVote(getRolesThatCanVote(data, roles))
     }
 
     if (data.hasKey("questions")) {
       val questions = data.getArray("questions")?.toArrayList() as? ArrayList<HashMap<String, Any>>
 
       if (questions != null) {
-        for (item in questions) {
-          val questionType = item["rntype"] as? String
-          if (questionType != null) {
-            when (questionType) {
-              "singleChoice" -> {
-                if (item["title"] != null && item["options"] != null) {
-                  val title = item["title"] as? String
-                  val options = item["options"] as? ArrayList<String>
-
-                  if (title != null && options != null) {
-                    val questionBuilder =
-                      HMSPollQuestionBuilder.Builder(HMSPollQuestionType.singleChoice)
-                        .withTitle(title)
-
-                    for (i in 0 until options.size) {
-                      questionBuilder.addOption(options[i])
-                    }
-                    pollBuilder.addQuestion(questionBuilder.build())
-                  }
-                }
-              }
-
-              "multipleChoice" -> {
-                if (item["title"] != null && item["options"] != null) {
-                  val title = item["title"] as? String
-                  val options = item["options"] as? ArrayList<String>
-
-                  if (title != null && options != null) {
-                    val questionBuilder =
-                      HMSPollQuestionBuilder.Builder(HMSPollQuestionType.multiChoice)
-                        .withTitle(title)
-
-                    for (i in 0 until options.size) {
-                      questionBuilder.addOption(options[i])
-                    }
-                    pollBuilder.addQuestion(questionBuilder.build())
-                  }
-                }
-              }
-
-              "shortAnswer" -> {
-                if (item["title"] != null) {
-                  val title = item["title"] as? String
-
-                  if (title != null) {
-                    val questionBuilder =
-                      HMSPollQuestionBuilder.Builder(HMSPollQuestionType.shortAnswer)
-                        .withTitle(title)
-                    pollBuilder.addQuestion(questionBuilder.build())
-                  }
-                }
-              }
-
-              "longAnswer" -> {
-                if (item["title"] != null) {
-                  val title = item["title"] as? String
-
-                  if (title != null) {
-                    val questionBuilder =
-                      HMSPollQuestionBuilder.Builder(HMSPollQuestionType.longAnswer)
-                        .withTitle(title)
-                    pollBuilder.addQuestion(questionBuilder.build())
-                  }
-                }
-              }
-
-              "HMSPollQuestionBuilder" -> {
-                if (item["type"] != null) {
-                  val type = item["type"] as? Int
-
-                  if (type != null) {
-                    val questionBuilder = HMSPollQuestionBuilder.Builder(getQuestionType(type))
-
-                    if (item["answerHidden"] != null) {
-                      val answerHidden = item["answerHidden"] as? Boolean
-                      if (answerHidden != null) {
-                        questionBuilder.withAnswerHidden(answerHidden)
-                      }
-                    }
-
-                    if (item["canBeSkipped"] != null) {
-                      val canBeSkipped = item["canBeSkipped"] as? Boolean
-                      if (canBeSkipped != null) {
-                        questionBuilder.withCanBeSkipped(canBeSkipped)
-                      }
-                    }
-
-                    if (item["canChangeResponse"] != null) {
-                      val canChangeResponse = item["canChangeResponse"] as? Boolean
-                      if (canChangeResponse != null) {
-                        questionBuilder.withCanChangeResponse(canChangeResponse)
-                      }
-                    }
-
-                    if (item["duration"] != null) {
-                      val duration = item["duration"] as? Int
-                      if (duration != null) {
-                        questionBuilder.withDuration(duration.toLong())
-                      }
-                    }
-
-                    if (item["maxLength"] != null) {
-                      val maxLength = item["maxLength"] as? Int
-                      if (maxLength != null) {
-                        questionBuilder.withMaxLength(maxLength.toLong())
-                      }
-                    }
-
-                    if (item["minLength"] != null) {
-                      val minLength = item["minLength"] as? Int
-                      if (minLength != null) {
-                        questionBuilder.withMinLength(minLength.toLong())
-                      }
-                    }
-
-                    if (item["title"] != null) {
-                      val title = item["title"] as? String
-                      if (title != null) {
-                        questionBuilder.withTitle(title)
-                      }
-                    }
-
-                    if (item["weight"] != null) {
-                      val weight = item["weight"] as? Int
-                      if (weight != null) {
-                        questionBuilder.withWeight(weight)
-                      }
-                    }
-
-                    if (item["options"] != null) {
-                      val options = item["options"] as? ArrayList<HashMap<String, Any>>
-                      if (options != null) {
-                        for (i in 0 until options.size) {
-                          val option = options[i]
-
-                          if (option["isCorrect"] != null) {
-                            val isCorrect = option["isCorrect"] as? Boolean
-                            if (isCorrect != null) {
-                              questionBuilder.addQuizOption(
-                                option["title"] as? String ?: "",
-                                isCorrect,
-                              )
-                            }
-                          } else {
-                            questionBuilder.addOption(option["title"] as? String ?: "")
-                          }
-                        }
-                      }
-                    }
-
-                    questionBuilder.build().let {
-                      pollBuilder.addQuestion(it)
-                    }
-                  }
-                }
-              }
-
-              else -> {
-                Log.e("HMSInteractivityHelper", "Unknown question type")
-              }
-            }
-          }
-        }
+        addQuestions(questions, pollBuilder)
       }
     }
 
     return pollBuilder.build()
   }
 
+  // endregion
+
+  // region Poll Builder Helpers
   private fun getQuestionType(type: Int): HMSPollQuestionType {
     return when (type) {
       1 -> HMSPollQuestionType.singleChoice
@@ -240,9 +74,6 @@ object HMSInteractivityHelper {
     }
   }
 
-  // endregion
-
-  // region Poll Builder Helpers
   private fun getUserTrackingMode(data: ReadableMap): HmsPollUserTrackingMode {
     return when (data.getInt("userTrackingMode")) {
       0 -> HmsPollUserTrackingMode.USER_ID
@@ -259,5 +90,218 @@ object HMSInteractivityHelper {
       else -> HmsPollCategory.POLL
     }
   }
+
+  private fun getRolesThatCanViewResponses(
+    data: ReadableMap,
+    roles: List<HMSRole>,
+  ): List<HMSRole> {
+    val rolesThatCanViewResponsesString =
+      data.getArray("rolesThatCanViewResponses")?.toArrayList() as? ArrayList<String>
+    val encodedTargetedRoles =
+      return HMSHelper.getRolesFromRoleNames(rolesThatCanViewResponsesString, roles)
+  }
+
+  private fun getRolesThatCanVote(
+    data: ReadableMap,
+    roles: List<HMSRole>,
+  ): List<HMSRole> {
+    val rolesThatCanVoteString =
+      data.getArray("rolesThatCanVote")?.toArrayList() as? ArrayList<String>
+    return HMSHelper.getRolesFromRoleNames(rolesThatCanVoteString, roles)
+  }
+
+  private fun addQuestions(
+    questions: ArrayList<HashMap<String, Any>>,
+    pollBuilder: HMSPollBuilder.Builder,
+  ) {
+    for (item in questions) {
+      val questionType = item["rntype"] as? String
+      if (questionType != null) {
+        when (questionType) {
+          "singleChoice" -> {
+            addSingleChoiceQuestion(item, pollBuilder)
+          }
+
+          "multipleChoice" -> {
+            addMultipleChoiceQuestion(item, pollBuilder)
+          }
+
+          "shortAnswer" -> {
+            addShortAnswerQuestion(item, pollBuilder)
+          }
+
+          "longAnswer" -> {
+            addLongAnswerQuestion(item, pollBuilder)
+          }
+
+          "HMSPollQuestionBuilder" -> {
+            if (item["type"] != null) {
+              val type = item["type"] as? Int
+              type?.let {
+                addPollBuilderQuestion(getQuestionType(type), item, pollBuilder)
+              }
+            }
+          }
+
+          else -> {
+            Log.e("HMSInteractivityHelper", "Unknown question type")
+          }
+        }
+      }
+    }
+  }
+
+  private fun addSingleChoiceQuestion(
+    item: HashMap<String, Any>,
+    pollBuilder: HMSPollBuilder.Builder,
+  ) {
+    if (item["title"] != null && item["options"] != null) {
+      val title = item["title"] as? String
+      val options = item["options"] as? ArrayList<String>
+
+      if (title != null && options != null) {
+        val questionBuilder =
+          HMSPollQuestionBuilder.Builder(HMSPollQuestionType.singleChoice)
+            .withTitle(title)
+
+        for (i in 0 until options.size) {
+          questionBuilder.addOption(options[i])
+        }
+        pollBuilder.addQuestion(questionBuilder.build())
+      }
+    }
+  }
+
+  private fun addMultipleChoiceQuestion(
+    item: HashMap<String, Any>,
+    pollBuilder: HMSPollBuilder.Builder,
+  ) {
+    if (item["title"] != null && item["options"] != null) {
+      val title = item["title"] as? String
+      val options = item["options"] as? ArrayList<String>
+
+      if (title != null && options != null) {
+        val questionBuilder =
+          HMSPollQuestionBuilder.Builder(HMSPollQuestionType.multiChoice)
+            .withTitle(title)
+
+        for (i in 0 until options.size) {
+          questionBuilder.addOption(options[i])
+        }
+        pollBuilder.addQuestion(questionBuilder.build())
+      }
+    }
+  }
+
+  private fun addShortAnswerQuestion(
+    item: HashMap<String, Any>,
+    pollBuilder: HMSPollBuilder.Builder,
+  ) {
+    if (item["title"] != null) {
+      val title = item["title"] as? String
+
+      if (title != null) {
+        val questionBuilder =
+          HMSPollQuestionBuilder.Builder(HMSPollQuestionType.shortAnswer)
+            .withTitle(title)
+        pollBuilder.addQuestion(questionBuilder.build())
+      }
+    }
+  }
+
+  private fun addLongAnswerQuestion(
+    item: HashMap<String, Any>,
+    pollBuilder: HMSPollBuilder.Builder,
+  ) {
+    if (item["title"] != null) {
+      val title = item["title"] as? String
+
+      if (title != null) {
+        val questionBuilder =
+          HMSPollQuestionBuilder.Builder(HMSPollQuestionType.longAnswer)
+            .withTitle(title)
+        pollBuilder.addQuestion(questionBuilder.build())
+      }
+    }
+  }
+
+  private fun addPollBuilderQuestion(
+    type: HMSPollQuestionType,
+    item: HashMap<String, Any>,
+    pollBuilder: HMSPollBuilder.Builder,
+  ) {
+    val questionBuilder = HMSPollQuestionBuilder.Builder(type)
+
+    val answerHidden = item["answerHidden"] as? Boolean
+    if (answerHidden != null) {
+      questionBuilder.withAnswerHidden(answerHidden)
+    }
+
+    val canBeSkipped = item["canBeSkipped"] as? Boolean
+    if (canBeSkipped != null) {
+      questionBuilder.withCanBeSkipped(canBeSkipped)
+    }
+
+    val canChangeResponse = item["canChangeResponse"] as? Boolean
+    if (canChangeResponse != null) {
+      questionBuilder.withCanChangeResponse(canChangeResponse)
+    }
+
+    val duration = item["duration"] as? Int
+    if (duration != null) {
+      questionBuilder.withDuration(duration.toLong())
+    }
+
+    val maxLength = item["maxLength"] as? Int
+    if (maxLength != null) {
+      questionBuilder.withMaxLength(maxLength.toLong())
+    }
+
+    val minLength = item["minLength"] as? Int
+    if (minLength != null) {
+      questionBuilder.withMinLength(minLength.toLong())
+    }
+
+    val title = item["title"] as? String
+    if (title != null) {
+      questionBuilder.withTitle(title)
+    }
+
+    val weight = item["weight"] as? Int
+    if (weight != null) {
+      questionBuilder.withWeight(weight)
+    }
+
+    val options = item["options"] as? ArrayList<HashMap<String, Any>>
+    options?.let {
+      addOptions(it, questionBuilder)
+    }
+
+    questionBuilder.build().let {
+      pollBuilder.addQuestion(it)
+    }
+  }
+
+  private fun addOptions(
+    options: ArrayList<HashMap<String, Any>>,
+    questionBuilder: HMSPollQuestionBuilder.Builder,
+  ) {
+    for (i in 0 until options.size) {
+      val option = options[i]
+
+      if (option["isCorrect"] != null) {
+        val isCorrect = option["isCorrect"] as? Boolean
+        if (isCorrect != null) {
+          questionBuilder.addQuizOption(
+            option["title"] as? String ?: "",
+            isCorrect,
+          )
+        }
+      } else {
+        questionBuilder.addOption(option["title"] as? String ?: "")
+      }
+    }
+  }
+
   // endregion
 }
