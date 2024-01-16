@@ -5,50 +5,35 @@ import {
   StyleSheet,
   TouchableOpacity,
   Keyboard,
-  Platform,
 } from 'react-native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import type { RootState } from '../redux';
-import {
-  isPublishingAllowed,
-  useHMSInstance,
-  useHMSRoomStyleSheet,
-  useModalType,
-} from '../hooks-util';
-import { BottomSheet, useBottomSheetActions } from './BottomSheet';
+import { useHMSRoomStyleSheet } from '../hooks-util';
+import { BottomSheet } from './BottomSheet';
 import { ChevronIcon, CloseIcon } from '../Icons';
-import { HMSTextInput } from './HMSTextInput';
-import { HMSPrimaryButton } from './HMSPrimaryButton';
-import { useHMSActions } from '../hooks-sdk';
-import { ModalTypes } from '../utils/types';
 import { TestIds } from '../utils/constants';
-import {
-  HMSPollBuilder,
-  HMSPollQuestionBuilder,
-  HMSPollQuestionType,
-} from '@100mslive/react-native-hms';
+import { CreatePoll } from './CreatePoll';
+import { PollQuestions } from './PollQuestions';
+import { CreatePollStages } from '../redux/actionTypes';
+import { setPollStage } from '../redux/actions';
+import { PollQDeleteConfirmationSheetView } from './PollQDeleteConfirmationSheetView';
 
 export interface PollsAndQuizzesModalContentProps {
+  fullHeight: boolean;
   dismissModal(): void;
 }
 
 export const PollsAndQuizzesModalContent: React.FC<
   PollsAndQuizzesModalContentProps
-> = ({ dismissModal }) => {
-  const hmsInstance = useHMSInstance();
-  const localPeerRole = useSelector((state: RootState) => {
-    return state.hmsStates.localPeer?.role;
-  });
-  // const hmsActions = useHMSActions();
-  const isPublisher = useSelector((state: RootState) => {
-    const localPeer = state.hmsStates.localPeer;
-    return localPeer ? isPublishingAllowed(localPeer) : false;
-  });
-
-  const { handleModalVisibleType } = useModalType();
-
-  const { registerOnModalHideAction } = useBottomSheetActions();
+> = ({ fullHeight, dismissModal }) => {
+  const dispatch = useDispatch();
+  const headerTitle = useSelector((state: RootState) =>
+    state.polls.stage === CreatePollStages.POLL_QUESTION_CONFIG
+      ? state.polls.pollName
+      : null
+  );
+  const pollsStage = useSelector((state: RootState) => state.polls.stage);
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     headerText: {
@@ -59,14 +44,7 @@ export const PollsAndQuizzesModalContent: React.FC<
 
   const handleBackPress = () => {
     Keyboard.dismiss();
-
-    // Open SETTINGS bottom sheet when current sheet is closed
-    registerOnModalHideAction(() => {
-      handleModalVisibleType(ModalTypes.SETTINGS);
-    });
-
-    // Close current bottom sheet
-    dismissModal();
+    dispatch(setPollStage(CreatePollStages.POLL_CONFIG));
   };
 
   const handleClosePress = () => {
@@ -74,51 +52,12 @@ export const PollsAndQuizzesModalContent: React.FC<
     dismissModal();
   };
 
-  const launchPoll = async () => {
-    try {
-      const pollBuilder = new HMSPollBuilder();
-      pollBuilder.withTitle('Feedback Form');
-      if (localPeerRole) {
-        pollBuilder.withRolesThatCanViewResponses([localPeerRole]);
-      }
-
-      const pollQuestionBuilder = new HMSPollQuestionBuilder();
-
-      pollQuestionBuilder.withTitle('Any Other Feedback?');
-      pollQuestionBuilder.withCanBeSkipped(true);
-      pollQuestionBuilder.withType(HMSPollQuestionType.shortAnswer);
-
-      pollBuilder.addQuestion(pollQuestionBuilder);
-
-      pollBuilder.addSingleChoiceQuestion('What would you rate us?', [
-        '1 Star',
-        '2 Star',
-        '3 Star',
-        '4 Star',
-        '5 Star',
-      ]);
-
-      pollBuilder.addMultiChoiceQuestion('What did you like about us?', [
-        'Fast Speed',
-        'Good DevEx',
-        'Reliable',
-        'Features',
-      ]);
-
-      const r =
-        await hmsInstance.interactivityCenter.quickStartPoll(pollBuilder);
-      console.log('result - ', r);
-    } catch (error) {
-      console.log('error - ', error);
-    }
-  };
-
   return (
-    <View>
+    <View style={fullHeight ? styles.fullView : null}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerControls}>
-          {/* {isPublisher ? null : (
+          {headerTitle ? (
             <TouchableOpacity
               onPress={handleBackPress}
               hitSlop={styles.closeIconHitSlop}
@@ -126,13 +65,13 @@ export const PollsAndQuizzesModalContent: React.FC<
             >
               <ChevronIcon direction="left" />
             </TouchableOpacity>
-          )} */}
+          ) : null}
 
           <Text
             testID={TestIds.change_name_modal_heading}
             style={[styles.headerText, hmsRoomStyles.headerText]}
           >
-            Polls and Quizzes
+            {headerTitle ?? ('Polls' || 'Polls and Quizzes')}
           </Text>
         </View>
 
@@ -146,27 +85,36 @@ export const PollsAndQuizzesModalContent: React.FC<
       </View>
 
       {/* Divider */}
-      <BottomSheet.Divider />
+      <BottomSheet.Divider
+        style={fullHeight ? styles.halfDivider : styles.divider}
+      />
 
       {/* Content */}
-      <View style={styles.contentContainer}>
-        <HMSPrimaryButton
-          title="Launch Poll"
-          onPress={launchPoll}
-          loading={false}
-          disabled={false}
-        />
+      <View style={fullHeight ? styles.fullView : null}>
+        {pollsStage === CreatePollStages.POLL_CONFIG ? (
+          <CreatePoll />
+        ) : pollsStage === CreatePollStages.POLL_QUESTION_CONFIG ? (
+          <PollQuestions />
+        ) : null}
       </View>
+
+      {/* Modal */}
+      <PollQDeleteConfirmationSheetView />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  // Utilities
+  fullView: {
+    flex: 1,
+  },
+  // Header
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 16,
+    marginTop: 24,
     marginHorizontal: 24,
   },
   headerControls: {
@@ -174,7 +122,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerText: {
-    fontSize: 16,
+    fontSize: 20,
     lineHeight: 24,
     letterSpacing: 0.15,
   },
@@ -187,11 +135,16 @@ const styles = StyleSheet.create({
   backIcon: {
     marginRight: 8,
   },
-  contentContainer: {
+  // Divider
+  halfDivider: {
     marginHorizontal: 24,
+    marginVertical: 0,
+    marginTop: 24,
+    width: undefined,
   },
-  textInput: {
-    flex: undefined,
-    marginBottom: 16,
+  divider: {
+    marginHorizontal: 24,
+    marginVertical: 24,
+    width: undefined,
   },
 });

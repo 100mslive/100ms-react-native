@@ -1,6 +1,6 @@
 import React from 'react';
 import { Switch, View, Text, StyleSheet } from 'react-native';
-import type { StyleProp, ViewStyle } from 'react-native';
+import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 
 import { COLORS } from '../utils/theme';
 
@@ -9,6 +9,7 @@ interface SwitchRow {
   onChange(value: boolean): void;
   text: string;
   containerStyle?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
   LeftIcon?: React.ReactNode;
 }
 
@@ -16,6 +17,7 @@ export const SwitchRow: React.FC<SwitchRow> = ({
   text,
   LeftIcon,
   containerStyle,
+  textStyle,
   value,
   onChange,
 }) => {
@@ -24,7 +26,7 @@ export const SwitchRow: React.FC<SwitchRow> = ({
       <View style={styles.container}>
         {LeftIcon}
 
-        <Text style={styles.text}>{text}</Text>
+        <Text style={[styles.text, textStyle]}>{text}</Text>
       </View>
 
       <Switch
