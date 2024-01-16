@@ -66,10 +66,10 @@ object HMSInteractivityHelper {
   // region Poll Builder Helpers
   private fun getQuestionType(type: Int): HMSPollQuestionType {
     return when (type) {
-      1 -> HMSPollQuestionType.singleChoice
-      2 -> HMSPollQuestionType.multiChoice
-      3 -> HMSPollQuestionType.shortAnswer
-      4 -> HMSPollQuestionType.longAnswer
+      0 -> HMSPollQuestionType.singleChoice
+      1 -> HMSPollQuestionType.multiChoice
+      2 -> HMSPollQuestionType.shortAnswer
+      3 -> HMSPollQuestionType.longAnswer
       else -> HMSPollQuestionType.singleChoice
     }
   }
@@ -136,9 +136,9 @@ object HMSInteractivityHelper {
 
           "HMSPollQuestionBuilder" -> {
             if (item["type"] != null) {
-              val type = item["type"] as? Int
+              val type = item["type"] as? Double
               type?.let {
-                addPollBuilderQuestion(getQuestionType(type), item, pollBuilder)
+                addPollBuilderQuestion(getQuestionType(type.toInt()), item, pollBuilder)
               }
             }
           }
