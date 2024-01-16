@@ -22,7 +22,27 @@ import type {
   PeerTrackNode,
   PipModes,
 } from '../../utils/types';
-import actionTypes, { HmsStateActionTypes } from '../actionTypes';
+import actionTypes, {
+  HmsStateActionTypes,
+  PollsStateActionTypes,
+} from '../actionTypes';
+import type {
+  AddPollQuestionAction,
+  SetPollConfigAction,
+  SetPollNameAction,
+  SetPollStageAction,
+  DeletePollQuestionAction,
+  SetDeleteConfirmationVisible,
+  SetSelectedQuestionIndexAction,
+  SetQuestionTypeAction,
+  SetQuestionTitleAction,
+  AddQuestionOptionAction,
+  DeleteQuestionOptionAction,
+  EditQuestionOptionAction,
+  SetQuestionSkippable,
+  SetQuestionResponseEditable,
+  SetQuestionSavedAction,
+} from '../actionTypes';
 import { MeetingState } from '../../types';
 import type { ChatState, Notification, PinnedMessage } from '../../types';
 
@@ -432,4 +452,123 @@ export const setChatPeerBlacklist = (chatPeerBlacklist: string[]) => ({
 export const filterOutMsgsFromBlockedPeers = (chatPeerBlacklist: string[]) => ({
   type: actionTypes.FILTER_OUT_BLOCKED_MSGS,
   payload: chatPeerBlacklist,
+});
+
+/**
+ * POLLS
+ */
+
+export const setPollQDeleteConfirmationVisible = (
+  deleteConfirmationVisible: SetDeleteConfirmationVisible['deleteConfirmationVisible']
+): SetDeleteConfirmationVisible => ({
+  type: PollsStateActionTypes.SET_DELETE_CONFIRMATION_VISIBLE,
+  deleteConfirmationVisible,
+});
+
+export const setPollName = (
+  pollName: SetPollNameAction['pollName']
+): SetPollNameAction => ({
+  type: PollsStateActionTypes.SET_POLL_NAME,
+  pollName,
+});
+
+export const setPollConfig = (
+  pollConfig: SetPollConfigAction['pollConfig']
+): SetPollConfigAction => ({
+  type: PollsStateActionTypes.SET_POLL_CONFIG,
+  pollConfig,
+});
+
+export const setPollStage = (
+  pollStage: SetPollStageAction['pollStage']
+): SetPollStageAction => ({
+  type: PollsStateActionTypes.SET_POLL_STAGE,
+  pollStage,
+});
+
+export const addPollQuestion = (): AddPollQuestionAction => ({
+  type: PollsStateActionTypes.ADD_POLL_QUESTION,
+});
+
+export const deletePollQuestion = (): DeletePollQuestionAction => ({
+  type: PollsStateActionTypes.DELETE_POLL_QUESTION,
+});
+
+export const setSelectedPollQuestionIndex = (
+  index: SetSelectedQuestionIndexAction['index']
+): SetSelectedQuestionIndexAction => ({
+  type: PollsStateActionTypes.SET_SELECTED_QUESTION_INDEX,
+  index,
+});
+
+export const setPollQuestionType = (
+  questionIndex: SetQuestionTypeAction['questionIndex'],
+  questionType: SetQuestionTypeAction['questionType']
+): SetQuestionTypeAction => ({
+  type: PollsStateActionTypes.SET_QUESTION_TYPE,
+  questionIndex,
+  questionType,
+});
+
+export const setPollQuestionTitle = (
+  questionIndex: SetQuestionTitleAction['questionIndex'],
+  title: SetQuestionTitleAction['title']
+): SetQuestionTitleAction => ({
+  type: PollsStateActionTypes.SET_QUESTION_TITLE,
+  questionIndex,
+  title,
+});
+
+export const addPollQuestionOption = (
+  questionIndex: AddQuestionOptionAction['questionIndex']
+): AddQuestionOptionAction => ({
+  type: PollsStateActionTypes.ADD_QUESTION_OPTION,
+  questionIndex,
+});
+
+export const deletePollQuestionOption = (
+  questionIndex: DeleteQuestionOptionAction['questionIndex'],
+  index: DeleteQuestionOptionAction['index']
+): DeleteQuestionOptionAction => ({
+  type: PollsStateActionTypes.DELETE_QUESTION_OPTION,
+  index,
+  questionIndex,
+});
+
+export const editPollQuestionOption = (
+  questionIndex: EditQuestionOptionAction['questionIndex'],
+  optionIndex: EditQuestionOptionAction['optionIndex'],
+  option: EditQuestionOptionAction['option']
+): EditQuestionOptionAction => ({
+  type: PollsStateActionTypes.EDIT_QUESTION_OPTION,
+  questionIndex,
+  optionIndex,
+  option,
+});
+
+export const setPollQuestionSkippable = (
+  questionIndex: SetQuestionSkippable['questionIndex'],
+  skippable: boolean
+): SetQuestionSkippable => ({
+  type: PollsStateActionTypes.SET_QUESTION_SKIPPABLE,
+  questionIndex,
+  skippable,
+});
+
+export const setPollQuestionResponseEditable = (
+  questionIndex: SetQuestionResponseEditable['questionIndex'],
+  responseEditable: boolean
+): SetQuestionResponseEditable => ({
+  type: PollsStateActionTypes.SET_QUESTION_RES_EDITABLE,
+  questionIndex,
+  responseEditable,
+});
+
+export const setPollQuestionSaved = (
+  questionIndex: SetQuestionResponseEditable['questionIndex'],
+  saved: boolean
+): SetQuestionSavedAction => ({
+  type: PollsStateActionTypes.SET_QUESTION_SAVED,
+  questionIndex,
+  saved,
 });
