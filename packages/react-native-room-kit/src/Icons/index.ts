@@ -41,3 +41,7 @@ export * from './WelcomeHand';
 export * from './CrossCircle';
 export * from './PauseCircle';
 export * from './NoEntry';
+export * from './Poll';
+export * from './Quiz';
+export * from './TrashBin';
+export * from './Add';
