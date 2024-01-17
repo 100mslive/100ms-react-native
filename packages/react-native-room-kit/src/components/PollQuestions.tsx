@@ -17,8 +17,10 @@ import type { RootState } from '../redux';
 import {
   addPollQuestion,
   addPollQuestionOption,
+  clearPollsState,
   deletePollQuestionOption,
   editPollQuestionOption,
+  setLaunchingPoll,
   setPollQDeleteConfirmationVisible,
   setPollQuestionResponseEditable,
   setPollQuestionSaved,
@@ -29,14 +31,21 @@ import {
 } from '../redux/actions';
 import type { PollQuestionUI } from 'src/redux/actionTypes';
 
-export interface CreatePollProps {}
+export interface PollQuestionsProps {
+  dismissModal(): void;
+}
 
-export const PollQuestions: React.FC<CreatePollProps> = ({}) => {
+export const PollQuestions: React.FC<PollQuestionsProps> = ({
+  dismissModal,
+}) => {
   const dispatch = useDispatch();
   const hmsInstance = useHMSInstance();
   const reduxStore = useStore<RootState>();
   const localPeerRole = useSelector(
     (state: RootState) => state.hmsStates.localPeer?.role
+  );
+  const launchingPoll = useSelector(
+    (state: RootState) => state.polls.launchingPoll
   );
   const questions = useSelector((state: RootState) => state.polls.questions);
 
@@ -103,6 +112,7 @@ export const PollQuestions: React.FC<CreatePollProps> = ({}) => {
       //   pollBuilder.addQuestion(pollQuestionBuilder);
       // });
 
+      dispatch(setLaunchingPoll(true));
       const result = await hmsInstance.interactivityCenter.startPoll({
         title: 'Custom Poll',
         type: HMSPollType.poll,
@@ -120,7 +130,10 @@ export const PollQuestions: React.FC<CreatePollProps> = ({}) => {
         ],
       });
       console.log('quickStartPoll result > ', result);
+      dismissModal();
+      dispatch(clearPollsState());
     } catch (error) {
+      dispatch(setLaunchingPoll(false));
       console.log('quickStartPoll error > ', error);
     }
   };
@@ -216,7 +229,11 @@ export const PollQuestions: React.FC<CreatePollProps> = ({}) => {
       <View style={[styles.addOptionWrapper, { marginTop: 16 }]}>
         <TouchableOpacity
           onPress={addQuestion}
-          style={styles.addOptionContainer}
+          disabled={launchingPoll}
+          style={[
+            styles.addOptionContainer,
+            launchingPoll ? { opacity: 0.4 } : null,
+          ]}
         >
           <View style={styles.addOptionIconWrapper}>
             <AddIcon type="circle" />
@@ -228,9 +245,9 @@ export const PollQuestions: React.FC<CreatePollProps> = ({}) => {
       </View>
 
       <HMSPrimaryButton
-        disabled={disableLaunchPoll}
+        disabled={disableLaunchPoll || launchingPoll}
         title="Launch Poll"
-        loading={false}
+        loading={launchingPoll}
         onPress={launchPoll}
         style={{ marginTop: 16, marginBottom: 56, alignSelf: 'flex-end' }}
       />

@@ -220,7 +220,9 @@ export type PollsActionType =
   | EditQuestionOptionAction
   | SetQuestionSkippable
   | SetQuestionResponseEditable
-  | SetQuestionSavedAction;
+  | SetQuestionSavedAction
+  | SetLaunchingPollAction
+  | ClearPollsStateAction;
 
 export type SetDeleteConfirmationVisible = {
   type: PollsStateActionTypes.SET_DELETE_CONFIRMATION_VISIBLE;
@@ -303,6 +305,15 @@ export type SetQuestionSavedAction = {
   saved: boolean;
 };
 
+export type SetLaunchingPollAction = {
+  type: PollsStateActionTypes.SET_LAUNCHING_POLL;
+  launching: boolean;
+};
+
+export type ClearPollsStateAction = {
+  type: PollsStateActionTypes.CLEAR_POLLS_STATE;
+};
+
 export enum PollsStateActionTypes {
   SET_DELETE_CONFIRMATION_VISIBLE = 'SET_DELETE_CONFIRMATION_VISIBLE',
   SET_POLL_NAME = 'SET_POLL_NAME',
@@ -319,4 +330,6 @@ export enum PollsStateActionTypes {
   SET_QUESTION_SKIPPABLE = 'SET_QUESTION_SKIPPABLE',
   SET_QUESTION_RES_EDITABLE = 'SET_QUESTION_RES_EDITABLE',
   SET_QUESTION_SAVED = 'SET_QUESTION_SAVED',
+  SET_LAUNCHING_POLL = 'SET_LAUNCHING_POLL',
+  CLEAR_POLLS_STATE = 'CLEAR_POLLS_STATE',
 }

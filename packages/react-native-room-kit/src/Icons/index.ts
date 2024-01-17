@@ -45,3 +45,4 @@ export * from './Poll';
 export * from './Quiz';
 export * from './TrashBin';
 export * from './Add';
+export * from './PollVote';
