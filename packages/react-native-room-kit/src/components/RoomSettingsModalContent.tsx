@@ -13,6 +13,7 @@ import {
   HandIcon,
   ParticipantsIcon,
   PencilIcon,
+  PollVoteIcon,
   RecordingIcon,
   ScreenShareIcon,
 } from '../Icons';
@@ -66,6 +67,11 @@ export const RoomSettingsModalContent: React.FC<
   const editUsernameDisabled = useSelector(
     (state: RootState) => state.app.editUsernameDisabled
   );
+
+  const canReadOrWritePoll = useSelector((state: RootState) => {
+    const permissions = state.hmsStates.localPeer?.role?.permissions;
+    return permissions?.pollRead || permissions?.pollWrite;
+  });
 
   const { registerOnModalHideAction } = useBottomSheetActions();
 
@@ -309,11 +315,11 @@ export const RoomSettingsModalContent: React.FC<
             },
             {
               id: 'polls-and-quizes',
-              icon: <PencilIcon style={{ width: 20, height: 20 }} />,
+              icon: <PollVoteIcon style={{ width: 20, height: 20 }} />,
               label: 'Polls and Quizzes',
               pressHandler: openPollsQuizzesModal,
               isActive: false,
-              hide: false,
+              hide: !canReadOrWritePoll,
             },
           ].filter((itm) => !itm.hide),
           true

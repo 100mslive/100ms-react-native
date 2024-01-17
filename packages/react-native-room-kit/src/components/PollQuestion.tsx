@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { HMSPollQuestionType } from '@100mslive/react-native-hms';
+import { useSelector } from 'react-redux';
 
 import { useHMSRoomStyleSheet } from '../hooks-util';
 import { BottomSheet } from './BottomSheet';
@@ -10,6 +11,7 @@ import { SwitchRow } from './SwitchRow';
 import { HMSBaseButton } from './HMSBaseButton';
 import { PressableIcon } from './PressableIcon';
 import type { PollQuestionUI } from '../redux/actionTypes';
+import type { RootState } from '../redux';
 
 export interface PollQuestionProps {
   totalQuestions: number;
@@ -64,6 +66,9 @@ export const PollQuestion: React.FC<PollQuestionProps> = ({
   onDelete,
 }) => {
   const [questionTypesVisible, setQuestionTypesVisible] = React.useState(false);
+  const launchingPoll = useSelector(
+    (state: RootState) => state.polls.launchingPoll
+  );
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     container: {
@@ -188,7 +193,8 @@ export const PollQuestion: React.FC<PollQuestionProps> = ({
 
         <View style={styles.saveContainer}>
           <PressableIcon
-            style={styles.deleteIcon}
+            disabled={launchingPoll}
+            style={[styles.deleteIcon, launchingPoll ? { opacity: 0.4 } : null]}
             onPress={() => onDelete(currentQuestionIndex)}
           >
             <TrashBinIcon />
@@ -196,7 +202,7 @@ export const PollQuestion: React.FC<PollQuestionProps> = ({
 
           <HMSBaseButton
             loading={false}
-            disabled={saveButtonDisabled}
+            disabled={saveButtonDisabled || launchingPoll}
             onPress={() => {
               setQuestionTypesVisible(false);
               onQuestionFieldChange(
@@ -208,13 +214,13 @@ export const PollQuestion: React.FC<PollQuestionProps> = ({
             title={pollQuestion.saved ? 'Edit' : 'Save'}
             underlayColor={hmsRoomStyles.saveButtonDisabled.backgroundColor}
             style={
-              saveButtonDisabled
+              saveButtonDisabled || launchingPoll
                 ? hmsRoomStyles.saveButtonDisabled
                 : hmsRoomStyles.saveButton
             }
             textStyle={[
               styles.normalText,
-              saveButtonDisabled
+              saveButtonDisabled || launchingPoll
                 ? hmsRoomStyles.saveTextDisabled
                 : hmsRoomStyles.saveText,
             ]}
