@@ -14,3 +14,10 @@ export enum HMSPollState {
    */
   stopped,
 }
+
+// Web Interface -
+// export enum HMSPollStates {
+//   CREATED = 'created',
+//   STARTED = 'started',
+//   STOPPED = 'stopped',
+// }

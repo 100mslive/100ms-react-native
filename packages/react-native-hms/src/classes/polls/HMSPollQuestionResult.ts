@@ -32,3 +32,10 @@ export interface HMSPollQuestionResult {
    */
   totalVotes: number;
 }
+
+// Web Interface -
+// export interface HMSPollQuestionResult {
+//   correctResponses?: number;
+//   skippedCount?: number;
+//   totalResponses?: number;
+// }

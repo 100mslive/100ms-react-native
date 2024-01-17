@@ -72,3 +72,21 @@ export interface HMSPollQuestion {
    */
   myResponses: HMSPollQuestionResponse[];
 }
+
+// Web Inteface -
+// export interface HMSPollQuestion {
+//   index: number;
+//   text: string;
+//   type: HMSPollQuestionType;
+//   skippable?: boolean;
+//   duration?: number;
+//   once?: boolean;
+//   weight?: number;
+//   negative?: boolean;
+//   answerMinLen?: number;
+//   answerMaxLen?: number;
+//   options?: HMSPollQuestionOption[];
+//   answer?: HMSPollQuestionAnswer;
+//   responses?: HMSPollQuestionResponse[];
+//   result?: HMSPollQuestionResult;
+// }

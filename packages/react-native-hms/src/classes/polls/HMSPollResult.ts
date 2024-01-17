@@ -24,3 +24,16 @@ export interface HMSPollResult {
    */
   questions: HMSPollQuestionResult[];
 }
+
+// Web Interface for this -
+// export interface HMSPollResult {
+//   /**
+//    * The number of unique users who responded to the poll
+//    */
+//   totalUsers?: number;
+//   /**
+//    * The maximum number of users in the room during the poll.
+//    */
+//   maxUsers?: number;
+//   totalResponses?: number;
+// }
