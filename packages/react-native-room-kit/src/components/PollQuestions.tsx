@@ -6,11 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import {
-  HMSPollBuilder,
-  HMSPollQuestionBuilder,
-  HMSPollQuestionType,
-} from '@100mslive/react-native-hms';
+import { HMSPollQuestionType, HMSPollType } from '@100mslive/react-native-hms';
 
 import { AddIcon } from '../Icons';
 import { useHMSInstance, useHMSRoomStyleSheet } from '../hooks-util';
@@ -72,42 +68,57 @@ export const PollQuestions: React.FC<CreatePollProps> = ({}) => {
         console.log('Incorrect data!');
         return;
       }
-      const pollBuilder = new HMSPollBuilder();
+      // const pollBuilder = new HMSPollBuilder();
 
-      pollBuilder.withTitle(pollsData.pollName);
+      // pollBuilder.withTitle(pollsData.pollName);
 
-      if (pollsData.pollConfig.voteCountHidden) {
-        if (localPeerRole) {
-          pollBuilder.withRolesThatCanViewResponses([localPeerRole]);
-        } else {
-          console.error('Local Peer role is undefined!');
-        }
-      }
+      // if (pollsData.pollConfig.voteCountHidden) {
+      //   if (localPeerRole) {
+      //     pollBuilder.withRolesThatCanViewResponses([localPeerRole]);
+      //   } else {
+      //     console.error('Local Peer role is undefined!');
+      //   }
+      // }
 
       // Make results anonymous set user tracking mode to none
-      if (pollsData.pollConfig.resultsAnonymous) {
-        // DOUBT: How to handle `pollBuilder.withUserTrackingMode()` ?
-      }
+      // if (pollsData.pollConfig.resultsAnonymous) {
+      //   pollBuilder.withUserTrackingMode(HMSPollUserTrackingMode)
+      //   // DOUBT: How to handle `pollBuilder.withUserTrackingMode()` ?
+      // }
 
-      pollsData.questions.forEach((question) => {
-        const pollQuestionBuilder = new HMSPollQuestionBuilder();
-        pollQuestionBuilder.withType(question.type);
-        pollQuestionBuilder.withTitle(question.title);
+      // pollsData.questions.forEach((question) => {
+      //   const pollQuestionBuilder = new HMSPollQuestionBuilder();
+      //   pollQuestionBuilder.withType(question.type);
+      //   pollQuestionBuilder.withTitle(question.title);
 
-        pollQuestionBuilder.withCanBeSkipped(question.skippable);
+      //   pollQuestionBuilder.withCanBeSkipped(question.skippable);
 
-        // DOUBT: How to handle `question.responseEditable` ?
+      //   // DOUBT: How to handle `question.responseEditable` ?
 
-        if (question.options) {
-          question.options.forEach((option) => {
-            pollQuestionBuilder.addOption(option);
-          });
-        }
-        pollBuilder.addQuestion(pollQuestionBuilder);
+      //   if (question.options) {
+      //     question.options.forEach((option) => {
+      //       pollQuestionBuilder.addOption(option);
+      //     });
+      //   }
+      //   pollBuilder.addQuestion(pollQuestionBuilder);
+      // });
+
+      const result = await hmsInstance.interactivityCenter.startPoll({
+        title: 'Custom Poll',
+        type: HMSPollType.poll,
+        questions: [
+          {
+            type: HMSPollQuestionType.multipleChoice,
+            skippable: true,
+            text: 'How will win?',
+            options: [
+              { text: 'India' },
+              { text: 'Australia' },
+              { text: 'China' },
+            ],
+          },
+        ],
       });
-
-      const result =
-        await hmsInstance.interactivityCenter.quickStartPoll(pollBuilder);
       console.log('quickStartPoll result > ', result);
     } catch (error) {
       console.log('quickStartPoll error > ', error);

@@ -1,13 +1,12 @@
 import HMSManager from '../modules/HMSManagerModule';
 import { HMSConstants } from './HMSConstants';
 import { logger } from './HMSLogger';
-
-import type { HMSPollBuilder } from './polls/HMSPollBuilder';
+import type { HMSPollCreateParams } from './polls/HMSPollCreateParams';
 
 export class HMSInteractivityCenter {
-  async quickStartPoll(pollBuilder: HMSPollBuilder) {
+  async startPoll(pollParams: HMSPollCreateParams) {
     const data = {
-      ...pollBuilder,
+      ...pollParams,
       id: HMSConstants.DEFAULT_SDK_ID,
     };
     logger?.verbose('#Function quickStartPoll', data);
